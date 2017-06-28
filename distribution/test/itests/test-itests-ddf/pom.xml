@@ -112,12 +112,6 @@
             <version>3.5</version>
         </dependency>
         <dependency>
-            <groupId>ddf.platform.migration</groupId>
-            <artifactId>platform-migration</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api</artifactId>
             <scope>test</scope>

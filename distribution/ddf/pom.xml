@@ -75,6 +75,15 @@
                                     mvn:ddf.security/security-services-app/${project.version}/xml/features
                                 </descriptor>
                                 <descriptor>
+                                    mvn:ddf.admin/admin-app/${project.version}/xml/features
+                                </descriptor>
+                                <descriptor>
+                                    mvn:ddf.distribution/install-profiles/${project.version}/xml/features
+                                </descriptor>
+                                <descriptor>
+                                    mvn:org.codice.ddf.broker/broker-app/${project.version}/xml/features
+                                </descriptor>
+                                <descriptor>
                                     mvn:ddf.catalog/catalog-app/${project.version}/xml/features
                                 </descriptor>
                                 <descriptor>
@@ -87,13 +96,7 @@
                                     mvn:org.codice.ddf.spatial/spatial-app/${project.version}/xml/features
                                 </descriptor>
                                 <descriptor>
-                                    mvn:org.codice.ddf.registry/registry-app/${project.version}/xml/features
-                                </descriptor>
-                                <descriptor>
                                     mvn:ddf.ui/search-ui-app/${project.version}/xml/features
-                                </descriptor>
-                                <descriptor>
-                                    mvn:ddf.admin/admin-app/${project.version}/xml/features
                                 </descriptor>
                                 <descriptor>
                                     mvn:org.codice.ddf.resourcemanagement/resourcemanagement-app/${project.version}/xml/features
@@ -102,13 +105,7 @@
                                     mvn:org.codice.ddf.spatial/geowebcache-app/${project.version}/xml/features
                                 </descriptor>
                                 <descriptor>
-                                    mvn:ddf.distribution/install-profiles/${project.version}/xml/features
-                                </descriptor>
-                                <descriptor>
-                                    mvn:org.apache.karaf.features/enterprise/${karaf.version}/xml/features
-                                </descriptor>
-                                <descriptor>
-                                    mvn:org.codice.ddf.broker/broker-app/${project.version}/xml/features
+                                    mvn:org.codice.ddf.registry/registry-app/${project.version}/xml/features
                                 </descriptor>
                             </descriptors>
                             <repository>${setup.folder}/${karaf.folder}/system</repository>
@@ -277,6 +274,27 @@
             <type>xml</type>
         </dependency>
         <dependency>
+            <groupId>ddf.admin</groupId>
+            <artifactId>admin-app</artifactId>
+            <version>${project.version}</version>
+            <classifier>features</classifier>
+            <type>xml</type>
+        </dependency>
+        <dependency>
+            <groupId>ddf.distribution</groupId>
+            <artifactId>install-profiles</artifactId>
+            <version>${project.version}</version>
+            <classifier>features</classifier>
+            <type>xml</type>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.broker</groupId>
+            <artifactId>broker-app</artifactId>
+            <version>${project.version}</version>
+            <classifier>features</classifier>
+            <type>xml</type>
+        </dependency>
+        <dependency>
             <groupId>ddf.catalog</groupId>
             <artifactId>catalog-app</artifactId>
             <version>${project.version}</version>
@@ -305,36 +323,8 @@
             <type>xml</type>
         </dependency>
         <dependency>
-            <groupId>org.codice.ddf.registry</groupId>
-            <artifactId>registry-app</artifactId>
-            <version>${project.version}</version>
-            <classifier>features</classifier>
-            <type>xml</type>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.ddf.spatial</groupId>
-            <artifactId>geowebcache-app</artifactId>
-            <version>${project.version}</version>
-            <classifier>features</classifier>
-            <type>xml</type>
-        </dependency>
-        <dependency>
             <groupId>ddf.ui</groupId>
             <artifactId>search-ui-app</artifactId>
-            <version>${project.version}</version>
-            <classifier>features</classifier>
-            <type>xml</type>
-        </dependency>
-        <dependency>
-            <groupId>ddf.admin</groupId>
-            <artifactId>admin-app</artifactId>
-            <version>${project.version}</version>
-            <classifier>features</classifier>
-            <type>xml</type>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.ddf.broker</groupId>
-            <artifactId>broker-app</artifactId>
             <version>${project.version}</version>
             <classifier>features</classifier>
             <type>xml</type>
@@ -347,15 +337,15 @@
             <type>xml</type>
         </dependency>
         <dependency>
-            <groupId>org.apache.karaf.features</groupId>
-            <artifactId>enterprise</artifactId>
-            <version>${karaf.version}</version>
+            <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>geowebcache-app</artifactId>
+            <version>${project.version}</version>
             <classifier>features</classifier>
             <type>xml</type>
         </dependency>
         <dependency>
-            <groupId>ddf.distribution</groupId>
-            <artifactId>install-profiles</artifactId>
+            <groupId>org.codice.ddf.registry</groupId>
+            <artifactId>registry-app</artifactId>
             <version>${project.version}</version>
             <classifier>features</classifier>
             <type>xml</type>

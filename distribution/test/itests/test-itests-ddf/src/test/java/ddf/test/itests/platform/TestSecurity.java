@@ -64,7 +64,6 @@ import javax.net.ssl.SSLHandshakeException;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.http.HttpStatus;
-import org.apache.http.NoHttpResponseException;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
@@ -491,25 +490,6 @@ public class TestSecurity extends AbstractIntegrationTest {
 
         configureRestForGuest(SDK_SOAP_CONTEXT);
         getSecurityPolicy().waitForGuestAuthReady(url);
-    }
-
-    @Test(expected = NoHttpResponseException.class)
-    public void testBasicAuthOverHttp() throws Exception {
-        String url = SERVICE_ROOT.getUrl() + "/catalog/query?q=*&src=local";
-
-        //try basic auth over http
-        try {
-            configureRestForBasic(SDK_SOAP_CONTEXT);
-            waitForSecurityHandlers(url);
-
-            given().auth()
-                    .basic("admin", "admin")
-                    .when()
-                    .get(url.replace("https://", "http://"));
-        } finally {
-            configureRestForGuest(SDK_SOAP_CONTEXT);
-            getSecurityPolicy().waitForGuestAuthReady(url);
-        }
     }
 
     @Test

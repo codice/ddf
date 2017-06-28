@@ -26,7 +26,7 @@ The ${ddf-platform} application is installed by default with a standard installa
 |ID
 |Description
 
-include::{adoc-include}/_tables/conf-org.codice.ddf.distribution.landing-page.properties-table-contents.adoc[]
+include::{adoc-include}/_tables/conf-org.codice.ddf.distribution.landingpage.properties-table-contents.adoc[]
 
 include::{adoc-include}/_tables/conf-org.codice.ddf.platform.logging.LoggingService-table-contents.adoc[]
 

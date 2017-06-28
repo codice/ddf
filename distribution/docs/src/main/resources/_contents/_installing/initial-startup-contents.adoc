@@ -91,12 +91,6 @@ During ${branding} installation, the major directories and files shown in the ta
 |`etc`
 |Directory monitored for addition/modification/deletion of `.config` configuration files or third party `.cfg` configuration files.
 
-|`etc/failed`
-|If there is a problem with any of the `.config` files, such as bad syntax or missing tokens, they will be moved here.
-
-|`etc/processed`
-|All successfully processed `.config` files will be moved here.
-
 |`etc/templates`
 |Template `.config` files for use in configuring ${branding} sources, settings, etc., by copying to the etc directory.
 

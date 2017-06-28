@@ -1320,6 +1320,8 @@ public class TestFederation extends AbstractIntegrationTest {
      * @throws Exception
      */
     @Test
+    //TODO DDF-3077 Fix unstable cometd itests in TestFederation
+    @ConditionalIgnore(condition = SkipUnstableTest.class)
     public void testRetrievalReliablility() throws Exception {
         getSecurityPolicy().configureWebContextPolicy(null,
                 "/=SAML|basic,/solr=SAML|PKI|basic",
@@ -1501,6 +1503,8 @@ public class TestFederation extends AbstractIntegrationTest {
      * @throws Exception
      */
     @Test
+    //TODO DDF-3077 Fix unstable cometd itests in TestFederation
+    @ConditionalIgnore(condition = SkipUnstableTest.class)
     public void testRetrievalReliabilityFails() throws Exception {
         cometDClient = setupCometDClient(Arrays.asList(NOTIFICATIONS_CHANNEL, ACTIVITIES_CHANNEL));
 
@@ -1874,6 +1878,8 @@ public class TestFederation extends AbstractIntegrationTest {
     }
 
     @Test
+    //TODO DDF-3077 Fix unstable cometd itests in TestFederation
+    @ConditionalIgnore(condition = SkipUnstableTest.class)
     public void testCancelDownload() throws Exception {
         getCatalogBundle().setupCaching(true);
         getSecurityPolicy().configureWebContextPolicy(null,
@@ -2311,6 +2317,8 @@ public class TestFederation extends AbstractIntegrationTest {
     }
 
     @Test
+    //TODO DDF-3077 Fix unstable cometd itests in TestFederation
+    @ConditionalIgnore(condition = SkipUnstableTest.class)
     public void testTwoUsersSameProductRetrySuccess() throws Exception {
 
         String filename = "product2.txt";
@@ -2348,6 +2356,8 @@ public class TestFederation extends AbstractIntegrationTest {
     }
 
     @Test
+    //TODO DDF-3077 Fix unstable cometd itests in TestFederation
+    @ConditionalIgnore(condition = SkipUnstableTest.class)
     public void testTwoUsersSameProductRetryFailure() throws Exception {
 
         String filename = "product2.txt";

@@ -118,8 +118,6 @@ public interface ServiceManager {
     void waitForSourcesToBeAvailable(String restPath, String... sources)
             throws InterruptedException;
 
-    void waitForAllConfigurations() throws InterruptedException;
-
     Map<String, Object> getMetatypeDefaults(String symbolicName, String factoryPid);
 
     void printInactiveBundles();

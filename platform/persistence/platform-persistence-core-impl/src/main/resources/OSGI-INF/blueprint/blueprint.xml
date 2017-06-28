@@ -15,8 +15,6 @@
 
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
-
     <bean id="solrFactory" class="org.codice.solr.factory.impl.SolrClientFactoryImpl" />
 
     <bean id="persistentStore" class="org.codice.ddf.persistence.internal.PersistentStoreImpl">

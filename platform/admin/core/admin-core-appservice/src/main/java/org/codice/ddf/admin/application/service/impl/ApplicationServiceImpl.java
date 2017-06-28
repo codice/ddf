@@ -18,6 +18,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -629,65 +630,86 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
         return bundleStateSet;
     }
 
-    /**
-     * Given a {@code Set} of {@code Feature}s, returns the subset of
-     * {@code Features}s that are not installed
-     *
-     * @param features The {@code Set} of {@link Feature}s from which to construct
-     *                 the subset of {@code Feature}s that are not installed
-     * @return A {@code Set} of {@code Feature}s that are not installed that is
-     * a sub-set of the <i>features</i> {@code Feature}s {@code Set}
-     * parameter
-     */
-    private Set<Feature> getNotInstalledFeatures(Set<Feature> features) {
-        Set<Feature> notInstalledFeatures = new HashSet<Feature>();
-        for (Feature curFeature : features) {
-            if (!featuresService.isInstalled(curFeature)) {
-                LOGGER.debug("{} is not installed.", curFeature.getName());
-                notInstalledFeatures.add(curFeature);
-            }
-        }
-        return notInstalledFeatures;
-    }
-
     @Override
     public synchronized void startApplication(Application application)
             throws ApplicationServiceException {
+        final String applicationName = application.getName();
+
         try {
-            LOGGER.debug("Starting Application {} - {}", application.getName(),
-                    application.getVersion());
-            Set<Feature> autoInstallFeatures = application.getAutoInstallFeatures();
-            if (!autoInstallFeatures.isEmpty()) {
-                Set<String> autoFeatureNames = autoInstallFeatures.stream()
-                        .map(Feature::getName)
-                        .collect(Collectors.toSet());
-                for (Feature feature : autoInstallFeatures) {
-                    if (featuresService.isInstalled(feature)) {
-                        autoFeatureNames.remove(feature.getName());
-                    } else {
-                        for (Dependency dependency : feature.getDependencies()) {
-                            if (!application.getName()
-                                    .equals(dependency.getName()) && getApplicationNames().contains(
-                                    dependency.getName())) {
-                                if (!isApplicationStarted(getApplication(dependency.getName()))) {
-                                    startApplication(dependency.getName());
-                                }
-                                autoFeatureNames.remove(dependency.getName());
-                            }
-                        }
-                    }
-                }
-                if (!autoFeatureNames.isEmpty()) {
-                    featuresService.installFeatures(autoFeatureNames,
-                            EnumSet.of(Option.NoAutoRefreshBundles));
-                    waitForApplication(application);
-                }
+            LOGGER.debug("Starting Application {} - {}", applicationName, application.getVersion());
+
+            final Feature mainFeature = application.getMainFeature();
+            if (mainFeature != null) {
+                LOGGER.trace(
+                        "Starting the main feature {} before the rest of the auto-install features in application {}",
+                        mainFeature.getName(),
+                        applicationName);
+                startFeaturesAndDependentAppsAndWait(Collections.singleton(mainFeature),
+                        applicationName);
+            } else {
+                LOGGER.debug(
+                        "Unable to determine main feature for application {}. Continuing to install auto-install features in the app anyway.",
+                        applicationName);
             }
 
+            final Set<Feature> autoInstallFeatures = application.getAutoInstallFeatures();
+            if (!autoInstallFeatures.isEmpty()) {
+                final String autoInstallFeaturesString = StringUtils.join(autoInstallFeatures,
+                        ", ");
+                LOGGER.trace("Starting the auto-install features in application {}",
+                        autoInstallFeaturesString,
+                        applicationName);
+                startFeaturesAndDependentAppsAndWait(autoInstallFeatures, applicationName);
+            } else {
+                LOGGER.trace("There are no auto-install features for application {}",
+                        applicationName);
+            }
         } catch (Exception e) {
             throw new ApplicationServiceException(
-                    "Could not start application " + application.getName() + " due to errors.", e);
+                    "Could not start application " + applicationName + " due to errors.", e);
         }
+    }
+
+    /**
+     * TODO DDF-3076 Re-evaluate the implementation of the ApplicationService
+     * <p>
+     * The current implementations of features repositories, the ApplicationService, and the install
+     * profiles rely on the concept of {@link Application}s. If the {@param feature} has a
+     * dependency on a {@link Feature} that has the same name as an {@link Application}, this
+     * {@link Application} will be started as part of starting the {@link Feature}.
+     *
+     * @param featuresToStart          non-empty set of features to start
+     * @param applicationNameOfFeature the {@link Application}s with this non-null name will be
+     *                                 ignored when discovering {@link Application}s to start
+     * @throws Exception
+     */
+    private void startFeaturesAndDependentAppsAndWait(Set<Feature> featuresToStart,
+            String applicationNameOfFeature) throws Exception {
+        final String featuresNamesString = StringUtils.join(featuresToStart, ", ");
+        LOGGER.debug("Installing features {} and their dependent applications",
+                featuresNamesString);
+
+        final Set<String> featureNames = new HashSet<>();
+        for (Feature feature : featuresToStart) {
+            featureNames.add(feature.getName());
+
+            LOGGER.trace("Finding and starting the applications that are a dependency of {} feature",
+                    feature.getName());
+            for (Dependency dependency : feature.getDependencies()) {
+                final String dependencyName = dependency.getName();
+                if (!applicationNameOfFeature.equals(dependencyName)
+                        && getApplicationNames().contains(dependencyName) && !isApplicationStarted(
+                        getApplication(dependencyName))) {
+                    LOGGER.trace("Application {} is a dependency of feature {}",
+                            dependencyName,
+                            feature);
+                    startApplication(dependencyName);
+                }
+            }
+        }
+
+        featuresService.installFeatures(featureNames, EnumSet.of(Option.NoAutoRefreshBundles));
+        waitForFeatures(featuresToStart);
     }
 
     @Override
@@ -715,7 +737,7 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
                             EnumSet.of(Option.NoAutoRefreshBundles));
                 }
             }
-            waitForApplication(application);
+            waitForFeatures(application.getFeatures());
         } catch (Exception e) {
             throw new ApplicationServiceException(e);
         }
@@ -734,13 +756,14 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
                 "Could not find application named " + application + ". Stop application failed.");
     }
 
-    private void waitForApplication(Application application)
-            throws ApplicationServiceException, InterruptedException {
+    private void waitForFeatures(Set<Feature> features) throws InterruptedException {
+        final String featuresNamesString = StringUtils.join(features, ", ");
+        LOGGER.trace("Waiting for features {}", featuresNamesString);
         long timeoutLimit = System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(
                 BUNDLE_WAIT_TIMEOUT);
         boolean starting = true;
         while (starting) {
-            BundleStateSet bundleStates = getCurrentBundleStates(application.getFeatures());
+            BundleStateSet bundleStates = getCurrentBundleStates(features);
             if (!bundleStates.getTransitionalBundles()
                     .isEmpty()) {
                 if (System.currentTimeMillis() > timeoutLimit) {
@@ -749,7 +772,7 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
                 LOGGER.trace("Waiting for the following bundles to become ACTIVE: {}",
                         bundleStates.getTransitionalBundles()
                                 .stream()
-                                .map(i -> i.toString())
+                                .map(Object::toString)
                                 .collect(Collectors.joining(", ")));
                 this.wait(TimeUnit.SECONDS.toMillis(1));
             } else {

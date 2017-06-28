@@ -20,8 +20,6 @@
         <ext:default-properties>
             <ext:property name="configFileExtension" value=".config"/>
             <ext:property name="configFileDirectory" value="${ddf.home}/etc"/>
-            <ext:property name="processedDirectory" value="${ddf.home}/etc/processed"/>
-            <ext:property name="failedDirectory" value="${ddf.home}/etc/failed"/>
         </ext:default-properties>
     </ext:property-placeholder>
 
@@ -47,28 +45,10 @@
         <argument value="etc"/>
     </bean>
 
-    <!-- Processed Directory Path ${ddf.home}/etc/processed -->
-    <bean id="processedDirectoryPath" class="java.nio.file.Path" factory-ref="ddfHome"
-          factory-method="resolve">
-        <argument value="${ddf.home}/etc/processed"/>
-    </bean>
-
-    <!-- Failed Directory Path ${ddf.home}/etc/failed -->
-    <bean id="failedDirectoryPath" class="java.nio.file.Path" factory-ref="ddfHome"
-          factory-method="resolve">
-        <argument value="${ddf.home}/etc/failed"/>
-    </bean>
-
     <bean id="configurationFileFactory"
           class="org.codice.ddf.configuration.admin.ConfigurationFileFactory">
         <argument ref="persistenceStrategy"/>
         <argument ref="configurationAdmin"/>
-    </bean>
-
-    <bean id="configurationFilesPoller"
-          class="org.codice.ddf.configuration.admin.ConfigurationFilesPoller">
-        <argument ref="configDirectoryPath"/>
-        <argument value="${configFileExtension}"/>
     </bean>
 
     <bean id="configDirectoryStream" class="java.nio.file.Files"
@@ -78,13 +58,9 @@
     </bean>
 
     <bean id="configurationAdminMigration"
-          class="org.codice.ddf.configuration.admin.ConfigurationAdminMigration"
-          init-method="init">
+          class="org.codice.ddf.configuration.admin.ConfigurationAdminMigration">
         <argument ref="configDirectoryStream"/>
-        <argument ref="processedDirectoryPath"/>
-        <argument ref="failedDirectoryPath"/>
         <argument ref="configurationFileFactory"/>
-        <argument ref="configurationFilesPoller"/>
         <argument ref="configurationAdmin"/>
         <argument value="${configFileExtension}"/>
     </bean>
@@ -122,9 +98,6 @@
         <argument ref="sortedConfigurationMigratables"/>
         <argument ref="sortedDataMigratables"/>
     </bean>
-
-    <service id="configurationFileDirectoryService" ref="configurationAdminMigration"
-             auto-export="interfaces"/>
 
     <service id="configurationMigrationManager" ref="configMigrationManager"
              auto-export="interfaces"/>

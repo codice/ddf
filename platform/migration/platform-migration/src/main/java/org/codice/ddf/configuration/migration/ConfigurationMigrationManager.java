@@ -148,7 +148,7 @@ public class ConfigurationMigrationManager
     }
 
     private Collection<MigrationWarning> exportMigratable(Migratable migratable,
-            Path exportDirectory) throws IOException {
+            Path exportDirectory) {
         Stopwatch stopwatch = null;
 
         if (LOGGER.isDebugEnabled()) {

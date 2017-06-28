@@ -24,7 +24,6 @@ import static org.mockito.Matchers.anySet;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
@@ -35,6 +34,7 @@ import static org.mockito.Mockito.when;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -91,13 +91,6 @@ public class ApplicationServiceImplTest {
 
     private static final String TEST_APP2 = "test-app2";
 
-    private static final String TEST_APP_VERSION = "1.0.0";
-
-    // Must be a bundle that is defined in only one feature of the features file
-    // under test.
-    private static final String TEST_MAIN_FEATURES_1_FEATURE_1_UNIQUE_BUNDLE_LOCATION =
-            "mvn:org.codice.test/codice.test.bundle2/2.0.0";
-
     private static final String TEST_MAIN_FEATURES_2_UNIQUE_BUNDLE_LOCATION =
             "mvn:org.codice.test/codice.test.bundle1/1.0.0";
 
@@ -128,8 +121,6 @@ public class ApplicationServiceImplTest {
 
     private static final String NO_REPO_FEATURES = "Could not get Repository Features";
 
-    private static final String NO_APP_FEATURES = "Could not obtain Application Features.";
-
     private static final String MAP_FAIL_STRING = "Could not map Features to their Repositories.";
 
     private static final String FEATURE_FAIL_STRING = "Could not obtain all features.";
@@ -137,8 +128,6 @@ public class ApplicationServiceImplTest {
     private static final String UNINSTALL_FAIL = "Could not uninstall feature";
 
     private static final String UNINSTALL_ASE = "Error obtaining feature list from application";
-
-    private static final String STOP_APP_ERROR = "Error while trying to uninstall";
 
     private static final String FIND_FEAT_EX = "Skipping and checking other applications.";
 
@@ -206,7 +195,7 @@ public class ApplicationServiceImplTest {
 
         when(bundleContext.getServiceReference(FeaturesService.class)).thenReturn(mockFeatureRef);
 
-        bundleStateServices = new ArrayList<BundleStateService>();
+        bundleStateServices = new ArrayList<>();
 
         // Create a BundleStateService for Blueprint
         BundleStateService mockBundleStateService = mock(BundleStateService.class);
@@ -222,7 +211,7 @@ public class ApplicationServiceImplTest {
      */
     @Test
     public void testGetApplications() throws Exception {
-        Set<Repository> activeRepos = new HashSet<Repository>(Arrays.asList(noMainFeatureRepo1,
+        Set<Repository> activeRepos = new HashSet<>(Arrays.asList(noMainFeatureRepo1,
                 noMainFeatureRepo2));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
@@ -315,7 +304,7 @@ public class ApplicationServiceImplTest {
     public void testGetApplicationStatusReturnsInactiveWhenMainFeatureNotInstalledAndAllBundlesActive()
             throws Exception {
 
-        Set<String> notInstalledFeatures = new HashSet<String>();
+        Set<String> notInstalledFeatures = new HashSet<>();
         notInstalledFeatures.add(TEST_MAIN_FEATURES_1_MAIN_FEATURE_NAME);
 
         FeaturesService featuresService = createMockFeaturesService(mainFeatureRepo,
@@ -364,7 +353,7 @@ public class ApplicationServiceImplTest {
     public void testGetApplicationStatusReturnsActiveStatusForNotInstalledFeatureDependencyThatContainsActiveBundle()
             throws Exception {
 
-        Set<String> notInstalledFeatureNames = new HashSet<String>();
+        Set<String> notInstalledFeatureNames = new HashSet<>();
         notInstalledFeatureNames.add(TEST_MAIN_FEATURES_1_FEATURE_1_NAME);
 
         FeaturesService featuresService = createMockFeaturesService(mainFeatureRepo,
@@ -527,7 +516,7 @@ public class ApplicationServiceImplTest {
      * @throws Exception
      */
     @Test
-    public void testGetApplicationStatusReturnsUnkownWhenBundleStateServiceStateIsStarting()
+    public void testGetApplicationStatusReturnsUnknownWhenBundleStateServiceStateIsStarting()
             throws Exception {
         ApplicationService appService = getAppServiceWithBundleStateServiceInGivenState(
                 mainFeatureRepo2,
@@ -605,7 +594,7 @@ public class ApplicationServiceImplTest {
                 bundleInclusionCount);
 
         // Execute test
-        Set<String> inactiveBundleNames = new HashSet<String>();
+        Set<String> inactiveBundleNames = new HashSet<>();
         inactiveBundleNames.add(TEST_MAIN_FEATURES_2_UNIQUE_BUNDLE_LOCATION);
 
         FeaturesService featuresService = createMockFeaturesService(mainFeatureRepo2,
@@ -648,9 +637,9 @@ public class ApplicationServiceImplTest {
     public void testGetApplicationStatusReturnsFailedStatusWhenOneFeatureConsistingOfInactiveBundlesIsNotInstalled()
             throws Exception {
 
-        Set<Repository> mainFeaturesRepoSet = new HashSet<Repository>();
-        Set<Feature> notInstalledFeatures = new HashSet<Feature>();
-        Set<BundleInfo> inactiveBundles = new HashSet<BundleInfo>();
+        Set<Repository> mainFeaturesRepoSet = new HashSet<>();
+        Set<Feature> notInstalledFeatures = new HashSet<>();
+        Set<BundleInfo> inactiveBundles = new HashSet<>();
 
         for (Feature feature : mainFeatureRepo2.getFeatures()) {
             if (feature.getName()
@@ -720,7 +709,7 @@ public class ApplicationServiceImplTest {
      * @throws Exception
      */
     @Test
-    public void testGetApplicationStatusReturnsInactiveWhenBundleStateIsUninnstalled()
+    public void testGetApplicationStatusReturnsInactiveWhenBundleStateIsUninstalled()
             throws Exception {
         ApplicationService appService = getAppServiceWithBundleInGivenState(mainFeatureRepo2,
                 Bundle.UNINSTALLED);
@@ -893,7 +882,7 @@ public class ApplicationServiceImplTest {
     @Test
     public void testIsApplicationStartedReturnsFalseForInactiveApplicationState() throws Exception {
 
-        Set<String> notInstalledFeatures = new HashSet<String>();
+        Set<String> notInstalledFeatures = new HashSet<>();
         notInstalledFeatures.add(TEST_MAIN_FEATURES_1_MAIN_FEATURE_NAME);
 
         FeaturesService featuresService = createMockFeaturesService(mainFeatureRepo,
@@ -919,7 +908,7 @@ public class ApplicationServiceImplTest {
     @Test
     public void testIsApplicationStartedReturnsFalseForFailedApplicationState() throws Exception {
 
-        Set<String> inactiveBundles = new HashSet<String>();
+        Set<String> inactiveBundles = new HashSet<>();
         inactiveBundles.add(TEST_MAIN_FEATURES_2_UNIQUE_BUNDLE_LOCATION);
 
         FeaturesService featuresService = createMockFeaturesService(mainFeatureRepo2,
@@ -940,7 +929,7 @@ public class ApplicationServiceImplTest {
      */
     @Test
     public void testGetActiveApplicationStatus() throws Exception {
-        Set<Repository> activeRepos = new HashSet<Repository>(Arrays.asList(noMainFeatureRepo1));
+        Set<Repository> activeRepos = Collections.singleton(noMainFeatureRepo1);
 
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
@@ -963,8 +952,8 @@ public class ApplicationServiceImplTest {
 
     @Test
     public void testGetApplicationStatusCoreFeature() throws Exception {
-        Set<Repository> activeRepos = new HashSet<Repository>(Arrays.asList(createRepo(
-                TEST_PREREQ_MAIN_FEATURE_FILE_NAME)));
+        Set<Repository> activeRepos = Collections.singleton(createRepo(
+                TEST_PREREQ_MAIN_FEATURE_FILE_NAME));
 
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
@@ -994,7 +983,7 @@ public class ApplicationServiceImplTest {
      */
     @Test
     public void testIgnoreApplications() throws Exception {
-        Set<Repository> activeRepos = new HashSet<Repository>(Arrays.asList(noMainFeatureRepo1,
+        Set<Repository> activeRepos = new HashSet<>(Arrays.asList(noMainFeatureRepo1,
                 noMainFeatureRepo2));
 
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
@@ -1038,7 +1027,7 @@ public class ApplicationServiceImplTest {
      */
     @Test
     public void testApplicationTree() throws Exception {
-        Set<Repository> activeRepos = new HashSet<Repository>(Arrays.asList(mainFeatureRepo,
+        Set<Repository> activeRepos = new HashSet<>(Arrays.asList(mainFeatureRepo,
                 mainFeatureRepo2));
 
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
@@ -1057,7 +1046,7 @@ public class ApplicationServiceImplTest {
                 mainAppNode.getChildren()
                         .size());
         assertNull(mainAppNode.getParent());
-        assertEquals("main-feature2",
+        assertEquals(TEST_MAIN_FEATURES_2_MAIN_FEATURE_NAME,
                 mainAppNode.getChildren()
                         .iterator()
                         .next()
@@ -1070,7 +1059,7 @@ public class ApplicationServiceImplTest {
                         .getParent());
 
         Application mainApp = mainAppNode.getApplication();
-        assertEquals("main-feature", mainApp.getName());
+        assertEquals(TEST_MAIN_FEATURES_1_MAIN_FEATURE_NAME, mainApp.getName());
     }
 
     /**
@@ -1083,7 +1072,7 @@ public class ApplicationServiceImplTest {
     public void testApplicationTreeWithNoMainFeature() throws Exception {
         Repository mainFeaturesRepo2 = createRepo(TEST_MAIN_FEATURE_2_FILE_NAME);
 
-        Set<Repository> activeRepos = new HashSet<Repository>(Arrays.asList(mainFeatureRepo,
+        Set<Repository> activeRepos = new HashSet<>(Arrays.asList(mainFeatureRepo,
                 mainFeaturesRepo2,
                 noMainFeatureRepo1));
 
@@ -1107,7 +1096,7 @@ public class ApplicationServiceImplTest {
     public void testInstallProfileFeatures() throws Exception {
         Repository mainFeaturesRepo2 = createRepo(TEST_INSTALL_PROFILE_FILE_NAME);
 
-        Set<Repository> activeRepos = new HashSet<Repository>(Arrays.asList(mainFeatureRepo,
+        Set<Repository> activeRepos = new HashSet<>(Arrays.asList(mainFeatureRepo,
                 mainFeaturesRepo2,
                 noMainFeatureRepo1));
 
@@ -1129,14 +1118,14 @@ public class ApplicationServiceImplTest {
         assertEquals("Desc1", profile1.getDescription());
         List<String> featureNames = getFeatureNames(profile1.getDependencies());
         assertEquals(1, featureNames.size());
-        assertTrue(featureNames.contains("main-feature"));
+        assertTrue(featureNames.contains(TEST_MAIN_FEATURES_1_MAIN_FEATURE_NAME));
 
         assertEquals("profile-a-test2", profile2.getName());
         assertEquals("Desc2", profile2.getDescription());
         featureNames = getFeatureNames(profile2.getDependencies());
         assertEquals(2, featureNames.size());
-        assertTrue(featureNames.contains("main-feature"));
-        assertTrue(featureNames.contains("main-feature2"));
+        assertTrue(featureNames.contains(TEST_MAIN_FEATURES_1_MAIN_FEATURE_NAME));
+        assertTrue(featureNames.contains(TEST_MAIN_FEATURES_2_MAIN_FEATURE_NAME));
     }
 
     /**
@@ -1147,7 +1136,7 @@ public class ApplicationServiceImplTest {
      */
     @Test
     public void testStartApplicationMainFeature() throws Exception {
-        Set<Repository> activeRepos = new HashSet<Repository>(Arrays.asList(mainFeatureRepo,
+        Set<Repository> activeRepos = new HashSet<>(Arrays.asList(mainFeatureRepo,
                 noMainFeatureRepo1,
                 noMainFeatureRepo2));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
@@ -1162,15 +1151,58 @@ public class ApplicationServiceImplTest {
         Application testApp = mock(ApplicationImpl.class);
         Feature testFeature = mock(Feature.class);
         when(testFeature.getName()).thenReturn(TEST_FEATURE_1_NAME);
-        Set<Feature> features = new HashSet<>(Arrays.asList(testFeature));
+        Set<Feature> features = Collections.singleton(testFeature);
         Set<String> featureNames = new HashSet<>(features.size());
         features.forEach(f -> featureNames.add(f.getName()));
         when(testApp.getAutoInstallFeatures()).thenReturn(features);
 
         appService.startApplication(testApp);
 
-        verify(featuresService, atLeastOnce()).installFeatures(featureNames,
+        verify(featuresService).installFeatures(featureNames,
                 EnumSet.of(Option.NoAutoRefreshBundles));
+    }
+
+    /**
+     * Tests the {@link ApplicationServiceImpl#startApplication(String)} method starts the main
+     * feature first before other auto-install features
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testStartApplicationStartMainFeatureFirst() throws Exception {
+        Set<Repository> activeRepos = new HashSet<>(Arrays.asList(mainFeatureRepo,
+                noMainFeatureRepo1,
+                noMainFeatureRepo2));
+        FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
+        when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
+        ApplicationService appService = new ApplicationServiceImpl(bundleStateServices) {
+            @Override
+            protected BundleContext getContext() {
+                return bundleContext;
+            }
+        };
+
+        Application testApp = mock(ApplicationImpl.class);
+
+        Feature mainFeature = mock(Feature.class);
+        String mainFeatureName = "mainFeatureName";
+        when(mainFeature.getName()).thenReturn(mainFeatureName);
+        Feature autoInstallFeature1 = mock(Feature.class);
+        String autoInstallFeature1Name = "autoInstallFeature1Name";
+        when(autoInstallFeature1.getName()).thenReturn(autoInstallFeature1Name);
+        Feature autoInstallFeature2 = mock(Feature.class);
+        String autoInstallFeature2Name = "autoInstallFeature2Name";
+        when(autoInstallFeature2.getName()).thenReturn(autoInstallFeature2Name);
+        Set<Feature> autoInstallFeatures = new HashSet<>(Arrays.asList(autoInstallFeature1, autoInstallFeature2));
+
+        when(testApp.getMainFeature()).thenReturn(mainFeature);
+        when(testApp.getAutoInstallFeatures()).thenReturn(autoInstallFeatures);
+
+        appService.startApplication(testApp);
+
+        verify(featuresService).installFeatures(Collections.singleton(mainFeatureName),
+                EnumSet.of(Option.NoAutoRefreshBundles));
+        verify(featuresService).installFeatures(new HashSet<>(Arrays.asList(autoInstallFeature1Name, autoInstallFeature2Name)), EnumSet.of(Option.NoAutoRefreshBundles));
     }
 
     /**
@@ -1181,7 +1213,7 @@ public class ApplicationServiceImplTest {
      */
     @Test(expected = ApplicationServiceException.class)
     public void testStartApplicationASE() throws Exception {
-        Set<Repository> activeRepos = new HashSet<Repository>(Arrays.asList(mainFeatureRepo,
+        Set<Repository> activeRepos = new HashSet<>(Arrays.asList(mainFeatureRepo,
                 noMainFeatureRepo1,
                 noMainFeatureRepo2));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
@@ -1196,13 +1228,12 @@ public class ApplicationServiceImplTest {
         Application testApp = mock(ApplicationImpl.class);
         Feature testFeature = mock(Feature.class);
         when(testFeature.getName()).thenReturn(TEST_FEATURE_1_NAME);
-        when(testApp.getAutoInstallFeatures()).thenReturn(new HashSet<>(Arrays.asList(testFeature)));
+        when(testApp.getAutoInstallFeatures()).thenReturn(Collections.singleton(testFeature));
 
         doThrow(new ApplicationServiceException()).when(featuresService)
                 .installFeatures(anySet(), any(EnumSet.class));
 
         appService.startApplication(testApp);
-
     }
 
     /**
@@ -1213,7 +1244,7 @@ public class ApplicationServiceImplTest {
      */
     @Test
     public void testStartApplicationNoMainFeature() throws Exception {
-        Set<Repository> activeRepos = new HashSet<Repository>(Arrays.asList(mainFeatureRepo,
+        Set<Repository> activeRepos = new HashSet<>(Arrays.asList(mainFeatureRepo,
                 noMainFeatureRepo1,
                 noMainFeatureRepo2));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
@@ -1228,7 +1259,7 @@ public class ApplicationServiceImplTest {
         Application testApp = mock(ApplicationImpl.class);
         Feature testFeature1 = mock(Feature.class);
         Feature testFeature2 = mock(Feature.class);
-        Set<Feature> featureSet = new HashSet<Feature>();
+        Set<Feature> featureSet = new HashSet<>();
         featureSet.add(testFeature1);
         featureSet.add(testFeature2);
 
@@ -1253,7 +1284,7 @@ public class ApplicationServiceImplTest {
      */
     @Test
     public void testStartApplicationStringParam() throws Exception {
-        Set<Repository> activeRepos = new HashSet<Repository>(Arrays.asList(mainFeatureRepo,
+        Set<Repository> activeRepos = new HashSet<>(Arrays.asList(mainFeatureRepo,
                 noMainFeatureRepo1,
                 noMainFeatureRepo2));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
@@ -1277,7 +1308,7 @@ public class ApplicationServiceImplTest {
      */
     @Test(expected = ApplicationServiceException.class)
     public void testStartApplicationStringParamASE() throws Exception {
-        Set<Repository> activeRepos = new HashSet<Repository>(Arrays.asList(mainFeatureRepo,
+        Set<Repository> activeRepos = new HashSet<>(Arrays.asList(mainFeatureRepo,
                 noMainFeatureRepo1,
                 noMainFeatureRepo2));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
@@ -1295,7 +1326,7 @@ public class ApplicationServiceImplTest {
      */
     @Test
     public void testStopApplicationMainFeature() throws Exception {
-        Set<Repository> activeRepos = new HashSet<Repository>(Arrays.asList(mainFeatureRepo,
+        Set<Repository> activeRepos = new HashSet<>(Arrays.asList(mainFeatureRepo,
                 noMainFeatureRepo1,
                 noMainFeatureRepo2));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
@@ -1325,7 +1356,7 @@ public class ApplicationServiceImplTest {
 
         appService.stopApplication(testApp1);
 
-        verify(featuresService, atLeastOnce()).uninstallFeature(TEST_FEATURE_1_NAME,
+        verify(featuresService).uninstallFeature(TEST_FEATURE_1_NAME,
                 TEST_FEATURE_VERSION,
                 EnumSet.of(Option.NoAutoRefreshBundles));
     }
@@ -1336,7 +1367,7 @@ public class ApplicationServiceImplTest {
      */
     @Test(expected = ApplicationServiceException.class)
     public void testStopApplicationStringParamASE() throws Exception {
-        Set<Repository> activeRepos = new HashSet<Repository>(Arrays.asList(mainFeatureRepo,
+        Set<Repository> activeRepos = new HashSet<>(Arrays.asList(mainFeatureRepo,
                 noMainFeatureRepo1,
                 noMainFeatureRepo2));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
@@ -1354,7 +1385,7 @@ public class ApplicationServiceImplTest {
      */
     @Test(expected = ApplicationServiceException.class)
     public void testStopApplicationGeneralASE() throws Exception {
-        Set<Repository> activeRepos = new HashSet<Repository>(Arrays.asList(mainFeatureRepo,
+        Set<Repository> activeRepos = new HashSet<>(Arrays.asList(mainFeatureRepo,
                 noMainFeatureRepo1,
                 noMainFeatureRepo2));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
@@ -1368,7 +1399,7 @@ public class ApplicationServiceImplTest {
 
         Application testApp1 = mock(ApplicationImpl.class);
         Feature testFeature1 = mock(Feature.class);
-        when(testApp1.getFeatures()).thenReturn(new HashSet<>(Arrays.asList(testFeature1)));
+        when(testApp1.getFeatures()).thenReturn(Collections.singleton(testFeature1));
         when(featuresService.isInstalled(any())).thenReturn(true);
 
         doThrow(new Exception()).when(featuresService)
@@ -1385,7 +1416,7 @@ public class ApplicationServiceImplTest {
      */
     @Test
     public void testStopApplicationMainFeatureStringParam() throws Exception {
-        Set<Repository> activeRepos = new HashSet<Repository>(Arrays.asList(mainFeatureRepo,
+        Set<Repository> activeRepos = new HashSet<>(Arrays.asList(mainFeatureRepo,
                 noMainFeatureRepo1,
                 noMainFeatureRepo2));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
@@ -1409,7 +1440,7 @@ public class ApplicationServiceImplTest {
      */
     @Test
     public void testStopApplicationNoMainFeature() throws Exception {
-        Set<Repository> activeRepos = new HashSet<Repository>(Arrays.asList(mainFeatureRepo,
+        Set<Repository> activeRepos = new HashSet<>(Arrays.asList(mainFeatureRepo,
                 noMainFeatureRepo1,
                 noMainFeatureRepo2));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
@@ -1419,7 +1450,7 @@ public class ApplicationServiceImplTest {
         Application testApp = mock(ApplicationImpl.class);
         Feature testFeature1 = mock(Feature.class);
         Feature testFeature2 = mock(Feature.class);
-        Set<Feature> featureSet = new HashSet<Feature>();
+        Set<Feature> featureSet = new HashSet<>();
         featureSet.add(testFeature1);
         featureSet.add(testFeature2);
 
@@ -1435,10 +1466,10 @@ public class ApplicationServiceImplTest {
 
         appService.stopApplication(testApp);
 
-        verify(featuresService, atLeastOnce()).uninstallFeature(TEST_FEATURE_1_NAME,
+        verify(featuresService).uninstallFeature(TEST_FEATURE_1_NAME,
                 null,
                 EnumSet.of(Option.NoAutoRefreshBundles));
-        verify(featuresService, atLeastOnce()).uninstallFeature(TEST_FEATURE_2_NAME,
+        verify(featuresService).uninstallFeature(TEST_FEATURE_2_NAME,
                 null,
                 EnumSet.of(Option.NoAutoRefreshBundles));
     }
@@ -1451,7 +1482,7 @@ public class ApplicationServiceImplTest {
      */
     @Test
     public void testStopApplicationNoMainFeatureStringParam() throws Exception {
-        Set<Repository> activeRepos = new HashSet<Repository>(Arrays.asList(mainFeatureRepo,
+        Set<Repository> activeRepos = new HashSet<>(Arrays.asList(mainFeatureRepo,
                 noMainFeatureRepo1,
                 noMainFeatureRepo2));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
@@ -1478,7 +1509,7 @@ public class ApplicationServiceImplTest {
      */
     @Test(expected = ApplicationServiceException.class)
     public void testStopApplicationException() throws Exception {
-        Set<Repository> activeRepos = new HashSet<Repository>(Arrays.asList(mainFeatureRepo,
+        Set<Repository> activeRepos = new HashSet<>(Arrays.asList(mainFeatureRepo,
                 noMainFeatureRepo1,
                 noMainFeatureRepo2));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
@@ -1505,7 +1536,7 @@ public class ApplicationServiceImplTest {
      */
     @Test
     public void testRemoveApplicationApplicationParam() throws Exception {
-        Set<Repository> activeRepos = new HashSet<Repository>(Arrays.asList(mainFeatureRepo,
+        Set<Repository> activeRepos = new HashSet<>(Arrays.asList(mainFeatureRepo,
                 noMainFeatureRepo1,
                 noMainFeatureRepo2));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
@@ -1547,7 +1578,7 @@ public class ApplicationServiceImplTest {
      */
     @Test(expected = ApplicationServiceException.class)
     public void testRemoveApplicationApplicationParamASE() throws Exception {
-        Set<Repository> activeRepos = new HashSet<Repository>(Arrays.asList(mainFeatureRepo,
+        Set<Repository> activeRepos = new HashSet<>(Arrays.asList(mainFeatureRepo,
                 noMainFeatureRepo1,
                 noMainFeatureRepo2));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
@@ -1569,7 +1600,7 @@ public class ApplicationServiceImplTest {
      */
     @Test
     public void testGetAllFeatures() throws Exception {
-        Set<Repository> activeRepos = new HashSet<Repository>(Arrays.asList(mainFeatureRepo,
+        Set<Repository> activeRepos = new HashSet<>(Arrays.asList(mainFeatureRepo,
                 noMainFeatureRepo1,
                 noMainFeatureRepo2));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
@@ -1604,7 +1635,7 @@ public class ApplicationServiceImplTest {
         when(mockAppender.getName()).thenReturn("MOCK");
         root.addAppender(mockAppender);
 
-        Set<Repository> activeRepos = new HashSet<Repository>(Arrays.asList(mainFeatureRepo,
+        Set<Repository> activeRepos = new HashSet<>(Arrays.asList(mainFeatureRepo,
                 noMainFeatureRepo1,
                 noMainFeatureRepo2));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
@@ -1640,7 +1671,7 @@ public class ApplicationServiceImplTest {
         when(mockAppender.getName()).thenReturn("MOCK");
         root.addAppender(mockAppender);
 
-        Set<Repository> activeRepos = new HashSet<Repository>(Arrays.asList(mainFeatureRepo,
+        Set<Repository> activeRepos = new HashSet<>(Arrays.asList(mainFeatureRepo,
                 noMainFeatureRepo1,
                 noMainFeatureRepo2));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
@@ -1676,7 +1707,7 @@ public class ApplicationServiceImplTest {
         when(mockAppender.getName()).thenReturn("MOCK");
         root.addAppender(mockAppender);
 
-        Set<Repository> activeRepos = new HashSet<Repository>(Arrays.asList(mainFeatureRepo,
+        Set<Repository> activeRepos = new HashSet<>(Arrays.asList(mainFeatureRepo,
                 noMainFeatureRepo1,
                 noMainFeatureRepo2));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
@@ -1721,7 +1752,7 @@ public class ApplicationServiceImplTest {
         when(mockAppender.getName()).thenReturn("MOCK");
         root.addAppender(mockAppender);
 
-        Set<Repository> activeRepos = new HashSet<Repository>(Arrays.asList(mainFeatureRepo,
+        Set<Repository> activeRepos = new HashSet<>(Arrays.asList(mainFeatureRepo,
                 noMainFeatureRepo1,
                 noMainFeatureRepo2));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
@@ -1751,7 +1782,7 @@ public class ApplicationServiceImplTest {
      */
     @Test
     public void testFindApplicationFeatures() throws Exception {
-        Set<Repository> activeRepos = new HashSet<Repository>(Arrays.asList(mainFeatureRepo,
+        Set<Repository> activeRepos = new HashSet<>(Arrays.asList(mainFeatureRepo,
                 noMainFeatureRepo1,
                 noMainFeatureRepo2));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
@@ -1789,7 +1820,7 @@ public class ApplicationServiceImplTest {
         when(mockAppender.getName()).thenReturn("MOCK");
         root.addAppender(mockAppender);
 
-        Set<Repository> activeRepos = new HashSet<Repository>(Arrays.asList(mainFeatureRepo,
+        Set<Repository> activeRepos = new HashSet<>(Arrays.asList(mainFeatureRepo,
                 noMainFeatureRepo1,
                 noMainFeatureRepo2));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
@@ -1834,7 +1865,7 @@ public class ApplicationServiceImplTest {
         when(mockAppender.getName()).thenReturn("MOCK");
         root.addAppender(mockAppender);
 
-        Set<Repository> activeRepos = new HashSet<Repository>(Arrays.asList(mainFeatureRepo,
+        Set<Repository> activeRepos = new HashSet<>(Arrays.asList(mainFeatureRepo,
                 noMainFeatureRepo1,
                 noMainFeatureRepo2));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
@@ -1867,7 +1898,7 @@ public class ApplicationServiceImplTest {
      */
     @Test
     public void testAddApplicationURIParam() throws Exception {
-        Set<Repository> activeRepos = new HashSet<Repository>(Arrays.asList(noMainFeatureRepo1,
+        Set<Repository> activeRepos = new HashSet<>(Arrays.asList(noMainFeatureRepo1,
                 noMainFeatureRepo2));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
@@ -1894,7 +1925,7 @@ public class ApplicationServiceImplTest {
      */
     @Test(expected = ApplicationServiceException.class)
     public void testAddApplicationASE() throws Exception {
-        Set<Repository> activeRepos = new HashSet<Repository>(Arrays.asList(noMainFeatureRepo1,
+        Set<Repository> activeRepos = new HashSet<>(Arrays.asList(noMainFeatureRepo1,
                 noMainFeatureRepo2));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
@@ -1922,7 +1953,7 @@ public class ApplicationServiceImplTest {
      */
     @Test
     public void testRemoveApplicationURIParam() throws Exception {
-        Set<Repository> activeRepos = new HashSet<Repository>(Arrays.asList(mainFeatureRepo,
+        Set<Repository> activeRepos = new HashSet<>(Arrays.asList(mainFeatureRepo,
                 noMainFeatureRepo2));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
@@ -1952,7 +1983,7 @@ public class ApplicationServiceImplTest {
      */
     @Test(expected = ApplicationServiceException.class)
     public void testRemoveApplicationASE() throws Exception {
-        Set<Repository> activeRepos = new HashSet<Repository>(Arrays.asList(mainFeatureRepo,
+        Set<Repository> activeRepos = new HashSet<>(Arrays.asList(mainFeatureRepo,
                 noMainFeatureRepo2));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
@@ -1980,7 +2011,7 @@ public class ApplicationServiceImplTest {
      */
     @Test
     public void testRemoveApplicationStringParam() throws Exception {
-        Set<Repository> activeRepos = new HashSet<Repository>(Arrays.asList(mainFeatureRepo,
+        Set<Repository> activeRepos = new HashSet<>(Arrays.asList(mainFeatureRepo,
                 noMainFeatureRepo1));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
@@ -2005,7 +2036,7 @@ public class ApplicationServiceImplTest {
      */
     @Test
     public void testFindFeature() throws Exception {
-        Set<Repository> activeRepos = new HashSet<Repository>(Arrays.asList(mainFeatureRepo,
+        Set<Repository> activeRepos = new HashSet<>(Arrays.asList(mainFeatureRepo,
                 noMainFeatureRepo1));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
@@ -2039,7 +2070,7 @@ public class ApplicationServiceImplTest {
         Application testApp = mock(ApplicationImpl.class);
         final Set<Application> applicationSet = new HashSet<>();
         applicationSet.add(testApp);
-        Set<Repository> activeRepos = new HashSet<Repository>(Arrays.asList(mainFeatureRepo,
+        Set<Repository> activeRepos = new HashSet<>(Arrays.asList(mainFeatureRepo,
                 noMainFeatureRepo1));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
@@ -2098,7 +2129,7 @@ public class ApplicationServiceImplTest {
         when(mockAppender.getName()).thenReturn("MOCK");
         root.addAppender(mockAppender);
 
-        Set<Repository> activeRepos = new HashSet<Repository>(Arrays.asList(mainFeatureRepo,
+        Set<Repository> activeRepos = new HashSet<>(Arrays.asList(mainFeatureRepo,
                 noMainFeatureRepo1));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
@@ -2183,7 +2214,7 @@ public class ApplicationServiceImplTest {
         when(mockAppender.getName()).thenReturn("MOCK");
         root.addAppender(mockAppender);
 
-        Set<Repository> activeRepos = new HashSet<Repository>(Arrays.asList(mainFeatureRepo,
+        Set<Repository> activeRepos = new HashSet<>(Arrays.asList(mainFeatureRepo,
                 noMainFeatureRepo1));
         FeaturesService featuresService = createMockFeaturesService(activeRepos, null, null);
         when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
@@ -2328,12 +2359,12 @@ public class ApplicationServiceImplTest {
      */
     private Set<Bundle> getXBundlesFromFeaturesService(FeaturesService featuresService,
             int numBundles) throws Exception {
-        Set<Bundle> bundles = new HashSet<Bundle>();
+        Set<Bundle> bundles = new HashSet<>();
         // BundleInfo bundleInfo = null;
-        Bundle bundle = null;
+        Bundle bundle;
 
         Feature[] features = featuresService.listFeatures();
-        List<BundleInfo> bundleInfos = null;
+        List<BundleInfo> bundleInfos;
 
         int ii = 0;
         while (bundles.size() < numBundles && ii < features.length) {
@@ -2376,8 +2407,8 @@ public class ApplicationServiceImplTest {
             Set<String> notInstalledFeatureNames, Set<String> inactiveBundleLocations)
             throws Exception {
 
-        Set<Feature> notInstalledFeatures = new HashSet<Feature>();
-        Set<BundleInfo> inactiveBundles = new HashSet<BundleInfo>();
+        Set<Feature> notInstalledFeatures = new HashSet<>();
+        Set<BundleInfo> inactiveBundles = new HashSet<>();
 
         for (Feature feature : repo.getFeatures()) {
             if (null != notInstalledFeatureNames
@@ -2394,7 +2425,7 @@ public class ApplicationServiceImplTest {
             }
         }
 
-        Set<Repository> repoSet = new HashSet<Repository>();
+        Set<Repository> repoSet = new HashSet<>();
         repoSet.add(repo);
 
         return createMockFeaturesService(repoSet, notInstalledFeatures, inactiveBundles);
@@ -2458,20 +2489,20 @@ public class ApplicationServiceImplTest {
         }
 
         if (null == notInstalledFeatures) {
-            notInstalledFeatures = new HashSet<Feature>();
+            notInstalledFeatures = new HashSet<>();
         }
 
         if (null == inactiveBundles) {
-            inactiveBundles = new HashSet<BundleInfo>();
+            inactiveBundles = new HashSet<>();
         }
 
-        Set<String> installedBundleLocations = new HashSet<String>();
+        Set<String> installedBundleLocations = new HashSet<>();
         for (BundleInfo bundleInfo : inactiveBundles) {
             installedBundleLocations.add(bundleInfo.getLocation());
         }
 
         FeaturesService featuresService = mock(FeaturesService.class);
-        Set<Feature> featuresSet = new HashSet<Feature>();
+        Set<Feature> featuresSet = new HashSet<>();
 
         BundleRevision mockBundleRevision = mock(BundleRevision.class);
         when(mockBundleRevision.getTypes()).thenReturn(0);
@@ -2529,7 +2560,7 @@ public class ApplicationServiceImplTest {
         return featuresService;
     }
 
-    public ApplicationServiceImpl createPermittedApplicationServiceImpl() {
+    private ApplicationServiceImpl createPermittedApplicationServiceImpl() {
         return new ApplicationServiceImpl(bundleStateServices) {
             @Override
             protected BundleContext getContext() {

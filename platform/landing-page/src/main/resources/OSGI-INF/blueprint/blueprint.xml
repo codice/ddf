@@ -20,10 +20,10 @@
         <property name="path" value=""/>
     </bean>
     <service id="resources" ref="resourceMapping"
-             interface="org.ops4j.pax.web.extender.whiteboard.ResourceMapping"/>
+             interface="org.ops4j.pax.web.service.whiteboard.ResourceMapping"/>
 
     <bean id="landingPage" class="org.codice.ddf.landing.LandingPage">
-        <cm:managed-properties persistent-id="org.codice.ddf.distribution.landing-page.properties"
+        <cm:managed-properties persistent-id="org.codice.ddf.distribution.landingpage.properties"
                                update-strategy="container-managed"/>
         <property name="branding" ref="brandingRegistry"/>
         <property name="description"

@@ -20,7 +20,7 @@
     <feature name="catalog-ui" install="auto" version="${project.version}" description="Catalog UI">
         <feature prerequisite="true">camel-http</feature>
         <feature prerequisite="true">search-ui-app</feature>
-        <configfile finalname="/etc/org.codice.ddf.catalog.ui.config" override="true">
+        <configfile finalname="/etc/org.codice.ddf.catalog.ui.config.config" override="true">
             mvn:ddf.ui/search-ui-app/${project.version}/properties/catalog-ui-config
         </configfile>
 

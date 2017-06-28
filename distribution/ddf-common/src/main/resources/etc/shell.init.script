@@ -30,11 +30,34 @@ help = { *:help $args | more } ;
 man = { help $args } ;
 log:list = { log:get ALL } ;
 service:get = { $.context getService ($.context getServiceReference $args) };
+
+env = { shell:set $args }
+more = { shell:less $args }
+
+prompt = "[1m${USER}[0m@${APPLICATION}(${SUBSHELL})> "
+
+__load_class = {
+  (($.reader class) classLoader) loadClass $1
+}
+
+# On 256 colors terminal, add a right prompt
+max_colors = ($.jline.terminal getNumericCapability max_colors)
+if { %(max_colors >= 256) } {
+  __rprompt_formatter = (((__load_class java.text.SimpleDateFormat) getConstructor (__load_class java.lang.String)) newInstance \'$'\u001B\[90m'\'HH:mm:ss)
+  __date_class = (__load_class java.util.Date)
+  \#rprompt = { $__rprompt_formatter format ($__date_class newInstance) }
+}
+
+setopt group
+keymap "^[OA" up-line-or-search
+keymap "^[OB" down-line-or-search
+
+# DDF additions
 lna = { bundle:list -t 0 | grep -v Active };
 waitForReady = {
- while { (la | grep -i "active.*DDF\s::\sadmin\s::\sUI" | tac) isEmpty } { echo -n ". "; sleep 1000 }
- while {("3" equals ((la | grep -i -v "active" | grep -i "hosts:" | wc -l | tac) trim) | tac) equals "false"} { echo -n ". "; sleep 1000 }
- echo ""
- echo "System Ready"
+    while { (la | grep "DDF :: Admin :: UI" | grep "Active") isEmpty } { echo -n ". "; sleep 1 }
+    while { ("3" equals (la | grep -v "Active" | grep -c "Hosts: ") ) equals "false" } { echo -n ". "; sleep 1 }
+    echo ""
+    echo "System Ready"
 };
 wfr = { waitForReady };

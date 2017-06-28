@@ -46,7 +46,7 @@ public abstract class AbstractApplicationCommand implements Action {
         } catch (ApplicationServiceException ase) {
             console.println(
                     "Encountered error while trying to perform command. Check log for more details.");
-            logger.debug("Error while performing command.", ase);
+            logger.error("Error while performing command.", ase);
         }
         return null;
     }

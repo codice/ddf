@@ -88,8 +88,6 @@ public class AdminConsoleServiceTest {
 
     private static final String TEST_FILTER_1 = "TestFilter1";
 
-    private static final String TEST_FILTER_2 = "TestFilter2";
-
     private static final String TEST_KEY = "TestKey";
 
     private static final String TEST_VALUE = "TestValue";
@@ -105,12 +103,6 @@ public class AdminConsoleServiceTest {
     private static final String LOC_NOT_BOUND =
             "Configuration is not yet bound to a bundle location";
 
-    private static final String LIST_SERV_PARAM_1 =
-            "(|(service.factoryPid=TestFilter1)(service.factoryPid=TestFilter2))";
-
-    private static final String LIST_SERV_PARAM_2 =
-            "(|(service.pid=TestFilter1*)(service.pid=TestFilter2*))";
-
     private static final String TEST_OCD = "TestOCD";
 
     private static final String TEST_BUNDLE_NAME = "TestBundle";
@@ -122,27 +114,27 @@ public class AdminConsoleServiceTest {
     @Mock
     private GuestClaimsHandlerExt mockGuestClaimsHandlerExt;
 
-    public static final org.osgi.service.cm.ConfigurationAdmin CONFIGURATION_ADMIN =
+    private static final org.osgi.service.cm.ConfigurationAdmin CONFIGURATION_ADMIN =
             mock(org.osgi.service.cm.ConfigurationAdmin.class);
 
-    public static final int CARDINALITY_ARRAY = 100;
+    private static final int CARDINALITY_ARRAY = 100;
 
-    public static final int CARDINALITY_VECTOR = -100;
+    private static final int CARDINALITY_VECTOR = -100;
 
-    public static final int CARDINALITY_PRIMITIVE = 0;
+    private static final int CARDINALITY_PRIMITIVE = 0;
 
-    public static final int[] CARDINALITIES =
+    private static final int[] CARDINALITIES =
             new int[] {CARDINALITY_VECTOR, CARDINALITY_PRIMITIVE, CARDINALITY_ARRAY};
 
-    public static final int TEST_INT = 42;
+    private static final int TEST_INT = 42;
 
-    public static Configuration testConfig;
+    private static Configuration testConfig;
 
-    public static ConfigurationAdminImpl configurationAdminImpl;
+    private static ConfigurationAdminImpl configurationAdminImpl;
 
-    AdminConsoleService configAdmin;
+    private AdminConsoleService configAdmin;
 
-    MBeanServer testServer;
+    private MBeanServer testServer;
 
     @Before
     public void setupMethod() throws NotCompliantMBeanException {
@@ -324,9 +316,8 @@ public class AdminConsoleServiceTest {
 
         List<Map<String, Object>> result = configAdmin.listModules();
 
-        assertThat("Should return the provided modules.",
-                (String) result.get(0)
-                        .get("name"),
+        assertThat("Should return the provided modules.", result.get(0)
+                .get("name"),
                 is(TEST_MODULE_1));
     }
 
@@ -359,9 +350,8 @@ public class AdminConsoleServiceTest {
 
         List<Map<String, Object>> result = configAdmin.listModules();
 
-        assertThat("Should return the provided modules.",
-                (String) result.get(0)
-                        .get("name"),
+        assertThat("Should return the provided modules.", result.get(0)
+                .get("name"),
                 is(TEST_MODULE_1));
         assertThat("jsLocation should be assigned some value.",
                 result.get(0)
@@ -740,8 +730,7 @@ public class AdminConsoleServiceTest {
         when(testConfigAdmin.getConfiguration(TEST_PID, null)).thenReturn(testConfig);
         Map<String, Object> result = configAdmin.getProperties(TEST_PID);
 
-        assertThat("Should return the given properties.",
-                (String) result.get(TEST_KEY),
+        assertThat("Should return the given properties.", result.get(TEST_KEY),
                 is(TEST_VALUE));
     }
 
@@ -829,9 +818,9 @@ public class AdminConsoleServiceTest {
         verify(testConfig, times(4)).update(captor.capture());
         assertThat(((String[]) captor.getValue()
                 .get(arrayString)).length, equalTo(3));
-        assertThat((Boolean) captor.getValue()
+        assertThat(captor.getValue()
                 .get(primitiveBoolean), equalTo(true));
-        assertThat((int) captor.getValue()
+        assertThat(captor.getValue()
                 .get(primitiveInteger), equalTo(TEST_INT));
         assertThat(((Integer[]) captor.getValue()
                 .get(arrayInteger)).length, equalTo(0));

@@ -22,15 +22,12 @@ import static org.mockito.Mockito.when;
 
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import org.apache.shiro.util.ThreadState;
 import org.codice.ddf.configuration.migration.ConfigurationMigrationService;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationWarning;
@@ -46,7 +43,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import com.google.common.collect.ImmutableList;
 
-import ddf.security.Subject;
 import ddf.security.service.SecurityServiceException;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -93,19 +89,8 @@ public class ExportCommandTest {
     private static final Collection<MigrationWarning> CONFIG_STATUS_MSGS =
             ImmutableList.of(new MigrationWarning(MIGRATION_WARNING_MESSAGE));
 
-    private static ThreadState subjectThreadState;
-
-    @Mock
-    private Subject subject;
-
-    @Mock
-    private DirectoryStream<Path> mockDirectoryStream;
-
     @Mock
     private PrintStream mockConsole;
-
-    @Mock
-    private Iterator<Path> mockIterator;
 
     @Mock
     private ConfigurationMigrationService mockConfigurationMigrationService;

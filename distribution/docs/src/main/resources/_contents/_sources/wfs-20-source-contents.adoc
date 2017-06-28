@@ -133,7 +133,6 @@ More mappings can be added to the `featurePropToMetacardAttrMap` line through th
     description="WFS Feature to Metacard mappings for GeoServer Example {http://www.openplans.org/topp}states">
     <config name="org.codice.${ddf-branding-lowercase}.spatial.ogc.wfs.catalog.mapper.MetacardMapper-geoserver.http://www.openplans.org/topp.states">
         featureType = {http://www.openplans.org/topp}states
-        service.factoryPid = org.codice.${ddf-branding-lowercase}.spatial.ogc.wfs.catalog.mapper.MetacardMapper
         featurePropToMetacardAttrMap = states.STATE_NAME=title
     </config>
 </feature>
