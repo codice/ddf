@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.Constants;
+import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.types.Validation;
@@ -103,8 +104,8 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
 
     private <T> T validate(T item, Function<T, Metacard> itemToMetacard,
             Map<String, Integer> counter) {
-        Set<String> errors = new HashSet<>();
-        Set<String> warnings = new HashSet<>();
+        Set<Serializable> newErrors = new HashSet<>();
+        Set<Serializable> newWarnings = new HashSet<>();
         Set<String> errorValidators = new HashSet<>();
         Set<String> warningValidators = new HashSet<>();
 
@@ -122,7 +123,6 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
                 String validatorName = getValidatorName(validator);
                 boolean validationErrorsExist = CollectionUtils.isNotEmpty(e.getErrors());
                 boolean validationWarningsExist = CollectionUtils.isNotEmpty(e.getWarnings());
-                valid = INVALID_TAG;
 
                 if ((isValidatorEnforced(validatorName) && validationErrorsExist && enforceErrors)
                         || isValidatorEnforced(validatorName) && validationWarningsExist
@@ -135,8 +135,8 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
                 } else {
                     getValidationProblems(validatorName,
                             e,
-                            errors,
-                            warnings,
+                            newErrors,
+                            newWarnings,
                             errorValidators,
                             warningValidators,
                             counter);
@@ -144,13 +144,28 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
             }
         }
 
+        Attribute existingErrors = metacard.getAttribute(Validation.VALIDATION_ERRORS);
+        Attribute existingWarnings = metacard.getAttribute(Validation.VALIDATION_WARNINGS);
+
+        if (existingErrors != null) {
+            newErrors.addAll(existingErrors.getValues());
+        }
+
+        if (existingWarnings != null) {
+            newWarnings.addAll(existingWarnings.getValues());
+        }
+
+        if (newErrors.size() > 0 || newWarnings.size() > 0) {
+            valid = INVALID_TAG;
+        }
+
         tags.add(valid);
         metacard.setAttribute(new AttributeImpl(Metacard.TAGS, new ArrayList<String>(tags)));
 
         metacard.setAttribute(new AttributeImpl(Validation.VALIDATION_ERRORS,
-                (List<Serializable>) new ArrayList<Serializable>(errors)));
+                (List<Serializable>) new ArrayList<Serializable>(newErrors)));
         metacard.setAttribute(new AttributeImpl(Validation.VALIDATION_WARNINGS,
-                (List<Serializable>) new ArrayList<Serializable>(warnings)));
+                (List<Serializable>) new ArrayList<Serializable>(newWarnings)));
         metacard.setAttribute(new AttributeImpl(Validation.FAILED_VALIDATORS_WARNINGS,
                 (List<Serializable>) new ArrayList<Serializable>(warningValidators)));
         metacard.setAttribute(new AttributeImpl(Validation.FAILED_VALIDATORS_ERRORS,
@@ -160,7 +175,7 @@ public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
     }
 
     private void getValidationProblems(String validatorName, ValidationException e,
-            Set<String> errors, Set<String> warnings, Set<String> errorValidators,
+            Set<Serializable> errors, Set<Serializable> warnings, Set<String> errorValidators,
             Set<String> warningValidators, Map<String, Integer> counter) {
         boolean validationErrorsExist = CollectionUtils.isNotEmpty(e.getErrors());
         boolean validationWarningsExist = CollectionUtils.isNotEmpty(e.getWarnings());
