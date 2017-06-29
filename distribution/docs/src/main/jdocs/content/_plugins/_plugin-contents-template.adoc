@@ -1,0 +1,27 @@
+:type: plugin
+:status: unpublished
+:title: {title}
+:link: {link}
+:plugintypes: {plugintypes}
+:summary: {summary}
+
+==== {plugin-name}
+
+{description}
+
+===== Related Components to {plugin-name}
+
+Link to any related components, required or optional, that affect the operation of this plugin
+
+===== Installing the {plugin-name}
+
+The {plugin-name} {is || is not} installed by default with a standard installation in the ${app-name} application.
+
+===== Configuring the {plugin-name}
+
+{configuration}
+
+===== Usage Limitations of the {plugin-name}
+
+None.
+

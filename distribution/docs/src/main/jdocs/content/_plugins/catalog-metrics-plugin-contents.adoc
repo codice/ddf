@@ -1,0 +1,16 @@
+:type: plugin
+:status: published
+:title: Catalog Metrics Plugin
+:link: _catalog_metrics_plugin
+:plugintypes: prequery
+:summary:  Captures metrics on catalog operations.
+
+The Catalog Metrics Plugin captures metrics on catalog operations.
+
+===== Installing the Catalog Metrics Plugin
+
+The Catalog Metrics Plugin is installed by default with a standard installation in the ${ddf-catalog} application.
+
+===== Configuring the Catalog Metrics Plugin
+
+The Catalog Metrics Plugin has no configurable properties.

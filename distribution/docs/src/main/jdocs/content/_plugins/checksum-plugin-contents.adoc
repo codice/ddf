@@ -1,0 +1,16 @@
+:type: plugin
+:status: published
+:title: Checksum Plugin
+:link: _checksum_plugin
+:plugintypes: precreatestorage,preupdatestorage
+:summary: Creates a unique checksum for ingested resources.
+
+The Checksum plugin creates a unique checksum for resources input into the system to identify updated content.
+
+===== Installing the Checksum Plugin
+
+The Checksum is installed by default with a standard installation in the ${ddf-catalog} application.
+
+===== Configuring the Checksum Plugin
+
+The Checksum Plugin has no configurable properties.
