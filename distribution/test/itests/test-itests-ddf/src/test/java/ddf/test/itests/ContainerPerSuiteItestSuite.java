@@ -24,6 +24,7 @@ import ddf.test.itests.catalog.TestFederation;
 import ddf.test.itests.catalog.TestFtp;
 import ddf.test.itests.catalog.TestMessageBroker;
 import ddf.test.itests.catalog.TestRegistry;
+import ddf.test.itests.catalog.TestSecurityAuditPlugin;
 import ddf.test.itests.catalog.TestSpatial;
 import ddf.test.itests.platform.TestApplicationService;
 import ddf.test.itests.platform.TestConfiguration;
@@ -43,7 +44,7 @@ import ddf.test.itests.platform.TestSolrCommands;
         TestFtp.class, TestSpatial.class, TestCatalogValidation.class, TestCatalog.class,
         TestSingleSignOn.class, TestSolrCommands.class, TestSecurity.class,
         TestApplicationService.class, TestPlatform.class, TestFanout.class, TestMessageBroker.class,
-        TestConfiguration.class})
+        TestConfiguration.class, TestSecurityAuditPlugin.class})
 public class ContainerPerSuiteItestSuite {
 
 }

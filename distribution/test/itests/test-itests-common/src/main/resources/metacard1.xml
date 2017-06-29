@@ -21,6 +21,9 @@
     <string name="title">
         <value>Metacard-1</value>
     </string>
+    <string name="description">
+        <value>My Description</value>
+    </string>
     <geometry name="location">
         <value>
             <ns2:Point>
