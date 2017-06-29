@@ -1,0 +1,6 @@
+
+==== Mp4 Additional Attitibutes
+
+Mp4 files have an additional attribute:
+
+* `ext.mp4.audio-sample-rate`
