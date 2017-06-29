@@ -31,7 +31,9 @@
 <td>
     <label class="label">{{lastUpdated}}</label>
 </td>
-<td/>
+<td>
+    {{#if filtered}}<i class="fa fa-filter" aria-hidden="true"></i>{{/if}}
+</td>
 <td>
     <a href="{{reportAction}}" target="_blank" class="button-icon report-node-link">View</a>
     {{#unless identityNode}}

@@ -253,7 +253,9 @@ table.align-middle{
 
 .node-table-label {
   font-weight: bold;
-  font-size: 19px;
+  font-size: 16px;
+  margin-bottom: 0px;
+  width: 100%;
 }
 
 .card-style-toggle .btn {
@@ -329,4 +331,59 @@ input[type=number]::-webkit-outer-spin-button {
 .select-all-group {
     display: inline-block;
     float: left;
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+  float: right;
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+  right:0;
+}
+
+/* Links inside the dropdown */
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  text-align: left;
+
+}
+
+/* Change color of dropdown links on hover */
+.dropdown-content a:hover {background-color: #f1f1f1}
+
+.settings-dropdown {
+  border: none;
+  cursor: pointer;
+}
+
+.show-dropdown {
+  display:block;
+}
+
+.disabled-link {
+  color: gray !important;
+  background-color: #f9f9f9 !important;
+  cursor: default;
+}
+
+.client-mode-label {
+  color: darkgray;
+  padding-right: 60px;
+}
+
+.table-container hr {
+  margin: 0px;
+  border-top: 1px solid darkgray;
 }

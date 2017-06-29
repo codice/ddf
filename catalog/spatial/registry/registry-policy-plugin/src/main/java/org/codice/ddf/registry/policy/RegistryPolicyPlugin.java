@@ -226,10 +226,10 @@ public class RegistryPolicyPlugin implements PolicyPlugin {
             throws StopProcessingException {
         HashMap<String, Set<String>> itemPolicy = new HashMap<>();
         Metacard metacard = input.getMetacard();
-        if (RegistryUtility.isRegistryMetacard(metacard)
-                || RegistryUtility.isInternalRegistryMetacard(metacard)) {
-            if ((whiteList && !registryEntryIds.contains(metacard.getId())) || (!whiteList
-                    && registryEntryIds.contains(metacard.getId()))) {
+        if (RegistryUtility.isRegistryMetacard(metacard)) {
+            String regId = RegistryUtility.getRegistryId(metacard);
+            if (isRegistryDisabled() || (whiteList && !registryEntryIds.contains(regId)) || (
+                    !whiteList && registryEntryIds.contains(regId))) {
                 itemPolicy.putAll(bypassAccessPolicy);
             } else {
                 itemPolicy.putAll(readAccessPolicy);

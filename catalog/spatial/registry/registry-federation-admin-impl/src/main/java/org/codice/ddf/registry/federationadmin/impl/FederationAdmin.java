@@ -25,6 +25,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.Dictionary;
@@ -34,6 +35,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import javax.management.InstanceAlreadyExistsException;
@@ -107,6 +109,12 @@ public class FederationAdmin implements FederationAdminMBean, EventHandler {
 
     public static final String SUMMARY_REPORT_ACTION = "reportAction";
 
+    public static final String SUMMARY_FILTERED = "filtered";
+
+    public static final String FILTER_INVERTED = "filterInverted";
+
+    public static final String CLIENT_MODE = "clientMode";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(FederationAdmin.class);
 
     private static final String DISABLED = "_disabled";
@@ -166,9 +174,17 @@ public class FederationAdmin implements FederationAdminMBean, EventHandler {
 
     private boolean cacheInitialized = false;
 
+    private Map<String, Consumer> filterPropertySetterMap;
+
     public FederationAdmin(AdminHelper helper) {
         configureMBean();
         this.helper = helper;
+
+        filterPropertySetterMap = new HashMap<>();
+        filterPropertySetterMap.put(CLIENT_MODE, e -> helper.setClientMode((boolean) e));
+        filterPropertySetterMap.put(FILTER_INVERTED, e -> helper.setFilterInverted((boolean) e));
+        filterPropertySetterMap.put(SUMMARY_FILTERED,
+                e -> helper.setFilteredNodeList((List<String>) e));
     }
 
     @Override
@@ -494,6 +510,19 @@ public class FederationAdmin implements FederationAdminMBean, EventHandler {
         autoPopulateMap.put(SERVICE_BINDINGS_KEY, endpointMap.values());
         nodes.put(AUTO_POPULATE_VALUES_KEY, autoPopulateMap);
 
+        try {
+            Map<String, Object> filterProps = helper.getFilterProperties();
+            List<String> filterList =
+                    Arrays.asList((String[]) filterProps.remove(SUMMARY_FILTERED));
+            for (Map<String, Object> entry : summaryCache.values()) {
+                entry.put(SUMMARY_FILTERED, filterList.contains(entry.get(SUMMARY_REGISTRY_ID)));
+            }
+
+            nodes.putAll(filterProps);
+        } catch (IOException e) {
+            LOGGER.debug("Error adding filter information to metacard summary response", e);
+        }
+
         nodes.put(NODES_KEY, new ArrayList(summaryCache.values()));
         return nodes;
     }
@@ -520,6 +549,16 @@ public class FederationAdmin implements FederationAdminMBean, EventHandler {
         } catch (FederationAdminException e) {
             LOGGER.debug("Error regenerating registry sources.", e);
         }
+    }
+
+    @Override
+    public void nodeFilterProperties(Map<String, Object> properties) {
+        properties.entrySet()
+                .stream()
+                .filter(e -> filterPropertySetterMap.containsKey(e.getKey()))
+                .forEach(e -> filterPropertySetterMap.get(e.getKey())
+                        .accept(e.getValue()));
+
     }
 
     private List<Map<String, Object>> getWebMapsFromRegistryPackages(

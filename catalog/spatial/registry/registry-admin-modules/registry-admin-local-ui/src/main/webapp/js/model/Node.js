@@ -272,6 +272,8 @@ define([
             FieldDescriptors.customFields = raw.value.customSlots;
             FieldDescriptors.autoPopulateValues = raw.value.autoPopulateValues;
             this.hasData = true;
+            this.filterInverted = raw.value.filterInverted;
+            this.clientMode = raw.value.clientMode;
             return raw.value.nodes;
         },
         getSecondaryNodes: function() {
