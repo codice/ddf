@@ -29,8 +29,8 @@ import ddf.catalog.resource.ResourceNotFoundException
 import ddf.catalog.resource.impl.ResourceImpl
 import ddf.catalog.source.CatalogProvider
 import ddf.catalog.transform.MetacardTransformer
+import ddf.catalog.util.impl.CatalogQueryException
 import org.apache.karaf.shell.api.console.Session
-import org.codice.ddf.commands.util.CatalogCommandRuntimeException
 import org.osgi.framework.BundleContext
 import org.osgi.framework.ServiceReference
 
@@ -108,7 +108,7 @@ class ExportCommandSpec extends spock.lang.Specification {
         exportCommand.executeWithSubject()
 
         then:
-        thrown(CatalogCommandRuntimeException)
+        thrown(CatalogQueryException)
         tmpHomeDir.list().size() == 0
     }
 
