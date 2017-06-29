@@ -15,11 +15,9 @@ package org.codice.ddf.itests.common;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Dictionary;
 
 import javax.management.NotCompliantMBeanException;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.subject.Subject;
 import org.codice.ddf.admin.core.impl.AdminConsoleService;
 import org.codice.ddf.admin.core.impl.ConfigurationAdminImpl;
@@ -28,17 +26,6 @@ import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 
 public class AdminConfig {
-    public static final String LOG_CONFIG_PID = "org.ops4j.pax.logging";
-
-    public static final String LOGGER_PREFIX = "log4j.logger.";
-
-    public static final String DEFAULT_LOG_LEVEL = "WARN";
-
-    public static final String TEST_LOGLEVEL_PROPERTY = "itestLogLevel";
-
-    public static final String TEST_SECURITYLOGLEVEL_PROPERTY = "securityLogLevel";
-
-    public static final int CONFIG_WAIT_POLLING_INTERVAL = 50;
 
     private final ConfigurationAdmin configAdmin;
 
@@ -84,26 +71,5 @@ public class AdminConfig {
 
     public Configuration[] listConfigurations(String s) throws IOException, InvalidSyntaxException {
         return configAdmin.listConfigurations(s);
-    }
-
-    public void setLogLevels() throws IOException {
-        String logLevel = System.getProperty(TEST_LOGLEVEL_PROPERTY);
-        String securityLogLevel = System.getProperty(TEST_SECURITYLOGLEVEL_PROPERTY);
-
-        Configuration logConfig = configAdmin.getConfiguration(LOG_CONFIG_PID, null);
-        Dictionary<String, Object> properties = logConfig.getProperties();
-
-        properties.put(LOGGER_PREFIX + "*", DEFAULT_LOG_LEVEL);
-
-        if (!StringUtils.isEmpty(logLevel)) {
-            properties.put(LOGGER_PREFIX + "ddf", logLevel);
-            properties.put(LOGGER_PREFIX + "org.codice", logLevel);
-            if (StringUtils.isEmpty(securityLogLevel)) {
-                properties.put(LOGGER_PREFIX + "ddf.security.expansion.impl.RegexExpansion", logLevel);
-                properties.put(LOGGER_PREFIX + "ddf.security.service.impl.AbstractAuthorizingRealm", logLevel);
-            }
-        }
-
-        logConfig.update(properties);
     }
 }

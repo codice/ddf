@@ -58,7 +58,6 @@ public class TestSolrCommands extends AbstractIntegrationTest {
         try {
             waitForSystemReady();
             basePort = getBasePort();
-            getAdminConfig().setLogLevels();
             getServiceManager().waitForRequiredApps(getDefaultRequiredApps());
             getServiceManager().waitForAllBundles();
             getCatalogBundle().waitForCatalogProvider();

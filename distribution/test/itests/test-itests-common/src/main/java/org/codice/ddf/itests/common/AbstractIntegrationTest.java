@@ -55,6 +55,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.text.StrSubstitutor;
 import org.apache.karaf.features.BootFinished;
 import org.apache.karaf.features.FeaturesService;
@@ -97,9 +98,13 @@ public abstract class AbstractIntegrationTest {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractIntegrationTest.class);
 
-    protected static final String LOG_CONFIG_PID = AdminConfig.LOG_CONFIG_PID;
+    protected static final String LOGGER_CONFIGURATION_FILE_PATH = "etc/org.ops4j.pax.logging.cfg";
 
-    protected static final String LOGGER_PREFIX = AdminConfig.LOGGER_PREFIX;
+    protected static final String DEFAULT_LOG_LEVEL = "WARN";
+
+    protected static final String TEST_LOG_LEVEL_PROPERTY = "itestLogLevel";
+
+    protected static final String TEST_SECURITY_LOG_LEVEL_PROPERTY = "securityLogLevel";
 
     protected static final String KARAF_VERSION = "4.1.1";
 
@@ -127,8 +132,6 @@ public abstract class AbstractIntegrationTest {
 
     @Rule
     public PaxExamRule paxExamRule = new PaxExamRule(this);
-
-    protected String logLevel = "";
 
     @Inject
     protected ConfigurationAdmin configAdmin;
@@ -346,7 +349,6 @@ public abstract class AbstractIntegrationTest {
     public void waitForBaseSystemFeatures() {
         try {
             basePort = getBasePort();
-            getAdminConfig().setLogLevels();
             getServiceManager().waitForRequiredApps(getDefaultRequiredApps());
             getServiceManager().waitForAllBundles();
             getCatalogBundle().waitForCatalogProvider();
@@ -544,14 +546,41 @@ public abstract class AbstractIntegrationTest {
     }
 
     protected Option[] configureLogLevel() {
-        return options(when(
-                System.getProperty(AdminConfig.TEST_LOGLEVEL_PROPERTY) != null).useOptions(
-                systemProperty(AdminConfig.TEST_LOGLEVEL_PROPERTY).value(System.getProperty(
-                        AdminConfig.TEST_LOGLEVEL_PROPERTY,
-                        ""))),
-                editConfigurationFilePut("etc/" + LOG_CONFIG_PID + ".cfg",
-                        "log4j.additivity.org.apache.activemq.artemis",
+        final String logLevel = System.getProperty(TEST_LOG_LEVEL_PROPERTY);
+        final String securityLogLevel = System.getProperty(TEST_SECURITY_LOG_LEVEL_PROPERTY);
+        return options(
+                editConfigurationFilePut(LOGGER_CONFIGURATION_FILE_PATH,
+                    "log4j2.rootLogger.level",
+                        DEFAULT_LOG_LEVEL),
+                when(StringUtils.isNotEmpty(logLevel)).useOptions(combineOptions(
+                        createSetLogLevelOption("ddf", logLevel),
+                        createSetLogLevelOption("org.codice", logLevel))),
+                when(StringUtils.isNotEmpty(securityLogLevel)).useOptions(combineOptions(
+                        createSetLogLevelOption("ddf.security.expansion.impl.RegexExpansion", securityLogLevel),
+                        createSetLogLevelOption("ddf.security.service.impl.AbstractAuthorizingRealm", securityLogLevel))),
+                editConfigurationFilePut("etc/org.ops4j.pax.logging.cfg",
+                        "log4j2.logger.org_apache_activemq_artemis.additivity",
                         "true"));
+    }
+
+    /**
+     * Creates options to add log configuration lines to the etc/org.ops4j.pax.logging.cfg file.
+     * See {@see org.apache.karaf.log.core.internal.LogServiceLog4j2Impl}.
+     *
+     * @param name  name of the logger to set
+     * @param level String value to set the logger level
+     * @return options to set the log level
+     */
+    protected Option[] createSetLogLevelOption(String name, String level) {
+        final String loggerPrefix = "log4j2.logger.";
+        final String loggerKey = name.replace('.', '_').toLowerCase();
+        return options(
+                editConfigurationFilePut(LOGGER_CONFIGURATION_FILE_PATH,
+                        String.format("%s%s.name", loggerPrefix, loggerKey),
+                        name),
+                editConfigurationFilePut(LOGGER_CONFIGURATION_FILE_PATH,
+                        String.format("%s%s.level", loggerPrefix, loggerKey),
+                        level));
     }
 
     protected Option[] configureIncludeUnstableTests() {
