@@ -13,6 +13,7 @@
 var Marionette = require('marionette');
 var store = require('js/store');
 var _ = require('underscore');
+var _debounce = require('lodash/debounce');
 var calculateConvexHull = require('geo-convex-hull');
 
 var ClusterView = Marionette.ItemView.extend({
@@ -26,7 +27,7 @@ var ClusterView = Marionette.ItemView.extend({
         this.handleCluster();
         this.addConvexHull();
         this.updateSelected();
-        this.updateSelected = _.debounce(this.updateSelected, 100, {trailing: true, leading: true});
+        this.updateSelected = _debounce(this.updateSelected, 100, {trailing: true, leading: true});
         this.listenTo(this.options.selectionInterface.getSelectedResults(), 'update add remove reset', this.updateSelected);
     },
     handleCluster: function() {

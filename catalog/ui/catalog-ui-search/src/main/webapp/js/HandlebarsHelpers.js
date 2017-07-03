@@ -16,7 +16,7 @@ define([
     'handlebars/runtime',
     'js/Common',
     'component/singletons/metacard-definitions',
-    'lodash.get',
+    'lodash/get',
     'jquery'
 ], function (_, moment, Handlebars, Common, metacardDefinitions, _get, $) {
     'use strict';

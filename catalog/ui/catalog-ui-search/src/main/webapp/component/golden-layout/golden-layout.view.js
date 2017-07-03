@@ -14,7 +14,8 @@
  **/
 /*global require, window*/
 var _ = require('underscore');
-var _merge = require('lodash.merge');
+var _merge = require('lodash/merge');
+var _debounce = require('lodash/debounce');
 var $ = require('jquery');
 var wreqr = require('wreqr');
 var template = require('./golden-layout.hbs');
@@ -236,7 +237,7 @@ module.exports = Marionette.LayoutView.extend({
         this.goldenLayout.updateSize();
     },
     listenForResize: function () {
-        $(window).on('resize.' + this.cid, _.debounce((event) => {
+        $(window).on('resize.' + this.cid, _debounce((event) => {
             this.updateSize();
         }, 100, {
             leading: false,

@@ -64,13 +64,6 @@ require([
         }
     });
 
-    // Make lodash compatible with Backbone
-    var lodash = _.noConflict();
-    _.mixin({
-        'debounce': _.debounce || lodash.debounce,
-        'defer': _.defer || lodash.defer,
-        'pluck': _.pluck || lodash.pluck
-    });
     //in here we drop in any top level patches, etc.
     var toJSON = Backbone.Model.prototype.toJSON;
     Backbone.Model.prototype.toJSON = function(options) {
