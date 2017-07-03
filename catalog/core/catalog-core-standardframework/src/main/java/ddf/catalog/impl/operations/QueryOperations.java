@@ -656,7 +656,7 @@ public class QueryOperations extends DescribableImpl {
         return ids;
     }
 
-    private Filter getNonVersionTagsFilter() {
+    protected Filter getNonVersionTagsFilter() {
         return frameworkProperties.getFilterBuilder()
                 .not(frameworkProperties.getFilterBuilder()
                         .anyOf(frameworkProperties.getFilterBuilder()

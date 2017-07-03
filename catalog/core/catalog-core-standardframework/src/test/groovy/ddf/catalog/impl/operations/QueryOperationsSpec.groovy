@@ -22,11 +22,14 @@ import ddf.catalog.data.impl.MetacardImpl
 import ddf.catalog.federation.FederationException
 import ddf.catalog.federation.FederationStrategy
 import ddf.catalog.filter.FilterAdapter
+import ddf.catalog.filter.FilterBuilder
+import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder
 import ddf.catalog.impl.FrameworkProperties
 import ddf.catalog.impl.QueryResponsePostProcessor
 import ddf.catalog.operation.Query
 import ddf.catalog.operation.QueryRequest
 import ddf.catalog.operation.QueryResponse
+import ddf.catalog.operation.impl.QueryImpl
 import ddf.catalog.plugin.PolicyPlugin
 import ddf.catalog.plugin.PolicyResponse
 import ddf.catalog.source.CatalogProvider
@@ -784,6 +787,37 @@ class QueryOperationsTest extends Specification {
         then:
         capturedQuery instanceof QueryRequest
         capturedQuery.getQuery().getTimeoutMillis() == 800
+    }
+
+    def 'non-version filter covers revision and deleted metacards'() {
+        setup:
+        FilterBuilder filterBuilder = new GeotoolsFilterBuilder()
+        frameworkProperties.filterBuilder = filterBuilder
+        def request = Mock(QueryRequest)
+        def response = Mock(QueryResponse)
+        def capturedQuery
+        frameworkProperties.federationStrategy = Mock(FederationStrategy)
+
+        def query = new QueryImpl(queryOperations.getNonVersionTagsFilter())
+
+        request.query >> { query }
+        request.getQuery() >> { query }
+        request.getProperties() >> [:]
+        request.getSourceIds() >> { ['fed1', 'fed2'] }
+        response.getRequest() >> { request }
+        response.getResults() >> []
+        frameworkProperties.federationStrategy.federate(_, _) >> { sources, queryParam ->
+            capturedQuery = queryParam
+            response
+        }
+
+        when:
+        queryOperations.query(request, null, false, false)
+
+        then:
+        capturedQuery instanceof QueryRequest
+        capturedQuery.getQuery().toString().contains("[ NOT [[ metacard-tags is like revision ] OR [ metacard-tags is like deleted ]] ]")
+
     }
 
     private def mockCatalogProvider(def id) {
