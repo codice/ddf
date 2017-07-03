@@ -15,19 +15,25 @@
 package ddf.test.itests.platform;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.Matchers.not;
 import static com.jayway.restassured.RestAssured.given;
 
+import java.util.List;
+import java.util.Map;
+
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.codice.ddf.itests.common.utils.LoggingUtils;
+import org.codice.ddf.platform.logging.LogEvent;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerSuite;
 
+import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
 
 @RunWith(PaxExam.class)
@@ -78,7 +84,13 @@ public class TestPlatform extends AbstractIntegrationTest {
                 .when()
                 .get(LOGGING_SERVICE_JOLOKIA_URL.getUrl());
 
-        assertThat(response.getBody()
-                .asString(), not(isEmptyString()));
+        final String bodyString = response.getBody().asString();
+        assertThat(String.format("The response body from {} should not be empty", LOGGING_SERVICE_JOLOKIA_URL), bodyString, not(isEmptyString()));
+
+        final List events = JsonPath.given(bodyString).get("value");
+        final Map firstEvent = (Map) events.get(0);
+        final String levelOfFirstEvent = firstEvent.get("level").toString();
+        final String unknownLevel = LogEvent.Level.UNKNOWN.getLevel();
+        assertThat(String.format("The level of an event returned by {} should not be {}", LOGGING_SERVICE_JOLOKIA_URL, unknownLevel), levelOfFirstEvent, not(equalTo(unknownLevel)));
     }
 }
