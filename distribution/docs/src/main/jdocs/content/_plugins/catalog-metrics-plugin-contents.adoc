@@ -3,7 +3,7 @@
 :title: Catalog Metrics Plugin
 :link: _catalog_metrics_plugin
 :plugintypes: prequery
-:summary:  Captures metrics on catalog operations.
+:summary: Captures metrics on catalog operations.
 
 The Catalog Metrics Plugin captures metrics on catalog operations.
 

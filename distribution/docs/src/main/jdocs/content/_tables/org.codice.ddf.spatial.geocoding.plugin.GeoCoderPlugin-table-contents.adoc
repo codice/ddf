@@ -1,0 +1,22 @@
+:type: documentation
+:status: published
+
+.[[org.codice.ddf.spatial.geocoding.plugin.GeoCoderPlugin]]GeoCoder Plugin
+[cols="1,1,1,4a,1,1," options="header"]
+|===
+
+|Title
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|Radius
+|`radiusInKm`
+|Integer
+|The search radius from a Point in kilometers.
+|10
+|Yes
+
+|===

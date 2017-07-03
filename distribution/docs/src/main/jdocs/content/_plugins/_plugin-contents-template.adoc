@@ -1,11 +1,9 @@
 :type: plugin
 :status: unpublished
-:title: {title}
+:title: {plugin-name}
 :link: {link}
 :plugintypes: {plugintypes}
 :summary: {summary}
-
-==== {plugin-name}
 
 {description}
 

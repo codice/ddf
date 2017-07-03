@@ -9,6 +9,10 @@ The Metacard Ingest Network Plugin allows the conditional insertion of new attri
 
 For the extent of this section, a 'rule' will refer to a configured, single instance of this plugin.
 
+===== Related Components to the Metacard Ingest Network Plugin
+
+* <<_client_info_plugin,Client Info Plugin>>
+
 ===== Installing the Metacard Ingest Network Plugin
 
 The Metacard Ingest Network Plugin is installed by default during a standard installation in the ${ddf-catalog} application.
@@ -45,6 +49,8 @@ language = English
 language = English, French, German
 security.access-groups = SJ202, SR 101, JS2201
 ----
+
+include::{adoc-include}org.codice.ddf.catalog.plugin.metacard.MetacardIngestNetworkPlugin-table-contents.adoc[]
 
 ====== Useful Attributes
 

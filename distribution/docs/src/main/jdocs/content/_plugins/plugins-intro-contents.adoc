@@ -38,6 +38,4 @@ The Catalog Framework calls Catalog Plugins to process requests and responses a
 
 Plugins can be designed to run before or after certain processes.
 They are often used for validation, optimization, or logging.
-Many plugins are designed to be called at more than one time. See <<_plugin_compatibility,Plugin Compatibility>>.
-
-
+Many plugins are designed to be called at more than one time. See <<_catalog_plugin_compatibility,Catalog Plugin Compatibility>>.

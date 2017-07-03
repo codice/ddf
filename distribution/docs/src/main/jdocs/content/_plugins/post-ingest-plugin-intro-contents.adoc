@@ -1,10 +1,10 @@
 :type: pluginIntro
 :status: published
 :title: Post-Ingest Plugins
-:link: _post-ingest_plugins
+:link: _post_ingest_plugins
 :summary: Perform actions after ingest is completed.
 :plugintypes: postingest
-:order: 04
+:order: 05
 
 .Query Plugin Flow
 [ditaa,query-plugin-flow,png]

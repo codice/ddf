@@ -12,7 +12,7 @@ include::${pi.file}[]
 
 </#list>
 
-.Catalog Plugin Compatibility
+.[[_catalog_plugin_compatibility]]Catalog Plugin Compatibility
 [cols="9" options="header"]
 |===
 
@@ -29,21 +29,21 @@ include::${pi.file}[]
 <#list plugins as plugin>
 <#if (plugin.status == "published" && plugin.plugintypes?contains ("preauthorization") || plugin.plugintypes?contains ("policy") || plugin.plugintypes?contains ("access") || plugin.plugintypes?contains ("preingest") || plugin.plugintypes?contains ("postingest") || plugin.plugintypes?contains ("prequery") || plugin.plugintypes?contains ("postquery") || plugin.plugintypes?contains ("postprocess")) >
 |<<${plugin.link},${plugin.title}>>
-|<#if (plugin.plugintypes?contains ("preauthorization"))>x
+|<#if (plugin.status == "published" && plugin.plugintypes?contains ("preauthorization"))>x
 </#if>
-|<#if (plugin.plugintypes?contains ("policy"))>x
+|<#if (plugin.status == "published" && plugin.plugintypes?contains ("policy"))>x
 </#if>
-|<#if (plugin.plugintypes?contains ("access"))>x
+|<#if (plugin.status == "published" && plugin.plugintypes?contains ("access"))>x
 </#if>
-|<#if (plugin.plugintypes?contains ("preingest"))>x
+|<#if (plugin.status == "published" && plugin.plugintypes?contains ("preingest"))>x
 </#if>
-|<#if (plugin.plugintypes?contains ("postingest"))>x
+|<#if (plugin.status == "published" && plugin.plugintypes?contains ("postingest"))>x
 </#if>
-|<#if (plugin.plugintypes?contains ("prequery"))>x
+|<#if (plugin.status == "published" && plugin.plugintypes?contains ("prequery"))>x
 </#if>
-|<#if (plugin.plugintypes?contains ("postquery"))>x
+|<#if (plugin.status == "published" && plugin.plugintypes?contains ("postquery"))>x
 </#if>
-|<#if (plugin.plugintypes?contains ("postprocess"))>x
+|<#if (plugin.status == "published" && plugin.plugintypes?contains ("postprocess"))>x
 </#if>
 <#else>
 </#if>
@@ -68,21 +68,21 @@ include::${pi.file}[]
 <#list plugins as plugin>
 <#if (plugin.status == "published" && plugin.plugintypes?contains ("preresource") || plugin.plugintypes?contains ("postresource") || plugin.plugintypes?contains ("precreatestorage") || plugin.plugintypes?contains ("postcreatestorage") || plugin.plugintypes?contains ("preupdatestorage") || plugin.plugintypes?contains ("postupdatestorage") || plugin.plugintypes?contains ("presubscription") || plugin.plugintypes?contains ("predelivery"))>
 |<<${plugin.link},${plugin.title}>>
-|<#if (plugin.plugintypes?contains ("preresource"))>x
+|<#if (plugin.status == "published" && plugin.plugintypes?contains ("preresource"))>x
 </#if>
-|<#if (plugin.plugintypes?contains ("postresource"))>x
+|<#if (plugin.status == "published" && plugin.plugintypes?contains ("postresource"))>x
 </#if>
-|<#if (plugin.plugintypes?contains ("precreatestorage"))>x
+|<#if (plugin.status == "published" && plugin.plugintypes?contains ("precreatestorage"))>x
 </#if>
-|<#if (plugin.plugintypes?contains ("postcreatestorage"))>x
+|<#if (plugin.status == "published" && plugin.plugintypes?contains ("postcreatestorage"))>x
 </#if>
-|<#if (plugin.plugintypes?contains ("preupdatestorage"))>x
+|<#if (plugin.status == "published" && plugin.plugintypes?contains ("preupdatestorage"))>x
 </#if>
-|<#if (plugin.plugintypes?contains ("postupdatestorage"))>x
+|<#if (plugin.status == "published" && plugin.plugintypes?contains ("postupdatestorage"))>x
 </#if>
-|<#if (plugin.plugintypes?contains ("presubscription"))>x
+|<#if (plugin.status == "published" && plugin.plugintypes?contains ("presubscription"))>x
 </#if>
-|<#if (plugin.plugintypes?contains ("predelivery"))>x
+|<#if (plugin.status == "published" && plugin.plugintypes?contains ("predelivery"))>x
 </#if>
 </#if>
 

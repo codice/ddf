@@ -1,0 +1,22 @@
+:type: plugin
+:status: published
+:title: Workspace Pre-Ingest Plugin
+:link: _workspace_pre_ingest_plugin
+:plugintypes: preingest
+:summary: Verifies that a workspace has an associated email to enable sharing.
+
+The Workspace Pre-Ingest Plugin verifies that a workspace has an associated email to enable sharing and assigns that email as "owner".
+
+===== Related Components to The Workspace Pre-Ingest Plugin
+
+* <<_workspace_sharing_policy_plugin,Workspace Sharing Policy Plugin>>.
+* <<_workspace_access_plugin,Workspace Access Plugin>>.
+* Workspace Extension.
+
+===== Installing the Workspace Pre-Ingest Plugin
+
+The Workspace Pre-Ingest Plugin is installed by default with a standard installation in the ${ddf-catalog} application.
+
+===== Configuring the Workspace Pre-Ingest Plugin
+
+The Workspace Pre-Ingest Plugin has no configurable properties.

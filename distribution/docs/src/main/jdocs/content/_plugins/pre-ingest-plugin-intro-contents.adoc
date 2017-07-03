@@ -1,10 +1,10 @@
 :type: pluginIntro
 :status: published
 :title: Pre-Ingest Plugins
-:link: _pre-ingest_plugins
+:link: _pre_ingest_plugins
 :summary: Perform any changes to a resource prior to ingesting it.
 :plugintypes: preingest
-:order: 03
+:order: 04
 
 .Ingest Plugin Flow
 [ditaa,ingest-plugin-flow,png, ${image-width}]

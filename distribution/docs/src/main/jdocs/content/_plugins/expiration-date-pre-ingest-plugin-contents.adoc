@@ -1,7 +1,7 @@
 :type: plugin
 :status: published
 :title: Expiration Date Pre-Ingest Plugin
-:link: _expiration_date_pre-ingest_plugin
+:link: _expiration_date_pre_ingest_plugin
 :plugintypes: preingest
 :summary: Updates Metacard expiration dates.
 

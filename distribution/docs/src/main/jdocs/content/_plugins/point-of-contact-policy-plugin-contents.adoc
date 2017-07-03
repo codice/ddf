@@ -1,0 +1,20 @@
+:type: plugin
+:status: published
+:title: Point of Contact Policy Plugin
+:link: _point_of_contact_policy_plugin
+:plugintypes: policy
+:summary: Adds a policy if Point of Contact is updated.
+
+The Point of Contact Policy Plugin adds a policy if the Point-of-Contact field is changed during pre-update.
+
+===== Related Components to Point of Contact Policy Plugin
+
+None.
+
+===== Installing the Point of Contact Policy Plugin
+
+The Point of Contact Policy Plugin is installed by default with a standard installation in the ${ddf-catalog} application.
+
+===== Configuring the Point of Contact Policy Plugin
+
+The Point of Contact Policy Plugin has no configurable properties.

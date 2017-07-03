@@ -1,10 +1,10 @@
 :type: pluginIntro
 :status: published
 :title: Pre-Query Plugins
-:link: _pre-query_plugins
+:link: _pre_query_plugins
 :summary: Perform any changes to query before executing.
 :plugintypes: postquery
-:order: 06
+:order: 07
 
 Pre-query plugins are invoked before a query operation is sent to any of the Sources. 
 This is an opportunity to take any action on the query, including but not limited to:

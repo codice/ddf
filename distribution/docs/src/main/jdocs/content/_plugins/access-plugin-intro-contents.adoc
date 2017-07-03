@@ -4,7 +4,7 @@
 :link: _access_plugins
 :summary: Used to build policy information for requests.
 :plugintypes: access
-:order: 02
+:order: 03
 
 Access plugins are invoked directly after the <<_policy_plugin,Policy plugins>> have been successfully executed. 
 This is an opportunity to either stop processing or modify the request/response based on policy information.
