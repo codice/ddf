@@ -6,7 +6,7 @@
   .query-advanced-label {
     color: grey;
     .is-bold();
-    padding: 10px;
+    padding: @minimumSpacing;
     line-height: @minimumButtonSize;
     vertical-align: middle;
     display: inline-block;
@@ -22,11 +22,11 @@
     width: 100%;
     overflow: auto;
     max-height: ~"calc(100% - 2*@{minimumButtonSize})";
-    padding: 10px 10px 0px 10px;
+    padding: @minimumSpacing @minimumSpacing 0px @minimumSpacing;
   }
 
   .editor-footer {
-    margin-top: 20px;
+    margin-top: @largeSpacing;
     height: @minimumButtonSize;
     white-space: nowrap;
     .inlineFix;

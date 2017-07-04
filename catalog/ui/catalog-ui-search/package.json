@@ -61,7 +61,7 @@
     "squirejs": "0.2.1",
     "stack-source-map": "1.0.5",
     "url-loader": "0.5.8",
-    "webpack": "1.13.0",
+    "webpack": "codice/webpack#v1.13.0-hotReloadJSDisabled",
     "webpack-dev-server": "1.16.3",
     "webpack-merge": "0.14.0"
   },
@@ -92,6 +92,7 @@
     "openlayers": "3.20.1",
     "plotly.js": "1.10.5",
     "q": "1.5.0",
+    "raw-loader": "0.5.1",
     "react": "15.2.1",
     "react-dom": "15.2.1",
     "react-redux": "4.4.5",

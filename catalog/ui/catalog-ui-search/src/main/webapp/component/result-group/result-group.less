@@ -5,22 +5,38 @@
 
   > .group-representation {
     text-align: left;
-    padding: 10px 0px;
+    padding: @minimumSpacing 0px;
   }
 
   @{customElementNamespace}result-item-collection {
-    padding: 0px 0px 10px 25px;
+    padding: 0px 0px 0px @minimumSpacing;
+  }
+
+  > .group-results {
+    position: relative;  
+  }
+    
+  @{customElementNamespace}result-item-collection:before {
+    content: '';
+    left: -@minimumSpacing;
+    opacity: @minimumOpacity;
+    position: absolute;
+    border-left: 1px solid @text-color;
+    border-top: 1px solid @text-color;
+    border-bottom: 1px solid @text-color;
+    height:100%;
+    width: @minimumSpacing;
   }
 }
 
 @{customElementNamespace}result-group + @{customElementNamespace}result-item {
-  margin-top: 10px;
+  margin-top: @minimumSpacing;
 }
 
 @{customElementNamespace}result-item + @{customElementNamespace}result-group,
 @{customElementNamespace}result-item + @{customElementNamespace}result-item,
 @{customElementNamespace}result-group + @{customElementNamespace}result-group
 {
-  margin-top: 10px;
+  margin-top: @minimumSpacing;
 }
 

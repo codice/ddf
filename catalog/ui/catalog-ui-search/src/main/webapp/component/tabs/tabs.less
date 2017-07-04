@@ -9,7 +9,7 @@
 
     z-index: @zIndexContent;
     height: @minimumButtonSize;
-    padding: 0px 50px;
+    padding: 0px @minimumSpacing;
     white-space: nowrap;
     overflow: visible;
     width: 100%;
@@ -40,7 +40,7 @@
           display: block;
           color: @text-color;
           width: 100%;
-          padding: 10px;
+          padding: @minimumSpacing;
         }
         > div.is-merged.is-active {
           display: none;
@@ -72,7 +72,7 @@
     .tabs-dropdown {
       display: none;
       height: 100%;
-      padding: 0px 10px;
+      padding: 0px @minimumSpacing;
       border-bottom: 1px solid transparent;
 
       > span {
@@ -101,7 +101,7 @@
     }
 
     .tabs-tab {
-      padding: 0px 10px;
+      padding: 0px @minimumSpacing;
       line-height: @minimumButtonSize;
       height: @minimumButtonSize;
       display: inline-block;

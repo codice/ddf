@@ -104,13 +104,18 @@ define([
         delete: function(){
             this.model.destroy();
         },
+        toggleLocationClass: function(toggle){
+            this.$el.toggleClass('is-location', toggle);
+        },
         setDefaultComparator: function(propertyJSON){
+            this.toggleLocationClass(false);
             var currentComparator = this.model.get('comparator');
             switch(propertyJSON.type){
                 case 'LOCATION':
                     if (['INTERSECTS'].indexOf(currentComparator) === -1) {
                         this.model.set('comparator', 'INTERSECTS');
                     }
+                    this.toggleLocationClass(true);
                     break;
                 case 'DATE':
                     if (['BEFORE', 'AFTER'].indexOf(currentComparator) === -1) {

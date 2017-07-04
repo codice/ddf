@@ -1,7 +1,7 @@
 @{customElementNamespace}filter {
   .customElement;
   white-space: nowrap;
-  margin: 10px;
+  margin: @minimumSpacing;
 
   > .filter-remove,
   > .filter-attribute,
@@ -9,7 +9,7 @@
   > .filter-input {
     display: inline-block;
     vertical-align: middle;
-    margin-right: 20px;
+    margin-right: @minimumSpacing;
   }
 
   > .filter-comparator,
@@ -25,29 +25,21 @@
   }
 
   > .filter-input {
-    min-width: 200px;
+    min-width: 12.5*@minimumFontSize;
   }
 }
 
-@{customElementNamespace}filter-collection.can-delete {
-
-  > @{customElementNamespace}filter.is-editing {
-    > .filter-remove {
-      display: inline-block;
-    }
+@{customElementNamespace}filter.is-location {
+  > .filter-input {
+    margin-top: @minimumSpacing;
+    display: block;
   }
 }
 
 @{customElementNamespace}filter-collection {
   > @{customElementNamespace}filter.is-editing {
     > .filter-remove {
-      display: none;
-    }
-  }
-
-  > @{customElementNamespace}filter {
-    > .filter-remove {
-      display: none;
+      display: inline-block;
     }
   }
 }

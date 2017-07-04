@@ -11,32 +11,29 @@
  *
  **/
  --}}
-<button class="filter-remove is-negative" data-help="Removes this branch.">
-    <span class="fa fa-minus"></span>
-</button>
-<div class="filter-operator">
-
-</div>
-<div class="filter-contents">
-    <div class="contents-filters">
+<div class="filter-header">
+    <button class="filter-remove is-negative" data-help="Removes this branch.">
+        <span class="fa fa-minus"></span>
+    </button>
+    <div class="filter-operator">
 
     </div>
     <div class="contents-buttons">
-        <button class="add-filter is-primary" data-help="Adds a new filter at this current level
+        <button class="add-filter is-button is-neutral" data-help="Adds a new rule at this current level
          of the tree">
             <span class="fa fa-plus">
 
             </span>
             <span>
-                Add Clause
+                Add Rule
             </span>
         </button>
-        <button class="add-filterBuilder is-primary" data-help="Adds a new branch at this current level
+        <button class="add-filterBuilder is-button is-neutral" data-help="Adds a new group at this current level
         of the tree.">
             <span class="fa fa-plus">
             </span>
             <span>
-                Add Sub Clause
+                Add Group
             </span>
         </button>
         <!--  Debugging
@@ -47,5 +44,10 @@
                 Get Current Value
             </span>
         </button>-->
+    </div>
+</div>
+<div class="filter-contents">
+    <div class="contents-filters">
+
     </div>
 </div>

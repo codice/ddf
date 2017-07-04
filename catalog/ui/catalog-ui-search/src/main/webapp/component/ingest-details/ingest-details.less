@@ -1,7 +1,7 @@
 @{customElementNamespace}ingest-details {
     .customElement;
     animation: new-ingest .250s 1 ease-in-out;
-    padding: 10px;
+    padding: @minimumSpacing;
     
     .details-files{
         display: none;
@@ -64,10 +64,10 @@
     .details-files {
         display: block;
         position: relative;
-        max-height: ~'calc(100% - 3*@{minimumButtonSize} - 20px)';
+        max-height: ~'calc(100% - 3*@{minimumButtonSize} - @{largeSpacing})';
         overflow: auto;
-        margin-bottom: 10px;
-        padding: 0px 20px;
+        margin-bottom: @minimumSpacing;
+        padding: 0px @largeSpacing;
     }
 
     .details-dropzone {

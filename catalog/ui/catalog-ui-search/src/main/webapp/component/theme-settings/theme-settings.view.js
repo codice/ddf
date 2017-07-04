@@ -38,13 +38,22 @@ function calculateFontSize(percentage){
     return (percentage * 16) / 100;
 }
 
+function getSpacingMode(user){
+    return getPreferences(user).get('theme').getSpacingMode();
+}
+
 module.exports = Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('theme-settings'),
     regions: {
-        fontSize: '.theme-font-size'
+        fontSize: '.theme-font-size',
+        spacingMode: '.theme-spacing-mode'
     },
     onBeforeShow: function() {
+        this.showFontSize();
+        this.showSpacingMode();
+    },
+    showFontSize: function(){
         var fontSizeModel = new Property({
             label: 'Zoom Percentage',
             value: [calculatePercentZoom(user)],
@@ -58,11 +67,47 @@ module.exports = Marionette.LayoutView.extend({
         }));
         this.fontSize.currentView.turnOnLimitedWidth();
         this.fontSize.currentView.turnOnEditing();
-        this.listenTo(fontSizeModel, 'change:value', this.saveChanges);
+        this.listenTo(fontSizeModel, 'change:value', this.saveFontChanges);
     },
-    saveChanges: function(){
+    showSpacingMode: function(){
+        var spacingModeModel = new Property({
+            enum: [
+                {
+                    label: 'Comfortable',
+                    value: 'comfortable'
+                },
+                {
+                    label: 'Cozy',
+                    value: 'cozy'
+                },
+                {
+                    label: 'Compact',
+                    value: 'compact'
+                }
+            ],
+            value: [getSpacingMode(user)],
+            id: 'Spacing'
+        });
+        this.spacingMode.show(new PropertyView({
+            model: spacingModeModel
+        }));
+        this.spacingMode.currentView.turnOnLimitedWidth();
+        this.spacingMode.currentView.turnOnEditing();
+        this.listenTo(spacingModeModel, 'change:value', this.saveSpacingChanges);
+    },
+    saveFontChanges: function(){
         var preferences = getPreferences(user);
         var newFontSize = this.fontSize.currentView.model.getValue()[0];
         preferences.set('fontSize', calculateFontSize(newFontSize));
+    },
+    saveSpacingChanges: function(){
+        var preferences = getPreferences(user);
+        var newSpacingMode = this.spacingMode.currentView.model.getValue()[0];
+        preferences.get('theme').set('spacingMode', newSpacingMode);
+        getPreferences(user).savePreferences();
+    },  
+    saveChanges: function(){
+        this.saveFontChanges();
+        this.saveSpacingChanges();
     }
 });

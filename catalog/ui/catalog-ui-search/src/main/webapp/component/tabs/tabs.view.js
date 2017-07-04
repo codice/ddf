@@ -18,8 +18,9 @@ define([
     'underscore',
     'jquery',
     './tabs.hbs',
-    'js/CustomElements'
-], function (Marionette, _, $, TabsTemplate, CustomElements) {
+    'js/CustomElements',
+    'wreqr'
+], function (Marionette, _, $, TabsTemplate, CustomElements, wreqr) {
 
     function namespacedEvent(event, view){
         return event + '.' + view.cid;
@@ -48,6 +49,7 @@ define([
             $(window).on(namespacedEvent('resize',view), function () {
                 view._resizeHandler();
             });
+            this.listenTo(wreqr.vent, 'resize', this._resizeHandler);
         },
         onRender: function () {
             this.showTab(true);

@@ -39,12 +39,12 @@ define([
         },
         addFilter: function(filterModel) {
             filterModel = filterModel || new FilterModel();
-            this.collection.add(filterModel);
+            this.collection.unshift(filterModel);
             return this.children.last();
         },
         addFilterBuilder: function(filterBuilderModel){
             filterBuilderModel = filterBuilderModel || new FilterBuilderModel();
-            this.collection.add(filterBuilderModel);
+            this.collection.push(filterBuilderModel);
             return this.children.last();
         },
         turnOnEditing: function(){

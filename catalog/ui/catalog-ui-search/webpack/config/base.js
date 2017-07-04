@@ -122,6 +122,11 @@ module.exports = {
             {
                  test: /\.(css|less)$/,
                 loader: "style!css?sourceMap!less?sourceMap"
+            },
+            {
+                test: /\.unless$/,
+                loaders: ['raw', path.resolve(__dirname, '../loaders', 'concat-less.js')],
+                exclude: /(node_modules|target)/
             }
         ],
         postLoaders: [

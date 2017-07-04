@@ -53,7 +53,7 @@ define([
         },
         regions: {
             resultActions: '.result-actions',
-            resultIndicator: '.result-indicator'
+            resultIndicator: '.container-indicator'
         },
         behaviors: {
             button: {}

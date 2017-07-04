@@ -11,10 +11,55 @@
  **/
 /*global require*/
 var $ = require('jquery');
+var wreqr = require('wreqr');
+var _ = require('underscore');
 var user = require('component/singletons/user-instance.js');
 var preferences = user.get('user').get('preferences');
+var Less = require('less');
+var lessStyles = require('./uncompiled-less.unless');
+var variableRegex = '/@(.*:[^;]*)/g';
+var variableRegexPrefix = '@';
+var variableRegexPostfix = '(.*:[^;]*)';
+var Common = require('js/Common');
 
-preferences.on('change:fontSize', function(){
+function updateTheme(css) {
+    var existingUserStyles = $('[data-theme=user]');
+    var userStyles = document.createElement('style');
+    userStyles.setAttribute('data-theme', 'user');
+    userStyles.innerHTML = css;
+    document.body.appendChild(userStyles);
+    existingUserStyles.remove();
+}
+
+function handleThemeChange(){
+    var theme = preferences.get('theme').getTheme();
+    var newLessStyles = lessStyles;
+    _.forEach(theme, (value, key) => {
+        newLessStyles = newLessStyles.replace(new RegExp(variableRegexPrefix + key + variableRegexPostfix), function () {
+            return '@'+key+': '+value+';';
+        });
+    });
+    Less.render(newLessStyles, function(e, data){
+        updateTheme(data.css);
+        wreqr.vent.trigger('resize');
+        $(window).trigger('resize');
+    });
+}
+
+preferences.on('change:fontSize', function () {
     var fontSize = preferences.get('fontSize');
     $('html').css('fontSize', fontSize + 'px');
+    Common.repaintForTimeframe(500, () => {
+        wreqr.vent.trigger('resize');
+        $(window).trigger('resize');
+    });
+
 });
+preferences.on('change:theme', handleThemeChange);
+
+if (module.hot) {
+    module.hot.accept('./uncompiled-less.unless', function() {
+        lessStyles = require("./uncompiled-less.unless");
+        handleThemeChange();
+    });
+}
