@@ -23,8 +23,9 @@ define([
     'component/announcement',
     'component/blacklist-item/blacklist-item',
     'moment',
+    'js/model/Theme',
     'backboneassociations'
-], function (_, wreqr, Backbone, properties, Alert, Common, UploadBatch, announcement, BlackListItem, moment) {
+], function (_, wreqr, Backbone, properties, Alert, Common, UploadBatch, announcement, BlackListItem, moment, Theme) {
     'use strict';
 
     var User = {};
@@ -150,7 +151,8 @@ define([
                 fontSize: '16',
                 resultCount: properties.resultCount,
                 timeFormat: Common.getTimeFormats()['24'],
-                goldenLayout: undefined
+                goldenLayout: undefined,
+                theme: new Theme()
             };
         },
         relations: [
@@ -179,6 +181,11 @@ define([
                 type: Backbone.Many,
                 key: 'resultBlacklist',
                 relatedModel: BlackListItem
+            },
+            {
+                type: Backbone.One,
+                key: 'theme',
+                relatedModel: Theme
             }
         ],
         initialize: function(){

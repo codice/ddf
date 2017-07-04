@@ -11,75 +11,79 @@
  *
  **/
  --}}
-<div class="result-container" data-metacard-id="{{id}}" data-index="{{index}}"
+<div class="result-container {{#if hasError}}has-validation-issues{{/if}} {{#if hasWarning}}has-validation-issues{{/if}}" data-metacard-id="{{id}}" data-index="{{index}}"
      data-query-id="{{metacard.queryId}}">
-    <div class="result-indicator" data-help="Signifies which searches this result has been found in.">
+    <div class="container-indicator">
     </div>
-    <div class="result-type" data-help="Indicates the type of result
-    (workspace, resource, history, deleted)">
-        <span class="fa fa-history"></span>
-        <span class="fa fa-book"></span>
-        <span class="fa fa-file"></span>
-        <span class="fa fa-trash"></span>
+    <div class="container-content">
+        <div class="content-header">
+            <span class="header-icon fa fa-history" data-help="Indicates the type of result
+            (workspace, resource, history, deleted)"></span>
+            <span class="header-icon fa fa-book" data-help="Indicates the type of result
+            (workspace, resource, history, deleted)"></span>
+            <span class="header-icon fa fa-file" data-help="Indicates the type of result
+            (workspace, resource, history, deleted)"></span>
+            <span class="header-icon fa fa-trash" data-help="Indicates the type of result
+            (workspace, resource, history, deleted)"></span>
 
-        <span class="result-icon {{icon}}"></span>
-    </div>
-    <div class="result-details">
-        <div class="detail-title details-property is-bold" data-help="{{getAlias 'title'}}">
-            <span>
+            <span class="header-icon result-icon {{icon}}" data-help="Indicates the type of result
+            (workspace, resource, history, deleted)"></span>
+            <span class="header-title is-bold" data-help="{{getAlias 'title'}}" title="{{metacard.properties.title}}">
                 {{metacard.properties.title}}
             </span>
         </div>
-        {{#if metacard.properties.thumbnail}}
-        <div class="detail-thumbnail details-property" data-help="{{getAlias 'thumbnail'}}">
-                <img src="{{getImageSrc metacard.properties.thumbnail}}">
-        </div>
-        {{/if}}
-        <div class="detail-lastModified details-property" data-help="{{getAlias 'modified'}}">
-            <span>
-                {{niceDiff}}
-            </span>
-        </div>
-        <div class="detail-source details-property" data-help="{{getAlias 'source'}}">
-            {{#if local}}
-                <span class="fa fa-home">
-                </span>
-                <span>local</span>
-            {{else}}
-                <span class="fa fa-cloud">
-                </span>
-                <span>
-                    {{metacard.properties.source-id}}
-                </span>
+        <div class="content-body">
+            {{#if metacard.properties.thumbnail}}
+                <div class="detail-thumbnail details-property" data-help="{{getAlias 'thumbnail'}}">
+                        <img src="{{getImageSrc metacard.properties.thumbnail}}">
+                </div>
             {{/if}}
-        </div>
-        {{#each customDetail}}
-            <div class="detail-custom details-property" data-help="{{getAlias this.label}}">
+             <div class="detail-lastModified details-property" data-help="{{getAlias 'modified'}}">
                 <span>
-                {{this.value}}
+                    {{niceDiff}}
                 </span>
             </div>
-        {{/each}}
-    </div>
-    <div class="result-validation">
-        {{#if hasError}}
-            <span class="fa fa-exclamation-triangle resultError" data-help="Indicates the given result has a validation error.
-            See the 'Quality' tab of the result for more details.">
-            </span>
-        {{else if hasWarning}}
-            <span class="fa fa-exclamation-triangle resultWarning" data-help="Indicates the given result has a validation warning.
-            See the 'Quality' tab of the result for more details.">
-            </span>
-        {{/if}}
-    </div>
-    <div class="result-save fa fa-star-o is-button" data-help="Adds the
-    result to your saved items.">
-    </div>
-    <div class="result-unsave fa fa-star is-button" data-help="Removes the
-    result from your saved items.">
-    </div>
-    <div class="result-actions is-button" data-help="Provides a list
-    of actions to take on the result.">
-
+            <div class="detail-source details-property" data-help="{{getAlias 'source'}}">
+                {{#if local}}
+                    <span class="fa source-icon fa-home">
+                    </span>
+                    <span>local</span>
+                {{else}}
+                    <span class="fa source-icon fa-cloud">
+                    </span>
+                    <span>
+                        {{metacard.properties.source-id}}
+                    </span>
+                {{/if}}
+            </div>
+            {{#each customDetail}}
+                <div class="detail-custom details-property" data-help="{{getAlias this.label}}" title="{{this.value}}">
+                    <span>
+                    {{this.value}}
+                    </span>
+                </div>
+            {{/each}}
+        </div>
+        <div class="content-footer">
+            <div class="result-validation">
+                {{#if hasError}}
+                    <span class="fa fa-exclamation-triangle resultError" title="Has validation errors." data-help="Indicates the given result has a validation error.
+                    See the 'Quality' tab of the result for more details.">
+                    </span>
+                {{else if hasWarning}}
+                    <span class="fa fa-exclamation-triangle resultWarning" title="Has validation warnings." data-help="Indicates the given result has a validation warning.
+                    See the 'Quality' tab of the result for more details.">
+                    </span>
+                {{/if}}
+            </div>
+            <button class="result-save fa fa-star-o is-button is-neutral" data-help="Adds the
+            result to your saved items.">
+            </button>
+            <button class="result-unsave fa fa-star is-button is-neutral" data-help="Removes the
+            result from your saved items.">
+            </button>
+            <div class="result-actions is-button" data-help="Provides a list
+            of actions to take on the result.">
+        </div>
     </div>
 </div>

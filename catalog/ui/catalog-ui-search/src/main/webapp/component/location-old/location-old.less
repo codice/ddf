@@ -36,9 +36,8 @@
 
   .btn-group {
     position: relative;
-    margin-bottom: 10px !important;
-    box-shadow: 0px 0px 2px 1px rgba(255,255,255,.4), 2px 2px 10px 2px rgba(0,0,0,.4);
-
+    margin-bottom: @minimumSpacing !important;
+    border: 1px solid rgba(255,255,255,.4);
 
     input {
       display: none;
@@ -59,7 +58,7 @@
       min-width: @minimumButtonSize;
       position: static !important;
       opacity: @minimumOpacity;
-      padding: 10px !important;
+      padding: @minimumSpacing !important;
     }
 
     label:hover {
@@ -91,6 +90,7 @@
 
     .input-group-addon {
       font-size: @minimumFontSize;
+      padding: 0px @minimumSpacing;
     }
 
     .input-group {
@@ -105,7 +105,7 @@
       }
 
       > input {
-        height: @minimumButtonSize;
+        height: 100%;
       }
 
       > label {
@@ -125,12 +125,12 @@
     .input-group.for-line {
 
       > input {
-        height: 2.8125rem;
+        height: 100%;
       }
       > span.input-group-btn {
         min-width: 0px;
         button {
-          height: @minimumButtonSize;
+          height: 100%;
           text-align: center;
           width: 8.125rem !important;
         }

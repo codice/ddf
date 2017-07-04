@@ -5,21 +5,45 @@
 
   white-space: nowrap;
 
-  > .filter-remove,
-  > .filter-operator,
-  > .filter-contents {
-    margin-right: 20px;
+  > .filter-header > .contents-buttons .add-filterBuilder {
+    position: relative;
+    padding-right: @minimumSpacing;
   }
+
+  > .filter-header > .contents-buttons .add-filterBuilder span:nth-of-type(2) {
+    margin-right: @minimumSpacing;
+  }
+
+  > .filter-header > .contents-buttons .add-filterBuilder span:nth-of-type(2)::after {
+    content: '';
+    position: absolute;
+    right: 0px;
+    border-left: 1px solid @text-color;
+    border-top: 1px solid @text-color;
+    border-bottom: 1px solid @text-color;
+    height:100%;
+    width: @minimumSpacing;
+  }
+
+  > .filter-header {
+    white-space: nowrap;
+    margin-bottom: @minimumSpacing;
+  }
+
+  > .filter-header {
+    > .filter-remove,
+    > .filter-operator {
+      margin-right: @minimumSpacing;
+    }
 
     > .filter-remove {
       display: none;
-      vertical-align: middle;
+      vertical-align: top;
     }
 
-    > .filter-operator,
-    > .filter-contents {
+    > .filter-operator {
       display: inline-block;
-      vertical-align: middle;
+      vertical-align: top;
     }
 
     > .filter-operator {
@@ -27,26 +51,11 @@
       line-height: @minimumButtonSize;
     }
 
-    > .filter-contents:before {
-      content: '';
-      position: absolute;
-      border-left: 1px solid @text-color;
-      border-top: 1px solid @text-color;
-      border-bottom: 1px solid @text-color;
-      height:100%;
-      width: 10px;
+      > .contents-buttons > button{
+      padding: 0px @minimumSpacing;
     }
 
-    > .filter-contents > .contents-filters,
-    > .filter-contents > .contents-buttons{
-      padding-left: 10px;
-    }
-
-    > .filter-contents > .contents-buttons > button{
-      padding: 0px 10px;
-    }
-
-    > .filter-contents > .contents-buttons {
+    > .contents-buttons {
       display: none;
     }
 
@@ -55,53 +64,70 @@
       height: @minimumButtonSize;
     }
 
+  }
+
+  > .filter-contents {
+    margin-right: @minimumSpacing;
+    position: relative;
+  }
+
+  > .filter-contents {
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  > .filter-contents:before {
+    content: '';
+    position: absolute;
+    border-left: 1px solid @text-color;
+    border-top: 1px solid @text-color;
+    border-bottom: 1px solid @text-color;
+    height:100%;
+    width: @minimumSpacing;
+    opacity: @minimumOpacity;
+  }
+
+  > .filter-contents > .contents-filters {
+    padding-left: @minimumSpacing;
+  }
+
   .contents-buttons {
-    margin-left: 10px;
-    margin-bottom: 10px;
+    margin-left: @minimumSpacing;
 
     .add-filter {
-      margin-right: 10px;
+      margin-right: @minimumSpacing;
     }
   }
 
+  .filter-header:hover + .filter-contents {
+    .dropshadowlight;
+  }
+
   @{customElementNamespace}filter-builder {
-    margin: 10px;
+    margin: @minimumSpacing;
   }
 
 }
 
 @{customElementNamespace}filter-builder.is-editing {
 
-  > .filter-contents > .contents-buttons {
-    display: block;
+  > .filter-header > .contents-buttons {
+    display: inline-block;
+    vertical-align: top;
   }
 
 }
 
 @{customElementNamespace}filter-builder.hide-nesting {
-  > .filter-contents > .contents-buttons > .add-filterBuilder {
+  > .filter-header > .contents-buttons > .add-filterBuilder {
     display: none;
-  }
-}
-
-@{customElementNamespace}filter-collection.can-delete {
-  > @{customElementNamespace}filter-builder.is-editing {
-    > .filter-remove {
-      display: inline-block;
-    }
   }
 }
 
 @{customElementNamespace}filter-collection {
   > @{customElementNamespace}filter-builder.is-editing {
-    > .filter-remove {
-      display: none;
-    }
-  }
-
-  > @{customElementNamespace}filter-builder {
-    > .filter-remove {
-      display: none;
+    > .filter-header > .filter-remove {
+      display: inline-block;
     }
   }
 }

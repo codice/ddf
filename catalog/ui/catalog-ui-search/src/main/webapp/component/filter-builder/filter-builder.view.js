@@ -36,10 +36,10 @@ define([
         template: template,
         tagName: CustomElements.register('filter-builder'),
         events: {
-            'click > .filter-contents > .contents-buttons .getValue': 'printValue',
-            'click > .filter-remove': 'delete',
-            'click > .filter-contents > .contents-buttons .add-filter': 'addFilter',
-            'click > .filter-contents > .contents-buttons .add-filterBuilder': 'addFilterBuilder'
+            'click > .filter-header > .contents-buttons .getValue': 'printValue',
+            'click > .filter-header > .filter-remove': 'delete',
+            'click > .filter-header > .contents-buttons .add-filter': 'addFilter',
+            'click > .filter-header > .contents-buttons .add-filterBuilder': 'addFilterBuilder'
         },
         modelEvents: {
         },
