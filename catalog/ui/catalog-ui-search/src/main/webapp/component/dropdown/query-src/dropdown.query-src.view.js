@@ -30,6 +30,7 @@ define([
         initializeComponentModel: function(){
             //override if you need more functionality
             this.modelForComponent = this.model;
+            this.listenTo(this.model, 'change:federation', this.render);
         },
         isCentered: true,
         getCenteringElement: function(){
@@ -38,9 +39,12 @@ define([
         hasTail: true,
         serializeData: function(){
             var srcs = this.model.get('value');
-            return sources.toJSON().filter(function(src){
-                return srcs.indexOf(src.id) !== -1;
-            });
+            return {
+                sources: sources.toJSON().filter(function(src){
+                    return srcs.indexOf(src.id) !== -1;
+                }),
+                enterprise: this.model.get('federation') === 'enterprise'
+            };
         }
     });
 });

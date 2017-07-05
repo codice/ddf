@@ -13,27 +13,35 @@
  --}}
 <div>
     <div class="dropdown-label">
-        Sources:
+        Federation:
     </div>
-    <div class="dropdown-text">
-        {{#each this}}
-            <div class="text-src {{#if this.available}}is-available{{/if}}">
-                {{#unless available}}
-                    <span class="fa fa-exclamation-triangle src-availability">
+    <div class="dropdown-container">
+        <div class="dropdown-text">
+            {{#if enterprise}}
+                <span class="text-src is-available">
+                    All Sources
+                </span>
+            {{else}}
+                {{#each sources}}
+                    <span class="text-src {{#if this.available}}is-available{{/if}}">
+                        {{#unless available}}
+                            <i class="fa fa-exclamation-triangle src-availability">
 
+                            </i>
+                        {{/unless}}
+                        <span class="src-title">
+                            {{this.id}}
+                        </span>
+                    </span>
+                {{/each}}
+                {{#unless sources}}
+                    <span class="text-src is-available">
+                        None
                     </span>
                 {{/unless}}
-                <span class="src-title">
-                    {{this.id}}
-                </span>
-            </div>
-        {{/each}}
-        {{#unless this}}
-            <span class="text-src is-available">
-                Click here to select sources
-            </span>
-        {{/unless}}
+            {{/if}}
+        </div>
+        <span class="dropdown-icon fa fa-caret-down">
+        </span>
     </div>
-    <span class="dropdown-icon fa fa-caret-down">
-    </span>
 </div>

@@ -6,6 +6,7 @@
     height: @minimumButtonSize;
     line-height: @minimumButtonSize;
     cursor: pointer;
+    position: relative;
   }
 
   .choice:hover {
@@ -21,8 +22,16 @@
     display: none;
   }
 
-  .choice.is-selected .choice-selected{
-    display: inline;
+  .choice.is-selected::after {
+    display: inline-block;
+    content: "\f00c";
+    font-family: FontAwesome;
+    font-style: normal;
+    position: absolute;
+    top: ~'calc(50% - 1.375rem)';
+    right: 0px;
+    width: @minimumButtonSize;
+    text-align: center;
   }
 
   .choice.is-selected .choice-text{
