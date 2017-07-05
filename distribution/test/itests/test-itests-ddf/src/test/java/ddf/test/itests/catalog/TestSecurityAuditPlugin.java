@@ -14,7 +14,7 @@
 package ddf.test.itests.catalog;
 
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.deleteMetacard;
-import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingest;
+import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingestXmlFromResourceAndWait;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.update;
 
 import java.io.File;
@@ -79,7 +79,7 @@ public class TestSecurityAuditPlugin extends AbstractIntegrationTest {
 
         File securityLog = new File(logFilePath);
         WaitCondition.expect("Securitylog exists").within(2, TimeUnit.MINUTES)
-                .checkEvery(2, TimeUnit.MINUTES)
+                .checkEvery(2, TimeUnit.SECONDS)
                 .until(securityLog::exists);
 
         WaitCondition.expect("Securitylog has log message: " + configUpdateMessage)
@@ -87,7 +87,7 @@ public class TestSecurityAuditPlugin extends AbstractIntegrationTest {
                 .checkEvery(2, TimeUnit.SECONDS)
                 .until(() -> getFileContent(securityLog).contains(configUpdateMessage));
 
-        String id = ingest(getResourceAsString("metacard1.xml"), "text/xml");
+        String id = ingestXmlFromResourceAndWait("metacard1.xml");
 
         update(id, getResourceAsString("metacard2.xml"), "text/xml");
 
