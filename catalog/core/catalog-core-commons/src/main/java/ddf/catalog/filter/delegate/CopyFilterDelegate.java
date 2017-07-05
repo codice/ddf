@@ -102,9 +102,9 @@ public class CopyFilterDelegate extends FilterDelegate<Filter> {
 
     @Override
     public Filter propertyIsEqualTo(String functionName, List<Object> arguments, Object literal) {
-        //making an assumption that the first argument will be an attribute followed by N values
-        //this will work for most function if it doesn't we can add a switch based on function name
-        //to handle a specific function here
+        //Making an assumption that the first argument will be an attribute followed by N values.
+        //This will work for most functions. If it doesn't a switch based on function name can be added
+        //to handle a specific function here.
         ArgumentBuilder argBuilder = filterBuilder.function(functionName);
         for (int i = 0; i < arguments.size(); i++) {
             if (i == 0) {

@@ -267,10 +267,9 @@ public abstract class FilterDelegate<T> {
     }
 
     /**
-     * Compares the value function return value is equal to the value of a literal.
-     * For simplicity of the API arguments and literal are objects since filter delegates that
-     * support each function will have to be aware of what types they are since that is dictated by
-     * the function.
+     * Compares the function return value is equal to the value of a literal.
+     * Filter delegates will have to know the function argument types and return types for each specific
+     * function in order to support it, therefore to simplify the API they are just passed as objects.
      * <p>
      * {@code function result == literal}
      *

@@ -104,9 +104,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
     @Override
     public FilterType propertyIsEqualTo(String functionName, List<Object> arguments,
             Object literal) {
-        //this assumes the first argument is a property name followed by 0-N literals if a new
-        //function is added that doesn't conform to this then a other cases can be added. Most
-        //cases will still work even if they don't conform to the signature.
+        //This assumes the first argument is a property name followed by 0-N literals.
+        //If a new function is added that doesn't conform to this a switch can be added to handle
+        //that case. Most cases will work even if they don't conform to the signature.
         return cswFilterFactory.buildPropertyIsEqualTo(functionName, arguments, literal);
     }
 

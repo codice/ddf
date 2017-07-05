@@ -26,7 +26,7 @@ import java.util.Date;
 public interface ArgumentBuilder {
 
     /**
-     * continues building the {@link ArgumentBuilder} based on a float
+     * Continues building the {@link ArgumentBuilder} based on a float
      *
      * @param arg - float argument
      * @return {@link ArgumentBuilder}
@@ -101,7 +101,7 @@ public interface ArgumentBuilder {
     /**
      * Continues building the {@link ArgumentBuilder} based on a boolean value
      *
-     * @param arg - boolean value to ArgumentBuilder on
+     * @param arg - boolean argument
      * @return {@link ArgumentBuilder}
      */
     ArgumentBuilder boolArg(boolean arg);

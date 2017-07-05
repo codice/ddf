@@ -160,7 +160,6 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
     }
 
     @Override
-
     public Object visit(Literal expression, Object clazz) {
         if (expression.getValue() == null) {
             throw new UnsupportedOperationException(
@@ -204,7 +203,6 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
 
     public Object visit(IncludeFilter filter, Object delegate) {
         return ((FilterDelegate<?>) delegate).include();
-
     }
 
     public Object visit(Id filter, Object delegate) {
@@ -983,22 +981,25 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
         String propertyName;
         Object literal;
         String functionName;
-        List<Object> functionArgs;
+        List functionArgs;
 
         if (expression1 instanceof Function && expression2 instanceof Literal) {
-            functionName = ((Function) expression1).getName();
-            functionArgs = (List) expression1.accept(this, delegate);
-            literal = expression2.accept(this,
-                    ((Function) expression1).getFunctionName()
-                            .getReturn()
-                            .getType());
+            Function function = (Function) expression1;
+            Class<?> clazz = function.getFunctionName()
+                    .getReturn()
+                    .getType();
+            functionName = function.getName();
+            functionArgs = (List) function.accept(this, delegate);
+            literal = expression2.accept(this, clazz);
             return new ExpressionValues(functionName, functionArgs, literal);
         } else if (expression2 instanceof Function && expression1 instanceof Literal) {
-            literal = expression2.accept(this, ((Function) expression2).getFunctionName()
-                            .getReturn()
-                            .getType());
-            functionName = ((Function) expression2).getName();
-            functionArgs = (List) expression1.accept(this, delegate);
+            Function function = (Function) expression2;
+            Class<?> clazz = function.getFunctionName()
+                    .getReturn()
+                    .getType();
+            functionName = function.getName();
+            functionArgs = (List) function.accept(this, delegate);
+            literal = expression1.accept(this, clazz);
             return new ExpressionValues(functionName, functionArgs, literal);
         } else if (expression1 instanceof PropertyName && expression2 instanceof Literal) {
             propertyName = (String) expression1.accept(this, delegate);

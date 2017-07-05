@@ -226,7 +226,9 @@ public class CswQueryFactoryTest {
                                 Collections.singleton(new AttributeDescriptorImpl("TestDate",
                                         true,
                                         true,
-                                        true, false, BasicTypes.DATE_TYPE)))));
+                                        true,
+                                        false,
+                                        BasicTypes.DATE_TYPE)))));
     }
 
     @org.junit.Before

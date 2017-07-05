@@ -123,7 +123,9 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
                                 sourceCRS);
                         literalExpression.setValue(convertedGeometry);
                     } catch (GeoFormatException e) {
-                        LOGGER.debug("Unable to convert geometry to EPSG:4326 format", e);
+                        LOGGER.debug("Unable to convert geometry {} to EPSG:4326 format",
+                                valueObj,
+                                e);
                     }
                 }
             }

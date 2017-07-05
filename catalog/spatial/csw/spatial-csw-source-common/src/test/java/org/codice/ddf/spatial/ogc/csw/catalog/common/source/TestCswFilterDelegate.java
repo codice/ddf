@@ -1010,22 +1010,34 @@ public class TestCswFilterDelegate {
 
     private String createComparisonFunctionFilterStringWithoutHeaderAndFooter(
             ComparisonOperator comparisonOp, String functionName, Object literal, Object[] args) {
-        String expression = "<ns3:" + comparisonOp;
-        expression += ">";
-        expression += "<ns3:Function name=\"" + functionName + "\">";
+        StringBuilder sb = new StringBuilder();
+        sb.append("<ns3:")
+                .append(comparisonOp)
+                .append('>');
+        sb.append("<ns3:Function name=\"")
+                .append(functionName)
+                .append("\">");
         for (int i = 0; i < args.length; i++) {
             if (i == 0) {
-                expression += "<ns3:PropertyName>" + args[i] + "</ns3:PropertyName>";
+                sb.append("<ns3:PropertyName>")
+                        .append(args[0])
+                        .append("</ns3:PropertyName>");
             } else {
-                expression += "<ns3:Literal>" + args[i] + "</ns3:Literal>";
+                sb.append("<ns3:Literal>")
+                        .append(args[i])
+                        .append("</ns3:Literal>");
             }
         }
-        expression += "</ns3:Function>";
+        sb.append("</ns3:Function>");
 
-        expression += "<ns3:Literal>" + literal + "</ns3:Literal>";
-        expression += "</ns3:" + comparisonOp + ">";
+        sb.append("<ns3:Literal>")
+                .append(literal)
+                .append("</ns3:Literal>");
+        sb.append("</ns3:")
+                .append(comparisonOp)
+                .append('>');
 
-        return expression;
+        return sb.toString();
     }
 
     /**

@@ -603,8 +603,13 @@ public class TestCatalog extends AbstractIntegrationTest {
         try {
 
             given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-                    .get(CSW_PATH.getUrl()
-                            + "?service=CSW&version=2.0.2&request=GetRecords&outputFormat=application/xml&outputSchema=http://www.opengis.net/cat/csw/2.0.2&NAMESPACE=xmlns(csw=http://www.opengis.net/cat/csw/2.0.2)&resultType=results&typeNames=csw:Record&ElementSetName=brief&ConstraintLanguage=CQL_TEXT&constraint=proximity(metadata,2,'All Hail Our SysAdmin')=true")
+                    .get(CSW_PATH.getUrl() + "?service=CSW&version=2.0.2&" + "request=GetRecords&"
+                            + "outputFormat=application/xml&"
+                            + "outputSchema=http://www.opengis.net/cat/csw/2.0.2&"
+                            + "NAMESPACE=xmlns(csw=http://www.opengis.net/cat/csw/2.0.2)&"
+                            + "resultType=results&typeNames=csw:Record&"
+                            + "ElementSetName=brief&ConstraintLanguage=CQL_TEXT&"
+                            + "constraint=proximity(metadata,2,'All Hail Our SysAdmin')=true")
                     .then()
                     .assertThat()
                     .statusCode(equalTo(200))
