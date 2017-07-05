@@ -7,8 +7,6 @@
 @negative-color: #8a423c;
 @warning-color: #c89600;
 @favorite-color: #d1d179;
-@links-visited-color: #9874e4;
-@links-color: @primary-color;
 
 //grey range
 @baseGrey: #424249;
@@ -25,6 +23,8 @@
 @card-background-color: @twentyGrey;
 @text-color: contrast(@fortyGrey);
 @button-text-color: white;
+@links-visited-color: average(#9874e4, @text-color);
+@links-color: average(@primary-color, @text-color);
 
 //relative coloring
 @lighten-inherited-background-color: fade(@text-color, 5%);
