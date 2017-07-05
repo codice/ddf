@@ -24,49 +24,53 @@ import org.apache.commons.lang3.Validate;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Result;
 import ddf.catalog.federation.FederationException;
+import ddf.catalog.operation.Query;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 
 /**
- * QueryResultPaginator controls paging of CatalogFramework queries by batching them into
- * lists of results to return to an iterator class, independent of the number of results
- * the Catalog Framework returns with each query. This helps clients guarantee a particular
- * batch size rather than operate at the mercy of the Catalog Framework.
- * <p>
- * The pageSize is the guaranteed size of any list of results returned to a client.
- * <p>
- * The indexOffset is tracked to ensure that the correct query results are returned
- * and no repetition of results occurs.
- * <p>
- * The queryCopy exists to help adjust the starting index of the query without modifying
- * the original query.
- * <p>
- * The BlockingQueue of Result type is used to buffer fetched results from the
- * Catalog Framework and hold them until they can be drained into a result list to
- * return to the client.
- * <p>
- * The boolean `noMoreCatalogFrameworkResultsToFetch` is updated to true when no more
- * results can be fetched from Catalog Framework.
+ * This class controls paging of {@link CatalogFramework} queries by batching them into lists of
+ * results, independent of the number of results the Catalog Framework returns with each query.
+ * This helps clients guarantee a particular batch size rather than getting fewer results than
+ * expected from the Catalog Framework.
  */
 public class QueryResultPaginator {
 
     private final CatalogFramework catalogFramework;
 
+    // Used to query the catalog framework and adjust the starting index of the query without
+    // modifying the original query.
     private final QueryImpl queryCopy;
 
+    // Used to track the start index of the next query and ensure that the correct query results
+    // are returned with no repetition of results.
     private int indexOffset;
 
     private int pageSize;
 
-    //Set to true when a query returns zero results.
+    // Set to true when a query returns zero results and no more results can be fetched from
+    // Catalog Framework..
     private boolean noMoreCatalogFrameworkResultsToFetch;
 
+    // Used to buffer fetched results from the Catalog Framework and hold them until they can be
+    // drained into a result list to return to the client.
     private BlockingQueue<Result> queriedResultsBuffer;
 
-    public QueryResultPaginator(CatalogFramework catalogFramework, QueryImpl query) {
-
+    /**
+     * Creates a paginator based on the {@link Query} provided.
+     * <p>
+     * The page size provided in the {@link Query} is the guaranteed size of any list of results
+     * returned to a client.
+     * </p>
+     *
+     * @param catalogFramework reference to the {@link CatalogFramework}
+     * @param query            client query. Will be used to query the {@link CatalogFramework}
+     *                         and guarantee that the number of results returned will always match
+     *                         the query page size provided until all results have been retrieved.
+     */
+    public QueryResultPaginator(CatalogFramework catalogFramework, Query query) {
         Validate.notNull(catalogFramework);
         Validate.notNull(query);
 
@@ -76,12 +80,6 @@ public class QueryResultPaginator {
         noMoreCatalogFrameworkResultsToFetch = false;
         pageSize = queryCopy.getPageSize();
         indexOffset = queryCopy.getStartIndex();
-
-        Validate.inclusiveBetween(1,
-                Integer.MAX_VALUE,
-                indexOffset,
-                "Query request start index must be greater than zero");
-
         queriedResultsBuffer = new LinkedBlockingDeque<>();
     }
 
@@ -95,8 +93,9 @@ public class QueryResultPaginator {
             return false;
         }
 
-        //Buffer is empty, but query might not be exhausted.
+        // Buffer is empty, but query might not be exhausted.
         fetchNext();
+
         return notEmpty();
     }
 
@@ -114,12 +113,12 @@ public class QueryResultPaginator {
         return queriedResultsBufferCopy;
     }
 
-    protected boolean notEmpty() {
+    private boolean notEmpty() {
         return !queriedResultsBuffer.isEmpty();
     }
 
-    QueryImpl copy(QueryImpl query) {
-        return new QueryImpl(query.getFilter(),
+    private QueryImpl copy(Query query) {
+        return new QueryImpl(query,
                 query.getStartIndex(),
                 query.getPageSize(),
                 query.getSortBy(),
@@ -127,21 +126,15 @@ public class QueryResultPaginator {
                 query.getTimeoutMillis());
     }
 
-    int getBufferSize() {
+    private int getBufferSize() {
         return queriedResultsBuffer.size();
     }
 
-    int getIndexOffset() {
-        return indexOffset;
-    }
-
     /**
-     * Get the next batch of results.
-     * Assume the current index is pointed to the first result
-     * that has not been retrieved.
-     * Update the current index after the results are fetched.
-     * Add the fetched results to the queriedResultsBuffer.
-     * If no results were returned, assume there are no more results possible.
+     * Gets the next batch of results and adds them to the {@link #queriedResultsBuffer}.
+     * Assumes the current index is pointed to the first result that has not been retrieved.
+     * Updates the current index after the results are fetched.
+     * If no results were returned, assumes there are no more results.
      */
     private void fetchNext() {
 
@@ -155,7 +148,7 @@ public class QueryResultPaginator {
             queriedResultsBuffer.addAll(resultList);
         }
     }
-    
+
     private List<Result> queryCatalogFramework() {
         try {
             return catalogFramework.query(new QueryRequestImpl(queryCopy))

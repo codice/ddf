@@ -21,26 +21,30 @@ import org.apache.commons.lang3.Validate;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Result;
-import ddf.catalog.operation.impl.QueryImpl;
+import ddf.catalog.operation.Query;
 
 /**
- * Class that facilitates iteration over individual catalog results
+ * Class that facilitates iteration over individual catalog results.
  * <br/>
  * Throws a {@link CatalogQueryException} if anything goes wrong during iteration or
- * querying
+ * querying.
  */
 public class QueryResultIterable implements Iterable<Result> {
     private final CatalogFramework catalog;
 
-    private final QueryImpl query;
+    private final Query query;
 
     /**
-     * Constructor for QueryResultIterable
+     * Constructor for QueryResultIterable.
      *
-     * @param catalogFramework catalogFramework to query
-     * @param query            Query request structure
+     * @param catalogFramework catalog to query
+     * @param query            query used to query the catalog framework for results. Query
+     *                         parameters such as {@link Query#getPageSize()} and
+     *                         {@link Query#getStartIndex()} will be used and are guaranteed to be
+     *                         respected when valid, regardless of any limit imposed by the catalog
+     *                         framework on the result size.
      */
-    public QueryResultIterable(CatalogFramework catalogFramework, QueryImpl query) {
+    public QueryResultIterable(CatalogFramework catalogFramework, Query query) {
         Validate.notNull(catalogFramework, "Catalog is null");
         Validate.notNull(query, "queryRequest is null");
 
@@ -58,7 +62,7 @@ public class QueryResultIterable implements Iterable<Result> {
         int characteristics = Spliterator.DISTINCT;
         return Spliterators.spliteratorUnknownSize(this.iterator(), characteristics);
     }
-    
+
     class ResultQueryIterator implements Iterator<Result> {
 
         private QueryResultPaginator queryResultPaginator;

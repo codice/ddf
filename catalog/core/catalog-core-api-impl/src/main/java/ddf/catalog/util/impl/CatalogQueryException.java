@@ -13,6 +13,10 @@
  */
 package ddf.catalog.util.impl;
 
+/**
+ * Exception used to wrap checked exceptions thrown by {@link ddf.catalog.CatalogFramework#query}
+ * methods. The original exception can be accessed by calling {@link #getCause()}.
+ */
 public class CatalogQueryException extends RuntimeException {
 
     public CatalogQueryException(String message, Throwable cause) {
