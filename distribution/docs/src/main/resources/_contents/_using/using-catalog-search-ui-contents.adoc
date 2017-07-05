@@ -89,6 +89,17 @@ In ${catalog-ui}, workspaces can be shared between users at different levels of 
 .. To remove the workspace from users with specific roles, set the drop-down menu to *No Access* for that role.
 .. To remove individual users, remove their email from the email list.
 
+[[_ui_ingest]]
+=== Ingesting from ${catalog-ui}
+
+Resources can be ingested directly from ${catalog-ui}.
+
+. Navigate in the browser to ${catalog-ui} at ${secure_url}/search.
+. Select the Menu icon (image:navigation-menu-icon.png[]) in the upper left corner
+. Select *Upload*.
+. Drag and drop the sample file or click to navigate to it.
+. Select *Start* to begin upload.
+
 === Searching with ${catalog-ui}
 
 The Search pane has three tabs: *Searches*, *Results*, and *Bookmarks*.

@@ -1,3 +1,9 @@
+:title: Ingesting Data
+:type: dataManagement
+:status: published
+:summary: Methods of ingesting data.
+:order: 01
+
 === Ingesting Data
 
 Ingesting is the process of getting metacard(s) into the Catalog Framework.
@@ -12,7 +18,7 @@ There are many methods of ingest supported by the ${branding} to support differe
 
 These methods are the simplest for small data sets or for testing purposes.
 
-===== Ingest Command (${command-console})
+====== Ingest Command (${command-console})
 
 The ${branding} console application has a command-line option for ingesting files
 
@@ -23,7 +29,7 @@ For XML data, run this command:
 ingest -t xml examples/metacards/xml
 ----
 
-===== Directory Monitor
+====== Directory Monitor Ingest
 
 The ${ddf-catalog} application contains a Directory Monitor feature that allows files placed in a single directory to be monitored and ingested automatically.
 For more information about configuring a directory to be monitored, see <<_configuring_the_content_directory_monitor,Configuring the Content Directory Monitor>>.
@@ -32,7 +38,11 @@ Simply place the desired files in the monitored directory and it will be ingeste
 If, for any reason, the files cannot be ingested, they will be moved to an automatically created sub-folder named `.errors`.
 Optionally, ingested files can be automatically moved to a sub-folder called `.ingested`.
 
-==== Medium Complexity (for more than a few resources)
+====== User Interface Ingest
+
+Files and resources can also be ingested directly from <<_ui_ingest, ${catalog-ui}>>.
+
+===== Medium Complexity (for more than a few resources)
 
 These methods are useful for slightly larger data sets or infrequent ingests.
 
