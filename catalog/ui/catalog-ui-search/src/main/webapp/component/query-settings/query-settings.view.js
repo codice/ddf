@@ -42,7 +42,6 @@ define([
         },
         regions: {
             settingsSortField: '.settings-sorting-field',
-            settingsFederation: '.settings-federation',
             settingsSrc: '.settings-src'
         },
         ui: {
@@ -51,10 +50,7 @@ define([
         },
         onBeforeShow: function(){
             this.setupSortFieldDropdown();
-            this.setupFederationDropdown();
             this.setupSrcDropdown();
-            this.listenTo(this.settingsFederation.currentView.model, 'change:value', this.handleFederationValue);
-            this.handleFederationValue();
             if (this.model._cloneOf === undefined){
                 this.turnOnEditing();
             }
@@ -71,43 +67,16 @@ define([
             this.settingsSortField.currentView.turnOffEditing();
             this.settingsSortField.currentView.turnOnLimitedWidth();
         },
-        setupFederationDropdown: function(){
-            this.settingsFederation.show(new PropertyView({
-                model: new Property({
-                    enum: [
-                        {
-                            label: 'All Sources',
-                            value: 'enterprise'
-                        },
-                        {
-                            label: 'Specific Sources',
-                            value: 'selected'
-                        },
-                        {
-                            label: 'None',
-                            value: 'local'
-                        }
-                    ],
-                    value: [this.model.get('federation')],
-                    id: 'Federation'
-                })
-            }));
-            this.settingsFederation.currentView.turnOffEditing();
-            this.settingsFederation.currentView.turnOnLimitedWidth();
-        },
         setupSrcDropdown: function(){
             var sources = this.model.get('src');
             this._srcDropdownModel = new DropdownModel({
-                value: sources ? sources : []
+                value: sources ? sources : [],
+                federation: this.model.get('federation')
             });
             this.settingsSrc.show(new QuerySrcView({
                 model: this._srcDropdownModel
             }));
             this.settingsSrc.currentView.turnOffEditing();
-        },
-        handleFederationValue: function(){
-            var federation = this.settingsFederation.currentView.model.getValue()[0];
-            this.$el.toggleClass('is-specific-sources', federation === 'selected');
         },
         turnOnEditing: function(){
            this.$el.addClass('is-editing');
@@ -127,10 +96,13 @@ define([
             }
         },
         saveToModel: function(){
-            var federation = this.settingsFederation.currentView.model.getValue()[0];
+            var federation = this._srcDropdownModel.get('federation');
             this.model.set({
                 src: federation === 'selected' ? this._srcDropdownModel.get('value') : undefined
             });
+            if (federation === 'selected' && (this.model.get('src') === undefined || this.model.get('src').length === 0)) {
+                federation = 'local';
+            }
             this.model.set({
                 federation: federation
             });

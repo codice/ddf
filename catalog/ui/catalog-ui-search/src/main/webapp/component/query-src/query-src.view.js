@@ -29,7 +29,8 @@ define([
             'change': 'render'
         },
         events: {
-            'click .choice': 'handleChoice'
+            'click .choice:not(.is-all)': 'handleChoice',
+            'click .choice.is-all': 'handleChoiceAll'
         },
         ui: {
         },
@@ -39,11 +40,26 @@ define([
             this.handleValue();
         },
         handleValue: function(){
-            var srcs = this.model.get('value');
             this.$el.find('[data-value]').removeClass('is-selected');
-            srcs.forEach(function(src){
-                this.$el.find('[data-value="'+src+'"]').addClass('is-selected');
-            }.bind(this));
+            switch(this.model.get('federation')){
+                case 'enterprise':
+                    this.$el.find('.choice.is-all').addClass('is-selected');
+                    break;
+                case 'selected':
+                    var srcs = this.model.get('value');
+                    srcs.forEach(function(src){
+                        this.$el.find('[data-value="'+src+'"]').addClass('is-selected');
+                    }.bind(this));
+                    break;
+                default: 
+                    break;
+            }
+        },
+        handleChoiceAll: function(e){
+            $(e.currentTarget).toggleClass('is-selected');
+            this.model.set({
+                federation: this.model.get('federation') === 'enterprise' ? 'selected' : 'enterprise'
+            });
         },
         handleChoice: function(e){
             $(e.currentTarget).toggleClass('is-selected');
@@ -54,7 +70,8 @@ define([
                  return $(choice).attr('data-value');
             });
             this.model.set({
-                value: srcs
+                value: srcs,
+                federation: 'selected'
             });
         },
         serializeData: function(){
