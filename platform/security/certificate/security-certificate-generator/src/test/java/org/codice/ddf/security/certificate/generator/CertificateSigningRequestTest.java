@@ -189,6 +189,7 @@ public class CertificateSigningRequestTest {
         csr.setSerialNumber(-1);
     }
 
+    @Test
     public void testNewCertificateBuilderWithoutSAN() throws Exception {
         final DateTime start = DateTime.now()
                 .minusDays(1);

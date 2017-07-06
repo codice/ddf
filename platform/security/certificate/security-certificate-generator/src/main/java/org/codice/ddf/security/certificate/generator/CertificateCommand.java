@@ -28,9 +28,11 @@ import ddf.security.SecurityConstants;
 
 public class CertificateCommand {
 
+    private static final String SAN_EXAMPLE = "-san DNS:localhost,IP:127.0.0.1";
+
     /**
      * Pass in a string to use as the common name of the certificate to be generated.
-     * Exception thrown if 0 arguments or more than 2 argument (or 4 when -san is used).
+     * Exception thrown if 0 arguments or more than 2 argument (or more than 4 when -san is used).
      *
      * @param args
      */
@@ -58,7 +60,6 @@ public class CertificateCommand {
         }
         if (args.length != expected) {
             String canonicalName = CertificateCommand.class.getCanonicalName();
-            String exSan = "-san DNS:localhost,IP:127.0.0.1";
             String exCn = String.format("java %s -cn \"John Smith\"", canonicalName);
             String exDn = String.format(
                     "java %s -dn \"cn=John Whorfin, o=Yoyodyne, l=San Narciso, st=California, c=US\"",
@@ -69,9 +70,9 @@ public class CertificateCommand {
                     exCn,
                     exDn,
                     exCn,
-                    exSan,
+                    CertificateCommand.SAN_EXAMPLE,
                     exDn,
-                    exSan);
+                    CertificateCommand.SAN_EXAMPLE);
             throw new RuntimeException(usage);
         }
         if (args[mainIndex].trim()
@@ -144,7 +145,7 @@ public class CertificateCommand {
                         .toCharArray());
     }
 
-    static String configureCert(String commonName, CertificateSigningRequest csr) {
+    private static String configureCert(String commonName, CertificateSigningRequest csr) {
         CertificateAuthority demoCa = new DemoCertificateAuthority();
         KeyStore.PrivateKeyEntry pkEntry = demoCa.sign(csr);
         KeyStoreFile ksFile = getKeyStoreFile();

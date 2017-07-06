@@ -80,12 +80,12 @@ For *NIX, use the `CertNew.sh` script.
 
 `sh CertNew.sh <FQDN> [-san <tag:name,tag:name,...>]`
 
-where `<subject tag:name,tag:name,...>` represents optional subject alternative names to be added to the generated certificate. The format for subject alternative names is similar to the OpenSSL X509 configuration format. Supported tags are:
+where `<tag:name,tag:name,...>` represents optional subject alternative names to be added to the generated certificate. The format for subject alternative names is similar to the OpenSSL X509 configuration format. Supported tags are:
 
-* `email`
+* `email` - email subject
 * `URI` - uniformed resource identifier
 * `RID` - registered id
-* `DNS`
+* `DNS` - hostname
 * `IP` - ip address (V4 or V6)
 * `dirName` - directory name
 
@@ -100,18 +100,18 @@ For Windows, use the `CertNew.cmd` script.
 
 `CertNew -cn <FQDN> [-san <tag:name,tag:name,...>]`
 
-where `<subject tag:name,tag:name,...>` represents optional subject alternative names to be added to the generated certificate. The format for subject alternative names is similar to the OpenSSL X509 configuration format. Supported tags are:
+where `<tag:name,tag:name,...>` represents optional subject alternative names to be added to the generated certificate. The format for subject alternative names is similar to the OpenSSL X509 configuration format. Supported tags are:
 
-* `email`
+* `email` - email subject
 * `URI` - uniformed resource identifier
 * `RID` - registered id
-* `DNS`
+* `DNS` - hostname
 * `IP` - ip address (V4 or V6)
 * `dirName` - directory name
 
 Alternatively, a distinguished name can be provided to the script with a comma-delimited string.
 
-`CertNew -dn "c=US, st=California, o=Yoyodyne, l=San Narciso, cn=<FQDN>" [-san <subject tag:name,tag:name,...>]`
+`CertNew -dn "c=US, st=California, o=Yoyodyne, l=San Narciso, cn=<FQDN>" [-san <tag:name,tag:name,...>]`
 ****
 
 The `CertNew` scripts:

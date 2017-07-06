@@ -44,6 +44,7 @@ import ddf.security.SecurityConstants;
 @RunWith(MockitoJUnitRunner.class)
 public class CertificateCommandTest {
     private static final String[] SANs = new String[] {"IP:1.2.3.4", "DNS:A"};
+
     private static final String SANs_ARG = "IP:1.2.3.4,DNS:A";
 
     @Rule
@@ -183,46 +184,59 @@ public class CertificateCommandTest {
 
     @Test
     public void testMainWithCNAndSANs() throws Exception {
-        CertificateCommand.main(new String[] {"-cn", "my-fqdn", "-san", CertificateCommandTest.SANs_ARG});
+        CertificateCommand.main(new String[] {"-cn", "my-fqdn", "-san",
+                CertificateCommandTest.SANs_ARG});
 
         validateKeyStore("my-fqdn", true);
     }
 
     @Test
     public void testMainWithCNAndSANsReversedArguments() throws Exception {
-        CertificateCommand.main(new String[] {"-san", CertificateCommandTest.SANs_ARG, "-cn", "my-fqdn"});
+        CertificateCommand.main(new String[] {"-san", CertificateCommandTest.SANs_ARG, "-cn",
+                "my-fqdn"});
 
         validateKeyStore("my-fqdn", true);
     }
 
     @Test
     public void testMainWithDNAndWithoutSAN() throws Exception {
-        CertificateCommand.main(new String[] {"-dn", "CN=John Whorfin,O=Yoyodyne,L=San Narciso,ST=California,C=US"});
+        CertificateCommand.main(new String[] {"-dn",
+                "CN=John Whorfin,O=Yoyodyne,L=San Narciso,ST=California,C=US"});
 
         validateKeyStore("john whorfin", false);
     }
 
     @Test
     public void testMainWithDNAndSANs() throws Exception {
-        CertificateCommand.main(new String[] {"-dn", "CN=John Whorfin,O=Yoyodyne,L=San Narciso,ST=California,C=US", "-san", CertificateCommandTest.SANs_ARG});
+        CertificateCommand.main(new String[] {"-dn",
+                "CN=John Whorfin,O=Yoyodyne,L=San Narciso,ST=California,C=US", "-san",
+                CertificateCommandTest.SANs_ARG});
 
         validateKeyStore("john whorfin", true);
     }
 
     @Test
     public void testMainWithDNAndSANsReversedArguments() throws Exception {
-        CertificateCommand.main(new String[] {"-san", CertificateCommandTest.SANs_ARG, "-dn", "CN=John Whorfin,O=Yoyodyne,L=San Narciso,ST=California,C=US"});
+        CertificateCommand.main(new String[] {"-san", CertificateCommandTest.SANs_ARG, "-dn",
+                "CN=John Whorfin,O=Yoyodyne,L=San Narciso,ST=California,C=US"});
 
         validateKeyStore("john whorfin", true);
     }
 
     @Test(expected = RuntimeException.class)
     public void testMainWithTooFewArguments() throws Exception {
-        CertificateCommand.main(new String[] { "something" });
+        CertificateCommand.main(new String[] {"something"});
     }
 
     @Test(expected = RuntimeException.class)
     public void testMainWithTooFewArgumentsWithSAN() throws Exception {
-        CertificateCommand.main(new String[] { "-san", CertificateCommandTest.SANs_ARG, "something" });
+        CertificateCommand.main(new String[] {"-san", CertificateCommandTest.SANs_ARG,
+                "something"});
     }
+
+    @Test(expected = RuntimeException.class)
+    public void testMainWithTooManyArguments() throws Exception {
+        CertificateCommand.main(new String[] {"something", "wicked", "is", "coming", "to", "town"});
+    }
+
 }

@@ -266,10 +266,10 @@ public abstract class PkiTools {
      * Create an X509 general name based on the specified string which supports a format similar to
      * OpenSSL X509 configuration as: {@code tag:name} where tag can be one of:
      * <ul>
-     * <li>email</li>
+     * <li>email - email subject</li>
      * <li>URI - uniformed resource identifier</li>
      * <li>RID - registered id</li>
-     * <li>DNS</li>
+     * <li>DNS - hostname</li>
      * <li>IP - ip address (V4 or V6)</li>
      * <li>dirName - directory name</li>
      * </ul>
@@ -282,8 +282,6 @@ public abstract class PkiTools {
      */
     public static GeneralName makeGeneralName(String name) {
         Validate.isTrue(name != null, "Certificate general name cannot be null");
-
-        assert name != null;
         final int i = name.indexOf(':');
 
         Validate.isTrue(i != -1, "General name components must be in the format tag:value");
