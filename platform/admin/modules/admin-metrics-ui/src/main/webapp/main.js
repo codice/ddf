@@ -54,7 +54,7 @@
 
             // require plugins
             text: '../../admin/metrics/requirejs-plugins/1.0.3/lib/text',
-            css: '../../admin/metrics/require-css/0.1.5/css',
+            css: '../../admin/metrics/require-css/0.1.10/css',
 
             // default admin ui
             app: '../../admin/metrics/js/application',

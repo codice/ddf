@@ -50,7 +50,7 @@
 
             // require plugins
             text: 'requirejs-plugins/1.0.3/lib/text',
-            css: 'require-css/0.1.5/css',
+            css: 'require-css/0.1.10/css',
 
             // datatables
 
