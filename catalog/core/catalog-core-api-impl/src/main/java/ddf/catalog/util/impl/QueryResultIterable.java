@@ -52,9 +52,15 @@ public class QueryResultIterable implements Iterable<Result> {
         this.query = query;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * The {@link Iterator} will retrieve results from the {@link CatalogFramework} as needed,
+     * based on the start index and page size provided in the query.
+     */
     @Override
     public Iterator<Result> iterator() {
-        return new ResultQueryIterator();
+        return new QueryResultIterator();
     }
 
     @Override
@@ -63,13 +69,13 @@ public class QueryResultIterable implements Iterable<Result> {
         return Spliterators.spliteratorUnknownSize(this.iterator(), characteristics);
     }
 
-    class ResultQueryIterator implements Iterator<Result> {
+    class QueryResultIterator implements Iterator<Result> {
 
         private QueryResultPaginator queryResultPaginator;
 
         private Iterator<Result> queriedResults = null;
 
-        public ResultQueryIterator() {
+        public QueryResultIterator() {
             this.queryResultPaginator = new QueryResultPaginator(catalog, query);
         }
 

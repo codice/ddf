@@ -45,7 +45,6 @@ import ddf.catalog.content.data.impl.ContentItemImpl;
 import ddf.catalog.content.operation.impl.CreateStorageRequestImpl;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.impl.CreateRequestImpl;
-import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.security.common.audit.SecurityLogger;
 

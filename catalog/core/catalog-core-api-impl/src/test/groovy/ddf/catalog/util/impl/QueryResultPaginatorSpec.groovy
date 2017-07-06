@@ -234,13 +234,13 @@ class QueryResultPaginatorSpec extends Specification {
     // Gets a list of results with each Result's distanceInMeters set to a value equal to
     // startIndex up to the resultListSize or totalResults, whichever is reached first.
     private List<Result> getResultListOfSize(int startIndex, int resultListSize, int totalResults) {
-        List<Result> resultList = new ArrayList<>()
+        def resultList = []
         def endIndex = resultListSize + startIndex - 1
 
         for (int i = startIndex; (i <= endIndex) && (i <= totalResults); i++) {
-            ResultImpl newResult = new ResultImpl()
+            def newResult = new ResultImpl()
             newResult.setDistanceInMeters((double) i)
-            resultList.add(newResult)
+            resultList << newResult
         }
 
         return resultList
