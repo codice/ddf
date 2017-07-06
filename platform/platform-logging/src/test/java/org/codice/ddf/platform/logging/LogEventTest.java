@@ -18,10 +18,14 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.ops4j.pax.logging.PaxLogger.LEVEL_DEBUG;
+import static org.ops4j.pax.logging.PaxLogger.LEVEL_ERROR;
+import static org.ops4j.pax.logging.PaxLogger.LEVEL_INFO;
+import static org.ops4j.pax.logging.PaxLogger.LEVEL_TRACE;
+import static org.ops4j.pax.logging.PaxLogger.LEVEL_WARNING;
 
 import java.util.Properties;
 
-import org.apache.log4j.Priority;
 import org.codice.ddf.platform.logging.LogEvent.Level;
 import org.junit.Test;
 import org.ops4j.pax.logging.spi.PaxLevel;
@@ -128,16 +132,16 @@ public class LogEventTest {
             @Override
             public int toInt() {
                 switch (level) {
-                case "ERROR":
-                    return Priority.ERROR_INT;
-                case "WARN":
-                    return Priority.WARN_INT;
-                case "INFO":
-                    return Priority.INFO_INT;
-                case "DEBUG":
-                    return Priority.DEBUG_INT;
-                case "TRACE":
-                    return org.apache.log4j.Level.TRACE_INT;
+                case ERROR_LEVEL:
+                    return LEVEL_ERROR;
+                case WARN_LEVEL:
+                    return LEVEL_WARNING;
+                case INFO_LEVEL:
+                    return LEVEL_INFO;
+                case DEBUG_LEVEL:
+                    return LEVEL_DEBUG;
+                case TRACE_LEVEL:
+                    return LEVEL_TRACE;
                 default:
                     return -1;
                 }

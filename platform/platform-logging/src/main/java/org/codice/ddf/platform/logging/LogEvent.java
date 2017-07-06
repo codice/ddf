@@ -13,15 +13,20 @@
  */
 package org.codice.ddf.platform.logging;
 
+import static org.ops4j.pax.logging.PaxLogger.LEVEL_DEBUG;
+import static org.ops4j.pax.logging.PaxLogger.LEVEL_ERROR;
+import static org.ops4j.pax.logging.PaxLogger.LEVEL_INFO;
+import static org.ops4j.pax.logging.PaxLogger.LEVEL_TRACE;
+import static org.ops4j.pax.logging.PaxLogger.LEVEL_WARNING;
+
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.log4j.Priority;
 import org.ops4j.pax.logging.spi.PaxLoggingEvent;
 
 /**
  * Describes a log event in the system
  */
-class LogEvent {
+public class LogEvent {
 
     private static final String BUNDLE_NAME_KEY = "bundle.name";
 
@@ -126,22 +131,22 @@ class LogEvent {
 
     private Level getLevel(int level) {
         switch (level) {
-        case Priority.ERROR_INT:
+        case LEVEL_ERROR:
             return Level.ERROR;
-        case Priority.WARN_INT:
+        case LEVEL_WARNING:
             return Level.WARN;
-        case Priority.INFO_INT:
+        case LEVEL_INFO:
             return Level.INFO;
-        case Priority.DEBUG_INT:
+        case LEVEL_DEBUG:
             return Level.DEBUG;
-        case org.apache.log4j.Level.TRACE_INT:
+        case LEVEL_TRACE:
             return Level.TRACE;
         default:
             return Level.UNKNOWN;
         }
     }
 
-    enum Level {
+    public enum Level {
         TRACE("TRACE"), 
         DEBUG("DEBUG"), 
         INFO("INFO"), 
@@ -155,7 +160,7 @@ class LogEvent {
             level = l;
         }
 
-        String getLevel() {
+        public String getLevel() {
             return level;
         }
     }
