@@ -18,7 +18,7 @@ require.config({
         bootstrapselect: 'bootstrap-select/1.6.4/dist/js/bootstrap-select.min',
 
         moment: 'moment/2.5.1/min/moment.min',
-        perfectscrollbar: 'perfect-scrollbar/0.5.7/min/perfect-scrollbar.min',
+        perfectscrollbar: 'perfect-scrollbar/0.7.1/min/perfect-scrollbar.min',
         q: 'q/1.0.1/q',
 
         // backbone

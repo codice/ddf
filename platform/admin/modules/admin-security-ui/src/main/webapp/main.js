@@ -17,7 +17,7 @@ require.config({
         bootstrap: 'bootstrap/3.2.0/dist/js/bootstrap.min',
         bootstrapselect: 'bootstrap-select/1.6.4/dist/js/bootstrap-select.min',
 
-        perfectscrollbar: 'perfect-scrollbar/0.5.7/min/perfect-scrollbar.min',
+        perfectscrollbar: 'perfect-scrollbar/0.7.1/min/perfect-scrollbar.min',
 
         // backbone
         backbone: 'backbone/1.1.2/backbone',
