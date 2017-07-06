@@ -3,12 +3,11 @@
 :title: XML Attribute Security Policy Plugin
 :link: _xml_attribute_security_policy_plugin
 :plugintypes: policy
-:summary: Find security attributes contained in a metacard.
+:summary: Find security attributes contained in a metacard's metadata.
 
 The *XML Attribute Security Policy Plugin* parses XML metadata contained within a metacard for security attributes on any number of XML elements in the metadata.
 The configuration for the plugin contains one field for setting the XML elements that will be parsed for security attributes and the other two configurations contain the XML attributes that will be pulled off of those elements.
-The *Security Attributes (union)* field will compute the union of values for each attribute defined.
-While the *Security Attributes (intersection)* field will compute the intersection of values for each attribute defined.
+The *Security Attributes (union)* field will compute the union of values for each attribute defined and the *Security Attributes (intersection)* field will compute the intersection of values for each attribute defined.
 
 ===== Installing the XML Attribute Security Policy Plugin
 

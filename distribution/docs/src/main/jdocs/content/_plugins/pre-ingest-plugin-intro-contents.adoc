@@ -2,7 +2,7 @@
 :status: published
 :title: Pre-Ingest Plugins
 :link: _pre_ingest_plugins
-:summary: Perform any changes to a resource prior to ingesting it.
+:summary: Perform any changes to a metacard prior to ingest.
 :plugintypes: preingest
 :order: 04
 

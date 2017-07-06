@@ -11,10 +11,14 @@ The plugin runs each metacard in the `CreateRequest` and `UpdateRequest` against
 
 [NOTE]
 ====
-This plugin can make it seem like ingested products are not successfully ingested.
-If after ingesting, the ingest did not fail and there are no errors in the ingest log, but the expected results do not show up after a query,
-verify either that the ingested data is valid or that the <<catalogFederationStrategy, Catalog Federation Strategy>> is configured to show warnings and/or errors.
+This plugin can make it seem like ingested products are not successfully ingested if a user does not have permissions for invalid metacards.
+If an ingest did not fail, there are no errors in the ingest log, but the expected results do not show up after a query,
+verify either that the ingested data is valid or that the <<_metacard_validity_filter_plugin,Metacard Validity Filter Plugin>> is configured to show warnings and/or errors.
 ====
+
+===== Related Components to the Metacard Validity Marker
+
+* <<_metacard_validity_filter_plugin,Metacard Validity Filter Plugin>>.
 
 ===== Installing Metacard Validity Marker
 

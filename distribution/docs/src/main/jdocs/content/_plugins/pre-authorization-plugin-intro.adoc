@@ -2,13 +2,13 @@
 :status: published
 :title: Pre-Authorization Plugins
 :link: _pre_authorization_plugins
-:summary: Perform any changes need before security rules are applied.
+:summary: Perform any changes needed before security rules are applied.
 :plugintypes: preauthorization
 :order: 01
 
-Pre-delivery plugins are invoked before a Delivery Method is invoked on a Subscription. 
+Pre-delivery plugins are invoked before any security rules are applied. 
 This is an opportunity to take any action before notification, including but not limited to:
 
 * logging.
-* auditing.
-* security filtering/redaction.
+* adding network-specific information.
+* adding user-identifying information.

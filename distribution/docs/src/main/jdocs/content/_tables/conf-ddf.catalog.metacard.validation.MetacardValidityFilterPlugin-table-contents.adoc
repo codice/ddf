@@ -1,0 +1,6 @@
+:type: documentation
+:status: published
+
+|<<ddf.catalog.metacard.validation.MetacardValidityFilterPlugin,Metacard Validity Filter Plugin>>
+|ddf.catalog.metacard.validation.MetacardValidityFilterPlugin
+|Metacard Validity Filter Plugin

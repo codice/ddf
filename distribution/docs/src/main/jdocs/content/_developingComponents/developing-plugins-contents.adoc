@@ -16,63 +16,76 @@ Catalog plugin interfaces are located in the catalog core API.
 The following types of plugins can be created:
 
 .Plugin Interfaces
-[cols="1,2m,1,1", options="header"]
+[cols="1,2m,1", options="header"]
 |===
 
 |Plugin Type
 |Plugin Interface
-|Description
-|Example
+|Invocation Order
 
-|Pre-Ingest
-|ddf.catalog.plugin.PreIngestPlugin
-|Runs before the Create/Update/Delete method is sent to the CatalogProvider
-|Metadata validation services
+|<<_pre_authorization_plugins,Pre-Authorization>>
+|ddf.catalog.plugin.PreAuthorizationPlugin
+|Before any security rules are implemented.
 
-|Post-Ingest
-|ddf.catalog.plugin.PostIngestPlugin
-|Runs after the Create/Update/Delete method is sent to the CatalogProvider
-|EventProcessor for processing and publishing event notifications to subscribers
-
-|Pre-Query
-|ddf.catalog.plugin.PreQueryPlugin
-|Runs prior to the Query/Read method being sent to the Source
-|An example is not included with ${branding}
-
-|Post-Query
-|ddf.catalog.plugin.PostQueryPlugin
-|Runs after results have been retrieved from the query but before they are posted to the Endpoint
-|An example is not included with ${branding}
-
-|Pre-Subscription
-|ddf.catalog.plugin.PreSubscription
-|Runs prior to a Subscription being created or updated
-|Modify a query prior to creating a subscription
-
-|Pre-Delivery
-|ddf.catalog.plugin.PreDeliveryPlugin
-|Runs prior to the delivery of a Metacard when an event is posted
-|Inspect a metacard prior to delivering it to the Event Consumer
-
-|Pre-Resource
-|ddf.catalog.plugin.PreResource
-|Runs prior to a Resource being retrieved
-|An example is not included with ${branding}
-
-|Post-Resource
-|ddf.catalog.plugin.PostResource
-|Runs after a Resource is retrieved, but before it is sent to the Endpoint
-|Verification of a resource prior to returning to a client
-
-|Policy
+|<<_policy_plugins,Policy>>
 |ddf.catalog.plugin.PolicyPlugin
-|Runs prior to all other catalog plugins to esablish the policy for requests/responses
-|An example is MetacardValidityFilterPlugin
+|After pre-authorization plugins, but before other catalog plugins to establish the policy for requests/responses.
 
-|Access
+|<<_access_plugins,Access>>
 |ddf.catalog.plugin.AccessPlugin
-|Runs directly after the PolicyPlugin
-|An examples are the FilterPlugin and OperationPlugin
+|Directly after any policy plugins
+
+|<<_pre_ingest_pluginsPre-Ingest>>
+|ddf.catalog.plugin.PreIngestPlugin
+|Before the Create/Update/Delete method is sent to the `CatalogProvider`.
+
+|<<_post_ingest_plugins,Post-Ingest>>
+|ddf.catalog.plugin.PostIngestPlugin
+|After the Create/Update/Delete method is sent to the Catalog Provider.
+
+|<<_post_process_plugins,Post-Process>>
+|org.codice.ddf.catalog.async.plugin.api.internal.PostProcessPlugin
+|After ingest for additional/asynchronous processing.
+
+|<<_pre_query_plugins,Pre-Query>>
+|ddf.catalog.plugin.PreQueryPlugin
+|Prior to the Query/Read method being sent to the Source.
+
+|<<_post_query_plugins,Post-Query>>
+|ddf.catalog.plugin.PostQueryPlugin
+|After results have been retrieved from the query but before they are posted to the Endpoint.
+
+|<<_pre_resource_plugins,Pre-Resource>>
+|ddf.catalog.plugin.PreResourcePlugin
+|Prior to a Resource being retrieved.
+
+|<<_post_resource_plugins,Post-Resource>>
+|ddf.catalog.plugin.PostResourcePlugin
+|After a Resource is retrieved, but before it is sent to the Endpoint.
+
+|<<_pre_create_storage_plugins,Pre-Create Storage>>
+|ddf.catalog.plugin.PreCreatePlugin
+|Before an item is created in the content repository.
+
+|<<_post_create_storage_plugins,Post-Create Storage>>
+|ddf.catalog.plugin.PostResourcePlugin
+|After an item is created in the content repository.
+
+|<<_pre_update_storage_plugins,Pre-Update Storage>>>
+|ddf.catalog.plugin.PostResourcePlugin
+|Before an item is updated in the content repository.
+
+|<<_post_update_storage_plugins,Post-Update Storage>>>
+|ddf.catalog.plugin.PostResourcePlugin
+|After an item is updated in the content repository.
+
+|<<_pre_subscription_plugins,Pre-Subscription>>
+|ddf.catalog.plugin.PreSubscriptionPlugin
+|Prior to a Subscription being created or updated.
+
+|<<_pre_delivery_plugins,Pre-Delivery>>
+|ddf.catalog.plugin.PreDeliveryPlugin
+|Prior to the delivery of a Metacard when an event is posted.
 
 |===
 
@@ -84,9 +97,9 @@ The procedure for implementing any of the plugins follows a similar format:
 
 . Implement the required methods.
 
-. Create OSGi descriptor file to communicate with the OSGi registry.
+. Create an OSGi descriptor file to communicate with the OSGi registry.
 
-.. Register plugin class as service to OSGi registry.
+.. Register the plugin class as a service to OSGi registry.
 
 . Deploy to ${branding}.
 
@@ -105,7 +118,7 @@ Refer to the Javadoc for more information on all Requests and Responses in the `
 
 Develop a custom Pre-Ingest Plugin.
 
-. Create a Java class that implements `PreIngestPlugin.` +
+. Create a Java class that implements `PreIngestPlugin`. +
 `public class SamplePreIngestPlugin implements ddf.catalog.plugin.PreIngestPlugin`
 +
 . Implement the required methods. +
@@ -362,7 +375,7 @@ Develop a custom Policy Plugin.
 
 ====== Failure Behavior
 
-All failure cases should be handled internally to the plugin with the exception of the StopProcessingException. If the exception encountered should stop/block the request then a StopProcessingException should be thrown.
+All failure cases should be handled internally to the plugin with the exception of the `StopProcessingException`. If the exception encountered should stop/block the request then a `StopProcessingException` should be thrown.
 
 ===== Implementing Access Plugins
 

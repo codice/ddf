@@ -5,7 +5,7 @@
 :plugintypes: policy
 :summary: Collects attributes into a security field for the metacard.
 
-The *Metacard Attribute Security Policy Plugin* collects attributes from a metacard and combine these attributes into a security field for the metacard.
+The *Metacard Attribute Security Policy Plugin* collects attributes from a metacard and combines these attributes into a security field for the metacard.
 
 This plugin assumes that the pertinent information has already been parsed out of the metadata and placed directly on the metacard itself.
 The plugin supports mapping attributes from their names on the metacard to a different security policy name. Attributes can be mapped by union or intersection. E.g.

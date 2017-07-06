@@ -2,7 +2,7 @@
 :status: published
 :title: Post-Query Plugins
 :link: _post_query_plugins
-:summary: Perform any changes to response after query completes.
+:summary: Perform any changes to a response after query completes.
 :plugintypes: postquery
 :order: 08
 

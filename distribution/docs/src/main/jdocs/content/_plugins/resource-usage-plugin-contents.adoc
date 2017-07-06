@@ -3,9 +3,9 @@
 :title: Resource Usage Plugin
 :link: _resource_usage_plugin
 :plugintypes: preresource,postquery,postresource
-:summary: Monitors and limits data usages.
+:summary: Monitors and limits system data usage.
 
-The Resource Usage Plugin monitors and limits data usage, and enables monitoring and cancelling running queries.
+The Resource Usage Plugin monitors and limits data usage, and enables cancelling long-running queries.
 
 ===== Installing the Resource Usage Plugin
 

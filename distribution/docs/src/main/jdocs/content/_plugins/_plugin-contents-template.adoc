@@ -9,7 +9,7 @@
 
 ===== Related Components to {plugin-name}
 
-Link to any related components, required or optional, that affect the operation of this plugin
+Replace this sentences with links to any related components, required or optional, that affect the operation of this plugin.
 
 ===== Installing the {plugin-name}
 

@@ -2,10 +2,10 @@
 :status: published
 :title: Workspace Sharing Policy Plugin
 :link: _workspace_pre_ingest_plugin
-:plugintypes: preingest
-:summary: Collects attributes for a workspace to identify owner.
+:plugintypes: policy
+:summary: Collects attributes for a workspace to identify the appropriate policy to allow sharing.
 
-The Workspace Sharing Policy Plugin collects attributes for a workspace to identify owner.
+The Workspace Sharing Policy Plugin collects attributes for a workspace to identify the appropriate policy to apply to allow sharing.
 
 ===== Related Components to The Workspace Sharing Policy Plugin
 

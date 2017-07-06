@@ -32,4 +32,4 @@ include::{adoc-include}/_tables/plugin.backup-table-contents.adoc[]
 
 * May affect performance.
 * Must be installed prior to ingesting any content.
-* Once enabled, disable _may_ cause incomplete backups.
+* Once enabled, disabling _may_ cause incomplete backups.
