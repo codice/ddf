@@ -1,8 +1,10 @@
 #### What does this PR do?
-#### Who is reviewing it (please choose AT LEAST two reviewers that need to approve the PR before it can get merged)?
+#### Who is reviewing it? 
+(please choose AT LEAST two reviewers that need to approve the PR before it can get merged)
 #### Select relevant component teams: 
 https://github.com/orgs/codice/teams
-#### Choose 2 committers to review/merge the PR (please choose ONLY two committers from below, delete the rest).
+#### Choose 2 committers to review/merge the PR. 
+(please choose ONLY two committers from below, delete the rest)
 @andrewkfiedler
 @beyelerb
 @clockard
@@ -26,7 +28,6 @@ https://github.com/orgs/codice/teams
 #### Screenshots (if appropriate)
 #### Checklist:
 - [ ] Documentation Updated
-- [ ] Change Log Updated
 - [ ] Update / Add Unit Tests
 - [ ] Update / Add Integration Tests
 #### Review Comment Legend:
