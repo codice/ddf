@@ -169,15 +169,20 @@ public class MetacardValidityMarkerPluginTest {
             throws StopProcessingException, PluginExecutionException {
         metacardValidators.add(getMockPassingValidator());
         CreateRequest request = getMockCreateRequest();
-        Metacard m1 = request.getMetacards().get(0);
+        Metacard m1 = request.getMetacards()
+                .get(0);
 
         Set<String> tags = m1.getTags();
         tags.add(INVALID_TAG);
         m1.setAttribute(new AttributeImpl(Metacard.TAGS, new ArrayList<String>(tags)));
 
         CreateRequest filteredRequest = plugin.process(request);
-        assertThat(filteredRequest.getMetacards().get(0).getTags(), hasItem(VALID_TAG));
-        assertThat(filteredRequest.getMetacards().get(0).getTags(), not(hasItem(INVALID_TAG)));
+        assertThat(filteredRequest.getMetacards()
+                .get(0)
+                .getTags(), hasItem(VALID_TAG));
+        assertThat(filteredRequest.getMetacards()
+                .get(0)
+                .getTags(), not(hasItem(INVALID_TAG)));
     }
 
     @Test
@@ -185,15 +190,20 @@ public class MetacardValidityMarkerPluginTest {
             throws StopProcessingException, PluginExecutionException, ValidationException {
         metacardValidators.add(getMockFailingValidatorWithErrorsAndWarnings());
         CreateRequest request = getMockCreateRequest();
-        Metacard m1 = request.getMetacards().get(0);
+        Metacard m1 = request.getMetacards()
+                .get(0);
 
         Set<String> tags = m1.getTags();
         tags.add(VALID_TAG);
         m1.setAttribute(new AttributeImpl(Metacard.TAGS, new ArrayList<String>(tags)));
 
         CreateRequest filteredRequest = plugin.process(request);
-        assertThat(filteredRequest.getMetacards().get(0).getTags(), hasItem(INVALID_TAG));
-        assertThat(filteredRequest.getMetacards().get(0).getTags(), not(hasItem(VALID_TAG)));
+        assertThat(filteredRequest.getMetacards()
+                .get(0)
+                .getTags(), hasItem(INVALID_TAG));
+        assertThat(filteredRequest.getMetacards()
+                .get(0)
+                .getTags(), not(hasItem(VALID_TAG)));
     }
 
     @Test
@@ -225,6 +235,46 @@ public class MetacardValidityMarkerPluginTest {
         metacardValidators.add(getMockFailingValidatorWithErrorsAndWarnings());
         verifyCreate(getMockCreateRequest(), expectError, expectWarning, INVALID_TAG);
         verifyUpdate(getMockUpdateRequest(), expectError, expectWarning, INVALID_TAG);
+    }
+
+    @Test
+    public void testPreExistingMetacardErrors()
+            throws ValidationException, StopProcessingException, PluginExecutionException {
+        metacardValidators.add(getMockPassingValidator());
+
+        CreateRequestImpl request = new CreateRequestImpl(metacardsWithPreExistingAttributes(true,
+                false), PROPERTIES, DESTINATIONS);
+        verifyCreate(request, expectError, expectNone, INVALID_TAG);
+    }
+
+    @Test
+    public void testPreExistingMetacardWarnings()
+            throws ValidationException, StopProcessingException, PluginExecutionException {
+        metacardValidators.add(getMockPassingValidator());
+
+        CreateRequestImpl request = new CreateRequestImpl(metacardsWithPreExistingAttributes(false,
+                true), PROPERTIES, DESTINATIONS);
+        verifyCreate(request, expectNone, expectWarning, INVALID_TAG);
+    }
+
+    @Test
+    public void testPreExistingMetacardErrorsAndWarnings()
+            throws ValidationException, StopProcessingException, PluginExecutionException {
+        metacardValidators.add(getMockPassingValidator());
+
+        CreateRequestImpl request = new CreateRequestImpl(metacardsWithPreExistingAttributes(true,
+                true), PROPERTIES, DESTINATIONS);
+        verifyCreate(request, expectError, expectWarning, INVALID_TAG);
+    }
+
+    @Test
+    public void testPreExistingMetacardErrorsAndWarningsNoDuplicates()
+            throws ValidationException, StopProcessingException, PluginExecutionException {
+        metacardValidators.add(getMockFailingValidatorWithErrorsAndWarnings());
+
+        CreateRequestImpl request = new CreateRequestImpl(metacardsWithPreExistingAttributes(true,
+                true), PROPERTIES, DESTINATIONS);
+        verifyCreate(request, expectError, expectWarning, INVALID_TAG);
     }
 
     @Test
@@ -400,6 +450,26 @@ public class MetacardValidityMarkerPluginTest {
         MetacardImpl metacard = new MetacardImpl();
         metacard.setTitle(title);
         return metacard;
+    }
+
+    private List<Metacard> metacardsWithPreExistingAttributes(boolean error, boolean warning) {
+        Metacard metacard1 = metacardWithTitle(FIRST);
+        Metacard metacard2 = metacardWithTitle(SECOND);
+        AttributeImpl attribute;
+
+        if (error) {
+            attribute = new AttributeImpl(Validation.VALIDATION_ERRORS, SAMPLE_ERROR);
+            metacard1.setAttribute(attribute);
+            metacard2.setAttribute(attribute);
+        }
+
+        if (warning) {
+            attribute = new AttributeImpl(Validation.VALIDATION_WARNINGS, SAMPLE_WARNING);
+            metacard1.setAttribute(attribute);
+            metacard2.setAttribute(attribute);
+        }
+
+        return Lists.newArrayList(metacard1, metacard2);
     }
 
     private CreateRequest getMockCreateRequest() {
