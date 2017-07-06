@@ -22,6 +22,7 @@ var LoadingCompanionView = require('component/loading-companion/loading-companio
 var store = require('js/store');
 var user = require('component/singletons/user-instance.js');
 var preferences = user.get('user').get('preferences');
+var wreqr = require('wreqr');
 
 function getSrc(previewHtml) {
     return '<html class="is-iframe is-preview" style="font-size: '+preferences.get('fontSize')+'px">' +
@@ -58,8 +59,15 @@ module.exports = Marionette.ItemView.extend({
             if (!this.isDestroyed) {
                 this.populateIframe();
                 this.listenTo(user.get('user').get('preferences'), 'change:fontSize', this.populateIframe);
+                this.listenTo(wreqr.vent, 'resize', this.populateIframeIfNecessary);
             }
         }.bind(this));
+    },
+    // golden layout destroys and recreates elements in such a way as to empty iframes: https://github.com/deepstreamIO/golden-layout/issues/154
+    populateIframeIfNecessary: function(){
+        if (this.$el.find('iframe').contents()[0].children[0].getAttribute('class') === null) {
+            this.populateIframe();
+        }
     },
     populateIframe: function(){
         var $iframe = this.$el.find('iframe');
