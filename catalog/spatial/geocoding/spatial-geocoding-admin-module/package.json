@@ -36,7 +36,7 @@
     "jshint-stylish": "1.0.2",
     "load-grunt-tasks": "3.5.2",
     "mocha": "2.3.4",
-    "requirejs": "2.1.22",
+    "requirejs": "2.3.3",
     "underscore": "1.7.0"
   },
   "dependencies": {
