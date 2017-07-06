@@ -44,7 +44,7 @@
             jqueryui: '../../admin/metrics/jquery-ui/1.10.4/ui/minified/jquery-ui.min',
             'jquery.ui.widget': '../../admin/metrics/jquery-ui/1.10.4/ui/minified/jquery.ui.widget.min',
             multiselect: '../../admin/metrics/bootstrap-multiselect/0.9.3/js/bootstrap-multiselect',
-            perfectscrollbar: '../../admin/metrics/perfect-scrollbar/0.7.1/min/perfect-scrollbar-0.7.1.with-mousewheel.min',
+            perfectscrollbar: '../../admin/metrics/perfect-scrollbar/0.7.0/js/perfect-scrollbar.jquery.min',
             fileupload: '../../admin/metrics/jquery-file-upload/9.5.7/js/jquery.fileupload',
             fileuploadiframe: '../../admin/metrics/jquery-file-upload/9.5.7/js/jquery.iframe-transport',
 

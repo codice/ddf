@@ -37,7 +37,7 @@
             jqueryui: 'jquery-ui/1.10.4/ui/minified/jquery-ui.min',
             'jquery.ui.widget': 'jquery-ui/1.10.4/ui/minified/jquery.ui.widget.min',
             multiselect: 'bootstrap-multiselect/0.9.3/js/bootstrap-multiselect',
-            perfectscrollbar: 'perfect-scrollbar/0.7.1/min/perfect-scrollbar-0.7.1.with-mousewheel.min',
+            perfectscrollbar: 'perfect-scrollbar/0.7.0/js/perfect-scrollbar.jquery.min',
 
             // handlebars
             handlebars: 'handlebars/2.0.0/handlebars.min',
