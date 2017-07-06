@@ -19,14 +19,15 @@ define([
     'jquery',
     'js/CustomElements',
     './paging.hbs',
-], function (Marionette, _, $, CustomElements, template) {
+    'lodash/debounce'
+], function (Marionette, _, $, CustomElements, template, _debounce) {
 
     return Marionette.ItemView.extend({
         tagName: CustomElements.register('paging'),
         template: template,
         initialize: function (options) {
             this.listenTo(this.model, 'reset', this.render);
-            this.updateSelectionInterface = _.debounce(this.updateSelectionInterface, 200, {leading: true, trailing: true});
+            this.updateSelectionInterface = _debounce(this.updateSelectionInterface, 200, {leading: true, trailing: true});
         },
         updateSelectionInterface: function(){
             this.options.selectionInterface.setActiveSearchResults(this.model.reduce(function(results, result){

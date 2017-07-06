@@ -13,6 +13,7 @@
 var Marionette = require('marionette');
 var store = require('js/store');
 var _ = require('underscore');
+var _debounce = require('lodash/debounce');
 var wkx = require('wkx');
 var metacardDefinitions = require('component/singletons/metacard-definitions');
 
@@ -40,7 +41,7 @@ var GeometryView = Marionette.ItemView.extend({
             _.forEach(geometry, function(property){
                  this.handleGeometry(wkx.Geometry.parse(property).toGeoJSON());
             }.bind(this));
-            this.updateSelected = _.debounce(this.updateSelected, 100, {trailing: true, leading: true});
+            this.updateSelected = _debounce(this.updateSelected, 100, {trailing: true, leading: true});
             this.updateSelected();
             this.checkIfClustered();
             this.stopListening(this.options.selectionInterface.getSelectedResults());

@@ -20,8 +20,9 @@ define([
     'js/CustomElements',
     './result-item.view',
     'component/result-group/result-group.view',
-    'js/store'
-], function (Marionette, _, $, CustomElements, childView, groupView, store) {
+    'js/store',
+    'lodash/debounce'
+], function (Marionette, _, $, CustomElements, childView, groupView, store, _debounce) {
 
     return Marionette.CollectionView.extend({
         emptyView: Marionette.ItemView.extend({className: 'result-item-collection-empty', template: 'No results found'}),
@@ -42,7 +43,7 @@ define([
         selectionInterface: store,
         initialize: function(options){
             this.selectionInterface = options.selectionInterface || store;
-            this.render = _.debounce(this.render, 200, {
+            this.render = _debounce(this.render, 200, {
                 leading: true,
                 trailing: true
             });

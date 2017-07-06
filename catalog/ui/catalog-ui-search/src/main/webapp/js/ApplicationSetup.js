@@ -64,13 +64,6 @@ require([
         }
     });
 
-    // Make lodash compatible with Backbone
-    var lodash = _.noConflict();
-    _.mixin({
-        'debounce': _.debounce || lodash.debounce,
-        'defer': _.defer || lodash.defer,
-        'pluck': _.pluck || lodash.pluck
-    });
     //in here we drop in any top level patches, etc.
     var toJSON = Backbone.Model.prototype.toJSON;
     Backbone.Model.prototype.toJSON = function(options) {
@@ -102,6 +95,17 @@ require([
         } else {
             return hbs.compile(template)(data);
         }
+    };
+
+    // https://github.com/marionettejs/backbone.marionette/issues/3077
+    // monkey-patch Marionette for compatibility with jquery 3+.
+    // jquery removed the .selector method, which was used by the original
+    // implementation here.
+    Marionette.Region.prototype.reset = function() {
+        this.empty();
+        this.el = this.options.el;
+        delete this.$el;
+        return this;
     };
 
     require('js/ApplicationStart');
