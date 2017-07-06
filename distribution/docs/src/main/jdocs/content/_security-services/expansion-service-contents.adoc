@@ -1,10 +1,14 @@
-
-==== Expansion Service
+:type: securityService
+:status: published
+:title: Expansion Service
+:link: _expansion_service
+:order: 02
+:summary: Defines rulesets to map metacard and user attributes to more complete sets of values.
 
 The expansion service defines rulesets to map metacard attributes and user attributes to more complete sets of values.
 For example if a user has an attribute "alphabet" that contained the value "full", the expansion service can be configured to expand the "full" value out to ["a","b","c",...].
 
-===== Configuring Expansion Service
+==== Configuring Expansion Service
 
 To use the expansion service, modify the following two files within the `<${branding}_HOME>/etc` directory:
 
@@ -113,7 +117,7 @@ Title : VP-Sales : VP-Sales VP Sales
 Title : VP-Engineering : VP-Engineering VP Engineering
 ----
 
-===== security:expand
+====== security:expand
 
 The security:expand command runs the expansion service on the provided data.
 It takes an attribute and an original value, expands the original value using the current expansion service and ruleset and dumps the results.

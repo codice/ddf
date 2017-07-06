@@ -1,0 +1,28 @@
+:type: securityService
+:status: published
+:title: Encryption Service
+:link: _encryption_service
+:order: 01
+:summary: Encrypts plain text.
+
+${branding} includes an encryption service to encrypt plain text such as passwords.
+
+==== Encryption Command
+
+An encrypt security command is provided with ${branding} to encrypt text.
+This is useful when displaying password fields to users.
+
+Below is an example of the `security:encrypt` command used to encrypt the plain text `myPasswordToEncrypt`.
+The output is the encrypted value.
+
+.security:encrypt Command Example
+[source%nowrap.java]
+----
+${branding-lowercase}${at-symbol}local>security:encrypt myPasswordToEncrypt
+----
+
+.security:encrypt Command Output
+[source%nowrap.java]
+----
+${branding-lowercase}${at-symbol}local>bR9mJpDVo8bTRwqGwIFxHJ5yFJzatKwjXjIo/8USWm8=
+----

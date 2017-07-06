@@ -1199,8 +1199,8 @@ hwtE3xo6qQRRWlO3/clC4RnTev1crFVJQVBF3yfpRu8udJ2SOGdqU0vjUSu1h7aMkYJMHIu08Whj
 The Expansion Service and its corresponding expansion-related commands provide an easy way for developers to add expansion capabilities to ${branding} during user attribute and metadata card processing.
 In addition to these two defined uses of the expansion service, developers are free to utilize the service in their own implementations.
 
-Each instance of the expansion service consists of a collection of rule sets.
-Each rule set consists of a key value and its associated set of rules.
+Each instance of the expansion service consists of a collection of rulesets.
+Each ruleset consists of a key value and its associated set of rules.
 Callers of the expansion service provide a key and an original value to be expanded.
 The expansion service then looks up the set of rules for the specified key.
 The expansion service then cumulatively applies each of the rules in the set starting with the original value, with the resulting set of values being returned to the caller.
@@ -1230,7 +1230,7 @@ The expansion service then cumulatively applies each of the rules in the set sta
 
 |===
 
-The examples below use the following collection of rule sets:
+The examples below use the following collection of rulesets:
 
 [cols="1,2m,2m" options="header"]
 |===

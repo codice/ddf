@@ -1,0 +1,113 @@
+:type: securitySts
+:status: published
+:title: Security STS LDAP Claims Handler
+:link: _security_sts_ldap_claims_handler
+:order: 04
+
+The ${ddf-security} STS LDAP Claims Handler bundle adds functionality to the STS server that allows it to retrieve claims from an LDAP server.
+It also adds mappings for the LDAP attributes to the STS SAML claims.
+
+[NOTE]
+====
+All claims handlers are queried for user attributes regardless of realm.
+This means that two different users with the same username in different LDAP servers will end up with both of their claims in each of their individual assertions.
+====
+
+===== Installing Security STS LDAP Claims Handler
+
+This bundle is not installed by default and can be added by installing the
+`security-sts-ldapclaimshandler`
+ feature.
+
+===== Configuring the Security STS LDAP Claims Handler
+
+Configure the Security STS LDAP Claims Handler from the ${admin-console}:
+
+. Navigate to the ${admin-console}.
+. Select *${ddf-security} Application*
+. Select *Configuration* tab.
+. Select *Security STS LDAP and Roles Claims Handler*.
+
+.Security STS LDAP Claims Handler Settings
+[cols="3" options="header"]
+|===
+
+|Configuration Name
+|Default Value
+|Additional Information
+
+|LDAP URL
+|`ldaps://${org.codice.ddf.system.hostname}:1636`
+|
+
+|StartTLS
+|`false`
+|Ignored if the URL uses ldaps.
+ 
+|LDAP Bind User DN
+|`cn=admin`
+|This user should have the ability to verify passwords and read attributes for any user.
+ 
+|LDAP Bind User Password
+|`secret`
+|This password value is encrypted by default using the Security Encryption application.
+
+|LDAP Username Attribute
+|`uid`
+|
+ 
+|LDAP Base User DN
+|`ou=users,dc=example,dc=com`
+|
+ 
+|LDAP Group ObjectClass
+|`groupOfNames`
+|`ObjectClass` that defines structure for group membership in LDAP. Usually this is `groupOfNames` or `groupOfUniqueNames`
+
+|LDAP Membership Attribute
+|`member`
+|Attribute used to designate the user's name as a member of the group in LDAP. Usually this is member or uniqueMember
+
+|LDAP Base Group DN
+|`ou=groups,dc=example,dc=com`
+|
+
+|User Attribute Map File
+|`etc/ws-security/attributeMap.properties`
+|Properties file that contains mappings from Claim=LDAP attribute.
+
+|===
+
+.Security STS LDAP Claims Handler Imported Services
+
+[cols="3" options="header"]
+|===
+
+|Registered Interface
+|Availability
+|Multiple
+
+|`ddf.security.encryption.EncryptionService`
+|optional
+|false
+
+|===
+
+.Security STS LDAP Claims Handler Exported Services
+
+[cols="3" options="header"]
+|===
+
+|Registered Interface
+|Implementation Class
+|Properties Set
+
+|`org.apache.cxf.sts.claims.ClaimsHandler`
+|`ddf.security.sts.claimsHandler.LdapClaimsHandler`
+|Properties from the settings
+
+|`org.apache.cxf.sts.claims.claimsHandler`
+|`ddf.security.sts.claimsHandler.RoleClaimsHandler`
+|Properties from the settings
+
+|===

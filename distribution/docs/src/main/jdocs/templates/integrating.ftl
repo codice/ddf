@@ -1,5 +1,6 @@
 <#list integratingIntros as ii>
-<#if (ii.title == "Integrating Intro" && ii.status == "published")>
+<#if (ii.status == "published")>
+
 include::${ii.file}[]
 </#if>
 </#list>
