@@ -23,7 +23,7 @@ require.config({
         perfectscrollbar: 'perfect-scrollbar/0.7.1/min/perfect-scrollbar.min',
         spin: 'spin.js/1.3.3/spin',
         q: 'q/1.0.1/q',
-        spectrum: 'spectrum/1.6.0/spectrum',
+        spectrum: 'spectrum/1.8.0/spectrum',
 
         // backbone
         backbone: 'backbone/1.1.2/backbone',
