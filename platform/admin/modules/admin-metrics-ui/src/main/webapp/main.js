@@ -53,7 +53,7 @@
             icanhaz: 'js/ich',
 
             // require plugins
-            text: '../../admin/metrics/requirejs-plugins/1.0.2/lib/text',
+            text: '../../admin/metrics/requirejs-plugins/1.0.3/lib/text',
             css: '../../admin/metrics/require-css/0.1.5/css',
 
             // default admin ui

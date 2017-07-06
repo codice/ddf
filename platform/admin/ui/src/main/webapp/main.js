@@ -51,7 +51,7 @@
             icanhaz: 'js/ich',
 
             // require plugins
-            text: 'requirejs-plugins/1.0.2/lib/text',
+            text: 'requirejs-plugins/1.0.3/lib/text',
             css: 'require-css/0.1.5/css',
 
             // default admin ui
