@@ -35,7 +35,7 @@ The following types of plugins can be created:
 |ddf.catalog.plugin.AccessPlugin
 |Directly after any policy plugins
 
-|<<_pre_ingest_pluginsPre-Ingest>>
+|<<_pre_ingest_plugins,Pre-Ingest>>
 |ddf.catalog.plugin.PreIngestPlugin
 |Before the Create/Update/Delete method is sent to the `CatalogProvider`.
 

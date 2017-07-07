@@ -1,0 +1,6 @@
+:type: documentation
+:status: published
+
+|<<org.codice.ddf.catalog.plugin.metacard.MetacardIngestNetworkPlugin,Catalog Metacard Ingest Network Plugin>>
+|org.codice.ddf.catalog.plugin.metacard.MetacardIngestNetworkPlugin
+|Catalog Metacard Ingest Network Plugin

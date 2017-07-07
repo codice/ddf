@@ -1,0 +1,6 @@
+:type: documentation
+:status: published
+
+|<<org.codice.ddf.catalog.plugin.security.audit.SecurityAuditPlugin,Security Audit Plugin>>
+|org.codice.ddf.catalog.plugin.security.audit.SecurityAuditPlugin
+|Plugin to audit security attribute changes

@@ -1,0 +1,22 @@
+:type: documentation
+:status: published
+
+.[[org.codice.ddf.catalog.plugin.security.audit.SecurityAuditPlugin]]Security Audit Plugin
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Security attributes to audit
+|auditAttributes
+|String
+|List of security attributes to audit when modified
+|security.access-groups,security.access-individuals
+|true
+
+|===

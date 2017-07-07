@@ -23,3 +23,6 @@ To configure the Security Audit Plugin:
 
 Add the desired metacard attributes that will be audited when modified.
 
+These configurations are available:
+
+include::{adoc-include}/_tables/org.codice.ddf.catalog.plugin.security.audit.SecurityAuditPlugin-table-contents.adoc[]

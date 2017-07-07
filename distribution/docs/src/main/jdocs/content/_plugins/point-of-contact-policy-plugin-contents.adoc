@@ -5,7 +5,7 @@
 :plugintypes: policy
 :summary: Adds a policy if Point of Contact is updated.
 
-The Point of Contact Policy Plugin adds a policy if the Point-of-Contact field is changed during pre-update.
+The Point of Contact Policy Plugin adds a policy if the Point-of-Contact field is changed during pre-update, thus rejecting the entire update operation.
 
 ===== Related Components to Point of Contact Policy Plugin
 
