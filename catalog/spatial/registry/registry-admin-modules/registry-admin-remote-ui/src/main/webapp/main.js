@@ -32,7 +32,7 @@
             iframeresizer: 'iframe-resizer/2.6.2/js/iframeResizer.min',
 
             // jquery
-            jquery: 'jquery/1.12.4/dist/jquery.min',
+            jquery: 'jquery/3.2.1/dist/jquery.min',
             jqueryui: 'jquery-ui/1.10.4/ui/minified/jquery-ui.min',
 
             // handlebars

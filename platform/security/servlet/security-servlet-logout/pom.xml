@@ -125,7 +125,7 @@
         <dependency>
             <groupId>org.webjars.bower</groupId>
             <artifactId>jquery</artifactId>
-            <version>1.12.4</version>
+            <version>3.2.1</version>
         </dependency>
         <dependency>
             <groupId>org.webjars.bower</groupId>

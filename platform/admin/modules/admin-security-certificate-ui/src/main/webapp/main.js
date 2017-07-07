@@ -35,7 +35,7 @@ require.config({
         properties: 'properties',
 
         // jquery
-        jquery: 'jquery/1.12.4/dist/jquery.min',
+        jquery: 'jquery/3.2.1/dist/jquery.min',
         multiselect: 'jquery-ui-multiselect-widget/1.14/src/jquery.multiselect',
         multiselectfilter: 'lib/multiselect/src/jquery.multiselect.filter',
         "jquery.ui.widget": 'jquery-ui/1.10.4/ui/minified/jquery.ui.widget.min',

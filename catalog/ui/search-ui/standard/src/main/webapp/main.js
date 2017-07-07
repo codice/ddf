@@ -48,7 +48,7 @@ require.config({
         properties: 'properties',
 
         // jquery
-        jquery: 'jquery/1.12.4/dist/jquery.min',
+        jquery: 'jquery/3.2.1/dist/jquery.min',
         jsCookie: 'js-cookie/2.1.4/src/js.cookie',
         jqueryuiCore: 'jquery-ui/1.10.4/ui/minified/jquery.ui.core.min',
         datepicker: 'jquery-ui/1.10.4/ui/minified/jquery.ui.datepicker.min',

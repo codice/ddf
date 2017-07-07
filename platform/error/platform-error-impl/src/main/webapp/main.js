@@ -28,7 +28,7 @@
             marionette: 'marionette/1.8.8/lib/backbone.marionette.min',
 
             // jquery
-            jquery: 'jquery/1.12.4/dist/jquery.min',
+            jquery: 'jquery/3.2.1/dist/jquery.min',
 
             // handlebars
             handlebars: 'handlebars/2.0.0/handlebars.min',

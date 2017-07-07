@@ -30,7 +30,7 @@ require.config({
         application: 'js/application',
 
         // jquery
-        jquery: 'jquery/1.12.4/dist/jquery.min',
+        jquery: 'jquery/3.2.1/dist/jquery.min',
         jqueryuiCore: 'jquery-ui/1.10.4/ui/minified/jquery.ui.core.min',
         "jquery.ui.widget": 'jquery-ui/1.10.4/ui/minified/jquery.ui.widget.min',
         fileupload: 'jquery-file-upload/9.5.7/js/jquery.fileupload',
