@@ -17,8 +17,26 @@ import java.util.Date;
 import java.util.List;
 
 import ddf.catalog.filter.FilterDelegate;
+import ddf.catalog.impl.filter.DivisibleByFunction;
+import ddf.catalog.impl.filter.ProximityFunction;
 
 public class FilterToTextDelegate extends FilterDelegate<String> {
+
+    // Custom functions
+    @Override
+    public String propertyIsEqualTo(String functionName, List<Object> arguments, Object literal) {
+        switch (functionName) {
+        case DivisibleByFunction.FUNCTION_NAME:
+            return propertyIsDivisibleBy((String) arguments.get(0), (Long) arguments.get(1)) + '='
+                    + literal;
+        case ProximityFunction.FUNCTION_NAME:
+            return propertyIsInProximityTo((String) arguments.get(0),
+                    (Integer) arguments.get(1),
+                    (String) arguments.get(2)) + '=' + literal;
+        default:
+            throw new UnsupportedOperationException(functionName + " is not supported.");
+        }
+    }
 
     // Logical operators
     @Override
@@ -363,6 +381,10 @@ public class FilterToTextDelegate extends FilterDelegate<String> {
         return propertyName + "<=" + literal + "o";
     }
 
+    public String propertyIsDivisibleBy(String propertyName, long divisor) {
+        return propertyName + "%" + divisor + "l=0";
+    }
+
     // PropertyIsBetween
     @Override
     public String propertyIsBetween(String propertyName, String lowerBoundary,
@@ -510,13 +532,8 @@ public class FilterToTextDelegate extends FilterDelegate<String> {
         return "relative(" + propertyName + "," + duration + ")";
     }
 
-    @Override
-    public String propertyIsInProximityTo(String propertyName, Integer distance, String searchTerm) {
-        return "proximity(" + propertyName + "," + distance + "," + searchTerm + ")=true";
-    }
-
-    @Override
-    public String propertyIsNotInProximityTo(String propertyName, Integer distance, String searchTerm) {
-        return "proximity(" + propertyName + "," + distance + "," + searchTerm + ")=false";
+    public String propertyIsInProximityTo(String propertyName, Integer distance,
+            String searchTerm) {
+        return "proximity(" + propertyName + "," + distance + "," + searchTerm + ")";
     }
 }

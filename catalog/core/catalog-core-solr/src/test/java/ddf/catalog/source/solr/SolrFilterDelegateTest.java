@@ -493,16 +493,6 @@ public class SolrFilterDelegateTest {
         assertThat(solrQuery.getQuery(), is(expectedQuery));
     }
 
-    @Test
-    public void testPropertyIsNotInProximityTo() {
-        stub(mockResolver.getField("title", AttributeFormat.STRING, true)).toReturn("title_txt");
-        stub(mockResolver.getWhitespaceTokenizedField("title_txt")).toReturn("title_txt_ws");
-
-        String expectedQuery = "!(title_txt_ws:\"a proximity string\" ~2)";
-        SolrQuery solrQuery = toTest.propertyIsNotInProximityTo(Core.TITLE, 2, "a proximity string");
-
-        assertThat(solrQuery.getQuery(), is(expectedQuery));
-    }
 
 
     private Date getCannedTime() {

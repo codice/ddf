@@ -18,6 +18,7 @@ import java.util.List;
 
 import org.opengis.filter.Filter;
 
+import ddf.catalog.filter.ArgumentBuilder;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.FilterDelegate;
 
@@ -97,6 +98,51 @@ public class CopyFilterDelegate extends FilterDelegate<Filter> {
         return filterBuilder.attribute(propertyName)
                 .equalTo()
                 .text(literal);
+    }
+
+    @Override
+    public Filter propertyIsEqualTo(String functionName, List<Object> arguments, Object literal) {
+        //Making an assumption that the first argument will be an attribute followed by N values.
+        //This will work for most functions. If it doesn't a switch based on function name can be added
+        //to handle a specific function here.
+        ArgumentBuilder argBuilder = filterBuilder.function(functionName);
+        for (int i = 0; i < arguments.size(); i++) {
+            if (i == 0) {
+                argBuilder.attributeArg(arguments.get(0)
+                        .toString());
+            } else {
+                argBuilder.objArg(arguments.get(i));
+            }
+        }
+
+        if (literal instanceof String) {
+            return argBuilder.equalTo()
+                    .text(literal.toString());
+        } else if (literal instanceof Boolean) {
+            return argBuilder.equalTo()
+                    .bool((Boolean) literal);
+        } else if (literal instanceof Long) {
+            return argBuilder.equalTo()
+                    .number((Long) literal);
+        } else if (literal instanceof Integer) {
+            return argBuilder.equalTo()
+                    .number((Integer) literal);
+        } else if (literal instanceof Double) {
+            return argBuilder.equalTo()
+                    .number((Double) literal);
+        } else if (literal instanceof Float) {
+            return argBuilder.equalTo()
+                    .number((Float) literal);
+        } else if (literal instanceof Short) {
+            return argBuilder.equalTo()
+                    .number((Short) literal);
+        } else if (literal instanceof Date) {
+            return argBuilder.equalTo()
+                    .date((Date) literal);
+        }
+
+        throw new UnsupportedOperationException(
+                "propertyIsEqualTo(String,List,Object) not supported by CopyFilterDelegate.");
     }
 
     @Override

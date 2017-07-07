@@ -13,39 +13,43 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.common;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.geotools.feature.NameImpl;
-import org.geotools.filter.FunctionFactory;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.capability.FunctionName;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Function;
 import org.opengis.filter.expression.Literal;
 
+import ddf.catalog.impl.filter.GeoToolsFunctionFactory;
+
 /**
  * The ExtendedGeotoolsFunctionFactory is used to provide the GeoTools CommonFactoryFinder a list of custom
  * functions.  This allows for DDF to extend the OGC Filter 1.1.0 schema and pass along the extension
  * changes to Geotools via a service loader .
  */
-public class ExtendedGeotoolsFunctionFactory implements FunctionFactory {
+public class ExtendedGeotoolsFunctionFactory extends GeoToolsFunctionFactory {
+
+    @Override
     public List<FunctionName> getFunctionNames() {
-        return Collections.singletonList(PropertyIsFuzzyFunction.NAME);
+        List<FunctionName> functionNames = new ArrayList<>(super.getFunctionNames());
+        functionNames.add(PropertyIsFuzzyFunction.NAME);
+        return functionNames;
     }
 
+    @Override
     public Function function(String name, List<Expression> args, Literal fallback) {
         return function(new NameImpl(name), args, fallback);
     }
 
+    @Override
     public Function function(Name name, List<Expression> args, Literal fallback) {
-
         if (PropertyIsFuzzyFunction.NAME.getName()
                 .equals(name.getLocalPart())) {
-
             return new PropertyIsFuzzyFunction(args, fallback);
         }
-
-        return null; // we do not implement that function
+        return super.function(name, args, fallback);
     }
 }

@@ -62,64 +62,60 @@ public class CqlRequest {
 
     private boolean normalize = false;
 
-    public void setId(String id) {
-        this.id = id;
+    public String getSrc() {
+        return src;
     }
 
     public void setSrc(String src) {
         this.src = src;
     }
 
-    public void setTimeout(long timeout) {
-        this.timeout = timeout;
-    }
-
-    public void setStart(int start) {
-        this.start = start;
-    }
-
-    public void setCount(int count) {
-        this.count = count;
-    }
-
-    public void setCql(String cql) {
-        this.cql = cql;
-    }
-
-    public void setSort(String sort) {
-        this.sort = sort;
-    }
-
-    public String getSrc() {
-        return src;
-    }
-
     public long getTimeout() {
         return timeout;
+    }
+
+    public void setTimeout(long timeout) {
+        this.timeout = timeout;
     }
 
     public int getStart() {
         return start;
     }
 
+    public void setStart(int start) {
+        this.start = start;
+    }
+
     public int getCount() {
         return count;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
     }
 
     public String getCql() {
         return cql;
     }
 
+    public void setCql(String cql) {
+        this.cql = cql;
+    }
+
     public String getSort() {
         return sort;
     }
 
-    public void setNormalize(boolean normalize) {
-        this.normalize = normalize;
+    public void setSort(String sort) {
+        this.sort = sort;
     }
 
     public boolean isNormalize() {
         return normalize;
+    }
+
+    public void setNormalize(boolean normalize) {
+        this.normalize = normalize;
     }
 
     public QueryRequest createQueryRequest(String localSource, FilterBuilder filterBuilder) {
@@ -209,5 +205,9 @@ public class CqlRequest {
 
     public String getId() {
         return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

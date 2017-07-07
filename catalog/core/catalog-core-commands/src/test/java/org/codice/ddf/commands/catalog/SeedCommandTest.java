@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import org.geotools.filter.text.cql2.CQL;
+import org.geotools.filter.text.ecql.ECQL;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -109,7 +109,7 @@ public class SeedCommandTest extends CommandCatalogFrameworkCommon {
 
         runCommandAndVerifyQueryRequest(request -> {
             Query query = request.getQuery();
-            assertThat(CQL.toCQL(query), is(cql));
+            assertThat(ECQL.toCQL(query), is(cql));
         });
     }
 
@@ -119,7 +119,7 @@ public class SeedCommandTest extends CommandCatalogFrameworkCommon {
 
         runCommandAndVerifyQueryRequest(request -> {
             Query query = request.getQuery();
-            assertThat(CQL.toCQL(query), is("anyText ILIKE '*'"));
+            assertThat(ECQL.toCQL(query), is("anyText ILIKE '*'"));
         });
     }
 

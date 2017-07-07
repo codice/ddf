@@ -80,16 +80,9 @@ public class ValidationQueryDelegate extends SimpleFilterDelegate<Boolean> {
     }
 
     @Override
-    public Boolean propertyIsInProximityTo(String propertyName, Integer distance,
-            String searchTerm) {
-        return propertyName.equals(Validation.VALIDATION_ERRORS)
-                || propertyName.equals(Validation.VALIDATION_WARNINGS);
-    }
-
-    @Override
-    public Boolean propertyIsNotInProximityTo(String propertyName, Integer distance,
-            String searchTerm) {
-        return propertyName.equals(Validation.VALIDATION_ERRORS)
-                || propertyName.equals(Validation.VALIDATION_WARNINGS);
+    public Boolean propertyIsEqualTo(String functionName, List<Object> arguments, Object literal) {
+        return arguments != null && arguments.stream()
+                .anyMatch(a -> a.equals(Validation.VALIDATION_ERRORS)
+                        || a.equals(Validation.VALIDATION_WARNINGS));
     }
 }

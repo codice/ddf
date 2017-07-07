@@ -29,7 +29,6 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,7 +46,10 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.opengis.filter.Filter;
 import org.opengis.filter.Or;
+import org.opengis.filter.PropertyIsEqualTo;
 import org.opengis.filter.PropertyIsLike;
+import org.opengis.filter.expression.Function;
+import org.opengis.filter.expression.Literal;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
 import org.opengis.filter.spatial.Beyond;
@@ -74,10 +76,10 @@ import com.vividsolutions.jts.io.WKTReader;
 
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeRegistry;
-import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
+import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.data.impl.types.AssociationsAttributes;
 import ddf.catalog.data.impl.types.ContactAttributes;
@@ -146,6 +148,10 @@ public class CswQueryFactoryTest {
     private static final String CQL_CONTEXTUAL_LIKE_QUERY =
             CONTEXTUAL_TEST_ATTRIBUTE + " Like '" + CQL_CONTEXTUAL_PATTERN + "'";
 
+    private static final String CQL_CONTEXTUAL_FUNCTION_QUERY =
+            "proximity('" + CONTEXTUAL_TEST_ATTRIBUTE + "', 1,'" + CQL_CONTEXTUAL_PATTERN
+                    + "')=true";
+
     private static final String CQL_FEDERATED_QUERY =
             "\"source-id\" = 'source1' AND " + CQL_CONTEXTUAL_LIKE_QUERY;
 
@@ -208,6 +214,22 @@ public class CswQueryFactoryTest {
     private static QName cswQnameOutPutSchema = new QName(CswConstants.CSW_OUTPUT_SCHEMA);
 
     private static List<MetacardType> metacardTypeList;
+
+    public static MetacardType getCswMetacardType() {
+        return new MetacardTypeImpl(CswConstants.CSW_METACARD_TYPE_NAME,
+                Arrays.asList(new ContactAttributes(),
+                        new LocationAttributes(),
+                        new MediaAttributes(),
+                        new TopicAttributes(),
+                        new AssociationsAttributes(),
+                        new MetacardTypeImpl("TestDate",
+                                Collections.singleton(new AttributeDescriptorImpl("TestDate",
+                                        true,
+                                        true,
+                                        true,
+                                        false,
+                                        BasicTypes.DATE_TYPE)))));
+    }
 
     @org.junit.Before
     public void setUp()
@@ -374,6 +396,49 @@ public class CswQueryFactoryTest {
         assertThat(resultSort.getPropertyName()
                 .getPropertyName(), is(CQL_FRAMEWORK_TEST_ATTRIBUTE));
         assertThat(resultSort.getSortOrder(), is(SortOrder.ASCENDING));
+    }
+
+    @Test
+    public void testPostGetRecordsFunctionCQLQuery()
+            throws CswException, UnsupportedQueryException, SourceUnavailableException,
+            FederationException {
+        GetRecordsType grr = createDefaultPostRecordsRequest();
+
+        QueryType query = new QueryType();
+        List<QName> typeNames = new ArrayList<>();
+        typeNames.add(new QName(CswConstants.CSW_OUTPUT_SCHEMA, VALID_TYPE, VALID_PREFIX));
+        query.setTypeNames(typeNames);
+        QueryConstraintType constraint = new QueryConstraintType();
+        constraint.setCqlText(CQL_CONTEXTUAL_FUNCTION_QUERY);
+
+        query.setConstraint(constraint);
+
+        JAXBElement<QueryType> jaxbQuery = new JAXBElement<>(cswQnameOutPutSchema,
+                QueryType.class,
+                query);
+
+        grr.setAbstractQuery(jaxbQuery);
+
+        QueryRequest queryRequest = queryFactory.getQuery(grr);
+        QueryImpl frameworkQuery = (QueryImpl) queryRequest.getQuery();
+        assertThat(frameworkQuery.getFilter(), instanceOf(PropertyIsEqualTo.class));
+        PropertyIsEqualTo equalTo = (PropertyIsEqualTo) frameworkQuery.getFilter();
+        assertThat(equalTo.getExpression1(), instanceOf(Function.class));
+        Function function = (Function) equalTo.getExpression1();
+        assertThat(equalTo.getExpression2(), instanceOf(Literal.class));
+        Literal literal = (Literal) equalTo.getExpression2();
+        assertThat(function.getName(), is("proximity"));
+        assertThat(function.getParameters()
+                .get(0)
+                .evaluate(null), is(CONTEXTUAL_TEST_ATTRIBUTE));
+        assertThat(function.getParameters()
+                .get(1)
+                .evaluate(null), is(1L));
+        assertThat(function.getParameters()
+                .get(2)
+                .evaluate(null), is(CQL_CONTEXTUAL_PATTERN));
+
+        assertThat(literal.getValue(), is(true));
     }
 
     @Test
@@ -775,7 +840,8 @@ public class CswQueryFactoryTest {
         PropertyNameType propName = new PropertyNameType();
         propName.getContent()
                 .add(SPATIAL_TEST_ATTRIBUTE);
-        binarySpatialOps.setPropertyName(propName);
+        binarySpatialOps.getPropertyName()
+                .add(propName);
 
         binarySpatialOps.setGeometry(createPolygon());
         return binarySpatialOps;
@@ -811,7 +877,7 @@ public class CswQueryFactoryTest {
 
         DistanceType distance = filterObjectFactory.createDistanceType();
         distance.setUnits(REL_GEO_UNITS);
-        distance.setContent(Double.toString(REL_GEO_DISTANCE));
+        distance.setValue(REL_GEO_DISTANCE);
 
         distanceBuffer.setDistance(distance);
         distanceBuffer.setGeometry(createPolygon());
@@ -1129,32 +1195,6 @@ public class CswQueryFactoryTest {
                 query);
         grr.setAbstractQuery(jaxbQuery);
         return grr;
-    }
-
-    public static MetacardType getCswMetacardType() {
-        return new MetacardTypeImpl(CswConstants.CSW_METACARD_TYPE_NAME,
-                Arrays.asList(new ContactAttributes(),
-                        new LocationAttributes(),
-                        new MediaAttributes(),
-                        new TopicAttributes(),
-                        new AssociationsAttributes(),
-                        new MetacardTypeImpl("TestDate",
-                                Collections.singleton(new AttributeDescriptorImpl("TestDate",
-                                        true,
-                                        true,
-                                        true,
-                                        false,
-                                        new AttributeType<Date>() {
-                                            @Override
-                                            public Class<Date> getBinding() {
-                                                return Date.class;
-                                            }
-
-                                            @Override
-                                            public AttributeFormat getAttributeFormat() {
-                                                return AttributeFormat.DATE;
-                                            }
-                                        })))));
     }
 
 }

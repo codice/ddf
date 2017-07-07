@@ -40,8 +40,8 @@ import org.geotools.feature.NameImpl;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.filter.IsEqualsToImpl;
-import org.geotools.filter.text.cql2.CQL;
 import org.geotools.filter.text.cql2.CQLException;
+import org.geotools.filter.text.ecql.ECQL;
 import org.geotools.xml.Configuration;
 import org.geotools.xml.Parser;
 import org.opengis.filter.Filter;
@@ -102,6 +102,16 @@ public class CswQueryFactory {
         this.adapter = adapter;
         this.metacardType = metacardType;
         this.metacardTypes = metacardTypes;
+    }
+
+    public static synchronized JAXBContext getJaxBContext() throws JAXBException {
+        if (jaxBContext == null) {
+
+            jaxBContext = JAXBContext.newInstance("net.opengis.cat.csw.v_2_0_2:"
+                            + "net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1:net.opengis.ows.v_1_0_0",
+                    CswQueryFactory.class.getClassLoader());
+        }
+        return jaxBContext;
     }
 
     public QueryRequest getQueryById(List<String> ids) {
@@ -167,7 +177,7 @@ public class CswQueryFactory {
         if (constraint != null) {
             if (constraint.isSetCqlText()) {
                 try {
-                    filter = CQL.toFilter(constraint.getCqlText());
+                    filter = ECQL.toFilter(constraint.getCqlText());
                 } catch (CQLException e) {
                     throw new CswException("Unable to parse CQL Constraint: " + e.getMessage(), e);
                 }
@@ -300,16 +310,6 @@ public class CswQueryFactory {
         IOUtils.closeQuietly(os);
 
         return input;
-    }
-
-    public static synchronized JAXBContext getJaxBContext() throws JAXBException {
-        if (jaxBContext == null) {
-
-            jaxBContext = JAXBContext.newInstance("net.opengis.cat.csw.v_2_0_2:"
-                            + "net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1:net.opengis.ows.v_1_0_0",
-                    CswQueryFactory.class.getClassLoader());
-        }
-        return jaxBContext;
     }
 
     private Filter parseFilter(FilterType filterType) throws CswException {

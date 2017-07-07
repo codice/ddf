@@ -112,6 +112,8 @@ public class TestCswFilterDelegate {
 
     private static final String FILTER_QNAME_LOCAL_PART = "Filter";
 
+    private static final String DEFAULT_FUNCTION_NAME = "proximity";
+
     private static final String DEFAULT_PROPERTY_NAME = "title";
 
     private static final double SAMPLE_DISTANCE = 123.456;
@@ -153,6 +155,18 @@ public class TestCswFilterDelegate {
 
     private static final Map<String, String> THOUSAND_METER_DISTANCE_GEO_FILTER_PROP_MAP =
             new HashMap<>();
+
+    private static final String APISO_PREFIX = "apiso:";
+
+    private static final String APISO_TITLE = APISO_PREFIX + "title";
+
+    private static final String APISO_IDENTIFIER = APISO_PREFIX + "Identifier";
+
+    private static final String APISO_MODIFIED = APISO_PREFIX + "modified";
+
+    private static final String APISO_TYPE = APISO_PREFIX + "type";
+
+    private static final String APISO_ANYTEXT = APISO_PREFIX + CswConstants.ANY_TEXT;
 
     private static Marshaller marshaller = null;
 
@@ -273,6 +287,14 @@ public class TestCswFilterDelegate {
             createComparisonFilterString(ComparisonOperator.PROPERTY_IS_EQUAL_TO,
                     DEFAULT_PROPERTY_NAME,
                     "1");
+
+    private final String functionIsEqualToXml = createComparisonFunctionFilterString(
+            ComparisonOperator.PROPERTY_IS_EQUAL_TO,
+            DEFAULT_FUNCTION_NAME,
+            true,
+            DEFAULT_PROPERTY_NAME,
+            1,
+            "1");
 
     private final String propertyIsEqualToXmlWithDecimal = createComparisonFilterString(
             ComparisonOperator.PROPERTY_IS_EQUAL_TO,
@@ -715,18 +737,6 @@ public class TestCswFilterDelegate {
                     + " 30.000424880003134 30.00102575106595"
                     + " 30.000216601947248 30.00108893152347" + " 30.0 30.001110264953223");
 
-    private static final String APISO_PREFIX = "apiso:";
-
-    private static final String APISO_TITLE = APISO_PREFIX + "title";
-
-    private static final String APISO_IDENTIFIER = APISO_PREFIX + "Identifier";
-
-    private static final String APISO_MODIFIED = APISO_PREFIX + "modified";
-
-    private static final String APISO_TYPE = APISO_PREFIX + "type";
-
-    private static final String APISO_ANYTEXT = APISO_PREFIX + CswConstants.ANY_TEXT;
-
     @BeforeClass
     public static void setupTestClass() throws JAXBException, ParseException {
         XMLUnit.setIgnoreWhitespace(true);
@@ -920,6 +930,15 @@ public class TestCswFilterDelegate {
         return localJaxbContext;
     }
 
+    public static MetacardType getCswMetacardType() {
+        return new MetacardTypeImpl(CswConstants.CSW_METACARD_TYPE_NAME,
+                Arrays.asList(new ContactAttributes(),
+                        new LocationAttributes(),
+                        new MediaAttributes(),
+                        new TopicAttributes(),
+                        new AssociationsAttributes()));
+    }
+
     /**
      * Returns the standard XML Filter header string
      *
@@ -989,6 +1008,38 @@ public class TestCswFilterDelegate {
         return expression;
     }
 
+    private String createComparisonFunctionFilterStringWithoutHeaderAndFooter(
+            ComparisonOperator comparisonOp, String functionName, Object literal, Object[] args) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("<ns3:")
+                .append(comparisonOp)
+                .append('>');
+        sb.append("<ns3:Function name=\"")
+                .append(functionName)
+                .append("\">");
+        for (int i = 0; i < args.length; i++) {
+            if (i == 0) {
+                sb.append("<ns3:PropertyName>")
+                        .append(args[0])
+                        .append("</ns3:PropertyName>");
+            } else {
+                sb.append("<ns3:Literal>")
+                        .append(args[i])
+                        .append("</ns3:Literal>");
+            }
+        }
+        sb.append("</ns3:Function>");
+
+        sb.append("<ns3:Literal>")
+                .append(literal)
+                .append("</ns3:Literal>");
+        sb.append("</ns3:")
+                .append(comparisonOp)
+                .append('>');
+
+        return sb.toString();
+    }
+
     /**
      * Creates a property comparison Filter string
      *
@@ -1009,6 +1060,16 @@ public class TestCswFilterDelegate {
                         args) + getXmlFooterString();
 
         return compString;
+    }
+
+    private String createComparisonFunctionFilterString(ComparisonOperator comparisonOp,
+            String functionName, Object literal, Object... args) {
+
+        return getXmlHeaderString() + createComparisonFunctionFilterStringWithoutHeaderAndFooter(
+                        comparisonOp,
+                        functionName,
+                        literal,
+                        args) + getXmlFooterString();
     }
 
     /**
@@ -1706,8 +1767,10 @@ public class TestCswFilterDelegate {
                 }
                 return RETURN_ACCEPT_DIFFERENCE;
             }
+
             @Override
-            public void skippedComparison(Node arg0, Node arg1) { }
+            public void skippedComparison(Node arg0, Node arg1) {
+            }
         });
         assertXMLIdentical(xmlDiff, true);
     }
@@ -1792,6 +1855,15 @@ public class TestCswFilterDelegate {
     @Test(expected = UnsupportedOperationException.class)
     public void testPropertyIsEqualToObjectLiteral() throws JAXBException {
         cswFilterDelegateLatLon.propertyIsEqualTo(propertyName, objectLiteral);
+    }
+
+    @Test
+    public void testPropertyIsEqualToFunction() throws JAXBException, SAXException, IOException {
+
+        FilterType filterType = cswFilterDelegateLatLon.propertyIsEqualTo("proximity",
+                Arrays.asList(propertyName, intLiteral, stringLiteral),
+                booleanLiteral);
+        assertXMLEqual(functionIsEqualToXml, getXmlFromMarshaller(filterType));
     }
 
     /**
@@ -3350,14 +3422,5 @@ public class TestCswFilterDelegate {
         public String toString() {
             return (namespace + ":" + propName);
         }
-    }
-
-    public static MetacardType getCswMetacardType() {
-        return new MetacardTypeImpl(CswConstants.CSW_METACARD_TYPE_NAME,
-                Arrays.asList(new ContactAttributes(),
-                        new LocationAttributes(),
-                        new MediaAttributes(),
-                        new TopicAttributes(),
-                        new AssociationsAttributes()));
     }
 }

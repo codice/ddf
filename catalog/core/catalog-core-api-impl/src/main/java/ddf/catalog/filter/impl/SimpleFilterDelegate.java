@@ -15,6 +15,7 @@ package ddf.catalog.filter.impl;
 
 import java.util.Date;
 import java.util.List;
+
 import com.google.common.collect.Range;
 
 import ddf.catalog.filter.FilterDelegate;
@@ -55,6 +56,12 @@ public abstract class SimpleFilterDelegate<T> extends FilterDelegate<T> {
     public <S> T xpathOperation(String xpath, S literal, Class<S> literalClass,
             XPathPropertyOperation xpathPropertyOperation) {
         return defaultOperation(xpath, literal, literalClass, xpathPropertyOperation);
+    }
+
+    // Custom Functions
+    @Override
+    public T propertyIsEqualTo(String functionName, List<Object> arguments, Object literal) {
+        return defaultOperation(functionName, arguments, List.class, FunctionOperation.FUNCTION);
     }
 
     // Logical operators
@@ -630,51 +637,27 @@ public abstract class SimpleFilterDelegate<T> extends FilterDelegate<T> {
     }
 
     public enum XPathPropertyOperation {
-        XPATH_EXISTS,
-        XPATH_IS_LIKE,
-        XPATH_IS_FUZZY
+        XPATH_EXISTS, XPATH_IS_LIKE, XPATH_IS_FUZZY
     }
 
     public enum TemporalPropertyOperation {
-        AFTER,
-        BEFORE,
-        DURING,
-        BEGINS,
-        RELATIVE
+        AFTER, BEFORE, DURING, BEGINS, RELATIVE
     }
 
     public enum LogicalPropertyOperation {
-        AND,
-        OR,
-        NOT,
-        INCLUDE,
-        EXCLUDE
+        AND, OR, NOT, INCLUDE, EXCLUDE
     }
 
     public enum SpatialPropertyOperation {
-        NEAREST_NEIGHBOR,
-        BEYOND,
-        CONTAINS,
-        CROSSES,
-        DISJOINT,
-        DWITHIN,
-        INTERSECTS,
-        OVERLAPS,
-        TOUCHES,
-        WITHIN
+        NEAREST_NEIGHBOR, BEYOND, CONTAINS, CROSSES, DISJOINT, DWITHIN, INTERSECTS, OVERLAPS, TOUCHES, WITHIN
     }
 
     public enum ComparisonPropertyOperation {
-        IS_EQUAL_TO,
-        IS_NOT_EQUAL_TO,
-        IS_LIKE,
-        IS_FUZZY,
-        IS_BETWEEN,
-        IS_NULL,
-        IS_LESS_THAN,
-        IS_LESS_OR_EQUAL_TO,
-        IS_GREATER,
-        IS_GREATER_OR_EQUAL_TO
+        IS_EQUAL_TO, IS_NOT_EQUAL_TO, IS_LIKE, IS_FUZZY, IS_BETWEEN, IS_NULL, IS_LESS_THAN, IS_LESS_OR_EQUAL_TO, IS_GREATER, IS_GREATER_OR_EQUAL_TO
+    }
+
+    public enum FunctionOperation {
+        FUNCTION
     }
 
 }

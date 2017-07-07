@@ -13,7 +13,7 @@
  */
 package ddf.catalog.impl.filter;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -30,24 +30,22 @@ import org.slf4j.LoggerFactory;
 public class GeoToolsFunctionFactory implements FunctionFactory {
     private static final Logger LOGGER = LoggerFactory.getLogger(GeoToolsFunctionFactory.class);
 
+    private static final List<FunctionName> FUNCTION_NAMES =
+            Collections.unmodifiableList(Arrays.asList(FuzzyFunction.NAME,
+                    ProximityFunction.NAME, DivisibleByFunction.NAME));
+
+    @Override
     public List<FunctionName> getFunctionNames() {
-        String methodName = "getFunctionNames";
-        LOGGER.trace("ENTERING: {}", methodName);
-
-        List<FunctionName> functionList = new ArrayList<>();
-        functionList.add(FuzzyFunction.NAME);
-        functionList.add(ProximityFunction.NAME);
-
-        LOGGER.trace("EXITING: {}", methodName);
-
-        return Collections.unmodifiableList(functionList);
+        return FUNCTION_NAMES;
     }
 
+    @Override
     public Function function(String name, List<Expression> args, Literal fallback) {
         LOGGER.trace("INSIDE: function(String name, ...)");
         return function(new NameImpl(name), args, fallback);
     }
 
+    @Override
     public Function function(Name name, List<Expression> args, Literal fallback) {
         String methodName = "function";
         LOGGER.trace("ENTERING: {}", methodName);
@@ -58,9 +56,16 @@ public class GeoToolsFunctionFactory implements FunctionFactory {
             return new FuzzyFunction(args, fallback);
         }
 
-        if (ProximityFunction.NAME.getName().equals(name.getLocalPart())) {
+        if (ProximityFunction.NAME.getName()
+                .equals(name.getLocalPart())) {
             LOGGER.trace("Inside function : returning {}", ProximityFunction.NAME);
             return new ProximityFunction(args, fallback);
+        }
+
+        if (DivisibleByFunction.NAME.getName()
+                .equals(name.getLocalPart())) {
+            LOGGER.trace("Inside function : returning {}", DivisibleByFunction.NAME);
+            return new DivisibleByFunction(args, fallback);
         }
 
         LOGGER.trace("EXITING: {} - returning null", methodName);

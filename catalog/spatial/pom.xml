@@ -13,7 +13,9 @@
  **/
 
  -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>ddf.catalog</groupId>
@@ -108,7 +110,7 @@
             <dependency>
                 <groupId>org.codice.thirdparty</groupId>
                 <artifactId>ogc-filter-v_1_1_0-schema</artifactId>
-                <version>1.1.0_3</version>
+                <version>1.1.0_4</version>
             </dependency>
             <dependency>
                 <groupId>org.codice.ddf.spatial</groupId>

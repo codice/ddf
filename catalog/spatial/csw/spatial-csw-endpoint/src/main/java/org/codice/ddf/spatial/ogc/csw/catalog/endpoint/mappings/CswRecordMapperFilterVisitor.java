@@ -37,6 +37,7 @@ import org.geotools.temporal.object.DefaultPeriod;
 import org.geotools.temporal.object.DefaultPosition;
 import org.opengis.filter.And;
 import org.opengis.filter.Filter;
+import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.Or;
 import org.opengis.filter.PropertyIsBetween;
 import org.opengis.filter.PropertyIsEqualTo;
@@ -88,25 +89,13 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
     private static final Logger LOGGER =
             LoggerFactory.getLogger(CswRecordMapperFilterVisitor.class);
 
-    private List<String> sourceIds = new ArrayList<>();
+    private final List<String> sourceIds = new ArrayList<>();
+
+    private final Map<String, AttributeType> attributeTypes;
+
+    private final MetacardType metacardType;
 
     private Filter visitedFilter;
-
-    public List<String> getSourceIds() {
-        return sourceIds;
-    }
-
-    private Map<String, AttributeType> attributeTypes;
-
-    private MetacardType metacardType;
-
-    public Filter getVisitedFilter() {
-        return visitedFilter;
-    }
-
-    public void setVisitedFilter(Filter filter) {
-        visitedFilter = filter;
-    }
 
     public CswRecordMapperFilterVisitor(MetacardType metacardType,
             List<MetacardType> metacardTypes) {
@@ -117,6 +106,42 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
                 attributeTypes.put(ad.getName(), ad.getType());
             }
         }
+    }
+
+    private static void convertGeometryExpressionToEpsg4326(Expression expression) {
+        if (expression instanceof LiteralExpressionImpl) {
+            LiteralExpressionImpl literalExpression = (LiteralExpressionImpl) expression;
+            Object valueObj = literalExpression.getValue();
+            if (valueObj instanceof Geometry) {
+                Geometry geometry = (Geometry) valueObj;
+                Object userDataObj = geometry.getUserData();
+                if (userDataObj instanceof CoordinateReferenceSystem) {
+                    CoordinateReferenceSystem sourceCRS = (CoordinateReferenceSystem) userDataObj;
+                    Geometry convertedGeometry = null;
+                    try {
+                        convertedGeometry = GeospatialUtil.transformToEPSG4326LonLatFormat(geometry,
+                                sourceCRS);
+                        literalExpression.setValue(convertedGeometry);
+                    } catch (GeoFormatException e) {
+                        LOGGER.debug("Unable to convert geometry {} to EPSG:4326 format",
+                                valueObj,
+                                e);
+                    }
+                }
+            }
+        }
+    }
+
+    public List<String> getSourceIds() {
+        return sourceIds;
+    }
+
+    public Filter getVisitedFilter() {
+        return visitedFilter;
+    }
+
+    public void setVisitedFilter(Filter filter) {
+        visitedFilter = filter;
     }
 
     @Override
@@ -272,6 +297,19 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
 
     @Override
     public Object visit(PropertyIsEqualTo filter, Object extraData) {
+        FilterFactory2 factory = getFactory(extraData);
+
+        if (filter.getExpression1() instanceof Function) {
+            Expression function = (Expression) visit((Function) filter.getExpression1(), extraData);
+            //given a function we can use its return value to infer the type of expression2
+            Expression typedExpression = factory.literal(filter.getExpression2()
+                    .evaluate(null,
+                            ((Function) filter.getExpression1()).getFunctionName()
+                                    .getReturn()
+                                    .getType()));
+            return factory.equals(function, visit(typedExpression, function));
+        }
+
         if (StringUtils.equals(Core.SOURCE_ID,
                 ((PropertyName) filter.getExpression1()).getPropertyName())) {
             sourceIds.add((String) ((Literal) filter.getExpression2()).getValue());
@@ -285,7 +323,7 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
 
         Expression expr1 = visit(filter.getExpression1(), extraData);
         Expression expr2 = visit((Expression) typedExpression, expr1);
-        return getFactory(extraData).equal(expr1, expr2, filter.isMatchingCase());
+        return factory.equal(expr1, expr2, filter.isMatchingCase());
     }
 
     @Override
@@ -576,28 +614,12 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
             ((FuzzyFunction) function).setParameters(Arrays.asList(expr1));
             return function;
         } else {
-            return super.visit(function, extraData);
-        }
-    }
+            return getFactory(function).function(function.getName(),
+                    function.getParameters()
+                            .stream()
+                            .map(expression -> visit(expression, extraData))
+                            .toArray(Expression[]::new));
 
-    private static void convertGeometryExpressionToEpsg4326(Expression expression) {
-        if (expression instanceof LiteralExpressionImpl) {
-            LiteralExpressionImpl literalExpression = (LiteralExpressionImpl) expression;
-            Object valueObj = literalExpression.getValue();
-            if (valueObj instanceof Geometry) {
-                Geometry geometry = (Geometry) valueObj;
-                Object userDataObj = geometry.getUserData();
-                if (userDataObj instanceof CoordinateReferenceSystem) {
-                    CoordinateReferenceSystem sourceCRS = (CoordinateReferenceSystem) userDataObj;
-                    Geometry convertedGeometry = null;
-                    try {
-                        convertedGeometry = GeospatialUtil.transformToEPSG4326LonLatFormat(geometry, sourceCRS);
-                        literalExpression.setValue(convertedGeometry);
-                    } catch (GeoFormatException e) {
-                        LOGGER.trace("Unable to convert geometry to EPSG:4326 format", e);
-                    }
-                }
-            }
         }
     }
 }

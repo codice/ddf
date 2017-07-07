@@ -34,6 +34,7 @@ import org.opengis.filter.Filter;
 import com.codahale.metrics.MetricRegistry;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
@@ -98,6 +99,7 @@ public class CatalogMetricsTest {
         underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE, "Xpath"));
         underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE, "Fuzzy"));
         underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE, "Temporal"));
+        underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.QUERIES_SCOPE, "Function"));
 
         underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.EXCEPTIONS_SCOPE));
         underTest.metrics.remove(MetricRegistry.name(CatalogMetrics.EXCEPTIONS_SCOPE,
@@ -177,6 +179,21 @@ public class CatalogMetricsTest {
         underTest.process(query);
 
         assertThat(underTest.temporalQueries.getCount(), is(1L));
+    }
+
+    @Test
+    public void catalogFunctionQueryMetric() throws Exception {
+        Filter functionFilter = filterBuilder.function("proximity")
+                .attributeArg(Core.TITLE)
+                .numberArg(1)
+                .textArg("Mary little")
+                .equalTo()
+                .bool(true);
+
+        QueryRequest query = new QueryRequestImpl(new QueryImpl(functionFilter));
+        underTest.process(query);
+
+        assertThat(underTest.functionQueries.getCount(), is(1L));
     }
 
     @Test

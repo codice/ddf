@@ -22,18 +22,21 @@ import static org.hamcrest.Matchers.is;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 import javax.xml.namespace.QName;
 
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.ExtendedGeotoolsFunctionFactory;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswQueryFactoryTest;
 import org.geotools.feature.NameImpl;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.referencing.CRS;
 import org.geotools.styling.UomOgcMapping;
+import org.hamcrest.Matchers;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -48,6 +51,7 @@ import org.opengis.filter.PropertyIsLessThanOrEqualTo;
 import org.opengis.filter.PropertyIsLike;
 import org.opengis.filter.PropertyIsNotEqualTo;
 import org.opengis.filter.expression.Expression;
+import org.opengis.filter.expression.Function;
 import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.spatial.BBOX;
@@ -254,6 +258,26 @@ public class TestCswRecordMapperFilterVisitor {
         PropertyIsEqualTo duplicate = (PropertyIsEqualTo) visitor.visit(filter, null);
 
         assertThat(duplicate.getExpression1(), is(attrExpr));
+        assertThat(duplicate.getExpression2(), is(val));
+        assertThat(duplicate.isMatchingCase(), is(true));
+    }
+
+    @Test
+    public void testVisitPropertyIsEqualToFunction() {
+        Expression val = factory.literal(true);
+        ExtendedGeotoolsFunctionFactory geotoolsFunctionFactory =
+                new ExtendedGeotoolsFunctionFactory();
+        Function function = geotoolsFunctionFactory.function("proximity",
+                Arrays.asList(attrExpr, factory.literal(1), factory.literal("Marry little")),
+                null);
+
+        PropertyIsEqualTo filter = factory.equals(function, val);
+
+        PropertyIsEqualTo duplicate = (PropertyIsEqualTo) visitor.visit(filter, null);
+        assertThat(duplicate.getExpression1(), Matchers.instanceOf(Function.class));
+        Function dupFunction = (Function) duplicate.getExpression1();
+        assertThat(dupFunction.getFunctionName(), is(function.getFunctionName()));
+        assertThat(dupFunction.getParameters(), is(function.getParameters()));
         assertThat(duplicate.getExpression2(), is(val));
         assertThat(duplicate.isMatchingCase(), is(true));
     }

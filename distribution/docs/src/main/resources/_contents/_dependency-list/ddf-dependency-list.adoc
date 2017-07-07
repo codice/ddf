@@ -187,8 +187,7 @@ This list of ${branding} dependencies is automatically generated:
 * org.codice.thirdparty:gt-opengis:jar:8.4_1
 * org.codice.thirdparty:jts:jar:1.12_1
 * org.codice.thirdparty:lucene-core:jar:3.0.2_1
-* org.codice.thirdparty:ogc-filter-v_1_1_0-schema:jar:1.1.0_2
-* org.codice.thirdparty:ogc-filter-v_1_1_0-schema:jar:1.1.0_3
+* org.codice.thirdparty:ogc-filter-v_1_1_0-schema:jar:1.1.0_4
 * org.codice.thirdparty:picocontainer:jar:1.2_1
 * org.codice.thirdparty:vecmath:jar:1.3.2_1
 * org.codice:lux:jar:1.2

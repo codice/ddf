@@ -22,6 +22,7 @@ import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.update;
 import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureEnforceValidityErrorsAndWarnings;
 import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureFilterInvalidMetacards;
 import static org.codice.ddf.itests.common.config.ConfigureTestCommons.configureShowInvalidMetacards;
+import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswFunctionQuery;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswInsertRequest;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.getCswQuery;
 import static org.codice.ddf.itests.common.csw.CswTestCommons.getMetacardIdFromCswInsertResponse;
@@ -593,6 +594,52 @@ public class TestCatalog extends AbstractIntegrationTest {
             CatalogTestCommons.deleteMetacardUsingCswResponseId(response);
         } catch (IOException | XPathExpressionException e) {
             fail("Could not retrieve the ingested record's ID from the response.");
+        }
+    }
+
+    @Test
+    public void testCswCQLFunctionQuery() {
+        String id = ingest(getFileContent("metacard5.xml"), "text/xml");
+        try {
+
+            given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
+                    .get(CSW_PATH.getUrl() + "?service=CSW&version=2.0.2&" + "request=GetRecords&"
+                            + "outputFormat=application/xml&"
+                            + "outputSchema=http://www.opengis.net/cat/csw/2.0.2&"
+                            + "NAMESPACE=xmlns(csw=http://www.opengis.net/cat/csw/2.0.2)&"
+                            + "resultType=results&typeNames=csw:Record&"
+                            + "ElementSetName=brief&ConstraintLanguage=CQL_TEXT&"
+                            + "constraint=proximity(metadata,2,'All Hail Our SysAdmin')=true")
+                    .then()
+                    .assertThat()
+                    .statusCode(equalTo(200))
+                    .body(hasXPath("/GetRecordsResponse/SearchResults[@numberOfRecordsReturned]"),
+                            not("0"));
+        } finally {
+            deleteMetacard(id);
+        }
+    }
+
+    @Test
+    public void testCswFunctionQuery() {
+        String id = ingest(getFileContent("metacard5.xml"), "text/xml");
+        try {
+            given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
+                    .body(getCswFunctionQuery("metadata",
+                            true,
+                            "application/xml",
+                            "http://www.opengis.net/cat/csw/2.0.2",
+                            "proximity",
+                            2,
+                            "All Hail Our SysAdmin"))
+                    .post(CSW_PATH.getUrl())
+                    .then()
+                    .assertThat()
+                    .statusCode(equalTo(200))
+                    .body(hasXPath("/GetRecordsResponse/SearchResults[@numberOfRecordsReturned]"),
+                            not("0"));
+        } finally {
+            deleteMetacard(id);
         }
     }
 
@@ -2089,12 +2136,12 @@ public class TestCatalog extends AbstractIntegrationTest {
                             .size(), equalTo(1));
 
             List<Map<String, Object>> storedWs = pstore.get(PersistentStore.WORKSPACE_TYPE,
-                    "id = 'itest'");
+                    "\"id\" = 'itest'");
             assertThat(storedWs, hasSize(1));
             assertThat(storedWs.get(0)
                     .get("user_txt"), is("itest"));
         } finally {
-            pstore.delete(PersistentStore.WORKSPACE_TYPE, "id = 'itest'");
+            pstore.delete(PersistentStore.WORKSPACE_TYPE, "\"id\" = 'itest'");
             expect("Workspace to be empty").within(5, TimeUnit.MINUTES)
                     .until(() -> pstore.get(PersistentStore.WORKSPACE_TYPE)
                             .size(), equalTo(0));

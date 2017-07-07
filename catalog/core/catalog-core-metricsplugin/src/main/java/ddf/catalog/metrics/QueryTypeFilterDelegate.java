@@ -13,6 +13,8 @@
  */
 package ddf.catalog.metrics;
 
+import java.util.List;
+
 import ddf.catalog.filter.impl.SimpleFilterDelegate;
 
 /**
@@ -37,34 +39,41 @@ public class QueryTypeFilterDelegate extends SimpleFilterDelegate<Boolean> {
 
     private boolean isComparison = false;
 
+    private boolean isFunction = false;
+
     @Override
     public <S> Boolean spatialOperation(String propertyName, S literal, Class<S> wktClass,
             SpatialPropertyOperation spatialPropertyOperation) {
-        return isSpatial = true;
+        isSpatial = true;
+        return true;
     }
 
     @Override
     public <S> Boolean xpathOperation(String xpath, S literal, Class<S> literalClass,
             XPathPropertyOperation xpathPropertyOperation) {
-        return isXpath = true;
+        isXpath = true;
+        return true;
     }
 
     @Override
     public <S> Boolean temporalOperation(String propertyName, S literal, Class<S> literalClass,
             TemporalPropertyOperation temporalPropertyOperation) {
-        return isTemporal = true;
+        isTemporal = true;
+        return true;
     }
 
     @Override
     public Boolean logicalOperation(Object operand,
             LogicalPropertyOperation logicalPropertyOperation) {
-        return isLogical = true;
+        isLogical = true;
+        return true;
     }
 
     @Override
     public <S> Boolean comparisonOperation(String propertyName, S literal, Class<S> literalClass,
             ComparisonPropertyOperation comparisonPropertyOperation) {
-        return isComparison = true;
+        isComparison = true;
+        return true;
     }
 
     @Override
@@ -72,7 +81,8 @@ public class QueryTypeFilterDelegate extends SimpleFilterDelegate<Boolean> {
         if (isCaseSensitive) {
             this.isCaseSensitive = true;
         }
-        return isComparison = true;
+        isComparison = true;
+        return true;
     }
 
     @Override
@@ -81,7 +91,8 @@ public class QueryTypeFilterDelegate extends SimpleFilterDelegate<Boolean> {
         if (isCaseSensitive) {
             this.isCaseSensitive = true;
         }
-        return isComparison = true;
+        isComparison = true;
+        return true;
     }
 
     @Override
@@ -89,13 +100,21 @@ public class QueryTypeFilterDelegate extends SimpleFilterDelegate<Boolean> {
         if (isCaseSensitive) {
             this.isCaseSensitive = true;
         }
-        return isComparison = true;
+        isComparison = true;
+        return true;
     }
 
     @Override
     public Boolean propertyIsFuzzy(String propertyName, String literal) {
         isFuzzy = true;
-        return isComparison = true;
+        isComparison = true;
+        return true;
+    }
+
+    @Override
+    public Boolean propertyIsEqualTo(String functionName, List<Object> arguments, Object literal) {
+        isFunction = true;
+        return true;
     }
 
     public boolean isSpatial() {
@@ -124,6 +143,10 @@ public class QueryTypeFilterDelegate extends SimpleFilterDelegate<Boolean> {
 
     public boolean isComparison() {
         return isComparison;
+    }
+
+    public boolean isFunction() {
+        return isFunction;
     }
 
 }

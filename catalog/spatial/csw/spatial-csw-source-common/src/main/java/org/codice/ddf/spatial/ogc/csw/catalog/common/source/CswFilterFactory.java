@@ -61,6 +61,7 @@ import net.opengis.filter.v_1_1_0.DistanceBufferType;
 import net.opengis.filter.v_1_1_0.DistanceType;
 import net.opengis.filter.v_1_1_0.FeatureIdType;
 import net.opengis.filter.v_1_1_0.FilterType;
+import net.opengis.filter.v_1_1_0.FunctionType;
 import net.opengis.filter.v_1_1_0.LiteralType;
 import net.opengis.filter.v_1_1_0.LowerBoundaryType;
 import net.opengis.filter.v_1_1_0.ObjectFactory;
@@ -88,14 +89,14 @@ public class CswFilterFactory {
 
     private static final JAXBContext JAXB_CONTEXT = initJaxbContext();
 
-    private ObjectFactory filterObjectFactory = new ObjectFactory();
+    private final ObjectFactory filterObjectFactory = new ObjectFactory();
 
-    private net.opengis.gml.v_3_1_1.ObjectFactory gmlObjectFactory =
+    private final net.opengis.gml.v_3_1_1.ObjectFactory gmlObjectFactory =
             new net.opengis.gml.v_3_1_1.ObjectFactory();
 
-    private CswAxisOrder cswAxisOrder;
+    private final CswAxisOrder cswAxisOrder;
 
-    private boolean isSetUsePosList;
+    private final boolean isSetUsePosList;
 
     /**
      * Constructor for CswFilterFactory.
@@ -501,7 +502,7 @@ public class CswFilterFactory {
         try {
             Map<String, String> geoConverterProps = new HashMap<String, String>();
             geoConverterProps.put(CswJTSToGML311GeometryConverter.USE_POS_LIST_GEO_CONVERTER_PROP_KEY,
-                    String.valueOf(this.isSetUsePosList));
+                    String.valueOf(isSetUsePosList));
 
             JTSToGML311GeometryConverter converter = new CswJTSToGML311GeometryConverter(
                     geoConverterProps);
@@ -513,8 +514,7 @@ public class CswFilterFactory {
             LOGGER.debug("Geometry as XML: {}", xmlGeo);
 
             XMLInputFactory xmlInputFactory = XMLInputFactory.newFactory();
-            xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES,
-                    false);
+            xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
             xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
             xmlInputFactory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, false);
             XMLStreamReader xmlStreamReader =
@@ -560,7 +560,7 @@ public class CswFilterFactory {
          * correct this, we fixed filter.xsd and rebuilt the JAXB bindings (see project
          * ogc-filter-v_1_1_0-schema-bindings).
          */
-        distanceType.setContent(String.valueOf(distance));
+        distanceType.setValue(distance);
         return distanceType;
     }
 
@@ -587,7 +587,7 @@ public class CswFilterFactory {
                     envelope.getMaxY()));
         }
 
-        return this.gmlObjectFactory.createEnvelope(envelopeType);
+        return gmlObjectFactory.createEnvelope(envelopeType);
     }
 
     private Envelope getEnvelopeFromWkt(String wkt) {
@@ -719,13 +719,13 @@ public class CswFilterFactory {
 
     private LowerBoundaryType createLowerBoundary(Object lowerBoundary) {
         LowerBoundaryType lowerBoundaryType = new LowerBoundaryType();
-        lowerBoundaryType.setExpression((createLiteralType(lowerBoundary)));
+        lowerBoundaryType.setExpression(createLiteralType(lowerBoundary));
         return lowerBoundaryType;
     }
 
     private UpperBoundaryType createUpperBoundary(Object upperBoundary) {
         UpperBoundaryType upperBoundaryType = new UpperBoundaryType();
-        upperBoundaryType.setExpression((createLiteralType(upperBoundary)));
+        upperBoundaryType.setExpression(createLiteralType(upperBoundary));
         return upperBoundaryType;
     }
 
@@ -802,7 +802,8 @@ public class CswFilterFactory {
     private BinarySpatialOpType createBinarySpatialOpTypeUsingGeometry(
             PropertyNameType propertyName, JAXBElement<? extends AbstractGeometryType> geometry) {
         BinarySpatialOpType binarySpatialOpType = new BinarySpatialOpType();
-        binarySpatialOpType.setPropertyName(propertyName);
+        binarySpatialOpType.getPropertyName()
+                .add(propertyName);
         binarySpatialOpType.setGeometry((JAXBElement<AbstractGeometryType>) geometry);
         return binarySpatialOpType;
     }
@@ -810,7 +811,8 @@ public class CswFilterFactory {
     private BinarySpatialOpType createBinarySpatialOpTypeUsingEnvelope(
             PropertyNameType propertyName, JAXBElement<EnvelopeType> envelope) {
         BinarySpatialOpType binarySpatialOpType = new BinarySpatialOpType();
-        binarySpatialOpType.setPropertyName(propertyName);
+        binarySpatialOpType.getPropertyName()
+                .add(propertyName);
         binarySpatialOpType.setEnvelope(envelope);
         return binarySpatialOpType;
     }
@@ -833,6 +835,39 @@ public class CswFilterFactory {
         }
 
         return binarySpatialOpType;
+    }
+
+    //default implementation just assume the first argument is a parameter name and the rest are values
+    public FilterType buildPropertyIsEqualTo(String functionName, List<Object> arguments,
+            Object literal) {
+        int propertyCount = 1;
+        List<JAXBElement<?>> expressions = new ArrayList<>();
+        for (int i = 0; i < arguments.size(); i++) {
+            if (i < propertyCount) {
+                expressions.add(createPropertyNameType(Arrays.asList(arguments.get(i))));
+            } else {
+                expressions.add(createLiteralType(arguments.get(i)));
+            }
+        }
+        return createPropertyIsEqualTo(functionName, expressions, literal);
+    }
+
+    public FilterType createPropertyIsEqualTo(String functionName,
+            List<? extends JAXBElement<?>> expressions, Object literal) {
+
+        FunctionType function = new FunctionType();
+        function.setName(functionName);
+        function.getExpression()
+                .addAll(expressions);
+        FilterType filter = new FilterType();
+        BinaryComparisonOpType propertyIsEqualTo = new BinaryComparisonOpType();
+        propertyIsEqualTo.getExpression()
+                .add(filterObjectFactory.createFunction(function));
+        propertyIsEqualTo.getExpression()
+                .add(createLiteralType(literal));
+        filter.setComparisonOps(filterObjectFactory.createPropertyIsEqualTo(propertyIsEqualTo));
+
+        return filter;
     }
 
 }

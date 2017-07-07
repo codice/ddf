@@ -154,6 +154,10 @@ public class WorkspaceQueryServiceImpl implements WorkspaceQueryService {
         }
     }
 
+    public Integer getQueryTimeInterval() {
+        return this.queryTimeInterval;
+    }
+
     public void setQueryTimeInterval(Integer queryTimeInterval) {
         notNull(queryTimeInterval, "queryTimeInterval must be non-null");
         if (queryTimeInterval > 0 && queryTimeInterval <= 1440) {
@@ -162,10 +166,6 @@ public class WorkspaceQueryServiceImpl implements WorkspaceQueryService {
         } else if (this.queryTimeInterval == null) {
             this.queryTimeInterval = 1440;
         }
-    }
-
-    public Integer getQueryTimeInterval() {
-        return this.queryTimeInterval;
     }
 
     /**
