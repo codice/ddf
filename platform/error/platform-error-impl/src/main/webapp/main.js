@@ -20,7 +20,7 @@
         baseUrl: "/error",
 
         paths: {
-            q: 'q/1.0.1/q',
+            q: 'q/1.5.0/q',
 
             // backbone
             backbone: 'backbone/1.1.2/backbone',

@@ -19,7 +19,7 @@ require.config({
 
         moment: 'moment/2.5.1/min/moment.min',
         perfectscrollbar: 'perfect-scrollbar/0.7.0/js/perfect-scrollbar.jquery.min',
-        q: 'q/1.0.1/q',
+        q: 'q/1.5.0/q',
 
         // backbone
         backbone: 'backbone/1.1.2/backbone',

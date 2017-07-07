@@ -23,7 +23,7 @@
 
             bootstrap: '../../admin/metrics/bootstrap/3.2.0/dist/js/bootstrap.min',
             spin: '../../admin/metrics/spin.js/1.3.3/spin',
-            q: '../../admin/metrics/q/1.0.1/q',
+            q: '../../admin/metrics/q/1.5.0/q',
 
             // backbone
             backbone: '../../admin/metrics/backbone/1.1.2/backbone',
