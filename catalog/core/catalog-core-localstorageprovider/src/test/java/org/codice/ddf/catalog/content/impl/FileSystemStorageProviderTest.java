@@ -174,21 +174,17 @@ public class FileSystemStorageProviderTest {
                 NITF_MIME_TYPE,
                 TEST_INPUT_FILENAME,
                 Collections.singletonMap(Constants.STORE_REFERENCE_KEY,
-                        tempFile.toFile()
-                                .getAbsolutePath()));
+                        tempFile.toUri()
+                                .toASCIIString()));
         URI uri = new URI(createResponse.getCreatedContentItems()
                 .get(0)
                 .getUri());
 
-        ReadStorageResponse read =
-                provider.read(new ReadStorageRequestImpl(new URI(createResponse.getCreatedContentItems()
-                        .get(0)
-                        .getUri()), Collections.emptyMap()));
+        ReadStorageResponse read = provider.read(new ReadStorageRequestImpl(uri,
+                Collections.emptyMap()));
         assertThat(read.getContentItem(), notNullValue());
         Files.delete(tempFile);
-        provider.read(new ReadStorageRequestImpl(new URI(createResponse.getCreatedContentItems()
-                .get(0)
-                .getUri()), Collections.emptyMap()));
+        provider.read(new ReadStorageRequestImpl(uri, Collections.emptyMap()));
 
     }
 
@@ -647,10 +643,13 @@ public class FileSystemStorageProviderTest {
     @Test
     public void testDeleteReference() throws Exception {
         String path = baseTmpDir + File.separator + TEST_INPUT_FILENAME;
-        FileUtils.writeStringToFile(new File(path), TEST_INPUT_CONTENTS);
+        File tempFile = new File(path);
+        FileUtils.writeStringToFile(tempFile, TEST_INPUT_CONTENTS);
 
         Map<String, Serializable> properties = new HashMap<>();
-        properties.put(Constants.STORE_REFERENCE_KEY, path);
+        properties.put(Constants.STORE_REFERENCE_KEY,
+                tempFile.toURI()
+                        .toASCIIString());
 
         CreateStorageResponse createResponse = assertContentItem(TEST_INPUT_CONTENTS,
                 NITF_MIME_TYPE,
@@ -677,16 +676,19 @@ public class FileSystemStorageProviderTest {
         assertEquals(id, item.getId());
         assertThat(item.getFilename(), isEmptyString());
 
-        assertTrue(new File(path).exists());
+        assertTrue(tempFile.exists());
     }
 
     @Test
     public void testCreateAndReadReference() throws Exception {
         String path = baseTmpDir + File.separator + TEST_INPUT_FILENAME;
-        FileUtils.writeStringToFile(new File(path), TEST_INPUT_CONTENTS);
+        File file = new File(path);
+        FileUtils.writeStringToFile(file, TEST_INPUT_CONTENTS);
 
         Map<String, Serializable> properties = new HashMap<>();
-        properties.put(Constants.STORE_REFERENCE_KEY, path);
+        properties.put(Constants.STORE_REFERENCE_KEY,
+                file.toURI()
+                        .toASCIIString());
 
         CreateStorageResponse createResponse = assertContentItem(TEST_INPUT_CONTENTS,
                 NITF_MIME_TYPE,
@@ -697,7 +699,7 @@ public class FileSystemStorageProviderTest {
                 .get(0)
                 .getUri();
 
-        assertReadRequest(uriString, NITF_MIME_TYPE, true);
+        assertReadRequest(uriString, NITF_MIME_TYPE);
     }
 
     /**
@@ -778,11 +780,6 @@ public class FileSystemStorageProviderTest {
 
     private void assertReadRequest(String uriString, String mimeType)
             throws StorageException, IOException, URISyntaxException {
-        assertReadRequest(uriString, mimeType, false);
-    }
-
-    private void assertReadRequest(String uriString, String mimeType, boolean extension)
-            throws StorageException, IOException, URISyntaxException {
         final URI uri = new URI(uriString);
 
         ReadStorageRequest readRequest = new ReadStorageRequestImpl(uri, Collections.emptyMap());
@@ -811,9 +808,6 @@ public class FileSystemStorageProviderTest {
                         + (StringUtils.isNotBlank(item.getQualifier()) ?
                         File.separator + item.getQualifier() :
                         "") + File.separator + item.getFilename();
-        if (extension) {
-            expectedFilePath = expectedFilePath + "." + FileSystemStorageProvider.REF_EXT;
-        }
         assertThat(Files.exists(Paths.get(expectedFilePath)), is(true));
         assertTrue(item.getSize() > 0);
     }

@@ -17,7 +17,7 @@
 
     <OCD name="Catalog Content Directory Monitor"
          id="org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor">
-        <AD description="Specifies the directory to be monitored"
+        <AD description="Specifies the directory to be monitored, can be a filesystem path or webdav address (only supported for Monitor in place)"
             name="Directory Path" id="monitoredDirectoryPath" required="true"
             type="String" default=""/>
 
@@ -40,7 +40,7 @@
 
         <AD description="Optional: Metacard attribute overrides (Key-Value pairs) that can be set on the content monitor.  If an attribute is specified here, it will overwrite the metacard's attribute that was created from the content directory.   The format should be 'key=value'. To specify multiple values for a key, add each value as a separate Key-Value pair."
             name="Attribute Overrides" id="attributeOverrides" required="false" type="String"
-            cardinality="100" />
+            cardinality="100"/>
     </OCD>
 
     <Designate pid="org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor"

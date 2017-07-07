@@ -1764,15 +1764,6 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .equals("ddf.metacard");
 
         getServiceManager().stopManagedService(managedService.getPid());
-
-        given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
-                .body(getFileContent(CSW_REQUEST_RESOURCE_PATH + "/CswCqlDeleteRequest",
-                        ImmutableMap.of("title", "Metacard-5")))
-                .post(CSW_PATH.getUrl())
-                .then()
-                .body(hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("1")),
-                        hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("0")),
-                        hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("0")));
     }
 
     @Test

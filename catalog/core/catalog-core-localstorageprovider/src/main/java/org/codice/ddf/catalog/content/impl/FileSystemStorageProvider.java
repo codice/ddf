@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.DirectoryIteratorException;
 import java.nio.file.DirectoryStream;
@@ -39,6 +40,8 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.io.ByteSource;
 
 import ddf.catalog.Constants;
 import ddf.catalog.content.StorageException;
@@ -411,58 +414,82 @@ public class FileSystemStorageProvider implements StorageProvider {
                     "Unable to find file for content ID: " + uri.getSchemeSpecificPart());
         }
 
-        String extension = FilenameUtils.getExtension(file.getFileName()
-                .toString());
+        String filename = file.getFileName()
+                .toString();
+        String extension = FilenameUtils.getExtension(filename);
+        URI reference = null;
+        // if the file is an external reference, remove the reference extension
+        // so we can get the real extension
         if (REF_EXT.equals(extension)) {
-            extension = FilenameUtils.getExtension(FilenameUtils.removeExtension(file.getFileName()
-                    .toString()));
+            extension = FilenameUtils.getExtension(FilenameUtils.removeExtension(filename));
             try {
-                file = Paths.get(new String(Files.readAllBytes(file), Charset.forName("UTF-8")));
-            } catch (IOException e) {
+                reference = new URI(new String(Files.readAllBytes(file), Charset.forName("UTF-8")));
+                if (reference.getScheme()
+                        .equalsIgnoreCase("file")) {
+                    file = Paths.get(reference);
+                } else {
+                    file = null;
+                }
+            } catch (IOException | URISyntaxException e) {
                 throw new StorageException(e);
             }
         }
 
-        if (!file.toFile()
+        if (reference != null && file != null && !file.toFile()
                 .exists()) {
             throw new StorageException("Cannot read " + uri + ".");
         }
 
-        String mimeType;
+        String mimeType = DEFAULT_MIME_TYPE;
+        long size = 0;
+        ByteSource byteSource;
 
-        try (InputStream fileInputStream = Files.newInputStream(file)) {
+        try (InputStream fileInputStream = file != null ?
+                Files.newInputStream(file) :
+                reference.toURL()
+                        .openStream()) {
             mimeType = mimeTypeMapper.guessMimeType(fileInputStream, extension);
         } catch (Exception e) {
             LOGGER.info("Could not determine mime type for file extension = {}; defaulting to {}",
                     extension,
                     DEFAULT_MIME_TYPE);
-            mimeType = DEFAULT_MIME_TYPE;
-        }
-        if (mimeType == null || DEFAULT_MIME_TYPE.equals(mimeType)) {
-            try {
-                mimeType = Files.probeContentType(file);
-            } catch (IOException e) {
-                LOGGER.info("Unable to determine mime type using Java Files service.", e);
-                mimeType = DEFAULT_MIME_TYPE;
-            }
         }
 
-        LOGGER.debug("mimeType = {}", mimeType);
-        long size = 0;
-        try {
-            size = Files.size(file);
-        } catch (IOException e) {
-            LOGGER.info("Unable to retrieve size of file: {}",
-                    file.toAbsolutePath()
-                            .toString(),
-                    e);
+        if (file != null) {
+            if (mimeType == null || DEFAULT_MIME_TYPE.equals(mimeType)) {
+                try {
+                    mimeType = Files.probeContentType(file);
+                } catch (IOException e) {
+                    LOGGER.info("Unable to determine mime type using Java Files service.", e);
+                }
+            }
+
+            LOGGER.debug("mimeType = {}", mimeType);
+            try {
+                size = Files.size(file);
+            } catch (IOException e) {
+                LOGGER.info("Unable to retrieve size of file: {}",
+                        file.toAbsolutePath()
+                                .toString(),
+                        e);
+            }
+            byteSource = com.google.common.io.Files.asByteSource(file.toFile());
+        } else {
+            URI finalReference = reference;
+            byteSource = new ByteSource() {
+                @Override
+                public InputStream openStream() throws IOException {
+                    return finalReference.toURL()
+                            .openStream();
+                }
+            };
         }
+
         return new ContentItemImpl(uri.getSchemeSpecificPart(),
                 uri.getFragment(),
-                com.google.common.io.Files.asByteSource(file.toFile()),
+                byteSource,
                 mimeType,
-                file.getFileName()
-                        .toString(),
+                filename,
                 size,
                 null);
     }
@@ -558,6 +585,7 @@ public class FileSystemStorageProvider implements StorageProvider {
 
         Path contentItemPath = Paths.get(contentDirectory.toAbsolutePath()
                 .toString(), item.getFilename());
+        ByteSource byteSource;
 
         long copy;
 
@@ -565,11 +593,17 @@ public class FileSystemStorageProvider implements StorageProvider {
             copy = item.getSize();
             Files.write(Paths.get(contentItemPath.toString() + "." + REF_EXT),
                     storeReference.getBytes(Charset.forName("UTF-8")));
-            contentItemPath = Paths.get(storeReference);
+            byteSource = new ByteSource() {
+                @Override
+                public InputStream openStream() throws IOException {
+                    return new URL(storeReference).openStream();
+                }
+            };
         } else {
             try (InputStream inputStream = item.getInputStream()) {
                 copy = Files.copy(inputStream, contentItemPath);
             }
+            byteSource = com.google.common.io.Files.asByteSource(contentItemPath.toFile());
 
             if (copy != item.getSize()) {
                 LOGGER.warn("Created content item {} size {} does not match expected size {}"
@@ -582,7 +616,7 @@ public class FileSystemStorageProvider implements StorageProvider {
 
         ContentItemImpl contentItem = new ContentItemImpl(item.getId(),
                 item.getQualifier(),
-                com.google.common.io.Files.asByteSource(contentItemPath.toFile()),
+                byteSource,
                 item.getMimeType()
                         .toString(),
                 contentItemPath.getFileName()

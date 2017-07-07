@@ -12,7 +12,7 @@
 |Directory Path
 |monitoredDirectoryPath
 |String
-|Specifies the directory to be monitored.
+|"Specifies the directory to be monitored, can be a filesystem path or webdav address (only supported for Monitor in place)"
 |false
 |true
 

@@ -373,21 +373,26 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
                 // Configure the camel route to ignore changing files (larger files that are in the process of being copied)
                 // Set the readLockTimeout to 2 * readLockIntervalMilliseconds
                 // Set the readLockCheckInterval to check every readLockIntervalMilliseconds
+                boolean isDav = false;
 
-                stringBuilder.append("file:" + monitoredDirectory);
-                stringBuilder.append("?recursive=true");
-                stringBuilder.append("&moveFailed=.errors");
+                if (monitoredDirectory.startsWith("http")) {
+                    isDav = true;
+                } else {
+                    stringBuilder.append("file:" + monitoredDirectory);
+                    stringBuilder.append("?recursive=true");
+                    stringBuilder.append("&moveFailed=.errors");
 
                 /* ReadLock Configuration */
-                stringBuilder.append("&readLockMinLength=1");
-                stringBuilder.append("&readLock=changed");
-                stringBuilder.append("&readLockTimeout=" + (2 * readLockIntervalMilliseconds));
-                stringBuilder.append("&readLockCheckInterval=" + readLockIntervalMilliseconds);
+                    stringBuilder.append("&readLockMinLength=1");
+                    stringBuilder.append("&readLock=changed");
+                    stringBuilder.append("&readLockTimeout=" + (2 * readLockIntervalMilliseconds));
+                    stringBuilder.append("&readLockCheckInterval=" + readLockIntervalMilliseconds);
 
                 /* File Exclusions */
-                String exclusions = getBlackListAsRegex();
-                if (StringUtils.isNotBlank(exclusions)) {
-                    stringBuilder.append("&exclude=" + exclusions);
+                    String exclusions = getBlackListAsRegex();
+                    if (StringUtils.isNotBlank(exclusions)) {
+                        stringBuilder.append("&exclude=" + exclusions);
+                    }
                 }
 
                 switch (processingMechanism) {
@@ -399,6 +404,9 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
                     break;
                 case IN_PLACE:
                     stringBuilder = new StringBuilder("durable:" + monitoredDirectory);
+                    if (isDav) {
+                        stringBuilder.append("?isDav=true");
+                    }
                     break;
                 }
                 LOGGER.trace("inbox = {}", stringBuilder.toString());
@@ -408,11 +416,6 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
                 if (attributeOverrides != null) {
                     routeDefinition.setHeader(Constants.ATTRIBUTE_OVERRIDES_KEY)
                             .constant(attributeOverrides);
-                }
-                if (IN_PLACE.equals(processingMechanism)) {
-                    routeDefinition.setHeader(Constants.STORE_REFERENCE_KEY,
-                            simple(String.valueOf(IN_PLACE.equals(processingMechanism)),
-                                    Boolean.class));
                 }
 
                 LOGGER.trace("About to process scheme content:framework");

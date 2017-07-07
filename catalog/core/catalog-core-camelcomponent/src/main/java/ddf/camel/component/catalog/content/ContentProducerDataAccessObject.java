@@ -24,24 +24,27 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.apache.camel.Message;
 import org.apache.camel.component.file.GenericFile;
 import org.apache.camel.component.file.GenericFileMessage;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.Constants;
 import ddf.catalog.content.data.impl.ContentItemImpl;
 import ddf.catalog.content.operation.CreateStorageRequest;
-import ddf.catalog.content.operation.StorageRequest;
 import ddf.catalog.content.operation.UpdateStorageRequest;
 import ddf.catalog.content.operation.impl.CreateStorageRequestImpl;
 import ddf.catalog.content.operation.impl.UpdateStorageRequestImpl;
@@ -139,22 +142,35 @@ public class ContentProducerDataAccessObject {
             Map<String, Object> headers) throws SourceUnavailableException, IngestException {
         LOGGER.debug("Creating content item.");
 
-        String key = String.valueOf(ingestedFile.getAbsolutePath()
-                .hashCode());
-        String id = fileIdMap.loadAllKeys()
-                .contains(key) ? String.valueOf(fileIdMap.loadFromPersistence(key)) : null;
+        String refKey = (String) headers.get(Constants.STORE_REFERENCE_KEY);
+        String safeKey = null;
+        String id = null;
+        String name = ingestedFile.getName();
 
+        // null if the file is being stored in the content store
+        // not null if the file lives outside the content store (external reference)
+        if (refKey != null) {
+            // guards against impermissible filesystem characters
+            safeKey = DigestUtils.sha1Hex(refKey);
+            if (fileIdMap.loadAllKeys()
+                    .contains(safeKey)) {
+                id = String.valueOf(fileIdMap.loadFromPersistence(safeKey));
+            } else if (!StandardWatchEventKinds.ENTRY_CREATE.equals(eventType)) {
+                LOGGER.warn("Unable to look up id for {}, not performing {}",
+                        refKey,
+                        eventType.name());
+                return;
+            }
+        }
         if (StandardWatchEventKinds.ENTRY_CREATE.equals(eventType)) {
             CreateStorageRequest createRequest =
                     new CreateStorageRequestImpl(Collections.singletonList(new ContentItemImpl(
                             uuidGenerator.generateUuid(),
                             Files.asByteSource(ingestedFile),
                             mimeType,
-                            ingestedFile.getName(),
+                            name,
                             ingestedFile.length(),
-                            null)), null);
-
-            processHeaders(headers, createRequest, ingestedFile);
+                            null)), getProperties(headers));
 
             CatalogFramework catalogFramework = endpoint.getComponent()
                     .getCatalogFramework();
@@ -166,21 +182,21 @@ public class ContentProducerDataAccessObject {
             if (createResponse != null) {
                 List<Metacard> createdMetacards = createResponse.getCreatedMetacards();
 
-                for (Metacard metacard : createdMetacards) {
-                    fileIdMap.store(key, metacard.getId());
-                    LOGGER.debug("content item created with id = {}", metacard.getId());
+                if (safeKey != null) {
+                    fileIdMap.store(safeKey,
+                            createdMetacards.get(0)
+                                    .getId());
                 }
+                logIds(createdMetacards, "created");
             }
         } else if (StandardWatchEventKinds.ENTRY_MODIFY.equals(eventType)) {
             UpdateStorageRequest updateRequest =
                     new UpdateStorageRequestImpl(Collections.singletonList(new ContentItemImpl(id,
                             Files.asByteSource(ingestedFile),
                             mimeType,
-                            ingestedFile.getName(),
+                            name,
                             0,
-                            null)), null);
-
-            processHeaders(headers, updateRequest, ingestedFile);
+                            null)), getProperties(headers));
 
             UpdateResponse updateResponse = endpoint.getComponent()
                     .getCatalogFramework()
@@ -188,11 +204,9 @@ public class ContentProducerDataAccessObject {
             if (updateResponse != null) {
                 List<Update> updatedMetacards = updateResponse.getUpdatedMetacards();
 
-                for (Update update : updatedMetacards) {
-                    LOGGER.debug("content item updated with id = {}",
-                            update.getNewMetacard()
-                                    .getId());
-                }
+                logIds(updatedMetacards.stream()
+                        .map(Update::getNewMetacard)
+                        .collect(Collectors.toList()), "updated");
             }
         } else if (StandardWatchEventKinds.ENTRY_DELETE.equals(eventType)) {
             DeleteRequest deleteRequest = new DeleteRequestImpl(id);
@@ -203,27 +217,27 @@ public class ContentProducerDataAccessObject {
             if (deleteResponse != null) {
                 List<Metacard> deletedMetacards = deleteResponse.getDeletedMetacards();
 
-                for (Metacard delete : deletedMetacards) {
-                    fileIdMap.delete(ingestedFile.getAbsolutePath());
-                    LOGGER.debug("content item deleted with id = {}", delete.getId());
+                if (safeKey != null) {
+                    fileIdMap.delete(safeKey);
                 }
+                logIds(deletedMetacards, "deleted");
             }
         }
     }
 
-    public void processHeaders(Map<String, Object> headers, StorageRequest storageRequest,
-            File ingestedFile) {
-        Map<String, Serializable> attributeOverrideHeaders = new HashMap<>((Map) headers.get(
-                Constants.ATTRIBUTE_OVERRIDES_KEY));
-        if (!attributeOverrideHeaders.isEmpty()) {
-            storageRequest.getProperties()
-                    .put(Constants.ATTRIBUTE_OVERRIDES_KEY,
-                            (Serializable) attributeOverrideHeaders);
+    protected void logIds(List<Metacard> metacards, String action) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("content item(s) {} with id = {}",
+                    action,
+                    metacards.stream()
+                            .map(Metacard::getId)
+                            .filter(Objects::nonNull)
+                            .collect(Collectors.joining(", ")));
         }
-        if (headers.containsKey(Constants.STORE_REFERENCE_KEY)) {
-            storageRequest.getProperties()
-                    .put(Constants.STORE_REFERENCE_KEY, ingestedFile.getAbsolutePath());
-        }
+    }
+
+    protected HashMap<String, Serializable> getProperties(Map<String, Object> headers) {
+        return Maps.newHashMap(Maps.transformValues(headers, Serializable.class::cast));
     }
 
     private void waitForAvailableSource(CatalogFramework catalogFramework)
