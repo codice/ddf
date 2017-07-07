@@ -65,3 +65,4 @@ export JAVA_MAX_MEM=4096M
 # export KARAF_BASE # Karaf base folder
 
 export KARAF_OPTS="-Dfile.encoding=UTF8 -Dddf.home=$DDF_HOME"
+export JAVA_OPTS=-"server -Xms128M -Xmx4096M -XX:+UnlockDiagnosticVMOptions -XX:+UnsyncloadClass"
