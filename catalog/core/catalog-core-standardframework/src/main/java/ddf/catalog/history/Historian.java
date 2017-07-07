@@ -190,6 +190,10 @@ public class Historian {
                 .filter(isNotVersionNorDeleted)
                 .collect(Collectors.toList());
 
+        if (updatedMetacards.isEmpty()) {
+            return updateStorageResponse;
+        }
+
         Map<String, Metacard> originalMetacards = query(forIds(updatedMetacards.stream()
                 .map(Metacard::getId)
                 .collect(Collectors.toList())));
