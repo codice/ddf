@@ -15,8 +15,8 @@ package org.codice.ddf.catalog.subscriptionstore.common;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMap;
-import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
@@ -24,6 +24,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -86,7 +87,7 @@ public class SubscriptionPersistorTest {
     @Test(expected = SubscriptionStoreException.class)
     public void testInsertThrowsException() throws Exception {
         doThrow(PersistenceException.class).when(mockPersistentStore)
-                .add(anyString(), anyObject());
+                .add(anyString(), any(Map.class));
         persistor.insert(metadata);
     }
 
@@ -163,6 +164,14 @@ public class SubscriptionPersistorTest {
                     properties.containsKey("version_txt"),
                     is(true));
             data = properties;
+        }
+
+        @Override
+        public void add(String type, Collection<Map<String, Object>> items)
+                throws PersistenceException {
+            for (Map<String, Object> item : items) {
+                add(type, item);
+            }
         }
 
         @Override
