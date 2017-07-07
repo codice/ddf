@@ -15,14 +15,12 @@
            xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.2.0"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <ext:property-placeholder placeholder-prefix="$[" placeholder-suffix="]"/>
+    <ext:property-placeholder/>
 
     <!-- ProcessingFramework -->
     <bean id="processingFramework"
           class="org.codice.ddf.catalog.async.processingframework.impl.InMemoryProcessingFramework"
           destroy-method="cleanUp">
-        <cm:managed-properties persistent-id="ddf.catalog.CatalogFrameworkImpl"
-                               update-strategy="container-managed"/>
         <argument ref="catalogFramework"/>
         <argument ref="threadPool"/>
         <property name="postProcessPlugins" ref="postProcessPlugins"/>
@@ -34,8 +32,7 @@
     <!-- ThreadPool -->
     <bean id="threadPool" class="java.util.concurrent.Executors"
           factory-method="newFixedThreadPool">
-        <argument value="1"/>
-        <!--<argument value="$[org.codice.ddf.system.threadPoolSize]"/>-->
+        <argument value="${org.codice.ddf.system.threadPoolSize}"/>
     </bean>
 
     <!-- ProcessPlugins -->
