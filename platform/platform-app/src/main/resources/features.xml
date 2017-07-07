@@ -38,15 +38,16 @@
         All version properties for these Camel features are defined in the platform-app pom.
 
         DDF Changes made:
-        - Removed resolver="(obr)" from every feature
-        - Added install="manual" to every feature
-        - Replaced ${project.version} with ${camel.version}
-        - Commented out xml-specs-api feature and replaced xml-specs-api with cxf-specs in camel-core feature
-        - Added camel as feature prerequisite in camel-http to keep things ordered
-        - Added cxf as feature prerequisite in camel to keep things ordered
-        - Removed features that are not needed
-        - Updated versions of qpid and proton versions and added netty bundles in camel-amqp
-        - Replaced bundles in camel-jms
+        - removed resolver="(obr)" from every feature
+        - added install="manual" to every feature
+        - replaced ${project.version} with ${camel.version}
+        - commented out xml-specs-api feature and replaced xml-specs-api with cxf-specs in camel-core feature
+        - added camel as feature prerequisite in camel-http to keep things ordered
+        - added cxf as feature prerequisite in camel to keep things ordered
+        - removed features that are not needed
+        - updated versions of qpid and proton versions and added netty bundles in camel-amqp
+        - replaced bundles in camel-jms
+        - the versions for proton-j and qpid-jms-client used in camel-amqp need to be kept in sync with the versions used in artemis-amqp
 
     DO NOT EDIT
     -->

@@ -20,7 +20,8 @@
 >
 
 
-    <reference id="jmsConnectionFactory" interface="javax.jms.ConnectionFactory"/>
+    <reference id="jmsConnectionFactory" interface="javax.jms.ConnectionFactory"
+               filter="(name=jmsConnectionFactory)"/>
 
     <bean id="jmsConsumerConnectionResource"
           class="org.apache.camel.component.sjms.jms.ConnectionFactoryResource"

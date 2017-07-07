@@ -13,7 +13,7 @@
 -->
 <routes xmlns="http://camel.apache.org/schema/spring">
     <route id="sdk-example-router">
-        <from uri="sjms:jms.queue.sdk.example"/>
-        <to uri="sjms:topic:jms.topic.sdk.example"/>
+        <from uri="sjms:sdk.example"/>
+        <to uri="sjms:topic:sdk.example"/>
     </route>
 </routes>

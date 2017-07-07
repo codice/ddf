@@ -61,9 +61,9 @@ public class UndeliveredMessages implements UndeliveredMessagesMBean {
     }
 
     @Override
-    public List<CompositeData> getMessages(String address, String module) {
+    public List<CompositeData> getMessages(String address, String queue) {
         List<CompositeData> undeliveredMessages = new ArrayList<>();
-        Object compositeDatas = invokeMbean(createArtemisObjectName(address, module),
+        Object compositeDatas = invokeMbean(createArtemisObjectName(address, queue),
                 GET_MESSAGES_OPERATION,
                 new Object[] {""},
                 new String[] {String.class.getName()});
@@ -115,20 +115,20 @@ public class UndeliveredMessages implements UndeliveredMessagesMBean {
     }
 
     @Override
-    public long resendMessages(String address, String module, List<String> messageIds) {
-        return messageOperation(RESEND_MESSAGE_OPERATION, address, module, messageIds);
+    public long resendMessages(String address, String queue, List<String> messageIds) {
+        return messageOperation(RESEND_MESSAGE_OPERATION, address, queue, messageIds);
     }
 
     @Override
-    public long deleteMessages(String address, String module, List<String> messageIds) {
-        return messageOperation(DELETE_MESSAGE_OPERATION, address, module, messageIds);
+    public long deleteMessages(String address, String queue, List<String> messageIds) {
+        return messageOperation(DELETE_MESSAGE_OPERATION, address, queue, messageIds);
     }
 
-    public long messageOperation(String operationName, String address, String module,
+    public long messageOperation(String operationName, String address, String queue,
             List<String> messageId) {
         return messageId.stream()
                 .map(Long::valueOf)
-                .map(id -> invokeMbean(createArtemisObjectName(address, module),
+                .map(id -> invokeMbean(createArtemisObjectName(address, queue),
                         operationName,
                         new Object[] {id},
                         new String[] {long.class.getName()}))
@@ -218,22 +218,22 @@ public class UndeliveredMessages implements UndeliveredMessagesMBean {
         }
     }
 
-    private ObjectName createArtemisObjectName(String address, String module) {
+    private ObjectName createArtemisObjectName(String address, String queue) {
         try {
-            return new ObjectName("org.apache.activemq.artemis:type=Broker,brokerName=\""
-                    + SystemBaseUrl.getHost() + "\",module=" + module
-                    + ",serviceType=Queue,address=\"" + address + "\",name=\"" + address + "\"");
+            return new ObjectName("org.apache.activemq.artemis:broker=\"" + SystemBaseUrl.getHost()
+                    + "\",component=addresses,address=\"" + address
+                    + "\",subcomponent=queues,routing-type=\"anycast\",queue=\"" + queue + "\"");
         } catch (MalformedObjectNameException e) {
             LOGGER.warn(
                     "Unable to create the Artemis ObjectName, with the given the address: {}, and "
-                            + "module: {}. For more information, set logging level to DEBUG.",
+                            + "queue name: {}. For more information, set logging level to DEBUG.",
                     address,
-                    module);
+                    queue);
             LOGGER.debug(
                     "Unable to create the Artemis ObjectName, with the given the address: {}, and "
-                            + "module: {}.",
+                            + "queue name: {}.",
                     address,
-                    module,
+                    queue,
                     e);
         }
         return null;

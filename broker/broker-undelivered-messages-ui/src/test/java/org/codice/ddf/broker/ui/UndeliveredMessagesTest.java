@@ -47,7 +47,7 @@ public class UndeliveredMessagesTest {
 
     private static final String ADDRESS = "queue.test";
 
-    private static final String MODULE = "Core";
+    private static final String QUEUE = "queue.test";
 
     private static final String BROWSE = "browse";
 
@@ -56,9 +56,9 @@ public class UndeliveredMessagesTest {
     private static final String RETRY_MESSAGE = "retryMessage";
 
     private final ObjectName objectName = new ObjectName(
-            "org.apache.activemq.artemis:type=Broker,brokerName=\"" + SystemBaseUrl.getHost()
-                    + "\",module=" + MODULE + ",serviceType=Queue,address=\"" + ADDRESS
-                    + "\",name=\"" + ADDRESS + "\"");
+            "org.apache.activemq.artemis:broker=\"" + SystemBaseUrl.getHost()
+                    + "\",component=addresses,address=\"" + ADDRESS
+                    + "\",subcomponent=queues,routing-type=\"anycast\",queue=\"" + QUEUE + "\"");
 
     private UndeliveredMessages undeliveredMessagesService;
 
@@ -86,7 +86,7 @@ public class UndeliveredMessagesTest {
                 new String[] {String.class.getName()})).thenReturn(createCompositeData(
                 "12345messageBody".getBytes()));
         List<CompositeData> undeliveredMessages = undeliveredMessagesService.getMessages(ADDRESS,
-                MODULE);
+                QUEUE);
 
         validateCompositeData(undeliveredMessages);
         assertThat(undeliveredMessages.get(0)
@@ -97,14 +97,13 @@ public class UndeliveredMessagesTest {
     public void testGetMessagesWithNullChars()
             throws MalformedObjectNameException, OpenDataException, MBeanException,
             InstanceNotFoundException, ReflectionException {
-        byte[] bytes = new byte[] {
-                49, 50, 51, 52, 53, 50, 0, 51, 0, 52, 0, 53};
+        byte[] bytes = new byte[] {49, 50, 51, 52, 53, 50, 0, 51, 0, 52, 0, 53};
         when(mockMBeanServer.invoke(objectName,
                 BROWSE,
                 new Object[] {""},
                 new String[] {String.class.getName()})).thenReturn(createCompositeData(bytes));
         List<CompositeData> undeliveredMessages = undeliveredMessagesService.getMessages(ADDRESS,
-                MODULE);
+                QUEUE);
 
         validateCompositeData(undeliveredMessages);
         assertThat(undeliveredMessages.get(0)
@@ -116,7 +115,7 @@ public class UndeliveredMessagesTest {
         when(mockMBeanServer.isRegistered(objectName)).thenReturn(false);
 
         List<CompositeData> undeliveredMessages = undeliveredMessagesService.getMessages(ADDRESS,
-                MODULE);
+                QUEUE);
 
         assertThat(undeliveredMessages.size(), is(0));
     }
@@ -131,7 +130,7 @@ public class UndeliveredMessagesTest {
                 new String[] {String.class.getName()})).thenThrow(ReflectionException.class);
 
         List<CompositeData> undeliveredMessages = undeliveredMessagesService.getMessages(ADDRESS,
-                MODULE);
+                QUEUE);
 
         assertThat(undeliveredMessages.size(), is(0));
     }
@@ -145,7 +144,7 @@ public class UndeliveredMessagesTest {
                 new String[] {long.class.getName()})).thenReturn(true);
 
         long messageDeleted = undeliveredMessagesService.deleteMessages(ADDRESS,
-                MODULE,
+                QUEUE,
                 Collections.singletonList("1"));
 
         assertThat(messageDeleted, is(1L));
@@ -160,7 +159,7 @@ public class UndeliveredMessagesTest {
                 new String[] {long.class.getName()})).thenReturn(true);
 
         long messageDeleted = undeliveredMessagesService.deleteMessages(ADDRESS,
-                MODULE,
+                QUEUE,
                 Collections.singletonList("1"));
 
         assertThat(messageDeleted, is(1L));
@@ -175,7 +174,7 @@ public class UndeliveredMessagesTest {
                 new String[] {long.class.getName()})).thenThrow(MBeanException.class);
 
         long messageDeleted = undeliveredMessagesService.deleteMessages(ADDRESS,
-                MODULE,
+                QUEUE,
                 Collections.singletonList("1"));
 
         assertThat(messageDeleted, is(0L));
@@ -190,7 +189,7 @@ public class UndeliveredMessagesTest {
                 new String[] {long.class.getName()})).thenThrow(MBeanException.class);
 
         long messageDeleted = undeliveredMessagesService.deleteMessages(ADDRESS,
-                MODULE,
+                QUEUE,
                 Collections.singletonList("2"));
 
         assertThat(messageDeleted, is(0L));
@@ -205,7 +204,7 @@ public class UndeliveredMessagesTest {
                 new String[] {long.class.getName()})).thenReturn(true);
 
         long messageResent = undeliveredMessagesService.resendMessages(ADDRESS,
-                MODULE,
+                QUEUE,
                 Collections.singletonList("1"));
 
         assertThat(messageResent, is(1L));
@@ -220,7 +219,7 @@ public class UndeliveredMessagesTest {
                 new String[] {long.class.getName()})).thenThrow(InstanceNotFoundException.class);
 
         long messageResent = undeliveredMessagesService.resendMessages(ADDRESS,
-                MODULE,
+                QUEUE,
                 Collections.singletonList("1"));
 
         assertThat(messageResent, is(0L));
@@ -235,7 +234,7 @@ public class UndeliveredMessagesTest {
                 new String[] {long.class.getName()})).thenThrow(InstanceNotFoundException.class);
 
         long messageResent = undeliveredMessagesService.resendMessages(ADDRESS,
-                MODULE,
+                QUEUE,
                 Collections.singletonList("2"));
 
         assertThat(messageResent, is(0L));

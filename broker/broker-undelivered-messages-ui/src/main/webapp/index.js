@@ -31,7 +31,7 @@ import TableView from './table.view'
 require('es6-promise').polyfill()
 require('isomorphic-fetch')
 
-const getMessagesURI = '/admin/jolokia/exec/org.codice.ddf.broker.ui.UndeliveredMessages:service=UndeliveredMessages/getMessages/jms.queue.DLQ/Core/'
+const getMessagesURI = '/admin/jolokia/exec/org.codice.ddf.broker.ui.UndeliveredMessages:service=UndeliveredMessages/getMessages/DLQ/DLQ/'
 
 const retrieveData = (data, url) =>
   window.fetch(url, {credentials: 'same-origin'})
@@ -43,7 +43,7 @@ const retrieveData = (data, url) =>
           id: message.messageID,
           expanded: false,
           message: {
-            messageBody: message.body,
+            messageBody: message.text,
             origin: message.StringProperties._AMQ_ORIG_QUEUE,
             address: message.address
           }
@@ -63,7 +63,7 @@ const operateOnData = (data, method) => {
       type: 'EXEC',
       mbean: 'org.codice.ddf.broker.ui.UndeliveredMessages:service=UndeliveredMessages',
       operation: method,
-      arguments: ['jms.queue.DLQ', 'Core', ids]
+      arguments: ['DLQ', 'DLQ', ids]
     })
   })
     .then((res) => res.json())

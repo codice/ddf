@@ -70,9 +70,9 @@ public class AmqpProducerConsumerExample extends RouteBuilder {
                 System.out.println(count + " PING");
             }
         })
-                .to("amqp:jms.queue.sdk.example");
+                .to("amqp:sdk.example");
 
-        from("amqp:topic:jms.topic.sdk.example").process(exchange -> System.out.println(
+        from("amqp:topic:sdk.example").process(exchange -> System.out.println(
                 "ACK " + exchange.getIn()
                         .getBody()))
                 .stop();
