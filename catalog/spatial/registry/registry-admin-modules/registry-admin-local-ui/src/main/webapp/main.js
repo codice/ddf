@@ -50,7 +50,7 @@
             // default admin ui
             app: 'js/application',
 
-            moment: 'moment/2.5.1/min/moment.min'
+            moment: 'moment/2.18.1/min/moment.min'
         },
 
 

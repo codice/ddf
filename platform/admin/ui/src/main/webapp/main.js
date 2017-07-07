@@ -58,7 +58,7 @@
             app: 'js/application',
 
             //moment
-            moment: 'moment/2.5.1/moment',
+            moment: 'moment/2.18.1/moment',
 
 
             //iframe-resizer
