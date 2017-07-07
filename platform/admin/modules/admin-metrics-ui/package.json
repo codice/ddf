@@ -29,7 +29,7 @@
     "load-grunt-tasks": "3.5.2"
   },
   "dependencies": {
-    "lodash": "2.4.1",
+    "lodash": "4.17.4",
     "http-proxy": "0.10.0",
     "express": "4.14.0",
     "node-fs": "0.1.7",

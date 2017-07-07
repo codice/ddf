@@ -25,7 +25,7 @@
             // backbone
             backbone: 'backbone/1.1.2/backbone',
             backboneassociation: 'backbone-associations/0.6.2/backbone-associations',
-            underscore: 'lodash/2.4.1/dist/lodash.underscore',
+            underscore: 'lodash/4.17.4/dist/lodash.underscore',
             marionette: 'marionette/1.8.8/lib/backbone.marionette',
             modelbinder: 'backbone.modelbinder/1.1.0/Backbone.ModelBinder',
             collectionbinder: 'backbone.modelbinder/1.1.0/Backbone.CollectionBinder',

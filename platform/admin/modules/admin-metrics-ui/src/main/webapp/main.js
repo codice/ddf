@@ -28,7 +28,7 @@
             // backbone
             backbone: '../../admin/metrics/backbone/1.1.2/backbone',
             backboneassociation: '../../admin/metrics/backbone-associations/0.6.2/backbone-associations-min',
-            underscore: '../../admin/metrics/lodash/2.4.1/dist/lodash.underscore.min',
+            underscore: '../../admin/metrics/lodash/4.17.4/dist/lodash.underscore.min',
             marionette: '../../admin/metrics/marionette/1.8.8/lib/backbone.marionette.min',
             // TODO test combining
             modelbinder: '../../admin/metrics/backbone.modelbinder/1.1.0/Backbone.ModelBinder.min',

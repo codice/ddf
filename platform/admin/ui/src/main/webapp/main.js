@@ -26,7 +26,7 @@
             // backbone
             backbone: 'backbone/1.1.2/backbone',
             backbonerelational: 'backbone-relational/0.8.8/backbone-relational',
-            underscore: 'lodash/2.4.1/dist/lodash.underscore.min',
+            underscore: 'lodash/4.17.4/dist/lodash.underscore.min',
             marionette: 'marionette/1.8.8/lib/backbone.marionette.min',
             // TODO test combining
             modelbinder: 'backbone.modelbinder/1.1.0/Backbone.ModelBinder.min',

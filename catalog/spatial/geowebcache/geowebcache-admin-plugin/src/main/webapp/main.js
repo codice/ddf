@@ -20,7 +20,7 @@ require.config({
         // backbone
         backbone: 'backbone/1.1.2/backbone',
 
-        underscore: 'lodash/2.4.1/dist/lodash.underscore.min',
+        underscore: 'lodash/4.17.4/dist/lodash.underscore.min',
 
         'backbone.marionette': 'marionette/2.4.1/lib/backbone.marionette.min',
 

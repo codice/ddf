@@ -24,8 +24,8 @@ require.config({
         backboneassociations: 'backbone-associations/0.6.2/backbone-associations-min',
         backboneundo: 'Backbone.Undo/0.2.5/Backbone.Undo',
         poller: 'backbone-poller/1.1.3/backbone.poller',
-        underscore: 'lodash/2.4.1/dist/lodash.underscore.min',
-        lodash: 'lodash/2.4.1/dist/lodash.min',
+        underscore: 'lodash/4.17.4/dist/lodash.underscore.min',
+        lodash: 'lodash/4.17.4/dist/lodash.min',
         marionette: 'marionette/2.4.1/lib/backbone.marionette.min',
         // TODO test combining
         modelbinder: 'backbone.modelbinder/1.1.0/Backbone.ModelBinder.min',
