@@ -8,7 +8,7 @@ catalog/core/catalog-core-commands/src/main/java/org/codice/ddf/commands/catalog
 
 catalog/core/catalog-core-standardframework/src/main/java/ddf/catalog/history/*		@rzwiefel
 
-catalog/core/catalog-core-validationparser/src/main/java/* 	@rzwiefel
+catalog/core/catalog-core-validationparser/* 	@rzwiefel
 
 catalog/core/catalog-core-versioning/*				@rzwiefel
 
