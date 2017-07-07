@@ -29,7 +29,7 @@
 
             // jquery
             jquery: 'jquery/3.2.1/dist/jquery.min',
-            jqueryuiCore: 'jquery-ui/1.10.4/ui/minified/jquery.ui.core.min',
+            jqueryuiCore: 'jquery-ui/1.12.1/ui/minified/jquery.ui.core.min',
 
             // purl
             purl: 'purl/2.3.1/purl',

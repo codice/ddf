@@ -37,8 +37,8 @@
 
             // jquery
             jquery: 'jquery/3.2.1/dist/jquery.min',
-            jqueryui: 'jquery-ui/1.10.4/ui/minified/jquery-ui.min',
-            'jquery.ui.widget': 'jquery-ui/1.10.4/ui/minified/jquery.ui.widget.min',
+            jqueryui: 'jquery-ui/1.12.1/ui/minified/jquery-ui.min',
+            'jquery.ui.widget': 'jquery-ui/1.12.1/ui/minified/jquery.ui.widget.min',
             multiselect: 'bootstrap-multiselect/0.9.3/js/bootstrap-multiselect',
             perfectscrollbar: 'perfect-scrollbar/0.7.0/js/perfect-scrollbar.jquery.min',
             fileupload: 'jquery-file-upload/9.5.7/js/jquery.fileupload',

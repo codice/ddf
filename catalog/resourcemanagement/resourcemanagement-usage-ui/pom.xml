@@ -98,7 +98,7 @@
         <dependency>
             <groupId>org.webjars.bower</groupId>
             <artifactId>jquery-ui</artifactId>
-            <version>1.10.4</version>
+            <version>1.12.1</version>
         </dependency>
         <dependency>
             <groupId>org.webjars.bower</groupId>

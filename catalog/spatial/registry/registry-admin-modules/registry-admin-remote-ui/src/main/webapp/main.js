@@ -33,7 +33,7 @@
 
             // jquery
             jquery: 'jquery/3.2.1/dist/jquery.min',
-            jqueryui: 'jquery-ui/1.10.4/ui/minified/jquery-ui.min',
+            jqueryui: 'jquery-ui/1.12.1/ui/minified/jquery-ui.min',
 
             // handlebars
             handlebars: 'handlebars/2.0.0/handlebars.min',

@@ -31,8 +31,8 @@ require.config({
 
         // jquery
         jquery: 'jquery/3.2.1/dist/jquery.min',
-        jqueryuiCore: 'jquery-ui/1.10.4/ui/minified/jquery.ui.core.min',
-        "jquery.ui.widget": 'jquery-ui/1.10.4/ui/minified/jquery.ui.widget.min',
+        jqueryuiCore: 'jquery-ui/1.12.1/ui/minified/jquery.ui.core.min',
+        "jquery.ui.widget": 'jquery-ui/1.12.1/ui/minified/jquery.ui.widget.min',
 
         // handlebars
         handlebars: 'handlebars/2.0.0/handlebars.min',
