@@ -181,7 +181,7 @@ public class ConfigurationAdminImplTest {
         when(testBundleContext.getAllServiceReferences(ManagedService.class.getName(),
                 TEST_FILTER)).thenReturn(testServRefs);
         when(testBundleContext.getAllServiceReferences(ManagedServiceFactory.class.getName(),
-                TEST_FILTER)).thenReturn(testServRefs);
+                TEST_FACT_FILTER)).thenReturn(testServRefs);
     }
 
     /**

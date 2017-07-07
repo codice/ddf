@@ -179,7 +179,7 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
 
             // Get ManagedServiceFactory instances
             serviceFactoryList = getServices(ManagedServiceFactory.class.getName(),
-                    serviceFilter,
+                    serviceFactoryFilter,
                     true);
 
             // Get ManagedServiceFactory Metatypes
@@ -578,9 +578,16 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
             boolean ocdRequired) throws InvalidSyntaxException {
         List<Service> serviceList = new ArrayList<>();
 
+        // service.factoryPid cannot be searched, but service.pid can be searched,
+        // and can contain a factoryPid
+        String newFilter = null;
+        if (serviceFilter != null) {
+            newFilter = serviceFilter.replace("service.factoryPid", "service.pid");
+        }
+
         // find all ManagedServiceFactories to get the factoryPIDs
         ServiceReference[] refs = this.getBundleContext()
-                .getAllServiceReferences(serviceClass, serviceFilter);
+                .getAllServiceReferences(serviceClass, newFilter);
 
         for (int i = 0; refs != null && i < refs.length; i++) {
             Object pidObject = refs[i].getProperty(SERVICE_PID);

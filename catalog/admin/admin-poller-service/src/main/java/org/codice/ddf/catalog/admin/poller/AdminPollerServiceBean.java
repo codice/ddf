@@ -85,8 +85,6 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
 
     private List<String> excludeAsSource;
 
-    protected String serviceFilter;
-
     protected String serviceFactoryFilter;
 
     public AdminPollerServiceBean(ConfigurationAdmin configurationAdmin, org.osgi.service.cm.ConfigurationAdmin felixConfigAdmin) {
@@ -109,7 +107,6 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
 
     public void init() {
         serviceFactoryFilter = getServiceFactoryFilterProperties();
-        serviceFilter = getServiceFilterProperties();
         try {
             try {
                 mBeanServer.registerMBean(this, objectName);
@@ -257,10 +254,6 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
         return createFilter("service.factoryPid");
     }
 
-    protected String getServiceFilterProperties() {
-        return createFilter("service.pid");
-    }
-
     private String createFilter(String pidKey) {
         String includes, excludes;
         includes = (includeAsSource == null || CollectionUtils.isEmpty(includeAsSource)) ?
@@ -305,7 +298,7 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
         }
 
         protected List<Service> getMetatypes() {
-            return configurationAdmin.listServices(serviceFactoryFilter, serviceFilter);
+            return configurationAdmin.listServices(serviceFactoryFilter, ConfigurationAdmin.NO_MATCH_FILTER);
         }
 
         protected List<Configuration> getConfigurations(Metatype metatype) throws InvalidSyntaxException, IOException {

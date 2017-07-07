@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.registry.federationadmin.impl;
 
+import static org.codice.ddf.admin.core.api.ConfigurationAdmin.NO_MATCH_FILTER;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -69,18 +71,19 @@ public class AdminHelper {
     }
 
     public List<Service> getMetatypes() {
-        return configAdmin.listServices(REGISTRY_FILTER, REGISTRY_FILTER);
+        return configAdmin.listServices(REGISTRY_FILTER, NO_MATCH_FILTER);
     }
 
     public List<Configuration> getConfigurations(Service metatype)
             throws InvalidSyntaxException, IOException {
-        return Arrays.asList(configurationAdmin.listConfigurations(
-                String.format("(|(%s=%s)(%s=%s%s))",
-                        ConfigurationAdmin.SERVICE_FACTORYPID,
-                        metatype.getId(),
-                        ConfigurationAdmin.SERVICE_FACTORYPID,
-                        metatype.getId(),
-                        DISABLED)));
+        Configuration[] configurations = configurationAdmin.listConfigurations(String.format(
+                "(|(%s=%s)(%s=%s%s))",
+                ConfigurationAdmin.SERVICE_FACTORYPID,
+                metatype.getId(),
+                ConfigurationAdmin.SERVICE_FACTORYPID,
+                metatype.getId(),
+                DISABLED));
+        return configurations == null ? new ArrayList<>() : Arrays.asList(configurations);
     }
 
     public Configuration getConfiguration(ConfiguredService cs) throws IOException {
