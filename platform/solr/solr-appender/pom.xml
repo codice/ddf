@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -15,22 +15,17 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>persistence</artifactId>
-        <groupId>ddf.persistence</groupId>
+        <artifactId>solr</artifactId>
+        <groupId>ddf.platform.solr</groupId>
         <version>2.11.0-SNAPSHOT</version>
     </parent>
-    <groupId>ddf.persistence.core</groupId>
-    <artifactId>persistence-core-listeners</artifactId>
-    <name>DDF :: Persistence :: Core :: Listeners</name>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>solr-appender</artifactId>
+    <name>DDF :: Platform :: Solr :: Appender</name>
     <packaging>bundle</packaging>
     <dependencies>
-        <dependency>
-            <groupId>ddf.notifications.core</groupId>
-            <artifactId>platform-notifications-core-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-ext</artifactId>
@@ -47,14 +42,6 @@
             <groupId>ddf.persistence.core</groupId>
             <artifactId>persistence-core-api</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.ddf</groupId>
-            <artifactId>notifications</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.ddf</groupId>
-            <artifactId>activities</artifactId>
         </dependency>
         <dependency>
             <groupId>org.codice.ddf</groupId>
@@ -75,8 +62,6 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            activities,
-                            notifications,
                             alerts
                         </Embed-Dependency>
                     </instructions>
@@ -100,17 +85,17 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.46</minimum>
+                                            <minimum>0.88</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.70</minimum>
+                                            <minimum>0.95</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.55</minimum>
+                                            <minimum>0.78</minimum>
                                         </limit>
 
                                     </limits>

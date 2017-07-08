@@ -56,5 +56,6 @@
         <module>solr-factory</module>
         <module>solr-banana</module>
         <module>solr-banana-provisioner</module>
+        <module>solr-appender</module>
     </modules>
 </project>

@@ -31,6 +31,8 @@ public interface PersistentStore {
     String USER_ATTRIBUTE_TYPE = "attributes";
     String SUBSCRIPTION_TYPE = "subscriptions";
     String EVENT_SUBSCRIPTIONS_TYPE = "event_subscriptions";
+    String ALERT_TYPE = "alerts";
+    String DECANTER_TYPE = "decanter";
 
     Set<String> PERSISTENCE_TYPES = new HashSet<String>(Arrays.asList(METACARD_TYPE,
             SAVED_QUERY_TYPE,
@@ -40,7 +42,9 @@ public interface PersistentStore {
             PREFERENCES_TYPE,
             USER_ATTRIBUTE_TYPE,
             SUBSCRIPTION_TYPE,
-            EVENT_SUBSCRIPTIONS_TYPE));
+            EVENT_SUBSCRIPTIONS_TYPE,
+            ALERT_TYPE,
+            DECANTER_TYPE));
 
     /**
      * Adds item of specified type with the specified properties.

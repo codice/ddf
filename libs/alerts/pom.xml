@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -11,34 +11,31 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
--->
+ -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>ddf</groupId>
-        <artifactId>ddf</artifactId>
+        <groupId>ddf.lib</groupId>
+        <artifactId>lib</artifactId>
         <version>2.11.0-SNAPSHOT</version>
     </parent>
-    <groupId>ddf.lib</groupId>
-    <artifactId>lib</artifactId>
-    <packaging>pom</packaging>
-    <name>DDF Lib</name>
-    <description>DDF Libraries</description>
-    <modules>
-        <module>libs-pomfix</module>
-        <module>libs-pomfix-run</module>
-        <module>activities</module>
-        <module>httpproxy</module>
-        <module>notifications</module>
-        <module>platform-configuration-impl</module>
-        <module>common-system</module>
-        <module>checksum</module>
-        <module>webapps</module>
-        <module>klv</module>
-        <module>mpeg-transport-stream</module>
-        <module>geospatial</module>
-        <module>owasp-diff-runner</module>
-        <module>spock-shaded</module>
-        <module>alerts</module>
-    </modules>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.codice.ddf</groupId>
+    <artifactId>alerts</artifactId>
+    <packaging>jar</packaging>
+    <name>DDF :: Alerts</name>
+    <dependencies>
+        <dependency>
+            <groupId>ddf.lib</groupId>
+            <artifactId>common-system</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 </project>
