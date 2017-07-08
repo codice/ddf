@@ -14,7 +14,7 @@
 require.config({
     paths: {
 
-        bootstrap: 'bootstrap/3.2.0/dist/js/bootstrap.min',
+        bootstrap: 'bootstrap/3.3.7/dist/js/bootstrap.min',
         bootstrapselect: 'bootstrap-select/1.6.4/dist/js/bootstrap-select.min',
 
         perfectscrollbar: 'perfect-scrollbar/0.7.0/js/perfect-scrollbar.jquery.min',

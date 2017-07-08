@@ -19,7 +19,7 @@
 
         paths: {
 
-            bootstrap: 'bootstrap/3.2.0/dist/js/bootstrap.min',
+            bootstrap: 'bootstrap/3.3.7/dist/js/bootstrap.min',
             spin: 'spin.js/1.3.3/spin',
             q: 'q/1.5.0/q',
 
