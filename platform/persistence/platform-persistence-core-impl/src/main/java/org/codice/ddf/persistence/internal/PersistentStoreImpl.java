@@ -176,6 +176,9 @@ public class PersistentStoreImpl implements PersistentStore {
                 Filter filter = ECQL.toFilter(cql);
                 solrQuery = (SolrQuery) filter.accept(visitor, null);
             }
+            if (solrQuery == null) {
+                throw new PersistenceException("Unsupported query " + cql);
+            }
             QueryResponse solrResponse = solrClient.query(solrQuery, METHOD.POST);
             long numResults = solrResponse.getResults()
                     .getNumFound();

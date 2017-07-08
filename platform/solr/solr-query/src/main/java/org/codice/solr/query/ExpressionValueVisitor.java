@@ -13,35 +13,27 @@
  */
 package org.codice.solr.query;
 
+import org.apache.commons.lang.StringUtils;
 import org.geotools.filter.visitor.NullExpressionVisitor;
 import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;
 
 public class ExpressionValueVisitor extends NullExpressionVisitor {
-
-    private String propertyName;
-
-    private Object literal;
-
-    public Object getLiteralValue() {
-        return literal;
-    }
-
-    public String getPropertyName() {
-        return propertyName;
-    }
-
     @Override
     public Object visit(Literal expression, Object extraData) {
-        this.literal = expression.getValue();
-        return expression.getValue();
+        Object value = expression.getValue();
+        if (value == null) {
+            throw new UnsupportedOperationException("PropertyName and Literal is required for search.");
+        }
+        return value;
     }
 
     @Override
     public Object visit(PropertyName expr, Object extraData) {
-
-        this.propertyName = expr.getPropertyName();
-        return expr.getPropertyName();
+        String value = expr.getPropertyName();
+        if (StringUtils.isBlank(value)) {
+            throw new UnsupportedOperationException("PropertyName and Literal is required for search.");
+        }
+        return value;
     }
-
 }
