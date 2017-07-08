@@ -42,10 +42,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-        </dependency>
-        <dependency>
             <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
             <version>${project.version}</version>
@@ -72,7 +68,7 @@
                             ddf.catalog.util.impl
                         </Private-Package>
                         <Embed-Dependency>
-                            commons-lang3, catalog-core-api-impl, platform-util
+                            catalog-core-api-impl, platform-util
                         </Embed-Dependency>
                     </instructions>
                 </configuration>

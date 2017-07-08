@@ -14,14 +14,15 @@
 package ddf.catalog.util.impl;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Spliterator;
 import java.util.Spliterators;
 
-import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang.Validate;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Result;
-import ddf.catalog.operation.Query;
+import ddf.catalog.operation.QueryRequest;
 
 /**
  * Class that facilitates iteration over individual catalog results.
@@ -32,24 +33,24 @@ import ddf.catalog.operation.Query;
 public class QueryResultIterable implements Iterable<Result> {
     private final CatalogFramework catalog;
 
-    private final Query query;
+    private final QueryRequest queryRequest;
 
     /**
      * Constructor for QueryResultIterable.
      *
      * @param catalogFramework catalog to query
-     * @param query            query used to query the catalog framework for results. Query
-     *                         parameters such as {@link Query#getPageSize()} and
-     *                         {@link Query#getStartIndex()} will be used and are guaranteed to be
+     * @param queryRequest     queryRequest used to query the catalog framework for results. Query
+     *                         parameters such as {@link ddf.catalog.operation.Query#getPageSize()} and
+     *                         {@link ddf.catalog.operation.Query#getStartIndex()} will be used and are guaranteed to be
      *                         respected when valid, regardless of any limit imposed by the catalog
      *                         framework on the result size.
      */
-    public QueryResultIterable(CatalogFramework catalogFramework, Query query) {
+    public QueryResultIterable(CatalogFramework catalogFramework, QueryRequest queryRequest) {
         Validate.notNull(catalogFramework, "Catalog is null");
-        Validate.notNull(query, "queryRequest is null");
+        Validate.notNull(queryRequest, "queryRequest is null");
 
         this.catalog = catalogFramework;
-        this.query = query;
+        this.queryRequest = queryRequest;
     }
 
     /**
@@ -60,7 +61,7 @@ public class QueryResultIterable implements Iterable<Result> {
      */
     @Override
     public Iterator<Result> iterator() {
-        return new QueryResultIterator();
+        return new QueryResultIterator(new QueryResultPaginator(catalog, queryRequest));
     }
 
     @Override
@@ -69,14 +70,14 @@ public class QueryResultIterable implements Iterable<Result> {
         return Spliterators.spliteratorUnknownSize(this.iterator(), characteristics);
     }
 
-    class QueryResultIterator implements Iterator<Result> {
+    static class QueryResultIterator implements Iterator<Result> {
 
         private QueryResultPaginator queryResultPaginator;
 
         private Iterator<Result> queriedResults = null;
 
-        public QueryResultIterator() {
-            this.queryResultPaginator = new QueryResultPaginator(catalog, query);
+        public QueryResultIterator(QueryResultPaginator queryResultPaginator) {
+            this.queryResultPaginator = queryResultPaginator;
         }
 
         @Override
@@ -90,7 +91,7 @@ public class QueryResultIterable implements Iterable<Result> {
         }
 
         @Override
-        public Result next() {
+        public Result next() throws NoSuchElementException {
 
             if (isQueriedResultListNullOrEmpty()) {
                 queriedResults = queryResultPaginator.next()

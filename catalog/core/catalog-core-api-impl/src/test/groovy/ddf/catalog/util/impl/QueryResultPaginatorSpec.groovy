@@ -27,9 +27,10 @@ class QueryResultPaginatorSpec extends Specification {
         }
 
         Query queryMock = createQueryMock(1, 1)
+        QueryRequest queryRequestMock = createQueryRequestMock(queryMock)
 
         when:
-        def queryResultPaginator = new QueryResultPaginator(catalogFramework, queryMock)
+        def queryResultPaginator = new QueryResultPaginator(catalogFramework, queryRequestMock)
         def hasNext = queryResultPaginator.hasNext()
 
         then:
@@ -43,9 +44,10 @@ class QueryResultPaginatorSpec extends Specification {
         }
 
         Query queryMock = createQueryMock(1, 1)
+        QueryRequest queryRequestMock = createQueryRequestMock(queryMock)
 
         when:
-        def queryResultPaginator = new QueryResultPaginator(catalogFramework, queryMock)
+        def queryResultPaginator = new QueryResultPaginator(catalogFramework, queryRequestMock)
         def hasNext = queryResultPaginator.hasNext()
 
         then:
@@ -59,9 +61,10 @@ class QueryResultPaginatorSpec extends Specification {
         }
 
         Query queryMock = createQueryMock(1, 1)
+        QueryRequest queryRequestMock = createQueryRequestMock(queryMock)
 
         when:
-        def queryResultPaginator = new QueryResultPaginator(catalogFramework, queryMock)
+        def queryResultPaginator = new QueryResultPaginator(catalogFramework, queryRequestMock)
         queryResultPaginator.hasNext()
         def hasNext = queryResultPaginator.hasNext()
 
@@ -72,14 +75,15 @@ class QueryResultPaginatorSpec extends Specification {
     @Unroll
     def "next() returns #expected results when page size is #pageSize and catalog returns #resultSize results"(int pageSize, int resultSize, int expected) {
         setup:
-        (_..2) * catalogFramework.query(_ as QueryRequest) >> {
+        (_..3) * catalogFramework.query(_ as QueryRequest) >> {
             QueryRequest queryRequest -> buildQueryResponse(queryRequest, resultSize, 5)
         }
 
         Query queryMock = createQueryMock(1, pageSize)
+        QueryRequest queryRequestMock = createQueryRequestMock(queryMock)
 
         when:
-        def queryResultPaginator = new QueryResultPaginator(catalogFramework, queryMock)
+        def queryResultPaginator = new QueryResultPaginator(catalogFramework, queryRequestMock)
         List<Result> results = queryResultPaginator.next()
 
         then:
@@ -92,6 +96,7 @@ class QueryResultPaginatorSpec extends Specification {
         2        | 3          | 2
         2        | 2          | 2
         2        | 1          | 2
+        5        | 2          | 5
     }
 
     @Unroll
@@ -102,9 +107,10 @@ class QueryResultPaginatorSpec extends Specification {
         }
 
         Query queryMock = createQueryMock(1, pageSize)
+        QueryRequest queryRequestMock = createQueryRequestMock(queryMock)
 
         when:
-        def queryResultPaginator = new QueryResultPaginator(catalogFramework, queryMock)
+        def queryResultPaginator = new QueryResultPaginator(catalogFramework, queryRequestMock)
         List<Result> firstPage = queryResultPaginator.next()
         List<Result> secondPage = queryResultPaginator.next()
 
@@ -133,9 +139,10 @@ class QueryResultPaginatorSpec extends Specification {
 
         def pageSize = 3
         Query queryMock = createQueryMock(1, pageSize)
+        QueryRequest queryRequestMock = createQueryRequestMock(queryMock)
 
         when:
-        def queryResultPaginator = new QueryResultPaginator(catalogFramework, queryMock)
+        def queryResultPaginator = new QueryResultPaginator(catalogFramework, queryRequestMock)
         List<Result> firstPage = queryResultPaginator.next()
         List<Result> secondPage = queryResultPaginator.next()
 
@@ -153,9 +160,10 @@ class QueryResultPaginatorSpec extends Specification {
         }
 
         Query queryMock = createQueryMock(1, 1)
+        QueryRequest queryRequestMock = createQueryRequestMock(queryMock)
 
         when:
-        def queryResultPaginator = new QueryResultPaginator(catalogFramework, queryMock)
+        def queryResultPaginator = new QueryResultPaginator(catalogFramework, queryRequestMock)
         queryResultPaginator.next()
         queryResultPaginator.next()
 
@@ -167,9 +175,10 @@ class QueryResultPaginatorSpec extends Specification {
         setup:
         catalogFramework.query(_ as QueryRequest) >> { throw new UnsupportedQueryException() }
         Query queryMock = createQueryMock(1, 1)
+        QueryRequest queryRequestMock = createQueryRequestMock(queryMock)
 
         when:
-        def queryResultPaginator = new QueryResultPaginator(catalogFramework, queryMock)
+        def queryResultPaginator = new QueryResultPaginator(catalogFramework, queryRequestMock)
         queryResultPaginator.next()
 
         then:
@@ -180,9 +189,10 @@ class QueryResultPaginatorSpec extends Specification {
         setup:
         catalogFramework.query(_ as QueryRequest) >> { throw new SourceUnavailableException() }
         Query queryMock = createQueryMock(1, 1)
+        QueryRequest queryRequestMock = createQueryRequestMock(queryMock)
 
         when:
-        def queryResultPaginator = new QueryResultPaginator(catalogFramework, queryMock)
+        def queryResultPaginator = new QueryResultPaginator(catalogFramework, queryRequestMock)
         queryResultPaginator.next()
 
         then:
@@ -193,9 +203,10 @@ class QueryResultPaginatorSpec extends Specification {
         setup:
         catalogFramework.query(_ as QueryRequest) >> { throw new FederationException() }
         Query queryMock = createQueryMock(1, 1)
+        QueryRequest queryRequestMock = createQueryRequestMock(queryMock)
 
         when:
-        def queryResultPaginator = new QueryResultPaginator(catalogFramework, queryMock)
+        def queryResultPaginator = new QueryResultPaginator(catalogFramework, queryRequestMock)
         queryResultPaginator.next()
 
         then:
@@ -210,6 +221,12 @@ class QueryResultPaginatorSpec extends Specification {
         queryMock.requestsTotalResultsCount() >> true
         queryMock.getTimeoutMillis() >> 0L
         return queryMock
+    }
+
+    private QueryRequest createQueryRequestMock(Query queryMock) {
+        def queryRequestMock = Mock(QueryRequest.class)
+        queryRequestMock.getQuery() >> queryMock
+        return queryRequestMock
     }
 
     private void setCatalogFrameworkResponses(int resultListsSize, int totalResults)

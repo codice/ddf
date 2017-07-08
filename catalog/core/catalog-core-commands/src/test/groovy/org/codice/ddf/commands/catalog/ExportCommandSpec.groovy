@@ -81,7 +81,6 @@ class ExportCommandSpec extends Specification {
     def "Test export no items"() {
         setup:
         catalogFramework.query(_ as QueryRequest) >> { QueryRequest req ->
-            System.err.println("catalogFramework.query() called!")
             new QueryResponseImpl(req, [], 0)
         }
         catalogFramework.getLocalResource(_ as ResourceRequest) >> {

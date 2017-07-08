@@ -25,6 +25,7 @@ import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Result;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.operation.Query;
+import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.SourceUnavailableException;
@@ -36,25 +37,27 @@ import ddf.catalog.source.UnsupportedQueryException;
  * This helps clients guarantee a particular batch size rather than getting fewer results than
  * expected from the Catalog Framework.
  */
-public class QueryResultPaginator {
+class QueryResultPaginator {
 
     private final CatalogFramework catalogFramework;
 
+    private QueryRequestImpl queryRequestCopy;
+
     // Used to query the catalog framework and adjust the starting index of the query without
     // modifying the original query.
-    private final QueryImpl queryCopy;
+    private QueryImpl queryCopy;
 
     // Used to track the start index of the next query and ensure that the correct query results
     // are returned with no repetition of results.
     private int indexOffset;
 
-    private int pageSize;
+    private final int pageSize;
 
     // Set to true when a query returns zero results and no more results can be fetched from
-    // Catalog Framework..
+    // Catalog Framework.
     private boolean noMoreCatalogFrameworkResultsToFetch;
 
-    // Used to buffer fetched results from the Catalog Framework and hold them until they can be
+    // Used to buffer fetched results from the CatalogFramework and hold them until they can be
     // drained into a result list to return to the client.
     private BlockingQueue<Result> queriedResultsBuffer;
 
@@ -66,16 +69,15 @@ public class QueryResultPaginator {
      * </p>
      *
      * @param catalogFramework reference to the {@link CatalogFramework}
-     * @param query            client query. Will be used to query the {@link CatalogFramework}
+     * @param queryRequest     client query. Will be used to query the {@link CatalogFramework}
      *                         and guarantee that the number of results returned will always match
-     *                         the query page size provided until all results have been retrieved.
      */
-    public QueryResultPaginator(CatalogFramework catalogFramework, Query query) {
+    public QueryResultPaginator(CatalogFramework catalogFramework, QueryRequest queryRequest) {
         Validate.notNull(catalogFramework);
-        Validate.notNull(query);
+        Validate.notNull(queryRequest);
 
         this.catalogFramework = catalogFramework;
-        this.queryCopy = copy(query);
+        copyQueryRequestAndQuery(queryRequest);
 
         noMoreCatalogFrameworkResultsToFetch = false;
         pageSize = queryCopy.getPageSize();
@@ -100,6 +102,7 @@ public class QueryResultPaginator {
     }
 
     public List<Result> next() throws NoSuchElementException {
+
         if (!hasNext()) {
             throw new NoSuchElementException();
         }
@@ -117,17 +120,21 @@ public class QueryResultPaginator {
         return !queriedResultsBuffer.isEmpty();
     }
 
-    private QueryImpl copy(Query query) {
-        return new QueryImpl(query,
+    private void copyQueryRequestAndQuery(QueryRequest queryRequest) {
+
+        Query query = queryRequest.getQuery();
+
+        this.queryCopy = new QueryImpl(query,
                 query.getStartIndex(),
                 query.getPageSize(),
                 query.getSortBy(),
                 query.requestsTotalResultsCount(),
                 query.getTimeoutMillis());
-    }
 
-    private int getBufferSize() {
-        return queriedResultsBuffer.size();
+        this.queryRequestCopy = new QueryRequestImpl(queryCopy,
+                queryRequest.isEnterprise(),
+                queryRequest.getSourceIds(),
+                queryRequest.getProperties());
     }
 
     /**
@@ -151,10 +158,14 @@ public class QueryResultPaginator {
 
     private List<Result> queryCatalogFramework() {
         try {
-            return catalogFramework.query(new QueryRequestImpl(queryCopy))
+            return catalogFramework.query(queryRequestCopy)
                     .getResults();
         } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
             throw new CatalogQueryException(e);
         }
+    }
+
+    private int getBufferSize() {
+        return queriedResultsBuffer.size();
     }
 }

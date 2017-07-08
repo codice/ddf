@@ -62,9 +62,11 @@ import ddf.catalog.core.versioning.MetacardVersion;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.impl.DeleteRequestImpl;
 import ddf.catalog.operation.impl.QueryImpl;
+import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.ResourceRequestByProductUri;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
@@ -243,9 +245,11 @@ public class ExportCommand extends CqlCommands {
         List<ExportItem> exportedItems = new ArrayList<>();
 
         QueryImpl query = new QueryImpl(filter);
+        QueryRequest queryRequest = new QueryRequestImpl(query);
+
         query.setPageSize(PAGE_SIZE);
 
-        for (Result result : new QueryResultIterable(catalogFramework, query)) {
+        for (Result result : new QueryResultIterable(catalogFramework, queryRequest)) {
             if (!seenIds.contains(result.getMetacard()
                     .getId())) {
                 writeToZip(zipFile, result);
@@ -261,10 +265,12 @@ public class ExportCommand extends CqlCommands {
 
             // Fetch and export all history for each exported item
             QueryImpl historyQuery = new QueryImpl(getHistoryFilter(result));
+            QueryRequest historyQueryRequest = new QueryRequestImpl(historyQuery);
+
             historyQuery.setPageSize(PAGE_SIZE);
 
             for (Result revision : new QueryResultIterable(catalogFramework,
-                    historyQuery)) {
+                    historyQueryRequest)) {
                 if (seenIds.contains(revision.getMetacard()
                         .getId())) {
                     continue;
