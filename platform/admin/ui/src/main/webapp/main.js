@@ -21,7 +21,7 @@
 
             bootstrap: 'bootstrap/3.3.7/dist/js/bootstrap.min',
             spin: 'spin.js/1.3.3/spin',
-            q: 'q/1.5.0/q',
+            q: 'q/1.4.1/q',
 
             // backbone
             backbone: 'backbone/1.1.2/backbone',
