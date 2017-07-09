@@ -13,9 +13,10 @@
  **/
 package org.codice.ddf.catalog.ui.query.geofeature;
 
+import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.codice.ddf.spatial.geocoder.GeoResult;
@@ -43,22 +44,22 @@ public class GazetteerFeatureService implements FeatureService {
 
     @Override
     public List<String> getSuggestedFeatureNames(String query, int maxResults) {
-        List<String> results = new ArrayList<>();
         try {
-            this.geoEntryQueryable.query(query, maxResults)
-                    .forEach(entry -> results.add(entry.getName()));
+            return geoEntryQueryable.query(query, maxResults)
+                    .stream()
+                    .map(GeoEntry::getName)
+                    .collect(toList());
         } catch (GeoEntryQueryException e) {
             LOGGER.debug("Error while making feature service request.", e);
+            return Collections.emptyList();
         }
-
-        return results;
     }
 
     @Override
     public Feature getFeatureByName(String name) {
         try {
             List<GeoEntry> entries = this.geoEntryQueryable.query(name, 1);
-            if (entries.size() > 0) {
+            if (!entries.isEmpty()) {
                 GeoResult geoResult = getGeoResultFromGeoEntry(entries.get(0));
                 return getFeatureFromGeoResult(geoResult);
             }

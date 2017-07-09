@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.Optional;
+import javax.annotation.Nullable;
 
 import org.codice.ddf.spatial.geocoding.GeoEntry;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryException;
@@ -40,11 +41,12 @@ public class GazetteerGeoCoder implements GeoCoder {
     }
 
     @Override
+    @Nullable
     public GeoResult getLocation(final String location) {
         try {
             final List<GeoEntry> topResults = geoEntryQueryable.query(location, 1);
 
-            if (topResults.size() > 0) {
+            if (!topResults.isEmpty()) {
                 return GeoResultCreator.createGeoResult(topResults.get(0));
             }
         } catch (GeoEntryQueryException e) {
@@ -54,6 +56,7 @@ public class GazetteerGeoCoder implements GeoCoder {
         return null;
     }
 
+    @Nullable
     public NearbyLocation getNearbyCity(String location) throws GeoEntryQueryException {
 
         try {
@@ -61,7 +64,7 @@ public class GazetteerGeoCoder implements GeoCoder {
                     SEARCH_RADIUS,
                     SEARCH_RESULT_LIMIT);
 
-            if (locations.size() > 0) {
+            if (!locations.isEmpty()) {
                 return locations.get(0);
             }
         } catch (ParseException parseException) {

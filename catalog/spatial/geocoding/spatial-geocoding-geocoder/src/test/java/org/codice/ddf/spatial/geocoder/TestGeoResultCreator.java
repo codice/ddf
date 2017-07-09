@@ -34,7 +34,7 @@ public class TestGeoResultCreator {
                 longitude,
                 featureCode,
                 population);
-        this.verifyGeoResult(name,
+        verifyGeoResult(name,
                 latitude,
                 longitude,
                 expectedLatitudeOffset,
