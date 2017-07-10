@@ -1,0 +1,91 @@
+:title: Developing Attribute Types
+:type: developingComponent
+:status: published
+:link: _developing_attribute_types
+:summary: Creating a custom attribute type.
+:order: 03
+
+Create custom attribute types with Attribute Type definition files.
+
+==== Attribute Type Definition File
+
+To define Attribute Types, the definition file must have an `attributeTypes` key in the root object.
+
+[source,json]
+----
+{
+    "attributeTypes": {...}
+}
+----
+
+The value of `attributeTypes` must be a map where each key is the attribute type's name and each value is a map that includes the data type and whether the attribute type is stored, indexed, tokenized, or multi-valued.
+
+.Attribute Types
+[source,json]
+----
+{
+    "attributeTypes": {
+        "temperature": {
+            "type": "DOUBLE_TYPE",
+            "stored": true,
+            "indexed": true,
+            "tokenized": false,
+            "multivalued": false
+        }
+    }
+}
+----
+
+The attributes `stored`, `indexed`, `tokenized`, and `multivalued` must be included and must have a boolean value.
+
+.Required Attribute Definitions
+====
+`stored`:: If true, the value of the attribute should be stored in the underlying datastore. Some attributes may only be indexed or used in transit and do not need to be persisted.
+`indexed`:: If true, then the value of the attribute should be included in the datastore's index and therefore be part of query evaluation.
+`tokenized`:: Only applicable to STRING_TYPE attributes, if true then stopwords and punctuation will be stripped prior to storing and/or indexing. If false, only an exact string will match.
+`multi-valued`:: If true, then the attribute values will be Lists of the attribute type rather than single values.
+====
+
+The `type` attribute must also be included and must have one of the allowed values:
+
+.`type` Attribute Possible Values
+====
+ - `DATE_TYPE`
+ - `STRING_TYPE`
+ - `XML_TYPE`
+ - `LONG_TYPE`
+ - `BINARY_TYPE`
+ - `GEO_TYPE`
+ - `BOOLEAN_TYPE`
+ - `DOUBLE_TYPE`
+ - `FLOAT_TYPE`
+ - `INTEGER_TYPE`
+ - `OBJECT_TYPE`
+ - `SHORT_TYPE`
+====
+
+An example with multiple attributes defined:
+
+.Multiple Attributes Defined
+[source,json]
+----
+{
+    "attributeTypes": {
+        "resolution": {
+            "type": "STRING_TYPE",
+            "stored": true,
+            "indexed": true,
+            "tokenized": false,
+            "multivalued": false
+        },
+        "target-areas": {
+            "type": "GEO_TYPE",
+            "stored": true,
+            "indexed": true,
+            "tokenized": false,
+            "multivalued": true
+        }
+    }
+}
+----
+

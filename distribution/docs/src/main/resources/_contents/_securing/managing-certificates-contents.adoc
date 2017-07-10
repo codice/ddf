@@ -1,5 +1,5 @@
 
-==== Managing Keystores and Certificates
+=== Managing Keystores and Certificates
 
 * *{hardening-step}*
 
@@ -8,7 +8,7 @@ ${branding} uses certificates in two ways:
 . Ensuring the privacy and integrity of messages sent or received over a network.
 . Authenticating an incoming user request.
 
-===== Managing Keystores
+==== Managing Keystores
 
 Certificates, and sometimes their associated private keys, are stored in keystore files.
 ${branding} includes two default keystore files, the server key store and the server trust store.
@@ -49,7 +49,7 @@ javax.net.ssl.keyStoreType=jks
 javax.net.ssl.trustStoreType=jks
 ----
 
-====== Default Certificates
+===== Default Certificates
 
 ${branding} comes with a default keystore that contains certificates.
 This allows the distribution to be unzipped and run immediately.
@@ -59,7 +59,7 @@ If the installer was used to install the ${branding} and a hostname other than "
 If the hostname is `localhost` or, if the hostname was changed _after_ installation, the default certificates will not allow access to the ${branding} instance from another machine over HTTPS (now the default for many services).
 The Demo Certificate Authority will need to be replaced with certificates that use the fully-qualified hostname of the server running the ${branding} instance.
 
-====== Demo Certificate Authority (CA)
+===== Demo Certificate Authority (CA)
 
 ${branding} comes with a populated truststore containing entries for many public certificate authorities, such as Go Daddy and Verisign.
 It also includes an entry for the ${ddf-branding} Demo Root CA.
@@ -68,7 +68,7 @@ It enables ${branding} to run immediately after unzipping the distribution.
 The keys and certificates for the ${ddf-branding} Demo Root CA are included as part of the ${branding} distribution.
 This entry must be removed from the truststore before ${branding} can operate securely.
 
-====== Creating New Server Keystore Entry with the CertNew Scripts
+===== Creating New Server Keystore Entry with the CertNew Scripts
 
 To create a private key and certificate signed by the Demo Certificate Authority, use the provided scripts.
 To use the scripts, run them out of the `<INSTALL_HOME>/etc/certs` directory.

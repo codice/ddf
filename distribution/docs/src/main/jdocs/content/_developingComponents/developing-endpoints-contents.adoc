@@ -4,6 +4,7 @@
 :link: _developing_endpoints
 :summary: Creating a custom endpoint.
 :implements: https://www.w3.org/2001/sw/wiki/REST[REST specification].
+:order: 06
 
 Custom endpoints can be created, if necessary.
 See <<_available_endpoints,Available Endpoints>> for descriptions of provided endpoints.

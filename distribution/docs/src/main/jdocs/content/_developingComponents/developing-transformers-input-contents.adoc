@@ -3,6 +3,7 @@
 :status: published
 :link: _developing_input_transformers
 :summary: Creating a custom input transformer.
+:order: 07
 
 ${branding} supports the creation of custom <<_types_of_transformers,input transformers>> for use cases not covered by the included implementations.
 

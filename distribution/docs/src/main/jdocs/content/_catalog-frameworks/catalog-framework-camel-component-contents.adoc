@@ -1,0 +1,82 @@
+:title: Catalog Framework Camel Component
+:type: catalogFramework
+:status: published
+:summary: Supports creating, updating, and deleting metacards using the Catalog Framework from a Camel route.
+:link: _catalog_framework_camel_component
+:order: 01
+
+The Catalog Framework Camel Component supports creating, updating, and deleting metacards using the Catalog Framework from a Camel route.
+
+.URI Format
+----
+catalog:framework
+----
+
+===== Message Headers
+
+====== Catalog Framework Producer
+
+[cols="1,5" options="header"]
+|===
+|Header
+|Description
+
+|operation
+|the operation to perform using the Catalog Framework (possible values are CREATE \| UPDATE \| DELETE)
+|===
+
+===== Sending Messages to Catalog Framework Endpoint
+
+====== Catalog Framework Producer
+
+In Producer mode, the component provides the ability to provide different inputs and have the Catalog framework perform different operations based upon the header values.  
+
+For the CREATE and UPDATE operation, the message body can contain a list of metacards or a single metacard object. 
+
+For the DELETE operation, the message body can contain a list of strings or a single string object.
+The string objects represent the IDs of metacards to be deleted. 
+The exchange's "in" message will be set with the affected metacards.
+In the case of a CREATE, it will be updated with the created metacards.
+In the case of the UPDATE, it will be updated with the updated metacards and with the DELETE it will contain the deleted metacards.
+
+.Catalog Framework Camel Component Operations
+[cols="2,2,3" options="header"]
+|===
+|Header
+|Message Body (Input)
+|Exchange Modification (Output)
+
+|operation = CREATE
+|List<Metacard> or Metacard
+|exchange.getIn().getBody() updated with List of Metacards created
+
+|operation = UPDATE
+|List<Metacard> or Metacard
+|exchange.getIn().getBody() updated with List of Metacards updated
+
+|operation = DELETE
+|List<String> or String (representing metacard IDs)
+|exchange.getIn().getBody() updated with List of Metacards deleted
+
+|===
+
+====== Samples
+
+This example demonstrates:
+
+. Reading in some sample data from the file system.
+. Using a Java bean to convert the data into a metacard.
+. Setting a header value on the Exchange.
+. Sending the Metacard to the Catalog Framework component for ingesting.
+
+[source,xml,linenums]
+----
+<route>
+ <from uri="file:data/sampleData?noop=true“/>
+    <bean ref="sampleDataToMetacardConverter" method="covertToMetacard"/>\
+   <setHeader headerName="operation">
+  <constant>CREATE</constant>
+ </setHeader>
+    <to uri="catalog:framework"/>
+</route>
+----

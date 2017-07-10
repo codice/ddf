@@ -48,6 +48,8 @@ include::${project.build.directory}/doc-contents/_contents/config.adoc[]
 == Developing
 :sectnums:
 
+<#include "developing.ftl">
+
 == Transformers
 
 <#include "transformers.ftl">

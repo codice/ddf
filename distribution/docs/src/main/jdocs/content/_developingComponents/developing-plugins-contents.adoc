@@ -3,6 +3,7 @@
 :status: published
 :link: _developing_catalog_plugins
 :summary: Creating a custom catalog plugin.
+:order: 11
 
 Plugins extend the functionality of the Catalog Framework by performing actions at specified times during a transaction. 
 Plugin interfaces are located in the Catalog Core API.

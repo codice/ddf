@@ -3,6 +3,7 @@
 :status: published
 :link: _developing_sources
 :summary: Creating a custom source.
+:order: 10
 
 Sources are components that enable ${branding} to talk to back-end services.
 They let ${branding} perform query and ingest operations on catalog stores and query operations on federated sources.

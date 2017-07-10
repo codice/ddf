@@ -1,0 +1,77 @@
+:title: Developing Default Attribute Types
+:type: developingComponent
+:status: published
+:link: _developing_default_attribute_types
+:summary: Creating a custom Default attribute type.
+:order: 04
+
+Create custom default attribute types.
+
+==== Default Attribute Values
+
+To define default attribute values, the definition file must have a `defaults` key in the root object.
+
+[source,json]
+----
+{
+    "defaults": [...]
+}
+----
+
+The value of `defaults` is a list of objects where each object contains the keys `attribute`, `value`, and optionally `metacardTypes`.
+
+[source,json]
+----
+{
+    "defaults": [
+        {
+            "attribute": ...,
+            "value": ...,
+            "metacardTypes": [...]
+        }
+    ]
+}
+----
+
+The value corresponding to the `attribute` key is the name of the attribute to which the default value will be applied. The value corresponding to the `value` key is the default value of the attribute.
+
+[NOTE]
+====
+The attribute's default value must be of the same type as the attribute, but it has to be written as a string (i.e., enclosed in quotation marks) in the JSON file.
+
+Dates must be UTC datetimes in the ISO 8601 format, i.e., `yyyy-MM-ddTHH:mm:ssZ`
+====
+
+The `metacardTypes` key is optional. If it is left out, then the default attribute value will be applied to every metacard that has that attribute. It can be thought of as a 'global' default value. If the `metacardTypes` key is included, then its value must be a list of strings where each string is the name of a metacard type. In this case, the default attribute value will be applied only to metacards that match one of the types given in the list.
+
+[NOTE]
+====
+In the event that an attribute has a 'global' default value as well as a default value for a specific metacard type, the default value for the specific metacard type will be applied (i.e., the more specific default value wins).
+====
+
+Example:
+[source,json]
+----
+{
+    "defaults": [
+        {
+            "attribute": "title",
+            "value": "Default Title"
+        },
+        {
+            "attribute": "description",
+            "value": "Default video description",
+            "metacardTypes": ["video"]
+        },
+        {
+            "attribute": "expiration",
+            "value": "2020-05-06T12:00:00Z",
+            "metacardTypes": ["video", "nitf"]
+        },
+        {
+            "attribute": "frame-rate",
+            "value": "30"
+        }
+    ]
+}
+----

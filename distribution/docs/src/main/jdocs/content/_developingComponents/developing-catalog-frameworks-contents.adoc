@@ -1,0 +1,198 @@
+:title: Developing Complementary Catalog Frameworks
+:type: developingComponent
+:status: published
+:link: _developing_complementary_catalog_frameworks
+:summary: Creating a custom catalog framework.
+:order: 00
+
+${branding} and the underlying OSGi technology can serve as a robust infrastructure for developing frameworks that complement the ${ddf-catalog}.
+
+==== Simple Catalog API Implementations
+
+The Catalog API implementations, which are denoted with the suffix of `Impl` on the Java file names, have multiple purposes and uses:
+
+* First, they provide a good starting point for other developers to extend functionality in the framework. For instance, extending the `MetacardImpl` allows developers to focus less on the inner workings of ${branding} and more on the developer's intended purposes and objectives. 
+
+* Second, the Catalog API Implementations display the proper usage of an interface and an interface's intentions. Also, they are good code examples for future implementations. If a developer does not want to extend the simple implementations, the developer can at least have a working code reference on which to base future development.
+
+==== Use of the Whiteboard Design Pattern
+
+The ${ddf-catalog} makes extensive use of the Whiteboard Design Pattern.
+Catalog Components are registered as services in the OSGi Service Registry, and the Catalog Framework or any other clients tracking the OSGi Service Registry are automatically notified by the OSGi Framework of additions and removals of relevant services.
+
+The Whiteboard Design Pattern is a common OSGi technique that is derived from a technical whitepaper provided by the OSGi Alliance in 2004.
+It is recommended to use the Whiteboard pattern over the Listener pattern in OSGi because it provides less complexity in code (both on the client and server sides), fewer deadlock possibilities than the Listener pattern, and closely models the intended usage of the OSGi framework.
+
+==== Recommendations for Framework Development
+
+* Provide extensibility similar to that of the ${ddf-catalog}.
+** Provide a stable API with interfaces and simple implementations (refer to `http://www.ibm.com/developerworks/websphere/techjournal/1007_charters/1007_charters.html`).
+* Make use of the ${ddf-catalog} wherever possible to store, search, and transform information.
+* Utilize OSGi standards wherever possible.
+** ConfigurationAdmin
+** MetaType
+* Utilize the sub-frameworks available in ${branding}.
+** Karaf
+** CXF
+** PAX Web and Jetty
+
+==== Catalog Framework Reference
+
+The Catalog Framework can be requested from the OSGi Service Registry.
+
+.Blueprint Service Reference
+[source,xml]
+----
+<reference id="catalogFramework" interface="${ddf-branding}.catalog.CatalogFramework" />
+----
+
+===== Methods
+
+The `CatalogFramework` provides convenient methods to transform `Metacards` and `QueryResponses` using a reference to the `CatalogFramework`.
+
+====== Create, Update, and Delete Methods
+
+Create, Update, and Delete (CUD) methods add, change, or remove stored metadata in the local Catalog Provider.
+
+.Example Create, Update, Delete Methods
+[source,java,linenums]
+----
+public CreateResponse create(CreateRequest createRequest) throws IngestException, SourceUnavailableException;
+public UpdateResponse update(UpdateRequest updateRequest) throws IngestException, SourceUnavailableException;
+public DeleteResponse delete(DeleteRequest deleteRequest) throws IngestException, SourceUnavailableException;
+----
+
+CUD operations process `PolicyPlugin`, `AccessPlugin`, and `PreIngestPlugin` instances before execution and `PostIngestPlugin` instances after execution.
+
+====== Query Methods
+
+Query methods search metadata from available Sources based on the `QueryRequest` properties and Federation Strategy.
+Sources could include Catalog Provider, Connected Sources, and Federated Sources.
+
+.Example Query Methods
+[source,java,linenums]
+----
+public QueryResponse query(QueryRequest query) throws UnsupportedQueryException,SourceUnavailableException, FederationException;
+public QueryResponse query(QueryRequest queryRequest, FederationStrategy strategy) throws SourceUnavailableException, UnsupportedQueryException, FederationException;
+----
+Query requests process  `PolicyPlugin`, `AccessPlugin`, and `PreQueryPlugin` instances before execution and  `PolicyPlugin`, `AccessPlugin`, and `PostQueryPlugin` instances after execution.
+
+====== Resource Methods
+
+Resource methods retrieve products from Sources.
+
+.Example Resource Methods
+[source,java,linenums]
+----
+public ResourceResponse getEnterpriseResource(ResourceRequest request) throwsIOException, ResourceNotFoundException, ResourceNotSupportedException;
+public ResourceResponse getLocalResource(ResourceRequest request) throws IOException, ResourceNotFoundException, ResourceNotSupportedException;
+public ResourceResponse getResource(ResourceRequest request, String resourceSiteName) throws IOException, ResourceNotFoundException, ResourceNotSupportedException;
+----
+Resource requests process `PreResourcePlugin`s before execution and `PostResourcePlugin`s after execution.
+
+====== Source Methods
+
+Source methods can get a list of Source identifiers or request descriptions about Sources.
+
+.Example Source Methods
+[source,java,linenums]
+----
+public Set<String> getSourceIds();
+public SourceInfoResponse getSourceInfo(SourceInfoRequest sourceInfoRequest) throws SourceUnavailableException;
+----
+
+====== Transform Methods
+
+Transform methods provide convenience methods for using Metacard Transformers and Query Response Transformers.
+
+.Transform Methods
+[source,java,linenums]
+----
+// Metacard Transformer
+public BinaryContent transform(Metacard metacard, String transformerId, Map<String,Serializable> requestProperties) throws CatalogTransformerException;
+
+// Query Response Transformer
+public BinaryContent transform(SourceResponse response, String transformerId, Map<String, Serializable> requestProperties) throws CatalogTransformerException;
+----
+
+===== Implementing Catalog Methods
+
+.Query Response Transform Example
+[source,java,linenums]
+----
+// inject CatalogFramework instance or retrieve an instance
+private CatalogFramework catalogFramework;
+
+public RSSEndpoint(CatalogFramework catalogFramework)
+{
+     this.catalogFramework = catalogFramework ;
+     // implementation
+}
+
+ // Other implementation details ...
+
+private void convert(QueryResponse queryResponse ) {
+    // ...
+    String transformerId = "rss";
+
+    BinaryContent content = catalogFramework.transform(queryResponse, transformerId, null);
+
+    // ...
+
+}
+----
+
+===== Dependency Injection
+Using Blueprint or another injection framework, transformers can be injected from the OSGi Service Registry.
+
+.Blueprint Service Reference
+[source,xml]
+----
+<reference id="[[Reference Id]]" interface="${ddf-branding}.catalog.transform.[[Transformer Interface Name]]" filter="(shortname=[[Transformer Identifier]])" />
+----
+
+Each transformer has one or more `transform` methods that can be used to get the desired output.
+
+.Input Transformer Example
+[source,java,linenums]
+----
+${ddf-branding}.catalog.transform.InputTransformer inputTransformer = retrieveInjectedInstance() ;
+
+Metacard entry = inputTransformer.transform(messageInputStream);
+----
+
+.Metacard Transformer Example
+[source,java,linenums]
+----
+${ddf-branding}.catalog.transform.MetacardTransformer metacardTransformer = retrieveInjectedInstance() ;
+
+BinaryContent content = metacardTransformer.transform(metacard, arguments);
+----
+
+.Query Response Transformer Example
+[source,java,linenums]
+----
+${ddf-branding}.catalog.transform.QueryResponseTransformer queryResponseTransformer = retrieveInjectedInstance() ;
+
+BinaryContent content = queryResponseTransformer.transform(sourceSesponse, arguments);
+----
+
+===== OSGi Service Registry
+
+[IMPORTANT]
+====
+In the vast majority of cases, working with the OSGi Service Reference directly should be avoided.
+Instead, dependencies should be injected via a dependency injection framework like Blueprint.
+====
+
+Transformers are registered with the OSGi Service Registry.
+Using a `BundleContext` and a filter, references to a registered service can be retrieved.
+
+.OSGi Service Registry Reference Example
+[source,java,linenums]
+----
+ServiceReference[] refs =
+    bundleContext.getServiceReferences(${ddf-branding}.catalog.transform.InputTransformer.class.getName(),"(shortname=" + transformerId + ")");
+InputTransformer inputTransformer = (InputTransformer) context.getService(refs[0]);
+Metacard entry = inputTransformer.transform(messageInputStream);
+----
