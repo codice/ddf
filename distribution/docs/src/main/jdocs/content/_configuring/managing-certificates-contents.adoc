@@ -123,7 +123,7 @@ The `CertNew` scripts:
 
 * Create a new entry in the server keystore.
 * Use the hostname as the fully qualified domain name (FQDN) when creating the certificate.
-* Adds the specified subject alternative names if any
+* Adds the specified subject alternative names if any.
 * Use the Demo Certificate Authority to sign the certificate so that it will be trusted by the default configuration.
 
 To install a certificate signed by a different Certificate Authority, see <<_managing_keystores,Managing Keystores>>.
