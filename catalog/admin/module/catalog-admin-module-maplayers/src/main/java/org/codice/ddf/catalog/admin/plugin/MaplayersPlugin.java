@@ -25,7 +25,7 @@ public class MaplayersPlugin extends AbstractApplicationPlugin {
      * Constructor.
      */
     public MaplayersPlugin() {
-        this.displayName = "May Layers ";
+        this.displayName = "Map Layers";
         this.iframeLocation = URI.create("/admin/map-layers/index.html");
         List<String> apps = new ArrayList<>();
         apps.add("catalog-app");
