@@ -19,11 +19,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.codice.ddf.admin.core.api.Service;
@@ -130,15 +130,16 @@ public class AdminHelper {
         if (configProps == null) {
             configProps = new Hashtable<>();
         }
-        Enumeration<String> keys = configProps.keys();
-        while (keys.hasMoreElements()) {
-            String key = keys.nextElement();
-            configMap.put(key, configProps.get(key));
-        }
-        props.put(FederationAdmin.CLIENT_MODE, configMap.getOrDefault(DISABLE_REGISTRY_KEY, false));
-        props.put(FederationAdmin.FILTER_INVERTED, configMap.getOrDefault(WHITE_LIST_KEY, false));
+
+        props.put(FederationAdmin.CLIENT_MODE,
+                Optional.ofNullable(configProps.get(DISABLE_REGISTRY_KEY))
+                        .orElse(false));
+        props.put(FederationAdmin.FILTER_INVERTED,
+                Optional.ofNullable(configProps.get(WHITE_LIST_KEY))
+                        .orElse(false));
         props.put(FederationAdmin.SUMMARY_FILTERED,
-                configMap.getOrDefault(REGISTRY_ID_KEY, new String[0]));
+                Optional.ofNullable(configProps.get(REGISTRY_ID_KEY))
+                        .orElse(new String[0]));
         return props;
     }
 

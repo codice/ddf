@@ -14,7 +14,7 @@
 <div id="registry-modal"></div>
 <div id="nodeTables">
     <div id="node-operations">
-        {{#if clientMode}}<label class="client-mode-label">Client Mode</label>{{/if}}
+    <label class="client-mode-label">{{#if clientMode}}Client Mode{{else}}Server Mode{{/if}}</label>
         <a href="#" class="refresh-button"><i class="fa fa-refresh" aria-hidden="true"></i></a>
         <div class="dropdown">
             <a href="#" class="settings-dropdown"><i class="settings-dropdown-icon fa fa-cog" aria-hidden="true"></i></a>
