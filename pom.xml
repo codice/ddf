@@ -127,7 +127,7 @@
         <jodatime2-bundle.version>2.9.9</jodatime2-bundle.version>
         <aws-java-sdk-bundle.version>1.11.125_1</aws-java-sdk-bundle.version>
         <javax-mail.version>1.4.7</javax-mail.version>
-        <!--START If these bundles are used elsewhere in DDF, the versions MUST exactly match the versions used by the CXF and Camel features.-->
+        <!--START If these bundles are used elsewhere in DDF, the versions MUSco exactly match the versions used by the CXF and Camel features.-->
         <woodstox.core.version>4.4.1</woodstox.core.version>
         <woodstox.stax2-api.version>3.1.4</woodstox.stax2-api.version>
         <xpp3.bundle.version>1.1.4c_6</xpp3.bundle.version>
@@ -205,6 +205,7 @@
         <gib.baseBranch>HEAD</gib.baseBranch>
         <gib.enabled>false</gib.enabled>
         <commons-lang3.version>3.4</commons-lang3.version>
+        <commons-csv.version>1.4</commons-csv.version>
         <xerces.version>2.11.0</xerces.version>
     </properties>
     <!--

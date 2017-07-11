@@ -1,0 +1,91 @@
+==== CSV Query Response Transformer
+
+The CSV Query Response Transformer is responsible for translating a query response into a CSV formatted response.
+The CSV format is generally an initial line containing the headers (Name of each column) separated by commas. Each line after is one set of data (a metacard) with the absense of a value represented by no characters between the commas for that column.
+
+===== Installing the CSV Query Response Transformer
+
+This transformer is installed by default with a standard installation in the ${ddf-catalog} application.
+To uninstall, uninstall the `catalog-transformer-csv` feature.
+
+===== Configuring the CSV Query Response Transformer
+
+The CSV Query Response Transformer has three main configurable properties.
+
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Hidden Fields
+|hiddenFields
+|Set of attribute names (Set<String>)
+|Specifies the names of attributes to be excluded from the export
+|empty
+|false
+
+|Column Order
+|columnOrder
+|List of attribute names (List<String>)
+|Specifies the order that columns will be presented in. Any columns not specified that are also not hidden will appear after the columns specified in columnOrder
+|empty
+|false
+
+|Aliases
+|aliases
+|Map of Attribute name to Alias (Map<String, String)
+|Specifies that the  given Attribute name should appear as the given alias name. E.g. (id -> Metacard ID) means that the column header will say "Metacard ID" instead of id.
+|empty
+|false
+
+|===
+
+===== Using the CSV Query Response Transformer
+
+Using the OpenSearch Endpoint, for example, query with the format option set to the CSV shortname `csv`.
+
+.CSV Query Response Transformer Query Example
+[source,http]
+----
+${public_url}/services/catalog/query?q=input?format=csv
+----
+
+.CSV Query Response Transformer Example Output
+[source,csv,linenums]
+----
+title,created,modified,checksum,checksum-algorithm,effective,expiration,resource-size,id,Location,metacard-tags,metadata-content-type,metadata-content-type-version,point-of-contact,resource-download-url,resource-size,resource-uri,source-id,metacard.associations.derived,description,validation-warnings,metacard.associations.related,failed-validators-warnings,validation-errors,failed-validators-errors
+Albury,2016-03-15T23:22:44.438+0000,2016-03-05T05:04:33.000+0000,fb1653b9,Adler32,2017-06-15T20:52:49.735+0000,2017-12-12T20:52:49.735+0000,79872,855937ac4adc42b1ae317e2abdb0e20a,POINT (146.91583333 -36.08055556),resource,city,20160305,admin@localhost,https://localhost:8993/services/catalog/sources/ddf.distribution/855937ac4adc42b1ae317e2abdb0e20a?transform=resource,79872,content:855937ac4adc42b1ae317e2abdb0e20a,ddf.distribution,,,,,,,
+"Allegany County, New York",2016-03-15T23:22:44.438+0000,2016-03-05T04:45:39.000+0000,9d1891e9,Adler32,2017-06-15T20:53:10.858+0000,2017-12-12T20:53:10.858+0000,22925,c7753469d1aa4ac1baee6a12d4caf721,POINT (-78.02 42.25),resource,adm2nd,20160305,admin@localhost,https://localhost:8993/services/catalog/sources/ddf.distribution/c7753469d1aa4ac1baee6a12d4caf721?transform=resource,22925,content:c7753469d1aa4ac1baee6a12d4caf721,ddf.distribution,,,,,,,
+"Annapolis, Maryland",2016-03-15T23:22:44.438+0000,2016-03-02T01:52:04.000+0000,b1fdd6c6,Adler32,2017-06-15T20:54:23.687+0000,2017-12-12T20:54:23.687+0000,74459,3310642f451f45598319ac384b9f90c2,POINT (-76.50115833 38.97294444),resource,city,20160305,admin@localhost,https://localhost:8993/services/catalog/sources/ddf.distribution/3310642f451f45598319ac384b9f90c2?transform=resource,74459,content:3310642f451f45598319ac384b9f90c2,ddf.distribution,,,,,,,
+"Alsip, Illinois",2016-03-16T17:00:29.614+0000,2016-03-02T00:25:00.000+0000,ef9447a,Adler32,2017-06-15T20:53:34.574+0000,2017-12-12T20:53:34.574+0000,38044,1fe96bac7cae4b92a0ad5cf4bdfc94a8,POINT (-87.73222222 41.67055556),resource,city,20160305,admin@localhost,https://localhost:8993/services/catalog/sources/ddf.distribution/1fe96bac7cae4b92a0ad5cf4bdfc94a8?transform=resource,38044,content:1fe96bac7cae4b92a0ad5cf4bdfc94a8,ddf.distribution,,,,,,,
+Ambleside,2016-03-16T17:00:29.614+0000,2016-02-12T02:54:21.000+0000,e6a10881,Adler32,2017-06-15T20:53:51.937+0000,2017-12-12T20:53:51.937+0000,30523,a493e2b2565e4ed4a4f609f08d86d553,POINT (-2.9626 54.4251),resource,city,20160305,admin@localhost,https://localhost:8993/services/catalog/sources/ddf.distribution/a493e2b2565e4ed4a4f609f08d86d553?transform=resource,30523,content:a493e2b2565e4ed4a4f609f08d86d553,ddf.distribution,,,,,,,
+"Ambler, Pennsylvania",2016-03-16T17:00:29.614+0000,2016-02-12T01:57:20.000+0000,d8cf7521,Adler32,2017-06-15T20:53:51.782+0000,2017-12-12T20:53:51.782+0000,69420,a156eb46643f47b0b486df40286a9bad,POINT (-75.22027778 40.155),resource,city,20160305,admin@localhost,https://localhost:8993/services/catalog/sources/ddf.distribution/a156eb46643f47b0b486df40286a9bad?transform=resource,69420,content:a156eb46643f47b0b486df40286a9bad,ddf.distribution,,,,,,,
+"Alcona County, Michigan",2016-03-16T17:00:29.614+0000,2016-02-12T01:07:41.000+0000,69b499cf,Adler32,2017-06-15T20:52:50.651+0000,2017-12-12T20:52:50.651+0000,26493,23bd9b2bf23447e0a7f3f694cf953fa8,POINT (-83.27 44.71),resource,adm2nd,20160305,admin@localhost,https://localhost:8993/services/catalog/sources/ddf.distribution/23bd9b2bf23447e0a7f3f694cf953fa8?transform=resource,26493,content:23bd9b2bf23447e0a7f3f694cf953fa8,ddf.distribution,,,,,,,
+"Alexandria, Indiana",2016-03-15T22:51:11.622+0000,2016-02-11T17:26:15.000+0000,fb06a965,Adler32,2017-06-15T20:52:57.321+0000,2017-12-12T20:52:57.321+0000,13892,20fddbe7c2004799bf8e8d7dfd267b81,POINT (-85.67638889 40.26305556),resource,city,20160305,admin@localhost,https://localhost:8993/services/catalog/sources/ddf.distribution/20fddbe7c2004799bf8e8d7dfd267b81?transform=resource,13892,content:20fddbe7c2004799bf8e8d7dfd267b81,ddf.distribution,,,,,,,
+"Annsville, New York",2016-03-16T17:00:29.614+0000,2016-02-11T10:52:26.000+0000,2946b099,Adler32,2017-06-15T20:54:27.038+0000,2017-12-12T20:54:27.038+0000,14662,dad6b940b96c48d28ba00d9646d37993,POINT (-75.61583333 43.33972222),resource,city,20160305,admin@localhost,https://localhost:8993/services/catalog/sources/ddf.distribution/dad6b940b96c48d28ba00d9646d37993?transform=resource,14662,content:dad6b940b96c48d28ba00d9646d37993,ddf.distribution,,,,,,,
+Akeldama,2016-03-15T23:22:44.438+0000,2016-02-11T06:24:27.000+0000,5ab03eb6,Adler32,2017-06-15T20:52:24.163+0000,2017-12-12T20:52:24.163+0000,19237,9fac266ac7e84ba280febc89c6c04cd2,POINT (35.23288 31.76841),resource,unknown,20160305,admin@localhost,https://localhost:8993/services/catalog/sources/ddf.distribution/9fac266ac7e84ba280febc89c6c04cd2?transform=resource,19237,content:9fac266ac7e84ba280febc89c6c04cd2,ddf.distribution,,,,,,,
+----
+
+.CSV Query Response Transformer Implementation Details
+[cols="3" options="header"]
+|===
+
+|Registered Interface
+|Service Property
+|Value
+
+1.3+^|`ddf.catalog.transform.QueryResponseTransformer`
+
+|`shortname` / `id`
+|`csv`
+
+|`mimetype`
+|`text/csv`
+
+|===
+

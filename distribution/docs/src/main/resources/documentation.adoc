@@ -511,6 +511,8 @@ include::{adoc-include}/_transformers/searchui-transformer-contents.adoc[]
 
 include::{adoc-include}/_transformers/xml-query-response-transformer-contents.adoc[]
 
+include::{adoc-include}/_transformers/csv-query-response-transformer-contents.adoc[]
+
 include::{adoc-include}/_transformers/mime-type-mapper-intro-contents.adoc[]
 
 include::{adoc-include}/_transformers/mime-type-mappers-contents.adoc[]

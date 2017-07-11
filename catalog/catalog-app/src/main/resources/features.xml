@@ -269,6 +269,12 @@
         <bundle>mvn:ddf.catalog.transformer/service-atom-transformer/${project.version}</bundle>
     </feature>
 
+    <feature name="catalog-transformer-csv" install="auto" version="${project.version}"
+             description="CSV Query Response Transformer converts query results to CSV format.">
+        <feature prerequisite="true">catalog-app</feature>
+        <bundle>mvn:ddf.catalog.transformer/csv-queryresponse-transformer/${project.version}</bundle>
+    </feature>
+
     <feature name="catalog-transformer-geoformatter" install="manual" version="${project.version}"
              description="Geo library to help with conversion of geometry objects into various formats such GeoJson, GeoRSS, etc.">
         <feature prerequisite="true">abdera</feature>
