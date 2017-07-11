@@ -35,6 +35,7 @@ import org.forgerock.opendj.ldap.SearchScope;
 import org.forgerock.opendj.ldap.requests.BindRequest;
 import org.forgerock.opendj.ldap.responses.BindResult;
 import org.forgerock.opendj.ldap.responses.SearchResultEntry;
+import org.forgerock.opendj.ldap.responses.SearchResultReference;
 import org.forgerock.opendj.ldif.ConnectionEntryReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -255,13 +256,19 @@ public class RoleClaimsHandler implements ClaimsHandler {
                             filter.toString(),
                             membershipUserAttribute);
                     while (entryReader.hasNext()) {
-                        SearchResultEntry entry = entryReader.readEntry();
+                        if (entryReader.isEntry()) {
+                            SearchResultEntry entry = entryReader.readEntry();
 
-                        Attribute attr = entry.getAttribute(membershipUserAttribute);
-                        if (attr != null) {
-                            for (ByteString value : attr) {
-                                membershipValue = value.toString();
+                            Attribute attr = entry.getAttribute(membershipUserAttribute);
+                            if (attr != null) {
+                                for (ByteString value : attr) {
+                                    membershipValue = value.toString();
+                                }
                             }
+                        } else {
+                            // Got a continuation reference
+                            final SearchResultReference ref = entryReader.readReference();
+                            LOGGER.trace("Skipping result reference: {}", ref.getURIs().toString());
                         }
                     }
                 }
@@ -287,21 +294,27 @@ public class RoleClaimsHandler implements ClaimsHandler {
 
                     SearchResultEntry entry;
                     while (entryReader.hasNext()) {
-                        entry = entryReader.readEntry();
+                        if (entryReader.isEntry()) {
+                            entry = entryReader.readEntry();
 
-                        Attribute attr = entry.getAttribute(groupNameAttribute);
-                        if (attr == null) {
-                            LOGGER.trace("Claim '{}' is null", roleClaimType);
-                        } else {
-                            ProcessedClaim c = new ProcessedClaim();
-                            c.setClaimType(getRoleURI());
-                            c.setPrincipal(principal);
+                            Attribute attr = entry.getAttribute(groupNameAttribute);
+                            if (attr == null) {
+                                LOGGER.trace("Claim '{}' is null", roleClaimType);
+                            } else {
+                                ProcessedClaim c = new ProcessedClaim();
+                                c.setClaimType(getRoleURI());
+                                c.setPrincipal(principal);
 
-                            for (ByteString value : attr) {
-                                String itemValue = value.toString();
-                                c.addValue(itemValue);
+                                for (ByteString value : attr) {
+                                    String itemValue = value.toString();
+                                    c.addValue(itemValue);
+                                }
+                                claimsColl.add(c);
                             }
-                            claimsColl.add(c);
+                        } else {
+                            // Got a continuation reference
+                            final SearchResultReference ref = entryReader.readReference();
+                            LOGGER.trace("Skipping result reference: {}", ref.getURIs().toString());
                         }
                     }
                 } else {
