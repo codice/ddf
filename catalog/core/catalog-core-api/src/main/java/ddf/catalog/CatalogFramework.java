@@ -380,6 +380,15 @@ public interface CatalogFramework extends Describable {
      * <li/>Return the last {@link QueryResponse} to the caller.
      * </ol>
      * </p>
+     * <p>
+     * <b>Important:</b> Implementations are free to limit the number of results returned
+     * regardless of the page size requested in the {@link QueryRequest}. For that reason, clients
+     * should not assume that the number of results returned matches the page size requested and
+     * write their paging code accordingly. If the {@link QueryResponse} does not need to be
+     * used, it is highly recommended that clients use an iterable or pagination class such as
+     * {@link ddf.catalog.util.impl.ResultListIterable} or
+     * {@link ddf.catalog.util.impl.ResultIterable} to retrieve and process results.
+     * </p>
      *
      * @see #query(QueryRequest, FederationStrategy)
      * @param query
@@ -401,6 +410,15 @@ public interface CatalogFramework extends Describable {
      * <p>
      * <b>Implementations of this method must implement all of the rules defined in
      * {@link #query(QueryRequest)}, but use the specified {@link FederationStrategy} </b>
+     * </p>
+     * <p>
+     * <b>Important:</b> Implementations are free to limit the number of results returned
+     * regardless of the page size requested in the {@link QueryRequest}. For that reason, clients
+     * should not assume that the number of results returned matches the page size requested and
+     * write their paging code accordingly. If the {@link QueryResponse} does not need to be
+     * used, it is highly recommended that clients use an iterable or pagination class such as
+     * {@link ddf.catalog.util.impl.ResultListIterable} or
+     * {@link ddf.catalog.util.impl.ResultIterable} to retrieve and process results.
      * </p>
      *
      * @param queryRequest
