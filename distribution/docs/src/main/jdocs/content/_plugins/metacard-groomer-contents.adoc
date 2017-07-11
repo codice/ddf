@@ -14,7 +14,6 @@ This plugin makes the following modifications when metacards are in a `CreateReq
 * Overwrites the `Metacard.ID` field with a generated, unique, 32 character hexadecimal value if missing or if the resource URI is not a catalog resource URI.
 * Sets `Metacard.CREATED` to the current time stamp if not already set.
 * Sets `Metacard.MODIFIED` to the current time stamp if not already set.
-* Sets `Metacard.TAGS` to the default `Metacard.DEFAULT_TAG` if no tags are present.
 * Sets `Core.METACARD_CREATED` to the current time stamp if not present.
 * Sets `Core.METACARD_MODIFIED` to the current time stamp.
 
