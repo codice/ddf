@@ -13,6 +13,11 @@ ${branding} uses certificates in two ways:
 . Ensuring the privacy and integrity of messages sent or received over a network.
 . Authenticating an incoming user request.
 
+To ensure proper configuration of keystore, truststore, and certificates, follow the options below according to situation.
+
+. If provided with a server keystore, start at <<_adding_an_existing_server_keystore,Adding an Existing Server Keystore>>.
+. If provided with a signed certificate and private key, start at <<_creating_a_new_keystore_truststore_with_an_existing_certificate_and_private_key,Creating a New Keystore/Truststore with an Existing Certificate and Private Key>>.
+
 ===== Managing Keystores
 
 Certificates, and sometimes their associated private keys, are stored in keystore files.
@@ -20,8 +25,78 @@ ${branding} includes two default keystore files, the server key store and the se
 The server keystore holds the certificates and private keys that ${branding} uses to identify itself to other nodes on the network.
 The truststore holds the certificates of nodes or other entities that ${branding} needs to trust.
 
-Certificates (and certificates with keys) can be managed in the ${admin-console}. Navigate to the ${ddf-security}application and select it.
-After it opens, select the notebook tab labeled "Certificates".
+====== Adding an Existing Server Keystore
+
+If provided an existing keystore for use with ${branding}, follow these steps to replace the default keystore.
+
+. Remove the default keystore at `etc/keystore/serverKeystore.jks`.
+. Add the desired keystore file to the `etc/keystore` directory.
+. Edit `system.properties` file to set filenames and passwords.
+.. If using a type of keystore other than `jks` (such as `pkcs12`), change the `javax.net.ssl.keyStoreType` property as well.
+. If the truststore has the correct certificates, restart server to complete configuration.
+.. If provided with an existing server truststore, continue to <<_adding_an_existing_server_truststore,Adding an Existing Server Truststore>>.
+.. Otherwise, <<_creating_a_server_keystore,create a server truststore>>.
+
+====== Adding an Existing Server Truststore
+
+. Remove the default truststore at `etc/keystore/serverTruststore.jks`.
+. Add the desired truststore file to the `etc/keystore` directory.
+. Edit `system.properties` file to set filenames and passwords.
+.. If using a type of truststore other than `jks` (such as `pkcs12`), change the `javax.net.ssl.trustStoreType` property as well.
+
+If the provided server keystore does not include the CA certificate that was used to sign the server's certificate, <<_creating_a_server_keystore,add the CA certificate into the `serverKeystore` file>>.
+
+====== Creating a New Keystore/Truststore with an Existing Certificate and Private Key
+
+If provide an existing certificate create a new keystore and truststore with it.
+
+[NOTE]
+====
+${branding} requires that the keystore contains both the private key and the CA.
+====
+
+. [[_creating_a_server_keystore]]Using the private key, certificate, and CA certificate, create a new keystore containing the data from the new files.
++
+[source]
+----
+cat client.crt >> client.key
+openssl pkcs12 -export -in client.key -out client.p12
+keytool -importkeystore -srckeystore client.p12 -destkeystore serverKeystore.jks -srcstoretype pkcs12 -alias 1
+keytool -changealias -alias 1 -destalias client -keystore serverKeystore.jks
+keytool -importcert -file ca.crt -keystore serverKeystore.jks -alias "ca"
+keytool -importcert -file ca-root.crt -keystore serverKeystore.jks -alias "ca-root"
+----
++
+. [[_creating_a_server_truststore]]Create the truststore using only the CA certificate. Based on the concept of CA signing, the CA should be the only entry needed in the truststore.
++
+----
+keytool -import -trustcacerts -alias "ca" -file ca.crt -keystore truststore.jks
+keytool -import -trustcacerts -alias "ca-root" -file ca-root.crt -keystore truststore.jks
+----
++
+. Create a PEM file using the certificate, as some applications require that format.
++
+----
+openssl x509 -in client.crt -out client.der -outform DER
+openssl x509 -in client.der -inform DER -out client.pem -outform PEM
+----
+
+====== Updating Key Store / Trust Store via the ${admin-console}
+
+Certificates (and certificates with keys) can be managed in the ${admin-console}.
+
+. Navigate to the ${admin-console}.
+. Select the *${ddf-security}* application.
+. Select the *Certificates* tab.
+. Add and remove certificates and private keys as necessary.
+. Restart ${branding}.
+
+[IMPORTANT]
+====
+The default trust store and key store files for ${branding} included in `etc/keystores` use self-signed certificates.
+Self-signed certificates should never be used outside of development/testing areas.
+====
+
 This view shows the alias (name) of every certificate in the trust store and the key store.
 It also displays if the entry includes a private key ("Is Key") and the encryption scheme (typically "RSA" or "EC").
 
@@ -77,7 +152,6 @@ For example:
 [NOTE]
 ====
 This step is not required for a hardened system.
-If testing ${branding} with a
 
 * The default password in `config.ldif` for `serverKeystore.jks` is `changeit`. This needs to be modified.
 ** `ds-cfg-key-store-file: ../../keystores/serverKeystore.jks`
@@ -88,48 +162,6 @@ If testing ${branding} with a
 ** `ds-cfg-trust-store-file: ../../keystores/serverTruststore.jks`
 ** `ds-cfg-trust-store-pin: password`
 ** `cn: JKS`
-====
-
-====== Create a New Keystore/Truststore with an Existing Certificate and Private Key
-
-.  Using the private key, certificate, and CA certificate, create a new keystore containing the data from the new files.
-+
-[source]
-----
-cat client.crt >> client.key
-openssl pkcs12 -export -in client.key -out client.p12
-keytool -importkeystore -srckeystore client.p12 -destkeystore serverKeystore.jks -srcstoretype pkcs12 -alias 1
-keytool -changealias -alias 1 -destalias client -keystore serverKeystore.jks
-keytool -importcert -file ca.crt -keystore serverKeystore.jks -alias "ca"
-keytool -importcert -file ca-root.crt -keystore serverKeystore.jks -alias "ca-root"
-----
-+
-.  Create the truststore using only the CA certificate. Based on the concept of CA signing, the CA should be the only entry needed in the truststore.
-+
-----
-keytool -import -trustcacerts -alias "ca" -file ca.crt -keystore truststore.jks
-keytool -import -trustcacerts -alias "ca-root" -file ca-root.crt -keystore truststore.jks
-----
-+
-. Create a PEM file using the certificate, as some applications require that format.
-+
-----
-openssl x509 -in client.crt -out client.der -outform DER
-openssl x509 -in client.der -inform DER -out client.pem -outform PEM
-----
-
-====== Updating Key Store / Trust Store via the ${admin-console}
-
-. Open the ${admin-console}.
-. Select the *${ddf-security}* application.
-. Select the *Certificates* tab.
-. Add and remove certificates and private keys as necessary.
-. Restart ${branding}.
-
-[IMPORTANT]
-====
-The default trust store and key store files for ${branding} included in `etc/keystores` use self-signed certificates.
-Self-signed certificates should never be used outside of development/testing areas.
 ====
 
 ===== Managing Certificate Revocation List (CRL)
