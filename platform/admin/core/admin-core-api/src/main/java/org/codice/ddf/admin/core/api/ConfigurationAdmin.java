@@ -30,6 +30,9 @@ import org.osgi.service.metatype.ObjectClassDefinition;
  */
 public interface ConfigurationAdmin {
 
+    // Used when we want a filter to match with nothing
+    String NO_MATCH_FILTER = "(service.pid=0)";
+
     /**
      * Returns the {@link Configuration} associated with the given PID
      * @param pid - service pid for the configuration
