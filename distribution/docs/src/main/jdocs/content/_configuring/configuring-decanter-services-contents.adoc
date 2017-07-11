@@ -1,0 +1,59 @@
+:title: Configuring Decanter Services
+:type: configuringConfigFile
+:status: published
+:summary: Configuring Decanter services by configuration file.
+:order: 14
+
+==== Configuring Decanter Services By Configuration file
+
+By default, ${branding} uses two services provided by Decanter that can be configured by configuration file.
+Further information on Decanter services and configurations can be found https://karaf.apache.org/documentation.html#decanter[here].
+
+===== Configuring Decanter Service Level Agreement (SLA) Checker
+
+The Decanter SLA Checker provides a way to create alerts based on configurable conditions in events posted to `decanter/collect/*` and can be configured by editing the file `<${branding}_HOME>/etc/org.apache.karaf.decanter.sla.checker.cfg`.
+By default there are only two checks that will produce alerts, and they are based on the SystemNotice event property of `priority`.
+
+.Decanter SLA Configuration
+|===
+|Property |Alert Level |Expression |Description
+
+|priority
+|warn
+|equal:1,2,4
+|Produce a warn level alert if priority is important (3)
+
+|priority
+|error
+|equal:1,2,3
+|Produce an error level alert if priority is critical (4)
+|===
+
+
+===== Configuring Decanter Scheduler
+
+The Decanter Scheduler looks up services implementing the Runnable interface with the service-property `decanter.collector.name` and executes the Runnable periodically.
+The Scheduler can be configured by editing the file `<${branding}_HOME>/etc/org.apache.karaf.decanter.scheduler.simple.cfg`.
+
+
+.Decanter Scheduler Configuration
+|===
+|Property Name |Description |Default Value
+
+|period
+|Decanter simple scheduler period (milliseconds)
+|300000 (5 minutes)
+
+|threadIdleTimeout
+|The time to wait before stopping an idle thread (milliseconds)
+|60000 (1 minute)
+
+|threadInitCount
+|Initial number of threads created by the scheduler
+|5
+
+|threadMaxCount
+|Maximum number of threads created by the scheduler
+|200
+|===
+
