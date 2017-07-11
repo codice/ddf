@@ -29,6 +29,7 @@
         <bundle>mvn:ddf.admin.core/admin-core-appservice/${project.version}</bundle>
         <bundle>mvn:ddf.admin.core/admin-core-insecuredefaults/${project.version}</bundle>
         <bundle>mvn:ddf.admin.core/admin-core-impl/${project.version}</bundle>
+        <bundle>mvn:ddf.admin/admin-configuration-passwordencryption/${project.version}</bundle>
     </feature>
 
     <feature name="admin-ui" install="manual" version="${project.version}"

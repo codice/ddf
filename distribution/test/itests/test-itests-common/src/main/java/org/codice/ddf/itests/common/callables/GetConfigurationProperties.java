@@ -13,7 +13,10 @@
  */
 package org.codice.ddf.itests.common.callables;
 
+import java.util.Arrays;
 import java.util.Dictionary;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 import org.osgi.service.cm.Configuration;
@@ -65,11 +68,18 @@ public class GetConfigurationProperties implements Callable<Dictionary<String, O
         String query = String.format("(%s=%s)", propertyName, propertyValue);
         Configuration[] configurations = configAdmin.listConfigurations(query);
 
-        if ((configurations == null) || (configurations.length == 0)) {
+        if (configurations == null) {
             return null;
         }
 
-        if (configurations.length > 1) {
+        //multiple configurations are returned because there are multiple persistence managers
+        Set<Configuration> configurationSet = new HashSet<>(Arrays.asList(configurations));
+
+        if (configurationSet.isEmpty()) {
+            return null;
+        }
+
+        if (configurationSet.size() > 1) {
             LOGGER.error(String.format("Multiple Configuration objects returned for query %s",
                     query));
             throw new IllegalArgumentException("Property name/value pair isn't unique");
