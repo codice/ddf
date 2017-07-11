@@ -1,0 +1,14 @@
+:title: Configuring Jetty ThreadPool Settings From Configuration Files
+:type: configuringConfigFile
+:status: published
+:summary: Configuring jetty thread pools.
+:order: 111
+
+=== Configuring Jetty ThreadPool Settings From Configuration Files
+
+To prevent resource shortages in the event of concurrent requests, ${branding} allows configuring Jetty ThreadPool settings to specify the minimum and maximum available threads.
+
+. The settings can be changed at `etc/org.ops4j.pax.web.cfg` under Jetty Server ThreadPool Settings
+. Specify the maximum thread amount with `org.ops4j.pax.web.server.maxThreads`
+. Specify the minimum thread amount with `org.ops4j.pax.web.server.minThreads`
+. Specify the allotted time for a thread to complete with `org.ops4j.pax.web.server.idleTimeout`
