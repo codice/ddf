@@ -33,14 +33,30 @@ public class CertificateCommand {
     /**
      * Pass in a string to use as the common name of the certificate to be generated.
      * Exception thrown if 0 arguments or more than 2 argument (or more than 4 when -san is used).
+     * <pre>
+     * Arguments to this program are: <code>[-cn &lt;cn&gt;|-dn &lt;dn&gt;] [-san &lt;tag:name,tag:name,...&gt;]</code>
      *
-     * @param args
+     * where:
+     * &lt;cn&gt; represents a fully qualified common name (e.g. "&lt;FQDN&gt;", where &lt;FQDN&gt; could be something like cluster.yoyo.com)
+     * &lt;dn&gt; represents a distinguished name as a comma-delimited string (e.g. "c=US, st=California, o=Yoyodyne, l=San Narciso, cn=&lt;FQDN&gt;")
+     * &lt;tag:name,tag:name,...&gt; represents optional subject alternative names to be added to the generated certificate
+     *    (e.g. "DNS:&lt;FQDN&gt;,DNS:node1.&lt;FQDN&gt;,DNS:node2.&lt;FQDN&gt;"). The format for subject alternative names
+     *    is similar to the OpenSSL X509 configuration format. Supported tags are:
+     *      email - email subject
+     *      URI - uniformed resource identifier
+     *      RID - registered id
+     *      DNS - hostname
+     *      IP - ip address (V4 or V6)
+     *      dirName - directory name
+     * </pre>
+     *
+     * @param args arguments to the certificate program (see above for description)
      */
     public static void main(String args[]) {
         // try to extract -san if provided
         int expected = 2;
         String[] sans = null;
-        int mainIndex = 0;
+        int cnDnPosition = 0;
 
         if (args.length == 4) {
             if (args[0].trim()
@@ -48,7 +64,7 @@ public class CertificateCommand {
                 sans = Arrays.stream(args[1].split("[,]"))
                         .map(String::trim)
                         .toArray(String[]::new);
-                mainIndex = 2;
+                cnDnPosition = 2;
                 expected = 4;
             } else if (args[2].trim()
                     .equalsIgnoreCase("-san")) {
@@ -59,31 +75,44 @@ public class CertificateCommand {
             }
         }
         if (args.length != expected) {
-            String canonicalName = CertificateCommand.class.getCanonicalName();
-            String exCn = String.format("java %s -cn \"John Smith\"", canonicalName);
-            String exDn = String.format(
-                    "java %s -dn \"cn=John Whorfin, o=Yoyodyne, l=San Narciso, st=California, c=US\"",
-                    canonicalName);
-            String usage = String.format(
-                    "%nUsage: java %s [-san <subject alt names>] [-cn <common name>] | [-dn <distinguished name>]%n Examples: %n%s%n%s%n%s %s%n%s %s",
-                    canonicalName,
-                    exCn,
-                    exDn,
-                    exCn,
-                    CertificateCommand.SAN_EXAMPLE,
-                    exDn,
-                    CertificateCommand.SAN_EXAMPLE);
-            throw new RuntimeException(usage);
+            throw new RuntimeException(String.format(
+                    "java %s (-cn <cn>|-d <dn>) [-san <tag:name,tag:name,...>]%n%n" //
+                            + "where:%n"
+                            + "  <cn> represents a fully qualified common name (e.g. \"<FQDN>\", where <FQDN> could be something like cluster.yoyo.com)%n"
+                            + "  <dn> represents a distinguished name as a comma-delimited string (e.g. \"c=US, st=California, o=Yoyodyne, l=San Narciso, cn=<FQDN>\")%n"
+                            + "  <tag:name,tag:name,...> represents optional subject alternative names to be added to the generated certificate%n"
+                            + "     (e.g. \"DNS:<FQDN>,DNS:node1.<FQDN>,DNS:node2.<FQDN>\"). The format for subject alternative names%n"
+                            + "     is similar to the OpenSSL X509 configuration format. Supported tags are:%n"
+                            + "       email - email subject%n"
+                            + "       URI - uniformed resource identifier%n"
+                            + "       RID - registered id%n" //
+                            + "       DNS - hostname%n" + "       IP - ip address (V4 or V6)%n"
+                            + "       dirName - directory name%n",
+                    CertificateCommand.class.getCanonicalName()));
         }
-        if (args[mainIndex].trim()
+        if (args[cnDnPosition].trim()
                 .equalsIgnoreCase("-cn")) {
-            configureDemoCert(args[mainIndex + 1].trim(), sans);
+            configureDemoCert(args[cnDnPosition + 1].trim(), sans);
         } else {
-            String[] dn = Arrays.stream(args[mainIndex + 1].split("[,]"))
+            String[] dn = Arrays.stream(args[cnDnPosition + 1].split("[,]"))
                     .map(String::trim)
                     .toArray(String[]::new);
             configureDemoCertWithDN(dn, sans);
         }
+    }
+
+    /**
+     * Generates new signed certificate. The input parameter is used as the certificate's common name.
+     * <p>
+     * Postcondition is the server keystore is updated to include a private entry. The private
+     * entry has the new certificate chain that connects the server to the Demo CA. The matching
+     * private key is also stored in the entry.
+     *
+     * @param commonName string to use as the common name in the new certificate.
+     * @return the string used as the common name in the new certificate
+     */
+    public static String configureDemoCert(String commonName) {
+        return configureDemoCert(commonName, null);
     }
 
     /**
@@ -105,6 +134,22 @@ public class CertificateCommand {
             csr.addSubjectAlternativeNames(subjectAltNames);
         }
         return configureCert(commonName, csr);
+    }
+
+    /**
+     * Generates new signed certificate. The input parameter is the full set of attributes of the
+     * distinguished name for the cert. It must include a single {@code CN} value for the common name.
+     * <p>
+     * Postcondition is the server keystore is updated to include a private entry. The private
+     * entry has the new certificate chain that connects the server to the Demo CA. The matching
+     * private key is also stored in the entry.
+     *
+     * @param dn String params in the form {@code attrKey=attrVal} composing a distinguished name.
+     *           e.g. {@code configureDemoCertWithDN(new String[] {"cn=John Whorfin", "o=Yoyodyne", "l=San Narciso", "st=California", "c=US"), null}
+     * @return the string used as the common name in the new certificate
+     */
+    public static String configureDemoCertWithDN(String[] dn) {
+        return configureDemoCertWithDN(dn, null);
     }
 
     /**

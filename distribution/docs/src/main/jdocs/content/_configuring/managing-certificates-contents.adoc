@@ -83,40 +83,40 @@ To use the scripts, run them out of the `<INSTALL_HOME>/etc/certs` directory.
 
 For *NIX, use the `CertNew.sh` script.
 
-`sh CertNew.sh <FQDN> [-san <tag:name,tag:name,...>]`
+`sh CertNew.sh (-cn <cn>|-dn <dn>) [-san <tag:name,tag:name,...>]`
 
-where `<tag:name,tag:name,...>` represents optional subject alternative names to be added to the generated certificate. The format for subject alternative names is similar to the OpenSSL X509 configuration format. Supported tags are:
+where:
 
-* `email` - email subject
-* `URI` - uniformed resource identifier
-* `RID` - registered id
-* `DNS` - hostname
-* `IP` - ip address (V4 or V6)
-* `dirName` - directory name
+* `<cn>` represents a fully qualified common name (e.g. "<FQDN>", where <FQDN> could be something like cluster.yoyo.com)
+* `<dn>` represents a distinguished name as a comma-delimited string (e.g. "c=US, st=California, o=Yoyodyne, l=San Narciso, cn=<FQDN>")
+* `<tag:name,tag:name,...>` represents optional subject alternative names to be added to the generated certificate (e.g. "DNS:<FQDN>,DNS:node1.<FQDN>,DNS:node2.<FQDN>"). The format for subject alternative names is similar to the OpenSSL X509 configuration format. Supported tags are:
+** `email` - email subject
+** `URI` - uniformed resource identifier
+** `RID` - registered id
+** `DNS` - hostname
+** `IP` - ip address (V4 or V6)
+** `dirName` - directory name
 
-Alternatively, a distinguished name can be provided to the script with a comma-delimited string.
-
-`sh CertNew.sh -dn "c=US, st=California, o=Yoyodyne, l=San Narciso, cn=<FQDN>" [-san <tag:name,tag:name,...>]`
 ****
 
 .Windows Demo CA Script
 ****
 For Windows, use the `CertNew.cmd` script.
 
-`CertNew -cn <FQDN> [-san <tag:name,tag:name,...>]`
+`CertNew (-cn <cn>|-dn <dn>) [-san <tag:name,tag:name,...>]`
 
-where `<tag:name,tag:name,...>` represents optional subject alternative names to be added to the generated certificate. The format for subject alternative names is similar to the OpenSSL X509 configuration format. Supported tags are:
+where:
 
-* `email` - email subject
-* `URI` - uniformed resource identifier
-* `RID` - registered id
-* `DNS` - hostname
-* `IP` - ip address (V4 or V6)
-* `dirName` - directory name
+* `<cn>` represents a fully qualified common name (e.g. "<FQDN>", where <FQDN> could be something like cluster.yoyo.com)
+* `<dn>` represents a distinguished name as a comma-delimited string (e.g. "c=US, st=California, o=Yoyodyne, l=San Narciso, cn=<FQDN>")
+* `<tag:name,tag:name,...>` represents optional subject alternative names to be added to the generated certificate (e.g. "DNS:<FQDN>,DNS:node1.<FQDN>,DNS:node2.<FQDN>"). The format for subject alternative names is similar to the OpenSSL X509 configuration format. Supported tags are:
+** `email` - email subject
+** `URI` - uniformed resource identifier
+** `RID` - registered id
+** `DNS` - hostname
+** `IP` - ip address (V4 or V6)
+** `dirName` - directory name
 
-Alternatively, a distinguished name can be provided to the script with a comma-delimited string.
-
-`CertNew -dn "c=US, st=California, o=Yoyodyne, l=San Narciso, cn=<FQDN>" [-san <tag:name,tag:name,...>]`
 ****
 
 The `CertNew` scripts:
