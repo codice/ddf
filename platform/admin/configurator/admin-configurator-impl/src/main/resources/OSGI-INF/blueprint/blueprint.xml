@@ -43,6 +43,10 @@
         <bean class="org.codice.ddf.admin.configurator.impl.PropertyOperation.Actions"/>
     </service>
 
+    <service interface="org.codice.ddf.internal.admin.configurator.actions.ConfigActions">
+        <bean class="org.codice.ddf.admin.configurator.impl.ConfigOperation.Actions"/>
+    </service>
+
     <service interface="org.codice.ddf.internal.admin.configurator.actions.ServiceReader">
         <bean class="org.codice.ddf.admin.configurator.impl.ServiceReaderImpl"/>
     </service>

@@ -39,6 +39,46 @@ class ConfigValidator {
         }
     }
 
+    private static void protectHomeDir(Path target) {
+        String ddfHomeProp = System.getProperty("ddf.home");
+        validateString(ddfHomeProp, "No value set for system property ddf.home");
+
+        Path ddfHomePath = Paths.get(ddfHomeProp);
+        if (!target.startsWith(ddfHomePath)) {
+            throw new IllegalArgumentException(String.format(
+                    "File [%s] is not beneath ddf home directory [%s]",
+                    target.toString(),
+                    ddfHomePath.toString()));
+        }
+
+        if (target.getParent()
+                .equals(ddfHomePath)) {
+            throw new IllegalArgumentException("Invalid attempt to edit file in ddf.home directory");
+        }
+    }
+
+    private static void protectEtcDir(Path target) {
+        if (target.getParent()
+                .endsWith("etc")) {
+            throw new IllegalArgumentException(
+                    "Invalid attempt to edit system file in /etc directory");
+        }
+    }
+
+    static void validateConfigPath(Path configFile) {
+        if (configFile == null) {
+            throw new IllegalArgumentException("Null path provided");
+        }
+
+        String fileExtension = Files.getFileExtension(configFile.toString());
+        if (!(fileExtension.equalsIgnoreCase("cfg") || fileExtension.equalsIgnoreCase("config"))) {
+            throw new IllegalArgumentException(String.format("%s is not a configuration file",
+                    configFile.toString()));
+        }
+
+        protectHomeDir(configFile);
+    }
+
     static void validatePropertiesPath(Path propFile) {
         if (propFile == null) {
             throw new IllegalArgumentException("Null path provided");
@@ -51,25 +91,7 @@ class ConfigValidator {
                     propFile.toString()));
         }
 
-        String ddfHomeProp = System.getProperty("ddf.home");
-        validateString(ddfHomeProp, "No value set for system property ddf.home");
-
-        Path ddfHomePath = Paths.get(ddfHomeProp);
-        if (!propFile.startsWith(ddfHomePath)) {
-            throw new IllegalArgumentException(String.format("File [%s] is not beneath ddf home directory [%s]",
-                    propFile.toString(),
-                    ddfHomePath.toString()));
-        }
-
-        if (propFile.getParent()
-                .equals(ddfHomePath)) {
-            throw new IllegalArgumentException("Invalid attempt to edit file in ddf.home directory");
-        }
-
-        if (propFile.getParent()
-                .endsWith("etc")) {
-            throw new IllegalArgumentException(
-                    "Invalid attempt to edit system file in /etc directory");
-        }
+        protectHomeDir(propFile);
+        protectEtcDir(propFile);
     }
 }
