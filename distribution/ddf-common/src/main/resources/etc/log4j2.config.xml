@@ -23,7 +23,10 @@
         <PaxOsgi name="osgi-platformLogging"
                  filter="org.codice.ddf.platform.logging.LoggingService"/>
 
-        <PaxOsgi name="osgi-all" filter="*"/>
+        <PaxOsgi name="osgi-adminAlertAppender"
+                 filter="ddf.security.common.audit.LogFailoverAlertAppender"/>
+
+        <PaxOsgi name="osgi-karafConsole" filter="VmLogAppender"/>
 
         <Syslog name="syslog" facility="AUTH" host="localhost" protocol="UDP" port="514"/>
 
@@ -75,6 +78,7 @@
         <Failover name="securityFailover" primary="securityMain">
             <Failovers>
                 <AppenderRef ref="securityBackup"/>
+                <AppenderRef ref="osgi-adminAlertAppender"/>
             </Failovers>
         </Failover>
 
@@ -146,7 +150,8 @@
 
         <Root level="info">
             <AppenderRef ref="out"/>
-            <AppenderRef ref="osgi-all"/>
+            <AppenderRef ref="osgi-karafConsole"/>
+            <AppenderRef ref="osgi-platformLogging"/>
         </Root>
     </Loggers>
 </Configuration>
