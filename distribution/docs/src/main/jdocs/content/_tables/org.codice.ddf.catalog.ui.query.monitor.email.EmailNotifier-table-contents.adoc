@@ -1,0 +1,48 @@
+:title: Email Notifier
+:id: org.codice.ddf.catalog.ui.query.monitor.email.EmailNotifier
+:type: table
+:status: published
+:application: ${catalog-ui}
+:summary: Email Notifier.
+
+.[[org.codice.ddf.catalog.ui.query.monitor.email.EmailNotifier]]Email Notifier
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Subject
+|subjectTemplate
+|String
+|Set the subject line template.
+|Workspace '%[attribute=title]' notification
+|true
+
+|Body
+|bodyTemplate
+|String
+|Set the body template.
+|The workspace '%[attribute=title]' contains up to %[hitCount] results. Log in to see results https://localhost:8993/search/catalog/#workspaces/% [attribute=id].
+|true
+
+|Mail Server
+|mailHost
+|String
+|Set the hostname of the mail server.
+|localhost
+|true
+
+|From Address
+|fromEmail
+|String
+|Set the 'from' email address.
+|donotreply@test.com
+|true
+
+|===
+

@@ -108,15 +108,4 @@ The Catalog Federation Strategy configuration can be found in the ${admin-consol
 . Select *Configuration*
 . Select *Catalog Federation Strategy*.
 
-include::{adoc-include}/_tables/ddf.catalog.federation.impl.CachingFederationStrategy-table-contents.adoc[]
-
-.Catalog Federation Strategy Exported Services
-[cols="2" options="header"]
-|===
-
-|Managed Service PID
-|`ddf.catalog.federation.impl.CachingFederationStrategy`
-
-|Managed Service Factory PID
-|N/A
-|===
+See <<ddf.catalog.federation.impl.CachingFederationStrategy,Federation Strategy configurations>> for all possible configurations.

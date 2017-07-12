@@ -1,0 +1,41 @@
+:title: XML Attribute Security Policy Plugin
+:id: org.codice.ddf.catalog.security.policy.xml.XmlAttributeSecurityPolicyPlugin
+:type: table
+:status: published
+:application: ${ddf-catalog}
+:summary: XML Attribute Security Policy Plugin.
+
+.[[org.codice.ddf.catalog.security.policy.xml.XmlAttributeSecurityPolicyPlugin]]XML Attribute Security Policy Plugin
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|XML Elements:
+|xmlElements
+|String
+|XML elements within the metadata that will be searched for security attributes. If these elements contain matching attributes, the values of the attributes will be combined.
+|
+|true
+
+|Security Attributes (union):
+|securityAttributeUnions
+|String
+|Security Attributes. These attributes, if they exist on any of the XML elements listed above, will have their values extracted and the union of all of the values will be saved to the metacard. For example: if element1 and element2 both contain the attribute 'attr' and that attribute has values X,Y and X,Z, respectively, then the final result will be the union of those values: X,Y,Z. The X,Y,Z value will be the value that is placed within the security attribute on the metacard.
+|
+|false
+
+|Security Attributes (intersection):
+|securityAttributeIntersections
+|String
+|Security Attributes. These attributes, if they exist on any of the XML elements listed above, will have their values extracted and the intersection of all of the values will be saved to the metacard. For example: if element1 and element2 both contain the attribute 'attr' and that attribute has values X,Y and X,Z, respectively, then the final result will be the intersection of those values: X. The X value will be the value that is placed within the security attribute on the metacard.
+|null
+|false
+
+|===
+

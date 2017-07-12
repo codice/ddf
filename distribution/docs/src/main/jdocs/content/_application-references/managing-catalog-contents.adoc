@@ -1,0 +1,22 @@
+:title: ${ddf-catalog}
+:status: published
+:type: applicationReference
+:summary: Provides a framework for storing, searching, processing, and transforming information.
+:order: 03
+
+The ${ddf-catalog} provides a framework for storing, searching, processing, and transforming information.
+
+Clients typically perform create, read, update, and delete (CRUD) operations against the Catalog.
+
+At the core of the Catalog functionality is the Catalog Framework, which routes all requests and responses through the system, invoking additional processing per the system configuration.
+
+==== ${ddf-catalog} Application Prerequisites
+
+To use the ${ddf-catalog} Application, the following applications/features must be installed:
+
+* ${ddf-platform}
+
+==== Installing the ${ddf-catalog} Application
+
+The ${ddf-catalog} is pre-installed with a standard installation.
+

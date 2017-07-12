@@ -1,0 +1,26 @@
+:title: Search UI Redirect
+:id: org.codice.ddf.ui.searchui.filter.RedirectServlet
+:type: table
+:status: published
+:application: ${ddf-ui}
+:summary: Search UI redirect.
+
+.[[org.codice.ddf.ui.searchui.filter.RedirectServlet]]Search UI Redirect
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Redirect URI
+|defaultUri
+|String
+|Specifies the redirect URI to use when accessing the /search URI.
+|/search/catalog
+|true
+
+|===

@@ -1,0 +1,153 @@
+:title: CSW Transactional Profile Federated Source
+:id: Csw_Transactional_Federated_Source
+:status: published
+:type: table
+:application: ${ddf-spatial}
+:summary: CSW Federated Source that supports transactions (create, update, delete).
+
+.[[Csw_Transactional_Federated_Source]]CSW Transactional Profile Federated Source
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Source ID
+|id
+|String
+|The unique name of the Source
+|
+|true
+
+|CSW URL
+|cswUrl
+|String
+|URL to the endpoint implementing the Catalogue Service for Web (CSW) spec
+|${variable-name}org.codice.ddf.system.protocol}${variable-name}org.codice.ddf.system.hostname}:${variable-name}org.codice.ddf.system.port}${variable-name}org.codice.ddf.system.rootContext}/csw
+|true
+
+|Event Service Address
+|eventServiceAddress
+|String
+|Event Service endpoint.
+|${variable-name}org.codice.ddf.system.protocol}${variable-name}org.codice.ddf.system.hostname}:${variable-name}org.codice.ddf.system.port}${variable-name}org.codice.ddf.system.rootContext}/csw/subscription
+|false
+
+|Register for Events
+|registerForEvents
+|Boolean
+|Check to register for events from this source.
+|false
+|false
+
+|username
+|Username
+|String
+|Username for CSW Service (optional)
+|
+|false
+
+|Password
+|password
+|Password
+|Password for CSW Service (optional)
+|
+|false
+
+|Disable CN Check
+|disableCnCheck
+|Boolean
+|Disable CN check for the server certificate. This should only be used when testing.
+|false
+|true
+
+|Coordinate Order
+|coordinateOrder
+|String
+|Coordinate order expected and returned by remote source
+|LON_LAT
+|true
+
+|Use posList in LinearRing
+|usePosList
+|Boolean
+|Use a <posList> element rather than a series of <pos> elements when issuing geospatial queries containing a LinearRing
+|false
+|false
+
+|Metacard Mappings
+|metacardMappings
+|String
+|Mapping of the Metacard Attribute names to their CSW property names. The format should be 'title=dc:title'.
+|effective=created,created=dateSubmitted,modified=modified,thumbnail=references,content-type=type,id=identifier,resource-uri=source
+|false
+
+|Poll Interval
+|pollInterval
+|Integer
+|Poll Interval to Check if the Source is available (in minutes - minimum 1).
+|5
+|true
+
+|Connection Timeout
+|connectionTimeout
+|Integer
+|Amount of time to attempt to establish a connection before timing out, in milliseconds.
+|30000
+|true
+
+|Receive Timeout
+|receiveTimeout
+|Integer
+|Amount of time to wait for a response before timing out, in milliseconds.
+|60000
+|true
+
+|Output Schema
+|outputSchema
+|String
+|Output Schema
+|urn:catalog:metacard
+|true
+
+|Query Type Name
+|queryTypeName
+|String
+|Qualified Name for the Query Type used in the CSW GetRecords request
+|csw:Record
+|true
+
+|Query Type Namespace
+|queryTypeNamespace
+|String
+|Namespace for the Query Type used in the CSW GetRecords request
+|http://www.opengis.net/cat/csw/2.0.2
+|true
+
+|Force CQL Text
+|isCqlForced
+|Boolean
+|Force CQL Text as the Query Language
+|false
+|true
+
+|Forced Spatial Filter Type
+|forceSpatialFilter
+|String
+|Force only the selected Spatial Filter Type as the only available Spatial Filter.
+|NO_FILTER
+|false
+
+|Security Attributes
+|securityAttributeStrings
+|String
+|Security attributes for this source
+|
+|true
+
+|===
+

@@ -59,3 +59,12 @@ include::${project.build.directory}/doc-contents/_contents/config.adoc[]
 
 <#include "developing-components.ftl">
 
+
+:sectnums!:
+== Appendices
+:sectnums:
+
+[appendix]
+== Application References
+
+<#include "application-reference.ftl">

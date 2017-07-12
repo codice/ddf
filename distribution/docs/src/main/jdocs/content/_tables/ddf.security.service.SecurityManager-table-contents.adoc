@@ -1,0 +1,27 @@
+:title: SAML NameID Policy
+:id: ddf.security.service.SecurityManager
+:status: published
+:type: table
+:application: ${ddf-security}
+:summary: SAML NameID Policy.
+
+.[[ddf.security.service.SecurityManager]]SAML NameID Policy
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|SAML NameID Policy
+|usernameAttributeList
+|String
+|List of attributes that are considered for replacing the username of the logged in user. If any of these attributes match any of the attributes within the SecurityAssertion, the value of the first matching attribute will be used as the username. (Does not apply when NameIDFormat is of the following: X509, persistent, kerberos or unspecified, and the username is not empty).
+|http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier, uid
+|true
+
+|===
+

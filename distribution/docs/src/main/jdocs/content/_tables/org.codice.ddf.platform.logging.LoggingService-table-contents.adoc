@@ -1,0 +1,27 @@
+:title: Logging Service
+:id: org.codice.ddf.platform.logging.LoggingService
+:type: table
+:status: published
+:application: ${ddf-platform}
+:summary: Logging Service configurations.
+
+.[[org.codice.ddf.platform.logging.LoggingService]]Logging Service
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Max Log Events
+|maxLogEvents
+|Integer
+|The maximum number of log events stored for display in the Admin Console. This must be greater than 0 and must not exceed 5000.
+|500
+|true
+
+|===
+

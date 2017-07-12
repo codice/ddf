@@ -1,0 +1,118 @@
+:title: Metacard to WFS Feature Map
+:id: org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper
+:status: published
+:type: table
+:application: ${ddf-spatial}
+:summary: Metacard to WFS Feature Map.
+
+.[[org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper]]Metacard to WFS Feature Map
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Feature Type
+|featureType
+|String
+|Feature Type. Format is {URI}local-name
+|
+|true
+
+|Metacard Title to WFS Feature Property Mapping
+|titleMapping
+|String
+|Metacard Title to WFS Feature Property Mapping
+|
+|false
+
+|Metacard Created Date to WFS Feature Property Mapping
+|createdDateMapping
+|String
+|Metacard Created Date to WFS Feature Property Mapping
+|
+|false
+
+|Metacard Modified Date to WFS Feature Property Mapping
+|modifiedDateMapping
+|String
+|Metacard Modified Date to WFS Feature Property Mapping
+|
+|false
+
+|Metacard Effective Date to WFS Feature Property Mapping
+|effectiveDateMapping
+|String
+|Metacard Effective Date to WFS Feature Property Mapping
+|
+|false
+
+|Metacard Expiration Date to WFS Feature Property Mapping
+|expirationDateMapping
+|String
+|Metacard Expiration Date to WFS Feature Property Mapping
+|
+|false
+
+|Metacard Resource URI to WFS Feature Property Mapping
+|resourceUriMapping
+|String
+|Metacard Resource URI to WFS Feature Property Mapping
+|
+|false
+
+|Metacard Resource Size to WFS Feature Property Mapping
+|resourceSizeMapping
+|String
+|Metacard Resource Size to WFS Feature Property Mapping
+|
+|false
+
+|The Units of the Feature Property that corresponds to the Metacard Resource Size
+|dataUnit
+|String
+|The Units of the Feature Property that corresponds to the Metacard Resource Size
+|B
+|true
+
+|Metacard Thumbnail to WFS Feature Property Mapping
+|thumbnailMapping
+|String
+|Metacard Thumbnail to WFS Feature Property Mapping
+|
+|false
+
+|Metacard Geography to WFS Feature Property Mapping
+|geographyMapping
+|String
+|Metacard Geography to WFS Feature Property Mapping
+|
+|false
+
+|Temporal Sort By Feature Property
+|sortByTemporalFeatureProperty
+|String
+|When Sorting Temporally, Sort By This Feature Property.
+|
+|false
+
+|Relevance Sort By Feature Property
+|sortByRelevanceFeatureProperty
+|String
+|When Sorting By Relevance, Sort By This Feature Property.
+|
+|false
+
+|Distance Sort By Feature Property
+|sortByDistanceFeatureProperty
+|String
+|When Sorting By Distance, Sort By This Feature Property.
+|
+|false
+
+|===
+

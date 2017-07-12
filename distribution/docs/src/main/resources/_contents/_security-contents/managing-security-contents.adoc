@@ -36,7 +36,6 @@ From the ${admin-console}, the following configurations are available from a sta
 
 include::{adoc-include}/_tables/conf-org.codice.ddf.security.handler.guest.configuration-table-contents.adoc[]
 include::{adoc-include}/_tables/conf-ddf.security.service.SecurityManager-table-contents.adoc[]
-include::{adoc-include}/_tables/conf-ddf.security.sts.StsStaticService-table-contents.adoc[]
 include::{adoc-include}/_tables/conf-org.codice.ddf.security.interceptor.GuestInterceptor-table-contents.adoc[]
 include::{adoc-include}/_tables/conf-ddf.security.sts.address.provider-table-contents.adoc[]
 include::{adoc-include}/_tables/conf-ddf.security.sts.client.configuration-table-contents.adoc[]

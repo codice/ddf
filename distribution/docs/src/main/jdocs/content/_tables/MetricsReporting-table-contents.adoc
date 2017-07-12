@@ -1,0 +1,25 @@
+:title: Metrics Reporting
+:id: MetricsReporting
+:type: table
+:status: published
+:application: ${ddf-platform}
+:summary: Metrics Reporting.
+
+.[[MetricsReporting]]Metrics Reporting
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+|Name
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|Metrics Max Threshold
+|metricsMaxThreshold
+|Double
+|Max value a data sample can be for any metric (used to suppress spike data on metrics graphs)
+|4000000000.0
+|true
+
+|===

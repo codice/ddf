@@ -25,4 +25,7 @@ To configure the Metacard Backup S3 Storage Provider
 . Select *Configuration* tab.
 . Select *Metacard Backup S3 Storage Provider*.
 
-include::{adoc-include}/_tables/plugin.metacard-backup-s3storage-table-contents.adoc[]
+See <<
+plugin.metacard-backup-s3storage
+,
+ configurations>> for all possible configurations.

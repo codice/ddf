@@ -1,0 +1,41 @@
+:title: File Based Claims Handler
+:id: org.codice.ddf.security.sts.claims.property.PropertyFileClaimsHandler
+:status: published
+:type: table
+:application: ${ddf-security}
+:summary: File Based Claims Handler.
+
+.[[org.codice.ddf.security.sts.claims.property.PropertyFileClaimsHandler]]File Based Claims Handler
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Role Claim Type
+|roleClaimType
+|String
+|Role claim URI.
+|http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role
+|true
+
+|User Role File
+|propertyFileLocation
+|String
+|Location of the file which maps roles to users.
+|etc/users.properties
+|true
+
+|User Attribute File
+|attributeFileLocation
+|String
+|Location of the file which maps attributes to users.
+|etc/users.attributes
+|true
+
+|===
+

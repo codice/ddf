@@ -31,7 +31,7 @@ Configure an Existing CSW Connected Source through the ${admin-console}:
 * Select the *${ddf-catalog}* application.
 * Select the name of the source to edit.
 
-include::{adoc-include}/_tables/Csw_Connected_Source-table-contents.adoc[]
+See <<Csw_Connected_Source,CSW Connected Source configurations>> for all possible configurations.
 
 ===== Using the CSW Connected Source
 

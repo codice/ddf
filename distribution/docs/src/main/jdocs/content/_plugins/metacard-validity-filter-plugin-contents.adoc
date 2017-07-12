@@ -24,4 +24,4 @@ The Metacard Validity Filter Plugin can be configured:
 . Select the *Configuration* tab.
 . Select the *Metacard Validity Filter Plugin*.
 
-include::{adoc-include}/_tables/ddf.catalog.metacard.validation.MetacardValidityFilterPlugin-table-contents.adoc[]
+See <<ddf.catalog.metacard.validation.MetacardValidityFilterPlugin,Metacard Validity Filter Plugin configurations>> for all possible configurations.

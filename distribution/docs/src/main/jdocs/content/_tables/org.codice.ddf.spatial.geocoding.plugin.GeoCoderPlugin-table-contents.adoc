@@ -1,5 +1,9 @@
-:type: documentation
+:title: GeoCoder Plugin
+:id: org.codice.ddf.spatial.geocoding.plugin.GeoCoderPlugin
+:type: table
 :status: published
+:application: ${ddf-spatial}
+:summary: GeoCoder Plugin.
 
 .[[org.codice.ddf.spatial.geocoding.plugin.GeoCoderPlugin]]GeoCoder Plugin
 [cols="1,1m,1,4a,1,1," options="header"]

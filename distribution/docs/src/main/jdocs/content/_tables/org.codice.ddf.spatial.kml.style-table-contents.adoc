@@ -1,5 +1,9 @@
-:type: documentation
+:title: Spatial KML Style Map Entry
+:id: org.codice.ddf.spatial.kml.style
+:type: table
 :status: published
+:application: ${ddf-spatial}
+:summary: Spatial KML Style Map Entry.
 
 .[[org.codice.ddf.spatial.kml.style]]Spatial KML Style Map Entry
 [cols="1,1m,1,3,1,1" options="header"]

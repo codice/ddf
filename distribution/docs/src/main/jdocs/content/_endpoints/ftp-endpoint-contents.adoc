@@ -27,7 +27,7 @@ Once installed, the configurable properties for the FTP Endpoint are accessed fr
 . Select the *${ddf-catalog}* application.
 . Select the *FTP Enpoint*.
 
-include::{adoc-include}/_tables/ddf.catalog.ftp.FtpServerStarter-table-contents.adoc[]
+See <<ddf.catalog.ftp.FtpServerStarter,FTP Endpoint configurations>> for all possible configurations.
 
 ===== Using FTP Endpoint
 

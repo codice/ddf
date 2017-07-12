@@ -46,6 +46,6 @@ The configurable properties for the Custom Mime Type Resolver are accessed from 
 
 * `Ddf_Custom_Mime_Type_Resolver`
 
-include::{adoc-include}/_tables/DDF_Custom_Mime_Type_Resolver-table-contents.adoc[]
+See <<DDF_Custom_Mime_Type_Resolver,Custom Mime Type Resolver configurations>> for all possible configurations.
 
 '''

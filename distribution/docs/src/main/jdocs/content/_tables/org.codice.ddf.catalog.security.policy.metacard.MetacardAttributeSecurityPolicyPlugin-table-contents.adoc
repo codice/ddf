@@ -1,0 +1,34 @@
+:title: Metacard Attribute Security Policy Plugin
+:id: org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin
+:type: table
+:status: published
+:application: ${ddf-catalog}
+:summary: Metacard Attribute Security Policy Plugin.
+
+.[[org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin]]Metacard Attribute Security Policy Plugin
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Metacard Intersect Attributes:
+|intersectMetacardAttributes
+|String
+|Metacard attributes that will be collected and mapped to security information. Example: security.classification=classification             Any duplicate destinations in this group will result in an intersection of values. E.g. source1=dest and source2=val             where source1 is the set of
+|
+|true
+
+| Metacard Union Attributes:
+| unionMetacardAttributes
+| String
+|'a', 'b', 'c'
+|null
+| true
+
+|===
+

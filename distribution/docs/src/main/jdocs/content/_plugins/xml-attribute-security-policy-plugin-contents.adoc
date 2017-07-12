@@ -20,4 +20,5 @@ The XML Attribute Security Policy Plugin is installed by default with a standard
 . Select the *Configuration* tab.
 . Select the *XML Attribute Security Policy Plugin* configuration.
 
-include::{adoc-include}/_tables/org.codice.ddf.catalog.security.policy.xml.XmlAttributeSecurityPolicyPlugin-table-contents.adoc[]
+See <<org.codice.ddf.catalog.security.policy.xml.XmlAttributeSecurityPolicyPlugin,XML Attribute Security Policy Plugin
+ configurations>> for all possible configurations.

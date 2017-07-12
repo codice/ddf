@@ -1,10 +1,15 @@
+:title: ${message-broker}
+:status: published
+:type: applicationReference
+:summary: UI for undeliverable messages.
 
 ==== Undelivered Messages UI
+
 The Undeliverable Messages tab gives an administrator the ability to view undeliverable messages and then decide whether to resend or delete those messages.
 
 ===== Prerequisites for Undelivered Messages UI
 
-None
+None.
 
 ===== Installing and Uninstalling
 

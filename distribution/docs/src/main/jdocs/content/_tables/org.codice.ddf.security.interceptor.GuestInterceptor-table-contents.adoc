@@ -1,0 +1,27 @@
+:title: Security SOAP Guest Interceptor
+:id: org.codice.ddf.security.interceptor.GuestInterceptor
+:status: published
+:type: table
+:application: ${ddf-security}
+:summary: Security SOAP Guest Interceptor.
+
+.[[org.codice.ddf.security.interceptor.GuestInterceptor]]Security SOAP Guest Interceptor
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Deny Guest Access
+|guestAccessDenied
+|Boolean
+|If set to true, no guest access will be allowed via this guest interceptor. If set to false, this interceptor will generate guest tokens for incoming requests that lack a WS-Security header.
+|false
+|false
+
+|===
+

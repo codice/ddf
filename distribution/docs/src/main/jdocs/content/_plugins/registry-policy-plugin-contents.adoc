@@ -21,4 +21,4 @@ The Registry Policy Plugin can be configured from the ${admin-console}:
 . Select the *Configuration* tab.
 . Select *Registry Policy Plugin*.
 
-include::{adoc-include}/_tables/org.codice.ddf.registry.policy.RegistryPolicyPlugin-table-contents.adoc[]
+See <<org.codice.ddf.registry.policy.RegistryPolicyPlugin,Registry Policy Plugin configurations>> for all possible configurations.

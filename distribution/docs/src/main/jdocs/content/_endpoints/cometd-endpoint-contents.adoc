@@ -22,7 +22,8 @@ Configure the CometD endpoint from the ${admin-console}:
 . Select *${ddf-ui}* application.
 . Select *Configuration* tab.
 
-include::{adoc-include}/_tables/org.codice.ddf.ui.search.standard.endpoint-table-contents.adoc[]
+// fix this link
+See <<cometd-no-link,CometD Endpoint configurations>> for all possible configurations.
 
 ===== Using CometD Endpoint
 

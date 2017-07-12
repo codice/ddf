@@ -1,5 +1,9 @@
-:type: documentation
+:title: MIME Custom Types
+:id: DDF_Custom_Mime_Type_Resolver
+:type: table
 :status: published
+:application: ${ddf-platform}
+:summary: DDF Custom Mime Types.
 
 .[[DDF_Custom_Mime_Type_Resolver]]MIME Custom Types
 [cols="1,1m,1,3,1,1" options="header"]

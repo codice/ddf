@@ -18,7 +18,7 @@ This transformer is installed by default with a standard installation in the ${d
 
 From the ${admin-console}, the Simple SearchUI can be configured under the *Catalog HTML Query Response Transformer*.
 
-include::{adoc-include}/_tables/org.codice.ddf.ui.search.simple.properties-table-contents.adoc[]
+See <<org.codice.ddf.ui.search.simple.properties,Simple Search UI configurations>> for all possible configurations.
 
 ===== Using Simple SearchUI
 

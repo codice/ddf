@@ -29,4 +29,4 @@ To configure the Registry store:
 . Select the *Remote Registries* Tab and click the *Add* button.
 .. ALTERNATIVELY: Select the *Configuration* Tab and select *Registry Store*.
 
-include::{adoc-include}/_tables/Csw_Registry_Store-table-contents.adoc[]
+See <<Csw_Registry_Store,CSW Registry configurations>> for all possible configurations.
