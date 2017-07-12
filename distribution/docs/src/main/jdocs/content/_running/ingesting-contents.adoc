@@ -167,11 +167,6 @@ Therefore, whether an administrator's data store is from Oracle, Solr, or any ot
 ==== Automatic Catalog Backup
 
 To backup local catalog records, a <<_catalog_backup_plugin,Catalog Backup Plugin>> is available.
-It is disabled by default for performance reasons.
+It is not installed by default for performance reasons.
 
-It can be enabled and configured in the *${admin-console}:
-
-. Navigate to the *${admin-console}.
-. Select the *${ddf-catalog} application.
-. Select the *Configuration* tab.
-. Select the <<_catalog_backup_plugin,Backup Post-Ingest Plugin>>.
+It can be installed and configured in the *${admin-console}* (see <<_catalog_backup_plugin,Catalog Backup Plugin>> for instructions).

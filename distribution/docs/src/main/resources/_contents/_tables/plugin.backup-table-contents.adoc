@@ -1,4 +1,4 @@
-.[[plugin.backup]]Backup Post-Ingest Plugin
+.[[plugin.backup]]Catalog Backup Plugin
 [cols="1,1m,1,3,1,1" options="header"]
 |===
 
@@ -8,13 +8,6 @@
 |Description
 |Default Value
 |Required
-
-|Enable Backup Plugin
-|enableBackupPlugin
-|Boolean
-|Enable the Backup Ingest plugin which will write each result to a directory
-|true
-|false
 
 | Root backup directory path
 | rootBackupDir

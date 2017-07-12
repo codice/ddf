@@ -119,7 +119,7 @@
         <bundle>mvn:ddf.catalog.core/catalog-core-sourcemetricsplugin/${project.version}</bundle>
     </feature>
 
-    <feature name="catalog-core-backupplugin" install="auto" version="${project.version}"
+    <feature name="catalog-core-backupplugin" install="manual" version="${project.version}"
              description="Catalog post ingest plug-in to backup metacards to a file system.">
         <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.core/catalog-core-backupplugin/${project.version}</bundle>
