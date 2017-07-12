@@ -20,6 +20,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +59,7 @@ public class SourcePoller {
 
         this.runner = incomingRunner;
 
-        scheduler = Executors.newSingleThreadScheduledExecutor();
+        scheduler = Executors.newSingleThreadScheduledExecutor(StandardThreadFactoryBuilder.newThreadFactory("sourcePollerThread"));
 
         handle = scheduler.scheduleAtFixedRate(runner, INITIAL_DELAY, interval, TimeUnit.MINUTES);
 

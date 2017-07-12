@@ -27,6 +27,13 @@
 
     <bean id="executor" class="java.util.concurrent.Executors" factory-method="newFixedThreadPool">
         <argument value="1"/>
+        <argument ref="registrySourceConfigHandlerThreadFactory"/>
+    </bean>
+
+    <bean id="registrySourceConfigHandlerThreadFactory"
+          class="org.codice.ddf.platform.util.StandardThreadFactoryBuilder"
+          factory-method="newThreadFactory">
+        <argument value="registrySourceConfigHandlerThread"/>
     </bean>
 
     <bean id="slotHelper" class="org.codice.ddf.registry.schemabindings.helper.SlotTypeHelper"/>

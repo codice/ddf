@@ -23,6 +23,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +40,7 @@ class CacheBulkProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger(CacheBulkProcessor.class);
 
     private final ScheduledExecutorService batchScheduler =
-            Executors.newSingleThreadScheduledExecutor();
+            Executors.newSingleThreadScheduledExecutor(StandardThreadFactoryBuilder.newThreadFactory("cacheBulkProcessorThread"));
 
     private final Map<String, Metacard> metacardsToCache = new ConcurrentHashMap<>();
 

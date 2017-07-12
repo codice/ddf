@@ -17,7 +17,17 @@
     <reference id="registryPublicationService"
                interface="org.codice.ddf.registry.federationadmin.service.internal.RegistryPublicationService"/>
 
-    <bean id="executor" class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor"/>
+    <bean id="executor" class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor">
+        <argument ref="registryPublicationUpdateHandlerThreadFactory"/>
+    </bean>
+
+    <bean id="registryPublicationUpdateHandlerThreadFactory"
+          class="org.codice.ddf.platform.util.StandardThreadFactoryBuilder"
+          factory-method="newThreadFactory">
+        <argument value="registryPublicationUpdateHandlerThread"/>
+        <argument value="false"/><!--isDaemon is set to false since this thread is handling updates-->
+        <argument value="5"/>
+    </bean>
 
     <bean id="registryEventManager" class="org.codice.ddf.registry.publication.RegistryPublicationHandler" destroy-method="destroy">
         <argument ref="registryPublicationService"/>

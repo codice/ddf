@@ -58,6 +58,10 @@
             <artifactId>common-system</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -67,6 +71,9 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Embed-Dependency>
+                            platform-util
+                        </Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>

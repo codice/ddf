@@ -18,7 +18,9 @@ import java.net.URL;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +52,16 @@ public class UnavailableUrls {
     // threaded, so pings are queued up and happen in serial. However, if this class gets loaded
     // from multiple class loaders, there would be a scheduler/thread for each class loader.
     private static final ScheduledExecutorService SCHEDULER =
-            Executors.newSingleThreadScheduledExecutor();
+            Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+                final AtomicLong count = new AtomicLong(0);
+
+                @Override
+                public Thread newThread(Runnable r) {
+                    Thread thread = new Thread(r);
+                    thread.setName("unavailableUrlsThread " + count.getAndIncrement());
+                    return thread;
+                }
+            });
 
     // time to give the ping request before we stop trying
     private static final long PING_TIMEOUT_SECONDS = 10;

@@ -59,6 +59,7 @@ import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.apache.karaf.shell.support.completers.FileCompleter;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.codice.ddf.platform.util.Exceptions;
+import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.fusesource.jansi.Ansi;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormatter;
@@ -117,6 +118,8 @@ public class IngestCommand extends CatalogCommands {
     private static final String FILE_NAME = "fileName";
 
     private static final String ZIP_DECOMPRESSION = "zipDecompression";
+
+    private static final String THREAD_NAME = "ingestCommandThread";
 
     private static final String CONTENT_PATH = CONTENT + File.separator;
 
@@ -208,7 +211,7 @@ public class IngestCommand extends CatalogCommands {
         final ArrayBlockingQueue<Metacard> metacardQueue = new ArrayBlockingQueue<>(
                 batchSize * multithreaded);
 
-        ExecutorService queueExecutor = Executors.newSingleThreadExecutor();
+        ExecutorService queueExecutor = Executors.newSingleThreadExecutor(StandardThreadFactoryBuilder.newThreadFactory(THREAD_NAME));
 
         final long start = System.currentTimeMillis();
 
@@ -223,7 +226,7 @@ public class IngestCommand extends CatalogCommands {
         queueExecutor.submit(() -> buildQueue(inputFile, metacardQueue, start));
 
         final ScheduledExecutorService batchScheduler =
-                Executors.newSingleThreadScheduledExecutor();
+                Executors.newSingleThreadScheduledExecutor(StandardThreadFactoryBuilder.newThreadFactory(THREAD_NAME));
 
         BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<>(multithreaded);
         RejectedExecutionHandler rejectedExecutionHandler =
@@ -233,6 +236,7 @@ public class IngestCommand extends CatalogCommands {
                 0L,
                 TimeUnit.MILLISECONDS,
                 blockingQueue,
+                StandardThreadFactoryBuilder.newThreadFactory(THREAD_NAME),
                 rejectedExecutionHandler);
 
         final CatalogFacade catalog = getCatalog();
@@ -456,7 +460,8 @@ public class IngestCommand extends CatalogCommands {
     private Metacard generateMetacard(InputStream message) throws IOException {
         try {
             if (message != null) {
-                return transformer.get().transform(message);
+                return transformer.get()
+                        .transform(message);
             } else {
                 throw new IllegalArgumentException("Data file is null.");
             }
@@ -607,7 +612,8 @@ public class IngestCommand extends CatalogCommands {
         Optional<InputCollectionTransformer> zipDecompression = getZipDecompression();
         if (zipDecompression.isPresent()) {
             try (InputStream inputStream = byteSource.openBufferedStream()) {
-                List<Metacard> metacardList = zipDecompression.get().transform(inputStream, arguments)
+                List<Metacard> metacardList = zipDecompression.get()
+                        .transform(inputStream, arguments)
                         .stream()
                         .filter(Objects::nonNull)
                         .collect(Collectors.toList());

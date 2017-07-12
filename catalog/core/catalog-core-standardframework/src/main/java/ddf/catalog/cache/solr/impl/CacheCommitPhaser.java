@@ -20,13 +20,15 @@ import java.util.concurrent.Phaser;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
+
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 
 class CacheCommitPhaser extends Phaser {
 
     private final ScheduledExecutorService phaseScheduler =
-            Executors.newSingleThreadScheduledExecutor();
+            Executors.newSingleThreadScheduledExecutor(StandardThreadFactoryBuilder.newThreadFactory("cacheCommitPhaserThread"));
 
     private SolrCache cache;
 

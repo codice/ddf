@@ -33,6 +33,7 @@ import java.util.function.Predicate;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
+import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,13 +81,15 @@ public class SeedCommand extends CqlCommands {
                 20,
                 30,
                 TimeUnit.SECONDS,
-                new LinkedBlockingQueue<>());
+                new LinkedBlockingQueue<>(),
+                StandardThreadFactoryBuilder.newThreadFactory("seedCommandThread"));
         EXECUTOR.allowCoreThreadTimeOut(true);
     }
 
     private final Predicate<Metacard> isNonCachedResource = metacard -> {
         Attribute cached = metacard.getAttribute(RESOURCE_CACHE_STATUS);
-        return cached == null || (cached.getValue() instanceof Boolean && !((Boolean) cached.getValue()));
+        return cached == null || (cached.getValue() instanceof Boolean
+                && !((Boolean) cached.getValue()));
     };
 
     @Option(name = "--source", multiValued = true, aliases = {

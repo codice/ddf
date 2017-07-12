@@ -26,7 +26,15 @@
     </bean>
 
     <bean id="executor" class="java.util.concurrent.Executors"
-          factory-method="newSingleThreadScheduledExecutor"/>
+          factory-method="newSingleThreadScheduledExecutor">
+        <argument ref="registryIdentificationThreadFactory"/>
+    </bean>
+
+    <bean id="registryIdentificationThreadFactory"
+          class="org.codice.ddf.platform.util.StandardThreadFactoryBuilder"
+          factory-method="newThreadFactory">
+        <argument value="registryIdentificationThread"/>
+    </bean>
 
     <bean id="registryPostIngestPlugin"
           class="org.codice.ddf.registry.identification.RegistryIdPostIngestPlugin"

@@ -30,6 +30,7 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
 import org.codice.ddf.activities.ActivityEvent;
 import org.codice.ddf.persistence.PersistentStore;
+import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.cometd.annotation.Listener;
 import org.cometd.annotation.Service;
 import org.cometd.annotation.Session;
@@ -57,7 +58,8 @@ public abstract class AbstractEventController implements EventHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractEventController.class);
 
-    private final ExecutorService executorService = Executors.newCachedThreadPool();
+    private final ExecutorService executorService = Executors.newCachedThreadPool(
+            StandardThreadFactoryBuilder.newThreadFactory("abstractEventThread"));
 
     @Inject
     BayeuxServer bayeux;
@@ -297,4 +299,5 @@ public abstract class AbstractEventController implements EventHandler {
      * @return String representation of a root topic.
      */
     public abstract String getControllerRootTopic();
+
 }

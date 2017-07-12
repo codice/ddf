@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.shell.api.action.Option;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
+import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -135,6 +136,7 @@ public abstract class DuplicateCommands extends CqlCommands {
                     0L,
                     TimeUnit.MILLISECONDS,
                     blockingQueue,
+                    StandardThreadFactoryBuilder.newThreadFactory("duplicateCommandsThread"),
                     rejectedExecutionHandler);
             console.printf("Running a maximum of %d threads during replication.%n", multithreaded);
 

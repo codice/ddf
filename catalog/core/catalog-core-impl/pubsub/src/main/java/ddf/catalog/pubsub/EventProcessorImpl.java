@@ -25,6 +25,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.lucene.store.Directory;
+import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.event.Event;
@@ -74,7 +75,8 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
 
     private Map<String, ServiceRegistration> existingSubscriptions;
 
-    private final ExecutorService threadPool = Executors.newCachedThreadPool();
+    private final ExecutorService threadPool = Executors.newCachedThreadPool(
+            StandardThreadFactoryBuilder.newThreadFactory("eventProcessorThread"));
 
     public EventProcessorImpl() {
         LOGGER.debug("INSIDE: EventProcessorImpl default constructor");
@@ -480,5 +482,4 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
                     attr));
         }
     }
-
 }

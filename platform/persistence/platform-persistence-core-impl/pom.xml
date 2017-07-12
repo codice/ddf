@@ -125,6 +125,10 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+        </dependency>
+        <dependency>
             <groupId>ddf.platform.solr</groupId>
             <artifactId>solr-xpath</artifactId>
             <version>${project.version}</version>
@@ -144,6 +148,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
+                            platform-util,
                             commons-codec,
                             commons-collections4,
                             gt-cql,

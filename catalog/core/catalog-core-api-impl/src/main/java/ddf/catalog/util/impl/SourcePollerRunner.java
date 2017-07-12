@@ -24,6 +24,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,7 +100,8 @@ public class SourcePollerRunner implements Runnable {
     private void checkStatus(final Source source) {
 
         if (pool == null) {
-            pool = Executors.newCachedThreadPool();
+            pool = Executors.newCachedThreadPool(StandardThreadFactoryBuilder.newThreadFactory(
+                    "sourcePollerRunnerThread"));
 
         }
         final Runnable statusRunner = () -> {
@@ -122,7 +124,9 @@ public class SourcePollerRunner implements Runnable {
                     }
                 } else {
                     LOGGER.debug("Unable to get lock for Source [{}] with id [{}]."
-                            + "  A status thread is already running.", source, getSourceKey(source).getId());
+                                    + "  A status thread is already running.",
+                            source,
+                            getSourceKey(source).getId());
                 }
             }
         };

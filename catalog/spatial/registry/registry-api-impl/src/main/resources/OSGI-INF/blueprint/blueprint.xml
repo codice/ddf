@@ -40,9 +40,24 @@
                interface="org.codice.ddf.registry.federationadmin.service.internal.RegistryPublicationService"/>
     <reference id="metaTypeService" interface="org.osgi.service.metatype.MetaTypeService"/>
 
-    <bean id="registryPublisherExecutor" class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor"/>
-    <bean id="metacardHandlerExecutor" class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor"/>
-    <bean id="cleanupHandlerExecutor" class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor"/>
+    <bean id="registryPublisherExecutor" class="java.util.concurrent.Executors"
+          factory-method="newSingleThreadScheduledExecutor">
+        <argument ref="registryApiThreadFactory"/>
+    </bean>
+    <bean id="metacardHandlerExecutor" class="java.util.concurrent.Executors"
+          factory-method="newSingleThreadScheduledExecutor">
+        <argument ref="registryApiThreadFactory"/>
+    </bean>
+    <bean id="cleanupHandlerExecutor" class="java.util.concurrent.Executors"
+          factory-method="newSingleThreadScheduledExecutor">
+        <argument ref="registryApiThreadFactory"/>
+    </bean>
+
+    <bean id="registryApiThreadFactory"
+          class="org.codice.ddf.platform.util.StandardThreadFactoryBuilder"
+          factory-method="newThreadFactory">
+        <argument value="registryApiThread"/>
+    </bean>
 
     <bean id="registryPublisher"
           class="org.codice.ddf.registry.api.impl.RegistryStorePublisher">
@@ -51,13 +66,17 @@
         <property name="executor" ref="registryPublisherExecutor"/>
     </bean>
 
-    <bean id="storeCleanupHandler" class="org.codice.ddf.registry.api.impl.RegistryStoreCleanupHandler">
-        <cm:managed-properties persistent-id="org.codice.ddf.registry.api.impl.RegistryStoreCleanupHandler" update-strategy="container-managed"/>
+    <bean id="storeCleanupHandler"
+          class="org.codice.ddf.registry.api.impl.RegistryStoreCleanupHandler">
+        <cm:managed-properties
+                persistent-id="org.codice.ddf.registry.api.impl.RegistryStoreCleanupHandler"
+                update-strategy="container-managed"/>
         <property name="federationAdminService" ref="federationAdminService"/>
         <property name="executor" ref="cleanupHandlerExecutor"/>
     </bean>
 
-    <bean id="registryMetacardHandler" class="org.codice.ddf.registry.api.impl.RegistryMetacardHandler" destroy-method="destroy">
+    <bean id="registryMetacardHandler"
+          class="org.codice.ddf.registry.api.impl.RegistryMetacardHandler" destroy-method="destroy">
         <argument ref="metacardHandlerExecutor"/>
         <argument ref="federationAdminService"/>
     </bean>
@@ -74,7 +93,8 @@
         </service-properties>
     </service>
 
-    <reference-list id="registryPubList" interface="org.codice.ddf.registry.api.internal.RegistryStore"
+    <reference-list id="registryPubList"
+                    interface="org.codice.ddf.registry.api.internal.RegistryStore"
                     availability="optional">
         <reference-listener ref="registryPublisher" bind-method="bindRegistryStore"
                             unbind-method="unbindRegistryStore"/>

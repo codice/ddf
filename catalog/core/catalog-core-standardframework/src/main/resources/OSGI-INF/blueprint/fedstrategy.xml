@@ -17,11 +17,20 @@
         xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
     <bean id="queryThreadPool" class="java.util.concurrent.Executors"
-          factory-method="newCachedThreadPool"/>
+          factory-method="newCachedThreadPool">
+        <argument ref="federationStrategyThreadFactory"/>
+    </bean>
+
+    <bean id="federationStrategyThreadFactory"
+          class="org.codice.ddf.platform.util.StandardThreadFactoryBuilder"
+          factory-method="newThreadFactory">
+        <argument value="federationStrategyThread"/>
+    </bean>
 
     <bean id="cacheThreadPool" class="java.util.concurrent.Executors"
           factory-method="newFixedThreadPool">
         <argument value="$[org.codice.ddf.system.threadPoolSize]"/>
+        <argument ref="federationStrategyThreadFactory"/>
     </bean>
 
     <bean id="solrClientFactory" class="org.codice.solr.factory.impl.SolrClientFactoryImpl"/>

@@ -36,6 +36,7 @@ import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.codice.ddf.configuration.PropertyResolver;
+import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.slf4j.Logger;
@@ -131,7 +132,8 @@ public class MetadataConfigurationParser {
             PropertyResolver propertyResolver = new PropertyResolver(entityDescription);
             HttpTransport httpTransport = new NetHttpTransport();
 
-            ExecutorService executor = Executors.newSingleThreadExecutor();
+            ExecutorService executor = Executors.newSingleThreadExecutor(
+                    StandardThreadFactoryBuilder.newThreadFactory("metadataConfigParserThread"));
             ListeningExecutorService service = MoreExecutors.listeningDecorator(executor);
 
             addHttpCallback(propertyResolver, httpTransport, service, executor);

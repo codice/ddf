@@ -82,6 +82,10 @@
             <artifactId>slf4j-ext</artifactId>
         </dependency>
         <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+        </dependency>
+        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>filter-proxy</artifactId>
             <scope>test</scope>
@@ -101,7 +105,8 @@
                         <Embed-Dependency>
                             catalog-core-api-impl;scope=!test,
                             ddf-security-common,
-                            registry-common
+                            registry-common,
+                            platform-util
                         </Embed-Dependency>
                         <Import-Package>
                             !org.codice.ddf.platform.util.http,

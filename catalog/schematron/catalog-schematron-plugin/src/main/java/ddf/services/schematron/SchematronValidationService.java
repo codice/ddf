@@ -44,6 +44,7 @@ import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.codice.ddf.platform.util.XMLUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,7 +65,6 @@ import ddf.catalog.validation.impl.report.MetacardValidationReportImpl;
 import ddf.catalog.validation.impl.violation.ValidationViolationImpl;
 import ddf.catalog.validation.report.MetacardValidationReport;
 import ddf.catalog.validation.violation.ValidationViolation;
-
 import net.sf.saxon.Configuration;
 import net.sf.saxon.TransformerFactoryImpl;
 
@@ -130,7 +130,8 @@ public class SchematronValidationService
         Integer threadPoolSize = Integer.parseInt(System.getProperty(
                 "org.codice.ddf.system.threadPoolSize",
                 DEFAULT_THREAD_POOL_SIZE));
-        return Executors.newFixedThreadPool(threadPoolSize);
+        return Executors.newFixedThreadPool(threadPoolSize,
+                StandardThreadFactoryBuilder.newThreadFactory("schematronValidationServiceThread"));
     }
 
     /**

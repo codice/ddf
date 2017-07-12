@@ -50,6 +50,7 @@ import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.request.CoreAdminRequest;
 import org.apache.solr.client.solrj.response.CoreAdminResponse;
 import org.codice.ddf.configuration.SystemBaseUrl;
+import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.codice.solr.factory.SolrClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -157,7 +158,8 @@ public class HttpSolrClientFactory implements SolrClientFactory {
         String coreUrl = url + "/" + coreName;
 
         if (System.getProperty("solr.data.dir") != null) {
-            ConfigurationStore.getInstance().setDataDirectoryPath(System.getProperty("solr.data.dir"));
+            ConfigurationStore.getInstance()
+                    .setDataDirectoryPath(System.getProperty("solr.data.dir"));
         }
 
         RetryPolicy retryPolicy = new RetryPolicy().withBackoff(10,
@@ -188,7 +190,8 @@ public class HttpSolrClientFactory implements SolrClientFactory {
         Integer threadPoolSize = Integer.parseInt(System.getProperty(
                 "org.codice.ddf.system.threadPoolSize",
                 THREAD_POOL_DEFAULT_SIZE));
-        return Executors.newScheduledThreadPool(threadPoolSize);
+        return Executors.newScheduledThreadPool(threadPoolSize,
+                StandardThreadFactoryBuilder.newThreadFactory("httpSolrClientFactoryThread"));
     }
 
     private static SolrClient createSolrHttpClient(String url, String coreName, String configFile,

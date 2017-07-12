@@ -62,6 +62,10 @@
             <artifactId>admin-core-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+        </dependency>
+        <dependency>
             <groupId>ddf.platform</groupId>
             <artifactId>platform-parser-xml</artifactId>
             <version>${project.version}</version>
@@ -81,7 +85,8 @@
                         <Embed-Dependency>
                             catalog-core-api-impl;scope=!test,
                             registry-common,
-                            ddf-security-common
+                            ddf-security-common,
+                            platform-util
                         </Embed-Dependency>
                         <Import-Package>
                             !org.codice.ddf.platform.util.http,

@@ -33,6 +33,7 @@ import javax.management.ReflectionException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.codice.ddf.configuration.AbsolutePathResolver;
+import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.rrd4j.ConsolFun;
 import org.rrd4j.DsType;
 import org.rrd4j.core.RrdDb;
@@ -48,7 +49,8 @@ import ddf.metrics.collector.MetricsUtil;
 
 public class RrdJmxCollector implements JmxCollector {
 
-    public static final String DEFAULT_METRICS_DIR = new AbsolutePathResolver("data" + File.separator + "metrics" + File.separator).getPath();
+    public static final String DEFAULT_METRICS_DIR = new AbsolutePathResolver(
+            "data" + File.separator + "metrics" + File.separator).getPath();
 
     public static final String RRD_FILENAME_SUFFIX = ".rrd";
 
@@ -73,13 +75,13 @@ public class RrdJmxCollector implements JmxCollector {
      * interval may be made up from *UNKNOWN* data while the consolidated value is still regarded as
      * known. It is given as the ratio of allowed *UNKNOWN* Primary Data Points (PDPs) to the number
      * of PDPs in the interval. Thus, it ranges from 0 <= xff < 1.
-     *
+     * <p>
      * Examples: 0.5 --> 50% --> half of the intervals used may be unknown to build one, known
      * interval
-     *
+     * <p>
      * 0.0 --> 0% --> every PDP must be known in order to build a known Consolidated Data Point
      * (CDP).
-     *
+     * <p>
      * 0.999 --> almost 100% --> a known CDP is built even if there's only one known PDP out of many
      * PDPs.
      */
@@ -200,9 +202,7 @@ public class RrdJmxCollector implements JmxCollector {
     /**
      * Determines whether an object's value is a numeric type or a String with a numeric value.
      *
-     * @param value
-     *            the Object to be tested whether it has a numeric value
-     *
+     * @param value the Object to be tested whether it has a numeric value
      * @return true if object's value is numeric, false otherwise
      */
     public static boolean isNumeric(Object value) {
@@ -237,7 +237,8 @@ public class RrdJmxCollector implements JmxCollector {
         LOGGER.trace("ENTERING: init() for metric {}", metricName);
 
         if (executorPool == null) {
-            executorPool = Executors.newCachedThreadPool();
+            executorPool = Executors.newCachedThreadPool(
+                    StandardThreadFactoryBuilder.newThreadFactory("rrdJmxCollectorThread"));
         }
 
         // Creating JmxCollector can be time consuming,
@@ -368,20 +369,14 @@ public class RrdJmxCollector implements JmxCollector {
      * called). If the RRD file already exists, then just create an RRD DB instance based on the
      * existing RRD file.
      *
-     * @param metricName
-     *            path where the RRD file is to be created. This is required.
-     * @param dsName
-     *            data source name for the RRD file. This is required.
-     * @param dsType
-     *            data source type, i.e., DERIVE, COUNTER or GAUGE (This is required.) (ABSOLUTE is
-     *            not currently supported)
-     * @param minValue
-     *            the minimum value that will be stored in the data source; any values smaller than
-     *            this will be stored as NaN (aka Unknown)
-     * @param maxValue
-     *            the maximum value that will be stored in the data source; any values larger than
-     *            this will be stored as NaN (aka Unknown)
-     *
+     * @param metricName path where the RRD file is to be created. This is required.
+     * @param dsName     data source name for the RRD file. This is required.
+     * @param dsType     data source type, i.e., DERIVE, COUNTER or GAUGE (This is required.) (ABSOLUTE is
+     *                   not currently supported)
+     * @param minValue   the minimum value that will be stored in the data source; any values smaller than
+     *                   this will be stored as NaN (aka Unknown)
+     * @param maxValue   the maximum value that will be stored in the data source; any values larger than
+     *                   this will be stored as NaN (aka Unknown)
      * @throws IOException
      * @throws CollectorException
      */
@@ -526,7 +521,8 @@ public class RrdJmxCollector implements JmxCollector {
         LOGGER.trace("ENTERING: updateSamples");
 
         if (executor == null) {
-            executor = new ScheduledThreadPoolExecutor(1);
+            executor = new ScheduledThreadPoolExecutor(1,
+                    StandardThreadFactoryBuilder.newThreadFactory("rrdJmxCollectorThread"));
         }
 
         final Runnable updater = new Runnable() {

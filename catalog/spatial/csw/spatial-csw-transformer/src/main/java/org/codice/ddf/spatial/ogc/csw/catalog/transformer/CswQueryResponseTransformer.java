@@ -31,10 +31,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.xml.XMLConstants;
@@ -48,6 +46,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
@@ -68,7 +67,6 @@ import ddf.catalog.transform.MetacardTransformer;
 import ddf.catalog.transform.QueryResponseTransformer;
 import ddf.catalog.transformer.api.PrintWriter;
 import ddf.catalog.transformer.api.PrintWriterProvider;
-
 import net.opengis.cat.csw.v_2_0_2.AcknowledgementType;
 import net.opengis.cat.csw.v_2_0_2.EchoedRequestType;
 import net.opengis.cat.csw.v_2_0_2.ElementSetType;
@@ -162,7 +160,8 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
             bais = new ByteArrayInputStream(xmlString.getBytes(StandardCharsets.UTF_8));
         }
 
-        BinaryContent transformedContent = new BinaryContentImpl(bais, CswRecordConverter.XML_MIME_TYPE);
+        BinaryContent transformedContent = new BinaryContentImpl(bais,
+                CswRecordConverter.XML_MIME_TYPE);
         return transformedContent;
     }
 
@@ -222,8 +221,8 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
             writer.endNode();
 
             writer.startNode(SEARCH_RESULTS_QNAME);
-            writer.addAttribute(NUMBER_OF_RECORDS_MATCHED_ATTRIBUTE, Long.toString(
-                    cswRecordCollection.getNumberOfRecordsMatched()));
+            writer.addAttribute(NUMBER_OF_RECORDS_MATCHED_ATTRIBUTE,
+                    Long.toString(cswRecordCollection.getNumberOfRecordsMatched()));
 
             if (ResultType.HITS.equals(cswRecordCollection.getResultType())) {
                 writer.addAttribute(NUMBER_OF_RECORDS_RETURNED_ATTRIBUTE, Long.toString(0));
@@ -261,9 +260,9 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
      * resource exhaustion with fixed thread-pool and fixed work-queue.  CPU-bound for optimum utilization
      * from availableProcessors()+1 thread pool.
      *
-     * @param results - the list of results to marshal
+     * @param results      - the list of results to marshal
      * @param recordSchema - the schema
-     * @param arguments - additional args
+     * @param arguments    - additional args
      * @return - the marshaled results
      * @throws CatalogTransformerException
      */
@@ -292,7 +291,6 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
                 return content;
             }), result);
         }
-
 
         InputStream[] contents = new InputStream[results.size()];
 
@@ -469,7 +467,7 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
                 0L,
                 TimeUnit.MILLISECONDS,
                 new LinkedBlockingDeque<>(BLOCKING_Q_INITIAL_SIZE),
-                new CswThreadFactory(),
+                StandardThreadFactoryBuilder.newThreadFactory(QUERY_POOL_NAME),
                 new ThreadPoolExecutor.CallerRunsPolicy());
 
         queryExecutor.prestartAllCoreThreads();
@@ -484,20 +482,6 @@ public class CswQueryResponseTransformer implements QueryResponseTransformer {
             queryExecutor.awaitTermination(2L, TimeUnit.MINUTES);
         } catch (InterruptedException e) {
             throw new IllegalStateException(QUERY_POOL_NAME + " graceful shutdown interrupted.", e);
-        }
-    }
-
-    private static class CswThreadFactory implements ThreadFactory {
-        private static AtomicInteger suffix = new AtomicInteger();
-
-        @Override
-        public Thread newThread(Runnable r) {
-            Thread thread = new Thread(r, QUERY_POOL_NAME + "-" + suffix.incrementAndGet());
-            thread.setUncaughtExceptionHandler((t, e) -> LOGGER.debug(
-                    "UNCAUGHT exception in thread {}",
-                    t.getName(),
-                    e));
-            return thread;
         }
     }
 }

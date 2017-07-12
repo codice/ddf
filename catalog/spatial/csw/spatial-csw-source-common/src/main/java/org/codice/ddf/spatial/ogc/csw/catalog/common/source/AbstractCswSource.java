@@ -12,7 +12,6 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.common.source;
-
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,6 +53,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.cxf.SecureCxfClientFactory;
+import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.codice.ddf.security.common.Security;
 import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityCommand;
@@ -308,7 +308,7 @@ public abstract class AbstractCswSource extends MaskableImpl
         this.context = context;
         this.cswSourceConfiguration = cswSourceConfiguration;
         this.cswTransformConverter = provider;
-        scheduler = Executors.newSingleThreadScheduledExecutor();
+        scheduler = Executors.newSingleThreadScheduledExecutor(StandardThreadFactoryBuilder.newThreadFactory("abstractCswSourceThread"));
         this.factory = factory;
         setConsumerMap();
     }
@@ -325,7 +325,7 @@ public abstract class AbstractCswSource extends MaskableImpl
     public AbstractCswSource(EncryptionService encryptionService) {
         this.encryptionService = encryptionService;
         cswSourceConfiguration = new CswSourceConfiguration(encryptionService);
-        scheduler = Executors.newSingleThreadScheduledExecutor();
+        scheduler = Executors.newSingleThreadScheduledExecutor(StandardThreadFactoryBuilder.newThreadFactory("abstractCswSourceThread"));
     }
 
     @Deprecated

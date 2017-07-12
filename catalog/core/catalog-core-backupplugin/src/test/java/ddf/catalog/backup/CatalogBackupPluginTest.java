@@ -38,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -396,7 +397,12 @@ public class CatalogBackupPluginTest {
 
     private ExecutorService getSynchronousExecutor() {
         //Create an executor that synchronously executes the task.
-        return new ThreadPoolExecutor(1, 1, 1, TimeUnit.SECONDS, new LinkedBlockingQueue<>()) {
+        return new ThreadPoolExecutor(1,
+                1,
+                1,
+                TimeUnit.SECONDS,
+                new LinkedBlockingQueue<>(),
+                StandardThreadFactoryBuilder.newThreadFactory("catalogBackupPluginThread")) {
             @Override
             public void execute(Runnable command) {
                 command.run();

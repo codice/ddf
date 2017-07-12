@@ -227,6 +227,7 @@
             <bean id="executor" class="java.util.concurrent.Executors"
                   factory-method="newFixedThreadPool">
                 <argument value="16"/>
+                <argument ref="cxf-StsThreadFactory"/>
             </bean>
         </jaxws:executor>
         <jaxws:inInterceptors>
@@ -260,6 +261,12 @@
         <property name="issuer" value="${org.codice.ddf.system.hostname}"/>
         <property name="signatureUsername" value="${org.codice.ddf.system.hostname}"/>
         <property name="encryptionUsername" value="${org.codice.ddf.system.hostname}"/>
+    </bean>
+
+    <bean id="cxf-StsThreadFactory"
+          class="org.codice.ddf.platform.util.StandardThreadFactoryBuilder"
+          factory-method="newThreadFactory">
+        <argument value="cxf-StsThread"/>
     </bean>
 </blueprint>
 

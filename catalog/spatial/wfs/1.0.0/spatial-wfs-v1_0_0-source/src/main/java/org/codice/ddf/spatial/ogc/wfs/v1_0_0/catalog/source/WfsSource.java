@@ -51,6 +51,7 @@ import org.apache.cxf.common.util.CollectionUtils;
 import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.codice.ddf.cxf.SecureCxfClientFactory;
+import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityCommand;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
@@ -237,7 +238,7 @@ public class WfsSource extends MaskableImpl
 
     public WfsSource(EncryptionService encryptionService) {
         // Required for bean creation
-        scheduler = Executors.newSingleThreadScheduledExecutor();
+        scheduler = Executors.newSingleThreadScheduledExecutor(StandardThreadFactoryBuilder.newThreadFactory("wfsSourceThread"));
         this.encryptionService = encryptionService;
     }
 

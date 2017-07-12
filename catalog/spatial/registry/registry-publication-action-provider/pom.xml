@@ -73,6 +73,10 @@
             <groupId>ddf.security</groupId>
             <artifactId>ddf-security-common</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -90,6 +94,7 @@
                             *
                         </Import-Package>
                         <Embed-Dependency>
+                            platform-util,
                             registry-common,
                             catalog-core-api-impl,
                             common-system,
