@@ -72,4 +72,6 @@ Subscription subscription = new SubscriptionImpl(filter, deliveryMethod, sourceI
 
 The Standard Event processor currently broadcasts federated events and should not.
 It should only broadcast events that were generated locally, all other events should be dropped.
+See https://codice.atlassian.net/browse/DDF-3151[DDF-3151] for status.
+// TODO: Remove this notice upon completion of https://codice.atlassian.net/browse/DDF-3151.
 

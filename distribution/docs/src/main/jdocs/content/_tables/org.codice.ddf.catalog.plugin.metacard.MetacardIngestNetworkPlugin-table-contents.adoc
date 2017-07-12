@@ -29,8 +29,7 @@
 |New Attributes
 |newAttributes
 |String"
-|New metacard attributes to apply; if an attribute is specified here, it will be placed on the metacard only if the attribute is not already set. The format should be 'key=value' where 'value' can be a comma-separated list of strings. Whitespace is ignored.
-|
+|New metacard attributes to apply; if an attribute is specified here, it will be placed on the metacard only if the attribute is not already set. The format should be 'key=value' where 'value' can be a comma-separated list of strings. List items may _contain_ spaces, but not begin or end with a space. Spaces _between_ list items is ignored.
 |true
 
 |===

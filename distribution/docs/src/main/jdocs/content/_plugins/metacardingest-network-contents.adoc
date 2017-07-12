@@ -21,9 +21,10 @@ The Metacard Ingest Network Plugin is installed by default during a standard ins
 
 To configure the Metacard Ingest Network Plugin:
 
-* Click on the ${ddf-catalog} application
-* Click on the *Configuration* tab
-* Click on the label _Metacard Ingest Network Plugin_ to setup a network rule
+* Navigate to the *${admin-console}*.
+* Click on the ${ddf-catalog} application.
+* Click on the *Configuration* tab.
+* Click on the label _Metacard Ingest Network Plugin_ to setup a network rule.
 
 Multiple instances of the plugin can be configured by clicking on its configuration title within the configuration tab of the ${ddf-catalog} app.
 Each instance represents a conditional statement, or a 'rule', that gets evaluated for each ingest request.
