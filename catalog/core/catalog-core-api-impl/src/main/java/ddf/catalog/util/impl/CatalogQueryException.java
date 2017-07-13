@@ -11,22 +11,19 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.commands.util;
+package ddf.catalog.util.impl;
 
-public class CatalogCommandRuntimeException extends RuntimeException {
-    public CatalogCommandRuntimeException() {
-        super();
-    }
+/**
+ * Exception used to wrap checked exceptions thrown by {@link ddf.catalog.CatalogFramework#query}
+ * methods. The original exception can be accessed by calling {@link #getCause()}.
+ */
+public class CatalogQueryException extends RuntimeException {
 
-    public CatalogCommandRuntimeException(String message) {
-        super(message);
-    }
-
-    public CatalogCommandRuntimeException(String message, Throwable cause) {
+    public CatalogQueryException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public CatalogCommandRuntimeException(Throwable cause) {
+    public CatalogQueryException(Throwable cause) {
         super(cause);
     }
 }

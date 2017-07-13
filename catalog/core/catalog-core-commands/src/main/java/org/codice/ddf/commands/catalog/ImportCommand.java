@@ -32,8 +32,8 @@ import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
+import org.codice.ddf.catalog.transformer.zip.ZipValidationException;
 import org.codice.ddf.catalog.transformer.zip.ZipValidator;
-import org.codice.ddf.commands.util.CatalogCommandRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +45,6 @@ import ddf.catalog.content.data.impl.ContentItemImpl;
 import ddf.catalog.content.operation.impl.CreateStorageRequestImpl;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.impl.CreateRequestImpl;
-import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.security.common.audit.SecurityLogger;
 
@@ -92,7 +91,7 @@ public class ImportCommand extends CatalogCommands {
         InputTransformer transformer = getServiceByFilter(InputTransformer.class,
                 String.format("(%s=%s)",
                         "id",
-                        DEFAULT_TRANSFORMER_ID)).orElseThrow(() -> new CatalogCommandRuntimeException(
+                        DEFAULT_TRANSFORMER_ID)).orElseThrow(() -> new IllegalArgumentException(
                 "Could not get " + DEFAULT_TRANSFORMER_ID + " input transformer"));
 
         if (unsafe) {
@@ -110,7 +109,7 @@ public class ImportCommand extends CatalogCommands {
                     + "File being imported: {}", importFile);
         } else {
             if (!zipValidator.validateZipFile(importFile)) {
-                throw new CatalogCommandRuntimeException("Signature on zip file is not valid");
+                throw new ZipValidationException("Signature on zip file is not valid");
             }
         }
         SecurityLogger.audit("Called catalog:import command on the file: {}", importFile);
@@ -145,7 +144,7 @@ public class ImportCommand extends CatalogCommands {
                     try {
                         metacard = transformer.transform(new UncloseableBufferedInputStreamWrapper(
                                 zipInputStream), id);
-                    } catch (IOException | CatalogTransformerException e) {
+                    } catch (IOException e) {
                         LOGGER.debug("Could not transform metacard: {}", id);
                     }
                     catalogProvider.create(new CreateRequestImpl(metacard));
@@ -197,7 +196,9 @@ public class ImportCommand extends CatalogCommands {
                 entry = zipInputStream.getNextEntry();
             }
         } catch (Exception e) {
-            printErrorMessage(String.format("Exception while importing metacards (%s)%nFor more information set the log level to INFO (log:set INFO org.codice.ddf.commands.catalog) ", e.getMessage()));
+            printErrorMessage(String.format(
+                    "Exception while importing metacards (%s)%nFor more information set the log level to INFO (log:set INFO org.codice.ddf.commands.catalog) ",
+                    e.getMessage()));
             LOGGER.info("Exception while importing metacards", e);
             throw e;
         }
@@ -212,11 +213,11 @@ public class ImportCommand extends CatalogCommands {
         File file = new File(importFile);
 
         if (!file.exists()) {
-            throw new CatalogCommandRuntimeException("File does not exist: " + importFile);
+            throw new IllegalArgumentException("File does not exist: " + importFile);
         }
 
         if (!FilenameUtils.isExtension(importFile, "zip")) {
-            throw new CatalogCommandRuntimeException("File must be a zip file: " + importFile);
+            throw new IllegalArgumentException("File must be a zip file: " + importFile);
         }
 
         return file;

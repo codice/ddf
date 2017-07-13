@@ -30,23 +30,26 @@ import ddf.catalog.resource.impl.ResourceImpl
 import ddf.catalog.source.CatalogProvider
 import ddf.catalog.transform.MetacardTransformer
 import org.apache.karaf.shell.api.console.Session
-import org.codice.ddf.commands.util.CatalogCommandRuntimeException
 import org.osgi.framework.BundleContext
 import org.osgi.framework.ServiceReference
+import spock.lang.Ignore
+import spock.lang.Specification
 
 import javax.activation.MimeType
 import java.nio.file.Paths
 import java.util.zip.ZipFile
 
-class ExportCommandSpec extends spock.lang.Specification {
+class ExportCommandSpec extends Specification {
 
-    ExportCommand exportCommand
+    File tmpHomeDir
+
+    BundleContext bundleContext
 
     CatalogFramework catalogFramework
 
     MetacardTransformer xmlTransformer
 
-    File tmpHomeDir
+    ExportCommand exportCommand
 
     void setup() {
         tmpHomeDir = File.createTempDir()
@@ -60,22 +63,15 @@ class ExportCommandSpec extends spock.lang.Specification {
             return getMockContent()
         }
 
-        BundleContext bundleContext = Mock(BundleContext) {
+        bundleContext = Mock(BundleContext) {
             getServiceReferences(MetacardTransformer, '(id=xml)') >> [xmlTransformerReference]
             getService(xmlTransformerReference) >> xmlTransformer
         }
 
         catalogFramework = Mock(CatalogFramework)
-        catalogFramework.query(_ as QueryRequest) >> { QueryRequest req ->
-            new QueryResponseImpl(req, [], 0)
-        }
-        catalogFramework.getLocalResource(_ as ResourceRequest) >> {
-            throw new ResourceNotFoundException('Could not find exception')
-        }
 
         exportCommand = new ExportCommand(filterBuilder: new GeotoolsFilterBuilder(),
                 bundleContext: bundleContext, catalogFramework: catalogFramework)
-
     }
 
     void cleanup() {
@@ -84,6 +80,13 @@ class ExportCommandSpec extends spock.lang.Specification {
 
     def "Test export no items"() {
         setup:
+        catalogFramework.query(_ as QueryRequest) >> { QueryRequest req ->
+            new QueryResponseImpl(req, [], 0)
+        }
+        catalogFramework.getLocalResource(_ as ResourceRequest) >> {
+            throw new ResourceNotFoundException('Could not find exception')
+        }
+
         exportCommand.with {
             delete = false
         }
@@ -108,7 +111,7 @@ class ExportCommandSpec extends spock.lang.Specification {
         exportCommand.executeWithSubject()
 
         then:
-        thrown(CatalogCommandRuntimeException)
+        thrown(IllegalArgumentException)
         tmpHomeDir.list().size() == 0
     }
 
@@ -150,6 +153,7 @@ class ExportCommandSpec extends spock.lang.Specification {
     def "Test bad file name"() {
         setup:
         def file = Paths.get(System.getProperty('ddf.home'), 'badFilename.notazip')
+
         exportCommand.with {
             delete = false
             output = file
@@ -162,15 +166,18 @@ class ExportCommandSpec extends spock.lang.Specification {
         thrown(IllegalStateException)
     }
 
+    // TODO - Ignored until DDF-3123 has been addressed
+    @Ignore
     def "Test abort command"() {
         setup:
-        InputStream keyboardInput = new ByteArrayInputStream("n\r".getBytes('utf-8'))
-        Session session = Mock(Session) {
-            getKeyboard() >> keyboardInput
-        }
         exportCommand.with {
             it.delete = true
             it.session = session
+        }
+
+        InputStream keyboardInput = new ByteArrayInputStream("n\r".getBytes('utf-8'))
+        Session session = Mock(Session) {
+            getKeyboard() >> keyboardInput
         }
 
         when:
@@ -189,11 +196,17 @@ class ExportCommandSpec extends spock.lang.Specification {
 
         def attributes = simpleAttributes()
         attributes.remove(Metacard.RESOURCE_URI) // removed Resource URI simulates no content
+
         def result = new ResultImpl(simpleMetacard(attributes))
-        exportCommand.catalogFramework = Mock(CatalogFramework) {
-            query(_ as QueryRequest) >> { QueryRequest req ->
-                new QueryResponseImpl(req, [result], 1)
-            }
+
+        catalogFramework.query(_ as QueryRequest) >> { QueryRequest req ->
+            new QueryResponseImpl(req, [result], 1)
+        } >> { QueryRequest req ->
+            new QueryResponseImpl(req, [], 0)
+        }
+
+        catalogFramework.getLocalResource(_ as ResourceRequest) >> {
+            throw new ResourceNotFoundException('Could not find exception')
         }
 
         when:
@@ -224,17 +237,19 @@ class ExportCommandSpec extends spock.lang.Specification {
 
         def result = new ResultImpl(simpleMetacard(simpleAttributes() + [(Metacard.TAGS): [Metacard.DEFAULT_TAG]]))
         def resourceName = "contentfor-${result.metacard.id}.xml" as String
-        exportCommand.catalogFramework = Mock(CatalogFramework) {
-            query(_ as QueryRequest) >> { QueryRequest req ->
-                new QueryResponseImpl(req, [result], 1)
-            }
-            getLocalResource(_ as ResourceRequest) >> { ResourceRequest req ->
-                BinaryContent xmlContent = getMockContent()
 
-                return new ResourceResponseImpl(req, [:], new ResourceImpl(xmlContent.inputStream,
-                        new MimeType('text/xml'),
-                        resourceName))
-            }
+        catalogFramework.query(_ as QueryRequest) >> { QueryRequest req ->
+            new QueryResponseImpl(req, [result], 1)
+        } >> { QueryRequest req ->
+            new QueryResponseImpl(req, [], 0)
+        }
+
+        catalogFramework.getLocalResource(_ as ResourceRequest) >> { ResourceRequest req ->
+            BinaryContent xmlContent = getMockContent()
+
+            return new ResourceResponseImpl(req, [:], new ResourceImpl(xmlContent.inputStream,
+                    new MimeType('text/xml'),
+                    resourceName))
         }
 
         when:
@@ -274,17 +289,19 @@ class ExportCommandSpec extends spock.lang.Specification {
 
         def result = new ResultImpl(simpleMetacard(simpleAttributes() + [(Metacard.TAGS): [Metacard.DEFAULT_TAG]]))
         def resourceName = "contentfor-${result.metacard.id}.xml" as String
-        exportCommand.catalogFramework = Mock(CatalogFramework) {
-            query(_ as QueryRequest) >> { QueryRequest req ->
-                new QueryResponseImpl(req, [result], 1)
-            }
-            getLocalResource(_ as ResourceRequest) >> { ResourceRequest req ->
-                BinaryContent xmlContent = getMockContent()
 
-                return new ResourceResponseImpl(req, [:], new ResourceImpl(xmlContent.inputStream,
-                        new MimeType('text/xml'),
-                        resourceName))
-            }
+        catalogFramework.query(_ as QueryRequest) >> { QueryRequest req ->
+            new QueryResponseImpl(req, [result], 1)
+        } >> { QueryRequest req ->
+            new QueryResponseImpl(req, [], 0)
+        }
+
+        catalogFramework.getLocalResource(_ as ResourceRequest) >> { ResourceRequest req ->
+            BinaryContent xmlContent = getMockContent()
+
+            return new ResourceResponseImpl(req, [:], new ResourceImpl(xmlContent.inputStream,
+                    new MimeType('text/xml'),
+                    resourceName))
         }
 
         when:

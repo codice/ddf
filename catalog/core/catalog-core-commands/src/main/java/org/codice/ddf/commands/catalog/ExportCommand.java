@@ -25,7 +25,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +32,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -49,12 +47,9 @@ import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.catalog.transformer.zip.JarSigner;
 import org.codice.ddf.commands.catalog.export.ExportItem;
 import org.codice.ddf.commands.catalog.export.IdAndUriMetacard;
-import org.codice.ddf.commands.util.CatalogCommandRuntimeException;
-import org.codice.ddf.commands.util.QueryResultIterable;
 import org.fusesource.jansi.Ansi;
 import org.geotools.filter.text.cql2.CQLException;
 import org.opengis.filter.Filter;
-import org.opengis.filter.sort.SortBy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,6 +62,7 @@ import ddf.catalog.core.versioning.MetacardVersion;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.impl.DeleteRequestImpl;
 import ddf.catalog.operation.impl.QueryImpl;
@@ -77,6 +73,8 @@ import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
+import ddf.catalog.util.impl.CatalogQueryException;
+import ddf.catalog.util.impl.QueryResultIterable;
 import ddf.security.common.audit.SecurityLogger;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
@@ -139,7 +137,7 @@ public class ExportCommand extends CqlCommands {
         transformer = getServiceByFilter(MetacardTransformer.class,
                 String.format("(%s=%s)",
                         "id",
-                        DEFAULT_TRANSFORMER_ID)).orElseThrow(() -> new CatalogCommandRuntimeException(
+                        DEFAULT_TRANSFORMER_ID)).orElseThrow(() -> new IllegalArgumentException(
                 "Could not get " + DEFAULT_TRANSFORMER_ID + " transformer"));
         revisionFilter = initRevisionFilter();
 
@@ -245,9 +243,13 @@ public class ExportCommand extends CqlCommands {
     private List<ExportItem> doMetacardExport(/*Mutable,IO*/ZipFile zipFile, Filter filter) {
         Set<String> seenIds = new HashSet<>(1024);
         List<ExportItem> exportedItems = new ArrayList<>();
-        for (Result result : new QueryResultIterable(catalogFramework,
-                (i) -> getQuery(filter, i, PAGE_SIZE),
-                PAGE_SIZE)) {
+
+        QueryImpl query = new QueryImpl(filter);
+        QueryRequest queryRequest = new QueryRequestImpl(query);
+
+        query.setPageSize(PAGE_SIZE);
+
+        for (Result result : new QueryResultIterable(catalogFramework, queryRequest)) {
             if (!seenIds.contains(result.getMetacard()
                     .getId())) {
                 writeToZip(zipFile, result);
@@ -262,9 +264,13 @@ public class ExportCommand extends CqlCommands {
             }
 
             // Fetch and export all history for each exported item
+            QueryImpl historyQuery = new QueryImpl(getHistoryFilter(result));
+            QueryRequest historyQueryRequest = new QueryRequestImpl(historyQuery);
+
+            historyQuery.setPageSize(PAGE_SIZE);
+
             for (Result revision : new QueryResultIterable(catalogFramework,
-                    (i) -> getQuery(getHistoryFilter(result), i, PAGE_SIZE),
-                    PAGE_SIZE)) {
+                    historyQueryRequest)) {
                 if (seenIds.contains(revision.getMetacard()
                         .getId())) {
                     continue;
@@ -328,7 +334,7 @@ public class ExportCommand extends CqlCommands {
                 resource = catalogFramework.getLocalResource(new ResourceRequestByProductUri(
                         contentItem.getResourceUri()));
             } catch (IOException | ResourceNotSupportedException e) {
-                throw new CatalogCommandRuntimeException(
+                throw new CatalogQueryException(
                         "Unable to retrieve resource for " + contentItem.getId(), e);
             } catch (ResourceNotFoundException e) {
                 continue;
@@ -354,7 +360,7 @@ public class ExportCommand extends CqlCommands {
                                 catalogFramework.getLocalResource(new ResourceRequestByProductUri(
                                         uri));
                     } catch (IOException e) {
-                        throw new CatalogCommandRuntimeException(
+                        throw new CatalogQueryException(
                                 "Unable to retrieve resource for " + contentItem.getId(), e);
                     } catch (ResourceNotFoundException | ResourceNotSupportedException e) {
                         LOGGER.warn("Could not retreive resource [{}]", uri, e);
@@ -489,7 +495,7 @@ public class ExportCommand extends CqlCommands {
             }
         } catch (ZipException e) {
             LOGGER.error("Error processing result and adding to ZIP", e);
-            throw new CatalogCommandRuntimeException(e);
+            throw new CatalogQueryException(e);
         } catch (CatalogTransformerException | IOException e) {
             LOGGER.warn("Could not transform metacard. Metacard will not be added to zip [{}]",
                     result.getMetacard()
@@ -577,14 +583,4 @@ public class ExportCommand extends CqlCommands {
         }
         return filter;
     }
-
-    private QueryRequestImpl getQuery(Filter filter, int index, int pageSize) {
-        return new QueryRequestImpl(new QueryImpl(filter,
-                index,
-                pageSize,
-                SortBy.NATURAL_ORDER,
-                false,
-                TimeUnit.MINUTES.toMillis(1)), new HashMap<>());
-    }
-
 }
