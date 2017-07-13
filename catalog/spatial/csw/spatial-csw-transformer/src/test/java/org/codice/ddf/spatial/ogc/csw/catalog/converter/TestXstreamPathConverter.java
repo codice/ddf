@@ -86,6 +86,47 @@ public class TestXstreamPathConverter {
     }
 
     @Test
+    public void testRepeatedElements() throws XMLStreamException {
+        String xml = "<gml:Polygon xmlns:gml=\"http://www.opengis.net/gml\">\n" + "<gml:B>\n"
+                + "<gml:C>\n" + "<gml:D>\n" + "<gml:E>\n" + "<gml:F>\n" + "<gml:G>value1</gml:G>\n"
+                + "</gml:F>\n" + "<gml:F>\n" + "<gml:G>value2</gml:G>\n" + "</gml:F>\n"
+                + "</gml:E>\n" + "</gml:D>\n" + "<gml:D>\n" + "<gml:E>\n" + "<gml:F>\n"
+                + "<gml:G>value3</gml:G>\n" + "</gml:F>\n" + "<gml:F>\n" + "<gml:G>value4</gml:G>\n"
+                + "</gml:F>\n" + "</gml:E>\n" + "</gml:D>\n" + "</gml:C>\n" + "<gml:C>\n"
+                + "<gml:D>\n" + "<gml:E>\n" + "<gml:F>\n" + "<gml:G>value5</gml:G>\n" + "</gml:F>\n"
+                + "<gml:F>\n" + "<gml:G>value6</gml:G>\n" + "</gml:F>\n" + "</gml:E>\n"
+                + "</gml:D>\n" + "<gml:D>\n" + "<gml:E>\n" + "<gml:F>\n" + "<gml:G>value7</gml:G>\n"
+                + "</gml:F>\n" + "<gml:F>\n" + "<gml:G>value8</gml:G>\n" + "</gml:F>\n"
+                + "</gml:E>\n" + "</gml:D>\n" + "</gml:C>\n" + "</gml:B>\n" + "</gml:Polygon>";
+
+        assertRepeatedElements(xml);
+
+    }
+
+    /**
+     * This test is very similar to {@link #testRepeatedElements()}, except it adds an extra xml
+     * element that should *not* be returned by the path value tracker.
+     */
+    @Test
+    public void testRepeatedElementsAndExtra() throws XMLStreamException {
+        String xml = "<gml:Polygon xmlns:gml=\"http://www.opengis.net/gml\">\n" + "<gml:B>\n"
+                + "<gml:C>\n" + "<gml:D>\n" + "<gml:E>\n" + "<gml:F>\n" + "<gml:G>value1</gml:G>\n"
+                + "</gml:F>\n" + "<gml:F>\n" + "<gml:G>value2</gml:G>\n" + "</gml:F>\n"
+                + "</gml:E>\n" + "</gml:D>\n" + "<gml:D>\n" + "<gml:E>\n" + "<gml:F>\n"
+                + "<gml:G>value3</gml:G>\n" + "</gml:F>\n" + "<gml:F>\n" + "<gml:G>value4</gml:G>\n"
+                + "</gml:F>\n" + "</gml:E>\n" + "</gml:D>\n" + "</gml:C>\n" + "<gml:C>\n"
+                + "<gml:D>\n" + "<gml:E>\n" + "<gml:F>\n" + "<gml:G>value5</gml:G>\n" + "</gml:F>\n"
+                + "<gml:F>\n" + "<gml:G>value6</gml:G>\n" + "</gml:F>\n" + "<gml:G>xyz</gml:G>" + "</gml:E>\n"
+                + "</gml:D>\n" + "<gml:D>\n" + "<gml:E>\n" + "<gml:F>\n" + "<gml:G>value7</gml:G>\n"
+                + "</gml:F>\n" + "<gml:F>\n" + "<gml:G>value8</gml:G>\n" + "</gml:F>\n"
+                + "</gml:E>\n" + "</gml:D>\n" + "</gml:C>\n" + "</gml:B>\n"
+                + "</gml:Polygon>";
+
+        assertRepeatedElements(xml);
+
+    }
+
+    @Test
     public void testAttributeValid() throws XMLStreamException {
         XMLStreamReader streamReader = XMLInputFactory.newInstance()
                 .createXMLStreamReader(new StringReader(GML_XML));
@@ -134,6 +175,32 @@ public class TestXstreamPathConverter {
         assertThat(converter.doBasicPathsMatch(path2, path1), is(true));
         assertThat(converter.doBasicPathsMatch(path1, path1), is(true));
         assertThat(converter.doBasicPathsMatch(path2, path2), is(true));
+    }
+
+    private void assertRepeatedElements(String xml) throws XMLStreamException {
+        Path path = new Path("/Polygon/B/C/D/E/F/G");
+
+        Set<Path> paths = new LinkedHashSet<>();
+        paths.add(path);
+        argumentHolder.put(XstreamPathConverter.PATH_KEY, paths);
+
+        XMLStreamReader streamReader = XMLInputFactory.newInstance()
+                .createXMLStreamReader(new StringReader(xml));
+        HierarchicalStreamReader reader = new StaxReader(new QNameMap(), streamReader);
+        XstreamPathValueTracker pathValueTracker = (XstreamPathValueTracker) xstream.unmarshal(
+                reader,
+                null,
+                argumentHolder);
+
+        assertThat(pathValueTracker.getAllValues(path),
+                is(Arrays.asList("value1",
+                        "value2",
+                        "value3",
+                        "value4",
+                        "value5",
+                        "value6",
+                        "value7",
+                        "value8")));
     }
 
 }

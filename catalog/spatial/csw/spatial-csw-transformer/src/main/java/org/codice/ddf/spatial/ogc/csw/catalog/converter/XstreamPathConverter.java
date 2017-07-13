@@ -14,6 +14,7 @@
 package org.codice.ddf.spatial.ogc.csw.catalog.converter;
 
 import java.util.LinkedHashSet;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -30,6 +31,10 @@ import com.thoughtworks.xstream.io.path.PathTrackingReader;
 public class XstreamPathConverter implements Converter {
 
     public static final String PATH_KEY = "PATHS";
+
+    private static final Pattern XPATH_INDEX = Pattern.compile("\\[[0-9]*\\]");
+
+    private static final Pattern XPATH_ATTRIBUTE = Pattern.compile("/@.*$");
 
     @Override
     public void marshal(Object o, HierarchicalStreamWriter hierarchicalStreamWriter,
@@ -76,6 +81,7 @@ public class XstreamPathConverter implements Converter {
      * </a>
      * <d></d>
      * {code}
+     *
      * @param reader
      * @param tracker
      * @param pathValueTracker
@@ -117,15 +123,17 @@ public class XstreamPathConverter implements Converter {
         // ignore count designators and attribute specifications whenc omparing paths
         // ie, /a/b[3]/c/@foo for our purposes is equivalent to /a/b/c
 
-        String path1Relpaced = StringUtils.chomp(path1.toString()
-                .replaceAll("\\[.*\\]", "")
-                .replaceAll("/@.*$", ""), "/");
-        String path2Replaced = StringUtils.chomp(path2.toString()
-                .replaceAll("\\[.*\\]", "")
-                .replaceAll("/@.*$", ""), "/");
+        String path1Replaced = normalizePath(path1);
+        String path2Replaced = normalizePath(path2);
 
-        return path1Relpaced.equals(path2Replaced);
+        return path1Replaced.equals(path2Replaced);
 
+    }
+
+    private String normalizePath(Path path) {
+        return StringUtils.chomp(XPATH_ATTRIBUTE.matcher(XPATH_INDEX.matcher(path.toString())
+                .replaceAll(""))
+                .replaceAll(""), "/");
     }
 
     @Override
