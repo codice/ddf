@@ -1,4 +1,0 @@
-|<<plugin.backup,Catalog Backup Plugin>>
-|plugin.backup
-|Catalog Backup Plugin Configuration
-

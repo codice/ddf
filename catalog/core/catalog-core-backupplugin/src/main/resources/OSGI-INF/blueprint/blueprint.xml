@@ -15,16 +15,16 @@
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0">
 
-    <ext:property-placeholder />
+    <ext:property-placeholder/>
 
     <bean id="executorService" class="java.util.concurrent.Executors"
           factory-method="newSingleThreadExecutor">
     </bean>
 
-
     <bean id="catalogBackupPlugin" class="ddf.catalog.backup.CatalogBackupPlugin"
           destroy-method="shutdown">
-        <cm:managed-properties persistent-id="plugin.backup" update-strategy="container-managed"/>
+        <cm:managed-properties persistent-id="ddf.catalog.backup.CatalogBackupPlugin"
+                               update-strategy="container-managed"/>
         <property name="rootBackupDir" value="${ddf.home}/data/backup"/>
         <property name="subDirLevels" value="2"/>
         <property name="terminationTimeoutSeconds" value="30"/>

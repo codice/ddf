@@ -26,7 +26,7 @@ These configurations are available throught the ${ddf-catalog} application.
 |ID
 |Description
 
-include::{adoc-include}/_tables/conf-plugin.backup-table-contents.adoc[]
+include::{adoc-include}/_tables/conf-ddf.catalog.backup.CatalogBackupPlugin-table-contents.adoc[]
 
 include::{adoc-include}/_tables/conf-OpenSearchSource-table-contents.adoc[]
 
