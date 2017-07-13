@@ -2,7 +2,7 @@
 :type: configuringIntro
 :status: published
 :summary: Keystore and certificate instructions.
-:order: 05
+:order: 0502
 
 ==== Managing Keystores and Certificates
 
@@ -15,8 +15,87 @@ ${branding} uses certificates in two ways:
 
 To ensure proper configuration of keystore, truststore, and certificates, follow the options below according to situation.
 
-. If provided with a server keystore, start at <<_adding_an_existing_server_keystore,Adding an Existing Server Keystore>>.
-. If provided with a signed certificate and private key, start at <<_creating_a_new_keystore_truststore_with_an_existing_certificate_and_private_key,Creating a New Keystore/Truststore with an Existing Certificate and Private Key>>.
+.Configuring Certificates Workflow
+[ditaa,configuring-certificates-workflow,png]
+....
+                      /----------------------------\
+                      |                            |
+                      |      Provided with         |
+                      |      server keystore?      |
+                      |                   cDEF     |
+                      \----+---------------------+-/
+        +--+               |                     |
+        |1 |            Yes|                     |No
+        +--+               v                     v
+      /----------------------------\       /----------------------------\        /----------------------------\
+      |                            |       |                            |        |                            |
+      |                            |       | Provided with private key  |        |   A private key and        |
+      |                            |       | & signed certificate for   |  No    |   signed certificate       |
+      |                            |       | the server?                |------->|   are required             |
+      | Replace default keystore   |       |                 cDEF       |        |                  cF00      |
+      | with provided file and     |       \------------+---------------/        \----------------------------/
+      | edit system.properties     |        +--+        |
+      | file with filenames,       |        |2 |     Yes|
+      | passwords, file types      |        +--+        v
+      |                            |       /----------------------------\
+      |                            |       |                            |
+      |                            |       | Create a private-key-entry |
+      |                            |       | in the serverKeystore file |
+/---->|                            |       | using the provided private |
+|     |                            |       | key and signed certificate |
+|     |                   cCCC     |       |                 cCCC       |
+|     \--------------------+-------/       \----+-----------------------/
+|                          |                    |
+|                          |                    |
+|                          v                    v
+|                      /----------------------------\                            /----------------------------\
+|                      |                            |                            |                            |
+|                      |   The truststore has the   |       Yes                  | Restart server to          |
+|                      |   proper certificates?     +--------------------------->| complete configuration     |
+|                      |                 cDEF       |                            |                   c0F0     |
+|                      \--+----------------------+--/                            \----------------------------/
+|                         |
+|                         |No
+|                         v
+|     /----------------------------\       /----------------------------\        /----------------------------\
+|     |                            |  No   |                            |        |                            |
+|     |     Provided with          |------>|   Provided with CA         |  No    |   A CA certificate         |
+|     |     trust keystore?        |  +--->|   certificate?             |------->|   is required              |
+|     |                   cDEF     |  |    |                    cDEF    |        |                   cF00     |
+|     \-----------+----------------/  |    \---------+------------------/        \----------------------------/
+|       +--+      |                   |              |
+|       |3 |   Yes|                   |              |Yes
+|       +--+      v                   |              |
+|     /----------------------------\  |     +--+     |
+|     |                            |  |     |4 |     |
+|     |  Replace truststore with   |  |     +--+     v
+|     |  provided file             |  |    /-----------------------------\
+|     |                 cCCC       |  |    |                             |
+|     \-----------+----------------/  |    |  Import the CA certificate  |
+|                 |                   |    |  into the serverTrustStore  |
+|                 |                 No|    |  and serverKeystore files   |
+|                 v                   |    |                   cCCC      |
+|     /----------------------------\  |    \---------+-------------------/
+|     |                            +--+       ^      |
+|     | Server keystore includes   |          |      |
+|     | the CA certificate used    |          |      |
+|     | to sign the server's       |   Yes    |      |
+|     | certificate?               |----------/      |
+|     |                  cDEF      |                 |
+|     \----------------------------/                 |
+|                                                    |
+|                                                    |
+\----------------------------------------------------/
+....
+
+Jump to the steps referenced in the diagram:
+
+.Certificate Workflow Steps
+. <<_adding_an_existing_server_keystore,Adding an Existing Keystore>>
+. <<_creating_a_new_keystore_truststore_with_an_existing_certificate_and_private_key,Creating a New Keystore/Truststore with an Existing Certificate and Private Key>>
+. <<_adding_an_existing_server_truststore,Adding an Existing Truststore>>
+. <<_creating_a_server_keystore,Creating a Server Keystore>>
+.. <<_creating_a_server_truststore,Creating a Server Truststore>>
 
 ===== Managing Keystores
 
