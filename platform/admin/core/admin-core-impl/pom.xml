@@ -96,6 +96,16 @@
             <artifactId>admin-core-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.persistence.core</groupId>
+            <artifactId>persistence-core-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf</groupId>
+            <artifactId>alerts</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -109,6 +119,7 @@
                             platform-util,
                             org.apache.felix.utils,
                             common-system,
+                            alerts,
                             boon
                         </Embed-Dependency>
                         <Private-Package>

@@ -20,6 +20,10 @@
 
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
 
+    <reference id="persistentStore" interface="org.codice.ddf.persistence.PersistentStore"/>
+
+    <reference id="eventAdmin" interface="org.osgi.service.event.EventAdmin"/>
+
     <bean id="propertiesFileSupport"
           class="org.codice.ddf.platform.util.properties.PropertiesFileReader"/>
 
@@ -56,6 +60,11 @@
     <bean id="systemProperties" class="org.codice.ddf.admin.core.impl.SystemPropertiesAdmin"
           destroy-method="shutdown">
         <argument ref="guestClaimsHandlerExt"/>
+    </bean>
+
+    <bean id="adminAlerts" class="org.codice.ddf.admin.core.impl.AdminAlertImpl" init-method="init" destroy-method="destroy">
+        <argument ref="persistentStore"/>
+        <argument ref="eventAdmin"/>
     </bean>
 
     <reference-list id="configurationAdminPluginList"
