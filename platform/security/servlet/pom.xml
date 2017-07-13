@@ -25,5 +25,6 @@
     <packaging>pom</packaging>
     <modules>
         <module>security-servlet-logout</module>
+        <module>security-servlet-whoami</module>
     </modules>
 </project>
