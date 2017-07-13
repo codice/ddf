@@ -21,11 +21,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Properties;
 import java.util.function.BooleanSupplier;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import javax.validation.constraints.NotNull;
 
@@ -83,6 +85,28 @@ public class MigratableUtil {
                 () -> isSourceMigratable(sourceFile,
                         (reason) -> new PathMigrationWarning(sourceFile, reason),
                         warnings));
+    }
+
+    public void copyFiles(@NotNull Path sourceDirectory, @NotNull PathMatcher filter,
+            @NotNull Path exportDirectory, @NotNull Collection<MigrationWarning> warnings)
+            throws MigrationException {
+        if (isSourceMigratable(sourceDirectory,
+                (reason) -> new PathMigrationWarning(sourceDirectory, reason),
+                warnings)) {
+            try (Stream<Path> stream = Files.list(sourceDirectory)) {
+                stream.filter(filter::matches)
+                        .forEach((sourceFile) -> copy(sourceFile,
+                                exportDirectory,
+                                warnings,
+                                () -> isSourceMigratable(sourceFile,
+                                        (reason) -> new PathMigrationWarning(sourceFile, reason),
+                                        warnings)));
+            } catch (IOException e) {
+                throw new ExportMigrationException(String.format(
+                        "Unable to list files in %s that match supplied filter.",
+                        sourceDirectory), e);
+            }
+        }
     }
 
     /**
