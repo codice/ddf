@@ -16,16 +16,22 @@ package org.codice.ddf.configuration.admin;
 import static org.apache.commons.lang.Validate.notNull;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
+import java.util.Collections;
 
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.io.FileUtils;
-import org.codice.ddf.configuration.status.ConfigurationFileException;
-import org.codice.ddf.migration.ExportMigrationException;
-import org.codice.ddf.migration.MigrationException;
+import org.codice.ddf.configuration.persistence.PersistenceStrategy;
+import org.codice.ddf.migration.ConfigurationMigratable;
+import org.codice.ddf.migration.DescribableBean;
+import org.codice.ddf.migration.MigrationMetadata;
 import org.codice.ddf.migration.UnexpectedMigrationException;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
@@ -38,76 +44,72 @@ import org.slf4j.LoggerFactory;
  * configuration files from a configuration directory and creating {@link Configuration} objects
  * for those and exporting {@link Configuration} objects to configuration files.
  */
-public class ConfigurationAdminMigration {
+public class ConfigurationAdminMigration extends DescribableBean
+        implements ConfigurationMigratable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationAdminMigration.class);
 
-    private static final String FILTER =
-            "(&(!(service.pid=jmx*))(!(service.pid=org.apache*))(!(service.pid=org.ops4j*)))";
+    private static final String FELIX_FILEINSTALL_FILENAME = "felix.fileinstall.filename";
 
     private final String configurationFileExtension;
 
-    private final ConfigurationFileFactory configurationFileFactory;
-
     private final ConfigurationAdmin configurationAdmin;
+
+    private final PersistenceStrategy persistenceStrategy;
 
     /**
      * Constructor.
      *
-     * @param configDirectoryStream    reference to a {@link DirectoryStream} that will return the
-     *                                 configuration files to read in upon startup
-     * @param configurationFileFactory factory object used to create {@link ConfigurationFile}
-     *                                 instances based on their type
+     * @param configDirectoryStream reference to a {@link DirectoryStream} that will return the
+     *                              configuration files to read in upon startup
      * @throws IllegalArgumentException thrown if any of the arguments is invalid
      */
-    public ConfigurationAdminMigration(@NotNull DirectoryStream configDirectoryStream, @NotNull ConfigurationFileFactory configurationFileFactory,
+    public ConfigurationAdminMigration(@NotNull DirectoryStream configDirectoryStream,
             @NotNull ConfigurationAdmin configurationAdmin,
+            @NotNull PersistenceStrategy persistenceStrategy, @NotNull DescribableBean info,
             @NotNull String configurationFileExtension) {
 
+        super(info);
+
         notNull(configDirectoryStream, "Config directory stream cannot be null");
-        notNull(configurationFileFactory, "Configuration file factory cannot be null");
         notNull(configurationAdmin, "ConfigurationAdmin cannot be null");
+        notNull(persistenceStrategy, "persistenceStrategy cannot be null");
+        notNull(info, "info cannot be null");
         notNull(configurationFileExtension, "ConfigFileExtension cannot be null");
 
-        this.configurationFileFactory = configurationFileFactory;
         this.configurationAdmin = configurationAdmin;
+        this.persistenceStrategy = persistenceStrategy;
         this.configurationFileExtension = configurationFileExtension;
     }
 
-    public void export(@NotNull Path exportDirectory) throws MigrationException, IOException {
+    @Override
+    public MigrationMetadata export(@NotNull Path exportDirectory) {
         notNull(exportDirectory, "exportDirectory cannot be null");
-        Path etcDirectory = createEtcDirectory(exportDirectory);
 
         try {
-            Configuration[] configurations = configurationAdmin.listConfigurations(FILTER);
+            Path etcDirectory = createEtcDirectory(exportDirectory);
+            Configuration[] configurations = configurationAdmin.listConfigurations(null);
             if (configurations != null) {
                 for (Configuration configuration : configurations) {
-                    Path exportedFilePath = etcDirectory.resolve(
-                            configuration.getPid() + configurationFileExtension);
-                    try {
-                        configurationFileFactory.createConfigurationFile(configuration.getProperties())
-                                .exportConfig(exportedFilePath.toString());
-                    } catch (ConfigurationFileException e) {
-                        LOGGER.info("Could not create configuration file {} for configuration {}.",
-                                exportedFilePath,
-                                configuration.getPid());
-                        throw new ExportMigrationException(e);
-                    } catch (IOException e) {
-                        LOGGER.info("Could not export configuration {} to {}.",
-                                configuration.getPid(),
-                                exportedFilePath);
-                        throw new ExportMigrationException(e);
+                    Path destination = etcDirectory.resolve(getBaseFileName(configuration));
+                    try (FileOutputStream fileOutputStream = new FileOutputStream(destination.toFile())) {
+                        persistenceStrategy.write(fileOutputStream, configuration.getProperties());
                     }
                 }
             }
         } catch (InvalidSyntaxException e) {
-            LOGGER.info("Invalid filter string {}", FILTER, e);
-            throw new UnexpectedMigrationException("Export failed", e);
+            throw new UnexpectedMigrationException(
+                    "Unable to get configurations from Configuration Admin.",
+                    e);
         } catch (IOException e) {
-            LOGGER.info("There was an issue retrieving configurations from ConfigurationAdmin: {}",
+            String message = String.format(
+                    "There was an issue retrieving configurations from ConfigurationAdmin: %s",
                     e.getMessage());
-            throw new UnexpectedMigrationException("Export failed", e);
+            LOGGER.info(message);
+            throw new UnexpectedMigrationException(message, e);
         }
+
+        return new MigrationMetadata(Collections.emptyList());
     }
 
     private Path createEtcDirectory(Path exportDirectory) throws IOException {
@@ -118,4 +120,23 @@ public class ConfigurationAdminMigration {
         return etcDirectory;
     }
 
+    private String getBaseFileName(Configuration configuration) {
+        try {
+            String fileUrl = (String) configuration.getProperties()
+                    .get(FELIX_FILEINSTALL_FILENAME);
+            if (fileUrl != null) {
+                File file = new File(new URL(fileUrl).toURI());
+                return file.getName();
+            } else {
+                return new StringBuilder(configuration.getPid()).append(configurationFileExtension)
+                        .toString();
+            }
+        } catch (MalformedURLException | URISyntaxException e) {
+            String message = String.format(
+                    "Unable to get base file name from %s configuration property Defaulting to service pid for file name. %s",
+                    FELIX_FILEINSTALL_FILENAME,
+                    e.getMessage());
+            throw new UnexpectedMigrationException(message, e);
+        }
+    }
 }
