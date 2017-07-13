@@ -1,0 +1,15 @@
+
+###############################
+# CATALOG
+###############################
+
+catalog/core/catalog-core-commands/src/main/java/org/codice/ddf/commands/catalog/ExportCommand.java		@rzwiefel
+catalog/core/catalog-core-commands/src/main/java/org/codice/ddf/commands/catalog/ImportCommand.java		@rzwiefel
+
+catalog/core/catalog-core-standardframework/src/main/java/ddf/catalog/history/*		@rzwiefel
+
+catalog/core/catalog-core-validationparser/* 	@jrnorth @rzwiefel
+
+catalog/core/catalog-core-versioning/*				@rzwiefel
+
+catalog/ui/catalog-ui-search/src/main/java/*		@rzwiefel
