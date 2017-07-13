@@ -232,12 +232,12 @@ For example:
 ====
 This step is not required for a hardened system.
 
-* The default password in `config.ldif` for `serverKeystore.jks` is `changeit`. This needs to be modified.
+* The default password in `system.properties` for `serverKeystore.jks` is `changeit`. This needs to be modified.
 ** `ds-cfg-key-store-file: ../../keystores/serverKeystore.jks`
 ** `ds-cfg-key-store-type: JKS`
 ** `ds-cfg-key-store-pin: password`
 ** `cn: JKS`
-* The default password in `config.ldif` for `serverTruststore.jks` is `changeit`.  This needs to be modified.
+* The default password in `system.properties` for `serverTruststore.jks` is `changeit`.  This needs to be modified.
 ** `ds-cfg-trust-store-file: ../../keystores/serverTruststore.jks`
 ** `ds-cfg-trust-store-pin: password`
 ** `cn: JKS`

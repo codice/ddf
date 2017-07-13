@@ -15,12 +15,12 @@ ${branding} includes two default keystore files, the server key store and the se
 The server keystore holds the certificates and private keys that ${branding} uses to identify itself to other nodes on the network.
 The truststore holds the certificates of nodes or other entities that ${branding} needs to trust.
 
-Certificates (and certificates with keys) can be managed in the ${admin-console}. Navigate to the ${ddf-security}application and select it.
+Certificates (and certificates with keys) can be managed in the ${admin-console}. Navigate to the ${ddf-security} application and select it.
 After it opens, select the notebook tab labeled "Certificates".
 This view shows the alias (name) of every certificate in the trust store and the key store.
 It also displays if the entry includes a private key ("Is Key") and the encryption scheme (typically "RSA" or "EC").
 
-This view allows administrators remove certificates from ${branding}'s key and trust stores.
+This view allows administrators to remove certificates from ${branding}'s key and trust stores.
 It also allows administrators to import certificates and private keys into the keystores with the "+" button.
 The import function has two options: import from a file or import over HTTPS.
 The file option accepts a Java Keystore file or a PKCS12 keystore file.
@@ -150,14 +150,14 @@ For example:
 [NOTE]
 ====
 This step is not required for a hardened system.
-If testing ${branding} with a
+If testing ${branding} with
 
-* The default password in `config.ldif` for `serverKeystore.jks` is `changeit`. This needs to be modified.
+* The default password in `system.properties` for `serverKeystore.jks` is `changeit`. This needs to be modified.
 ** `ds-cfg-key-store-file: ../../keystores/serverKeystore.jks`
 ** `ds-cfg-key-store-type: JKS`
 ** `ds-cfg-key-store-pin: password`
 ** `cn: JKS`
-* The default password in `config.ldif` for `serverTruststore.jks` is `changeit`.  This needs to be modified.
+* The default password in `system.properties` for `serverTruststore.jks` is `changeit`.  This needs to be modified.
 ** `ds-cfg-trust-store-file: ../../keystores/serverTruststore.jks`
 ** `ds-cfg-trust-store-pin: password`
 ** `cn: JKS`

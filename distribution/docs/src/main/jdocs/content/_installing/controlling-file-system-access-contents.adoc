@@ -26,7 +26,7 @@ System administrators MUST perform the following steps prior to deploying bundle
 [IMPORTANT]
 ====
 The system administrator must restrict certain directories to ensure that the application (user) cannot access restricted directories on the system.
-For example the `${branding}_USER` should have read-only access to `<${branding}_HOME>`, except for the sub-directories `etc`, `data` and `instances`.
+For example the `${branding}_USER` should have read-only access to `<${branding}_HOME>`, except for the sub-directories `etc`, `data`, `solr` and `instances`.
 ====
 
 .Setting Directory Permissions on Windows

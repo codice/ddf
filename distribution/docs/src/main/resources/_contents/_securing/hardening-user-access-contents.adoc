@@ -17,7 +17,7 @@ If a system recovery account is configured in `users.properties`, ensure:
 * The use of this account should be for as short a time as possible.
 * The default username/password of "`admin/admin`" should not be used.
 * All organizational standards for password complexity should still apply.
-* The password should be encrypted.
+* The password should be encrypted. For steps on how, see the section "Passwords Encryption" at https://karaf.apache.org/manual/latest/security.
 ====
 
 [NOTE]
