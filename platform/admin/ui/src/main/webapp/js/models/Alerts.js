@@ -16,36 +16,39 @@ define([
 
     var AlertsModel = {};
 
-    AlertsModel.AlertsDefaults = Backbone.Model.extend({
+    AlertsModel.Alert = Backbone.Model.extend({
         defaults: {
-            'banner': 'You should look at this.',
-            'button': 'Show',
+            'details-button-action': 'Show',
             'collapse': 'out',
-            'type': 'danger'
+            'level': 'danger'
         }
     });
 
-    //setup insecure defaults alerts
-    AlertsModel.InsecureAlerts = AlertsModel.AlertsDefaults.extend({
-        defaults: _.extend({}, AlertsModel.AlertsDefaults.prototype.defaults, {
-            'banner': 'The system is insecure because default configuration values are in use.'
-        }),
-        url: "/admin/jolokia/exec/org.codice.ddf.admin.insecure.defaults.service.InsecureDefaultsServiceBean:service=insecure-defaults-service/validate",
-        parse: function (resp) {
-            return {'items': resp.value};
+    AlertsModel.BackendAlerts = Backbone.Collection.extend({
+        model: AlertsModel.Alert,
+        url: "/admin/jolokia/read/org.codice.ddf.ui.admin.api:type=AdminAlertMBean/Alerts",
+        parse: function(response) {
+            return response.value;
         }
     });
 
-    AlertsModel.JolokiaAlerts = AlertsModel.AlertsDefaults.extend({
-        defaults: _.extend({}, AlertsModel.AlertsDefaults.prototype.defaults, {
-            'banner': 'Unable to save your changes.'
+    AlertsModel.JolokiaAlerts = AlertsModel.Alert.extend({
+        defaults: _.extend({}, AlertsModel.Alert.prototype.defaults, {
+            'title': 'Unable to save your changes.'
         }),
         parse: function (response) {
             if (response.stacktrace) {
-                var json = {'items': response.stacktrace.split(/\n/)};
+                var json = {};
+
+                var stackLines = response.stacktrace.split(/\n/);
+                json.details = [];
+                for (var i = 0; i < stackLines.length; i++) {
+                    json.details.push({'message': stackLines[i]});
+                }
+
                 if (response.stacktrace === 'Forbidden') {
-                    json.banner = 'Your session has expired. Please <a href="/login/index.html?prevurl=/admin/">log in</a> again.';
-                    json.items = ['An error was received while trying to contact the server which indicated that you may no longer be logged in.'];
+                    json.details = [{'message': 'An error was received while trying to contact the server, which indicates that you might no longer be logged in.'}];
+                    json.title = 'Your session has expired. Please <a href="/login/index.html?prevurl=/admin/">log in</a> again.';
                 }
                 return json;
             } else {

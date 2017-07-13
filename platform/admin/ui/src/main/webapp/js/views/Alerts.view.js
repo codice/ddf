@@ -16,20 +16,23 @@
 define([
         'marionette',
         'text!templates/alerts.handlebars',
-        'icanhaz'
+        'icanhaz',
+        'jquery'
     ],
-    function (Marionette, alertsTemplate, ich) {
+    function (Marionette, alertsTemplate, ich, $) {
 
         ich.addTemplate('alertsTemplate', alertsTemplate);
 
         var AlertsView = {};
 
+        var dismissUrl = '/admin/jolokia/exec/org.codice.ddf.ui.admin.api:type=AdminAlertMBean/dismissAlert';
+
         AlertsView.View = Marionette.ItemView.extend({
             template: 'alertsTemplate',
-            tagName: 'table',
             events: {
                 'shown.bs.collapse': 'toggleDetailsMsg',
-                'hidden.bs.collapse': 'toggleDetailsMsg'
+                'hidden.bs.collapse': 'toggleDetailsMsg',
+                'click .dismiss': 'dismissAlert'
             },
             modelEvents: {
                 'change': 'render'
@@ -37,15 +40,53 @@ define([
             /*jshint -W030 */
             toggleDetailsMsg: function () {
                 var model = this.model;
-                model.get('button') === 'Show' ? model.set('button', 'Hide') : model.set('button', 'Show');
+                model.get('details-button-action') === 'Show' ? model.set('details-button-action', 'Hide') : model.set('details-button-action', 'Show');
                 model.get('collapse') === 'out' ? model.set('collapse', 'in') : model.set('collapse', 'out');
             },
             serializeData: function () {
                 var json = this.model.toJSON();
                 json.collapseId = 'alertCollapse_' + parseInt((Math.random() * Math.pow(2, 32)), 10);
+                switch (this.model.get('priority')) {
+                    case 2:
+                    case'2':
+                        json.level = 'info';
+                        break;
+                    case 3:
+                    case'3':
+                        json.level = 'warning';
+                        break;
+                    case 4:
+                    case'4':
+                        json.level = 'danger';
+                        break;
+                    default:
+                        json.level = 'info';
+                        break;
+                }
                 return json;
+            },
+            // Performs the actual AJAX call to dismiss the alert
+            dismissAlert: function() {
+                var model = this.model;
+
+                var data = {
+                    type: 'EXEC',
+                    mbean: 'org.codice.ddf.ui.admin.api:type=AdminAlertMBean',
+                    operation: 'dismissAlert'
+                };
+                data.arguments = [model.get('id')];
+                data = JSON.stringify(data);
+                $.ajax({
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: data,
+                    url: dismissUrl
+                }).success(function() {
+                    model.trigger('destroy', model);
+                });
             }
         });
 
         return AlertsView;
-    });
+    }
+);
