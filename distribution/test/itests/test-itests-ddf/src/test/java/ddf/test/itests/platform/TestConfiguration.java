@@ -229,6 +229,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
                 containsString("Unable to create export directories."));
     }
 
+    @Ignore
     @Test
     public void testExportOnTopOfNestedFile() throws Exception {
         closeFileHandlesInEtc();
@@ -478,6 +479,7 @@ public class TestConfiguration extends AbstractIntegrationTest {
                 is(not(equalTo(secondLength))));
     }
 
+    @Ignore
     @Test
     public void testExportMetacards() throws Exception {
         closeFileHandlesInEtc();
