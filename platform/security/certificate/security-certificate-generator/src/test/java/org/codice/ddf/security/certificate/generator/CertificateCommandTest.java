@@ -50,7 +50,7 @@ public class CertificateCommandTest {
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    File systemKeystoreFile = null;
+    private File systemKeystoreFile = null;
 
     private static void validateCertificateHasNoSAN(KeyStoreFile ksf, String alias)
             throws Exception {

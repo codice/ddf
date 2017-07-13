@@ -27,9 +27,6 @@ import org.bouncycastle.asn1.x500.style.BCStyle;
 import ddf.security.SecurityConstants;
 
 public class CertificateCommand {
-
-    private static final String SAN_EXAMPLE = "-san DNS:localhost,IP:127.0.0.1";
-
     /**
      * Pass in a string to use as the common name of the certificate to be generated.
      * Exception thrown if 0 arguments or more than 2 argument (or more than 4 when -san is used).
