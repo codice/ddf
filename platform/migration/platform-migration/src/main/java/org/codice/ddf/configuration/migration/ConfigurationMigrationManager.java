@@ -29,7 +29,6 @@ import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.validation.constraints.NotNull;
 
-import org.codice.ddf.configuration.admin.ConfigurationAdminMigration;
 import org.codice.ddf.migration.ConfigurationMigratable;
 import org.codice.ddf.migration.DataMigratable;
 import org.codice.ddf.migration.ExportMigrationException;
@@ -60,8 +59,6 @@ public class ConfigurationMigrationManager
 
     private static final String OBJECT_NAME = CLASS_NAME + ":service=configuration-migration";
 
-    private final ConfigurationAdminMigration configurationAdminMigration;
-
     private final MBeanServer mBeanServer;
 
     private final List<ConfigurationMigratable> configurationMigratables;
@@ -71,8 +68,6 @@ public class ConfigurationMigrationManager
     /**
      * Constructor.
      *
-     * @param configurationAdminMigration object used to export {@link org.osgi.service.cm.Configuration}
-     *                                    objects from {@link org.osgi.service.cm.ConfigurationAdmin}
      * @param mBeanServer                 object used to register this object as an MBean
      * @param configurationMigratables    list of {@link ConfigurationMigratable} services. Needs
      *                                    to be kept up-to-date by the client of this class.
@@ -80,17 +75,14 @@ public class ConfigurationMigrationManager
      *                                    to be kept up-to-date by the client of this class.
      */
     public ConfigurationMigrationManager(
-            @NotNull ConfigurationAdminMigration configurationAdminMigration,
             @NotNull MBeanServer mBeanServer,
             @NotNull List<ConfigurationMigratable> configurationMigratables,
             @NotNull List<DataMigratable> dataMigratables) {
-        notNull(configurationAdminMigration, "ConfigurationAdminMigration cannot be null");
         notNull(mBeanServer, "MBeanServer cannot be null");
         notNull(configurationMigratables,
                 "List of ConfigurationMigratable services cannot be null");
         notNull(dataMigratables, "List of DataMigratable services cannot be null");
 
-        this.configurationAdminMigration = configurationAdminMigration;
         this.mBeanServer = mBeanServer;
         this.configurationMigratables = configurationMigratables;
         this.dataMigratables = dataMigratables;
@@ -119,7 +111,6 @@ public class ConfigurationMigrationManager
 
         try {
             Files.createDirectories(exportDirectory);
-            configurationAdminMigration.export(exportDirectory);
             migrationWarnings.addAll(exportMigratables(exportDirectory));
         } catch (IOException e) {
             LOGGER.info("Unable to create export directories", e);
@@ -166,22 +157,11 @@ public class ConfigurationMigrationManager
         return migrationMetadata.getMigrationWarnings();
     }
 
-    private Collection<MigrationWarning> exportMigratables(Path exportDirectory)
-            throws IOException {
+    private Collection<MigrationWarning> exportMigratables(Path exportDirectory) {
         List<MigrationWarning> warnings = new LinkedList<>();
 
         for (ConfigurationMigratable configMigratable : configurationMigratables) {
             warnings.addAll(exportMigratable(configMigratable, exportDirectory));
-
-        }
-
-        for (DataMigratable dataMigratable : dataMigratables) {
-
-            Path dataMigratableDirectory = exportDirectory.resolve(dataMigratable.getId());
-            Files.createDirectories(dataMigratableDirectory);
-
-            warnings.addAll(exportMigratable(dataMigratable, exportDirectory));
-
         }
 
         return warnings;

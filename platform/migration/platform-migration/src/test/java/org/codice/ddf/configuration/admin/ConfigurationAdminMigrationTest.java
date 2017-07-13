@@ -13,28 +13,35 @@
  */
 package org.codice.ddf.configuration.admin;
 
-import static org.mockito.Matchers.anyObject;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.verifyStatic;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.Iterator;
 
 import org.apache.commons.io.FileUtils;
+import org.codice.ddf.configuration.persistence.PersistenceStrategy;
+import org.codice.ddf.configuration.persistence.felix.FelixPersistenceStrategy;
 import org.codice.ddf.configuration.status.ConfigurationFileException;
+import org.codice.ddf.migration.DescribableBean;
 import org.codice.ddf.migration.MigrationException;
+import org.codice.ddf.migration.UnexpectedMigrationException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -52,6 +59,9 @@ public class ConfigurationAdminMigrationTest {
     @Rule
     public PowerMockRule rule = new PowerMockRule();
 
+    @Rule
+    public TemporaryFolder testFolder = new TemporaryFolder();
+
     private static final Path CONFIG_FILES_EXPORT_PATH = Paths.get("/root/etc/exported/etc");
 
     private static final Path EXPORTED_DIRECTORY_PATH = Paths.get("/root/etc/exported");
@@ -60,22 +70,8 @@ public class ConfigurationAdminMigrationTest {
 
     private static final String CONFIG_PID = "pid";
 
-    private static final Path CONFIG_FILE_PATH = Paths.get(
-            "/root/etc/exported/etc/" + CONFIG_PID + CONFIGURATION_FILE_EXTENSION);
-
-    private static final String CONFIG_FILE_PATH1 = CONFIG_PID + "1" + CONFIGURATION_FILE_EXTENSION;
-
-    private static final String CONFIG_FILE_PATH2 = CONFIG_PID + "2" + CONFIGURATION_FILE_EXTENSION;
-
-    private static final Path CONFIG_PATH1 = (Paths.get("/root/etc")).resolve(CONFIG_FILE_PATH1);
-
-    private static final Path CONFIG_PATH2 = (Paths.get("/root/etc")).resolve(CONFIG_FILE_PATH2);
-
     @Mock
     private DirectoryStream<Path> configurationDirectoryStream;
-
-    @Mock
-    private ConfigurationFileFactory configurationFileFactory;
 
     @Mock
     private ConfigurationAdmin configurationAdmin;
@@ -84,13 +80,13 @@ public class ConfigurationAdminMigrationTest {
     private Iterator<Path> configFilesIterator;
 
     @Mock
-    private ConfigurationFile configFile1;
-
-    @Mock
-    private ConfigurationFile configFile2;
-
-    @Mock
     private Configuration configuration;
+
+    @Mock
+    private DescribableBean describable;
+
+    @Mock
+    private PersistenceStrategy persistenceStrategy;
 
     @Before
     public void setUp() {
@@ -102,29 +98,22 @@ public class ConfigurationAdminMigrationTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithNullDirectoryStream() {
-        new ConfigurationAdminMigration(null, configurationFileFactory,
-                configurationAdmin,
-                CONFIGURATION_FILE_EXTENSION);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructorWithNullConfigurationFileFactory() {
-        new ConfigurationAdminMigration(configurationDirectoryStream, null,
-                configurationAdmin,
+        new ConfigurationAdminMigration(null,
+                configurationAdmin, persistenceStrategy, describable,
                 CONFIGURATION_FILE_EXTENSION);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithNullConfigurationAdmin() {
-        new ConfigurationAdminMigration(configurationDirectoryStream, configurationFileFactory,
-                null,
+        new ConfigurationAdminMigration(configurationDirectoryStream,
+                null, persistenceStrategy, describable,
                 CONFIGURATION_FILE_EXTENSION);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithNullConfigurationFileExtension() {
-        new ConfigurationAdminMigration(configurationDirectoryStream, configurationFileFactory,
-                configurationAdmin,
+        new ConfigurationAdminMigration(configurationDirectoryStream,
+                configurationAdmin, persistenceStrategy, describable,
                 null);
     }
 
@@ -132,19 +121,31 @@ public class ConfigurationAdminMigrationTest {
     public void testExport()
             throws IOException, InvalidSyntaxException, ConfigurationFileException {
 
-        when(configurationAdmin.listConfigurations(anyString())).thenReturn(new Configuration[] {
+        String configFile = CONFIG_PID + CONFIGURATION_FILE_EXTENSION;
+        File configFileExportDir = testFolder.newFolder("etc");
+        Dictionary<String, Object> properties = new Hashtable<>();
+        properties.put("felix.fileinstall.filename",
+                "file:" + configFileExportDir.getAbsolutePath() + "/" + configFile);
+        when(configuration.getProperties()).thenReturn(properties);
+        when(configurationAdmin.listConfigurations((String) isNull())).thenReturn(new Configuration[] {
                 configuration});
-        when(configurationFileFactory.createConfigurationFile(anyObject())).thenReturn(
-                configFile1);
+
+        when(configurationDirectoryStream.iterator()).thenReturn(configFilesIterator);
+        when(configFilesIterator.hasNext()).thenReturn(false);
 
         ConfigurationAdminMigration configurationAdminMigration =
-                createConfigurationAdminMigratorWithNoFiles();
+                new ConfigurationAdminMigration(configurationDirectoryStream,
+                        configurationAdmin, new FelixPersistenceStrategy(), describable,
+                        CONFIGURATION_FILE_EXTENSION);
 
-        configurationAdminMigration.export(EXPORTED_DIRECTORY_PATH);
+        configurationAdminMigration.export(testFolder.getRoot()
+                .toPath());
 
         verifyStatic();
-        FileUtils.forceMkdir(CONFIG_FILES_EXPORT_PATH.toFile());
-        verify(configFile1, atLeastOnce()).exportConfig(CONFIG_FILE_PATH.toString());
+        FileUtils.forceMkdir(configFileExportDir);
+        assertThat(Paths.get(configFileExportDir.getAbsolutePath(), configFile)
+                .toFile()
+                .exists(), is(true));
     }
 
     @Test
@@ -160,7 +161,7 @@ public class ConfigurationAdminMigrationTest {
 
             configurationAdminMigration.export(EXPORTED_DIRECTORY_PATH);
 
-        } catch (IOException e) {
+        } catch (UnexpectedMigrationException e) {
             verifyStatic();
             FileUtils.forceMkdir(CONFIG_FILES_EXPORT_PATH.toFile());
         }
@@ -200,27 +201,13 @@ public class ConfigurationAdminMigrationTest {
     public void testExportConfigurationFileException()
             throws IOException, InvalidSyntaxException, ConfigurationFileException {
 
-        when(configurationAdmin.listConfigurations(anyString())).thenReturn(new Configuration[] {
+        Dictionary<String, Object> properties = new Hashtable<>();
+        when(configuration.getProperties()).thenReturn(properties);
+        when(configuration.getPid()).thenReturn("my.pid");
+        when(configurationAdmin.listConfigurations((String) isNull())).thenReturn(new Configuration[] {
                 configuration});
         ConfigurationAdminMigration configurationAdminMigration =
                 createConfigurationAdminMigratorWithNoFiles();
-        when(configurationFileFactory.createConfigurationFile(anyObject())).thenThrow(
-                new ConfigurationFileException(""));
-        configurationAdminMigration.export(EXPORTED_DIRECTORY_PATH);
-    }
-
-    @Test(expected = MigrationException.class)
-    public void testConfigFileExportConfigIOException()
-            throws IOException, InvalidSyntaxException, ConfigurationFileException {
-
-        when(configurationAdmin.listConfigurations(anyString())).thenReturn(new Configuration[] {
-                configuration});
-        ConfigurationAdminMigration configurationAdminMigration =
-                createConfigurationAdminMigratorWithNoFiles();
-        when(configurationFileFactory.createConfigurationFile(anyObject())).thenReturn(
-                configFile1);
-        doThrow(new IOException()).when(configFile1)
-                .exportConfig(anyString());
         configurationAdminMigration.export(EXPORTED_DIRECTORY_PATH);
     }
 
@@ -232,8 +219,6 @@ public class ConfigurationAdminMigrationTest {
         ConfigurationAdminMigration configurationAdminMigration =
                 createConfigurationAdminMigratorWithNoFiles();
         configurationAdminMigration.export(EXPORTED_DIRECTORY_PATH);
-        verify(configurationFileFactory,
-                never()).createConfigurationFile(anyObject());
     }
 
     private ConfigurationAdminMigration createConfigurationAdminMigratorWithNoFiles() {
@@ -241,8 +226,7 @@ public class ConfigurationAdminMigrationTest {
         when(configFilesIterator.hasNext()).thenReturn(false);
 
         return new ConfigurationAdminMigration(configurationDirectoryStream,
-                configurationFileFactory,
-                configurationAdmin,
+                configurationAdmin, persistenceStrategy, describable,
                 CONFIGURATION_FILE_EXTENSION);
     }
 

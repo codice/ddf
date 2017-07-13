@@ -90,18 +90,18 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.9</minimum>
+                                            <minimum>0.67</minimum>
                                         </limit>
                                         <!-- Low branch coverage because of try with resource -->
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.6</minimum>
+                                            <minimum>0.37</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.8</minimum>
+                                            <minimum>0.57</minimum>
                                         </limit>
 
                                     </limits>
