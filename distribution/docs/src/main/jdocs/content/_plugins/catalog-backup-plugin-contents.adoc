@@ -7,7 +7,7 @@
 
 The Catalog Backup Plugin is used to enable data backup of the catalog and the metacards it contains.
 
-.Catalog Backup Plugin Concerns
+.Catalog Backup Plugin Considerations
 [WARNING]
 ====
 Using this plugin may impact performance negatively.
@@ -26,7 +26,7 @@ To configure the Catalog Backup Plugin:
 . Select *Configuration* tab.
 . Select *Backup Post-Ingest Plugin*.
 
-include::{adoc-include}/_tables/plugin.backup-table-contents.adoc[]
+include::{adoc-include}/_tables/ddf.catalog.backup.CatalogBackupPlugin-table-contents.adoc[]
 
 ===== Usage Limitations of the Catalog Backup Plugin
 

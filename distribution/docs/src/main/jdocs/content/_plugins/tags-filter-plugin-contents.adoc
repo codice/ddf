@@ -2,7 +2,7 @@
 :status: published
 :title: Tags Filter Plugin
 :link: _tags_filter_plugin
-:plugintypes: prequery
+:plugintypes: prefederatedquery
 :summary: Updates queries without filters.
 
 The Tags Filter Plugin updates queries without filters for tags, and adds a default tag of `resource`.

@@ -18,7 +18,7 @@ The Standard Event Processor checks each event against each subscription's crit
 When an event matches a subscription's criteria the Standard Event Processor:
 
 * invokes each pre-delivery plugin on the metacard in the event.
-* invokes the Delivery Method's operation corresponding to the type of event being processed, e.g., created operation for the creation of a metacard.
+* invokes the `DeliveryMethod` operation corresponding to the type of event being processed, e.g., `created()` operation for the creation of a metacard.
 
 ===== Installing the Event Processor
 
@@ -31,10 +31,12 @@ The Event Processor has no configurable properties.
 ===== Event Processing and Notification
 
 As metacards are created, updated, and deleted, the Catalog's Event Processor is invoked (as a post-ingest plugin) for each of these events.
-TheEvent Processor applies the filter criteria for each registered subscription to each of these ingest events to determine if they match the criteria.
-If an event matches a subscription's criteria, any pre-delivery plugins that are installed are invoked, the subscription's Delivery Method is retrieved, and its operation corresponding to the type of ingest event is invoked. 
-For example, the DeliveryMethod's `created()` function is called when a metacard is created.
-The Delivery Method's operations subsequently invoke the corresponding operation in the client's event consumer service, which is specified by the callback URL provided when the Delivery Method was created.
+The Event Processor applies the filter criteria for each registered subscription to each of these ingest events to determine if they match the criteria.
+If an event matches a subscription's criteria, any pre-delivery plugins that are installed are invoked, the subscription's `DeliveryMethod` is retrieved, and its operation corresponding to the type of ingest event is invoked. 
+For example, the `DeliveryMethod` `created()` function is called when a metacard is created.
+The `DeliveryMethod` operations subsequently invoke the corresponding operation in the client's event consumer service, which is specified by the callback URL provided when the `DeliveryMethod` was created.
+
+For more information on creating subscriptions, see <<_creating_a_subscription,Creating a Subscription>>.
 
 .Available Event Processors
 * <<_event_processor,Standard Event Processor>>
@@ -54,7 +56,7 @@ The following is an example code stub showing how to create a new instance of S
 // Create a new filter using an imported FilterBuilder
 Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT).like().text("*");
  
-// Create a implementation of Delivery Method
+// Create a implementation of DeliveryMethod
 DeliveryMethod deliveryMethod = new MyCustomDeliveryMethod();
  
 // Create a set of source ids
