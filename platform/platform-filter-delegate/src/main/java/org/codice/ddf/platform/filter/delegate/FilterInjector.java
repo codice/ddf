@@ -36,8 +36,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Injects the delegating filter into the servletcontext as it is being created.
- * This guarantees that all servlets will have the delegating filter added.
+ * Injects the {@link DelegateServletFilter} into the {@link ServletContext} with properties
+ * filterName = {@link FilterInjector#DELEGATING_FILTER}, urlPatterns =
+ * {@link FilterInjector#ALL_URLS}, and no servlet name as the {@link ServletContext} is being
+ * created. Sets up all {@link javax.servlet.Servlet}s with the {@link DelegateServletFilter}
+ * as the first in the {@link javax.servlet.FilterChain}.
  */
 public class FilterInjector {
 
@@ -47,9 +50,9 @@ public class FilterInjector {
 
     private static final String DELEGATING_FILTER = "delegating-filter";
 
-    private Filter delegatingServletFilter;
+    private final Filter delegateServletFilter;
 
-    private List<HttpSessionListener> sessionListeners = new ArrayList<>();
+    private final List<HttpSessionListener> sessionListeners = new ArrayList<>();
 
     /**
      * Creates a new filter injector with the specified filter.
@@ -57,7 +60,7 @@ public class FilterInjector {
      * @param filter filter that should be injected.
      */
     public FilterInjector(Filter filter) {
-        this.delegatingServletFilter = filter;
+        this.delegateServletFilter = filter;
     }
 
     /**
@@ -155,7 +158,7 @@ public class FilterInjector {
             //This causes the value of "_matchAfterIndex" to jump to 0 which means all web.xml filters will be added in front of it
             //this isn't what we want, so we need to reset it back to what it was before
             FilterRegistration filterReg = context.addFilter(DELEGATING_FILTER,
-                    delegatingServletFilter);
+                    delegateServletFilter);
 
             if (filterReg == null) {
                 filterReg = context.getFilterRegistration(DELEGATING_FILTER);
@@ -166,7 +169,7 @@ public class FilterInjector {
             filterReg.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, ALL_URLS);
         } catch (IllegalStateException ise) {
             LOGGER.warn(
-                    "Could not inject filter into {} because the servlet was already initialized.",
+                    "Could not inject DelegateServletFilter into {} because the servlet was already initialized.",
                     refBundle.getSymbolicName(),
                     ise);
         }

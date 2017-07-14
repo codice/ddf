@@ -18,24 +18,20 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import java.io.IOException;
-import java.util.Arrays;
 
-import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
+import org.codice.ddf.platform.filter.SecurityFilter;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Tests the proxy filter chain class.
- *
  */
 public class ProxyFilterChainTest {
 
@@ -51,15 +47,16 @@ public class ProxyFilterChainTest {
     public void testDoFilter() throws IOException, ServletException {
         FilterChain initialChain = mock(FilterChain.class);
         ProxyFilterChain proxyChain = new ProxyFilterChain(initialChain);
-        Filter filter1 = createMockFilter("filter1");
-        Filter filter2 = createMockFilter("filter2");
-        Filter filter3 = createMockFilter("filter3");
+        SecurityFilter filter1 = createMockSecurityFilter("filter1");
+        SecurityFilter filter2 = createMockSecurityFilter("filter2");
+        SecurityFilter filter3 = createMockSecurityFilter("filter3");
 
         ServletRequest request = mock(ServletRequest.class);
         ServletResponse response = mock(ServletResponse.class);
 
-        proxyChain.addFilter(filter1);
-        proxyChain.addFilters(Arrays.asList(filter2, filter3));
+        proxyChain.addSecurityFilter(filter1);
+        proxyChain.addSecurityFilter(filter2);
+        proxyChain.addSecurityFilter(filter3);
 
         proxyChain.doFilter(request, response);
 
@@ -84,9 +81,9 @@ public class ProxyFilterChainTest {
     public void testAddFilterAfterDo() throws IOException, ServletException {
         FilterChain initialChain = mock(FilterChain.class);
         ProxyFilterChain proxyChain = new ProxyFilterChain(initialChain);
-        Filter filter1 = mock(Filter.class);
+        SecurityFilter filter1 = mock(SecurityFilter.class);
         proxyChain.doFilter(mock(ServletRequest.class), mock(ServletResponse.class));
-        proxyChain.addFilter(filter1);
+        proxyChain.addSecurityFilter(filter1);
     }
 
     /**
@@ -100,27 +97,24 @@ public class ProxyFilterChainTest {
     public void testAddFiltersAfterDo() throws IOException, ServletException {
         FilterChain initialChain = mock(FilterChain.class);
         ProxyFilterChain proxyChain = new ProxyFilterChain(initialChain);
-        Filter filter2 = mock(Filter.class);
-        Filter filter3 = mock(Filter.class);
+        SecurityFilter filter2 = mock(SecurityFilter.class);
+        SecurityFilter filter3 = mock(SecurityFilter.class);
         proxyChain.doFilter(mock(ServletRequest.class), mock(ServletResponse.class));
-        proxyChain.addFilters(Arrays.asList(filter2, filter3));
+        proxyChain.addSecurityFilter(filter2);
+        proxyChain.addSecurityFilter(filter3);
     }
 
-    private Filter createMockFilter(final String name) throws IOException, ServletException {
-        Filter mockFilter = mock(Filter.class);
+    private SecurityFilter createMockSecurityFilter(final String name)
+            throws IOException, ServletException {
+        SecurityFilter mockFilter = mock(SecurityFilter.class);
         Mockito.when(mockFilter.toString())
                 .thenReturn(name);
-        Mockito.doAnswer(new Answer<Object>() {
-
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] args = invocation.getArguments();
-                LOGGER.debug("{} was called.", name);
-                ((FilterChain) args[2]).doFilter(((ServletRequest) args[0]),
-                        ((ServletResponse) args[1]));
-                return null;
-            }
-
+        Mockito.doAnswer(invocation -> {
+            Object[] args = invocation.getArguments();
+            LOGGER.debug("{} was called.", name);
+            ((FilterChain) args[2]).doFilter(((ServletRequest) args[0]),
+                    ((ServletResponse) args[1]));
+            return null;
         })
                 .when(mockFilter)
                 .doFilter(any(ServletRequest.class),

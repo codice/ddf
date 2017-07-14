@@ -14,12 +14,13 @@
 -->
 
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
-    <bean id="clientInfoFilter"
-          class="org.codice.ddf.platform.filter.clientinfo.ClientInfoFilter"/>
-    <service ref="clientInfoFilter" interface="javax.servlet.Filter">
+
+    <bean id="clientInfoFilter" class="org.codice.ddf.platform.filter.clientinfo.ClientInfoFilter"/>
+
+    <service ref="clientInfoFilter" interface="org.codice.ddf.platform.filter.SecurityFilter">
         <service-properties>
-            <entry key="filter-name" value="clientinfo-filter"/>
-            <entry key="urlPatterns" value="/*"/>
+            <entry key="osgi.http.whiteboard.filter.name" value="clientinfo-filter"/>
         </service-properties>
     </service>
+
 </blueprint>

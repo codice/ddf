@@ -20,11 +20,9 @@
                 update-strategy="container-managed"/>
     </bean>
 
-    <service ref="filter"
-             interface="javax.servlet.Filter" ranking="1">
+    <service ref="filter" interface="org.codice.ddf.platform.filter.SecurityFilter" ranking="1">
         <service-properties>
-            <entry key="filter-name" value="response-filter"/>
-            <entry key="urlPatterns" value="/*"/>
+            <entry key="osgi.http.whiteboard.filter.name" value="response-filter"/>
         </service-properties>
     </service>
 

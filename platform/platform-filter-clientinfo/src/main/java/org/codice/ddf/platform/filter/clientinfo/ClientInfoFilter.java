@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
@@ -26,6 +25,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
 import org.apache.shiro.util.ThreadContext;
+import org.codice.ddf.platform.filter.SecurityFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  * of {@code client-info}, is the key used to access the entire client information map. It may contain
  * different kinds of data that does not necessarily correlate to the servlet API.
  */
-public class ClientInfoFilter implements Filter {
+public class ClientInfoFilter implements SecurityFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClientInfoFilter.class);
 

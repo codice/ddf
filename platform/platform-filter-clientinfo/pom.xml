@@ -21,26 +21,16 @@
         <version>2.11.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
     <artifactId>platform-filter-clientinfo</artifactId>
     <name>DDF :: Platform :: Client Info Filter</name>
     <packaging>bundle</packaging>
-
     <dependencies>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.shiro</groupId>
-            <artifactId>shiro-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-ext</artifactId>
+            <groupId>ddf.platform</groupId>
+            <artifactId>platform-filter-delegate</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -84,7 +74,6 @@
                                             <value>COVEREDRATIO</value>
                                             <minimum>0.56</minimum>
                                         </limit>
-
                                     </limits>
                                 </rule>
                             </rules>
@@ -94,5 +83,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
@@ -27,6 +26,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.codice.ddf.platform.filter.SecurityFilter;
 import org.codice.ddf.security.handler.api.AuthenticationHandler;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
  * the specified handlers in order to normalize and consolidate a session token
  * (the SAML assertion).
  */
-public class WebSSOFilter implements Filter {
+public class WebSSOFilter implements SecurityFilter {
 
     public static final String DDF_AUTHENTICATION_TOKEN = "ddf.security.token";
 
