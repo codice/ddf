@@ -31,7 +31,7 @@ public class CertificateCommand {
      * Pass in a string to use as the common name of the certificate to be generated.
      * Exception thrown if 0 arguments or more than 2 argument (or more than 4 when -san is used).
      * <pre>
-     * Arguments to this program are: <code>[-cn &lt;cn&gt;|-dn &lt;dn&gt;] [-san &lt;tag:name,tag:name,...&gt;]</code>
+     * Arguments to this program are: <code>(-cn &lt;cn&gt;|-dn &lt;dn&gt;) [-san &lt;tag:name,tag:name,...&gt;]</code>
      *
      * where:
      * &lt;cn&gt; represents a fully qualified common name (e.g. "&lt;FQDN&gt;", where &lt;FQDN&gt; could be something like cluster.yoyo.com)
@@ -142,7 +142,7 @@ public class CertificateCommand {
      * private key is also stored in the entry.
      *
      * @param dn String params in the form {@code attrKey=attrVal} composing a distinguished name.
-     *           e.g. {@code configureDemoCertWithDN(new String[] {"cn=John Whorfin", "o=Yoyodyne", "l=San Narciso", "st=California", "c=US"), null}
+     *           e.g. {@code configureDemoCertWithDN(new String[] {"cn=John Whorfin", "o=Yoyodyne", "l=San Narciso", "st=California", "c=US")}
      * @return the string used as the common name in the new certificate
      */
     public static String configureDemoCertWithDN(String[] dn) {

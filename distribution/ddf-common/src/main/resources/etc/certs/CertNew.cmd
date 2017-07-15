@@ -1,5 +1,5 @@
 REM Usage:
-REM   CertNew.sh [-cn <cn>|-dn <dn>] [-san <tag:name,tag:name,...>]
+REM   CertNew.sh (-cn <cn>|-dn <dn>) [-san <tag:name,tag:name,...>]
 REM
 REM where:
 REM <cn> represents a fully qualified common name (e.g. "<FQDN>", where <FQDN> could be something like cluster.yoyo.com)
@@ -18,8 +18,6 @@ REM Create new certificate and certificate chain signed by Demo Certificate Auth
 REM The new certificate chain and private key are installed in the keystore.
 REM The alias will be the same as the common name.
 REM The localhost key will be deleted from the keystore.
-REM If no arguments specified on the command line, `hostname -f` is used as the
-REM the common-name for the certificate.
 REM Adds the specified subject alternative names if any.
 REM
 REM NOTE: Execute from the <DDF_HOME>/etc/certs directory.

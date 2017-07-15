@@ -83,7 +83,7 @@ To use the scripts, run them out of the `<INSTALL_HOME>/etc/certs` directory.
 
 For *NIX, use the `CertNew.sh` script.
 
-`sh CertNew.sh (-cn <cn>|-dn <dn>) [-san <tag:name,tag:name,...>]`
+`sh CertNew.sh [-cn <cn>|-dn <dn>] [-san <tag:name,tag:name,...>]`
 
 where:
 
@@ -97,6 +97,7 @@ where:
 ** `IP` - ip address (V4 or V6)
 ** `dirName` - directory name
 
+If no arguments specified on the command line, `hostname -f` is used as the common-name for the certificate.
 ****
 
 .Windows Demo CA Script
