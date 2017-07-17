@@ -58,10 +58,11 @@ export EXTRA_JAVA_OPTS
 # karaf scripts
 #
 
-# export JAVA_MIN_MEM # Minimum memory for the JVM
-export JAVA_MAX_MEM=4096M
+# export JAVA_MIN_MEM=2g # Minimum memory for the JVM
+# export JAVA_MAX_MEM=4g # Maximum memory for the JVM
 # export KARAF_HOME # Karaf home folder
 # export KARAF_DATA # Karaf data folder
 # export KARAF_BASE # Karaf base folder
 
 export KARAF_OPTS="-Dfile.encoding=UTF8 -Dddf.home=$DDF_HOME"
+export JAVA_OPTS=-"server -Xms2g -Xmx4g -XX:+UnlockDiagnosticVMOptions -XX:+UnsyncloadClass -XX:+DisableAttachMechanism"

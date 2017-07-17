@@ -23,9 +23,7 @@ It is recommended to apply the following security mitigations to the ${branding}
 
 |JMX
 |tampering, information disclosure, and unauthorized access
-a|* Remove `-Dcom.sun.management.jmxremote` from `<${branding}_HOME>/bin/karaf`. +
-* Disable ${branding}'s JMX management `rmiRegistryPort` and `rmiServerPort` (`1099`, `44444`) by removing these entries from `etc/org.apache.karaf.management.cfg`. +
-* Uninstall the management bundle using the command line console: `uninstall management`. +
+a|* Stop the management feature using the command line console: `feature:stop management`. +
 
 |File System Access
 |tampering, information disclosure, and denial of service

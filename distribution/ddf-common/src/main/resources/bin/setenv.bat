@@ -42,9 +42,9 @@ rem
 rem Window name of the windows console
 SET KARAF_TITLE=${command.prompt.title}
 rem Minimum memory for the JVM
-rem SET JAVA_MIN_MEM
+rem SET JAVA_MIN_MEM=2g
 rem Maximum memory for the JVM
-rem SET JAVA_MAX_MEM=2048M
+rem SET JAVA_MAX_MEM=4g
 rem Minimum perm memory for the JVM
 rem SET JAVA_PERM_MEM=128M
 rem Maximum memory for the JVM
@@ -56,10 +56,10 @@ rem SET KARAF_DATA
 rem Karaf base folder
 rem SET KARAF_BASE
 rem Additional available Karaf options
-rem SET KARAF_OPTS=-Dderby.system.home="..\data\derby"  -Dderby.storage.fileSyncTransactionLog=true -Dcom.sun.management.jmxremote -Dfile.encoding=UTF8 -Dddf.home=%DDF_HOME%
+rem SET KARAF_OPTS=-Dderby.system.home="..\data\derby"  -Dderby.storage.fileSyncTransactionLog=true -Dfile.encoding=UTF8 -Dddf.home=%DDF_HOME% -XX:+DisableAttachMechanism
 
 rem comment out the line below to enable cxf logging interceptors
 rem set EXTRA_JAVA_OPTS="-Dcom.sun.xml.ws.transport.http.HttpAdapter.dump=true"
 
-set JAVA_OPTS=-server -Xmx4096M -Dderby.system.home="%DDF_HOME%\data\derby"  -Dderby.storage.fileSyncTransactionLog=true -Dcom.sun.management.jmxremote -Dfile.encoding=UTF8 -Dddf.home=%DDF_HOME%
-:: set JAVA_OPTS=-server -Xmx2048M -Dfile.encoding=UTF8 -Djavax.net.ssl.keyStore=../etc/keystores/serverKeystore.jks -Djavax.net.ssl.keyStorePassword=changeit -Djavax.net.ssl.trustStore=../etc/keystores/serverTruststore.jks -Djavax.net.ssl.trustStorePassword=changeit -Dddf.home=%DDF_HOME%
+set JAVA_OPTS=-server -Xms2g -Xmx4g -Dderby.system.home="%DDF_HOME%\data\derby"  -Dderby.storage.fileSyncTransactionLog=true -Dfile.encoding=UTF8 -Dddf.home=%DDF_HOME% -XX:+DisableAttachMechanism
+:: set JAVA_OPTS=-server -Xms2g -Xmx4g -Dfile.encoding=UTF8 -Djavax.net.ssl.keyStore=../etc/keystores/serverKeystore.jks -Djavax.net.ssl.keyStorePassword=changeit -Djavax.net.ssl.trustStore=../etc/keystores/serverTruststore.jks -Djavax.net.ssl.trustStorePassword=changeit -Dddf.home=%DDF_HOME%
