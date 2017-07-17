@@ -50,8 +50,8 @@ To ensure proper configuration of keystore, truststore, and certificates, follow
 |                          v                    v
 |                      /----------------------------\                            /----------------------------\
 |                      |                            |                            |                            |
-|                      |   The truststore has the   |       Yes                  | Restart server to          |
-|                      |   proper certificates?     +--------------------------->| complete configuration     |
+|                      |  The truststore file has   |       Yes                  | Restart server to          |
+|                      |  the proper certificates?  +--------------------------->| complete configuration     |
 |                      |                 cDEF       |                            |                   c0F0     |
 |                      \--+----------------------+--/                            \----------------------------/
 |                         |
