@@ -13,7 +13,9 @@
  */
 package org.codice.ddf.registry.api.impl;
 
+import java.util.Collections;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -55,7 +57,7 @@ public class RegistryStorePublisher implements EventHandler {
 
     private static final String UNPUBLISH = "unpublish";
 
-    private ConcurrentHashMap<String, Boolean> registryStoreMap = new ConcurrentHashMap<>();
+    private Set<String> registryStoreSet = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     private RegistryPublicationService registryPublicationService;
 
@@ -100,8 +102,7 @@ public class RegistryStorePublisher implements EventHandler {
 
         RegistryStore registryStore = bundleContext.getService(reference);
 
-        Boolean previousState = registryStoreMap.put(registryStore.getConfigurationPid(),
-                registryStore.isAutoPush());
+        registryStoreSet.add(registryStore.getConfigurationPid());
 
         SourceMonitor storeRegisteredSourceMonitor = new SourceMonitor() {
             @Override
@@ -117,9 +118,7 @@ public class RegistryStorePublisher implements EventHandler {
         };
 
         if (registryStore.isAvailable(storeRegisteredSourceMonitor) && registryStore.isAutoPush()) {
-            if (previousState == null || !previousState) {
-                registryPublish(registryStore, PUBLISH);
-            }
+            registryPublish(registryStore, PUBLISH);
         }
     }
 
@@ -130,7 +129,7 @@ public class RegistryStorePublisher implements EventHandler {
         if (reference != null && bundleContext != null) {
             RegistryStore registryStore = bundleContext.getService(reference);
 
-            registryStoreMap.remove(registryStore.getConfigurationPid());
+            registryStoreSet.remove(registryStore.getConfigurationPid());
         }
     }
 
@@ -194,9 +193,8 @@ public class RegistryStorePublisher implements EventHandler {
         String pid = event.getProperty(Constants.SERVICE_PID)
                 .toString();
 
-        Boolean previousAutoPush = registryStoreMap.get(pid);
 
-        if (previousAutoPush == null) {
+        if (!registryStoreSet.contains(pid)) {
             return;
         }
 
@@ -210,12 +208,12 @@ public class RegistryStorePublisher implements EventHandler {
                 (RegistryStore) bundleContext.getService(((ServiceEvent) event.getProperty(
                         EventConstants.EVENT)).getServiceReference());
 
-        if (!previousAutoPush && registryStore.isAutoPush()) {
+        if (registryStore.isAutoPush()) {
             registryPublish(registryStore, PUBLISH);
-            registryStoreMap.put(pid, true);
-        } else if (previousAutoPush && !registryStore.isAutoPush()) {
+            registryStoreSet.add(pid);
+        } else {
             registryPublish(registryStore, UNPUBLISH);
-            registryStoreMap.put(pid, false);
+            registryStoreSet.add(pid);
         }
     }
 }
