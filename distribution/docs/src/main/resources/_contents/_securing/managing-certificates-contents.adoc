@@ -126,14 +126,6 @@ For example:
 `127.0.0.1 <FQDN>`
 ====
 
-[NOTE]
-====
-By default, the Catalog Backup Post-Ingest Plugin is *NOT* enabled.
-To enable, the Enable Backup Plugin configuration item must be checked in the Backup Post-Ingest Plugin configuration.
-
-`Enable Backup Plugin: true`
-====
-
 .Changing Default Passwords
 [NOTE]
 ====

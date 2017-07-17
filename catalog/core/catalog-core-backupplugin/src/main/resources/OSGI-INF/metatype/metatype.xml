@@ -13,13 +13,8 @@
 -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <OCD description="Backup Post-Ingest Plugin Configuration"
-         name="Backup Post-Ingest Plugin" id="plugin.backup">
-
-        <AD
-                description="Enable the Backup Ingest plugin which will write each result to a directory"
-                name="Enable Backup Plugin" id="enableBackupPlugin"
-                required="false" type="Boolean" default="true"/>
+    <OCD description="Catalog Backup Plugin Configuration"
+         name="Catalog Backup Plugin" id="ddf.catalog.backup.CatalogBackupPlugin">
 
         <AD
                 description="Root backup directory for Metacards. A relative path is relative to ddf.home."
@@ -33,8 +28,8 @@
 
     </OCD>
 
-    <Designate pid="plugin.backup">
-        <Object ocdref="plugin.backup"/>
+    <Designate pid="ddf.catalog.backup.CatalogBackupPlugin">
+        <Object ocdref="ddf.catalog.backup.CatalogBackupPlugin"/>
     </Designate>
 
 </metatype:MetaData>

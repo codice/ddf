@@ -4,15 +4,22 @@ The Catalog Backup Plugin is used to enable data backup of the catalog and the m
 
 ===== Installing the Catalog Backup Plugin
 
-The Catalog Backup Plugin is installed by default with a standard installation in the ${ddf-catalog} application.
+The Catalog Backup Plugin is not installed by default with a standard installation.
+
+To install:
+
+* Navigate to the *${admin-console}*.
+* Navigate to *${ddf-catalog}* application.
+* Navigate to *Features* tab.
+* Install the *catalog-core-backupplugin* feature.
 
 ===== Configuring the Catalog Backup Plugin
 
 To configure the Catalog Backup Plugin:
 
 . Navigate to the *${admin-console}*.
-. Select ${ddf-catalog} application.
+. Select *${ddf-catalog}* application.
 . Select *Configuration* tab.
-. Select *Backup Post-Ingest Plugin*.
+. Select *Catalog Backup Plugin*.
 
-include::{adoc-include}/_tables/plugin.backup-table-contents.adoc[]
+include::{adoc-include}/_tables/ddf.catalog.backup.CatalogBackupPlugin-table-contents.adoc[]

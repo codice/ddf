@@ -356,10 +356,6 @@ public abstract class AbstractIntegrationTest {
             getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
             getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/csw?_wadl");
 
-            //currently none of the test use this feature but
-            //it generates a lot of error/warnings so turning it off
-            getServiceManager().stopFeature(false, "catalog-core-backupplugin");
-
             getServiceManager().startFeature(true, "search-ui", "search-ui-app", "catalog-ui");
             getServiceManager().waitForAllBundles();
         } catch (Exception e) {

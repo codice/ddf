@@ -1,0 +1,3 @@
+|<<ddf.catalog.backup.CatalogBackupPlugin,Catalog Backup Plugin>>
+|ddf.catalog.backup.CatalogBackupPlugin
+|Catalog Backup Plugin Configuration

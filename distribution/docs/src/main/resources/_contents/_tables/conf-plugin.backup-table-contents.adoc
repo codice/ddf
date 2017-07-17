@@ -1,4 +1,0 @@
-|<<plugin.backup,Backup Post-Ingest Plugin>>
-|plugin.backup
-|Backup Post-Ingest Plugin Configuration
-
