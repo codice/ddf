@@ -66,6 +66,7 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.catalog.util.impl.ResultIterable;
 
 public class EndpointUtil {
     private final List<MetacardType> metacardTypes;
@@ -134,11 +135,13 @@ public class EndpointUtil {
 
     public Map<String, Result> getMetacardsByFilter(String tagFilter)
             throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+
         Filter filter = filterBuilder.attribute(Metacard.TAGS)
                 .is()
                 .like()
                 .text(tagFilter);
-        QueryResponse queryResponse = catalogFramework.query(new QueryRequestImpl(new QueryImpl(
+
+        ResultIterable resultIterable = new ResultIterable(catalogFramework, new QueryRequestImpl(new QueryImpl(
                 filter,
                 1,
                 -1,
@@ -147,10 +150,12 @@ public class EndpointUtil {
                 TimeUnit.SECONDS.toMillis(10)), false));
 
         Map<String, Result> results = new HashMap<>();
-        for (Result result : queryResponse.getResults()) {
+
+        for (Result result : resultIterable) {
             results.put(result.getMetacard()
                     .getId(), result);
         }
+
         return results;
     }
 
@@ -193,7 +198,7 @@ public class EndpointUtil {
         }
 
         Filter queryFilter = filterBuilder.anyOf(filters);
-        QueryResponse response = catalogFramework.query(new QueryRequestImpl(new QueryImpl(
+        ResultIterable resultIterable = new ResultIterable(catalogFramework, new QueryRequestImpl(new QueryImpl(
                 queryFilter,
                 1,
                 -1,
@@ -201,7 +206,7 @@ public class EndpointUtil {
                 false,
                 TimeUnit.SECONDS.toMillis(10)), false));
         Map<String, Result> results = new HashMap<>();
-        for (Result result : response.getResults()) {
+        for (Result result : resultIterable) {
             results.put(result.getMetacard()
                     .getId(), result);
         }
