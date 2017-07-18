@@ -31,7 +31,6 @@ import org.bouncycastle.asn1.ASN1Encoding;
 import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.asn1.x509.GeneralNamesBuilder;
 import org.bouncycastle.cert.X509CertificateHolder;
-import org.hamcrest.MatcherAssert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -43,16 +42,31 @@ import ddf.security.SecurityConstants;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CertificateCommandTest {
-    private static final String[] SANs = new String[] {"IP:1.2.3.4", "DNS:A"};
+    private static final String[] SANS = new String[] {"IP:1.2.3.4", "DNS:A"};
 
-    private static final String SANs_ARG = "IP:1.2.3.4,DNS:A";
+    private static final String SANS_ARG = "IP:1.2.3.4,DNS:A";
+
+    private static final byte[] ENCODED_SAN_GENERAL_NAME;
+
+    static {
+        try {
+            ENCODED_SAN_GENERAL_NAME =
+                    new GeneralNamesBuilder().addName(new GeneralName(GeneralName.iPAddress,
+                            "1.2.3.4"))
+                            .addName(new GeneralName(GeneralName.dNSName, "A"))
+                            .build()
+                            .getEncoded(ASN1Encoding.DER);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
 
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     private File systemKeystoreFile = null;
 
-    private static void validateCertificateHasNoSAN(KeyStoreFile ksf, String alias)
+    private static void validateCertificateHasNoSan(KeyStoreFile ksf, String alias)
             throws Exception {
         final KeyStore.Entry ke = ksf.getEntry(alias);
 
@@ -61,12 +75,12 @@ public class CertificateCommandTest {
         final Certificate c = pke.getCertificate();
         final X509CertificateHolder holder = new X509CertificateHolder(c.getEncoded());
 
-        MatcherAssert.assertThat("There should be no subject alternative name extension",
+        assertThat("There should be no subject alternative name extension",
                 holder.getExtension(org.bouncycastle.asn1.x509.Extension.subjectAlternativeName),
                 nullValue(org.bouncycastle.asn1.x509.Extension.class));
     }
 
-    private static void validateCertificateHasSANs(KeyStoreFile ksf, String alias)
+    private static void validateCertificateHasSans(KeyStoreFile ksf, String alias)
             throws Exception {
         final KeyStore.Entry ke = ksf.getEntry(alias);
 
@@ -77,25 +91,21 @@ public class CertificateCommandTest {
         final org.bouncycastle.asn1.x509.Extension csn =
                 holder.getExtension(org.bouncycastle.asn1.x509.Extension.subjectAlternativeName);
 
-        MatcherAssert.assertThat(csn.getParsedValue()
+        assertThat(csn.getParsedValue()
                         .toASN1Primitive()
                         .getEncoded(ASN1Encoding.DER),
-                equalTo(new GeneralNamesBuilder().addName(new GeneralName(GeneralName.iPAddress,
-                        "1.2.3.4"))
-                        .addName(new GeneralName(GeneralName.dNSName, "A"))
-                        .build()
-                        .getEncoded(ASN1Encoding.DER)));
+                equalTo(CertificateCommandTest.ENCODED_SAN_GENERAL_NAME));
     }
 
-    private static void validateKeyStore(String alias, boolean hasSAN) throws Exception {
+    private static void validateKeyStore(String alias, boolean hasSan) throws Exception {
         final KeyStoreFile ksf = CertificateCommand.getKeyStoreFile();
 
         assertThat(ksf.aliases()
                 .size(), is(2));
-        if (hasSAN) {
-            validateCertificateHasSANs(ksf, alias);
+        if (hasSan) {
+            validateCertificateHasSans(ksf, alias);
         } else {
-            validateCertificateHasNoSAN(ksf, alias);
+            validateCertificateHasNoSan(ksf, alias);
         }
     }
 
@@ -116,7 +126,7 @@ public class CertificateCommandTest {
     }
 
     @Test
-    public void testConfigureDemoCertWithoutSAN() throws Exception {
+    public void testConfigureDemoCertWithoutSan() throws Exception {
         final KeyStoreFile ksf = CertificateCommand.getKeyStoreFile();
 
         assertThat(ksf.aliases()
@@ -129,21 +139,21 @@ public class CertificateCommandTest {
     }
 
     @Test
-    public void testConfigureDemoCertWithSANs() throws Exception {
+    public void testConfigureDemoCertWithSans() throws Exception {
         final KeyStoreFile ksf = CertificateCommand.getKeyStoreFile();
 
         assertThat(ksf.aliases()
                 .size(), is(2));
         assertThat(ksf.isKey("my-fqdn"), is(false));
 
-        assertThat(CertificateCommand.configureDemoCert("my-fqdn", CertificateCommandTest.SANs),
+        assertThat(CertificateCommand.configureDemoCert("my-fqdn", CertificateCommandTest.SANS),
                 equalTo("CN=my-fqdn"));
 
         validateKeyStore("my-fqdn", true);
     }
 
     @Test
-    public void testConfigureDemoCertWithDNAndWithoutSAN() throws Exception {
+    public void testConfigureDemoCertWithDnAndWithoutSan() throws Exception {
         final KeyStoreFile ksf = CertificateCommand.getKeyStoreFile();
 
         assertThat(ksf.aliases()
@@ -159,7 +169,7 @@ public class CertificateCommandTest {
     }
 
     @Test
-    public void testConfigureDemoCertWithDNAndSANs() throws Exception {
+    public void testConfigureDemoCertWithDnAndSans() throws Exception {
         final KeyStoreFile ksf = CertificateCommand.getKeyStoreFile();
 
         assertThat(ksf.aliases()
@@ -169,37 +179,37 @@ public class CertificateCommandTest {
 
         assertThat(CertificateCommand.configureDemoCertWithDN(new String[] {"cn=John Whorfin",
                         "o=Yoyodyne", "l=San Narciso", "st=California", "c=US"},
-                CertificateCommandTest.SANs),
+                CertificateCommandTest.SANS),
                 equalTo("CN=John Whorfin,O=Yoyodyne,L=San Narciso,ST=California,C=US"));
 
         validateKeyStore("john whorfin", true);
     }
 
     @Test
-    public void testMainWithCNAndWithoutSAN() throws Exception {
+    public void testMainWithCNAndWithoutSan() throws Exception {
         CertificateCommand.main(new String[] {"-cn", "my-fqdn"});
 
         validateKeyStore("my-fqdn", false);
     }
 
     @Test
-    public void testMainWithCNAndSANs() throws Exception {
+    public void testMainWithCNAndSans() throws Exception {
         CertificateCommand.main(new String[] {"-cn", "my-fqdn", "-san",
-                CertificateCommandTest.SANs_ARG});
+                CertificateCommandTest.SANS_ARG});
 
         validateKeyStore("my-fqdn", true);
     }
 
     @Test
-    public void testMainWithCNAndSANsReversedArguments() throws Exception {
-        CertificateCommand.main(new String[] {"-san", CertificateCommandTest.SANs_ARG, "-cn",
+    public void testMainWithCNAndSansReversedArguments() throws Exception {
+        CertificateCommand.main(new String[] {"-san", CertificateCommandTest.SANS_ARG, "-cn",
                 "my-fqdn"});
 
         validateKeyStore("my-fqdn", true);
     }
 
     @Test
-    public void testMainWithDNAndWithoutSAN() throws Exception {
+    public void testMainWithDnAndWithoutSan() throws Exception {
         CertificateCommand.main(new String[] {"-dn",
                 "CN=John Whorfin,O=Yoyodyne,L=San Narciso,ST=California,C=US"});
 
@@ -207,17 +217,17 @@ public class CertificateCommandTest {
     }
 
     @Test
-    public void testMainWithDNAndSANs() throws Exception {
+    public void testMainWithDnAndSans() throws Exception {
         CertificateCommand.main(new String[] {"-dn",
                 "CN=John Whorfin,O=Yoyodyne,L=San Narciso,ST=California,C=US", "-san",
-                CertificateCommandTest.SANs_ARG});
+                CertificateCommandTest.SANS_ARG});
 
         validateKeyStore("john whorfin", true);
     }
 
     @Test
-    public void testMainWithDNAndSANsReversedArguments() throws Exception {
-        CertificateCommand.main(new String[] {"-san", CertificateCommandTest.SANs_ARG, "-dn",
+    public void testMainWithDnAndSansReversedArguments() throws Exception {
+        CertificateCommand.main(new String[] {"-san", CertificateCommandTest.SANS_ARG, "-dn",
                 "CN=John Whorfin,O=Yoyodyne,L=San Narciso,ST=California,C=US"});
 
         validateKeyStore("john whorfin", true);
@@ -229,8 +239,8 @@ public class CertificateCommandTest {
     }
 
     @Test(expected = RuntimeException.class)
-    public void testMainWithTooFewArgumentsWithSAN() throws Exception {
-        CertificateCommand.main(new String[] {"-san", CertificateCommandTest.SANs_ARG,
+    public void testMainWithTooFewArgumentsWithSan() throws Exception {
+        CertificateCommand.main(new String[] {"-san", CertificateCommandTest.SANS_ARG,
                 "something"});
     }
 
@@ -238,5 +248,4 @@ public class CertificateCommandTest {
     public void testMainWithTooManyArguments() throws Exception {
         CertificateCommand.main(new String[] {"something", "wicked", "is", "coming", "to", "town"});
     }
-
 }

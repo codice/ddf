@@ -190,7 +190,7 @@ public class CertificateSigningRequestTest {
     }
 
     @Test
-    public void testNewCertificateBuilderWithoutSAN() throws Exception {
+    public void testNewCertificateBuilderWithoutSan() throws Exception {
         final DateTime start = DateTime.now()
                 .minusDays(1);
         final DateTime end = start.plusYears(100);
@@ -225,7 +225,7 @@ public class CertificateSigningRequestTest {
     }
 
     @Test
-    public void testNewCertificateBuilderWithSAN() throws Exception {
+    public void testNewCertificateBuilderWithSan() throws Exception {
         final DateTime start = DateTime.now()
                 .minusDays(1);
         final DateTime end = start.plusYears(100);
