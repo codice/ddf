@@ -17,13 +17,18 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 
+import org.apache.commons.lang3.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.opengis.ows.v_1_0_0.ExceptionReport;
 import net.opengis.ows.v_1_0_0.ExceptionType;
 
 public class CswExceptionMapper implements ExceptionMapper<Throwable> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CswExceptionMapper.class);
 
     // Per the CSW 2.0.2 spec, the service exception report version is fixed at
     // 1.2.0
@@ -35,11 +40,21 @@ public class CswExceptionMapper implements ExceptionMapper<Throwable> {
         if (exception instanceof CswException) {
             cswException = (CswException) exception;
         } else {
-            cswException = new CswException(
-                    "Error parsing the request.  XML parameters may be missing or invalid.",
-                    CswConstants.MISSING_PARAMETER_VALUE,
-                    null);
+            String message = exception.getMessage();
+            if (StringUtils.isBlank(message)) {
+                cswException = new CswException(
+                        "Error parsing the request.  XML parameters may be missing or invalid.",
+                        exception);
+                cswException.setExceptionCode(CswConstants.MISSING_PARAMETER_VALUE);
+            } else {
+                cswException = new CswException(
+                        "Error handling request: " + message,
+                        exception);
+                cswException.setExceptionCode(CswConstants.NO_APPLICABLE_CODE);
+            }
         }
+        LOGGER.debug("Error in CSW processing", cswException);
+
         return Response.status(cswException.getHttpStatus())
                 .entity(createServiceException(cswException))
                 .type(MediaType.TEXT_XML)
