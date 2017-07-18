@@ -148,9 +148,7 @@ public class EndpointUtil {
                 SortBy.NATURAL_ORDER,
                 false,
                 TimeUnit.SECONDS.toMillis(10)), false));
-
         Map<String, Result> results = new HashMap<>();
-
         for (Result result : resultIterable) {
             results.put(result.getMetacard()
                     .getId(), result);
@@ -198,7 +196,8 @@ public class EndpointUtil {
         }
 
         Filter queryFilter = filterBuilder.anyOf(filters);
-        ResultIterable resultIterable = new ResultIterable(catalogFramework, new QueryRequestImpl(new QueryImpl(
+
+        ResultIterable resultsIterable = new ResultIterable(catalogFramework, new QueryRequestImpl(new QueryImpl(
                 queryFilter,
                 1,
                 -1,
@@ -206,10 +205,11 @@ public class EndpointUtil {
                 false,
                 TimeUnit.SECONDS.toMillis(10)), false));
         Map<String, Result> results = new HashMap<>();
-        for (Result result : resultIterable) {
+        for (Result result : resultsIterable) {
             results.put(result.getMetacard()
                     .getId(), result);
         }
+
         return results;
     }
 

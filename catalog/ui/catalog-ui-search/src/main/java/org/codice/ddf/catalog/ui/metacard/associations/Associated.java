@@ -24,7 +24,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -45,13 +44,13 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.federation.FederationException;
-import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.catalog.util.impl.ResultIterable;
 
 public class Associated {
 
@@ -268,17 +267,18 @@ public class Associated {
             return Collections.emptyMap();
         }
 
-        QueryResponse query = catalogFramework.query(new QueryRequestImpl(new QueryImpl(filter,
+        ResultIterable resultIterable = new ResultIterable(catalogFramework, new QueryRequestImpl(new QueryImpl(filter,
                 1,
                 0,
                 SortBy.NATURAL_ORDER,
                 false,
                 TimeUnit.SECONDS.toMillis(30)), false));
-
-        return query.getResults()
-                .stream()
-                .map(Result::getMetacard)
-                .collect(Collectors.toMap(Metacard::getId, Function.identity()));
+        Map<String, Metacard> results = new HashMap<>();
+        for (Result result : resultIterable) {
+            results.put(result.getMetacard()
+                    .getId(), result.getMetacard());
+        }
+        return results;
     }
 
     private List<String> getRelationsToChild(Metacard parent, Metacard child) {
