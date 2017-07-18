@@ -140,6 +140,7 @@
             gwc-web-1.5.0.war: commons-collections-3.1.jar
             gwc-web-1.5.0.war: postgresql-8.4-701.jdbc3.jar
             geowebcache-server-standalone-0.7.0.war: gwc-sqlite-1.9.1.jar
+            geowebcache-server-standalone-0.7.0.war: sqlite-jdbc-3.8.6.jar
             geowebcache-server-standalone-0.7.0.war: commons-fileupload-1.2.1.jar
         </notes>
         <cve>CVE-2016-3092</cve>
@@ -154,5 +155,6 @@
         <cve>CVE-2015-3416</cve>
         <cve>CVE-2015-3415</cve>
         <cve>CVE-2015-3414</cve>
+        <cve>CVE-2017-10989</cve>
     </suppress>
 </suppressions>
