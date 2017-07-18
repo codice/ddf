@@ -140,14 +140,13 @@ public class EndpointUtil {
                 .is()
                 .like()
                 .text(tagFilter);
-
-        ResultIterable resultIterable = new ResultIterable(catalogFramework, new QueryRequestImpl(new QueryImpl(
-                filter,
-                1,
-                -1,
-                SortBy.NATURAL_ORDER,
-                false,
-                TimeUnit.SECONDS.toMillis(10)), false));
+        ResultIterable resultIterable = new ResultIterable(catalogFramework,
+                new QueryRequestImpl(new QueryImpl(filter,
+                        1,
+                        -1,
+                        SortBy.NATURAL_ORDER,
+                        false,
+                        TimeUnit.SECONDS.toMillis(10)), false));
         Map<String, Result> results = new HashMap<>();
         for (Result result : resultIterable) {
             results.put(result.getMetacard()
@@ -196,14 +195,13 @@ public class EndpointUtil {
         }
 
         Filter queryFilter = filterBuilder.anyOf(filters);
-
-        ResultIterable resultsIterable = new ResultIterable(catalogFramework, new QueryRequestImpl(new QueryImpl(
-                queryFilter,
-                1,
-                -1,
-                SortBy.NATURAL_ORDER,
-                false,
-                TimeUnit.SECONDS.toMillis(10)), false));
+        ResultIterable resultsIterable = new ResultIterable(catalogFramework,
+                new QueryRequestImpl(new QueryImpl(queryFilter,
+                        1,
+                        -1,
+                        SortBy.NATURAL_ORDER,
+                        false,
+                        TimeUnit.SECONDS.toMillis(10)), false));
         Map<String, Result> results = new HashMap<>();
         for (Result result : resultsIterable) {
             results.put(result.getMetacard()
