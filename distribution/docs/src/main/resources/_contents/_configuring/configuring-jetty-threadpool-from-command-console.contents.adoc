@@ -1,0 +1,10 @@
+:title: Configuring Jetty ThreadPool Settings From ${command-console}
+:type: configuringCommandConsole
+:status: published
+:summary: Configuring jetty thread pools.
+:order: 061
+
+=== Configuring Jetty ThreadPool Settings From ${command-console}
+
+${branding} does not support changing ThreadPool settings from the ${command-console}.
+See <<_configuring_jetty_threadpool_settings_from_configuration_files,Configuring Jetty ThreadPool Settings From Configuration Files>>.

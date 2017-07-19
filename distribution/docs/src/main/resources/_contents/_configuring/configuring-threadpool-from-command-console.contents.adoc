@@ -1,0 +1,5 @@
+
+=== Configuring Jetty ThreadPool Settings From ${command-console}
+
+${branding} does not support changing Jetty ThreadPool settings from the ${command-console}.
+See <<_configuring_jetty_threadpool_settings_from_configuration_files,Configuring Jetty ThreadPool Settings From Configuration Files>>.

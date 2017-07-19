@@ -103,6 +103,8 @@ include::{adoc-include}/_securing/hardening-checklist-contents.adoc[]
 
 include::{adoc-include}/_securing/managing-certificates-contents.adoc[]
 
+include::{adoc-include}/_configuring/configuring-jetty-threadpool-settings-config-contents.adoc[]
+
 === Configuring from the ${admin-console}
 
 include::{adoc-include}/_configuring/admin-console-intro-contents.adoc[]
@@ -140,6 +142,8 @@ include::{adoc-include}/_securing/auditing-contents.adoc[]
 
 include::{adoc-include}/_configuring/configuring-landing-page-contents.adoc[]
 
+include::{adoc-include}/_configuring/configuring-jetty-threadpool-from-admin-console.contents.adoc[]
+
 === Configuring from the ${command-console}
 
 include::{adoc-include}/_configuring/command-console-intro-contents.adoc[]
@@ -155,6 +159,8 @@ include::{adoc-include}/_solr-contents/configuring-solr-from-command-console.ado
 include::{adoc-include}/_configuring/standalone-sts-contents.adoc[]
 
 include::{adoc-include}/_securing/hardening-solr-index-contents.adoc[]
+
+include::{adoc-include}/_configuring/configuring-jetty-threadpool-from-command-console.contents.adoc[]
 
 === Configuring from Configuration Files
 
