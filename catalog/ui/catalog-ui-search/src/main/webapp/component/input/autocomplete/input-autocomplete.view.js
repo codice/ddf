@@ -28,44 +28,36 @@ module.exports = InputView.extend({
         InputView.prototype.onRender.call(this);
     },
     initializeSelect(){
-        var propertyModel = this.model.get('property');
-
-        var url = propertyModel.get('url');
-        var delay = propertyModel.get('delay') || 250;
-        var cache = propertyModel.get('cache') || false;
-        var placeholder = propertyModel.get('placeholder');
-        var minimumInputLength = propertyModel.get('minimumInputLength') || 3;
-        var getUrlParams = propertyModel.get('getUrlParams') ||
-            function (query) { return { q: query }; };
-
-        var getLabelForResult = propertyModel.get('getLabelForResult') ||
-            function (item) { return item.name || item; };
-
-        var getLabelForSelection = propertyModel.get('getLabelForSelection') ||
-            getLabelForResult;      
-
-        var processResults = propertyModel.get('processResults') || 
-            function (data) {
+        var options = {
+            delay: 250,
+            cache: false,
+            minimumInputLength: 3,
+            getUrlParams(query) { return { q: query }; },
+            getLabelForResult(item) { return item.name || item; },
+            getLabelForSelection(item) { return item.name || item; },
+            processResults(data) {
                 var items = data.items;
                 if (!Array.isArray(items)) { items = data; }
                 if (!Array.isArray(items)) { items = []; }
                 return items.map(function(item){
                     return { name: item, id: item };
                 });
-            };
+            }
+        };
+        _.extend(options, this.model.get('property').attributes);
 
         this.$el.find('select').select2({
-            placeholder,
-            minimumInputLength,
+            placeholder: options.placeholder,
+            minimumInputLength: options.minimumInputLength,
             ajax: {
-                url, 
+                url: options.url, 
                 dataType: 'json',
-                delay,
+                delay: options.delay,
                 data(params) {
-                    return getUrlParams(params.term);
+                    return options.getUrlParams(params.term);
                 },
                 processResults(data, params) {
-                    var results = processResults(data);
+                    var results = options.processResults(data);
                     return {
                         results,
                         pagination: {
@@ -73,16 +65,17 @@ module.exports = InputView.extend({
                         }
                     };
                 },
-                cache
+                cache: options.cache,
+                customErrorHandling: true, // let select2 abort ajax requests silently               
             },
             escapeMarkup(markup) { return markup; },
             templateResult(result) {
                 if (result.loading) { return result.text; }
-                return getLabelForResult(result);
+                return options.getLabelForResult(result);
             },
             templateSelection(result) {
                 if (!result.id) { return result.text; /* nothing selected */ }
-                return getLabelForSelection(result);
+                return options.getLabelForSelection(result);
             }            
         });
     },

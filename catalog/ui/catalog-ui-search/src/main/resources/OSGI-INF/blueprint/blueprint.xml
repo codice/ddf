@@ -328,7 +328,11 @@
     <service ref="workspaceQueryService"
              interface="org.codice.ddf.catalog.ui.query.monitor.api.WorkspaceQueryService"/>
 
-    <bean id="featureService" class="org.codice.ddf.catalog.ui.query.geofeature.StubFeatureService"/>
+    <reference id="geoEntryQueryable" interface="org.codice.ddf.spatial.geocoding.GeoEntryQueryable"/>
+
+    <bean id="featureService" class="org.codice.ddf.catalog.ui.query.geofeature.GazetteerFeatureService">
+        <property name="geoEntryQueryable" ref="geoEntryQueryable"/>
+    </bean>
 
     <service ref="featureService" interface="org.codice.ddf.catalog.ui.query.geofeature.FeatureService"/>
 

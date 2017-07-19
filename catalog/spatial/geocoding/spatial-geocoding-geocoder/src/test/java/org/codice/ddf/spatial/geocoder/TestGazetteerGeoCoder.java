@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  **/
 
-package org.codice.ddf.spatial.geocoder.geonames;
+package org.codice.ddf.spatial.geocoder;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -29,7 +29,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.codice.ddf.spatial.geocoder.GeoResult;
 import org.codice.ddf.spatial.geocoding.GeoEntry;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryException;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryable;
@@ -40,14 +39,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opengis.geometry.primitive.Point;
 
-public class TestGeoNamesLocalIndex {
+public class TestGazetteerGeoCoder {
     private static final String TEST_POINT = "POINT (1.0 2.0)";
-
-    private Optional<String> countryCode;
-
-    private GeoNamesLocalIndex geoNamesLocalIndex;
-
-    private GeoEntryQueryable geoEntryQueryable;
 
     private static final GeoEntry GEO_ENTRY_1 = new GeoEntry.Builder().name("Phoenix")
             .latitude(10)
@@ -65,11 +58,17 @@ public class TestGeoNamesLocalIndex {
             .alternateNames("Tempe2")
             .build();
 
+    private Optional<String> countryCode;
+
+    private GazetteerGeoCoder gazetteerGeoCoder;
+
+    private GeoEntryQueryable geoEntryQueryable;
+
     @Before
     public void setUp() {
-        geoNamesLocalIndex = new GeoNamesLocalIndex();
+        gazetteerGeoCoder = new GazetteerGeoCoder();
         geoEntryQueryable = mock(GeoEntryQueryable.class);
-        geoNamesLocalIndex.setGeoEntryQueryable(geoEntryQueryable);
+        gazetteerGeoCoder.setGeoEntryQueryable(geoEntryQueryable);
     }
 
     @Test
@@ -78,7 +77,7 @@ public class TestGeoNamesLocalIndex {
         doReturn(topResults).when(geoEntryQueryable)
                 .query("Phoenix", 1);
 
-        final GeoResult geoResult = geoNamesLocalIndex.getLocation("Phoenix");
+        final GeoResult geoResult = gazetteerGeoCoder.getLocation("Phoenix");
         assertThat(geoResult.getFullName(), is(equalTo(GEO_ENTRY_1.getName())));
 
         final Point point = new PointImpl(new DirectPositionImpl(GEO_ENTRY_1.getLongitude(),
@@ -92,7 +91,7 @@ public class TestGeoNamesLocalIndex {
         doReturn(noResults).when(geoEntryQueryable)
                 .query("Tempe", 1);
 
-        final GeoResult geoResult = geoNamesLocalIndex.getLocation("Tempe");
+        final GeoResult geoResult = gazetteerGeoCoder.getLocation("Tempe");
         assertThat(geoResult, is(nullValue()));
     }
 
@@ -101,7 +100,7 @@ public class TestGeoNamesLocalIndex {
         doThrow(GeoEntryQueryException.class).when(geoEntryQueryable)
                 .query("Arizona", 1);
 
-        final GeoResult geoResult = geoNamesLocalIndex.getLocation("Arizona");
+        final GeoResult geoResult = gazetteerGeoCoder.getLocation("Arizona");
         assertThat(geoResult, is(nullValue()));
     }
 
@@ -119,7 +118,7 @@ public class TestGeoNamesLocalIndex {
         when(geoEntryQueryable.getNearestCities("POINT(1.0 20)",
                 50,
                 1)).thenReturn(nearbyLocations);
-        NearbyLocation returnedNearbyLocation = geoNamesLocalIndex.getNearbyCity("POINT(1.0 20)");
+        NearbyLocation returnedNearbyLocation = gazetteerGeoCoder.getNearbyCity("POINT(1.0 20)");
 
         assertThat(returnedNearbyLocation, equalTo(mockNearbyLocation));
     }
@@ -137,7 +136,7 @@ public class TestGeoNamesLocalIndex {
         when(geoEntryQueryable.getNearestCities("POINT(1.0 20)",
                 50,
                 1)).thenReturn(nearbyLocations);
-        NearbyLocation returnedNearbyLocation = geoNamesLocalIndex.getNearbyCity("POINT(1.0 20)");
+        NearbyLocation returnedNearbyLocation = gazetteerGeoCoder.getNearbyCity("POINT(1.0 20)");
 
         assertThat(returnedNearbyLocation, nullValue());
     }
@@ -147,7 +146,7 @@ public class TestGeoNamesLocalIndex {
         when(geoEntryQueryable.getNearestCities("POINT(1.0 20)",
                 50,
                 1)).thenThrow(new ParseException("", 1));
-        NearbyLocation returnedNearbyLocation = geoNamesLocalIndex.getNearbyCity("POINT(1.0 20)");
+        NearbyLocation returnedNearbyLocation = gazetteerGeoCoder.getNearbyCity("POINT(1.0 20)");
         assertThat(returnedNearbyLocation, nullValue());
     }
 
@@ -155,7 +154,7 @@ public class TestGeoNamesLocalIndex {
     public void testGetCountryCode() throws ParseException, GeoEntryQueryException {
         when(geoEntryQueryable.getCountryCode(TEST_POINT, 50)).thenReturn(Optional.of("US"));
 
-        countryCode = geoNamesLocalIndex.getCountryCode(TEST_POINT, 50);
+        countryCode = gazetteerGeoCoder.getCountryCode(TEST_POINT, 50);
 
         assertThat(countryCode.get(), is("USA"));
     }
@@ -164,7 +163,7 @@ public class TestGeoNamesLocalIndex {
     public void testGetCountryCodeNoResult() throws ParseException, GeoEntryQueryException {
         when(geoEntryQueryable.getCountryCode(TEST_POINT, 50)).thenReturn(Optional.empty());
 
-        countryCode = geoNamesLocalIndex.getCountryCode(TEST_POINT, 50);
+        countryCode = gazetteerGeoCoder.getCountryCode(TEST_POINT, 50);
         assertThat(countryCode.isPresent(), is(false));
     }
 
@@ -174,7 +173,7 @@ public class TestGeoNamesLocalIndex {
         when(geoEntryQueryable.getCountryCode(TEST_POINT, 50)).thenThrow(new GeoEntryQueryException(
                 ""));
 
-        countryCode = geoNamesLocalIndex.getCountryCode(TEST_POINT, 50);
+        countryCode = gazetteerGeoCoder.getCountryCode(TEST_POINT, 50);
         assertThat(countryCode.isPresent(), is(false));
     }
 
@@ -182,7 +181,7 @@ public class TestGeoNamesLocalIndex {
     public void testGetCountryCodeParseException() throws ParseException, GeoEntryQueryException {
         when(geoEntryQueryable.getCountryCode(TEST_POINT, 50)).thenThrow(new ParseException("", 1));
 
-        countryCode = geoNamesLocalIndex.getCountryCode(TEST_POINT, 50);
+        countryCode = gazetteerGeoCoder.getCountryCode(TEST_POINT, 50);
         assertThat(countryCode.isPresent(), is(false));
     }
 
@@ -192,7 +191,7 @@ public class TestGeoNamesLocalIndex {
         when(geoEntryQueryable.getCountryCode(TEST_POINT, 50)).thenReturn(Optional.of(
                 "not a country code"));
 
-        countryCode = geoNamesLocalIndex.getCountryCode(TEST_POINT, 50);
+        countryCode = gazetteerGeoCoder.getCountryCode(TEST_POINT, 50);
 
         assertThat(countryCode.isPresent(), is(false));
     }

@@ -29,13 +29,15 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.Optional;
 
 import javax.ws.rs.WebApplicationException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.codice.ddf.spatial.geocoder.GeoResult;
+import org.codice.ddf.spatial.geocoding.GeoEntry;
+import org.codice.ddf.spatial.geocoding.GeoEntryQueryException;
 import org.codice.ddf.spatial.geocoding.context.NearbyLocation;
 import org.junit.Before;
 import org.junit.Test;
@@ -116,21 +118,21 @@ public class TestGeoNamesWebService {
     }
 
     @Test
-    public void testGetLocation() throws IOException {
+    public void testGetLocation() throws IOException, GeoEntryQueryException {
         String response = IOUtils.toString(TestGeoNamesWebService.class.getClassLoader()
                 .getResourceAsStream("getLocationTestResponse.json"));
 
         prepareWebClient(response);
 
-        GeoResult result = webServiceSpy.getLocation("Phoenix");
-        assertThat(result.getFullName(), is("Phoenix"));
+        GeoEntry result = webServiceSpy.query("Phoenix", 0).get(0);
+        assertThat(result.getName(), is("Phoenix"));
     }
 
     @Test
-    public void testGetNearbyCity() {
+    public void testGetNearbyCity() throws ParseException, GeoEntryQueryException {
         prepareWebClient(NEARBY_CITY_QUERY_TEST_RESPONSE);
 
-        NearbyLocation nearbyLocation = webServiceSpy.getNearbyCity(QUERY_TEST_LOCATION);
+        NearbyLocation nearbyLocation = webServiceSpy.getNearestCities(QUERY_TEST_LOCATION, 0, 1).get(0);
         assertThat(nearbyLocation.getCardinalDirection(), equalTo("W"));
         assertThat(nearbyLocation.getDistance(), greaterThan(14.0));
         assertThat(nearbyLocation.getDistance(), lessThan(15.0));

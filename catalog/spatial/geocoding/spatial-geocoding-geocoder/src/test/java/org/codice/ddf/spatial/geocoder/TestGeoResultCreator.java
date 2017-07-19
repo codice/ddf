@@ -19,6 +19,7 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
 import static junit.framework.Assert.assertEquals;
 
+import org.codice.ddf.spatial.geocoding.GeoEntry;
 import org.geotools.geometry.jts.spatialschema.geometry.DirectPositionImpl;
 import org.geotools.geometry.jts.spatialschema.geometry.primitive.PointImpl;
 import org.junit.Test;
@@ -33,6 +34,17 @@ public class TestGeoResultCreator {
                 longitude,
                 featureCode,
                 population);
+        verifyGeoResult(name,
+                latitude,
+                longitude,
+                expectedLatitudeOffset,
+                expectedLongitudeOffset,
+                geoResult);
+    }
+
+    private void verifyGeoResult(final String name, final double latitude, final double longitude,
+            final double expectedLatitudeOffset, final double expectedLongitudeOffset,
+            final GeoResult geoResult) {
 
         assertThat(geoResult.fullName, is(equalTo(name)));
 
@@ -88,5 +100,17 @@ public class TestGeoResultCreator {
     @Test
     public void testCreateGeoResultOtherFeatureCode() {
         verifyGeoResult("Scottsdale", 0.123, 89.013, "ANCH", 100000, 0.1, 0.1);
+    }
+
+    @Test
+    public void testGeoEntryConstructor() {
+        final GeoResult geoResult = GeoResultCreator.createGeoResult(new GeoEntry.Builder().name(
+                "Phoenix")
+                .latitude(5)
+                .longitude(10)
+                .featureCode("ADM1")
+                .population(1000)
+                .build());
+        verifyGeoResult("Phoenix", 5, 10, 5, 5, geoResult);
     }
 }

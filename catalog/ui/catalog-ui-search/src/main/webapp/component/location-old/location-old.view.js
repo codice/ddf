@@ -511,21 +511,21 @@ define([
                     eventToDrawShape = 'search:circledisplay';                    
                     break;
                 }
+                default: {
+                    Announcement.announce({
+                        title: 'Invalid feature',
+                        message: 'Unrecognized feature type: ' + data.type,
+                        type: 'error'
+                    });
+                    return;
+                }
             }
 
-            if (attrsToSet && eventToDrawShape) {
-                _.extend(attrsToSet, { locationType: "latlon", hasKeyword: true });
-                this.clearLocation();                 
-                this.model.set(attrsToSet);
-                this.render(); // redraw template so appropriate fields appear
-                wreqr.vent.trigger(eventToDrawShape, this.model);      
-            } else {
-                Announcement.announce({
-                    title: 'Invalid feature',
-                    message: 'Unrecognized feature type: ' + data.type,
-                    type: 'error'
-                });
-            }
+            _.extend(attrsToSet, { locationType: "latlon", hasKeyword: true });
+            this.clearLocation();                 
+            this.model.set(attrsToSet);
+            this.render(); // redraw template so appropriate fields appear
+            wreqr.vent.trigger(eventToDrawShape, this.model);      
         },
         blockMultiselectEvents: function () {
             $('.ui-multiselect-menu').on('mousedown', function (e) {

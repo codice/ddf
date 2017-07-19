@@ -13,23 +13,27 @@
  **/
 package org.codice.ddf.spatial.geocoder.geonames;
 
+import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang.Validate.notNull;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.Optional;
 
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.codice.ddf.spatial.geocoder.GeoCoder;
-import org.codice.ddf.spatial.geocoder.GeoResult;
-import org.codice.ddf.spatial.geocoder.GeoResultCreator;
+import org.codice.ddf.spatial.geocoding.GeoEntry;
+import org.codice.ddf.spatial.geocoding.GeoEntryQueryException;
+import org.codice.ddf.spatial.geocoding.GeoEntryQueryable;
 import org.codice.ddf.spatial.geocoding.context.NearbyLocation;
 import org.codice.ddf.spatial.geocoding.context.impl.NearbyLocationImpl;
 import org.locationtech.spatial4j.context.SpatialContext;
@@ -45,7 +49,7 @@ import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 
-public class GeoNamesWebService implements GeoCoder {
+public class GeoNamesWebService implements GeoEntryQueryable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GeoNamesWebService.class);
 
@@ -60,6 +64,8 @@ public class GeoNamesWebService implements GeoCoder {
 
     private static final String GEONAMES_COUNTRYCODE = "countryCode";
 
+    private static final int GEONAMES_MAX_ROWS = 1000;
+
     private static final String LAT_KEY = "lat";
 
     private static final String LON_KEY = "lng";
@@ -71,111 +77,77 @@ public class GeoNamesWebService implements GeoCoder {
     private static final String PLACENAME_KEY = "name";
 
     @Override
-    public GeoResult getLocation(String location) {
+    public List<GeoEntry> query(String queryString, int maxResults) throws GeoEntryQueryException {
 
-        location = getUrlEncodedLocation(location);
+        String location = getUrlEncodedLocation(queryString);
 
-        String urlStr = String.format("%s://%s/searchJSON?q=%s&username=%s",
+        String urlStr = String.format("%s://%s/searchJSON?q=%s&username=%s&maxRows=%d",
                 GEONAMES_PROTOCOL,
                 GEONAMES_API_ADDRESS,
                 location,
-                USERNAME);
+                USERNAME,
+                limitMaxRows(maxResults));
 
-        Object result = query(urlStr);
+        Object result = webQuery(urlStr);
 
         if (result != null) {
             if (result instanceof JSONObject) {
                 JSONObject jsonResult = (JSONObject) result;
-                JSONArray geonames = (JSONArray) jsonResult.get(GEONAMES_KEY);
-                if (geonames != null && geonames.size() > 0) {
-                    JSONObject firstResult = (JSONObject) geonames.get(0);
-                    if (firstResult != null) {
-                        double lat = Double.valueOf((String) firstResult.get(LAT_KEY));
-                        double lon = Double.valueOf((String) firstResult.get(LON_KEY));
-
-                        Long population = (Long) firstResult.get(POPULATION_KEY);
-                        String adminCode = (String) firstResult.get(ADMIN_CODE_KEY);
-
-                        return GeoResultCreator.createGeoResult((String) firstResult.get(
-                                PLACENAME_KEY), lat, lon, adminCode, population);
-                    }
+                JSONArray geoNames = (JSONArray) jsonResult.get(GEONAMES_KEY);
+                if (geoNames != null) {
+                    return geoNames.stream()
+                            .map(JSONObject.class::cast)
+                            .map(obj -> new GeoEntry.Builder().name((String) obj.get(PLACENAME_KEY))
+                                    .population((Long) obj.get(POPULATION_KEY))
+                                    .featureCode((String) obj.get(ADMIN_CODE_KEY))
+                                    .latitude(Double.valueOf((String) obj.get(LAT_KEY)))
+                                    .longitude(Double.valueOf((String) obj.get(LON_KEY)))
+                                    .build())
+                            .collect(toList());
                 }
             }
         }
 
-        return null;
-    }
-
-    private Object query(String urlStr) {
-        final String response;
-
-        try {
-            WebClient client = createWebClient(urlStr);
-            response = client.acceptEncoding(StandardCharsets.UTF_8.name())
-                    .accept("application/json")
-                    .get(String.class);
-        } catch (WebApplicationException | ProcessingException e) {
-            LOGGER.debug("Error while making GeoNames request.", e);
-            return null;
-        }
-
-        try {
-            JSONParser parser = new JSONParser(JSONParser.MODE_JSON_SIMPLE);
-            return parser.parse(response);
-        } catch (ParseException e) {
-            LOGGER.debug("Error while parsing JSON message from GeoNames service.", e);
-            return null;
-        }
-    }
-
-    WebClient createWebClient(String urlStr) {
-        return WebClient.create(urlStr);
-    }
-
-    String getUrlEncodedLocation(String location) {
-
-        try {
-            location = URLEncoder.encode(location, StandardCharsets.UTF_8.name());
-        } catch (UnsupportedEncodingException e) {
-            LOGGER.debug("Unable to encode location.", e);
-        }
-
-        return location;
+        return Collections.emptyList();
     }
 
     @Override
-    public NearbyLocation getNearbyCity(String locationWkt) {
+    public List<NearbyLocation> getNearestCities(String locationWkt, int radiusInKm, int maxResults)
+            throws java.text.ParseException, GeoEntryQueryException {
         notNull(locationWkt, "argument locationWkt may not be null");
 
         Point wktCenterPoint = createPointFromWkt(locationWkt);
 
         String urlStr = String.format(
-                "%s://%s/findNearbyPlaceNameJSON?lat=%f&lng=%f&maxRows=1&username=%s&cities=cities5000",
+                "%s://%s/findNearbyPlaceNameJSON?lat=%f&lng=%f&maxRows=%d&radius=%d&username=%s&cities=cities5000",
                 GEONAMES_PROTOCOL,
                 GEONAMES_API_ADDRESS,
                 wktCenterPoint.getY(),
                 wktCenterPoint.getX(),
+                limitMaxRows(maxResults),
+                radiusInKm,
                 USERNAME);
 
-        Object result = query(urlStr);
+        Object result = webQuery(urlStr);
 
         if (result instanceof JSONObject) {
             JSONObject jsonResult = (JSONObject) result;
-            JSONArray geonames = (JSONArray) jsonResult.get(GEONAMES_KEY);
-            if (geonames != null && geonames.size() > 0) {
-                JSONObject firstResult = (JSONObject) geonames.get(0);
-                if (firstResult != null) {
-                    double lat = Double.valueOf((String) firstResult.get(LAT_KEY));
-                    double lon = Double.valueOf((String) firstResult.get(LON_KEY));
-                    String cityName = (String) firstResult.get(PLACENAME_KEY);
-                    Point cityPoint = new PointImpl(lon, lat, SpatialContext.GEO);
-
-                    return new NearbyLocationImpl(wktCenterPoint, cityPoint, cityName);
-                }
+            JSONArray geoNames = (JSONArray) jsonResult.get(GEONAMES_KEY);
+            if (geoNames != null) {
+                return geoNames.stream()
+                        .map(JSONObject.class::cast)
+                        .map(obj -> {
+                            double lat = Double.valueOf((String) obj.get(LAT_KEY));
+                            double lon = Double.valueOf((String) obj.get(LON_KEY));
+                            String cityName = (String) obj.get(PLACENAME_KEY);
+                            Point cityPoint = new PointImpl(lon, lat, SpatialContext.GEO);
+                            return new NearbyLocationImpl(wktCenterPoint, cityPoint, cityName);
+                        })
+                        .collect(toList());
             }
         }
 
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
@@ -192,7 +164,7 @@ public class GeoNamesWebService implements GeoCoder {
                 radius,
                 USERNAME);
 
-        Object result = query(urlStr);
+        Object result = webQuery(urlStr);
 
         if (result instanceof JSONObject) {
             JSONObject jsonResult = (JSONObject) result;
@@ -230,5 +202,46 @@ public class GeoNamesWebService implements GeoCoder {
         }
 
         return null;
+    }
+
+    private int limitMaxRows(int value) {
+        return value > GEONAMES_MAX_ROWS ? GEONAMES_MAX_ROWS : value;
+    }
+
+    private Object webQuery(String urlStr) {
+        final String response;
+
+        try {
+            WebClient client = createWebClient(urlStr);
+            response = client.acceptEncoding(StandardCharsets.UTF_8.name())
+                    .accept(MediaType.APPLICATION_JSON)
+                    .get(String.class);
+        } catch (WebApplicationException | ProcessingException e) {
+            LOGGER.debug("Error while making GeoNames request: {}", urlStr, e);
+            return null;
+        }
+
+        try {
+            JSONParser parser = new JSONParser(JSONParser.MODE_JSON_SIMPLE);
+            return parser.parse(response);
+        } catch (ParseException e) {
+            LOGGER.debug("Error while parsing JSON message from GeoNames service.", e);
+            return null;
+        }
+    }
+
+    WebClient createWebClient(String urlStr) {
+        return WebClient.create(urlStr);
+    }
+
+    String getUrlEncodedLocation(String location) {
+
+        try {
+            location = URLEncoder.encode(location, StandardCharsets.UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.debug("Unable to encode location: {}", location, e);
+        }
+
+        return location;
     }
 }

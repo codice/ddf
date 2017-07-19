@@ -28,7 +28,7 @@
         <property name="indexLocation" value="data/geonames-index"/>
     </bean>
 
-    <service ref="geonamesQueryable" interface="org.codice.ddf.spatial.geocoding.GeoEntryQueryable"/>
+    <service ref="geonamesQueryable" interface="org.codice.ddf.spatial.geocoding.GeoEntryQueryable" ranking="50"/>
     <service ref="geonamesIndexer" interface="org.codice.ddf.spatial.geocoding.GeoEntryIndexer"/>
 
 </blueprint>

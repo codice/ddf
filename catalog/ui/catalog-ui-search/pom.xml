@@ -240,6 +240,16 @@
             <artifactId>catalog-ui-enumeration</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>spatial-geocoding-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>spatial-geocoding-geocoder</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
