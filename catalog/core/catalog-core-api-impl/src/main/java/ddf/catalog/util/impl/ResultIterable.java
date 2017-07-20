@@ -20,6 +20,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Result;
@@ -83,6 +87,11 @@ public class ResultIterable implements Iterable<Result> {
     @Override
     public Iterator<Result> iterator() {
         return new QueryResultIterator(queryFunction, queryRequest);
+    }
+
+    public Stream<Result> stream() {
+        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator(),
+                Spliterator.ORDERED), false);
     }
 
     private static class QueryResultIterator implements Iterator<Result> {

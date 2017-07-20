@@ -140,6 +140,8 @@ public class MetacardApplication implements SparkApplication {
 
     private final Associated associated;
 
+    private static int pageSize = 250;
+
     public MetacardApplication(CatalogFramework catalogFramework, FilterBuilder filterBuilder,
             EndpointUtil endpointUtil, Validator validator, WorkspaceTransformer transformer,
             ExperimentalEnumerationExtractor enumExtractor,
@@ -668,7 +670,7 @@ public class MetacardApplication implements SparkApplication {
         Filter filter = filterBuilder.allOf(historyFilter, idFilter);
         ResultIterable resultIterable = new ResultIterable(catalogFramework, new QueryRequestImpl(new QueryImpl(filter,
                 1,
-                -1,
+                pageSize,
                 SortBy.NATURAL_ORDER,
                 false,
                 TimeUnit.SECONDS.toMillis(10)), false));

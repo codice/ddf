@@ -81,6 +81,8 @@ public class EndpointUtil {
 
     private static final String ISO_8601_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
+    private static int pageSize = 250;
+
     public EndpointUtil(List<MetacardType> metacardTypes, CatalogFramework catalogFramework,
             FilterBuilder filterBuilder, List<InjectableAttribute> injectableAttributes,
             AttributeRegistry attributeRegistry) {
@@ -143,17 +145,13 @@ public class EndpointUtil {
         ResultIterable resultIterable = new ResultIterable(catalogFramework,
                 new QueryRequestImpl(new QueryImpl(filter,
                         1,
-                        -1,
+                        pageSize,
                         SortBy.NATURAL_ORDER,
                         false,
                         TimeUnit.SECONDS.toMillis(10)), false));
-        Map<String, Result> results = new HashMap<>();
-        for (Result result : resultIterable) {
-            results.put(result.getMetacard()
-                    .getId(), result);
-        }
-
-        return results;
+        return resultIterable.stream()
+                .collect(Collectors.toMap(result -> result.getMetacard()
+                        .getId(), Function.identity()));
     }
 
     public Map<String, Result> getMetacards(Collection<String> ids, String tagFilter)
@@ -195,20 +193,17 @@ public class EndpointUtil {
         }
 
         Filter queryFilter = filterBuilder.anyOf(filters);
-        ResultIterable resultsIterable = new ResultIterable(catalogFramework,
+        ResultIterable resultIterable = new ResultIterable(catalogFramework,
                 new QueryRequestImpl(new QueryImpl(queryFilter,
                         1,
-                        -1,
+                        pageSize,
                         SortBy.NATURAL_ORDER,
                         false,
                         TimeUnit.SECONDS.toMillis(10)), false));
-        Map<String, Result> results = new HashMap<>();
-        for (Result result : resultsIterable) {
-            results.put(result.getMetacard()
-                    .getId(), result);
-        }
 
-        return results;
+        return resultIterable.stream()
+                .collect(Collectors.toMap(result -> result.getMetacard()
+                        .getId(), Function.identity()));
     }
 
     @SuppressWarnings("unchecked")
