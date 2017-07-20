@@ -30,19 +30,26 @@ import static org.mockito.Mockito.when;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 
+import com.google.common.collect.Lists;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import org.geotools.filter.text.ecql.ECQL;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
+import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
@@ -55,12 +62,18 @@ import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.resource.Resource;
+import ddf.catalog.resource.ResourceNotFoundException;
+import ddf.catalog.resource.ResourceNotSupportedException;
 
 public class SeedCommandTest extends CommandCatalogFrameworkCommon {
 
     private SeedCommand seedCommand;
 
     private CatalogFramework catalogFramework;
+
+    Metacard metacardMock;
+
+    Result resultMock;
 
     @Before
     public void setUp() throws Exception {
@@ -205,6 +218,29 @@ public class SeedCommandTest extends CommandCatalogFrameworkCommon {
         verify(catalogFramework, times(2)).query(any(QueryRequest.class));
     }
 
+    @Test
+    public void testDoesNotSkipResources() throws Exception {
+
+        int maxPageSize = NumberUtils.toInt(System.getProperty("catalog.maxPageSize"), 1000);
+        int resourceLimit = maxPageSize * 2;
+        int resourceCount = resourceLimit * 2;
+
+        List<Result> resultsList = populateResultMockList(resourceCount);
+        List<Result>[] queriedResultsList = queryResults(resultsList, maxPageSize);
+
+        QueryResponse responseMock = mock(QueryResponse.class);
+
+        when(responseMock.getResults()).thenReturn(queriedResultsList[0],
+                Arrays.copyOfRange(queriedResultsList, 1, queriedResultsList.length));
+        when(catalogFramework.query(any())).thenReturn(responseMock);
+
+        seedCommand.resourceLimit = resourceLimit;
+        seedCommand.executeWithSubject();
+        assertThat(consoleOutput.getOutput(),
+                containsString(resourceLimit + " resource download(s) started."));
+        consoleOutput.reset();
+    }
+
     private void runCommandAndVerifyResourceRequests(int expectedResourceRequests,
             Consumer<List<ResourceRequest>> requestAssertions,
             Consumer<List<String>> siteNameAssertions) throws Exception {
@@ -284,5 +320,72 @@ public class SeedCommandTest extends CommandCatalogFrameworkCommon {
         public boolean matches(Object o) {
             return test.test((QueryRequest) o);
         }
+    }
+
+    private List<Result> populateResultMockList(int size) {
+
+        List<Result> resultMockList = new ArrayList<>();
+
+        // catalogFramework.getResource will alternate between throwing exceptions and returning results
+        Answer<ResourceResponse> responseAnswer = getResourceResponsesVaryingValidity();
+
+        try {
+            when(catalogFramework.getResource(any(), anyString())).thenAnswer(responseAnswer);
+        } catch (IOException | ResourceNotFoundException | ResourceNotSupportedException e) {
+        }
+
+        for (int i = 0; i < size; i++) {
+            resultMock = mock(Result.class);
+            metacardMock = mock(Metacard.class);
+
+            when(resultMock.getMetacard()).thenReturn(metacardMock);
+            when(metacardMock.getId()).thenReturn("MOCK METACARD " + (i + 1));
+
+            resultMockList.add(resultMock);
+        }
+        return resultMockList;
+    }
+
+    // this Answer will have every other ResourceResponse throw a ResourceNotFoundException
+    private Answer<ResourceResponse> getResourceResponsesVaryingValidity() {
+        return new Answer<ResourceResponse>() {
+            int responseIndex = 0;
+
+            ResourceNotFoundException exception = new ResourceNotFoundException();
+
+            ResourceResponse responseMock = mock(ResourceResponse.class);
+
+            Resource resourceMock = mock(Resource.class);
+
+            InputStream inputStreamMock = mock(InputStream.class);
+
+            @Override
+            public ResourceResponse answer(InvocationOnMock invocationOnMock) throws Throwable {
+
+                if (responseIndex++ % 2 == 0) {
+                    throw exception;
+                }
+
+                doReturn(-1).when(inputStreamMock)
+                        .read(any(byte[].class), anyInt(), anyInt());
+                Mockito.doNothing().when(inputStreamMock).close();
+                when(resourceMock.getInputStream()).thenReturn(inputStreamMock);
+                when(responseMock.getResource()).thenReturn(resourceMock);
+                return responseMock;
+            }
+        };
+    }
+
+    // Divides results list by the page size. Used for thenReturn statements
+    private List<Result>[] queryResults(List<Result> results, int pageSize) {
+
+        List<List<Result>> pageResults = Lists.partition(results, pageSize);
+        List[] pageArray = new List[(int) Math.ceil(results.size() / pageSize)];
+
+        for (int i = 0; i < pageArray.length; i++) {
+            pageArray[i] = pageResults.get(i);
+        }
+
+        return pageArray;
     }
 }
