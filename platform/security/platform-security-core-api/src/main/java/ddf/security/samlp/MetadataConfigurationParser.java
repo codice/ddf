@@ -26,7 +26,9 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import org.apache.commons.lang.StringUtils;
@@ -45,6 +47,7 @@ import com.google.api.client.http.HttpBackOffIOExceptionHandler;
 import com.google.api.client.http.HttpBackOffUnsuccessfulResponseHandler;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpResponse;
+import com.google.api.client.http.HttpStatusCodes;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.util.ExponentialBackOff;
@@ -127,40 +130,21 @@ public class MetadataConfigurationParser {
             }
             PropertyResolver propertyResolver = new PropertyResolver(entityDescription);
             HttpTransport httpTransport = new NetHttpTransport();
-            HttpRequest httpRequest = httpTransport.createRequestFactory()
-                    .buildGetRequest(new GenericUrl(propertyResolver.getResolvedString()));
-            httpRequest.setUnsuccessfulResponseHandler(new HttpBackOffUnsuccessfulResponseHandler(
-                    new ExponentialBackOff()).setBackOffRequired(
-                    HttpBackOffUnsuccessfulResponseHandler.BackOffRequired.ALWAYS));
-            httpRequest.setIOExceptionHandler(new HttpBackOffIOExceptionHandler(new ExponentialBackOff()));
-            ListeningExecutorService service =
-                    MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor());
-            ListenableFuture<HttpResponse> httpResponseFuture =
-                    service.submit(httpRequest::execute);
 
-            Futures.addCallback(httpResponseFuture, new FutureCallback<HttpResponse>() {
-                @Override
-                public void onSuccess(HttpResponse httpResponse) {
-                    if (httpResponse != null) {
-                        try {
-                            String parsedResponse = httpResponse.parseAsString();
-                            buildEntityDescriptor(parsedResponse);
-                        } catch (IOException e) {
-                            LOGGER.info("Unable to parse metadata from: {}",
-                                    httpResponse.getRequest()
-                                            .getUrl()
-                                            .toString(),
-                                    e);
-                        }
-                    }
-                }
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            ListeningExecutorService service = MoreExecutors.listeningDecorator(executor);
 
-                @Override
-                public void onFailure(Throwable throwable) {
-                    LOGGER.info("Unable to retrieve metadata.", throwable);
+            addHttpCallback(propertyResolver, httpTransport, service, executor);
+            try {
+                if (!service.isShutdown() && !service.awaitTermination(30, TimeUnit.SECONDS)) {
+                    LOGGER.debug("Executor service shutdown timed out");
                 }
-            });
-            service.shutdown();
+            } catch (InterruptedException e) {
+                LOGGER.debug("Problem shutting down executor", e);
+                service.shutdown();
+                Thread.currentThread()
+                        .interrupt();
+            }
         } else if (entityDescription.startsWith(FILE + System.getProperty("ddf.home"))) {
             String pathStr = StringUtils.substringAfter(entityDescription, FILE);
             Path path = Paths.get(pathStr);
@@ -182,6 +166,57 @@ public class MetadataConfigurationParser {
                 updateCallback.accept(entityDescriptor);
             }
         }
+    }
+
+    private void addHttpCallback(PropertyResolver propertyResolver, HttpTransport httpTransport,
+            ListeningExecutorService service, ExecutorService executor) throws IOException {
+        HttpRequest httpRequest = generateHttpRequest(propertyResolver, httpTransport);
+        ListenableFuture<HttpResponse> httpResponseFuture = service.submit(httpRequest::execute);
+
+        FutureCallback<HttpResponse> callback = getHttpResponseFutureCallback(service);
+        Futures.addCallback(httpResponseFuture, callback, executor);
+    }
+
+    private HttpRequest generateHttpRequest(PropertyResolver propertyResolver,
+            HttpTransport httpTransport) throws IOException {
+        HttpRequest httpRequest = httpTransport.createRequestFactory()
+                .buildGetRequest(new GenericUrl(propertyResolver.getResolvedString()));
+
+        httpRequest.setUnsuccessfulResponseHandler(new HttpBackOffUnsuccessfulResponseHandler(new ExponentialBackOff()).setBackOffRequired(
+                HttpBackOffUnsuccessfulResponseHandler.BackOffRequired.ALWAYS));
+        httpRequest.setIOExceptionHandler(new HttpBackOffIOExceptionHandler(new ExponentialBackOff()));
+
+        return httpRequest;
+    }
+
+    private FutureCallback<HttpResponse> getHttpResponseFutureCallback(
+            ListeningExecutorService service) {
+        return new FutureCallback<HttpResponse>() {
+            @Override
+            public void onSuccess(HttpResponse httpResponse) {
+                if (httpResponse != null
+                        && httpResponse.getStatusCode() == HttpStatusCodes.STATUS_CODE_OK) {
+                    try {
+                        String parsedResponse = httpResponse.parseAsString();
+                        buildEntityDescriptor(parsedResponse);
+                        service.shutdown();
+                    } catch (IOException e) {
+                        LOGGER.info("Unable to parse metadata from: {}",
+                                httpResponse.getRequest()
+                                        .getUrl()
+                                        .toString(),
+                                e);
+                    }
+                } else {
+                    LOGGER.warn("No/bad response; re-submitting request");
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable throwable) {
+                LOGGER.info("Unable to retrieve metadata.", throwable);
+            }
+        };
     }
 
     private EntityDescriptor readEntityDescriptor(Reader reader) {

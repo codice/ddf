@@ -36,6 +36,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
@@ -176,7 +177,10 @@ public class IdpEndpoint implements Idp {
 
     private SecurityManager securityManager;
 
-    private Map<String, EntityInformation> serviceProviders = new ConcurrentHashMap<>();
+    private AtomicReference<Map<String, EntityInformation>> serviceProviders =
+            new AtomicReference<>();
+
+    private List<String> spMetadata;
 
     private String indexHtml;
 
@@ -207,19 +211,20 @@ public class IdpEndpoint implements Idp {
     }
 
     public void init() {
-        try (
+        try (//
                 InputStream indexStream = IdpEndpoint.class.getResourceAsStream("/html/index.html");
                 InputStream submitFormStream = IdpEndpoint.class.getResourceAsStream(
                         "/templates/submitForm.handlebars");
                 InputStream redirectPageStream = IdpEndpoint.class.getResourceAsStream(
                         "/templates/redirect.handlebars");
                 InputStream soapMessageStream = IdpEndpoint.class.getResourceAsStream(
-                        "/templates/soap.handlebars");
+                        "/templates/soap.handlebars")
+                //
         ) {
-            indexHtml = IOUtils.toString(indexStream);
-            submitForm = IOUtils.toString(submitFormStream);
-            redirectPage = IOUtils.toString(redirectPageStream);
-            soapMessage = IOUtils.toString(soapMessageStream);
+            indexHtml = IOUtils.toString(indexStream, StandardCharsets.UTF_8);
+            submitForm = IOUtils.toString(submitFormStream, StandardCharsets.UTF_8);
+            redirectPage = IOUtils.toString(redirectPageStream, StandardCharsets.UTF_8);
+            soapMessage = IOUtils.toString(soapMessageStream, StandardCharsets.UTF_8);
         } catch (Exception e) {
             LOGGER.info("Unable to load index page for IDP.", e);
         }
@@ -228,37 +233,61 @@ public class IdpEndpoint implements Idp {
         XMLObjectProviderRegistry xmlObjectProviderRegistry = ConfigurationService.get(
                 XMLObjectProviderRegistry.class);
         xmlObjectProviderRegistry.registerObjectProvider(Request.DEFAULT_ELEMENT_NAME,
-                new RequestBuilder(), new RequestMarshaller(), new RequestUnmarshaller());
-        xmlObjectProviderRegistry.registerObjectProvider(
-                ddf.security.liberty.paos.Response.DEFAULT_ELEMENT_NAME, new ResponseBuilder(),
-                new ResponseMarshaller(), new ResponseUnmarshaller());
+                new RequestBuilder(),
+                new RequestMarshaller(),
+                new RequestUnmarshaller());
+        xmlObjectProviderRegistry.registerObjectProvider(ddf.security.liberty.paos.Response.DEFAULT_ELEMENT_NAME,
+                new ResponseBuilder(),
+                new ResponseMarshaller(),
+                new ResponseUnmarshaller());
     }
 
-    private void parseServiceProviderMetadata(List<String> serviceProviderMetadata) {
-        if (serviceProviderMetadata != null) {
-            try {
-                MetadataConfigurationParser metadataConfigurationParser =
-                        new MetadataConfigurationParser(serviceProviderMetadata, ed -> {
-                            EntityInformation entityInfo = new EntityInformation.Builder(ed,
-                                    SUPPORTED_BINDINGS).build();
-                            if (entityInfo != null) {
-                                serviceProviders.put(ed.getEntityID(), entityInfo);
-                            }
-                        });
+    private Map<String, EntityInformation> getServiceProvidersMap() {
+        Map<String, EntityInformation> spMap = serviceProviders.get();
+        if (spMap == null) {
+            spMap = parseServiceProviderMetadata();
 
-                serviceProviders.putAll(metadataConfigurationParser.getEntryDescriptions()
-                        .entrySet()
-                        .stream()
-                        .map(e -> Maps.immutableEntry(e.getKey(),
-                                new EntityInformation.Builder(e.getValue(),
-                                        SUPPORTED_BINDINGS).build()))
-                        .filter(e -> nonNull(e.getValue()))
-                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
-
-            } catch (IOException e) {
-                LOGGER.warn("Unable to parse SP metadata configuration. Check the configuration for SP metadata.", e);
+            boolean updated = serviceProviders.compareAndSet(null, spMap);
+            if (!updated) {
+                LOGGER.debug("Safe but concurrent update to serviceProviders map; using processed value");
             }
         }
+
+        return Collections.unmodifiableMap(spMap);
+    }
+
+    private Map<String, EntityInformation> parseServiceProviderMetadata() {
+        if (spMetadata == null) {
+            return Collections.emptyMap();
+        }
+
+        Map<String, EntityInformation> spMap = new ConcurrentHashMap<>();
+        try {
+            MetadataConfigurationParser metadataConfigurationParser =
+                    new MetadataConfigurationParser(spMetadata, ed -> {
+                        EntityInformation entityInfo = new EntityInformation.Builder(ed,
+                                SUPPORTED_BINDINGS).build();
+                        if (entityInfo != null) {
+                            spMap.put(ed.getEntityID(), entityInfo);
+                        }
+                    });
+
+            spMap.putAll(metadataConfigurationParser.getEntryDescriptions()
+                    .entrySet()
+                    .stream()
+                    .map(e -> Maps.immutableEntry(e.getKey(),
+                            new EntityInformation.Builder(e.getValue(),
+                                    SUPPORTED_BINDINGS).build()))
+                    .filter(e -> nonNull(e.getValue()))
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+
+        } catch (IOException e) {
+            LOGGER.warn(
+                    "Unable to parse SP metadata configuration. Check the configuration for SP metadata.",
+                    e);
+        }
+
+        return spMap;
     }
 
     @POST
@@ -268,9 +297,9 @@ public class IdpEndpoint implements Idp {
         if (!request.isSecure()) {
             throw new IllegalArgumentException("Authn Request must use TLS.");
         }
-        SoapBinding soapBinding = new SoapBinding(systemCrypto, serviceProviders);
+        SoapBinding soapBinding = new SoapBinding(systemCrypto, getServiceProvidersMap());
         try {
-            String bodyStr = IOUtils.toString(body);
+            String bodyStr = IOUtils.toString(body, StandardCharsets.UTF_8);
             AuthnRequest authnRequest = soapBinding.decoder()
                     .decodeRequest(bodyStr);
             String relayState = ((SoapRequestDecoder) soapBinding.decoder()).decodeRelayState(
@@ -282,13 +311,18 @@ public class IdpEndpoint implements Idp {
             boolean hasCookie = hasValidCookie(request, authnRequest.isForceAuthn());
             AuthObj authObj = determineAuthMethod(bodyStr, authnRequest);
             org.opensaml.saml.saml2.core.Response response = handleLogin(authnRequest,
-                    authObj.method, request, authObj, authnRequest.isPassive(), hasCookie);
+                    authObj.method,
+                    request,
+                    authObj,
+                    authnRequest.isPassive(),
+                    hasCookie);
 
             Response samlpResponse = soapBinding.creator()
                     .getSamlpResponse(relayState, authnRequest, response, null, soapMessage);
             samlpResponse.getHeaders()
-                    .put("SOAPAction", Collections.singletonList(
-                            "http://www.oasis-open.org/committees/security"));
+                    .put("SOAPAction",
+                            Collections.singletonList(
+                                    "http://www.oasis-open.org/committees/security"));
             return samlpResponse;
         } catch (IOException e) {
             LOGGER.debug("Unable to decode SOAP AuthN Request", e);
@@ -312,7 +346,8 @@ public class IdpEndpoint implements Idp {
             LOGGER.debug("Unable to parse SOAP message from client.", e);
         }
         SoapMessage soapMessage = new SoapMessage(Soap11.getInstance());
-        SAAJInInterceptor.SAAJPreInInterceptor preInInterceptor = new SAAJInInterceptor.SAAJPreInInterceptor();
+        SAAJInInterceptor.SAAJPreInInterceptor preInInterceptor =
+                new SAAJInInterceptor.SAAJPreInInterceptor();
         soapMessage.setContent(XMLStreamReader.class, xmlStreamReader);
         preInInterceptor.handleMessage(soapMessage);
         SAAJInInterceptor inInterceptor = new SAAJInInterceptor();
@@ -357,7 +392,9 @@ public class IdpEndpoint implements Idp {
                                     .equals("Assertion") && element.getNamespaceURI()
                                     .equals("urn:oasis:names:tc:SAML:2.0:assertion")) {
                                 authObj.assertion = new SecurityToken(element.getAttribute("ID"),
-                                        element, null, null);
+                                        element,
+                                        null,
+                                        null);
                                 authObj.method = SAML;
                                 break;
                             }
@@ -373,17 +410,22 @@ public class IdpEndpoint implements Idp {
         boolean requestingPki = false;
         boolean requestingUp = false;
         if (requestedAuthnContext != null) {
-            List<AuthnContextClassRef> authnContextClassRefs = requestedAuthnContext.getAuthnContextClassRefs();
+            List<AuthnContextClassRef> authnContextClassRefs =
+                    requestedAuthnContext.getAuthnContextClassRefs();
             for (AuthnContextClassRef authnContextClassRef : authnContextClassRefs) {
                 String authnContextClassRefStr = authnContextClassRef.getAuthnContextClassRef();
-                if (SAML2Constants.AUTH_CONTEXT_CLASS_REF_X509.equals(authnContextClassRefStr) || SAML2Constants.AUTH_CONTEXT_CLASS_REF_SMARTCARD_PKI.equals(
-                        authnContextClassRefStr) || SAML2Constants.AUTH_CONTEXT_CLASS_REF_SOFTWARE_PKI.equals(
-                        authnContextClassRefStr) || SAML2Constants.AUTH_CONTEXT_CLASS_REF_SPKI.equals(authnContextClassRefStr)
+                if (SAML2Constants.AUTH_CONTEXT_CLASS_REF_X509.equals(authnContextClassRefStr)
+                        || SAML2Constants.AUTH_CONTEXT_CLASS_REF_SMARTCARD_PKI.equals(
+                        authnContextClassRefStr)
+                        || SAML2Constants.AUTH_CONTEXT_CLASS_REF_SOFTWARE_PKI.equals(
+                        authnContextClassRefStr)
+                        || SAML2Constants.AUTH_CONTEXT_CLASS_REF_SPKI.equals(authnContextClassRefStr)
                         || SAML2Constants.AUTH_CONTEXT_CLASS_REF_TLS_CLIENT.equals(
                         authnContextClassRefStr)) {
                     requestingPki = true;
                 } else if (SAML2Constants.AUTH_CONTEXT_CLASS_REF_PASSWORD.equals(
-                        authnContextClassRefStr) || SAML2Constants.AUTH_CONTEXT_CLASS_REF_PASSWORD_PROTECTED_TRANSPORT.equals(
+                        authnContextClassRefStr)
+                        || SAML2Constants.AUTH_CONTEXT_CLASS_REF_PASSWORD_PROTECTED_TRANSPORT.equals(
                         authnContextClassRefStr)) {
                     requestingUp = true;
                 }
@@ -418,7 +460,7 @@ public class IdpEndpoint implements Idp {
                 null,
                 null,
                 request,
-                new PostBinding(systemCrypto, serviceProviders),
+                new PostBinding(systemCrypto, getServiceProvidersMap()),
                 submitForm,
                 SamlProtocol.POST_BINDING);
     }
@@ -436,7 +478,7 @@ public class IdpEndpoint implements Idp {
                 signatureAlgorithm,
                 signature,
                 request,
-                new RedirectBinding(systemCrypto, serviceProviders),
+                new RedirectBinding(systemCrypto, getServiceProvidersMap()),
                 redirectPage,
                 SamlProtocol.REDIRECT_BINDING);
     }
@@ -629,14 +671,14 @@ public class IdpEndpoint implements Idp {
                 throw new IllegalArgumentException("Authn Request must use TLS.");
             }
             //the authn request is always encoded as if it came in via redirect when coming from the web app
-            Binding redirectBinding = new RedirectBinding(systemCrypto, serviceProviders);
+            Binding redirectBinding = new RedirectBinding(systemCrypto, getServiceProvidersMap());
             AuthnRequest authnRequest = redirectBinding.decoder()
                     .decodeRequest(samlRequest);
             String assertionConsumerServiceBinding =
                     ResponseCreator.getAssertionConsumerServiceBinding(authnRequest,
-                            serviceProviders);
+                            getServiceProvidersMap());
             if (HTTP_POST_BINDING.equals(originalBinding)) {
-                binding = new PostBinding(systemCrypto, serviceProviders);
+                binding = new PostBinding(systemCrypto, getServiceProvidersMap());
                 template = submitForm;
             } else if (HTTP_REDIRECT_BINDING.equals(originalBinding)) {
                 binding = redirectBinding;
@@ -655,11 +697,11 @@ public class IdpEndpoint implements Idp {
 
             if (HTTP_POST_BINDING.equals(assertionConsumerServiceBinding)) {
                 if (!(binding instanceof PostBinding)) {
-                    binding = new PostBinding(systemCrypto, serviceProviders);
+                    binding = new PostBinding(systemCrypto, getServiceProvidersMap());
                 }
             } else if (HTTP_REDIRECT_BINDING.equals(assertionConsumerServiceBinding)) {
                 if (!(binding instanceof RedirectBinding)) {
-                    binding = new RedirectBinding(systemCrypto, serviceProviders);
+                    binding = new RedirectBinding(systemCrypto, getServiceProvidersMap());
                 }
             }
             org.opensaml.saml.saml2.core.Response encodedSaml = handleLogin(authnRequest,
@@ -735,12 +777,16 @@ public class IdpEndpoint implements Idp {
         } else if (USER_PASS.equals(authMethod)) {
             LOGGER.debug("Logging user in via BASIC auth.");
             if (authObj != null && authObj.username != null && authObj.password != null) {
-                token = new UPAuthenticationToken(authObj.username, authObj.password,
+                token = new UPAuthenticationToken(authObj.username,
+                        authObj.password,
                         BaseAuthenticationToken.ALL_REALM);
             } else {
-                BasicAuthenticationHandler basicAuthenticationHandler = new BasicAuthenticationHandler();
+                BasicAuthenticationHandler basicAuthenticationHandler =
+                        new BasicAuthenticationHandler();
                 HandlerResult handlerResult = basicAuthenticationHandler.getNormalizedToken(request,
-                        null, null, false);
+                        null,
+                        null,
+                        false);
                 if (handlerResult.getStatus()
                         .equals(HandlerResult.Status.COMPLETED)) {
                     token = handlerResult.getToken();
@@ -748,7 +794,8 @@ public class IdpEndpoint implements Idp {
             }
         } else if (SAML.equals(authMethod)) {
             LOGGER.debug("Logging user in via SAML assertion.");
-            token = new SAMLAuthenticationToken(null, authObj.assertion,
+            token = new SAMLAuthenticationToken(null,
+                    authObj.assertion,
                     BaseAuthenticationToken.ALL_REALM);
         } else if (GUEST.equals(authMethod) && guestAccess) {
             LOGGER.debug("Logging user in as Guest.");
@@ -1030,7 +1077,7 @@ public class IdpEndpoint implements Idp {
                             signature,
                             signatureAlgorithm,
                             samlString,
-                            serviceProviders.get(issuer)
+                            getServiceProvidersMap().get(issuer)
                                     .getSigningCertificate());
 
             if (requestId != null) {
@@ -1179,7 +1226,7 @@ public class IdpEndpoint implements Idp {
                     samlType,
                     relay);
 
-            EntityInformation.ServiceInfo entityServiceInfo = serviceProviders.get(entityId)
+            EntityInformation.ServiceInfo entityServiceInfo = getServiceProvidersMap().get(entityId)
                     .getLogoutService(incomingBinding);
             if (entityServiceInfo == null) {
                 LOGGER.info("Could not find entity service info for {}", entityId);
@@ -1263,7 +1310,8 @@ public class IdpEndpoint implements Idp {
     }
 
     public void setSpMetadata(List<String> spMetadata) {
-        parseServiceProviderMetadata(spMetadata);
+        this.spMetadata = spMetadata;
+        serviceProviders.getAndSet(null);
     }
 
     public void setStrictSignature(Boolean strictSignature) {
@@ -1292,8 +1340,11 @@ public class IdpEndpoint implements Idp {
 
     private static class AuthObj {
         String method;
+
         String username;
+
         String password;
+
         SecurityToken assertion;
     }
 }

@@ -90,14 +90,16 @@ public class MetadataConfigurationParserTest {
         assertThat("Callback was not invoked", invoked.get());
     }
 
-    private void metadataFolderEntities(Consumer<EntityDescriptor> updateCallback) throws Exception {
+    private void metadataFolderEntities(Consumer<EntityDescriptor> updateCallback)
+            throws Exception {
         System.setProperty("ddf.home",
                 descriptorPath.getParent()
                         .getParent()
                         .getParent()
                         .toString());
         MetadataConfigurationParser metadataConfigurationParser = new MetadataConfigurationParser(
-                Collections.emptyList(), updateCallback);
+                Collections.emptyList(),
+                updateCallback);
         Map<String, EntityDescriptor> entities = metadataConfigurationParser.getEntryDescriptions();
 
         assertThat(entities.size(), is(1));
@@ -117,7 +119,8 @@ public class MetadataConfigurationParserTest {
 
     private void metadataFile(Consumer<EntityDescriptor> updateCallback) throws IOException {
         MetadataConfigurationParser metadataConfigurationParser = new MetadataConfigurationParser(
-                Collections.singletonList("file:" + descriptorPath.toString()), updateCallback);
+                Collections.singletonList("file:" + descriptorPath.toString()),
+                updateCallback);
         Map<String, EntityDescriptor> entities = metadataConfigurationParser.getEntryDescriptions();
 
         assertThat(entities.size(), is(1));
@@ -137,7 +140,8 @@ public class MetadataConfigurationParserTest {
 
     private void metadataString(Consumer<EntityDescriptor> updateCallback) throws IOException {
         MetadataConfigurationParser metadataConfigurationParser = new MetadataConfigurationParser(
-                Collections.singletonList(IOUtils.toString(descriptorPath.toUri())), updateCallback);
+                Collections.singletonList(IOUtils.toString(descriptorPath.toUri())),
+                updateCallback);
         Map<String, EntityDescriptor> entities = metadataConfigurationParser.getEntryDescriptions();
 
         assertThat(entities.size(), is(1));
@@ -181,6 +185,7 @@ public class MetadataConfigurationParserTest {
         doAnswer(invocationOnMock -> {
             HttpResponse response = (HttpResponse) invocationOnMock.getArguments()[1];
             response.setEntity(new StringEntity(message));
+            response.setStatusCode(200);
             return null;
         }).when(handler)
                 .handle(any(), any(), any());
