@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.DirectoryStream;
@@ -28,9 +29,12 @@ import java.util.Collections;
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.configuration.persistence.PersistenceStrategy;
 import org.codice.ddf.migration.ConfigurationMigratable;
 import org.codice.ddf.migration.DescribableBean;
+import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationMetadata;
 import org.codice.ddf.migration.UnexpectedMigrationException;
 import org.osgi.framework.InvalidSyntaxException;
@@ -50,6 +54,10 @@ public class ConfigurationAdminMigration extends DescribableBean
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationAdminMigration.class);
 
     private static final String FELIX_FILEINSTALL_FILENAME = "felix.fileinstall.filename";
+
+    private static final String CFG_FORMAT = "cfg";
+
+    private static final String CONFIG_FORMAT = "config";
 
     private final String configurationFileExtension;
 
@@ -91,9 +99,21 @@ public class ConfigurationAdminMigration extends DescribableBean
             Configuration[] configurations = configurationAdmin.listConfigurations(null);
             if (configurations != null) {
                 for (Configuration configuration : configurations) {
-                    Path destination = etcDirectory.resolve(getBaseFileName(configuration));
-                    try (FileOutputStream fileOutputStream = new FileOutputStream(destination.toFile())) {
-                        persistenceStrategy.write(fileOutputStream, configuration.getProperties());
+                    String baseFileName = getBaseFileName(configuration);
+                    if (isSupportedFormat(baseFileName)) {
+                        Path destination = etcDirectory.resolve(baseFileName);
+                        try (FileOutputStream fileOutputStream = new FileOutputStream(destination.toFile())) {
+                            persistenceStrategy.write(fileOutputStream,
+                                    configuration.getProperties());
+                        }
+                    } else {
+                        String message = String.format(
+                                "Found unsupported %s format for %s. Supported formats are %s and %s",
+                                FELIX_FILEINSTALL_FILENAME,
+                                baseFileName,
+                                CFG_FORMAT,
+                                CONFIG_FORMAT);
+                        throw new MigrationException(message);
                     }
                 }
             }
@@ -122,10 +142,24 @@ public class ConfigurationAdminMigration extends DescribableBean
 
     private String getBaseFileName(Configuration configuration) {
         try {
-            String fileUrl = (String) configuration.getProperties()
+            Object felixFileInstallFileName = configuration.getProperties()
                     .get(FELIX_FILEINSTALL_FILENAME);
-            if (fileUrl != null) {
-                File file = new File(new URL(fileUrl).toURI());
+
+            File file = null;
+
+            if (felixFileInstallFileName != null) {
+                if (felixFileInstallFileName instanceof URL) {
+                    file = new File(((URL) felixFileInstallFileName).toURI());
+                } else if (felixFileInstallFileName instanceof URI) {
+                    file = new File((URI) felixFileInstallFileName);
+                } else if (felixFileInstallFileName instanceof String) {
+                    file = new File(new URL((String) felixFileInstallFileName).toURI());
+                } else {
+                    String message = String.format("Unable to parse %s of %s.",
+                            FELIX_FILEINSTALL_FILENAME,
+                            felixFileInstallFileName);
+                    throw new MigrationException(message);
+                }
                 return file.getName();
             } else {
                 return new StringBuilder(configuration.getPid()).append(configurationFileExtension)
@@ -133,10 +167,15 @@ public class ConfigurationAdminMigration extends DescribableBean
             }
         } catch (MalformedURLException | URISyntaxException e) {
             String message = String.format(
-                    "Unable to get base file name from %s configuration property Defaulting to service pid for file name. %s",
+                    "Unable to get base file name from %s configuration property. %s",
                     FELIX_FILEINSTALL_FILENAME,
                     e.getMessage());
             throw new UnexpectedMigrationException(message, e);
         }
+    }
+
+    private boolean isSupportedFormat(String fileName) {
+        String format = FilenameUtils.getExtension(fileName);
+        return StringUtils.equals(format, CFG_FORMAT) || StringUtils.equals(format, CONFIG_FORMAT);
     }
 }
