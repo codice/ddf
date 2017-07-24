@@ -105,7 +105,8 @@ The procedure for implementing any of the plugins follows a similar format:
 .Plugin Performance Concerns
 [NOTE]
 ====
-Plugins should include a check to determine if requests are local or not. It is usually preferable to take no action on non-local requests.
+Plugins should include a check to determine if requests are local or not.
+It is usually preferable to take no action on non-local requests.
 ====
 
 [TIP]

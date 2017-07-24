@@ -3,13 +3,19 @@
 :title: Expiration Date Pre-Ingest Plugin
 :link: _expiration_date_pre_ingest_plugin
 :plugintypes: preingest
-:summary: Updates Metacard expiration dates.
+:summary: Adds or updates expiration dates for the resource.
 
-The Expiration Date plugin updates metacard expiration dates.
+The Expiration Date plugin adds or updates expiration dates which can be used later for archiving old data.
 
 ===== Installing the Expiration Date Pre-Ingest Plugin
 
-The Expiration Date Pre-Ingest Plugin is installed by default with a standard installation in the ${ddf-catalog} application.
+The Expiration Date Pre-Ingest Plugin is not installed by default with a standard installation.
+To install:
+
+. Navigate to the *${admin-console}*.
+. Select the *${ddf-catalog}* application.
+. Select the *Configuration* tab.
+. Select the *Expiration Data Pre-Ingest Plugin*.
 
 ===== Configuring the Expiration Date Pre-Ingest Plugin
 
