@@ -13,9 +13,13 @@
  */
 package ddf.security.listener;
 
+import java.nio.charset.StandardCharsets;
+
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
+
+import com.google.common.hash.Hashing;
 
 import ddf.security.common.audit.SecurityLogger;
 
@@ -25,13 +29,19 @@ public class AuditingHttpSessionListener implements HttpSessionListener {
     public void sessionCreated(HttpSessionEvent se) {
         HttpSession session = se.getSession();
 
-        SecurityLogger.audit("Session {} created.", session.getId());
+        SecurityLogger.audit("Session {} created.",
+                Hashing.sha256()
+                        .hashString(session.getId(), StandardCharsets.UTF_8)
+                        .toString());
     }
 
     @Override
     public void sessionDestroyed(HttpSessionEvent se) {
         HttpSession session = se.getSession();
 
-        SecurityLogger.audit("Session {} destroyed.", session.getId());
+        SecurityLogger.audit("Session {} destroyed.",
+                Hashing.sha256()
+                        .hashString(session.getId(), StandardCharsets.UTF_8)
+                        .toString());
     }
 }
