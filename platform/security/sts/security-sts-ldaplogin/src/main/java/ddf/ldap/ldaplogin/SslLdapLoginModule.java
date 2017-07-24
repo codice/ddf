@@ -267,12 +267,12 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
                         scope,
                         userFilter);
                 try {
+                    while (entryReader.hasNext() && entryReader.isReference()) {
+                        LOGGER.debug("Referral ignored while searching for user {}", user);
+                        entryReader.readReference();
+                    }
                     if (!entryReader.hasNext()) {
                         LOGGER.info("User {} not found in LDAP.", user);
-                        return false;
-                    }
-                    if (entryReader.isReference()) {
-                        LOGGER.info("Referral not followed - user {} not found in local LDAP.", user);
                         return false;
                     }
                     SearchResultEntry searchResultEntry = entryReader.readEntry();

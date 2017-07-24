@@ -35,7 +35,6 @@ import org.forgerock.opendj.ldap.SearchScope;
 import org.forgerock.opendj.ldap.requests.BindRequest;
 import org.forgerock.opendj.ldap.responses.BindResult;
 import org.forgerock.opendj.ldap.responses.SearchResultEntry;
-import org.forgerock.opendj.ldap.responses.SearchResultReference;
 import org.forgerock.opendj.ldif.ConnectionEntryReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -174,8 +173,7 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
                             }
                         } else {
                             // Got a continuation reference
-                            final SearchResultReference ref = entryReader.readReference();
-                            LOGGER.trace("Skipping result reference: {}", ref.getURIs().toString());
+                            LOGGER.debug("Referral ignored while searching for user {}", user);
                         }
 
                     }
