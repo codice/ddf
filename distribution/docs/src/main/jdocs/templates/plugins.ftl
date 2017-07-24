@@ -43,7 +43,7 @@ include::${pi.file}[]
 </#if>
 |<#if (plugin.status == "published" && plugin.plugintypes?contains ("postquery"))>x
 </#if>
-|<#if (plugin.status == "published" && plugin.plugintypes?contains ("postprocess"))>x
+|<#if (plugin.status == "published" && plugin.plugintypes?contains ("postprocess"))>x!
 </#if>
 <#else>
 </#if>
@@ -52,10 +52,12 @@ include::${pi.file}[]
 |===
 
 .Catalog Plugin Compatibility, Cont.
-[cols="9" options="header"]
+[cols="11" options="header"]
 |===
 
 |Plugin
+|<<_pre-federated_query_plugins,Pre-Federated-Query Plugins>>
+|<<_post-federated_query_plugins,Post-Federated-Query Plugins>>
 |<<_pre-resource_plugins,Pre-Resource Plugins>>
 |<<_post-resource_plugins,Post-Resource Plugins>>
 |<<_pre-create_storage_plugins,Pre-Create Storage Plugins>>
@@ -68,6 +70,10 @@ include::${pi.file}[]
 <#list plugins as plugin>
 <#if (plugin.status == "published" && plugin.plugintypes?contains ("preresource") || plugin.plugintypes?contains ("postresource") || plugin.plugintypes?contains ("precreatestorage") || plugin.plugintypes?contains ("postcreatestorage") || plugin.plugintypes?contains ("preupdatestorage") || plugin.plugintypes?contains ("postupdatestorage") || plugin.plugintypes?contains ("presubscription") || plugin.plugintypes?contains ("predelivery"))>
 |<<${plugin.link},${plugin.title}>>
+|<#if (plugin.status == "published" && plugin.plugintypes?contains ("prefederatedquery"))>x!
+</#if>
+|<#if (plugin.status == "published" && plugin.plugintypes?contains ("postfederatedquery"))>x
+</#if>
 |<#if (plugin.status == "published" && plugin.plugintypes?contains ("preresource"))>x
 </#if>
 |<#if (plugin.status == "published" && plugin.plugintypes?contains ("postresource"))>x

@@ -48,7 +48,7 @@ The following types of plugins can be created:
 
 |<<_pre_federated_query_plugins,Pre-Federated-Query>>
 |ddf.catalog.plugin.PreFederatedQueryPlugin
-|Before a federated query has been executed.
+|Before a federated query is executed.
 
 |<<_post_federated_query_plugins,Post-Federated-Query>>
 |ddf.catalog.plugin.PostFederatedQueryPlugin
