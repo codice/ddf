@@ -72,7 +72,7 @@ public class CertificateCommand {
             }
         }
         if (args.length != expected) {
-            throw new RuntimeException(String.format(
+            throw new IllegalArgumentException(String.format(
                     "java %s (-cn <cn>|-d <dn>) [-san <tag:name,tag:name,...>]%n%n" //
                             + "where:%n"
                             + "  <cn> represents a fully qualified common name (e.g. \"<FQDN>\", where <FQDN> could be something like cluster.yoyo.com)%n"

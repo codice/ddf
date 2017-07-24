@@ -71,8 +71,6 @@ public class CertificateCommandTest {
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    private File systemKeystoreFile = null;
-
     private static void validateCertificateHasNoSan(KeyStoreFile ksf, String alias)
             throws Exception {
         final KeyStore.Entry ke = ksf.getEntry(alias);
@@ -118,7 +116,7 @@ public class CertificateCommandTest {
 
     @Before
     public void setup() throws IOException {
-        this.systemKeystoreFile = temporaryFolder.newFile("serverKeystore.jks");
+        final File systemKeystoreFile = temporaryFolder.newFile("serverKeystore.jks");
         final FileOutputStream systemKeyOutStream = new FileOutputStream(systemKeystoreFile);
         final InputStream systemKeyStream = CertificateGenerator.class.getResourceAsStream(
                 "/serverKeystore.jks");
