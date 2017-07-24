@@ -1588,6 +1588,67 @@ public class TestCatalog extends AbstractIntegrationTest {
     }
 
     @Test
+    public void testAttributeOverridesOnUpdate() throws Exception {
+        final String TMP_PREFIX = "tcdm_";
+        final String attribute = "title";
+        final String value = "someTitleIMadeUp";
+
+        Path tmpDir = Files.createTempDirectory(TMP_PREFIX);
+        tmpDir.toFile()
+                .deleteOnExit();
+        Path tmpFile = Files.createTempFile(tmpDir, TMP_PREFIX, "_tmp.xml");
+        tmpFile.toFile()
+                .deleteOnExit();
+        Files.copy(getFileContentAsStream("metacard5.xml"),
+                tmpFile,
+                StandardCopyOption.REPLACE_EXISTING);
+
+        Map<String, Object> cdmProperties = new HashMap<>();
+        cdmProperties.putAll(getServiceManager().getMetatypeDefaults("content-core-directorymonitor",
+                "org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor"));
+        cdmProperties.put("monitoredDirectoryPath", tmpDir.toString() + "/");
+        cdmProperties.put("processingMechanism", ContentDirectoryMonitor.IN_PLACE);
+        cdmProperties.put("attributeOverrides", format("%s=%s", attribute, value));
+        Configuration managedService = getServiceManager().createManagedService(
+                "org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor",
+                cdmProperties);
+
+        //assert that the file was ingested
+        ValidatableResponse response = assertIngestedDirectoryMonitor("SysAdmin", 1);
+
+        //assert that the metacard contains the overridden attribute
+        assertStringMetacardAttribute(response, attribute, value);
+
+        //edit the file
+        Files.copy(getFileContentAsStream("metacard4.xml"),
+                tmpFile,
+                StandardCopyOption.REPLACE_EXISTING);
+
+        //assert updated
+        response = assertIngestedDirectoryMonitor("Space", 1);
+
+        //assert that the metacard still contains the overridden attribute
+        assertStringMetacardAttribute(response, attribute, value);
+
+        //delete the file
+        tmpFile.toFile()
+                .delete();
+
+        //assert deleted
+        assertIngestedDirectoryMonitor("SysAdmin", 0);
+
+        getServiceManager().stopManagedService(managedService.getPid());
+    }
+
+    private ValidatableResponse assertStringMetacardAttribute(ValidatableResponse response,
+            String attribute, String value) {
+        String attributeValueXpath = format("/metacards/metacard/string[@name='%s']/value",
+                attribute);
+        response.body(hasXPath(attributeValueXpath, is(value)));
+        return response;
+    }
+
+    @Test
     public void testInPlaceDirectoryMonitor() throws Exception {
         final String TMP_PREFIX = "tcdm_";
         Path tmpDir = Files.createTempDirectory(TMP_PREFIX);

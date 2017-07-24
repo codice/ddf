@@ -29,12 +29,12 @@ class CreateOperationsTest extends Specification {
     def 'test single and multivalued attribute overrides'() {
         def descriptorImpl = new AttributeDescriptorImpl("foo", true, true, true, true, BasicTypes.STRING_TYPE)
         when:
-        AttributeImpl single = createOperations.overrideAttributeValue(descriptorImpl, (Serializable) Arrays.asList("bar"))
+        AttributeImpl single = OverrideAttributesSupport.overrideAttributeValue(descriptorImpl, (Serializable) Arrays.asList("bar"))
         then:
         single.getValues().size() == 1
         single.getValues().contains("bar")
         when:
-        AttributeImpl multi = createOperations.overrideAttributeValue(descriptorImpl, (Serializable) Arrays.asList("bar", "baz"))
+        AttributeImpl multi = OverrideAttributesSupport.overrideAttributeValue(descriptorImpl, (Serializable) Arrays.asList("bar", "baz"))
         then:
         multi.getValues().size() == 2
         multi.getValues().contains("bar")
