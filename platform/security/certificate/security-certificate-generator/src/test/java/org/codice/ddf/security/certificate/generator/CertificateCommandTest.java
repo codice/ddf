@@ -48,6 +48,13 @@ public class CertificateCommandTest {
 
     private static final byte[] ENCODED_SAN_GENERAL_NAME;
 
+    private static final String[] CERTIFICATE_DN =
+            new String[] {"cn=John Whorfin", "o=Yoyodyne", "l=San Narciso", "st=California",
+                    "c=US"};
+
+    private static final String CERTIFICATE_CN =
+            "CN=John Whorfin,O=Yoyodyne,L=San Narciso,ST=California,C=US";
+
     static {
         try {
             ENCODED_SAN_GENERAL_NAME =
@@ -158,12 +165,10 @@ public class CertificateCommandTest {
 
         assertThat(ksf.aliases()
                 .size(), is(2));
-        assertThat(ksf.isKey("CN=John Whorfin,O=Yoyodyne,L=San Narciso,ST=California,C=US"),
-                is(false));
+        assertThat(ksf.isKey(CertificateCommandTest.CERTIFICATE_CN), is(false));
 
-        assertThat(CertificateCommand.configureDemoCertWithDN(new String[] {"cn=John Whorfin",
-                        "o=Yoyodyne", "l=San Narciso", "st=California", "c=US"}, null),
-                equalTo("CN=John Whorfin,O=Yoyodyne,L=San Narciso,ST=California,C=US"));
+        assertThat(CertificateCommand.configureDemoCertWithDN(CertificateCommandTest.CERTIFICATE_DN,
+                null), equalTo(CertificateCommandTest.CERTIFICATE_CN));
 
         validateKeyStore("john whorfin", false);
     }
@@ -174,13 +179,10 @@ public class CertificateCommandTest {
 
         assertThat(ksf.aliases()
                 .size(), is(2));
-        assertThat(ksf.isKey("CN=John Whorfin,O=Yoyodyne,L=San Narciso,ST=California,C=US"),
-                is(false));
+        assertThat(ksf.isKey(CertificateCommandTest.CERTIFICATE_CN), is(false));
 
-        assertThat(CertificateCommand.configureDemoCertWithDN(new String[] {"cn=John Whorfin",
-                        "o=Yoyodyne", "l=San Narciso", "st=California", "c=US"},
-                CertificateCommandTest.SANS),
-                equalTo("CN=John Whorfin,O=Yoyodyne,L=San Narciso,ST=California,C=US"));
+        assertThat(CertificateCommand.configureDemoCertWithDN(CertificateCommandTest.CERTIFICATE_DN,
+                CertificateCommandTest.SANS), equalTo(CertificateCommandTest.CERTIFICATE_CN));
 
         validateKeyStore("john whorfin", true);
     }
@@ -210,16 +212,14 @@ public class CertificateCommandTest {
 
     @Test
     public void testMainWithDnAndWithoutSan() throws Exception {
-        CertificateCommand.main(new String[] {"-dn",
-                "CN=John Whorfin,O=Yoyodyne,L=San Narciso,ST=California,C=US"});
+        CertificateCommand.main(new String[] {"-dn", CertificateCommandTest.CERTIFICATE_CN});
 
         validateKeyStore("john whorfin", false);
     }
 
     @Test
     public void testMainWithDnAndSans() throws Exception {
-        CertificateCommand.main(new String[] {"-dn",
-                "CN=John Whorfin,O=Yoyodyne,L=San Narciso,ST=California,C=US", "-san",
+        CertificateCommand.main(new String[] {"-dn", CertificateCommandTest.CERTIFICATE_CN, "-san",
                 CertificateCommandTest.SANS_ARG});
 
         validateKeyStore("john whorfin", true);
@@ -228,7 +228,7 @@ public class CertificateCommandTest {
     @Test
     public void testMainWithDnAndSansReversedArguments() throws Exception {
         CertificateCommand.main(new String[] {"-san", CertificateCommandTest.SANS_ARG, "-dn",
-                "CN=John Whorfin,O=Yoyodyne,L=San Narciso,ST=California,C=US"});
+                CertificateCommandTest.CERTIFICATE_CN});
 
         validateKeyStore("john whorfin", true);
     }
