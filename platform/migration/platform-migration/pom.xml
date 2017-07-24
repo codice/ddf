@@ -139,7 +139,7 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.71</minimum>
+                                            <minimum>0.62</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
@@ -149,7 +149,7 @@
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.63</minimum>
+                                            <minimum>0.49</minimum>
                                         </limit>
                                     </limits>
                                 </rule>
