@@ -99,7 +99,7 @@ If no arguments specified on the command line, `hostname -f` is used as the comm
 ****
 For Windows, use the `CertNew.cmd` script.
 
-`CertNew (-cn <cn>|-dn <dn>) [-san <tag:name,tag:name,...>]`
+`CertNew (-cn <cn>|-dn <dn>) [-san "<tag:name,tag:name,...>"]`
 
 where:
 

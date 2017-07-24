@@ -1,5 +1,6 @@
+@echo off
 REM Usage:
-REM   CertNew.sh (-cn <cn>|-dn <dn>) [-san <tag:name,tag:name,...>]
+REM   CertNew.sh (-cn <cn>|-dn <dn>) [-san "<tag:name,tag:name,...>"]
 REM
 REM where:
 REM <cn> represents a fully qualified common name (e.g. "<FQDN>", where <FQDN> could be something like cluster.yoyo.com)
@@ -22,8 +23,6 @@ REM Adds the specified subject alternative names if any.
 REM
 REM NOTE: Execute from the <DDF_HOME>/etc/certs directory.
 REM NOTE: Defaults to Java Keystore file type.
-
-@echo off
 
 REM This next line captures the output of the dir command and stores it in a variable
 for /f "delims=" %%a in ('dir /S /B ..\..\security-certificate-generator*.jar') do @set JARFILE=%%a
