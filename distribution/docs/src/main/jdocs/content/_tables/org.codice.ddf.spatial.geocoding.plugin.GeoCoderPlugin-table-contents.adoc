@@ -2,7 +2,7 @@
 :status: published
 
 .[[org.codice.ddf.spatial.geocoding.plugin.GeoCoderPlugin]]GeoCoder Plugin
-[cols="1,1,1,4a,1,1," options="header"]
+[cols="1,1m,1,4a,1,1," options="header"]
 |===
 
 |Title
@@ -13,7 +13,7 @@
 |Required
 
 |Radius
-|`radiusInKm`
+|radiusInKm
 |Integer
 |The search radius from a Point in kilometers.
 |10
