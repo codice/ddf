@@ -4,7 +4,7 @@
 ${branding} uses http://www.schematron.com/overview.html[Schematron Validation] to validate metadata ingested into the catalog.
 
 Custom schematron rulesets can be used to validate metacard metadata.
-Multiple services can be created, and each service can have multiple rule sets associated with it.
+Multiple services can be created, and each service can have multiple rulesets associated with it.
 Namespaces are used to distinguish services.
 The root schematron files may be placed anywhere on the file system as long as they are configured with an absolute path.
 Any root schematron files with a relative path are assumed to be relative to `<${branding}_HOME>/schematron`.
@@ -17,7 +17,7 @@ However, when using the document function within a schematron ruleset to referen
 
 ===== Configuring Schematron Services
 
-Schematron validation services are configured with a namespace and one or more schematron rule sets.
+Schematron validation services are configured with a namespace and one or more schematron rulesets.
 Additionally, warnings may be suppressed so that only errors are reported.
 
 To create a new service:
