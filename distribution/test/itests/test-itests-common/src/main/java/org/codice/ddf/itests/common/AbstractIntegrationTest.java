@@ -353,8 +353,9 @@ public abstract class AbstractIntegrationTest {
             getServiceManager().waitForAllBundles();
             getCatalogBundle().waitForCatalogProvider();
 
-            getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query");
+            getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog/query?_wadl");
             getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/csw?_wadl");
+            getServiceManager().waitForHttpEndpoint(SERVICE_ROOT + "/catalog?_wadl");
 
             getServiceManager().startFeature(true, "search-ui", "search-ui-app", "catalog-ui");
             getServiceManager().waitForAllBundles();
