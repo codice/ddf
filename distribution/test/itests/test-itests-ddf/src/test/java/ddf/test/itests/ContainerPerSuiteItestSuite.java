@@ -44,7 +44,7 @@ import ddf.test.itests.platform.TestSolrCommands;
         TestFtp.class, TestSpatial.class, TestCatalogValidation.class, TestCatalog.class,
         TestSingleSignOn.class, TestSolrCommands.class, TestSecurity.class,
         TestApplicationService.class, TestPlatform.class, TestFanout.class, TestMessageBroker.class,
-        TestConfiguration.class, TestSecurityAuditPlugin.class})
+        TestSecurityAuditPlugin.class, /* THIS CLASS MUST BE LAST */ TestConfiguration.class /* THIS CLASS MUST BE LAST */})
 public class ContainerPerSuiteItestSuite {
 
 }

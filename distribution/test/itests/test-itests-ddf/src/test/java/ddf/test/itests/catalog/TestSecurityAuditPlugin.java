@@ -32,6 +32,7 @@ import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.WaitCondition;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
@@ -56,6 +57,11 @@ public class TestSecurityAuditPlugin extends AbstractIntegrationTest {
     @BeforeExam
     public void beforeExam() throws Exception {
         waitForSystemReady();
+    }
+
+    @Before
+    public void before() {
+        clearCatalogAndWait();
     }
 
     @After
