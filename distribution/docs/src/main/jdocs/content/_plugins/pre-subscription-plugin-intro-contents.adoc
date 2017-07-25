@@ -1,0 +1,16 @@
+:type: pluginIntro
+:status: published
+:title: Pre-Subscription Plugins
+:link: _pre_subscription_plugins
+:summary: Perform any changes before creating a subscription.
+:plugintypes: presubscription
+:order: 15
+
+Pre-subscription plugins are invoked before a Subscription is activated by an Event Processor. 
+This is an opportunity to take any action on the Subscription, including but not limited to:
+
+* validation.
+* logging.
+* auditing.
+* optimization.
+* security filtering.

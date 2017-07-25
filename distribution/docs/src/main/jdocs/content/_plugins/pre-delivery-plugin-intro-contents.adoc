@@ -1,0 +1,14 @@
+:type: pluginIntro
+:status: published
+:title: Pre-Delivery Plugins
+:link: _pre_delivery_plugins
+:summary: Perform any changes before delivering a subscribed event.
+:plugintypes: predelivery
+:order: 16
+
+Pre-delivery plugins are invoked before a Delivery Method is invoked on a Subscription. 
+This is an opportunity to take any action before event delivery, including but not limited to:
+
+* logging.
+* auditing.
+* security filtering/redaction.

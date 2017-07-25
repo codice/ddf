@@ -1,0 +1,22 @@
+:type: plugin
+:status: published
+:title: Point of Contact Policy Plugin
+:link: _point_of_contact_policy_plugin
+:plugintypes: policy
+:summary: Adds a policy if Point of Contact is updated.
+
+The Point of Contact Policy Plugin is a PreUpdate plugin that will check if the point-of-contact attribute has changed.
+If it does, then it adds a policy to that metacard’s policy map that cannot be implied.
+This will deny such an update request, which essentially makes the point-of-contact attribute read-only.
+
+===== Related Components to Point of Contact Policy Plugin
+
+<<_point_of_contact_update_plugin,Point of Contact Update Plugin>>
+
+===== Installing the Point of Contact Policy Plugin
+
+The Point of Contact Policy Plugin is installed by default with a standard installation in the ${ddf-catalog} application.
+
+===== Configuring the Point of Contact Policy Plugin
+
+The Point of Contact Policy Plugin has no configurable properties.

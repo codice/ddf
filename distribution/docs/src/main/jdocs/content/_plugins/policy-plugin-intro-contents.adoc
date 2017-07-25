@@ -1,0 +1,12 @@
+:type: pluginIntro
+:status: published
+:title: Policy Plugins
+:link: _policy_plugins
+:summary: Allows or denies access to the Catalog operation or response.
+:plugintypes: policy
+:order: 02
+
+Policy plugins are invoked to set up the policy for a request/response. 
+This provides an opportunity to attach custom requirements on operations or individual metacards.
+All the 'requirements' from each Policy plugin will be combined into a single policy that will be included in the request/response.
+Access plugins will be used to act on this combined policy.

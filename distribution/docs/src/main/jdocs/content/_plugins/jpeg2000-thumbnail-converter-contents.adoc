@@ -1,0 +1,16 @@
+:type: plugin
+:status: published
+:title: JPEG2000 Thumbnail Converter
+:link: _jpeg2000_thumbnail_converter
+:plugintypes: postquery
+:summary: Creates thumbnails for jpeg2000 images.
+
+The JPEG2000 Thumbnail converter creates thumbnails from images ingested in jpeg2000 format.
+
+===== Installing the JPEG2000 Thumbnail Converter
+
+The JPEG2000 Thumbnail Converter is installed by default with a standard installation in the ${ddf-catalog} application.
+
+===== Configuring the JPEG2000 Thumbnail Converter
+
+The JPEG2000 Thumbnail Converter has no configurable properties.

@@ -1,0 +1,16 @@
+:type: pluginIntro
+:status: published
+:title: Pre-Resource Plugins
+:link: _pre_resource_plugins
+:summary: Perform any changes to a request associated with a metacard prior to download.
+:plugintypes: preresource
+:order: 09
+
+Pre-Resource plugins are invoked before a request to retrieve a resource is sent to a Source. 
+This is an opportunity to take any action on the request, including but not limited to:
+
+* validation.
+* logging.
+* auditing.
+* optimization.
+* security filtering.

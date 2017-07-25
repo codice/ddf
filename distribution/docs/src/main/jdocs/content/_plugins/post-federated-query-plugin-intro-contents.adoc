@@ -1,0 +1,15 @@
+:type: pluginIntro
+:status: published
+:title: Post-Federated-Query Plugins
+:link: _post_federated_query_plugins
+:summary: Perform any changes to a response after federated query completes.
+:plugintypes: postfederatedquery
+:order: 0801
+
+Post-federated-query plugins are invoked after a federated query has been executed successfully, but before the response is returned to the endpoint. 
+This is an opportunity to take any action on the query response, including but not limited to:
+
+* logging.
+* auditing.
+* security filtering/redaction.
+* deduplication.

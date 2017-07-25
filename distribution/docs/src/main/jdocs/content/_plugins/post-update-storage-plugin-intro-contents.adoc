@@ -1,0 +1,9 @@
+:type: pluginIntro
+:status: published
+:title: Post-Update Storage Plugins
+:link: _post_update_storage_plugins
+:summary: Perform any changes after updating a resource.
+:plugintypes: postupdatestorage
+:order: 14
+
+Post-Update storage plugins are invoked immediately after an item is updated in the content repository.

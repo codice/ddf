@@ -1,0 +1,28 @@
+:type: plugin
+:status: published
+:title: Metacard Backup File Storage Provider
+:link: _metacard_backup_file_storage_provider
+:plugintypes: postingest
+:summary: Stores backed-up metacards.
+
+The Metacard Backup File Storage Provider is a storage provider that will store backed-up metacards in a specified file system location.
+
+===== Installing the Metacard Backup File Storage Provider
+
+To install the Metacard Backup File Storage Provider
+
+. Navigate to the *${admin-console}*.
+. Select ${ddf-catalog} application.
+. Select *Features* tab.
+. Install the `catalog-metacard-backup-filestorage` feature.
+
+===== Configuring the Metacard Backup File Storage Provider
+
+To configure the Metacard Backup File Storage Provider
+
+. Navigate to the *${admin-console}*.
+. Select ${ddf-catalog} application.
+. Select *Configuration* tab.
+. Select *Metacard Backup File Storage Provider*.
+
+include::{adoc-include}/_tables/plugin.metacard-backup-filestorage-table-contents.adoc[]

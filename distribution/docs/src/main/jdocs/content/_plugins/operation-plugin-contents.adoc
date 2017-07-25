@@ -1,0 +1,16 @@
+:type: plugin
+:status: published
+:title: Operation Plugin
+:link: _operation_plugin
+:plugintypes: access
+:summary: Validates a user or subject's security attributes.
+
+The operation plugin validates the subject's security attributes to ensure they are adequate to perform the operation.
+
+===== Installing the Operation Plugin
+
+The Operation Plugin is installed by default with a standard installation in the ${ddf-catalog} application.
+
+===== Configuring the Operation Plugin
+
+The Operation Plugin has no configurable properties.

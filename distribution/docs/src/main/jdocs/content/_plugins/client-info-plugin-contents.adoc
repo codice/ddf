@@ -1,0 +1,21 @@
+:type: plugin
+:status: published
+:title: Client Info Plugin
+:link: _client_info_plugin
+:plugintypes: preauthorization
+:summary: Injects request-specific network information into a request.
+
+The client info plugin injects request-specific network information into request properties, such as Remote IP Address, Remote Host Name, Servlet Scheme, and Servlet Context.
+
+===== Related Components to the Client Info Plugin
+
+* Client info filter
+* <<_metacard_ingest_network_plugin,Metacard Ingest Network Plugin>>
+
+===== Installing the Client Info Plugin
+
+The Client Info Plugin is installed by default with a standard installation in the ${ddf-catalog} application.
+
+===== Configuring the Client Info Plugin
+
+The Client Info Plugin has no configurable properties.

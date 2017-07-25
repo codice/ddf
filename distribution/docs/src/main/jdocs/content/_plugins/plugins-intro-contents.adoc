@@ -1,0 +1,41 @@
+:type: pluginIntro
+:status: published
+:title: Catalog Plugins Intro
+:plugintypes: general
+:order: 00
+
+.Catalog Architecture: Catalog Plugins
+[ditaa, catalog_architecture_plugins, png,${image-width}]
+....
++------------------------------------------------------------+
+|                /-------------------\                       |
+|                |cDEFEndpoints      |                       |
+|                +------------+------+                       |
+|                |cDEF        |cDEF  |                       |
+|                | Operations | Data |                       |
+|/---------------+------------+------+------------+---------\|
+||cDEF           |cDEF               |cDEF        |cDEF     ||
+||  Transformers |                   | Federation | Sources ||
+|+---------------+ Catalog Framework +------------+---------+|
+||c369           |                   |cDEF   Eventing       ||
+||   Catalog     |                   +------------+---------+|
+||   Plugins     |                   |cDEF   Resources      ||
+|\---------------+-------------------+----------------------/|
+|                |cDEF               |                       |
+|                | Catalog Provider  |                       |
+|                +-------------------+                       |
+|                |cDEF               |                       |
+|                | Storage Provider  |                       |
+|                \-------------------/                       |
++------------------------------------------------------------+
+....
+
+Plugins are additional tools to use to add additional business logic at certain points, depending on the type of plugin.
+
+The Catalog Framework calls Catalog Plugins to process requests and responses as they enter and leave the Framework. 
+
+=== Types of Plugins
+
+Plugins can be designed to run before or after certain processes.
+They are often used for validation, optimization, or logging.
+Many plugins are designed to be called at more than one time. See <<_catalog_plugin_compatibility,Catalog Plugin Compatibility>>.

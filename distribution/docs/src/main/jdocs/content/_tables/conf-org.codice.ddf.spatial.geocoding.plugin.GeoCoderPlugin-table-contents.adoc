@@ -1,0 +1,6 @@
+:type: documentation
+:status: published
+
+|<<org.codice.ddf.spatial.geocoding.plugin.GeoCoderPlugin,GeoCoder Plugin>>
+|org.codice.ddf.spatial.geocoding.plugin.GeoCoderPlugin
+|GeoCoder Plugin

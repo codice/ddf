@@ -1,0 +1,6 @@
+:type: documentation
+:status: published
+
+|<<org.codice.ddf.catalog.security.ResourceUriPolicy,Resource URI Policy Plugin>>
+|org.codice.ddf.catalog.security.ResourceUriPolicy
+|Resource URI Policy Plugin

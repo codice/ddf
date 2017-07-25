@@ -1,0 +1,35 @@
+:type: plugin
+:status: unpublished
+:title: {plugin-name}
+:link: {link}
+:plugintypes: {plugintypes}
+:summary: {summary}
+
+{description}
+
+===== Related Components to {plugin-name}
+
+Replace this sentence with links to any related components, required or optional, that affect the operation of this plugin.
+
+===== Installing the {plugin-name}
+
+The {plugin-name} {is || is not} installed by default with a standard installation in the ${app-name} application.
+
+If installed by default, delete this section.
+
+If not installed, update this section:
+To install the {plugin-name} from the ${admin-console}:
+
+. Navigate to the *${admin-console}*.
+. Select the *${ddf-catalog}* application.
+. Select the *Configuration* tab.
+. Select the *{plugin-name}*.
+
+===== Configuring the {plugin-name}
+
+{configuration}
+
+===== Usage Limitations of the {plugin-name}
+
+Delete header if none.
+

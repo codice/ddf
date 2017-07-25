@@ -1,0 +1,36 @@
+:type: documentation
+:status: published
+
+.[[org.codice.ddf.catalog.plugin.metacard.MetacardIngestNetworkPlugin]]Catalog Metacard Ingest Network Plugin
+[cols="1,1,1,4a,1,1," options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Criteria
+|criteriaKey
+|String
+|Specifies the criteria for the test of equality; which value will be tested? IP Address? Hostname?
+|remoteAddr
+|true
+
+|Expected Value
+|expectedValue
+|String
+|The value that the criteria must equate to for the attribute overrides to occur.
+|
+|true
+
+|New Attributes
+|newAttributes
+|String"
+|New metacard attributes to apply; if an attribute is specified here, it will be placed on the metacard only if the attribute is not already set. The format should be 'key=value' where 'value' can be a comma-separated list of strings. Whitespace is ignored.
+|
+|true
+
+|===

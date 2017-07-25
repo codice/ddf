@@ -1,0 +1,14 @@
+:type: pluginIntro
+:status: published
+:title: Pre-Authorization Plugins
+:link: _pre_authorization_plugins
+:summary: Perform any changes needed before security rules are applied.
+:plugintypes: preauthorization
+:order: 01
+
+Pre-delivery plugins are invoked before any security rules are applied. 
+This is an opportunity to take any action before authorization, including but not limited to:
+
+* logging.
+* adding network-specific information.
+* adding user-identifying information.

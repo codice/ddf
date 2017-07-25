@@ -1,0 +1,22 @@
+:type: plugin
+:status: published
+:title: Workspace Sharing Policy Plugin
+:link: _workspace_pre_ingest_plugin
+:plugintypes: policy
+:summary: Collects attributes for a workspace to identify the appropriate policy to allow sharing.
+
+The Workspace Sharing Policy Plugin collects attributes for a workspace to identify the appropriate policy to apply to allow sharing.
+
+===== Related Components to The Workspace Sharing Policy Plugin
+
+* <<_workspace_access_plugin,Workspace Access Plugin>>.
+* <<_workspace_pre_ingest_plugin,Workspace Pre-Ingest Plugin>>.
+* Workspace Extension.
+
+===== Installing the Workspace Sharing Policy Plugin
+
+The Workspace Sharing Policy Plugin is installed by default with a standard installation in the ${ddf-catalog} application.
+
+===== Configuring the Workspace Sharing Policy Plugin
+
+The Workspace Sharing Policy Plugin has no configurable properties.

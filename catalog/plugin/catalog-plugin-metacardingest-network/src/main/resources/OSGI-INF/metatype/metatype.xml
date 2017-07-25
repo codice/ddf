@@ -27,7 +27,7 @@
         <AD description="The value that the criteria must equate to for the attribute overrides to occur."
             name="Expected Value" id="expectedValue" required="true" type="String" default=""/>
 
-        <AD description="New metacard attributes to apply; if an attribute is specified here, it will be placed on the metacard only if the attribute is not already set. The format should be 'key=value' where 'value' can be a comma-separated list of strings. Whitespace is ignored."
+        <AD description="New metacard attributes to apply; if an attribute is specified here, it will be placed on the metacard only if the attribute is not already set. The format should be 'key=value' where 'value' can be a comma-separated list of strings. List items may contain spaces, but not begin or end with a space. Spaces between list items is ignored."
             name="New Attributes" id="newAttributes" required="true" type="String"
             cardinality="100"
             default=""/>

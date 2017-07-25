@@ -1,0 +1,10 @@
+:type: pluginIntro
+:status: published
+:title: Pre-Update Storage Plugins
+:link: _pre_update_storage_plugins
+:summary: Perform any changes before updating a resource.
+:plugintypes: preupdatestorage
+:order: 13
+
+Pre-Update storage plugins are invoked immediately before an item is updated in the content repository.
+

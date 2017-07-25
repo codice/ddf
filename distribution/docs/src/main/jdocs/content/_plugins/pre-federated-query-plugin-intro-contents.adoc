@@ -1,0 +1,16 @@
+:type: pluginIntro
+:status: published
+:title: Pre-Federated-Query Plugins
+:link: _pre_federated_query_plugins
+:summary: Perform any changes to a federated query before execution.
+:plugintypes: prefederatedquery
+:order: 0701
+
+Pre-federated-query plugins are invoked before a federated query operation is sent to any of the Sources. 
+This is an opportunity to take any action on the query, including but not limited to:
+
+* validation.
+* logging.
+* auditing.
+* optimization.
+* security filtering.

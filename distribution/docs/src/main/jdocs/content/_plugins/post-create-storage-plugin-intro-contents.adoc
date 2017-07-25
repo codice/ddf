@@ -1,0 +1,10 @@
+:type: pluginIntro
+:status: published
+:title: Post-Create Storage Plugins
+:link: _post_create_storage_plugins
+:summary: Perform any changes after creating a resource.
+:plugintypes: postcreatestorage
+:order: 12
+
+Post-Create storage plugins are invoked immediately after an item is created in the content repository.
+

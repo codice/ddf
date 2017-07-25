@@ -1,0 +1,9 @@
+:type: pluginIntro
+:status: published
+:title: Pre-Create Storage Plugins
+:link: _pre_create_storage_plugins
+:summary: Perform any changes before creating a resource.
+:plugintypes: precreatestorage
+:order: 11
+
+Pre-Create storage plugins are invoked immediately before an item is created in the content repository.

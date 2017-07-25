@@ -1,0 +1,22 @@
+:type: plugin
+:status: published
+:title:  Workspace Access Plugin
+:link: _workspace_access_plugin
+:plugintypes: access
+:summary: Prevents non-owner users from changing workspace permissions.
+
+The Workspace Access Plugin prevents non-owner users from changing workspace permissions.
+
+===== Related Components to The Workspace Access Plugin
+
+* <<_workspace_sharing_policy_plugin,Workspace Sharing Policy Plugin>>.
+* <<_workspace_pre_ingest_plugin,Workspace Pre-Ingest Plugin>>.
+* Workspace Extension.
+
+===== Installing the Workspace Access Plugin
+
+The Workspace Access Plugin is installed by default with a standard installation in the ${ddf-catalog} application.
+
+===== Configuring the Workspace Access Plugin
+
+The Workspace Access Plugin has no configurable properties.

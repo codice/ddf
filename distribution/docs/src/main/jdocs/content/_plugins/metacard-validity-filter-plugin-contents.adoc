@@ -1,0 +1,27 @@
+:type: plugin
+:status: published
+:title: Metacard Validity Filter Plugin
+:link: _metacard_validity_filter_plugin
+:plugintypes: policy
+:summary: Determines whether to filter metacards with validation errors or warnings.
+
+The Metacard Validity Filter Plugin determines whether metacards with validation errors or warnings are filtered from query results.
+
+===== Related Components to the Metacard Validity Filter Plugin
+
+* <<_metacard_validity_marker,Metacard Validity Marker>>.
+
+===== Installing the Metacard Validity Filter Plugin
+
+The Metacard Validity Filter Plugin is installed by default with a standard installation in the ${ddf-catalog} application.
+
+===== Configuring the Metacard Validity Filter Plugin
+
+The Metacard Validity Filter Plugin can be configured:
+
+. Navigate to the *${admin-console}*.
+. Select the *${ddf-catalog}* application.
+. Select the *Configuration* tab.
+. Select the *Metacard Validity Filter Plugin*.
+
+include::{adoc-include}/_tables/ddf.catalog.metacard.validation.MetacardValidityFilterPlugin-table-contents.adoc[]

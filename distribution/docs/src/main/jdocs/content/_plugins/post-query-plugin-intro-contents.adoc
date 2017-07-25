@@ -1,0 +1,15 @@
+:type: pluginIntro
+:status: published
+:title: Post-Query Plugins
+:link: _post_query_plugins
+:summary: Perform any changes to a response after query completes.
+:plugintypes: postquery
+:order: 08
+
+Post-query plugins are invoked after a query has been executed successfully, but before the response is returned to the endpoint. 
+This is an opportunity to take any action on the query response, including but not limited to:
+
+* logging.
+* auditing.
+* security filtering/redaction.
+* deduplication.

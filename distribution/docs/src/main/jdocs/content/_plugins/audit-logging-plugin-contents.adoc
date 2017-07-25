@@ -1,0 +1,17 @@
+:type: plugin
+:status: published
+:title: Audit Logging Plugin
+:link: _audit_logging_plugin
+:plugintypes: preingestplugin, postingestplugin, prequeryplugin, postqueryplugin, prefederatedqueryplugin, postfederatedqueryplugin, preresourceplugin, postresourceplugin, precreatestorageplugin, preupdatestorageplugin, postcreatestorageplugin, postupdatestorageplugin
+:summary: Logs operations to the security log.
+
+The Audit Logging Plugin logs operations to the security log.
+The default location for the security log is `<${branding}_HOME>/data/log/security.log`
+
+===== Installing Audit Logging Plugin
+
+The Audit Logging Plugin is installed by default in a standard installation in the ${ddf-security} application.
+
+===== Configuring the Audit Logging Plugin
+
+The Audit Logging Plugin has no configurable properties.

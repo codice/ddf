@@ -1,0 +1,14 @@
+:type: pluginIntro
+:status: published
+:title: Post-Resource Plugins
+:link: _post_resource_plugins
+:summary: Perform any changes to a resource after download.
+:plugintypes: postresource
+:order: 10
+
+Post-resource plugins are invoked after a resource has been retrieved, but before it is returned to the endpoint. 
+This is an opportunity to take any action on the response, including but not limited to:
+
+* logging.
+* auditing.
+* security filtering/redaction.
