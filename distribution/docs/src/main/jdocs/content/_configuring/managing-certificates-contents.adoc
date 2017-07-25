@@ -2,7 +2,7 @@
 :type: configuringIntro
 :status: published
 :summary: Keystore and certificate instructions.
-:order: 05
+:order: 0502
 
 ==== Managing Keystores and Certificates
 
@@ -13,6 +13,90 @@ ${branding} uses certificates in two ways:
 . Ensuring the privacy and integrity of messages sent or received over a network.
 . Authenticating an incoming user request.
 
+To ensure proper configuration of keystore, truststore, and certificates, follow the options below according to situation.
+
+.Configuring Certificates Workflow
+[ditaa,configuring-certificates-workflow,png]
+....
+                      /----------------------------\
+                      |                            |
+                      |      Provided with         |
+                      |      server keystore?      |
+                      |                   cDEF     |
+                      \----+---------------------+-/
+        +--+               |                     |
+        |1 |            Yes|                     |No
+        +--+               v                     v
+      /----------------------------\       /----------------------------\        /----------------------------\
+      |                            |       |                            |        |                            |
+      |                            |       | Provided with private key  |        |   A private key and        |
+      |                            |       | & signed certificate for   |  No    |   signed certificate       |
+      |                            |       | the server?                |------->|   are required             |
+      | Replace default keystore   |       |                 cDEF       |        |                  cF00      |
+      | with provided file and     |       \------------+---------------/        \----------------------------/
+      | edit system.properties     |        +--+        |
+      | file with filenames,       |        |2 |     Yes|
+      | passwords, file types      |        +--+        v
+      |                            |       /----------------------------\
+      |                            |       |                            |
+      |                            |       | Create a private-key-entry |
+      |                            |       | in the serverKeystore file |
+/---->|                            |       | using the provided private |
+|     |                            |       | key and signed certificate |
+|     |                   cCCC     |       |                 cCCC       |
+|     \--------------------+-------/       \----+-----------------------/
+|                          |                    |
+|                          |                    |
+|                          v                    v
+|                      /----------------------------\                            /----------------------------\
+|                      |                            |                            |                            |
+|                      |  The truststore file has   |       Yes                  | Restart server to          |
+|                      |  the proper certificates?  +--------------------------->| complete configuration     |
+|                      |                 cDEF       |                            |                   c0F0     |
+|                      \--+----------------------+--/                            \----------------------------/
+|                         |
+|                         |No
+|                         v
+|     /----------------------------\       /----------------------------\        /----------------------------\
+|     |                            |  No   |                            |        |                            |
+|     |     Provided with          |------>|   Provided with CA         |  No    |   A CA certificate         |
+|     |     trust keystore?        |  +--->|   certificate?             |------->|   is required              |
+|     |                   cDEF     |  |    |                    cDEF    |        |                   cF00     |
+|     \-----------+----------------/  |    \---------+------------------/        \----------------------------/
+|       +--+      |                   |              |
+|       |3 |   Yes|                   |              |Yes
+|       +--+      v                   |              |
+|     /----------------------------\  |     +--+     |
+|     |                            |  |     |4 |     |
+|     |  Replace truststore with   |  |     +--+     v
+|     |  provided file             |  |    /-----------------------------\
+|     |                 cCCC       |  |    |                             |
+|     \-----------+----------------/  |    |  Import the CA certificate  |
+|                 |                   |    |  into the serverTrustStore  |
+|                 |                 No|    |  and serverKeystore files   |
+|                 v                   |    |                   cCCC      |
+|     /----------------------------\  |    \---------+-------------------/
+|     |                            +--+       ^      |
+|     | Server keystore includes   |          |      |
+|     | the CA certificate used    |          |      |
+|     | to sign the server's       |   Yes    |      |
+|     | certificate?               |----------/      |
+|     |                  cDEF      |                 |
+|     \----------------------------/                 |
+|                                                    |
+|                                                    |
+\----------------------------------------------------/
+....
+
+Jump to the steps referenced in the diagram:
+
+.Certificate Workflow Steps
+. <<_adding_an_existing_server_keystore,Adding an Existing Keystore>>
+. <<_creating_a_new_keystore_truststore_with_an_existing_certificate_and_private_key,Creating a New Keystore/Truststore with an Existing Certificate and Private Key>>
+. <<_adding_an_existing_server_truststore,Adding an Existing Truststore>>
+. <<_creating_a_server_keystore,Creating a Server Keystore>>
+.. <<_creating_a_server_truststore,Creating a Server Truststore>>
+
 ===== Managing Keystores
 
 Certificates, and sometimes their associated private keys, are stored in keystore files.
@@ -20,8 +104,78 @@ ${branding} includes two default keystore files, the server key store and the se
 The server keystore holds the certificates and private keys that ${branding} uses to identify itself to other nodes on the network.
 The truststore holds the certificates of nodes or other entities that ${branding} needs to trust.
 
-Certificates (and certificates with keys) can be managed in the ${admin-console}. Navigate to the ${ddf-security}application and select it.
-After it opens, select the notebook tab labeled "Certificates".
+====== Adding an Existing Server Keystore
+
+If provided an existing keystore for use with ${branding}, follow these steps to replace the default keystore.
+
+. Remove the default keystore at `etc/keystore/serverKeystore.jks`.
+. Add the desired keystore file to the `etc/keystore` directory.
+. Edit `system.properties` file to set filenames and passwords.
+.. If using a type of keystore other than `jks` (such as `pkcs12`), change the `javax.net.ssl.keyStoreType` property as well.
+. If the truststore has the correct certificates, restart server to complete configuration.
+.. If provided with an existing server truststore, continue to <<_adding_an_existing_server_truststore,Adding an Existing Server Truststore>>.
+.. Otherwise, <<_creating_a_server_keystore,create a server truststore>>.
+
+====== Adding an Existing Server Truststore
+
+. Remove the default truststore at `etc/keystore/serverTruststore.jks`.
+. Add the desired truststore file to the `etc/keystore` directory.
+. Edit `system.properties` file to set filenames and passwords.
+.. If using a type of truststore other than `jks` (such as `pkcs12`), change the `javax.net.ssl.trustStoreType` property as well.
+
+If the provided server keystore does not include the CA certificate that was used to sign the server's certificate, <<_creating_a_server_keystore,add the CA certificate into the `serverKeystore` file>>.
+
+====== Creating a New Keystore/Truststore with an Existing Certificate and Private Key
+
+If provide an existing certificate create a new keystore and truststore with it.
+
+[NOTE]
+====
+${branding} requires that the keystore contains both the private key and the CA.
+====
+
+. [[_creating_a_server_keystore]]Using the private key, certificate, and CA certificate, create a new keystore containing the data from the new files.
++
+[source]
+----
+cat client.crt >> client.key
+openssl pkcs12 -export -in client.key -out client.p12
+keytool -importkeystore -srckeystore client.p12 -destkeystore serverKeystore.jks -srcstoretype pkcs12 -alias 1
+keytool -changealias -alias 1 -destalias client -keystore serverKeystore.jks
+keytool -importcert -file ca.crt -keystore serverKeystore.jks -alias "ca"
+keytool -importcert -file ca-root.crt -keystore serverKeystore.jks -alias "ca-root"
+----
++
+. [[_creating_a_server_truststore]]Create the truststore using only the CA certificate. Based on the concept of CA signing, the CA should be the only entry needed in the truststore.
++
+----
+keytool -import -trustcacerts -alias "ca" -file ca.crt -keystore truststore.jks
+keytool -import -trustcacerts -alias "ca-root" -file ca-root.crt -keystore truststore.jks
+----
++
+. Create a PEM file using the certificate, as some applications require that format.
++
+----
+openssl x509 -in client.crt -out client.der -outform DER
+openssl x509 -in client.der -inform DER -out client.pem -outform PEM
+----
+
+====== Updating Key Store / Trust Store via the ${admin-console}
+
+Certificates (and certificates with keys) can be managed in the ${admin-console}.
+
+. Navigate to the ${admin-console}.
+. Select the *${ddf-security}* application.
+. Select the *Certificates* tab.
+. Add and remove certificates and private keys as necessary.
+. Restart ${branding}.
+
+[IMPORTANT]
+====
+The default trust store and key store files for ${branding} included in `etc/keystores` use self-signed certificates.
+Self-signed certificates should never be used outside of development/testing areas.
+====
+
 This view shows the alias (name) of every certificate in the trust store and the key store.
 It also displays if the entry includes a private key ("Is Key") and the encryption scheme (typically "RSA" or "EC").
 
@@ -54,85 +208,7 @@ javax.net.ssl.keyStoreType=jks
 javax.net.ssl.trustStoreType=jks
 ----
 
-====== Default Certificates
-
-${branding} comes with a default keystore that contains certificates.
-This allows the distribution to be unzipped and run immediately.
-
-If the installer was used to install the ${branding} and a hostname other than "localhost" was given, the user will be prompted to upload new trust/key stores.
-
-If the hostname is `localhost` or, if the hostname was changed _after_ installation, the default certificates will not allow access to the ${branding} instance from another machine over HTTPS (now the default for many services).
-The Demo Certificate Authority will need to be replaced with certificates that use the fully-qualified hostname of the server running the ${branding} instance.
-
-====== Demo Certificate Authority (CA)
-
-${branding} comes with a populated truststore containing entries for many public certificate authorities, such as Go Daddy and Verisign.
-It also includes an entry for the ${ddf-branding} Demo Root CA.
-This entry is a self-signed certificate used for testing.
-It enables ${branding} to run immediately after unzipping the distribution.
-The keys and certificates for the ${ddf-branding} Demo Root CA are included as part of the ${branding} distribution.
-This entry must be removed from the truststore before ${branding} can operate securely.
-
-====== Creating New Server Keystore Entry with the CertNew Scripts
-
-To create a private key and certificate signed by the Demo Certificate Authority, use the provided scripts.
-To use the scripts, run them out of the `<INSTALL_HOME>/etc/certs` directory.
-
-.*NIX Demo CA Script
-****
-
-For *NIX, use the `CertNew.sh` script.
-
-`sh CertNew.sh [-cn <cn>|-dn <dn>] [-san <tag:name,tag:name,...>]`
-
-where:
-
-* `<cn>` represents a fully qualified common name (e.g. "<FQDN>", where <FQDN> could be something like cluster.yoyo.com)
-* `<dn>` represents a distinguished name as a comma-delimited string (e.g. "c=US, st=California, o=Yoyodyne, l=San Narciso, cn=<FQDN>")
-* `<tag:name,tag:name,...>` represents optional subject alternative names to be added to the generated certificate (e.g. "DNS:<FQDN>,DNS:node1.<FQDN>,DNS:node2.<FQDN>"). The format for subject alternative names is similar to the OpenSSL X509 configuration format. Supported tags are:
-** `email` - email subject
-** `URI` - uniformed resource identifier
-** `RID` - registered id
-** `DNS` - hostname
-** `IP` - ip address (V4 or V6)
-** `dirName` - directory name
-
-If no arguments specified on the command line, `hostname -f` is used as the common-name for the certificate.
-****
-
-.Windows Demo CA Script
-****
-For Windows, use the `CertNew.cmd` script.
-
-`CertNew (-cn <cn>|-dn <dn>) [-san "<tag:name,tag:name,...>"]`
-
-where:
-
-* `<cn>` represents a fully qualified common name (e.g. "<FQDN>", where <FQDN> could be something like cluster.yoyo.com)
-* `<dn>` represents a distinguished name as a comma-delimited string (e.g. "c=US, st=California, o=Yoyodyne, l=San Narciso, cn=<FQDN>")
-* `<tag:name,tag:name,...>` represents optional subject alternative names to be added to the generated certificate (e.g. "DNS:<FQDN>,DNS:node1.<FQDN>,DNS:node2.<FQDN>"). The format for subject alternative names is similar to the OpenSSL X509 configuration format. Supported tags are:
-** `email` - email subject
-** `URI` - uniformed resource identifier
-** `RID` - registered id
-** `DNS` - hostname
-** `IP` - ip address (V4 or V6)
-** `dirName` - directory name
-
-****
-
-The `CertNew` scripts:
-
-* Create a new entry in the server keystore.
-* Use the hostname as the fully qualified domain name (FQDN) when creating the certificate.
-* Adds the specified subject alternative names if any.
-* Use the Demo Certificate Authority to sign the certificate so that it will be trusted by the default configuration.
-
-To install a certificate signed by a different Certificate Authority, see <<_managing_keystores,Managing Keystores>>.
-
-Finally, restart the ${branding} instance.
-Browse the ${admin-console} at \https://<FQDN>:8993/admin to test changes.
-
-[WARNING]
+[NOTE]
 ====
 If the server's fully qualified domain name is not recognized, the name may need to be added to the network's DNS server.
 ====
@@ -155,7 +231,6 @@ For example:
 [NOTE]
 ====
 This step is not required for a hardened system.
-If testing ${branding} with a
 
 * The default password in `config.ldif` for `serverKeystore.jks` is `changeit`. This needs to be modified.
 ** `ds-cfg-key-store-file: ../../keystores/serverKeystore.jks`
@@ -166,20 +241,6 @@ If testing ${branding} with a
 ** `ds-cfg-trust-store-file: ../../keystores/serverTruststore.jks`
 ** `ds-cfg-trust-store-pin: password`
 ** `cn: JKS`
-====
-
-====== Updating Key Store / Trust Store via the ${admin-console}
-
-. Open the ${admin-console}.
-. Select the *${ddf-security}* application.
-. Select the *Certificates* tab.
-. Add and remove certificates and private keys as necessary.
-. Restart ${branding}.
-
-[IMPORTANT]
-====
-The default trust store and key store files for ${branding} included in `etc/keystores` use self-signed certificates.
-Self-signed certificates should never be used outside of development/testing areas.
 ====
 
 ===== Managing Certificate Revocation List (CRL)

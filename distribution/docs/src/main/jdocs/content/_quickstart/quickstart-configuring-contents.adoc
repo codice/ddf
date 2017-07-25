@@ -2,7 +2,7 @@
 :type: quickStart
 :status: published
 :summary: Set configurations for an example instance.
-:order: 01
+:order: 02
 
 === Configuring (Quick Start)
 
@@ -18,7 +18,7 @@ Set the configurations needed to run ${branding}.
 .. Select *Standard Installation*.
 ... This step may take several minutes to complete.
 .. On the System Configuration page, configure any port or protocol changes desired and add any keystores/truststores needed.
-... See <<_configuring_new_certificates,Configuring New Certificates>> for more details.
+... See <<_certificates_quick_start,Certificates (Quick Start)>> for more details.
 .. Click *Next*
 .. Click *Finish*
 
