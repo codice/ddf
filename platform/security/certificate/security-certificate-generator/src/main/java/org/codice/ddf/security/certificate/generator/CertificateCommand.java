@@ -18,6 +18,8 @@ import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 
+import javax.annotation.Nullable;
+
 import org.apache.commons.lang.Validate;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.style.BCStyle;
@@ -25,35 +27,74 @@ import org.bouncycastle.asn1.x500.style.BCStyle;
 import ddf.security.SecurityConstants;
 
 public class CertificateCommand {
-
     /**
      * Pass in a string to use as the common name of the certificate to be generated.
-     * Exception thrown if 0 arguments or more than 1 argument.
+     * Exception thrown if 0 arguments or more than 2 argument (or more than 4 when -san is used).
+     * <pre>
+     * Arguments to this program are: <code>(-cn &lt;cn&gt;|-dn &lt;dn&gt;) [-san &lt;tag:name,tag:name,...&gt;]</code>
      *
-     * @param args
+     * where:
+     * &lt;cn&gt; represents a fully qualified common name (e.g. "&lt;FQDN&gt;", where &lt;FQDN&gt; could be something like cluster.yoyo.com)
+     * &lt;dn&gt; represents a distinguished name as a comma-delimited string (e.g. "c=US, st=California, o=Yoyodyne, l=San Narciso, cn=&lt;FQDN&gt;")
+     * &lt;tag:name,tag:name,...&gt; represents optional subject alternative names to be added to the generated certificate
+     *    (e.g. "DNS:&lt;FQDN&gt;,DNS:node1.&lt;FQDN&gt;,DNS:node2.&lt;FQDN&gt;"). The format for subject alternative names
+     *    is similar to the OpenSSL X509 configuration format. Supported tags are:
+     *      email - email subject
+     *      URI - uniformed resource identifier
+     *      RID - registered id
+     *      DNS - hostname
+     *      IP - ip address (V4 or V6)
+     *      dirName - directory name
+     * </pre>
+     *
+     * @param args arguments to the certificate program (see above for description)
      */
     public static void main(String args[]) {
-        if (args.length != 2) {
-            String canonicalName = CertificateCommand.class.getCanonicalName();
-            String exCn = String.format("java %s -cn \"John Smith\"", canonicalName);
+        // try to extract -san if provided
+        int expected = 2;
+        String[] sans = null;
+        int cnDnPosition = 0;
 
-            String exDn = String.format(
-                    "java %s -dn \"cn=John Whorfin, o=Yoyodyne, l=San Narciso, st=California, c=US\"",
-                    canonicalName);
-            String usage = String.format(
-                    "%nUsage: java %s [-cn <common name>] | [-dn <distinguished name>]%n Examples: %n%s%n%s",
-                    canonicalName, exCn, exDn);
-            throw new RuntimeException(usage);
+        if (args.length == 4) {
+            if (args[0].trim()
+                    .equalsIgnoreCase("-san")) {
+                sans = Arrays.stream(args[1].split("[,]"))
+                        .map(String::trim)
+                        .toArray(String[]::new);
+                cnDnPosition = 2;
+                expected = 4;
+            } else if (args[2].trim()
+                    .equalsIgnoreCase("-san")) {
+                sans = Arrays.stream(args[3].split("[,]"))
+                        .map(String::trim)
+                        .toArray(String[]::new);
+                expected = 4;
+            }
         }
-
-        if (args[0].trim()
+        if (args.length != expected) {
+            throw new IllegalArgumentException(String.format(
+                    "java %s (-cn <cn>|-d <dn>) [-san \"<tag:name,tag:name,...>\"]%n%n" //
+                            + "where:%n"
+                            + "  <cn> represents a fully qualified common name (e.g. \"<FQDN>\", where <FQDN> could be something like cluster.yoyo.com)%n"
+                            + "  <dn> represents a distinguished name as a comma-delimited string (e.g. \"c=US, st=California, o=Yoyodyne, l=San Narciso, cn=<FQDN>\")%n"
+                            + "  <tag:name,tag:name,...> represents optional subject alternative names to be added to the generated certificate%n"
+                            + "     (e.g. \"DNS:<FQDN>,DNS:node1.<FQDN>,DNS:node2.<FQDN>\"). The format for subject alternative names%n"
+                            + "     is similar to the OpenSSL X509 configuration format. Supported tags are:%n"
+                            + "       email - email subject%n"
+                            + "       URI - uniformed resource identifier%n"
+                            + "       RID - registered id%n" //
+                            + "       DNS - hostname%n" + "       IP - ip address (V4 or V6)%n"
+                            + "       dirName - directory name%n",
+                    CertificateCommand.class.getCanonicalName()));
+        }
+        if (args[cnDnPosition].trim()
                 .equalsIgnoreCase("-cn")) {
-            configureDemoCert(args[1].trim());
+            configureDemoCert(args[cnDnPosition + 1].trim(), sans);
         } else {
-            String[] dn = Arrays.stream(args[1].split("[,]"))
+            String[] dn = Arrays.stream(args[cnDnPosition + 1].split("[,]"))
                     .map(String::trim)
                     .toArray(String[]::new);
-            configureDemoCertWithDN(dn);
+            configureDemoCertWithDN(dn, sans);
         }
     }
 
@@ -68,8 +109,27 @@ public class CertificateCommand {
      * @return the string used as the common name in the new certificate
      */
     public static String configureDemoCert(String commonName) {
+        return configureDemoCert(commonName, null);
+    }
+
+    /**
+     * Generates new signed certificate. The input parameter is used as the certificate's common name
+     * and optional subject alternative names.
+     * <p>
+     * Postcondition is the server keystore is updated to include a private entry. The private
+     * entry has the new certificate chain that connects the server to the Demo CA. The matching
+     * private key is also stored in the entry.
+     *
+     * @param commonName      string to use as the common name in the new certificate.
+     * @param subjectAltNames names in the form {@code tag:name} (format similar to OpenSSL X509 configuration)
+     * @return the string used as the common name in the new certificate
+     */
+    public static String configureDemoCert(String commonName, @Nullable String[] subjectAltNames) {
         CertificateSigningRequest csr = new CertificateSigningRequest();
         csr.setCommonName(commonName);
+        if (subjectAltNames != null) {
+            csr.addSubjectAlternativeNames(subjectAltNames);
+        }
         return configureCert(commonName, csr);
     }
 
@@ -82,12 +142,33 @@ public class CertificateCommand {
      * private key is also stored in the entry.
      *
      * @param dn String params in the form {@code attrKey=attrVal} composing a distinguished name.
-     *           e.g. {@code configureDemoCertWithDN("cn=John Whorfin", "o=Yoyodyne", "l=San Narciso", "st=California", "c=US")}
+     *           e.g. {@code configureDemoCertWithDN(new String[] {"cn=John Whorfin", "o=Yoyodyne", "l=San Narciso", "st=California", "c=US")}
      * @return the string used as the common name in the new certificate
      */
-    public static String configureDemoCertWithDN(String... dn) {
+    public static String configureDemoCertWithDN(String[] dn) {
+        return configureDemoCertWithDN(dn, null);
+    }
+
+    /**
+     * Generates new signed certificate. The input parameter is the full set of attributes of the
+     * distinguished name for the cert and optional subject alternative names. It must include a
+     * single {@code CN} value for the common name.
+     * <p>
+     * Postcondition is the server keystore is updated to include a private entry. The private
+     * entry has the new certificate chain that connects the server to the Demo CA. The matching
+     * private key is also stored in the entry.
+     *
+     * @param dn              String params in the form {@code attrKey=attrVal} composing a distinguished name.
+     *                        e.g. {@code configureDemoCertWithDN(new String[] {"cn=John Whorfin", "o=Yoyodyne", "l=San Narciso", "st=California", "c=US"), null}
+     * @param subjectAltNames names in the form {@code tag:name} (format similar to OpenSSL X509 configuration)
+     * @return the string used as the common name in the new certificate
+     */
+    public static String configureDemoCertWithDN(String[] dn, @Nullable String[] subjectAltNames) {
         CertificateSigningRequest csr = new CertificateSigningRequest();
         csr.setDistinguishedName(dn);
+        if (subjectAltNames != null) {
+            csr.addSubjectAlternativeNames(subjectAltNames);
+        }
         RDN[] rdns = csr.getSubjectName()
                 .getRDNs(BCStyle.CN);
 
