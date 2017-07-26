@@ -162,8 +162,7 @@ public class ConfigurationAdminMigration extends DescribableBean
                 }
                 return file.getName();
             } else {
-                return new StringBuilder(configuration.getPid()).append(configurationFileExtension)
-                        .toString();
+                return constructFileName(configuration);
             }
         } catch (MalformedURLException | URISyntaxException e) {
             String message = String.format(
@@ -172,6 +171,22 @@ public class ConfigurationAdminMigration extends DescribableBean
                     e.getMessage());
             throw new UnexpectedMigrationException(message, e);
         }
+    }
+
+    private String constructFileName(Configuration configuration) {
+        if (isManagedServiceFactoryConfiguration(configuration)) {
+            return new StringBuilder(configuration.getFactoryPid()).append("-")
+                    .append(System.nanoTime())
+                    .append(configurationFileExtension)
+                    .toString();
+        } else {
+            return new StringBuilder(configuration.getPid()).append(configurationFileExtension)
+                    .toString();
+        }
+    }
+
+    private boolean isManagedServiceFactoryConfiguration(Configuration configuration) {
+        return configuration.getFactoryPid() != null;
     }
 
     private boolean isSupportedFormat(String fileName) {
