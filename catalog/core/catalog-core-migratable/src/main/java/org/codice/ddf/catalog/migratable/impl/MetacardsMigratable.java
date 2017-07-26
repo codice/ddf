@@ -15,37 +15,19 @@ package org.codice.ddf.catalog.migratable.impl;
 
 import static org.apache.commons.lang.Validate.notNull;
 
-import java.io.Serializable;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import javax.validation.constraints.NotNull;
 
 import org.codice.ddf.migration.DataMigratable;
 import org.codice.ddf.migration.DescribableBean;
-import org.codice.ddf.migration.ExportMigrationException;
+import org.codice.ddf.migration.ExportMigrationContext;
+import org.codice.ddf.migration.ImportMigrationContext;
 import org.codice.ddf.migration.MigrationException;
-import org.codice.ddf.migration.MigrationMetadata;
-import org.codice.ddf.migration.MigrationWarning;
-import org.opengis.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.Result;
-import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
-import ddf.catalog.operation.QueryRequest;
-import ddf.catalog.operation.SourceResponse;
-import ddf.catalog.operation.impl.QueryImpl;
-import ddf.catalog.operation.impl.QueryRequestImpl;
-import ddf.catalog.source.SourceUnavailableException;
-import ddf.catalog.source.UnsupportedQueryException;
 
 /**
  * Implementation of the {@link org.codice.ddf.migration.DataMigratable} interface used to migrate
@@ -122,82 +104,88 @@ public class MetacardsMigratable extends DescribableBean implements DataMigratab
      * {@inheritDoc}
      */
     @Override
-    @NotNull
-    public MigrationMetadata export(@NotNull Path exportPath) throws MigrationException {
-
-        config.setExportPath(exportPath.resolve(this.getId()));
-        fileWriter.createExportDirectory(config.getExportPath());
-
-        Collection<MigrationWarning> warnings = new ArrayList<>();
-        Map<String, Serializable> props = createMapWithNativeQueryMode();
-        Filter dumpFilter = filterBuilder.attribute(Metacard.ANY_TEXT)
-                .is()
-                .like()
-                .text("*");
-
-        QueryImpl exportQuery = new QueryImpl(dumpFilter);
-        exportQuery.setPageSize(config.getExportQueryPageSize());
-        exportQuery.setRequestsTotalResultsCount(false);
-
-        QueryRequest exportQueryRequest = new QueryRequestImpl(exportQuery, props);
-
-        try {
-            executeQueryLoop(exportQuery, exportQueryRequest);
-        } catch (Exception e) {
-            LOGGER.info("Internal error occurred when exporting catalog: {}", e);
-            throw new ExportMigrationException(DEFAULT_FAILURE_MESSAGE);
-        } finally {
-            cleanup();
-        }
-
-        return new MigrationMetadata(warnings);
+    public void doExport(ExportMigrationContext context) {
+        // When re-implementing this, make sure to address paging using the paging iterator
+        // to export all metacards
+        //        config.setExportPath(exportPath.resolve(this.getId()));
+        //        fileWriter.createExportDirectory(config.getExportPath());
+        //
+        //        Collection<MigrationWarning> warnings = new ArrayList<>();
+        //        Map<String, Serializable> props = createMapWithNativeQueryMode();
+        //        Filter dumpFilter = filterBuilder.attribute(Metacard.ANY_TEXT)
+        //                .is()
+        //                .like()
+        //                .text("*");
+        //
+        //        QueryImpl exportQuery = new QueryImpl(dumpFilter);
+        //        exportQuery.setPageSize(config.getExportQueryPageSize());
+        //        exportQuery.setRequestsTotalResultsCount(false);
+        //
+        //        QueryRequest exportQueryRequest = new QueryRequestImpl(exportQuery, props);
+        //
+        //        try {
+        //            executeQueryLoop(exportQuery, exportQueryRequest);
+        //        } catch (Exception e) {
+        //            LOGGER.info("Internal error occurred when exporting catalog: {}", e);
+        //            throw new ExportMigrationException(DEFAULT_FAILURE_MESSAGE);
+        //        } finally {
+        //            cleanup();
+        //        }
+        //
+        //        return new MigrationMetadata(warnings);
+        throw new MigrationException("not implemented yet");
     }
 
-    private void cleanup() throws MigrationException {
-        try {
-            taskManager.close();
-        } catch (MigrationException e) {
-            LOGGER.info("Migration exception when closing the task manager: {}", e);
-            throw e;
-        } catch (Exception e) {
-            LOGGER.info("Internal error when closing the task manager: {}", e);
-            throw new MigrationException("Error closing task manager: {}", e);
-        }
+    @Override
+    public void doImport(ImportMigrationContext context) {
+        throw new MigrationException("not implemented yet");
     }
 
-    private Map<String, Serializable> createMapWithNativeQueryMode() {
-        Map<String, Serializable> props = new HashMap<>();
-        // Prevent the catalog framework from caching results. Be efficient.
-        props.put("mode", "native");
-        return props;
-    }
-
-    private void executeQueryLoop(QueryImpl exportQuery, QueryRequest exportQueryRequest)
-            throws UnsupportedQueryException, SourceUnavailableException, FederationException {
-
-        long exportGroupCount = 1;
-        SourceResponse response;
-        List<Result> results;
-
-        do {
-            response = framework.query(exportQueryRequest);
-            if (response == null) {
-                LOGGER.info("Response came back null from the query");
-                throw new ExportMigrationException(DEFAULT_FAILURE_MESSAGE);
-            }
-
-            results = response.getResults();
-            if (results == null) {
-                LOGGER.info("Results came back null from the response");
-                throw new ExportMigrationException(DEFAULT_FAILURE_MESSAGE);
-            }
-
-            if (!results.isEmpty()) {
-                taskManager.exportMetacardQuery(results, exportGroupCount);
-                exportQuery.setStartIndex(
-                        exportQuery.getStartIndex() + config.getExportQueryPageSize());
-                exportGroupCount++;
-            }
-        } while (results.size() >= config.getExportQueryPageSize());
-    }
+    //    private void cleanup() throws MigrationException {
+    //        try {
+    //            taskManager.close();
+    //        } catch (MigrationException e) {
+    //            LOGGER.info("Migration exception when closing the task manager: {}", e);
+    //            throw e;
+    //        } catch (Exception e) {
+    //            LOGGER.info("Internal error when closing the task manager: {}", e);
+    //            throw new MigrationException("Error closing task manager: {}", e);
+    //        }
+    //    }
+    //
+    //    private Map<String, Serializable> createMapWithNativeQueryMode() {
+    //        Map<String, Serializable> props = new HashMap<>();
+    //        // Prevent the catalog framework from caching results. Be efficient.
+    //        props.put("mode", "native");
+    //        return props;
+    //    }
+    //
+    //    private void executeQueryLoop(QueryImpl exportQuery, QueryRequest exportQueryRequest)
+    //            throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+    //
+    //        long exportGroupCount = 1;
+    //        SourceResponse response;
+    //        List<Result> results;
+    //
+    //        do {
+    //            response = framework.query(exportQueryRequest);
+    //            if (response == null) {
+    //                LOGGER.info("Response came back null from the query");
+    //                throw new ExportMigrationException(DEFAULT_FAILURE_MESSAGE);
+    //            }
+    //
+    //            results = response.getResults();
+    //            if (results == null) {
+    //                LOGGER.info("Results came back null from the response");
+    //                throw new ExportMigrationException(DEFAULT_FAILURE_MESSAGE);
+    //            }
+    //
+    //            if (!results.isEmpty()) {
+    //                taskManager.exportMetacardQuery(results, exportGroupCount);
+    //                exportQuery.setStartIndex(
+    //                        exportQuery.getStartIndex() + config.getExportQueryPageSize());
+    //                exportGroupCount++;
+    //            }
+    //        } while (results.size() >= config.getExportQueryPageSize());
+    //    }
 }

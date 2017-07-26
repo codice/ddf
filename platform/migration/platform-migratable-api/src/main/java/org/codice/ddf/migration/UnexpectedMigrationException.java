@@ -15,6 +15,13 @@ package org.codice.ddf.migration;
 
 /**
  * Exception that indicates an unexpected error during migration.
+ * <p>
+ * <b>
+ * This code is experimental. While this interface is functional
+ * and tested, it may change or be removed in a future version of the
+ * library.
+ * </b>
+ * </p>
  */
 public class UnexpectedMigrationException extends MigrationException {
     private static final String MESSAGE_PREFIX = "Unexpected error";

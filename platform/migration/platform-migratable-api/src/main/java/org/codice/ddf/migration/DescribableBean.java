@@ -16,8 +16,6 @@ package org.codice.ddf.migration;
 
 import static org.apache.commons.lang.Validate.notNull;
 
-import javax.validation.constraints.NotNull;
-
 import org.codice.ddf.platform.services.common.Describable;
 
 /**
@@ -29,6 +27,13 @@ import org.codice.ddf.platform.services.common.Describable;
  * business logic.
  * <p>
  * {@inheritDoc}
+ * <p>
+ * <b>
+ * This code is experimental. While this interface is functional
+ * and tested, it may change or be removed in a future version of the
+ * library.
+ * </b>
+ * </p>
  */
 public class DescribableBean implements Describable {
 
@@ -50,9 +55,12 @@ public class DescribableBean implements Describable {
      * @param title        title of this describable
      * @param description  description of this describable
      * @param organization organization where this describable belongs
+     * @throws IllegalArgumentException if <code>version</code>, <code>id</code>, <code>title</code>,
+     *                                  <code>description</code>, or <code>organization</code> is
+     *                                  <code>null</code>
      */
-    public DescribableBean(@NotNull String version, @NotNull String id, @NotNull String title,
-            @NotNull String description, @NotNull String organization) {
+    public DescribableBean(String version, String id, String title, String description,
+            String organization) {
 
         notNull(description, "description cannot be null");
         notNull(organization, "organization cannot be null");
@@ -73,8 +81,9 @@ public class DescribableBean implements Describable {
      *
      * @param describableInfo object containing required info to be copied into
      *                        this describable.
+     * @throws IllegalArgumentException if <code>describableInfo</code> is <code>null</code>
      */
-    public DescribableBean(@NotNull DescribableBean describableInfo) {
+    public DescribableBean(DescribableBean describableInfo) {
         notNull(describableInfo, "describable info cannot be null");
 
         this.version = describableInfo.getVersion();

@@ -16,15 +16,11 @@ package org.codice.ddf.migration.commands;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collection;
 
 import org.apache.karaf.shell.api.action.Argument;
 import org.apache.karaf.shell.api.action.Command;
-import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
-import org.codice.ddf.configuration.migration.ConfigurationMigrationService;
-import org.codice.ddf.migration.MigrationWarning;
-import org.codice.ddf.security.common.Security;
+import org.codice.ddf.migration.MigrationReport;
 
 import ddf.security.service.SecurityServiceException;
 
@@ -41,26 +37,19 @@ public class ExportCommand extends MigrationCommands {
     private static final String SUCCESSFUL_EXPORT_MESSAGE =
             "Successfully exported all configurations.";
 
+    private static final String SUCCESSFUL_EXPORT_WITH_WARNINGS_MESSAGE =
+            "Successfully exported all configurations with warnings; make sure to review.";
+
     private static final String FAILED_EXPORT_MESSAGE =
             "Failed to export all configurations to %s.";
 
     private static final String ERROR_EXPORT_MESSAGE =
             "An error was encountered while executing this command. %s";
 
-    @Reference
-    private ConfigurationMigrationService configurationMigrationService;
-
-    private Security security;
-
-    private Path defaultExportDirectory = Paths.get(System.getProperty("ddf.home"),
-            "etc",
-            "exported");
-
-    @Argument(index = 0, name = "exportDirectory", description = "Path to directory to store export", required = false, multiValued = false)
+    @Argument(index = 0, name = "exportDirectory", description = "Path to directory where to store the exported file", required = false, multiValued = false)
     String exportDirectoryArgument;
 
     public ExportCommand() {
-        this.security = Security.getInstance();
     }
 
     @Override
@@ -72,45 +61,28 @@ public class ExportCommand extends MigrationCommands {
         } else {
             exportDirectory = Paths.get(exportDirectoryArgument);
         }
-
         outputInfoMessage(String.format(STARTING_EXPORT_MESSAGE, exportDirectory));
-
         try {
-            Collection<MigrationWarning> migrationWarnings =
-                    security.runWithSubjectOrElevate(() -> configurationMigrationService.export(
+            final MigrationReport report =
+                    security.runWithSubjectOrElevate(() -> configurationMigrationService.doExport(
                             exportDirectory));
 
-            if (migrationWarnings.isEmpty()) {
-                outputSuccessMessage(SUCCESSFUL_EXPORT_MESSAGE);
-            } else {
-                for (MigrationWarning migrationWarning : migrationWarnings) {
-                    outputWarningMessage(migrationWarning.getMessage());
-                }
-
+            if (report.hasErrors()) {
                 outputWarningMessage(String.format(FAILED_EXPORT_MESSAGE, exportDirectory));
+            } else if (report.hasWarnings()) {
+                outputSuccessMessage(SUCCESSFUL_EXPORT_WITH_WARNINGS_MESSAGE);
+            } else {
+                outputSuccessMessage(SUCCESSFUL_EXPORT_MESSAGE);
             }
+            report.errors()
+                    .forEach(this::outputErrorMessage);
+            report.warnings()
+                    .forEach(this::outputWarningMessage);
         } catch (SecurityServiceException e) {
-            outputErrorMessage(String.format(ERROR_EXPORT_MESSAGE, e.getMessage()));
+            outputErrorMessage(String.format(ERROR_EXPORT_MESSAGE, e));
         } catch (InvocationTargetException e) {
-            outputErrorMessage(String.format(ERROR_EXPORT_MESSAGE,
-                    e.getCause()
-                            .getMessage()));
+            outputErrorMessage(String.format(ERROR_EXPORT_MESSAGE, e.getCause()));
         }
-
         return null;
     }
-
-    public void setDefaultExportDirectory(Path path) {
-        this.defaultExportDirectory = path;
-    }
-
-    public void setSecurity(Security security) {
-        this.security = security;
-    }
-
-    public void setConfigurationMigrationService(
-            ConfigurationMigrationService configurationMigrationService) {
-        this.configurationMigrationService = configurationMigrationService;
-    }
-
 }

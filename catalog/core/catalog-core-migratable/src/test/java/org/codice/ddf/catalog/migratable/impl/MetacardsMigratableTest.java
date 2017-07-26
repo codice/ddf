@@ -34,7 +34,6 @@ import java.util.List;
 import org.codice.ddf.migration.DescribableBean;
 import org.codice.ddf.migration.ExportMigrationException;
 import org.codice.ddf.migration.MigrationException;
-import org.codice.ddf.migration.MigrationMetadata;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -30,9 +30,11 @@ package org.codice.ddf.migration;
  * interface, not by implementors of this class.
  * <p>
  * <p>
- * <b> This code is experimental. While this interface is functional
+ * <b>
+ * This code is experimental. While this interface is functional
  * and tested, it may change or be removed in a future version of the
- * library. </b>
+ * library.
+ * </b>
  * </p>
  */
 public interface ConfigurationMigratable extends Migratable {

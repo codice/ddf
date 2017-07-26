@@ -14,10 +14,19 @@
 package org.codice.ddf.migration.commands;
 
 import java.io.PrintStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.apache.karaf.shell.api.action.Action;
+import org.apache.karaf.shell.api.action.lifecycle.Reference;
+import org.codice.ddf.configuration.migration.ConfigurationMigrationService;
+import org.codice.ddf.migration.MigrationException;
+import org.codice.ddf.migration.MigrationWarning;
+import org.codice.ddf.security.common.Security;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Attribute;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Parent object to all Platform Commands. Provides common methods and instance variables that
@@ -26,6 +35,39 @@ import org.fusesource.jansi.Ansi.Attribute;
 public abstract class MigrationCommands implements Action {
 
     public static final String NAMESPACE = "migration";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MigrationCommands.class);
+
+    @Reference
+    protected ConfigurationMigrationService configurationMigrationService;
+
+    protected Security security = Security.getInstance();
+
+    protected Path defaultExportDirectory = Paths.get(System.getProperty("ddf.home"),
+            "etc",
+            "exported");
+
+    /**
+     * Constructs a new migration command.
+     */
+    protected MigrationCommands() {}
+
+    public void setDefaultExportDirectory(Path path) {
+        this.defaultExportDirectory = path;
+    }
+
+    public void setSecurity(Security security) {
+        this.security = security;
+    }
+
+    public void setConfigurationMigrationService(
+            ConfigurationMigrationService configurationMigrationService) {
+        this.configurationMigrationService = configurationMigrationService;
+    }
+
+    protected void outputErrorMessage(MigrationException e) {
+        outputErrorMessage(e.getMessage());
+    }
 
     protected void outputErrorMessage(String message) {
         String colorAsString = Ansi.ansi()
@@ -38,6 +80,10 @@ public abstract class MigrationCommands implements Action {
         console.println(Ansi.ansi()
                 .a(Attribute.RESET)
                 .toString());
+    }
+
+    protected void outputWarningMessage(MigrationWarning w) {
+        outputWarningMessage(w.getMessage());
     }
 
     protected void outputWarningMessage(String message) {

@@ -15,10 +15,15 @@ package org.codice.ddf.migration;
 
 import static org.apache.commons.lang.Validate.notNull;
 
-import javax.validation.constraints.NotNull;
-
 /**
  * Class that provides statuses for migration operations.
+ * <p>
+ * <b>
+ * This code is experimental. While this interface is functional
+ * and tested, it may change or be removed in a future version of the
+ * library.
+ * </b>
+ * </p>
  */
 public class MigrationWarning {
 
@@ -28,13 +33,19 @@ public class MigrationWarning {
      * Constructor
      *
      * @param message message regarding migration
+     * @throws IllegalArgumentException if <code>message</code> is <code>null</code>
      */
-    public MigrationWarning(@NotNull String message) {
+    public MigrationWarning(String message) {
         notNull(message, "message cannot be null");
         this.message = message;
     }
 
     public String getMessage() {
         return this.message;
+    }
+
+    @Override
+    public String toString() {
+        return message;
     }
 }

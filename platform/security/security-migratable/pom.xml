@@ -33,11 +33,6 @@
             <artifactId>platform-migratable-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.platform.migration</groupId>
-            <artifactId>platform-migratable-util</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>

@@ -13,24 +13,18 @@
  */
 package org.codice.ddf.security.migratable.impl;
 
-import static org.apache.commons.lang.Validate.notNull;
-
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import javax.validation.constraints.NotNull;
 
-import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.migration.ConfigurationMigratable;
 import org.codice.ddf.migration.DescribableBean;
-import org.codice.ddf.migration.ExportMigrationException;
-import org.codice.ddf.migration.MigrationException;
-import org.codice.ddf.migration.MigrationMetadata;
-import org.codice.ddf.migration.MigrationWarning;
-import org.codice.ddf.migration.util.MigratableUtil;
+import org.codice.ddf.migration.ExportMigrationContext;
+import org.codice.ddf.migration.ImportMigrationContext;
+import org.codice.ddf.migration.MigrationEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,73 +34,56 @@ import com.google.common.collect.ImmutableList;
  * This class handles the export process for all Security system files
  */
 public class SecurityMigratable extends DescribableBean implements ConfigurationMigratable {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(SecurityMigratable.class);
 
     private static final Path PDP_POLICIES_DIR = Paths.get("etc", "pdp");
 
-    private static final List<Path> PROPERTIES_FILES = ImmutableList.of(Paths.get("etc",
-            "ws-security",
-            "server",
-            "encryption.properties"),
+    private static final List<Path> PROPERTIES_FILES = ImmutableList.of( //
+            Paths.get("etc", "ws-security", "server", "encryption.properties"),
             Paths.get("etc", "ws-security", "server", "signature.properties"),
             Paths.get("etc", "ws-security", "issuer", "encryption.properties"),
             Paths.get("etc", "ws-security", "issuer", "signature.properties"));
 
     private static final String CRL_PROP_KEY = "org.apache.ws.security.crypto.merlin.x509crl.file";
 
-    private final MigratableUtil migratableUtil;
-
-    public SecurityMigratable(@NotNull DescribableBean info,
-            @NotNull MigratableUtil migratableUtil) {
-
+    public SecurityMigratable(@NotNull DescribableBean info) {
         super(info);
-
-        notNull(migratableUtil);
-        this.migratableUtil = migratableUtil;
     }
 
-    public MigrationMetadata export(Path exportPath) throws MigrationException {
-        Collection<MigrationWarning> migrationWarnings = new ArrayList<>();
-        exportCrlFiles(exportPath, migrationWarnings);
-        exportPdpDirectory(exportPath, migrationWarnings);
-        return new MigrationMetadata(migrationWarnings);
+    @Override
+    public void doExport(ExportMigrationContext context) {
+        SecurityMigratable.PROPERTIES_FILES.stream()
+                .map(context::getEntry)
+                .peek(me -> LOGGER.debug("Exporting CRL from property [{}] in file [{}]...",
+                        SecurityMigratable.CRL_PROP_KEY,
+                        me.getPath()))
+                // do not automatically record an error if property is not defined (just skip that file)
+                .map(me -> me.getPropertyReferencedEntry(SecurityMigratable.CRL_PROP_KEY,
+                        (r, v) -> (v != null)))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .forEach(MigrationEntry::store);
+        LOGGER.debug("Exporting PDP files from [{}]...", SecurityMigratable.PDP_POLICIES_DIR);
+        context.entries(SecurityMigratable.PDP_POLICIES_DIR)
+                .forEach(MigrationEntry::store);
     }
 
-    private void exportCrlFiles(Path exportDirectory,
-            Collection<MigrationWarning> migrationWarnings) throws MigrationException {
-        for (Path propertiesPath : PROPERTIES_FILES) {
-            exportCrlFile(propertiesPath, exportDirectory, migrationWarnings);
-        }
-    }
-
-    private void exportCrlFile(Path propertiesPath, Path exportDirectory,
-            Collection<MigrationWarning> migrationWarnings) throws MigrationException {
-        LOGGER.debug("Exporting CRL from property [{}] in file [{}]...",
-                CRL_PROP_KEY,
-                propertiesPath.toString());
-        String crlPathStr = migratableUtil.getJavaPropertyValue(propertiesPath, CRL_PROP_KEY);
-
-        if (crlPathStr == null) {
-            return;
-        }
-
-        if (StringUtils.isWhitespace(crlPathStr)) {
-            String error = String.format(
-                    "Failed to export CRL. No CRL path found in file [%s]. Property [%s] from properties file [%s] has a blank value.",
-                    propertiesPath,
-                    CRL_PROP_KEY,
-                    propertiesPath);
-            throw new ExportMigrationException(error);
-        }
-
-        Path crlPath = Paths.get(crlPathStr);
-        migratableUtil.copyFile(crlPath, exportDirectory, migrationWarnings);
-    }
-
-    private void exportPdpDirectory(Path exportDirectory,
-            Collection<MigrationWarning> migrationWarnings) throws MigrationException {
-        LOGGER.debug("Exporting PDP Directory at [{}]...", PDP_POLICIES_DIR.toString());
-        migratableUtil.copyDirectory(PDP_POLICIES_DIR, exportDirectory, migrationWarnings);
+    @Override
+    public void doImport(ImportMigrationContext context) {
+        SecurityMigratable.PROPERTIES_FILES.stream()
+                .map(context::getEntry)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .peek(me -> LOGGER.debug("Importing CRL from property [{}] in file [{}]...",
+                        SecurityMigratable.CRL_PROP_KEY,
+                        me.getPath()))
+                .map(me -> me.getPropertyReferencedEntry(SecurityMigratable.CRL_PROP_KEY))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .forEach(MigrationEntry::store);
+        LOGGER.debug("Importing PDP Directory at [{}]...", SecurityMigratable.PDP_POLICIES_DIR);
+        context.cleanDirectory(SecurityMigratable.PDP_POLICIES_DIR);
+        context.entries(SecurityMigratable.PDP_POLICIES_DIR)
+                .forEach(MigrationEntry::store);
     }
 }

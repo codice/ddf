@@ -14,11 +14,8 @@
     xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
     xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
-    <bean id="migrationUtil" class="org.codice.ddf.migration.util.MigratableUtil" />
-    
     <bean id="platformMigratable" class="org.codice.ddf.platform.migratable.impl.PlatformMigratable">
         <argument ref="platformDescribable" />
-        <argument ref="migrationUtil" />
     </bean>
 
     <bean id="platformDescribable"

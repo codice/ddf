@@ -32,7 +32,6 @@ import java.util.Collection;
 
 import org.codice.ddf.migration.DescribableBean;
 import org.codice.ddf.migration.MigrationException;
-import org.codice.ddf.migration.MigrationMetadata;
 import org.codice.ddf.migration.MigrationWarning;
 import org.codice.ddf.migration.util.MigratableUtil;
 import org.junit.Test;

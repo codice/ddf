@@ -15,6 +15,13 @@ package org.codice.ddf.migration;
 
 /**
  * Exception that indicates some problem when exporting the system' configurations.
+ * <p>
+ * <b>
+ * This code is experimental. While this interface is functional
+ * and tested, it may change or be removed in a future version of the
+ * library.
+ * </b>
+ * </p>
  */
 public class ExportMigrationException extends MigrationException {
     private static final String MESSAGE_PREFIX = "Failed to export configurations";

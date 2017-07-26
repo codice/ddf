@@ -13,16 +13,12 @@
  */
 package org.codice.ddf.migration;
 
-import java.nio.file.Path;
-
-import javax.validation.constraints.NotNull;
-
 import org.codice.ddf.platform.services.common.Describable;
 
 /**
  * This interface provides the mechanism for implementers to define how their data shall be
- * exported for later import into a new system. The framework that handles the Migratables
- * ensures that no two Migratable's methods are running at the same time. Implementors do not
+ * exported for later import into a new system. The framework that handles the migratables
+ * ensures that no two migratable's methods are running at the same time. Implementors do not
  * need to program exports and imports with regard to reflexive thread-safety.
  * <p>
  * <b>This interface should not be implemented directly;</b> the appropriate extension should be chosen,
@@ -37,15 +33,25 @@ import org.codice.ddf.platform.services.common.Describable;
  * </p>
  */
 public interface Migratable extends Describable {
+    /**
+     * Exports all required migratable data to the specified context.
+     * <p>
+     * Errors and/or warnings can be recorded along with the context's report. Doing so will not abort
+     * the operation right away.
+     *
+     * @param context a migration context to export all migratable data to
+     * @throws MigrationException to stop the export operation
+     */
+    void doExport(ExportMigrationContext context);
 
     /**
-     * Exports all migratable data to the specified directory
+     * Imports all exported migratable data provided by the specified context.
+     * <p>
+     * Errors and/or warnings can be recorded along with the context's report. Doing so will not abort
+     * the operation right away.
      *
-     * @param exportPath path where {@link Migratable} specific data must be exported.
-     *                   Will never be {@code null}.
-     * @return metadata describing the results of the migration
+     * @param context a migration context to import all exported migratable data from
+     * @throws MigrationException to stop the import operation
      */
-    @NotNull
-    MigrationMetadata export(@NotNull Path exportPath) throws MigrationException;
-
+    void doImport(ImportMigrationContext context);
 }

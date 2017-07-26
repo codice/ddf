@@ -15,33 +15,33 @@ package org.codice.ddf.configuration.migration;
 
 import static org.apache.commons.lang.Validate.notNull;
 
+import java.io.FileInputStream;
+import java.io.IOError;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
-import javax.validation.constraints.NotNull;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.ConfigurationMigratable;
 import org.codice.ddf.migration.DataMigratable;
-import org.codice.ddf.migration.ExportMigrationException;
-import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
-import org.codice.ddf.migration.MigrationMetadata;
+import org.codice.ddf.migration.MigrationOperation;
+import org.codice.ddf.migration.MigrationReport;
 import org.codice.ddf.migration.MigrationWarning;
 import org.codice.ddf.migration.UnexpectedMigrationException;
 import org.codice.ddf.platform.services.common.Describable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
 
 /**
@@ -59,11 +59,17 @@ public class ConfigurationMigrationManager
 
     private static final String OBJECT_NAME = CLASS_NAME + ":service=configuration-migration";
 
+    private static final String VERSION_FILENAME = "Version.txt";
+
     private final MBeanServer mBeanServer;
 
     private final List<ConfigurationMigratable> configurationMigratables;
 
     private final List<DataMigratable> dataMigratables;
+
+    private final String version;
+
+    private final String filename;
 
     /**
      * Constructor.
@@ -73,11 +79,12 @@ public class ConfigurationMigrationManager
      *                                    to be kept up-to-date by the client of this class.
      * @param dataMigratables             list of {@link DataMigratable} services. Needs
      *                                    to be kept up-to-date by the client of this class.
+     * @throws IOError if unable to load the distribution version information.
      */
     public ConfigurationMigrationManager(
-            @NotNull MBeanServer mBeanServer,
-            @NotNull List<ConfigurationMigratable> configurationMigratables,
-            @NotNull List<DataMigratable> dataMigratables) {
+            MBeanServer mBeanServer,
+            List<ConfigurationMigratable> configurationMigratables,
+            List<DataMigratable> dataMigratables) {
         notNull(mBeanServer, "MBeanServer cannot be null");
         notNull(configurationMigratables,
                 "List of ConfigurationMigratable services cannot be null");
@@ -86,6 +93,36 @@ public class ConfigurationMigrationManager
         this.mBeanServer = mBeanServer;
         this.configurationMigratables = configurationMigratables;
         this.dataMigratables = dataMigratables;
+        try {
+            this.version = ConfigurationMigrationManager.getVersion(new FileInputStream(Paths.get(
+                    System.getProperty("ddf.home"),
+                    ConfigurationMigrationManager.VERSION_FILENAME)
+                    .toFile()));
+        } catch (IOException e) {
+            LOGGER.warn("unable to load version information; ", e);
+            throw new IOError(e);
+        }
+        this.filename = "exported-" + version + ".zip";
+    }
+
+    private static String getVersion(InputStream is) throws IOException {
+        Validate.notNull(is, "invalid null stream");
+        try {
+            final List<String> lines = IOUtils.readLines(is, StandardCharsets.UTF_8);
+
+            if (lines.isEmpty()) {
+                throw new IOException("missing version information");
+            }
+            final String version = lines.get(0)
+                    .trim();
+
+            if (version.isEmpty()) {
+                throw new IOException("missing version information");
+            }
+            return version;
+        } finally {
+            IOUtils.closeQuietly(is);
+        }
     }
 
     public void init() throws Exception {
@@ -104,66 +141,79 @@ public class ConfigurationMigrationManager
     }
 
     @Override
-    public Collection<MigrationWarning> export(@NotNull Path exportDirectory)
+    public Collection<MigrationWarning> doExport(String exportDirectory)
             throws MigrationException {
         notNull(exportDirectory, "Export directory cannot be null");
-        Collection<MigrationWarning> migrationWarnings = new ArrayList<>();
+        final MigrationReport report = doExport(Paths.get(exportDirectory));
 
-        try {
-            Files.createDirectories(exportDirectory);
-            migrationWarnings.addAll(exportMigratables(exportDirectory));
-        } catch (IOException e) {
-            LOGGER.info("Unable to create export directories", e);
-            throw new ExportMigrationException("Unable to create export directories", e);
-        } catch (MigrationException e) {
-            LOGGER.info("Export operation failed", e);
-            throw e;
-        } catch (RuntimeException e) {
-            LOGGER.info("Failure to export, internal error occurred", e);
-            throw new UnexpectedMigrationException("Export failed", e);
-        }
-
-        return migrationWarnings;
+        report.verifyCompletion(); // will throw error if it failed
+        return report.getWarnings();
     }
 
-    public Collection<MigrationWarning> export(@NotNull String exportDirectory)
+    @Override
+    public MigrationReport doExport(Path exportDirectory) {
+        Validate.notNull(exportDirectory, "Export directory cannot be null");
+        final MigrationReport report = new MigrationReportImpl(MigrationOperation.EXPORT);
+        final Path exportFile = exportDirectory.resolve(filename);
+
+        try {
+            // purposely leave data migratables out for now
+            try (final ExportMigrationManagerImpl mgr = new ExportMigrationManagerImpl(report,
+                    exportFile,
+                    configurationMigratables.stream())) {
+                mgr.doExport(version);
+            }
+        } catch (MigrationException e) {
+            report.record(e);
+        } catch (IOException e) {
+            report.record(new UnexpectedMigrationException(String.format("failed closing file [%s]",
+                    exportFile), e));
+        } catch (RuntimeException e) {
+            report.record(new UnexpectedMigrationException(String.format(
+                    "failed exporting to file [%s]; internal error occurred",
+                    exportFile), e));
+        }
+        return report;
+    }
+
+    @Override
+    public Collection<MigrationWarning> doImport(String exportDirectory)
             throws MigrationException {
         notNull(exportDirectory, "Export directory cannot be null");
+        final MigrationReport report = doImport(Paths.get(exportDirectory));
 
-        return export(Paths.get(exportDirectory));
+        report.verifyCompletion(); // will throw error if it failed
+        return report.getWarnings();
+    }
+
+    @Override
+    public MigrationReport doImport(Path exportDirectory) {
+        Validate.notNull(exportDirectory, "Export directory cannot be null");
+        final MigrationReport report = new MigrationReportImpl(MigrationOperation.IMPORT);
+        final Path exportFile = exportDirectory.resolve(filename);
+        ImportMigrationManagerImpl mgr = null;
+
+        try {
+            // purposely leave data migratables out for now, we could always leave them in here
+            // which would just do no-op if no data is found in the export file
+            mgr = new ImportMigrationManagerImpl(report,
+                    exportFile,
+                    configurationMigratables.stream());
+            mgr.doImport(version);
+        } catch (MigrationException e) {
+            report.record(e);
+        } catch (RuntimeException e) {
+            report.record(new UnexpectedMigrationException(String.format(
+                    "failed importing from file [%s]; internal error occurred",
+                    exportFile), e));
+        } finally {
+            IOUtils.closeQuietly(mgr); // do not care if we fail to close the mgr/zip file!!!
+        }
+        return report;
     }
 
     @Override
     public Collection<Describable> getOptionalMigratableInfo() {
         return ImmutableList.copyOf(dataMigratables);
-    }
-
-    private Collection<MigrationWarning> exportMigratable(Migratable migratable,
-            Path exportDirectory) {
-        Stopwatch stopwatch = null;
-
-        if (LOGGER.isDebugEnabled()) {
-            stopwatch = Stopwatch.createStarted();
-        }
-
-        MigrationMetadata migrationMetadata = migratable.export(exportDirectory);
-
-        if (LOGGER.isDebugEnabled() && stopwatch != null) {
-            LOGGER.debug("Export time: {}",
-                    stopwatch.stop()
-                            .toString());
-        }
-
-        return migrationMetadata.getMigrationWarnings();
-    }
-
-    private Collection<MigrationWarning> exportMigratables(Path exportDirectory) {
-        List<MigrationWarning> warnings = new LinkedList<>();
-
-        for (ConfigurationMigratable configMigratable : configurationMigratables) {
-            warnings.addAll(exportMigratable(configMigratable, exportDirectory));
-        }
-
-        return warnings;
     }
 }
