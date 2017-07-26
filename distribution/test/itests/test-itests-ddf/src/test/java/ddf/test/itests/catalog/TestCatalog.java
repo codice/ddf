@@ -458,6 +458,14 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .post(CSW_PATH.getUrl());
     }
 
+    private Response ingestXmlWithHeaderMetacard() {
+        return given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
+                .body(getCswInsertRequest("xml",
+                        getFileContent(XML_RECORD_RESOURCE_PATH + "/SimpleXmlMetacard",
+                                ImmutableMap.of("uri", "http://example.com"))))
+                .post(CSW_PATH.getUrl());
+    }
+
     @Test
     public void testCswIngest() {
         Response response = ingestCswRecord();
@@ -574,6 +582,25 @@ public class TestCatalog extends AbstractIntegrationTest {
             fail("Could not retrieve the ingested record's ID from the response.");
         }
 
+    }
+
+    @Test
+    public void testCswXmlWithHeaderIngest() {
+        Response response = ingestXmlWithHeaderMetacard();
+
+        response.then()
+                .body(hasXPath("//TransactionResponse/TransactionSummary/totalInserted", is("1")),
+                        hasXPath("//TransactionResponse/TransactionSummary/totalUpdated", is("0")),
+                        hasXPath("//TransactionResponse/TransactionSummary/totalDeleted", is("0")),
+                        hasXPath("//TransactionResponse/InsertResult/BriefRecord/title",
+                                is("myXmlTitle")),
+                        hasXPath("//TransactionResponse/InsertResult/BriefRecord/BoundingBox"));
+
+        try {
+            CatalogTestCommons.deleteMetacardUsingCswResponseId(response);
+        } catch (IOException | XPathExpressionException e) {
+            fail("Could not retrieve the ingested record's ID from the response.");
+        }
     }
 
     @Test
