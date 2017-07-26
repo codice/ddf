@@ -30,6 +30,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
@@ -180,6 +181,7 @@ public class FederationAdminTest {
         when(queryResponse.getResults()).thenReturn(Collections.singletonList(new ResultImpl(mcard)));
         when(catalogFramework.query(any(QueryRequest.class))).thenReturn(queryResponse);
         catalogStoreMap.put("myDest", store);
+        setupDefaultFilterProps();
     }
 
     @Test
@@ -822,6 +824,9 @@ public class FederationAdminTest {
         eventProperties.put("ddf.catalog.event.metacard", mcard);
         Event event = new Event("ddf/catalog/event/UPDATED", eventProperties);
         federationAdmin.handleEvent(event);
+
+        setupDefaultFilterProps();
+
         List<Map<String, Object>> result = (List<Map<String, Object>>) federationAdmin.allRegistryMetacardsSummary()
                 .get("nodes");
         assertThat(result.size(), is(1));
@@ -836,6 +841,9 @@ public class FederationAdminTest {
         eventProperties.put("ddf.catalog.event.metacard", mcard);
         Event event = new Event("ddf/catalog/event/DELETED", eventProperties);
         federationAdmin.handleEvent(event);
+
+        setupDefaultFilterProps();
+
         List<Map<String, Object>> result = (List<Map<String, Object>>) federationAdmin.allRegistryMetacardsSummary()
                 .get("nodes");
         assertThat(result.size(), is(0));
@@ -923,6 +931,12 @@ public class FederationAdminTest {
         assertThat(result.size(), is(0));
     }
 
+    private void setupDefaultFilterProps() throws IOException {
+        Map<String, Object> filterProps = new HashMap<>();
+        filterProps.put(FederationAdmin.SUMMARY_FILTERED, new String[0]);
+        when(helper.getFilterProperties()).thenReturn(filterProps);
+    }
+
     private void performCreateEvent() throws Exception {
         List<Map<String, Object>> result =
                 (List<Map<String, Object>>) federationAdmin.allRegistryMetacardsSummary()
@@ -933,6 +947,9 @@ public class FederationAdminTest {
         eventProperties.put("ddf.catalog.event.metacard", mcard);
         Event event = new Event("ddf/catalog/event/CREATED", eventProperties);
         federationAdmin.handleEvent(event);
+
+        setupDefaultFilterProps();
+
         result = (List<Map<String, Object>>) federationAdmin.allRegistryMetacardsSummary()
                 .get("nodes");
         assertThat(result.size(), is(1));

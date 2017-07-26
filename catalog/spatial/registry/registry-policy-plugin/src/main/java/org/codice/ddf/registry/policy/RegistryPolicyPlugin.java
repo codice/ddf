@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.codice.ddf.configuration.SystemBaseUrl;
+import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
 import org.codice.ddf.registry.common.metacard.RegistryUtility;
 
@@ -57,6 +58,10 @@ public class RegistryPolicyPlugin implements PolicyPlugin {
 
     private Map<String, Set<String>> readAccessPolicy = new HashMap<>();
 
+    public void init(){
+        addRemoveIdentity();
+    }
+
     /**
      * @return Returns true if the registry entry ids represents a set of 'white listed' entries. Default is false.
      */
@@ -71,6 +76,7 @@ public class RegistryPolicyPlugin implements PolicyPlugin {
      */
     public void setWhiteList(boolean whiteList) {
         this.whiteList = whiteList;
+        addRemoveIdentity();
     }
 
     /**
@@ -182,6 +188,17 @@ public class RegistryPolicyPlugin implements PolicyPlugin {
         }
     }
 
+    private void addRemoveIdentity() {
+        String identityNodeRegId = System.getProperty(RegistryConstants.REGISTRY_ID_PROPERTY);
+        if(identityNodeRegId != null) {
+            if (whiteList) {
+                registryEntryIds.add(identityNodeRegId);
+            } else {
+                registryEntryIds.remove(identityNodeRegId);
+            }
+        }
+    }
+
     @Override
     public PolicyResponse processPreCreate(Metacard input, Map<String, Serializable> properties)
             throws StopProcessingException {
@@ -226,10 +243,10 @@ public class RegistryPolicyPlugin implements PolicyPlugin {
             throws StopProcessingException {
         HashMap<String, Set<String>> itemPolicy = new HashMap<>();
         Metacard metacard = input.getMetacard();
-        if (RegistryUtility.isRegistryMetacard(metacard)
-                || RegistryUtility.isInternalRegistryMetacard(metacard)) {
-            if ((whiteList && !registryEntryIds.contains(metacard.getId())) || (!whiteList
-                    && registryEntryIds.contains(metacard.getId()))) {
+        if (RegistryUtility.isRegistryMetacard(metacard)) {
+            String regId = RegistryUtility.getRegistryId(metacard);
+            if (isRegistryDisabled() || (whiteList && !registryEntryIds.contains(regId)) || (
+                    !whiteList && registryEntryIds.contains(regId))) {
                 itemPolicy.putAll(bypassAccessPolicy);
             } else {
                 itemPolicy.putAll(readAccessPolicy);

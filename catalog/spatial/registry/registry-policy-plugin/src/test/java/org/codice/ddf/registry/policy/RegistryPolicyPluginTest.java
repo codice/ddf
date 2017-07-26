@@ -55,7 +55,7 @@ public class RegistryPolicyPluginTest {
                 .size(), is(0));
         assertThat(response.itemPolicy()
                 .size(), is(0));
-        rpp.setRegistryEntryIds(Collections.singleton("1234567890abcdefg987654321"));
+        rpp.setRegistryEntryIds(Collections.singleton("validId"));
 
         response = rpp.processPostQuery(new ResultImpl(mcard), null);
         assertThat(response.itemPolicy(), equalTo(rpp.getBypassAccessPolicy()));
@@ -78,7 +78,7 @@ public class RegistryPolicyPluginTest {
                 .size(), is(0));
         assertThat(response.itemPolicy(), equalTo(rpp.getBypassAccessPolicy()));
 
-        rpp.setRegistryEntryIds(Collections.singleton("1234567890abcdefg987654321"));
+        rpp.setRegistryEntryIds(Collections.singleton("validId"));
         response = rpp.processPostQuery(new ResultImpl(mcard), null);
         assertThat(response.itemPolicy()
                 .size(), is(0));

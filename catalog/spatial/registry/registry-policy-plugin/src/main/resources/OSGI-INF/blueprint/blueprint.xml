@@ -14,7 +14,8 @@
 <blueprint xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <bean id="registryPolicyPlugin" class="org.codice.ddf.registry.policy.RegistryPolicyPlugin">
+    <bean id="registryPolicyPlugin" class="org.codice.ddf.registry.policy.RegistryPolicyPlugin"
+          init-method="init">
         <cm:managed-properties persistent-id="org.codice.ddf.registry.policy.RegistryPolicyPlugin"
                                update-strategy="container-managed"/>
         <property name="registryBypassPolicyStrings">

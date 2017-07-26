@@ -16,6 +16,7 @@ package org.codice.ddf.registry.federationadmin.service.impl;
 
 import static org.codice.ddf.registry.schemabindings.EbrimConstants.RIM_FACTORY;
 
+import java.io.File;
 import java.io.IOException;
 import java.security.PrivilegedActionException;
 import java.time.OffsetDateTime;
@@ -27,12 +28,12 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.felix.utils.properties.Properties;
 import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.configuration.SystemInfo;
 import org.codice.ddf.parser.ParserException;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
-import org.codice.ddf.registry.common.metacard.RegistryUtility;
 import org.codice.ddf.registry.federationadmin.service.internal.FederationAdminException;
 import org.codice.ddf.registry.federationadmin.service.internal.FederationAdminService;
 import org.codice.ddf.registry.schemabindings.helper.InternationalStringTypeHelper;
@@ -69,6 +70,10 @@ public class IdentityNodeInitialization {
 
     private static final int RETRY_INTERVAL = 30;
 
+    private static final String KARAF_ETC = "karaf.etc";
+
+    private static final String SYSTEM_PROPERTIES_FILE = "system.properties";
+
     private FederationAdminService federationAdminService;
 
     private InputTransformer registryTransformer;
@@ -91,8 +96,6 @@ public class IdentityNodeInitialization {
                         federationAdminService.getLocalRegistryIdentityMetacard();
                 if (optional.isPresent()) {
                     Metacard metacard = optional.get();
-                    System.setProperty(RegistryConstants.REGISTRY_ID_PROPERTY,
-                            RegistryUtility.getRegistryId(metacard));
                     if (!metacard.getTitle()
                             .equals(SystemInfo.getSiteName())) {
                         updateIdentityNodeName(metacard);
@@ -135,10 +138,13 @@ public class IdentityNodeInitialization {
     }
 
     private void createIdentityNode() throws FederationAdminException {
-
-        String registryPackageId = RegistryConstants.GUID_PREFIX + UUID.randomUUID()
-                .toString()
-                .replaceAll("-", "");
+        String registryPackageId = System.getProperty(RegistryConstants.REGISTRY_ID_PROPERTY);
+        if (StringUtils.isEmpty(registryPackageId)) {
+            registryPackageId = RegistryConstants.GUID_PREFIX + UUID.randomUUID()
+                    .toString()
+                    .replaceAll("-", "");
+            setSystemRegistryId(registryPackageId);
+        }
         LOGGER.info("Creating registry identity node: {} {}",
                 SystemInfo.getSiteName(),
                 registryPackageId);
@@ -201,8 +207,22 @@ public class IdentityNodeInitialization {
                     true));
             identityMetacard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.REGISTRY_LOCAL_NODE,
                     true));
-            System.setProperty(RegistryConstants.REGISTRY_ID_PROPERTY, registryPackageId);
             federationAdminService.addRegistryEntry(identityMetacard);
+        }
+    }
+
+    private void setSystemRegistryId(String regId) {
+        String etcDir = System.getProperty(KARAF_ETC);
+        String systemPropertyFilename = etcDir + File.separator + SYSTEM_PROPERTIES_FILE;
+
+        File systemPropertiesFile = new File(systemPropertyFilename);
+        try {
+            Properties systemProperties = new Properties(systemPropertiesFile);
+            systemProperties.put(RegistryConstants.REGISTRY_ID_PROPERTY, regId);
+            System.setProperty(RegistryConstants.REGISTRY_ID_PROPERTY, regId);
+            systemProperties.save();
+        } catch (IOException e) {
+            LOGGER.warn("Exception while writing registry-id to system.properties file.", e);
         }
     }
 

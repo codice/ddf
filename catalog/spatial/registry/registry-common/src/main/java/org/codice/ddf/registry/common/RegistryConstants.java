@@ -26,7 +26,7 @@ public class RegistryConstants {
 
     public static final String XML_BOUNDS_TYPE = "GM_Envelope";
 
-    public static final String REGISTRY_ID_PROPERTY = "org.codice.ddf.registry.identity-id";
+    public static final String REGISTRY_ID_PROPERTY = "org.codice.ddf.system.registry-id";
 
     public static final String CONFIGURATION_REGISTRY_ID_PROPERTY = "registry-id";
 

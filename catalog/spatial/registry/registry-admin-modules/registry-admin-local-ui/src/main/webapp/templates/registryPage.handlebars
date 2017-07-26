@@ -14,26 +14,37 @@
 <div id="registry-modal"></div>
 <div id="nodeTables">
     <div id="node-operations">
-        <button class="btn btn-default refresh-button">Refresh Nodes</button>
-        <button class="btn btn-default regenerate-sources">Regenerate Sources</button>
+    <label class="client-mode-label">{{#if clientMode}}Client Mode{{else}}Server Mode{{/if}}</label>
+        <a href="#" class="refresh-button"><i class="fa fa-refresh" aria-hidden="true"></i></a>
+        <div class="dropdown">
+            <a href="#" class="settings-dropdown"><i class="settings-dropdown-icon fa fa-cog" aria-hidden="true"></i></a>
+            <div class="dropdown-content">
+                <a href="#" class="regenerate-sources">Regenerate Sources</a>
+                <a href="#" class="subscription-filter">Subscription Filter</a>
+                <a href="#" class="client-server-mode">Client/Server Mode</a>
+            </div>
+        </div>
     </div>
-    <div>
+    <div class="table-container">
         <label class="node-table-label">Local Identity Node</label>
         {{#if waitingForData}}
             <i class="fa fa-lg fa-spinner fa-spin loading" title="Loading..."></i>
         {{/if}}
+        <hr>
         <div id="localIdentityNodeRegion"></div>
 
         <label class="node-table-label">Additional Local Nodes</label>
         {{#if waitingForData}}
             <i class="fa fa-lg fa-spinner fa-spin loading" title="Loading..."></i>
         {{/if}}
+        <hr>
         <div id="localAdditionalNodeRegion"></div>
 
         <label class="node-table-label">Remote Nodes</label>
         {{#if waitingForData}}
             <i class="fa fa-lg fa-spinner fa-spin loading" title="Loading..."></i>
         {{/if}}
+        <hr>
         <div id="remoteNodeRegion"></div>
     </div>
 </div>

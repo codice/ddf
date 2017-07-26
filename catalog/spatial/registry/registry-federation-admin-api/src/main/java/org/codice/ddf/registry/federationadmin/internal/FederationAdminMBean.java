@@ -125,4 +125,11 @@ public interface FederationAdminMBean {
      */
     void regenerateRegistrySources(List<String> ids);
 
+    /**
+     * Sets the properties associated with the registry filter/policy
+     * @param properties
+     */
+    void nodeFilterProperties(Map<String, Object> properties);
+
+
 }

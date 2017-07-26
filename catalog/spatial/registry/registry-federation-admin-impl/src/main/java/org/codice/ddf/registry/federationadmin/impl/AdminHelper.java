@@ -18,7 +18,12 @@ import static org.codice.ddf.admin.core.api.ConfigurationAdmin.NO_MATCH_FILTER;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.codice.ddf.admin.core.api.Service;
@@ -30,17 +35,28 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.service.ConfiguredService;
 import ddf.catalog.source.Source;
 
 public class AdminHelper {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AdminHelper.class);
+
     private static final String REGISTRY_FILTER = String.format(
             "(|(%s=*Registry*Store*)(%s=*registry*store*))",
             ConfigurationAdmin.SERVICE_FACTORYPID,
             ConfigurationAdmin.SERVICE_FACTORYPID);
 
-    private static final String MAP_ENTRY_ID = "id";
+    private static final String REGISTRY_POLICY_PID =
+            "org.codice.ddf.registry.policy.RegistryPolicyPlugin";
+
+    private static final String REGISTRY_ID_KEY = "registryEntryIds";
+
+    private static final String DISABLE_REGISTRY_KEY = "registryDisabled";
+
+    private static final String WHITE_LIST_KEY = "whiteList";
 
     private static final String DISABLED = "_disabled";
 
@@ -102,5 +118,54 @@ public class AdminHelper {
     public String getName(Configuration config) {
         return configAdmin.getObjectClassDefinition(config)
                 .getName();
+    }
+
+    Map<String, Object> getFilterProperties() throws IOException {
+        Map<String, Object> props = new HashMap<>();
+        Dictionary<String, Object> configProps = configurationAdmin.getConfiguration(
+                REGISTRY_POLICY_PID,
+                null)
+                .getProperties();
+        Map<String, Object> configMap = new HashMap<>();
+        if (configProps == null) {
+            configProps = new Hashtable<>();
+        }
+
+        props.put(FederationAdmin.CLIENT_MODE,
+                Optional.ofNullable(configProps.get(DISABLE_REGISTRY_KEY))
+                        .orElse(false));
+        props.put(FederationAdmin.FILTER_INVERTED,
+                Optional.ofNullable(configProps.get(WHITE_LIST_KEY))
+                        .orElse(false));
+        props.put(FederationAdmin.SUMMARY_FILTERED,
+                Optional.ofNullable(configProps.get(REGISTRY_ID_KEY))
+                        .orElse(new String[0]));
+        return props;
+    }
+
+    void setFilteredNodeList(List<String> filterList) {
+        setFilterProperty(REGISTRY_ID_KEY, filterList.toArray(new String[0]));
+    }
+
+    void setFilterInverted(boolean inverted) {
+        setFilterProperty(WHITE_LIST_KEY, inverted);
+    }
+
+    void setClientMode(boolean clientMode) {
+        setFilterProperty(DISABLE_REGISTRY_KEY, clientMode);
+    }
+
+    private void setFilterProperty(String key, Object value) {
+        try {
+            Configuration config = configurationAdmin.getConfiguration(REGISTRY_POLICY_PID, null);
+            Dictionary<String, Object> props = config.getProperties();
+            if (props == null) {
+                props = new Hashtable<>();
+            }
+            props.put(key, value);
+            config.update(props);
+        } catch (IOException e) {
+            LOGGER.debug("Error setting filter property {} to {}", key, value);
+        }
     }
 }
