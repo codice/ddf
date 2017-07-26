@@ -18,6 +18,7 @@
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
     <feature name="catalog-ui" install="auto" version="${project.version}" description="Catalog UI">
+        <feature prerequisite="true">spatial-app</feature>
         <feature prerequisite="true">camel-http</feature>
         <feature prerequisite="true">search-ui-app</feature>
         <configfile finalname="/etc/org.codice.ddf.catalog.ui.config.config" override="false">
