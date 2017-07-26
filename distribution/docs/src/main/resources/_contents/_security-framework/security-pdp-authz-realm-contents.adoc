@@ -12,8 +12,6 @@ The configuration below provides the mapping between user attributes and the att
 Match-All Mapping:: This mapping is used to guarantee that all values present in the specified metacard attribute exist in the corresponding user attribute.
 Match-One Mapping:: This mapping is used to guarantee that at least one of the values present in the specified metacard attribute exists in the corresponding user attribute.
 
-Match-One Mapping:: This mapping is used to guarantee that at least one of the values present in the specified metacard attribute exists in the corresponding user attribute.
-
 ===== Configuring the Security PDP AuthZ Realm
 
 . Navigate to the ${admin-console}.
