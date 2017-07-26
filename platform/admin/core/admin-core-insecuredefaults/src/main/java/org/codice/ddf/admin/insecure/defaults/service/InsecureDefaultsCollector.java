@@ -13,26 +13,23 @@
  */
 package org.codice.ddf.admin.insecure.defaults.service;
 
-import java.lang.management.ManagementFactory;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanRegistrationException;
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.NotCompliantMBeanException;
-import javax.management.ObjectName;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.codice.ddf.configuration.AbsolutePathResolver;
+import org.codice.ddf.system.alerts.NoticePriority;
+import org.codice.ddf.system.alerts.SystemNotice;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class InsecureDefaultsServiceBean implements InsecureDefaultsServiceBeanMBean {
+public class InsecureDefaultsCollector implements Runnable {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(InsecureDefaultsServiceBean.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(InsecureDefaultsCollector.class);
 
     private static final String BLACK_LIST =
             new AbsolutePathResolver("etc/keystores/blacklisted.jks").getPath();
@@ -83,31 +80,17 @@ public class InsecureDefaultsServiceBean implements InsecureDefaultsServiceBeanM
     private static final String TRUSTSTORE_PASSWORD_SYSTEM_PROPERTY =
             "javax.net.ssl.trustStorePassword";
 
-    public static final String MBEAN_NAME =
-            InsecureDefaultsServiceBean.class.getName() + ":service=insecure-defaults-service";
+    private List<Validator> validators = new ArrayList<>();
 
-    private ObjectName objectName;
+    private final EventAdmin eventAdmin;
 
-    private MBeanServer mBeanServer;
-
-    private List<Validator> validators;
-
-    public InsecureDefaultsServiceBean() {
-        validators = new ArrayList<>();
+    public InsecureDefaultsCollector(EventAdmin eventAdmin) {
+        this.eventAdmin = eventAdmin;
         addValidators();
-
-        try {
-            objectName = new ObjectName(MBEAN_NAME);
-            mBeanServer = ManagementFactory.getPlatformMBeanServer();
-        } catch (MalformedObjectNameException e) {
-            LOGGER.info("Unable to create Insecure Defaults Service MBean with name [{}].",
-                    MBEAN_NAME,
-                    e);
-        }
     }
 
     @Override
-    public List<Alert> validate() {
+    public void run() {
         List<Alert> alerts = new ArrayList<>();
 
         LOGGER.debug("Found {} validator(s)", validators.size());
@@ -128,36 +111,17 @@ public class InsecureDefaultsServiceBean implements InsecureDefaultsServiceBeanM
                 LOGGER.debug("Alert: {}; {}", alert.getLevel(), alert.getMessage());
             }
         }
-
-        return alerts;
-    }
-
-    public void init() {
-        try {
-            try {
-                mBeanServer.registerMBean(this, objectName);
-                LOGGER.debug("Registered Insecure Defaults Service MBean under object name: {}",
-                        objectName.toString());
-            } catch (InstanceAlreadyExistsException e) {
-                // Try to remove and re-register
-                mBeanServer.unregisterMBean(objectName);
-                mBeanServer.registerMBean(this, objectName);
-                LOGGER.debug("Re-registered Insecure Defaults Service MBean");
-            }
-        } catch (MBeanRegistrationException | InstanceNotFoundException |
-                InstanceAlreadyExistsException | NotCompliantMBeanException e) {
-            LOGGER.info("Could not register MBean [{}].", objectName.toString(), e);
-        }
-    }
-
-    public void destroy() {
-        try {
-            if (objectName != null && mBeanServer != null) {
-                mBeanServer.unregisterMBean(objectName);
-                LOGGER.debug("Unregistered Insecure Defaults Service MBean");
-            }
-        } catch (InstanceNotFoundException | MBeanRegistrationException e) {
-            LOGGER.info("Exception unregistering MBean [{}].", objectName.toString(), e);
+        if (!alerts.isEmpty()) {
+            Set<String> alertMessages = alerts.stream()
+                    .map(Alert::getMessage)
+                    .collect(Collectors.toSet());
+            SystemNotice notice = new SystemNotice(this.getClass().getName(),
+                    NoticePriority.IMPORTANT,
+                    "Insecure Defaults Found",
+                    alertMessages);
+            eventAdmin.postEvent(new Event(
+                    SystemNotice.SYSTEM_NOTICE_BASE_TOPIC + "insecureDefaults",
+                    notice.getProperties()));
         }
     }
 
@@ -281,8 +245,7 @@ public class InsecureDefaultsServiceBean implements InsecureDefaultsServiceBeanM
     }
 
     private String getTruststorePassword() {
-        String truststorePassword = System.getProperty(TRUSTSTORE_PASSWORD_SYSTEM_PROPERTY);
-        return truststorePassword;
+        return System.getProperty(TRUSTSTORE_PASSWORD_SYSTEM_PROPERTY);
     }
 
     /**

@@ -11,12 +11,26 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.admin.insecure.defaults.service;
+package org.codice.ddf.admin.core.api.jmx;
 
 import java.util.List;
+import java.util.Map;
 
-public interface InsecureDefaultsServiceBeanMBean {
+public interface AdminAlertMBean {
+    String OBJECT_NAME = "org.codice.ddf.ui.admin.api:type=AdminAlertMBean";
 
-    List<Alert> validate();
+    /**
+     * Retrieves all the currently active alerts
+     *
+     * @return A List of Maps. Each map represents one alert.
+     */
+    List<Map<String, Object>> getAlerts();
+
+    /**
+     * Dismiss an active alert
+     *
+     * @param id The id of the alert to dismiss
+     */
+    void dismissAlert(String id);
 
 }

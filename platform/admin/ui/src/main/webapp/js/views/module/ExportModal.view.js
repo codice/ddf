@@ -29,7 +29,7 @@ define([
     ],
     function (ich, _, Marionette, Backbone, $, Modal, exportModal, Spinner, spinnerConfig, AlertsModel, AlertsView, Export) {
 
-        function generateAlertBanner(alertType){
+        function generateAlertTitle(alertType){
             switch(alertType){
                 case 'warnings':
                     return 'There were some issues copying certain files.';
@@ -37,14 +37,7 @@ define([
                     return 'System failed to export.';
             }
         }
-        function generateAlertItems(alerts){
-            return _.map(alerts,function(alert){
-                return {
-                    message: alert
-                };
-            });
-        }
-        function generateAlertType(alertType){
+        function generateAlertLevel(alertType){
             switch(alertType){
                 case 'warnings':
                     return 'warning';
@@ -54,9 +47,9 @@ define([
         }
         function generateAlertModel(alertType, alerts){
             return {
-                banner: generateAlertBanner(alertType),
-                items: generateAlertItems(alerts),
-                type: generateAlertType(alertType)
+                title: generateAlertTitle(alertType),
+                details: alerts,
+                level: generateAlertLevel(alertType)
             };
         }
 
@@ -105,7 +98,7 @@ define([
                 var alerts = this.model.get(alertType);
                 if (alerts.length >= 0) {
                     view.jolokiaError.show(new AlertsView.View({
-                        'model': new AlertsModel.AlertsDefaults(generateAlertModel(alertType, alerts))
+                        'model': new AlertsModel.Alert(generateAlertModel(alertType, alerts))
                     }));
                 }
             },

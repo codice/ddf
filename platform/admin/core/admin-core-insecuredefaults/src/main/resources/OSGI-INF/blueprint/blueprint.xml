@@ -10,13 +10,17 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/ -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-        >
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <bean id="insecureDefaultsServiceMBean"
-          class="org.codice.ddf.admin.insecure.defaults.service.InsecureDefaultsServiceBean"
-          init-method="init"
-          destroy-method="destroy">
+    <reference id="eventAdmin" interface="org.osgi.service.event.EventAdmin"/>
+    <bean id="insecureDefaultsCollector"
+          class="org.codice.ddf.admin.insecure.defaults.service.InsecureDefaultsCollector">
+        <argument ref="eventAdmin"/>
     </bean>
+    <service ref="insecureDefaultsCollector" interface="java.lang.Runnable">
+        <service-properties>
+            <entry key="decanter.collector.name" value="insecureDefaults"/>
+        </service-properties>
+    </service>
 
 </blueprint>
