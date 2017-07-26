@@ -147,7 +147,7 @@
         <dependency>
             <groupId>org.webjars.bower</groupId>
             <artifactId>cesiumjs</artifactId>
-            <version>1.32.1</version>
+            <version>1.22.0</version>
         </dependency>
         <dependency>
             <groupId>org.webjars.bower</groupId>
