@@ -14,37 +14,108 @@
 
 package org.codice.ddf.migration;
 
-/**
- * Exception that indicates some problem with the configuration migration.
- */
-public class MigrationException extends RuntimeException {
+import javax.annotation.Nullable;
 
-    private static final long serialVersionUID = 1L;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.Validate;
+
+/**
+ * Exception that indicates some problem with the migration operation.
+ * <p>
+ * <i>Note:</i> Detail messages are displayed to the administrator on the console during a
+ * migration operation.
+ * <p>
+ * <b>
+ * This code is experimental. While this class is functional
+ * and tested, it may change or be removed in a future version of the
+ * library.
+ * </b>
+ * </p>
+ */
+public class MigrationException extends RuntimeException implements MigrationMessage {
+    private static final long serialVersionUID = -1023839569683504743L;
 
     /**
-     * Constructs a new exception with the specified detail message.  The cause is not initialized,
-     * and may subsequently be initialized by a call to {@link #initCause(Throwable)}.
+     * Constructs a new migration exception with the specified detail message.
+     * <p>
+     * <i>Note:</i> Detail messages are displayed to the administrator on the console during a
+     * migration operation.
      *
-     * @param message the detail message. The detail message is saved for later retrieval by the
-     *                {@link #getMessage()} method.
+     * @param message the detail message for this exception
+     * @throws IllegalArgumentException if <code>message</code> is <code>null</code>
      */
     public MigrationException(String message) {
         super(message);
+        Validate.notNull(message, "invalid null message");
     }
 
     /**
-     * Constructs a new exception with the specified detail message and cause.
-     * <p/>
-     * Note that the detail message associated with {@code cause} is <i>not</i> automatically
-     * incorporated in this exception's detail message.
+     * Constructs a new migration exception with the specified detail message to be formatted with the specified
+     * parameters.
+     * <p>
+     * <i>Note:</i> Detail messages are displayed to the administrator on the console during a
+     * migration operation. All {@link Throwable} arguments are formatted using their
+     * {@link Throwable#getMessage()} representation.
      *
-     * @param message the detail message (which is saved for later retrieval by the
-     *                {@link #getMessage()} method).
-     * @param cause   the cause (which is saved for later retrieval by the {@link #getCause()}
-     *                method).  (A <tt>null</tt> value is permitted, and indicates that the cause
-     *                is nonexistent or unknown.)
+     * @param format the format string for the detail message for this exception (see {@link String#format})
+     * @param args   the arguments to the format message (if the last argument provided is a {@link Throwable}
+     *               it will automatically be initialized as the cause for the exception)
+     * @throws IllegalArgumentException if <code>format</code> is <code>null</code>
      */
-    public MigrationException(String message, Throwable cause) {
-        super(message, cause);
+    public MigrationException(String format, @Nullable Object... args) {
+        super(String.format(MigrationException.validateNotNull(format,
+                "invalid null format message"), MigrationException.sanitizeThrowables(args)));
+        if ((args != null) && (args.length > 0)) {
+            final Object a = args[args.length - 1];
+
+            if (a instanceof Throwable) {
+                initCause((Throwable) a);
+            }
+        }
+    }
+
+    /**
+     * Constructs a new migration exception with the specified detail message and cause.
+     * <p>
+     * <i>Note:</i> Detail messages are displayed to the administrator on the console during a
+     * migration operation.
+     *
+     * @param message the detail message for this exception
+     * @param cause   the cause for this exception
+     * @throws IllegalArgumentException if <code>message</code> is <code>null</code>
+     */
+    // squid:S1905 - cast required to ensure the array received is null and not an array with a null element
+    @SuppressWarnings("squid:S1905")
+    public MigrationException(String message, @Nullable Throwable cause) {
+        // in case they were using a format with only a Throwable - leave this ctor as people are familiar with it
+        this(MigrationException.validateNotNull(message, "invalid null message"),
+                (cause != null) ? new Object[] {cause} : (Object[]) null);
+    }
+
+    protected MigrationException(MigrationException error) {
+        super(error.getMessage(), error);
+    }
+
+    // PMD.DefaultPackage - designed to be called from MigrationWarning and MigrationInformation within this package
+    @SuppressWarnings("PMD.DefaultPackage")
+    static Object[] sanitizeThrowables(Object[] args) {
+        if ((args == null) || (args.length == 0)) {
+            return args;
+        }
+        final Object[] sargs = new Object[args.length];
+
+        System.arraycopy(args, 0, sargs, 0, args.length);
+        for (int i = 0; i < sargs.length; i++) {
+            if (sargs[i] instanceof Throwable) {
+                // make sure the message doesn't end with a period
+                sargs[i] = StringUtils.removeEnd(((Throwable) sargs[i]).getMessage(), ".");
+            }
+        }
+        return sargs;
+    }
+
+    private static <T> T validateNotNull(T t, String message) {
+        Validate.notNull(t, message);
+        return t;
     }
 }
