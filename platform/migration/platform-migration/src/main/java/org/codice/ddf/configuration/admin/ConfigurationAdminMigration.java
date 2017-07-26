@@ -175,8 +175,9 @@ public class ConfigurationAdminMigration extends DescribableBean
 
     private String constructFileName(Configuration configuration) {
         if (isManagedServiceFactoryConfiguration(configuration)) {
+            String uniqueId = StringUtils.substringAfter(configuration.getPid(), ".");
             return new StringBuilder(configuration.getFactoryPid()).append("-")
-                    .append(System.nanoTime())
+                    .append(uniqueId)
                     .append(configurationFileExtension)
                     .toString();
         } else {
