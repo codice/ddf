@@ -40,7 +40,6 @@ define([
             this.handleValue();
         },
         handleValue: function(){
-            this.$el.find('[data-value]').removeClass('is-selected');
             switch(this.model.get('federation')){
                 case 'enterprise':
                     this.$el.find('.choice.is-all').addClass('is-selected');
@@ -66,7 +65,7 @@ define([
             this.updateValue();
         },
         updateValue: function(){
-            var srcs = _.map(this.$el.find('.is-selected'), function(choice){
+            var srcs = _.map(this.$el.find('.is-specific.is-selected'), function(choice){
                  return $(choice).attr('data-value');
             });
             this.model.set({
