@@ -66,6 +66,7 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.catalog.util.impl.ResultIterable;
 
 public class EndpointUtil {
     private final List<MetacardType> metacardTypes;
@@ -79,6 +80,8 @@ public class EndpointUtil {
     private final AttributeRegistry attributeRegistry;
 
     private static final String ISO_8601_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+
+    private static int pageSize = 250;
 
     public EndpointUtil(List<MetacardType> metacardTypes, CatalogFramework catalogFramework,
             FilterBuilder filterBuilder, List<InjectableAttribute> injectableAttributes,
@@ -134,24 +137,21 @@ public class EndpointUtil {
 
     public Map<String, Result> getMetacardsByFilter(String tagFilter)
             throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+
         Filter filter = filterBuilder.attribute(Metacard.TAGS)
                 .is()
                 .like()
                 .text(tagFilter);
-        QueryResponse queryResponse = catalogFramework.query(new QueryRequestImpl(new QueryImpl(
-                filter,
-                1,
-                -1,
-                SortBy.NATURAL_ORDER,
-                false,
-                TimeUnit.SECONDS.toMillis(10)), false));
-
-        Map<String, Result> results = new HashMap<>();
-        for (Result result : queryResponse.getResults()) {
-            results.put(result.getMetacard()
-                    .getId(), result);
-        }
-        return results;
+        ResultIterable resultIterable = new ResultIterable(catalogFramework,
+                new QueryRequestImpl(new QueryImpl(filter,
+                        1,
+                        pageSize,
+                        SortBy.NATURAL_ORDER,
+                        false,
+                        TimeUnit.SECONDS.toMillis(10)), false));
+        return resultIterable.stream()
+                .collect(Collectors.toMap(result -> result.getMetacard()
+                        .getId(), Function.identity()));
     }
 
     public Map<String, Result> getMetacards(Collection<String> ids, String tagFilter)
@@ -193,19 +193,17 @@ public class EndpointUtil {
         }
 
         Filter queryFilter = filterBuilder.anyOf(filters);
-        QueryResponse response = catalogFramework.query(new QueryRequestImpl(new QueryImpl(
-                queryFilter,
-                1,
-                -1,
-                SortBy.NATURAL_ORDER,
-                false,
-                TimeUnit.SECONDS.toMillis(10)), false));
-        Map<String, Result> results = new HashMap<>();
-        for (Result result : response.getResults()) {
-            results.put(result.getMetacard()
-                    .getId(), result);
-        }
-        return results;
+        ResultIterable resultIterable = new ResultIterable(catalogFramework,
+                new QueryRequestImpl(new QueryImpl(queryFilter,
+                        1,
+                        pageSize,
+                        SortBy.NATURAL_ORDER,
+                        false,
+                        TimeUnit.SECONDS.toMillis(10)), false));
+
+        return resultIterable.stream()
+                .collect(Collectors.toMap(result -> result.getMetacard()
+                        .getId(), Function.identity()));
     }
 
     @SuppressWarnings("unchecked")

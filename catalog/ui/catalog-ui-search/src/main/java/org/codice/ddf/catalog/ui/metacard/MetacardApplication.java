@@ -68,6 +68,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import com.google.common.io.ByteSource;
 
 import ddf.catalog.CatalogFramework;
@@ -102,6 +103,7 @@ import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.catalog.util.impl.ResultIterable;
 import ddf.security.Subject;
 import ddf.security.SubjectUtils;
 import spark.servlet.SparkApplication;
@@ -137,6 +139,8 @@ public class MetacardApplication implements SparkApplication {
     private final List<MetacardType> types;
 
     private final Associated associated;
+
+    private static int pageSize = 250;
 
     public MetacardApplication(CatalogFramework catalogFramework, FilterBuilder filterBuilder,
             EndpointUtil endpointUtil, Validator validator, WorkspaceTransformer transformer,
@@ -664,13 +668,13 @@ public class MetacardApplication implements SparkApplication {
                 .text(id);
 
         Filter filter = filterBuilder.allOf(historyFilter, idFilter);
-        QueryResponse response = catalogFramework.query(new QueryRequestImpl(new QueryImpl(filter,
+        ResultIterable resultIterable = new ResultIterable(catalogFramework, new QueryRequestImpl(new QueryImpl(filter,
                 1,
-                -1,
+                pageSize,
                 SortBy.NATURAL_ORDER,
                 false,
                 TimeUnit.SECONDS.toMillis(10)), false));
-        return response.getResults();
+        return Lists.newArrayList(resultIterable);
     }
 
     private Metacard updateMetacard(String id, Metacard metacard)
