@@ -15,13 +15,25 @@ package org.codice.solr.query;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.geotools.filter.visitor.DefaultFilterVisitor;
+import org.opengis.filter.And;
+import org.opengis.filter.BinaryComparisonOperator;
+import org.opengis.filter.Filter;
+import org.opengis.filter.Or;
 import org.opengis.filter.PropertyIsEqualTo;
+import org.opengis.filter.PropertyIsGreaterThan;
+import org.opengis.filter.PropertyIsGreaterThanOrEqualTo;
+import org.opengis.filter.PropertyIsLessThan;
+import org.opengis.filter.PropertyIsLessThanOrEqualTo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +45,14 @@ public class SolrQueryFilterVisitor extends DefaultFilterVisitor {
     private static final Logger LOGGER = LoggerFactory.getLogger(SolrQueryFilterVisitor.class);
 
     private static final String QUOTE = "\"";
+
+    private static final String END_PAREN = " ) ";
+
+    private static final String START_PAREN = " ( ";
+
+    private static final String OR = " OR ";
+
+    private static final String AND = " AND ";
 
     // *, ?, and / are escaped by the filter adapter
     private static final String[] LUCENE_SPECIAL_CHARACTERS =
@@ -68,6 +88,42 @@ public class SolrQueryFilterVisitor extends DefaultFilterVisitor {
         schemaFieldResolver = new SchemaFieldResolver(client);
         this.solrCoreName = solrCoreName;
     }
+    @Override
+    public Object visit(And filter, Object data) {
+        List<Filter> childList = filter.getChildren();
+        return logicalOperator(childList, AND, data);
+    }
+
+    @Override
+    public Object visit(Or filter, Object data) {
+        List<Filter> childList = filter.getChildren();
+        return logicalOperator(childList, OR, data);
+    }
+
+    private Object logicalOperator(List<Filter> filters, String operator, Object data) {
+        if (CollectionUtils.isEmpty(filters)) {
+            throw new UnsupportedOperationException(
+                    "[" + operator + "] operation must contain 1 or more filters.");
+        }
+
+        StringBuilder builder = new StringBuilder();
+        builder.append(START_PAREN);
+        builder.append(filters.stream()
+                .filter(Objects::nonNull)
+                .map(e -> getQuery(e, data))
+                .collect(Collectors.joining(operator)));
+        builder.append(END_PAREN);
+
+        return new SolrQuery(builder.toString());
+    }
+
+    private String getQuery(Filter filter, Object data) {
+        Object query = filter.accept(this, data);
+        if (query instanceof SolrQuery) {
+            return ((SolrQuery) query).getQuery();
+        }
+        throw new UnsupportedOperationException("Query operation " + filter + " is not supported.");
+    }
 
     @Override
     public Object visit(PropertyIsEqualTo filter, Object data) {
@@ -75,32 +131,48 @@ public class SolrQueryFilterVisitor extends DefaultFilterVisitor {
 
         ExpressionValueVisitor expressionVisitor = new ExpressionValueVisitor();
 
-        filter.getExpression1()
+        String propertyName = (String) filter.getExpression1()
                 .accept(expressionVisitor, data);
-        filter.getExpression2()
+        Object literalValue = filter.getExpression2()
                 .accept(expressionVisitor, data);
-
-        String propertyName = expressionVisitor.getPropertyName();
-
-        String literalValue = (String) expressionVisitor.getLiteralValue();
-
-        //        if (!isCaseSensitive) {
-        //            throw new UnsupportedOperationException(
-        //                    "Case insensitive exact searches are not supported.");
-        //        }
-
-        if (StringUtils.isBlank(propertyName)) {
-            throw new UnsupportedOperationException("PropertyName is required for search.");
-        }
-
-        if (StringUtils.isBlank(literalValue)) {
-            throw new UnsupportedOperationException("Literal value is required for search.");
-        }
 
         String mappedPropertyName = getMappedPropertyName(propertyName);
 
         return new SolrQuery(
-                mappedPropertyName + ":" + QUOTE + escapeSpecialCharacters(literalValue) + QUOTE);
+                mappedPropertyName + ":" + QUOTE + escapeSpecialCharacters(literalValue.toString())
+                        + QUOTE);
+    }
+
+    @Override
+    public Object visit(PropertyIsGreaterThan filter, Object data) {
+        return processComparisonOperator(filter, " %s:{ %s TO * ] ");
+    }
+
+    @Override
+    public Object visit(PropertyIsGreaterThanOrEqualTo filter, Object data) {
+        return processComparisonOperator(filter, " %s:[ %s TO * ] ");
+    }
+
+    @Override
+    public Object visit(PropertyIsLessThan filter, Object data) {
+        return processComparisonOperator(filter, " %s:[ * TO %s } ");
+    }
+
+    @Override
+    public Object visit(PropertyIsLessThanOrEqualTo filter, Object data) {
+        return processComparisonOperator(filter, " %s:[ * TO %s ] ");
+    }
+
+    SolrQuery processComparisonOperator(BinaryComparisonOperator filter, String solrQuery){
+        ExpressionValueVisitor expressionVisitor = new ExpressionValueVisitor();
+
+        String propertyName = (String) filter.getExpression1()
+                .accept(expressionVisitor, null);
+        Object literalValue =  filter.getExpression2()
+                .accept(expressionVisitor, null);
+
+        String mappedPropertyName = getMappedPropertyName(propertyName);
+        return new SolrQuery(String.format(solrQuery, mappedPropertyName, literalValue.toString()));
     }
 
     String getMappedPropertyName(String propertyName) {

@@ -17,6 +17,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -152,6 +153,14 @@ public class TestSubscriptionsPersistentStoreImpl {
                 throw new RuntimeException();
             });
             map.put(id, copy);
+        }
+
+        @Override
+        public void add(String type, Collection<Map<String, Object>> items)
+                throws PersistenceException {
+            for (Map<String, Object> item : items) {
+                add(type, item);
+            }
         }
 
         @Override

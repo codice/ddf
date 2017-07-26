@@ -18,6 +18,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import org.junit.Test;
@@ -38,4 +39,28 @@ public class PersistenceItemTest {
         assertFalse(outMap.containsKey("key2_" + PersistentItem.DATE_SUFFIX));
     }
 
+    @Test
+    public void testSuffixCreation() {
+        Map<String, Object> inMap = new HashMap<>();
+        inMap.put("string", "value");
+        inMap.put("int", 1);
+        inMap.put("long", 1L);
+        inMap.put("binary", new byte[1]);
+        inMap.put("date", new Date());
+        inMap.put("set", new HashSet<String>());
+        PersistentItem item = new PersistentItem();
+        inMap.forEach((name, value) -> item.addProperty(name, value));
+        assertTrue(item.getPropertyNames()
+                .contains("string_txt"));
+        assertTrue(item.getPropertyNames()
+                .contains("int_int"));
+        assertTrue(item.getPropertyNames()
+                .contains("long_lng"));
+        assertTrue(item.getPropertyNames()
+                .contains("binary_bin"));
+        assertTrue(item.getPropertyNames()
+                .contains("date_tdt"));
+        assertTrue(item.getPropertyNames()
+                .contains("set_txt"));
+    }
 }

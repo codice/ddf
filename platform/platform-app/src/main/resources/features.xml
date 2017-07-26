@@ -30,6 +30,8 @@
 
     <repository>mvn:org.apache.karaf.features/spring/${karaf.version}/xml/features</repository>
 
+    <repository>mvn:org.apache.karaf.decanter/apache-karaf-decanter/${decanter.version}/xml/features</repository>
+
     <!--START Camel Features-->
     <!-- DO NOT EDIT
         All feature definitions come from 3rd party feature file:
@@ -1112,6 +1114,7 @@
         <feature>platform-filter-response</feature>
         <feature>platform-email</feature>
         <feature>util-uuidgenerator</feature>
+        <feature>platform-alerts</feature>
     </feature>
 
     <feature name="clientinfo-filter" install="auto" version="${project.version}"
@@ -1155,6 +1158,25 @@
         <bundle dependency="true">mvn:com.sun.mail/javax.mail/1.5.5</bundle>
         <bundle>mvn:ddf.platform.email/platform-email-api/${project.version}</bundle>
         <bundle>mvn:ddf.platform.email/platform-email-impl/${project.version}</bundle>
+    </feature>
+
+    <feature name="platform-alerts" install="manual" version="${project.version}"
+             description="Basic alert framework. Includes basic Decanter features and persistence-core">
+        <feature>decanter-sla</feature>
+        <feature>decanter-simple-scheduler</feature>
+        <feature>persistence-core</feature>
+        <configfile override="true" finalname="/etc/org.apache.karaf.decanter.sla.checker.cfg">
+            mvn:ddf.platform/platform-app/${project.version}/config/sla
+        </configfile>
+        <configfile override="true" finalname="/etc/org.apache.karaf.decanter.scheduler.simple.cfg">
+            mvn:ddf.platform/platform-app/${project.version}/config/scheduler
+        </configfile>
+    </feature>
+
+    <feature name="solr-decanter-appender" install="manual" version="${project.version}"
+             description="A Decanter appender that writes to solr">
+        <feature>persistence-core</feature>
+        <bundle>mvn:ddf.platform.solr/solr-appender/${project.version}</bundle>
     </feature>
 
 </features>

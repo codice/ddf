@@ -189,6 +189,13 @@ This value should not be changed from the factory default.
 |Codice Foundation
 |Yes
 
+|Registry ID
+|org.codice.ddf.system.registry-id
+|String
+|The registry id for this installation of ${branding}.
+|
+|No
+
 6+^h|Thread Pool Settings
 
 |Thread Pool Size

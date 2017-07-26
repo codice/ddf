@@ -64,6 +64,11 @@
             <artifactId>common-system</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.codice.ddf</groupId>
+            <artifactId>alerts</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -73,7 +78,7 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>common-system</Embed-Dependency>
+                        <Embed-Dependency>common-system, alerts</Embed-Dependency>
                         <Import-Package>*</Import-Package>
                         <Export-Package>
                         </Export-Package>

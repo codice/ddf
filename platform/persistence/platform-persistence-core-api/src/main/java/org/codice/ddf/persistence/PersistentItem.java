@@ -93,6 +93,24 @@ public class PersistentItem extends HashMap<String, Object> {
         addProperty(name, BINARY_SUFFIX, value);
     }
 
+    public void addProperty(String name, Object value){
+        if(value instanceof String){
+            addProperty(name, (String) value);
+        } else if (value instanceof Date) {
+            addProperty(name, (Date) value);
+        } else if (value instanceof Set) {
+            addProperty(name, (Set) value);
+        } else if (value instanceof Long) {
+            addProperty(name, (long) value);
+        } else if (value instanceof Integer) {
+            addProperty(name, (int) value);
+        } else if (value instanceof byte[]){
+            addProperty(name, (byte[])value);
+        } else if (value != null){
+            addProperty(name, value.toString());
+        }
+    }
+
     public void addProperty(String name, String suffix, Object value) {
         if (StringUtils.isNotBlank(name) && StringUtils.isNotBlank(suffix)) {
             if (name.endsWith(suffix)) {
