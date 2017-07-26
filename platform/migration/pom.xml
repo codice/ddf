@@ -27,7 +27,6 @@
 
     <modules>
         <module>platform-migratable-api</module>
-        <module>platform-migratable-util</module>
         <module>platform-migration</module>
     </modules>
 </project>

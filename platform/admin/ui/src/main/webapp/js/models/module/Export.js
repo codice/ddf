@@ -19,7 +19,7 @@ define([
     'jquery'
 ], function (_, Backbone, $) {
 
-    var url = '/admin/jolokia/exec/org.codice.ddf.configuration.migration.ConfigurationMigrationManager:service=configuration-migration/export/';
+    var url = '/admin/jolokia/exec/org.codice.ddf.configuration.migration.ConfigurationMigrationManager:service=configuration-migration/doExport/';
 
     function getEscapedPath(model) {
         return model.get('path').split('/').join('!/');

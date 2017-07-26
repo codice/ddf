@@ -17,10 +17,8 @@ package org.codice.ddf.configuration.migration;
 import java.nio.file.Path;
 import java.util.Collection;
 
-import javax.validation.constraints.NotNull;
-
 import org.codice.ddf.migration.MigrationException;
-import org.codice.ddf.migration.MigrationWarning;
+import org.codice.ddf.migration.MigrationReport;
 import org.codice.ddf.platform.services.common.Describable;
 
 /**
@@ -28,15 +26,23 @@ import org.codice.ddf.platform.services.common.Describable;
  * includes exporting and importing of configurations.
  */
 public interface ConfigurationMigrationService {
+    /**
+     * Exports configurations to the specified path.
+     *
+     * @param exportDirectory path to export configurations to
+     * @return a migration report for the export operation
+     * @throws IllegalArgumentException if <code>exportDirectory</code> is <code>null</code>
+     */
+    MigrationReport doExport(Path exportDirectory) throws MigrationException;
 
     /**
-     * Exports configurations to specified path
+     * Imports configurations from the specified path.
      *
-     * @param exportDirectory path to export configurations
-     * @return MigrationWarning returned if there were non-fatal issues when exporting
-     * @throws MigrationException thrown if one or more Configurations couldn't be exported
+     * @param exportDirectory path to import configurations from
+     * @return a migration report for the import operation
+     * @throws IllegalArgumentException if <code>exportDirectory</code> is <code>null</code>
      */
-    Collection<MigrationWarning> export(@NotNull Path exportDirectory) throws MigrationException;
+    MigrationReport doImport(Path exportDirectory);
 
     /**
      * Gets detailed information about all the {@link org.codice.ddf.migration.DataMigratable}

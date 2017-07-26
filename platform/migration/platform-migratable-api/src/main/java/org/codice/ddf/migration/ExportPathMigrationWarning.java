@@ -11,16 +11,21 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.migration.util;
+package org.codice.ddf.migration;
 
 import java.nio.file.Path;
 
-import org.codice.ddf.migration.MigrationWarning;
-
 /**
- * Abstract base class for all path related {@link org.codice.ddf.migration.MigrationWarning}.
+ * Provides warning information related to an exported path that was not included in the exported file.
+ * <p>
+ * <b>
+ * This code is experimental. While this interface is functional
+ * and tested, it may change or be removed in a future version of the
+ * library.
+ * </b>
+ * </p>
  */
-public class PathMigrationWarning extends MigrationWarning {
+public class ExportPathMigrationWarning extends MigrationWarning {
     private static final String BASE_WARNING = "therefore, it will not be included in the export.  "
             + "Make sure it exists on the system you're migrating to "
             + "or update the path and export again.";
@@ -39,7 +44,7 @@ public class PathMigrationWarning extends MigrationWarning {
      *
      * @param path path that is absolute and cannot be exported
      */
-    public PathMigrationWarning(Path path, String reason) {
+    public ExportPathMigrationWarning(Path path, String reason) {
         super(String.format(ABSOLUTE_PATH_WARNING, path.toString(), reason));
     }
 
@@ -49,7 +54,7 @@ public class PathMigrationWarning extends MigrationWarning {
      * @param systemProperty name of the system property that contains the absolute path
      * @param path           path that is absolute and cannot be exported
      */
-    public PathMigrationWarning(String systemProperty, Path path, String reason) {
+    public ExportPathMigrationWarning(String systemProperty, Path path, String reason) {
         super(String.format(SYSTEM_PROPERTY_ABSOLUTE_PATH_WARNING,
                 systemProperty,
                 path.toString(),
@@ -63,7 +68,7 @@ public class PathMigrationWarning extends MigrationWarning {
      * @param systemProperty     name of the system property that contains the absolute path
      * @param path               path that is absolute and cannot be exported
      */
-    public PathMigrationWarning(Path propertiesFilePath, String systemProperty, Path path,
+    public ExportPathMigrationWarning(Path propertiesFilePath, String systemProperty, Path path,
             String reason) {
         super(String.format(JAVA_FILE_PROPERTY_ABSOLUTE_PATH_WARNING,
                 propertiesFilePath.toString(),

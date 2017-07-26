@@ -16,8 +16,6 @@ package org.codice.ddf.configuration.migration;
 
 import java.util.Collection;
 
-import javax.validation.constraints.NotNull;
-
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationWarning;
 import org.codice.ddf.platform.services.common.Describable;
@@ -26,15 +24,25 @@ import org.codice.ddf.platform.services.common.Describable;
  * Interface to expose {@link ConfigurationMigrationManager} as an MBean.
  */
 public interface ConfigurationMigrationManagerMBean {
-
     /**
      * Exports configurations to specified path
      *
      * @param exportDirectory path to export configurations
-     * @return MigrationWarning returned if there were non-fatal issues when exporting
-     * @throws MigrationException thrown if one or more Configurations couldn't be exported
+     * @return a collection of {@link MigrationWarning} returned if there were non-fatal issues when exporting
+     * @throws MigrationException thrown if one or more configurations couldn't be exported
+     * @throws IllegalArgumentException if <code>exportDirectory</code> is <code>null</code>
      */
-    Collection<MigrationWarning> export(@NotNull String exportDirectory) throws MigrationException;
+    Collection<MigrationWarning> doExport(String exportDirectory) throws MigrationException;
+
+    /**
+     * Imports configurations from the specified path
+     *
+     * @param exportDirectory path to import configurations from
+     * @return a collection of {@link MigrationWarning} returned if there were non-fatal issues when importing
+     * @throws MigrationException thrown if one or more configurations couldn't be imported
+     * @throws IllegalArgumentException if <code>exportDirectory</code> is <code>null</code>
+     */
+    Collection<MigrationWarning> doImport(String exportDirectory) throws MigrationException;
 
     /**
      * Gets detailed information about all the {@link org.codice.ddf.migration.DataMigratable}

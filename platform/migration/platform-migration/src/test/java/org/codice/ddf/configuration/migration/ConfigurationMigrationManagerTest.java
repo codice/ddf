@@ -37,6 +37,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanRegistrationException;
@@ -49,8 +50,9 @@ import org.codice.ddf.configuration.admin.ConfigurationAdminMigration;
 import org.codice.ddf.migration.ConfigurationMigratable;
 import org.codice.ddf.migration.DataMigratable;
 import org.codice.ddf.migration.DescribableBean;
+import org.codice.ddf.migration.MigrationEntry;
 import org.codice.ddf.migration.MigrationException;
-import org.codice.ddf.migration.MigrationMetadata;
+import org.codice.ddf.migration.MigrationReport;
 import org.codice.ddf.migration.MigrationWarning;
 import org.codice.ddf.platform.services.common.Describable;
 import org.junit.Before;
@@ -449,4 +451,7 @@ class TestMigratable extends DescribableBean implements DataMigratable {
         return null;
     }
 
+    @Override
+    public void doImport(MigrationReport report, Stream<MigrationEntry> entries) throws IOException, MigrationException {
+    }
 }
