@@ -533,29 +533,39 @@ define([
             });
         },
         drawLine: function () {
-            this.clearLocation();
-            wreqr.vent.trigger('search:drawline', this.model);
-            this.changeMode("line");
+            if (this.propertyModel.get('property').get('isEditing')) {
+                this.clearLocation();
+                wreqr.vent.trigger('search:drawline', this.model);
+                this.changeMode("line");
+            }
         },
         drawCircle: function () {
-            this.clearLocation();
-            wreqr.vent.trigger('search:drawcircle', this.model);
-            this.changeMode("circle");
+            if (this.propertyModel.get('property').get('isEditing')) {
+                this.clearLocation();
+                wreqr.vent.trigger('search:drawcircle', this.model);
+                this.changeMode("circle");
+            }
         },
         drawPolygon: function () {
-            this.clearLocation();
-            wreqr.vent.trigger('search:drawpoly', this.model);
-            this.changeMode("polygon");
+            if (this.propertyModel.get('property').get('isEditing')) {
+                this.clearLocation();
+                wreqr.vent.trigger('search:drawpoly', this.model);
+                this.changeMode("polygon");
+            }
         },
         drawBbox: function () {
-            this.clearLocation();
-            wreqr.vent.trigger('search:drawbbox', this.model);
-            this.changeMode("bbox");
+            if (this.propertyModel.get('property').get('isEditing')) {
+                this.clearLocation();
+                wreqr.vent.trigger('search:drawbbox', this.model);
+                this.changeMode("bbox");
+            }
         },
         searchByKeyword: function () {
-            this.clearLocation();
-            this.model.set({hasKeyword: true});            
-            this.changeMode("keyword");
+            if (this.propertyModel.get('property').get('isEditing')) {
+                this.clearLocation();
+                this.model.set({hasKeyword: true});
+                this.changeMode("keyword");
+            }
         },
         onLineUnitsChanged: function () {
             this.$('#lineWidthValue').val(this.getDistanceFromMeters(this.model.get('lineWidth'), this.$('#lineUnits').val()));
