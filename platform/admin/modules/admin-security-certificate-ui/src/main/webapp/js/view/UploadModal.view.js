@@ -116,7 +116,7 @@ define([
         },
         isValid: function (e) {
             var activeTab = this.$('.nav-tabs li.active a').attr('href');
-            var target = e.currentTarget.hash || activeTab;
+            var target = (e.currentTarget || {}).hash || activeTab;
             if (target === '#upload') {
                 return this.ui.alias.val() !== '' && this.file.isValid();
             } else if (target === '#url') {
@@ -153,7 +153,7 @@ define([
         },
         onSelect: function (e, data) {
             this.file.setData(data);
-            this.checkSave();
+            this.checkSave(e);
         },
         onRender: function () {
             this.errorregion.show(new Marionette.ItemView({

@@ -59,7 +59,7 @@ define(function (require) {
                     cache: false,
                     dataType: 'json',
                     url: "/services/platform/config/ui"
-                }).success(function(uiConfig){
+                }).done(function(uiConfig){
                     props.ui = uiConfig;
                     return props;
                 }).fail(function(jqXHR, status, errorThrown){

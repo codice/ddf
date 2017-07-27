@@ -20,9 +20,9 @@ require.config({
         // backbone
         backbone: 'backbone/1.1.2/backbone',
 
-        underscore: 'lodash/4.17.4/dist/lodash.underscore.min',
+        underscore: 'underscore/1.8.3/underscore-min',
 
-        'backbone.marionette': 'marionette/2.4.1/lib/backbone.marionette.min',
+        'backbone.marionette': 'marionette/2.4.7/lib/backbone.marionette.min',
 
         modelbinder: 'backbone.modelbinder/1.1.0/Backbone.ModelBinder',
 
@@ -31,12 +31,11 @@ require.config({
 
         // jquery
         jquery: 'jquery/3.2.1/dist/jquery.min',
-        jqueryuiCore: 'jquery-ui/1.12.1/ui/minified/jquery.ui.core.min',
-        "jquery.ui.widget": 'jquery-ui/1.12.1/ui/minified/jquery.ui.widget.min',
-        fileupload: 'jquery-file-upload/9.5.7/js/jquery.fileupload',
+        jqueryui: 'jquery-ui/1.12.1/jquery-ui.min',
+        fileupload: 'jquery-file-upload/9.18.0/js/jquery.fileupload',
 
         // handlebars
-        handlebars: 'handlebars/2.0.0/handlebars.min',
+        handlebars: 'handlebars/4.0.10/handlebars.min',
         icanhaz: 'js/ich',
 
         // require plugins
@@ -45,7 +44,11 @@ require.config({
 
 
     },
-
+    map: {
+        '*': {
+            'jquery-ui/ui/widget': 'jquery'
+        }
+    },
     shim: {
 
         backbone: {
@@ -79,9 +82,9 @@ require.config({
             exports: 'moment'
         },
 
-        jqueryuiCore: ['jquery'],
+        jqueryui: ['jquery'],
 
-        fileupload: ['jquery', 'jquery.ui.widget'],
+        fileupload: ['jqueryui'],
 
         bootstrap: ['jquery']
     },
@@ -120,6 +123,17 @@ require(['jquery',
             return ich[template](data);
         };
 
+        // https://github.com/marionettejs/backbone.marionette/issues/3077
+        // monkey-patch Marionette for compatibility with jquery 3+.
+        // jquery removed the .selector method, which was used by the original
+        // implementation here.
+        Marionette.Region.prototype.reset = function() {
+            this.empty();
+            this.el = this.options.el;
+            delete this.$el;
+            return this;
+        };
+            
         // Actually start up the application.
         app.start();
     });

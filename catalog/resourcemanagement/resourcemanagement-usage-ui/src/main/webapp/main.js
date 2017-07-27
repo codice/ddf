@@ -20,7 +20,7 @@ require.config({
         // backbone
         backbone: 'backbone/1.1.2/backbone',
 
-        underscore: 'lodash/4.17.4/dist/lodash.underscore.min',
+        underscore: 'underscore/1.8.3/underscore-min',
 
         'backbone.marionette': 'marionette/2.4.1/lib/backbone.marionette.min',
 
@@ -31,8 +31,7 @@ require.config({
 
         // jquery
         jquery: 'jquery/3.2.1/dist/jquery.min',
-        jqueryuiCore: 'jquery-ui/1.12.1/ui/minified/jquery.ui.core.min',
-        "jquery.ui.widget": 'jquery-ui/1.12.1/ui/minified/jquery.ui.widget.min',
+        jqueryui: 'jquery-ui/1.12.1/jquery-ui.min',
 
         // handlebars
         handlebars: 'handlebars/2.0.0/handlebars.min',
@@ -41,6 +40,11 @@ require.config({
         // require plugins
         text: 'requirejs-plugins/1.0.3/lib/text',
         css: 'require-css/0.1.10/css.min'
+    },
+    map: {
+        '*': {
+            'jquery.ui.widget': 'jquery'
+        }
     },
 
     shim: {
@@ -76,7 +80,7 @@ require.config({
             exports: 'moment'
         },
 
-        jqueryuiCore: ['jquery'],
+        jqueryui: ['jquery'],
 
         bootstrap: ['jquery']
     },

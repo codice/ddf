@@ -28,7 +28,7 @@
             // backbone
             backbone: '../../admin/metrics/backbone/1.1.2/backbone',
             backboneassociation: '../../admin/metrics/backbone-associations/0.6.2/backbone-associations-min',
-            underscore: '../../admin/metrics/lodash/4.17.4/dist/lodash.underscore.min',
+            underscore: '../../admin/metrics/underscore/1.8.3/underscore-min',
             marionette: '../../admin/metrics/marionette/1.8.8/lib/backbone.marionette.min',
             // TODO test combining
             modelbinder: '../../admin/metrics/backbone.modelbinder/1.1.0/Backbone.ModelBinder.min',
@@ -41,8 +41,7 @@
 
             // jquery
             jquery: '../../admin/metrics/jquery/3.2.1/dist/jquery.min',
-            jqueryui: '../../admin/metrics/jquery-ui/1.12.1/ui/minified/jquery-ui.min',
-            'jquery.ui.widget': '../../admin/metrics/jquery-ui/1.12.1/ui/minified/jquery.ui.widget.min',
+            jqueryui: '../../admin/metrics/jquery-ui/1.12.1/jquery-ui.min',
             multiselect: '../../admin/metrics/bootstrap-multiselect/0.9.3/js/bootstrap-multiselect',
             perfectscrollbar: '../../admin/metrics/perfect-scrollbar/0.7.0/js/perfect-scrollbar.jquery.min',
             fileupload: '../../admin/metrics/jquery-file-upload/9.5.7/js/jquery.fileupload',
@@ -62,7 +61,11 @@
             // datatables
 
         },
-
+        map: {
+            '*': {
+                'jquery.ui.widget': 'jqueryui',
+            }
+        },
 
         shim: {
 
@@ -140,7 +143,7 @@
                     }
                 };
             }
-        }
+        }     
 
         // Actually start up the application.
         app.start();

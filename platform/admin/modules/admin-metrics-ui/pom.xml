@@ -96,8 +96,8 @@
         </dependency>
         <dependency>
             <groupId>org.webjars.bower</groupId>
-            <artifactId>lodash</artifactId>
-            <version>4.17.4</version>
+            <artifactId>underscore</artifactId>
+            <version>1.8.3</version>
         </dependency>
         <dependency>
             <groupId>org.codice.webjars</groupId>
@@ -137,7 +137,7 @@
         <dependency>
             <groupId>org.webjars.bower</groupId>
             <artifactId>bootswatch</artifactId>
-            <version>3.2.0</version>
+            <version>3.3.7</version>
         </dependency>
         <dependency>
             <groupId>org.webjars.bower</groupId>

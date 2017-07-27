@@ -82,7 +82,7 @@ define([
                 }
             },
             ifAnd: function () {
-                var args = _.flattenDeep(arguments);
+                var args = _.flatten(arguments);
                 var items = _.initial(args);
                 var result = true;
                 var block = _.last(args);
@@ -99,7 +99,7 @@ define([
                 }
             },
             ifOr: function () {
-                var args = _.flattenDeep(arguments);
+                var args = _.flatten(arguments);
                 var items = _.initial(args);
                 var result = false;
                 var block = _.last(args);
@@ -116,7 +116,7 @@ define([
                 }
             },
             ifNotAnd: function () {
-                var args = _.flattenDeep(arguments);
+                var args = _.flatten(arguments);
                 var items = _.initial(args);
                 var result = true;
                 var block = _.last(args);
@@ -133,7 +133,7 @@ define([
                 }
             },
             ifNotOr: function () {
-                var args = _.flattenDeep(arguments);
+                var args = _.flatten(arguments);
                 var items = _.initial(args);
                 var result = false;
                 var block = _.last(args);

@@ -66,7 +66,7 @@ define([
             };
         },
         initialize: function() {
-            _.bindAll(this);
+            _.bindAll.apply(_, [this].concat(_.functions(this)));
             this.on('block', this.block);
             this.on('unblock', this.unblock);
         },

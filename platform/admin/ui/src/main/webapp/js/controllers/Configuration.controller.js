@@ -27,7 +27,7 @@ define([
 
             initialize: function(options){
                 var self = this;
-                _.bindAll(this);
+                _.bindAll.apply(_, [this].concat(_.functions(this)));
 
                 self.region = options.region;
                 self.listenTo(wreqr.vent, 'refreshConfigurations', this.show);

@@ -25,7 +25,7 @@
             // backbone
             backbone: 'backbone/1.1.2/backbone',
             backboneassociation: 'backbone-associations/0.6.2/backbone-associations',
-            underscore: 'lodash/4.17.4/dist/lodash.underscore',
+            underscore: 'underscore/1.8.3/underscore-min',
             marionette: 'marionette/1.8.8/lib/backbone.marionette',
             modelbinder: 'backbone.modelbinder/1.1.0/Backbone.ModelBinder',
             collectionbinder: 'backbone.modelbinder/1.1.0/Backbone.CollectionBinder',
@@ -34,13 +34,12 @@
 
             // jquery
             jquery: 'jquery/3.2.1/dist/jquery.min',
-            jqueryui: 'jquery-ui/1.12.1/ui/minified/jquery-ui.min',
-            'jquery.ui.widget': 'jquery-ui/1.12.1/ui/minified/jquery.ui.widget.min',
+            jqueryui: 'jquery-ui/1.12.1/jquery-ui.min',
             multiselect: 'bootstrap-multiselect/0.9.3/js/bootstrap-multiselect',
             perfectscrollbar: 'perfect-scrollbar/0.7.0/js/perfect-scrollbar.jquery.min',
 
             // handlebars
-            handlebars: 'handlebars/2.0.0/handlebars.min',
+            handlebars: 'handlebars/4.0.10/handlebars.min',
             icanhaz: 'js/ich',
 
             // require plugins

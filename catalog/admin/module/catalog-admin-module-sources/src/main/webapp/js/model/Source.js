@@ -377,7 +377,7 @@ define([
             createDeletePromise: function (source, config) {
                 var deferred = Q.defer();
                 var serviceModels = this.get('model').get('value');
-                config.destroy().success(function () {
+                config.destroy().done(function () {
                     source.removeConfiguration(config);
                     //sync up the service model so that the refresh updates properly
                     serviceModels.remove(config.getService());

@@ -25,18 +25,17 @@
             // backbone
             backbone: 'backbone/1.1.2/backbone',
             backboneassociation: 'backbone-associations/0.6.2/backbone-associations-min',
-            underscore: 'lodash/4.17.4/dist/lodash.underscore.min',
+            underscore: 'underscore/1.8.3/underscore-min',
             marionette: 'marionette/1.8.8/lib/backbone.marionette.min',
             modelbinder: 'backbone.modelbinder/1.1.0/Backbone.ModelBinder.min',
             poller: 'backbone-poller/1.1.3/backbone.poller',
-            iframeresizer: 'iframe-resizer/2.6.2/js/iframeResizer.min',
 
             // jquery
             jquery: 'jquery/3.2.1/dist/jquery.min',
-            jqueryui: 'jquery-ui/1.12.1/ui/minified/jquery-ui.min',
+            jqueryui: 'jquery-ui/1.12.1/jquery-ui.min',
 
             // handlebars
-            handlebars: 'handlebars/2.0.0/handlebars.min',
+            handlebars: 'handlebars/4.0.10/handlebars.min',
             icanhaz: 'js/ich',
 
             // require plugins

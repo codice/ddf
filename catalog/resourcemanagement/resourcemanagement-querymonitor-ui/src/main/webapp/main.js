@@ -20,9 +20,9 @@ require.config({
         // backbone
         backbone: 'backbone/1.1.2/backbone',
 
-        underscore: 'lodash/4.17.4/dist/lodash.underscore.min',
+        underscore: 'underscore/1.8.3/underscore-min',
 
-        'backbone.marionette': 'marionette/2.4.1/lib/backbone.marionette.min',
+        'backbone.marionette': 'marionette/2.4.7/lib/backbone.marionette.min',
 
         modelbinder: 'backbone.modelbinder/1.1.0/Backbone.ModelBinder',
 
@@ -31,11 +31,11 @@ require.config({
 
         // jquery
         jquery: 'jquery/3.2.1/dist/jquery.min',
-        jqueryuiCore: 'jquery-ui/1.12.1/ui/minified/jquery.ui.core.min',
+        jqueryui: 'jquery-ui/1.12.1/jquery-ui.min',
         "jquery.ui.widget": 'jquery-ui/1.12.1/ui/minified/jquery.ui.widget.min',
 
         // handlebars
-        handlebars: 'handlebars/2.0.0/handlebars.min',
+        handlebars: 'handlebars/4.0.10/handlebars.min',
         icanhaz: 'js/ich',
 
         // require plugins
@@ -76,7 +76,7 @@ require.config({
             exports: 'moment'
         },
 
-        jqueryuiCore: ['jquery'],
+        jqueryui: ['jquery'],
 
         bootstrap: ['jquery']
     },

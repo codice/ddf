@@ -90,7 +90,7 @@ define([
             "change": "updateValues"
         },
         initialize: function(options) {
-            _.bindAll(this);
+            _.bindAll.apply(_, [this].concat(_.functions(this)));
             this.configuration = options.configuration;
             this.collectionArray = new Backbone.Collection();
             this.listenTo(wreqr.vent, 'refresh', this.updateValues);

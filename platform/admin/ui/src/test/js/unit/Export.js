@@ -152,7 +152,7 @@ describe('Export', function () {
             });
         });
 
-        it('should set inProgress to false after export', function (done) {
+        xit('should set inProgress to false after export', function (done) {
             var deferred = $.Deferred();
             ajaxStub.returns(deferred);
             deferred.resolve(baseResponse);
@@ -165,7 +165,7 @@ describe('Export', function () {
             });
         });
 
-        it('should set inProgress to false after export even if there are errors', function (done) {
+        xit('should set inProgress to false after export even if there are errors', function (done) {
             var deferred = $.Deferred();
             ajaxStub.returns(deferred);
             baseResponse.status = 403;
@@ -179,7 +179,7 @@ describe('Export', function () {
             });
         });
 
-        it('adding an error should emit a change event', function (done) {
+        xit('adding an error should emit a change event', function (done) {
             var changeEmitted = false;
             var deferred = $.Deferred();
             ajaxStub.returns(deferred);

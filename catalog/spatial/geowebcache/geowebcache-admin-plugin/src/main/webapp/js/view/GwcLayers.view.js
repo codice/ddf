@@ -38,7 +38,7 @@ define([
                 layersTable: '.gwc-layers-table'
             },
             initialize : function() {
-                _.bindAll(this);
+                _.bindAll.apply(_, [this].concat(_.functions(this)));
             },
             onRender: function() {
                 this.layersTable.show(new GwcLayersView.LayersTable({model : this.model}));
@@ -158,7 +158,7 @@ define([
                 modalRegion: '.update-modal-region'
             },
             initialize : function() {
-                _.bindAll(this);
+                _.bindAll.apply(_, [this].concat(_.functions(this)));
                 this.listenTo(this.model, 'change:layers', this.render);
             },
             removeLayer: function(el) {

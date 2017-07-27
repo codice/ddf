@@ -24,8 +24,7 @@ require.config({
         backboneassociations: 'backbone-associations/0.6.2/backbone-associations-min',
         backboneundo: 'Backbone.Undo/0.2.5/Backbone.Undo',
         poller: 'backbone-poller/1.1.3/backbone.poller',
-        underscore: 'lodash/4.17.4/dist/lodash.underscore.min',
-        lodash: 'lodash/4.17.4/dist/lodash.min',
+        underscore: 'underscore/1.8.3/underscore-min',
         marionette: 'marionette/2.4.1/lib/backbone.marionette.min',
         // TODO test combining
         modelbinder: 'backbone.modelbinder/1.1.0/Backbone.ModelBinder.min',
@@ -47,7 +46,11 @@ require.config({
         text: 'requirejs-plugins/1.0.3/lib/text',
         css: 'require-css/0.1.10/css.min',
     },
-
+    map: {
+        '*': {
+            'Backbone.ModelBinder': 'modelbinder',
+        }
+    },
     shim: {
 
         backbone: {

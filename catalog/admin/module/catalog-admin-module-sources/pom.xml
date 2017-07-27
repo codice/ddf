@@ -89,7 +89,7 @@
         <dependency>
             <groupId>org.webjars.bower</groupId>
             <artifactId>handlebars</artifactId>
-            <version>2.0.0</version>
+            <version>4.0.10</version>
         </dependency>
         <dependency>
             <groupId>org.webjars.bower</groupId>
@@ -104,12 +104,12 @@
         <dependency>
             <groupId>org.webjars.bower</groupId>
             <artifactId>jquery-ui</artifactId>
-            <version>1.10.4</version>
+            <version>1.12.1</version>
         </dependency>
         <dependency>
             <groupId>org.webjars.bower</groupId>
-            <artifactId>lodash</artifactId>
-            <version>4.17.4</version>
+            <artifactId>underscore</artifactId>
+            <version>1.8.3</version>
         </dependency>
         <dependency>
             <groupId>org.codice.webjars</groupId>
@@ -149,12 +149,12 @@
         <dependency>
             <groupId>org.webjars.bower</groupId>
             <artifactId>bootswatch</artifactId>
-            <version>3.2.0</version>
+            <version>3.3.7</version>
         </dependency>
         <dependency>
             <groupId>org.webjars.bower</groupId>
             <artifactId>jquery-file-upload</artifactId>
-            <version>9.5.7</version>
+            <version>9.18.0</version>
         </dependency>
         <dependency>
             <groupId>org.webjars.bower</groupId>

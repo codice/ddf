@@ -74,7 +74,7 @@ define([
                 return data;
             },
             initialize: function (options) {
-                _.bindAll(this);
+                _.bindAll.apply(_, [this].concat(_.functions(this)));
                 this.registry = options.registry;
                 this.modelBinder = new Backbone.ModelBinder();
                 this.mode = options.mode;

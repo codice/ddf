@@ -54,7 +54,7 @@ define([
                 'click td': 'editSource'
             },
             initialize: function () {
-                _.bindAll(this);
+                _.bindAll.apply(_, [this].concat(_.functions(this)));
                 this.listenTo(this.model, 'change', this.render);
 
                 if (this.model.has('currentConfiguration')) {
@@ -171,7 +171,7 @@ define([
                 'click #addSourceButton': 'addSource'
             },
             initialize: function () {
-                _.bindAll(this);
+                _.bindAll.apply(_, [this].concat(_.functions(this)));
                 this.listenTo(wreqr.vent, 'editSource', this.editSource);
                 this.listenTo(wreqr.vent, 'refreshSources', this.refreshSources);
                 this.listenTo(wreqr.vent, 'changeConfiguration', this.changeConfiguration);
