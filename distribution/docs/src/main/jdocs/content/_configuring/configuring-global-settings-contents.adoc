@@ -372,7 +372,8 @@ nfs.conf,
 ftpd.conf,
 ntp.conf,
 web.config,
-robots.txt
+robots.txt,
+Thumbs.db
 |Yes
 
 |Mime types flagged as potentially dangerous to external clients
@@ -386,6 +387,13 @@ application/x-shellscript,
 text/scriptlet,
 application/x-msdownload,
 application/x-msmetafile
+|Yes
+
+|File names flagged as potentially dangerous to external clients
+|ignore.files
+|String
+|Files uploaded with these file names will be rejected from the upload
+|.DS_Store
 |Yes
 
 6+^h|[[SolrProperties]]Solr Catalog Provider Properties

@@ -30,6 +30,8 @@ public class InputValidationTest {
 
     private static final String BAD_FILE2 = ".";
 
+    private static final String BAD_FILE3 = "thumbs.db";
+
     private static final String SANI_BAD_FILE = "myfile.bin.bin.unk";
 
     private static final String SANI_BAD_FILE1 = "bin.bin";
@@ -44,14 +46,21 @@ public class InputValidationTest {
 
     private static final String BAD_MIME = "text/html";
 
+    private static final String IGNORE_FILE = ".DS_Store";
+
+    private static final String IGNORE_FILE_CASE_INSENSITIVE = ".dS_sTorE";
+
+    private static final String IGNORE_FILE_KNOWN_GOOD = "valid_ddms_record.xml";
+
     @Before
     public void setup() {
         System.setProperty("bad.files",
-                "crossdomain.xml,clientaccesspolicy.xml,.htaccess,.htpasswd,hosts,passwd,group,resolv.conf,nfs.conf,ftpd.conf,ntp.conf,web.config,robots.txt");
+                "crossdomain.xml,clientaccesspolicy.xml,.htaccess,.htpasswd,hosts,passwd,group,resolv.conf,nfs.conf,ftpd.conf,ntp.conf,web.config,robots.txt,Thumbs.db");
         System.setProperty("bad.file.extensions",
                 ".exe,.jsp,.html,.js,.php,.phtml,.php3,.php4,.php5,.phps,.shtml,.jhtml,.pl,.py,.cgi,.msi,.com,.scr,.gadget,.application,.pif,.hta,.cpl,.msc,.jar,.kar,.bat,.cmd,.vb,.vbs,.vbe,.jse,.ws,.wsf,.wsc,.wsh,.ps1,.ps1xml,.ps2,.ps2xml,.psc1,.psc2,.msh,.msh1,.msh2,.mshxml,.msh1xml,.msh2xml,.scf,.lnk,.inf,.reg,.dll,.vxd,.cpl,.cfg,.config,.crt,.cert,.pem,.jks,.p12,.p7b,.key,.der,.csr,.jsb,.mhtml,.mht,.xhtml,.xht");
         System.setProperty("bad.mime.types",
                 "text/html,text/javascript,text/x-javascript,application/x-shellscript,text/scriptlet,application/x-msdownload,application/x-msmetafile");
+        System.setProperty("ignore.files", ".DS_Store");
     }
 
     @Test
@@ -93,6 +102,32 @@ public class InputValidationTest {
     @Test
     public void testCheckForClientSideVulnerableMimeTypeGood() {
         boolean result = InputValidation.checkForClientSideVulnerableMimeType(GOOD_MIME);
+        assertTrue(result);
+    }
+
+    @Test
+    public void testSanitizeFilenameKnownBadCaseInsensitive() {
+        String sanitizedName = InputValidation.sanitizeFilename(BAD_FILE3);
+        assertThat(sanitizedName, is(DEFAULT_FILE));
+    }
+
+    @Test
+    public void testCheckForClientSideVulnerableFileNameBad() {
+        boolean result = InputValidation.checkForClientSideVulnerableFileName(IGNORE_FILE);
+        assertFalse(result);
+    }
+
+    @Test
+    public void testCheckForClientSideVulnerableFileNameBadCaseInsensitive() {
+        boolean result = InputValidation.checkForClientSideVulnerableFileName(
+                IGNORE_FILE_CASE_INSENSITIVE);
+        assertFalse(result);
+    }
+
+    @Test
+    public void testCheckForClientSideVulnerableFileNameGood() {
+        boolean result = InputValidation.checkForClientSideVulnerableFileName(
+                IGNORE_FILE_KNOWN_GOOD);
         assertTrue(result);
     }
 }
