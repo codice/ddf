@@ -19,9 +19,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -354,42 +352,55 @@ public class TikaInputTransformer implements InputTransformer {
             }
 
             Parser parser = new AutoDetectParser();
-            ToXMLContentHandler xmlContentHandler = new ToXMLContentHandler();
-            ToTextContentHandler textContentHandler = null;
-            ContentHandler contentHandler;
-            if (!contentExtractors.isEmpty()) {
-                textContentHandler = new ToTextContentHandler();
-                contentHandler = new TeeContentHandler(xmlContentHandler, textContentHandler);
-            } else {
-                contentHandler = xmlContentHandler;
-            }
-
-            TikaMetadataExtractor tikaMetadataExtractor = new TikaMetadataExtractor(parser,
-                    contentHandler);
-
             Metadata metadata;
-            try (InputStream inputStreamCopy = fileBackedOutputStream.asByteSource()
-                    .openStream()) {
-                metadata = tikaMetadataExtractor.parseMetadata(inputStreamCopy, new ParseContext());
-            }
+            String metadataText;
+            ToTextContentHandler textContentHandler = null;
+            Metacard metacard;
+            String contentType;
+            try (TemporaryFileBackedOutputStream textContentHandlerOutStream = new TemporaryFileBackedOutputStream()) {
+                try (TemporaryFileBackedOutputStream xmlContentHandlerOutStream = new TemporaryFileBackedOutputStream()) {
+                    ToXMLContentHandler xmlContentHandler = new ToXMLContentHandler(
+                            xmlContentHandlerOutStream,
+                            StandardCharsets.UTF_8.toString());
+                    ContentHandler contentHandler;
+                    if (!contentExtractors.isEmpty()) {
+                        textContentHandler = new ToTextContentHandler(textContentHandlerOutStream,
+                                StandardCharsets.UTF_8.toString());
+                        contentHandler = new TeeContentHandler(xmlContentHandler,
+                                textContentHandler);
+                    } else {
+                        contentHandler = xmlContentHandler;
+                    }
 
-            String metadataText = xmlContentHandler.toString();
-            if (templates != null) {
-                metadataText = transformToXml(metadataText);
-            }
+                    TikaMetadataExtractor tikaMetadataExtractor = new TikaMetadataExtractor(parser,
+                            contentHandler);
 
-            String contentType = metadata.get(Metadata.CONTENT_TYPE);
-            MetacardType metacardType = mergeAttributes(getMetacardType(contentType));
-            Metacard metacard = MetacardCreator.createMetacard(metadata,
-                    id,
-                    metadataText,
-                    metacardType,
-                    useResourceTitleAsTitle);
+                    try (InputStream inputStreamCopy = fileBackedOutputStream.asByteSource()
+                            .openStream()) {
+                        metadata = tikaMetadataExtractor.parseMetadata(inputStreamCopy,
+                                new ParseContext());
+                    }
 
-            if (textContentHandler != null) {
-                String plainText = textContentHandler.toString();
-                for (ContentMetadataExtractor contentMetadataExtractor : contentExtractors.values()) {
-                    contentMetadataExtractor.process(plainText, metacard);
+                    if (templates != null) {
+                        metadataText = transformToXml(xmlContentHandlerOutStream);
+                    } else {
+                        metadataText = xmlContentHandler.toString();
+                    }
+                }
+
+                contentType = metadata.get(Metadata.CONTENT_TYPE);
+                MetacardType metacardType = mergeAttributes(getMetacardType(contentType));
+                metacard = MetacardCreator.createMetacard(metadata,
+                        id,
+                        metadataText,
+                        metacardType,
+                        useResourceTitleAsTitle);
+
+                if (textContentHandler != null && !contentExtractors.isEmpty()) {
+                    String plainText = textContentHandler.toString();
+                    for (ContentMetadataExtractor contentMetadataExtractor : contentExtractors.values()) {
+                        contentMetadataExtractor.process(plainText, metacard);
+                    }
                 }
             }
 
@@ -628,7 +639,7 @@ public class TikaInputTransformer implements InputTransformer {
         }
     }
 
-    private String transformToXml(String xhtml) {
+    private String transformToXml(TemporaryFileBackedOutputStream xhtml) {
         LOGGER.debug("Transforming xhtml to xml.");
 
         XMLReader xmlReader = null;
@@ -639,17 +650,27 @@ public class TikaInputTransformer implements InputTransformer {
             LOGGER.debug(e.getMessage(), e);
         }
         if (xmlReader != null) {
-            try {
-                Writer xml = new StringWriter();
+            try (TemporaryFileBackedOutputStream xmlOutStream = new TemporaryFileBackedOutputStream();
+                    InputStream xhtmlInStream = xhtml.asByteSource()
+                            .openStream()) {
                 Transformer transformer = templates.newTransformer();
-                transformer.transform(new SAXSource(xmlReader,
-                        new InputSource(new StringReader(xhtml))), new StreamResult(xml));
-                return xml.toString();
-            } catch (TransformerException e) {
+                transformer.transform(new SAXSource(xmlReader, new InputSource(xhtmlInStream)),
+                        new StreamResult(xmlOutStream));
+                //we should not be doing this and should be returning the stream instead
+                try (InputStream resultStream = xmlOutStream.asByteSource()
+                        .openStream()) {
+                    return IOUtils.toString(resultStream, StandardCharsets.UTF_8);
+                }
+            } catch (IOException | TransformerException e) {
                 LOGGER.debug("Unable to transform metadata from XHTML to XML.", e);
             }
         }
-        return xhtml;
+        try (InputStream xhtmlStream = xhtml.asByteSource().openStream()) {
+            return IOUtils.toString(xhtmlStream, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            LOGGER.debug("Unable to read data from XHTML stream.", e);
+        }
+        return "";
     }
 
     Bundle getBundle() {
