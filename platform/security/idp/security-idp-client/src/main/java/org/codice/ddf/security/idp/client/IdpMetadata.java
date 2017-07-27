@@ -64,7 +64,7 @@ public class IdpMetadata {
 
     public void setMetadata(String metadata) {
         this.metadata = metadata;
-        entryDescriptions.set(null);
+        entryDescriptions.getAndSet(null);
     }
 
     private void initSingleSignOn() {

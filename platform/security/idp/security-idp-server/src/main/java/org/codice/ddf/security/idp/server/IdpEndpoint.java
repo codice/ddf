@@ -1311,7 +1311,7 @@ public class IdpEndpoint implements Idp {
 
     public void setSpMetadata(List<String> spMetadata) {
         this.spMetadata = spMetadata;
-        serviceProviders.set(null);
+        serviceProviders.getAndSet(null);
     }
 
     public void setStrictSignature(Boolean strictSignature) {

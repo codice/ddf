@@ -26,6 +26,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -84,8 +85,8 @@ public class MetadataConfigurationParser {
 
     public MetadataConfigurationParser(List<String> entityDescriptions,
             Consumer<EntityDescriptor> updateCallback) throws IOException {
-        parseEntityDescriptions(entityDescriptions);
         this.updateCallback = updateCallback;
+        parseEntityDescriptions(entityDescriptions);
     }
 
     public Map<String, EntityDescriptor> getEntryDescriptions() {
@@ -129,10 +130,11 @@ public class MetadataConfigurationParser {
             }
             PropertyResolver propertyResolver = new PropertyResolver(entityDescription);
             HttpTransport httpTransport = new NetHttpTransport();
-            ListeningExecutorService service =
-                    MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor());
 
-            addHttpCallback(propertyResolver, httpTransport, service);
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            ListeningExecutorService service = MoreExecutors.listeningDecorator(executor);
+
+            addHttpCallback(propertyResolver, httpTransport, service, executor);
             try {
                 if (!service.isShutdown() && !service.awaitTermination(30, TimeUnit.SECONDS)) {
                     LOGGER.debug("Executor service shutdown timed out");
@@ -167,12 +169,12 @@ public class MetadataConfigurationParser {
     }
 
     private void addHttpCallback(PropertyResolver propertyResolver, HttpTransport httpTransport,
-            ListeningExecutorService service) throws IOException {
+            ListeningExecutorService service, ExecutorService executor) throws IOException {
         HttpRequest httpRequest = generateHttpRequest(propertyResolver, httpTransport);
         ListenableFuture<HttpResponse> httpResponseFuture = service.submit(httpRequest::execute);
 
         FutureCallback<HttpResponse> callback = getHttpResponseFutureCallback(service);
-        Futures.addCallback(httpResponseFuture, callback);
+        Futures.addCallback(httpResponseFuture, callback, executor);
     }
 
     private HttpRequest generateHttpRequest(PropertyResolver propertyResolver,
