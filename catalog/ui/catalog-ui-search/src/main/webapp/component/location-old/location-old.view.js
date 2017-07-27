@@ -561,9 +561,11 @@ define([
             }
         },
         searchByKeyword: function () {
-            this.clearLocation();
-            this.model.set({hasKeyword: true});            
-            this.changeMode("keyword");
+            if (this.propertyModel.get('property').get('isEditing')) {
+                this.clearLocation();
+                this.model.set({hasKeyword: true});
+                this.changeMode("keyword");
+            }
         },
         onLineUnitsChanged: function () {
             this.$('#lineWidthValue').val(this.getDistanceFromMeters(this.model.get('lineWidth'), this.$('#lineUnits').val()));
