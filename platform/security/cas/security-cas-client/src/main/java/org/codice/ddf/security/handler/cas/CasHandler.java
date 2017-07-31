@@ -14,6 +14,7 @@
 package org.codice.ddf.security.handler.cas;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -36,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.cache.RemovalCause;
 import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
+import com.google.common.hash.Hashing;
 
 import ddf.security.sts.client.configuration.STSClientConfiguration;
 
@@ -93,9 +95,13 @@ public class CasHandler implements AuthenticationHandler {
                 handlerResult.setToken(token);
                 handlerResult.setStatus(HandlerResult.Status.COMPLETED);
                 //update cache with new information
-                LOGGER.debug("Adding new CAS assertion for session {}",
-                        httpRequest.getSession(false)
-                                .getId());
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Adding new CAS assertion for session {}",
+                            Hashing.sha256()
+                                    .hashString(httpRequest.getSession(false)
+                                            .getId(), StandardCharsets.UTF_8)
+                                    .toString());
+                }
                 httpRequest.getSession(false)
                         .setAttribute(AbstractCasFilter.CONST_CAS_ASSERTION, assertion);
                 LOGGER.debug("Successfully set authentication token, returning result with token.");

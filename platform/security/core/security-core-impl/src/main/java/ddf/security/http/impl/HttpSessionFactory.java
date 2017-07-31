@@ -13,8 +13,12 @@
  */
 package ddf.security.http.impl;
 
+import java.nio.charset.StandardCharsets;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+
+import com.google.common.hash.Hashing;
 
 import ddf.security.SecurityConstants;
 import ddf.security.common.SecurityTokenHolder;
@@ -36,7 +40,10 @@ public class HttpSessionFactory implements SessionFactory {
         if (session.getAttribute(SecurityConstants.SAML_ASSERTION) == null) {
             session.setAttribute(SecurityConstants.SAML_ASSERTION, new SecurityTokenHolder());
             SecurityLogger.audit("Creating a new session with id {} for client {}.",
-                    session.getId(), httpRequest.getRemoteAddr());
+                    Hashing.sha256()
+                            .hashString(session.getId(), StandardCharsets.UTF_8)
+                            .toString(),
+                    httpRequest.getRemoteAddr());
         }
         return session;
     }

@@ -15,6 +15,7 @@ package org.codice.ddf.security.filter.login;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -81,6 +82,8 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+
+import com.google.common.hash.Hashing;
 
 import ddf.security.PropertiesLoader;
 import ddf.security.SecurityConstants;
@@ -724,7 +727,9 @@ public class LoginFilter implements Filter {
         SecurityLogger.audit("Added SAML for user [{}] to session [{}]",
                 securityAssertion.getPrincipal()
                         .getName(),
-                session.getId());
+                Hashing.sha256()
+                        .hashString(session.getId(), StandardCharsets.UTF_8)
+                        .toString());
         int minutes = getExpirationTime();
         //we just want to set this to some non-zero value if the configuration is messed up
         int seconds = 60;
