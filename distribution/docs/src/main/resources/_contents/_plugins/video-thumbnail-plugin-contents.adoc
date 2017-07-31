@@ -13,8 +13,17 @@ Prebuilt FFmpeg binaries are provided for Linux, Mac, and Windows only.
 
 ===== Installing the Video Thumbnail Plugin
 
-The the Video Thumbnail Plugin is not installed by default with a standard installation.
+The Video Thumbnail Plugin is installed by default with a standard installation in the ${ddf-catalog} application.
 
 ===== Configuring the Video Thumbnail Plugin
 
-The Video Thumbnail Plugin has no configurable properties.
+To configure the Video Thumbnail Plugin:
+
+. Navigate to the *${admin-console}*.
+. Select the *${ddf-catalog}* application.
+. Select the *Configuration* tab.
+. Select the *Video Thumbnail Plugin*.
+
+The Video Thumbnail Plugin has one configurable property:
+
+include::{adoc-include}/_tables/org.codice.ddf.catalog.content.plugin.video.VideoThumbnailPlugin-table-contents.adoc[]

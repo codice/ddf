@@ -55,10 +55,10 @@ import ddf.catalog.content.plugin.PostCreateStoragePlugin;
 import ddf.catalog.content.plugin.PostUpdateStoragePlugin;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.operation.impl.ProcessingDetailsImpl;
 import ddf.catalog.plugin.PluginExecutionException;
 
 public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdateStoragePlugin {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(VideoThumbnailPlugin.class);
 
     private static final int FFMPEG_FILE_NUMBERING_START = 1;
@@ -82,6 +82,10 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
     private final Semaphore limitFFmpegProcessesSemaphore;
 
     private final String ffmpegPath;
+
+    protected static final int DEFAULT_MAX_FILE_SIZE_MB = 120;
+
+    private int maxFileSizeMB = DEFAULT_MAX_FILE_SIZE_MB;
 
     public VideoThumbnailPlugin(final BundleContext bundleContext) throws IOException {
         final String bundledFFmpegBinaryPath = getBundledFFmpegBinaryPath();
@@ -150,13 +154,7 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
     public CreateStorageResponse process(final CreateStorageResponse input)
             throws PluginExecutionException {
         // TODO: How to handle application/octet-stream?
-        try {
-            processContentItems(input.getCreatedContentItems(), input.getProperties());
-        } catch (IllegalArgumentException e) {
-            input.getProcessingErrors()
-                    .add(new ProcessingDetailsImpl(this.getClass()
-                            .getName(), e));
-        }
+        processContentItems(input.getCreatedContentItems(), input.getProperties());
         return input;
     }
 
@@ -164,30 +162,50 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
     public UpdateStorageResponse process(final UpdateStorageResponse input)
             throws PluginExecutionException {
         // TODO: How to handle application/octet-stream?
-        try {
-            processContentItems(input.getUpdatedContentItems(), input.getProperties());
-        } catch (IllegalArgumentException e) {
-            input.getProcessingErrors()
-                    .add(new ProcessingDetailsImpl(this.getClass()
-                            .getName(), e));
-        }
+        processContentItems(input.getUpdatedContentItems(), input.getProperties());
         return input;
     }
 
     private void processContentItems(final List<ContentItem> contentItems,
-            final Map<String, Serializable> properties)
-            throws PluginExecutionException, IllegalArgumentException {
+            final Map<String, Serializable> properties) throws PluginExecutionException {
         Map<String, Map<String, Path>> tmpContentPaths =
                 (Map<String, Map<String, Path>>) properties.get(Constants.CONTENT_PATHS);
 
         for (ContentItem contentItem : contentItems) {
             if (isVideo(contentItem)) {
-                Map<String, Path> contentPaths = tmpContentPaths.get(contentItem.getId());
 
+                final long contentItemSizeBytes;
+                try {
+                    contentItemSizeBytes = contentItem.getSize();
+                } catch (IOException e) {
+                    LOGGER.warn(
+                            "Error retrieving size for ContentItem (id={}). Unable to create thumbnail for metacard (id={})",
+                            contentItem.getId(),
+                            contentItem.getMetacard()
+                                    .getId());
+                    continue;
+                }
+
+                final long bytesPerMegabyte = 1024L * 1024L;
+                final long maxFileSizeBytes = maxFileSizeMB * bytesPerMegabyte;
+                if (contentItemSizeBytes > maxFileSizeBytes) {
+                    LOGGER.debug(
+                            "ContentItem (id={} size={} MB) is larger than the configured max file size to process ({} MB). Skipping creating thumbnail for metacard (id={})",
+                            contentItem.getId(),
+                            contentItemSizeBytes,
+                            maxFileSizeBytes,
+                            contentItem.getMetacard()
+                                    .getId());
+                    continue;
+                }
+
+                Map<String, Path> contentPaths = tmpContentPaths.get(contentItem.getId());
                 if (contentPaths == null || contentPaths.isEmpty()) {
-                    throw new IllegalArgumentException(
-                            "No path for contentItem " + contentItem.getId()
-                                    + " provided. Skipping.");
+                    LOGGER.warn("No path for ContentItem (id={}). Unable to create thumbnail for metacard (id={})",
+                            contentItem.getId(),
+                            contentItem.getMetacard()
+                                    .getId());
+                    continue;
                 }
 
                 // create a thumbnail for the unqualified content item
@@ -208,7 +226,7 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
 
     private void createThumbnail(final ContentItem contentItem, final Path contentPath)
             throws PluginExecutionException {
-        LOGGER.debug("About to create video thumbnail.");
+        LOGGER.trace("About to create video thumbnail");
 
         try {
             limitFFmpegProcessesSemaphore.acquire();
@@ -217,12 +235,13 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
                 final byte[] thumbnailBytes = createThumbnail(contentPath.toAbsolutePath()
                         .toString());
                 addThumbnailAttribute(contentItem, thumbnailBytes);
-                LOGGER.debug("Successfully created video thumbnail.");
+                LOGGER.debug("Successfully created video thumbnail for ContentItem (id={})", contentItem.getId());
+
             } finally {
                 limitFFmpegProcessesSemaphore.release();
             }
         } catch (IOException | InterruptedException e) {
-            throw new PluginExecutionException(e);
+            LOGGER.warn("Error creating thumbnail for ContentItem (id={}).", contentItem.getId(), e);
         } finally {
             deleteImageFiles();
         }
@@ -240,7 +259,7 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
         try {
             videoDuration = getVideoDuration(videoFilePath);
         } catch (Exception e) {
-            LOGGER.debug("Couldn't get video duration from FFmpeg output.", e);
+            LOGGER.debug("Couldn't get video duration from FFmpeg output for videoFilePath={}.", videoFilePath, e);
         }
 
         /* Realistically, to get good thumbnails by dividing a video into segments, the video
@@ -269,15 +288,16 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
     }
 
     private CommandLine getFFmpegInfoCommand(final String videoFilePath) {
-        CommandLine commandLine = new CommandLine(ffmpegPath).addArgument(SUPPRESS_PRINTING_BANNER_FLAG)
+        CommandLine commandLine = new CommandLine(ffmpegPath).addArgument(
+                SUPPRESS_PRINTING_BANNER_FLAG)
                 .addArgument(INPUT_FILE_FLAG)
                 .addArgument(videoFilePath, DONT_HANDLE_QUOTING);
-        LOGGER.debug("FFmpeg command : {}", commandLine.toString());
+        LOGGER.trace("FFmpeg command : {}", commandLine.toString());
         return commandLine;
     }
 
     private Duration parseVideoDuration(final String ffmpegOutput) throws IOException {
-        LOGGER.debug("FFmpeg output : {}", ffmpegOutput);
+        LOGGER.trace("FFmpeg output : {}", ffmpegOutput);
         final Pattern pattern = Pattern.compile("Duration: \\d\\d:\\d\\d:\\d\\d\\.\\d+");
         final Matcher matcher = pattern.matcher(ffmpegOutput);
 
@@ -483,5 +503,9 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
                 file.deleteOnExit();
             }
         });
+    }
+
+    public void setMaxFileSizeMB(int maxFileSizeMB) {
+        this.maxFileSizeMB = maxFileSizeMB;
     }
 }

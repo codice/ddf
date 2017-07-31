@@ -127,9 +127,15 @@
                                 <rule>
                                     <element>BUNDLE</element>
                                     <limits>
+                                        <!--
+                                        The coverages here have been lowered to 0 because coverage
+                                        is OS-specific. OS X coverage ratios have been left
+                                        commented out for reference.
+                                        -->
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
+                                            <!--<minimum>0.90</minimum>-->
                                             <minimum>0.0</minimum>
                                         </limit>
                                         <!--
@@ -140,14 +146,15 @@
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
+                                            <!--<minimum>0.62</minimum>-->
                                             <minimum>0.0</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
+                                            <!--<minimum>0.67</minimum>-->
                                             <minimum>0.0</minimum>
                                         </limit>
-
                                     </limits>
                                 </rule>
                             </rules>
