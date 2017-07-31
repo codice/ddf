@@ -113,6 +113,13 @@ define([
         },
         duplicate: function(reference){
             return JSON.parse(JSON.stringify(reference));
+        },
+        safeCallback: function(callback){
+            return function(){
+                if (!this.isDestroyed){
+                    callback.apply(this, arguments);
+                }
+            };
         }
     };
 });

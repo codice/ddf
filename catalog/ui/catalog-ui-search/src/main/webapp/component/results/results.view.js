@@ -27,6 +27,8 @@ define([
 ], function (Marionette, _, $, resultsTemplate, CustomElements, QuerySelectDropdown, DropdownModel, store,
             ResultSelectorView, WorkspaceExploreView) {
 
+    var selectedQueryId;
+
     var ResultsView = Marionette.LayoutView.extend({
         setDefaultModel: function(){
             this.model = store.getCurrentQueries();
@@ -49,14 +51,26 @@ define([
                 this.setDefaultModel();
             }
         },
+        getPreselectedQuery: function(){
+            if (this.model.length === 1){
+                return this.model.first().id;
+            } else if (this.model.get(store.getCurrentQuery())) {
+                return store.getCurrentQuery().id;
+            } else if (this.model.get(selectedQueryId)) {
+                return selectedQueryId;
+            } else {
+                return undefined;
+            }
+        },
         onBeforeShow: function(){
             this._resultsSelectDropdownModel = new DropdownModel({
-                value: this.model.length === 1 ? this.model.first().id : undefined
+                value: this.getPreselectedQuery()
             });
             this.resultsSelect.show(new QuerySelectDropdown({
                 model: this._resultsSelectDropdownModel
             }));
             this.listenTo(this._resultsSelectDropdownModel, 'change:value', this.updateResultsList);
+            this.listenTo(store.get('content'), 'change:currentQuery', this.handleCurrentQuery);
             this.resultsEmpty.show(new WorkspaceExploreView());
             this.updateResultsList();
             this.handleEmptyQueries();
@@ -64,9 +78,13 @@ define([
             this.listenTo(this.model, 'remove', this.handleEmptyQueries);
             this.listenTo(this.model, 'update', this.handleEmptyQueries);
         },
+        handleCurrentQuery: function(){
+            this._resultsSelectDropdownModel.set('value', store.getCurrentQuery().id);
+        },
         updateResultsList: function(){
             var queryId = this._resultsSelectDropdownModel.get('value');
             if (queryId){
+                selectedQueryId = queryId;
                 this.resultsList.show(new ResultSelectorView({
                     model: store.getCurrentQueries().get(queryId)
                 }));

@@ -1,0 +1,23 @@
+@{customElementNamespace}dropdown.is-query-schedule {
+    display: block;
+    position: relative;
+    text-align: center;
+
+    .notification-icon {
+        position: relative;
+        cursor: pointer;
+    }
+
+    .fa-bell {
+        display: none;
+    }
+}
+
+@{customElementNamespace}dropdown.is-query-schedule.is-polling {
+  .fa-bell-slash {
+      display: none;
+  }
+  .fa-bell {
+      display: inline;
+  }
+}

@@ -18,10 +18,15 @@ var template = require('./navigation.hbs');
 var CustomElements = require('CustomElements');
 var NavigationLeftView = require('component/navigation-left/navigation-left.view');
 var NavigationRightView = require('component/navigation-right/navigation-right.view');
+var store = require('js/store');
+var wreqr = require('wreqr');
 
 module.exports = Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('navigation'),
+    events: {
+        'mousedown > .cancel-drawing': 'handleCancelDrawing'
+    },
     regions: {
         navigationLeft: '.navigation-left',
         navigationMiddle: '.navigation-middle',
@@ -34,5 +39,9 @@ module.exports = Marionette.LayoutView.extend({
         this.navigationLeft.show(new NavigationLeftView());
         this.showNavigationMiddle();
         this.navigationRight.show(new NavigationRightView());
+    },
+    handleCancelDrawing: function(e){
+        e.stopPropagation();
+        wreqr.vent.trigger('search:drawend', store.get('content').get('drawingModel'));
     }
 });

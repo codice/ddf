@@ -124,7 +124,7 @@ define([
         });
 
         Draw.Controller = Marionette.Controller.extend({
-            enabled: maptype.is3d(),
+            enabled: true,
             initialize: function() {
                 this.listenTo(wreqr.vent, 'search:linedisplay', function(model) {
                     if (this.isVisible()) {

@@ -57,9 +57,13 @@ define([
             var routerName = router.toJSON().name;
             if (routerName=== 'home' || routerName === 'workspaces'){
                 this.$el.removeClass('is-hidden');
+                this.focus();
             } else {
                 this.$el.addClass('is-hidden');
             }
+        },
+        focus: function(){
+            this.templates.currentView.focus();
         },
         onRender: function(){
             this.menu.show(new WorkspacesMenuView());

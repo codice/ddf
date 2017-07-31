@@ -35,10 +35,7 @@ module.exports = Marionette.LayoutView.extend({
         basicTimeRelativeUnit: '.relative-unit'
     },
     onBeforeShow: function () {
-        if (this.model._cloneOf === undefined) {
-            this.turnOnEditing();
-        }
-
+        this.turnOnEditing();
         this.setupTimeInput();
         this.setupTimeBefore();
         this.setupTimeAfter();

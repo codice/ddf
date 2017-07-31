@@ -194,7 +194,7 @@ define([
         });
 
         DrawCircle.Controller = Marionette.Controller.extend({
-            enabled: maptype.is3d(),
+            enabled: true,
             initialize: function() {
                 this.listenTo(wreqr.vent, 'search:circledisplay', function(model) {
                     if (this.isVisible()) {

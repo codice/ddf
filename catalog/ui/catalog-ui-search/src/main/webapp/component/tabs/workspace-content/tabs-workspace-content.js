@@ -15,14 +15,16 @@ define([
     '../tabs',
     'component/workspace-explore/workspace-explore.view',
     'component/workspace-saved/workspace-saved.view',
-    'component/results/results.view'
-], function (_, Tabs, workspaceExploreView, workspaceSavedView, resultsView) {
+    'component/results/results.view',
+    'component/workspace-search/workspace-search.view'
+], function (_, Tabs, workspaceExploreView, workspaceSavedView, resultsView, WorkspaceSearchView) {
     
     var WorkspaceContentTabs = Tabs.extend({
         defaults: {
             tabs: {
-                'Searches': workspaceExploreView,
-                'Results': resultsView,
+                'Search': WorkspaceSearchView,
+           //     'Searches': workspaceExploreView,
+             //   'Results': resultsView,
                 'Bookmarks': workspaceSavedView
             }
         }

@@ -1,0 +1,23 @@
+@{customElementNamespace}dropdown.is-query-settings {
+    display: block;
+    position: relative;
+    text-align: center;
+
+    .notification-icon {
+        position: relative;
+        cursor: pointer;
+    }
+
+    .fa-bell {
+        display: none;
+    }
+}
+
+@{customElementNamespace}dropdown.is-query-settings.is-polling {
+  .fa-bell-slash {
+      display: none;
+  }
+  .fa-bell {
+      display: inline;
+  }
+}

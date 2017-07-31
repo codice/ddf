@@ -22,7 +22,7 @@ define([
     'js/CustomElements',
 ], function (Marionette, _, $, template, Confirmation, CustomElements) {
 
-    return Marionette.ItemView.extend({
+    return Marionette.LayoutView.extend({
         template: template,
         tagName: CustomElements.register('confirmation'),
         modelEvents: {

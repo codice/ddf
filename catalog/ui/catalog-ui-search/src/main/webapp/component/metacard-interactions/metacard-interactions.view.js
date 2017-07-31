@@ -28,8 +28,13 @@ define([
     'decorator/Decorators',
     'js/model/Query',
     'wkx',
-    'js/CQLUtils'
-], function (wreqr, Marionette, _, $, template, CustomElements, store, router, user, sources, MenuNavigationDecorator, Decorators, Query, wkx, CQLUtils) {
+    'js/CQLUtils',
+    'component/confirmation/query/confirmation.query.view',
+    'component/loading/loading.view'
+], function (wreqr, Marionette, _, $, template, 
+    CustomElements, store, router, user, sources, 
+    MenuNavigationDecorator, Decorators, Query, wkx, 
+    CQLUtils, QueryConfirmationView, LoadingView) {
 
     return Marionette.ItemView.extend(Decorators.decorate({
         template: template,
@@ -128,14 +133,36 @@ define([
 
             var location = this.model.first().get('metacard').get('properties').get('location');
             var queryModel = store.getCurrentQueries();
-
+            var newQuery = new Query.Model();
+            var locationGeometry = wkx.Geometry.parse(location);
+            var cqlString = "(" + CQLUtils.buildIntersectCQL(locationGeometry) + ")";
+            newQuery.set('cql', cqlString);
             if (queryModel.canAddQuery()){
-                var newQuery = new Query.Model();
-                var locationGeometry = wkx.Geometry.parse(location);
-                var cqlString = "(" + CQLUtils.buildIntersectCQL(locationGeometry) + ")";
-
-                newQuery.set('cql', cqlString);
-                store.setQueryByReference(newQuery);
+                queryModel.add(newQuery);
+                store.setCurrentQuery(newQuery);
+            } else {
+                this.listenTo(QueryConfirmationView.generateConfirmation({}),
+                    'change:choice',
+                    function (confirmation) {
+                        var choice = confirmation.get('choice');
+                        if (choice === true) {
+                            var loadingview = new LoadingView();
+                            store.get('workspaces').once('sync', function (workspace, resp, options) {
+                                loadingview.remove();
+                                wreqr.vent.trigger('router:navigate', {
+                                    fragment: 'workspaces/' + workspace.id,
+                                    options: {
+                                        trigger: true
+                                    }
+                                });
+                            });
+                            store.get('workspaces').createWorkspaceWithQuery(newQuery);
+                        } else if (choice !== false) {
+                            store.getCurrentQueries().remove(choice);
+                            store.getCurrentQueries().add(newQuery);
+                            store.setCurrentQuery(newQuery);
+                        }
+                    }.bind(this));
             }
         },
         handleClick: function(){

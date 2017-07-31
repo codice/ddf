@@ -25,9 +25,10 @@ define([
     'component/property/property',
     'component/dropdown/dropdown.view',
     'component/radio/radio.view',
-    'moment'
+    'moment',
+    'js/Common'
 ], function(Marionette, _, $, template, CustomElements, store, properties, PropertyView, Property,
-    DropdownView, RadioView, Moment) {
+    DropdownView, RadioView, Moment, Common) {
 
     function getHumanReadableDuration(milliseconds) {
         var duration = Moment.duration(milliseconds);
@@ -69,13 +70,13 @@ define([
             propertyInterval: '.property-interval'
         },
         ui: {},
+        initialize: function(){
+            this.model = this.model._cloneOf ? store.getQueryById(this.model._cloneOf) : this.model;
+            this.listenTo(this.model, 'change:polling', Common.safeCallback(this.onBeforeShow));
+        },
         onBeforeShow: function() {
             this.setupInterval();
-            if (this.model._cloneOf === undefined) {
-                this.turnOnEditing();
-            } else {
-                this.turnOffEditing();
-            }
+            this.turnOnEditing();
         },
         setupInterval: function() {
             this.propertyInterval.show(new PropertyView({
@@ -104,19 +105,15 @@ define([
             });
         },
         cancel: function() {
-            if (this.model._cloneOf === undefined) {
-                store.resetQuery();
-            } else {
-                this.$el.removeClass('is-editing');
-                this.onBeforeShow();
-            }
+            this.$el.removeClass('is-editing');
+            this.onBeforeShow();
+            this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
         },
         save: function() {
-            this.$el.removeClass('is-editing');
             this.model.set({
                 polling: this.propertyInterval.currentView.model.getValue()[0]
             });
-            store.saveQuery();
+            this.cancel();
         }
     });
 });

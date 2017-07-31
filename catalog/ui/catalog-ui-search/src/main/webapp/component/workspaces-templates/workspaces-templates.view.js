@@ -22,15 +22,18 @@ define([
     'js/CustomElements',
     'js/store',
     'component/loading/loading.view',
-    'js/Transitions'
-], function (wreqr, Marionette, _, $, template, CustomElements, store, LoadingView, Transitions) {
+    'js/Transitions',
+    'component/property/property.view',
+    'properties'
+], function (wreqr, Marionette, _, $, template, CustomElements, store, LoadingView, 
+    Transitions, PropertyView, properties) {
 
     var triggers = {
         expand: 'homeTemplates:expand',
         close: 'homeTemplates:close'
     };
 
-    return Marionette.ItemView.extend({
+    return Marionette.LayoutView.extend({
         setDefaultModel: function(){
         },
         template: template,
@@ -40,15 +43,49 @@ define([
         events: {
             'click .home-templates-choices-choice': 'createNewWorkspace',
             'click .home-templates-header-button': 'expand',
-            'click .expanded-back': 'close'
+            'click .expanded-back': 'close',
+            'click .adhoc-go': 'startAdhocSearch'
+        },
+        regions: {
+            'adhocSearch': '.adhoc-search'
         },
         ui: {
         },
         initialize: function(){
         },
         onRender: function(){
+            this.adhocSearch.show(PropertyView.getPropertyView({
+                value: [''],
+                label: '',
+                type: 'STRING',
+                showValidationIssues: false,
+                showLabel: false,
+                placeholder: 'Search ' + properties.branding + ' ' + properties.product
+            }));
+            this.adhocSearch.currentView.turnOnEditing();
+            this.adhocSearch.currentView.turnOnLimitedWidth();
+            this.listenTo(this.adhocSearch.currentView.model, 'change:value', this.handleValue);
+            this.setupAdhocListeners();
         },
-        createNewWorkspace: function(e){
+        focus: function(){
+            this.adhocSearch.currentView.focus();
+        },
+        setupAdhocListeners: function(){
+            this.adhocSearch.currentView.$el.keyup((event) => {
+                switch(event.keyCode){
+                    case 13:
+                        this.startAdhocSearch();
+                    break;
+                    default:
+                    break;
+                }
+            });
+        },
+        startAdhocSearch: function(){
+            this.prepForCreateNewWorkspace();
+            store.get('workspaces').createAdhocWorkspace(this.adhocSearch.currentView.model.get('value')[0]);
+        },
+        prepForCreateNewWorkspace: function(){
             var loadingview = new LoadingView();
             store.get('workspaces').once('sync', function(workspace, resp, options){
                 loadingview.remove();
@@ -60,6 +97,9 @@ define([
                 });
             });
             this.close();
+        },
+        createNewWorkspace: function(e){
+            this.prepForCreateNewWorkspace();
             switch($(e.currentTarget).attr('data-template')) {
                 case 'blank':
                     store.get('workspaces').createWorkspace();

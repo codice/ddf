@@ -53,6 +53,13 @@ button.is-neutral {
   background: rgba(0,0,0,0);
 }
 
+button.is-link,
+.is-button.is-link {
+  color: @links-color;
+  .button-mixin(@lighten-inherited-background-color);
+  background: rgba(0,0,0,0);
+}
+
 button.is-primary {
   color: @button-text-color;
   .button-mixin(@primary-color);
@@ -65,7 +72,7 @@ button > span.is-disabled {
 button.is-disabled {
 
   > span:not(.is-disabled) {
-    display: none;
+    display: inline;
   }
   > span.is-disabled {
     display: inline;

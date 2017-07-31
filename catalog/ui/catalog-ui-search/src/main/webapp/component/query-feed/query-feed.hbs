@@ -11,15 +11,20 @@
  *
  **/
  --}}
-<div class="details-results">
-    {{#if pending}}
-        <i class="fa fa-circle-o-notch fa-spin"></i>
-    {{/if}}
-    {{#if failed}}
-        <i class="fa fa-warning"></i>
-    {{/if}}
-    {{resultCount}}
+<div class="details-text">
+    <div class="details-results">
+        {{#if pending}}
+            <i class="fa fa-circle-o-notch fa-spin"></i>
+        {{/if}}
+        {{#if failed}}
+            <i class="fa fa-warning"></i>
+        {{/if}}
+        {{resultCount}}
+    </div>
+    <div class="details-status">
+        {{queryStatus}}
+    </div>
 </div>
-<div class="details-status">
-    {{queryStatus}}
+<div class="details-view is-button" data-help="Show the full status for the search.">
+
 </div>

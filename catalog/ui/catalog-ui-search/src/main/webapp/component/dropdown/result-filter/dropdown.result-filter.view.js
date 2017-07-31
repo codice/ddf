@@ -20,9 +20,8 @@ define([
     '../dropdown.view',
     './dropdown.result-filter.hbs',
     'component/result-filter/result-filter.view',
-    './dropdown.companion.result-filter.view',
     'component/singletons/user-instance'
-], function (Marionette, _, $, DropdownView, template, ComponentView, ResultFilterDropdownCompanion, user) {
+], function (Marionette, _, $, DropdownView, template, ComponentView, user) {
 
     return DropdownView.extend({
         attributes: {
@@ -35,9 +34,6 @@ define([
             DropdownView.prototype.initialize.call(this);
             this.listenTo(user.get('user').get('preferences'), 'change:resultFilter', this.handleFilter);
             this.handleFilter();
-        },
-        initializeDropdown: function(){
-            this.dropdownCompanion = ResultFilterDropdownCompanion.getNewCompanionView(this);
         },
         handleFilter: function(){
             var resultFilter = user.get('user').get('preferences').get('resultFilter');

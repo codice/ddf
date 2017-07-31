@@ -8,7 +8,7 @@ define([
             style: {
                 code: "f15b",
                 font: "FontAwesome",
-                size: "16px"
+                size: "12px"
             }
         },
         interactive: {
@@ -16,7 +16,7 @@ define([
             style: {
                 code: "f11b",
                 font: "FontAwesome",
-                size: "16px"
+                size: "12px"
             }
         },
         dataset: {
@@ -24,7 +24,7 @@ define([
             style: {
                 code: "f1c0",
                 font: "FontAwesome",
-                size: "16px"
+                size: "12px"
             }
         },
         video: {
@@ -32,7 +32,7 @@ define([
             style: {
                 code: "f03d",
                 font: "FontAwesome",
-                size: "16px"
+                size: "12px"
             }
         },
         collection: {
@@ -40,7 +40,7 @@ define([
             style: {
                 code: "f07c",
                 font: "FontAwesome",
-                size: "16px"
+                size: "12px"
             }
         },
         event: {
@@ -48,7 +48,7 @@ define([
             style: {
                 code: "f0e7",
                 font: "FontAwesome",
-                size: "16px"
+                size: "12px"
             }
         },
         service: {
@@ -56,7 +56,7 @@ define([
             style: {
                 code: "f0ac",
                 font: "FontAwesome",
-                size: "16px"
+                size: "12px"
             }
         },
         software: {
@@ -64,7 +64,7 @@ define([
             style: {
                 code: "f120",
                 font: "FontAwesome",
-                size: "16px"
+                size: "12px"
             }
         },
         sound: {
@@ -72,7 +72,7 @@ define([
             style: {
                 code: "f001",
                 font: "FontAwesome",
-                size: "16px"
+                size: "12px"
             }
         },
         text: {
@@ -80,7 +80,7 @@ define([
             style: {
                 code: "f15c",
                 font: "FontAwesome",
-                size: "16px"
+                size: "12px"
             }
         },
         document: {
@@ -88,7 +88,7 @@ define([
             style: {
                 code: "f15b",
                 font: "FontAwesome",
-                size: "16px"
+                size: "12px"
             }
         },
         image: {
@@ -96,7 +96,7 @@ define([
             style: {
                 code: "f030",
                 font: "FontAwesome",
-                size: "16px"
+                size: "12px"
             }
         },
         track: {
@@ -104,7 +104,7 @@ define([
             style: {
                 code: "f08d",
                 font: "FontAwesome",
-                size: "16px"
+                size: "12px"
             }
         },
     };

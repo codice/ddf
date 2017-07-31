@@ -19,8 +19,13 @@ define([
     'jquery',
     'js/CustomElements',
     './dropdown.companion.hbs',
-    'js/Common'
-], function (Marionette, _, $, CustomElements, template, Common) {
+    'js/Common',
+    'js/store'
+], function (Marionette, _, $, CustomElements, template, Common, store) {
+
+    function drawing(event) {
+        return event.target.constructor === HTMLCanvasElement && store.get('content').get('drawing');
+    }
 
     function hasRightRoom(left, element){
         return ((left + element.clientWidth) < window.innerWidth);
@@ -265,11 +270,13 @@ define([
         },
         listenForOutsideClick: function () {
             $('body').on('mousedown.' + this.cid, function (event) {
-                if (this.$el.find(event.target).addBack(event.target).length === 0 && $(this.tagName).find(event.target).addBack(event.target).length === 0) {
-                    this.close();
-                }
-                if (this.$el.prevAll(this.tagName).find(event.target).addBack(event.target).length > 0){
-                    this.close();
+                if (!drawing(event)){
+                    if (this.$el.find(event.target).addBack(event.target).length === 0 && $(this.tagName).find(event.target).addBack(event.target).length === 0) {
+                        this.close();
+                    }
+                    if (this.$el.prevAll(this.tagName).find(event.target).addBack(event.target).length > 0){
+                        this.close();
+                    }
                 }
             }.bind(this));
         },

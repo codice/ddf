@@ -1,16 +1,13 @@
 @{customElementNamespace}query-schedule {
   .customElement;
 
-  overflow: auto;
+  overflow: hidden;
 
   .editor-properties {
-    overflow: auto;
-    padding: 10px 10px;
-    max-height: ~"calc(100% - 2*@{minimumButtonSize})";
+    padding: 0px @minimumSpacing @minimumSpacing @minimumSpacing;
   }
 
   .editor-footer {
-    margin-top: 20px;
     height: @minimumButtonSize;
     white-space: nowrap;
     .inlineFix;

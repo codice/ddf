@@ -1,6 +1,6 @@
 @{customElementNamespace}dropdown-companion {
   position: absolute;
-  transform: scale(0);
+  transform: translate3d(-50%, -50%, 0) scale(0);
   opacity: 0;
   z-index: @zIndexDropdown;
   overflow: auto;
@@ -22,7 +22,7 @@
   > .dropdown-companion-component {
     position: relative;
     overflow: auto;
-    max-height: 50vh;
+    max-height: 100%;
     z-index: 100;
   }
 
@@ -54,11 +54,11 @@
   transition: opacity @coreTransitionTime ease-in-out;
 
   &.is-bottom {
-    transform: scale(1);
+    transform: translate3d(0, 0, 0) scale(1);
   }
 
   &.is-top {
-    transform: translateY(-100%) scaleY(1);
+    transform: translate3d(0, -100%, 0) scaleY(1);
   }
 }
 
@@ -70,5 +70,12 @@
 
   &.is-top > .if-top {
     //display: block;
+  }
+}
+
+html.show-drawing-tools,
+html.is-drawing {
+  @{customElementNamespace}dropdown-companion.is-open {
+    transform: translate3d(-50%, -50%, 0) scale(0);
   }
 }

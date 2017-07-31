@@ -32,7 +32,7 @@ define([
     'component/metacard-title/metacard-title.view',
     'component/upload/upload',
     'component/result-selector/result-selector.view',
-    'component/visualization/visualization.view'
+    'component/golden-layout/golden-layout.view'
 ], function (wreqr, Marionette, _, $, CustomElements, ContentView, MenuView, properties,
              WorkspaceContentTabs, WorkspaceContentTabsView, QueryTabsView, store,
              MetacardTabsView, MetacardsTabsView, Common, MetacardTitleView, uploadInstance,
@@ -58,14 +58,10 @@ define([
         },
         initialize: function(){
             this._mapView = new VisualizationView({
-                selectionInterface: uploadInstance
+                selectionInterface: uploadInstance,
+                configName: 'goldenLayoutUpload'
             });
             this.listenTo(uploadInstance, 'change:currentUpload', this.updatePanelOne);
-            var debouncedUpdatePanelTwo = _.debounce(this.updatePanelTwo, debounceTime);
-            this.listenTo(uploadInstance.getSelectedResults(), 'update',debouncedUpdatePanelTwo);
-            this.listenTo(uploadInstance.getSelectedResults(), 'add', debouncedUpdatePanelTwo);
-            this.listenTo(uploadInstance.getSelectedResults(), 'remove', debouncedUpdatePanelTwo);
-            this.listenTo(uploadInstance.getSelectedResults(), 'reset', debouncedUpdatePanelTwo);
         },
         onRender: function(){
             this.updatePanelOne();
@@ -82,39 +78,10 @@ define([
             this.hidePanelTwo();
         },
         updatePanelTwo: function(){
-            var selectedResults = uploadInstance.getSelectedResults();
-            if (selectedResults.length === 0){
-                this.hidePanelTwo();
-            } else if (selectedResults.length === 1) {
-                this.showPanelTwo();
-                if (!this.panelTwo.currentView || this.panelTwo.currentView.constructor !== MetacardTabsView) {
-                    this.panelTwo.show(new MetacardTabsView({
-                        selectionInterface: uploadInstance
-                    }));
-                }
-                this.panelTwoTitle.show(new MetacardTitleView({
-                    model: selectedResults
-                }));
-            } else {
-                this.showPanelTwo();
-                if (!this.panelTwo.currentView || this.panelTwo.currentView.constructor !== MetacardsTabsView) {
-                    this.panelTwo.show(new MetacardsTabsView({
-                        selectionInterface: uploadInstance
-                    }));
-                }
-                this.panelTwoTitle.show(new MetacardTitleView({
-                    model: selectedResults
-                }));
-            }
-            Common.repaintForTimeframe(500, function(){
-                wreqr.vent.trigger('resize');
-                $(window).trigger('resize');
-            });
         },
         unselectQueriesAndResults: function(){
             uploadInstance.clearSelectedResults();
         },
         _mapView: undefined
-
     });
 });

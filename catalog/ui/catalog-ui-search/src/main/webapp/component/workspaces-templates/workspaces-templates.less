@@ -3,9 +3,32 @@
 
   color: @text-color;
   background: @background-color;
-  height: 6.5 * @minimumButtonSize;
+  height: @minimumLineSize + 2*@minimumButtonSize + 2*@minimumSpacing + 2*@minimumSpacing + 3*@minimumButtonSize;
   overflow: hidden;
   transition: height @coreTransitionTime ease-in-out;
+
+  .home-templates-adhoc {
+    text-align: center;
+    padding: @minimumSpacing 0px @minimumSpacing 0px;
+    white-space: nowrap;
+
+    .adhoc-search {
+      display: inline-block;
+      vertical-align: middle;
+      width: ~'calc(100% - @{minimumButtonSize} - 2*@{mediumSpacing})';
+    }
+
+    @{customElementNamespace}property {
+      input {text-align: left;}
+      padding: @minimumSpacing 0px @minimumSpacing 0px;
+    }
+
+    .adhoc-go {
+      vertical-align: middle;
+      width: @minimumButtonSize + 2*@mediumSpacing;
+      max-width: 100%;
+    }
+  }
 
   .home-templates-center {
     margin: auto;
@@ -32,6 +55,10 @@
     opacity: 1;
   }
 
+  .home-templates-choices {
+    text-align: center;
+  }
+
   .home-templates-choices-choice {
     display: inline-block;
     width: 9rem;
@@ -44,8 +71,8 @@
   }
 
   .home-templates-choices-choice-preview {
-    line-height: 4 * @minimumButtonSize;
-    height: 4.5 * @minimumButtonSize;
+    line-height: 2 * @minimumButtonSize;
+    height: 2.5 * @minimumButtonSize;
     text-align: center;
     width: 100%;
     background: @lighten-inherited-background-color;
@@ -56,7 +83,7 @@
   }
 
   .home-templates-choices-choice-preview-icon {
-    line-height: 4.5 * @minimumButtonSize;
+    line-height: 2.5 * @minimumButtonSize;
   }
 
   .home-templates-choices-choice-description {
@@ -116,6 +143,7 @@
   height: ~'calc(100vh - 2*@{minimumLineSize})';
   overflow: auto;
 
+  .home-templates-header-hint,
   .home-templates-header-button {
     display: none;
   }
@@ -135,6 +163,10 @@
     .home-templates-center,
     .expanded-content{
       max-width: 100%;
+    }
+    .home-templates-adhoc {
+      padding-right: 0px;
+      padding-left: 0px;
     }
     .home-templates-center {
       padding: 0px 20px;

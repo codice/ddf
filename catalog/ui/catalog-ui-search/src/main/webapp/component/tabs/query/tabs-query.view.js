@@ -47,8 +47,8 @@ define([
         },
         determineTabForNewQuery: function(){
             var activeTabName = this.model.get('activeTab');
-            if (activeTabName !== 'Basic' && activeTabName !== 'Advanced'){
-                this.model.set('activeTab', 'Basic');
+            if (activeTabName !== 'Search'){
+                this.model.set('activeTab', 'Search');
             }
             this.determineTabForExistingQuery();
         },

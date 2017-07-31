@@ -11,13 +11,14 @@
  **/
 /*global define*/
 define([
+    'jquery',
     'underscore',
     'backbone',
     'wreqr',
     'js/model/Metacard',
     'js/model/Query',
     'js/model/Workspace'
-], function (_, Backbone, wreqr, Metacard, Query, Workspace) {
+], function ($, _, Backbone, wreqr, Metacard, Query, Workspace) {
 
     return Backbone.AssociatedModel.extend({
         relations: [
@@ -71,7 +72,8 @@ define([
             activeSearchResultsAttributes: [],
             completeActiveSearchResults: [],
             completeActiveSearchResultsAttributes: [],
-            drawing: false
+            drawing: false,
+            drawingModel: undefined
         },
         initialize: function(){
             this.listenTo(wreqr.vent, 'search:drawline', this.turnOnDrawing);
@@ -109,11 +111,14 @@ define([
         getActiveSearchResultsAttributes: function(){
             return this.get('activeSearchResultsAttributes');
         },
-        turnOnDrawing: function(){
+        turnOnDrawing: function(model){
             this.set('drawing', true);
+            this.set('drawingModel', model);
+            $('html').toggleClass('is-drawing', true);
         },
         turnOffDrawing: function(){
             this.set('drawing', false);
+            $('html').toggleClass('is-drawing', false);
         },
         isEditing: function(){
             return this.get('editing');

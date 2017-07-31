@@ -169,7 +169,7 @@ define([
 
         drawingOn: function () {
             this.drawing = true;
-            store.get('content').turnOnDrawing();
+            store.get('content').turnOnDrawing(this);
         },
 
         repositionLatLonUtm: function(isDefined,parse,assign,clear) {

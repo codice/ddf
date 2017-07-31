@@ -1,0 +1,41 @@
+@{customElementNamespace}search-select {
+    .customElement;
+    overflow: hidden;
+    position: relative;
+
+    > .select-add {
+        width: 100%;
+    }
+
+    > .select-limit {
+        display: inline-block;
+        max-width: @minimumScreenSize;
+        text-align: center;
+        color: @warning-color;
+    }
+
+    > .select-limit {
+        display: none;
+    }
+
+    > button,
+    > .select-limit {
+        display: none !important;
+    }
+}
+
+@{customElementNamespace}search-select.is-limited {
+    > .select-limit {
+        display: block;
+    }
+}
+
+@{customElementNamespace}search-select.is-empty {
+
+}
+
+@{customElementNamespace}search-select.hide-actions {
+    .details-footer {
+        display: none;
+    }
+}

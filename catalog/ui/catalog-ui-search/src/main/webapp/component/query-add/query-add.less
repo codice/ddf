@@ -1,0 +1,45 @@
+@{customElementNamespace}query-add {
+    .customElement;
+    min-width: @minimumScreenSize;
+    overflow: hidden;
+
+    > form > .editor-content > .content-mode {
+        white-space: nowrap;
+        margin: @minimumSpacing 0px 0px 0px;
+        padding: 0px @largeSpacing;
+    }
+
+    > form > .editor-content > .content-mode button {
+        display: inline-block;
+        min-width: 50%;
+        width: auto;
+    }
+
+    > form > .editor-content > .content-footer button {
+        width: 100%;
+    }
+
+    > form > .editor-content > .content-form {
+        .editor-footer {
+            display: none;
+        }
+    }
+}
+
+@{customElementNamespace}query-add.is-text {
+    > form > .editor-content > .content-mode .is-text {
+        display: none;
+    }
+}
+
+@{customElementNamespace}query-add.is-basic {
+    > form > .editor-content > .content-mode .is-basic {
+        display: none;
+    }
+}
+
+@{customElementNamespace}query-add.is-advanced {
+    > form > .editor-content > .content-mode .is-advanced {
+        display: none;
+    }
+}

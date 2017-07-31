@@ -17,10 +17,6 @@
     padding-right: 2*@minimumButtonSize;
   }
 
-  @{customElementNamespace}workspace-details > .choice-date {
-    opacity: @minimumOpacity;
-  }
-
   .choice-details,
   .choice-actions,
   .choice-save {
@@ -68,6 +64,28 @@
   }
 }
 
+@{customElementNamespace}workspace-item.as-grid {
+  height: auto;
+  text-align: right;
+  .choice-details {
+    height: auto;
+    text-align: left;
+    padding-right: 0px;
+  }
+  .choice-actions,
+  .choice-save {
+    position: static;
+    width: @minimumButtonSize;
+    height: @minimumButtonSize;
+    line-height: @minimumButtonSize;
+  }
+
+  &.is-saved {
+    .choice-details {
+      padding-right: 0px;
+    }
+  }
+}
 
 @{customElementNamespace}workspace-item.is-saved {
 

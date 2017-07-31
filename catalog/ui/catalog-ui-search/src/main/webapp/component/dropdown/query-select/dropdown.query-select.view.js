@@ -21,19 +21,24 @@ define([
     './dropdown.query-select.hbs',
     'component/query-select/query-select.view',
     'component/query-item/query-item.view',
+    'component/search-select/search-select.view',
     'js/store'
-], function (Marionette, _, $, DropdownView, template, ComponentView, QueryItemView, store) {
+], function (Marionette, _, $, DropdownView, template, ComponentView, QueryItemView, SearchSelectView, store) {
 
     return DropdownView.extend({
         template: template,
         className: 'is-querySelect',
-        componentToShow: ComponentView,
+        componentToShow: SearchSelectView,
         regions: {
             queryItem: '.querySelect-item'
         },
         initialize: function(){
             DropdownView.prototype.initialize.call(this);
             this.listenTo(store.getCurrentQueries(), 'remove', this.handleRemoveQuery);
+            this.handleHideActions();
+        },
+        handleHideActions: function (){
+            this.$el.toggleClass('hide-actions', this.options.hideActions === true);
         },
         initializeComponentModel: function(){
             //override if you need more functionality

@@ -21,8 +21,9 @@ define([
     'js/CustomElements',
     'component/input/bulk/input-bulk.view',
     'component/multivalue/multivalue.view',
-    'js/Common'
-], function (Marionette, _, $, template, CustomElements, BulkInputView, MultivalueView, Common) {
+    'js/Common',
+    './property'
+], function (Marionette, _, $, template, CustomElements, BulkInputView, MultivalueView, Common, Property) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -192,6 +193,12 @@ define([
             if (this._validationReport){
                 this.updateValidation(this._validationReport);
             }
+        }
+    }, {
+        getPropertyView: function(modelJSON){
+            return new this({
+                model: new Property(modelJSON)
+            });
         }
     });
 });

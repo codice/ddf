@@ -249,7 +249,9 @@ define([
         },
         onDestroy: function(){
             Common.queueExecution(function(){
-                this.model.get('result').set('currentlyViewed', false);
+                if (this.model.get('result')) {
+                    this.model.get('result').set('currentlyViewed', false);
+                }
             }.bind(this));
         }
     });

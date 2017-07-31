@@ -24,8 +24,12 @@ define([
     'decorator/menu-navigation.decorator',
     'decorator/Decorators',
     'component/lightbox/lightbox.view.instance',
-    'component/query-feedback/query-feedback.view'
-], function (wreqr, Marionette, _, $, template, CustomElements, store, MenuNavigationDecorator, Decorators, lightboxInstance, QueryFeedbackView) {
+    'component/query-feedback/query-feedback.view',
+    'component/confirmation/query/confirmation.query.view',
+    'component/loading/loading.view'
+], function (wreqr, Marionette, _, $, template, CustomElements, 
+    store, MenuNavigationDecorator, Decorators, lightboxInstance, 
+    QueryFeedbackView, QueryConfirmationView, LoadingView) {
 
     return Marionette.ItemView.extend(Decorators.decorate({
         template: template,
@@ -49,6 +53,7 @@ define([
                 this.startListeningToSearch();
             }
             this.handleResult();
+            QueryConfirmationView = require('component/confirmation/query/confirmation.query.view');
         },
         onRender: function(){
         },
@@ -73,12 +78,36 @@ define([
             });
         },
         handleDuplicate: function(){
+            var copyAttributes = JSON.parse(JSON.stringify(this.model.attributes));
+            delete copyAttributes.id;
+            delete copyAttributes.result;
+            var newQuery = new this.model.constructor(copyAttributes);
             if (this.model.collection.canAddQuery()){
-                var copyAttributes = JSON.parse(JSON.stringify(this.model.attributes));
-                delete copyAttributes.id;
-                delete copyAttributes.result;
-                var newQuery = new this.model.constructor(copyAttributes);
-                store.setQueryByReference(newQuery);
+                this.model.collection.add(newQuery);
+                store.setCurrentQuery(newQuery);
+            } else {
+                this.listenTo(QueryConfirmationView.generateConfirmation({}),
+                    'change:choice',
+                    function (confirmation) {
+                        var choice = confirmation.get('choice');
+                        if (choice === true) {
+                            var loadingview = new LoadingView();
+                            store.get('workspaces').once('sync', function (workspace, resp, options) {
+                                loadingview.remove();
+                                wreqr.vent.trigger('router:navigate', {
+                                    fragment: 'workspaces/' + workspace.id,
+                                    options: {
+                                        trigger: true
+                                    }
+                                });
+                            });
+                            store.get('workspaces').createWorkspaceWithQuery(newQuery);
+                        } else if (choice !== false) {
+                            store.getCurrentQueries().remove(choice);
+                            store.getCurrentQueries().add(newQuery);
+                            store.setCurrentQuery(newQuery);
+                        }
+                    }.bind(this));
             }
         },
         handleHistoric: function(){

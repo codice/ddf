@@ -15,7 +15,7 @@
   position: relative;
 
   .query-container {
-    height: 3*@minimumLineSize;
+    height: auto;
     white-space: nowrap;
     overflow: visible;
     position: relative;
@@ -24,7 +24,10 @@
 
   .query-color,
   .query-details,
-  .query-actions {
+  .query-actions,
+  .query-schedule,
+  .query-settings,
+  .query-edit {
     display: inline-block;
     vertical-align: middle;
   }
@@ -46,21 +49,40 @@
   }
 
   .query-details {
-    width: ~'calc(100% - @{minimumButtonSize} - @{largeSpacing})';
-    margin: 0px @minimumButtonSize 0px @largeSpacing;
+    width: ~'calc(100% - @{largeSpacing})';
+    margin: 0px 0px 0px @largeSpacing;
     line-height: @minimumLineSize;
-    height: 3*@minimumLineSize;
+    height: auto;
   }
 
   .query-actions {
-    height: 100%;
+    height: @minimumButtonSize;
     width: @minimumButtonSize;
     text-align: center;
   }
 
-  .query-color,
-  .query-actions {
+  .query-color {
     position: absolute;
+  }
+
+  .details-footer {
+    text-align: right;
+    line-height: @minimumButtonSize;
+
+    > button,
+    > .query-edit,
+    > .query-schedule,
+    > .query-settings,
+    > .query-actions {
+      vertical-align: middle;
+      width: @minimumButtonSize;
+      height: @minimumButtonSize;
+      font-size: @largeFontSize;
+    }
+  }
+
+  .query-stop {
+    display: none;
   }
 
   .query-color {
@@ -76,6 +98,15 @@
   .is-queryInteractions {
     height: 100%;
     font-size: @minimumFontSize;
+  }
+}
+
+@{customElementNamespace}query-item.is-searching {
+  .query-stop {
+    display: inline-block;
+  }
+  .query-run {
+    display: none;
   }
 }
 
