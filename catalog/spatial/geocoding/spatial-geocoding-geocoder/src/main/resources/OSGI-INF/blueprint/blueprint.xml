@@ -48,7 +48,11 @@
       <argument ref="geoCoderFactory"/>
     </bean>
 
-    <bean id="geoCoder" class="org.codice.ddf.spatial.geocoder.GazetteerGeoCoder"/>
+    <reference id="geoEntryQueryable" availability="mandatory" interface="org.codice.ddf.spatial.geocoding.GeoEntryQueryable"/>
+
+    <bean id="geoCoder" class="org.codice.ddf.spatial.geocoder.GazetteerGeoCoder">
+        <property name="geoEntryQueryable" ref="geoEntryQueryable"/>
+    </bean>
     <service ref="geoCoder" interface="org.codice.ddf.spatial.geocoder.GeoCoder"/>
 
 </blueprint>
