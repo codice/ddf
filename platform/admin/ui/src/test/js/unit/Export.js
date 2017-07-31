@@ -152,20 +152,25 @@ describe('Export', function () {
             });
         });
 
-        xit('should set inProgress to false after export', function (done) {
+        it('should set inProgress to false after export', function (done) {
             var deferred = $.Deferred();
             ajaxStub.returns(deferred);
             deferred.resolve(baseResponse);
             dependencyInjectedRequire.require([exportModelPath], function (Export) {
                 var exportModel = new Export();
                 exportModel.export();
-                done(tryAssertions(function () {
-                    expect(exportModel.get('inProgress')).to.equal(false);
-                }));
+                // jQuery 3+ Deferred, for Promises/A+ compliance, no longer executes callbacks
+                // synchronously when added to an already resolved/rejected promise, so we need
+                // to set a timeout before declaring our expectations here.
+                setTimeout(function(){
+                    done(tryAssertions(function () {
+                        expect(exportModel.get('inProgress')).to.equal(false);
+                    }));
+                },0);
             });
         });
 
-        xit('should set inProgress to false after export even if there are errors', function (done) {
+        it('should set inProgress to false after export even if there are errors', function (done) {
             var deferred = $.Deferred();
             ajaxStub.returns(deferred);
             baseResponse.status = 403;
@@ -173,13 +178,15 @@ describe('Export', function () {
             dependencyInjectedRequire.require([exportModelPath], function (Export) {
                 var exportModel = new Export();
                 exportModel.export();
-                done(tryAssertions(function () {
-                    expect(exportModel.get('inProgress')).to.equal(false);
-                }));
+                setTimeout(function(){
+                    done(tryAssertions(function () {
+                        expect(exportModel.get('inProgress')).to.equal(false);
+                    }));
+                },0);
             });
         });
 
-        xit('adding an error should emit a change event', function (done) {
+        it('adding an error should emit a change event', function (done) {
             var changeEmitted = false;
             var deferred = $.Deferred();
             ajaxStub.returns(deferred);
@@ -192,9 +199,11 @@ describe('Export', function () {
                     changeEmitted = true;
                 });
                 exportModel.export();
-                done(tryAssertions(function () {
-                    expect(changeEmitted).to.equal(true);
-                }));
+                setTimeout(function(){
+                    done(tryAssertions(function () {
+                        expect(changeEmitted).to.equal(true);
+                    }));
+                },0);
             });
         });
 
