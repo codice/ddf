@@ -20,7 +20,6 @@
         paths: {
 
             bootstrap: 'bootstrap/3.3.7/dist/js/bootstrap.min',
-            spin: 'spin.js/1.3.3/spin',
             q: 'q/1.4.1/q',
 
             // backbone
@@ -54,12 +53,6 @@
             // datatables
 
         },
-        map: {
-            '*': {
-                'jquery.ui.widget': 'jqueryui'
-            }
-        },
-
         shim: {
 
             backbone: {
@@ -95,7 +88,7 @@
             perfectscrollbar: ['jquery'],
 
             multiselect: ['jquery'],
-            fileupload: ['jquery', 'jquery.ui.widget'],
+            fileupload: ['jquery', 'jqueryui'],
 
             jqueryui: ['jquery'],
             bootstrap: ['jqueryui']
