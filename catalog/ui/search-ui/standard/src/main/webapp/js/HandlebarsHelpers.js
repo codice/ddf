@@ -40,7 +40,7 @@ define([
                 momentObj = moment(context);
 
                 // Reset the language back to default before doing anything else
-                momentObj.lang('en');
+                momentObj.locale('en');
 
                 for (i in block.hash) {
                     if (momentObj[i]) {
@@ -64,7 +64,7 @@ define([
                 var duration = moment.duration(context);
 
                 // Reset the language back to default before doing anything else
-                duration = duration.lang('en');
+                duration = duration.locale('en');
 
                 for (var i in block.hash) {
                     if (duration[i]) {

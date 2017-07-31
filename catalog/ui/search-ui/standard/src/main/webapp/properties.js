@@ -51,7 +51,7 @@ define(function (require) {
                 cache: false,
                 dataType: 'json',
                 url: "/services/store/config"
-            }).success(function(data) {
+            }).done(function(data) {
                     props = _.extend(props, data);
 
                 $.ajax({
