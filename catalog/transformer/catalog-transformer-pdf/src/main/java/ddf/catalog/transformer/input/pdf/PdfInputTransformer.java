@@ -44,6 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.ContentHandler;
 
+import com.google.common.io.ByteSource;
 import com.google.common.net.MediaType;
 
 import ddf.catalog.content.operation.ContentMetadataExtractor;
@@ -168,7 +169,7 @@ public class PdfInputTransformer implements InputTransformer {
                         e);
             }
 
-            InputStream plainText = null;
+            ByteSource plainTextByteSource = null;
             try (InputStream isCopy = fbos.asByteSource()
                     .openStream()) {
                 Parser parser = new AutoDetectParser();
@@ -178,7 +179,7 @@ public class PdfInputTransformer implements InputTransformer {
                     TikaMetadataExtractor tikaMetadataExtractor = new TikaMetadataExtractor(parser,
                             contentHandler);
                     tikaMetadataExtractor.parseMetadata(isCopy, new ParseContext());
-                    plainText = contentHandlerStream.asByteSource().openStream();
+                    plainTextByteSource = contentHandlerStream.asByteSource();
                 }
             } catch (CatalogTransformerException e) {
                 LOGGER.warn("Cannot extract metadata from pdf", e);
@@ -187,7 +188,7 @@ public class PdfInputTransformer implements InputTransformer {
             try (InputStream isCopy = fbos.asByteSource()
                     .openStream(); PDDocument pdfDocument = pdDocumentGenerator.apply(isCopy)) {
 
-                return transformPdf(id, pdfDocument, plainText);
+                return transformPdf(id, pdfDocument, plainTextByteSource);
             } catch (InvalidPasswordException e) {
                 LOGGER.debug("Cannot transform encrypted pdf", e);
                 return initializeMetacard(id);
@@ -199,16 +200,10 @@ public class PdfInputTransformer implements InputTransformer {
         return initializeMetacard(id, null);
     }
 
-    private MetacardImpl initializeMetacard(String id, InputStream contentInput) {
+    private MetacardImpl initializeMetacard(String id, ByteSource contentByteSource) {
         MetacardImpl metacard;
 
-        if (contentInput != null && !contentMetadataExtractors.isEmpty()) {
-            String content = null;
-            try {
-                content = IOUtils.toString(contentInput, StandardCharsets.UTF_8);
-            } catch (IOException e) {
-                LOGGER.debug("Unable to read content for PDF.", e);
-            }
+        if (contentByteSource != null && !contentMetadataExtractors.isEmpty()) {
             Set<AttributeDescriptor> attributes = contentMetadataExtractors.values()
                     .stream()
                     .map(ContentMetadataExtractor::getMetacardAttributes)
@@ -220,7 +215,11 @@ public class PdfInputTransformer implements InputTransformer {
                     attributes));
 
             for (ContentMetadataExtractor contentMetadataExtractor : contentMetadataExtractors.values()) {
-                contentMetadataExtractor.process(content, metacard);
+                try (InputStream content = contentByteSource.openStream()) {
+                    contentMetadataExtractor.process(content, metacard);
+                } catch (IOException e) {
+                    LOGGER.debug("Problem opening ByteSource for content metadata extraction", e);
+                }
             }
         } else {
             metacard = new MetacardImpl(metacardType);
@@ -238,9 +237,9 @@ public class PdfInputTransformer implements InputTransformer {
         return transformPdf(id, pdfDocument, null);
     }
 
-    private Metacard transformPdf(String id, PDDocument pdfDocument, InputStream contentInput)
+    private Metacard transformPdf(String id, PDDocument pdfDocument, ByteSource contentByteSource)
             throws IOException {
-        MetacardImpl metacard = initializeMetacard(id, contentInput);
+        MetacardImpl metacard = initializeMetacard(id, contentByteSource);
 
         if (pdfDocument.isEncrypted()) {
             LOGGER.debug("Cannot transform encrypted pdf");

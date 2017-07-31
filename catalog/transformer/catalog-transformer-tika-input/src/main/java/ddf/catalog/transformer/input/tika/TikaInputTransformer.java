@@ -397,9 +397,11 @@ public class TikaInputTransformer implements InputTransformer {
                         useResourceTitleAsTitle);
 
                 if (textContentHandler != null && !contentExtractors.isEmpty()) {
-                    String plainText = textContentHandler.toString();
                     for (ContentMetadataExtractor contentMetadataExtractor : contentExtractors.values()) {
-                        contentMetadataExtractor.process(plainText, metacard);
+                        try (InputStream contentStream = textContentHandlerOutStream.asByteSource()
+                                .openStream()) {
+                            contentMetadataExtractor.process(contentStream, metacard);
+                        }
                     }
                 }
             }

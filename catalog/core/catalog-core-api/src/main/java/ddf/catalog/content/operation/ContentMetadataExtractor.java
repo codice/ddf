@@ -13,6 +13,7 @@
  **/
 package ddf.catalog.content.operation;
 
+import java.io.InputStream;
 import java.util.Set;
 
 import ddf.catalog.data.AttributeDescriptor;
@@ -28,10 +29,22 @@ public interface ContentMetadataExtractor {
     /**
      * Parses the input string, extracting metadata from it to add to the metacard.
      *
+     * <strong>This method can have large memory effects. If you already have data in
+     * a datasource that can be streamed, consider the {@link #process(InputStream, Metacard)}
+     * overloaded method instead.</strong>
+     *
      * @param input    the content to process
      * @param metacard the incoming metacard
      */
     void process(String input, Metacard metacard);
+
+    /**
+     * Parses the input stream, extracting metadata from it to add to the metacard.
+     *
+     * @param input    the content to process
+     * @param metacard the incoming metacard
+     */
+    void process(InputStream input, Metacard metacard);
 
     /**
      * Returns the valid set of Metacard attributes that are populated by this extractor.
