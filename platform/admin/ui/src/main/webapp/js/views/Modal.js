@@ -41,7 +41,10 @@ function (Marionette) {
         },
 
         show: function () {
-            this.$el.modal('show');
+            this.$el.modal({
+                backdrop: 'static',
+                keyboard: false
+            });
         },
 
         hide: function () {
