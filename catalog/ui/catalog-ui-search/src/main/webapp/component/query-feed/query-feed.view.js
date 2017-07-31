@@ -20,9 +20,11 @@ define([
     './query-feed.hbs',
     'js/CustomElements',
     'js/store',
+    'component/dropdown/query-status/dropdown.query-status.view',
     'moment',
-    'component/singletons/user-instance',
-], function (Marionette, _, $, template, CustomElements, store, moment, user) {
+    'component/dropdown/dropdown'
+], function (Marionette, _, $, template, CustomElements, store, 
+        QueryStatusView, moment, DropdownModel) {
 
     function getResultsFound(total, data){
         var hits = data.reduce(function(hits, status){
@@ -62,9 +64,12 @@ define([
         }
     }
 
-    return Marionette.ItemView.extend({
+    return Marionette.LayoutView.extend({
         template: template,
         tagName: CustomElements.register('query-feed'),
+        regions: {
+            detailsView: '.details-view'
+        },
         initialize: function(options){
             this.updateQuery = _.throttle(this.updateQuery, 200);
             var query = store.getQueryById(this.model.id);
@@ -75,6 +80,12 @@ define([
                 this.listenTo(query, 'change:result', this.resultAdded);
             }
             this.listenTo(store.get('content'), 'change:query', this.highlight);
+        },
+        onRender: function(){
+            this.detailsView.show(new QueryStatusView({
+                model: new DropdownModel(),
+                modelForComponent: this.model
+            }));
         },
         updateQuery: function() {
             if (!this.isDestroyed){
@@ -87,6 +98,7 @@ define([
             }
         },
         listenToStatus: function(model) {
+            this.$el.toggleClass('has-been-run');
             this.listenTo(model.get('result>results'), 'reset', this.updateQuery);
             this.listenTo(model.get('result>results'), 'add', this.updateQuery);
             this.listenTo(model.get('result'), 'sync', this.updateQuery);

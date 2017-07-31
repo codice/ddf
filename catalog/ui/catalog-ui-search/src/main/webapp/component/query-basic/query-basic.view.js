@@ -141,7 +141,8 @@ define([
         },
         ui: {},
         filter: undefined,
-        onBeforeShow: function () {
+        onBeforeShow: function(){
+            this.model = this.model._cloneOf ? store.getQueryById(this.model._cloneOf) : this.model;
             var translationToBasicMap = translateFilterToBasicMap(cql.simplify(cql.read(this.model.get('cql'))));
             this.filter = translationToBasicMap.propertyValueMap;
             this.handleDownConversion(translationToBasicMap.downConversion);
@@ -161,11 +162,7 @@ define([
             this.handleLocationValue();
             this.handleTypeValue();
             this.turnOnLimitedWidth();
-            if (this.model._cloneOf === undefined){
-                this.edit();
-            } else {
-                this.turnOffEdit();
-            }
+            this.edit();
         },
         setupSettings: function () {
             this.basicSettings.show(new QuerySettingsView({
@@ -329,13 +326,12 @@ define([
                 $(tabable[0]).focus();
             }
         },
-        cancel: function () {
-            if (this.model._cloneOf === undefined) {
-                store.resetQuery();
-            } else {
-                this.$el.removeClass('is-editing');
-                this.onBeforeShow();
-            }
+        focus: function(){
+            this.basicText.currentView.focus();
+        },
+        cancel: function(){
+            this.$el.removeClass('is-editing');
+            this.onBeforeShow();
         },
         handleDownConversion: function (downConversion) {
             this.$el.toggleClass('is-down-converted', downConversion);
@@ -347,9 +343,9 @@ define([
             var filter = this.constructFilter();
             var generatedCQL = CQLUtils.transformFilterToCQL(filter);
             this.model.set({
-                cql: generatedCQL
+                cql: generatedCQL,
+                isAdvanced: false
             });
-            store.saveQuery();
         },
         constructFilter: function () {
             var filters = [];
@@ -396,6 +392,16 @@ define([
                 type: 'AND',
                 filters: filters
             };
+        },
+        setDefaultTitle: function(){
+            var text = this.basicText.currentView.model.getValue()[0];
+            var title;
+            if (text === "") {
+                title = this.model.get('cql');
+            } else {
+                title = text;
+            }
+            this.model.set('title', title);
         }
     });
 });

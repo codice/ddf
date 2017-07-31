@@ -16,6 +16,7 @@ var _ = require('underscore');
 var Map = require('../map');
 var utility = require('./utility');
 var DrawingUtility = require('../DrawingUtility');
+var store = require('js/store');
 
 var DrawBBox = require('js/widgets/cesium.bbox');
 var DrawCircle = require('js/widgets/cesium.circle');
@@ -69,6 +70,12 @@ function createMap(insertionElement) {
             mapMode2D: 0
         }
     });
+
+    viewer.screenSpaceEventHandler.setInputAction(function() {
+        if (!store.get('content').get('drawing')){
+             $('body').mousedown();
+        }
+    }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
 
     if (properties.terrainProvider && properties.terrainProvider.type) {
         var type = imageryProviderTypes[properties.terrainProvider.type];
@@ -151,27 +158,29 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
     var map = createMap(insertionElement);
     var drawHelper = new DrawHelper(map);
     var billboardCollection = setupBillboard();
-    setupDrawingTools(map);
+    var drawingTools = setupDrawingTools(map);
 
     function setupDrawingTools(map) {
-        new DrawBBox.Controller({
-            map: map,
-            notificationEl: notificationEl
-        });
-        new DrawCircle.Controller({
-            map: map,
-            notificationEl: notificationEl
-        });
-        new DrawPolygon.Controller({
-            map: map,
-            notificationEl: notificationEl,
-            drawHelper: drawHelper,
-        });
-        new DrawLine.Controller({
-            map: map,
-            notificationEl: notificationEl,
-            drawHelper: drawHelper,
-        });
+        return {
+            bbox: new DrawBBox.Controller({
+                map: map,
+                notificationEl: notificationEl
+            }),
+            circle: new DrawCircle.Controller({
+                map: map,
+                notificationEl: notificationEl
+            }),
+            polygon: new DrawPolygon.Controller({
+                map: map,
+                notificationEl: notificationEl,
+                drawHelper: drawHelper,
+            }),
+            line: new DrawLine.Controller({
+                map: map,
+                notificationEl: notificationEl,
+                drawHelper: drawHelper,
+            })
+        };
     }
 
     function setupBillboard() {
@@ -181,6 +190,18 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
     }
 
     var exposedMethods = _.extend({}, Map, {
+        drawLine: function(model){
+            drawingTools.line.draw(model);
+        },
+        drawBbox: function(model){
+            drawingTools.bbox.draw(model);
+        },
+        drawCircle: function(model){
+            drawingTools.circle.draw(model);
+        },
+        drawPolygon: function(model){
+            drawingTools.polygon.draw(model);
+        },
         onLeftClick: function(callback) {
             $(map.scene.canvas).on('click', function(e) {
                 var boundingRect = map.scene.canvas.getBoundingClientRect();

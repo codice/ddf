@@ -26,9 +26,10 @@ define([
     'component/property/property.view',
     'component/property/property',
     'component/singletons/user-instance',
-    'component/sort-item/sort-item.view'
+    'component/sort-item/sort-item.view',
+    'js/Common'
 ], function (Marionette, Backbone, _, $, template, CustomElements, store, DropdownModel,
-            QuerySrcView, PropertyView, Property, user, SortItemView) {
+            QuerySrcView, PropertyView, Property, user, SortItemView, Common) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -38,7 +39,8 @@ define([
         events: {
             'click .editor-edit': 'turnOnEditing',
             'click .editor-cancel': 'cancel',
-            'click .editor-save': 'save'
+            'click .editor-save': 'save',
+            'click .editor-saveRun': 'run'
         },
         regions: {
             settingsSortField: '.settings-sorting-field',
@@ -48,12 +50,14 @@ define([
         },
         focus: function(){
         },
+        initialize: function(){
+            this.model = this.model._cloneOf ? store.getQueryById(this.model._cloneOf) : this.model;
+            this.listenTo(this.model, 'change:sortField change:sortOrder change:src change:federation', Common.safeCallback(this.onBeforeShow));
+        },
         onBeforeShow: function(){
             this.setupSortFieldDropdown();
             this.setupSrcDropdown();
-            if (this.model._cloneOf === undefined){
-                this.turnOnEditing();
-            }
+            this.turnOnEditing();
         },
         setupSortFieldDropdown: function() {
             this.settingsSortField.show(new SortItemView({
@@ -88,12 +92,9 @@ define([
             this.focus();
         },
         cancel: function(){
-            if (this.model._cloneOf === undefined){
-                store.resetQuery();
-            } else {
-                this.$el.removeClass('is-editing');
-                this.onBeforeShow();
-            }
+            this.$el.removeClass('is-editing');
+            this.onBeforeShow();
+            this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
         },
         saveToModel: function(){
             var federation = this._srcDropdownModel.get('federation');
@@ -109,9 +110,16 @@ define([
             this.model.set(this.settingsSortField.currentView.getValue());
         },
         save: function(){
-            this.$el.removeClass('is-editing');
             this.saveToModel();
-            store.saveQuery();
+            this.cancel();
+            this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
+        },
+        run: function(){
+            this.saveToModel();
+            this.cancel();
+            this.model.startSearch();
+            store.setCurrentQuery(this.model);
+            this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
         }
     });
 });

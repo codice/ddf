@@ -13,6 +13,15 @@
 define([
 ], function () {
 
+    function getRandomColor() {
+        var letters = '789ABCD';
+        var color = '#';
+        for (var i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 6)];
+        }
+        return color;
+    }
+
     return {
         getNewGenerator: function(){
             var colors = [
@@ -34,7 +43,8 @@ define([
                 getColor: function(id){
                     if (idToColor[id] === undefined){
                         if (colors.length === 0){
-                            throw "Generator is out of colors to assign.";
+                            idToColor[id] = undefined;
+                            //throw "Generator is out of colors to assign.";
                         }
                         idToColor[id] = colors.pop();
                     }

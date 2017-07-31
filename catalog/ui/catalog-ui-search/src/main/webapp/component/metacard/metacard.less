@@ -17,22 +17,10 @@
     overflow: hidden;
   }
 
-  > .metacard-details > .details-tabular,
-  > .metacard-details > .details-visual {
+  > .metacard-details > .details-tabular {
     white-space: normal;
-    display: inline-block;
-    vertical-align: top;
     height: 100%;
     background: @background-color;
-  }
-
-  > .metacard-details > .details-tabular {
-    width: 50%;
-    min-width: 400px;
-  }
-
-  > .metacard-details > .details-visual {
-    width: 50%;
   }
 
   > .metacard-details > .details-searching,
@@ -63,6 +51,10 @@
   > .metacard-details > .details-searching {
     transform: translateY(0%);
   }
+
+  > .metacard-details > .details-tabular {
+    transform: translateX(-100%);
+  }
 }
 
 @{customElementNamespace}metacard.not-found:not(.is-searching) {
@@ -70,20 +62,9 @@
   > .metacard-details > .details-not-found {
     transform: translateY(0%);
   }
-}
 
-.is-medium-screen, .is-small-screen, .is-mobile-screen {
-  @{customElementNamespace}metacard {
-    > .metacard-menu,
-    > .metacard-details {
-      max-width: 100%;
-    }
-    > .metacard-menu {
-      padding: 0px 0px;
-    }
-    > .metacard-details {
-      padding: 0px 0px;
-    }
+  > .metacard-details > .details-tabular {
+    transform: translateX(-100%);
   }
 }
 

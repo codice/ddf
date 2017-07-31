@@ -1,0 +1,19 @@
+@{customElementNamespace}map.show-drawing-tools {
+    .drawing-tools {
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        width: 100%;
+        height: 100%;
+        background: @darken-inherited-background-color;
+
+        button {
+            height: auto;
+            padding: @largeSpacing;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate3d(-50%, -50%, 0%);
+        }
+    }
+}

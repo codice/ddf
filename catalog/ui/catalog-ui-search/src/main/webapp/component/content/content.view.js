@@ -60,7 +60,8 @@ define([
         },
         initialize: function(){
             this._mapView = new GoldenLayoutView({
-                selectionInterface: store.get('content')
+                selectionInterface: store.get('content'),
+                configName: 'goldenLayout'
             });
             this.listenTo(router, 'change', this.handleRoute);
             this.listenTo(store.get('content'), 'change:currentWorkspace', this.updatePanelOne);

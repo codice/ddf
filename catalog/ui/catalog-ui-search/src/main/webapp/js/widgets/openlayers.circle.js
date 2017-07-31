@@ -179,7 +179,7 @@ define([
         });
 
         Draw.Controller = Marionette.Controller.extend({
-            enabled: maptype.is2d(),
+            enabled: true,
             initialize: function (options) {
                 this.map = options.map;
                 this.notificationEl = options.notificationEl;

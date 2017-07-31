@@ -12,13 +12,14 @@
     text-overflow: ellipsis;
     width: auto;
     transition: padding 1*@coreTransitionTime ease-out;
-    padding-right: 2*@minimumButtonSize;
+    padding-right: 3*@minimumButtonSize;
     max-width: 100%;
   }
 
   > .content-interactions,
-  > .content-save {
-    transform: translateX(-200%);
+  > .content-save,
+  > .content-adhoc {
+    transform: translateX(-3*@minimumButtonSize);
     transition: width 2*@coreTransitionTime ease-out, 
         margin 2*@coreTransitionTime ease-out,
         transform 1*@coreTransitionTime ease-out;
@@ -28,10 +29,13 @@
   }
 
   > .content-save {
-    margin-left: 10px;
     position: relative;
     overflow: hidden;
     width: @minimumButtonSize;
+  }
+
+  > .content-adhoc {
+    width: auto;
   }
 }
 
@@ -42,16 +46,16 @@
       transition-delay: 10*@coreTransitionTime;
       overflow: hidden;
       width: 0%;
-      margin-left: 0px;
   }
 
-  .content-interactions {
+  .content-interactions,
+  .content-adhoc {
     transition-delay: 10*@coreTransitionTime;
-    transform: translateX(-100%);
+    transform: translateX(-2*@minimumButtonSize);
   }
 
   .content-title {
     transition-delay: 10*@coreTransitionTime;
-    padding-right: @minimumButtonSize;
+    padding-right: 2*@minimumButtonSize;
   }
 }

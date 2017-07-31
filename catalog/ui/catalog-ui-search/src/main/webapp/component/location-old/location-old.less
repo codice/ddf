@@ -1,7 +1,14 @@
 @{customElementNamespace}location-old {
   display: block;
 
-  width: 31.25rem;
+  width: auto;
+
+  .location-draw {
+    padding: 0px 15px;
+    button {
+      width: 100%;
+    }
+  }
   
   .btn:hover {
     color: @text-color;
@@ -167,5 +174,31 @@
 @{customElementNamespace}location-old.is-keyword {
   .geo-types {
     display: none !important;
+  }
+}
+
+@{customElementNamespace}location-old.is-uploadshape {
+  .feature-names-dropdown {
+    display: block !important;
+    margin-bottom: 10px;
+  }
+}
+
+@{customElementNamespace}location-old {
+  &.is-line,
+  &.is-bbox,
+  &.is-circle,
+  &.is-polygon {
+    .location-draw {
+      display: block;
+    }
+  }
+}
+
+@{customElementNamespace}location-old.is-uploadshape,
+@{customElementNamespace}location-old.is-keyword,
+@{customElementNamespace}location-old {
+  .location-draw {
+    display: none;
   }
 }

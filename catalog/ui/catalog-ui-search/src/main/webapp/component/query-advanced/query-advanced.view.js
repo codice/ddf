@@ -44,6 +44,7 @@ define([
         ui: {
         },
         onBeforeShow: function(){
+            this.model = this.model._cloneOf ? store.getQueryById(this.model._cloneOf) : this.model;
             this.querySettings.show(new QuerySettingsView({
                 model: this.model
             }));
@@ -54,8 +55,14 @@ define([
                 this.queryAdvanced.currentView.deserialize(cql.simplify(cql.read(this.model.get('cql'))));
             }
             this.queryAdvanced.currentView.turnOffEditing();
-            if (this.model._cloneOf === undefined){
-                this.edit();
+            this.edit();
+        },
+        focus: function(){
+            var tabable =  _.filter(this.$el.find('[tabindex], input, button'), function(element){
+                return element.offsetParent !== null;
+            });
+            if (tabable.length > 0){
+                $(tabable[0]).focus();
             }
         },
         edit: function(){
@@ -64,19 +71,20 @@ define([
             this.queryAdvanced.currentView.turnOnEditing();
         },
         cancel: function(){
-            if (this.model._cloneOf === undefined){
-                store.resetQuery();   
-            } else {
-                this.$el.removeClass('is-editing');
-                this.onBeforeShow();
-            }
+            this.$el.removeClass('is-editing');
+            this.onBeforeShow();
         },
         save: function(){
             this.$el.removeClass('is-editing');
             this.querySettings.currentView.saveToModel();
 
-            this.model.set('cql', this.queryAdvanced.currentView.transformToCql());
-            store.saveQuery();
+            this.model.set({
+                cql: this.queryAdvanced.currentView.transformToCql(),
+                isAdvanced: true
+            });
+        },
+        setDefaultTitle: function(){
+            this.model.set('title', this.model.get('cql'));
         }
     });
 });

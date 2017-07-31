@@ -2,7 +2,8 @@
     .customElement;
 
     .choice-title,
-    .choice-date {
+    .choice-date,
+    .choice-owner {
         max-width: 100%;
         height: @minimumLineSize;
         line-height: @minimumLineSize;
@@ -26,6 +27,11 @@
             vertical-align: top;
         }
     }
+
+    .choice-date,
+    .choice-owner {
+        opacity: @minimumOpacity;
+    }
 }
 
 @{customElementNamespace}workspace-details.as-list {
@@ -35,14 +41,16 @@
     transition: width @coreTransitionTime linear;
 
     .choice-title, 
-    .choice-date {
-        width: 50%;
+    .choice-date,
+    .choice-owner {
+        width: 33%;
         height: @minimumButtonSize;
         line-height: @minimumButtonSize;
         display: inline-block;
         padding: 0px 20px;
     }
-    .choice-date {
+    .choice-date,
+    .choice-owner {
         text-align: center;
     }
 }

@@ -36,4 +36,22 @@
     text-overflow: ellipsis;
   }
 
+  .cancel-drawing {
+    position: absolute;
+    z-index: @zIndexMenubar;
+    height: 100%;
+    line-height: 2*@minimumLineSize;
+    width: 100%;
+    transform: translateY(-100%);
+    transition: transform @coreTransitionTime ease-in-out;
+  }
+
+}
+
+html.is-drawing {
+  @{customElementNamespace}navigation {
+    .cancel-drawing {
+      transform: translateY(0%);
+    }
+  }
 }

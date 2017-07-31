@@ -18,3 +18,6 @@
 <div class="choice-date" title="{{bindAttr attr="title" selector="> .choice-date" event="change:modified" key=(path "niceDate")}}" data-help="The date the workspace was last modified">
     {{bind selector="> .choice-date" event="change:modified" key=(path "niceDate")}}
 </div>
+<div class="choice-owner" title="{{bindAttr attr="title" selector="> .choice-owner" event="change:metacard.owner" key=(path "owner")}}" data-help="The owner of the workspace.">
+    {{bind selector="> .choice-owner" event="change:metacard.owner" key=(path "owner")}}
+</div>

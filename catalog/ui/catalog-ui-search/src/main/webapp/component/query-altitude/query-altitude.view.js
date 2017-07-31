@@ -34,9 +34,7 @@ module.exports = Marionette.LayoutView.extend({
     },
     previousAltitudeUnit: 'meters',
     onBeforeShow: function () {
-        if (this.model._cloneOf === undefined) {
-            this.turnOnEditing();
-        }
+        this.turnOnEditing();
         this.setupAltitudeInput();
         this.setupAltitudeAbove();
         this.setupAltitudeBelow();

@@ -23,10 +23,16 @@ define([
     'moment',
     'component/dropdown/dropdown',
     'component/dropdown/query-interactions/dropdown.query-interactions.view',
+    'component/dropdown/dropdown.view',
     'component/query-feed/query-feed.view',
+    'component/dropdown/query-schedule/dropdown.query-schedule.view',
+    'component/dropdown/query-status/dropdown.query-status.view',
+    'component/dropdown/query-settings/dropdown.query-settings.view',
+    'component/dropdown/query-editor/dropdown.query-editor.view',
     'behaviors/button.behavior'
 ], function (Marionette, _, $, template, CustomElements, store, moment,
-             DropdownModel, DropdownQueryInteractionsView, QueryFeedView) {
+             DropdownModel, DropdownQueryInteractionsView, DropdownView, QueryFeedView,
+            QueryScheduleView, QueryStatusView, QuerySettingsView, QueryEditorView) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -42,17 +48,27 @@ define([
         modelEvents: {
         },
         events: {
-            'click .query-actions': 'editQueryDetails'
+            'click .query-run': 'runQuery',
+            'click .query-stop': 'stopQuery',
+            //'click .query-edit': 'editQuery'
         },
         ui: {
         },
         regions: {
             queryFeed: '.details-feed',
-            queryActions: '.query-actions'
+            queryActions: '.query-actions',
+            queryEditor: '.query-edit',
+            querySettings: '.query-settings',
+            queryStatus: '.query-status',
+            querySchedule: '.query-schedule'
         },
         initialize: function(options){
             var query = store.getQueryById(this.model.id);
-            this.listenTo(query, 'change:title', this.updateQuery);
+            if (query.has('result')) {
+                this.startListeningToStatus();
+            } else {
+                this.listenTo(query, 'change:result', this.resultAdded);
+            }
         },
         updateQuery: function() {
             if (!this.isDestroyed){
@@ -80,9 +96,52 @@ define([
                 model: this._queryInteractions,
                 modelForComponent: this.model
             }));
+            this.querySchedule.show(new QueryScheduleView({
+                model: new DropdownModel(),
+                modelForComponent: this.model
+            }));
+            this.querySettings.show(new QuerySettingsView({
+                model: new DropdownModel(),
+                modelForComponent: this.model
+            }));
+            this.queryEditor.show(new QueryEditorView({
+                model: new DropdownModel(),
+                modelForComponent: this.model
+            }));
+            // this.queryStatus.show(new QueryStatusView({
+            //     model: new DropdownModel(),
+            //     modelForComponent: this.model
+            // }));
         },
         hideActions: function(){
             this.$el.addClass('hide-actions');
+        },
+        handleStatus: function(){
+            this.$el.toggleClass('is-searching', this.model.get('result').isSearching());
+        },
+        resultAdded: function(model) {
+            if (model.has('result') && _.isUndefined(model.previous('result'))) {
+                this.startListeningToStatus();
+            }
+        },
+        startListeningToStatus: function(){
+            this.handleStatus();
+            this.listenTo(this.model.get('result'), 'sync request error', this.handleStatus);
+        },
+        runQuery: function(e){
+            this.model.startSearch();
+            e.stopPropagation();
+        },
+        stopQuery: function(e){
+            this.model.cancelCurrentSearches();
+            e.stopPropagation();
+        },
+        editQuery: function(e){
+            store.setQueryById(this.model.id);
+            e.stopPropagation();
+        },
+        editSchedule: function(e){
+            e.stopPropagation(e);
         }
     });
 });

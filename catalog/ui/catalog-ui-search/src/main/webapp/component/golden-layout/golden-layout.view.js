@@ -179,7 +179,7 @@ module.exports = Marionette.LayoutView.extend({
         this.goldenLayout.init();
     },
     getGoldenLayoutConfig: function(){
-        var currentConfig = user.get('user').get('preferences').get('goldenLayout');
+        var currentConfig = user.get('user').get('preferences').get(this.options.configName);
         if (currentConfig === undefined){
             currentConfig = defaultGoldenLayoutContent;
         }
@@ -218,7 +218,7 @@ module.exports = Marionette.LayoutView.extend({
         if (this.goldenLayout.isInitialised) {
             var currentConfig = this.goldenLayout.toConfig();
             removeEphemeralState(currentConfig);
-            user.get('user').get('preferences').set('goldenLayout', currentConfig);
+            user.get('user').get('preferences').set(this.options.configName, currentConfig);
             wreqr.vent.trigger('resize');
             //do not add a window resize event, that will cause an endless loop.  If you need something like that, listen to the wreqr resize event.
         }

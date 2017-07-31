@@ -32,7 +32,7 @@ define([
     'component/metacard-title/metacard-title.view',
     'component/alert/alert',
     'component/result-selector/result-selector.view',
-    'component/visualization/visualization.view'
+    'component/golden-layout/golden-layout.view'
 ], function (wreqr, Marionette, _, $, CustomElements, ContentView, MenuView, properties,
              WorkspaceContentTabs, WorkspaceContentTabsView, QueryTabsView, store,
              MetacardTabsView, MetacardsTabsView, Common, MetacardTitleView, alertInstance,
@@ -58,14 +58,10 @@ define([
         },
         initialize: function(){
             this._mapView = new VisualizationView({
-                selectionInterface: alertInstance
+                selectionInterface: alertInstance,
+                configName: 'goldenLayoutAlert'
             });
             this.listenTo(alertInstance, 'change:currentAlert', this.updatePanelOne);
-            var debouncedUpdatePanelTwo = _.debounce(this.updatePanelTwo, debounceTime);
-            this.listenTo(alertInstance.getSelectedResults(), 'update',debouncedUpdatePanelTwo);
-            this.listenTo(alertInstance.getSelectedResults(), 'add', debouncedUpdatePanelTwo);
-            this.listenTo(alertInstance.getSelectedResults(), 'remove', debouncedUpdatePanelTwo);
-            this.listenTo(alertInstance.getSelectedResults(), 'reset', debouncedUpdatePanelTwo);
         },
         onRender: function(){
             this.updatePanelOne();
@@ -82,34 +78,6 @@ define([
             this.hidePanelTwo();
         },
         updatePanelTwo: function(){
-            var selectedResults = alertInstance.getSelectedResults();
-            if (selectedResults.length === 0){
-                this.hidePanelTwo();
-            } else if (selectedResults.length === 1) {
-                this.showPanelTwo();
-                if (!this.panelTwo.currentView || this.panelTwo.currentView.constructor !== MetacardTabsView) {
-                    this.panelTwo.show(new MetacardTabsView({
-                        selectionInterface: alertInstance
-                    }));
-                }
-                this.panelTwoTitle.show(new MetacardTitleView({
-                    model: selectedResults
-                }));
-            } else {
-                this.showPanelTwo();
-                if (!this.panelTwo.currentView || this.panelTwo.currentView.constructor !== MetacardsTabsView) {
-                    this.panelTwo.show(new MetacardsTabsView({
-                        selectionInterface: alertInstance
-                    }));
-                }
-                this.panelTwoTitle.show(new MetacardTitleView({
-                    model: selectedResults
-                }));
-            }
-            Common.repaintForTimeframe(500, function(){
-                wreqr.vent.trigger('resize');
-                $(window).trigger('resize');
-            });
         },
         unselectQueriesAndResults: function(){
             alertInstance.clearSelectedResults();

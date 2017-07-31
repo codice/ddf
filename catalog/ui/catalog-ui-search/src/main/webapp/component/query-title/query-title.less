@@ -2,12 +2,15 @@
   .customElement;
   position: relative;
   line-height: @minimumButtonSize;
+  white-space: nowrap;
 
-  input,
-  button {
+  > input,
+  > div {
+    width: 100%;
     display: inline-block;
     vertical-align: top;
     height: ~'calc(100% - 2px)';
+    text-align: center;
   }
 
   input {
@@ -31,11 +34,22 @@
     cursor: text;
   }
 
-  button {
+  > div.is-button {
     font-size: @minimumFontSize;
-    color: grey;
-  }
-  button:hover {
-    color: shade(grey, 20%);
+    position: absolute;
+    left: 0px;
+    top: -@minimumButtonSize;
+    width: 100%;
+    span.button-title {
+      font-size: @minimumFontSize;
+    }
+
+    span.fa {
+      position: absolute;
+      top: @minimumButtonSize;
+      margin-left: @minimumSpacing;
+      line-height: inherit;
+      font-size: @largeFontSize;
+    }
   }
 }

@@ -64,6 +64,13 @@ define([
             canAddQuery: function(){
               return this.get('queries').length < 10;
             },
+            tryToAddQuery: function(queryModel){
+                if (this.canAddQuery()){
+                    this.get('queries').add(queryModel); 
+                } else {
+                    // prompt user to override a query or start new workspace
+                }
+            },
             addQuery: function () {
                 var query = new Query.Model();
                 this.get('queries').add(query);
@@ -189,6 +196,34 @@ define([
             },
             createWorkspace: function(title){
                 this.create({title: title || 'New Workspace'});
+            },
+            createWorkspaceWithQuery: function(queryModel){
+                this.create({
+                    title: 'New Workspace',
+                    queries: [
+                        queryModel
+                    ]
+                }).get('queries').first().startSearch();
+            },
+            createAdhocWorkspace: function(text){
+                var cql;
+                var title = text;
+                if (text.length === 0) {
+                    cql = "anyText ILIKE '*'";
+                    title = '*';
+                } else {
+                    cql = "anyText ILIKE '" + text + "'";
+                }
+                var queryForWorkspace = new Query.Model({
+                    title: title,
+                    cql: cql
+                });
+                this.create({
+                    title: title,
+                    queries: [
+                        queryForWorkspace.toJSON()
+                    ]
+                }).get('queries').first().startSearch();               
             },
             createLocalWorkspace: function(){
                 var queryForWorkspace = new Query.Model({

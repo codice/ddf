@@ -152,6 +152,9 @@ define([
                 resultCount: properties.resultCount,
                 timeFormat: Common.getTimeFormats()['24'],
                 goldenLayout: undefined,
+                goldenLayoutUpload: undefined,
+                goldenLayoutMetacard: undefined,
+                goldenLayoutAlert: undefined,
                 theme: new Theme()
             };
         },
@@ -199,6 +202,9 @@ define([
             this.listenTo(this, 'change:visualization', this.savePreferences);
             this.listenTo(this, 'change:fontSize', this.savePreferences);
             this.listenTo(this, 'change:goldenLayout', this.savePreferences);
+            this.listenTo(this, 'change:goldenLayoutUpload', this.savePreferences);
+            this.listenTo(this, 'change:goldenLayoutMetacard', this.savePreferences);
+            this.listenTo(this, 'change:goldenLayoutAlert', this.savePreferences);
         },
         handleRemove: function(){
             this.savePreferences();

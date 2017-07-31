@@ -1,17 +1,17 @@
 @{customElementNamespace}results {
 
   .customElement;
+  overflow: hidden;
 
   > .results-select > @{customElementNamespace}dropdown {
-    padding: 10px;
   }
 
   .results-select {
-
+    padding: @minimumSpacing;
   }
 
   .results-list {
-    height: ~'calc(100% - 3*@{minimumLineSize} - 20px)';
+    height: ~'calc(100% - 3*@{minimumLineSize} - @{minimumButtonSize} - 20px)';
   }
 
   > .results-empty {

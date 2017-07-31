@@ -18,14 +18,15 @@ define([
     'underscore',
     'jquery',
     '../tabs.view',
-    'js/store'
-], function (Marionette, _, $, TabsView, store) {
+    'js/store',
+    'wreqr'
+], function (Marionette, _, $, TabsView, store, wreqr) {
 
     var WorkspaceContentTabsView = TabsView.extend({
         initialize: function(){
             TabsView.prototype.initialize.call(this);
-            this.listenTo(this.model, 'change:activeTab', this.closePanelTwo);
-            this.listenTo(this.options.selectionInterface, 'change:query', this.handleQuery);
+         //   this.listenTo(this.model, 'change:activeTab', this.closePanelTwo);
+           this.listenTo(this.options.selectionInterface, 'change:currentQuery', this.handleQuery);
         },
         closePanelTwo: function(){
             switch (this.model.get('activeTab')) {
@@ -47,8 +48,9 @@ define([
             this.closePanelTwo();
         },
         handleQuery: function(){
-            if (store.get('content').get('query') !== undefined) {
-                this.model.set('activeTab', 'Searches');
+            if (store.getCurrentQuery() !== undefined &&
+                store.getCurrentQueries().get(store.getCurrentQuery()) !== undefined) {
+                this.model.set('activeTab', 'Search');
             }
         }
     });

@@ -98,7 +98,8 @@ define([
                     dtstart: undefined,
                     dtend: undefined,
                     result: undefined,
-                    serverPageIndex: 0
+                    serverPageIndex: 0,
+                    isAdvanced: false
                 };
             },
 

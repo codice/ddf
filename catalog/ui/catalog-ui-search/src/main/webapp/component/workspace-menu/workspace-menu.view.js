@@ -22,10 +22,11 @@ define([
     'component/content-title/content-title.view',
     'component/dropdown/dropdown',
     'component/dropdown/workspace-interactions/dropdown.workspace-interactions.view',
+    'component/dropdown/query/dropdown.query.view',
     'js/store',
     'component/save/workspace/workspace-save.view'
 ], function (Marionette, _, $, template, CustomElements, TitleView, DropdownModel, 
-    WorkspaceInteractionsView, store, SaveView) {
+    WorkspaceInteractionsView, QueryView, store, SaveView) {
 
     return Marionette.LayoutView.extend({
         setDefaultModel: function(){
@@ -36,6 +37,7 @@ define([
         regions: {
             title: '.content-title',
             workspaceSave: '.content-save',
+            workspaceQuery: '.content-adhoc',
             workspaceInteractions: '.content-interactions'
         },
         initialize: function (options) {
@@ -44,13 +46,23 @@ define([
             }
             this.listenTo(this.model, 'change:currentWorkspace', this.updateWorkspaceInteractions);
             this.listenTo(this.model, 'change:currentWorkspace', this.updateWorkspaceSave);
+            this.listenTo(this.model, 'change:currentWorkspace', this.updateWorkspaceQuery);
             this.listenTo(this.model, 'change:currentWorkspace', this.handleSaved);
         },
         onBeforeShow: function(){
             this.title.show(new TitleView());
             this.updateWorkspaceSave();
             this.updateWorkspaceInteractions();
+            this.updateWorkspaceQuery();
             this.handleSaved();
+        },
+        updateWorkspaceQuery: function(workspace){
+            if (workspace && workspace.changed.currentWorkspace){
+                this.workspaceQuery.show(new QueryView({
+                    model: new DropdownModel(),
+                    modelForComponent: this.model.get('currentWorkspace')
+                }));
+            }
         },
         updateWorkspaceSave: function(workspace){
              if (workspace && workspace.changed.currentWorkspace) {

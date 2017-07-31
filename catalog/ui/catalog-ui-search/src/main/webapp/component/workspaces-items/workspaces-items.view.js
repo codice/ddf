@@ -30,6 +30,14 @@ define([
 ], function (wreqr, Marionette, _, $, template, CustomElements, store, WorkspaceItemCollection, DropdownModel, FilterDropdownView,
         SortDropdownView, DisplayDropdownView, user) {
 
+    var getUser = function () {
+        return user.get('user');
+    };
+
+    var getPrefs = function () {
+         return getUser().get('preferences');
+    };
+
     return Marionette.LayoutView.extend({
         setDefaultModel: function(){
             this.model = store.get('workspaces');
@@ -48,6 +56,17 @@ define([
             if (!options.model){
                 this.setDefaultModel();
             }
+            this.handleItems();
+            this.handleSort();
+            this.listenTo(getPrefs(), 'change:homeSort', this.handleSort);
+            this.listenTo(this.model, 'add remove', this.handleItems);
+        },
+        handleItems: function(){
+            this.$el.toggleClass('is-empty', this.model.length === 0);
+        },
+        handleSort: function(){
+            this.$el.toggleClass('by-title', getPrefs().get('homeSort') === 'Title');
+            this.$el.toggleClass('by-date', getPrefs().get('homeSort') === 'Last modified');
         },
         onBeforeShow: function(){
             this.setupHomeItems();

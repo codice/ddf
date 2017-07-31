@@ -62,7 +62,8 @@ define([
             'click #usng': 'swapLocationTypeUsng',
             'click #utm': 'swapLocationTypeUtm',
             'change #radiusUnits': 'onRadiusUnitsChanged',
-            'change #lineUnits': 'onLineUnitsChanged'
+            'change #lineUnits': 'onLineUnitsChanged',
+            'click > .location-draw button': 'triggerDraw'
         },
         regions: {
             keyword: "#keyword-autocomplete"
@@ -535,32 +536,33 @@ define([
             });
         },
         drawLine: function () {
-            if (this.propertyModel.get('property').get('isEditing')) {
-                this.clearLocation();
-                wreqr.vent.trigger('search:drawline', this.model);
-                this.changeMode("line");
-            }
+            this.clearLocation();
+            this.changeMode("line");
         },
         drawCircle: function () {
-            if (this.propertyModel.get('property').get('isEditing')) {
-                this.clearLocation();
-                wreqr.vent.trigger('search:drawcircle', this.model);
-                this.changeMode("circle");
-            }
+            this.clearLocation();
+            this.changeMode("circle");
         },
         drawPolygon: function () {
-            if (this.propertyModel.get('property').get('isEditing')) {
-                this.clearLocation();
-                wreqr.vent.trigger('search:drawpoly', this.model);
-                this.changeMode("polygon");
-            }
+            this.clearLocation();
+            this.changeMode("polygon");
         },
         drawBbox: function () {
-            if (this.propertyModel.get('property').get('isEditing')) {
-                this.clearLocation();
-                wreqr.vent.trigger('search:drawbbox', this.model);
-                this.changeMode("bbox");
+            this.clearLocation();
+            this.changeMode("bbox");
+        },
+        triggerDraw: function(){
+            var drawingType = 'line';
+            if (this.$el.hasClass('is-line')){
+                drawingType = 'line';
+            } else if (this.$el.hasClass('is-bbox')){
+                drawingType = 'bbox';
+            } else if (this.$el.hasClass('is-circle')){
+                drawingType = 'circle';
+            } else if (this.$el.hasClass('is-polygon')){
+                drawingType = 'poly';
             }
+            wreqr.vent.trigger('search:draw'+drawingType, this.model);
         },
         searchByKeyword: function () {
             if (this.propertyModel.get('property').get('isEditing')) {

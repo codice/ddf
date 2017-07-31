@@ -58,7 +58,7 @@ module.exports = {
     },
     getCircleWithIcon: function(options) {
         _.defaults(options, {
-            diameter: 44,
+            diameter: 24,
             fillColor: defaultColor,
             strokeWidth: 2,
             strokeColor: "white",

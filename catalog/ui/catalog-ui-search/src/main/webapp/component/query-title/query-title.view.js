@@ -22,10 +22,13 @@ define([
     'js/store'
 ], function(Marionette, _, $, template, CustomElements, store) {
 
+    var zeroWidthSpace = "\u200B";
+
     return Marionette.ItemView.extend({
         events: {
             'change input': 'updateQueryName',
-            'keyup input': 'updateQueryName'
+            'keyup input': 'updateQueryName',
+            'click .is-button': 'focus'
         },
         template: template,
         tagName: CustomElements.register('query-title'),
@@ -40,12 +43,22 @@ define([
                 this.$el.find('input').select();
             }
         },
+        onRender: function(){
+            this.updateQueryName();
+        },
+        focus: function(){
+            this.$el.find('input').focus();
+        },
+        getSearchTitle: function(){
+            var title = this.$el.find('input').val();
+            return title !== "" ? title : 'Search Title';
+        },
         updateQueryName: function(e) {
-            if (this.model._cloneOf) {
-                store.getQueryById(this.model._cloneOf).set('title', e.currentTarget.value);
-            } else {
-                this.model.set('title', e.currentTarget.value);
-            }
+            this.$el.find('.button-title').html(this.getSearchTitle() + zeroWidthSpace);
+            this.save();
+        },
+        save: function(){
+            this.model.set('title', this.$el.find('input').val());
         }
     });
 });

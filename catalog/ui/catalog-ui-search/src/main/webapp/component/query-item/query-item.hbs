@@ -16,11 +16,31 @@
     </div>
     <div class="query-details">
         <div class="details-title" data-help="The name you've given to the query.">
-            {{title}}
+            {{bind selector=".details-title" event="change:title" key=(path "title")}}
         </div>
         <div class="details-feed" data-help="Shows the status of the query, such as the number of results.">
         </div>
-    </div>
-    <div class="query-actions is-button" data-help="Shows a list of actions to take on the query.">
+        <div class="details-footer">
+            <button class="query-run is-button is-neutral" data-help="Runs the search.">
+                <span class="fa fa-play"></span>
+            </button>
+            <button class="query-stop is-button is-neutral" data-help="Stops a search in the progress of executing.  If results have already returned from some sources, you won't lose them.">
+                <span class="fa fa-stop"></span>
+            </button>
+            <div class="query-edit is-button" data-help="Edits the search criteria.">
+                <span class="fa fa-pencil"></span>
+            </div>
+            <div class="query-settings is-button" data-help="Edits the search settings, such as sorting.">
+                <span class="fa fa-cog"></span>
+            </div>
+            {{!-- <button class="query-status is-button is-neutral" data-help="Edits the search.">
+                <span class="fa fa-heartbeat"></span>
+            </button> --}}
+            <div class="query-schedule is-button" data-help="Allows settings up search notifications.">
+                <span class="fa fa-bell"></span>
+            </div>
+            <div class="query-actions is-button" data-help="Shows a list of actions to take on the query.">
+            </div>
+        </div>
     </div>
 </div>

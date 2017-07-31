@@ -1,25 +1,14 @@
 @{customElementNamespace}dropdown.is-queryInteractions {
+  line-height: inherit;
   cursor: not-allowed;
   display: block;
-
-  > div {
-    position: relative;
-    top: ~'calc(50% - 0.625rem)';
-  }
-
-  .dropdown-text {
-    display: inline-block;
-  }
-
-  .dropdown-icon {
-    display: none;
+  font-size: inherit;
+  span {
+    line-height: inherit;
+    font-size: inherit;
   }
 }
 
 @{customElementNamespace}dropdown.is-queryInteractions.is-editing {
   cursor: pointer;
-
-  .dropdown-icon {
-    display: inline-block;
-  }
 }
