@@ -42,17 +42,26 @@ public class ExportPathMigrationWarning extends MigrationWarning {
     /**
      * Constructor used to report a migration warning on a specific path.
      *
-     * @param path path that is absolute and cannot be exported
+     * @param path path that cannot be exported
      */
     public ExportPathMigrationWarning(Path path, String reason) {
-        super(String.format(ABSOLUTE_PATH_WARNING, path.toString(), reason));
+        this(path.toString(), reason);
+    }
+
+    /**
+     * Constructor used to report a migration warning on a specific path.
+     *
+     * @param path path that cannot be exported
+     */
+    public ExportPathMigrationWarning(String path, String reason) {
+        super(String.format(ABSOLUTE_PATH_WARNING, path, reason));
     }
 
     /**
      * Constructor used to report a migration warning on a path coming from a system property.
      *
-     * @param systemProperty name of the system property that contains the absolute path
-     * @param path           path that is absolute and cannot be exported
+     * @param systemProperty name of the system property that contains the path
+     * @param path           path that cannot be exported
      */
     public ExportPathMigrationWarning(String systemProperty, Path path, String reason) {
         super(String.format(SYSTEM_PROPERTY_ABSOLUTE_PATH_WARNING,
@@ -65,8 +74,8 @@ public class ExportPathMigrationWarning extends MigrationWarning {
      * Constructor used to report a migration warning on a path coming from a Java properties file.
      *
      * @param propertiesFilePath path to the Java properties file that contains the property
-     * @param systemProperty     name of the system property that contains the absolute path
-     * @param path               path that is absolute and cannot be exported
+     * @param systemProperty     name of the property that contains the path
+     * @param path               path that cannot be exported
      */
     public ExportPathMigrationWarning(Path propertiesFilePath, String systemProperty, Path path,
             String reason) {

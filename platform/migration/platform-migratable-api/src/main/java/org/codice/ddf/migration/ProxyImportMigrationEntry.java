@@ -13,8 +13,13 @@
  */
 package org.codice.ddf.migration;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Optional;
+
 /**
- * The migration context is defined as a base interface for all migration contexts.
+ * The <code>ProxyImportMigrationEntry</code> class provides an implementation of the
+ * {@link ImportMigrationEntry} that proxies to another entry.
  * <p>
  * <b>
  * This code is experimental. While this interface is functional
@@ -23,18 +28,23 @@ package org.codice.ddf.migration;
  * </b>
  * </p>
  */
-public interface MigrationContext {
-    /**
-     * Retrieves the report associated with the current migration operation
-     *
-     * @return the report associated with the current migration operation
-     */
-    public MigrationReport getReport();
+public class ProxyImportMigrationEntry extends ProxyMigrationEntry<ImportMigrationEntry> implements ImportMigrationEntry {
+    public ProxyImportMigrationEntry(ImportMigrationEntry proxy) {
+        super(proxy);
+    }
 
-    /**
-     * Gets the current migratable identifier.
-     *
-     * @return the current migratable identifier
-     */
-    public String getId();
+    @Override
+    public Optional<ImportMigrationEntry> getPropertyReferencedEntry(String name) {
+        return proxy.getPropertyReferencedEntry(name);
+    }
+
+    @Override
+    public void store(MigrationImporter exporter) {
+        proxy.store(exporter);
+    }
+
+    @Override
+    public InputStream getInputStream() throws IOException {
+        return proxy.getInputStream();
+    }
 }

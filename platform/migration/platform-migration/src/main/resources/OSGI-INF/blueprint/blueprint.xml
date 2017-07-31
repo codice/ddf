@@ -18,15 +18,11 @@
 
     <ext:property-placeholder>
         <ext:default-properties>
-            <ext:property name="configFileExtension" value=".config"/>
-            <ext:property name="configFileDirectory" value="${ddf.home}/etc"/>
+            <ext:property name="configFileExtension" value="config"/>
         </ext:default-properties>
     </ext:property-placeholder>
 
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
-
-    <bean id="persistenceStrategy"
-          class="org.codice.ddf.configuration.persistence.felix.FelixPersistenceStrategy"/>
 
     <!-- Base URI for DDF home -->
     <bean id="ddfHomeFile" class="java.io.File">
@@ -45,12 +41,6 @@
         <argument value="etc"/>
     </bean>
 
-    <bean id="configDirectoryStream" class="java.nio.file.Files"
-          factory-method="newDirectoryStream">
-        <argument ref="configDirectoryPath"/>
-        <argument value="*${configFileExtension}"/>
-    </bean>
-
     <bean id="configurationAdminMigrationDescribable"
           class="org.codice.ddf.migration.DescribableBean">
         <argument value="1.0"/>
@@ -62,10 +52,8 @@
 
     <bean id="configurationAdminMigration"
           class="org.codice.ddf.configuration.admin.ConfigurationAdminMigration">
-        <argument ref="configDirectoryStream"/>
-        <argument ref="configurationAdmin"/>
-        <argument ref="persistenceStrategy"/>
         <argument ref="configurationAdminMigrationDescribable"/>
+        <argument ref="configurationAdmin"/>
         <argument value="${configFileExtension}"/>
     </bean>
 

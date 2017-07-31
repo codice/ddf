@@ -71,6 +71,19 @@ public interface ExportMigrationEntry extends MigrationEntry {
             BiPredicate<MigrationReport, String> validator);
 
     /**
+     * Stores this entry's content in the export using the specified exporter based on this entry's
+     * path which can include sub-directories.
+     * <p>
+     * All errors and warnings are automatically recorded with the associated migration report including
+     * those thrown by the exporter logic.
+     *
+     * @param exporter a consumer capable of exporting the content of this entry to a provided output stream
+     * @throws MigrationException       if a failure that prevents the operation from continue occurred
+     * @throws IllegalArgumentException if <code>exporter</code> is <code>null</code>
+     */
+    public void store(MigrationExporter exporter);
+
+    /**
      * Gets an output stream for this entry which provides a low-level way for the migratable to
      * store its own content in the export.
      * <p>

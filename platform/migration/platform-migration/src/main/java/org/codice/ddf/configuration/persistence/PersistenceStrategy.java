@@ -15,15 +15,29 @@
 package org.codice.ddf.configuration.persistence;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Dictionary;
-
-import javax.validation.constraints.NotNull;
 
 /**
  * Interface implemented by classes that can read and write configuration properties.
  */
 public interface PersistenceStrategy {
+    /**
+     * Gets the extension handled by this strategy.
+     *
+     * @return the extension (without the prefix <code>.</code>) handled by this strategy
+     */
+    public String getExtension();
+
+    /**
+     * Reads the configuration properties from an {@link InputStream}.
+     *
+     * @param inputStream output stream where the properties will be written
+     * @return the properties read
+     * @throws IOException thrown if the properties couldn't be read
+     */
+    public Dictionary<String, Object> read(InputStream inputStream) throws IOException;
 
     /**
      * Writes the configuration properties to an {@link OutputStream}.
@@ -32,6 +46,6 @@ public interface PersistenceStrategy {
      * @param properties   properties to write
      * @throws IOException thrown if the properties couldn't be written
      */
-    void write(@NotNull OutputStream outputStream, @NotNull Dictionary<String, Object> properties)
+    public void write(OutputStream outputStream, Dictionary<String, Object> properties)
             throws IOException;
 }

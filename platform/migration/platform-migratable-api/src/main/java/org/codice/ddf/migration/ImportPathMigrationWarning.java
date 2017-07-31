@@ -42,7 +42,7 @@ public class ImportPathMigrationWarning extends MigrationWarning {
     /**
      * Constructor used to report a migration warning on a specific path.
      *
-     * @param path path that is absolute and cannot be imported
+     * @param path path that cannot be imported
      */
     public ImportPathMigrationWarning(Path path, String reason) {
         super(String.format(ImportPathMigrationWarning.ABSOLUTE_PATH_WARNING,
@@ -67,8 +67,8 @@ public class ImportPathMigrationWarning extends MigrationWarning {
      * Constructor used to report a migration warning on a path coming from a Java properties file.
      *
      * @param file path to the Java properties file that contains the property
-     * @param name name of the system property that contains the absolute path
-     * @param path path that is absolute and cannot be exported
+     * @param name name of the property that contains the path
+     * @param path path that cannot be exported
      */
     public ImportPathMigrationWarning(Path file, String name, Path path, String reason) {
         super(String.format(ImportPathMigrationWarning.JAVA_FILE_PROPERTY_ABSOLUTE_PATH_WARNING,

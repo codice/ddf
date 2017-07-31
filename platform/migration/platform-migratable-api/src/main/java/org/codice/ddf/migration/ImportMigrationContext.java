@@ -14,6 +14,7 @@
 package org.codice.ddf.migration;
 
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -52,6 +53,13 @@ public interface ImportMigrationContext extends MigrationContext {
     public Optional<ImportMigrationEntry> getEntry(Path path);
 
     /**
+     * Retrieves all exported migration entries.
+     *
+     * @return a stream of all migration entries
+     */
+    public Stream<ImportMigrationEntry> entries();
+
+    /**
      * Retrieves all exported migration entries located underneath the provided relative path.
      *
      * @param path the path to the directory for which to retrieve all exported migration entries
@@ -61,11 +69,24 @@ public interface ImportMigrationContext extends MigrationContext {
     public Stream<ImportMigrationEntry> entries(Path path);
 
     /**
+     * Retrieves all exported migration entries located underneath the provided relative path that
+     * matches the provided path filter.
+     *
+     * @param path   the path to the directory for which to retrieve all exported migration entries that
+     *               matched the given filter
+     * @param filter the path filter to use
+     * @return a stream of all migration entries located under <code>path</code> that matches the given
+     * filter
+     * @throws IllegalArgumentException if <code>path</code> or <code>filter</code> is <code>null</code>
+     */
+    public Stream<ImportMigrationEntry> entries(Path path, PathMatcher filter);
+
+    /**
      * Cleans the specified directory path recursively.
      * <p>
      * Errors and/or warnings will automatically be recorded with the migration report.
      *
-     * @param path    the directory to recursively clean
+     * @param path the directory to recursively clean
      * @return <code>true</code> if the directory was cleaned; <code>false</code> otherwise
      * @throws IllegalArgumentException if <code>path</code> is <code>null</code>
      */

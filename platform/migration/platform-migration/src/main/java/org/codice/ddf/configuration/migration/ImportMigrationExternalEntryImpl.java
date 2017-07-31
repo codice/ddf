@@ -25,7 +25,9 @@ import java.util.function.Function;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.ImportPathMigrationWarning;
+import org.codice.ddf.migration.MigrationImporter;
 import org.codice.ddf.migration.MigrationReport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,46 +74,45 @@ public class ImportMigrationExternalEntryImpl extends ImportMigrationEntryImpl {
     }
 
     @Override
-    public boolean store() {
-        if (super.stored == null) {
+    public void store() {
+        if (!stored) {
             final Path apath = getAbsolutePath();
 
             LOGGER.debug("Verifying external file [{}]...", apath);
-            super.stored = verifyRealFile(r -> new ImportPathMigrationWarning(apath, r));
+            super.stored = true;
+            verifyRealFile(r -> new ImportPathMigrationWarning(apath, r));
         }
-        return super.stored;
+    }
+
+    @Override
+    public void store(MigrationImporter importer) {
+        Validate.notNull(importer, "invalid null importer");
+        store();
     }
 
     /**
      * Verifies the corresponding existing file to see if it matches the original one based on the
      * exported info.
      *
-     * @param builder a function used to generate a warning which will recieve the reason for the warning
-     * @return <code>true</code> if the existing file matches the original one; <code>false</code>
-     * otherwise
+     * @param builder a function used to generate a warning which will receive the reason for the warning
      */
-    private boolean verifyRealFile(Function<String, ImportPathMigrationWarning> builder) {
+    private void verifyRealFile(Function<String, ImportPathMigrationWarning> builder) {
         final MigrationReport report = getReport();
         final Path apath = getAbsolutePath();
         final File afile = apath.toFile();
 
         if (!afile.exists()) {
             report.record(builder.apply("doesn't exist"));
-            return false;
+            return;
         }
-        boolean valid = true; // until proven otherwise
-
         if ((size != null) && (size == 0L) && afile.exists()) {
             report.record(builder.apply("exists when it shouldn't"));
-            valid = false;
         } else if (softlink) {
             if (!Files.isSymbolicLink(apath)) {
                 report.record(builder.apply("is not a symbolic link"));
-                valid = false;
             }
         } else if (!Files.isRegularFile(apath)) {
             report.record(builder.apply("is not a regular file"));
-            valid = false;
         }
         final long rsize = afile.length();
 
@@ -120,7 +121,6 @@ public class ImportMigrationExternalEntryImpl extends ImportMigrationEntryImpl {
                     "length doesn't match the original; expecting %d bytes but was %d bytes",
                     size,
                     rsize)));
-            valid = false;
         }
         if (checksum != null) {
             InputStream is = null;
@@ -134,16 +134,13 @@ public class ImportMigrationExternalEntryImpl extends ImportMigrationEntryImpl {
                             "checksum doesn't match the original; expecting '%s' but was '%s'",
                             checksum,
                             rchecksum)));
-                    valid = false;
                 }
             } catch (IOException e) {
                 LOGGER.info("failed to compute MD5 checksum for '" + getName() + "': ", e);
                 report.record(builder.apply("checksum could not be calculated; " + e.getMessage()));
-                valid = false;
             } finally {
                 IOUtils.closeQuietly(is); // don't care about errors when closing
             }
         }
-        return valid;
     }
 }

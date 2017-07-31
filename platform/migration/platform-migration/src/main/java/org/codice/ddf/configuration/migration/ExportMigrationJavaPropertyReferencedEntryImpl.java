@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.ExportPathMigrationException;
 import org.codice.ddf.migration.ExportPathMigrationWarning;
+import org.codice.ddf.migration.MigrationExporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,8 +37,8 @@ public class ExportMigrationJavaPropertyReferencedEntryImpl
     }
 
     @Override
-    public boolean store() {
-        if (super.stored == null) {
+    public void store() {
+        if (!super.stored) {
             LOGGER.debug("Exporting Java property reference [{}] from [{}] for [{}]...",
                     getProperty(),
                     propertiesPath,
@@ -45,14 +46,27 @@ public class ExportMigrationJavaPropertyReferencedEntryImpl
             getReport().recordJavaProperty(this);
             super.store();
         }
-        return super.stored;
     }
 
+    @Override
+    public void store(MigrationExporter exporter) {
+        Validate.notNull(exporter, "invalid null exporter");
+        if (!stored) {
+            LOGGER.debug("Exporting Java property reference [{}] from [{}] for [{}]...",
+                    getProperty(),
+                    propertiesPath,
+                    getPath());
+            super.store(exporter);
+        }
+    }
+
+    @Override
     protected void recordWarning(String reason) {
         getReport().record(new ExportPathMigrationWarning(propertiesPath, getName(), path, reason));
     }
 
-    protected void recordError(String reason, Throwable cause) {
-        getReport().record(new ExportPathMigrationException(propertiesPath, getName(), path, reason, cause));
+    @Override
+    protected ExportPathMigrationException newError(String reason, Throwable cause) {
+        return new ExportPathMigrationException(propertiesPath, getName(), path, reason, cause);
     }
 }

@@ -41,6 +41,19 @@ public interface ImportMigrationEntry extends MigrationEntry {
     public Optional<ImportMigrationEntry> getPropertyReferencedEntry(String name);
 
     /**
+     * Stores this entry's content appropriately based on this entry's path which can include
+     * sub-directories.
+     * <p>
+     * All errors and warnings are automatically recorded with the associated migration report including
+     * those thrown by the exporter logic.
+     *
+     * @param importer a consumer capable of importing the content of this entry from a provided input stream
+     * @throws MigrationException       if a failure that prevents the operation from continue occurred
+     * @throws IllegalArgumentException if <code>importer</code> is <code>null</code>
+     */
+    public void store(MigrationImporter importer);
+
+    /**
      * Gets an input stream for this entry.
      *
      * @return an input stream for this entry

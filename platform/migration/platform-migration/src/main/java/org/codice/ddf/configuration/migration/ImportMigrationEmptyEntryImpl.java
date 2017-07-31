@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 
+import org.apache.commons.lang.Validate;
+import org.codice.ddf.migration.MigrationImporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,9 +51,18 @@ public class ImportMigrationEmptyEntryImpl extends ImportMigrationEntryImpl {
     }
 
     @Override
-    public boolean store() {
-        throw new IllegalStateException("Path [" + getPath()
-                + "] should not be stored; since it wasn't stored in the export by migratable: "
-                + getId());
+    public void store() {
+        if (!stored) {
+            super.stored = true;
+            throw new IllegalStateException("Path [" + getPath()
+                    + "] should not be stored; since it wasn't stored in the export by migratable: "
+                    + getId());
+        }
+    }
+
+    @Override
+    public void store(MigrationImporter importer) {
+        Validate.notNull(importer, "invalid null importer");
+        store();
     }
 }

@@ -20,6 +20,7 @@ import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationEntry;
@@ -51,11 +52,7 @@ public abstract class MigrationEntryImpl<T extends MigrationContextImpl> impleme
 
     protected final Path path;
 
-    /**
-     * Will track if store was attempted along with its result. Will be <code>null</code> until
-     * store() is attempted, at which point it will start tracking the first store() result.
-     */
-    protected Boolean stored = null;
+    protected boolean stored = false;
 
     /**
      * Instantiates a new migration entry given a migratable context and entry name.
@@ -119,10 +116,7 @@ public abstract class MigrationEntryImpl<T extends MigrationContextImpl> impleme
      * @return the corresponding sanitized name
      */
     protected static String sanitizeSeparators(String name) {
-        if (File.separatorChar == '/') {
-            return name.replace('\\', '/');
-        }
-        return name.replace('/', '\\');
+        return FilenameUtils.separatorsToUnix(name);
     }
 
     @Override
@@ -213,7 +207,7 @@ public abstract class MigrationEntryImpl<T extends MigrationContextImpl> impleme
      * @return an absolute path based on the current distribution
      */
     protected Path getAbsolutePath() {
-        return (path.isAbsolute() ? path : MigrationEntryImpl.DDF_HOME.resolve(path));
+        return MigrationEntryImpl.DDF_HOME.resolve(path);
     }
 
     T getContext() {

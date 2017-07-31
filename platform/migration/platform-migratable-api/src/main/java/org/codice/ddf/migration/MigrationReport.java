@@ -57,15 +57,14 @@ public interface MigrationReport {
     public MigrationReport record(MigrationException e);
 
     /**
-     * Registers a verifier to be invoked at the completion of the migration operation returning the
-     * report from the migration operation.
+     * Registers code to be invoked at the completion of the migration operation.
      *
-     * @param v the verifier to execute which will receive this report in parameter where
+     * @param code the code to execute which will receive this report in parameter where
      *          additional errors and/or warnings can be registered
      * @return this for chaining
-     * @throws IllegalArgumentException if <code>v</code> is <code>null</code>
+     * @throws IllegalArgumentException if <code>code</code> is <code>null</code>
      */
-    public MigrationReport verifyAfterCompletion(Consumer<MigrationReport> v);
+    public MigrationReport doAfterCompletion(Consumer<MigrationReport> code);
 
     /**
      * Retrieves all errors recorded by the operation that generated this migration report.

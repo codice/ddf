@@ -70,9 +70,9 @@ public class ImportCommand extends MigrationCommands {
                             exportDirectory));
 
             if (report.hasErrors()) {
-                outputWarningMessage(String.format(FAILED_IMPORT_MESSAGE, exportDirectory));
+                outputErrorMessage(String.format(FAILED_IMPORT_MESSAGE, exportDirectory));
             } else if (report.hasWarnings()) {
-                outputSuccessMessage(SUCCESSFUL_IMPORT_WITH_WARNINGS_MESSAGE);
+                outputWarningMessage(SUCCESSFUL_IMPORT_WITH_WARNINGS_MESSAGE);
             } else {
                 outputSuccessMessage(SUCCESSFUL_IMPORT_MESSAGE);
             }

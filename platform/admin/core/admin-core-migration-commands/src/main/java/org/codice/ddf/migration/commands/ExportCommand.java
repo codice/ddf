@@ -68,9 +68,9 @@ public class ExportCommand extends MigrationCommands {
                             exportDirectory));
 
             if (report.hasErrors()) {
-                outputWarningMessage(String.format(FAILED_EXPORT_MESSAGE, exportDirectory));
+                outputErrorMessage(String.format(FAILED_EXPORT_MESSAGE, exportDirectory));
             } else if (report.hasWarnings()) {
-                outputSuccessMessage(SUCCESSFUL_EXPORT_WITH_WARNINGS_MESSAGE);
+                outputWarningMessage(SUCCESSFUL_EXPORT_WITH_WARNINGS_MESSAGE);
             } else {
                 outputSuccessMessage(SUCCESSFUL_EXPORT_MESSAGE);
             }

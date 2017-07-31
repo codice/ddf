@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
@@ -63,7 +64,7 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
      * Creates a new migration context for an import operation representing a system context.
      *
      * @param report the migration report where to record warnings and errors
-     * @param zip the zip file associated with the import
+     * @param zip    the zip file associated with the import
      * @throws IllegalArgumentException if <code>report</code> or <code>zip</code> is <code>null</code>
      */
     public ImportMigrationContextImpl(MigrationReport report, ZipFile zip) {
@@ -76,10 +77,10 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
      * Creates a new migration context for an import operation.
      *
      * @param report the migration report where to record warnings and errors
-     * @param zip the zip file associated with the import
+     * @param zip    the zip file associated with the import
      * @param id     the migratable id
      * @throws IllegalArgumentException if <code>report</code>, <code>zip</code>, or <code>id</code>
-     *         is <code>null</code>
+     *                                  is <code>null</code>
      */
     public ImportMigrationContextImpl(MigrationReport report, ZipFile zip, String id) {
         super(report, id);
@@ -91,10 +92,10 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
      * Creates a new migration context for an import operation.
      *
      * @param report     the migration report where to record warnings and errors
-     * @param zip the zip file associated with the import
+     * @param zip        the zip file associated with the import
      * @param migratable the migratable this context is for
      * @throws IllegalArgumentException if <code>report</code>, <code>zip</code> or <code>migratable</code>
-     *         is <code>null</code>
+     *                                  is <code>null</code>
      */
     public ImportMigrationContextImpl(MigrationReport report, ZipFile zip, Migratable migratable) {
         super(report, migratable);
@@ -115,6 +116,13 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
     }
 
     @Override
+    public Stream<ImportMigrationEntry> entries() {
+        return entries.values()
+                .stream()
+                .map(ImportMigrationEntry.class::cast);
+    }
+
+    @Override
     public Stream<ImportMigrationEntry> entries(Path path) {
         Validate.notNull(path, "invalid null path");
         return entries.values()
@@ -125,11 +133,18 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
     }
 
     @Override
+    public Stream<ImportMigrationEntry> entries(Path path, PathMatcher filter) {
+        Validate.notNull(path, "invalid null path");
+        Validate.notNull(filter, "invalid null filter");
+
+        return entries(path).filter(e -> filter.matches(e.getPath()));
+    }
+
+    @Override
     public boolean cleanDirectory(Path path) {
         Validate.notNull(path, "invalid null path");
-        final File fdir = (path.isAbsolute() ?
-                path :
-                ImportMigrationContextImpl.DDF_HOME.resolve(path)).toFile();
+        final File fdir = (path.isAbsolute() ? path : ImportMigrationContextImpl.DDF_HOME.resolve(
+                path)).toFile();
 
         LOGGER.debug("Cleaning up [{}]...", path);
         if (!fdir.exists()) {

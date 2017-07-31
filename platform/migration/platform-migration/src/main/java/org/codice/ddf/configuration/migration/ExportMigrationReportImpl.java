@@ -83,8 +83,8 @@ public class ExportMigrationReportImpl implements MigrationReport {
     }
 
     @Override
-    public ExportMigrationReportImpl verifyAfterCompletion(Consumer<MigrationReport> v) {
-        report.verifyAfterCompletion(v);
+    public ExportMigrationReportImpl doAfterCompletion(Consumer<MigrationReport> code) {
+        report.doAfterCompletion(code);
         return this;
     }
 

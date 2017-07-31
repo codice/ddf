@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
@@ -141,6 +142,26 @@ public class ExportMigrationContextImpl extends MigrationContextImpl
     }
 
     @Override
+    public Stream<ExportMigrationEntry> entries(Path path, PathMatcher filter) {
+        Validate.notNull(path, "invalid null path");
+        Validate.notNull(filter, "invalid null filter");
+        final File file = path.toFile();
+
+        if (!file.exists()) {
+            report.record(new ExportPathMigrationException(path, "does not exist"));
+            return Stream.empty();
+        } else if (!file.isDirectory()) {
+            report.record(new ExportPathMigrationException(path, "is not a directory"));
+            return Stream.empty();
+        }
+        return FileUtils.listFiles(file, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE)
+                .stream()
+                .map(File::toPath)
+                .filter(filter::matches)
+                .map(this::getEntry);
+    }
+
+    @Override
     public void close() throws IOException {
         final OutputStream oos = this.currentOutputStream;
 
@@ -183,9 +204,36 @@ public class ExportMigrationContextImpl extends MigrationContextImpl
                         zos.closeEntry();
                     }
                 }
+                @Override
+                protected void handleIOException(IOException e) throws IOException {
+                    throw new ExportIOException(e);
+                }
             };
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+}
+
+/**
+ * Special wrapper I/O exception used to internally determine if an I/O error occurred from the
+ * export output stream processing versus from reading processed entries during export. This allows
+ * us to determine if we can safely continue the export in order to gather as many errors as possible
+ * or if we are forced to stop the export.
+ * <p>
+ * Any attempts to continue exporting to a zip file when an I/O exception occurs while writing to it
+ * will simply result in another exception being generated thus loosing its value. In such case, we
+ * shall simply stop processing the export operation.
+ */
+class ExportIOException extends IOException {
+    private final IOException cause;
+
+    ExportIOException(IOException e) {
+        super(e);
+        this.cause = e;
+    }
+
+    public IOException getIOException() {
+        return cause;
     }
 }
