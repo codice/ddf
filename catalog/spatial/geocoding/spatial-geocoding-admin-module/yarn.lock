@@ -1338,9 +1338,9 @@ request@2.79.0, request@^2.72.0:
     tunnel-agent "~0.4.1"
     uuid "^3.0.0"
 
-requirejs@2.3.3:
-  version "2.3.3"
-  resolved "https://registry.yarnpkg.com/requirejs/-/requirejs-2.3.3.tgz#aa59fd3a0287eaf407959a138228044b5dd6a6a3"
+requirejs@2.1.22:
+  version "2.1.22"
+  resolved "https://registry.yarnpkg.com/requirejs/-/requirejs-2.1.22.tgz#dd78fd2d34180c0d62c724b5b8aebc0664e0366f"
 
 resolve-from@^2.0.0:
   version "2.0.0"
