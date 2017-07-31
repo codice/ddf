@@ -84,8 +84,7 @@ public interface MigrationEntry extends Comparable<MigrationEntry> {
      * <p>
      * All errors and warnings are automatically recorded with the associated migration report.
      *
-     * @return <code>true</code> if the entry was stored successfully; <code>false</code> otherwise
      * @throws MigrationException if a failure that prevents the operation from continue occurred
      */
-    public boolean store();
+    public void store();
 }

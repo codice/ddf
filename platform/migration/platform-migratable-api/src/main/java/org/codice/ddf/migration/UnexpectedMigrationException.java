@@ -28,7 +28,18 @@ public class UnexpectedMigrationException extends MigrationException {
 
     /**
      * Constructs a new exception with the specified detail message prefixed with a common
-     * configuration errorand the detail message associated with the {@code cause}.
+     * configuration error.
+     *
+     * @param message the detail message (which is saved for later retrieval by the
+     *                {@link #getMessage()} method).
+     */
+    public UnexpectedMigrationException(String message) {
+        super(String.format("%s: %s", MESSAGE_PREFIX, message));
+    }
+
+    /**
+     * Constructs a new exception with the specified detail message prefixed with a common
+     * configuration error and the detail message associated with the {@code cause}.
      *
      * @param message the detail message (which is saved for later retrieval by the
      *                {@link #getMessage()} method).

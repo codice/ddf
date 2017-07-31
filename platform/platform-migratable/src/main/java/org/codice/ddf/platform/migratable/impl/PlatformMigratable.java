@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 
 import org.codice.ddf.migration.ConfigurationMigratable;
 import org.codice.ddf.migration.DescribableBean;
@@ -39,6 +40,8 @@ public class PlatformMigratable extends DescribableBean implements Configuration
 
     private static final String TRUSTSTORE_SYSTEM_PROP = "javax.net.ssl.trustStore";
 
+    private static final Path ETC_DIR = Paths.get("etc");
+
     private static final Path WS_SECURITY_DIR = Paths.get("etc", "ws-security");
 
     private static final List<Path> SYSTEM_FILES = ImmutableList.of( //
@@ -58,8 +61,9 @@ public class PlatformMigratable extends DescribableBean implements Configuration
             Paths.get("bin", "karaf"),
             Paths.get("bin", "karaf.bat"),
             Paths.get("Version.txt"));
-            
-    private static final String SERVICE_WRAPPER_CONF_FILTER = "glob:**/*-wrapper.conf";
+
+    private static final PathMatcher SERVICE_WRAPPER_CONF_FILTER = FileSystems.getDefault()
+            .getPathMatcher("glob:**/*-wrapper.conf");
 
     public PlatformMigratable(DescribableBean info) {
         super(info);
@@ -68,23 +72,30 @@ public class PlatformMigratable extends DescribableBean implements Configuration
     @Override
     public void doExport(ExportMigrationContext context) {
         LOGGER.debug("Exporting system files...");
-        PlatformMigratable.SYSTEM_FILES.forEach(p -> context.getEntry(p)
-                .store());
+        PlatformMigratable.SYSTEM_FILES.stream()
+                .map(context::getEntry)
+                .forEach(MigrationEntry::store);
         LOGGER.debug("Exporting security files from [{}]...", PlatformMigratable.WS_SECURITY_DIR);
         context.entries(PlatformMigratable.WS_SECURITY_DIR)
                 .forEach(MigrationEntry::store);
-        LOGGER.debug("Importing keystore and truststore...");
+        LOGGER.debug("Exporting keystore and truststore...");
         context.getSystemPropertyReferencedEntry(PlatformMigratable.KEYSTORE_SYSTEM_PROP)
                 .ifPresent(MigrationEntry::store);
         context.getSystemPropertyReferencedEntry(PlatformMigratable.TRUSTSTORE_SYSTEM_PROP)
                 .ifPresent(MigrationEntry::store);
+        LOGGER.debug("Exporting service wrapper config file");
+        context.entries(PlatformMigratable.ETC_DIR, PlatformMigratable.SERVICE_WRAPPER_CONF_FILTER)
+                .forEach(MigrationEntry::store);
     }
 
     @Override
     public void doImport(ImportMigrationContext context) {
         LOGGER.debug("Importing system files...");
-        PlatformMigratable.SYSTEM_FILES.forEach(p -> context.getEntry(p)
-                .ifPresent(MigrationEntry::store));
+        PlatformMigratable.SYSTEM_FILES.stream()
+                .map(context::getEntry)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .forEach(MigrationEntry::store);
         LOGGER.debug("Importing [{}]...", PlatformMigratable.WS_SECURITY_DIR);
         context.cleanDirectory(PlatformMigratable.WS_SECURITY_DIR);
         context.entries(PlatformMigratable.WS_SECURITY_DIR)
@@ -94,11 +105,8 @@ public class PlatformMigratable extends DescribableBean implements Configuration
                 .ifPresent(MigrationEntry::store);
         context.getSystemPropertyReferencedEntry(PlatformMigratable.TRUSTSTORE_SYSTEM_PROP)
                 .ifPresent(MigrationEntry::store);
-    }
-
-    private void exportServiceWrapperConf(Path exportDirectory, Collection<MigrationWarning> migrationWarnings) {
-        LOGGER.debug("Exporting service wrapper config file");
-        PathMatcher filter = FileSystems.getDefault().getPathMatcher(SERVICE_WRAPPER_CONF_FILTER);
-        migratableUtil.copyFiles(Paths.get("etc"), filter, exportDirectory, migrationWarnings);
+        LOGGER.debug("Importing service wrapper config file");
+        context.entries(PlatformMigratable.ETC_DIR, PlatformMigratable.SERVICE_WRAPPER_CONF_FILTER)
+                .forEach(MigrationEntry::store);
     }
 }

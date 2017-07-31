@@ -50,13 +50,23 @@ public class ExportPathMigrationException extends ExportMigrationException {
      * @param cause the cause for this error
      */
     public ExportPathMigrationException(Path path, String reason, Throwable cause) {
+        this(path.toString(), reason, cause);
+    }
+
+    /**
+     * Constructor used to report a migration error on a specific path.
+     *
+     * @param path  path that cannot be exported
+     * @param cause the cause for this error
+     */
+    public ExportPathMigrationException(String path, String reason, Throwable cause) {
         super(String.format(ABSOLUTE_PATH_WARNING, path.toString(), reason), cause);
     }
 
     /**
      * Constructor used to report a migration error on a path coming from a system property.
      *
-     * @param systemProperty name of the system property that contains the absolute path
+     * @param systemProperty name of the system property that contains the path
      * @param path           path that cannot be exported
      * @param cause          the cause for this error
      */
@@ -72,15 +82,15 @@ public class ExportPathMigrationException extends ExportMigrationException {
      * Constructor used to report a migration error on a path coming from a Java properties file.
      *
      * @param propertiesFilePath path to the Java properties file that contains the property
-     * @param systemProperty     name of the system property that contains the absolute path
+     * @param property     name of the property that contains the path
      * @param path               path that cannot be exported
      * @param cause              the cause for this error
      */
-    public ExportPathMigrationException(Path propertiesFilePath, String systemProperty, Path path,
+    public ExportPathMigrationException(Path propertiesFilePath, String property, Path path,
             String reason, Throwable cause) {
         super(String.format(JAVA_FILE_PROPERTY_ABSOLUTE_PATH_WARNING,
                 propertiesFilePath.toString(),
-                systemProperty,
+                property,
                 path.toString(),
                 reason), cause);
     }

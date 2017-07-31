@@ -5,9 +5,10 @@ import java.io.InputStream;
 import java.util.Map;
 import java.util.Optional;
 
+import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.ImportMigrationEntry;
-import org.codice.ddf.migration.MigrationEntry;
 import org.codice.ddf.migration.MigrationException;
+import org.codice.ddf.migration.MigrationImporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,12 +54,22 @@ public abstract class ImportMigrationPropertyReferencedEntryImpl extends ImportM
     }
 
     @Override
-    public boolean store() {
-        if (super.stored == null) {
-            super.stored = getReferencedEntry().store();
+    public void store() {
+        if (!stored) {
+            super.stored = true;
+            referenced.store();
             verifyPropertyAfterCompletion();
         }
-        return super.stored;
+    }
+
+    @Override
+    public void store(MigrationImporter importer) {
+        Validate.notNull(importer, "invalid null importer");
+        if (!stored) {
+            super.stored = true;
+            referenced.store(importer);
+            verifyPropertyAfterCompletion();
+        }
     }
 
     @Override
@@ -67,15 +78,11 @@ public abstract class ImportMigrationPropertyReferencedEntryImpl extends ImportM
     }
 
     /**
-     * Called after the referenced migration entry is stored to register a verifier to be invoked
+     * Called after the referenced migration entry is stored to register code to be invoked
      * after the migration operation completion to verify if the property value references the
      * referenced migration entry.
      */
     protected abstract void verifyPropertyAfterCompletion();
-
-    protected MigrationEntry getReferencedEntry() {
-        return referenced;
-    }
 
     protected String getProperty() {
         return property;

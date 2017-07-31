@@ -11,7 +11,9 @@ import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.ImportPathMigrationException;
+import org.codice.ddf.migration.MigrationImporter;
 import org.codice.ddf.migration.MigrationReport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,15 +46,26 @@ public class ImportMigrationJavaPropertyReferencedEntryImpl
     }
 
     @Override
-    public boolean store() {
-        if (super.stored == null) {
+    public void store() {
+        if (!stored) {
             LOGGER.debug("Importing Java property reference [{}] from [{}] for [{}]...",
                     getProperty(),
                     propertiesPath,
                     getPath());
             super.store();
         }
-        return super.stored;
+    }
+
+    @Override
+    public void store(MigrationImporter importer) {
+        Validate.notNull(importer, "invalid null importer");
+        if (!stored) {
+            LOGGER.debug("Importing Java property reference [{}] from [{}] for [{}]...",
+                    getProperty(),
+                    propertiesPath,
+                    getPath());
+            super.store(importer);
+        }
     }
 
     @Override
@@ -60,7 +73,7 @@ public class ImportMigrationJavaPropertyReferencedEntryImpl
         final MigrationReport report = getReport();
         final Path apath = getAbsolutePath();
 
-        report.verifyAfterCompletion(r -> {
+        report.doAfterCompletion(r -> {
             final String val = getJavaPropertyValue();
 
             if (val == null) {
@@ -74,10 +87,7 @@ public class ImportMigrationJavaPropertyReferencedEntryImpl
                         getPath(),
                         "it is empty or blank"));
             } else {
-                Path vpath = Paths.get(val);
-
-                vpath = vpath.isAbsolute() ? vpath : MigrationEntryImpl.DDF_HOME.resolve(vpath);
-                if (!apath.equals(vpath)) {
+                if (!apath.equals(MigrationEntryImpl.DDF_HOME.resolve(Paths.get(val)))) {
                     r.record(new ImportPathMigrationException(propertiesPath,
                             getProperty(),
                             getPath(),
@@ -92,9 +102,9 @@ public class ImportMigrationJavaPropertyReferencedEntryImpl
         InputStream is = null;
 
         try {
-            is = new BufferedInputStream(new FileInputStream((propertiesPath.isAbsolute() ?
-                    propertiesPath :
-                    MigrationEntryImpl.DDF_HOME.resolve(propertiesPath)).toFile()));
+            is = new BufferedInputStream(new FileInputStream(MigrationEntryImpl.DDF_HOME.resolve(
+                    propertiesPath)
+                    .toFile()));
             props.load(is);
         } catch (IOException e) {
             getReport().record(new ImportPathMigrationException(propertiesPath,

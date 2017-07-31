@@ -1,7 +1,9 @@
 package org.codice.ddf.configuration.migration;
 
+import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.ExportPathMigrationException;
 import org.codice.ddf.migration.ExportPathMigrationWarning;
+import org.codice.ddf.migration.MigrationExporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,22 +22,34 @@ public class ExportMigrationSystemPropertyReferencedEntryImpl
     }
 
     @Override
-    public boolean store() {
-        if (super.stored == null) {
+    public void store() {
+        if (!stored) {
             LOGGER.debug("Exporting system property reference [{}] for [{}]...",
                     getProperty(),
                     getPath());
             getReport().recordSystemProperty(this);
             super.store();
         }
-        return super.stored;
     }
 
+    @Override
+    public void store(MigrationExporter exporter) {
+        Validate.notNull(exporter, "invalid null exporter");
+        if (!stored) {
+            LOGGER.debug("Exporting system property reference [{}] for [{}]...",
+                    getProperty(),
+                    getPath());
+            super.store(exporter);
+        }
+    }
+
+    @Override
     protected void recordWarning(String reason) {
         getReport().record(new ExportPathMigrationWarning(getName(), path, reason));
     }
 
-    protected void recordError(String reason, Throwable cause) {
-        getReport().record(new ExportPathMigrationException(getName(), path, reason, cause));
+    @Override
+    protected ExportPathMigrationException newError(String reason, Throwable cause) {
+        return new ExportPathMigrationException(getName(), path, reason, cause);
     }
 }

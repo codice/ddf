@@ -37,6 +37,8 @@ import org.codice.ddf.migration.ExportMigrationEntry;
 import org.codice.ddf.migration.ExportMigrationException;
 import org.codice.ddf.migration.ExportPathMigrationException;
 import org.codice.ddf.migration.ExportPathMigrationWarning;
+import org.codice.ddf.migration.MigrationException;
+import org.codice.ddf.migration.MigrationExporter;
 import org.codice.ddf.migration.MigrationReport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,24 +89,30 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl<ExportMigration
     }
 
     @Override
-    public boolean store() {
-        if (stored == null) {
-            final Path apath = getAbsolutePath();
+    public void store() {
+        store((r, os) -> {
+            if (isMigratable()) {
+                FileUtils.copyFile(getAbsolutePath().toFile(), os);
+            }
+        });
+    }
 
-            LOGGER.debug("Exporting [{}] to [{}]...", path, apath);
-            if (!isMigratable()) {
-                super.stored = false;
-            } else {
-                try {
-                    FileUtils.copyFile(apath.toFile(), getOutputStream());
-                    super.stored = true;
-                } catch (IOException e) { // an I/O error would invalidate the zip so we are forced to abort
-                    super.stored = false;
-                    throw new ExportPathMigrationException(path, "failed to copy", e);
-                }
+    @Override
+    public void store(MigrationExporter exporter) {
+        Validate.notNull(exporter, "invalid null exporter");
+        if (!stored) {
+            super.stored = true;
+            LOGGER.debug("Exporting [{}] to [{}]...", path, getAbsolutePath());
+            try {
+                exporter.apply(getReport(), getOutputStream());
+            } catch (ExportIOException e) { // special case indicating the I/O error occurred while writing to the zip which would invalidate the zip so we are forced to abort
+                throw newError("failed to copy", e.getCause());
+            } catch (IOException e) { // here it means the error came out of reading/processing the input file/stream where it is safe to continue with the next entry, so don't abort
+                recordError("failed to copy", e);
+            } catch (MigrationException e) {
+                throw e;
             }
         }
-        return stored;
     }
 
     @Override
@@ -152,7 +160,11 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl<ExportMigration
     }
 
     protected void recordError(String reason, Throwable cause) {
-        getReport().record(new ExportPathMigrationException(path, reason, cause));
+        getReport().record(newError(reason, cause));
+    }
+
+    protected ExportPathMigrationException newError(String reason, Throwable cause) {
+        return new ExportPathMigrationException(path, reason, cause);
     }
 
     private boolean isMigratable() {
@@ -196,9 +208,9 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl<ExportMigration
         InputStream is = null;
 
         try {
-            is = new BufferedInputStream(new FileInputStream((path.isAbsolute() ?
-                    path :
-                    MigrationEntryImpl.DDF_HOME.resolve(path)).toFile()));
+            is = new BufferedInputStream(new FileInputStream(MigrationEntryImpl.DDF_HOME.resolve(
+                    path)
+                    .toFile()));
             props.load(is);
         } finally {
             IOUtils.closeQuietly(is);

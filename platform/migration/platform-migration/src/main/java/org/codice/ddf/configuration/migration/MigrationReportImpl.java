@@ -42,7 +42,7 @@ public class MigrationReportImpl implements MigrationReport {
 
     private final Set<MigrationException> errors = new LinkedHashSet<>(); // to prevent duplicated and maintain order
 
-    private final Deque<Consumer<MigrationReport>> verifiers = new LinkedList<>();
+    private final Deque<Consumer<MigrationReport>> codes = new LinkedList<>();
 
     private final MigrationOperation operation;
 
@@ -73,9 +73,9 @@ public class MigrationReportImpl implements MigrationReport {
     }
 
     @Override
-    public MigrationReport verifyAfterCompletion(Consumer<MigrationReport> v) {
-        Validate.notNull(v, "invalid null verifier");
-        verifiers.add(v);
+    public MigrationReport doAfterCompletion(Consumer<MigrationReport> code) {
+        Validate.notNull(code, "invalid null code");
+        codes.add(code);
         return this;
     }
 
@@ -96,23 +96,23 @@ public class MigrationReportImpl implements MigrationReport {
 
     @Override
     public boolean wasSuccessful() {
-        verify();
+        runCodes();
         return errors.isEmpty();
     }
 
     public boolean hasWarnings() {
-        verify();
+        runCodes();
         return !warnings.isEmpty();
     }
 
     public boolean hasErrors() {
-        verify();
+        runCodes();
         return !errors.isEmpty();
     }
 
     @Override
     public void verifyCompletion() throws MigrationException {
-        verify();
+        runCodes();
         if (errors.isEmpty()) {
             return;
         } else if (errors.size() == 1) {
@@ -121,9 +121,9 @@ public class MigrationReportImpl implements MigrationReport {
         throw new MigrationCompoundException(errors);
     }
 
-    private void verify() {
-        while (verifiers.isEmpty()) {
-            verifiers.removeFirst().accept(this);
+    private void runCodes() {
+        while (codes.isEmpty()) {
+            codes.removeFirst().accept(this);
         }
     }
 }

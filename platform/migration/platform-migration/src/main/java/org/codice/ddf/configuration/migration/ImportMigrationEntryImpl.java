@@ -29,6 +29,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.ImportMigrationEntry;
 import org.codice.ddf.migration.ImportPathMigrationException;
+import org.codice.ddf.migration.MigrationException;
+import org.codice.ddf.migration.MigrationImporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,22 +91,27 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl<ImportMigration
     }
 
     @Override
-    public boolean store() {
-        if (stored == null) {
-            final Path apath = getAbsolutePath();
+    public void store() {
+        store((r, in) -> FileUtils.copyInputStreamToFile(getInputStream(),
+                getAbsolutePath().toFile()));
+    }
 
-            LOGGER.debug("Importing [{}] to [{}]...", path, apath);
+    @Override
+    public void store(MigrationImporter importer) {
+        Validate.notNull(importer, "invalid null importer");
+        if (!stored) {
+            super.stored = true;
+            LOGGER.debug("Importing [{}] to [{}]...", path, getAbsolutePath());
             try {
-                FileUtils.copyInputStreamToFile(getInputStream(), apath.toFile());
-                super.stored = true;
+                importer.apply(getReport(), getInputStream());
             } catch (IOException e) {
                 getReport().record(new ImportPathMigrationException(path,
                         String.format("failed to copy to [%s]", MigrationEntryImpl.DDF_HOME),
                         e));
-                super.stored = false;
+            } catch (MigrationException e) {
+                throw e;
             }
         }
-        return stored;
     }
 
     @Override

@@ -13,8 +13,12 @@
  */
 package org.codice.ddf.migration;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 /**
- * The migration context is defined as a base interface for all migration contexts.
+ * Functional interface used to facilitate exporting an entry when a more specific processing other
+ * than simply copying the file is required.
  * <p>
  * <b>
  * This code is experimental. While this interface is functional
@@ -23,18 +27,17 @@ package org.codice.ddf.migration;
  * </b>
  * </p>
  */
-public interface MigrationContext {
+@FunctionalInterface
+public interface MigrationImporter {
     /**
-     * Retrieves the report associated with the current migration operation
+     * Called to import information for a given entry from the provided input stream.
      *
-     * @return the report associated with the current migration operation
+     * @param report the migration report where to record errors or warnings
+     * @param in     the input stream where to import information
+     * @throws IOException        if an I/O error occurs (the error will be recorded automatically with the
+     *                            report)
+     * @throws MigrationException if any other errors occurs which prevents the export from
+     *                            continuing (the error will also be automatically recorded)
      */
-    public MigrationReport getReport();
-
-    /**
-     * Gets the current migratable identifier.
-     *
-     * @return the current migratable identifier
-     */
-    public String getId();
+    public void apply(MigrationReport report, InputStream in) throws IOException;
 }

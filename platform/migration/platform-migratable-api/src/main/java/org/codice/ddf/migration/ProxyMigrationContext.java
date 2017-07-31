@@ -13,8 +13,11 @@
  */
 package org.codice.ddf.migration;
 
+import org.apache.commons.lang.Validate;
+
 /**
- * The migration context is defined as a base interface for all migration contexts.
+ * The <code>ProxyMigrationContext</code> class provides an implementation of the
+ * {@link MigrationContext} that proxies to another context.
  * <p>
  * <b>
  * This code is experimental. While this interface is functional
@@ -22,19 +25,23 @@ package org.codice.ddf.migration;
  * library.
  * </b>
  * </p>
+ * @param <T> the type of migration context being proxied
  */
-public interface MigrationContext {
-    /**
-     * Retrieves the report associated with the current migration operation
-     *
-     * @return the report associated with the current migration operation
-     */
-    public MigrationReport getReport();
+public class ProxyMigrationContext<T extends MigrationContext> implements MigrationContext {
+    protected final T proxy;
 
-    /**
-     * Gets the current migratable identifier.
-     *
-     * @return the current migratable identifier
-     */
-    public String getId();
+    public ProxyMigrationContext(T proxy) {
+        Validate.notNull(proxy, "invalid null proxy");
+        this.proxy = proxy;
+    }
+
+    @Override
+    public MigrationReport getReport() {
+        return proxy.getReport();
+    }
+
+    @Override
+    public String getId() {
+        return proxy.getId();
+    }
 }

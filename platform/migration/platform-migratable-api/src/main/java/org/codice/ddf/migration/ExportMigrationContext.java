@@ -14,6 +14,7 @@
 package org.codice.ddf.migration;
 
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.util.Optional;
 import java.util.function.BiPredicate;
 import java.util.stream.Stream;
@@ -75,7 +76,7 @@ public interface ExportMigrationContext extends MigrationContext {
      * @param path the path of the file to be exported
      * @return a new migration entry for the corresponding migratable or the existing one if already
      * created
-     * @throws IllegalAccessException if <code>path</code> is <code>null</code>
+     * @throws IllegalArgumentException if <code>path</code> is <code>null</code>
      */
     public ExportMigrationEntry getEntry(Path path);
 
@@ -86,7 +87,20 @@ public interface ExportMigrationContext extends MigrationContext {
      * @param path the path to the directory to recursively walk
      * @return a stream of all created or retrieved entries corresponding to all files recursively
      * found under <code>path</code>
-     * @throws IllegalAccessException if <code>path</code> is <code>null</code>
+     * @throws IllegalArgumentException if <code>path</code> is <code>null</code>
      */
     public Stream<ExportMigrationEntry> entries(Path path);
+
+    /**
+     * Recursively walks the provided path's tree to create or retrieve (if already created) entries
+     * for all files found that matches the provided path filter and returns existing or new migration
+     * entries for each one of them.
+     *
+     * @param path   the path to the directory to recursively walk
+     * @param filter the path filter to use
+     * @return a stream of all created or retrieved entries corresponding to all files recursively
+     * found under <code>path</code> which matches the given filter
+     * @throws IllegalArgumentException if <code>path</code> or <code>filter</code> is <code>null</code>
+     */
+    public Stream<ExportMigrationEntry> entries(Path path, PathMatcher filter);
 }

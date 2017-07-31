@@ -33,7 +33,7 @@ import java.util.Iterator;
 
 import org.apache.commons.io.FileUtils;
 import org.codice.ddf.configuration.persistence.PersistenceStrategy;
-import org.codice.ddf.configuration.persistence.felix.FelixPersistenceStrategy;
+import org.codice.ddf.configuration.persistence.felix.FelixConfigPersistenceStrategy;
 import org.codice.ddf.configuration.status.ConfigurationFileException;
 import org.codice.ddf.migration.DescribableBean;
 import org.codice.ddf.migration.MigrationException;
@@ -135,7 +135,7 @@ public class ConfigurationAdminMigrationTest {
 
         ConfigurationAdminMigration configurationAdminMigration =
                 new ConfigurationAdminMigration(configurationDirectoryStream,
-                        configurationAdmin, new FelixPersistenceStrategy(), describable,
+                        configurationAdmin, new FelixConfigPersistenceStrategy(), describable,
                         CONFIGURATION_FILE_EXTENSION);
 
         configurationAdminMigration.export(testFolder.getRoot()
