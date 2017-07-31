@@ -44,6 +44,7 @@ import java.util.TimeZone;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Matchers;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -194,7 +195,7 @@ public class TikaInputTransformerTest {
                 .getResourceAsStream("testPDF.pdf");
         tikaInputTransformer.addContentMetadataExtractor(serviceRefCme);
         Metacard metacard = tikaInputTransformer.transform(stream);
-        verify(cme).process(anyString(), anyObject());
+        verify(cme).process(Matchers.any(InputStream.class), anyObject());
         verify(cme).getMetacardAttributes();
         assertThat(metacard.getMetacardType()
                 .getName(), is(PDF_METACARDTYPE_NAME));
