@@ -17,6 +17,7 @@ import static org.apache.commons.lang3.Validate.notNull;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -167,15 +168,18 @@ public class PdfInputTransformer implements InputTransformer {
                         e);
             }
 
-            String plainText = null;
+            InputStream plainText = null;
             try (InputStream isCopy = fbos.asByteSource()
                     .openStream()) {
                 Parser parser = new AutoDetectParser();
-                ContentHandler contentHandler = new ToTextContentHandler();
-                TikaMetadataExtractor tikaMetadataExtractor = new TikaMetadataExtractor(parser,
-                        contentHandler);
-                tikaMetadataExtractor.parseMetadata(isCopy, new ParseContext());
-                plainText = contentHandler.toString();
+                try (TemporaryFileBackedOutputStream contentHandlerStream = new TemporaryFileBackedOutputStream()) {
+                    ContentHandler contentHandler = new ToTextContentHandler(contentHandlerStream,
+                            StandardCharsets.UTF_8.toString());
+                    TikaMetadataExtractor tikaMetadataExtractor = new TikaMetadataExtractor(parser,
+                            contentHandler);
+                    tikaMetadataExtractor.parseMetadata(isCopy, new ParseContext());
+                    plainText = contentHandlerStream.asByteSource().openStream();
+                }
             } catch (CatalogTransformerException e) {
                 LOGGER.warn("Cannot extract metadata from pdf", e);
             }
@@ -195,10 +199,16 @@ public class PdfInputTransformer implements InputTransformer {
         return initializeMetacard(id, null);
     }
 
-    private MetacardImpl initializeMetacard(String id, String contentInput) {
+    private MetacardImpl initializeMetacard(String id, InputStream contentInput) {
         MetacardImpl metacard;
 
-        if (StringUtils.isNotBlank(contentInput)) {
+        if (contentInput != null && !contentMetadataExtractors.isEmpty()) {
+            String content = null;
+            try {
+                content = IOUtils.toString(contentInput, StandardCharsets.UTF_8);
+            } catch (IOException e) {
+                LOGGER.debug("Unable to read content for PDF.", e);
+            }
             Set<AttributeDescriptor> attributes = contentMetadataExtractors.values()
                     .stream()
                     .map(ContentMetadataExtractor::getMetacardAttributes)
@@ -210,7 +220,7 @@ public class PdfInputTransformer implements InputTransformer {
                     attributes));
 
             for (ContentMetadataExtractor contentMetadataExtractor : contentMetadataExtractors.values()) {
-                contentMetadataExtractor.process(contentInput, metacard);
+                contentMetadataExtractor.process(content, metacard);
             }
         } else {
             metacard = new MetacardImpl(metacardType);
@@ -228,7 +238,7 @@ public class PdfInputTransformer implements InputTransformer {
         return transformPdf(id, pdfDocument, null);
     }
 
-    private Metacard transformPdf(String id, PDDocument pdfDocument, String contentInput)
+    private Metacard transformPdf(String id, PDDocument pdfDocument, InputStream contentInput)
             throws IOException {
         MetacardImpl metacard = initializeMetacard(id, contentInput);
 
