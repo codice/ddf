@@ -35,7 +35,6 @@ import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
@@ -47,9 +46,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
-import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
@@ -62,8 +58,6 @@ import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.ResourceRequest;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.resource.Resource;
-import ddf.catalog.resource.ResourceNotFoundException;
-import ddf.catalog.resource.ResourceNotSupportedException;
 
 public class SeedCommandTest extends CommandCatalogFrameworkCommon {
 
@@ -224,37 +218,11 @@ public class SeedCommandTest extends CommandCatalogFrameworkCommon {
         int maxPageSize = NumberUtils.toInt(System.getProperty("catalog.maxPageSize"), 1000);
         int resourceLimit = maxPageSize * 2;
 
-        // have as many results as the resource limit will allow
-        List<Result> resultsList = populateResultMockList(resourceLimit);
-        List<Result>[] queriedResultsList = queryResults(resultsList, maxPageSize);
+        mockMultipleQueries(maxPageSize, resourceLimit);
 
-        QueryResponse responseMock = mock(QueryResponse.class);
-
-        ResourceResponse resourceResponseMock = mock(ResourceResponse.class);
-
-        Resource resourceMock = mock(Resource.class);
-
-        InputStream inputStreamMock = mock(InputStream.class);
-
-        try {
-            doReturn(-1).when(inputStreamMock)
-                    .read(any(byte[].class), anyInt(), anyInt());
-            Mockito.doNothing().when(inputStreamMock).close();
-            when(resourceMock.getInputStream()).thenReturn(inputStreamMock);
-            when(resourceResponseMock.getResource()).thenReturn(resourceMock);
-
-            when(catalogFramework.getResource(any(), anyString())).thenReturn(resourceResponseMock);
-        } catch (IOException | ResourceNotFoundException | ResourceNotSupportedException e) {
-        }
-
-        when(responseMock.getResults()).thenReturn(queriedResultsList[0], queriedResultsList);
-        when(catalogFramework.query(any())).thenReturn(responseMock);
-
-        seedCommand.resourceLimit = resourceLimit;
         seedCommand.executeWithSubject();
         assertThat(consoleOutput.getOutput(),
                 containsString(resourceLimit + " resource download(s) started."));
-        consoleOutput.reset();
     }
 
     private void runCommandAndVerifyResourceRequests(int expectedResourceRequests,
@@ -338,6 +306,21 @@ public class SeedCommandTest extends CommandCatalogFrameworkCommon {
         }
     }
 
+    private void mockMultipleQueries(int pageSize, int resourceLimit) throws Exception {
+
+        mockResourceResponse();
+        QueryResponse queryResponseMock = mock(QueryResponse.class);
+
+        // have as many results as the resource limit will allow
+        List<Result> resultsList = populateResultMockList(resourceLimit);
+        List<Result>[] queriedResultsList = mockQueryGetResults(resultsList, pageSize);
+
+        when(queryResponseMock.getResults()).thenReturn(queriedResultsList[0], queriedResultsList);
+        when(catalogFramework.query(any())).thenReturn(queryResponseMock);
+
+        seedCommand.resourceLimit = resourceLimit;
+    }
+
     private List<Result> populateResultMockList(int size) {
 
         List<Result> resultMockList = new ArrayList<>();
@@ -360,9 +343,11 @@ public class SeedCommandTest extends CommandCatalogFrameworkCommon {
      *     for example:
      *          [ query1, query2, query2, ... ]
      *     This is because the query result will need to be returned twice for every
-     *     iteration.
+     *     iteration, and the first query is get inserted in the first parameter
+     *     of thenReturn.
+     *     i.e. thenReturn(query1, [ query1, query2, query2 ]).
      */
-    private List<Result>[] queryResults(List<Result> results, int pageSize) {
+    private List<Result>[] mockQueryGetResults(List<Result> results, int pageSize) {
 
         int queries = (int) Math.ceil(results.size() / pageSize);
         List<List<Result>> pageResults = Lists.partition(results, pageSize);
