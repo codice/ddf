@@ -65,9 +65,9 @@ public class SeedCommandTest extends CommandCatalogFrameworkCommon {
 
     private CatalogFramework catalogFramework;
 
-    Metacard metacardMock;
+    private Metacard metacardMock;
 
-    Result resultMock;
+    private Result resultMock;
 
     @Before
     public void setUp() throws Exception {
