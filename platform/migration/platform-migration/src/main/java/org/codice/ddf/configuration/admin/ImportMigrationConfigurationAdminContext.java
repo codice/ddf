@@ -53,7 +53,7 @@ public class ImportMigrationConfigurationAdminContext extends ProxyImportMigrati
     private static final Logger LOGGER = LoggerFactory.getLogger(
             ImportMigrationConfigurationAdminContext.class);
 
-    private final ConfigurationAdminMigration admin;
+    private final ConfigurationAdminMigratable admin;
 
     private final ConfigurationAdmin configurationAdmin;
 
@@ -78,7 +78,7 @@ public class ImportMigrationConfigurationAdminContext extends ProxyImportMigrati
     private boolean isValid = true; // until proven otherwise
 
     public ImportMigrationConfigurationAdminContext(ImportMigrationContext context,
-            ConfigurationAdminMigration admin, ConfigurationAdmin configurationAdmin,
+            ConfigurationAdminMigratable admin, ConfigurationAdmin configurationAdmin,
             Stream<Configuration> memoryConfigs) {
         super(context);
         Validate.notNull(admin, "invalid null configuration admin migratable");
@@ -230,7 +230,7 @@ public class ImportMigrationConfigurationAdminContext extends ProxyImportMigrati
         if (properties == null) {
             return null;
         }
-        final Object o = properties.get(ConfigurationAdminMigration.FELIX_FILEINSTALL_FILENAME);
+        final Object o = properties.get(ConfigurationAdminMigratable.FELIX_FILEINSTALL_FILENAME);
         final Path path;
 
         if (o != null) {
@@ -247,14 +247,14 @@ public class ImportMigrationConfigurationAdminContext extends ProxyImportMigrati
                     path = (Path) o;
                 } else {
                     LOGGER.debug("unsupported {} property '{}' from {}",
-                            ConfigurationAdminMigration.FELIX_FILEINSTALL_FILENAME,
+                            ConfigurationAdminMigratable.FELIX_FILEINSTALL_FILENAME,
                             o,
                             from.get());
                     return null;
                 }
             } catch (MalformedURLException | URISyntaxException e) {
                 LOGGER.debug(String.format("failed to parse %s property '%s' from %s; ",
-                        ConfigurationAdminMigration.FELIX_FILEINSTALL_FILENAME,
+                        ConfigurationAdminMigratable.FELIX_FILEINSTALL_FILENAME,
                         o,
                         from.get()), e);
                 return null;

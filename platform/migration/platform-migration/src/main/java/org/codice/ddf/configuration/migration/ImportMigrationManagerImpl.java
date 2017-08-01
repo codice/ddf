@@ -20,7 +20,6 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipFile;
@@ -59,6 +58,8 @@ public class ImportMigrationManagerImpl implements Closeable {
 
     private final String version;
 
+    private final String productVersion;
+
     /**
      * Creates a new migration manager for an import operation.
      *
@@ -95,7 +96,18 @@ public class ImportMigrationManagerImpl implements Closeable {
             throw new ImportMigrationException(String.format("failed importing from file [%s]",
                     exportFile), e);
         }
-        this.version = Objects.toString(metadata.get(MigrationContextImpl.METADATA_VERSION), null);
+        this.version = JsonUtils.getStringFrom(metadata,
+                MigrationContextImpl.METADATA_VERSION,
+                true);
+        if (!MigrationContextImpl.VERSION.equals(version)) {
+            throw new ImportMigrationException(String.format(
+                    "unsupported exported migrated version [%s]; currently supporting [%s]",
+                    version,
+                    MigrationContextImpl.VERSION));
+        }
+        this.productVersion = JsonUtils.getStringFrom(metadata,
+                MigrationContextImpl.METADATA_PRODUCT_VERSION,
+                true);
         // process migratables' metadata
         JsonUtils.getMapFrom(metadata, MigrationContextImpl.METADATA_MIGRATABLES)
                 .forEach((id, o) -> getContextFor(id).processMetadata(JsonUtils.convertToMap(o)));
@@ -104,20 +116,20 @@ public class ImportMigrationManagerImpl implements Closeable {
     /**
      * Proceed with the import migration operation.
      *
-     * @param version the version to compare against
+     * @param productVersion the product version to compare against
      * @throws MigrationException if the versions don't match or if a failure occurred that required
      *                            interrupting the operation right away
-     * @@throws IllegalArgumentException if <code>version</code> is <code>null</code>
+     * @@throws IllegalArgumentException if <code>productVersion</code> is <code>null</code>
      */
-    public void doImport(String version) {
-        Validate.notNull(version, "invalid null version");
-        if (!version.equals(this.version)) {
+    public void doImport(String productVersion) {
+        Validate.notNull(productVersion, "invalid null version");
+        if (!productVersion.equals(this.productVersion)) {
             throw new ImportMigrationException(String.format(
-                    "mismatched exported version [%s]; expecting [%s]",
-                    this.version,
-                    version));
+                    "mismatched exported product version [%s]; expecting [%s]",
+                    this.productVersion,
+                    productVersion));
         }
-        LOGGER.debug("Importing version: {} ...", version);
+        LOGGER.debug("Importing version: {}, product version: {} ...", version, productVersion);
         contexts.values()
                 .forEach(ImportMigrationContextImpl::doImport);
     }

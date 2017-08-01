@@ -46,10 +46,9 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.validation.constraints.NotNull;
 
-import org.codice.ddf.configuration.admin.ConfigurationAdminMigration;
+import org.codice.ddf.configuration.admin.ConfigurationAdminMigratable;
 import org.codice.ddf.migration.ConfigurationMigratable;
 import org.codice.ddf.migration.DataMigratable;
-import org.codice.ddf.migration.DescribableBean;
 import org.codice.ddf.migration.MigrationEntry;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationReport;
@@ -77,7 +76,7 @@ public class ConfigurationMigrationManagerTest {
     private static ObjectName configMigrationServiceObjectName;
 
     @Mock
-    private ConfigurationAdminMigration configurationAdminMigration;
+    private ConfigurationAdminMigratable configurationAdminMigration;
 
     @Mock
     private MBeanServer mBeanServer;

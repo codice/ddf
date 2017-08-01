@@ -15,6 +15,7 @@ package org.codice.ddf.configuration.migration;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 import java.util.Objects;
 
 import javax.annotation.Nullable;
@@ -41,9 +42,14 @@ import org.slf4j.LoggerFactory;
  * and follow the following format:
  * <pre>
  *     {
- *       "version": "2.11.0-SNAPSHOT",
+ *       "version": "1.0",
+ *       "product.version": "2.11.0-SNAPSHOT",
  *       "migratables": {
  *         "platform-id": {
+ *           "version": "1.0",
+ *           "title": "",
+ *           "description": "",
+ *           "organization": "",
  *           "externals": [
  *             {
  *               "name": "/tmp/some.txt",
@@ -80,8 +86,12 @@ import org.slf4j.LoggerFactory;
  * </pre><p>
  * where:
  * <ul>
- * <li>'version' is used to keep track of the version of the system the exported zip file was created from</li>
+ * <li>'version' is used to keep track of the migration version used during export</li>
+ * <li>'product.version' is used to keep track of the version of the system the exported zip file was created from</li>
  * <li>'migratables' provides a set of migratables identifier for which additional information is provided</li>
+ * <li>'title' provides an optional title associated with the migratable</li>
+ * <li>'description' provides an optional description associated with the migratable</li>
+ * <li>'organization' provides an optional organization defining the migratable</li>
  * <li>'externals' provides a list of external files that should be present on the destination system as they were not exported</li>
  * <li>'name' indicates the name of a file (absolute or relative to DDF_HOME). It is required</li>
  * <li>'checksum' provides the optional MD5 checksum for the file as computed on the original system</li>
@@ -94,13 +104,28 @@ import org.slf4j.LoggerFactory;
  * </ul>
  */
 public class MigrationContextImpl implements MigrationContext {
+    /**
+     * Holds the current export version.
+     * <p>
+     * 1.0 - initial version
+     */
+    protected static final String VERSION = "1.0";
+
     protected static final Path DDF_HOME = Paths.get(System.getProperty("ddf.home"));
 
     protected static final Path METADATA_FILENAME = Paths.get("export.json");
 
-    protected static final String METADATA_VERSION = "version";
+    protected static final String METADATA_PRODUCT_VERSION = "product.version";
 
     protected static final String METADATA_MIGRATABLES = "migratables";
+
+    protected static final String METADATA_VERSION = "version";
+
+    protected static final String METADATA_TITLE = "title";
+
+    protected static final String METADATA_DESCRIPTION = "description";
+
+    protected static final String METADATA_ORGANIZATION = "organization";
 
     protected static final String METADATA_EXTERNALS = "externals";
 
@@ -120,6 +145,12 @@ public class MigrationContextImpl implements MigrationContext {
      */
     @Nullable
     protected final String id;
+
+    /**
+     * Holds the current migratable version or <code>null</code> if representing the system context.
+     */
+    @Nullable
+    private String version;
 
     /**
      * Creates a new migration context.
@@ -162,6 +193,7 @@ public class MigrationContextImpl implements MigrationContext {
         this.report = report;
         this.migratable = migratable;
         this.id = migratable.getId();
+        this.version = migratable.getVersion();
     }
 
     @Override
@@ -173,6 +205,11 @@ public class MigrationContextImpl implements MigrationContext {
     @Nullable // never externally when passed to any migratable code
     public String getId() {
         return id;
+    }
+
+    @Override
+    public String getVersion() {
+        return version;
     }
 
     @Override
@@ -189,5 +226,11 @@ public class MigrationContextImpl implements MigrationContext {
             return Objects.equals(id, ((MigrationContextImpl) o).getId());
         }
         return false;
+    }
+
+    protected void processMetadata(Map<String, Object> metadata) {
+        this.version = JsonUtils.getStringFrom(metadata,
+                MigrationContextImpl.METADATA_VERSION,
+                true);
     }
 }

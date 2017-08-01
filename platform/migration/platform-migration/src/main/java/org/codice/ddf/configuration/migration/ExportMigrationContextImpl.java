@@ -82,7 +82,7 @@ public class ExportMigrationContextImpl extends MigrationContextImpl
     public ExportMigrationContextImpl(MigrationReport report, Migratable migratable,
             ZipOutputStream zos) {
         super(report, migratable);
-        this.report = new ExportMigrationReportImpl(report);
+        this.report = new ExportMigrationReportImpl(report, migratable);
         this.zos = zos;
     }
 

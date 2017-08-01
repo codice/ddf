@@ -15,18 +15,7 @@
            xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
     <bean id="securityMigratable"
-          class="org.codice.ddf.security.migratable.impl.SecurityMigratable">
-        <argument ref="securityDescribable"/>
-    </bean>
-
-    <bean id="securityDescribable"
-          class="org.codice.ddf.migration.DescribableBean">
-        <argument value="1.0"/>
-        <argument value="ddf.security"/>
-        <argument value="Security Migration"/>
-        <argument value="Exports Security system files"/>
-        <argument value="Codice"/>
-    </bean>
+          class="org.codice.ddf.security.migratable.impl.SecurityMigratable"/>
 
     <service id="securityMigratableService" ref="securityMigratable"
              interface="org.codice.ddf.migration.ConfigurationMigratable"/>

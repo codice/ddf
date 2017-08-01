@@ -20,13 +20,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang.Validate;
 import org.codice.ddf.configuration.persistence.PersistenceStrategy;
 import org.codice.ddf.configuration.persistence.felix.FelixCfgPersistenceStrategy;
 import org.codice.ddf.configuration.persistence.felix.FelixConfigPersistenceStrategy;
 import org.codice.ddf.migration.ConfigurationMigratable;
-import org.codice.ddf.migration.DescribableBean;
 import org.codice.ddf.migration.ExportMigrationContext;
 import org.codice.ddf.migration.ImportMigrationContext;
+import org.codice.ddf.migration.ImportMigrationException;
 import org.codice.ddf.migration.MigrationContext;
 import org.codice.ddf.migration.MigrationEntry;
 import org.codice.ddf.migration.UnexpectedMigrationException;
@@ -41,12 +42,18 @@ import org.slf4j.LoggerFactory;
  * configuration files from a configuration directory and creating {@link Configuration} objects
  * for those and exporting {@link Configuration} objects to configuration files.
  */
-public class ConfigurationAdminMigration extends DescribableBean
-        implements ConfigurationMigratable {
-
+public class ConfigurationAdminMigratable implements ConfigurationMigratable {
     static final String FELIX_FILEINSTALL_FILENAME = "felix.fileinstall.filename";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationAdminMigration.class);
+    /**
+     * Holds the current export version.
+     * <p>
+     * 1.0 - initial version
+     */
+    private static final String VERSION = "1.0";
+
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(ConfigurationAdminMigratable.class);
 
     private static final Path DDF_HOME = Paths.get(System.getProperty("ddf.home"));
 
@@ -54,15 +61,38 @@ public class ConfigurationAdminMigration extends DescribableBean
 
     private final PersistenceStrategy defaultStrategy;
 
-    public ConfigurationAdminMigration(DescribableBean info, ConfigurationAdmin configurationAdmin,
+    public ConfigurationAdminMigratable(ConfigurationAdmin configurationAdmin,
             String defaultFileExtension) {
-        super(info);
-        notNull(info, "info cannot be null");
-        notNull(configurationAdmin, "ConfigurationAdmin cannot be null");
-        notNull(defaultFileExtension, "default file extension cannot be null");
+        Validate.notNull(configurationAdmin, "invalid null config admin");
+        Validate.notNull(defaultFileExtension, "invalid null default file extension");
         this.configurationAdmin = configurationAdmin;
         this.defaultStrategy = getPersister(defaultFileExtension);
         notNull(defaultStrategy, "unknown persistence strategy extension: " + defaultFileExtension);
+    }
+
+    @Override
+    public String getVersion() {
+        return ConfigurationAdminMigratable.VERSION;
+    }
+
+    @Override
+    public String getId() {
+        return "config.admin";
+    }
+
+    @Override
+    public String getTitle() {
+        return "Configuration Admin Migration";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Exports Configuration Admin";
+    }
+
+    @Override
+    public String getOrganization() {
+        return "Codice";
     }
 
     @Override
@@ -78,6 +108,15 @@ public class ConfigurationAdminMigration extends DescribableBean
 
     @Override
     public void doImport(ImportMigrationContext context) {
+        if (!ConfigurationAdminMigratable.VERSION.equals(context.getVersion())) {
+            context.getReport()
+                    .record(new ImportMigrationException(String.format(
+                            "unsupported exported migrated version [%s] for migratable [%s]; currently supporting [%s]",
+                            context.getVersion(),
+                            getId(),
+                            ConfigurationAdminMigratable.VERSION)));
+            return;
+        }
         final ImportMigrationConfigurationAdminContext adminContext =
                 new ImportMigrationConfigurationAdminContext(context,
                         this,

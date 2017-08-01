@@ -44,4 +44,9 @@ public class ProxyMigrationContext<T extends MigrationContext> implements Migrat
     public String getId() {
         return proxy.getId();
     }
+
+    @Override
+    public String getVersion() {
+        return proxy.getVersion();
+    }
 }
