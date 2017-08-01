@@ -737,6 +737,14 @@ public class UpdateOperations {
 
     private UpdateStorageRequest applyAttributeOverrides(UpdateStorageRequest updateStorageRequest,
             Map<String, Metacard> metacardMap) {
+        Map<String, Serializable> attributeOverrideHeaders =
+                (HashMap<String, Serializable>) updateStorageRequest.getProperties()
+                        .get(Constants.ATTRIBUTE_OVERRIDES_KEY);
+        OverrideAttributesSupport.applyAttributeOverridesToMetacardMap(attributeOverrideHeaders,
+                metacardMap);
+        updateStorageRequest.getProperties()
+                .remove(Constants.ATTRIBUTE_OVERRIDES_KEY);
+
         OverrideAttributesSupport.overrideAttributes(updateStorageRequest.getContentItems(),
                 metacardMap);
         return updateStorageRequest;
