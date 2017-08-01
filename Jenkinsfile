@@ -111,7 +111,7 @@ pipeline {
                 withMaven(maven: 'M3', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings') {
                     checkout scm
                     sh 'mvn javadoc:aggregate -DskipStatic=true -DskipTests=true'
-                    sh 'mvn deploy -T 1C -DskipStatic=true -DskipTests=true'
+                    sh 'mvn deploy -T 1C -DskipStatic=true -DskipTests=true -DretryFailedDeploymentCount=10'
                 }
             }
         }
