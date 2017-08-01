@@ -19,7 +19,7 @@
 |Result Count
 |resultCount
 |Integer
-|Specifies the number of results to request from each source
+|Specifies the number of results to request from each source (Max 1000)
 |250
 |true
 

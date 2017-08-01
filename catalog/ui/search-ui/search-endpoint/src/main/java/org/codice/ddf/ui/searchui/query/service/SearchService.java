@@ -14,6 +14,7 @@
 package org.codice.ddf.ui.searchui.query.service;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -62,7 +63,7 @@ import ddf.security.Subject;
 @Service
 public class SearchService {
 
-    public static final String LOCAL_SOURCE = "local";
+    private static final String LOCAL_SOURCE = "local";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchService.class);
 
@@ -101,10 +102,8 @@ public class SearchService {
     /**
      * Creates a new SearchService
      *
-     * @param filterBuilder
-     *            - FilterBuilder to use for queries
-     * @param searchController
-     *            - SearchController to handle async queries
+     * @param filterBuilder    FilterBuilder to use for queries
+     * @param searchController SearchController to handle async queries
      */
     public SearchService(FilterBuilder filterBuilder, SearchController searchController) {
         this.filterBuilder = filterBuilder;
@@ -114,10 +113,8 @@ public class SearchService {
     /**
      * Service method called by Cometd when something arrives on the service channel
      *
-     * @param remote
-     *            - Client session
-     * @param message
-     *            - JSON message
+     * @param remote  Client session
+     * @param message JSON message
      */
     @Listener("/service/query")
     public void processQuery(final ServerSession remote, Message message) {
@@ -128,11 +125,7 @@ public class SearchService {
 
         if (queryMessage != null && queryMessage.containsKey(Search.ID)) {
             bayeux.createChannelIfAbsent("/" + queryMessage.get(Search.ID),
-                    new ConfigurableServerChannel.Initializer() {
-                        public void configureChannel(ConfigurableServerChannel channel) {
-                            channel.setPersistent(true);
-                        }
-                    });
+                    (ConfigurableServerChannel.Initializer) channel -> channel.setPersistent(true));
 
             BayeuxContext context = bayeux.getContext();
             Subject subject = null;
@@ -176,8 +169,7 @@ public class SearchService {
     /**
      * Creates the query requests for each source and hands off the query to the Search Controller
      *
-     * @param queryMessage
-     *            - JSON message received from cometd
+     * @param queryMessage JSON message received from cometd
      */
     public void executeQuery(Map<String, Object> queryMessage, Subject subject) {
         String sources = castObject(String.class, queryMessage.get(SOURCES));
@@ -216,12 +208,11 @@ public class SearchService {
         Set<String> sourceIds;
         if (StringUtils.equalsIgnoreCase(sources, LOCAL_SOURCE)) {
             LOGGER.debug("Received local query");
-            sourceIds = new HashSet<String>(Arrays.asList(searchController.getFramework()
-                    .getId()));
+            sourceIds = Collections.singleton(searchController.getFramework()
+                    .getId());
         } else if (!(StringUtils.isEmpty(sources))) {
             LOGGER.debug("Received source names from client: {}", sources);
-            sourceIds =
-                    new HashSet<String>(Arrays.asList(StringUtils.stripAll(sources.split(","))));
+            sourceIds = new HashSet<>(Arrays.asList(StringUtils.stripAll(sources.split(","))));
         } else {
             LOGGER.debug("Received enterprise query");
             SourceInfoResponse sourceInfo = null;
@@ -234,7 +225,7 @@ public class SearchService {
             }
 
             if (sourceInfo != null) {
-                sourceIds = new HashSet<String>();
+                sourceIds = new HashSet<>();
                 for (SourceDescriptor source : sourceInfo.getSourceInfo()) {
                     if (source.isAvailable()) {
                         sourceIds.add(source.getSourceId());
@@ -251,16 +242,11 @@ public class SearchService {
     /**
      * Creates a new query from the incoming parameters
      *
-     * @param filter
-     *            - Filter to query
-     * @param startIndexLng
-     *            - Start index for the query
-     * @param countLng
-     *            - number of results for the query
-     * @param sortStr
-     *            - How to sort the query results
-     * @param maxTimeoutLng
-     *            - timeout value on the query execution
+     * @param filter        Filter to query
+     * @param startIndexLng Start index for the query
+     * @param countLng      number of results for the query
+     * @param sortStr       How to sort the query results
+     * @param maxTimeoutLng timeout value on the query execution
      * @return - the new query
      */
     private Query createQuery(Filter filter, Long startIndexLng, Long countLng, String sortStr,
@@ -269,7 +255,18 @@ public class SearchService {
         String sortField = Result.TEMPORAL;
         String sortOrder = DEFAULT_SORT_ORDER;
         Long startIndex = startIndexLng == null ? Long.valueOf(DEFAULT_START_INDEX) : startIndexLng;
-        Long count = countLng == null ? Long.valueOf(DEFAULT_COUNT) : countLng;
+        int count;
+        if (countLng == null) {
+            count = DEFAULT_COUNT;
+        } else if (countLng > searchController.getMaxQueryResults()) {
+            count = searchController.getMaxQueryResults();
+            LOGGER.debug(
+                    "Number of query results requested ({}) is greater than the max page count ({}). Using max count instead. ",
+                    countLng,
+                    searchController.getMaxQueryResults());
+        } else {
+            count = countLng.intValue();
+        }
         long maxTimeout = maxTimeoutLng == null ? DEFAULT_TIMEOUT : maxTimeoutLng;
 
         // Updated to use the passed in index if valid (=> 1)
@@ -305,11 +302,6 @@ public class SearchService {
                     .like()
                     .text(FilterDelegate.WILDCARD_CHAR);
         }
-        return new QueryImpl(filter,
-                startIndex.intValue(),
-                count.intValue(),
-                sort,
-                true,
-                maxTimeout);
+        return new QueryImpl(filter, startIndex.intValue(), count, sort, true, maxTimeout);
     }
 }

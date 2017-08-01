@@ -68,6 +68,8 @@ public class SearchController {
 
     private BayeuxServer bayeuxServer;
 
+    private int maxQueryResults = 1000;
+
     /**
      * Create a new SearchController
      *
@@ -250,5 +252,9 @@ public class SearchController {
 
     public void setNormalizationDisabled(Boolean normalizationDisabled) {
         this.normalizationDisabled = normalizationDisabled;
+    }
+
+    public int getMaxQueryResults() {
+        return maxQueryResults;
     }
 }

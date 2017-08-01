@@ -39,7 +39,6 @@ import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
@@ -52,6 +51,7 @@ import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.impl.ProcessingDetailsImpl;
+import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.source.SourceUnavailableException;
@@ -190,16 +190,12 @@ public abstract class QueryRunnable implements Runnable {
                 .getPageSize() > 0 ?
                 request.getQuery()
                         .getPageSize() :
-                Integer.MAX_VALUE;
+                searchController.getMaxQueryResults();
     }
 
     protected void addResults(Collection<Result> responseResults) {
-        results.putAll(Maps.uniqueIndex(responseResults, new Function<Result, String>() {
-            @Override
-            public String apply(Result result) {
-                return getResultKey(result.getMetacard());
-            }
-        }));
+        results.putAll(Maps.uniqueIndex(responseResults,
+                result -> getResultKey(result != null ? result.getMetacard() : null)));
     }
 
     protected String getResultKey(Metacard metacard) {
@@ -257,6 +253,7 @@ public abstract class QueryRunnable implements Runnable {
                 LOGGER.debug("Sending query: {}", query);
                 response = searchController.getFramework()
                         .query(request);
+                collectResponses(request, response);
             }
         } catch (UnsupportedQueryException | FederationException e) {
             LOGGER.info("Error executing query. {}. Set log level to DEBUG for more information",
@@ -287,6 +284,32 @@ public abstract class QueryRunnable implements Runnable {
                 .put("elapsed", estimatedTime);
 
         return response;
+    }
+
+    private void collectResponses(QueryRequest request, QueryResponse response)
+            throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+        int resultSize = response.getResults()
+                .size();
+        int adjustedStartIndex = request.getQuery()
+                .getStartIndex();
+        while (resultSize != 0 && resultSize < request.getQuery()
+                .getPageSize()) {
+            adjustedStartIndex += resultSize;
+            QueryImpl queryCopy = new QueryImpl(request.getQuery());
+            queryCopy.setStartIndex(adjustedStartIndex);
+            QueryRequestImpl requestCopy = new QueryRequestImpl(queryCopy);
+            requestCopy.setProperties(request.getProperties());
+            QueryResponse singleResponse = searchController.getFramework()
+                    .query(requestCopy);
+            response.getResults()
+                    .addAll(singleResponse.getResults());
+            response.getProcessingDetails()
+                    .addAll(singleResponse.getProcessingDetails());
+            response.getProcessingErrors()
+                    .addAll(singleResponse.getProcessingErrors());
+            resultSize = singleResponse.getResults()
+                    .size();
+        }
     }
 
     private QueryResponse getEmptyResponse(String sourceId) {

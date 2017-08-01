@@ -17,9 +17,9 @@
 
     <OCD name="Standard Search UI" id="org.codice.ddf.ui.search.standard.properties">
         <AD
-                description="Specifies the number of results to request from each source"
+                description="Specifies the number of results to request from each source (Max 1000)"
                 name="Result Count" id="resultCount" required="true" type="Integer"
-                default="250">
+                default="250" max="1000" min="1">
         </AD>
         <AD name="Imagery Providers" id="imageryProviders"
             required="false" type="String" cardinality="10000"
