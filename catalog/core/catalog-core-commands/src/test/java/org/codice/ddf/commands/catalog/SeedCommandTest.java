@@ -223,15 +223,31 @@ public class SeedCommandTest extends CommandCatalogFrameworkCommon {
 
         int maxPageSize = NumberUtils.toInt(System.getProperty("catalog.maxPageSize"), 1000);
         int resourceLimit = maxPageSize * 2;
-        int resourceCount = resourceLimit * 2;
 
-        List<Result> resultsList = populateResultMockList(resourceCount);
+        // have as many results as the resource limit will allow
+        List<Result> resultsList = populateResultMockList(resourceLimit);
         List<Result>[] queriedResultsList = queryResults(resultsList, maxPageSize);
 
         QueryResponse responseMock = mock(QueryResponse.class);
 
-        when(responseMock.getResults()).thenReturn(queriedResultsList[0],
-                Arrays.copyOfRange(queriedResultsList, 1, queriedResultsList.length));
+        ResourceResponse resourceResponseMock = mock(ResourceResponse.class);
+
+        Resource resourceMock = mock(Resource.class);
+
+        InputStream inputStreamMock = mock(InputStream.class);
+
+        try {
+            doReturn(-1).when(inputStreamMock)
+                    .read(any(byte[].class), anyInt(), anyInt());
+            Mockito.doNothing().when(inputStreamMock).close();
+            when(resourceMock.getInputStream()).thenReturn(inputStreamMock);
+            when(resourceResponseMock.getResource()).thenReturn(resourceMock);
+
+            when(catalogFramework.getResource(any(), anyString())).thenReturn(resourceResponseMock);
+        } catch (IOException | ResourceNotFoundException | ResourceNotSupportedException e) {
+        }
+
+        when(responseMock.getResults()).thenReturn(queriedResultsList[0], queriedResultsList);
         when(catalogFramework.query(any())).thenReturn(responseMock);
 
         seedCommand.resourceLimit = resourceLimit;
@@ -326,14 +342,6 @@ public class SeedCommandTest extends CommandCatalogFrameworkCommon {
 
         List<Result> resultMockList = new ArrayList<>();
 
-        // catalogFramework.getResource will alternate between throwing exceptions and returning results
-        Answer<ResourceResponse> responseAnswer = getResourceResponsesVaryingValidity();
-
-        try {
-            when(catalogFramework.getResource(any(), anyString())).thenAnswer(responseAnswer);
-        } catch (IOException | ResourceNotFoundException | ResourceNotSupportedException e) {
-        }
-
         for (int i = 0; i < size; i++) {
             resultMock = mock(Result.class);
             metacardMock = mock(Metacard.class);
@@ -346,44 +354,25 @@ public class SeedCommandTest extends CommandCatalogFrameworkCommon {
         return resultMockList;
     }
 
-    // this Answer will have every other ResourceResponse throw a ResourceNotFoundException
-    private Answer<ResourceResponse> getResourceResponsesVaryingValidity() {
-        return new Answer<ResourceResponse>() {
-            int responseIndex = 0;
-
-            ResourceNotFoundException exception = new ResourceNotFoundException();
-
-            ResourceResponse responseMock = mock(ResourceResponse.class);
-
-            Resource resourceMock = mock(Resource.class);
-
-            InputStream inputStreamMock = mock(InputStream.class);
-
-            @Override
-            public ResourceResponse answer(InvocationOnMock invocationOnMock) throws Throwable {
-
-                if (responseIndex++ % 2 == 0) {
-                    throw exception;
-                }
-
-                doReturn(-1).when(inputStreamMock)
-                        .read(any(byte[].class), anyInt(), anyInt());
-                Mockito.doNothing().when(inputStreamMock).close();
-                when(resourceMock.getInputStream()).thenReturn(inputStreamMock);
-                when(responseMock.getResource()).thenReturn(resourceMock);
-                return responseMock;
-            }
-        };
-    }
-
-    // Divides results list by the page size. Used for thenReturn statements
+    /**
+     *     Divides results list by the page size. Used for thenReturn statements.
+     *     The array being passed will have doubles for every query after the first,
+     *     for example:
+     *          [ query1, query2, query2, ... ]
+     *     This is because the query result will need to be returned twice for every
+     *     iteration.
+     */
     private List<Result>[] queryResults(List<Result> results, int pageSize) {
 
+        int queries = (int) Math.ceil(results.size() / pageSize);
         List<List<Result>> pageResults = Lists.partition(results, pageSize);
-        List[] pageArray = new List[(int) Math.ceil(results.size() / pageSize)];
+        List[] pageArray = new List[queries * 2 - 1];
 
-        for (int i = 0; i < pageArray.length; i++) {
-            pageArray[i] = pageResults.get(i);
+        pageArray[0] = pageResults.get(0);
+
+        for (int i = 1, j = 1; j < pageResults.size(); i += 2, j++) {
+            pageArray[i] = pageResults.get(j);
+            pageArray[i + 1] = pageResults.get(j);
         }
 
         return pageArray;
