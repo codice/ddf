@@ -18,7 +18,6 @@ import static org.apache.commons.lang.Validate.notNull;
 import javax.validation.constraints.NotNull;
 
 import org.codice.ddf.migration.DataMigratable;
-import org.codice.ddf.migration.DescribableBean;
 import org.codice.ddf.migration.ExportMigrationContext;
 import org.codice.ddf.migration.ImportMigrationContext;
 import org.codice.ddf.migration.MigrationException;

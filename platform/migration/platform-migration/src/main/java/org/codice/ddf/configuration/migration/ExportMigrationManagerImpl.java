@@ -91,13 +91,16 @@ public class ExportMigrationManagerImpl implements Closeable {
     /**
      * Proceed with the export migration operation.
      *
-     * @param version the version being exported
-     * @@throws IllegalArgumentException if <code>version</code> is <code>null</code>
+     * @param productVersion the product version being exported
+     * @@throws IllegalArgumentException if <code>productVersion</code> is <code>null</code>
      */
-    public void doExport(String version) {
-        Validate.notNull(version, "invalid null version");
-        LOGGER.debug("Exporting version: {} ...", version);
-        metadata.put(MigrationContextImpl.METADATA_VERSION, version);
+    public void doExport(String productVersion) {
+        Validate.notNull(productVersion, "invalid null product version");
+        LOGGER.debug("Exporting version: {}, product version: {} ...",
+                MigrationContextImpl.VERSION,
+                productVersion);
+        metadata.put(MigrationContextImpl.METADATA_VERSION, MigrationContextImpl.VERSION);
+        metadata.put(MigrationContextImpl.METADATA_PRODUCT_VERSION, productVersion);
         metadata.put(MigrationContextImpl.METADATA_MIGRATABLES,
                 contexts.values()
                         .stream()

@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -28,6 +29,7 @@ import java.util.stream.Stream;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
+import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationOperation;
 import org.codice.ddf.migration.MigrationReport;
@@ -52,17 +54,19 @@ public class ExportMigrationReportImpl implements MigrationReport {
 
     private final List<Map<String, Object>> javaProperties = new ArrayList<>(8);
 
-    private final Map<String, Object> metadata =
-            ImmutableMap.of(MigrationContextImpl.METADATA_EXTERNALS,
-                    externals,
-                    MigrationContextImpl.METADATA_SYSTEM_PROPERTIES,
-                    systemProperties,
-                    MigrationContextImpl.METADATA_SYSTEM_PROPERTIES,
-                    javaProperties);
+    private final Map<String, Object> metadata = new LinkedHashMap<>(16);
 
-    public ExportMigrationReportImpl(MigrationReport report) {
+    public ExportMigrationReportImpl(MigrationReport report, Migratable migratable) {
         Validate.notNull(report, "invalid null report");
+        Validate.notNull(report, "invalid null migratable");
         this.report = report;
+        metadata.put(MigrationContextImpl.METADATA_VERSION, migratable.getVersion());
+        metadata.put(MigrationContextImpl.METADATA_TITLE, migratable.getTitle());
+        metadata.put(MigrationContextImpl.METADATA_DESCRIPTION, migratable.getDescription());
+        metadata.put(MigrationContextImpl.METADATA_ORGANIZATION, migratable.getOrganization());
+        metadata.put(MigrationContextImpl.METADATA_EXTERNALS, externals);
+        metadata.put(MigrationContextImpl.METADATA_SYSTEM_PROPERTIES, systemProperties);
+        metadata.put(MigrationContextImpl.METADATA_SYSTEM_PROPERTIES, javaProperties);
     }
 
     @Override

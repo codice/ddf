@@ -34,6 +34,18 @@ import org.codice.ddf.platform.services.common.Describable;
  */
 public interface Migratable extends Describable {
     /**
+     * Gets the current export version handled by this migratable.
+     * <p>
+     * When exporting data, the migration framework will export this version information and provide
+     * it back to the {@link #doImport} method as part of the import migration context when importing
+     * the corresponding exported data.
+     *
+     * @return the current version handled by this migratable
+     */
+    @Override
+    public String getVersion();
+
+    /**
      * Exports all required migratable data to the specified context.
      * <p>
      * Errors and/or warnings can be recorded along with the context's report. Doing so will not abort
@@ -42,7 +54,7 @@ public interface Migratable extends Describable {
      * @param context a migration context to export all migratable data to
      * @throws MigrationException to stop the export operation
      */
-    void doExport(ExportMigrationContext context);
+    public void doExport(ExportMigrationContext context);
 
     /**
      * Imports all exported migratable data provided by the specified context.
@@ -53,5 +65,5 @@ public interface Migratable extends Describable {
      * @param context a migration context to import all exported migratable data from
      * @throws MigrationException to stop the import operation
      */
-    void doImport(ImportMigrationContext context);
+    public void doImport(ImportMigrationContext context);
 }

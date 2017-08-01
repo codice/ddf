@@ -24,35 +24,8 @@
 
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
 
-    <!-- Base URI for DDF home -->
-    <bean id="ddfHomeFile" class="java.io.File">
-        <argument value="${ddf.home}"/>
-    </bean>
-
-    <bean id="ddfHomeUri" class="java.net.URI" factory-ref="ddfHomeFile" factory-method="toURI"/>
-
-    <bean id="ddfHome" class="java.nio.file.Paths" factory-method="get">
-        <argument ref="ddfHomeUri"/>
-    </bean>
-
-    <!-- Config Directory Path ${ddf.home}/etc/ -->
-    <bean id="configDirectoryPath" class="java.nio.file.Path" factory-ref="ddfHome"
-          factory-method="resolve">
-        <argument value="etc"/>
-    </bean>
-
-    <bean id="configurationAdminMigrationDescribable"
-          class="org.codice.ddf.migration.DescribableBean">
-        <argument value="1.0"/>
-        <argument value="config.admin"/>
-        <argument value="Configuration Admin Migration"/>
-        <argument value="Exports Configuration Admin" />
-        <argument value="Codice"/>
-    </bean>
-
     <bean id="configurationAdminMigration"
-          class="org.codice.ddf.configuration.admin.ConfigurationAdminMigration">
-        <argument ref="configurationAdminMigrationDescribable"/>
+          class="org.codice.ddf.configuration.admin.ConfigurationAdminMigratable">
         <argument ref="configurationAdmin"/>
         <argument value="${configFileExtension}"/>
     </bean>

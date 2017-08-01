@@ -51,7 +51,6 @@ import com.google.common.collect.ImmutableList;
  */
 public class ConfigurationMigrationManager
         implements ConfigurationMigrationService, ConfigurationMigrationManagerMBean {
-
     private static final Logger LOGGER =
             LoggerFactory.getLogger(ConfigurationMigrationManager.class);
 
@@ -59,7 +58,7 @@ public class ConfigurationMigrationManager
 
     private static final String OBJECT_NAME = CLASS_NAME + ":service=configuration-migration";
 
-    private static final String VERSION_FILENAME = "Version.txt";
+    private static final String PRODUCT_VERSION_FILENAME = "Version.txt";
 
     private final MBeanServer mBeanServer;
 
@@ -67,22 +66,21 @@ public class ConfigurationMigrationManager
 
     private final List<DataMigratable> dataMigratables;
 
-    private final String version;
+    private final String productVersion;
 
     private final String filename;
 
     /**
      * Constructor.
      *
-     * @param mBeanServer                 object used to register this object as an MBean
-     * @param configurationMigratables    list of {@link ConfigurationMigratable} services. Needs
-     *                                    to be kept up-to-date by the client of this class.
-     * @param dataMigratables             list of {@link DataMigratable} services. Needs
-     *                                    to be kept up-to-date by the client of this class.
+     * @param mBeanServer              object used to register this object as an MBean
+     * @param configurationMigratables list of {@link ConfigurationMigratable} services. Needs
+     *                                 to be kept up-to-date by the client of this class.
+     * @param dataMigratables          list of {@link DataMigratable} services. Needs
+     *                                 to be kept up-to-date by the client of this class.
      * @throws IOError if unable to load the distribution version information.
      */
-    public ConfigurationMigrationManager(
-            MBeanServer mBeanServer,
+    public ConfigurationMigrationManager(MBeanServer mBeanServer,
             List<ConfigurationMigratable> configurationMigratables,
             List<DataMigratable> dataMigratables) {
         notNull(mBeanServer, "MBeanServer cannot be null");
@@ -94,32 +92,33 @@ public class ConfigurationMigrationManager
         this.configurationMigratables = configurationMigratables;
         this.dataMigratables = dataMigratables;
         try {
-            this.version = ConfigurationMigrationManager.getVersion(new FileInputStream(Paths.get(
-                    System.getProperty("ddf.home"),
-                    ConfigurationMigrationManager.VERSION_FILENAME)
-                    .toFile()));
+            this.productVersion =
+                    ConfigurationMigrationManager.getProductVersion(new FileInputStream(Paths.get(
+                            System.getProperty("ddf.home"),
+                            ConfigurationMigrationManager.PRODUCT_VERSION_FILENAME)
+                            .toFile()));
         } catch (IOException e) {
             LOGGER.warn("unable to load version information; ", e);
             throw new IOError(e);
         }
-        this.filename = "exported-" + version + ".zip";
+        this.filename = "exported-" + productVersion + ".zip";
     }
 
-    private static String getVersion(InputStream is) throws IOException {
+    private static String getProductVersion(InputStream is) throws IOException {
         Validate.notNull(is, "invalid null stream");
         try {
             final List<String> lines = IOUtils.readLines(is, StandardCharsets.UTF_8);
 
             if (lines.isEmpty()) {
-                throw new IOException("missing version information");
+                throw new IOException("missing product version information");
             }
-            final String version = lines.get(0)
+            final String productVersion = lines.get(0)
                     .trim();
 
-            if (version.isEmpty()) {
-                throw new IOException("missing version information");
+            if (productVersion.isEmpty()) {
+                throw new IOException("missing product version information");
             }
-            return version;
+            return productVersion;
         } finally {
             IOUtils.closeQuietly(is);
         }
@@ -141,8 +140,7 @@ public class ConfigurationMigrationManager
     }
 
     @Override
-    public Collection<MigrationWarning> doExport(String exportDirectory)
-            throws MigrationException {
+    public Collection<MigrationWarning> doExport(String exportDirectory) throws MigrationException {
         notNull(exportDirectory, "Export directory cannot be null");
         final MigrationReport report = doExport(Paths.get(exportDirectory));
 
@@ -161,7 +159,7 @@ public class ConfigurationMigrationManager
             try (final ExportMigrationManagerImpl mgr = new ExportMigrationManagerImpl(report,
                     exportFile,
                     configurationMigratables.stream())) {
-                mgr.doExport(version);
+                mgr.doExport(productVersion);
             }
         } catch (MigrationException e) {
             report.record(e);
@@ -177,8 +175,7 @@ public class ConfigurationMigrationManager
     }
 
     @Override
-    public Collection<MigrationWarning> doImport(String exportDirectory)
-            throws MigrationException {
+    public Collection<MigrationWarning> doImport(String exportDirectory) throws MigrationException {
         notNull(exportDirectory, "Export directory cannot be null");
         final MigrationReport report = doImport(Paths.get(exportDirectory));
 
@@ -199,7 +196,7 @@ public class ConfigurationMigrationManager
             mgr = new ImportMigrationManagerImpl(report,
                     exportFile,
                     configurationMigratables.stream());
-            mgr.doImport(version);
+            mgr.doImport(productVersion);
         } catch (MigrationException e) {
             report.record(e);
         } catch (RuntimeException e) {

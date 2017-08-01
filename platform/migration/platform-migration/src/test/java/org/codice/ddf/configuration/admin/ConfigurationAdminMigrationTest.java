@@ -34,8 +34,6 @@ import java.util.Iterator;
 import org.apache.commons.io.FileUtils;
 import org.codice.ddf.configuration.persistence.PersistenceStrategy;
 import org.codice.ddf.configuration.persistence.felix.FelixConfigPersistenceStrategy;
-import org.codice.ddf.configuration.status.ConfigurationFileException;
-import org.codice.ddf.migration.DescribableBean;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.UnexpectedMigrationException;
 import org.junit.Before;
@@ -53,7 +51,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.rule.PowerMockRule;
 
 @RunWith(MockitoJUnitRunner.class)
-@PrepareForTest({ConfigurationAdminMigration.class, FileUtils.class, Files.class})
+@PrepareForTest({ConfigurationAdminMigratable.class, FileUtils.class, Files.class})
 public class ConfigurationAdminMigrationTest {
 
     @Rule
@@ -98,21 +96,21 @@ public class ConfigurationAdminMigrationTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithNullDirectoryStream() {
-        new ConfigurationAdminMigration(null,
+        new ConfigurationAdminMigratable(null,
                 configurationAdmin, persistenceStrategy, describable,
                 CONFIGURATION_FILE_EXTENSION);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithNullConfigurationAdmin() {
-        new ConfigurationAdminMigration(configurationDirectoryStream,
+        new ConfigurationAdminMigratable(configurationDirectoryStream,
                 null, persistenceStrategy, describable,
                 CONFIGURATION_FILE_EXTENSION);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithNullConfigurationFileExtension() {
-        new ConfigurationAdminMigration(configurationDirectoryStream,
+        new ConfigurationAdminMigratable(configurationDirectoryStream,
                 configurationAdmin, persistenceStrategy, describable,
                 null);
     }
@@ -133,8 +131,8 @@ public class ConfigurationAdminMigrationTest {
         when(configurationDirectoryStream.iterator()).thenReturn(configFilesIterator);
         when(configFilesIterator.hasNext()).thenReturn(false);
 
-        ConfigurationAdminMigration configurationAdminMigration =
-                new ConfigurationAdminMigration(configurationDirectoryStream,
+        ConfigurationAdminMigratable configurationAdminMigration =
+                new ConfigurationAdminMigratable(configurationDirectoryStream,
                         configurationAdmin, new FelixConfigPersistenceStrategy(), describable,
                         CONFIGURATION_FILE_EXTENSION);
 
@@ -156,7 +154,7 @@ public class ConfigurationAdminMigrationTest {
                     .when(FileUtils.class);
             FileUtils.forceMkdir(CONFIG_FILES_EXPORT_PATH.toFile());
 
-            ConfigurationAdminMigration configurationAdminMigration =
+            ConfigurationAdminMigratable configurationAdminMigration =
                     createConfigurationAdminMigratorWithNoFiles();
 
             configurationAdminMigration.export(EXPORTED_DIRECTORY_PATH);
@@ -170,7 +168,7 @@ public class ConfigurationAdminMigrationTest {
     @Test(expected = IllegalArgumentException.class)
     public void testExportWithNullExportDirectory() throws IOException, ConfigurationFileException {
 
-        ConfigurationAdminMigration configurationAdminMigration =
+        ConfigurationAdminMigratable configurationAdminMigration =
                 createConfigurationAdminMigratorWithNoFiles();
         configurationAdminMigration.export(null);
     }
@@ -181,7 +179,7 @@ public class ConfigurationAdminMigrationTest {
 
         doThrow(new IOException()).when(configurationAdmin)
                 .listConfigurations(anyString());
-        ConfigurationAdminMigration configurationAdminMigration =
+        ConfigurationAdminMigratable configurationAdminMigration =
                 createConfigurationAdminMigratorWithNoFiles();
         configurationAdminMigration.export(EXPORTED_DIRECTORY_PATH);
     }
@@ -192,7 +190,7 @@ public class ConfigurationAdminMigrationTest {
 
         doThrow(new InvalidSyntaxException("", "")).when(configurationAdmin)
                 .listConfigurations(anyString());
-        ConfigurationAdminMigration configurationAdminMigration =
+        ConfigurationAdminMigratable configurationAdminMigration =
                 createConfigurationAdminMigratorWithNoFiles();
         configurationAdminMigration.export(EXPORTED_DIRECTORY_PATH);
     }
@@ -206,7 +204,7 @@ public class ConfigurationAdminMigrationTest {
         when(configuration.getPid()).thenReturn("my.pid");
         when(configurationAdmin.listConfigurations((String) isNull())).thenReturn(new Configuration[] {
                 configuration});
-        ConfigurationAdminMigration configurationAdminMigration =
+        ConfigurationAdminMigratable configurationAdminMigration =
                 createConfigurationAdminMigratorWithNoFiles();
         configurationAdminMigration.export(EXPORTED_DIRECTORY_PATH);
     }
@@ -216,16 +214,16 @@ public class ConfigurationAdminMigrationTest {
             throws IOException, InvalidSyntaxException, ConfigurationFileException {
 
         when(configurationAdmin.listConfigurations(anyString())).thenReturn(null);
-        ConfigurationAdminMigration configurationAdminMigration =
+        ConfigurationAdminMigratable configurationAdminMigration =
                 createConfigurationAdminMigratorWithNoFiles();
         configurationAdminMigration.export(EXPORTED_DIRECTORY_PATH);
     }
 
-    private ConfigurationAdminMigration createConfigurationAdminMigratorWithNoFiles() {
+    private ConfigurationAdminMigratable createConfigurationAdminMigratorWithNoFiles() {
         when(configurationDirectoryStream.iterator()).thenReturn(configFilesIterator);
         when(configFilesIterator.hasNext()).thenReturn(false);
 
-        return new ConfigurationAdminMigration(configurationDirectoryStream,
+        return new ConfigurationAdminMigratable(configurationDirectoryStream,
                 configurationAdmin, persistenceStrategy, describable,
                 CONFIGURATION_FILE_EXTENSION);
     }

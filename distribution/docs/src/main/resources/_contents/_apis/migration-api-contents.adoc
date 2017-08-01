@@ -12,7 +12,7 @@ used by the system to identify bundles that provide implementations for  export 
 The `Migratable` API provides a mechanism for bundles to handle exporting data required to clone a ${branding} system.
 The migration process is meant to be flexible, so an implementation of `org.codice.ddf.migration.Migratable` can handle exporting data for a single bundle or groups of bundles such as applications.
 For example, the `org.codice.ddf.platform.migratable.impl.PlatformMigratable` handles exporting core system files for the ${ddf-platform} Application.
-Exporting configurations stored in `org.osgi.service.cm.ConfigurationAdmin` does not need to be handled by implementations of `org.codice.ddf.migration.Migratable` as all `ConfigurationAdmin` configurations are exported by `org.codice.ddf.configuration.admin.ConfigurationAdminMigration`.
+Exporting configurations stored in `org.osgi.service.cm.ConfigurationAdmin` does not need to be handled by implementations of `org.codice.ddf.migration.Migratable` as all `ConfigurationAdmin` configurations are exported by `org.codice.ddf.configuration.admin.ConfigurationAdminMigratable`.
 An export operation can be performed through the ${command-console} or through the ${admin-console}. When an export operation is processed, the migration API will do a look-up for all registered OSGi services that are implementing `Migratable` and call their `export()` method.
 
 The services that implement one of the migratable interfaces will be called one at a time, in any order, and do not need to be thread safe.

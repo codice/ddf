@@ -37,4 +37,11 @@ public interface MigrationContext {
      * @return the current migratable identifier
      */
     public String getId();
+
+    /**
+     * Gets the exported version for the corresponding migratable.
+     *
+     * @return the exported version for the corresponding migratable
+     */
+    public String getVersion();
 }

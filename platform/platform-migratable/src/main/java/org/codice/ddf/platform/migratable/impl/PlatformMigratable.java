@@ -21,9 +21,9 @@ import java.util.List;
 import java.util.Optional;
 
 import org.codice.ddf.migration.ConfigurationMigratable;
-import org.codice.ddf.migration.DescribableBean;
 import org.codice.ddf.migration.ExportMigrationContext;
 import org.codice.ddf.migration.ImportMigrationContext;
+import org.codice.ddf.migration.ImportMigrationException;
 import org.codice.ddf.migration.MigrationEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,8 +33,15 @@ import com.google.common.collect.ImmutableList;
 /**
  * This class handles the export process for all Platform system files.
  */
-public class PlatformMigratable extends DescribableBean implements ConfigurationMigratable {
+public class PlatformMigratable implements ConfigurationMigratable {
     private static final Logger LOGGER = LoggerFactory.getLogger(PlatformMigratable.class);
+
+    /**
+     * Holds the current export version.
+     * <p>
+     * 1.0 - initial version
+     */
+    private static final String VERSION = "1.0";
 
     private static final String KEYSTORE_SYSTEM_PROP = "javax.net.ssl.keyStore";
 
@@ -65,8 +72,32 @@ public class PlatformMigratable extends DescribableBean implements Configuration
     private static final PathMatcher SERVICE_WRAPPER_CONF_FILTER = FileSystems.getDefault()
             .getPathMatcher("glob:**/*-wrapper.conf");
 
-    public PlatformMigratable(DescribableBean info) {
-        super(info);
+    public PlatformMigratable() {
+    }
+
+    @Override
+    public String getVersion() {
+        return PlatformMigratable.VERSION;
+    }
+
+    @Override
+    public String getId() {
+        return "ddf.platform";
+    }
+
+    @Override
+    public String getTitle() {
+        return "Platform Migration";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Exports Platform system files";
+    }
+
+    @Override
+    public String getOrganization() {
+        return "Codice";
     }
 
     @Override
@@ -90,6 +121,15 @@ public class PlatformMigratable extends DescribableBean implements Configuration
 
     @Override
     public void doImport(ImportMigrationContext context) {
+        if (!PlatformMigratable.VERSION.equals(context.getVersion())) {
+            context.getReport()
+                    .record(new ImportMigrationException(String.format(
+                            "unsupported exported migrated version [%s] for migratable [%s]; currently supporting [%s]",
+                            context.getVersion(),
+                            getId(),
+                            PlatformMigratable.VERSION)));
+            return;
+        }
         LOGGER.debug("Importing system files...");
         PlatformMigratable.SYSTEM_FILES.stream()
                 .map(context::getEntry)

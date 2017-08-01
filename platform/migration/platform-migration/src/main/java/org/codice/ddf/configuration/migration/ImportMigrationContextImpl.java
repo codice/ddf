@@ -190,7 +190,16 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
         entries.put(entry.getPath(), entry);
     }
 
-    void processMetadata(Map<String, Object> metadata) {
+    InputStream getInputStreamFor(ZipEntry entry) {
+        try {
+            return zip.getInputStream(entry);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    protected void processMetadata(Map<String, Object> metadata) {
+        super.processMetadata(metadata);
         // process external entries first so we have a complete set of migratable data entries that
         // were exported by a migratable before we start looking at the property references
         JsonUtils.getListFrom(metadata, MigrationContextImpl.METADATA_EXTERNALS)
@@ -217,13 +226,5 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
                     mpe.addPropertyReferenceEntry(me.getProperty(), me);
                     return mpe;
                 }));
-    }
-
-    InputStream getInputStreamFor(ZipEntry entry) {
-        try {
-            return zip.getInputStream(entry);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
     }
 }

@@ -18,12 +18,10 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
-import javax.validation.constraints.NotNull;
-
 import org.codice.ddf.migration.ConfigurationMigratable;
-import org.codice.ddf.migration.DescribableBean;
 import org.codice.ddf.migration.ExportMigrationContext;
 import org.codice.ddf.migration.ImportMigrationContext;
+import org.codice.ddf.migration.ImportMigrationException;
 import org.codice.ddf.migration.MigrationEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,8 +31,15 @@ import com.google.common.collect.ImmutableList;
 /**
  * This class handles the export process for all Security system files
  */
-public class SecurityMigratable extends DescribableBean implements ConfigurationMigratable {
+public class SecurityMigratable implements ConfigurationMigratable {
     private static final Logger LOGGER = LoggerFactory.getLogger(SecurityMigratable.class);
+
+    /**
+     * Holds the current export version.
+     * <p>
+     * 1.0 - initial version
+     */
+    private static final String VERSION = "1.0";
 
     private static final Path PDP_POLICIES_DIR = Paths.get("etc", "pdp");
 
@@ -46,8 +51,31 @@ public class SecurityMigratable extends DescribableBean implements Configuration
 
     private static final String CRL_PROP_KEY = "org.apache.ws.security.crypto.merlin.x509crl.file";
 
-    public SecurityMigratable(@NotNull DescribableBean info) {
-        super(info);
+    public SecurityMigratable() {}
+
+    @Override
+    public String getVersion() {
+        return SecurityMigratable.VERSION;
+    }
+
+    @Override
+    public String getId() {
+        return "ddf.security";
+    }
+
+    @Override
+    public String getTitle() {
+        return "Security Migration";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Exports Security system files";
+    }
+
+    @Override
+    public String getOrganization() {
+        return "Codice";
     }
 
     @Override
@@ -70,6 +98,15 @@ public class SecurityMigratable extends DescribableBean implements Configuration
 
     @Override
     public void doImport(ImportMigrationContext context) {
+        if (!SecurityMigratable.VERSION.equals(context.getVersion())) {
+            context.getReport()
+                    .record(new ImportMigrationException(String.format(
+                            "unsupported exported migrated version [%s] for migratable [%s]; currently supporting [%s]",
+                            context.getVersion(),
+                            getId(),
+                            SecurityMigratable.VERSION)));
+            return;
+        }
         SecurityMigratable.PROPERTIES_FILES.stream()
                 .map(context::getEntry)
                 .filter(Optional::isPresent)
