@@ -14,7 +14,7 @@
                xsi:schemaLocation="urn:activemq /schema/artemis-configuration.xsd">
 
     <core xmlns="urn:activemq:core">
-
+        <name>artemis</name>
         <addresses>
             <address name="DLQ">
                 <anycast>

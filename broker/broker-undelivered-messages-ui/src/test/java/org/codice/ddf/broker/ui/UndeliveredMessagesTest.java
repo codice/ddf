@@ -35,7 +35,6 @@ import javax.management.openmbean.OpenDataException;
 import javax.management.openmbean.OpenType;
 import javax.management.openmbean.SimpleType;
 
-import org.codice.ddf.configuration.SystemBaseUrl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,9 +55,9 @@ public class UndeliveredMessagesTest {
     private static final String RETRY_MESSAGE = "retryMessage";
 
     private final ObjectName objectName = new ObjectName(
-            "org.apache.activemq.artemis:broker=\"" + SystemBaseUrl.getHost()
-                    + "\",component=addresses,address=\"" + ADDRESS
-                    + "\",subcomponent=queues,routing-type=\"anycast\",queue=\"" + QUEUE + "\"");
+            "org.apache.activemq.artemis:broker=\"artemis\",component=addresses,address=\""
+                    + ADDRESS + "\",subcomponent=queues,routing-type=\"anycast\",queue=\"" + QUEUE
+                    + "\"");
 
     private UndeliveredMessages undeliveredMessagesService;
 

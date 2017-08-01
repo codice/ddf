@@ -35,7 +35,6 @@ import javax.management.openmbean.OpenDataException;
 import javax.management.openmbean.OpenType;
 import javax.management.openmbean.SimpleType;
 
-import org.codice.ddf.configuration.SystemBaseUrl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -220,9 +219,10 @@ public class UndeliveredMessages implements UndeliveredMessagesMBean {
 
     private ObjectName createArtemisObjectName(String address, String queue) {
         try {
-            return new ObjectName("org.apache.activemq.artemis:broker=\"" + SystemBaseUrl.getHost()
-                    + "\",component=addresses,address=\"" + address
-                    + "\",subcomponent=queues,routing-type=\"anycast\",queue=\"" + queue + "\"");
+            return new ObjectName(
+                    "org.apache.activemq.artemis:broker=\"artemis\",component=addresses,address=\""
+                            + address + "\",subcomponent=queues,routing-type=\"anycast\",queue=\""
+                            + queue + "\"");
         } catch (MalformedObjectNameException e) {
             LOGGER.warn(
                     "Unable to create the Artemis ObjectName, with the given the address: {}, and "
