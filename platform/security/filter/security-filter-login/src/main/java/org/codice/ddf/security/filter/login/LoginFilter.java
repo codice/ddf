@@ -752,11 +752,18 @@ public class LoginFilter implements Filter {
                 LOGGER.trace("Cannot load signature properties using: {}", signaturePropertiesFile);
                 return null;
             }
+            ClassLoader contextClassLoader = Thread.currentThread()
+                    .getContextClassLoader();
+            Thread.currentThread()
+                    .setContextClassLoader(LoginFilter.class.getClassLoader());
             try {
                 signatureCrypto = CryptoFactory.getInstance(sigProperties);
             } catch (WSSecurityException ex) {
                 LOGGER.trace("Error in loading the signature Crypto object.", ex);
                 return null;
+            } finally {
+                Thread.currentThread()
+                        .setContextClassLoader(contextClassLoader);
             }
         }
         return signatureCrypto;

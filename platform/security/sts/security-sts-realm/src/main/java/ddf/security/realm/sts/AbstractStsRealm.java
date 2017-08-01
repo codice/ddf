@@ -216,18 +216,27 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
         try {
             LOGGER.debug("Requesting security token from STS at: {}.", stsAddress);
 
-            if (authToken != null) {
-                LOGGER.debug(
-                        "Telling the STS to request a security token on behalf of the auth token");
-                STSClient stsClient = configureStsClient();
+            ClassLoader contextClassLoader = Thread.currentThread()
+                    .getContextClassLoader();
+            Thread.currentThread()
+                    .setContextClassLoader(AbstractStsRealm.class.getClassLoader());
+            try {
+                if (authToken != null) {
+                    LOGGER.debug(
+                            "Telling the STS to request a security token on behalf of the auth token");
+                    STSClient stsClient = configureStsClient();
 
-                stsClient.setWsdlLocation(stsAddress);
-                stsClient.setOnBehalfOf(authToken);
-                stsClient.setTokenType(getAssertionType());
-                stsClient.setKeyType(getKeyType());
-                stsClient.setKeySize(Integer.parseInt(getKeySize()));
-                token = stsClient.requestSecurityToken(stsAddress);
-                LOGGER.debug("Finished requesting security token.");
+                    stsClient.setWsdlLocation(stsAddress);
+                    stsClient.setOnBehalfOf(authToken);
+                    stsClient.setTokenType(getAssertionType());
+                    stsClient.setKeyType(getKeyType());
+                    stsClient.setKeySize(Integer.parseInt(getKeySize()));
+                    token = stsClient.requestSecurityToken(stsAddress);
+                    LOGGER.debug("Finished requesting security token.");
+                }
+            } finally {
+                Thread.currentThread()
+                        .setContextClassLoader(contextClassLoader);
             }
         } catch (Exception e) {
             String msg = "Error requesting the security token from STS at: " + stsAddress + ".";

@@ -44,11 +44,6 @@
             <artifactId>security-core-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.security</groupId>
-            <artifactId>ddf-security-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.security.encryption</groupId>
             <artifactId>security-encryption-api</artifactId>
         </dependency>
@@ -110,6 +105,7 @@
                         <Import-Package>
                             org.apache.commons.io;version="1.4.0",
                             ddf.security.sts.client.configuration,
+                            org.apache.wss4j.common.crypto,
                             *
                         </Import-Package>
                         <Embed-Dependency>
