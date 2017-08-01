@@ -77,7 +77,7 @@ public class RemoveAllCommand extends CatalogCommands {
 
     @Argument(name = "Batch size", description =
             "Number of Metacards to delete at a time until completion. Change this argument based on system memory and Catalog limits. "
-                    + "Must be a positive integer.", index = 0, multiValued = false, required = false)
+                    + "Must be a positive integer.\nNOTE: Batch size may not be honored given system constraints.", index = 0, multiValued = false, required = false)
     int batchSize = DEFAULT_BATCH_SIZE;
 
     @Option(name = "-e", required = false, aliases = {
@@ -189,7 +189,8 @@ public class RemoveAllCommand extends CatalogCommands {
             console.flush();
 
             // Break out if there are no more records to delete
-            if (amountDeleted < batchSize || batchSize < 1) {
+            // Prevents additional query to catalog framework
+            if (response.getResults().isEmpty()) {
                 break;
             }
 
