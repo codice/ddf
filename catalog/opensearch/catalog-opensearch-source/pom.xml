@@ -97,11 +97,10 @@
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
         </dependency>
-        <!-- TEST DEPENDENCIES -->
         <dependency>
-            <groupId>commons-httpclient</groupId>
-            <artifactId>commons-httpclient</artifactId>
-            <scope>test</scope>
+            <groupId>ddf.catalog.opensearch</groupId>
+            <artifactId>catalog-opensearch-api</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
@@ -165,9 +164,19 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+        </dependency>
+        <dependency>
             <groupId>ddf.security.core</groupId>
             <artifactId>security-core-impl</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <!-- TEST DEPENDENCIES -->
+        <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>
@@ -185,9 +194,10 @@
                             jdom,
                             security-rest-cxfwrapper,
                             ddf-security-common,
-                            platform-util-unavailableurls,
                             catalog-core-api-impl,
-                            security-core-impl
+                            security-core-impl,
+                            platform-util-unavailableurls,
+                            platform-util
                         </Embed-Dependency>
                         <Import-Package><!-- To avoid ClassNotFoundException for FOMFactory -->
                             org.apache.axiom.om,
@@ -203,14 +213,9 @@
                             com.ctc.wstx.stax, <!-- needed by FOMWriter -->
                             *
                         </Import-Package>
-                        <Private-Package>
-                            ddf.catalog.source.opensearch,
-                            ddf.catalog.data.impl.*,
-                            ddf.catalog.operation.impl,
-                            ddf.catalog.util.impl,
-                            org.codice.ddf.platform.util
-                        </Private-Package>
-                        <Export-Package/>
+                        <Export-Package>
+                            ddf.catalog.source.opensearch.impl
+                        </Export-Package>
                     </instructions>
                 </configuration>
             </plugin>
@@ -232,19 +237,18 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.46</minimum>
+                                            <minimum>0.75</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.33</minimum>
+                                            <minimum>0.61</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.22</minimum>
+                                            <minimum>0.50</minimum>
                                         </limit>
-
                                     </limits>
                                 </rule>
                             </rules>

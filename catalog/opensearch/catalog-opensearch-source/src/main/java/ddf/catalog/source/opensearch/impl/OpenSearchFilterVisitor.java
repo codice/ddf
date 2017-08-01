@@ -11,12 +11,12 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.source.opensearch;
+package ddf.catalog.source.opensearch.impl;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.Expression;
@@ -27,7 +27,6 @@ import org.geotools.geometry.jts.spatialschema.geometry.primitive.PointImpl;
 import org.geotools.geometry.jts.spatialschema.geometry.primitive.SurfaceImpl;
 import org.geotools.temporal.object.DefaultPeriodDuration;
 import org.opengis.filter.And;
-import org.opengis.filter.Filter;
 import org.opengis.filter.Not;
 import org.opengis.filter.Or;
 import org.opengis.filter.PropertyIsEqualTo;
@@ -59,37 +58,20 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenSearchFilterVisitor.class);
 
-    private List<Filter> filters;
-
-    // Can only have one each of each type of filter in an OpenSearch query
-    private ContextualSearch contextualSearch;
-
-    private TemporalFilter temporalSearch;
-
-    private SpatialFilter spatialSearch;
-
-    private String id;
-
-    private NestedTypes currentNest = null;
-
-    public OpenSearchFilterVisitor() {
-        filters = new ArrayList<Filter>();
-
-        contextualSearch = null;
-        temporalSearch = null;
-        spatialSearch = null;
-        id = null;
-    }
-
     @Override
     public Object visit(Not filter, Object data) {
+        OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
+                getOpenSearchFilterVisitorObjectFromData(data);
+        if (openSearchFilterVisitorObject == null) {
+            return data;
+        }
+
         Object newData;
-        NestedTypes parentNest = currentNest;
+        NestedTypes parentNest = openSearchFilterVisitorObject.getCurrentNest();
         LOGGER.trace("ENTERING: NOT filter");
-        currentNest = NestedTypes.NOT;
-        filters.add(filter);
+        openSearchFilterVisitorObject.setCurrentNest(NestedTypes.NOT);
         newData = super.visit(filter, data);
-        currentNest = parentNest;
+        openSearchFilterVisitorObject.setCurrentNest(parentNest);
         LOGGER.trace("EXITING: NOT filter");
 
         return newData;
@@ -97,13 +79,18 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
 
     @Override
     public Object visit(Or filter, Object data) {
+        OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
+                getOpenSearchFilterVisitorObjectFromData(data);
+        if (openSearchFilterVisitorObject == null) {
+            return data;
+        }
+
         Object newData;
-        NestedTypes parentNest = currentNest;
+        NestedTypes parentNest = openSearchFilterVisitorObject.getCurrentNest();
         LOGGER.trace("ENTERING: OR filter");
-        currentNest = NestedTypes.OR;
-        filters.add(filter);
+        openSearchFilterVisitorObject.setCurrentNest(NestedTypes.OR);
         newData = super.visit(filter, data);
-        currentNest = parentNest;
+        openSearchFilterVisitorObject.setCurrentNest(parentNest);
         LOGGER.trace("EXITING: OR filter");
 
         return newData;
@@ -111,13 +98,18 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
 
     @Override
     public Object visit(And filter, Object data) {
+        OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
+                getOpenSearchFilterVisitorObjectFromData(data);
+        if (openSearchFilterVisitorObject == null) {
+            return data;
+        }
+
         Object newData;
-        NestedTypes parentNest = currentNest;
+        NestedTypes parentNest = openSearchFilterVisitorObject.getCurrentNest();
         LOGGER.trace("ENTERING: AND filter");
-        currentNest = NestedTypes.AND;
-        filters.add(filter);
+        openSearchFilterVisitorObject.setCurrentNest(NestedTypes.AND);
         newData = super.visit(filter, data);
-        currentNest = parentNest;
+        openSearchFilterVisitorObject.setCurrentNest(parentNest);
         LOGGER.trace("EXITING: AND filter");
 
         return newData;
@@ -129,7 +121,14 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
     @Override
     public Object visit(DWithin filter, Object data) {
         LOGGER.trace("ENTERING: DWithin filter");
-        if (currentNest == null || NestedTypes.AND.equals(currentNest)) {
+        OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
+                getOpenSearchFilterVisitorObjectFromData(data);
+        if (openSearchFilterVisitorObject == null) {
+            return data;
+        }
+
+        if (openSearchFilterVisitorObject.getCurrentNest() == null || NestedTypes.AND.equals(
+                openSearchFilterVisitorObject.getCurrentNest())) {
             // The geometric point is wrapped in a <Literal> element, so have to
             // get geometry expression as literal and then evaluate it to get
             // the geometry.
@@ -148,9 +147,9 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
             LOGGER.debug("point: coords[0] = {},   coords[1] = {}", coords[0], coords[1]);
             LOGGER.debug("radius = {}", distance);
 
-            this.spatialSearch = new SpatialDistanceFilter(coords[0], coords[1], distance);
-
-            filters.add(filter);
+            openSearchFilterVisitorObject.setSpatialSearch(new SpatialDistanceFilter(coords[0],
+                    coords[1],
+                    distance));
         } else {
             LOGGER.debug(ONLY_AND_MSG);
         }
@@ -166,7 +165,14 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
     @Override
     public Object visit(Contains filter, Object data) {
         LOGGER.trace("ENTERING: Contains filter");
-        if (currentNest == null || NestedTypes.AND.equals(currentNest)) {
+        OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
+                getOpenSearchFilterVisitorObjectFromData(data);
+        if (openSearchFilterVisitorObject == null) {
+            return data;
+        }
+
+        if (openSearchFilterVisitorObject.getCurrentNest() == null || NestedTypes.AND.equals(
+                openSearchFilterVisitorObject.getCurrentNest())) {
             // The geometric point is wrapped in a <Literal> element, so have to
             // get geometry expression as literal and then evaluate it to get
             // the geometry.
@@ -194,12 +200,9 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
                     }
                 }
                 geometryWkt.append("))");
-                this.spatialSearch = new SpatialFilter(geometryWkt.toString());
+                openSearchFilterVisitorObject.setSpatialSearch(new SpatialFilter(geometryWkt.toString()));
 
                 LOGGER.debug("geometryWkt = [{}]", geometryWkt.toString());
-
-                filters.add(filter);
-
             } else {
                 LOGGER.debug("Only POLYGON geometry WKT for Contains filter is supported");
             }
@@ -218,7 +221,14 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
     @Override
     public Object visit(Intersects filter, Object data) {
         LOGGER.trace("ENTERING: Intersects filter");
-        if (currentNest == null || NestedTypes.AND.equals(currentNest)) {
+        OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
+                getOpenSearchFilterVisitorObjectFromData(data);
+        if (openSearchFilterVisitorObject == null) {
+            return data;
+        }
+
+        if (openSearchFilterVisitorObject.getCurrentNest() == null || NestedTypes.AND.equals(
+                openSearchFilterVisitorObject.getCurrentNest())) {
             // The geometric point is wrapped in a <Literal> element, so have to
             // get geometry expression as literal and then evaluate it to get
             // the geometry.
@@ -246,11 +256,9 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
                     }
                 }
                 geometryWkt.append("))");
-                this.spatialSearch = new SpatialFilter(geometryWkt.toString());
+                openSearchFilterVisitorObject.setSpatialSearch(new SpatialFilter(geometryWkt.toString()));
 
                 LOGGER.debug("geometryWkt = [{}]", geometryWkt.toString());
-
-                filters.add(filter);
             } else {
                 LOGGER.debug("Only POLYGON geometry WKT for Intersects filter is supported");
             }
@@ -269,8 +277,15 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
     @Override
     public Object visit(TOverlaps filter, Object data) {
         LOGGER.trace("ENTERING: TOverlaps filter");
-        if (currentNest == null || NestedTypes.AND.equals(currentNest)) {
-            handleTemporal(filter);
+        OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
+                getOpenSearchFilterVisitorObjectFromData(data);
+        if (openSearchFilterVisitorObject == null) {
+            return data;
+        }
+
+        if (openSearchFilterVisitorObject.getCurrentNest() == null || NestedTypes.AND.equals(
+                openSearchFilterVisitorObject.getCurrentNest())) {
+            handleTemporal(filter, openSearchFilterVisitorObject);
         } else {
             LOGGER.debug(ONLY_AND_MSG);
         }
@@ -284,9 +299,16 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
      */
     @Override
     public Object visit(During filter, Object data) {
+        OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
+                getOpenSearchFilterVisitorObjectFromData(data);
+        if (openSearchFilterVisitorObject == null) {
+            return data;
+        }
+
         LOGGER.trace("ENTERING: TOverlaps filter");
-        if (currentNest == null || NestedTypes.AND.equals(currentNest)) {
-            handleTemporal(filter);
+        if (openSearchFilterVisitorObject.getCurrentNest() == null || NestedTypes.AND.equals(
+                openSearchFilterVisitorObject.getCurrentNest())) {
+            handleTemporal(filter, openSearchFilterVisitorObject);
         } else {
             LOGGER.debug(ONLY_AND_MSG);
         }
@@ -295,7 +317,8 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
         return super.visit(filter, data);
     }
 
-    private void handleTemporal(BinaryTemporalOperator filter) {
+    private void handleTemporal(BinaryTemporalOperator filter,
+            OpenSearchFilterVisitorObject openSearchFilterVisitorObject) {
 
         Literal literalWrapper = (Literal) filter.getExpression2();
         LOGGER.trace("literalWrapper.getValue() = {}", literalWrapper.getValue());
@@ -312,9 +335,8 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
                     .getPosition()
                     .getDate();
 
-            temporalSearch = new TemporalFilter(start, end);
+            openSearchFilterVisitorObject.setTemporalSearch(new TemporalFilter(start, end));
 
-            filters.add(filter);
         } else if (literal instanceof PeriodDuration) {
 
             DefaultPeriodDuration duration = (DefaultPeriodDuration) literal;
@@ -324,9 +346,8 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
                     .getTime();
             Date start = new Date(end.getTime() - duration.getTimeInMillis());
 
-            temporalSearch = new TemporalFilter(start, end);
+            openSearchFilterVisitorObject.setTemporalSearch(new TemporalFilter(start, end));
 
-            filters.add(filter);
         }
 
     }
@@ -337,8 +358,13 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
     @Override
     public Object visit(PropertyIsLike filter, Object data) {
         LOGGER.trace("ENTERING: PropertyIsLike filter");
+        OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
+                getOpenSearchFilterVisitorObjectFromData(data);
+        if (openSearchFilterVisitorObject == null) {
+            return data;
+        }
 
-        if (currentNest != NestedTypes.NOT) {
+        if (openSearchFilterVisitorObject.getCurrentNest() != NestedTypes.NOT) {
 
             LikeFilterImpl likeFilter = (LikeFilterImpl) filter;
 
@@ -349,14 +375,24 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
 
             String searchPhrase = likeFilter.getLiteral();
             LOGGER.debug("searchPhrase = [{}]", searchPhrase);
-            if (contextualSearch != null) {
-                contextualSearch.setSearchPhrase(
-                        contextualSearch.getSearchPhrase() + " " + currentNest.toString() + " "
-                                + searchPhrase);
+            if (openSearchFilterVisitorObject.getContextualSearch() != null) {
+                Map<String, String> searchPhraseMap =
+                        openSearchFilterVisitorObject.getContextualSearch()
+                                .getSearchPhraseMap();
+                if (searchPhraseMap.containsKey(OpenSearchParserImpl.SEARCH_TERMS)) {
+                    searchPhraseMap.put(OpenSearchParserImpl.SEARCH_TERMS,
+                            searchPhraseMap.get(OpenSearchParserImpl.SEARCH_TERMS) + " "
+                                    + openSearchFilterVisitorObject.getCurrentNest() + " "
+                                    + searchPhrase);
+                } else {
+                    searchPhraseMap.put(OpenSearchParserImpl.SEARCH_TERMS, searchPhrase);
+                }
             } else {
-                contextualSearch = new ContextualSearch(selectors,
-                        searchPhrase,
-                        likeFilter.isMatchingCase());
+                Map<String, String> searchPhraseMap = new HashMap<>();
+                searchPhraseMap.put(OpenSearchParserImpl.SEARCH_TERMS, searchPhrase);
+                openSearchFilterVisitorObject.setContextualSearch(new ContextualSearch(selectors,
+                        searchPhraseMap,
+                        likeFilter.isMatchingCase()));
             }
         }
 
@@ -371,26 +407,29 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
     @Override
     public Object visit(PropertyIsEqualTo filter, Object data) {
         LOGGER.trace("ENTERING: PropertyIsEqualTo filter");
+        OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
+                getOpenSearchFilterVisitorObjectFromData(data);
+        if (openSearchFilterVisitorObject == null) {
+            return data;
+        }
 
-        if (currentNest != NestedTypes.NOT) {
+        if (openSearchFilterVisitorObject.getCurrentNest() != NestedTypes.NOT) {
             if (filter instanceof IsEqualsToImpl) {
                 IsEqualsToImpl isEqualsTo = (IsEqualsToImpl) filter;
                 Expression leftValue = isEqualsTo.getLeftValue();
                 if (Metacard.ID.equals(leftValue.toString())) {
-                    id = isEqualsTo.getExpression2()
-                            .toString();
+                    openSearchFilterVisitorObject.setId(isEqualsTo.getExpression2()
+                            .toString());
                 }
             } else if (filter instanceof PropertyIsEqualToLiteral) {
                 PropertyIsEqualToLiteral isEqualsTo = (PropertyIsEqualToLiteral) filter;
                 if (Metacard.ID.equals(isEqualsTo.getExpression1()
                         .toString())) {
-                    id = isEqualsTo.getExpression2()
-                            .toString();
+                    openSearchFilterVisitorObject.setId(isEqualsTo.getExpression2()
+                            .toString());
                 }
             }
         }
-
-        filters.add(filter);
 
         LOGGER.trace("EXITING: PropertyIsEqualTo filter");
 
@@ -399,48 +438,20 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
 
     @Override
     public Object visit(PropertyName expression, Object data) {
-        LOGGER.trace("ENTERING: PropertyName expression");
-
-        // countOccurrence( expression );
-
-        LOGGER.trace("EXITING: PropertyName expression");
-
+        LOGGER.trace("Visiting PropertyName expression");
         return data;
     }
 
     @Override
     public Object visit(Literal expression, Object data) {
-        LOGGER.trace("ENTERING: Literal expression");
-
-        // countOccurrence( expression );
-
-        LOGGER.trace("EXITING: Literal expression");
-
+        LOGGER.trace("Visiting Literal expression");
         return data;
     }
 
-    public List<Filter> getFilters() {
-        return filters;
+    private OpenSearchFilterVisitorObject getOpenSearchFilterVisitorObjectFromData(Object data) {
+        if (data instanceof OpenSearchFilterVisitorObject) {
+            return (OpenSearchFilterVisitorObject) data;
+        }
+        return null;
     }
-
-    public ContextualSearch getContextualSearch() {
-        return contextualSearch;
-    }
-
-    public TemporalFilter getTemporalSearch() {
-        return temporalSearch;
-    }
-
-    public SpatialFilter getSpatialSearch() {
-        return spatialSearch;
-    }
-
-    public String getMetacardId() {
-        return id;
-    }
-
-    private enum NestedTypes {
-        AND, OR, NOT
-    }
-
 }

@@ -619,5 +619,10 @@
             <artifactId>csv-queryresponse-transformer</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.catalog.opensearch</groupId>
+            <artifactId>catalog-opensearch-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

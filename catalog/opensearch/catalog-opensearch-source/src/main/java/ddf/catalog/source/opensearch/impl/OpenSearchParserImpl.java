@@ -11,12 +11,13 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.source.opensearch;
+package ddf.catalog.source.opensearch.impl;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -33,95 +34,83 @@ import ddf.catalog.impl.filter.SpatialDistanceFilter;
 import ddf.catalog.impl.filter.SpatialFilter;
 import ddf.catalog.impl.filter.TemporalFilter;
 import ddf.catalog.operation.Query;
+import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.catalog.source.opensearch.OpenSearchParser;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
 
-/**
- * Utility helper class that performs much of the translation logic used in CddaOpenSearchSite.
- */
-public final class OpenSearchSiteUtil {
+public class OpenSearchParserImpl implements OpenSearchParser {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpenSearchParserImpl.class);
+
+    private static final String START_INDEX = "start";
+
+    // geospatial constants
+    private static final double LAT_DEGREE_M = 111325;
+
+    private static final Integer MAX_LAT = 90;
+
+    private static final Integer MIN_LAT = -90;
+
+    private static final Integer MAX_LON = 180;
+
+    private static final Integer MIN_LON = -180;
+
+    private static final Integer MAX_ROTATION = 360;
+
+    private static final Integer MAX_BBOX_POINTS = 4;
+
+    private static final String ORDER_ASCENDING = "asc";
+
+    private static final String ORDER_DESCENDING = "desc";
+
+    private static final String SORT_DELIMITER = ":";
+
+    private static final String SORT_RELEVANCE = "relevance";
+
+    private static final String SORT_TEMPORAL = "date";
 
     // OpenSearch defined parameters
     public static final String SEARCH_TERMS = "q";
 
     // temporal
-    public static final String TIME_START = "dtstart";
+    static final String TIME_START = "dtstart";
 
-    public static final String TIME_END = "dtend";
+    static final String TIME_END = "dtend";
 
-    public static final String TIME_NAME = "dateName";
+    static final String TIME_NAME = "dateName";
 
     // geospatial
-    public static final String GEO_LAT = "lat";
+    static final String GEO_LAT = "lat";
 
-    public static final String GEO_LON = "lon";
+    static final String GEO_LON = "lon";
 
-    public static final String GEO_RADIUS = "radius";
+    static final String GEO_RADIUS = "radius";
 
-    public static final String GEO_POLY = "polygon";
+    static final String GEO_POLY = "polygon";
 
-    public static final String GEO_BBOX = "bbox";
+    static final String GEO_BBOX = "bbox";
 
     // general options
-    public static final String SRC = "src";
+    static final String SRC = "src";
 
-    public static final String MAX_RESULTS = "mr";
+    static final String MAX_RESULTS = "mr";
 
-    public static final String COUNT = "count";
+    static final String COUNT = "count";
 
-    public static final String MAX_TIMEOUT = "mt";
+    static final String MAX_TIMEOUT = "mt";
 
-    public static final String USER_DN = "dn";
+    static final String USER_DN = "dn";
 
-    public static final String SORT = "sort";
+    static final String SORT = "sort";
 
-    public static final String FILTER = "filter";
+    static final String FILTER = "filter";
 
-    // only for async searches
-    public static final String START_INDEX = "start";
+    static final Integer DEFAULT_TOTAL_MAX = 1000;
 
-    // geospatial constants
-    public static final double LAT_DEGREE_M = 111325;
-
-    public static final Integer DEFAULT_TOTAL_MAX = 1000;
-
-    public static final Integer MAX_LAT = 90;
-
-    public static final Integer MIN_LAT = -90;
-
-    public static final Integer MAX_LON = 180;
-
-    public static final Integer MIN_LON = -180;
-
-    public static final Integer MAX_ROTATION = 360;
-
-    public static final Integer MAX_BBOX_POINTS = 4;
-
-    public static final String ORDER_ASCENDING = "asc";
-
-    public static final String ORDER_DESCENDING = "desc";
-
-    public static final String SORT_DELIMITER = ":";
-
-    public static final String SORT_RELEVANCE = "relevance";
-
-    public static final String SORT_TEMPORAL = "date";
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpenSearchSiteUtil.class);
-
-    private OpenSearchSiteUtil() {
-
-    }
-
-    /**
-     * Populates general site information.
-     *
-     * @param client  Initial StringBuilder url that is not filled in.
-     * @param query
-     * @param subject
-     */
-    public static void populateSearchOptions(WebClient client, Query query, Subject subject,
+    @Override
+    public void populateSearchOptions(WebClient client, QueryRequest queryRequest, Subject subject,
             List<String> parameters) {
         String maxTotalSize = null;
         String maxPerPage = null;
@@ -132,31 +121,34 @@ public final class OpenSearchSiteUtil {
         String filterStr = "";
         String sortStr = null;
 
-        if (query != null) {
+        if (queryRequest != null) {
+            Query query = queryRequest.getQuery();
 
-            maxPerPage = String.valueOf(query.getPageSize());
-            if (query.getPageSize() > DEFAULT_TOTAL_MAX) {
-                maxTotalSize = maxPerPage;
-            } else if (query.getPageSize() <= 0) {
-                maxTotalSize = String.valueOf(DEFAULT_TOTAL_MAX);
-            }
+            if (query != null) {
+                maxPerPage = String.valueOf(query.getPageSize());
+                if (query.getPageSize() > DEFAULT_TOTAL_MAX) {
+                    maxTotalSize = maxPerPage;
+                } else if (query.getPageSize() <= 0) {
+                    maxTotalSize = String.valueOf(DEFAULT_TOTAL_MAX);
+                }
 
-            start = Integer.toString(query.getStartIndex());
+                start = Integer.toString(query.getStartIndex());
 
-            timeout = Long.toString(query.getTimeoutMillis());
+                timeout = Long.toString(query.getTimeoutMillis());
 
-            sortStr = translateToOpenSearchSort(query.getSortBy());
+                sortStr = translateToOpenSearchSort(query.getSortBy());
 
-            if (subject != null && subject.getPrincipals() != null && !subject.getPrincipals()
-                    .isEmpty()) {
-                List principals = subject.getPrincipals()
-                        .asList();
-                for (Object principal : principals) {
-                    if (principal instanceof SecurityAssertion) {
-                        SecurityAssertion assertion = (SecurityAssertion) principal;
-                        Principal assertionPrincipal = assertion.getPrincipal();
-                        if (assertionPrincipal != null) {
-                            dn = assertionPrincipal.getName();
+                if (subject != null && subject.getPrincipals() != null && !subject.getPrincipals()
+                        .isEmpty()) {
+                    List principals = subject.getPrincipals()
+                            .asList();
+                    for (Object principal : principals) {
+                        if (principal instanceof SecurityAssertion) {
+                            SecurityAssertion assertion = (SecurityAssertion) principal;
+                            Principal assertionPrincipal = assertion.getPrincipal();
+                            if (assertionPrincipal != null) {
+                                dn = assertionPrincipal.getName();
+                            }
                         }
                     }
                 }
@@ -173,67 +165,24 @@ public final class OpenSearchSiteUtil {
         checkAndReplace(client, sortStr, SORT, parameters);
     }
 
-    public static String translateToOpenSearchSort(SortBy ddfSort) {
-        String openSearchSortStr = null;
-        String orderType = null;
-
-        if (ddfSort == null || ddfSort.getSortOrder() == null) {
-            return openSearchSortStr;
-        }
-
-        if (ddfSort.getSortOrder()
-                .equals(SortOrder.ASCENDING)) {
-            orderType = ORDER_ASCENDING;
-        } else {
-            orderType = ORDER_DESCENDING;
-        }
-
-        // QualifiedString type = ddfSort.getType();
-        PropertyName sortByField = ddfSort.getPropertyName();
-
-        if (Result.RELEVANCE.equals(sortByField.getPropertyName())) {
-            // asc relevance not supported by spec
-            openSearchSortStr = SORT_RELEVANCE + SORT_DELIMITER + ORDER_DESCENDING;
-        } else if (Result.TEMPORAL.equals(sortByField.getPropertyName())) {
-            openSearchSortStr = SORT_TEMPORAL + SORT_DELIMITER + orderType;
-        } else {
-            LOGGER.debug(
-                    "Couldn't determine sort policy, not adding sorting in request to federated site.");
-        }
-
-        return openSearchSortStr;
-    }
-
-    /**
-     * Fills in the OpenSearch query URL with contextual information (Note: Section 2.2 - Query: The
-     * OpenSearch specification does not define a syntax for its primary query parameter,
-     * searchTerms, but it is generally used to support simple keyword queries.)
-     *
-     * @param client
-     * @param searchPhrase
-     */
-    public static void populateContextual(WebClient client, final String searchPhrase,
+    @Override
+    public void populateContextual(WebClient client, Map<String, String> searchPhraseMap,
             List<String> parameters) {
-        String queryStr = searchPhrase;
-        if (queryStr != null) {
-            try {
-                queryStr = URLEncoder.encode(queryStr, "UTF-8");
-            } catch (UnsupportedEncodingException uee) {
-                LOGGER.debug("Could not encode contextual string", uee);
+        if (searchPhraseMap != null) {
+            String queryStr = searchPhraseMap.get(SEARCH_TERMS);
+            if (queryStr != null) {
+                try {
+                    queryStr = URLEncoder.encode(queryStr, "UTF-8");
+                } catch (UnsupportedEncodingException uee) {
+                    LOGGER.debug("Could not encode contextual string", uee);
+                }
             }
+            checkAndReplace(client, queryStr, SEARCH_TERMS, parameters);
         }
-
-        checkAndReplace(client, queryStr, SEARCH_TERMS, parameters);
     }
 
-    /**
-     * Fills in the opensearch query URL with temporal information (Start, End, and Name). Currently
-     * name is empty due to incompatibility with endpoints.
-     *
-     * @param client   OpenSearch URL to populate
-     * @param temporal TemporalCriteria that contains temporal data
-     */
-    public static void populateTemporal(WebClient client, TemporalFilter temporal,
+    @Override
+    public void populateTemporal(WebClient client, TemporalFilter temporal,
             List<String> parameters) {
         DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
         String start = "";
@@ -256,25 +205,20 @@ public final class OpenSearchSiteUtil {
         checkAndReplace(client, name, TIME_NAME, parameters);
     }
 
-    /**
-     * Fills in the OpenSearch query URL with geospatial information (poly, lat, lon, and radius).
-     *
-     * @param client  OpenSearch URL to populate
-     * @param spatial SpatialCriteria that contains the spatial data
-     */
-    public static void populateGeospatial(WebClient client, SpatialDistanceFilter spatial,
+    @Override
+    public void populateGeospatial(WebClient client, SpatialDistanceFilter spatial,
             boolean shouldConvertToBBox, List<String> parameters) throws UnsupportedQueryException {
         String lat = "";
         String lon = "";
         String radiusStr = "";
-        StringBuilder bbox = new StringBuilder("");
-        StringBuilder poly = new StringBuilder("");
+        StringBuilder bbox = new StringBuilder();
+        StringBuilder poly = new StringBuilder();
 
         if (spatial != null) {
             String wktStr = spatial.getGeometryWkt();
             double radius = spatial.getDistanceInMeters();
 
-            if (wktStr.indexOf("POINT") != -1) {
+            if (wktStr.contains("POINT")) {
                 String[] latLon = createLatLonAryFromWKT(wktStr);
                 lon = latLon[0];
                 lat = latLon[1];
@@ -305,23 +249,18 @@ public final class OpenSearchSiteUtil {
         checkAndReplace(client, bbox.toString(), GEO_BBOX, parameters);
     }
 
-    /**
-     * Fills in the OpenSearch query URL with geospatial information (poly, lat, lon, and radius).
-     *
-     * @param client  OpenSearch URL to populate
-     * @param spatial SpatialCriteria that contains the spatial data
-     */
-    public static void populateGeospatial(WebClient client, SpatialFilter spatial,
+    @Override
+    public void populateGeospatial(WebClient client, SpatialFilter spatial,
             boolean shouldConvertToBBox, List<String> parameters) throws UnsupportedQueryException {
         String lat = "";
         String lon = "";
         String radiusStr = "";
-        StringBuilder bbox = new StringBuilder("");
-        StringBuilder poly = new StringBuilder("");
+        StringBuilder bbox = new StringBuilder();
+        StringBuilder poly = new StringBuilder();
 
         if (spatial != null) {
             String wktStr = spatial.getGeometryWkt();
-            if (wktStr.indexOf("POLYGON") != -1) {
+            if (wktStr.contains("POLYGON")) {
                 String[] polyAry = createPolyAryFromWKT(wktStr);
                 if (shouldConvertToBBox) {
                     double[] bboxCoords = createBBoxFromPolygon(polyAry);
@@ -336,7 +275,9 @@ public final class OpenSearchSiteUtil {
                         if (i != 0) {
                             poly.append(",");
                         }
-                        poly.append(polyAry[i + 1] + "," + polyAry[i]);
+                        poly.append(polyAry[i + 1]);
+                        poly.append(",");
+                        poly.append(polyAry[i]);
                     }
                 }
             } else {
@@ -357,7 +298,7 @@ public final class OpenSearchSiteUtil {
      * @param wkt WKT String in the form of POLYGON((Lon Lat, Lon Lat...))
      * @return Lon on even # and Lat on odd #
      */
-    public static String[] createPolyAryFromWKT(String wkt) {
+    private String[] createPolyAryFromWKT(String wkt) {
         String lonLat = wkt.substring(wkt.indexOf("((") + 2, wkt.indexOf("))"));
         return lonLat.split(" |,\\p{Space}?");
     }
@@ -368,7 +309,7 @@ public final class OpenSearchSiteUtil {
      * @param wkt WKT String in the form of POINT( Lon Lat)
      * @return Lon at position 0, Lat at position 1
      */
-    public static String[] createLatLonAryFromWKT(String wkt) {
+    private String[] createLatLonAryFromWKT(String wkt) {
         String lonLat = wkt.substring(wkt.indexOf('(') + 1, wkt.indexOf(')'));
         return lonLat.split(" ");
     }
@@ -381,16 +322,14 @@ public final class OpenSearchSiteUtil {
      * @param inputStr   Item to put into the URL.
      * @param definition Area inside of the URL to be replaced by.
      */
-    private static void checkAndReplace(WebClient client, String inputStr, String definition,
+    private void checkAndReplace(WebClient client, String inputStr, String definition,
             List<String> parameters) {
-        if (hasParameter(definition, parameters)) {
-            if (StringUtils.isNotEmpty(inputStr)) {
-                client.replaceQueryParam(definition, inputStr);
-            }
+        if (hasParameter(definition, parameters) && StringUtils.isNotEmpty(inputStr)) {
+            client.replaceQueryParam(definition, inputStr);
         }
     }
 
-    private static boolean hasParameter(String parameter, List<String> parameters) {
+    private boolean hasParameter(String parameter, List<String> parameters) {
         for (String param : parameters) {
             if (param != null && param.equalsIgnoreCase(parameter)) {
                 return true;
@@ -409,7 +348,7 @@ public final class OpenSearchSiteUtil {
      * described as minX, minY, maxX, maxY (where longitude is the X-axis, and latitude is
      * the Y-axis).
      */
-    public static double[] createBBoxFromPointRadius(double lon, double lat, double radius) {
+    private double[] createBBoxFromPointRadius(double lon, double lat, double radius) {
         double minX;
         double minY;
         double maxX;
@@ -448,7 +387,7 @@ public final class OpenSearchSiteUtil {
      * described as minX, minY, maxX, maxY (where longitude is the X-axis, and latitude is
      * the Y-axis).
      */
-    public static double[] createBBoxFromPolygon(String[] polyAry) {
+    private double[] createBBoxFromPolygon(String[] polyAry) {
         double minX = Double.POSITIVE_INFINITY;
         double minY = Double.POSITIVE_INFINITY;
         double maxX = Double.NEGATIVE_INFINITY;
@@ -473,6 +412,36 @@ public final class OpenSearchSiteUtil {
             }
         }
         return new double[] {minX, minY, maxX, maxY};
+    }
+
+    private String translateToOpenSearchSort(SortBy ddfSort) {
+        String openSearchSortStr = null;
+        String orderType;
+
+        if (ddfSort == null || ddfSort.getSortOrder() == null) {
+            return null;
+        }
+
+        if (ddfSort.getSortOrder()
+                .equals(SortOrder.ASCENDING)) {
+            orderType = ORDER_ASCENDING;
+        } else {
+            orderType = ORDER_DESCENDING;
+        }
+
+        PropertyName sortByField = ddfSort.getPropertyName();
+
+        if (Result.RELEVANCE.equals(sortByField.getPropertyName())) {
+            // asc relevance not supported by spec
+            openSearchSortStr = SORT_RELEVANCE + SORT_DELIMITER + ORDER_DESCENDING;
+        } else if (Result.TEMPORAL.equals(sortByField.getPropertyName())) {
+            openSearchSortStr = SORT_TEMPORAL + SORT_DELIMITER + orderType;
+        } else {
+            LOGGER.debug(
+                    "Couldn't determine sort policy, not adding sorting in request to federated site.");
+        }
+
+        return openSearchSortStr;
     }
 
 }

@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 
-package ddf.catalog.source.opensearch;
+package ddf.catalog.source.opensearch.impl;
 
 import java.net.MalformedURLException;
 import java.net.URI;
