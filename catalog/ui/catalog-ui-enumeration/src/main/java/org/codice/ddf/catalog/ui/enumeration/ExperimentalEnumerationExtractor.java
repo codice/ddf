@@ -15,6 +15,7 @@ package org.codice.ddf.catalog.ui.enumeration;
 
 import static org.apache.commons.lang.StringUtils.isBlank;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,9 +27,12 @@ import javax.annotation.Nullable;
 
 import com.google.common.collect.Sets;
 
+import ddf.catalog.data.AttributeInjector;
+import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.validation.AttributeValidatorRegistry;
 import ddf.catalog.validation.violation.ValidationViolation;
 
@@ -40,10 +44,30 @@ public class ExperimentalEnumerationExtractor {
 
     private final List<MetacardType> metacardTypes;
 
+    private final List<AttributeInjector> attributeInjectors;
+
+    /**
+     * @deprecated This constructor does not take into account injected attributes.
+     * The other constructor <code>ExperimentalEnumerationExtractor/3</code> should be used.
+     * @param attributeValidatorRegistry
+     * @param metacardTypes
+     */
+    @Deprecated
     public ExperimentalEnumerationExtractor(AttributeValidatorRegistry attributeValidatorRegistry,
             List<MetacardType> metacardTypes) {
+        this(attributeValidatorRegistry, metacardTypes, Collections.emptyList());
+    }
+
+    /**
+     * @param attributeValidatorRegistry validators to build enumerations from
+     * @param metacardTypes metacard types to associate attributes with types
+     * @param attributeInjectors injected attributes
+     */
+    public ExperimentalEnumerationExtractor(AttributeValidatorRegistry attributeValidatorRegistry,
+            List<MetacardType> metacardTypes, List<AttributeInjector> attributeInjectors) {
         this.attributeValidatorRegistry = attributeValidatorRegistry;
         this.metacardTypes = metacardTypes;
+        this.attributeInjectors = attributeInjectors;
     }
 
     public Map<String, Set<String>> getAttributeEnumerations(String attribute) {
@@ -78,6 +102,8 @@ public class ExperimentalEnumerationExtractor {
             return new HashMap<>();
         }
 
+        type = applyInjectors(type, attributeInjectors);
+
         return type.getAttributeDescriptors()
                 .stream()
                 .flatMap(ad -> attributeValidatorRegistry.getValidators(ad.getName())
@@ -109,5 +135,13 @@ public class ExperimentalEnumerationExtractor {
                         .equals(metacardType))
                 .findFirst()
                 .orElse(null);
+    }
+
+    private MetacardType applyInjectors(MetacardType original, List<AttributeInjector> injectors) {
+        Metacard metacard = new MetacardImpl(original);
+        for (AttributeInjector injector : injectors) {
+            metacard = injector.injectAttributes(metacard);
+        }
+        return metacard.getMetacardType();
     }
 }

@@ -170,6 +170,10 @@
         <argument>
             <reference-list interface="ddf.catalog.data.MetacardType"/>
         </argument>
+        <argument>
+            <reference-list interface="ddf.catalog.data.AttributeInjector"
+                            availability="optional"/>
+        </argument>
     </bean>
 
     <bean id="associated" class="org.codice.ddf.catalog.ui.metacard.associations.Associated">
