@@ -30,8 +30,6 @@ import static org.mockito.Mockito.when;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 
-import com.google.common.collect.Lists;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -46,6 +44,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
+
+import com.google.common.collect.Lists;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
@@ -212,17 +212,25 @@ public class SeedCommandTest extends CommandCatalogFrameworkCommon {
         verify(catalogFramework, times(2)).query(any(QueryRequest.class));
     }
 
+    /**
+     * This test will verify that seed does not skip resources when the maximum page
+     * size is less than the specified resource limit. This concern was raised after
+     * query results became limited to a maximum in DDF-2872.
+     *
+     * @throws Exception
+     */
     @Test
     public void testDoesNotSkipResources() throws Exception {
 
-        int maxPageSize = NumberUtils.toInt(System.getProperty("catalog.maxPageSize"), 1000);
+        int maxPageSize = getMaxPageSize();
         int resourceLimit = maxPageSize * 2;
 
-        mockMultipleQueries(maxPageSize, resourceLimit);
+        String expected = resourceLimit + " resource download(s) started.";
+
+        mockMultipleCatalogFrameworkQueries(maxPageSize, resourceLimit);
 
         seedCommand.executeWithSubject();
-        assertThat(consoleOutput.getOutput(),
-                containsString(resourceLimit + " resource download(s) started."));
+        assertThat(consoleOutput.getOutput(), containsString(expected));
     }
 
     private void runCommandAndVerifyResourceRequests(int expectedResourceRequests,
@@ -306,17 +314,22 @@ public class SeedCommandTest extends CommandCatalogFrameworkCommon {
         }
     }
 
-    private void mockMultipleQueries(int pageSize, int resourceLimit) throws Exception {
+    private int getMaxPageSize() {
+        return NumberUtils.toInt(System.getProperty("catalog.maxPageSize"), 1000);
+    }
+
+    private void mockMultipleCatalogFrameworkQueries(int pageSize, int resourceLimit)
+            throws Exception {
 
         mockResourceResponse();
         QueryResponse queryResponseMock = mock(QueryResponse.class);
 
-        // have as many results as the resource limit will allow
+        // Populate list of mock results, sized at resource limit
         List<Result> resultsList = populateResultMockList(resourceLimit);
         List<Result>[] queriedResultsList = mockQueryGetResults(resultsList, pageSize);
 
-        when(queryResponseMock.getResults()).thenReturn(queriedResultsList[0], queriedResultsList);
         when(catalogFramework.query(any())).thenReturn(queryResponseMock);
+        when(queryResponseMock.getResults()).thenReturn(queriedResultsList[0], queriedResultsList);
 
         seedCommand.resourceLimit = resourceLimit;
     }
@@ -338,18 +351,20 @@ public class SeedCommandTest extends CommandCatalogFrameworkCommon {
     }
 
     /**
-     *     Divides results list by the page size. Used for thenReturn statements.
-     *     The array being passed will have doubles for every query after the first,
-     *     for example:
-     *          [ query1, query2, query2, ... ]
-     *     This is because the query result will need to be returned twice for every
-     *     iteration, and the first query is get inserted in the first parameter
-     *     of thenReturn.
-     *     i.e. thenReturn(query1, [ query1, query2, query2 ]).
+     * Divides results list by the page size. Used for thenReturn statements.
+     * The array being passed will have doubles for every query after the first,
+     * for example:
+     * [ query1, query2, query2, ... ]
+     * This is because the query result will need to be returned twice for every
+     * iteration, and the first query is get inserted in the first parameter
+     * of thenReturn.
+     * i.e. thenReturn(query1, [ query1, query2, query2 ]).
      */
     private List<Result>[] mockQueryGetResults(List<Result> results, int pageSize) {
 
-        int queries = (int) Math.ceil(results.size() / pageSize);
+        int queries = results.size() / pageSize;
+        queries += (results.size() % pageSize > 0) ? 1 : 0;
+
         List<List<Result>> pageResults = Lists.partition(results, pageSize);
         List[] pageArray = new List[queries * 2 - 1];
 
