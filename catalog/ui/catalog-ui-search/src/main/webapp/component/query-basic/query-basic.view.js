@@ -73,7 +73,7 @@ define([
         var propertyValueMap = {};
         var downConversion = false;
 
-        if (filter.filters && isAnyDate(filter)) {
+        if (filter.filters !== null && isAnyDate(filter)) {
            propertyValueMap['anyDate'] = propertyValueMap['anyDate'] || [];
            if (propertyValueMap['anyDate'].filter(function(existingFilter){
                    return existingFilter.type === filter.filters[0].type;
@@ -82,7 +82,7 @@ define([
            }
         }
 
-        if (filter.filters){
+        if (filter.filters !== null){
             filter.filters.forEach(function(filter){
                if (filter.filters === null){
                    propertyValueMap[CQLUtils.getProperty(filter)] = propertyValueMap[CQLUtils.getProperty(filter)] || [];
