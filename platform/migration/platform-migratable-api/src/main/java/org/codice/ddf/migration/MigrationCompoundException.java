@@ -15,6 +15,8 @@ package org.codice.ddf.migration;
 
 import java.util.Collection;
 
+import javax.annotation.Nullable;
+
 /**
  * Exception that indicates multiple problems with the configuration migration. The first error will
  * be attached as a caused while all the remaining ones will be attached as suppressed exceptions.
@@ -34,7 +36,7 @@ public class MigrationCompoundException extends RuntimeException {
      *
      * @param errors the migration exceptions to compound together
      */
-    public MigrationCompoundException(Collection<MigrationException> errors) {
+    public MigrationCompoundException(@Nullable Collection<MigrationException> errors) {
         super(MigrationCompoundException.getFirstErrorMessageFrom(errors));
         if ((errors != null) && !errors.isEmpty()) {
             boolean first = true;

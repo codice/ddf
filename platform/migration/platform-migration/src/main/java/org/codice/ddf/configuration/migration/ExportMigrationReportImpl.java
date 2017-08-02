@@ -77,6 +77,16 @@ public class ExportMigrationReportImpl implements MigrationReport {
     }
 
     @Override
+    public long getStartTime() {
+        return report.getStartTime();
+    }
+
+    @Override
+    public long getEndTime() {
+        return report.getEndTime();
+    }
+
+    @Override
     public ExportMigrationReportImpl record(MigrationWarning w) {
         report.record(w);
         return this;

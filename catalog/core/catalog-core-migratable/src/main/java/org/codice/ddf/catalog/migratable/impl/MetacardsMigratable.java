@@ -15,8 +15,6 @@ package org.codice.ddf.catalog.migratable.impl;
 
 import static org.apache.commons.lang.Validate.notNull;
 
-import javax.validation.constraints.NotNull;
-
 import org.codice.ddf.migration.DataMigratable;
 import org.codice.ddf.migration.ExportMigrationContext;
 import org.codice.ddf.migration.ImportMigrationContext;
@@ -32,9 +30,15 @@ import ddf.catalog.filter.FilterBuilder;
  * Implementation of the {@link org.codice.ddf.migration.DataMigratable} interface used to migrate
  * the current catalog framework's {@link Metacard}s.
  */
-public class MetacardsMigratable extends DescribableBean implements DataMigratable {
-
+public class MetacardsMigratable implements DataMigratable {
     private static final Logger LOGGER = LoggerFactory.getLogger(MetacardsMigratable.class);
+
+    /**
+     * Holds the current export version.
+     * <p>
+     * 1.0 - initial version
+     */
+    private static final String VERSION = "1.0";
 
     private static final String DEFAULT_FAILURE_MESSAGE = "Catalog could not export metacards";
 
@@ -51,17 +55,14 @@ public class MetacardsMigratable extends DescribableBean implements DataMigratab
     /**
      * Basic constructor with minimum required components.
      *
-     * @param info          container for description data on this migratable
      * @param framework     framework used to retrieve the metacards to export
      * @param filterBuilder builder used to create query filters
      * @param config        export configuration information
      */
-    public MetacardsMigratable(@NotNull DescribableBean info, @NotNull CatalogFramework framework,
-            @NotNull FilterBuilder filterBuilder, @NotNull MigrationFileWriter fileWriter,
-            @NotNull CatalogMigratableConfig config) {
+    public MetacardsMigratable(CatalogFramework framework, FilterBuilder filterBuilder,
+            MigrationFileWriter fileWriter, CatalogMigratableConfig config) {
 
-        this(info,
-                framework,
+        this(framework,
                 filterBuilder,
                 fileWriter,
                 config,
@@ -72,18 +73,14 @@ public class MetacardsMigratable extends DescribableBean implements DataMigratab
     /**
      * Constructor that allows the caller choice of {@link MigrationTaskManager} to be injected.
      *
-     * @param info          container for description data on this migratable
      * @param framework     framework used to retrieve the metacards to export
      * @param filterBuilder builder used to create query filters
      * @param config        export configuration information
      * @param taskManager   the manager responsible for submitting file writing jobs during export
      */
-    public MetacardsMigratable(@NotNull DescribableBean info, @NotNull CatalogFramework framework,
-            @NotNull FilterBuilder filterBuilder, @NotNull MigrationFileWriter fileWriter,
-            @NotNull CatalogMigratableConfig config, @NotNull MigrationTaskManager taskManager) {
-
-        super(info);
-
+    public MetacardsMigratable(CatalogFramework framework, FilterBuilder filterBuilder,
+            MigrationFileWriter fileWriter, CatalogMigratableConfig config,
+            MigrationTaskManager taskManager) {
         notNull(framework, "CatalogFramework cannot be null");
         notNull(filterBuilder, "FilterBuilder cannot be null");
         notNull(fileWriter, "FileWriter cannot be null");
@@ -95,6 +92,31 @@ public class MetacardsMigratable extends DescribableBean implements DataMigratab
         this.fileWriter = fileWriter;
         this.config = config;
         this.taskManager = taskManager;
+    }
+
+    @Override
+    public String getVersion() {
+        return MetacardsMigratable.VERSION;
+    }
+
+    @Override
+    public String getId() {
+        return "ddf.metacards";
+    }
+
+    @Override
+    public String getTitle() {
+        return "Metacard Migration";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Exports Catalog metacards";
+    }
+
+    @Override
+    public String getOrganization() {
+        return "Codice";
     }
 
     /**

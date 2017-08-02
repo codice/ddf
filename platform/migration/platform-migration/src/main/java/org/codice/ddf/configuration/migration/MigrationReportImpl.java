@@ -14,12 +14,12 @@
 package org.codice.ddf.configuration.migration;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Deque;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang.Validate;
@@ -35,20 +35,44 @@ import org.slf4j.LoggerFactory;
  * The migration report provides ways to aggregate warnings and errors related to migration operations.
  */
 public class MigrationReportImpl implements MigrationReport {
-    private static final Logger LOGGER =
-            LoggerFactory.getLogger(MigrationReportImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MigrationReportImpl.class);
 
-    private final Set<MigrationWarning> warnings = new LinkedHashSet<>(); // to prevent duplicated and maintain order
-
-    private final Set<MigrationException> errors = new LinkedHashSet<>(); // to prevent duplicated and maintain order
+    private final Set<Object> records = new LinkedHashSet<>();
+            // to prevent duplicated and maintain order
 
     private final Deque<Consumer<MigrationReport>> codes = new LinkedList<>();
 
     private final MigrationOperation operation;
 
+    private final long start;
+
+    private int numWarnings = 0;
+
+    private int numErrors = 0;
+
+    private long end = -1L;
+
     public MigrationReportImpl(MigrationOperation operation) {
         Validate.notNull(operation, "invalid null operation");
         this.operation = operation;
+        this.start = System.currentTimeMillis();
+    }
+
+    /**
+     * Creates a new migration report by transferring the errors and warnings from the provided report
+     * as warnings for this report. Transfer also the start time.
+     *
+     * @param operation the type of migration operation for this report
+     * @param report    the report to be transferred over
+     * @throws IllegalArgumentException if <code>operation</code> or <code>report</code> is <code>null</code>
+     */
+    public MigrationReportImpl(MigrationOperation operation, MigrationReportImpl report) {
+        Validate.notNull(operation, "invalid null operation");
+        Validate.notNull(report, "invalid null report");
+        report.runCodes(); // to get all errors and warnings recorded
+        this.records.addAll(report.records);
+        this.operation = operation;
+        this.start = report.getStartTime();
     }
 
     @Override
@@ -57,9 +81,20 @@ public class MigrationReportImpl implements MigrationReport {
     }
 
     @Override
+    public long getStartTime() {
+        return start;
+    }
+
+    @Override
+    public long getEndTime() {
+        return end;
+    }
+
+    @Override
     public MigrationReportImpl record(MigrationWarning w) {
         Validate.notNull(w, "invalid null warning");
-        warnings.add(w);
+        this.numWarnings++;
+        records.add(w);
         LOGGER.debug("migration warning: {}", w);
         return this;
     }
@@ -67,7 +102,8 @@ public class MigrationReportImpl implements MigrationReport {
     @Override
     public MigrationReportImpl record(MigrationException e) {
         Validate.notNull(e, "invalid null error");
-        errors.add(e);
+        this.numErrors++;
+        records.add(e);
         LOGGER.info("migration error: ", e);
         return this;
     }
@@ -81,49 +117,61 @@ public class MigrationReportImpl implements MigrationReport {
 
     @Override
     public Stream<MigrationException> errors() {
-        return errors.stream();
+        return records.stream()
+                .filter(MigrationException.class::isInstance)
+                .map(MigrationException.class::cast);
     }
 
     @Override
     public Stream<MigrationWarning> warnings() {
-        return warnings.stream();
+        return records.stream()
+                .filter(MigrationWarning.class::isInstance)
+                .map(MigrationWarning.class::cast);
     }
 
     @Override
     public Collection<MigrationWarning> getWarnings() {
-        return Collections.unmodifiableCollection(warnings);
+        return warnings().collect(Collectors.toList()); // preserve order
     }
 
     @Override
     public boolean wasSuccessful() {
         runCodes();
-        return errors.isEmpty();
+        return (numErrors == 0);
     }
 
     public boolean hasWarnings() {
         runCodes();
-        return !warnings.isEmpty();
+        return (numWarnings > 0);
     }
 
     public boolean hasErrors() {
         runCodes();
-        return !errors.isEmpty();
+        return (numErrors > 0);
     }
 
     @Override
     public void verifyCompletion() throws MigrationException {
         runCodes();
-        if (errors.isEmpty()) {
+        if (numErrors == 0) {
             return;
-        } else if (errors.size() == 1) {
-            throw errors.iterator().next();
+        } else if (numErrors == 1) {
+            throw errors().findAny()
+                    .get(); // will never be null since there is 1
         }
-        throw new MigrationCompoundException(errors);
+        throw new MigrationCompoundException(errors().collect(Collectors.toList())); // preserve order
+    }
+
+    MigrationReportImpl end() {
+        runCodes();
+        this.end = System.currentTimeMillis();
+        return this;
     }
 
     private void runCodes() {
         while (!codes.isEmpty()) {
-            codes.removeFirst().accept(this);
+            codes.removeFirst()
+                    .accept(this);
         }
     }
 }
