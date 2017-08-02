@@ -18,5 +18,5 @@
           class="org.codice.ddf.security.migratable.impl.SecurityMigratable"/>
 
     <service id="securityMigratableService" ref="securityMigratable"
-             interface="org.codice.ddf.migration.ConfigurationMigratable"/>
+             interface="org.codice.ddf.migration.ConfigurationMigratable" ranking="900"/>
 </blueprint>

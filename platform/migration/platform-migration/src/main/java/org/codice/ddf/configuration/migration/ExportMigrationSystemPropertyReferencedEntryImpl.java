@@ -24,7 +24,7 @@ public class ExportMigrationSystemPropertyReferencedEntryImpl
     @Override
     public void store() {
         if (!stored) {
-            LOGGER.debug("Exporting system property reference [{}] for [{}]...",
+            LOGGER.debug("Exporting system property reference [{}] for file [{}]...",
                     getProperty(),
                     getPath());
             getReport().recordSystemProperty(this);
@@ -36,9 +36,6 @@ public class ExportMigrationSystemPropertyReferencedEntryImpl
     public void store(MigrationExporter exporter) {
         Validate.notNull(exporter, "invalid null exporter");
         if (!stored) {
-            LOGGER.debug("Exporting system property reference [{}] for [{}]...",
-                    getProperty(),
-                    getPath());
             super.store(exporter);
         }
     }

@@ -21,9 +21,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.shell.api.action.Argument;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
-import org.codice.ddf.configuration.migration.ConfigurationMigrationService;
 import org.codice.ddf.migration.MigrationReport;
-import org.codice.ddf.security.common.Security;
 
 import ddf.security.service.SecurityServiceException;
 
@@ -33,7 +31,7 @@ import ddf.security.service.SecurityServiceException;
 @Service
 @Command(scope = MigrationCommands.NAMESPACE, name = "import", description =
         "The import command delegates to all "
-                + "registered Migratable services to export bundle specific configuration and data.")
+                + "registered Migratable services to import bundle specific configuration and data.")
 public class ImportCommand extends MigrationCommands {
     private static final String STARTING_IMPORT_MESSAGE = "Importing new configurations from %s.";
 
@@ -49,7 +47,7 @@ public class ImportCommand extends MigrationCommands {
     private static final String ERROR_IMPORT_MESSAGE =
             "An error was encountered while executing this command. %s";
 
-    @Argument(index = 0, name = "importDirectory", description = "Path to directory where to find the file to import", required = true, multiValued = false)
+    @Argument(index = 0, name = "importDirectory", description = "Path to directory where to find the file to import", required = false, multiValued = false)
     String exportDirectoryArgument;
 
     public ImportCommand() {}
@@ -86,18 +84,5 @@ public class ImportCommand extends MigrationCommands {
             outputErrorMessage(String.format(ERROR_IMPORT_MESSAGE, e.getCause()));
         }
         return null;
-    }
-
-    public void setDefaultExportDirectory(Path path) {
-        this.defaultExportDirectory = path;
-    }
-
-    public void setSecurity(Security security) {
-        this.security = security;
-    }
-
-    public void setConfigurationMigrationService(
-            ConfigurationMigrationService configurationMigrationService) {
-        this.configurationMigrationService = configurationMigrationService;
     }
 }

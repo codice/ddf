@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
  *     {
  *       "version": "1.0",
  *       "product.version": "2.11.0-SNAPSHOT",
+ *       "date": "Tue Aug 01 12:39:21 MST 2017"
  *       "migratables": {
  *         "platform-id": {
  *           "version": "1.0",
@@ -88,16 +89,18 @@ import org.slf4j.LoggerFactory;
  * <ul>
  * <li>'version' is used to keep track of the migration version used during export</li>
  * <li>'product.version' is used to keep track of the version of the system the exported zip file was created from</li>
+ * <li>'date' is used to keep track of the date when the exported zip file was created</li>
  * <li>'migratables' provides a set of migratables identifier for which additional information is provided</li>
  * <li>'title' provides an optional title associated with the migratable</li>
  * <li>'description' provides an optional description associated with the migratable</li>
  * <li>'organization' provides an optional organization defining the migratable</li>
- * <li>'externals' provides a list of external files that should be present on the destination system as they were not exported</li>
+ * <li>'externals' provides an optional list of external files that should be present on the destination system as they were not exported</li>
+ * <li>'system.properties' provides an optional list of java properties files containing a system property that references a file</li>
+ * <li>'java.properties' provides an optional list of java properties files containing a Java property that references a file</li>
  * <li>'name' indicates the name of a file (absolute or relative to DDF_HOME). It is required</li>
  * <li>'checksum' provides the optional MD5 checksum for the file as computed on the original system</li>
  * <li>'size' provides the optional size of the file on the original system (<code>0</code> if the file didn't exist and <code>-1</code> if it could not be determined).</li>
  * <li>'softlink' provides an optional boolean flag indicating if the file on the original system was a softlink (defaults to false)</li>
- * <li>'java.properties' provides a list of java properties files containing a property that references a file</li>
  * <li>'property' indicates the name of the property containing a reference to another file. It is required.</li>
  * <li>'reference' provides the name of the referenced file. It is required.</li>
  * <li>'properties' provides a list of system properties referencing a file</li>
@@ -116,6 +119,8 @@ public class MigrationContextImpl implements MigrationContext {
     protected static final Path METADATA_FILENAME = Paths.get("export.json");
 
     protected static final String METADATA_PRODUCT_VERSION = "product.version";
+
+    protected static final String METADATA_DATE = "date";
 
     protected static final String METADATA_MIGRATABLES = "migratables";
 
@@ -147,10 +152,12 @@ public class MigrationContextImpl implements MigrationContext {
     protected final String id;
 
     /**
-     * Holds the current migratable version or <code>null</code> if representing the system context.
+     * Holds the current migratable version or <code>?</code> if representing the system context and
+     * <code>null</code> if not yet retrieved from exported metadata or if the corresponding migratable
+     * was not exported.
      */
     @Nullable
-    private String version;
+    private String version = "?";
 
     /**
      * Creates a new migration context.
@@ -172,12 +179,13 @@ public class MigrationContextImpl implements MigrationContext {
      * @param id     the migratable id
      * @throws IllegalArgumentException if <code>report</code> or <code>id</code> is <code>null</code>
      */
-    protected MigrationContextImpl(MigrationReport report, String id) {
+    protected MigrationContextImpl(MigrationReport report, String id, @Nullable String version) {
         Validate.notNull(report, "invalid null report");
         Validate.notNull(id, "invalid null migratable identifier");
         this.report = report;
         this.migratable = null;
         this.id = id;
+        this.version = version;
     }
 
     /**
@@ -193,7 +201,19 @@ public class MigrationContextImpl implements MigrationContext {
         this.report = report;
         this.migratable = migratable;
         this.id = migratable.getId();
-        this.version = migratable.getVersion();
+    }
+
+    /**
+     * Creates a new migration context.
+     *
+     * @param report     the migration report where to record warnings and errors
+     * @param migratable the migratable this context is for
+     * @param version    the migratable version
+     * @throws IllegalArgumentException if <code>report</code> or <code>migratable</code> is <code>null</code>
+     */
+    protected MigrationContextImpl(MigrationReport report, Migratable migratable, String version) {
+        this(report, migratable);
+        this.version = version;
     }
 
     @Override

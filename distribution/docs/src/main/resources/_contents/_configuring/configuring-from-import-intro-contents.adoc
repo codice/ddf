@@ -1,11 +1,9 @@
 
-The Configuration Export/Import capability allows administrators to export the current ${branding} configuration and use it as a starting point for a new installation.
-This is useful when upgrading or expanding use of ${branding} where an identical configuration of multiple instances is desired.
+The Configuration Export/Import capability allows administrators to export the current ${branding} configuration and use it to restore the same state on a brand new installation or when adding a second node to an highly available deployment.
 
 [IMPORTANT]
 ====
 * Importing configuration files is only guaranteed to work when importing files from the same ${branding} version.
-  Importing from a different version is not recommended as it may cause the new ${branding} instance to be incorrectly configured and become unusable.
-* All configurations will be exported to` <${branding}_HOME>/etc/exported` followed by their relative path from `<${branding}_HOME>`. For instance, `<${branding}_HOME>/etc/keystores/keystore.jks` will be exported to `<${branding}_HOME>/etc/exported/etc/keystores/keystore.jks`, while `<${branding}_HOME>/etc/system.properties` will be exported to `<${branding}_HOME>/etc/exported/etc/system.properties`.
+  Importing from a different version is not supported.
 * To keep the export/import process simple and consistent, all system configuration files are required to be under the `<${branding}_HOME>` directory.
 ====

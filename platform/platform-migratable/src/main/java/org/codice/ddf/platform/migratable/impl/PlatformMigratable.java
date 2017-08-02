@@ -66,8 +66,7 @@ public class PlatformMigratable implements ConfigurationMigratable {
             Paths.get("etc", "certs", "meta"),
             Paths.get("etc", "certs", "1"),
             Paths.get("bin", "karaf"),
-            Paths.get("bin", "karaf.bat"),
-            Paths.get("Version.txt"));
+            Paths.get("bin", "karaf.bat"));
 
     private static final PathMatcher SERVICE_WRAPPER_CONF_FILTER = FileSystems.getDefault()
             .getPathMatcher("glob:**/*-wrapper.conf");

@@ -29,7 +29,7 @@ public class ImportMigrationSystemPropertyReferencedEntryImpl
     @Override
     public void store() {
         if (!stored) {
-            LOGGER.debug("Importing system property reference [{}] for [{}]...",
+            LOGGER.debug("Importing system property reference [{}] for file [{}]...",
                     getProperty(),
                     getPath());
             super.store();
@@ -40,9 +40,6 @@ public class ImportMigrationSystemPropertyReferencedEntryImpl
     public void store(MigrationImporter importer) {
         Validate.notNull(importer, "invalid null importer");
         if (!stored) {
-            LOGGER.debug("Importing system property reference [{}] for [{}]...",
-                    getProperty(),
-                    getPath());
             super.store(importer);
         }
     }

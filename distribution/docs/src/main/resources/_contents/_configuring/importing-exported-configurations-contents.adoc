@@ -3,17 +3,20 @@
 
 [WARNING]
 ====
-Importing of configurations must take place before starting the new installation for the first time.
+Importing of configurations must take place before starting the new installation for the first time and after performing OS-level hardening.
 ====
 
-To import a previously exported configuration:
+To import a previously exported configuration file from the ${command-console}:
 
-. Delete all exising `.config` files from `<${branding}_HOME>/etc`:
-.. `cd <{$branding}_HOME>`
-.. `rm etc/*.config`
-.. `unzip /path/to/exported/zip/exportFiles.zip`
-. Unzip the exported files from a previous installation to the new instance's `<${branding}_HOME>/etc` directory: `unzip exportedFiles.zip <${branding}_HOME>/etc`
-. If needed, manually update system configuration files such as `system.properties`, `users.properties`. keystores, etc.
 . Launch the newly installed ${branding}.
-. Step through the installation process. The newly installed ${branding} will have the previous ${branding}'s settings imported.
-. To get a status of the import, run the `migration:status` from the ${command-console}.
+. Type in `migration:import <directory>`. This command reads the previously exported configuration file `exported-${project-version}.zip` from the specified directory. If no directory is specified it will default to `<${branding}_HOME>/exported`
+. Shutdowns ${branding} by typing in `shutdown`
+. Re-launch the newly migrated ${branding}
+
+[IMPORTANT]
+====
+Some system configuration files contain paths to other configuration files. For instance, the `system.properties` file contains the `javax.net.ssl.keyStore` property which provides the path to system key store.
+The files referred to in the system configuration files would have been included in the export process only if the path is relative to `<${branding}_HOME>`. It is the responsibility of the administrator to ensure these files exists on the new system.
+Using absolute paths and/or symbolic links in those cases will cause the `migration:import` command to display warnings about those files if they are no longer available at import time.
+The import process itself will not be aborted.
+====

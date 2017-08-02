@@ -91,6 +91,7 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl<ExportMigration
     @Override
     public void store() {
         store((r, os) -> {
+            LOGGER.debug("Exporting [{}] to file [{}]...", getAbsolutePath(), path);
             if (isMigratable()) {
                 FileUtils.copyFile(getAbsolutePath().toFile(), os);
             }
@@ -102,7 +103,6 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl<ExportMigration
         Validate.notNull(exporter, "invalid null exporter");
         if (!stored) {
             super.stored = true;
-            LOGGER.debug("Exporting [{}] to [{}]...", path, getAbsolutePath());
             try {
                 exporter.apply(getReport(), getOutputStream());
             } catch (ExportIOException e) { // special case indicating the I/O error occurred while writing to the zip which would invalidate the zip so we are forced to abort

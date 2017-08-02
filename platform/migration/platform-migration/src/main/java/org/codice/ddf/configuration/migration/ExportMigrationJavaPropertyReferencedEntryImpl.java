@@ -1,3 +1,16 @@
+/**
+ * Copyright (c) Codice Foundation
+ * <p>
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * <p>
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ */
 package org.codice.ddf.configuration.migration;
 
 import java.nio.file.Path;
@@ -39,7 +52,7 @@ public class ExportMigrationJavaPropertyReferencedEntryImpl
     @Override
     public void store() {
         if (!super.stored) {
-            LOGGER.debug("Exporting Java property reference [{}] from [{}] for [{}]...",
+            LOGGER.debug("Exporting Java property reference [{}] from [{}] for file [{}]...",
                     getProperty(),
                     propertiesPath,
                     getPath());
@@ -52,10 +65,6 @@ public class ExportMigrationJavaPropertyReferencedEntryImpl
     public void store(MigrationExporter exporter) {
         Validate.notNull(exporter, "invalid null exporter");
         if (!stored) {
-            LOGGER.debug("Exporting Java property reference [{}] from [{}] for [{}]...",
-                    getProperty(),
-                    propertiesPath,
-                    getPath());
             super.store(exporter);
         }
     }

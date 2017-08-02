@@ -16,7 +16,6 @@ package org.codice.ddf.configuration.migration;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.util.Map;
@@ -83,7 +82,7 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
      *                                  is <code>null</code>
      */
     public ImportMigrationContextImpl(MigrationReport report, ZipFile zip, String id) {
-        super(report, id);
+        super(report, id, null); // no version yet
         Validate.notNull(zip, "invalid null zip");
         this.zip = zip;
     }
@@ -98,7 +97,7 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
      *                                  is <code>null</code>
      */
     public ImportMigrationContextImpl(MigrationReport report, ZipFile zip, Migratable migratable) {
-        super(report, migratable);
+        super(report, migratable, null); // no version yet
         Validate.notNull(zip, "invalid null zip");
         this.zip = zip;
     }
@@ -171,6 +170,8 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
 
     void doImport() {
         if (migratable != null) {
+            LOGGER.debug("Importing migratable [{}] from version [{}] ...",
+                    id, ((getVersion() != null) ? getVersion() : "<not-exported>"));
             Stopwatch stopwatch = null;
 
             if (LOGGER.isDebugEnabled()) {
@@ -178,27 +179,24 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
             }
             migratable.doImport(this);
             if (LOGGER.isDebugEnabled() && (stopwatch != null)) {
-                LOGGER.debug("Import time for {}: {}", id, stopwatch.stop());
+                LOGGER.debug("Imported time for {}: {}", id, stopwatch.stop());
             }
-        } else if (id != null) {
+        } else if (id != null) { // not a system context
             report.record(new MigrationException("Exported data for migratable [" + id
                     + "] cannot be imported; migratable was not installed."));
-        } // else - no errors for the system context
+        } // else - no errors and nothing to do for the system context
     }
 
     void addEntry(ImportMigrationEntryImpl entry) {
         entries.put(entry.getPath(), entry);
     }
 
-    InputStream getInputStreamFor(ZipEntry entry) {
-        try {
-            return zip.getInputStream(entry);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+    InputStream getInputStreamFor(ZipEntry entry) throws IOException {
+        return zip.getInputStream(entry);
     }
 
     protected void processMetadata(Map<String, Object> metadata) {
+        LOGGER.debug("Imported metadata for {}: {}", id, metadata);
         super.processMetadata(metadata);
         // process external entries first so we have a complete set of migratable data entries that
         // were exported by a migratable before we start looking at the property references

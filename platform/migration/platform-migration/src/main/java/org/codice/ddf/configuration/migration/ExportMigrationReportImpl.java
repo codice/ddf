@@ -54,19 +54,21 @@ public class ExportMigrationReportImpl implements MigrationReport {
 
     private final List<Map<String, Object>> javaProperties = new ArrayList<>(8);
 
-    private final Map<String, Object> metadata = new LinkedHashMap<>(16);
+    private final Map<String, Object> metadata;
 
     public ExportMigrationReportImpl(MigrationReport report, Migratable migratable) {
         Validate.notNull(report, "invalid null report");
         Validate.notNull(report, "invalid null migratable");
         this.report = report;
-        metadata.put(MigrationContextImpl.METADATA_VERSION, migratable.getVersion());
-        metadata.put(MigrationContextImpl.METADATA_TITLE, migratable.getTitle());
-        metadata.put(MigrationContextImpl.METADATA_DESCRIPTION, migratable.getDescription());
-        metadata.put(MigrationContextImpl.METADATA_ORGANIZATION, migratable.getOrganization());
-        metadata.put(MigrationContextImpl.METADATA_EXTERNALS, externals);
-        metadata.put(MigrationContextImpl.METADATA_SYSTEM_PROPERTIES, systemProperties);
-        metadata.put(MigrationContextImpl.METADATA_SYSTEM_PROPERTIES, javaProperties);
+        this.metadata = ImmutableMap.of( //
+                MigrationContextImpl.METADATA_VERSION,
+                migratable.getVersion(),
+                MigrationContextImpl.METADATA_TITLE,
+                migratable.getTitle(),
+                MigrationContextImpl.METADATA_DESCRIPTION,
+                migratable.getDescription(),
+                MigrationContextImpl.METADATA_ORGANIZATION,
+                migratable.getOrganization());
     }
 
     @Override
@@ -131,6 +133,18 @@ public class ExportMigrationReportImpl implements MigrationReport {
      * @return metadata recorded with this report
      */
     Map<String, Object> getMetadata() {
+        final Map<String, Object> metadata = new LinkedHashMap<>(16);
+
+        metadata.putAll(this.metadata);
+        if (!externals.isEmpty()) {
+            metadata.put(MigrationContextImpl.METADATA_EXTERNALS, externals);
+        }
+        if (!systemProperties.isEmpty()) {
+            metadata.put(MigrationContextImpl.METADATA_SYSTEM_PROPERTIES, systemProperties);
+        }
+        if (!javaProperties.isEmpty()) {
+            metadata.put(MigrationContextImpl.METADATA_JAVA_PROPERTIES, javaProperties);
+        }
         return metadata;
     }
 

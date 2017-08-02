@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -81,7 +82,9 @@ public class ImportMigrationManagerImpl implements Closeable {
             this.zip = new ZipFile(exportFile.toFile());
             // pre-create contexts for all registered migratables
             this.contexts = migratables.collect(Collectors.toMap(Migratable::getId,
-                    m -> new ImportMigrationContextImpl(report, zip, m)));
+                    m -> new ImportMigrationContextImpl(report, zip, m),
+                    ConfigurationMigrationManager.throwingMerger(),
+                    LinkedHashMap::new)); // to preserved ranking order
             // add a system contexts
             contexts.put(null, new ImportMigrationContextImpl(report, zip));
             zip.stream()
@@ -129,7 +132,7 @@ public class ImportMigrationManagerImpl implements Closeable {
                     this.productVersion,
                     productVersion));
         }
-        LOGGER.debug("Importing version: {}, product version: {} ...", version, productVersion);
+        LOGGER.debug("Importing product [{}] from version [{}] ...", productVersion, version);
         contexts.values()
                 .forEach(ImportMigrationContextImpl::doImport);
     }

@@ -55,7 +55,6 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>platform-migratable-util</Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>

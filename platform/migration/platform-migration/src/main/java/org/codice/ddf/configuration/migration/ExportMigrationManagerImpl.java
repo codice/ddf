@@ -19,6 +19,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -85,7 +86,9 @@ public class ExportMigrationManagerImpl implements Closeable {
         }
         // pre-create contexts for all registered migratables
         this.contexts = migratables.collect(Collectors.toMap(Migratable::getId,
-                m -> new ExportMigrationContextImpl(report, m, zipOutputStream)));
+                m -> new ExportMigrationContextImpl(report, m, zipOutputStream),
+                ConfigurationMigrationManager.throwingMerger(),
+                LinkedHashMap::new)); // to preserved ranking order
     }
 
     /**
@@ -96,11 +99,10 @@ public class ExportMigrationManagerImpl implements Closeable {
      */
     public void doExport(String productVersion) {
         Validate.notNull(productVersion, "invalid null product version");
-        LOGGER.debug("Exporting version: {}, product version: {} ...",
-                MigrationContextImpl.VERSION,
-                productVersion);
+        LOGGER.debug("Exporting product [{}] with version [{}] ...", productVersion, MigrationContextImpl.VERSION);
         metadata.put(MigrationContextImpl.METADATA_VERSION, MigrationContextImpl.VERSION);
         metadata.put(MigrationContextImpl.METADATA_PRODUCT_VERSION, productVersion);
+        metadata.put(MigrationContextImpl.METADATA_DATE, new Date().toString());
         metadata.put(MigrationContextImpl.METADATA_MIGRATABLES,
                 contexts.values()
                         .stream()
