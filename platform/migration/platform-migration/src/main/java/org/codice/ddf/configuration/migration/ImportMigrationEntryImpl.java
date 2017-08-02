@@ -84,7 +84,7 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl<ImportMigration
     @Override
     public void store() {
         store((r, in) -> {
-            LOGGER.debug("Importing file [{}] to [{}]...", path, getAbsolutePath());
+            LOGGER.debug("Importing file [{}] from [{}]...", getAbsolutePath(), path);
             final File afile = getAbsolutePath().toFile();
 
             try {

@@ -23,14 +23,15 @@
     </ext:property-placeholder>
 
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
+    <reference id="system" interface="org.apache.karaf.system.SystemService"/>
 
-    <bean id="configurationAdminMigration"
+    <bean id="configurationAdminMigratable"
           class="org.codice.ddf.configuration.admin.ConfigurationAdminMigratable">
         <argument ref="configurationAdmin"/>
         <argument value="${configFileExtension}"/>
     </bean>
 
-    <service id="configurationAdminMigrationService" ref="configurationAdminMigration"
+    <service id="configurationAdminMigratableService" ref="configurationAdminMigratable"
              interface="org.codice.ddf.migration.ConfigurationMigratable" />
 
     <bean id="mBeanServer"
@@ -64,6 +65,7 @@
         <argument ref="mBeanServer"/>
         <argument ref="sortedConfigurationMigratables"/>
         <argument ref="sortedDataMigratables"/>
+        <argument ref="system"/>
     </bean>
 
     <service id="configurationMigrationManager" ref="configMigrationManager"

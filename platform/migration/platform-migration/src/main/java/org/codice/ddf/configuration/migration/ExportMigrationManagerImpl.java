@@ -99,7 +99,7 @@ public class ExportMigrationManagerImpl implements Closeable {
      */
     public void doExport(String productVersion) {
         Validate.notNull(productVersion, "invalid null product version");
-        LOGGER.debug("Exporting product [{}] with version [{}] ...", productVersion, MigrationContextImpl.VERSION);
+        LOGGER.debug("Exporting product [{}] with version [{}]...", productVersion, MigrationContextImpl.VERSION);
         metadata.put(MigrationContextImpl.METADATA_VERSION, MigrationContextImpl.VERSION);
         metadata.put(MigrationContextImpl.METADATA_PRODUCT_VERSION, productVersion);
         metadata.put(MigrationContextImpl.METADATA_DATE, new Date().toString());

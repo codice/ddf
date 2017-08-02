@@ -33,6 +33,7 @@ import javax.management.ObjectName;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
+import org.apache.karaf.system.SystemService;
 import org.codice.ddf.migration.ConfigurationMigratable;
 import org.codice.ddf.migration.DataMigratable;
 import org.codice.ddf.migration.MigrationException;
@@ -69,11 +70,15 @@ public class ConfigurationMigrationManager
 
     private static final String EXPORT_PREFIX = "exported-";
 
+    private static final String REBOOT_DELAY = "1"; // 1 minute
+
     private final MBeanServer mBeanServer;
 
     private final List<ConfigurationMigratable> configurationMigratables;
 
     private final List<DataMigratable> dataMigratables;
+
+    private final SystemService system;
 
     private final String productVersion;
 
@@ -85,19 +90,21 @@ public class ConfigurationMigrationManager
      *                                 to be kept up-to-date by the client of this class.
      * @param dataMigratables          list of {@link DataMigratable} services. Needs
      *                                 to be kept up-to-date by the client of this class.
+     * @param system                   the system service
      * @throws IOError if unable to load the distribution version information.
      */
     public ConfigurationMigrationManager(MBeanServer mBeanServer,
             List<ConfigurationMigratable> configurationMigratables,
-            List<DataMigratable> dataMigratables) {
+            List<DataMigratable> dataMigratables, SystemService system) {
         notNull(mBeanServer, "MBeanServer cannot be null");
         notNull(configurationMigratables,
                 "List of ConfigurationMigratable services cannot be null");
         notNull(dataMigratables, "List of DataMigratable services cannot be null");
-
+        Validate.notNull(system, "invalid null system service");
         this.mBeanServer = mBeanServer;
         this.configurationMigratables = configurationMigratables;
         this.dataMigratables = dataMigratables;
+        this.system = system;
         try {
             this.productVersion =
                     ConfigurationMigrationManager.getProductVersion(new FileInputStream(Paths.get(
@@ -245,7 +252,24 @@ public class ConfigurationMigrationManager
         } finally {
             IOUtils.closeQuietly(mgr); // do not care if we fail to close the mgr/zip file!!!
         }
-        return report.end();
+        report.end();
+        if (!report.hasErrors()) {
+            if (!report.hasWarnings()) {
+                try {
+                    System.setProperty("karaf.restart.jvm", "true"); // force a JVM restart
+                    system.reboot(ConfigurationMigrationManager.REBOOT_DELAY,
+                            SystemService.Swipe.NONE);
+                } catch (Exception e) { // yeah, their interface declares an exception can be thrown!!!!
+                    LOGGER.debug("failed to request a reboot: ", e);
+                    report.record(new MigrationWarning(
+                            "Please restart the system for changes to take effect."));
+                }
+            } else {
+                report.record(new MigrationWarning(
+                        "Please restart the system for changes to take effect after addressing all reported warnings."));
+            }
+        }
+        return report;
     }
 
     @Override
