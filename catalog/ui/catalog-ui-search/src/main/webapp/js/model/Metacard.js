@@ -575,8 +575,9 @@ define([
                                         {
                                             type: '=',
                                             property: '"id"',
-                                            value: metacard['metacard.deleted.id'] || metacard.id
-                                        }, {
+                                            value: metacard.get('properties').get('metacard.deleted.id') || metacard.id
+                                        },
+                                        {
                                             type: '=',
                                             property: '"metacard.deleted.id"',
                                             value: metacard.id
@@ -599,7 +600,7 @@ define([
                         type: "POST",
                         url: '/search/catalog/internal/cql',
                         data: JSON.stringify(req),
-                        dataType: 'json'
+                        contentType: 'application/json'
                     }).then(this.parseRefresh.bind(this), this.handleRefreshError.bind(this));
 
                 }.bind(this), 1000);

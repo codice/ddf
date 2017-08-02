@@ -214,6 +214,7 @@ public class MetacardVersionImpl extends MetacardImpl implements MetacardVersion
      * @return the original metacard this version represents
      * @deprecated The metacard types passed in are no longer used
      */
+    @Deprecated
     public Metacard getMetacard(List<MetacardType> types) {
         return this.getMetacard();
     }
@@ -234,6 +235,7 @@ public class MetacardVersionImpl extends MetacardImpl implements MetacardVersion
      * @return The original metacard this version represents
      * @deprecated The metacard types passed in are no longer used
      */
+    @Deprecated
     public static Metacard toMetacard(Metacard source, List<MetacardType> types) {
         return toMetacard(source);
     }
