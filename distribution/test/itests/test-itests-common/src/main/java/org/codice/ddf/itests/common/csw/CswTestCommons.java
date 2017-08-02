@@ -162,8 +162,17 @@ public class CswTestCommons {
     }
 
     public static String getCswInsertRequest(String typeName, String record) {
-        return getFileContent(CSW_REQUEST_RESOURCE_PATH + "/CswInsertRequest",
+        String cswStr = getFileContent(CSW_REQUEST_RESOURCE_PATH + "/CswInsertRequest",
                 ImmutableMap.of("typeName", typeName, "record", record));
+        if (cswStr.lastIndexOf("<?xml") > 0) {
+            String header = "";
+            if (cswStr.indexOf("<?xml") == 0) {
+                header = cswStr.substring(0, cswStr.indexOf("?>") + 2);
+                cswStr = cswStr.substring(cswStr.indexOf("?>") + 2);
+            }
+            cswStr = header + cswStr.replaceAll("<\\?xml.*\\?>", "");
+        }
+        return cswStr;
     }
 
     public static String getMetacardIdFromCswInsertResponse(Response response)
