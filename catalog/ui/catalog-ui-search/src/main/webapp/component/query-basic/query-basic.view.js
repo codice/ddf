@@ -84,7 +84,7 @@ define([
 
         if (filter.filters){
             filter.filters.forEach(function(filter){
-               if (!filter.filters){
+               if (filter.filters === null){
                    propertyValueMap[CQLUtils.getProperty(filter)] = propertyValueMap[CQLUtils.getProperty(filter)] || [];
                    if (propertyValueMap[CQLUtils.getProperty(filter)].filter(function(existingFilter){
                            return existingFilter.type === filter.type;
