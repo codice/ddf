@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.commands.catalog;
 
+import static java.util.stream.Collectors.toList;
 import static org.codice.ddf.commands.catalog.CommandSupport.ERROR_COLOR;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
@@ -23,10 +24,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import org.fusesource.jansi.Ansi;
+import org.junit.Before;
 import org.junit.Test;
 
 import ddf.catalog.CatalogFramework;
@@ -43,6 +47,18 @@ import ddf.catalog.operation.QueryResponse;
 
 public class RemoveAllCommandTest extends ConsoleOutputCommon {
 
+    private int batchSize;
+
+    private int numCatalogCalls;
+
+    private boolean forceCommand;
+
+    private CatalogFramework catalogFrameworkMock;
+
+    private QueryResponse queryResponse;
+
+    private DeleteResponse deleteResponse;
+
     static final String DEFAULT_CONSOLE_COLOR = Ansi.ansi()
             .reset()
             .toString();
@@ -51,6 +67,14 @@ public class RemoveAllCommandTest extends ConsoleOutputCommon {
             .fg(ERROR_COLOR)
             .toString();
 
+    @Before
+    public void setUp() throws Exception {
+
+        catalogFrameworkMock = mock(CatalogFramework.class);
+        queryResponse = mock(QueryResponse.class);
+        deleteResponse = mock(DeleteResponse.class);
+    }
+
     /**
      * If it is possible to give bad batch size, this test checks the proper outcome.
      *
@@ -58,6 +82,7 @@ public class RemoveAllCommandTest extends ConsoleOutputCommon {
      */
     @Test
     public void testBadBatchSize() throws Exception {
+
         // given
         RemoveAllCommand command = new RemoveAllCommand();
         command.batchSize = 0;
@@ -72,35 +97,58 @@ public class RemoveAllCommandTest extends ConsoleOutputCommon {
     }
 
     /**
+     * Tests condition where number of results returned by each catalog framework query
+     * is less than batchSize being used.
+     * <p>
+     * Response of size 0 for final call lets the command exit as it simulates
+     * no more results to process.
+     * <p>
+     * Cumulative results by each batch:
+     * First:       53                  (53 results returned)
+     * Second:      110                 (57 results returned)
+     * Third:       164                 (54 results returned)
+     * Fourth:      200                 (36 results returned)
+     * <p>
+     * Final:       0 results returned, therefore done.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testDeleteFewerThanBatchSizeExpectMultipleCatalogCalls() throws Exception {
+
+        batchSize = 101;
+        numCatalogCalls = 4;
+        forceCommand = true;
+
+        setQueryAndDeleteResponseMocks(53, 57, 54, 36, 0);
+
+        setCatalogQueryAndDeleteResponses();
+
+        newRemoveAllCommand(new RemoveAllCommand()).executeWithSubject();
+        verify(catalogFrameworkMock, times(numCatalogCalls)).delete(isA(DeleteRequest.class));
+    }
+
+    /**
      * Checks the forced (-f) generic case.
+     * <p>
+     * Response of size 0 for second call lets the command exit as it simulates
+     * no more results to process.
      *
      * @throws Exception
      */
     @Test
     public void testExecuteWithSubject() throws Exception {
-        // given
-        RemoveAllCommand removeAllCommand = new RemoveAllCommand();
 
-        final CatalogFramework catalogFramework = mock(CatalogFramework.class);
+        batchSize = 11;
+        numCatalogCalls = 1;
+        forceCommand = true;
 
-        QueryResponse queryResponse = mock(QueryResponse.class);
-        when(queryResponse.getResults()).thenReturn(getResultList(10));
-        when(catalogFramework.query(isA(QueryRequest.class))).thenReturn(queryResponse);
+        setQueryAndDeleteResponseMocks(11, 0);
 
-        DeleteResponse deleteResponse = mock(DeleteResponse.class);
-        when(deleteResponse.getDeletedMetacards()).thenReturn(getMetacardList(10));
-        when(catalogFramework.delete(isA(DeleteRequest.class))).thenReturn(deleteResponse);
+        setCatalogQueryAndDeleteResponses();
 
-        removeAllCommand.catalogFramework = catalogFramework;
-        removeAllCommand.filterBuilder = new GeotoolsFilterBuilder();
-        removeAllCommand.batchSize = 11;
-        removeAllCommand.force = true;
-
-        // when
-        removeAllCommand.executeWithSubject();
-
-        // then
-        verify(catalogFramework, times(1)).delete(isA(DeleteRequest.class));
+        newRemoveAllCommand(new RemoveAllCommand()).executeWithSubject();
+        verify(catalogFrameworkMock, times(numCatalogCalls)).delete(isA(DeleteRequest.class));
     }
 
     /**
@@ -110,7 +158,9 @@ public class RemoveAllCommandTest extends ConsoleOutputCommon {
      */
     @Test
     public void testExecuteWithSubjectWithCache() throws Exception {
-        // given
+
+        int numCatalogCalls = 1;
+
         final SolrCacheMBean mbean = mock(SolrCacheMBean.class);
 
         RemoveAllCommand removeAllCommand = new RemoveAllCommand() {
@@ -119,46 +169,95 @@ public class RemoveAllCommandTest extends ConsoleOutputCommon {
                 return mbean;
             }
         };
+
         removeAllCommand.force = true;
         removeAllCommand.cache = true;
-
-        // when
         removeAllCommand.executeWithSubject();
 
-        // then
-        verify(mbean, times(1)).removeAll();
+        verify(mbean, times(numCatalogCalls)).removeAll();
     }
 
-    private java.util.List<Result> getResultList(int amount) {
-        java.util.List<Result> results = new ArrayList<>();
+    private RemoveAllCommand newRemoveAllCommand(RemoveAllCommand removeAllCommand) {
 
-        for (int i = 0; i < amount; i++) {
+        removeAllCommand.catalogFramework = catalogFrameworkMock;
+        removeAllCommand.filterBuilder = new GeotoolsFilterBuilder();
+        removeAllCommand.batchSize = batchSize;
+        removeAllCommand.force = forceCommand;
 
-            String id = UUID.randomUUID()
-                    .toString();
-            MetacardImpl metacard = new MetacardImpl();
-            metacard.setId(id);
-            Result result = new ResultImpl(metacard);
-            results.add(result);
-
-        }
-
-        return results;
+        return removeAllCommand;
     }
 
-    private java.util.List<Metacard> getMetacardList(int amount) {
-        List<Metacard> metacards = new ArrayList<>();
+    private void setCatalogQueryAndDeleteResponses() throws Exception {
+        when(catalogFrameworkMock.query(isA(QueryRequest.class))).thenReturn(queryResponse);
+        when(catalogFrameworkMock.delete(isA(DeleteRequest.class))).thenReturn(deleteResponse);
+    }
 
-        for (int i = 0; i < amount; i++) {
+    private void setQueryAndDeleteResponseMocks(int... numResultsPerQuery) {
+        setQueryResponseMockReturn(numResultsPerQuery);
+        setDeleteResponseMockReturn(numResultsPerQuery);
+    }
 
-            String id = UUID.randomUUID()
-                    .toString();
-            MetacardImpl metacard = new MetacardImpl();
-            metacard.setId(id);
+    /**
+     * Given the internal implementation of RemoveAllCommand:executeRemoveAllFromStore(),
+     * queryResponse.getResults() needs to be called three times per catalog framework
+     * query. For this reason, three mock responses are added for each argument.
+     *
+     * @param numResultsPerQueryList
+     */
+    private void setQueryResponseMockReturn(int... numResultsPerQueryList) {
 
-            metacards.add(metacard);
+        List<List<Result>> queryResponseMockList = new ArrayList<>();
 
+        for (int numResultsForQuery : numResultsPerQueryList) {
+
+            List<Result> resultList = populateResultList(numResultsForQuery);
+            queryResponseMockList.add(resultList);
+
+            // add two copies of first result list as implementation of RemoveAllCommand
+            // calls queryResponse.getResults() three times per catalog framework query
+            // Calling getResults does NOT advance index of queryResponse
+            queryResponseMockList.add(resultList);
+            queryResponseMockList.add(resultList);
         }
-        return metacards;
+
+        when(queryResponse.getResults()).thenReturn(queryResponseMockList.get(0),
+                getRemainingArguments(queryResponseMockList));
+    }
+
+    private void setDeleteResponseMockReturn(int... numResultsPerQueryList) {
+
+        List<List<Metacard>> deleteResponseMockList = new ArrayList<>();
+
+        for (int numResultsForQuery : numResultsPerQueryList) {
+            deleteResponseMockList.add(populateMetacardList(numResultsForQuery));
+        }
+
+        when(deleteResponse.getDeletedMetacards()).thenReturn(deleteResponseMockList.get(0),
+                getRemainingArguments(deleteResponseMockList));
+    }
+
+    private <T> List[] getRemainingArguments(List<List<T>> mockResponses) {
+        List[] argumentListArr = new List[mockResponses.size()];
+        mockResponses.toArray(argumentListArr);
+        return Arrays.copyOfRange(argumentListArr, 1, mockResponses.size());
+    }
+
+    private List<Result> populateResultList(int size) {
+        return Stream.generate(() -> new ResultImpl(newRandomMetacard()))
+                .limit(size)
+                .collect(toList());
+    }
+
+    private List<Metacard> populateMetacardList(int size) {
+        return Stream.generate(() -> newRandomMetacard())
+                .limit(size)
+                .collect(toList());
+    }
+
+    private MetacardImpl newRandomMetacard() {
+        MetacardImpl metacard = new MetacardImpl();
+        metacard.setId(UUID.randomUUID()
+                .toString());
+        return metacard;
     }
 }
