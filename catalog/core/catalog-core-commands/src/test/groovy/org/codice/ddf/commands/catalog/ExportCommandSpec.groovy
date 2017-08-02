@@ -166,18 +166,15 @@ class ExportCommandSpec extends Specification {
         thrown(IllegalStateException)
     }
 
-    // TODO - Ignored until DDF-3123 has been addressed
-    @Ignore
     def "Test abort command"() {
         setup:
+        InputStream keyboardInput = new ByteArrayInputStream("n\r".getBytes('utf-8'))
+        def session = Mock(Session) {
+            getKeyboard() >> keyboardInput
+        }
         exportCommand.with {
             it.delete = true
             it.session = session
-        }
-
-        InputStream keyboardInput = new ByteArrayInputStream("n\r".getBytes('utf-8'))
-        Session session = Mock(Session) {
-            getKeyboard() >> keyboardInput
         }
 
         when:
