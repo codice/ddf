@@ -222,7 +222,7 @@ public class SeedCommandTest extends CommandCatalogFrameworkCommon {
     @Test
     public void testDoesNotSkipResources() throws Exception {
 
-        int maxPageSize = getMaxPageSize();
+        int maxPageSize = 1000;
         int resourceLimit = maxPageSize * 2;
 
         String expected = resourceLimit + " resource download(s) started.";
@@ -312,10 +312,6 @@ public class SeedCommandTest extends CommandCatalogFrameworkCommon {
         public boolean matches(Object o) {
             return test.test((QueryRequest) o);
         }
-    }
-
-    private int getMaxPageSize() {
-        return NumberUtils.toInt(System.getProperty("catalog.maxPageSize"), 1000);
     }
 
     private void mockMultipleCatalogFrameworkQueries(int pageSize, int resourceLimit)
