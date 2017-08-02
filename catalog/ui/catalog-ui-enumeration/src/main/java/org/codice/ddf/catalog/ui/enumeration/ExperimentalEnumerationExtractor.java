@@ -47,10 +47,11 @@ public class ExperimentalEnumerationExtractor {
     private final List<AttributeInjector> attributeInjectors;
 
     /**
-     * @deprecated This constructor does not take into account injected attributes.
-     * The other constructor <code>ExperimentalEnumerationExtractor/3</code> should be used.
      * @param attributeValidatorRegistry
      * @param metacardTypes
+     * @deprecated This constructor does not take into account injected attributes.
+     * The other constructor {@link #ExperimentalEnumerationExtractor(AttributeValidatorRegistry, List, List)}
+     * should be used.
      */
     @Deprecated
     public ExperimentalEnumerationExtractor(AttributeValidatorRegistry attributeValidatorRegistry,
@@ -60,8 +61,8 @@ public class ExperimentalEnumerationExtractor {
 
     /**
      * @param attributeValidatorRegistry validators to build enumerations from
-     * @param metacardTypes metacard types to associate attributes with types
-     * @param attributeInjectors injected attributes
+     * @param metacardTypes              metacard types to associate attributes with types
+     * @param attributeInjectors         injected attributes
      */
     public ExperimentalEnumerationExtractor(AttributeValidatorRegistry attributeValidatorRegistry,
             List<MetacardType> metacardTypes, List<AttributeInjector> attributeInjectors) {
