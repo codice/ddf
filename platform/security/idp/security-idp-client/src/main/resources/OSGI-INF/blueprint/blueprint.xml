@@ -68,8 +68,8 @@
         <argument ref="crypto"/>
         <argument ref="relayStates"/>
         <property name="loginFilter">
-            <reference interface="javax.servlet.Filter"
-                       filter="(filter-name=login-filter)"/>
+            <reference interface="org.codice.ddf.platform.filter.SecurityFilter"
+                       filter="(osgi.http.whiteboard.filter.name=login-filter)"/>
         </property>
         <property name="sessionFactory" ref="sessionFactory"/>
     </bean>

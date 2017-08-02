@@ -16,7 +16,6 @@ package org.codice.ddf.security.filter.authorization;
 
 import java.io.IOException;
 
-import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
@@ -27,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
+import org.codice.ddf.platform.filter.SecurityFilter;
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
 import org.slf4j.Logger;
@@ -38,7 +38,7 @@ import ddf.security.permission.CollectionPermission;
 /**
  * Handler that implements authorization checking for contexts.
  */
-public class AuthorizationFilter implements Filter {
+public class AuthorizationFilter implements SecurityFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthorizationFilter.class);
 

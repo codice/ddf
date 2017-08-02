@@ -34,8 +34,9 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
+            <groupId>ddf.platform</groupId>
+            <artifactId>platform-filter-delegate</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
@@ -206,7 +207,6 @@
                                             <value>COVEREDRATIO</value>
                                             <minimum>0.48</minimum>
                                         </limit>
-
                                     </limits>
                                 </rule>
                             </rules>

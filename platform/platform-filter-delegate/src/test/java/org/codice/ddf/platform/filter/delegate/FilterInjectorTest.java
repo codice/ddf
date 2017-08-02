@@ -38,15 +38,12 @@ import org.osgi.framework.ServiceRegistration;
 /**
  * Tests the functionality of the filter injector to verify that all of the
  * methods function properly with adding and removing filters.
- *
  */
 public class FilterInjectorTest {
 
-    ServiceReference<ServletContext> curReference;
+    private ServiceReference<ServletContext> curReference;
 
-    ServiceRegistration<Filter> curRegistration;
-
-    ServletContext curContext;
+    private ServletContext curContext;
 
     /**
      * Tests that the filter is registered when the injectFilter method is
@@ -54,19 +51,13 @@ public class FilterInjectorTest {
      */
     @Test
     public void testInjectFilter() {
-        Filter filter = createMockFilter();
+        Filter filter = mock(Filter.class);
         FilterInjector injector = new FilterInjector(filter);
         updateMockReference();
 
         injector.injectFilter(curReference);
 
         verify(curContext).addFilter("delegating-filter", filter);
-
-    }
-
-    private Filter createMockFilter() {
-        Filter filter = mock(Filter.class);
-        return filter;
     }
 
     @SuppressWarnings("unchecked")
@@ -78,7 +69,7 @@ public class FilterInjectorTest {
         FilterRegistration.Dynamic filterReg = mock(FilterRegistration.Dynamic.class);
         when(curContext.addFilter(anyString(), any(Filter.class))).thenReturn(filterReg);
         when(curContext.getSessionCookieConfig()).thenReturn(mock(SessionCookieConfig.class));
-        curRegistration = mock(ServiceRegistration.class);
+        ServiceRegistration<Filter> curRegistration = mock(ServiceRegistration.class);
         when(context.registerService(eq(Filter.class),
                 Mockito.any(Filter.class),
                 Matchers.<Dictionary<String, Object>>any())).thenReturn(curRegistration);

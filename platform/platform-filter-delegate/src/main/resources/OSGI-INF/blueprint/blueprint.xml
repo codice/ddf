@@ -21,20 +21,16 @@
         <reference-listener ref="filterInjector" bind-method="injectFilter"/>
     </reference-list>
 
-    <bean id="sortedServiceList" class="org.codice.ddf.platform.util.SortedServiceList">
-    </bean>
-
-    <reference-list id="filters" interface="javax.servlet.Filter" availability="optional">
-        <reference-listener bind-method="bindPlugin" unbind-method="unbindPlugin"
-                            ref="sortedServiceList"/>
+    <reference-list id="securityFilters" interface="org.codice.ddf.platform.filter.SecurityFilter"
+                    member-type="service-reference">
+        <reference-listener unbind-method="removeSecurityFilter" ref="delegateServletFilter"/>
     </reference-list>
 
-    <bean id="delegatingServletFilter"
-          class="org.codice.ddf.platform.filter.delegate.DelegateServletFilter">
-    </bean>
+    <bean id="delegateServletFilter"
+          class="org.codice.ddf.platform.filter.delegate.DelegateServletFilter"/>
 
     <bean id="filterInjector" class="org.codice.ddf.platform.filter.delegate.FilterInjector">
-        <argument ref="delegatingServletFilter"/>
+        <argument ref="delegateServletFilter"/>
     </bean>
 
     <reference-list id="sessionListener" interface="javax.servlet.http.HttpSessionListener"

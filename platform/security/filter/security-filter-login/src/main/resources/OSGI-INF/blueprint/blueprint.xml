@@ -33,11 +33,9 @@
         </property>
     </bean>
 
-    <service ref="filter"
-             interface="javax.servlet.Filter" ranking="99">
+    <service ref="filter" interface="org.codice.ddf.platform.filter.SecurityFilter" ranking="99">
         <service-properties>
-            <entry key="filter-name" value="login-filter"/>
-            <entry key="urlPatterns" value="/*"/>
+            <entry key="osgi.http.whiteboard.filter.name" value="login-filter"/>
         </service-properties>
     </service>
 

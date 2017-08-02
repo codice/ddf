@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 
-import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
@@ -60,6 +59,7 @@ import org.apache.wss4j.dom.validate.Validator;
 import org.bouncycastle.asn1.ASN1OctetString;
 import org.bouncycastle.asn1.x509.SubjectKeyIdentifier;
 import org.codice.ddf.configuration.SystemBaseUrl;
+import org.codice.ddf.platform.filter.SecurityFilter;
 import org.codice.ddf.platform.util.XMLUtils;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
@@ -100,7 +100,7 @@ import ddf.security.service.SecurityServiceException;
  * Servlet filter that exchanges all incoming tokens for a SAML assertion via an
  * STS.
  */
-public class LoginFilter implements Filter {
+public class LoginFilter implements SecurityFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoginFilter.class);
 

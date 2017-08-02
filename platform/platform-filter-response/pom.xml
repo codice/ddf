@@ -31,8 +31,9 @@
             <artifactId>slf4j-ext</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
+            <groupId>ddf.platform</groupId>
+            <artifactId>platform-filter-delegate</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
     <build>

@@ -103,7 +103,7 @@ They are passed in the `AuthorizationInfo` of the Subject along with the Permiss
 |Description
 
 |org.codice.${ddf-branding-lowercase}.platform.filter.delegate.DelegateServletFilter
-|The `DelegateServletFilter` detects any servlet filters that have been exposed as OSGi services and places them in-order in front of any servlet or web application running on the container.
+|The `DelegateServletFilter` detects any servlet filters that have been exposed as OSGi services implementing `org.codice.ddf.platform.filter.SecurityFilter` and places them in-order in front of any servlet or web application running on the container.
 
 |org.codice.${ddf-branding-lowercase}.security.filter.websso.WebSSOFilter
 |This filter serves as the main security filter that works in conjunction with a number of handlers to protect a variety of contexts, each using different authentication schemes and policies.

@@ -12,7 +12,9 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>ddf.platform</groupId>
         <artifactId>platform</artifactId>
@@ -30,6 +32,7 @@
         <dependency>
             <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -63,6 +66,12 @@
             <artifactId>platform-util-unavailableurls</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.osgi</groupId>
+            <artifactId>spring-osgi-mock</artifactId>
+            <version>${spring-osgi.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -72,8 +81,17 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>platform-util</Embed-Dependency>
-                        <Export-Package/>
+                        <Import-Package>
+                            !javax.websocket.*,
+                            *
+                        </Import-Package>
+                        <Embed-Dependency>
+                            platform-util
+                        </Embed-Dependency>
+                        <!--only export SecurityFilter, not DelegateServletFilter-->
+                        <Export-Package>
+                            org.codice.ddf.platform.filter
+                        </Export-Package>
                     </instructions>
                 </configuration>
             </plugin>
@@ -91,23 +109,23 @@
                             <rules>
                                 <rule>
                                     <element>BUNDLE</element>
+                                    <!--These ratios are low because the FilterInjector class has low unit test coverage.-->
                                     <limits>
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.32</minimum>
+                                            <minimum>0.66</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.20</minimum>
+                                            <minimum>0.43</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.16</minimum>
+                                            <minimum>0.53</minimum>
                                         </limit>
-
                                     </limits>
                                 </rule>
                             </rules>
