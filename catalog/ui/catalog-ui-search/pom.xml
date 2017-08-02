@@ -305,30 +305,30 @@
                 <configuration>
                     <instructions>
                         <Embed-Dependency>
+                            antlr4-runtime,
                             boon,
-                            camel-http-common,
-                            camel-http,
+                            c3p0,
                             camel-core-osgi,
+                            camel-http,
+                            camel-http-common,
+                            catalog-core-api-impl;scope=!test,
+                            commons-lang3,
+                            ddf-security-common,
+                            gt-cql,
+                            handlebars,
                             httpclient,
                             httpcore,
+                            platform-email-impl,
                             platform-error-servlet,
-                            proxy-camel-servlet,
-                            proxy-camel-route,
-                            catalog-core-api-impl;scope=!test,
                             platform-util,
                             platform-util-unavailableurls,
-                            versioning-common,
-                            spark-core,
-                            gt-cql,
-                            spatial4j,
-                            commons-lang3,
+                            proxy-camel-route,
+                            proxy-camel-servlet,
                             quartz,
                             quartz-jobs,
-                            c3p0,
-                            ddf-security-common,
-                            handlebars,
-                            platform-email-impl,
-                            antlr4-runtime
+                            spark-core,
+                            spatial4j,
+                            versioning-common
                         </Embed-Dependency>
                         <Web-ContextPath>/search/catalog</Web-ContextPath>
                         <_wab>src/main/webapp,${project.build.directory}/webapp</_wab>
@@ -383,12 +383,12 @@
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.18</minimum>
+                                            <minimum>0.11</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.19</minimum>
+                                            <minimum>0.15</minimum>
                                         </limit>
                                         <limit>
                                             <counter>LINE</counter>
