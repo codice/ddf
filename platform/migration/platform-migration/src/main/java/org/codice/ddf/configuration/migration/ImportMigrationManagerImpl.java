@@ -132,7 +132,7 @@ public class ImportMigrationManagerImpl implements Closeable {
                     this.productVersion,
                     productVersion));
         }
-        LOGGER.debug("Importing product [{}] from version [{}] ...", productVersion, version);
+        LOGGER.debug("Importing product [{}] from version [{}]...", productVersion, version);
         contexts.values()
                 .forEach(ImportMigrationContextImpl::doImport);
     }

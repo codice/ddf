@@ -53,6 +53,7 @@ public class ImportMigrationEmptyEntryImpl extends ImportMigrationEntryImpl {
     @Override
     public void store() {
         if (!stored) {
+            LOGGER.debug("Importing file [{}] from [{}]...", getAbsolutePath(), path);
             super.stored = true;
             throw new IllegalStateException("Path [" + getPath()
                     + "] should not be stored; since it wasn't stored in the export by migratable: "

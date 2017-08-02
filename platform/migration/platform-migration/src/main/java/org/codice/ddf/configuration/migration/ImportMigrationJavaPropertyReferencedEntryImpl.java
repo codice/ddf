@@ -48,9 +48,10 @@ public class ImportMigrationJavaPropertyReferencedEntryImpl
     @Override
     public void store() {
         if (!stored) {
-            LOGGER.debug("Importing Java property reference [{}] from [{}] for file [{}]...",
+            LOGGER.debug("Importing Java property reference [{}] from [{}] as file [{}] from [{}]...",
                     getProperty(),
                     propertiesPath,
+                    getAbsolutePath(),
                     getPath());
             super.store();
         }

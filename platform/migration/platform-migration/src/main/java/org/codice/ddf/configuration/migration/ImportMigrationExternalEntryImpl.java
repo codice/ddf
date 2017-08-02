@@ -78,7 +78,7 @@ public class ImportMigrationExternalEntryImpl extends ImportMigrationEntryImpl {
         if (!stored) {
             final Path apath = getAbsolutePath();
 
-            LOGGER.debug("Verifying external file [{}]...", apath);
+            LOGGER.debug("Verifying external file [{}] from [{}]...", apath, getPath());
             super.stored = true;
             verifyRealFile(r -> new ImportPathMigrationWarning(apath, r));
         }

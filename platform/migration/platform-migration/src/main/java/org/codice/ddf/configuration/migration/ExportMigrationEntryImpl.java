@@ -91,7 +91,7 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl<ExportMigration
     @Override
     public void store() {
         store((r, os) -> {
-            LOGGER.debug("Exporting [{}] to file [{}]...", getAbsolutePath(), path);
+            LOGGER.debug("Exporting file [{}] to [{}]...", getAbsolutePath(), path);
             if (isMigratable()) {
                 FileUtils.copyFile(getAbsolutePath().toFile(), os);
             }

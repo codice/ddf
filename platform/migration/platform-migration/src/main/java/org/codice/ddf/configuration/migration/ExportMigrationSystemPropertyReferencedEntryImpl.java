@@ -24,8 +24,9 @@ public class ExportMigrationSystemPropertyReferencedEntryImpl
     @Override
     public void store() {
         if (!stored) {
-            LOGGER.debug("Exporting system property reference [{}] for file [{}]...",
+            LOGGER.debug("Exporting system property reference [{}] as file [{}] to [{}]...",
                     getProperty(),
+                    getAbsolutePath(),
                     getPath());
             getReport().recordSystemProperty(this);
             super.store();

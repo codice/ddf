@@ -177,7 +177,7 @@ public class ExportMigrationContextImpl extends MigrationContextImpl
      * @return metadata to export for the corresponding migratable keyed by the migratable's id
      */
     Map<String, Object> doExport() {
-        LOGGER.debug("Exporting [{}] with version [{}] ...", id, getVersion());
+        LOGGER.debug("Exporting [{}] with version [{}]...", id, getVersion());
         Stopwatch stopwatch = null;
 
         if (LOGGER.isDebugEnabled()) {

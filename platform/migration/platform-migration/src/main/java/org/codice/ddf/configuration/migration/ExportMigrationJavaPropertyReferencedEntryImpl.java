@@ -52,9 +52,10 @@ public class ExportMigrationJavaPropertyReferencedEntryImpl
     @Override
     public void store() {
         if (!super.stored) {
-            LOGGER.debug("Exporting Java property reference [{}] from [{}] for file [{}]...",
+            LOGGER.debug("Exporting Java property reference [{}] from [{}] as file [{}] to [{}]...",
                     getProperty(),
                     propertiesPath,
+                    getAbsolutePath(),
                     getPath());
             getReport().recordJavaProperty(this);
             super.store();

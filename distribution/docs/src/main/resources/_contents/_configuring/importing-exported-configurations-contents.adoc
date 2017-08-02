@@ -13,6 +13,11 @@ To import a previously exported configuration file from the ${command-console}:
 . Shutdowns ${branding} by typing in `shutdown`
 . Re-launch the newly migrated ${branding}
 
+[NOTE]
+====
+Before proceeding with importing the exported configurations, the system will automatically export all configurations to a file named `exported-${project.version}-<timestamp>.zip` in the same directory. This exported file can be used to restore the state of the system to what it was before the import started in case any errors occurs.
+====
+
 [IMPORTANT]
 ====
 Some system configuration files contain paths to other configuration files. For instance, the `system.properties` file contains the `javax.net.ssl.keyStore` property which provides the path to system key store.

@@ -15,6 +15,7 @@ package org.codice.ddf.configuration.admin;
 
 import java.io.IOException;
 import java.util.Dictionary;
+import java.util.Enumeration;
 import java.util.Objects;
 
 import javax.annotation.Nullable;
@@ -76,6 +77,13 @@ public class ImportMigrationConfigurationAdminEntry extends ProxyImportMigration
             final Configuration cfg;
 
             if (memoryConfiguration != null) {
+                if (propertiesMatch()) {
+                    LOGGER.debug(
+                            "Importing configuration for [{}] from [{}]; no update required",
+                            getPid(),
+                            getPath());
+                    return;
+                }
                 cfg = memoryConfiguration;
                 LOGGER.debug(
                         "Importing configuration for [{}] from [{}]; updating existing configuration...",
@@ -121,5 +129,27 @@ public class ImportMigrationConfigurationAdminEntry extends ProxyImportMigration
 
     public Dictionary<String, Object> getProperties() {
         return properties;
+    }
+
+    private boolean propertiesMatch() {
+        final Dictionary<String, Object> memprops = memoryConfiguration.getProperties();
+
+        if (memprops == null) {
+            return false;
+        }
+        // remove system properties as we do not want to test those
+        memprops.remove(ConfigurationAdmin.SERVICE_FACTORYPID);
+        memprops.remove(Constants.SERVICE_PID);
+        if (properties.size() != memprops.size()) {
+            return false;
+        }
+        for (final Enumeration<String> e = properties.keys(); e.hasMoreElements(); ) {
+            final String key = e.nextElement();
+
+            if (!Objects.deepEquals(properties.get(key), memprops.get(key))) {
+                return false;
+            }
+        }
+        return true;
     }
 }

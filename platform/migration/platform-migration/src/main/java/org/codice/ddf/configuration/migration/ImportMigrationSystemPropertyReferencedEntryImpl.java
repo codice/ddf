@@ -29,8 +29,9 @@ public class ImportMigrationSystemPropertyReferencedEntryImpl
     @Override
     public void store() {
         if (!stored) {
-            LOGGER.debug("Importing system property reference [{}] for file [{}]...",
+            LOGGER.debug("Importing system property reference [{}] as file [{}] from [{}]...",
                     getProperty(),
+                    getAbsolutePath(),
                     getPath());
             super.store();
         }

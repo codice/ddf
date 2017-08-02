@@ -170,7 +170,7 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
 
     void doImport() {
         if (migratable != null) {
-            LOGGER.debug("Importing migratable [{}] from version [{}] ...",
+            LOGGER.debug("Importing migratable [{}] from version [{}]...",
                     id, ((getVersion() != null) ? getVersion() : "<not-exported>"));
             Stopwatch stopwatch = null;
 
