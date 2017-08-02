@@ -24,11 +24,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.BinaryOperator;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.ConfigurationMigratable;
@@ -104,6 +106,12 @@ public class ConfigurationMigrationManager
         this.filename = "exported-" + productVersion + ".zip";
     }
 
+    static <T> BinaryOperator<T> throwingMerger() {
+        return (u, v) -> {
+            throw new IllegalStateException(String.format("Duplicate key %s", u));
+        };
+    }
+
     private static String getProductVersion(InputStream is) throws IOException {
         Validate.notNull(is, "invalid null stream");
         try {
@@ -152,6 +160,16 @@ public class ConfigurationMigrationManager
     public MigrationReport doExport(Path exportDirectory) {
         Validate.notNull(exportDirectory, "Export directory cannot be null");
         final MigrationReport report = new MigrationReportImpl(MigrationOperation.EXPORT);
+
+        try {
+            FileUtils.forceMkdir(exportDirectory.toFile());
+        } catch (IOException e) {
+            LOGGER.info("unable to create directory: " + exportDirectory + "; ", e);
+            report.record(new UnexpectedMigrationException(String.format(
+                    "unable to create directory [%s]",
+                    exportDirectory), e));
+            return report;
+        }
         final Path exportFile = exportDirectory.resolve(filename);
 
         try {

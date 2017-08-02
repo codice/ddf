@@ -67,6 +67,6 @@
     </bean>
 
     <service id="configurationMigrationManager" ref="configMigrationManager"
-             auto-export="interfaces"/>
+             auto-export="interfaces" ranking="-1000"/>
 
 </blueprint>

@@ -4,7 +4,7 @@
 .Exporting Existing Configurations from ${admin-console}
 ****
 You can export the current system configurations using the ${admin-console}.
-This is useful for migrating from one running instance to another.
+This is useful for migrating from one running instance to another or for installing a second node in an highly-available deployment.
 
 To export the current system configurations, follow these instructions:
 
@@ -25,16 +25,9 @@ image::exporting_configuration_step3.png[Exporting Step 3]
 .Export Existing Configuration Settings from ${command-console}
 ****
 
-* *{hardening-step}*
-
 To export the current ${branding} configuration from the ${command-console}:
 
-. Type in `migration:export <directory>`. This command creates the exported configuration files that are saved to the specified directory. If no directory is specified it will default to `<${branding}_HOME>/etc/exported`
-. Zip up the exported files in the export directory.
-----
-cd  <${branding}_HOME>/etc/exported
-zip -r exportedFiles.zip *
-----
+. Type in `migration:export <directory>`. This command creates the exported configuration file `exported-${project.version}.zip` which is saved to the specified directory. If no directory is specified it will default to `<${branding}_HOME>/exported`
 
 ****
 

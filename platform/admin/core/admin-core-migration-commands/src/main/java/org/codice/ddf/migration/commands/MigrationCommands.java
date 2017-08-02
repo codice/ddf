@@ -44,7 +44,6 @@ public abstract class MigrationCommands implements Action {
     protected Security security = Security.getInstance();
 
     protected Path defaultExportDirectory = Paths.get(System.getProperty("ddf.home"),
-            "etc",
             "exported");
 
     /**

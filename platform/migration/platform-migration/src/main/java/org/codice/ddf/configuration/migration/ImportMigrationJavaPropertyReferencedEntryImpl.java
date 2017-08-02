@@ -48,7 +48,7 @@ public class ImportMigrationJavaPropertyReferencedEntryImpl
     @Override
     public void store() {
         if (!stored) {
-            LOGGER.debug("Importing Java property reference [{}] from [{}] for [{}]...",
+            LOGGER.debug("Importing Java property reference [{}] from [{}] for file [{}]...",
                     getProperty(),
                     propertiesPath,
                     getPath());
@@ -60,10 +60,6 @@ public class ImportMigrationJavaPropertyReferencedEntryImpl
     public void store(MigrationImporter importer) {
         Validate.notNull(importer, "invalid null importer");
         if (!stored) {
-            LOGGER.debug("Importing Java property reference [{}] from [{}] for [{}]...",
-                    getProperty(),
-                    propertiesPath,
-                    getPath());
             super.store(importer);
         }
     }

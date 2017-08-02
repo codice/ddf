@@ -133,8 +133,13 @@
                         <Embed-Dependency>
                             commons-lang,
                             platform-util,
-                            org.apache.felix.utils
+                            org.apache.felix.utils,
+                            boon
                         </Embed-Dependency>
+                        <Import-Package>
+                            !com.sun.management,
+                            *
+                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>

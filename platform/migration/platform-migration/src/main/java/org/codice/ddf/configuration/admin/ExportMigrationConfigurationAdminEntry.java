@@ -44,7 +44,7 @@ public class ExportMigrationConfigurationAdminEntry extends ProxyExportMigration
     public void store() {
         if (!stored) {
             this.stored = true;
-            LOGGER.debug("Exporting configuration for [{}] to [{}]...", configuration.getPid(), getPath());
+            LOGGER.debug("Exporting configuration [{}] to [{}]...", configuration.getPid(), getPath());
             super.store((r, out) -> persister.write(out, configuration.getProperties()));
         }
     }

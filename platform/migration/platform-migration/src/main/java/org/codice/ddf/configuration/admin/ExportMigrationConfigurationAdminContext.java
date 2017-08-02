@@ -126,8 +126,9 @@ public class ExportMigrationConfigurationAdminContext extends ProxyExportMigrati
                             o);
                     getReport().record(new ExportPathMigrationWarning(Objects.toString(o, null),
                             String.format(
-                                    "from [%s] configuration property for [%s] is of an unsupported format; exporting as [%s]",
+                                    "from %s property [%s] for configuration [%s] is of an unsupported format; exporting as [%s]",
                                     ConfigurationAdminMigratable.FELIX_FILEINSTALL_FILENAME,
+                                    o,
                                     configuration.getPid(),
                                     path)));
                 }
@@ -138,8 +139,9 @@ public class ExportMigrationConfigurationAdminContext extends ProxyExportMigrati
                         o), e);
                 getReport().record(new ExportPathMigrationWarning(Objects.toString(o, null),
                         String.format(
-                                "from [%s] configurationproperty for [%s] cannot be parsed; exporting as [%s]",
+                                "from %s property [%s] for configuration [%s] cannot be parsed; exporting as [%s]",
                                 ConfigurationAdminMigratable.FELIX_FILEINSTALL_FILENAME,
+                                o,
                                 configuration.getPid(),
                                 path)));
             }

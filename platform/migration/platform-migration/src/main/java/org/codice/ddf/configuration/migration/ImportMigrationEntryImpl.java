@@ -13,14 +13,13 @@
  */
 package org.codice.ddf.configuration.migration;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -47,8 +46,6 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl<ImportMigration
     private final ZipFile zip;
 
     private final ZipEntry entry;
-
-    private final AtomicReference<InputStream> inputStream = new AtomicReference<>();
 
     ImportMigrationEntryImpl(Function<String, ImportMigrationContextImpl> contextProvider,
             ZipFile zip, ZipEntry ze) {
@@ -81,19 +78,31 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl<ImportMigration
 
     @Override
     public InputStream getInputStream() throws IOException {
-        try {
-            return inputStream.updateAndGet(is -> (is != null) ?
-                    is :
-                    context.getInputStreamFor(entry));
-        } catch (UncheckedIOException e) {
-            throw e.getCause();
-        }
+        return context.getInputStreamFor(entry);
     }
 
     @Override
     public void store() {
-        store((r, in) -> FileUtils.copyInputStreamToFile(getInputStream(),
-                getAbsolutePath().toFile()));
+        store((r, in) -> {
+            LOGGER.debug("Importing file [{}] to [{}]...", path, getAbsolutePath());
+            final File afile = getAbsolutePath().toFile();
+
+            try {
+                FileUtils.copyInputStreamToFile(getInputStream(), afile);
+            } catch (IOException e) {
+                if (!afile.canWrite()) { // make it writable and try again
+                    try {
+                        LOGGER.debug("temporarily overriding write privileges for {}", afile);
+                        if (!afile.setWritable(true)) { // cannot set it writeable so bail
+                            throw e;
+                        }
+                        FileUtils.copyInputStreamToFile(getInputStream(), afile);
+                    } finally { // reset the permissions properly
+                        afile.setReadable(true);
+                    }
+                }
+            }
+        });
     }
 
     @Override
@@ -101,7 +110,6 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl<ImportMigration
         Validate.notNull(importer, "invalid null importer");
         if (!stored) {
             super.stored = true;
-            LOGGER.debug("Importing [{}] to [{}]...", path, getAbsolutePath());
             try {
                 importer.apply(getReport(), getInputStream());
             } catch (IOException e) {

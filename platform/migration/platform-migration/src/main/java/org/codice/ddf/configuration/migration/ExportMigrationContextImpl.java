@@ -81,7 +81,7 @@ public class ExportMigrationContextImpl extends MigrationContextImpl
      */
     public ExportMigrationContextImpl(MigrationReport report, Migratable migratable,
             ZipOutputStream zos) {
-        super(report, migratable);
+        super(report, migratable, migratable.getVersion());
         this.report = new ExportMigrationReportImpl(report, migratable);
         this.zos = zos;
     }
@@ -177,6 +177,7 @@ public class ExportMigrationContextImpl extends MigrationContextImpl
      * @return metadata to export for the corresponding migratable keyed by the migratable's id
      */
     Map<String, Object> doExport() {
+        LOGGER.debug("Exporting [{}] with version [{}] ...", id, getVersion());
         Stopwatch stopwatch = null;
 
         if (LOGGER.isDebugEnabled()) {
@@ -184,7 +185,7 @@ public class ExportMigrationContextImpl extends MigrationContextImpl
         }
         migratable.doExport(this);
         if (LOGGER.isDebugEnabled() && (stopwatch != null)) {
-            LOGGER.debug("Export time for {}: {}", id, stopwatch.stop());
+            LOGGER.debug("Exported time for {}: {}", id, stopwatch.stop());
         }
         final Map<String, Object> metadata = ImmutableMap.of(id, report.getMetadata());
 
@@ -196,7 +197,7 @@ public class ExportMigrationContextImpl extends MigrationContextImpl
         try {
             close();
             zos.putNextEntry(new ZipEntry(path.toString()));
-            return new ProxyOutputStream(null) {
+            return new ProxyOutputStream(zos) {
                 @Override
                 public void close() throws IOException {
                     if (!(super.out instanceof ClosedOutputStream)) {
@@ -204,6 +205,7 @@ public class ExportMigrationContextImpl extends MigrationContextImpl
                         zos.closeEntry();
                     }
                 }
+
                 @Override
                 protected void handleIOException(IOException e) throws IOException {
                     throw new ExportIOException(e);

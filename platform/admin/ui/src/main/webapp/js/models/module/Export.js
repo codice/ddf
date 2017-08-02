@@ -69,7 +69,7 @@ define([
 
     var ExportModel = Backbone.Model.extend({
         defaults: {
-            path: 'etc/exported',
+            path: 'exported',
             warnings: [],
             errors: [],
             inProgress: false

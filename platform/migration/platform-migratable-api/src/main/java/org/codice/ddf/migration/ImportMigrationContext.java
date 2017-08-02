@@ -18,6 +18,8 @@ import java.nio.file.PathMatcher;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import javax.annotation.Nullable;
+
 /**
  * The import migration context keeps track of exported migration entries for a given migratable
  * while processing an import migration operation.
@@ -30,6 +32,15 @@ import java.util.stream.Stream;
  * </p>
  */
 public interface ImportMigrationContext extends MigrationContext {
+    /**
+     * Gets the exported version for the corresponding migratable.
+     *
+     * @return the exported version for the corresponding migratable or <code>null</code> if the
+     * corresponding migratable was not exported
+     */
+    @Nullable
+    public String getVersion();
+
     /**
      * Retrieves a migration entry referenced from a given system property that was exported by the
      * corresponding migratable.

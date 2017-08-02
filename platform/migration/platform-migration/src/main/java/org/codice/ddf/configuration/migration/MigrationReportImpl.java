@@ -122,7 +122,7 @@ public class MigrationReportImpl implements MigrationReport {
     }
 
     private void runCodes() {
-        while (codes.isEmpty()) {
+        while (!codes.isEmpty()) {
             codes.removeFirst().accept(this);
         }
     }

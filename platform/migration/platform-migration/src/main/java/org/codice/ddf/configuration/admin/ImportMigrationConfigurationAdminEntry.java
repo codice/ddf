@@ -61,10 +61,12 @@ public class ImportMigrationConfigurationAdminEntry extends ProxyImportMigration
                     String.format("unable to read %s configuration", persister.getExtension()),
                     e);
         }
-        this.factoryPid = Objects.toString(properties.get(ConfigurationAdmin.SERVICE_FACTORYPID),
+        // note: we also remove factory pid and pid from the dictionary as we do not want to restore those later
+        this.factoryPid = Objects.toString(properties.remove(ConfigurationAdmin.SERVICE_FACTORYPID),
                 null);
-        this.pid = Objects.toString(properties.get(Constants.SERVICE_PID), null);
+        this.pid = Objects.toString(properties.remove(Constants.SERVICE_PID), null);
         this.memoryConfiguration = context.getMemoryConfiguration(this);
+        // TODO: InterpolationHelper.performSubstitution(strMap, context); where context is a BundleContext
     }
 
     @Override
