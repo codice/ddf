@@ -318,7 +318,7 @@ const MapLayers = (props) => {
           lower alpha providers on the map.
         </Description>
         <Description>
-          Some provider types are currently only support by the 2D <Link target='_blank'
+          Some provider types are currently only supported by the 2D <Link target='_blank'
             href='https://openlayers.org'>Openlayers</Link> map and some only
           by the 3D <Link target='_blank' href='https://cesiumjs.org'>Cesium</Link> map.
         </Description>

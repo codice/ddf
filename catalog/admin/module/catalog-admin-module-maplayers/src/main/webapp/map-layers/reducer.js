@@ -48,6 +48,9 @@ export const fetch = () => (dispatch) => {
     .then((json) => {
       const config = fromJS(json).getIn(configPath)
         .update('imageryProviders', (providers) => {
+          if (providers === undefined || providers === '') {
+            return fromJS([])
+          }
           try {
             const parsed = JSON.parse(providers)
             const err = validateStructure(parsed)
