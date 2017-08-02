@@ -16,6 +16,8 @@ package ddf.catalog.content.operation.impl;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.content.operation.CreateStorageRequest;
@@ -31,7 +33,7 @@ public class CreateStorageResponseImpl extends ResponseImpl<CreateStorageRequest
     /**
      * Instantiates a new ResponseImpl
      *
-     * @param request    - the original request
+     * @param request the original request
      * @param properties
      */
     public CreateStorageResponseImpl(CreateStorageRequest request,
@@ -42,7 +44,7 @@ public class CreateStorageResponseImpl extends ResponseImpl<CreateStorageRequest
     /**
      * Instantiates a new ResponseImpl
      *
-     * @param request    - the original request
+     * @param request the original request
      * @param createdContentItems
      */
     public CreateStorageResponseImpl(CreateStorageRequest request,
@@ -59,5 +61,17 @@ public class CreateStorageResponseImpl extends ResponseImpl<CreateStorageRequest
     @Override
     public StorageRequest getStorageRequest() {
         return request;
+    }
+
+    @Override
+    public String toString() {
+        if (createdContentItems == null) {
+            return "CreateStorageResponseImpl{createdContentItems=null}";
+        }
+        return String.format("CreateStorageResponseImpl{createdContentItems=%s}",
+                createdContentItems.stream()
+                        .filter(Objects::nonNull)
+                        .map(Object::toString)
+                        .collect(Collectors.joining(", ", "[", "]")));
     }
 }

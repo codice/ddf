@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.codice.ddf.catalog.ui.query.delegate.SearchTerm;
@@ -57,6 +59,13 @@ public class CqlQueryResponse {
 
         status = new Status(queryResponse, source, elapsedTime);
 
+        AtomicBoolean logOnceState = new AtomicBoolean(false);
+        Consumer<String> logOnce = (str) -> {
+            if (logOnceState.compareAndSet(false, true)) {
+                LOGGER.debug(str);
+            }
+        };
+
         types = queryResponse.getResults()
                 .stream()
                 .map(Result::getMetacard)
@@ -71,7 +80,13 @@ public class CqlQueryResponse {
                                 .collect(Collectors.toMap(AttributeDescriptor::getName,
                                         MetacardAttribute::new,
                                         (ad1, ad2) -> {
-                                            LOGGER.debug("Removed duplicate attribute descriptor.");
+                                            logOnce.accept("Removed duplicate attribute descriptor(s). For more information:\n"
+                                                    + "(log:set trace org.codice.ddf.catalog.ui.query.cql)");
+                                            if (LOGGER.isTraceEnabled()) {
+                                                LOGGER.trace(
+                                                        "Removed duplicate attribute descriptor.({})",
+                                                        ad1);
+                                            }
                                             return ad1;
                                         })),
                         (mt1, mt2) -> {
