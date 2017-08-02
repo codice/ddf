@@ -44,7 +44,7 @@ The `org.codice.ddf.migration.Migratable` interface defines these methods:
 
 The `exportPath` in `export(Path exportPath)` is the path where all of the exportable data is copied.
 It is provided via an argument to the `migration:export` console command or via the Export Dialog in the ${admin-console}.
-The default value is `<${branding}_HOME>/etc/exported`.
+The default value is `<${branding}_HOME>/exported`.
 It is the responsibility of a `Migratable` to prevent naming collisions upon export.
 For example, if a `Migratable` writes files for its export, it must namespace the files.
 The `getDescription()` operation returns a short description of the type of data exported by the `Migratable`.

@@ -36,6 +36,21 @@ public interface MigrationReport {
     public MigrationOperation getOperation();
 
     /**
+     * Gets the time the corresponding migration operation started.
+     *
+     * @return the time from the epoch the report migration operation started
+     */
+    public long getStartTime();
+
+    /**
+     * Gets the time the corresponding migration operation ended.
+     *
+     * @return the time from the epoch the report migration operation ended or <code>-1L</code> if it
+     * is still in operation
+     */
+    public long getEndTime();
+
+    /**
      * Records a warning that occurred during the migration report.
      *
      * @param w the warning to record
@@ -60,7 +75,7 @@ public interface MigrationReport {
      * Registers code to be invoked at the completion of the migration operation.
      *
      * @param code the code to execute which will receive this report in parameter where
-     *          additional errors and/or warnings can be registered
+     *             additional errors and/or warnings can be registered
      * @return this for chaining
      * @throws IllegalArgumentException if <code>code</code> is <code>null</code>
      */

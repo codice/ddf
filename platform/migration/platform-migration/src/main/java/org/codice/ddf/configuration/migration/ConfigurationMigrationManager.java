@@ -53,6 +53,7 @@ import com.google.common.collect.ImmutableList;
  */
 public class ConfigurationMigrationManager
         implements ConfigurationMigrationService, ConfigurationMigrationManagerMBean {
+
     private static final Logger LOGGER =
             LoggerFactory.getLogger(ConfigurationMigrationManager.class);
 
@@ -62,6 +63,12 @@ public class ConfigurationMigrationManager
 
     private static final String PRODUCT_VERSION_FILENAME = "Version.txt";
 
+    private static final String EXPORT_EXTENSION = ".zip";
+
+    private static final String EXPORT_DATE_FORMAT = "-%tY%<tm%<tdT%<tH%<tM%<tS";
+
+    private static final String EXPORT_PREFIX = "exported-";
+
     private final MBeanServer mBeanServer;
 
     private final List<ConfigurationMigratable> configurationMigratables;
@@ -69,8 +76,6 @@ public class ConfigurationMigrationManager
     private final List<DataMigratable> dataMigratables;
 
     private final String productVersion;
-
-    private final String filename;
 
     /**
      * Constructor.
@@ -103,7 +108,6 @@ public class ConfigurationMigrationManager
             LOGGER.warn("unable to load version information; ", e);
             throw new IOError(e);
         }
-        this.filename = "exported-" + productVersion + ".zip";
     }
 
     static <T> BinaryOperator<T> throwingMerger() {
@@ -149,7 +153,7 @@ public class ConfigurationMigrationManager
 
     @Override
     public Collection<MigrationWarning> doExport(String exportDirectory) throws MigrationException {
-        notNull(exportDirectory, "Export directory cannot be null");
+        Validate.notNull(exportDirectory, "invalid null export directory");
         final MigrationReport report = doExport(Paths.get(exportDirectory));
 
         report.verifyCompletion(); // will throw error if it failed
@@ -158,8 +162,12 @@ public class ConfigurationMigrationManager
 
     @Override
     public MigrationReport doExport(Path exportDirectory) {
-        Validate.notNull(exportDirectory, "Export directory cannot be null");
-        final MigrationReport report = new MigrationReportImpl(MigrationOperation.EXPORT);
+        Validate.notNull(exportDirectory, "invalid null export directory");
+        return doExport(exportDirectory, false); // no timestamp on filename
+    }
+
+    private MigrationReportImpl doExport(Path exportDirectory, boolean timestamp) {
+        final MigrationReportImpl report = new MigrationReportImpl(MigrationOperation.EXPORT);
 
         try {
             FileUtils.forceMkdir(exportDirectory.toFile());
@@ -170,6 +178,13 @@ public class ConfigurationMigrationManager
                     exportDirectory), e));
             return report;
         }
+        String filename = ConfigurationMigrationManager.EXPORT_PREFIX + productVersion;
+
+        if (timestamp) {
+            filename += String.format(ConfigurationMigrationManager.EXPORT_DATE_FORMAT,
+                    report.getStartTime());
+        }
+        filename += ConfigurationMigrationManager.EXPORT_EXTENSION;
         final Path exportFile = exportDirectory.resolve(filename);
 
         try {
@@ -189,12 +204,12 @@ public class ConfigurationMigrationManager
                     "failed exporting to file [%s]; internal error occurred",
                     exportFile), e));
         }
-        return report;
+        return report.end();
     }
 
     @Override
     public Collection<MigrationWarning> doImport(String exportDirectory) throws MigrationException {
-        notNull(exportDirectory, "Export directory cannot be null");
+        Validate.notNull(exportDirectory, "invalid null export directory");
         final MigrationReport report = doImport(Paths.get(exportDirectory));
 
         report.verifyCompletion(); // will throw error if it failed
@@ -203,9 +218,15 @@ public class ConfigurationMigrationManager
 
     @Override
     public MigrationReport doImport(Path exportDirectory) {
-        Validate.notNull(exportDirectory, "Export directory cannot be null");
-        final MigrationReport report = new MigrationReportImpl(MigrationOperation.IMPORT);
-        final Path exportFile = exportDirectory.resolve(filename);
+        Validate.notNull(exportDirectory, "invalid null export directory");
+        final MigrationReportImpl xreport = doExport(exportDirectory,
+                true); // timestamp the filename
+        final MigrationReportImpl report = new MigrationReportImpl(MigrationOperation.IMPORT,
+                xreport);
+
+        final Path exportFile = exportDirectory.resolve(
+                ConfigurationMigrationManager.EXPORT_PREFIX + productVersion
+                        + ConfigurationMigrationManager.EXPORT_EXTENSION);
         ImportMigrationManagerImpl mgr = null;
 
         try {
@@ -224,7 +245,7 @@ public class ConfigurationMigrationManager
         } finally {
             IOUtils.closeQuietly(mgr); // do not care if we fail to close the mgr/zip file!!!
         }
-        return report;
+        return report.end();
     }
 
     @Override
