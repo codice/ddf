@@ -22,14 +22,14 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Dictionary;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
@@ -61,34 +61,59 @@ public class ImportMigrationConfigurationAdminContext extends ProxyImportMigrati
      * Keeps tracked of all managed services in memory that were not found in the export file so
      * we know what to delete at the end.
      */
-    private final Map<String, Configuration> memoryServices = new HashMap<>();
+    private final Map<String, Configuration> memoryServices;
 
     /**
      * Keeps tracked of all managed service factories in memory that were not found in the export file
      * so we know what to delete at the end.
      */
-    private final Map<String, List<Configuration>> memoryFactoryServices = new HashMap<>();
+    private final Map<String, List<Configuration>> memoryFactoryServices;
 
-    private final Map<String, ImportMigrationConfigurationAdminEntry> exportedServices =
-            new HashMap<>();
+    private final Map<String, ImportMigrationConfigurationAdminEntry> exportedServices;
 
-    private final Map<String, List<ImportMigrationConfigurationAdminEntry>>
-            exportedFactoryServices = new HashMap<>();
+    private final Map<String, List<ImportMigrationConfigurationAdminEntry>> exportedFactoryServices;
 
     private boolean isValid = true; // until proven otherwise
 
     public ImportMigrationConfigurationAdminContext(ImportMigrationContext context,
             ConfigurationAdminMigratable admin, ConfigurationAdmin configurationAdmin,
-            Stream<Configuration> memoryConfigs) {
+            Configuration[] memoryConfigs) {
         super(context);
         Validate.notNull(admin, "invalid null configuration admin migratable");
         Validate.notNull(configurationAdmin, "invalid null configuration admin");
         Validate.notNull(memoryConfigs, "invalid null configurations");
         this.admin = admin;
         this.configurationAdmin = configurationAdmin;
-        categorizeMemoryConfigurations(memoryConfigs);
-        categorizeExportedConfigurations(context.entries());
-        context.getReport().doAfterCompletion(this::deleteUnexportedConfigurationsAfterCompletion);
+        // categorize memory configurations
+        this.memoryServices = Stream.of(memoryConfigs)
+                .filter(ImportMigrationConfigurationAdminContext::isManagedService)
+                .collect(Collectors.toMap(Configuration::getPid, Function.identity()));
+        this.memoryFactoryServices = Stream.of(memoryConfigs)
+                .filter(ImportMigrationConfigurationAdminContext::isManagedServiceFactory)
+                .collect(Collectors.groupingBy(Configuration::getFactoryPid));
+        // categorize exported configurations
+        final ImportMigrationConfigurationAdminEntry[] entries = context.entries()
+                .map(this::proxy)
+                .filter(e -> e != null)
+                .toArray(ImportMigrationConfigurationAdminEntry[]::new);
+
+        this.exportedServices = Stream.of(entries)
+                .filter(ImportMigrationConfigurationAdminEntry::isManagedService)
+                .collect(Collectors.toMap(ImportMigrationConfigurationAdminEntry::getPid,
+                        Function.identity()));
+        this.exportedFactoryServices = Stream.of(entries)
+                .filter(ImportMigrationConfigurationAdminEntry::isManagedServiceFactory)
+                .collect(Collectors.groupingBy(ImportMigrationConfigurationAdminEntry::getFactoryPid));
+        context.getReport()
+                .doAfterCompletion(this::deleteUnexportedConfigurationsAfterCompletion);
+    }
+
+    private static boolean isManagedServiceFactory(Configuration cfg) {
+        return cfg.getFactoryPid() != null;
+    }
+
+    private static boolean isManagedService(Configuration cfg) {
+        return cfg.getFactoryPid() == null;
     }
 
     @Override
@@ -120,11 +145,9 @@ public class ImportMigrationConfigurationAdminContext extends ProxyImportMigrati
 
     Configuration createConfiguration(ImportMigrationConfigurationAdminEntry entry)
             throws IOException {
-        final String fpid = entry.getFactoryPid();
-
         // Question: should we use the bundle location that was exported???
-        if (fpid != null) {
-            return configurationAdmin.createFactoryConfiguration(fpid, null);
+        if (entry.isManagedServiceFactory()) {
+            return configurationAdmin.createFactoryConfiguration(entry.getFactoryPid(), null);
         }
         return configurationAdmin.getConfiguration(entry.getPid());
     }
@@ -162,46 +185,6 @@ public class ImportMigrationConfigurationAdminContext extends ProxyImportMigrati
             return null;
         }
         return memoryServices.remove(entry.getPid());
-    }
-
-    private void categorizeMemoryConfigurations(Stream<Configuration> memoryConfigs) {
-        // categorize all memory configs based on pid and factory pid (for managed service factories)
-        memoryConfigs.forEach(cfg -> {
-            final String fpid = cfg.getFactoryPid();
-
-            if (fpid != null) { // it is a managed service factory
-                memoryFactoryServices.compute(fpid, (k, list) -> {
-                    if (list == null) {
-                        list = new ArrayList<>(8);
-                    }
-                    list.add(cfg);
-                    return list;
-                });
-            } else { // it is a simple managed service
-                memoryServices.put(cfg.getPid(), cfg);
-            }
-        });
-    }
-
-    private void categorizeExportedConfigurations(Stream<ImportMigrationEntry> exportedConfigs) {
-        // categorize all exported configs based on pid and factory pid (for managed service factories)
-        exportedConfigs.map(this::proxy)
-                .filter(e -> e != null)
-                .forEach(e -> {
-                    final String fpid = e.getFactoryPid();
-
-                    if (fpid != null) { // it is a managed service factory
-                        exportedFactoryServices.compute(fpid, (k, list) -> {
-                            if (list == null) {
-                                list = new ArrayList<>(8);
-                            }
-                            list.add(e);
-                            return list;
-                        });
-                    } else { // it is a simple managed service
-                        exportedServices.put(e.getPid(), e);
-                    }
-                });
     }
 
     private ImportMigrationConfigurationAdminEntry proxy(ImportMigrationEntry entry) {

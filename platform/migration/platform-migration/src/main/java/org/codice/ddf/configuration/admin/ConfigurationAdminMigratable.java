@@ -141,12 +141,12 @@ public class ConfigurationAdminMigratable implements ConfigurationMigratable {
         return null;
     }
 
-    private Stream<Configuration> getConfigurations(MigrationContext context) {
+    private Configuration[] getConfigurations(MigrationContext context) {
         try {
             final Configuration[] configurations = configurationAdmin.listConfigurations(null);
 
             if (configurations != null) {
-                return Stream.of(configurations);
+                return configurations;
             }
         } catch (IOException | InvalidSyntaxException e) { // InvalidSyntaxException should never happen since the filter is null
             String message = String.format(
@@ -157,6 +157,6 @@ public class ConfigurationAdminMigratable implements ConfigurationMigratable {
             context.getReport()
                     .record(new UnexpectedMigrationException(message, e));
         }
-        return Stream.empty();
+        return new Configuration[0];
     }
 }

@@ -142,26 +142,27 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
     @Override
     public boolean cleanDirectory(Path path) {
         Validate.notNull(path, "invalid null path");
-        final File fdir = (path.isAbsolute() ? path : ImportMigrationContextImpl.DDF_HOME.resolve(
-                path)).toFile();
+        final File fdir = ImportMigrationContextImpl.DDF_HOME.resolve(path)
+                .toFile();
 
-        LOGGER.debug("Cleaning up [{}]...", path);
+        LOGGER.debug("Cleaning up directory [{}]...", fdir);
         if (!fdir.exists()) {
             return true;
         }
         if (!fdir.isDirectory()) {
-            LOGGER.info("Failed to clean directory [{}]", path);
+            LOGGER.info("Failed to clean directory [{}]", fdir);
             getReport().record(new MigrationWarning(String.format(
-                    "Unable to clean path [%s]; it is not a directory.",
-                    path)));
+                    "Unable to clean directory [%s]; it is not a directory.",
+                    fdir)));
             return false;
         }
         try {
             FileUtils.cleanDirectory(fdir);
         } catch (IOException e) {
-            LOGGER.info("Failed to clean directory [" + path + "]: ", e);
-            getReport().record(new MigrationWarning(String.format("Unable to clean path [%s]; %s.",
-                    path,
+            LOGGER.info("Failed to clean directory [" + fdir + "]: ", e);
+            getReport().record(new MigrationWarning(String.format(
+                    "Unable to clean directory [%s]; %s.",
+                    fdir,
                     e.getMessage())));
             return false;
         }
@@ -171,7 +172,8 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
     void doImport() {
         if (migratable != null) {
             LOGGER.debug("Importing migratable [{}] from version [{}]...",
-                    id, ((getVersion() != null) ? getVersion() : "<not-exported>"));
+                    id,
+                    ((getVersion() != null) ? getVersion() : "<not-exported>"));
             Stopwatch stopwatch = null;
 
             if (LOGGER.isDebugEnabled()) {

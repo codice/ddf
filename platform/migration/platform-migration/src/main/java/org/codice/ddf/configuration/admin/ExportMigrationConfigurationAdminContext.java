@@ -54,17 +54,19 @@ public class ExportMigrationConfigurationAdminContext extends ProxyExportMigrati
     private final Map<Path, ExportMigrationEntry> entries;
 
     public ExportMigrationConfigurationAdminContext(ExportMigrationContext context,
-            ConfigurationAdminMigratable admin, Stream<Configuration> configs) {
+            ConfigurationAdminMigratable admin, Configuration[] configs) {
         super(context);
         Validate.notNull(admin, "invalid null configuration admin migratable");
         Validate.notNull(configs, "invalid null configurations");
         this.admin = admin;
-        this.entries = configs.map(this::getEntry)
+        this.entries = Stream.of(configs)
+                .map(this::getEntry)
                 .collect(Collectors.toMap(MigrationEntry::getPath, Function.identity()));
     }
 
     public Stream<ExportMigrationEntry> entries() {
-        return entries.values().stream();
+        return entries.values()
+                .stream();
     }
 
     @Override
