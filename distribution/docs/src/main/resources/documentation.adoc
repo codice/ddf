@@ -241,6 +241,8 @@ include::{adoc-include}/_formats/supported-file-formats-contents.adoc[]
 
 include::{adoc-include}/_running/ingesting-contents.adoc[]
 
+include::{adoc-include}/_running/removing-expired-records-contents.adoc[]
+
 include::{adoc-include}/_running/data-migration-intro-contents.adoc[]
 
 include::{adoc-include}/_running/exporting-metadata-contents.adoc[]
