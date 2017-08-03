@@ -18,6 +18,7 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Properties;
 import java.util.concurrent.Future;
 
 import javax.annotation.Nullable;
@@ -186,12 +187,14 @@ public class EmbeddedSolrFactory implements SolrClientFactory {
                     LOGGER.debug("Using in-memory configuration without RAMDirectoryFactory.");
                 }
             }
-            CoreDescriptor coreDescriptor = new CoreDescriptor(container,
-                    coreName,
-                    solrConfig.getResourceLoader()
-                            .getInstancePath());
+            CoreDescriptor coreDescriptor = new CoreDescriptor(coreName,
+                    solrConfig.getResourceLoader().getInstancePath(),
+                    new Properties(),
+                    false
+                    );
 
-            SolrCore core = new SolrCore(coreName,
+            SolrCore core = new SolrCore(container,
+                    coreName,
                     dataDirPath,
                     solrConfig,
                     indexSchema,
@@ -199,7 +202,8 @@ public class EmbeddedSolrFactory implements SolrClientFactory {
                     coreDescriptor,
                     null,
                     null,
-                    null);
+                    null,
+                    false);
             container.register(coreName, core, false, true);
 
             return new EmbeddedSolrServer(container, coreName);

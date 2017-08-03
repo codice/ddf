@@ -35,7 +35,6 @@
               not on the bundlized version. -->
         <javax.inject.bundle.version>${javax.inject.version}_2</javax.inject.bundle.version>
         <cas.client.bundle.version>${cas.client.version}_1</cas.client.bundle.version>
-        <solr.version>6.4.2</solr.version>
         <commons.fileupload.version>1.3.2</commons.fileupload.version>
         <tika.thirdparty.bundle.version>1.14.0_1</tika.thirdparty.bundle.version>
     </properties>
