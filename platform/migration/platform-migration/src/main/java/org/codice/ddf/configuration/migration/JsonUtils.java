@@ -17,6 +17,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
 import org.boon.json.JsonFactory;
 import org.boon.json.ObjectMapper;
 import org.codice.ddf.migration.MigrationException;
@@ -35,7 +37,7 @@ public class JsonUtils {
      * @return the corresponding map
      * @throws MigrationException if the given object is not a map
      */
-    public static Map<String, Object> convertToMap(Object o) throws MigrationException {
+    public static Map<String, Object> convertToMap(@Nullable Object o) throws MigrationException {
         if (o == null) {
             return Collections.emptyMap();
         }
@@ -53,7 +55,7 @@ public class JsonUtils {
      * @return the corresponding Json map or an empty one if none defined
      * @throws MigrationException if the specified entry is not a Json map
      */
-    public static Map<String, Object> getMapFrom(Map<String, Object> map, String key) {
+    public static Map<String, Object> getMapFrom(@Nullable Map<String, Object> map, @Nullable String key) {
         final Map<String, Object> m = JsonUtils.getObjectFrom(Map.class, map, key, false);
 
         return (m != null) ? m : Collections.emptyMap();
@@ -125,9 +127,9 @@ public class JsonUtils {
         return (b != null) ? b : false;
     }
 
-    private static <T> T getObjectFrom(Class<T> clazz, Map<String, Object> info, String key,
-            boolean required) {
-        final Object v = info.get(key);
+    private static <T> T getObjectFrom(Class<T> clazz, @Nullable Map<String, Object> info,
+            @Nullable String key, boolean required) {
+        final Object v = (info != null) ? info.get(key) : null;
 
         if (v == null) {
             if (required) {

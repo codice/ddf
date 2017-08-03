@@ -90,7 +90,7 @@ public class ImportMigrationConfigurationAdminEntry extends ProxyImportMigration
                         getPath());
             } else {
                 if (LOGGER.isDebugEnabled()) {
-                    if (factoryPid != null) {
+                    if (isManagedServiceFactory()) {
                         LOGGER.debug(
                                 "Importing configuration for [{}-?] from [{}]; creating new factory configuration...",
                                 factoryPid,
@@ -105,7 +105,7 @@ public class ImportMigrationConfigurationAdminEntry extends ProxyImportMigration
                 try {
                     cfg = context.createConfiguration(this);
                 } catch (IOException e) {
-                    if (factoryPid != null) {
+                    if (isManagedServiceFactory()) {
                         getReport().record(new ImportPathMigrationException(getPath(),
                                 String.format("failed to create factory configuration [%s]",
                                         factoryPid),
@@ -138,6 +138,14 @@ public class ImportMigrationConfigurationAdminEntry extends ProxyImportMigration
 
     public String getPid() {
         return pid;
+    }
+
+    public boolean isManagedServiceFactory() {
+        return factoryPid != null;
+    }
+
+    public boolean isManagedService() {
+        return factoryPid == null;
     }
 
     public Dictionary<String, Object> getProperties() {
