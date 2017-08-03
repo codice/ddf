@@ -78,28 +78,37 @@ public class ImportMigrationConfigurationAdminEntry extends ProxyImportMigration
 
             if (memoryConfiguration != null) {
                 if (propertiesMatch()) {
-                    LOGGER.debug(
-                            "Importing configuration for [{}] from [{}]; no update required",
-                            getPid(),
+                    LOGGER.debug("Importing configuration for [{}] from [{}]; no update required",
+                            memoryConfiguration.getPid(),
                             getPath());
                     return;
                 }
                 cfg = memoryConfiguration;
                 LOGGER.debug(
                         "Importing configuration for [{}] from [{}]; updating existing configuration...",
-                        getPid(),
+                        memoryConfiguration.getPid(),
                         getPath());
             } else {
-                LOGGER.debug(
-                        "Importing configuration for [{}] from [{}]; creating new configuration...",
-                        getPid(),
-                        getPath());
+                if (LOGGER.isDebugEnabled()) {
+                    if (factoryPid != null) {
+                        LOGGER.debug(
+                                "Importing configuration for [{}-?] from [{}]; creating new factory configuration...",
+                                factoryPid,
+                                getPath());
+                    } else {
+                        LOGGER.debug(
+                                "Importing configuration for [{}] from [{}]; creating new configuration...",
+                                pid,
+                                getPath());
+                    }
+                }
                 try {
                     cfg = context.createConfiguration(this);
                 } catch (IOException e) {
                     if (factoryPid != null) {
                         getReport().record(new ImportPathMigrationException(getPath(),
-                                String.format("failed to create factory configuration [%s]", factoryPid),
+                                String.format("failed to create factory configuration [%s]",
+                                        factoryPid),
                                 e));
                     } else {
                         getReport().record(new ImportPathMigrationException(getPath(),
@@ -108,6 +117,10 @@ public class ImportMigrationConfigurationAdminEntry extends ProxyImportMigration
                     }
                     return;
                 }
+                LOGGER.debug(
+                        "Importing configuration for [{}] from [{}]; initializing configuration...",
+                        cfg.getPid(),
+                        getPath());
             }
             try {
                 cfg.update(properties);
@@ -137,7 +150,7 @@ public class ImportMigrationConfigurationAdminEntry extends ProxyImportMigration
         if (memprops == null) {
             return false;
         }
-        // remove system properties as we do not want to test those
+        // remove factory pid and pid from the dictionary as we do not want to match these
         memprops.remove(ConfigurationAdmin.SERVICE_FACTORYPID);
         memprops.remove(Constants.SERVICE_PID);
         if (properties.size() != memprops.size()) {
