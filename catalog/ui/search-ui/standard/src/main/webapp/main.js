@@ -59,7 +59,7 @@ require.config({
         fileupload: 'jquery-file-upload/9.5.7/js/jquery.fileupload',
 
         // handlebars
-        handlebars: 'handlebars/4.0.10/handlebars.min',
+        handlebars: 'handlebars/2.0.0/handlebars.min',
         icanhaz: 'js/ich',
 
         // require plugins
