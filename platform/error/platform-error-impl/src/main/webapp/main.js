@@ -24,7 +24,7 @@
 
             // backbone
             backbone: 'backbone/1.1.2/backbone',
-            underscore: 'lodash/4.17.4/dist/lodash.underscore.min',
+            underscore: 'underscore/1.8.3/underscore-min',
             marionette: 'marionette/1.8.8/lib/backbone.marionette.min',
 
             // jquery
