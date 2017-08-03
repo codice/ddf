@@ -13,10 +13,13 @@
  */
 package ddf.catalog.transform;
 
+import java.io.Serializable;
+import java.util.Map;
+
 import ddf.catalog.operation.QueryRequest;
 
 /**
- * An interface to transform {@link QueryRequest} containing external attribute names & values into a
+ * Transforms a {@link QueryRequest} containing external attribute names & values into a
  * normalized taxonomy {@link QueryRequest}.
  * <p>
  * <b> This code is experimental. While this interface is functional and tested, it may change or be
@@ -26,13 +29,13 @@ import ddf.catalog.operation.QueryRequest;
 public interface QueryFilterTransformer {
 
     /**
-     * Transforms a {@link QueryRequest} containing external attribute names & values into a
-     * normalized taxonomy {@link QueryRequest}. {@link QueryRequest} is used in order to allow
+     * Transforms a {@link QueryRequest}. {@link QueryRequest} is used in order to allow
      * the transformer to directly modify other properties (e.g. sourceId) based on criteria
-     * without requiring the endpoint to modify the request after conversion.  Transform method
-     * will use the FilterVisitor pattern and build the result Filter as the query is parsed.
+     * without requiring the endpoint to modify the request after conversion
      *
-     * @return transformed {@link QueryRequest}
+     * @param queryRequest - the {@link QueryRequest} to transform
+     * @param properties - a map of additional properties to be used by the transformer
+     * @return the transformed {@link QueryRequest}
      */
-    QueryRequest transform(QueryRequest queryRequest);
+    QueryRequest transform(QueryRequest queryRequest,  Map<String, Serializable> properties);
 }
