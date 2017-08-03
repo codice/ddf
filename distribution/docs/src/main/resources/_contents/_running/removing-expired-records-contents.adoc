@@ -1,0 +1,62 @@
+
+=== Removing Expired Records from the Catalog
+
+${branding} has many ways to remove expired records from the underlying Catalog data store.
+Nevertheless, the benefits of data standardization is that an attempt can be made to remove records without the need to know any vendor-specific information.
+Whether the data store is a search server, a No-SQL database, or a relational database, expired records can be removed universally using the Catalog API and the Catalog Commands.
+
+==== Manual Removal of Expired Records
+
+To manually remove expired records from the Catalog, execute in the ${command-console}:
+
+----
+catalog:removeall --expired
+----
+
+When prompted, type yes to remove all expired records.
+
+[TIP]
+====
+For help on the removeall command, execute
+
+`help catalog:removeall`
+====
+
+==== Automated Removal of Expired Records
+
+By default, the ${branding} runs a scheduled command every 24 hours to remove expired records.
+The command is executed and scheduled <<Using the Command Scheduler>>.
+To change the configuration out of the box, follow the <<Updating a Scheduled Command>> instructions.
+If an administrator wants to create additional scheduled tasks to remove records from the local Catalog, the administrator can follow the steps provided in the Scheduling a Command section.
+In the Command text field, type the following:
+
+`catalog:removeall --force --expired`
+
+If it is intended to have this run daily, type 86400 for the amount of seconds.
+(60 seconds/min x 60 minutes/hr x 24 hours/day = 86400 seconds for one day)
+
+===== Explanation of Command to Remove Expired Records
+
+The `catalog:removeall` command states you want to remove records from the local Catalog.
+
+The `--force` option is used to suppress the confirmation message which asks a user if the user intentionally wants to permanently remove records from the Catalog.
+
+The `--expired` option is to remove only expired records.
+
+[IMPORTANT]
+====
+If the `--expired` option is omitted, then all records will be removed from the Catalog.
+====
+
+==== Non-Universal or Catalog Specific Removal
+
+Using the Catalog Commands is convenient for achieving many goals such as removing expired records, but is not always the most efficient since not all Catalog implementation details are known.
+The Catalog API does not allow for every special nuance of a specific data store.
+Therefore, whether an administrator's data store is from Oracle, Solr, or any other vendor, the administrator should consult the specific Catalog implementation's documentation on the best method to remove metadata.
+
+==== Automatic Catalog Backup
+
+To backup local catalog records, a <<_catalog_backup_plugin,Catalog Backup Plugin>> is available.
+It is not installed by default for performance reasons.
+
+It can be installed and configured in the *${admin-console}* (see <<_catalog_backup_plugin,Catalog Backup Plugin>> for instructions).

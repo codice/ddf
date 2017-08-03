@@ -4,7 +4,7 @@
 :summary: Support for a variety of file types and data types.
 :order: 00
 
-===== File Formats Supported
+=== File Formats Supported
 
 ${branding} supports a wide variety of file types and data types for ingest.
 The ${branding}'s internal Input Transformers extract the necessary data into a <<_catalog_taxonomy,generalized format>>.
