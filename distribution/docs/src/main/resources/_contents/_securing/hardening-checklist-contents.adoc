@@ -1,5 +1,5 @@
 
-==== Hardening Checklist
+=== Hardening Checklist
 
 The following list enumerates the required mitigations needed for hardening:
 

@@ -23,7 +23,7 @@ The default view for ${catalog-ui} is the workspaces view. For other views or to
 image::navigator-icon.png[navigator icon]
 
 .Select the desired view from the *navigator* menu.
-image::navigator-menu.png[navigator menu]
+image::navigator-menu-icon.png[navigator menu]
 
 === Workspaces in ${catalog-ui}
 
@@ -95,7 +95,7 @@ In ${catalog-ui}, workspaces can be shared between users at different levels of 
 Resources can be ingested directly from ${catalog-ui}.
 
 . Navigate in the browser to ${catalog-ui} at ${secure_url}/search.
-. Select the Menu icon (image:navigation-menu-icon.png[]) in the upper left corner
+. Select the Menu icon (image:navigator-menu-icon.png[]) in the upper left corner
 . Select *Upload*.
 . Drag and drop the sample file or click to navigate to it.
 . Select *Start* to begin upload.

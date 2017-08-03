@@ -1,18 +1,18 @@
 
 The Message Broker app gives an administrator the ability to configure and control the behavior of the message broker. These configurations will include aspects like the graceful shutdown period of components, names of queues and topics and routing of messages.
 
-===== Prerequisites for Message Broker App
+==== Prerequisites for Message Broker Application
 
 None
 
-===== Installing and Uninstalling Message Broker App
+==== Installing and Uninstalling Message Broker Application
 
 The Message Broker app is uninstalled by default and requires manual installation.
 
-===== Configuring
+==== Configuring Message Broker Applicaton
 
 Currently there are no configurations for the Message Broker app.
 
-===== Using the Message Broker App
+==== Using the Message Broker Application
 
 The Message broker app can be used through the Admin UI. See <<Route Manager, the Route Manager>> and <<Undelivered Messages UI, the Undelivered Messages UI>> for more information.

@@ -1,0 +1,137 @@
+:title: Developing Global Attribute Validators
+:type: developingComponent
+:status: published
+:link: _developing_global_attribute_validators
+:summary: Creating a custom global attribute validator.
+:order: 02
+
+==== Global Attribute Validators File
+
+To define Validators, the definition file must have a `validators` key in the root object.
+
+[source,json]
+----
+{
+    "validators": {...}
+}
+----
+
+The value of `validators` is a map of the attribute name to a list of validators for that attribute.
+
+[source,json]
+----
+{
+    "validators": {
+        "point-of-contact": [...]
+    }
+}
+----
+
+Each object in the list of validators is the validator name and list of arguments for that validator.
+
+[source,json]
+----
+{
+    "validators": {
+        "point-of-contact": [
+            {
+                "validator": "pattern",
+                "arguments": [".*regex.+\\s"]
+            }
+        ]
+    }
+}
+----
+
+[WARNING]
+====
+The value of the `arguments` key must always be an array of strings, even for numeric arguments, e.g. `["1", "10"]`
+
+====
+
+The `validator` key must have a value of one of the following:
+
+.`validator` Possible Values
+====
+ - `size` (validates the size of Strings, Arrays, Collections, and Maps)
+ * `arguments`: (2) [integer: lower bound (inclusive), integer: upper bound (inclusive)]
+ ** lower bound must be greater than or equal to zero and the upper bound must be greater than or equal to the lower bound
+ - `pattern`
+ * `arguments`: (1) [regular expression]
+ - `pastdate`
+ * `arguments`: (0) [NO ARGUMENTS]
+ - `futuredate`
+ * `arguments`: (0) [NO ARGUMENTS]
+ - `range`
+ ** (2) [number (decimal or integer): inclusive lower bound, number (decimal or integer): inclusive upper bound]
+ *** uses a default epsilon of 1E-6 on either side of the range to account for floating point representation inaccuracies
+ ** (3) [number (decimal or integer): inclusive lower bound, number (decimal or integer): inclusive upper bound, decimal number: epsilon (the maximum tolerable error on either side of the range)]
+ - `enumeration`
+ * `arguments`: (unlimited) [list of strings: each argument is one case-sensitive, valid enumeration value]
+ - `match_any`
+ * `validators`: (unlimited) [list of previously defined validators: valid if any validator succeeds]
+====
+
+.Example Validator Definition
+[source, json]
+----
+{
+    "validators": {
+        "title": [
+            {
+                "validator": "size",
+                "arguments": ["1", "50"]
+            },
+            {
+                "validator": "pattern",
+                "arguments": ["\\D+"]
+            }
+        ],
+        "created": [
+            {
+                "validator": "pastdate",
+                "arguments": []
+            }
+        ],
+        "expiration": [
+            {
+                "validator": "futuredate",
+                "arguments": []
+            }
+        ],
+        "page-count": [
+            {
+                "validator": "range",
+                "arguments": ["1", "500"]
+            }
+        ],
+        "temperature": [
+            {
+                "validator": "range",
+                "arguments": ["12.2", "19.8", "0.01"]
+            }
+        ],
+        "resolution": [
+            {
+                "validator": "enumeration",
+                "arguments": ["1080p", "1080i", "720p"]
+            }
+        ],
+        "datatype": [
+            {
+                "validator": "match_any",
+                "validators": [
+                    {
+                        "validator": "range",
+                        "arguments": ["1", "25"]
+                    },
+                    {
+                        "validator": "enumeration",
+                        "arguments": ["Collection", "Dataset", "Event"]
+                    }
+                ]
+            }
+        ]
+    }
+}
+----

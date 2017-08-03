@@ -1,0 +1,47 @@
+:title: Catalog Architecture
+:type: catalogFrameworkIntro
+:status: published
+:summary: Introduction to Catalog Architecture.
+:order: 00
+
+.Catalog Architecture
+[ditaa,catalog_architecture, png]
+....
+
+                /-=-----------------\
+                |      Clients      |
+                \-------------------/
+                          |
+                          v
+                /-------------------\
+                |cDEFEndpoints      |
+                +------------+------+
+                |cDEF        |cDEF  |
+                | Operations | Data |
+/---------------+------------+------+------------+---------\    +--------+
+|cDEF           |cDEF               |cDEF        |cDEF     |<-> |        |
+|  Transformers |                   | Federation | Sources |    |External|
++---------------+ Catalog Framework +------------+---------+<-> |  Data  |
+|cDEF           |                   |cDEF   Eventing       |    |Holdings|
+|   Catalog     |                   +------------+---------+<-> |    {s} |
+|   Plugins     |                   |cDEF   Resources      |    +------=-+
+\---------------+-------------------+----------------------/
+                |cDEF               |
+                | Catalog Provider  |
+                +-------------------+
+                |cDEF               |
+                | Storage Provider  |
+                \-------------------/
+                          ^
+                          |
+                          v                         Legend
+                  +---------------+                /---------------------\
+                  |{s}            |                |cDEF ${ddf-branding} Component   |
+                  |  Data Store   |                \---------------------/
+                  |               |                /---------------------\
+                  +------------=--+                | External Component  |
+                                                   \--------------------=/
+
+....
+
+

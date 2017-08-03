@@ -4,7 +4,7 @@
 :summary: Keystore and certificate instructions.
 :order: 0502
 
-==== Managing Keystores and Certificates
+=== Managing Keystores and Certificates
 
 * *{hardening-step}*
 
@@ -97,14 +97,14 @@ Jump to the steps referenced in the diagram:
 . <<_creating_a_server_keystore,Creating a Server Keystore>>
 .. <<_creating_a_server_truststore,Creating a Server Truststore>>
 
-===== Managing Keystores
+==== Managing Keystores
 
 Certificates, and sometimes their associated private keys, are stored in keystore files.
 ${branding} includes two default keystore files, the server key store and the server trust store.
 The server keystore holds the certificates and private keys that ${branding} uses to identify itself to other nodes on the network.
 The truststore holds the certificates of nodes or other entities that ${branding} needs to trust.
 
-====== Adding an Existing Server Keystore
+===== Adding an Existing Server Keystore
 
 If provided an existing keystore for use with ${branding}, follow these steps to replace the default keystore.
 
@@ -243,7 +243,7 @@ This step is not required for a hardened system.
 ** `cn: JKS`
 ====
 
-===== Managing Certificate Revocation List (CRL)
+==== Managing Certificate Revocation List (CRL)
 
 * *{hardening-step}*
 
@@ -251,7 +251,7 @@ For hardening purposes, it is recommended to implement a way to verify the CRL a
 
 A Certificate Revocation List is a collection of formerly-valid certificates that should explicitly _not_ be accepted.
 
-====== Creating a Certificate Revocation List (CRL)
+===== Creating a Certificate Revocation List (CRL)
 
 Create a CRL in which the token issuer's certificate is valid.
 The example uses OpenSSL.
@@ -372,7 +372,7 @@ Caused by: java.security.cert.CertPathValidatorException: Certificate has been r
     ... 45 more
 ----
 
-===== Disallowing Login Without Certificates
+==== Disallowing Login Without Certificates
 
 ${branding} can be configured to prevent login without a valid PKI certificate.
 

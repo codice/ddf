@@ -1,0 +1,194 @@
+:title: Catalog Framework Intro
+:type: catalogFrameworkIntro
+:status: published
+:summary: Introduction to Catalog Framework
+:order: 01
+
+.Catalog Framework Architecture
+[ditaa, catalog_architecture_framework, png, ${image-width}]
+....
++------------------------------------------------------------+
+|                /-------------------\                       |
+|                |cDEFEndpoints      |                       |
+|                +------------+------+                       |
+|                |cDEF        |cDEF  |                       |
+|                | Operations | Data |                       |
+|/---------------+------------+------+------------+---------\|
+||cDEF           |c369               |cDEF        |cDEF     ||
+||  Transformers |                   | Federation | Sources ||
+|+---------------+ Catalog Framework +------------+---------+|
+||cDEF           |                   |cDEF   Eventing       ||
+||   Catalog     |                   +------------+---------+|
+||   Plugins     |                   |cDEF   Resources      ||
+|\---------------+-------------------+----------------------/|
+|                |cDEF               |                       |
+|                | Catalog Provider  |                       |
+|                +-------------------+                       |
+|                |cDEF               |                       |
+|                | Storage Provider  |                       |
+|                \-------------------/                       |
++------------------------------------------------------------+
+....
+
+The `CatalogFramework` is the routing mechanism between catalog components that provides integration points for the Catalog Plugins.
+An <<_endpoints, endpoint>> invokes the active Catalog Framework, which calls any configured <<_pre-query_plugins, Pre-query>> or <<_pre-ingest_plugins, Pre-ingest plug-ins>>.
+The selected <<_federation_strategies, federation strategy>> calls the active <<_catalog_providers, Catalog Provider>> and any connected or federated sources.
+Then, any Post-query or Post-ingest plug-ins are invoked.
+Finally, the appropriate response is returned to the calling endpoint.
+
+The Catalog Framework wires all Catalog components together.
+
+It is responsible for routing Catalog requests and responses to the appropriate target. 
+
+<<_endpoints,Endpoints>> send Catalog requests to the Catalog Framework.
+The Catalog Framework then invokes <<_plugins,Catalog Plugins>>, <<_transformers,Transformers>>, and <<_resources,Resource Components>> as needed before sending requests to the intended destination, such as one or more <<_sources,Sources>>. 
+
+The Catalog Framework decouples clients from service implementations and provides integration points for Catalog Plugins and convenience methods for Endpoint developers.
+
+=== Catalog API Design
+
+The Catalog is composed of several components and an API that connects them together.
+The Catalog API is central to ${branding}'s architectural qualities of extensibility and flexibility. 
+The Catalog API consists of Java interfaces that define Catalog functionality and specify interactions between components. 
+These interfaces provide the ability for components to interact without a dependency on a particular underlying implementation, thus allowing the possibility of alternate implementations that can maintain interoperability and share developed components.
+As such, new capabilities can be developed independently, in a modular fashion, using the Catalog API interfaces and reused by other ${branding} installations.
+
+==== Ensuring Compatibility
+
+The Catalog API will evolve, but great care is taken to retain backwards compatibility with developed components.
+Compatibility is reflected in version numbers.
+
+==== Catalog Framework Sequence Diagrams
+
+Because the Catalog Framework plays a central role to Catalog functionality, it interacts with many different Catalog components.
+To illustrate these relationships, high level sequence diagrams with notional class names are provided below.
+These examples are for illustrative purposes only and do not necessarily represent every step in each procedure.
+
+.Ingest Request Data Flow
+[ditaa,ingest_request,png]
+....
++------+      +--------------------------------------------------------------------------------------------------------------------+
+| cDEF |      |/-----------------------\/--------------------------\/---------------\/----------------\/--------------------------\|/--------------------\
+|Client|      ||c369  <<Endpoint>>     ||c369<<CatalogFramework>>  ||c369           ||c369            ||c369<<CatalogProvider>>   |||c369<<External>>    |
++------+      ||Ingest Service Endpoint||Standard Catalog Framework||PreIngestPlugin||PostIngestPlugin||  Solr Provider           ||| Solr Search Server |
+  :           |\-----------------------/\--------------------------/\---------------/\----------------/\--------------------------/|\--------------------/
+  |Web Service|Ingest Request :                       :                       :               :                     :              |           :
+  |-----------|-------------->|                       |                       |               |                     |              |           |
+  |           |               |create(CreateRequest)  |                       |               |                     |              |           |
+  |           |               |---------------------->|process(CreateRequest) |               |                     |              |           |
+  |           |               |                       |---------------------->|               |                     |              |           |
+  |           |               |                       |   CreateRequest       |               |                     |              |           |
+  |           |               |                       |<----------------------|               |                     |              |           |
+  |           |    cDEF       |                       |create(CreateRequest)  |               |                     |              |           |
+  |           |               |                       |------------------------------------------------------------>|create        |           |
+  |           |               |                       |                       :               :                     |--------------|---------->|
+  |           |               |                       |                       |               |                     |              |          response
+  |           |               |                       |                       |               |       CreateResponse|<-------------|-----------|
+  |           |               |                       |<------------------------------------------------------------|              |           |
+  |           |               |                       |process(CreateResponse):               :                     |              |           |
+  |           |               |                       |-----------------------|-------------->|                     |              |           |
+  |           |               |                       |                       | CreateResponse|                     |              |           |
+  |           |               |         CreateResponse|<--------------------------------------|                     |              |           |
+  |Web Service|Ingest Response|<----------------------|                       :               |                     |              |           |
+  |<----------|---------------|                       |                       |               |                     |              |           |
+  |           |               |                       |                       |               |                     |              |           |
+  |           +--------------------------------------------------------------------------------------------------------------------+           |
+  |                                                                                                                                            |
+....
+
+The Ingest Service Endpoint, the Catalog Framework, and the Catalog Provider are key components of the Reference Implementation.
+The Endpoint bundle implements a Web service that allows clients to create, update, and delete metacards.
+The Endpoint calls the `CatalogFramework` to execute the operations of its specification.
+The `CatalogFramework` routes the request through optional `PreIngest` and `PostIngest` Catalog Plugins, which may modify the ingest request/response before/after the Catalog Provider executes the ingest request and provides the response. 
+Note that a `CatalogProvider` must be present for any ingest requests to be successfully processed, otherwise a fault is returned.
+
+This process is similar for updating catalog entries, with update requests calling the `update(UpdateRequest)` methods on the Endpoint, `CatalogFramework`, and Catalog Provider.
+Similarly, for deletion of catalog entries, the delete requests call the `delete(DeleteRequest)` methods on the `Endpoint`, `CatalogFramework`, and `CatalogProvider`.
+
+===== Error Handling
+
+Any ingest attempts that fail inside the Catalog Framework (whether the failure comes from the Catalog Framework itself, pre-ingest plugin failures, or issues with the Catalog Provider) will be logged to a separate log file for ease of error handling.
+The file is located at `data/log/ingest_error.log` and will log the Metacards that fail, their ID and Title name, and the stack trace associated with their failure.
+By default, successful ingest attempts are not logged.
+However, that functionality can be achieved by setting the log level of the `ingestLogger` to DEBUG (note that enabling DEBUG can cause a non-trivial performance hit).
+
+[TIP]
+====
+To turn off logging failed ingest attempts into a separate file, execute the following
+via the command line console
+----
+log:set
+ ERROR ingestLogger
+----
+====
+
+===== Query
+
+.Query Request Data Flow
+[ditaa,query_request,png]
+....
++------+      +--------------------------------------------------------------------------------------------------------------------+
+|      |      |/-----------------------\/--------------------------\/---------------\/----------------\/--------------------------\|/--------------------\
+|Client|      ||c369  <<Endpoint>>     ||c369<<CatalogFramework>>  ||c369           ||c369            ||c369<<CatalogProvider>>   |||c369<<External>>    |
++------+      || Query Service Endpoint||Standard Catalog Framework||PreQueryPlugin ||PostQueryPlugin ||  Solr Provider           ||| Solr Search Server |
+  :           |\-----------------------/\--------------------------/\---------------/\----------------/\--------------------------/|\--------------------/
+  |Web Service|Query Request  :                       :                       :               :                     :              |         :
+  |-----------|-------------->|                       |                       |               |                     |              |         |
+  |           |cDEF           |query(QueryRequest)    |                       |               |                     |              |         |
+  |           |               |---------------------->|process(QueryRequest)  |               |                     |              |         |
+  |           |               |                       |---------------------->|               |                     |              |         |
+  |           |               |                       |    QueryRequest       |               |                     |              |         |
+  |           |               |                       |<----------------------|               |                     |              |         |
+  |           |               |                       |create(QueryRequest)   |               |                     |              |         |
+  |           |               |                       |------------------------------------------------------------>|query         |         |
+  |           |               |                       |                       :               |                     |--------------|-------->|
+  |           |               |                       |                       |               |                     |  response    |         |
+  |           |               |                       |                       |               |        QueryResponse|<-------------|---------|
+  |           |               |                       |<------------------------------------------------------------|              |         |
+  |           |               |                       | process(QueryResponse)|               |                     |              |         |
+  |           |               |                       |-----------------------:-------------->|                     |              |         |
+  |           |               |                       |                       | QueryResponse |                     |              |         |
+  |           |               |          QueryResponse|<--------------------------------------|                     |              |         |
+  | Web Service Query Response|<----------------------|                       :               |                     |              |         |
+  |<----------|---------------|                       |                       |               |                     |              |         |
+  |           |               |                       |                       |               |                     |              |         |
+  |           +--------------------------------------------------------------------------------------------------------------------+         |
+....
+
+The <<_query_service_endpoint,Query Service Endpoint>>, the Catalog Framework, and the `CatalogProvider` are key components for processing a query request as well.
+The Endpoint bundle contains a Web service that exposes the interface to query for `Metacards`.
+The Endpoint calls the `CatalogFramework` to execute the operations of its specification.
+The `CatalogFramework` relies on the `CatalogProvider` to execute the actual query.
+Optional PreQuery and PostQuery Catalog Plugins may be invoked by the `CatalogFramework` to modify the query request/response prior to the Catalog Provider processing the query request and providing the query response.
+If a `CatalogProvider` is not configured and no other remote Sources are configured, a fault will be returned.
+It is possible to have only remote Sources configured and no local `CatalogProvider` configured and be able to execute queries to specific remote Sources by specifying the site name(s) in the query request.
+
+===== Product Retrieval
+
+The Query Service Endpoint, the Catalog Framework, and the `CatalogProvider` are key components for processing a retrieve product request.
+The Endpoint bundle contains a Web service that exposes the interface to retrieve products, also referred to as Resources.
+The Endpoint calls the `CatalogFramework` to execute the operations of its specification.
+The `CatalogFramework` relies on the Sources to execute the actual product retrieval.
+Optional `PreResource` and `PostResource` Catalog Plugins may be invoked by the `CatalogFramework` to modify the product retrieval request/response prior to the Catalog Provider processing the request and providing the response. 
+It is possible to retrieve products from specific remote Sources by specifying the site name(s) in the request.
+
+===== Product Caching
+
+The Catalog Framework optionally provides caching of products, so future requests to retrieve the same product will be serviced much quicker.
+If caching is enabled, each time a retrieve product request is received, the Catalog Framework will look in its cache (default location `<${branding}_HOME>/data/product-cache`) to see if the product has been cached locally.
+If it has, the product is retrieved from the local site and returned to the client, providing a much quicker turnaround because remote product retrieval and network traffic was avoided.
+If the requested product is not in the cache, the product is retrieved from the Source (local or remote) and cached locally while returning the product to the client.
+The caching to a local file of the product and the streaming of the product to the client are done simultaneously so that the client does not have to wait for the caching to complete before receiving the product.
+If errors are detected during the caching, caching of the product will be abandoned, and the product will be returned to the client. 
+
+The Catalog Framework attempts to detect any network problems during the product retrieval, e.g., long pauses where no bytes are read implying a network connection was dropped.
+(The amount of time defined as a "long pause" is configurable, with the default value being five seconds.)
+The Catalog Framework will attempt to retrieve the product up to a configurable number of times (default = three), waiting for a configurable amount of time (default = 10 seconds) between each attempt, trying to successfully retrieve the product.
+If the Catalog Framework is unable to retrieve the product, an error message is returned to the client.
+
+If the admin has enabled the *Always Cache When Canceled* option, caching of the product will occur even if the client cancels the product retrieval so that future requests will be serviced quickly.
+Otherwise, caching is canceled if the user cancels the product download.
+
+===== Product Download Status
+
+As part of the caching of products, the Catalog Framework also posts events to the OSGi notification framework. Information includes when the product download started, whether the download is retrying or failed (after the number of retrieval attempts configured for product caching has been exhausted), and when the download completes. These events are retrieved by the Search UI and presented to the user who initiated the download.

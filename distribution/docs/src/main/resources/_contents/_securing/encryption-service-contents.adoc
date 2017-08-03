@@ -1,9 +1,9 @@
 
-==== Encryption Service
+=== Encryption Service
 
 ${branding} includes an encryption service to encrypt plain text such as passwords.
 
-===== Encryption Command
+==== Encryption Command
 
 An encrypt security command is provided with ${branding} to encrypt text.
 This is useful when displaying password fields in a GUI.

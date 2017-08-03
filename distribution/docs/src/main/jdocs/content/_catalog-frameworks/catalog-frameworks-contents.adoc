@@ -1,0 +1,8 @@
+
+=== Included Catalog Frameworks, Associated Components, and Configurations
+
+These catalog frameworks are available in a standard ${branding} installation:
+
+<<_catalog_fanout_framework,Catalog Fanout Framework>>:: The Fanout Catalog Framework provides an implementation of the Catalog Framework that acts as a proxy, federating requests to all available sources. 
+<<_catalog_framework_camel_component,Catalog Framework Camel Component>>:: The catalog framework camel component supports creating, updating, and deleting metacards using the Catalog Framework from a Camel route.
+<<_standard_catalog_framework,Standard Catalog Framework>>:: The Standard Catalog Framework provides the reference implementation of a Catalog Framework that implements all requirements of the ${ddf-catalog} API. 

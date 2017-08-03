@@ -1,10 +1,10 @@
 
-==== Expansion Service
+=== Expansion Service
 
 The expansion service defines rulesets to map metacard attributes and user attributes to more complete sets of values.
 For example if a user has an attribute "alphabet" that contained the value "full", the expansion service can be configured to expand the "full" value out to ["a","b","c",...].
 
-===== Configuring Expansion Service
+==== Configuring Expansion Service
 
 To use the expansion service, modify the following two files within the `<${branding}_HOME>/etc` directory:
 
@@ -13,7 +13,7 @@ To use the expansion service, modify the following two files within the `<${bran
 
 Within these files, the following configuration details will be defined.
 
-===== Expansion Service Instances and Configuration
+==== Expansion Service Instances and Configuration
 
 It is expected that multiple instances of the expansion service will be running at the same time.
 Each instance of the service defines a unique property that is useful for retrieving specific instances of the expansion service.
@@ -87,9 +87,9 @@ Title:VP-Engineering:VP-Engineering VP Engineering
 |Dumps the ruleset for each active expansion service.
 |===
 
-===== Expansion Command Examples and Explanation
+==== Expansion Command Examples and Explanation
 
-====== security:expansions
+===== security:expansions
 
 The `security:expansions` command dumps the ruleset for each active expansion service.
 It takes no arguments and displays each rule on a separate line in the form: `<attribute name> : <original string> : <expanded string>`.
@@ -115,7 +115,7 @@ Title : VP-Engineering : VP-Engineering VP Engineering
 
 ===== security:expand
 
-The security:expand command runs the expansion service on the provided data.
+The `security:expand` command runs the expansion service on the provided data.
 It takes an attribute and an original value, expands the original value using the current expansion service and ruleset and dumps the results.
 For the ruleset shown above, the expand command produces the following results:
 

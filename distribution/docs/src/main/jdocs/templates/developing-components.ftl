@@ -2,7 +2,7 @@
 
 Create custom implementations of ${branding} components.
 
-<#list developingComponents as developingComponent>
+<#list developingComponents?sort_by("order") as developingComponent>
 <#if (developingComponent.status == "published")>
 
 === ${developingComponent.title}

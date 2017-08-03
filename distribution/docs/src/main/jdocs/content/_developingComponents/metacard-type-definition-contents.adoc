@@ -1,0 +1,98 @@
+:title: Developing Metacard Types
+:type: developingComponent
+:status: published
+:link: _developing_metacard_types
+:summary: Creating a custom Metacard Type.
+:order: 01
+
+Create custome Metacard types with Metacard Type definition files.
+
+==== Metacard Type Definition File
+
+To define Metacard Types, the definition file must have a `metacardTypes` key in the root object.
+
+[source,javascript]
+----
+{
+    "metacardTypes": [...]
+}
+----
+
+The value of `metacardTypes` must be an array of Metacard Type Objects, which are composed of the `type` and `attributes` keys.
+
+[source,json]
+----
+{
+    "metacardTypes": [
+        {
+            "type": "my-metacard-type",
+            "attributes": {...}
+        }
+    ]
+}
+----
+
+The value of the `type` key is the name of the metacard type being defined.
+
+The value of the `attributes` key is a map where each key is the name of an attribute type to include in this metacard type and each value is a map with a single key named `required` and a boolean value. Required attributes are used for metacard validation - metacards that lack required attributes will be flagged with validation errors.
+
+[source,json]
+----
+{
+    "metacardTypes": [
+        {
+            "type": "my-metacard-type",
+            "attributes": {
+                "resolution": {
+                    "required": true
+                },
+                "target-areas": {
+                    "required": false
+                },
+                "expiration": {
+                    "required": false
+                },
+                "point-of-contact": {
+                    "required": true
+                }
+            }
+        }
+    ]
+}
+----
+
+[NOTE]
+====
+The ${ddf-branding} basic metacard attribute types are added to custom metacard types by default. If any attribute types are required by a metacard type, just include them in the `attributes` map and set `required` to `true`, as shown in the above example with `point-of-contact`.
+====
+
+.Multiple Metacard Types in a Single File
+[source,json]
+----
+{
+    "metacardTypes": [
+        {
+            "type": "my-metacard-type",
+            "attributes": {
+                "resolution": {
+                    "required": true
+                },
+                "target-areas": {
+                    "required": false
+                }
+            }
+        },
+        {
+            "type": "another-metacard-type",
+            "attributes": {
+                "effective": {
+                    "required": true
+                },
+                "resolution": {
+                    "required": false
+                }
+            }
+        }
+    ]
+}
+----

@@ -3,6 +3,7 @@
 :status: published
 :link: _developing_metacard_transformers
 :summary: Creating a custom metacard transformer.
+:order: 08
 
 In general, a `MetacardTransformer` is used to transform a `Metacard` into some desired format useful to the end user or as input to another process.
 Programmatically, a `MetacardTransformer` transforms a `Metacard` into a `BinaryContent` instance, which translates the `Metacard` into the desired final format.
