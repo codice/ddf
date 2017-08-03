@@ -83,7 +83,7 @@ public class ConfigurationInstaller implements SynchronousConfigurationListener 
                 .map(FelixConfig::new)
                 .filter(config -> config.getFelixFile() != null)
                 .collect(Collectors.toMap(FelixConfig::getPid, FelixConfig::getFelixFile,
-                        // API guarantees no duplicates in production but itests violate this.
+                        // API guarantees no duplicates in production but itests may violate this.
                         // Workaround is to shut off admin-configuration-passwordencryption.
                         (file1, file2) -> file2)));
     }
@@ -106,23 +106,23 @@ public class ConfigurationInstaller implements SynchronousConfigurationListener 
     }
 
     /**
-     * Sync the config files in etc when an update occurs. There are five cases, which will be
-     * denoted using a 2-tuple combination of variables: (felixFileOriginal, felixFileNew) --> Explanation
+     * Sync the config files in etc when an update occurs. There are four cases, which will be
+     * denoted using 2-tuple combinations of variables: [felixFileOriginal, felixFileNew]
      * <p>
-     * (null, null) --> (1) Felix file prop wasn't tracked and is still not tracked. We don't need to
+     * [null, null]
+     * (1) Felix file prop wasn't tracked and is still not tracked. We don't need to
      * do anything, and we further guarantee that beyond this point, one variable must not be null.
      * <p>
-     * (null, X) --> (2) New config with a new felix file prop to track. The config's presence in
-     * etc was previously not being tracked by the system.
+     * [null, X]
+     * (2) Unrecognized config with a felix file prop to track. The config's presence in
+     * etc was previously not being tracked by the system and we should start tracking it.
      * <p>
-     * (Y, null) --> (3) Felix file prop no longer being tracked, delete the config file and remove it
-     * from the map. We need to account for this in the event Felix itself destroys the property for
-     * reasons beyond our concern. We do not own this property. Felix does.
+     * [Y, null]
+     * [Y, X]
+     * (3) Felix prop was externally changed or removed. Revert this change.
      * <p>
-     * (Y, X) --> (4) Felix file prop updated, delete config file and update map. Essentially this means
-     * Felix moved where it was tracking the file.
-     * <p>
-     * (Y, Y) --> (5) Felix file prop did not change, do nothing. This is the happy path.
+     * [Y, Y]
+     * (4) Felix file prop did not change, do nothing. This is the happy path.
      *
      * @param event the configuration event for which an update is needed
      */
@@ -146,36 +146,21 @@ public class ConfigurationInstaller implements SynchronousConfigurationListener 
 
         boolean filePropChanged = felixConfig.filePropChanged(felixFileOriginal);
 
-        // Felix file prop did not change? (5)
+        // Felix file prop did not change? (4)
         if (filePropChanged) {
-            // Felix file prop updated? (4)
+            // Are we seeing the config for the first time? (2) (3)
             if (felixFileOriginal != null) {
-                LOGGER.debug("Felix filename prop changed, deleting file for pid {}", pid);
                 try {
-                    performOperation(configActions.delete(felixFileOriginal.toPath()));
-                } catch (IllegalArgumentException | ConfiguratorException e) {
-                    LOGGER.debug("Problem deleting config file: ", e);
+                    felixConfig.setFelixFile(felixFileOriginal);
+                } catch (IOException e) {
+                    LOGGER.error("Could not set felix file name, error writing to config admin: ",
+                            e);
                 }
-                // Felix file prop no longer being tracked? (3)
-                if (felixFileNew == null) {
-                    LOGGER.debug("No longer tracking file for pid {}", pid);
-                    pidFileMap.remove(pid);
-                    // In this case, we want to skip writing
-                    return;
-                }
+                return;
             }
-
-            // Let's write, because the prop is either new (2) or needs updating (4)
-            try {
-                felixConfig.setFelixFile();
-                pidFileMap.put(pid, felixFileNew);
-                LOGGER.debug("Tracking pid {}", pid);
-            } catch (IOException e) {
-                LOGGER.error("Could not set felix file name, error writing to config admin: ", e);
-            }
+            pidFileMap.put(pid, felixFileNew);
+            LOGGER.debug("Tracking pid {}", pid);
         }
-
-        // Check actual dictionary values (hash) in case a rewrite to disk is necessary
     }
 
     /**

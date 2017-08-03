@@ -13,23 +13,29 @@
  */
 package org.codice.ddf.admin.configuration;
 
+import static org.hamcrest.Matchers.matchesPattern;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
+import java.net.URI;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.service.cm.Configuration;
@@ -62,6 +68,15 @@ public class FelixConfigTest {
         PROPS_NO_FELIX.put("prop2", "value2");
         PROPS_WITH_FELIX.put("prop1", "value1");
         PROPS_WITH_FELIX.put("prop2", "value2");
+
+        System.setProperty("ddf.home",
+                Paths.get("test", "home")
+                        .toString());
+    }
+
+    @AfterClass
+    public static void afterClass() {
+        System.clearProperty("ddf.home");
     }
 
     @Before
@@ -136,5 +151,46 @@ public class FelixConfigTest {
         PROPS_WITH_FELIX.put(FELIX_FILENAME_PROP, new Object());
         felixConfig = new FelixConfig(configuration);
         assertThat(felixConfig.getFelixFile(), is(nullValue()));
+    }
+
+    @Test
+    public void testSetFelixFile() throws Exception {
+        ArgumentCaptor<Dictionary> captor = ArgumentCaptor.forClass(Dictionary.class);
+        URI uri = URI.create("file:/some/different/place");
+        File file = new File(uri);
+
+        PROPS_WITH_FELIX.put(FELIX_FILENAME_PROP, "file:" + temporaryFile.getAbsolutePath());
+
+        felixConfig = new FelixConfig(configuration);
+        felixConfig.setFelixFile(file);
+
+        verify(configuration).update(captor.capture());
+        Dictionary<String, ?> params = captor.getValue();
+
+        assertThat(params.get(FELIX_FILENAME_PROP), is(uri.toString()));
+        assertThat(felixConfig.getFelixFile(), is(file));
+    }
+
+    @Test
+    public void testSetFelixFileDefaultStrategy() throws Exception {
+        when(configuration.getPid()).thenReturn("pid");
+        when(configuration.getFactoryPid()).thenReturn(null);
+        PROPS_WITH_FELIX.put(FELIX_FILENAME_PROP, "file:" + temporaryFile.getAbsolutePath());
+        felixConfig = new FelixConfig(configuration);
+        felixConfig.setFelixFile();
+        File felixFile = felixConfig.getFelixFile();
+        assertThat(felixFile, is(notNullValue()));
+        assertThat(felixFile.getName(), is("pid.config"));
+    }
+
+    @Test
+    public void testSetFelixFileDefaultStrategyWithFactory() throws Exception {
+        when(configuration.getFactoryPid()).thenReturn("factoryPid");
+        PROPS_WITH_FELIX.put(FELIX_FILENAME_PROP, "file:" + temporaryFile.getAbsolutePath());
+        felixConfig = new FelixConfig(configuration);
+        felixConfig.setFelixFile();
+        File felixFile = felixConfig.getFelixFile();
+        assertThat(felixFile, is(notNullValue()));
+        assertThat(felixFile.getName(), matchesPattern("factoryPid-[a-z0-9]++.config"));
     }
 }

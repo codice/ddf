@@ -72,7 +72,7 @@ public class FelixConfig {
      * Sets the felix file name using the default technique from the config repo, using .config in
      * case complex data structures are present.
      *
-     * @throws IOException if updating config admin fails
+     * @throws IOException if an error occurs persisting to config admin.
      */
     void setFelixFile() throws IOException {
         setFelixFile(createFelixFileName(config));
@@ -81,12 +81,14 @@ public class FelixConfig {
     /**
      * Sets the felix file name to the provided {@link File} argument.
      *
-     * @param file
-     * @throws IOException
+     * @param file the file to use for the felix file name property.
+     * @throws IOException if an error occurs persisting to config admin.
      */
-    private void setFelixFile(File file) throws IOException {
+    void setFelixFile(File file) throws IOException {
         Dictionary<String, Object> propsWithFelixFileName = config.getProperties();
-        propsWithFelixFileName.put(FELIX_FILENAME_PROP, file.getAbsolutePath());
+        propsWithFelixFileName.put(FELIX_FILENAME_PROP,
+                file.toURI()
+                        .toString());
         config.update(propsWithFelixFileName);
 
         this.felixFile = file;

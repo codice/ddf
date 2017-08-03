@@ -19,7 +19,9 @@
     <feature name="admin-core" install="manual" version="${project.version}"
              description="Administration Tools">
         <feature prerequisite="true">security-services-app</feature>
-        <bundle dependency="true">mvn:commons-collections/commons-collections/${commons-collections.version}</bundle>
+        <bundle dependency="true">
+            mvn:commons-collections/commons-collections/${commons-collections.version}
+        </bundle>
         <bundle>mvn:ddf.admin.core/admin-core-configpolicy/${project.version}</bundle>
         <bundle>mvn:ddf.admin.core/admin-core-api/${project.version}</bundle>
         <bundle>mvn:ddf.admin.core/admin-core-jolokia/${project.version}</bundle>
@@ -30,7 +32,7 @@
         <bundle>mvn:ddf.admin.core/admin-core-insecuredefaults/${project.version}</bundle>
         <bundle>mvn:ddf.admin.core/admin-core-impl/${project.version}</bundle>
         <!--Shut off password encryption to circumvent the config admin issue-->
-        <bundle>mvn:ddf.admin/admin-configuration-passwordencryption/${project.version}</bundle>
+        <!--<bundle>mvn:ddf.admin/admin-configuration-passwordencryption/${project.version}</bundle>-->
     </feature>
 
     <feature name="admin-ui" install="manual" version="${project.version}"

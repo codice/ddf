@@ -151,23 +151,8 @@ public class ConfigurationInstallerTest {
 
         Map<String, File> pidFileMap = installer.getPidFileMap();
         assertThat(pidFileMap.entrySet(), hasSize(1));
-        assertThat(pidFileMap.get(PID_001), is(fileA));
-        assertThat(fileB.exists(), is(false));
-    }
-
-    @Test
-    public void testUpdatedEventPropChangedDoneTracking() throws Exception {
-        configuration = createMockConfig(PID_001, null);
-
-        when(configurationEvent.getPid()).thenReturn(PID_001);
-        when(configurationAdmin.getConfiguration(PID_001, null)).thenReturn(configuration);
-
-        installer.init();
-        installer.configurationEvent(configurationEvent);
-
-        Map<String, File> pidFileMap = installer.getPidFileMap();
-        assertThat(pidFileMap.entrySet(), is(empty()));
-        assertThat(fileB.exists(), is(false));
+        assertThat(pidFileMap.get(PID_001), is(fileB));
+        assertThat(fileB.exists(), is(true));
     }
 
     @Test
