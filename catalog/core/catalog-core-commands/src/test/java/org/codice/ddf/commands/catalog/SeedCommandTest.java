@@ -38,7 +38,6 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import org.apache.commons.lang3.math.NumberUtils;
 import org.geotools.filter.text.ecql.ECQL;
 import org.junit.Before;
 import org.junit.Test;
@@ -318,14 +317,10 @@ public class SeedCommandTest extends CommandCatalogFrameworkCommon {
             throws Exception {
 
         mockResourceResponse();
-        QueryResponse queryResponseMock = mock(QueryResponse.class);
 
         // Populate list of mock results, sized at resource limit
         List<Result> resultsList = populateResultMockList(resourceLimit);
-        List<Result>[] queriedResultsList = mockQueryGetResults(resultsList, pageSize);
-
-        when(catalogFramework.query(any())).thenReturn(queryResponseMock);
-        when(queryResponseMock.getResults()).thenReturn(queriedResultsList[0], queriedResultsList);
+        mockQueryGetResults(resultsList, pageSize);
 
         seedCommand.resourceLimit = resourceLimit;
     }
@@ -356,7 +351,9 @@ public class SeedCommandTest extends CommandCatalogFrameworkCommon {
      * of thenReturn.
      * i.e. thenReturn(query1, [ query1, query2, query2 ]).
      */
-    private List<Result>[] mockQueryGetResults(List<Result> results, int pageSize) {
+    private void mockQueryGetResults(List<Result> results, int pageSize) throws Exception {
+
+        QueryResponse queryResponseMock = mock(QueryResponse.class);
 
         int queries = results.size() / pageSize;
         queries += (results.size() % pageSize > 0) ? 1 : 0;
@@ -371,6 +368,7 @@ public class SeedCommandTest extends CommandCatalogFrameworkCommon {
             pageArray[i + 1] = pageResults.get(j);
         }
 
-        return pageArray;
+        when(catalogFramework.query(any())).thenReturn(queryResponseMock);
+        when(queryResponseMock.getResults()).thenReturn(pageArray[0], pageArray);
     }
 }
