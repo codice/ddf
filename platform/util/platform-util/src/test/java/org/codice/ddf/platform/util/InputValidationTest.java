@@ -55,22 +55,22 @@ public class InputValidationTest {
     private static final String IGNORE_FILE_KNOWN_GOOD = "valid_ddms_record.xml";
 
     @ClassRule
-    public static final ProvideSystemProperty badFilesSystemProperties = new ProvideSystemProperty(
+    public static final ProvideSystemProperty BAD_FILES_SYSTEM_PROPERTIES = new ProvideSystemProperty(
             "bad.files",
             "crossdomain.xml,clientaccesspolicy.xml,.htaccess,.htpasswd,hosts,passwd,group,resolv.conf,nfs.conf,ftpd.conf,ntp.conf,web.config,robots.txt");
 
     @ClassRule
-    public static final ProvideSystemProperty badFileExtenstionsSystemProperties =
+    public static final ProvideSystemProperty BAD_FILE_EXTENSTIONS_SYSTEM_PROPERTIES =
             new ProvideSystemProperty("bad.file.extensions",
                     ".exe,.jsp,.html,.js,.php,.phtml,.php3,.php4,.php5,.phps,.shtml,.jhtml,.pl,.py,.cgi,.msi,.com,.scr,.gadget,.application,.pif,.hta,.cpl,.msc,.jar,.kar,.bat,.cmd,.vb,.vbs,.vbe,.jse,.ws,.wsf,.wsc,.wsh,.ps1,.ps1xml,.ps2,.ps2xml,.psc1,.psc2,.msh,.msh1,.msh2,.mshxml,.msh1xml,.msh2xml,.scf,.lnk,.inf,.reg,.dll,.vxd,.cpl,.cfg,.config,.crt,.cert,.pem,.jks,.p12,.p7b,.key,.der,.csr,.jsb,.mhtml,.mht,.xhtml,.xht");
 
     @ClassRule
-    public static final ProvideSystemProperty badMimeTypesSystemProperties =
+    public static final ProvideSystemProperty BAD_MIME_TYPES_SYSTEM_PROPERTIES =
             new ProvideSystemProperty("bad.mime.types",
                     "text/html,text/javascript,text/x-javascript,application/x-shellscript,text/scriptlet,application/x-msdownload,application/x-msmetafile");
 
     @ClassRule
-    public static final ProvideSystemProperty ignoreFilesSystemProperties =
+    public static final ProvideSystemProperty IGNORE_FILES_SYSTEM_PROPERTIES =
             new ProvideSystemProperty("ignore.files", ".DS_Store,Thumbs.db");
 
     @Test

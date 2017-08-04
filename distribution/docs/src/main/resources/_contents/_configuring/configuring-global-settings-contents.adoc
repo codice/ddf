@@ -384,7 +384,8 @@ application/x-msmetafile
 |ignore.files
 |String
 |Files uploaded with these names will be rejected from the upload
-|.DS_Store
+|.DS_Store,
+Thumbs.db
 |Yes
 
 6+^h|[[SolrProperties]]Solr Catalog Provider Properties
