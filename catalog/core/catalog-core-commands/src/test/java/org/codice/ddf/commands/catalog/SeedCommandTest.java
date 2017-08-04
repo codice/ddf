@@ -44,6 +44,8 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 
+import com.google.common.collect.Lists;
+
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
@@ -61,6 +63,10 @@ public class SeedCommandTest extends CommandCatalogFrameworkCommon {
     private SeedCommand seedCommand;
 
     private CatalogFramework catalogFramework;
+
+    private Metacard metacardMock;
+
+    private Result resultMock;
 
     @Before
     public void setUp() throws Exception {
@@ -205,6 +211,27 @@ public class SeedCommandTest extends CommandCatalogFrameworkCommon {
         verify(catalogFramework, times(2)).query(any(QueryRequest.class));
     }
 
+    /**
+     * This test will verify that seed does not skip resources when the maximum page
+     * size is less than the specified resource limit. This concern was raised after
+     * query results became limited to a maximum in DDF-2872.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testDoesNotSkipResources() throws Exception {
+
+        int maxPageSize = 1000;
+        int resourceLimit = maxPageSize * 2;
+
+        String expected = resourceLimit + " resource download(s) started.";
+
+        mockMultipleCatalogFrameworkQueries(maxPageSize, resourceLimit);
+
+        seedCommand.executeWithSubject();
+        assertThat(consoleOutput.getOutput(), containsString(expected));
+    }
+
     private void runCommandAndVerifyResourceRequests(int expectedResourceRequests,
             Consumer<List<ResourceRequest>> requestAssertions,
             Consumer<List<String>> siteNameAssertions) throws Exception {
@@ -284,5 +311,64 @@ public class SeedCommandTest extends CommandCatalogFrameworkCommon {
         public boolean matches(Object o) {
             return test.test((QueryRequest) o);
         }
+    }
+
+    private void mockMultipleCatalogFrameworkQueries(int pageSize, int resourceLimit)
+            throws Exception {
+
+        mockResourceResponse();
+
+        // Populate list of mock results, sized at resource limit
+        List<Result> resultsList = populateResultMockList(resourceLimit);
+        mockQueryGetResults(resultsList, pageSize);
+
+        seedCommand.resourceLimit = resourceLimit;
+    }
+
+    private List<Result> populateResultMockList(int size) {
+
+        List<Result> resultMockList = new ArrayList<>();
+
+        for (int i = 0; i < size; i++) {
+            resultMock = mock(Result.class);
+            metacardMock = mock(Metacard.class);
+
+            when(resultMock.getMetacard()).thenReturn(metacardMock);
+            when(metacardMock.getId()).thenReturn("MOCK METACARD " + (i + 1));
+
+            resultMockList.add(resultMock);
+        }
+        return resultMockList;
+    }
+
+    /**
+     * Divides results list by the page size. Used for thenReturn statements.
+     * The array being passed will have doubles for every query after the first,
+     * for example:
+     * [ query1, query2, query2, ... ]
+     * This is because the query result will need to be returned twice for every
+     * iteration, and the first query is get inserted in the first parameter
+     * of thenReturn.
+     * i.e. thenReturn(query1, [ query1, query2, query2 ]).
+     */
+    private void mockQueryGetResults(List<Result> results, int pageSize) throws Exception {
+
+        QueryResponse queryResponseMock = mock(QueryResponse.class);
+
+        int queries = results.size() / pageSize;
+        queries += (results.size() % pageSize > 0) ? 1 : 0;
+
+        List<List<Result>> pageResults = Lists.partition(results, pageSize);
+        List[] pageArray = new List[queries * 2 - 1];
+
+        pageArray[0] = pageResults.get(0);
+
+        for (int i = 1, j = 1; j < pageResults.size(); i += 2, j++) {
+            pageArray[i] = pageResults.get(j);
+            pageArray[i + 1] = pageResults.get(j);
+        }
+
+        when(catalogFramework.query(any())).thenReturn(queryResponseMock);
+        when(queryResponseMock.getResults()).thenReturn(pageArray[0], pageArray);
     }
 }
