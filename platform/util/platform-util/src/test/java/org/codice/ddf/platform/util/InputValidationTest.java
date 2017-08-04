@@ -76,31 +76,41 @@ public class InputValidationTest {
     @Test
     public void testSanitizeFilenameBad() {
         String sanitizedName = InputValidation.sanitizeFilename(BAD_FILE);
-        assertThat(sanitizedName, is(SANI_BAD_FILE));
+        assertThat("Actual sanitized filename does not match expected output.",
+                sanitizedName,
+                is(SANI_BAD_FILE));
     }
 
     @Test
     public void testSanitizeFilenameBad1() {
         String sanitizedName = InputValidation.sanitizeFilename(BAD_FILE1);
-        assertThat(sanitizedName, is(SANI_BAD_FILE1));
+        assertThat("Actual sanitized filename does not match expected output.",
+                sanitizedName,
+                is(SANI_BAD_FILE1));
     }
 
     @Test
     public void testSanitizeFilenameBad2() {
         String sanitizedName = InputValidation.sanitizeFilename(BAD_FILE2);
-        assertThat(sanitizedName, is(DEFAULT_FILE));
+        assertThat("Actual sanitized filename does not match expected output.",
+                sanitizedName,
+                is(DEFAULT_FILE));
     }
 
     @Test
     public void testSanitizeFilenameGood() {
         String sanitizedName = InputValidation.sanitizeFilename(GOOD_FILE);
-        assertThat(sanitizedName, is(GOOD_FILE));
+        assertThat("Actual sanitized filename does not match expected output.",
+                sanitizedName,
+                is(GOOD_FILE));
     }
 
     @Test
     public void testSanitizeFilenameKnownBad() {
         String sanitizedName = InputValidation.sanitizeFilename(KNOWN_BAD_FILE);
-        assertThat(sanitizedName, is(DEFAULT_FILE));
+        assertThat("Actual sanitized filename does not match expected output.",
+                sanitizedName,
+                is(DEFAULT_FILE));
     }
 
     @Test
@@ -118,7 +128,9 @@ public class InputValidationTest {
     @Test
     public void testSanitizeFilenameKnownBadCaseInsensitive() {
         String sanitizedName = InputValidation.sanitizeFilename(BAD_FILE3);
-        assertThat(sanitizedName, is(DEFAULT_FILE));
+        assertThat("Actual sanitized filename does not match expected output.",
+                sanitizedName,
+                is(DEFAULT_FILE));
     }
 
     @Test
@@ -129,15 +141,14 @@ public class InputValidationTest {
 
     @Test
     public void testCheckForClientSideVulnerableFileNameBadCaseInsensitive() {
-        boolean result = InputValidation.isFileNameClientSideVulnerable(
-                IGNORE_FILE_CASE_INSENSITIVE);
+        boolean result =
+                InputValidation.isFileNameClientSideVulnerable(IGNORE_FILE_CASE_INSENSITIVE);
         assertFalse(result);
     }
 
     @Test
     public void testCheckForClientSideVulnerableFileNameGood() {
-        boolean result =
-                InputValidation.isFileNameClientSideVulnerable(IGNORE_FILE_KNOWN_GOOD);
+        boolean result = InputValidation.isFileNameClientSideVulnerable(IGNORE_FILE_KNOWN_GOOD);
         assertTrue(result);
     }
 }
