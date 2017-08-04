@@ -448,10 +448,10 @@
 		
 	<!-- Placed at the end of the document so the pages load faster -->
 
-	<script type="text/javascript" src="lib/jquery/js/jquery-1.8.2.min.js"></script>
-	<script type="text/javascript" src="lib/jquery/js/jquery-ui-1.9.1.custom.min.js"></script>
+	<script type="text/javascript" src="lib/jquery/js/jquery-3.2.1.min.js"></script>
+	<script type="text/javascript" src="lib/jquery/js/jquery-ui-1.12.1.min.js"></script>
 	
-        <script type="text/javascript" src="lib/lodash/lodash.js"></script>
+    <script type="text/javascript" src="lib/underscore-1.8.3/underscore-min.js"></script>
 
 	
 	<script type="text/javascript" src="lib/bootstrap-2.3.1/js/bootstrap.min.js"></script>
