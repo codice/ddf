@@ -72,6 +72,16 @@ define([
     function translateFilterToBasicMap(filter){
         var propertyValueMap = {};
         var downConversion = false;
+
+        if (filter.filters && isAnyDate(filter)) {
+           propertyValueMap['anyDate'] = propertyValueMap['anyDate'] || [];
+           if (propertyValueMap['anyDate'].filter(function(existingFilter){
+                   return existingFilter.type === filter.filters[0].type;
+               }).length === 0) {
+               propertyValueMap['anyDate'].push(filter.filters[0]);
+           }
+        }
+
         if (filter.filters){
             filter.filters.forEach(function(filter){
                if (!filter.filters){
@@ -451,11 +461,6 @@ define([
         constructFilter: function(){
             var filters = [];
 
-            var text = this.basicText.currentView.model.getValue()[0];
-            text = text === "" ? '*' : text;
-            var matchCase = this.basicTextMatch.currentView.model.getValue()[0];
-            filters.push(CQLUtils.generateFilter(matchCase, 'anyText', text));
-
             var timeRange = this.basicTime.currentView.model.getValue()[0];
             var timeBefore, timeAfter;
             switch(timeRange){
@@ -516,6 +521,14 @@ define([
                     }))
                 };
                 filters.push(typeFilter)
+            }
+
+            var text = this.basicText.currentView.model.getValue()[0];
+            text = text === "" ? '*' : text;
+
+            if (filters.length === 0 || text !== '*') {
+                var matchCase = this.basicTextMatch.currentView.model.getValue()[0];
+                filters.unshift(CQLUtils.generateFilter(matchCase, 'anyText', text));
             }
 
             return {
