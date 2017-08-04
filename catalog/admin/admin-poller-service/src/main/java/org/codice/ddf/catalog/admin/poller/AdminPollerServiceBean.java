@@ -183,12 +183,16 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
                 if (configs != null) {
                     for (Configuration config : configs) {
                         ConfigurationDetails source = new ConfigurationDetailsImpl();
-
-                        boolean disabled = config.getPid()
-                                .endsWith(ConfigurationStatus.DISABLED_EXTENSION);
-                        source.setId(config.getPid());
+                        String pid = config.getPid();
+                        String fPid = config.getFactoryPid();
+                        boolean disabled = pid.endsWith(ConfigurationStatus.DISABLED_EXTENSION);
+                        if (fPid != null) {
+                            disabled = disabled
+                                    || fPid.endsWith(ConfigurationStatus.DISABLED_EXTENSION);
+                        }
+                        source.setId(pid);
                         source.setEnabled(!disabled);
-                        source.setFactoryPid(config.getFactoryPid());
+                        source.setFactoryPid(fPid);
 
                         if (!disabled) {
                             source.setName(helper.getName(config));

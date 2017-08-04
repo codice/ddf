@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.shiro.util.CollectionUtils;
+import org.codice.ddf.admin.core.api.ConfigurationStatus;
 import org.codice.ddf.admin.core.api.Metatype;
 import org.codice.ddf.admin.core.api.Service;
 import org.codice.ddf.admin.core.impl.ServiceImpl;
@@ -125,7 +126,7 @@ public class AdminPollerTest {
         List<Map<String, Object>> configurations = (List) sources.get(1)
                 .get("configurations");
 
-        assertThat(configurations, hasSize(1));
+        assertThat(configurations, hasSize(2));
         Map<String, Object> configurationMap = configurations.get(0);
         assertThat(configurationMap, hasKey("operation_actions"));
         assertThat(configurationMap, hasKey("report_actions"));
@@ -167,7 +168,18 @@ public class AdminPollerTest {
                 dict.put("service.pid", CONFIG_PID);
                 dict.put("service.factoryPid", FPID);
                 when(config.getProperties()).thenReturn(dict);
-                when(helper.getConfigurations(any(Metatype.class))).thenReturn(CollectionUtils.asList(config),
+                Configuration config2 = mock(Configuration.class);
+                when(config2.getPid()).thenReturn(
+                        CONFIG_PID + ConfigurationStatus.DISABLED_EXTENSION);
+                when(config2.getFactoryPid()).thenReturn(
+                        FPID + ConfigurationStatus.DISABLED_EXTENSION);
+                Dictionary<String, Object> dict2 = new Hashtable<>();
+                dict2.put("service.pid", CONFIG_PID + ConfigurationStatus.DISABLED_EXTENSION);
+                dict2.put("service.factoryPid", FPID + ConfigurationStatus.DISABLED_EXTENSION);
+                when(config2.getProperties()).thenReturn(dict);
+                when(helper.getConfigurations(any(Metatype.class))).thenReturn(CollectionUtils.asList(
+                        config,
+                        config2),
                         null);
 
                 // Mock out the sources
