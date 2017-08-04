@@ -95,7 +95,7 @@ public class InputValidation {
      * @param mimetype
      * @return true if the mime type is acceptable
      */
-    public static boolean checkForClientSideVulnerableMimeType(String mimetype) {
+    public static boolean isMimeTypeClientSideVulnerable(String mimetype) {
         mimetype = mimetype.toLowerCase();
         for (String type : BAD_MIME_TYPES) {
             if (mimetype.contains(type)) {
@@ -112,7 +112,7 @@ public class InputValidation {
      * @param filename
      * @return true if the filename is acceptable
      */
-    public static boolean checkForClientSideVulnerableFileName(String filename) {
+    public static boolean isFileNameClientSideVulnerable(String filename) {
         filename = filename.toLowerCase();
         for (String ignoreFile : IGNORE_FILES) {
             if (ignoreFile.contains(filename)) {

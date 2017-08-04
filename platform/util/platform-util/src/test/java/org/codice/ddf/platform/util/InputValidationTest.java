@@ -32,7 +32,7 @@ public class InputValidationTest {
 
     private static final String BAD_FILE2 = ".";
 
-    private static final String BAD_FILE3 = "thumbs.db";
+    private static final String BAD_FILE3 = "robots.TXT";
 
     private static final String SANI_BAD_FILE = "myfile.bin.bin.unk";
 
@@ -57,7 +57,7 @@ public class InputValidationTest {
     @ClassRule
     public static final ProvideSystemProperty badFilesSystemProperties = new ProvideSystemProperty(
             "bad.files",
-            "crossdomain.xml,clientaccesspolicy.xml,.htaccess,.htpasswd,hosts,passwd,group,resolv.conf,nfs.conf,ftpd.conf,ntp.conf,web.config,robots.txt,Thumbs.db");
+            "crossdomain.xml,clientaccesspolicy.xml,.htaccess,.htpasswd,hosts,passwd,group,resolv.conf,nfs.conf,ftpd.conf,ntp.conf,web.config,robots.txt");
 
     @ClassRule
     public static final ProvideSystemProperty badFileExtenstionsSystemProperties =
@@ -71,7 +71,7 @@ public class InputValidationTest {
 
     @ClassRule
     public static final ProvideSystemProperty ignoreFilesSystemProperties =
-            new ProvideSystemProperty("ignore.files", ".DS_Store");
+            new ProvideSystemProperty("ignore.files", ".DS_Store,Thumbs.db");
 
     @Test
     public void testSanitizeFilenameBad() {
@@ -105,13 +105,13 @@ public class InputValidationTest {
 
     @Test
     public void testCheckForClientSideVulnerableMimeTypeBad() {
-        boolean result = InputValidation.checkForClientSideVulnerableMimeType(BAD_MIME);
+        boolean result = InputValidation.isMimeTypeClientSideVulnerable(BAD_MIME);
         assertFalse(result);
     }
 
     @Test
     public void testCheckForClientSideVulnerableMimeTypeGood() {
-        boolean result = InputValidation.checkForClientSideVulnerableMimeType(GOOD_MIME);
+        boolean result = InputValidation.isMimeTypeClientSideVulnerable(GOOD_MIME);
         assertTrue(result);
     }
 
@@ -123,13 +123,13 @@ public class InputValidationTest {
 
     @Test
     public void testCheckForClientSideVulnerableFileNameBad() {
-        boolean result = InputValidation.checkForClientSideVulnerableFileName(IGNORE_FILE);
+        boolean result = InputValidation.isFileNameClientSideVulnerable(IGNORE_FILE);
         assertFalse(result);
     }
 
     @Test
     public void testCheckForClientSideVulnerableFileNameBadCaseInsensitive() {
-        boolean result = InputValidation.checkForClientSideVulnerableFileName(
+        boolean result = InputValidation.isFileNameClientSideVulnerable(
                 IGNORE_FILE_CASE_INSENSITIVE);
         assertFalse(result);
     }
@@ -137,7 +137,7 @@ public class InputValidationTest {
     @Test
     public void testCheckForClientSideVulnerableFileNameGood() {
         boolean result =
-                InputValidation.checkForClientSideVulnerableFileName(IGNORE_FILE_KNOWN_GOOD);
+                InputValidation.isFileNameClientSideVulnerable(IGNORE_FILE_KNOWN_GOOD);
         assertTrue(result);
     }
 }
