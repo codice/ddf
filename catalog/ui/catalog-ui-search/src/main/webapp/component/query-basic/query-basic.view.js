@@ -73,7 +73,7 @@ define([
         var propertyValueMap = {};
         var downConversion = false;
 
-        if (filter.filters !== null && isAnyDate(filter)) {
+        if (filter.filters && isAnyDate(filter)) {
            propertyValueMap['anyDate'] = propertyValueMap['anyDate'] || [];
            if (propertyValueMap['anyDate'].filter(function(existingFilter){
                    return existingFilter.type === filter.filters[0].type;
@@ -82,9 +82,9 @@ define([
            }
         }
 
-        if (filter.filters !== null){
+        if (filter.filters){
             filter.filters.forEach(function(filter){
-               if (filter.filters === null){
+               if (!filter.filters){
                    propertyValueMap[CQLUtils.getProperty(filter)] = propertyValueMap[CQLUtils.getProperty(filter)] || [];
                    if (propertyValueMap[CQLUtils.getProperty(filter)].filter(function(existingFilter){
                            return existingFilter.type === filter.type;
@@ -524,12 +524,9 @@ define([
             }
 
             var text = this.basicText.currentView.model.getValue()[0];
+            text = text === "" ? '*' : text;
 
-            if (filters.length == 0) {
-                text = '*'
-            }
-
-            if (text !== "") {
+            if (filters.length == 0 || text !== '*') {
                 var matchCase = this.basicTextMatch.currentView.model.getValue()[0];
                 filters.unshift(CQLUtils.generateFilter(matchCase, 'anyText', text));
             }
