@@ -526,7 +526,7 @@ define([
             var text = this.basicText.currentView.model.getValue()[0];
             text = text === "" ? '*' : text;
 
-            if (filters.length == 0 || text !== '*') {
+            if (filters.length === 0 || text !== '*') {
                 var matchCase = this.basicTextMatch.currentView.model.getValue()[0];
                 filters.unshift(CQLUtils.generateFilter(matchCase, 'anyText', text));
             }
