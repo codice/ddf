@@ -386,6 +386,7 @@
         <module>platform-filter-clientinfo</module>
         <module>platform-filter-response</module>
         <module>email</module>
+        <module>platform-crypto-provider</module>
         <module>platform-app</module>
     </modules>
 </project>

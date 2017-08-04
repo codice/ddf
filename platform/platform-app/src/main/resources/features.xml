@@ -1049,6 +1049,7 @@
     <feature name="web-container" install="manual" version="${project.version}">
         <feature prerequisite="true">platform-filter-delegate</feature>
         <feature prerequisite="true">platform-paxweb-jettyconfig</feature>
+        <bundle dependency="true">mvn:org.codice.ddf.platform.crypto/platform-crypto-provider/${project.version}</bundle>
         <feature>war</feature>
     </feature>
 
