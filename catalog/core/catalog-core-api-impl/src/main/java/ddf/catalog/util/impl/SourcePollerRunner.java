@@ -159,7 +159,10 @@ public class SourcePollerRunner implements Runnable {
         LOGGER.debug("Unbinding source [{}]", source);
         if (source != null) {
             sources.remove(source);
-            sourceStatusThreadLocks.remove(cachedSources.remove(getSourceKey(source)));
+            CachedSource cachedSource = cachedSources.remove(getSourceKey(source));
+            if (cachedSource != null) {
+                sourceStatusThreadLocks.remove(cachedSource);
+            }
         }
     }
 
