@@ -38,6 +38,15 @@
             <artifactId>admin-configurator-actions-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.io</groupId>
+            <artifactId>platform-io-internal-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>ddf.admin.core</groupId>
@@ -86,6 +95,9 @@
                             !org.codice.ddf.admin.configurator.impl.*,
                             *
                         </Import-Package>
+                        <Embed-Dependency>
+                            platform-util
+                        </Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>

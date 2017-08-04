@@ -18,12 +18,18 @@ import static org.osgi.service.cm.ConfigurationEvent.CM_UPDATED;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Dictionary;
+import java.util.Enumeration;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+
+import javax.annotation.Nullable;
 
 import org.codice.ddf.admin.configurator.Configurator;
 import org.codice.ddf.admin.configurator.ConfiguratorException;
@@ -81,10 +87,11 @@ public class ConfigurationInstaller implements SynchronousConfigurationListener 
         }
         pidFileMap.putAll(Arrays.stream(configs)
                 .map(FelixConfig::new)
-                .filter(config -> config.getFelixFile() != null)
+                .map(this::processFelixConfig)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toMap(FelixConfig::getPid, FelixConfig::getFelixFile,
                         // API guarantees no duplicates in production but itests may violate this.
-                        // Workaround is to shut off admin-configuration-passwordencryption.
+                        // Workaround is to provide the following merge function just in case.
                         (file1, file2) -> file2)));
     }
 
@@ -106,23 +113,52 @@ public class ConfigurationInstaller implements SynchronousConfigurationListener 
     }
 
     /**
+     * Syncs the state of a config in {@link ConfigurationAdmin} with the state of the etc directory.
+     *
+     * @param config the config under scrutiny.
+     * @return the config if etc claims it should exist, or null if it was deleted.
+     */
+    @Nullable
+    private FelixConfig processFelixConfig(FelixConfig config) {
+        File file = config.getFelixFile();
+        if (file != null) {
+            if (!file.exists()) {
+                config.delete();
+                return null;
+            }
+            return config;
+        }
+
+        file = config.generateDefaultFelixFile()
+                .getFelixFile();
+        if (file == null) {
+            return null;
+        }
+
+        performOperation(configActions.create(file.toPath(), config.getSanitizedProperties()));
+        return config;
+    }
+
+    /**
      * Sync the config files in etc when an update occurs. There are four cases, which will be
      * denoted using 2-tuple combinations of variables: [felixFileOriginal, felixFileNew]
      * <p>
      * [null, null]
-     * (1) Felix file prop wasn't tracked and is still not tracked. We don't need to
-     * do anything, and we further guarantee that beyond this point, one variable must not be null.
+     * (1) Felix file prop is not being tracked. Generate a felix file prop so
+     * the config can be tracked. This case boils down to case (2) every time.
      * <p>
      * [null, X]
-     * (2) Unrecognized config with a felix file prop to track. The config's presence in
-     * etc was previously not being tracked by the system and we should start tracking it.
+     * (2) Brand new config with a felix file prop to track, either generated from felix or by this
+     * installer. Create the file in etc and start tracking the config in this installer's cache.
      * <p>
      * [Y, null]
      * [Y, X]
-     * (3) Felix prop was externally changed or removed. Revert this change.
+     * (3) Felix prop was externally changed or removed. Revert this change. This case boils down to
+     * case (4) every time.
      * <p>
      * [Y, Y]
-     * (4) Felix file prop did not change, do nothing. This is the happy path.
+     * (4) Regardless if the Felix file prop changed, the config properties were updated, so
+     * update the corresponding file in etc.
      *
      * @param event the configuration event for which an update is needed
      */
@@ -135,31 +171,38 @@ public class ConfigurationInstaller implements SynchronousConfigurationListener 
 
         FelixConfig felixConfig = new FelixConfig(configuration);
         String pid = felixConfig.getPid();
+
         File felixFileNew = felixConfig.getFelixFile();
         File felixFileOriginal = pidFileMap.get(pid);
 
-        // Config not tracked and will not be tracked? (1)
-        if (felixFileOriginal == null && felixFileNew == null) {
-            LOGGER.debug("Was not tracked and will not track pid {}", pid);
+        if (felixFileOriginal == null) {
+            // Config not tracked? (1)
+            if (felixFileNew == null) {
+                felixFileNew = felixConfig.generateDefaultFelixFile()
+                        .getFelixFile();
+            }
+
+            // We are seeing the config for the first time (2)
+            LOGGER.debug("Tracking pid {}", pid);
+            pidFileMap.put(pid, felixFileNew);
+            performOperation(configActions.create(felixFileNew.toPath(),
+                    felixConfig.getSanitizedProperties()));
             return;
         }
 
-        boolean filePropChanged = felixConfig.filePropChanged(felixFileOriginal);
+        // Felix file prop changed and we should revert it? (3)
+        if (felixConfig.filePropChanged(felixFileOriginal)) {
+            felixConfig.setFelixFile(felixFileOriginal);
+        }
 
-        // Felix file prop did not change? (4)
-        if (filePropChanged) {
-            // Are we seeing the config for the first time? (2) (3)
-            if (felixFileOriginal != null) {
-                try {
-                    felixConfig.setFelixFile(felixFileOriginal);
-                } catch (IOException e) {
-                    LOGGER.error("Could not set felix file name, error writing to config admin: ",
-                            e);
-                }
-                return;
-            }
-            pidFileMap.put(pid, felixFileNew);
-            LOGGER.debug("Tracking pid {}", pid);
+        // Respond to config properties being updated (4)
+        // Updating properties on disk, if they haven't changed, causes an infinite loop
+        // with the felix DirectoryWatcher
+        Path path = felixFileOriginal.toPath();
+        Dictionary<String, Object> fileState = configActions.getProperties(path);
+        Dictionary<String, Object> configState = felixConfig.getSanitizedProperties();
+        if (!equalDictionaries(configState, fileState)) {
+            performOperation(configActions.update(path, configState, false));
         }
     }
 
@@ -171,7 +214,7 @@ public class ConfigurationInstaller implements SynchronousConfigurationListener 
     private void handleDelete(ConfigurationEvent event) {
         String pid = event.getPid();
         File felixFileOriginal = pidFileMap.remove(pid);
-        if (felixFileOriginal != null) {
+        if (felixFileOriginal != null && felixFileOriginal.exists()) {
             LOGGER.debug("Deleting file because config was deleted for pid {}", pid);
             try {
                 performOperation(configActions.delete(felixFileOriginal.toPath()));
@@ -184,7 +227,8 @@ public class ConfigurationInstaller implements SynchronousConfigurationListener 
     private void performOperation(Operation operation) {
         Configurator configurator = configuratorFactory.getConfigurator();
         configurator.add(operation);
-        OperationReport report = configurator.commit("Synchronizing the etc directory");
+        OperationReport report = configurator.commit("Synchronizing the etc directory. {}",
+                operation.toString());
         if (report.containsFailedResults()) {
             LOGGER.error("One or more file operations failed, see debug logs for more info");
             if (LOGGER.isDebugEnabled()) {
@@ -206,5 +250,18 @@ public class ConfigurationInstaller implements SynchronousConfigurationListener 
             LOGGER.debug("Problem reading from config admin: ", e);
             return null;
         }
+    }
+
+    private static boolean equalDictionaries(Dictionary x, Dictionary y) {
+        if (x.size() != y.size()) {
+            return false;
+        }
+        for (final Enumeration e = x.keys(); e.hasMoreElements(); ) {
+            final Object key = e.nextElement();
+            if (!Objects.deepEquals(x.get(key), y.get(key))) {
+                return false;
+            }
+        }
+        return true;
     }
 }

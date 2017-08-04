@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  *
  * <p>
  * It is an implementation of {@link java.util.List} but is backed by a sorted {@link java.util.TreeMap} of
- * <@link ServiceReference, T> where the {@link org.osgi.framework.ServiceReference} objects are what is used to maintain the
+ * <@link ServiceReference, T> where the {@link org.osgi.framework.ServiceReference} objects are used to maintain the
  * list order but the objects passed by this {@link java.util.List} to clients are the actual service objects
  * and not the service references.
  * </p>
