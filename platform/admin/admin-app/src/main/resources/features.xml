@@ -19,7 +19,9 @@
     <feature name="admin-core" install="manual" version="${project.version}"
              description="Administration Tools">
         <feature prerequisite="true">security-services-app</feature>
-        <bundle dependency="true">mvn:commons-collections/commons-collections/${commons-collections.version}</bundle>
+        <bundle dependency="true">
+            mvn:commons-collections/commons-collections/${commons-collections.version}
+        </bundle>
         <bundle>mvn:ddf.admin.core/admin-core-configpolicy/${project.version}</bundle>
         <bundle>mvn:ddf.admin.core/admin-core-api/${project.version}</bundle>
         <bundle>mvn:ddf.admin.core/admin-core-jolokia/${project.version}</bundle>
@@ -29,7 +31,8 @@
         <bundle>mvn:ddf.admin.core/admin-core-appservice/${project.version}</bundle>
         <bundle>mvn:ddf.admin.core/admin-core-insecuredefaults/${project.version}</bundle>
         <bundle>mvn:ddf.admin.core/admin-core-impl/${project.version}</bundle>
-        <bundle>mvn:ddf.admin/admin-configuration-passwordencryption/${project.version}</bundle>
+        <!--Shut off password encryption to circumvent the config admin issue-->
+        <!--<bundle>mvn:ddf.admin/admin-configuration-passwordencryption/${project.version}</bundle>-->
     </feature>
 
     <feature name="admin-ui" install="manual" version="${project.version}"
@@ -97,6 +100,12 @@
         <bundle>mvn:ddf.admin/admin-configurator-impl/${project.version}</bundle>
     </feature>
 
+    <feature name="admin-config-installer" install="manual" version="${project.version}"
+             description="Synchronizes config admin with the etc directory">
+        <feature prerequisite="true">admin-configurator</feature>
+        <bundle>mvn:ddf.admin/admin-configuration-configinstaller/${project.version}</bundle>
+    </feature>
+
     <feature name="admin-app" install="auto" version="${project.version}"
              description="Administration application for installation and management.\nIncludes the Admin UI and the underlying application service that supports the user interface.\nThe Admin UI provides contains modules allowing the administrator to install/remove applications and their dependencies and to access configuration pages to customize and tailor system services and properties.\nThe application service provides the supporting operations allowing the Admin UI to add, remove, start, stop, and obtain status information about all applications on the system.::Admin">
         <feature prerequisite="true">security-services-app</feature>
@@ -104,5 +113,6 @@
         <feature>admin-ui</feature>
         <feature>admin-core-migration-commands</feature>
         <feature>admin-configurator</feature>
+        <feature>admin-config-installer</feature>
     </feature>
 </features>

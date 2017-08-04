@@ -31,6 +31,7 @@
         <module>modules</module>
         <module>admin-configuration-passwordencryption</module>
         <module>admin-app</module>
+        <module>admin-configuration-configinstaller</module>
     </modules>
     <build>
         <plugins>
