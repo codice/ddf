@@ -9,7 +9,7 @@ There are multiple methods available for ingesting files into the ${branding}.
 
 There are many methods of ingest supported by the ${branding} to support different needs.
 
-===== Easy Methods (for fewer records or manual ingesting)
+===== Methods for ingesting small sets of records
 
 These methods are the simplest for small data sets or for testing purposes.
 
@@ -19,10 +19,25 @@ The ${branding} console application has a command-line option for ingesting file
 
 The syntax for the ingest command is `ingest -t <transformer type> <file path>` relative to the installation path.
 
-For XML data, run this command:
+For more information on available transformers see the <<_input_transformers, Input Transformers>> or run the `catalog:transformers` command.
+
+For metacard XML data, run this command:
 ----
 ingest -t xml examples/metacards/xml
 ----
+
+[NOTE]
+====
+Ingesting with the console ingest command will only create and store a metacard and not the resource itself.
+====
+
+====== User Interface Ingest
+
+Files can also be ingested directly from <<_ui_ingest, ${catalog-ui}>>.
+
+===== Methods for ingesting large sets of records
+
+These methods are useful for slightly larger data sets or infrequent ingests.
 
 ====== Directory Monitor Ingest
 
@@ -33,15 +48,7 @@ Simply place the desired files in the monitored directory and it will be ingeste
 If, for any reason, the files cannot be ingested, they will be moved to an automatically created sub-folder named `.errors`.
 Optionally, ingested files can be automatically moved to a sub-folder called `.ingested`.
 
-====== User Interface Ingest
-
-Files and resources can also be ingested directly from <<_ui_ingest, ${catalog-ui}>>.
-
-===== Medium Complexity (for more than a few resources)
-
-These methods are useful for slightly larger data sets or infrequent ingests.
-
-===== External Methods
+====== External Methods
 
 Several third-party tools, such as https://curl.haxx.se/[cURL.exe] and the https://advancedrestclient.com/[Chrome Advanced Rest Client], can be used to send files and other types of data to ${branding} for ingest.
 
@@ -80,9 +87,20 @@ Server: Jetty(7.5.4.v20111024)
 . Verify the catalog entry exists by executing a query via the OpenSearch endpoint.
 . Enter the following URL in a browser /services/catalog/query?q=ddf. A single result, in Atom format, should be returned.
 
+A resource can also be ingested with metacard metadata associated with it using the multipart/mixed content type.
+
+.Example
+----
+curl -k -X POST -i -H "Content-Type: multipart/mixed" -F parse.resource=@/path/to/resource -F parse.metadata=@/path/to/metacard ${secure_url}/services/catalog
+----
+
+====== Other Methods
+
+The ${branding} provides endpoints for both REST and SOAP services, allowing integration with other data systems and the ability to further automate ingesting data into the catalog. See <<_available_endpoints, Available Endpoints>> for more information.
+
 ==== Verifying Ingest by REST Endpoint
 
-Verify GeoJson file was stored using the Content REST endpoint.
+Verify file was stored using the Content REST endpoint.
 
 * Send a GET command to read the content from the content repository using the Content REST endpoint. This can be done using `cURL` command below. Note that the GUID will be different for each ingest. The GUID can be determined by going to the `<${branding}_HOME>/content/store` directory and copying the sub-directory in this folder (there should only be one).
 
@@ -98,8 +116,4 @@ curl -X GET ${secure_url}/services/content/c90147bf86294d46a9d35ebbd44992c5
 curl -X GET ${secure_url}/services/content/c90147bf86294d46a9d35ebbd44992c5
 ----
 
-The response to the GET command will be the contents of the `geojson_valid.json` file originally ingested.
-
-==== Advanced (more records, automated ingest)
-
-The ${branding} provides endpoints for both REST and SOAP services, allowing integration with other data systems and the ability to further automate ingesting data into the catalog.
+The response to the GET command will be the contents of the file originally ingested.
