@@ -313,8 +313,6 @@ public class DelegateServletFilterTest {
     @Test
     public void testRemoveSecurityFilter() throws IOException, ServletException {
         // given
-        delegateServletFilter.init(mock(FilterConfig.class));
-
         final SecurityFilter securityFilter = mock(SecurityFilter.class);
         final MockServiceReference securityFilterServiceReference = new MockServiceReference();
         securityFilterServiceReference.setProperties(new Hashtable());
@@ -326,6 +324,11 @@ public class DelegateServletFilterTest {
 
         // then
         verify(securityFilter).destroy();
+    }
+
+    @Test
+    public void testRemoveNullSecurityFilter() throws IOException, ServletException {
+        delegateServletFilter.removeSecurityFilter(null);
     }
 
     @Test

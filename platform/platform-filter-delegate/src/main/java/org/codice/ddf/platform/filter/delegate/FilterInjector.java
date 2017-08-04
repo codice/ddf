@@ -168,8 +168,9 @@ public class FilterInjector {
 
             filterReg.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, ALL_URLS);
         } catch (IllegalStateException ise) {
-            LOGGER.warn(
-                    "Could not inject DelegateServletFilter into {} because the servlet was already initialized.",
+            LOGGER.error(
+                    "Could not inject DelegateServletFilter into {} because the servlet was already initialized. This means that SecurityFilters will not be included in {}.",
+                    refBundle.getSymbolicName(),
                     refBundle.getSymbolicName(),
                     ise);
         }

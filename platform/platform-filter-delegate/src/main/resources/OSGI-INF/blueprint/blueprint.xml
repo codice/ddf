@@ -22,7 +22,7 @@
     </reference-list>
 
     <reference-list id="securityFilters" interface="org.codice.ddf.platform.filter.SecurityFilter"
-                    member-type="service-reference">
+                    member-type="service-reference" availability="optional">
         <reference-listener unbind-method="removeSecurityFilter" ref="delegateServletFilter"/>
     </reference-list>
 

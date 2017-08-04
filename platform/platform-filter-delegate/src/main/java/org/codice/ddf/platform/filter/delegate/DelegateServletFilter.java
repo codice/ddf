@@ -158,17 +158,19 @@ public class DelegateServletFilter implements Filter {
 
     public void removeSecurityFilter(
             final ServiceReference<SecurityFilter> securityFilterServiceReference) {
-        final BundleContext bundleContext = getContext();
+        if (securityFilterServiceReference != null) {
+            final BundleContext bundleContext = getContext();
 
-        if (bundleContext != null) {
-            // unmark the SecurityFilter as initialized so that it can be re-initialized if the SecurityFilter is registered again
-            keysOfInitializedSecurityFilters.remove(getFilterKey(securityFilterServiceReference,
-                    bundleContext));
-            bundleContext.getService(securityFilterServiceReference)
-                    .destroy();
-        } else {
-            LOGGER.warn(
-                    "Unable to remove SecurityFilter {}. Try restarting the system or turning up logging to monitor current SecurityFilters.");
+            if (bundleContext != null) {
+                // unmark the SecurityFilter as initialized so that it can be re-initialized if the SecurityFilter is registered again
+                keysOfInitializedSecurityFilters.remove(getFilterKey(securityFilterServiceReference,
+                        bundleContext));
+                bundleContext.getService(securityFilterServiceReference)
+                        .destroy();
+            } else {
+                LOGGER.warn(
+                        "Unable to remove SecurityFilter. Try restarting the system or turning up logging to monitor current SecurityFilters.");
+            }
         }
     }
 
