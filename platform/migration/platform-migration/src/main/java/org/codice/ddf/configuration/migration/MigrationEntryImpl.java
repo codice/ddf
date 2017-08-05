@@ -62,8 +62,8 @@ public abstract class MigrationEntryImpl<T extends MigrationContextImpl> impleme
      * @throws IllegalArgumentException if <code>context</code> or <code>path</code> is <code>null</code>
      */
     protected MigrationEntryImpl(T context, Path path) {
-        Validate.notNull(context, "invalid null migration context");
-        Validate.notNull(path, "invalid null entry path");
+        Validate.notNull(context, "invalid null context");
+        Validate.notNull(path, "invalid null path");
         this.context = context;
         this.path = path;
     }
@@ -88,8 +88,8 @@ public abstract class MigrationEntryImpl<T extends MigrationContextImpl> impleme
      * @throws IllegalArgumentException if <code>contextProvider</code> or <code>fqn</code> is <code>null</code> or empty
      */
     protected MigrationEntryImpl(Function<String, T> contextProvider, String fqn) {
-        Validate.notNull(contextProvider, "invalid null migration context provider");
-        Validate.notEmpty(fqn, "invalid fully qualified name");
+        Validate.notNull(contextProvider, "invalid null context provider");
+        Validate.notEmpty(fqn, "invalid null fully qualified name");
         final Path sfqn = Paths.get(MigrationEntryImpl.sanitizeSeparators(fqn));
         final int count = sfqn.getNameCount();
 
@@ -114,8 +114,10 @@ public abstract class MigrationEntryImpl<T extends MigrationContextImpl> impleme
      *
      * @param name the zip entry name to sanitize
      * @return the corresponding sanitized name
+     * @throws IllegalArgumentException if <code>name</code> is <code>null</code>
      */
     protected static String sanitizeSeparators(String name) {
+        Validate.notNull(name, "invalid null name");
         return FilenameUtils.separatorsToUnix(name);
     }
 
@@ -164,7 +166,7 @@ public abstract class MigrationEntryImpl<T extends MigrationContextImpl> impleme
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (o == this) {
             return true;
         } else if (o instanceof MigrationEntryImpl) {
@@ -176,11 +178,11 @@ public abstract class MigrationEntryImpl<T extends MigrationContextImpl> impleme
     }
 
     @Override
-    public int compareTo(MigrationEntry me) {
+    public int compareTo(@Nullable MigrationEntry me) {
         if (me == this) {
             return 0;
         } else if (me == null) {
-            return -1;
+            return 1;
         }
         final int c = getName().compareTo(me.getName());
 
@@ -192,6 +194,8 @@ public abstract class MigrationEntryImpl<T extends MigrationContextImpl> impleme
 
         if (id == null) {
             return (meid == null) ? 0 : -1;
+        } else if (meid == null) {
+            return 1;
         }
         return id.compareTo(meid);
     }

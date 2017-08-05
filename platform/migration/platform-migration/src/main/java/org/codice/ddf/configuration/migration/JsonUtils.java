@@ -55,7 +55,8 @@ public class JsonUtils {
      * @return the corresponding Json map or an empty one if none defined
      * @throws MigrationException if the specified entry is not a Json map
      */
-    public static Map<String, Object> getMapFrom(@Nullable Map<String, Object> map, @Nullable String key) {
+    public static Map<String, Object> getMapFrom(@Nullable Map<String, Object> map,
+            @Nullable String key) {
         final Map<String, Object> m = JsonUtils.getObjectFrom(Map.class, map, key, false);
 
         return (m != null) ? m : Collections.emptyMap();
@@ -69,7 +70,8 @@ public class JsonUtils {
      * @return the corresponding Json array as a list or an empty one if none defined
      * @throws MigrationException if the specified entry is not a Json array
      */
-    public static List<Object> getListFrom(Map<String, Object> map, String key) {
+    public static List<Object> getListFrom(@Nullable Map<String, Object> map,
+            @Nullable String key) {
         final List<Object> l = JsonUtils.getObjectFrom(List.class, map, key, false);
 
         return (l != null) ? l : Collections.emptyList();
@@ -87,7 +89,8 @@ public class JsonUtils {
      * @throws MigrationException if the specified entry is not a Json string or if it doesn't exist
      *                            and <code>required</code> is true
      */
-    public static String getStringFrom(Map<String, Object> map, String key, boolean required) {
+    public static String getStringFrom(@Nullable Map<String, Object> map, @Nullable String key,
+            boolean required) {
         return JsonUtils.getObjectFrom(String.class, map, key, required);
     }
 
@@ -103,7 +106,8 @@ public class JsonUtils {
      * @throws MigrationException if the specified entry is not a Json number or if it doesn't exist
      *                            and <code>required</code> is true
      */
-    public static Long getLongFrom(Map<String, Object> map, String key, boolean required) {
+    public static Long getLongFrom(@Nullable Map<String, Object> map, @Nullable String key,
+            boolean required) {
         final Number n = JsonUtils.getObjectFrom(Number.class, map, key, required);
 
         return (n != null) ? n.longValue() : null;
@@ -121,7 +125,8 @@ public class JsonUtils {
      * @throws MigrationException if the specified entry is not a Json boolean or if it doesn't exist
      *                            and <code>required</code> is true
      */
-    public static boolean getBooleanFrom(Map<String, Object> map, String key, boolean required) {
+    public static boolean getBooleanFrom(@Nullable Map<String, Object> map, @Nullable String key,
+            boolean required) {
         final Boolean b = JsonUtils.getObjectFrom(Boolean.class, map, key, required);
 
         return (b != null) ? b : false;

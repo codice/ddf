@@ -28,9 +28,7 @@ import javax.annotation.Nullable;
  * </b>
  * </p>
  */
-public class MigrationCompoundException extends RuntimeException {
-    private static final long serialVersionUID = 1;
-
+public class MigrationCompoundException extends MigrationException {
     /**
      * Instantiates a new exception.
      *

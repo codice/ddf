@@ -37,8 +37,7 @@ import org.slf4j.LoggerFactory;
 public class MigrationReportImpl implements MigrationReport {
     private static final Logger LOGGER = LoggerFactory.getLogger(MigrationReportImpl.class);
 
-    private final Set<Object> records = new LinkedHashSet<>();
-            // to prevent duplicated and maintain order
+    private final Set<Object> records;
 
     private final Deque<Consumer<MigrationReport>> codes = new LinkedList<>();
 
@@ -52,10 +51,18 @@ public class MigrationReportImpl implements MigrationReport {
 
     private long end = -1L;
 
+    /**
+     * Creates a new migration report.
+     *
+     * @param operation the type of migration operation for this report
+     * @throws IllegalArgumentException if <code>operation</code> is <code>null</code>
+     */
     public MigrationReportImpl(MigrationOperation operation) {
         Validate.notNull(operation, "invalid null operation");
         this.operation = operation;
         this.start = System.currentTimeMillis();
+        this.records =
+                new LinkedHashSet<>(); // LinkedHashSet to prevent duplicate and maintain order
     }
 
     /**
@@ -70,9 +77,19 @@ public class MigrationReportImpl implements MigrationReport {
         Validate.notNull(operation, "invalid null operation");
         Validate.notNull(report, "invalid null report");
         report.runCodes(); // to get all errors and warnings recorded
-        this.records.addAll(report.records);
+        this.records = report.records.stream()
+                .map(MigrationReportImpl::toWarning)
+                .collect(Collectors.toCollection(LinkedHashSet::new)); // LinkedHashSet to prevent duplicate and maintain order
+        this.numWarnings = records.size();
         this.operation = operation;
         this.start = report.getStartTime();
+    }
+
+    private static MigrationWarning toWarning(Object record) {
+        // by design it will always be either a warning or an error
+        return (record instanceof MigrationWarning) ?
+                (MigrationWarning) record :
+                new MigrationWarning((MigrationException) record);
     }
 
     @Override

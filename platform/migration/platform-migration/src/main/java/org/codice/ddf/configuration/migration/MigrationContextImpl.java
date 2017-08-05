@@ -211,7 +211,7 @@ public class MigrationContextImpl implements MigrationContext {
      * @param version    the migratable version
      * @throws IllegalArgumentException if <code>report</code> or <code>migratable</code> is <code>null</code>
      */
-    protected MigrationContextImpl(MigrationReport report, Migratable migratable, String version) {
+    protected MigrationContextImpl(MigrationReport report, Migratable migratable, @Nullable String version) {
         this(report, migratable);
         this.version = version;
     }
