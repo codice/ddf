@@ -13,9 +13,7 @@
  */
 package org.codice.ddf.configuration.migration;
 
-import org.powermock.core.classloader.annotations.PrepareForTest;
-
-@PrepareForTest(ConfigurationMigrationManager.class)
+//@PrepareForTest(ConfigurationMigrationManager.class)
 public class ConfigurationMigrationManagerTest {
 //
 //    @Rule

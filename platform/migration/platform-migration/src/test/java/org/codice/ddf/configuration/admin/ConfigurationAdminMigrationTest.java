@@ -13,15 +13,8 @@
  */
 package org.codice.ddf.configuration.admin;
 
-import java.nio.file.Files;
-
-import org.apache.commons.io.FileUtils;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-
-@RunWith(MockitoJUnitRunner.class)
-@PrepareForTest({ConfigurationAdminMigratable.class, FileUtils.class, Files.class})
+//@RunWith(MockitoJUnitRunner.class)
+//@PrepareForTest({ConfigurationAdminMigratable.class, FileUtils.class, Files.class})
 public class ConfigurationAdminMigrationTest {
 //
 //    @Rule

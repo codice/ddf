@@ -15,6 +15,8 @@ package org.codice.ddf.migration;
 
 import static org.apache.commons.lang.Validate.notNull;
 
+import org.apache.commons.lang.Validate;
+
 /**
  * Class that provides statuses for migration operations.
  * <p>
@@ -38,6 +40,17 @@ public class MigrationWarning {
     public MigrationWarning(String message) {
         notNull(message, "message cannot be null");
         this.message = message;
+    }
+
+    /**
+     * Constructor
+     *
+     * @param error migration exception to convert into a warning
+     * @throws IllegalArgumentException if <code>error</code> is <code>null</code>
+     */
+    public MigrationWarning(MigrationException error) {
+        Validate.notNull(error, "invalid null error");
+        this.message = error.getMessage();
     }
 
     public String getMessage() {
