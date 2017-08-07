@@ -119,7 +119,9 @@ public class FelixConfigTest {
 
     @Test
     public void testFileFromString() throws Exception {
-        PROPS_WITH_FELIX.put(FELIX_FILENAME_PROP, "file:" + temporaryFile.getAbsolutePath());
+        PROPS_WITH_FELIX.put(FELIX_FILENAME_PROP,
+                temporaryFile.toURI()
+                        .toString());
         felixConfig = new FelixConfig(configuration);
         assertThat(felixConfig.getFelixFile(), is(notNullValue()));
         assertThat(felixConfig.getFelixFile(), is(temporaryFile));
@@ -156,10 +158,13 @@ public class FelixConfigTest {
     @Test
     public void testSetFelixFile() throws Exception {
         ArgumentCaptor<Dictionary> captor = ArgumentCaptor.forClass(Dictionary.class);
-        URI uri = URI.create("file:/some/different/place");
+        URI uri = Paths.get("somewhere", "else")
+                .toUri();
         File file = new File(uri);
 
-        PROPS_WITH_FELIX.put(FELIX_FILENAME_PROP, "file:" + temporaryFile.getAbsolutePath());
+        PROPS_WITH_FELIX.put(FELIX_FILENAME_PROP,
+                temporaryFile.toURI()
+                        .toString());
 
         felixConfig = new FelixConfig(configuration);
         felixConfig.setFelixFile(file);
@@ -167,7 +172,9 @@ public class FelixConfigTest {
         verify(configuration).update(captor.capture());
         Dictionary<String, ?> params = captor.getValue();
 
-        assertThat(params.get(FELIX_FILENAME_PROP), is(uri.toString()));
+        assertThat(params.get(FELIX_FILENAME_PROP),
+                is(file.toURI()
+                        .toString()));
         assertThat(felixConfig.getFelixFile(), is(file));
     }
 
@@ -175,7 +182,9 @@ public class FelixConfigTest {
     public void testSetFelixFileDefaultStrategy() throws Exception {
         when(configuration.getPid()).thenReturn("pid");
         when(configuration.getFactoryPid()).thenReturn(null);
-        PROPS_WITH_FELIX.put(FELIX_FILENAME_PROP, "file:" + temporaryFile.getAbsolutePath());
+        PROPS_WITH_FELIX.put(FELIX_FILENAME_PROP,
+                temporaryFile.toURI()
+                        .toString());
         felixConfig = new FelixConfig(configuration);
         felixConfig.setFelixFile();
         File felixFile = felixConfig.getFelixFile();
@@ -186,7 +195,9 @@ public class FelixConfigTest {
     @Test
     public void testSetFelixFileDefaultStrategyWithFactory() throws Exception {
         when(configuration.getFactoryPid()).thenReturn("factoryPid");
-        PROPS_WITH_FELIX.put(FELIX_FILENAME_PROP, "file:" + temporaryFile.getAbsolutePath());
+        PROPS_WITH_FELIX.put(FELIX_FILENAME_PROP,
+                temporaryFile.toURI()
+                        .toString());
         felixConfig = new FelixConfig(configuration);
         felixConfig.setFelixFile();
         File felixFile = felixConfig.getFelixFile();
