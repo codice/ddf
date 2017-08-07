@@ -2352,27 +2352,16 @@ public class TestCatalog extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testIngestSanitization() throws Exception {
+    public void testIngestSanitizationBadFile() throws Exception {
         // DDF-3172 bad.files and bad.file.extensions in system.properties is not being respected
 
         // setup
         String fileName = "crossdomain.xml";    // filename in bad.files
-        String fileName2 = "bad_file.cgi";      // file extension in bad.file.extensions
 
         File tmpFile = createTemporaryFile(fileName, IOUtils.toInputStream("Test"));
-        File tmpFile2 = createTemporaryFile(fileName2, IOUtils.toInputStream("Test"));
 
         // ingest
         String id = given().multiPart(tmpFile)
-                .expect()
-                .log()
-                .headers()
-                .statusCode(HttpStatus.SC_CREATED)
-                .when()
-                .post(REST_PATH.getUrl())
-                .getHeader("id");
-
-        String id2 = given().multiPart(tmpFile2)
                 .expect()
                 .log()
                 .headers()
@@ -2386,13 +2375,40 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .all()
                 .assertThat()
                 .body(hasXPath(format(METACARD_X_PATH, id) + "/string[@name='title']/value",
-                        is("file.bin")))
-                .body(hasXPath(format(METACARD_X_PATH, id2) + "/string[@name='title']/value",
+                        is("file.bin")));
+
+        // clean up
+        deleteMetacard(id);
+    }
+
+    @Test
+    public void testIngestSanitizationBadExtension() throws Exception {
+        // DDF-3172 bad.files and bad.file.extensions in system.properties is not being respected
+
+        // setup
+        String fileName = "bad_file.cgi";      // file extension in bad.file.extensions
+
+        File tmpFile = createTemporaryFile(fileName, IOUtils.toInputStream("Test"));
+
+        // ingest
+        String id = given().multiPart(tmpFile)
+                .expect()
+                .log()
+                .headers()
+                .statusCode(HttpStatus.SC_CREATED)
+                .when()
+                .post(REST_PATH.getUrl())
+                .getHeader("id");
+
+        // query - check if sanitized properly
+        getOpenSearch("xml", null, null, "q=*").log()
+                .all()
+                .assertThat()
+                .body(hasXPath(format(METACARD_X_PATH, id) + "/string[@name='title']/value",
                         is("bad_file.bin")));
 
         // clean up
         deleteMetacard(id);
-        deleteMetacard(id2);
     }
 
     @Test
