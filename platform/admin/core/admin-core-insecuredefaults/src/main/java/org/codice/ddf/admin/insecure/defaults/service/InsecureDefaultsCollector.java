@@ -34,15 +34,15 @@ public class InsecureDefaultsCollector implements Runnable {
     private static final String BLACK_LIST =
             new AbsolutePathResolver("etc/keystores/blacklisted.jks").getPath();
 
-    private static final String BLACK_LIST_PASSWORD = "changeit";
+    private static final String BLACK_LIST_PASS = "changeit";
 
-    private static final String DEFAULT_KEYSTORE_PASSWORD = "changeit";
+    private static final String DEFAULT_KEYSTORE_PASS = "changeit";
 
     private static final String DEFAULT_KEYSTORE_ALIAS = "localhost";
 
-    private static final String DEFAULT_KEY_PASSWORD = "changeit";
+    private static final String DEFAULT_KEY_PASS = "changeit";
 
-    private static final String DEFAULT_TRUSTSTORE_PASSWORD = "changeit";
+    private static final String DEFAULT_TRUSTSTORE_PASS = "changeit";
 
     private static final String ISSUER_ENCRYPTION_PROPERTIES_FILE = new AbsolutePathResolver(
             "etc/ws-security/issuer/encryption.properties").getPath();
@@ -61,23 +61,23 @@ public class InsecureDefaultsCollector implements Runnable {
 
     private static final String DEFAULT_ADMIN_USER = "admin";
 
-    private static final String DEFAULT_ADMIN_USER_PASSWORD = "admin";
+    private static final String DEFAULT_ADMIN_USER_PASS = "admin";
 
     private static final String DEFAULT_CERTIFICATE_USER = "localhost";
 
-    private static final String DEFAULT_CERTIFICATE_USER_PASSWORD = "localhost";
+    private static final String DEFAULT_CERTIFICATE_USER_PASS = "localhost";
 
     private static final String PAX_WEB_CFG_FILE =
             new AbsolutePathResolver("etc/org.ops4j.pax.web.cfg").getPath();
 
     private static final String KEYSTORE_SYSTEM_PROPERTY = "javax.net.ssl.keyStore";
 
-    private static final String KEYSTORE_PASSWORD_SYSTEM_PROPERTY =
+    private static final String KEYSTORE_PASS_SYSTEM_PROPERTY =
             "javax.net.ssl.keyStorePassword";
 
     private static final String TRUSTSTORE_SYSTEM_PROPERTY = "javax.net.ssl.trustStore";
 
-    private static final String TRUSTSTORE_PASSWORD_SYSTEM_PROPERTY =
+    private static final String TRUSTSTORE_PASS_SYSTEM_PROPERTY =
             "javax.net.ssl.trustStorePassword";
 
     private List<Validator> validators = new ArrayList<>();
@@ -144,21 +144,21 @@ public class InsecureDefaultsCollector implements Runnable {
     private void addKeystoreValidator() {
         KeystoreValidator keystoreValidator = new KeystoreValidator();
         keystoreValidator.setBlacklistKeystorePath(Paths.get(BLACK_LIST));
-        keystoreValidator.setBlacklistKeystorePassword(BLACK_LIST_PASSWORD);
+        keystoreValidator.setBlacklistKeystorePassword(BLACK_LIST_PASS);
         keystoreValidator.setKeystorePath(Paths.get(getKeystorePath()));
         keystoreValidator.setKeystorePassword(getKeystorePassword());
-        keystoreValidator.setDefaultKeystorePassword(DEFAULT_KEYSTORE_PASSWORD);
-        keystoreValidator.setDefaultKeyPassword(DEFAULT_KEY_PASSWORD);
+        keystoreValidator.setDefaultKeystorePassword(DEFAULT_KEYSTORE_PASS);
+        keystoreValidator.setDefaultKeyPassword(DEFAULT_KEY_PASS);
         validators.add(keystoreValidator);
     }
 
     private void addTruststoreValidator() {
         KeystoreValidator truststoreValidator = new KeystoreValidator();
         truststoreValidator.setBlacklistKeystorePath(Paths.get(BLACK_LIST));
-        truststoreValidator.setBlacklistKeystorePassword(BLACK_LIST_PASSWORD);
+        truststoreValidator.setBlacklistKeystorePassword(BLACK_LIST_PASS);
         truststoreValidator.setKeystorePath(Paths.get(getTruststorePath()));
         truststoreValidator.setKeystorePassword(getTruststorePassword());
-        truststoreValidator.setDefaultKeystorePassword(DEFAULT_TRUSTSTORE_PASSWORD);
+        truststoreValidator.setDefaultKeystorePassword(DEFAULT_TRUSTSTORE_PASS);
         validators.add(truststoreValidator);
     }
 
@@ -166,7 +166,7 @@ public class InsecureDefaultsCollector implements Runnable {
         EncryptionPropertiesFileValidator encryptionPropertiesFileValidator =
                 new EncryptionPropertiesFileValidator();
         encryptionPropertiesFileValidator.setPath(Paths.get(ISSUER_ENCRYPTION_PROPERTIES_FILE));
-        encryptionPropertiesFileValidator.setDefaultPassword(DEFAULT_KEYSTORE_PASSWORD);
+        encryptionPropertiesFileValidator.setDefaultPassword(DEFAULT_KEYSTORE_PASS);
         encryptionPropertiesFileValidator.setDefaultAlias(DEFAULT_KEYSTORE_ALIAS);
         validators.add(encryptionPropertiesFileValidator);
     }
@@ -176,11 +176,10 @@ public class InsecureDefaultsCollector implements Runnable {
                 new SignaturePropertiesFileValidator();
         issuerSignatureEncryptionPropertiesFileValidator.setPath(Paths.get(
                 ISSUER_SIGNATURE_PROPERTIES_FILE));
-        issuerSignatureEncryptionPropertiesFileValidator.setDefaultPassword(
-                DEFAULT_KEYSTORE_PASSWORD);
+        issuerSignatureEncryptionPropertiesFileValidator.setDefaultPassword(DEFAULT_KEYSTORE_PASS);
         issuerSignatureEncryptionPropertiesFileValidator.setDefaultAlias(DEFAULT_KEYSTORE_ALIAS);
         issuerSignatureEncryptionPropertiesFileValidator.setDefaultPrivateKeyPassword(
-                DEFAULT_KEY_PASSWORD);
+                DEFAULT_KEY_PASS);
         validators.add(issuerSignatureEncryptionPropertiesFileValidator);
     }
 
@@ -188,9 +187,9 @@ public class InsecureDefaultsCollector implements Runnable {
         EncryptionPropertiesFileValidator encryptionPropertiesFileValidator =
                 new EncryptionPropertiesFileValidator();
         encryptionPropertiesFileValidator.setPath(Paths.get(SERVER_ENCRYPTION_PROPERTIES_FILE));
-        encryptionPropertiesFileValidator.setDefaultPassword(DEFAULT_KEYSTORE_PASSWORD);
+        encryptionPropertiesFileValidator.setDefaultPassword(DEFAULT_KEYSTORE_PASS);
         encryptionPropertiesFileValidator.setDefaultAlias(DEFAULT_KEYSTORE_ALIAS);
-        encryptionPropertiesFileValidator.setDefaultPrivateKeyPassword(DEFAULT_KEY_PASSWORD);
+        encryptionPropertiesFileValidator.setDefaultPrivateKeyPassword(DEFAULT_KEY_PASS);
         validators.add(encryptionPropertiesFileValidator);
     }
 
@@ -199,11 +198,10 @@ public class InsecureDefaultsCollector implements Runnable {
                 new SignaturePropertiesFileValidator();
         issuerSignatureEncryptionPropertiesFileValidator.setPath(Paths.get(
                 SERVER_SIGNATURE_PROPERTIES_FILE));
-        issuerSignatureEncryptionPropertiesFileValidator.setDefaultPassword(
-                DEFAULT_KEYSTORE_PASSWORD);
+        issuerSignatureEncryptionPropertiesFileValidator.setDefaultPassword(DEFAULT_KEYSTORE_PASS);
         issuerSignatureEncryptionPropertiesFileValidator.setDefaultAlias(DEFAULT_KEYSTORE_ALIAS);
         issuerSignatureEncryptionPropertiesFileValidator.setDefaultPrivateKeyPassword(
-                DEFAULT_KEY_PASSWORD);
+                DEFAULT_KEY_PASS);
         validators.add(issuerSignatureEncryptionPropertiesFileValidator);
     }
 
@@ -212,10 +210,9 @@ public class InsecureDefaultsCollector implements Runnable {
                 new UsersPropertiesFileValidator();
         userPropertiesFileValidator.setPath(Paths.get(USERS_PROPERTIES_FILE));
         userPropertiesFileValidator.setDefaultAdminUser(DEFAULT_ADMIN_USER);
-        userPropertiesFileValidator.setDefaultAdminUserPassword(DEFAULT_ADMIN_USER_PASSWORD);
+        userPropertiesFileValidator.setDefaultAdminUserPassword(DEFAULT_ADMIN_USER_PASS);
         userPropertiesFileValidator.setDefaultCertificateUser(DEFAULT_CERTIFICATE_USER);
-        userPropertiesFileValidator.setDefaultCertificateUserPassword(
-                DEFAULT_CERTIFICATE_USER_PASSWORD);
+        userPropertiesFileValidator.setDefaultCertificateUserPassword(DEFAULT_CERTIFICATE_USER_PASS);
         validators.add(userPropertiesFileValidator);
     }
 
@@ -236,7 +233,7 @@ public class InsecureDefaultsCollector implements Runnable {
     }
 
     private String getKeystorePassword() {
-        String keystorePassword = System.getProperty(KEYSTORE_PASSWORD_SYSTEM_PROPERTY);
+        String keystorePassword = System.getProperty(KEYSTORE_PASS_SYSTEM_PROPERTY);
         return keystorePassword;
     }
 
@@ -245,7 +242,7 @@ public class InsecureDefaultsCollector implements Runnable {
     }
 
     private String getTruststorePassword() {
-        return System.getProperty(TRUSTSTORE_PASSWORD_SYSTEM_PROPERTY);
+        return System.getProperty(TRUSTSTORE_PASS_SYSTEM_PROPERTY);
     }
 
     /**
