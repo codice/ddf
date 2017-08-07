@@ -84,7 +84,7 @@ public class ImportMigrationJavaPropertyReferencedEntryImpl
                         getPath(),
                         "it is empty or blank"));
             } else {
-                if (!apath.equals(MigrationEntryImpl.DDF_HOME.resolve(Paths.get(val)))) {
+                if (!apath.equals(MigrationContextImpl.resolve(Paths.get(val)))) {
                     r.record(new ImportPathMigrationException(propertiesPath,
                             getProperty(),
                             getPath(),
@@ -99,7 +99,7 @@ public class ImportMigrationJavaPropertyReferencedEntryImpl
         InputStream is = null;
 
         try {
-            is = new BufferedInputStream(new FileInputStream(MigrationEntryImpl.DDF_HOME.resolve(
+            is = new BufferedInputStream(new FileInputStream(MigrationContextImpl.resolve(
                     propertiesPath)
                     .toFile()));
             props.load(is);

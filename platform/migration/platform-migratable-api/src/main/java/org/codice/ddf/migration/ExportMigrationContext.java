@@ -43,21 +43,22 @@ public interface ExportMigrationContext extends MigrationContext {
      * @return a new migration entry or the existing one if already created for the migration entry
      * referenced from the specified system property value or empty if the property is not defined or
      * its value is blank
+     * @throws IllegalArgumentException if <code>name</code> is <code>null</code>
      */
     public default Optional<ExportMigrationEntry> getSystemPropertyReferencedEntry(String name) {
-        return getSystemPropertyReferencedEntry(name, (r, n) -> true);
+        return getSystemPropertyReferencedEntry(name, (r, v) -> true);
     }
 
     /**
      * Creates or retrieves (if already created) a migration entry referenced from the specified system
      * property to be exported by the corresponding migratable.
      * <p>
-     * The provided predicate will be invoked with the property value (may be <code>null</code> if not
-     * defined). In case the property is not defined or is blank, an error will be automatically
-     * recorded unless the predicate returns <code>false</code>. Returning <code>true</code> in such
-     * case will still not create a corresponding migration entry. In all other cases, no errors or
-     * warning will be generated if the predicate returns <code>false</code> so it is up to the
-     * predicate to record one if required.
+     * The provided predicate will be invoked with the associated migration report and the property
+     * value (may be <code>null</code> if not defined). In case the property is not defined or is
+     * blank, an error will be automatically recorded unless the predicate returns <code>false</code>.
+     * Returning <code>true</code> in such case will still not create a corresponding migration entry.
+     * In all other cases, no errors or warning will be generated if the predicate returns <code>false</code>
+     * so it is up to the predicate to record one if required.
      *
      * @param name      the name of the system property referencing a migration entry to create or retrieve
      * @param validator a predicate to be invoked to validate the property value further which must
@@ -65,13 +66,16 @@ public interface ExportMigrationContext extends MigrationContext {
      * @return a new migration entry or the existing one if already created for the migration entry
      * referenced from the specified system property value or empty if the property is not defined or
      * is invalid
+     * @throws IllegalArgumentException if <code>name</code> or <code>validator</code> is <code>null</code>
      */
     public Optional<ExportMigrationEntry> getSystemPropertyReferencedEntry(String name,
             BiPredicate<MigrationReport, String> validator);
 
     /**
      * Creates or retrieves (if already created) a migration entry to be exported by the corresponding
-     * migratable corresponding to the specied path.
+     * migratable corresponding to the specified path.
+     * <p>
+     * <i>Note:</i> Absolute paths that are under ${ddf.home} are automatically relativized.
      *
      * @param path the path of the file to be exported
      * @return a new migration entry for the corresponding migratable or the existing one if already
@@ -83,6 +87,8 @@ public interface ExportMigrationContext extends MigrationContext {
     /**
      * Recursively walks the provided path's tree to create or retrieve (if already created) entries
      * for all files found and returns existing or new migration entries for each one of them.
+     * <p>
+     * <i>Note:</i> Absolute paths that are under ${ddf.home} are automatically relativized.
      *
      * @param path the path to the directory to recursively walk
      * @return a stream of all created or retrieved entries corresponding to all files recursively
@@ -95,6 +101,8 @@ public interface ExportMigrationContext extends MigrationContext {
      * Recursively walks the provided path's tree to create or retrieve (if already created) entries
      * for all files found that matches the provided path filter and returns existing or new migration
      * entries for each one of them.
+     * <p>
+     * <i>Note:</i> Absolute paths that are under ${ddf.home} are automatically relativized.
      *
      * @param path   the path to the directory to recursively walk
      * @param filter the path filter to use

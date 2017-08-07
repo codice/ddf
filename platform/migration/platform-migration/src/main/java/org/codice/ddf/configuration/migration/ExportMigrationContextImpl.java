@@ -81,9 +81,18 @@ public class ExportMigrationContextImpl extends MigrationContextImpl
      */
     public ExportMigrationContextImpl(MigrationReport report, Migratable migratable,
             ZipOutputStream zos) {
-        super(report, migratable, migratable.getVersion());
+        super(report,
+                migratable,
+                ExportMigrationContextImpl.validateNotNull(migratable, "invalid null migratable")
+                        .getVersion());
+        Validate.notNull(zos, "invalid null zip output stream");
         this.report = new ExportMigrationReportImpl(report, migratable);
         this.zos = zos;
+    }
+
+    private static <T> T validateNotNull(T t, String msg) {
+        Validate.notNull(t, msg);
+        return t;
     }
 
     @Override
@@ -95,6 +104,7 @@ public class ExportMigrationContextImpl extends MigrationContextImpl
     public Optional<ExportMigrationEntry> getSystemPropertyReferencedEntry(String name,
             BiPredicate<MigrationReport, String> validator) {
         Validate.notNull(name, "invalid null system property name");
+        Validate.notNull(validator, "invalid null validator");
         final ExportMigrationSystemPropertyReferencedEntryImpl me = systemProperties.get(name);
 
         if (me != null) {
@@ -109,30 +119,39 @@ public class ExportMigrationContextImpl extends MigrationContextImpl
                     "System property [%s] is not defined",
                     name)));
             return Optional.empty();
-        } else if (val == null) {
+        } else if (val.isEmpty()) {
             report.record(new ExportMigrationException(String.format("System property [%s] is empty",
                     name)));
             return Optional.empty();
         }
-        return Optional.of(new ExportMigrationSystemPropertyReferencedEntryImpl(this, name, val));
+        final ExportMigrationSystemPropertyReferencedEntryImpl sprop =
+                new ExportMigrationSystemPropertyReferencedEntryImpl(this, name, val);
+
+        systemProperties.put(name, sprop);
+        return Optional.of(sprop);
     }
 
     @Override
     public ExportMigrationEntry getEntry(Path path) {
         Validate.notNull(path, "invalid null path");
-        return entries.computeIfAbsent(path, p -> new ExportMigrationEntryImpl(this, p));
+        final Path rpath = MigrationContextImpl.relativize(path);
+
+        return entries.computeIfAbsent(rpath, p -> new ExportMigrationEntryImpl(this, p));
     }
 
     @Override
     public Stream<ExportMigrationEntry> entries(Path path) {
         Validate.notNull(path, "invalid null path");
-        final File file = path.toFile();
+        final File file = MigrationContextImpl.resolve(path)
+                .toFile();
 
         if (!file.exists()) {
-            report.record(new ExportPathMigrationException(path, "does not exist"));
+            report.record(new ExportPathMigrationException(MigrationContextImpl.relativize(path),
+                    "does not exist"));
             return Stream.empty();
         } else if (!file.isDirectory()) {
-            report.record(new ExportPathMigrationException(path, "is not a directory"));
+            report.record(new ExportPathMigrationException(MigrationContextImpl.relativize(path),
+                    "is not a directory"));
             return Stream.empty();
         }
         return FileUtils.listFiles(file, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE)
@@ -145,18 +164,22 @@ public class ExportMigrationContextImpl extends MigrationContextImpl
     public Stream<ExportMigrationEntry> entries(Path path, PathMatcher filter) {
         Validate.notNull(path, "invalid null path");
         Validate.notNull(filter, "invalid null filter");
-        final File file = path.toFile();
+        final File file = MigrationContextImpl.resolve(path)
+                .toFile();
 
         if (!file.exists()) {
-            report.record(new ExportPathMigrationException(path, "does not exist"));
+            report.record(new ExportPathMigrationException(MigrationContextImpl.relativize(path),
+                    "does not exist"));
             return Stream.empty();
         } else if (!file.isDirectory()) {
-            report.record(new ExportPathMigrationException(path, "is not a directory"));
+            report.record(new ExportPathMigrationException(MigrationContextImpl.relativize(path),
+                    "is not a directory"));
             return Stream.empty();
         }
         return FileUtils.listFiles(file, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE)
                 .stream()
                 .map(File::toPath)
+                .map(MigrationContextImpl::relativize)
                 .filter(filter::matches)
                 .map(this::getEntry);
     }

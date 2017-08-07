@@ -32,10 +32,6 @@ import org.slf4j.LoggerFactory;
  * This class provides an abstract and base implementation of the {@link MigrationEntry}.
  */
 public abstract class MigrationEntryImpl<T extends MigrationContextImpl> implements MigrationEntry {
-    protected static final Path DDF_HOME = Paths.get(System.getProperty("ddf.home"));
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(MigrationEntryImpl.class);
-
     static final String METADATA_NAME = "name";
 
     static final String METADATA_CHECKSUM = "checksum";
@@ -48,6 +44,8 @@ public abstract class MigrationEntryImpl<T extends MigrationContextImpl> impleme
 
     static final String METADATA_REFERENCE = "reference";
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(MigrationEntryImpl.class);
+
     protected final T context;
 
     protected final Path path;
@@ -56,6 +54,8 @@ public abstract class MigrationEntryImpl<T extends MigrationContextImpl> impleme
 
     /**
      * Instantiates a new migration entry given a migratable context and entry name.
+     * <p>
+     * <i>Note:</i> Absolute paths that are under the ${ddf.home} path will be relativize automatically.
      *
      * @param context the migration context associated with this entry
      * @param path    the entry's actual path
@@ -65,11 +65,13 @@ public abstract class MigrationEntryImpl<T extends MigrationContextImpl> impleme
         Validate.notNull(context, "invalid null context");
         Validate.notNull(path, "invalid null path");
         this.context = context;
-        this.path = path;
+        this.path = MigrationContextImpl.relativize(path);
     }
 
     /**
      * Instantiates a new migration entry given a migratable context and entry name.
+     * <p>
+     * <i>Note:</i> Absolute paths that are under the ${ddf.home} path will be relativize automatically.
      *
      * @param context the migration context associated with this entry
      * @param name    the entry's actual name
@@ -211,7 +213,7 @@ public abstract class MigrationEntryImpl<T extends MigrationContextImpl> impleme
      * @return an absolute path based on the current distribution
      */
     protected Path getAbsolutePath() {
-        return MigrationEntryImpl.DDF_HOME.resolve(path);
+        return MigrationContextImpl.resolve(path);
     }
 
     T getContext() {

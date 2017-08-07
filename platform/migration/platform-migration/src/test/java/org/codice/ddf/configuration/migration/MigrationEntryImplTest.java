@@ -22,15 +22,12 @@ import org.codice.ddf.migration.MigrationReport;
 import org.codice.ddf.test.util.ThrowableMatchers;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
-public class MigrationEntryImplTest {
-    private static final String DEFAULT_DDF_HOME = "/opt/ddf";
-
+public class MigrationEntryImplTest extends AbstractMigrationTest {
     private static final String UNIX_NAME = "path/path2/file.ext";
 
     private static final String WINDOWS_NAME = "path\\path2\\file.ext";
@@ -57,16 +54,6 @@ public class MigrationEntryImplTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    @BeforeClass
-    public static void beforeClass() throws Exception {
-        System.setProperty("ddf.home", DEFAULT_DDF_HOME);
-    }
-
-    @Test
-    public void testDDF_HOMEInitialization() throws Exception {
-        Assert.assertThat(MigrationEntryImpl.DDF_HOME, Matchers.equalTo(Paths.get("/opt", "ddf")));
-    }
-
     @Test
     public void testSanitizeSeparatorsWithLinuxSeparators() throws Exception {
         Assert.assertThat(MigrationEntryImpl.sanitizeSeparators(UNIX_NAME),
@@ -86,7 +73,7 @@ public class MigrationEntryImplTest {
     }
 
     @Test
-    public void testConstructorWithPath() {
+    public void testConstructorWithRelativePath() {
         final MigrationEntryImpl ENTRY = Mockito.mock(MigrationEntryImpl.class,
                 Mockito.withSettings()
                         .useConstructor(CONTEXT, FILE_PATH)
@@ -94,6 +81,34 @@ public class MigrationEntryImplTest {
 
         Assert.assertThat(ENTRY.getContext(), Matchers.sameInstance(CONTEXT));
         Assert.assertThat(ENTRY.getPath(), Matchers.equalTo(FILE_PATH));
+    }
+
+    @Test
+    public void testConstructorWithAbsolutePathUnderDDFHome() {
+        final Path ABSOLUTE_FILE_PATH = DDF_HOME.resolve(UNIX_NAME)
+                .toAbsolutePath();
+
+        final MigrationEntryImpl ENTRY = Mockito.mock(MigrationEntryImpl.class,
+                Mockito.withSettings()
+                        .useConstructor(CONTEXT, ABSOLUTE_FILE_PATH)
+                        .defaultAnswer(Mockito.CALLS_REAL_METHODS));
+
+        Assert.assertThat(ENTRY.getContext(), Matchers.sameInstance(CONTEXT));
+        Assert.assertThat(ENTRY.getPath(), Matchers.equalTo(FILE_PATH));
+    }
+
+    @Test
+    public void testConstructorWithAbsolutePathNotUnderDDFHome() {
+        final String ABSOLUTE_UNIX_NAME = "/path/path2/file.ext";
+        final Path ABSOLUTE_FILE_PATH = Paths.get(ABSOLUTE_UNIX_NAME);
+
+        final MigrationEntryImpl ENTRY = Mockito.mock(MigrationEntryImpl.class,
+                Mockito.withSettings()
+                        .useConstructor(CONTEXT, ABSOLUTE_FILE_PATH)
+                        .defaultAnswer(Mockito.CALLS_REAL_METHODS));
+
+        Assert.assertThat(ENTRY.getContext(), Matchers.sameInstance(CONTEXT));
+        Assert.assertThat(ENTRY.getPath(), Matchers.equalTo(ABSOLUTE_FILE_PATH));
     }
 
     @Test
@@ -407,8 +422,6 @@ public class MigrationEntryImplTest {
 
     @Test
     public void testGetAbsolutePath() {
-        Assert.assertThat(ENTRY.getAbsolutePath(),
-                Matchers.equalTo(Paths.get(DEFAULT_DDF_HOME)
-                        .resolve(FILE_PATH)));
+        Assert.assertThat(ENTRY.getAbsolutePath(), Matchers.equalTo(DDF_HOME.resolve(FILE_PATH)));
     }
 }

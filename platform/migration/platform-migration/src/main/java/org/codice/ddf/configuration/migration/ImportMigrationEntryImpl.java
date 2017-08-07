@@ -114,7 +114,7 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl<ImportMigration
                 importer.apply(getReport(), getInputStream());
             } catch (IOException e) {
                 getReport().record(new ImportPathMigrationException(path,
-                        String.format("failed to copy to [%s]", MigrationEntryImpl.DDF_HOME),
+                        String.format("failed to copy to [%s]", MigrationContextImpl.DDF_HOME),
                         e));
             } catch (MigrationException e) {
                 throw e;

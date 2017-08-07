@@ -56,7 +56,7 @@ public interface ImportMigrationContext extends MigrationContext {
      * Retrieves a migration entry that was exported by the corresponding migratable with the given
      * path.
      *
-     * @param path the path of the file that was exported
+     * @param path the path of the file that was exported (should be relative to ${ddf.home})
      * @return the corresponding migration entry or empty it it was not migrated by the corresponding
      * migratable
      * @throws IllegalArgumentException if <code>path</code> is <code>null</code>
@@ -74,6 +74,7 @@ public interface ImportMigrationContext extends MigrationContext {
      * Retrieves all exported migration entries located underneath the provided relative path.
      *
      * @param path the path to the directory for which to retrieve all exported migration entries
+     *             (should be relative to ${ddf.home})
      * @return a stream of all migration entries located under <code>path</code>
      * @throws IllegalArgumentException if <code>path</code> is <code>null</code>
      */
@@ -84,7 +85,7 @@ public interface ImportMigrationContext extends MigrationContext {
      * matches the provided path filter.
      *
      * @param path   the path to the directory for which to retrieve all exported migration entries that
-     *               matched the given filter
+     *               matched the given filter (should be relative to ${ddf.home})
      * @param filter the path filter to use
      * @return a stream of all migration entries located under <code>path</code> that matches the given
      * filter
@@ -97,7 +98,7 @@ public interface ImportMigrationContext extends MigrationContext {
      * <p>
      * Errors and/or warnings will automatically be recorded with the migration report.
      *
-     * @param path the directory to recursively clean
+     * @param path the directory to recursively clean (can be relative to ${ddf.home})
      * @return <code>true</code> if the directory was cleaned; <code>false</code> otherwise
      * @throws IllegalArgumentException if <code>path</code> is <code>null</code>
      */

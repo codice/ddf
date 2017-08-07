@@ -62,7 +62,7 @@ public class ImportMigrationSystemPropertyReferencedEntryImpl
                         getPath(),
                         "it is empty or blank"));
             } else {
-                if (!apath.equals(MigrationEntryImpl.DDF_HOME.resolve(Paths.get(val)))) {
+                if (!apath.equals(MigrationContextImpl.resolve(Paths.get(val)))) {
                     r.record(new ImportPathMigrationException(getProperty(),
                             getPath(),
                             "it now references [" + val + ']'));

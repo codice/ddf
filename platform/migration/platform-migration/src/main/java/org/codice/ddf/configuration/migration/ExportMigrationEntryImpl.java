@@ -77,6 +77,7 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl<ExportMigration
         return file.length();
     }
 
+    @Override
     public OutputStream getOutputStream() throws IOException {
         try {
             return outputStream.updateAndGet(os -> (os != null) ?
@@ -135,17 +136,18 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl<ExportMigration
                         name,
                         path)));
                 return Optional.empty();
-            } else if (val == null) {
+            } else if (val.isEmpty()) {
                 getReport().record(new ExportMigrationException(String.format(
                         "Java property [%s] from [%s] is empty",
                         name,
                         path)));
                 return Optional.empty();
             }
-            return Optional.of(new ExportMigrationJavaPropertyReferencedEntryImpl(context,
-                    path,
-                    name,
-                    val));
+            final ExportMigrationJavaPropertyReferencedEntryImpl prop =
+                    new ExportMigrationJavaPropertyReferencedEntryImpl(context, path, name, val);
+
+            properties.put(name, prop);
+            return Optional.of(prop);
         } catch (IOException e) {
             getReport().record(new ExportMigrationException(String.format(
                     "unable to retrieve Java property [%s] from [%s]; failed to load property file",
@@ -182,9 +184,9 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl<ExportMigration
         } else {
             try {
                 if (!apath.toRealPath()
-                        .startsWith(MigrationEntryImpl.DDF_HOME.toRealPath())) {
+                        .startsWith(MigrationContextImpl.DDF_HOME.toRealPath())) {
                     report.recordExternal(this, false);
-                    recordWarning(String.format("is outside [%s]", MigrationEntryImpl.DDF_HOME));
+                    recordWarning(String.format("is outside [%s]", MigrationContextImpl.DDF_HOME));
                     return false;
                 }
             } catch (IOException e) {
@@ -208,7 +210,7 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl<ExportMigration
         InputStream is = null;
 
         try {
-            is = new BufferedInputStream(new FileInputStream(MigrationEntryImpl.DDF_HOME.resolve(
+            is = new BufferedInputStream(new FileInputStream(MigrationContextImpl.resolve(
                     path)
                     .toFile()));
             props.load(is);

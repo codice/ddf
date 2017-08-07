@@ -211,9 +211,34 @@ public class MigrationContextImpl implements MigrationContext {
      * @param version    the migratable version
      * @throws IllegalArgumentException if <code>report</code> or <code>migratable</code> is <code>null</code>
      */
-    protected MigrationContextImpl(MigrationReport report, Migratable migratable, @Nullable String version) {
+    protected MigrationContextImpl(MigrationReport report, Migratable migratable,
+            @Nullable String version) {
         this(report, migratable);
         this.version = version;
+    }
+
+    /**
+     * Resolves the specified path against ${ddf.home}.
+     *
+     * @param path the path to resolve
+     * @return the corresponding path resolved against ${ddf.home} if it is relative;
+     * otherwise <code>path</code>
+     */
+    protected static Path resolve(Path path) {
+        return MigrationContextImpl.DDF_HOME.resolve(path);
+    }
+
+    /**
+     * Relativizes the specified path from ${ddf.home}.
+     *
+     * @param path the path to relativize
+     * @return the corresponding path relative to ${ddf.home} if it is located under ${ddf.home};
+     * otherwise <code>path</code>
+     */
+    protected static Path relativize(Path path) {
+        return !path.startsWith(MigrationContextImpl.DDF_HOME) ?
+                path :
+                MigrationContextImpl.DDF_HOME.relativize(path);
     }
 
     @Override
