@@ -17,9 +17,10 @@ define([
         'marionette',
         'text!templates/alerts.handlebars',
         'icanhaz',
-        'jquery'
+        'jquery',
+        'underscore'
     ],
-    function (Marionette, alertsTemplate, ich, $) {
+    function (Marionette, alertsTemplate, ich, $, _) {
 
         ich.addTemplate('alertsTemplate', alertsTemplate);
 
@@ -45,8 +46,18 @@ define([
             },
             serializeData: function () {
                 var json = this.model.toJSON();
+                json.showChevron = true;
+                json.details = _.map(json.details, function(val){
+                    if(val.message !== undefined){
+                        json.showChevron = false;
+                        return val.message;
+                    }
+                    return val;
+                });
                 json.collapseId = 'alertCollapse_' + parseInt((Math.random() * Math.pow(2, 32)), 10);
                 switch (this.model.get('priority')) {
+                    case 1:
+                    case'1':
                     case 2:
                     case'2':
                         json.level = 'info';
@@ -60,7 +71,7 @@ define([
                         json.level = 'danger';
                         break;
                     default:
-                        json.level = 'info';
+                        json.level = 'danger';
                         break;
                 }
                 return json;
