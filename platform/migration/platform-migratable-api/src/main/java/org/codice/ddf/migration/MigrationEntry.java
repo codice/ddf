@@ -44,16 +44,20 @@ public interface MigrationEntry extends Comparable<MigrationEntry> {
     public String getId();
 
     /**
-     * Gets name (i.e. relative path) for this entry.
+     * Gets name for this entry.
+     * <p>
+     * <i>Note:</i> Absolute path names that are under ${ddf.home} are automatically relativized.
      *
      * @return the name for this entry
      */
     public String getName();
 
     /**
-     * Gets a {@link Path} (i.e. relative path) for this entry.
+     * Gets a {@link Path} for this entry.
+     * <p>
+     * <i>Note:</i> Absolute paths that are under ${ddf.home} are automatically relativized.
      *
-     * @return a relative path for this entry
+     * @return a path for this entry
      */
     public default Path getPath() {
         return Paths.get(getName());

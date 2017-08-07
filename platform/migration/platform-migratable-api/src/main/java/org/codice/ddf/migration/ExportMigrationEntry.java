@@ -53,12 +53,12 @@ public interface ExportMigrationEntry extends MigrationEntry {
      * in the properties file associated with this migration entry to be exported by the corresponding
      * migratable.
      * <p>
-     * The provided predicate will be invoked with the property value (may be <code>null</code> if not
-     * defined). In case the property is not defined or is blank, an error will be automatically
-     * recorded unless the predicate returns <code>false</code>. Returning <code>true</code> in such
-     * case will still not create a corresponding migration entry. In all other cases, no errors or
-     * warning will be generated if the predicate returns <code>false</code> so it is up to the
-     * predicate to record one if required.
+     * The provided predicate will be invoked with the associated migration report and the property
+     * value (may be <code>null</code> if not defined). In case the property is not defined or is
+     * blank, an error will be automatically recorded unless the predicate returns <code>false</code>.
+     * Returning <code>true</code> in such case will still not create a corresponding migration entry.
+     * In all other cases, no errors or warning will be generated if the predicate returns <code>false</code>
+     * so it is up to the predicate to record one if required.
      *
      * @param name      the name of the property referencing a migration entry to create or retrieve
      * @param validator a predicate to be invoked to validate the property value further which must

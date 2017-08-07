@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.configuration.migration;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Map;
 
@@ -23,7 +25,6 @@ import org.codice.ddf.migration.MigrationReport;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -31,9 +32,7 @@ import org.mockito.Mockito;
 
 import com.google.common.collect.ImmutableMap;
 
-public class MigrationContextImplTest {
-    private static final String DEFAULT_DDF_HOME = "/opt/ddf";
-
+public class MigrationContextImplTest extends AbstractMigrationTest {
     private static final String MIGRATABLE_ID = "test-migratable";
 
     private static final String VERSION = "3.1415";
@@ -45,14 +44,64 @@ public class MigrationContextImplTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    @BeforeClass
-    public static void beforeClass() throws Exception {
-        System.setProperty("ddf.home", DEFAULT_DDF_HOME);
-    }
-
     @Before
     public void before() throws Exception {
         Mockito.when(MIGRATABLE.getId()).thenReturn(MIGRATABLE_ID);
+    }
+
+    @Test
+    public void testDDF_HOMEInitialization() throws Exception {
+        Assert.assertThat(MigrationContextImpl.DDF_HOME, Matchers.equalTo(DDF_HOME));
+    }
+
+    @Test
+    public void testResolveWhenPathIsRelative() throws Exception {
+        final Path PATH = Paths.get("etc/test.cfg");
+
+        final Path path = MigrationContextImpl.resolve(PATH);
+
+        Assert.assertThat(path.isAbsolute(), Matchers.equalTo(true));
+        Assert.assertThat(path, Matchers.equalTo(DDF_HOME.resolve(PATH)));
+    }
+
+    @Test
+    public void testResolveWhenPathIsAbsolute() throws Exception {
+        final Path PATH = Paths.get("/etc/test.cfg");
+
+        final Path path = MigrationContextImpl.resolve(PATH);
+
+        Assert.assertThat(path.isAbsolute(), Matchers.equalTo(true));
+        Assert.assertThat(path, Matchers.sameInstance(PATH));
+    }
+
+    @Test
+    public void testRelativizeWhenPathIsRelative() throws Exception {
+        final Path PATH = Paths.get("etc/test.cfg");
+
+        final Path path = MigrationContextImpl.relativize(PATH);
+
+        Assert.assertThat(path.isAbsolute(), Matchers.equalTo(false));
+        Assert.assertThat(path, Matchers.sameInstance(PATH));
+    }
+
+    @Test
+    public void testRelativizeWhenPathIsAbsoluteOutsideOfDDFHome() throws Exception {
+        final Path PATH = Paths.get("/etc/test.cfg");
+
+        final Path path = MigrationContextImpl.relativize(PATH);
+
+        Assert.assertThat(path.isAbsolute(), Matchers.equalTo(true));
+        Assert.assertThat(path, Matchers.sameInstance(PATH));
+    }
+
+    @Test
+    public void testRelativizeWhenPathIsAbsoluteUnderDDFHome() throws Exception {
+        final Path PATH = DDF_HOME.resolve("etc").resolve("test.cfg");
+
+        final Path path = MigrationContextImpl.relativize(PATH);
+
+        Assert.assertThat(path.isAbsolute(), Matchers.equalTo(false));
+        Assert.assertThat(path, Matchers.equalTo(Paths.get("etc/test.cfg")));
     }
 
     @Test
