@@ -493,8 +493,6 @@ public class SolrFilterDelegateTest {
         assertThat(solrQuery.getQuery(), is(expectedQuery));
     }
 
-
-
     private Date getCannedTime() {
         return getCannedTime(1995, Calendar.NOVEMBER, 24, 23);
     }

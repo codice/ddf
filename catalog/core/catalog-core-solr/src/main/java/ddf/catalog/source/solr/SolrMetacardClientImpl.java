@@ -81,6 +81,8 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     private static final String GEOMETRY_SORT_FIELD =
             Metacard.GEOGRAPHY + SchemaFields.GEO_SUFFIX + SchemaFields.SORT_KEY_SUFFIX;
 
+    private static final String EXT_SORT_BY = "EXT_SORT_BY";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(SolrMetacardClientImpl.class);
 
     private static final String QUOTE = "\"";
@@ -317,8 +319,22 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
     protected SolrQuery getSolrQuery(QueryRequest request, SolrFilterDelegate solrFilterDelegate)
             throws UnsupportedQueryException {
-        solrFilterDelegate.setSortPolicy(request.getQuery()
-                .getSortBy());
+        List<SortBy> sortBys = new ArrayList<>();
+
+        SortBy sortBy = request.getQuery().getSortBy();
+        if (sortBy != null) {
+            sortBys.add(sortBy);
+        }
+
+        Serializable sortBySer = request.getProperties().get(EXT_SORT_BY);
+        if (sortBySer instanceof SortBy[]) {
+            SortBy[] extSortBys = (SortBy[])sortBySer;
+            sortBys.addAll(Arrays.asList(extSortBys));
+        }
+
+        if (CollectionUtils.isNotEmpty(sortBys)) {
+            solrFilterDelegate.setSortPolicy(sortBys.toArray(new SortBy[0]));
+        }
 
         SolrQuery query = filterAdapter.adapt(request.getQuery(), solrFilterDelegate);
 
@@ -389,11 +405,25 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
     protected String setSortProperty(QueryRequest request, SolrQuery query,
             SolrFilterDelegate solrFilterDelegate) {
-        SortBy sortBy = request.getQuery()
+
+        List<SortBy> sortBys = new ArrayList<>();
+        SortBy querySortBy = request.getQuery()
                 .getSortBy();
         String sortProperty = "";
 
-        if (sortBy != null && sortBy.getPropertyName() != null) {
+        if (querySortBy != null && querySortBy.getPropertyName() != null) {
+            sortBys.add(querySortBy);
+        }
+
+        Serializable sortBySer = request.getPropertyValue(EXT_SORT_BY);
+        if (sortBySer instanceof SortBy[]) {
+            SortBy[] extSortBys = (SortBy[]) sortBySer;
+            if (extSortBys.length > 0) {
+                sortBys.addAll(Arrays.asList(extSortBys));
+            }
+        }
+
+        for (SortBy sortBy : sortBys) {
             sortProperty = sortBy.getPropertyName()
                     .getPropertyName();
             SolrQuery.ORDER order = SolrQuery.ORDER.desc;
