@@ -168,4 +168,8 @@ public final class Constants {
     public static final String ATTRIBUTE_UPDATE_MAP_KEY = "attributeUpdateMap";
 
     public static final String STORE_REFERENCE_KEY = "storeReference";
+
+    public static final String FACET_FIELDS_KEY = "facet-fields";
+
+    public static final String FACET_RESULTS_KEY = "facet-results";
 }

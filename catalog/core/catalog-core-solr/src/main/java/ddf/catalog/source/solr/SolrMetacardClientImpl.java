@@ -13,15 +13,20 @@
  */
 package ddf.catalog.source.solr;
 
+import static ddf.catalog.Constants.FACET_FIELDS_KEY;
+import static ddf.catalog.Constants.FACET_RESULTS_KEY;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
@@ -57,6 +62,8 @@ import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.SourceResponse;
+import ddf.catalog.operation.faceting.FacetProperties;
+import ddf.catalog.operation.faceting.FacetedFieldResult;
 import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.source.UnsupportedQueryException;
@@ -110,13 +117,38 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
         SolrQuery query = getSolrQuery(request, filterDelegateFactory.newInstance(resolver));
 
+        boolean isFacetedQuery = false;
+        FacetProperties textFacetsProp = (FacetProperties) request.getPropertyValue(FACET_FIELDS_KEY);
+
+        if(textFacetsProp != null) {
+            isFacetedQuery = true;
+
+            textFacetsProp.getFacetFields().stream()
+                    .map(facet -> !facet.endsWith("_txt") ? facet + "_txt" : facet)
+                    .forEach(query::addFacetField);
+
+            query.setFacetSort(textFacetsProp.getSortKey().name());
+            query.setFacetLimit(textFacetsProp.getFacetLimit());
+            query.setFacetMinCount(textFacetsProp.getMinFacetCount());
+        }
+
         long totalHits;
         List<Result> results = new ArrayList<>();
+        Map<String, Serializable> responseProps = new HashMap<>();
         try {
             QueryResponse solrResponse = client.query(query, SolrRequest.METHOD.POST);
             totalHits = solrResponse.getResults()
                     .getNumFound();
             SolrDocumentList docs = solrResponse.getResults();
+
+            if (isFacetedQuery) {
+                List<FacetedFieldResult> facetedFieldResults = solrResponse
+                        .getFacetFields().stream()
+                        .map(this::convertFacetField)
+                        .collect(Collectors.toList());
+
+                responseProps.put(FACET_RESULTS_KEY, (Serializable) facetedFieldResults);
+            }
 
             for (SolrDocument doc : docs) {
                 if (LOGGER.isDebugEnabled()) {
@@ -137,9 +169,21 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
             throw new UnsupportedQueryException("Could not complete solr query.", e);
         }
 
-        SourceResponse sourceResponse = new SourceResponseImpl(request, results, totalHits);
+        return new SourceResponseImpl(request, responseProps, results, totalHits);
+    }
 
-        return sourceResponse;
+    private FacetedFieldResult convertFacetField(FacetField facetField) {
+        List<String> values = new ArrayList<>();
+        List<Long> counts = new ArrayList<>();
+
+        facetField.getValues().forEach(
+                val -> {
+                    values.add(val.getName());
+                    counts.add(val.getCount());
+                }
+        );
+
+        return new FacetedFieldResult(facetField.getName(), values, counts);
     }
 
     @Override
