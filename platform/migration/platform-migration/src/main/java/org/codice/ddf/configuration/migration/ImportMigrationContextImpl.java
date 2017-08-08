@@ -142,8 +142,7 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
     @Override
     public boolean cleanDirectory(Path path) {
         Validate.notNull(path, "invalid null path");
-        final File fdir = MigrationContextImpl.resolve(path)
-                .toFile();
+        final File fdir = resolveAgainstDDFHome(path).toFile();
 
         LOGGER.debug("Cleaning up directory [{}]...", fdir);
         if (!fdir.exists()) {

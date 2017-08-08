@@ -79,8 +79,7 @@ public class ExportMigrationContextImpl extends MigrationContextImpl
      * @throws IllegalArgumentException if <code>report</code>, <code>migratable</code>, <code>zos</code>
      *                                  is <code>null</code>
      */
-    public ExportMigrationContextImpl(MigrationReport report, Migratable migratable,
-            ZipOutputStream zos) {
+    ExportMigrationContextImpl(MigrationReport report, Migratable migratable, ZipOutputStream zos) {
         super(report,
                 migratable,
                 ExportMigrationContextImpl.validateNotNull(migratable, "invalid null migratable")
@@ -133,25 +132,21 @@ public class ExportMigrationContextImpl extends MigrationContextImpl
 
     @Override
     public ExportMigrationEntry getEntry(Path path) {
-        Validate.notNull(path, "invalid null path");
-        final Path rpath = MigrationContextImpl.relativize(path);
+        final ExportMigrationEntryImpl e = new ExportMigrationEntryImpl(this, path);
 
-        return entries.computeIfAbsent(rpath, p -> new ExportMigrationEntryImpl(this, p));
+        return entries.computeIfAbsent(e.getPath(), p -> e);
     }
 
     @Override
     public Stream<ExportMigrationEntry> entries(Path path) {
-        Validate.notNull(path, "invalid null path");
-        final File file = MigrationContextImpl.resolve(path)
-                .toFile();
+        final ExportMigrationEntryImpl entry = new ExportMigrationEntryImpl(this, path);
+        final File file = entry.getFile();
 
         if (!file.exists()) {
-            report.record(new ExportPathMigrationException(MigrationContextImpl.relativize(path),
-                    "does not exist"));
+            report.record(new ExportPathMigrationException(entry.getPath(), "does not exist"));
             return Stream.empty();
         } else if (!file.isDirectory()) {
-            report.record(new ExportPathMigrationException(MigrationContextImpl.relativize(path),
-                    "is not a directory"));
+            report.record(new ExportPathMigrationException(entry.getPath(), "is not a directory"));
             return Stream.empty();
         }
         return FileUtils.listFiles(file, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE)
@@ -162,26 +157,23 @@ public class ExportMigrationContextImpl extends MigrationContextImpl
 
     @Override
     public Stream<ExportMigrationEntry> entries(Path path, PathMatcher filter) {
-        Validate.notNull(path, "invalid null path");
-        Validate.notNull(filter, "invalid null filter");
-        final File file = MigrationContextImpl.resolve(path)
-                .toFile();
+        final ExportMigrationEntryImpl entry = new ExportMigrationEntryImpl(this, path);
+        final File file = entry.getFile();
 
+        Validate.notNull(filter, "invalid null filter");
         if (!file.exists()) {
-            report.record(new ExportPathMigrationException(MigrationContextImpl.relativize(path),
-                    "does not exist"));
+            report.record(new ExportPathMigrationException(entry.getPath(), "does not exist"));
             return Stream.empty();
         } else if (!file.isDirectory()) {
-            report.record(new ExportPathMigrationException(MigrationContextImpl.relativize(path),
-                    "is not a directory"));
+            report.record(new ExportPathMigrationException(entry.getPath(), "is not a directory"));
             return Stream.empty();
         }
         return FileUtils.listFiles(file, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE)
                 .stream()
                 .map(File::toPath)
-                .map(MigrationContextImpl::relativize)
-                .filter(filter::matches)
-                .map(this::getEntry);
+                .map(p -> new ExportMigrationEntryImpl(this, p))
+                .filter(e -> filter.matches(e.getPath()))
+                .map(e -> entries.computeIfAbsent(e.getPath(), p -> e));
     }
 
     @Override
@@ -199,7 +191,7 @@ public class ExportMigrationContextImpl extends MigrationContextImpl
      *
      * @return metadata to export for the corresponding migratable keyed by the migratable's id
      */
-    Map<String, Object> doExport() {
+    Map<String, Map<String, Object>> doExport() {
         LOGGER.debug("Exporting [{}] with version [{}]...", id, getVersion());
         Stopwatch stopwatch = null;
 
@@ -210,7 +202,7 @@ public class ExportMigrationContextImpl extends MigrationContextImpl
         if (LOGGER.isDebugEnabled() && (stopwatch != null)) {
             LOGGER.debug("Exported time for {}: {}", id, stopwatch.stop());
         }
-        final Map<String, Object> metadata = ImmutableMap.of(id, report.getMetadata());
+        final Map<String, Map<String, Object>> metadata = ImmutableMap.of(id, report.getMetadata());
 
         LOGGER.debug("Exported metadata for {}: {}", id, metadata);
         return metadata;
@@ -220,7 +212,7 @@ public class ExportMigrationContextImpl extends MigrationContextImpl
         try {
             close();
             zos.putNextEntry(new ZipEntry(path.toString()));
-            return new ProxyOutputStream(zos) {
+            final OutputStream oos = new ProxyOutputStream(zos) {
                 @Override
                 public void close() throws IOException {
                     if (!(super.out instanceof ClosedOutputStream)) {
@@ -234,6 +226,9 @@ public class ExportMigrationContextImpl extends MigrationContextImpl
                     throw new ExportIOException(e);
                 }
             };
+
+            this.currentOutputStream = oos;
+            return oos;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

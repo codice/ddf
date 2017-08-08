@@ -1,7 +1,6 @@
 package org.codice.ddf.configuration.migration;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.IOException;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
@@ -48,7 +47,6 @@ public class ImportMigrationSystemPropertyReferencedEntryImpl
     @Override
     protected void verifyPropertyAfterCompletion() {
         final MigrationReport report = getReport();
-        final Path apath = getAbsolutePath();
 
         report.doAfterCompletion(r -> {
             final String val = System.getProperty(getProperty());
@@ -62,10 +60,19 @@ public class ImportMigrationSystemPropertyReferencedEntryImpl
                         getPath(),
                         "it is empty or blank"));
             } else {
-                if (!apath.equals(MigrationContextImpl.resolve(Paths.get(val)))) {
+                try {
+                    if (!getAbsolutePath().toRealPath()
+                            .equals(getContext().resolveAgainstUserDirectory(val)
+                                    .toRealPath())) {
+                        r.record(new ImportPathMigrationException(getProperty(),
+                                getPath(),
+                                "it now references [" + val + ']'));
+                    }
+                } catch (IOException e) { // cannot determine the location of either so it must not exist or be different anyway
                     r.record(new ImportPathMigrationException(getProperty(),
                             getPath(),
-                            "it now references [" + val + ']'));
+                            "it now references [" + val + ']',
+                            e));
                 }
             }
         });

@@ -38,7 +38,7 @@ public class ImportPathMigrationException extends ImportMigrationException {
     /**
      * Constructor used to report a migration error on a specific path.
      *
-     * @param path  path that cannot be exported
+     * @param path path that cannot be exported
      */
     public ImportPathMigrationException(Path path, String reason) {
         super(String.format(ABSOLUTE_PATH_WARNING, path.toString(), reason));
@@ -67,6 +67,22 @@ public class ImportPathMigrationException extends ImportMigrationException {
                 name,
                 path,
                 reason));
+    }
+
+    /**
+     * Constructor used to report a migration error on a referenced path reference coming from a
+     * system property.
+     *
+     * @param name   name of the system property that referenced the path
+     * @param path   path that is not properly referenced
+     * @param reason reason for the error
+     * @param cause  the cause for this error
+     */
+    public ImportPathMigrationException(String name, Path path, String reason, Throwable cause) {
+        super(String.format(ImportPathMigrationException.SYSTEM_PROPERTY_ABSOLUTE_PATH_WARNING,
+                name,
+                path,
+                reason), cause);
     }
 
     /**

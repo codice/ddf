@@ -13,16 +13,11 @@
  */
 package org.codice.ddf.configuration.migration;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.function.Function;
-
 import javax.annotation.Nullable;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.Migratable;
+import org.codice.ddf.migration.MigrationContext;
 import org.codice.ddf.migration.MigrationEntry;
 import org.codice.ddf.migration.MigrationReport;
 import org.slf4j.Logger;
@@ -31,7 +26,7 @@ import org.slf4j.LoggerFactory;
 /**
  * This class provides an abstract and base implementation of the {@link MigrationEntry}.
  */
-public abstract class MigrationEntryImpl<T extends MigrationContextImpl> implements MigrationEntry {
+public abstract class MigrationEntryImpl implements MigrationEntry {
     static final String METADATA_NAME = "name";
 
     static final String METADATA_CHECKSUM = "checksum";
@@ -46,86 +41,28 @@ public abstract class MigrationEntryImpl<T extends MigrationContextImpl> impleme
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MigrationEntryImpl.class);
 
-    protected final T context;
-
-    protected final Path path;
-
     protected boolean stored = false;
 
-    /**
-     * Instantiates a new migration entry given a migratable context and entry name.
-     * <p>
-     * <i>Note:</i> Absolute paths that are under the ${ddf.home} path will be relativize automatically.
-     *
-     * @param context the migration context associated with this entry
-     * @param path    the entry's actual path
-     * @throws IllegalArgumentException if <code>context</code> or <code>path</code> is <code>null</code>
-     */
-    protected MigrationEntryImpl(T context, Path path) {
-        Validate.notNull(context, "invalid null context");
-        Validate.notNull(path, "invalid null path");
-        this.context = context;
-        this.path = MigrationContextImpl.relativize(path);
-    }
-
-    /**
-     * Instantiates a new migration entry given a migratable context and entry name.
-     * <p>
-     * <i>Note:</i> Absolute paths that are under the ${ddf.home} path will be relativize automatically.
-     *
-     * @param context the migration context associated with this entry
-     * @param name    the entry's actual name
-     * @throws IllegalArgumentException if <code>context</code> or <code>name</code> is <code>null</code>
-     */
-    protected MigrationEntryImpl(T context, String name) {
-        this(context, Paths.get(MigrationEntryImpl.sanitizeSeparators(name)));
-    }
-
-    /**
-     * Instantiates a new migration entry by parsing the provided name for a migratable identifier
-     * and an entry name.
-     *
-     * @param contextProvider a provider for migration contexts given a migratable id
-     * @param fqn             a fully qualified name including the migratable id and the entry's actual name
-     * @throws IllegalArgumentException if <code>contextProvider</code> or <code>fqn</code> is <code>null</code> or empty
-     */
-    protected MigrationEntryImpl(Function<String, T> contextProvider, String fqn) {
-        Validate.notNull(contextProvider, "invalid null context provider");
-        Validate.notEmpty(fqn, "invalid null fully qualified name");
-        final Path sfqn = Paths.get(MigrationEntryImpl.sanitizeSeparators(fqn));
-        final int count = sfqn.getNameCount();
-
-        if (count > 1) {
-            this.context = contextProvider.apply(sfqn.getName(0)
-                    .toString());
-            this.path = sfqn.subpath(1, count);
-        } else { // system entry
-            this.context = contextProvider.apply(null);
-            this.path = sfqn;
-        }
-
-    }
+    protected MigrationEntryImpl() {}
 
     /**
      * This method is used to properly convert a zip entry name into a relative path suitable for
-     * the current OS. We cannot take advantage of the {@link Paths#get} method since it doesn't
-     * convert occurrences of the separators inside the string parameters it receives. Further
-     * more, we cannot rely on zip entry names to be defined with <code>\</code> or <code>/</code>
-     * since the zip standard doesn't indicate which one to use and worst, every entries in a zip
-     * file can be different.
+     * the current OS. We cannot take advantage of the {@link java.nio.file.Paths#get} method since
+     * it doesn't convert occurrences of the separators inside the string parameters it receives.
+     * Further more, we cannot rely on zip entry names to be defined with <code>\</code> or
+     * <code>/</code> since the zip standard doesn't indicate which one to use and worst, every
+     * entries in a zip file can be different.
      *
      * @param name the zip entry name to sanitize
      * @return the corresponding sanitized name
-     * @throws IllegalArgumentException if <code>name</code> is <code>null</code>
      */
     protected static String sanitizeSeparators(String name) {
-        Validate.notNull(name, "invalid null name");
         return FilenameUtils.separatorsToUnix(name);
     }
 
     @Override
     public MigrationReport getReport() {
-        return context.getReport();
+        return getContext().getReport();
     }
 
     /**
@@ -137,34 +74,12 @@ public abstract class MigrationEntryImpl<T extends MigrationContextImpl> impleme
     @Override
     @Nullable
     public String getId() {
-        return context.getId();
-    }
-
-    @Override
-    public String getName() {
-        return path.toString();
-    }
-
-    @Override
-    public Path getPath() {
-        return path;
-    }
-
-    /**
-     * Gets a fully qualified name for this entry that contains both the migratable id and the entry's
-     * name.
-     *
-     * @return a fully qualified name for this entry
-     */
-    public String getFQN() {
-        final String id = context.getId();
-
-        return (id != null) ? (id + File.separatorChar + getName()) : getName();
+        return getContext().getId();
     }
 
     @Override
     public int hashCode() {
-        return 31 * context.hashCode() + getName().hashCode();
+        return 31 * getContext().hashCode() + getName().hashCode();
     }
 
     @Override
@@ -174,7 +89,7 @@ public abstract class MigrationEntryImpl<T extends MigrationContextImpl> impleme
         } else if (o instanceof MigrationEntryImpl) {
             final MigrationEntryImpl me = (MigrationEntryImpl) o;
 
-            return context.equals(me.context) && path.equals(me.path);
+            return getContext().equals(me.getContext()) && getPath().equals(me.getPath());
         }
         return false;
     }
@@ -204,19 +119,10 @@ public abstract class MigrationEntryImpl<T extends MigrationContextImpl> impleme
 
     @Override
     public String toString() {
-        return getFQN();
+        final String id = getId();
+
+        return (id != null) ? (id + '@' + getName()) : getName();
     }
 
-    /**
-     * Gets an absolute path based on the current distribution for this entry.
-     *
-     * @return an absolute path based on the current distribution
-     */
-    protected Path getAbsolutePath() {
-        return MigrationContextImpl.resolve(path);
-    }
-
-    T getContext() {
-        return context;
-    }
+    protected abstract MigrationContext getContext();
 }

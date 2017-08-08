@@ -29,7 +29,8 @@ import org.slf4j.LoggerFactory;
  * representing a file that was not exported.
  */
 public class ImportMigrationEmptyEntryImpl extends ImportMigrationEntryImpl {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ImportMigrationEmptyEntryImpl.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(ImportMigrationEmptyEntryImpl.class);
 
     ImportMigrationEmptyEntryImpl(ImportMigrationContextImpl context, Path path) {
         super(context, path);
@@ -53,7 +54,7 @@ public class ImportMigrationEmptyEntryImpl extends ImportMigrationEntryImpl {
     @Override
     public void store() {
         if (!stored) {
-            LOGGER.debug("Importing file [{}] from [{}]...", getAbsolutePath(), path);
+            LOGGER.debug("Importing file [{}] from [{}]...", getAbsolutePath(), getPath());
             super.stored = true;
             throw new IllegalStateException("Path [" + getPath()
                     + "] should not be stored; since it wasn't stored in the export by migratable: "

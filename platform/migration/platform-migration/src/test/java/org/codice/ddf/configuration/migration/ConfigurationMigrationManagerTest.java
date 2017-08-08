@@ -174,7 +174,7 @@ public class ConfigurationMigrationManagerTest {
 //        ConfigurationMigrationManager configurationMigrationManager =
 //                createConfigurationMigrationManager();
 //
-//        when(exportDirectory.resolve(any(Path.class))).thenReturn(any(Path.class));
+//        when(exportDirectory.resolveAgainstDDFHome(any(Path.class))).thenReturn(any(Path.class));
 //
 //        Collection<MigrationWarning> migrationWarnings =
 //                export(() -> configurationMigrationManager.export(exportDirectory));

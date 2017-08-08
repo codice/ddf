@@ -38,9 +38,20 @@ public class ExportMigrationJavaPropertyReferencedEntryImpl
      */
     private final Path propertiesPath;
 
+    /**
+     * Instantiated a new java property referenced migration entry given a migratable context, properties
+     * path, name, and pathname.
+     *
+     * @param context        the migration context associated with this entry
+     * @param propertiesPath the path to the Java property file
+     * @param property       the property name for this entry
+     * @param pathname       the pathname for this entry
+     * @throws IllegalArgumentException if <code>context</code>, <code>propertiesPath</code>,
+     *                                  <code>property</code>, or <code>pathname</code> is <code>null</code>
+     */
     ExportMigrationJavaPropertyReferencedEntryImpl(ExportMigrationContextImpl context,
-            Path propertiesPath, String property, String val) {
-        super(context, property, val);
+            Path propertiesPath, String property, String pathname) {
+        super(context, property, pathname);
         Validate.notNull(propertiesPath, "invalid null properties path");
         this.propertiesPath = propertiesPath;
     }
@@ -72,11 +83,18 @@ public class ExportMigrationJavaPropertyReferencedEntryImpl
 
     @Override
     protected void recordWarning(String reason) {
-        getReport().record(new ExportPathMigrationWarning(propertiesPath, getName(), path, reason));
+        getReport().record(new ExportPathMigrationWarning(propertiesPath,
+                getProperty(),
+                getPath(),
+                reason));
     }
 
     @Override
     protected ExportPathMigrationException newError(String reason, Throwable cause) {
-        return new ExportPathMigrationException(propertiesPath, getName(), path, reason, cause);
+        return new ExportPathMigrationException(propertiesPath,
+                getProperty(),
+                getPath(),
+                reason,
+                cause);
     }
 }

@@ -16,9 +16,19 @@ public class ExportMigrationSystemPropertyReferencedEntryImpl
     private static final Logger LOGGER = LoggerFactory.getLogger(
             ExportMigrationSystemPropertyReferencedEntryImpl.class);
 
+    /**
+     * Instantiated a new system property referenced migration entry given a migratable context, property
+     * name and pathname.
+     *
+     * @param context  the migration context associated with this entry
+     * @param property the property name for this entry
+     * @param pathname the pathname for this entry
+     * @throws IllegalArgumentException if <code>context</code>, <code>property</code>, or
+     *                                  <code>pathname</code> is <code>null</code>
+     */
     ExportMigrationSystemPropertyReferencedEntryImpl(ExportMigrationContextImpl context,
-            String property, String val) {
-        super(context, property, val);
+            String property, String pathname) {
+        super(context, property, pathname);
     }
 
     @Override
@@ -43,11 +53,11 @@ public class ExportMigrationSystemPropertyReferencedEntryImpl
 
     @Override
     protected void recordWarning(String reason) {
-        getReport().record(new ExportPathMigrationWarning(getName(), path, reason));
+        getReport().record(new ExportPathMigrationWarning(getProperty(), getPath(), reason));
     }
 
     @Override
     protected ExportPathMigrationException newError(String reason, Throwable cause) {
-        return new ExportPathMigrationException(getName(), path, reason, cause);
+        return new ExportPathMigrationException(getProperty(), getPath(), reason, cause);
     }
 }
