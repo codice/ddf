@@ -29,6 +29,7 @@ var LayerCollectionController = require('js/controllers/cesium.layerCollection.c
 var user = require('component/singletons/user-instance');
 var User = require('js/model/User');
 var wreqr = require('wreqr');
+var gazetteer = require('./geocoder');
 
 var defaultColor = '#3c6dd5';
 var eyeOffset = new Cesium.Cartesian3(0, 0, 0);
@@ -56,7 +57,7 @@ function createMap(insertionElement) {
             animation: false,
             fullscreenButton: false,
             timeline: false,
-            geocoder: properties.gazetteer,
+            geocoder: new gazetteer(),
             homeButton: true,
             sceneModePicker: true,
             selectionIndicator: false,
@@ -75,10 +76,6 @@ function createMap(insertionElement) {
         viewer.scene.terrainProvider = new type(initObj);
     }
 
-    if (properties.gazetteer) {
-        //old method causes issues on IE11 due to improper destruction of old geocoder
-        viewer.geocoder.viewModel._url = '/services/';
-    }
     $(insertionElement).find('.cesium-viewer-toolbar')
         .append("<button class='cesium-button cesium-toolbar-button cluster-button' " +
             "data-help='Toggles whether or not results on the map are clustered.'>" +
