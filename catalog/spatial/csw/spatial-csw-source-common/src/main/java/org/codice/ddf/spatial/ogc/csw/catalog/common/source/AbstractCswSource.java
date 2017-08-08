@@ -666,6 +666,10 @@ public abstract class AbstractCswSource extends MaskableImpl
         return filteredConfiguration;
     }
 
+    protected AvailabilityCommand getAvailabilityCommand() {
+        return new CswSourceAvailabilityCommand();
+    }
+
     protected void setupAvailabilityPoll() {
         LOGGER.debug("Setting Availability poll task for {} minute(s) on Source {}",
                 cswSourceConfiguration.getPollIntervalMinutes(),
@@ -674,7 +678,7 @@ public abstract class AbstractCswSource extends MaskableImpl
         if (availabilityPollFuture == null || availabilityPollFuture.isCancelled()) {
             if (availabilityTask == null) {
                 availabilityTask = new AvailabilityTask(interval,
-                        new CswSourceAvailabilityCommand(),
+                        getAvailabilityCommand(),
                         cswSourceConfiguration.getId());
             } else {
                 // Any run of the polling operation should trigger the task to run
@@ -1648,7 +1652,7 @@ public abstract class AbstractCswSource extends MaskableImpl
         return msg;
     }
 
-    private void availabilityChanged(boolean isAvailable) {
+    protected void availabilityChanged(boolean isAvailable) {
 
         if (isAvailable) {
             LOGGER.debug("CSW source {} is available.", cswSourceConfiguration.getId());

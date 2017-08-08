@@ -45,6 +45,7 @@ import org.codice.ddf.parser.xml.XmlParser;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
 import org.codice.ddf.registry.schemabindings.helper.MetacardMarshaller;
+import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityCommand;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswAxisOrder;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswSourceConfiguration;
@@ -424,6 +425,26 @@ public class TestRegistryStore {
 
         verify(filterBuilder).attribute(captor.capture());
         assertThat(captor.getValue(), is("id"));
+    }
+
+    @Test
+    public void testAvailableCommandNoIdentityNode() throws Exception {
+        AvailabilityCommand command = registryStore.getAvailabilityCommand();
+        assertThat(command.isAvailable(), is(false));
+    }
+
+    @Test
+    public void testAvailableCommandQueryException() throws Exception {
+        AvailabilityCommand command = registryStore.getAvailabilityCommand();
+        queryResults = null;
+        assertThat(command.isAvailable(), is(false));
+    }
+
+    @Test
+    public void testAvailableCommand() throws Exception {
+        AvailabilityCommand command = registryStore.getAvailabilityCommand();
+        queryResults.add(new ResultImpl(getDefaultMetacard()));
+        assertThat(command.isAvailable(), is(true));
     }
 
     @Test
