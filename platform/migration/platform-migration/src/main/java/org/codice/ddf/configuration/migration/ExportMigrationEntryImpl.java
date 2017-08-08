@@ -37,6 +37,7 @@ import org.codice.ddf.migration.ExportMigrationEntry;
 import org.codice.ddf.migration.ExportMigrationException;
 import org.codice.ddf.migration.ExportPathMigrationException;
 import org.codice.ddf.migration.ExportPathMigrationWarning;
+import org.codice.ddf.migration.MigrationContext;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationExporter;
 import org.codice.ddf.migration.MigrationReport;
@@ -46,25 +47,72 @@ import org.slf4j.LoggerFactory;
 /**
  * This class provides an implementation of the {@link ExportMigrationEntry}.
  */
-public class ExportMigrationEntryImpl extends MigrationEntryImpl<ExportMigrationContextImpl>
-        implements ExportMigrationEntry {
+public class ExportMigrationEntryImpl extends MigrationEntryImpl implements ExportMigrationEntry {
     private static final Logger LOGGER = LoggerFactory.getLogger(ExportMigrationEntryImpl.class);
 
     private final Map<String, ExportMigrationJavaPropertyReferencedEntryImpl> properties =
             new HashMap<>(8);
 
-    private final File file;
-
     private final AtomicReference<OutputStream> outputStream = new AtomicReference<>();
 
+    private final ExportMigrationContextImpl context;
+
+    private final Path absolutePath;
+
+    private final Throwable absolutePathError;
+
+    private final Path path;
+
+    private final File file;
+
+    private final String name;
+
+    /**
+     * Instantiates a new migration entry given a migratable context and path.
+     * <p>
+     * <i>Note:</i> In this version of the constructor, the path is either absolute or assumed to be
+     * relative to ${ddf.home}. It will also be automatically relativized to ${ddf.home}.
+     *
+     * @param context the migration context associated with this entry
+     * @param path    the path for this entry
+     * @throws IllegalArgumentException if <code>context</code> or <code>path </code> is <code>null</code>
+     */
     protected ExportMigrationEntryImpl(ExportMigrationContextImpl context, Path path) {
-        super(context, path);
-        this.file = getAbsolutePath().toFile();
+        Validate.notNull(context, "invalid null context");
+        Validate.notNull(path, "invalid null path");
+        Path apath;
+        IOException aerror;
+
+        try {
+            // make sure it is resolved from ddf.home and not the current working directory
+            apath = context.resolveAgainstDDFHome(path)
+                    .toRealPath();
+            aerror = null;
+        } catch (IOException e) {
+            apath = path;
+            aerror = e;
+        }
+        this.context = context;
+        this.absolutePath = apath;
+        this.absolutePathError = aerror;
+        this.path = context.relativizeFromDDFHome(apath);
+        this.file = apath.toFile();
+        this.name = MigrationEntryImpl.sanitizeSeparators(this.path.toString());
     }
 
     @Override
     public ExportMigrationReportImpl getReport() {
         return context.getReport();
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public Path getPath() {
+        return path;
     }
 
     @Override
@@ -92,9 +140,9 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl<ExportMigration
     @Override
     public void store() {
         store((r, os) -> {
-            LOGGER.debug("Exporting file [{}] to [{}]...", getAbsolutePath(), path);
+            LOGGER.debug("Exporting file [{}] to [{}]...", absolutePath, path);
             if (isMigratable()) {
-                FileUtils.copyFile(getAbsolutePath().toFile(), os);
+                FileUtils.copyFile(file, os);
             }
         });
     }
@@ -157,6 +205,19 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl<ExportMigration
         }
     }
 
+    @Override
+    protected MigrationContext getContext() {
+        return context;
+    }
+
+    protected Path getAbsolutePath() {
+        return absolutePath;
+    }
+
+    protected File getFile() {
+        return file;
+    }
+
     protected void recordWarning(String reason) {
         getReport().record(new ExportPathMigrationWarning(path, reason));
     }
@@ -170,37 +231,24 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl<ExportMigration
     }
 
     private boolean isMigratable() {
-        final ExportMigrationReportImpl report = getReport();
-        final Path apath = getAbsolutePath();
+        final ExportMigrationReportImpl report = context.getReport();
 
-        if (path.isAbsolute()) {
-            report.recordExternal(this, false);
-            recordWarning("is absolute");
-            return false;
-        } else if (Files.isSymbolicLink(apath)) {
-            report.recordExternal(this, true);
-            recordWarning("contains a symbolic link");
-            return false;
-        } else {
-            try {
-                if (!apath.toRealPath()
-                        .startsWith(MigrationContextImpl.DDF_HOME.toRealPath())) {
-                    report.recordExternal(this, false);
-                    recordWarning(String.format("is outside [%s]", MigrationContextImpl.DDF_HOME));
-                    return false;
-                }
-            } catch (IOException e) {
-                // test for existence after testing if it is under DDF_HOME as we want to report
-                // that before
-                if (!apath.toFile()
-                        .exists()) {
-                    report.recordExternal(this, false);
-                    recordWarning("does not exist");
-                } else {
-                    recordError("cannot be read", e);
-                }
-                return false;
+        if (absolutePathError != null) {
+            if (!absolutePath.toFile()
+                    .exists()) {
+                report.recordExternal(this, false);
+                recordWarning("does not exist");
+            } else {
+                recordError("cannot be read", absolutePathError);
             }
+        } else if (path.isAbsolute()) {
+            report.recordExternal(this, false);
+            recordWarning(String.format("is outside [%s]", context.getDDFHome()));
+            return false;
+        } else if (Files.isSymbolicLink(absolutePath)) {
+            report.recordExternal(this, true);
+            recordWarning("is a symbolic link");
+            return false;
         }
         return true;
     }
@@ -210,9 +258,7 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl<ExportMigration
         InputStream is = null;
 
         try {
-            is = new BufferedInputStream(new FileInputStream(MigrationContextImpl.resolve(
-                    path)
-                    .toFile()));
+            is = new BufferedInputStream(new FileInputStream(file));
             props.load(is);
         } finally {
             IOUtils.closeQuietly(is);

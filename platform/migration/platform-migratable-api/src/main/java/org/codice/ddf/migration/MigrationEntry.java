@@ -14,7 +14,6 @@
 package org.codice.ddf.migration;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * The <code>MigrationEntry</code> interfaces provides support for artifacts that are being exported
@@ -44,9 +43,7 @@ public interface MigrationEntry extends Comparable<MigrationEntry> {
     public String getId();
 
     /**
-     * Gets name for this entry.
-     * <p>
-     * <i>Note:</i> Absolute path names that are under ${ddf.home} are automatically relativized.
+     * Gets name for this entry. The name is standardized with slashes (i.e /).
      *
      * @return the name for this entry
      */
@@ -59,9 +56,7 @@ public interface MigrationEntry extends Comparable<MigrationEntry> {
      *
      * @return a path for this entry
      */
-    public default Path getPath() {
-        return Paths.get(getName());
-    }
+    public Path getPath();
 
     /**
      * Gets the last modification time of the entry.

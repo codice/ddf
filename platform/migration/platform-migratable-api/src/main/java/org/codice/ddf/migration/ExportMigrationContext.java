@@ -38,6 +38,10 @@ public interface ExportMigrationContext extends MigrationContext {
      * <p>
      * An error will automatically be recorded with the associated migration report if the system
      * property is not defined or its value is blank.
+     * <p>
+     * <i>Note:</i> The file referenced from the property is assumed to be relative to the current
+     * working directory if not defined as absolute. All paths will automatically be relativized from
+     * ${ddf.home} if located underneath.
      *
      * @param name the name of the system property referencing a migration entry to create or retrieve
      * @return a new migration entry or the existing one if already created for the migration entry
@@ -59,6 +63,10 @@ public interface ExportMigrationContext extends MigrationContext {
      * Returning <code>true</code> in such case will still not create a corresponding migration entry.
      * In all other cases, no errors or warning will be generated if the predicate returns <code>false</code>
      * so it is up to the predicate to record one if required.
+     * <p>
+     * <i>Note:</i> The file referenced from the property is assumed to be relative to the current
+     * working directory if not defined as absolute. All paths will automatically be relativized from
+     * ${ddf.home} if located underneath.
      *
      * @param name      the name of the system property referencing a migration entry to create or retrieve
      * @param validator a predicate to be invoked to validate the property value further which must
@@ -75,7 +83,8 @@ public interface ExportMigrationContext extends MigrationContext {
      * Creates or retrieves (if already created) a migration entry to be exported by the corresponding
      * migratable corresponding to the specified path.
      * <p>
-     * <i>Note:</i> Absolute paths that are under ${ddf.home} are automatically relativized.
+     * <i>Note:</i> The file referenced is assumed to be relative to ${ddf.home} if not defined as
+     * absolute. All paths will automatically be relativized from ${ddf.home} if located underneath.
      *
      * @param path the path of the file to be exported
      * @return a new migration entry for the corresponding migratable or the existing one if already
@@ -88,7 +97,8 @@ public interface ExportMigrationContext extends MigrationContext {
      * Recursively walks the provided path's tree to create or retrieve (if already created) entries
      * for all files found and returns existing or new migration entries for each one of them.
      * <p>
-     * <i>Note:</i> Absolute paths that are under ${ddf.home} are automatically relativized.
+     * <i>Note:</i> Files referenced are assumed to be relative to ${ddf.home} if not defined as
+     * absolute. All paths will automatically be relativized from ${ddf.home} if located underneath.
      *
      * @param path the path to the directory to recursively walk
      * @return a stream of all created or retrieved entries corresponding to all files recursively
@@ -102,7 +112,8 @@ public interface ExportMigrationContext extends MigrationContext {
      * for all files found that matches the provided path filter and returns existing or new migration
      * entries for each one of them.
      * <p>
-     * <i>Note:</i> Absolute paths that are under ${ddf.home} are automatically relativized.
+     * <i>Note:</i> Files referenced are assumed to be relative to ${ddf.home} if not defined as
+     * absolute. All paths will automatically be relativized from ${ddf.home} if located underneath.
      *
      * @param path   the path to the directory to recursively walk
      * @param filter the path filter to use

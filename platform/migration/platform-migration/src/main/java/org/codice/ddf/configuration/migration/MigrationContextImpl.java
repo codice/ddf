@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.configuration.migration;
 
+import java.io.IOError;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
@@ -114,8 +116,6 @@ public class MigrationContextImpl implements MigrationContext {
      */
     protected static final String VERSION = "1.0";
 
-    protected static final Path DDF_HOME = Paths.get(System.getProperty("ddf.home"));
-
     protected static final Path METADATA_FILENAME = Paths.get("export.json");
 
     protected static final String METADATA_PRODUCT_VERSION = "product.version";
@@ -152,24 +152,44 @@ public class MigrationContextImpl implements MigrationContext {
     protected final String id;
 
     /**
+     * Forced to define it as non-static to simplify unit testing.
+     */
+    private final Path ddfHome;
+
+    /**
+     * Forced to define it as non-static to simplify unit testing.
+     */
+    private final Path userDirectory;
+
+    /**
      * Holds the current migratable version or <code>?</code> if representing the system context and
      * <code>null</code> if not yet retrieved from exported metadata or if the corresponding migratable
      * was not exported.
      */
     @Nullable
-    private String version = "?";
+    private String version;
 
     /**
      * Creates a new migration context.
      *
      * @param report the migration report where to record warnings and errors
      * @throws IllegalArgumentException if <code>report</code> is <code>null</code>
+     * @throws IOError                  if unable to determine ${ddf.home} or the current working directory
      */
     protected MigrationContextImpl(MigrationReport report) {
         Validate.notNull(report, "invalid null report");
+        try {
+            this.ddfHome = Paths.get(System.getProperty("ddf.home"))
+                    .toRealPath();
+            this.userDirectory = Paths.get(System.getProperty("user.dir"))
+                    .toRealPath();
+        } catch (IOException e) {
+            throw new IOError(e);
+        }
         this.report = report;
         this.migratable = null;
         this.id = null;
+        this.version = "?";
     }
 
     /**
@@ -178,10 +198,19 @@ public class MigrationContextImpl implements MigrationContext {
      * @param report the migration report where to record warnings and errors
      * @param id     the migratable id
      * @throws IllegalArgumentException if <code>report</code> or <code>id</code> is <code>null</code>
+     * @throws IOError                  if unable to determine ${ddf.home} or the current working directory
      */
     protected MigrationContextImpl(MigrationReport report, String id, @Nullable String version) {
         Validate.notNull(report, "invalid null report");
         Validate.notNull(id, "invalid null migratable identifier");
+        try {
+            this.ddfHome = Paths.get(System.getProperty("ddf.home"))
+                    .toRealPath();
+            this.userDirectory = Paths.get(System.getProperty("user.dir"))
+                    .toRealPath();
+        } catch (IOException e) {
+            throw new IOError(e);
+        }
         this.report = report;
         this.migratable = null;
         this.id = id;
@@ -194,13 +223,23 @@ public class MigrationContextImpl implements MigrationContext {
      * @param report     the migration report where to record warnings and errors
      * @param migratable the migratable this context is for
      * @throws IllegalArgumentException if <code>report</code> or <code>migratable</code> is <code>null</code>
+     * @throws IOError                  if unable to determine ${ddf.home} or the current working directory
      */
     protected MigrationContextImpl(MigrationReport report, Migratable migratable) {
         Validate.notNull(report, "invalid null report");
         Validate.notNull(migratable, "invalid null migratable");
+        try {
+            this.ddfHome = Paths.get(System.getProperty("ddf.home"))
+                    .toRealPath();
+            this.userDirectory = Paths.get(System.getProperty("user.dir"))
+                    .toRealPath();
+        } catch (IOException e) {
+            throw new IOError(e);
+        }
         this.report = report;
         this.migratable = migratable;
         this.id = migratable.getId();
+        this.version = "?";
     }
 
     /**
@@ -210,6 +249,7 @@ public class MigrationContextImpl implements MigrationContext {
      * @param migratable the migratable this context is for
      * @param version    the migratable version
      * @throws IllegalArgumentException if <code>report</code> or <code>migratable</code> is <code>null</code>
+     * @throws IOError                  if unable to determine ${ddf.home} or the current working directory
      */
     protected MigrationContextImpl(MigrationReport report, Migratable migratable,
             @Nullable String version) {
@@ -218,27 +258,57 @@ public class MigrationContextImpl implements MigrationContext {
     }
 
     /**
-     * Resolves the specified path against ${ddf.home}.
+     * Gets the path to ${ddf.home}.
      *
-     * @param path the path to resolve
-     * @return the corresponding path resolved against ${ddf.home} if it is relative;
-     * otherwise <code>path</code>
+     * @return the path to ${ddf.home}
      */
-    protected static Path resolve(Path path) {
-        return MigrationContextImpl.DDF_HOME.resolve(path);
+    protected Path getDDFHome() {
+        return ddfHome;
+    }
+
+    /**
+     * Checks if the specified path is located under ${ddf.home}.
+     *
+     * @param path the path to check if it is relative from ${ddf.home}
+     * @return <code>true</code> if the path it located under ${ddf.home}; <code>false</code> otherwise
+     */
+    protected boolean isRelativeToDDFHome(Path path) {
+        return path.startsWith(ddfHome);
     }
 
     /**
      * Relativizes the specified path from ${ddf.home}.
      *
-     * @param path the path to relativize
-     * @return the corresponding path relative to ${ddf.home} if it is located under ${ddf.home};
+     * @param path the path to relativize from ${ddf.home}
+     * @return the corresponding relativize path or <code>path</code> if it is not located under ${ddf.home}
+     */
+    protected Path relativizeFromDDFHome(Path path) {
+        if (isRelativeToDDFHome(path)) {
+            return ddfHome.relativize(path);
+        }
+        return path;
+    }
+
+    /**
+     * Resolves the specified path against ${ddf.home}.
+     *
+     * @param path the path to resolve against ${ddf.home}
+     * @return the corresponding path resolved against ${ddf.home} if it is relative;
      * otherwise <code>path</code>
      */
-    protected static Path relativize(Path path) {
-        return !path.startsWith(MigrationContextImpl.DDF_HOME) ?
-                path :
-                MigrationContextImpl.DDF_HOME.relativize(path);
+    protected Path resolveAgainstDDFHome(Path path) {
+        return ddfHome.resolve(path);
+    }
+
+    /**
+     * Resolves the specified path against the current working directory (i.e. ${user.dir}).
+     *
+     * @param pathname the pathname to resolve against the current working directory
+     * @return the corresponding path resolved against the current working directory if it is relative;
+     * otherwise a path corresponding to <code>pathname</code>
+     */
+    protected Path resolveAgainstUserDirectory(String pathname) {
+        return userDirectory.resolve(pathname);
     }
 
     @Override

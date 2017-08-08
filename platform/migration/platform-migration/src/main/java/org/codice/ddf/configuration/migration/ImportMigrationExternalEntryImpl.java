@@ -70,7 +70,7 @@ public class ImportMigrationExternalEntryImpl extends ImportMigrationEntryImpl {
 
     @Override
     public InputStream getInputStream() throws IOException {
-        return new BufferedInputStream(new FileInputStream(getAbsolutePath().toFile()));
+        return new BufferedInputStream(new FileInputStream(getFile()));
     }
 
     @Override
@@ -98,23 +98,22 @@ public class ImportMigrationExternalEntryImpl extends ImportMigrationEntryImpl {
      */
     private void verifyRealFile(Function<String, ImportPathMigrationWarning> builder) {
         final MigrationReport report = getReport();
-        final Path apath = getAbsolutePath();
-        final File afile = apath.toFile();
+        final File file = getFile();
 
-        if (!afile.exists()) {
+        if (!file.exists()) {
             report.record(builder.apply("doesn't exist"));
             return;
         }
-        if ((size != null) && (size == 0L) && afile.exists()) {
+        if ((size != null) && (size == 0L) && file.exists()) {
             report.record(builder.apply("exists when it shouldn't"));
         } else if (softlink) {
-            if (!Files.isSymbolicLink(apath)) {
+            if (!Files.isSymbolicLink(getAbsolutePath())) {
                 report.record(builder.apply("is not a symbolic link"));
             }
-        } else if (!Files.isRegularFile(apath)) {
+        } else if (!Files.isRegularFile(getAbsolutePath())) {
             report.record(builder.apply("is not a regular file"));
         }
-        final long rsize = afile.length();
+        final long rsize = file.length();
 
         if ((size != null) && (size != -1L) && (size != rsize)) {
             report.record(builder.apply(String.format(
@@ -126,7 +125,7 @@ public class ImportMigrationExternalEntryImpl extends ImportMigrationEntryImpl {
             InputStream is = null;
 
             try {
-                is = new FileInputStream(afile);
+                is = new FileInputStream(file);
                 final String rchecksum = DigestUtils.md5Hex(is);
 
                 if (rchecksum.equals(checksum)) {

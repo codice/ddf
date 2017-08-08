@@ -107,7 +107,7 @@ public interface MigrationReport {
      * <p>
      * <i>Note:</i> A successful operation might still report warnings.
      * <p>
-     * Invoking this method will call all registered verifiers first.
+     * Invoking this method will call all registered code via {@link #doAfterCompletion(Consumer)} first.
      *
      * @return <code>true</code> if the operation was successfull; <code>false</code> if not
      */
@@ -116,7 +116,7 @@ public interface MigrationReport {
     /**
      * Checks if the operation that generated this migration recorded any warnings.
      * <p>
-     * Invoking this method will call all registered verifiers first.
+     * Invoking this method will call all registered code via {@link #doAfterCompletion(Consumer)} first.
      *
      * @return <code>true</code> if the operation recorded at least one warning; <code>false</code> if not
      */
@@ -125,7 +125,7 @@ public interface MigrationReport {
     /**
      * Checks if the operation that generated this migration recorded any errors.
      * <p>
-     * Invoking this method will call all registered verifiers first.
+     * Invoking this method will call all registered code via {@link #doAfterCompletion(Consumer)} first.
      *
      * @return <code>true</code> if the operation recorded at least one error; <code>false</code> if not
      */
@@ -134,7 +134,7 @@ public interface MigrationReport {
     /**
      * Verifies if the operation that generated this migration report completed successfully.
      * <p>
-     * Invoking this method will call all registered verifiers first.
+     * Invoking this method will call all registered code via {@link #doAfterCompletion(Consumer)} first.
      *
      * @throws MigrationException         if a single error occurred during the operation (throws that
      *                                    error back)

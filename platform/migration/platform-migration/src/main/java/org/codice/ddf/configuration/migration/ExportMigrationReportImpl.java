@@ -189,7 +189,8 @@ public class ExportMigrationReportImpl implements MigrationReport {
 
     ExportMigrationReportImpl recordSystemProperty(
             ExportMigrationSystemPropertyReferencedEntryImpl entry) {
-        systemProperties.add(ImmutableMap.of(MigrationEntryImpl.METADATA_PROPERTY,
+        systemProperties.add(ImmutableMap.of( //
+                MigrationEntryImpl.METADATA_PROPERTY,
                 entry.getProperty(),
                 MigrationEntryImpl.METADATA_REFERENCE,
                 entry.getPath()
@@ -199,7 +200,8 @@ public class ExportMigrationReportImpl implements MigrationReport {
 
     ExportMigrationReportImpl recordJavaProperty(
             ExportMigrationJavaPropertyReferencedEntryImpl entry) {
-        javaProperties.add(ImmutableMap.of(MigrationEntryImpl.METADATA_PROPERTY,
+        javaProperties.add(ImmutableMap.of( //
+                MigrationEntryImpl.METADATA_PROPERTY,
                 entry.getProperty(),
                 MigrationEntryImpl.METADATA_REFERENCE,
                 entry.getPath()
