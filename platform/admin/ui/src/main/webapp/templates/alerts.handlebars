@@ -16,9 +16,11 @@
         <h4 class="panel-title clearfix">
             <i class="fa {{#is level "info"}}fa-info-circle{{else}}fa-exclamation-triangle{{/is}}"></i>
             {{title}}
-            <button type="button" class="btn btn-link dismiss">
-                Dismiss
-            </button>
+            {{#if id}}
+                <button type="button" class="btn btn-link dismiss">
+                    Dismiss
+                </button>
+            {{/if}}
             {{#notEmpty details}}
                 <button type="button" class="btn btn-link details" data-toggle="collapse" data-parent=".accordion" data-target="#{{collapseId}}">
                     {{details-button-action}} details
@@ -28,17 +30,23 @@
     </div>
     <div class="panel-collapse collapse {{collapse}} collapseAlerts" id="{{collapseId}}">
         <table class="alert-details-table">
-            <tr>
-                <td><i class="fa fa-exclamation-triangle"></i></td>
-                <td><i>Dismiss this alert at your own risk. This alert may be repopulated if the issue persists.</i></td>
-            </tr>
-            <tr>
-                <td><i class="fa fa-chevron-circle-right"></i></td>
-                <td>Host: {{hostName}} ({{hostAddress}})</td>
-            </tr>
-            {{#each details}}
+            {{#if id}}
+                <tr>
+                    <td><i class="fa fa-exclamation-triangle"></i></td>
+                    <td><i>Dismiss this alert at your own risk. This alert may be repopulated if the
+                        issue persists.</i></td>
+                </tr>
                 <tr>
                     <td><i class="fa fa-chevron-circle-right"></i></td>
+                    <td>Host: {{hostName}} ({{hostAddress}})</td>
+                </tr>
+            {{/if}}
+
+            {{#each details}}
+                <tr>
+                    {{#if ../showChevron}}
+                        <td><i class="fa fa-chevron-circle-right"></i></td>
+                    {{/if}}
                     <td>{{this}}</td>
                 </tr>
             {{/each}}
