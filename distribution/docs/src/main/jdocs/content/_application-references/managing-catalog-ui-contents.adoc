@@ -1,7 +1,7 @@
 :title: ${catalog-ui}
 :status: published
 :type: applicationReference
-:summary: Provides metadata search and discovery, resource retrieval and workspace management.
+:summary: Provides metadata search and discovery, resource retrieval, and workspace management.
 :order: 05
 
 The ${catalog-ui} application provides metadata search and discovery, resource retrieval and workspace management with a 3d or optional 2d map visualization.

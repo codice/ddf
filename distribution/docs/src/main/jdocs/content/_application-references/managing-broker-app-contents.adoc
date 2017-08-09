@@ -1,11 +1,11 @@
 :title: ${message-broker}
 :status: published
 :type: applicationReference
-:summary: Controls the shutdown period of components, names of queues and routing of messages.
+:summary: Controls the shutdown period of components, names of queues, and routing of messages.
 :order: 02
 
 The ${message-broker} application gives an administrator the ability to configure and control the behavior of the ${message-broker}.
-These configurations will include aspects like the graceful shutdown period of components, names of queues and topics and routing of messages.
+These configurations will include aspects like the graceful shutdown period of components, names of queues and topics, and routing of messages.
 
 ==== Prerequisites for ${message-broker} Application
 

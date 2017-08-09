@@ -1,10 +1,10 @@
 :title: ${ddf-admin}
 :status: published
 :type: applicationReference
-:summary: Contains components that are integral for the installation and configuration ${branding} applications.
+:summary: Contains components that are integral for the installation and configuration of ${branding} applications.
 :order: 01
 
-The ${ddf-admin} Application contains components that are integral for the installation and configuration ${branding} applications.
+The ${ddf-admin} Application contains components that are integral for the installation and configuration of ${branding} applications.
 
 It contains various services and interfaces that allow administrators more control over their systems and enhances administrative capabilities when installing and managing ${branding}.
 

@@ -3,7 +3,7 @@
 :type: table
 :status: published
 :application: ${ddf-security}
-:summary: STS Client configuration settings.
+:summary: STS Client configurations.
 
 .[[ddf.security.sts.client.configuration]]Security STS Client
 [cols="1,1m,1,3,1,1" options="header"]

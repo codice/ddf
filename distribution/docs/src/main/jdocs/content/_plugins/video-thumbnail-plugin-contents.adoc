@@ -29,6 +29,4 @@ To configure the Video Thumbnail Plugin:
 . Select the *Configuration* tab.
 . Select the *Video Thumbnail Plugin*.
 
-The Video Thumbnail Plugin has one configurable property:
-
-include::{adoc-include}/_tables/org.codice.ddf.catalog.content.plugin.video.VideoThumbnailPlugin-table-contents.adoc[]
+See <<org.codice.ddf.catalog.content.plugin.video.VideoThumbnailPlugin,Video Thumbnail Plugin configurations>> for all possible configurations.

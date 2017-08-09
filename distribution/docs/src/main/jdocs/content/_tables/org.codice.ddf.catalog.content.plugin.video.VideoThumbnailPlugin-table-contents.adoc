@@ -1,0 +1,25 @@
+:title: Video Thumbnail Plugin
+:id: org.codice.ddf.catalog.content.plugin.video.VideoThumbnailPlugin
+:type: table
+:status: published
+:application: ${ddf-catalog}
+:summary: Video Thumbnail Plugin.
+
+.[[org.codice.ddf.catalog.content.plugin.video.VideoThumbnailPlugin]]Video Thumbnail Plugin
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+|Name
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|Maximum video file size to process (Megabytes)
+|maxFileSizeMB
+|Long
+|Maximum video file size in Megabytes for which to create a thumbnail. Default is 120 Megabytes. Processing large videos may affect system performance.
+|120
+|false
+
+|===

@@ -1,10 +1,10 @@
 :title: ${ddf-registry}
 :status: published
 :type: applicationReference
-:summary: Contains the base registry components, plugins, sources and interfaces needed for ${branding} to function as a registry connecting multiple nodes.
+:summary: Contains the base registry components, plugins, sources, and interfaces needed for ${branding} to function as a registry connecting multiple nodes.
 :order: 07
 
-${ddf-registry} contains the base registry components, plugins, sources and interfaces needed for ${branding} to function as a registry connecting multiple nodes.
+${ddf-registry} contains the base registry components, plugins, sources, and interfaces needed for ${branding} to function as a registry connecting multiple nodes.
 
 ====  ${ddf-registry} Prerequisites
 

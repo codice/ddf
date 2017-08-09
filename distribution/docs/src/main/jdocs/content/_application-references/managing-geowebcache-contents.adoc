@@ -1,7 +1,7 @@
 :title: ${ddf-geowebcache}
 :status: published
 :type: applicationReference
-:summary: Provides a framework for storing, searching, processing, and transforming information.
+:summary: Enables a server providing a map tile cache and tile service aggregation.
 :order: 04
 
 ${ddf-geowebcache} enables a server providing a map tile cache and tile service aggregation.

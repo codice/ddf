@@ -3,7 +3,7 @@
 :status: published
 :type: table
 :application: ${ddf-security}
-:summary: STS WSS configuration settings.
+:summary: STS WSS configurations.
 
 .[[ddf.security.sts.wss.configuration]]Security STS WSS
 [cols="1,1m,1,3,1,1" options="header"]
