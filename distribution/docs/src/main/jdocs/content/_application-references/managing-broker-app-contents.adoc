@@ -169,56 +169,6 @@ Alternatively, you can choose roles other than `manager` and `broker-client`, wh
 has groups that you would like to use as Artemis roles.
 If you wish to use different roles, just replace `manager` and/or `broker-client` in the `<security-setting>` in `artemis.xml` with the roles you would like to use.
 
-At this point, an `ldap` realm has been added and Artemis is using it for authentication and authorization,
-but ${branding} is still using the default security settings.
-The Web Context Policy Manager can be configured to use the same `ldap` realm to secure ${branding}:
-
-. Navigate to the *${admin-console}*.
-. Select the *${ddf-security}* application.
-. Select the *Configuration* tab.
-. Select the *Web Context Policy Manager*.
-
-See <<Configuring the Web Context Policy Manager, Configuring the Web Context Policy Manager>>.
-
-.Additional Context Realm Details
-The default setting is `/=karaf`. The `karaf` realm refers to the `user.properties` user store file
-located in the `<${branding}_HOME>/etc` directory. This can be changed to `/=ldap`, if it is desired
-that the entire container be protected under ldap. If the `/admin` context is changed to something
-other than the default (`karaf`), it will be required that you refresh the page in order to log in
-again, or your changes may not be saved. This includes changing the root context to something other
-than `karaf`, without specifically setting `/admin` to a realm. The policies for all contexts will
-roll up, for example: the `/admin` context policy will roll up to the `karaf` realm with the default
-configuration because `/` is higher in the context hierarchy than `/admin` and no realm is
-specifically set for `/admin`.
-
-====== LDAP Admin Role Configuration
-
-${branding}'s admin role will default to `system-admin`. This can be configured to work with an external LDAP
-with a few minor changes.
-
-. Update the Admin Role in `<${branding}_HOME>/etc/users.properties` +
-Change `system-admin` to the new admin role for any users needing the new role. For example, if you
-already have a group in your LDAP that corresponds to an admin role, you can use that.
-+
-.Example `user.properties` entries:
-[source]
-----
-admin=admin,group,admin,manager,viewer,system-admin,systembundles
-localhost=localhost,group,admin,manager,viewer,system-admin,system-history,systembundles
-----
-+
-[NOTE]
-====
-A system restart is required for the changes to `users.properties` to take effect.
-====
-+
-. Update the Web Context Policy to Point to the New Admin Role:
-.. Navigate to the *${admin-console}*.
-.. Select the *${ddf-security}* Application.
-.. Select the *Configuration* tab.
-.. Select the *Web Context Policy Manager*.
-.. Update the entries under 'Required Attributes' to use the new admin role.
-
 ===== Artemis Broker Connection Configuration
 
 The `Artemis Broker Connection Configuration` manages the parameters for ${branding}'s connection to
