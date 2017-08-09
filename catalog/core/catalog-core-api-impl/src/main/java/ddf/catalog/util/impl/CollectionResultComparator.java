@@ -30,7 +30,7 @@ public class CollectionResultComparator implements Comparator<Result>, Serializa
 
     @Override
     public int compare(Result o1, Result o2) {
-        int result = -1;
+        int result = 0;
         for (Comparator<Result> comparator : comparators) {
             result = comparator.compare(o1, o2);
             if (result != 0) {
