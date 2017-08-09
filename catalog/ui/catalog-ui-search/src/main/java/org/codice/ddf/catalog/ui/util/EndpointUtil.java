@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.catalog.ui.util;
 
+import static ddf.catalog.util.impl.ResultIterable.resultIterable;
+
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -142,7 +144,7 @@ public class EndpointUtil {
                 .is()
                 .like()
                 .text(tagFilter);
-        ResultIterable resultIterable = new ResultIterable(catalogFramework,
+        ResultIterable resultIterable = resultIterable(catalogFramework,
                 new QueryRequestImpl(new QueryImpl(filter,
                         1,
                         pageSize,
@@ -193,7 +195,7 @@ public class EndpointUtil {
         }
 
         Filter queryFilter = filterBuilder.anyOf(filters);
-        ResultIterable resultIterable = new ResultIterable(catalogFramework,
+        ResultIterable resultIterable = resultIterable(catalogFramework,
                 new QueryRequestImpl(new QueryImpl(queryFilter,
                         1,
                         pageSize,

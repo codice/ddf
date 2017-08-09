@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.commands.catalog;
 
+import static ddf.catalog.util.impl.ResultIterable.resultIterable;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -74,7 +76,6 @@ import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
-import ddf.catalog.util.impl.ResultIterable;
 import ddf.security.common.audit.SecurityLogger;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
@@ -249,7 +250,7 @@ public class ExportCommand extends CqlCommands {
 
         query.setPageSize(PAGE_SIZE);
 
-        for (Result result : new ResultIterable(catalogFramework, queryRequest)) {
+        for (Result result : resultIterable(catalogFramework, queryRequest)) {
             if (!seenIds.contains(result.getMetacard()
                     .getId())) {
                 writeToZip(zipFile, result);
@@ -269,7 +270,7 @@ public class ExportCommand extends CqlCommands {
 
             historyQuery.setPageSize(PAGE_SIZE);
 
-            for (Result revision : new ResultIterable(catalogFramework, historyQueryRequest)) {
+            for (Result revision : resultIterable(catalogFramework, historyQueryRequest)) {
                 if (seenIds.contains(revision.getMetacard()
                         .getId())) {
                     continue;

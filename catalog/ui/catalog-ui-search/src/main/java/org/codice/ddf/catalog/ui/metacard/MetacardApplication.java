@@ -17,6 +17,7 @@ import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 import static org.apache.commons.lang.StringUtils.isEmpty;
+import static ddf.catalog.util.impl.ResultIterable.resultIterable;
 import static spark.Spark.after;
 import static spark.Spark.delete;
 import static spark.Spark.exception;
@@ -786,7 +787,7 @@ public class MetacardApplication implements SparkApplication {
                 .text(id);
 
         Filter filter = filterBuilder.allOf(historyFilter, idFilter);
-        ResultIterable resultIterable = new ResultIterable(catalogFramework,
+        ResultIterable resultIterable = resultIterable(catalogFramework,
                 new QueryRequestImpl(new QueryImpl(filter,
                         1,
                         pageSize,

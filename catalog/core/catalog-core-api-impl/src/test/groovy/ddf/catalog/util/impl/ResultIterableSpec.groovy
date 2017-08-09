@@ -25,6 +25,9 @@ import ddf.catalog.source.UnsupportedQueryException
 import spock.lang.Specification
 import spock.lang.Unroll
 
+import static ddf.catalog.util.impl.ResultIterable.resultIterable
+import static java.util.stream.Collectors.toList
+
 class QueryResultPaginatorSpec extends Specification {
 
     CatalogFramework catalogFramework
@@ -35,6 +38,7 @@ class QueryResultPaginatorSpec extends Specification {
 
     def "hasNext() is false when catalog returns no results"() {
         setup:
+        List<Result> actualResults = []
         1 * catalogFramework.query(_ as QueryRequest) >> {
             QueryRequest queryRequest -> buildQueryResponse(queryRequest, 0, 0)
         }
@@ -42,7 +46,7 @@ class QueryResultPaginatorSpec extends Specification {
         Query queryMock = createQueryMock(1, 1)
         QueryRequest queryRequestMock = createQueryRequestMock(queryMock)
 
-        def resultIterator = new ResultIterable(catalogFramework, queryRequestMock).iterator()
+        def resultIterator = resultIterable(catalogFramework, queryRequestMock).iterator()
 
         when:
         def hasNext = resultIterator.hasNext()
@@ -60,7 +64,7 @@ class QueryResultPaginatorSpec extends Specification {
         Query queryMock = createQueryMock(1, 1)
         QueryRequest queryRequestMock = createQueryRequestMock(queryMock)
 
-        def resultIterator = new ResultIterable(catalogFramework, queryRequestMock).iterator()
+        def resultIterator = resultIterable(catalogFramework, queryRequestMock).iterator()
 
         when:
         def hasNext = resultIterator.hasNext()
@@ -78,7 +82,7 @@ class QueryResultPaginatorSpec extends Specification {
         Query queryMock = createQueryMock(1, 1)
         QueryRequest queryRequestMock = createQueryRequestMock(queryMock)
 
-        def resultIterator = new ResultIterable(catalogFramework, queryRequestMock).iterator()
+        def resultIterator = resultIterable(catalogFramework, queryRequestMock).iterator()
 
         when:
         resultIterator.hasNext()
@@ -97,7 +101,7 @@ class QueryResultPaginatorSpec extends Specification {
         Query queryMock = createQueryMock(1, 1)
         QueryRequest queryRequestMock = createQueryRequestMock(queryMock)
 
-        def resultIterator = new ResultIterable(catalogFramework.&query, queryRequestMock).iterator()
+        def resultIterator = resultIterable(catalogFramework.&query, queryRequestMock).iterator()
 
         when:
         def hasNext = resultIterator.hasNext()
@@ -108,7 +112,7 @@ class QueryResultPaginatorSpec extends Specification {
 
     def "hasNext() doesn't query the catalog after all the results have been retrieved"() {
         setup:
-        2 * catalogFramework.query(_ as QueryRequest) >> {
+        1 * catalogFramework.query(_ as QueryRequest) >> {
             QueryRequest queryRequest -> buildQueryResponse(queryRequest, 1, 1)
         } >> {
             QueryRequest queryRequest -> buildQueryResponse(queryRequest, 0, 1)
@@ -117,7 +121,7 @@ class QueryResultPaginatorSpec extends Specification {
         Query queryMock = createQueryMock(1, 1)
         QueryRequest queryRequestMock = createQueryRequestMock(queryMock)
 
-        def resultIterator = new ResultIterable(catalogFramework, queryRequestMock).iterator()
+        def resultIterator = resultIterable(catalogFramework, queryRequestMock).iterator()
 
         when:
         resultIterator.next()
@@ -128,104 +132,184 @@ class QueryResultPaginatorSpec extends Specification {
         hasNext.is false
     }
 
-    @Unroll
-    def '''#nextCalls results are returned and catalog is queried #expectedQueries times
-           when next() is called #nextCalls times, page size is #pageSize and catalog returns
-           #resultSize results at a time'''(int nextCalls, int pageSize, int resultSize, int expectedQueries) {
-        setup:
-        expectedQueries * catalogFramework.query(_ as QueryRequest) >> {
-            QueryRequest queryRequest -> buildQueryResponse(queryRequest, resultSize, 5)
-        }
-
-        Query queryMock = createQueryMock(1, pageSize)
-        QueryRequest queryRequestMock = createQueryRequestMock(queryMock)
-
-        def resultIterator = new ResultIterable(catalogFramework, queryRequestMock).iterator()
-        def results = []
-
-        when:
-        1.upto(nextCalls, { results << resultIterator.next() })
-
-        then:
-        1.upto(nextCalls, { results.get(it - 1).distanceInMeters == (Double) it })
-
-        where:
-        nextCalls | pageSize | resultSize | expectedQueries
-        1         | 1        | 1          | 1
-        2         | 1        | 2          | 1
-        3         | 1        | 1          | 3
-        2         | 2        | 1          | 2
-        2         | 0        | 1          | 2
-    }
-
     def "next() returns the proper results when start index is not 1"() {
         setup:
+        List<Result> actualResults = (1..10).collect { new ResultImpl() }
         int startIndex = 10
         1 * catalogFramework.query(_ as QueryRequest) >> {
-            QueryRequest queryRequest -> buildQueryResponse(queryRequest, 1, 1)
+                // Return the last result (aka startIndex = 10, acutal index of 9)
+            QueryRequest queryRequest -> buildQueryResponse(actualResults, 9)
         }
 
         Query queryMock = createQueryMock(startIndex, 1)
         QueryRequest queryRequestMock = createQueryRequestMock(queryMock)
 
-        def resultIterator = new ResultIterable(catalogFramework.&query, queryRequestMock).iterator()
+        def resultIterator = resultIterable(catalogFramework.&query, queryRequestMock).iterator()
 
         when:
         def result = resultIterator.next()
 
         then:
-        result.distanceInMeters == (Double) startIndex
+        result == actualResults.last()
     }
 
     def "next() properly pages when default page size is used"() {
         setup:
-        def resultSize = 20
+        List<Result> actualResults = (1..70).collect { new ResultImpl() }
+        def totalResults = actualResults.size()
 
         2 * catalogFramework.query(_ as QueryRequest) >> {
-            QueryRequest queryRequest -> buildQueryResponse(queryRequest, resultSize, resultSize + 5)
+            QueryRequest queryRequest -> buildQueryResponse(actualResults, 0..63)
+        } >> {
+            QueryRequest queryRequest -> buildQueryResponse(actualResults, 64..69)
+        } >> {
+            QueryRequest queryRequest -> buildEmptyQueryResponse(actualResults)
         }
 
         Query queryMock = createQueryMock(1, 0)
         QueryRequest queryRequestMock = createQueryRequestMock(queryMock)
 
-        def resultIterator = new ResultIterable(catalogFramework, queryRequestMock).iterator()
-        def results = []
+        def resultIterable = resultIterable(catalogFramework, queryRequestMock)
 
         when:
-        1.upto(resultSize + 1, { results << resultIterator.next() })
+        def results = resultIterable.stream()
+                .collect(toList())
 
         then:
-        1.upto(resultSize + 1, { results.get(it - 1).distanceInMeters == (Double) it })
+        // Test assumption: we're currently using more results than the current page size
+        totalResults > ResultIterable.DEFAULT_PAGE_SIZE
+        results == actualResults
+    }
+
+    def "Properly pages when default page size is used with no maxResults and no hit count"() {
+        setup:
+        def actualResults = (1..70).collect { new ResultImpl() }
+        def totalResults = actualResults.size()
+
+        3 * catalogFramework.query(_ as QueryRequest) >>
+                { QueryRequest queryRequest ->
+                    def response = Mock(QueryResponse)
+                    response.getHits() >> -1
+                    response.getResults() >> actualResults[0..63]
+                    return response
+                } >>
+                { QueryRequest queryRequest ->
+                    def response = Mock(QueryResponse)
+                    response.getHits() >> -1
+                    response.getResults() >> actualResults[64..69]
+                    return response
+                } >>
+                { QueryRequest queryRequest ->
+                    def response = Mock(QueryResponse)
+                    response.getHits() >> -1
+                    response.getResults() >> []
+                    return response
+                }
+
+        Query queryMock = createQueryMock(1, 0)
+        QueryRequest queryRequestMock = createQueryRequestMock(queryMock)
+
+        ResultIterable resultIterable = resultIterable(catalogFramework, queryRequestMock)
+
+        when:
+        def results = resultIterable.stream().collect(toList())
+
+        then:
+        results.size() == totalResults
+        results == actualResults
+    }
+
+    def "Properly pages when default page size is used with no maxResults"() {
+        setup:
+        def actualResults = (1..25).collect { new ResultImpl() }
+        def totalResults = actualResults.size()
+
+        2 * catalogFramework.query(_ as QueryRequest) >>
+                { QueryRequest queryRequest -> buildQueryResponse(actualResults, 0..19) } >>
+                { QueryRequest queryRequest -> buildQueryResponse(actualResults, 20..24) } >>
+                { QueryRequest queryRequest -> buildEmptyQueryResponse(actualResults) }
+
+        Query queryMock = createQueryMock(1, 0)
+        QueryRequest queryRequestMock = createQueryRequestMock(queryMock)
+
+        ResultIterable resultIterable = resultIterable(catalogFramework, queryRequestMock)
+
+        when:
+        def results = resultIterable.stream().collect(toList())
+
+        then:
+        results.size() == totalResults
+        results == actualResults
+    }
+
+    @Unroll
+    def "Properly pages when default page size is used with maxResults"() {
+        setup:
+        def actualResults = (1..25).collect { new ResultImpl() }
+        def totalResults = actualResults.size()
+
+        // pageSize = 20
+        expectedQueriesMade * catalogFramework.query(_ as QueryRequest) >>
+                { QueryRequest queryRequest -> buildQueryResponse(actualResults, 0..19) } >>
+                { QueryRequest queryRequest -> buildQueryResponse(actualResults, 20..24) } >>
+                { QueryRequest queryRequest -> buildEmptyQueryResponse(actualResults) }
+
+        Query queryMock = createQueryMock(1, 20)
+        QueryRequest queryRequestMock = createQueryRequestMock(queryMock)
+
+        ResultIterable resultIterable = ResultIterable.resultIterable(catalogFramework, queryRequestMock, maxResultCount)
+
+        when:
+        def queryResults = resultIterable.stream()
+                .collect(toList())
+
+        then:
+        def resultCount = Math.min(maxResultCount, totalResults)
+        // Either expect the maxResults it was capped to, or the actual result count if it was less
+        queryResults.size() == resultCount
+        queryResults == actualResults.subList(0, resultCount)
+
+        where:
+        maxResultCount | expectedQueriesMade
+        7              | 1
+        22             | 2
+        25             | 2
+        35             | 2
+
     }
 
     def "next() when number of results from catalog varies"() {
         setup:
-        def totalResults = 6
+        def actualResults = (1..6).collect { new ResultImpl() }
+        def totalResults = actualResults.size()
         3 * catalogFramework.query(_ as QueryRequest) >> {
-            QueryRequest queryRequest -> buildQueryResponse(queryRequest, 2, totalResults)
+            QueryRequest queryRequest -> buildQueryResponse(actualResults, 0..1)
         } >> {
-            QueryRequest queryRequest -> buildQueryResponse(queryRequest, 3, totalResults)
+            QueryRequest queryRequest -> buildQueryResponse(actualResults, 2..4)
         } >> {
-            QueryRequest queryRequest -> buildQueryResponse(queryRequest, 1, totalResults)
+            QueryRequest queryRequest -> buildQueryResponse(actualResults, 5)
+        } >> {
+            QueryRequest queryRequest -> buildEmptyQueryResponse(actualResults)
         }
 
         def pageSize = 3
         Query queryMock = createQueryMock(1, pageSize)
         QueryRequest queryRequestMock = createQueryRequestMock(queryMock)
 
-        def resultIterator = new ResultIterable(catalogFramework, queryRequestMock).iterator()
-        def results = []
+        def resultIterator = resultIterable(catalogFramework, queryRequestMock)
 
         when:
-        1.upto(totalResults, { results << resultIterator.next() })
+        def results = resultIterator.stream()
+                .collect(toList())
 
         then:
-        1.upto(totalResults, { results.get(it - 1).distanceInMeters == (Double) it })
+        results.size() == totalResults
+        results == actualResults
     }
 
     def "next() doesn't query the catalog after all the results have been retrieved"() {
         setup:
-        2 * catalogFramework.query(_ as QueryRequest) >> {
+        1 * catalogFramework.query(_ as QueryRequest) >> {
             QueryRequest queryRequest -> buildQueryResponse(queryRequest, 1, 1)
         } >> {
             QueryRequest queryRequest -> buildQueryResponse(queryRequest, 0, 1)
@@ -234,7 +318,7 @@ class QueryResultPaginatorSpec extends Specification {
         Query queryMock = createQueryMock(1, 1)
         QueryRequest queryRequestMock = createQueryRequestMock(queryMock)
 
-        def resultIterator = new ResultIterable(catalogFramework, queryRequestMock).iterator()
+        def resultIterator = resultIterable(catalogFramework, queryRequestMock).iterator()
 
         when:
         resultIterator.next()
@@ -247,20 +331,23 @@ class QueryResultPaginatorSpec extends Specification {
 
     def "next() when using a query function and catalog returns results"() {
         setup:
+        def actualResults = [new ResultImpl()]
         1 * catalogFramework.query(_ as QueryRequest) >> {
-            QueryRequest queryRequest -> buildQueryResponse(queryRequest, 1, 1)
+            QueryRequest queryRequest -> buildQueryResponse(actualResults, 0)
+        } >> {
+            QueryRequest queryRequest -> buildEmptyQueryResponse(actualResults)
         }
 
         Query queryMock = createQueryMock(1, 1)
         QueryRequest queryRequestMock = createQueryRequestMock(queryMock)
 
-        def resultIterator = new ResultIterable(catalogFramework.&query, queryRequestMock).iterator()
+        def resultIterable = resultIterable(catalogFramework.&query, queryRequestMock)
 
         when:
-        def result = resultIterator.next()
+        def result = resultIterable.iterator().next()
 
         then:
-        result.distanceInMeters == 1.0
+        result == actualResults.first()
     }
 
     def "next() throws exception when no more results"() {
@@ -274,7 +361,7 @@ class QueryResultPaginatorSpec extends Specification {
         Query queryMock = createQueryMock(1, 1)
         QueryRequest queryRequestMock = createQueryRequestMock(queryMock)
 
-        def resultIterator = new ResultIterable(catalogFramework, queryRequestMock).iterator()
+        def resultIterator = resultIterable(catalogFramework, queryRequestMock).iterator()
 
         when:
         resultIterator.next()
@@ -290,7 +377,7 @@ class QueryResultPaginatorSpec extends Specification {
         Query queryMock = createQueryMock(1, 1)
         QueryRequest queryRequestMock = createQueryRequestMock(queryMock)
 
-        def resultIterator = new ResultIterable(catalogFramework, queryRequestMock).iterator()
+        def resultIterator = resultIterable(catalogFramework, queryRequestMock).iterator()
 
         when:
         resultIterator.next()
@@ -305,7 +392,7 @@ class QueryResultPaginatorSpec extends Specification {
         Query queryMock = createQueryMock(1, 1)
         QueryRequest queryRequestMock = createQueryRequestMock(queryMock)
 
-        def resultIterator = new ResultIterable(catalogFramework, queryRequestMock).iterator()
+        def resultIterator = resultIterable(catalogFramework, queryRequestMock).iterator()
 
         when:
         resultIterator.next()
@@ -320,7 +407,7 @@ class QueryResultPaginatorSpec extends Specification {
         Query queryMock = createQueryMock(1, 1)
         QueryRequest queryRequestMock = createQueryRequestMock(queryMock)
 
-        def resultIterator = new ResultIterable(catalogFramework, queryRequestMock).iterator()
+        def resultIterator = resultIterable(catalogFramework, queryRequestMock).iterator()
 
         when:
         resultIterator.next()
@@ -335,7 +422,7 @@ class QueryResultPaginatorSpec extends Specification {
         QueryRequest queryRequestMock = createQueryRequestMock(queryMock)
 
         when:
-        new ResultIterable(null as CatalogFramework, queryRequestMock)
+        resultIterable(null as CatalogFramework, queryRequestMock)
 
         then:
         thrown IllegalArgumentException
@@ -343,7 +430,7 @@ class QueryResultPaginatorSpec extends Specification {
 
     def "constructor when catalog framework is set but query request is null"() {
         when:
-        new ResultIterable(catalogFramework, null)
+        resultIterable(catalogFramework, null)
 
         then:
         thrown IllegalArgumentException
@@ -355,7 +442,7 @@ class QueryResultPaginatorSpec extends Specification {
         QueryRequest queryRequestMock = createQueryRequestMock(queryMock)
 
         when:
-        new ResultIterable(null as QueryFunction, queryRequestMock)
+        resultIterable(null as QueryFunction, queryRequestMock)
 
         then:
         thrown IllegalArgumentException
@@ -363,7 +450,7 @@ class QueryResultPaginatorSpec extends Specification {
 
     def "constructor when query function is set but query request is null"() {
         when:
-        new ResultIterable(Mock(QueryFunction), null)
+        resultIterable(Mock(QueryFunction), null)
 
         then:
         thrown IllegalArgumentException
@@ -383,6 +470,24 @@ class QueryResultPaginatorSpec extends Specification {
         def queryRequestMock = Mock(QueryRequest.class)
         queryRequestMock.getQuery() >> queryMock
         return queryRequestMock
+    }
+
+    private QueryResponse buildEmptyQueryResponse(List<Result> resultList) {
+        def response = Mock(QueryResponse)
+        response.getHits() >> resultList.size()
+        response.getResults() >> { [] }
+        return response
+    }
+
+    private QueryResponse buildQueryResponse(List<Result> resultList, int resultIndex) {
+        return buildQueryResponse(resultList, resultIndex..resultIndex)
+    }
+
+    private QueryResponse buildQueryResponse(List<Result> resultList, Range resultRange) {
+        def response = Mock(QueryResponse)
+        response.getHits() >> resultList.size()
+        response.getResults() >> { resultList[resultRange] }
+        return response
     }
 
     private buildQueryResponse(QueryRequest queryRequest, int resultListsSize, int totalResults) {

@@ -13,10 +13,10 @@
  */
 package ddf.catalog.util.impl;
 
+import static org.apache.commons.lang.Validate.isTrue;
 import static org.apache.commons.lang.Validate.notNull;
-import static ddf.catalog.Constants.DEFAULT_PAGE_SIZE;
+import static com.google.common.collect.Iterators.limit;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -47,10 +47,42 @@ import ddf.catalog.source.UnsupportedQueryException;
  * </p>
  */
 public class ResultIterable implements Iterable<Result> {
+    public static final int DEFAULT_PAGE_SIZE = 64;
 
     private final QueryFunction queryFunction;
 
     private final QueryRequest queryRequest;
+
+    private final int maxResultCount;
+
+    /**
+     * Creates an iterable that will call the {@link CatalogFramework} to retrieve the results
+     * that match the {@link QueryRequest} provided. There will be no limit to the number of
+     * results returned.
+     *
+     * @param catalogFramework reference to the {@link CatalogFramework} to call to retrieve the
+     *                         results.
+     * @param queryRequest     request used to retrieve the results.
+     */
+    public static ResultIterable resultIterable(CatalogFramework catalogFramework,
+            QueryRequest queryRequest) {
+        notNull(catalogFramework, "CatalogFramework cannot be null");
+        return new ResultIterable(catalogFramework, queryRequest, 0);
+    }
+
+    /**
+     * Creates an iterable that will call a {@link QueryFunction} to retrieve the results
+     * that match the {@link QueryRequest} provided. There will be no limit to the number of
+     * results returned.
+     *
+     * @param queryFunction reference to the {@link QueryFunction} to call to retrieve the
+     *                      results.
+     * @param queryRequest  request used to retrieve the results.
+     */
+    public static ResultIterable resultIterable(QueryFunction queryFunction,
+            QueryRequest queryRequest) {
+        return new ResultIterable(queryFunction, queryRequest, 0);
+    }
 
     /**
      * Creates an iterable that will call the {@link CatalogFramework} to retrieve the results
@@ -59,45 +91,66 @@ public class ResultIterable implements Iterable<Result> {
      * @param catalogFramework reference to the {@link CatalogFramework} to call to retrieve the
      *                         results.
      * @param queryRequest     request used to retrieve the results.
+     * @param maxResultCount   a positive integer indicating the maximum number of results in
+     *                         total to query for
      */
-    public ResultIterable(CatalogFramework catalogFramework, QueryRequest queryRequest) {
-        notNull(catalogFramework, "Catalog framework reference cannot be null");
-        notNull(queryRequest, "Query request cannot be null");
-
-        this.queryFunction = catalogFramework::query;
-        this.queryRequest = queryRequest;
+    public static ResultIterable resultIterable(CatalogFramework catalogFramework,
+            QueryRequest queryRequest, int maxResultCount) {
+        notNull(catalogFramework, "CatalogFramework cannot be null");
+        isTrue(maxResultCount > 0, "Max Results must be a positive integer", maxResultCount);
+        return new ResultIterable(catalogFramework, queryRequest, maxResultCount);
     }
 
     /**
      * Creates an iterable that will call a {@link QueryFunction} to retrieve the results
      * that match the {@link QueryRequest} provided.
      *
-     * @param queryFunction reference to the {@link QueryFunction} to call to retrieve the
-     *                      results.
-     * @param queryRequest  request used to retrieve the results.
+     * @param queryFunction  reference to the {@link QueryFunction} to call to retrieve the
+     *                       results.
+     * @param queryRequest   request used to retrieve the results.
+     * @param maxResultCount a positive integer indicating the maximum number of results in
+     *                       total to query for
      */
-    public ResultIterable(QueryFunction queryFunction, QueryRequest queryRequest) {
+    public static ResultIterable resultIterable(QueryFunction queryFunction,
+            QueryRequest queryRequest, int maxResultCount) {
+        isTrue(maxResultCount > 0, "Max Results must be zero or positive", maxResultCount);
+        return new ResultIterable(queryFunction, queryRequest, maxResultCount);
+    }
+
+    private ResultIterable(CatalogFramework catalogFramework, QueryRequest queryRequest,
+            int maxResultCount) {
+        this(catalogFramework::query, queryRequest, maxResultCount);
+    }
+
+    private ResultIterable(QueryFunction queryFunction, QueryRequest queryRequest,
+            int maxResultCount) {
         notNull(queryFunction, "Query function cannot be null");
         notNull(queryRequest, "Query request cannot be null");
+        isTrue(maxResultCount >= 0, "Max Results cannot be negative", maxResultCount);
 
         this.queryFunction = queryFunction;
         this.queryRequest = queryRequest;
+        this.maxResultCount = maxResultCount;
     }
 
     @Override
     public Iterator<Result> iterator() {
-        return new QueryResultIterator(queryFunction, queryRequest);
+        if (maxResultCount > 0) {
+            return limit(new ResultIterator(queryFunction, queryRequest), maxResultCount);
+        }
+        return new ResultIterator(queryFunction, queryRequest);
     }
 
     public Stream<Result> stream() {
-        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator(),
+        return stream(iterator());
+    }
+
+    private static Stream<Result> stream(Iterator<Result> iterator) {
+        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator,
                 Spliterator.ORDERED), false);
     }
 
-    private static class QueryResultIterator implements Iterator<Result> {
-
-        private static final Iterator<Result> RESULTS_EXHAUSTED =
-                new ArrayList<Result>().iterator();
+    private static class ResultIterator implements Iterator<Result> {
 
         private final QueryFunction queryFunction;
 
@@ -109,7 +162,9 @@ public class ResultIterable implements Iterable<Result> {
 
         private Iterator<Result> results = Collections.emptyIterator();
 
-        QueryResultIterator(QueryFunction queryFunction, QueryRequest queryRequest) {
+        private boolean finished = false;
+
+        ResultIterator(QueryFunction queryFunction, QueryRequest queryRequest) {
             this.queryFunction = queryFunction;
 
             copyQueryRequestAndQuery(queryRequest);
@@ -119,12 +174,12 @@ public class ResultIterable implements Iterable<Result> {
 
         @Override
         public boolean hasNext() {
-            if (results == RESULTS_EXHAUSTED) {
-                return false;
-            }
-
             if (results.hasNext()) {
                 return true;
+            }
+
+            if (finished) {
+                return false;
             }
 
             fetchNextResults();
@@ -134,12 +189,12 @@ public class ResultIterable implements Iterable<Result> {
 
         @Override
         public Result next() {
-            if (results == RESULTS_EXHAUSTED) {
-                throw new NoSuchElementException("No more results match the specified query");
-            }
-
             if (results.hasNext()) {
                 return results.next();
+            }
+
+            if (finished) {
+                throw new NoSuchElementException("No more results match the specified query");
             }
 
             fetchNextResults();
@@ -159,7 +214,7 @@ public class ResultIterable implements Iterable<Result> {
 
                 if (response.getResults()
                         .size() == 0) {
-                    results = RESULTS_EXHAUSTED;
+                    finished = true;
                     return;
                 }
 
@@ -167,6 +222,10 @@ public class ResultIterable implements Iterable<Result> {
                         .iterator();
                 currentIndex += response.getResults()
                         .size();
+
+                if (response.getHits() >= 0 && currentIndex > response.getHits()) {
+                    finished = true;
+                }
             } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
                 throw new CatalogQueryException(e);
             }
@@ -181,7 +240,7 @@ public class ResultIterable implements Iterable<Result> {
                     query.getStartIndex(),
                     pageSize,
                     query.getSortBy(),
-                    query.requestsTotalResultsCount(),
+                    true, //always get the hit count
                     query.getTimeoutMillis());
 
             this.queryRequestCopy = new QueryRequestImpl(queryCopy,

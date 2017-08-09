@@ -385,9 +385,10 @@ public interface CatalogFramework extends Describable {
      * regardless of the page size requested in the {@link QueryRequest}. For that reason, clients
      * should not assume that the number of results returned matches the page size requested and
      * write their paging code accordingly. If the {@link QueryResponse} does not need to be
-     * used, it is highly recommended that clients use an iterable or pagination class such as
-     * {@link ddf.catalog.util.impl.ResultListIterable} or
-     * {@link ddf.catalog.util.impl.ResultIterable} to retrieve and process results.
+     * used, it is highly recommended that clients use an iterable class such as
+     * {@link ddf.catalog.util.impl.ResultIterable} to retrieve and process results. If partitioning
+     * of results is required clients may use Guavas
+     * {@link com.google.common.collect.Iterables#partition(Iterable, int)} method.
      * </p>
      *
      * @see #query(QueryRequest, FederationStrategy)
@@ -416,9 +417,10 @@ public interface CatalogFramework extends Describable {
      * regardless of the page size requested in the {@link QueryRequest}. For that reason, clients
      * should not assume that the number of results returned matches the page size requested and
      * write their paging code accordingly. If the {@link QueryResponse} does not need to be
-     * used, it is highly recommended that clients use an iterable or pagination class such as
-     * {@link ddf.catalog.util.impl.ResultListIterable} or
-     * {@link ddf.catalog.util.impl.ResultIterable} to retrieve and process results.
+     * used, it is highly recommended that clients use an iterable class such as
+     * {@link ddf.catalog.util.impl.ResultIterable} to retrieve and process results. If partitioning
+     * of results is required clients may use Guavas
+     * {@link com.google.common.collect.Iterables#partition(Iterable, int)} method.
      * </p>
      *
      * @param queryRequest
