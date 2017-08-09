@@ -114,14 +114,14 @@ public class InputValidationTest {
     }
 
     @Test
-    public void testCheckForClientSideVulnerableMimeTypeBad() {
-        boolean result = InputValidation.isMimeTypeClientSideVulnerable(BAD_MIME);
+    public void testIsMimeTypeClientSideSafeMimeTypeBad() {
+        boolean result = InputValidation.isMimeTypeClientSideSafe(BAD_MIME);
         assertFalse(result);
     }
 
     @Test
-    public void testCheckForClientSideVulnerableMimeTypeGood() {
-        boolean result = InputValidation.isMimeTypeClientSideVulnerable(GOOD_MIME);
+    public void testIsMimeTypeClientSideSafeMimeTypeGood() {
+        boolean result = InputValidation.isMimeTypeClientSideSafe(GOOD_MIME);
         assertTrue(result);
     }
 
@@ -134,21 +134,21 @@ public class InputValidationTest {
     }
 
     @Test
-    public void testCheckForClientSideVulnerableFileNameBad() {
-        boolean result = InputValidation.isFileNameClientSideVulnerable(IGNORE_FILE);
+    public void testIsFileNameClientSideSafeFileNameBad() {
+        boolean result = InputValidation.isFileNameClientSideSafe(IGNORE_FILE);
         assertFalse(result);
     }
 
     @Test
-    public void testCheckForClientSideVulnerableFileNameBadCaseInsensitive() {
+    public void testIsFileNameClientSideSafeFileNameBadCaseInsensitive() {
         boolean result =
-                InputValidation.isFileNameClientSideVulnerable(IGNORE_FILE_CASE_INSENSITIVE);
+                InputValidation.isFileNameClientSideSafe(IGNORE_FILE_CASE_INSENSITIVE);
         assertFalse(result);
     }
 
     @Test
-    public void testCheckForClientSideVulnerableFileNameGood() {
-        boolean result = InputValidation.isFileNameClientSideVulnerable(IGNORE_FILE_KNOWN_GOOD);
+    public void testIsFileNameClientSideSafeFileNameGood() {
+        boolean result = InputValidation.isFileNameClientSideSafe(IGNORE_FILE_KNOWN_GOOD);
         assertTrue(result);
     }
 }

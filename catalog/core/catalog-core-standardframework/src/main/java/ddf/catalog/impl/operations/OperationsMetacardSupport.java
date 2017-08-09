@@ -103,7 +103,7 @@ public class OperationsMetacardSupport {
                                 "Could not copy bytes of content message.  Message was NULL.");
                     }
 
-                    if (!InputValidation.isFileNameClientSideVulnerable(fileName)) {
+                    if (!InputValidation.isFileNameClientSideSafe(fileName)) {
                         throw new IngestException("Ignored filename found.");
                     }
 
@@ -133,7 +133,7 @@ public class OperationsMetacardSupport {
                 String mimeTypeRaw = contentItem.getMimeTypeRawData();
                 mimeTypeRaw = guessMimeType(mimeTypeRaw, fileName, tmpPath);
 
-                if (!InputValidation.isMimeTypeClientSideVulnerable(mimeTypeRaw)) {
+                if (!InputValidation.isMimeTypeClientSideSafe(mimeTypeRaw)) {
                     throw new IngestException("Unsupported mime type.");
                 }
 
