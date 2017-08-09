@@ -105,7 +105,7 @@ public class ConfigurationMigrationManager
         notNull(configurationMigratables,
                 "List of ConfigurationMigratable services cannot be null");
         notNull(dataMigratables, "List of DataMigratable services cannot be null");
-        Validate.notNull(system, "invalid null system service");
+        notNull(system, "invalid null system service");
         this.mBeanServer = mBeanServer;
         this.configurationMigratables = configurationMigratables;
         this.dataMigratables = dataMigratables;
@@ -156,7 +156,7 @@ public class ConfigurationMigrationManager
      * @return a new consumer that will downgrade error messages before passing them to
      * <code>consumer</code>
      */
-    private static Consumer<MigrationMessage> downgradeErrorsToWarningsAndKeepInfosFor(
+    private static Consumer<MigrationMessage> downgradeErrorsToWarningsAndRemoveInfosFor(
             Consumer<MigrationMessage> consumer) {
         return m -> consumer.accept(m.downgradeToWarning()
                 .map(MigrationMessage.class::cast)
@@ -209,23 +209,19 @@ public class ConfigurationMigrationManager
                     exportDirectory), e));
             return report;
         }
-        String filename = ConfigurationMigrationManager.EXPORT_PREFIX + productVersion;
+        StringBuilder filename = new StringBuilder(
+                ConfigurationMigrationManager.EXPORT_PREFIX + productVersion);
 
         if (timestamp) {
-            filename += String.format(ConfigurationMigrationManager.EXPORT_DATE_FORMAT,
-                    report.getStartTime());
+            filename.append(String.format(ConfigurationMigrationManager.EXPORT_DATE_FORMAT,
+                    report.getStartTime()));
         }
-        filename += ConfigurationMigrationManager.EXPORT_EXTENSION;
-        final Path exportFile = exportDirectory.resolve(filename);
+        filename.append(ConfigurationMigrationManager.EXPORT_EXTENSION);
+        final Path exportFile = exportDirectory.resolve(filename.toString());
 
         try {
-            // purposely leave data migratables out for now
-            try (final ExportMigrationManagerImpl mgr = new ExportMigrationManagerImpl(report,
-                    exportFile,
-                    configurationMigratables.stream())) {
-                report.record(String.format("Exporting current configurations to %s.", exportFile));
-                mgr.doExport(productVersion);
-            }
+            delegateToExportMigrationManager(report, exportFile);
+
         } catch (MigrationException e) {
             report.record(e);
         } catch (IOException e) {
@@ -267,7 +263,7 @@ public class ConfigurationMigrationManager
             Optional<Consumer<MigrationMessage>> consumer) {
         Validate.notNull(exportDirectory, "invalid null export directory");
         final MigrationReportImpl xreport = doExport(exportDirectory,
-                consumer.map(ConfigurationMigrationManager::downgradeErrorsToWarningsAndKeepInfosFor),
+                consumer.map(ConfigurationMigrationManager::downgradeErrorsToWarningsAndRemoveInfosFor),
                 true); // timestamp the filename
         final MigrationReportImpl report = new MigrationReportImpl(MigrationOperation.IMPORT,
                 xreport,
@@ -279,13 +275,8 @@ public class ConfigurationMigrationManager
         ImportMigrationManagerImpl mgr = null;
 
         try {
-            // purposely leave data migratables out for now, we could always leave them in here
-            // which would just do no-op if no data is found in the export file
-            mgr = new ImportMigrationManagerImpl(report,
-                    exportFile,
-                    configurationMigratables.stream());
-            report.record(String.format("Exporting new configurations to %s.", exportFile));
-            mgr.doImport(productVersion);
+            mgr = delegateToImportMigrationManager(report, exportFile);
+
         } catch (MigrationException e) {
             report.record(e);
         } catch (RuntimeException e) {
@@ -324,5 +315,28 @@ public class ConfigurationMigrationManager
     @Override
     public Collection<Describable> getOptionalMigratableInfo() {
         return ImmutableList.copyOf(dataMigratables);
+    }
+
+    ImportMigrationManagerImpl delegateToImportMigrationManager(MigrationReportImpl report,
+            Path exportFile) {
+        // purposely leave data migratables out for now, we could always leave them in here
+        // which would just do no-op if no data is found in the export file
+        ImportMigrationManagerImpl mgr = new ImportMigrationManagerImpl(report,
+                exportFile,
+                configurationMigratables.stream());
+        report.record(String.format("Exporting new configurations to %s.", exportFile));
+        mgr.doImport(productVersion);
+        return mgr;
+    }
+
+    void delegateToExportMigrationManager(MigrationReportImpl report, Path exportFile)
+            throws IOException {
+        // purposely leave data migratables out for now
+        try (final ExportMigrationManagerImpl mgr = new ExportMigrationManagerImpl(report,
+                exportFile,
+                configurationMigratables.stream())) {
+            report.record(String.format("Exporting current configurations to %s.", exportFile));
+            mgr.doExport(productVersion);
+        }
     }
 }
