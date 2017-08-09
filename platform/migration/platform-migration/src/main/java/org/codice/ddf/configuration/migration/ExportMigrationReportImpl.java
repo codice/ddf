@@ -18,7 +18,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -31,9 +30,9 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
+import org.codice.ddf.migration.MigrationMessage;
 import org.codice.ddf.migration.MigrationOperation;
 import org.codice.ddf.migration.MigrationReport;
-import org.codice.ddf.migration.MigrationWarning;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,14 +86,14 @@ public class ExportMigrationReportImpl implements MigrationReport {
     }
 
     @Override
-    public ExportMigrationReportImpl record(MigrationWarning w) {
-        report.record(w);
+    public ExportMigrationReportImpl record(String msg) {
+        report.record(msg);
         return this;
     }
 
     @Override
-    public ExportMigrationReportImpl record(MigrationException e) {
-        report.record(e);
+    public ExportMigrationReportImpl record(MigrationMessage msg) {
+        report.record(msg);
         return this;
     }
 
@@ -105,23 +104,17 @@ public class ExportMigrationReportImpl implements MigrationReport {
     }
 
     @Override
-    public Stream<MigrationException> errors() {
-        return report.errors();
-    }
-
-    @Override
-    public Stream<MigrationWarning> warnings() {
-        return report.warnings();
-    }
-
-    @Override
-    public Collection<MigrationWarning> getWarnings() {
-        return report.getWarnings();
+    public Stream<MigrationMessage> messages() {
+        return report.messages();
     }
 
     @Override
     public boolean wasSuccessful() {
         return report.wasSuccessful();
+    }
+
+    public boolean hasInfos() {
+        return report.hasInfos();
     }
 
     public boolean hasWarnings() {

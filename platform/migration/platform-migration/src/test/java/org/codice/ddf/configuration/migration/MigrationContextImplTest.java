@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.commons.io.FileUtils;
 import org.codice.ddf.migration.Migratable;
@@ -39,7 +40,7 @@ public class MigrationContextImplTest extends AbstractMigrationTest {
 
     private static final String VERSION = "3.1415";
 
-    private final MigrationReport REPORT = new MigrationReportImpl(MigrationOperation.EXPORT);
+    private final MigrationReport REPORT = new MigrationReportImpl(MigrationOperation.EXPORT, Optional.empty());
 
     private final Migratable MIGRATABLE = Mockito.mock(Migratable.class);
 

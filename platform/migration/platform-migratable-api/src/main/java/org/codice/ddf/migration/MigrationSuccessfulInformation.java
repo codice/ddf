@@ -13,12 +13,8 @@
  */
 package org.codice.ddf.migration;
 
-import static org.apache.commons.lang.Validate.notNull;
-
-import java.util.Optional;
-
 /**
- * Class that provides warning statuses for migration operations.
+ * Special information message providing successful information about an operation.
  * <p>
  * <b>
  * This code is experimental. While this interface is functional
@@ -27,31 +23,14 @@ import java.util.Optional;
  * </b>
  * </p>
  */
-public class MigrationWarning implements MigrationMessage {
-    private final String message;
-
+public class MigrationSuccessfulInformation extends MigrationInformation {
     /**
      * Constructor
      *
      * @param message message regarding migration
      * @throws IllegalArgumentException if <code>message</code> is <code>null</code>
      */
-    public MigrationWarning(String message) {
-        notNull(message, "message cannot be null");
-        this.message = message;
-    }
-
-    public String getMessage() {
-        return this.message;
-    }
-
-    @Override
-    public Optional<MigrationWarning> downgradeToWarning() {
-        return Optional.of(this);
-    }
-
-    @Override
-    public String toString() {
-        return message;
+    public MigrationSuccessfulInformation(String message) {
+        super(message);
     }
 }

@@ -14,6 +14,8 @@
 
 package org.codice.ddf.migration;
 
+import java.util.Optional;
+
 /**
  * Exception that indicates some problem with the configuration migration.
  * <p>
@@ -24,7 +26,7 @@ package org.codice.ddf.migration;
  * </b>
  * </p>
  */
-public class MigrationException extends RuntimeException {
+public class MigrationException extends RuntimeException implements MigrationMessage {
 
     private static final long serialVersionUID = 1L;
 
@@ -53,5 +55,10 @@ public class MigrationException extends RuntimeException {
      */
     public MigrationException(String message, Throwable cause) {
         super(message, cause);
+    }
+
+    @Override
+    public Optional<MigrationWarning> downgradeToWarning() {
+        return Optional.of(new MigrationWarning(getMessage()));
     }
 }

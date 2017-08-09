@@ -21,6 +21,8 @@ import org.apache.karaf.shell.api.action.Action;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.codice.ddf.configuration.migration.ConfigurationMigrationService;
 import org.codice.ddf.migration.MigrationException;
+import org.codice.ddf.migration.MigrationMessage;
+import org.codice.ddf.migration.MigrationSuccessfulInformation;
 import org.codice.ddf.migration.MigrationWarning;
 import org.codice.ddf.security.common.Security;
 import org.fusesource.jansi.Ansi;
@@ -64,8 +66,16 @@ public abstract class MigrationCommands implements Action {
         this.configurationMigrationService = configurationMigrationService;
     }
 
-    protected void outputErrorMessage(MigrationException e) {
-        outputErrorMessage(e.getMessage());
+    protected void outputMessage(MigrationMessage msg) {
+        if (msg instanceof MigrationException) {
+            outputErrorMessage(msg.getMessage());
+        } else if (msg instanceof MigrationWarning) {
+            outputWarningMessage(msg.getMessage());
+        } else if (msg instanceof MigrationSuccessfulInformation) {
+            outputSuccessMessage(msg.getMessage());
+        } else {
+            outputInfoMessage(msg.getMessage());
+        }
     }
 
     protected void outputErrorMessage(String message) {
@@ -79,10 +89,6 @@ public abstract class MigrationCommands implements Action {
         console.println(Ansi.ansi()
                 .a(Attribute.RESET)
                 .toString());
-    }
-
-    protected void outputWarningMessage(MigrationWarning w) {
-        outputWarningMessage(w.getMessage());
     }
 
     protected void outputWarningMessage(String message) {

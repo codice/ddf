@@ -13,10 +13,10 @@
  */
 package org.codice.ddf.configuration.migration;
 
-import java.util.Collection;
 import java.util.Deque;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -25,6 +25,8 @@ import java.util.stream.Stream;
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.MigrationCompoundException;
 import org.codice.ddf.migration.MigrationException;
+import org.codice.ddf.migration.MigrationInformation;
+import org.codice.ddf.migration.MigrationMessage;
 import org.codice.ddf.migration.MigrationOperation;
 import org.codice.ddf.migration.MigrationReport;
 import org.codice.ddf.migration.MigrationWarning;
@@ -37,13 +39,17 @@ import org.slf4j.LoggerFactory;
 public class MigrationReportImpl implements MigrationReport {
     private static final Logger LOGGER = LoggerFactory.getLogger(MigrationReportImpl.class);
 
-    private final Set<Object> records;
+    private final Optional<Consumer<MigrationMessage>> consumer;
+
+    private final Set<MigrationMessage> messages;
 
     private final Deque<Consumer<MigrationReport>> codes = new LinkedList<>();
 
     private final MigrationOperation operation;
 
     private final long start;
+
+    private int numInfos = 0;
 
     private int numWarnings = 0;
 
@@ -55,13 +61,17 @@ public class MigrationReportImpl implements MigrationReport {
      * Creates a new migration report.
      *
      * @param operation the type of migration operation for this report
+     * @param consumer  an optional consumer to call whenever a new migration message is recorded
+     *                  during the operation
      * @throws IllegalArgumentException if <code>operation</code> is <code>null</code>
      */
-    public MigrationReportImpl(MigrationOperation operation) {
+    public MigrationReportImpl(MigrationOperation operation,
+            Optional<Consumer<MigrationMessage>> consumer) {
         Validate.notNull(operation, "invalid null operation");
         this.operation = operation;
+        this.consumer = consumer;
         this.start = System.currentTimeMillis();
-        this.records =
+        this.messages =
                 new LinkedHashSet<>(); // LinkedHashSet to prevent duplicate and maintain order
     }
 
@@ -71,25 +81,24 @@ public class MigrationReportImpl implements MigrationReport {
      *
      * @param operation the type of migration operation for this report
      * @param report    the report to be transferred over
+     * @param consumer  an optional consumer to call whenever a new migration message is recorded
+     *                  during the operation
      * @throws IllegalArgumentException if <code>operation</code> or <code>report</code> is <code>null</code>
      */
-    public MigrationReportImpl(MigrationOperation operation, MigrationReportImpl report) {
+    public MigrationReportImpl(MigrationOperation operation, MigrationReportImpl report,
+            Optional<Consumer<MigrationMessage>> consumer) {
         Validate.notNull(operation, "invalid null operation");
         Validate.notNull(report, "invalid null report");
         report.runCodes(); // to get all errors and warnings recorded
-        this.records = report.records.stream()
-                .map(MigrationReportImpl::toWarning)
+        this.messages = report.messages.stream()
+                .map(MigrationMessage::downgradeToWarning)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .collect(Collectors.toCollection(LinkedHashSet::new)); // LinkedHashSet to prevent duplicate and maintain order
-        this.numWarnings = records.size();
+        this.numWarnings = messages.size();
         this.operation = operation;
+        this.consumer = consumer;
         this.start = report.getStartTime();
-    }
-
-    private static MigrationWarning toWarning(Object record) {
-        // by design it will always be either a warning or an error
-        return (record instanceof MigrationWarning) ?
-                (MigrationWarning) record :
-                new MigrationWarning((MigrationException) record);
     }
 
     @Override
@@ -108,20 +117,25 @@ public class MigrationReportImpl implements MigrationReport {
     }
 
     @Override
-    public MigrationReportImpl record(MigrationWarning w) {
-        Validate.notNull(w, "invalid null warning");
-        this.numWarnings++;
-        records.add(w);
-        LOGGER.debug("migration warning: {}", w);
-        return this;
-    }
+    public MigrationReportImpl record(MigrationMessage msg) {
+        Validate.notNull(msg, "invalid null message");
+        final String level;
 
-    @Override
-    public MigrationReportImpl record(MigrationException e) {
-        Validate.notNull(e, "invalid null error");
-        this.numErrors++;
-        records.add(e);
-        LOGGER.info("migration error: ", e);
+        if (msg instanceof MigrationException) {
+            this.numErrors++;
+            level = "error";
+        } else if (msg instanceof MigrationWarning) {
+            this.numWarnings++;
+            level = "warning";
+        } else if (msg instanceof MigrationInformation) {
+            this.numInfos++;
+            level = "info";
+        } else {
+            level = "message";
+        }
+        LOGGER.debug("migration {}: {}", level, msg);
+        messages.add(msg);
+        consumer.ifPresent(c -> c.accept(msg));
         return this;
     }
 
@@ -133,28 +147,19 @@ public class MigrationReportImpl implements MigrationReport {
     }
 
     @Override
-    public Stream<MigrationException> errors() {
-        return records.stream()
-                .filter(MigrationException.class::isInstance)
-                .map(MigrationException.class::cast);
-    }
-
-    @Override
-    public Stream<MigrationWarning> warnings() {
-        return records.stream()
-                .filter(MigrationWarning.class::isInstance)
-                .map(MigrationWarning.class::cast);
-    }
-
-    @Override
-    public Collection<MigrationWarning> getWarnings() {
-        return warnings().collect(Collectors.toList()); // preserve order
+    public Stream<MigrationMessage> messages() {
+        return messages.stream();
     }
 
     @Override
     public boolean wasSuccessful() {
         runCodes();
         return (numErrors == 0);
+    }
+
+    public boolean hasInfos() {
+        runCodes();
+        return (numInfos > 0);
     }
 
     public boolean hasWarnings() {

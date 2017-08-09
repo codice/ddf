@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.migration;
 
+import javax.annotation.Nullable;
+
 import org.codice.ddf.platform.services.common.Describable;
 
 /**
@@ -43,13 +45,14 @@ public interface Migratable extends Describable {
      * @return the current version handled by this migratable
      */
     @Override
+    @Nullable
     public String getVersion();
 
     /**
      * Exports all required migratable data to the specified context.
      * <p>
-     * Errors and/or warnings can be recorded along with the context's report. Doing so will not abort
-     * the operation right away.
+     * Errors, warnings, and/or information messages can be recorded along with the context's report.
+     * Doing so will not abort the operation right away.
      *
      * @param context a migration context to export all migratable data to
      * @throws MigrationException to stop the export operation
@@ -59,11 +62,37 @@ public interface Migratable extends Describable {
     /**
      * Imports all exported migratable data provided by the specified context.
      * <p>
-     * Errors and/or warnings can be recorded along with the context's report. Doing so will not abort
-     * the operation right away.
+     * Errors, warnings, and/or information messages can be recorded along with the context's report.
+     * Doing so will not abort the operation right away.
+     * <p>
+     * <i>Note:</i> This version of the <code>doImport</code> method will be called if and only if
+     * the exported version for this migratable matches its currently reported version
+     * (see {@link #getVersion}).
      *
      * @param context a migration context to import all exported migratable data from
      * @throws MigrationException to stop the import operation
      */
     public void doImport(ImportMigrationContext context);
+
+    /**
+     * Imports all exported migratable data provided by the specified context when the current
+     * version of this migratable (see {@link #getVersion}) is different then the exported version.
+     * <p>
+     * Errors, warnings, and/or information messages can be recorded along with the context's report.
+     * Doing so will not abort the operation right away.
+     *
+     * @param context a migration context to import all exported migratable data from
+     * @param version the exported version for the data to re-import (can be <code>null</code> if
+     *                <code>null</code> was provided by the migratable as its version during export)
+     * @throws MigrationException to stop the import operation
+     */
+    public default void doIncompatibleImport(ImportMigrationContext context,
+            @Nullable String version) {
+        context.getReport()
+                .record(new IncompatibleMigrationException(String.format(
+                        "unsupported exported migrated version [%s] for migratable [%s]; currently supporting [%s]",
+                        version,
+                        getId(),
+                        getVersion())));
+    }
 }
