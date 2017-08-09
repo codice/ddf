@@ -20,6 +20,7 @@ var SlideoutLeftViewInstance = require('component/singletons/slideout.left.view-
 var NavigatorView = require('component/navigator/navigator.view');
 var store = require('js/store');
 var UnsavedIndicatorView = require('component/unsaved-indicator/workspaces/workspaces-unsaved-indicator.view');
+var sources = require('component/singletons/sources-instance');
 
 module.exports = Marionette.LayoutView.extend({
     template: template,
@@ -32,7 +33,9 @@ module.exports = Marionette.LayoutView.extend({
     },
     initialize: function(){
         this.listenTo(store.get('workspaces'), 'change:saved update add remove', this.handleSaved);
+        this.listenTo(sources, 'all', this.handleSources);
         this.handleSaved();
+        this.handleSources();
     },
     onBeforeShow: function(){
         this.unsavedIndicator.show(new UnsavedIndicatorView());
@@ -42,9 +45,15 @@ module.exports = Marionette.LayoutView.extend({
         SlideoutLeftViewInstance.open();
     },
     handleSaved: function(){
-        var hasUnsaved = store.get('workspaces').find(function(workspace){
+        var hasUnsaved = store.get('workspaces').some(function(workspace){
             return !workspace.isSaved();
         });
-        this.$el.toggleClass('is-saved', !hasUnsaved);
+        this.$el.toggleClass('has-unsaved', hasUnsaved);
+    },
+    handleSources: function(){
+        var hasDown = sources.some(function(source){
+            return !source.get('available');
+        });
+        this.$el.toggleClass('has-unavailable', hasDown);
     }
-});
+}); 

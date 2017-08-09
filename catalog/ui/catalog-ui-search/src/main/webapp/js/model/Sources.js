@@ -71,8 +71,27 @@ define([
     return Backbone.Collection.extend({
         url: "/services/catalog/sources",
         useAjaxSync: true,
-
+        comparator: function(a, b) {
+            const aName = a.id.toLowerCase();
+            const bName = b.id.toLowerCase();
+            const aAvailable = a.get('available');
+            const bAvailable = b.get('available');
+            if ((aAvailable && bAvailable) || (!aAvailable && !bAvailable)){
+                if (aName < bName){
+                    return -1;
+                }
+                if (aName > bName) {
+                    return 1;
+                }
+                return 0;
+            } else if (!aAvailable){
+                return -1;
+            } else if (!bAvailable){
+                return 1;
+            }
+        },
         initialize: function () {
+            this.listenTo(this, 'change', this.sort);
           this._types = new Types();
           this.determineLocalCatalog();
           this.listenTo(this, 'sync', this.updateLocalCatalog);

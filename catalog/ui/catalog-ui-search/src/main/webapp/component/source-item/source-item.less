@@ -1,0 +1,59 @@
+@{customElementNamespace}source-item {
+    .customElement;
+    height: auto;
+    white-space: nowrap;
+    padding: @minimumSpacing;
+    overflow: hidden;
+
+    .source-name,
+    .source-available {
+        white-space: normal;
+        display: inline-block;
+        vertical-align: top;
+        .is-large-font;
+        line-height: @minimumButtonSize;
+        vertical-align: middle;
+    }
+
+    .source-name {
+        padding: 0px @minimumSpacing;
+        max-width: ~'calc(100% - @{minimumButtonSize})';
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .source-available {
+        width: @minimumButtonSize;
+        text-align: center;
+    }
+
+    .is-available,
+    .is-not-available {
+        display: none;
+    }
+
+    .is-available {
+        color: @positive-color;
+    }
+
+    .is-not-available {
+        color: @warning-color;
+    }
+}
+
+@{customElementNamespace}source-item.is-available {
+    .is-available {
+        display: inline;
+    }
+}
+
+@{customElementNamespace}source-item:not(.is-available) {
+    .is-not-available {
+        display: inline;
+    }
+}
+
+@{customElementNamespace}source-item-collection {
+    .customElement;
+    height: auto;
+}

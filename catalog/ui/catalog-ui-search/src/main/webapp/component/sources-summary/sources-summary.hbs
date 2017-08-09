@@ -11,10 +11,12 @@
  *
  **/
  --}}
-<button data-help="Click here to bring up the navigator.">
-    <span class="fa fa-bars"></span>
-    <div class="navigation-indicator"></div>
-    <span class="navigation-sources fa fa-bolt">
-    </span>
-     <span class="navigation-multiple fa fa-exclamation"></span>
-</button>
+{{#if down}}
+    {{#if single}}
+        {{amountDown}} source is currently down.
+    {{else}}
+        {{amountDown}} sources are currently down.
+    {{/if}}
+{{else}}
+    All sources are currently up.
+{{/if}}
