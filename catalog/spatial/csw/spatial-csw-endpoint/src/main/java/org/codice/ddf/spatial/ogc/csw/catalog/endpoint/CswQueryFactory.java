@@ -168,7 +168,6 @@ public class CswQueryFactory {
             throws CswException {
         Filter filter = buildFilter(constraint);
         QueryImpl query = new QueryImpl(filter);
-        query.setPageSize(-1);
 
         QueryRequest request = new QueryRequestImpl(query);
 
