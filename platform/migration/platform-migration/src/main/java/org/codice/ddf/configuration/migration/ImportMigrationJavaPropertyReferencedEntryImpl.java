@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
@@ -36,7 +37,7 @@ public class ImportMigrationJavaPropertyReferencedEntryImpl
             Map<String, Object> metadata) {
         super(context, metadata);
         this.propertiesPath =
-                Paths.get(MigrationEntryImpl.sanitizeSeparators(JsonUtils.getStringFrom(metadata,
+                Paths.get(FilenameUtils.separatorsToSystem(JsonUtils.getStringFrom(metadata,
                         MigrationEntryImpl.METADATA_NAME,
                         true)));
     }
@@ -86,7 +87,7 @@ public class ImportMigrationJavaPropertyReferencedEntryImpl
             } else {
                 try {
                     if (!getAbsolutePath().toRealPath()
-                            .equals(getContext().resolveAgainstDDFHome(Paths.get(val)))) {
+                            .equals(getContext().getPathUtils().resolveAgainstDDFHome(Paths.get(val)))) {
                         r.record(new ImportPathMigrationException(propertiesPath,
                                 getProperty(),
                                 getPath(),
@@ -109,7 +110,7 @@ public class ImportMigrationJavaPropertyReferencedEntryImpl
 
         try {
             is =
-                    new BufferedInputStream(new FileInputStream(getContext().resolveAgainstDDFHome(
+                    new BufferedInputStream(new FileInputStream(getContext().getPathUtils().resolveAgainstDDFHome(
                             propertiesPath)
                             .toFile()));
             props.load(is);

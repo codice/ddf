@@ -62,7 +62,7 @@ public class ImportMigrationSystemPropertyReferencedEntryImpl
             } else {
                 try {
                     if (!getAbsolutePath().toRealPath()
-                            .equals(getContext().resolveAgainstUserDirectory(val)
+                            .equals(getContext().getPathUtils().resolveAgainstUserDirectory(val)
                                     .toRealPath())) {
                         r.record(new ImportPathMigrationException(getProperty(),
                                 getPath(),

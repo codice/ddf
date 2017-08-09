@@ -42,7 +42,7 @@ public abstract class ExportMigrationPropertyReferencedEntryImpl extends ExportM
      */
     ExportMigrationPropertyReferencedEntryImpl(ExportMigrationContextImpl context, String property,
             String pathname) {
-        super(context, context.resolveAgainstUserDirectory(pathname));
+        super(context, context.getPathUtils().resolveAgainstUserDirectory(pathname));
         Validate.notNull(property, "invalid null property");
         this.property = property;
     }

@@ -208,10 +208,11 @@ public class ExportMigrationContextImpl extends MigrationContextImpl
         return metadata;
     }
 
-    OutputStream getOutputStreamFor(Path path) {
+    OutputStream getOutputStreamFor(ExportMigrationEntryImpl entry) {
         try {
             close();
-            zos.putNextEntry(new ZipEntry(path.toString()));
+            // zip entries are always Unix style based on our convention
+            zos.putNextEntry(new ZipEntry(id + '/' + entry.getName()));
             final OutputStream oos = new ProxyOutputStream(zos) {
                 @Override
                 public void close() throws IOException {
