@@ -14,12 +14,18 @@ It is possible to SSH into a running test instance. This will allow you to use t
 ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -p 20003 admin@localhost
 ```
 
-## Debug a Single Test
+## Running Tests
 The Pax Exam tests support Maven Surefire Plugin properties. One useful property is the `it.test` property to select a single test class or method to execute.
 
 ```
 mvn clean verify -Dit.test=TestFederation
 mvn clean verify -Dit.test=TestFederation#<testMethodName>
+```
+
+Multiple test classes can also be executed sequentially using comma separation.
+
+```
+mvn clean verify -Dit.test=TestFederation,TestSecurity
 ```
 
 This can be combined with the `isDebugEnabled` property.
