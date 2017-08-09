@@ -13,8 +13,8 @@
  */
 package ddf.catalog.source.solr;
 
-import static ddf.catalog.Constants.FACET_FIELDS_KEY;
-import static ddf.catalog.Constants.FACET_RESULTS_KEY;
+import static ddf.catalog.Constants.EXPERIMENTAL_FACET_FIELDS_KEY;
+import static ddf.catalog.Constants.EXPERIMENTAL_FACET_RESULTS_KEY;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -118,18 +118,19 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         SolrQuery query = getSolrQuery(request, filterDelegateFactory.newInstance(resolver));
 
         boolean isFacetedQuery = false;
-        FacetProperties textFacetsProp = (FacetProperties) request.getPropertyValue(FACET_FIELDS_KEY);
+        Serializable textFacetPropRaw = request.getPropertyValue(EXPERIMENTAL_FACET_FIELDS_KEY);
 
-        if(textFacetsProp != null) {
+        if(textFacetPropRaw != null && textFacetPropRaw instanceof FacetProperties) {
+            FacetProperties textFacetProp = (FacetProperties) textFacetPropRaw;
             isFacetedQuery = true;
 
-            textFacetsProp.getFacetFields().stream()
+            textFacetProp.getFacetFields().stream()
                     .map(facet -> !facet.endsWith("_txt") ? facet + "_txt" : facet)
                     .forEach(query::addFacetField);
 
-            query.setFacetSort(textFacetsProp.getSortKey().name());
-            query.setFacetLimit(textFacetsProp.getFacetLimit());
-            query.setFacetMinCount(textFacetsProp.getMinFacetCount());
+            query.setFacetSort(textFacetProp.getSortKey().name());
+            query.setFacetLimit(textFacetProp.getFacetLimit());
+            query.setFacetMinCount(textFacetProp.getMinFacetCount());
         }
 
         long totalHits;
@@ -147,7 +148,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
                         .map(this::convertFacetField)
                         .collect(Collectors.toList());
 
-                responseProps.put(FACET_RESULTS_KEY, (Serializable) facetedFieldResults);
+                responseProps.put(EXPERIMENTAL_FACET_RESULTS_KEY, (Serializable) facetedFieldResults);
             }
 
             for (SolrDocument doc : docs) {

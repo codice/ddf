@@ -13,7 +13,7 @@
  */
 package ddf.catalog.operation.faceting;
 
-import static ddf.catalog.Constants.FACET_FIELDS_KEY;
+import static ddf.catalog.Constants.EXPERIMENTAL_FACET_FIELDS_KEY;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -57,9 +57,10 @@ public class FacetedQueryRequest extends QueryRequestImpl {
      */
     public FacetedQueryRequest(Query query, boolean isEnterprise, Collection<String> sourceIds,
             Map<String, Serializable> properties, FacetProperties facetProperties) {
-        super(query, isEnterprise, sourceIds, new HashMap<>(properties));
+        super(query, isEnterprise, sourceIds, properties);
 
-        this.properties.put(FACET_FIELDS_KEY, facetProperties);
+        this.properties = new HashMap<>(this.properties);
+        this.properties.put(EXPERIMENTAL_FACET_FIELDS_KEY, facetProperties);
     }
 
 }

@@ -17,7 +17,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class FacetedFieldResult {
+
+    private static final Logger LOGGER =  LoggerFactory.getLogger(FacetedFieldResult.class);
 
     private String fieldName;
 
@@ -37,6 +42,11 @@ public class FacetedFieldResult {
     public FacetedFieldResult(String fieldName, List<String> fieldValues, List<Long> valueCounts) {
         this.fieldName = fieldName;
         facetValues = new ArrayList<>();
+
+       if (fieldValues.size() != valueCounts.size()) {
+           LOGGER.debug("Creating result with unmatched field values or counts. Values: {}, Counts: {}",
+                   fieldValues.size(), valueCounts.size());
+       }
 
         Iterator<String> valueItr = fieldValues.iterator();
         Iterator<Long> countItr = valueCounts.iterator();
