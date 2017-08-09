@@ -116,6 +116,7 @@ import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.service.SecurityManager;
+
 import net.opengis.cat.csw.v_2_0_2.AcknowledgementType;
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.ElementSetNameType;
@@ -1087,8 +1088,9 @@ public abstract class AbstractCswSource extends MaskableImpl
         this.forceSpatialFilter = forceSpatialFilter;
     }
 
-    private GetRecordsType createGetRecordsRequest(QueryRequest queryRequest, ElementSetType elementSetName,
-            List<QName> elementNames) throws UnsupportedQueryException {
+    private GetRecordsType createGetRecordsRequest(QueryRequest queryRequest,
+            ElementSetType elementSetName, List<QName> elementNames)
+            throws UnsupportedQueryException {
         Query query = queryRequest.getQuery();
         GetRecordsType getRecordsType = new GetRecordsType();
         getRecordsType.setVersion(cswVersion);
@@ -1114,8 +1116,9 @@ public abstract class AbstractCswSource extends MaskableImpl
         return elementSetNameType;
     }
 
-    private JAXBElement<QueryType> createQuery(QueryRequest queryRequest, ElementSetType elementSetType,
-            List<QName> elementNames) throws UnsupportedQueryException {
+    private JAXBElement<QueryType> createQuery(QueryRequest queryRequest,
+            ElementSetType elementSetType, List<QName> elementNames)
+            throws UnsupportedQueryException {
         QueryType queryType = new QueryType();
 
         QName queryTypeQName = null;
@@ -1167,7 +1170,7 @@ public abstract class AbstractCswSource extends MaskableImpl
         Query query = queryRequest.getQuery();
         SortByType cswSortBy = null;
 
-        if (query.getSortBy() != null && query.getSortBy()
+        if (query != null && query.getSortBy() != null && query.getSortBy()
                 .getPropertyName() != null) {
             List<SortBy> sortBys = new ArrayList<>();
             sortBys.add(query.getSortBy());
@@ -1183,32 +1186,34 @@ public abstract class AbstractCswSource extends MaskableImpl
             for (SortBy sortBy : sortBys) {
                 SortPropertyType sortProperty = new SortPropertyType();
                 PropertyNameType propertyName = new PropertyNameType();
-                String propName;
-                propName = sortBy.getPropertyName()
-                        .getPropertyName();
 
-                if (propName != null) {
-                    if (Result.TEMPORAL.equals(propName) || Metacard.ANY_DATE.equals(propName)) {
-                        propName = Core.MODIFIED;
-                    } else if (Result.RELEVANCE.equals(propName) || Metacard.ANY_TEXT.equals(
-                            propName)) {
-                        propName = Core.TITLE;
-                    } else if (Result.DISTANCE.equals(propName)
-                            || Metacard.ANY_GEO.equals(propName)) {
-                        return null;
-                    }
+                if (sortBy.getPropertyName() != null) {
+                    String propName = sortBy.getPropertyName()
+                            .getPropertyName();
 
-                    propertyName.setContent(Arrays.asList((Object) cswFilterDelegate.mapPropertyName(
-                            propName)));
-                    sortProperty.setPropertyName(propertyName);
-                    if (SortOrder.DESCENDING.equals(query.getSortBy()
-                            .getSortOrder())) {
-                        sortProperty.setSortOrder(SortOrderType.DESC);
-                    } else {
-                        sortProperty.setSortOrder(SortOrderType.ASC);
+                    if (propName != null) {
+                        if (Result.TEMPORAL.equals(propName) || Metacard.ANY_DATE.equals(propName)) {
+                            propName = Core.MODIFIED;
+                        } else if (Result.RELEVANCE.equals(propName) || Metacard.ANY_TEXT.equals(
+                                propName)) {
+                            propName = Core.TITLE;
+                        } else if (Result.DISTANCE.equals(propName) || Metacard.ANY_GEO.equals(
+                                propName)) {
+                            return null;
+                        }
+
+                        propertyName.setContent(Arrays.asList((Object) cswFilterDelegate.mapPropertyName(
+                                propName)));
+                        sortProperty.setPropertyName(propertyName);
+                        if (SortOrder.DESCENDING.equals(query.getSortBy()
+                                .getSortOrder())) {
+                            sortProperty.setSortOrder(SortOrderType.DESC);
+                        } else {
+                            sortProperty.setSortOrder(SortOrderType.ASC);
+                        }
+                        cswSortBy.getSortProperty()
+                                .add(sortProperty);
                     }
-                    cswSortBy.getSortProperty()
-                            .add(sortProperty);
                 }
             }
         } else {

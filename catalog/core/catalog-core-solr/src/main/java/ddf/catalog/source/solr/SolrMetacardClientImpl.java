@@ -321,14 +321,17 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
             throws UnsupportedQueryException {
         List<SortBy> sortBys = new ArrayList<>();
 
-        SortBy sortBy = request.getQuery().getSortBy();
-        if (sortBy != null) {
-            sortBys.add(sortBy);
+        if (request.getQuery() != null) {
+            SortBy sortBy = request.getQuery()
+                    .getSortBy();
+            if (sortBy != null) {
+                sortBys.add(sortBy);
+            }
         }
 
-        Serializable sortBySer = request.getProperties().get(EXT_SORT_BY);
+        Serializable sortBySer = request.getPropertyValue(EXT_SORT_BY);
         if (sortBySer instanceof SortBy[]) {
-            SortBy[] extSortBys = (SortBy[])sortBySer;
+            SortBy[] extSortBys = (SortBy[]) sortBySer;
             sortBys.addAll(Arrays.asList(extSortBys));
         }
 
@@ -407,12 +410,13 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
             SolrFilterDelegate solrFilterDelegate) {
 
         List<SortBy> sortBys = new ArrayList<>();
-        SortBy querySortBy = request.getQuery()
-                .getSortBy();
         String sortProperty = "";
-
-        if (querySortBy != null && querySortBy.getPropertyName() != null) {
-            sortBys.add(querySortBy);
+        if (request.getQuery() != null) {
+            SortBy querySortBy = request.getQuery()
+                    .getSortBy();
+            if (querySortBy != null && querySortBy.getPropertyName() != null) {
+                sortBys.add(querySortBy);
+            }
         }
 
         Serializable sortBySer = request.getPropertyValue(EXT_SORT_BY);

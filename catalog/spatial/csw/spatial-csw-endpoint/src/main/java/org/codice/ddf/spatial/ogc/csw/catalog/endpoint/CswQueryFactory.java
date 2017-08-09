@@ -270,16 +270,17 @@ public class CswQueryFactory {
                 return null;
             }
 
-            if (!attributeRegistry.lookup(cswSortBy.getPropertyName()
-                    .getPropertyName())
-                    .isPresent() && !DefaultCswRecordMap.hasDefaultMetacardFieldForPrefixedString(
-                    cswSortBy.getPropertyName()
-                            .getPropertyName(),
-                    cswSortBy.getPropertyName()
-                            .getNamespaceContext())) {
-                LOGGER.debug("Property {} is not a valid SortBy Field",
+            if (cswSortBy.getPropertyName() != null) {
+                if (!attributeRegistry.lookup(cswSortBy.getPropertyName()
+                        .getPropertyName())
+                        .isPresent() && !DefaultCswRecordMap.hasDefaultMetacardFieldForPrefixedString(cswSortBy.getPropertyName()
+                                .getPropertyName(),
                         cswSortBy.getPropertyName()
-                                .getPropertyName());
+                                .getNamespaceContext())) {
+                    LOGGER.debug("Property {} is not a valid SortBy Field",
+                            cswSortBy.getPropertyName()
+                                    .getPropertyName());
+                }
             }
 
             String name = DefaultCswRecordMap.getDefaultMetacardFieldForPrefixedString(cswSortBy.getPropertyName()

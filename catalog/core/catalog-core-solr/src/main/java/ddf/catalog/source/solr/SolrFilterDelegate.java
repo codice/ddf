@@ -850,13 +850,16 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     private void updateDistanceSort(String propertyName, Point point) {
         if (sortBys != null && sortBys.length != 0) {
             for (SortBy sortBy : sortBys) {
-                String sortByPropertyName = sortBy.getPropertyName()
-                        .getPropertyName();
-                if (Result.DISTANCE.equals(sortByPropertyName) || propertyName.equals(
-                        sortByPropertyName)) {
-                    isSortedByDistance = true;
-                    sortedDistancePoint = point.getY() + "," + point.getX();
-                    break;
+                if (sortBy.getPropertyName() != null && sortBy.getPropertyName()
+                        .getPropertyName() != null) {
+                    String sortByPropertyName = sortBy.getPropertyName()
+                            .getPropertyName();
+                    if (Result.DISTANCE.equals(sortByPropertyName) || propertyName.equals(
+                            sortByPropertyName)) {
+                        isSortedByDistance = true;
+                        sortedDistancePoint = point.getY() + "," + point.getX();
+                        break;
+                    }
                 }
             }
         }

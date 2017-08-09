@@ -2366,9 +2366,6 @@ public class TestCatalog extends AbstractIntegrationTest {
 
         validatableResponse.body(containsString(sortCardId1));
         validatableResponse.body(not(containsString(sortCardId2)));
-
-        deleteMetacard(sortCardId1);
-        deleteMetacard(sortCardId2);
     }
 
     @Test
@@ -2386,9 +2383,6 @@ public class TestCatalog extends AbstractIntegrationTest {
 
         validatableResponse.body(not(containsString(sortCardId1)));
         validatableResponse.body(containsString(sortCardId2));
-
-        deleteMetacard(sortCardId1);
-        deleteMetacard(sortCardId2);
     }
 
     @Test
