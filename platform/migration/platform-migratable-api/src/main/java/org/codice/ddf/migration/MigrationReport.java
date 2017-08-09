@@ -13,9 +13,10 @@
  */
 package org.codice.ddf.migration;
 
-import java.util.Collection;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
+
+import org.apache.commons.lang.Validate;
 
 /**
  * The migration report provides information about the execution of a migration operation.
@@ -51,25 +52,30 @@ public interface MigrationReport {
     public long getEndTime();
 
     /**
-     * Records a warning that occurred during the migration report.
+     * Records an informational message that occurred during the migration report.
+     * <p>
+     * <i>Note:</i> This is a short for <code>record(new MigrationInformation(msg))</code>.
      *
-     * @param w the warning to record
+     * @param msg the information message to record
      * @return this for chaining
-     * @throws IllegalArgumentException if <code>w</code> is <code>null</code>
+     * @throws IllegalArgumentException if <code>msg</code> is <code>null</code>
      */
-    public MigrationReport record(MigrationWarning w);
+    public default MigrationReport record(String msg) {
+        Validate.notNull(msg, "invalid null message");
+        return record(new MigrationInformation(msg));
+    }
 
     /**
-     * Records an error that occurred during the migration report.
+     * Records a message that occurred during the migration report.
      * <p>
-     * Recorded errors will be thrown back when {@link #verifyCompletion()} is called at the end of
-     * the operation.
+     * Recorded errors (i.e. MigrationException} will be thrown back when {@link #verifyCompletion()}
+     * is called at the end of the operation.
      *
-     * @param e the error to record
+     * @param msg the message to record
      * @return this for chaining
-     * @throws IllegalArgumentException if <code>e</code> is <code>null</code>
+     * @throws IllegalArgumentException if <code>msg</code> is <code>null</code>
      */
-    public MigrationReport record(MigrationException e);
+    public MigrationReport record(MigrationMessage msg);
 
     /**
      * Registers code to be invoked at the completion of the migration operation.
@@ -82,25 +88,42 @@ public interface MigrationReport {
     public MigrationReport doAfterCompletion(Consumer<MigrationReport> code);
 
     /**
+     * Retrieves all messages recorded by the operation that generated this migration report.
+     *
+     * @return a stream of all recorded messages (may be empty)
+     */
+    public Stream<MigrationMessage> messages();
+
+    /**
      * Retrieves all errors recorded by the operation that generated this migration report.
      *
      * @return a stream of all recorded errors (may be empty)
      */
-    public Stream<MigrationException> errors();
+    public default Stream<MigrationException> errors() {
+        return messages().filter(MigrationException.class::isInstance)
+                .map(MigrationException.class::cast);
+    }
 
     /**
      * Retrieves all warnings recorded by the operation that generated this migration report.
      *
      * @return a stream of all recorded warnings (may be empty)
      */
-    public Stream<MigrationWarning> warnings();
+    public default Stream<MigrationWarning> warnings() {
+        return messages().filter(MigrationWarning.class::isInstance)
+                .map(MigrationWarning.class::cast);
+    }
 
     /**
-     * Retrieves all warnings recorded by the operation that generated this migration report.
+     * Retrieves all informational messages recorded by the operation that generated this migration
+     * report.
      *
-     * @return an unmodifiable collections of all recorded warnings (may be empty)
+     * @return a stream of all recorded info messages (may be empty)
      */
-    public Collection<MigrationWarning> getWarnings();
+    public default Stream<MigrationInformation> infos() {
+        return messages().filter(MigrationInformation.class::isInstance)
+                .map(MigrationInformation.class::cast);
+    }
 
     /**
      * Checks if the operation that generated this migration report was successful or not.
@@ -112,6 +135,16 @@ public interface MigrationReport {
      * @return <code>true</code> if the operation was successfull; <code>false</code> if not
      */
     public boolean wasSuccessful();
+
+    /**
+     * Checks if the operation that generated this migration recorded any information messages.
+     * <p>
+     * Invoking this method will call all registered code via {@link #doAfterCompletion(Consumer)} first.
+     *
+     * @return <code>true</code> if the operation recorded at least one informational message;
+     * <code>false</code> if not
+     */
+    public boolean hasInfos();
 
     /**
      * Checks if the operation that generated this migration recorded any warnings.

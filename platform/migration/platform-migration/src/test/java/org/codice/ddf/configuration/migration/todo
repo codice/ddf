@@ -1,0 +1,159 @@
+    private static final String UNIX_NAME = "path/path2/file.ext";
+
+    private static final String WINDOWS_NAME = "path\\path2\\file.ext";
+
+    private static final String MIXED_NAME = "path\\path2/file.ext";
+
+    private static final Path FILE_PATH = Paths.get(UNIX_NAME);
+
+    @Test
+    public void testSanitizeSeparatorsWithLinuxSeparators() throws Exception {
+        Assert.assertThat(MigrationEntryImpl.sanitizeSeparators(UNIX_NAME),
+                Matchers.equalTo(UNIX_NAME));
+    }
+
+    @Test
+    public void testSanitizeSeparatorsWithWindowsSeparators() throws Exception {
+        Assert.assertThat(MigrationEntryImpl.sanitizeSeparators(WINDOWS_NAME),
+                Matchers.equalTo(UNIX_NAME));
+    }
+
+    @Test
+    public void testSanitizeSeparatorsWithMixedSeparators() throws Exception {
+        Assert.assertThat(MigrationEntryImpl.sanitizeSeparators(MIXED_NAME),
+                Matchers.equalTo(UNIX_NAME));
+    }
+
+    @Test
+    public void testConstructorWithRelativePath() {
+        final MigrationEntryImpl ENTRY = Mockito.mock(MigrationEntryImpl.class,
+                Mockito.CALLS_REAL_METHODS);
+
+        Assert.assertThat(ENTRY.getContext(), Matchers.sameInstance(CONTEXT));
+        Assert.assertThat(ENTRY.getPath(), Matchers.equalTo(FILE_PATH));
+    }
+
+    @Test
+    public void testConstructorWithAbsolutePathUnderDDFHome() {
+        final Path ABSOLUTE_FILE_PATH = DDF_HOME.resolve(UNIX_NAME)
+                .toAbsolutePath();
+
+        final MigrationEntryImpl ENTRY = Mockito.mock(MigrationEntryImpl.class,
+                Mockito.CALLS_REAL_METHODS);
+
+        Assert.assertThat(ENTRY.getContext(), Matchers.sameInstance(CONTEXT));
+        Assert.assertThat(ENTRY.getPath(), Matchers.equalTo(FILE_PATH));
+    }
+
+    @Test
+    public void testConstructorWithAbsolutePathNotUnderDDFHome() {
+        final String ABSOLUTE_UNIX_NAME = "/path/path2/file.ext";
+        final Path ABSOLUTE_FILE_PATH = Paths.get(ABSOLUTE_UNIX_NAME);
+
+        final MigrationEntryImpl ENTRY = Mockito.mock(MigrationEntryImpl.class,
+                Mockito.CALLS_REAL_METHODS);
+
+        Assert.assertThat(ENTRY.getContext(), Matchers.sameInstance(CONTEXT));
+        Assert.assertThat(ENTRY.getPath(), Matchers.equalTo(ABSOLUTE_FILE_PATH));
+    }
+
+    @Test
+    public void testConstructorWithUnixName() {
+        final MigrationEntryImpl ENTRY = Mockito.mock(MigrationEntryImpl.class,
+                Mockito.withSettings()
+                        .useConstructor(CONTEXT, UNIX_NAME)
+                        .defaultAnswer(Mockito.CALLS_REAL_METHODS));
+
+        Assert.assertThat(ENTRY.getContext(), Matchers.sameInstance(CONTEXT));
+        Assert.assertThat(ENTRY.getPath(), Matchers.equalTo(FILE_PATH));
+    }
+
+    @Test
+    public void testConstructorWithWindowsName() {
+        final MigrationEntryImpl ENTRY = Mockito.mock(MigrationEntryImpl.class,
+                Mockito.withSettings()
+                        .useConstructor(CONTEXT, WINDOWS_NAME)
+                        .defaultAnswer(Mockito.CALLS_REAL_METHODS));
+
+        Assert.assertThat(ENTRY.getContext(), Matchers.sameInstance(CONTEXT));
+        Assert.assertThat(ENTRY.getPath(), Matchers.equalTo(FILE_PATH));
+    }
+
+    @Test
+    public void testConstructorWithMixedName() {
+        final MigrationEntryImpl ENTRY = Mockito.mock(MigrationEntryImpl.class,
+                Mockito.withSettings()
+                        .useConstructor(CONTEXT, MIXED_NAME)
+                        .defaultAnswer(Mockito.CALLS_REAL_METHODS));
+
+        Assert.assertThat(ENTRY.getContext(), Matchers.sameInstance(CONTEXT));
+        Assert.assertThat(ENTRY.getPath(), Matchers.equalTo(FILE_PATH));
+    }
+
+    @Test
+    public void testConstructorWithProviderAndMigratableFQN() {
+        final Function<String, MigrationContextImpl> PROVIDER = Mockito.mock(Function.class);
+
+        Mockito.when(PROVIDER.apply(Mockito.anyString()))
+                .thenReturn(CONTEXT);
+
+        final MigrationEntryImpl ENTRY = Mockito.mock(MigrationEntryImpl.class,
+                Mockito.withSettings()
+                        .useConstructor(PROVIDER, MIGRATABLE_FQN)
+                        .defaultAnswer(Mockito.CALLS_REAL_METHODS));
+
+        Assert.assertThat(ENTRY.getContext(), Matchers.sameInstance(CONTEXT));
+        Assert.assertThat(ENTRY.getPath(), Matchers.equalTo(FILE_PATH));
+
+        Mockito.verify(PROVIDER, Mockito.only())
+                .apply(MIGRATABLE_ID);
+    }
+
+    @Test
+    public void testConstructorWithProviderAndSystemFQN() {
+        final Function<String, MigrationContextImpl> PROVIDER = Mockito.mock(Function.class);
+
+        Mockito.when(PROVIDER.apply(Mockito.nullable(String.class)))
+                .thenReturn(CONTEXT);
+
+        final MigrationEntryImpl ENTRY = Mockito.mock(MigrationEntryImpl.class,
+                Mockito.withSettings()
+                        .useConstructor(PROVIDER, SYSTEM_FQN)
+                        .defaultAnswer(Mockito.CALLS_REAL_METHODS));
+
+        Assert.assertThat(ENTRY.getContext(), Matchers.sameInstance(CONTEXT));
+        Assert.assertThat(ENTRY.getPath(), Matchers.equalTo(Paths.get(SYSTEM_FQN)));
+
+        Mockito.verify(PROVIDER, Mockito.only())
+                .apply(null);
+    }
+
+    @Test
+    public void testConstructorWithNullProvider() {
+        thrown.expect(ThrowableMatchers.hasInitialCauseMatching(Matchers.instanceOf(
+                IllegalArgumentException.class)));
+        // unfortunately, right now Mockito has no way to control which of the 2 ctors is called
+        // thrown.expect(ThrowableMatchers.hasInitialCauseMessageMatching(Matchers.containsString(
+        //        "null context provider")));
+
+        Mockito.mock(MigrationEntryImpl.class,
+                Mockito.withSettings()
+                        .useConstructor(null, MIGRATABLE_FQN)
+                        .defaultAnswer(Mockito.CALLS_REAL_METHODS));
+    }
+
+    @Test
+    public void testConstructorWithProviderAndNullFQN() {
+        final Function<String, MigrationContextImpl> PROVIDER = Mockito.mock(Function.class);
+
+        thrown.expect(ThrowableMatchers.hasInitialCauseMatching(Matchers.instanceOf(
+                IllegalArgumentException.class)));
+        thrown.expect(ThrowableMatchers.hasInitialCauseMessageMatching(Matchers.containsString(
+                "null fully qualified name")));
+
+        Mockito.mock(MigrationEntryImpl.class,
+                Mockito.withSettings()
+                        .useConstructor(PROVIDER, null)
+                        .defaultAnswer(Mockito.CALLS_REAL_METHODS));
+    }
+

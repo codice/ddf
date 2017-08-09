@@ -67,7 +67,7 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
 
     private static final Path MIGRATABLE_PATH = Paths.get(MIGRATABLE_NAME);
 
-    private final MigrationReport REPORT = new MigrationReportImpl(MigrationOperation.EXPORT);
+    private final MigrationReport REPORT = new MigrationReportImpl(MigrationOperation.EXPORT, Optional.empty());
 
     private final Migratable MIGRATABLE = Mockito.mock(Migratable.class);
 

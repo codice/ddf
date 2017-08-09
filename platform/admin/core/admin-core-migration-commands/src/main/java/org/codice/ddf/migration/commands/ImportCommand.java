@@ -16,12 +16,12 @@ package org.codice.ddf.migration.commands;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.shell.api.action.Argument;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
-import org.codice.ddf.migration.MigrationReport;
 
 import ddf.security.service.SecurityServiceException;
 
@@ -33,24 +33,14 @@ import ddf.security.service.SecurityServiceException;
         "The import command delegates to all "
                 + "registered Migratable services to import bundle specific configuration and data.")
 public class ImportCommand extends MigrationCommands {
-    private static final String STARTING_IMPORT_MESSAGE = "Importing new configurations from %s.";
-
-    private static final String SUCCESSFUL_IMPORT_MESSAGE =
-            "Successfully imported all configurations.";
-
-    private static final String SUCCESSFUL_IMPORT_WITH_WARNINGS_MESSAGE =
-            "Successfully imported all configurations with warnings; make sure to review.";
-
-    private static final String FAILED_IMPORT_MESSAGE =
-            "Failed to import all configurations from %s.";
-
     private static final String ERROR_IMPORT_MESSAGE =
             "An error was encountered while executing this command. %s";
 
     @Argument(index = 0, name = "importDirectory", description = "Path to directory where to find the file to import", required = false, multiValued = false)
     String exportDirectoryArgument;
 
-    public ImportCommand() {}
+    public ImportCommand() {
+    }
 
     @Override
     public Object execute() {
@@ -61,23 +51,10 @@ public class ImportCommand extends MigrationCommands {
         } else {
             exportDirectory = Paths.get(exportDirectoryArgument);
         }
-        outputInfoMessage(String.format(ImportCommand.STARTING_IMPORT_MESSAGE, exportDirectory));
         try {
-            final MigrationReport report =
-                    security.runWithSubjectOrElevate(() -> configurationMigrationService.doImport(
-                            exportDirectory));
-
-            if (report.hasErrors()) {
-                outputErrorMessage(String.format(FAILED_IMPORT_MESSAGE, exportDirectory));
-            } else if (report.hasWarnings()) {
-                outputWarningMessage(SUCCESSFUL_IMPORT_WITH_WARNINGS_MESSAGE);
-            } else {
-                outputSuccessMessage(SUCCESSFUL_IMPORT_MESSAGE);
-            }
-            report.errors()
-                    .forEach(this::outputErrorMessage);
-            report.warnings()
-                    .forEach(this::outputWarningMessage);
+            security.runWithSubjectOrElevate(() -> configurationMigrationService.doImport(
+                    exportDirectory,
+                    Optional.of(this::outputMessage)));
         } catch (SecurityServiceException e) {
             outputErrorMessage(String.format(ERROR_IMPORT_MESSAGE, e));
         } catch (InvocationTargetException e) {

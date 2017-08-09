@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Stream;
@@ -178,7 +179,11 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
             if (LOGGER.isDebugEnabled()) {
                 stopwatch = Stopwatch.createStarted();
             }
-            migratable.doImport(this);
+            if (Objects.equals(getVersion(), migratable.getVersion())) {
+                migratable.doImport(this);
+            } else {
+                migratable.doIncompatibleImport(this, getVersion());
+            }
             if (LOGGER.isDebugEnabled() && (stopwatch != null)) {
                 LOGGER.debug("Imported time for {}: {}", id, stopwatch.stop());
             }

@@ -23,7 +23,6 @@ import java.util.Optional;
 import org.codice.ddf.migration.ConfigurationMigratable;
 import org.codice.ddf.migration.ExportMigrationContext;
 import org.codice.ddf.migration.ImportMigrationContext;
-import org.codice.ddf.migration.ImportMigrationException;
 import org.codice.ddf.migration.MigrationEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,15 +119,6 @@ public class PlatformMigratable implements ConfigurationMigratable {
 
     @Override
     public void doImport(ImportMigrationContext context) {
-        if (!PlatformMigratable.VERSION.equals(context.getVersion())) {
-            context.getReport()
-                    .record(new ImportMigrationException(String.format(
-                            "unsupported exported migrated version [%s] for migratable [%s]; currently supporting [%s]",
-                            context.getVersion(),
-                            getId(),
-                            PlatformMigratable.VERSION)));
-            return;
-        }
         LOGGER.debug("Importing system files...");
         PlatformMigratable.SYSTEM_FILES.stream()
                 .map(context::getEntry)

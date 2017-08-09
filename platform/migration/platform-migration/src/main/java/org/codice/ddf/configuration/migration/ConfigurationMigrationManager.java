@@ -24,7 +24,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.BinaryOperator;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanServer;
@@ -37,8 +40,10 @@ import org.apache.karaf.system.SystemService;
 import org.codice.ddf.migration.ConfigurationMigratable;
 import org.codice.ddf.migration.DataMigratable;
 import org.codice.ddf.migration.MigrationException;
+import org.codice.ddf.migration.MigrationMessage;
 import org.codice.ddf.migration.MigrationOperation;
 import org.codice.ddf.migration.MigrationReport;
+import org.codice.ddf.migration.MigrationSuccessfulInformation;
 import org.codice.ddf.migration.MigrationWarning;
 import org.codice.ddf.migration.UnexpectedMigrationException;
 import org.codice.ddf.platform.services.common.Describable;
@@ -143,6 +148,21 @@ public class ConfigurationMigrationManager
         }
     }
 
+    /**
+     * Gets a consumer that will downgrade all error messages to warnings before passing them
+     * along to the provided consumer. All informational messages are passed as is.
+     *
+     * @param consumer the consumer to pass messages to
+     * @return a new consumer that will downgrade error messages before passing them to
+     * <code>consumer</code>
+     */
+    private static Consumer<MigrationMessage> downgradeErrorsToWarningsAndKeepInfosFor(
+            Consumer<MigrationMessage> consumer) {
+        return m -> consumer.accept(m.downgradeToWarning()
+                .map(MigrationMessage.class::cast)
+                .orElse(m));
+    }
+
     public void init() throws Exception {
         ObjectName objectName = new ObjectName(OBJECT_NAME);
 
@@ -164,17 +184,21 @@ public class ConfigurationMigrationManager
         final MigrationReport report = doExport(Paths.get(exportDirectory));
 
         report.verifyCompletion(); // will throw error if it failed
-        return report.getWarnings();
+        return report.warnings()
+                .collect(Collectors.toList());
     }
 
     @Override
-    public MigrationReport doExport(Path exportDirectory) {
+    public MigrationReport doExport(Path exportDirectory,
+            Optional<Consumer<MigrationMessage>> consumer) {
         Validate.notNull(exportDirectory, "invalid null export directory");
-        return doExport(exportDirectory, false); // no timestamp on filename
+        return doExport(exportDirectory, consumer, false); // no timestamp on filename
     }
 
-    private MigrationReportImpl doExport(Path exportDirectory, boolean timestamp) {
-        final MigrationReportImpl report = new MigrationReportImpl(MigrationOperation.EXPORT);
+    private MigrationReportImpl doExport(Path exportDirectory,
+            Optional<Consumer<MigrationMessage>> consumer, boolean timestamp) {
+        final MigrationReportImpl report = new MigrationReportImpl(MigrationOperation.EXPORT,
+                consumer);
 
         try {
             FileUtils.forceMkdir(exportDirectory.toFile());
@@ -199,6 +223,7 @@ public class ConfigurationMigrationManager
             try (final ExportMigrationManagerImpl mgr = new ExportMigrationManagerImpl(report,
                     exportFile,
                     configurationMigratables.stream())) {
+                report.record(String.format("Exporting current configurations to %s.", exportFile));
                 mgr.doExport(productVersion);
             }
         } catch (MigrationException e) {
@@ -211,7 +236,20 @@ public class ConfigurationMigrationManager
                     "failed exporting to file [%s]; internal error occurred",
                     exportFile), e));
         }
-        return report.end();
+        report.end();
+        if (report.hasErrors()) {
+            report.record(new MigrationException(String.format(
+                    "Failed to export all configurations to %s.",
+                    exportFile)));
+        } else if (report.hasWarnings()) {
+            report.record(new MigrationWarning(
+                    "Successfully exported all configurations with warnings; make sure to review."));
+        } else {
+            report.record(new MigrationSuccessfulInformation(
+                    "Successfully exported all configurations."));
+        }
+
+        return report;
     }
 
     @Override
@@ -220,16 +258,20 @@ public class ConfigurationMigrationManager
         final MigrationReport report = doImport(Paths.get(exportDirectory));
 
         report.verifyCompletion(); // will throw error if it failed
-        return report.getWarnings();
+        return report.warnings()
+                .collect(Collectors.toList());
     }
 
     @Override
-    public MigrationReport doImport(Path exportDirectory) {
+    public MigrationReport doImport(Path exportDirectory,
+            Optional<Consumer<MigrationMessage>> consumer) {
         Validate.notNull(exportDirectory, "invalid null export directory");
         final MigrationReportImpl xreport = doExport(exportDirectory,
+                consumer.map(ConfigurationMigrationManager::downgradeErrorsToWarningsAndKeepInfosFor),
                 true); // timestamp the filename
         final MigrationReportImpl report = new MigrationReportImpl(MigrationOperation.IMPORT,
-                xreport);
+                xreport,
+                consumer);
 
         final Path exportFile = exportDirectory.resolve(
                 ConfigurationMigrationManager.EXPORT_PREFIX + productVersion
@@ -242,6 +284,7 @@ public class ConfigurationMigrationManager
             mgr = new ImportMigrationManagerImpl(report,
                     exportFile,
                     configurationMigratables.stream());
+            report.record(String.format("Exporting new configurations to %s.", exportFile));
             mgr.doImport(productVersion);
         } catch (MigrationException e) {
             report.record(e);
@@ -253,22 +296,28 @@ public class ConfigurationMigrationManager
             IOUtils.closeQuietly(mgr); // do not care if we fail to close the mgr/zip file!!!
         }
         report.end();
-        if (!report.hasErrors()) {
-            if (!report.hasWarnings()) {
-                try {
-                    System.setProperty("karaf.restart.jvm", "true"); // force a JVM restart
-                    system.reboot(ConfigurationMigrationManager.REBOOT_DELAY,
-                            SystemService.Swipe.NONE);
-                } catch (Exception e) { // yeah, their interface declares an exception can be thrown!!!!
-                    LOGGER.debug("failed to request a reboot: ", e);
-                    report.record(new MigrationWarning(
-                            "Please restart the system for changes to take effect."));
-                }
-            } else {
-                report.record(new MigrationWarning(
-                        "Please restart the system for changes to take effect after addressing all reported warnings."));
+        if (report.hasErrors()) {
+            report.record(new MigrationException(String.format(
+                    "Failed to import all configurations from %s.",
+                    exportFile)));
+        } else if (report.hasWarnings()) {
+            report.record(new MigrationWarning(
+                    "Successfully imported all configurations with warnings; make sure to review."));
+            report.record(new MigrationWarning(
+                    "Please restart the system for changes to take effect after addressing all reported warnings."));
+        } else {
+            report.record(new MigrationSuccessfulInformation(
+                    "Successfully imported all configurations."));
+            try {
+                System.setProperty("karaf.restart.jvm", "true"); // force a JVM restart
+                system.reboot(ConfigurationMigrationManager.REBOOT_DELAY, SystemService.Swipe.NONE);
+                report.record("Restarting the system in 1 minute for changes to take effect.");
+            } catch (Exception e) { // yeah, their interface declares an exception can be thrown!!!!
+                LOGGER.debug("failed to request a reboot: ", e);
+                report.record("Please restart the system for changes to take effect.");
             }
         }
+
         return report;
     }
 

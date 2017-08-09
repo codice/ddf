@@ -18,7 +18,6 @@ import static org.apache.commons.lang.Validate.notNull;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.stream.Stream;
 
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.configuration.persistence.PersistenceStrategy;
@@ -27,7 +26,6 @@ import org.codice.ddf.configuration.persistence.felix.FelixConfigPersistenceStra
 import org.codice.ddf.migration.ConfigurationMigratable;
 import org.codice.ddf.migration.ExportMigrationContext;
 import org.codice.ddf.migration.ImportMigrationContext;
-import org.codice.ddf.migration.ImportMigrationException;
 import org.codice.ddf.migration.MigrationContext;
 import org.codice.ddf.migration.MigrationEntry;
 import org.codice.ddf.migration.UnexpectedMigrationException;
@@ -108,15 +106,6 @@ public class ConfigurationAdminMigratable implements ConfigurationMigratable {
 
     @Override
     public void doImport(ImportMigrationContext context) {
-        if (!ConfigurationAdminMigratable.VERSION.equals(context.getVersion())) {
-            context.getReport()
-                    .record(new ImportMigrationException(String.format(
-                            "unsupported exported migrated version [%s] for migratable [%s]; currently supporting [%s]",
-                            context.getVersion(),
-                            getId(),
-                            ConfigurationAdminMigratable.VERSION)));
-            return;
-        }
         final ImportMigrationConfigurationAdminContext adminContext =
                 new ImportMigrationConfigurationAdminContext(context,
                         this,
