@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.commons.io.FilenameUtils;
 import org.codice.ddf.migration.ExportMigrationEntry;
 import org.codice.ddf.migration.ExportPathMigrationException;
 import org.codice.ddf.migration.Migratable;
@@ -59,15 +60,25 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
 
     private static final String PROPERTY_NAME2 = "test.property2";
 
-    private static final String[] MIGRATABLE_NAME_DIRS = new String[] { "where", "some", "dir" };
+    private static final String[] MIGRATABLE_NAME_DIRS = new String[] {"where", "some", "dir"};
 
-    private static final String MIGRATABLE_NAME = Paths.get("where/some/dir/test.txt").toString();
+    private static final String MIGRATABLE_NAME = "where/some/dir/test.txt";
 
-    private static final String MIGRATABLE_PROPERTY_PATHNAME = Paths.get("../where/some/dir/test.txt").toString(); // relative to current working dir
+    private static final String MIGRATABLE_PROPERTY_PATHNAME = Paths.get("..",
+            "where",
+            "some",
+            "dir",
+            "test.txt")
+            .toString(); // relative to current working dir
 
-    private static final Path MIGRATABLE_PATH = Paths.get(MIGRATABLE_NAME);
+    private static final Path MIGRATABLE_PATH = Paths.get(FilenameUtils.separatorsToSystem(
+            MIGRATABLE_NAME));
 
-    private final MigrationReport REPORT = new MigrationReportImpl(MigrationOperation.EXPORT, Optional.empty());
+    private static final ExportMigrationEntryImpl ENTRY =
+            Mockito.mock(ExportMigrationEntryImpl.class);
+
+    private final MigrationReport REPORT = new MigrationReportImpl(MigrationOperation.EXPORT,
+            Optional.empty());
 
     private final Migratable MIGRATABLE = Mockito.mock(Migratable.class);
 
@@ -92,7 +103,8 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
                 .thenReturn(DESCRIPTION);
         Mockito.when(MIGRATABLE.getOrganization())
                 .thenReturn(ORGANIZATION);
-
+        Mockito.when(ENTRY.getName())
+                .thenReturn(MIGRATABLE_NAME);
         this.CONTEXT = new ExportMigrationContextImpl(REPORT, MIGRATABLE, ZOS);
 
         System.setProperty(PROPERTY_NAME, MIGRATABLE_PROPERTY_PATHNAME);
@@ -165,8 +177,12 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
     }
 
     @Test
-    public void testGetSystemPropertyReferencedEntryWhenValueIsAbsoluteUnderDDFHome() throws Exception {
-        System.setProperty(PROPERTY_NAME, DDF_HOME.resolve(MIGRATABLE_PATH).toAbsolutePath().toString());
+    public void testGetSystemPropertyReferencedEntryWhenValueIsAbsoluteUnderDDFHome()
+            throws Exception {
+        System.setProperty(PROPERTY_NAME,
+                DDF_HOME.resolve(MIGRATABLE_PATH)
+                        .toAbsolutePath()
+                        .toString());
 
         createDirectory(MIGRATABLE_NAME_DIRS);
         createFile(MIGRATABLE_NAME);
@@ -194,11 +210,16 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
     }
 
     @Test
-    public void testGetSystemPropertyReferencedEntryWhenValueIsAbsoluteNotUnderDDFHome() throws Exception {
-        final Path MIGRATABLE_PATH = testFolder.newFile("test.cfg").toPath().toRealPath();
+    public void testGetSystemPropertyReferencedEntryWhenValueIsAbsoluteNotUnderDDFHome()
+            throws Exception {
+        final Path MIGRATABLE_PATH = testFolder.newFile("test.cfg")
+                .toPath()
+                .toRealPath();
         final String MIGRATABLE_NAME = MIGRATABLE_PATH.toString();
 
-        System.setProperty(PROPERTY_NAME, MIGRATABLE_PATH.toAbsolutePath().toString());
+        System.setProperty(PROPERTY_NAME,
+                MIGRATABLE_PATH.toAbsolutePath()
+                        .toString());
 
         final Optional<ExportMigrationEntry> oentry = CONTEXT.getSystemPropertyReferencedEntry(
                 PROPERTY_NAME,
@@ -399,10 +420,7 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
         final Path ETC = createDirectory("etc");
         final Path KS = createDirectory("etc", "keystores");
         final Path OTHER = createDirectory("other");
-        final List<Path> PATHS = createFiles(ETC,
-                "test.cfg",
-                "test2.config",
-                "test3.properties");
+        final List<Path> PATHS = createFiles(ETC, "test.cfg", "test2.config", "test3.properties");
 
         createFiles(PATHS, KS, "serverKeystore.jks", "serverTruststore.jks");
         createFiles(OTHER, "a", "b");
@@ -424,10 +442,7 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
         final Path ETC = createDirectory("etc");
         final Path KS = createDirectory("etc", "keystores");
         final Path OTHER = createDirectory("other");
-        final List<Path> PATHS = createFiles(ETC,
-                "test.cfg",
-                "test2.config",
-                "test3.properties");
+        final List<Path> PATHS = createFiles(ETC, "test.cfg", "test2.config", "test3.properties");
 
         createFiles(PATHS, KS, "serverKeystore.jks", "serverTruststore.jks");
         createFiles(OTHER, "a", "b");
@@ -488,10 +503,7 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
         final Path ETC = createDirectory("etc");
         final Path KS = createDirectory("etc", "keystores");
         final Path OTHER = createDirectory("other");
-        final List<Path> PATHS = createFiles(ETC,
-                "test.cfg",
-                "test2.config",
-                "test3.properties");
+        final List<Path> PATHS = createFiles(ETC, "test.cfg", "test2.config", "test3.properties");
 
         createFiles(PATHS, KS, "serverKeystore.jks", "serverTruststore.jks");
         createFiles(OTHER, "a", "b");
@@ -523,10 +535,7 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
         final Path ETC = createDirectory("etc");
         final Path KS = createDirectory("etc", "keystores");
         final Path OTHER = createDirectory("other");
-        final List<Path> PATHS = createFiles(ETC,
-                "test.cfg",
-                "test2.config",
-                "test3.properties");
+        final List<Path> PATHS = createFiles(ETC, "test.cfg", "test2.config", "test3.properties");
 
         createFiles(KS, "serverKeystore.jks", "serverTruststore.jks");
         createFiles(OTHER, "a", "b");
@@ -551,10 +560,7 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
         final Path ETC = createDirectory("etc");
         final Path KS = createDirectory("etc", "keystores");
         final Path OTHER = createDirectory("other");
-        final List<Path> PATHS = createFiles(ETC,
-                "test.cfg",
-                "test2.config",
-                "test3.properties");
+        final List<Path> PATHS = createFiles(ETC, "test.cfg", "test2.config", "test3.properties");
 
         createFiles(KS, "serverKeystore.jks", "serverTruststore.jks");
         createFiles(OTHER, "a", "b");
@@ -624,10 +630,7 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
         final Path ETC = createDirectory("etc");
         final Path KS = createDirectory("etc", "keystores");
         final Path OTHER = createDirectory("other");
-        final List<Path> PATHS = createFiles(ETC,
-                "test.cfg",
-                "test2.config",
-                "test3.properties");
+        final List<Path> PATHS = createFiles(ETC, "test.cfg", "test2.config", "test3.properties");
 
         createFiles(KS, "serverKeystore.jks", "serverTruststore.jks");
         createFiles(OTHER, "a", "b");
@@ -672,14 +675,14 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
 
     @Test
     public void testClose() throws Exception {
-        CONTEXT.getOutputStreamFor(MIGRATABLE_PATH);
+        CONTEXT.getOutputStreamFor(ENTRY);
 
         ZOS.close();
 
         final Map<String, ZipEntry> zentries =
                 AbstractMigrationTest.getEntriesFrom(new ByteArrayInputStream(BAOS.toByteArray()));
 
-        Assert.assertThat(zentries.keySet(), Matchers.contains(MIGRATABLE_NAME));
+        Assert.assertThat(zentries.keySet(), Matchers.contains(MIGRATABLE_ID + '/' + MIGRATABLE_NAME));
     }
 
     @Test
@@ -718,52 +721,54 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
 
     @Test
     public void testGetOutputStreamFor() throws Exception {
-        final OutputStream out = CONTEXT.getOutputStreamFor(MIGRATABLE_PATH);
+        final OutputStream out = CONTEXT.getOutputStreamFor(ENTRY);
 
         ZOS.close();
         final Map<String, ZipEntry> zentries =
                 AbstractMigrationTest.getEntriesFrom(new ByteArrayInputStream(BAOS.toByteArray()));
 
-        Assert.assertThat(zentries.keySet(), Matchers.contains(MIGRATABLE_NAME));
+        Assert.assertThat(zentries.keySet(), Matchers.contains(MIGRATABLE_ID + '/' + MIGRATABLE_NAME));
     }
 
     @Test
     public void testGetOutputStreamForWillClosePreviousEntry() throws Exception {
         final String MIGRATABLE_NAME2 = "etc/some/dir/test.txt2";
-        final Path MIGRATABLE_PATH2 = Paths.get(MIGRATABLE_NAME2);
-        final OutputStream OUT = CONTEXT.getOutputStreamFor(MIGRATABLE_PATH);
+        final ExportMigrationEntryImpl ENTRY2 = Mockito.mock(ExportMigrationEntryImpl.class);
 
-        final OutputStream out = CONTEXT.getOutputStreamFor(MIGRATABLE_PATH2);
+        Mockito.when(ENTRY2.getName()).thenReturn(MIGRATABLE_NAME2);
+        final OutputStream OUT = CONTEXT.getOutputStreamFor(ENTRY);
+
+        final OutputStream out = CONTEXT.getOutputStreamFor(ENTRY2);
 
         ZOS.close();
         final Map<String, ZipEntry> zentries = AbstractMigrationTest.getEntriesFrom(BAOS);
 
-        Assert.assertThat(zentries.keySet(),
-                Matchers.containsInAnyOrder(MIGRATABLE_NAME, MIGRATABLE_NAME2));
+            Assert.assertThat(zentries.keySet(),
+                Matchers.containsInAnyOrder(MIGRATABLE_ID + '/' + MIGRATABLE_NAME, MIGRATABLE_ID + '/' + MIGRATABLE_NAME2));
     }
 
     @Test(expected = UncheckedIOException.class)
     public void testGetOutputStreamForWhenAlreadyClosed() throws Exception {
         ZOS.close(); // to trigger IOException when trying to create a new entry
 
-        CONTEXT.getOutputStreamFor(MIGRATABLE_PATH);
+        CONTEXT.getOutputStreamFor(ENTRY);
     }
 
     @Test
     public void testGetOutputStreamForWhenClosingReturnedStream() throws Exception {
-        final OutputStream out = CONTEXT.getOutputStreamFor(MIGRATABLE_PATH);
+        final OutputStream out = CONTEXT.getOutputStreamFor(ENTRY);
 
         out.close();
         ZOS.close();
         final Map<String, ZipEntry> zentries =
                 AbstractMigrationTest.getEntriesFrom(new ByteArrayInputStream(BAOS.toByteArray()));
 
-        Assert.assertThat(zentries.keySet(), Matchers.contains(MIGRATABLE_NAME));
+        Assert.assertThat(zentries.keySet(), Matchers.contains(MIGRATABLE_ID + '/' + MIGRATABLE_NAME));
     }
 
     @Test
     public void testGetOutputStreamForWhenDoubleClosingReturnedStream() throws Exception {
-        final OutputStream out = CONTEXT.getOutputStreamFor(MIGRATABLE_PATH);
+        final OutputStream out = CONTEXT.getOutputStreamFor(ENTRY);
 
         out.close();
         out.close();
@@ -771,7 +776,7 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
         final Map<String, ZipEntry> zentries =
                 AbstractMigrationTest.getEntriesFrom(new ByteArrayInputStream(BAOS.toByteArray()));
 
-        Assert.assertThat(zentries.keySet(), Matchers.contains(MIGRATABLE_NAME));
+        Assert.assertThat(zentries.keySet(), Matchers.contains(MIGRATABLE_ID + '/' + MIGRATABLE_NAME));
     }
 
     @Test
@@ -780,7 +785,7 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
         thrown.expectCause(Matchers.instanceOf(IOException.class));
         thrown.expectCause(Matchers.not(Matchers.instanceOf(ExportIOException.class)));
 
-        final OutputStream out = CONTEXT.getOutputStreamFor(MIGRATABLE_PATH);
+        final OutputStream out = CONTEXT.getOutputStreamFor(ENTRY);
 
         out.close();
         out.write(1);
@@ -789,7 +794,7 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
     @Test
     public void testGetOutputStreamForWhenIOErrorsOccursFromReturnedStreamThrownAsCause()
             throws Exception {
-        final OutputStream out = CONTEXT.getOutputStreamFor(MIGRATABLE_PATH);
+        final OutputStream out = CONTEXT.getOutputStreamFor(ENTRY);
 
         out.close();
 

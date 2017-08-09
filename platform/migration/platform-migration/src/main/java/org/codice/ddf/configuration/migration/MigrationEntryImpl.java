@@ -15,7 +15,6 @@ package org.codice.ddf.configuration.migration;
 
 import javax.annotation.Nullable;
 
-import org.apache.commons.io.FilenameUtils;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationContext;
 import org.codice.ddf.migration.MigrationEntry;
@@ -44,21 +43,6 @@ public abstract class MigrationEntryImpl implements MigrationEntry {
     protected boolean stored = false;
 
     protected MigrationEntryImpl() {}
-
-    /**
-     * This method is used to properly convert a zip entry name into a relative path suitable for
-     * the current OS. We cannot take advantage of the {@link java.nio.file.Paths#get} method since
-     * it doesn't convert occurrences of the separators inside the string parameters it receives.
-     * Further more, we cannot rely on zip entry names to be defined with <code>\</code> or
-     * <code>/</code> since the zip standard doesn't indicate which one to use and worst, every
-     * entries in a zip file can be different.
-     *
-     * @param name the zip entry name to sanitize
-     * @return the corresponding sanitized name
-     */
-    protected static String sanitizeSeparators(String name) {
-        return FilenameUtils.separatorsToUnix(name);
-    }
 
     @Override
     public MigrationReport getReport() {

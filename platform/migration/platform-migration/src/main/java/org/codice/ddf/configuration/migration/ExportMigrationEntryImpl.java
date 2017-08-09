@@ -22,7 +22,6 @@ import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -31,6 +30,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiPredicate;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.ExportMigrationEntry;
@@ -84,8 +84,8 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
         IOException aerror;
 
         try {
-            // make sure it is resolved from ddf.home and not the current working directory
-            apath = context.resolveAgainstDDFHome(path)
+            // make sure it is resolved against ddf.home and not the current working directory
+            apath = context.getPathUtils().resolveAgainstDDFHome(path)
                     .toRealPath();
             aerror = null;
         } catch (IOException e) {
@@ -95,9 +95,10 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
         this.context = context;
         this.absolutePath = apath;
         this.absolutePathError = aerror;
-        this.path = context.relativizeFromDDFHome(apath);
+        this.path = context.getPathUtils().relativizeFromDDFHome(apath);
         this.file = apath.toFile();
-        this.name = MigrationEntryImpl.sanitizeSeparators(this.path.toString());
+        // we keep the entry name in Unix style based on our convention
+        this.name = FilenameUtils.separatorsToUnix(this.path.toString());
     }
 
     @Override
@@ -130,8 +131,7 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
         try {
             return outputStream.updateAndGet(os -> (os != null) ?
                     os :
-                    context.getOutputStreamFor(Paths.get(getId())
-                            .resolve(path)));
+                    context.getOutputStreamFor(this));
         } catch (UncheckedIOException e) {
             throw e.getCause();
         }
@@ -241,9 +241,10 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
             } else {
                 recordError("cannot be read", absolutePathError);
             }
+            return false;
         } else if (path.isAbsolute()) {
             report.recordExternal(this, false);
-            recordWarning(String.format("is outside [%s]", context.getDDFHome()));
+            recordWarning(String.format("is outside [%s]", context.getPathUtils().getDDFHome()));
             return false;
         } else if (Files.isSymbolicLink(absolutePath)) {
             report.recordExternal(this, true);

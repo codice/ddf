@@ -14,8 +14,6 @@
 package org.codice.ddf.configuration.migration;
 
 import java.io.IOError;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
@@ -63,7 +61,6 @@ public class MigrationContextImplTest extends AbstractMigrationTest {
         Assert.assertThat(CONTEXT.getId(), Matchers.nullValue());
         Assert.assertThat(CONTEXT.getVersion(), Matchers.equalTo("?"));
         Assert.assertThat(CONTEXT.migratable, Matchers.nullValue());
-        Assert.assertThat(CONTEXT.getDDFHome(), Matchers.equalTo(DDF_HOME));
     }
 
     @Test
@@ -98,7 +95,6 @@ public class MigrationContextImplTest extends AbstractMigrationTest {
         Assert.assertThat(CONTEXT.getId(), Matchers.equalTo(MIGRATABLE_ID));
         Assert.assertThat(CONTEXT.getVersion(), Matchers.equalTo(VERSION));
         Assert.assertThat(CONTEXT.migratable, Matchers.nullValue());
-        Assert.assertThat(CONTEXT.getDDFHome(), Matchers.equalTo(DDF_HOME));
     }
 
     @Test
@@ -125,7 +121,6 @@ public class MigrationContextImplTest extends AbstractMigrationTest {
         Assert.assertThat(CONTEXT.getId(), Matchers.equalTo(MIGRATABLE_ID));
         Assert.assertThat(CONTEXT.getVersion(), Matchers.nullValue());
         Assert.assertThat(CONTEXT.migratable, Matchers.nullValue());
-        Assert.assertThat(CONTEXT.getDDFHome(), Matchers.equalTo(DDF_HOME));
     }
 
     @Test(expected = IOError.class)
@@ -151,7 +146,6 @@ public class MigrationContextImplTest extends AbstractMigrationTest {
         Assert.assertThat(CONTEXT.getId(), Matchers.equalTo(MIGRATABLE_ID));
         Assert.assertThat(CONTEXT.getVersion(), Matchers.equalTo("?"));
         Assert.assertThat(CONTEXT.migratable, Matchers.sameInstance(MIGRATABLE));
-        Assert.assertThat(CONTEXT.getDDFHome(), Matchers.equalTo(DDF_HOME));
     }
 
     @Test
@@ -219,7 +213,6 @@ public class MigrationContextImplTest extends AbstractMigrationTest {
         Assert.assertThat(CONTEXT.getId(), Matchers.equalTo(MIGRATABLE_ID));
         Assert.assertThat(CONTEXT.getVersion(), Matchers.nullValue());
         Assert.assertThat(CONTEXT.migratable, Matchers.sameInstance(MIGRATABLE));
-        Assert.assertThat(CONTEXT.getDDFHome(), Matchers.equalTo(DDF_HOME));
     }
 
     @Test(expected = IOError.class)
@@ -236,80 +229,6 @@ public class MigrationContextImplTest extends AbstractMigrationTest {
         FileUtils.forceDelete(DDF_BIN.toFile());
 
         new MigrationContextImpl(REPORT, MIGRATABLE, VERSION);
-    }
-
-    @Test
-    public void testGetDDFHome() throws Exception {
-        Assert.assertThat(CONTEXT.getDDFHome(), Matchers.equalTo(DDF_HOME));
-    }
-
-    @Test
-    public void testIsRelativeToDDFHomeWhenRelative() throws Exception {
-        Assert.assertThat(CONTEXT.isRelativeToDDFHome(DDF_HOME.resolve("test")),
-                Matchers.equalTo(true));
-    }
-
-    @Test
-    public void testIsRelativeToDDFHomeWhenNot() throws Exception {
-        Assert.assertThat(CONTEXT.isRelativeToDDFHome(testFolder.getRoot()
-                .toPath()
-                .resolve("test")), Matchers.equalTo(false));
-    }
-
-    @Test
-    public void testRelativizeFromDDFHomeWhenRelative() throws Exception {
-        final Path PATH = DDF_HOME.resolve("test");
-
-        Assert.assertThat(CONTEXT.relativizeFromDDFHome(PATH), Matchers.equalTo(Paths.get("test")));
-    }
-
-    @Test
-    public void testRelativeFromDDFHomeWhenNot() throws Exception {
-        final Path PATH = testFolder.getRoot()
-                .toPath()
-                .resolve("test");
-
-        Assert.assertThat(CONTEXT.relativizeFromDDFHome(PATH), Matchers.sameInstance(PATH));
-    }
-
-    @Test
-    public void testResolveAgainstDDFHomeWhenPathIsRelative() throws Exception {
-        final Path PATH = Paths.get("etc/test.cfg");
-
-        final Path path = CONTEXT.resolveAgainstDDFHome(PATH);
-
-        Assert.assertThat(path.isAbsolute(), Matchers.equalTo(true));
-        Assert.assertThat(path, Matchers.equalTo(DDF_HOME.resolve(PATH)));
-    }
-
-    @Test
-    public void testResolveAgainstDDFHomeWhenPathIsAbsolute() throws Exception {
-        final Path PATH = Paths.get("/etc/test.cfg");
-
-        final Path path = CONTEXT.resolveAgainstDDFHome(PATH);
-
-        Assert.assertThat(path.isAbsolute(), Matchers.equalTo(true));
-        Assert.assertThat(path, Matchers.sameInstance(PATH));
-    }
-
-    @Test
-    public void testResolveAgainstUserDirectoryWhenPathIsRelative() throws Exception {
-        final Path PATH = Paths.get("test/script.sh");
-
-        final Path path = CONTEXT.resolveAgainstUserDirectory(PATH.toString());
-
-        Assert.assertThat(path.isAbsolute(), Matchers.equalTo(true));
-        Assert.assertThat(path, Matchers.equalTo(DDF_BIN.resolve(PATH)));
-    }
-
-    @Test
-    public void testResolveAgainstUserDirectoryWhenPathIsAbsolute() throws Exception {
-        final Path PATH = Paths.get("/test/script.sh");
-
-        final Path path = CONTEXT.resolveAgainstUserDirectory(PATH.toString());
-
-        Assert.assertThat(path.isAbsolute(), Matchers.equalTo(true));
-        Assert.assertThat(path, Matchers.equalTo(PATH));
     }
 
     @Test

@@ -40,6 +40,8 @@ public class AbstractMigrationTest {
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
 
+    public Path ROOT;
+
     public Path DDF_HOME;
 
     public Path DDF_BIN;
@@ -131,8 +133,10 @@ public class AbstractMigrationTest {
                 .toFile(), name);
 
         file.createNewFile();
-        return DDF_HOME.relativize(file.toPath()
-                .toRealPath());
+        final Path path = file.toPath()
+                .toRealPath();
+
+        return path.startsWith(DDF_HOME) ? DDF_HOME.relativize(path) : path;
     }
 
     /**
@@ -160,6 +164,9 @@ public class AbstractMigrationTest {
 
     @Before
     public void baseBefore() throws Exception {
+        ROOT = testFolder.getRoot()
+                .toPath()
+                .toRealPath();
         DDF_HOME = testFolder.newFolder("ddf")
                 .toPath()
                 .toRealPath();

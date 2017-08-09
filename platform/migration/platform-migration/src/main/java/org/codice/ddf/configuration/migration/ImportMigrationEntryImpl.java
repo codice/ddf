@@ -26,6 +26,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.ImportMigrationEntry;
 import org.codice.ddf.migration.ImportPathMigrationException;
@@ -68,8 +69,8 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
      */
     ImportMigrationEntryImpl(Function<String, ImportMigrationContextImpl> contextProvider,
             ZipFile zip, ZipEntry ze) {
-        // we still must sanitize because there could be a mix of / and \ and PAths.get() doesn't support that
-        final Path fqn = Paths.get(MigrationEntryImpl.sanitizeSeparators(ze.getName()));
+        // we still must sanitize because there could be a mix of / and \ and Paths.get() doesn't support that
+        final Path fqn = Paths.get(FilenameUtils.separatorsToSystem(ze.getName()));
         final int count = fqn.getNameCount();
 
         if (count > 1) {
@@ -80,9 +81,9 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
             this.context = contextProvider.apply(null);
             this.path = fqn;
         }
-        this.absolutePath = context.resolveAgainstDDFHome(path);
+        this.absolutePath = context.getPathUtils().resolveAgainstDDFHome(path);
         this.file = absolutePath.toFile();
-        this.name = MigrationEntryImpl.sanitizeSeparators(path.toString());
+        this.name = FilenameUtils.separatorsToUnix(path.toString());
         this.zip = zip;
         this.entry = ze;
     }
@@ -95,9 +96,9 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
      */
     protected ImportMigrationEntryImpl(ImportMigrationContextImpl context, String name) {
         this.context = context;
-        this.name = MigrationEntryImpl.sanitizeSeparators(name);
+        this.name = FilenameUtils.separatorsToUnix(name);
         this.path = Paths.get(this.name);
-        this.absolutePath = context.resolveAgainstDDFHome(path);
+        this.absolutePath = context.getPathUtils().resolveAgainstDDFHome(path);
         this.file = absolutePath.toFile();
         this.zip = null;
         this.entry = null;
@@ -112,8 +113,8 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
     protected ImportMigrationEntryImpl(ImportMigrationContextImpl context, Path path) {
         this.context = context;
         this.path = path;
-        this.name = MigrationEntryImpl.sanitizeSeparators(path.toString());
-        this.absolutePath = context.resolveAgainstDDFHome(path);
+        this.name = FilenameUtils.separatorsToUnix(path.toString());
+        this.absolutePath = context.getPathUtils().resolveAgainstDDFHome(path);
         this.file = absolutePath.toFile();
         this.zip = null;
         this.entry = null;
@@ -181,7 +182,7 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
                 importer.apply(getReport(), getInputStream());
             } catch (IOException e) {
                 getReport().record(new ImportPathMigrationException(path,
-                        String.format("failed to copy to [%s]", context.getDDFHome()),
+                        String.format("failed to copy to [%s]", context.getPathUtils().getDDFHome()),
                         e));
             } catch (MigrationException e) {
                 throw e;
