@@ -402,8 +402,8 @@ public class ConfigurationApplication implements SparkApplication {
             String baseUrl = newImageryProvider.get(URL).toString();
             boolean proxyEnabled = true;
             Object proxyEnabledProp = newImageryProvider.get(PROXY_ENABLED);
-            if (proxyEnabledProp != null) {
-                proxyEnabled = Boolean.parseBoolean(proxyEnabledProp.toString());
+            if (proxyEnabledProp instanceof String) {
+                proxyEnabled = Boolean.parseBoolean((String)proxyEnabledProp);
             }
 
             if (proxyEnabled) {
