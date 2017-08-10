@@ -15,22 +15,30 @@ package ddf.catalog.data.types.constants.core;
 
 /**
  * These are the allowed values for the attribute Core#DATATYPE.
- *
- * Based on Dublin Core (http://dublincore.org/documents/2012/06/14/dcmi-terms/?v=elements#terms-type) and extended to include other DDF supported types.
+ * <p>
+ * These generic type(s) of the resource include the Dublin Core Metadata Initiative DCMI Type
+ * Vocabulary (http://dublincore.org/documents/dcmi-type-vocabulary/) and are extended to include
+ * other DDF supported types. DCMI Type term labels are included here, as opposed to term names.
  */
 public enum DataType {
 
+    // DCMI type vocabulary labels
     COLLECTION("Collection"), //
     DATASET("Dataset"), //
     EVENT("Event"), //
     IMAGE("Image"), //
     INTERACTIVE_RESOURCE("Interactive Resource"), //
+    MOVING_IMAGE("Moving Image"), //
+    PHYSICAL_OBJECT("Physical Object"), //
     SERVICE("Service"), //
     SOFTWARE("Software"), //
     SOUND("Sound"), //
+    STILL_IMAGE("Still Image"), //
     TEXT("Text"), //
-    VIDEO("Video"), //
-    DOCUMENT("Document");
+
+    // other DDF-supported type labels
+    DOCUMENT("Document"), //
+    VIDEO("Video");
 
     private final String value;
 

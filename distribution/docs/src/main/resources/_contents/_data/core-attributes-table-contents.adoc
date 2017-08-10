@@ -41,7 +41,7 @@
 |metadata
 |Additional XML metadata describing the resource.
 |XML
-|A valid XML string per RFC 4825 (must be well-formed but not necessarily schema-compliant).
+|A valid XML string per RFC 4825 (must be well-formed but not necessarily schema-compliant)
 |
 
 |location
@@ -84,7 +84,7 @@ __Coordinates must be in *lon-lat* coordinate order__
 |resource-size
 |Size in bytes of resource.
 |String
-|Although this type cannot be changed for legacy reasons, its value should always be a parseable whole number.
+|Although this type cannot be changed for legacy reasons, its value should always be a parseable whole number
 |
 
 |thumbnail
@@ -127,13 +127,13 @@ __Coordinates must be in *lon-lat* coordinate order__
 |language
 |The language(s) of the resource. http://dublincore.org/documents/2012/06/14/dcmi-terms/?v=elements#language[Dublin Core language].
 |List of Strings
-|Alpha-3 language code(s) per ISO_639-2.
+|Alpha-3 language code(s) per ISO_639-2
 |
 
 |resource.derived-download-url
 |Download URL(s) for accessing the derived formats for the metacard resource.
 |List of Strings
-|Valid URL(s) per RFC 2396.
+|Valid URL(s) per RFC 2396
 |
 
 |resource.derived-uri
@@ -143,10 +143,10 @@ __Coordinates must be in *lon-lat* coordinate order__
 |
 
 |datatype
-|The generic type(s) of the resource. http://dublincore.org/documents/2012/06/14/dcmi-terms/?v=elements#terms-type[Dublin Core terms-type] and extended to include other DDF supported types.
+|The generic type(s) of the resource including the http://dublincore.org/documents/dcmi-type-vocabulary/[Dublin Core terms-type] and extended to include other ${ddf-branding}-supported types. DCMI Type term labels are expected here, as opposed to term names.
 |List of Strings
-|Collection, Dataset, Event, Image, Interactive Resource, Service, Software, Sound, Text, Video, Document.
-|
+|`Collection`, `Dataset`, `Event`, `Image`, `Interactive Resource`, `Moving Image`, `Physical Object`, `Service`, `Software`, `Sound`, `Still Image`, `Text`, `Document`, and/or `Video`
+|`Video`
 
 |===
 

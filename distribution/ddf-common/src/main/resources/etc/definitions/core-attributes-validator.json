@@ -10,9 +10,12 @@
           "Event",
           "Image",
           "Interactive Resource",
+          "Moving Image",
+          "Physical Object",
           "Service",
           "Software",
           "Sound",
+          "Still Image",
           "Text",
           "Video",
           "Document"
