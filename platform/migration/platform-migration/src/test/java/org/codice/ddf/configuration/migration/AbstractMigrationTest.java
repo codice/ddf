@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipInputStream;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.junit.Before;
@@ -86,6 +87,8 @@ public class AbstractMigrationTest {
 
     /**
      * Creates test files with the given names in the specified directory resolved under ${ddf.home}.
+     * <p>
+     * <i>Note:</i> Each files will be created with the filename (no directory) as its content.
      *
      * @param dir   the directory where to create the test files
      * @param names the names of all test files to create in the specified directory
@@ -99,6 +102,8 @@ public class AbstractMigrationTest {
     /**
      * Creates test files with the given names in the specified directory resolved under ${ddf.home}
      * and adds their corresponding relativized from ${ddf.home} paths to the given list.
+     * <p>
+     * <i>Note:</i> Each files will be created with the filename (no directory) as its content.
      *
      * @param paths a list of paths where to add all paths for the test files created
      * @param dir   the directory where to create the test files
@@ -113,7 +118,7 @@ public class AbstractMigrationTest {
         for (final String name : names) {
             final File file = new File(rdir, name);
 
-            file.createNewFile();
+            FileUtils.writeStringToFile(file, name, Charsets.UTF_8);
             paths.add(DDF_HOME.relativize(file.toPath()
                     .toRealPath()));
         }
@@ -122,6 +127,8 @@ public class AbstractMigrationTest {
 
     /**
      * Creates a test file with the given name in the specified directory resolved under ${ddf.home}.
+     * <p>
+     * <i>Note:</i> The file will be created with the filename (no directory) as its content.
      *
      * @param dir  the directory where to create the test file
      * @param name the name of the test path to create in the specified directory
@@ -132,7 +139,7 @@ public class AbstractMigrationTest {
         final File file = new File(DDF_HOME.resolve(dir)
                 .toFile(), name);
 
-        file.createNewFile();
+        FileUtils.writeStringToFile(file, name, Charsets.UTF_8);
         final Path path = file.toPath()
                 .toRealPath();
 
@@ -141,6 +148,8 @@ public class AbstractMigrationTest {
 
     /**
      * Creates a test file with the given name under ${ddf.home}.
+     * <p>
+     * <i>Note:</i> The file will be created with the filename (no directory) as its content.
      *
      * @param name the name of the test path to create in the specified directory
      * @return a path corresponding to the test file created (relativized from ${ddf.home})

@@ -28,6 +28,7 @@ import java.util.zip.ZipFile;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.ImportMigrationEntry;
 import org.codice.ddf.migration.ImportPathMigrationException;
@@ -207,15 +208,22 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
         Validate.notNull(consumer, "invalid null consumer");
         if (stored == null) {
             super.stored = false; // until proven otherwise
+            Optional<InputStream> is = Optional.empty();
+
             try {
+                is = getInputStream();
+                final Optional<InputStream> fis = is;
+
                 super.stored = getReport().wasIOSuccessful(() -> consumer.accept(getReport(),
-                        getInputStream()));
+                        fis));
             } catch (IOException e) {
                 getReport().record(new ImportPathMigrationException(path,
                         String.format("failed to copy to [%s]",
                                 context.getPathUtils()
                                         .getDDFHome()),
                         e));
+            } finally {
+                is.ifPresent(IOUtils::closeQuietly); // we do not care if we cannot close it
             }
         }
         return stored;
