@@ -15,7 +15,9 @@ package org.codice.ddf.platform.migratable.impl;
 
 import static org.apache.commons.lang.Validate.notNull;
 
+import java.nio.file.FileSystems;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -61,6 +63,26 @@ public class PlatformMigratable extends DescribableBean implements Configuration
 
     private static final Path FIPS_TO_ISO = Paths.get("etc", "fipsToIso.properties");
 
+    private static final Path STARTUP_PROPERTIES = Paths.get("etc", "startup.properties");
+
+    private static final Path LOG4J_CONFIG = Paths.get("etc", "log4j2.config.xml");
+
+    private static final Path CUSTOM_PROPERTIES = Paths.get("etc", "custom.properties");
+
+    private static final Path CONFIG_PROPERTIES = Paths.get("etc", "config.properties");
+
+    private static final Path ENCRYPTION_KEYSET_METADATA = Paths.get("etc", "certs", "meta");
+
+    private static final Path ENCRYPTION_KEY = Paths.get("etc", "certs", "1");
+
+    private static final Path KARAF_SCRIPT_SH = Paths.get("bin", "karaf");
+
+    private static final Path KARAF_SCRIPT_BAT = Paths.get("bin", "karaf.bat");
+
+    private static final Path VERSION_FILE = Paths.get("Version.txt");
+
+    private static final String SERVICE_WRAPPER_CONF_FILTER = "glob:**/*-wrapper.conf";
+
     private final MigratableUtil migratableUtil;
 
     public PlatformMigratable(DescribableBean info, MigratableUtil migratableUtil) {
@@ -76,21 +98,32 @@ public class PlatformMigratable extends DescribableBean implements Configuration
         Collection<MigrationWarning> migrationWarnings = new ArrayList<>();
         exportSystemFiles(exportPath, migrationWarnings);
         exportWsSecurity(exportPath, migrationWarnings);
+        exportLoggingConfiguration(exportPath, migrationWarnings);
+        exportEncryptionServiceKeyData(exportPath, migrationWarnings);
+        exportKarafStartScripts(exportPath, migrationWarnings);
+        exportServiceWrapperConf(exportPath, migrationWarnings);
+        exportVersionFile(exportPath, migrationWarnings);
         return new MigrationMetadata(migrationWarnings);
     }
 
     private void exportSystemFiles(Path exportDirectory,
             Collection<MigrationWarning> migrationWarnings) {
-        LOGGER.debug("Exporting system files: [{}], [{}], [{}], and [{}]",
+        LOGGER.debug("Exporting system files: [{}], [{}], [{}], [{}], [{}], [{}], and [{}]",
                 SYSTEM_PROPERTIES.toString(),
                 USERS_PROPERTIES.toString(),
                 USERS_ATTRIBUTES.toString(),
-                APPLICATION_LIST.toString());
+                APPLICATION_LIST.toString(),
+                CUSTOM_PROPERTIES.toString(),
+                CONFIG_PROPERTIES.toString(),
+                STARTUP_PROPERTIES.toString());
 
         migratableUtil.copyFile(SYSTEM_PROPERTIES, exportDirectory, migrationWarnings);
         migratableUtil.copyFile(USERS_PROPERTIES, exportDirectory, migrationWarnings);
         migratableUtil.copyFile(USERS_ATTRIBUTES, exportDirectory, migrationWarnings);
         migratableUtil.copyFile(APPLICATION_LIST, exportDirectory, migrationWarnings);
+        migratableUtil.copyFile(CUSTOM_PROPERTIES, exportDirectory, migrationWarnings);
+        migratableUtil.copyFile(CONFIG_PROPERTIES, exportDirectory, migrationWarnings);
+        migratableUtil.copyFile(STARTUP_PROPERTIES, exportDirectory, migrationWarnings);
 
         migratableUtil.copyFile(DDF_METACARD_ATTRIBUTE_RULESET, exportDirectory, migrationWarnings);
         migratableUtil.copyFile(DDF_USER_ATTRIBUTE_RULESET, exportDirectory, migrationWarnings);
@@ -114,4 +147,33 @@ public class PlatformMigratable extends DescribableBean implements Configuration
                 exportDirectory,
                 migrationWarnings);
     }
+
+    private void exportLoggingConfiguration(Path exportDirectory, Collection<MigrationWarning> migrationWarnings) {
+        LOGGER.debug("Exporting logging configuration file: [{}]", LOG4J_CONFIG.toString());
+        migratableUtil.copyFile(LOG4J_CONFIG, exportDirectory, migrationWarnings);
+    }
+
+    private void exportEncryptionServiceKeyData(Path exportDirectory, Collection<MigrationWarning> migrationWarnings) {
+        LOGGER.debug("Exporting Encryption Service key data files: [{}] and [{}].", ENCRYPTION_KEYSET_METADATA.toString(), ENCRYPTION_KEY.toString());
+        migratableUtil.copyFile(ENCRYPTION_KEYSET_METADATA, exportDirectory, migrationWarnings);
+        migratableUtil.copyFile(ENCRYPTION_KEY, exportDirectory, migrationWarnings);
+    }
+
+    private void exportKarafStartScripts(Path exportDirectory, Collection<MigrationWarning> migrationWarnings) {
+        LOGGER.debug("Exporting Karaf start scripts: [{}] and [{}].", KARAF_SCRIPT_SH.toString(), KARAF_SCRIPT_BAT.toString());
+        migratableUtil.copyFile(KARAF_SCRIPT_SH, exportDirectory, migrationWarnings);
+        migratableUtil.copyFile(KARAF_SCRIPT_BAT, exportDirectory, migrationWarnings);
+    }
+
+    private void exportServiceWrapperConf(Path exportDirectory, Collection<MigrationWarning> migrationWarnings) {
+        LOGGER.debug("Exporting service wrapper config file");
+        PathMatcher filter = FileSystems.getDefault().getPathMatcher(SERVICE_WRAPPER_CONF_FILTER);
+        migratableUtil.copyFiles(Paths.get("etc"), filter, exportDirectory, migrationWarnings);
+    }
+
+    private void exportVersionFile(Path exportDirectory, Collection<MigrationWarning> migrationWarnings) {
+        LOGGER.debug("Exporting version file: [{}]", VERSION_FILE.toString());
+        migratableUtil.copyFile(VERSION_FILE, exportDirectory, migrationWarnings);
+    }
+
 }

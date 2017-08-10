@@ -45,25 +45,32 @@
         <argument value="etc"/>
     </bean>
 
-    <bean id="configurationFileFactory"
-          class="org.codice.ddf.configuration.admin.ConfigurationFileFactory">
-        <argument ref="persistenceStrategy"/>
-        <argument ref="configurationAdmin"/>
-    </bean>
-
     <bean id="configDirectoryStream" class="java.nio.file.Files"
           factory-method="newDirectoryStream">
         <argument ref="configDirectoryPath"/>
         <argument value="*${configFileExtension}"/>
     </bean>
 
+    <bean id="configurationAdminMigrationDescribable"
+          class="org.codice.ddf.migration.DescribableBean">
+        <argument value="1.0"/>
+        <argument value="config.admin"/>
+        <argument value="Configuration Admin Migration"/>
+        <argument value="Exports Configuration Admin" />
+        <argument value="Codice"/>
+    </bean>
+
     <bean id="configurationAdminMigration"
           class="org.codice.ddf.configuration.admin.ConfigurationAdminMigration">
         <argument ref="configDirectoryStream"/>
-        <argument ref="configurationFileFactory"/>
         <argument ref="configurationAdmin"/>
+        <argument ref="persistenceStrategy"/>
+        <argument ref="configurationAdminMigrationDescribable"/>
         <argument value="${configFileExtension}"/>
     </bean>
+
+    <service id="configurationAdminMigrationService" ref="configurationAdminMigration"
+             interface="org.codice.ddf.migration.ConfigurationMigratable" />
 
     <bean id="mBeanServer"
           class="java.lang.management.ManagementFactory"
@@ -93,7 +100,6 @@
     <bean id="configMigrationManager"
           class="org.codice.ddf.configuration.migration.ConfigurationMigrationManager"
           init-method="init">
-        <argument ref="configurationAdminMigration"/>
         <argument ref="mBeanServer"/>
         <argument ref="sortedConfigurationMigratables"/>
         <argument ref="sortedDataMigratables"/>
