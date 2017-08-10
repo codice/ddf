@@ -32,6 +32,9 @@ Multiple layer example: `[{"type": "AGM","url": "https://server.arcgisonline.com
 WMT example: `[{"type": "WMT","url": "http://suite.opengeo.org/geoserver/gwc/service/wmts", "layer" : "opengeo:countries", "style" : "", "format" : "image/jpeg", "tileMatrixSetID": "EPSG:4326", "tileMatrixLabels" : ['EPSG:4326:0', 'EPSG:4326:1', 'EPSG:4326:2', 'EPSG:4326:3', 'EPSG:4326:4', 'EPSG:4326:5', 'EPSG:4326:6', 'EPSG:4326:7', 'EPSG:4326:8', 'EPSG:4326:9', 'EPSG:4326:10', 'EPSG:4326:11', 'EPSG:4326:12', 'EPSG:4326:13', 'EPSG:4326:14', 'EPSG:4326:15', 'EPSG:4326:16', 'EPSG:4326:17', 'EPSG:4326:18', 'EPSG:4326:19', 'EPSG:4326:20', 'EPSG:4326:21']}]`
 
 TMS example (3d map support only): `[{"type" : "TMS", "url" : "https://cesiumjs.org/tilesets/imagery/blackmarble" }]`
+
+Note: An optional `"proxyEnabled" : "false"` can be included if the source tile server doesn't need to be proxied.
+
 |
 |false
 

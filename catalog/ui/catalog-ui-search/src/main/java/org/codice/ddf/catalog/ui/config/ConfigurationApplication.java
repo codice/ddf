@@ -50,6 +50,8 @@ public class ConfigurationApplication implements SparkApplication {
 
     public static final String URL = "url";
 
+    public static final String PROXY_ENABLED = "proxyEnabled";
+
     public static final String ENDPOINT_NAME = "catalog";
 
     public static final Factory NEW_SET_FACTORY = TreeSet::new;
@@ -397,8 +399,19 @@ public class ConfigurationApplication implements SparkApplication {
         proxiedImageryProviders.clear();
         for (Map<String, Object> newImageryProvider : newImageryProviders) {
             HashMap<String, Object> map = new HashMap<>(newImageryProvider);
-            map.put(URL, SERVLET_PATH + "/" + urlToProxyMap.get(newImageryProvider.get(URL)
-                    .toString()));
+            String baseUrl = newImageryProvider.get(URL).toString();
+            boolean proxyEnabled = true;
+            Object proxyEnabledProp = newImageryProvider.get(PROXY_ENABLED);
+            if (proxyEnabledProp != null) {
+                proxyEnabled = Boolean.parseBoolean(proxyEnabledProp.toString());
+            }
+
+            if (proxyEnabled) {
+                map.put(URL,
+                        SERVLET_PATH + "/" + urlToProxyMap.get(baseUrl));
+            } else {
+                map.put(URL, baseUrl);
+            }
             proxiedImageryProviders.add(map);
         }
         imageryProviderMaps = newImageryProviders;
