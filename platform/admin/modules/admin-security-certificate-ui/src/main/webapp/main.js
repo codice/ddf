@@ -14,18 +14,18 @@
 require.config({
     paths: {
 
-        bootstrap: 'bootstrap/3.2.0/dist/js/bootstrap.min',
+        bootstrap: 'bootstrap/3.3.7/dist/js/bootstrap.min',
         bootstrapselect: 'bootstrap-select/1.6.4/dist/js/bootstrap-select.min',
 
-        moment: 'moment/2.5.1/min/moment.min',
-        perfectscrollbar: 'perfect-scrollbar/0.5.7/min/perfect-scrollbar.min',
-        q: 'q/1.0.1/q',
+        moment: 'moment/2.18.1/min/moment.min',
+        perfectscrollbar: 'perfect-scrollbar/0.7.0/js/perfect-scrollbar.jquery.min',
+        q: 'q/1.4.1/q',
 
         // backbone
         backbone: 'backbone/1.1.2/backbone',
         backboneassociations: 'backbone-associations/0.6.2/backbone-associations-min',
-        underscore: 'lodash/3.7.0/lodash.min',
-        marionette: 'marionette/2.4.1/lib/backbone.marionette.min',
+        underscore: 'underscore/1.8.3/underscore-min',
+        marionette: 'marionette/2.4.7/lib/backbone.marionette',
         // TODO test combining
         modelbinder: 'backbone.modelbinder/1.1.0/Backbone.ModelBinder.min',
         collectionbinder: 'backbone.modelbinder/1.1.0/Backbone.CollectionBinder.min',
@@ -35,19 +35,25 @@ require.config({
         properties: 'properties',
 
         // jquery
-        jquery: 'jquery/1.12.4/dist/jquery.min',
+        jquery: 'jquery/2.2.4/dist/jquery.min',
+        jqueryui: 'jquery-ui/1.12.1/jquery-ui.min',
         multiselect: 'jquery-ui-multiselect-widget/1.14/src/jquery.multiselect',
         multiselectfilter: 'lib/multiselect/src/jquery.multiselect.filter',
-        "jquery.ui.widget": 'jquery-ui/1.10.4/ui/minified/jquery.ui.widget.min',
-        fileupload: 'jquery-file-upload/9.5.7/js/jquery.fileupload',
+        fileupload: 'jquery-file-upload/9.18.0/js/jquery.fileupload',
 
         // handlebars
-        handlebars: 'handlebars/2.0.0/handlebars.min',
+        handlebars: 'handlebars/4.0.10/handlebars.min',
         icanhaz: 'js/ich',
 
         // require plugins
-        text: 'requirejs-plugins/1.0.2/lib/text',
-        css: 'require-css/0.1.5/css.min',
+        text: 'requirejs-plugins/1.0.3/lib/text',
+        css: 'require-css/0.1.10/css.min',
+    },
+    map: {
+        '*': {
+            'jquery.ui.widget': 'jqueryui',
+            'jquery-ui/ui/widget': 'jqueryui'
+        }
     },
 
     shim: {
@@ -109,23 +115,14 @@ require.onError = function (err) {
 };
 
 require(['underscore',
+        'backbone',
         'application',
         'marionette',
         'icanhaz',
         'js/HandlebarsHelpers',
         'bootstrap'],
-    function (_, app, Marionette, ich) {
+    function (_, Backbone, app, Marionette, ich) {
         'use strict';
-
-        // Make lodash compatible with Backbone
-        var lodash = _.noConflict();
-        _.mixin({
-            'debounce': _.debounce || lodash.debounce,
-            'defer': _.defer || lodash.defer,
-            'pluck': _.pluck || lodash.pluck
-        });
-
-        //in here we drop in any top level patches, etc.
 
         Marionette.Renderer.render = function (template, data) {
             if(!template){return '';}

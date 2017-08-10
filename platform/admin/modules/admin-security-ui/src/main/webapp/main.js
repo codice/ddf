@@ -14,18 +14,17 @@
 require.config({
     paths: {
 
-        bootstrap: 'bootstrap/3.2.0/dist/js/bootstrap.min',
+        bootstrap: 'bootstrap/3.3.7/dist/js/bootstrap.min',
         bootstrapselect: 'bootstrap-select/1.6.4/dist/js/bootstrap-select.min',
 
-        perfectscrollbar: 'perfect-scrollbar/0.5.7/min/perfect-scrollbar.min',
+        perfectscrollbar: 'perfect-scrollbar/0.7.0/js/perfect-scrollbar.jquery.min',
 
         // backbone
         backbone: 'backbone/1.1.2/backbone',
         backboneassociations: 'backbone-associations/0.6.2/backbone-associations-min',
         backboneundo: 'Backbone.Undo/0.2.5/Backbone.Undo',
         poller: 'backbone-poller/1.1.3/backbone.poller',
-        underscore: 'lodash/2.4.1/dist/lodash.underscore.min',
-        lodash: 'lodash/2.4.1/dist/lodash.min',
+        underscore: 'underscore/1.8.3/underscore-min',
         marionette: 'marionette/2.4.1/lib/backbone.marionette.min',
         // TODO test combining
         modelbinder: 'backbone.modelbinder/1.1.0/Backbone.ModelBinder.min',
@@ -35,19 +34,23 @@ require.config({
         application: 'js/application',
 
         // jquery
-        jquery: 'jquery/1.12.4/dist/jquery.min',
-        jqueryuiCore: 'jquery-ui/1.10.4/ui/minified/jquery.ui.core.min',
-        "jquery.ui.widget": 'jquery-ui/1.10.4/ui/minified/jquery.ui.widget.min',
+        jquery: 'jquery/3.2.1/dist/jquery.min',
+        jqueryuiCore: 'jquery-ui/1.12.1/ui/minified/jquery.ui.core.min',
+        "jquery.ui.widget": 'jquery-ui/1.12.1/ui/minified/jquery.ui.widget.min',
 
         // handlebars
         handlebars: 'handlebars/2.0.0/handlebars.min',
         icanhaz: 'js/ich',
 
         // require plugins
-        text: 'requirejs-plugins/1.0.2/lib/text',
-        css: 'require-css/0.1.5/css.min',
+        text: 'requirejs-plugins/1.0.3/lib/text',
+        css: 'require-css/0.1.10/css.min',
     },
-
+    map: {
+        '*': {
+            'Backbone.ModelBinder': 'modelbinder',
+        }
+    },
     shim: {
 
         backbone: {

@@ -26,7 +26,7 @@ define(['backbone','jquery','underscore'], function (Backbone,$,_) {
 
     Feature.Model = Backbone.Model.extend({
         initialize: function(options) {
-            _.bindAll(this);
+            _.bindAll.apply(_, [this].concat(_.functions(this)));
             this.name = options.name;
         },
         urlRoot: function(){

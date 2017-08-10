@@ -242,7 +242,7 @@ define([
             handleRegionStop: function () {
                 this.enableInput();
                 this.mouseHandler.destroy();
-                this.drawBorderedRectangle(this.primitive.rectangle);
+                this.drawBorderedRectangle((this.primitive || {}).rectangle);
                 this.stopListening(this.model, 'change:mapNorth change:mapSouth change:mapEast change:mapWest', this.updatePrimitive);
                 this.listenTo(this.model, 'change:mapNorth change:mapSouth change:mapEast change:mapWest', this.updateGeometry);
 

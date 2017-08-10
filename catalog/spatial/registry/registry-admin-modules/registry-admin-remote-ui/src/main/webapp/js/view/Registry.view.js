@@ -54,7 +54,7 @@ define([
                 'click td': 'editRegistry'
             },
             initialize: function () {
-                _.bindAll(this);
+                _.bindAll.apply(_, [this].concat(_.functions(this)));
                 this.listenTo(this.model, 'change', this.render);
                 if (this.model.get("registryConfiguration").at(0)) {
                     this.setupPollers(this.model.get("registryConfiguration").at(0));
@@ -163,7 +163,7 @@ define([
                 'click .addRegistryLink': 'addRegistry'
             },
             initialize: function () {
-                _.bindAll(this);
+                _.bindAll.apply(_, [this].concat(_.functions(this)));
                 this.listenTo(wreqr.vent, 'editRegistry', this.editRegistry);
                 this.listenTo(wreqr.vent, 'refreshRegistries', this.refreshRegistries);
                 new RegistryView.ModalController({

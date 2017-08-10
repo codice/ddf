@@ -134,7 +134,7 @@ define([
             collectionRegion: '#servicesRegion'
         },
         initialize: function(options) {
-            _.bindAll(this);
+            _.bindAll.apply(_, [this].concat(_.functions(this)));
             this.poller = options.poller;
             this.listenTo(this.model, 'services:refresh', this.stopRefreshSpin);
             if(this.poller){

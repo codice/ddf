@@ -42,7 +42,7 @@ function (ich,Marionette,Backbone,ModalRegistry,wreqr,_,$,Utils,Service,modalCon
             details: '.modal-details'
         },
         initialize: function(options){
-            _.bindAll(this);
+            _.bindAll.apply(_, [this].concat(_.functions(this)));
             this.registry = options.registry;
             this.modelBinder = new Backbone.ModelBinder();
         },

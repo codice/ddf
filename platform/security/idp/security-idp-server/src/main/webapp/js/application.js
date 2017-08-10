@@ -39,7 +39,7 @@ define(['marionette',
         cache: false,
         dataType: 'json',
         url: "/services/platform/config/ui"
-    }).success(function (uiConfig) {
+    }).done(function (uiConfig) {
         Application.App.props.ui = uiConfig;
     }).fail(function (jqXHR, status, errorThrown) {
         if (console) {

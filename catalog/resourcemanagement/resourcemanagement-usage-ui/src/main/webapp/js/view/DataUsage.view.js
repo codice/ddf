@@ -36,7 +36,7 @@ define([
                 control: '.page-control'
             },
             initialize : function () {
-                _.bindAll(this);
+                _.bindAll.apply(_, [this].concat(_.functions(this)));
             },
             onRender: function () {
                 this.usageTable.show(new DataUsageView.UsageTable({model : this.model}));
@@ -64,7 +64,7 @@ define([
                 }
             },
             initialize : function () {
-                _.bindAll(this);
+                _.bindAll.apply(_, [this].concat(_.functions(this)));
                this.listenTo(this.model, 'change:users', this.render);
             }
         });
@@ -78,7 +78,7 @@ define([
                 'change .input-time' : 'notifyTimeChange'
             },
             initialize : function () {
-                _.bindAll(this);
+                _.bindAll.apply(_, [this].concat(_.functions(this)));
                this.listenTo(this.model, 'change:saving', this.render);
                this.listenTo(this.model, 'change:cronTime', this.render);
                this.listenTo(this.model, 'change:monitorLocalSources', this.render);

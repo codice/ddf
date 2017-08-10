@@ -40,7 +40,7 @@ define([
                 momentObj = moment(context);
 
                 // Reset the language back to default before doing anything else
-                momentObj.lang('en');
+                momentObj.locale('en');
 
                 for (i in block.hash) {
                     if (momentObj[i]) {
@@ -64,7 +64,7 @@ define([
                 var duration = moment.duration(context);
 
                 // Reset the language back to default before doing anything else
-                duration = duration.lang('en');
+                duration = duration.locale('en');
 
                 for (var i in block.hash) {
                     if (duration[i]) {
@@ -187,7 +187,7 @@ define([
                 }
             },
             isAnd: function () {
-                var args = _.flatten(arguments);
+                var args = _.flattenDeep(arguments);
                 var items = _.initial(args);
                 var result = true;
                 var block = _.last(args);
@@ -258,7 +258,7 @@ define([
                 }
             },
             ifAnd: function () {
-                var args = _.flatten(arguments);
+                var args = _.flattenDeep(arguments);
                 var items = _.initial(args);
                 var result = true;
                 var block = _.last(args);
@@ -275,7 +275,7 @@ define([
                 }
             },
             ifOr: function () {
-                var args = _.flatten(arguments);
+                var args = _.flattenDeep(arguments);
                 var items = _.initial(args);
                 var result = false;
                 var block = _.last(args);
@@ -292,7 +292,7 @@ define([
                 }
             },
             ifNotAnd: function () {
-                var args = _.flatten(arguments);
+                var args = _.flattenDeep(arguments);
                 var items = _.initial(args);
                 var result = true;
                 var block = _.last(args);
@@ -309,7 +309,7 @@ define([
                 }
             },
             ifNotOr: function () {
-                var args = _.flatten(arguments);
+                var args = _.flattenDeep(arguments);
                 var items = _.initial(args);
                 var result = false;
                 var block = _.last(args);

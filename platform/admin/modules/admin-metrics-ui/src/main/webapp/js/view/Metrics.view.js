@@ -41,7 +41,7 @@ define([
             template: 'summaryTemplate',
 
             initialize: function () {
-                _.bindAll(this);
+                _.bindAll.apply(_, [this].concat(_.functions(this)));
                 this.modelBinder = new Backbone.ModelBinder();
                 this.listenTo(this.model, 'change', this.updateAndRender);
             },

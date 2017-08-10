@@ -32,7 +32,7 @@ define([
                 cache: false,
                 dataType: 'json',
                 url: "/services/platform/config/ui"
-            }).success(function(uiConfig) {
+            }).done(function(uiConfig) {
                 props.ui = uiConfig;
                 return props;
 
@@ -47,7 +47,7 @@ define([
                 cache: false,
                 dataType: 'json',
                 url: "/services/admin/config"
-            }).success(function(adminConfig) {
+            }).done(function(adminConfig) {
                 props.admin = adminConfig;
                 return props;
 

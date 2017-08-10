@@ -33,7 +33,7 @@ define([
                 usageTable: '.query-data-table'
             },
             initialize : function () {
-                _.bindAll(this);
+                _.bindAll.apply(_, [this].concat(_.functions(this)));
             },
             onRender: function () {
                 this.usageTable.show(new QueryMonitorView.QueryMonitorTable({model : this.model}));
@@ -48,7 +48,7 @@ define([
                 'click .glyphicon' : 'stopSearch',
             },
             initialize : function () {
-                _.bindAll(this);
+                _.bindAll.apply(_, [this].concat(_.functions(this)));
                 this.listenTo(this.model, 'change:users', this.render);
             },
             onRender : function() {

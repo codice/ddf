@@ -51,7 +51,7 @@ define(function (require) {
                 cache: false,
                 dataType: 'json',
                 url: "/services/store/config"
-            }).success(function(data) {
+            }).done(function(data) {
                     props = _.extend(props, data);
 
                 $.ajax({
@@ -59,7 +59,7 @@ define(function (require) {
                     cache: false,
                     dataType: 'json',
                     url: "/services/platform/config/ui"
-                }).success(function(uiConfig){
+                }).done(function(uiConfig){
                     props.ui = uiConfig;
                     return props;
                 }).fail(function(jqXHR, status, errorThrown){

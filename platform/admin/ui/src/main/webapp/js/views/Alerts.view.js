@@ -92,7 +92,7 @@ define([
                     contentType: 'application/json',
                     data: data,
                     url: dismissUrl
-                }).success(function() {
+                }).done(function() {
                     model.trigger('destroy', model);
                 });
             }

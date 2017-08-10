@@ -14,16 +14,16 @@
 require.config({
     paths: {
 
-        bootstrap: 'bootstrap/3.2.0/dist/js/bootstrap.min',
+        bootstrap: 'bootstrap/3.3.7/dist/js/bootstrap.min',
         bootstrapselect: 'bootstrap-select/1.6.4/dist/js/bootstrap-select.min',
 
         cometd: 'lib/cometd/org/cometd',
         jquerycometd: 'lib/cometd/jquery/jquery.cometd',
-        moment: 'moment/2.5.1/min/moment.min',
-        perfectscrollbar: 'perfect-scrollbar/0.5.7/min/perfect-scrollbar.min',
-        spin: 'spin.js/1.3.3/spin',
-        q: 'q/1.0.1/q',
-        spectrum: 'spectrum/1.6.0/spectrum',
+        moment: 'moment/2.18.1/min/moment.min',
+        perfectscrollbar: 'perfect-scrollbar/0.7.0/js/perfect-scrollbar.jquery.min',
+        spin: 'spin.js/2.3.2/spin',
+        q: 'q/1.4.1/q',
+        spectrum: 'spectrum/1.8.0/spectrum',
 
         // backbone
         backbone: 'backbone/1.1.2/backbone',
@@ -32,7 +32,7 @@ require.config({
         backboneundo: 'Backbone.Undo/0.2.5/Backbone.Undo',
         poller: 'backbone-poller/1.1.3/backbone.poller',
         underscore: 'lodash/3.7.0/lodash.min',
-        marionette: 'marionette/2.4.1/lib/backbone.marionette.min',
+        marionette: 'marionette/2.4.7/lib/backbone.marionette.min',
         'Backbone.ModelBinder': 'backbone.modelbinder/1.1.0/Backbone.ModelBinder.min',
         collectionbinder: 'backbone.modelbinder/1.1.0/Backbone.CollectionBinder.min',
 
@@ -48,40 +48,42 @@ require.config({
         properties: 'properties',
 
         // jquery
-        jquery: 'jquery/1.12.4/dist/jquery.min',
-        jsCookie: 'js-cookie/2.1.1/src/js.cookie',
-        jqueryuiCore: 'jquery-ui/1.10.4/ui/minified/jquery.ui.core.min',
-        datepicker: 'jquery-ui/1.10.4/ui/minified/jquery.ui.datepicker.min',
-        progressbar: 'jquery-ui/1.10.4/ui/minified/jquery.ui.progressbar.min',
-        slider: 'jquery-ui/1.10.4/ui/minified/jquery.ui.slider.min',
-        mouse: 'jquery-ui/1.10.4/ui/minified/jquery.ui.mouse.min',
+        jquery: 'jquery/3.2.1/dist/jquery.min',
+        jsCookie: 'js-cookie/2.1.4/src/js.cookie',
+        jqueryui: 'jquery-ui/1.12.1/jquery-ui.min',
         datepickerOverride: 'lib/jquery/js/plugin/jquery-ui-datepicker-4digitYearOverride-addon',
         datepickerAddon: 'jqueryui-timepicker-addon/1.4.5/src/jquery-ui-timepicker-addon',
         purl: 'purl/2.3.1/purl',
         multiselect: 'jquery-ui-multiselect-widget/1.14/src/jquery.multiselect',
         multiselectfilter: 'jquery-ui-multiselect-widget/1.14/src/jquery.multiselect.filter',
-        "jquery.ui.widget": 'jquery-ui/1.10.4/ui/minified/jquery.ui.widget.min',
         fileupload: 'jquery-file-upload/9.5.7/js/jquery.fileupload',
-        jquerySortable: 'jquery-ui/1.10.4/ui/minified/jquery.ui.sortable.min',
 
         // handlebars
         handlebars: 'handlebars/2.0.0/handlebars.min',
         icanhaz: 'js/ich',
 
         // require plugins
-        text: 'requirejs-plugins/1.0.2/lib/text',
-        css: 'require-css/0.1.5/css.min',
+        text: 'requirejs-plugins/1.0.3/lib/text',
+        css: 'require-css/0.1.10/css.min',
 
         // pnotify
         pnotify: 'pnotify/1.3.1/jquery.pnotify.min',
 
         // map
-        cesium: 'cesiumjs/1.17.0/Cesium/Cesium',
+        cesium: 'cesiumjs/1.22.0/Cesium/Cesium',
         drawHelper: 'lib/cesium-drawhelper/DrawHelper',
         openlayers: 'openlayers3/3.16.0/build/ol',
         usngs: 'usng.js/0.2.2/usng',
 
         wellknown: 'wellknown/0.4.0/wellknown'
+    },
+    map: {
+        '*': {
+            'jquery.ui.widget': 'jqueryui',
+            'datepicker': 'jqueryui',
+            'progressbar': 'jqueryui',
+            'jquerySortable': 'jqueryui'
+        },
     },
 
     shim: {
@@ -125,18 +127,14 @@ require.config({
         jquerycometd: {
             deps: ['jquery', 'cometd']
         },
-        jqueryuiCore: ['jquery'],
+        jqueryui: ['jquery'],
         jsCookie: ['jquery'],
-        mouse: ['jqueryuiCore', 'jquery.ui.widget'],
-        slider: ['mouse'],
-        datepicker: ['slider'],
-        datepickerOverride: ['datepicker'],
-        datepickerAddon: ['datepicker'],
-        progressbar: ['jquery', 'jqueryuiCore', 'jquery.ui.widget'],
-        multiselect: ['jquery', 'jquery.ui.widget'],
-        multiselectfilter: ['jquery', 'multiselect'],
-        fileupload: ['jquery', 'jquery.ui.widget'],
-        jquerySortable: ['jquery', 'jqueryuiCore', 'jquery.ui.widget', 'mouse'],
+        datepickerOverride: ['jqueryui'],
+        datepickerAddon: ['jqueryui'],
+        multiselect: ['jqueryui'],
+        multiselectfilter: ['jqueryui'],
+        fileupload: ['jqueryui'],
+        jquerySortable: ['jqueryui'],
 
         perfectscrollbar: ['jquery'],
 
@@ -198,6 +196,17 @@ require(['underscore',
             if(!template){return '';}
             return ich[template](data);
         };
+
+        // https://github.com/marionettejs/backbone.marionette/issues/3077
+        // monkey-patch Marionette for compatibility with jquery 3+.
+        // jquery removed the .selector method, which was used by the original
+        // implementation here.
+        Marionette.Region.prototype.reset = function() {
+            this.empty();
+            this.el = this.options.el;
+            delete this.$el;
+            return this;
+        };        
 
         //TODO: this hack here is to fix the issue of the main div not resizing correctly
         //when the header and footer are in place

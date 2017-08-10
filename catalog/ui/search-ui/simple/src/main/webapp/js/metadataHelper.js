@@ -132,12 +132,21 @@ function buildHtmlFromNode(node) {
 
 function buildMetadataHtml(xml){
 	var xmlDoc, root, html, item;
-	xmlDoc = $.parseXML( xml );  
-	root = xmlDoc.documentElement;
 	html = $("<ul class=\"nav nav-list tree\"></ul>");
 
-	item = buildHtmlFromNode(root);
-	html.append(item);
-	
+    xmlDoc = $.parseXML( xml ); 
+    if (xmlDoc) {
+        root = xmlDoc.documentElement;
+    }  else {
+        // create a stub xml element when parsing fails
+        root = {
+            attributes: {},
+            childNodes: [],
+            nodeName: "Failed to parse XML"
+        };
+    }
+    item = buildHtmlFromNode(root);
+    html.append(item);
+
 	return html; 
 }

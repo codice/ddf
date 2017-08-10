@@ -159,9 +159,14 @@ describe('Export', function () {
             dependencyInjectedRequire.require([exportModelPath], function (Export) {
                 var exportModel = new Export();
                 exportModel.export();
-                done(tryAssertions(function () {
-                    expect(exportModel.get('inProgress')).to.equal(false);
-                }));
+                // jQuery 3+ Deferred, for Promises/A+ compliance, no longer executes callbacks
+                // synchronously when added to an already resolved/rejected promise, so we need
+                // to set a timeout before declaring our expectations here.
+                setTimeout(function(){
+                    done(tryAssertions(function () {
+                        expect(exportModel.get('inProgress')).to.equal(false);
+                    }));
+                },0);
             });
         });
 
@@ -173,9 +178,11 @@ describe('Export', function () {
             dependencyInjectedRequire.require([exportModelPath], function (Export) {
                 var exportModel = new Export();
                 exportModel.export();
-                done(tryAssertions(function () {
-                    expect(exportModel.get('inProgress')).to.equal(false);
-                }));
+                setTimeout(function(){
+                    done(tryAssertions(function () {
+                        expect(exportModel.get('inProgress')).to.equal(false);
+                    }));
+                },0);
             });
         });
 
@@ -192,9 +199,11 @@ describe('Export', function () {
                     changeEmitted = true;
                 });
                 exportModel.export();
-                done(tryAssertions(function () {
-                    expect(changeEmitted).to.equal(true);
-                }));
+                setTimeout(function(){
+                    done(tryAssertions(function () {
+                        expect(changeEmitted).to.equal(true);
+                    }));
+                },0);
             });
         });
 

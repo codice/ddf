@@ -19,17 +19,17 @@
 
         paths: {
 
-            bootstrap: 'bootstrap/3.2.0/dist/js/bootstrap.min',
-            q: 'q/1.0.1/q',
+            bootstrap: 'bootstrap/3.3.7/dist/js/bootstrap.min',
+            q: 'q/1.4.1/q',
 
             // backbone
             backbone: 'backbone/1.1.2/backbone',
-            underscore: 'lodash/2.4.1/dist/lodash.underscore.min',
+            underscore: 'underscore/1.8.3/underscore-min',
             marionette: 'marionette/1.8.8/lib/backbone.marionette.min',
 
             // jquery
-            jquery: 'jquery/1.12.4/dist/jquery.min',
-            jqueryuiCore: 'jquery-ui/1.10.4/ui/minified/jquery.ui.core.min',
+            jquery: 'jquery/3.2.1/dist/jquery.min',
+            jqueryuiCore: 'jquery-ui/1.12.1/ui/minified/jquery.ui.core.min',
 
             // purl
             purl: 'purl/2.3.1/purl',
@@ -39,7 +39,7 @@
             icanhaz: 'js/ich',
 
             // require plugins
-            text: 'requirejs-plugins/1.0.2/lib/text',
+            text: 'requirejs-plugins/1.0.3/lib/text',
 
             // default login ui
             app: 'js/application'

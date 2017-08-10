@@ -21,14 +21,14 @@
 
             moment: '../../admin/metrics/moment/2.10.3/moment',
 
-            bootstrap: '../../admin/metrics/bootstrap/3.2.0/dist/js/bootstrap.min',
+            bootstrap: '../../admin/metrics/bootstrap/3.3.7/dist/js/bootstrap.min',
             spin: '../../admin/metrics/spin.js/1.3.3/spin',
-            q: '../../admin/metrics/q/1.0.1/q',
+            q: '../../admin/metrics/q/1.4.1/q',
 
             // backbone
             backbone: '../../admin/metrics/backbone/1.1.2/backbone',
             backboneassociation: '../../admin/metrics/backbone-associations/0.6.2/backbone-associations-min',
-            underscore: '../../admin/metrics/lodash/2.4.1/dist/lodash.underscore.min',
+            underscore: '../../admin/metrics/underscore/1.8.3/underscore-min',
             marionette: '../../admin/metrics/marionette/1.8.8/lib/backbone.marionette.min',
             // TODO test combining
             modelbinder: '../../admin/metrics/backbone.modelbinder/1.1.0/Backbone.ModelBinder.min',
@@ -40,11 +40,10 @@
             spinnerConfig: 'js/spinnerConfig',
 
             // jquery
-            jquery: '../../admin/metrics/jquery/1.12.4/dist/jquery.min',
-            jqueryui: '../../admin/metrics/jquery-ui/1.10.4/ui/minified/jquery-ui.min',
-            'jquery.ui.widget': '../../admin/metrics/jquery-ui/1.10.4/ui/minified/jquery.ui.widget.min',
+            jquery: '../../admin/metrics/jquery/3.2.1/dist/jquery.min',
+            jqueryui: '../../admin/metrics/jquery-ui/1.12.1/jquery-ui.min',
             multiselect: '../../admin/metrics/bootstrap-multiselect/0.9.3/js/bootstrap-multiselect',
-            perfectscrollbar: '../../admin/metrics/perfect-scrollbar/0.4.8/min/perfect-scrollbar-0.4.8.with-mousewheel.min',
+            perfectscrollbar: '../../admin/metrics/perfect-scrollbar/0.7.0/js/perfect-scrollbar.jquery.min',
             fileupload: '../../admin/metrics/jquery-file-upload/9.5.7/js/jquery.fileupload',
             fileuploadiframe: '../../admin/metrics/jquery-file-upload/9.5.7/js/jquery.iframe-transport',
 
@@ -53,8 +52,8 @@
             icanhaz: 'js/ich',
 
             // require plugins
-            text: '../../admin/metrics/requirejs-plugins/1.0.2/lib/text',
-            css: '../../admin/metrics/require-css/0.1.5/css',
+            text: '../../admin/metrics/requirejs-plugins/1.0.3/lib/text',
+            css: '../../admin/metrics/require-css/0.1.10/css',
 
             // default admin ui
             app: '../../admin/metrics/js/application',
@@ -62,7 +61,11 @@
             // datatables
 
         },
-
+        map: {
+            '*': {
+                'jquery.ui.widget': 'jqueryui',
+            }
+        },
 
         shim: {
 
@@ -140,7 +143,7 @@
                     }
                 };
             }
-        }
+        }     
 
         // Actually start up the application.
         app.start();

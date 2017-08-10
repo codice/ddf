@@ -66,7 +66,7 @@ define(['application',
             };
 
             WorkspaceModule.sources = new Source.Collection();
-            WorkspaceModule.sources.fetch().success(function() {
+            WorkspaceModule.sources.fetch().done(function() {
                 setTypes();
             });
 

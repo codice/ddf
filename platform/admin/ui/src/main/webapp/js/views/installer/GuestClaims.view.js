@@ -131,7 +131,7 @@ define([
             "change": 'render'
         },
         initialize: function (options) {
-            _.bindAll(this);
+            _.bindAll.apply(_, [this].concat(_.functions(this)));
             this.claimIdCounter = 0;
             this.configuration = options.configuration;
             this.collectionArray = new Backbone.Collection();

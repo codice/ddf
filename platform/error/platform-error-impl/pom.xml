@@ -82,12 +82,12 @@
         <dependency>
             <groupId>org.webjars.bower</groupId>
             <artifactId>jquery</artifactId>
-            <version>1.12.4</version>
+            <version>3.2.1</version>
         </dependency>
         <dependency>
             <groupId>org.webjars.bower</groupId>
-            <artifactId>lodash</artifactId>
-            <version>2.4.1</version>
+            <artifactId>underscore</artifactId>
+            <version>1.8.3</version>
         </dependency>
         <dependency>
             <groupId>org.codice.webjars</groupId>
@@ -102,7 +102,7 @@
         <dependency>
             <groupId>org.webjars.bower</groupId>
             <artifactId>requirejs-plugins</artifactId>
-            <version>1.0.2</version>
+            <version>1.0.3</version>
         </dependency>
     </dependencies>
     <build>

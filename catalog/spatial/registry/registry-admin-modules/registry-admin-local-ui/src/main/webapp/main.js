@@ -19,13 +19,13 @@
 
         paths: {
 
-            bootstrap: 'bootstrap/3.2.0/dist/js/bootstrap.min',
-            q: 'q/1.0.1/q',
+            bootstrap: 'bootstrap/3.3.7/dist/js/bootstrap.min',
+            q: 'q/1.4.1/q',
 
             // backbone
             backbone: 'backbone/1.1.2/backbone',
             backboneassociation: 'backbone-associations/0.6.2/backbone-associations',
-            underscore: 'lodash/2.4.1/dist/lodash.underscore',
+            underscore: 'underscore/1.8.3/underscore-min',
             marionette: 'marionette/1.8.8/lib/backbone.marionette',
             modelbinder: 'backbone.modelbinder/1.1.0/Backbone.ModelBinder',
             collectionbinder: 'backbone.modelbinder/1.1.0/Backbone.CollectionBinder',
@@ -33,24 +33,23 @@
             iframeresizer: 'iframe-resizer/2.6.2/js/iframeResizer.min',
 
             // jquery
-            jquery: 'jquery/1.12.4/dist/jquery.min',
-            jqueryui: 'jquery-ui/1.10.4/ui/minified/jquery-ui.min',
-            'jquery.ui.widget': 'jquery-ui/1.10.4/ui/minified/jquery.ui.widget.min',
+            jquery: 'jquery/3.2.1/dist/jquery.min',
+            jqueryui: 'jquery-ui/1.12.1/jquery-ui.min',
             multiselect: 'bootstrap-multiselect/0.9.3/js/bootstrap-multiselect',
-            perfectscrollbar: 'perfect-scrollbar/0.5.7/min/perfect-scrollbar-0.4.8.with-mousewheel.min',
+            perfectscrollbar: 'perfect-scrollbar/0.7.0/js/perfect-scrollbar.jquery.min',
 
             // handlebars
-            handlebars: 'handlebars/2.0.0/handlebars.min',
+            handlebars: 'handlebars/4.0.10/handlebars.min',
             icanhaz: 'js/ich',
 
             // require plugins
-            text: 'requirejs-plugins/1.0.2/lib/text',
-            css: 'require-css/0.1.5/css',
+            text: 'requirejs-plugins/1.0.3/lib/text',
+            css: 'require-css/0.1.10/css',
 
             // default admin ui
             app: 'js/application',
 
-            moment: 'moment/2.5.1/min/moment.min'
+            moment: 'moment/2.18.1/min/moment.min'
         },
 
 
