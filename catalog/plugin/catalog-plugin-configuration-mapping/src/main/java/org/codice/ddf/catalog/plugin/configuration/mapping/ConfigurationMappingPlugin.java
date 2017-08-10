@@ -1,0 +1,103 @@
+/**
+ * Copyright (c) Codice Foundation
+ * <p/>
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * <p/>
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ */
+package org.codice.ddf.catalog.plugin.configuration.mapping;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import ddf.catalog.data.Attribute;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.operation.CreateRequest;
+import ddf.catalog.operation.DeleteRequest;
+import ddf.catalog.operation.UpdateRequest;
+import ddf.catalog.plugin.PluginExecutionException;
+import ddf.catalog.plugin.PreIngestPlugin;
+import ddf.catalog.plugin.StopProcessingException;
+import ddf.security.expansion.Expansion;
+
+public class ConfigurationMappingPlugin implements PreIngestPlugin {
+
+    private Expansion expansionService;
+
+    @Override
+    public CreateRequest process(CreateRequest input)
+            throws PluginExecutionException, StopProcessingException {
+
+        expandAttributes(input.getMetacards());
+        return input;
+    }
+
+    @Override
+    public UpdateRequest process(UpdateRequest input)
+            throws PluginExecutionException, StopProcessingException {
+
+        List<Metacard> metacards = new ArrayList<>();
+
+        for (Map.Entry<Serializable, Metacard> metacardEntry : input.getUpdates()) {
+            metacards.add(metacardEntry.getValue());
+        }
+
+        expandAttributes(metacards);
+        return input;
+    }
+
+    @Override
+    public DeleteRequest process(DeleteRequest input)
+            throws PluginExecutionException, StopProcessingException {
+        return null;
+    }
+
+    public void setExpansionService(Expansion expansionService) {
+        this.expansionService = expansionService;
+    }
+
+    private List<Metacard> expandAttributes(List<Metacard> metacards) {
+
+        for (Map.Entry<String, List<String[]>> expansion : expansionService.getExpansionMap()
+                .entrySet()) {
+
+            String attribute = expansion.getKey();
+            Map<String, String> expansionMap = toMap(expansion.getValue());
+
+            for (Metacard metacard : metacards) {
+
+                Attribute metacardAttribute = metacard.getAttribute(attribute);
+
+                if (metacardAttribute != null
+                        && expansionMap.containsKey(metacardAttribute.getValue())) {
+
+                    Attribute attributeImpl = new AttributeImpl(attribute,
+                            expansionMap.get(metacardAttribute.getValue()));
+                    metacard.setAttribute(attributeImpl);
+                }
+            }
+        }
+
+        return metacards;
+    }
+
+    private Map<String, String> toMap(List<String[]> list) {
+
+        Map<String, String> map = new HashMap<>();
+
+        for (String[] pair : list) {
+            map.put(pair[0], pair[1]);
+        }
+        return map;
+    }
+}
