@@ -14,8 +14,11 @@
 package ddf.test.itests.catalog;
 
 import static java.lang.String.format;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.awaitility.Awaitility.with;
 import static org.codice.ddf.itests.common.WaitCondition.expect;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.deleteMetacard;
+import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.doesMetacardExist;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingest;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingestGeoJson;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.update;
@@ -2357,18 +2360,31 @@ public class TestCatalog extends AbstractIntegrationTest {
 
         // setup
         String fileName = "crossdomain.xml";    // filename in bad.files
+        String[] id = new String[1];
 
         File tmpFile = createTemporaryFile(fileName, IOUtils.toInputStream("Test"));
 
         // ingest
-        String id = given().multiPart(tmpFile)
-                .expect()
-                .log()
-                .headers()
-                .statusCode(HttpStatus.SC_CREATED)
-                .when()
-                .post(REST_PATH.getUrl())
-                .getHeader("id");
+        with().pollInterval(1, SECONDS)
+                .await()
+                .atMost(30, SECONDS)
+                .ignoreExceptions()
+                .until(() -> {
+                    id[0] = given().multiPart(tmpFile)
+                            .expect()
+                            .log()
+                            .headers()
+                            .statusCode(HttpStatus.SC_CREATED)
+                            .when()
+                            .post(REST_PATH.getUrl())
+                            .getHeader("id");
+                    return true;
+                });
+        with().pollInterval(1, SECONDS)
+                .await()
+                .atMost(10, SECONDS)
+                .ignoreExceptions()
+                .until(() -> doesMetacardExist(id[0]));
 
         // query - check if sanitized properly
         getOpenSearch("xml", null, null, "q=*").log()
@@ -2378,7 +2394,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                         is("file.bin")));
 
         // clean up
-        deleteMetacard(id);
+        deleteMetacard(id[0]);
     }
 
     @Test
@@ -2387,18 +2403,31 @@ public class TestCatalog extends AbstractIntegrationTest {
 
         // setup
         String fileName = "bad_file.cgi";      // file extension in bad.file.extensions
+        String[] id = new String[1];
 
         File tmpFile = createTemporaryFile(fileName, IOUtils.toInputStream("Test"));
 
         // ingest
-        String id = given().multiPart(tmpFile)
-                .expect()
-                .log()
-                .headers()
-                .statusCode(HttpStatus.SC_CREATED)
-                .when()
-                .post(REST_PATH.getUrl())
-                .getHeader("id");
+        with().pollInterval(1, SECONDS)
+                .await()
+                .atMost(30, SECONDS)
+                .ignoreExceptions()
+                .until(() -> {
+                    id[0] = given().multiPart(tmpFile)
+                            .expect()
+                            .log()
+                            .headers()
+                            .statusCode(HttpStatus.SC_CREATED)
+                            .when()
+                            .post(REST_PATH.getUrl())
+                            .getHeader("id");
+                    return true;
+                });
+        with().pollInterval(1, SECONDS)
+                .await()
+                .atMost(10, SECONDS)
+                .ignoreExceptions()
+                .until(() -> doesMetacardExist(id[0]));
 
         // query - check if sanitized properly
         getOpenSearch("xml", null, null, "q=*").log()
@@ -2408,7 +2437,7 @@ public class TestCatalog extends AbstractIntegrationTest {
                         is("bad_file.bin")));
 
         // clean up
-        deleteMetacard(id);
+        deleteMetacard(id[0]);
     }
 
     @Test
