@@ -24,7 +24,7 @@ define([
 
     var geometryComparators = ['INTERSECTS'];
     var dateComparators = ['BEFORE', 'AFTER'];
-    var stringComparators = ['CONTAINS', 'MATCHCASE', '='];
+    var stringComparators = ['CONTAINS', 'MATCHCASE', '=', 'NEAR'];
     var numberComparators = ['>','<','=','>=','<='];
     var booleanComparators = ['='];
 

@@ -6,7 +6,8 @@
   > .filter-remove,
   > .filter-attribute,
   > .filter-comparator,
-  > .filter-input {
+  > .filter-input,
+  > .filter-param {
     display: inline-block;
     vertical-align: middle;
     margin-right: 20px;
@@ -24,8 +25,30 @@
     display: none;
   }
 
-  > .filter-input {
-    min-width: 200px;
+  > .filter-param {
+    position: absolute; // keep validation message from throwing off alignment
+    width: 40px;
+
+    > * {
+      line-height: @minimumButtonSize;
+      display: inline-block;
+    }
+
+    .for-error {
+      min-width: 180px;
+    }    
+  }
+
+  &.is-editing {
+    > .filter-input {
+      min-width: 200px;
+    }
+
+    > .filter-param {
+      .within-label {
+        margin-right: @minimumSpacing;
+      }
+    }    
   }
 }
 

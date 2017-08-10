@@ -19,7 +19,8 @@ define([
         defaults: {
             value: [''],
             type: 'anyText',
-            comparator: 'CONTAINS'
+            comparator: 'CONTAINS',
+            filterParam: 2
         },
         type: 'filter'
     });
