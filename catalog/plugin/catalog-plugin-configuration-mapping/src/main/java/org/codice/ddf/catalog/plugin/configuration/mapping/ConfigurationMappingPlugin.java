@@ -37,6 +37,7 @@ public class ConfigurationMappingPlugin implements PreIngestPlugin {
     @Override
     public CreateRequest process(CreateRequest input)
             throws PluginExecutionException, StopProcessingException {
+
         expandAttributes(input.getMetacards());
         return input;
     }
@@ -44,6 +45,7 @@ public class ConfigurationMappingPlugin implements PreIngestPlugin {
     @Override
     public UpdateRequest process(UpdateRequest input)
             throws PluginExecutionException, StopProcessingException {
+
         List<Metacard> metacards = new ArrayList<>();
 
         for (Map.Entry<Serializable, Metacard> metacardEntry : input.getUpdates()) {
@@ -60,35 +62,68 @@ public class ConfigurationMappingPlugin implements PreIngestPlugin {
         return input;
     }
 
-    public void setExpansionService(Expansion expansionService) {
-        this.expansionService = expansionService;
+    private void expandAttributes(List<Metacard> metacards) {
+
+        AttributeRuleSet attributeRuleSet = new AttributeRuleSet(expansionService);
+
+        for (Metacard metacard : metacards) {
+            attributeRuleSet.expandMetacard(metacard);
+        }
     }
 
-    private void expandAttributes(List<Metacard> metacards) {
-        for (Map.Entry<String, List<String[]>> expansion : expansionService.getExpansionMap()
-                .entrySet()) {
-            String attribute = expansion.getKey();
-            Map<String, String> expansionMap = toMap(expansion.getValue());
+    private class AttributeRuleSet {
 
-            for (Metacard metacard : metacards) {
-                Attribute metacardAttribute = metacard.getAttribute(attribute);
+        private Map<String, Map<String, String>> attributeRuleSet;
 
-                if (metacardAttribute != null
-                        && expansionMap.containsKey(metacardAttribute.getValue())) {
-                    Attribute attributeImpl = new AttributeImpl(attribute,
-                            expansionMap.get(metacardAttribute.getValue()));
-                    metacard.setAttribute(attributeImpl);
+        public AttributeRuleSet(Expansion expansion) {
+
+            attributeRuleSet = new HashMap<>();
+
+            for (Map.Entry<String, List<String[]>> attributeRules : expansion.getExpansionMap()
+                    .entrySet()) {
+                Map<String, String> attributeMap = toMap(attributeRules.getValue());
+
+                attributeRuleSet.put(attributeRules.getKey(), attributeMap);
+            }
+        }
+
+        public void expandMetacard(Metacard metacard) {
+
+            for (String attributeName : attributeRuleSet.keySet()) {
+                Attribute metacardAttribute = metacard.getAttribute(attributeName);
+
+                if (metacardAttribute != null) {
+
+                    // expandTo holds the value that the ruleset
+                    String expandTo = getCorrespondingValue(attributeName,
+                            metacardAttribute.getValue());
+
+                    if (expandTo != null) {
+                        Attribute attributeImpl = new AttributeImpl(attributeName, expandTo);
+                        metacard.setAttribute(attributeImpl);
+                    }
                 }
             }
         }
 
+        private String getCorrespondingValue(String attributeName, Serializable currentValue) {
+            return attributeRuleSet.get(attributeName)
+                    .get(currentValue);
+        }
+
+        private Map<String, String> toMap(List<String[]> list) {
+
+            Map<String, String> map = new HashMap<>();
+
+            for (String[] pair : list) {
+                map.put(pair[0], pair[1]);
+            }
+            return map;
+        }
+
     }
 
-    private Map<String, String> toMap(List<String[]> list) {
-        Map<String, String> map = new HashMap<>();
-        for (String[] pair : list) {
-            map.put(pair[0], pair[1]);
-        }
-        return map;
+    public void setExpansionService(Expansion expansionService) {
+        this.expansionService = expansionService;
     }
 }

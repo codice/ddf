@@ -13,12 +13,15 @@
  */
 package org.codice.ddf.catalog.plugin.configuration.mapping;
 
+import static org.mockito.Mockito.mock;
+
 import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.operation.CreateRequest;
@@ -154,6 +157,18 @@ public class ConfigurationMappingPluginTest {
                 .get(0)
                 .getAttribute(COLOR)
                 .getValue()).equals(attrValue);
+    }
+
+    /*
+         Test that metacards unrelated to the configured ruleset will not
+         be affected by configuration mapping
+     */
+    @Test
+    public void testCreateMetacardNoMatchingAttributes() throws Exception {
+        Metacard metacard = mock(Metacard.class);
+
+        CreateRequest input = new CreateRequestImpl(Arrays.asList(metacard));
+        configurationMappingPlugin.process(input);
     }
 
     /*
