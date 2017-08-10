@@ -37,7 +37,6 @@ public class ConfigurationMappingPlugin implements PreIngestPlugin {
     @Override
     public CreateRequest process(CreateRequest input)
             throws PluginExecutionException, StopProcessingException {
-
         expandAttributes(input.getMetacards());
         return input;
     }
@@ -45,7 +44,6 @@ public class ConfigurationMappingPlugin implements PreIngestPlugin {
     @Override
     public UpdateRequest process(UpdateRequest input)
             throws PluginExecutionException, StopProcessingException {
-
         List<Metacard> metacards = new ArrayList<>();
 
         for (Map.Entry<Serializable, Metacard> metacardEntry : input.getUpdates()) {
@@ -59,28 +57,24 @@ public class ConfigurationMappingPlugin implements PreIngestPlugin {
     @Override
     public DeleteRequest process(DeleteRequest input)
             throws PluginExecutionException, StopProcessingException {
-        return null;
+        return input;
     }
 
     public void setExpansionService(Expansion expansionService) {
         this.expansionService = expansionService;
     }
 
-    private List<Metacard> expandAttributes(List<Metacard> metacards) {
-
+    private void expandAttributes(List<Metacard> metacards) {
         for (Map.Entry<String, List<String[]>> expansion : expansionService.getExpansionMap()
                 .entrySet()) {
-
             String attribute = expansion.getKey();
             Map<String, String> expansionMap = toMap(expansion.getValue());
 
             for (Metacard metacard : metacards) {
-
                 Attribute metacardAttribute = metacard.getAttribute(attribute);
 
                 if (metacardAttribute != null
                         && expansionMap.containsKey(metacardAttribute.getValue())) {
-
                     Attribute attributeImpl = new AttributeImpl(attribute,
                             expansionMap.get(metacardAttribute.getValue()));
                     metacard.setAttribute(attributeImpl);
@@ -88,13 +82,10 @@ public class ConfigurationMappingPlugin implements PreIngestPlugin {
             }
         }
 
-        return metacards;
     }
 
     private Map<String, String> toMap(List<String[]> list) {
-
         Map<String, String> map = new HashMap<>();
-
         for (String[] pair : list) {
             map.put(pair[0], pair[1]);
         }
