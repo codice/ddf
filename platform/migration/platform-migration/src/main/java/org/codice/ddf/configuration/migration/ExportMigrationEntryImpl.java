@@ -39,8 +39,8 @@ import org.codice.ddf.migration.ExportPathMigrationException;
 import org.codice.ddf.migration.ExportPathMigrationWarning;
 import org.codice.ddf.migration.MigrationContext;
 import org.codice.ddf.migration.MigrationException;
-import org.codice.ddf.migration.MigrationExporter;
 import org.codice.ddf.migration.MigrationReport;
+import org.codice.ddf.util.function.EBiConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,7 +85,8 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
 
         try {
             // make sure it is resolved against ddf.home and not the current working directory
-            apath = context.getPathUtils().resolveAgainstDDFHome(path)
+            apath = context.getPathUtils()
+                    .resolveAgainstDDFHome(path)
                     .toRealPath();
             aerror = null;
         } catch (IOException e) {
@@ -95,7 +96,8 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
         this.context = context;
         this.absolutePath = apath;
         this.absolutePathError = aerror;
-        this.path = context.getPathUtils().relativizeFromDDFHome(apath);
+        this.path = context.getPathUtils()
+                .relativizeFromDDFHome(apath);
         this.file = apath.toFile();
         // we keep the entry name in Unix style based on our convention
         this.name = FilenameUtils.separatorsToUnix(this.path.toString());
@@ -122,11 +124,6 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
     }
 
     @Override
-    public long getSize() {
-        return file.length();
-    }
-
-    @Override
     public OutputStream getOutputStream() throws IOException {
         try {
             return outputStream.updateAndGet(os -> (os != null) ?
@@ -138,30 +135,52 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
     }
 
     @Override
-    public void store() {
-        store((r, os) -> {
-            LOGGER.debug("Exporting file [{}] to [{}]...", absolutePath, path);
-            if (isMigratable()) {
-                FileUtils.copyFile(file, os);
+    public boolean store(boolean required) {
+        if (stored == null) {
+            LOGGER.debug("Exporting {}file [{}] to [{}]...",
+                    (required ? "required " : ""),
+                    absolutePath,
+                    path);
+            if (absolutePathError != null) {
+                super.stored = false; // until proven otherwise
+                if (!absolutePath.toFile()
+                        .exists()) {
+                    if (required) {
+                        recordError("does not exist", absolutePathError);
+                    } else { // optional so no warnings/errors
+                        super.stored = true;
+                    }
+                } else {
+                    recordError("cannot be read", absolutePathError);
+                }
+                return stored;
             }
-        });
+            return store((r, os) -> {
+                if (isMigratable()) {
+                    FileUtils.copyFile(file, os);
+                }
+            });
+        }
+        return stored;
     }
 
     @Override
-    public void store(MigrationExporter exporter) {
-        Validate.notNull(exporter, "invalid null exporter");
-        if (!stored) {
-            super.stored = true;
+    public boolean store(EBiConsumer<MigrationReport, OutputStream, IOException> consumer) {
+        Validate.notNull(consumer, "invalid null consumer");
+        if (stored == null) {
+            super.stored = false; // until proven otherwise
             try {
-                exporter.apply(getReport(), getOutputStream());
+                super.stored = getReport().wasIOSuccessful(() -> consumer.accept(getReport(),
+                        getOutputStream()));
             } catch (ExportIOException e) { // special case indicating the I/O error occurred while writing to the zip which would invalidate the zip so we are forced to abort
-                throw newError("failed to copy", e.getCause());
+                throw newError("failed to store", e.getCause());
             } catch (IOException e) { // here it means the error came out of reading/processing the input file/stream where it is safe to continue with the next entry, so don't abort
-                recordError("failed to copy", e);
+                recordError("failed to store", e);
             } catch (MigrationException e) {
                 throw e;
             }
         }
+        return stored;
     }
 
     @Override
@@ -233,18 +252,11 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
     private boolean isMigratable() {
         final ExportMigrationReportImpl report = context.getReport();
 
-        if (absolutePathError != null) {
-            if (!absolutePath.toFile()
-                    .exists()) {
-                report.recordExternal(this, false);
-                recordWarning("does not exist");
-            } else {
-                recordError("cannot be read", absolutePathError);
-            }
-            return false;
-        } else if (path.isAbsolute()) {
+        if (path.isAbsolute()) {
             report.recordExternal(this, false);
-            recordWarning(String.format("is outside [%s]", context.getPathUtils().getDDFHome()));
+            recordWarning(String.format("is outside [%s]",
+                    context.getPathUtils()
+                            .getDDFHome()));
             return false;
         } else if (Files.isSymbolicLink(absolutePath)) {
             report.recordExternal(this, true);

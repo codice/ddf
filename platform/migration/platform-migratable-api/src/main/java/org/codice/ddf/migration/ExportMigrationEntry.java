@@ -18,6 +18,8 @@ import java.io.OutputStream;
 import java.util.Optional;
 import java.util.function.BiPredicate;
 
+import org.codice.ddf.util.function.EBiConsumer;
+
 /**
  * The <code>ExportMigrationEntry</code> interfaces provides support for artifacts that are being
  * exported during migration.
@@ -79,17 +81,19 @@ public interface ExportMigrationEntry extends MigrationEntry {
             BiPredicate<MigrationReport, String> validator);
 
     /**
-     * Stores this entry's content in the export using the specified exporter based on this entry's
+     * Stores this entry's content in the export using the specified consumer based on this entry's
      * path which can include sub-directories.
      * <p>
      * All errors and warnings are automatically recorded with the associated migration report including
-     * those thrown by the exporter logic.
+     * those thrown by the consumer logic.
      *
-     * @param exporter a consumer capable of exporting the content of this entry to a provided output stream
+     * @param consumer a consumer capable of exporting the content of this entry to a provided output stream
+     * @return <code>true</code> if no errors were recorded as a result of processing this command;
+     * <code>false</code> otherwise
      * @throws MigrationException       if a failure that prevents the operation from continue occurred
-     * @throws IllegalArgumentException if <code>exporter</code> is <code>null</code>
+     * @throws IllegalArgumentException if <code>consumer</code> is <code>null</code>
      */
-    public void store(MigrationExporter exporter);
+    public boolean store(EBiConsumer<MigrationReport, OutputStream, IOException> consumer);
 
     /**
      * Gets an output stream for this entry which provides a low-level way for the migratable to

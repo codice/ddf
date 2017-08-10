@@ -27,7 +27,7 @@ import org.apache.commons.lang.Validate;
  * library.
  * </b>
  * </p>
- * <p>
+ *
  * @param <T> the type of migration entry being proxied
  */
 public class ProxyMigrationEntry<T extends MigrationEntry> implements MigrationEntry {
@@ -64,13 +64,13 @@ public class ProxyMigrationEntry<T extends MigrationEntry> implements MigrationE
     }
 
     @Override
-    public long getSize() {
-        return proxy.getSize();
+    public boolean store() {
+        return proxy.store();
     }
 
     @Override
-    public void store() {
-        proxy.store();
+    public boolean store(boolean required) {
+        return proxy.store(required);
     }
 
     @Override

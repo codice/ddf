@@ -99,8 +99,6 @@ public class SecurityMigratable implements ConfigurationMigratable {
     public void doImport(ImportMigrationContext context) {
         SecurityMigratable.PROPERTIES_FILES.stream()
                 .map(context::getEntry)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
                 .peek(me -> LOGGER.debug("Importing CRL from property [{}] in file [{}]...",
                         SecurityMigratable.CRL_PROP_KEY,
                         me.getPath()))

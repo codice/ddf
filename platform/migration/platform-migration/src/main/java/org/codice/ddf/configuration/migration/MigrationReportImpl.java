@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.configuration.migration;
 
+import java.io.IOException;
 import java.util.Deque;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -30,6 +31,7 @@ import org.codice.ddf.migration.MigrationMessage;
 import org.codice.ddf.migration.MigrationOperation;
 import org.codice.ddf.migration.MigrationReport;
 import org.codice.ddf.migration.MigrationWarning;
+import org.codice.ddf.util.function.ERunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -155,6 +157,26 @@ public class MigrationReportImpl implements MigrationReport {
     public boolean wasSuccessful() {
         runCodes();
         return (numErrors == 0);
+    }
+
+    @Override
+    public boolean wasSuccessful(Runnable code) {
+        final int numErrors = this.numErrors;
+
+        if (code != null) {
+            code.run();
+        }
+        return (this.numErrors == numErrors);
+    }
+
+    @Override
+    public boolean wasIOSuccessful(ERunnable<IOException> code) throws IOException {
+        final int numErrors = this.numErrors;
+
+        if (code != null) {
+            code.run();
+        }
+        return (this.numErrors == numErrors);
     }
 
     public boolean hasInfos() {

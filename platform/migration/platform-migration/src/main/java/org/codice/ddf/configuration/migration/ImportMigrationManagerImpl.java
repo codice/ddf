@@ -152,14 +152,14 @@ public class ImportMigrationManagerImpl implements Closeable {
     private Map<String, Object> retrieveMetadata() throws IOException {
         final ImportMigrationEntry me =
                 contexts.get(null) // metadata entries have no migratable id and will always exist see ctor
-                        .getEntry(MigrationContextImpl.METADATA_FILENAME)
-                        .orElseThrow(() -> new ImportMigrationException(String.format(
-                                "missing metadata file [%s] from exported data",
-                                MigrationContextImpl.METADATA_FILENAME)));
+                        .getEntry(MigrationContextImpl.METADATA_FILENAME);
         InputStream is = null;
 
         try {
-            is = me.getInputStream();
+            is = me.getInputStream()
+                    .orElseThrow(() -> new ImportMigrationException(String.format(
+                            "missing metadata file [%s] from exported data",
+                            MigrationContextImpl.METADATA_FILENAME)));
             return JsonUtils.MAPPER.parser()
                     .parseMap(IOUtils.toString(is, Charset.defaultCharset()));
         } finally {

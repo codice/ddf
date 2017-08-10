@@ -32,15 +32,17 @@ public abstract class MigrationEntryImpl implements MigrationEntry {
 
     static final String METADATA_SOFTLINK = "softlink";
 
-    static final String METADATA_SIZE = "size";
-
     static final String METADATA_PROPERTY = "property";
 
     static final String METADATA_REFERENCE = "reference";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MigrationEntryImpl.class);
 
-    protected boolean stored = false;
+    /**
+     * Will track if store was attempted along with its result. Will be <code>null</code> until
+     * store() is attempted, at which point it will start tracking the first store() result.
+     */
+    protected Boolean stored = null;
 
     protected MigrationEntryImpl() {}
 

@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.configuration.migration;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -21,13 +20,12 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.Optional;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.Validate;
+import org.codice.ddf.migration.ImportPathMigrationException;
 import org.codice.ddf.migration.ImportPathMigrationWarning;
-import org.codice.ddf.migration.MigrationImporter;
 import org.codice.ddf.migration.MigrationReport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,8 +40,6 @@ public class ImportMigrationExternalEntryImpl extends ImportMigrationEntryImpl {
 
     private final String checksum;
 
-    private final Long size;
-
     private final boolean softlink;
 
     ImportMigrationExternalEntryImpl(ImportMigrationContextImpl context,
@@ -55,7 +51,6 @@ public class ImportMigrationExternalEntryImpl extends ImportMigrationEntryImpl {
         this.softlink = JsonUtils.getBooleanFrom(metadata,
                 MigrationEntryImpl.METADATA_SOFTLINK,
                 false);
-        this.size = JsonUtils.getLongFrom(metadata, MigrationEntryImpl.METADATA_SIZE, false);
     }
 
     @Override
@@ -64,62 +59,51 @@ public class ImportMigrationExternalEntryImpl extends ImportMigrationEntryImpl {
     }
 
     @Override
-    public long getSize() {
-        return (size == null) ? -1L : size;
+    public Optional<InputStream> getInputStream() throws IOException {
+        return Optional.empty();
     }
 
     @Override
-    public InputStream getInputStream() throws IOException {
-        return new BufferedInputStream(new FileInputStream(getFile()));
-    }
-
-    @Override
-    public void store() {
-        if (!stored) {
-            final Path apath = getAbsolutePath();
-
-            LOGGER.debug("Verifying external file [{}] from [{}]...", apath, getPath());
-            super.stored = true;
-            verifyRealFile(r -> new ImportPathMigrationWarning(apath, r));
+    public boolean store(boolean required) {
+        if (stored == null) {
+            super.stored = false; // until proven otherwise in case the next line throws an exception
+            LOGGER.debug("Verifying {}external file [{}] from [{}]...",
+                    (required ? "required " : ""),
+                    getAbsolutePath(),
+                    getPath());
+            super.stored = verifyRealFile(required);
         }
-    }
-
-    @Override
-    public void store(MigrationImporter importer) {
-        Validate.notNull(importer, "invalid null importer");
-        store();
+        return stored;
     }
 
     /**
      * Verifies the corresponding existing file to see if it matches the original one based on the
      * exported info.
      *
-     * @param builder a function used to generate a warning which will receive the reason for the warning
+     * @param required <code>true</code> if the file was required to be exported; <code>false</code>
+     *                 if it was optional
+     * @return <code>false</code> if an error was detected during verification; <code>false</code>
+     *         otherwise
      */
-    private void verifyRealFile(Function<String, ImportPathMigrationWarning> builder) {
+    private boolean verifyRealFile(boolean required) {
         final MigrationReport report = getReport();
+        final Path apath = getAbsolutePath();
         final File file = getFile();
 
         if (!file.exists()) {
-            report.record(builder.apply("doesn't exist"));
-            return;
+            if (required) {
+                report.record(new ImportPathMigrationException(apath, "doesn't exist"));
+                return false;
+            }
+            return true;
         }
-        if ((size != null) && (size == 0L) && file.exists()) {
-            report.record(builder.apply("exists when it shouldn't"));
-        } else if (softlink) {
+        if (softlink) {
             if (!Files.isSymbolicLink(getAbsolutePath())) {
-                report.record(builder.apply("is not a symbolic link"));
+                report.record(new ImportPathMigrationWarning(apath, "is not a symbolic link"));
+                return false;
             }
         } else if (!Files.isRegularFile(getAbsolutePath())) {
-            report.record(builder.apply("is not a regular file"));
-        }
-        final long rsize = file.length();
-
-        if ((size != null) && (size != -1L) && (size != rsize)) {
-            report.record(builder.apply(String.format(
-                    "length doesn't match the original; expecting %d bytes but was %d bytes",
-                    size,
-                    rsize)));
+            report.record(new ImportPathMigrationWarning(apath, "is not a regular file"));
         }
         if (checksum != null) {
             InputStream is = null;
@@ -128,18 +112,21 @@ public class ImportMigrationExternalEntryImpl extends ImportMigrationEntryImpl {
                 is = new FileInputStream(file);
                 final String rchecksum = DigestUtils.md5Hex(is);
 
-                if (rchecksum.equals(checksum)) {
-                    report.record(builder.apply(String.format(
+                if (!rchecksum.equals(checksum)) {
+                    report.record(new ImportPathMigrationWarning(apath, String.format(
                             "checksum doesn't match the original; expecting '%s' but was '%s'",
                             checksum,
                             rchecksum)));
+                    return false;
                 }
             } catch (IOException e) {
                 LOGGER.info("failed to compute MD5 checksum for '" + getName() + "': ", e);
-                report.record(builder.apply("checksum could not be calculated; " + e.getMessage()));
+                report.record(new ImportPathMigrationWarning(apath, "checksum could not be calculated; " + e.getMessage()));
+                return false;
             } finally {
                 IOUtils.closeQuietly(is); // don't care about errors when closing
             }
         }
+        return true;
     }
 }

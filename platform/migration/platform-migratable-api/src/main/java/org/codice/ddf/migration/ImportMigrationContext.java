@@ -55,13 +55,17 @@ public interface ImportMigrationContext extends MigrationContext {
     /**
      * Retrieves a migration entry that was exported by the corresponding migratable with the given
      * path.
+     * <p>
+     * A "fake" entry will still be returned if the requested path was not exported. Errors will be
+     * recorded when storing the file later using one of the <code>store()</code> methods or an
+     * exception will be thrown out when attempting to retrieve the corresponding input stream.
+     * .
      *
      * @param path the path of the file that was exported (should be relative to ${ddf.home})
-     * @return the corresponding migration entry or empty it it was not migrated by the corresponding
-     * migratable
+     * @return the corresponding migration entry
      * @throws IllegalArgumentException if <code>path</code> is <code>null</code>
      */
-    public Optional<ImportMigrationEntry> getEntry(Path path);
+    public ImportMigrationEntry getEntry(Path path);
 
     /**
      * Retrieves all exported migration entries.

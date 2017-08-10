@@ -56,13 +56,11 @@ import org.slf4j.LoggerFactory;
  *             {
  *               "name": "/tmp/some.txt",
  *               "checksum": "a234f",
- *               "size": 2147483647
  *             },
  *             {
  *               "name": "etc/ws-security/some.link",
  *               "checksum": "123a234f",
  *               "softlink": true,
- *               "size": 2147483650
  *             },
  *             {
  *               "name": "../tmp/bob.txt",
@@ -100,7 +98,6 @@ import org.slf4j.LoggerFactory;
  * <li>'java.properties' provides an optional list of java properties files containing a Java property that references a file</li>
  * <li>'name' indicates the name of a file (absolute or relative to DDF_HOME). It is required</li>
  * <li>'checksum' provides the optional MD5 checksum for the file as computed on the original system</li>
- * <li>'size' provides the optional size of the file on the original system (<code>0</code> if the file didn't exist and <code>-1</code> if it could not be determined).</li>
  * <li>'softlink' provides an optional boolean flag indicating if the file on the original system was a softlink (defaults to false)</li>
  * <li>'property' indicates the name of the property containing a reference to another file. It is required.</li>
  * <li>'reference' provides the name of the referenced file. It is required.</li>

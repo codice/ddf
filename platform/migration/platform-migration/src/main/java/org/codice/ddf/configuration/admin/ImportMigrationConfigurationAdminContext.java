@@ -15,6 +15,7 @@ package org.codice.ddf.configuration.admin;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -26,7 +27,6 @@ import java.util.Dictionary;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -129,7 +129,7 @@ public class ImportMigrationConfigurationAdminContext extends ProxyImportMigrati
     }
 
     @Override
-    public Optional<ImportMigrationEntry> getEntry(Path path) {
+    public ImportMigrationEntry getEntry(Path path) {
         throw new IllegalStateException("should not be called");
     }
 
@@ -196,8 +196,31 @@ public class ImportMigrationConfigurationAdminContext extends ProxyImportMigrati
             getReport().record(new ImportPathMigrationException(path,
                     String.format("persistence strategy [%s] is not defined", extn)));
         } else {
+            final Dictionary<String, Object> properties;
+
             try {
-                return new ImportMigrationConfigurationAdminEntry(this, entry, ps);
+                final InputStream is = entry.getInputStream()
+                        .orElse(null);
+
+                if (is == null) {
+                    throw new ImportPathMigrationException(path,
+                            String.format("unable to read %s configuration; not exported",
+                                    ps.getExtension()));
+                }
+                try {
+                    properties = ps.read(is);
+                } catch (IOException e) {
+                    throw new ImportPathMigrationException(path,
+                            String.format("unable to read %s configuration", ps.getExtension()),
+                            e);
+                }
+            } catch (IOException e) {
+                throw new ImportPathMigrationException(path,
+                        String.format("unable to read %s configuration", ps.getExtension()),
+                        e);
+            }
+            try {
+                return new ImportMigrationConfigurationAdminEntry(this, entry, properties);
             } catch (MigrationException e) {
                 // don't throw it back yet as we want to detect as many as possible so just record it
                 getReport().record(e);

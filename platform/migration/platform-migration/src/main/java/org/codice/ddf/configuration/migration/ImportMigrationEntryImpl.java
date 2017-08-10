@@ -16,6 +16,7 @@ package org.codice.ddf.configuration.migration;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -30,9 +31,9 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.ImportMigrationEntry;
 import org.codice.ddf.migration.ImportPathMigrationException;
-import org.codice.ddf.migration.MigrationException;
-import org.codice.ddf.migration.MigrationImporter;
+import org.codice.ddf.migration.ImportPathMigrationWarning;
 import org.codice.ddf.migration.MigrationReport;
+import org.codice.ddf.util.function.EBiConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,7 +82,8 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
             this.context = contextProvider.apply(null);
             this.path = fqn;
         }
-        this.absolutePath = context.getPathUtils().resolveAgainstDDFHome(path);
+        this.absolutePath = context.getPathUtils()
+                .resolveAgainstDDFHome(path);
         this.file = absolutePath.toFile();
         this.name = FilenameUtils.separatorsToUnix(path.toString());
         this.zip = zip;
@@ -98,7 +100,8 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
         this.context = context;
         this.name = FilenameUtils.separatorsToUnix(name);
         this.path = Paths.get(this.name);
-        this.absolutePath = context.getPathUtils().resolveAgainstDDFHome(path);
+        this.absolutePath = context.getPathUtils()
+                .resolveAgainstDDFHome(path);
         this.file = absolutePath.toFile();
         this.zip = null;
         this.entry = null;
@@ -114,7 +117,8 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
         this.context = context;
         this.path = path;
         this.name = FilenameUtils.separatorsToUnix(path.toString());
-        this.absolutePath = context.getPathUtils().resolveAgainstDDFHome(path);
+        this.absolutePath = context.getPathUtils()
+                .resolveAgainstDDFHome(path);
         this.file = absolutePath.toFile();
         this.zip = null;
         this.entry = null;
@@ -141,30 +145,54 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
     }
 
     @Override
-    public long getSize() {
-        return entry.getSize();
+    public Optional<InputStream> getInputStream() throws IOException {
+        return Optional.of(context.getInputStreamFor(entry));
     }
 
     @Override
-    public InputStream getInputStream() throws IOException {
-        return context.getInputStreamFor(entry);
-    }
+    public boolean store(boolean required) {
+        return store((r, is) -> {
+            final InputStream fis = is.orElse(null);
 
-    @Override
-    public void store() {
-        store((r, in) -> {
-            LOGGER.debug("Importing file [{}] from [{}]...", absolutePath, path);
-
+            if (fis == null) { // no entry stored!!!!
+                if (required) {
+                    LOGGER.debug("Importing {}file [{}] from [{}]...",
+                            (required ? "required " : ""),
+                            absolutePath,
+                            path);
+                    getReport().record(new ImportPathMigrationException(getPath(),
+                            "was not exported"));
+                } else {
+                    // it is optional so delete it as it was optional when we exported and wasn't on
+                    // disk so we want to make surewe end up without the file on disk after import
+                    LOGGER.debug("Deleting {}file [{}] from [{}]...",
+                            (required ? "required " : ""),
+                            absolutePath,
+                            path);
+                    // but only if it is migratable to start with
+                    if (isMigratable()) {
+                        if (!getFile().delete()) {
+                            getReport().record(new ImportPathMigrationException(getPath(),
+                                    "failed to delete"));
+                        }
+                    }
+                }
+                return;
+            }
+            LOGGER.debug("Importing {}file [{}] from [{}]...",
+                    (required ? "required " : ""),
+                    absolutePath,
+                    path);
             try {
-                FileUtils.copyInputStreamToFile(getInputStream(), file);
+                FileUtils.copyInputStreamToFile(is.get(), file);
             } catch (IOException e) {
                 if (!file.canWrite()) { // make it writable and try again
                     try {
                         LOGGER.debug("temporarily overriding write privileges for {}", file);
-                        if (!file.setWritable(true)) { // cannot set it writeable so bail
+                        if (!file.setWritable(true)) { // cannot set it writable so bail
                             throw e;
                         }
-                        FileUtils.copyInputStreamToFile(getInputStream(), file);
+                        FileUtils.copyInputStreamToFile(context.getInputStreamFor(entry), file);
                     } finally { // reset the permissions properly
                         file.setReadable(true);
                     }
@@ -174,20 +202,23 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
     }
 
     @Override
-    public void store(MigrationImporter importer) {
-        Validate.notNull(importer, "invalid null importer");
-        if (!stored) {
-            super.stored = true;
+    public boolean store(
+            EBiConsumer<MigrationReport, Optional<InputStream>, IOException> consumer) {
+        Validate.notNull(consumer, "invalid null consumer");
+        if (stored == null) {
+            super.stored = false; // until proven otherwise
             try {
-                importer.apply(getReport(), getInputStream());
+                super.stored = getReport().wasIOSuccessful(() -> consumer.accept(getReport(),
+                        getInputStream()));
             } catch (IOException e) {
                 getReport().record(new ImportPathMigrationException(path,
-                        String.format("failed to copy to [%s]", context.getPathUtils().getDDFHome()),
+                        String.format("failed to copy to [%s]",
+                                context.getPathUtils()
+                                        .getDDFHome()),
                         e));
-            } catch (MigrationException e) {
-                throw e;
             }
         }
+        return stored;
     }
 
     @Override
@@ -212,5 +243,21 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
     void addPropertyReferenceEntry(String name,
             ImportMigrationJavaPropertyReferencedEntryImpl entry) {
         properties.put(name, entry);
+    }
+
+    protected boolean isMigratable() {
+        final MigrationReport report = getContext().getReport();
+
+        if (getPath().isAbsolute()) {
+            report.record(new ImportPathMigrationWarning(getPath(),
+                    String.format("is outside [%s]",
+                            getContext().getPathUtils()
+                                    .getDDFHome())));
+            return false;
+        } else if (Files.isSymbolicLink(getAbsolutePath())) {
+            report.record(new ImportPathMigrationWarning(getPath(), "is a symbolic link"));
+            return false;
+        }
+        return true;
     }
 }

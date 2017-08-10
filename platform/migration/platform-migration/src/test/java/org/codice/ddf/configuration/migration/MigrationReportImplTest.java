@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.configuration.migration;
 
+import java.io.IOException;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -26,6 +27,7 @@ import org.codice.ddf.migration.MigrationOperation;
 import org.codice.ddf.migration.MigrationReport;
 import org.codice.ddf.migration.MigrationWarning;
 import org.codice.ddf.test.util.ThrowableMatchers;
+import org.codice.ddf.util.function.ERunnable;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
@@ -55,7 +57,8 @@ public class MigrationReportImplTest {
             .filter(m -> m.startsWith("info"))
             .toArray(String[]::new);
 
-    private final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.EXPORT, Optional.empty());
+    private final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.EXPORT,
+            Optional.empty());
 
     private final MigrationException[] EXCEPTIONS = new MigrationException[ERRORS.length];
 
@@ -82,7 +85,8 @@ public class MigrationReportImplTest {
 
     @Test
     public void testConstructorWithExportOperation() throws Exception {
-        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.EXPORT, Optional.empty());
+        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.EXPORT,
+                Optional.empty());
 
         Assert.assertThat(REPORT.getOperation(), Matchers.equalTo(MigrationOperation.EXPORT));
         Assert.assertThat(REPORT.getStartTime(), Matchers.greaterThan(0L));
@@ -93,7 +97,8 @@ public class MigrationReportImplTest {
 
     @Test
     public void testConstructorWithImportOperation() throws Exception {
-        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT, Optional.empty());
+        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT,
+                Optional.empty());
 
         Assert.assertThat(REPORT.getOperation(), Matchers.equalTo(MigrationOperation.IMPORT));
         Assert.assertThat(REPORT.getStartTime(), Matchers.greaterThan(0L));
@@ -113,23 +118,8 @@ public class MigrationReportImplTest {
     @Test
     public void testConstructorWithReport() throws Exception {
         final MigrationReportImpl REPORT2 = new MigrationReportImpl(MigrationOperation.IMPORT,
-                REPORT, Optional.empty());
-
-        Assert.assertThat(REPORT2.getOperation(), Matchers.equalTo(MigrationOperation.IMPORT));
-        Assert.assertThat(REPORT2.getStartTime(), Matchers.equalTo(REPORT.getStartTime()));
-        Assert.assertThat(REPORT.getEndTime(), Matchers.equalTo(-1L));
-        Assert.assertThat(REPORT2.hasErrors(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT2.warnings()
-                .map(MigrationWarning::getMessage)
-                .toArray(String[]::new), Matchers.arrayContaining(POTENTIAL_WARNING_MESSAGE_STRINGS));
-    }
-
-    @Test
-    public void testConstructorWithUncompletedReport() throws Exception {
-        REPORT.doAfterCompletion(r -> r.record(new MigrationWarning("final warning")));
-
-        final MigrationReportImpl REPORT2 = new MigrationReportImpl(MigrationOperation.IMPORT,
-                REPORT, Optional.empty());
+                REPORT,
+                Optional.empty());
 
         Assert.assertThat(REPORT2.getOperation(), Matchers.equalTo(MigrationOperation.IMPORT));
         Assert.assertThat(REPORT2.getStartTime(), Matchers.equalTo(REPORT.getStartTime()));
@@ -138,12 +128,32 @@ public class MigrationReportImplTest {
         Assert.assertThat(REPORT2.warnings()
                         .map(MigrationWarning::getMessage)
                         .toArray(String[]::new),
-                Matchers.arrayContaining(ArrayUtils.add(POTENTIAL_WARNING_MESSAGE_STRINGS, "final warning")));
+                Matchers.arrayContaining(POTENTIAL_WARNING_MESSAGE_STRINGS));
+    }
+
+    @Test
+    public void testConstructorWithUncompletedReport() throws Exception {
+        REPORT.doAfterCompletion(r -> r.record(new MigrationWarning("final warning")));
+
+        final MigrationReportImpl REPORT2 = new MigrationReportImpl(MigrationOperation.IMPORT,
+                REPORT,
+                Optional.empty());
+
+        Assert.assertThat(REPORT2.getOperation(), Matchers.equalTo(MigrationOperation.IMPORT));
+        Assert.assertThat(REPORT2.getStartTime(), Matchers.equalTo(REPORT.getStartTime()));
+        Assert.assertThat(REPORT.getEndTime(), Matchers.equalTo(-1L));
+        Assert.assertThat(REPORT2.hasErrors(), Matchers.equalTo(false));
+        Assert.assertThat(REPORT2.warnings()
+                        .map(MigrationWarning::getMessage)
+                        .toArray(String[]::new),
+                Matchers.arrayContaining(ArrayUtils.add(POTENTIAL_WARNING_MESSAGE_STRINGS,
+                        "final warning")));
     }
 
     @Test
     public void testRecordWithWithInfo() throws Exception {
-        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT, Optional.empty());
+        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT,
+                Optional.empty());
         final MigrationInformation INFO = new MigrationInformation("info");
 
         REPORT.record(INFO);
@@ -157,7 +167,8 @@ public class MigrationReportImplTest {
 
     @Test
     public void testRecordWithWarning() throws Exception {
-        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT, Optional.empty());
+        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT,
+                Optional.empty());
         final MigrationWarning WARNING = new MigrationWarning("warning");
 
         REPORT.record(WARNING);
@@ -171,7 +182,8 @@ public class MigrationReportImplTest {
 
     @Test
     public void testRecordWithError() throws Exception {
-        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT, Optional.empty());
+        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT,
+                Optional.empty());
         final MigrationException ERROR = new MigrationException("error");
 
         REPORT.record(ERROR);
@@ -211,7 +223,8 @@ public class MigrationReportImplTest {
 
     @Test
     public void testErrorsWhenNoneRecorded() throws Exception {
-        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT, Optional.empty());
+        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT,
+                Optional.empty());
 
         Assert.assertThat(REPORT.errors()
                 .count(), Matchers.equalTo(0L));
@@ -236,7 +249,8 @@ public class MigrationReportImplTest {
 
     @Test
     public void testWarningsWhenNoneRecorded() throws Exception {
-        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT, Optional.empty());
+        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT,
+                Optional.empty());
 
         Assert.assertThat(REPORT.warnings()
                 .count(), Matchers.equalTo(0L));
@@ -262,7 +276,8 @@ public class MigrationReportImplTest {
 
     @Test
     public void testInfosWhenNoneRecorded() throws Exception {
-        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT, Optional.empty());
+        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT,
+                Optional.empty());
 
         Assert.assertThat(REPORT.infos()
                 .count(), Matchers.equalTo(0L));
@@ -288,7 +303,8 @@ public class MigrationReportImplTest {
 
     @Test
     public void testWasSuccessfulWhenNoErrorsOrWarningsAreRecorded() throws Exception {
-        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT, Optional.empty());
+        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT,
+                Optional.empty());
 
         Assert.assertThat(REPORT.wasSuccessful(), Matchers.equalTo(true));
     }
@@ -300,7 +316,8 @@ public class MigrationReportImplTest {
 
     @Test
     public void testWasSuccessfulWhenOnlyWarningsAreRecorded() throws Exception {
-        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT, Optional.empty());
+        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT,
+                Optional.empty());
 
         REPORT.record(new MigrationWarning("warning"));
 
@@ -309,7 +326,8 @@ public class MigrationReportImplTest {
 
     @Test
     public void testWasSuccessfulWhenOnlyErrorsRecorded() throws Exception {
-        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT, Optional.empty());
+        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT,
+                Optional.empty());
 
         REPORT.record(new MigrationException("error"));
 
@@ -328,20 +346,63 @@ public class MigrationReportImplTest {
     }
 
     @Test
+    public void testWasSuccessfulWithRunnableWhenNoErrorsAreRecorded() throws Exception {
+        final Runnable CODE = () -> {
+        };
+
+        Assert.assertThat(REPORT.wasSuccessful(CODE), Matchers.equalTo(true));
+    }
+
+    @Test
+    public void testWasSuccessfulWithRunnableWhenErrorsAreRecorded() throws Exception {
+        final Runnable CODE = () -> REPORT.record(new MigrationException("test"));
+
+        Assert.assertThat(REPORT.wasSuccessful(CODE), Matchers.equalTo(false));
+    }
+
+    @Test
+    public void testWasIOSuccessfulWithRunnableWhenNoErrorsAreRecorded() throws Exception {
+        final ERunnable<IOException> CODE = () -> {
+        };
+
+        Assert.assertThat(REPORT.wasIOSuccessful(CODE), Matchers.equalTo(true));
+    }
+
+    @Test
+    public void testWasIOSuccessfulWithRunnableWhenErrorsAreRecorded() throws Exception {
+        final ERunnable<IOException> CODE = () -> REPORT.record(new MigrationException("test"));
+
+        Assert.assertThat(REPORT.wasIOSuccessful(CODE), Matchers.equalTo(false));
+    }
+
+    @Test
+    public void testWasIOSuccessfulWithRunnableThrowingException() throws Exception {
+        final IOException E = new IOException("test");
+        final ERunnable<IOException> CODE = () -> { throw E; };
+
+        thrown.expect(Matchers.sameInstance(E));
+        thrown.expectMessage(Matchers.containsString(""));
+
+        REPORT.wasIOSuccessful(CODE);
+    }
+
+    @Test
     public void testHasErrorsWhenBothWarningsAndErrorsAreRecorded() throws Exception {
         Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(true));
     }
 
     @Test
     public void testHasErrorsWhenNoneRecorded() throws Exception {
-        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT, Optional.empty());
+        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT,
+                Optional.empty());
 
         Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(false));
     }
 
     @Test
     public void testHasErrorsWhenOnlyWarningsAreRecorded() throws Exception {
-        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT, Optional.empty());
+        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT,
+                Optional.empty());
 
         REPORT.record(new MigrationWarning("warning"));
 
@@ -366,14 +427,16 @@ public class MigrationReportImplTest {
 
     @Test
     public void testHasWarningsWhenNoneRecorded() throws Exception {
-        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT, Optional.empty());
+        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT,
+                Optional.empty());
 
         Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
     }
 
     @Test
     public void testHasWarningsWhenOnlyErrorsAreRecorded() throws Exception {
-        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT, Optional.empty());
+        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT,
+                Optional.empty());
 
         REPORT.record(new MigrationException("error"));
 
@@ -393,14 +456,16 @@ public class MigrationReportImplTest {
 
     @Test
     public void testVerifyCompletionWhenNoErrorsAreRecorded() throws Exception {
-        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT, Optional.empty());
+        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT,
+                Optional.empty());
 
         REPORT.verifyCompletion();
     }
 
     @Test
     public void testVerifyCompletionWhenOneErrorIsRecorded() throws Exception {
-        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT, Optional.empty());
+        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT,
+                Optional.empty());
         final MigrationException ERROR = new MigrationException("error");
 
         REPORT.record(ERROR);

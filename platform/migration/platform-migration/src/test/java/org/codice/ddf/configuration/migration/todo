@@ -1,4 +1,3 @@
-
     @Test
     public void testConstructorWithUnixName() throws Exception {
         final ExportMigrationEntryImpl ENTRY = new ExportMigrationEntryImpl(CONTEXT, UNIX_NAME);

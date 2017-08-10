@@ -33,13 +33,14 @@ import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationMessage;
 import org.codice.ddf.migration.MigrationOperation;
 import org.codice.ddf.migration.MigrationReport;
+import org.codice.ddf.util.function.ERunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
 
 /**
- * The export migration report provides additional functionnality for tracking metadata required during
+ * The export migration report provides additional functionality for tracking metadata required during
  * export.
  */
 public class ExportMigrationReportImpl implements MigrationReport {
@@ -113,6 +114,16 @@ public class ExportMigrationReportImpl implements MigrationReport {
         return report.wasSuccessful();
     }
 
+    @Override
+    public boolean wasSuccessful(Runnable code) {
+        return report.wasSuccessful(code);
+    }
+
+    @Override
+    public boolean wasIOSuccessful(ERunnable<IOException> code) throws IOException {
+        return report.wasIOSuccessful(code);
+    }
+
     public boolean hasInfos() {
         return report.hasInfos();
     }
@@ -158,24 +169,17 @@ public class ExportMigrationReportImpl implements MigrationReport {
                 .toFile();
 
         metadata.put(MigrationEntryImpl.METADATA_NAME, entry.getName());
-        if (!file.exists()) {
-            metadata.put(MigrationEntryImpl.METADATA_SIZE, 0L);
-        } else {
-            InputStream is = null;
+        InputStream is = null;
 
-            try {
-                is = new FileInputStream(file);
-                metadata.put(MigrationEntryImpl.METADATA_CHECKSUM, DigestUtils.md5Hex(is));
-            } catch (IOException e) {
-                LOGGER.info("failed to compute MD5 checksum for '" + entry.getName() + "': ", e);
-            } finally {
-                IOUtils.closeQuietly(is); // don't care about errors when closing
-            }
-            metadata.put(MigrationEntryImpl.METADATA_SOFTLINK, softlink);
-            final long size = file.length();
-
-            metadata.put(MigrationEntryImpl.METADATA_SIZE, (size != 0L) ? size : -1L);
+        try {
+            is = new FileInputStream(file);
+            metadata.put(MigrationEntryImpl.METADATA_CHECKSUM, DigestUtils.md5Hex(is));
+        } catch (IOException e) {
+            LOGGER.info("failed to compute MD5 checksum for '" + entry.getName() + "': ", e);
+        } finally {
+            IOUtils.closeQuietly(is); // don't care about errors when closing
         }
+        metadata.put(MigrationEntryImpl.METADATA_SOFTLINK, softlink);
         externals.add(metadata);
         return this;
     }

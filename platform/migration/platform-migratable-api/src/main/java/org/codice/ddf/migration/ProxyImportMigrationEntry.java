@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
 
+import org.codice.ddf.util.function.EBiConsumer;
+
 /**
  * The <code>ProxyImportMigrationEntry</code> class provides an implementation of the
  * {@link ImportMigrationEntry} that proxies to another entry.
@@ -28,7 +30,8 @@ import java.util.Optional;
  * </b>
  * </p>
  */
-public class ProxyImportMigrationEntry extends ProxyMigrationEntry<ImportMigrationEntry> implements ImportMigrationEntry {
+public class ProxyImportMigrationEntry extends ProxyMigrationEntry<ImportMigrationEntry>
+        implements ImportMigrationEntry {
     public ProxyImportMigrationEntry(ImportMigrationEntry proxy) {
         super(proxy);
     }
@@ -39,12 +42,12 @@ public class ProxyImportMigrationEntry extends ProxyMigrationEntry<ImportMigrati
     }
 
     @Override
-    public void store(MigrationImporter exporter) {
-        proxy.store(exporter);
+    public boolean store(EBiConsumer<MigrationReport, Optional<InputStream>, IOException> consumer) {
+        return proxy.store(consumer);
     }
 
     @Override
-    public InputStream getInputStream() throws IOException {
+    public Optional<InputStream> getInputStream() throws IOException {
         return proxy.getInputStream();
     }
 }

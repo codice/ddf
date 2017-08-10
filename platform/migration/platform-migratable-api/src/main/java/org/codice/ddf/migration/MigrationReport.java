@@ -13,10 +13,14 @@
  */
 package org.codice.ddf.migration;
 
+import java.io.IOException;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+import javax.annotation.Nullable;
+
 import org.apache.commons.lang.Validate;
+import org.codice.ddf.util.function.ERunnable;
 
 /**
  * The migration report provides information about the execution of a migration operation.
@@ -135,6 +139,31 @@ public interface MigrationReport {
      * @return <code>true</code> if the operation was successfull; <code>false</code> if not
      */
     public boolean wasSuccessful();
+
+    /**
+     * Runs the specified code and report whether or not it was successful.
+     * <p>
+     * <i>Note:</i> This method will only account for errors generated from the point where the
+     * provided code is called to the moment it terminates.
+     *
+     * @param code the code to run
+     * @return <code>true</code> if no new errors were recorded while running the provided code;
+     * <code>false</code> if at least one error was recorded
+     */
+    public boolean wasSuccessful(@Nullable Runnable code);
+
+    /**
+     * Runs the specified code and report whether or not it was successful.
+     * <p>
+     * <i>Note:</i> This method will only account for errors generated from the point where the
+     * provided code is called to the moment it terminates.
+     *
+     * @param code the code to run
+     * @return <code>true</code> if no new errors were recorded while running the provided code;
+     * <code>false</code> if at least one error was recorded
+     * @throws IOException if the code executed throws it
+     */
+    public boolean wasIOSuccessful(@Nullable ERunnable<IOException> code) throws IOException;
 
     /**
      * Checks if the operation that generated this migration recorded any information messages.

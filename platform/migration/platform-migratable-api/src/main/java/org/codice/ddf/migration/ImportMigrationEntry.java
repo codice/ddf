@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
 
+import org.codice.ddf.util.function.EBiConsumer;
+
 /**
  * The <code>ImportMigrationEntry</code> interfaces provides support for artifacts that are being
  * imported during migration.
@@ -41,23 +43,27 @@ public interface ImportMigrationEntry extends MigrationEntry {
     public Optional<ImportMigrationEntry> getPropertyReferencedEntry(String name);
 
     /**
-     * Stores this entry's content appropriately based on this entry's path which can include
-     * sub-directories.
+     * Stores this required entry's content appropriately based on this entry's path which can include
+     * sub-directories using the specified consumer.
      * <p>
      * All errors and warnings are automatically recorded with the associated migration report including
      * those thrown by the exporter logic.
      *
-     * @param importer a consumer capable of importing the content of this entry from a provided input stream
+     * @param consumer a consumer capable of importing the content of this entry from a provided input
+     *                 stream which might be empty if the entry was not exported otherwise an error
+     *                 will automatically be recorded)
+     * @return <code>true</code> if no errors were recorded as a result of processing this command;
+     * <code>false</code> otherwise
      * @throws MigrationException       if a failure that prevents the operation from continue occurred
-     * @throws IllegalArgumentException if <code>importer</code> is <code>null</code>
+     * @throws IllegalArgumentException if <code>consumer</code> is <code>null</code>
      */
-    public void store(MigrationImporter importer);
+    public boolean store(EBiConsumer<MigrationReport, Optional<InputStream>, IOException> consumer);
 
     /**
      * Gets an input stream for this entry.
      *
-     * @return an input stream for this entry
-     * @throws IOException if an I/O error has occurred
+     * @return an input stream for this entry or empty if it was not exported
+     * @throws IOException           if an I/O error has occurred
      */
-    public InputStream getInputStream() throws IOException;
+    public Optional<InputStream> getInputStream() throws IOException;
 }

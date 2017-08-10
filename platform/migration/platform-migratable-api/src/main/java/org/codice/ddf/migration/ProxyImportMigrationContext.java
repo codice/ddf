@@ -41,7 +41,7 @@ public class ProxyImportMigrationContext extends ProxyMigrationContext<ImportMig
     }
 
     @Override
-    public Optional<ImportMigrationEntry> getEntry(Path path) {
+    public ImportMigrationEntry getEntry(Path path) {
         return proxy.getEntry(path);
     }
 

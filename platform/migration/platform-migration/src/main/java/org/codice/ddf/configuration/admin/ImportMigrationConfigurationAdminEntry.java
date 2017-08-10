@@ -21,7 +21,6 @@ import java.util.Objects;
 import javax.annotation.Nullable;
 
 import org.apache.commons.lang.Validate;
-import org.codice.ddf.configuration.persistence.PersistenceStrategy;
 import org.codice.ddf.migration.ImportMigrationEntry;
 import org.codice.ddf.migration.ImportPathMigrationException;
 import org.codice.ddf.migration.ProxyImportMigrationEntry;
@@ -50,18 +49,12 @@ public class ImportMigrationConfigurationAdminEntry extends ProxyImportMigration
     private boolean stored = false;
 
     public ImportMigrationConfigurationAdminEntry(ImportMigrationConfigurationAdminContext context,
-            ImportMigrationEntry entry, PersistenceStrategy persister) {
+            ImportMigrationEntry entry, Dictionary<String, Object> properties) {
         super(entry);
         Validate.notNull(context, "invalid null context");
-        Validate.notNull(persister, "invalid null persister");
+        Validate.notNull(properties, "invalid null properties");
         this.context = context;
-        try {
-            this.properties = persister.read(entry.getInputStream());
-        } catch (IOException e) {
-            throw new ImportPathMigrationException(getPath(),
-                    String.format("unable to read %s configuration", persister.getExtension()),
-                    e);
-        }
+            this.properties = properties;
         // note: we also remove factory pid and pid from the dictionary as we do not want to restore those later
         this.factoryPid = Objects.toString(properties.remove(ConfigurationAdmin.SERVICE_FACTORYPID),
                 null);
@@ -71,9 +64,9 @@ public class ImportMigrationConfigurationAdminEntry extends ProxyImportMigration
     }
 
     @Override
-    public void store() {
+    public boolean store() {
         if (!stored) {
-            this.stored = true;
+            this.stored = false; // until proven otherwise
             final Configuration cfg;
 
             if (memoryConfiguration != null) {
@@ -81,7 +74,8 @@ public class ImportMigrationConfigurationAdminEntry extends ProxyImportMigration
                     LOGGER.debug("Importing configuration for [{}] from [{}]; no update required",
                             memoryConfiguration.getPid(),
                             getPath());
-                    return;
+                    this.stored = true;
+                    return true;
                 }
                 cfg = memoryConfiguration;
                 LOGGER.debug(
@@ -115,7 +109,7 @@ public class ImportMigrationConfigurationAdminEntry extends ProxyImportMigration
                                 String.format("failed to create configuration [%s]", pid),
                                 e));
                     }
-                    return;
+                    return false;
                 }
                 LOGGER.debug(
                         "Importing configuration for [{}] from [{}]; initializing configuration...",
@@ -124,12 +118,14 @@ public class ImportMigrationConfigurationAdminEntry extends ProxyImportMigration
             }
             try {
                 cfg.update(properties);
+                this.stored = true;
             } catch (IOException e) {
                 getReport().record(new ImportPathMigrationException(getPath(),
                         String.format("failed to update configuration [%s]", getPid()),
                         e));
             }
         }
+        return stored;
     }
 
     public String getFactoryPid() {
