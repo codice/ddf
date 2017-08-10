@@ -113,7 +113,7 @@ public class ImportMigrationJavaPropertyReferencedEntryImpl
                     "failed to load property file",
                     e));
         } finally {
-            IOUtils.closeQuietly(is);
+            IOUtils.closeQuietly(is); // we do not care if we cannot close it
         }
         return props.getProperty(getProperty());
     }

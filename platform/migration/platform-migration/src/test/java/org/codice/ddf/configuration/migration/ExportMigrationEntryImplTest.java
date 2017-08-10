@@ -13,28 +13,38 @@
  */
 package org.codice.ddf.configuration.migration;
 
+import java.io.IOException;
 import java.io.OutputStream;
+import java.io.StringWriter;
+import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.output.WriterOutputStream;
+import org.codice.ddf.util.function.ERunnable;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.AdditionalAnswers;
 import org.mockito.Mockito;
+
+import com.google.common.base.Charsets;
 
 public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
     private static final String[] DIRS = new String[] {"path", "path2"};
 
-    private static final String UNIX_NAME = "path/path2/file.ext";
+    private static final String FILENAME = "file.ext";
 
-    private static final String WINDOWS_NAME = "path\\path2\\file.ext";
+    private static final String UNIX_NAME = "path/path2/" + FILENAME;
 
-    private static final String MIXED_NAME = "path\\path2/file.ext";
+    private static final String WINDOWS_NAME = "path\\path2\\" + FILENAME;
+
+    private static final String MIXED_NAME = "path\\path2/" + FILENAME;
 
     private static final Path FILE_PATH = Paths.get(UNIX_NAME);
 
@@ -58,7 +68,7 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
 
     @Before
     public void before() throws Exception {
-        createFile(createDirectory(DIRS), "file.ext");
+        createFile(createDirectory(DIRS), FILENAME);
         PATH_UTILS = new PathUtils();
         Mockito.when(CONTEXT.getPathUtils())
                 .thenReturn(PATH_UTILS);
@@ -129,16 +139,65 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
         Assert.assertThat(CONTEXT.getReport(), Matchers.sameInstance(REPORT));
     }
 
-    //@Test
+    @Test
     public void testOutputStream() throws Exception {
         final OutputStream OS = Mockito.mock(OutputStream.class);
 
-        Mockito.when(CONTEXT.getOutputStreamFor(Mockito.any())).thenReturn(OS);
+        Mockito.when(CONTEXT.getOutputStreamFor(Mockito.any()))
+                .thenReturn(OS);
 
         final OutputStream os = ENTRY.getOutputStream();
 
         Assert.assertThat(os, Matchers.sameInstance(OS));
 
-        //Mockito.verify(CONTEXT).getOutputStreamFor()
+        Mockito.verify(CONTEXT)
+                .getOutputStreamFor(Mockito.same(ENTRY));
+    }
+
+    @Test
+    public void testOutputStreamWhenAlreadyRetrieved() throws Exception {
+        final OutputStream OS = Mockito.mock(OutputStream.class);
+
+        Mockito.when(CONTEXT.getOutputStreamFor(Mockito.any()))
+                .thenReturn(OS);
+
+        ENTRY.getOutputStream(); // pre-cache it
+
+        final OutputStream os = ENTRY.getOutputStream();
+
+        Assert.assertThat(os, Matchers.sameInstance(OS));
+
+        Mockito.verify(CONTEXT)
+                .getOutputStreamFor(Mockito.same(ENTRY));
+    }
+
+    @Test
+    public void testOutputStreamWithException() throws Exception {
+        final IOException E = new IOException("testing");
+
+        Mockito.when(CONTEXT.getOutputStreamFor(Mockito.any()))
+                .thenThrow(new UncheckedIOException(E));
+
+        thrown.expect(Matchers.sameInstance(E));
+
+        ENTRY.getOutputStream();
+    }
+
+    @Test
+    public void testStore() throws Exception {
+        final StringWriter WRITER = new StringWriter();
+
+        Mockito.when(CONTEXT.getOutputStreamFor(Mockito.any()))
+                .thenReturn(new WriterOutputStream(WRITER, Charsets.UTF_8));
+        Mockito.when(REPORT.wasIOSuccessful(Mockito.any()))
+                .thenAnswer(AdditionalAnswers.<Boolean, ERunnable>answer(r -> {
+                    r.run();
+                    return true;
+                }));
+
+        ENTRY.store(true);
+
+
+        Assert.assertThat(WRITER.toString(), Matchers.equalTo(FILENAME));
     }
 }

@@ -169,9 +169,9 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
         Validate.notNull(consumer, "invalid null consumer");
         if (stored == null) {
             super.stored = false; // until proven otherwise
-            try {
+            try (final OutputStream os = getOutputStream()) {
                 super.stored = getReport().wasIOSuccessful(() -> consumer.accept(getReport(),
-                        getOutputStream()));
+                        os));
             } catch (ExportIOException e) { // special case indicating the I/O error occurred while writing to the zip which would invalidate the zip so we are forced to abort
                 throw newError("failed to store", e.getCause());
             } catch (IOException e) { // here it means the error came out of reading/processing the input file/stream where it is safe to continue with the next entry, so don't abort
