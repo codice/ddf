@@ -49,13 +49,6 @@ public class PathUtilsTest extends AbstractMigrationTest {
         new PathUtils();
     }
 
-    @Test(expected = IOError.class)
-    public void testConstructorWhenUndefinedCurrentWorkingDirectory() throws Exception {
-        FileUtils.forceDelete(DDF_BIN.toFile());
-
-        new PathUtils();
-    }
-
     @Test
     public void testGetDDFHome() throws Exception {
         Assert.assertThat(PATH_UTILS.getDDFHome(), Matchers.equalTo(DDF_HOME));
@@ -109,20 +102,20 @@ public class PathUtilsTest extends AbstractMigrationTest {
     }
 
     @Test
-    public void testResolveAgainstUserDirectoryWhenPathIsRelative() throws Exception {
+    public void testResolveAgainstDDFHomeWithStringWhenPathIsRelative() throws Exception {
         final Path PATH = Paths.get("test/script.sh");
 
-        final Path path = PATH_UTILS.resolveAgainstUserDirectory(PATH.toString());
+        final Path path = PATH_UTILS.resolveAgainstDDFHome(PATH.toString());
 
         Assert.assertThat(path.isAbsolute(), Matchers.equalTo(true));
-        Assert.assertThat(path, Matchers.equalTo(DDF_BIN.resolve(PATH)));
+        Assert.assertThat(path, Matchers.equalTo(DDF_HOME.resolve(PATH)));
     }
 
     @Test
-    public void testResolveAgainstUserDirectoryWhenPathIsAbsolute() throws Exception {
+    public void testResolveAgainstDDFHomeWithStringWhenPathIsAbsolute() throws Exception {
         final Path PATH = Paths.get("/test/script.sh");
 
-        final Path path = PATH_UTILS.resolveAgainstUserDirectory(PATH.toString());
+        final Path path = PATH_UTILS.resolveAgainstDDFHome(PATH.toString());
 
         Assert.assertThat(path.isAbsolute(), Matchers.equalTo(true));
         Assert.assertThat(path, Matchers.equalTo(PATH));

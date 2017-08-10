@@ -179,11 +179,7 @@ public class AbstractMigrationTest {
         DDF_HOME = testFolder.newFolder("ddf")
                 .toPath()
                 .toRealPath();
-        DDF_BIN = testFolder.newFolder("ddf", "bin")
-                .toPath()
-                .toRealPath(); // use as the current working dir
         System.setProperty("ddf.home", DDF_HOME.toString());
-        System.setProperty("user.dir", DDF_BIN.toString());
     }
 
     public static class ZipEntry extends java.util.zip.ZipEntry {

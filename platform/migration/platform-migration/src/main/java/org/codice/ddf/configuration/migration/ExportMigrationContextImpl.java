@@ -78,6 +78,7 @@ public class ExportMigrationContextImpl extends MigrationContextImpl
      * @param zos        the output stream for the zip file being generated
      * @throws IllegalArgumentException if <code>report</code>, <code>migratable</code>, <code>zos</code>
      *                                  is <code>null</code>
+     * @throws java.io.IOError          if unable to determine ${ddf.home}
      */
     ExportMigrationContextImpl(MigrationReport report, Migratable migratable, ZipOutputStream zos) {
         super(report,

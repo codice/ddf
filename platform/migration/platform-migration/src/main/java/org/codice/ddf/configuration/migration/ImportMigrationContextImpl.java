@@ -66,6 +66,7 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
      * @param report the migration report where to record warnings and errors
      * @param zip    the zip file associated with the import
      * @throws IllegalArgumentException if <code>report</code> or <code>zip</code> is <code>null</code>
+     * @throws java.io.IOError          if unable to determine ${ddf.home}
      */
     public ImportMigrationContextImpl(MigrationReport report, ZipFile zip) {
         super(report);
@@ -81,6 +82,7 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
      * @param id     the migratable id
      * @throws IllegalArgumentException if <code>report</code>, <code>zip</code>, or <code>id</code>
      *                                  is <code>null</code>
+     * @throws java.io.IOError          if unable to determine ${ddf.home}
      */
     public ImportMigrationContextImpl(MigrationReport report, ZipFile zip, String id) {
         super(report, id, null); // no version yet
@@ -96,6 +98,7 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
      * @param migratable the migratable this context is for
      * @throws IllegalArgumentException if <code>report</code>, <code>zip</code> or <code>migratable</code>
      *                                  is <code>null</code>
+     * @throws java.io.IOError          if unable to determine ${ddf.home}
      */
     public ImportMigrationContextImpl(MigrationReport report, ZipFile zip, Migratable migratable) {
         super(report, migratable, null); // no version yet

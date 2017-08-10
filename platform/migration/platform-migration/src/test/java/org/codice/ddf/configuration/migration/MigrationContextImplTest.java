@@ -78,13 +78,6 @@ public class MigrationContextImplTest extends AbstractMigrationTest {
         new MigrationContextImpl(REPORT);
     }
 
-    @Test(expected = IOError.class)
-    public void testConstructorWithReportWhenUndefinedCurrentWorkingDirectory() throws Exception {
-        FileUtils.forceDelete(DDF_BIN.toFile());
-
-        new MigrationContextImpl(REPORT);
-    }
-
     @Test
     public void testConstructorWithReportAndIdAndVersion() throws Exception {
         final MigrationContextImpl CONTEXT = new MigrationContextImpl(REPORT,
@@ -130,14 +123,6 @@ public class MigrationContextImplTest extends AbstractMigrationTest {
         new MigrationContextImpl(REPORT, MIGRATABLE_ID, VERSION);
     }
 
-    @Test(expected = IOError.class)
-    public void testConstructorWithReportWithdAndVersionWhenUndefinedCurrentWorkingDirectory()
-            throws Exception {
-        FileUtils.forceDelete(DDF_BIN.toFile());
-
-        new MigrationContextImpl(REPORT, MIGRATABLE_ID, VERSION);
-    }
-
     @Test
     public void testConstructorWithReportAndMigratable() throws Exception {
         final MigrationContextImpl CONTEXT = new MigrationContextImpl(REPORT, MIGRATABLE);
@@ -167,14 +152,6 @@ public class MigrationContextImplTest extends AbstractMigrationTest {
     @Test(expected = IOError.class)
     public void testConstructorWithReportAndMigratableWhenUndefinedDDFHome() throws Exception {
         FileUtils.forceDelete(DDF_HOME.toFile());
-
-        new MigrationContextImpl(REPORT, MIGRATABLE);
-    }
-
-    @Test(expected = IOError.class)
-    public void testConstructorWithReportAndMigratableWhenUndefinedCurrentWorkingDirectory()
-            throws Exception {
-        FileUtils.forceDelete(DDF_BIN.toFile());
 
         new MigrationContextImpl(REPORT, MIGRATABLE);
     }
@@ -219,14 +196,6 @@ public class MigrationContextImplTest extends AbstractMigrationTest {
     public void testConstructorWithReportAndMigratableAndVersionWhenUndefinedDDFHome()
             throws Exception {
         FileUtils.forceDelete(DDF_HOME.toFile());
-
-        new MigrationContextImpl(REPORT, MIGRATABLE, VERSION);
-    }
-
-    @Test(expected = IOError.class)
-    public void testConstructorWithReportAndMigratableAndVersionWhenUndefinedCurrentWorkingDirectory()
-            throws Exception {
-        FileUtils.forceDelete(DDF_BIN.toFile());
 
         new MigrationContextImpl(REPORT, MIGRATABLE, VERSION);
     }
