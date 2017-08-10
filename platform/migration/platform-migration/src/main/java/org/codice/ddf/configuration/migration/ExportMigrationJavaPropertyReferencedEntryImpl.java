@@ -13,12 +13,15 @@
  */
 package org.codice.ddf.configuration.migration;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Path;
 
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.ExportPathMigrationException;
 import org.codice.ddf.migration.ExportPathMigrationWarning;
-import org.codice.ddf.migration.MigrationExporter;
+import org.codice.ddf.migration.MigrationReport;
+import org.codice.ddf.util.function.EBiConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,24 +64,35 @@ public class ExportMigrationJavaPropertyReferencedEntryImpl
     }
 
     @Override
-    public void store() {
-        if (!super.stored) {
-            LOGGER.debug("Exporting Java property reference [{}] from [{}] as file [{}] to [{}]...",
+    public OutputStream getOutputStream() throws IOException {
+        getReport().recordJavaProperty(this);
+        return super.getOutputStream();
+    }
+
+    @Override
+    public boolean store(boolean required) {
+        if (stored == null) {
+            LOGGER.debug(
+                    "Exporting {}Java property reference [{}] from [{}] as file [{}] to [{}]...",
+                    (required ? "required " : ""),
                     getProperty(),
                     propertiesPath,
                     getAbsolutePath(),
                     getPath());
             getReport().recordJavaProperty(this);
-            super.store();
+            return super.store();
         }
+        return stored;
     }
 
     @Override
-    public void store(MigrationExporter exporter) {
-        Validate.notNull(exporter, "invalid null exporter");
-        if (!stored) {
-            super.store(exporter);
+    public boolean store(EBiConsumer<MigrationReport, OutputStream, IOException> consumer) {
+        Validate.notNull(consumer, "invalid null consumer");
+        if (stored == null) {
+            getReport().recordJavaProperty(this);
+            return super.store(consumer);
         }
+        return stored;
     }
 
     @Override

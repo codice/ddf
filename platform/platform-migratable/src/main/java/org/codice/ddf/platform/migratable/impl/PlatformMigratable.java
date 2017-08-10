@@ -122,8 +122,6 @@ public class PlatformMigratable implements ConfigurationMigratable {
         LOGGER.debug("Importing system files...");
         PlatformMigratable.SYSTEM_FILES.stream()
                 .map(context::getEntry)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
                 .forEach(MigrationEntry::store);
         LOGGER.debug("Importing [{}]...", PlatformMigratable.WS_SECURITY_DIR);
         context.cleanDirectory(PlatformMigratable.WS_SECURITY_DIR);

@@ -18,6 +18,8 @@ import java.io.OutputStream;
 import java.util.Optional;
 import java.util.function.BiPredicate;
 
+import org.codice.ddf.util.function.EBiConsumer;
+
 /**
  * The <code>ProxyExportMigrationEntry</code> class provides an implementation of the
  * {@link ExportMigrationEntry} that proxies to another entry.
@@ -29,7 +31,8 @@ import java.util.function.BiPredicate;
  * </b>
  * </p>
  */
-public class ProxyExportMigrationEntry extends ProxyMigrationEntry<ExportMigrationEntry> implements ExportMigrationEntry {
+public class ProxyExportMigrationEntry extends ProxyMigrationEntry<ExportMigrationEntry>
+        implements ExportMigrationEntry {
     public ProxyExportMigrationEntry(ExportMigrationEntry proxy) {
         super(proxy);
     }
@@ -46,8 +49,8 @@ public class ProxyExportMigrationEntry extends ProxyMigrationEntry<ExportMigrati
     }
 
     @Override
-    public void store(MigrationExporter exporter) {
-        proxy.store(exporter);
+    public boolean store(EBiConsumer<MigrationReport, OutputStream, IOException> consumer) {
+        return proxy.store(consumer);
     }
 
     @Override

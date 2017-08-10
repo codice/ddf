@@ -8,7 +8,8 @@ import java.util.Optional;
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.ImportMigrationEntry;
 import org.codice.ddf.migration.MigrationException;
-import org.codice.ddf.migration.MigrationImporter;
+import org.codice.ddf.migration.MigrationReport;
+import org.codice.ddf.util.function.EBiConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,16 +24,16 @@ public abstract class ImportMigrationPropertyReferencedEntryImpl extends ImportM
 
     private final ImportMigrationEntry referenced;
 
+    private boolean verifierRegistered = false;
+
     ImportMigrationPropertyReferencedEntryImpl(ImportMigrationContextImpl context,
             Map<String, Object> metadata) {
         super(context,
-                JsonUtils.getStringFrom(metadata,
-                        MigrationEntryImpl.METADATA_REFERENCE,
-                        true));
+                JsonUtils.getStringFrom(metadata, MigrationEntryImpl.METADATA_REFERENCE, true));
         this.property = JsonUtils.getStringFrom(metadata,
                 MigrationEntryImpl.METADATA_PROPERTY,
                 true);
-        this.referenced = context.getEntry(getPath())
+        this.referenced = context.getOptionalEntry(getPath())
                 .orElseThrow(() -> new MigrationException(
                         "Invalid metadata file format; reference '" + getName()
                                 + "' is missing from export file"));
@@ -44,32 +45,36 @@ public abstract class ImportMigrationPropertyReferencedEntryImpl extends ImportM
     }
 
     @Override
-    public long getSize() {
-        return referenced.getSize();
+    public Optional<InputStream> getInputStream() throws IOException {
+        final Optional<InputStream> is = referenced.getInputStream();
+
+        verifyPropertyAfterCompletionOnce();
+        return is;
     }
 
     @Override
-    public InputStream getInputStream() throws IOException {
-        return referenced.getInputStream();
-    }
-
-    @Override
-    public void store() {
-        if (!stored) {
-            super.stored = true;
-            referenced.store();
-            verifyPropertyAfterCompletion();
+    public boolean store(boolean required) {
+        if (stored == null) {
+            super.stored = false; // until proven otherwise in case next line throws exception
+            if (referenced.store()) {
+                super.stored = true;
+                verifyPropertyAfterCompletionOnce();
+            }
         }
+        return stored;
     }
 
     @Override
-    public void store(MigrationImporter importer) {
-        Validate.notNull(importer, "invalid null importer");
-        if (!stored) {
-            super.stored = true;
-            referenced.store(importer);
-            verifyPropertyAfterCompletion();
+    public boolean store(EBiConsumer<MigrationReport, Optional<InputStream>, IOException> consumer) {
+        Validate.notNull(consumer, "invalid null consumer");
+        if (stored == null) {
+            super.stored = false; // until proven otherwise in case next line throws exception
+            if (referenced.store(consumer)) {
+                super.stored = true;
+                verifyPropertyAfterCompletionOnce();
+            }
         }
+        return stored;
     }
 
     @Override
@@ -86,5 +91,12 @@ public abstract class ImportMigrationPropertyReferencedEntryImpl extends ImportM
 
     protected String getProperty() {
         return property;
+    }
+
+    private void verifyPropertyAfterCompletionOnce() {
+        if (!verifierRegistered) {
+            this.verifierRegistered = true;
+            verifyPropertyAfterCompletion();
+        }
     }
 }

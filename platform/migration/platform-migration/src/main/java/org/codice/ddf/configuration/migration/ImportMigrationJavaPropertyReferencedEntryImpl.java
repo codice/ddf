@@ -12,9 +12,7 @@ import java.util.Properties;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.ImportPathMigrationException;
-import org.codice.ddf.migration.MigrationImporter;
 import org.codice.ddf.migration.MigrationReport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,24 +45,18 @@ public class ImportMigrationJavaPropertyReferencedEntryImpl
     }
 
     @Override
-    public void store() {
-        if (!stored) {
+    public boolean store(boolean required) {
+        if (stored == null) {
             LOGGER.debug(
-                    "Importing Java property reference [{}] from [{}] as file [{}] from [{}]...",
+                    "Importing {}Java property reference [{}] from [{}] as file [{}] from [{}]...",
+                    (required ? "required " : ""),
                     getProperty(),
                     propertiesPath,
                     getAbsolutePath(),
                     getPath());
-            super.store();
+            return super.store(required);
         }
-    }
-
-    @Override
-    public void store(MigrationImporter importer) {
-        Validate.notNull(importer, "invalid null importer");
-        if (!stored) {
-            super.store(importer);
-        }
+        return stored;
     }
 
     @Override

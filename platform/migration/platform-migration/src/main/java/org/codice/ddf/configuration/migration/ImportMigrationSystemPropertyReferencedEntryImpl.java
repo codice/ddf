@@ -4,9 +4,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.ImportPathMigrationException;
-import org.codice.ddf.migration.MigrationImporter;
 import org.codice.ddf.migration.MigrationReport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,22 +24,16 @@ public class ImportMigrationSystemPropertyReferencedEntryImpl
     }
 
     @Override
-    public void store() {
-        if (!stored) {
-            LOGGER.debug("Importing system property reference [{}] as file [{}] from [{}]...",
+    public boolean store(boolean required) {
+        if (stored == null) {
+            LOGGER.debug("Importing {}system property reference [{}] as file [{}] from [{}]...",
+                    (required ? "required " : ""),
                     getProperty(),
                     getAbsolutePath(),
                     getPath());
-            super.store();
+            return super.store();
         }
-    }
-
-    @Override
-    public void store(MigrationImporter importer) {
-        Validate.notNull(importer, "invalid null importer");
-        if (!stored) {
-            super.store(importer);
-        }
+        return stored;
     }
 
     @Override
@@ -62,7 +54,8 @@ public class ImportMigrationSystemPropertyReferencedEntryImpl
             } else {
                 try {
                     if (!getAbsolutePath().toRealPath()
-                            .equals(getContext().getPathUtils().resolveAgainstUserDirectory(val)
+                            .equals(getContext().getPathUtils()
+                                    .resolveAgainstUserDirectory(val)
                                     .toRealPath())) {
                         r.record(new ImportPathMigrationException(getProperty(),
                                 getPath(),

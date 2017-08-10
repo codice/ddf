@@ -110,9 +110,9 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
     }
 
     @Override
-    public Optional<ImportMigrationEntry> getEntry(Path path) {
+    public ImportMigrationEntry getEntry(Path path) {
         Validate.notNull(path, "invalid null path");
-        return Optional.ofNullable(entries.get(path));
+        return entries.computeIfAbsent(path, p -> new ImportMigrationEmptyEntryImpl(this, p));
     }
 
     @Override
@@ -143,7 +143,8 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
     @Override
     public boolean cleanDirectory(Path path) {
         Validate.notNull(path, "invalid null path");
-        final File fdir = getPathUtils().resolveAgainstDDFHome(path).toFile();
+        final File fdir = getPathUtils().resolveAgainstDDFHome(path)
+                .toFile();
 
         LOGGER.debug("Cleaning up directory [{}]...", fdir);
         if (!fdir.exists()) {
@@ -167,6 +168,10 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
             return false;
         }
         return true;
+    }
+
+    Optional<ImportMigrationEntry> getOptionalEntry(Path path) {
+        return Optional.ofNullable(entries.get(path));
     }
 
     void doImport() {
@@ -224,7 +229,7 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
                 .map(m -> new ImportMigrationJavaPropertyReferencedEntryImpl(this, m))
                 .forEach(me -> entries.compute(me.getPropertiesPath(), (p, mpe) -> {
                     if (mpe == null) {
-                        // create a new empty migration entry as it was not exported up (at least not by this migratable)!!!!
+                        // create a new empty migration entry as it was not exported out (at least not by this migratable)!!!!
                         mpe = new ImportMigrationEmptyEntryImpl(this, p);
                     }
                     mpe.addPropertyReferenceEntry(me.getProperty(), me);

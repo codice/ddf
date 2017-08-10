@@ -11,14 +11,11 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.migration;
-
-import java.io.IOException;
-import java.io.InputStream;
+package org.codice.ddf.util.function;
 
 /**
- * Functional interface used to facilitate exporting an entry when a more specific processing other
- * than simply copying the file is required.
+ * The <code>ERunnable</code> interface expands on the {@link Runnable}
+ * interface to provide the ability to throw back exceptions.
  * <p>
  * <b>
  * This code is experimental. While this interface is functional
@@ -26,18 +23,15 @@ import java.io.InputStream;
  * library.
  * </b>
  * </p>
+ *
+ * @param <E> the type of exceptions that can be thrown by the command
  */
 @FunctionalInterface
-public interface MigrationImporter {
+public interface ERunnable<E extends Throwable> {
     /**
-     * Called to import information for a given entry from the provided input stream.
+     * Executes user-defined code.
      *
-     * @param report the migration report where to record errors or warnings
-     * @param in     the input stream where to import information
-     * @throws IOException        if an I/O error occurs (the error will be recorded automatically with the
-     *                            report)
-     * @throws MigrationException if any other errors occurs which prevents the export from
-     *                            continuing (the error will also be automatically recorded)
+     * @throws E if an error occurs
      */
-    public void apply(MigrationReport report, InputStream in) throws IOException;
+    public void run() throws E;
 }

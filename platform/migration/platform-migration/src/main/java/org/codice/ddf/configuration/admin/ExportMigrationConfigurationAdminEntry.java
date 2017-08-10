@@ -41,11 +41,12 @@ public class ExportMigrationConfigurationAdminEntry extends ProxyExportMigration
     }
 
     @Override
-    public void store() {
+    public boolean store() {
         if (!stored) {
-            this.stored = true;
             LOGGER.debug("Exporting configuration [{}] to [{}]...", configuration.getPid(), getPath());
-            super.store((r, out) -> persister.write(out, configuration.getProperties()));
+            this.stored = false; // until proven otherwise in case the next line throws an exception
+            this.stored = super.store((r, out) -> persister.write(out, configuration.getProperties()));
         }
+        return stored;
     }
 }
