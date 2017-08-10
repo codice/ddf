@@ -56,7 +56,7 @@ keymap "^[OB" down-line-or-search
 lna = { bundle:list -t 0 | grep -v Active };
 waitForReady = {
     while { (la | grep "DDF :: Admin :: UI" | grep "Active") isEmpty } { echo -n ". "; sleep 1 }
-    while { ("3" equals (la | grep -v "Active" | grep -c "Hosts: ") ) equals "false" } { echo -n ". "; sleep 1 }
+    while { ("4" equals (la | grep -v "Active" | grep -c "Hosts: ") ) equals "false" } { echo -n ". "; sleep 1 }
     echo ""
     echo "System Ready"
 };
