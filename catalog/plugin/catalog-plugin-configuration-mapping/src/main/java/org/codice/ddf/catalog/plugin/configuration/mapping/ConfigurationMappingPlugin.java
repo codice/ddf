@@ -16,8 +16,13 @@ package org.codice.ddf.catalog.plugin.configuration.mapping;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.apache.commons.collections.CollectionUtils;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
@@ -89,7 +94,16 @@ public class ConfigurationMappingPlugin implements PreIngestPlugin {
 
         public void expandMetacard(Metacard metacard) {
 
-            for (String attributeName : attributeRuleSet.keySet()) {
+            Set<String> attributeSet = metacard.getMetacardType()
+                    .getAttributeDescriptors()
+                    .stream()
+                    .map(des -> des.getName())
+                    .collect(Collectors.toSet());
+
+            Set<String> commonAttributes = new HashSet<>(CollectionUtils.intersection(attributeSet,
+                    attributeRuleSet.keySet()));
+
+            for (String attributeName : commonAttributes) {
                 Attribute metacardAttribute = metacard.getAttribute(attributeName);
 
                 if (metacardAttribute != null) {

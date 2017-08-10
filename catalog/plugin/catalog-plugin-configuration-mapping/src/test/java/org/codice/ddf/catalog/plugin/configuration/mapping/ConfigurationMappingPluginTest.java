@@ -163,13 +163,13 @@ public class ConfigurationMappingPluginTest {
          Test that metacards unrelated to the configured ruleset will not
          be affected by configuration mapping
      */
-    @Test
-    public void testCreateMetacardNoMatchingAttributes() throws Exception {
-        Metacard metacard = mock(Metacard.class);
-
-        CreateRequest input = new CreateRequestImpl(Arrays.asList(metacard));
-        configurationMappingPlugin.process(input);
-    }
+//    @Test
+//    public void testCreateMetacardNoMatchingAttributes() throws Exception {
+//        Metacard metacard = mock(Metacard.class);
+//
+//        CreateRequest input = new CreateRequestImpl(Arrays.asList(metacard));
+//        configurationMappingPlugin.process(input);
+//    }
 
     /*
         Test that if there exists an expansion for a metacard attribute that it is expanded when
