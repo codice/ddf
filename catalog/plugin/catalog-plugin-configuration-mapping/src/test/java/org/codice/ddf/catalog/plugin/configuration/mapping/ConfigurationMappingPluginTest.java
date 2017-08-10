@@ -13,15 +13,12 @@
  */
 package org.codice.ddf.catalog.plugin.configuration.mapping;
 
-import static org.mockito.Mockito.mock;
-
 import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.operation.CreateRequest;
@@ -36,9 +33,9 @@ public class ConfigurationMappingPluginTest {
 
     private MetacardImpl metacard1, metacard2, metacard3;
 
-    private static final String COLOR = "color";
+    private static final String TITLE = "title";
 
-    private static final String SOFTWARE = "software";
+    private static final String POINT_OF_CONTACT = "point-of-contact";
 
     private static final String LOCATION = "location";
 
@@ -63,36 +60,36 @@ public class ConfigurationMappingPluginTest {
 
         StraightExpansionImpl straightExpansion = new StraightExpansionImpl();
 
-        //color:RD:Red
-        //color:BL:Blue
-        //color:YL:Yellow
-        straightExpansion.addExpansionList(COLOR, ruleList1);
+        //title:RD:Red
+        //title:BL:Blue
+        //title:YL:Yellow
+        straightExpansion.addExpansionList(TITLE, ruleList1);
 
-        //software:DDF:Distributed Data Framework
-        straightExpansion.addExpansionList(SOFTWARE, ruleList2);
+        //point-of-contact:DDF:Distributed Data Framework
+        straightExpansion.addExpansionList(POINT_OF_CONTACT, ruleList2);
 
         //location:USA:United States of America
         straightExpansion.addExpansionList(LOCATION, ruleList3);
         configurationMappingPlugin.setExpansionService(straightExpansion);
 
         //Metacard 1:
-        //color = RD
-        //software = DDF
+        //title = RD
+        //point-of-contact = DDF
         //location = USA
         metacard1 = new MetacardImpl();
-        metacard1.setAttribute(COLOR, redColorExpansion[0]);
-        metacard1.setAttribute(SOFTWARE, ddfSoftwareExpansion[0]);
+        metacard1.setAttribute(TITLE, redColorExpansion[0]);
+        metacard1.setAttribute(POINT_OF_CONTACT, ddfSoftwareExpansion[0]);
         metacard1.setAttribute(LOCATION, usaLocationExpansion[0]);
 
         //Metacard 2:
-        //color = BL
+        //title = BL
         metacard2 = new MetacardImpl();
-        metacard2.setAttribute(COLOR, blueColorExpansion[0]);
+        metacard2.setAttribute(TITLE, blueColorExpansion[0]);
 
         //Metacard 3:
-        //color = YL
+        //title = YL
         metacard3 = new MetacardImpl();
-        metacard3.setAttribute(COLOR, yellowColorExpansion[0]);
+        metacard3.setAttribute(TITLE, yellowColorExpansion[0]);
     }
 
     /*
@@ -107,11 +104,11 @@ public class ConfigurationMappingPluginTest {
 
         assert (output.getMetacards()
                 .get(0)
-                .getAttribute(COLOR)
+                .getAttribute(TITLE)
                 .getValue()).equals(redColorExpansion[1]);
         assert (output.getMetacards()
                 .get(0)
-                .getAttribute(SOFTWARE)
+                .getAttribute(POINT_OF_CONTACT)
                 .getValue()).equals(ddfSoftwareExpansion[1]);
         assert (output.getMetacards()
                 .get(0)
@@ -129,15 +126,15 @@ public class ConfigurationMappingPluginTest {
 
         assert (output.getMetacards()
                 .get(0)
-                .getAttribute(COLOR)
+                .getAttribute(TITLE)
                 .getValue()).equals(redColorExpansion[1]);
         assert (output.getMetacards()
                 .get(1)
-                .getAttribute(COLOR)
+                .getAttribute(TITLE)
                 .getValue()).equals(blueColorExpansion[1]);
         assert (output.getMetacards()
                 .get(2)
-                .getAttribute(COLOR)
+                .getAttribute(TITLE)
                 .getValue()).equals(yellowColorExpansion[1]);
     }
 
@@ -148,14 +145,14 @@ public class ConfigurationMappingPluginTest {
     @Test
     public void testCreateMetacardWithAttributeWithNoExpansion() throws Exception {
         String attrValue = "rainbow";
-        metacard1.setAttribute(new AttributeImpl(COLOR, attrValue));
+        metacard1.setAttribute(new AttributeImpl(TITLE, attrValue));
 
         CreateRequest input = new CreateRequestImpl(Arrays.asList(metacard1));
         CreateRequest output = configurationMappingPlugin.process(input);
 
         assert (output.getMetacards()
                 .get(0)
-                .getAttribute(COLOR)
+                .getAttribute(TITLE)
                 .getValue()).equals(attrValue);
     }
 
@@ -163,13 +160,13 @@ public class ConfigurationMappingPluginTest {
          Test that metacards unrelated to the configured ruleset will not
          be affected by configuration mapping
      */
-//    @Test
-//    public void testCreateMetacardNoMatchingAttributes() throws Exception {
-//        Metacard metacard = mock(Metacard.class);
-//
-//        CreateRequest input = new CreateRequestImpl(Arrays.asList(metacard));
-//        configurationMappingPlugin.process(input);
-//    }
+    @Test
+    public void testCreateMetacardNoMatchingAttributes() throws Exception {
+        MetacardImpl metacard = new MetacardImpl();
+
+        CreateRequest input = new CreateRequestImpl(Arrays.asList(metacard));
+        configurationMappingPlugin.process(input);
+    }
 
     /*
         Test that if there exists an expansion for a metacard attribute that it is expanded when
@@ -183,12 +180,12 @@ public class ConfigurationMappingPluginTest {
         assert (output.getUpdates()
                 .get(0)
                 .getValue()
-                .getAttribute(COLOR)
+                .getAttribute(TITLE)
                 .getValue()).equals(redColorExpansion[1]);
         assert (output.getUpdates()
                 .get(0)
                 .getValue()
-                .getAttribute(SOFTWARE)
+                .getAttribute(POINT_OF_CONTACT)
                 .getValue()).equals(ddfSoftwareExpansion[1]);
         assert (output.getUpdates()
                 .get(0)
