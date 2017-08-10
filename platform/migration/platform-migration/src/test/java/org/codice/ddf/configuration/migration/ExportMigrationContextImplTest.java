@@ -64,12 +64,12 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
 
     private static final String MIGRATABLE_NAME = "where/some/dir/test.txt";
 
-    private static final String MIGRATABLE_PROPERTY_PATHNAME = Paths.get("..",
+    private static final String MIGRATABLE_PROPERTY_PATHNAME = Paths.get("..", "ddf",
             "where",
             "some",
             "dir",
             "test.txt")
-            .toString(); // relative to current working dir
+            .toString();
 
     private static final Path MIGRATABLE_PATH = Paths.get(FilenameUtils.separatorsToSystem(
             MIGRATABLE_NAME));

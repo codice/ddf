@@ -22,19 +22,14 @@ public class PathUtils {
     // Forced to define it as non-static to simplify unit testing.
     private final Path ddfHome;
 
-    // Forced to define it as non-static to simplify unit testing.
-    private final Path userDirectory;
-
     /**
      * Creates a new path utility.
      *
-     * @throws IOError if unable to determine ${ddf.home} or the current working directory
+     * @throws IOError if unable to determine ${ddf.home}
      */
     public PathUtils() {
         try {
             this.ddfHome = Paths.get(System.getProperty("ddf.home"))
-                    .toRealPath();
-            this.userDirectory = Paths.get(System.getProperty("user.dir"))
                     .toRealPath();
         } catch (IOException e) {
             throw new IOError(e);
@@ -85,13 +80,13 @@ public class PathUtils {
     }
 
     /**
-     * Resolves the specified path against the current working directory (i.e. ${user.dir}).
+     * Resolves the specified path against ${ddf.home}.
      *
-     * @param pathname the pathname to resolve against the current working directory
-     * @return the corresponding path resolved against the current working directory if it is relative;
+     * @param path the path to resolve against ${ddf.home}
+     * @return the corresponding path resolved against ${ddf.home} if it is relative;
      * otherwise a path corresponding to <code>pathname</code>
      */
-    public Path resolveAgainstUserDirectory(String pathname) {
-        return userDirectory.resolve(pathname);
+    public Path resolveAgainstDDFHome(String path) {
+        return ddfHome.resolve(path);
     }
 }

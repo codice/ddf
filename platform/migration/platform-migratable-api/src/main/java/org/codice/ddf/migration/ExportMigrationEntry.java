@@ -40,9 +40,9 @@ public interface ExportMigrationEntry extends MigrationEntry {
      * An error will be automatically recorded with the associated migration report if the property
      * is not defined in the property file referenced by this entry or its value is blank.
      * <p>
-     * <i>Note:</i> The file referenced from the property is assumed to be relative to the current
-     * working directory if not defined as absolute. All paths will automatically be relativized from
-     * ${ddf.home} if located underneath.
+     * <i>Note:</i> The file referenced from the property is assumed to be relative to ${ddf.home} if
+     * not defined as absolute. All paths will automatically be relativized from ${ddf.home} if
+     * located underneath.
      *
      * @param name the name of the property referencing a migration entry to create or retrieve
      * @return a new migration entry or the existing one if already created for the migration entry
@@ -66,9 +66,9 @@ public interface ExportMigrationEntry extends MigrationEntry {
      * In all other cases, no errors or warning will be generated if the predicate returns <code>false</code>
      * so it is up to the predicate to record one if required.
      * <p>
-     * <i>Note:</i> The file referenced from the property is assumed to be relative to the current
-     * working directory if not defined as absolute. All paths will automatically be relativized from
-     * ${ddf.home} if located underneath.
+     * <i>Note:</i> The file referenced from the property is assumed to be relative to ${ddf.home} if
+     * not defined as absolute. All paths will automatically be relativized from ${ddf.home} if
+     * located underneath.
      *
      * @param name      the name of the property referencing a migration entry to create or retrieve
      * @param validator a predicate to be invoked to validate the property value further which must

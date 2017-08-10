@@ -55,7 +55,7 @@ public class ImportMigrationSystemPropertyReferencedEntryImpl
                 try {
                     if (!getAbsolutePath().toRealPath()
                             .equals(getContext().getPathUtils()
-                                    .resolveAgainstUserDirectory(val)
+                                    .resolveAgainstDDFHome(val)
                                     .toRealPath())) {
                         r.record(new ImportPathMigrationException(getProperty(),
                                 getPath(),
