@@ -29,6 +29,7 @@ import static com.jayway.restassured.RestAssured.given;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -251,7 +252,7 @@ public class CatalogTestCommons {
             return id;
         };
 
-        requestAndConfirm(requestFunction, (__) -> !doesMetacardExist(id));
+        requestAndConfirm(requestFunction, (unused) -> !doesMetacardExist(id));
     }
 
     /**
@@ -299,7 +300,7 @@ public class CatalogTestCommons {
     }
 
     /**
-     * Ingest might not succeed the first time due to the async nature of some configurations.
+     * Operations (e.g.ingest) can fail on first attempt due to the asynchronous issues.
      * The ingest service can also return HTTP status code 201 while it creates the metacard
      * asynchronously. This method invokes a request function that send an HTTP request and
      * returns a single Metacard ID from the response. The confirmation function is invoked
@@ -311,19 +312,19 @@ public class CatalogTestCommons {
      * This method will retry the confirmation function several times before giving up
      * and throwing an exception.
      *
-     * @param requestFunction a zero-arg function that returns the a Metacard's ID
+     * @param requestFunction a zero-arg function that returns the Metacard's ID
      * @return Metacard ID
      */
     public static String requestAndConfirm(Supplier<String> requestFunction,
             Function<String, Boolean> confirmationFunction) {
-        String[] id = new String[1];
+        final AtomicReference<String> id = new AtomicReference<>();
         Awaitility.with()
                 .pollInterval(1, SECONDS)
                 .await()
                 .atMost(30, SECONDS)
                 .ignoreExceptions()
                 .until(() -> {
-                    id[0] = requestFunction.get();
+                    id.set(requestFunction.get());
                     return true;
                 });
         Awaitility.with()
@@ -331,7 +332,7 @@ public class CatalogTestCommons {
                 .await()
                 .atMost(10, SECONDS)
                 .ignoreExceptions()
-                .until(() -> confirmationFunction.apply(id[0]));
-        return id[0];
+                .until(() -> confirmationFunction.apply(id.get()));
+        return id.get();
     }
 }
