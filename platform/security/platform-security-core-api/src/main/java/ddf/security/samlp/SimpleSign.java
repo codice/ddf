@@ -26,6 +26,7 @@ import java.security.cert.X509Certificate;
 import java.util.Base64;
 import java.util.List;
 
+import javax.annotation.Nullable;
 import javax.ws.rs.core.UriBuilder;
 
 import org.apache.cxf.rs.security.saml.sso.SSOConstants;
@@ -221,7 +222,12 @@ public class SimpleSign {
     }
 
     public boolean validateSignature(String queryParamsToValidate, String encodedSignature,
-            String encodedPublicKey) throws SignatureException {
+            @Nullable String encodedPublicKey) throws SignatureException {
+        if (encodedPublicKey == null) {
+            LOGGER.warn("Could not verify the signature of request because there was no signing certificate. Ensure that the IdP Metadata includes a signing certificate.");
+            return false;
+        }
+
         try {
             CertificateFactory certificateFactory = CertificateFactory.getInstance("X509");
             Certificate certificate =
