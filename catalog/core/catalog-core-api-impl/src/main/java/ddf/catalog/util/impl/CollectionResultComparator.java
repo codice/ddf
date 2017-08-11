@@ -13,6 +13,8 @@
  */
 package ddf.catalog.util.impl;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -22,7 +24,9 @@ import ddf.catalog.data.Result;
 
 public class CollectionResultComparator implements Comparator<Result>, Serializable {
 
-    private List<Comparator<Result>> comparators = new ArrayList<>();
+    private static final long serialVersionUID = 1L;
+
+    private transient List<Comparator<Result>> comparators = new ArrayList<>();
 
     public void addComparator(Comparator<Result> resultComparator) {
         comparators.add(resultComparator);
@@ -39,5 +43,10 @@ public class CollectionResultComparator implements Comparator<Result>, Serializa
         }
 
         return result;
+    }
+
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        this.comparators = new ArrayList<>();
     }
 }
