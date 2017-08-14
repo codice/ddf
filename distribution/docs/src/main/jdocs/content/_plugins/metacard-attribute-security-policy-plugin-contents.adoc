@@ -23,4 +23,4 @@ The Metacard Attribute Security Policy Plugin is installed by default with a sta
 . Select the *Configuration* tab
 . Select the *Metacard Attribute Security Policy Plugin*.
 
-include::{adoc-include}/_tables/org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin-table-contents.adoc[]
+See <<org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin,Metacard Attribute Security Policy Plugin configurations>> for all possible configurations.

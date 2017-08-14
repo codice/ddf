@@ -1,0 +1,43 @@
+:title: HTTP Response Security
+:id: org.codice.ddf.security.response.filter.ResponseHeaderConfig
+:type: table
+:status: published
+:application: ${ddf-platform}
+:summary: HTTP Response Security response configurations.
+
+.[[org.codice.ddf.security.response.filter.ResponseHeaderConfig]]HTTP Response Security
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+
+|Content Security Policy
+|xContentSecurityPolicy
+|String
+|Instructions for the client browser detailing which location and/or which type of resources may be loaded.
+|
+|true
+
+|X-Frame-Options
+|xFrameOptions
+|String
+|The X-Frame-Options HTTP response header can be used to indicate whether or not a browser may render a page in a frame, iframe or object.
+|
+|true
+
+|X-XSS-Protection
+|xXssProtection
+|String
+|The HTTP X-XSS-Protection response header is a feature that stops pages from loading when they detect reflected cross-site scripting (XSS) attacks.
+|
+|true
+
+
+|===
+

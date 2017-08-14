@@ -1,0 +1,64 @@
+:title: Resource Download Settings
+:id: ddf.catalog.resource.download.ReliableResourceDownloadManager
+:type: table
+:status: published
+:application: ${ddf-catalog}
+:summary: Resource Download configurations.
+
+.[[ddf.catalog.resource.download.ReliableResourceDownloadManager]]Resource Download Settings
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+|Name
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|Product Cache Directory
+|productCacheDirectory
+|String
+|Directory where retrieved products will be cached for faster, future retrieval.
+If a directory path is specified with directories that do not exist,
+Product Download feature will attempt to create those directories.
+Without configuration, the product cache directory is INSTALL_DIR/data/product-cache. If a relative path is provided it will be relative to the INSTALL_DIR. It is recommended to enter an absolute directory path such as /opt/product-cache in Linux or C:\product-cache in Windows.
+|
+|false
+
+|Enable Product Caching
+|cacheEnabled
+|Boolean
+|Check to enable caching of retrieved products.
+|true
+|false
+
+|Delay (in seconds) between product retrieval retry attempts
+|delayBetweenRetryAttempts
+|Integer
+|The time to wait (in seconds) between attempting to retry retrieving a product.
+|10
+|false
+
+|Max product retrieval retry attempts
+|maxRetryAttempts
+|Integer
+|The maximum number of attempts to retry retrieving a product.
+|3
+|false
+
+|Product Retrieval Monitor Period
+|retrievalMonitorPeriod
+|Integer
+|How many seconds to wait and not receive product data before retrying to retrieve a product.
+|5
+|false
+
+|Always Cache Product
+|cacheWhenCanceled
+|Boolean
+|Check to enable caching of retrieved products even if client cancels the download.
+ Note: this has no effect if product caching is disabled.
+|false
+|false
+
+|===

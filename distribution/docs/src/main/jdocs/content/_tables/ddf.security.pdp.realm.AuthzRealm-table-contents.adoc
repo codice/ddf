@@ -1,0 +1,41 @@
+:title: Security AuthZ Realm
+:id: ddf.security.pdp.realm.AuthzRealm
+:status: published
+:type: table
+:application: ${ddf-security}
+:summary: AuthZ Security configurations.
+
+.[[ddf.security.pdp.realm.AuthzRealm]]Security AuthZ Realm
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Match-All Mappings
+|matchAllMappings
+|String
+|List of 'Match-All' subject attribute to Metacard attribute mapping. All values of this metacard key must be present in the corresponding subject key values. Format is subjectAttrName=metacardAttrName.
+|
+|false
+
+|Match-One Mappings
+|matchOneMappings
+|String
+|List of 'Match-One' subject attribute to Metacard attribute mapping. One value of this metacard key must be present in the corresponding subject key values. Format is subjectAttrName=metacardAttrName.
+|
+|false
+
+|Environment Attributes
+|environmentAttributes
+|String
+|List of environment attributes to pass to the XACML engine. Format is attributeId=attributeValue1,attributeValue2.
+|
+|false
+
+|===
+

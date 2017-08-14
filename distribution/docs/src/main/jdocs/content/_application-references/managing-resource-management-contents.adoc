@@ -1,0 +1,41 @@
+:title: ${ddf-resource-management}
+:status: published
+:type: applicationReference
+:summary: Provides administrative functionality to monitor and manage data usage on the system.
+:order: 08
+
+The ${ddf-resource-management} Application provides administrative functionality to monitor and manage data usage on the system.
+This application allows an administrator to:
+
+* View data usage.
+* Set limits on users.
+* View and terminate searches that are in progress.
+
+==== ${ddf-resource-management} Prerequisites
+
+To use the ${ddf-resource-management} Application, the following apps/features must be installed:
+
+* ${ddf-platform}
+* ${ddf-security}
+* ${ddf-admin}
+* ${ddf-catalog}
+
+==== Installing ${ddf-resource-management}
+
+The ${ddf-resource-management} application is not installed by default with a standard installation.
+
+To Install:
+
+. Navigate to ${admin-console}.
+. Select *Manage* applications.
+. Select *${ddf-resource-management}* application.
+. Select *Start*.
+. ${ddf-resource-management} application moves to *Active Applications* upon start.
+
+==== ${ddf-resource-management} Data Usage Tab
+
+View data usage and configure users' data limits and reset times for those limits.
+
+==== ${ddf-resource-management} Queries Tab
+
+View and cancel actively running queries.

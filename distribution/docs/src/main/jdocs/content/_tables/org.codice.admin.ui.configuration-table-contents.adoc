@@ -1,0 +1,83 @@
+:title: Admin UI
+:id: org.codice.admin.ui.configuration
+:type: table
+:status: published
+:application: ${ddf-admin}
+:summary: Admin UI configurations.
+
+.[[org.codice.admin.ui.configuration]]Admin UI
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Enable System Usage message
+|systemUsageEnabled
+|Boolean
+|Turns on a system usage message, which is shown when the Admin Application is opened.
+|false
+|true
+
+|System Usage Message Title
+|systemUsageTitle
+|String
+|A title for the system usage message when the application is opened.
+|
+|true
+
+|System Usage Message
+|systemUsageMessage
+|String
+|A system usage message to be displayed to the user each time the user opens the application.
+|
+|true
+
+|Show System Usage Message once per session
+|systemUsageOncePerSession
+|Boolean
+|With this selected,the system usage message will be shown once for each browser session. Uncheck this to have the usage message appear every time the admin page is opened or refreshed.
+|true
+|true
+
+|Header
+|header
+|String
+|Specifies the header text to be rendered on the Administrator Console.
+|
+|true
+
+|Footer
+|footer
+|String
+|Specifies the footer text to be rendered on the Administrator Console.
+|
+|true
+
+|Style
+|style
+|String
+|Specifies the style of the Header and Footer.
+|green
+|true
+
+|Text Color
+|textColor
+|String
+|Specifies the text color of the Header and Footer.
+|banner-text-white
+|true
+
+|Ignored Installer Applications
+|disabledInstallerApps
+|String
+|Comma delimited list (appName, appName2, ...appNameN) of applications that will be disabled in the installer.
+|admin-app,platform-app
+|null
+
+|===
+

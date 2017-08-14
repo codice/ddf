@@ -21,7 +21,7 @@ Configure the Security STS Client Config from the ${admin-console}:
 . Select *Configuration* tab.
 . Select *Security STS Client*.
 
-include::{adoc-include}/_tables/ddf.security.sts.client.configuration-table-contents.adoc[]
+See <<ddf.security.sts.client.configuration,Security STS Client configurations>> for all possible configurations.
 
 .Security STS Client Config Imported Services
 [cols="3" options="header"]

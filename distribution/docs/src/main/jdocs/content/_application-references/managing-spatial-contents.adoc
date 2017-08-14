@@ -1,0 +1,47 @@
+:title: ${ddf-spatial}
+:status: published
+:type: applicationReference
+:summary: Provides KML transformer and a KML network link endpoint that allows a user to generate a View-based KML Query Results Network Link.
+:order: 11
+
+The ${ddf-spatial} Application provides KML transformer and a KML network link endpoint that allows a user to generate a View-based KML Query Results Network Link.
+
+==== Offline Gazetteer Service
+
+In the ${ddf-spatial} Application, you have the option to install a feature called `offline-gazetteer`.
+This feature enables you to use an offline index of GeoNames data (as an alternative to the GeoNames Web service enabled by the `webservice-gazetteer` feature) to perform searches via the gazetteer search box in the Search UI.
+
+To use the offline gazetteer, you will need to create an index using the `geonames:update` command.
+
+===== ${ddf-spatial} GeoNames Console Commands
+
+The `geonames` commands provide the ability to interact with a local GeoNames index. The local GeoNames index is used by the `offline-gazetteer` feature, which is an optional feature available in this application and is explained above. Note that these commands are only available if the `offline-gazetteer` feature is installed.
+
+.GeoNames Command Descriptions
+[cols="2,8a,1m" options="header"]
+|===
+|Command
+|Description
+|Usage
+
+|`update`
+|Adds new entries to an existing local GeoNames index. Entries can be manually downloaded from http://download.geonames.org/export/dump, where the absolute path of the file would be passed as an argument to the command (ex. /Users/johndoe/Downloads/AU.zip). Currently .txt and .zip files are supported for manual entries. Entries can also be automatically downloaded from http://download.geonames.org/export/dump by passing the country code as an argument to the command (ex. AU) which will add the country to the local GeoNames index. The full list of country codes available can be found in http://download.geonames.org/export/dump/countryInfo.txt. Using the argument "all" will download all of the current country codes (this process may take some time). In addition to country codes, GeoNames also provides entries for cities based on their population sizes. The arguments "cities1000", "cities5000", and "cities15000" will add cities to the index that have at least 1000, 5000, or 15000 people respectively.
+
+The index location can be configured via the ${admin-console}. By default, the index location is `data/geonames-index`. If you specify a relative path, it is relative to the location of the unzipped
+${branding} distribution. You may specify an absolute path if you want the index to be located somewhere else.
+
+The `-c` or `--create` flag can be added to create a new GeoNames index. This will overwrite any existing index at the location specified in the ${admin-console}. The new index will be filled with the entries in the file you pass to the command. You must create an index before you can add additional entries to it (i.e. running the command without the `-c` or `--create` flag).
+|geonames:update
+
+|===
+
+====  ${ddf-spatial} Prerequisites
+
+To use the ${ddf-spatial} Application, the following apps/features must be installed:
+
+* ${ddf-platform}
+* ${ddf-catalog}
+
+====  Installing ${ddf-spatial}
+
+The ${ddf-spatial} application is installed by default with a standard installation.

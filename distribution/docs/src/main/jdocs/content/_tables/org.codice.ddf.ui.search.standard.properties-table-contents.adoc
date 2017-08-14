@@ -1,0 +1,110 @@
+:title: Standard Search UI
+:id: org.codice.ddf.ui.search.standard.properties
+:type: table
+:status: published
+:application: ${ddf-ui}
+:summary: Standard Search UI.
+
+.[[org.codice.ddf.ui.search.standard.properties]]Standard Search UI
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Result Count
+|resultCount
+|Integer
+|Specifies the number of results to request from each source
+|250
+|true
+
+|Imagery Providers
+|imageryProviders
+|String
+|List of imagery providers to use. Valid types are: OSM (OpenStreetMap), AGM (ArcGisMap), BM (BingMap), WMS (WebMapService), WMT (WebMapTile), TMS (TileMapService), GE (GoogleEarth). Example: {"type" "WMS" "url" "http://example.com" "layers" ["layer1" "layer2"] "parameters" {"FORMAT" "image/png" "VERSION" "1.1.1"} "alpha" 0.5}
+|
+|false
+
+|Terrain Provider
+|terrainProvider
+|String
+|Terrain provider to use for height data. Valid types are: CT (CesiumTerrain), AGS (ArcGisImageServer), VRW (VRTheWorld). Example: {"type" "CT" "url" "http://example.com"}
+|{"type" "CT" "url" "http://assets.agi.com/stk-terrain/tilesets/world/tiles"}
+|false
+
+|Map Projection
+|projection
+|String
+|Projection of imagery providers
+|EPSG:4326
+|false
+
+|Bing Maps Key
+|bingKey
+|String
+|Bing Maps API key. This should only be set if you are using Bing Maps Imagery or Terrain Providers.
+|
+|false
+
+|Connection Timeout
+|timeout
+|Integer
+|Specifies the client-side connection timeout in milliseconds.
+|15000
+|false
+
+|Help Location
+|helpUrl
+|String
+|URL to help documentation
+|help.html
+|false
+
+|Show Sign In
+|signIn
+|Boolean
+|Allow Sign In to Search UI and welcome notice. Enable this if the Search UI is protected.
+|true
+|false
+
+|Show Tasks
+|task
+|Boolean
+|Show task menu area for long running actions.
+|false
+|false
+
+|Show Gazetteer
+|gazetteer
+|Boolean
+|Show gazetteer for searching place names.
+|true
+|false
+
+|Show Uploader
+|ingest
+|Boolean
+|Show upload menu for adding new record.
+|true
+|false
+
+|Use External Authentication
+|externalAuthentication
+|Boolean
+|Use an external authentication point, such as IdP
+|false
+|false
+
+|Type Name Mapping
+|typeNameMapping
+|String
+|Mapping of display names to content types in the form name=type.
+|
+|false
+
+|===

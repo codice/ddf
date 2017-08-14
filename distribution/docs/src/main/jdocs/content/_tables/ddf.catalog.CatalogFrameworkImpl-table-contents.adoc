@@ -1,0 +1,41 @@
+:title: Catalog Standard Framework
+:id: ddf.catalog.CatalogFrameworkImpl
+:type: table
+:status: published
+:application: ${ddf-catalog}
+:summary: Catalog Standard Framework configurations.
+
+.[[ddf.catalog.CatalogFrameworkImpl]]Catalog Standard Framework
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Enable Fanout Proxy
+|fanoutEnabled
+|Boolean
+|When enabled the Framework acts as a proxy, federating requests to all available sources. All requests are executed as federated queries and resource retrievals, allowing the framework to be the sole component exposing the functionality of all of its Federated Sources.
+|false
+|true
+
+|Enable Notifications
+|notificationEnabled
+|Boolean
+|Check to enable notifications.
+|true
+|false
+
+
+|Fanout tag blacklist
+|fanoutTagBlacklist
+|String
+|Ingest operations with tags in this list will be rejected.
+|
+|true
+
+|===

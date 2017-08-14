@@ -35,7 +35,6 @@ These configurations are available from the ${ddf-registry} application in the $
 
 
 include::{adoc-include}/_tables/conf-Csw_Registry_Store-table-contents.adoc[]
-include::{adoc-include}/_tables/conf-Registry_Federation_Admin_Service-table-contents.adoc[]
 include::{adoc-include}/_tables/conf-org.codice.ddf.registry.policy.RegistryPolicyPlugin-table-contents.adoc[]
 include::{adoc-include}/_tables/conf-Registry_Configuration_Event_Handler-table-contents.adoc[]
 

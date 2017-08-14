@@ -28,5 +28,3 @@ To configure the Registry store:
 . Select *${ddf-registry}*.
 . Select the *Remote Registries* Tab and click the *Add* button.
 .. ALTERNATIVELY: Select the *Configuration* Tab and select *Registry Store*.
-
-include::{adoc-include}/_tables/Csw_Registry_Store-table-contents.adoc[]

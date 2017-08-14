@@ -1,0 +1,48 @@
+:title: Catalog Policy Plugin
+:id: org.codice.ddf.catalog.security.CatalogPolicy
+:type: table
+:status: published
+:application: ${ddf-catalog}
+:summary: Catalog Policy Plugin.
+
+.[[org.codice.ddf.catalog.security.CatalogPolicy]]Catalog Policy Plugin
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Create Required Attributes
+|createPermissions
+|String
+|Roles/attributes required for the create operations. Example: role=role1,role2
+|http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest
+|true
+
+|Update Required Attributes
+|updatePermissions
+|String
+|Roles/attributes required for the update operation. Example: role=role1,role2
+|http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest
+|true
+
+|Delete Required Attributes
+|deletePermissions
+|String
+|Roles/attributes required for the delete operation. Example: role=role1,role2
+|http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest
+|true
+
+|Read Required Attributes
+|readPermissions
+|String
+|Roles/attributes required for the read operations (query and resource). Example: role=role1,role2
+|http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest
+|true
+
+|===
+

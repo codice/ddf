@@ -26,6 +26,4 @@ To configure the Expiration Date Pre-Ingest Plugin:
 . Select the *Configuration* tab.
 . Select the *Expiration Date Pre-Ingest Plugin*.
 
-The Expiration Date Pre-Ingest Plugin has these configurable properties:
-
-include::{adoc-include}/_tables/org.codice.ddf.catalog.plugin.expiration.ExpirationDatePlugin-table-contents.adoc[]
+See <<org.codice.ddf.catalog.plugin.expiration.ExpirationDatePlugin,Expiration Date Plugin configurations>> for all possible configurations.

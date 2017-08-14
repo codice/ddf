@@ -21,4 +21,4 @@ To configure the PDF Input Transformer:
 
 These configurations are available for the PDF Input Transformer:
 
-include::{adoc-include}/_tables/ddf.catalog.transformer.input.pdf.PdfInputTransformer-table-contents.adoc[]
+See <<ddf.catalog.transformer.input.pdf.PdfInputTransformer,PDF Input Transformer configurations>> for all possible configurations.

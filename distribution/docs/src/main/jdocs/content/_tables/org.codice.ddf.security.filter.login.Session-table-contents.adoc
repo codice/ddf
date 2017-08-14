@@ -1,0 +1,27 @@
+:title: Session
+:id: org.codice.ddf.security.filter.login.Session
+:status: published
+:type: table
+:application: ${ddf-security}
+:summary: Session configurations.
+
+.[[org.codice.ddf.security.filter.login.Session]]Session
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Session Timeout (in minutes)
+|expirationTime
+|Integer
+|The number of minutes after a session has been inactive that it should be invalidated.
+|31
+|true
+
+|===
+

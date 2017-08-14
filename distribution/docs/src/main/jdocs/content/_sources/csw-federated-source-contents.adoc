@@ -35,7 +35,7 @@ Configure an Existing CSW Federated Source through the ${admin-console}:
 * Select the *Sources* tab.
 * Select the name of the source to edit.
 
-include::{adoc-include}/_tables/Csw_Federated_Source-table-contents.adoc[]
+See <<Csw_Federated_Source,CSW Federated Source configurations>> for all possible configurations.
 
 ===== Usage Limitations of the CSW Federated Source
 

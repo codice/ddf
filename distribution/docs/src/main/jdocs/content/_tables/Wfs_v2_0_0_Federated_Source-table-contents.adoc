@@ -1,5 +1,9 @@
-:type: documentation
+:title: WFS 2.0.0 Federated Source
+:id: Wfs_v2_0_0_Federated_Source
+:type: table
 :status: published
+:application: ${ddf-spatial}
+:summary: WFS 2.0.0 Federated Source.
 
 .[[Wfs_v2_0_0_Federated_Source]]WFS 2.0.0 Federated Source
 [cols="1,1m,1,3,1,1" options="header"]

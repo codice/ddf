@@ -1,5 +1,9 @@
-:type: documentation
+:title: Confluence Federated Source
+:id: Confluence_Federated_Source
+:type: table
 :status: published
+:application: ${ddf-catalog}
+:summary: Confluence Federated Source.
 
 .[[Confluence_Federated_Source]]Confluence Federated Source
 [cols="1,1m,1,3,1,1" options="header"]

@@ -1,0 +1,139 @@
+:title: GMD CSW ISO Federated Source
+:id: Gmd_Csw_Federated_Source
+:status: published
+:type: table
+:application: ${ddf-spatial}
+:summary: CSW Federated Source using the Geographic MetaData (GMD) format (ISO 19115:2003).
+
+.[[Gmd_Csw_Federated_Source]]GMD CSW ISO Federated Source
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Source ID
+|id
+|String
+|The unique name of the Source
+|
+|true
+
+|CSW URL
+|cswUrl
+|String
+|URL to the endpoint implementing the Catalogue Service for Web (CSW) spec
+|
+|true
+
+|Username
+|username
+|String
+|Username for CSW Service (optional)
+|
+|false
+
+|Password
+|password
+|Password
+|Password for CSW Service (optional)
+|
+|false
+
+|Disable CN Check
+|disableCnCheck
+|Boolean
+|Disable CN check for the server certificate. This should only be used when testing.
+|false
+|true
+
+|Coordinate Order
+|coordinateOrder
+|String
+|Coordinate order expected and returned by remote source
+|LON_LAT
+|true
+
+|Use posList in LinearRing
+|usePosList
+|Boolean
+|Use a <posList> element rather than a series of <pos> elements when issuing geospatial queries containing a LinearRing
+|false
+|false
+
+|Metacard Mappings
+|metacardMappings
+|String
+|Mapping of the Metacard Attribute names to their CSW property names. The format should be 'title=dc:title'.
+|id=apiso:Identifier,effective=apiso:PublicationDate,created=apiso:CreationDate,modified=apiso:RevisionDate,title=apiso:AlternateTitle,AnyText=apiso:AnyText,ows:BoundingBox=apiso:BoundingBox,language=apiso:Language,language=apiso:ResourceLanguage,datatype=apiso:Type,description=apiso:Abstract,contact.point-of-contact-name=apiso:OrganisationName,topic.keyword=apiso:Subject,media.format=apiso:Format,modified=apiso:Modified
+|false
+
+|Poll Interval
+|pollInterval
+|Integer
+|Poll Interval to Check if the Source is available (in minutes - minimum 1).
+|5
+|true
+
+|Connection Timeout
+|connectionTimeout
+|Integer
+|Amount of time to attempt to establish a connection before timing out, in milliseconds.
+|30000
+|true
+
+|Receive Timeout
+|receiveTimeout
+|Integer
+|Amount of time to wait for a response before timing out, in milliseconds.
+|60000
+|true
+
+|Output Schema
+|outputSchema
+|String
+|Output Schema
+|http://www.isotc211.org/2005/gmd
+|true
+
+|Query Type Name
+|queryTypeName
+|String
+|Qualified Name for the Query Type used in the CSW GetRecords request
+|gmd:MD_Metadata
+|true
+
+|Query Type Namespace
+|queryTypeNamespace
+|String
+|Namespace for the Query Type used in the CSW GetRecords request
+|http://www.isotc211.org/2005/gmd
+|true
+
+|Force CQL Text
+|isCqlForced
+|Boolean
+|Force CQL Text as the Query Language
+|false
+|true
+
+|Forced Spatial Filter Type
+|forceSpatialFilter
+|String
+|Force only the selected Spatial Filter Type as the only available Spatial Filter.
+|NO_FILTER
+|false
+
+|Security Attributes
+|securityAttributeStrings
+|String
+|Security attributes for this source
+|
+|true
+
+|===
+

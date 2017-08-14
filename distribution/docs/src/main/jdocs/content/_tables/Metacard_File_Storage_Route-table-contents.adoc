@@ -1,0 +1,47 @@
+:title: Metacard Backup File Storage Provider
+:id: Metacard_File_Storage_Route
+:type: table
+:status: published
+:application: ${ddf-catalog}
+:summary: Enable data backup of metacards using a configurable transformer.
+
+.[[Metacard_File_Storage_Route]]Metacard Backup File Storage Provider
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Keep Deleted Metacard
+|keepDeletedMetacards
+|Boolean
+|Should backups for deleted metacards be kept or removed.
+|false
+|true
+
+|Metacard Transformer Id
+|metacardTransformerId
+|String
+|ID of the metacard transformer to use to serialize metacard for backup.
+|metacard
+|true
+
+|Backup Invalid Metacards
+|keepDeletedMetacards
+|Boolean
+|Keep backups for metacards that fail validation with warnings or errors.
+|true
+|true
+
+|Metacard Backup Output Provider(s)
+|metacardOutputProviderIds
+|Comma delimited list of metacard output provider IDs.
+|Metacard Backup Provider IDs to use for this backup plugin.
+|fileStorageProvider
+|true
+
+|===

@@ -1,0 +1,41 @@
+:title: Schematron Validation Services
+:id: ddf.services.schematron.SchematronValidationService
+:type: table
+:status: published
+:application: ${ddf-catalog}
+:summary: Schematron Validation Services configurations.
+
+.[[ddf.services.schematron.SchematronValidationService]]Schematron Validation Services
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Ruleset Name
+|id
+|String
+|Give this ruleset a name
+|null
+|true
+
+|Root Namepsace
+|namespace
+|String
+|The root namespace of the XML
+|null
+|true
+
+|Schematron Files
+|schematronFileNames
+|String
+|Schematron files (*.sch) to be validated against
+|null
+|true
+
+|===
+

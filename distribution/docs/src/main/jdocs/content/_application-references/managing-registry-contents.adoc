@@ -1,0 +1,426 @@
+:title: ${ddf-registry}
+:status: published
+:type: applicationReference
+:summary: Contains the base registry components, plugins, sources, and interfaces needed for ${branding} to function as a registry connecting multiple nodes.
+:order: 07
+
+${ddf-registry} contains the base registry components, plugins, sources, and interfaces needed for ${branding} to function as a registry connecting multiple nodes.
+
+====  ${ddf-registry} Prerequisites
+
+To use the ${ddf-registry}, the following apps/features must be installed:
+
+* ${ddf-catalog}
+* ${ddf-admin}
+* ${ddf-spatial}
+* ${ddf-platform}
+* ${ddf-security}
+
+====  Installing ${ddf-registry}
+
+${ddf-registry} is not installed by default with a standard installation.
+
+To install:
+
+. Navigate to the *${admin-console}*.
+. Click the *Manage* applications button.
+. Click the *Install* icon.
+. ${ddf-registry} will move to *Active Applications* upon startup.
+
+====  Customizing ${ddf-registry} Fields
+
+All the fields that appear in a registry node are customizable. This is done through a JSON configuration file located at ``<${branding}_HOME>/etc/registry/registry-custom-slots.json`` that defines the registry fields. In this file there are JSON objects that relate to each part of the edit registry modal.
+These objects are
+
+* General
+* Service
+** ServiceBinding
+* Organization
+* Person (Contact)
+* Content (Content Collection)
+
+Each of the objects listed above is a JSON array of field objects that can be modified. There are some other objects in the JSON file like *PersonName*, *Address*, *TelephoneNumber*, and *EmailAddress* that should not be modified.
+
+.Field Properties
+|===
+|Property Key |Required |Property Value
+
+|key
+|yes
+|The string value that will be used to identify this field. Must be unique within field grouping array. This value is what will show up in the generated EBRIM xml.
+
+|displayName
+|yes
+|The string name that will be displayed in the edit node dialog for this field
+
+|description
+|yes
+|A brief description of what the field represents or is used for. Shown when user hovers or click the question mark icon for the field.
+
+|value
+|no
+|The initial or default value of the field. For most cases this should be left as an empty array or string.
+
+|type
+|yes
+|Identifies what type of field this is. Value must be one of *string*, *date*, *number*, *boolean*, *point*, or *bounds*
+
+|required
+|no
+|Indicates if this field must be filled out. *Default is false*. If true an asterisk will be displayed next to the field name.
+
+|possibleValues
+|no
+|An array of values that could be used for this field. If *multiValued=true* this list will be used for suggestions for autocomplete. If *multiValued=false* this list will be used to populate a dropdown.
+
+|multiValued
+|no
+|Flag indicating if this field accepts multiple values or not. *Default is false*.
+
+|isSlot
+|no
+|Indicates that this field represents a slot value in the EBRIM document. If this is false the key must match a valid EBRIM attribute for the parent object. *Default is true*.
+
+|advanced
+|no
+|A flag indicating if this field should be placed under the *Advanced* section of the edit modal ui. *Default is false*.
+
+|regex
+|no
+|A regular expression for validating users input.
+
+|regexMessage
+|no
+|A message to show the user if the regular expression test fails.
+
+|isGroup, constructTitle
+|N/A
+|These fields are used for nesting objects and should not be modified
+|===
+
+====  Using ${ddf-registry}
+
+The *Node Information* and *Remote Registries* tabs appear in both the ${ddf-registry} application and the ${ddf-catalog} application.
+
+=====  Configuring Identity Node
+
+The "Identity Node" is the local ${branding} instance.
+Configure the information to share with other registries/nodes.
+
+. Navigate to *${ddf-registry}* (or *${ddf-catalog}*) application.
+. Navigate to *Node Information* tab.
+. Click the name of the identity node.
+. Complete all _required_ and any desired _optional_ fields.
+.. Add any desired <<_adding_a_service_binding,service bindings>> under the <<service_bindings, Services>> tab.
+. Click *Save*.
+
+.General Information Tab
+[cols="1,3,1,1" options="header"]
+|===
+|Field
+|Description
+|Type
+|Required
+
+|Node Name
+|This node's name as it should appear to external systems
+|string
+|yes
+
+|Node Description
+|Short description for this node
+|string
+|yes
+
+|Node Version
+|This node's Version
+|string
+|yes
+
+|Security Attributes
+|Security attributes associated with this node.
+|String
+|
+
+|Last Updated
+|Date this entry's data was last updated
+|Date
+|
+
+|Live Date
+|Date indicating when this node went live or operational
+|Date
+|
+
+|Custom Fields
+a|click *Add* button to add custom fields
+|Configurable
+|no
+
+|Associations
+a|click *Add* button to add associations
+|Configurable
+|no
+
+|===
+
+.[[service_bindings]]Services
+[cols="1,3,1,1" options="header"]
+|===
+|Field
+|Description
+|Type
+|Required
+
+|Service Name
+|This service name
+|string
+|
+
+|Service Description
+|Short description for this service
+|string
+|
+
+|Service Version
+|This service version
+|string
+|
+
+|Service Type
+|Identifies the type of service this is by a URN.
+|string
+|
+
+4+^|Bindings (Click *Add* to add a service binding)
+
+|Binding Name
+|This binding name
+|String
+|yes
+
+|Binding Description
+|Short description for this binding
+|String
+|
+
+|Binding Version
+|This binding version
+|
+|
+
+|Access URL
+|The url used to access this binding
+|
+|
+
+|Service Binding Type
+|The binding type for the service
+|
+|
+
+|URL Property Key
+|Property that the accessURI value should be put into for source creation
+|
+|
+
+4+|
+
+|Custom Fields
+a|click *Add* button to add custom fields
+|Configurable
+|no
+
+|Associations
+a|click *Add* button to add associations
+|Configurable
+|no
+
+|===
+
+.Organizations Tab (click *Add* to add an organization)
+[cols="1,3,1,1" options="header"]
+|===
+|Field
+|Description
+|Type
+|Required
+
+|Organization Name
+|This organization's name
+|string
+|yes
+
+|Address
+|This organization's primary address
+|Expand to enter address information
+|yes
+
+|TelephoneNumber
+|Primary contact number for this organization
+|
+|no
+
+|Email
+|Primary contact email for this organization
+|
+|no
+
+
+|Custom Fields
+a|click *Add* button to add custom fields
+|Configurable
+|no
+
+|Associations
+a|click *Add* button to add associations
+|Configurable
+|no
+
+|===
+
+.Contacts (click *Add* button to add contact info)
+[cols="1,3,1,1" options="header"]
+|===
+|Field
+|Description
+|Type
+|Required
+
+|Contact Title
+|Contact Title
+|String
+|yes
+
+|Contact First Name
+|Contact First Name
+|String
+|yes
+
+|Contact Last Name
+|Contact Last Name
+|String
+|yes
+
+|Address
+|Address for listed contact
+|String
+|minimum one
+
+|Phone number
+|Contact phone number
+|
+|minimum one
+
+|Email
+|Contact email
+|String
+|minimum one
+
+|Custom Fields
+a|click *Add* button to add custom fields
+|Configurable
+|no
+
+|Associations
+a|click *Add* button to add associations
+|Configurable
+|no
+
+|===
+
+.Collections (Click *Add* to add Content Collection(s))
+[cols="1,3,1,1" options="header"]
+|===
+|Field
+|Description
+|Type
+|Required
+
+|Content Name
+|Name for this metadata content
+|string
+|yes
+
+|Content Description
+|Short description for this metadata content
+|string
+|no
+
+|Content Object Type
+|The kind of content object this will be. Default value should be used in most cases.
+|string
+|yes
+
+|Custom Fields
+a|click *Add* button to add custom fields
+|Configurable
+|no
+
+|Associations
+a|click *Add* button to add associations
+|Configurable
+|no
+
+|===
+
+====== Adding a Service Binding to a Node
+
+Advertise the methods other nodes use to connect to the local ${branding} instance.
+
+. Navigate to ${admin-console}.
+. Select ${ddf-registry} or ${ddf-catalog}.
+.. (*Node Information* tab is editable from either application.)
+. Click the name of the desired local node.
+. Click the *Services* tab.
+. Click *Add* to add a service.
+. Expand new Service.
+. Enter Service name and details.
+. Click *Add* to add binding.
+. Select Service Binding type.
+.. Select one of the defaults or _empty_ for a custom service binding.
+.. If selecting _empty_, fill in all required fields.
+. Click Save.
+
+=====  Publishing to Others
+
+Send details about the local ${branding} instance to other nodes.
+
+. Navigate to the *Remote Registries* tab in either ${ddf-registry} or ${ddf-catalog} application.
+. Click *Add* to add a remote registry.
+. Enter Registry Service (CSW) Url.
+. Confirm *Allow Push* is checked.
+. Click *Add* to save the changes.
+
+
+. Navigate to the *Sources* Tab in ${ddf-catalog} App
+. Click desired node to be published.
+. Under *Operations*, click the *Publish to ... * link that corresponds to the desired registry.
+
+=====  Subscribing to Another Node
+
+Receive details about another node.
+
+. Navigate to the *Remote Registries* tab in either ${ddf-registry} or ${ddf-catalog} application.
+. Click *Add* to add a remote registry.
+. Add the URL to access node.
+. Enter any needed credentials in the Username/password fields.
+. Click *Save*/*Add*.
+
+====== Editing a Subscription
+
+Update the configuration of an existing subscription.
+
+. Navigate to the *Remote Registries* tab in either ${ddf-registry} or ${ddf-catalog} application.
+. Click the name of the desired subscription.
+. Make changes.
+. Click *Save*.
+
+====== Deleting a Subscription
+
+Remove a subscription.
+
+. Click the *Delete* icon at the top of the *Remote Registries* tab.
+. Check the boxes of the Registry Nodes to be deleted.
+. Select the *Delete* button.
+

@@ -15,6 +15,14 @@ To use the ${ddf-resource-management} Application, the following apps/features m
 * ${ddf-admin}
 * ${ddf-catalog}
 
+===== ${ddf-resource-management} Data Usage Tab
+
+View data usage and configure users' data limits and reset times for those limits.
+
+===== ${ddf-resource-management} Queries Tab
+
+View and cancel actively running queries.
+
 ==== Installing ${ddf-resource-management}
 
 The ${ddf-resource-management} application is not installed by default with a standard installation.
@@ -26,28 +34,3 @@ To Install:
 . Select *${ddf-resource-management}* application.
 . Select *Start*.
 . ${ddf-resource-management} application moves to *Active Applications* upon start.
-
-==== Configuring ${ddf-resource-management}
-
-These configurations are available from the ${ddf-resource-management} application in the ${admin-console}.
-
-.${ddf-resource-management} Configurations
-[cols="1,3m,3" options="header"]
-|===
-|Name
-|Configuration ID
-|Description
-
-|None
-|
-|
-
-|===
-
-==== ${ddf-resource-management} Data Usage Tab
-
-View data usage and configure users' data limits and reset times for those limits.
-
-==== ${ddf-resource-management} Queries Tab
-
-View and cancel actively running queries.

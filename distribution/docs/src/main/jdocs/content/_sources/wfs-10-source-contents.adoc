@@ -38,9 +38,7 @@ Configure an existing WFS v1.0.0 Source through the ${admin-console}:
 * Select the *Sources* tab.
 * Select the name of the source to edit.
 
-include::{adoc-include}/_tables/Wfs_v1_0_0_Federated_Source-table-contents.adoc[]
-
-include::{adoc-include}/_tables/Wfs_v1_0_0_Connected_Source-table-contents.adoc[]
+See <<Wfs_v1_0_0_Federated_Source,WFS v.1.0 Federated Source configurations>> or <<Wfs_v1_0_0_Connected_Source,WFS v1.0 Connected Source configurations>> for all possible configurations.a
 
 ===== WFS URL
 

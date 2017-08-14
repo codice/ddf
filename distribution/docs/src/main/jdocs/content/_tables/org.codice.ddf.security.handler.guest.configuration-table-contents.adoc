@@ -1,0 +1,48 @@
+:title: Login Page
+:id: org.codice.ddf.security.handler.guest.configuration
+:status: published
+:type: table
+:application: ${ddf-security}
+:summary: Login Page configurations.
+
+.[[org.codice.ddf.security.handler.guest.configuration]]Login Page
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Header
+|header
+|String
+|Specifies the header text to be rendered on the Login page
+|
+|true
+
+|Footer
+|footer
+|String
+|Specifies the footer text to be rendered on the Login page
+|
+|true
+
+|Style
+|style
+|String
+|Specifies the style of the Header and Footer.
+|green
+|true
+
+|Text Color
+|textColor
+|String
+|Specifies the text color of the Header and Footer.
+|banner-text-white
+|true
+
+|===
+

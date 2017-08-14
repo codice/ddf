@@ -1,0 +1,41 @@
+:title: Expiration Date Pre-Ingest Plugin
+:id: org.codice.ddf.catalog.plugin.expiration.ExpirationDatePlugin
+:type: table
+:status: published
+:application: ${ddf-catalog}
+:summary: Catalog pre-ingest plugin to set an expiration date on metacards.
+
+.[[org.codice.ddf.catalog.plugin.expiration.ExpirationDatePlugin]]Expiration Date Pre-Ingest Plugin
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Overwrite If Empty
+|overwriteIfBlank
+|Boolean
+|If this is checked, overwrite all blank expiration dates in metacards. If this is not checked, leave metacards with blank expiration dates as-is.
+|false
+|true
+
+|Overwrite If Exists
+|overwriteIfExists
+|Boolean
+|If this is checked, overwrite all existing non-empty expiration dates in metacards with a new date. If this is not checked, leave metacards with an existing expiration date.
+|false
+|true
+
+|Offset from Created Date (in days)
+|offsetFromCreatedDate
+|Integer
+|A metacard's new expiration date is calculated by adding this value (in days) to its created date.
+|30
+|true
+
+|===
+

@@ -1,0 +1,146 @@
+:title: ${ddf-geowebcache}
+:status: published
+:type: applicationReference
+:summary: Enables a server providing a map tile cache and tile service aggregation.
+:order: 04
+
+${ddf-geowebcache} enables a server providing a map tile cache and tile service aggregation.
+
+[WARNING]
+====
+The ${ddf-geowebcache} application is currently in an EXPERIMENTAL status and should not be installed on a security-hardened installation.
+====
+
+${ddf-geowebcache} enables a server providing a tile cache and tile service aggregation.
+See (http://geowebcache.org[GeoWebCache]) for more information.
+This application also provides an administrative plugin for the management of GeoWebCached layers.
+GeoWebCache also provides a user interface for previewing, truncating, or seeding layers at ${secure_url}/geowebcache/.
+
+====  ${ddf-geowebcache} Application Prerequisites
+
+None.
+
+====  Installing ${ddf-geowebcache}
+
+The ${ddf-geowebcache} application is *not* installed by default.
+
+To install:
+
+. Navigate to the ${admin-console}.
+. Select *Manage*.
+. Select the ${ddf-geowebcache} application *Start* button. The application will move to *Active Applications* on startup.
+. Select *Back* in ${admin-console}.
+
+====  Configuring ${ddf-geowebcache}
+
+${ddf-geowebcache} can be configured to cache layers locally, using the following procedures.
+
+===== Adding GeoWebCache Layers
+
+Add layers to the local cache:
+
+. Navigate to the ${admin-console}.
+. Select the ${ddf-geowebcache} Application.
+. Select the *GeoWebCache Layers* tab.
+. Click the *Add* button.
+. Enter the data in the fields provided.
+. If necessary, click the *Add* button to add additional MIME types.
+. If necessary, click the *Add* button to add additional WMS Layer Names.
+
+.Add Layer
+[cols="1,1m,1,2,1,1" options="header"]
+|===
+|Name
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|Name
+|
+|String
+|
+|
+|no
+
+|Mime Formats
+|
+|String
+|
+|
+|yes
+
+|URL
+|
+|URI
+|
+|
+|yes
+
+|WMS Layer Name
+|
+|String
+|
+|
+|yes
+
+|===
+
+===== Editing GeoWebCache Layers
+
+. Navigate to the ${admin-console}.
+. Select the ${ddf-geowebcache} application.
+. Navigate to the *GeoWebCache Layers* tab.
+. Click the *Name* field of the layer to edit.
+
+===== Removing GeoWebCache Layers
+
+. Click the *Delete* icon at the end of the row of the layer to be deleted.
+
+===== Configuring GWC Disk Quota
+
+Storage usage for a GeoWebCache server is managed by a `diskquota.xml` file with configuration details to prevent image-intensive data from filling the available storage.
+
+To view the disk quota XML representative: ${secure_url}/geowebcache/rest/diskquota.xml
+
+To update the disk quota, a client can post a new XML configuration: `curl -v -k -XPUT -H "Content-type: text/xml" -d ${at-symbol}diskquota.xml "${secure_url}/geowebcache/rest/diskquota.xml"`
+
+.Example `diskquota.xml`
+[source,xml,linenums]
+----
+<gwcQuotaConfiguration>
+  <enabled>true</enabled>
+  <diskBlockSize>2048</diskBlockSize>
+  <cacheCleanUpFrequency>5</cacheCleanUpFrequency>
+  <cacheCleanUpUnits>SECONDS</cacheCleanUpUnits>
+  <maxConcurrentCleanUps>5</maxConcurrentCleanUps>
+  <globalExpirationPolicyName>LFU</globalExpirationPolicyName>
+  <globalQuota>
+    <value>100</value>
+    <units>GiB</units>
+  </globalQuota>
+  <layerQuotas/>
+</gwcQuotaConfiguration>
+----
+
+See http://geowebcache.org/docs/current/configuration/diskquotas.html[Disk Quotas] for more information on configuration options for disk quota.
+
+===== Configuring the Standard Search UI for GeoWebCache
+
+Add a new Imagery Provider in the ${admin-console}:
+
+. Navigate to \https://<localhost>:8993/admin.
+. Select *Configuration* tab.
+. Select *Standard Search UI* configuration.
+. Click the *Add* button next to *Imagery Providers*
+. Enter configuration for Imagery Provider in new textbox:
+. `{"type" "WMS" "url" "https://<HOSTNAME>:<PORT>/geowebcache/service/wms" "layers" ["states"] "parameters" {"FORMAT" "image/png"} "alpha" 0.5}`
+. Set the Map Projection to `EPSG:900913` or `EPSG:4326`. (GeoWebCache supports either of these projections.)
+
+[NOTE]
+====
+Currently, GeoWebCache only supports WMS 1.1.1 and below. If the version number is not specified in the imagery provider, ${branding} will default to version `1.3.0`, and OpenLayers will not project the image tiles properly. Thus, the version `1.1.1` must be specified when using `EPSG:4326` projections.
+
+`{"type" "WMS" "url" "https://<HOSTNAME:<PORT>/geowebcache/service/wms" "layers" ["states"] "parameters" {"FORMAT" "image/png" "VERSION" "1.1.1"} "alpha" 0.5}`
+====

@@ -16,13 +16,7 @@ The CometD Endpoint is installed by default with a standard installation in the 
 
 ===== Configuring CometD Endpoint
 
-Configure the CometD endpoint from the ${admin-console}:
-
-. Navigate to the *${admin-console}*.
-. Select *${ddf-ui}* application.
-. Select *Configuration* tab.
-
-include::{adoc-include}/_tables/org.codice.ddf.ui.search.standard.endpoint-table-contents.adoc[]
+The CometD endpoint has no configurable properties.
 
 ===== Using CometD Endpoint
 

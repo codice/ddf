@@ -34,7 +34,7 @@ Configure an existing OpenSearch Source through the ${admin-console}:
 * Select the *Sources* tab.
 * Select the name of the source to edit.
 
-include::{adoc-include}/_tables/OpenSearchSource-table-contents.adoc[]
+See <<OpenSearchSource,OpenSearch Source configurations>> for all possible configurations.
 
 ===== Using OpenSearch Source
 

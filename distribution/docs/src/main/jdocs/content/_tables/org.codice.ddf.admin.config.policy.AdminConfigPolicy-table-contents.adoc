@@ -1,0 +1,36 @@
+:title: Admin Configuration Policy
+:id: org.codice.ddf.admin.config.policy.AdminConfigPolicy
+:type: table
+:status: published
+:application: ${ddf-admin}
+:summary: Admin Configuration Policy configurations.
+
+.[[org.codice.ddf.admin.config.policy.AdminConfigPolicy]]Admin Configuration Policy
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Feature and App Permissions
+|featurePolicies
+|String
+|When enabled, the desired features or apps will only be modifiable and viewable to users with the set attributes.
+The entry should be the format of: `feature name/app name = "user attribute name=user attribute value"`
+|
+|false
+
+|Configuration Permissions
+|servicePolicies
+|String
+|When enabled, the desired service will only be modifiable and viewable to users with the set attributes.
+The entry should be the format of: `configuration ID = "user attribute name=user attribute value"`
+|null
+|false
+
+|===
+

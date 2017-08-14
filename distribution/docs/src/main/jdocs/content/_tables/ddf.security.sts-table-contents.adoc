@@ -1,0 +1,48 @@
+:title: Security STS Server
+:id: ddf.security.sts
+:type: table
+:status: published
+:application: ${ddf-security}
+:summary: STS configurations.
+
+.[[ddf.security.sts]]Security STS Server
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|SAML Assertion Lifetime
+|lifetime
+|Long
+|Set the number of seconds that an issued SAML assertion will be good for.
+|1800
+|true
+
+|Token Issuer
+|issuer
+|String
+|The name of the server issuing tokens. Generally this is the cn or hostname of this machine on the network.
+|${variable-prefix}org.codice.ddf.system.hostname}
+|true
+
+|Signature Username
+|signatureUsername
+|String
+|Alias of the private key in the STS Server's keystore used to sign messages.
+|${variable-prefix}org.codice.ddf.system.hostname}
+|true
+
+|Encryption Username
+|encryptionUsername
+|String
+|Alias of the private key in the STS Server's keystore used to encrypt messages.
+|${variable-prefix}org.codice.ddf.system.hostname}
+|true
+
+|===
+

@@ -1,0 +1,82 @@
+:title: Landing Page
+:id: org.codice.ddf.distribution.landingpage.properties
+:type: table
+:status: published
+:application: ${ddf-platform}
+:summary: Starting page for users to interact with ${branding}.
+
+.[[org.codice.ddf.distribution.landingpage.properties]]Landing Page
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Description
+|description
+|String
+|Specifies the description to display on the landing page.
+|As a common data layer, ${branding} provides secure enterprise-wide data access for both users and systems.
+|true
+
+|Phone Number
+|phone
+|String
+|Specifies the phone number to display on the landing page.
+|
+|true
+
+|Email Address
+|email
+|String
+|Specifies the email address to display on the landing page.
+|
+|true
+
+|External Web Site
+|externalUrl
+|String
+|Specifies the external web site URL to display on the landing page.
+|
+|true
+
+|Announcements
+|announcements
+|String
+|Announcements that will be displayed on the landing page.
+|null
+|true
+
+|Branding Background
+|background
+|String
+|Specifies the landing page background color. Use html css colors or #rrggbb.
+|
+|true
+
+|Branding Foreground
+|foreground
+|String
+|Specifies the landing page foreground color. Use html css colors or #rrggbb.
+|
+|true
+
+|Branding Logo
+|logo
+|String
+|Specifies the landing page logo. Use a base64 encoded image.
+|
+|true
+
+|Additional Links
+|links
+|String
+|Additional links to be displayed on the landing page. Use the format <text>,<link> (e.g. `example`, `http://www.example.com`). Empty entries are ignored.
+|
+|yes
+|===
+

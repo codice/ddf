@@ -1,0 +1,27 @@
+:title: Security STS Guest Claims Handler
+:id: ddf.security.sts.guestclaims
+:status: published
+:type: table
+:application: ${ddf-security}
+:summary: Guest Claims Handler configurations.
+
+.[[ddf.security.sts.guestclaims]]Security STS Guest Claims Handler
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Attributes
+|attributes
+|String
+|The attributes to be returned for any Guest user.
+|http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier=guest,http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest
+|true
+
+|===
+

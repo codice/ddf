@@ -20,7 +20,7 @@ Confluence Source has been tested against the following versions of Confluence w
 
 ===== Installing the Confluence Federated Source
 
-The Confluence Federated Source is installed by default with a standard installation in the ${ddf-spatial} application.
+The Confluence Federated Source is installed by default with a standard installation in the ${ddf-catalog} application.
 
 Add a New Confluence Federated Source through the ${admin-console}:
 
@@ -40,7 +40,7 @@ Configure an Existing Confluence Federated Source through the ${admin-console}:
 . Select the *Sources* tab.
 . Select the name of the source to edit.
 
-include::{adoc-include}/_tables/Confluence_Federated_Source-table-contents.adoc[]
+See <<Confluence_Federated_Source, Confluence Federated Source configurations>> for all possible configurations.
 
 ===== Usage Limitations of the Confluence Federated Source
 

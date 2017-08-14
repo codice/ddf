@@ -1,0 +1,40 @@
+:title: Platform Command Scheduler
+:id: ddf.platform.scheduler.Command
+:type: table
+:status: published
+:application: ${ddf-platform}
+:summary: Platform Command Scheduler.
+
+.[[ddf.platform.scheduler.Command]]Platform Command Scheduler
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+|Name
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+
+|Command
+|command
+|String
+|Shell command to be used within the container. For example, log:set DEBUG">
+|
+|true
+
+|Interval
+|intervalString
+|String
+|The Interval String for each execution. Based on the Interval Type, this will either be a Cron String or a Second Interval. (e.x. '0 0 0 1/1 * ? *' or '12')
+|
+|true
+
+|Interval Type
+|intervalType
+|String
+|Interval Type
+|cronString
+|true
+
+|===

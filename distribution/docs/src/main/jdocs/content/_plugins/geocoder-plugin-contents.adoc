@@ -30,4 +30,4 @@ To configure the GeoCoder Plugin:
 
 These are the available configurations:
 
-include::{adoc-include}/_tables/org.codice.ddf.spatial.geocoding.plugin.GeoCoderPlugin-table-contents.adoc[]
+See <<org.codice.ddf.spatial.geocoding.plugin.GeoCoderPlugin,GeoCoder Plugin configurations>> for all possible configurations.

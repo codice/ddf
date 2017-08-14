@@ -1,0 +1,46 @@
+:title: Email Service
+:id: org.codice.ddf.platform.email.impl.SmtpClientImpl
+:type: table
+:status: published
+:application: ${ddf-platform}
+:summary: Email Service configurations.
+
+.[[org.codice.ddf.platform.email.impl.SmtpClientImpl]]Email Service
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+|Name
+|Property
+|Type
+|Description
+|Default Value
+|Required
+
+|Host
+|hostName
+|String
+|Mail server hostname (must be resolvable by DNS) or IP address.
+|
+|Yes
+
+|Port
+|portNumber
+|Integer
+|Mail server port number.
+|25
+|Yes
+
+|User Name
+|userName
+|String
+|Mail server user name used only for authenticated connections over TLS.
+|
+|No
+
+|Password
+|password
+|Password
+|Mail server password used only for authenticated connections over TLS.
+|
+|No
+
+|===

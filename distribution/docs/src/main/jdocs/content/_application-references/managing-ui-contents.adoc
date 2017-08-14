@@ -1,0 +1,18 @@
+:title: ${ddf-ui}
+:status: published
+:type: applicationReference
+:summary: Enables users to search a catalog and associated sites for content and metadata.
+:order: 12
+
+The Standard Search UI is a user interface that enables users to search a catalog and associated sites for content and metadata.
+
+====  ${ddf-ui} Prerequisites
+
+To use the ${ddf-ui} application, the following applications/features must be installed:
+
+* ${ddf-platform}
+* ${ddf-catalog}
+
+====  Installing ${ddf-ui}
+
+The ${ddf-ui} application is installed by default with a standard installation.
