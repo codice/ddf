@@ -80,7 +80,7 @@ public class ExportMigrationJavaPropertyReferencedEntryImpl
                     getAbsolutePath(),
                     getPath());
             getReport().recordJavaProperty(this);
-            return super.store();
+            return super.store(required);
         }
         return stored;
     }

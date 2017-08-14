@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -141,18 +142,19 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
                     (required ? "required " : ""),
                     absolutePath,
                     path);
-            if (absolutePathError != null) {
+            if (absolutePathError instanceof NoSuchFileException) {
                 super.stored = false; // until proven otherwise
-                if (!absolutePath.toFile()
-                        .exists()) {
-                    if (required) {
-                        recordError("does not exist", absolutePathError);
-                    } else { // optional so no warnings/errors
-                        super.stored = true;
-                    }
-                } else {
-                    recordError("cannot be read", absolutePathError);
+                // we cannot rely on file.exists() here since the path is not valid anyway
+                // relying on the exception is much safer and gives us the true story
+                if (required) {
+                    recordError("does not exist", absolutePathError);
+                } else { // optional so no warnings/errors - just skip it so treat it as successful
+                    super.stored = true;
                 }
+                return stored;
+            } else if (absolutePathError != null) {
+                super.stored = false; // until proven otherwise
+                recordError("cannot be read", absolutePathError);
                 return stored;
             }
             return store((r, os) -> {
@@ -186,7 +188,8 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
     @Override
     public Optional<ExportMigrationEntry> getPropertyReferencedEntry(String name,
             BiPredicate<MigrationReport, String> validator) {
-        Validate.notNull(name, "invalid null system property name");
+        Validate.notNull(name, "invalid null java property name");
+        Validate.notNull(validator, "invalid null validator");
         final ExportMigrationJavaPropertyReferencedEntryImpl me = properties.get(name);
 
         if (me != null) {

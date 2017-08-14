@@ -50,7 +50,7 @@ public class ExportMigrationSystemPropertyReferencedEntryImpl
                     getAbsolutePath(),
                     getPath());
             getReport().recordSystemProperty(this);
-            return super.store();
+            return super.store(required);
         }
         return stored;
     }
