@@ -63,7 +63,7 @@ define([
                         multivalued: metacardDefinitions.metacardTypes[attribute].multivalued
                     };
                 }));
-                this.children.findByModel(this.collection.get(newAttributes[0])).el.scrollIntoViewIfNeeded();
+                this.children.findByModel(this.collection.get(newAttributes[0])).el.scrollIntoView();
             }
             return newAttributes;
         },
