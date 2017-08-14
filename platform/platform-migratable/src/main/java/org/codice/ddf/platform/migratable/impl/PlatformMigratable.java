@@ -18,7 +18,6 @@ import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Optional;
 
 import org.codice.ddf.migration.ConfigurationMigratable;
 import org.codice.ddf.migration.ExportMigrationContext;
@@ -50,18 +49,20 @@ public class PlatformMigratable implements ConfigurationMigratable {
 
     private static final Path WS_SECURITY_DIR = Paths.get("etc", "ws-security");
 
-    private static final List<Path> SYSTEM_FILES = ImmutableList.of( //
+    private static final List<Path> REQUIRED_SYSTEM_FILES = ImmutableList.of(
             Paths.get("etc", "system.properties"),
+            Paths.get("etc", "startup.properties"),
+            Paths.get("etc", "custom.properties"),
+            Paths.get("etc", "config.properties"));
+
+    private static final List<Path> OPTIONAL_SYSTEM_FILES = ImmutableList.of(
             Paths.get("etc", "users.properties"),
             Paths.get("etc", "users.attributes"),
             Paths.get("etc", "pdp", "ddf-metacard-attribute-ruleset.cfg"),
             Paths.get("etc", "pdp", "ddf-user-attribute-ruleset.cfg"),
             Paths.get("etc", "org.codice.ddf.admin.applicationlist.properties"),
             Paths.get("etc", "fipsToIso.properties"),
-            Paths.get("etc", "startup.properties"),
             Paths.get("etc", "log4j2.config.xml"),
-            Paths.get("etc", "custom.properties"),
-            Paths.get("etc", "config.properties"),
             Paths.get("etc", "certs", "meta"),
             Paths.get("etc", "certs", "1"),
             Paths.get("bin", "karaf"),
@@ -100,10 +101,14 @@ public class PlatformMigratable implements ConfigurationMigratable {
 
     @Override
     public void doExport(ExportMigrationContext context) {
-        LOGGER.debug("Exporting system files...");
-        PlatformMigratable.SYSTEM_FILES.stream()
+        LOGGER.debug("Exporting required system files...");
+        PlatformMigratable.REQUIRED_SYSTEM_FILES.stream()
                 .map(context::getEntry)
                 .forEach(MigrationEntry::store);
+        LOGGER.debug("Exporting optional system files...");
+        PlatformMigratable.OPTIONAL_SYSTEM_FILES.stream()
+                .map(context::getEntry)
+                .forEach(me -> me.store(false));
         LOGGER.debug("Exporting security files from [{}]...", PlatformMigratable.WS_SECURITY_DIR);
         context.entries(PlatformMigratable.WS_SECURITY_DIR)
                 .forEach(MigrationEntry::store);
@@ -114,15 +119,19 @@ public class PlatformMigratable implements ConfigurationMigratable {
                 .ifPresent(MigrationEntry::store);
         LOGGER.debug("Exporting service wrapper config file");
         context.entries(PlatformMigratable.ETC_DIR, PlatformMigratable.SERVICE_WRAPPER_CONF_FILTER)
-                .forEach(MigrationEntry::store);
+                .forEach(me -> me.store(false));
     }
 
     @Override
     public void doImport(ImportMigrationContext context) {
-        LOGGER.debug("Importing system files...");
-        PlatformMigratable.SYSTEM_FILES.stream()
+        LOGGER.debug("Importing required system files...");
+        PlatformMigratable.REQUIRED_SYSTEM_FILES.stream()
                 .map(context::getEntry)
                 .forEach(MigrationEntry::store);
+        LOGGER.debug("Importing optional system files...");
+        PlatformMigratable.OPTIONAL_SYSTEM_FILES.stream()
+                .map(context::getEntry)
+                .forEach(me -> me.store(false));
         LOGGER.debug("Importing [{}]...", PlatformMigratable.WS_SECURITY_DIR);
         context.cleanDirectory(PlatformMigratable.WS_SECURITY_DIR);
         context.entries(PlatformMigratable.WS_SECURITY_DIR)
@@ -134,6 +143,6 @@ public class PlatformMigratable implements ConfigurationMigratable {
                 .ifPresent(MigrationEntry::store);
         LOGGER.debug("Importing service wrapper config file");
         context.entries(PlatformMigratable.ETC_DIR, PlatformMigratable.SERVICE_WRAPPER_CONF_FILTER)
-                .forEach(MigrationEntry::store);
+                .forEach(me -> me.store(false));
     }
 }
