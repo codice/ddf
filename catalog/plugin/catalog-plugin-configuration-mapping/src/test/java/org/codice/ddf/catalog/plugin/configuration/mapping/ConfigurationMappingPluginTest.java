@@ -13,6 +13,11 @@
  */
 package org.codice.ddf.catalog.plugin.configuration.mapping;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -192,5 +197,39 @@ public class ConfigurationMappingPluginTest {
                 .getValue()
                 .getAttribute(LOCATION)
                 .getValue()).equals(usaLocationExpansion[1]);
+    }
+
+    /*
+        Test that if all values get expanded when an attribute is multivalued
+     */
+    @Test
+    public void testMultiAttributeMetacardAllGetExpanded() throws Exception {
+        MetacardImpl metacard = new MetacardImpl();
+        ArrayList<String> colors = new ArrayList<>(Arrays.asList("RD", "BL", "YL"));
+        metacard.setAttribute(TITLE, colors);
+
+        CreateRequest input = new CreateRequestImpl(metacard);
+        CreateRequest output = configurationMappingPlugin.process(input);
+        assertThat(output.getMetacards()
+                .get(0)
+                .getAttribute(TITLE)
+                .getValues(), containsInAnyOrder("Red", "Blue", "Yellow"));
+    }
+
+    /*
+        Test that correct values get expanded when an attribute is multivalued
+    */
+    @Test
+    public void testMultiAttributeMetacardSomeGetExpanded() throws Exception {
+        MetacardImpl metacard = new MetacardImpl();
+        ArrayList<String> colors = new ArrayList<>(Arrays.asList("RD", "Blue", "YL", "Rainbow"));
+        metacard.setAttribute(TITLE, colors);
+
+        CreateRequest input = new CreateRequestImpl(metacard);
+        CreateRequest output = configurationMappingPlugin.process(input);
+        assertThat(output.getMetacards()
+                .get(0)
+                .getAttribute(TITLE)
+                .getValues(), containsInAnyOrder("Red", "Blue", "Yellow", "Rainbow"));
     }
 }
