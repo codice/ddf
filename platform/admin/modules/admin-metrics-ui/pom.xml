@@ -217,6 +217,9 @@
                         <_wab>src/main/webapp,${project.build.directory}/webapp,${project.build.directory}/META-INF/resources/webjars</_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package/>
+                        <Embed-Dependency>
+                            jetty-servlets
+                        </Embed-Dependency>
                         <Import-Package>
                             org.codice.ddf.ui.admin.api.module;version="[1.2.0,3.0.0)",
                             *

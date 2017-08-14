@@ -13,8 +13,9 @@
  **/
 -->
 <project
-    xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+        xmlns="http://maven.apache.org/POM/4.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>admin-modules</artifactId>
         <groupId>ddf.admin.modules</groupId>
@@ -191,9 +192,14 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
-                        <Embed-Dependency>platform-error-servlet</Embed-Dependency>
+                        <Embed-Dependency>
+                            jetty-servlets,
+                            platform-error-servlet
+                        </Embed-Dependency>
                         <Web-ContextPath>/admin/certificate</Web-ContextPath>
-                        <_wab>src/main/webapp,${project.build.directory}/webapp,${project.build.directory}/META-INF/resources/webjars</_wab>
+                        <_wab>
+                            src/main/webapp,${project.build.directory}/webapp,${project.build.directory}/META-INF/resources/webjars
+                        </_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package/>
                     </instructions>

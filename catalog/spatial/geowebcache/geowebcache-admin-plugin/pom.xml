@@ -150,6 +150,7 @@
                         <_wab>src/main/webapp,${project.build.directory}/webapp,${project.build.directory}/META-INF/resources/webjars</_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
+                            jetty-servlets,
                             platform-error-servlet
                         </Embed-Dependency>
                     </instructions>
