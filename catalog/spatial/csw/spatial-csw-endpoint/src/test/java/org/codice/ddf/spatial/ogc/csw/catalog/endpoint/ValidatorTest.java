@@ -30,6 +30,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerMana
 import org.junit.Before;
 import org.junit.Test;
 
+import ddf.catalog.transform.QueryFilterTransformer;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
 
 public class ValidatorTest {
@@ -56,6 +57,11 @@ public class ValidatorTest {
         qNameList = Arrays.asList(qname);
         transformerManager = mock(TransformerManager.class);
         validator = new Validator();
+
+        QueryFilterTransformerHelper transformerHelper = mock(QueryFilterTransformerHelper.class);
+        QueryFilterTransformer transformer = mock(QueryFilterTransformer.class);
+        when(transformerHelper.getTransformer(qname[0])).thenReturn(transformer);
+        validator.setQueryFilterTransformerHelper(transformerHelper);
     }
 
     @Test

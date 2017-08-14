@@ -106,7 +106,6 @@ import ddf.catalog.resource.impl.ResourceImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
-
 import net.opengis.cat.csw.v_2_0_2.BriefRecordType;
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.DescribeRecordResponseType;
@@ -409,9 +408,8 @@ public class CswEndpoint implements Csw {
             validator.validateTypes(query.getTypeNames(), CswConstants.VERSION_2_0_2);
             validator.validateElementNames(query);
 
-            if (query.getConstraint() != null &&
-                    query.getConstraint()
-                            .isSetFilter() && query.getConstraint()
+            if (query.getConstraint() != null && query.getConstraint()
+                    .isSetFilter() && query.getConstraint()
                     .isSetCqlText()) {
                 throw new CswException("A Csw Query can only have a Filter or CQL constraint");
             }
@@ -565,8 +563,7 @@ public class CswEndpoint implements Csw {
         for (UpdateAction updateAction : request.getUpdateActions()) {
             try {
                 numUpdated += updateRecords(updateAction);
-            } catch (CswException | FederationException | IngestException |
-                    SourceUnavailableException | UnsupportedQueryException e) {
+            } catch (CswException | FederationException | IngestException | SourceUnavailableException | UnsupportedQueryException e) {
                 LOGGER.debug("Unable to update record(s)", e);
                 throw new CswException("Unable to update record(s).",
                         CswConstants.TRANSACTION_FAILED,
@@ -581,8 +578,7 @@ public class CswEndpoint implements Csw {
         for (DeleteAction deleteAction : request.getDeleteActions()) {
             try {
                 numDeleted += deleteRecords(deleteAction);
-            } catch (CswException | FederationException | IngestException |
-                    SourceUnavailableException | UnsupportedQueryException e) {
+            } catch (CswException | FederationException | IngestException | SourceUnavailableException | UnsupportedQueryException e) {
                 LOGGER.debug("Unable to delete record(s)", e);
                 throw new CswException("Unable to delete record(s).",
                         CswConstants.TRANSACTION_FAILED,
@@ -657,7 +653,8 @@ public class CswEndpoint implements Csw {
             throws CswException, FederationException, IngestException, SourceUnavailableException,
             UnsupportedQueryException {
 
-        QueryRequest queryRequest = queryFactory.getQuery(deleteAction.getConstraint());
+        QueryRequest queryRequest = queryFactory.getQuery(deleteAction.getConstraint(),
+                deleteAction.getTypeName());
 
         queryRequest = queryFactory.updateQueryRequestTags(queryRequest,
                 schemaTransformerManager.getTransformerSchemaForId(deleteAction.getTypeName()));
@@ -708,7 +705,8 @@ public class CswEndpoint implements Csw {
             }
         } else if (updateAction.getConstraint() != null) {
             QueryConstraintType constraint = updateAction.getConstraint();
-            QueryRequest queryRequest = queryFactory.getQuery(constraint);
+            QueryRequest queryRequest = queryFactory.getQuery(constraint,
+                    updateAction.getTypeName());
 
             queryRequest = queryFactory.updateQueryRequestTags(queryRequest,
                     schemaTransformerManager.getTransformerSchemaForId(updateAction.getTypeName()));
@@ -854,7 +852,8 @@ public class CswEndpoint implements Csw {
         return namespaceUri;
     }
 
-    private DescribeRecordResponseType buildDescribeRecordResponseFromTypes(List<QName> types) throws CswException {
+    private DescribeRecordResponseType buildDescribeRecordResponseFromTypes(List<QName> types)
+            throws CswException {
 
         validator.validateFullyQualifiedTypes(types);
 

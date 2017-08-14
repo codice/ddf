@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
+import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.IOUtils;
@@ -37,7 +39,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.PropertyIsFuzzyFunction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.CswRecordMapperFilterVisitor;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.SourceIdFilterVisitor;
 import org.geotools.feature.NameImpl;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.FilterFactoryImpl;
@@ -54,7 +56,6 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import ddf.catalog.data.AttributeRegistry;
-import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
@@ -66,6 +67,7 @@ import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.catalog.transform.QueryFilterTransformer;
 import ddf.security.permission.Permissions;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
@@ -92,20 +94,15 @@ public class CswQueryFactory {
 
     private final FilterAdapter adapter;
 
-    private MetacardType metacardType;
-
     private Map<String, Set<String>> schemaToTagsMapping = new HashMap<>();
-
-    private List<MetacardType> metacardTypes;
 
     private AttributeRegistry attributeRegistry;
 
-    public CswQueryFactory(FilterBuilder filterBuilder, FilterAdapter adapter,
-            MetacardType metacardType, List<MetacardType> metacardTypes) {
+    private QueryFilterTransformerHelper queryFilterTransformerHelper;
+
+    public CswQueryFactory(FilterBuilder filterBuilder, FilterAdapter adapter) {
         this.builder = filterBuilder;
         this.adapter = adapter;
-        this.metacardType = metacardType;
-        this.metacardTypes = metacardTypes;
     }
 
     public static synchronized JAXBContext getJaxBContext() throws JAXBException {
@@ -135,8 +132,8 @@ public class CswQueryFactory {
         QueryType query = (QueryType) request.getAbstractQuery()
                 .getValue();
 
-        CswRecordMapperFilterVisitor filterVisitor = buildFilter(query.getConstraint());
-        QueryImpl frameworkQuery = new QueryImpl(filterVisitor.getVisitedFilter());
+        Filter filter = buildFilter(query.getConstraint());
+        QueryImpl frameworkQuery = new QueryImpl(filter);
         SortBy[] sortBys = buildSort(query.getSortBy());
         SortBy[] extSortBys = null;
         if (sortBys != null && sortBys.length > 0) {
@@ -154,7 +151,6 @@ public class CswQueryFactory {
             frameworkQuery.setPageSize(request.getMaxRecords()
                     .intValue());
         }
-        QueryRequest queryRequest;
         boolean isDistributed = request.getDistributedSearch() != null && (
                 request.getDistributedSearch()
                         .getHopCount()
@@ -165,29 +161,23 @@ public class CswQueryFactory {
             properties.put(EXT_SORT_BY, extSortBys);
         }
 
-        if (isDistributed && CollectionUtils.isEmpty(filterVisitor.getSourceIds())) {
-            queryRequest = new QueryRequestImpl(frameworkQuery, true, null, properties);
-        } else if (isDistributed && !CollectionUtils.isEmpty(filterVisitor.getSourceIds())) {
-            queryRequest = new QueryRequestImpl(frameworkQuery, false, filterVisitor.getSourceIds(), properties);
-        } else {
-            queryRequest = new QueryRequestImpl(frameworkQuery, false, null, properties);
-        }
-
-        return queryRequest;
+        QueryRequest queryRequest = setSourceIds(frameworkQuery, isDistributed, properties);
+        return transformQuery(queryRequest, query.getTypeNames());
     }
 
-    public QueryRequest getQuery(QueryConstraintType constraint) throws CswException {
-        Filter filter = buildFilter(constraint).getVisitedFilter();
+    public QueryRequest getQuery(QueryConstraintType constraint, String typeName)
+            throws CswException {
+        Filter filter = buildFilter(constraint);
         QueryImpl query = new QueryImpl(filter);
         query.setPageSize(-1);
 
-        return new QueryRequestImpl(query);
+        QueryRequest request = new QueryRequestImpl(query);
+
+        QName namespace = QName.valueOf(typeName);
+        return transformQuery(request, Collections.singletonList(namespace));
     }
 
-    private CswRecordMapperFilterVisitor buildFilter(QueryConstraintType constraint)
-            throws CswException {
-        CswRecordMapperFilterVisitor visitor = new CswRecordMapperFilterVisitor(metacardType,
-                metacardTypes);
+    private Filter buildFilter(QueryConstraintType constraint) throws CswException {
         Filter filter = null;
         if (constraint != null) {
             if (constraint.isSetCqlText()) {
@@ -215,15 +205,7 @@ public class CswQueryFactory {
                     null);
         }
 
-        filter = transformCustomFunctionToFilter(filter);
-
-        try {
-            visitor.setVisitedFilter((Filter) filter.accept(visitor, new FilterFactoryImpl()));
-        } catch (UnsupportedOperationException ose) {
-            throw new CswException(ose.getMessage(), CswConstants.INVALID_PARAMETER_VALUE, null);
-        }
-
-        return visitor;
+        return transformCustomFunctionToFilter(filter);
     }
 
     /**
@@ -284,10 +266,11 @@ public class CswQueryFactory {
                 continue;
             }
 
-            String name = DefaultCswRecordMap.getDefaultMetacardFieldForPrefixedString(cswSortBy.getPropertyName()
-                            .getPropertyName(),
-                    cswSortBy.getPropertyName()
-                            .getNamespaceContext());
+            String name =
+                    DefaultCswRecordMap.getDefaultMetacardFieldForPrefixedString(cswSortBy.getPropertyName()
+                                    .getPropertyName(),
+                            cswSortBy.getPropertyName()
+                                    .getNamespaceContext());
 
             PropertyName propName = new AttributeExpressionImpl(new NameImpl(name));
             SortBy sortBy = new SortByImpl(propName, cswSortBy.getSortOrder());
@@ -346,6 +329,39 @@ public class CswQueryFactory {
         return (Filter) parseJaxB(filterElement);
     }
 
+    private QueryRequest transformQuery(QueryRequest request, List<QName> typeNames) {
+        for (QName typeName : typeNames) {
+            QueryFilterTransformer transformer = queryFilterTransformerHelper.getTransformer(
+                    typeName);
+            if (transformer != null) {
+                request = transformer.transform(request, null);
+            }
+        }
+
+        return request;
+    }
+
+    private QueryRequest setSourceIds(Query query, boolean isDistributed,
+            Map<String, Serializable> properties) {
+        QueryRequest request;
+
+        SourceIdFilterVisitor sourceIdFilterVisitor = new SourceIdFilterVisitor();
+        query.accept(sourceIdFilterVisitor, new FilterFactoryImpl());
+
+        if (isDistributed && CollectionUtils.isEmpty(sourceIdFilterVisitor.getSourceIds())) {
+            request = new QueryRequestImpl(query, true, null, properties);
+        } else if (isDistributed
+                && !CollectionUtils.isEmpty(sourceIdFilterVisitor.getSourceIds())) {
+            request = new QueryRequestImpl(query,
+                    false,
+                    sourceIdFilterVisitor.getSourceIds(),
+                    properties);
+        } else {
+            request = new QueryRequestImpl(query, false, null, properties);
+        }
+        return request;
+    }
+
     public QueryRequest updateQueryRequestTags(QueryRequest queryRequest, String schema)
             throws UnsupportedQueryException {
         QueryRequest newRequest = queryRequest;
@@ -386,5 +402,10 @@ public class CswQueryFactory {
 
     public void setAttributeRegistry(AttributeRegistry attributeRegistry) {
         this.attributeRegistry = attributeRegistry;
+    }
+
+    public void setQueryFilterTransformerHelper(
+            QueryFilterTransformerHelper queryFilterTransformerHelper) {
+        this.queryFilterTransformerHelper = queryFilterTransformerHelper;
     }
 }

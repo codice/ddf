@@ -20,6 +20,7 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -39,6 +40,7 @@ import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.CswQueryFilterTransformer;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.LiteralExpressionImpl;
 import org.geotools.styling.UomOgcMapping;
@@ -98,6 +100,7 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.catalog.transform.QueryFilterTransformer;
 import net.opengis.cat.csw.v_2_0_2.DistributedSearchType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
@@ -203,8 +206,6 @@ public class CswQueryFactoryTest {
 
     private static CswQueryFactory queryFactory;
 
-    private static FilterBuilder filterBuilder = mock(FilterBuilder.class);
-
     private static Geometry polygon;
 
     private static net.opengis.gml.v_3_1_1.ObjectFactory gmlObjectFactory;
@@ -212,8 +213,6 @@ public class CswQueryFactoryTest {
     private static ObjectFactory filterObjectFactory;
 
     private static QName cswQnameOutPutSchema = new QName(CswConstants.CSW_OUTPUT_SCHEMA);
-
-    private static List<MetacardType> metacardTypeList;
 
     public static MetacardType getCswMetacardType() {
         return new MetacardTypeImpl(CswConstants.CSW_METACARD_TYPE_NAME,
@@ -235,15 +234,10 @@ public class CswQueryFactoryTest {
     public void setUp()
             throws URISyntaxException, SourceUnavailableException, UnsupportedQueryException,
             FederationException, ParseException, IngestException {
-        filterBuilder = new GeotoolsFilterBuilder();
+        FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
         FilterAdapter filterAdapter = new GeotoolsFilterAdapterImpl();
 
-        metacardTypeList = new ArrayList<>();
-
-        queryFactory = new CswQueryFactory(filterBuilder,
-                filterAdapter,
-                getCswMetacardType(),
-                metacardTypeList);
+        queryFactory = new CswQueryFactory(filterBuilder, filterAdapter);
 
         AttributeRegistry mockAttributeRegistry = mock(AttributeRegistry.class);
         when(mockAttributeRegistry.lookup(TITLE_TEST_ATTRIBUTE)).thenReturn(Optional.of(mock(
@@ -253,6 +247,14 @@ public class CswQueryFactoryTest {
         polygon = new WKTReader().read(POLYGON_STR);
         gmlObjectFactory = new net.opengis.gml.v_3_1_1.ObjectFactory();
         filterObjectFactory = new ObjectFactory();
+
+        QueryFilterTransformerHelper queryFilterTransformerHelper = mock(
+                QueryFilterTransformerHelper.class);
+        QueryFilterTransformer cswQueryFilter = new CswQueryFilterTransformer(getCswMetacardType(),
+                Collections.emptyList());
+        when(queryFilterTransformerHelper.getTransformer(any(QName.class))).thenReturn(
+                cswQueryFilter);
+        queryFactory.setQueryFilterTransformerHelper(queryFilterTransformerHelper);
     }
 
     @SuppressWarnings("unchecked")
