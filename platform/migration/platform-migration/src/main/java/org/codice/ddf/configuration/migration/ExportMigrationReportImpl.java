@@ -18,10 +18,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -55,6 +57,12 @@ public class ExportMigrationReportImpl implements MigrationReport {
     private final List<Map<String, Object>> javaProperties = new ArrayList<>(8);
 
     private final Map<String, Object> metadata;
+
+    // use for unit testing
+    ExportMigrationReportImpl() {
+        this.report = new MigrationReportImpl(MigrationOperation.EXPORT, Optional.empty());
+        this.metadata = Collections.emptyMap();
+    }
 
     public ExportMigrationReportImpl(MigrationReport report, Migratable migratable) {
         Validate.notNull(report, "invalid null report");

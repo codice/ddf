@@ -31,7 +31,7 @@ public class ImportMigrationSystemPropertyReferencedEntryImpl
                     getProperty(),
                     getAbsolutePath(),
                     getPath());
-            return super.store();
+            return super.store(required);
         }
         return stored;
     }

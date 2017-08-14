@@ -234,6 +234,8 @@ public class ConfigurationMigrationManager
         }
         report.end();
         if (report.hasErrors()) {
+            // don't leave the zip file there if the export failed
+            FileUtils.deleteQuietly(exportFile.toFile());
             report.record(new MigrationException(String.format(
                     "Failed to export all configurations to %s.",
                     exportFile)));

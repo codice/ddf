@@ -131,7 +131,7 @@ public class AbstractMigrationTest {
      * <i>Note:</i> The file will be created with the filename (no directory) as its content.
      *
      * @param dir  the directory where to create the test file
-     * @param name the name of the test path to create in the specified directory
+     * @param name the name of the test file to create in the specified directory
      * @return a path corresponding to the test file created (relativized from ${ddf.home})
      * @throws IOException if an I/O error occurs while creating the test file
      */
@@ -151,12 +151,25 @@ public class AbstractMigrationTest {
      * <p>
      * <i>Note:</i> The file will be created with the filename (no directory) as its content.
      *
-     * @param name the name of the test path to create in the specified directory
+     * @param name the name of the test file to create in the specified directory
      * @return a path corresponding to the test file created (relativized from ${ddf.home})
      * @throws IOException if an I/O error occurs while creating the test file
      */
     public Path createFile(String name) throws IOException {
         return createFile(DDF_HOME, name);
+    }
+
+    /**
+     * Creates a test file at the given path.
+     * <p>
+     * <i>Note:</i> The file will be created with the filename (no directory) as its content.
+     *
+     * @param path the path of the test file to create in the specified directory
+     * @return a path corresponding to the test file created (relativized from ${ddf.home})
+     * @throws IOException if an I/O error occurs while creating the test file
+     */
+    public Path createFile(Path path) throws IOException {
+        return createFile(path.getParent(), path.getFileName().toString());
     }
 
     /**
