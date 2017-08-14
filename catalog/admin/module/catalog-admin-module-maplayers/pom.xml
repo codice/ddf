@@ -87,9 +87,6 @@
                         <Embed-Dependency>
                             jetty-servlets
                         </Embed-Dependency>
-                        <Import-Package>
-                            *
-                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>
