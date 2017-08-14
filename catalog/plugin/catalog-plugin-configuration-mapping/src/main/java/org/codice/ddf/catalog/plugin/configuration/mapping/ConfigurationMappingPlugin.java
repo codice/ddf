@@ -80,20 +80,18 @@ public class ConfigurationMappingPlugin implements PreIngestPlugin {
 
         private Map<String, Map<String, String>> attributeRuleSet;
 
-        public AttributeRuleSet(Expansion expansion) {
+        AttributeRuleSet(Expansion expansion) {
 
             attributeRuleSet = new HashMap<>();
 
             for (Map.Entry<String, List<String[]>> attributeRules : expansion.getExpansionMap()
                     .entrySet()) {
                 Map<String, String> attributeMap = toMap(attributeRules.getValue());
-
                 attributeRuleSet.put(attributeRules.getKey(), attributeMap);
             }
         }
 
-        public void expandMetacard(Metacard metacard) {
-
+        void expandMetacard(Metacard metacard) {
             Set<String> attributeSet = metacard.getMetacardType()
                     .getAttributeDescriptors()
                     .stream()
@@ -107,22 +105,24 @@ public class ConfigurationMappingPlugin implements PreIngestPlugin {
                 Attribute metacardAttribute = metacard.getAttribute(attributeName);
 
                 if (metacardAttribute != null) {
+                    HashSet attributeValues = new HashSet<String>();
+                    attributeValues.addAll(metacardAttribute.getValues());
+                    Set expandedValues = expansionService.expand(attributeName, attributeValues);
 
-                    // expandTo holds the value that the ruleset
-                    String expandTo = getCorrespondingValue(attributeName,
-                            metacardAttribute.getValue());
-
-                    if (expandTo != null) {
-                        Attribute attributeImpl = new AttributeImpl(attributeName, expandTo);
-                        metacard.setAttribute(attributeImpl);
+                    if (expandedValues != null) {
+                        Attribute newAttribute;
+                        List<Serializable> values = new ArrayList<>();
+                        CollectionUtils.addAll(values, expandedValues.toArray());
+                        if (expandedValues.size() == 1) {
+                            newAttribute = new AttributeImpl(attributeName, values.get(0));
+                        } else {
+                            expandedValues.toArray();
+                            newAttribute = new AttributeImpl(attributeName, values);
+                        }
+                        metacard.setAttribute(newAttribute);
                     }
                 }
             }
-        }
-
-        private String getCorrespondingValue(String attributeName, Serializable currentValue) {
-            return attributeRuleSet.get(attributeName)
-                    .get(currentValue);
         }
 
         private Map<String, String> toMap(List<String[]> list) {
