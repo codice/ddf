@@ -1,0 +1,10 @@
+:title: Metadata Attributes
+:type: appendixIntro
+:status: published
+:children: Metadata Attributes, Catalog Taxonomy, All Formats Supported
+:order: 01
+:summary: Introduction to metadata attributes.
+
+${branding} extracts basic metadata from the resources ingested. Many file types and contain additional <<_format_specific_attribute_mappings,format-specific metadata attributes>>.
+A neutral <<_catalog_taxonomy,Catalog Taxonomy>> enables transformation of metadata to other formats.
+See also a <<supported_file_types,list of all formats supported>> for ingest.

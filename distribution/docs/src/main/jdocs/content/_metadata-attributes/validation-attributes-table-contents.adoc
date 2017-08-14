@@ -1,0 +1,29 @@
+﻿:title: Validation
+:type: subappendix
+:parent: Catalog Taxonomy
+:status: published
+:summary: Attributes in this group identify validation issues with the metacard and/or resource.
+
+.[[_validation_attributes_table]]Validation: Attributes in this group identify validation issues with the metacard and/or resource.
+[cols="1,2,1,1,1" options="header"]
+|===
+
+|Term
+|Definition
+|Datatype
+|Constraints
+|Example Value
+
+|validation-warnings
+|Textual description of validation warnings on the resource.
+|List of Strings
+|< 1024 characters per entry
+|
+
+|validation-errors
+|Textual description of validation errors on the resource.
+|List of Strings
+|< 1024 characters per entry
+|
+
+|===

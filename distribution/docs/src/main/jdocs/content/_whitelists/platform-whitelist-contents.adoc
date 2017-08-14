@@ -1,0 +1,36 @@
+:title: ${ddf-platform} Whitelist
+:type: appendix
+:parent: Application Whitelists
+:children: none
+:status: published
+:order: 02
+:summary: ${ddf-platform} whitelist.
+
+The following packages have been exported by the ${ddf-platform} application and are approved for use by third parties:
+
+* `ddf.action`
+* `ddf.security`
+* `ddf.security.assertion`
+* `ddf.security.common.audit`
+* `ddf.security.http`
+* `ddf.security.permission`
+* `ddf.security.policy.extension`
+* `ddf.security.principal`
+* `ddf.security.samlp`
+* `ddf.security.service`
+* `ddf.security.settings`
+* `ddf.security.sts.client.configuration`
+* `ddf.security.ws.policy`
+* `ddf.security.ws.proxy`
+* `org.codice.ddf.branding`
+* `org.codice.ddf.configuration`
+* `org.codice.ddf.configuration.admin`
+* `org.codice.ddf.configuration.migration`
+* `org.codice.ddf.configuration.persistence`
+* `org.codice.ddf.configuration.persistence.felix`
+* `org.codice.ddf.configuration.status`
+* `org.codice.ddf.notifications.store`
+* `org.codice.ddf.parser`
+* `org.codice.ddf.parser.xml`
+* `org.codice.ddf.platform.error.handler`
+* `org.codice.ddf.platform.util`

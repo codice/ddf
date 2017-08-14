@@ -1,0 +1,8 @@
+:title: Dependency List
+:type: appendixIntro
+:status: published
+:children: ${branding} Dependency List
+:order: 02
+:summary: Introduction to dependency list appendix.
+
+This list of ${branding} dependencies is automatically generated:

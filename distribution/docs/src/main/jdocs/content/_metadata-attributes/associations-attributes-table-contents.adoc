@@ -1,0 +1,36 @@
+﻿:title: Associations
+:type: subappendix
+:parent: Catalog Taxonomy
+:status: published
+:summary: Attributes in this group represent associations between products.
+
+.[[_associations_attributes_table]]Associations: Attributes in this group represent associations between products.
+[cols="1,2,1,1,1" options="header"]
+|===
+
+|Term
+|Definition
+|Datatype
+|Constraints
+|Example Value
+
+|metacard.associations.derived
+|ID of one or more metacards derived from this metacard.
+|List of Strings
+|A valid metacard ID (conventionally, a type 4 random UUID with hyphens removed).
+|70809f17782c42b8ba15747b86b50ebf
+
+|metacard.associations.related
+|ID of one or more metacards related to this metacard.
+|List of Strings
+|A valid metacard ID (conventionally, a type 4 random UUID with hyphens removed).
+|70809f17782c42b8ba15747b86b50ebf
+
+|associations.external
+|One or more URI's identifying external associated
+resources.
+|List of Strings
+|A valid URI.
+|https://infocorp.org/wikia/reference
+
+|===

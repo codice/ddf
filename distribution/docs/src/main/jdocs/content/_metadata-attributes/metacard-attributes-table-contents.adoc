@@ -1,0 +1,41 @@
+:title: Metacard
+:type: subappendix
+:parent: Catalog Taxonomy
+:status: published
+:summary: Attributes in this group describe the metacard itself.
+
+.[[_metacard_attributes_table]]Metacard: Attributes in this group describe the metacard itself.
+[cols="5" options="header"]
+|===
+|Term
+|Definition
+|Datatype
+|Constraints
+|Example Value
+
+|metacard.created
+|The creation date of the metacard.
+|Date
+| 
+|
+
+|metacard.modified
+|The modified date of the metacard.
+|Date
+| 
+| 
+
+|metacard.owner
+|The email address of the metacard owner.
+|String
+|A valid email address per RFC 5322
+| 
+ 
+|metacard-tags
+|Collections of data that go together, used for filtering.
+query results. NOTE: these are system tags. For descriptive tags, <<_topic_attributes_table,Topic Attributes>>.
+|List of Strings
+|< 1024 characters per entry
+| 
+
+|===

@@ -1,6 +1,10 @@
-
-
-This list of ${branding} dependencies is automatically generated:
+:title: Dependency List
+:type: appendix
+:status: published
+:parent: ${ddf-branding} Dependency List
+:children: none
+:order: 00
+:summary: ${ddf-branding} Dependency List.
 
 .${branding} ${project.version} Dependency List
 * antlr:antlr:jar:2.7.7
