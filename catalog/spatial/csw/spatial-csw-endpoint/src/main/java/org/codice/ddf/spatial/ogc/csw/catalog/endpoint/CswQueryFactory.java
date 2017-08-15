@@ -330,15 +330,16 @@ public class CswQueryFactory {
     }
 
     private QueryRequest transformQuery(QueryRequest request, List<QName> typeNames) {
+        QueryRequest result = request;
         for (QName typeName : typeNames) {
             QueryFilterTransformer transformer = queryFilterTransformerHelper.getTransformer(
                     typeName);
             if (transformer != null) {
-                request = transformer.transform(request, null);
+                result = transformer.transform(result, null);
             }
         }
 
-        return request;
+        return result;
     }
 
     private QueryRequest setSourceIds(Query query, boolean isDistributed,
