@@ -4,7 +4,7 @@ The Catalog Policy Plugin configures the attributes required for users to perfor
 
 ===== Installing the Catalog Policy Plugin
 
-The Catalog Policy Plugin is installed by default with a standard installation in the ${app-name} application.
+The Catalog Policy Plugin is installed by default with a standard installation in the ${ddf-catalog} application.
 
 ===== Configuring the Catalog Policy Plugin
 

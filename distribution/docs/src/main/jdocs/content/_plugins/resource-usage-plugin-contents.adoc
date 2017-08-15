@@ -10,14 +10,14 @@ The Resource Usage Plugin monitors and limits data usage, and enables cancelling
 ===== Installing the Resource Usage Plugin
 
 The Resource Usage Plugin is not installed by default with a standard installation.
-It is installed with the ${resource-management} application.
+It is installed with the ${ddf-resource-management} application.
 
 ===== Configuring the Resource Usage Plugin
 
 The Resource Usage Plugin can be configured from the ${admin-console}:
 
 . Navigate to the *${admin-console}*.
-. Select the *${resource-management}* application.
+. Select the *${ddf-resource-management}* application.
 . Select the *Configuration* tab.
 . Select *Data Usage*.
 

@@ -1,0 +1,17 @@
+:type: plugin
+:status: published
+:title: Filter Plugin
+:link: _filter_plugin
+:plugintypes: access
+:summary: Performs filtering on query responses as they pass through the framework.
+
+The Filter Plugin performs filtering on query responses as they pass through the framework.
+See <<_catalog_filtering,Catalog Filtering>> for more details.
+
+===== Installing the Filter Plugin
+
+The Filter Plugin is installed by default with a standard installation in the ${ddf-catalog} application.
+
+===== Configuring the Filter Plugin
+
+The Filter Plugin has no configurable properties.

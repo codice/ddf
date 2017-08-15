@@ -8,7 +8,7 @@ While the *Security Attributes (intersection)* field will compute the intersecti
 
 ===== Installing the XML Attribute Security Policy Plugin
 
-The XML Attribute Security Policy Plugin is installed by default with a standard installation in the ${app-name} application.
+The XML Attribute Security Policy Plugin is installed by default with a standard installation in the ${ddf-catalog} application.
 
 ===== Configuring the XML Attribute Security Policy Plugin
 
