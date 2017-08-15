@@ -5,8 +5,11 @@ import java.io.InputStream;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.annotation.Nullable;
+
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.ImportMigrationEntry;
+import org.codice.ddf.migration.MigrationEntry;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationReport;
 import org.codice.ddf.util.function.EBiConsumer;
@@ -85,16 +88,43 @@ public abstract class ImportMigrationPropertyReferencedEntryImpl extends ImportM
         return referenced.getPropertyReferencedEntry(name);
     }
 
+    public String getProperty() {
+        return property;
+    }
+
+    @Override
+    public int hashCode() {
+        return 31 * super.hashCode() + property.hashCode();
+    }
+
+    @Override
+    public boolean equals(@Nullable Object o) {
+        if (!super.equals(o)) {
+            return false;
+        } // else - they would be at least of the same class
+        final ImportMigrationPropertyReferencedEntryImpl me = (ImportMigrationPropertyReferencedEntryImpl) o;
+
+        return property.equals(me.getProperty());
+    }
+
+    @Override
+    public int compareTo(@Nullable MigrationEntry me) {
+        final int c = super.compareTo(me);
+
+        if (c != 0) {
+            return c;
+        } // else they would be at least of the same class
+        final ImportMigrationPropertyReferencedEntryImpl ime = (ImportMigrationPropertyReferencedEntryImpl)me;
+
+        return property.compareTo(ime.getProperty());
+    }
+
     /**
      * Called after the referenced migration entry is stored to register code to be invoked
      * after the migration operation completion to verify if the property value references the
      * referenced migration entry.
      */
     protected abstract void verifyPropertyAfterCompletion();
-
-    protected String getProperty() {
-        return property;
-    }
 
     private void verifyPropertyAfterCompletionOnce() {
         if (!verifierRegistered) {

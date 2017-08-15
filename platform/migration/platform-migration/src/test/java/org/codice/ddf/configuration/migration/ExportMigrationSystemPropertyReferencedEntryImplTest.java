@@ -15,12 +15,10 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
-public class ExportMigrationJavaPropertyReferencedEntryImplTest extends AbstractMigrationTest {
+public class ExportMigrationSystemPropertyReferencedEntryImplTest extends AbstractMigrationTest {
     private static final String[] DIRS = new String[] {"path", "path2"};
 
     private static final String FILENAME = "file.ext";
-
-    private static final String PROPERTIES_FILENAME = "file.properties";
 
     private static final String UNIX_NAME = "path/path2/" + FILENAME;
 
@@ -40,17 +38,13 @@ public class ExportMigrationJavaPropertyReferencedEntryImplTest extends Abstract
 
     private Path ABSOLUTE_FILE_PATH;
 
-    private Path PROPERTIES_PATH;
-
     private PathUtils PATH_UTILS;
 
-    private ExportMigrationJavaPropertyReferencedEntryImpl ENTRY;
+    private ExportMigrationSystemPropertyReferencedEntryImpl ENTRY;
 
     @Before
     public void before() throws Exception {
-        final Path path = createFile(createDirectory(DIRS), FILENAME);
-
-        PROPERTIES_PATH = createFile(path.getParent(), PROPERTIES_FILENAME);
+        createFile(createDirectory(DIRS), FILENAME);
         PATH_UTILS = new PathUtils();
         Mockito.when(CONTEXT.getPathUtils())
                 .thenReturn(PATH_UTILS);
@@ -58,8 +52,7 @@ public class ExportMigrationJavaPropertyReferencedEntryImplTest extends Abstract
                 .thenReturn(REPORT);
         Mockito.when(CONTEXT.getId())
                 .thenReturn(MIGRATABLE_ID);
-        ENTRY = new ExportMigrationJavaPropertyReferencedEntryImpl(CONTEXT,
-                PROPERTIES_PATH,
+        ENTRY = new ExportMigrationSystemPropertyReferencedEntryImpl(CONTEXT,
                 PROPERTY,
                 UNIX_NAME);
         ABSOLUTE_FILE_PATH = DDF_HOME.resolve(UNIX_NAME)
@@ -74,7 +67,6 @@ public class ExportMigrationJavaPropertyReferencedEntryImplTest extends Abstract
         Assert.assertThat(ENTRY.getFile(), Matchers.equalTo(ABSOLUTE_FILE_PATH.toFile()));
         Assert.assertThat(ENTRY.getName(), Matchers.equalTo(UNIX_NAME));
         Assert.assertThat(ENTRY.getProperty(), Matchers.equalTo(PROPERTY));
-        Assert.assertThat(ENTRY.getPropertiesPath(), Matchers.equalTo(PROPERTIES_PATH));
     }
 
     @Test
@@ -82,18 +74,9 @@ public class ExportMigrationJavaPropertyReferencedEntryImplTest extends Abstract
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("null context");
 
-        new ExportMigrationJavaPropertyReferencedEntryImpl(null,
-                PROPERTIES_PATH,
+        new ExportMigrationSystemPropertyReferencedEntryImpl(null,
                 PROPERTY,
                 UNIX_NAME);
-    }
-
-    @Test
-    public void testConstructorWithNullPropertyPath() throws Exception {
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("null properties path");
-
-        new ExportMigrationJavaPropertyReferencedEntryImpl(CONTEXT, null, PROPERTY, UNIX_NAME);
     }
 
     @Test
@@ -101,8 +84,7 @@ public class ExportMigrationJavaPropertyReferencedEntryImplTest extends Abstract
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("null property");
 
-        new ExportMigrationJavaPropertyReferencedEntryImpl(CONTEXT,
-                PROPERTIES_PATH,
+        new ExportMigrationSystemPropertyReferencedEntryImpl(CONTEXT,
                 null,
                 UNIX_NAME);
     }
@@ -112,15 +94,9 @@ public class ExportMigrationJavaPropertyReferencedEntryImplTest extends Abstract
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("null pathname");
 
-        new ExportMigrationJavaPropertyReferencedEntryImpl(CONTEXT,
-                PROPERTIES_PATH,
+        new ExportMigrationSystemPropertyReferencedEntryImpl(CONTEXT,
                 PROPERTY,
                 null);
-    }
-
-    @Test
-    public void testGetPropertiesPath() throws Exception {
-        Assert.assertThat(ENTRY.getPropertiesPath(), Matchers.equalTo(PROPERTIES_PATH));
     }
 
     @Test
@@ -129,22 +105,21 @@ public class ExportMigrationJavaPropertyReferencedEntryImplTest extends Abstract
 
         Mockito.when(CONTEXT.getReport())
                 .thenReturn(REPORT);
-        Mockito.when(REPORT.recordJavaProperty(Mockito.any()))
+        Mockito.when(REPORT.recordSystemProperty(Mockito.any()))
                 .thenReturn(REPORT);
 
         ENTRY.recordEntry();
 
         Mockito.verify(REPORT)
-                .recordJavaProperty(Mockito.same(ENTRY));
+                .recordSystemProperty(Mockito.same(ENTRY));
     }
 
     @Test
     public void testToDebugString() throws Exception {
         final String debug = ENTRY.toDebugString();
 
-        Assert.assertThat(debug, Matchers.containsString("Java property"));
+        Assert.assertThat(debug, Matchers.containsString("system property"));
         Assert.assertThat(debug, Matchers.containsString("[" + PROPERTY + "]"));
-        Assert.assertThat(debug, Matchers.containsString("[" + PROPERTIES_PATH + "]"));
         Assert.assertThat(debug, Matchers.containsString("[" + UNIX_NAME + "]"));
     }
 
@@ -154,7 +129,6 @@ public class ExportMigrationJavaPropertyReferencedEntryImplTest extends Abstract
         final ExportPathMigrationWarning warning = ENTRY.newWarning(REASON);
 
         Assert.assertThat(warning.getMessage(), Matchers.containsString("[" + PROPERTY + "]"));
-        Assert.assertThat(warning.getMessage(), Matchers.containsString("[" + PROPERTIES_PATH + "]"));
         Assert.assertThat(warning.getMessage(), Matchers.containsString("[" + UNIX_NAME + "]"));
         Assert.assertThat(warning.getMessage(), Matchers.containsString(REASON));
     }
@@ -166,7 +140,6 @@ public class ExportMigrationJavaPropertyReferencedEntryImplTest extends Abstract
         final ExportPathMigrationException error = ENTRY.newError(REASON, CAUSE);
 
         Assert.assertThat(error.getMessage(), Matchers.containsString("[" + PROPERTY + "]"));
-        Assert.assertThat(error.getMessage(), Matchers.containsString("[" + PROPERTIES_PATH + "]"));
         Assert.assertThat(error.getMessage(), Matchers.containsString("[" + UNIX_NAME + "]"));
         Assert.assertThat(error.getMessage(), Matchers.containsString(REASON));
         Assert.assertThat(error.getCause(), Matchers.sameInstance(CAUSE));

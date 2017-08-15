@@ -28,6 +28,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.codice.ddf.migration.ExportMigrationEntry;
 import org.codice.ddf.migration.ExportPathMigrationException;
+import org.codice.ddf.migration.ExportPathMigrationWarning;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationReport;
 import org.codice.ddf.migration.MigrationWarning;
@@ -776,5 +777,66 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
 
         Assert.assertThat(debug, Matchers.containsString("file"));
         Assert.assertThat(debug, Matchers.containsString("[" + UNIX_NAME + "]"));
+    }
+
+    @Test
+    public void testNewWarning() throws Exception {
+        final String REASON = "test reason";
+        final ExportPathMigrationWarning warning = ENTRY.newWarning(REASON);
+
+        Assert.assertThat(warning.getMessage(), Matchers.containsString("[" + UNIX_NAME + "]"));
+        Assert.assertThat(warning.getMessage(), Matchers.containsString(REASON));
+    }
+
+    @Test
+    public void testNewError() throws Exception {
+        final String REASON = "test reason";
+        final IllegalArgumentException CAUSE = new IllegalArgumentException("test cause");
+        final ExportPathMigrationException error = ENTRY.newError(REASON, CAUSE);
+
+        Assert.assertThat(error.getMessage(), Matchers.containsString("[" + UNIX_NAME + "]"));
+        Assert.assertThat(error.getMessage(), Matchers.containsString(REASON));
+        Assert.assertThat(error.getCause(), Matchers.sameInstance(CAUSE));
+    }
+
+    @Test
+    public void testEqualsWhenEquals() throws Exception {
+        final ExportMigrationEntryImpl ENTRY2 = new ExportMigrationEntryImpl(CONTEXT, FILE_PATH);
+
+        Assert.assertThat(ENTRY.equals(ENTRY2), Matchers.equalTo(true));
+    }
+
+    @Test
+    public void testEqualsWhenIdentical() throws Exception {
+        Assert.assertThat(ENTRY.equals(ENTRY), Matchers.equalTo(true));
+    }
+
+    @Test
+    public void testEqualsWithNotAnEntry() throws Exception {
+        Assert.assertThat(ENTRY.equals("test"), Matchers.equalTo(false));
+    }
+
+    @Test
+    public void testEqualsWhenContextsAreDifferent() throws Exception {
+        final ExportMigrationContextImpl CONTEXT2 =
+                Mockito.mock(ExportMigrationContextImpl.class);
+
+        Mockito.when(CONTEXT2.getPathUtils())
+                .thenReturn(PATH_UTILS);
+        Mockito.when(CONTEXT2.getReport())
+                .thenReturn(REPORT);
+        Mockito.when(CONTEXT2.getId())
+                .thenReturn(MIGRATABLE_ID);
+
+        final ExportMigrationEntryImpl ENTRY2 = new ExportMigrationEntryImpl(CONTEXT2, FILE_PATH);
+
+        Assert.assertThat(ENTRY.equals(ENTRY2), Matchers.equalTo(false));
+    }
+
+    @Test
+    public void testEqualsWhenPathsAreDifferent() throws Exception {
+        final ExportMigrationEntryImpl ENTRY2 = new ExportMigrationEntryImpl(CONTEXT, FILE_PATH.getParent());
+
+        Assert.assertThat(ENTRY.equals(ENTRY2), Matchers.equalTo(false));
     }
 }

@@ -81,7 +81,7 @@ public class MigrationEntryImplTest extends AbstractMigrationTest {
         Assert.assertThat(ENTRY.getId(), Matchers.equalTo(MIGRATABLE_ID));
     }
 
-    // cannot test equals() on mocks
+    // cannot test equals() or hashCode() on mocks, will test them via the ExportMigrationEntryImpl
 
     @Test
     public void testCompareToWhenEquals() throws Exception {
@@ -152,8 +152,17 @@ public class MigrationEntryImplTest extends AbstractMigrationTest {
     }
 
     @Test
-    public void testCompareToWithSameInstance() throws Exception {
-        Assert.assertThat(ENTRY.compareTo(ENTRY), Matchers.equalTo(0));
+    public void testCompareToWithOtherClass() throws Exception {
+        final ExportMigrationEntryImpl ENTRY2 = Mockito.mock(ExportMigrationEntryImpl.class);
+
+        Mockito.when(ENTRY2.getName())
+                .thenReturn(ENTRY_NAME);
+        Mockito.when(ENTRY2.getContext())
+                .thenReturn(CONTEXT2);
+        Mockito.when(CONTEXT2.getId())
+                .thenReturn(MIGRATABLE_ID);
+
+        Assert.assertThat(ENTRY.compareTo(ENTRY2), Matchers.greaterThan(0));
     }
 
     @Test

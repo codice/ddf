@@ -15,9 +15,12 @@ package org.codice.ddf.configuration.migration;
 
 import java.nio.file.Path;
 
+import javax.annotation.Nullable;
+
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.ExportPathMigrationException;
 import org.codice.ddf.migration.ExportPathMigrationWarning;
+import org.codice.ddf.migration.MigrationEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,6 +63,33 @@ public class ExportMigrationJavaPropertyReferencedEntryImpl
     }
 
     @Override
+    public int hashCode() {
+        return 31 * super.hashCode() + propertiesPath.hashCode();
+    }
+
+    @Override
+    public boolean equals(@Nullable Object o) {
+        if (!super.equals(o)) {
+            return false;
+        } // else - they would be at least of the same class
+        final ExportMigrationJavaPropertyReferencedEntryImpl me = (ExportMigrationJavaPropertyReferencedEntryImpl) o;
+
+        return propertiesPath.equals(me.getPropertiesPath());
+    }
+
+    @Override
+    public int compareTo(@Nullable MigrationEntry me) {
+        final int c = super.compareTo(me);
+
+        if (c != 0) {
+            return c;
+        } // else they would be at least of the same class
+        final ExportMigrationJavaPropertyReferencedEntryImpl eme = (ExportMigrationJavaPropertyReferencedEntryImpl)me;
+
+        return propertiesPath.compareTo(eme.getPropertiesPath());
+    }
+
+    @Override
     protected void recordEntry() {
         getReport().recordJavaProperty(this);
     }
@@ -74,11 +104,8 @@ public class ExportMigrationJavaPropertyReferencedEntryImpl
     }
 
     @Override
-    protected void recordWarning(String reason) {
-        getReport().record(new ExportPathMigrationWarning(propertiesPath,
-                getProperty(),
-                getPath(),
-                reason));
+    protected ExportPathMigrationWarning newWarning(String reason) {
+        return new ExportPathMigrationWarning(propertiesPath, getProperty(), getPath(), reason);
     }
 
     @Override
