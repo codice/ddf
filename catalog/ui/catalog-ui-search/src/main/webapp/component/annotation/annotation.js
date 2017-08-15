@@ -1,4 +1,3 @@
-{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,13 +9,18 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- --}}
-<div class="if-editing">
-    <textarea class="ta-enabled" id="{{cid}}" value="{{value}}"
-              placeholder="{{property.placeholder}}" name="{{property.id}}">{{value}}</textarea>
-</div>
-<div class="if-viewing">
-    <textarea class="ta-disabled" disabled id="{{cid}}" value="{{value}}"
-              placeholder="{{property.placeholder}}" name="{{property.id}}">{{value}}</textarea>
-    <button class="ta-expand"><i class="fa fa-ellipsis-h"></i></button>
-</div>
+/*global require*/
+var Backbone = require('backbone');
+
+module.exports = Backbone.Model.extend({
+    defaults: function () {
+        return {
+            id: undefined,
+            parent: undefined,
+            created: undefined,
+            modified: undefined,
+            annotation: undefined,
+            owner: undefined
+        };
+    }
+});

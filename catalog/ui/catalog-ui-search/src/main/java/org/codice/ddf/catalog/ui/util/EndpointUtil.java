@@ -26,6 +26,7 @@ import ddf.catalog.data.InjectableAttribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.impl.filter.GeoToolsFunctionFactory;
@@ -81,6 +82,7 @@ import spark.Request;
 import spark.Response;
 
 public class EndpointUtil {
+
   private static final Logger LOGGER = LoggerFactory.getLogger(EndpointUtil.class);
 
   private final List<MetacardType> metacardTypes;
@@ -155,6 +157,13 @@ public class EndpointUtil {
     Result result = queryResponse.getResults().get(0);
 
     return result.getMetacard();
+  }
+
+  public String getResponseWrapper(String responseType, Object response) {
+    Map<String, Object> result = new HashMap<>();
+    result.put("responseType", responseType);
+    result.put("response", response);
+    return getJson(result);
   }
 
   public Map<String, Result> getMetacardsByFilter(String tagFilter)
@@ -525,5 +534,49 @@ public class EndpointUtil {
           incoming);
     }
     return current;
+  }
+
+  /**
+   * Copy the attributes from a metacard to another metacard.
+   *
+   * @param sourceMetacard the source metacard
+   * @param metacardType copy all attributes represented by this metacard type
+   * @param destinationMetacard the destination metacard
+   */
+  public void copyAttributes(
+      Metacard sourceMetacard, MetacardType metacardType, Metacard destinationMetacard) {
+    metacardType
+        .getAttributeDescriptors()
+        .stream()
+        .filter(descriptor -> sourceMetacard.getAttribute(descriptor.getName()) != null)
+        .map(descriptor -> copyAttribute(descriptor, sourceMetacard))
+        .forEach(destinationMetacard::setAttribute);
+  }
+
+  private Attribute copyAttribute(AttributeDescriptor attributeDescriptor, Metacard metacard) {
+    String name = attributeDescriptor.getName();
+    if (attributeDescriptor.isMultiValued()) {
+      List<Serializable> values = new ArrayList<>(metacard.getAttribute(name).getValues());
+      return new AttributeImpl(name, values);
+    }
+    return metacard.getAttribute(name);
+  }
+
+  /**
+   * Find the workspace metacard based on the workspace identifier. If the workspsace cannot be
+   * found, then return <code>null</code>.
+   *
+   * @param workspaceId the workspace identifier
+   * @return workspace metacard
+   */
+  public Metacard findWorkspace(String workspaceId) {
+    try {
+      return getMetacard(workspaceId);
+    } catch (NotFoundException
+        | UnsupportedQueryException
+        | SourceUnavailableException
+        | FederationException e) {
+      return null;
+    }
   }
 }
