@@ -201,7 +201,13 @@
     </bean>
     <service ref="cswQueryFilterTransformer" interface="ddf.catalog.transform.QueryFilterTransformer">
         <service-properties>
-            <entry key="id" value="{http://www.opengis.net/cat/csw/2.0.2}Record"/>
+            <entry key="id">
+                <list>
+                    <value>{http://www.opengis.net/cat/csw/2.0.2}Record</value>
+                    <value>{http://www.isotc211.org/2005/gmd}MD_Metadata</value>
+                    <value>{urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0}RegistryPackage</value>
+                </list>
+            </entry>
         </service-properties>
     </service>
 

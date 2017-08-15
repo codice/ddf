@@ -14,6 +14,8 @@
 
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -34,9 +36,12 @@ public class QueryFilterTransformerHelper {
             return;
         }
 
-        QName namespace = getNamespace(reference);
+        List<QName> namespaces = getNamespaces(reference);
         QueryFilterTransformer transformer = getTransformer(reference);
-        queryFilterTransformerMap.put(namespace, transformer);
+
+        for (QName namespace : namespaces) {
+            queryFilterTransformerMap.put(namespace, transformer);
+        }
     }
 
     public void unbind(ServiceReference<QueryFilterTransformer> reference) {
@@ -44,8 +49,11 @@ public class QueryFilterTransformerHelper {
             return;
         }
 
-        QName namespace = getNamespace(reference);
-        queryFilterTransformerMap.remove(namespace);
+        List<QName> namespaces = getNamespaces(reference);
+
+        for (QName namespace : namespaces) {
+            queryFilterTransformerMap.remove(namespace);
+        }
 
         getBundleContext().ungetService(reference);
     }
@@ -54,9 +62,21 @@ public class QueryFilterTransformerHelper {
         return queryFilterTransformerMap.get(qName);
     }
 
-    private QName getNamespace(ServiceReference<QueryFilterTransformer> reference) {
-        String namespace = (String) reference.getProperty("id");
-        return QName.valueOf(namespace);
+    private List<QName> getNamespaces(ServiceReference<QueryFilterTransformer> reference) {
+        Object id = reference.getProperty("id");
+        List<QName> result = new ArrayList<>();
+        if (id instanceof List) {
+            List<String> namespaces = (List<String>) id;
+            for (String namespace : namespaces) {
+                result.add(QName.valueOf(namespace));
+            }
+        } else if (id instanceof String) {
+            result.add(QName.valueOf((String) id));
+        } else {
+            throw new IllegalArgumentException("id must be of type String or a list of Strings");
+        }
+
+        return result;
     }
 
     private QueryFilterTransformer getTransformer(
@@ -70,7 +90,7 @@ public class QueryFilterTransformerHelper {
                     "Attempted to retrieve an unregistered service: " + reference);
         }
 
-        return bundleContext.getService(reference);
+        return transformer;
     }
 
     private BundleContext getBundleContext() {
