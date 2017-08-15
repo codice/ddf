@@ -37,6 +37,11 @@
                 default="true"
                 description="If selected, this will allow clients that do not support ECP and are not browsers to fall back to PKI, BASIC, and potentially GUEST authentication, if enabled."/>
 
+        <AD
+                name="Set Assertion Consumer Service URL" id="assertionConsumerServiceURLCheck" required="true" type="Boolean"
+                default="true"
+                description="If selected, the optional parameter AssertionConsumerServiceURL will be included in the AuthnRequest.  Useful when utilizing an external IDP and DDF is containerized with a different private hostname/port than what is exposed publicly."/>
+
 
     </OCD>
 

@@ -58,11 +58,21 @@ public class IdpMetadata {
 
     private String singleLogoutLocation;
 
+    private boolean assertionConsumerServiceURLCheck = true;
+
     public void setMetadata(String metadata)
             throws WSSecurityException, XMLStreamException, SAMLException, IOException {
         MetadataConfigurationParser metadataConfigurationParser = new MetadataConfigurationParser(
                 Collections.singletonList(metadata));
         entryDescriptions = metadataConfigurationParser.getEntryDescriptions();
+    }
+
+    public void setAssertionConsumerServiceURLCheck(boolean assertionConsumerServiceURLCheck) {
+        this.assertionConsumerServiceURLCheck = assertionConsumerServiceURLCheck;
+    }
+
+    public boolean getAssertionConsumerServiceURLCheck(){
+        return this.assertionConsumerServiceURLCheck;
     }
 
     private void initSingleSignOn() {
