@@ -224,7 +224,7 @@ public class ExportMigrationContextImpl extends MigrationContextImpl
                 }
 
                 @Override
-                protected void handleIOException(IOException e) throws IOException {
+                public void handleIOException(IOException e) throws IOException {
                     throw new ExportIOException(e);
                 }
             };

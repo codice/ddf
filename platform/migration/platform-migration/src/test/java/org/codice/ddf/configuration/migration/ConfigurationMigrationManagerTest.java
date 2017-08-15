@@ -498,10 +498,9 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
             Class<? extends MigrationException> exceptionClass, String message) {
         assertThat("Report has an error message", report.hasErrors(), is(true));
         MigrationException exception = report.errors()
-                .findFirst()
-                .orElseThrow(() -> new AssertionError("There is no error in the migration report"));
+                .findFirst().get();
 
-        assertThat(exceptionClass.equals(exception.getClass()), is(true));
+        assertThat(exceptionClass, equalTo(exception.getClass()));
         assertThat(exception.getMessage()
                 .contains(message), is(true));
     }
