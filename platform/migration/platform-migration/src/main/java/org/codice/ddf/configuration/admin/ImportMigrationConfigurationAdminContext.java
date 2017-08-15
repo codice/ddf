@@ -291,7 +291,7 @@ public class ImportMigrationConfigurationAdminContext extends ProxyImportMigrati
             configuration.delete();
         } catch (IOException e) {
             getReport().record(new ImportMigrationException(String.format(
-                    "Configuration [%] cannot be deleted",
+                    "Configuration [%s] cannot be deleted",
                     configuration.getPid()), e));
         }
     }

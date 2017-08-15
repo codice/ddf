@@ -57,8 +57,6 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
 
     private final String name;
 
-    private final ZipFile zip;
-
     private final ZipEntry entry;
 
     /**
@@ -66,11 +64,9 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
      * identifier and an entry relative name.
      *
      * @param contextProvider a provider for migration contexts given a migratable id
-     * @param zip             the zip file for which we are creating an entry
      * @param ze              the zip entry for which we are creating an entry
      */
-    ImportMigrationEntryImpl(Function<String, ImportMigrationContextImpl> contextProvider,
-            ZipFile zip, ZipEntry ze) {
+    ImportMigrationEntryImpl(Function<String, ImportMigrationContextImpl> contextProvider, ZipEntry ze) {
         // we still must sanitize because there could be a mix of / and \ and Paths.get() doesn't support that
         final Path fqn = Paths.get(FilenameUtils.separatorsToSystem(ze.getName()));
         final int count = fqn.getNameCount();
@@ -87,7 +83,6 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
                 .resolveAgainstDDFHome(path);
         this.file = absolutePath.toFile();
         this.name = FilenameUtils.separatorsToUnix(path.toString());
-        this.zip = zip;
         this.entry = ze;
     }
 
@@ -104,7 +99,6 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
         this.absolutePath = context.getPathUtils()
                 .resolveAgainstDDFHome(path);
         this.file = absolutePath.toFile();
-        this.zip = null;
         this.entry = null;
     }
 
@@ -121,7 +115,6 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
         this.absolutePath = context.getPathUtils()
                 .resolveAgainstDDFHome(path);
         this.file = absolutePath.toFile();
-        this.zip = null;
         this.entry = null;
     }
 
@@ -147,7 +140,7 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
 
     @Override
     public Optional<InputStream> getInputStream() throws IOException {
-        return Optional.of(context.getInputStreamFor(entry));
+        return Optional.ofNullable(context.getInputStreamFor(entry));
     }
 
     @Override
@@ -164,7 +157,7 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
                             "was not exported"));
                 } else {
                     // it is optional so delete it as it was optional when we exported and wasn't on
-                    // disk so we want to make surewe end up without the file on disk after import
+                    // disk so we want to make sure we end up without the file on disk after import
                     LOGGER.debug("Deleting {}{}...",
                             (required ? "required " : ""),
                             toDebugString());
@@ -182,7 +175,7 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
                     (required ? "required " : ""),
                     toDebugString());
             try {
-                FileUtils.copyInputStreamToFile(is.get(), file);
+                FileUtils.copyInputStreamToFile(fis, file);
             } catch (IOException e) {
                 if (!file.canWrite()) { // make it writable and try again
                     try {
@@ -192,7 +185,7 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
                         }
                         FileUtils.copyInputStreamToFile(context.getInputStreamFor(entry), file);
                     } finally { // reset the permissions properly
-                        file.setReadable(true);
+                        file.setWritable(false);
                     }
                 }
             }

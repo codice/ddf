@@ -88,7 +88,7 @@ public class ImportMigrationManagerImpl implements Closeable {
             // add a system contexts
             contexts.put(null, new ImportMigrationContextImpl(report, zip));
             zip.stream()
-                    .map(ze -> new ImportMigrationEntryImpl(this::getContextFor, zip, ze))
+                    .map(ze -> new ImportMigrationEntryImpl(this::getContextFor, ze))
                     .forEach(me -> me.getContext()
                             .addEntry(me));
             this.metadata = retrieveMetadata();
