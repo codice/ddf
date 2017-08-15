@@ -19,6 +19,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -66,18 +67,21 @@ public class ExportMigrationManagerImpl implements Closeable {
      * Creates a new migration manager for an export operation.
      *
      * @param report      the migration report where to record warnings and errors
-     * @param exportFile  the exported zip file
-     * @param migratables a stream of all migratables in the system
+     * @param exportFile  the export zip file
+     * @param migratables a stream of all migratables in the system in ranking order
      * @throws MigrationException       if a failure occurs while generating the zip file (the error
      *                                  will not be recorded with the report)
      * @throws IllegalArgumentException if <code>report</code> is <code>null</code> or if it is not
-     *                                  for an export migration operation
+     *                                  for an export migration operation or if <code>exportFile</code>
+     *                                  or <code>migratables</code> is <code>null</code>
      */
     public ExportMigrationManagerImpl(MigrationReport report, Path exportFile,
             Stream<? extends Migratable> migratables) {
         Validate.notNull(report, "invalid null report");
         Validate.isTrue(report.getOperation() == MigrationOperation.EXPORT,
                 "invalid migration operation");
+        Validate.notNull(exportFile, "invalid null export file");
+        Validate.notNull(migratables, "invalid null migratables");
         this.report = report;
         this.exportFile = exportFile;
         try {
@@ -91,7 +95,7 @@ public class ExportMigrationManagerImpl implements Closeable {
         this.contexts = migratables.collect(Collectors.toMap(Migratable::getId,
                 m -> new ExportMigrationContextImpl(report, m, zipOutputStream),
                 ConfigurationMigrationManager.throwingMerger(),
-                LinkedHashMap::new)); // to preserved ranking order
+                LinkedHashMap::new)); // to preserved ranking order and remove duplicates
     }
 
     /**
@@ -113,7 +117,7 @@ public class ExportMigrationManagerImpl implements Closeable {
                 contexts.values()
                         .stream()
                         .map(ExportMigrationContextImpl::doExport)
-                        .collect(LinkedHashMap::new, LinkedHashMap::putAll, LinkedHashMap::putAll));
+                        .collect(LinkedHashMap::new, LinkedHashMap::putAll, LinkedHashMap::putAll)); // preserve order
         LOGGER.debug("Exported metadata: {}", metadata);
     }
 
@@ -130,5 +134,21 @@ public class ExportMigrationManagerImpl implements Closeable {
             }
             zipOutputStream.close();
         }
+    }
+
+    public MigrationReport getReport() {
+        return report;
+    }
+
+    public Path getExportFile() {
+        return exportFile;
+    }
+
+    Collection<ExportMigrationContextImpl> getContexts() {
+        return contexts.values();
+    }
+
+    Map<String, Object> getMetadata() {
+        return metadata;
     }
 }

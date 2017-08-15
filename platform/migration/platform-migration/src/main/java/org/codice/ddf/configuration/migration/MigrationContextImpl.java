@@ -254,13 +254,18 @@ public class MigrationContextImpl implements MigrationContext {
         return false;
     }
 
-    PathUtils getPathUtils() {
-        return pathUtils;
-    }
-
     protected void processMetadata(Map<String, Object> metadata) {
         this.version = JsonUtils.getStringFrom(metadata,
                 MigrationContextImpl.METADATA_VERSION,
                 true);
+    }
+
+    PathUtils getPathUtils() {
+        return pathUtils;
+    }
+
+    @Nullable
+    Migratable getMigratable() {
+        return migratable;
     }
 }

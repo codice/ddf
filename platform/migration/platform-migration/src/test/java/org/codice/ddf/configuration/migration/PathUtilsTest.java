@@ -22,9 +22,7 @@ import org.apache.commons.io.FileUtils;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 public class PathUtilsTest extends AbstractMigrationTest {
     private static final String UNIX_NAME = "path/path2/file.ext";
@@ -32,9 +30,6 @@ public class PathUtilsTest extends AbstractMigrationTest {
     private static final String WINDOWS_NAME = "path\\path2\\file.ext";
 
     private static final String MIXED_NAME = "path\\path2/file.ext";
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     private PathUtils PATH_UTILS;
 
