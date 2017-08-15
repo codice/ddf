@@ -169,14 +169,14 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
                 // we cannot rely on file.exists() here since the path is not valid anyway
                 // relying on the exception is much safer and gives us the true story
                 if (required) {
-                    recordError("does not exist", absolutePathError);
+                    getReport().record(newError("does not exist", absolutePathError));
                 } else { // optional so no warnings/errors - just skip it so treat it as successful
                     super.stored = true;
                 }
                 return stored;
             } else if (absolutePathError != null) {
                 super.stored = false; // until proven otherwise
-                recordError("cannot be read", absolutePathError);
+                getReport().record(newError("cannot be read", absolutePathError));
                 return stored;
             }
             return store((r, os) -> {
@@ -199,7 +199,7 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
             } catch (ExportIOException e) { // special case indicating the I/O error occurred while writing to the zip which would invalidate the zip so we are forced to abort
                 throw newError("failed to store", e.getCause());
             } catch (IOException e) { // here it means the error came out of reading/processing the input file/stream where it is safe to continue with the next entry, so don't abort
-                recordError("failed to store", e);
+                getReport().record(newError("failed to store", e));
             } catch (MigrationException e) {
                 throw e;
             }
@@ -277,12 +277,8 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
         return String.format("file [%s] to [%s]", absolutePath, path);
     }
 
-    protected void recordWarning(String reason) {
-        getReport().record(new ExportPathMigrationWarning(path, reason));
-    }
-
-    protected void recordError(String reason, Throwable cause) {
-        getReport().record(newError(reason, cause));
+    protected ExportPathMigrationWarning newWarning(String reason) {
+        return new ExportPathMigrationWarning(path, reason);
     }
 
     protected ExportPathMigrationException newError(String reason, Throwable cause) {
@@ -294,13 +290,13 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
 
         if (path.isAbsolute()) {
             report.recordExternal(this, false);
-            recordWarning(String.format("is outside [%s]",
+            report.record(newWarning(String.format("is outside [%s]",
                     context.getPathUtils()
-                            .getDDFHome()));
+                            .getDDFHome())));
             return false;
         } else if (Files.isSymbolicLink(absolutePath)) {
             report.recordExternal(this, true);
-            recordWarning("is a symbolic link");
+            report.record(newWarning("is a symbolic link"));
             return false;
         }
         return true;

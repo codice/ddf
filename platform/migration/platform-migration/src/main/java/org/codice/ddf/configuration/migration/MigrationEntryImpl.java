@@ -72,7 +72,9 @@ public abstract class MigrationEntryImpl implements MigrationEntry {
     public boolean equals(@Nullable Object o) {
         if (o == this) {
             return true;
-        } else if (o instanceof MigrationEntryImpl) {
+        } else if (o == null) {
+            return false;
+        } else if (getClass().equals(o.getClass())) {
             final MigrationEntryImpl me = (MigrationEntryImpl) o;
 
             return getContext().equals(me.getContext()) && getPath().equals(me.getPath());
@@ -87,7 +89,7 @@ public abstract class MigrationEntryImpl implements MigrationEntry {
         } else if (me == null) {
             return 1;
         }
-        final int c = getName().compareTo(me.getName());
+        int c = getName().compareTo(me.getName());
 
         if (c != 0) {
             return c;
@@ -100,7 +102,11 @@ public abstract class MigrationEntryImpl implements MigrationEntry {
         } else if (meid == null) {
             return 1;
         }
-        return id.compareTo(meid);
+        c = id.compareTo(meid);
+        if (c != 0) {
+            return c;
+        }
+        return getClass().getName().compareTo(me.getClass().getName());
     }
 
     @Override

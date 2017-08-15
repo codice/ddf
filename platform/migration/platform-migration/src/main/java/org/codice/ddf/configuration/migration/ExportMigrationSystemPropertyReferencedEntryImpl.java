@@ -43,8 +43,8 @@ public class ExportMigrationSystemPropertyReferencedEntryImpl
     }
 
     @Override
-    protected void recordWarning(String reason) {
-        getReport().record(new ExportPathMigrationWarning(getProperty(), getPath(), reason));
+    protected ExportPathMigrationWarning newWarning(String reason) {
+        return new ExportPathMigrationWarning(getProperty(), getPath(), reason);
     }
 
     @Override

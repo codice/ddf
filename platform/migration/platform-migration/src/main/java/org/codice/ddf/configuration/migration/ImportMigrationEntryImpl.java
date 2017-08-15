@@ -253,11 +253,6 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
         return String.format("file [%s] from [%s]", absolutePath, path);
     }
 
-    void addPropertyReferenceEntry(String name,
-            ImportMigrationJavaPropertyReferencedEntryImpl entry) {
-        properties.put(name, entry);
-    }
-
     protected boolean isMigratable() {
         final MigrationReport report = getContext().getReport();
 
@@ -272,5 +267,10 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
             return false;
         }
         return true;
+    }
+
+    void addPropertyReferenceEntry(String name,
+            ImportMigrationJavaPropertyReferencedEntryImpl entry) {
+        properties.put(name, entry);
     }
 }

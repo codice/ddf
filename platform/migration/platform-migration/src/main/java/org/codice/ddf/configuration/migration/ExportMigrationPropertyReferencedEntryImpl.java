@@ -13,7 +13,10 @@
  */
 package org.codice.ddf.configuration.migration;
 
+import javax.annotation.Nullable;
+
 import org.apache.commons.lang.Validate;
+import org.codice.ddf.migration.MigrationEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +50,34 @@ public abstract class ExportMigrationPropertyReferencedEntryImpl extends ExportM
         this.property = property;
     }
 
-    protected String getProperty() {
+    public String getProperty() {
         return property;
+    }
+
+    @Override
+    public int hashCode() {
+        return 31 * super.hashCode() + property.hashCode();
+    }
+
+    @Override
+    public boolean equals(@Nullable Object o) {
+        if (!super.equals(o)) {
+            return false;
+        } // else - they would be at least of the same class
+        final ExportMigrationPropertyReferencedEntryImpl me = (ExportMigrationPropertyReferencedEntryImpl) o;
+
+        return property.equals(me.getProperty());
+    }
+
+    @Override
+    public int compareTo(@Nullable MigrationEntry me) {
+        final int c = super.compareTo(me);
+
+        if (c != 0) {
+            return c;
+        } // else they would be at least of the same class
+        final ExportMigrationPropertyReferencedEntryImpl eme = (ExportMigrationPropertyReferencedEntryImpl)me;
+
+        return property.compareTo(eme.getProperty());
     }
 }
