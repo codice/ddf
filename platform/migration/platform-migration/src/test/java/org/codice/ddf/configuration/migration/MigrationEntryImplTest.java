@@ -17,7 +17,6 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.migration.MigrationReport;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
@@ -28,7 +27,8 @@ import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
 public class MigrationEntryImplTest extends AbstractMigrationTest {
-    private static final String ENTRY_NAME = Paths.get("path/path2/file.ext").toString();
+    private static final String ENTRY_NAME = Paths.get("path/path2/file.ext")
+            .toString();
 
     private static final Path FILE_PATH = Paths.get(ENTRY_NAME);
 
@@ -104,7 +104,7 @@ public class MigrationEntryImplTest extends AbstractMigrationTest {
     @Test
     public void testCompareToWithGreaterName() throws Exception {
         Mockito.when(ENTRY2.getName())
-                .thenReturn(StringUtils.right(ENTRY_NAME, ENTRY_NAME.length() - 1));
+                .thenReturn('a' + ENTRY_NAME);
 
         Assert.assertThat(ENTRY.compareTo(ENTRY2), Matchers.greaterThan(0));
     }
@@ -120,7 +120,7 @@ public class MigrationEntryImplTest extends AbstractMigrationTest {
     @Test
     public void testCompareToWithGreaterId() throws Exception {
         Mockito.when(CONTEXT2.getId())
-                .thenReturn(StringUtils.right(MIGRATABLE_ID, MIGRATABLE_ID.length() - 1));
+                .thenReturn('a' + MIGRATABLE_ID);
 
         Assert.assertThat(ENTRY.compareTo(ENTRY2), Matchers.greaterThan(0));
     }
@@ -168,5 +168,18 @@ public class MigrationEntryImplTest extends AbstractMigrationTest {
     @Test
     public void testCompareToWithNull() throws Exception {
         Assert.assertThat(ENTRY.compareTo(null), Matchers.greaterThan(0));
+    }
+
+    @Test
+    public void testToStringWhenEquals() throws Exception {
+        Assert.assertThat(ENTRY.toString(), Matchers.equalTo(ENTRY2.toString()));
+    }
+
+    @Test
+    public void testToStringWhenDifferent() throws Exception {
+        Mockito.when(ENTRY2.getName())
+                .thenReturn(ENTRY_NAME + '2');
+
+        Assert.assertThat(ENTRY.toString(), Matchers.not(Matchers.equalTo(ENTRY2.toString())));
     }
 }

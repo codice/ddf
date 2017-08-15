@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.configuration.migration;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringWriter;
@@ -99,15 +100,17 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
     public void before() throws Exception {
         createFile(createDirectory(DIRS), FILENAME);
         PATH_UTILS = new PathUtils();
+        ABSOLUTE_FILE_PATH = DDF_HOME.resolve(UNIX_NAME)
+                .toRealPath(LinkOption.NOFOLLOW_LINKS);
+
         Mockito.when(CONTEXT.getPathUtils())
                 .thenReturn(PATH_UTILS);
         Mockito.when(CONTEXT.getReport())
                 .thenReturn(REPORT);
         Mockito.when(CONTEXT.getId())
                 .thenReturn(MIGRATABLE_ID);
+
         ENTRY = new ExportMigrationEntryImpl(CONTEXT, FILE_PATH);
-        ABSOLUTE_FILE_PATH = DDF_HOME.resolve(UNIX_NAME)
-                .toRealPath(LinkOption.NOFOLLOW_LINKS);
     }
 
     @Test
@@ -812,6 +815,11 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
     }
 
     @Test
+    public void testEqualsWhenNull() throws Exception {
+        Assert.assertThat(ENTRY.equals(null), Matchers.equalTo(false));
+    }
+
+    @Test
     public void testEqualsWithNotAnEntry() throws Exception {
         Assert.assertThat(ENTRY.equals("test"), Matchers.equalTo(false));
     }
@@ -838,5 +846,41 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
         final ExportMigrationEntryImpl ENTRY2 = new ExportMigrationEntryImpl(CONTEXT, FILE_PATH.getParent());
 
         Assert.assertThat(ENTRY.equals(ENTRY2), Matchers.equalTo(false));
+    }
+
+    @Test
+    public void testHashCodeWhenEquals() throws Exception {
+        final ExportMigrationEntryImpl ENTRY2 = new ExportMigrationEntryImpl(CONTEXT, FILE_PATH);
+
+        Assert.assertThat(ENTRY.hashCode(), Matchers.equalTo(ENTRY2.hashCode()));
+    }
+
+    @Test
+    public void testHashCodeWhenDifferent() throws Exception {
+        final ExportMigrationEntryImpl ENTRY2 = new ExportMigrationEntryImpl(CONTEXT, FILE_PATH.getParent());
+
+        Assert.assertThat(ENTRY.hashCode(), Matchers.not(Matchers.equalTo(ENTRY2.hashCode())));
+    }
+
+    @Test
+    public void testGetLastModifiedTime() throws Exception {
+        final PathUtils PATH_UTILS = Mockito.mock(PathUtils.class);
+        final Path FILE_PATH = Mockito.mock(Path.class);
+        final File FILE = Mockito.mock(File.class);
+        final long MODIFIED = 12345L;
+
+        Mockito.when(CONTEXT.getPathUtils()).thenReturn(PATH_UTILS);
+        Mockito.when(PATH_UTILS.resolveAgainstDDFHome(FILE_PATH)).thenReturn(FILE_PATH);
+        Mockito.when(FILE_PATH.toRealPath(Mockito.any())).thenReturn(FILE_PATH);
+        Mockito.when(PATH_UTILS.relativizeFromDDFHome(FILE_PATH)).thenReturn(FILE_PATH);
+        Mockito.when(FILE_PATH.toString()).thenReturn(UNIX_NAME);
+        Mockito.when(FILE_PATH.toFile()).thenReturn(FILE);
+        Mockito.when(FILE.lastModified()).thenReturn(MODIFIED);
+
+        final ExportMigrationEntryImpl ENTRY = new ExportMigrationEntryImpl(CONTEXT, FILE_PATH);
+
+        Assert.assertThat(ENTRY.getLastModifiedTime(), Matchers.equalTo(MODIFIED));
+
+        Mockito.verify(FILE).lastModified();
     }
 }
