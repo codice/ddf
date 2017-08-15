@@ -32,7 +32,7 @@ require.config({
         backboneundo: 'Backbone.Undo/0.2.5/Backbone.Undo',
         poller: 'backbone-poller/1.1.3/backbone.poller',
         underscore: 'lodash/3.7.0/lodash.min',
-        marionette: 'marionette/2.4.7/lib/backbone.marionette.min',
+        marionette: 'marionette/2.4.5/lib/backbone.marionette.min',
         'Backbone.ModelBinder': 'backbone.modelbinder/1.1.0/Backbone.ModelBinder.min',
         collectionbinder: 'backbone.modelbinder/1.1.0/Backbone.CollectionBinder.min',
 

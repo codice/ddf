@@ -22,7 +22,7 @@ require.config({
 
         underscore: 'underscore/1.8.3/underscore-min',
 
-        'backbone.marionette': 'marionette/2.4.7/lib/backbone.marionette.min',
+        'backbone.marionette': 'marionette/2.4.5/lib/backbone.marionette.min',
 
         modelbinder: 'backbone.modelbinder/1.1.0/Backbone.ModelBinder',
 
