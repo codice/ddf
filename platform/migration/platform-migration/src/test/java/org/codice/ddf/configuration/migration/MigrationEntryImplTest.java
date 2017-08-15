@@ -17,6 +17,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.migration.MigrationReport;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
@@ -41,7 +42,8 @@ public class MigrationEntryImplTest extends AbstractMigrationTest {
     private final MigrationEntryImpl ENTRY = Mockito.mock(MigrationEntryImpl.class,
             Mockito.CALLS_REAL_METHODS);
 
-    private final MigrationContextImpl CONTEXT2 = Mockito.mock(MigrationContextImpl.class);
+    private final ExportMigrationContextImpl CONTEXT2 =
+            Mockito.mock(ExportMigrationContextImpl.class);
 
     private final MigrationEntryImpl ENTRY2 = Mockito.mock(MigrationEntryImpl.class,
             Mockito.CALLS_REAL_METHODS);
@@ -104,7 +106,7 @@ public class MigrationEntryImplTest extends AbstractMigrationTest {
     @Test
     public void testCompareToWithGreaterName() throws Exception {
         Mockito.when(ENTRY2.getName())
-                .thenReturn('a' + ENTRY_NAME);
+                .thenReturn(StringUtils.right(ENTRY_NAME, ENTRY_NAME.length() - 1));
 
         Assert.assertThat(ENTRY.compareTo(ENTRY2), Matchers.greaterThan(0));
     }
@@ -120,7 +122,7 @@ public class MigrationEntryImplTest extends AbstractMigrationTest {
     @Test
     public void testCompareToWithGreaterId() throws Exception {
         Mockito.when(CONTEXT2.getId())
-                .thenReturn('a' + MIGRATABLE_ID);
+                .thenReturn('a' + StringUtils.right(MIGRATABLE_ID, MIGRATABLE_ID.length() - 1));
 
         Assert.assertThat(ENTRY.compareTo(ENTRY2), Matchers.greaterThan(0));
     }

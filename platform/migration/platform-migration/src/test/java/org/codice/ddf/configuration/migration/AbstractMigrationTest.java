@@ -30,24 +30,38 @@ import java.util.zip.ZipInputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ArrayUtils;
+import org.codice.ddf.migration.Migratable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.Mockito;
 
 import com.google.common.base.Charsets;
 
 public class AbstractMigrationTest {
+    protected static final String MIGRATABLE_ID = "test-migratable";
+
+    protected static final String VERSION = "3.1415";
+
+    protected static final String TITLE = "Test Migratable";
+
+    protected static final String DESCRIPTION = "Exporting test data";
+
+    protected static final String ORGANIZATION = "Test Organization";
+
+    protected final Migratable MIGRATABLE = Mockito.mock(Migratable.class);
+
     /**
      * We are forced to make this a class rule since the tested code sets up DDF_HOME statically.
      */
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
 
-    public Path ROOT;
+    protected Path ROOT;
 
-    public Path DDF_HOME;
+    protected Path DDF_HOME;
 
-    public Path DDF_BIN;
+    protected Path DDF_BIN;
 
     /**
      * Retrieves all zip entries representing files from the provided byte array output stream.
@@ -245,7 +259,21 @@ public class AbstractMigrationTest {
         DDF_HOME = testFolder.newFolder("ddf")
                 .toPath()
                 .toRealPath(LinkOption.NOFOLLOW_LINKS);
+
         System.setProperty("ddf.home", DDF_HOME.toString());
+    }
+
+    public void initMigratableMock() {
+        Mockito.when(MIGRATABLE.getId())
+                .thenReturn(MIGRATABLE_ID);
+        Mockito.when(MIGRATABLE.getVersion())
+                .thenReturn(VERSION);
+        Mockito.when(MIGRATABLE.getTitle())
+                .thenReturn(TITLE);
+        Mockito.when(MIGRATABLE.getDescription())
+                .thenReturn(DESCRIPTION);
+        Mockito.when(MIGRATABLE.getOrganization())
+                .thenReturn(ORGANIZATION);
     }
 
     public static class ZipEntry extends java.util.zip.ZipEntry {

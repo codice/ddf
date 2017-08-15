@@ -30,59 +30,10 @@ import org.codice.ddf.test.util.ThrowableMatchers;
 import org.codice.ddf.util.function.ERunnable;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
-public class MigrationReportImplTest {
-    private final static String[] MESSAGE_STRINGS =
-            new String[] {"warning1", "info2", "error3", "info4", "info5", "warning6", "error7",
-                    "error8", "warning9", "warning10", "info11"};
-
-    private final static String[] POTENTIAL_WARNING_MESSAGE_STRINGS = Stream.of(MESSAGE_STRINGS)
-            .filter(m -> !m.startsWith("info"))
-            .toArray(String[]::new);
-
-    private final static String[] ERRORS = Stream.of(MESSAGE_STRINGS)
-            .filter(m -> m.startsWith("error"))
-            .toArray(String[]::new);
-
-    private final static String[] WARNINGS = Stream.of(MESSAGE_STRINGS)
-            .filter(m -> m.startsWith("warning"))
-            .toArray(String[]::new);
-
-    private final static String[] INFOS = Stream.of(MESSAGE_STRINGS)
-            .filter(m -> m.startsWith("info"))
-            .toArray(String[]::new);
-
-    private final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.EXPORT,
-            Optional.empty());
-
-    private final MigrationException[] EXCEPTIONS = new MigrationException[ERRORS.length];
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
-    @Before
-    public void before() {
-        int i = 0;
-
-        for (final String msg : MESSAGE_STRINGS) {
-            if (msg.startsWith("info")) {
-                REPORT.record(msg);
-            } else if (msg.startsWith("warning")) {
-                REPORT.record(new MigrationWarning(msg));
-            } else {
-                final MigrationException e = new MigrationException(msg);
-
-                EXCEPTIONS[i++] = e;
-                REPORT.record(e);
-            }
-        }
-    }
-
+public class MigrationReportImplTest extends AbstractMigrationReportTest {
     @Test
     public void testConstructorWithExportOperation() throws Exception {
         final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.EXPORT,
@@ -151,7 +102,7 @@ public class MigrationReportImplTest {
     }
 
     @Test
-    public void testRecordWithWithInfo() throws Exception {
+    public void testRecordWithInfo() throws Exception {
         final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT,
                 Optional.empty());
         final MigrationInformation INFO = new MigrationInformation("info");
@@ -378,7 +329,9 @@ public class MigrationReportImplTest {
     @Test
     public void testWasIOSuccessfulWithRunnableThrowingException() throws Exception {
         final IOException E = new IOException("test");
-        final ERunnable<IOException> CODE = () -> { throw E; };
+        final ERunnable<IOException> CODE = () -> {
+            throw E;
+        };
 
         thrown.expect(Matchers.sameInstance(E));
         thrown.expectMessage(Matchers.containsString(""));

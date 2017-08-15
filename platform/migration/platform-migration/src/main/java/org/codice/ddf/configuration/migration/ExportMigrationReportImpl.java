@@ -13,10 +13,7 @@
  */
 package org.codice.ddf.configuration.migration;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,8 +24,6 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
@@ -66,7 +61,7 @@ public class ExportMigrationReportImpl implements MigrationReport {
 
     public ExportMigrationReportImpl(MigrationReport report, Migratable migratable) {
         Validate.notNull(report, "invalid null report");
-        Validate.notNull(report, "invalid null migratable");
+        Validate.notNull(migratable, "invalid null migratable");
         this.report = report;
         this.metadata = ImmutableMap.of( //
                 MigrationContextImpl.METADATA_VERSION,
@@ -132,14 +127,17 @@ public class ExportMigrationReportImpl implements MigrationReport {
         return report.wasIOSuccessful(code);
     }
 
+    @Override
     public boolean hasInfos() {
         return report.hasInfos();
     }
 
+    @Override
     public boolean hasWarnings() {
         return report.hasWarnings();
     }
 
+    @Override
     public boolean hasErrors() {
         return report.hasErrors();
     }
@@ -149,43 +147,21 @@ public class ExportMigrationReportImpl implements MigrationReport {
         report.verifyCompletion();
     }
 
-    /**
-     * Retrieves the recorded metadata so far.
-     *
-     * @return metadata recorded with this report
-     */
-    Map<String, Object> getMetadata() {
-        final Map<String, Object> metadata = new LinkedHashMap<>(16);
-
-        metadata.putAll(this.metadata);
-        if (!externals.isEmpty()) {
-            metadata.put(MigrationContextImpl.METADATA_EXTERNALS, externals);
-        }
-        if (!systemProperties.isEmpty()) {
-            metadata.put(MigrationContextImpl.METADATA_SYSTEM_PROPERTIES, systemProperties);
-        }
-        if (!javaProperties.isEmpty()) {
-            metadata.put(MigrationContextImpl.METADATA_JAVA_PROPERTIES, javaProperties);
-        }
-        return metadata;
+    public MigrationReport getReport() {
+        return report;
     }
 
     ExportMigrationReportImpl recordExternal(ExportMigrationEntryImpl entry, boolean softlink) {
-        Validate.notNull(entry, "invalid null migration entry");
         final Map<String, Object> metadata = new HashMap<>(8);
-        final File file = entry.getAbsolutePath()
-                .toFile();
 
         metadata.put(MigrationEntryImpl.METADATA_NAME, entry.getName());
-        InputStream is = null;
-
         try {
-            is = new FileInputStream(file);
-            metadata.put(MigrationEntryImpl.METADATA_CHECKSUM, DigestUtils.md5Hex(is));
+            metadata.put(MigrationEntryImpl.METADATA_CHECKSUM,
+                    entry.getContext()
+                            .getPathUtils()
+                            .getChecksumFor(entry.getAbsolutePath()));
         } catch (IOException e) {
             LOGGER.info("failed to compute MD5 checksum for '" + entry.getName() + "': ", e);
-        } finally {
-            IOUtils.closeQuietly(is); // don't care about errors when closing
         }
         metadata.put(MigrationEntryImpl.METADATA_SOFTLINK, softlink);
         externals.add(metadata);
@@ -215,5 +191,26 @@ public class ExportMigrationReportImpl implements MigrationReport {
                 entry.getPropertiesPath()
                         .toString()));
         return this;
+    }
+
+    /**
+     * Retrieves the recorded metadata so far.
+     *
+     * @return metadata recorded with this report
+     */
+    Map<String, Object> getMetadata() {
+        final Map<String, Object> metadata = new LinkedHashMap<>(16);
+
+        metadata.putAll(this.metadata);
+        if (!externals.isEmpty()) {
+            metadata.put(MigrationContextImpl.METADATA_EXTERNALS, externals);
+        }
+        if (!systemProperties.isEmpty()) {
+            metadata.put(MigrationContextImpl.METADATA_SYSTEM_PROPERTIES, systemProperties);
+        }
+        if (!javaProperties.isEmpty()) {
+            metadata.put(MigrationContextImpl.METADATA_JAVA_PROPERTIES, javaProperties);
+        }
+        return metadata;
     }
 }
