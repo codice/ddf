@@ -10,9 +10,7 @@ import org.codice.ddf.migration.ExportPathMigrationWarning;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
 public class ExportMigrationSystemPropertyReferencedEntryImplTest extends AbstractMigrationTest {
@@ -32,9 +30,6 @@ public class ExportMigrationSystemPropertyReferencedEntryImplTest extends Abstra
 
     private final ExportMigrationContextImpl CONTEXT =
             Mockito.mock(ExportMigrationContextImpl.class);
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     private Path ABSOLUTE_FILE_PATH;
 

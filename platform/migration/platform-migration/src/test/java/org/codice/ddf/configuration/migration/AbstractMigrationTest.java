@@ -33,6 +33,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.codice.ddf.migration.Migratable;
 import org.junit.Before;
 import org.junit.Rule;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 
@@ -51,11 +52,11 @@ public class AbstractMigrationTest {
 
     protected final Migratable MIGRATABLE = Mockito.mock(Migratable.class);
 
-    /**
-     * We are forced to make this a class rule since the tested code sets up DDF_HOME statically.
-     */
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     protected Path ROOT;
 
@@ -265,15 +266,19 @@ public class AbstractMigrationTest {
     }
 
     public void initMigratableMock() {
-        Mockito.when(MIGRATABLE.getId())
-                .thenReturn(MIGRATABLE_ID);
-        Mockito.when(MIGRATABLE.getVersion())
+        initMigratableMock(MIGRATABLE, MIGRATABLE_ID);
+    }
+
+    public void initMigratableMock(Migratable migratable, String id) {
+        Mockito.when(migratable.getId())
+                .thenReturn(id);
+        Mockito.when(migratable.getVersion())
                 .thenReturn(VERSION);
-        Mockito.when(MIGRATABLE.getTitle())
+        Mockito.when(migratable.getTitle())
                 .thenReturn(TITLE);
-        Mockito.when(MIGRATABLE.getDescription())
+        Mockito.when(migratable.getDescription())
                 .thenReturn(DESCRIPTION);
-        Mockito.when(MIGRATABLE.getOrganization())
+        Mockito.when(migratable.getOrganization())
                 .thenReturn(ORGANIZATION);
     }
 

@@ -38,9 +38,7 @@ import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
 import com.github.npathai.hamcrestopt.OptionalMatchers;
@@ -73,9 +71,6 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
     private final ByteArrayOutputStream BAOS = new ByteArrayOutputStream();
 
     private final ZipOutputStream ZOS = new ZipOutputStream(BAOS);
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     private ExportMigrationContextImpl CONTEXT;
 

@@ -16,28 +16,18 @@ package org.codice.ddf.configuration.migration;
 import java.io.IOError;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Optional;
 
 import org.apache.commons.io.FileUtils;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
-import org.codice.ddf.migration.MigrationOperation;
-import org.codice.ddf.migration.MigrationReport;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import com.google.common.collect.ImmutableMap;
 
-public class MigrationContextImplTest extends AbstractMigrationTest {
-    private final MigrationReport REPORT = new MigrationReportImpl(MigrationOperation.EXPORT, Optional.empty());
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
+public class MigrationContextImplTest extends AbstractMigrationReportTest {
     private MigrationContextImpl CONTEXT;
 
     @Before

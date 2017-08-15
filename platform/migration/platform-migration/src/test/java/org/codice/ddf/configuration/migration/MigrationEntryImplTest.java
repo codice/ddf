@@ -22,9 +22,7 @@ import org.codice.ddf.migration.MigrationReport;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
 public class MigrationEntryImplTest extends AbstractMigrationTest {
@@ -47,9 +45,6 @@ public class MigrationEntryImplTest extends AbstractMigrationTest {
 
     private final MigrationEntryImpl ENTRY2 = Mockito.mock(MigrationEntryImpl.class,
             Mockito.CALLS_REAL_METHODS);
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     @Before
     public void before() throws Exception {

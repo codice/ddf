@@ -7,8 +7,6 @@ import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationOperation;
 import org.codice.ddf.migration.MigrationWarning;
 import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.ExpectedException;
 
 public class AbstractMigrationReportTest extends AbstractMigrationTest {
     protected final static String[] MESSAGE_STRINGS =
@@ -35,9 +33,6 @@ public class AbstractMigrationReportTest extends AbstractMigrationTest {
             Optional.empty());
 
     protected final MigrationException[] EXCEPTIONS = new MigrationException[ERRORS.length];
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     @Before
     public void baseReportBefore() {
