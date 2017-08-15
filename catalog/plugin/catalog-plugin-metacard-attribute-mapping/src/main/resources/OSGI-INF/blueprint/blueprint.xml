@@ -14,16 +14,31 @@
 <blueprint
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+        xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+        xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.2.0"
         xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
-    <reference id="expansionService" interface="ddf.security.expansion.Expansion"
-               filter="(mapping=security.metacard.attribute.mapping)"/>
+    <ext:property-placeholder/>
 
     <bean id="metacardAttributeMappingPlugin"
           class="org.codice.ddf.catalog.plugin.metacard.attribute.mapping.MetacardAttributeMappingPlugin">
-        <property name="expansionService" ref="expansionService"/>
+        <property name="expansionService" ref="customMetacardAttributeExpansion"/>
     </bean>
 
     <service ref="metacardAttributeMappingPlugin" interface="ddf.catalog.plugin.PreIngestPlugin"/>
+
+    <bean id="customMetacardAttributeExpansion" class="ddf.security.expansion.impl.StraightExpansionImpl">
+        <cm:managed-properties persistent-id="ddf.custom.metacard.attribute.mapping"
+                               update-strategy="component-managed" update-method="update"/>
+        <property name="attributeSeparator" value=" "/>
+        <property name="expansionFileName" value="${ddf.home}/etc/custom-ddf-metacard-attribute-mapping.cfg"/>
+    </bean>
+
+    <service ref="customMetacardAttributeExpansion" interface="ddf.security.expansion.Expansion"
+             ranking="3">
+        <service-properties>
+            <entry key="mapping" value="custom.metacard.attribute.mapping"/>
+        </service-properties>
+    </service>
 
 </blueprint>
