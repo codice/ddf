@@ -52,9 +52,7 @@ public class ExportMigrationSystemPropertyReferencedEntryImplTest extends Abstra
                 .thenReturn(REPORT);
         Mockito.when(CONTEXT.getId())
                 .thenReturn(MIGRATABLE_ID);
-        ENTRY = new ExportMigrationSystemPropertyReferencedEntryImpl(CONTEXT,
-                PROPERTY,
-                UNIX_NAME);
+        ENTRY = new ExportMigrationSystemPropertyReferencedEntryImpl(CONTEXT, PROPERTY, UNIX_NAME);
         ABSOLUTE_FILE_PATH = DDF_HOME.resolve(UNIX_NAME)
                 .toRealPath(LinkOption.NOFOLLOW_LINKS);
     }
@@ -74,9 +72,7 @@ public class ExportMigrationSystemPropertyReferencedEntryImplTest extends Abstra
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("null context");
 
-        new ExportMigrationSystemPropertyReferencedEntryImpl(null,
-                PROPERTY,
-                UNIX_NAME);
+        new ExportMigrationSystemPropertyReferencedEntryImpl(null, PROPERTY, UNIX_NAME);
     }
 
     @Test
@@ -84,9 +80,7 @@ public class ExportMigrationSystemPropertyReferencedEntryImplTest extends Abstra
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("null property");
 
-        new ExportMigrationSystemPropertyReferencedEntryImpl(CONTEXT,
-                null,
-                UNIX_NAME);
+        new ExportMigrationSystemPropertyReferencedEntryImpl(CONTEXT, null, UNIX_NAME);
     }
 
     @Test
@@ -94,9 +88,7 @@ public class ExportMigrationSystemPropertyReferencedEntryImplTest extends Abstra
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("null pathname");
 
-        new ExportMigrationSystemPropertyReferencedEntryImpl(CONTEXT,
-                PROPERTY,
-                null);
+        new ExportMigrationSystemPropertyReferencedEntryImpl(CONTEXT, PROPERTY, null);
     }
 
     @Test
@@ -143,5 +135,47 @@ public class ExportMigrationSystemPropertyReferencedEntryImplTest extends Abstra
         Assert.assertThat(error.getMessage(), Matchers.containsString("[" + UNIX_NAME + "]"));
         Assert.assertThat(error.getMessage(), Matchers.containsString(REASON));
         Assert.assertThat(error.getCause(), Matchers.sameInstance(CAUSE));
+    }
+
+    @Test
+    public void testEqualsWhenEquals() throws Exception {
+        final ExportMigrationSystemPropertyReferencedEntryImpl ENTRY2 =
+                new ExportMigrationSystemPropertyReferencedEntryImpl(CONTEXT, PROPERTY, UNIX_NAME);
+
+        Assert.assertThat(ENTRY.equals(ENTRY2), Matchers.equalTo(true));
+    }
+
+    @Test
+    public void testEqualsWhenIdentical() throws Exception {
+        Assert.assertThat(ENTRY.equals(ENTRY), Matchers.equalTo(true));
+    }
+
+    @Test
+    public void testEqualsWhenNull() throws Exception {
+        Assert.assertThat(ENTRY.equals(null), Matchers.equalTo(false));
+    }
+
+    @Test
+    public void testEqualsWhenPropertiesAreDifferent() throws Exception {
+        final ExportMigrationSystemPropertyReferencedEntryImpl ENTRY2 =
+                new ExportMigrationSystemPropertyReferencedEntryImpl(CONTEXT, PROPERTY + '2', UNIX_NAME);
+
+        Assert.assertThat(ENTRY.equals(ENTRY2), Matchers.equalTo(false));
+    }
+
+    @Test
+    public void testHashCodeWhenEquals() throws Exception {
+        final ExportMigrationSystemPropertyReferencedEntryImpl ENTRY2 =
+                new ExportMigrationSystemPropertyReferencedEntryImpl(CONTEXT, PROPERTY, UNIX_NAME);
+
+        Assert.assertThat(ENTRY.hashCode(), Matchers.equalTo(ENTRY2.hashCode()));
+    }
+
+    @Test
+    public void testHashCodeWhenDifferent() throws Exception {
+        final ExportMigrationSystemPropertyReferencedEntryImpl ENTRY2 =
+                new ExportMigrationSystemPropertyReferencedEntryImpl(CONTEXT, PROPERTY + '2', UNIX_NAME);
+
+        Assert.assertThat(ENTRY.hashCode(), Matchers.not(Matchers.equalTo(ENTRY2.hashCode())));
     }
 }

@@ -33,31 +33,33 @@ public class ExportMigrationPropertyReferencedEntryImplTest extends AbstractMigr
     private final ExportMigrationContextImpl CONTEXT =
             Mockito.mock(ExportMigrationContextImpl.class);
 
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
     private Path ABSOLUTE_FILE_PATH;
 
     private PathUtils PATH_UTILS;
 
     private ExportMigrationPropertyReferencedEntryImpl ENTRY;
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     @Before
     public void before() throws Exception {
         createFile(createDirectory(DIRS), FILENAME);
         PATH_UTILS = new PathUtils();
+        ABSOLUTE_FILE_PATH = DDF_HOME.resolve(UNIX_NAME)
+                .toRealPath(LinkOption.NOFOLLOW_LINKS);
+
         Mockito.when(CONTEXT.getPathUtils())
                 .thenReturn(PATH_UTILS);
         Mockito.when(CONTEXT.getReport())
                 .thenReturn(REPORT);
         Mockito.when(CONTEXT.getId())
                 .thenReturn(MIGRATABLE_ID);
+
         ENTRY = Mockito.mock(ExportMigrationPropertyReferencedEntryImpl.class,
                 Mockito.withSettings()
                         .useConstructor(CONTEXT, PROPERTY, UNIX_NAME)
                         .defaultAnswer(Answers.CALLS_REAL_METHODS));
-        ABSOLUTE_FILE_PATH = DDF_HOME.resolve(UNIX_NAME)
-                .toRealPath(LinkOption.NOFOLLOW_LINKS);
     }
 
     @Test
@@ -72,8 +74,10 @@ public class ExportMigrationPropertyReferencedEntryImplTest extends AbstractMigr
 
     @Test
     public void testConstructorWithNullContext() throws Exception {
-        thrown.expect(ThrowableMatchers.hasInitialCauseMatching(Matchers.instanceOf(IllegalArgumentException.class)));
-        thrown.expect(ThrowableMatchers.hasInitialCauseMessageMatching(Matchers.containsString("null context")));
+        thrown.expect(ThrowableMatchers.hasInitialCauseMatching(Matchers.instanceOf(
+                IllegalArgumentException.class)));
+        thrown.expect(ThrowableMatchers.hasInitialCauseMessageMatching(Matchers.containsString(
+                "null context")));
 
         Mockito.mock(ExportMigrationPropertyReferencedEntryImpl.class,
                 Mockito.withSettings()
@@ -83,8 +87,10 @@ public class ExportMigrationPropertyReferencedEntryImplTest extends AbstractMigr
 
     @Test
     public void testConstructorWithNullProperty() throws Exception {
-        thrown.expect(ThrowableMatchers.hasInitialCauseMatching(Matchers.instanceOf(IllegalArgumentException.class)));
-        thrown.expect(ThrowableMatchers.hasInitialCauseMessageMatching(Matchers.containsString("null property")));
+        thrown.expect(ThrowableMatchers.hasInitialCauseMatching(Matchers.instanceOf(
+                IllegalArgumentException.class)));
+        thrown.expect(ThrowableMatchers.hasInitialCauseMessageMatching(Matchers.containsString(
+                "null property")));
 
         Mockito.mock(ExportMigrationPropertyReferencedEntryImpl.class,
                 Mockito.withSettings()
@@ -94,8 +100,10 @@ public class ExportMigrationPropertyReferencedEntryImplTest extends AbstractMigr
 
     @Test
     public void testConstructorWithNullPathname() throws Exception {
-        thrown.expect(ThrowableMatchers.hasInitialCauseMatching(Matchers.instanceOf(IllegalArgumentException.class)));
-        thrown.expect(ThrowableMatchers.hasInitialCauseMessageMatching(Matchers.containsString("null pathname")));
+        thrown.expect(ThrowableMatchers.hasInitialCauseMatching(Matchers.instanceOf(
+                IllegalArgumentException.class)));
+        thrown.expect(ThrowableMatchers.hasInitialCauseMessageMatching(Matchers.containsString(
+                "null pathname")));
 
         Mockito.mock(ExportMigrationPropertyReferencedEntryImpl.class,
                 Mockito.withSettings()
@@ -106,5 +114,61 @@ public class ExportMigrationPropertyReferencedEntryImplTest extends AbstractMigr
     @Test
     public void testGetProperty() throws Exception {
         Assert.assertThat(ENTRY.getProperty(), Matchers.equalTo(PROPERTY));
+    }
+
+    // cannot test equals() or hashCode() on mocks, will test them via the ExportMigrationSystemPropertyReferencedEntryImpl
+
+    @Test
+    public void testCompareToWhenEquals() throws Exception {
+        final ExportMigrationPropertyReferencedEntryImpl ENTRY2 = Mockito.mock(
+                ExportMigrationPropertyReferencedEntryImpl.class,
+                Mockito.withSettings()
+                        .useConstructor(CONTEXT, PROPERTY, UNIX_NAME)
+                        .defaultAnswer(Answers.CALLS_REAL_METHODS));
+
+        Assert.assertThat(ENTRY.compareTo(ENTRY2), Matchers.equalTo(0));
+    }
+
+    @Test
+    public void testCompareToWhenIdentical() throws Exception {
+        Assert.assertThat(ENTRY.compareTo(ENTRY), Matchers.equalTo(0));
+    }
+
+    @Test
+    public void testCompareToWithNull() throws Exception {
+        Assert.assertThat(ENTRY.compareTo(null), Matchers.greaterThan(0));
+    }
+
+    @Test
+    public void testCompareToWhenSuperNotEqual() throws Exception {
+        final ExportMigrationPropertyReferencedEntryImpl ENTRY2 = Mockito.mock(
+                ExportMigrationPropertyReferencedEntryImpl.class,
+                Mockito.withSettings()
+                        .useConstructor(CONTEXT, PROPERTY, UNIX_NAME + '2')
+                        .defaultAnswer(Answers.CALLS_REAL_METHODS));
+
+        Assert.assertThat(ENTRY.compareTo(ENTRY2), Matchers.lessThan(0));
+    }
+
+    @Test
+    public void testCompareToWithLesserProperty() throws Exception {
+        final ExportMigrationPropertyReferencedEntryImpl ENTRY2 = Mockito.mock(
+                ExportMigrationPropertyReferencedEntryImpl.class,
+                Mockito.withSettings()
+                        .useConstructor(CONTEXT, PROPERTY + '2', UNIX_NAME)
+                        .defaultAnswer(Answers.CALLS_REAL_METHODS));
+
+        Assert.assertThat(ENTRY.compareTo(ENTRY2), Matchers.lessThan(0));
+    }
+
+    @Test
+    public void testCompareToWithGreaterProperty() throws Exception {
+        final ExportMigrationPropertyReferencedEntryImpl ENTRY2 = Mockito.mock(
+                ExportMigrationPropertyReferencedEntryImpl.class,
+                Mockito.withSettings()
+                        .useConstructor(CONTEXT, 'a' + PROPERTY, UNIX_NAME)
+                        .defaultAnswer(Answers.CALLS_REAL_METHODS));
+
+        Assert.assertThat(ENTRY.compareTo(ENTRY2), Matchers.greaterThan(0));
     }
 }

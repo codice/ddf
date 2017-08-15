@@ -52,18 +52,20 @@ public class ExportMigrationJavaPropertyReferencedEntryImplTest extends Abstract
 
         PROPERTIES_PATH = createFile(path.getParent(), PROPERTIES_FILENAME);
         PATH_UTILS = new PathUtils();
+        ABSOLUTE_FILE_PATH = DDF_HOME.resolve(UNIX_NAME)
+                .toRealPath(LinkOption.NOFOLLOW_LINKS);
+
         Mockito.when(CONTEXT.getPathUtils())
                 .thenReturn(PATH_UTILS);
         Mockito.when(CONTEXT.getReport())
                 .thenReturn(REPORT);
         Mockito.when(CONTEXT.getId())
                 .thenReturn(MIGRATABLE_ID);
+
         ENTRY = new ExportMigrationJavaPropertyReferencedEntryImpl(CONTEXT,
                 PROPERTIES_PATH,
                 PROPERTY,
                 UNIX_NAME);
-        ABSOLUTE_FILE_PATH = DDF_HOME.resolve(UNIX_NAME)
-                .toRealPath(LinkOption.NOFOLLOW_LINKS);
     }
 
     @Test
@@ -154,7 +156,8 @@ public class ExportMigrationJavaPropertyReferencedEntryImplTest extends Abstract
         final ExportPathMigrationWarning warning = ENTRY.newWarning(REASON);
 
         Assert.assertThat(warning.getMessage(), Matchers.containsString("[" + PROPERTY + "]"));
-        Assert.assertThat(warning.getMessage(), Matchers.containsString("[" + PROPERTIES_PATH + "]"));
+        Assert.assertThat(warning.getMessage(),
+                Matchers.containsString("[" + PROPERTIES_PATH + "]"));
         Assert.assertThat(warning.getMessage(), Matchers.containsString("[" + UNIX_NAME + "]"));
         Assert.assertThat(warning.getMessage(), Matchers.containsString(REASON));
     }
@@ -170,5 +173,113 @@ public class ExportMigrationJavaPropertyReferencedEntryImplTest extends Abstract
         Assert.assertThat(error.getMessage(), Matchers.containsString("[" + UNIX_NAME + "]"));
         Assert.assertThat(error.getMessage(), Matchers.containsString(REASON));
         Assert.assertThat(error.getCause(), Matchers.sameInstance(CAUSE));
+    }
+
+    @Test
+    public void testCompareToWhenEquals() throws Exception {
+        final ExportMigrationJavaPropertyReferencedEntryImpl ENTRY2 =
+                new ExportMigrationJavaPropertyReferencedEntryImpl(CONTEXT,
+                        PROPERTIES_PATH,
+                        PROPERTY,
+                        UNIX_NAME);
+
+        Assert.assertThat(ENTRY.compareTo(ENTRY2), Matchers.equalTo(0));
+    }
+
+    @Test
+    public void testCompareToWhenIdentical() throws Exception {
+        Assert.assertThat(ENTRY.compareTo(ENTRY), Matchers.equalTo(0));
+    }
+
+    @Test
+    public void testCompareToWithNull() throws Exception {
+        Assert.assertThat(ENTRY.compareTo(null), Matchers.greaterThan(0));
+    }
+
+    @Test
+    public void testCompareToWhenSuperNotEqual() throws Exception {
+        final ExportMigrationJavaPropertyReferencedEntryImpl ENTRY2 =
+                new ExportMigrationJavaPropertyReferencedEntryImpl(CONTEXT,
+                        PROPERTIES_PATH,
+                        PROPERTY,
+                        UNIX_NAME + '2');
+
+        Assert.assertThat(ENTRY.compareTo(ENTRY2), Matchers.lessThan(0));
+    }
+
+    @Test
+    public void testCompareToWithLesserPropertyPath() throws Exception {
+        final ExportMigrationJavaPropertyReferencedEntryImpl ENTRY2 =
+                new ExportMigrationJavaPropertyReferencedEntryImpl(CONTEXT,
+                        Paths.get(PROPERTIES_PATH.toString() + '2'),
+                        PROPERTY,
+                        UNIX_NAME);
+
+        Assert.assertThat(ENTRY.compareTo(ENTRY2), Matchers.lessThan(0));
+    }
+
+    @Test
+    public void testCompareToWithGreaterPropertyPath() throws Exception {
+        final ExportMigrationJavaPropertyReferencedEntryImpl ENTRY2 =
+                new ExportMigrationJavaPropertyReferencedEntryImpl(CONTEXT,
+                        Paths.get('a' + PROPERTIES_PATH.toString()),
+                        PROPERTY,
+                        UNIX_NAME);
+
+        Assert.assertThat(ENTRY.compareTo(ENTRY2), Matchers.greaterThan(0));
+    }
+
+    @Test
+    public void testEqualsWhenEquals() throws Exception {
+        final ExportMigrationJavaPropertyReferencedEntryImpl ENTRY2 =
+                new ExportMigrationJavaPropertyReferencedEntryImpl(CONTEXT,
+                        PROPERTIES_PATH,
+                        PROPERTY,
+                        UNIX_NAME);
+
+        Assert.assertThat(ENTRY.equals(ENTRY2), Matchers.equalTo(true));
+    }
+
+    @Test
+    public void testEqualsWhenIdentical() throws Exception {
+        Assert.assertThat(ENTRY.equals(ENTRY), Matchers.equalTo(true));
+    }
+
+    @Test
+    public void testEqualsWhenNull() throws Exception {
+        Assert.assertThat(ENTRY.equals(null), Matchers.equalTo(false));
+    }
+
+    @Test
+    public void testEqualsWhenPropertyPathsAreDifferent() throws Exception {
+        final ExportMigrationJavaPropertyReferencedEntryImpl ENTRY2 =
+                new ExportMigrationJavaPropertyReferencedEntryImpl(CONTEXT,
+                        PROPERTIES_PATH.getParent(),
+                        PROPERTY,
+                        UNIX_NAME);
+
+        Assert.assertThat(ENTRY.equals(ENTRY2), Matchers.equalTo(false));
+    }
+
+    @Test
+    public void testHashCodeWhenEquals() throws Exception {
+        final ExportMigrationJavaPropertyReferencedEntryImpl ENTRY2 =
+                new ExportMigrationJavaPropertyReferencedEntryImpl(CONTEXT,
+                        PROPERTIES_PATH,
+                        PROPERTY,
+                        UNIX_NAME);
+
+        Assert.assertThat(ENTRY.hashCode(), Matchers.equalTo(ENTRY2.hashCode()));
+    }
+
+    @Test
+    public void testHashCodeWhenDifferent() throws Exception {
+        final ExportMigrationJavaPropertyReferencedEntryImpl ENTRY2 =
+                new ExportMigrationJavaPropertyReferencedEntryImpl(CONTEXT,
+                        PROPERTIES_PATH.getParent(),
+                        PROPERTY,
+                        UNIX_NAME);
+
+        Assert.assertThat(ENTRY.hashCode(), Matchers.not(Matchers.equalTo(ENTRY2.hashCode())));
     }
 }
