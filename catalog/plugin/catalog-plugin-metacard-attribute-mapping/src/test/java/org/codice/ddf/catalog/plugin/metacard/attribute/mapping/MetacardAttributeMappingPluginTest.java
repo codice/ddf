@@ -15,6 +15,7 @@ package org.codice.ddf.catalog.plugin.metacard.attribute.mapping;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.core.Is.is;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,9 +50,9 @@ public class MetacardAttributeMappingPluginTest {
 
     private String[] yellowColorExpansion = new String[] {"YL", "Yellow"};
 
-    private String[] ddfSoftwareExpansion = new String[] {"DDF", "Distributed Data Framework"};
+    private String[] ddfSoftwareExpansion = new String[] {"DDF", "DistributedDataFramework"};
 
-    private String[] usaLocationExpansion = new String[] {"USA", "United States of America"};
+    private String[] usaLocationExpansion = new String[] {"USA", "UnitedStatesofAmerica"};
 
     @Before
     public void setUp() {
@@ -106,18 +107,18 @@ public class MetacardAttributeMappingPluginTest {
 
         CreateRequest output = metacardAttributeMappingPlugin.process(input);
 
-        assert (output.getMetacards()
+        assertThat(output.getMetacards()
                 .get(0)
                 .getAttribute(TITLE)
-                .getValue()).equals(redColorExpansion[1]);
-        assert (output.getMetacards()
+                .getValue(), is(redColorExpansion[1]));
+        assertThat(output.getMetacards()
                 .get(0)
                 .getAttribute(POINT_OF_CONTACT)
-                .getValue()).equals(ddfSoftwareExpansion[1]);
-        assert (output.getMetacards()
+                .getValue(), is(ddfSoftwareExpansion[1]));
+        assertThat(output.getMetacards()
                 .get(0)
                 .getAttribute(LOCATION)
-                .getValue()).equals(usaLocationExpansion[1]);
+                .getValue(), is(usaLocationExpansion[1]));
     }
 
     /*
@@ -128,18 +129,18 @@ public class MetacardAttributeMappingPluginTest {
         CreateRequest input = new CreateRequestImpl(Arrays.asList(metacard1, metacard2, metacard3));
         CreateRequest output = metacardAttributeMappingPlugin.process(input);
 
-        assert (output.getMetacards()
+        assertThat(output.getMetacards()
                 .get(0)
                 .getAttribute(TITLE)
-                .getValue()).equals(redColorExpansion[1]);
-        assert (output.getMetacards()
+                .getValue(), is(redColorExpansion[1]));
+        assertThat(output.getMetacards()
                 .get(1)
                 .getAttribute(TITLE)
-                .getValue()).equals(blueColorExpansion[1]);
-        assert (output.getMetacards()
+                .getValue(), is(blueColorExpansion[1]));
+        assertThat(output.getMetacards()
                 .get(2)
                 .getAttribute(TITLE)
-                .getValue()).equals(yellowColorExpansion[1]);
+                .getValue(), is(yellowColorExpansion[1]));
     }
 
     /*
@@ -154,10 +155,10 @@ public class MetacardAttributeMappingPluginTest {
         CreateRequest input = new CreateRequestImpl(Arrays.asList(metacard1));
         CreateRequest output = metacardAttributeMappingPlugin.process(input);
 
-        assert (output.getMetacards()
+        assertThat(output.getMetacards()
                 .get(0)
                 .getAttribute(TITLE)
-                .getValue()).equals(attrValue);
+                .getValue(), is(attrValue));
     }
 
     /*
@@ -169,7 +170,9 @@ public class MetacardAttributeMappingPluginTest {
         MetacardImpl metacard = new MetacardImpl();
 
         CreateRequest input = new CreateRequestImpl(Arrays.asList(metacard));
-        metacardAttributeMappingPlugin.process(input);
+        CreateRequest output = metacardAttributeMappingPlugin.process(input);
+
+        assertThat(output.getMetacards(), is(input.getMetacards()));
     }
 
     /*
@@ -181,21 +184,21 @@ public class MetacardAttributeMappingPluginTest {
         UpdateRequest input = new UpdateRequestImpl(null, metacard1);
         UpdateRequest output = metacardAttributeMappingPlugin.process(input);
 
-        assert (output.getUpdates()
+        assertThat(output.getUpdates()
                 .get(0)
                 .getValue()
                 .getAttribute(TITLE)
-                .getValue()).equals(redColorExpansion[1]);
-        assert (output.getUpdates()
+                .getValue(), is(redColorExpansion[1]));
+        assertThat(output.getUpdates()
                 .get(0)
                 .getValue()
                 .getAttribute(POINT_OF_CONTACT)
-                .getValue()).equals(ddfSoftwareExpansion[1]);
-        assert (output.getUpdates()
+                .getValue(), is(ddfSoftwareExpansion[1]));
+        assertThat(output.getUpdates()
                 .get(0)
                 .getValue()
                 .getAttribute(LOCATION)
-                .getValue()).equals(usaLocationExpansion[1]);
+                .getValue(), is(usaLocationExpansion[1]));
     }
 
     /*
