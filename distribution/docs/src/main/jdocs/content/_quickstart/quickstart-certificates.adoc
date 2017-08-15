@@ -62,6 +62,8 @@ The `CertNew` scripts:
 
 To install a certificate signed by a different Certificate Authority, see <<_managing_keystores,Managing Keystores>>.
 
+Once the certificate has been updated the system user will also need to be updated to have a username that matches the fully qualified domain name (FQDN). See <<_updating_system_users,Updating System Users>>.
+
 Finally, restart the ${branding} instance.
 Browse the ${admin-console} at \https://<FQDN>:8993/admin to test changes.
 
