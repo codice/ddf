@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -116,11 +117,12 @@ public class FilteringSolrIndex {
             SolrResourceLoader loader = new SolrResourceLoader(Paths.get(solrConfigHome.getAbsolutePath()));
             SolrCoreContainer container = new SolrCoreContainer(loader);
 
-            CoreDescriptor coreDescriptor = new CoreDescriptor(container,
+            CoreDescriptor coreDescriptor = new CoreDescriptor(coreName,
+                    solrConfig.getResourceLoader().getInstancePath(),
+                    new Properties(),
+                    true);
+            SolrCore core = new SolrCore(container,
                     coreName,
-                    solrConfig.getResourceLoader()
-                            .getInstancePath());
-            SolrCore core = new SolrCore(coreName,
                     null,
                     solrConfig,
                     indexSchema,
@@ -128,7 +130,8 @@ public class FilteringSolrIndex {
                     coreDescriptor,
                     null,
                     null,
-                    null);
+                    null,
+                    false);
 
             container.register(coreName, core, false, true);
 
