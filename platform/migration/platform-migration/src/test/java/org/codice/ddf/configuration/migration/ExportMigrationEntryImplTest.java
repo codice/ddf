@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.io.UncheckedIOException;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
@@ -50,7 +51,7 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
 
     private static final String UNIX_NAME = "path/path2/" + FILENAME;
 
-    private static final Path FILE_PATH = Paths.get(UNIX_NAME);
+    private static final Path FILE_PATH = Paths.get(FilenameUtils.separatorsToSystem(UNIX_NAME));
 
     private static final String PROPERTY_NAME = "test.property";
 
@@ -105,7 +106,7 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
                 .thenReturn(MIGRATABLE_ID);
         ENTRY = new ExportMigrationEntryImpl(CONTEXT, FILE_PATH);
         ABSOLUTE_FILE_PATH = DDF_HOME.resolve(UNIX_NAME)
-                .toRealPath();
+                .toRealPath(LinkOption.NOFOLLOW_LINKS);
     }
 
     @Test
@@ -158,7 +159,7 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(Matchers.containsString("null path"));
 
-        new ExportMigrationEntryImpl(CONTEXT, null);
+        new ExportMigrationEntryImpl(CONTEXT, (Path)null);
     }
 
     @Test
@@ -172,6 +173,33 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
         Assert.assertThat(ENTRY.getAbsolutePath(), Matchers.equalTo(FILE_PATH));
         Assert.assertThat(ENTRY.getFile(), Matchers.equalTo(FILE_PATH.toFile()));
         Assert.assertThat(ENTRY.getName(), Matchers.equalTo(UNIX_NAME));
+    }
+
+    @Test
+    public void testConstructorWithRelativePathname() throws Exception {
+        final ExportMigrationEntryImpl ENTRY = new ExportMigrationEntryImpl(CONTEXT, FILE_PATH.toString());
+
+        Assert.assertThat(ENTRY.getContext(), Matchers.sameInstance(CONTEXT));
+        Assert.assertThat(ENTRY.getPath(), Matchers.equalTo(FILE_PATH));
+        Assert.assertThat(ENTRY.getAbsolutePath(), Matchers.equalTo(ABSOLUTE_FILE_PATH));
+        Assert.assertThat(ENTRY.getFile(), Matchers.equalTo(ABSOLUTE_FILE_PATH.toFile()));
+        Assert.assertThat(ENTRY.getName(), Matchers.equalTo(UNIX_NAME));
+    }
+
+    @Test
+    public void testConstructorWithPathnameAndNullContext() throws Exception {
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage(Matchers.containsString("null context"));
+
+        new ExportMigrationEntryImpl(null, UNIX_NAME);
+    }
+
+    @Test
+    public void testConstructorWithNullPathname() throws Exception {
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage(Matchers.containsString("null pathname"));
+
+        new ExportMigrationEntryImpl(CONTEXT, (String)null);
     }
 
     @Test
@@ -264,6 +292,30 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
     }
 
     @Test
+    public void testStoreWhenRequiredAndFileIsASoftLink() throws Exception {
+        final StringWriter WRITER = new StringWriter();
+
+        final String FILENAME2 = "file2.ext";
+        final Path ABSOLUTE_FILE_PATH2 = createSoftLink(ABSOLUTE_FILE_PATH.getParent(),
+                FILENAME2,
+                ABSOLUTE_FILE_PATH);
+
+        final ExportMigrationEntryImpl ENTRY = new ExportMigrationEntryImpl(CONTEXT,
+                ABSOLUTE_FILE_PATH2);
+
+        Assert.assertThat(ENTRY.store(true), Matchers.equalTo(true));
+        Assert.assertThat(WRITER.toString(), Matchers.emptyString());
+        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(false));
+        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(true));
+        Assert.assertThat(REPORT.wasSuccessful(), Matchers.equalTo(true));
+
+        Assert.assertThat(REPORT.warnings()
+                        .map(MigrationWarning::getMessage)
+                        .toArray(String[]::new),
+                Matchers.hasItemInArray(Matchers.containsString("is a symbolic link")));
+    }
+
+    @Test
     public void testStoreWhenOptionalAndFileExist() throws Exception {
         final StringWriter WRITER = new StringWriter();
 
@@ -348,7 +400,7 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
                 .thenReturn(PATH);
         Mockito.when(PATH_UTILS.relativizeFromDDFHome(Mockito.any()))
                 .thenReturn(PATH);
-        Mockito.when(PATH.toRealPath())
+        Mockito.when(PATH.toRealPath(LinkOption.NOFOLLOW_LINKS))
                 .thenThrow(IOE);
 
         final ExportMigrationEntryImpl ENTRY = new ExportMigrationEntryImpl(CONTEXT, FILE_PATH);
@@ -592,7 +644,7 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
             throws Exception {
         final Path MIGRATABLE_PATH = testFolder.newFile("test.cfg")
                 .toPath()
-                .toRealPath();
+                .toRealPath(LinkOption.NOFOLLOW_LINKS);
         final String MIGRATABLE_NAME = MIGRATABLE_PATH.toString();
 
         storeProperty(PROPERTY_NAME,
@@ -716,5 +768,13 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
         thrown.expectMessage(Matchers.containsString("failed to load property file"));
 
         REPORT.verifyCompletion(); // to get the exception thrown out
+    }
+
+    @Test
+    public void testToDebugString() throws Exception {
+        final String debug = ENTRY.toDebugString();
+
+        Assert.assertThat(debug, Matchers.containsString("file"));
+        Assert.assertThat(debug, Matchers.containsString("[" + UNIX_NAME + "]"));
     }
 }

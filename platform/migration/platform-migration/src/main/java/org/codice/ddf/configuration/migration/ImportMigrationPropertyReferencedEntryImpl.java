@@ -56,7 +56,10 @@ public abstract class ImportMigrationPropertyReferencedEntryImpl extends ImportM
     public boolean store(boolean required) {
         if (stored == null) {
             super.stored = false; // until proven otherwise in case next line throws exception
-            if (referenced.store()) {
+            LOGGER.debug("Importing {}{}...",
+                    (required ? "required " : ""),
+                    toDebugString());
+            if (referenced.store(required)) {
                 super.stored = true;
                 verifyPropertyAfterCompletionOnce();
             }

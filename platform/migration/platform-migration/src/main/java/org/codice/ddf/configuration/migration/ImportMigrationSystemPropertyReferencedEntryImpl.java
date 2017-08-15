@@ -1,6 +1,7 @@
 package org.codice.ddf.configuration.migration;
 
 import java.io.IOException;
+import java.nio.file.LinkOption;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
@@ -23,17 +24,11 @@ public class ImportMigrationSystemPropertyReferencedEntryImpl
         super(context, metadata);
     }
 
-    @Override
-    public boolean store(boolean required) {
-        if (stored == null) {
-            LOGGER.debug("Importing {}system property reference [{}] as file [{}] from [{}]...",
-                    (required ? "required " : ""),
-                    getProperty(),
-                    getAbsolutePath(),
-                    getPath());
-            return super.store(required);
-        }
-        return stored;
+    protected String toDebugString() {
+        return String.format("system property reference [%s] as file [%s] from [%s]",
+                getProperty(),
+                getAbsolutePath(),
+                getPath());
     }
 
     @Override
@@ -41,6 +36,7 @@ public class ImportMigrationSystemPropertyReferencedEntryImpl
         final MigrationReport report = getReport();
 
         report.doAfterCompletion(r -> {
+            LOGGER.debug("Verifying {}...", toDebugString());
             final String val = System.getProperty(getProperty());
 
             if (val == null) {
@@ -53,7 +49,7 @@ public class ImportMigrationSystemPropertyReferencedEntryImpl
                         "it is empty or blank"));
             } else {
                 try {
-                    if (!getAbsolutePath().toRealPath()
+                    if (!getAbsolutePath().toRealPath(LinkOption.NOFOLLOW_LINKS)
                             .equals(getContext().getPathUtils()
                                     .resolveAgainstDDFHome(val)
                                     .toRealPath())) {

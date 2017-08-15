@@ -18,6 +18,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -214,7 +215,7 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
             throws Exception {
         final Path MIGRATABLE_PATH = testFolder.newFile("test.cfg")
                 .toPath()
-                .toRealPath();
+                .toRealPath(LinkOption.NOFOLLOW_LINKS);
         final String MIGRATABLE_NAME = MIGRATABLE_PATH.toString();
 
         System.setProperty(PROPERTY_NAME,

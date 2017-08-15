@@ -13,15 +13,11 @@
  */
 package org.codice.ddf.configuration.migration;
 
-import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.file.Path;
 
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.ExportPathMigrationException;
 import org.codice.ddf.migration.ExportPathMigrationWarning;
-import org.codice.ddf.migration.MigrationReport;
-import org.codice.ddf.util.function.EBiConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,35 +60,17 @@ public class ExportMigrationJavaPropertyReferencedEntryImpl
     }
 
     @Override
-    public OutputStream getOutputStream() throws IOException {
+    protected void recordEntry() {
         getReport().recordJavaProperty(this);
-        return super.getOutputStream();
     }
 
     @Override
-    public boolean store(boolean required) {
-        if (stored == null) {
-            LOGGER.debug(
-                    "Exporting {}Java property reference [{}] from [{}] as file [{}] to [{}]...",
-                    (required ? "required " : ""),
-                    getProperty(),
-                    propertiesPath,
-                    getAbsolutePath(),
-                    getPath());
-            getReport().recordJavaProperty(this);
-            return super.store(required);
-        }
-        return stored;
-    }
-
-    @Override
-    public boolean store(EBiConsumer<MigrationReport, OutputStream, IOException> consumer) {
-        Validate.notNull(consumer, "invalid null consumer");
-        if (stored == null) {
-            getReport().recordJavaProperty(this);
-            return super.store(consumer);
-        }
-        return stored;
+    protected String toDebugString() {
+        return String.format("Java property reference [%s] from [%s] as file [%s] to [%s]",
+                getProperty(),
+                propertiesPath,
+                getAbsolutePath(),
+                getPath());
     }
 
     @Override

@@ -21,8 +21,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -76,7 +78,7 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
      *
      * @param context the migration context associated with this entry
      * @param path    the path for this entry
-     * @throws IllegalArgumentException if <code>context</code> or <code>path </code> is <code>null</code>
+     * @throws IllegalArgumentException if <code>context</code> or <code>path</code> is <code>null</code>
      */
     protected ExportMigrationEntryImpl(ExportMigrationContextImpl context, Path path) {
         Validate.notNull(context, "invalid null context");
@@ -88,7 +90,7 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
             // make sure it is resolved against ddf.home and not the current working directory
             apath = context.getPathUtils()
                     .resolveAgainstDDFHome(path)
-                    .toRealPath();
+                    .toRealPath(LinkOption.NOFOLLOW_LINKS);
             aerror = null;
         } catch (IOException e) {
             apath = path;
@@ -102,6 +104,27 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
         this.file = apath.toFile();
         // we keep the entry name in Unix style based on our convention
         this.name = FilenameUtils.separatorsToUnix(this.path.toString());
+    }
+
+    /**
+     * Instantiates a new migration entry given a migratable context and path.
+     * <p>
+     * <i>Note:</i> In this version of the constructor, the path is either absolute or assumed to be
+     * relative to ${ddf.home}. It will also be automatically relativized to ${ddf.home}.
+     *
+     * @param context  the migration context associated with this entry
+     * @param pathname the path string for this entry
+     * @throws IllegalArgumentException if <code>context</code> or <code>pathname</code> is <code>null</code>
+     */
+    protected ExportMigrationEntryImpl(ExportMigrationContextImpl context, String pathname) {
+        this(context,
+                Paths.get(ExportMigrationEntryImpl.validateNotNull(pathname,
+                        "invalid null pathname")));
+    }
+
+    private static <T> T validateNotNull(T t, String msg) {
+        Validate.notNull(t, msg);
+        return t;
     }
 
     @Override
@@ -126,6 +149,7 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
 
     @Override
     public OutputStream getOutputStream() throws IOException {
+        recordEntry();
         try {
             return outputStream.updateAndGet(os -> (os != null) ?
                     os :
@@ -138,10 +162,8 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
     @Override
     public boolean store(boolean required) {
         if (stored == null) {
-            LOGGER.debug("Exporting {}file [{}] to [{}]...",
-                    (required ? "required " : ""),
-                    absolutePath,
-                    path);
+            LOGGER.debug("Exporting {}{}...", (required ? "required " : ""), toDebugString());
+            recordEntry();
             if (absolutePathError instanceof NoSuchFileException) {
                 super.stored = false; // until proven otherwise
                 // we cannot rely on file.exists() here since the path is not valid anyway
@@ -171,9 +193,9 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
         Validate.notNull(consumer, "invalid null consumer");
         if (stored == null) {
             super.stored = false; // until proven otherwise
+            recordEntry();
             try (final OutputStream os = getOutputStream()) {
-                super.stored = getReport().wasIOSuccessful(() -> consumer.accept(getReport(),
-                        os));
+                super.stored = getReport().wasIOSuccessful(() -> consumer.accept(getReport(), os));
             } catch (ExportIOException e) { // special case indicating the I/O error occurred while writing to the zip which would invalidate the zip so we are forced to abort
                 throw newError("failed to store", e.getCause());
             } catch (IOException e) { // here it means the error came out of reading/processing the input file/stream where it is safe to continue with the next entry, so don't abort
@@ -238,6 +260,21 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
 
     protected File getFile() {
         return file;
+    }
+
+    /**
+     * Called to record that this entry is being processed.
+     */
+    protected void recordEntry() {
+    }
+
+    /**
+     * Gets a debug string to represent this entry.
+     *
+     * @return a debug string for this entry
+     */
+    protected String toDebugString() {
+        return String.format("file [%s] to [%s]", absolutePath, path);
     }
 
     protected void recordWarning(String reason) {
