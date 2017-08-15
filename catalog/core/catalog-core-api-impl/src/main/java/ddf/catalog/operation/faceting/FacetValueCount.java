@@ -13,10 +13,19 @@
  */
 package ddf.catalog.operation.faceting;
 
+/**
+ * A simple tuple object pairing text faceting value results with their respective counts.
+ */
 public class FacetValueCount {
     private String value;
     private long count;
 
+    /**
+     * Creates a pairing from the provided value and count
+     *
+     * @param value The faceted attribute value
+     * @param count The number of occurrences of value
+     */
     FacetValueCount(String value, long count) {
         this.value = value;
         this.count = count;

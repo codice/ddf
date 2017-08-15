@@ -14,6 +14,7 @@
 package ddf.catalog.operation.faceting;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Set;
 
 public class FacetProperties implements Serializable {
@@ -24,7 +25,7 @@ public class FacetProperties implements Serializable {
 
     private static final int DEFAULT_MIN_FACET_COUNT = 0;
 
-    private Set<String> facetFields;
+    private Set<String> facetAttributes;
 
     private SortFacetsBy sortKey;
 
@@ -33,44 +34,46 @@ public class FacetProperties implements Serializable {
     private int minFacetCount;
 
     /**
-     * Creates a FacetProperties object using default parameters to facet on the provided fields.
+     * Creates a FacetProperties object using default parameters to facet on the provided attributes.
      *
-     * @param facetFields A set of fields to facet on
+     * @param facetAttributes A set of attributes to facet on
      */
-    public FacetProperties(Set<String> facetFields) {
-        this(facetFields, SortFacetsBy.COUNT);
+    public FacetProperties(Set<String> facetAttributes) {
+        this(facetAttributes, SortFacetsBy.COUNT);
     }
 
     /**
-     * Creates a FacetProperties object using default parameters to facet on the provided fields,
+     * Creates a FacetProperties object using default parameters to facet on the provided attributes,
      * returning results sorted by the provided key. Valid sortKey values are INDEX and COUNT.
      *
-     * @param facetFields A set of fields to facet on
+     * @param facetAttributes A set of fields to facet on
      * @param sortKey     The key used to sort results - INDEX or COUNT
      */
-    public FacetProperties(Set<String> facetFields, SortFacetsBy sortKey) {
-        this(facetFields, sortKey, DEFAULT_FACET_LIMIT, DEFAULT_MIN_FACET_COUNT);
+    public FacetProperties(Set<String> facetAttributes, SortFacetsBy sortKey) {
+        this(facetAttributes, sortKey, DEFAULT_FACET_LIMIT, DEFAULT_MIN_FACET_COUNT);
     }
 
     /**
      * Creates a FacetProperties object using the supplied parameters to facet on the provided
-     * fields, returning results sorted by the provided key.
+     * attributes, returning results sorted by the provided key.
      *
-     * @param facetProperties A set of fields to facet on
+     * @param facetAttributes A set of fields to facet on
      * @param sortKey         The key used to sort results - INDEX or COUNT
      * @param facetLimit      The maximum number of returned facet values (Default is 100)
      * @param minFacetCount   The minimum count required for a facet value to be included in results (Default is 0)
      */
-    public FacetProperties(Set<String> facetProperties, SortFacetsBy sortKey, int facetLimit,
+    public FacetProperties(Set<String> facetAttributes, SortFacetsBy sortKey, int facetLimit,
             int minFacetCount) {
-        this.facetFields = facetProperties;
+        this.facetAttributes = facetAttributes == null ?
+                new HashSet<>() : facetAttributes;
         this.sortKey = sortKey;
         this.facetLimit = facetLimit;
         this.minFacetCount = minFacetCount;
     }
 
-    public Set<String> getFacetFields() {
-        return facetFields;
+    public Set<String> getFacetAttributes() {
+        return new HashSet<>(facetAttributes);
+
     }
 
     public SortFacetsBy getSortKey() {

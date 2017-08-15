@@ -13,8 +13,9 @@
  */
 package ddf.catalog.source.solr;
 
-import static ddf.catalog.Constants.EXPERIMENTAL_FACET_FIELDS_KEY;
+import static ddf.catalog.Constants.EXPERIMENTAL_FACET_PROPERTIES_KEY;
 import static ddf.catalog.Constants.EXPERIMENTAL_FACET_RESULTS_KEY;
+import static ddf.catalog.source.solr.DynamicSchemaResolver.FIRST_CHAR_OF_SUFFIX;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -63,7 +64,7 @@ import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.faceting.FacetProperties;
-import ddf.catalog.operation.faceting.FacetedFieldResult;
+import ddf.catalog.operation.faceting.FacetedAttributeResult;
 import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.source.UnsupportedQueryException;
@@ -118,14 +119,19 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         SolrQuery query = getSolrQuery(request, filterDelegateFactory.newInstance(resolver));
 
         boolean isFacetedQuery = false;
-        Serializable textFacetPropRaw = request.getPropertyValue(EXPERIMENTAL_FACET_FIELDS_KEY);
+        Serializable textFacetPropRaw = request.getPropertyValue(EXPERIMENTAL_FACET_PROPERTIES_KEY);
 
-        if(textFacetPropRaw != null && textFacetPropRaw instanceof FacetProperties) {
+        if (textFacetPropRaw != null && textFacetPropRaw instanceof FacetProperties) {
             FacetProperties textFacetProp = (FacetProperties) textFacetPropRaw;
             isFacetedQuery = true;
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace("Enabling faceted query for request [{}] on field {}", request, textFacetProp);
+            }
 
-            textFacetProp.getFacetFields().stream()
-                    .map(facet -> !facet.endsWith("_txt") ? facet + "_txt" : facet)
+            textFacetProp.getFacetAttributes()
+                    .stream()
+                    .map(this::addAttributeTypeSuffix)
+                    .filter(attr -> attr.contains(String.valueOf(FIRST_CHAR_OF_SUFFIX)))
                     .forEach(query::addFacetField);
 
             query.setFacetSort(textFacetProp.getSortKey().name());
@@ -143,12 +149,13 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
             SolrDocumentList docs = solrResponse.getResults();
 
             if (isFacetedQuery) {
-                List<FacetedFieldResult> facetedFieldResults = solrResponse
-                        .getFacetFields().stream()
+                List<FacetedAttributeResult> facetedAttributeResults = solrResponse.getFacetFields()
+                        .stream()
                         .map(this::convertFacetField)
                         .collect(Collectors.toList());
 
-                responseProps.put(EXPERIMENTAL_FACET_RESULTS_KEY, (Serializable) facetedFieldResults);
+                responseProps.put(EXPERIMENTAL_FACET_RESULTS_KEY,
+                        (Serializable) facetedAttributeResults);
             }
 
             for (SolrDocument doc : docs) {
@@ -173,18 +180,24 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
         return new SourceResponseImpl(request, responseProps, results, totalHits);
     }
 
-    private FacetedFieldResult convertFacetField(FacetField facetField) {
+    private String addAttributeTypeSuffix(String attribute) {
+        return resolver.getAnonymousField(attribute)
+                .stream()
+                .findFirst()
+                .orElse(attribute);
+    }
+
+    private FacetedAttributeResult convertFacetField(FacetField facetField) {
         List<String> values = new ArrayList<>();
         List<Long> counts = new ArrayList<>();
 
-        facetField.getValues().forEach(
-                val -> {
+        facetField.getValues()
+                .forEach(val -> {
                     values.add(val.getName());
                     counts.add(val.getCount());
-                }
-        );
+                });
 
-        return new FacetedFieldResult(facetField.getName(), values, counts);
+        return new FacetedAttributeResult(resolver.resolveFieldName(facetField.getName()), values, counts);
     }
 
     @Override
@@ -253,8 +266,8 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
                         for (FacetField.Count currContentType : facetFields.get(0)
                                 .getValues()) {
                             // unknown version, so setting it to null
-                            ContentType contentType =
-                                    new ContentTypeImpl(currContentType.getName(), null);
+                            ContentType contentType = new ContentTypeImpl(currContentType.getName(),
+                                    null);
 
                             finalSet.add(contentType);
                         }
@@ -273,8 +286,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
                             LOGGER.debug(
                                     "Content type does not have associated contentTypeVersion: {}",
                                     contentTypeName);
-                            ContentType contentType = new ContentTypeImpl(contentTypeName,
-                                    null);
+                            ContentType contentType = new ContentTypeImpl(contentTypeName, null);
 
                             finalSet.add(contentType);
 
@@ -336,7 +348,8 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
             try {
                 query.setRows(queryForNumberOfRows(query));
             } catch (SolrServerException | IOException | SolrException | ArithmeticException exception) {
-                throw new UnsupportedQueryException("Could not retrieve number of records.", exception);
+                throw new UnsupportedQueryException("Could not retrieve number of records.",
+                        exception);
             }
         } else {
             query.setRows(request.getQuery()

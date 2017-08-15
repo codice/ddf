@@ -13,10 +13,12 @@
  */
 package ddf.catalog.operation.faceting;
 
-import static ddf.catalog.Constants.EXPERIMENTAL_FACET_FIELDS_KEY;
+
+import static ddf.catalog.Constants.EXPERIMENTAL_FACET_PROPERTIES_KEY;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -27,13 +29,13 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 public class FacetedQueryRequest extends QueryRequestImpl {
 
     /**
-     * Instantiates a FacetedQueryRequest to facet on the provided fields.
+     * Instantiates a FacetedQueryRequest to facet on the provided attributes.
      *
      * @param query The query to be sent to the data source
-     * @param facetFields A list of fields for which to return text faceting counts
+     * @param facetAttributes A list of attributes for which to return text faceting counts
      */
-    public FacetedQueryRequest(Query query, Set<String> facetFields) {
-        this(query, false, null, null, new FacetProperties(facetFields));
+    public FacetedQueryRequest(Query query, Set<String> facetAttributes) {
+        this(query, false, Collections.emptySet(), Collections.emptyMap(), new FacetProperties(facetAttributes));
     }
 
     /**
@@ -43,11 +45,11 @@ public class FacetedQueryRequest extends QueryRequestImpl {
      * @param facetProperties Properties describing the faceting parameters.
      */
     public FacetedQueryRequest(Query query, FacetProperties facetProperties) {
-        this(query, false, null, null, facetProperties);
+        this(query, false, Collections.emptySet(), Collections.emptyMap(), facetProperties);
     }
 
     /**
-     * Instantiates a FacetedQueryRequest to facet on the provided fields.
+     * Instantiates a FacetedQueryRequest to facet on the provided attributes.
      *
      * @param query The query to be sent to the data source
      * @param isEnterprise Specifies if this FacetedQueryRequest is an enterprise query
@@ -57,10 +59,9 @@ public class FacetedQueryRequest extends QueryRequestImpl {
      */
     public FacetedQueryRequest(Query query, boolean isEnterprise, Collection<String> sourceIds,
             Map<String, Serializable> properties, FacetProperties facetProperties) {
-        super(query, isEnterprise, sourceIds, properties);
+        super(query, isEnterprise, sourceIds, new HashMap<>(properties));
 
-        this.properties = new HashMap<>(this.properties);
-        this.properties.put(EXPERIMENTAL_FACET_FIELDS_KEY, facetProperties);
+        this.properties.put(EXPERIMENTAL_FACET_PROPERTIES_KEY, facetProperties);
     }
 
 }
