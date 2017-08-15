@@ -241,7 +241,7 @@ public class InsecureDefaultsCollector implements Runnable {
     }
 
     private String getTruststorePath() {
-        return new AbsolutePathResolver(TRUSTSTORE_SYSTEM_PROPERTY).getPath();
+        return new AbsolutePathResolver(System.getProperty(TRUSTSTORE_SYSTEM_PROPERTY)).getPath();
     }
 
     private String getTruststorePassword() {
