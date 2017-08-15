@@ -25,7 +25,7 @@ require.config({
         backbone: 'backbone/1.1.2/backbone',
         backboneassociations: 'backbone-associations/0.6.2/backbone-associations-min',
         underscore: 'underscore/1.8.3/underscore-min',
-        marionette: 'marionette/2.4.7/lib/backbone.marionette',
+        marionette: 'marionette/2.4.5/lib/backbone.marionette',
         // TODO test combining
         modelbinder: 'backbone.modelbinder/1.1.0/Backbone.ModelBinder.min',
         collectionbinder: 'backbone.modelbinder/1.1.0/Backbone.CollectionBinder.min',
