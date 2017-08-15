@@ -40,7 +40,6 @@ import org.codice.ddf.migration.ExportMigrationEntry;
 import org.codice.ddf.migration.ExportMigrationException;
 import org.codice.ddf.migration.ExportPathMigrationException;
 import org.codice.ddf.migration.ExportPathMigrationWarning;
-import org.codice.ddf.migration.MigrationContext;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationReport;
 import org.codice.ddf.util.function.EBiConsumer;
@@ -250,7 +249,7 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
     }
 
     @Override
-    protected MigrationContext getContext() {
+    protected ExportMigrationContextImpl getContext() {
         return context;
     }
 

@@ -14,7 +14,6 @@
 package org.codice.ddf.configuration.migration;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -22,8 +21,6 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
 
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.IOUtils;
 import org.codice.ddf.migration.ImportPathMigrationException;
 import org.codice.ddf.migration.ImportPathMigrationWarning;
 import org.codice.ddf.migration.MigrationReport;
@@ -66,19 +63,16 @@ public class ImportMigrationExternalEntryImpl extends ImportMigrationEntryImpl {
     @Override
     public boolean store(boolean required) {
         if (stored == null) {
-            super.stored = false; // until proven otherwise in case the next line throws an exception
-            LOGGER.debug("Verifying {}{}...",
-                    (required ? "required " : ""),
-                    toDebugString());
+            super.stored =
+                    false; // until proven otherwise in case the next line throws an exception
+            LOGGER.debug("Verifying {}{}...", (required ? "required " : ""), toDebugString());
             super.stored = verifyRealFile(required);
         }
         return stored;
     }
 
     protected String toDebugString() {
-        return String.format("external file [%s] from [%s]",
-                getAbsolutePath(),
-                getPath());
+        return String.format("external file [%s] from [%s]", getAbsolutePath(), getPath());
     }
 
     /**
@@ -88,7 +82,7 @@ public class ImportMigrationExternalEntryImpl extends ImportMigrationEntryImpl {
      * @param required <code>true</code> if the file was required to be exported; <code>false</code>
      *                 if it was optional
      * @return <code>false</code> if an error was detected during verification; <code>false</code>
-     *         otherwise
+     * otherwise
      */
     private boolean verifyRealFile(boolean required) {
         final MigrationReport report = getReport();
@@ -111,25 +105,23 @@ public class ImportMigrationExternalEntryImpl extends ImportMigrationEntryImpl {
             report.record(new ImportPathMigrationWarning(apath, "is not a regular file"));
         }
         if (checksum != null) {
-            InputStream is = null;
-
             try {
-                is = new FileInputStream(file);
-                final String rchecksum = DigestUtils.md5Hex(is);
+                final String rchecksum = getContext().getPathUtils()
+                        .getChecksumFor(getAbsolutePath());
 
                 if (!rchecksum.equals(checksum)) {
-                    report.record(new ImportPathMigrationWarning(apath, String.format(
-                            "checksum doesn't match the original; expecting '%s' but was '%s'",
-                            checksum,
-                            rchecksum)));
+                    report.record(new ImportPathMigrationWarning(apath,
+                            String.format(
+                                    "checksum doesn't match the original; expecting '%s' but was '%s'",
+                                    checksum,
+                                    rchecksum)));
                     return false;
                 }
             } catch (IOException e) {
                 LOGGER.info("failed to compute MD5 checksum for '" + getName() + "': ", e);
-                report.record(new ImportPathMigrationWarning(apath, "checksum could not be calculated; " + e.getMessage()));
+                report.record(new ImportPathMigrationWarning(apath,
+                        "checksum could not be calculated; " + e.getMessage()));
                 return false;
-            } finally {
-                IOUtils.closeQuietly(is); // don't care about errors when closing
             }
         }
         return true;

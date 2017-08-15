@@ -14,6 +14,7 @@
 package org.codice.ddf.configuration.migration;
 
 import java.io.IOError;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -21,7 +22,9 @@ import org.apache.commons.io.FileUtils;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 public class PathUtilsTest extends AbstractMigrationTest {
     private static final String UNIX_NAME = "path/path2/file.ext";
@@ -29,6 +32,9 @@ public class PathUtilsTest extends AbstractMigrationTest {
     private static final String WINDOWS_NAME = "path\\path2\\file.ext";
 
     private static final String MIXED_NAME = "path\\path2/file.ext";
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     private PathUtils PATH_UTILS;
 
@@ -120,4 +126,45 @@ public class PathUtilsTest extends AbstractMigrationTest {
         Assert.assertThat(path.isAbsolute(), Matchers.equalTo(true));
         Assert.assertThat(path, Matchers.equalTo(PATH));
     }
+
+    @Test
+    public void testGetChecksumForWithFile() throws Exception {
+        final Path PATH = DDF_HOME.resolve(createFile("test.txt"))
+                .toAbsolutePath();
+
+        final String checksum = PATH_UTILS.getChecksumFor(PATH);
+
+        Assert.assertThat(checksum, Matchers.notNullValue());
+    }
+
+    @Test
+    public void testGetChecksumForWithNullPath() throws Exception {
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage(Matchers.containsString("null path"));
+
+        PATH_UTILS.getChecksumFor(null);
+    }
+
+    @Test(expected = IOException.class)
+    public void testGetChecksumForWithIOException() throws Exception {
+        final Path PATH = DDF_HOME.resolve("test.txt");
+
+        PATH_UTILS.getChecksumFor(PATH);
+    }
+
+    @Test
+    public void testGetChecksumForWithSoftlink() throws Exception {
+        final Path ABSOLUTE_FILE_PATH = DDF_HOME.resolve(createFile("test.txt"))
+                .toAbsolutePath();
+        final Path PATH2 = DDF_HOME.resolve(createSoftLink(ABSOLUTE_FILE_PATH.getParent(),
+                "test2.txt",
+                ABSOLUTE_FILE_PATH)).toAbsolutePath();
+
+        final String checksum = PATH_UTILS.getChecksumFor(ABSOLUTE_FILE_PATH);
+        final String checksum2 = PATH_UTILS.getChecksumFor(PATH2);
+
+        Assert.assertThat(checksum2, Matchers.equalTo(checksum));
+    }
+
+
 }

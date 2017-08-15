@@ -29,18 +29,11 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.Mockito;
 
 import com.google.common.collect.ImmutableMap;
 
 public class MigrationContextImplTest extends AbstractMigrationTest {
-    private static final String MIGRATABLE_ID = "test-migratable";
-
-    private static final String VERSION = "3.1415";
-
     private final MigrationReport REPORT = new MigrationReportImpl(MigrationOperation.EXPORT, Optional.empty());
-
-    private final Migratable MIGRATABLE = Mockito.mock(Migratable.class);
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -49,9 +42,7 @@ public class MigrationContextImplTest extends AbstractMigrationTest {
 
     @Before
     public void before() throws Exception {
-        Mockito.when(MIGRATABLE.getId())
-                .thenReturn(MIGRATABLE_ID);
-
+        initMigratableMock();
         CONTEXT = new MigrationContextImpl(REPORT);
     }
 

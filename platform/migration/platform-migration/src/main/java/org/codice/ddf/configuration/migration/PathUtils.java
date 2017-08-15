@@ -13,11 +13,17 @@
  */
 package org.codice.ddf.configuration.migration;
 
+import java.io.FileInputStream;
 import java.io.IOError;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.Validate;
 
 public class PathUtils {
     // Forced to define it as non-static to simplify unit testing.
@@ -89,5 +95,25 @@ public class PathUtils {
      */
     public Path resolveAgainstDDFHome(String path) {
         return ddfHome.resolve(path);
+    }
+
+    /**
+     * Calculate the checksum for the specified path.
+     *
+     * @param path the path to calculate the checksum for
+     * @return the corresponding checksum
+     * @throws IllegalArgumentException if <code>path</code> is <code>null</code>
+     * @throws IOException if an I/O error occurred
+     */
+    public String getChecksumFor(Path path) throws IOException {
+        Validate.notNull(path, "invalid null path");
+        InputStream is = null;
+
+        try {
+            is = new FileInputStream(path.toFile());
+            return DigestUtils.md5Hex(is);
+        } finally {
+            IOUtils.closeQuietly(is); // don't care about errors when closing
+        }
     }
 }

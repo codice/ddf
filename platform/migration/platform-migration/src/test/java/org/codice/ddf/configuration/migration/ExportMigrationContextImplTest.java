@@ -31,7 +31,6 @@ import java.util.zip.ZipOutputStream;
 import org.apache.commons.io.FilenameUtils;
 import org.codice.ddf.migration.ExportMigrationEntry;
 import org.codice.ddf.migration.ExportPathMigrationException;
-import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationOperation;
 import org.codice.ddf.migration.MigrationReport;
@@ -47,16 +46,6 @@ import org.mockito.Mockito;
 import com.github.npathai.hamcrestopt.OptionalMatchers;
 
 public class ExportMigrationContextImplTest extends AbstractMigrationTest {
-    private static final String MIGRATABLE_ID = "test-migratable";
-
-    private static final String VERSION = "3.1415";
-
-    private static final String TITLE = "Test Migratable";
-
-    private static final String DESCRIPTION = "Exporting test data";
-
-    private static final String ORGANIZATION = "Test Organization";
-
     private static final String PROPERTY_NAME = "test.property";
 
     private static final String PROPERTY_NAME2 = "test.property2";
@@ -81,8 +70,6 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
     private final MigrationReport REPORT = new MigrationReportImpl(MigrationOperation.EXPORT,
             Optional.empty());
 
-    private final Migratable MIGRATABLE = Mockito.mock(Migratable.class);
-
     private final ByteArrayOutputStream BAOS = new ByteArrayOutputStream();
 
     private final ZipOutputStream ZOS = new ZipOutputStream(BAOS);
@@ -94,16 +81,7 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
 
     @Before
     public void before() throws Exception {
-        Mockito.when(MIGRATABLE.getId())
-                .thenReturn(MIGRATABLE_ID);
-        Mockito.when(MIGRATABLE.getVersion())
-                .thenReturn(VERSION);
-        Mockito.when(MIGRATABLE.getTitle())
-                .thenReturn(TITLE);
-        Mockito.when(MIGRATABLE.getDescription())
-                .thenReturn(DESCRIPTION);
-        Mockito.when(MIGRATABLE.getOrganization())
-                .thenReturn(ORGANIZATION);
+        initMigratableMock();
         Mockito.when(ENTRY.getName())
                 .thenReturn(MIGRATABLE_NAME);
         this.CONTEXT = new ExportMigrationContextImpl(REPORT, MIGRATABLE, ZOS);
