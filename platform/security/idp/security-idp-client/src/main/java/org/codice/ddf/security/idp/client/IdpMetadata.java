@@ -20,21 +20,22 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-
-import javax.xml.stream.XMLStreamException;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.wss4j.common.ext.WSSecurityException;
-import org.opensaml.saml.common.SAMLException;
 import org.opensaml.saml.saml2.metadata.Endpoint;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml.saml2.metadata.IDPSSODescriptor;
 import org.opensaml.saml.saml2.metadata.KeyDescriptor;
 import org.opensaml.security.credential.UsageType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.security.samlp.MetadataConfigurationParser;
 
 public class IdpMetadata {
+    private static final Logger LOGGER = LoggerFactory.getLogger(IdpMetadata.class);
 
     private static final String SAML_2_0_PROTOCOL = "urn:oasis:names:tc:SAML:2.0:protocol";
 
@@ -52,19 +53,20 @@ public class IdpMetadata {
 
     private String encryptionCertificate;
 
-    private Map<String, EntityDescriptor> entryDescriptions;
+    private String metadata;
+
+    private AtomicReference<Map<String, EntityDescriptor>> entryDescriptions =
+            new AtomicReference<>();
 
     private String singleLogoutBinding;
 
     private String singleLogoutLocation;
 
     private boolean assertionConsumerServiceURLCheck = true;
-
-    public void setMetadata(String metadata)
-            throws WSSecurityException, XMLStreamException, SAMLException, IOException {
-        MetadataConfigurationParser metadataConfigurationParser = new MetadataConfigurationParser(
-                Collections.singletonList(metadata));
-        entryDescriptions = metadataConfigurationParser.getEntryDescriptions();
+    
+    public void setMetadata(String metadata) {
+        this.metadata = metadata;
+        entryDescriptions.getAndSet(null);
     }
 
     public void setAssertionConsumerServiceURLCheck(boolean assertionConsumerServiceURLCheck) {
@@ -170,13 +172,39 @@ public class IdpMetadata {
     }
 
     private EntityDescriptor getEntityDescriptor() {
-        Set<Map.Entry<String, EntityDescriptor>> entries = entryDescriptions.entrySet();
+        Map<String, EntityDescriptor> edMap = entryDescriptions.get();
+        if (edMap == null) {
+            try {
+                edMap = parseMetadata();
+            } catch (IOException e) {
+                LOGGER.debug("Error parsing SSO metadata", e);
+                return null;
+            }
+
+            boolean updated = entryDescriptions.compareAndSet(null, edMap);
+            if (!updated) {
+                LOGGER.debug("Safe but concurrent update to serviceProviders map; using processed value");
+            }
+        }
+
+        Set<Map.Entry<String, EntityDescriptor>> entries = edMap.entrySet();
         if (!entries.isEmpty()) {
             return entries.iterator()
                     .next()
                     .getValue();
         }
         return null;
+    }
+
+    private Map<String, EntityDescriptor> parseMetadata() throws IOException {
+        final Map<String, EntityDescriptor> processMap = new ConcurrentHashMap<>();
+        MetadataConfigurationParser metadataConfigurationParser = //
+                new MetadataConfigurationParser(Collections.singletonList(metadata),
+                        ed -> processMap.put(ed.getEntityID(), ed));
+
+        processMap.putAll(metadataConfigurationParser.getEntryDescriptions());
+
+        return processMap;
     }
 
     public IDPSSODescriptor getDescriptor() {

@@ -48,6 +48,7 @@
             </form>
         </div>
     {{/is}}
+    {{#is guest true}}
     <div class="form-container">
         <form role="form" id="guestloginForm">
             <div id="loginerrorguest" class="text-danger" style="display: none;">Credentials are
@@ -60,4 +61,5 @@
             </div>
         </form>
     </div>
+    {{/is}}
 </div>
