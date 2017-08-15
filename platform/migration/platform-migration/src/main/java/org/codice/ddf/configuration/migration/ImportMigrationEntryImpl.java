@@ -157,19 +157,17 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
 
             if (fis == null) { // no entry stored!!!!
                 if (required) {
-                    LOGGER.debug("Importing {}file [{}] from [{}]...",
+                    LOGGER.debug("Importing {}{}...",
                             (required ? "required " : ""),
-                            absolutePath,
-                            path);
+                            toDebugString());
                     getReport().record(new ImportPathMigrationException(getPath(),
                             "was not exported"));
                 } else {
                     // it is optional so delete it as it was optional when we exported and wasn't on
                     // disk so we want to make surewe end up without the file on disk after import
-                    LOGGER.debug("Deleting {}file [{}] from [{}]...",
+                    LOGGER.debug("Deleting {}{}...",
                             (required ? "required " : ""),
-                            absolutePath,
-                            path);
+                            toDebugString());
                     // but only if it is migratable to start with
                     if (isMigratable()) {
                         if (!getFile().delete()) {
@@ -180,10 +178,9 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
                 }
                 return;
             }
-            LOGGER.debug("Importing {}file [{}] from [{}]...",
+            LOGGER.debug("Importing {}{}...",
                     (required ? "required " : ""),
-                    absolutePath,
-                    path);
+                    toDebugString());
             try {
                 FileUtils.copyInputStreamToFile(is.get(), file);
             } catch (IOException e) {
@@ -214,8 +211,7 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
                 is = getInputStream();
                 final Optional<InputStream> fis = is;
 
-                super.stored = getReport().wasIOSuccessful(() -> consumer.accept(getReport(),
-                        fis));
+                super.stored = getReport().wasIOSuccessful(() -> consumer.accept(getReport(), fis));
             } catch (IOException e) {
                 getReport().record(new ImportPathMigrationException(path,
                         String.format("failed to copy to [%s]",
@@ -246,6 +242,15 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
 
     protected File getFile() {
         return file;
+    }
+
+    /**
+     * Gets a debug string to represent this entry.
+     *
+     * @return a debug string for this entry
+     */
+    protected String toDebugString() {
+        return String.format("file [%s] from [%s]", absolutePath, path);
     }
 
     void addPropertyReferenceEntry(String name,

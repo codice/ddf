@@ -18,6 +18,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -120,7 +122,7 @@ public class AbstractMigrationTest {
 
             FileUtils.writeStringToFile(file, name, Charsets.UTF_8);
             paths.add(DDF_HOME.relativize(file.toPath()
-                    .toRealPath()));
+                    .toRealPath(LinkOption.NOFOLLOW_LINKS)));
         }
         return paths;
     }
@@ -141,7 +143,7 @@ public class AbstractMigrationTest {
 
         FileUtils.writeStringToFile(file, name, Charsets.UTF_8);
         final Path path = file.toPath()
-                .toRealPath();
+                .toRealPath(LinkOption.NOFOLLOW_LINKS);
 
         return path.startsWith(DDF_HOME) ? DDF_HOME.relativize(path) : path;
     }
@@ -169,7 +171,58 @@ public class AbstractMigrationTest {
      * @throws IOException if an I/O error occurs while creating the test file
      */
     public Path createFile(Path path) throws IOException {
-        return createFile(path.getParent(), path.getFileName().toString());
+        return createFile(path.getParent(),
+                path.getFileName()
+                        .toString());
+    }
+
+    /**
+     * Creates a test softlink with the given name in the specified directory resolved under ${ddf.home}.
+     *
+     * @param dir  the directory where to create the test softlink
+     * @param name the name of the test softlink to create in the specified directory
+     * @param dest the destination path for the softlink
+     * @return a path corresponding to the test softlink created (relativized from ${ddf.home})
+     * @throws IOException                   if an I/O error occurs while creating the test softlink
+     * @throws UnsupportedOperationException if the implementation does not support symbolic links
+     */
+    public Path createSoftLink(Path dir, String name, Path dest) throws IOException {
+        final Path path = DDF_HOME.resolve(dir)
+                .resolve(name);
+
+        Files.createSymbolicLink(path, dest);
+        final Path apath = path.toRealPath(LinkOption.NOFOLLOW_LINKS);
+
+        return apath.startsWith(DDF_HOME) ? DDF_HOME.relativize(apath) : apath;
+    }
+
+    /**
+     * Creates a test softlink with the given name under ${ddf.home}.
+     *
+     * @param name the name of the test softlink to create in the specified directory
+     * @param dest the destination path for the softlink
+     * @return a path corresponding to the test softlink created (relativized from ${ddf.home})
+     * @throws IOException                   if an I/O error occurs while creating the test softlink
+     * @throws UnsupportedOperationException if the implementation does not support symbolic links
+     */
+    public Path createSoftLink(String name, Path dest) throws IOException {
+        return createSoftLink(DDF_HOME, name, dest);
+    }
+
+    /**
+     * Creates a test softlink at the given path.
+     *
+     * @param path the path of the test softlink to create in the specified directory
+     * @param dest the destination path for the softlink
+     * @return a path corresponding to the test softlink created (relativized from ${ddf.home})
+     * @throws IOException                   if an I/O error occurs while creating the test softlink
+     * @throws UnsupportedOperationException if the implementation does not support symbolic links
+     */
+    public Path createSoftLink(Path path, Path dest) throws IOException {
+        return createSoftLink(path.getParent(),
+                path.getFileName()
+                        .toString(),
+                dest);
     }
 
     /**
@@ -188,10 +241,10 @@ public class AbstractMigrationTest {
     public void baseBefore() throws Exception {
         ROOT = testFolder.getRoot()
                 .toPath()
-                .toRealPath();
+                .toRealPath(LinkOption.NOFOLLOW_LINKS);
         DDF_HOME = testFolder.newFolder("ddf")
                 .toPath()
-                .toRealPath();
+                .toRealPath(LinkOption.NOFOLLOW_LINKS);
         System.setProperty("ddf.home", DDF_HOME.toString());
     }
 

@@ -67,13 +67,18 @@ public class ImportMigrationExternalEntryImpl extends ImportMigrationEntryImpl {
     public boolean store(boolean required) {
         if (stored == null) {
             super.stored = false; // until proven otherwise in case the next line throws an exception
-            LOGGER.debug("Verifying {}external file [{}] from [{}]...",
+            LOGGER.debug("Verifying {}{}...",
                     (required ? "required " : ""),
-                    getAbsolutePath(),
-                    getPath());
+                    toDebugString());
             super.stored = verifyRealFile(required);
         }
         return stored;
+    }
+
+    protected String toDebugString() {
+        return String.format("external file [%s] from [%s]",
+                getAbsolutePath(),
+                getPath());
     }
 
     /**

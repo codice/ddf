@@ -15,6 +15,7 @@ package org.codice.ddf.configuration.migration;
 
 import java.io.IOError;
 import java.io.IOException;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -30,7 +31,7 @@ public class PathUtils {
     public PathUtils() {
         try {
             this.ddfHome = Paths.get(System.getProperty("ddf.home"))
-                    .toRealPath();
+                    .toRealPath(LinkOption.NOFOLLOW_LINKS);
         } catch (IOException e) {
             throw new IOError(e);
         }

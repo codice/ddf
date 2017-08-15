@@ -1,13 +1,7 @@
 package org.codice.ddf.configuration.migration;
 
-import java.io.IOException;
-import java.io.OutputStream;
-
-import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.ExportPathMigrationException;
 import org.codice.ddf.migration.ExportPathMigrationWarning;
-import org.codice.ddf.migration.MigrationReport;
-import org.codice.ddf.util.function.EBiConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,33 +30,16 @@ public class ExportMigrationSystemPropertyReferencedEntryImpl
     }
 
     @Override
-    public OutputStream getOutputStream() throws IOException {
+    protected void recordEntry() {
         getReport().recordSystemProperty(this);
-        return super.getOutputStream();
     }
 
     @Override
-    public boolean store(boolean required) {
-        if (stored == null) {
-            LOGGER.debug("Exporting {}system property reference [{}] as file [{}] to [{}]...",
-                    (required ? "required " : ""),
-                    getProperty(),
-                    getAbsolutePath(),
-                    getPath());
-            getReport().recordSystemProperty(this);
-            return super.store(required);
-        }
-        return stored;
-    }
-
-    @Override
-    public boolean store(EBiConsumer<MigrationReport, OutputStream, IOException> consumer) {
-        Validate.notNull(consumer, "invalid null consumer");
-        if (stored == null) {
-            getReport().recordSystemProperty(this);
-            return super.store(consumer);
-        }
-        return stored;
+    protected String toDebugString() {
+        return String.format("system property reference [%s] as file [%s] to [%s]",
+                getProperty(),
+                getAbsolutePath(),
+                getPath());
     }
 
     @Override
