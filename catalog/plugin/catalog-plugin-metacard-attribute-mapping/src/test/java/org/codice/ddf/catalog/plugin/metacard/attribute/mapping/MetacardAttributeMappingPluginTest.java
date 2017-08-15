@@ -11,10 +11,9 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.plugin.configuration.mapping;
+package org.codice.ddf.catalog.plugin.metacard.attribute.mapping;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 
 import java.util.ArrayList;
@@ -32,9 +31,9 @@ import ddf.catalog.operation.impl.CreateRequestImpl;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.security.expansion.impl.StraightExpansionImpl;
 
-public class ConfigurationMappingPluginTest {
+public class MetacardAttributeMappingPluginTest {
 
-    private ConfigurationMappingPlugin configurationMappingPlugin;
+    private MetacardAttributeMappingPlugin metacardAttributeMappingPlugin;
 
     private MetacardImpl metacard1, metacard2, metacard3;
 
@@ -56,7 +55,7 @@ public class ConfigurationMappingPluginTest {
 
     @Before
     public void setUp() {
-        configurationMappingPlugin = new ConfigurationMappingPlugin();
+        metacardAttributeMappingPlugin = new MetacardAttributeMappingPlugin();
         List<String[]> ruleList1 = Arrays.asList(redColorExpansion,
                 blueColorExpansion,
                 yellowColorExpansion);
@@ -75,7 +74,7 @@ public class ConfigurationMappingPluginTest {
 
         //location:USA:United States of America
         straightExpansion.addExpansionList(LOCATION, ruleList3);
-        configurationMappingPlugin.setExpansionService(straightExpansion);
+        metacardAttributeMappingPlugin.setExpansionService(straightExpansion);
 
         //Metacard 1:
         //title = RD
@@ -105,7 +104,7 @@ public class ConfigurationMappingPluginTest {
 
         CreateRequest input = new CreateRequestImpl(Arrays.asList(metacard1));
 
-        CreateRequest output = configurationMappingPlugin.process(input);
+        CreateRequest output = metacardAttributeMappingPlugin.process(input);
 
         assert (output.getMetacards()
                 .get(0)
@@ -127,7 +126,7 @@ public class ConfigurationMappingPluginTest {
     @Test
     public void testCreateMetacardsWithExpansionSameAttribute() throws Exception {
         CreateRequest input = new CreateRequestImpl(Arrays.asList(metacard1, metacard2, metacard3));
-        CreateRequest output = configurationMappingPlugin.process(input);
+        CreateRequest output = metacardAttributeMappingPlugin.process(input);
 
         assert (output.getMetacards()
                 .get(0)
@@ -153,7 +152,7 @@ public class ConfigurationMappingPluginTest {
         metacard1.setAttribute(new AttributeImpl(TITLE, attrValue));
 
         CreateRequest input = new CreateRequestImpl(Arrays.asList(metacard1));
-        CreateRequest output = configurationMappingPlugin.process(input);
+        CreateRequest output = metacardAttributeMappingPlugin.process(input);
 
         assert (output.getMetacards()
                 .get(0)
@@ -170,7 +169,7 @@ public class ConfigurationMappingPluginTest {
         MetacardImpl metacard = new MetacardImpl();
 
         CreateRequest input = new CreateRequestImpl(Arrays.asList(metacard));
-        configurationMappingPlugin.process(input);
+        metacardAttributeMappingPlugin.process(input);
     }
 
     /*
@@ -180,7 +179,7 @@ public class ConfigurationMappingPluginTest {
     @Test
     public void testUpdateMetacardMultipleAttributesWithExpansion() throws Exception {
         UpdateRequest input = new UpdateRequestImpl(null, metacard1);
-        UpdateRequest output = configurationMappingPlugin.process(input);
+        UpdateRequest output = metacardAttributeMappingPlugin.process(input);
 
         assert (output.getUpdates()
                 .get(0)
@@ -209,7 +208,7 @@ public class ConfigurationMappingPluginTest {
         metacard.setAttribute(TITLE, colors);
 
         CreateRequest input = new CreateRequestImpl(metacard);
-        CreateRequest output = configurationMappingPlugin.process(input);
+        CreateRequest output = metacardAttributeMappingPlugin.process(input);
         assertThat(output.getMetacards()
                 .get(0)
                 .getAttribute(TITLE)
@@ -226,7 +225,7 @@ public class ConfigurationMappingPluginTest {
         metacard.setAttribute(TITLE, colors);
 
         CreateRequest input = new CreateRequestImpl(metacard);
-        CreateRequest output = configurationMappingPlugin.process(input);
+        CreateRequest output = metacardAttributeMappingPlugin.process(input);
         assertThat(output.getMetacards()
                 .get(0)
                 .getAttribute(TITLE)

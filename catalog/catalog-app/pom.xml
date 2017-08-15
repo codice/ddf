@@ -621,7 +621,7 @@
         </dependency>
         <dependency>
             <groupId>ddf.catalog.plugin</groupId>
-            <artifactId>catalog-plugin-configuration-mapping</artifactId>
+            <artifactId>catalog-plugin-metacard-attribute-mapping</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

@@ -212,10 +212,10 @@
         <bundle>mvn:ddf.catalog.plugin/jpeg2000-thumbnail-converter/${project.version}</bundle>
     </feature>
 
-    <feature name="catalog-plugin-configuration-mapping" install="auto" version="${project.version}"
+    <feature name="catalog-plugin-metacard-attribute-mapping" install="auto" version="${project.version}"
              description="">
         <feature prerequisite="true">catalog-app</feature>
-        <bundle>mvn:ddf.catalog.plugin/catalog-plugin-configuration-mapping/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.plugin/catalog-plugin-metacard-attribute-mapping/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-transformer-metadata" install="auto" version="${project.version}"

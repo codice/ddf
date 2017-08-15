@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.plugin.configuration.mapping;
+package org.codice.ddf.catalog.plugin.metacard.attribute.mapping;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -35,7 +35,7 @@ import ddf.catalog.plugin.PreIngestPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.security.expansion.Expansion;
 
-public class ConfigurationMappingPlugin implements PreIngestPlugin {
+public class MetacardAttributeMappingPlugin implements PreIngestPlugin {
 
     private Expansion expansionService;
 

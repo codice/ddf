@@ -19,11 +19,11 @@
     <reference id="expansionService" interface="ddf.security.expansion.Expansion"
                filter="(mapping=security.metacard.attribute.mapping)"/>
 
-    <bean id="configurationMappingPlugin"
-          class="org.codice.ddf.catalog.plugin.configuration.mapping.ConfigurationMappingPlugin">
+    <bean id="metacardAttributeMappingPlugin"
+          class="org.codice.ddf.catalog.plugin.metacard.attribute.mapping.MetacardAttributeMappingPlugin">
         <property name="expansionService" ref="expansionService"/>
     </bean>
 
-    <service ref="configurationMappingPlugin" interface="ddf.catalog.plugin.PreIngestPlugin"/>
+    <service ref="metacardAttributeMappingPlugin" interface="ddf.catalog.plugin.PreIngestPlugin"/>
 
 </blueprint>
