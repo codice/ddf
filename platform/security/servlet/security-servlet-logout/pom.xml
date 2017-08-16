@@ -30,6 +30,12 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
+            <!--DDF-3217 Temporarily adding deprecated GzipFilter functionality until GzipHandler supported by PaxWeb-->
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlets</artifactId>
+            <version>9.2.19.v20160908</version>
+        </dependency>
+        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
         </dependency>
@@ -191,14 +197,15 @@
                         <_wab>src/main/webapp,${project.build.directory}/webapp,${project.build.directory}/META-INF/resources/webjars</_wab>
                         <Embed-Dependency>
                             boon,
+                            commons-lang3,
+                            common-system,
+                            ddf-security-common,
                             httpclient,
                             httpcore,
                             httpmime,
-                            commons-lang3,
-                            platform-util-unavailableurls,
-                            ddf-security-common,
-                            common-system,
-                            platform-util
+                            jetty-servlets,
+                            platform-util,
+                            platform-util-unavailableurls
                         </Embed-Dependency>
                         <Import-Package>
                             com.sun.management;resolution:=optional,

@@ -22,8 +22,16 @@
     <artifactId>spatial-wfs-v1_0_0-schema-webapp</artifactId>
     <name>DDF :: Spatial :: WFS :: 1.0.0 :: Schema WebApp</name>
     <packaging>bundle</packaging>
+
     <dependencies>
+        <dependency>
+            <!--DDF-3217 Temporarily adding deprecated GzipFilter functionality until GzipHandler supported by PaxWeb-->
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlets</artifactId>
+            <version>9.2.19.v20160908</version>
+        </dependency>
     </dependencies>
+
     <build>
         <plugins>
             <plugin>
@@ -34,6 +42,9 @@
                         <Web-ContextPath>/ogc</Web-ContextPath>
                         <_wab>src/main/resources</_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Embed-Dependency>
+                            jetty-servlets
+                        </Embed-Dependency>
                         <Import-Package>
                             javax.xml.bind,
                             javax.xml.bind.annotation,

@@ -30,6 +30,12 @@
             <artifactId>catalog-core-api</artifactId>
         </dependency>
         <dependency>
+            <!--DDF-3217 Temporarily adding deprecated GzipFilter functionality until GzipHandler supported by PaxWeb-->
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlets</artifactId>
+            <version>9.2.19.v20160908</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.admin.core</groupId>
             <artifactId>admin-core-api</artifactId>
         </dependency>
@@ -204,6 +210,9 @@
                         <Web-ContextPath>/admin/registry/local</Web-ContextPath>
                         <_wab>src/main/webapp,${project.build.directory}/webapp,${project.build.directory}/META-INF/resources/webjars</_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Embed-Dependency>
+                            jetty-servlets
+                        </Embed-Dependency>
                         <Export-Package/>
                     </instructions>
                 </configuration>

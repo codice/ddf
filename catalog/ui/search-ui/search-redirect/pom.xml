@@ -28,6 +28,12 @@
             <artifactId>org.osgi.core</artifactId>
         </dependency>
         <dependency>
+            <!--DDF-3217 Temporarily adding deprecated GzipFilter functionality until GzipHandler supported by PaxWeb-->
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlets</artifactId>
+            <version>9.2.19.v20160908</version>
+        </dependency>
+        <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
         </dependency>
@@ -58,6 +64,9 @@
                         <!--<Web-ContextPath>/search</Web-ContextPath>-->
                         <!--<_wab>src/main/webapp</_wab>-->
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Embed-Dependency>
+                            jetty-servlets
+                        </Embed-Dependency>
                         <Export-Package/>
                     </instructions>
                 </configuration>

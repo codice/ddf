@@ -202,9 +202,10 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <!--DDF-3217 Temporarily adding deprecated GzipFilter functionality until GzipHandler supported by PaxWeb-->
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-servlets</artifactId>
-            <version>${jetty.version}</version>
+            <version>9.2.19.v20160908</version>
         </dependency>
         <dependency>
             <groupId>ddf.platform.email</groupId>
@@ -318,6 +319,7 @@
                             handlebars,
                             httpclient,
                             httpcore,
+                            jetty-servlets,
                             platform-email-impl,
                             platform-error-servlet,
                             platform-util,
@@ -336,7 +338,6 @@
                         <Import-Package>
                             org.eclipse.jetty.server,
                             org.eclipse.jetty.server.handler,
-                            org.eclipse.jetty.servlets,
                             javax.servlet.http;version="[3,4)",
                             javax.servlet;version="[3,4)",
                             org.apache.commons.logging; version="[1.1.0,2.0.0)",

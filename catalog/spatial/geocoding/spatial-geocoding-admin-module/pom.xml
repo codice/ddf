@@ -31,6 +31,12 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <!--DDF-3217 Temporarily adding deprecated GzipFilter functionality until GzipHandler supported by PaxWeb-->
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlets</artifactId>
+            <version>9.2.19.v20160908</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.platform.error</groupId>
             <artifactId>platform-error-servlet</artifactId>
             <version>${project.version}</version>
@@ -165,6 +171,7 @@
                         <_wab>src/main/webapp,${project.build.directory}/webapp,${project.build.directory}/META-INF/resources/webjars</_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
+                            jetty-servlets,
                             platform-error-servlet
                         </Embed-Dependency>
                         <Import-Package>

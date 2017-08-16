@@ -29,6 +29,12 @@
     </properties>
     <dependencies>
         <dependency>
+            <!--DDF-3217 Temporarily adding deprecated GzipFilter functionality until GzipHandler supported by PaxWeb-->
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlets</artifactId>
+            <version>9.2.19.v20160908</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.admin.core</groupId>
             <artifactId>admin-core-appservice</artifactId>
             <version>${project.version}</version>
@@ -79,10 +85,9 @@
                         <Web-ContextPath>/admin/map-layers</Web-ContextPath>
                         <_wab>${project.build.directory}/webapp</_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Import-Package>
-                            org.eclipse.jetty.servlets,
-                            *
-                        </Import-Package>
+                        <Embed-Dependency>
+                            jetty-servlets
+                        </Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>

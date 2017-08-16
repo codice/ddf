@@ -13,8 +13,9 @@
  **/
  -->
 <project
-    xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+        xmlns="http://maven.apache.org/POM/4.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>admin</artifactId>
         <groupId>ddf.admin</groupId>
@@ -59,8 +60,10 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <!--DDF-3217 Temporarily adding deprecated GzipFilter functionality until GzipHandler supported by PaxWeb-->
             <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-server</artifactId>
+            <artifactId>jetty-servlets</artifactId>
+            <version>9.2.19.v20160908</version>
         </dependency>
         <dependency>
             <groupId>ddf.lib</groupId>
@@ -274,9 +277,16 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
-                        <Embed-Dependency>json-smart,platform-error-servlet,asm</Embed-Dependency>
+                        <Embed-Dependency>
+                            json-smart,
+                            platform-error-servlet,
+                            asm,
+                            jetty-servlets
+                        </Embed-Dependency>
                         <Web-ContextPath>/admin</Web-ContextPath>
-                        <_wab>src/main/webapp,${project.build.directory}/webapp,${project.build.directory}/META-INF/resources/webjars</_wab>
+                        <_wab>
+                            src/main/webapp,${project.build.directory}/webapp,${project.build.directory}/META-INF/resources/webjars
+                        </_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package/>
                         <Import-Package>

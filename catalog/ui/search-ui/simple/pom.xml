@@ -31,6 +31,12 @@
             <version>${commons-lang.version}</version>
         </dependency>
         <dependency>
+            <!--DDF-3217 Temporarily adding deprecated GzipFilter functionality until GzipHandler supported by PaxWeb-->
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlets</artifactId>
+            <version>9.2.19.v20160908</version>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
@@ -118,7 +124,8 @@
                         </_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            commons-lang
+                            commons-lang,
+                            jetty-servlets
                         </Embed-Dependency>
                         <Import-Package>
                             org.codice.ddf.branding,

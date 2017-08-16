@@ -31,6 +31,12 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
+            <!--DDF-3217 Temporarily adding deprecated GzipFilter functionality until GzipHandler supported by PaxWeb-->
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlets</artifactId>
+            <version>9.2.19.v20160908</version>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-ext</artifactId>
         </dependency>
@@ -212,6 +218,9 @@
                         <_wab>src/main/webapp,${project.build.directory}/webapp,${project.build.directory}/META-INF/resources/webjars</_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Export-Package/>
+                        <Embed-Dependency>
+                            jetty-servlets
+                        </Embed-Dependency>
                         <Import-Package>
                             org.codice.ddf.ui.admin.api.module;version="[1.2.0,3.0.0)",
                             *

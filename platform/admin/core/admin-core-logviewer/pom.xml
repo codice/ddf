@@ -31,6 +31,12 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <!--DDF-3217 Temporarily adding deprecated GzipFilter functionality until GzipHandler supported by PaxWeb-->
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlets</artifactId>
+            <version>9.2.19.v20160908</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.admin.core</groupId>
             <artifactId>admin-core-appservice</artifactId>
             <version>${project.version}</version>
@@ -83,7 +89,10 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
-                        <Embed-Dependency>platform-error-servlet</Embed-Dependency>
+                        <Embed-Dependency>
+                            jetty-servlets,
+                            platform-error-servlet
+                        </Embed-Dependency>
                         <Web-ContextPath>/admin/logviewer</Web-ContextPath>
                         <_wab>${project.build.directory}/webapp/</_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>

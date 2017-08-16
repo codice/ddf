@@ -32,6 +32,12 @@
             <artifactId>admin-core-appservice</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <!--DDF-3217 Temporarily adding deprecated GzipFilter functionality until GzipHandler supported by PaxWeb-->
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlets</artifactId>
+            <version>9.2.19.v20160908</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -79,6 +85,9 @@
                         <Web-ContextPath>/admin/undeliveredMessages</Web-ContextPath>
                         <_wab>${project.build.directory}/webapp/</_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Embed-Dependency>
+                            jetty-servlets
+                        </Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>

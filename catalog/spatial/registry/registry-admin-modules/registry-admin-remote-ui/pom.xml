@@ -13,8 +13,9 @@
  **/
  -->
 <project
-    xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+        xmlns="http://maven.apache.org/POM/4.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>registry-admin-modules</artifactId>
         <groupId>org.codice.ddf.registry</groupId>
@@ -29,6 +30,12 @@
             <groupId>ddf.admin.core</groupId>
             <artifactId>admin-core-appservice</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <!--DDF-3217 Temporarily adding deprecated GzipFilter functionality until GzipHandler supported by PaxWeb-->
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlets</artifactId>
+            <version>9.2.19.v20160908</version>
         </dependency>
         <dependency>
             <groupId>org.codice.webjars</groupId>
@@ -170,8 +177,14 @@
                 <configuration>
                     <instructions>
                         <Web-ContextPath>/admin/registry/remote</Web-ContextPath>
-                        <_wab>src/main/webapp,${project.build.directory}/webapp,${project.build.directory}/META-INF/resources/webjars</_wab>
+                        <_wab>
+                            src/main/webapp,${project.build.directory}/webapp,${project.build.directory}/META-INF/resources/webjars
+                        </_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Embed-Dependency>
+                            jetty-servlets
+                        </Embed-Dependency>
+
                         <Export-Package/>
                     </instructions>
                 </configuration>
