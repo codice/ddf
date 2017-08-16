@@ -1,0 +1,18 @@
+:type: plugin
+:status: published
+:title: Metacard Attribute Mapping Plugin
+:link: _metacard_attribute_mapping_plugin
+:plugintypes: preingest
+:summary: Updates metacard attributes on ingest based on a mapping configuration.
+
+The Metacard Attribute Mapping Plugin updates metacard attributes on ingest based on a mapping configuration. This can be useful to correct invalid values or abbreviated values on ingest.
+
+===== Installing the Metacard Attribute Mapping Plugin
+
+The Metacard Attribute Mapping Plugin is installed by default with a standard installation in the ${ddf-catalog} application.
+
+===== Configuring the Metacard Attribute Mapping Plugin
+
+Attribute mappings for the Metacard Attribute Mapping Plugin are configured via the configuration file `${branding}_HOME/etc/custom-ddf-metacard-attribute-mapping.cfg`. An example of the formatting is provided in the file.
+
+
