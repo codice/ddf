@@ -2351,6 +2351,81 @@ public class TestCatalog extends AbstractIntegrationTest {
         deleteMetacard(id);
     }
 
+    @Test
+    public void testIngestSanitizationBadFile() throws Exception {
+        // DDF-3172 bad.files and bad.file.extensions in system.properties is not being respected
+
+        // setup
+        String fileName = "robots.txt";    // filename in bad.files
+        File tmpFile = createTemporaryFile(fileName, IOUtils.toInputStream("Test"));
+
+        // ingest
+        String id = given().multiPart(tmpFile)
+                .expect()
+                .log()
+                .headers()
+                .statusCode(HttpStatus.SC_CREATED)
+                .when()
+                .post(REST_PATH.getUrl())
+                .getHeader("id");
+
+        // query - check if sanitized properly
+        getOpenSearch("xml", null, null, "q=*").log()
+                .all()
+                .assertThat()
+                .body(hasXPath(format(METACARD_X_PATH, id) + "/string[@name='title']/value",
+                        is("file.bin")));
+
+        // clean up
+        deleteMetacard(id);
+    }
+
+    @Test
+    public void testIngestSanitizationBadExtension() throws Exception {
+        // DDF-3172 bad.files and bad.file.extensions in system.properties is not being respected
+
+        // setup
+        String fileName = "bad_file.cgi";      // file extension in bad.file.extensions
+        File tmpFile = createTemporaryFile(fileName, IOUtils.toInputStream("Test"));
+
+        // ingest
+        String id = given().multiPart(tmpFile)
+                .expect()
+                .log()
+                .headers()
+                .statusCode(HttpStatus.SC_CREATED)
+                .when()
+                .post(REST_PATH.getUrl())
+                .getHeader("id");
+
+        // query - check if sanitized properly
+        getOpenSearch("xml", null, null, "q=*").log()
+                .all()
+                .assertThat()
+                .body(hasXPath(format(METACARD_X_PATH, id) + "/string[@name='title']/value",
+                        is("bad_file.bin")));
+
+        // clean up
+        deleteMetacard(id);
+    }
+
+    @Test
+    public void testIngestIgnore() throws Exception {
+        // DDF-3172 bad.files and bad.file.extensions in system.properties is not being respected
+        String fileName = "thumbs.db";          // filename in ignore.files
+
+        File tmpFile = createTemporaryFile(fileName, IOUtils.toInputStream("Test"));
+
+        // ingest
+        given().multiPart(tmpFile)
+                .expect()
+                .log()
+                .headers()
+                .statusCode(HttpStatus.SC_BAD_REQUEST)
+                .when()
+                .post(REST_PATH.getUrl());
+    }
+
     protected String ingestXmlFromResource(String resourceName) throws IOException {
         StringWriter writer = new StringWriter();
         IOUtils.copy(IOUtils.toInputStream(getFileContent(resourceName)), writer);

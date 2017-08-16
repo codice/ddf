@@ -271,6 +271,8 @@ The interval is measured in seconds.
 |bad.file.extensions
 |String
 |Files uploaded with these bad file extensions will have their file names sanitized before being saved
+
+E.g. sample_file.exe will be renamed to sample_file.bin upon ingest
 |.exe,
 .jsp,
 .html,
@@ -348,6 +350,8 @@ The interval is measured in seconds.
 |bad.files
 |String
 |Files uploaded with these bad file names will have their file names sanitized before being saved
+
+E.g. crossdomain.xml will be renamed to file.bin upon ingest
 |crossdomain.xml,
 clientaccesspolicy.xml,
 .htaccess,
@@ -374,6 +378,14 @@ application/x-shellscript,
 text/scriptlet,
 application/x-msdownload,
 application/x-msmetafile
+|Yes
+
+|File names flagged as potentially dangerous to external clients
+|ignore.files
+|String
+|Files uploaded with these names will be rejected from the upload
+|.DS_Store,
+Thumbs.db
 |Yes
 
 6+^h|[[SolrProperties]]Solr Catalog Provider Properties

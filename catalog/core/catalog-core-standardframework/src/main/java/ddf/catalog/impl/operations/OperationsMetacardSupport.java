@@ -94,15 +94,20 @@ public class OperationsMetacardSupport {
         for (ContentItem contentItem : incomingContentItems) {
             try {
                 Path tmpPath = null;
+                String fileName;
                 long size;
                 try (InputStream inputStream = contentItem.getInputStream()) {
+                    fileName = contentItem.getFilename();
                     if (inputStream == null) {
                         throw new IngestException(
                                 "Could not copy bytes of content message.  Message was NULL.");
                     }
 
-                    String sanitizedFilename =
-                            InputValidation.sanitizeFilename(contentItem.getFilename());
+                    if (!InputValidation.isFileNameClientSideSafe(fileName)) {
+                        throw new IngestException("Ignored filename found.");
+                    }
+
+                    String sanitizedFilename = InputValidation.sanitizeFilename(fileName);
                     tmpPath = Files.createTempFile(FilenameUtils.getBaseName(sanitizedFilename),
                             FilenameUtils.getExtension(sanitizedFilename));
                     Files.copy(inputStream, tmpPath, StandardCopyOption.REPLACE_EXISTING);
@@ -126,13 +131,20 @@ public class OperationsMetacardSupport {
                     throw new IngestException("Could not copy bytes of content message.", e);
                 }
                 String mimeTypeRaw = contentItem.getMimeTypeRawData();
-                mimeTypeRaw = guessMimeType(mimeTypeRaw, contentItem.getFilename(), tmpPath);
+                mimeTypeRaw = guessMimeType(mimeTypeRaw, fileName, tmpPath);
 
-                if (!InputValidation.checkForClientSideVulnerableMimeType(mimeTypeRaw)) {
+                if (!InputValidation.isMimeTypeClientSideSafe(mimeTypeRaw)) {
                     throw new IngestException("Unsupported mime type.");
                 }
 
-                String fileName = updateFileExtension(mimeTypeRaw, contentItem.getFilename());
+                // If any sanitization was done, rename file name to sanitized file name.
+                if (!InputValidation.sanitizeFilename(fileName)
+                        .equals(fileName)) {
+                    fileName = InputValidation.sanitizeFilename(fileName);
+                } else {
+                    fileName = updateFileExtension(mimeTypeRaw, fileName);
+                }
+
                 Metacard metacard = metacardFactory.generateMetacard(mimeTypeRaw,
                         contentItem.getId(),
                         fileName,
@@ -140,7 +152,9 @@ public class OperationsMetacardSupport {
                 metacardMap.put(metacard.getId(), metacard);
 
                 ContentItem generatedContentItem = new ContentItemImpl(metacard.getId(),
-                        StringUtils.isNotEmpty(contentItem.getQualifier()) ? contentItem.getQualifier() : "",
+                        StringUtils.isNotEmpty(contentItem.getQualifier()) ?
+                                contentItem.getQualifier() :
+                                "",
                         com.google.common.io.Files.asByteSource(tmpPath.toFile()),
                         mimeTypeRaw,
                         fileName,

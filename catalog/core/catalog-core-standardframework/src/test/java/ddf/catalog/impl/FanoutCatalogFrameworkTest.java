@@ -545,6 +545,7 @@ public class FanoutCatalogFrameworkTest {
         System.setProperty("bad.files", "none");
         System.setProperty("bad.file.extensions", "none");
         System.setProperty("bad.mime.types", "none");
+        System.setProperty("ignore.files", "");
 
         CreateOperations createOperations = new CreateOperations(frameworkProperties,
                 queryOperations,

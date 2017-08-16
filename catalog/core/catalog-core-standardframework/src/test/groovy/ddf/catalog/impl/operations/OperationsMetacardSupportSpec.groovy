@@ -40,6 +40,7 @@ class OperationsMetacardSupportTest extends Specification {
         System.setProperty("bad.files", "")
         System.setProperty("bad.file.extensions", "bad,worse")
         System.setProperty("bad.mime.types", "badmime,worsemime")
+        System.setProperty("ignore.files", "")
 
         mimeTypeMapper = Mock(MimeTypeMapper)
         mimeTransMapper = Mock(MimeTypeToTransformerMapper)

@@ -31,14 +31,22 @@ public class InputValidation {
     private static final String DEFAULT_FILE = "file" + DEFAULT_EXTENSION;
 
     private static final List<String> BAD_FILES = Arrays.asList(System.getProperty("bad.files")
+            .toLowerCase()
             .split(","));
 
-    private static final List<String> BAD_FILE_EXTENSIONS = Arrays.asList(
-            System.getProperty("bad.file.extensions")
-                    .split(","));
+    private static final List<String> BAD_FILE_EXTENSIONS = Arrays.asList(System.getProperty(
+            "bad.file.extensions")
+            .toLowerCase()
+            .split(","));
 
-    private static final List<String> BAD_MIME_TYPES = Arrays.asList(
-            System.getProperty("bad.mime.types")
+    private static final List<String> BAD_MIME_TYPES = Arrays.asList(System.getProperty(
+            "bad.mime.types")
+            .toLowerCase()
+            .split(","));
+
+    private static final List<String> IGNORE_FILES =
+            Arrays.asList(System.getProperty("ignore.files")
+                    .toLowerCase()
                     .split(","));
 
     private static final Pattern BAD_CHAR_PATTERN = Pattern.compile("[^a-z0-9.-]");
@@ -87,7 +95,7 @@ public class InputValidation {
      * @param mimetype
      * @return true if the mime type is acceptable
      */
-    public static boolean checkForClientSideVulnerableMimeType(String mimetype) {
+    public static boolean isMimeTypeClientSideSafe(String mimetype) {
         mimetype = mimetype.toLowerCase();
         for (String type : BAD_MIME_TYPES) {
             if (mimetype.contains(type)) {
@@ -97,4 +105,22 @@ public class InputValidation {
         }
         return true;
     }
+
+    /**
+     * Checks for filenames that have been disallowed by the system.
+     *
+     * @param filename
+     * @return true if the filename is acceptable
+     */
+    public static boolean isFileNameClientSideSafe(String filename) {
+        filename = filename.toLowerCase();
+        for (String ignoreFile : IGNORE_FILES) {
+            if (ignoreFile.contains(filename)) {
+                LOGGER.debug("Filename {} is flagged as client side vulnerable.", ignoreFile);
+                return false;
+            }
+        }
+        return true;
+    }
+
 }
