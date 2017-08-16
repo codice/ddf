@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
@@ -81,7 +82,7 @@ public class ImportMigrationExternalEntryImpl extends ImportMigrationEntryImpl {
      *
      * @param required <code>true</code> if the file was required to be exported; <code>false</code>
      *                 if it was optional
-     * @return <code>false</code> if an error was detected during verification; <code>false</code>
+     * @return <code>false</code> if an error was detected during verification; <code>true</code>
      * otherwise
      */
     private boolean verifyRealFile(boolean required) {
@@ -101,7 +102,7 @@ public class ImportMigrationExternalEntryImpl extends ImportMigrationEntryImpl {
                 report.record(new ImportPathMigrationWarning(apath, "is not a symbolic link"));
                 return false;
             }
-        } else if (!Files.isRegularFile(getAbsolutePath())) {
+        } else if (!Files.isRegularFile(getAbsolutePath(), LinkOption.NOFOLLOW_LINKS)) {
             report.record(new ImportPathMigrationWarning(apath, "is not a regular file"));
         }
         if (checksum != null) {

@@ -14,6 +14,11 @@
 package org.codice.ddf.configuration.migration;
 
 import java.io.BufferedInputStream;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -33,6 +38,9 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.codice.ddf.migration.Migratable;
+import org.codice.ddf.migration.MigrationException;
+import org.codice.ddf.migration.MigrationReport;
+import org.codice.ddf.migration.MigrationWarning;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
@@ -292,6 +300,28 @@ public class AbstractMigrationTest {
                 .thenReturn(DESCRIPTION);
         Mockito.when(migratable.getOrganization())
                 .thenReturn(ORGANIZATION);
+    }
+
+    public void verifyReportHasMatchingError(MigrationReport report, Class exceptionClass,
+            String message) {
+        assertThat("Report has an error message", report.hasErrors(), is(true));
+        MigrationException exception = report.errors()
+                .findFirst()
+                .get();
+
+        assertThat(exception.getClass(), equalTo(exceptionClass));
+        assertThat(exception.getMessage(), containsString(message));
+    }
+
+    public void verifyReportHasMatchingWarning(MigrationReport report, Class warningClass,
+            String message) {
+        assertThat("Report has a warning message", report.hasWarnings(), is(true));
+        MigrationWarning warning = report.warnings()
+                .findFirst()
+                .get();
+
+        assertThat(warning.getClass(), equalTo(warningClass));
+        assertThat(warning.getMessage(), containsString(message));
     }
 
     public static class ZipEntry extends java.util.zip.ZipEntry {
