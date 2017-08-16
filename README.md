@@ -94,7 +94,12 @@ Distributed Data Framework (DDF) is an open source, modular integration framewor
 * Make sure that your JAVA\_HOME environment variable is set to the newly installed JDK location, and that your PATH includes %JAVA\_HOME%\bin (Windows) or $JAVA\_HOME$/bin (\*NIX).
 * [Install Maven 3.1.0 \(or later\)](http://maven.apache.org/download.html). Make sure that your PATH includes the MVN\_HOME/bin directory.
 * Set the MAVEN_OPTS variable with the appropriate memory settings
-* The DDF Eclipse Code Formatter - [ddf-eclipse-code-formatter.xml](https://github.com/codice/ddf-support/blob/master/support-checkstyle/src/main/resources/ddf-eclipse-code-formatter.xml)
+### Optional 
+* If you do not wish to run formatting from the commandline (see below) you may use an IDE to format the code for you with the google-java-format plugins.
+  - https://github.com/google/google-java-format
+    * IntelliJ: https://plugins.jetbrains.com/plugin/8527
+    * Eclipse: https://github.com/google/google-java-format/releases/download/google-java-format-1.3/google-java-format-eclipse-plugin-1.3.0.jar
+
 
 
 ### How to build ###
@@ -112,6 +117,17 @@ mvn install
 
 This will compile DDF and run all of the tests in the DDF source distribution. It usually takes some time for maven to download required dependencies in the first build.
 The distribution will be available under "distribution/ddf/target" directory.
+
+#### Formatting
+If during development the build fails for formatting, eg:
+```
+Failed to execute goal com.coveo:fmt-maven-plugin:1.8.0:check (default-cli) on project <module name>: Found <number> non-complying files, failing build
+ ```
+You can run the formatter with the command:
+```
+mvn fmt:format
+```
+
 
 For additional information about building DDF, see [Building DDF](https://codice.atlassian.net/wiki/display/DDF/Building+DDF).
 
