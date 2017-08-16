@@ -25,7 +25,7 @@
     <name>DDF :: Catalog :: Core :: Subscription Store</name>
     <artifactId>catalog-core-subscriptionstore</artifactId>
     <packaging>pom</packaging>
-
+<!--test-->
     <modules>
         <module>subscriptionstore-internal-api</module>
         <module>subscriptionstore-impl</module>

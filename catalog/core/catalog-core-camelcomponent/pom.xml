@@ -21,6 +21,7 @@
         <groupId>ddf.catalog.core</groupId>
         <version>2.11.0-SNAPSHOT</version>
     </parent>
+    <!--test-->
     <artifactId>catalog-core-camelcomponent</artifactId>
     <name>DDF :: Catalog :: Core :: Camel Component</name>
     <packaging>bundle</packaging>
