@@ -619,5 +619,10 @@
             <artifactId>csv-queryresponse-transformer</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.catalog.plugin</groupId>
+            <artifactId>catalog-plugin-metacard-attribute-mapping</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
