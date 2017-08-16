@@ -177,6 +177,11 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
         return Optional.ofNullable(entries.get(path));
     }
 
+    /**
+     * Performs an import using the context's migratable.
+     *
+     * @throws org.codice.ddf.migration.MigrationException to stop the import operation
+     */
     void doImport() {
         if (migratable != null) {
             LOGGER.debug("Importing migratable [{}] from version [{}]...",

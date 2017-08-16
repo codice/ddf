@@ -680,14 +680,11 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
         Assert.assertThat(metadata.keySet(), Matchers.contains(MIGRATABLE_ID));
         final Map<String, Object> mmetadata = (Map<String, Object>) metadata.get(MIGRATABLE_ID);
 
-        Assert.assertThat(mmetadata.get(MigrationContextImpl.METADATA_VERSION),
-                Matchers.equalTo(VERSION));
-        Assert.assertThat(mmetadata.get(MigrationContextImpl.METADATA_TITLE),
-                Matchers.equalTo(TITLE));
-        Assert.assertThat(mmetadata.get(MigrationContextImpl.METADATA_DESCRIPTION),
-                Matchers.equalTo(DESCRIPTION));
-        Assert.assertThat(mmetadata.get(MigrationContextImpl.METADATA_ORGANIZATION),
-                Matchers.equalTo(ORGANIZATION));
+        Assert.assertThat(mmetadata, Matchers.aMapWithSize(4));
+        Assert.assertThat(mmetadata, Matchers.hasEntry(MigrationContextImpl.METADATA_VERSION, VERSION));
+        Assert.assertThat(mmetadata, Matchers.hasEntry(MigrationContextImpl.METADATA_TITLE, TITLE));
+        Assert.assertThat(mmetadata, Matchers.hasEntry(MigrationContextImpl.METADATA_DESCRIPTION, DESCRIPTION));
+        Assert.assertThat(mmetadata, Matchers.hasEntry(MigrationContextImpl.METADATA_ORGANIZATION, ORGANIZATION));
 
         Mockito.verify(MIGRATABLE)
                 .doExport(Mockito.same(CONTEXT));

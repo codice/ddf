@@ -122,7 +122,8 @@ public class ImportMigrationManagerImpl implements Closeable {
      * @param productVersion the product version to compare against
      * @throws MigrationException if the versions don't match or if a failure occurred that required
      *                            interrupting the operation right away
-     * @@throws IllegalArgumentException if <code>productVersion</code> is <code>null</code>
+     * @throws IllegalArgumentException if <code>productVersion</code> is <code>null</code>
+     * @throws MigrationException to stop the import operation
      */
     public void doImport(String productVersion) {
         Validate.notNull(productVersion, "invalid null version");

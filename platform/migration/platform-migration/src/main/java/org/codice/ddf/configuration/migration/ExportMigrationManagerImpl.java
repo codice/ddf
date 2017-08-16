@@ -102,7 +102,8 @@ public class ExportMigrationManagerImpl implements Closeable {
      * Proceed with the export migration operation.
      *
      * @param productVersion the product version being exported
-     * @@throws IllegalArgumentException if <code>productVersion</code> is <code>null</code>
+     * @throws IllegalArgumentException if <code>productVersion</code> is <code>null</code>
+     * @throws MigrationException to stop the export operation
      */
     public void doExport(String productVersion) {
         Validate.notNull(productVersion, "invalid null product version");
