@@ -382,12 +382,12 @@
         <!--END versions for camel features in platform-app-->
 
         <!--START versions for enterprise features in platform-app features
-        Copied from karaf-4.1.1-src/pom.xml
+        Copied from karaf-4.1.2-src/pom.xml
 
         DDF changes made
         - Removed properties that are not used-->
         <felix.coordinator.version>1.0.2</felix.coordinator.version>
-        <aries.transaction.manager.version>1.3.2</aries.transaction.manager.version>
+        <aries.transaction.manager.version>1.3.3</aries.transaction.manager.version>
         <aries.transaction.blueprint.version>1.1.1</aries.transaction.blueprint.version>
         <aries.transaction.blueprint.version2>2.1.0</aries.transaction.blueprint.version2>
         <aries.util.version>1.1.3</aries.util.version>

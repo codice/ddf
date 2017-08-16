@@ -170,22 +170,20 @@ LimitNOFILE=6815744
 #Add the following:
 wrapper.java.additional.11=-D${ddf-branding-lowercase}.home=%KARAF_HOME%
 wrapper.java.additional.12=-Dderby.storage.fileSyncTransactionLog=true
-wrapper.java.additional.13=-server
-wrapper.java.additional.14=-Djava.security.egd=file:/dev/./urandom
-wrapper.java.additional.15=-Dfile.encoding=UTF8
-wrapper.java.additional.16=-Dkaraf.instances=%KARAF_HOME%/instances
-wrapper.java.additional.17=-Dkaraf.restart.jvm.supported=true
-wrapper.java.additional.18=-Djava.util.logging.config.file=%KARAF_HOME%/etc/java.util.logging.properties
-wrapper.java.additional.19=-XX:+UnlockDiagnosticVMOptions
-wrapper.java.additional.20=-XX:+UnsyncloadClass
-wrapper.java.additional.21=-Dderby.system.home=%KARAF_HOME%/data/derby
-wrapper.java.additional.22=-Djava.awt.headless=true
+wrapper.java.additional.13=-Djava.security.egd=file:/dev/./urandom
+wrapper.java.additional.14=-Dfile.encoding=UTF8
+wrapper.java.additional.15=-Dkaraf.instances=%KARAF_HOME%/instances
+wrapper.java.additional.16=-Dkaraf.restart.jvm.supported=true
+wrapper.java.additional.17=-Djava.util.logging.config.file=%KARAF_HOME%/etc/java.util.logging.properties
+wrapper.java.additional.18=-XX:+UnlockDiagnosticVMOptions
+wrapper.java.additional.19=-Dderby.system.home=%KARAF_HOME%/data/derby
+wrapper.java.additional.20=-Djava.awt.headless=true
 
 # Set the JVM max heap space as desired
-wrapper.java.additional.23=-Xmx4g
+wrapper.java.additional.21=-Xmx4g
 
 # (Preferred) Optionally add the disable attach mechanism to prevent connections to JMX
-wrapper.java.additional.24=-XX:+DisableAttachMechanism
+wrapper.java.additional.22=-XX:+DisableAttachMechanism
 
 ----
 +

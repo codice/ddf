@@ -65,4 +65,4 @@ export EXTRA_JAVA_OPTS
 # export KARAF_BASE # Karaf base folder
 
 export KARAF_OPTS="-Dfile.encoding=UTF8 -Dddf.home=$DDF_HOME"
-export JAVA_OPTS=-"server -Xms2g -Xmx4g -XX:+UnlockDiagnosticVMOptions -XX:+UnsyncloadClass -XX:+DisableAttachMechanism"
+export JAVA_OPTS="-Xms2g -Xmx4g -XX:+UnlockDiagnosticVMOptions -XX:+DisableAttachMechanism"
