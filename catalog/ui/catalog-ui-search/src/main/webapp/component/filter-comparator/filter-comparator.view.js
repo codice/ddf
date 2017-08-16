@@ -84,6 +84,14 @@ define([
                     if (stringComparators.indexOf(this.model.get('comparator')) === -1){
                         this.model.set('comparator', stringComparators[0]);
                     }
+                    if (this.model.get("isResultFilter")) {
+                        // if this view is being used as an ad hoc search results filter
+                        // (as opposed to a filter saved on a search), don't include 
+                        // complex comparators like NEAR
+                        return stringComparators.filter(function(comparator) {
+                            return comparator !== 'NEAR';
+                        })
+                    }
                     return stringComparators;
             }
         }

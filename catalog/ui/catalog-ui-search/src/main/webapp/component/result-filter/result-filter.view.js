@@ -44,7 +44,7 @@ define([
         },
         onRender: function(){
             this.editorProperties.show(new FilterBuilderView({
-                model: new FilterBuilderModel()
+                model: new FilterBuilderModel({ isResultFilter: true })
             }));
             this.editorProperties.currentView.turnOnEditing();
             this.editorProperties.currentView.turnOffNesting();
