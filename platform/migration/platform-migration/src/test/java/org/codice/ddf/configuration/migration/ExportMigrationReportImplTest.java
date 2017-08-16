@@ -26,7 +26,7 @@ public class ExportMigrationReportImplTest extends AbstractMigrationTest {
 
     private static final Path FILE_PATH = Paths.get(FilenameUtils.separatorsToSystem(UNIX_NAME));
 
-    private static final String PROPERTY = "property";
+    private static final String PROPERTY = MigrationEntryImpl.METADATA_PROPERTY;
 
     private final MigrationReportImpl REPORT = Mockito.mock(MigrationReportImpl.class);
 
@@ -47,11 +47,16 @@ public class ExportMigrationReportImplTest extends AbstractMigrationTest {
 
         Assert.assertThat(XREPORT.getReport(), Matchers.sameInstance(REPORT));
         Assert.assertThat(metadata, Matchers.aMapWithSize(4));
-        Assert.assertThat(metadata, Matchers.hasEntry("version", MIGRATABLE.getVersion()));
-        Assert.assertThat(metadata, Matchers.hasEntry("title", MIGRATABLE.getTitle()));
-        Assert.assertThat(metadata, Matchers.hasEntry("description", MIGRATABLE.getDescription()));
         Assert.assertThat(metadata,
-                Matchers.hasEntry("organization", MIGRATABLE.getOrganization()));
+                Matchers.hasEntry(MigrationContextImpl.METADATA_VERSION, MIGRATABLE.getVersion()));
+        Assert.assertThat(metadata,
+                Matchers.hasEntry(MigrationContextImpl.METADATA_TITLE, MIGRATABLE.getTitle()));
+        Assert.assertThat(metadata,
+                Matchers.hasEntry(MigrationContextImpl.METADATA_DESCRIPTION,
+                        MIGRATABLE.getDescription()));
+        Assert.assertThat(metadata,
+                Matchers.hasEntry(MigrationContextImpl.METADATA_ORGANIZATION,
+                        MIGRATABLE.getOrganization()));
     }
 
     @Test
@@ -209,8 +214,10 @@ public class ExportMigrationReportImplTest extends AbstractMigrationTest {
         final Map<String, Object> metadata = XREPORT.getMetadata();
 
         Assert.assertThat(metadata,
-                Matchers.hasEntry(Matchers.equalTo("externals"), Matchers.instanceOf(List.class)));
-        final List<Object> xmetadata = (List<Object>) metadata.get("externals");
+                Matchers.hasEntry(Matchers.equalTo(MigrationContextImpl.METADATA_EXTERNALS),
+                        Matchers.instanceOf(List.class)));
+        final List<Object> xmetadata =
+                (List<Object>) metadata.get(MigrationContextImpl.METADATA_EXTERNALS);
 
         Assert.assertThat(xmetadata,
                 Matchers.allOf(Matchers.iterableWithSize(1),
@@ -219,9 +226,9 @@ public class ExportMigrationReportImplTest extends AbstractMigrationTest {
 
         Assert.assertThat(emetadata,
                 Matchers.allOf(Matchers.aMapWithSize(3),
-                        Matchers.hasEntry("name", ENTRY.getName()),
-                        Matchers.hasKey("checksum"),
-                        Matchers.hasEntry("softlink", (Object) false)));
+                        Matchers.hasEntry(MigrationEntryImpl.METADATA_NAME, ENTRY.getName()),
+                        Matchers.hasKey(MigrationEntryImpl.METADATA_CHECKSUM),
+                        Matchers.hasEntry(MigrationEntryImpl.METADATA_SOFTLINK, (Object) false)));
     }
 
     @Test
@@ -239,8 +246,10 @@ public class ExportMigrationReportImplTest extends AbstractMigrationTest {
         final Map<String, Object> metadata = XREPORT.getMetadata();
 
         Assert.assertThat(metadata,
-                Matchers.hasEntry(Matchers.equalTo("externals"), Matchers.instanceOf(List.class)));
-        final List<Object> xmetadata = (List<Object>) metadata.get("externals");
+                Matchers.hasEntry(Matchers.equalTo(MigrationContextImpl.METADATA_EXTERNALS),
+                        Matchers.instanceOf(List.class)));
+        final List<Object> xmetadata =
+                (List<Object>) metadata.get(MigrationContextImpl.METADATA_EXTERNALS);
 
         Assert.assertThat(xmetadata,
                 Matchers.allOf(Matchers.iterableWithSize(1),
@@ -249,8 +258,8 @@ public class ExportMigrationReportImplTest extends AbstractMigrationTest {
 
         Assert.assertThat(emetadata,
                 Matchers.allOf(Matchers.aMapWithSize(2),
-                        Matchers.hasEntry("name", ENTRY.getName()),
-                        Matchers.hasEntry("softlink", (Object) false)));
+                        Matchers.hasEntry(MigrationEntryImpl.METADATA_NAME, ENTRY.getName()),
+                        Matchers.hasEntry(MigrationEntryImpl.METADATA_SOFTLINK, (Object) false)));
     }
 
     @Test
@@ -272,8 +281,10 @@ public class ExportMigrationReportImplTest extends AbstractMigrationTest {
         final Map<String, Object> metadata = XREPORT.getMetadata();
 
         Assert.assertThat(metadata,
-                Matchers.hasEntry(Matchers.equalTo("externals"), Matchers.instanceOf(List.class)));
-        final List<Object> xmetadata = (List<Object>) metadata.get("externals");
+                Matchers.hasEntry(Matchers.equalTo(MigrationContextImpl.METADATA_EXTERNALS),
+                        Matchers.instanceOf(List.class)));
+        final List<Object> xmetadata =
+                (List<Object>) metadata.get(MigrationContextImpl.METADATA_EXTERNALS);
 
         Assert.assertThat(xmetadata,
                 Matchers.allOf(Matchers.iterableWithSize(1),
@@ -282,9 +293,9 @@ public class ExportMigrationReportImplTest extends AbstractMigrationTest {
 
         Assert.assertThat(emetadata,
                 Matchers.allOf(Matchers.aMapWithSize(3),
-                        Matchers.hasEntry("name", ENTRY.getName()),
-                        Matchers.hasKey("checksum"),
-                        Matchers.hasEntry("softlink", (Object) true)));
+                        Matchers.hasEntry(MigrationEntryImpl.METADATA_NAME, ENTRY.getName()),
+                        Matchers.hasKey(MigrationEntryImpl.METADATA_CHECKSUM),
+                        Matchers.hasEntry(MigrationEntryImpl.METADATA_SOFTLINK, (Object) true)));
     }
 
     @Test
@@ -300,9 +311,10 @@ public class ExportMigrationReportImplTest extends AbstractMigrationTest {
         final Map<String, Object> metadata = XREPORT.getMetadata();
 
         Assert.assertThat(metadata,
-                Matchers.hasEntry(Matchers.equalTo("system.properties"),
+                Matchers.hasEntry(Matchers.equalTo(MigrationContextImpl.METADATA_SYSTEM_PROPERTIES),
                         Matchers.instanceOf(List.class)));
-        final List<Object> smetadata = (List<Object>) metadata.get("system.properties");
+        final List<Object> smetadata =
+                (List<Object>) metadata.get(MigrationContextImpl.METADATA_SYSTEM_PROPERTIES);
 
         Assert.assertThat(smetadata,
                 Matchers.allOf(Matchers.iterableWithSize(1),
@@ -311,8 +323,9 @@ public class ExportMigrationReportImplTest extends AbstractMigrationTest {
 
         Assert.assertThat(emetadata,
                 Matchers.allOf(Matchers.aMapWithSize(2),
-                        Matchers.hasEntry("property", PROPERTY),
-                        Matchers.hasEntry("reference", FILE_PATH.toString())));
+                        Matchers.hasEntry(MigrationEntryImpl.METADATA_PROPERTY, PROPERTY),
+                        Matchers.hasEntry(MigrationEntryImpl.METADATA_REFERENCE,
+                                FILE_PATH.toString())));
     }
 
     @Test
@@ -330,9 +343,10 @@ public class ExportMigrationReportImplTest extends AbstractMigrationTest {
         final Map<String, Object> metadata = XREPORT.getMetadata();
 
         Assert.assertThat(metadata,
-                Matchers.hasEntry(Matchers.equalTo("java.properties"),
+                Matchers.hasEntry(Matchers.equalTo(MigrationContextImpl.METADATA_JAVA_PROPERTIES),
                         Matchers.instanceOf(List.class)));
-        final List<Object> jmetadata = (List<Object>) metadata.get("java.properties");
+        final List<Object> jmetadata =
+                (List<Object>) metadata.get(MigrationContextImpl.METADATA_JAVA_PROPERTIES);
 
         Assert.assertThat(jmetadata,
                 Matchers.allOf(Matchers.iterableWithSize(1),
@@ -341,9 +355,11 @@ public class ExportMigrationReportImplTest extends AbstractMigrationTest {
 
         Assert.assertThat(emetadata,
                 Matchers.allOf(Matchers.aMapWithSize(3),
-                        Matchers.hasEntry("property", PROPERTY),
-                        Matchers.hasEntry("reference", FILE_PATH.toString()),
-                        Matchers.hasEntry("name", PROPERTIES_PATH.toString())));
+                        Matchers.hasEntry(MigrationEntryImpl.METADATA_PROPERTY, PROPERTY),
+                        Matchers.hasEntry(MigrationEntryImpl.METADATA_REFERENCE,
+                                FILE_PATH.toString()),
+                        Matchers.hasEntry(MigrationEntryImpl.METADATA_NAME,
+                                PROPERTIES_PATH.toString())));
     }
 
     @Test
@@ -351,10 +367,15 @@ public class ExportMigrationReportImplTest extends AbstractMigrationTest {
         final Map<String, Object> metadata = XREPORT.getMetadata();
 
         Assert.assertThat(metadata, Matchers.aMapWithSize(4));
-        Assert.assertThat(metadata, Matchers.hasEntry("version", MIGRATABLE.getVersion()));
-        Assert.assertThat(metadata, Matchers.hasEntry("title", MIGRATABLE.getTitle()));
-        Assert.assertThat(metadata, Matchers.hasEntry("description", MIGRATABLE.getDescription()));
         Assert.assertThat(metadata,
-                Matchers.hasEntry("organization", MIGRATABLE.getOrganization()));
+                Matchers.hasEntry(MigrationContextImpl.METADATA_VERSION, MIGRATABLE.getVersion()));
+        Assert.assertThat(metadata,
+                Matchers.hasEntry(MigrationContextImpl.METADATA_TITLE, MIGRATABLE.getTitle()));
+        Assert.assertThat(metadata,
+                Matchers.hasEntry(MigrationContextImpl.METADATA_DESCRIPTION,
+                        MIGRATABLE.getDescription()));
+        Assert.assertThat(metadata,
+                Matchers.hasEntry(MigrationContextImpl.METADATA_ORGANIZATION,
+                        MIGRATABLE.getOrganization()));
     }
 }

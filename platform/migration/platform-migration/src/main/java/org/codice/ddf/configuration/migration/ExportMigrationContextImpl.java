@@ -191,6 +191,7 @@ public class ExportMigrationContextImpl extends MigrationContextImpl
      * Performs an export using the context's migratable.
      *
      * @return metadata to export for the corresponding migratable keyed by the migratable's id
+     * @throws org.codice.ddf.migration.MigrationException to stop the export operation
      */
     Map<String, Map<String, Object>> doExport() {
         LOGGER.debug("Exporting [{}] with version [{}]...", id, getVersion());

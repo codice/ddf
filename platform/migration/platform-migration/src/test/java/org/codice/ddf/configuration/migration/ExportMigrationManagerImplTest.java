@@ -2,6 +2,7 @@ package org.codice.ddf.configuration.migration;
 
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -24,6 +25,9 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportTest 
 
     private final Migratable MIGRATABLE3 = Mockito.mock(Migratable.class);
 
+    private final Migratable[] MIGRATABLES =
+            new Migratable[] {MIGRATABLE, MIGRATABLE2, MIGRATABLE3};
+
     private Path EXPORT_FILE;
 
     private ExportMigrationManagerImpl MGR;
@@ -36,9 +40,7 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportTest 
         initMigratableMock(MIGRATABLE2, MIGRATABLE_ID2);
         initMigratableMock(MIGRATABLE3, MIGRATABLE_ID3);
 
-        MGR = new ExportMigrationManagerImpl(REPORT,
-                EXPORT_FILE,
-                Stream.of(MIGRATABLE, MIGRATABLE2, MIGRATABLE3));
+        MGR = new ExportMigrationManagerImpl(REPORT, EXPORT_FILE, Stream.of(MIGRATABLES));
     }
 
     @Test
@@ -107,7 +109,8 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportTest 
 
     @Test
     public void testConstructorWhenUnableToCreateZipFile() throws Exception {
-        FileUtils.deleteQuietly(EXPORT_FILE.getParent().toFile());
+        FileUtils.deleteQuietly(EXPORT_FILE.getParent()
+                .toFile());
 
         thrown.expect(ExportMigrationException.class);
         thrown.expectMessage(Matchers.containsString("unable to create"));
@@ -119,6 +122,36 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportTest 
     @Test
     public void testDoExport() throws Exception {
         MGR.doExport(VERSION);
+        final Map<String, Object> metadata = MGR.getMetadata();
+
+        Assert.assertThat(metadata, Matchers.aMapWithSize(4));
+        Assert.assertThat(metadata,
+                Matchers.hasEntry(MigrationContextImpl.METADATA_VERSION,
+                        MigrationContextImpl.VERSION));
+        Assert.assertThat(metadata,
+                Matchers.hasEntry(MigrationContextImpl.METADATA_PRODUCT_VERSION, VERSION));
+        Assert.assertThat(metadata, Matchers.hasKey(MigrationContextImpl.METADATA_DATE));
+        Assert.assertThat(metadata,
+                Matchers.hasEntry(Matchers.equalTo(MigrationContextImpl.METADATA_MIGRATABLES),
+                        Matchers.instanceOf(Map.class)));
+        final Map<String, Object> mmetadatas = (Map<String, Object>) metadata.get(
+                MigrationContextImpl.METADATA_MIGRATABLES);
+
+        Assert.assertThat(mmetadatas, Matchers.aMapWithSize(MIGRATABLES.length));
+        Stream.of(MIGRATABLES)
+                .forEach(m -> {
+                    Assert.assertThat(mmetadatas,
+                            Matchers.hasEntry(Matchers.equalTo(m.getId()),
+                                    Matchers.instanceOf(Map.class)));
+                    final Map<String, Object> mmetadata =
+                            (Map<String, Object>) mmetadatas.get(m.getId());
+
+                    Assert.assertThat(mmetadata, Matchers.aMapWithSize(4));
+                    Assert.assertThat(mmetadata, Matchers.hasEntry(MigrationContextImpl.METADATA_VERSION, VERSION));
+                    Assert.assertThat(mmetadata, Matchers.hasEntry(MigrationContextImpl.METADATA_TITLE, TITLE));
+                    Assert.assertThat(mmetadata, Matchers.hasEntry(MigrationContextImpl.METADATA_DESCRIPTION, DESCRIPTION));
+                    Assert.assertThat(mmetadata, Matchers.hasEntry(MigrationContextImpl.METADATA_ORGANIZATION, ORGANIZATION));
+                });
     }
 }
 

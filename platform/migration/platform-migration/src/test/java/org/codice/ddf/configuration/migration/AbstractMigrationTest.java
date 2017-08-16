@@ -160,8 +160,7 @@ public class AbstractMigrationTest {
         final Path path = file.toPath()
                 .toRealPath(LinkOption.NOFOLLOW_LINKS);
 
-        Path returnValue = path.startsWith(DDF_HOME) ? DDF_HOME.relativize(path) : path;
-        return returnValue;
+        return path.startsWith(DDF_HOME) ? DDF_HOME.relativize(path) : path;
     }
 
     /**
