@@ -168,15 +168,11 @@ wrapper.java.additional.20=-XX:+UnsyncloadClass
 wrapper.java.additional.21=-Dderby.system.home=%KARAF_HOME%/data/derby
 wrapper.java.additional.22=-Djava.awt.headless=true
 
+# Set the JVM max heap space as desired
+wrapper.java.additional.23=-Xmx4g
+
 # (Preferred) Optionally add the disable attach mechanism to prevent connections to JMX
-wrapper.java.additional.23=-XX:+DisableAttachMechanism
-
-#Update the following
-# Initial Java Heap Size (in MB)
-wrapper.java.initmemory=2000
-
-# Maximum Java Heap Size (in MB)
-wrapper.java.maxmemory=4000
+wrapper.java.additional.24=-XX:+DisableAttachMechanism
 
 ----
 +
