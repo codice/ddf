@@ -14,11 +14,8 @@
 package ddf.test.itests.catalog;
 
 import static java.lang.String.format;
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.awaitility.Awaitility.with;
 import static org.codice.ddf.itests.common.WaitCondition.expect;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.deleteMetacard;
-import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.doesMetacardExist;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingest;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingestGeoJson;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.update;
@@ -2354,90 +2351,62 @@ public class TestCatalog extends AbstractIntegrationTest {
         deleteMetacard(id);
     }
 
-    @Test
-    public void testIngestSanitizationBadFile() throws Exception {
-        // DDF-3172 bad.files and bad.file.extensions in system.properties is not being respected
+	@Test
+	public void testIngestSanitizationBadFile() throws Exception {
+		// DDF-3172 bad.files and bad.file.extensions in system.properties is not being respected
 
-        // setup
-        String fileName = "crossdomain.xml";    // filename in bad.files
-        String[] id = new String[1];
+		// setup
+		String fileName = "robots.txt";    // filename in bad.files
+		File tmpFile = createTemporaryFile(fileName, IOUtils.toInputStream("Test"));
 
-        File tmpFile = createTemporaryFile(fileName, IOUtils.toInputStream("Test"));
+		// ingest
+		String id = given().multiPart(tmpFile)
+				.expect()
+				.log()
+				.headers()
+				.statusCode(HttpStatus.SC_CREATED)
+				.when()
+				.post(REST_PATH.getUrl())
+				.getHeader("id");
 
-        // ingest
-        with().pollInterval(1, SECONDS)
-                .await()
-                .atMost(30, SECONDS)
-                .ignoreExceptions()
-                .until(() -> {
-                    id[0] = given().multiPart(tmpFile)
-                            .expect()
-                            .log()
-                            .headers()
-                            .statusCode(HttpStatus.SC_CREATED)
-                            .when()
-                            .post(REST_PATH.getUrl())
-                            .getHeader("id");
-                    return true;
-                });
-        with().pollInterval(1, SECONDS)
-                .await()
-                .atMost(10, SECONDS)
-                .ignoreExceptions()
-                .until(() -> doesMetacardExist(id[0]));
+		// query - check if sanitized properly
+		getOpenSearch("xml", null, null, "q=*").log()
+				.all()
+				.assertThat()
+				.body(hasXPath(format(METACARD_X_PATH, id) + "/string[@name='title']/value",
+						is("file.bin")));
 
-        // query - check if sanitized properly
-        getOpenSearch("xml", null, null, "q=*").log()
-                .all()
-                .assertThat()
-                .body(hasXPath(format(METACARD_X_PATH, id) + "/string[@name='title']/value",
-                        is("file.bin")));
+		// clean up
+		deleteMetacard(id);
+	}
 
-        // clean up
-        deleteMetacard(id[0]);
-    }
+	@Test
+	public void testIngestSanitizationBadExtension() throws Exception {
+		// DDF-3172 bad.files and bad.file.extensions in system.properties is not being respected
 
-    @Test
-    public void testIngestSanitizationBadExtension() throws Exception {
-        // DDF-3172 bad.files and bad.file.extensions in system.properties is not being respected
+		// setup
+		String fileName = "bad_file.cgi";      // file extension in bad.file.extensions
+		File tmpFile = createTemporaryFile(fileName, IOUtils.toInputStream("Test"));
 
-        // setup
-        String fileName = "bad_file.cgi";      // file extension in bad.file.extensions
-        String[] id = new String[1];
+		// ingest
+		String id = given().multiPart(tmpFile)
+				.expect()
+				.log()
+				.headers()
+				.statusCode(HttpStatus.SC_CREATED)
+				.when()
+				.post(REST_PATH.getUrl())
+				.getHeader("id");
 
-        File tmpFile = createTemporaryFile(fileName, IOUtils.toInputStream("Test"));
-
-        // ingest
-        with().pollInterval(1, SECONDS)
-                .await()
-                .atMost(30, SECONDS)
-                .ignoreExceptions()
-                .until(() -> {
-                    id[0] = given().multiPart(tmpFile)
-                            .expect()
-                            .log()
-                            .headers()
-                            .statusCode(HttpStatus.SC_CREATED)
-                            .when()
-                            .post(REST_PATH.getUrl())
-                            .getHeader("id");
-                    return true;
-                });
-        with().pollInterval(1, SECONDS)
-                .await()
-                .atMost(10, SECONDS)
-                .ignoreExceptions()
-                .until(() -> doesMetacardExist(id[0]));
-
-        // query - check if sanitized properly
-        getOpenSearch("xml", null, null, "q=*").log()
-                .all()
-                .assertThat()
-                .body(hasXPath(format(METACARD_X_PATH, id) + "/string[@name='title']/value",
-                        is("bad_file.bin")));
+		// query - check if sanitized properly
+		getOpenSearch("xml", null, null, "q=*").log()
+				.all()
+				.assertThat()
+				.body(hasXPath(format(METACARD_X_PATH, id) + "/string[@name='title']/value",
+						is("bad_file.bin")));
 
         // clean up
-        deleteMetacard(id[0]);
+        deleteMetacard(id);
     }
 
     @Test
