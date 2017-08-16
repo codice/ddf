@@ -77,20 +77,21 @@ public class ExportMigrationManagerImpl implements Closeable {
      */
     public ExportMigrationManagerImpl(MigrationReport report, Path exportFile,
             Stream<? extends Migratable> migratables) {
+        this(report,
+                exportFile,
+                migratables,
+                ExportMigrationManagerImpl.newZipOutputStreamFor(exportFile));
+    }
+
+    ExportMigrationManagerImpl(MigrationReport report, Path exportFile,
+            Stream<? extends Migratable> migratables, ZipOutputStream zos) {
         Validate.notNull(report, "invalid null report");
         Validate.isTrue(report.getOperation() == MigrationOperation.EXPORT,
                 "invalid migration operation");
-        Validate.notNull(exportFile, "invalid null export file");
         Validate.notNull(migratables, "invalid null migratables");
         this.report = report;
         this.exportFile = exportFile;
-        try {
-            this.zipOutputStream =
-                    new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(exportFile.toFile())));
-        } catch (FileNotFoundException e) {
-            throw new ExportMigrationException(String.format("unable to create export file [%s]",
-                    exportFile), e);
-        }
+        this.zipOutputStream = zos;
         // pre-create contexts for all registered migratables
         this.contexts = migratables.collect(Collectors.toMap(Migratable::getId,
                 m -> new ExportMigrationContextImpl(report, m, zipOutputStream),
@@ -98,12 +99,22 @@ public class ExportMigrationManagerImpl implements Closeable {
                 LinkedHashMap::new)); // to preserved ranking order and remove duplicates
     }
 
+    private static ZipOutputStream newZipOutputStreamFor(Path exportFile) {
+        Validate.notNull(exportFile, "invalid null export file");
+        try {
+            return new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(exportFile.toFile())));
+        } catch (FileNotFoundException e) {
+            throw new ExportMigrationException(String.format("unable to create export file [%s]",
+                    exportFile), e);
+        }
+    }
+
     /**
      * Proceed with the export migration operation.
      *
      * @param productVersion the product version being exported
      * @throws IllegalArgumentException if <code>productVersion</code> is <code>null</code>
-     * @throws MigrationException to stop the export operation
+     * @throws MigrationException       to stop the export operation
      */
     public void doExport(String productVersion) {
         Validate.notNull(productVersion, "invalid null product version");
@@ -118,7 +129,9 @@ public class ExportMigrationManagerImpl implements Closeable {
                 contexts.values()
                         .stream()
                         .map(ExportMigrationContextImpl::doExport)
-                        .collect(LinkedHashMap::new, LinkedHashMap::putAll, LinkedHashMap::putAll)); // preserve order
+                        .collect(LinkedHashMap::new,
+                                LinkedHashMap::putAll,
+                                LinkedHashMap::putAll)); // preserve order
         LOGGER.debug("Exported metadata: {}", metadata);
     }
 

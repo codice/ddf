@@ -13,9 +13,11 @@
  */
 package org.codice.ddf.configuration.migration;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -63,6 +65,17 @@ public class AbstractMigrationTest {
     protected Path DDF_HOME;
 
     protected Path DDF_BIN;
+
+    /**
+     * Retrieves all zip entries representing files from the specified zip file.
+     *
+     * @param path the path to the zip file
+     * @return a map keyed by entry names with the corresponding entry
+     * @throws IOException if an I/O error occurs while reading the file
+     */
+    public static Map<String, ZipEntry> getEntriesFrom(Path path) throws IOException {
+        return AbstractMigrationTest.getEntriesFrom(new BufferedInputStream(new FileInputStream(path.toFile())));
+    }
 
     /**
      * Retrieves all zip entries representing files from the provided byte array output stream.
