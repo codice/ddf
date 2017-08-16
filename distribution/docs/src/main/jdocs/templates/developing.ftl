@@ -5,36 +5,16 @@ include::${di.file}[]
 </#if>
 </#list>
 
-== Catalog Framework API
-<#list catalogFrameworkIntros?sort_by("order") as cfi>
-<#if (cfi.status == "published")>
-include::${cfi.file}[]
+<#include "catalog-frameworks.ftl">
 
-</#if>
-</#list>
+<#include "transformers.ftl">
 
-=== Included Catalog Frameworks, Associated Components, and Configurations
+<#include "plugins.ftl">
 
-These catalog frameworks are available in a standard ${branding} installation:
+<#-- <#include "architectures.ftl"> -->
 
-<#assign count=0>
-<#list catalogFrameworks?sort_by("order") as catalogFramework>
-<#if (catalogFramework.status == "published")>
-<#assign count++>
-<<${catalogFramework.link},${catalogFramework.title}>>:: ${catalogFramework.summary}
+<#include "security-framework.ftl">
 
-</#if>
-</#list>
-<#if (count == 0)>
-None.
-</#if>
+<#include "developing-components.ftl">
 
-<#list catalogFrameworks?sort_by("order") as catalogFramework>
-<#if (catalogFramework.status == "published")>
-
-==== ${catalogFramework.title}
-
-include::${catalogFramework.file}[]
-
-</#if>
-</#list>
+<#include "development-guidelines.ftl">

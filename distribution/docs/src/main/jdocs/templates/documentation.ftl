@@ -50,15 +50,6 @@ include::${project.build.directory}/doc-contents/_contents/config.adoc[]
 
 <#include "developing.ftl">
 
-== Transformers
-
-<#include "transformers.ftl">
-
-== Catalog Plugins
-<#include "plugins.ftl">
-
-<#include "developing-components.ftl">
-
 :sectnums!:
 == Appendices
 :sectnums:
