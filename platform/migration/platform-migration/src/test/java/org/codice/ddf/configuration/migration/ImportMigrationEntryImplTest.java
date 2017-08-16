@@ -183,14 +183,7 @@ public class ImportMigrationEntryImplTest extends AbstractMigrationTest {
 
         entry.store(true);
 
-        assertThat("Report has an error message", report.hasErrors(), is(true));
-        MigrationException exception = report.errors()
-                .findFirst()
-                .get();
-
-        assertThat(exception.getClass(), equalTo(ImportPathMigrationException.class));
-        assertThat(exception.getMessage()
-                .contains("was not exported"), is(true));
+        verifyReportHasMatchingError(report, ImportPathMigrationException.class, "was not exported");
     }
 
     @Test
@@ -314,10 +307,9 @@ public class ImportMigrationEntryImplTest extends AbstractMigrationTest {
         when(mockPathUtils.resolveAgainstDDFHome(any(Path.class))).thenReturn(ABSOLUTE_PATH);
     }
 
-    private MigrationReport givenARealMigrationReport() {
+    private void givenARealMigrationReport() {
         report = new MigrationReportImpl(MigrationOperation.IMPORT, Optional.empty());
         when(mockContext.getReport()).thenReturn(report);
-        return report;
     }
 
     private void verifyNameAndPathInformation(ImportMigrationEntryImpl entry,
