@@ -185,17 +185,17 @@ public class SecurityMigratableTest {
                 .toPath()
                 .toRealPath();
 
-        SecurityMigratable securityMigratable = new SecurityMigratable();
-        List<ConfigurationMigratable> configMigratables = Arrays.asList(securityMigratable);
-        List<DataMigratable> dataMigratables = Collections.emptyList();
-        ConfigurationMigrationManager configurationMigrationManager =
+        SecurityMigratable eSecurityMigratable = new SecurityMigratable();
+        List<ConfigurationMigratable> eConfigMigratables = Arrays.asList(eSecurityMigratable);
+        List<DataMigratable> eDataMigratables = Collections.emptyList();
+        ConfigurationMigrationManager eConfigurationMigrationManager =
                 new ConfigurationMigrationManager(mBeanServer,
-                        configMigratables,
-                        dataMigratables,
+                        eConfigMigratables,
+                        eDataMigratables,
                         systemService);
 
         // Perform export
-        MigrationReport exportReport = configurationMigrationManager.doExport(exportDir);
+        MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir);
 
         // Verify export
         assertThat("The export report has errors.", exportReport.hasErrors(), is(false));
@@ -209,7 +209,16 @@ public class SecurityMigratableTest {
         // Setup import
         setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG);
 
-        MigrationReport importReport = configurationMigrationManager.doImport(exportDir);
+        SecurityMigratable iSecurityMigratable = new SecurityMigratable();
+        List<ConfigurationMigratable> iConfigMigratables = Arrays.asList(iSecurityMigratable);
+        List<DataMigratable> iDataMigratables = Collections.emptyList();
+        ConfigurationMigrationManager iConfigurationMigrationManager =
+                new ConfigurationMigrationManager(mBeanServer,
+                        iConfigMigratables,
+                        iDataMigratables,
+                        systemService);
+
+        MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir);
 
         // Verify import
         assertThat("The import report has errors.", importReport.hasErrors(), is(false));
@@ -237,17 +246,17 @@ public class SecurityMigratableTest {
         lines.add(String.format("#%s=%s", CRL_PROP_KEY, CRL.toString()));
         FileUtils.writeLines(serverEncptProps.toFile(), StandardCharsets.UTF_8.toString(), lines, System.lineSeparator());
 
-        SecurityMigratable securityMigratable = new SecurityMigratable();
-        List<ConfigurationMigratable> configMigratables = Arrays.asList(securityMigratable);
-        List<DataMigratable> dataMigratables = Collections.emptyList();
-        ConfigurationMigrationManager configurationMigrationManager =
+        SecurityMigratable eSecurityMigratable = new SecurityMigratable();
+        List<ConfigurationMigratable> eConfigMigratables = Arrays.asList(eSecurityMigratable);
+        List<DataMigratable> eDataMigratables = Collections.emptyList();
+        ConfigurationMigrationManager eConfigurationMigrationManager =
                 new ConfigurationMigrationManager(mBeanServer,
-                        configMigratables,
-                        dataMigratables,
+                        eConfigMigratables,
+                        eDataMigratables,
                         systemService);
 
         // Perform export
-        MigrationReport exportReport = configurationMigrationManager.doExport(exportDir);
+        MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir);
 
         // Verify export
         assertThat("The export report has errors.", exportReport.hasErrors(), is(false));
@@ -261,7 +270,16 @@ public class SecurityMigratableTest {
         // Setup import
         setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG);
 
-        MigrationReport importReport = configurationMigrationManager.doImport(exportDir);
+        SecurityMigratable iSecurityMigratable = new SecurityMigratable();
+        List<ConfigurationMigratable> iConfigMigratables = Arrays.asList(iSecurityMigratable);
+        List<DataMigratable> iDataMigratables = Collections.emptyList();
+        ConfigurationMigrationManager iConfigurationMigrationManager =
+                new ConfigurationMigrationManager(mBeanServer,
+                        iConfigMigratables,
+                        iDataMigratables,
+                        systemService);
+
+        MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir);
 
         // Verify import
         assertThat("The import report has errors.", importReport.hasErrors(), is(false));
@@ -284,17 +302,17 @@ public class SecurityMigratableTest {
         Path xacmlPolicy = ddfHome.resolve(PDP_POLICIES_DIR).resolve(XACML_POLICY);
         Files.delete(xacmlPolicy);
 
-        SecurityMigratable securityMigratable = new SecurityMigratable();
-        List<ConfigurationMigratable> configMigratables = Arrays.asList(securityMigratable);
-        List<DataMigratable> dataMigratables = Collections.emptyList();
-        ConfigurationMigrationManager configurationMigrationManager =
+        SecurityMigratable eSecurityMigratable = new SecurityMigratable();
+        List<ConfigurationMigratable> eConfigMigratables = Arrays.asList(eSecurityMigratable);
+        List<DataMigratable> eDataMigratables = Collections.emptyList();
+        ConfigurationMigrationManager eConfigurationMigrationManager =
                 new ConfigurationMigrationManager(mBeanServer,
-                        configMigratables,
-                        dataMigratables,
+                        eConfigMigratables,
+                        eDataMigratables,
                         systemService);
 
         // Perform export
-        MigrationReport exportReport = configurationMigrationManager.doExport(exportDir);
+        MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir);
 
         // Verify export
         assertThat("The export report has errors.", exportReport.hasErrors(), is(false));
@@ -308,7 +326,16 @@ public class SecurityMigratableTest {
         // Setup import
         setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG);
 
-        MigrationReport importReport = configurationMigrationManager.doImport(exportDir);
+        SecurityMigratable iSecurityMigratable = new SecurityMigratable();
+        List<ConfigurationMigratable> iConfigMigratables = Arrays.asList(iSecurityMigratable);
+        List<DataMigratable> iDataMigratables = Collections.emptyList();
+        ConfigurationMigrationManager iConfigurationMigrationManager =
+                new ConfigurationMigrationManager(mBeanServer,
+                        iConfigMigratables,
+                        iDataMigratables,
+                        systemService);
+
+        MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir);
 
         // Verify import
         assertThat("The import report has errors.", importReport.hasErrors(), is(false));
@@ -339,17 +366,17 @@ public class SecurityMigratableTest {
         Path xacmlPolicy = ddfHome.resolve(PDP_POLICIES_DIR).resolve(XACML_POLICY);
         Files.delete(xacmlPolicy);
 
-        SecurityMigratable securityMigratable = new SecurityMigratable();
-        List<ConfigurationMigratable> configMigratables = Arrays.asList(securityMigratable);
-        List<DataMigratable> dataMigratables = Collections.emptyList();
-        ConfigurationMigrationManager configurationMigrationManager =
+        SecurityMigratable eSecurityMigratable = new SecurityMigratable();
+        List<ConfigurationMigratable> eConfigMigratables = Arrays.asList(eSecurityMigratable);
+        List<DataMigratable> eDataMigratables = Collections.emptyList();
+        ConfigurationMigrationManager eConfigurationMigrationManager =
                 new ConfigurationMigrationManager(mBeanServer,
-                        configMigratables,
-                        dataMigratables,
+                        eConfigMigratables,
+                        eDataMigratables,
                         systemService);
 
         // Perform export
-        MigrationReport exportReport = configurationMigrationManager.doExport(exportDir);
+        MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir);
 
         // Verify export
         assertThat("The export report has errors.", exportReport.hasErrors(), is(false));
@@ -363,7 +390,16 @@ public class SecurityMigratableTest {
         // Setup import
         setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG);
 
-        MigrationReport importReport = configurationMigrationManager.doImport(exportDir);
+        SecurityMigratable iSecurityMigratable = new SecurityMigratable();
+        List<ConfigurationMigratable> iConfigMigratables = Arrays.asList(iSecurityMigratable);
+        List<DataMigratable> iDataMigratables = Collections.emptyList();
+        ConfigurationMigrationManager iConfigurationMigrationManager =
+                new ConfigurationMigrationManager(mBeanServer,
+                        iConfigMigratables,
+                        iDataMigratables,
+                        systemService);
+
+        MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir);
 
         // Verify import
         assertThat("The import report has errors.", importReport.hasErrors(), is(false));
