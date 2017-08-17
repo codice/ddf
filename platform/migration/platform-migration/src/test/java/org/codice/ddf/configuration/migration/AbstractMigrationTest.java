@@ -23,6 +23,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -53,6 +54,8 @@ public class AbstractMigrationTest {
     protected static final String MIGRATABLE_ID = "test-migratable";
 
     protected static final String VERSION = "3.1415";
+
+    protected static final String PRODUCT_VERSION = "test-1.0";
 
     protected static final String TITLE = "Test Migratable";
 
@@ -210,6 +213,47 @@ public class AbstractMigrationTest {
         return createFile(path.getParent(),
                 path.getFileName()
                         .toString());
+    }
+
+    /**
+     * Creates a test file with the given name in the specified directory resolved under ${ddf.home}.
+     * <p>
+     * <i>Note:</i> The file will be created with the filename (no directory) as its content.
+     *
+     * @param dir      the directory where to create the test file
+     * @param name     the name of the test file to create in the specified directory
+     * @param resource the resource to copy to the test file
+     * @return a path corresponding to the test file created (relativized from ${ddf.home})
+     * @throws IOException if an I/O error occurs while creating the test file
+     */
+    public Path createFileFromResource(Path dir, String name, String resource) throws IOException {
+        final File file = new File(DDF_HOME.resolve(dir)
+                .toFile(), name);
+        final InputStream is = AbstractMigrationTest.class.getResourceAsStream(resource);
+
+        if (is == null) {
+            throw new FileNotFoundException("resource '" + resource + "' not found");
+        }
+        FileUtils.copyInputStreamToFile(is, file);
+        final Path path = file.toPath()
+                .toRealPath(LinkOption.NOFOLLOW_LINKS);
+
+        return path.startsWith(DDF_HOME) ? DDF_HOME.relativize(path) : path;
+    }
+
+    /**
+     * Creates a test file at the given path from the specified resource.
+     *
+     * @param path     the path of the test file to create in the specified directory
+     * @param resource the resource to copy to the test file
+     * @return a path corresponding to the test file created (relativized from ${ddf.home})
+     * @throws IOException if an I/O error occurs while creating the test file
+     */
+    public Path createFileFromResource(Path path, String resource) throws IOException {
+        return createFileFromResource(path.getParent(),
+                path.getFileName()
+                        .toString(),
+                resource);
     }
 
     /**

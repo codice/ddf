@@ -29,10 +29,13 @@ public class AbstractMigrationReportTest extends AbstractMigrationTest {
             .filter(m -> m.startsWith("info"))
             .toArray(String[]::new);
 
-    protected final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.EXPORT,
-            Optional.empty());
+    protected final MigrationReportImpl REPORT;
 
     protected final MigrationException[] EXCEPTIONS = new MigrationException[ERRORS.length];
+
+    protected AbstractMigrationReportTest(MigrationOperation operation) {
+        this.REPORT = new MigrationReportImpl(operation, Optional.empty());
+    }
 
     @Before
     public void baseReportBefore() {

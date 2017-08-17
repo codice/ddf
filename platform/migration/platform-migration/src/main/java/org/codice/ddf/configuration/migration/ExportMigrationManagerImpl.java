@@ -158,10 +158,12 @@ public class ExportMigrationManagerImpl implements Closeable {
         return exportFile;
     }
 
+    // used for testing
     Collection<ExportMigrationContextImpl> getContexts() {
         return contexts.values();
     }
 
+    // used for testing
     Map<String, Object> getMetadata() {
         return metadata;
     }
