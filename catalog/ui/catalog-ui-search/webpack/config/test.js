@@ -5,10 +5,15 @@ var ci = require('./ci');
 
 module.exports = merge.smart(ci, {
     entry: [
-        'webpack-hot-middleware/client?path=/__webpack_hmr_test',
-        'webpack/hot/only-dev-server',
         'stack-source-map/register'
     ],
+    devServer: {
+        progress: true,
+        historyApiFallback: true,
+        inline: true,
+        hot: true,
+        port: 8181
+    },
     plugins: [
         new webpack.HotModuleReplacementPlugin()
     ]

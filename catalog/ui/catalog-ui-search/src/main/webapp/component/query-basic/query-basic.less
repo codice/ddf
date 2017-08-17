@@ -18,6 +18,7 @@
     .basic-time-before,
     .basic-time-after,
     .basic-time-between,
+    .basic-time-relative,
     .basic-location-specific,
     .basic-type-specific {
       display: none;
@@ -96,6 +97,15 @@
   .editor-properties {
 
     .basic-time-between {
+      display: block;
+    }
+  }
+}
+
+@{customElementNamespace}query-basic.is-timeRange-relative {
+  .editor-properties {
+
+    .basic-time-relative {
       display: block;
     }
   }

@@ -16,12 +16,14 @@ package ddf.catalog.filter.proxy.adapter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.geotools.filter.FilterFactoryImpl;
 import org.geotools.geometry.jts.spatialschema.geometry.GeometryImpl;
 import org.geotools.styling.UomOgcMapping;
 import org.geotools.temporal.object.DefaultPeriodDuration;
 import org.geotools.util.Converters;
+import org.joda.time.DateTime;
 import org.opengis.filter.And;
 import org.opengis.filter.BinaryComparisonOperator;
 import org.opengis.filter.ExcludeFilter;
@@ -102,6 +104,10 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
     public static final String CQL_KILOMETERS = "kilometers";
 
     private static final FilterFactory FF = new FilterFactoryImpl();
+
+    //Does not support fractional values
+    private static final Pattern RELATIVE_TEMPORAL_MATCHER = Pattern.compile(
+            "RELATIVE\\(P(?!$)(\\d+Y)?(\\d+M)?(\\d+W)?(\\d+D)?(T(?=\\d)(\\d+H)?(\\d+M)?(\\d+S)?)?\\)");
 
     public <T> T adapt(Filter filter, FilterDelegate<T> filterDelegate)
             throws UnsupportedQueryException {
@@ -318,6 +324,27 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
         Object literal = filterValues.literal;
         String functionName = filterValues.functionName;
         List<Object> functionArgs = filterValues.functionArgs;
+
+        //Special case to handle relative temporal queries
+        if (literal instanceof String && RELATIVE_TEMPORAL_MATCHER.matcher((String) literal)
+                .matches()) {
+            DateTime currentDateTime = new DateTime();
+
+            //Split out the ISO 8601 duration from the ECQL function
+            String duration = (((String) literal).split("[\\(\\)]"))[1];
+
+            org.joda.time.Period period = org.joda.time.Period.parse(duration);
+
+            DateTime pastDateTime = currentDateTime.minusYears(period.getYears())
+                    .minusMonths(period.getMonths())
+                    .minusDays(period.getDays())
+                    .minusHours(period.getHours())
+                    .minusMinutes(period.getMinutes());
+
+            return ((FilterDelegate<?>) delegate).propertyIsBetween(propertyName,
+                    pastDateTime.toDate(),
+                    currentDateTime.toDate());
+        }
 
         if (functionName != null) {
             return ((FilterDelegate<?>) delegate).propertyIsEqualTo(functionName,
