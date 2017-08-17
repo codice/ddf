@@ -58,7 +58,7 @@ import ddf.catalog.util.impl.RelevanceResultComparator;
 import ddf.catalog.util.impl.TemporalResultComparator;
 
 class SortedQueryMonitor implements Runnable {
-    private static final String EXT_SORT_BY = "EXT_SORT_BY";
+    private static final String EXT_SORT_BY = "additional.sort.bys";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SortedQueryMonitor.class);
 

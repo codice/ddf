@@ -84,7 +84,7 @@ public class CswQueryFactory {
     private static final Configuration PARSER_CONFIG =
             new org.geotools.filter.v1_1.OGCConfiguration();
 
-    private static final String EXT_SORT_BY = "EXT_SORT_BY";
+    private static final String EXT_SORT_BY = "additional.sort.bys";
 
     private static JAXBContext jaxBContext;
 
@@ -141,7 +141,7 @@ public class CswQueryFactory {
         SortBy[] extSortBys = null;
         if (sortBys != null && sortBys.length > 0) {
             frameworkQuery.setSortBy(sortBys[0]);
-            extSortBys = (Arrays.stream(sortBys).skip(1).collect(Collectors.toList())).toArray(new SortBy[0]);
+            extSortBys = Arrays.copyOfRange(sortBys, 1, sortBys.length);
         }
 
         if (ResultType.HITS.equals(request.getResultType()) || request.getMaxRecords()
@@ -281,6 +281,7 @@ public class CswQueryFactory {
                 LOGGER.debug("Property {} is not a valid SortBy Field",
                         cswSortBy.getPropertyName()
                                 .getPropertyName());
+                continue;
             }
 
             String name = DefaultCswRecordMap.getDefaultMetacardFieldForPrefixedString(cswSortBy.getPropertyName()
@@ -291,6 +292,10 @@ public class CswQueryFactory {
             PropertyName propName = new AttributeExpressionImpl(new NameImpl(name));
             SortBy sortBy = new SortByImpl(propName, cswSortBy.getSortOrder());
             sortBys.add(sortBy);
+        }
+
+        if (sortBys.isEmpty()) {
+            return null;
         }
 
         return sortBys.toArray(new SortBy[0]);

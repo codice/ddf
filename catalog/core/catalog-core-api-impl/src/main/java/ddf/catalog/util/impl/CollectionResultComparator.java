@@ -29,7 +29,9 @@ public class CollectionResultComparator implements Comparator<Result>, Serializa
     private transient List<Comparator<Result>> comparators = new ArrayList<>();
 
     public void addComparator(Comparator<Result> resultComparator) {
-        comparators.add(resultComparator);
+        if (resultComparator != null) {
+            comparators.add(resultComparator);
+        }
     }
 
     @Override

@@ -211,7 +211,7 @@ public abstract class AbstractCswSource extends MaskableImpl
 
     private static final String BYTES_SKIPPED = "bytes-skipped";
 
-    private static final String EXT_SORT_BY = "EXT_SORT_BY";
+    private static final String EXT_SORT_BY = "additional.sort.bys";
 
     private static Properties describableProperties = new Properties();
 
@@ -1182,7 +1182,6 @@ public abstract class AbstractCswSource extends MaskableImpl
                 }
             }
 
-            cswSortBy = new SortByType();
             for (SortBy sortBy : sortBys) {
                 SortPropertyType sortProperty = new SortPropertyType();
                 PropertyNameType propertyName = new PropertyNameType();
@@ -1199,7 +1198,11 @@ public abstract class AbstractCswSource extends MaskableImpl
                             propName = Core.TITLE;
                         } else if (Result.DISTANCE.equals(propName) || Metacard.ANY_GEO.equals(
                                 propName)) {
-                            return null;
+                            continue;
+                        }
+
+                        if (cswSortBy == null) {
+                            cswSortBy = new SortByType();
                         }
 
                         propertyName.setContent(Arrays.asList((Object) cswFilterDelegate.mapPropertyName(

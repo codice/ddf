@@ -81,7 +81,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     private static final String GEOMETRY_SORT_FIELD =
             Metacard.GEOGRAPHY + SchemaFields.GEO_SUFFIX + SchemaFields.SORT_KEY_SUFFIX;
 
-    private static final String EXT_SORT_BY = "EXT_SORT_BY";
+    private static final String EXT_SORT_BY = "additional.sort.bys";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SolrMetacardClientImpl.class);
 

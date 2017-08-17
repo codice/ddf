@@ -39,7 +39,7 @@ public class FilteringDynamicSchemaResolver extends DynamicSchemaResolver {
 
     public static final String SOURCE_ID = "source-id";
 
-    private static final String EXT_SORT_BY = "EXT_SORT_BY";
+    private static final String EXT_SORT_BY = "additional.sort.bys";
 
     private final Set<String> usedFields = new HashSet<>();
 
@@ -53,9 +53,12 @@ public class FilteringDynamicSchemaResolver extends DynamicSchemaResolver {
         SolrFilterDelegate solrFilterDelegate = filterDelegateFactory.newInstance(this);
         List<SortBy> sortBys = new ArrayList<>();
 
-        SortBy sortBy = request.getQuery().getSortBy();
-        if (sortBy != null) {
-            sortBys.add(sortBy);
+        if (request.getQuery() != null) {
+            SortBy sortBy = request.getQuery()
+                    .getSortBy();
+            if (sortBy != null) {
+                sortBys.add(sortBy);
+            }
         }
 
         Serializable sortBySer = request.getPropertyValue(EXT_SORT_BY);
