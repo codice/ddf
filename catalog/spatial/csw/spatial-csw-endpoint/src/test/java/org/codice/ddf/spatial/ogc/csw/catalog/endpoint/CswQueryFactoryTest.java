@@ -17,6 +17,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
@@ -214,6 +215,8 @@ public class CswQueryFactoryTest {
 
     private static QName cswQnameOutPutSchema = new QName(CswConstants.CSW_OUTPUT_SCHEMA);
 
+    private QueryFilterTransformerHelper queryFilterTransformerHelper;
+
     public static MetacardType getCswMetacardType() {
         return new MetacardTypeImpl(CswConstants.CSW_METACARD_TYPE_NAME,
                 Arrays.asList(new ContactAttributes(),
@@ -248,12 +251,11 @@ public class CswQueryFactoryTest {
         gmlObjectFactory = new net.opengis.gml.v_3_1_1.ObjectFactory();
         filterObjectFactory = new ObjectFactory();
 
-        QueryFilterTransformerHelper queryFilterTransformerHelper = mock(
-                QueryFilterTransformerHelper.class);
+        queryFilterTransformerHelper = mock(QueryFilterTransformerHelper.class);
         QueryFilterTransformer cswQueryFilter = new CswQueryFilterTransformer(getCswMetacardType(),
                 Collections.emptyList());
-        when(queryFilterTransformerHelper.getTransformer(any(QName.class))).thenReturn(
-                cswQueryFilter);
+        when(queryFilterTransformerHelper.getTransformer(new QName(CswConstants.CSW_OUTPUT_SCHEMA,
+                "Record"))).thenReturn(cswQueryFilter);
         queryFactory.setQueryFilterTransformerHelper(queryFilterTransformerHelper);
     }
 
@@ -732,6 +734,22 @@ public class CswQueryFactoryTest {
                 .getQuery(), new TagsFilterDelegate("myTag")), is(true));
     }
 
+    @Test
+    public void testMultipleQueryFilterTransformers() throws CswException {
+        List<String> namespaces = Arrays.asList("{namespace}one", "{namespace}two");
+
+        QueryConstraintType constraint = mock(QueryConstraintType.class);
+        when(constraint.isSetCqlText()).thenReturn(true);
+        when(constraint.getCqlText()).thenReturn(CQL_CONTEXTUAL_LIKE_QUERY);
+
+        for (String namespace : namespaces) {
+            QueryRequest request = mock(QueryRequest.class);
+            addQueryFilterTransformer(namespace, request);
+            QueryRequest result = queryFactory.getQuery(constraint, namespace);
+            assertThat(result, equalTo(request));
+        }
+    }
+
     /**
      * Runs a binary Spatial CQL Query, verifying that the right filter class is generated based on CQL
      *
@@ -1199,4 +1217,10 @@ public class CswQueryFactoryTest {
         return grr;
     }
 
+    private void addQueryFilterTransformer(String namespace, QueryRequest request) {
+        QueryFilterTransformer transformer = mock(QueryFilterTransformer.class);
+        when(transformer.transform(any(), any())).thenReturn(request);
+        when(queryFilterTransformerHelper.getTransformer(QName.valueOf(namespace))).thenReturn(
+                transformer);
+    }
 }

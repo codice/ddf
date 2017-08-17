@@ -18,6 +18,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +32,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import ddf.catalog.transform.QueryFilterTransformer;
+import net.opengis.cat.csw.v_2_0_2.ElementSetNameType;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
 
 public class ValidatorTest {
@@ -144,6 +146,58 @@ public class ValidatorTest {
         validator.validateTypeNameToNamespaceMappings(drr.getTypeName(),
                 drr.getNamespace(),
                 namespacePrefixToUriMappings);
+    }
+
+    @Test(expected = CswException.class)
+    public void testEmptyNamespace() throws CswException {
+        List<QName> types = Collections.singletonList(new QName("localname"));
+        validator.validateFullyQualifiedTypes(types);
+    }
+
+    @Test
+    public void testNoTypes() throws CswException {
+        validator.validateTypes(Collections.emptyList(), "version");
+        validator.validateTypes(null, "version");
+    }
+
+    @Test(expected = CswException.class)
+    public void testBadElementSetNameCombination() throws CswException {
+        QueryType queryType = mock(QueryType.class);
+        when(queryType.isSetElementName()).thenReturn(true);
+        when(queryType.isSetElementSetName()).thenReturn(true);
+        validator.validateElementNames(queryType);
+    }
+
+    @Test(expected = CswException.class)
+    public void testInvalidElementName() throws CswException {
+        QueryType queryType = mock(QueryType.class);
+        when(queryType.isSetElementName()).thenReturn(true);
+        when(queryType.getElementName()).thenReturn(Collections.singletonList(new QName(
+                "fake element name")));
+        validator.validateElementNames(queryType);
+    }
+
+    @Test(expected = CswException.class)
+    public void testInvalidElementSetName() throws CswException {
+        QueryType queryType = mock(QueryType.class);
+        when(queryType.isSetElementSetName()).thenReturn(true);
+        when(queryType.getElementSetName()).thenReturn(new ElementSetNameType());
+        validator.validateElementNames(queryType);
+    }
+
+    @Test(expected = CswException.class)
+    public void testInvalidVersion() throws CswException {
+        validator.validateVersion("invalid version");
+    }
+
+    @Test(expected = CswException.class)
+    public void testInvalidOutputFormat() throws CswException {
+        validator.validateOutputFormat("invalid format", transformerManager);
+    }
+
+    @Test(expected = CswException.class)
+    public void testInvalidSchemaLanguage() throws CswException {
+        validator.validateSchemaLanguage("invalid schema language");
     }
 
     /**
