@@ -35,6 +35,10 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportTest 
 
     private ExportMigrationManagerImpl MGR;
 
+    public ExportMigrationManagerImplTest() {
+        super(MigrationOperation.EXPORT);
+    }
+
     @Before
     public void before() throws Exception {
         EXPORT_FILE = DDF_HOME.resolve(createDirectory("exported"))
@@ -49,7 +53,7 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportTest 
     @Test
     public void testConstructor() throws Exception {
         Assert.assertThat(MGR.getReport(), Matchers.sameInstance(REPORT));
-        Assert.assertThat(MGR.getExportFile(), Matchers.equalTo(EXPORT_FILE));
+        Assert.assertThat(MGR.getExportFile(), Matchers.sameInstance(EXPORT_FILE));
         Assert.assertThat(MGR.getContexts()
                         .stream()
                         .map(ExportMigrationContextImpl::getMigratable)
@@ -65,7 +69,7 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportTest 
 
         initMigratableMock(MIGRATABLE2_2, MIGRATABLE_ID2);
         Assert.assertThat(MGR.getReport(), Matchers.sameInstance(REPORT));
-        Assert.assertThat(MGR.getExportFile(), Matchers.equalTo(EXPORT_FILE));
+        Assert.assertThat(MGR.getExportFile(), Matchers.sameInstance(EXPORT_FILE));
         Assert.assertThat(MGR.getContexts()
                         .stream()
                         .map(ExportMigrationContextImpl::getMigratable)
@@ -124,9 +128,13 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportTest 
 
     @Test
     public void testDoExport() throws Exception {
-        MGR.doExport(VERSION);
+        MGR.doExport(PRODUCT_VERSION);
 
         assertMetaData(MGR.getMetadata());
+
+        Mockito.verify(MIGRATABLE).doExport(Mockito.notNull());
+        Mockito.verify(MIGRATABLE2).doExport(Mockito.notNull());
+        Mockito.verify(MIGRATABLE3).doExport(Mockito.notNull());
     }
 
     @Test
@@ -139,7 +147,9 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportTest 
 
         thrown.expect(Matchers.sameInstance(ME));
 
-        MGR.doExport(VERSION);
+        MGR.doExport(PRODUCT_VERSION);
+
+        Mockito.verify(MIGRATABLE3, Mockito.never()).doExport(Mockito.notNull());
     }
 
     @Test
@@ -152,7 +162,7 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportTest 
 
     @Test
     public void testClose() throws Exception {
-        MGR.doExport(VERSION);
+        MGR.doExport(PRODUCT_VERSION);
 
         MGR.close();
 
@@ -218,7 +228,7 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportTest 
                 Matchers.hasEntry(MigrationContextImpl.METADATA_VERSION,
                         MigrationContextImpl.VERSION));
         Assert.assertThat(metadata,
-                Matchers.hasEntry(MigrationContextImpl.METADATA_PRODUCT_VERSION, VERSION));
+                Matchers.hasEntry(MigrationContextImpl.METADATA_PRODUCT_VERSION, PRODUCT_VERSION));
         Assert.assertThat(metadata, Matchers.hasKey(MigrationContextImpl.METADATA_DATE));
         Assert.assertThat(metadata,
                 Matchers.hasEntry(Matchers.equalTo(MigrationContextImpl.METADATA_MIGRATABLES),

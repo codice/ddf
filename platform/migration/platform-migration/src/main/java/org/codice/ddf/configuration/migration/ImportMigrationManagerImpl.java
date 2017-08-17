@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -61,6 +62,8 @@ public class ImportMigrationManagerImpl implements Closeable {
 
     private final String productVersion;
 
+    private final Path exportFile;
+
     /**
      * Creates a new migration manager for an import operation.
      *
@@ -70,21 +73,29 @@ public class ImportMigrationManagerImpl implements Closeable {
      * @throws MigrationException       if a failure occurs while processing the zip file (the error
      *                                  will not be recorded with the report)
      * @throws IllegalArgumentException if <code>report</code> is <code>null</code> or if it is not
-     *                                  for an import migration operation
+     *                                  for an import migration operation or if <code>exportFile</code>
+     *                                  or <code>migratables</code> is <code>null</code>
      */
     public ImportMigrationManagerImpl(MigrationReport report, Path exportFile,
             Stream<? extends Migratable> migratables) {
+        this(report, exportFile, migratables, ImportMigrationManagerImpl.newZipFileFor(exportFile));
+    }
+
+    ImportMigrationManagerImpl(MigrationReport report, Path exportFile,
+            Stream<? extends Migratable> migratables, ZipFile zip) {
         Validate.notNull(report, "invalid null report");
         Validate.isTrue(report.getOperation() == MigrationOperation.IMPORT,
                 "invalid migration operation");
+        Validate.notNull(migratables, "invalid null migratables");
         this.report = report;
+        this.exportFile = exportFile;
+        this.zip = zip;
         try {
-            this.zip = new ZipFile(exportFile.toFile());
             // pre-create contexts for all registered migratables
             this.contexts = migratables.collect(Collectors.toMap(Migratable::getId,
                     m -> new ImportMigrationContextImpl(report, zip, m),
                     ConfigurationMigrationManager.throwingMerger(),
-                    LinkedHashMap::new)); // to preserved ranking order
+                    LinkedHashMap::new)); // to preserved ranking order and remove duplicates
             // add a system contexts
             contexts.put(null, new ImportMigrationContextImpl(report, zip));
             zip.stream()
@@ -92,9 +103,6 @@ public class ImportMigrationManagerImpl implements Closeable {
                     .forEach(me -> me.getContext()
                             .addEntry(me));
             this.metadata = retrieveMetadata();
-        } catch (FileNotFoundException e) {
-            throw new ImportMigrationException(String.format("missing export file [%s]",
-                    exportFile), e);
         } catch (IOException e) {
             throw new ImportMigrationException(String.format("failed importing from file [%s]",
                     exportFile), e);
@@ -116,17 +124,29 @@ public class ImportMigrationManagerImpl implements Closeable {
                 .forEach((id, o) -> getContextFor(id).processMetadata(JsonUtils.convertToMap(o)));
     }
 
+    private static ZipFile newZipFileFor(Path exportFile) {
+        Validate.notNull(exportFile, "invalid null export file");
+        try {
+            return new ZipFile(exportFile.toFile());
+        } catch (FileNotFoundException e) {
+            throw new ImportMigrationException(String.format("missing export file [%s]",
+                    exportFile), e);
+        } catch (IOException e) {
+            throw new ImportMigrationException(String.format("failed to open export file [%s]",
+                    exportFile), e);
+        }
+    }
+
     /**
      * Proceed with the import migration operation.
      *
      * @param productVersion the product version to compare against
-     * @throws MigrationException if the versions don't match or if a failure occurred that required
-     *                            interrupting the operation right away
      * @throws IllegalArgumentException if <code>productVersion</code> is <code>null</code>
-     * @throws MigrationException to stop the import operation
+     * @throws MigrationException       if the versions don't match or if a failure occurred that required
+     *                                  interrupting the operation right away
      */
     public void doImport(String productVersion) {
-        Validate.notNull(productVersion, "invalid null version");
+        Validate.notNull(productVersion, "invalid null product version");
         if (!productVersion.equals(this.productVersion)) {
             throw new ImportMigrationException(String.format(
                     "mismatched exported product version [%s]; expecting [%s]",
@@ -141,6 +161,19 @@ public class ImportMigrationManagerImpl implements Closeable {
     @Override
     public void close() throws IOException {
         zip.close();
+    }
+
+    public MigrationReport getReport() {
+        return report;
+    }
+
+    public Path getExportFile() {
+        return exportFile;
+    }
+
+    // used for testing
+    Collection<ImportMigrationContextImpl> getContexts() {
+        return contexts.values();
     }
 
     private ImportMigrationContextImpl getContextFor(String id) {

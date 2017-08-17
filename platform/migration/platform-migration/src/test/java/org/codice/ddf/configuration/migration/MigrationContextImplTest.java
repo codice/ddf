@@ -20,6 +20,7 @@ import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
+import org.codice.ddf.migration.MigrationOperation;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
@@ -29,6 +30,10 @@ import com.google.common.collect.ImmutableMap;
 
 public class MigrationContextImplTest extends AbstractMigrationReportTest {
     private MigrationContextImpl CONTEXT;
+
+    public MigrationContextImplTest() {
+        super(MigrationOperation.EXPORT);
+    }
 
     @Before
     public void before() throws Exception {

@@ -34,6 +34,10 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 public class MigrationReportImplTest extends AbstractMigrationReportTest {
+    public MigrationReportImplTest() {
+        super(MigrationOperation.EXPORT);
+    }
+
     @Test
     public void testConstructorWithExportOperation() throws Exception {
         final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.EXPORT,
