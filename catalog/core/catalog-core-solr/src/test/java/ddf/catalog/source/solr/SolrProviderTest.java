@@ -31,6 +31,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static ddf.catalog.Constants.EXPERIMENTAL_FACET_RESULTS_KEY;
 
 import java.beans.XMLEncoder;
 import java.io.BufferedOutputStream;
@@ -80,6 +81,9 @@ import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.ContentType;
 import ddf.catalog.data.Metacard;
@@ -99,10 +103,14 @@ import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
+import ddf.catalog.operation.Response;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.Update;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.operation.UpdateResponse;
+import ddf.catalog.operation.faceting.FacetValueCount;
+import ddf.catalog.operation.faceting.FacetedAttributeResult;
+import ddf.catalog.operation.faceting.FacetedQueryRequest;
 import ddf.catalog.operation.impl.DeleteRequestImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
@@ -6225,6 +6233,61 @@ public class SolrProviderTest extends SolrProviderTestCase {
                 .is()
                 .like()
                 .fuzzyText("Hurry, my lawn is going wild!"));
+    }
+
+    @Test
+    public void testFacetedResponse() throws Exception {
+
+        deleteAllIn(provider);
+
+        List<Metacard> metacards = new ArrayList<>();
+
+        for (int i = 0; i < 9; i++) {
+            Metacard metacard = new MetacardImpl();
+            metacard.setAttribute(new AttributeImpl(Metacard.DESCRIPTION, "Description " + i/2));
+            metacards.add(metacard);
+        }
+
+        create(metacards);
+
+        Filter filter = filterBuilder.attribute(Metacard.DESCRIPTION)
+                .is()
+                .like()
+                .fuzzyText("Description");
+
+        Response response = provider.query(new FacetedQueryRequest(new QueryImpl(filter),
+                ImmutableSet.of(Metacard.DESCRIPTION)));
+
+        Serializable rawFacetResult = response.getPropertyValue(EXPERIMENTAL_FACET_RESULTS_KEY);
+
+        assertThat(rawFacetResult, notNullValue());
+        assertThat(rawFacetResult, instanceOf(List.class));
+
+        List<FacetedAttributeResult> facetResult = (List<FacetedAttributeResult>) rawFacetResult;
+
+        assertThat(facetResult.size(), is(1));
+
+        FacetedAttributeResult descriptionResult = facetResult.get(0);
+
+        assertThat(descriptionResult.getAttributeName(), is(Metacard.DESCRIPTION));
+        assertThat(descriptionResult.getFacetValues().size(), is(5));
+
+        List<FacetValueCount> facetValueCounts = descriptionResult.getFacetValues();
+
+        Map<String, Long> expectedResults = ImmutableMap.of(
+                "Description 0", 2L,
+                "Description 1", 2L,
+                "Description 2", 2L,
+                "Description 3", 2L,
+                "Description 4", 1L
+        );
+
+        facetValueCounts.forEach(fvc -> {
+            Long count = expectedResults.get(fvc.getValue());
+            assertThat(count, notNullValue());
+            assertThat(fvc.getCount(), is(count));
+        });
+
     }
 
     private void prepareXPath(boolean isXpathDisabled)
