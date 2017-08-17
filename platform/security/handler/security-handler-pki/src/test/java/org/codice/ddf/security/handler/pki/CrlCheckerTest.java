@@ -194,10 +194,10 @@ public class CrlCheckerTest {
         String urlPath = "http://example.com/";
         crlChecker.setCrlLocation(urlPath);
 
-        //Cert should pass because a crl should not be set
+        //Cert should fail because existing crl was maintained
         String certificateString = getRevokedCert();
         X509Certificate[] certs = extractX509CertsFromString(certificateString);
-        assertThat(crlChecker.passesCrlCheck(certs), equalTo(true));
+        assertThat(crlChecker.passesCrlCheck(certs), equalTo(false));
     }
 
     @Test
@@ -210,10 +210,10 @@ public class CrlCheckerTest {
         String urlPath = "http://example.com/nocrl.pem";
         crlChecker.setCrlLocation(urlPath);
 
-        //Cert should pass because a crl should not be set
+        //Cert should fail because the existing crl was maintained
         String certificateString = getRevokedCert();
         X509Certificate[] certs = extractX509CertsFromString(certificateString);
-        assertThat(crlChecker.passesCrlCheck(certs), equalTo(true));
+        assertThat(crlChecker.passesCrlCheck(certs), equalTo(false));
     }
 
     private CrlChecker getConfiguredCrlChecker(String encryptionProperties) {

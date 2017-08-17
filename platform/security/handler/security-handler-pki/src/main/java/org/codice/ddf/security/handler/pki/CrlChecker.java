@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
+ * <p/>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p>
+ * <p/>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -22,9 +22,15 @@ import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.cert.CRL;
 import java.security.cert.CertificateFactory;
+import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
+import java.util.Calendar;
 import java.util.Properties;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.wss4j.common.crypto.Merlin;
 import org.codice.ddf.configuration.AbsolutePathResolver;
 import org.slf4j.Logger;
@@ -42,14 +48,16 @@ public class CrlChecker {
     private static String encryptionPropertiesLocation = new AbsolutePathResolver(
             "etc/ws-security/server/encryption.properties").getPath();
 
-    private CRL crl = null;
+    private AtomicReference<CRL> crlCache = new AtomicReference<>();
+
+    private CrlRefresh refresh = new CrlRefresh();
 
     /**
      * Constructor method. Reads encryption.properties and sets CRL location
      */
     public CrlChecker() {
-        Properties encryptionProperties = loadProperties(encryptionPropertiesLocation);
-        setCrlLocation(encryptionProperties.getProperty(CRL_PROPERTY_KEY));
+        Executors.newScheduledThreadPool(1)
+                .scheduleWithFixedDelay(refresh, 0, 1, TimeUnit.HOURS);
     }
 
     /**
@@ -59,7 +67,7 @@ public class CrlChecker {
      * @return true if one of the certs passes the CRL or if CRL revocation is disabled, false if they are all revoked.
      */
     public boolean passesCrlCheck(X509Certificate[] certs) {
-        if (crl == null) {
+        if (crlCache.get() == null) {
             String errorMsg = "CRL is not set. Skipping CRL check";
             LOGGER.trace(errorMsg);
             return true;
@@ -78,7 +86,8 @@ public class CrlChecker {
         if (certs != null) {
             LOGGER.debug("Got {} certificate(s) in the incoming request", certs.length);
             for (X509Certificate curCert : certs) {
-                if (crl.isRevoked(curCert)) {
+                if (crlCache.get() != null && crlCache.get()
+                        .isRevoked(curCert)) {
                     SecurityLogger.audit("Denying access for subject DN: " + curCert.getSubjectDN()
                             + " due to certificate being revoked by CRL.");
                     return false;
@@ -99,41 +108,7 @@ public class CrlChecker {
      *                 check certificate revocation.
      */
     public void setCrlLocation(String location) {
-        if (location == null) {
-            LOGGER.info("CRL property in {} is not set. Certs will not be checked against a CRL",
-                    encryptionPropertiesLocation);
-            crl = null;
-        } else {
-            crl = createCrl(location);
-        }
-    }
-
-    /**
-     * Generates a new CRL object from the given location.
-     *
-     * @param location File Path or URL to the CRL file
-     * @return A CRL object constructed from the given file path or URL. Null if an error occurred while attempting to read the file.
-     */
-    private CRL createCrl(String location) {
-        URL url = urlFromPath(location);
-
-        //If we get a URL, use URL, otherwise use as local file path
-        try (InputStream is = url != null ?
-                url.openStream() :
-                new FileInputStream(new File(location))) {
-
-            CertificateFactory cf = CertificateFactory.getInstance("X.509");
-            return cf.generateCRL(is);
-        } catch (IOException e) {
-            LOGGER.debug("An error occurred while accessing {}", location, e);
-            return null;
-        } catch (GeneralSecurityException e) {
-            LOGGER.warn(
-                    "Encountered an error while generating CRL from file {}. CRL checking may not work correctly. Check the CRL file.",
-                    location,
-                    e);
-            return null;
-        }
+        refresh.setCrlLocation(location);
     }
 
     URL urlFromPath(String location) {
@@ -152,6 +127,85 @@ public class CrlChecker {
      */
     Properties loadProperties(String location) {
         return PropertiesLoader.loadProperties(location);
+    }
+
+    /**
+     * Runnable to refresh the CRL from the URL when either the nextUpdate time has elasped
+     * or it has rolled over to the next day.
+     */
+    private class CrlRefresh implements Runnable {
+
+        private Calendar start = Calendar.getInstance();
+
+        public void run() {
+            Properties encryptionProperties = loadProperties(encryptionPropertiesLocation);
+            CRL crl = crlCache.get();
+            if (crl instanceof X509CRL) {
+                X509CRL x509Crl = (X509CRL) crl;
+                if (Calendar.getInstance()
+                        .getTime()
+                        .after(x509Crl.getNextUpdate()) || rolledOverDay()) {
+                    setCrlLocation(encryptionProperties.getProperty(CRL_PROPERTY_KEY));
+                    start = Calendar.getInstance();
+                }
+            } else if (crl == null) {
+                setCrlLocation(encryptionProperties.getProperty(CRL_PROPERTY_KEY));
+                start = Calendar.getInstance();
+            }
+        }
+
+        /**
+         * Sets the location of the CRL. Enables CRL checking if property is set, disables it otherwise
+         *
+         * @param location Location of the DER-encoded CRL file that should be used to
+         *                 check certificate revocation.
+         */
+        public void setCrlLocation(String location) {
+            CRL current = crlCache.get();
+            if (location == null) {
+                LOGGER.info("CRL property in {} is not set. Certs will not be checked against a CRL",
+                        encryptionPropertiesLocation);
+                crlCache.set(null);
+            } else {
+                CRL crl = createCrl(location);
+                if (crl != null) {
+                    crlCache.set(crl);
+                    LOGGER.info("CRL has been updated from {}.", location);
+                }
+            }
+        }
+
+        /**
+         * Generates a new CRL object from the given location.
+         *
+         * @param location File Path or URL to the CRL file
+         * @return A CRL object constructed from the given file path or URL. Null if an error occurred while attempting to read the file.
+         */
+        private CRL createCrl(String location) {
+            URL url = urlFromPath(location);
+
+            //If we get a URL, use URL, otherwise use as local file path
+            try (InputStream is = url != null ? url.openStream() : new FileInputStream(new File(
+                    location))) {
+
+                CertificateFactory cf = CertificateFactory.getInstance("X.509");
+                return cf.generateCRL(is);
+            } catch (IOException e) {
+                LOGGER.warn("An error occurred while accessing {}", location, e);
+                return null;
+            } catch (GeneralSecurityException e) {
+                LOGGER.warn(
+                        "Encountered an error while generating CRL from file {}. CRL checking may not work correctly. Check the CRL file.",
+                        location,
+                        e);
+                return null;
+            }
+        }
+
+        private boolean rolledOverDay() {
+            return !DateUtils.isSameDay(Calendar.getInstance(), start);
+        }
+
     }
 
 }
