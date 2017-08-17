@@ -52,7 +52,12 @@ module.exports = Marionette.LayoutView.extend({
         };
     },
     handleClick: function(){
-        this.$el.trigger(CustomElements.getNamespace() + 'close-lightbox');
+        if (!user.get('user').isGuestUser() && properties.ui.systemUsageOncePerSession) {
+            var systemUsage = JSON.parse(window.sessionStorage.getItem("systemUsage"));
+            systemUsage[user.get('user').get('username')] = "true";
+            window.sessionStorage.setItem("systemUsage", JSON.stringify(systemUsage));
+         }
+         this.$el.trigger(CustomElements.getNamespace() + 'close-lightbox');
     },
     onAttach: function(){
         if (user.fetched){
