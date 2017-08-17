@@ -497,9 +497,6 @@ public abstract class AbstractIntegrationTest {
                         RMI_SERVER_PORT.getPort()),
                 installStartupFile(getClass().getClassLoader()
                         .getResourceAsStream("hazelcast.xml"), "/etc/hazelcast.xml"),
-                installStartupFile(getClass().getClassLoader()
-                                .getResourceAsStream("ddf.security.sts.client.configuration.config"),
-                        "/etc/ddf.security.sts.client.configuration.config"),
                 KarafDistributionOption.editConfigurationFilePut(
                         "etc/ddf.security.sts.client.configuration.config",
                         "address",
