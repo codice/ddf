@@ -93,7 +93,7 @@ import org.osgi.service.cm.ConfigurationAdmin;
  *
  */
 @RunWith(MockitoJUnitRunner.class)
-public class ConfigurationAdminMigrationTest {
+public class ConfigurationAdminMigratableTest {
 
     @Rule
     public TemporaryFolder tempDir = new TemporaryFolder();
@@ -112,7 +112,7 @@ public class ConfigurationAdminMigrationTest {
 
     private static final String CFG_FILE_EXT = "cfg";
 
-    private static final String DDF_Custom_Mime_Type_Resolver_FACTORY_PID = "DDF_Custom_Mime_Type_Resolver";
+    private static final String DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID = "DDF_Custom_Mime_Type_Resolver";
 
     private Path ddfHome;
 
@@ -253,7 +253,8 @@ public class ConfigurationAdminMigrationTest {
         Assert.assertThat("Import was not successful.", importReport.wasSuccessful(), is(true));
         // Verify that the config admin in the system being imported into gets the factory configuration
         // from the system being exported from.
-        verify(configurationAdminForImport).createFactoryConfiguration(eq(DDF_Custom_Mime_Type_Resolver_FACTORY_PID), isNull());
+        verify(configurationAdminForImport).createFactoryConfiguration(eq(
+                DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID), isNull());
         ArgumentCaptor<Dictionary<String, ?>> argumentCaptor = ArgumentCaptor.forClass(Dictionary.class);
         verify(configurationImportedFromExport).update(argumentCaptor.capture());
         Map<String, ?> dictionayAsMap = convertToMap(argumentCaptor.<Dictionary<String, ?>>getValue());
@@ -268,7 +269,7 @@ public class ConfigurationAdminMigrationTest {
     private Map<String, Object> convertToMap(Dictionary<String, ?> dictionary) {
         Map<String, Object> map = new HashMap<>();
         Enumeration<String> keys =  dictionary.keys();
-        while(keys.hasMoreElements()) {
+        while (keys.hasMoreElements()) {
             String key = keys.nextElement();
             System.out.println("Key: " + key + " ; Value: " + dictionary.get(key));
             map.put(key, dictionary.get(key));
@@ -286,8 +287,10 @@ public class ConfigurationAdminMigrationTest {
         when(configurationAdminForImport.listConfigurations(isNull())).thenReturn(configurations);
         // Create a new factory Configuration object with a new PID. The properties of the new Configuration
         // object are null until the first time that its Configuration.update(Dictionary) method is called.
-        when(configurationImportedFromExport.getPid()).thenReturn(String.format("%s.8e3c2b12-9807-482a-aaa7-d3d317973581", DDF_Custom_Mime_Type_Resolver_FACTORY_PID));
-        when(configurationAdminForImport.createFactoryConfiguration(eq(DDF_Custom_Mime_Type_Resolver_FACTORY_PID), isNull())).thenReturn(configurationImportedFromExport);
+        when(configurationImportedFromExport.getPid()).thenReturn(String.format("%s.8e3c2b12-9807-482a-aaa7-d3d317973581",
+                DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID));
+        when(configurationAdminForImport.createFactoryConfiguration(eq(
+                DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID), isNull())).thenReturn(configurationImportedFromExport);
     }
 
     private Configuration[] getConfigurationsForExportSystem() throws IOException {
@@ -305,10 +308,12 @@ public class ConfigurationAdminMigrationTest {
     private Configuration getConfigurationForExportSystem() throws IOException {
         Configuration config = mock(Configuration.class);
         Dictionary<String, Object> props = new Hashtable<>();
-        props.put(ConfigurationAdminMigratable.FELIX_FILEINSTALL_FILENAME, ddfHome.resolve("etc").toRealPath().resolve(String.format("%s-csw.config", DDF_Custom_Mime_Type_Resolver_FACTORY_PID)));
-        String pid = String.format("%s.4039089d-839f-4d52-a174-77c8a19fc03d", DDF_Custom_Mime_Type_Resolver_FACTORY_PID);
+        props.put(ConfigurationAdminMigratable.FELIX_FILEINSTALL_FILENAME, ddfHome.resolve("etc").toRealPath().resolve(String.format("%s-csw.config",
+                DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID)));
+        String pid = String.format("%s.4039089d-839f-4d52-a174-77c8a19fc03d",
+                DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID);
         props.put("service.pid", pid);
-        props.put("service.factoryPid", DDF_Custom_Mime_Type_Resolver_FACTORY_PID);
+        props.put("service.factoryPid", DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID);
         props.put("schema", "http://www.opengis.net/cat/csw/2.0.2");
         when(config.getProperties()).thenReturn(props);
         when(config.getPid()).thenReturn(pid);
@@ -342,7 +347,8 @@ public class ConfigurationAdminMigrationTest {
     }
 
     private void setupConfigFile(String tag) throws IOException {
-        Path configFile = ddfHome.resolve("etc").toRealPath().resolve(String.format("%s-csw.config", DDF_Custom_Mime_Type_Resolver_FACTORY_PID));
+        Path configFile = ddfHome.resolve("etc").toRealPath().resolve(String.format("%s-csw.config",
+                DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID));
         Files.createFile(configFile);
         List<String> lines = new ArrayList<>(2);
         lines.add(String.format("#%s:%s", configFile.toRealPath().toString(), tag));

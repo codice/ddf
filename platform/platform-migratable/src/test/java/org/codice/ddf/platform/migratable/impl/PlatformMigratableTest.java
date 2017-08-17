@@ -258,17 +258,17 @@ public class PlatformMigratableTest {
                 .toPath()
                 .toRealPath();
 
-        PlatformMigratable platformMigratable = new PlatformMigratable();
-        List<ConfigurationMigratable> configMigratables = Arrays.asList(platformMigratable);
-        List<DataMigratable> dataMigratables = Collections.emptyList();
-        ConfigurationMigrationManager configurationMigrationManager =
+        PlatformMigratable ePlatformMigratable = new PlatformMigratable();
+        List<ConfigurationMigratable> eConfigMigratables = Arrays.asList(ePlatformMigratable);
+        List<DataMigratable> eDataMigratables = Collections.emptyList();
+        ConfigurationMigrationManager eConfigurationMigrationManager =
                 new ConfigurationMigrationManager(mBeanServer,
-                        configMigratables,
-                        dataMigratables,
+                        eConfigMigratables,
+                        eDataMigratables,
                         systemService);
 
         // Perform export
-        MigrationReport exportReport = configurationMigrationManager.doExport(exportDir);
+        MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir);
 
         // Verify export
         assertThat("The export report has errors.", exportReport.hasErrors(), is(false));
@@ -282,7 +282,16 @@ public class PlatformMigratableTest {
         // Setup import
         setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG);
 
-        MigrationReport importReport = configurationMigrationManager.doImport(exportDir);
+        PlatformMigratable iPlatformMigratable = new PlatformMigratable();
+        List<ConfigurationMigratable> iConfigMigratables = Arrays.asList(iPlatformMigratable);
+        List<DataMigratable> iDataMigratables = Collections.emptyList();
+        ConfigurationMigrationManager iConfigurationMigrationManager =
+                new ConfigurationMigrationManager(mBeanServer,
+                        iConfigMigratables,
+                        iDataMigratables,
+                        systemService);
+
+        MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir);
 
         // Verify import
         assertThat("The import report has errors.", importReport.hasErrors(), is(false));
@@ -312,17 +321,17 @@ public class PlatformMigratableTest {
                 .filter(p -> !p.equals(Paths.get("etc", "users.properties")))
                 .collect(Collectors.toList());
 
-        PlatformMigratable platformMigratable = new PlatformMigratable();
-        List<ConfigurationMigratable> configMigratables = Arrays.asList(platformMigratable);
-        List<DataMigratable> dataMigratables = Collections.emptyList();
-        ConfigurationMigrationManager configurationMigrationManager =
+        PlatformMigratable ePlatformMigratable = new PlatformMigratable();
+        List<ConfigurationMigratable> eConfigMigratables = Arrays.asList(ePlatformMigratable);
+        List<DataMigratable> eDataMigratables = Collections.emptyList();
+        ConfigurationMigrationManager eConfigurationMigrationManager =
                 new ConfigurationMigrationManager(mBeanServer,
-                        configMigratables,
-                        dataMigratables,
+                        eConfigMigratables,
+                        eDataMigratables,
                         systemService);
 
         // Perform export
-        MigrationReport exportReport = configurationMigrationManager.doExport(exportDir);
+        MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir);
 
         // Verify export
         assertThat("The export report has errors.", exportReport.hasErrors(), is(false));
@@ -336,7 +345,16 @@ public class PlatformMigratableTest {
         // Setup import
         setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG);
 
-        MigrationReport importReport = configurationMigrationManager.doImport(exportDir);
+        PlatformMigratable iPlatformMigratable = new PlatformMigratable();
+        List<ConfigurationMigratable> iConfigMigratables = Arrays.asList(iPlatformMigratable);
+        List<DataMigratable> iDataMigratables = Collections.emptyList();
+        ConfigurationMigrationManager iConfigurationMigrationManager =
+                new ConfigurationMigrationManager(mBeanServer,
+                        iConfigMigratables,
+                        iDataMigratables,
+                        systemService);
+
+        MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir);
 
         // Verify import
         assertThat("The import report has errors.", importReport.hasErrors(), is(false));
@@ -407,17 +425,17 @@ public class PlatformMigratableTest {
             }
         }
 
-        PlatformMigratable platformMigratable = new PlatformMigratable();
-        List<ConfigurationMigratable> configMigratables = Arrays.asList(platformMigratable);
-        List<DataMigratable> dataMigratables = Collections.emptyList();
-        ConfigurationMigrationManager configurationMigrationManager =
+        PlatformMigratable ePlatformMigratable = new PlatformMigratable();
+        List<ConfigurationMigratable> eConfigMigratables = Arrays.asList(ePlatformMigratable);
+        List<DataMigratable> eDataMigratables = Collections.emptyList();
+        ConfigurationMigrationManager eConfigurationMigrationManager =
                 new ConfigurationMigrationManager(mBeanServer,
-                        configMigratables,
-                        dataMigratables,
+                        eConfigMigratables,
+                        eDataMigratables,
                         systemService);
 
         // Perform export
-        MigrationReport exportReport = configurationMigrationManager.doExport(exportDir);
+        MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir);
 
         // Verify export
         assertThat("The export report has errors.", exportReport.hasErrors(), is(false));
@@ -444,7 +462,16 @@ public class PlatformMigratableTest {
             }
         }
 
-        MigrationReport importReport = configurationMigrationManager.doImport(exportDir);
+        PlatformMigratable iPlatformMigratable = new PlatformMigratable();
+        List<ConfigurationMigratable> iConfigMigratables = Arrays.asList(iPlatformMigratable);
+        List<DataMigratable> iDataMigratables = Collections.emptyList();
+        ConfigurationMigrationManager iConfigurationMigrationManager =
+                new ConfigurationMigrationManager(mBeanServer,
+                        iConfigMigratables,
+                        iDataMigratables,
+                        systemService);
+
+        MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir);
 
         // Verify import
         assertThat("The import report has errors.", importReport.hasErrors(), is(false));
