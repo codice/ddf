@@ -28,100 +28,144 @@ The following table shows the format to use for each property type supported.
 [cols="1,2,3" options="header"]
 |===
 |Type
-|Format
+|Format (see details below for variations)
 |Example
 
-|Strings
-|name="value"
-|`name="john"`
+|String
+|name = "value"
+a|`name = "John"`
 
-|Booleans
-|name=B"true\|false"
-|`authorized=B"true"`
+|Boolean
+|name = B"true\|false"
+a|`authorized = B"true"`
 
-|Integers
-|name=I"value"
-|`timeout=I"60"`
+|Integer
+|name = I"value"
+a|`timeout = I"10"`
 
-|Longs
-|name=L"value"
-|`diameter=L"10000"`
+|Long
+|name = L"value"
+a|`diameter = L"100"`
 
-|Floats
-|name=F"value"
-|`cost=F"0x41280000"`
+|Float
+|name = F"value"
+a|`cost = F"1093140480"`
 
-|Doubles
-|name=D"value"
-|`latitude=D"0x423417f6"`
+|Double
+|name = D"value"
+a|`latitude = D"4636745974857667812"`
 
-|Lists of Strings
-|name=["value1","value2",…​]
-|`complexStringArray=["{\"url\"\ \"http://test.sample.com\"\ \"layers\"\ [\"0\"]\ \"VERSION\"\ \"1.1\|1.2\"\ \"image/png\"}\ \"beta\"\ 1}","{\"url\"\ \"http://test.sample.com"\ 0.5}","/solr\=SAML\|PKI\|basic","/security-config\=SAML\|basic"]`
+|List of Strings
+|name = ["value1","value2",…​]
+a|```
+complexStringArray = [ \
+  "{\"url\"\ \"http://test.sample.com\"\ \"layers\"\ [\"0\"]\ \"VERSION\"\ \"1.1\|1.2\"\ \"image/png\"}\ \"beta\"\ 1}", \
+  "{\"url\"\ \"http://test.sample.com"\ 0.5}","/solr\=SAML\|PKI\|basic", \
+  "/security-config\=SAML\|basic", \
+  ]
+```
 
-|Lists of Booleans
-|name=B["true\|false","true\|false",…​]
-|`authorizedList=B["true","false"]`
+|List of Booleans
+|name = B["true\|false","true\|false",…​]
+a|```
+authorizedList = B[ \
+  "true", \
+  "false", \
+  ]
+```
 
-|Lists of Integers
-|name=I["value1","value2",…​]
-|`sizes=I["10","20","30"]`
+|List of Integers
+|name = I["value1","value2",…​]
+a|```
+sizes = I[ \
+  "10", \
+  "20", \
+  "30", \
+  ]
+```
 
-|Lists of Longs
-|name=L["value1","value2",…​]
-|`sizes=L["100","200","300"]`
+|List of Longs
+|name = L["value1","value2",…​]
+a|```
+sizes = L[ \
+  "100", \
+  "200", \
+  "300", \
+  ]
+```
 
-|Lists of Floats
-|name=F["value1","value2",…​]
-|`sizes=F["0x3f8ccccd","0x400ccccd","0x40533333"]`
+|List of Floats
+|name = F["value1","value2",…​]
+a|```
+sizes = F[ \
+  "1066192077", \
+  "1074580685", \
+  "1079194419", \
+  ]
+```
 
-|Lists of Doubles
-|name=D["value1","value2",…​]
-|`sizes=D["0x3f8fbe77","0x400ef9db","0x4056147b"]`
-
-|Vectors of Strings
-|name=("value1","value2",…​)
-|`names=("A","B","C")`
-
-|Vectors of Booleans
-|name=B("true\|false","true\|false",…​)
-|`authorizedVector=B("true","false")`
-
-|Vectors of Integers
-|name=I("value1","value2",…​)
-|`sizes=I("10","20","30")`
-
-|Vectors of Longs
-|name=L("value1","value2",…​)
-|`sizes=L("100","200","300")`
-
-|Vectors of Floats
-|name=F("value1","value2",…​)
-|`sizes=F("0x3f8ccccd","0x400ccccd","0x40533333")`
-
-|Vectors of Doubles
-|name=D("value1","value2",…​)
-|`sizes=D("0x3f8fbe77","0x400ef9db","0x4056147b")`
+|List of Doubles
+|name = D["value1","value2",…​]
+a|```
+sizes = D[ \
+  "4607736361554183979", \
+  "4612212939583790252", \
+  "4614714689176794563", \
+  ]
+```
 
 |===
 
 [NOTE]
 ====
-* Lists and Vectors of values can be prefixed with any of the supported types (`B`, `I`, `L`, `F` or `D`).
-* To prevent any configuration issues, the `=` signs used in values should be escaped using a backslash (`\`).
+* Values with types other than String must be prefixed with a lower-case or upper-case character. See the examples in the table.
+** Boolean: `B` or `b`
+** Integer: `I` or `i`
+** Long: `L` or `l`
+** Float: `F` or `f`
+** Double: `D` or `d`
+* Equal signs (`=`), double quotes (`"`), and spaces within values must must be escaped using a backslash (`\`).
+* When properties are split over multiple lines for readability, end of lines must be specified with a backslash (`\`). See the examples for lists in the table.
+* A comma (`,`) after the last value in a list is optional.
+* Spaces surrounding the equal signs (`=`) for properties is optional.
 * Boolean values will default to `false` if any value other than `true` is provided.
-* Escape character in values must be used for double quotes (`"`) and spaces, but cannot be used with `{` `}` or `[` `]` pairings.
-* Floats and Longs must be written in the IEEE 754 format. For example, the example for the Floats and Doubles in the table above correspond to 10.50 and 45.0234, respectively.
+* Float values must be representated in the IEEE 754 floating-point "single format" bit layout, preserving Not-a-Number (NaN) values.
+For example, `F"1093140480"` corresponds to `F"10.5"`.
+See the documentation for https://docs.oracle.com/javase/7/docs/api/java/lang/Integer.html#parseInt(java.lang.String)[java.lang.Integer#parseInt(java.lang.String)] and https://docs.oracle.com/javase/7/docs/api/java/lang/Float.html#intBitsToFloat(int)[java.lang.Float#intBitsToFloat(int)] for more details.
+* Double values must be represented in the IEEE 754 floating-point "double format" bit layout, preserving Not-a-Number (NaN) values.
+For example, `D"4636745974857667812"` corresponds to `D"100.1234"`.
+See the documentation for https://docs.oracle.com/javase/7/docs/api/java/lang/Long.html#parseLong(java.lang.String)[java.lang.Long#parseLong(java.lang.String)] and https://docs.oracle.com/javase/7/docs/api/java/lang/Double.html#longBitsToDouble(long)[java.lang.Double#longBitsToDouble] for more details.
+
 ====
 
 .Sample configuration file
 [source,linenums]
 ----
-authenticationTypes=["/\=SAML|GUEST","/admin\=SAML|basic","/system\=basic","/solr\=SAML|PKI|basic","/sources\=SAML|basic","/security-config\=SAML|basic","/search\=basic"]
+authenticationTypes = [ \
+  "/\=SAML|GUEST", \
+  "/admin\=SAML|basic", \
+  "/system\=basic", \
+  "/solr\=SAML|PKI|basic", \
+  "/sources\=SAML|basic", \
+  "/security-config\=SAML|basic", \
+  "/search\=basic", \
+  ]
+realms = [ \
+  "/\=karaf", \
+  ]
+requiredAttributes = [ \
+  "/\=", \
+  "/admin\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}", \
+  "/solr\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}", \
+  "/system\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}", \
+  "/security-config\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}", \
+  ]
+whiteListContexts = [ \
+  "/services/SecurityTokenService", \
+  "/services/internal/metrics", \
+  "/services/saml", \
+  "/proxy", \
+  "/services/csw", \
+  ]
 
-realms=["/\=karaf"]
-
-requiredAttributes=["/\=","/admin\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}","/solr\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}","/system\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}","/security-config\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}"]
-
-whiteListContexts=["/services/SecurityTokenService","/services/internal/metrics","/services/saml","/proxy","/services/csw"]
 ----
