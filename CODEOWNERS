@@ -30,6 +30,7 @@ catalog/spatial/registry/*      @clockard
 
 catalog/ui/search-ui/standard/*		@stustison
 
+catalog/ui/catalog-ui-search/* @andrewkfiedler
 
 ###############################
 # PLATFORM
