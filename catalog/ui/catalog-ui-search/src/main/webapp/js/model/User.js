@@ -37,8 +37,8 @@ define([
             var found = false;
             if (layer) {
                 for (var i = 0; i < properties.imageryProviders.length; i++) {
-                    var layerObj = _.omit(layer.toJSON(), ['id', 'show', 'label', 'alpha']);
-                    var propProvider = _.omit(properties.imageryProviders[i], ['alpha', 'show']);
+                    var layerObj = _.omit(layer.toJSON(), ['id', 'show', 'label', 'alpha', 'order']);
+                    var propProvider = _.omit(properties.imageryProviders[i], ['alpha', 'show', 'order']);
                     if (_.isEqual(propProvider, layerObj)) {
                         found = true;
                     }
@@ -52,8 +52,8 @@ define([
         for (var i = 0; i < properties.imageryProviders.length; i++) {
             var found = false;
             for (var j = 0; j < layerPrefs.models.length; j++) {
-                var layerObj = _.omit(layerPrefs.at(j).toJSON(), ['id', 'show', 'label', 'alpha']);
-                var propProvider = _.omit(properties.imageryProviders[i], ['show', 'alpha']);
+                var layerObj = _.omit(layerPrefs.at(j).toJSON(), ['id', 'show', 'label', 'alpha', 'order']);
+                var propProvider = _.omit(properties.imageryProviders[i], ['show', 'alpha', 'order']);
                 if (_.isEqual(propProvider, layerObj)) {
                     found = true;
                 }
@@ -113,7 +113,7 @@ define([
             }
         },
         comparator: function (model) {
-            return 1 - model.get('alpha');
+            return model.get('order');
         },
         getMapLayerConfig: function (url) {
             return this.findWhere({url: url});

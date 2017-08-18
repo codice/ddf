@@ -26,7 +26,7 @@ var DrawLine = require('js/widgets/cesium.line');
 var properties = require('properties');
 var Cesium = require('cesium');
 var DrawHelper = require('imports?Cesium=cesium!exports?DrawHelper!drawHelper');
-var LayerCollectionController = require('js/controllers/cesium.layerCollection.controller');
+var CesiumLayerCollectionController = require('js/controllers/cesium.layerCollection.controller');
 var user = require('component/singletons/user-instance');
 var User = require('js/model/User');
 var wreqr = require('wreqr');
@@ -38,13 +38,7 @@ var eyeOffset = new Cesium.Cartesian3(0, 0, 0);
 var pixelOffset = new Cesium.Cartesian2(0.0, 0);
 
 Cesium.BingMapsApi.defaultKey = properties.bingKey || 0;
-var imageryProviderTypes = LayerCollectionController.imageryProviderTypes;
-var CesiumLayerCollectionController = LayerCollectionController.extend({
-    initialize: function() {
-        // there is no automatic chaining of initialize.
-        LayerCollectionController.prototype.initialize.apply(this, arguments);
-    }
-});
+var imageryProviderTypes = CesiumLayerCollectionController.imageryProviderTypes;
 
 function createMap(insertionElement) {
     var layerPrefs = user.get('user>preferences>mapLayers');

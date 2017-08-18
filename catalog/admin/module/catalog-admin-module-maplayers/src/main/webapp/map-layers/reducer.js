@@ -218,12 +218,29 @@ export const validate = (providers) => {
     if (err !== undefined) {
       errors = errors.setIn([i, 'buffer'], err)
     }
+
+    const order = layer.get('order')
+
+    if (order === '' || order === undefined) {
+      errors = errors.setIn([i, 'buffer'], 'Order cannot be empty')
+    } else if (typeof order !== 'number') {
+      errors = errors.setIn([i, 'buffer'], 'Order must be a number')
+    } else if (order < 0 || order > providers.size - 1) {
+      errors = errors.setIn([i, 'buffer'], `Order should be between 0 and ${providers.size - 1}`)
+    } else {
+      const previous = providers.slice(0, i)
+        .find((provider) => order === provider.getIn(['layer', 'order']))
+      if (previous !== undefined) {
+        errors = errors.setIn([i, 'buffer'],
+          `Order ${order} previously used for ${previous.getIn(['layer', 'name'])}`)
+      }
+    }
   })
 
   return errors
 }
 
-const emptyProvider = () => {
+const emptyProvider = (index) => {
   const layer = {
     name: '',
     url: '',
@@ -234,7 +251,8 @@ const emptyProvider = () => {
     parameters: {
       transparent: false,
       format: ''
-    }
+    },
+    order: index
   }
   const buffer = JSON.stringify(layer, null, 2)
   return fromJS({ buffer, layer })
@@ -262,11 +280,12 @@ const updateLayerFromBuffer = (provider) => {
 }
 
 const updateBufferFromLayer = (provider) => {
-  const buffer = JSON.stringify(provider.get('layer'), null, 2)
+  const layer = provider.get('layer')
+  const buffer = JSON.stringify(layer, null, 2)
   return provider.set('buffer', buffer)
 }
 
-const providers = (state = List(), { type, path, value = emptyProvider() }) => {
+const providers = (state = List(), { type, path, value = emptyProvider(state.size) }) => {
   switch (type) {
     case 'map-layers/SET':
       return value.get('imageryProviders')
@@ -286,6 +305,7 @@ const providers = (state = List(), { type, path, value = emptyProvider() }) => {
       return state.setIn(path, fromJS(value))
         .update(index, applyDefaults(previousType))
         .update(index, updater)
+        .sortBy((provider) => provider.getIn(['layer', 'order']))
     default:
       return state
   }

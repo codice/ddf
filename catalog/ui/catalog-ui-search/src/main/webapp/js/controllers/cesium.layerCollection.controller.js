@@ -60,7 +60,7 @@ define(['underscore',
                 }
 
                 var provider = new type(initObj);
-                var layer = this.map.imageryLayers.addImageryProvider(provider);
+                var layer = this.map.imageryLayers.addImageryProvider(provider, 0);  // the collection is sorted by order, so later things should go at bottom of stack
                 this.layerForCid[model.id] = layer;
                 layer.alpha = model.get('alpha');
                 layer.show = model.get('show');
@@ -83,17 +83,21 @@ define(['underscore',
             var layer = this.layerForCid[model.id];
             layer.show = model.get('show');
         },
+        /*
+            removing/re-adding the layers causes visible "re-render" of entire map;
+            raising/lowering is smoother.
+            raising means to move to a higher index.  higher indexes are displayed on top of lower indexes.
+            so we have to reverse the order property here to make it display correctly.  
+            in other words, order 1 means highest index.
+        */
         reIndexLayers: function () {
-            /*
-             removing/re-adding the layers causes visible "re-render" of entire map;
-             raising/lowering is smoother.
-             */
             this.collection.forEach(function (model, index) {
                 var layer = this.layerForCid[model.id];
-                var prevIndex = this.map.imageryLayers.indexOf(layer);
-                var indexChange = index - prevIndex;
-                var count = Math.abs(indexChange);
-                var method = indexChange > 0 ? "raise" : "lower";
+                var previousOrder = this.map.imageryLayers.indexOf(layer);
+                var currentOrder = this.collection.length - model.get('order');  // order is backwards on cesium (higher indexes are displayed above lower)
+                var method = currentOrder > previousOrder ? "raise" : "lower";  // raise means move to higher index :(
+                var count = Math.abs(currentOrder - previousOrder);
+                // console.log(method + " " + model.get('name') + " " + count);  // useful for debugging!
                 _.times(count, function () {
                     this.map.imageryLayers[method](layer);
                 }, this);

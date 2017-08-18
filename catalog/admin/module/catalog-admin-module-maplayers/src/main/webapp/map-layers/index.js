@@ -21,6 +21,8 @@ import TextField from 'material-ui/TextField'
 import Toggle from 'material-ui/Toggle'
 import muiThemeable from 'material-ui/styles/muiThemeable'
 import { List, ListItem } from 'material-ui/List'
+import SortUp from 'material-ui/svg-icons/navigation/arrow-upward'
+import SortDown from 'material-ui/svg-icons/navigation/arrow-downward'
 
 import Mount from 'react-mount'
 
@@ -337,6 +339,22 @@ const FixConfig = ({ buffer, error, onUpdate, onDiscard, onSave }) => {
   )
 }
 
+const UpArrow = ({ onUpdate }) => (
+  <IconButton
+    tooltip='Move Up'
+    onClick={onUpdate}>
+    <SortUp />
+  </IconButton>
+)
+
+const DownArrow = ({ onUpdate }) => (
+  <IconButton
+    tooltip='Move Down'
+    onClick={onUpdate}>
+    <SortDown />
+  </IconButton>
+)
+
 const MapLayers = (props) => {
   const {
     // actions
@@ -366,8 +384,6 @@ const MapLayers = (props) => {
         <Description>
           The following form allows users to configure imagery providers
           for <Link target='_blank' href='/search/catalog'>Intrigue</Link>.
-          Providers are sorted by alpha, where higher alpha providers appear below
-          lower alpha providers on the map.
         </Description>
         <Description>
           Some provider types are currently only supported by the 2D <Link target='_blank'
@@ -376,12 +392,35 @@ const MapLayers = (props) => {
         </Description>
         {providers.map((provider, i) =>
           <Paper key={i} style={{ position: 'relative', marginTop: 20 }}>
-            <IconButton
-              tooltip='Delete Layer'
-              style={{ position: 'absolute', top: 20, right: 20 }}
-              onClick={() => onUpdate(null, [i])}>
-              <DeleteIcon />
-            </IconButton>
+            {(i === 0)
+              ? <div style={{textAlign: 'center', paddingTop: 20, fontWeight: 'bold', fontSize: '1.2rem'}}>
+                  Topmost Layer
+                </div>
+              : null}
+            {(i > 0 && i === providers.size - 1)
+              ? <div style={{textAlign: 'center', paddingTop: 20, fontWeight: 'bold', fontSize: '1.2rem'}}>
+                  Bottommost Layer
+                </div>
+              : null}
+            <div style={{ position: 'absolute', top: 20, right: 20 }}>
+              {(i < providers.size - 1)
+                ? <DownArrow onUpdate={() => {
+                  onUpdate(i + 1, [i, 'layer', 'order'])
+                  onUpdate(i, [i + 1, 'layer', 'order'])
+                }} />
+                : null}
+              {(i > 0)
+                ? <UpArrow onUpdate={() => {
+                  onUpdate(i - 1, [i, 'layer', 'order'])
+                  onUpdate(i, [i - 1, 'layer', 'order'])
+                }} />
+                : null}
+              <IconButton
+                tooltip='Delete Layer'
+                onClick={() => onUpdate(null, [i])}>
+                <DeleteIcon />
+              </IconButton>
+            </div>
             <ProviderEditor
               error={errors.get(i)}
               provider={provider.get('layer')}

@@ -46,14 +46,14 @@ describe('validate providers', () => {
     it('should be a valid show flag', () => {
       const values = [true, false]
       values.forEach((show) => {
-        const providers = fromJS([ { layer: { show }, buffer: '[]' } ])
+        const providers = fromJS([ { layer: { show, order: 0 }, buffer: '[]' } ])
         expect(validate(providers).getIn([0, 'buffer'])).to.equal(undefined)
       })
     })
     it('should not be a valid show flag', () => {
       const values = [undefined]
       values.forEach((show) => {
-        const providers = fromJS([ { layer: { show } } ])
+        const providers = fromJS([ { layer: { show, order: 0 } } ])
         expect(validate(providers).getIn([0, 'buffer'])).to.not.equal(undefined)
       })
     })
@@ -142,6 +142,30 @@ describe('validate providers', () => {
       values.forEach((value) => {
         expect(validateStructure(value))
           .to.not.equal(undefined, `${value} should not be a valid provider`)
+      })
+    })
+  })
+  describe('order', () => {
+    it('should be a valid order', () => {
+      const values = [0, 1, 2, 3, 4]
+      const providers = fromJS(values.map((order) => ({ layer: { order, show: true }, buffer: '[]' })))
+      values.forEach((order) => {
+        expect(validate(providers).getIn([0, 'buffer'])).to.equal(undefined)
+      })
+    })
+    it('should be out of bounds order', () => {
+      const values = [0, 1, 2, 4]
+      const providers = fromJS(values.map((order) => ({ layer: { order, show: true }, buffer: '[]' })))
+      values.slice(0, values.length - 2).forEach((order) => {
+        expect(validate(providers).getIn([0, 'buffer'])).to.equal(undefined)
+      })
+      expect(validate(providers).getIn([values.length - 1, 'buffer'])).to.not.equal(undefined)
+    })
+    it('should not be a valid order', () => {
+      const values = [-1, {}, [], 1.1, true, false, 2]
+      values.forEach((order) => {
+        const providers = fromJS([ { layer: { order }, buffer: '[]' } ])
+        expect(validate(providers).getIn([0, 'buffer'])).to.not.equal(undefined)
       })
     })
   })
