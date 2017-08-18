@@ -495,10 +495,10 @@ public class IdpHandler implements AuthenticationHandler {
         authnRequest.setIssuer(issuer);
 
         if (idpMetadata.getAssertionConsumerServiceURLCheck()){
-            LOGGER.info("Setting optional AssertionConsumerServiceURL in AuthnRequest");
+            LOGGER.trace("Setting optional AssertionConsumerServiceURL in AuthnRequest");
             authnRequest.setAssertionConsumerServiceURL(spAssertionConsumerServiceUrl);
         }else{
-            LOGGER.info("Not setting optional AssertionConsumerServiceURL in AuthnRequest");
+            LOGGER.trace("Not setting optional AssertionConsumerServiceURL in AuthnRequest");
         }        
 
         authnRequest.setID("_" + UUID.randomUUID()
