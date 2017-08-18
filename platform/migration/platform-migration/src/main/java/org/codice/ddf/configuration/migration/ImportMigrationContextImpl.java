@@ -30,8 +30,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.ImportMigrationContext;
 import org.codice.ddf.migration.ImportMigrationEntry;
+import org.codice.ddf.migration.ImportMigrationException;
 import org.codice.ddf.migration.Migratable;
-import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationReport;
 import org.codice.ddf.migration.MigrationWarning;
 import org.slf4j.Logger;
@@ -128,16 +128,12 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
     @Override
     public Stream<ImportMigrationEntry> entries(Path path) {
         Validate.notNull(path, "invalid null path");
-        return entries.values()
-                .stream()
-                .filter(me -> me.getPath()
-                        .startsWith(path))
-                .map(ImportMigrationEntry.class::cast);
+        return entries().filter(me -> me.getPath()
+                .startsWith(path));
     }
 
     @Override
     public Stream<ImportMigrationEntry> entries(Path path, PathMatcher filter) {
-        Validate.notNull(path, "invalid null path");
         Validate.notNull(filter, "invalid null filter");
 
         return entries(path).filter(e -> filter.matches(e.getPath()));
@@ -201,7 +197,7 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
                 LOGGER.debug("Imported time for {}: {}", id, stopwatch.stop());
             }
         } else if (id != null) { // not a system context
-            report.record(new MigrationException("Exported data for migratable [" + id
+            report.record(new ImportMigrationException("Exported data for migratable [" + id
                     + "] cannot be imported; migratable was not installed."));
         } // else - no errors and nothing to do for the system context
     }
@@ -212,6 +208,21 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
 
     InputStream getInputStreamFor(ZipEntry entry) throws IOException {
         return zip.getInputStream(entry);
+    }
+
+    // used for testing
+    ZipFile getZip() {
+        return zip;
+    }
+
+    // used for testing
+    Map<Path, ImportMigrationEntryImpl> getEntries() {
+        return entries;
+    }
+
+    // used for testing
+    Map<String, ImportMigrationSystemPropertyReferencedEntryImpl> getSystemPropertiesReferencedEntries() {
+        return systemProperties;
     }
 
     protected void processMetadata(Map<String, Object> metadata) {

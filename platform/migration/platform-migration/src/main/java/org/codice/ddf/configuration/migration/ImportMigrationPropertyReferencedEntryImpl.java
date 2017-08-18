@@ -9,8 +9,8 @@ import javax.annotation.Nullable;
 
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.ImportMigrationEntry;
+import org.codice.ddf.migration.ImportMigrationException;
 import org.codice.ddf.migration.MigrationEntry;
-import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationReport;
 import org.codice.ddf.util.function.EBiConsumer;
 import org.slf4j.Logger;
@@ -37,9 +37,9 @@ public abstract class ImportMigrationPropertyReferencedEntryImpl extends ImportM
                 MigrationEntryImpl.METADATA_PROPERTY,
                 true);
         this.referenced = context.getOptionalEntry(getPath())
-                .orElseThrow(() -> new MigrationException(
-                        "Invalid metadata file format; reference '" + getName()
-                                + "' is missing from export file"));
+                .orElseThrow(() -> new ImportMigrationException(
+                        "Invalid metadata file format; referenced path [" + getName()
+                                + "] is missing from export file"));
     }
 
     @Override
@@ -88,10 +88,6 @@ public abstract class ImportMigrationPropertyReferencedEntryImpl extends ImportM
         return referenced.getPropertyReferencedEntry(name);
     }
 
-    public String getProperty() {
-        return property;
-    }
-
     @Override
     public int hashCode() {
         return 31 * super.hashCode() + property.hashCode();
@@ -125,6 +121,14 @@ public abstract class ImportMigrationPropertyReferencedEntryImpl extends ImportM
      * referenced migration entry.
      */
     protected abstract void verifyPropertyAfterCompletion();
+
+    String getProperty() {
+        return property;
+    }
+
+    ImportMigrationEntry getReferenced() {
+        return referenced;
+    }
 
     private void verifyPropertyAfterCompletionOnce() {
         if (!verifierRegistered) {

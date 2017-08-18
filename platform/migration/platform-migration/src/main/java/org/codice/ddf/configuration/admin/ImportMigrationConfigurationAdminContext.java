@@ -27,6 +27,7 @@ import java.util.Dictionary;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -94,7 +95,7 @@ public class ImportMigrationConfigurationAdminContext extends ProxyImportMigrati
         // categorize exported configurations
         final ImportMigrationConfigurationAdminEntry[] entries = context.entries()
                 .map(this::proxy)
-                .filter(e -> e != null)
+                .filter(Objects::nonNull)
                 .toArray(ImportMigrationConfigurationAdminEntry[]::new);
 
         this.exportedServices = Stream.of(entries)

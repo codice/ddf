@@ -30,12 +30,14 @@ public class ThrowableMatchers {
 
             @Override
             protected void describeMismatchSafely(Throwable item, Description description) {
-                description.appendText("suppressed ");
-                matcher.describeMismatch(item, description);
+                description.appendValue(item)
+                        .appendText(" suppressed exceptions ");
+                matcher.describeMismatch(item.getSuppressed(), description);
             }
 
             @Override
             public void describeTo(Description description) {
+                description.appendText("suppressed exceptions ");
                 matcher.describeTo(description);
             }
         };
@@ -50,12 +52,14 @@ public class ThrowableMatchers {
 
             @Override
             protected void describeMismatchSafely(Throwable item, Description description) {
-                description.appendText("cause ");
-                matcher.describeMismatch(item, description);
+                description.appendValue(item)
+                        .appendText(" cause exception ");
+                matcher.describeMismatch(item.getCause(), description);
             }
 
             @Override
             public void describeTo(Description description) {
+                description.appendText("cause exception ");
                 matcher.describeTo(description);
             }
         };
@@ -74,11 +78,15 @@ public class ThrowableMatchers {
 
             @Override
             protected void describeMismatchSafely(Throwable item, Description description) {
-                item = item.getCause();
-                if (item == null) {
-                    description.appendText("had no cause");
+                final Throwable cause = item.getCause();
+
+                if (cause == null) {
+                    description.appendValue(item)
+                            .appendText(" had no cause");
                 } else {
-                    matcher.describeMismatch(item.getMessage(), description);
+                    description.appendValue(item)
+                            .appendText(" cause message ");
+                    matcher.describeMismatch(cause.getMessage(), description);
                 }
             }
 
@@ -102,15 +110,25 @@ public class ThrowableMatchers {
 
             @Override
             protected void describeMismatchSafely(Throwable item, Description description) {
-                while (item.getCause() != null) {
-                    item = item.getCause();
+                Throwable cause = item;
+
+                while (cause.getCause() != null) {
+                    cause = cause.getCause();
                 }
-                matcher.describeMismatch(item, description);
+                if (cause == item) {
+                    description.appendValue(item)
+                            .appendText(" had no initial cause exception");
+                } else {
+                    description.appendValue(item)
+                            .appendText(" ")
+                            .appendText(" initial cause exception ");
+                    matcher.describeMismatch(cause, description);
+                }
             }
 
             @Override
             public void describeTo(Description description) {
-                description.appendText("initial cause ");
+                description.appendText("initial cause exception ");
                 matcher.describeTo(description);
             }
         };
@@ -120,24 +138,29 @@ public class ThrowableMatchers {
         return new TypeSafeMatcher<Throwable>() {
             @Override
             protected boolean matchesSafely(Throwable item) {
-                while (item.getCause() != null) {
-                    item = item.getCause();
+                Throwable cause = item;
+
+                while (cause.getCause() != null) {
+                    cause = cause.getCause();
                 }
-                if (item == null) {
+                if (cause == item) {
                     return false;
                 }
-                return matcher.matches(item.getMessage());
+                return matcher.matches(cause.getMessage());
             }
 
             @Override
             protected void describeMismatchSafely(Throwable item, Description description) {
-                while (item.getCause() != null) {
-                    item = item.getCause();
+                Throwable cause = item;
+
+                while (cause.getCause() != null) {
+                    cause = cause.getCause();
                 }
-                if (item == null) {
-                    description.appendText("had no cause");
+                if (cause == item) {
+                    description.appendText(" had no initial cause exception");
                 } else {
-                    matcher.describeMismatch(item.getMessage(), description);
+                    description.appendValue(item).appendText(" initial cause message ");
+                    matcher.describeMismatch(cause.getMessage(), description);
                 }
             }
 

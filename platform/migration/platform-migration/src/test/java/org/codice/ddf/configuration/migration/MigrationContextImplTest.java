@@ -262,4 +262,16 @@ public class MigrationContextImplTest extends AbstractMigrationReportTest {
 
         CONTEXT.processMetadata(METADATA);
     }
+
+    @Test
+    public void testProcessMetadataWhenVersionIsInvalid() throws Exception {
+        final Map<String, Object> METADATA = ImmutableMap.of(MigrationContextImpl.METADATA_VERSION,
+                1.2F);
+
+        thrown.expect(Exception.class);
+        thrown.expectMessage(Matchers.containsString("invalid metadata"));
+        thrown.expectMessage(Matchers.containsString("'" + MigrationContextImpl.METADATA_VERSION + "'"));
+
+        CONTEXT.processMetadata(METADATA);
+    }
 }

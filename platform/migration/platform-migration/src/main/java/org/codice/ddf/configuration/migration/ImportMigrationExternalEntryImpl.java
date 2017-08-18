@@ -127,4 +127,12 @@ public class ImportMigrationExternalEntryImpl extends ImportMigrationEntryImpl {
         }
         return true;
     }
+
+    String getChecksum() {
+        return checksum;
+    }
+
+    boolean isSoftlink() {
+        return softlink;
+    }
 }
