@@ -11,27 +11,32 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.source.opensearch;
+package ddf.catalog.source.opensearch.impl;
+
+import java.util.Map;
 
 public class ContextualSearch {
-    private String searchPhrase;
+
+    // A map of search phrases to be used to build the OpenSearch URL parameters
+    // The default search phrase is "q"
+    private Map<String, String> searchPhraseMap;
 
     private String selectors;
 
     private boolean isCaseSensitive;
 
-    public ContextualSearch(String selectors, String searchPhrase, boolean isCaseSensitive) {
+    public ContextualSearch(String selectors, Map<String, String> searchPhraseMap, boolean isCaseSensitive) {
         this.selectors = selectors;
-        this.searchPhrase = searchPhrase;
+        this.searchPhraseMap = searchPhraseMap;
         this.isCaseSensitive = isCaseSensitive;
     }
 
-    public String getSearchPhrase() {
-        return searchPhrase;
+    public Map<String, String> getSearchPhraseMap() {
+        return searchPhraseMap;
     }
 
-    public void setSearchPhrase(String searchPhrase) {
-        this.searchPhrase = searchPhrase;
+    public void setSearchPhraseMap(Map<String, String> searchPhraseMap) {
+        this.searchPhraseMap = searchPhraseMap;
     }
 
     public String getSelectors() {

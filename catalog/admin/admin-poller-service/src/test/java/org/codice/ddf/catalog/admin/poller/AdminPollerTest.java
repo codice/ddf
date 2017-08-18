@@ -54,7 +54,7 @@ import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.service.ConfiguredService;
 import ddf.catalog.source.Source;
-import ddf.catalog.source.opensearch.OpenSearchSource;
+import ddf.catalog.source.opensearch.impl.OpenSearchSource;
 
 public class AdminPollerTest {
 

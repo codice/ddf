@@ -11,12 +11,11 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.source.opensearch;
+package ddf.catalog.source.opensearch.impl;
 
-import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
@@ -28,39 +27,28 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.util.ParameterParser;
 import org.apache.commons.io.IOUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.codice.ddf.cxf.SecureCxfClientFactory;
+import org.junit.Before;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.opengis.filter.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
-import junit.framework.Assert;
-
-import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
-import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
@@ -97,6 +85,10 @@ public class TestOpenSearchSource {
     private static final String SAMPLE_SEARCH_PHRASE = "foobar";
 
     private EncryptionService encryptionService = mock(EncryptionService.class);
+
+    private OpenSearchParserImpl openSearchParserImpl = new OpenSearchParserImpl();
+
+    private OpenSearchFilterVisitor openSearchFilterVisitor = new OpenSearchFilterVisitor();
 
     private static final List<String> DEFAULT_PARAMETERS = Arrays.asList("q",
             "src",
@@ -285,41 +277,45 @@ public class TestOpenSearchSource {
         return IOUtils.toInputStream(response);
     }
 
-    /**
-     * Tests the proper query is sent to the remote source for query by id.
-     *
-     * @throws UnsupportedQueryException
-     * @throws IOException
-     * @throws MalformedURLException
-     */
-    @Test
-    public void testQueryById() throws UnsupportedQueryException, IOException {
-        Response clientResponse = mock(Response.class);
-        WebClient client = mock(WebClient.class);
+    private Response response;
 
-        //ClientResponse
-        doReturn(clientResponse).when(client)
+    private OverriddenOpenSearchSource source;
+
+    @Before
+    public void setUp() throws Exception {
+        response = mock(Response.class);
+        WebClient webClient = mock(WebClient.class);
+
+        doReturn(response).when(webClient)
                 .get();
-        doReturn(Response.Status.OK.getStatusCode()).when(clientResponse)
+        doReturn(Response.Status.OK.getStatusCode()).when(response)
                 .getStatus();
 
-        //Client functions
-        doReturn(getSampleXmlStream()).when(clientResponse)
+        doReturn(getSampleXmlStream()).when(response)
                 .getEntity();
-        when(clientResponse.getHeaderString(eq(OpenSearchSource.HEADER_ACCEPT_RANGES))).thenReturn(
+        when(response.getHeaderString(eq(OpenSearchSource.HEADER_ACCEPT_RANGES))).thenReturn(
                 OpenSearchSource.BYTES);
-        when(client.replaceQueryParam(any(String.class), any(Object.class))).thenReturn(client);
+        when(webClient.replaceQueryParam(any(String.class),
+                any(Object.class))).thenReturn(webClient);
 
-        SecureCxfClientFactory factory = getMockFactory(client);
+        SecureCxfClientFactory factory = getMockFactory(webClient);
 
-        OverriddenOpenSearchSource source = new OverriddenOpenSearchSource(FILTER_ADAPTER,
-                encryptionService);
+        source = new OverriddenOpenSearchSource(FILTER_ADAPTER, encryptionService);
         source.setInputTransformer(getMockInputTransformer());
         source.setEndpointUrl("http://localhost:8181/services/catalog/query");
         source.init();
         source.setParameters(DEFAULT_PARAMETERS);
         source.factory = factory;
+    }
 
+    /**
+     * Tests the proper query is sent to the remote source for query by id.
+     *
+     * @throws UnsupportedQueryException
+     * @throws IOException
+     */
+    @Test
+    public void testQueryById() throws UnsupportedQueryException, IOException {
         Filter filter = filterBuilder.attribute(Metacard.ID)
                 .equalTo()
                 .text(SAMPLE_ID);
@@ -328,29 +324,13 @@ public class TestOpenSearchSource {
         SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
 
         // then
-        Assert.assertEquals(1, response.getHits());
+        assertThat(response.getHits(), is(1L));
     }
 
     @Test
     public void testQueryBySearchPhrase()
             throws UnsupportedQueryException, URISyntaxException, IOException {
-
-        Response clientResponse = mock(Response.class);
-        when(clientResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
-        when(clientResponse.getEntity()).thenReturn(getSampleAtomStream());
-
-        WebClient client = mock(WebClient.class);
-        when(client.get()).thenReturn(clientResponse);
-
-        SecureCxfClientFactory factory = getMockFactory(client);
-
-        OverriddenOpenSearchSource source = new OverriddenOpenSearchSource(FILTER_ADAPTER,
-                encryptionService);
-        source.setInputTransformer(getMockInputTransformer());
-        source.setEndpointUrl("http://localhost:8181/services/catalog/query");
-        source.init();
-        source.setParameters(DEFAULT_PARAMETERS);
-        source.factory = factory;
+        when(response.getEntity()).thenReturn(getSampleAtomStream());
 
         Filter filter = filterBuilder.attribute(Metacard.METADATA)
                 .like()
@@ -363,34 +343,19 @@ public class TestOpenSearchSource {
         queryRequest.setProperties(properties);
         SourceResponse response = source.query(queryRequest);
 
-        Assert.assertEquals(1, response.getHits());
+        assertThat(response.getHits(), is(1L));
         List<Result> results = response.getResults();
-        Assert.assertTrue(results.size() == 1);
+        assertThat(results.size(), is(1));
         Result result = results.get(0);
         Metacard metacard = result.getMetacard();
-        Assert.assertNotNull(metacard);
-        Assert.assertEquals("Resource", metacard.getContentTypeName());
+        assertThat(metacard, notNullValue());
+        assertThat(metacard.getContentTypeName(), is("Resource"));
     }
 
     @Test
     public void testQueryBySearchPhraseRss()
             throws UnsupportedQueryException, URISyntaxException, IOException {
-        WebClient client = mock(WebClient.class);
-        Response clientResponse = mock(Response.class);
-        when(client.get()).thenReturn(clientResponse);
-        when(clientResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
-        when(clientResponse.getEntity()).thenReturn(getSampleRssStream());
-
-        SecureCxfClientFactory factory = getMockFactory(client);
-
-        OverriddenOpenSearchSource source = new OverriddenOpenSearchSource(FILTER_ADAPTER,
-                encryptionService);
-        source.setInputTransformer(getMockInputTransformer());
-        source.setEndpointUrl("http://localhost:8181/services/catalog/query");
-        source.init();
-        source.setParameters(DEFAULT_PARAMETERS);
-
-        source.factory = factory;
+        when(response.getEntity()).thenReturn(getSampleRssStream());
 
         Filter filter = filterBuilder.attribute(Metacard.METADATA)
                 .like()
@@ -403,28 +368,20 @@ public class TestOpenSearchSource {
         queryRequest.setProperties(properties);
         SourceResponse response = source.query(queryRequest);
 
-        Assert.assertEquals(1, response.getHits());
+        assertThat(response.getHits(), is(1L));
         List<Result> results = response.getResults();
-        Assert.assertTrue(results.size() == 1);
+        assertThat(results.size(), is(1));
         Result result = results.get(0);
         Metacard metacard = result.getMetacard();
-        Assert.assertNotNull(metacard);
-        Assert.assertEquals("Resource", metacard.getContentTypeName());
+        assertThat(metacard, notNullValue());
+        assertThat(metacard.getContentTypeName(), is("Resource"));
     }
 
     @Test
     public void testQueryBySearchPhraseContentTypeSet()
-            throws UnsupportedQueryException, URISyntaxException, IOException {
-        WebClient client = mock(WebClient.class);
-        Response clientResponse = mock(Response.class);
-        when(client.get()).thenReturn(clientResponse);
-        when(clientResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
-        when(clientResponse.getEntity()).thenReturn(getSampleAtomStream());
-
-        SecureCxfClientFactory factory = getMockFactory(client);
-
-        OverriddenOpenSearchSource source = new OverriddenOpenSearchSource(FILTER_ADAPTER,
-                encryptionService);
+            throws UnsupportedQueryException, URISyntaxException, IOException,
+            CatalogTransformerException {
+        when(response.getEntity()).thenReturn(getSampleAtomStream());
         InputTransformer inputTransformer = mock(InputTransformer.class);
 
         MetacardImpl generatedMetacard = new MetacardImpl();
@@ -432,49 +389,32 @@ public class TestOpenSearchSource {
         generatedMetacard.setId(SAMPLE_ID);
         generatedMetacard.setContentTypeName("myType");
 
-        try {
-            when(inputTransformer.transform(isA(InputStream.class))).thenReturn(generatedMetacard);
-            when(inputTransformer.transform(isA(InputStream.class), isA(String.class))).thenReturn(
-                    generatedMetacard);
-        } catch (IOException e) {
-            fail();
-        } catch (CatalogTransformerException e) {
-            fail();
-        }
-        source.setInputTransformer(inputTransformer);
-        source.setEndpointUrl("http://localhost:8181/services/catalog/query");
-        source.init();
-        source.setParameters(DEFAULT_PARAMETERS);
+        when(inputTransformer.transform(isA(InputStream.class))).thenReturn(generatedMetacard);
+        when(inputTransformer.transform(isA(InputStream.class), isA(String.class))).thenReturn(
+                generatedMetacard);
 
-        source.factory = factory;
+        source.setInputTransformer(inputTransformer);
 
         Filter filter = filterBuilder.attribute(Metacard.METADATA)
                 .like()
                 .text(SAMPLE_SEARCH_PHRASE);
         SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
 
-        Assert.assertEquals(1, response.getHits());
+        assertThat(response.getHits(), is(1L));
         List<Result> results = response.getResults();
-        Assert.assertTrue(results.size() == 1);
+        assertThat(results.size(), is(1));
         Result result = results.get(0);
         Metacard metacard = result.getMetacard();
-        Assert.assertNotNull(metacard);
-        Assert.assertEquals("myType", metacard.getContentTypeName());
+        assertThat(metacard, notNullValue());
+        assertThat(metacard.getContentTypeName(), is("myType"));
     }
 
     @Test
     public void testQueryBySearchPhraseContentTypeSetRss()
-            throws UnsupportedQueryException, URISyntaxException, IOException {
-        WebClient client = mock(WebClient.class);
-        Response clientResponse = mock(Response.class);
-        when(client.get()).thenReturn(clientResponse);
-        when(clientResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
-        when(clientResponse.getEntity()).thenReturn(getSampleRssStream());
+            throws UnsupportedQueryException, URISyntaxException, IOException,
+            CatalogTransformerException {
+        when(response.getEntity()).thenReturn(getSampleRssStream());
 
-        SecureCxfClientFactory factory = getMockFactory(client);
-
-        OverriddenOpenSearchSource source = new OverriddenOpenSearchSource(FILTER_ADAPTER,
-                encryptionService);
         InputTransformer inputTransformer = mock(InputTransformer.class);
 
         MetacardImpl generatedMetacard = new MetacardImpl();
@@ -482,58 +422,30 @@ public class TestOpenSearchSource {
         generatedMetacard.setId(SAMPLE_ID);
         generatedMetacard.setContentTypeName("myType");
 
-        try {
-            when(inputTransformer.transform(isA(InputStream.class))).thenReturn(generatedMetacard);
-            when(inputTransformer.transform(isA(InputStream.class), isA(String.class))).thenReturn(
-                    generatedMetacard);
-        } catch (IOException e) {
-            fail();
-        } catch (CatalogTransformerException e) {
-            fail();
-        }
-        source.setInputTransformer(inputTransformer);
-        source.setEndpointUrl("http://localhost:8181/services/catalog/query");
-        source.init();
-        source.setParameters(DEFAULT_PARAMETERS);
+        when(inputTransformer.transform(isA(InputStream.class))).thenReturn(generatedMetacard);
+        when(inputTransformer.transform(isA(InputStream.class), isA(String.class))).thenReturn(
+                generatedMetacard);
 
-        source.factory = factory;
+        source.setInputTransformer(inputTransformer);
 
         Filter filter = filterBuilder.attribute(Metacard.METADATA)
                 .like()
                 .text(SAMPLE_SEARCH_PHRASE);
         SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
 
-        Assert.assertEquals(1, response.getHits());
+        assertThat(response.getHits(), is(1L));
         List<Result> results = response.getResults();
-        Assert.assertTrue(results.size() == 1);
+        assertThat(results.size(), is(1));
         Result result = results.get(0);
         Metacard metacard = result.getMetacard();
-        Assert.assertNotNull(metacard);
-        Assert.assertEquals("myType", metacard.getContentTypeName());
+        assertThat(metacard, notNullValue());
+        assertThat(metacard.getContentTypeName(), is("myType"));
     }
 
     @Test
     public void testQueryAnyText()
             throws UnsupportedQueryException, URISyntaxException, IOException {
-        Response clientResponse = mock(Response.class);
-        doReturn(getSampleAtomStream()).when(clientResponse)
-                .getEntity();
-
-        WebClient client = mock(WebClient.class);
-        doReturn(Response.Status.OK.getStatusCode()).when(clientResponse)
-                .getStatus();
-        doReturn(clientResponse).when(client)
-                .get();
-
-        SecureCxfClientFactory factory = getMockFactory(client);
-
-        OverriddenOpenSearchSource source = new OverriddenOpenSearchSource(FILTER_ADAPTER,
-                encryptionService);
-        source.setInputTransformer(getMockInputTransformer());
-        source.setEndpointUrl("http://localhost:8181/services/catalog/query");
-        source.init();
-        source.setParameters(DEFAULT_PARAMETERS);
-        source.factory = factory;
+        when(response.getEntity()).thenReturn(getSampleAtomStream());
 
         Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT)
                 .like()
@@ -541,36 +453,19 @@ public class TestOpenSearchSource {
 
         // when
         SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
-        Assert.assertEquals(1, response.getHits());
+        assertThat(response.getHits(), is(1L));
     }
 
     @Test(expected = UnsupportedQueryException.class)
     public void testQueryBadResponse() throws UnsupportedQueryException, IOException {
-        Response clientResponse = mock(Response.class);
-        WebClient client = mock(WebClient.class);
-
-        //ClientResponse
-        doReturn(clientResponse).when(client)
-                .get();
-        doReturn(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).when(clientResponse)
+        doReturn(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()).when(response)
                 .getStatus();
-
-        SecureCxfClientFactory factory = getMockFactory(client);
-
-        OverriddenOpenSearchSource source = new OverriddenOpenSearchSource(FILTER_ADAPTER,
-                encryptionService);
-        source.setInputTransformer(getMockInputTransformer());
-        source.setEndpointUrl("http://localhost:8181/services/catalog/query");
-        source.init();
-        source.setParameters(DEFAULT_PARAMETERS);
-        source.factory = factory;
 
         Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT)
                 .like()
                 .text(SAMPLE_SEARCH_PHRASE);
 
         source.query(new QueryRequestImpl(new QueryImpl(filter)));
-
     }
 
     /**
@@ -581,24 +476,29 @@ public class TestOpenSearchSource {
      * @throws ResourceNotFoundException
      */
     @Test
-    public void testRetrieveResource()
-            throws ResourceNotSupportedException, IOException, ResourceNotFoundException {
+    public void testRetrieveResource() throws Exception {
 
         // given
-        FirstArgumentCapture answer = new FirstArgumentCapture(getBinaryData());
+        ResourceReader mockReader = mock(ResourceReader.class);
+        when(response.getEntity()).thenReturn(getBinaryData());
+        when(mockReader.retrieveResource(any(URI.class),
+                any(Map.class))).thenReturn(new ResourceResponseImpl(new ResourceImpl(getBinaryData(),
+                "")));
+        MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
+        headers.put(HttpHeaders.CONTENT_TYPE, Arrays.asList("application/octet-stream"));
+        when(response.getHeaders()).thenReturn(headers);
 
-        OpenSearchSource source = givenSource();
+        source.setLocalQueryOnly(true);
+        source.setInputTransformer(getMockInputTransformer());
+        source.setResourceReader(mockReader);
 
-        Map<String, Serializable> requestProperties = new HashMap<String, Serializable>();
-
+        Map<String, Serializable> requestProperties = new HashMap<>();
         requestProperties.put(Metacard.ID, SAMPLE_ID);
 
         // when
         ResourceResponse response = source.retrieveResource(null, requestProperties);
-
-        Assert.assertEquals(3,
-                response.getResource()
-                        .getByteArray().length);
+        assertThat(response.getResource()
+                .getByteArray().length, is(3));
     }
 
     /**
@@ -606,50 +506,17 @@ public class TestOpenSearchSource {
      *
      * @throws ResourceNotSupportedException
      */
-    @Test
-    public void testRetrieveNullProduct() throws ResourceNotSupportedException, IOException {
-        OverriddenOpenSearchSource source = new OverriddenOpenSearchSource(FILTER_ADAPTER,
-                encryptionService);
-        // when
-        try {
-            source.retrieveResource(null, null);
-
-            // then
-            fail("Should have thrown " + ResourceNotFoundException.class.getName()
-                    + " because of null uri.");
-        } catch (ResourceNotFoundException e) {
-            /*
-             * this exception should have been thrown.
-             */
-            assertThat(e.getMessage(),
-                    containsString(OpenSearchSource.COULD_NOT_RETRIEVE_RESOURCE_MESSAGE));
-            assertThat(e.getMessage(), containsString("null"));
-        }
-
+    @Test(expected = ResourceNotFoundException.class)
+    public void testRetrieveNullProduct()
+            throws ResourceNotFoundException, ResourceNotSupportedException, IOException {
+        source.retrieveResource(null, null);
     }
 
-    // DDF-161
     @Test
     public void testQueryQueryByMetacardIdFollowedByAnyTextQuery() throws Exception {
-        WebClient client = mock(WebClient.class);
-        Response clientResponse = mock(Response.class);
-        when(clientResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
-        when(client.get()).thenReturn(clientResponse);
-        when(clientResponse.getEntity()).thenReturn(getSampleXmlStream())
+        when(response.getEntity()).thenReturn(getSampleXmlStream())
                 .thenReturn(getSampleAtomStream());
 
-        SecureCxfClientFactory factory = getMockFactory(client);
-
-        OverriddenOpenSearchSource source = new OverriddenOpenSearchSource(FILTER_ADAPTER,
-                encryptionService);
-        source.setLocalQueryOnly(true);
-        source.setInputTransformer(getMockInputTransformer());
-        source.setEndpointUrl("http://localhost:8181/services/catalog/query");
-        source.init();
-        source.setParameters(DEFAULT_PARAMETERS);
-
-        source.factory = factory;
-
         // Metacard ID filter
         Filter idFilter = filterBuilder.attribute(Metacard.ID)
                 .equalTo()
@@ -675,27 +542,10 @@ public class TestOpenSearchSource {
                 .size(), is(1));
     }
 
-    // DDF-161
     @Test
     public void testQueryQueryByMetacardIdFollowedByAnyTextQueryRss() throws Exception {
-        WebClient client = mock(WebClient.class);
-        Response clientResponse = mock(Response.class);
-        when(clientResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
-        when(clientResponse.getEntity()).thenReturn(getSampleXmlStream())
+        when(response.getEntity()).thenReturn(getSampleXmlStream())
                 .thenReturn(getSampleRssStream());
-        when(client.get()).thenReturn(clientResponse);
-
-        SecureCxfClientFactory factory = getMockFactory(client);
-
-        OverriddenOpenSearchSource source = new OverriddenOpenSearchSource(FILTER_ADAPTER,
-                encryptionService);
-        source.setLocalQueryOnly(true);
-        source.setInputTransformer(getMockInputTransformer());
-        source.setEndpointUrl("http://localhost:8181/services/catalog/query");
-        source.init();
-        source.setParameters(DEFAULT_PARAMETERS);
-
-        source.factory = factory;
 
         // Metacard ID filter
         Filter idFilter = filterBuilder.attribute(Metacard.ID)
@@ -722,109 +572,15 @@ public class TestOpenSearchSource {
                 .size(), is(1));
     }
 
-    private NameValuePair pair(String name, String value) {
-        return new NameValuePair(name, value);
-    }
-
-    private List<NameValuePair> extractQueryParams(FirstArgumentCapture answer)
-            throws MalformedURLException, URISyntaxException {
-        URL url = new URI(answer.getInputArg()).toURL();
-        ParameterParser paramParser = new ParameterParser();
-        List<NameValuePair> pairs = paramParser.parse(url.getQuery(), '&');
-        return pairs;
-    }
-
-    private void verifyOpenSearchUrl(List<NameValuePair> pairs, NameValuePair... answers) {
-
-        ConcurrentHashMap<String, String> nvpMap = createMapFor(pairs);
-
-        for (NameValuePair answerPair : answers) {
-            assertThat(nvpMap.get(answerPair.getName()), is(answerPair.getValue()));
-            nvpMap.remove(answerPair.getName());
-        }
-
-        assertThat(nvpMap.get("count"), is("20"));
-        nvpMap.remove("count");
-        assertThat(nvpMap.get("mt"), is("0"));
-        nvpMap.remove("mt");
-        assertThat(nvpMap.get("src"), is("local"));
-        nvpMap.remove("src");
-
-        verifyAllEntriesBlank(nvpMap);
-
-    }
-
-    /**
-     * Verifies that the rest of the entries don't have a corresponding value
-     *
-     * @param nvpMap
-     */
-    private void verifyAllEntriesBlank(ConcurrentHashMap<String, String> nvpMap) {
-        for (Entry<String, String> entry : nvpMap.entrySet()) {
-
-            String errorMessage =
-                    "[" + entry.getKey() + "]" + " should not have a corresponding value.";
-
-            assertThat(errorMessage, entry.getValue(), is(""));
-        }
-    }
-
-    private ConcurrentHashMap<String, String> createMapFor(List<NameValuePair> pairs) {
-        ConcurrentHashMap<String, String> map = new ConcurrentHashMap<String, String>();
-
-        for (NameValuePair pair : pairs) {
-            map.put(pair.getName(), pair.getValue());
-        }
-        return map;
-    }
-
-    private OpenSearchSource givenSource()
-            throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
-        WebClient client = mock(WebClient.class);
-        ResourceReader mockReader = mock(ResourceReader.class);
-
-        Response clientResponse = mock(Response.class);
-        when(clientResponse.getEntity()).thenReturn(getBinaryData());
-        when(clientResponse.getHeaderString(eq(OpenSearchSource.HEADER_ACCEPT_RANGES))).thenReturn(
-                OpenSearchSource.BYTES);
-        when(client.get()).thenReturn(clientResponse);
-        SecureCxfClientFactory factory = getMockFactory(client);
-        when(mockReader.retrieveResource(any(URI.class),
-                any(Map.class))).thenReturn(new ResourceResponseImpl(new ResourceImpl(getBinaryData(),
-                "")));
-
-        MultivaluedMap<String, Object> headers = new MultivaluedHashMap<String, Object>();
-        headers.put(HttpHeaders.CONTENT_TYPE, Arrays.<Object>asList("application/octet-stream"));
-
-        when(clientResponse.getHeaders()).thenReturn(headers);
-
-        OverriddenOpenSearchSource source = new OverriddenOpenSearchSource(FILTER_ADAPTER,
-                encryptionService);
-        source.setEndpointUrl("http://localhost:8181/services/catalog/query");
-        source.setParameters(DEFAULT_PARAMETERS);
-        source.init();
-        source.setLocalQueryOnly(true);
-        source.setInputTransformer(getMockInputTransformer());
-        source.factory = factory;
-        source.setResourceReader(mockReader);
-
-        return source;
-    }
-
-    protected InputTransformer getMockInputTransformer() {
+    protected InputTransformer getMockInputTransformer() throws Exception {
         InputTransformer inputTransformer = mock(InputTransformer.class);
 
         Metacard generatedMetacard = getSimpleMetacard();
 
-        try {
-            when(inputTransformer.transform(isA(InputStream.class))).thenReturn(generatedMetacard);
-            when(inputTransformer.transform(isA(InputStream.class), isA(String.class))).thenReturn(
-                    generatedMetacard);
-        } catch (IOException e) {
-            fail();
-        } catch (CatalogTransformerException e) {
-            fail();
-        }
+        when(inputTransformer.transform(isA(InputStream.class))).thenReturn(generatedMetacard);
+        when(inputTransformer.transform(isA(InputStream.class), isA(String.class))).thenReturn(
+                generatedMetacard);
+
         return inputTransformer;
     }
 
@@ -840,34 +596,6 @@ public class TestOpenSearchSource {
         return "<xml></xml>";
     }
 
-    private class FirstArgumentCapture implements Answer<BinaryContent> {
-
-        private InputStream returnInputStream;
-
-        private String inputArg;
-
-        public FirstArgumentCapture() {
-            this.returnInputStream = getSampleXmlStream();
-        }
-
-        public FirstArgumentCapture(InputStream inputStream) {
-            this.returnInputStream = inputStream;
-        }
-
-        public String getInputArg() {
-            return inputArg;
-        }
-
-        @Override
-        public BinaryContent answer(InvocationOnMock invocation) throws Throwable {
-            this.inputArg = (String) invocation.getArguments()[0];
-
-            return new BinaryContentImpl(returnInputStream);
-
-        }
-
-    }
-
     private class OverriddenOpenSearchSource extends OpenSearchSource {
 
         private InputTransformer transformer;
@@ -881,13 +609,7 @@ public class TestOpenSearchSource {
          */
         public OverriddenOpenSearchSource(FilterAdapter filterAdapter,
                 EncryptionService encryptionService) {
-            super(filterAdapter, encryptionService);
-        }
-
-        public OverriddenOpenSearchSource(FilterAdapter filterAdapter,
-                SecureCxfClientFactory factory, EncryptionService encryptionService) {
-            super(filterAdapter, encryptionService);
-            this.factory = factory;
+            super(filterAdapter, openSearchParserImpl, openSearchFilterVisitor, encryptionService);
         }
 
         protected void setInputTransformer(InputTransformer inputTransformer) {

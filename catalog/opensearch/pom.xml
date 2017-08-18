@@ -24,6 +24,7 @@
     <name>DDF Catalog Opensearch</name>
     <packaging>pom</packaging>
     <modules>
+        <module>catalog-opensearch-api</module>
         <module>catalog-opensearch-endpoint</module>
         <module>catalog-opensearch-source</module>
     </modules>
