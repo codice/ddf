@@ -37,7 +37,7 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportTest 
 
     private Path EXPORT_FILE;
 
-    private ZipFile ZIP;
+    private final ZipFile ZIP = Mockito.mock(ZipFile.class);
 
     private ZipEntry ZE;
 
@@ -55,7 +55,6 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportTest 
         initMigratableMock(MIGRATABLE2, MIGRATABLE_ID2);
         initMigratableMock(MIGRATABLE3, MIGRATABLE_ID3);
 
-        ZIP = Mockito.mock(ZipFile.class);
         ZE = getMetadataZipEntry(ZIP,
                 Optional.of(MigrationContextImpl.VERSION),
                 Optional.of(PRODUCT_VERSION));

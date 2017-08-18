@@ -12,8 +12,9 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <parent>
         <groupId>ddf.platform</groupId>
         <artifactId>migration</artifactId>
@@ -66,7 +67,10 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Export-Package>org.codice.ddf.migration</Export-Package>
+                        <Export-Package>
+                            org.codice.ddf.migration,
+                            org.codice.ddf.util.function
+                        </Export-Package>
                         <Embed-Dependency>
                             commons-lang,
                             validation-api
@@ -74,7 +78,7 @@
                         <Import-Package>
                             org.codice.ddf.platform.services.common
                         </Import-Package>
-                     </instructions>
+                    </instructions>
                 </configuration>
             </plugin>
             <plugin>

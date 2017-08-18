@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -265,5 +264,10 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
     void addPropertyReferenceEntry(String name,
             ImportMigrationJavaPropertyReferencedEntryImpl entry) {
         properties.put(name, entry);
+    }
+
+    // used for testing
+    Map<String, ImportMigrationJavaPropertyReferencedEntryImpl> getJavaPropertyReferencedEntries() {
+        return properties;
     }
 }

@@ -13,12 +13,12 @@
  */
 package org.codice.ddf.configuration.migration;
 
-import java.io.BufferedInputStream;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -74,8 +74,6 @@ public class AbstractMigrationTest {
     protected Path ROOT;
 
     protected Path DDF_HOME;
-
-    protected Path DDF_BIN;
 
     /**
      * Retrieves all zip entries representing files from the specified zip file.

@@ -77,8 +77,10 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
     @Before
     public void before() throws Exception {
         initMigratableMock();
+
         Mockito.when(ENTRY.getName())
                 .thenReturn(MIGRATABLE_NAME);
+
         this.CONTEXT = new ExportMigrationContextImpl(REPORT, MIGRATABLE, ZOS);
 
         System.setProperty(PROPERTY_NAME, MIGRATABLE_PROPERTY_PATHNAME);
