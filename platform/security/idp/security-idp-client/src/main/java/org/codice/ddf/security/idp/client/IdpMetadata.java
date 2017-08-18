@@ -62,9 +62,19 @@ public class IdpMetadata {
 
     private String singleLogoutLocation;
 
+    private boolean assertionConsumerServiceURLCheck = true;
+    
     public void setMetadata(String metadata) {
         this.metadata = metadata;
         entryDescriptions.getAndSet(null);
+    }
+
+    public void setAssertionConsumerServiceURLCheck(boolean assertionConsumerServiceURLCheck) {
+        this.assertionConsumerServiceURLCheck = assertionConsumerServiceURLCheck;
+    }
+
+    public boolean getAssertionConsumerServiceURLCheck(){
+        return this.assertionConsumerServiceURLCheck;
     }
 
     private void initSingleSignOn() {

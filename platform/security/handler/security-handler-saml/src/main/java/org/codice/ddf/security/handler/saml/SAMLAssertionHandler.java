@@ -105,16 +105,13 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
 
                     Element thisToken = null;
 
-                    if (tokenString.contains(SAML_NAMESPACE)) {
-                        try {
-                            thisToken = StaxUtils.read(new StringReader(tokenString))
+                    try {
+                        thisToken = StaxUtils.read(new StringReader(tokenString))
                                     .getDocumentElement();
-                        } catch (XMLStreamException e) {
-                            LOGGER.info(
-                                    "Unexpected error converting XML string to element - proceeding without SAML token.",
-                                    e);
-                        }
-                    } else {
+                    } catch (XMLStreamException e) {
+                        LOGGER.info(
+                                "Unexpected error converting XML string to element - attempting to parse without namespace.",
+                                e);
                         thisToken = parseAssertionWithoutNamespace(tokenString);
                     }
 
