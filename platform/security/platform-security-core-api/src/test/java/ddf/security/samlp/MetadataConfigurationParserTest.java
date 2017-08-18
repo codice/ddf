@@ -39,8 +39,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 
 public class MetadataConfigurationParserTest {
@@ -145,13 +143,11 @@ public class MetadataConfigurationParserTest {
     }
 
     private void serverRespondsWith(String message) throws HttpException, IOException {
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                HttpResponse response = (HttpResponse) invocationOnMock.getArguments()[1];
-                response.setEntity(new StringEntity(message));
-                return null;
-            }
+        doAnswer(invocationOnMock -> {
+            HttpResponse response = (HttpResponse) invocationOnMock.getArguments()[1];
+            response.setEntity(new StringEntity(message));
+            response.setStatusCode(200);
+            return null;
         }).when(handler)
                 .handle(any(), any(), any());
     }

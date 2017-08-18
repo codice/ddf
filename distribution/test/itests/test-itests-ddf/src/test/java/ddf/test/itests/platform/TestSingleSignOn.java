@@ -58,6 +58,7 @@ import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.codice.ddf.itests.common.utils.LoggingUtils;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
@@ -101,8 +102,6 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     public static final String BROWSER_USER_AGENT =
             "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36";
 
-    private static String metacardId;
-
     private enum Binding {
         REDIRECT {
             @Override
@@ -121,6 +120,25 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
         METADATA, PROTOCOL
     }
 
+    @Before
+    public void setup() throws Exception {
+        // Get all of the metadata
+        String metadata = get(SERVICE_ROOT + "/idp/login/metadata").asString();
+        String ddfSpMetadata = get(SERVICE_ROOT + "/saml/sso/metadata").asString();
+
+        // Make sure all the metadata is valid before we set it
+        validateSaml(metadata, SamlSchema.METADATA);
+        validateSaml(ddfSpMetadata, SamlSchema.METADATA);
+
+
+        // The IdP server can point to multiple Service Providers and as such expects an array.
+        // Thus, even though we are only setting a single item, we must wrap it in an array.
+        setConfig("org.codice.ddf.security.idp.client.IdpMetadata", "metadata", metadata);
+        setConfig("org.codice.ddf.security.idp.server.IdpEndpoint",
+                "spMetadata",
+                new String[] {ddfSpMetadata});
+    }
+
     @BeforeExam
     public void beforeTest() throws Exception {
         try {
@@ -132,24 +150,10 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
             getServiceManager().startFeature(true, "security-idp", "search-ui", "catalog-ui");
             getServiceManager().waitForAllBundles();
 
-            // Get all of the metadata
-            String metadata = get(SERVICE_ROOT + "/idp/login/metadata").asString();
-            String ddfSpMetadata = get(SERVICE_ROOT + "/saml/sso/metadata").asString();
-
-            // Make sure all the metadata is valid before we set it
-            validateSaml(metadata, SamlSchema.METADATA);
-            validateSaml(ddfSpMetadata, SamlSchema.METADATA);
-
-            // The IdP server can point to multiple Service Providers and as such expects an array.
-            // Thus, even though we are only setting a single item, we must wrap it in an array.
-            setConfig("org.codice.ddf.security.idp.client.IdpMetadata", "metadata", metadata);
-            setConfig("org.codice.ddf.security.idp.server.IdpEndpoint",
-                    "spMetadata",
-                    new String[] {ddfSpMetadata});
-
             getCatalogBundle().waitForCatalogProvider();
 
-            metacardId = ingest(getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"),
+
+            ingest(getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"),
                     "application/json");
 
             getSecurityPolicy().configureWebContextPolicy(null, IDP_AUTH_TYPES, null, null);

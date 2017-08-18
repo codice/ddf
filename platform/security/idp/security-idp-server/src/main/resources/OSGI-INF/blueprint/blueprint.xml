@@ -53,8 +53,14 @@
         <property name="securityManager" ref="securityManager"/>
         <property name="tokenFactory" ref="tokenFactory" />
         <property name="strictSignature" value="true" />
+        <property name="guestAccess" value="true" />
         <property name="logoutMessage" ref="logoutMessage" />
         <property name="logoutStates" ref="logoutStates" />
+        <property name="spMetadata">
+            <list>
+                <value>https://${org.codice.ddf.system.hostname}:${org.codice.ddf.system.httpsPort}/services/saml/sso/metadata</value>
+            </list>
+        </property>
     </bean>
 
     <jaxrs:server id="idpService" address="/idp">
