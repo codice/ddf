@@ -186,7 +186,7 @@ public class FelixConfigTest {
                 temporaryFile.toURI()
                         .toString());
         felixConfig = new FelixConfig(configuration);
-        felixConfig.setFelixFile();
+        felixConfig.generateDefaultFelixFile();
         File felixFile = felixConfig.getFelixFile();
         assertThat(felixFile, is(notNullValue()));
         assertThat(felixFile.getName(), is("pid.config"));
@@ -199,7 +199,7 @@ public class FelixConfigTest {
                 temporaryFile.toURI()
                         .toString());
         felixConfig = new FelixConfig(configuration);
-        felixConfig.setFelixFile();
+        felixConfig.generateDefaultFelixFile();
         File felixFile = felixConfig.getFelixFile();
         assertThat(felixFile, is(notNullValue()));
         assertThat(felixFile.getName(), matchesPattern("factoryPid-[a-z0-9]++.config"));

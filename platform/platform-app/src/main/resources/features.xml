@@ -1030,6 +1030,12 @@
         <bundle>mvn:ddf.platform.error/platform-error-impl/${project.version}</bundle>
     </feature>
 
+    <feature name="io" install="manual" version="${project.version}"
+             description="Internal tools for general purpose IO functions">
+        <bundle dependency="true">mvn:ddf.platform.io/platform-io-internal-api/${project.version}</bundle>
+        <bundle>mvn:ddf.platform.io/platform-io-impl/${project.version}</bundle>
+    </feature>
+
     <feature name="parser-xml" install="manual" version="${project.version}"
              description="Platform JAXB support.">
         <bundle>mvn:ddf.platform/platform-parser-api/${project.version}</bundle>
@@ -1110,6 +1116,7 @@
         <feature>solr</feature>
         <feature>persistence-core</feature>
         <feature>error</feature>
+        <feature>io</feature>
         <feature>parser-xml</feature>
         <feature>landing-page</feature>
         <feature>platform-filter-response</feature>

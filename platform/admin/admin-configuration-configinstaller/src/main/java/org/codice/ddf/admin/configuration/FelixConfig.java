@@ -41,6 +41,10 @@ public class FelixConfig {
 
     private static final String FELIX_FILENAME_PROP = "felix.fileinstall.filename";
 
+    private static final String SERVICE_FACTORY_PID = "service.factoryPid";
+
+    private static final String SERVICE_PID = "service.pid";
+
     private final Configuration config;
 
     private File felixFile;
@@ -51,6 +55,19 @@ public class FelixConfig {
         }
         this.config = config;
         this.felixFile = extractFelixFileInstallProp(config);
+    }
+
+    /**
+     * @return a properties dictionary for the config that can be written to etc without interfering
+     * with Felix's monitoring and processing. There are some values we should not serialize because
+     * they are handled in a special way by Felix.
+     */
+    Dictionary<String, Object> getSanitizedProperties() {
+        Dictionary<String, Object> props = config.getProperties();
+        props.remove(FELIX_FILENAME_PROP);
+        props.remove(SERVICE_FACTORY_PID);
+        props.remove(SERVICE_PID);
+        return props;
     }
 
     /**
@@ -69,29 +86,46 @@ public class FelixConfig {
     }
 
     /**
-     * Sets the felix file name using the default technique from the config repo, using .config in
-     * case complex data structures are present.
-     *
-     * @throws IOException if an error occurs persisting to config admin.
-     */
-    void setFelixFile() throws IOException {
-        setFelixFile(createFelixFileName(config));
-    }
-
-    /**
      * Sets the felix file name to the provided {@link File} argument.
      *
      * @param file the file to use for the felix file name property.
-     * @throws IOException if an error occurs persisting to config admin.
      */
-    void setFelixFile(File file) throws IOException {
+    void setFelixFile(File file) {
         Dictionary<String, Object> propsWithFelixFileName = config.getProperties();
         propsWithFelixFileName.put(FELIX_FILENAME_PROP,
                 file.toURI()
                         .toString());
-        config.update(propsWithFelixFileName);
+        try {
+            config.update(propsWithFelixFileName);
+            this.felixFile = file;
+        } catch (IOException e) {
+            LOGGER.error("Error writing configuration");
+            LOGGER.debug("Could not set felix file name, error writing configuration: ", e);
+            this.felixFile = null;
+        }
+    }
 
-        this.felixFile = file;
+    /**
+     * Sets the felix file name using the default technique from the config repo, using .config by
+     * default in case complex data structures are present.
+     *
+     * @return <code>this</code> for chaining.
+     */
+    FelixConfig generateDefaultFelixFile() {
+        setFelixFile(createFelixFileName(config));
+        return this;
+    }
+
+    /**
+     * Deletes the configuration from config admin.
+     */
+    void delete() {
+        try {
+            config.delete();
+        } catch (IOException e) {
+            LOGGER.error("Error deleting configuration");
+            LOGGER.debug("Could not delete configuration: ", e);
+        }
     }
 
     /**
@@ -147,18 +181,20 @@ public class FelixConfig {
     }
 
     /**
-     * Code adopted from config repo
+     * Code adopted from Karaf's Config Repository Impl
      */
     private File createFelixFileName(Configuration configuration) {
         final String fpid = configuration.getFactoryPid();
         final String bname;
 
         if (fpid != null) {
+            LOGGER.debug("Generating felix filename for factory pid {}", fpid);
             final String alias = UUID.randomUUID()
                     .toString()
                     .replaceAll("-", "");
             bname = format("%s-%s", fpid, alias);
         } else {
+            LOGGER.debug("Generating felix filename for pid {}", configuration.getPid());
             bname = configuration.getPid();
         }
 
