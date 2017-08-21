@@ -44,6 +44,8 @@ public class ConfluenceFilterDelegate extends SimpleFilterDelegate<String> {
 
     private boolean wildcardQuery = false;
 
+    private boolean unsupportedQuery = false;
+
     private int parameterCount = 0;
 
     private Set<String> queryTags = new HashSet<>();
@@ -76,6 +78,13 @@ public class ConfluenceFilterDelegate extends SimpleFilterDelegate<String> {
                 new ConfluenceQueryParameter("lastmodified", false, true, true, false, false));
         QUERY_PARAMETERS = Collections.unmodifiableMap(params);
 
+    }
+
+    @Override
+    public <S> String defaultOperation(Object property, S literal, Class<S> literalClass,
+            Enum operation) {
+        unsupportedQuery = true;
+        return null;
     }
 
     @Override
@@ -116,6 +125,7 @@ public class ConfluenceFilterDelegate extends SimpleFilterDelegate<String> {
                 .replaceAll(EMPTY_GROUP_PATTER, ""));
     }
 
+    @Override
     public String after(String propertyName, Date date) {
         return getConfluenceParameter(propertyName,
                 null,
@@ -123,12 +133,14 @@ public class ConfluenceFilterDelegate extends SimpleFilterDelegate<String> {
                         date)));
     }
 
+    @Override
     public String before(String propertyName, Date date) {
         return getConfluenceParameter(propertyName,
                 null,
                 param -> param.getLessThanExpression(new SimpleDateFormat(DATE_FORMAT).format(date)));
     }
 
+    @Override
     public String during(String propertyName, Date startDate, Date endDate) {
         return getConfluenceParameter(propertyName,
                 null,
@@ -158,8 +170,8 @@ public class ConfluenceFilterDelegate extends SimpleFilterDelegate<String> {
     }
 
     public boolean isConfluenceQuery() {
-        return queryTags.isEmpty() || queryTags.contains(Metacard.DEFAULT_TAG)
-                || queryTags.contains(Confluence.CONFLUENCE_TAG);
+        return !unsupportedQuery && (queryTags.isEmpty() || queryTags.contains(Metacard.DEFAULT_TAG)
+                || queryTags.contains(Confluence.CONFLUENCE_TAG));
     }
 
     public boolean isWildCardQuery() {

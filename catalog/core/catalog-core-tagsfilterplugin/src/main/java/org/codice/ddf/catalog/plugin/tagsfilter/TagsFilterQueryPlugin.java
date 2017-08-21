@@ -61,17 +61,17 @@ public class TagsFilterQueryPlugin implements PreFederatedQueryPlugin {
         return source instanceof SourceCache;
     }
 
-    private boolean isCatalogProvider(String id) {
-        return id != null && catalogProviders.stream()
+    private boolean isCatalogProvider(Source source) {
+        return source instanceof CatalogProvider && catalogProviders.stream()
                 .map(CatalogProvider::getId)
-                .anyMatch(id::equals);
+                .anyMatch(source.getId()::equals);
     }
 
     /**
      * Given a source, determine if it is a registered catalog provider or a cache.
      */
     private boolean isLocalSource(Source source) {
-        return isCacheSource(source) || isCatalogProvider(source.getId());
+        return isCacheSource(source) || isCatalogProvider(source);
     }
 
     @Override

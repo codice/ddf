@@ -33,8 +33,6 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
-import org.boon.json.JsonFactory;
-import org.boon.json.ObjectMapper;
 import org.codice.ddf.configuration.PropertyResolver;
 import org.codice.ddf.confluence.api.SearchResource;
 import org.codice.ddf.cxf.SecureCxfClientFactory;
@@ -57,25 +55,24 @@ import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.ResourceReader;
 import ddf.catalog.service.ConfiguredService;
+import ddf.catalog.source.ConnectedSource;
 import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.util.impl.MaskableImpl;
+import ddf.security.common.audit.SecurityLogger;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.permission.Permissions;
 
-public class ConfluenceSource extends MaskableImpl implements FederatedSource, ConfiguredService {
+public class ConfluenceSource extends MaskableImpl
+        implements FederatedSource, ConnectedSource, ConfiguredService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfluenceSource.class);
-
-    private static final ObjectMapper MAPPER = JsonFactory.create();
 
     private static final String USERNAME = "username";
 
     private static final String PASSWORD = "password";
-
-    private static final String BASE_URL = "baseUrl";
 
     private String endpointUrl;
 
@@ -84,6 +81,8 @@ public class ConfluenceSource extends MaskableImpl implements FederatedSource, C
     private String username;
 
     private String password;
+
+    private String bodyExpansion;
 
     private String expandedSections = "";
 
@@ -124,12 +123,18 @@ public class ConfluenceSource extends MaskableImpl implements FederatedSource, C
     }
 
     public void init() {
+        if (StringUtils.isBlank(endpointUrl)) {
+            return;
+        }
+
         if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(password)) {
+            SecurityLogger.audit("Setting up confluence client for user {}", username);
             factory = new SecureCxfClientFactory<SearchResource>(endpointUrl,
                     SearchResource.class,
                     username,
                     password);
         } else {
+            SecurityLogger.audit("Setting up confluence client for anonymous access");
             factory = new SecureCxfClientFactory<SearchResource>(endpointUrl, SearchResource.class);
         }
     }
@@ -203,8 +208,8 @@ public class ConfluenceSource extends MaskableImpl implements FederatedSource, C
         LOGGER.debug(cql);
 
         String finalExpandedSections = expandedSections;
-        if (includePageContent) {
-            finalExpandedSections += ",body.view";
+        if (includePageContent && StringUtils.isNotBlank(bodyExpansion)) {
+            finalExpandedSections += "," + bodyExpansion;
         }
 
         SearchResource confluence = getClientFactory().getClient();
@@ -291,6 +296,7 @@ public class ConfluenceSource extends MaskableImpl implements FederatedSource, C
 
     public void setUsername(String username) {
         this.username = username;
+        init();
     }
 
     public void setPassword(String password) {
@@ -298,6 +304,7 @@ public class ConfluenceSource extends MaskableImpl implements FederatedSource, C
         if (encryptionService != null) {
             this.password = encryptionService.decryptValue(password);
         }
+        init();
     }
 
     public void setExpandedSections(List<String> expandedSections) {
@@ -328,6 +335,10 @@ public class ConfluenceSource extends MaskableImpl implements FederatedSource, C
 
     public void setAdditionalAttributes(List<String> attributes) {
         additionalMetacardAttributes = Permissions.parsePermissionsFromString(attributes);
+    }
+
+    public void setBodyExpansion(String bodyExpansion) {
+        this.bodyExpansion = bodyExpansion;
     }
 
     public SecureCxfClientFactory<SearchResource> getClientFactory() {

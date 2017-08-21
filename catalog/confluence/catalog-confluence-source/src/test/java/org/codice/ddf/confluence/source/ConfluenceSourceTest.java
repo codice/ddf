@@ -16,6 +16,7 @@ package org.codice.ddf.confluence.source;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
@@ -364,8 +365,21 @@ public class ConfluenceSourceTest {
                 .get("password"), is("decryptedPass"));
     }
 
+    @Test
+    public void testInitNoEndpointUrl() throws Exception {
+        ConfluenceSource source = new ConfluenceSource(adapter,
+                encryptionService,
+                transformer,
+                reader);
+        source.setUsername("myname");
+        source.setPassword("mypass");
+        source.init();
+        assertThat(source.getClientFactory(), is(nullValue()));
+    }
+
     class TestConfluenceSource extends ConfluenceSource {
         private SecureCxfClientFactory<SearchResource> mockFactory;
+
         public TestConfluenceSource(FilterAdapter adapter, EncryptionService encryptionService,
                 ConfluenceInputTransformer transformer, ResourceReader reader,
                 SecureCxfClientFactory<SearchResource> mockFactory) {

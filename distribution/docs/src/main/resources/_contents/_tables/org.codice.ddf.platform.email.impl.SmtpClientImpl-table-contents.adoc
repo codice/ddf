@@ -1,4 +1,4 @@
-.[[Confluence_Federated_Source]]Confluence Federated Source
+.[[SmtpClientImpl]]Smtp Client
 [cols="1,1m,1,3,1,1" options="header"]
 |===
 |Name

@@ -3,7 +3,7 @@
 :type: table
 :status: published
 :application: ${ddf-catalog}
-:summary: Confluence Federated Source.
+:summary: Xml Response Query Transformer.
 
 .[[ddf.catalog.transformer.xml.XmlResponseQueueTransformer]]Xml Query Transformer
 [cols="1,1m,1,3,1,1" options="header"]
