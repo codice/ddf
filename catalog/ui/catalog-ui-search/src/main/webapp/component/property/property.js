@@ -177,7 +177,7 @@ define([
                     calculatedType = 'textarea';
                     break;
                 case 'BOOLEAN':
-                    calculatedType = 'boolean'
+                    calculatedType = 'boolean';
                     break;
                 case 'LONG':
                 case 'DOUBLE':

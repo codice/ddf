@@ -13,8 +13,11 @@
 /*jshint bitwise: false*/
 define([
     'js/cql',
-    'component/singletons/metacard-definitions'
-], function (cql, metacardDefinitions) {
+    'component/singletons/metacard-definitions',
+    'js/Common'
+], function (cql, metacardDefinitions, Common) {
+
+    var specialDelimiter = Common.undefined;
 
     return {
         sanitizeForCql: function (text) {
@@ -23,7 +26,7 @@ define([
         //we should probably regex this or find a better way, but for now this works
         sanitizeGeometryCql: function (cqlString) {
             return cqlString.split("'POLYGON((").join("POLYGON((").split("))'").join("))")
-                .split("'POINT(").join("POINT(").split(")'").join(")")
+                .split("'POINT(").join("POINT(").replace(/(POINT\([-0-9. ]*\))/g, '$1' + specialDelimiter).split(")"+specialDelimiter+"'").join(")")
                 .split("'LINESTRING(").join("LINESTRING(").split("))'").join("))");
         },
         getProperty: function (filter) {

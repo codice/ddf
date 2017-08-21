@@ -10,7 +10,7 @@ var config =  merge.smart(base, {
     node: {
         __filename: true
     },
-    entry: glob.sync('src/main/webapp/component/**/*.spec.js*', {
+    entry: glob.sync('src/main/webapp/**/*.spec.js*', {
             cwd: path.resolve(__dirname, '../../')
         }).map(function (spec) { return path.resolve(spec) }),
     output: {

@@ -16,6 +16,9 @@ package ddf.catalog.filter.proxy.adapter.test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -36,6 +39,7 @@ import org.geotools.temporal.object.DefaultPosition;
 import org.junit.Test;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
+import org.opengis.filter.PropertyIsEqualTo;
 import org.opengis.filter.expression.Expression;
 import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;
@@ -598,6 +602,39 @@ public class FilterAdapterTest {
         // Relative
         assertFilterEquals("relative(Test," + DAY_IN_MILLISECONDS + ")", FF.during(TEST_PROPERTY,
                 FF.literal(DAY_DURATION)));
+    }
+
+    @Test
+    public void testTemporalRelativeFilter() {
+        PropertyIsEqualTo mockTemporalFilter = mock(PropertyIsEqualTo.class);
+
+        PropertyName mockPropertyName = mock(PropertyName.class);
+        doReturn("created").when(mockPropertyName)
+                .accept(any(), any());
+
+        Literal mockLiteral = mock(Literal.class);
+        doReturn("RELATIVE(P2Y3M2DT1H6M)").when(mockLiteral)
+                .accept(any(), any());
+
+        doReturn(mockPropertyName).when(mockTemporalFilter)
+                .getExpression1();
+        doReturn(mockLiteral).when(mockTemporalFilter)
+                .getExpression2();
+
+        //Use fake delegate to return fake result to verify operation
+        //This will only return the expected result if the relative temporal path is followed
+        FilterDelegate mockFilterDelegate = mock(FilterDelegate.class);
+        doReturn(Boolean.TRUE).when(mockFilterDelegate)
+                .propertyIsBetween(any(), any(Date.class), any(Date.class));
+
+        try {
+            GeotoolsFilterAdapterImpl geotoolsFilterAdapter = new GeotoolsFilterAdapterImpl();
+            assertThat(geotoolsFilterAdapter.visit(mockTemporalFilter, mockFilterDelegate),
+                    is(true));
+
+        } catch (Exception e) {
+            fail("The filter was not handled as a between query after generating literal dates.");
+        }
     }
 
     @Test

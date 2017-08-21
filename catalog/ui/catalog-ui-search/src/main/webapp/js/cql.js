@@ -41,6 +41,7 @@ define([
             BEFORE: /^BEFORE/i,
             AFTER: /^AFTER/i,
             DURING: /^DURING/i,
+            RELATIVE: /^'RELATIVE\([A-Za-z0-9.]*\)'/i,
             TIME: new RegExp('^' + timePatter.source),
             TIME_PERIOD: new RegExp('^' + timePatter.source + '/' + timePatter.source),
             GEOMETRY: function (text) {
@@ -76,7 +77,7 @@ define([
             PROPERTY: ['COMPARISON', 'BETWEEN', 'COMMA', 'IS_NULL', 'BEFORE', 'AFTER', 'DURING'],
             BETWEEN: ['VALUE'],
             IS_NULL: ['END'],
-            COMPARISON: ['VALUE', 'BOOLEAN'],
+            COMPARISON: ['RELATIVE', 'VALUE', 'BOOLEAN'],
             COMMA: ['GEOMETRY', 'VALUE', 'UNITS', 'PROPERTY'],
             VALUE: ['LOGICAL', 'COMMA', 'RPAREN', 'END'],
             BOOLEAN: ['RPAREN'],
@@ -89,7 +90,8 @@ define([
             AFTER: ['TIME'],
             DURING: ['TIME_PERIOD'],
             TIME: ['LOGICAL', 'RPAREN', 'END'],
-            TIME_PERIOD: ['LOGICAL', 'RPAREN', 'END']
+            TIME_PERIOD: ['LOGICAL', 'RPAREN', 'END'],
+            RELATIVE: ['RPAREN']
         },
 
         precedence = {
@@ -187,6 +189,7 @@ define([
                 case "VALUE":
                 case "TIME":
                 case "TIME_PERIOD":
+                case "RELATIVE":
                 case "BOOLEAN":
                     postfix.push(tok);
                     break;
@@ -371,6 +374,8 @@ define([
                         type: tok.type,
                         value: tok.text
                     };
+                case "RELATIVE":
+                    return tok.text.substring(1, tok.text.length -1);
                 default:
                     return tok.text;
             }
