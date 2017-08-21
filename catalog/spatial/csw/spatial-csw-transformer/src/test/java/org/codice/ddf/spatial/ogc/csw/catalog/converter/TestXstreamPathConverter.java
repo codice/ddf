@@ -175,6 +175,41 @@ public class TestXstreamPathConverter {
         assertThat(converter.doBasicPathsMatch(path2, path1), is(true));
         assertThat(converter.doBasicPathsMatch(path1, path1), is(true));
         assertThat(converter.doBasicPathsMatch(path2, path2), is(true));
+
+        path1 = new Path("/a/b/c[2]/@asdf");
+        path2 = new Path("/a/b/c");
+        assertThat(converter.doBasicPathsMatch(path1, path2), is(true));
+        assertThat(converter.doBasicPathsMatch(path2, path1), is(true));
+
+        path1 = new Path("/a/b/c/@asdf");
+        path2 = new Path("/a/b/c");
+        assertThat(converter.doBasicPathsMatch(path1, path2), is(true));
+        assertThat(converter.doBasicPathsMatch(path2, path1), is(true));
+
+        path1 = new Path("/a/b[2]/c[5]/@hello");
+        path2 = new Path("/a/b[2]/c[7]/@goodbye");
+        assertThat(converter.doBasicPathsMatch(path1, path2), is(true));
+        assertThat(converter.doBasicPathsMatch(path2, path1), is(true));
+
+        path1 = new Path("/a/b[2]/c/@hello");
+        path2 = new Path("/a/b[2]/c/@goodbye");
+        assertThat(converter.doBasicPathsMatch(path1, path2), is(true));
+        assertThat(converter.doBasicPathsMatch(path2, path1), is(true));
+
+        path1 = new Path("/a/b/c/def");
+        path2 = new Path("/a/b/c/def");
+        assertThat(converter.doBasicPathsMatch(path1, path2), is(true));
+        assertThat(converter.doBasicPathsMatch(path2, path1), is(true));
+
+        path1 = new Path("/a/b/c/def");
+        path2 = new Path("/a/b/c/deg");
+        assertThat(converter.doBasicPathsMatch(path1, path2), is(false));
+        assertThat(converter.doBasicPathsMatch(path2, path1), is(false));
+
+        path1 = new Path("/c/b/a");
+        path2 = new Path("/a/b/c");
+        assertThat(converter.doBasicPathsMatch(path1, path2), is(false));
+        assertThat(converter.doBasicPathsMatch(path2, path1), is(false));
     }
 
     private void assertRepeatedElements(String xml) throws XMLStreamException {
