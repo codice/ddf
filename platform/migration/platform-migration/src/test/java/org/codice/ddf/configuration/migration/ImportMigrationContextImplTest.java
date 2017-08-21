@@ -543,7 +543,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
                         Matchers.allOf( //
                                 MappingMatchers.map(ImportMigrationPropertyReferencedEntryImpl::getProperty,
                                         Matchers.equalTo(PROPERTY)),
-                                MappingMatchers.map(ImportMigrationPropertyReferencedEntryImpl::getReferenced,
+                                MappingMatchers.map(ImportMigrationPropertyReferencedEntryImpl::getReferencedEntry,
                                         MappingMatchers.map(MigrationEntry::getName,
                                                 Matchers.equalTo(MIGRATABLE_NAME))))));
     }
@@ -695,10 +695,10 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
                 MigrationContextImpl.METADATA_EXTERNALS,
                 "not a list");
 
-        thrown.expect(Exception.class);
+        thrown.expect(ImportMigrationException.class);
         thrown.expectMessage(Matchers.containsString("invalid metadata"));
         thrown.expectMessage(Matchers.containsString(
-                "'" + MigrationContextImpl.METADATA_EXTERNALS + "'"));
+                "[" + MigrationContextImpl.METADATA_EXTERNALS + "]"));
 
         CONTEXT.processMetadata(METADATA);
     }
@@ -710,10 +710,10 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
                 MigrationContextImpl.METADATA_SYSTEM_PROPERTIES,
                 "not a list");
 
-        thrown.expect(Exception.class);
+        thrown.expect(ImportMigrationException.class);
         thrown.expectMessage(Matchers.containsString("invalid metadata"));
         thrown.expectMessage(Matchers.containsString(
-                "'" + MigrationContextImpl.METADATA_SYSTEM_PROPERTIES + "'"));
+                "[" + MigrationContextImpl.METADATA_SYSTEM_PROPERTIES + "]"));
 
         CONTEXT.processMetadata(METADATA);
     }
@@ -725,10 +725,10 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
                 MigrationContextImpl.METADATA_JAVA_PROPERTIES,
                 "not a list");
 
-        thrown.expect(Exception.class);
+        thrown.expect(ImportMigrationException.class);
         thrown.expectMessage(Matchers.containsString("invalid metadata"));
         thrown.expectMessage(Matchers.containsString(
-                "'" + MigrationContextImpl.METADATA_JAVA_PROPERTIES + "'"));
+                "[" + MigrationContextImpl.METADATA_JAVA_PROPERTIES + "]"));
 
         CONTEXT.processMetadata(METADATA);
     }
