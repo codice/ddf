@@ -24,6 +24,7 @@ import static org.mockito.Mockito.when;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Arrays;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -82,6 +83,11 @@ public class IdpHandlerTest {
         httpResponse = mock(HttpServletResponse.class);
 
         idpHandler = new IdpHandler(simpleSign, idpMetadata, relayStates);
+        idpHandler.setAuthContextClasses(Arrays.asList(
+                "urn:oasis:names:tc:SAML:2.0:ac:classes:Password",
+                "urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport",
+                "urn:oasis:names:tc:SAML:2.0:ac:classes:X509",
+                "urn:oasis:names:tc:SAML:2.0:ac:classes:TLSClient"));
 
         StringWriter writer = new StringWriter();
         InputStream inputStream = this.getClass()

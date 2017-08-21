@@ -57,6 +57,17 @@
         <argument ref="idpMetadata"/>
         <argument ref="relayStates"/>
         <property name="sessionFactory" ref="sessionFactory"/>
+        <property name="authContextClasses">
+            <list>
+                <value>urn:oasis:names:tc:SAML:2.0:ac:classes:Password</value>
+                <value>urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport</value>
+                <value>urn:oasis:names:tc:SAML:2.0:ac:classes:X509</value>
+                <value>urn:oasis:names:tc:SAML:2.0:ac:classes:SmartcardPKI</value>
+                <value>urn:oasis:names:tc:SAML:2.0:ac:classes:SoftwarePKI</value>
+                <value>urn:oasis:names:tc:SAML:2.0:ac:classes:SPKI</value>
+                <value>urn:oasis:names:tc:SAML:2.0:ac:classes:TLSClient</value>
+            </list>
+        </property>
     </bean>
 
     <service ref="idpHandler"             interface="org.codice.ddf.security.handler.api.AuthenticationHandler"/>
