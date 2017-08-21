@@ -365,7 +365,7 @@ define([
                         currentLast = duration.match(/\d+/);
 
                         currentUnit = currentUnit.toLowerCase();
-                        if (duration.indexOf('T') === -1 && currentUnit === 'M') {
+                        if (duration.indexOf('T') === -1 && currentUnit === 'm') {
                             //must capitalize months
                             currentUnit = currentUnit.toUpperCase();
                         }
