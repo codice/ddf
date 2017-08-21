@@ -38,7 +38,7 @@ public abstract class ImportMigrationPropertyReferencedEntryImpl extends ImportM
                 true);
         this.referenced = context.getOptionalEntry(getPath())
                 .orElseThrow(() -> new ImportMigrationException(
-                        "Invalid metadata file format; referenced path [" + getName()
+                        "invalid metadata file format; referenced path [" + getName()
                                 + "] is missing from export file"));
     }
 
@@ -105,6 +105,9 @@ public abstract class ImportMigrationPropertyReferencedEntryImpl extends ImportM
 
     @Override
     public int compareTo(@Nullable MigrationEntry me) {
+        if (me == this) {
+            return 0;
+        }
         final int c = super.compareTo(me);
 
         if (c != 0) {
@@ -126,7 +129,7 @@ public abstract class ImportMigrationPropertyReferencedEntryImpl extends ImportM
         return property;
     }
 
-    ImportMigrationEntry getReferenced() {
+    ImportMigrationEntry getReferencedEntry() {
         return referenced;
     }
 

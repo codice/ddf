@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
+import org.codice.ddf.migration.ImportMigrationException;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationOperation;
@@ -268,9 +269,9 @@ public class MigrationContextImplTest extends AbstractMigrationReportTest {
         final Map<String, Object> METADATA = ImmutableMap.of(MigrationContextImpl.METADATA_VERSION,
                 1.2F);
 
-        thrown.expect(Exception.class);
+        thrown.expect(ImportMigrationException.class);
         thrown.expectMessage(Matchers.containsString("invalid metadata"));
-        thrown.expectMessage(Matchers.containsString("'" + MigrationContextImpl.METADATA_VERSION + "'"));
+        thrown.expectMessage(Matchers.containsString("[" + MigrationContextImpl.METADATA_VERSION + "]"));
 
         CONTEXT.processMetadata(METADATA);
     }

@@ -21,6 +21,7 @@ import javax.annotation.Nullable;
 
 import org.boon.json.JsonFactory;
 import org.boon.json.ObjectMapper;
+import org.codice.ddf.migration.ImportMigrationException;
 import org.codice.ddf.migration.MigrationException;
 
 /**
@@ -42,7 +43,7 @@ public class JsonUtils {
             return Collections.emptyMap();
         }
         if (!(o instanceof Map)) {
-            throw new MigrationException("invalid metadata file format; expecting a Json map");
+            throw new ImportMigrationException("invalid metadata file format; expecting a Json map");
         }
         return (Map<String, Object>) o;
     }
@@ -138,14 +139,14 @@ public class JsonUtils {
 
         if (v == null) {
             if (required) {
-                throw new MigrationException(
-                        "invalid metadata file format; missing required '" + key + "'");
+                throw new ImportMigrationException(
+                        "invalid metadata file format; missing required [" + key + "]");
             }
             return null;
         }
         if (!clazz.isInstance(v)) {
-            throw new MigrationException(
-                    "invalid metadata file format; '" + key + "' is not a Json "
+            throw new ImportMigrationException(
+                    "invalid metadata file format; [" + key + "] is not a Json "
                             + clazz.getSimpleName()
                             .toLowerCase());
         }

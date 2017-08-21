@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.codice.ddf.migration.MigrationException;
+import org.codice.ddf.migration.ImportMigrationException;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -74,7 +74,7 @@ public class JsonUtilsTest {
 
     @Test
     public void testConvertToMapWhenNotMap() throws Exception {
-        thrown.expect(MigrationException.class);
+        thrown.expect(ImportMigrationException.class);
         thrown.expectMessage(Matchers.containsString("expecting a Json map"));
 
         JsonUtils.convertToMap(JsonUtilsTest.JSON_LIST);
@@ -106,8 +106,8 @@ public class JsonUtilsTest {
 
     @Test
     public void testGetMapFromWhenValueIsNotMap() throws Exception {
-        thrown.expect(MigrationException.class);
-        thrown.expectMessage(Matchers.containsString("'list' is not a Json map"));
+        thrown.expect(ImportMigrationException.class);
+        thrown.expectMessage(Matchers.containsString("[list] is not a Json map"));
 
         JsonUtils.getMapFrom(JsonUtilsTest.JSON_DEEP_MAP, "list");
     }
@@ -138,8 +138,8 @@ public class JsonUtilsTest {
 
     @Test
     public void testGetListFromWhenValueIsNotList() throws Exception {
-        thrown.expect(MigrationException.class);
-        thrown.expectMessage(Matchers.containsString("'map' is not a Json list"));
+        thrown.expect(ImportMigrationException.class);
+        thrown.expectMessage(Matchers.containsString("[map] is not a Json list"));
 
         JsonUtils.getListFrom(JsonUtilsTest.JSON_DEEP_MAP, "map");
     }
@@ -158,8 +158,8 @@ public class JsonUtilsTest {
 
     @Test
     public void testGetStringFromWhenRequiredAndNotDefined() throws Exception {
-        thrown.expect(MigrationException.class);
-        thrown.expectMessage(Matchers.containsString("missing required 'string2'"));
+        thrown.expect(ImportMigrationException.class);
+        thrown.expectMessage(Matchers.containsString("missing required [string2]"));
 
         Assert.assertThat(JsonUtils.getStringFrom(JsonUtilsTest.JSON_MAP, "string2", true),
                 Matchers.equalTo(JsonUtilsTest.JSON_STRING));
@@ -173,8 +173,8 @@ public class JsonUtilsTest {
 
     @Test
     public void testGetStringFromWhenRequiredAndWithNullKey() throws Exception {
-        thrown.expect(MigrationException.class);
-        thrown.expectMessage(Matchers.containsString("missing required 'null'"));
+        thrown.expect(ImportMigrationException.class);
+        thrown.expectMessage(Matchers.containsString("missing required [null]"));
 
         Assert.assertThat(JsonUtils.getStringFrom(JsonUtilsTest.JSON_MAP, null, true),
                 Matchers.equalTo(JsonUtilsTest.JSON_STRING));
@@ -188,8 +188,8 @@ public class JsonUtilsTest {
 
     @Test
     public void testGetStringFromWhenRequiredAndWithNullMap() throws Exception {
-        thrown.expect(MigrationException.class);
-        thrown.expectMessage(Matchers.containsString("missing required 'string'"));
+        thrown.expect(ImportMigrationException.class);
+        thrown.expectMessage(Matchers.containsString("missing required [string]"));
 
         Assert.assertThat(JsonUtils.getStringFrom(null, "string", true),
                 Matchers.equalTo(JsonUtilsTest.JSON_STRING));
@@ -203,16 +203,16 @@ public class JsonUtilsTest {
 
     @Test
     public void testGetStringFromWhenRequiredAndValueIsNotString() throws Exception {
-        thrown.expect(MigrationException.class);
-        thrown.expectMessage(Matchers.containsString("'int' is not a Json string"));
+        thrown.expect(ImportMigrationException.class);
+        thrown.expectMessage(Matchers.containsString("[int] is not a Json string"));
 
         JsonUtils.getStringFrom(JsonUtilsTest.JSON_MAP, "int", true);
     }
 
     @Test
     public void testGetStringFromWhenNotRequiredAndValueIsNotString() throws Exception {
-        thrown.expect(MigrationException.class);
-        thrown.expectMessage(Matchers.containsString("'int' is not a Json string"));
+        thrown.expect(ImportMigrationException.class);
+        thrown.expectMessage(Matchers.containsString("[int] is not a Json string"));
 
         JsonUtils.getStringFrom(JsonUtilsTest.JSON_MAP, "int", false);
     }
@@ -231,8 +231,8 @@ public class JsonUtilsTest {
 
     @Test
     public void testGetLongFromWhenRequiredAndNotDefined() throws Exception {
-        thrown.expect(MigrationException.class);
-        thrown.expectMessage(Matchers.containsString("missing required 'long2'"));
+        thrown.expect(ImportMigrationException.class);
+        thrown.expectMessage(Matchers.containsString("missing required [long2]"));
 
         Assert.assertThat(JsonUtils.getLongFrom(JsonUtilsTest.JSON_MAP, "long2", true),
                 Matchers.equalTo(JsonUtilsTest.JSON_LONG));
@@ -246,8 +246,8 @@ public class JsonUtilsTest {
 
     @Test
     public void testGetLongFromWhenRequiredAndWithNullKey() throws Exception {
-        thrown.expect(MigrationException.class);
-        thrown.expectMessage(Matchers.containsString("missing required 'null'"));
+        thrown.expect(ImportMigrationException.class);
+        thrown.expectMessage(Matchers.containsString("missing required [null]"));
 
         Assert.assertThat(JsonUtils.getLongFrom(JsonUtilsTest.JSON_MAP, null, true),
                 Matchers.equalTo(JsonUtilsTest.JSON_STRING));
@@ -261,8 +261,8 @@ public class JsonUtilsTest {
 
     @Test
     public void testGetLongFromWhenRequiredAndWithNullMap() throws Exception {
-        thrown.expect(MigrationException.class);
-        thrown.expectMessage(Matchers.containsString("missing required 'long'"));
+        thrown.expect(ImportMigrationException.class);
+        thrown.expectMessage(Matchers.containsString("missing required [long]"));
 
         Assert.assertThat(JsonUtils.getLongFrom(null, "long", true),
                 Matchers.equalTo(JsonUtilsTest.JSON_STRING));
@@ -276,16 +276,16 @@ public class JsonUtilsTest {
 
     @Test
     public void testGetLongFromWhenRequiredAndValueIsNotNumber() throws Exception {
-        thrown.expect(MigrationException.class);
-        thrown.expectMessage(Matchers.containsString("'bool' is not a Json number"));
+        thrown.expect(ImportMigrationException.class);
+        thrown.expectMessage(Matchers.containsString("[bool] is not a Json number"));
 
         JsonUtils.getLongFrom(JsonUtilsTest.JSON_MAP, "bool", true);
     }
 
     @Test
     public void testGetLongFromWhenNotRequiredAndValueIsNotNumber() throws Exception {
-        thrown.expect(MigrationException.class);
-        thrown.expectMessage(Matchers.containsString("'bool' is not a Json number"));
+        thrown.expect(ImportMigrationException.class);
+        thrown.expectMessage(Matchers.containsString("[bool] is not a Json number"));
 
         JsonUtils.getLongFrom(JsonUtilsTest.JSON_MAP, "bool", false);
     }
@@ -316,8 +316,8 @@ public class JsonUtilsTest {
 
     @Test
     public void testGetBooleanFromWhenRequiredAndNotDefined() throws Exception {
-        thrown.expect(MigrationException.class);
-        thrown.expectMessage(Matchers.containsString("missing required 'bool2'"));
+        thrown.expect(ImportMigrationException.class);
+        thrown.expectMessage(Matchers.containsString("missing required [bool2]"));
 
         Assert.assertThat(JsonUtils.getBooleanFrom(JsonUtilsTest.JSON_MAP, "bool2", true),
                 Matchers.equalTo(JsonUtilsTest.JSON_BOOL));
@@ -331,8 +331,8 @@ public class JsonUtilsTest {
 
     @Test
     public void testGetBooleanFromWhenRequiredAndWithNullKey() throws Exception {
-        thrown.expect(MigrationException.class);
-        thrown.expectMessage(Matchers.containsString("missing required 'null'"));
+        thrown.expect(ImportMigrationException.class);
+        thrown.expectMessage(Matchers.containsString("missing required [null]"));
 
         Assert.assertThat(JsonUtils.getBooleanFrom(JsonUtilsTest.JSON_MAP, null, true),
                 Matchers.equalTo(JsonUtilsTest.JSON_BOOL));
@@ -346,8 +346,8 @@ public class JsonUtilsTest {
 
     @Test
     public void testGetBooleanFromWhenRequiredAndWithNullMap() throws Exception {
-        thrown.expect(MigrationException.class);
-        thrown.expectMessage(Matchers.containsString("missing required 'bool'"));
+        thrown.expect(ImportMigrationException.class);
+        thrown.expectMessage(Matchers.containsString("missing required [bool]"));
 
         Assert.assertThat(JsonUtils.getBooleanFrom(null, "bool", true),
                 Matchers.equalTo(JsonUtilsTest.JSON_BOOL));
@@ -361,16 +361,16 @@ public class JsonUtilsTest {
 
     @Test
     public void testGetBooleanFromWhenRequiredAndValueIsNotString() throws Exception {
-        thrown.expect(MigrationException.class);
-        thrown.expectMessage(Matchers.containsString("'int' is not a Json boolean"));
+        thrown.expect(ImportMigrationException.class);
+        thrown.expectMessage(Matchers.containsString("[int] is not a Json boolean"));
 
         JsonUtils.getBooleanFrom(JsonUtilsTest.JSON_MAP, "int", true);
     }
 
     @Test
     public void testGetBooleanFromWhenNotRequiredAndValueIsNotString() throws Exception {
-        thrown.expect(MigrationException.class);
-        thrown.expectMessage(Matchers.containsString("'int' is not a Json boolean"));
+        thrown.expect(ImportMigrationException.class);
+        thrown.expectMessage(Matchers.containsString("[int] is not a Json boolean"));
 
         JsonUtils.getBooleanFrom(JsonUtilsTest.JSON_MAP, "int", false);
     }
