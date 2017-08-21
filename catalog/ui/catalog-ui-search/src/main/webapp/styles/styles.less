@@ -38,6 +38,14 @@ body {
   position: relative;
 }
 
+html.no-animation,
+html.no-animation *:not(.is-critical-animation),
+html.no-animation *:not(.is-critical-animation)::before,
+html.no-animation *:not(.is-critical-animation)::after {
+  transition: none !important;
+  animation: none !important;
+}
+
 .fa-star {
   color: @favorite-color;
 }

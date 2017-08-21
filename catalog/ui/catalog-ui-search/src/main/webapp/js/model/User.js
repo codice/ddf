@@ -157,7 +157,8 @@ define([
                 goldenLayoutUpload: undefined,
                 goldenLayoutMetacard: undefined,
                 goldenLayoutAlert: undefined,
-                theme: new Theme()
+                theme: new Theme(),
+                animation: true
             };
         },
         relations: [

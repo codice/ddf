@@ -55,12 +55,19 @@ function handleFontSizeChange() {
     });
 }
 
+function handleAnimationChange() {
+    var animationMode = preferences.get('animation');
+    $('html').toggleClass('no-animation', !animationMode);
+}
+
 function attemptToStart() {
     if (user.fetched) {
         handleFontSizeChange();
         handleThemeChange();
+        handleAnimationChange();
         preferences.on('change:fontSize', handleFontSizeChange);
         preferences.on('change:theme', handleThemeChange);
+        preferences.on('change:animation', handleAnimationChange);
     } else {
         user.once('sync', function () {
             attemptToStart();
