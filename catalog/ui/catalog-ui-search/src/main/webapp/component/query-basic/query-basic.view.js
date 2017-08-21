@@ -28,11 +28,10 @@ define([
     'component/singletons/metacard-definitions',
     'component/singletons/sources-instance',
     'js/CQLUtils',
-    'component/query-settings/query-settings.view',
-    'moment'
+    'component/query-settings/query-settings.view'
 ], function (Marionette, _, $, template, CustomElements, store, DropdownModel,
              QuerySrcView, PropertyView, Property, cql, metacardDefinitions, sources,
-             CQLUtils, QuerySettingsView, moment) {
+             CQLUtils, QuerySettingsView) {
 
     function isNested(filter) {
         var nested = false;
@@ -366,7 +365,7 @@ define([
                         currentLast = duration.match(/\d+/);
 
                         currentUnit = currentUnit.toLowerCase();
-                        if(duration.indexOf('T') === -1 && currentUnit === 'M') {
+                        if (duration.indexOf('T') === -1 && currentUnit === 'M') {
                             //must capitalize months
                             currentUnit = currentUnit.toUpperCase();
                         }
@@ -563,15 +562,22 @@ define([
                 filters.push(timeFilter);
             }
             if (timeLast) {
-                var duration = 'RELATIVE(' + moment.duration(timeLast, timeUnit).toISOString() + ')';
+                var duration;
+                if (timeUnit === 'm' || timeUnit === 'h') {
+                    duration = "PT" + timeLast + timeUnit.toUpperCase();
+                } else {
+                    duration = "P" + timeLast + timeUnit.toUpperCase();
+                }
+
+                var relativeFunction = 'RELATIVE(' + duration + ')';
                 var timeDuration = {
                     type: 'OR',
                     filters: [
-                        CQLUtils.generateFilter('=', 'created', duration),
-                        CQLUtils.generateFilter('=', 'modified', duration),
-                        CQLUtils.generateFilter('=', 'effective', duration),
-                        CQLUtils.generateFilter('=', 'metacard.created', duration),
-                        CQLUtils.generateFilter('=', 'metacard.modified', duration)
+                        CQLUtils.generateFilter('=', 'created', relativeFunction),
+                        CQLUtils.generateFilter('=', 'modified', relativeFunction),
+                        CQLUtils.generateFilter('=', 'effective', relativeFunction),
+                        CQLUtils.generateFilter('=', 'metacard.created', relativeFunction),
+                        CQLUtils.generateFilter('=', 'metacard.modified', relativeFunction)
                     ]
                 };
                 filters.push(timeDuration);
