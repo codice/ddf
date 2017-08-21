@@ -370,10 +370,7 @@ define([
                         } else if (duration.hours() > 0) {
                             currentLast = duration.asHours();
                             currentUnit = 'h';
-                        } else if (duration.weeks() > 0) {
-                            currentLast = duration.asWeeks();
-                            currentUnit = 'w';
-                        } else if (duration.days() > 0) {
+                        }else if (duration.days() > 0) {
                             currentLast = duration.asDays();
                             currentUnit = 'd';
                         } else if (duration.months() > 0) {
@@ -407,12 +404,8 @@ define([
                         label: 'Days',
                         value: 'd'
                     }, {
-                        label: 'Weeks',
-                        value: 'w'
-                    }, {
                         label: 'Months',
                         value: 'M'
-
                     }, {
                         label: 'Years',
                         value: 'y'
