@@ -69,27 +69,31 @@ import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 
 /**
- * This test creates a "mock" ddf directory structure for the system exported from (ddfExport) and "mock"
- * directory structure for the system imported into (ddfImport).  These directory structures are
+ * This test creates a "mock" ddf directory structure for the system exported from and "mock"
+ * directory structure for the system imported into.  These directory structures are
  * located under the created TemporaryFolder.
  * For example, if the TemporaryFolder is /private/var/folders/2j/q2gjqn4s2mv53c2q53_m9d_w0000gn/T/junit4916060293677644046,
- * one would see a similar directory structure to the following after initial setup and an import:
+ * one would see a similar directory structure to the following:
  *
  *  // This is the system exported from:
- * ./ddfExport
- * ./ddfExport/etc/DDF_Custom_Mime_Type_Resolver-csw.config
- * ./ddfExport/Version.txt
+ * ./ddf
+ * ./ddf/etc/DDF_Custom_Mime_Type_Resolver-csw.config
+ * ./ddf/Version.txt
  *
  *  // This is the system imported into:
- * ./ddfImport
- * ./ddfImport/etc
- * ./ddfImport/Version.txt
+ * ./ddf
+ * ./ddf/etc
+ * ./ddf/Version.txt
  *
  *  // The backup from the imported system will look similar to this:
  * ./exported-1.0-20170816T142400.zip
  *
  *  // Thw exported zip from ddfExport will look similar to this:
  * ./exported-1.0.zip
+ *
+ * NOTE: The directory structure of the system imported into needs to be exactly the same as the
+ * system exported from.  For example, if they system being exported from has a ddf.home of /opt/ddf,
+ * the system being imported into must also have a ddf.home of /opt/ddf.
  *
  */
 @RunWith(MockitoJUnitRunner.class)
@@ -100,11 +104,9 @@ public class ConfigurationAdminMigratableTest {
 
     private static final String DDF_HOME_SYSTEM_PROP_KEY = "ddf.home";
 
-    private static final String DDF_EXPORTED_HOME = "ddfExport";
+    private static final String DDF_HOME = "ddf";
 
     private static final String DDF_EXPORTED_TAG_TEMPLATE = "exported_from_%s";
-
-    private static final String DDF_IMPORTED_HOME = "ddfImport";
 
     private static final String SUPPORTED_VERSION = "1.0";
 
@@ -142,7 +144,7 @@ public class ConfigurationAdminMigratableTest {
 
     @Before
     public void before() throws Exception {
-        setup(DDF_EXPORTED_HOME);
+        setup(DDF_HOME);
         setupConfigAdminForExportSystem();
         setupConfigAdminForImportSystem();
     }
@@ -199,9 +201,9 @@ public class ConfigurationAdminMigratableTest {
     }
 
     /**
-     * This test has one managed service factory configuration (DDF_Custom_Mime_Type_Resolver) in the system exported from (ddfExport).
-     * The system being imported into (ddfImport) has one managed service configuration (ddf.platform.ui.config). When the import is
-     * complete, the system being imported into (ddfImport) should have the managed service factory configuration (DDF_Custom_Mime_Type_Resolver)
+     * This test has one managed service factory configuration (DDF_Custom_Mime_Type_Resolver) in the system exported from.
+     * The system being imported into has one managed service configuration (ddf.platform.ui.config). When the import is
+     * complete, the system being imported into should have the managed service factory configuration (DDF_Custom_Mime_Type_Resolver)
      * in its Configuration Admin.
      */
     @Test
@@ -216,7 +218,7 @@ public class ConfigurationAdminMigratableTest {
                         eConfigMigratables,
                         eDataMigratables,
                         systemService);
-        String tag = String.format(DDF_EXPORTED_TAG_TEMPLATE, DDF_EXPORTED_HOME);
+        String tag = String.format(DDF_EXPORTED_TAG_TEMPLATE, DDF_HOME);
         setupConfigFile(tag);
 
         // Perform Export
@@ -232,7 +234,10 @@ public class ConfigurationAdminMigratableTest {
         Assert.assertThat("Exported zip is empty.", exportedZip.toFile().length(), greaterThan(0L));
 
         // Setup Import
-        setup(DDF_IMPORTED_HOME);
+        // Clean up ddf home, so we can import into a clean directory
+        FileUtils.deleteDirectory(ddfHome.toRealPath().toFile());
+        setup(DDF_HOME);
+
         ConfigurationAdminMigratable iCam = new ConfigurationAdminMigratable(configurationAdminForImport, DEFAULT_FILE_EXT);
         List<ConfigurationMigratable> iConfigMigratables = Arrays.asList(iCam);
         List<DataMigratable> iDataMigratables = Collections.emptyList();
@@ -246,8 +251,6 @@ public class ConfigurationAdminMigratableTest {
         MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir);
 
         // Verify import
-        System.out.println("Import messages:");
-        importReport.messages().forEach(m -> System.out.println(m));
         Assert.assertThat("The import report has errors.", importReport.hasErrors(), is(false));
         Assert.assertThat("The import report has warnings.", importReport.hasWarnings(), is(false));
         Assert.assertThat("Import was not successful.", importReport.wasSuccessful(), is(true));
@@ -260,9 +263,9 @@ public class ConfigurationAdminMigratableTest {
         Map<String, ?> dictionayAsMap = convertToMap(argumentCaptor.<Dictionary<String, ?>>getValue());
         assertThat(dictionayAsMap,
                 allOf(aMapWithSize(2),
-                        hasEntry("schema", "http://www.opengis.net/cat/csw/2.0.2") //,
-                        // TODO Shouldn't this resolve to a path in ddfImport not in ddfExport? It currently resolves to a path in ddfExport...Why???????
-                        //hasEntry("felix.fileinstall.filename", ddfHome.resolve("etc").toRealPath().resolve("DDF_Custom_Mime_Type_Resolver-csw.config").toUri().toString())
+                        hasEntry("schema", "http://www.opengis.net/cat/csw/2.0.2"),
+                        hasEntry(ConfigurationAdminMigratable.FELIX_FILEINSTALL_FILENAME, ddfHome.resolve("etc").toRealPath().resolve(String.format("%s-csw.config",
+                                DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID)).toUri().toString())
                 ));
     }
 
@@ -271,7 +274,6 @@ public class ConfigurationAdminMigratableTest {
         Enumeration<String> keys =  dictionary.keys();
         while (keys.hasMoreElements()) {
             String key = keys.nextElement();
-            System.out.println("Key: " + key + " ; Value: " + dictionary.get(key));
             map.put(key, dictionary.get(key));
         }
         return map;
@@ -309,7 +311,7 @@ public class ConfigurationAdminMigratableTest {
         Configuration config = mock(Configuration.class);
         Dictionary<String, Object> props = new Hashtable<>();
         props.put(ConfigurationAdminMigratable.FELIX_FILEINSTALL_FILENAME, ddfHome.resolve("etc").toRealPath().resolve(String.format("%s-csw.config",
-                DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID)));
+                DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID)).toUri());
         String pid = String.format("%s.4039089d-839f-4d52-a174-77c8a19fc03d",
                 DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID);
         props.put("service.pid", pid);
@@ -333,7 +335,6 @@ public class ConfigurationAdminMigratableTest {
 
     private void setup(String ddfHomeStr) throws IOException {
         ddfHome = tempDir.newFolder(ddfHomeStr).toPath().toRealPath();
-        System.out.println("DDF HOME: " + ddfHome);
         System.setProperty(DDF_HOME_SYSTEM_PROP_KEY, ddfHome.toRealPath().toString());
         Path etcDir = ddfHome.resolve("etc");
         Files.createDirectory(etcDir);
