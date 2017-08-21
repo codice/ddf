@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.catalog.ui.metacard.associations;
 
+import static ddf.catalog.util.impl.ResultIterable.resultIterable;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -270,7 +272,7 @@ public class Associated {
             return Collections.emptyMap();
         }
 
-        ResultIterable resultIterable = new ResultIterable(catalogFramework, new QueryRequestImpl(new QueryImpl(filter,
+        ResultIterable resultIterable = resultIterable(catalogFramework, new QueryRequestImpl(new QueryImpl(filter,
                 1,
                 pageSize,
                 SortBy.NATURAL_ORDER,

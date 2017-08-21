@@ -19,8 +19,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -80,7 +78,8 @@ public class EndpointUtilTest {
 
         AttributeBuilder attributeBuilderMock = mock(AttributeBuilder.class);
 
-        ContextualExpressionBuilder contextualExpressionBuilderMock = mock(ContextualExpressionBuilder.class);
+        ContextualExpressionBuilder contextualExpressionBuilderMock = mock(
+                ContextualExpressionBuilder.class);
 
         filterBuilderMock = mock(FilterBuilder.class);
         responseMock = mock(QueryResponse.class);
@@ -124,8 +123,6 @@ public class EndpointUtilTest {
         Map<String, Result> result = endpointUtil.getMetacardsByFilter(tagFilter);
 
         assertThat(result.keySet(), hasSize(expected));
-
-        verify(responseMock, times(4)).getResults();
     }
 
     @Test
@@ -153,7 +150,6 @@ public class EndpointUtilTest {
 
         assertThat(result.keySet(), hasSize(expected));
 
-        verify(responseMock, times(4)).getResults();
     }
 
     private List<Result> populateResultMockList(int size) {
