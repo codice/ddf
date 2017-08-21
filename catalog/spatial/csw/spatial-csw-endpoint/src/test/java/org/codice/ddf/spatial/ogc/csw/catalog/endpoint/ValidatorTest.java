@@ -60,10 +60,11 @@ public class ValidatorTest {
         transformerManager = mock(TransformerManager.class);
         validator = new Validator();
 
-        QueryFilterTransformerHelper transformerHelper = mock(QueryFilterTransformerHelper.class);
+        QueryFilterTransformerProvider transformerProvider =
+                mock(QueryFilterTransformerProvider.class);
         QueryFilterTransformer transformer = mock(QueryFilterTransformer.class);
-        when(transformerHelper.getTransformer(qname[0])).thenReturn(transformer);
-        validator.setQueryFilterTransformerHelper(transformerHelper);
+        when(transformerProvider.getTransformer(qname[0])).thenReturn(transformer);
+        validator.setQueryFilterTransformerProvider(transformerProvider);
     }
 
     @Test

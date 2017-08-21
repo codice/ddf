@@ -161,15 +161,15 @@
                     availability="optional">
         <reference-listener bind-method="bind"
                             unbind-method="unbind"
-                            ref="queryFilterTransformerHelper"/>
+                            ref="queryFilterTransformerProvider"/>
     </reference-list>
 
-    <bean id="queryFilterTransformerHelper"
-          class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.QueryFilterTransformerHelper"/>
+    <bean id="queryFilterTransformerProvider"
+          class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.QueryFilterTransformerProvider"/>
 
     <bean id="validator"
           class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.Validator">
-        <property name="queryFilterTransformerHelper" ref="queryFilterTransformerHelper"/>
+        <property name="queryFilterTransformerProvider" ref="queryFilterTransformerProvider"/>
     </bean>
 
     <reference id="cswMetacardType" interface="ddf.catalog.data.MetacardType" filter="(name=csw:Record)"/>
@@ -191,7 +191,7 @@
                 <value type="java.lang.String">urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0=registry,registry-remote</value>
             </array>
         </property>
-        <property name="queryFilterTransformerHelper" ref="queryFilterTransformerHelper"/>
+        <property name="queryFilterTransformerProvider" ref="queryFilterTransformerProvider"/>
     </bean>
 
     <bean id="cswQueryFilterTransformer"

@@ -39,7 +39,7 @@ public class Validator {
 
     private static final String DEFAULT_OUTPUT_FORMAT = MediaType.APPLICATION_XML;
 
-    private QueryFilterTransformerHelper queryFilterTransformerHelper;
+    private QueryFilterTransformerProvider queryFilterTransformerProvider;
 
     /**
      * Verifies that that if types are passed, then they are fully qualified
@@ -69,7 +69,7 @@ public class Validator {
         }
 
         for (QName type : types) {
-            if (queryFilterTransformerHelper.getTransformer(type) == null) {
+            if (queryFilterTransformerProvider.getTransformer(type) == null) {
                 throw createUnknownTypeException(type.toString());
             }
         }
@@ -202,8 +202,8 @@ public class Validator {
                 "OutputSchema");
     }
 
-    public void setQueryFilterTransformerHelper(
-            QueryFilterTransformerHelper queryFilterTransformerHelper) {
-        this.queryFilterTransformerHelper = queryFilterTransformerHelper;
+    public void setQueryFilterTransformerProvider(
+            QueryFilterTransformerProvider queryFilterTransformerHelper) {
+        this.queryFilterTransformerProvider = queryFilterTransformerHelper;
     }
 }

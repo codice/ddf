@@ -215,7 +215,7 @@ public class CswQueryFactoryTest {
 
     private static QName cswQnameOutPutSchema = new QName(CswConstants.CSW_OUTPUT_SCHEMA);
 
-    private QueryFilterTransformerHelper queryFilterTransformerHelper;
+    private QueryFilterTransformerProvider queryFilterTransformerProvider;
 
     public static MetacardType getCswMetacardType() {
         return new MetacardTypeImpl(CswConstants.CSW_METACARD_TYPE_NAME,
@@ -251,12 +251,12 @@ public class CswQueryFactoryTest {
         gmlObjectFactory = new net.opengis.gml.v_3_1_1.ObjectFactory();
         filterObjectFactory = new ObjectFactory();
 
-        queryFilterTransformerHelper = mock(QueryFilterTransformerHelper.class);
+        queryFilterTransformerProvider = mock(QueryFilterTransformerProvider.class);
         QueryFilterTransformer cswQueryFilter = new CswQueryFilterTransformer(getCswMetacardType(),
                 Collections.emptyList());
-        when(queryFilterTransformerHelper.getTransformer(new QName(CswConstants.CSW_OUTPUT_SCHEMA,
+        when(queryFilterTransformerProvider.getTransformer(new QName(CswConstants.CSW_OUTPUT_SCHEMA,
                 "Record"))).thenReturn(cswQueryFilter);
-        queryFactory.setQueryFilterTransformerHelper(queryFilterTransformerHelper);
+        queryFactory.setQueryFilterTransformerProvider(queryFilterTransformerProvider);
     }
 
     @SuppressWarnings("unchecked")
@@ -1220,7 +1220,7 @@ public class CswQueryFactoryTest {
     private void addQueryFilterTransformer(String namespace, QueryRequest request) {
         QueryFilterTransformer transformer = mock(QueryFilterTransformer.class);
         when(transformer.transform(any(), any())).thenReturn(request);
-        when(queryFilterTransformerHelper.getTransformer(QName.valueOf(namespace))).thenReturn(
+        when(queryFilterTransformerProvider.getTransformer(QName.valueOf(namespace))).thenReturn(
                 transformer);
     }
 }

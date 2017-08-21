@@ -33,8 +33,8 @@ import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.cxf.common.util.CollectionUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.PropertyIsFuzzyFunction;
@@ -98,7 +98,7 @@ public class CswQueryFactory {
 
     private AttributeRegistry attributeRegistry;
 
-    private QueryFilterTransformerHelper queryFilterTransformerHelper;
+    private QueryFilterTransformerProvider queryFilterTransformerProvider;
 
     public CswQueryFactory(FilterBuilder filterBuilder, FilterAdapter adapter) {
         this.builder = filterBuilder;
@@ -332,7 +332,7 @@ public class CswQueryFactory {
     private QueryRequest transformQuery(QueryRequest request, List<QName> typeNames) {
         QueryRequest result = request;
         for (QName typeName : typeNames) {
-            QueryFilterTransformer transformer = queryFilterTransformerHelper.getTransformer(
+            QueryFilterTransformer transformer = queryFilterTransformerProvider.getTransformer(
                     typeName);
             if (transformer != null) {
                 result = transformer.transform(result, null);
@@ -352,7 +352,7 @@ public class CswQueryFactory {
         if (isDistributed && CollectionUtils.isEmpty(sourceIdFilterVisitor.getSourceIds())) {
             request = new QueryRequestImpl(query, true, null, properties);
         } else if (isDistributed
-                && !CollectionUtils.isEmpty(sourceIdFilterVisitor.getSourceIds())) {
+                && CollectionUtils.isNotEmpty(sourceIdFilterVisitor.getSourceIds())) {
             request = new QueryRequestImpl(query,
                     false,
                     sourceIdFilterVisitor.getSourceIds(),
@@ -405,8 +405,8 @@ public class CswQueryFactory {
         this.attributeRegistry = attributeRegistry;
     }
 
-    public void setQueryFilterTransformerHelper(
-            QueryFilterTransformerHelper queryFilterTransformerHelper) {
-        this.queryFilterTransformerHelper = queryFilterTransformerHelper;
+    public void setQueryFilterTransformerProvider(
+            QueryFilterTransformerProvider queryFilterTransformerProvider) {
+        this.queryFilterTransformerProvider = queryFilterTransformerProvider;
     }
 }

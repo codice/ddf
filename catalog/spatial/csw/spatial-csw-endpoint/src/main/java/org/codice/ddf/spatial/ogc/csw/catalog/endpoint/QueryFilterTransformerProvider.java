@@ -24,14 +24,22 @@ import javax.xml.namespace.QName;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ddf.catalog.transform.QueryFilterTransformer;
 
-public class QueryFilterTransformerHelper {
+/**
+ * Manages a reference list of {@link QueryFilterTransformer}'s by mapping
+ * them to the {@link QName}'s they apply to.
+ */
+public class QueryFilterTransformerProvider {
+    private static final Logger LOG = LoggerFactory.getLogger(QueryFilterTransformerProvider.class);
+
     private Map<QName, QueryFilterTransformer> queryFilterTransformerMap =
             new ConcurrentHashMap<>();
 
-    public void bind(ServiceReference<QueryFilterTransformer> reference) {
+    public synchronized void bind(ServiceReference<QueryFilterTransformer> reference) {
         if (reference == null) {
             return;
         }
@@ -44,18 +52,20 @@ public class QueryFilterTransformerHelper {
         }
     }
 
-    public void unbind(ServiceReference<QueryFilterTransformer> reference) {
+    public synchronized void unbind(ServiceReference<QueryFilterTransformer> reference) {
         if (reference == null) {
             return;
         }
 
-        List<QName> namespaces = getNamespaces(reference);
+        try {
+            List<QName> namespaces = getNamespaces(reference);
 
-        for (QName namespace : namespaces) {
-            queryFilterTransformerMap.remove(namespace);
+            for (QName namespace : namespaces) {
+                queryFilterTransformerMap.remove(namespace);
+            }
+        } finally {
+            getBundleContext().ungetService(reference);
         }
-
-        getBundleContext().ungetService(reference);
     }
 
     public QueryFilterTransformer getTransformer(QName qName) {
@@ -73,6 +83,8 @@ public class QueryFilterTransformerHelper {
         } else if (id instanceof String) {
             result.add(QName.valueOf((String) id));
         } else {
+            LOG.error(
+                    "QueryFilterTransformer reference has a bad ID property. Must be of type String or List<String>");
             throw new IllegalArgumentException("id must be of type String or a list of Strings");
         }
 
@@ -86,6 +98,8 @@ public class QueryFilterTransformerHelper {
         QueryFilterTransformer transformer = bundleContext.getService(reference);
 
         if (transformer == null) {
+            LOG.error("Failed to find a QueryFilterTransformer with service reference {}",
+                    reference);
             throw new IllegalStateException(
                     "Attempted to retrieve an unregistered service: " + reference);
         }
