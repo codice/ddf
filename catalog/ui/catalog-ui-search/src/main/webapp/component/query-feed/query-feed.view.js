@@ -20,10 +20,11 @@ define([
     './query-feed.hbs',
     'js/CustomElements',
     'js/store',
-    'moment'
-], function (Marionette, _, $, template, CustomElements, store, moment) {
+    'moment',
+    'component/singletons/user-instance',
+], function (Marionette, _, $, template, CustomElements, store, moment, user) {
 
-    function getResultsFound(total, data){
+    function getResultsFound(total, data, query){
         var hits = data.reduce(function(hits, status){
             return status.hits ? hits + status.hits : hits;
         }, 0);
@@ -35,7 +36,17 @@ define([
         } else if (total >= hits) {
             return total + ' results';
         } else {
-            return 'Top ' + total + ' of ' + hits + ' results';
+            var serverPageIndex = query.get('serverPageIndex');
+            if (serverPageIndex == 0) {
+                return 'Top ' + total + ' of ' + hits + ' results';
+            } else {
+                var serverPageSize = user.get('user>preferences>resultCount');
+                var startingIndex = serverPageIndex * serverPageSize;
+                var endingIndex = (startingIndex + total);
+                var serverTotal = Math.max(endingIndex, hits);
+
+                return (startingIndex + 1) + ' to ' + endingIndex + ' of ' + serverTotal + ' results';
+            }  
         }
     }
 
@@ -102,7 +113,10 @@ define([
                 return {
                     query: query,
                     status: status,
-                    resultCount: getResultsFound(this.model.get('result').get('results').fullCollection.length, status),
+                    resultCount: getResultsFound(
+                        this.model.get('result').get('results').fullCollection.length, 
+                        status, 
+                        this.model),
                     pending: getPending(status),
                     failed: getFailed(status),
                     queryStatus: getLastRan(this.model.get('result>initiated'))

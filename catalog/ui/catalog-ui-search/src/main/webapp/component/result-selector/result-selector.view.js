@@ -207,6 +207,7 @@ define([
         showResultPaging: function(resultCollection){
             this.resultPaging.show(new PagingView({
                 model: resultCollection,
+                query: this.model,
                 selectionInterface: this.selectionInterface
             }));
         },

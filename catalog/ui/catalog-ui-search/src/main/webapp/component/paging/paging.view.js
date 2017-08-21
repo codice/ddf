@@ -42,7 +42,9 @@ define([
             'click .first': 'firstPage',
             'click .previous': 'previousPage',
             'click .next': 'nextPage',
-            'click .last': 'lastPage'
+            'click .last': 'lastPage',
+            'click .server-previous': 'previousServerPage',
+            'click .server-next': 'nextServerPage'
         },
         firstPage: function() {
             this.model.getFirstPage();
@@ -56,15 +58,24 @@ define([
         lastPage: function() {
             this.model.getLastPage();
         },
+        previousServerPage: function() {
+            this.options.query.getPreviousServerPage();
+        },
+        nextServerPage: function() {
+            this.options.query.getNextServerPage();
+        },        
         onRender: function(){
             this.updateSelectionInterface();
         },
         serializeData: function(){
+            var query = this.options.query;
             var resultsCollection = this.model;
             return {
                 pages: this.currentPages(resultsCollection.state.currentPage, resultsCollection.state.totalPages),
                 hasPreviousPage: resultsCollection.hasPreviousPage(),
-                hasNextPage: resultsCollection.hasNextPage()
+                hasNextPage: resultsCollection.hasNextPage(),
+                showNextServerPage: !resultsCollection.hasNextPage() && query.hasNextServerPage(),
+                showPreviousServerPage: !resultsCollection.hasPreviousPage() && query.hasPreviousServerPage(),
             };
         },
         currentPages: function(current, total){
