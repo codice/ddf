@@ -15,6 +15,7 @@ package ddf.catalog.source.solr;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
@@ -42,6 +43,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -241,6 +243,8 @@ public class SolrProviderTest extends SolrProviderTestCase {
     protected static final double METERS_PER_KM = 1000.0;
 
     protected static final int ONE_HIT = 1;
+
+    private static final String EXT_SORT_BY = "additional.sort.bys";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SolrProviderTest.class);
 
@@ -4822,6 +4826,114 @@ public class SolrProviderTest extends SolrProviderTestCase {
 
             assertThat(currentScore, lessThanOrEqualTo(r.getRelevanceScore()));
             currentScore = r.getRelevanceScore();
+        }
+    }
+
+    @Test
+    public void testSortingMultipleAttributes() throws Exception {
+        deleteAllIn(provider);
+        List<Metacard> list = new ArrayList<>();
+        DateTime now = new DateTime();
+
+        for (int i = 0; i < 5; i++) {
+            MockMetacard m = new MockMetacard(Library.getFlagstaffRecord());
+            m.setEffectiveDate(now.minus(5L * i)
+                    .toDate());
+            m.setTitle("Record " + i);
+            m.setLocation("POINT(0 0)");
+            list.add(m);
+        }
+
+        create(list);
+
+        Filter filter = null;
+        QueryImpl query = null;
+        SourceResponse sourceResponse = null;
+
+        filter = filterBuilder.allOf(filterBuilder.attribute(Metacard.ANY_GEO)
+                        .nearestTo()
+                        .wkt("POINT(1 1)"),
+                filterBuilder.attribute(Metacard.TITLE)
+                        .like()
+                        .text("Record"));
+
+        query = new QueryImpl(filter);
+
+        query.setSortBy(new ddf.catalog.filter.impl.SortByImpl(Result.DISTANCE,
+                SortOrder.DESCENDING.name()));
+        Map<String, Serializable> properties = new HashMap<>();
+        SortBy relevanceSort = new ddf.catalog.filter.impl.SortByImpl(Result.RELEVANCE,
+                SortOrder.DESCENDING.name());
+        SortBy titleSort = new ddf.catalog.filter.impl.SortByImpl(Metacard.TITLE,
+                SortOrder.ASCENDING.name());
+        SortBy[] additionalSorts = new SortBy[] {relevanceSort, titleSort};
+        properties.put(EXT_SORT_BY, additionalSorts);
+        sourceResponse = provider.query(new QueryRequestImpl(query, properties));
+
+        assertEquals(list.size(),
+                sourceResponse.getResults()
+                        .size());
+
+        int i = 0;
+        for (Result r : sourceResponse.getResults()) {
+            assertThat(r.getMetacard()
+                    .getTitle(), is("Record " + i));
+            i++;
+        }
+    }
+
+    @Test
+    public void testSortingMultipleAttributesGeoAndRelevance() throws Exception {
+        deleteAllIn(provider);
+        List<Metacard> list = new ArrayList<>();
+        DateTime now = new DateTime();
+
+        for (int i = 0; i < 5; i++) {
+            MockMetacard m = new MockMetacard(Library.getFlagstaffRecord());
+            m.setEffectiveDate(now.minus(5L * i)
+                    .toDate());
+            m.setTitle("Record " + i);
+            m.setLocation("POINT(" + (6 - i) * -1 + " " + (6 - i) * -1 + ")");
+            list.add(m);
+        }
+
+        create(list);
+
+        Filter filter;
+        QueryImpl query;
+        SourceResponse sourceResponse;
+
+        filter = filterBuilder.allOf(filterBuilder.attribute(Metacard.TITLE)
+                        .like()
+                        .text("Record"),
+                filterBuilder.attribute(Metacard.ANY_GEO)
+                        .nearestTo()
+                        .wkt("POINT(1 1)"));
+
+        query = new QueryImpl(filter);
+
+        query.setSortBy(new ddf.catalog.filter.impl.SortByImpl(Result.RELEVANCE,
+                SortOrder.DESCENDING.name()));
+        Map<String, Serializable> properties = new HashMap<>();
+        SortBy distanceSort = new ddf.catalog.filter.impl.SortByImpl(Result.DISTANCE,
+                SortOrder.ASCENDING.name());
+        SortBy[] additionalSorts = new SortBy[] {distanceSort};
+        properties.put(EXT_SORT_BY, additionalSorts);
+        sourceResponse = provider.query(new QueryRequestImpl(query, properties));
+
+        assertEquals(list.size(),
+                sourceResponse.getResults()
+                        .size());
+
+        int index = 0;
+        for (int i = (list.size() - 1); i >= 0; i--) {
+            Result r = sourceResponse.getResults()
+                    .get(index);
+            assertThat(r.getDistanceInMeters(), not(closeTo(r.getRelevanceScore(), .000001)));
+            assertEquals("Record " + i,
+                    r.getMetacard()
+                            .getTitle());
+            index++;
         }
     }
 

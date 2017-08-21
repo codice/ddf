@@ -2352,6 +2352,40 @@ public class TestCatalog extends AbstractIntegrationTest {
     }
 
     @Test
+    public void testCswMultiSortAsc() throws IOException {
+        final String sortCardId1 = ingestXmlFromResource("/sorttestcard1.xml");
+        final String sortCardId2 = ingestXmlFromResource("/sorttestcard2.xml");
+
+        String query = getFileContent("/csw-multi-sort-asc.xml");
+
+        ValidatableResponse validatableResponse = given().header(HttpHeaders.CONTENT_TYPE,
+                MediaType.APPLICATION_XML)
+                .body(query)
+                .post(CSW_PATH.getUrl())
+                .then();
+
+        validatableResponse.body(containsString(sortCardId1));
+        validatableResponse.body(not(containsString(sortCardId2)));
+    }
+
+    @Test
+    public void testCswMultiSortDesc() throws IOException {
+        final String sortCardId1 = ingestXmlFromResource("/sorttestcard1.xml");
+        final String sortCardId2 = ingestXmlFromResource("/sorttestcard2.xml");
+
+        String query = getFileContent("/csw-multi-sort-desc.xml");
+
+        ValidatableResponse validatableResponse = given().header(HttpHeaders.CONTENT_TYPE,
+                MediaType.APPLICATION_XML)
+                .body(query)
+                .post(CSW_PATH.getUrl())
+                .then();
+
+        validatableResponse.body(not(containsString(sortCardId1)));
+        validatableResponse.body(containsString(sortCardId2));
+    }
+
+    @Test
     public void testIngestSanitizationBadFile() throws Exception {
         // DDF-3172 bad.files and bad.file.extensions in system.properties is not being respected
 

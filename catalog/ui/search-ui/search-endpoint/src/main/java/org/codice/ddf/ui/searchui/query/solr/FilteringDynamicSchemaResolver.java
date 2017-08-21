@@ -13,12 +13,16 @@
  **/
 package org.codice.ddf.ui.searchui.query.solr;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.solr.common.SolrInputDocument;
+import org.opengis.filter.sort.SortBy;
 
 import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.Metacard;
@@ -35,6 +39,8 @@ public class FilteringDynamicSchemaResolver extends DynamicSchemaResolver {
 
     public static final String SOURCE_ID = "source-id";
 
+    private static final String EXT_SORT_BY = "additional.sort.bys";
+
     private final Set<String> usedFields = new HashSet<>();
 
     public FilteringDynamicSchemaResolver(FilterAdapter filterAdapter,
@@ -45,8 +51,28 @@ public class FilteringDynamicSchemaResolver extends DynamicSchemaResolver {
         usedFields.add(SchemaFields.METACARD_TYPE_FIELD_NAME);
 
         SolrFilterDelegate solrFilterDelegate = filterDelegateFactory.newInstance(this);
-        solrFilterDelegate.setSortPolicy(request.getQuery()
-                .getSortBy());
+        List<SortBy> sortBys = new ArrayList<>();
+
+        if (request.getQuery() != null) {
+            SortBy sortBy = request.getQuery()
+                    .getSortBy();
+            if (sortBy != null) {
+                sortBys.add(sortBy);
+            }
+        }
+
+        Serializable sortBySer = request.getPropertyValue(EXT_SORT_BY);
+        if (sortBySer instanceof SortBy[]) {
+            SortBy[] extSortBys = (SortBy[]) sortBySer;
+            if (extSortBys.length > 0) {
+                sortBys.addAll(Arrays.asList(extSortBys));
+            }
+        }
+
+        if (CollectionUtils.isNotEmpty(sortBys)) {
+            solrFilterDelegate.setSortPolicy(sortBys.toArray(new SortBy[0]));
+        }
+
 
         try {
             filterAdapter.adapt(request.getQuery(), solrFilterDelegate);

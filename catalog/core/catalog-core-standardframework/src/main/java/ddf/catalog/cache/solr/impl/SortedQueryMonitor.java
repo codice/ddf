@@ -15,6 +15,7 @@ package ddf.catalog.cache.solr.impl;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -51,11 +52,14 @@ import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PostFederatedQueryPlugin;
 import ddf.catalog.plugin.StopProcessingException;
+import ddf.catalog.util.impl.CollectionResultComparator;
 import ddf.catalog.util.impl.DistanceResultComparator;
 import ddf.catalog.util.impl.RelevanceResultComparator;
 import ddf.catalog.util.impl.TemporalResultComparator;
 
 class SortedQueryMonitor implements Runnable {
+    private static final String EXT_SORT_BY = "additional.sort.bys";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(SortedQueryMonitor.class);
 
     private final QueryRequest request;
@@ -90,26 +94,47 @@ class SortedQueryMonitor implements Runnable {
 
     @Override
     public void run() {
+        List<SortBy> sortBys = new ArrayList<>();
         SortBy sortBy = query.getSortBy();
-        // Prepare the Comparators that we will use
-        Comparator<Result> coreComparator = CachingFederationStrategy.DEFAULT_COMPARATOR;
-
         if (sortBy != null && sortBy.getPropertyName() != null) {
-            PropertyName sortingProp = sortBy.getPropertyName();
-            String sortType = sortingProp.getPropertyName();
-            SortOrder sortOrder =
-                    (sortBy.getSortOrder() == null) ? SortOrder.DESCENDING : sortBy.getSortOrder();
-            LOGGER.debug("Sorting type: {}", sortType);
-            LOGGER.debug("Sorting order: {}", sortBy.getSortOrder());
-
-            // Temporal searches are currently sorted by the effective time
-            if (Metacard.EFFECTIVE.equals(sortType) || Result.TEMPORAL.equals(sortType)) {
-                coreComparator = new TemporalResultComparator(sortOrder);
-            } else if (Result.DISTANCE.equals(sortType)) {
-                coreComparator = new DistanceResultComparator(sortOrder);
-            } else if (Result.RELEVANCE.equals(sortType)) {
-                coreComparator = new RelevanceResultComparator(sortOrder);
+            sortBys.add(sortBy);
+        }
+        Serializable sortBySer = request.getPropertyValue(EXT_SORT_BY);
+        if (sortBySer instanceof SortBy[]) {
+            SortBy[] extSortBys = (SortBy[])sortBySer;
+            if (extSortBys.length > 0) {
+                sortBys.addAll(Arrays.asList(extSortBys));
             }
+        }
+
+        // Prepare the Comparators that we will use
+        CollectionResultComparator resultComparator = new CollectionResultComparator();
+        if (!sortBys.isEmpty()) {
+            for (SortBy sort : sortBys) {
+                Comparator<Result> comparator = null;
+
+                PropertyName sortingProp = sort.getPropertyName();
+                String sortType = sortingProp.getPropertyName();
+                SortOrder sortOrder =
+                        (sort.getSortOrder() == null) ? SortOrder.DESCENDING : sort.getSortOrder();
+                LOGGER.debug("Sorting type: {}", sortType);
+                LOGGER.debug("Sorting order: {}", sort.getSortOrder());
+
+                // Temporal searches are currently sorted by the effective time
+                if (Metacard.EFFECTIVE.equals(sortType) || Result.TEMPORAL.equals(sortType)) {
+                    comparator = new TemporalResultComparator(sortOrder);
+                } else if (Result.DISTANCE.equals(sortType)) {
+                    comparator = new DistanceResultComparator(sortOrder);
+                } else if (Result.RELEVANCE.equals(sortType)) {
+                    comparator = new RelevanceResultComparator(sortOrder);
+                }
+                if (comparator != null) {
+                    resultComparator.addComparator(comparator);
+                }
+            }
+        } else {
+            Comparator<Result> coreComparator = CachingFederationStrategy.DEFAULT_COMPARATOR;
+            resultComparator.addComparator(coreComparator);
         }
 
         List<Result> resultList = new ArrayList<>();
@@ -191,7 +216,7 @@ class SortedQueryMonitor implements Runnable {
             QueryResponse result = cachingFederationStrategy.queryCache(request);
             returnResults.addResults(result.getResults(), true);
         } else {
-            returnResults.addResults(sortedResults(resultList, coreComparator), true);
+            returnResults.addResults(sortedResults(resultList, resultComparator), true);
         }
     }
 

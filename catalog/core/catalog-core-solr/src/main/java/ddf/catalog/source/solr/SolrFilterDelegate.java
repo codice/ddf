@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -145,7 +146,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
     private final DynamicSchemaResolver resolver;
 
-    private SortBy sortBy;
+    private SortBy[] sortBys;
 
     private boolean isSortedByDistance = false;
 
@@ -847,13 +848,19 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     }
 
     private void updateDistanceSort(String propertyName, Point point) {
-        if (sortBy != null && sortBy.getPropertyName() != null) {
-            String sortByPropertyName = sortBy.getPropertyName()
-                    .getPropertyName();
-            if (Result.DISTANCE.equals(sortByPropertyName)
-                    || propertyName.equals(sortByPropertyName)) {
-                isSortedByDistance = true;
-                sortedDistancePoint = point.getY() + "," + point.getX();
+        if (sortBys != null && sortBys.length != 0) {
+            for (SortBy sortBy : sortBys) {
+                if (sortBy.getPropertyName() != null && sortBy.getPropertyName()
+                        .getPropertyName() != null) {
+                    String sortByPropertyName = sortBy.getPropertyName()
+                            .getPropertyName();
+                    if (Result.DISTANCE.equals(sortByPropertyName) || propertyName.equals(
+                            sortByPropertyName)) {
+                        isSortedByDistance = true;
+                        sortedDistancePoint = point.getY() + "," + point.getX();
+                        break;
+                    }
+                }
             }
         }
     }
@@ -1039,8 +1046,12 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
                 .equals(geo.getGeometryType());
     }
 
-    public void setSortPolicy(SortBy sort) {
-        this.sortBy = sort;
+    public void setSortPolicy(SortBy[] sortBys) {
+        if (sortBys != null) {
+            this.sortBys = Arrays.copyOf(sortBys, sortBys.length);
+        } else {
+            this.sortBys = null;
+        }
     }
 
     public boolean isSortedByDistance() {

@@ -70,6 +70,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.GetCapabilitiesRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordByIdRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.source.reader.GetRecordsMessageBodyReader;
 import org.opengis.filter.Filter;
+import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
@@ -115,6 +116,7 @@ import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.service.SecurityManager;
+
 import net.opengis.cat.csw.v_2_0_2.AcknowledgementType;
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.ElementSetNameType;
@@ -208,6 +210,8 @@ public abstract class AbstractCswSource extends MaskableImpl
     private static final JAXBContext JAXB_CONTEXT = initJaxbContext();
 
     private static final String BYTES_SKIPPED = "bytes-skipped";
+
+    private static final String EXT_SORT_BY = "additional.sort.bys";
 
     private static Properties describableProperties = new Properties();
 
@@ -777,7 +781,7 @@ public abstract class AbstractCswSource extends MaskableImpl
         Query query = queryRequest.getQuery();
         LOGGER.debug("{}: Received query:\n{}", cswSourceConfiguration.getId(), query);
 
-        GetRecordsType getRecordsType = createGetRecordsRequest(query,
+        GetRecordsType getRecordsType = createGetRecordsRequest(queryRequest,
                 elementSetName,
                 elementNames);
 
@@ -1084,8 +1088,10 @@ public abstract class AbstractCswSource extends MaskableImpl
         this.forceSpatialFilter = forceSpatialFilter;
     }
 
-    private GetRecordsType createGetRecordsRequest(Query query, ElementSetType elementSetName,
-            List<QName> elementNames) throws UnsupportedQueryException {
+    private GetRecordsType createGetRecordsRequest(QueryRequest queryRequest,
+            ElementSetType elementSetName, List<QName> elementNames)
+            throws UnsupportedQueryException {
+        Query query = queryRequest.getQuery();
         GetRecordsType getRecordsType = new GetRecordsType();
         getRecordsType.setVersion(cswVersion);
         getRecordsType.setService(CswConstants.CSW);
@@ -1100,7 +1106,7 @@ public abstract class AbstractCswSource extends MaskableImpl
             throw new UnsupportedQueryException(msg);
         }
         getRecordsType.setOutputSchema(cswSourceConfiguration.getOutputSchema());
-        getRecordsType.setAbstractQuery(createQuery(query, elementSetName, elementNames));
+        getRecordsType.setAbstractQuery(createQuery(queryRequest, elementSetName, elementNames));
         return getRecordsType;
     }
 
@@ -1110,8 +1116,9 @@ public abstract class AbstractCswSource extends MaskableImpl
         return elementSetNameType;
     }
 
-    private JAXBElement<QueryType> createQuery(Query query, ElementSetType elementSetType,
-            List<QName> elementNames) throws UnsupportedQueryException {
+    private JAXBElement<QueryType> createQuery(QueryRequest queryRequest,
+            ElementSetType elementSetType, List<QName> elementNames)
+            throws UnsupportedQueryException {
         QueryType queryType = new QueryType();
 
         QName queryTypeQName = null;
@@ -1146,11 +1153,11 @@ public abstract class AbstractCswSource extends MaskableImpl
         } else {
             queryType.setElementSetName(createElementSetName(ElementSetType.FULL));
         }
-        SortByType sortBy = createSortBy(query);
+        SortByType sortBy = createSortBy(queryRequest);
         if (sortBy != null) {
             queryType.setSortBy(sortBy);
         }
-        QueryConstraintType constraint = createQueryConstraint(query);
+        QueryConstraintType constraint = createQueryConstraint(queryRequest);
         if (null != constraint) {
             queryType.setConstraint(constraint);
         }
@@ -1158,56 +1165,70 @@ public abstract class AbstractCswSource extends MaskableImpl
         return objectFactory.createQuery(queryType);
     }
 
-    private SortByType createSortBy(Query query) {
+    private SortByType createSortBy(QueryRequest queryRequest) {
 
-        SortByType sortBy = null;
+        Query query = queryRequest.getQuery();
+        SortByType cswSortBy = null;
 
-        if (query.getSortBy() != null) {
-            sortBy = new SortByType();
-            SortPropertyType sortProperty = new SortPropertyType();
-            PropertyNameType propertyName = new PropertyNameType();
-
-            String propName;
-            if (query.getSortBy()
-                    .getPropertyName() != null) {
-                propName = query.getSortBy()
-                        .getPropertyName()
-                        .getPropertyName();
-
-                if (propName != null) {
-                    if (Result.TEMPORAL.equals(propName) || Metacard.ANY_DATE.equals(propName)) {
-                        propName = Core.MODIFIED;
-                    } else if (Result.RELEVANCE.equals(propName) || Metacard.ANY_TEXT.equals(
-                            propName)) {
-                        propName = Core.TITLE;
-                    } else if (Result.DISTANCE.equals(propName)
-                            || Metacard.ANY_GEO.equals(propName)) {
-                        return null;
-                    }
-
-                    propertyName.setContent(Arrays.asList((Object) cswFilterDelegate.mapPropertyName(
-                            propName)));
-                    sortProperty.setPropertyName(propertyName);
-                    if (SortOrder.DESCENDING.equals(query.getSortBy()
-                            .getSortOrder())) {
-                        sortProperty.setSortOrder(SortOrderType.DESC);
-                    } else {
-                        sortProperty.setSortOrder(SortOrderType.ASC);
-                    }
-                    sortBy.getSortProperty()
-                            .add(sortProperty);
+        if (query != null && query.getSortBy() != null && query.getSortBy()
+                .getPropertyName() != null) {
+            List<SortBy> sortBys = new ArrayList<>();
+            sortBys.add(query.getSortBy());
+            Serializable extSortBySer = queryRequest.getPropertyValue(EXT_SORT_BY);
+            if (extSortBySer instanceof SortBy[]) {
+                SortBy[] extSortBys = (SortBy[]) extSortBySer;
+                if (extSortBys.length > 0) {
+                    sortBys.addAll(Arrays.asList(extSortBys));
                 }
-            } else {
-                return null;
             }
+
+            for (SortBy sortBy : sortBys) {
+                SortPropertyType sortProperty = new SortPropertyType();
+                PropertyNameType propertyName = new PropertyNameType();
+
+                if (sortBy.getPropertyName() != null) {
+                    String propName = sortBy.getPropertyName()
+                            .getPropertyName();
+
+                    if (propName != null) {
+                        if (Result.TEMPORAL.equals(propName) || Metacard.ANY_DATE.equals(propName)) {
+                            propName = Core.MODIFIED;
+                        } else if (Result.RELEVANCE.equals(propName) || Metacard.ANY_TEXT.equals(
+                                propName)) {
+                            propName = Core.TITLE;
+                        } else if (Result.DISTANCE.equals(propName) || Metacard.ANY_GEO.equals(
+                                propName)) {
+                            continue;
+                        }
+
+                        if (cswSortBy == null) {
+                            cswSortBy = new SortByType();
+                        }
+
+                        propertyName.setContent(Arrays.asList((Object) cswFilterDelegate.mapPropertyName(
+                                propName)));
+                        sortProperty.setPropertyName(propertyName);
+                        if (SortOrder.DESCENDING.equals(query.getSortBy()
+                                .getSortOrder())) {
+                            sortProperty.setSortOrder(SortOrderType.DESC);
+                        } else {
+                            sortProperty.setSortOrder(SortOrderType.ASC);
+                        }
+                        cswSortBy.getSortProperty()
+                                .add(sortProperty);
+                    }
+                }
+            }
+        } else {
+            return null;
         }
 
-        return sortBy;
+        return cswSortBy;
     }
 
-    private QueryConstraintType createQueryConstraint(Query query)
+    private QueryConstraintType createQueryConstraint(QueryRequest queryRequest)
             throws UnsupportedQueryException {
-        FilterType filter = createFilter(query);
+        FilterType filter = createFilter(queryRequest.getQuery());
         if (null == filter) {
             return null;
         }
