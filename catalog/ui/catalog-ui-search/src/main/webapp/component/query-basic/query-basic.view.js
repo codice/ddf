@@ -361,24 +361,14 @@ define([
             if (this.filter.anyDate) {
                 this.filter.anyDate.forEach(function (subfilter) {
                     if (subfilter.type === '=') {
-                        var durationISO = subfilter.value.substring(9, subfilter.value.length - 1);
-                        var duration = moment.duration(durationISO);
+                        var duration = subfilter.value.substring(9, subfilter.value.length - 1).match(/(T?\d+)./)[0];
+                        currentUnit = duration.substring(duration.length - 1, duration.length);
+                        currentLast = duration.match(/\d+/);
 
-                        if (duration.minutes() > 0) {
-                            currentLast = duration.asMinutes();
-                            currentUnit = 'm';
-                        } else if (duration.hours() > 0) {
-                            currentLast = duration.asHours();
-                            currentUnit = 'h';
-                        }else if (duration.days() > 0) {
-                            currentLast = duration.asDays();
-                            currentUnit = 'd';
-                        } else if (duration.months() > 0) {
-                            currentLast = duration.asMonths();
-                            currentUnit = 'M';
-                        } else if (duration.years() > 0) {
-                            currentLast = duration.asYears();
-                            currentUnit = 'y';
+                        currentUnit = currentUnit.toLowerCase();
+                        if(duration.indexOf('T') === -1 && currentUnit === 'M') {
+                            //must capitalize months
+                            currentUnit = currentUnit.toUpperCase();
                         }
                     }
                 });
