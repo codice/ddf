@@ -21,7 +21,7 @@
 |String
 |List of imagery providers to use. Valid types are: OSM (OpenStreetMap), AGM (ArcGisMap), BM (BingMap), WMS (WebMapService), WMT (WebMapTile), TMS (TileMapService), GE (GoogleEarth). 
 
-WMS example: `[{"type": "WMS", "url": "http://suite.opengeo.org/geoserver/gwc/service/wms", "layers" : ["opengeo:countries"], "parameters": {"FORMAT": "image/png", "VERSION": "1.1.1"}, "alpha":1, "proxyEnabled" : "true"}]`
+WMS example: `[{"type": "WMS", "url": "http://suite.opengeo.org/geoserver/gwc/service/wms", "layers" : ["opengeo:countries"], "parameters": {"FORMAT": "image/png", "VERSION": "1.1.1"}, "alpha":1, "proxyEnabled" : true}]`
 
 OSM example: `[{ "type": "OSM", "url": "http://a.tile.openstreetmap.org", "fileExtension": "png", "alpha": 1.0 }]`
 
@@ -33,7 +33,7 @@ WMT example: `[{"type": "WMT","url": "http://suite.opengeo.org/geoserver/gwc/ser
 
 TMS example (3d map support only): `[{"type" : "TMS", "url" : "https://cesiumjs.org/tilesets/imagery/blackmarble" }]`
 
-Note: An optional `"proxyEnabled" : "false"` can be included if the source tile server doesn't need to be proxied.
+Note: An optional `"proxyEnabled" : false` can be included if the source tile server doesn't need to be proxied.
 
 |
 |false
