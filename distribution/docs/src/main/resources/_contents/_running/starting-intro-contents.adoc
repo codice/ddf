@@ -149,6 +149,13 @@ to:
 RUN_AS_USER=<${branding-lowercase}-user>
 ----
 +
+. (Windows users skip to next step) (All *NIX) Edit `<${branding}_HOME>/bin/${branding-lowercase}.service`. Add LimitNOFILE to the [Service] section.
++
+.<${branding}_HOME>/bin/${branding-lowercase}.service
+----
+LimitNOFILE=6815744
+----
++
 . Set the memory in the wrapper config to match with ${branding} default memory setting.
 +
 .<${branding}_HOME>/etc/${branding-lowercase}-wrapper.conf
@@ -176,6 +183,13 @@ wrapper.java.additional.24=-XX:+DisableAttachMechanism
 
 ----
 +
+Remove or comment out `wrapper.java.maxmemory=512`:
++
+.<${branding}_HOME>/etc/${branding-lowercase}-wrapper.conf
+----
+#wrapper.java.maxmemory=512
+----
++
 . Install the wrapper startup/shutdown scripts.
 +
 *Windows*
@@ -193,6 +207,12 @@ Startup and shutdown settings can then be managed through *Services -> MMC Start
 root${at-symbol}localhost# ln -s <${branding}_HOME>/bin/${branding-lowercase}-service /etc/init.d/
 root${at-symbol}localhost# chkconfig ${branding-lowercase}-service --add
 root${at-symbol}localhost# chkconfig ${branding-lowercase}-service on
+----
++
+*Redhat 7 (systemd)*
++
+----
+root${at-symbol}localhost# systemctl enable <${branding}_HOME>/bin/${branding-lowercase}.service
 ----
 +
 *Ubuntu*
