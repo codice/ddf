@@ -313,7 +313,7 @@ define([
                 contentType: 'application/json',
                 data: data,
                 url: this.deleteUrl
-            }).success(function () {
+            }).done(function () {
                 wreqr.vent.trigger('nodeDeleted');
             });
         }

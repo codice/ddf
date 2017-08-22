@@ -185,7 +185,7 @@ define([
                 var view = this;
                 var response = view.model.save();
                 if (response) {
-                    response.success(function () {
+                    response.done(function () {
                         view.closeAndUnbind();
                         if (response.addOperation) {
                             wreqr.vent.trigger('nodeAdded');
