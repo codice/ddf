@@ -73,8 +73,32 @@ public interface ExportMigrationEntry extends MigrationEntry {
      * <i>Note:</i> The file referenced from the property is assumed to be relative to ${ddf.home} if
      * not defined as absolute. All paths will automatically be relativized from ${ddf.home} if
      * located underneath.
+     * <p>
+     * The entry returned would be an entry representing the file that is referenced by the specified
+     * property value in the java properties file represented by this entry on the local system.
+     * For example:
+     * <p>
+     * If the properties file (e.g. etc/ws-security/server/encryption.properties) represented by this
+     * entry defines the following mapping:
+     * org.apache.ws.security.crypto.merlin.x509crl.file=etc/certs/demoCA/crl/crl.pem
+     * <p>
+     * then the following code:
+     * <pre>
+     *     final ExportMigrationEntry entry
+     *         = context.getEntry("etc/ws-security/server/encryption.properties");
      *
-     * @param name the name of the property referencing a migration entry to create or retrieve
+     *     final Optional&lt;ExportMigrationEntry&gt; entry2
+     *         = entry.getPropertyReferenceEntry("org.apache.ws.security.crypto.merlin.x509crl.file");
+     * </pre>
+     * <p>
+     * would return an entry representing the local file <code>etc/certs/demoCA/crl/crl.pem</code>
+     * allowing the migratable a chance to export it alongside the original property value so
+     * it can be later restored and the property value can be verified after the import operation such
+     * that it would still be defined with the same value in the local etc/ws-security/server/encryption.properties
+     * file.
+     *
+     * @param name the name of the property in the corresponding java properties file referencing a
+     *             migration entry to create or retrieve
      * @return a new migration entry or the existing one if already created for the migration entry
      * referenced from the specified property value or empty if the property is not defined or
      * its value is blank
@@ -109,8 +133,32 @@ public interface ExportMigrationEntry extends MigrationEntry {
      * <i>Note:</i> The file referenced from the property is assumed to be relative to ${ddf.home} if
      * not defined as absolute. All paths will automatically be relativized from ${ddf.home} if
      * located underneath.
+     * <p>
+     * The entry returned would be an entry representing the file that is referenced by the specified
+     * property value in the java properties file represented by this entry on the local system.
+     * For example:
+     * <p>
+     * If the properties file (e.g. etc/ws-security/server/encryption.properties) represented by this
+     * entry defines the following mapping:
+     * org.apache.ws.security.crypto.merlin.x509crl.file=etc/certs/demoCA/crl/crl.pem
+     * <p>
+     * then the following code:
+     * <pre>
+     *     final ExportMigrationEntry entry
+     *         = context.getEntry("etc/ws-security/server/encryption.properties");
      *
-     * @param name      the name of the property referencing a migration entry to create or retrieve
+     *     final Optional&lt;ExportMigrationEntry&gt; entry2
+     *         = entry.getPropertyReferenceEntry("org.apache.ws.security.crypto.merlin.x509crl.file");
+     * </pre>
+     * <p>
+     * would return an entry representing the local file <code>etc/certs/demoCA/crl/crl.pem</code>
+     * allowing the migratable a chance to export it alongside the original property value so
+     * it can be later restored and the property value can be verified after the import operation such
+     * that it would still be defined with the same value in the local etc/ws-security/server/encryption.properties
+     * file.
+     *
+     * @param name      the name of the property in the corresponding java properties file referencing
+     *                  a migration entry to create or retrieve
      * @param validator a predicate to be invoked to validate the property value further which must
      *                  return <code>true</code> to have a migration entry created
      * @return a new migration entry or the existing one if already created for the referenced file

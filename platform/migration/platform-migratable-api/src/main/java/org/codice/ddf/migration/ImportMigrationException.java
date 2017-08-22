@@ -14,7 +14,7 @@
 package org.codice.ddf.migration;
 
 /**
- * Exception that indicates some problem when importing the system' configurations.
+ * Exception that indicates some problem occurred during the import migration operation.
  * <p>
  * <b>
  * This code is experimental. While this interface is functional
