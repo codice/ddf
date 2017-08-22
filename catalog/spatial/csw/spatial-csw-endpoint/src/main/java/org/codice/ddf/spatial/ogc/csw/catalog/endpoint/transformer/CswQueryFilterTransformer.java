@@ -40,8 +40,13 @@ public class CswQueryFilterTransformer implements QueryFilterTransformer {
     @Override
     public QueryRequest transform(QueryRequest queryRequest, Map<String, Serializable> properties) {
         Query query = queryRequest.getQuery();
-        Query transformedQuery = new QueryImpl((Filter) query.accept(filterVisitor,
-                new FilterFactoryImpl()));
+        Filter filter = (Filter) query.accept(filterVisitor, new FilterFactoryImpl());
+        Query transformedQuery = new QueryImpl(filter,
+                query.getStartIndex(),
+                query.getPageSize(),
+                query.getSortBy(),
+                query.requestsTotalResultsCount(),
+                query.getTimeoutMillis());
 
         return new QueryRequestImpl(transformedQuery,
                 queryRequest.isEnterprise(),
