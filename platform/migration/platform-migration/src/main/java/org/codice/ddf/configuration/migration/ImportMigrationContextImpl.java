@@ -21,7 +21,6 @@ import java.nio.file.PathMatcher;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Stream;
@@ -90,7 +89,7 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
      * @throws java.io.IOError          if unable to determine ${ddf.home}
      */
     public ImportMigrationContextImpl(MigrationReport report, ZipFile zip, String id) {
-        super(report, id, null); // no version yet
+        super(report, id);
         Validate.notNull(zip, "invalid null zip");
         this.zip = zip;
     }
@@ -106,7 +105,7 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
      * @throws java.io.IOError          if unable to determine ${ddf.home}
      */
     public ImportMigrationContextImpl(MigrationReport report, ZipFile zip, Migratable migratable) {
-        super(report, migratable, null); // no version yet
+        super(report, migratable);
         Validate.notNull(zip, "invalid null zip");
         this.zip = zip;
     }
@@ -187,17 +186,21 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
         if (migratable != null) {
             LOGGER.debug("Importing migratable [{}] from version [{}]...",
                     id,
-                    ((getVersion() != null) ? getVersion() : "<not-exported>"));
+                    getVersion().orElse("<not-exported>"));
             Stopwatch stopwatch = null;
 
             if (LOGGER.isDebugEnabled()) {
                 stopwatch = Stopwatch.createStarted();
             }
             try {
-                if (Objects.equals(getVersion(), migratable.getVersion())) {
+                final String version = getVersion().orElse(null);
+
+                if (version == null) {
+                    migratable.doMissingImport(this);
+                } else if (version.equals(migratable.getVersion())) {
                     migratable.doImport(this);
                 } else {
-                    migratable.doIncompatibleImport(this, getVersion());
+                    migratable.doIncompatibleImport(this, version);
                 }
             } finally {
                 inputStreams.forEach(IOUtils::closeQuietly); // we do not care if we failed to close them

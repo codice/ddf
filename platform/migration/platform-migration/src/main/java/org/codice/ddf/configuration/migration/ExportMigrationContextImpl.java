@@ -194,7 +194,7 @@ public class ExportMigrationContextImpl extends MigrationContextImpl
      * @throws org.codice.ddf.migration.MigrationException to stop the export operation
      */
     Map<String, Map<String, Object>> doExport() {
-        LOGGER.debug("Exporting [{}] with version [{}]...", id, getVersion());
+        LOGGER.debug("Exporting [{}] with version [{}]...", id, getVersion().orElse(null)); // version will never be empty
         Stopwatch stopwatch = null;
 
         if (LOGGER.isDebugEnabled()) {

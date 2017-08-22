@@ -75,7 +75,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
         Assert.assertThat(CONTEXT.getReport(), Matchers.sameInstance(REPORT));
         Assert.assertThat(CONTEXT.getMigratable(), Matchers.nullValue());
         Assert.assertThat(CONTEXT.getId(), Matchers.nullValue());
-        Assert.assertThat(CONTEXT.getVersion(), Matchers.equalTo("?"));
+        Assert.assertThat(CONTEXT.getVersion(), OptionalMatchers.isEmpty());
         Assert.assertThat(CONTEXT.getZip(), Matchers.sameInstance(ZIP));
         Assert.assertThat(CONTEXT.getEntries(), Matchers.anEmptyMap());
         Assert.assertThat(CONTEXT.getSystemPropertiesReferencedEntries(), Matchers.anEmptyMap());
@@ -104,7 +104,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
         Assert.assertThat(CONTEXT.getReport(), Matchers.sameInstance(REPORT));
         Assert.assertThat(CONTEXT.getMigratable(), Matchers.nullValue());
         Assert.assertThat(CONTEXT.getId(), Matchers.equalTo(MIGRATABLE_ID));
-        Assert.assertThat(CONTEXT.getVersion(), Matchers.nullValue());
+        Assert.assertThat(CONTEXT.getVersion(), OptionalMatchers.isEmpty());
         Assert.assertThat(CONTEXT.getZip(), Matchers.sameInstance(ZIP));
         Assert.assertThat(CONTEXT.getEntries(), Matchers.anEmptyMap());
         Assert.assertThat(CONTEXT.getSystemPropertiesReferencedEntries(), Matchers.anEmptyMap());
@@ -141,7 +141,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
         Assert.assertThat(CONTEXT.getReport(), Matchers.sameInstance(REPORT));
         Assert.assertThat(CONTEXT.getMigratable(), Matchers.sameInstance(MIGRATABLE));
         Assert.assertThat(CONTEXT.getId(), Matchers.equalTo(MIGRATABLE_ID));
-        Assert.assertThat(CONTEXT.getVersion(), Matchers.nullValue());
+        Assert.assertThat(CONTEXT.getVersion(), OptionalMatchers.isEmpty());
         Assert.assertThat(CONTEXT.getZip(), Matchers.sameInstance(ZIP));
         Assert.assertThat(CONTEXT.getEntries(), Matchers.anEmptyMap());
         Assert.assertThat(CONTEXT.getSystemPropertiesReferencedEntries(), Matchers.anEmptyMap());
@@ -451,7 +451,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
 
         CONTEXT.processMetadata(METADATA);
 
-        Assert.assertThat(CONTEXT.getVersion(), Matchers.equalTo(VERSION));
+        Assert.assertThat(CONTEXT.getVersion(), OptionalMatchers.hasValue(VERSION));
         Assert.assertThat(CONTEXT.entries()
                 .count(), Matchers.equalTo(0L));
         Assert.assertThat(CONTEXT.getSystemPropertiesReferencedEntries(), Matchers.anEmptyMap());
@@ -480,7 +480,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
 
         CONTEXT.processMetadata(METADATA);
 
-        Assert.assertThat(CONTEXT.getVersion(), Matchers.equalTo(VERSION));
+        Assert.assertThat(CONTEXT.getVersion(), OptionalMatchers.hasValue(VERSION));
         Assert.assertThat(CONTEXT.entries()
                 .toArray(ImportMigrationEntry[]::new), Matchers.arrayContainingInAnyOrder( //
                 Matchers.allOf( //
@@ -533,7 +533,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
 
         CONTEXT.processMetadata(METADATA);
 
-        Assert.assertThat(CONTEXT.getVersion(), Matchers.equalTo(VERSION));
+        Assert.assertThat(CONTEXT.getVersion(), OptionalMatchers.hasValue(VERSION));
         Assert.assertThat(CONTEXT.getEntries(), Matchers.aMapWithSize(2));
         Assert.assertThat(CONTEXT.getSystemPropertiesReferencedEntries()
                         .values()
@@ -619,7 +619,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
 
         CONTEXT.processMetadata(METADATA);
 
-        Assert.assertThat(CONTEXT.getVersion(), Matchers.equalTo(VERSION));
+        Assert.assertThat(CONTEXT.getVersion(), OptionalMatchers.hasValue(VERSION));
         Assert.assertThat(CONTEXT.getEntries(), Matchers.aMapWithSize(3));
         Assert.assertThat(CONTEXT.getEntries()
                 .values(), Matchers.hasItem( //
@@ -674,7 +674,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
 
         CONTEXT.processMetadata(METADATA);
 
-        Assert.assertThat(CONTEXT.getVersion(), Matchers.equalTo(VERSION));
+        Assert.assertThat(CONTEXT.getVersion(), OptionalMatchers.hasValue(VERSION));
         Assert.assertThat(CONTEXT.getEntries(), Matchers.aMapWithSize(3));
         Assert.assertThat(CONTEXT.getEntries()
                 .values(), Matchers.hasItem( //
@@ -772,6 +772,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
 
         Mockito.verify(MIGRATABLE).doImport(CONTEXT);
         Mockito.verify(MIGRATABLE, Mockito.never()).doIncompatibleImport(CONTEXT, VERSION);
+        Mockito.verify(MIGRATABLE, Mockito.never()).doMissingImport(CONTEXT);
     }
 
     @Test
@@ -783,11 +784,25 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
         CONTEXT.processMetadata(METADATA); // make sure context has a version
 
         Mockito.when(MIGRATABLE.getVersion()).thenReturn(VERSION + "2");
-        Mockito.doNothing().when(MIGRATABLE).doImport(Mockito.any());
+        Mockito.doNothing().when(MIGRATABLE).doIncompatibleImport(Mockito.any(), Mockito.eq(VERSION));
 
         CONTEXT.doImport();
 
         Mockito.verify(MIGRATABLE, Mockito.never()).doImport(CONTEXT);
         Mockito.verify(MIGRATABLE).doIncompatibleImport(CONTEXT, VERSION);
+        Mockito.verify(MIGRATABLE, Mockito.never()).doMissingImport(CONTEXT);
+    }
+
+    @Test
+    public void testDoImportWhenNotExported() throws Exception {
+        CONTEXT = new ImportMigrationContextImpl(REPORT, ZIP, MIGRATABLE);
+
+        Mockito.doNothing().when(MIGRATABLE).doMissingImport(Mockito.any());
+
+        CONTEXT.doImport();
+
+        Mockito.verify(MIGRATABLE, Mockito.never()).doImport(CONTEXT);
+        Mockito.verify(MIGRATABLE, Mockito.never()).doIncompatibleImport(CONTEXT, VERSION);
+        Mockito.verify(MIGRATABLE).doMissingImport(CONTEXT);
     }
 }
