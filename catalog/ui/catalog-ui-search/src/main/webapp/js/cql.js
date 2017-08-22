@@ -394,10 +394,10 @@ define([
                     var filterFunctionName = tok.text.slice(0, -1); // remove trailing '('
                     var paramCount = filterFunctionParamCount[filterFunctionName];
                     if (paramCount === undefined) {
-                        throw new Error("Unsupported filter function : " + filterFunctionName);
+                        throw new Error("Unsupported filter function: " + filterFunctionName);
                     }
 
-                    var params = Array(paramCount).fill().map(function(){
+                    var params = Array.apply(null, Array(paramCount)).map(function(){
                         return buildTree();
                     }).reverse();
 
