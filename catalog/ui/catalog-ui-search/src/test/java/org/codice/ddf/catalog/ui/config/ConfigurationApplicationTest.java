@@ -63,7 +63,7 @@ public class ConfigurationApplicationTest {
                 "/imagery-providers.json")));
 
         // Verify
-        for (Map<String, Object> provider : configurationApplication.getProxiedImageryProviders()) {
+        for (Map<String, Object> provider : configurationApplication.getImageryProviderUrlMaps()) {
             assertTrue(provider.get(ConfigurationApplication.URL)
                     .toString()
                     .contains(PROXY_SERVER));
