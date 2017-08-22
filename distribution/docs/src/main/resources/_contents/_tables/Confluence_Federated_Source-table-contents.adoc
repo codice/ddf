@@ -71,6 +71,20 @@
 |
 |No
 
+|Body Expansion Field
+|bodyExpansion
+|String
+|The expansion specific to the body of the Confluence result. This should be kept separate from the Confluence Expansion Fields.
+|body.view
+|No
+
+|Confluence Expansion Fields
+|expandedSections
+|String cardinality=100
+|Confluence expansion fields, are fields that should be 'expanded' or populated on the Confluence server and returned in the response.
+|metadata.labels, space, history.contributors.publishers.users, history.lastUpdated, restrictions.read.restrictions.group, restrictions.read.restrictions.user
+|No
+
 |Availability Poll Interval
 |availabilityPollInterval
 |Long

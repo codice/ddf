@@ -48,6 +48,13 @@
         <AD name="Additional Attributes" id="additionalAttributes" required="false"
             type="String" cardinality="100"
             description="Additional attributes to add to Confluence metacards returned from this source."/>
+        <AD name="Body Expansion Field" id="bodyExpansion" required="false"
+            type="String"
+            default="body.view"
+            description="The expansion specific to the body of the Confluence result. This should be kept separate from the Confluence Expansion Fields."/>
+        <AD name="Confluence Expansion Fields" id="expandedSections" required="false"
+            type="String" cardinality="100"
+            description="Confluence expansion fields, are fields that should be 'expanded' or populated on the Confluence server and returned in the response." default="metadata.labels,space,history.contributors.publishers.users,history.lastUpdated,restrictions.read.restrictions.group,restrictions.read.restrictions.user"/>
         <AD name="Availability Poll Interval" id="availabilityPollInterval" required="false"
             type="Long"
             default="60000"
@@ -87,6 +94,13 @@
         <AD name="Additional Attributes" id="additionalAttributes" required="false"
             type="String" cardinality="100"
             description="Additional attributes to add to Confluence metacards returned from this source."/>
+        <AD name="Body Expansion Field" id="bodyExpansion" required="false"
+            type="String"
+            default="body.view"
+            description="The expansion specific to the body of the Confluence result. This should be kept separate from the Confluence Expansion Fields."/>
+        <AD name="Confluence Expansion Fields" id="expandedSections" required="false"
+            type="String" cardinality="100"
+            description="Confluence expansion fields, are fields that should be 'expanded' or populated on the Confluence server and returned in the response." default="metadata.labels,space,history.contributors.publishers.users,history.lastUpdated,restrictions.read.restrictions.group,restrictions.read.restrictions.user"/>
         <AD name="Availability Poll Interval" id="availabilityPollInterval" required="false"
             type="Long"
             default="60000"

@@ -1,5 +1,5 @@
 :title: ${catalog-ui} Search
-:id: Confluence_Federated_Source
+:id: ${catalog-ui}_Search
 :type: table
 :status: published
 :application: ${catalog-ui}

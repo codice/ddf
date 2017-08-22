@@ -75,7 +75,7 @@ public class TagsFilterQueryPluginTest {
 
         plugin = new TagsFilterQueryPlugin(catalogProviders, filterAdapter, filterBuilder);
 
-        source = mock(Source.class);
+        source = mock(CatalogProvider.class);
         when(source.getId()).thenReturn("cat2");
 
         cache = mock(SourceCache.class);

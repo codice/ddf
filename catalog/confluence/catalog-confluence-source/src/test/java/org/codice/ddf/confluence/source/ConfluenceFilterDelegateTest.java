@@ -291,4 +291,15 @@ public class ConfluenceFilterDelegateTest {
         ConfluenceFilterDelegate delegate = new ConfluenceFilterDelegate();
         assertThat(adapter.adapt(filter, delegate), is("title = \"val*\""));
     }
+
+    @Test
+    public void testUnsupportedQuery() throws Exception {
+        Filter filter = builder.allOf(builder.attribute(Metacard.TITLE)
+                .is()
+                .greaterThan()
+                .number(0));
+        ConfluenceFilterDelegate delegate = new ConfluenceFilterDelegate();
+        adapter.adapt(filter, delegate);
+        assertThat(delegate.isConfluenceQuery(), is(false));
+    }
 }
