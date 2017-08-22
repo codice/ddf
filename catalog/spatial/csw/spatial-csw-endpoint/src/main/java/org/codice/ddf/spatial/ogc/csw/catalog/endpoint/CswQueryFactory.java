@@ -151,7 +151,7 @@ public class CswQueryFactory {
             frameworkQuery.setPageSize(request.getMaxRecords()
                     .intValue());
         }
-        boolean isDistributed = request.getDistributedSearch() != null && (
+        boolean isEnterprise = request.getDistributedSearch() != null && (
                 request.getDistributedSearch()
                         .getHopCount()
                         .longValue() > 1);
@@ -161,7 +161,7 @@ public class CswQueryFactory {
             properties.put(EXT_SORT_BY, extSortBys);
         }
 
-        QueryRequest queryRequest = setSourceIds(frameworkQuery, isDistributed, properties);
+        QueryRequest queryRequest = getQueryRequest(frameworkQuery, isEnterprise, properties);
         return transformQuery(queryRequest, query.getTypeNames());
     }
 
@@ -342,16 +342,16 @@ public class CswQueryFactory {
         return result;
     }
 
-    private QueryRequest setSourceIds(Query query, boolean isDistributed,
+    private QueryRequest getQueryRequest(Query query, boolean isEnterprise,
             Map<String, Serializable> properties) {
         QueryRequest request;
 
         SourceIdFilterVisitor sourceIdFilterVisitor = new SourceIdFilterVisitor();
         query.accept(sourceIdFilterVisitor, new FilterFactoryImpl());
 
-        if (isDistributed && CollectionUtils.isEmpty(sourceIdFilterVisitor.getSourceIds())) {
+        if (isEnterprise && CollectionUtils.isEmpty(sourceIdFilterVisitor.getSourceIds())) {
             request = new QueryRequestImpl(query, true, null, properties);
-        } else if (isDistributed
+        } else if (isEnterprise
                 && CollectionUtils.isNotEmpty(sourceIdFilterVisitor.getSourceIds())) {
             request = new QueryRequestImpl(query,
                     false,

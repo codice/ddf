@@ -34,7 +34,8 @@ import ddf.catalog.transform.QueryFilterTransformer;
  * them to the {@link QName}'s they apply to.
  */
 public class QueryFilterTransformerProvider {
-    private static final Logger LOG = LoggerFactory.getLogger(QueryFilterTransformerProvider.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(QueryFilterTransformerProvider.class);
 
     private Map<QName, QueryFilterTransformer> queryFilterTransformerMap =
             new ConcurrentHashMap<>();
@@ -68,7 +69,7 @@ public class QueryFilterTransformerProvider {
         }
     }
 
-    public QueryFilterTransformer getTransformer(QName qName) {
+    public synchronized QueryFilterTransformer getTransformer(QName qName) {
         return queryFilterTransformerMap.get(qName);
     }
 
@@ -83,7 +84,7 @@ public class QueryFilterTransformerProvider {
         } else if (id instanceof String) {
             result.add(QName.valueOf((String) id));
         } else {
-            LOG.error(
+            LOGGER.debug(
                     "QueryFilterTransformer reference has a bad ID property. Must be of type String or List<String>");
             throw new IllegalArgumentException("id must be of type String or a list of Strings");
         }
@@ -98,7 +99,7 @@ public class QueryFilterTransformerProvider {
         QueryFilterTransformer transformer = bundleContext.getService(reference);
 
         if (transformer == null) {
-            LOG.error("Failed to find a QueryFilterTransformer with service reference {}",
+            LOGGER.debug("Failed to find a QueryFilterTransformer with service reference {}",
                     reference);
             throw new IllegalStateException(
                     "Attempted to retrieve an unregistered service: " + reference);
