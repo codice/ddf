@@ -28,16 +28,6 @@ const panelClass = () => {
   }
 }
 
-const iframeNewTab = () => {
-  if (window !== window.top) {
-    return (
-      <a href='/admin/logviewer/index.html' target='_blank' className='newTabLink'>
-        Open Viewer in New Tab
-      </a>
-    )
-  }
-}
-
 const LogPanel = connect(({ filter, logs, displaySize, expandedHash }) => ({
   filter, logs, displaySize, expandedHash
 }))(LogViewer)
@@ -45,7 +35,6 @@ const LogPanel = connect(({ filter, logs, displaySize, expandedHash }) => ({
 export default () => {
   return (
     <div>
-      {iframeNewTab()}
       <div className={panelClass()}>
         <LogPanel />
       </div>
