@@ -29,6 +29,8 @@ import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.wss4j.common.crypto.Merlin;
@@ -130,27 +132,30 @@ public class CrlChecker {
     }
 
     /**
-     * Runnable to refresh the CRL from the URL when either the nextUpdate time has elasped
+     * Runnable to refresh the CRL from the URL when either the nextUpdate time has elapsed
      * or it has rolled over to the next day.
      */
     private class CrlRefresh implements Runnable {
+        private Lock lock = new ReentrantLock();
 
         private Calendar start = Calendar.getInstance();
 
         public void run() {
-            Properties encryptionProperties = loadProperties(encryptionPropertiesLocation);
-            CRL crl = crlCache.get();
-            if (crl instanceof X509CRL) {
-                X509CRL x509Crl = (X509CRL) crl;
-                if (Calendar.getInstance()
-                        .getTime()
-                        .after(x509Crl.getNextUpdate()) || rolledOverDay()) {
-                    setCrlLocation(encryptionProperties.getProperty(CRL_PROPERTY_KEY));
-                    start = Calendar.getInstance();
+            String crlLocation = loadProperties(encryptionPropertiesLocation).getProperty(
+                    CRL_PROPERTY_KEY);
+
+            lock.lock();
+            try {
+                CRL crl = crlCache.get();
+                if (crl == null) {
+                    setCrlLocation(crlLocation);
                 }
-            } else if (crl == null) {
-                setCrlLocation(encryptionProperties.getProperty(CRL_PROPERTY_KEY));
-                start = Calendar.getInstance();
+
+                if (crl instanceof X509CRL && checkCrlUpdate((X509CRL) crl)) {
+                    setCrlLocation(crlLocation);
+                }
+            } finally {
+                lock.unlock();
             }
         }
 
@@ -160,18 +165,24 @@ public class CrlChecker {
          * @param location Location of the DER-encoded CRL file that should be used to
          *                 check certificate revocation.
          */
-        public void setCrlLocation(String location) {
-            CRL current = crlCache.get();
-            if (location == null) {
-                LOGGER.info("CRL property in {} is not set. Certs will not be checked against a CRL",
-                        encryptionPropertiesLocation);
-                crlCache.set(null);
-            } else {
-                CRL crl = createCrl(location);
-                if (crl != null) {
-                    crlCache.set(crl);
-                    LOGGER.info("CRL has been updated from {}.", location);
+        void setCrlLocation(String location) {
+            lock.lock();
+            try {
+                if (location == null) {
+                    LOGGER.info(
+                            "CRL property in {} is not set. Certs will not be checked against a CRL",
+                            encryptionPropertiesLocation);
+                    crlCache.set(null);
+                } else {
+                    CRL crl = createCrl(location);
+                    if (crl != null) {
+                        crlCache.set(crl);
+                        LOGGER.info("CRL has been updated from {}.", location);
+                    }
                 }
+                start = Calendar.getInstance();
+            } finally {
+                lock.unlock();
             }
         }
 
@@ -200,6 +211,12 @@ public class CrlChecker {
                         e);
                 return null;
             }
+        }
+
+        private boolean checkCrlUpdate(X509CRL x509Crl) {
+            return x509Crl.getNextUpdate() == null || Calendar.getInstance()
+                    .getTime()
+                    .after(x509Crl.getNextUpdate()) || rolledOverDay();
         }
 
         private boolean rolledOverDay() {
