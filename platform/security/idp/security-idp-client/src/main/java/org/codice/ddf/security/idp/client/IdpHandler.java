@@ -30,6 +30,7 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
+import java.util.List;
 import java.util.UUID;
 
 import javax.servlet.FilterChain;
@@ -43,6 +44,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.UriBuilder;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.jaxrs.impl.UriBuilderImpl;
 import org.apache.cxf.rs.security.saml.sso.SamlpRequestComponentBuilder;
@@ -172,6 +174,8 @@ public class IdpHandler implements AuthenticationHandler {
     private boolean userAgentCheck = true;
 
     private SessionFactory sessionFactory;
+
+    private List<String> authContextClasses;
 
     public IdpHandler(SimpleSign simpleSign, IdpMetadata metadata, RelayStates<String> relayStates)
             throws IOException {
@@ -510,33 +514,15 @@ public class IdpHandler implements AuthenticationHandler {
         RequestedAuthnContextBuilder requestedAuthnContextBuilder = new RequestedAuthnContextBuilder();
         RequestedAuthnContext requestedAuthnContext = requestedAuthnContextBuilder.buildObject();
         AuthnContextClassRefBuilder authnContextClassRefBuilder = new AuthnContextClassRefBuilder();
-        AuthnContextClassRef authnContextClassRef = authnContextClassRefBuilder.buildObject();
-        authnContextClassRef.setAuthnContextClassRef(SAML2Constants.AUTH_CONTEXT_CLASS_REF_PASSWORD);
-        requestedAuthnContext.getAuthnContextClassRefs().add(authnContextClassRef);
 
-        authnContextClassRef = authnContextClassRefBuilder.buildObject();
-        authnContextClassRef.setAuthnContextClassRef(SAML2Constants.AUTH_CONTEXT_CLASS_REF_PASSWORD_PROTECTED_TRANSPORT);
-        requestedAuthnContext.getAuthnContextClassRefs().add(authnContextClassRef);
-
-        authnContextClassRef = authnContextClassRefBuilder.buildObject();
-        authnContextClassRef.setAuthnContextClassRef(SAML2Constants.AUTH_CONTEXT_CLASS_REF_X509);
-        requestedAuthnContext.getAuthnContextClassRefs().add(authnContextClassRef);
-
-        authnContextClassRef = authnContextClassRefBuilder.buildObject();
-        authnContextClassRef.setAuthnContextClassRef(SAML2Constants.AUTH_CONTEXT_CLASS_REF_SMARTCARD_PKI);
-        requestedAuthnContext.getAuthnContextClassRefs().add(authnContextClassRef);
-
-        authnContextClassRef = authnContextClassRefBuilder.buildObject();
-        authnContextClassRef.setAuthnContextClassRef(SAML2Constants.AUTH_CONTEXT_CLASS_REF_SOFTWARE_PKI);
-        requestedAuthnContext.getAuthnContextClassRefs().add(authnContextClassRef);
-
-        authnContextClassRef = authnContextClassRefBuilder.buildObject();
-        authnContextClassRef.setAuthnContextClassRef(SAML2Constants.AUTH_CONTEXT_CLASS_REF_SPKI);
-        requestedAuthnContext.getAuthnContextClassRefs().add(authnContextClassRef);
-
-        authnContextClassRef = authnContextClassRefBuilder.buildObject();
-        authnContextClassRef.setAuthnContextClassRef(SAML2Constants.AUTH_CONTEXT_CLASS_REF_TLS_CLIENT);
-        requestedAuthnContext.getAuthnContextClassRefs().add(authnContextClassRef);
+        for (String authContextClass : authContextClasses) {
+            if (StringUtils.isNotEmpty(authContextClass)) {
+                AuthnContextClassRef authnContextClassRef = authnContextClassRefBuilder.buildObject();
+                authnContextClassRef.setAuthnContextClassRef(authContextClass);
+                requestedAuthnContext.getAuthnContextClassRefs()
+                        .add(authnContextClassRef);
+            }
+        }
 
         authnRequest.setRequestedAuthnContext(requestedAuthnContext);
 
@@ -653,5 +639,13 @@ public class IdpHandler implements AuthenticationHandler {
 
     public void setUserAgentCheck(boolean userAgentCheck) {
         this.userAgentCheck = userAgentCheck;
+    }
+
+    public List<String> getAuthContextClasses() {
+        return authContextClasses;
+    }
+
+    public void setAuthContextClasses(List<String> authContextClasses) {
+        this.authContextClasses = authContextClasses;
     }
 }
