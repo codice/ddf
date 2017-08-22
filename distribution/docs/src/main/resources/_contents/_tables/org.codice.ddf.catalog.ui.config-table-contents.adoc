@@ -193,6 +193,14 @@ TMS example (3d map support only): `[{"type" : "TMS", "url" : "https://cesiumjs.
 |25
 |true
 
+|Disable Local Catalog
+|disableLocalCatalog
+|Boolean
+|Disables querying the local catalog from UI only.
+|false
+|true
+
+
 |Enable Query Feedback
 |queryFeedbackEnabled
 |Boolean

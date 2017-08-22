@@ -173,6 +173,12 @@
             default="25"
             required="true"/>
 
+        <AD id="disableLocalCatalog"
+            name="Disable Local Catalog"
+            description="Disables queries to the local catalog"
+            type="Boolean"
+            default="false" />
+
         <AD id="queryFeedbackEnabled"
             name="Enable Query Feedback"
             description="Enable the query comments option."

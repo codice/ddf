@@ -124,6 +124,8 @@ public class ConfigurationApplication implements SparkApplication {
         return readOnly;
     }
 
+    private boolean disableLocalCatalog = false;
+
     private boolean queryFeedbackEnabled = false;
 
     private String queryFeedbackEmailSubjectTemplate;
@@ -253,6 +255,7 @@ public class ConfigurationApplication implements SparkApplication {
         config.put("scheduleFrequencyList", scheduleFrequencyList);
         config.put("isEditingAllowed", isEditingAllowed);
         config.put("isCacheDisabled", isCacheDisabled);
+        config.put("disableLocalCatalog", disableLocalCatalog);
         config.put("queryFeedbackEnabled", queryFeedbackEnabled);
         config.put("queryFeedbackEmailSubjectTemplate", queryFeedbackEmailSubjectTemplate);
         config.put("queryFeedbackEmailBodyTemplate", queryFeedbackEmailBodyTemplate);
@@ -600,6 +603,14 @@ public class ConfigurationApplication implements SparkApplication {
 
     public void setExternalAuthentication(Boolean isExternalAuthentication) {
         this.isExternalAuthentication = isExternalAuthentication;
+    }
+
+    public boolean isDisableLocalCatalog() {
+        return disableLocalCatalog;
+    }
+
+    public void setDisableLocalCatalog(boolean disableLocalCatalog) {
+        this.disableLocalCatalog = disableLocalCatalog;
     }
 
     public void setQueryFeedbackEnabled(boolean queryFeedbackEnabled) {
