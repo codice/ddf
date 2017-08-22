@@ -72,7 +72,7 @@
                 'jquery.ui.widget': 'jqueryui'
             }
         },
-        
+
         shim: {
 
             backbone: {
@@ -135,13 +135,14 @@
         'js/models/Alerts.js',
         'js/views/Alerts.view',
         'properties',
+        'js/models/SessionTimeout',
         'js/util/SessionRefresherUtil',
         'icanhaz',
         'js/HandlebarsHelpers',
         'modelbinder',
         'bootstrap',
         'templateConfig'
-    ], function ($, Backbone, Marionette, Application, ModuleView, AlertsModel, AlertsView, Properties, SessionRefresherUtil) {
+    ], function ($, Backbone, Marionette, Application, ModuleView, AlertsModel, AlertsView, Properties) {
 
         var app = Application.App;
 
@@ -181,7 +182,7 @@
 
             var AlertsCollectionView = Marionette.CollectionView.extend({
                 itemView: AlertsView.View,
-                comparator: function(model){
+                comparator: function (model) {
                     return model.get('priority');
                 }
             });
@@ -190,9 +191,6 @@
                 collection: alerts
             }));
         });
-
-        // refresh the session if keypress  or mouse click events occur
-        SessionRefresherUtil(60000);
 
         // setup the footer
         app.addInitializer(function () {

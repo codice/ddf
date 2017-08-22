@@ -26,12 +26,11 @@ define([
     'backboneassociations',
     'modelbinder',
     'collectionbinder',
-    'multiselect'
+    'multiselect',
 ], function ($, _, Marionette, Backbone, properties, maptype, header, footer) {
     var Application = {};
     Application.App = new Marionette.Application();
     Application.AppModel = new Backbone.Model(properties);
-    Application.Controllers = { };
     // Set up the main regions that will be available at the Application level.
     Application.App.addRegions({
         loadingRegion: '#loading',
@@ -43,8 +42,7 @@ define([
         alertRegion: '#alert',
         ingestRegion: '#ingest',
         uploadRegion: '#upload',
-        controlPanelRegion: '#controlPanel',
-        modalRegion: '#modalRegion'
+        controlPanelRegion: '#controlPanel'
     });
 
     //setup the header

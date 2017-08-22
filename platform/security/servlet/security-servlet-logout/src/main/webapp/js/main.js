@@ -20,31 +20,39 @@
 
         var actions = JSON.parse(data);
 
+        var doLogout = function (action) {
+            $('iframe').attr('src', action.url);
+            $('#modal').removeClass('is-hidden');
+
+        };
+
         if (actions.length !== 0) {
             $('#noActions').toggleClass('is-hidden', actions.length !== 0);
             $('#actions').toggleClass('is-hidden', actions.length === 0);
             actions.forEach(function (action) {
-                var $row = $('<tr></tr>');
-                var $realm = $('<td></td>');
-                $realm.html(action.realm);
-                var $realmDescription = $('<a href="#" class="description" tabindex="-1"></a>');
-                $realmDescription.data('title', action.description);
-                $realmDescription.data('placement', 'right');
-                $realmDescription.append($('<i class="glyphicon glyphicon-question-sign"></i>'));
-                $realm.append($realmDescription);
-                var $user = $('<td></td>');
-                $user.html(action.auth);
-                var $logout = $('<td></td>');
-                var $button = $('<button>').text('Logout')
-                    .addClass('btn btn-primary float-right')
-                    .click(function () {
-                        $('iframe').attr('src', action.url);
-                        $('#modal').removeClass('is-hidden');
-
-                    });
-                $logout.append($button);
-                $row.append($realm).append($user).append($logout);
-                $('#actions tbody').append($row);
+                if ($.url().param('noPrompt')) {
+                    doLogout(action);
+                } else {
+                    var $row = $('<tr></tr>');
+                    var $realm = $('<td></td>');
+                    $realm.html(action.realm);
+                    var $realmDescription = $('<a href="#" class="description" tabindex="-1"></a>');
+                    $realmDescription.data('title', action.description);
+                    $realmDescription.data('placement', 'right');
+                    $realmDescription.append($('<i class="glyphicon glyphicon-question-sign"></i>'));
+                    $realm.append($realmDescription);
+                    var $user = $('<td></td>');
+                    $user.html(action.auth);
+                    var $logout = $('<td></td>');
+                    var $button = $('<button>').text('Logout')
+                        .addClass('btn btn-primary float-right')
+                        .click(function () {
+                            doLogout(action);
+                        });
+                    $logout.append($button);
+                    $row.append($realm).append($user).append($logout);
+                    $('#actions').find('tbody').append($row);
+                }
             });
 
             $('.description').tooltip();

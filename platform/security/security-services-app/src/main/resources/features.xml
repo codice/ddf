@@ -262,6 +262,11 @@
         <bundle>mvn:ddf.security.servlet/security-servlet-logout/${project.version}</bundle>
     </feature>
 
+    <feature name="security-servlet-session-expiry" install="manual" version="${project.version}"
+             description="Session expiry servlet.">
+        <bundle>mvn:ddf.security.servlet/security-servlet-session-expiry/${project.version}</bundle>
+    </feature>
+
     <feature name="security-servlet-whoami" install="manual" version="${project.version}"
              description="Who Am I servlet.">
         <bundle>mvn:ddf.security.servlet/security-servlet-whoami/${project.version}</bundle>
@@ -317,6 +322,7 @@
         <feature>security-pdp-authz</feature>
         <feature>security-servlet-logout</feature>
         <feature>security-servlet-whoami</feature>
+        <feature>security-servlet-session-expiry</feature>
         <feature>security-sts-realm</feature>
     </feature>
 

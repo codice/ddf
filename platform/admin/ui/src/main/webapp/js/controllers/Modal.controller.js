@@ -13,8 +13,10 @@
 define(['jquery',
         'underscore',
         'marionette',
-        'js/wreqr'
-    ], function ($, _, Marionette, wreqr) {
+        'js/wreqr',
+        'js/views/SessionTimeoutModal.view',
+        'js/models/SessionTimeout'
+    ], function ($, _, Marionette, wreqr, SessionTimeoutView, SessionTimeout) {
         'use strict';
         var ModalController;
 
@@ -22,10 +24,18 @@ define(['jquery',
             initialize: function (options) {
                 this.application = options.application;
                 this.listenTo(wreqr.vent, "showModal", this.showModal);
+                this.listenTo(SessionTimeout, 'change:showPrompt', this.showSessionTimeoutModal);
             },
-            showModal: function(modalView) {
+            showModal: function (modalView) {
                 this.application.modalRegion.show(modalView);
                 modalView.show();
+            },
+            showSessionTimeoutModal: function () {
+                if (SessionTimeout.get('showPrompt')) {
+                    var modalView = new SessionTimeoutView();
+                    this.application.sessionTimeoutModalRegion.show(modalView);
+                    modalView.show();
+                }
             }
 
         });
