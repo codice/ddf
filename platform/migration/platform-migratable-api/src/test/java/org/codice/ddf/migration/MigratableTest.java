@@ -68,17 +68,13 @@ public class MigratableTest {
     }
 
     @Test
-    public void testDoIncompatibleImportWithNullVersion() throws Exception {
-        final String VERSION = null;
-
-        Mockito.when(MIGRATABLE.getVersion())
-                .thenReturn(VERSION);
+    public void testDoMissingImport() throws Exception {
         Mockito.when(REPORT.record(Mockito.any(MigrationMessage.class)))
                 .thenReturn(REPORT);
         Mockito.when(REPORT.record(Mockito.any(MigrationException.class)))
                 .thenReturn(REPORT);
 
-        MIGRATABLE.doIncompatibleImport(CONTEXT, INCOMPATIBLE_VERSION);
+        MIGRATABLE.doMissingImport(CONTEXT);
 
         final ArgumentCaptor<MigrationException> CAPTURE = ArgumentCaptor.forClass(
                 MigrationException.class);
@@ -90,60 +86,7 @@ public class MigratableTest {
         Assert.assertThat(CAPTURE.getValue()
                         .getMessage(),
                 Matchers.matchesPattern(
-                        ".*\\[" + INCOMPATIBLE_VERSION + "\\].*migratable \\[" + MIGRATABLE_ID
-                                + "\\].*supporting \\[" + VERSION + "\\]"));
-    }
-
-    @Test
-    public void testDoIncompatibleImportWithNullIncompatibleVersion() throws Exception {
-        final String INCOMPATIBLE_VERSION = null;
-
-        Mockito.when(REPORT.record(Mockito.any(MigrationMessage.class)))
-                .thenReturn(REPORT);
-        Mockito.when(REPORT.record(Mockito.any(MigrationException.class)))
-                .thenReturn(REPORT);
-
-        MIGRATABLE.doIncompatibleImport(CONTEXT, INCOMPATIBLE_VERSION);
-
-        final ArgumentCaptor<MigrationException> CAPTURE = ArgumentCaptor.forClass(
-                MigrationException.class);
-
-        Mockito.verify(REPORT)
-                .record(CAPTURE.capture());
-
-        Assert.assertThat(CAPTURE.getValue(), Matchers.instanceOf(IncompatibleMigrationException.class));
-        Assert.assertThat(CAPTURE.getValue()
-                        .getMessage(),
-                Matchers.matchesPattern(
-                        ".*\\[" + INCOMPATIBLE_VERSION + "\\].*migratable \\[" + MIGRATABLE_ID
-                                + "\\].*supporting \\[" + VERSION + "\\]"));
-    }
-
-    @Test
-    public void testDoIncompatibleImportWithNullVersions() throws Exception {
-        final String VERSION = null;
-        final String INCOMPATIBLE_VERSION = null;
-
-        Mockito.when(MIGRATABLE.getVersion())
-                .thenReturn(VERSION);
-        Mockito.when(REPORT.record(Mockito.any(MigrationMessage.class)))
-                .thenReturn(REPORT);
-        Mockito.when(REPORT.record(Mockito.any(MigrationException.class)))
-                .thenReturn(REPORT);
-
-        MIGRATABLE.doIncompatibleImport(CONTEXT, INCOMPATIBLE_VERSION);
-
-        final ArgumentCaptor<MigrationException> CAPTURE = ArgumentCaptor.forClass(
-                MigrationException.class);
-
-        Mockito.verify(REPORT)
-                .record(CAPTURE.capture());
-
-        Assert.assertThat(CAPTURE.getValue(), Matchers.instanceOf(IncompatibleMigrationException.class));
-        Assert.assertThat(CAPTURE.getValue()
-                        .getMessage(),
-                Matchers.matchesPattern(
-                        ".*\\[" + INCOMPATIBLE_VERSION + "\\].*migratable \\[" + MIGRATABLE_ID
+                        ".*missing exported data.*migratable \\[" + MIGRATABLE_ID
                                 + "\\].*supporting \\[" + VERSION + "\\]"));
     }
 }

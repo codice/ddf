@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import javax.annotation.Nullable;
 
@@ -151,12 +152,11 @@ public class MigrationContextImpl implements MigrationContext {
     private final PathUtils pathUtils = new PathUtils();
 
     /**
-     * Holds the current migratable version or <code>?</code> if representing the system context and
-     * <code>null</code> if not yet retrieved from exported metadata or if the corresponding migratable
+     * Holds the current migratable version or empty if representing the system context or
+     * if not yet retrieved from exported metadata or again if the corresponding migratable
      * was not exported.
      */
-    @Nullable
-    private String version;
+    private Optional<String> version;
 
     /**
      * Creates a new migration context.
@@ -170,28 +170,28 @@ public class MigrationContextImpl implements MigrationContext {
         this.report = report;
         this.migratable = null;
         this.id = null;
-        this.version = "?";
+        this.version = Optional.empty();
     }
 
     /**
-     * Creates a new migration context.
+     * Creates a new migration context with no version.
      *
      * @param report the migration report where to record warnings and errors
      * @param id     the migratable id
      * @throws IllegalArgumentException if <code>report</code> or <code>id</code> is <code>null</code>
      * @throws IOError                  if unable to determine ${ddf.home}
      */
-    protected MigrationContextImpl(MigrationReport report, String id, @Nullable String version) {
+    protected MigrationContextImpl(MigrationReport report, String id) {
         Validate.notNull(report, "invalid null report");
         Validate.notNull(id, "invalid null migratable identifier");
         this.report = report;
         this.migratable = null;
         this.id = id;
-        this.version = version;
+        this.version = Optional.empty();
     }
 
     /**
-     * Creates a new migration context.
+     * Creates a new migration context with no version.
      *
      * @param report     the migration report where to record warnings and errors
      * @param migratable the migratable this context is for
@@ -204,7 +204,7 @@ public class MigrationContextImpl implements MigrationContext {
         this.report = report;
         this.migratable = migratable;
         this.id = migratable.getId();
-        this.version = "?";
+        this.version = Optional.empty();
     }
 
     /**
@@ -213,13 +213,18 @@ public class MigrationContextImpl implements MigrationContext {
      * @param report     the migration report where to record warnings and errors
      * @param migratable the migratable this context is for
      * @param version    the migratable version
-     * @throws IllegalArgumentException if <code>report</code> or <code>migratable</code> is <code>null</code>
+     * @throws IllegalArgumentException if <code>report</code>, <code>migratable</code>, or
+     *                                  <code>version</code> is <code>null</code>
      * @throws IOError                  if unable to determine ${ddf.home}
      */
-    protected MigrationContextImpl(MigrationReport report, Migratable migratable,
-            @Nullable String version) {
-        this(report, migratable);
-        this.version = version;
+    protected MigrationContextImpl(MigrationReport report, Migratable migratable, String version) {
+        Validate.notNull(report, "invalid null report");
+        Validate.notNull(migratable, "invalid null migratable");
+        Validate.notNull(version, "invalid null version");
+        this.report = report;
+        this.migratable = migratable;
+        this.id = migratable.getId();
+        this.version = Optional.of(version);
     }
 
     @Override
@@ -233,8 +238,7 @@ public class MigrationContextImpl implements MigrationContext {
         return id;
     }
 
-    @Override
-    public String getVersion() {
+    public Optional<String> getVersion() {
         return version;
     }
 
@@ -255,9 +259,9 @@ public class MigrationContextImpl implements MigrationContext {
     }
 
     protected void processMetadata(Map<String, Object> metadata) {
-        this.version = JsonUtils.getStringFrom(metadata,
+        this.version = Optional.of(JsonUtils.getStringFrom(metadata,
                 MigrationContextImpl.METADATA_VERSION,
-                true);
+                true));
     }
 
     PathUtils getPathUtils() {

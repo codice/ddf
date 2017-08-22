@@ -100,8 +100,7 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
         Assert.assertThat(CONTEXT.getReport()
                 .getOperation(), Matchers.equalTo(MigrationOperation.EXPORT));
         Assert.assertThat(CONTEXT.getId(), Matchers.equalTo(MIGRATABLE_ID));
-        Assert.assertThat(CONTEXT.getVersion(), Matchers.equalTo(VERSION));
-
+        Assert.assertThat(CONTEXT.getVersion(), OptionalMatchers.hasValue(VERSION));
     }
 
     @Test(expected = IllegalArgumentException.class)
