@@ -177,16 +177,22 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
                 FileUtils.copyInputStreamToFile(fis, file);
             } catch (IOException e) {
                 if (!file.canWrite()) { // make it writable and try again
+                    InputStream ris = context.getInputStreamFor(entry);
+
                     try {
                         LOGGER.debug("temporarily overriding write privileges for {}", file);
                         if (!file.setWritable(true)) { // cannot set it writable so bail
                             throw e;
                         }
-                        FileUtils.copyInputStreamToFile(context.getInputStreamFor(entry), file);
-                    } finally { // reset the permissions properly
+                        FileUtils.copyInputStreamToFile(ris, file);
+                    } finally {
+                        IOUtils.closeQuietly(ris); // we do not care if we cannot close it
+                        // reset the permissions properly
                         file.setWritable(false);
                     }
                 }
+            } finally {
+                IOUtils.closeQuietly(fis); // we do not care if we cannot close it
             }
         });
     }

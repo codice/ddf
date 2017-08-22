@@ -36,6 +36,7 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.configuration.persistence.PersistenceStrategy;
 import org.codice.ddf.migration.ImportMigrationContext;
@@ -198,11 +199,11 @@ public class ImportMigrationConfigurationAdminContext extends ProxyImportMigrati
                     String.format("persistence strategy [%s] is not defined", extn)));
         } else {
             final Dictionary<String, Object> properties;
+            InputStream is = null;
 
             try {
-                final InputStream is = entry.getInputStream()
+                is = entry.getInputStream()
                         .orElse(null);
-
                 if (is == null) {
                     throw new ImportPathMigrationException(path,
                             String.format("unable to read %s configuration; not exported",
@@ -219,6 +220,8 @@ public class ImportMigrationConfigurationAdminContext extends ProxyImportMigrati
                 throw new ImportPathMigrationException(path,
                         String.format("unable to read %s configuration", ps.getExtension()),
                         e);
+            } finally {
+                IOUtils.closeQuietly(is);
             }
             try {
                 return new ImportMigrationConfigurationAdminEntry(this, entry, properties);

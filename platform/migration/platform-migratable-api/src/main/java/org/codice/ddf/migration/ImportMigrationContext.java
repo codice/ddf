@@ -24,6 +24,33 @@ import javax.annotation.Nullable;
  * The import migration context keeps track of exported migration entries for a given migratable
  * while processing an import migration operation.
  * <p>
+ * The import migration context is provided to a {@link Migratable} during the import migration operation
+ * to allow the chance for the migratable to create new entries representing files or blob of information
+ * that might have been exported. It also allows the migratable a chance to indicate which system properties
+ * that referenced files on disk might have also been exported. This allows the migratable for re-importing
+ * that exported information onto the new system.
+ * <p>
+ * For example:
+ * <pre>
+ *     public class MyMigratable implements Migratable {
+ *         ...
+ *
+ *         public void doImport(ImportMigrationContext context) {
+ *             // export an exported file and store it back to disk
+ *             context.getEntry(Paths.get("etc", "myfile.properties"))
+ *                 .store();
+ *             // get all exported files located under a specific sub-directory and store them back on disk
+ *             context.entries(Paths.get("etc", "subdir")
+ *                 .forEach(MigrationEntry::store);
+ *             // store back on disk the file referenced from the "my.property" system property
+ *             context.getSystemPropertyReferencedEntry("my.property")
+ *                 .ifPresent(MigrationEntry::store);
+ *         }
+ *
+ *         ...
+ *     }
+ * </pre>
+ * <p>
  * <b>
  * This code is experimental. While this interface is functional
  * and tested, it may change or be removed in a future version of the
@@ -59,7 +86,6 @@ public interface ImportMigrationContext extends MigrationContext {
      * A "fake" entry will still be returned if the requested path was not exported. Errors will be
      * recorded when storing the file later using one of the <code>store()</code> methods or an
      * exception will be thrown out when attempting to retrieve the corresponding input stream.
-     * .
      *
      * @param path the path of the file that was exported (should be relative to ${ddf.home})
      * @return the corresponding migration entry

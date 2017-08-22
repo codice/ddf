@@ -78,7 +78,7 @@ public interface MigrationEntry extends Comparable<MigrationEntry> {
      *
      * @return <code>true</code> if no errors were recorded as a result of processing this command;
      * <code>false</code> otherwise
-     * @throws MigrationException if a failure that prevents the operation from continue occurred
+     * @throws MigrationException if a failure that prevents the operation from continuing occurred
      */
     public default boolean store() {
         return store(true);
@@ -101,7 +101,7 @@ public interface MigrationEntry extends Comparable<MigrationEntry> {
      *                 will do nothing
      * @return <code>true</code> if no errors were recorded as a result of processing this command;
      * <code>false</code> otherwise
-     * @throws MigrationException if a failure that prevents the operation from continue occurred
+     * @throws MigrationException if a failure that prevents the operation from continuing occurred
      */
     public boolean store(boolean required);
 

@@ -24,6 +24,36 @@ import org.codice.ddf.util.function.EBiConsumer;
  * The <code>ExportMigrationEntry</code> interfaces provides support for artifacts that are being
  * exported during migration.
  * <p>
+ * Entries created via the export migration context or via the {@link #getPropertyReferencedEntry}
+ * methods are not stored in the export file. Storage of these entries is controlled by the
+ * {@link Migratable} using the {@link #store} methods. This allows the migratable a chance to make
+ * additional checks if need be. In some cases, the migratable might not be responsible for actually
+ * migrating the content of a file and might only be responsible for migrating the file being referenced
+ * by a given property. This is the case, for example, with Java properties file where a migratable
+ * might be responsible for migrating the file being referenced from a property in a properties file
+ * but not the properties file itself. In such case, the migratable would create an entry for the
+ * properties file that holds the property in question via the {link ExportMigrationContext#getEntry}
+ * and then create a migration entry for the file referenced from one of its property using the
+ * {@link #getPropertyReferencedEntry} method.
+ * <p>
+ * For example:
+ * <pre>
+ *     public class MyMigratable implements Migratable {
+ *         ...
+ *
+ *         public void doExport(ExportMigrationContext context) {
+ *             // get an entry for my properties file
+ *             final ExportMigrationEntry entry = context.getEntry(Paths.get("etc", "myfile.properties"));
+ *
+ *             // get an entry for the file referenced from "my.properties" and store it in the export file
+ *             entry.getPropertyReferencedEntry("my.property")
+ *                 .ifPresent(MigrationEntry::store);
+ *         }
+ *
+ *         ...
+ *     }
+ * </pre>
+ * <p>
  * <b>
  * This code is experimental. While this interface is functional
  * and tested, it may change or be removed in a future version of the
@@ -59,12 +89,22 @@ public interface ExportMigrationEntry extends MigrationEntry {
      * in the properties file associated with this migration entry to be exported by the corresponding
      * migratable.
      * <p>
-     * The provided predicate will be invoked with the associated migration report and the property
-     * value (may be <code>null</code> if not defined). In case the property is not defined or is
-     * blank, an error will be automatically recorded unless the predicate returns <code>false</code>.
-     * Returning <code>true</code> in such case will still not create a corresponding migration entry.
-     * In all other cases, no errors or warning will be generated if the predicate returns <code>false</code>
-     * so it is up to the predicate to record one if required.
+     * The provided predicate is always invoked to validate the property value which may be <code>null</code>
+     * if not defined. Returning <code>false</code> will abort the process and yield an {@link Optional#empty}
+     * being returned out of this method. In such case, it is up to the validator to record any required
+     * errors or warnings. Returning <code>true</code> from the predicate will allow for a new entry
+     * to be created for the corresponding system property unless the property is not defined or its
+     * value is blank in which case an error will be recorded and an {@link Optional#empty} is returned
+     * from this method. In other words:
+     * <ol>
+     * <li>If the predicate returns <code>false</code>, no migration entry is created and no error is recorded.</li>
+     * <li>If the predicate returns <code>true</code> and ...
+     * <ol>
+     * <li>If the property is not defined or its value is blank, no migration entry is created and an error is recorded</li>
+     * <li>Otherwise, a new migration entry is created and returned</li>
+     * </ol>
+     * </li>
+     * </ol>
      * <p>
      * <i>Note:</i> The file referenced from the property is assumed to be relative to ${ddf.home} if
      * not defined as absolute. All paths will automatically be relativized from ${ddf.home} if
@@ -86,11 +126,14 @@ public interface ExportMigrationEntry extends MigrationEntry {
      * <p>
      * All errors and warnings are automatically recorded with the associated migration report including
      * those thrown by the consumer logic.
+     * <p>
+     * <i>Note:</i> The output stream will automatically be closed (if not closed already) when the
+     * operation completes successfully or not.
      *
      * @param consumer a consumer capable of exporting the content of this entry to a provided output stream
      * @return <code>true</code> if no errors were recorded as a result of processing this command;
      * <code>false</code> otherwise
-     * @throws MigrationException       if a failure that prevents the operation from continue occurred
+     * @throws MigrationException       if a failure that prevents the operation from continuing occurred
      * @throws IllegalArgumentException if <code>consumer</code> is <code>null</code>
      */
     public boolean store(EBiConsumer<MigrationReport, OutputStream, IOException> consumer);
@@ -100,7 +143,8 @@ public interface ExportMigrationEntry extends MigrationEntry {
      * store its own content in the export.
      * <p>
      * <i>Note:</i> The output stream will automatically be closed (if not closed already) when the
-     * output stream for another entry is retrieved or when calling {@link #store} on another entry.
+     * output stream for another entry is retrieved or when calling {@link #store} on another entry
+     * or again when the export operation completes successfully or not for the associated migratable.
      *
      * @return an output stream for this entry
      * @throws IOException if an I/O error has occurred

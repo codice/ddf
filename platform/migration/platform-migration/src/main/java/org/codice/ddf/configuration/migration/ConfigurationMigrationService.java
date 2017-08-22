@@ -15,14 +15,12 @@
 package org.codice.ddf.configuration.migration;
 
 import java.nio.file.Path;
-import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Consumer;
 
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationMessage;
 import org.codice.ddf.migration.MigrationReport;
-import org.codice.ddf.platform.services.common.Describable;
 
 /**
  * Service that provides a way to migrate configurations from one instance of DDF to another.  This
@@ -88,12 +86,4 @@ public interface ConfigurationMigrationService {
      * @throws IllegalArgumentException if <code>exportDirectory</code> is <code>null</code>
      */
     MigrationReport doImport(Path exportDirectory, Optional<Consumer<MigrationMessage>> consumer);
-
-    /**
-     * Gets detailed information about all the {@link org.codice.ddf.migration.DataMigratable}
-     * services currently registered.
-     *
-     * @return A collection of type {@link Describable}.
-     */
-    Collection<Describable> getOptionalMigratableInfo();
 }

@@ -28,7 +28,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.zip.ZipFile;
 
@@ -38,11 +37,10 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.system.SystemService;
 import org.codice.ddf.configuration.migration.ConfigurationMigrationManager;
-import org.codice.ddf.migration.ConfigurationMigratable;
-import org.codice.ddf.migration.DataMigratable;
 import org.codice.ddf.migration.ExportMigrationContext;
 import org.codice.ddf.migration.ImportMigrationContext;
 import org.codice.ddf.migration.IncompatibleMigrationException;
+import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationReport;
 import org.junit.Before;
 import org.junit.Rule;
@@ -60,8 +58,8 @@ import com.google.common.collect.ImmutableList;
  * located under the created TemporaryFolder.
  * For example, if the TemporaryFolder is /private/var/folders/2j/q2gjqn4s2mv53c2q53_m9d_w0000gn/T/junit7611336125982191987,
  * one would see a similar directory structure to the following after initial setup and an import:
- *
- *  // This is the system exported from:
+ * <p>
+ * // This is the system exported from:
  * ./ddfExport
  * ./ddfExport/bin
  * ./ddfExport/etc
@@ -73,8 +71,8 @@ import com.google.common.collect.ImmutableList;
  * ./ddfExport/etc/ws-security/server/encryption.properties
  * ./ddfExport/etc/ws-security/server/signature.properties
  * ./ddfExport/Version.txt
- *
- *  // This is the system imported into:
+ * <p>
+ * // This is the system imported into:
  * ./ddfImport
  * ./ddfImport/bin
  * ./ddfImport/etc
@@ -85,19 +83,15 @@ import com.google.common.collect.ImmutableList;
  * ./ddfImport/etc/ws-security/server/encryption.properties
  * ./ddfImport/etc/ws-security/server/signature.properties
  * ./ddfImport/Version.txt
- *
- *  // The backup from the imported system will look similar to this:
+ * <p>
+ * // The backup from the imported system will look similar to this:
  * ./exported-1.0-20170814T152846.zip
- *
- *  // Thw exported zip from ddfExport will look similar to this:
+ * <p>
+ * // Thw exported zip from ddfExport will look similar to this:
  * ./exported-1.0.zip
- *
  */
 @RunWith(MockitoJUnitRunner.class)
 public class SecurityMigratableTest {
-    @Rule
-    public TemporaryFolder tempDir = new TemporaryFolder();
-
     private static final String SUPPORTED_VERSION = "1.0";
 
     private static final String UNSUPPORTED_VERSION = "666.0";
@@ -111,6 +105,25 @@ public class SecurityMigratableTest {
     private static final String DDF_IMPORTED_TAG = "original";
 
     private static final String DDF_HOME_SYSTEM_PROP_KEY = "ddf.home";
+
+    private static final Path PDP_POLICIES_DIR = Paths.get("etc", "pdp");
+
+    private static final List<Path> PROPERTIES_FILES = ImmutableList.of(Paths.get("etc",
+            "ws-security",
+            "server",
+            "encryption.properties"),
+            Paths.get("etc", "ws-security", "server", "signature.properties"),
+            Paths.get("etc", "ws-security", "issuer", "encryption.properties"),
+            Paths.get("etc", "ws-security", "issuer", "signature.properties"));
+
+    private static final String CRL_PROP_KEY = "org.apache.ws.security.crypto.merlin.x509crl.file";
+
+    private static final Path CRL = Paths.get("etc", "certs", "demoCA", "crl", "crl.pem");
+
+    private static final String XACML_POLICY = "xacml.xml";
+
+    @Rule
+    public TemporaryFolder tempDir = new TemporaryFolder();
 
     private Path ddfHome;
 
@@ -131,20 +144,6 @@ public class SecurityMigratableTest {
 
     @Mock
     private SystemService systemService;
-
-    private static final Path PDP_POLICIES_DIR = Paths.get("etc", "pdp");
-
-    private static final List<Path> PROPERTIES_FILES = ImmutableList.of(
-            Paths.get("etc", "ws-security", "server", "encryption.properties"),
-            Paths.get("etc", "ws-security", "server", "signature.properties"),
-            Paths.get("etc", "ws-security", "issuer", "encryption.properties"),
-            Paths.get("etc", "ws-security", "issuer", "signature.properties"));
-
-    private static final String CRL_PROP_KEY = "org.apache.ws.security.crypto.merlin.x509crl.file";
-
-    private static final Path CRL = Paths.get("etc", "certs", "demoCA", "crl", "crl.pem");
-
-    private static final String XACML_POLICY = "xacml.xml";
 
     @Before
     public void before() throws IOException {
@@ -186,13 +185,9 @@ public class SecurityMigratableTest {
                 .toRealPath();
 
         SecurityMigratable eSecurityMigratable = new SecurityMigratable();
-        List<ConfigurationMigratable> eConfigMigratables = Arrays.asList(eSecurityMigratable);
-        List<DataMigratable> eDataMigratables = Collections.emptyList();
+        List<Migratable> eMigratables = Arrays.asList(eSecurityMigratable);
         ConfigurationMigrationManager eConfigurationMigrationManager =
-                new ConfigurationMigrationManager(mBeanServer,
-                        eConfigMigratables,
-                        eDataMigratables,
-                        systemService);
+                new ConfigurationMigrationManager(mBeanServer, eMigratables, systemService);
 
         // Perform export
         MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir);
@@ -202,21 +197,24 @@ public class SecurityMigratableTest {
         assertThat("The export report has warnings.", exportReport.hasWarnings(), is(false));
         assertThat("Export was not successful.", exportReport.wasSuccessful(), is(true));
         String exportedZipBaseName = String.format("exported-%s.zip", SUPPORTED_VERSION);
-        Path exportedZip = exportDir.resolve(exportedZipBaseName).toRealPath();
-        assertThat("Export zip does not exist.", exportedZip.toFile().exists(), is(true));
-        assertThat("Exported zip is empty.", exportedZip.toFile().length(), greaterThan(0L));
+        Path exportedZip = exportDir.resolve(exportedZipBaseName)
+                .toRealPath();
+        assertThat("Export zip does not exist.",
+                exportedZip.toFile()
+                        .exists(),
+                is(true));
+        assertThat("Exported zip is empty.",
+                exportedZip.toFile()
+                        .length(),
+                greaterThan(0L));
 
         // Setup import
         setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG);
 
         SecurityMigratable iSecurityMigratable = new SecurityMigratable();
-        List<ConfigurationMigratable> iConfigMigratables = Arrays.asList(iSecurityMigratable);
-        List<DataMigratable> iDataMigratables = Collections.emptyList();
+        List<Migratable> iMigratables = Arrays.asList(iSecurityMigratable);
         ConfigurationMigrationManager iConfigurationMigrationManager =
-                new ConfigurationMigrationManager(mBeanServer,
-                        iConfigMigratables,
-                        iDataMigratables,
-                        systemService);
+                new ConfigurationMigrationManager(mBeanServer, iMigratables, systemService);
 
         MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir);
 
@@ -239,21 +237,26 @@ public class SecurityMigratableTest {
                 .toRealPath();
 
         // Comment out CRL in etc/ws-security/server/encryption.properties
-        Path serverEncptProps = ddfHome.resolve(Paths.get("etc", "ws-security", "server", "encryption.properties"));
+        Path serverEncptProps = ddfHome.resolve(Paths.get("etc",
+                "ws-security",
+                "server",
+                "encryption.properties"));
         String tag = String.format(DDF_EXPORTED_TAG_TEMPLATE, DDF_EXPORTED_HOME);
         List<String> lines = new ArrayList<>(2);
-        lines.add(String.format("#%s:%s", serverEncptProps.toRealPath().toString(), tag));
+        lines.add(String.format("#%s:%s",
+                serverEncptProps.toRealPath()
+                        .toString(),
+                tag));
         lines.add(String.format("#%s=%s", CRL_PROP_KEY, CRL.toString()));
-        FileUtils.writeLines(serverEncptProps.toFile(), StandardCharsets.UTF_8.toString(), lines, System.lineSeparator());
+        FileUtils.writeLines(serverEncptProps.toFile(),
+                StandardCharsets.UTF_8.toString(),
+                lines,
+                System.lineSeparator());
 
         SecurityMigratable eSecurityMigratable = new SecurityMigratable();
-        List<ConfigurationMigratable> eConfigMigratables = Arrays.asList(eSecurityMigratable);
-        List<DataMigratable> eDataMigratables = Collections.emptyList();
+        List<Migratable> eMigratables = Arrays.asList(eSecurityMigratable);
         ConfigurationMigrationManager eConfigurationMigrationManager =
-                new ConfigurationMigrationManager(mBeanServer,
-                        eConfigMigratables,
-                        eDataMigratables,
-                        systemService);
+                new ConfigurationMigrationManager(mBeanServer, eMigratables, systemService);
 
         // Perform export
         MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir);
@@ -263,21 +266,24 @@ public class SecurityMigratableTest {
         assertThat("The export report has warnings.", exportReport.hasWarnings(), is(false));
         assertThat("Export was not successful.", exportReport.wasSuccessful(), is(true));
         String exportedZipBaseName = String.format("exported-%s.zip", SUPPORTED_VERSION);
-        Path exportedZip = exportDir.resolve(exportedZipBaseName).toRealPath();
-        assertThat("Export zip does not exist.", exportedZip.toFile().exists(), is(true));
-        assertThat("Exported zip is empty.", exportedZip.toFile().length(), greaterThan(0L));
+        Path exportedZip = exportDir.resolve(exportedZipBaseName)
+                .toRealPath();
+        assertThat("Export zip does not exist.",
+                exportedZip.toFile()
+                        .exists(),
+                is(true));
+        assertThat("Exported zip is empty.",
+                exportedZip.toFile()
+                        .length(),
+                greaterThan(0L));
 
         // Setup import
         setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG);
 
         SecurityMigratable iSecurityMigratable = new SecurityMigratable();
-        List<ConfigurationMigratable> iConfigMigratables = Arrays.asList(iSecurityMigratable);
-        List<DataMigratable> iDataMigratables = Collections.emptyList();
+        List<Migratable> iMigratables = Arrays.asList(iSecurityMigratable);
         ConfigurationMigrationManager iConfigurationMigrationManager =
-                new ConfigurationMigrationManager(mBeanServer,
-                        iConfigMigratables,
-                        iDataMigratables,
-                        systemService);
+                new ConfigurationMigrationManager(mBeanServer, iMigratables, systemService);
 
         MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir);
 
@@ -299,17 +305,14 @@ public class SecurityMigratableTest {
                 .toRealPath();
 
         // Remove PDP file
-        Path xacmlPolicy = ddfHome.resolve(PDP_POLICIES_DIR).resolve(XACML_POLICY);
+        Path xacmlPolicy = ddfHome.resolve(PDP_POLICIES_DIR)
+                .resolve(XACML_POLICY);
         Files.delete(xacmlPolicy);
 
         SecurityMigratable eSecurityMigratable = new SecurityMigratable();
-        List<ConfigurationMigratable> eConfigMigratables = Arrays.asList(eSecurityMigratable);
-        List<DataMigratable> eDataMigratables = Collections.emptyList();
+        List<Migratable> eMigratables = Arrays.asList(eSecurityMigratable);
         ConfigurationMigrationManager eConfigurationMigrationManager =
-                new ConfigurationMigrationManager(mBeanServer,
-                        eConfigMigratables,
-                        eDataMigratables,
-                        systemService);
+                new ConfigurationMigrationManager(mBeanServer, eMigratables, systemService);
 
         // Perform export
         MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir);
@@ -319,21 +322,24 @@ public class SecurityMigratableTest {
         assertThat("The export report has warnings.", exportReport.hasWarnings(), is(false));
         assertThat("Export was not successful.", exportReport.wasSuccessful(), is(true));
         String exportedZipBaseName = String.format("exported-%s.zip", SUPPORTED_VERSION);
-        Path exportedZip = exportDir.resolve(exportedZipBaseName).toRealPath();
-        assertThat("Export zip does not exist.", exportedZip.toFile().exists(), is(true));
-        assertThat("Exported zip is empty.", exportedZip.toFile().length(), greaterThan(0L));
+        Path exportedZip = exportDir.resolve(exportedZipBaseName)
+                .toRealPath();
+        assertThat("Export zip does not exist.",
+                exportedZip.toFile()
+                        .exists(),
+                is(true));
+        assertThat("Exported zip is empty.",
+                exportedZip.toFile()
+                        .length(),
+                greaterThan(0L));
 
         // Setup import
         setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG);
 
         SecurityMigratable iSecurityMigratable = new SecurityMigratable();
-        List<ConfigurationMigratable> iConfigMigratables = Arrays.asList(iSecurityMigratable);
-        List<DataMigratable> iDataMigratables = Collections.emptyList();
+        List<Migratable> iMigratables = Arrays.asList(iSecurityMigratable);
         ConfigurationMigrationManager iConfigurationMigrationManager =
-                new ConfigurationMigrationManager(mBeanServer,
-                        iConfigMigratables,
-                        iDataMigratables,
-                        systemService);
+                new ConfigurationMigrationManager(mBeanServer, iMigratables, systemService);
 
         MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir);
 
@@ -355,25 +361,31 @@ public class SecurityMigratableTest {
                 .toRealPath();
 
         // Comment out CRL in etc/ws-security/server/encryption.properties
-        Path serverEncptProps = ddfHome.resolve(Paths.get("etc", "ws-security", "server", "encryption.properties"));
+        Path serverEncptProps = ddfHome.resolve(Paths.get("etc",
+                "ws-security",
+                "server",
+                "encryption.properties"));
         String tag = String.format(DDF_EXPORTED_TAG_TEMPLATE, DDF_EXPORTED_HOME);
         List<String> lines = new ArrayList<>(2);
-        lines.add(String.format("#%s:%s", serverEncptProps.toRealPath().toString(), tag));
+        lines.add(String.format("#%s:%s",
+                serverEncptProps.toRealPath()
+                        .toString(),
+                tag));
         lines.add(String.format("#%s=%s", CRL_PROP_KEY, CRL.toString()));
-        FileUtils.writeLines(serverEncptProps.toFile(), StandardCharsets.UTF_8.toString(), lines, System.lineSeparator());
+        FileUtils.writeLines(serverEncptProps.toFile(),
+                StandardCharsets.UTF_8.toString(),
+                lines,
+                System.lineSeparator());
 
         // Remove PDP file
-        Path xacmlPolicy = ddfHome.resolve(PDP_POLICIES_DIR).resolve(XACML_POLICY);
+        Path xacmlPolicy = ddfHome.resolve(PDP_POLICIES_DIR)
+                .resolve(XACML_POLICY);
         Files.delete(xacmlPolicy);
 
         SecurityMigratable eSecurityMigratable = new SecurityMigratable();
-        List<ConfigurationMigratable> eConfigMigratables = Arrays.asList(eSecurityMigratable);
-        List<DataMigratable> eDataMigratables = Collections.emptyList();
+        List<Migratable> eMigratables = Arrays.asList(eSecurityMigratable);
         ConfigurationMigrationManager eConfigurationMigrationManager =
-                new ConfigurationMigrationManager(mBeanServer,
-                        eConfigMigratables,
-                        eDataMigratables,
-                        systemService);
+                new ConfigurationMigrationManager(mBeanServer, eMigratables, systemService);
 
         // Perform export
         MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir);
@@ -383,21 +395,24 @@ public class SecurityMigratableTest {
         assertThat("The export report has warnings.", exportReport.hasWarnings(), is(false));
         assertThat("Export was not successful.", exportReport.wasSuccessful(), is(true));
         String exportedZipBaseName = String.format("exported-%s.zip", SUPPORTED_VERSION);
-        Path exportedZip = exportDir.resolve(exportedZipBaseName).toRealPath();
-        assertThat("Export zip does not exist.", exportedZip.toFile().exists(), is(true));
-        assertThat("Exported zip is empty.", exportedZip.toFile().length(), greaterThan(0L));
+        Path exportedZip = exportDir.resolve(exportedZipBaseName)
+                .toRealPath();
+        assertThat("Export zip does not exist.",
+                exportedZip.toFile()
+                        .exists(),
+                is(true));
+        assertThat("Exported zip is empty.",
+                exportedZip.toFile()
+                        .length(),
+                greaterThan(0L));
 
         // Setup import
         setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG);
 
         SecurityMigratable iSecurityMigratable = new SecurityMigratable();
-        List<ConfigurationMigratable> iConfigMigratables = Arrays.asList(iSecurityMigratable);
-        List<DataMigratable> iDataMigratables = Collections.emptyList();
+        List<Migratable> iMigratables = Arrays.asList(iSecurityMigratable);
         ConfigurationMigrationManager iConfigurationMigrationManager =
-                new ConfigurationMigrationManager(mBeanServer,
-                        iConfigMigratables,
-                        iDataMigratables,
-                        systemService);
+                new ConfigurationMigrationManager(mBeanServer, iMigratables, systemService);
 
         MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir);
 
@@ -408,10 +423,14 @@ public class SecurityMigratableTest {
     }
 
     private void setup(String ddfHomeStr, String tag) throws IOException {
-        ddfHome = tempDir.newFolder(ddfHomeStr).toPath().toRealPath();
+        ddfHome = tempDir.newFolder(ddfHomeStr)
+                .toPath()
+                .toRealPath();
         Path binDir = ddfHome.resolve("bin");
         Files.createDirectory(binDir);
-        System.setProperty(DDF_HOME_SYSTEM_PROP_KEY, ddfHome.toRealPath().toString());
+        System.setProperty(DDF_HOME_SYSTEM_PROP_KEY,
+                ddfHome.toRealPath()
+                        .toString());
         setupVersionFile(SUPPORTED_VERSION);
         for (Path path : PROPERTIES_FILES) {
             Path p = ddfHome.resolve(path);
@@ -419,11 +438,22 @@ public class SecurityMigratableTest {
             Files.createFile(p);
             if (p.endsWith(Paths.get("server", "encryption.properties"))) {
                 List<String> lines = new ArrayList<>(2);
-                lines.add(String.format("#%s:%s", p.toRealPath().toString(), tag));
+                lines.add(String.format("#%s:%s",
+                        p.toRealPath()
+                                .toString(),
+                        tag));
                 lines.add(String.format("%s=%s", CRL_PROP_KEY, CRL.toString()));
-                FileUtils.writeLines(p.toFile(), StandardCharsets.UTF_8.toString(), lines, System.lineSeparator());
+                FileUtils.writeLines(p.toFile(),
+                        StandardCharsets.UTF_8.toString(),
+                        lines,
+                        System.lineSeparator());
             } else {
-                FileUtils.writeStringToFile(p.toFile(), String.format("#%s:%s", p.toRealPath().toString(), tag), StandardCharsets.UTF_8);
+                FileUtils.writeStringToFile(p.toFile(),
+                        String.format("#%s:%s",
+                                p.toRealPath()
+                                        .toString(),
+                                tag),
+                        StandardCharsets.UTF_8);
             }
         }
         Files.createDirectory(ddfHome.resolve(PDP_POLICIES_DIR));
@@ -435,37 +465,67 @@ public class SecurityMigratableTest {
     private void setupVersionFile(String version) throws IOException {
         Path versionFile = ddfHome.resolve("Version.txt");
         Files.createFile(versionFile);
-        FileUtils.writeStringToFile(versionFile.toFile().getCanonicalFile(), version, StandardCharsets.UTF_8);
+        FileUtils.writeStringToFile(versionFile.toFile()
+                .getCanonicalFile(), version, StandardCharsets.UTF_8);
     }
 
     private void setupCrl(String tag) throws IOException {
-        Files.createDirectories(ddfHome.resolve(CRL).getParent());
+        Files.createDirectories(ddfHome.resolve(CRL)
+                .getParent());
         Files.createFile(ddfHome.resolve(CRL));
-        FileUtils.writeStringToFile(ddfHome.resolve(CRL).toRealPath().toFile(), String.format("#%s:%s", ddfHome.resolve(CRL).toRealPath().toString(), tag), StandardCharsets.UTF_8);
+        FileUtils.writeStringToFile(ddfHome.resolve(CRL)
+                        .toRealPath()
+                        .toFile(),
+                String.format("#%s:%s",
+                        ddfHome.resolve(CRL)
+                                .toRealPath()
+                                .toString(),
+                        tag),
+                StandardCharsets.UTF_8);
     }
 
     private void setupPdpFiles(String tag) throws IOException {
-        Files.createDirectories(ddfHome.resolve(PDP_POLICIES_DIR).getParent());
-        Path xacmlPolicy = ddfHome.resolve(PDP_POLICIES_DIR).resolve(XACML_POLICY);
+        Files.createDirectories(ddfHome.resolve(PDP_POLICIES_DIR)
+                .getParent());
+        Path xacmlPolicy = ddfHome.resolve(PDP_POLICIES_DIR)
+                .resolve(XACML_POLICY);
         Files.createFile(xacmlPolicy);
-        FileUtils.writeStringToFile(xacmlPolicy.toRealPath().toFile(), String.format("#%s:%s", xacmlPolicy.toRealPath().toString(), tag), StandardCharsets.UTF_8);
+        FileUtils.writeStringToFile(xacmlPolicy.toRealPath()
+                        .toFile(),
+                String.format("#%s:%s",
+                        xacmlPolicy.toRealPath()
+                                .toString(),
+                        tag),
+                StandardCharsets.UTF_8);
     }
 
     private void verifyPdpFilesImported() throws IOException {
-        Path xacmlPolicy = ddfHome.resolve(PDP_POLICIES_DIR).resolve(XACML_POLICY).toRealPath();
-        assertThat(String.format("%s does not exist.", xacmlPolicy), xacmlPolicy.toFile().exists(), is(true));
-        assertThat(String.format("%s was not imported.", xacmlPolicy), verifiyImported(xacmlPolicy), is(true));
+        Path xacmlPolicy = ddfHome.resolve(PDP_POLICIES_DIR)
+                .resolve(XACML_POLICY)
+                .toRealPath();
+        assertThat(String.format("%s does not exist.", xacmlPolicy),
+                xacmlPolicy.toFile()
+                        .exists(),
+                is(true));
+        assertThat(String.format("%s was not imported.", xacmlPolicy),
+                verifiyImported(xacmlPolicy),
+                is(true));
     }
 
     private void verifyCrlImported() throws IOException {
-        Path crl = ddfHome.resolve(CRL).toRealPath();
-        assertThat(String.format("%s does not exist.", crl), crl.toFile().exists(), is(true));
+        Path crl = ddfHome.resolve(CRL)
+                .toRealPath();
+        assertThat(String.format("%s does not exist.", crl),
+                crl.toFile()
+                        .exists(),
+                is(true));
         assertThat(String.format("%s was not imported.", crl), verifiyImported(crl), is(true));
     }
 
     private boolean verifiyImported(Path p) throws IOException {
         List<String> lines = Files.readAllLines(p, StandardCharsets.UTF_8);
-        String tag = lines.get(0).split(":")[1];
+        String tag = lines.get(0)
+                .split(":")[1];
         return StringUtils.equals(tag, String.format(DDF_EXPORTED_TAG_TEMPLATE, DDF_EXPORTED_HOME));
     }
 }
