@@ -64,6 +64,28 @@ public interface ImportMigrationEntry extends MigrationEntry {
     /**
      * Retrieves a migration entry referenced from a property value defined in the properties file
      * associated with this migration entry.
+     * <p>
+     * The entry returned would be an entry representing the file that was referenced by the specified
+     * property value in the java properties file represented by this entry on the exported system.
+     * For example:
+     * <p>
+     * If the properties file (e.g. etc/ws-security/server/encryption.properties) represented by this
+     * entry defined the following mapping:
+     * org.apache.ws.security.crypto.merlin.x509crl.file=etc/certs/demoCA/crl/crl.pem
+     * <p>
+     * then the following code:
+     * <pre>
+     *     final ImportMigrationEntry entry
+     *         = context.getEntry("etc/ws-security/server/encryption.properties");
+     *
+     *     final Optional&lt;ImportMigrationEntry&gt; entry2
+     *         = entry.getPropertyReferenceEntry("org.apache.ws.security.crypto.merlin.x509crl.file");
+     * </pre>
+     * <p>
+     * would return an entry representing the exported file <code>etc/certs/demoCA/crl/crl.pem</code>
+     * allowing the migratable a chance to restore it in its original location and verifying that the
+     * property in the local etc/ws-security/server/encryption.properties file is still defined with
+     * the same value after the import operation has completed.
      *
      * @param name the name of the property that contains the reference to a migration entry
      * @return the migration entry corresponding to the property value defined by <code>name</code>

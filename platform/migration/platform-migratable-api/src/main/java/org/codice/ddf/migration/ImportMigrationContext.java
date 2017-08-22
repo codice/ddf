@@ -60,6 +60,22 @@ public interface ImportMigrationContext extends MigrationContext {
     /**
      * Retrieves a migration entry referenced from a given system property that was exported by the
      * corresponding migratable.
+     * <p>
+     * The entry returned would be an entry representing the file that was referenced by the specified
+     * system property value on the exported system. For example:
+     * <p>
+     * If system properties defined the following mapping:
+     * javax.net.ssl.keyStore=etc/keystores/serverKeystore.jks
+     * <p>
+     * then the following code:
+     * <pre>
+     *     final Optional&lt;ImportMigrationEntry&gt; entry
+     *         = context.getSystemPropertyReferenceEntry("javax.net.ssl.keyStore");
+     * </pre>
+     * <p>
+     * would return an entry representing the exported file <code>etc/keystores/serverKeystore.jks</code>
+     * allowing the migratable a chance to restore it in its original location and verifying that the
+     * system property is still defined with the same value after the import operation has completed.
      *
      * @param name the name of the system property referencing a migration entry to retrieve
      * @return the corresponding migration entry or empty if it was not migrated by the corresponding

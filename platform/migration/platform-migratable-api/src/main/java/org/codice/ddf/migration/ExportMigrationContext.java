@@ -68,6 +68,23 @@ public interface ExportMigrationContext extends MigrationContext {
      * <i>Note:</i> The file referenced from the property is assumed to be relative to ${ddf.home} if
      * not defined as absolute. All paths will automatically be relativized from ${ddf.home} if
      * located underneath.
+     * <p>
+     * The entry returned would be an entry representing the file that was referenced by the specified
+     * system property value on the current system. For example:
+     * <p>
+     * If system properties defines the following mapping:
+     * javax.net.ssl.keyStore=etc/keystores/serverKeystore.jks
+     * <p>
+     * when the following code:
+     * <pre>
+     *     final Optional&lt;ExportMigrationEntry&gt; entry
+     *         = context.getSystemPropertyReferenceEntry("javax.net.ssl.keyStore");
+     * </pre>
+     * <p>
+     * would return an entry representing the local file <code>etc/keystores/serverKeystore.jks</code>
+     * allowing the migratable a chance to export it alongside the original system property value so
+     * it can be later restored and the property value can be verified after the import operation such
+     * that it would still be defined with the same value.
      *
      * @param name the name of the system property referencing a migration entry to create or retrieve
      * @return a new migration entry or the existing one if already created for the migration entry
@@ -91,13 +108,13 @@ public interface ExportMigrationContext extends MigrationContext {
      * value is blank in which case an error will be recorded and an {@link Optional#empty} is returned
      * from this method. In other words:
      * <ol>
-     *     <li>If the predicate returns <code>false</code>, no migration entry is created and no error is recorded.</li>
-     *     <li>If the predicate returns <code>true</code> and ...
-     *       <ol>
-     *           <li>If the property is not defined or its value is blank, no migration entry is created and an error is recorded</li>
-     *           <li>Otherwise, a new migration entry is created and returned</li>
-     *       </ol>
-     *     </li>
+     * <li>If the predicate returns <code>false</code>, no migration entry is created and no error is recorded.</li>
+     * <li>If the predicate returns <code>true</code> and ...
+     * <ol>
+     * <li>If the property is not defined or its value is blank, no migration entry is created and an error is recorded</li>
+     * <li>Otherwise, a new migration entry is created and returned</li>
+     * </ol>
+     * </li>
      * </ol>
      * <p>
      * <i>Note:</i> The file referenced from the property is assumed to be relative to ${ddf.home} if
