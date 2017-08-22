@@ -216,7 +216,7 @@ define([
         },
         createFilterModel: function() {
             return new FilterModel({
-                isResultFilter: !!this.model.get("isResultFilter")
+                isResultFilter: Boolean(this.model.get("isResultFilter"))
             });
         }
     });

@@ -101,7 +101,7 @@ define([
             this.model.set('type', this.filterAttribute.currentView.model.get('value')[0]);
         },
         handleFilterParamUpdate: function(){
-            this.model.set('filterParam', this.filterParam.currentView.model.get('value')[0]);
+            this.model.set('filterParam', Math.max(1, this.filterParam.currentView.model.get('value')[0]));
         },        
         delete: function(){
             this.model.destroy();
@@ -172,7 +172,6 @@ define([
                 this.turnOffEditing();
             }
             this.setDefaultComparator(propertyJSON);
-           // this.filterInput.currentView.addNewValue();
             this.determineFilterParam();           
         },
         determineFilterParam: function() {
