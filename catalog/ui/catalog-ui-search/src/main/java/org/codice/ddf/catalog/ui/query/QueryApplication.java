@@ -13,13 +13,14 @@
  */
 package org.codice.ddf.catalog.ui.query;
 
+import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static spark.Spark.after;
 import static spark.Spark.before;
 import static spark.Spark.exception;
 import static spark.Spark.get;
 import static spark.Spark.post;
-import static spark.route.RouteOverview.enableRouteOverview;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -27,14 +28,17 @@ import org.boon.json.JsonParserFactory;
 import org.boon.json.JsonSerializerFactory;
 import org.boon.json.ObjectMapper;
 import org.boon.json.implementation.ObjectMapperImpl;
+import org.codice.ddf.catalog.ui.metacard.EntityTooLargeException;
 import org.codice.ddf.catalog.ui.query.cql.CqlQueryResponse;
 import org.codice.ddf.catalog.ui.query.cql.CqlRequest;
 import org.codice.ddf.catalog.ui.query.geofeature.Feature;
 import org.codice.ddf.catalog.ui.query.geofeature.FeatureService;
+import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.ImmutableMap;
 
 import ddf.action.ActionRegistry;
 import ddf.catalog.CatalogFramework;
@@ -69,6 +73,8 @@ public class QueryApplication implements SparkApplication {
                     .includeDefaultValues()
                     .setJsonFormatForDates(false));
 
+    private EndpointUtil util;
+
     @Override
     public void init() {
         before((req, res) -> {
@@ -76,7 +82,7 @@ public class QueryApplication implements SparkApplication {
         });
 
         post("/cql", APPLICATION_JSON, (req, res) -> {
-            CqlRequest cqlRequest = mapper.readValue(req.body(), CqlRequest.class);
+            CqlRequest cqlRequest = mapper.readValue(util.safeGetBody(req), CqlRequest.class);
 
             CqlQueryResponse cqlQueryResponse = executeCqlQuery(cqlRequest);
             String result = mapper.toJson(cqlQueryResponse);
@@ -98,7 +104,7 @@ public class QueryApplication implements SparkApplication {
             Feature feature = this.featureService.getFeatureByName(name);
             if (feature == null) {
                 res.status(404);
-                return "Feature not found";
+                return mapper.toJson(ImmutableMap.of("message", "Feature not found"));
             } else {
                 return mapper.toJson(feature.getJsonObject());
             }
@@ -106,17 +112,24 @@ public class QueryApplication implements SparkApplication {
 
         exception(UnsupportedQueryException.class, (e, request, response) -> {
             response.status(400);
-            response.body("Unsupported query request.");
+            response.header(CONTENT_TYPE, APPLICATION_JSON);
+            response.body(mapper.toJson(ImmutableMap.of("message", "Unsupported query request.")));
             LOGGER.error("Query endpoint failed", e);
         });
+
+        exception(IOException.class, util::handleIOException);
+
+        exception(EntityTooLargeException.class, util::handleEntityTooLargeException);
+
+        exception(RuntimeException.class, util::handleRuntimeException);
 
         exception(Exception.class, (e, request, response) -> {
             response.status(500);
-            response.body("Error while processing query request.");
+            response.header(CONTENT_TYPE, APPLICATION_JSON);
+            response.body(mapper.toJson(ImmutableMap.of("message",
+                    "Error while processing query request.")));
             LOGGER.error("Query endpoint failed", e);
         });
-
-        enableRouteOverview();
 
     }
 
@@ -157,5 +170,9 @@ public class QueryApplication implements SparkApplication {
 
     public void setFeatureService(FeatureService featureService) {
         this.featureService = featureService;
+    }
+
+    public void setEndpointUtil(EndpointUtil util) {
+        this.util = util;
     }
 }

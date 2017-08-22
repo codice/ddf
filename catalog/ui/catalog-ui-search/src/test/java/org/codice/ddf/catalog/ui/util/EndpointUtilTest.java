@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.codice.ddf.catalog.ui.config.ConfigurationApplication;
 import org.junit.Before;
 import org.junit.Test;
 import org.opengis.filter.Filter;
@@ -78,6 +79,8 @@ public class EndpointUtilTest {
 
         AttributeBuilder attributeBuilderMock = mock(AttributeBuilder.class);
 
+        ConfigurationApplication configurationApplicationMock = mock(ConfigurationApplication.class);
+
         ContextualExpressionBuilder contextualExpressionBuilderMock = mock(
                 ContextualExpressionBuilder.class);
 
@@ -95,6 +98,7 @@ public class EndpointUtilTest {
         when(attributeBuilderMock.like()).thenReturn(contextualExpressionBuilderMock);
         when(contextualExpressionBuilderMock.text(anyString())).thenReturn(filterMock);
         when(catalogFrameworkMock.query(any(QueryRequestImpl.class))).thenReturn(responseMock);
+        when(configurationApplicationMock.getMaximumUploadSize()).thenReturn(1<<20);
 
         when(resultMock.getMetacard()).thenReturn(metacardMock);
         when(metacardMock.getId()).thenReturn("MOCK METACARD");
@@ -104,7 +108,8 @@ public class EndpointUtilTest {
                 catalogFrameworkMock,
                 filterBuilderMock,
                 injectableAttributeList,
-                attributeRegistryMock);
+                attributeRegistryMock,
+                configurationApplicationMock);
     }
 
     @Test

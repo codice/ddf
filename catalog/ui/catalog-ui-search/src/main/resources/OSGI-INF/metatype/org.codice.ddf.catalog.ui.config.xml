@@ -207,6 +207,13 @@
             default=""
             required="true"/>
 
+        <AD id="maximumUploadSize"
+            name="Maximum Endpoint Upload Size"
+            description="The maximum size (in bytes) to allow per client when receiving a POST/PATCH/PUT. Note: This does not affect product upload size, just the maximum size allowed for calls from Intrigue"
+            type="Integer"
+            default="1048576"
+            required="true"/>
+
     </OCD>
 
     <Designate pid="org.codice.ddf.catalog.ui.config">

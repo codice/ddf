@@ -14,9 +14,11 @@
 package org.codice.ddf.catalog.ui.security;
 
 import static org.boon.HTTP.APPLICATION_JSON;
+import static spark.Spark.exception;
 import static spark.Spark.get;
 import static spark.Spark.put;
 
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Base64;
 import java.util.Collections;
@@ -29,6 +31,7 @@ import java.util.TreeSet;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.boon.json.JsonFactory;
+import org.codice.ddf.catalog.ui.metacard.EntityTooLargeException;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentItem;
@@ -53,6 +56,42 @@ public class UserApplication implements SparkApplication {
     public UserApplication(EndpointUtil util, PersistentStore persistentStore) {
         this.util = util;
         this.persistentStore = persistentStore;
+    }
+
+    @Override
+    public void init() {
+        get("/user", (req, res) -> {
+            Subject subject = (Subject) SecurityUtils.getSubject();
+            res.type(APPLICATION_JSON);
+            return getSubjectAttributes(subject);
+        }, util::getJson);
+
+        put("/user/preferences", APPLICATION_JSON, (req, res) -> {
+            Subject subject = (Subject) SecurityUtils.getSubject();
+
+            if (subject.isGuest()) {
+                res.status(401);
+                return ImmutableMap.of("message", "Guest cannot save preferences.");
+            }
+
+            Map<String, Object> preferences = JsonFactory.create()
+                    .parser()
+                    .parseMap(util.safeGetBody(req));
+
+            if (preferences == null) {
+                preferences = new HashMap<>();
+            }
+
+            setUserPreferences(subject, preferences);
+
+            return preferences;
+        }, util::getJson);
+
+        exception(EntityTooLargeException.class, util::handleEntityTooLargeException);
+
+        exception(IOException.class, util::handleIOException);
+
+        exception(RuntimeException.class, util::handleRuntimeException);
     }
 
     private void setUserPreferences(Subject subject, Map<String, Object> preferences) {
@@ -127,35 +166,5 @@ public class UserApplication implements SparkApplication {
         return ImmutableMap.<String, Object>builder().putAll(required)
                 .put("email", email)
                 .build();
-    }
-
-    @Override
-    public void init() {
-        get("/user", (req, res) -> {
-            Subject subject = (Subject) SecurityUtils.getSubject();
-            res.type(APPLICATION_JSON);
-            return getSubjectAttributes(subject);
-        }, util::getJson);
-
-        put("/user/preferences", APPLICATION_JSON, (req, res) -> {
-            Subject subject = (Subject) SecurityUtils.getSubject();
-
-            if (subject.isGuest()) {
-                res.status(401);
-                return ImmutableMap.of("message", "Guest cannot save preferences.");
-            }
-
-            Map<String, Object> preferences = JsonFactory.create()
-                    .parser()
-                    .parseMap(req.body());
-
-            if (preferences == null) {
-                preferences = new HashMap<>();
-            }
-
-            setUserPreferences(subject, preferences);
-
-            return preferences;
-        }, util::getJson);
     }
 }
