@@ -23,6 +23,36 @@ import org.codice.ddf.util.function.EBiConsumer;
  * The <code>ImportMigrationEntry</code> interfaces provides support for artifacts that are being
  * imported during migration.
  * <p>
+ * Entries created via the import migration context or via the {@link #getPropertyReferencedEntry}
+ * methods are not stored back on disk. Storage of these entries is controlled by the
+ * {@link Migratable} using the {@link #store} methods. This allows the migratable a chance to make
+ * additional checks if need be. In some cases, the migratable might not be responsible for actually
+ * migrating the content of a file and might only be responsible for migrating the file being referenced
+ * by a given property. This is the case, for example, with Java properties file where a migratable
+ * might be responsible for migrating the file being referenced from a property in a properties file
+ * but not the properties file itself. In such case, the migratable would create an entry for the
+ * properties file that holds the property in question via the {link ExportMigrationContext#getEntry}
+ * and then create a migration entry for the file referenced from one of its property using the
+ * {@link #getPropertyReferencedEntry} method.
+ * <p>
+ * For example:
+ * <pre>
+ *     public class MyMigratable implements Migratable {
+ *         ...
+ *
+ *         public void doImport(ImportMigrationContext context) {
+ *             // get an entry for my properties file
+ *             final ImportMigrationEntry entry = context.getEntry(Paths.get("etc", "myfile.properties"));
+ *
+ *             // get an entry for the file referenced from "my.properties" and store it back on disk
+ *             entry.getPropertyReferencedEntry("my.property")
+ *                 .ifPresent(MigrationEntry::store);
+ *         }
+ *
+ *         ...
+ *     }
+ * </pre>
+ * <p>
  * <b>
  * This code is experimental. While this interface is functional
  * and tested, it may change or be removed in a future version of the
@@ -48,22 +78,28 @@ public interface ImportMigrationEntry extends MigrationEntry {
      * <p>
      * All errors and warnings are automatically recorded with the associated migration report including
      * those thrown by the exporter logic.
+     * <p>
+     * <i>Note:</i> The input stream will automatically be closed (if not closed already) when the
+     * operation completes successfully or not.
      *
      * @param consumer a consumer capable of importing the content of this entry from a provided input
      *                 stream which might be empty if the entry was not exported otherwise an error
      *                 will automatically be recorded)
      * @return <code>true</code> if no errors were recorded as a result of processing this command;
      * <code>false</code> otherwise
-     * @throws MigrationException       if a failure that prevents the operation from continue occurred
+     * @throws MigrationException       if a failure that prevents the operation from continuing occurred
      * @throws IllegalArgumentException if <code>consumer</code> is <code>null</code>
      */
     public boolean store(EBiConsumer<MigrationReport, Optional<InputStream>, IOException> consumer);
 
     /**
      * Gets an input stream for this entry.
+     * <p>
+     * <i>Note:</i> The input stream provided will automatically be closed (if not closed already) when
+     * the import operation completes successfully or not for the associated migratable.
      *
      * @return an input stream for this entry or empty if it was not exported
-     * @throws IOException           if an I/O error has occurred
+     * @throws IOException if an I/O error has occurred
      */
     public Optional<InputStream> getInputStream() throws IOException;
 }

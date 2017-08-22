@@ -20,9 +20,35 @@ import java.util.function.BiPredicate;
 import java.util.stream.Stream;
 
 /**
- * The export migration context provides functionality for creating new migration entries and
- * tracking exported migration entries for a given migratable while processing an export migration
- * operation.
+ * The export migration context provides functionality for creating new migration entries and system
+ * property referenced migration entries and tracking exported migration entries for a given migratable
+ * while processing an export migration operation.
+ * <p>
+ * The export migration context is provided to a {@link Migratable} during the export migration operation
+ * to allow the chance for the migratable to create new entries representing files or blob of information
+ * it requires to be exported. It also allows the migratable a chance to indicate which system properties
+ * are expected to reference files on disk that should also be migrated.
+ * <p>
+ * For example:
+ * <pre>
+ *     public class MyMigratable implements Migratable {
+ *         ...
+ *
+ *         public void doExport(ExportMigrationContext context) {
+ *             // export a file located on disk
+ *             context.getEntry(Paths.get("etc", "myfile.properties"))
+ *                 .store();
+ *             // export all files located under a specific sub-directory
+ *             context.entries(Paths.get("etc", "subdir")
+ *                 .forEach(MigrationEntry::store);
+ *             // export the file referenced from the "my.property" system property
+ *             context.getSystemPropertyReferencedEntry("my.property")
+ *                 .ifPresent(MigrationEntry::store);
+ *         }
+ *
+ *         ...
+ *     }
+ * </pre>
  * <p>
  * <b>
  * This code is experimental. While this interface is functional
@@ -57,12 +83,22 @@ public interface ExportMigrationContext extends MigrationContext {
      * Creates or retrieves (if already created) a migration entry referenced from the specified system
      * property to be exported by the corresponding migratable.
      * <p>
-     * The provided predicate will be invoked with the associated migration report and the property
-     * value (may be <code>null</code> if not defined). In case the property is not defined or is
-     * blank, an error will be automatically recorded unless the predicate returns <code>false</code>.
-     * Returning <code>true</code> in such case will still not create a corresponding migration entry.
-     * In all other cases, no errors or warning will be generated if the predicate returns <code>false</code>
-     * so it is up to the predicate to record one if required.
+     * The provided predicate is always invoked to validate the property value which may be <code>null</code>
+     * if not defined. Returning <code>false</code> will abort the process and yield an {@link Optional#empty}
+     * being returned out of this method. In such case, it is up to the validator to record any required
+     * errors or warnings. Returning <code>true</code> from the predicate will allow for a new entry
+     * to be created for the corresponding system property unless the property is not defined or its
+     * value is blank in which case an error will be recorded and an {@link Optional#empty} is returned
+     * from this method. In other words:
+     * <ol>
+     *     <li>If the predicate returns <code>false</code>, no migration entry is created and no error is recorded.</li>
+     *     <li>If the predicate returns <code>true</code> and ...
+     *       <ol>
+     *           <li>If the property is not defined or its value is blank, no migration entry is created and an error is recorded</li>
+     *           <li>Otherwise, a new migration entry is created and returned</li>
+     *       </ol>
+     *     </li>
+     * </ol>
      * <p>
      * <i>Note:</i> The file referenced from the property is assumed to be relative to ${ddf.home} if
      * not defined as absolute. All paths will automatically be relativized from ${ddf.home} if

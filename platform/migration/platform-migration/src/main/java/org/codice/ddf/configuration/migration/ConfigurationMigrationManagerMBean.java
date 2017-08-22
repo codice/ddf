@@ -18,7 +18,6 @@ import java.util.Collection;
 
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationWarning;
-import org.codice.ddf.platform.services.common.Describable;
 
 /**
  * Interface to expose {@link ConfigurationMigrationManager} as an MBean.
@@ -43,12 +42,4 @@ public interface ConfigurationMigrationManagerMBean {
      * @throws IllegalArgumentException if <code>exportDirectory</code> is <code>null</code>
      */
     Collection<MigrationWarning> doImport(String exportDirectory) throws MigrationException;
-
-    /**
-     * Gets detailed information about all the {@link org.codice.ddf.migration.DataMigratable}
-     * services currently registered.
-     *
-     * @return A collection of type {@link Describable}.
-     */
-    Collection<Describable> getOptionalMigratableInfo();
 }

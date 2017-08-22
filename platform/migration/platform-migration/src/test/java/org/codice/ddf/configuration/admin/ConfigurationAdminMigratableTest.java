@@ -33,7 +33,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -49,9 +48,8 @@ import org.codice.ddf.configuration.migration.ConfigurationMigrationManager;
 import org.codice.ddf.configuration.persistence.PersistenceStrategy;
 import org.codice.ddf.configuration.persistence.felix.FelixCfgPersistenceStrategy;
 import org.codice.ddf.configuration.persistence.felix.FelixConfigPersistenceStrategy;
-import org.codice.ddf.migration.ConfigurationMigratable;
-import org.codice.ddf.migration.DataMigratable;
 import org.codice.ddf.migration.ExportMigrationContext;
+import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationMessage;
 import org.codice.ddf.migration.MigrationReport;
 import org.junit.Assert;
@@ -211,12 +209,10 @@ public class ConfigurationAdminMigratableTest {
         // Setup Export
         Path exportDir = tempDir.getRoot().toPath().toRealPath();
         ConfigurationAdminMigratable eCam = new ConfigurationAdminMigratable(configurationAdminForExport, DEFAULT_FILE_EXT);
-        List<ConfigurationMigratable> eConfigMigratables = Arrays.asList(eCam);
-        List<DataMigratable> eDataMigratables = Collections.emptyList();
+        List<Migratable> eMigratables = Arrays.asList(eCam);
         ConfigurationMigrationManager eConfigurationMigrationManager =
                 new ConfigurationMigrationManager(mBeanServer,
-                        eConfigMigratables,
-                        eDataMigratables,
+                        eMigratables,
                         systemService);
         String tag = String.format(DDF_EXPORTED_TAG_TEMPLATE, DDF_HOME);
         setupConfigFile(tag);
@@ -239,12 +235,10 @@ public class ConfigurationAdminMigratableTest {
         setup(DDF_HOME);
 
         ConfigurationAdminMigratable iCam = new ConfigurationAdminMigratable(configurationAdminForImport, DEFAULT_FILE_EXT);
-        List<ConfigurationMigratable> iConfigMigratables = Arrays.asList(iCam);
-        List<DataMigratable> iDataMigratables = Collections.emptyList();
+        List<Migratable> iMigratables = Arrays.asList(iCam);
         ConfigurationMigrationManager iConfigurationMigrationManager =
                 new ConfigurationMigrationManager(mBeanServer,
-                        iConfigMigratables,
-                        iDataMigratables,
+                        iMigratables,
                         systemService);
 
         // Perform Import

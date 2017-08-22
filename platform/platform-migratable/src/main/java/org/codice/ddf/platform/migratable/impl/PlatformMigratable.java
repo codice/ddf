@@ -19,9 +19,9 @@ import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.List;
 
-import org.codice.ddf.migration.ConfigurationMigratable;
 import org.codice.ddf.migration.ExportMigrationContext;
 import org.codice.ddf.migration.ImportMigrationContext;
+import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +31,7 @@ import com.google.common.collect.ImmutableList;
 /**
  * This class handles the export process for all Platform system files.
  */
-public class PlatformMigratable implements ConfigurationMigratable {
+public class PlatformMigratable implements Migratable {
     private static final Logger LOGGER = LoggerFactory.getLogger(PlatformMigratable.class);
 
     /**

@@ -37,8 +37,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.karaf.system.SystemService;
-import org.codice.ddf.migration.ConfigurationMigratable;
-import org.codice.ddf.migration.DataMigratable;
+import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationMessage;
 import org.codice.ddf.migration.MigrationOperation;
@@ -46,11 +45,8 @@ import org.codice.ddf.migration.MigrationReport;
 import org.codice.ddf.migration.MigrationSuccessfulInformation;
 import org.codice.ddf.migration.MigrationWarning;
 import org.codice.ddf.migration.UnexpectedMigrationException;
-import org.codice.ddf.platform.services.common.Describable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.ImmutableList;
 
 /**
  * Implementation of the {@link ConfigurationMigrationService} that allows migration of
@@ -79,9 +75,7 @@ public class ConfigurationMigrationManager
 
     private final MBeanServer mBeanServer;
 
-    private final List<ConfigurationMigratable> configurationMigratables;
-
-    private final List<DataMigratable> dataMigratables;
+    private final List<Migratable> migratables;
 
     private final SystemService system;
 
@@ -90,25 +84,19 @@ public class ConfigurationMigrationManager
     /**
      * Constructor.
      *
-     * @param mBeanServer              object used to register this object as an MBean
-     * @param configurationMigratables list of {@link ConfigurationMigratable} services. Needs
-     *                                 to be kept up-to-date by the client of this class.
-     * @param dataMigratables          list of {@link DataMigratable} services. Needs
-     *                                 to be kept up-to-date by the client of this class.
-     * @param system                   the system service
+     * @param mBeanServer object used to register this object as an MBean
+     * @param migratables list of {@link Migratable} services. Needs
+     *                    to be kept up-to-date by the client of this class.
+     * @param system      the system service
      * @throws IOError if unable to load the distribution version information.
      */
-    public ConfigurationMigrationManager(MBeanServer mBeanServer,
-            List<ConfigurationMigratable> configurationMigratables,
-            List<DataMigratable> dataMigratables, SystemService system) {
+    public ConfigurationMigrationManager(MBeanServer mBeanServer, List<Migratable> migratables,
+            SystemService system) {
         notNull(mBeanServer, "MBeanServer cannot be null");
-        notNull(configurationMigratables,
-                "List of ConfigurationMigratable services cannot be null");
-        notNull(dataMigratables, "List of DataMigratable services cannot be null");
+        notNull(migratables, "List of migratable services cannot be null");
         notNull(system, "invalid null system service");
         this.mBeanServer = mBeanServer;
-        this.configurationMigratables = configurationMigratables;
-        this.dataMigratables = dataMigratables;
+        this.migratables = migratables;
         this.system = system;
         try {
             this.productVersion =
@@ -221,7 +209,6 @@ public class ConfigurationMigrationManager
 
         try {
             delegateToExportMigrationManager(report, exportFile);
-
         } catch (MigrationException e) {
             report.record(e);
         } catch (IOException e) {
@@ -270,7 +257,6 @@ public class ConfigurationMigrationManager
         final MigrationReportImpl report = new MigrationReportImpl(MigrationOperation.IMPORT,
                 xreport,
                 consumer);
-
         final Path exportFile = exportDirectory.resolve(
                 ConfigurationMigrationManager.EXPORT_PREFIX + productVersion
                         + ConfigurationMigrationManager.EXPORT_EXTENSION);
@@ -314,30 +300,23 @@ public class ConfigurationMigrationManager
         return report;
     }
 
-    @Override
-    public Collection<Describable> getOptionalMigratableInfo() {
-        return ImmutableList.copyOf(dataMigratables);
-    }
-
     ImportMigrationManagerImpl delegateToImportMigrationManager(MigrationReportImpl report,
             Path exportFile) {
-        // purposely leave data migratables out for now, we could always leave them in here
-        // which would just do no-op if no data is found in the export file
-        ImportMigrationManagerImpl mgr = new ImportMigrationManagerImpl(report,
+        final ImportMigrationManagerImpl mgr = new ImportMigrationManagerImpl(report,
                 exportFile,
-                configurationMigratables.stream());
-        report.record(String.format("Exporting new configurations to %s.", exportFile));
+                migratables.stream());
+
+        report.record(String.format("Importing data from file [%s].", exportFile));
         mgr.doImport(productVersion);
         return mgr;
     }
 
     void delegateToExportMigrationManager(MigrationReportImpl report, Path exportFile)
             throws IOException {
-        // purposely leave data migratables out for now
         try (final ExportMigrationManagerImpl mgr = new ExportMigrationManagerImpl(report,
                 exportFile,
-                configurationMigratables.stream())) {
-            report.record(String.format("Exporting current configurations to %s.", exportFile));
+                migratables.stream())) {
+            report.record(String.format("Exporting data to file [%s].", exportFile));
             mgr.doExport(productVersion);
         }
     }

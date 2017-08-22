@@ -46,8 +46,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import org.apache.karaf.system.SystemService;
-import org.codice.ddf.migration.ConfigurationMigratable;
-import org.codice.ddf.migration.DataMigratable;
+import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationReport;
 import org.codice.ddf.migration.MigrationWarning;
@@ -71,9 +70,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
 
     private ObjectName configMigrationServiceObjectName;
 
-    private List<ConfigurationMigratable> configurationMigratables;
-
-    private List<DataMigratable> dataMigratables;
+    private List<Migratable> migratables;
 
     @Mock
     private MBeanServer mockMBeanServer;
@@ -85,14 +82,12 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
     public void setup() throws MalformedObjectNameException {
         configMigrationServiceObjectName = new ObjectName(
                 ConfigurationMigrationManager.class.getName() + ":service=configuration-migration");
-        configurationMigratables = Collections.emptyList();
-        dataMigratables = Collections.emptyList();
+        migratables = Collections.emptyList();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void constructorWithNullMBeanServer() {
         new ConfigurationMigrationManager(null,
-                new ArrayList<>(),
                 new ArrayList<>(),
                 mockSystemService);
     }
@@ -101,15 +96,6 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
     public void constructorWithNullConfigurationMigratablesList() {
         new ConfigurationMigrationManager(mockMBeanServer,
                 null,
-                new ArrayList<>(),
-                mockSystemService);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorWithNullDataMigratablesList() {
-        new ConfigurationMigrationManager(mockMBeanServer,
-                new ArrayList<>(),
-                null,
                 mockSystemService);
     }
 
@@ -117,14 +103,12 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
     public void constructorWithNullSystemService() {
         new ConfigurationMigrationManager(mockMBeanServer,
                 new ArrayList<>(),
-                new ArrayList<>(),
                 null);
     }
 
     @Test(expected = IOError.class)
     public void constructorWithoutProductVersion() {
         new ConfigurationMigrationManager(mockMBeanServer,
-                new ArrayList<>(),
                 new ArrayList<>(),
                 mockSystemService);
     }
@@ -467,15 +451,6 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
         verifyZeroInteractions(mockSystemService);
     }
 
-    @Test
-    public void getOptionalMigratableInfo() throws Exception {
-        configurationMigrationManager = getConfigurationMigrationManager();
-        assertThat("Has no data migratables",
-                configurationMigrationManager.getOptionalMigratableInfo()
-                        .size(),
-                is(0));
-    }
-
     private void expectExportDelegationIsSuccessful() throws IOException {
         doNothing().when(configurationMigrationManager)
                 .delegateToExportMigrationManager(any(MigrationReportImpl.class), any(Path.class));
@@ -511,9 +486,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
         versionFile.createNewFile();
         Files.write(versionFile.toPath(), TEST_VERSION.getBytes(), StandardOpenOption.APPEND);
 
-        return new ConfigurationMigrationManager(mockMBeanServer,
-                configurationMigratables,
-                dataMigratables,
+        return new ConfigurationMigrationManager(mockMBeanServer, migratables,
                 mockSystemService);
     }
 }

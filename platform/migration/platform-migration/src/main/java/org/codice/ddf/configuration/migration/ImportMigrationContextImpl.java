@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -27,6 +29,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.ImportMigrationContext;
 import org.codice.ddf.migration.ImportMigrationEntry;
@@ -59,6 +62,8 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
             new TreeMap<>();
 
     private final ZipFile zip;
+
+    private final List<InputStream> inputStreams = new ArrayList<>();
 
     /**
      * Creates a new migration context for an import operation representing a system context.
@@ -188,10 +193,14 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
             if (LOGGER.isDebugEnabled()) {
                 stopwatch = Stopwatch.createStarted();
             }
-            if (Objects.equals(getVersion(), migratable.getVersion())) {
-                migratable.doImport(this);
-            } else {
-                migratable.doIncompatibleImport(this, getVersion());
+            try {
+                if (Objects.equals(getVersion(), migratable.getVersion())) {
+                    migratable.doImport(this);
+                } else {
+                    migratable.doIncompatibleImport(this, getVersion());
+                }
+            } finally {
+                inputStreams.forEach(IOUtils::closeQuietly); // we do not care if we failed to close them
             }
             if (LOGGER.isDebugEnabled() && (stopwatch != null)) {
                 LOGGER.debug("Imported time for {}: {}", id, stopwatch.stop());
@@ -207,7 +216,10 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
     }
 
     InputStream getInputStreamFor(ZipEntry entry) throws IOException {
-        return zip.getInputStream(entry);
+        final InputStream is = zip.getInputStream(entry);
+
+        inputStreams.add(is);
+        return is;
     }
 
     // used for testing

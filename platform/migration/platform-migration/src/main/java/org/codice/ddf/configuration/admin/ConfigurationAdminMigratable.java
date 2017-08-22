@@ -23,9 +23,9 @@ import org.apache.commons.lang.Validate;
 import org.codice.ddf.configuration.persistence.PersistenceStrategy;
 import org.codice.ddf.configuration.persistence.felix.FelixCfgPersistenceStrategy;
 import org.codice.ddf.configuration.persistence.felix.FelixConfigPersistenceStrategy;
-import org.codice.ddf.migration.ConfigurationMigratable;
 import org.codice.ddf.migration.ExportMigrationContext;
 import org.codice.ddf.migration.ImportMigrationContext;
+import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationContext;
 import org.codice.ddf.migration.MigrationEntry;
 import org.codice.ddf.migration.UnexpectedMigrationException;
@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * configuration files from a configuration directory and creating {@link Configuration} objects
  * for those and exporting {@link Configuration} objects to configuration files.
  */
-public class ConfigurationAdminMigratable implements ConfigurationMigratable {
+public class ConfigurationAdminMigratable implements Migratable {
     static final String FELIX_FILEINSTALL_FILENAME = "felix.fileinstall.filename";
 
     /**

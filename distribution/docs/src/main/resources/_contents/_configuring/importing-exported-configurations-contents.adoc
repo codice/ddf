@@ -10,7 +10,7 @@ To import a previously exported configuration file from the ${command-console}:
 
 . Launch the newly installed ${branding}.
 . Type in `migration:import <directory>`. This command reads the previously exported configuration file `exported-${project-version}.zip` from the specified directory. If no directory is specified it will default to `<${branding}_HOME>/exported`
-. Shutdowns ${branding} by typing in `shutdown`
+. Shutdown ${branding} by typing in `shutdown`
 . Re-launch the newly migrated ${branding}
 
 [NOTE]
