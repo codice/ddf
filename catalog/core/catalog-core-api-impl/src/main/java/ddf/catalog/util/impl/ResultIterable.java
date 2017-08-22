@@ -113,7 +113,7 @@ public class ResultIterable implements Iterable<Result> {
      */
     public static ResultIterable resultIterable(QueryFunction queryFunction,
             QueryRequest queryRequest, int maxResultCount) {
-        isTrue(maxResultCount > 0, "Max Results must be zero or positive", maxResultCount);
+        isTrue(maxResultCount > 0, "Max Results must be a positive integer", maxResultCount);
         return new ResultIterable(queryFunction, queryRequest, maxResultCount);
     }
 
