@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang.Validate;
-import org.codice.ddf.migration.MigrationCompoundException;
+import org.codice.ddf.migration.CompoundMigrationException;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationInformation;
 import org.codice.ddf.migration.MigrationMessage;
@@ -93,7 +93,7 @@ public class MigrationReportImpl implements MigrationReport {
         Validate.notNull(report, "invalid null report");
         report.runCodes(); // to get all errors and warnings recorded
         this.messages = report.messages.stream()
-                .map(MigrationMessage::downgradeToWarning)
+                .map(Messages::downgradeToWarning)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toCollection(LinkedHashSet::new)); // LinkedHashSet to prevent duplicate and maintain order
@@ -203,7 +203,7 @@ public class MigrationReportImpl implements MigrationReport {
             throw errors().findAny()
                     .get(); // will never be null since there is 1
         }
-        throw new MigrationCompoundException(errors().iterator()); // preserve order
+        throw new CompoundMigrationException(errors().iterator()); // preserve order
     }
 
     MigrationReportImpl end() {

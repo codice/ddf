@@ -16,7 +16,7 @@ package org.codice.ddf.migration;
 import java.nio.file.Path;
 
 /**
- * The <code>MigrationEntry</code> interfaces provides support for artifacts that are being exported
+ * The <code>MigrationEntry</code> interface provides support for artifacts that are being exported
  * or imported during migration.
  * <p>
  * <b>

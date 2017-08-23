@@ -18,8 +18,8 @@ import java.util.Iterator;
 import org.apache.commons.lang.Validate;
 
 /**
- * Exception that indicates multiple problems with the configuration migration. The first error will
- * be attached as a caused while all the remaining ones will be attached as suppressed exceptions.
+ * Exception that indicates multiple problems with the migration operation. The first error will
+ * be attached as a cause while all the remaining ones will be attached as suppressed exceptions.
  * <p>
  * <b>
  * This code is experimental. While this interface is functional
@@ -28,18 +28,16 @@ import org.apache.commons.lang.Validate;
  * </b>
  * </p>
  */
-public class MigrationCompoundException extends MigrationException {
+public class CompoundMigrationException extends MigrationException {
     /**
      * Instantiates a new compound migration exception.
      *
      * @param errors the migration exceptions to compound together
      * @throws IllegalArgumentException if <code>errors</code> is <code>null</code> or empty
      */
-    public MigrationCompoundException(Iterator<MigrationException> errors) {
-        super(MigrationCompoundException.getFirstErrorFrom(errors));
-        while (errors.hasNext()) {
-            addSuppressed(errors.next());
-        }
+    public CompoundMigrationException(Iterator<MigrationException> errors) {
+        super(CompoundMigrationException.getFirstErrorFrom(errors));
+        errors.forEachRemaining(this::addSuppressed);
     }
 
     private static MigrationException getFirstErrorFrom(Iterator<MigrationException> errors) {

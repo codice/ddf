@@ -13,8 +13,6 @@
  */
 package org.codice.ddf.migration;
 
-import java.util.Optional;
-
 /**
  * Interface for describing migration messages that can be recorded during an import or export
  * migration operation.
@@ -36,12 +34,4 @@ public interface MigrationMessage {
      * @return the message string representation
      */
     public String getMessage();
-
-    /**
-     * Downgrades the specified message to a warning if possible.
-     *
-     * @return a warning that correspond to this message or empty if the message cannot be downgraded
-     * (e.g. it is an informational message)
-     */
-    public Optional<MigrationWarning> downgradeToWarning();
 }

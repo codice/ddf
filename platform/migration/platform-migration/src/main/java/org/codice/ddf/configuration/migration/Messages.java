@@ -13,6 +13,12 @@
  */
 package org.codice.ddf.configuration.migration;
 
+import java.util.Optional;
+
+import org.codice.ddf.migration.MigrationException;
+import org.codice.ddf.migration.MigrationMessage;
+import org.codice.ddf.migration.MigrationWarning;
+
 /**
  * Provides a class for defining messages or message formats for migration exceptions, warnings and
  * informational messages.
@@ -179,4 +185,13 @@ public final class Messages {
     public static final String IMPORT_MIGRATABLE_NOT_INSTALLED_ERROR =
             "Import error: exported data for migratable [%s] cannot be imported; migratable is no longer available.";
 
+    public static Optional<MigrationMessage> downgradeToWarning(MigrationMessage msg) {
+        if (msg instanceof MigrationException) {
+            return Optional.of(new MigrationWarning(msg.getMessage()
+                    .replaceFirst("[^:].*error: ", "")));
+        } else if (msg instanceof MigrationWarning) {
+            return Optional.of(msg);
+        }
+        return Optional.empty();
+    }
 }

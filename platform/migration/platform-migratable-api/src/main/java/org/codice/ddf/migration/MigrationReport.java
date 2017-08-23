@@ -213,7 +213,7 @@ public interface MigrationReport {
      *
      * @throws MigrationException         if a single error occurred during the operation (throws that
      *                                    error back)
-     * @throws MigrationCompoundException if more than one error occurred during the operation
+     * @throws CompoundMigrationException if more than one error occurred during the operation
      */
     public void verifyCompletion() throws MigrationException;
 }
