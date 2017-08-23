@@ -17,9 +17,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -39,6 +41,7 @@ import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.CswQueryFilterTransformer;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.LiteralExpressionImpl;
 import org.geotools.styling.UomOgcMapping;
@@ -98,6 +101,7 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.catalog.transform.QueryFilterTransformer;
 import net.opengis.cat.csw.v_2_0_2.DistributedSearchType;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
@@ -203,8 +207,6 @@ public class CswQueryFactoryTest {
 
     private static CswQueryFactory queryFactory;
 
-    private static FilterBuilder filterBuilder = mock(FilterBuilder.class);
-
     private static Geometry polygon;
 
     private static net.opengis.gml.v_3_1_1.ObjectFactory gmlObjectFactory;
@@ -213,7 +215,7 @@ public class CswQueryFactoryTest {
 
     private static QName cswQnameOutPutSchema = new QName(CswConstants.CSW_OUTPUT_SCHEMA);
 
-    private static List<MetacardType> metacardTypeList;
+    private QueryFilterTransformerProvider queryFilterTransformerProvider;
 
     public static MetacardType getCswMetacardType() {
         return new MetacardTypeImpl(CswConstants.CSW_METACARD_TYPE_NAME,
@@ -235,15 +237,10 @@ public class CswQueryFactoryTest {
     public void setUp()
             throws URISyntaxException, SourceUnavailableException, UnsupportedQueryException,
             FederationException, ParseException, IngestException {
-        filterBuilder = new GeotoolsFilterBuilder();
+        FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
         FilterAdapter filterAdapter = new GeotoolsFilterAdapterImpl();
 
-        metacardTypeList = new ArrayList<>();
-
-        queryFactory = new CswQueryFactory(filterBuilder,
-                filterAdapter,
-                getCswMetacardType(),
-                metacardTypeList);
+        queryFactory = new CswQueryFactory(filterBuilder, filterAdapter);
 
         AttributeRegistry mockAttributeRegistry = mock(AttributeRegistry.class);
         when(mockAttributeRegistry.lookup(TITLE_TEST_ATTRIBUTE)).thenReturn(Optional.of(mock(
@@ -253,6 +250,13 @@ public class CswQueryFactoryTest {
         polygon = new WKTReader().read(POLYGON_STR);
         gmlObjectFactory = new net.opengis.gml.v_3_1_1.ObjectFactory();
         filterObjectFactory = new ObjectFactory();
+
+        queryFilterTransformerProvider = mock(QueryFilterTransformerProvider.class);
+        QueryFilterTransformer cswQueryFilter = new CswQueryFilterTransformer(getCswMetacardType(),
+                Collections.emptyList());
+        when(queryFilterTransformerProvider.getTransformer(new QName(CswConstants.CSW_OUTPUT_SCHEMA,
+                "Record"))).thenReturn(Optional.of(cswQueryFilter));
+        queryFactory.setQueryFilterTransformerProvider(queryFilterTransformerProvider);
     }
 
     @SuppressWarnings("unchecked")
@@ -730,6 +734,22 @@ public class CswQueryFactoryTest {
                 .getQuery(), new TagsFilterDelegate("myTag")), is(true));
     }
 
+    @Test
+    public void testMultipleQueryFilterTransformers() throws CswException {
+        List<String> namespaces = Arrays.asList("{namespace}one", "{namespace}two");
+
+        QueryConstraintType constraint = mock(QueryConstraintType.class);
+        when(constraint.isSetCqlText()).thenReturn(true);
+        when(constraint.getCqlText()).thenReturn(CQL_CONTEXTUAL_LIKE_QUERY);
+
+        for (String namespace : namespaces) {
+            QueryRequest request = mock(QueryRequest.class);
+            addQueryFilterTransformer(namespace, request);
+            QueryRequest result = queryFactory.getQuery(constraint, namespace);
+            assertThat(result, equalTo(request));
+        }
+    }
+
     /**
      * Runs a binary Spatial CQL Query, verifying that the right filter class is generated based on CQL
      *
@@ -1197,4 +1217,10 @@ public class CswQueryFactoryTest {
         return grr;
     }
 
+    private void addQueryFilterTransformer(String namespace, QueryRequest request) {
+        QueryFilterTransformer transformer = mock(QueryFilterTransformer.class);
+        when(transformer.transform(any(), any())).thenReturn(request);
+        when(queryFilterTransformerProvider.getTransformer(QName.valueOf(namespace))).thenReturn(
+                Optional.of(transformer));
+    }
 }

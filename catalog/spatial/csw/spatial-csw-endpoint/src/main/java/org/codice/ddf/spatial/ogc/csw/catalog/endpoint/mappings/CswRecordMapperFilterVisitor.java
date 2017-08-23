@@ -22,7 +22,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.libs.geo.GeoFormatException;
 import org.codice.ddf.libs.geo.util.GeospatialUtil;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
@@ -73,7 +72,6 @@ import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.types.Core;
 import ddf.catalog.impl.filter.FuzzyFunction;
 import ddf.measure.Distance;
 import ddf.measure.Distance.LinearUnit;
@@ -88,8 +86,6 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
 
     private static final Logger LOGGER =
             LoggerFactory.getLogger(CswRecordMapperFilterVisitor.class);
-
-    private final List<String> sourceIds = new ArrayList<>();
 
     private final Map<String, AttributeType> attributeTypes;
 
@@ -130,10 +126,6 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
                 }
             }
         }
-    }
-
-    public List<String> getSourceIds() {
-        return sourceIds;
     }
 
     public Filter getVisitedFilter() {
@@ -310,11 +302,6 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
             return factory.equals(function, visit(typedExpression, function));
         }
 
-        if (StringUtils.equals(Core.SOURCE_ID,
-                ((PropertyName) filter.getExpression1()).getPropertyName())) {
-            sourceIds.add((String) ((Literal) filter.getExpression2()).getValue());
-            return null;
-        }
         AttributeType type =
                 attributeTypes.get(((PropertyName) filter.getExpression1()).getPropertyName());
 

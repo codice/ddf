@@ -78,7 +78,7 @@ import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.impl.filter.FuzzyFunction;
 
-public class TestCswRecordMapperFilterVisitor {
+public class CswRecordMapperFilterVisitorTest {
 
     private static final String UNMAPPED_PROPERTY = "not_mapped_to_anything";
 
@@ -488,32 +488,4 @@ public class TestCswRecordMapperFilterVisitor {
         assertThat(literal.getValue(), instanceOf(String.class));
         assertThat(literal.getValue(), is(dateString));
     }
-
-    @Test
-    public void testSourceIdFilter() {
-        Expression val = factory.literal("source1");
-        Expression val2 = factory.literal("source2");
-
-        Expression sourceExpr = factory.property(Core.SOURCE_ID);
-
-        PropertyIsEqualTo filter = factory.equal(sourceExpr, val, false);
-
-        Filter filter2 = factory.equal(sourceExpr, val2, false);
-
-        Filter likeFilter = factory.like(attrExpr, "something");
-
-        Filter sourceFilter = factory.or(filter, filter2);
-
-        Filter totalFilter = factory.and(sourceFilter, likeFilter);
-
-        Object obj = totalFilter.accept(visitor, null);
-
-        assertThat(obj, instanceOf(PropertyIsLike.class));
-        PropertyIsLike duplicate = (PropertyIsLike) obj;
-        assertThat(duplicate.getExpression(), is(attrExpr));
-        assertThat(duplicate.getLiteral(), is("something"));
-        assertThat(visitor.getSourceIds()
-                .size(), is(2));
-    }
-
 }
