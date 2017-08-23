@@ -45,6 +45,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.filter.impl.PropertyIsEqualToLiteral;
@@ -135,21 +137,30 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
             // Example:
             // <ogc:Literal>org.geotools.geometry.jts.spatialschema.geometry.primitive.PointImpl@dc33f184</ogc:Literal>
             Literal literalWrapper = (Literal) filter.getExpression2();
+            Object geometryExpression = literalWrapper.getValue();
 
-            // Luckily we know what type the geometry expression should be, so
-            // we
-            // can cast it
-            PointImpl point = (PointImpl) literalWrapper.evaluate(null);
-            double[] coords = point.getCentroid()
-                    .getCoordinate();
             double distance = filter.getDistance();
 
-            LOGGER.debug("point: coords[0] = {},   coords[1] = {}", coords[0], coords[1]);
-            LOGGER.debug("radius = {}", distance);
-
-            openSearchFilterVisitorObject.setSpatialSearch(new SpatialDistanceFilter(coords[0],
-                    coords[1],
-                    distance));
+            if (geometryExpression instanceof PointImpl) {
+                PointImpl point = (PointImpl) literalWrapper.evaluate(null);
+                double[] coords = point.getCentroid()
+                        .getCoordinate();
+                LOGGER.debug("point: coords[0] = {},   coords[1] = {}", coords[0], coords[1]);
+                LOGGER.debug("radius = {}", distance);
+                openSearchFilterVisitorObject.setSpatialSearch(new SpatialDistanceFilter(coords[0],
+                        coords[1],
+                        distance));
+            } else if (geometryExpression instanceof Point) {
+                Point point = (Point) literalWrapper.evaluate(null);
+                Coordinate coords = point.getCoordinate();
+                LOGGER.debug("point: coords.x = {},   coords.y = {}", coords.x, coords.y);
+                LOGGER.debug("radius = {}", distance);
+                openSearchFilterVisitorObject.setSpatialSearch(new SpatialDistanceFilter(coords.x,
+                        coords.y,
+                        distance));
+            } else {
+                LOGGER.debug("Only POINT geometry WKT for DWithin filter is supported");
+            }
         } else {
             LOGGER.debug(ONLY_AND_MSG);
         }
@@ -182,27 +193,20 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
             Object geometryExpression = literalWrapper.getValue();
 
             StringBuffer geometryWkt = new StringBuffer();
+            Coordinate[] coords;
 
             if (geometryExpression instanceof SurfaceImpl) {
                 SurfaceImpl polygon = (SurfaceImpl) literalWrapper.evaluate(null);
 
-                Coordinate[] coords = polygon.getJTSGeometry()
+                coords = polygon.getJTSGeometry()
                         .getCoordinates();
-
-                geometryWkt.append("POLYGON((");
-                for (int i = 0; i < coords.length; i++) {
-                    geometryWkt.append(coords[i].x);
-                    geometryWkt.append(" ");
-                    geometryWkt.append(coords[i].y);
-
-                    if (i != (coords.length - 1)) {
-                        geometryWkt.append(",");
-                    }
-                }
-                geometryWkt.append("))");
-                openSearchFilterVisitorObject.setSpatialSearch(new SpatialFilter(geometryWkt.toString()));
-
-                LOGGER.debug("geometryWkt = [{}]", geometryWkt.toString());
+                openSearchFilterVisitorObject.setSpatialSearch(new SpatialFilter(buildPolygonWkt(
+                        coords)));
+            } else if (geometryExpression instanceof Polygon) {
+                Polygon polygon = (Polygon) literalWrapper.evaluate(null);
+                coords = polygon.getCoordinates();
+                openSearchFilterVisitorObject.setSpatialSearch(new SpatialFilter(buildPolygonWkt(
+                        coords)));
             } else {
                 LOGGER.debug("Only POLYGON geometry WKT for Contains filter is supported");
             }
@@ -238,27 +242,22 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
             Object geometryExpression = literalWrapper.getValue();
 
             StringBuffer geometryWkt = new StringBuffer();
+            Coordinate[] coords;
 
             if (geometryExpression instanceof SurfaceImpl) {
                 SurfaceImpl polygon = (SurfaceImpl) literalWrapper.evaluate(null);
 
-                Coordinate[] coords = polygon.getJTSGeometry()
+                coords = polygon.getJTSGeometry()
                         .getCoordinates();
-
-                geometryWkt.append("POLYGON((");
-                for (int i = 0; i < coords.length; i++) {
-                    geometryWkt.append(coords[i].x);
-                    geometryWkt.append(" ");
-                    geometryWkt.append(coords[i].y);
-
-                    if (i != (coords.length - 1)) {
-                        geometryWkt.append(",");
-                    }
-                }
-                geometryWkt.append("))");
-                openSearchFilterVisitorObject.setSpatialSearch(new SpatialFilter(geometryWkt.toString()));
+                openSearchFilterVisitorObject.setSpatialSearch(new SpatialFilter(buildPolygonWkt(
+                        coords)));
 
                 LOGGER.debug("geometryWkt = [{}]", geometryWkt.toString());
+            } else if (geometryExpression instanceof Polygon) {
+                Polygon polygon = (Polygon) literalWrapper.evaluate(null);
+                coords = polygon.getCoordinates();
+                openSearchFilterVisitorObject.setSpatialSearch(new SpatialFilter(buildPolygonWkt(
+                        coords)));
             } else {
                 LOGGER.debug("Only POLYGON geometry WKT for Intersects filter is supported");
             }
@@ -269,6 +268,23 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
         LOGGER.trace("EXITING: Intersects filter");
 
         return super.visit(filter, data);
+    }
+
+    private String buildPolygonWkt(Coordinate[] coords) {
+        StringBuffer geometryWkt = new StringBuffer();
+        geometryWkt.append("POLYGON((");
+        for (int i = 0; i < coords.length; i++) {
+            geometryWkt.append(coords[i].x);
+            geometryWkt.append(" ");
+            geometryWkt.append(coords[i].y);
+
+            if (i != (coords.length - 1)) {
+                geometryWkt.append(",");
+            }
+        }
+        geometryWkt.append("))");
+        LOGGER.debug("geometryWkt = [{}]", geometryWkt.toString());
+        return geometryWkt.toString();
     }
 
     /**
