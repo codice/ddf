@@ -78,7 +78,7 @@ import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.impl.filter.FuzzyFunction;
 
-public class TestCswRecordMapperFilterVisitor {
+public class CswRecordMapperFilterVisitorTest {
 
     private static final String UNMAPPED_PROPERTY = "not_mapped_to_anything";
 

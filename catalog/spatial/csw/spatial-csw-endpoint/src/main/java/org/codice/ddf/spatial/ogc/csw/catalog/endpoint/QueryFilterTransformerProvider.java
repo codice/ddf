@@ -17,6 +17,7 @@ package org.codice.ddf.spatial.ogc.csw.catalog.endpoint;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.xml.namespace.QName;
@@ -69,8 +70,11 @@ public class QueryFilterTransformerProvider {
         }
     }
 
-    public synchronized QueryFilterTransformer getTransformer(QName qName) {
-        return queryFilterTransformerMap.get(qName);
+    public synchronized Optional<QueryFilterTransformer> getTransformer(QName qName) {
+        if (qName == null) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(queryFilterTransformerMap.get(qName));
     }
 
     private List<QName> getNamespaces(ServiceReference<QueryFilterTransformer> reference) {
@@ -108,7 +112,7 @@ public class QueryFilterTransformerProvider {
         return transformer;
     }
 
-    private BundleContext getBundleContext() {
+    BundleContext getBundleContext() {
         return FrameworkUtil.getBundle(this.getClass())
                 .getBundleContext();
     }

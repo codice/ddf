@@ -69,7 +69,8 @@ public class Validator {
         }
 
         for (QName type : types) {
-            if (queryFilterTransformerProvider.getTransformer(type) == null) {
+            if (!queryFilterTransformerProvider.getTransformer(type)
+                    .isPresent()) {
                 throw createUnknownTypeException(type.toString());
             }
         }

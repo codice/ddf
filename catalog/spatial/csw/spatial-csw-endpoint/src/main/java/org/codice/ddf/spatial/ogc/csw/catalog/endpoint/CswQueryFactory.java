@@ -67,7 +67,6 @@ import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.UnsupportedQueryException;
-import ddf.catalog.transform.QueryFilterTransformer;
 import ddf.security.permission.Permissions;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
@@ -332,11 +331,10 @@ public class CswQueryFactory {
     private QueryRequest transformQuery(QueryRequest request, List<QName> typeNames) {
         QueryRequest result = request;
         for (QName typeName : typeNames) {
-            QueryFilterTransformer transformer = queryFilterTransformerProvider.getTransformer(
-                    typeName);
-            if (transformer != null) {
-                result = transformer.transform(result, null);
-            }
+            final QueryRequest temp = result;
+            result = queryFilterTransformerProvider.getTransformer(typeName)
+                    .map(it -> it.transform(temp, null))
+                    .orElse(result);
         }
 
         return result;

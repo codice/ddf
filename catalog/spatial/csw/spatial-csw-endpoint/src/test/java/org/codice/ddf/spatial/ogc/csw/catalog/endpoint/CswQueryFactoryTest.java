@@ -255,7 +255,7 @@ public class CswQueryFactoryTest {
         QueryFilterTransformer cswQueryFilter = new CswQueryFilterTransformer(getCswMetacardType(),
                 Collections.emptyList());
         when(queryFilterTransformerProvider.getTransformer(new QName(CswConstants.CSW_OUTPUT_SCHEMA,
-                "Record"))).thenReturn(cswQueryFilter);
+                "Record"))).thenReturn(Optional.of(cswQueryFilter));
         queryFactory.setQueryFilterTransformerProvider(queryFilterTransformerProvider);
     }
 
@@ -1221,6 +1221,6 @@ public class CswQueryFactoryTest {
         QueryFilterTransformer transformer = mock(QueryFilterTransformer.class);
         when(transformer.transform(any(), any())).thenReturn(request);
         when(queryFilterTransformerProvider.getTransformer(QName.valueOf(namespace))).thenReturn(
-                transformer);
+                Optional.of(transformer));
     }
 }

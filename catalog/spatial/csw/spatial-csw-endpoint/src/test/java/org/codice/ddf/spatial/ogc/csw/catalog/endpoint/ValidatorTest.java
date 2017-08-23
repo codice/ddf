@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -21,6 +22,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.xml.namespace.QName;
 
@@ -63,7 +65,8 @@ public class ValidatorTest {
         QueryFilterTransformerProvider transformerProvider =
                 mock(QueryFilterTransformerProvider.class);
         QueryFilterTransformer transformer = mock(QueryFilterTransformer.class);
-        when(transformerProvider.getTransformer(qname[0])).thenReturn(transformer);
+        when(transformerProvider.getTransformer(any())).thenReturn(Optional.empty());
+        when(transformerProvider.getTransformer(qname[0])).thenReturn(Optional.of(transformer));
         validator.setQueryFilterTransformerProvider(transformerProvider);
     }
 
