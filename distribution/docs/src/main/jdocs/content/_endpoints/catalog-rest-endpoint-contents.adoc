@@ -130,7 +130,7 @@ For example:
 [source,http]
 ----
 POST /services/catalog?transform=xml HTTP/1.1
-Host: localhost:8993
+Host: <FQDN>:<PORT>
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 Cache-Control: no-cache
 

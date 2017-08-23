@@ -130,7 +130,7 @@ See http://geowebcache.org/docs/current/configuration/diskquotas.html[Disk Quota
 
 Add a new Imagery Provider in the ${admin-console}:
 
-. Navigate to \https://<localhost>:8993/admin.
+. Navigate to the *${admin-console}*.
 . Select *Configuration* tab.
 . Select *Standard Search UI* configuration.
 . Click the *Add* button next to *Imagery Providers*

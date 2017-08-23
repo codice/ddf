@@ -79,7 +79,7 @@ If console access is needed while running as a service, run the `client` script 
 <${branding}_HOME>/bin/client.bat -h localhost
 ----
 
-If running the `client` script form a different host, use the `-h` option followed by the name or IP of the host where ${branding} is running.
+Use the `-h` option followed by the name (`<FQDN>`)or IP of the host where ${branding} is running.
 ====
 
 ==== Stopping ${branding}
