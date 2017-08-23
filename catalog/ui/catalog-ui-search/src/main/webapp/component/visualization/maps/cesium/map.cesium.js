@@ -67,6 +67,9 @@ function createMap(insertionElement) {
         }
     });
 
+    // disable right click drag to zoom (context menu instead);
+    viewer.scene.screenSpaceCameraController.zoomEventTypes = [Cesium.CameraEventType.WHEEL, Cesium.CameraEventType.PINCH];
+
     viewer.screenSpaceEventHandler.setInputAction(function() {
         if (!store.get('content').get('drawing')){
              $('body').mousedown();
@@ -148,7 +151,7 @@ function isNotVisible(cartesian3CenterOfGeometry, occluder) {
     return !occluder.isPointVisible(cartesian3CenterOfGeometry);
 }
 
-module.exports = function CesiumMap(insertionElement, selectionInterface, notificationEl, componentElement) {
+module.exports = function CesiumMap(insertionElement, selectionInterface, notificationEl, componentElement, parentView) {
     var overlays = {};
     var shapes = [];
     var map = createMap(insertionElement);
@@ -157,31 +160,32 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
     var drawingTools = setupDrawingTools(map);
     setupTooltip(map, selectionInterface);
 
-    function updateFeatureTooltip(position) {
-        var pickedObject = map.scene.pick(position);
-        if (pickedObject !== undefined && pickedObject.id && selectionInterface) {
-            var metacard = selectionInterface
-                .getCompleteActiveSearchResults()
-                .get(pickedObject.id);
-
-            if (metacard && metacard.has('metacard')){
-                $(componentElement).addClass('has-feature');
-                componentElement.querySelector('.info-feature').innerHTML = metacard.get('metacard').get('properties').get('title');
-            }  
-        }
-    }
-
     function updateCoordinatesTooltip(position) {
         if (map.scene.pickPositionSupported) {
             var cartesian = map.scene.pickPosition(position);
             if (Cesium.defined(cartesian)){
                 let cartographic = Cesium.Cartographic.fromCartesian(cartesian);
-                componentElement.querySelector('.coordinate-lat').innerHTML = mtgeo.toLat((cartographic.latitude * Cesium.Math.DEGREES_PER_RADIAN).toFixed(2));
-                componentElement.querySelector('.coordinate-lon').innerHTML = mtgeo.toLon((cartographic.longitude * Cesium.Math.DEGREES_PER_RADIAN).toFixed(2));
+                parentView.updateMouseCoordinates({
+                    lat: cartographic.latitude * Cesium.Math.DEGREES_PER_RADIAN,
+                    lon: cartographic.longitude * Cesium.Math.DEGREES_PER_RADIAN
+                });
             }
         }
     }
-    
+
+    function getCartographicCoordinatesFromEvent(e, boundingRect){
+        if (map.scene.pickPositionSupported){
+            let cartesian = map.scene.pickPosition({
+                x: e.clientX - boundingRect.left,
+                y: e.clientY - boundingRect.top
+            });
+            if (Cesium.defined(cartesian)){
+                let cartographic = Cesium.Cartographic.fromCartesian(cartesian);
+                return cartographic;
+            }
+        }
+    }
+
     function setupTooltip(map, selectionInterface) {
         var handler = new Cesium.ScreenSpaceEventHandler(map.scene.canvas);
         handler.setInputAction(function(movement) {
@@ -190,7 +194,6 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
                 return;
             }
             updateCoordinatesTooltip(movement.endPosition);
-            updateFeatureTooltip(movement.endPosition);
         }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
     }
 
@@ -250,12 +253,7 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
         onRightClick: function(callback) {
             $(map.scene.canvas).on('contextmenu', function(e) {
                 var boundingRect = map.scene.canvas.getBoundingClientRect();
-                callback(e, {
-                    mapTarget: determineIdFromPosition({
-                        x: e.clientX - boundingRect.left,
-                        y: e.clientY - boundingRect.top
-                    }, map)
-                });
+                callback(e);
             });
         },
         onMouseMove: function(callback) {

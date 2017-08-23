@@ -118,6 +118,10 @@ public class ConfigurationApplication implements SparkApplication {
 
   private Map<String, Set<String>> typeNameMapping = new HashMap<String, Set<String>>();
 
+  private Boolean isExperimental = false;
+
+  private Integer autoMergeTime = 100;
+
   public List<Long> getScheduleFrequencyList() {
     return scheduleFrequencyList;
   }
@@ -332,6 +336,8 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("zoomPercentage", zoomPercentage);
     config.put("spacingMode", spacingMode);
     config.put("defaultLayout", getDefaultLayoutConfig());
+    config.put("isExperimental", isExperimental);
+    config.put("autoMergeTime", autoMergeTime);
 
     return config;
   }
@@ -779,5 +785,21 @@ public class ConfigurationApplication implements SparkApplication {
 
   public void setZoomPercentage(Integer zoomPercentage) {
     this.zoomPercentage = zoomPercentage;
+  }
+
+  public Integer getAutoMergeTime() {
+    return autoMergeTime;
+  }
+
+  public void setAutoMergeTime(Integer autoMergeTime) {
+    this.autoMergeTime = autoMergeTime;
+  }
+
+  public Boolean getIsExperimental() {
+    return isExperimental;
+  }
+
+  public void setIsExperimental(Boolean isExperimental) {
+    this.isExperimental = isExperimental;
   }
 }

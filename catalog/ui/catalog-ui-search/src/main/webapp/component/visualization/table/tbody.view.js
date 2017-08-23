@@ -20,8 +20,10 @@ var Marionette = require('marionette');
 var CustomElements = require('js/CustomElements');
 var Common = require('js/Common');
 var RowView = require('./row.view');
+var ResultSelectionDecorator = require('decorator/result-selection.decorator');
+var Decorators = require('decorator/Decorators');
 
-module.exports = Marionette.CollectionView.extend({
+module.exports = Marionette.CollectionView.extend(Decorators.decorate({
     tagName: CustomElements.register('result-tbody'),
     className: 'is-tbody is-list has-list-highlighting',
     events: {
@@ -39,54 +41,12 @@ module.exports = Marionette.CollectionView.extend({
         if (!options.selectionInterface) {
             throw 'Selection interface has not been provided';
         }
+        this.selectionInterface = this.options.selectionInterface;
     },
     handleLinkClick: function(event) {
         event.stopPropagation();
     },
     handleMouseDown: function(event) {
         event.preventDefault();
-    },
-    handleClick: function(event) {
-        var resultItems = this.$el.children();
-        var indexClicked = resultItems.index(event.currentTarget);
-        var resultid = event.currentTarget.getAttribute('data-resultid');
-        var alreadySelected = $(event.currentTarget).hasClass('is-selected');
-        //shift key wins over all else
-        if (event.shiftKey) {
-            this.handleShiftClick(resultid, indexClicked, alreadySelected);
-        } else if (event.ctrlKey || event.metaKey) {
-            this.handleControlClick(resultid, alreadySelected);
-        } else {
-            this.options.selectionInterface.clearSelectedResults();
-            this.handleControlClick(resultid, alreadySelected);
-        }
-    },
-    handleShiftClick: function(resultid, indexClicked, alreadySelected) {
-        var resultItems = this.$el.children();
-        var selectedItems = this.$el.children('.is-selected');
-        var firstIndex = resultItems.index(selectedItems.first());
-        var lastIndex = resultItems.index(selectedItems.last());
-        if (firstIndex === -1 && lastIndex === -1) {
-            //this.options.selectionInterface.clearSelectedResults();
-            this.handleControlClick(resultid, alreadySelected);
-        } else if (indexClicked <= firstIndex) {
-            this.selectBetween(indexClicked, firstIndex);
-        } else if (indexClicked >= lastIndex) {
-            this.selectBetween(lastIndex, indexClicked + 1);
-        } else {
-            this.selectBetween(firstIndex, indexClicked + 1);
-        }
-    },
-    selectBetween: function(startIndex, endIndex) {
-        this.options.selectionInterface.addSelectedResult(this.options.selectionInterface.getActiveSearchResults().filter(function(test, index) {
-            return (index >= startIndex) && (index < endIndex);
-        }));
-    },
-    handleControlClick: function(resultid, alreadySelected) {
-        if (alreadySelected) {
-            this.options.selectionInterface.removeSelectedResult(this.options.selectionInterface.getActiveSearchResults().get(resultid));
-        } else {
-            this.options.selectionInterface.addSelectedResult(this.options.selectionInterface.getActiveSearchResults().get(resultid));
-        }
     }
-});
+}, ResultSelectionDecorator));

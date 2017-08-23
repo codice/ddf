@@ -175,8 +175,10 @@ module.exports = Marionette.LayoutView.extend({
             contentType: 'application/json'
         }).always(function(response) {
             setTimeout(function() {
-                this.getAssociations();
-                this.turnOffEditing();
+                if (!this.isDestroyed) {
+                    this.getAssociations();
+                    this.turnOffEditing();
+                }
             }.bind(this), 1000);
         }.bind(this));
     },

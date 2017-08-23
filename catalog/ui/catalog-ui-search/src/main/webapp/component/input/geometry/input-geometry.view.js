@@ -34,6 +34,10 @@ function convertUserValueToWKT(val){
     return val;
 }
 
+function removeTrailingZeros(wkt) {
+    return wkt.replace(/[-+]?[0-9]*\.?[0-9]+/g, (number) => Number(number));
+}
+
 function checkCoordinateOrder(coordinate){
     return coordinate[0] >= -180 && coordinate[0] <= 180 && coordinate[1] >= -90 && coordinate[1] <= 90;
 }
@@ -72,7 +76,7 @@ function checkGeometryCoordinateOrdering(geometry){
 function checkForm(model){
     try {
         var test = wkx.Geometry.parse(model.getValue());
-        if (test.toWkt() === convertUserValueToWKT(model.getValue())) {
+        if (test.toWkt() === removeTrailingZeros(convertUserValueToWKT(model.getValue()))) {
             return true;
         } else {
             return false;

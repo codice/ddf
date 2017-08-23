@@ -28,10 +28,22 @@ define([
 ], function (Marionette, _, $, template, CustomElements, InputView, MultivalueView, DropdownView, Common, moment, user) {
 
     function sortNoValueToTop(a, b){
-        if (a.hasNoValue === true && b.hasNoValue !== undefined){
+        if (a.value === 'bulkDefault'){
             return -1;
         }
-        if (b.hasNoValue === true && a.hasNoValue !== undefined){
+        if (b.value === 'bulkDefault') {
+            return 1;
+        }
+        if (a.value === 'bulkCustom') {
+            return -1;
+        }
+        if (b.value === 'bulkCustom') {
+            return 1;
+        }
+        if (a.hasNoValue === true && b.hasNoValue === false){
+            return -1;
+        }
+        if (b.hasNoValue === true && a.hasNoValue === false){
             return 1;
         }
         return 0;

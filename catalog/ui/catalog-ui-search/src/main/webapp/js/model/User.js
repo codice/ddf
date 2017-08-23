@@ -153,6 +153,7 @@ define([
                 fontSize: ThemeUtils.getFontSize(_get(properties, 'zoomPercentage', 100)),
                 resultCount: properties.resultCount,
                 timeFormat: Common.getTimeFormats()['24'],
+                coordinateFormat: 'degrees',
                 goldenLayout: undefined,
                 goldenLayoutUpload: undefined,
                 goldenLayoutMetacard: undefined,

@@ -72,7 +72,7 @@ define([
             if (currentWorkspace) {
                 this.listenTo(currentWorkspace, 'change:metacards', this.checkIfSaved);
             }
-            this.listenTo(this.model.get('metacard').get('properties'), 'change', this.handleMetacardUpdate);
+            this.listenTo(this.model, 'change:metacard>properties change:metacard', this.handleMetacardUpdate);
             this.listenTo(user.get('user').get('preferences'), 'change:resultDisplay', this.checkDisplayType);
             this.listenTo(router, 'change', this.handleMetacardUpdate);
             this.listenTo(user.get('user').get('preferences').get('resultBlacklist'),
@@ -91,6 +91,7 @@ define([
                 this.stopListening(currentWorkspace);
                 this.listenTo(currentWorkspace, 'change:metacards', this.handleMetacardUpdate);
             }
+            this.$el.attr(this.attributes());
             this.render();
             this.onBeforeShow();
             this.checkDisplayType();

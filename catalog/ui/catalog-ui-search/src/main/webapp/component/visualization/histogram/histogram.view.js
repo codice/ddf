@@ -26,8 +26,9 @@ define([
     'component/singletons/metacard-definitions',
     'js/Common',
     'properties',
-    'moment'
-], function (wreqr, $, _, Marionette, CustomElements, template, Plotly, Property, PropertyView, metacardDefinitions, Common, properties, moment) {
+    'moment',
+    'component/singletons/user-instance'
+], function (wreqr, $, _, Marionette, CustomElements, template, Plotly, Property, PropertyView, metacardDefinitions, Common, properties, moment, user) {
 
     var zeroWidthSpace = "\u200B";
     var plotlyDateFormat = 'YYYY-MM-DD HH:mm:ss.SS';

@@ -37,6 +37,7 @@ require([
     'js/HandlebarsHelpers',
     'js/ApplicationHelpers',
     'js/Autocomplete',
+    'backbone.customFunctions'
 ], function(_, Backbone, Marionette, hbs, announcement) {
 
     $(window.document).ajaxError(function(event, jqxhr, settings, throwError) {

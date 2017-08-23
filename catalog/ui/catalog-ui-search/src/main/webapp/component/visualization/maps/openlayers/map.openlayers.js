@@ -79,7 +79,7 @@ function unconvertPointCoordinate(point) {
     return Openlayers.proj.transform(point, properties.projection, 'EPSG:4326');
 }
 
-module.exports = function OpenlayersMap(insertionElement, selectionInterface, notificationEl, componentElement) {
+module.exports = function OpenlayersMap(insertionElement, selectionInterface, notificationEl, componentElement, parentView) {
     var overlays = {};
     var shapes = [];
     var map = createMap(insertionElement);
@@ -89,15 +89,9 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
   
     function setupTooltip(map) {        
         map.on('pointermove', function(e){
-            componentElement.querySelector('.coordinate-lon').innerHTML = mtgeo.toLon(e.coordinate[0].toFixed(2));
-            componentElement.querySelector('.coordinate-lat').innerHTML = mtgeo.toLat(e.coordinate[1].toFixed(2));
-            $(componentElement).removeClass('has-feature');
-            var feature = map.forEachFeatureAtPixel(e.pixel, function(feature) {
-                if (feature.get('name')) {
-                    $(componentElement).addClass('has-feature');
-                    componentElement.querySelector('.info-feature').innerHTML = feature.get('name');
-                    return feature;
-                }
+            parentView.updateMouseCoordinates({
+                lat: e.coordinate[1],
+                lon: e.coordinate[0]
             });
         });
     }
@@ -162,12 +156,7 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
         onRightClick: function(callback) {
             $(map.getTargetElement()).on('contextmenu', function(e) {
                 var boundingRect = map.getTargetElement().getBoundingClientRect();
-                callback(e, {
-                    mapTarget: determineIdFromPosition([
-                        e.clientX - boundingRect.left,
-                        e.clientY - boundingRect.top
-                    ], map)
-                });
+                callback(e);
             });
         },
         onMouseMove: function(callback) {

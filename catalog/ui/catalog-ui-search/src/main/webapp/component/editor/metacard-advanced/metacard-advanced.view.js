@@ -89,7 +89,9 @@ define([
                     }).always(function(){
                         setTimeout(function(){  //let solr flush
                             LoadingCompanionView.endLoading(self);
-                            self.getValidation();
+                            if (!self.isDestroyed){
+                                self.getValidation();
+                            }
                         }, 1000);
                     });
                 }, 1000);

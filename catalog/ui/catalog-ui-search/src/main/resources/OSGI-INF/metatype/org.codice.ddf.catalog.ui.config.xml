@@ -204,6 +204,20 @@
             type="Boolean"
             default="true"
             required="true"/>
+        
+        <AD id="isExperimental"
+            name="Enable Experimental Features"
+            description="WARNING:  Enables experimental features in the UI.  This allows users to preview upcoming features."
+            type="Boolean"
+            default="false"
+            required="true"/>
+
+        <AD id="autoMergeTime"
+            name="Auto Merge Time"
+            description="Specifies the interval during which new results can be merged automatically.  This is the time allowed since last merge (in millseconds)."
+            type="Integer"
+            default="100"
+            required="true"/>
 
         <AD id="resultPageSize"
             name="Result Page Size"

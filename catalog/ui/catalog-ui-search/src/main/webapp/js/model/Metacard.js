@@ -583,8 +583,7 @@ define([
                                             type: '=',
                                             property: '"id"',
                                             value: metacard.get('properties').get('metacard.deleted.id') || metacard.id
-                                        },
-                                        {
+                                        }, {
                                             type: '=',
                                             property: '"metacard.deleted.id"',
                                             value: metacard.id
@@ -866,7 +865,7 @@ define([
                 if (this.get('results').length === 0 || !this.get('currentlyViewed')){
                     return true;
                 } else {
-                    return (Date.now() - this.lastMerge) < 16;
+                    return (Date.now() - this.lastMerge) < properties.getAutoMergeTime();
                 }
             },
             mergeQueue: function(userTriggered){

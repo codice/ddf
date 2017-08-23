@@ -30,10 +30,13 @@ define([
     'js/cql',
     'component/dropdown/result-sort/dropdown.result-sort.view',
     'component/singletons/user-instance',
-    'component/result-status/result-status.view'
+    'component/result-status/result-status.view',
+    'decorator/result-selection.decorator',
+    'decorator/Decorators'
 ], function (Marionette, _, $, resultSelectorTemplate, CustomElements, properties, store, Common,
              ResultItemCollectionView, PagingView, DropdownView, ResultFilterDropdownView,
-             DropdownModel, cql, ResultSortDropdownView, user, ResultStatusView) {
+             DropdownModel, cql, ResultSortDropdownView, user, ResultStatusView,
+             ResultSelectionDecorator, Decorators) {
 
     function mixinBlackListCQL(originalCQL){
         var blackListCQL = {
@@ -66,7 +69,7 @@ define([
     };
     eventsHash['click .resultSelector-list '+resultItemSelector] = 'handleClick';
 
-    var ResultSelector = Marionette.LayoutView.extend({
+    var ResultSelector = Marionette.LayoutView.extend(Decorators.decorate({
         template: resultSelectorTemplate,
         tagName: CustomElements.register('result-selector'),
         modelEvents: {
@@ -130,46 +133,6 @@ define([
         },
         stopTextSelection: function(event){
             event.preventDefault();
-        },
-        handleClick: function(event){
-            var resultItems = this.$el.find('.resultSelector-list '+resultItemSelector);
-            var indexClicked = resultItems.index(event.currentTarget);
-            var resultid = event.currentTarget.getAttribute('data-resultid');
-            var alreadySelected = $(event.currentTarget).hasClass('is-selected');
-            //shift key wins over all else
-            if (event.shiftKey){
-                this.handleShiftClick(resultid, indexClicked, alreadySelected);
-            } else if (event.ctrlKey || event.metaKey){
-                this.handleControlClick(resultid, alreadySelected);
-            } else {
-                this.selectionInterface.clearSelectedResults();
-                this.handleControlClick(resultid, alreadySelected);
-            }
-        },
-        handleShiftClick: function(resultid, indexClicked, alreadySelected){
-            var resultItems = this.$el.find('.resultSelector-list '+resultItemSelector);
-            var firstIndex = resultItems.index(this.$el.find('.resultSelector-list '+resultItemSelector+'.is-selected').first());
-            var lastIndex = resultItems.index(this.$el.find('.resultSelector-list '+resultItemSelector+'.is-selected').last());
-            if (firstIndex === -1 && lastIndex === -1){
-               // this.selectionInterface.clearSelectedResults();
-                this.handleControlClick(resultid, alreadySelected);
-            } else if (indexClicked <= firstIndex) {
-                this.selectBetween(indexClicked, firstIndex);
-            } else if (indexClicked >= lastIndex) {
-                this.selectBetween(lastIndex, indexClicked + 1);
-            } else {
-                this.selectBetween(firstIndex, indexClicked + 1);
-            }
-        },
-        selectBetween: function(startIndex, endIndex){
-            this.selectionInterface.addSelectedResult(this.resultList.currentView.collection.selectBetween(startIndex, endIndex));
-        },
-        handleControlClick: function(resultid, alreadySelected){
-            if (alreadySelected){
-                this.selectionInterface.removeSelectedResult(this.model.get('result').get('results').fullCollection.get(resultid));
-            } else {
-                this.selectionInterface.addSelectedResult(this.model.get('result').get('results').fullCollection.get(resultid));
-            }
         },
         scrollIntoView: function(metacard){
             var result = this.$el.find('.resultSelector-list '+resultItemSelector+'[data-resultid="'+metacard.id + metacard.get('properties>source-id')+'"]');
@@ -254,7 +217,7 @@ define([
                 }
             }.bind(this));
         }
-    });
+    }, ResultSelectionDecorator));
 
     return ResultSelector;
 });
