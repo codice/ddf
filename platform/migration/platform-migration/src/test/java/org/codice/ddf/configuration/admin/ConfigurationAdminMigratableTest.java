@@ -43,6 +43,7 @@ import java.util.Map;
 import javax.management.MBeanServer;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.felix.fileinstall.internal.DirectoryWatcher;
 import org.apache.karaf.system.SystemService;
 import org.codice.ddf.configuration.migration.ConfigurationMigrationManager;
 import org.codice.ddf.configuration.persistence.PersistenceStrategy;
@@ -97,9 +98,6 @@ import org.osgi.service.cm.ConfigurationAdmin;
 @RunWith(MockitoJUnitRunner.class)
 public class ConfigurationAdminMigratableTest {
 
-    @Rule
-    public TemporaryFolder tempDir = new TemporaryFolder();
-
     private static final String DDF_HOME_SYSTEM_PROP_KEY = "ddf.home";
 
     private static final String DDF_HOME = "ddf";
@@ -113,6 +111,9 @@ public class ConfigurationAdminMigratableTest {
     private static final String CFG_FILE_EXT = "cfg";
 
     private static final String DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID = "DDF_Custom_Mime_Type_Resolver";
+
+    @Rule
+    public TemporaryFolder tempDir = new TemporaryFolder();
 
     private Path ddfHome;
 
@@ -258,7 +259,7 @@ public class ConfigurationAdminMigratableTest {
         assertThat(dictionayAsMap,
                 allOf(aMapWithSize(2),
                         hasEntry("schema", "http://www.opengis.net/cat/csw/2.0.2"),
-                        hasEntry(ConfigurationAdminMigratable.FELIX_FILEINSTALL_FILENAME, ddfHome.resolve("etc").toRealPath().resolve(String.format("%s-csw.config",
+                        hasEntry(DirectoryWatcher.FILENAME, ddfHome.resolve("etc").toRealPath().resolve(String.format("%s-csw.config",
                                 DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID)).toUri().toString())
                 ));
     }
@@ -304,7 +305,7 @@ public class ConfigurationAdminMigratableTest {
     private Configuration getConfigurationForExportSystem() throws IOException {
         Configuration config = mock(Configuration.class);
         Dictionary<String, Object> props = new Hashtable<>();
-        props.put(ConfigurationAdminMigratable.FELIX_FILEINSTALL_FILENAME, ddfHome.resolve("etc").toRealPath().resolve(String.format("%s-csw.config",
+        props.put(DirectoryWatcher.FILENAME, ddfHome.resolve("etc").toRealPath().resolve(String.format("%s-csw.config",
                 DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID)).toUri());
         String pid = String.format("%s.4039089d-839f-4d52-a174-77c8a19fc03d",
                 DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID);
@@ -347,7 +348,7 @@ public class ConfigurationAdminMigratableTest {
         Files.createFile(configFile);
         List<String> lines = new ArrayList<>(2);
         lines.add(String.format("#%s:%s", configFile.toRealPath().toString(), tag));
-        lines.add(String.format("%s=%s", ConfigurationAdminMigratable.FELIX_FILEINSTALL_FILENAME, configFile.toUri().toString()));
+        lines.add(String.format("%s=%s", DirectoryWatcher.FILENAME, configFile.toUri().toString()));
         FileUtils.writeLines(configFile.toFile(), StandardCharsets.UTF_8.toString(), lines, System.lineSeparator());
     }
 }

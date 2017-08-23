@@ -2,8 +2,6 @@ package org.codice.ddf.configuration.migration;
 
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationWarning;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Defines a migration entry representing a property defined in system properties which value
@@ -11,9 +9,6 @@ import org.slf4j.LoggerFactory;
  */
 public class ExportMigrationSystemPropertyReferencedEntryImpl
         extends ExportMigrationPropertyReferencedEntryImpl {
-    private static final Logger LOGGER = LoggerFactory.getLogger(
-            ExportMigrationSystemPropertyReferencedEntryImpl.class);
-
     /**
      * Instantiated a new system property referenced migration entry given a migratable context, property
      * name and pathname.

@@ -37,6 +37,8 @@ import org.codice.ddf.migration.MigrationReport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.annotations.VisibleForTesting;
+
 /**
  * The import migration manager process an exported file and manages the import migration operation.
  */
@@ -50,11 +52,6 @@ public class ImportMigrationManagerImpl implements Closeable {
      * migratable id. <code>null</code> key is used to represent the system context.
      */
     private final Map<String, ImportMigrationContextImpl> contexts;
-
-    /**
-     * Holds the exported metadata. The data is retrieved from the export.json file.
-     */
-    private final Map<String, Object> metadata;
 
     private final ZipFile zip;
 
@@ -90,6 +87,8 @@ public class ImportMigrationManagerImpl implements Closeable {
         this.report = report;
         this.exportFile = exportFile;
         this.zip = zip;
+        Map<String, Object> metadata;
+
         try {
             // pre-create contexts for all registered migratables
             this.contexts = migratables.collect(Collectors.toMap(Migratable::getId,
@@ -102,7 +101,7 @@ public class ImportMigrationManagerImpl implements Closeable {
                     .map(ze -> new ImportMigrationEntryImpl(this::getContextFor, ze))
                     .forEach(me -> me.getContext()
                             .addEntry(me));
-            this.metadata = retrieveMetadata();
+            metadata = retrieveMetadata();
         } catch (IOException e) {
             throw new MigrationException(Messages.IMPORT_FILE_READ_ERROR, exportFile, e);
         }
@@ -166,7 +165,7 @@ public class ImportMigrationManagerImpl implements Closeable {
         return exportFile;
     }
 
-    // used for testing
+    @VisibleForTesting
     Collection<ImportMigrationContextImpl> getContexts() {
         return contexts.values();
     }

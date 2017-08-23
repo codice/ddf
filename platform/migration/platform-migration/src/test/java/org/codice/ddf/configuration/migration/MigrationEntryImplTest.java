@@ -13,11 +13,8 @@
  */
 package org.codice.ddf.configuration.migration;
 
-import java.io.File;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.migration.MigrationReport;
 import org.hamcrest.Matchers;
@@ -30,11 +27,7 @@ public class MigrationEntryImplTest extends AbstractMigrationTest {
     private static final String ENTRY_NAME = Paths.get("path/path2/file.ext")
             .toString();
 
-    private static final Path FILE_PATH = Paths.get(FilenameUtils.separatorsToSystem(ENTRY_NAME));
-
     private static final String MIGRATABLE_ID = "test-migratable";
-
-    private static final String MIGRATABLE_FQN = MIGRATABLE_ID + File.separatorChar + ENTRY_NAME;
 
     private final MigrationContextImpl CONTEXT = Mockito.mock(MigrationContextImpl.class);
 

@@ -18,17 +18,11 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * This class provides an implementation of the {@link org.codice.ddf.migration.ImportMigrationEntry}
  * representing a file that was not exported.
  */
 public class ImportMigrationEmptyEntryImpl extends ImportMigrationEntryImpl {
-    private static final Logger LOGGER =
-            LoggerFactory.getLogger(ImportMigrationEmptyEntryImpl.class);
-
     ImportMigrationEmptyEntryImpl(ImportMigrationContextImpl context, Path path) {
         super(context, path);
     }

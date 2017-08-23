@@ -444,11 +444,6 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
         Assert.assertThat(entry, OptionalMatchers.isEmpty());
     }
 
-    private void putMetadata(Map<String, Object> metadata, String name, String checksum) {
-        metadata.put(MigrationEntryImpl.METADATA_NAME, name);
-        metadata.put(MigrationEntryImpl.METADATA_CHECKSUM, checksum);
-    }
-
     @Test
     public void testProcessMetadataWithNoEntries() throws Exception {
         final Map<String, Object> METADATA = ImmutableMap.of(MigrationContextImpl.METADATA_VERSION,
@@ -651,9 +646,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
         final String PROPERTY = "property.name";
         final String CHECKSUM = "abcdef";
         final String CHECKSUM2 = "12345";
-        final String PROPERTY_CHECKSUM = "a1b2c3d4e5";
         final boolean SOFTLINK2 = true;
-        final boolean PROPERTY_SOFTLINK = false;
         final Map<String, Object> METADATA = ImmutableMap.of(MigrationContextImpl.METADATA_VERSION,
                 VERSION,
                 MigrationContextImpl.METADATA_EXTERNALS,

@@ -33,19 +33,16 @@ public class ExportMigrationPropertyReferencedEntryImplTest extends AbstractMigr
 
     private Path ABSOLUTE_FILE_PATH;
 
-    private PathUtils PATH_UTILS;
-
     private ExportMigrationPropertyReferencedEntryImpl ENTRY;
 
     @Before
     public void before() throws Exception {
         createFile(createDirectory(DIRS), FILENAME);
-        PATH_UTILS = new PathUtils();
         ABSOLUTE_FILE_PATH = DDF_HOME.resolve(UNIX_NAME)
                 .toRealPath(LinkOption.NOFOLLOW_LINKS);
 
         Mockito.when(CONTEXT.getPathUtils())
-                .thenReturn(PATH_UTILS);
+                .thenReturn(new PathUtils());
         Mockito.when(CONTEXT.getReport())
                 .thenReturn(REPORT);
         Mockito.when(CONTEXT.getId())

@@ -25,12 +25,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class PathUtilsTest extends AbstractMigrationTest {
-    private static final String UNIX_NAME = "path/path2/file.ext";
-
-    private static final String WINDOWS_NAME = "path\\path2\\file.ext";
-
-    private static final String MIXED_NAME = "path\\path2/file.ext";
-
     private PathUtils PATH_UTILS;
 
     @Before
@@ -153,13 +147,13 @@ public class PathUtilsTest extends AbstractMigrationTest {
                 .toAbsolutePath();
         final Path PATH2 = DDF_HOME.resolve(createSoftLink(ABSOLUTE_FILE_PATH.getParent(),
                 "test2.txt",
-                ABSOLUTE_FILE_PATH)).toAbsolutePath();
+                ABSOLUTE_FILE_PATH))
+                .toAbsolutePath();
 
         final String checksum = PATH_UTILS.getChecksumFor(ABSOLUTE_FILE_PATH);
         final String checksum2 = PATH_UTILS.getChecksumFor(PATH2);
 
         Assert.assertThat(checksum2, Matchers.equalTo(checksum));
     }
-
 
 }

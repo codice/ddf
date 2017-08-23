@@ -21,8 +21,6 @@ import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.MigrationEntry;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationWarning;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Defines a migration entry representing a property defined in a Java properties file which value
@@ -30,11 +28,6 @@ import org.slf4j.LoggerFactory;
  */
 public class ExportMigrationJavaPropertyReferencedEntryImpl
         extends ExportMigrationPropertyReferencedEntryImpl {
-    private static final Logger LOGGER = LoggerFactory.getLogger(
-            ExportMigrationJavaPropertyReferencedEntryImpl.class);
-
-    private static final String METADATA_NAME = "name";
-
     /**
      * Holds the path for the properties file where the reference is defined.
      */

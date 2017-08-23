@@ -42,15 +42,13 @@ public class SecurityMigratable implements Migratable {
 
     private static final Path PDP_POLICIES_DIR = Paths.get("etc", "pdp");
 
-    private static final List<Path> PROPERTIES_FILES = ImmutableList.of(
+    private static final List<Path> PROPERTIES_FILES = ImmutableList.of( //
             Paths.get("etc", "ws-security", "server", "encryption.properties"),
             Paths.get("etc", "ws-security", "server", "signature.properties"),
             Paths.get("etc", "ws-security", "issuer", "encryption.properties"),
             Paths.get("etc", "ws-security", "issuer", "signature.properties"));
 
     private static final String CRL_PROP_KEY = "org.apache.ws.security.crypto.merlin.x509crl.file";
-
-    public SecurityMigratable() { }
 
     @Override
     public String getVersion() {

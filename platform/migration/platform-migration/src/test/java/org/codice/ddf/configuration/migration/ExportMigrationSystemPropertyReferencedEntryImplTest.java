@@ -33,16 +33,13 @@ public class ExportMigrationSystemPropertyReferencedEntryImplTest extends Abstra
 
     private Path ABSOLUTE_FILE_PATH;
 
-    private PathUtils PATH_UTILS;
-
     private ExportMigrationSystemPropertyReferencedEntryImpl ENTRY;
 
     @Before
     public void before() throws Exception {
         createFile(createDirectory(DIRS), FILENAME);
-        PATH_UTILS = new PathUtils();
         Mockito.when(CONTEXT.getPathUtils())
-                .thenReturn(PATH_UTILS);
+                .thenReturn(new PathUtils());
         Mockito.when(CONTEXT.getReport())
                 .thenReturn(REPORT);
         Mockito.when(CONTEXT.getId())

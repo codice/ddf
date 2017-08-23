@@ -38,8 +38,6 @@ public class ImportMigrationPropertyReferencedEntryImplTest extends AbstractMigr
 
     private final Map<String, Object> METADATA = new HashMap<>();
 
-    private PathUtils PATH_UTILS;
-
     private ImportMigrationContextImpl CONTEXT;
 
     private ImportMigrationEntryImpl REFERENCED_ENTRY =
@@ -52,11 +50,10 @@ public class ImportMigrationPropertyReferencedEntryImplTest extends AbstractMigr
         METADATA.put(MigrationEntryImpl.METADATA_REFERENCE, MIGRATABLE_NAME);
         METADATA.put(MigrationEntryImpl.METADATA_PROPERTY, MIGRATABLE_PROPERTY);
 
-        PATH_UTILS = new PathUtils();
         CONTEXT = Mockito.mock(ImportMigrationContextImpl.class);
 
         Mockito.when(CONTEXT.getPathUtils())
-                .thenReturn(PATH_UTILS);
+                .thenReturn(new PathUtils());
         Mockito.when(CONTEXT.getReport())
                 .thenReturn(REPORT);
         Mockito.when(CONTEXT.getId())

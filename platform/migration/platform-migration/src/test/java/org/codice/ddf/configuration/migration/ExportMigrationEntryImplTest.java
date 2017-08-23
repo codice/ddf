@@ -22,7 +22,6 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
-import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -73,8 +72,6 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
             MIGRATABLE_NAME));
 
     private final ExportMigrationReportImpl REPORT = new ExportMigrationReportImpl();
-
-    private final ZipOutputStream ZOS = Mockito.mock(ZipOutputStream.class);
 
     private final ExportMigrationContextImpl CONTEXT =
             Mockito.mock(ExportMigrationContextImpl.class);

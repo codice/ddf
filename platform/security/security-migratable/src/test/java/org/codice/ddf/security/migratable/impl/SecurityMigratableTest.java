@@ -29,7 +29,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.zip.ZipFile;
 
 import javax.management.MBeanServer;
 
@@ -37,7 +36,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.system.SystemService;
 import org.codice.ddf.configuration.migration.ConfigurationMigrationManager;
-import org.codice.ddf.migration.ExportMigrationContext;
 import org.codice.ddf.migration.ImportMigrationContext;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
@@ -128,16 +126,10 @@ public class SecurityMigratableTest {
     private Path ddfHome;
 
     @Mock
-    private ExportMigrationContext mockExportMigrationContext;
-
-    @Mock
     private ImportMigrationContext mockImportMigrationContext;
 
     @Mock
     private MigrationReport mockMigrationReport;
-
-    @Mock
-    private ZipFile mockZipFile;
 
     @Mock
     private MBeanServer mBeanServer;

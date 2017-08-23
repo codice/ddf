@@ -37,6 +37,8 @@ import org.codice.ddf.migration.MigrationReport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.annotations.VisibleForTesting;
+
 /**
  * The export migration manager generates an exported file and manages the export migration operation.
  */
@@ -156,12 +158,12 @@ public class ExportMigrationManagerImpl implements Closeable {
         return exportFile;
     }
 
-    // used for testing
+    @VisibleForTesting
     Collection<ExportMigrationContextImpl> getContexts() {
         return contexts.values();
     }
 
-    // used for testing
+    @VisibleForTesting
     Map<String, Object> getMetadata() {
         return metadata;
     }

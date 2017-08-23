@@ -37,6 +37,8 @@ import org.codice.ddf.util.function.EBiConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.annotations.VisibleForTesting;
+
 /**
  * This class provides an implementation of the {@link ImportMigrationEntry} interface.
  */
@@ -149,47 +151,9 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
             final InputStream fis = is.orElse(null);
 
             if (fis == null) { // no entry stored!!!!
-                if (required) {
-                    LOGGER.debug("Importing {}{}...",
-                            (required ? "required " : ""),
-                            toDebugString());
-                    getReport().record(new MigrationException(Messages.IMPORT_PATH_NOT_EXPORTED_ERROR,
-                            getPath()));
-                } else {
-                    // it is optional so delete it as it was optional when we exported and wasn't on
-                    // disk so we want to make sure we end up without the file on disk after import
-                    LOGGER.debug("Deleting {}...", toDebugString());
-                    // but only if it is migratable to start with
-                    if (isMigratable()) {
-                        if (!getFile().delete()) {
-                            getReport().record(new MigrationException(Messages.IMPORT_PATH_DELETE_ERROR,
-                                    getPath()));
-                        }
-                    }
-                }
-                return;
-            }
-            LOGGER.debug("Importing {}{}...", (required ? "required " : ""), toDebugString());
-            try {
-                FileUtils.copyInputStreamToFile(fis, file);
-            } catch (IOException e) {
-                if (!file.canWrite()) { // make it writable and try again
-                    InputStream ris = context.getInputStreamFor(entry);
-
-                    try {
-                        LOGGER.debug("temporarily overriding write privileges for {}", file);
-                        if (!file.setWritable(true)) { // cannot set it writable so bail
-                            throw e;
-                        }
-                        FileUtils.copyInputStreamToFile(ris, file);
-                    } finally {
-                        IOUtils.closeQuietly(ris); // we do not care if we cannot close it
-                        // reset the permissions properly
-                        file.setWritable(false);
-                    }
-                }
-            } finally {
-                IOUtils.closeQuietly(fis); // we do not care if we cannot close it
+                handleStoreWhenNoEntryWasExported(required);
+            } else {
+                handleStoreWhenAnEntryWasExported(required, fis);
             }
         });
     }
@@ -272,8 +236,51 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
         properties.put(name, entry);
     }
 
-    // used for testing
+    @VisibleForTesting
     Map<String, ImportMigrationJavaPropertyReferencedEntryImpl> getJavaPropertyReferencedEntries() {
         return properties;
+    }
+
+    private void handleStoreWhenNoEntryWasExported(boolean required) {
+        if (required) {
+            LOGGER.debug("Importing {}{}...", (required ? "required " : ""), toDebugString());
+            getReport().record(new MigrationException(Messages.IMPORT_PATH_NOT_EXPORTED_ERROR,
+                    getPath()));
+        } else {
+            // it is optional so delete it as it was optional when we exported and wasn't on
+            // disk so we want to make sure we end up without the file on disk after import
+            LOGGER.debug("Deleting {}...", toDebugString());
+            // but only if it is migratable to start with
+            if (isMigratable() && !getFile().delete()) {
+                getReport().record(new MigrationException(Messages.IMPORT_PATH_DELETE_ERROR,
+                        getPath()));
+            }
+        }
+    }
+
+    private void handleStoreWhenAnEntryWasExported(boolean required, InputStream is)
+            throws IOException {
+        LOGGER.debug("Importing {}{}...", (required ? "required " : ""), toDebugString());
+        try {
+            FileUtils.copyInputStreamToFile(is, file);
+        } catch (IOException e) {
+            if (!file.canWrite()) { // make it writable and try again
+                InputStream ris = context.getInputStreamFor(entry);
+
+                try {
+                    LOGGER.debug("temporarily overriding write privileges for {}", file);
+                    if (!file.setWritable(true)) { // cannot set it writable so bail
+                        throw e;
+                    }
+                    FileUtils.copyInputStreamToFile(ris, file);
+                } finally {
+                    IOUtils.closeQuietly(ris); // we do not care if we cannot close it
+                    // reset the permissions properly
+                    file.setWritable(false);
+                }
+            }
+        } finally {
+            IOUtils.closeQuietly(is); // we do not care if we cannot close it
+        }
     }
 }

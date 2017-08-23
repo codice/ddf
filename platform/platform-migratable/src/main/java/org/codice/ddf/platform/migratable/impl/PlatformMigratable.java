@@ -49,14 +49,14 @@ public class PlatformMigratable implements Migratable {
 
     private static final Path WS_SECURITY_DIR = Paths.get("etc", "ws-security");
 
-    private static final List<Path> REQUIRED_SYSTEM_FILES = ImmutableList.of(
-            Paths.get("etc", "system.properties"),
+    private static final List<Path> REQUIRED_SYSTEM_FILES = ImmutableList.of(Paths.get("etc",
+            "system.properties"),
             Paths.get("etc", "startup.properties"),
             Paths.get("etc", "custom.properties"),
             Paths.get("etc", "config.properties"));
 
-    private static final List<Path> OPTIONAL_SYSTEM_FILES = ImmutableList.of(
-            Paths.get("etc", "users.properties"),
+    private static final List<Path> OPTIONAL_SYSTEM_FILES = ImmutableList.of(Paths.get("etc",
+            "users.properties"),
             Paths.get("etc", "users.attributes"),
             Paths.get("etc", "pdp", "ddf-metacard-attribute-ruleset.cfg"),
             Paths.get("etc", "pdp", "ddf-user-attribute-ruleset.cfg"),
@@ -70,9 +70,6 @@ public class PlatformMigratable implements Migratable {
 
     private static final PathMatcher SERVICE_WRAPPER_CONF_FILTER = FileSystems.getDefault()
             .getPathMatcher("glob:**/*-wrapper.conf");
-
-    public PlatformMigratable() {
-    }
 
     @Override
     public String getVersion() {

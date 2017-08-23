@@ -163,8 +163,6 @@ public class ImportMigrationExternalEntryImplTest extends AbstractMigrationTest 
 
     @Test
     public void storeRecordsWarningWhenFileIsNotNormal() throws Exception {
-        final File file = new File(ROOT.toFile(), "symlink");
-
         Path symlink = DDF_HOME.resolve(createSoftLink("symlink", path));
 
         when(mockPathUtils.resolveAgainstDDFHome(any(Path.class))).thenReturn(symlink);

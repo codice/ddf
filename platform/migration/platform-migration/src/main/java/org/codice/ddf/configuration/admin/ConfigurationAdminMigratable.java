@@ -13,11 +13,7 @@
  */
 package org.codice.ddf.configuration.admin;
 
-import static org.apache.commons.lang.Validate.notNull;
-
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.configuration.persistence.PersistenceStrategy;
@@ -41,8 +37,6 @@ import org.slf4j.LoggerFactory;
  * for those and exporting {@link Configuration} objects to configuration files.
  */
 public class ConfigurationAdminMigratable implements Migratable {
-    static final String FELIX_FILEINSTALL_FILENAME = "felix.fileinstall.filename";
-
     /**
      * Holds the current export version.
      * <p>
@@ -52,8 +46,6 @@ public class ConfigurationAdminMigratable implements Migratable {
 
     private static final Logger LOGGER =
             LoggerFactory.getLogger(ConfigurationAdminMigratable.class);
-
-    private static final Path DDF_HOME = Paths.get(System.getProperty("ddf.home"));
 
     private final ConfigurationAdmin configurationAdmin;
 
@@ -65,7 +57,8 @@ public class ConfigurationAdminMigratable implements Migratable {
         Validate.notNull(defaultFileExtension, "invalid null default file extension");
         this.configurationAdmin = configurationAdmin;
         this.defaultStrategy = getPersister(defaultFileExtension);
-        notNull(defaultStrategy, "unknown persistence strategy extension: " + defaultFileExtension);
+        Validate.notNull(defaultStrategy,
+                "unknown persistence strategy extension: " + defaultFileExtension);
     }
 
     @Override
