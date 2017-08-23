@@ -133,7 +133,8 @@
                             javax.servlet,
                             org.osgi.framework,
                             org.slf4j,
-                            javax.servlet.http
+                            javax.servlet.http,
+                            org.eclipse.jetty.servlets
                         </Import-Package>
                         <Export-Package/>
                     </instructions>
