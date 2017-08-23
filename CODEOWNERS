@@ -11,41 +11,14 @@ distribution/docs/*         @ricklarsen
 # CATALOG
 ###############################
 
-catalog/async/*   @peterhuffer  @emmberk
-
-catalog/core/catalog-core-api/src/main/java/ddf/catalog/data/types/*        @brendan-hofmann
-
-catalog/core/catalog-core-camelcomponent/*  @brendan-hofmann
-catalog/core/catalog-core-camelcontext/*    @brendan-hofmann
-
-catalog/core/catalog-core-commands/src/main/java/org/codice/ddf/commands/catalog/ExportCommand.java		@rzwiefel
-catalog/core/catalog-core-commands/src/main/java/org/codice/ddf/commands/catalog/ImportCommand.java		@rzwiefel
-
 catalog/core/catalog-core-contentresourcereader/*	@stustison
 
-catalog/core/catalog-core-directorymonitor/*        @brendan-hofmann
+catalog/core/catalog-core-localstorageprovider/*	@stustison
 
-catalog/core/catalog-core-impl/pubsub-tracker/*     @lambeaux
-catalog/core/catalog-core-impl/pubsub/*             @lambeaux
-
-catalog/core/catalog-core-localstorageprovider/*	@stustison  @brendan-hofmann
-
-catalog/core/catalog-core-migratable/*              @paouelle   @lambeaux
-
-catalog/core/catalog-core-standardframework/src/main/java/ddf/catalog/history/*		@rzwiefel
 catalog/core/catalog-core-standardframework/src/main/java/ddf/catalog/impl/*		@stustison
 catalog/core/catalog-core-standardframework/src/main/java/ddf/catalog/resource/*    @stustison
 
-catalog/core/catalog-core-subscriptionstore/*   @lambeaux
-
-catalog/core/catalog-core-validationparser/* 	@jrnorth @rzwiefel
-
-catalog/core/catalog-core-versioning/*				@rzwiefel
-
 catalog/opensearch/*	@stustison
-
-catalog/plugin/catalog-plugin-clientinfo/*              @lambeaux
-catalog/plugin/catalog-plugin-metacardingest-network/*  @lambeaux
 
 catalog/rest/*		            @stustison
 
@@ -55,10 +28,9 @@ catalog/spatial/csw/*           @bdeining
 
 catalog/spatial/registry/*      @clockard
 
-catalog/ui/catalog-ui-search/src/main/java/*		@rzwiefel
-
 catalog/ui/search-ui/standard/*		@stustison
 
+catalog/ui/catalog-ui-search/* @andrewkfiedler
 
 ###############################
 # PLATFORM
@@ -66,16 +38,7 @@ catalog/ui/search-ui/standard/*		@stustison
 
 platform/admin/*		@stustison
 
-platform/admin/admin-configuration-configinstaller/*    @lambeaux
-
-platform/admin/core/admin-core-api/*                    @lambeaux
-platform/admin/core/admin-core-appservice/*             @lambeaux
-platform/admin/core/admin-core-impl/*                   @lambeaux
-platform/admin/core/admin-core-migration-commands/*     @lambeaux
-
 platform/error/*		@stustison
-
-platform/platform-app/src/main/resources/features.xml       @emmberk
 
 platform/platform-filter-delegate/*		    @stustison
 
@@ -85,12 +48,4 @@ platform/platform-paxweb-jettyconfig/*	    @stustison
 
 platform/security/*		@stustison
 
-platform/security/security-migratable/*     @paouelle   @lambeaux
-
 platform/util/*			@stustison
-
-platform/migration/*            @paouelle   @lambeaux
-platform/platform-migratable/*  @paouelle   @lambeaux
-
-platform/platform-configuration/*       @lambeaux
-platform/platform-filter-clientinfo/*   @lambeaux
