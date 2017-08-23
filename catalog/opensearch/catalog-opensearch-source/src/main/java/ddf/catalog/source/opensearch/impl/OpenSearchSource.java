@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -38,6 +39,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.TransformerException;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -49,6 +51,7 @@ import org.codice.ddf.endpoints.OpenSearch;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 import org.geotools.filter.FilterTransformer;
 import org.jdom2.Element;
+import org.jdom2.output.XMLOutputter;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -144,6 +147,8 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     private String configurationPid;
 
     private List<String> parameters;
+
+    private Set<String> markUpSet;
 
     private String username;
 
@@ -507,12 +512,14 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
         List<Element> foreignMarkup = entry.getForeignMarkup();
         String relevance = "";
         String source = "";
+
         for (Element element : foreignMarkup) {
             if (element.getName()
                     .equals("score")) {
                 relevance = element.getContent(0)
                         .getValue();
             }
+            metacards.addAll(processAdditionalForeignMarkups(element, id));
         }
         //we currently do not support downloading content via an RSS enclosure, this support can be added at a later date if we decide to include it
         for (SyndContent content : contents) {
@@ -765,6 +772,14 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
         this.configurationPid = configurationPid;
     }
 
+    public List<String> getMarkUpSet() {
+        return new ArrayList<>(markUpSet);
+    }
+
+    public void setMarkUpSet(List<String> markUpSet) {
+        this.markUpSet = new HashSet<>(markUpSet);
+    }
+
     public List<String> getParameters() {
         return parameters;
     }
@@ -936,4 +951,17 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
             client.replaceQueryParam(URL_SRC_PARAMETER, "");
         }
     }
+
+    private List<Metacard> processAdditionalForeignMarkups(Element element, String id) {
+        List<Metacard> metacards = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(markUpSet)) {
+            XMLOutputter xmlOutputter = new XMLOutputter();
+            if (markUpSet.contains(element.getName())) {
+                Metacard metacard = parseContent(xmlOutputter.outputString(element), id);
+                metacards.add(metacard);
+            }
+        }
+        return metacards;
+    }
+
 }

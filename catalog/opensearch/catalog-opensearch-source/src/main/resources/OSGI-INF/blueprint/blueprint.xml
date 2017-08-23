@@ -81,6 +81,9 @@
                 </list>
             </property>
             <property name="resourceReader" ref="resourceReader"/>
+            <property name="markUpSet">
+                <list />
+            </property>
         </cm:managed-component>
     </cm:managed-service-factory>
     

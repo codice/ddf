@@ -14,6 +14,7 @@
 package ddf.catalog.source.opensearch.impl;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Matchers.any;
@@ -30,6 +31,7 @@ import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,6 +80,8 @@ import ddf.security.encryption.EncryptionService;
  */
 public class TestOpenSearchSource {
 
+    private static final String RESOURCE_TAG = "Resource";
+
     private static final GeotoolsFilterAdapterImpl FILTER_ADAPTER = new GeotoolsFilterAdapterImpl();
 
     private static final String SAMPLE_ID = "abcdef12345678900987654321fedcba";
@@ -109,6 +113,69 @@ public class TestOpenSearchSource {
             "sort");
 
     private static FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
+
+    private static InputStream getSampleAtomStreamWithForeignMarkup() {
+        String response =
+                "<feed xmlns=\"http://www.w3.org/2005/Atom\" xmlns:os=\"http://a9.com/-/spec/opensearch/1.1/\">\r\n"
+                        + "    <title type=\"text\">Query Response</title>\r\n"
+                        + "    <updated>2013-01-31T23:22:37.298Z</updated>\r\n"
+                        + "    <id>urn:uuid:a27352c9-f935-45f0-9b8c-5803095164bb</id>\r\n"
+                        + "    <link href=\"#\" rel=\"self\" />\r\n" + "    <author>\r\n"
+                        + "        <name>Codice</name>\r\n" + "    </author>\r\n"
+                        + "    <generator version=\"2.1.0.20130129-1341\">ddf123</generator>\r\n"
+                        + "    <os:totalResults>1</os:totalResults>\r\n"
+                        + "    <os:itemsPerPage>10</os:itemsPerPage>\r\n"
+                        + "    <os:startIndex>1</os:startIndex>\r\n"
+                        + "    <entry xmlns:relevance=\"http://a9.com/-/opensearch/extensions/relevance/1.0/\" xmlns:fs=\"http://a9.com/-/opensearch/extensions/federation/1.0/\"\r\n"
+                        + "        xmlns:georss=\"http://www.georss.org/georss\">\r\n"
+                        + "        <fs:resultSource fs:sourceId=\"ddf123\" />\r\n"
+                        + "        <relevance:score>0.19</relevance:score>\r\n"
+                        + "        <id>urn:catalog:id:ee7a161e01754b9db1872bfe39d1ea09</id>\r\n"
+                        + "        <title type=\"text\">F-15 lands in Libya; Crew Picked Up</title>\r\n"
+                        + "        <updated>2013-01-31T23:22:31.648Z</updated>\r\n"
+                        + "        <published>2013-01-31T23:22:31.648Z</published>\r\n"
+                        + "        <link href=\"http://123.45.67.123:8181/services/catalog/ddf123/ee7a161e01754b9db1872bfe39d1ea09\" rel=\"alternate\" title=\"View Complete Metacard\" />\r\n"
+                        + "        <category term=\"Resource\" />\r\n"
+                        + "        <georss:where xmlns:gml=\"http://www.opengis.net/gml\">\r\n"
+                        + "            <gml:Point>\r\n"
+                        + "                <gml:pos>32.8751900768792 13.1874561309814</gml:pos>\r\n"
+                        + "            </gml:Point>\r\n" + "        </georss:where>\r\n"
+                        + "        <Resource:Resource xmlns=\"http://sample.com/resource\" xmlns:ns5=\"http://www.w3.org/1999/xlink\" xmlns:Resource=\"http://sample.com/resource\">"
+                        + "            <ns3:metacard xmlns:ns3=\"urn:catalog:metacard\" xmlns:ns2=\"http://www.w3.org/1999/xlink\" xmlns:ns1=\"http://www.opengis.net/gml\"\r\n"
+                        + "                xmlns:ns4=\"http://www.w3.org/2001/SMIL20/\" xmlns:ns5=\"http://www.w3.org/2001/SMIL20/Language\" ns1:id=\"4535c53fc8bc4404a1d32a5ce7a29585\">\r\n"
+                        + "                <ns3:type>ddf.metacard</ns3:type>\r\n"
+                        + "                <ns3:source>ddf.distribution</ns3:source>\r\n"
+                        + "                <ns3:geometry name=\"location\">\r\n"
+                        + "                    <ns3:value>\r\n"
+                        + "                        <ns1:Point>\r\n"
+                        + "                            <ns1:pos>32.8751900768792 13.1874561309814</ns1:pos>\r\n"
+                        + "                        </ns1:Point>\r\n"
+                        + "                    </ns3:value>\r\n"
+                        + "                </ns3:geometry>\r\n"
+                        + "                <ns3:dateTime name=\"created\">\r\n"
+                        + "                    <ns3:value>2013-01-31T16:22:31.648-07:00</ns3:value>\r\n"
+                        + "                </ns3:dateTime>\r\n"
+                        + "                <ns3:dateTime name=\"modified\">\r\n"
+                        + "                    <ns3:value>2013-01-31T16:22:31.648-07:00</ns3:value>\r\n"
+                        + "                </ns3:dateTime>\r\n"
+                        + "                <ns3:stringxml name=\"metadata\">\r\n"
+                        + "                    <ns3:value>\r\n"
+                        + "                        <ns6:xml xmlns:ns6=\"urn:sample:namespace\" xmlns=\"urn:sample:namespace\">Example description.</ns6:xml>\r\n"
+                        + "                    </ns3:value>\r\n"
+                        + "                </ns3:stringxml>\r\n"
+                        + "                <ns3:string name=\"metadata-content-type-version\">\r\n"
+                        + "                    <ns3:value>myVersion</ns3:value>\r\n"
+                        + "                </ns3:string>\r\n"
+                        + "                <ns3:string name=\"metadata-content-type\">\r\n"
+                        + "                    <ns3:value>myType</ns3:value>\r\n"
+                        + "                </ns3:string>\r\n"
+                        + "                <ns3:string name=\"title\">\r\n"
+                        + "                    <ns3:value>Example title</ns3:value>\r\n"
+                        + "                </ns3:string>\r\n" + "            </ns3:metacard>\r\n"
+                        + "        </Resource:Resource>\r\n" + "    </entry>\r\n" + "</feed>";
+        return new ByteArrayInputStream(response.getBytes());
+
+    }
 
     private static InputStream getSampleAtomStream() {
         String response =
@@ -349,7 +416,7 @@ public class TestOpenSearchSource {
         Result result = results.get(0);
         Metacard metacard = result.getMetacard();
         assertThat(metacard, notNullValue());
-        assertThat(metacard.getContentTypeName(), is("Resource"));
+        assertThat(metacard.getContentTypeName(), is(RESOURCE_TAG));
     }
 
     @Test
@@ -374,7 +441,7 @@ public class TestOpenSearchSource {
         Result result = results.get(0);
         Metacard metacard = result.getMetacard();
         assertThat(metacard, notNullValue());
-        assertThat(metacard.getContentTypeName(), is("Resource"));
+        assertThat(metacard.getContentTypeName(), is(RESOURCE_TAG));
     }
 
     @Test
@@ -466,6 +533,24 @@ public class TestOpenSearchSource {
                 .text(SAMPLE_SEARCH_PHRASE);
 
         source.query(new QueryRequestImpl(new QueryImpl(filter)));
+    }
+
+    @Test
+    public void testQueryResponseWithForeignMarkup() throws UnsupportedQueryException, IOException {
+        source.setMarkUpSet(Collections.singletonList("Resource"));
+        when(response.getEntity()).thenReturn(getSampleAtomStreamWithForeignMarkup());
+        
+        Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT)
+                .like()
+                .text(SAMPLE_SEARCH_PHRASE);
+
+        SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
+        assertThat(response.getHits(), is(1L));
+        List<Result> results = response.getResults();
+        assertThat(results, hasSize(1));
+        Metacard metacard = results.get(0).getMetacard();
+        assertThat(metacard.getId(), is(SAMPLE_ID));
+        assertThat(metacard.getContentTypeName(), is(RESOURCE_TAG));
     }
 
     /**
