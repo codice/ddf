@@ -109,7 +109,7 @@ public class ConfigurationMigrationManager
         }
     }
 
-    static <T> BinaryOperator<T> throwingMerger() {
+    public static <T> BinaryOperator<T> throwingMerger() {
         return (u, v) -> {
             throw new IllegalStateException(String.format("Duplicate key %s", u));
         };
