@@ -127,5 +127,7 @@ Installation and configuration details listed by plugin name.
 ==== ${plugin.title}
 
 include::${plugin.file}[]
+
+'''
 </#if>
 </#list>

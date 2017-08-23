@@ -19,16 +19,16 @@
 |Metacard Intersect Attributes:
 |intersectMetacardAttributes
 |String
-|Metacard attributes that will be collected and mapped to security information. Example: security.classification=classification             Any duplicate destinations in this group will result in an intersection of values. E.g. source1=dest and source2=val             where source1 is the set of
+|Metacard attributes that will be collected and mapped to security information. Example: security.classification=classification Any duplicate destinations in this group will result in an intersection of values. E.g. source1=dest and source2=val where source1 is the set of
 |
 |true
 
-| Metacard Union Attributes:
-| unionMetacardAttributes
-| String
+|Metacard Union Attributes:
+|unionMetacardAttributes
+|String
 |'a', 'b', 'c'
 |null
-| true
+|true
 
 |===
 

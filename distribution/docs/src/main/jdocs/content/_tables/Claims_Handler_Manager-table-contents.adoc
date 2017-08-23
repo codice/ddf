@@ -1,0 +1,107 @@
+:title: Security STS LDAP and Roles Claims Handler
+:id: Claims_Handler_Manager
+:type: table
+:status: published
+:application: ${ddf-security}
+:summary: STS Ldap and Roles Claims Handler Configuration.
+
+.[[Claims_Handler_Manager]]Security STS LDAP and Roles Claims Handler
+[cols="1,1m,1,3,1" options="header"]
+|===
+|Name
+|Property
+|Type
+|Description
+|Default Value
+
+|LDAP URL
+|url
+|String
+|LDAP or LDAPS server and port
+|ldaps://${org.codice.ddf.system.hostname}:1636
+
+|LDAP Bind Method
+|bindMethod
+|String
+|LDAP Bind Method
+|Simple
+
+|Realm (GSSAPI and Digest MD5 SASL and only)
+|realm
+|String
+|Realm to use during bind. This applies only to Kerberos and Digest MD5 authentication.
+|
+
+|KDC Address (GSSAPI SASL only)
+|kdcAddress
+|String
+|KDC address to use during bind. This applies only to Kerberos authentication.
+|
+
+|StartTLS
+|startTls
+|Boolean
+|Determines whether or not to use StartTLS when connecting via the ldap protocol. This setting is ignored if the URL uses ldaps.
+|false
+
+|LDAP Bind User DN
+|ldapBindUserDn
+|String
+|DN of the user to bind with LDAP. This user should have the ability to verify passwords and read attributes for any user.
+|cn=admin
+
+|LDAP Bind User Password
+|password
+|Password
+|Password used to bind user with LDAP.
+|secret
+
+|LDAP Group User Membership Attribute
+|membershipUserAttribute
+|String
+|Attribute used as the membership attribute for the user in the group. Usually this is uid, cn, or something similar.
+|uid
+
+|LDAP User Login Attribute
+|loginUserAttribute
+|String
+|Attribute used as the login username. Usually this is uid, cn, or something similar.
+|uid
+
+|LDAP Base User DN
+|userBaseDn
+|String
+|Full LDAP path to where users can be found.
+|ou=users\,dc=example\,dc=com
+
+|Override User Certificate DN
+|overrideCertDn
+|Boolean
+|When checked, this setting will ignore the DN of a user and instead use the LDAP Base User DN value.
+|false
+
+|LDAP Group ObjectClass
+|objectClass
+|String
+|ObjectClass that defines structure for group membership in LDAP. Usually this is groupOfNames or groupOfUniqueNames.
+|groupOfNames
+
+|LDAP Membership Attribute
+|memberNameAttribute
+|String
+|Attribute used to designate the user's name as a member of the group in LDAP. Usually this is member or uniqueMember.
+|member
+
+|LDAP Base Group DN
+|groupBaseDn
+|String
+|Full LDAP path to where groups can be found.
+|ou=groups\,dc=example\,dc=com
+
+|Attribute Map File
+|propertyFileLocation
+|String
+|Location of the file which contains user attribute maps to use.
+|etc/ws-security/attributeMap.properties
+
+|===
