@@ -210,6 +210,11 @@ public class TestXstreamPathConverter {
         path2 = new Path("/a/b/c");
         assertThat(converter.doBasicPathsMatch(path1, path2), is(false));
         assertThat(converter.doBasicPathsMatch(path2, path1), is(false));
+
+        path1 = new Path("/a/b");
+        path2 = new Path("/a/b[2]");
+        assertThat(converter.doBasicPathsMatch(path1, path2), is(true));
+        assertThat(converter.doBasicPathsMatch(path2, path1), is(true));
     }
 
     private void assertRepeatedElements(String xml) throws XMLStreamException {
