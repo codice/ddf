@@ -74,7 +74,7 @@ define([
 
         follows = {
             ROOT_NODE: ['NOT', 'GEOMETRY', 'SPATIAL', 'FILTER_FUNCTION', 'PROPERTY', 'LPAREN'],
-            LPAREN: ['NOT', 'GEOMETRY', 'SPATIAL', 'FILTER_FUNCTION', 'PROPERTY', 'VALUE', 'LPAREN', 'RPAREN'],
+            LPAREN: ['NOT', 'GEOMETRY', 'SPATIAL', 'FILTER_FUNCTION', 'PROPERTY', 'VALUE', 'LPAREN'],
             RPAREN: ['NOT', 'LOGICAL', 'END', 'RPAREN', 'COMPARISON', 'COMMA'],
             PROPERTY: ['COMPARISON', 'BETWEEN', 'COMMA', 'IS_NULL', 'BEFORE', 'AFTER', 'DURING', 'RPAREN'],
             BETWEEN: ['VALUE'],
@@ -128,9 +128,10 @@ define([
             'DURING': temporalClass
         },
 
-        // TODO: for extra credit, these could be figured out while building the syntax tree
+        // as an improvement, these could be figured out while building the syntax tree
         filterFunctionParamCount = {
             'proximity': 3,
+            'pi': 0
         },
 
         dateTimeFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";

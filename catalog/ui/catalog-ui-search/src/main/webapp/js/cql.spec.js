@@ -68,6 +68,25 @@ describe('tokenize', () => {
             expect(filter).to.deep.include(cqlOuterFilter);    
         });
 
+        it('parses a function with no parameters', () => {
+            const cqlString = `(proximity('anyText', pi(),'cat dog'))`;
+
+            const filter = cql.simplify(cql.read(cqlString));
+            expect(filter).to.deep.include({
+                filterFunctionName: 'proximity', 
+                type: 'FILTER_FUNCTION', 
+                params: [
+                    'anyText',
+                    {
+                        filterFunctionName: 'pi', 
+                        type: 'FILTER_FUNCTION',
+                        params: []                    
+                    },
+                    'cat dog'
+                ]                
+            });
+        });        
+
         it('serializes a filter function', () => {
             expect(cql.write(cqlFilter)).to.equal(cqlString);
         });        
