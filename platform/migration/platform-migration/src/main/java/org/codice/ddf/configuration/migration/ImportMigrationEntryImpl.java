@@ -231,6 +231,9 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
         return true;
     }
 
+    // PMD.DefaultPackage - designed to be called from ImportMigrationContextImpl within this package
+    @SuppressWarnings("PMD.DefaultPackage")
+    @VisibleForTesting
     void addPropertyReferenceEntry(String name,
             ImportMigrationJavaPropertyReferencedEntryImpl entry) {
         properties.put(name, entry);

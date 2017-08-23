@@ -185,6 +185,8 @@ public class ExportMigrationContextImpl extends MigrationContextImpl
      * @return metadata to export for the corresponding migratable keyed by the migratable's id
      * @throws org.codice.ddf.migration.MigrationException to stop the export operation
      */
+    // PMD.DefaultPackage - designed to be called from ExportMigrationManagerImpl within this package
+    @SuppressWarnings("PMD.DefaultPackage")
     Map<String, Map<String, Object>> doExport() {
         LOGGER.debug("Exporting [{}] with version [{}]...",
                 id,
@@ -204,6 +206,8 @@ public class ExportMigrationContextImpl extends MigrationContextImpl
         return metadata;
     }
 
+    // PMD.DefaultPackage - designed to be called from ExportMigrationEntryImpl within this package
+    @SuppressWarnings("PMD.DefaultPackage")
     OutputStream getOutputStreamFor(ExportMigrationEntryImpl entry) {
         try {
             close();

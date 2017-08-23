@@ -106,6 +106,26 @@ import com.google.common.annotations.VisibleForTesting;
  * </ul>
  */
 public class MigrationContextImpl implements MigrationContext {
+    public static final String METADATA_PRODUCT_VERSION = "product.version";
+
+    public static final String METADATA_DATE = "date";
+
+    public static final String METADATA_MIGRATABLES = "migratables";
+
+    public static final String METADATA_VERSION = "version";
+
+    public static final String METADATA_TITLE = "title";
+
+    public static final String METADATA_DESCRIPTION = "description";
+
+    public static final String METADATA_ORGANIZATION = "organization";
+
+    public static final String METADATA_EXTERNALS = "externals";
+
+    public static final String METADATA_SYSTEM_PROPERTIES = "system.properties";
+
+    public static final String METADATA_JAVA_PROPERTIES = "java.properties";
+
     /**
      * Holds the current export version.
      * <p>
@@ -114,26 +134,6 @@ public class MigrationContextImpl implements MigrationContext {
     protected static final String VERSION = "1.0";
 
     protected static final Path METADATA_FILENAME = Paths.get("export.json");
-
-    protected static final String METADATA_PRODUCT_VERSION = "product.version";
-
-    protected static final String METADATA_DATE = "date";
-
-    protected static final String METADATA_MIGRATABLES = "migratables";
-
-    protected static final String METADATA_VERSION = "version";
-
-    protected static final String METADATA_TITLE = "title";
-
-    protected static final String METADATA_DESCRIPTION = "description";
-
-    protected static final String METADATA_ORGANIZATION = "organization";
-
-    protected static final String METADATA_EXTERNALS = "externals";
-
-    protected static final String METADATA_SYSTEM_PROPERTIES = "system.properties";
-
-    protected static final String METADATA_JAVA_PROPERTIES = "java.properties";
 
     protected final MigrationReport report;
 

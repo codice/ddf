@@ -160,6 +160,8 @@ public class ExportMigrationReportImpl implements MigrationReport {
         return report;
     }
 
+    // PMD.DefaultPackage - designed to be called from ExportMigrationEntryImpl within this package
+    @SuppressWarnings("PMD.DefaultPackage")
     ExportMigrationReportImpl recordExternal(ExportMigrationEntryImpl entry, boolean softlink) {
         final Map<String, Object> metadata = new HashMap<>(8);
 
@@ -180,6 +182,8 @@ public class ExportMigrationReportImpl implements MigrationReport {
         return this;
     }
 
+    // PMD.DefaultPackage - designed to be called from ExportMigrationSystemPropertyReferencedEntryImpl within this package
+    @SuppressWarnings("PMD.DefaultPackage")
     ExportMigrationReportImpl recordSystemProperty(
             ExportMigrationSystemPropertyReferencedEntryImpl entry) {
         systemProperties.add(ImmutableMap.of( //
@@ -191,6 +195,8 @@ public class ExportMigrationReportImpl implements MigrationReport {
         return this;
     }
 
+    // PMD.DefaultPackage - designed to be called from ExportMigrationJavaPropertyReferencedEntryImpl within this package
+    @SuppressWarnings("PMD.DefaultPackage")
     ExportMigrationReportImpl recordJavaProperty(
             ExportMigrationJavaPropertyReferencedEntryImpl entry) {
         javaProperties.add(ImmutableMap.of( //
@@ -210,6 +216,8 @@ public class ExportMigrationReportImpl implements MigrationReport {
      *
      * @return metadata recorded with this report
      */
+    // PMD.DefaultPackage - designed to be called from ExportMigrationContextImpl within this package
+    @SuppressWarnings("PMD.DefaultPackage")
     Map<String, Object> getMetadata() {
         final Map<String, Object> metadata = new LinkedHashMap<>(16);
 

@@ -206,6 +206,8 @@ public class MigrationReportImpl implements MigrationReport {
         throw new CompoundMigrationException(errors().iterator()); // preserve order
     }
 
+    // PMD.DefaultPackage - designed to be called from ConfigurationMigrationManager within this package
+    @SuppressWarnings("PMD.DefaultPackage")
     MigrationReportImpl end() {
         runCodes();
         this.end = System.currentTimeMillis();

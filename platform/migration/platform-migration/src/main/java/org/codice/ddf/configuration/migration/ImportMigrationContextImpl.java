@@ -171,6 +171,9 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
         return true;
     }
 
+    // PMD.DefaultPackage - designed to be called from ImportMigrationPropertyReferencedEntryImpl within this package
+    @SuppressWarnings("PMD.DefaultPackage")
+    @VisibleForTesting
     Optional<ImportMigrationEntry> getOptionalEntry(Path path) {
         return Optional.ofNullable(entries.get(path));
     }
@@ -180,6 +183,8 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
      *
      * @throws org.codice.ddf.migration.MigrationException to stop the import operation
      */
+    // PMD.DefaultPackage - designed to be called from ImportMigrationManagerImpl within this package
+    @SuppressWarnings("PMD.DefaultPackage")
     void doImport() {
         if (migratable != null) {
             LOGGER.debug("Importing migratable [{}] from version [{}]...",
@@ -212,10 +217,15 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
         } // else - no errors and nothing to do for the system context
     }
 
+    // PMD.DefaultPackage - designed to be called from ImportMigrationManagerImpl within this package
+    @SuppressWarnings("PMD.DefaultPackage")
     void addEntry(ImportMigrationEntryImpl entry) {
         entries.put(entry.getPath(), entry);
     }
 
+    // PMD.DefaultPackage - designed to be called from ImportMigrationEntryImpl within this package
+    @SuppressWarnings("PMD.DefaultPackage")
+    @VisibleForTesting
     InputStream getInputStreamFor(ZipEntry entry) throws IOException {
         final InputStream is = zip.getInputStream(entry);
 

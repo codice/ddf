@@ -144,7 +144,7 @@ public class ImportMigrationConfigurationAdminContext extends ProxyImportMigrati
         throw new IllegalStateException("should not be called");
     }
 
-    // designed to be called only from ImportMigrationConfigurationAdminEntry within this package
+    // PMD.DefaultPackage - designed to be called only from ImportMigrationConfigurationAdminEntry within this package
     @SuppressWarnings("PMD.DefaultPackage")
     Configuration createConfiguration(ImportMigrationConfigurationAdminEntry entry)
             throws IOException {
@@ -155,8 +155,9 @@ public class ImportMigrationConfigurationAdminContext extends ProxyImportMigrati
         return configurationAdmin.getConfiguration(entry.getPid());
     }
 
-    Configuration getMemoryConfiguration(
-            ImportMigrationConfigurationAdminEntry entry) { // NOPMD - designed to be called only from ImportMigrationConfigurationAdminEntry within this package
+    // PMD.DefaultPackage - designed to be called only from ImportMigrationConfigurationAdminEntry within this package
+    @SuppressWarnings("PMD.DefaultPackage")
+    Configuration getMemoryConfiguration(ImportMigrationConfigurationAdminEntry entry) {
         final String fpid = entry.getFactoryPid();
 
         if (fpid != null) {
@@ -283,7 +284,8 @@ public class ImportMigrationConfigurationAdminContext extends ProxyImportMigrati
                 .resolve(path.getFileName());
     }
 
-    // report parameter is require as this method is used as a functional interface
+    // PMD.UnusedFormalParameter - report parameter is require as this method is used as a functional interface
+    @SuppressWarnings("PMD.UnusedFormalParameter")
     private void deleteUnexportedConfigurationsAfterCompletion(MigrationReport report) {
         if (isValid) {
             Stream.concat(memoryServices.values()

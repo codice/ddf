@@ -28,6 +28,8 @@ import org.codice.ddf.migration.MigrationWarning;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.annotations.VisibleForTesting;
+
 /**
  * This class provides an implementation of the {@link org.codice.ddf.migration.ImportMigrationEntry}
  * representing an external file that was exported.
@@ -76,10 +78,12 @@ public class ImportMigrationExternalEntryImpl extends ImportMigrationEntryImpl {
         return String.format("external file [%s] from [%s]", getAbsolutePath(), getPath());
     }
 
+    @VisibleForTesting
     String getChecksum() {
         return checksum;
     }
 
+    @VisibleForTesting
     boolean isSoftlink() {
         return softlink;
     }

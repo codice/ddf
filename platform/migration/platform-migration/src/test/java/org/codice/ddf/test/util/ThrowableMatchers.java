@@ -103,12 +103,16 @@ public class ThrowableMatchers {
         return new TypeSafeMatcher<Throwable>() {
             @Override
             protected boolean matchesSafely(Throwable item) {
-                while (item.getCause() != null) {
-                    item = item.getCause();
+                Throwable cause = item;
+
+                while (cause.getCause() != null) {
+                    cause = cause.getCause();
                 }
-                return matcher.matches(item);
+                return matcher.matches(cause);
             }
 
+            // PMD.CompareObjectsWithEquals - Purposely testing for identity and not equality
+            @SuppressWarnings("CompareObjectsWithEquals")
             @Override
             protected void describeMismatchSafely(Throwable item, Description description) {
                 Throwable cause = item;
@@ -137,6 +141,8 @@ public class ThrowableMatchers {
 
     public static Matcher hasInitialCauseMessageMatching(Matcher<String> matcher) {
         return new TypeSafeMatcher<Throwable>() {
+            // PMD.CompareObjectsWithEquals - Purposely testing for identity and not equality
+            @SuppressWarnings("CompareObjectsWithEquals")
             @Override
             protected boolean matchesSafely(Throwable item) {
                 Throwable cause = item;
