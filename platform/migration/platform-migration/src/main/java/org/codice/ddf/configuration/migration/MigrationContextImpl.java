@@ -262,6 +262,9 @@ public class MigrationContextImpl implements MigrationContext {
                 true));
     }
 
+    // PMD.DefaultPackage - designed as an internal service within this package
+    @SuppressWarnings("PMD.DefaultPackage")
+    @VisibleForTesting
     PathUtils getPathUtils() {
         return pathUtils;
     }
