@@ -29,7 +29,6 @@ import java.util.zip.ZipFile;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.ImportMigrationEntry;
-import org.codice.ddf.migration.ImportMigrationException;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationOperation;
@@ -185,7 +184,7 @@ public class ImportMigrationManagerImpl implements Closeable {
 
         try {
             is = me.getInputStream()
-                    .orElseThrow(() -> new ImportMigrationException(Messages.IMPORT_METADATA_MISSING_ERROR));
+                    .orElseThrow(() -> new MigrationException(Messages.IMPORT_METADATA_MISSING_ERROR));
             return JsonUtils.MAPPER.parser()
                     .parseMap(IOUtils.toString(is, Charset.defaultCharset()));
         } finally {
