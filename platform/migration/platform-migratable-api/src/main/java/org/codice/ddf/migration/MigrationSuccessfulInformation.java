@@ -13,8 +13,10 @@
  */
 package org.codice.ddf.migration;
 
+import javax.annotation.Nullable;
+
 /**
- * Special information message providing successful information about an operation.
+ * Special informational message providing successful information about a migration operation.
  * <p>
  * <b>
  * This code is experimental. While this interface is functional
@@ -25,12 +27,28 @@ package org.codice.ddf.migration;
  */
 public class MigrationSuccessfulInformation extends MigrationInformation {
     /**
-     * Constructor
+     * Constructs a new migration successful informational message with the specified detail message.
+     * <p>
+     * <i>Note:</i> Detail messages are displayed to the administrator on the console during a
+     * migration operation.
      *
-     * @param message message regarding migration
+     * @param message the detail message for this informational message
      * @throws IllegalArgumentException if <code>message</code> is <code>null</code>
      */
     public MigrationSuccessfulInformation(String message) {
         super(message);
+    }
+
+    /**
+     * Constructs a new migration informational message with the specified detail message to be
+     * formatted with the specified parameters.
+     *
+     * @param format the format string for the detail message for this information message (see
+     *               {@link String#format})
+     * @param args   the arguments to the format message
+     * @throws IllegalArgumentException if <code>format</code> is <code>null</code>
+     */
+    public MigrationSuccessfulInformation(String format, @Nullable Object... args) {
+        super(format, args);
     }
 }

@@ -8,7 +8,6 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import java.util.zip.ZipFile;
 
-import org.codice.ddf.migration.ImportMigrationException;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationOperation;
@@ -35,9 +34,9 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportTest 
     private final Migratable[] MIGRATABLES =
             new Migratable[] {MIGRATABLE, MIGRATABLE2, MIGRATABLE3};
 
-    private Path EXPORT_FILE;
-
     private final ZipFile ZIP = Mockito.mock(ZipFile.class);
+
+    private Path EXPORT_FILE;
 
     private ZipEntry ZE;
 
@@ -124,7 +123,8 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportTest 
                         .toArray(Migratable[]::new),
                 Matchers.arrayContaining(Matchers.sameInstance(MIGRATABLE),
                         Matchers.sameInstance(MIGRATABLE3),
-                        Matchers.nullValue(), // null correspond to the system context
+                        Matchers.nullValue(),
+                        // null correspond to the system context
                         Matchers.nullValue())); // null for migratable2
         Assert.assertThat(MGR.getContexts()
                         .stream()
@@ -132,7 +132,8 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportTest 
                         .toArray(String[]::new),
                 Matchers.arrayContaining(Matchers.equalTo(MIGRATABLE_ID),
                         Matchers.equalTo(MIGRATABLE_ID3),
-                        Matchers.nullValue(), // null correspond to the system context
+                        Matchers.nullValue(),
+                        // null correspond to the system context
                         Matchers.equalTo(MIGRATABLE_ID2)));
     }
 
@@ -190,7 +191,7 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportTest 
 
     @Test
     public void testConstructorWhenZipFileNotFound() throws Exception {
-        thrown.expect(ImportMigrationException.class);
+        thrown.expect(MigrationException.class);
         thrown.expectCause(Matchers.instanceOf(FileNotFoundException.class));
 
         new ImportMigrationManagerImpl(REPORT, EXPORT_FILE, Stream.empty());
@@ -204,7 +205,7 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportTest 
                 .when(ZIP)
                 .getInputStream(ZE);
 
-        thrown.expect(ImportMigrationException.class);
+        thrown.expect(MigrationException.class);
         thrown.expectCause(Matchers.sameInstance(IOE));
 
         new ImportMigrationManagerImpl(REPORT, EXPORT_FILE, Stream.empty(), ZIP);
@@ -214,8 +215,8 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportTest 
     public void testConstructorWhenZipIsOfInvalidVersion() throws Exception {
         ZE = getMetadataZipEntry(ZIP, Optional.of(VERSION), Optional.of(PRODUCT_VERSION));
 
-        thrown.expect(ImportMigrationException.class);
-        thrown.expectMessage("unsupported exported migrated version");
+        thrown.expect(MigrationException.class);
+        thrown.expectMessage("unsupported exported version");
 
         new ImportMigrationManagerImpl(REPORT, EXPORT_FILE, Stream.empty(), ZIP);
     }
@@ -262,7 +263,7 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportTest 
 
     @Test
     public void testDoImportWithInvalidProductVersion() throws Exception {
-        thrown.expect(ImportMigrationException.class);
+        thrown.expect(MigrationException.class);
         thrown.expectMessage(Matchers.containsString("mismatched exported product version"));
 
         MGR.doImport(PRODUCT_VERSION + "2");

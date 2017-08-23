@@ -24,12 +24,15 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+import javax.annotation.Nullable;
+
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationMessage;
 import org.codice.ddf.migration.MigrationOperation;
 import org.codice.ddf.migration.MigrationReport;
+import org.codice.ddf.migration.MigrationWarning;
 import org.codice.ddf.util.function.ERunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,6 +95,12 @@ public class ExportMigrationReportImpl implements MigrationReport {
     @Override
     public ExportMigrationReportImpl record(String msg) {
         report.record(msg);
+        return this;
+    }
+
+    @Override
+    public ExportMigrationReportImpl record(String format, @Nullable Object... args) {
+        report.record(format, args);
         return this;
     }
 
@@ -162,6 +171,9 @@ public class ExportMigrationReportImpl implements MigrationReport {
                             .getChecksumFor(entry.getAbsolutePath()));
         } catch (IOException e) {
             LOGGER.info("failed to compute MD5 checksum for '" + entry.getName() + "': ", e);
+            report.record(new MigrationWarning(Messages.EXPORT_CHECKSUM_COMPUTE_WARNING,
+                    entry.getPath(),
+                    e));
         }
         metadata.put(MigrationEntryImpl.METADATA_SOFTLINK, softlink);
         externals.add(metadata);

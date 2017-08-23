@@ -139,16 +139,17 @@ public class JsonUtils {
 
         if (v == null) {
             if (required) {
-                throw new ImportMigrationException(
-                        "invalid metadata file format; missing required [" + key + "]");
+                throw new MigrationException(Messages.IMPORT_METADATA_FORMAT_ERROR,
+                        String.format("missing required [%s]", key));
             }
             return null;
         }
         if (!clazz.isInstance(v)) {
-            throw new ImportMigrationException(
-                    "invalid metadata file format; [" + key + "] is not a Json "
-                            + clazz.getSimpleName()
-                            .toLowerCase());
+            throw new MigrationException(Messages.IMPORT_METADATA_FORMAT_ERROR,
+                    String.format("[%s] is not a Json %s",
+                            key,
+                            clazz.getSimpleName()
+                                    .toLowerCase()));
         }
         return clazz.cast(v);
     }

@@ -22,9 +22,9 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
 
-import org.codice.ddf.migration.ImportPathMigrationException;
-import org.codice.ddf.migration.ImportPathMigrationWarning;
+import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationReport;
+import org.codice.ddf.migration.MigrationWarning;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,18 +92,24 @@ public class ImportMigrationExternalEntryImpl extends ImportMigrationEntryImpl {
 
         if (!file.exists()) {
             if (required) {
-                report.record(new ImportPathMigrationException(apath, "doesn't exist"));
+                report.record(new MigrationException(Messages.IMPORT_PATH_ERROR,
+                        apath,
+                        "does not exist"));
                 return false;
             }
             return true;
         }
         if (softlink) {
             if (!Files.isSymbolicLink(getAbsolutePath())) {
-                report.record(new ImportPathMigrationWarning(apath, "is not a symbolic link"));
+                report.record(new MigrationWarning(Messages.IMPORT_PATH_WARNING,
+                        apath,
+                        "is not a symbolic link"));
                 return false;
             }
         } else if (!Files.isRegularFile(getAbsolutePath(), LinkOption.NOFOLLOW_LINKS)) {
-            report.record(new ImportPathMigrationWarning(apath, "is not a regular file"));
+            report.record(new MigrationWarning(Messages.IMPORT_PATH_WARNING,
+                    apath,
+                    "is not a regular file"));
         }
         if (checksum != null) {
             try {
@@ -111,17 +117,15 @@ public class ImportMigrationExternalEntryImpl extends ImportMigrationEntryImpl {
                         .getChecksumFor(getAbsolutePath());
 
                 if (!rchecksum.equals(checksum)) {
-                    report.record(new ImportPathMigrationWarning(apath,
-                            String.format(
-                                    "checksum doesn't match the original; expecting '%s' but was '%s'",
-                                    checksum,
-                                    rchecksum)));
+                    report.record(new MigrationWarning(Messages.IMPORT_CHECKSUM_MISMATCH_WARNING,
+                            apath));
                     return false;
                 }
             } catch (IOException e) {
                 LOGGER.info("failed to compute MD5 checksum for '" + getName() + "': ", e);
-                report.record(new ImportPathMigrationWarning(apath,
-                        "checksum could not be calculated; " + e.getMessage()));
+                report.record(new MigrationWarning(Messages.IMPORT_CHECKSUM_COMPUTE_WARNING,
+                        apath,
+                        e));
                 return false;
             }
         }

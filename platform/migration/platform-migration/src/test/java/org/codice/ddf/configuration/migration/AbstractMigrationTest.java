@@ -15,7 +15,6 @@ package org.codice.ddf.configuration.migration;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
 import java.io.BufferedInputStream;
@@ -344,25 +343,21 @@ public class AbstractMigrationTest {
                 .thenReturn(ORGANIZATION);
     }
 
-    public void verifyReportHasMatchingError(MigrationReport report, Class exceptionClass,
-            String message) {
+    public void verifyReportHasMatchingError(MigrationReport report, String message) {
         assertThat("Report has an error message", report.hasErrors(), is(true));
         MigrationException exception = report.errors()
                 .findFirst()
                 .get();
 
-        assertThat(exception.getClass(), equalTo(exceptionClass));
         assertThat(exception.getMessage(), containsString(message));
     }
 
-    public void verifyReportHasMatchingWarning(MigrationReport report, Class warningClass,
-            String message) {
+    public void verifyReportHasMatchingWarning(MigrationReport report, String message) {
         assertThat("Report has a warning message", report.hasWarnings(), is(true));
         MigrationWarning warning = report.warnings()
                 .findFirst()
                 .get();
 
-        assertThat(warning.getClass(), equalTo(warningClass));
         assertThat(warning.getMessage(), containsString(message));
     }
 

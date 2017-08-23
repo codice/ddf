@@ -9,8 +9,8 @@ import javax.annotation.Nullable;
 
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.ImportMigrationEntry;
-import org.codice.ddf.migration.ImportMigrationException;
 import org.codice.ddf.migration.MigrationEntry;
+import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationReport;
 import org.codice.ddf.util.function.EBiConsumer;
 import org.slf4j.Logger;
@@ -37,9 +37,8 @@ public abstract class ImportMigrationPropertyReferencedEntryImpl extends ImportM
                 MigrationEntryImpl.METADATA_PROPERTY,
                 true);
         this.referenced = context.getOptionalEntry(getPath())
-                .orElseThrow(() -> new ImportMigrationException(
-                        "invalid metadata file format; referenced path [" + getName()
-                                + "] is missing from export file"));
+                .orElseThrow(() -> new MigrationException(Messages.IMPORT_METADATA_FORMAT_ERROR,
+                        "referenced path [" + getName() + "] is missing"));
     }
 
     @Override
@@ -59,9 +58,7 @@ public abstract class ImportMigrationPropertyReferencedEntryImpl extends ImportM
     public boolean store(boolean required) {
         if (stored == null) {
             super.stored = false; // until proven otherwise in case next line throws exception
-            LOGGER.debug("Importing {}{}...",
-                    (required ? "required " : ""),
-                    toDebugString());
+            LOGGER.debug("Importing {}{}...", (required ? "required " : ""), toDebugString());
             if (referenced.store(required)) {
                 super.stored = true;
                 verifyPropertyAfterCompletionOnce();
@@ -71,7 +68,8 @@ public abstract class ImportMigrationPropertyReferencedEntryImpl extends ImportM
     }
 
     @Override
-    public boolean store(EBiConsumer<MigrationReport, Optional<InputStream>, IOException> consumer) {
+    public boolean store(
+            EBiConsumer<MigrationReport, Optional<InputStream>, IOException> consumer) {
         Validate.notNull(consumer, "invalid null consumer");
         if (stored == null) {
             super.stored = false; // until proven otherwise in case next line throws exception
@@ -98,7 +96,8 @@ public abstract class ImportMigrationPropertyReferencedEntryImpl extends ImportM
         if (!super.equals(o)) {
             return false;
         } // else - they would be at least of the same class
-        final ImportMigrationPropertyReferencedEntryImpl me = (ImportMigrationPropertyReferencedEntryImpl) o;
+        final ImportMigrationPropertyReferencedEntryImpl me =
+                (ImportMigrationPropertyReferencedEntryImpl) o;
 
         return property.equals(me.getProperty());
     }
@@ -113,7 +112,8 @@ public abstract class ImportMigrationPropertyReferencedEntryImpl extends ImportM
         if (c != 0) {
             return c;
         } // else they would be at least of the same class
-        final ImportMigrationPropertyReferencedEntryImpl ime = (ImportMigrationPropertyReferencedEntryImpl)me;
+        final ImportMigrationPropertyReferencedEntryImpl ime =
+                (ImportMigrationPropertyReferencedEntryImpl) me;
 
         return property.compareTo(ime.getProperty());
     }

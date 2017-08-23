@@ -37,11 +37,9 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.ExportMigrationEntry;
-import org.codice.ddf.migration.ExportMigrationException;
-import org.codice.ddf.migration.ExportPathMigrationException;
-import org.codice.ddf.migration.ExportPathMigrationWarning;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationReport;
+import org.codice.ddf.migration.MigrationWarning;
 import org.codice.ddf.util.function.EBiConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -196,9 +194,9 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
             try (final OutputStream os = getOutputStream()) {
                 super.stored = getReport().wasIOSuccessful(() -> consumer.accept(getReport(), os));
             } catch (ExportIOException e) { // special case indicating the I/O error occurred while writing to the zip which would invalidate the zip so we are forced to abort
-                throw newError("failed to store", e.getCause());
+                throw newError("failed to be exported", e.getCause());
             } catch (IOException e) { // here it means the error came out of reading/processing the input file/stream where it is safe to continue with the next entry, so don't abort
-                getReport().record(newError("failed to store", e));
+                getReport().record(newError("failed to be exported", e));
             } catch (MigrationException e) {
                 throw e;
             }
@@ -222,16 +220,14 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
             if (!validator.test(getReport(), val)) {
                 return Optional.empty();
             } else if (val == null) {
-                getReport().record(new ExportMigrationException(String.format(
-                        "Java property [%s] from [%s] is not defined",
+                getReport().record(new MigrationException(Messages.EXPORT_JAVA_PROPERTY_NOT_DEFINED_ERROR,
                         name,
-                        path)));
+                        path));
                 return Optional.empty();
             } else if (val.isEmpty()) {
-                getReport().record(new ExportMigrationException(String.format(
-                        "Java property [%s] from [%s] is empty",
+                getReport().record(new MigrationException(Messages.EXPORT_JAVA_PROPERTY_IS_EMPTY_ERROR,
                         name,
-                        path)));
+                        path));
                 return Optional.empty();
             }
             final ExportMigrationJavaPropertyReferencedEntryImpl prop =
@@ -240,10 +236,10 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
             properties.put(name, prop);
             return Optional.of(prop);
         } catch (IOException e) {
-            getReport().record(new ExportMigrationException(String.format(
-                    "unable to retrieve Java property [%s] from [%s]; failed to load property file",
+            getReport().record(new MigrationException(Messages.EXPORT_JAVA_PROPERTY_LOAD_ERROR,
                     name,
-                    path), e));
+                    path,
+                    e));
             return Optional.empty();
         }
     }
@@ -276,12 +272,12 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
         return String.format("file [%s] to [%s]", absolutePath, path);
     }
 
-    protected ExportPathMigrationWarning newWarning(String reason) {
-        return new ExportPathMigrationWarning(path, reason);
+    protected MigrationWarning newWarning(String reason) {
+        return new MigrationWarning(Messages.EXPORT_PATH_WARNING, path, reason);
     }
 
-    protected ExportPathMigrationException newError(String reason, Throwable cause) {
-        return new ExportPathMigrationException(path, reason, cause);
+    protected MigrationException newError(String reason, Throwable cause) {
+        return new MigrationException(Messages.EXPORT_PATH_ERROR, path, reason, cause);
     }
 
     private boolean isMigratable() {

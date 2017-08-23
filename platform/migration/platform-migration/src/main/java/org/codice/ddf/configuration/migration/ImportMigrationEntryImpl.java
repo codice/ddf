@@ -30,9 +30,9 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.ImportMigrationEntry;
-import org.codice.ddf.migration.ImportPathMigrationException;
-import org.codice.ddf.migration.ImportPathMigrationWarning;
+import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationReport;
+import org.codice.ddf.migration.MigrationWarning;
 import org.codice.ddf.util.function.EBiConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +65,8 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
      * @param contextProvider a provider for migration contexts given a migratable id
      * @param ze              the zip entry for which we are creating an entry
      */
-    ImportMigrationEntryImpl(Function<String, ImportMigrationContextImpl> contextProvider, ZipEntry ze) {
+    ImportMigrationEntryImpl(Function<String, ImportMigrationContextImpl> contextProvider,
+            ZipEntry ze) {
         // we still must sanitize because there could be a mix of / and \ and Paths.get() doesn't support that
         final Path fqn = Paths.get(FilenameUtils.separatorsToSystem(ze.getName()));
         final int count = fqn.getNameCount();
@@ -152,27 +153,23 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
                     LOGGER.debug("Importing {}{}...",
                             (required ? "required " : ""),
                             toDebugString());
-                    getReport().record(new ImportPathMigrationException(getPath(),
-                            "was not exported"));
+                    getReport().record(new MigrationException(Messages.IMPORT_PATH_NOT_EXPORTED_ERROR,
+                            getPath()));
                 } else {
                     // it is optional so delete it as it was optional when we exported and wasn't on
                     // disk so we want to make sure we end up without the file on disk after import
-                    LOGGER.debug("Deleting {}{}...",
-                            (required ? "required " : ""),
-                            toDebugString());
+                    LOGGER.debug("Deleting {}...", toDebugString());
                     // but only if it is migratable to start with
                     if (isMigratable()) {
                         if (!getFile().delete()) {
-                            getReport().record(new ImportPathMigrationException(getPath(),
-                                    "failed to delete"));
+                            getReport().record(new MigrationException(Messages.IMPORT_PATH_DELETE_ERROR,
+                                    getPath()));
                         }
                     }
                 }
                 return;
             }
-            LOGGER.debug("Importing {}{}...",
-                    (required ? "required " : ""),
-                    toDebugString());
+            LOGGER.debug("Importing {}{}...", (required ? "required " : ""), toDebugString());
             try {
                 FileUtils.copyInputStreamToFile(fis, file);
             } catch (IOException e) {
@@ -211,10 +208,10 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
 
                 super.stored = getReport().wasIOSuccessful(() -> consumer.accept(getReport(), fis));
             } catch (IOException e) {
-                getReport().record(new ImportPathMigrationException(path,
-                        String.format("failed to copy to [%s]",
-                                context.getPathUtils()
-                                        .getDDFHome()),
+                getReport().record(new MigrationException(Messages.IMPORT_PATH_COPY_ERROR,
+                        path,
+                        context.getPathUtils()
+                                .getDDFHome(),
                         e));
             } finally {
                 is.ifPresent(IOUtils::closeQuietly); // we do not care if we cannot close it
@@ -255,13 +252,16 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
         final MigrationReport report = getContext().getReport();
 
         if (getPath().isAbsolute()) {
-            report.record(new ImportPathMigrationWarning(getPath(),
+            report.record(new MigrationWarning(Messages.IMPORT_PATH_DELETE_WARNING,
+                    getPath(),
                     String.format("is outside [%s]",
                             getContext().getPathUtils()
                                     .getDDFHome())));
             return false;
         } else if (Files.isSymbolicLink(getAbsolutePath())) {
-            report.record(new ImportPathMigrationWarning(getPath(), "is a symbolic link"));
+            report.record(new MigrationWarning(Messages.IMPORT_PATH_DELETE_WARNING,
+                    getPath(),
+                    "is a symbolic link"));
             return false;
         }
         return true;

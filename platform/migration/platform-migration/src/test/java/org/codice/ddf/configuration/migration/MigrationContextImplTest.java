@@ -18,7 +18,6 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
-import org.codice.ddf.migration.ImportMigrationException;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationOperation;
@@ -89,7 +88,7 @@ public class MigrationContextImplTest extends AbstractMigrationReportTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(Matchers.containsString("null migratable identifier"));
 
-        new MigrationContextImpl(REPORT, (String)null);
+        new MigrationContextImpl(REPORT, (String) null);
     }
 
     @Test(expected = IOError.class)
@@ -176,26 +175,22 @@ public class MigrationContextImplTest extends AbstractMigrationReportTest {
 
     @Test
     public void testEqualsWhenIdentical() throws Exception {
-        final MigrationContextImpl CONTEXT = new MigrationContextImpl(REPORT,
-                MIGRATABLE_ID);
+        final MigrationContextImpl CONTEXT = new MigrationContextImpl(REPORT, MIGRATABLE_ID);
 
         Assert.assertThat(CONTEXT.equals(CONTEXT), Matchers.equalTo(true));
     }
 
     @Test
     public void testEqualsWithNotContext() throws Exception {
-        final MigrationContextImpl CONTEXT = new MigrationContextImpl(REPORT,
-                MIGRATABLE_ID);
+        final MigrationContextImpl CONTEXT = new MigrationContextImpl(REPORT, MIGRATABLE_ID);
 
         Assert.assertThat(CONTEXT.equals(new Object()), Matchers.equalTo(false));
     }
 
     @Test
     public void testEqualsWhenIdsAreEqual() throws Exception {
-        final MigrationContextImpl CONTEXT = new MigrationContextImpl(REPORT,
-                MIGRATABLE_ID);
-        final MigrationContextImpl CONTEXT2 = new MigrationContextImpl(REPORT,
-                MIGRATABLE_ID);
+        final MigrationContextImpl CONTEXT = new MigrationContextImpl(REPORT, MIGRATABLE_ID);
+        final MigrationContextImpl CONTEXT2 = new MigrationContextImpl(REPORT, MIGRATABLE_ID);
 
         Assert.assertThat(CONTEXT.equals(CONTEXT2), Matchers.equalTo(true));
     }
@@ -203,16 +198,14 @@ public class MigrationContextImplTest extends AbstractMigrationReportTest {
     @Test
     public void testEqualsWhenIdIsNull() throws Exception {
         final MigrationContextImpl CONTEXT = new MigrationContextImpl(REPORT);
-        final MigrationContextImpl CONTEXT2 = new MigrationContextImpl(REPORT,
-                MIGRATABLE_ID);
+        final MigrationContextImpl CONTEXT2 = new MigrationContextImpl(REPORT, MIGRATABLE_ID);
 
         Assert.assertThat(CONTEXT.equals(CONTEXT2), Matchers.equalTo(false));
     }
 
     @Test
     public void testEqualsWhenOtherIdIsNull() throws Exception {
-        final MigrationContextImpl CONTEXT = new MigrationContextImpl(REPORT,
-                MIGRATABLE_ID);
+        final MigrationContextImpl CONTEXT = new MigrationContextImpl(REPORT, MIGRATABLE_ID);
         final MigrationContextImpl CONTEXT2 = new MigrationContextImpl(REPORT);
 
         Assert.assertThat(CONTEXT.equals(CONTEXT2), Matchers.equalTo(false));
@@ -250,7 +243,7 @@ public class MigrationContextImplTest extends AbstractMigrationReportTest {
         final Map<String, Object> METADATA = ImmutableMap.of(MigrationContextImpl.METADATA_VERSION,
                 1.2F);
 
-        thrown.expect(ImportMigrationException.class);
+        thrown.expect(MigrationException.class);
         thrown.expectMessage(Matchers.containsString("invalid metadata"));
         thrown.expectMessage(Matchers.containsString(
                 "[" + MigrationContextImpl.METADATA_VERSION + "]"));

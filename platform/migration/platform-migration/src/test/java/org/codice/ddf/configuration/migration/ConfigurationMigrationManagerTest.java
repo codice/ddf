@@ -50,7 +50,7 @@ import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationReport;
 import org.codice.ddf.migration.MigrationWarning;
-import org.codice.ddf.migration.UnexpectedMigrationException;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -87,30 +87,22 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void constructorWithNullMBeanServer() {
-        new ConfigurationMigrationManager(null,
-                new ArrayList<>(),
-                mockSystemService);
+        new ConfigurationMigrationManager(null, new ArrayList<>(), mockSystemService);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void constructorWithNullConfigurationMigratablesList() {
-        new ConfigurationMigrationManager(mockMBeanServer,
-                null,
-                mockSystemService);
+        new ConfigurationMigrationManager(mockMBeanServer, null, mockSystemService);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void constructorWithNullSystemService() {
-        new ConfigurationMigrationManager(mockMBeanServer,
-                new ArrayList<>(),
-                null);
+        new ConfigurationMigrationManager(mockMBeanServer, new ArrayList<>(), null);
     }
 
     @Test(expected = IOError.class)
     public void constructorWithoutProductVersion() {
-        new ConfigurationMigrationManager(mockMBeanServer,
-                new ArrayList<>(),
-                mockSystemService);
+        new ConfigurationMigrationManager(mockMBeanServer, new ArrayList<>(), mockSystemService);
     }
 
     @Test
@@ -221,9 +213,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
         MigrationReport report = configurationMigrationManager.doExport(DDF_HOME.resolve(
                 "//invalid-directory"));
 
-        reportHasErrorOfTypeWithMessage(report,
-                UnexpectedMigrationException.class,
-                "unable to create directory");
+        reportHasErrorWithMessage(report, "unable to create directory");
     }
 
     @Test
@@ -236,7 +226,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
         MigrationReport report = configurationMigrationManager.doExport(DDF_HOME.resolve(
                 TEST_DIRECTORY));
 
-        reportHasErrorOfTypeWithMessage(report, MigrationException.class, TEST_MESSAGE);
+        reportHasErrorWithMessage(report, TEST_MESSAGE);
         verify(configurationMigrationManager).delegateToExportMigrationManager(any(
                 MigrationReportImpl.class), any(Path.class));
     }
@@ -251,9 +241,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
         MigrationReport report = configurationMigrationManager.doExport(DDF_HOME.resolve(
                 TEST_DIRECTORY));
 
-        reportHasErrorOfTypeWithMessage(report,
-                UnexpectedMigrationException.class,
-                "failed closing file");
+        reportHasErrorWithMessage(report, "failed to close export file");
         verify(configurationMigrationManager).delegateToExportMigrationManager(any(
                 MigrationReportImpl.class), any(Path.class));
     }
@@ -268,9 +256,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
         MigrationReport report = configurationMigrationManager.doExport(DDF_HOME.resolve(
                 TEST_DIRECTORY));
 
-        reportHasErrorOfTypeWithMessage(report,
-                UnexpectedMigrationException.class,
-                "internal error occurred");
+        reportHasErrorWithMessage(report, "internal error");
         verify(configurationMigrationManager).delegateToExportMigrationManager(any(
                 MigrationReportImpl.class), any(Path.class));
     }
@@ -422,7 +408,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
         MigrationReport report = configurationMigrationManager.doImport(DDF_HOME.resolve(
                 TEST_DIRECTORY));
 
-        reportHasErrorOfTypeWithMessage(report, MigrationException.class, TEST_MESSAGE);
+        reportHasErrorWithMessage(report, TEST_MESSAGE);
         verify(configurationMigrationManager).delegateToExportMigrationManager(any(
                 MigrationReportImpl.class), any(Path.class));
         verify(configurationMigrationManager).delegateToImportMigrationManager(any(
@@ -441,9 +427,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
         MigrationReport report = configurationMigrationManager.doImport(DDF_HOME.resolve(
                 TEST_DIRECTORY));
 
-        reportHasErrorOfTypeWithMessage(report,
-                UnexpectedMigrationException.class,
-                "internal error occurred");
+        reportHasErrorWithMessage(report, "internal error");
         verify(configurationMigrationManager).delegateToExportMigrationManager(any(
                 MigrationReportImpl.class), any(Path.class));
         verify(configurationMigrationManager).delegateToImportMigrationManager(any(
@@ -469,15 +453,14 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
                         "There is no matching warning in the migration report"));
     }
 
-    private void reportHasErrorOfTypeWithMessage(MigrationReport report,
-            Class<? extends MigrationException> exceptionClass, String message) {
+    private void reportHasErrorWithMessage(MigrationReport report, String message) {
         assertThat("Report has an error message", report.hasErrors(), is(true));
         MigrationException exception = report.errors()
-                .findFirst().get();
+                .findFirst()
+                .get();
 
-        assertThat(exceptionClass, equalTo(exception.getClass()));
-        assertThat(exception.getMessage()
-                .contains(message), is(true));
+        assertThat(MigrationException.class, equalTo(exception.getClass()));
+        assertThat(exception.getMessage(), Matchers.containsString(message));
     }
 
     private ConfigurationMigrationManager getConfigurationMigrationManager() throws IOException {
@@ -486,7 +469,6 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
         versionFile.createNewFile();
         Files.write(versionFile.toPath(), TEST_VERSION.getBytes(), StandardOpenOption.APPEND);
 
-        return new ConfigurationMigrationManager(mockMBeanServer, migratables,
-                mockSystemService);
+        return new ConfigurationMigrationManager(mockMBeanServer, migratables, mockSystemService);
     }
 }

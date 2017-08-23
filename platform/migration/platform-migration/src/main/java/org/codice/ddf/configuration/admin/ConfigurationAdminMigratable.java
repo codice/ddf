@@ -28,7 +28,7 @@ import org.codice.ddf.migration.ImportMigrationContext;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationContext;
 import org.codice.ddf.migration.MigrationEntry;
-import org.codice.ddf.migration.UnexpectedMigrationException;
+import org.codice.ddf.migration.MigrationException;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -144,7 +144,7 @@ public class ConfigurationAdminMigratable implements Migratable {
 
             LOGGER.info(message);
             context.getReport()
-                    .record(new UnexpectedMigrationException(message, e));
+                    .record(new MigrationException(message, e));
         }
         return new Configuration[0];
     }

@@ -5,8 +5,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.apache.commons.io.FilenameUtils;
-import org.codice.ddf.migration.ExportPathMigrationException;
-import org.codice.ddf.migration.ExportPathMigrationWarning;
+import org.codice.ddf.migration.MigrationException;
+import org.codice.ddf.migration.MigrationWarning;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
@@ -148,7 +148,7 @@ public class ExportMigrationJavaPropertyReferencedEntryImplTest extends Abstract
     @Test
     public void testNewWarning() throws Exception {
         final String REASON = "test reason";
-        final ExportPathMigrationWarning warning = ENTRY.newWarning(REASON);
+        final MigrationWarning warning = ENTRY.newWarning(REASON);
 
         Assert.assertThat(warning.getMessage(), Matchers.containsString("[" + PROPERTY + "]"));
         Assert.assertThat(warning.getMessage(),
@@ -161,7 +161,7 @@ public class ExportMigrationJavaPropertyReferencedEntryImplTest extends Abstract
     public void testNewError() throws Exception {
         final String REASON = "test reason";
         final IllegalArgumentException CAUSE = new IllegalArgumentException("test cause");
-        final ExportPathMigrationException error = ENTRY.newError(REASON, CAUSE);
+        final MigrationException error = ENTRY.newError(REASON, CAUSE);
 
         Assert.assertThat(error.getMessage(), Matchers.containsString("[" + PROPERTY + "]"));
         Assert.assertThat(error.getMessage(), Matchers.containsString("[" + PROPERTIES_PATH + "]"));

@@ -39,8 +39,8 @@ import org.apache.karaf.system.SystemService;
 import org.codice.ddf.configuration.migration.ConfigurationMigrationManager;
 import org.codice.ddf.migration.ExportMigrationContext;
 import org.codice.ddf.migration.ImportMigrationContext;
-import org.codice.ddf.migration.IncompatibleMigrationException;
 import org.codice.ddf.migration.Migratable;
+import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationReport;
 import org.junit.Before;
 import org.junit.Rule;
@@ -169,7 +169,7 @@ public class SecurityMigratableTest {
 
         // Verify
         verify(mockImportMigrationContext).getReport();
-        verify(mockMigrationReport).record(any(IncompatibleMigrationException.class));
+        verify(mockMigrationReport).record(any(MigrationException.class));
         verifyNoMoreInteractions(mockImportMigrationContext);
     }
 

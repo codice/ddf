@@ -203,7 +203,7 @@ public class MigrationReportImpl implements MigrationReport {
             throw errors().findAny()
                     .get(); // will never be null since there is 1
         }
-        throw new MigrationCompoundException(errors().collect(Collectors.toList())); // preserve order
+        throw new MigrationCompoundException(errors().iterator()); // preserve order
     }
 
     MigrationReportImpl end() {

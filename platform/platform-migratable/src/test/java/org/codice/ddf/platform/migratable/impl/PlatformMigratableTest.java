@@ -40,8 +40,8 @@ import org.apache.karaf.system.SystemService;
 import org.codice.ddf.configuration.migration.ConfigurationMigrationManager;
 import org.codice.ddf.migration.ExportMigrationContext;
 import org.codice.ddf.migration.ImportMigrationContext;
-import org.codice.ddf.migration.IncompatibleMigrationException;
 import org.codice.ddf.migration.Migratable;
+import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationReport;
 import org.junit.Before;
 import org.junit.Rule;
@@ -138,9 +138,6 @@ import com.google.common.collect.ImmutableMap;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class PlatformMigratableTest {
-    @Rule
-    public TemporaryFolder tempDir = new TemporaryFolder();
-
     private static final String KEYSTORE_SYSTEM_PROP_KEY = "javax.net.ssl.keyStore";
 
     private static final String TRUSTSTORE_SYSTEM_PROP_KEY = "javax.net.ssl.trustStore";
@@ -197,6 +194,9 @@ public class PlatformMigratableTest {
 
     private static final String DDF_HOME_SYSTEM_PROP_KEY = "ddf.home";
 
+    @Rule
+    public TemporaryFolder tempDir = new TemporaryFolder();
+
     private Path ddfHome;
 
     @Mock
@@ -241,7 +241,7 @@ public class PlatformMigratableTest {
 
         // Verify
         verify(mockImportMigrationContext).getReport();
-        verify(mockMigrationReport).record(any(IncompatibleMigrationException.class));
+        verify(mockMigrationReport).record(any(MigrationException.class));
         verifyNoMoreInteractions(mockImportMigrationContext);
     }
 

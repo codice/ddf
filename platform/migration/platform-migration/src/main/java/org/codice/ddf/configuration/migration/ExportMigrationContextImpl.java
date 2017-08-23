@@ -35,9 +35,8 @@ import org.apache.commons.io.output.ProxyOutputStream;
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.ExportMigrationContext;
 import org.codice.ddf.migration.ExportMigrationEntry;
-import org.codice.ddf.migration.ExportMigrationException;
-import org.codice.ddf.migration.ExportPathMigrationException;
 import org.codice.ddf.migration.Migratable;
+import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationReport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -115,13 +114,12 @@ public class ExportMigrationContextImpl extends MigrationContextImpl
         if (!validator.test(report, val)) {
             return Optional.empty();
         } else if (val == null) {
-            report.record(new ExportMigrationException(String.format(
-                    "System property [%s] is not defined",
-                    name)));
+            report.record(new MigrationException(Messages.EXPORT_SYSTEM_PROPERTY_NOT_DEFINED_ERROR,
+                    name));
             return Optional.empty();
         } else if (val.isEmpty()) {
-            report.record(new ExportMigrationException(String.format("System property [%s] is empty",
-                    name)));
+            report.record(new MigrationException(Messages.EXPORT_SYSTEM_PROPERTY_IS_EMPTY_ERROR,
+                    name));
             return Optional.empty();
         }
         final ExportMigrationSystemPropertyReferencedEntryImpl sprop =
@@ -141,16 +139,13 @@ public class ExportMigrationContextImpl extends MigrationContextImpl
     @Override
     public Stream<ExportMigrationEntry> entries(Path path) {
         final ExportMigrationEntryImpl entry = new ExportMigrationEntryImpl(this, path);
-        final File file = entry.getFile();
 
-        if (!file.exists()) {
-            report.record(new ExportPathMigrationException(entry.getPath(), "does not exist"));
-            return Stream.empty();
-        } else if (!file.isDirectory()) {
-            report.record(new ExportPathMigrationException(entry.getPath(), "is not a directory"));
+        if (!isDirectory(entry)) {
             return Stream.empty();
         }
-        return FileUtils.listFiles(file, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE)
+        return FileUtils.listFiles(entry.getFile(),
+                TrueFileFilter.INSTANCE,
+                TrueFileFilter.INSTANCE)
                 .stream()
                 .map(File::toPath)
                 .map(this::getEntry);
@@ -159,17 +154,14 @@ public class ExportMigrationContextImpl extends MigrationContextImpl
     @Override
     public Stream<ExportMigrationEntry> entries(Path path, PathMatcher filter) {
         final ExportMigrationEntryImpl entry = new ExportMigrationEntryImpl(this, path);
-        final File file = entry.getFile();
 
         Validate.notNull(filter, "invalid null filter");
-        if (!file.exists()) {
-            report.record(new ExportPathMigrationException(entry.getPath(), "does not exist"));
-            return Stream.empty();
-        } else if (!file.isDirectory()) {
-            report.record(new ExportPathMigrationException(entry.getPath(), "is not a directory"));
+        if (!isDirectory(entry)) {
             return Stream.empty();
         }
-        return FileUtils.listFiles(file, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE)
+        return FileUtils.listFiles(entry.getFile(),
+                TrueFileFilter.INSTANCE,
+                TrueFileFilter.INSTANCE)
                 .stream()
                 .map(File::toPath)
                 .map(p -> new ExportMigrationEntryImpl(this, p))
@@ -194,7 +186,9 @@ public class ExportMigrationContextImpl extends MigrationContextImpl
      * @throws org.codice.ddf.migration.MigrationException to stop the export operation
      */
     Map<String, Map<String, Object>> doExport() {
-        LOGGER.debug("Exporting [{}] with version [{}]...", id, getVersion().orElse(null)); // version will never be empty
+        LOGGER.debug("Exporting [{}] with version [{}]...",
+                id,
+                getVersion().orElse(null)); // version will never be empty
         Stopwatch stopwatch = null;
 
         if (LOGGER.isDebugEnabled()) {
@@ -235,6 +229,21 @@ public class ExportMigrationContextImpl extends MigrationContextImpl
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    private boolean isDirectory(ExportMigrationEntryImpl entry) {
+        final File file = entry.getFile();
+
+        if (!file.exists()) {
+            report.record(new MigrationException(Messages.EXPORT_PATH_DOES_NOT_EXIST_ERROR,
+                    entry.getPath()));
+            return false;
+        } else if (!file.isDirectory()) {
+            report.record(new MigrationException(Messages.EXPORT_PATH_NOT_A_DIRECTORY_ERROR,
+                    entry.getPath()));
+            return false;
+        }
+        return true;
     }
 }
 

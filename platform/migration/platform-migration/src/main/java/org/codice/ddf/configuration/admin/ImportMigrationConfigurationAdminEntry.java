@@ -22,7 +22,7 @@ import javax.annotation.Nullable;
 
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.ImportMigrationEntry;
-import org.codice.ddf.migration.ImportPathMigrationException;
+import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.ProxyImportMigrationEntry;
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.Configuration;
@@ -54,7 +54,7 @@ public class ImportMigrationConfigurationAdminEntry extends ProxyImportMigration
         Validate.notNull(context, "invalid null context");
         Validate.notNull(properties, "invalid null properties");
         this.context = context;
-            this.properties = properties;
+        this.properties = properties;
         // note: we also remove factory pid and pid from the dictionary as we do not want to restore those later
         this.factoryPid = Objects.toString(properties.remove(ConfigurationAdmin.SERVICE_FACTORYPID),
                 null);
@@ -100,13 +100,16 @@ public class ImportMigrationConfigurationAdminEntry extends ProxyImportMigration
                     cfg = context.createConfiguration(this);
                 } catch (IOException e) {
                     if (isManagedServiceFactory()) {
-                        getReport().record(new ImportPathMigrationException(getPath(),
-                                String.format("failed to create factory configuration [%s]",
-                                        factoryPid),
+                        getReport().record(new MigrationException(
+                                "Import error: failed to create factory configuration [%s] with factory pid [%s]; %s.",
+                                getPath(),
+                                factoryPid,
                                 e));
                     } else {
-                        getReport().record(new ImportPathMigrationException(getPath(),
-                                String.format("failed to create configuration [%s]", pid),
+                        getReport().record(new MigrationException(
+                                "Import error: failed to create configuration [%s] with pid [%s]; %s.",
+                                getPath(),
+                                pid,
                                 e));
                     }
                     return false;
@@ -120,8 +123,10 @@ public class ImportMigrationConfigurationAdminEntry extends ProxyImportMigration
                 cfg.update(properties);
                 this.stored = true;
             } catch (IOException e) {
-                getReport().record(new ImportPathMigrationException(getPath(),
-                        String.format("failed to update configuration [%s]", getPid()),
+                getReport().record(new MigrationException(
+                        "Import error: failed to update configuration [%s] with pid [%s]; %s.",
+                        getPath(),
+                        getPid(),
                         e));
             }
         }

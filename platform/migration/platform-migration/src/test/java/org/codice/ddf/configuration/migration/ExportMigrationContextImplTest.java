@@ -29,7 +29,6 @@ import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.FilenameUtils;
 import org.codice.ddf.migration.ExportMigrationEntry;
-import org.codice.ddf.migration.ExportPathMigrationException;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationOperation;
 import org.codice.ddf.migration.MigrationReport;
@@ -269,11 +268,12 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
                 (r, v) -> true);
 
         Assert.assertThat(oentry, OptionalMatchers.isEmpty());
+
         // finally make sure we got an error (register the thrown expectations after the above to make sure
         // we don't get an exception from the above code under test
         thrown.expect(MigrationException.class);
         thrown.expectMessage(Matchers.containsString(
-                "System property [" + PROPERTY_NAME2 + "] is not defined"));
+                "system property [" + PROPERTY_NAME2 + "] is not defined"));
 
         REPORT.verifyCompletion(); // to get the exception thrown out
     }
@@ -287,11 +287,12 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
                 (r, v) -> true);
 
         Assert.assertThat(oentry, OptionalMatchers.isEmpty());
+
         // finally make sure we got an error (register the thrown expectations after the above to make sure
         // we don't get an exception from the above code under test
         thrown.expect(MigrationException.class);
         thrown.expectMessage(Matchers.containsString(
-                "System property [" + PROPERTY_NAME2 + "] is empty"));
+                "system property [" + PROPERTY_NAME2 + "] is empty"));
 
         REPORT.verifyCompletion(); // to get the exception thrown out
     }
@@ -444,9 +445,10 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
         // verify we got an error and no warnings
         Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(true));
         Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
+
         // finally make sure we got an error (register the thrown expectations after the above to make sure
         // we don't get an exception from the above code under test
-        thrown.expect(ExportPathMigrationException.class);
+        thrown.expect(MigrationException.class);
         thrown.expectMessage(Matchers.containsString("[not-found]"));
         thrown.expectMessage(Matchers.containsString("does not exist"));
 
@@ -464,9 +466,10 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
         // verify we got an error and no warnings
         Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(true));
         Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
+
         // finally make sure we got an error (register the thrown expectations after the above to make sure
         // we don't get an exception from the above code under test
-        thrown.expect(ExportPathMigrationException.class);
+        thrown.expect(MigrationException.class);
         thrown.expectMessage(Matchers.containsString("[etc/not-a-dir]"));
         thrown.expectMessage(Matchers.containsString("is not a directory"));
 
@@ -568,9 +571,10 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
         // verify we got an error and no warnings
         Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(true));
         Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
+
         // finally make sure we got an error (register the thrown expectations after the above to make sure
         // we don't get an exception from the above code under test
-        thrown.expect(ExportPathMigrationException.class);
+        thrown.expect(MigrationException.class);
         thrown.expectMessage(Matchers.containsString("[not-found]"));
         thrown.expectMessage(Matchers.containsString("does not exist"));
 
@@ -591,9 +595,10 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
         // verify we got an error and no warnings
         Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(true));
         Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
+
         // finally make sure we got an error (register the thrown expectations after the above to make sure
         // we don't get an exception from the above code under test
-        thrown.expect(ExportPathMigrationException.class);
+        thrown.expect(MigrationException.class);
         thrown.expectMessage(Matchers.containsString("[etc/not-a-dir]"));
         thrown.expectMessage(Matchers.containsString("is not a directory"));
 

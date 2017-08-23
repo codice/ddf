@@ -30,7 +30,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.lang.Validate;
-import org.codice.ddf.migration.ExportMigrationException;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationOperation;
@@ -104,8 +103,7 @@ public class ExportMigrationManagerImpl implements Closeable {
         try {
             return new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(exportFile.toFile())));
         } catch (FileNotFoundException e) {
-            throw new ExportMigrationException(String.format("unable to create export file [%s]",
-                    exportFile), e);
+            throw new MigrationException(Messages.EXPORT_FILE_CREATE_ERROR, exportFile, e);
         }
     }
 
@@ -144,7 +142,7 @@ public class ExportMigrationManagerImpl implements Closeable {
                 zipOutputStream.putNextEntry(new ZipEntry(MigrationContextImpl.METADATA_FILENAME.toString()));
                 JsonUtils.MAPPER.writeValue(zipOutputStream, metadata);
             } catch (IOException e) {
-                throw new ExportMigrationException("unable to create metadata file", e);
+                throw new MigrationException(Messages.EXPORT_METADATA_CREATE_ERROR, e);
             }
             zipOutputStream.close();
         }

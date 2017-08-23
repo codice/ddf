@@ -83,6 +83,9 @@ public interface Migratable extends Describable {
      * <p>
      * Errors, warnings, and/or information messages can be recorded along with the context's report.
      * Doing so will not abort the operation right away.
+     * <p>
+     * <i>Note:</i> The default implementation provided here will record an incompatibility error with
+     * the context's report.
      *
      * @param context a migration context to import all exported migratable data from
      * @param version the exported version for the data to re-import
@@ -90,11 +93,11 @@ public interface Migratable extends Describable {
      */
     public default void doIncompatibleImport(ImportMigrationContext context, String version) {
         context.getReport()
-                .record(new IncompatibleMigrationException(String.format(
-                        "unsupported exported migrated version [%s] for migratable [%s]; currently supporting [%s]",
+                .record(new MigrationException(
+                        "Incompatibility error: unsupported exported migrated version [%s] for migratable [%s]; currently supporting [%s].",
                         version,
                         getId(),
-                        getVersion())));
+                        getVersion()));
     }
 
     /**
@@ -103,15 +106,18 @@ public interface Migratable extends Describable {
      * <p>
      * Errors, warnings, and/or information messages can be recorded along with the context's report.
      * Doing so will not abort the operation right away.
+     * <p>
+     * <i>Note:</i> The default implementation provided here will record an incompatibility error with
+     * the context's report.
      *
      * @param context a migration context to import all exported migratable data from
      * @throws MigrationException to stop the import operation
      */
     public default void doMissingImport(ImportMigrationContext context) {
         context.getReport()
-                .record(new IncompatibleMigrationException(String.format(
-                        "missing exported data for migratable [%s]; currently supporting [%s]",
+                .record(new MigrationException(
+                        "Incompatibility error: missing exported data for migratable [%s]; currently supporting [%s].",
                         getId(),
-                        getVersion())));
+                        getVersion()));
     }
 }

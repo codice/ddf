@@ -110,6 +110,17 @@ public class ExportMigrationReportImplTest extends AbstractMigrationTest {
     }
 
     @Test
+    public void testRecordWithInfoFormatAndArgs() throws Exception {
+        final String FORMAT = "format %s";
+        final String ARG = "arg";
+
+        Assert.assertThat(XREPORT.record(FORMAT, ARG), Matchers.sameInstance(XREPORT));
+
+        Mockito.verify(REPORT)
+                .record(Mockito.same(FORMAT), Mockito.same(ARG));
+    }
+
+    @Test
     public void testRecord() throws Exception {
         final MigrationInformation INFO = new MigrationInformation("info");
 

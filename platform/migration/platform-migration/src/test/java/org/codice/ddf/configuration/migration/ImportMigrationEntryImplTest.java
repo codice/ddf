@@ -34,7 +34,6 @@ import java.util.function.Function;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.codice.ddf.migration.ImportMigrationEntry;
-import org.codice.ddf.migration.ImportPathMigrationException;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationOperation;
 import org.codice.ddf.migration.MigrationReport;
@@ -53,6 +52,10 @@ public class ImportMigrationEntryImplTest extends AbstractMigrationTest {
 
     public static final String IMPORT_CONTENTS = "import contents";
 
+    public static final String ENTRY_NAME = "test_name";
+
+    public static final Path ABSOLUTE_PATH = Paths.get("/opt/ddf", ENTRY_NAME);
+
     @Mock
     public ImportMigrationContextImpl mockContext;
 
@@ -61,10 +64,6 @@ public class ImportMigrationEntryImplTest extends AbstractMigrationTest {
 
     @Mock
     public PathUtils mockPathUtils;
-
-    public static final String ENTRY_NAME = "test_name";
-
-    public static final Path ABSOLUTE_PATH = Paths.get("/opt/ddf", ENTRY_NAME);
 
     public Function<String, ImportMigrationContextImpl> getContextFunction =
             (n) -> n == null ? mockBlankContext : mockContext;
@@ -183,7 +182,7 @@ public class ImportMigrationEntryImplTest extends AbstractMigrationTest {
 
         entry.store(true);
 
-        verifyReportHasMatchingError(report, ImportPathMigrationException.class, "was not exported");
+        verifyReportHasMatchingError(report, "was not exported");
     }
 
     @Test
