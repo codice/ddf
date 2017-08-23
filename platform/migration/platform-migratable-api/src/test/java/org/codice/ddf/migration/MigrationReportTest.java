@@ -24,6 +24,10 @@ import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
 public class MigrationReportTest {
+    private static final String FORMAT = "Some %s";
+
+    private static final String ARG = "message";
+
     private static final String MSG = "Some message";
 
     private final static String[] MESSAGE_STRINGS =
@@ -85,6 +89,25 @@ public class MigrationReportTest {
         thrown.expectMessage(Matchers.containsString("null message"));
 
         REPORT.record((String) null);
+    }
+
+    @Test
+    public void testRecordMessageWithFormat() throws Exception {
+        Mockito.when(REPORT.record(Mockito.any(MigrationMessage.class)))
+                .thenReturn(REPORT);
+
+        REPORT.record(FORMAT, ARG);
+
+        Mockito.verify(REPORT)
+                .record(Mockito.eq(FORMAT), Mockito.eq(ARG));
+    }
+
+    @Test
+    public void testRecordMessageWithNullFormat() throws Exception {
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage(Matchers.containsString("null format"));
+
+        REPORT.record(null, ARG);
     }
 
     @Test

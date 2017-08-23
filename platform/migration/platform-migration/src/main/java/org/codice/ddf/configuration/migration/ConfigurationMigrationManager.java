@@ -44,7 +44,6 @@ import org.codice.ddf.migration.MigrationOperation;
 import org.codice.ddf.migration.MigrationReport;
 import org.codice.ddf.migration.MigrationSuccessfulInformation;
 import org.codice.ddf.migration.MigrationWarning;
-import org.codice.ddf.migration.UnexpectedMigrationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -152,16 +151,14 @@ public class ConfigurationMigrationManager
     }
 
     public void init() throws Exception {
-        ObjectName objectName = new ObjectName(OBJECT_NAME);
+        final ObjectName objectName = new ObjectName(OBJECT_NAME);
 
         try {
             mBeanServer.registerMBean(this, objectName);
         } catch (InstanceAlreadyExistsException e) {
             LOGGER.debug("{} already registered as an MBean. Re-registering.", CLASS_NAME);
-
             mBeanServer.unregisterMBean(objectName);
             mBeanServer.registerMBean(this, objectName);
-
             LOGGER.debug("Successfully re-registered {} as an MBean.", CLASS_NAME);
         }
     }
@@ -192,9 +189,9 @@ public class ConfigurationMigrationManager
             FileUtils.forceMkdir(exportDirectory.toFile());
         } catch (IOException e) {
             LOGGER.info("unable to create directory: " + exportDirectory + "; ", e);
-            report.record(new UnexpectedMigrationException(String.format(
-                    "unable to create directory [%s]",
-                    exportDirectory), e));
+            report.record(new MigrationException(Messages.DIRECTORY_CREATE_ERROR,
+                    exportDirectory,
+                    e));
             return report;
         }
         StringBuilder filename = new StringBuilder(
@@ -212,28 +209,20 @@ public class ConfigurationMigrationManager
         } catch (MigrationException e) {
             report.record(e);
         } catch (IOException e) {
-            report.record(new UnexpectedMigrationException(String.format("failed closing file [%s]",
-                    exportFile), e));
+            report.record(new MigrationException(Messages.EXPORT_FILE_CLOSE_ERROR, exportFile, e));
         } catch (RuntimeException e) {
-            report.record(new UnexpectedMigrationException(String.format(
-                    "failed exporting to file [%s]; internal error occurred",
-                    exportFile), e));
+            report.record(new MigrationException(Messages.EXPORT_INTERNAL_ERROR, exportFile, e));
         }
         report.end();
         if (report.hasErrors()) {
             // don't leave the zip file there if the export failed
             FileUtils.deleteQuietly(exportFile.toFile());
-            report.record(new MigrationException(String.format(
-                    "Failed to export all configurations to %s.",
-                    exportFile)));
+            report.record(new MigrationException(Messages.EXPORT_FAILURE, exportFile));
         } else if (report.hasWarnings()) {
-            report.record(new MigrationWarning(
-                    "Successfully exported all configurations with warnings; make sure to review."));
+            report.record(new MigrationWarning(Messages.EXPORT_SUCCESS_WITH_WARNINGS, exportFile));
         } else {
-            report.record(new MigrationSuccessfulInformation(
-                    "Successfully exported all configurations."));
+            report.record(new MigrationSuccessfulInformation(Messages.EXPORT_SUCCESS, exportFile));
         }
-
         return report;
     }
 
@@ -264,36 +253,29 @@ public class ConfigurationMigrationManager
 
         try {
             mgr = delegateToImportMigrationManager(report, exportFile);
-
         } catch (MigrationException e) {
             report.record(e);
         } catch (RuntimeException e) {
-            report.record(new UnexpectedMigrationException(String.format(
-                    "failed importing from file [%s]; internal error occurred",
-                    exportFile), e));
+            report.record(new MigrationException(Messages.IMPORT_INTERNAL_ERROR, exportFile, e));
         } finally {
             IOUtils.closeQuietly(mgr); // do not care if we fail to close the mgr/zip file!!!
         }
         report.end();
         if (report.hasErrors()) {
-            report.record(new MigrationException(String.format(
-                    "Failed to import all configurations from %s.",
-                    exportFile)));
+            report.record(new MigrationException(Messages.IMPORT_FAILURE, exportFile));
         } else if (report.hasWarnings()) {
-            report.record(new MigrationWarning(
-                    "Successfully imported all configurations with warnings; make sure to review."));
-            report.record(new MigrationWarning(
-                    "Please restart the system for changes to take effect after addressing all reported warnings."));
+            report.record(new MigrationWarning(Messages.IMPORT_SUCCESS_WITH_WARNINGS, exportFile));
+            report.record(new MigrationWarning(Messages.RESTART_SYSTEM_WHEN_WARNINGS));
         } else {
-            report.record(new MigrationSuccessfulInformation(
-                    "Successfully imported all configurations."));
+            report.record(new MigrationSuccessfulInformation(Messages.IMPORT_SUCCESS, exportFile));
             try {
                 System.setProperty("karaf.restart.jvm", "true"); // force a JVM restart
                 system.reboot(ConfigurationMigrationManager.REBOOT_DELAY, SystemService.Swipe.NONE);
-                report.record("Restarting the system in 1 minute for changes to take effect.");
+                report.record(Messages.RESTARTING_SYSTEM,
+                        ConfigurationMigrationManager.REBOOT_DELAY);
             } catch (Exception e) { // yeah, their interface declares an exception can be thrown!!!!
                 LOGGER.debug("failed to request a reboot: ", e);
-                report.record("Please restart the system for changes to take effect.");
+                report.record(Messages.RESTART_SYSTEM);
             }
         }
 
@@ -306,7 +288,7 @@ public class ConfigurationMigrationManager
                 exportFile,
                 migratables.stream());
 
-        report.record(String.format("Importing data from file [%s].", exportFile));
+        report.record(Messages.IMPORTING_DATA, exportFile);
         mgr.doImport(productVersion);
         return mgr;
     }
@@ -316,7 +298,7 @@ public class ConfigurationMigrationManager
         try (final ExportMigrationManagerImpl mgr = new ExportMigrationManagerImpl(report,
                 exportFile,
                 migratables.stream())) {
-            report.record(String.format("Exporting data to file [%s].", exportFile));
+            report.record(Messages.EXPORTING_DATA, exportFile);
             mgr.doExport(productVersion);
         }
     }

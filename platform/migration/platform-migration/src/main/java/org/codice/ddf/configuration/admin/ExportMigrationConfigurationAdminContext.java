@@ -23,7 +23,6 @@ import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
@@ -35,7 +34,6 @@ import org.apache.commons.lang.Validate;
 import org.codice.ddf.configuration.persistence.PersistenceStrategy;
 import org.codice.ddf.migration.ExportMigrationContext;
 import org.codice.ddf.migration.ExportMigrationEntry;
-import org.codice.ddf.migration.ExportPathMigrationWarning;
 import org.codice.ddf.migration.MigrationEntry;
 import org.codice.ddf.migration.MigrationWarning;
 import org.codice.ddf.migration.ProxyExportMigrationContext;
@@ -126,26 +124,24 @@ public class ExportMigrationConfigurationAdminContext extends ProxyExportMigrati
                     LOGGER.debug("unsupported {} property from '{}'",
                             ConfigurationAdminMigratable.FELIX_FILEINSTALL_FILENAME,
                             o);
-                    getReport().record(new ExportPathMigrationWarning(Objects.toString(o, null),
-                            String.format(
-                                    "from %s property [%s] for configuration [%s] is of an unsupported format; exporting as [%s]",
-                                    ConfigurationAdminMigratable.FELIX_FILEINSTALL_FILENAME,
-                                    o,
-                                    configuration.getPid(),
-                                    path)));
+                    getReport().record(new MigrationWarning(
+                            "Path [%s] from %s property for configuration [%s] is of an unsupported format; exporting as [%s].",
+                            o,
+                            ConfigurationAdminMigratable.FELIX_FILEINSTALL_FILENAME,
+                            configuration.getPid(),
+                            path));
                 }
             } catch (MalformedURLException | URISyntaxException e) {
                 path = constructPath(configuration);
                 LOGGER.debug(String.format("failed to parse %s property from '%s'; ",
                         ConfigurationAdminMigratable.FELIX_FILEINSTALL_FILENAME,
                         o), e);
-                getReport().record(new ExportPathMigrationWarning(Objects.toString(o, null),
-                        String.format(
-                                "from %s property [%s] for configuration [%s] cannot be parsed; exporting as [%s]",
-                                ConfigurationAdminMigratable.FELIX_FILEINSTALL_FILENAME,
-                                o,
-                                configuration.getPid(),
-                                path)));
+                getReport().record(new MigrationWarning(
+                        "Path [%s] from %s property for configuration [%s] cannot be parsed; exporting as [%s].",
+                        o,
+                        ConfigurationAdminMigratable.FELIX_FILEINSTALL_FILENAME,
+                        configuration.getPid(),
+                        path));
             }
         } else {
             path = constructPath(configuration);

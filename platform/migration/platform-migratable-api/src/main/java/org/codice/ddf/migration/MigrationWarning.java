@@ -13,12 +13,17 @@
  */
 package org.codice.ddf.migration;
 
-import static org.apache.commons.lang.Validate.notNull;
-
 import java.util.Optional;
+
+import javax.annotation.Nullable;
+
+import org.apache.commons.lang.Validate;
 
 /**
  * Class that provides warning statuses for migration operations.
+ * <p>
+ * <i>Note:</i> Detail messages are displayed to the administrator on the console during a
+ * migration operation.
  * <p>
  * <b>
  * This code is experimental. While this interface is functional
@@ -31,14 +36,30 @@ public class MigrationWarning implements MigrationMessage {
     private final String message;
 
     /**
-     * Constructor
+     * Constructs a new migration warning with the specified detail message.
+     * <p>
+     * <i>Note:</i> Detail messages are displayed to the administrator on the console during a
+     * migration operation.
      *
-     * @param message message regarding migration
+     * @param message the detail message for this warning
      * @throws IllegalArgumentException if <code>message</code> is <code>null</code>
      */
     public MigrationWarning(String message) {
-        notNull(message, "message cannot be null");
+        Validate.notNull(message, "invalid null message");
         this.message = message;
+    }
+
+    /**
+     * Constructs a new migration warning with the specified detail message to be formatted with the
+     * specified parameters.
+     *
+     * @param format the format string for the detail message for this warning (see {@link String#format})
+     * @param args   the arguments to the format message
+     * @throws IllegalArgumentException if <code>format</code> is <code>null</code>
+     */
+    public MigrationWarning(String format, @Nullable Object... args) {
+        Validate.notNull(format, "invalid null format message");
+        this.message = String.format(format, args);
     }
 
     public String getMessage() {

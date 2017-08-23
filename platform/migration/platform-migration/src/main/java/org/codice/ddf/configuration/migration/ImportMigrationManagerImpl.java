@@ -104,17 +104,15 @@ public class ImportMigrationManagerImpl implements Closeable {
                             .addEntry(me));
             this.metadata = retrieveMetadata();
         } catch (IOException e) {
-            throw new ImportMigrationException(String.format("failed importing from file [%s]",
-                    exportFile), e);
+            throw new MigrationException(Messages.IMPORT_FILE_READ_ERROR, exportFile, e);
         }
         this.version = JsonUtils.getStringFrom(metadata,
                 MigrationContextImpl.METADATA_VERSION,
                 true);
         if (!MigrationContextImpl.VERSION.equals(version)) {
-            throw new ImportMigrationException(String.format(
-                    "unsupported exported migrated version [%s]; currently supporting [%s]",
+            throw new MigrationException(Messages.IMPORT_UNSUPPORTED_VERSION_ERROR,
                     version,
-                    MigrationContextImpl.VERSION));
+                    MigrationContextImpl.VERSION);
         }
         this.productVersion = JsonUtils.getStringFrom(metadata,
                 MigrationContextImpl.METADATA_PRODUCT_VERSION,
@@ -129,11 +127,9 @@ public class ImportMigrationManagerImpl implements Closeable {
         try {
             return new ZipFile(exportFile.toFile());
         } catch (FileNotFoundException e) {
-            throw new ImportMigrationException(String.format("missing export file [%s]",
-                    exportFile), e);
+            throw new MigrationException(Messages.IMPORT_FILE_MISSING_ERROR, exportFile, e);
         } catch (IOException e) {
-            throw new ImportMigrationException(String.format("failed to open export file [%s]",
-                    exportFile), e);
+            throw new MigrationException(Messages.IMPORT_FILE_OPEN_ERROR, exportFile, e);
         }
     }
 
@@ -148,10 +144,9 @@ public class ImportMigrationManagerImpl implements Closeable {
     public void doImport(String productVersion) {
         Validate.notNull(productVersion, "invalid null product version");
         if (!productVersion.equals(this.productVersion)) {
-            throw new ImportMigrationException(String.format(
-                    "mismatched exported product version [%s]; expecting [%s]",
+            throw new MigrationException(Messages.IMPORT_MISMATCH_PRODUCT_VERSION_ERROR,
                     this.productVersion,
-                    productVersion));
+                    productVersion);
         }
         LOGGER.debug("Importing product [{}] from version [{}]...", productVersion, version);
         contexts.values()
@@ -191,9 +186,7 @@ public class ImportMigrationManagerImpl implements Closeable {
 
         try {
             is = me.getInputStream()
-                    .orElseThrow(() -> new ImportMigrationException(String.format(
-                            "missing metadata file [%s] from exported data",
-                            MigrationContextImpl.METADATA_FILENAME)));
+                    .orElseThrow(() -> new ImportMigrationException(Messages.IMPORT_METADATA_MISSING_ERROR));
             return JsonUtils.MAPPER.parser()
                     .parseMap(IOUtils.toString(is, Charset.defaultCharset()));
         } finally {

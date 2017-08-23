@@ -41,8 +41,6 @@ import org.apache.commons.lang.Validate;
 import org.codice.ddf.configuration.persistence.PersistenceStrategy;
 import org.codice.ddf.migration.ImportMigrationContext;
 import org.codice.ddf.migration.ImportMigrationEntry;
-import org.codice.ddf.migration.ImportMigrationException;
-import org.codice.ddf.migration.ImportPathMigrationException;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationReport;
 import org.codice.ddf.migration.ProxyImportMigrationContext;
@@ -195,8 +193,10 @@ public class ImportMigrationConfigurationAdminContext extends ProxyImportMigrati
         final PersistenceStrategy ps = admin.getPersister(extn);
 
         if (ps == null) {
-            getReport().record(new ImportPathMigrationException(path,
-                    String.format("persistence strategy [%s] is not defined", extn)));
+            getReport().record(new MigrationException(
+                    "Import error: persistency strategy [%s] for configuration [%s] is not defined.",
+                    extn,
+                    path));
         } else {
             final Dictionary<String, Object> properties;
             InputStream is = null;
@@ -205,20 +205,22 @@ public class ImportMigrationConfigurationAdminContext extends ProxyImportMigrati
                 is = entry.getInputStream()
                         .orElse(null);
                 if (is == null) {
-                    throw new ImportPathMigrationException(path,
-                            String.format("unable to read %s configuration; not exported",
-                                    ps.getExtension()));
+                    throw new MigrationException(
+                            "Import error: failed to read configuration [%s]; not exported.",
+                            path);
                 }
                 try {
                     properties = ps.read(is);
                 } catch (IOException e) {
-                    throw new ImportPathMigrationException(path,
-                            String.format("unable to read %s configuration", ps.getExtension()),
+                    throw new MigrationException(
+                            "Import error: failed to read configuration [%s] using persistent strategy [%s]; %s.",
+                            path,
+                            ps.getExtension(),
                             e);
                 }
             } catch (IOException e) {
-                throw new ImportPathMigrationException(path,
-                        String.format("unable to read %s configuration", ps.getExtension()),
+                throw new MigrationException("Import error: failed to read configuration [%s]; %s.",
+                        path,
                         e);
             } finally {
                 IOUtils.closeQuietly(is);
@@ -294,9 +296,10 @@ public class ImportMigrationConfigurationAdminContext extends ProxyImportMigrati
                     configuration.getPid());
             configuration.delete();
         } catch (IOException e) {
-            getReport().record(new ImportMigrationException(String.format(
-                    "Configuration [%s] cannot be deleted",
-                    configuration.getPid()), e));
+            getReport().record(new MigrationException(
+                    "Import error: failed to delete configuration [%s]; %s.",
+                    configuration.getPid(),
+                    e));
         }
     }
 }

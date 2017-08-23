@@ -1,7 +1,7 @@
 package org.codice.ddf.configuration.migration;
 
-import org.codice.ddf.migration.ExportPathMigrationException;
-import org.codice.ddf.migration.ExportPathMigrationWarning;
+import org.codice.ddf.migration.MigrationException;
+import org.codice.ddf.migration.MigrationWarning;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,12 +43,19 @@ public class ExportMigrationSystemPropertyReferencedEntryImpl
     }
 
     @Override
-    protected ExportPathMigrationWarning newWarning(String reason) {
-        return new ExportPathMigrationWarning(getProperty(), getPath(), reason);
+    protected MigrationWarning newWarning(String reason) {
+        return new MigrationWarning(Messages.EXPORT_SYSTEM_PROPERTY_WARNING,
+                getProperty(),
+                getPath(),
+                reason);
     }
 
     @Override
-    protected ExportPathMigrationException newError(String reason, Throwable cause) {
-        return new ExportPathMigrationException(getProperty(), getPath(), reason, cause);
+    protected MigrationException newError(String reason, Throwable cause) {
+        return new MigrationException(Messages.EXPORT_SYSTEM_PROPERTY_ERROR,
+                getProperty(),
+                getPath(),
+                reason,
+                cause);
     }
 }

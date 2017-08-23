@@ -19,7 +19,6 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
-import org.apache.commons.lang.Validate;
 import org.codice.ddf.util.function.ERunnable;
 
 /**
@@ -65,8 +64,22 @@ public interface MigrationReport {
      * @throws IllegalArgumentException if <code>msg</code> is <code>null</code>
      */
     public default MigrationReport record(String msg) {
-        Validate.notNull(msg, "invalid null message");
         return record(new MigrationInformation(msg));
+    }
+
+    /**
+     * Records an informational message that occurred during the migration report.
+     * <p>
+     * <i>Note:</i> This is a short for <code>record(new MigrationInformation(format, args))</code>.
+     *
+     * @param format the format string for the detail message for the information message to record (see
+     *               {@link String#format})
+     * @param args   the arguments to the format message
+     * @return this for chaining
+     * @throws IllegalArgumentException if <code>format</code> is <code>null</code>
+     */
+    public default MigrationReport record(String format, @Nullable Object... args) {
+        return record(new MigrationInformation(format, args));
     }
 
     /**

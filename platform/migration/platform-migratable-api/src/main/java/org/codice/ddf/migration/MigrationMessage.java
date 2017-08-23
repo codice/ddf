@@ -19,6 +19,9 @@ import java.util.Optional;
  * Interface for describing migration messages that can be recorded during an import or export
  * migration operation.
  * <p>
+ * <i>Note:</i> Messages are displayed to the administrator on the console during a migration
+ * operation.
+ * <p>
  * <b>
  * This code is experimental. While this interface is functional
  * and tested, it may change or be removed in a future version of the
@@ -38,7 +41,7 @@ public interface MigrationMessage {
      * Downgrades the specified message to a warning if possible.
      *
      * @return a warning that correspond to this message or empty if the message cannot be downgraded
-     * (e.g. it is an informational message)s
+     * (e.g. it is an informational message)
      */
     public Optional<MigrationWarning> downgradeToWarning();
 }

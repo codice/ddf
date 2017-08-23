@@ -38,18 +38,6 @@ public class ImportMigrationException extends MigrationException {
     }
 
     /**
-     * Constructs a new exception with a detail message that contains a common import
-     * configuration error and the detail message associated with the {@code cause}.
-     *
-     * @param cause the cause (which is saved for later retrieval by the {@link #getCause()}
-     *              method). Cannot be {@code null}.
-     */
-    public ImportMigrationException(Throwable cause) {
-        super(String.format("%s: %s", ImportMigrationException.MESSAGE_PREFIX, cause.getMessage()),
-                cause);
-    }
-
-    /**
      * Constructs a new exception with the specified detail message prefixed with a common import
      * configuration error and the detail message associated with the {@code cause}.
      *

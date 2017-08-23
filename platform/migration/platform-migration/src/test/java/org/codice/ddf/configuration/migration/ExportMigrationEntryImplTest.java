@@ -28,8 +28,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.codice.ddf.migration.ExportMigrationEntry;
-import org.codice.ddf.migration.ExportPathMigrationException;
-import org.codice.ddf.migration.ExportPathMigrationWarning;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationReport;
 import org.codice.ddf.migration.MigrationWarning;
@@ -158,7 +156,7 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(Matchers.containsString("null path"));
 
-        new ExportMigrationEntryImpl(CONTEXT, (Path)null);
+        new ExportMigrationEntryImpl(CONTEXT, (Path) null);
     }
 
     @Test
@@ -176,7 +174,8 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
 
     @Test
     public void testConstructorWithRelativePathname() throws Exception {
-        final ExportMigrationEntryImpl ENTRY = new ExportMigrationEntryImpl(CONTEXT, FILE_PATH.toString());
+        final ExportMigrationEntryImpl ENTRY = new ExportMigrationEntryImpl(CONTEXT,
+                FILE_PATH.toString());
 
         Assert.assertThat(ENTRY.getContext(), Matchers.sameInstance(CONTEXT));
         Assert.assertThat(ENTRY.getPath(), Matchers.equalTo(FILE_PATH));
@@ -198,7 +197,7 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(Matchers.containsString("null pathname"));
 
-        new ExportMigrationEntryImpl(CONTEXT, (String)null);
+        new ExportMigrationEntryImpl(CONTEXT, (String) null);
     }
 
     @Test
@@ -363,7 +362,7 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
         Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
         Assert.assertThat(REPORT.wasSuccessful(), Matchers.equalTo(false));
 
-        thrown.expect(ExportPathMigrationException.class);
+        thrown.expect(MigrationException.class);
         thrown.expectMessage(Matchers.containsString("does not exist"));
 
         REPORT.verifyCompletion(); // to trigger an exception from the report
@@ -415,7 +414,7 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
         Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
         Assert.assertThat(REPORT.wasSuccessful(), Matchers.equalTo(false));
 
-        thrown.expect(ExportPathMigrationException.class);
+        thrown.expect(MigrationException.class);
         thrown.expectMessage(Matchers.containsString("cannot be read"));
         thrown.expectCause(Matchers.sameInstance(IOE));
 
@@ -438,7 +437,7 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
         Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
         Assert.assertThat(REPORT.wasSuccessful(), Matchers.equalTo(false));
 
-        thrown.expect(ExportPathMigrationException.class);
+        thrown.expect(MigrationException.class);
 
         REPORT.verifyCompletion(); // to trigger an exception from the report
     }
@@ -763,8 +762,8 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
         // we don't get an exception from the above code under test
         thrown.expect(MigrationException.class);
         thrown.expectMessage(Matchers.containsString(
-                "Java property [" + PROPERTY_NAME + "] from [" + FILE_PATH + "]"));
-        thrown.expectMessage(Matchers.containsString("failed to load property file"));
+                "failed to retrieve Java property [" + PROPERTY_NAME + "] from [" + FILE_PATH
+                        + "]"));
 
         REPORT.verifyCompletion(); // to get the exception thrown out
     }
@@ -780,7 +779,7 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
     @Test
     public void testNewWarning() throws Exception {
         final String REASON = "test reason";
-        final ExportPathMigrationWarning warning = ENTRY.newWarning(REASON);
+        final MigrationWarning warning = ENTRY.newWarning(REASON);
 
         Assert.assertThat(warning.getMessage(), Matchers.containsString("[" + UNIX_NAME + "]"));
         Assert.assertThat(warning.getMessage(), Matchers.containsString(REASON));
@@ -790,7 +789,7 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
     public void testNewError() throws Exception {
         final String REASON = "test reason";
         final IllegalArgumentException CAUSE = new IllegalArgumentException("test cause");
-        final ExportPathMigrationException error = ENTRY.newError(REASON, CAUSE);
+        final MigrationException error = ENTRY.newError(REASON, CAUSE);
 
         Assert.assertThat(error.getMessage(), Matchers.containsString("[" + UNIX_NAME + "]"));
         Assert.assertThat(error.getMessage(), Matchers.containsString(REASON));
@@ -821,8 +820,7 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
 
     @Test
     public void testEqualsWhenContextsAreDifferent() throws Exception {
-        final ExportMigrationContextImpl CONTEXT2 =
-                Mockito.mock(ExportMigrationContextImpl.class);
+        final ExportMigrationContextImpl CONTEXT2 = Mockito.mock(ExportMigrationContextImpl.class);
 
         Mockito.when(CONTEXT2.getPathUtils())
                 .thenReturn(PATH_UTILS);
@@ -838,7 +836,8 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
 
     @Test
     public void testEqualsWhenPathsAreDifferent() throws Exception {
-        final ExportMigrationEntryImpl ENTRY2 = new ExportMigrationEntryImpl(CONTEXT, FILE_PATH.getParent());
+        final ExportMigrationEntryImpl ENTRY2 = new ExportMigrationEntryImpl(CONTEXT,
+                FILE_PATH.getParent());
 
         Assert.assertThat(ENTRY.equals(ENTRY2), Matchers.equalTo(false));
     }
@@ -852,7 +851,8 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
 
     @Test
     public void testHashCodeWhenDifferent() throws Exception {
-        final ExportMigrationEntryImpl ENTRY2 = new ExportMigrationEntryImpl(CONTEXT, FILE_PATH.getParent());
+        final ExportMigrationEntryImpl ENTRY2 = new ExportMigrationEntryImpl(CONTEXT,
+                FILE_PATH.getParent());
 
         Assert.assertThat(ENTRY.hashCode(), Matchers.not(Matchers.equalTo(ENTRY2.hashCode())));
     }
@@ -864,18 +864,26 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
         final File FILE = Mockito.mock(File.class);
         final long MODIFIED = 12345L;
 
-        Mockito.when(CONTEXT.getPathUtils()).thenReturn(PATH_UTILS);
-        Mockito.when(PATH_UTILS.resolveAgainstDDFHome(FILE_PATH)).thenReturn(FILE_PATH);
-        Mockito.when(FILE_PATH.toRealPath(Mockito.any())).thenReturn(FILE_PATH);
-        Mockito.when(PATH_UTILS.relativizeFromDDFHome(FILE_PATH)).thenReturn(FILE_PATH);
-        Mockito.when(FILE_PATH.toString()).thenReturn(UNIX_NAME);
-        Mockito.when(FILE_PATH.toFile()).thenReturn(FILE);
-        Mockito.when(FILE.lastModified()).thenReturn(MODIFIED);
+        Mockito.when(CONTEXT.getPathUtils())
+                .thenReturn(PATH_UTILS);
+        Mockito.when(PATH_UTILS.resolveAgainstDDFHome(FILE_PATH))
+                .thenReturn(FILE_PATH);
+        Mockito.when(FILE_PATH.toRealPath(Mockito.any()))
+                .thenReturn(FILE_PATH);
+        Mockito.when(PATH_UTILS.relativizeFromDDFHome(FILE_PATH))
+                .thenReturn(FILE_PATH);
+        Mockito.when(FILE_PATH.toString())
+                .thenReturn(UNIX_NAME);
+        Mockito.when(FILE_PATH.toFile())
+                .thenReturn(FILE);
+        Mockito.when(FILE.lastModified())
+                .thenReturn(MODIFIED);
 
         final ExportMigrationEntryImpl ENTRY = new ExportMigrationEntryImpl(CONTEXT, FILE_PATH);
 
         Assert.assertThat(ENTRY.getLastModifiedTime(), Matchers.equalTo(MODIFIED));
 
-        Mockito.verify(FILE).lastModified();
+        Mockito.verify(FILE)
+                .lastModified();
     }
 }

@@ -15,8 +15,8 @@ import javax.annotation.Nullable;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.codice.ddf.migration.ImportPathMigrationException;
 import org.codice.ddf.migration.MigrationEntry;
+import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationReport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +58,8 @@ public class ImportMigrationJavaPropertyReferencedEntryImpl
         if (!super.equals(o)) {
             return false;
         } // else - they would be at least of the same class
-        final ImportMigrationJavaPropertyReferencedEntryImpl me = (ImportMigrationJavaPropertyReferencedEntryImpl) o;
+        final ImportMigrationJavaPropertyReferencedEntryImpl me =
+                (ImportMigrationJavaPropertyReferencedEntryImpl) o;
 
         return propertiesPath.equals(me.getPropertiesPath());
     }
@@ -70,7 +71,8 @@ public class ImportMigrationJavaPropertyReferencedEntryImpl
         if (c != 0) {
             return c;
         } // else they would be at least of the same class
-        final ImportMigrationJavaPropertyReferencedEntryImpl ime = (ImportMigrationJavaPropertyReferencedEntryImpl)me;
+        final ImportMigrationJavaPropertyReferencedEntryImpl ime =
+                (ImportMigrationJavaPropertyReferencedEntryImpl) me;
 
         return propertiesPath.compareTo(ime.getPropertiesPath());
     }
@@ -92,30 +94,32 @@ public class ImportMigrationJavaPropertyReferencedEntryImpl
             final String val = getJavaPropertyValue();
 
             if (val == null) {
-                r.record(new ImportPathMigrationException(propertiesPath,
+                r.record(new MigrationException(Messages.IMPORT_JAVA_PROPERTY_NOT_DEFINED_ERROR,
                         getProperty(),
-                        getPath(),
-                        "it is no longer defined"));
+                        propertiesPath,
+                        getPath()));
             } else if (StringUtils.isBlank(val)) {
-                r.record(new ImportPathMigrationException(propertiesPath,
+                r.record(new MigrationException(Messages.IMPORT_JAVA_PROPERTY_IS_EMPTY_ERROR,
                         getProperty(),
-                        getPath(),
-                        "it is empty or blank"));
+                        propertiesPath,
+                        getPath()));
             } else {
                 try {
                     if (!getAbsolutePath().toRealPath(LinkOption.NOFOLLOW_LINKS)
                             .equals(getContext().getPathUtils()
                                     .resolveAgainstDDFHome(Paths.get(val)))) {
-                        r.record(new ImportPathMigrationException(propertiesPath,
+                        r.record(new MigrationException(Messages.IMPORT_JAVA_PROPERTY_ERROR,
+                                propertiesPath,
                                 getProperty(),
                                 getPath(),
-                                "it now references [" + val + ']'));
+                                "is now set to [" + val + ']'));
                     }
                 } catch (IOException e) { // cannot determine the location of either so it must not exist or be different anyway
-                    r.record(new ImportPathMigrationException(propertiesPath,
+                    r.record(new MigrationException(Messages.IMPORT_JAVA_PROPERTY_ERROR,
+                            propertiesPath,
                             getProperty(),
                             getPath(),
-                            "it now references [" + val + ']',
+                            String.format("is now set to [%s]; %s", val, e.getMessage()),
                             e));
                 }
             }
@@ -132,10 +136,9 @@ public class ImportMigrationJavaPropertyReferencedEntryImpl
                     .toFile()));
             props.load(is);
         } catch (IOException e) {
-            getReport().record(new ImportPathMigrationException(propertiesPath,
+            getReport().record(new MigrationException(Messages.IMPORT_JAVA_PROPERTY_LOAD_ERROR,
                     getProperty(),
-                    getPath(),
-                    "failed to load property file",
+                    propertiesPath,
                     e));
         } finally {
             IOUtils.closeQuietly(is); // we do not care if we cannot close it

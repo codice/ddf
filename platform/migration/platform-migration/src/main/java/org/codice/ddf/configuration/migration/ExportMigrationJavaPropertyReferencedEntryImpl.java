@@ -18,9 +18,9 @@ import java.nio.file.Path;
 import javax.annotation.Nullable;
 
 import org.apache.commons.lang.Validate;
-import org.codice.ddf.migration.ExportPathMigrationException;
-import org.codice.ddf.migration.ExportPathMigrationWarning;
 import org.codice.ddf.migration.MigrationEntry;
+import org.codice.ddf.migration.MigrationException;
+import org.codice.ddf.migration.MigrationWarning;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,7 +72,8 @@ public class ExportMigrationJavaPropertyReferencedEntryImpl
         if (!super.equals(o)) {
             return false;
         } // else - they would be at least of the same class
-        final ExportMigrationJavaPropertyReferencedEntryImpl me = (ExportMigrationJavaPropertyReferencedEntryImpl) o;
+        final ExportMigrationJavaPropertyReferencedEntryImpl me =
+                (ExportMigrationJavaPropertyReferencedEntryImpl) o;
 
         return propertiesPath.equals(me.getPropertiesPath());
     }
@@ -84,7 +85,8 @@ public class ExportMigrationJavaPropertyReferencedEntryImpl
         if (c != 0) {
             return c;
         } // else they would be at least of the same class
-        final ExportMigrationJavaPropertyReferencedEntryImpl eme = (ExportMigrationJavaPropertyReferencedEntryImpl)me;
+        final ExportMigrationJavaPropertyReferencedEntryImpl eme =
+                (ExportMigrationJavaPropertyReferencedEntryImpl) me;
 
         return propertiesPath.compareTo(eme.getPropertiesPath());
     }
@@ -104,13 +106,18 @@ public class ExportMigrationJavaPropertyReferencedEntryImpl
     }
 
     @Override
-    protected ExportPathMigrationWarning newWarning(String reason) {
-        return new ExportPathMigrationWarning(propertiesPath, getProperty(), getPath(), reason);
+    protected MigrationWarning newWarning(String reason) {
+        return new MigrationWarning(Messages.EXPORT_JAVA_PROPERTY_WARNING,
+                propertiesPath,
+                getProperty(),
+                getPath(),
+                reason);
     }
 
     @Override
-    protected ExportPathMigrationException newError(String reason, Throwable cause) {
-        return new ExportPathMigrationException(propertiesPath,
+    protected MigrationException newError(String reason, Throwable cause) {
+        return new MigrationException(Messages.EXPORT_JAVA_PROPERTY_ERROR,
+                propertiesPath,
                 getProperty(),
                 getPath(),
                 reason,

@@ -9,7 +9,6 @@ import java.util.stream.Stream;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.FileUtils;
-import org.codice.ddf.migration.ExportMigrationException;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationOperation;
@@ -119,8 +118,8 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportTest 
         FileUtils.deleteQuietly(EXPORT_FILE.getParent()
                 .toFile());
 
-        thrown.expect(ExportMigrationException.class);
-        thrown.expectMessage(Matchers.containsString("unable to create"));
+        thrown.expect(MigrationException.class);
+        thrown.expectMessage(Matchers.containsString("failed to create export file"));
         thrown.expectCause(Matchers.instanceOf(FileNotFoundException.class));
 
         new ExportMigrationManagerImpl(REPORT, EXPORT_FILE, Stream.empty());
@@ -132,9 +131,12 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportTest 
 
         assertMetaData(MGR.getMetadata());
 
-        Mockito.verify(MIGRATABLE).doExport(Mockito.notNull());
-        Mockito.verify(MIGRATABLE2).doExport(Mockito.notNull());
-        Mockito.verify(MIGRATABLE3).doExport(Mockito.notNull());
+        Mockito.verify(MIGRATABLE)
+                .doExport(Mockito.notNull());
+        Mockito.verify(MIGRATABLE2)
+                .doExport(Mockito.notNull());
+        Mockito.verify(MIGRATABLE3)
+                .doExport(Mockito.notNull());
     }
 
     @Test
@@ -149,7 +151,8 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportTest 
 
         MGR.doExport(PRODUCT_VERSION);
 
-        Mockito.verify(MIGRATABLE3, Mockito.never()).doExport(Mockito.notNull());
+        Mockito.verify(MIGRATABLE3, Mockito.never())
+                .doExport(Mockito.notNull());
     }
 
     @Test
@@ -182,28 +185,41 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportTest 
     @Test
     public void testCloseWhenAlreadyClosed() throws Exception {
         final ZipOutputStream ZOS = Mockito.mock(ZipOutputStream.class);
-        final ExportMigrationManagerImpl MGR = new ExportMigrationManagerImpl(REPORT, EXPORT_FILE, Stream.of(MIGRATABLES), ZOS);
+        final ExportMigrationManagerImpl MGR = new ExportMigrationManagerImpl(REPORT,
+                EXPORT_FILE,
+                Stream.of(MIGRATABLES),
+                ZOS);
 
-        Mockito.doNothing().when(ZOS).closeEntry();
+        Mockito.doNothing()
+                .when(ZOS)
+                .closeEntry();
 
         MGR.close();
 
         MGR.close();
 
-        Mockito.verify(ZOS).closeEntry();
+        Mockito.verify(ZOS)
+                .closeEntry();
     }
 
     @Test
     public void testCloseWhileFailingToCreateMetadataEntry() throws Exception {
         final ZipOutputStream ZOS = Mockito.mock(ZipOutputStream.class);
-        final ExportMigrationManagerImpl MGR = new ExportMigrationManagerImpl(REPORT, EXPORT_FILE, Stream.of(MIGRATABLES), ZOS);
+        final ExportMigrationManagerImpl MGR = new ExportMigrationManagerImpl(REPORT,
+                EXPORT_FILE,
+                Stream.of(MIGRATABLES),
+                ZOS);
         final IOException IOE = new IOException("testing");
 
-        Mockito.doNothing().when(ZOS).closeEntry();
-        Mockito.doThrow(IOE).when(ZOS).putNextEntry(Mockito.any());
+        Mockito.doNothing()
+                .when(ZOS)
+                .closeEntry();
+        Mockito.doThrow(IOE)
+                .when(ZOS)
+                .putNextEntry(Mockito.any());
 
-        thrown.expect(ExportMigrationException.class);
-        thrown.expectMessage(Matchers.containsString("unable to create metadata"));
+        thrown.expect(MigrationException.class);
+        thrown.expectMessage(Matchers.containsString("failed to create metadata"));
         thrown.expectCause(Matchers.sameInstance(IOE));
 
         MGR.close();
@@ -212,10 +228,15 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportTest 
     @Test
     public void testCloseWhileFailingToCloseLastEntry() throws Exception {
         final ZipOutputStream ZOS = Mockito.mock(ZipOutputStream.class);
-        final ExportMigrationManagerImpl MGR = new ExportMigrationManagerImpl(REPORT, EXPORT_FILE, Stream.of(MIGRATABLES), ZOS);
+        final ExportMigrationManagerImpl MGR = new ExportMigrationManagerImpl(REPORT,
+                EXPORT_FILE,
+                Stream.of(MIGRATABLES),
+                ZOS);
         final IOException IOE = new IOException("testing");
 
-        Mockito.doThrow(IOE).when(ZOS).closeEntry();
+        Mockito.doThrow(IOE)
+                .when(ZOS)
+                .closeEntry();
 
         thrown.expect(Matchers.sameInstance(IOE));
 

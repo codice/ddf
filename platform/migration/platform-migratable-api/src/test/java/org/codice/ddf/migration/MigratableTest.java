@@ -59,12 +59,12 @@ public class MigratableTest {
         Mockito.verify(REPORT)
                 .record(CAPTURE.capture());
 
-        Assert.assertThat(CAPTURE.getValue(), Matchers.instanceOf(IncompatibleMigrationException.class));
+        Assert.assertThat(CAPTURE.getValue(), Matchers.instanceOf(MigrationException.class));
         Assert.assertThat(CAPTURE.getValue()
                         .getMessage(),
                 Matchers.matchesPattern(
-                        ".*\\[" + INCOMPATIBLE_VERSION + "\\].*migratable \\[" + MIGRATABLE_ID
-                                + "\\].*supporting \\[" + VERSION + "\\]"));
+                        "Incompatibility error.*\\[" + INCOMPATIBLE_VERSION + "\\].*migratable \\["
+                                + MIGRATABLE_ID + "\\].*supporting \\[" + VERSION + "\\].*"));
     }
 
     @Test
@@ -82,11 +82,11 @@ public class MigratableTest {
         Mockito.verify(REPORT)
                 .record(CAPTURE.capture());
 
-        Assert.assertThat(CAPTURE.getValue(), Matchers.instanceOf(IncompatibleMigrationException.class));
+        Assert.assertThat(CAPTURE.getValue(), Matchers.instanceOf(MigrationException.class));
         Assert.assertThat(CAPTURE.getValue()
                         .getMessage(),
                 Matchers.matchesPattern(
-                        ".*missing exported data.*migratable \\[" + MIGRATABLE_ID
-                                + "\\].*supporting \\[" + VERSION + "\\]"));
+                        "Incompatibility error.*missing exported data.*migratable \\["
+                                + MIGRATABLE_ID + "\\].*supporting \\[" + VERSION + "\\].*"));
     }
 }

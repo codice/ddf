@@ -32,8 +32,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.ImportMigrationContext;
 import org.codice.ddf.migration.ImportMigrationEntry;
-import org.codice.ddf.migration.ImportMigrationException;
 import org.codice.ddf.migration.Migratable;
+import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationReport;
 import org.codice.ddf.migration.MigrationWarning;
 import org.slf4j.Logger;
@@ -155,19 +155,16 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
         }
         if (!fdir.isDirectory()) {
             LOGGER.info("Failed to clean directory [{}]", fdir);
-            getReport().record(new MigrationWarning(String.format(
-                    "Unable to clean directory [%s]; it is not a directory.",
-                    fdir)));
+            getReport().record(new MigrationWarning(Messages.IMPORT_PATH_CLEAN_WARNING,
+                    path,
+                    "not a directory"));
             return false;
         }
         try {
             FileUtils.cleanDirectory(fdir);
         } catch (IOException e) {
             LOGGER.info("Failed to clean directory [" + fdir + "]: ", e);
-            getReport().record(new MigrationWarning(String.format(
-                    "Unable to clean directory [%s]; %s.",
-                    fdir,
-                    e.getMessage())));
+            getReport().record(new MigrationWarning(Messages.IMPORT_PATH_CLEAN_WARNING, path, e));
             return false;
         }
         return true;
@@ -209,8 +206,8 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
                 LOGGER.debug("Imported time for {}: {}", id, stopwatch.stop());
             }
         } else if (id != null) { // not a system context
-            report.record(new ImportMigrationException("Exported data for migratable [" + id
-                    + "] cannot be imported; migratable was not installed."));
+            report.record(new MigrationException(Messages.IMPORT_MIGRATABLE_NOT_INSTALLED_ERROR,
+                    id));
         } // else - no errors and nothing to do for the system context
     }
 

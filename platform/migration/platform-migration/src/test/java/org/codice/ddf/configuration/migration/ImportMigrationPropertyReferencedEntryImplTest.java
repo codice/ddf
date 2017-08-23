@@ -10,7 +10,7 @@ import java.util.Optional;
 
 import org.apache.commons.io.FilenameUtils;
 import org.codice.ddf.migration.ImportMigrationEntry;
-import org.codice.ddf.migration.ImportMigrationException;
+import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationOperation;
 import org.codice.ddf.migration.MigrationReport;
 import org.codice.ddf.test.util.ThrowableMatchers;
@@ -86,10 +86,9 @@ public class ImportMigrationPropertyReferencedEntryImplTest extends AbstractMigr
 
         // Mockito will throw its own wrapper exception below, so we must go to the initial cause to get the truths
         thrown.expect(ThrowableMatchers.hasInitialCauseMatching(Matchers.instanceOf(
-                ImportMigrationException.class)));
+                MigrationException.class)));
         thrown.expect(ThrowableMatchers.hasInitialCauseMessageMatching(Matchers.matchesPattern(
-                ".*invalid metadata file format.*\\[" + MigrationEntryImpl.METADATA_REFERENCE
-                        + "\\]")));
+                ".*invalid metadata.*\\[" + MigrationEntryImpl.METADATA_REFERENCE + "\\].*")));
 
         Mockito.mock(ImportMigrationPropertyReferencedEntryImpl.class,
                 Mockito.withSettings()
@@ -103,10 +102,9 @@ public class ImportMigrationPropertyReferencedEntryImplTest extends AbstractMigr
 
         // Mockito will throw its own wrapper exception below, so we must go to the initial cause to get the truths
         thrown.expect(ThrowableMatchers.hasInitialCauseMatching(Matchers.instanceOf(
-                ImportMigrationException.class)));
+                MigrationException.class)));
         thrown.expect(ThrowableMatchers.hasInitialCauseMessageMatching(Matchers.matchesPattern(
-                ".*invalid metadata file format.*\\[" + MigrationEntryImpl.METADATA_PROPERTY
-                        + "\\]")));
+                ".*invalid metadata.*\\[" + MigrationEntryImpl.METADATA_PROPERTY + "\\].*")));
 
         Mockito.mock(ImportMigrationPropertyReferencedEntryImpl.class,
                 Mockito.withSettings()
@@ -121,9 +119,9 @@ public class ImportMigrationPropertyReferencedEntryImplTest extends AbstractMigr
 
         // Mockito will throw its own wrapper exception below, so we must go to the initial cause to get the truths
         thrown.expect(ThrowableMatchers.hasInitialCauseMatching(Matchers.instanceOf(
-                ImportMigrationException.class)));
+                MigrationException.class)));
         thrown.expect(ThrowableMatchers.hasInitialCauseMessageMatching(Matchers.matchesPattern(
-                ".*invalid metadata file format.* path \\[" + MIGRATABLE_NAME + "\\].*")));
+                ".*invalid metadata.*path \\[" + MIGRATABLE_NAME + "\\] is missing.*")));
 
         Mockito.mock(ImportMigrationPropertyReferencedEntryImpl.class,
                 Mockito.withSettings()
@@ -361,8 +359,7 @@ public class ImportMigrationPropertyReferencedEntryImplTest extends AbstractMigr
     @Test
     public void testCompareToWhenNameDifferent() throws Exception {
         final String MIGRATABLE_NAME2 = "where/some/dir/test2.txt";
-        final Path MIGRATABLE_PATH2 = Paths.get(FilenameUtils.separatorsToSystem(
-                MIGRATABLE_NAME2));
+        final Path MIGRATABLE_PATH2 = Paths.get(FilenameUtils.separatorsToSystem(MIGRATABLE_NAME2));
         final Map<String, Object> METADATA2 = ImmutableMap.of(MigrationEntryImpl.METADATA_REFERENCE,
                 MIGRATABLE_NAME2,
                 MigrationEntryImpl.METADATA_PROPERTY,

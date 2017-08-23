@@ -29,8 +29,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.io.FileUtils;
-import org.codice.ddf.migration.ImportPathMigrationException;
-import org.codice.ddf.migration.ImportPathMigrationWarning;
 import org.codice.ddf.migration.MigrationOperation;
 import org.codice.ddf.migration.MigrationReport;
 import org.junit.Before;
@@ -141,9 +139,7 @@ public class ImportMigrationExternalEntryImplTest extends AbstractMigrationTest 
             assertThat("Entry failed verification because it does not exist.",
                     entry.stored,
                     is(false));
-            verifyReportHasMatchingError(report,
-                    ImportPathMigrationException.class,
-                    "doesn't exist");
+            verifyReportHasMatchingError(report, "does not exist");
         } else {
             throw new AssertionError("Was unable to delete the file.");
         }
@@ -162,9 +158,7 @@ public class ImportMigrationExternalEntryImplTest extends AbstractMigrationTest 
         assertThat("Entry failed verification because it was not a symbolic link.",
                 entry.stored,
                 is(false));
-        verifyReportHasMatchingWarning(report,
-                ImportPathMigrationWarning.class,
-                "not a symbolic link");
+        verifyReportHasMatchingWarning(report, "not a symbolic link");
     }
 
     @Test
@@ -180,9 +174,7 @@ public class ImportMigrationExternalEntryImplTest extends AbstractMigrationTest 
 
         verify(mockPathUtils).getChecksumFor(any(Path.class));
         assertThat("Entry was verified successfully.", entry.stored, is(true));
-        verifyReportHasMatchingWarning(report,
-                ImportPathMigrationWarning.class,
-                "is not a regular file");
+        verifyReportHasMatchingWarning(report, "is not a regular file");
     }
 
     @Test
@@ -195,9 +187,7 @@ public class ImportMigrationExternalEntryImplTest extends AbstractMigrationTest 
         assertThat("Entry failed verification because the checksum didn't match.",
                 entry.stored,
                 is(false));
-        verifyReportHasMatchingWarning(report,
-                ImportPathMigrationWarning.class,
-                "checksum doesn't match");
+        verifyReportHasMatchingWarning(report, "doesn't match");
     }
 
     @Test
@@ -208,9 +198,7 @@ public class ImportMigrationExternalEntryImplTest extends AbstractMigrationTest 
 
         verify(mockPathUtils).getChecksumFor(any(Path.class));
         assertThat("Entry failed verification because of an IOException.", entry.stored, is(false));
-        verifyReportHasMatchingWarning(report,
-                ImportPathMigrationWarning.class,
-                "checksum could not be calculated");
+        verifyReportHasMatchingWarning(report, "Failed to compute checksum");
     }
 }
 

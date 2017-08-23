@@ -13,9 +13,9 @@
  */
 package org.codice.ddf.migration;
 
-import java.util.Collection;
+import java.util.Iterator;
 
-import javax.annotation.Nullable;
+import org.apache.commons.lang.Validate;
 
 /**
  * Exception that indicates multiple problems with the configuration migration. The first error will
@@ -30,32 +30,21 @@ import javax.annotation.Nullable;
  */
 public class MigrationCompoundException extends MigrationException {
     /**
-     * Instantiates a new exception.
+     * Instantiates a new compound migration exception.
      *
      * @param errors the migration exceptions to compound together
+     * @throws IllegalArgumentException if <code>errors</code> is <code>null</code> or empty
      */
-    public MigrationCompoundException(@Nullable Collection<MigrationException> errors) {
-        super(MigrationCompoundException.getFirstErrorMessageFrom(errors));
-        if ((errors != null) && !errors.isEmpty()) {
-            boolean first = true;
-
-            for (MigrationException e : errors) {
-                if (first) {
-                    first = false;
-                    initCause(e);
-                } else {
-                    addSuppressed(e);
-                }
-            }
+    public MigrationCompoundException(Iterator<MigrationException> errors) {
+        super(MigrationCompoundException.getFirstErrorFrom(errors));
+        while (errors.hasNext()) {
+            addSuppressed(errors.next());
         }
     }
 
-    private static String getFirstErrorMessageFrom(Collection<MigrationException> errors) {
-        if ((errors == null) || errors.isEmpty()) {
-            return null;
-        }
-        return errors.iterator()
-                .next()
-                .getMessage();
+    private static MigrationException getFirstErrorFrom(Iterator<MigrationException> errors) {
+        Validate.notNull(errors, "invalid null errors");
+        Validate.isTrue(errors.hasNext(), "missing errors");
+        return errors.next();
     }
 }
