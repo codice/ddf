@@ -19,8 +19,6 @@ import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationContext;
 import org.codice.ddf.migration.MigrationEntry;
 import org.codice.ddf.migration.MigrationReport;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This class provides an abstract and base implementation of the {@link MigrationEntry}.
@@ -36,15 +34,14 @@ public abstract class MigrationEntryImpl implements MigrationEntry {
 
     static final String METADATA_REFERENCE = "reference";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MigrationEntryImpl.class);
-
     /**
      * Will track if store was attempted along with its result. Will be <code>null</code> until
      * store() is attempted, at which point it will start tracking the first store() result.
      */
     protected Boolean stored = null;
 
-    protected MigrationEntryImpl() {}
+    protected MigrationEntryImpl() {
+    }
 
     @Override
     public MigrationReport getReport() {
@@ -106,7 +103,9 @@ public abstract class MigrationEntryImpl implements MigrationEntry {
         if (c != 0) {
             return c;
         }
-        return getClass().getName().compareTo(me.getClass().getName());
+        return getClass().getName()
+                .compareTo(me.getClass()
+                        .getName());
     }
 
     @Override

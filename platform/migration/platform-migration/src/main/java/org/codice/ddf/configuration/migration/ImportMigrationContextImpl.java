@@ -39,6 +39,7 @@ import org.codice.ddf.migration.MigrationWarning;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
 
 /**
@@ -222,17 +223,17 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
         return is;
     }
 
-    // used for testing
+    @VisibleForTesting
     ZipFile getZip() {
         return zip;
     }
 
-    // used for testing
+    @VisibleForTesting
     Map<Path, ImportMigrationEntryImpl> getEntries() {
         return entries;
     }
 
-    // used for testing
+    @VisibleForTesting
     Map<String, ImportMigrationSystemPropertyReferencedEntryImpl> getSystemPropertiesReferencedEntries() {
         return systemProperties;
     }

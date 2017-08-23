@@ -705,6 +705,7 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
         ZOS.close();
         final Map<String, ZipEntry> zentries = AbstractMigrationTest.getEntriesFrom(BAOS);
 
+        Assert.assertThat(out, Matchers.notNullValue());
         Assert.assertThat(zentries.keySet(),
                 Matchers.contains(MIGRATABLE_ID + '/' + MIGRATABLE_NAME));
     }
@@ -716,13 +717,15 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
 
         Mockito.when(ENTRY2.getName())
                 .thenReturn(MIGRATABLE_NAME2);
-        final OutputStream OUT = CONTEXT.getOutputStreamFor(ENTRY);
 
-        final OutputStream out = CONTEXT.getOutputStreamFor(ENTRY2);
+        final OutputStream out = CONTEXT.getOutputStreamFor(ENTRY);
+        final OutputStream out2 = CONTEXT.getOutputStreamFor(ENTRY2);
 
         ZOS.close();
         final Map<String, ZipEntry> zentries = AbstractMigrationTest.getEntriesFrom(BAOS);
 
+        Assert.assertThat(out, Matchers.notNullValue());
+        Assert.assertThat(out2, Matchers.notNullValue());
         Assert.assertThat(zentries.keySet(),
                 Matchers.containsInAnyOrder(MIGRATABLE_ID + '/' + MIGRATABLE_NAME,
                         MIGRATABLE_ID + '/' + MIGRATABLE_NAME2));

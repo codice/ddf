@@ -252,7 +252,6 @@ public class ExportMigrationReportImplTest extends AbstractMigrationTest {
                 .delete(); // will ensure the checksum cannot be computed
 
         Assert.assertThat(XREPORT.recordExternal(ENTRY, false), Matchers.sameInstance(XREPORT));
-        ;
 
         final Map<String, Object> metadata = XREPORT.getMetadata();
 

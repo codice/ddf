@@ -13,8 +13,6 @@
  */
 package org.codice.ddf.configuration.migration;
 
-import static org.apache.commons.lang.Validate.notNull;
-
 import java.io.FileInputStream;
 import java.io.IOError;
 import java.io.IOException;
@@ -46,6 +44,8 @@ import org.codice.ddf.migration.MigrationSuccessfulInformation;
 import org.codice.ddf.migration.MigrationWarning;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.annotations.VisibleForTesting;
 
 /**
  * Implementation of the {@link ConfigurationMigrationService} that allows migration of
@@ -91,9 +91,9 @@ public class ConfigurationMigrationManager
      */
     public ConfigurationMigrationManager(MBeanServer mBeanServer, List<Migratable> migratables,
             SystemService system) {
-        notNull(mBeanServer, "MBeanServer cannot be null");
-        notNull(migratables, "List of migratable services cannot be null");
-        notNull(system, "invalid null system service");
+        Validate.notNull(mBeanServer, "invalid null bean server");
+        Validate.notNull(migratables, "invalid null migratables");
+        Validate.notNull(system, "invalid null system service");
         this.mBeanServer = mBeanServer;
         this.migratables = migratables;
         this.system = system;
@@ -282,6 +282,7 @@ public class ConfigurationMigrationManager
         return report;
     }
 
+    @VisibleForTesting
     ImportMigrationManagerImpl delegateToImportMigrationManager(MigrationReportImpl report,
             Path exportFile) {
         final ImportMigrationManagerImpl mgr = new ImportMigrationManagerImpl(report,
@@ -293,6 +294,7 @@ public class ConfigurationMigrationManager
         return mgr;
     }
 
+    @VisibleForTesting
     void delegateToExportMigrationManager(MigrationReportImpl report, Path exportFile)
             throws IOException {
         try (final ExportMigrationManagerImpl mgr = new ExportMigrationManagerImpl(report,

@@ -38,6 +38,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
+import org.apache.felix.fileinstall.internal.DirectoryWatcher;
 import org.codice.ddf.configuration.persistence.PersistenceStrategy;
 import org.codice.ddf.migration.ImportMigrationContext;
 import org.codice.ddf.migration.ImportMigrationEntry;
@@ -242,7 +243,7 @@ public class ImportMigrationConfigurationAdminContext extends ProxyImportMigrati
         if (properties == null) {
             return null;
         }
-        final Object o = properties.get(ConfigurationAdminMigratable.FELIX_FILEINSTALL_FILENAME);
+        final Object o = properties.get(DirectoryWatcher.FILENAME);
         final Path path;
 
         if (o != null) {
@@ -259,14 +260,14 @@ public class ImportMigrationConfigurationAdminContext extends ProxyImportMigrati
                     path = (Path) o;
                 } else {
                     LOGGER.debug("unsupported {} property '{}' from {}",
-                            ConfigurationAdminMigratable.FELIX_FILEINSTALL_FILENAME,
+                            DirectoryWatcher.FILENAME,
                             o,
                             from.get());
                     return null;
                 }
             } catch (MalformedURLException | URISyntaxException e) {
                 LOGGER.debug(String.format("failed to parse %s property '%s' from %s; ",
-                        ConfigurationAdminMigratable.FELIX_FILEINSTALL_FILENAME,
+                        DirectoryWatcher.FILENAME,
                         o,
                         from.get()), e);
                 return null;
@@ -279,6 +280,7 @@ public class ImportMigrationConfigurationAdminContext extends ProxyImportMigrati
                 .resolve(path.getFileName());
     }
 
+    // report parameter is require as this method is used as a functional interface
     private void deleteUnexportedConfigurationsAfterCompletion(MigrationReport report) {
         if (isValid) {
             Stream.concat(memoryServices.values()

@@ -17,20 +17,11 @@ import javax.annotation.Nullable;
 
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.MigrationEntry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Defines a migration entry representing a property which value references another migration entry.
  */
 public abstract class ExportMigrationPropertyReferencedEntryImpl extends ExportMigrationEntryImpl {
-    private static final Logger LOGGER = LoggerFactory.getLogger(
-            ExportMigrationPropertyReferencedEntryImpl.class);
-
-    private static final String METADATA_PROPERTY = "property";
-
-    private static final String METADATA_REFERENCE = "reference";
-
     private final String property;
 
     /**
@@ -64,7 +55,8 @@ public abstract class ExportMigrationPropertyReferencedEntryImpl extends ExportM
         if (!super.equals(o)) {
             return false;
         } // else - they would be at least of the same class
-        final ExportMigrationPropertyReferencedEntryImpl me = (ExportMigrationPropertyReferencedEntryImpl) o;
+        final ExportMigrationPropertyReferencedEntryImpl me =
+                (ExportMigrationPropertyReferencedEntryImpl) o;
 
         return property.equals(me.getProperty());
     }
@@ -76,7 +68,8 @@ public abstract class ExportMigrationPropertyReferencedEntryImpl extends ExportM
         if (c != 0) {
             return c;
         } // else they would be at least of the same class
-        final ExportMigrationPropertyReferencedEntryImpl eme = (ExportMigrationPropertyReferencedEntryImpl)me;
+        final ExportMigrationPropertyReferencedEntryImpl eme =
+                (ExportMigrationPropertyReferencedEntryImpl) me;
 
         return property.compareTo(eme.getProperty());
     }

@@ -260,7 +260,7 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
     /**
      * Called to record that this entry is being processed.
      */
-    protected void recordEntry() {
+    protected void recordEntry() { // nothing to record here
     }
 
     /**

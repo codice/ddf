@@ -38,8 +38,6 @@ public abstract class MigrationCommands implements Action {
 
     public static final String NAMESPACE = "migration";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MigrationCommands.class);
-
     @Reference
     protected ConfigurationMigrationService configurationMigrationService;
 

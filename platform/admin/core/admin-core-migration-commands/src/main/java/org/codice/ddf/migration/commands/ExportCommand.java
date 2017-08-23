@@ -38,9 +38,6 @@ public class ExportCommand extends MigrationCommands {
     @Argument(index = 0, name = "exportDirectory", description = "Path to directory where to store the exported file", required = false, multiValued = false)
     String exportDirectoryArgument;
 
-    public ExportCommand() {
-    }
-
     @Override
     public Object execute() {
         Path exportDirectory;

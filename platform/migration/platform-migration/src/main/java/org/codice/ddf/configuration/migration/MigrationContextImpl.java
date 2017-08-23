@@ -26,8 +26,8 @@ import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationContext;
 import org.codice.ddf.migration.MigrationReport;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import com.google.common.annotations.VisibleForTesting;
 
 /**
  * The migration context base class keeps track of exported migration entries for a given migratable
@@ -134,8 +134,6 @@ public class MigrationContextImpl implements MigrationContext {
     protected static final String METADATA_SYSTEM_PROPERTIES = "system.properties";
 
     protected static final String METADATA_JAVA_PROPERTIES = "java.properties";
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(MigrationContextImpl.class);
 
     protected final MigrationReport report;
 
@@ -269,6 +267,7 @@ public class MigrationContextImpl implements MigrationContext {
     }
 
     @Nullable
+    @VisibleForTesting
     Migratable getMigratable() {
         return migratable;
     }

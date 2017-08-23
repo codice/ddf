@@ -76,6 +76,14 @@ public class ImportMigrationExternalEntryImpl extends ImportMigrationEntryImpl {
         return String.format("external file [%s] from [%s]", getAbsolutePath(), getPath());
     }
 
+    String getChecksum() {
+        return checksum;
+    }
+
+    boolean isSoftlink() {
+        return softlink;
+    }
+
     /**
      * Verifies the corresponding existing file to see if it matches the original one based on the
      * exported info.
@@ -130,13 +138,5 @@ public class ImportMigrationExternalEntryImpl extends ImportMigrationEntryImpl {
             }
         }
         return true;
-    }
-
-    String getChecksum() {
-        return checksum;
-    }
-
-    boolean isSoftlink() {
-        return softlink;
     }
 }

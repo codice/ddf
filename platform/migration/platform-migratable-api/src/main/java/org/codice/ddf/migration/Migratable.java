@@ -26,6 +26,9 @@ import org.codice.ddf.platform.services.common.Describable;
  * the same time. Implementors do not need to program exports and imports with regard to reflexive
  * thread-safety.
  * <p>
+ * <b>This is the only interface that should be implemented by implementers and registered as an OSGI
+ * service. All others will be implemented by the framework that provides support for migratables.</b>
+ * <p>
  * During an import operation, only one of {@link #doImport}, {@link #doIncompatibleImport}, or
  * {@link #doMissingImport} methods will be called by the framework.
  * <p>

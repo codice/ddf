@@ -16,6 +16,8 @@ import org.codice.ddf.util.function.EBiConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.annotations.VisibleForTesting;
+
 /**
  * Defines a migration entry representing a property which value references another migration entry.
  */
@@ -129,6 +131,7 @@ public abstract class ImportMigrationPropertyReferencedEntryImpl extends ImportM
         return property;
     }
 
+    @VisibleForTesting
     ImportMigrationEntry getReferencedEntry() {
         return referenced;
     }

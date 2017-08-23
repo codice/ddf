@@ -13,8 +13,6 @@
  */
 package org.codice.ddf.configuration.persistence.felix;
 
-import static org.apache.commons.lang.Validate.notNull;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -36,10 +34,9 @@ public class FelixCfgPersistenceStrategy implements PersistenceStrategy {
     }
 
     @Override
-    public void write(OutputStream out, Dictionary<String, Object> properties)
-            throws IOException {
-        notNull(out, "OutputStream cannot be null");
-        notNull(properties, "Properties cannot be null");
+    public void write(OutputStream out, Dictionary<String, Object> properties) throws IOException {
+        Validate.notNull(out, "invalid null output stream");
+        Validate.notNull(properties, "invalid null properties");
         final Properties props = new Properties();
         final Enumeration<String> keys = properties.keys();
 

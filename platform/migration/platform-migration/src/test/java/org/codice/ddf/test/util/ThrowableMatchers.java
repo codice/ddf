@@ -69,11 +69,12 @@ public class ThrowableMatchers {
         return new TypeSafeMatcher<Throwable>() {
             @Override
             protected boolean matchesSafely(Throwable item) {
-                item = item.getCause();
-                if (item == null) {
+                final Throwable cause = item.getCause();
+
+                if (cause == null) {
                     return false;
                 }
-                return matcher.matches(item.getMessage());
+                return matcher.matches(cause.getMessage());
             }
 
             @Override
@@ -115,7 +116,7 @@ public class ThrowableMatchers {
                 while (cause.getCause() != null) {
                     cause = cause.getCause();
                 }
-                if (cause == item) {
+                if (cause == item) { // testing identity!!!
                     description.appendValue(item)
                             .appendText(" had no initial cause exception");
                 } else {
@@ -159,7 +160,8 @@ public class ThrowableMatchers {
                 if (cause == item) {
                     description.appendText(" had no initial cause exception");
                 } else {
-                    description.appendValue(item).appendText(" initial cause message ");
+                    description.appendValue(item)
+                            .appendText(" initial cause message ");
                     matcher.describeMismatch(cause.getMessage(), description);
                 }
             }

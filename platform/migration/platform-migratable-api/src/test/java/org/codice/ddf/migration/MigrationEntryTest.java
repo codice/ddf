@@ -19,8 +19,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 public class MigrationEntryTest {
-    private static final String PROPERTY_NAME = "test.property";
-
     private final MigrationEntry ENTRY = Mockito.mock(MigrationEntry.class,
             Mockito.CALLS_REAL_METHODS);
 
