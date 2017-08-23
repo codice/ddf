@@ -15,17 +15,24 @@ package ddf.test.itests.catalog;
 
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingestCswRecord;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingestMetacards;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasXPath;
 import static org.junit.Assert.assertTrue;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.when;
+import static ddf.catalog.Constants.DEFAULT_PAGE_SIZE;
 
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
+import org.apache.commons.lang.text.StrSubstitutor;
 import org.apache.http.HttpStatus;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.XmlSearch;
@@ -43,6 +50,7 @@ import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerSuite;
 import org.osgi.framework.FrameworkUtil;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.jayway.restassured.specification.RequestSpecification;
 
@@ -57,6 +65,9 @@ public class TestSpatial extends AbstractIntegrationTest {
     private static final String CSW_RESOURCE_ROOT = "/TestSpatial/";
 
     private static final String CSW_QUERY_RESOURCES = CSW_RESOURCE_ROOT + "csw/request/query/";
+
+    private static final String CSW_PAGING_METACARD =
+            CSW_RESOURCE_ROOT + "csw/record/CswPagingRecord.xml";
 
     private static final String CSW_METACARD = "CswRecord.xml";
 
@@ -199,6 +210,40 @@ public class TestSpatial extends AbstractIntegrationTest {
     @After
     public void tearDown() throws Exception {
         clearCatalog();
+    }
+
+    @Test
+    public void testCswPagingQuery() throws Exception {
+        // Set to internal paging size
+        int pageSize = 500;
+        Set<String> ingestIds = ingestPagingRecords(pageSize + 11);
+        int ingestCount = ingestIds.size();
+        assertThat("Ingest count not equal to expected", ingestCount, is(pageSize + 11));
+
+        ImmutableList<Integer> maxSizes = ImmutableList.of(DEFAULT_PAGE_SIZE - 5,
+                DEFAULT_PAGE_SIZE,
+                pageSize - 5,
+                pageSize,
+                pageSize + 7,
+                ingestCount,
+                ingestCount + 1);
+
+        for (Integer maxSize : maxSizes) {
+            String query = getPagingMaxRecordsQuery(maxSize);
+            String cswResponse = sendCswQuery(query);
+
+            int expectedResults = (maxSize <= ingestCount) ? maxSize : ingestCount;
+
+            assertTrue("The responses contained a different number of matches; expected "
+                            + ingestCount,
+                    hasExpectedMatchCount(cswResponse,
+                            new ExpectedResultPair(ResultType.COUNT, ingestCount + "")));
+
+            assertTrue(
+                    "The responses contained a different result count; expected " + expectedResults,
+                    hasExpectedResultCount(cswResponse,
+                            new ExpectedResultPair(ResultType.COUNT, expectedResults + "")));
+        }
     }
 
     @Test
@@ -446,19 +491,75 @@ public class TestSpatial extends AbstractIntegrationTest {
     }
 
     /**
-     * Validates that the query returned the expected result count.
+     * Validates that the query matched the expected result count.
      *
      * @param queryResult   - The result obtained from sending the query
      * @param expectedValue - The values expected within the result
-     * @return
-     * @throws Exception
+     * @return true if the {@code numberOfRecordsMatched} matches the expected value
+     * @throws Exception if an error occurs parsing the XML response
      */
-    private boolean hasExpectedResultCount(String queryResult, ExpectedResultPair expectedValue)
+    private boolean hasExpectedMatchCount(String queryResult, ExpectedResultPair expectedValue)
             throws Exception {
 
         String originalCount = XmlSearch.evaluate("//@numberOfRecordsMatched", queryResult);
 
         return originalCount.equals(expectedValue.value);
+    }
+
+    /**
+     * Validates that the query returned the expected result count.
+     *
+     * @param queryResult   - The result obtained from sending the query
+     * @param expectedValue - The values expected within the result
+     * @return true if the {@code numberOfRecordsReturned} matches the expected value
+     * @throws Exception if an error occurs parsing the XML response
+     */
+    private boolean hasExpectedResultCount(String queryResult, ExpectedResultPair expectedValue)
+            throws Exception {
+
+        String originalCount = XmlSearch.evaluate("//@numberOfRecordsReturned", queryResult);
+
+        return originalCount.equals(expectedValue.value);
+    }
+
+    private String getPagingMaxRecordsQuery(int maxRecords) {
+        String rawCswQuery = savedCswQueries.get("CswPagingTestLikeQuery");
+        StrSubstitutor strSubstitutor = new StrSubstitutor(ImmutableMap.of("maxRecords",
+                "" + maxRecords));
+
+        strSubstitutor.setVariablePrefix(RESOURCE_VARIABLE_DELIMETER);
+        strSubstitutor.setVariableSuffix(RESOURCE_VARIABLE_DELIMETER);
+        return strSubstitutor.replace(rawCswQuery);
+    }
+
+    private Set<String> ingestPagingRecords(int number) {
+        String rawCswRecord = getFileContent(CSW_PAGING_METACARD);
+
+        Set<String> pagingIds = new HashSet<>();
+        for (int i = 1; i <= number; i++) {
+            String identifier = UUID.randomUUID()
+                    .toString()
+                    .replaceAll("-", "");
+            String cswPagingRecord = substitutePagingParams(rawCswRecord, i, identifier);
+
+            String id = ingestCswRecord(cswPagingRecord);
+
+            pagingIds.add(id);
+            metacardIds.put(id, id);
+        }
+
+        return pagingIds;
+    }
+
+    private String substitutePagingParams(String rawCswRecord, int testNum, String identifier) {
+        StrSubstitutor strSubstitutor = new StrSubstitutor(ImmutableMap.of("identifier",
+                identifier,
+                "testNum",
+                "" + testNum));
+
+        strSubstitutor.setVariablePrefix(RESOURCE_VARIABLE_DELIMETER);
+        strSubstitutor.setVariableSuffix(RESOURCE_VARIABLE_DELIMETER);
+        return strSubstitutor.replace(rawCswRecord);
     }
 
     public enum ResultType {

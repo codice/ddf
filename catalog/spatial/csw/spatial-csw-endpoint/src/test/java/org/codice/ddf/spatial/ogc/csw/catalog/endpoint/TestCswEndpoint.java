@@ -24,6 +24,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
@@ -37,14 +38,18 @@ import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
+import java.util.stream.Collectors;
 
 import javax.activation.MimeType;
 import javax.ws.rs.core.MediaType;
@@ -73,10 +78,12 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.UpdateAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.opengis.filter.sort.SortBy;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Iterables;
 import com.vividsolutions.jts.io.ParseException;
 
 import ddf.catalog.CatalogFramework;
@@ -88,6 +95,7 @@ import ddf.catalog.federation.FederationException;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.DeleteResponse;
+import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.ResourceRequest;
@@ -108,7 +116,6 @@ import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.QueryResponseTransformer;
-
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.DeleteType;
 import net.opengis.cat.csw.v_2_0_2.DescribeRecordResponseType;
@@ -166,6 +173,8 @@ public class TestCswEndpoint {
 
     private static final String RANGE_VALUE = "bytes=100-";
 
+    private static final int BATCH_TOTAL = 70;
+
     private static UriInfo mockUriInfo = mock(UriInfo.class);
 
     private static Bundle mockBundle = mock(Bundle.class);
@@ -184,20 +193,20 @@ public class TestCswEndpoint {
 
     private static QName cswQnameOutPutSchema = new QName(CswConstants.CSW_OUTPUT_SCHEMA);
 
-    private static ArgumentCaptor<QueryRequest> argument;
-
     private static final long RESULT_COUNT = 10;
 
     private static final long TOTAL_COUNT = 10;
 
     private Validator validator = mock(Validator.class);
 
+    private List<QueryResponse> queryResponseBatch;
+
     private CswQueryFactory queryFactory = mock(CswQueryFactory.class);
 
     @org.junit.Before
     public void setUpBeforeClass()
             throws URISyntaxException, SourceUnavailableException, UnsupportedQueryException,
-            FederationException, ParseException, IngestException {
+            FederationException, ParseException, IngestException, CswException {
         URI mockUri = new URI("http://example.com/services/csw");
         when(mockUriInfo.getBaseUri()).thenReturn(mockUri);
         URL resourceUrl = TestCswEndpoint.class.getResource("/record.xsd");
@@ -224,10 +233,14 @@ public class TestCswEndpoint {
                 mockTransformer);
         when(mockInputManager.getAvailableIds()).thenReturn(Arrays.asList(CswConstants.CSW_RECORD));
 
-        QueryResponseImpl response = new QueryResponseImpl(null, new LinkedList<>(), 0);
-        argument = ArgumentCaptor.forClass(QueryRequest.class);
         reset(catalogFramework);
-        when(catalogFramework.query(argument.capture())).thenReturn(response);
+
+        queryResponseBatch = getQueryResponseBatch(20, BATCH_TOTAL);
+
+        QueryResponse[] qrRest = queryResponseBatch.subList(1, queryResponseBatch.size())
+                .toArray(new QueryResponse[0]);
+        when(catalogFramework.query(any(QueryRequest.class))).thenReturn(queryResponseBatch.get(0),
+                qrRest);
         when(catalogFramework.getSourceIds()).thenReturn(new HashSet<>(Arrays.asList("source1",
                 "source2",
                 "source3")));
@@ -235,6 +248,19 @@ public class TestCswEndpoint {
                 null,
                 Arrays.asList(new MetacardImpl()));
         when(catalogFramework.create(any(CreateRequest.class))).thenReturn(createResponse);
+
+        QueryRequest queryRequest = mock(QueryRequest.class);
+        Query query = mock(Query.class);
+        when(query.getStartIndex()).thenReturn(1);
+        when(query.getSortBy()).thenReturn(mock(SortBy.class));
+        when(query.requestsTotalResultsCount()).thenReturn(true);
+        when(query.getTimeoutMillis()).thenReturn(1L);
+        when(queryRequest.getQuery()).thenReturn(query);
+
+        when(queryFactory.getQuery(any(GetRecordsType.class))).thenReturn(queryRequest);
+        when(queryFactory.getQuery(any(QueryConstraintType.class), anyString())).thenReturn(queryRequest);
+        when(queryFactory.updateQueryRequestTags(any(QueryRequest.class), anyString())).thenReturn(
+                queryRequest);
     }
 
     @Test
@@ -846,9 +872,8 @@ public class TestCswEndpoint {
     public void testDescribeRecordMultipleTypesMultipleNamespacesMultiplePrefixes() {
         DescribeRecordRequest drr = createDefaultDescribeRecordRequest();
         drr.setTypeName(VALID_PREFIX_LOCAL_TYPE + ",csw2:test4");
-        drr.setNamespace(
-                "xmlns(" + VALID_PREFIX + "=" + CswConstants.CSW_OUTPUT_SCHEMA + ")" + "," +
-                        "xmlns(" + "csw2" + "=" + CswConstants.CSW_OUTPUT_SCHEMA + "2" + ")");
+        drr.setNamespace("xmlns(" + VALID_PREFIX + "=" + CswConstants.CSW_OUTPUT_SCHEMA + ")" + ","
+                + "xmlns(" + "csw2" + "=" + CswConstants.CSW_OUTPUT_SCHEMA + "2" + ")");
         DescribeRecordResponseType drrt = null;
         try {
             drrt = csw.describeRecord(drr);
@@ -867,9 +892,8 @@ public class TestCswEndpoint {
     public void testDescribeRecordMultipleTypesMultipleNamespacesMultiplePrefixesMismatchedPrefix() {
         DescribeRecordRequest drr = createDefaultDescribeRecordRequest();
         drr.setTypeName(VALID_PREFIX_LOCAL_TYPE + ",csw3:test4");
-        drr.setNamespace(
-                "xmlns(" + VALID_PREFIX + "=" + CswConstants.CSW_OUTPUT_SCHEMA + ")" + "," +
-                        "xmlns(" + "csw2" + "=" + CswConstants.CSW_OUTPUT_SCHEMA + "2" + ")");
+        drr.setNamespace("xmlns(" + VALID_PREFIX + "=" + CswConstants.CSW_OUTPUT_SCHEMA + ")" + ","
+                + "xmlns(" + "csw2" + "=" + CswConstants.CSW_OUTPUT_SCHEMA + "2" + ")");
         try {
             csw.describeRecord(drr);
             fail("Should have thrown an exception indicating an invalid type.");
@@ -1112,8 +1136,6 @@ public class TestCswEndpoint {
         final String exampleMime = "application/xml";
         grr.setOutputFormat(exampleMime);
 
-        when(catalogFramework.query(argument.capture())).thenReturn(getQueryResponse());
-
         CswRecordCollection collection = csw.getRecords(grr);
 
         assertThat(collection.getMimeType(), is(exampleMime));
@@ -1144,8 +1166,6 @@ public class TestCswEndpoint {
 
         grr.setAbstractQuery(jaxbQuery);
 
-        when(catalogFramework.query(argument.capture())).thenReturn(getQueryResponse());
-
         CswRecordCollection collection = csw.getRecords(grr);
 
         assertThat(collection.getCswRecords(), is(empty()));
@@ -1172,8 +1192,6 @@ public class TestCswEndpoint {
                 query);
 
         grr.setAbstractQuery(jaxbQuery);
-
-        when(catalogFramework.query(argument.capture())).thenReturn(getQueryResponse());
 
         CswRecordCollection collection = csw.getRecords(grr);
 
@@ -1608,8 +1626,9 @@ public class TestCswEndpoint {
         String contextPath = StringUtils.join(new String[] {CswConstants.OGC_CSW_PACKAGE,
                 CswConstants.OGC_FILTER_PACKAGE, CswConstants.OGC_GML_PACKAGE,
                 CswConstants.OGC_OWS_PACKAGE}, ":");
-        verifyMarshalResponse(response, contextPath, new QName(CswConstants.CSW_OUTPUT_SCHEMA,
-                CswConstants.TRANSACTION));
+        verifyMarshalResponse(response,
+                contextPath,
+                new QName(CswConstants.CSW_OUTPUT_SCHEMA, CswConstants.TRANSACTION));
     }
 
     @Test
@@ -1628,26 +1647,15 @@ public class TestCswEndpoint {
         doReturn(queryConstraintType).when(deleteType)
                 .getConstraint();
 
-        List<Result> results = new ArrayList<>();
-        results.add(new ResultImpl(new MetacardImpl()));
-        results.add(new ResultImpl(new MetacardImpl()));
+        List<DeleteResponse> delBatch = getDelBatch(queryResponseBatch);
 
-        QueryResponse queryResponse = new QueryResponseImpl(null, results, results.size());
-
-        doReturn(queryResponse).when(catalogFramework)
-                .query(any(QueryRequest.class));
-
-        List<Metacard> deletedMetacards = new ArrayList<>();
-        deletedMetacards.add(new MetacardImpl());
-        deletedMetacards.add(new MetacardImpl());
-
-        DeleteResponse deleteResponse = new DeleteResponseImpl(null, null, deletedMetacards);
-        doReturn(deleteResponse).when(catalogFramework)
-                .delete(any(DeleteRequest.class));
+        DeleteResponse[] delRest = delBatch.subList(1, delBatch.size())
+                .toArray(new DeleteResponse[0]);
+        when(catalogFramework.delete(any(DeleteRequest.class))).thenReturn(delBatch.get(0),
+                delRest);
 
         DeleteAction deleteAction = new DeleteAction(deleteType,
-                DefaultCswRecordMap.getDefaultCswRecordMap()
-                        .getPrefixToUriMapping());
+                DefaultCswRecordMap.getPrefixToUriMapping());
 
         CswTransactionRequest deleteRequest = new CswTransactionRequest();
         deleteRequest.getDeleteActions()
@@ -1663,7 +1671,7 @@ public class TestCswEndpoint {
         assertThat(summary, notNullValue());
 
         assertThat(summary.getTotalDeleted()
-                .intValue(), is(2));
+                .intValue(), is(BATCH_TOTAL));
         assertThat(summary.getTotalInserted()
                 .intValue(), is(0));
         assertThat(summary.getTotalUpdated()
@@ -1746,8 +1754,9 @@ public class TestCswEndpoint {
         results.add(new ResultImpl(secondResult));
 
         QueryResponse queryResponse = new QueryResponseImpl(null, results, results.size());
-        doReturn(queryResponse).when(catalogFramework)
-                .query(any(QueryRequest.class));
+        QueryResponse emptyResponse = new QueryResponseImpl(null, Collections.emptyList(), 0);
+        when(catalogFramework.query(any(QueryRequest.class))).thenReturn(queryResponse)
+                .thenReturn(emptyResponse);
 
         List<Update> updatedMetacards = new ArrayList<>();
         updatedMetacards.add(new UpdateImpl(new MetacardImpl(), new MetacardImpl()));
@@ -1968,8 +1977,9 @@ public class TestCswEndpoint {
                         if (StringUtils.equals(op.getName(), CswConstants.TRANSACTION)) {
                             assertThat(parameter.getValue(), contains(CswConstants.CSW_RECORD));
                         } else {
-                            assertThat(parameter.getValue(), hasItems(CswConstants.CSW_RECORD,
-                                    GmdConstants.GMD_METACARD_TYPE_NAME));
+                            assertThat(parameter.getValue(),
+                                    hasItems(CswConstants.CSW_RECORD,
+                                            GmdConstants.GMD_METACARD_TYPE_NAME));
                         }
                     }
                 }
@@ -1995,10 +2005,11 @@ public class TestCswEndpoint {
                 .getEIDOrFID(), hasSize(1));
 
         assertThat(fc.getScalarCapabilities(), notNullValue());
-        assertThat(CswEndpoint.COMPARISON_OPERATORS, hasSize(fc.getScalarCapabilities()
-                .getComparisonOperators()
-                .getComparisonOperator()
-                .size()));
+        assertThat(CswEndpoint.COMPARISON_OPERATORS,
+                hasSize(fc.getScalarCapabilities()
+                        .getComparisonOperators()
+                        .getComparisonOperator()
+                        .size()));
         for (ComparisonOperatorType cot : CswEndpoint.COMPARISON_OPERATORS) {
             assertThat(fc.getScalarCapabilities()
                     .getComparisonOperators()
@@ -2006,10 +2017,11 @@ public class TestCswEndpoint {
         }
 
         assertThat(fc.getSpatialCapabilities(), notNullValue());
-        assertThat(CswEndpoint.SPATIAL_OPERATORS, hasSize(fc.getSpatialCapabilities()
-                .getSpatialOperators()
-                .getSpatialOperator()
-                .size()));
+        assertThat(CswEndpoint.SPATIAL_OPERATORS,
+                hasSize(fc.getSpatialCapabilities()
+                        .getSpatialOperators()
+                        .getSpatialOperator()
+                        .size()));
         for (SpatialOperatorType sot : fc.getSpatialCapabilities()
                 .getSpatialOperators()
                 .getSpatialOperator()) {
@@ -2037,6 +2049,46 @@ public class TestCswEndpoint {
         when(resourceResponse.getResource()).thenReturn(resource);
         when(catalogFramework.getLocalResource(any(ResourceRequest.class))).thenReturn(
                 resourceResponse);
+    }
+
+    private List<QueryResponse> getQueryResponseBatch(int batchSize, int total) {
+        Queue<Result> results = new ArrayDeque<>();
+        for (int i = 1; i <= total; i++) {
+            MetacardImpl metacard = new MetacardImpl();
+            metacard.setId(i + "");
+            results.add(new ResultImpl(metacard));
+        }
+
+        List<QueryResponse> queryResponses = new ArrayList<>();
+        while (!results.isEmpty()) {
+            List<Result> batchList = new ArrayList<>();
+            for (int i = 0; i < batchSize; i++) {
+                Result result = results.poll();
+                if (result == null) {
+                    break;
+                }
+                batchList.add(result);
+            }
+            queryResponses.add(new QueryResponseImpl(null, batchList, total));
+        }
+
+        // Add one empty response list to the end
+        queryResponses.add(new QueryResponseImpl(null, Collections.emptyList(), 0));
+        return queryResponses;
+    }
+
+    private List<DeleteResponse> getDelBatch(List<QueryResponse> qrBatch) {
+        List<DeleteResponse> results = new ArrayList<>();
+        List<Metacard> deletedMetacards = qrBatch.stream()
+                .map(SourceResponse::getResults)
+                .flatMap(Collection::stream)
+                .map(Result::getMetacard)
+                .collect(Collectors.toList());
+
+        Iterables.partition(deletedMetacards, CswEndpoint.DEFAULT_BATCH)
+                .forEach(metacards -> results.add(new DeleteResponseImpl(null, null, metacards)));
+
+        return results;
     }
 
     public static class CswEndpointStub extends CswEndpoint {

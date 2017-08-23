@@ -1,0 +1,23 @@
+<!-- /**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/ -->
+<csw:Record
+        xmlns:csw="http://www.opengis.net/cat/csw/2.0.2"
+        xmlns:dc="http://purl.org/dc/elements/1.1/"
+        xmlns:dct="http://purl.org/dc/terms/">
+    <dc:identifier>$identifier$</dc:identifier>
+    <dc:title>Paging Test $testNum$</dc:title>
+    <dc:type>http://pasdfurl.org/dc/dcmitype/Text</dc:type>
+    <dc:subject>Test Data</dc:subject>
+    <dc:format>application/pdf</dc:format>
+    <dc:date>2006-05-12</dc:date>
+    <dct:abstract>Paging Test $testNum$</dct:abstract>
+</csw:Record>

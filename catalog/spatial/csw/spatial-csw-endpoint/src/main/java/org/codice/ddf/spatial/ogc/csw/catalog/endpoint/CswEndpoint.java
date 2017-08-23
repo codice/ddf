@@ -28,8 +28,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
@@ -76,6 +79,7 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.Iterables;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.ParseException;
@@ -93,10 +97,12 @@ import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.ResourceResponse;
+import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.operation.UpdateResponse;
 import ddf.catalog.operation.impl.CreateRequestImpl;
 import ddf.catalog.operation.impl.DeleteRequestImpl;
+import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.operation.impl.ResourceRequestById;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.resource.Resource;
@@ -106,6 +112,9 @@ import ddf.catalog.resource.impl.ResourceImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.catalog.util.impl.CatalogQueryException;
+import ddf.catalog.util.impl.QueryFunction;
+import ddf.catalog.util.impl.ResultIterable;
 import net.opengis.cat.csw.v_2_0_2.BriefRecordType;
 import net.opengis.cat.csw.v_2_0_2.CapabilitiesType;
 import net.opengis.cat.csw.v_2_0_2.DescribeRecordResponseType;
@@ -200,6 +209,8 @@ public class CswEndpoint implements Csw {
                     SERVICE_PROVIDER,
                     OPERATIONS_METADATA,
                     FILTER_CAPABILITIES));
+
+    static final int DEFAULT_BATCH = 500;
 
     private static final List<String> ELEMENT_NAMES = Arrays.asList("brief", "summary", "full");
 
@@ -563,7 +574,7 @@ public class CswEndpoint implements Csw {
         for (UpdateAction updateAction : request.getUpdateActions()) {
             try {
                 numUpdated += updateRecords(updateAction);
-            } catch (CswException | FederationException | IngestException | SourceUnavailableException | UnsupportedQueryException e) {
+            } catch (CswException | FederationException | IngestException | SourceUnavailableException | UnsupportedQueryException | CatalogQueryException e) {
                 LOGGER.debug("Unable to update record(s)", e);
                 throw new CswException("Unable to update record(s).",
                         CswConstants.TRANSACTION_FAILED,
@@ -578,7 +589,7 @@ public class CswEndpoint implements Csw {
         for (DeleteAction deleteAction : request.getDeleteActions()) {
             try {
                 numDeleted += deleteRecords(deleteAction);
-            } catch (CswException | FederationException | IngestException | SourceUnavailableException | UnsupportedQueryException e) {
+            } catch (CswException | FederationException | IngestException | SourceUnavailableException | UnsupportedQueryException | CatalogQueryException e) {
                 LOGGER.debug("Unable to delete record(s)", e);
                 throw new CswException("Unable to delete record(s).",
                         CswConstants.TRANSACTION_FAILED,
@@ -659,29 +670,34 @@ public class CswEndpoint implements Csw {
         queryRequest = queryFactory.updateQueryRequestTags(queryRequest,
                 schemaTransformerManager.getTransformerSchemaForId(deleteAction.getTypeName()));
 
-        QueryResponse response = framework.query(queryRequest);
+        Iterable<List<Result>> resultLists = Iterables.partition(ResultIterable.resultIterable(
+                framework,
+                queryRequest), DEFAULT_BATCH);
+        int batchCount = 1;
+        int deletedCount = 0;
+        for (List<Result> results : resultLists) {
+            Set<String> idsToDelete = results.stream()
+                    .filter(Objects::nonNull)
+                    .map(Result::getMetacard)
+                    .filter(Objects::nonNull)
+                    .map(Metacard::getId)
+                    .collect(Collectors.toSet());
 
-        List<String> ids = new ArrayList<>();
+            if (!idsToDelete.isEmpty()) {
+                DeleteRequestImpl deleteRequest =
+                        new DeleteRequestImpl(idsToDelete.toArray(new String[0]));
 
-        for (Result result : response.getResults()) {
-            if (result != null && result.getMetacard() != null) {
-                ids.add(result.getMetacard()
-                        .getId());
+                LOGGER.debug("Attempting to delete {} metacards from batch {}.",
+                        idsToDelete.size(),
+                        batchCount++);
+                DeleteResponse deleteResponse = framework.delete(deleteRequest);
+
+                deletedCount += deleteResponse.getDeletedMetacards()
+                        .size();
             }
         }
 
-        if (ids.size() > 0) {
-            DeleteRequestImpl deleteRequest =
-                    new DeleteRequestImpl(ids.toArray(new String[ids.size()]));
-
-            LOGGER.debug("Attempting to delete {} metacards. ", ids.size());
-            DeleteResponse deleteResponse = framework.delete(deleteRequest);
-
-            return deleteResponse.getDeletedMetacards()
-                    .size();
-        }
-
-        return 0;
+        return deletedCount;
     }
 
     private int updateRecords(UpdateAction updateAction)
@@ -711,43 +727,56 @@ public class CswEndpoint implements Csw {
             queryRequest = queryFactory.updateQueryRequestTags(queryRequest,
                     schemaTransformerManager.getTransformerSchemaForId(updateAction.getTypeName()));
 
-            QueryResponse response = framework.query(queryRequest);
+            Map<String, Serializable> recordProperties = updateAction.getRecordProperties();
+            Iterable<List<Result>> resultList = Iterables.partition(ResultIterable.resultIterable(
+                    framework,
+                    queryRequest), DEFAULT_BATCH);
+            int batchCount = 1;
+            int updatedCount = 0;
 
-            if (response.getHits() > 0) {
-                Map<String, Serializable> recordProperties = updateAction.getRecordProperties();
-
-                List<String> updatedMetacardIdsList = new ArrayList<>();
-                List<Metacard> updatedMetacards = new ArrayList<>();
-
-                for (Result result : response.getResults()) {
-                    Metacard metacard = result.getMetacard();
-
-                    if (metacard != null) {
-                        for (Entry<String, Serializable> recordProperty : recordProperties.entrySet()) {
-                            Attribute attribute = new AttributeImpl(recordProperty.getKey(),
-                                    recordProperty.getValue());
-                            metacard.setAttribute(attribute);
-                        }
-                        updatedMetacardIdsList.add(metacard.getId());
-                        updatedMetacards.add(metacard);
-                    }
-                }
-
-                if (updatedMetacardIdsList.size() > 0) {
-                    String[] updatedMetacardIds =
-                            updatedMetacardIdsList.toArray(new String[updatedMetacardIdsList.size()]);
-                    UpdateRequest updateRequest = new UpdateRequestImpl(updatedMetacardIds,
-                            updatedMetacards);
-
-                    LOGGER.debug("Attempting to update {} metacards.",
-                            updatedMetacardIdsList.size());
-                    UpdateResponse updateResponse = framework.update(updateRequest);
-                    return updateResponse.getUpdatedMetacards()
-                            .size();
-                }
+            for (List<Result> results : resultList) {
+                updatedCount += updateResultList(recordProperties, batchCount++, results);
             }
+
+            return updatedCount;
         }
         return 0;
+    }
+
+    private int updateResultList(Map<String, Serializable> recordProperties, int batchCount,
+            List<Result> resultList) throws IngestException, SourceUnavailableException {
+        List<String> updatedMetacardIdsList = new ArrayList<>();
+        List<Metacard> updatedMetacards = new ArrayList<>();
+
+        int updatedCount = 0;
+        for (Result result : resultList) {
+            Metacard metacard = result.getMetacard();
+
+            if (metacard != null) {
+                for (Entry<String, Serializable> recordProperty : recordProperties.entrySet()) {
+                    Attribute attribute = new AttributeImpl(recordProperty.getKey(),
+                            recordProperty.getValue());
+                    metacard.setAttribute(attribute);
+                }
+                updatedMetacardIdsList.add(metacard.getId());
+                updatedMetacards.add(metacard);
+            }
+        }
+
+        if (updatedMetacardIdsList.size() > 0) {
+            String[] updatedMetacardIds = updatedMetacardIdsList.toArray(new String[0]);
+            UpdateRequest updateRequest = new UpdateRequestImpl(updatedMetacardIds,
+                    updatedMetacards);
+
+            LOGGER.debug("Attempting to update {} metacards in batch {}.",
+                    updatedMetacardIdsList.size(),
+                    batchCount);
+            UpdateResponse updateResponse = framework.update(updateRequest);
+            updatedCount = updateResponse.getUpdatedMetacards()
+                    .size();
+        }
+
+        return updatedCount;
     }
 
     @GET
@@ -928,10 +957,38 @@ public class CswEndpoint implements Csw {
             try {
                 queryRequest = queryFactory.updateQueryRequestTags(queryRequest,
                         request.getOutputSchema());
-                LOGGER.debug("Attempting to execute query: {}", queryRequest);
-                QueryResponse queryResponse = framework.query(queryRequest);
+
+                LOGGER.debug("Attempting to execute paged query: {}", queryRequest);
+                AtomicLong hitCount = new AtomicLong(0);
+
+                QueryFunction qf = qr -> {
+                    SourceResponse sr = framework.query(qr);
+                    hitCount.compareAndSet(0, sr.getHits());
+                    return sr;
+                };
+
+                ResultIterable results = ResultIterable.resultIterable(qf,
+                        queryRequest,
+                        request.getMaxRecords()
+                                .intValue());
+                List<Result> resultList = results.stream()
+                        .collect(Collectors.toList());
+
+                // The hitCount Atomic is used here instead of just defaulting
+                // to the size of the resultList because the size of the resultList
+                // can be limited to request.getMaxRecords().intValue() which would
+                // lead to an incorrect response for hits.
+                // hitCount is set within the QueryFunction and will correspond to
+                // all responses.
+                long totalHits = hitCount.get();
+                totalHits = totalHits != 0 ? totalHits : resultList.size();
+
+                QueryResponse queryResponse = new QueryResponseImpl(queryRequest,
+                        resultList,
+                        totalHits);
+
                 response.setSourceResponse(queryResponse);
-            } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
+            } catch (UnsupportedQueryException | CatalogQueryException e) {
                 LOGGER.debug("Unable to query", e);
                 throw new CswException(e);
             }
