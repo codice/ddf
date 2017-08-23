@@ -24,11 +24,16 @@ import org.boon.json.ObjectMapper;
 import org.codice.ddf.migration.ImportMigrationException;
 import org.codice.ddf.migration.MigrationException;
 
+import com.google.common.annotations.VisibleForTesting;
+
 /**
  * This class provides utility functions for dealing with Json objects returned by the
  * <code>org.boon.json</code> library.
  */
 public class JsonUtils {
+    // PMD.DefaultPackage - designed as an internal service within this package
+    @SuppressWarnings("PMD.DefaultPackage")
+    @VisibleForTesting
     static final ObjectMapper MAPPER = JsonFactory.create();
 
     /**

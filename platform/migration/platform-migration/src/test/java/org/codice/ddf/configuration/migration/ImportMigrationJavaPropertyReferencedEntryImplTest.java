@@ -77,10 +77,10 @@ public class ImportMigrationJavaPropertyReferencedEntryImplTest extends Abstract
         report = new MigrationReportImpl(MigrationOperation.IMPORT, Optional.empty());
 
         when(mockPathUtils.resolveAgainstDDFHome(any(Path.class))).thenReturn(path);
-//        when(mockPathUtils.getChecksumFor(any(Path.class))).thenReturn("Checksum");
+        //        when(mockPathUtils.getChecksumFor(any(Path.class))).thenReturn("Checksum");
 
         when(mockContext.getPathUtils()).thenReturn(mockPathUtils);
-//        when(mockContext.getReport()).thenReturn(report);
+        //        when(mockContext.getReport()).thenReturn(report);
         when(mockContext.getOptionalEntry(any(Path.class))).thenReturn(Optional.of(mock(
                 ImportMigrationEntry.class)));
 
@@ -89,34 +89,39 @@ public class ImportMigrationJavaPropertyReferencedEntryImplTest extends Abstract
 
     @Test
     public void getPropertiesPath() {
-        assertThat(entry.getPropertiesPath().toString(), equalTo(PROPERTIES_PATH));
+        assertThat(entry.getPropertiesPath()
+                .toString(), equalTo(PROPERTIES_PATH));
     }
 
     @Test
     public void hashCodeShouldBeEqual() {
-        ImportMigrationJavaPropertyReferencedEntryImpl entry2 = new ImportMigrationJavaPropertyReferencedEntryImpl(mockContext, METADATA_MAP);
+        ImportMigrationJavaPropertyReferencedEntryImpl entry2 =
+                new ImportMigrationJavaPropertyReferencedEntryImpl(mockContext, METADATA_MAP);
         assertThat(entry.hashCode(), equalTo(entry2.hashCode()));
     }
 
     @Test
     public void hashCodeShouldNotBeEqualWithDifferentPropertiesPath() {
-        Map<String, Object> metadataMap =
-                ImmutableMap.of(MigrationEntryImpl.METADATA_NAME,
-                        "Different properties path",
-                        MigrationEntryImpl.METADATA_REFERENCE,
-                        "Reference name",
-                        MigrationEntryImpl.METADATA_PROPERTY,
-                        "Property value");
-        ImportMigrationJavaPropertyReferencedEntryImpl entry2 = new ImportMigrationJavaPropertyReferencedEntryImpl(mockContext, metadataMap);
+        Map<String, Object> metadataMap = ImmutableMap.of(MigrationEntryImpl.METADATA_NAME,
+                "Different properties path",
+                MigrationEntryImpl.METADATA_REFERENCE,
+                "Reference name",
+                MigrationEntryImpl.METADATA_PROPERTY,
+                "Property value");
+        ImportMigrationJavaPropertyReferencedEntryImpl entry2 =
+                new ImportMigrationJavaPropertyReferencedEntryImpl(mockContext, metadataMap);
         assertThat(entry.hashCode(), not(equalTo(entry2.hashCode())));
     }
 
     @Test
     public void shouldBeEqual() {
-        ImportMigrationJavaPropertyReferencedEntryImpl entry2 = new ImportMigrationJavaPropertyReferencedEntryImpl(mockContext, METADATA_MAP);
+        ImportMigrationJavaPropertyReferencedEntryImpl entry2 =
+                new ImportMigrationJavaPropertyReferencedEntryImpl(mockContext, METADATA_MAP);
         assertThat("The entries are equal", entry.equals(entry2), is(true));
     }
 
+    // PMD.EqualsNull - Purposely testing equals() when called with null
+    @SuppressWarnings("PMD.EqualsNull")
     @Test
     public void shouldNotBeEqualBecauseSuperIsNotEqual() {
         assertThat("The entries are not equal", entry.equals(null), is(false));
