@@ -22,6 +22,8 @@ import org.apache.karaf.shell.api.action.Argument;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import ddf.security.service.SecurityServiceException;
 
 /**
@@ -35,6 +37,7 @@ public class ExportCommand extends MigrationCommands {
     private static final String ERROR_EXPORT_MESSAGE =
             "An error was encountered while executing this command. %s";
 
+    @VisibleForTesting
     @Argument(index = 0, name = "exportDirectory", description = "Path to directory where to store the exported file", required = false, multiValued = false)
     String exportDirectoryArgument;
 

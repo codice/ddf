@@ -27,8 +27,6 @@ import org.codice.ddf.migration.MigrationWarning;
 import org.codice.ddf.security.common.Security;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Attribute;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Parent object to all Platform Commands. Provides common methods and instance variables that
@@ -43,13 +41,7 @@ public abstract class MigrationCommands implements Action {
 
     protected Security security = Security.getInstance();
 
-    protected Path defaultExportDirectory = Paths.get(System.getProperty("ddf.home"),
-            "exported");
-
-    /**
-     * Constructs a new migration command.
-     */
-    protected MigrationCommands() {}
+    protected Path defaultExportDirectory = Paths.get(System.getProperty("ddf.home"), "exported");
 
     public void setDefaultExportDirectory(Path path) {
         this.defaultExportDirectory = path;
