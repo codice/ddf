@@ -21,7 +21,6 @@ import javax.annotation.Nullable;
 
 import org.boon.json.JsonFactory;
 import org.boon.json.ObjectMapper;
-import org.codice.ddf.migration.ImportMigrationException;
 import org.codice.ddf.migration.MigrationException;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -48,7 +47,8 @@ public class JsonUtils {
             return Collections.emptyMap();
         }
         if (!(o instanceof Map)) {
-            throw new ImportMigrationException("invalid metadata file format; expecting a Json map");
+            throw new MigrationException(Messages.IMPORT_METADATA_FORMAT_ERROR,
+                    "expecting a Json map");
         }
         return (Map<String, Object>) o;
     }
