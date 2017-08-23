@@ -47,7 +47,7 @@ public interface RESTService {
      * @param transformerParam (OPTIONAL)
      * @param uriInfo
      * @return
-     * @throws ServerErrorException
+     * @throws InternalServerErrorException
      */
     @GET
     @Path("/{id}")

@@ -18,23 +18,23 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-public class ServerErrorException extends WebApplicationException {
+public class InternalServerErrorException extends WebApplicationException {
     /**
      *
      */
     private static final long serialVersionUID = 1L;
 
-    public ServerErrorException(String message, Status status) {
-        super(Response.status(status)
+    public InternalServerErrorException(String message) {
+        super(Response.status(Status.INTERNAL_SERVER_ERROR)
                 .entity("<pre>" + message + "</pre>")
                 .type(MediaType.TEXT_HTML)
                 .build());
 
     }
 
-    public ServerErrorException(Throwable t, Status status) {
+    public InternalServerErrorException(Throwable t) {
         super(t,
-                Response.status(status)
+                Response.status(Status.INTERNAL_SERVER_ERROR)
                         .entity("<pre>" + t.getMessage() + "</pre>")
                         .type(MediaType.TEXT_HTML)
                         .build());
