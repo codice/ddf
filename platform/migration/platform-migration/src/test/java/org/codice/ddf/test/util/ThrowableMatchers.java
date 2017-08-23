@@ -99,8 +99,6 @@ public class ThrowableMatchers {
         };
     }
 
-    // PMD.CompareObjectsWithEquals - Purposely testing for identity and not equality
-    @SuppressWarnings("CompareObjectsWithEquals")
     public static Matcher hasInitialCauseMatching(Matcher<? extends Throwable> matcher) {
         return new TypeSafeMatcher<Throwable>() {
             @Override
@@ -113,6 +111,8 @@ public class ThrowableMatchers {
                 return matcher.matches(cause);
             }
 
+            // PMD.CompareObjectsWithEquals - Purposely testing for identity and not equality
+            @SuppressWarnings("PMD.CompareObjectsWithEquals")
             @Override
             protected void describeMismatchSafely(Throwable item, Description description) {
                 Throwable cause = item;
@@ -139,8 +139,6 @@ public class ThrowableMatchers {
         };
     }
 
-    // PMD.CompareObjectsWithEquals - Purposely testing for identity and not equality
-    @SuppressWarnings("CompareObjectsWithEquals")
     public static Matcher hasInitialCauseMessageMatching(Matcher<String> matcher) {
         return new TypeSafeMatcher<Throwable>() {
             @Override
@@ -156,6 +154,8 @@ public class ThrowableMatchers {
                 return matcher.matches(cause.getMessage());
             }
 
+            // PMD.CompareObjectsWithEquals - Purposely testing for identity and not equality
+            @SuppressWarnings("PMD.CompareObjectsWithEquals")
             @Override
             protected void describeMismatchSafely(Throwable item, Description description) {
                 Throwable cause = item;
@@ -163,7 +163,7 @@ public class ThrowableMatchers {
                 while (cause.getCause() != null) {
                     cause = cause.getCause();
                 }
-                if (cause == item) {
+                if (cause == item) { // testing identity!!!
                     description.appendText(" had no initial cause exception");
                 } else {
                     description.appendValue(item)
