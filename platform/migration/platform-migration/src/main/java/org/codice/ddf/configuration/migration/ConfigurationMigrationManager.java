@@ -143,9 +143,9 @@ public class ConfigurationMigrationManager
      * @return a new consumer that will downgrade error messages before passing them to
      * <code>consumer</code>
      */
-    private static Consumer<MigrationMessage> downgradeErrorsToWarningsAndRemoveInfosFor(
+    private static Consumer<MigrationMessage> downgradeErrorsToWarningsFor(
             Consumer<MigrationMessage> consumer) {
-        return m -> consumer.accept(m.downgradeToWarning()
+        return m -> consumer.accept(Messages.downgradeToWarning(m)
                 .map(MigrationMessage.class::cast)
                 .orElse(m));
     }
@@ -241,7 +241,7 @@ public class ConfigurationMigrationManager
             Optional<Consumer<MigrationMessage>> consumer) {
         Validate.notNull(exportDirectory, "invalid null export directory");
         final MigrationReportImpl xreport = doExport(exportDirectory,
-                consumer.map(ConfigurationMigrationManager::downgradeErrorsToWarningsAndRemoveInfosFor),
+                consumer.map(ConfigurationMigrationManager::downgradeErrorsToWarningsFor),
                 true); // timestamp the filename
         final MigrationReportImpl report = new MigrationReportImpl(MigrationOperation.IMPORT,
                 xreport,

@@ -13,8 +13,6 @@
  */
 package org.codice.ddf.migration;
 
-import java.util.Optional;
-
 import javax.annotation.Nullable;
 
 import org.apache.commons.lang.Validate;
@@ -64,11 +62,6 @@ public class MigrationWarning implements MigrationMessage {
 
     public String getMessage() {
         return this.message;
-    }
-
-    @Override
-    public Optional<MigrationWarning> downgradeToWarning() {
-        return Optional.of(this);
     }
 
     @Override

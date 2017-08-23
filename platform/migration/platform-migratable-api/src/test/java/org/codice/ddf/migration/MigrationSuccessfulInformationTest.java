@@ -13,15 +13,11 @@
  */
 package org.codice.ddf.migration;
 
-import java.util.Optional;
-
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-
-import com.github.npathai.hamcrestopt.OptionalMatchers;
 
 public class MigrationSuccessfulInformationTest {
     private static final String FORMAT = "test-%s";
@@ -61,13 +57,6 @@ public class MigrationSuccessfulInformationTest {
         thrown.expectMessage(Matchers.containsString("null format message"));
 
         new MigrationSuccessfulInformation(null, ARG);
-    }
-
-    @Test
-    public void testDowngradeToWarning() throws Exception {
-        final Optional<MigrationWarning> warning = INFO.downgradeToWarning();
-
-        Assert.assertThat(warning, OptionalMatchers.isEmpty());
     }
 
     @Test

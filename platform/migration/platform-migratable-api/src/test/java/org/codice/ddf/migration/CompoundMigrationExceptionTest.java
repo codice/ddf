@@ -22,15 +22,15 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-public class MigrationCompoundExceptionTest {
+public class CompoundMigrationExceptionTest {
     private static final MigrationException EXCEPTION1 = new MigrationException("test1");
 
     private static final MigrationException EXCEPTION2 = new MigrationException("test2");
 
     private static final MigrationException EXCEPTION3 = new MigrationException("test3");
 
-    private final MigrationCompoundException EXCEPTION =
-            new MigrationCompoundException(Arrays.asList(EXCEPTION1, EXCEPTION2, EXCEPTION3)
+    private final CompoundMigrationException EXCEPTION =
+            new CompoundMigrationException(Arrays.asList(EXCEPTION1, EXCEPTION2, EXCEPTION3)
                     .iterator());
 
     @Rule
@@ -47,8 +47,8 @@ public class MigrationCompoundExceptionTest {
 
     @Test
     public void testConstructorWithOnlyOneException() throws Exception {
-        final MigrationCompoundException EXCEPTION =
-                new MigrationCompoundException(Collections.singletonList(EXCEPTION1)
+        final CompoundMigrationException EXCEPTION =
+                new CompoundMigrationException(Collections.singletonList(EXCEPTION1)
                         .iterator());
 
         Assert.assertThat(EXCEPTION.getMessage(), Matchers.equalTo(EXCEPTION1.getMessage()));
@@ -61,7 +61,7 @@ public class MigrationCompoundExceptionTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(Matchers.containsString("null errors"));
 
-        new MigrationCompoundException(null);
+        new CompoundMigrationException(null);
     }
 
     @Test
@@ -69,6 +69,6 @@ public class MigrationCompoundExceptionTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(Matchers.containsString("missing errors"));
 
-        new MigrationCompoundException(Collections.emptyIterator());
+        new CompoundMigrationException(Collections.emptyIterator());
     }
 }

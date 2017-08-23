@@ -55,7 +55,7 @@ public interface Migratable extends Describable {
      * Exports all required migratable data to the specified context.
      * <p>
      * Errors, warnings, and/or information messages can be recorded along with the context's report.
-     * Doing so will not abort the operation right away.
+     * Doing so will not abort the operation.
      *
      * @param context a migration context to export all migratable data to
      * @throws MigrationException to stop the export operation
@@ -63,14 +63,11 @@ public interface Migratable extends Describable {
     public void doExport(ExportMigrationContext context);
 
     /**
-     * Imports all exported migratable data provided by the specified context.
+     * Imports all exported migratable data provided by the specified context when the current version
+     * of this migratable (see {@link #getVersion}) matches the exported version.
      * <p>
      * Errors, warnings, and/or information messages can be recorded along with the context's report.
-     * Doing so will not abort the operation right away.
-     * <p>
-     * <i>Note:</i> This version of the <code>doImport</code> method will be called if and only if
-     * the exported version for this migratable matches its currently reported version
-     * (see {@link #getVersion}).
+     * Doing so will not abort the operation.
      *
      * @param context a migration context to import all exported migratable data from
      * @throws MigrationException to stop the import operation
@@ -82,7 +79,7 @@ public interface Migratable extends Describable {
      * version of this migratable (see {@link #getVersion}) is different than the exported version.
      * <p>
      * Errors, warnings, and/or information messages can be recorded along with the context's report.
-     * Doing so will not abort the operation right away.
+     * Doing so will not abort the operation.
      * <p>
      * <i>Note:</i> The default implementation provided here will record an incompatibility error with
      * the context's report.
@@ -105,7 +102,7 @@ public interface Migratable extends Describable {
      * newer version of the product where this migratable is first being introduced.
      * <p>
      * Errors, warnings, and/or information messages can be recorded along with the context's report.
-     * Doing so will not abort the operation right away.
+     * Doing so will not abort the operation.
      * <p>
      * <i>Note:</i> The default implementation provided here will record an incompatibility error with
      * the context's report.

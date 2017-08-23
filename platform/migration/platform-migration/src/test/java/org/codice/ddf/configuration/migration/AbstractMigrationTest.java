@@ -153,6 +153,7 @@ public class AbstractMigrationTest {
         final File rdir = DDF_HOME.resolve(dir)
                 .toFile();
 
+        rdir.mkdirs();
         for (final String name : names) {
             final File file = new File(rdir, name);
 
@@ -177,6 +178,8 @@ public class AbstractMigrationTest {
         final File file = new File(DDF_HOME.resolve(dir)
                 .toFile(), name);
 
+        dir.toFile()
+                .mkdirs();
         FileUtils.writeStringToFile(file, name, Charsets.UTF_8);
         final Path path = file.toPath()
                 .toRealPath(LinkOption.NOFOLLOW_LINKS);
@@ -231,6 +234,8 @@ public class AbstractMigrationTest {
         if (is == null) {
             throw new FileNotFoundException("resource '" + resource + "' not found");
         }
+        dir.toFile()
+                .mkdirs();
         FileUtils.copyInputStreamToFile(is, file);
         final Path path = file.toPath()
                 .toRealPath(LinkOption.NOFOLLOW_LINKS);
@@ -267,6 +272,8 @@ public class AbstractMigrationTest {
         final Path path = DDF_HOME.resolve(dir)
                 .resolve(name);
 
+        dir.toFile()
+                .mkdirs();
         Files.createSymbolicLink(path, dest);
         final Path apath = path.toRealPath(LinkOption.NOFOLLOW_LINKS);
 

@@ -14,8 +14,6 @@
 
 package org.codice.ddf.migration;
 
-import java.util.Optional;
-
 import javax.annotation.Nullable;
 
 import org.apache.commons.lang.Validate;
@@ -112,10 +110,5 @@ public class MigrationException extends RuntimeException implements MigrationMes
     private static <T> T validateNotNull(T t, String message) {
         Validate.notNull(t, message);
         return t;
-    }
-
-    @Override
-    public Optional<MigrationWarning> downgradeToWarning() {
-        return Optional.of(new MigrationWarning(getMessage()));
     }
 }

@@ -13,15 +13,11 @@
  */
 package org.codice.ddf.migration;
 
-import java.util.Optional;
-
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-
-import com.github.npathai.hamcrestopt.OptionalMatchers;
 
 public class MigrationExceptionTest {
     private static final String FORMAT = "test-%s";
@@ -114,14 +110,5 @@ public class MigrationExceptionTest {
 
         Assert.assertThat(EXCEPTION.getMessage(), Matchers.equalTo(MESSAGE));
         Assert.assertThat(EXCEPTION.getCause(), Matchers.nullValue());
-    }
-
-    @Test
-    public void testDowngradeToWarning() throws Exception {
-        final Optional<MigrationWarning> warning = EXCEPTION.downgradeToWarning();
-
-        Assert.assertThat(warning, OptionalMatchers.isPresent());
-        Assert.assertThat(warning.get()
-                .getMessage(), Matchers.equalTo(MESSAGE));
     }
 }
