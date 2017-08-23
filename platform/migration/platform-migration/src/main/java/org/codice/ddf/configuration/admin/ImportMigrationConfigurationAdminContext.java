@@ -144,6 +144,8 @@ public class ImportMigrationConfigurationAdminContext extends ProxyImportMigrati
         throw new IllegalStateException("should not be called");
     }
 
+    // designed to be called only from ImportMigrationConfigurationAdminEntry within this package
+    @SuppressWarnings("PMD.DefaultPackage")
     Configuration createConfiguration(ImportMigrationConfigurationAdminEntry entry)
             throws IOException {
         // Question: should we use the bundle location that was exported???
@@ -153,7 +155,8 @@ public class ImportMigrationConfigurationAdminContext extends ProxyImportMigrati
         return configurationAdmin.getConfiguration(entry.getPid());
     }
 
-    Configuration getMemoryConfiguration(ImportMigrationConfigurationAdminEntry entry) {
+    Configuration getMemoryConfiguration(
+            ImportMigrationConfigurationAdminEntry entry) { // NOPMD - designed to be called only from ImportMigrationConfigurationAdminEntry within this package
         final String fpid = entry.getFactoryPid();
 
         if (fpid != null) {
