@@ -40,6 +40,7 @@ import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.ResourceReader;
+import ddf.catalog.service.ConfiguredService;
 import ddf.catalog.source.FederatedSource;
 import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.source.UnsupportedQueryException;
@@ -53,7 +54,7 @@ import twitter4j.TwitterFactory;
 import twitter4j.conf.Configuration;
 import twitter4j.conf.ConfigurationBuilder;
 
-public class TwitterSource implements FederatedSource {
+public class TwitterSource implements FederatedSource, ConfiguredService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TwitterSource.class);
 
@@ -66,6 +67,8 @@ public class TwitterSource implements FederatedSource {
     String consumerKey;
 
     String consumerSecret;
+
+    private String configurationPid;
 
     public TwitterSource() {
 
@@ -183,10 +186,9 @@ public class TwitterSource implements FederatedSource {
         metacard.setSourceId(id);
         metacard.setId(String.valueOf(status.getId()));
         metacard.setTitle(status.getText());
-        metacard.setMetadata("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
-                "<Resource>" +
-                "<name>" + status.getText() + "</name>" +
-                "</Resource>");
+        metacard.setMetadata(
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" + "<Resource>"
+                        + "<name>" + status.getText() + "</name>" + "</Resource>");
         metacard.setCreatedDate(status.getCreatedAt());
         metacard.setModifiedDate(status.getCreatedAt());
         metacard.setEffectiveDate(status.getCreatedAt());
@@ -207,8 +209,7 @@ public class TwitterSource implements FederatedSource {
         } else if (status.getExtendedMediaEntities() != null
                 && status.getExtendedMediaEntities().length > 0) {
             try {
-                metacard.setResourceURI(
-                        new URI(status.getExtendedMediaEntities()[0].getExpandedURL()));
+                metacard.setResourceURI(new URI(status.getExtendedMediaEntities()[0].getExpandedURL()));
             } catch (URISyntaxException e) {
                 LOGGER.error("Unable to set resource URI.", e);
             }
@@ -274,5 +275,15 @@ public class TwitterSource implements FederatedSource {
 
     public void setResourceReader(ResourceReader resourceReader) {
         this.resourceReader = resourceReader;
+    }
+
+    @Override
+    public String getConfigurationPid() {
+        return configurationPid;
+    }
+
+    @Override
+    public void setConfigurationPid(String configurationPid) {
+        this.configurationPid = configurationPid;
     }
 }
