@@ -62,6 +62,8 @@ The `CertNew` scripts:
 
 To install a certificate signed by a different Certificate Authority, see <<_managing_keystores,Managing Keystores>>.
 
+Once the certificate has been updated the system user and `org.codice.ddf.system.hostname` property will also need to be updated to match the FQDN. Replace localhost with the FQDN in `<INSTALL_HOME>/etc/users.properties`, `<INSTALL_HOME>/etc/users.attributes` and `<INSTALL_HOME>/etc/system.properties`.
+
 Finally, restart the ${branding} instance.
 Browse the ${admin-console} at \https://<FQDN>:8993/admin to test changes.
 

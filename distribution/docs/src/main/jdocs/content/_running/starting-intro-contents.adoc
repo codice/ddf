@@ -155,35 +155,45 @@ to:
 RUN_AS_USER=<${branding-lowercase}-user>
 ----
 +
+. (Windows users skip to next step) (All *NIX) Edit `<${branding}_HOME>/bin/${branding-lowercase}.service`. Add LimitNOFILE to the [Service] section.
++
+.<${branding}_HOME>/bin/${branding-lowercase}.service
+----
+LimitNOFILE=6815744
+----
++
 . Set the memory in the wrapper config to match with ${branding} default memory setting.
 +
 .<${branding}_HOME>/etc/${branding-lowercase}-wrapper.conf
 [source,java,linenums]
 ----
 #Add the following:
-wrapper.java.additional.10=-D${ddf-branding-lowercase}.home=%KARAF_HOME%
-wrapper.java.additional.11=-Dderby.storage.fileSyncTransactionLog=true
-wrapper.java.additional.12=-server
-wrapper.java.additional.13=-Djava.security.egd=file:/dev/./urandom
-wrapper.java.additional.14=-Dfile.encoding=UTF8
-wrapper.java.additional.15=-Dkaraf.instances=%KARAF_HOME%/instances
-wrapper.java.additional.16=-Dkaraf.restart.jvm.supported=true
-wrapper.java.additional.17=-Djava.io.tmpdir=%KARAF_HOME%/data/tmp
+wrapper.java.additional.11=-D${ddf-branding-lowercase}.home=%KARAF_HOME%
+wrapper.java.additional.12=-Dderby.storage.fileSyncTransactionLog=true
+wrapper.java.additional.13=-server
+wrapper.java.additional.14=-Djava.security.egd=file:/dev/./urandom
+wrapper.java.additional.15=-Dfile.encoding=UTF8
+wrapper.java.additional.16=-Dkaraf.instances=%KARAF_HOME%/instances
+wrapper.java.additional.17=-Dkaraf.restart.jvm.supported=true
 wrapper.java.additional.18=-Djava.util.logging.config.file=%KARAF_HOME%/etc/java.util.logging.properties
 wrapper.java.additional.19=-XX:+UnlockDiagnosticVMOptions
 wrapper.java.additional.20=-XX:+UnsyncloadClass
 wrapper.java.additional.21=-Dderby.system.home=%KARAF_HOME%/data/derby
 wrapper.java.additional.22=-Djava.awt.headless=true
 
-# Set the JVM min heap space as desired
-wrapper.java.additional.23=-Xms2g
-
 # Set the JVM max heap space as desired
-wrapper.java.additional.24=-Xmx4g
+wrapper.java.additional.23=-Xmx4g
 
 # (Preferred) Optionally add the disable attach mechanism to prevent connections to JMX
-wrapper.java.additional.25=-XX:+DisableAttachMechanism
+wrapper.java.additional.24=-XX:+DisableAttachMechanism
 
+----
++
+Remove or comment out `wrapper.java.maxmemory=512`:
++
+.<${branding}_HOME>/etc/${branding-lowercase}-wrapper.conf
+----
+#wrapper.java.maxmemory=512
 ----
 +
 . Install the wrapper startup/shutdown scripts.
@@ -203,6 +213,12 @@ Startup and shutdown settings can then be managed through *Services -> MMC Start
 root${at-symbol}localhost# ln -s <${branding}_HOME>/bin/${branding-lowercase}-service /etc/init.d/
 root${at-symbol}localhost# chkconfig ${branding-lowercase}-service --add
 root${at-symbol}localhost# chkconfig ${branding-lowercase}-service on
+----
++
+*Redhat 7 (systemd)*
++
+----
+root${at-symbol}localhost# systemctl enable <${branding}_HOME>/bin/${branding-lowercase}.service
 ----
 +
 *Ubuntu*

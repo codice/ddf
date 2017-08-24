@@ -289,18 +289,16 @@
         </capability>
     </feature>
 
+    <!--NOTE: conditional and dependency=true have been removed because it caused required bundles not being included in kar -->
     <feature name="transaction" description="OSGi Transaction Manager" version="2.0">
         <details>JTA Support</details>
         <feature dependency="true">transaction-manager-geronimo</feature>
         <requirement>
             transaction-manager
         </requirement>
-        <conditional>
-            <condition>aries-blueprint</condition>
-            <bundle dependency="true">mvn:org.apache.felix/org.apache.felix.coordinator/${felix.coordinator.version}</bundle>
-            <bundle>mvn:org.apache.aries.transaction/org.apache.aries.transaction.blueprint/${aries.transaction.blueprint.version}</bundle>
-            <bundle>mvn:org.apache.aries.transaction/org.apache.aries.transaction.blueprint/${aries.transaction.blueprint.version2}</bundle>
-        </conditional>
+        <bundle>mvn:org.apache.felix/org.apache.felix.coordinator/${felix.coordinator.version}</bundle>
+        <bundle>mvn:org.apache.aries.transaction/org.apache.aries.transaction.blueprint/${aries.transaction.blueprint.version}</bundle>
+        <bundle>mvn:org.apache.aries.transaction/org.apache.aries.transaction.blueprint/${aries.transaction.blueprint.version2}</bundle>
     </feature>
     <!-- END Enterprise Features -->
 
