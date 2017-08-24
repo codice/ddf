@@ -29,26 +29,30 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
 import org.codice.ddf.ui.searchui.query.actions.ActionRegistryImpl;
+import org.codice.ddf.ui.searchui.query.controller.search.SourceQueryRunnable;
 import org.codice.ddf.ui.searchui.query.model.Search;
 import org.codice.ddf.ui.searchui.query.model.SearchRequest;
 import org.cometd.bayeux.server.BayeuxServer;
@@ -74,9 +78,7 @@ import com.google.common.util.concurrent.Futures;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Result;
-import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.impl.SortByImpl;
 import ddf.catalog.filter.proxy.adapter.GeotoolsFilterAdapterImpl;
 import ddf.catalog.operation.Query;
@@ -86,6 +88,7 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.security.Subject;
 
 /**
  * Test cases for {@link org.codice.ddf.ui.searchui.query.controller.SearchController}
@@ -114,6 +117,10 @@ public class SearchControllerTest {
 
     private static final String[] SOURCE_ID_LIST = {"any_source_id"};
 
+    private ArgumentCaptor<QueryResponse> queryResponseArgumentCaptor;
+
+    private ArgumentCaptor<QueryRequest> queryRequestArgumentCaptor;
+
     private SearchController searchController;
 
     private CatalogFramework framework;
@@ -138,9 +145,14 @@ public class SearchControllerTest {
     @Mock
     private Query mockQuery;
 
+    @Mock
+    private Search search;
+
     @Before
     public void setUp() throws Exception {
         framework = createFramework();
+        queryResponseArgumentCaptor = ArgumentCaptor.forClass(QueryResponse.class);
+        queryRequestArgumentCaptor = ArgumentCaptor.forClass(QueryRequest.class);
 
         searchController = new SearchController(framework,
                 new ActionRegistryImpl(Collections.emptyList(), Collections.emptyList()),
@@ -155,13 +167,11 @@ public class SearchControllerTest {
         when(mockSearchRequest.getQuery()).thenReturn(mockQuery);
         when(mockQuery.getSortBy()).thenReturn(SortBy.NATURAL_ORDER);
         when(mockBayeuxServer.getChannel(anyString())).thenReturn(mockServerChannel);
-        when(mockExecutor.submit(any(Runnable.class))).thenAnswer(
-                (args) -> {
-                    Runnable runnable = (Runnable) args.getArguments()[0];
-                    runnable.run();
-                    return mockFuture;
-                }
-        );
+        when(mockExecutor.submit(any(Runnable.class))).thenAnswer((args) -> {
+            Runnable runnable = (Runnable) args.getArguments()[0];
+            runnable.run();
+            return mockFuture;
+        });
     }
 
     @Test
@@ -238,6 +248,7 @@ public class SearchControllerTest {
         Set<String> srcIds = new HashSet<>();
         srcIds.add(ID);
 
+        setupModifiedFramework(2L, 2, 2, 0);
         BayeuxServer bayeuxServer = mock(BayeuxServer.class);
         ServerChannel channel = mock(ServerChannel.class);
         ArgumentCaptor<ServerMessage.Mutable> reply =
@@ -325,9 +336,9 @@ public class SearchControllerTest {
         verify(channel, times(1)).publish(any(), any());
     }
 
-    private List<String> cacheQuery(Set<String> srcIds, int queryRequestCount)
-            throws CQLException, UnsupportedQueryException, SourceUnavailableException,
-            FederationException {
+    private List<String> cacheQuery(Set<String> srcIds, int queryRequestCount) throws Exception {
+
+        setupModifiedFramework(2L, 0);
         SearchRequest request = new SearchRequest(srcIds,
                 getQueryRequest("anyText LIKE '*'"),
                 "queryId");
@@ -384,10 +395,160 @@ public class SearchControllerTest {
         searchController.executeQuery(request, mockServerSession, null);
 
         // Verify
-        verify(framework).query(queryRequestCaptor.capture());
+        verify(framework, times(2)).query(queryRequestCaptor.capture());
         assertThat(queryRequestCaptor.getValue()
                 .getProperties()
                 .size(), is(0));
+    }
+
+    @Test
+    public void testOffsetStartIndexMultiPage() throws Exception {
+        final int START_INDEX = 13;
+        final long TOTAL_CATALOG_HITS = 20L;
+        final int EXPECTED_RESULT = 8;
+        final int FIRST_PAGE_RESULT = 5;
+        final int SECOND_PAGE_RESULT = 3;
+        final int EMPTY_PAGE_RESULT = 0;
+        final String EXPECTED_HITS_MESSAGE =
+                "The framework should have only return " + TOTAL_CATALOG_HITS + " hits";
+        final String EXPECTED_RESULTS_MESSAGE =
+                "The max query results was set to expect " + EXPECTED_RESULT + " results";
+
+        when(mockQuery.getStartIndex()).thenReturn(START_INDEX);
+        setupModifiedFramework(TOTAL_CATALOG_HITS,
+                FIRST_PAGE_RESULT,
+                SECOND_PAGE_RESULT,
+                EMPTY_PAGE_RESULT);
+        SourceQueryRunnable sourceQueryRunnable = setupSourceQueryRunnable(search, EXPECTED_RESULT);
+        sourceQueryRunnable.run();
+
+        verify(framework, times(3)).query(queryRequestArgumentCaptor.capture());
+        verify(search).update(any(), queryResponseArgumentCaptor.capture());
+        List<Integer> startIndices = queryRequestArgumentCaptor.getAllValues()
+                .stream()
+                .map(qR -> qR.getQuery()
+                        .getStartIndex())
+                .collect(Collectors.toList());
+        List<Integer> expectedIndices = Arrays.asList(13, 18, 21);
+        assertThat(startIndices, is(expectedIndices));
+        assertThat(EXPECTED_HITS_MESSAGE,
+                queryResponseArgumentCaptor.getValue()
+                        .getHits(),
+                is(TOTAL_CATALOG_HITS));
+        assertThat(EXPECTED_RESULTS_MESSAGE,
+                queryResponseArgumentCaptor.getValue()
+                        .getResults()
+                        .size(),
+                is(EXPECTED_RESULT));
+    }
+
+    @Test
+    public void testMatchingPageSize() throws Exception {
+        final long TOTAL_CATALOG_HITS = 60L;
+        final int EXPECTED_RESULT = 60;
+        final int FIRST_PAGE_RESULT = 30;
+        final int SECOND_PAGE_RESULT = 30;
+        final int EMPTY_PAGE_RESULT = 0;
+        final String EXPECTED_HITS_MESSAGE =
+                "The framework should have only return " + TOTAL_CATALOG_HITS + " hits";
+        final String EXPECTED_RESULTS_MESSAGE =
+                "The max query results was set to expect " + EXPECTED_RESULT + " results";
+
+        setupModifiedFramework(TOTAL_CATALOG_HITS,
+                FIRST_PAGE_RESULT,
+                SECOND_PAGE_RESULT,
+                EMPTY_PAGE_RESULT);
+        SourceQueryRunnable sourceQueryRunnable = setupSourceQueryRunnable(search, EXPECTED_RESULT);
+        sourceQueryRunnable.run();
+
+        verify(framework, times(3)).query(queryRequestArgumentCaptor.capture());
+        verify(search).update(any(), queryResponseArgumentCaptor.capture());
+        List<Integer> startIndices = queryRequestArgumentCaptor.getAllValues()
+                .stream()
+                .map(qR -> qR.getQuery()
+                        .getStartIndex())
+                .collect(Collectors.toList());
+        List<Integer> expectedIndices = Arrays.asList(0, 30, 60);
+        assertThat(startIndices, is(expectedIndices));
+        assertThat(EXPECTED_HITS_MESSAGE,
+                queryResponseArgumentCaptor.getValue()
+                        .getHits(),
+                is(TOTAL_CATALOG_HITS));
+        assertThat(EXPECTED_RESULTS_MESSAGE,
+                queryResponseArgumentCaptor.getValue()
+                        .getResults()
+                        .size(),
+                is(EXPECTED_RESULT));
+    }
+
+    @Test
+    public void testMaxQueryPaging() throws Exception {
+        final long TOTAL_CATALOG_HITS = 1100L;
+        final int EXPECTED_MAX_RESULT = 1000;
+        final int FIRST_PAGE_RESULT = 400;
+        final int SECOND_PAGE_RESULT = 400;
+        final int THIRD_PAGE_RESULT = 300;
+        final int EMPTY_PAGE_RESULT = 0;
+        final String EXPECTED_HITS_MESSAGE =
+                "The framework should have only return " + TOTAL_CATALOG_HITS + " hits";
+        final String EXPECTED_RESULTS_MESSAGE =
+                "The max query results was set to expect " + EXPECTED_MAX_RESULT + " results";
+
+        setupModifiedFramework(TOTAL_CATALOG_HITS,
+                FIRST_PAGE_RESULT,
+                SECOND_PAGE_RESULT,
+                THIRD_PAGE_RESULT,
+                EMPTY_PAGE_RESULT);
+        SourceQueryRunnable sourceQueryRunnable = setupSourceQueryRunnable(search,
+                EXPECTED_MAX_RESULT);
+        sourceQueryRunnable.run();
+
+        verify(framework, times(4)).query(queryRequestArgumentCaptor.capture());
+        verify(search).update(any(), queryResponseArgumentCaptor.capture());
+        List<Integer> startIndices = queryRequestArgumentCaptor.getAllValues()
+                .stream()
+                .map(qR -> qR.getQuery()
+                        .getStartIndex())
+                .collect(Collectors.toList());
+        List<Integer> expectedIndices = Arrays.asList(0, 400, 800, 1100);
+        assertThat(startIndices, is(expectedIndices));
+        assertThat(EXPECTED_HITS_MESSAGE,
+                queryResponseArgumentCaptor.getValue()
+                        .getHits(),
+                is(TOTAL_CATALOG_HITS));
+        assertThat(EXPECTED_RESULTS_MESSAGE,
+                queryResponseArgumentCaptor.getValue()
+                        .getResults()
+                        .size(),
+                is(EXPECTED_MAX_RESULT));
+    }
+
+    private SourceQueryRunnable setupSourceQueryRunnable(Search search, int pageSize) {
+        when(mockQuery.getPageSize()).thenReturn(pageSize);
+        Subject subject = mock(Subject.class);
+        BayeuxServer bayeuxServer = mock(BayeuxServer.class);
+        ServerChannel channel = mock(ServerChannel.class);
+        when(bayeuxServer.getChannel(any(String.class))).thenReturn(channel);
+        searchController.setBayeuxServer(bayeuxServer);
+        when(mockSearchRequest.getQuery()).thenReturn(mockQuery);
+
+        return new SourceQueryRunnable(searchController,
+                "sampleSourceId",
+                mockSearchRequest,
+                subject,
+                new HashMap<>(),
+                search,
+                mockServerSession,
+                mockFuture,
+                mockFuture);
+    }
+
+    private void setupModifiedFramework(long totalHits, int... catalogResults) throws Exception {
+        framework = createFramework(totalHits, catalogResults);
+        searchController = new SearchController(framework,
+                new ActionRegistryImpl(Collections.emptyList(), Collections.emptyList()),
+                new GeotoolsFilterAdapterImpl(),
+                new SequentialExecutorService());
     }
 
     private void assertReplies(List<Mutable> replies) {
@@ -441,59 +602,48 @@ public class SearchControllerTest {
         }
     }
 
-    private CatalogFramework createFramework() {
-        final long COUNT = 2;
+    private CatalogFramework createFramework() throws Exception {
+        return createFramework(2L, 2, 0);
+    }
+
+    private CatalogFramework createFramework(long totalHits, int... pagingResults)
+            throws Exception {
 
         CatalogFramework framework = mock(CatalogFramework.class);
-        List<Result> results = new ArrayList<Result>();
 
-        for (int i = 0; i < COUNT; i++) {
-            Result result = mock(Result.class);
-
-            MetacardImpl metacard = new MetacardImpl();
-            metacard.setId("Metacard_" + i);
-            metacard.setTitle("Metacard " + i);
-            metacard.setLocation("POINT(" + i + " " + i + ")");
-            metacard.setType(BasicTypes.BASIC_METACARD);
-            metacard.setCreatedDate(TIMESTAMP);
-            metacard.setEffectiveDate(TIMESTAMP);
-            metacard.setExpirationDate(TIMESTAMP);
-            metacard.setModifiedDate(TIMESTAMP);
-            metacard.setContentTypeName("TEST");
-            metacard.setContentTypeVersion("1.0");
-            metacard.setTargetNamespace(URI.create(getClass().getPackage()
-                    .getName()));
-
-            when(result.getDistanceInMeters()).thenReturn(100.0 * i);
-            when(result.getRelevanceScore()).thenReturn(100.0 * (COUNT - i) / COUNT);
-            when(result.getMetacard()).thenReturn(metacard);
-
-            results.add(result);
+        List<QueryResponse> responseList = new ArrayList<>();
+        for (int resultsPerPage : pagingResults) {
+            List<Result> results = generateResults(resultsPerPage);
+            QueryResponse response = new QueryResponseImpl(mock(QueryRequest.class),
+                    results,
+                    totalHits);
+            responseList.add(response);
         }
 
-        QueryResponse response = new QueryResponseImpl(mock(QueryRequest.class),
-                new ArrayList<Result>(),
-                COUNT);
-        response.getResults()
-                .addAll(results);
-
-        try {
-            when(framework.query(any(QueryRequest.class))).thenReturn(response);
-        } catch (UnsupportedQueryException e) {
-            LOGGER.debug("Error querying framework", e);
-        } catch (SourceUnavailableException e) {
-            LOGGER.debug("Error querying framework", e);
-        } catch (FederationException e) {
-            LOGGER.debug("Error querying framework", e);
-        }
+        when(framework.query(any(QueryRequest.class))).thenReturn(responseList.get(0),
+                popNextResponse(responseList));
         return framework;
     }
 
-    /**
-     * Helper methods for generating exception stacks
-     */
-    private Exception generateExceptionStack(int targetSize) {
-        return generateExceptionStack(targetSize, 0, null);
+    private QueryResponse[] popNextResponse(List<QueryResponse> responseList) {
+        QueryResponse[] responseArr = new QueryResponse[responseList.size()];
+        responseList.toArray(responseArr);
+        return Arrays.copyOfRange(responseArr, 1, responseList.size());
+    }
+
+    private List<Result> generateResults(int resultsPerPage) {
+        return Stream.generate(() -> generateResult(UUID.randomUUID()
+                .toString()))
+                .limit(resultsPerPage)
+                .collect(Collectors.toList());
+    }
+
+    private Result generateResult(String id) {
+        Result result = mock(Result.class);
+        MetacardImpl metacard = new MetacardImpl();
+        metacard.setId(id);
+        when(result.getMetacard()).thenReturn(metacard);
+        return result;
     }
 
     private Exception generateExceptionStack(int targetSize, int currentSize,
