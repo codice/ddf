@@ -58,6 +58,7 @@ import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.apache.karaf.shell.support.completers.FileCompleter;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
+import org.codice.ddf.commands.util.CrossPlatformFilePathEvaluator;
 import org.codice.ddf.platform.util.Exceptions;
 import org.fusesource.jansi.Ansi;
 import org.joda.time.Period;
@@ -288,7 +289,7 @@ public class IngestCommand extends CatalogCommands {
     }
 
     private File getInputFile() {
-        final File inputFile = new File(filePath);
+        final File inputFile = CrossPlatformFilePathEvaluator.handlePath(filePath);
 
         SecurityLogger.audit("Called catalog:ingest command with path : {}", filePath);
 
@@ -597,7 +598,7 @@ public class IngestCommand extends CatalogCommands {
     }
 
     private void processIncludeContent(ArrayBlockingQueue<Metacard> metacardQueue) {
-        File inputFile = new File(filePath);
+        File inputFile = CrossPlatformFilePathEvaluator.handlePath(filePath);
         Map<String, Serializable> arguments = new HashMap<>();
         arguments.put(DumpCommand.FILE_PATH, inputFile.getParent() + File.separator);
         arguments.put(FILE_NAME, inputFile.getName());
