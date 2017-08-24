@@ -26,7 +26,7 @@
     </feature>
 
     <feature name="branding-api" version="${project.version}" description="Branding API">
-        <bundle>mvn:ddf.distribution/branding-api/${project.version}</bundle>
+        <bundle>mvn:ddf.platform/branding-api/${project.version}</bundle>
     </feature>
 
     <feature name="ddf-branding" version="${project.version}" description="DDF Branding">

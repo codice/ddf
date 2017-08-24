@@ -27,7 +27,7 @@
     <packaging>bundle</packaging>
     <dependencies>
         <dependency>
-            <groupId>ddf.distribution</groupId>
+            <groupId>ddf.platform</groupId>
             <artifactId>branding-api</artifactId>
             <version>${project.version}</version>
         </dependency>
