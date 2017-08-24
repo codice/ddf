@@ -117,12 +117,6 @@ public class QueryOperations extends DescribableImpl {
 
   private List<String> fanoutProxyTagBlacklist = new ArrayList<>();
 
-  private List<String> fanoutTagWhitelist = new ArrayList<>();
-
-  private List<String> fanoutSourceList = new ArrayList<>();
-
-  private boolean invertFanoutList = false;
-
   private long queryTimeoutMillis = 300000;
 
   public QueryOperations(
@@ -152,37 +146,13 @@ public class QueryOperations extends DescribableImpl {
     this.queryTimeoutMillis = queryTimeoutMillis;
   }
 
-  public List<String> getFanoutTagWhitelist() {
-    return fanoutTagWhitelist;
-  }
-
-  public void setFanoutTagWhitelist(List<String> fanoutTagWhitelist) {
-    this.fanoutTagWhitelist = fanoutTagWhitelist;
-  }
-
-  public List<String> getFanoutSourceList() {
-    return fanoutSourceList;
-  }
-
-  public void setFanoutSourceList(List<String> fanoutSourceList) {
-    this.fanoutSourceList = fanoutSourceList;
-  }
-
-  public boolean isInvertFanoutList() {
-    return invertFanoutList;
-  }
-
-  public void setInvertFanoutList(boolean invertFanoutList) {
-    this.invertFanoutList = invertFanoutList;
-  }
-
-  //
-  // Delegate methods
-  //
-  public QueryResponse query(QueryRequest fedQueryRequest, boolean fanoutEnabled)
-      throws UnsupportedQueryException, SourceUnavailableException, FederationException {
-    return query(fedQueryRequest, null, fanoutEnabled);
-  }
+    //
+    // Delegate methods
+    //
+    public QueryResponse query(QueryRequest fedQueryRequest, boolean fanoutEnabled)
+            throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+        return query(fedQueryRequest, null, fanoutEnabled);
+    }
 
   public QueryResponse query(
       QueryRequest queryRequest, FederationStrategy strategy, boolean fanoutEnabled)
@@ -808,7 +778,7 @@ public class QueryOperations extends DescribableImpl {
           LOGGER.debug("Local source is included in sourceIds");
           addConnectedSources =
               CollectionUtils.isNotEmpty(frameworkProperties.getConnectedSources())
-                  || CollectionUtils.isNotEmpty(queryOps.fanoutSourceList);
+                  || CollectionUtils.isNotEmpty(queryOps.sourceOperations.getFanoutSourceList());
           addCatalogProvider = queryOps.hasCatalogProvider();
           sourceIds.remove(queryOps.getId());
           sourceIds.remove(null);
@@ -839,34 +809,34 @@ public class QueryOperations extends DescribableImpl {
               }
             }
 
-            if (!sourceFound) {
-              exceptions.add(
-                  new ProcessingDetailsImpl(
-                      id, new SourceUnavailableException("Source id is not found")));
+                        if (!sourceFound) {
+                            exceptions.add(new ProcessingDetailsImpl(id,
+                                    new SourceUnavailableException("Source id is not found")));
+                        }
+                    }
+                    if (!notPermittedSources.isEmpty()) {
+                        SecurityLogger.audit("Subject is not permitted to access sources {}",
+                                notPermittedSources);
+                    }
+                }
+            } else {
+                // default to local sources
+                addConnectedSources =
+                        CollectionUtils.isNotEmpty(frameworkProperties.getConnectedSources())
+                                || CollectionUtils.isNotEmpty(queryOps.sourceOperations.getFanoutSourceList());
+                addCatalogProvider = queryOps.hasCatalogProvider();
             }
-          }
-          if (!notPermittedSources.isEmpty()) {
-            SecurityLogger.audit(
-                "Subject is not permitted to access sources {}", notPermittedSources);
-          }
-        }
-      } else {
-        // default to local sources
-        addConnectedSources =
-            CollectionUtils.isNotEmpty(frameworkProperties.getConnectedSources())
-                || CollectionUtils.isNotEmpty(queryOps.fanoutSourceList);
-        addCatalogProvider = queryOps.hasCatalogProvider();
-      }
 
-      try {
-        TagsFilterDelegate tagsFilterDelegate =
-            new TagsFilterDelegate(new HashSet<>(queryOps.fanoutSourceList));
-        whitelistQuery =
-            queryOps.filterAdapter.adapt(queryRequest.getQuery(), tagsFilterDelegate)
-                || !queryOps.filterAdapter.adapt(queryRequest.getQuery(), new TagsFilterDelegate());
-      } catch (UnsupportedQueryException e) {
-        LOGGER.debug("Error checking tags on query request", e);
-      }
+            try {
+                TagsFilterDelegate tagsFilterDelegate = new TagsFilterDelegate(new HashSet<>(
+                        queryOps.sourceOperations.getFanoutSourceList()));
+                whitelistQuery = queryOps.filterAdapter.adapt(queryRequest.getQuery(),
+                        tagsFilterDelegate)
+                        || !queryOps.filterAdapter.adapt(queryRequest.getQuery(),
+                        new TagsFilterDelegate());
+            } catch (UnsupportedQueryException e) {
+                LOGGER.debug("Error checking tags on query request", e);
+            }
 
       return this;
     }
@@ -889,16 +859,15 @@ public class QueryOperations extends DescribableImpl {
           Map<String, FederatedSource> federatedSourceMap =
               frameworkProperties.getFederatedSources();
 
-          List<String> sourceIds = queryOps.getFanoutSourceList();
-          if (queryOps.isInvertFanoutList()) {
-            sourceIds =
-                frameworkProperties
-                    .getFederatedSources()
-                    .keySet()
-                    .stream()
-                    .filter(id -> !queryOps.getFanoutSourceList().contains(id))
-                    .collect(Collectors.toList());
-          }
+                    List<String> sourceIds = queryOps.sourceOperations.getFanoutSourceList();
+                    if (queryOps.sourceOperations.isInvertFanoutList()) {
+                        sourceIds = frameworkProperties.getFederatedSources()
+                                .keySet()
+                                .stream()
+                                .filter(id -> !queryOps.sourceOperations.getFanoutSourceList()
+                                        .contains(id))
+                                .collect(Collectors.toList());
+                    }
 
           for (String sourceId : sourceIds) {
             if (federatedSourceMap.containsKey(sourceId)) {

@@ -39,6 +39,10 @@
         <AD name="Query timeout (milliseconds)" id="queryTimeoutMillis" required="true" type="Long"
             default="300000"
             description="Time in milliseconds that a query will wait on the queue before timeout."/>
+    </OCD>
+
+    <OCD name="Source Operations"
+         id="ddf.catalog.impl.operations.SourceOperations">
 
         <AD name="Dynamic Fanout Tag Whitelist" id="fanoutTagWhitelist" required="true"
             type="String" cardinality="100"
@@ -82,6 +86,10 @@
 
     <Designate pid="ddf.catalog.impl.operations.QueryOperations">
         <Object ocdref="ddf.catalog.impl.operations.QueryOperations"></Object>
+    </Designate>
+
+    <Designate pid="ddf.catalog.impl.operations.SourceOperations">
+        <Object ocdref="ddf.catalog.impl.operations.SourceOperations"></Object>
     </Designate>
 
 

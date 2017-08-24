@@ -53,7 +53,14 @@
     </bean>
 
     <bean id="cfSourceOps" class="ddf.catalog.impl.operations.SourceOperations">
+        <cm:managed-properties persistent-id="ddf.catalog.impl.operations.SourceOperations"
+                               update-strategy="container-managed"/>
         <argument ref="frameworkProperties"/>
+        <property name="fanoutTagWhitelist">
+            <list value-type="java.lang.String">
+                <value>resource</value>
+            </list>
+        </property>
     </bean>
 
     <bean id="cfQueryOps" class="ddf.catalog.impl.operations.QueryOperations">
@@ -71,11 +78,6 @@
             </list>
         </property>
         <property name="queryTimeoutMillis" value="300000"/>
-        <property name="fanoutTagWhitelist">
-            <list value-type="java.lang.String">
-                <value>resource</value>
-            </list>
-        </property>
     </bean>
 
     <bean id="cfResourceOps" class="ddf.catalog.impl.operations.ResourceOperations">
