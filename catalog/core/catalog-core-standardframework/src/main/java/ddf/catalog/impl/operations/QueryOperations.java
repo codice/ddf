@@ -117,6 +117,12 @@ public class QueryOperations extends DescribableImpl {
 
   private List<String> fanoutProxyTagBlacklist = new ArrayList<>();
 
+  private List<String> fanoutTagWhitelist = new ArrayList<>();
+
+  private List<String> fanoutSourceList = new ArrayList<>();
+
+  private boolean invertFanoutList = false;
+
   private long queryTimeoutMillis = 300000;
 
   public QueryOperations(
@@ -144,6 +150,30 @@ public class QueryOperations extends DescribableImpl {
 
   public void setQueryTimeoutMillis(long queryTimeoutMillis) {
     this.queryTimeoutMillis = queryTimeoutMillis;
+  }
+
+  public List<String> getFanoutTagWhitelist() {
+    return fanoutTagWhitelist;
+  }
+
+  public void setFanoutTagWhitelist(List<String> fanoutTagWhitelist) {
+    this.fanoutTagWhitelist = fanoutTagWhitelist;
+  }
+
+  public List<String> getFanoutSourceList() {
+    return fanoutSourceList;
+  }
+
+  public void setFanoutSourceList(List<String> fanoutSourceList) {
+    this.fanoutSourceList = fanoutSourceList;
+  }
+
+  public boolean isInvertFanoutList() {
+    return invertFanoutList;
+  }
+
+  public void setInvertFanoutList(boolean invertFanoutList) {
+    this.invertFanoutList = invertFanoutList;
   }
 
   //
@@ -311,6 +341,15 @@ public class QueryOperations extends DescribableImpl {
         .allOf(
             frameworkProperties.getValidationQueryFactory().getFilterWithValidationFilter(),
             frameworkProperties.getFilterBuilder().anyOf(originalFilter));
+  }
+
+  void maskSources(Set<String> sourceIds, QueryResponse response) {
+    response
+        .getResults()
+        .stream()
+        .map(Result::getMetacard)
+        .filter(metacard -> sourceIds.contains(metacard.getSourceId()))
+        .forEach(metacard -> metacard.setSourceId(getId()));
   }
 
   /**
@@ -720,9 +759,13 @@ public class QueryOperations extends DescribableImpl {
 
     Set<ProcessingDetails> exceptions = new HashSet<>();
 
+    Set<String> dynamicFanoutSources = new HashSet<>();
+
     boolean addConnectedSources = false;
 
     boolean addCatalogProvider = false;
+
+    boolean whitelistQuery = false;
 
     QuerySources(FrameworkProperties frameworkProperties) {
       this.frameworkProperties = frameworkProperties;
@@ -764,7 +807,8 @@ public class QueryOperations extends DescribableImpl {
         if (queryOps.includesLocalSources(sourceIds)) {
           LOGGER.debug("Local source is included in sourceIds");
           addConnectedSources =
-              CollectionUtils.isNotEmpty(frameworkProperties.getConnectedSources());
+              CollectionUtils.isNotEmpty(frameworkProperties.getConnectedSources())
+                  || CollectionUtils.isNotEmpty(queryOps.fanoutSourceList);
           addCatalogProvider = queryOps.hasCatalogProvider();
           sourceIds.remove(queryOps.getId());
           sourceIds.remove(null);
@@ -808,8 +852,20 @@ public class QueryOperations extends DescribableImpl {
         }
       } else {
         // default to local sources
-        addConnectedSources = CollectionUtils.isNotEmpty(frameworkProperties.getConnectedSources());
+        addConnectedSources =
+            CollectionUtils.isNotEmpty(frameworkProperties.getConnectedSources())
+                || CollectionUtils.isNotEmpty(queryOps.fanoutSourceList);
         addCatalogProvider = queryOps.hasCatalogProvider();
+      }
+
+      try {
+        TagsFilterDelegate tagsFilterDelegate =
+            new TagsFilterDelegate(new HashSet<>(queryOps.fanoutSourceList));
+        whitelistQuery =
+            queryOps.filterAdapter.adapt(queryRequest.getQuery(), tagsFilterDelegate)
+                || !queryOps.filterAdapter.adapt(queryRequest.getQuery(), new TagsFilterDelegate());
+      } catch (UnsupportedQueryException e) {
+        LOGGER.debug("Error checking tags on query request", e);
       }
 
       return this;
@@ -825,6 +881,33 @@ public class QueryOperations extends DescribableImpl {
           } else {
             LOGGER.debug(
                 "Connected Source {} is unavailable and will not be queried.", source.getId());
+          }
+        }
+
+        if (whitelistQuery) {
+          // add dynamic fanout sources
+          Map<String, FederatedSource> federatedSourceMap =
+              frameworkProperties.getFederatedSources();
+
+          List<String> sourceIds = queryOps.getFanoutSourceList();
+          if (queryOps.isInvertFanoutList()) {
+            sourceIds =
+                frameworkProperties
+                    .getFederatedSources()
+                    .keySet()
+                    .stream()
+                    .filter(id -> !queryOps.getFanoutSourceList().contains(id))
+                    .collect(Collectors.toList());
+          }
+
+          for (String sourceId : sourceIds) {
+            if (federatedSourceMap.containsKey(sourceId)) {
+              if (federatedSourceMap.get(sourceId).isAvailable()
+                  && !sourcesToQuery.contains(federatedSourceMap.get(sourceId))) {
+                sourcesToQuery.add(frameworkProperties.getFederatedSources().get(sourceId));
+                dynamicFanoutSources.add(sourceId);
+              }
+            }
           }
         }
       }
@@ -850,6 +933,10 @@ public class QueryOperations extends DescribableImpl {
 
     boolean isCacheQuery(Operation operation) {
       return "cache".equals(operation.getPropertyValue("mode"));
+    }
+
+    Set<String> getDynamicFanoutSources() {
+      return dynamicFanoutSources;
     }
   }
 }

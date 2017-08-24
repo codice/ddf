@@ -40,6 +40,18 @@
             default="300000"
             description="Time in milliseconds that a query will wait on the queue before timeout."/>
 
+        <AD name="Dynamic Fanout Tag Whitelist" id="fanoutTagWhitelist" required="true"
+            type="String" cardinality="100"
+            default="resource"
+            description="Only queries on these tags will be propagated to connected and dynamic fanout sources"/>
+
+        <AD name="Dynamic Fanout Sources" id="fanoutSourceList" required="true"
+            type="String" cardinality="100"
+            description="Dynamic fanout sources that should be queried when the local catalog provider is queried. List is an exclusion list if the Invert Fanout Sources option is selected."/>
+
+        <AD name="Invert Fanout Sources" id="invertFanoutList" required="true" type="Boolean"
+            default="true"
+            description="Inverts the Dynamic Fanout Sources list to be an exclusion list instead of an inclusion list."/>
     </OCD>
 
     <OCD name="Historian" id="ddf.catalog.history.Historian">
