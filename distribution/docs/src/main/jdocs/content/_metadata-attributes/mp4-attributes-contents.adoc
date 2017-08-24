@@ -1,0 +1,9 @@
+:title: Mp4 Additional Attribute
+:type: subappendix
+:parent: Metadata Attributes
+:status: published
+:summary: Additional attribute for Mp4 files.
+
+Mp4 files have an additional attribute:
+
+* `ext.mp4.audio-sample-rate`

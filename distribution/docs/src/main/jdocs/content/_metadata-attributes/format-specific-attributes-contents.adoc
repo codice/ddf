@@ -1,0 +1,10 @@
+:title: Format-specific Attribute Mappings
+:type: appendix
+:status: published
+:parent: Metadata Attributes
+:children: Metadata Attributes
+:order: 01
+:summary: Format-specific attribute mappings by data/file format.
+
+Many file formats support additional metadata attributes that ${branding} is able to extract and make discoverable.
+

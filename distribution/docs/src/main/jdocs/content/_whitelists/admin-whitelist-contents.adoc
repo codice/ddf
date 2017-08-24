@@ -1,0 +1,15 @@
+:title: ${ddf-admin} Whitelist
+:type: appendix
+:parent: Application Whitelists
+:children: none
+:status: published
+:order: 00
+:summary: ${ddf-admin} whitelist.
+
+The following packages have been exported by the ${ddf-admin} application and are approved for use by third parties:
+
+* `org.codice.ddf.ui.admin.api.module`
+* `org.codice.ddf.ui.admin.api.plugin`
+* `org.codice.ddf.admin.configuration.plugin`
+* `org.codice.ddf.admin.application.service`
+* `org.codice.ddf.admin.application.plugin`
