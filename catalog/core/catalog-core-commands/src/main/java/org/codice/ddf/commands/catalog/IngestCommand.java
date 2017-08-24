@@ -52,9 +52,11 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.shell.api.action.Argument;
 import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.Completion;
 import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
+import org.apache.karaf.shell.support.completers.FileCompleter;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.codice.ddf.platform.util.Exceptions;
 import org.fusesource.jansi.Ansi;
@@ -143,7 +145,8 @@ public class IngestCommand extends CatalogCommands {
     @Argument(name = "File path or Directory path", description =
             "File path to a record or a directory of files to be ingested. Paths are absolute and must be in quotes."
                     + " This command can only detect roughly 2 billion records in one folder. Individual operating system limits might also apply.", index = 0, multiValued = false, required = true)
-    String filePath = null;
+    @Completion(FileCompleter.class)
+    String filePath;
 
     // DDF-535: Remove this argument in ddf-3.0
     @Argument(name = "Batch size", description = "Number of Metacards to ingest at a time. Change this argument based on system memory and Catalog Provider limits. [DEPRECATED: use --batchsize option instead]", index = 1, multiValued = false, required = false)
