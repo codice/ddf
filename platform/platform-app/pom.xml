@@ -355,7 +355,7 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.distribution</groupId>
+            <groupId>ddf.platform</groupId>
             <artifactId>ddf-branding-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>

@@ -812,7 +812,7 @@
         <feature prerequisite="true">branding-api</feature>
         <bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>
         <bundle>mvn:commons-configuration/commons-configuration/${commons-configuration.version}</bundle>
-        <bundle>mvn:ddf.distribution/ddf-branding-plugin/${project.version}</bundle>
+        <bundle>mvn:ddf.platform/ddf-branding-plugin/${project.version}</bundle>
     </feature>
 
     <feature name="platform-api" install="manual" version="${project.version}"
