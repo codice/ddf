@@ -76,20 +76,25 @@ include::${project.build.directory}/doc-contents/_contents/config.adoc[]
 <script type="text/javascript" >
 "use strict";
 
-function makeTocExpandable(level) {
+function makeTocExpandable() {
+	var level = 1;
+
+	while (level < 6) {
 	const tocHeading = 	document.querySelectorAll(".sectlevel" + level + ">li");
-
-	for (var i = tocHeading.length - 1; i >= 0; i--) {
-		const childLevels = tocHeading[i].querySelector("ul li");
-		if (childLevels) {
-			tocHeading[i].innerHTML ='<a class="expandable">+ </a>' + tocHeading[i].innerHTML + '';
+		for (var i = tocHeading.length - 1; i >= 0; i--) {
+			const childLevels = tocHeading[i].querySelector("ul li");
+			if (childLevels) {
+				tocHeading[i].innerHTML ='<a class="expandable">+ </a>' + tocHeading[i].innerHTML + '';
+				console.log("happening")
+			}
 		}
-	}
-	const levelUp = level + 1
-	const higherlevels = document.querySelectorAll(".sectlevel" + levelUp );
+		const levelUp = level + 1
+		const higherlevels = document.querySelectorAll(".sectlevel" + levelUp );
 
-	for (var i = higherlevels.length - 1; i >= 0; i--) {
-		higherlevels[i].classList.add("collapsed");
+		for (var i = higherlevels.length - 1; i >= 0; i--) {
+			higherlevels[i].classList.add("collapsed");
+		}
+		level++;
 	}
 
 }
@@ -131,11 +136,7 @@ function addTocListeners() {
 document.onreadystatechange = () => {
 	if (document.readyState === 'complete') {
 	  // The page is fully loaded
-		makeTocExpandable(1);
-		makeTocExpandable(2);
-		makeTocExpandable(3);
-		makeTocExpandable(4);
-		makeTocExpandable(5);
+		makeTocExpandable();
 		addTocListeners();
 	}
 };
