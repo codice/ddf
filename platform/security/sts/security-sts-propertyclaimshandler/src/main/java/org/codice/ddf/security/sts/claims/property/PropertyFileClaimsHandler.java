@@ -14,7 +14,6 @@
 package org.codice.ddf.security.sts.claims.property;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,14 +49,13 @@ public class PropertyFileClaimsHandler implements ClaimsHandler, RealmSupport {
 
     private String roleClaimType;
 
+    private String idClaimType;
+
     @Override
     public List<URI> getSupportedClaimTypes() {
         List<URI> uriList = new ArrayList<>();
-        try {
-            uriList.add(new URI(roleClaimType));
-        } catch (URISyntaxException e) {
-            LOGGER.debug("Not a valid URI: {}", roleClaimType, e);
-        }
+        uriList.add(URI.create(roleClaimType));
+        uriList.add(URI.create(idClaimType));
         return uriList;
     }
 
@@ -67,10 +65,14 @@ public class PropertyFileClaimsHandler implements ClaimsHandler, RealmSupport {
         ProcessedClaimCollection claimsColl = new ProcessedClaimCollection();
         Principal principal = parameters.getPrincipal();
         boolean needsRoleClaim = false;
+        boolean needsIdClaim = false;
         for (Claim claim : claims) {
             if (roleClaimType.equals(claim.getClaimType()
                     .toString())) {
                 needsRoleClaim = true;
+            } else if (idClaimType.equals(claim.getClaimType()
+                    .toString())) {
+                needsIdClaim = true;
             } else {
                 LOGGER.debug("Unsupported claim: {}", claim.getClaimType());
             }
@@ -87,13 +89,21 @@ public class PropertyFileClaimsHandler implements ClaimsHandler, RealmSupport {
             if (userAttributes != null) {
                 String[] attributes = userAttributes.split(",");
                 ProcessedClaim c = new ProcessedClaim();
-                c.setClaimType(getSupportedClaimTypes().get(0));
+                c.setClaimType(URI.create(roleClaimType));
                 c.setPrincipal(principal);
                 for (int i = 1; i < attributes.length; i++) {
                     c.addValue(attributes[i]);
                 }
                 claimsColl.add(c);
             }
+        }
+
+        if (needsIdClaim) {
+            ProcessedClaim idClaim = new ProcessedClaim();
+            idClaim.setClaimType(URI.create(idClaimType));
+            idClaim.setPrincipal(principal);
+            idClaim.addValue(user);
+            claimsColl.add(idClaim);
         }
 
         return claimsColl;
@@ -167,6 +177,14 @@ public class PropertyFileClaimsHandler implements ClaimsHandler, RealmSupport {
 
     public void setRoleClaimType(String roleClaimType) {
         this.roleClaimType = roleClaimType;
+    }
+
+    public String getIdClaimType() {
+        return idClaimType;
+    }
+
+    public void setIdClaimType(String idClaimType) {
+        this.idClaimType = idClaimType;
     }
 
     public void setRealm(String realm) {
