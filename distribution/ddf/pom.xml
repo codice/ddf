@@ -182,7 +182,7 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>ddf.distribution</groupId>
+                                    <groupId>ddf.platform</groupId>
                                     <artifactId>console-branding</artifactId>
                                     <version>${project.version}</version>
                                     <outputDirectory>${setup.folder}</outputDirectory>
@@ -407,7 +407,7 @@
             <classifier>features</classifier>
         </dependency>
         <dependency>
-            <groupId>ddf.distribution</groupId>
+            <groupId>ddf.platform</groupId>
             <artifactId>console-branding</artifactId>
             <version>${project.version}</version>
         </dependency>
