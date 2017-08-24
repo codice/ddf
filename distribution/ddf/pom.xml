@@ -17,20 +17,23 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>kernel</artifactId>
-        <groupId>org.codice.ddf</groupId>
+        <artifactId>distribution</artifactId>
+        <groupId>ddf</groupId>
         <version>2.11.0-SNAPSHOT</version>
-        <relativePath>../kernel/pom.xml</relativePath>
     </parent>
     <!--
-    Packages the DDF Standard distribution, which consists of the DDF Core distribution.​ 
-
-    Note that this distribution has the DDF Kernel distribution as its parent, hence all of the maven goals in the DDF Kernel distribution pom will execute unless they are overridden in this pom.
+    Packages the DDF Standard distribution, which consists of the DDF Core distribution.​
     -->
     <artifactId>ddf</artifactId>
+    <groupId>org.codice.ddf</groupId>
+    <description>Packages the DDF configured Karaf.</description>
     <name>DDF :: Distribution :: DDF</name>
     <packaging>pom</packaging>
     <properties>
+        <karaf.folder>apache-karaf-${karaf.version}</karaf.folder>
+        <setup.folder>target/dependencies</setup.folder>
+        <win.setup.folder>target/temp/win</win.setup.folder>
+        <!-- The name of the distribution zip file to generate in the /target directory -->
         <distribution.file.name>ddf-${project.version}</distribution.file.name>
         <opendj-embedded.app.version>1.3.3</opendj-embedded.app.version>
     </properties>
@@ -50,7 +53,7 @@
         </resources>
         <plugins>
             <!--
-                Adds all of the feature repositories from DDF Kernel distribution, and this DDF Standard distribution to the Karaf system folder, which is the repo for Karar at runtime.
+            Adds all of the feature repositories from this DDF Standard distribution to the Karaf system folder, which is the repo for Karaf at runtime.
             -->
             <plugin>
                 <groupId>org.apache.karaf.tooling</groupId>
@@ -143,6 +146,137 @@
                                 </artifactItem>
                             </artifactItems>
                             <overWriteSnapshots>true</overWriteSnapshots>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!--
+            Resources plugin will do filtering on dirs/files specified in
+            <resources> above. This will result in these files being
+            filtered and their generated resource being placed in target/classes
+            directory.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>filter</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>resources</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>minimal-copy</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>ddf.distribution</groupId>
+                                    <artifactId>console-branding</artifactId>
+                                    <version>${project.version}</version>
+                                    <outputDirectory>${setup.folder}</outputDirectory>
+                                    <destFileName>ddf-branding.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.bouncycastle</groupId>
+                                    <artifactId>bcprov-jdk15on</artifactId>
+                                    <version>${bouncy.version}</version>
+                                    <outputDirectory>${setup.folder}/ext</outputDirectory>
+                                    <destFileName>bcprov-${bouncy.version}.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.bouncycastle</groupId>
+                                    <artifactId>bcmail-jdk15on</artifactId>
+                                    <version>${bouncy.version}</version>
+                                    <outputDirectory>${setup.folder}/ext</outputDirectory>
+                                    <destFileName>bcmail-${bouncy.version}.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.bouncycastle</groupId>
+                                    <artifactId>bcpkix-jdk15on</artifactId>
+                                    <version>${bouncy.version}</version>
+                                    <outputDirectory>${setup.folder}/ext</outputDirectory>
+                                    <destFileName>bcpkix-${bouncy.version}.jar</destFileName>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>unpack</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <!-- Uncompress the unix Karaf distribution -->
+                                <artifactItem>
+                                    <groupId>org.apache.karaf</groupId>
+                                    <artifactId>apache-karaf</artifactId>
+                                    <version>${karaf.version}</version>
+                                    <type>tar.gz</type>
+                                    <outputDirectory>${setup.folder}</outputDirectory>
+                                </artifactItem>
+                                <!-- Uncompress the windows Karaf distribution (for the bat scripts) -->
+                                <artifactItem>
+                                    <groupId>org.apache.karaf</groupId>
+                                    <artifactId>apache-karaf</artifactId>
+                                    <version>${karaf.version}</version>
+                                    <type>zip</type>
+                                    <outputDirectory>${win.setup.folder}</outputDirectory>
+                                </artifactItem>
+                                <!--
+                                Unpacks zip created by ddf-common that includes the license files,
+                                Karaf .cfg files that DDF customizes, DDF startup scripts, and the
+                                common assembly descriptor (common-bin.xml)
+                                -->
+                                <artifactItem>
+                                    <groupId>org.codice.ddf</groupId>
+                                    <artifactId>ddf-common</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>jar</type>
+                                    <outputDirectory>${setup.folder}</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!--
+            Uses the assembly descriptor in this DDF distributon project (bin.xml) which
+            also injects the copied common-bin.xml descriptor from ddf-common, to create
+            the ddf-core-xxx.zip distribution in the /target directory.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>bin</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <archiverConfig>
+                                <duplicateBehavior>skip</duplicateBehavior>
+                            </archiverConfig>
+                            <descriptors>
+                                <descriptor>src/main/descriptors/bin.xml</descriptor>
+                            </descriptors>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <finalName>${distribution.file.name}</finalName>
                         </configuration>
                     </execution>
                 </executions>
@@ -249,6 +383,40 @@
         </profile>
     </profiles>
     <dependencies>
+        <!--
+        Depends on the base Apache Karaf Unix and Windows distribution zip files.
+        This is where all of the Karaf .cfg, .properties, and other files are extracted from.
+        -->
+        <dependency>
+            <groupId>org.apache.karaf</groupId>
+            <artifactId>apache-karaf</artifactId>
+            <version>${karaf.version}</version>
+            <type>tar.gz</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.karaf</groupId>
+            <artifactId>apache-karaf</artifactId>
+            <version>${karaf.version}</version>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.karaf.features</groupId>
+            <artifactId>standard</artifactId>
+            <version>${karaf.version}</version>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <dependency>
+            <groupId>ddf.distribution</groupId>
+            <artifactId>console-branding</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf</groupId>
+            <artifactId>ddf-common</artifactId>
+            <version>${project.version}</version>
+            <type>jar</type>
+        </dependency>
         <dependency>
             <groupId>ddf.platform</groupId>
             <artifactId>platform-app</artifactId>

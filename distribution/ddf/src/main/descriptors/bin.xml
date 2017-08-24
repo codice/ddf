@@ -13,16 +13,14 @@
 -->
 <assembly>
 
-  <id>bin</id>
+    <id>bin</id>
 
-  <formats>
-    <format>zip</format>
-  </formats>
+    <formats>
+        <format>zip</format>
+    </formats>
 
- 
     <componentDescriptors>
         <componentDescriptor>target/dependencies/common-bin.xml</componentDescriptor>
     </componentDescriptors>
-    
-  
+
 </assembly>
