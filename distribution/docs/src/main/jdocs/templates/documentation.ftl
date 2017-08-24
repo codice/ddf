@@ -103,8 +103,6 @@ function expandList(section) {
 	currentSection.querySelector(".expandable").classList.add("expanded");
 	currentSection.querySelector(".expanded").classList.remove("expandable");
 	currentSection.querySelector(".expanded").addEventListener("click", collapseList);
-
-
 }
 
 function collapseList(section) {
@@ -116,8 +114,6 @@ function collapseList(section) {
 	currentSection.querySelector(".expanded").classList.add("expandable");
 	currentSection.querySelector(".expandable").classList.remove("expanded");
 	currentSection.querySelector(".expandable").addEventListener("click", expandList);
-
-
 }
 
 function addTocListeners() {
