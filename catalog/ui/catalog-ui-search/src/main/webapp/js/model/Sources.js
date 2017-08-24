@@ -10,6 +10,9 @@
  *
  **/
 /*global define*/
+
+var user = require('component/singletons/user-instance');
+
 define([
     'underscore',
     'backbone',
@@ -18,6 +21,16 @@ define([
     'jquery'
 ], function (_, Backbone, poller, properties, $) {
     "use strict";
+
+    function removeLocalCatalogIfNeeded(response, localCatalog) {
+        if (properties.isDisableLocalCatalog()) {
+            response = _.filter(response, function(source) {
+                return source.id !== localCatalog;
+            });
+        }
+
+        return response;
+    }
 
     var Types = Backbone.Collection.extend({
     });
@@ -58,26 +71,30 @@ define([
     return Backbone.Collection.extend({
         url: "/services/catalog/sources",
         useAjaxSync: true,
+
         initialize: function () {
           this._types = new Types();
-            poller.get(this, {
-                delay: properties.sourcePollInterval,
-                delayed: properties.sourcePollInterval,
-                continueOnError: true
-            }).start();
-            this.determineLocalCatalog();
-            this.fetch({async: false});
+          this.determineLocalCatalog();
         },
         types: function () {
           return this._types;
         },
         parse: function(response) {
+            response = removeLocalCatalogIfNeeded(response, this.localCatalog);
             this._types.set(computeTypes(response));
             return response;
         },
         determineLocalCatalog: function(){
             $.get('/search/catalog/internal/localcatalogid').then(function(data){
                 this.localCatalog = data['local-catalog-id'];
+
+                poller.get(this, {
+                    delay: properties.sourcePollInterval,
+                    delayed: properties.sourcePollInterval,
+                    continueOnError: true
+                }).start();
+
+                this.fetch();
             }.bind(this));
         },
         localCatalog: 'local'

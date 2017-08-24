@@ -196,6 +196,14 @@ Note: An optional `"proxyEnabled" : false` can be included if the source tile se
 |25
 |true
 
+|Disable Local Catalog
+|disableLocalCatalog
+|Boolean
+|Disables querying the local catalog from UI only.
+|false
+|true
+
+
 |Enable Query Feedback
 |queryFeedbackEnabled
 |Boolean

@@ -108,7 +108,11 @@ define(function (require) {
         },
         isFeedbackRestricted: function(){
             return !this.queryFeedbackEnabled;
+        },
+        isDisableLocalCatalog: function(){
+            return this.disableLocalCatalog;
         }
+
     };
 
     return properties.init();
