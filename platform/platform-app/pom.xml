@@ -350,7 +350,7 @@
         </dependency>
         <!--END dependencies for enterprise features in platform-app features-->
         <dependency>
-            <groupId>ddf.distribution</groupId>
+            <groupId>ddf.platform</groupId>
             <artifactId>branding-api</artifactId>
             <version>${project.version}</version>
         </dependency>
