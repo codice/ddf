@@ -148,13 +148,15 @@ public class XstreamPathConverter implements Converter {
                 break;
             }
         }
+        i = countPastTag(path1, i);
+        j = countPastTag(path2, j);
         return (i == path1.length && j == path2.length) || endsMatch(path1, i, path2, j);
     }
 
     /**
      * Checks if 2 paths who have matched up to the provided indices, with 1 index being at or
-     * beyond the end of the path, match by accounting for ending count indexes and attribute
-     * value presence. This finishes the comparison of 2 paths once one path has been traversed.
+     * beyond the end of the path, match by accounting for attribute value presence. This finishes
+     * the comparison of 2 paths once one path has been traversed.
      *
      * @param path1 The first path
      * @param index1 The current index in path1
@@ -163,17 +165,10 @@ public class XstreamPathConverter implements Converter {
      * @return If the path ends match
      */
     private boolean endsMatch(char[] path1, int index1, char[] path2, int index2) {
-        if (index1 >= path1.length) {
-            index2 = countPastTag(path2, index2);
-            if (index2 < path2.length - 1) {
-                return path2[index2] == PATH_SEPARATOR && path2[index2 + 1] == ATTR_TAG;
-            }
-        }
-        if (index2 >= path2.length) {
-            index1 = countPastTag(path1, index1);
-            if (index1 < path1.length -1) {
-                return path1[index1] == PATH_SEPARATOR && path1[index1 + 1] == ATTR_TAG;
-            }
+        if (index1 >= path1.length && index2 < path2.length - 1) {
+            return path2[index2] == PATH_SEPARATOR && path2[index2 + 1] == ATTR_TAG;
+        } else if (index2 >= path2.length && index1 < path1.length -1) {
+            return path1[index1] == PATH_SEPARATOR && path1[index1 + 1] == ATTR_TAG;
         }
         return false;
     }
