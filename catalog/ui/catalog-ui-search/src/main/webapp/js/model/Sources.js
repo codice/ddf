@@ -59,7 +59,8 @@ define([
         url: "/services/catalog/sources",
         useAjaxSync: true,
         initialize: function () {
-          this._types = new Types();
+            this.listenTo(this, 'update add', _.debounce(this.determineWritableSources, 60));
+            this._types = new Types();
             poller.get(this, {
                 delay: properties.sourcePollInterval,
                 delayed: properties.sourcePollInterval,
@@ -75,6 +76,13 @@ define([
             this._types.set(computeTypes(response));
             return response;
         },
+        determineWritableSources: function(){
+            $.get('/search/catalog/internal/writablesources').then(function(writableSources){
+                this.forEach(function(sourceModel){
+                    sourceModel.set('writable', writableSources.indexOf(sourceModel.id) >= 0);
+                }.bind(this));
+            }.bind(this));
+        },  
         determineLocalCatalog: function(){
             $.get('/search/catalog/internal/localcatalogid').then(function(data){
                 this.localCatalog = data['local-catalog-id'];
