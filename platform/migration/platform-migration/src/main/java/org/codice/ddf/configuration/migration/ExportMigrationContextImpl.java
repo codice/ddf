@@ -191,6 +191,7 @@ public class ExportMigrationContextImpl extends MigrationContextImpl
         LOGGER.debug("Exporting [{}] with version [{}]...",
                 id,
                 getVersion().orElse(null)); // version will never be empty
+        report.record(Messages.EXPORTING_MIGRATABLE, migratable.getId());
         Stopwatch stopwatch = null;
 
         if (LOGGER.isDebugEnabled()) {

@@ -84,8 +84,8 @@ public class MigrationException extends RuntimeException implements MigrationMes
      * @throws IllegalArgumentException if <code>message</code> is <code>null</code>
      */
     public MigrationException(String message, @Nullable Throwable cause) {
-        super(message, cause);
-        Validate.notNull(message, "invalid null message");
+        // in case there were using a format with only a Throwable - leave this ctor as people are familiar with it
+        this(message, (cause != null) ? new Object[] {cause} : (Object[]) null);
     }
 
     protected MigrationException(MigrationException error) {

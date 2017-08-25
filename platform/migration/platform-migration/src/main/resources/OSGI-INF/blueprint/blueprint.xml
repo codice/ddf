@@ -12,8 +12,8 @@
  **/ -->
 
 <blueprint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.2.0"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
     <ext:property-placeholder>
@@ -32,7 +32,7 @@
     </bean>
 
     <service id="configurationAdminMigratableService" ref="configurationAdminMigratable"
-             interface="org.codice.ddf.migration.Migratable" />
+             interface="org.codice.ddf.migration.Migratable"/>
 
     <bean id="mBeanServer"
           class="java.lang.management.ManagementFactory"

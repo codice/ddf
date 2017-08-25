@@ -28,6 +28,10 @@ public final class Messages {
 
     public static final String IMPORT_FAILURE = "Failed to import from file [%s].";
 
+    public static final String EXPORTING_MIGRATABLE = "Exporting migratable [%s].";
+
+    public static final String IMPORTING_MIGRATABLE = "Importing migratable [%s].";
+
     public static final String EXPORT_SUCCESS_WITH_WARNINGS =
             "Successfully exported to file [%s] with warnings; make sure to review.";
 
@@ -79,10 +83,10 @@ public final class Messages {
     public static final String IMPORT_METADATA_FORMAT_ERROR = "Import error: invalid metadata; %s.";
 
     public static final String EXPORT_INTERNAL_ERROR =
-            "Unexpected internal error: failed to export to file [%s].";
+            "Unexpected internal error: failed to export to file [%s]; %s.";
 
     public static final String IMPORT_INTERNAL_ERROR =
-            "Unexpected internal error: failed to import from file [%s].";
+            "Unexpected internal error: failed to import from file [%s]; %s.";
 
     public static final String EXPORTING_DATA = "Exporting data to file [%s].";
 

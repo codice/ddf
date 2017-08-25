@@ -56,7 +56,7 @@ public class JsonUtils {
     /**
      * Retrieves a Json map from the specified Json map given its key.
      *
-     * @param map the map to retreive an entry from
+     * @param map the map to retrieve an entry from
      * @param key the key for the entry to retrieve
      * @return the corresponding Json map or an empty one if none defined
      * @throws MigrationException if the specified entry is not a Json map
@@ -71,7 +71,7 @@ public class JsonUtils {
     /**
      * Retrieves a Json array from the specified Json map given its key.
      *
-     * @param map the map to retreive an entry from
+     * @param map the map to retrieve an entry from
      * @param key the key for the entry to retrieve
      * @return the corresponding Json array as a list or an empty one if none defined
      * @throws MigrationException if the specified entry is not a Json array
@@ -86,7 +86,7 @@ public class JsonUtils {
     /**
      * Retrieves a Json string from the specified Json map given its key.
      *
-     * @param map      the map to retreive an entry from
+     * @param map      the map to retrieve an entry from
      * @param key      the key for the entry to retrieve
      * @param required <code>true</code> if the entry must exist in the map otherwise an error is
      *                 generated; <code>false</code> to return <code>null</code> if it doesn't exist
@@ -103,7 +103,7 @@ public class JsonUtils {
     /**
      * Retrieves a Json number as a long from the specified Json map given its key.
      *
-     * @param map      the map to retreive an entry from
+     * @param map      the map to retrieve an entry from
      * @param key      the key for the entry to retrieve
      * @param required <code>true</code> if the entry must exist in the map otherwise an error is
      *                 generated; <code>false</code> to return <code>null</code> if it doesn't exist
@@ -122,7 +122,7 @@ public class JsonUtils {
     /**
      * Retrieves a Json boolean from the specified Json map given its key.
      *
-     * @param map      the map to retreive an entry from
+     * @param map      the map to retrieve an entry from
      * @param key      the key for the entry to retrieve
      * @param required <code>true</code> if the entry must exist in the map otherwise an error is
      *                 generated; <code>false</code> to return <code>null</code> if it doesn't exist
