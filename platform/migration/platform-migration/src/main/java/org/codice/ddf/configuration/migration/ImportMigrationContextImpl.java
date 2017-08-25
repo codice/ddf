@@ -190,6 +190,7 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
             LOGGER.debug("Importing migratable [{}] from version [{}]...",
                     id,
                     getVersion().orElse("<not-exported>"));
+            report.record(Messages.IMPORTING_MIGRATABLE, migratable.getId());
             Stopwatch stopwatch = null;
 
             if (LOGGER.isDebugEnabled()) {
