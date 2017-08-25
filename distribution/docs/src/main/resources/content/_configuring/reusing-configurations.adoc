@@ -18,12 +18,11 @@ Keeping all 3 files together represents a security risk and should be avoided.
 
 To import previously exported configuration settings:
 
-. Install ${branding}
+. Install ${branding} by unzipping its distribution.
 . Restore all external files, softlinks, and directories that would not have been exported and for which warnings would have been generated during export. This could include (but is not limited to) external certificates or monitored directories.
 . Launch the newly installed ${branding}.
-. Step through the installation process.
 . Make sure to install and re-enable the ${branding} <<_starting_as_a_service_with_automatic_start_on_system_boot,service>> on the new system if it was installed and enabled on the original system
-. Copy the previously exported files from your secure locations to the `exported` directory underneath `${home_directory}`. Create the directory if it does not exist.
+. Copy the previously exported files from your secure locations to the `exported` directory underneath `${home_directory}`.
 . Run the command migration:import from the ${command-console}.
 . ${branding} will automatically restart if the command is successful. Otherwise address any generated warnings before manually restarting ${branding}.
 . Finish <<_hardening_checklist,hardening>> the system (e.g. file and directory permissions).
@@ -31,7 +30,7 @@ To import previously exported configuration settings:
 It is possible to decrypt the previously exported configuration settings but doing so is insecure and appropriate measures should be taken to secure the resulting decrypted file.
 To decrypt the exported file:
 
-. Copy all 3 exported files (i.e. `.dar`, `.key`, and `.sha256`) to the `exported` directory underneath `${home_directory}`. Create the directory if it does not exist.
+. Copy all 3 exported files (i.e. `.dar`, `.key`, and `.sha256`) to the `exported` directory underneath `${home_directory}`.
 . Run the command migration:decrypt from the ${command-console}.
 . A file named `${branding-lowercase}-${project.version}.zip` will be created in the `exported` directory underneath `${home_directory}`.
 This file represents the decrypted version of the `.dar` file.
@@ -43,5 +42,6 @@ This file represents the decrypted version of the `.dar` file.
 ** importing from a system installed on a different OS
 ** importing from a system installed in a different directory location
 * To keep the export/import process simple and consistent, all system configuration files are required to be under the `${home_directory}` directory and not be softlinks. Presence of external files or symbolic links during export will not fail the export; they will yield warnings. It will be up to the adminsitrator to manually copy these files over to the new system before proceeding with the import. The import process will verify their presence and consistency and yield warnings if they don't match the original files.
-* The import process will re-import all configurations done on the original system as part of the <<_hardening_checklist,hardening process>> including changes to starting scripts and certificates.
+* The import process will restore all applications, features, and/or bundles to the same state (i.e. installed, uninstalled, started, stopped, ...) they were in originally. It is therefore not required to go through the standard installation process after unzipping the ${branding} distribution.
+* The import process will restore all configurations done on the original system as part of the <<_hardening_checklist,hardening process>> including changes to starting scripts and certificates.
 ====

@@ -18,6 +18,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -40,6 +41,8 @@ import org.slf4j.LoggerFactory;
 public class ImportMigrationManagerImpl implements Closeable {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ImportMigrationManagerImpl.class);
+
+  private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
   private final MigrationReport report;
 
@@ -193,7 +196,9 @@ public class ImportMigrationManagerImpl implements Closeable {
       is =
           me.getInputStream()
               .orElseThrow(() -> new MigrationException(Messages.IMPORT_METADATA_MISSING_ERROR));
-      return JsonUtils.MAPPER.parser().parseMap(IOUtils.toString(is, Charset.defaultCharset()));
+      return JsonUtils.MAPPER
+          .parser()
+          .parseMap(IOUtils.toString(is, ImportMigrationManagerImpl.DEFAULT_CHARSET));
     } finally {
       IOUtils.closeQuietly(is);
     }

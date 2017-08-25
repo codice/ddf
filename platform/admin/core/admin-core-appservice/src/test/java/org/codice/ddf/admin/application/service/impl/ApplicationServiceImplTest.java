@@ -1348,6 +1348,8 @@ public class ApplicationServiceImplTest {
 
     Application testApp1 = mock(ApplicationImpl.class);
     Feature testFeature1 = mock(Feature.class);
+    when(testFeature1.getName()).thenReturn("feature1");
+    when(testFeature1.getVersion()).thenReturn("1.1");
     when(testApp1.getFeatures()).thenReturn(Collections.singleton(testFeature1));
     when(featuresService.isInstalled(any())).thenReturn(true);
 
@@ -1535,6 +1537,8 @@ public class ApplicationServiceImplTest {
 
     Application testApp = mock(ApplicationImpl.class);
 
+    when(testApp.getURI()).thenReturn(new URI("http://somewhere/something"));
+
     doThrow(new Exception())
         .when(featuresService)
         .removeRepository(Mockito.any(URI.class), eq(false));
@@ -1669,6 +1673,10 @@ public class ApplicationServiceImplTest {
     Feature testFeature1 = mock(Feature.class);
     Feature testFeature2 = mock(Feature.class);
     Set<Feature> featureSet = new HashSet<>();
+    when(testFeature1.getName()).thenReturn("feature1");
+    when(testFeature1.getVersion()).thenReturn("1.1");
+    when(testFeature2.getName()).thenReturn("feature2");
+    when(testFeature2.getVersion()).thenReturn("2.1");
     featureSet.add(testFeature1);
     featureSet.add(testFeature2);
     when(featuresService.isInstalled(any(Feature.class))).thenReturn(true);

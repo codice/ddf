@@ -13,7 +13,9 @@
  **/
 
  -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>admin-core</artifactId>
@@ -97,6 +99,10 @@
             <artifactId>org.apache.aries.util</artifactId>
         </dependency>
         <dependency>
+            <groupId>ddf.platform.migration</groupId>
+            <artifactId>platform-migratable-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.fastjson</groupId>
             <artifactId>boon</artifactId>
             <version>0.33</version>
@@ -105,6 +111,30 @@
             <groupId>javax.inject</groupId>
             <artifactId>javax.inject</artifactId>
             <version>1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito-core.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-junit</artifactId>
+            <version>${hamcrest-junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.npathai</groupId>
+            <artifactId>hamcrest-optional</artifactId>
+            <version>${hamcrest-optional.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.skyscreamer</groupId>
+            <artifactId>jsonassert</artifactId>
+            <version>${jsonassert.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>
@@ -144,6 +174,7 @@
                             org.codice.ddf.admin.application.plugin;version=${admin.core.appservice.api.version},
                             org.codice.ddf.admin.application.service.command;version=${admin.core.appservice.api.version},
                             org.codice.ddf.admin.application.service.command.completers;version=${admin.core.appservice.api.version},
+                            org.codice.ddf.admin.application.service.migratable;version=${admin.core.appservice.api.version},
                             org.apache.felix.utils.properties
                         </Export-Package>
                         <Private-Package>
@@ -172,17 +203,17 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.86</minimum>
+                                            <minimum>0.90</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.71</minimum>
+                                            <minimum>0.78</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.72</minimum>
+                                            <minimum>0.79</minimum>
                                         </limit>
                                     </limits>
                                 </rule>
