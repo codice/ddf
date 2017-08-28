@@ -13,11 +13,9 @@
  */
 package org.codice.ddf.configuration.migration;
 
-import java.io.FileInputStream;
 import java.io.IOError;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
@@ -99,10 +97,8 @@ public class ConfigurationMigrationManager
         this.system = system;
         try {
             this.productVersion =
-                    ConfigurationMigrationManager.getProductVersion(new FileInputStream(Paths.get(
-                            System.getProperty("ddf.home"),
-                            ConfigurationMigrationManager.PRODUCT_VERSION_FILENAME)
-                            .toFile()));
+                    ConfigurationMigrationManager.getProductVersion(Paths.get(System.getProperty(
+                            "ddf.home"), ConfigurationMigrationManager.PRODUCT_VERSION_FILENAME));
         } catch (IOException e) {
             LOGGER.warn("unable to load version information; ", e);
             throw new IOError(e);
@@ -115,24 +111,12 @@ public class ConfigurationMigrationManager
         };
     }
 
-    private static String getProductVersion(InputStream is) throws IOException {
-        Validate.notNull(is, "invalid null stream");
-        try {
-            final List<String> lines = IOUtils.readLines(is, StandardCharsets.UTF_8);
-
-            if (lines.isEmpty()) {
-                throw new IOException("missing product version information");
-            }
-            final String productVersion = lines.get(0)
-                    .trim();
-
-            if (productVersion.isEmpty()) {
-                throw new IOException("missing product version information");
-            }
-            return productVersion;
-        } finally {
-            IOUtils.closeQuietly(is);
-        }
+    private static String getProductVersion(Path path) throws IOException {
+        return Files.lines(path)
+                .findFirst()
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .orElseThrow(() -> new IOException("missing product version information"));
     }
 
     /**
