@@ -347,7 +347,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
 
     @Test
     public void doImportSucceedsWithConsumer() throws Exception {
-        final Consumer<MigrationMessage> CONSUMER = Mockito.mock(Consumer.class);
+        final Consumer<MigrationMessage> CONSUMER = mock(Consumer.class);
 
         configurationMigrationManager = spy(getConfigurationMigrationManager());
 

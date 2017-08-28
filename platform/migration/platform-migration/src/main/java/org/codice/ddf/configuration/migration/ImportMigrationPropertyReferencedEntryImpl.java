@@ -57,30 +57,30 @@ public abstract class ImportMigrationPropertyReferencedEntryImpl extends ImportM
     }
 
     @Override
-    public boolean store(boolean required) {
-        if (stored == null) {
-            super.stored = false; // until proven otherwise in case next line throws exception
+    public boolean restore(boolean required) {
+        if (restored == null) {
+            super.restored = false; // until proven otherwise in case next line throws exception
             LOGGER.debug("Importing {}{}...", (required ? "required " : ""), toDebugString());
-            if (referenced.store(required)) {
-                super.stored = true;
+            if (referenced.restore(required)) {
+                super.restored = true;
                 verifyPropertyAfterCompletionOnce();
             }
         }
-        return stored;
+        return restored;
     }
 
     @Override
-    public boolean store(
+    public boolean restore(
             EBiConsumer<MigrationReport, Optional<InputStream>, IOException> consumer) {
         Validate.notNull(consumer, "invalid null consumer");
-        if (stored == null) {
-            super.stored = false; // until proven otherwise in case next line throws exception
-            if (referenced.store(consumer)) {
-                super.stored = true;
+        if (restored == null) {
+            super.restored = false; // until proven otherwise in case next line throws exception
+            if (referenced.restore(consumer)) {
+                super.restored = true;
                 verifyPropertyAfterCompletionOnce();
             }
         }
-        return stored;
+        return restored;
     }
 
     @Override
@@ -123,7 +123,7 @@ public abstract class ImportMigrationPropertyReferencedEntryImpl extends ImportM
     }
 
     /**
-     * Called after the referenced migration entry is stored to register code to be invoked
+     * Called after the referenced migration entry is restored to register code to be invoked
      * after the migration operation completion to verify if the property value references the
      * referenced migration entry.
      */

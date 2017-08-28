@@ -34,12 +34,6 @@ public abstract class MigrationEntryImpl implements MigrationEntry {
 
     public static final String METADATA_REFERENCE = "reference";
 
-    /**
-     * Will track if store was attempted along with its result. Will be <code>null</code> until
-     * store() is attempted, at which point it will start tracking the first store() result.
-     */
-    protected Boolean stored = null;
-
     protected MigrationEntryImpl() {
     }
 

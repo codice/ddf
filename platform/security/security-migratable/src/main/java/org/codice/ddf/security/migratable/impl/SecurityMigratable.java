@@ -104,10 +104,10 @@ public class SecurityMigratable implements Migratable {
                 .map(me -> me.getPropertyReferencedEntry(SecurityMigratable.CRL_PROP_KEY))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .forEach(ImportMigrationEntry::store);
+                .forEach(ImportMigrationEntry::restore);
         LOGGER.debug("Importing PDP Directory at [{}]...", SecurityMigratable.PDP_POLICIES_DIR);
         context.cleanDirectory(SecurityMigratable.PDP_POLICIES_DIR);
         context.entries(SecurityMigratable.PDP_POLICIES_DIR)
-                .forEach(ImportMigrationEntry::store);
+                .forEach(ImportMigrationEntry::restore);
     }
 }

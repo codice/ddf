@@ -107,7 +107,7 @@ public class ConfigurationAdminMigratable implements Migratable {
                         getConfigurations(context));
 
         adminContext.entries()
-                .forEach(ImportMigrationEntry::store);
+                .forEach(ImportMigrationEntry::restore);
     }
 
     public PersistenceStrategy getDefaultPersister() {

@@ -24,7 +24,7 @@ import org.codice.ddf.util.function.EBiConsumer;
  * imported during migration.
  * <p>
  * Entries created via the import migration context or via the {@link #getPropertyReferencedEntry}
- * methods are not stored back on disk. Storage of these entries is controlled by the
+ * methods are not restored back on disk. Storage of these entries is controlled by the
  * {@link Migratable} using the {@link #store} methods. This allows the migratable a chance to make
  * additional checks if need be. In some cases, the migratable might not be responsible for actually
  * migrating the content of a file and might only be responsible for migrating the file being referenced
@@ -44,9 +44,9 @@ import org.codice.ddf.util.function.EBiConsumer;
  *             // get an entry for my properties file
  *             final ImportMigrationEntry entry = context.getEntry(Paths.get("etc", "myfile.properties"));
  *
- *             // get an entry for the file referenced from "my.properties" and store it back on disk
+ *             // get an entry for the file referenced from "my.properties" and restore it back on disk
  *             entry.getPropertyReferencedEntry("my.property")
- *                 .ifPresent(ImportMigrationEntry::store);
+ *                 .ifPresent(ImportMigrationEntry::restore);
  *         }
  *
  *         ...
@@ -95,7 +95,7 @@ public interface ImportMigrationEntry extends MigrationEntry {
     public Optional<ImportMigrationEntry> getPropertyReferencedEntry(String name);
 
     /**
-     * Stores this entry's content underneath the distribution root directory based on this entry's
+     * Restores this entry's content underneath the distribution root directory based on this entry's
      * path which can include sub-directories.
      * <p>
      * This entry's sub-directories (if any) will be created if they don't already exist. The
@@ -117,12 +117,12 @@ public interface ImportMigrationEntry extends MigrationEntry {
      * <code>false</code> otherwise
      * @throws MigrationException if a failure that prevents the operation from continuing occurred
      */
-    public default boolean store() {
-        return store(true);
+    public default boolean restore() {
+        return restore(true);
     }
 
     /**
-     * Stores this entry's content underneath the distribution root directory based on this entry's
+     * Restores this entry's content underneath the distribution root directory based on this entry's
      * path which can include sub-directories.
      * <p>
      * This entry's sub-directories (if any) will be created if they don't already exist. The
@@ -148,10 +148,10 @@ public interface ImportMigrationEntry extends MigrationEntry {
      * <code>false</code> otherwise
      * @throws MigrationException if a failure that prevents the operation from continuing occurred
      */
-    public boolean store(boolean required);
+    public boolean restore(boolean required);
 
     /**
-     * Stores this required entry's content appropriately based on this entry's path which can include
+     * Restores this required entry's content appropriately based on this entry's path which can include
      * sub-directories using the specified consumer.
      * <p>
      * All errors and warnings are automatically recorded with the associated migration report including
@@ -178,7 +178,8 @@ public interface ImportMigrationEntry extends MigrationEntry {
      * @throws MigrationException       if a failure that prevents the operation from continuing occurred
      * @throws IllegalArgumentException if <code>consumer</code> is <code>null</code>
      */
-    public boolean store(EBiConsumer<MigrationReport, Optional<InputStream>, IOException> consumer);
+    public boolean restore(
+            EBiConsumer<MigrationReport, Optional<InputStream>, IOException> consumer);
 
     /**
      * Gets an input stream for this entry.

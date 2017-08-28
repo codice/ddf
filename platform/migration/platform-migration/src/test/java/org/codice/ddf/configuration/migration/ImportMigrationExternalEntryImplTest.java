@@ -97,47 +97,47 @@ public class ImportMigrationExternalEntryImplTest extends AbstractMigrationTest 
     }
 
     @Test
-    public void storeSuccessfullyWithMatchingChecksum() throws Exception {
-        entry.store(true);
+    public void restoreSuccessfullyWithMatchingChecksum() throws Exception {
+        entry.restore(true);
 
         verify(mockPathUtils).getChecksumFor(any(Path.class));
-        assertThat("Entry was verified successfully.", entry.stored, is(true));
+        assertThat("Entry was verified successfully.", entry.restored, is(true));
     }
 
     @Test
-    public void storeSuccessfullyWithoutChecksum() throws Exception {
+    public void restoreSuccessfullyWithoutChecksum() throws Exception {
         entry = new ImportMigrationExternalEntryImpl(mockContext,
                 ImmutableMap.of(MigrationEntryImpl.METADATA_NAME,
                         ENTRY_NAME,
                         MigrationEntryImpl.METADATA_SOFTLINK,
                         false));
-        entry.store(true);
+        entry.restore(true);
 
-        assertThat("Entry was verified successfully.", entry.stored, is(true));
+        assertThat("Entry was verified successfully.", entry.restored, is(true));
     }
 
     @Test
-    public void storeSuccessfullyWhenOptionalFileDoesNotExist() throws Exception {
+    public void restoreSuccessfullyWhenOptionalFileDoesNotExist() throws Exception {
         if (path.toFile()
                 .delete()) {
-            entry.store(false);
+            entry.restore(false);
 
             verify(mockPathUtils, never()).getChecksumFor(any(Path.class));
-            assertThat("Entry was verified successfully.", entry.stored, is(true));
+            assertThat("Entry was verified successfully.", entry.restored, is(true));
         } else {
             throw new AssertionError("Was unable to delete the file.");
         }
     }
 
     @Test
-    public void storeFailsWhenRequiredFileDoesNotExist() throws Exception {
+    public void restoreFailsWhenRequiredFileDoesNotExist() throws Exception {
         if (path.toFile()
                 .delete()) {
-            entry.store(true);
+            entry.restore(true);
 
             verify(mockPathUtils, never()).getChecksumFor(any(Path.class));
             assertThat("Entry failed verification because it does not exist.",
-                    entry.stored,
+                    entry.restored,
                     is(false));
             verifyReportHasMatchingError(report, "does not exist");
         } else {
@@ -146,56 +146,58 @@ public class ImportMigrationExternalEntryImplTest extends AbstractMigrationTest 
     }
 
     @Test
-    public void storeFailsWhenFileIsNotSoftLink() throws Exception {
+    public void restoreFailsWhenFileIsNotSoftLink() throws Exception {
         entry = new ImportMigrationExternalEntryImpl(mockContext,
                 ImmutableMap.of(MigrationEntryImpl.METADATA_NAME,
                         ENTRY_NAME,
                         MigrationEntryImpl.METADATA_SOFTLINK,
                         true));
-        entry.store(true);
+        entry.restore(true);
 
         verify(mockPathUtils, never()).getChecksumFor(any(Path.class));
         assertThat("Entry failed verification because it was not a symbolic link.",
-                entry.stored,
+                entry.restored,
                 is(false));
         verifyReportHasMatchingWarning(report, "not a symbolic link");
     }
 
     @Test
-    public void storeRecordsWarningWhenFileIsNotNormal() throws Exception {
+    public void restoreRecordsWarningWhenFileIsNotNormal() throws Exception {
         Path symlink = DDF_HOME.resolve(createSoftLink("symlink", path));
 
         when(mockPathUtils.resolveAgainstDDFHome(any(Path.class))).thenReturn(symlink);
 
         entry = new ImportMigrationExternalEntryImpl(mockContext, METADATA_MAP);
-        entry.store(true);
+        entry.restore(true);
 
         verify(mockPathUtils).getChecksumFor(any(Path.class));
-        assertThat("Entry was verified successfully.", entry.stored, is(true));
+        assertThat("Entry was verified successfully.", entry.restored, is(true));
         verifyReportHasMatchingWarning(report, "is not a regular file");
     }
 
     @Test
-    public void storeFailsWhenChecksumDoesNotMatch() throws Exception {
+    public void restoreFailsWhenChecksumDoesNotMatch() throws Exception {
         when(mockPathUtils.getChecksumFor(any(Path.class))).thenReturn("Different-Checksum");
 
-        entry.store(true);
+        entry.restore(true);
 
         verify(mockPathUtils).getChecksumFor(any(Path.class));
         assertThat("Entry failed verification because the checksum didn't match.",
-                entry.stored,
+                entry.restored,
                 is(false));
         verifyReportHasMatchingWarning(report, "doesn't match");
     }
 
     @Test
-    public void storeFailsWhenChecksumCheckThrowsIOException() throws Exception {
+    public void restoreFailsWhenChecksumCheckThrowsIOException() throws Exception {
         when(mockPathUtils.getChecksumFor(any(Path.class))).thenThrow(IOException.class);
 
-        entry.store(true);
+        entry.restore(true);
 
         verify(mockPathUtils).getChecksumFor(any(Path.class));
-        assertThat("Entry failed verification because of an IOException.", entry.stored, is(false));
+        assertThat("Entry failed verification because of an IOException.",
+                entry.restored,
+                is(false));
         verifyReportHasMatchingWarning(report, "Failed to compute checksum");
     }
 }

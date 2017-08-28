@@ -46,7 +46,7 @@ public class ImportMigrationConfigurationAdminEntry extends ProxyImportMigration
     @Nullable
     private final Configuration memoryConfiguration;
 
-    private boolean stored = false;
+    private boolean restored = false;
 
     public ImportMigrationConfigurationAdminEntry(ImportMigrationConfigurationAdminContext context,
             ImportMigrationEntry entry, Dictionary<String, Object> properties) {
@@ -64,9 +64,9 @@ public class ImportMigrationConfigurationAdminEntry extends ProxyImportMigration
     }
 
     @Override
-    public boolean store() {
-        if (!stored) {
-            this.stored = false; // until proven otherwise
+    public boolean restore() {
+        if (!restored) {
+            this.restored = false; // until proven otherwise
             final Configuration cfg;
 
             if (memoryConfiguration != null) {
@@ -74,7 +74,7 @@ public class ImportMigrationConfigurationAdminEntry extends ProxyImportMigration
                     LOGGER.debug("Importing configuration for [{}] from [{}]; no update required",
                             memoryConfiguration.getPid(),
                             getPath());
-                    this.stored = true;
+                    this.restored = true;
                     return true;
                 }
                 cfg = memoryConfiguration;
@@ -121,7 +121,7 @@ public class ImportMigrationConfigurationAdminEntry extends ProxyImportMigration
             }
             try {
                 cfg.update(properties);
-                this.stored = true;
+                this.restored = true;
             } catch (IOException e) {
                 getReport().record(new MigrationException(
                         "Import error: failed to update configuration [%s] with pid [%s]; %s.",
@@ -130,7 +130,7 @@ public class ImportMigrationConfigurationAdminEntry extends ProxyImportMigration
                         e));
             }
         }
-        return stored;
+        return restored;
     }
 
     public String getFactoryPid() {
