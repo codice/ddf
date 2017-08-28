@@ -115,6 +115,8 @@ public class TestRestEndpoint {
 
     private static final int BAD_REQUEST = 400;
 
+    private static final int NOT_FOUND = 404;
+
     private static final String SAMPLE_ID = "12345678900987654321abcdeffedcba";
 
     private static final String ENDPOINT_ADDRESS = "http://localhost:8181/services/catalog";
@@ -163,7 +165,7 @@ public class TestRestEndpoint {
     public static void initialize() throws Exception {
     }
 
-    @Test(expected = ServerErrorException.class)
+    @Test
     public void testAddDocumentNullMessage() {
 
         CatalogFramework framework = mock(CatalogFramework.class);
@@ -172,9 +174,10 @@ public class TestRestEndpoint {
 
         HttpHeaders headers = mock(HttpHeaders.class);
 
-        rest.addDocument(headers, mock(UriInfo.class), mock(HttpServletRequest.class),
+        Response response = rest.addDocument(headers, mock(UriInfo.class), mock(HttpServletRequest.class),
                 mock(MultipartBody.class), null, null);
-
+        assertEquals(response.getStatus(), BAD_REQUEST);
+        assertEquals(response.getEntity(), "<pre>No content found, cannot do CREATE.</pre>");
     }
 
     @Test
@@ -357,13 +360,15 @@ public class TestRestEndpoint {
      *
      * @throws Exception
      */
-    @Test(expected = ServerErrorException.class)
+    @Test
     public void testGetDocumentLocalNullQueryResponse()
             throws Exception {
 
         CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
         String transformer = mockTestSetup(framework, TestType.QUERY_RESPONSE_TEST);
-        executeTest(framework, transformer, true, null);
+        Response response = executeTest(framework, transformer, true, null);
+        assertEquals(response.getStatus(), NOT_FOUND);
+        assertEquals(response.getEntity(), "<pre>Unable to retrieve requested metacard.</pre>");
     }
 
     /**
@@ -371,13 +376,15 @@ public class TestRestEndpoint {
      *
      * @throws Exception
      */
-    @Test(expected = ServerErrorException.class)
+    @Test
     public void testGetDocumentFedNullQueryResponse()
             throws Exception {
 
         CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
         String transformer = mockTestSetup(framework, TestType.QUERY_RESPONSE_TEST);
-        executeTest(framework, transformer, false, null);
+        Response response = executeTest(framework, transformer, false, null);
+        assertEquals(response.getStatus(), NOT_FOUND);
+        assertEquals(response.getEntity(), "<pre>Unable to retrieve requested metacard.</pre>");
     }
 
     /**
@@ -385,13 +392,15 @@ public class TestRestEndpoint {
      *
      * @throws Exception
      */
-    @Test(expected = ServerErrorException.class)
+    @Test
     public void testGetDocumentLocalNullMetacard()
             throws Exception {
 
         CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
         String transformer = mockTestSetup(framework, TestType.METACARD_TEST);
-        executeTest(framework, transformer, true, null);
+        Response response = executeTest(framework, transformer, true, null);
+        assertEquals(response.getStatus(), NOT_FOUND);
+        assertEquals(response.getEntity(), "<pre>Unable to retrieve requested metacard.</pre>");
     }
 
     /**
@@ -399,13 +408,15 @@ public class TestRestEndpoint {
      *
      * @throws Exception
      */
-    @Test(expected = ServerErrorException.class)
+    @Test
     public void testGetDocumentFedNullMetacard()
             throws Exception {
 
         CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
         String transformer = mockTestSetup(framework, TestType.METACARD_TEST);
-        executeTest(framework, transformer, false, null);
+        Response response = executeTest(framework, transformer, false, null);
+        assertEquals(response.getStatus(), NOT_FOUND);
+        assertEquals(response.getEntity(), "<pre>Unable to retrieve requested metacard.</pre>");
     }
 
     /**
@@ -892,18 +903,19 @@ public class TestRestEndpoint {
         UriInfo info = givenUriInfo(SAMPLE_ID);
 
         try {
-            rest.addDocument(headers, info, mock(HttpServletRequest.class),
+            Response response = rest.addDocument(headers, info, mock(HttpServletRequest.class),
                     mock(MultipartBody.class), null, new ByteArrayInputStream("".getBytes()));
-            fail();
-        } catch (ServerErrorException e) {
+            if (klass.getName()
+                    .equals(IngestException.class.getName())) {
+                assertEquals(response.getStatus(), BAD_REQUEST);
+            } else {
+                fail();
+            }
+        } catch (InternalServerErrorException e) {
             if (klass.getName()
                     .equals(SourceUnavailableException.class.getName())) {
                 assertThat(e.getResponse()
                         .getStatus(), equalTo(INTERNAL_SERVER_ERROR));
-            } else if (klass.getName()
-                    .equals(IngestException.class.getName())) {
-                assertThat(e.getResponse()
-                        .getStatus(), equalTo(BAD_REQUEST));
             }
         }
     }
