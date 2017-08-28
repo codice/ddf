@@ -85,7 +85,8 @@ public class MigrationException extends RuntimeException implements MigrationMes
      */
     public MigrationException(String message, @Nullable Throwable cause) {
         // in case there were using a format with only a Throwable - leave this ctor as people are familiar with it
-        this(message, (cause != null) ? new Object[] {cause} : (Object[]) null);
+        this(MigrationException.validateNotNull(message, "invalid null message"),
+                (cause != null) ? new Object[] {cause} : (Object[]) null);
     }
 
     protected MigrationException(MigrationException error) {

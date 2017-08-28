@@ -73,7 +73,10 @@ public final class Messages {
             "Import error: unsupported exported version [%s]; currently supporting [%s].";
 
     public static final String IMPORT_MISMATCH_PRODUCT_VERSION_ERROR =
-            "Import error: mismatched exported product version [%s]; expecting [%s].";
+            "Import error: mismatched product version [%s]; expecting [%s].";
+
+    public static final String IMPORT_MISMATCH_DDF_HOME_ERROR =
+            "Import error: mismatched ddf.home [%s]; expecting local system to be installed under [%s].";
 
     public static final String EXPORT_METADATA_CREATE_ERROR =
             "Export error: failed to create metadata; %s.";

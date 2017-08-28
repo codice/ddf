@@ -56,7 +56,7 @@ public class ExportMigrationManagerImpl implements Closeable {
     /**
      * Holds the exported metadata. The data will be exported to the export.json file.
      */
-    private final Map<String, Object> metadata = new HashMap<>(6);
+    private final Map<String, Object> metadata = new HashMap<>(8);
 
     private final ZipOutputStream zipOutputStream;
 
@@ -118,13 +118,17 @@ public class ExportMigrationManagerImpl implements Closeable {
      */
     public void doExport(String productVersion) {
         Validate.notNull(productVersion, "invalid null product version");
-        LOGGER.debug("Exporting product [{}] with version [{}] to [{}]...",
+        final String ddfHome = System.getProperty("ddf.home");
+
+        LOGGER.debug("Exporting product [{}] under [{}] with version [{}] to [{}]...",
                 productVersion,
+                ddfHome,
                 MigrationContextImpl.VERSION,
                 exportFile);
         metadata.put(MigrationContextImpl.METADATA_VERSION, MigrationContextImpl.VERSION);
         metadata.put(MigrationContextImpl.METADATA_PRODUCT_VERSION, productVersion);
         metadata.put(MigrationContextImpl.METADATA_DATE, new Date().toString());
+        metadata.put(MigrationContextImpl.METADATA_DDF_HOME, ddfHome);
         metadata.put(MigrationContextImpl.METADATA_MIGRATABLES,
                 contexts.values()
                         .stream()
