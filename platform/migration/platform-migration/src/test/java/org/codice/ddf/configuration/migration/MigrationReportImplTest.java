@@ -20,7 +20,6 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.codice.ddf.migration.CompoundMigrationException;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationInformation;
 import org.codice.ddf.migration.MigrationMessage;
@@ -441,9 +440,9 @@ public class MigrationReportImplTest extends AbstractMigrationReportTest {
 
     @Test
     public void testVerifyCompletionWhenMultipleErrorsAreRecorded() throws Exception {
-        thrown.expect(CompoundMigrationException.class);
+        thrown.expect(Matchers.sameInstance(EXCEPTIONS[0]));
         thrown.expectMessage(Matchers.containsString(ERRORS[0]));
-        thrown.expect(ThrowableMatchers.hasCauseMatching(Matchers.sameInstance(EXCEPTIONS[0])));
+        thrown.expect(ThrowableMatchers.hasCauseMatching(Matchers.nullValue(Throwable.class)));
         thrown.expect(ThrowableMatchers.hasSuppressedMatching(Matchers.arrayContaining(Stream.of(
                 EXCEPTIONS)
                 .skip(1)

@@ -202,10 +202,12 @@ public interface MigrationReport {
 
     /**
      * Verifies if the operation that generated this migration report completed successfully.
+     * <p>
+     * <i>Note:</i> The first exception recorded will always be thrown out and all additional exceptions
+     * recorded will be added to it as suppressed exceptions (see {@link Throwable#getSuppressed}).
      *
-     * @throws MigrationException         if a single error occurred during the operation (throws that
-     *                                    error back)
-     * @throws CompoundMigrationException if more than one error occurred during the operation
+     * @throws MigrationException if a single error occurred during the operation (throws that
+     *                            error back)
      */
     public void verifyCompletion() throws MigrationException;
 }

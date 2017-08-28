@@ -16,6 +16,7 @@ package org.codice.ddf.configuration.migration;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.Deque;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Optional;
@@ -25,7 +26,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang.Validate;
-import org.codice.ddf.migration.CompoundMigrationException;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationInformation;
 import org.codice.ddf.migration.MigrationMessage;
@@ -200,11 +200,12 @@ public class MigrationReportImpl implements MigrationReport {
         runCodes();
         if (numErrors == 0) {
             return;
-        } else if (numErrors == 1) {
-            throw errors().findAny()
-                    .get(); // will never be null since there is 1
         }
-        throw new CompoundMigrationException(errors().iterator()); // preserve order
+        final Iterator<MigrationException> i = errors().iterator(); // preserve order
+        final MigrationException e = i.next(); // will always be there since numErrors is not 0
+
+        i.forEachRemaining(e::addSuppressed);
+        throw e;
     }
 
     // PMD.DefaultPackage - designed to be called from ConfigurationMigrationManager within this package
