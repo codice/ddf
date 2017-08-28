@@ -19,6 +19,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.lang.SystemUtils;
+
 import ddf.security.common.audit.SecurityLogger;
 
 /*
@@ -34,17 +36,18 @@ public class CrossPlatformFilePathEvaluator {
             return file;
         }
 
-        //look for drive letter
-        if (path.contains(":")) {
-            String[] splitPath = path.split(":");
-            Optional<File> result = handleWindowsPath(splitPath[1], new File(splitPath[0] + ":\\"));
-            if (result.isPresent()) {
-                file = result.get();
-            }
-        } else { //relative path
-            Optional<File> result = handleWindowsPath(path, new File(System.getProperty("ddf.home")));
-            if (result.isPresent()) {
-                file = result.get();
+        //If on Windows, check Windows file path
+        if (SystemUtils.IS_OS_WINDOWS) {
+            //look for drive letter
+            if (path.contains(":")) {
+                String[] splitPath = path.split(":");
+                Optional<File> result = handleWindowsPath(splitPath[1],
+                        new File(splitPath[0] + ":" + File.separatorChar));
+                return result.orElse(file);
+            } else { //relative path
+                Optional<File> result = handleWindowsPath(path,
+                        new File(System.getProperty("ddf.home")));
+                return result.orElse(file);
             }
         }
         return file;
@@ -60,16 +63,13 @@ public class CrossPlatformFilePathEvaluator {
         for (File file : fileList) {
             if (path.equals(file.getName())) {
                 //found the exact match
-                SecurityLogger.audit("Found file with path : {}",
-                        file.getAbsolutePath());
+                SecurityLogger.audit("Found file with path : {}", file.getAbsolutePath());
                 return Optional.of(file);
             } else if (path.startsWith(file.getName())) {
                 Optional<File> result = handleWindowsPath(path.replace(file.getName(), ""), file);
                 if (result.isPresent()) {
                     return result;
                 }
-            } else {
-                continue;
             }
         }
         return Optional.empty();
