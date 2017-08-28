@@ -42,7 +42,18 @@ public class ProxyImportMigrationEntry extends ProxyMigrationEntry<ImportMigrati
     }
 
     @Override
-    public boolean store(EBiConsumer<MigrationReport, Optional<InputStream>, IOException> consumer) {
+    public boolean store() {
+        return proxy.store();
+    }
+
+    @Override
+    public boolean store(boolean required) {
+        return proxy.store(required);
+    }
+
+    @Override
+    public boolean store(
+            EBiConsumer<MigrationReport, Optional<InputStream>, IOException> consumer) {
         return proxy.store(consumer);
     }
 

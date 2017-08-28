@@ -14,9 +14,9 @@
 package org.codice.ddf.migration.commands;
 
 import java.lang.reflect.InvocationTargetException;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Optional;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.shell.api.action.Argument;
@@ -31,34 +31,36 @@ import ddf.security.service.SecurityServiceException;
  * Command class used to import the system configuration exported via the {@link ExportCommand} command.
  */
 @Service
-@Command(scope = MigrationCommands.NAMESPACE, name = "import", description =
-        "The import command delegates to all "
-                + "registered Migratable services to import bundle specific configuration and data.")
-public class ImportCommand extends MigrationCommands {
-    private static final String ERROR_IMPORT_MESSAGE =
-            "An error was encountered while executing this command. %s";
-
+@Command(scope = MigrationCommand.NAMESPACE, name = "import", description = "Restores the system profile and configuration to the one recorded by a previously executed export command.")
+public class ImportCommand extends MigrationCommand {
     @VisibleForTesting
-    @Argument(index = 0, name = "importDirectory", description = "Path to directory where to find the file to import", required = false, multiValued = false)
+    @Argument(index = 0, name = "exportDirectory", description = "Path to directory where to find the file to import and where to export the current state of the system", required = false, valueToShowInHelp = MigrationCommand.EXPORTED, multiValued = false)
     String exportDirectoryArgument;
 
     @Override
     public Object execute() {
         final Path exportDirectory;
 
-        if (StringUtils.isEmpty(exportDirectoryArgument)) {
-            exportDirectory = defaultExportDirectory;
-        } else {
-            exportDirectory = Paths.get(exportDirectoryArgument);
-        }
         try {
+            if (StringUtils.isEmpty(exportDirectoryArgument)) {
+                exportDirectory = defaultExportDirectory;
+            } else {
+                exportDirectory = Paths.get(exportDirectoryArgument);
+            }
             security.runWithSubjectOrElevate(() -> configurationMigrationService.doImport(
                     exportDirectory,
-                    Optional.of(this::outputMessage)));
+                    this::outputMessage));
+        } catch (InvalidPathException e) {
+            outputErrorMessage(String.format(ERROR_MESSAGE,
+                    String.format("invalid path [%s] (%s)",
+                            exportDirectoryArgument,
+                            e.getMessage())));
         } catch (SecurityServiceException e) {
-            outputErrorMessage(String.format(ERROR_IMPORT_MESSAGE, e));
+            outputErrorMessage(String.format(ERROR_MESSAGE, e.getMessage()));
         } catch (InvocationTargetException e) {
-            outputErrorMessage(String.format(ERROR_IMPORT_MESSAGE, e.getCause()));
+            outputErrorMessage(String.format(ERROR_MESSAGE,
+                    e.getCause()
+                            .getMessage()));
         }
         return null;
     }

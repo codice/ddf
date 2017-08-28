@@ -15,21 +15,16 @@ package org.codice.ddf.migration.commands;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import java.io.PrintStream;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.codice.ddf.configuration.migration.ConfigurationMigrationService;
-import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationWarning;
 import org.codice.ddf.security.common.Security;
 import org.fusesource.jansi.Ansi;
@@ -42,8 +37,6 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.google.common.collect.ImmutableList;
-
-import ddf.security.service.SecurityServiceException;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ExportCommandTest {
@@ -104,96 +97,96 @@ public class ExportCommandTest {
     @Test
     public void testExecuteReportWarnings() throws Exception {
         // Setup
-//        when(security.runWithSubjectOrElevate(any(Callable.class))).thenAnswer(this::delegateToCallable);
-//        when(mockConfigurationMigrationService.export(mockDefaultExportDirectory)).thenReturn(
-//                CONFIG_STATUS_MSGS);
-//        ExportCommand exportCommand = new ExportCommandUnderTest(mockConfigurationMigrationService,
-//                mockDefaultExportDirectory);
-//
-//        // Perform Test
-//        exportCommand.execute();
-//
-//        // Verify
-//        ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
-//        verify(mockConsole, times(6)).print(argument.capture());
-//        List<String> values = argument.getAllValues();
-//        assertThat(values.get(0), is(INFO_WHITE));
-//        assertThat(values.get(1),
-//                is(String.format(STARTING_EXPORT_MESSAGE, mockDefaultExportDirectory)));
-//        assertThat(values.get(2), is(WARNING_YELLOW));
-//        assertThat(values.get(3), is(MIGRATION_WARNING_MESSAGE));
-//        assertThat(values.get(4), is(WARNING_YELLOW));
-//        assertThat(values.get(5),
-//                is(String.format(FAILED_EXPORT_MESSAGE, mockDefaultExportDirectory)));
+        //        when(security.runWithSubjectOrElevate(any(Callable.class))).thenAnswer(this::delegateToCallable);
+        //        when(mockConfigurationMigrationService.export(mockDefaultExportDirectory)).thenReturn(
+        //                CONFIG_STATUS_MSGS);
+        //        ExportCommand exportCommand = new ExportCommandUnderTest(mockConfigurationMigrationService,
+        //                mockDefaultExportDirectory);
+        //
+        //        // Perform Test
+        //        exportCommand.execute();
+        //
+        //        // Verify
+        //        ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
+        //        verify(mockConsole, times(6)).print(argument.capture());
+        //        List<String> values = argument.getAllValues();
+        //        assertThat(values.get(0), is(INFO_WHITE));
+        //        assertThat(values.get(1),
+        //                is(String.format(STARTING_EXPORT_MESSAGE, mockDefaultExportDirectory)));
+        //        assertThat(values.get(2), is(WARNING_YELLOW));
+        //        assertThat(values.get(3), is(MIGRATION_WARNING_MESSAGE));
+        //        assertThat(values.get(4), is(WARNING_YELLOW));
+        //        assertThat(values.get(5),
+        //                is(String.format(FAILED_EXPORT_MESSAGE, mockDefaultExportDirectory)));
     }
 
     @Test
     public void testExecuteNoWarnings() throws Exception {
         // Setup
-//        when(security.runWithSubjectOrElevate(any(Callable.class))).thenAnswer(this::delegateToCallable);
-//        when(mockConfigurationMigrationService.export(mockDefaultExportDirectory)).thenReturn(
-//                ImmutableList.of());
-//        ExportCommand exportCommand = new ExportCommandUnderTest(mockConfigurationMigrationService,
-//                mockDefaultExportDirectory);
-//
-//        // Perform Test
-//        exportCommand.execute();
-//
-//        // Verify
-//        assertSuccessMessage(mockDefaultExportDirectory);
+        //        when(security.runWithSubjectOrElevate(any(Callable.class))).thenAnswer(this::delegateToCallable);
+        //        when(mockConfigurationMigrationService.export(mockDefaultExportDirectory)).thenReturn(
+        //                ImmutableList.of());
+        //        ExportCommand exportCommand = new ExportCommandUnderTest(mockConfigurationMigrationService,
+        //                mockDefaultExportDirectory);
+        //
+        //        // Perform Test
+        //        exportCommand.execute();
+        //
+        //        // Verify
+        //        assertSuccessMessage(mockDefaultExportDirectory);
     }
 
     @Test
     public void testExecuteWithExportDirectoryArgument() throws Exception {
         // Setup
-//        String exportDirectory = "export/directory";
-//        Path exportDirectoryPath = Paths.get(exportDirectory);
-//
-//        when(security.runWithSubjectOrElevate(any(Callable.class))).thenAnswer(this::delegateToCallable);
-//        when(mockConfigurationMigrationService.export(exportDirectoryPath)).thenReturn(ImmutableList.of());
-//
-//        ExportCommand exportCommand = new ExportCommandUnderTest(mockConfigurationMigrationService,
-//                exportDirectoryPath);
-//        exportCommand.exportDirectoryArgument = exportDirectory;
-//
-//        // Perform Test
-//        exportCommand.execute();
-//
-//        // Verify
-//        assertSuccessMessage(exportDirectoryPath);
+        //        String exportDirectory = "export/directory";
+        //        Path exportDirectoryPath = Paths.get(exportDirectory);
+        //
+        //        when(security.runWithSubjectOrElevate(any(Callable.class))).thenAnswer(this::delegateToCallable);
+        //        when(mockConfigurationMigrationService.export(exportDirectoryPath)).thenReturn(ImmutableList.of());
+        //
+        //        ExportCommand exportCommand = new ExportCommandUnderTest(mockConfigurationMigrationService,
+        //                exportDirectoryPath);
+        //        exportCommand.exportDirectoryArgument = exportDirectory;
+        //
+        //        // Perform Test
+        //        exportCommand.execute();
+        //
+        //        // Verify
+        //        assertSuccessMessage(exportDirectoryPath);
     }
 
     @Test
     public void testExecuteWithEmptyExportDirectoryArgument() throws Exception {
         // Setup
-//        when(security.runWithSubjectOrElevate(any(Callable.class))).thenAnswer(this::delegateToCallable);
-//        when(mockConfigurationMigrationService.export(mockDefaultExportDirectory)).thenReturn(
-//                ImmutableList.of());
-//
-//        ExportCommand exportCommand = new ExportCommandUnderTest(mockConfigurationMigrationService,
-//                mockDefaultExportDirectory);
-//        exportCommand.exportDirectoryArgument = "";
-//
-//        // Perform Test
-//        exportCommand.execute();
-//
-//        // Verify
-//        assertSuccessMessage(mockDefaultExportDirectory);
+        //        when(security.runWithSubjectOrElevate(any(Callable.class))).thenAnswer(this::delegateToCallable);
+        //        when(mockConfigurationMigrationService.export(mockDefaultExportDirectory)).thenReturn(
+        //                ImmutableList.of());
+        //
+        //        ExportCommand exportCommand = new ExportCommandUnderTest(mockConfigurationMigrationService,
+        //                mockDefaultExportDirectory);
+        //        exportCommand.exportDirectoryArgument = "";
+        //
+        //        // Perform Test
+        //        exportCommand.execute();
+        //
+        //        // Verify
+        //        assertSuccessMessage(mockDefaultExportDirectory);
     }
 
     @Test
     public void testExecuteErrorOccurred() throws Exception {
         // Setup
-//        when(security.runWithSubjectOrElevate(any(Callable.class))).thenThrow(new InvocationTargetException(
-//                new MigrationException(MIGRATION_EXCEPTION_MESSAGE)));
-//        ExportCommand exportCommand = new ExportCommandUnderTest(mockConfigurationMigrationService,
-//                mockDefaultExportDirectory);
-//
-//        // Perform Test
-//        exportCommand.execute();
-//
-//        // Verify
-//        assertErrorMessage(MIGRATION_EXCEPTION_MESSAGE);
+        //        when(security.runWithSubjectOrElevate(any(Callable.class))).thenThrow(new InvocationTargetException(
+        //                new MigrationException(MIGRATION_EXCEPTION_MESSAGE)));
+        //        ExportCommand exportCommand = new ExportCommandUnderTest(mockConfigurationMigrationService,
+        //                mockDefaultExportDirectory);
+        //
+        //        // Perform Test
+        //        exportCommand.execute();
+        //
+        //        // Verify
+        //        assertErrorMessage(MIGRATION_EXCEPTION_MESSAGE);
     }
 
     private Collection<MigrationWarning> delegateToCallable(InvocationOnMock invocation)
@@ -208,16 +201,16 @@ public class ExportCommandTest {
     @Test
     public void testExecuteWhenSecurityExceptionIsThrown() throws Exception {
         // Setup
-//        when(security.runWithSubjectOrElevate(any(Callable.class))).thenThrow(new SecurityServiceException(
-//                INSUFFICIENT_PRIVILEGES_MESSAGE));
-//        ExportCommand exportCommand = new ExportCommandUnderTest(mockConfigurationMigrationService,
-//                mockDefaultExportDirectory);
-//
-//        // Perform Test
-//        exportCommand.execute();
-//
-//        // Verify
-//        assertErrorMessage(INSUFFICIENT_PRIVILEGES_MESSAGE);
+        //        when(security.runWithSubjectOrElevate(any(Callable.class))).thenThrow(new SecurityServiceException(
+        //                INSUFFICIENT_PRIVILEGES_MESSAGE));
+        //        ExportCommand exportCommand = new ExportCommandUnderTest(mockConfigurationMigrationService,
+        //                mockDefaultExportDirectory);
+        //
+        //        // Perform Test
+        //        exportCommand.execute();
+        //
+        //        // Verify
+        //        assertErrorMessage(INSUFFICIENT_PRIVILEGES_MESSAGE);
     }
 
     private void assertSuccessMessage(Path exportDirectory) {
@@ -249,7 +242,7 @@ public class ExportCommandTest {
         }
 
         @Override
-        PrintStream getConsole() {
+        protected PrintStream getConsole() {
             return mockConsole;
         }
     }

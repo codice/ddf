@@ -64,16 +64,6 @@ public class ProxyMigrationEntry<T extends MigrationEntry> implements MigrationE
     }
 
     @Override
-    public boolean store() {
-        return proxy.store();
-    }
-
-    @Override
-    public boolean store(boolean required) {
-        return proxy.store(required);
-    }
-
-    @Override
     public int hashCode() {
         return proxy.hashCode();
     }
@@ -81,7 +71,7 @@ public class ProxyMigrationEntry<T extends MigrationEntry> implements MigrationE
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof ProxyMigrationEntry) {
-            return proxy.equals(((ProxyMigrationEntry)obj).proxy);
+            return proxy.equals(((ProxyMigrationEntry) obj).proxy);
         }
         return proxy.equals(obj);
     }
@@ -94,7 +84,7 @@ public class ProxyMigrationEntry<T extends MigrationEntry> implements MigrationE
     @Override
     public int compareTo(MigrationEntry o) {
         if (o instanceof ProxyMigrationEntry) {
-            return proxy.compareTo(((ProxyMigrationEntry)o).proxy);
+            return proxy.compareTo(((ProxyMigrationEntry) o).proxy);
         }
         return proxy.compareTo(o);
     }

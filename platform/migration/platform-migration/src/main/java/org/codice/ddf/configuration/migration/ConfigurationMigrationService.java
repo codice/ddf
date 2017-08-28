@@ -15,7 +15,6 @@
 package org.codice.ddf.configuration.migration;
 
 import java.nio.file.Path;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 import org.codice.ddf.migration.MigrationException;
@@ -41,9 +40,7 @@ public interface ConfigurationMigrationService {
      * @return a migration report for the export operation
      * @throws IllegalArgumentException if <code>exportDirectory</code> is <code>null</code>
      */
-    default MigrationReport doExport(Path exportDirectory) throws MigrationException {
-        return doExport(exportDirectory, Optional.empty());
-    }
+    MigrationReport doExport(Path exportDirectory) throws MigrationException;
 
     /**
      * Exports configurations to the specified path.
@@ -53,12 +50,13 @@ public interface ConfigurationMigrationService {
      * the report returned at the completion of the operation.
      *
      * @param exportDirectory path to export configurations to
-     * @param consumer        an optional consumer to call whenever a new migration message is recorded
+     * @param consumer        a consumer to call whenever a new migration message is recorded
      *                        during the operation
      * @return a migration report for the export operation
-     * @throws IllegalArgumentException if <code>exportDirectory</code> is <code>null</code>
+     * @throws IllegalArgumentException if <code>exportDirectory</code> <code>consumer</code> is
+     *                                  <code>null</code>
      */
-    MigrationReport doExport(Path exportDirectory, Optional<Consumer<MigrationMessage>> consumer)
+    MigrationReport doExport(Path exportDirectory, Consumer<MigrationMessage> consumer)
             throws MigrationException;
 
     /**
@@ -68,9 +66,7 @@ public interface ConfigurationMigrationService {
      * @return a migration report for the import operation
      * @throws IllegalArgumentException if <code>exportDirectory</code> is <code>null</code>
      */
-    default MigrationReport doImport(Path exportDirectory)  {
-        return doImport(exportDirectory, Optional.empty());
-    }
+    MigrationReport doImport(Path exportDirectory);
 
     /**
      * Imports configurations from the specified path.
@@ -80,10 +76,11 @@ public interface ConfigurationMigrationService {
      * the report returned at the completion of the operation.
      *
      * @param exportDirectory path to import configurations from
-     * @param consumer        an optional consumer to call whenever a new migration message is recorded
+     * @param consumer        a consumer to call whenever a new migration message is recorded
      *                        during the operation
      * @return a migration report for the import operation
-     * @throws IllegalArgumentException if <code>exportDirectory</code> is <code>null</code>
+     * @throws IllegalArgumentException if <code>exportDirectory</code> or <code>consumer</code> is
+     *                                  <code>null</code>
      */
-    MigrationReport doImport(Path exportDirectory, Optional<Consumer<MigrationMessage>> consumer);
+    MigrationReport doImport(Path exportDirectory, Consumer<MigrationMessage> consumer);
 }

@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import javax.management.InstanceAlreadyExistsException;
@@ -48,6 +49,7 @@ import javax.management.ObjectName;
 import org.apache.karaf.system.SystemService;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
+import org.codice.ddf.migration.MigrationMessage;
 import org.codice.ddf.migration.MigrationReport;
 import org.codice.ddf.migration.MigrationWarning;
 import org.hamcrest.Matchers;
@@ -55,6 +57,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -179,6 +182,23 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
     }
 
     @Test
+    public void doExportSucceedsWithConsumer() throws Exception {
+        final Consumer<MigrationMessage> CONSUMER = Mockito.mock(Consumer.class);
+
+        configurationMigrationManager = spy(getConfigurationMigrationManager());
+
+        expectExportDelegationIsSuccessful();
+
+        MigrationReport report = configurationMigrationManager.doExport(DDF_HOME.resolve(
+                TEST_DIRECTORY), CONSUMER);
+
+        assertThat("Export was not successful", report.wasSuccessful(), is(true));
+        verify(configurationMigrationManager).delegateToExportMigrationManager(any(
+                MigrationReportImpl.class), any(Path.class));
+        verify(CONSUMER, Mockito.atLeastOnce()).accept(Mockito.notNull());
+    }
+
+    @Test
     public void doExportSucceedsWithWarnings() throws Exception {
         configurationMigrationManager = spy(getConfigurationMigrationManager());
 
@@ -204,6 +224,13 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
         configurationMigrationManager = getConfigurationMigrationManager();
 
         configurationMigrationManager.doExport((Path) null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void doExportWithNullConsumer() throws Exception {
+        configurationMigrationManager = getConfigurationMigrationManager();
+
+        configurationMigrationManager.doExport(DDF_HOME.resolve(TEST_DIRECTORY), null);
     }
 
     @Test
@@ -319,6 +346,30 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
     }
 
     @Test
+    public void doImportSucceedsWithConsumer() throws Exception {
+        final Consumer<MigrationMessage> CONSUMER = Mockito.mock(Consumer.class);
+
+        configurationMigrationManager = spy(getConfigurationMigrationManager());
+
+        expectExportDelegationIsSuccessful();
+        expectImportDelegationIsSuccessful();
+
+        MigrationReport report = configurationMigrationManager.doImport(DDF_HOME.resolve(
+                TEST_DIRECTORY), CONSUMER);
+
+        assertThat("Import was not successful", report.wasSuccessful(), is(true));
+        assertThat("Restart system property was not set",
+                System.getProperty("karaf.restart.jvm"),
+                equalTo("true"));
+        verify(mockSystemService).reboot(any(String.class), any(SystemService.Swipe.class));
+        verify(configurationMigrationManager).delegateToExportMigrationManager(any(
+                MigrationReportImpl.class), any(Path.class));
+        verify(configurationMigrationManager).delegateToImportMigrationManager(any(
+                MigrationReportImpl.class), any(Path.class));
+        verify(CONSUMER, Mockito.atLeastOnce()).accept(Mockito.notNull());
+    }
+
+    @Test
     public void doImportSucceedsWithWarnings() throws Exception {
         configurationMigrationManager = spy(getConfigurationMigrationManager());
 
@@ -395,6 +446,13 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
         configurationMigrationManager = getConfigurationMigrationManager();
 
         configurationMigrationManager.doImport((Path) null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void doImportWithNullConsumer() throws Exception {
+        configurationMigrationManager = getConfigurationMigrationManager();
+
+        configurationMigrationManager.doImport(DDF_HOME.resolve(TEST_DIRECTORY), null);
     }
 
     @Test

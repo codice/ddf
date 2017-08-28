@@ -20,10 +20,11 @@ import org.codice.ddf.configuration.persistence.PersistenceStrategy;
 import org.codice.ddf.configuration.persistence.felix.FelixCfgPersistenceStrategy;
 import org.codice.ddf.configuration.persistence.felix.FelixConfigPersistenceStrategy;
 import org.codice.ddf.migration.ExportMigrationContext;
+import org.codice.ddf.migration.ExportMigrationEntry;
 import org.codice.ddf.migration.ImportMigrationContext;
+import org.codice.ddf.migration.ImportMigrationEntry;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationContext;
-import org.codice.ddf.migration.MigrationEntry;
 import org.codice.ddf.migration.MigrationException;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
@@ -94,7 +95,7 @@ public class ConfigurationAdminMigratable implements Migratable {
                         getConfigurations(context));
 
         adminContext.entries()
-                .forEach(MigrationEntry::store);
+                .forEach(ExportMigrationEntry::store);
     }
 
     @Override
@@ -106,7 +107,7 @@ public class ConfigurationAdminMigratable implements Migratable {
                         getConfigurations(context));
 
         adminContext.entries()
-                .forEach(MigrationEntry::store);
+                .forEach(ImportMigrationEntry::store);
     }
 
     public PersistenceStrategy getDefaultPersister() {

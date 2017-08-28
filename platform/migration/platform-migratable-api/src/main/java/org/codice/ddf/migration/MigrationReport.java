@@ -14,6 +14,8 @@
 package org.codice.ddf.migration;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -42,17 +44,16 @@ public interface MigrationReport {
     /**
      * Gets the time the corresponding migration operation started.
      *
-     * @return the time from the epoch the report migration operation started
+     * @return the time the report migration operation started
      */
-    public long getStartTime();
+    public Instant getStartTime();
 
     /**
      * Gets the time the corresponding migration operation ended.
      *
-     * @return the time from the epoch the report migration operation ended or <code>-1L</code> if it
-     * is still in operation
+     * @return the time the report migration operation ended or empty if it is still in operation
      */
-    public long getEndTime();
+    public Optional<Instant> getEndTime();
 
     /**
      * Records an informational message that occurred during the migration report.
@@ -95,7 +96,8 @@ public interface MigrationReport {
     public MigrationReport record(MigrationMessage msg);
 
     /**
-     * Registers code to be invoked at the completion of the migration operation.
+     * Registers code to be invoked at the completion of the migration operation. Registered code is
+     * guaranteed to be called a maximum of one time before a successful result is returned.
      *
      * @param code the code to execute which will receive this report in parameter where
      *             additional errors and/or warnings can be registered
@@ -146,8 +148,6 @@ public interface MigrationReport {
      * Checks if the operation that generated this migration report was successful or not.
      * <p>
      * <i>Note:</i> A successful operation might still report warnings.
-     * <p>
-     * Invoking this method will call all registered code via {@link #doAfterCompletion(Consumer)} first.
      *
      * @return <code>true</code> if the operation was successfull; <code>false</code> if not
      */
@@ -180,8 +180,6 @@ public interface MigrationReport {
 
     /**
      * Checks if the operation that generated this migration recorded any information messages.
-     * <p>
-     * Invoking this method will call all registered code via {@link #doAfterCompletion(Consumer)} first.
      *
      * @return <code>true</code> if the operation recorded at least one informational message;
      * <code>false</code> if not
@@ -190,8 +188,6 @@ public interface MigrationReport {
 
     /**
      * Checks if the operation that generated this migration recorded any warnings.
-     * <p>
-     * Invoking this method will call all registered code via {@link #doAfterCompletion(Consumer)} first.
      *
      * @return <code>true</code> if the operation recorded at least one warning; <code>false</code> if not
      */
@@ -199,8 +195,6 @@ public interface MigrationReport {
 
     /**
      * Checks if the operation that generated this migration recorded any errors.
-     * <p>
-     * Invoking this method will call all registered code via {@link #doAfterCompletion(Consumer)} first.
      *
      * @return <code>true</code> if the operation recorded at least one error; <code>false</code> if not
      */
@@ -208,8 +202,6 @@ public interface MigrationReport {
 
     /**
      * Verifies if the operation that generated this migration report completed successfully.
-     * <p>
-     * Invoking this method will call all registered code via {@link #doAfterCompletion(Consumer)} first.
      *
      * @throws MigrationException         if a single error occurred during the operation (throws that
      *                                    error back)

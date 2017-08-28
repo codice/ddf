@@ -18,8 +18,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class MigrationEntryTest {
-    private final MigrationEntry ENTRY = Mockito.mock(MigrationEntry.class,
+public class ImportMigrationEntryTest {
+    private final ImportMigrationEntry ENTRY = Mockito.mock(ImportMigrationEntry.class,
             Mockito.CALLS_REAL_METHODS);
 
     @Test

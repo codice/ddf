@@ -19,9 +19,10 @@ import java.util.List;
 import java.util.Optional;
 
 import org.codice.ddf.migration.ExportMigrationContext;
+import org.codice.ddf.migration.ExportMigrationEntry;
 import org.codice.ddf.migration.ImportMigrationContext;
+import org.codice.ddf.migration.ImportMigrationEntry;
 import org.codice.ddf.migration.Migratable;
-import org.codice.ddf.migration.MigrationEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,10 +88,10 @@ public class SecurityMigratable implements Migratable {
                         (r, v) -> (v != null)))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .forEach(MigrationEntry::store);
+                .forEach(ExportMigrationEntry::store);
         LOGGER.debug("Exporting PDP files from [{}]...", SecurityMigratable.PDP_POLICIES_DIR);
         context.entries(SecurityMigratable.PDP_POLICIES_DIR)
-                .forEach(MigrationEntry::store);
+                .forEach(ExportMigrationEntry::store);
     }
 
     @Override
@@ -103,10 +104,10 @@ public class SecurityMigratable implements Migratable {
                 .map(me -> me.getPropertyReferencedEntry(SecurityMigratable.CRL_PROP_KEY))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .forEach(MigrationEntry::store);
+                .forEach(ImportMigrationEntry::store);
         LOGGER.debug("Importing PDP Directory at [{}]...", SecurityMigratable.PDP_POLICIES_DIR);
         context.cleanDirectory(SecurityMigratable.PDP_POLICIES_DIR);
         context.entries(SecurityMigratable.PDP_POLICIES_DIR)
-                .forEach(MigrationEntry::store);
+                .forEach(ImportMigrationEntry::store);
     }
 }

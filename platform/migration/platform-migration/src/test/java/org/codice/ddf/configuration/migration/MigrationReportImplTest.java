@@ -14,6 +14,7 @@
 package org.codice.ddf.configuration.migration;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -26,12 +27,15 @@ import org.codice.ddf.migration.MigrationMessage;
 import org.codice.ddf.migration.MigrationOperation;
 import org.codice.ddf.migration.MigrationReport;
 import org.codice.ddf.migration.MigrationWarning;
+import org.codice.ddf.test.util.MappingMatchers;
 import org.codice.ddf.test.util.ThrowableMatchers;
 import org.codice.ddf.util.function.ERunnable;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
+
+import com.github.npathai.hamcrestopt.OptionalMatchers;
 
 public class MigrationReportImplTest extends AbstractMigrationReportTest {
     public MigrationReportImplTest() {
@@ -44,8 +48,9 @@ public class MigrationReportImplTest extends AbstractMigrationReportTest {
                 Optional.empty());
 
         Assert.assertThat(REPORT.getOperation(), Matchers.equalTo(MigrationOperation.EXPORT));
-        Assert.assertThat(REPORT.getStartTime(), Matchers.greaterThan(0L));
-        Assert.assertThat(REPORT.getEndTime(), Matchers.equalTo(-1L));
+        Assert.assertThat(REPORT.getStartTime()
+                .toEpochMilli(), Matchers.greaterThan(0L));
+        Assert.assertThat(REPORT.getEndTime(), OptionalMatchers.isEmpty());
         Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(false));
         Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
     }
@@ -56,8 +61,9 @@ public class MigrationReportImplTest extends AbstractMigrationReportTest {
                 Optional.empty());
 
         Assert.assertThat(REPORT.getOperation(), Matchers.equalTo(MigrationOperation.IMPORT));
-        Assert.assertThat(REPORT.getStartTime(), Matchers.greaterThan(0L));
-        Assert.assertThat(REPORT.getEndTime(), Matchers.equalTo(-1L));
+        Assert.assertThat(REPORT.getStartTime()
+                .toEpochMilli(), Matchers.greaterThan(0L));
+        Assert.assertThat(REPORT.getEndTime(), OptionalMatchers.isEmpty());
         Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(false));
         Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
     }
@@ -78,7 +84,7 @@ public class MigrationReportImplTest extends AbstractMigrationReportTest {
 
         Assert.assertThat(REPORT2.getOperation(), Matchers.equalTo(MigrationOperation.IMPORT));
         Assert.assertThat(REPORT2.getStartTime(), Matchers.equalTo(REPORT.getStartTime()));
-        Assert.assertThat(REPORT.getEndTime(), Matchers.equalTo(-1L));
+        Assert.assertThat(REPORT2.getEndTime(), OptionalMatchers.isEmpty());
         Assert.assertThat(REPORT2.hasErrors(), Matchers.equalTo(false));
         Assert.assertThat(REPORT2.warnings()
                         .map(MigrationWarning::getMessage)
@@ -96,7 +102,7 @@ public class MigrationReportImplTest extends AbstractMigrationReportTest {
 
         Assert.assertThat(REPORT2.getOperation(), Matchers.equalTo(MigrationOperation.IMPORT));
         Assert.assertThat(REPORT2.getStartTime(), Matchers.equalTo(REPORT.getStartTime()));
-        Assert.assertThat(REPORT.getEndTime(), Matchers.equalTo(-1L));
+        Assert.assertThat(REPORT2.getEndTime(), OptionalMatchers.isEmpty());
         Assert.assertThat(REPORT2.hasErrors(), Matchers.equalTo(false));
         Assert.assertThat(REPORT2.warnings()
                         .map(MigrationWarning::getMessage)
@@ -464,7 +470,9 @@ public class MigrationReportImplTest extends AbstractMigrationReportTest {
     public void testEnd() throws Exception {
         REPORT.end();
 
-        Assert.assertThat(REPORT.getEndTime(), Matchers.greaterThan(0L));
+        Assert.assertThat(REPORT.getEndTime(),
+                OptionalMatchers.hasValue(MappingMatchers.map(Instant::toEpochMilli,
+                        Matchers.greaterThan(0L))));
     }
 
     @Test
