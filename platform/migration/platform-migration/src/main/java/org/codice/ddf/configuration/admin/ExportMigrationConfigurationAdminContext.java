@@ -48,7 +48,7 @@ public class ExportMigrationConfigurationAdminContext extends ProxyExportMigrati
 
     private final ConfigurationAdminMigratable admin;
 
-    private final Set<String> warnedExtensions = new HashSet<>(12);
+    private final Set<String> warnedExtensions = new HashSet<>(8);
 
     private final Map<Path, ExportMigrationEntry> entries;
 
@@ -93,7 +93,7 @@ public class ExportMigrationConfigurationAdminContext extends ProxyExportMigrati
             ps = admin.getDefaultPersister();
             if (warnedExtensions.add(extn)) {
                 getReport().record(new MigrationWarning(String.format(
-                        "Persistence strategy [%s] is not defined; defaulting to %s",
+                        "Persistence strategy [%s] is not defined; defaulting to [%s]",
                         extn,
                         ps.getExtension())));
             }

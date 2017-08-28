@@ -208,12 +208,9 @@ public class ImportMigrationConfigurationAdminContext extends ProxyImportMigrati
 
             try {
                 is = entry.getInputStream()
-                        .orElse(null);
-                if (is == null) {
-                    throw new MigrationException(
-                            "Import error: failed to read configuration [%s]; not exported.",
-                            path);
-                }
+                        .orElseThrow(() -> new MigrationException(
+                                "Import error: failed to read configuration [%s]; not exported.",
+                                path));
                 try {
                     properties = ps.read(is);
                 } catch (IOException e) {
