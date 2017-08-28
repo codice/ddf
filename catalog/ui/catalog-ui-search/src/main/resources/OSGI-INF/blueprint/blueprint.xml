@@ -123,6 +123,7 @@
         <argument>
             <reference interface="ddf.catalog.data.AttributeRegistry" availability="optional"/>
         </argument>
+        <argument ref="configurationApplication" />
     </bean>
 
     <bean id="workspaceTransformer"
@@ -208,6 +209,7 @@
         <property name="filterAdapter" ref="filterAdapter"/>
         <property name="actionRegistry" ref="metacardActionRegistry"/>
         <property name="featureService" ref="featureService"/>
+        <property name="endpointUtil" ref="endpointUtil" />
     </bean>
 
     <bean id="feedbackApplication" class="org.codice.ddf.catalog.ui.query.FeedbackApplication">
@@ -218,6 +220,7 @@
 
         <property name="configurationApplication" ref="configurationApplication"/>
         <property name="smtpClient" ref="smtpClient"/>
+        <property name="endpointUtil" ref="endpointUtil" />
     </bean>
 
     <reference id="persistentStore" interface="org.codice.ddf.persistence.PersistentStore"/>

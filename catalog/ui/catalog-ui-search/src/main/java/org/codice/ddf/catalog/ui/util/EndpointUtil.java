@@ -13,9 +13,12 @@
  */
 package org.codice.ddf.catalog.ui.util;
 
+import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static ddf.catalog.util.impl.ResultIterable.resultIterable;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.nio.charset.Charset;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -24,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -32,6 +34,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
@@ -41,15 +44,24 @@ import java.util.stream.Collectors;
 
 import javax.ws.rs.NotFoundException;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.input.BoundedInputStream;
 import org.boon.json.JsonFactory;
 import org.boon.json.JsonParserFactory;
 import org.boon.json.JsonSerializerFactory;
+import org.boon.json.ObjectMapper;
+import org.codice.ddf.catalog.ui.config.ConfigurationApplication;
+import org.codice.ddf.catalog.ui.metacard.EntityTooLargeException;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.FactoryIteratorProvider;
 import org.geotools.factory.GeoTools;
 import org.geotools.filter.FunctionFactory;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.ImmutableMap;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Attribute;
@@ -69,8 +81,12 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.impl.ResultIterable;
+import spark.Request;
+import spark.Response;
 
 public class EndpointUtil {
+    private static final Logger LOGGER = LoggerFactory.getLogger(EndpointUtil.class);
+
     private final List<MetacardType> metacardTypes;
 
     private final CatalogFramework catalogFramework;
@@ -81,18 +97,29 @@ public class EndpointUtil {
 
     private final AttributeRegistry attributeRegistry;
 
+    private final ConfigurationApplication config;
+
     private static final String ISO_8601_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+
+    public static final String APPLICATION_JSON = "application/json";
 
     private static int pageSize = 250;
 
+    private final Random random = new Random();
+
+    private ObjectMapper objectMapper = JsonFactory.create(new JsonParserFactory(),
+            new JsonSerializerFactory().includeNulls()
+                    .includeEmpty());
+
     public EndpointUtil(List<MetacardType> metacardTypes, CatalogFramework catalogFramework,
             FilterBuilder filterBuilder, List<InjectableAttribute> injectableAttributes,
-            AttributeRegistry attributeRegistry) {
+            AttributeRegistry attributeRegistry, ConfigurationApplication config) {
         this.metacardTypes = metacardTypes;
         this.catalogFramework = catalogFramework;
         this.filterBuilder = filterBuilder;
         this.injectableAttributes = injectableAttributes;
         this.attributeRegistry = attributeRegistry;
+        this.config = config;
         registerGeoToolsFunctionFactory();
     }
 
@@ -311,10 +338,7 @@ public class EndpointUtil {
     }
 
     public String getJson(Object result) {
-        return JsonFactory.create(new JsonParserFactory(),
-                new JsonSerializerFactory().includeNulls()
-                        .includeEmpty())
-                .toJson(result);
+        return objectMapper.toJson(result);
     }
 
     public Optional<MetacardType> getMetacardType(String name) {
@@ -461,10 +485,54 @@ public class EndpointUtil {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    public static <T, R extends Comparable> Comparator<T> compareBy(Function<T, R> getField) {
-        return (T o1, T o2) -> getField.apply(o1)
-                .compareTo(getField.apply(o2));
+    public String safeGetBody(Request req) throws IOException {
+        if (req.contentLength() > config.getMaximumUploadSize()) {
+            throw new EntityTooLargeException(req.ip(),
+                    req.userAgent(),
+                    req.url(),
+                    random.nextInt());
+        }
+        byte[] bytes = IOUtils.toByteArray(new BoundedInputStream(req.raw()
+                .getInputStream(), config.getMaximumUploadSize() + 1));
+        if (bytes.length > config.getMaximumUploadSize()) {
+            throw new EntityTooLargeException(req.ip(),
+                    req.userAgent(),
+                    req.url(),
+                    random.nextInt());
+        }
+
+        return new String(bytes, Charset.defaultCharset());
+    }
+
+    public void handleRuntimeException(Exception ex, Request req, Response res) {
+        LOGGER.debug("Exception occurred", ex);
+        res.status(404);
+        res.header(CONTENT_TYPE, APPLICATION_JSON);
+        res.body(getJson(ImmutableMap.of("message", "Could not find what you were looking for")));
+    }
+
+    public void handleEntityTooLargeException(Exception ex, Request req, Response res) {
+        LOGGER.info(
+                "User uploaded object greater than maximum size ({} bytes). If this is a valid request then you may consider increasing the maximum allowed request size under: <system>/admin/index.html > Standard Search UI > Catalog UI Search > Maximum Endpoint Upload Size. Please consider the constraints of system memory before adjusting this value.  It is roughly 3 * (max number concurrent system users) * (maximum endpoint upload bytes size) just for this endpoint, not considering the rest of the system. ",
+                config.getMaximumUploadSize(),
+                ex);
+        String errorId = null;
+        if (ex instanceof EntityTooLargeException) {
+            errorId = ((EntityTooLargeException) ex).getStringId();
+        }
+        res.status(413);
+        res.header(CONTENT_TYPE, APPLICATION_JSON);
+        res.body(getJson(ImmutableMap.of("message",
+                "The data sent was too large. Please contact your Systems Administrator. Error Code: "
+                        + errorId)));
+    }
+
+    public void handleIOException(Exception ex, Request req, Response res) {
+        LOGGER.debug("Exception occurred", ex);
+        res.status(500);
+        res.header(CONTENT_TYPE, APPLICATION_JSON);
+        res.body(getJson(ImmutableMap.of("message",
+                "Something went wrong, please retry. If the problem persists please contact your Systems Administrator.")));
     }
 
     public FilterBuilder getFilterBuilder() {

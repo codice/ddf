@@ -222,7 +222,7 @@ public class MetacardApplication implements SparkApplication {
         post("/metacards", APPLICATION_JSON, (req, res) -> {
             List<String> ids = JsonFactory.create()
                     .parser()
-                    .parseList(String.class, req.body());
+                    .parseList(String.class, util.safeGetBody(req));
             List<Metacard> metacards = util.getMetacards(ids, "*")
                     .entrySet()
                     .stream()
@@ -234,9 +234,10 @@ public class MetacardApplication implements SparkApplication {
         });
 
         delete("/metacards", APPLICATION_JSON, (req, res) -> {
+
             List<String> ids = JsonFactory.create()
                     .parser()
-                    .parseList(String.class, req.body());
+                    .parseList(String.class, util.safeGetBody(req));
             DeleteResponse deleteResponse =
                     catalogFramework.delete(new DeleteRequestImpl(new ArrayList<>(ids),
                             Metacard.ID,
@@ -252,9 +253,10 @@ public class MetacardApplication implements SparkApplication {
         }, util::getJson);
 
         patch("/metacards", APPLICATION_JSON, (req, res) -> {
+            String body = util.safeGetBody(req);
             List<MetacardChanges> metacardChanges = JsonFactory.createUseJSONDates()
                     .parser()
-                    .parseList(MetacardChanges.class, req.body());
+                    .parseList(MetacardChanges.class, body);
 
             UpdateResponse updateResponse = patchMetacards(metacardChanges);
             if (updateResponse.getProcessingErrors() != null
@@ -264,12 +266,12 @@ public class MetacardApplication implements SparkApplication {
                 return updateResponse.getProcessingErrors();
             }
 
-            return req.body();
+            return body;
         });
 
         put("/validate/attribute/:attribute", TEXT_PLAIN, (req, res) -> {
             String attribute = req.params(":attribute");
-            String value = req.body();
+            String value = util.safeGetBody(req);
             return util.getJson(validator.validateAttribute(attribute, value));
         });
 
@@ -334,11 +336,12 @@ public class MetacardApplication implements SparkApplication {
 
         put("/associations/:id", (req, res) -> {
             String id = req.params(":id");
+            String body = util.safeGetBody(req);
             List<Associated.Edge> edges = JsonFactory.create()
                     .parser()
-                    .parseList(Associated.Edge.class, req.body());
+                    .parseList(Associated.Edge.class, body);
             associated.putAssociations(id, edges);
-            return req.body();
+            return body;
         });
 
         post("/subscribe/:id", (req, res) -> {
@@ -414,7 +417,7 @@ public class MetacardApplication implements SparkApplication {
         post("/workspaces", APPLICATION_JSON, (req, res) -> {
             Map<String, Object> incoming = JsonFactory.create()
                     .parser()
-                    .parseMap(req.body());
+                    .parseMap(util.safeGetBody(req));
             Metacard saved = saveMetacard(transformer.transform(incoming));
             Map<String, Object> response = transformer.transform(saved);
 
@@ -427,7 +430,7 @@ public class MetacardApplication implements SparkApplication {
 
             Map<String, Object> workspace = JsonFactory.create()
                     .parser()
-                    .parseMap(req.body());
+                    .parseMap(util.safeGetBody(req));
 
             Metacard metacard = transformer.transform(workspace);
             metacard.setAttribute(new AttributeImpl(Metacard.ID, id));
@@ -455,9 +458,10 @@ public class MetacardApplication implements SparkApplication {
         });
 
         post("/transform/csv", APPLICATION_JSON, (req, res) -> {
-            CsvTransform queryTransform = mapper.readValue(req.body(), CsvTransform.class);
+            String body = util.safeGetBody(req);
+            CsvTransform queryTransform = mapper.readValue(body, CsvTransform.class);
             Map<String, Object> transformMap = mapper.parser()
-                    .parseMap(req.body());
+                    .parseMap(body);
             queryTransform.setMetacards((List<Map<String, Object>>) transformMap.get("metacards"));
 
             List<Result> metacards = queryTransform.getTransformedMetacards(types,
@@ -523,16 +527,16 @@ public class MetacardApplication implements SparkApplication {
         });
 
         exception(IngestException.class, (ex, req, res) -> {
+            LOGGER.debug("Failed to ingest metacard", ex);
             res.status(404);
             res.header(CONTENT_TYPE, APPLICATION_JSON);
-            LOGGER.debug("Failed to ingest metacard", ex);
             res.body(util.getJson(ImmutableMap.of("message", UPDATE_ERROR_MESSAGE)));
         });
 
         exception(NotFoundException.class, (ex, req, res) -> {
+            LOGGER.debug("Failed to find metacard.", ex);
             res.status(404);
             res.header(CONTENT_TYPE, APPLICATION_JSON);
-            LOGGER.debug("Failed to find metacard.", ex);
             res.body(util.getJson(ImmutableMap.of("message", ex.getMessage())));
         });
 
@@ -542,13 +546,11 @@ public class MetacardApplication implements SparkApplication {
             res.body(util.getJson(ImmutableMap.of("message", "Invalid values for numbers")));
         });
 
-        exception(RuntimeException.class, (ex, req, res) -> {
-            LOGGER.debug("Exception occured.", ex);
-            res.status(404);
-            res.header(CONTENT_TYPE, APPLICATION_JSON);
-            res.body(util.getJson(ImmutableMap.of("message",
-                    "Could not find what you were looking for")));
-        });
+        exception(EntityTooLargeException.class, util::handleEntityTooLargeException);
+
+        exception(IOException.class, util::handleIOException);
+
+        exception(RuntimeException.class, util::handleRuntimeException);
     }
 
     private Set<String> getHiddenFields(List<Result> metacards) {

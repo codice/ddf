@@ -34,6 +34,9 @@ import org.apache.commons.collections.Factory;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.boon.json.JsonFactory;
+import org.boon.json.JsonParserFactory;
+import org.boon.json.JsonSerializerFactory;
+import org.boon.json.ObjectMapper;
 import org.codice.ddf.branding.BrandingPlugin;
 import org.codice.proxy.http.HttpProxyService;
 import org.slf4j.Logger;
@@ -126,6 +129,10 @@ public class ConfigurationApplication implements SparkApplication {
         return readOnly;
     }
 
+    private ObjectMapper objectMapper = JsonFactory.create(new JsonParserFactory(),
+            new JsonSerializerFactory().includeNulls()
+                    .includeEmpty());
+
     private boolean disableLocalCatalog = false;
 
     private boolean queryFeedbackEnabled = false;
@@ -135,6 +142,8 @@ public class ConfigurationApplication implements SparkApplication {
     private String queryFeedbackEmailBodyTemplate;
 
     private String queryFeedbackEmailDestination;
+
+    private int maximumUploadSize = 1_048_576;
 
     public List<String> getAttributeAliases() {
         return attributeAliases.entrySet()
@@ -161,6 +170,14 @@ public class ConfigurationApplication implements SparkApplication {
 
     public void setResultShow(List<String> resultShow) {
         this.resultShow = resultShow;
+    }
+
+    public void setMaximumUploadSize(int size) {
+        this.maximumUploadSize = size;
+    }
+
+    public int getMaximumUploadSize() {
+        return maximumUploadSize;
     }
 
     public void setAttributeAliases(List<String> attributeAliases) {
@@ -268,14 +285,13 @@ public class ConfigurationApplication implements SparkApplication {
 
     @Override
     public void init() {
-        get("/config", (req, res) -> this.getConfig(), JsonFactory.create()::toJson);
+        get("/config", (req, res) -> this.getConfig(), objectMapper::toJson);
 
         exception(Exception.class, (ex, req, res) -> {
             res.status(500);
             res.header(CONTENT_TYPE, APPLICATION_JSON);
             LOGGER.warn("Failed to serve request.", ex);
-            res.body(JsonFactory.create()
-                    .toJson(ImmutableMap.of("message", ex.getMessage())));
+            res.body(objectMapper.toJson(ImmutableMap.of("message", ex.getMessage())));
         });
     }
 
@@ -402,7 +418,8 @@ public class ConfigurationApplication implements SparkApplication {
         imageryProviderUrlMaps.clear();
         for (Map<String, Object> newImageryProvider : newImageryProviders) {
             HashMap<String, Object> map = new HashMap<>(newImageryProvider);
-            String imageryProviderUrl = newImageryProvider.get(URL).toString();
+            String imageryProviderUrl = newImageryProvider.get(URL)
+                    .toString();
             boolean proxyEnabled = true;
             Object proxyEnabledProp = newImageryProvider.get(PROXY_ENABLED);
             if (proxyEnabledProp instanceof Boolean) {
@@ -410,8 +427,7 @@ public class ConfigurationApplication implements SparkApplication {
             }
 
             if (proxyEnabled) {
-                map.put(URL,
-                        SERVLET_PATH + "/" + urlToProxyMap.get(imageryProviderUrl));
+                map.put(URL, SERVLET_PATH + "/" + urlToProxyMap.get(imageryProviderUrl));
             } else {
                 map.put(URL, imageryProviderUrl);
             }
@@ -507,7 +523,7 @@ public class ConfigurationApplication implements SparkApplication {
         return resultPageSize;
     }
 
-    public void setResultPageSize(Integer resultPageSize){
+    public void setResultPageSize(Integer resultPageSize) {
         this.resultPageSize = resultPageSize;
     }
 
@@ -551,7 +567,7 @@ public class ConfigurationApplication implements SparkApplication {
         return this.isEditingAllowed;
     }
 
-    public void setIsEditingAllowed(Boolean isEditingAllowed){
+    public void setIsEditingAllowed(Boolean isEditingAllowed) {
         this.isEditingAllowed = isEditingAllowed;
     }
 
@@ -653,4 +669,5 @@ public class ConfigurationApplication implements SparkApplication {
     public void setQueryFeedbackEmailDestination(String queryFeedbackEmailDestination) {
         this.queryFeedbackEmailDestination = queryFeedbackEmailDestination;
     }
+
 }

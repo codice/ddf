@@ -38,6 +38,7 @@ import org.boon.json.JsonFactory;
 import org.boon.json.ObjectMapper;
 import org.codice.ddf.catalog.ui.config.ConfigurationApplication;
 import org.codice.ddf.catalog.ui.query.feedback.FeedbackRequest;
+import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.codice.ddf.platform.email.SmtpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +48,6 @@ import com.github.jknack.handlebars.Template;
 
 import ddf.security.Subject;
 import ddf.security.SubjectUtils;
-
 import spark.servlet.SparkApplication;
 
 public class FeedbackApplication implements SparkApplication {
@@ -69,11 +69,13 @@ public class FeedbackApplication implements SparkApplication {
 
     private String emailDestination;
 
+    private EndpointUtil util;
+
     @Override
     public void init() {
         post("/feedback", APPLICATION_JSON, (req, res) -> {
             if (StringUtils.isNotEmpty(emailDestination)) {
-                FeedbackRequest feedback = parseFeedbackRequest(req.body());
+                FeedbackRequest feedback = parseFeedbackRequest(util.safeGetBody(req));
                 feedback.setAuthUsername(getCurrentUser());
 
                 String emailSubject = getEmailSubject(feedback);
@@ -84,7 +86,8 @@ public class FeedbackApplication implements SparkApplication {
 
                 Session emailSession = smtpClient.createSession();
                 MimeMessage message = new MimeMessage(emailSession);
-                message.addRecipient(Message.RecipientType.TO, new InternetAddress(emailDestination));
+                message.addRecipient(Message.RecipientType.TO,
+                        new InternetAddress(emailDestination));
                 message.setSubject(emailSubject);
                 message.setContent(emailBody, "text/html; charset=utf-8");
                 smtpClient.send(message);
@@ -116,6 +119,10 @@ public class FeedbackApplication implements SparkApplication {
 
     public void setSmtpClient(SmtpClient smtpClient) {
         this.smtpClient = smtpClient;
+    }
+
+    public void setEndpointUtil(EndpointUtil util) {
+        this.util = util;
     }
 
     public String getEmailDestination() {
@@ -263,12 +270,17 @@ public class FeedbackApplication implements SparkApplication {
         valueMap.put("auth_username", feedbackRequest.getAuthUsername());
         valueMap.put("username", StringEscapeUtils.escapeHtml4(feedbackRequest.getUsername()));
         valueMap.put("email", StringEscapeUtils.escapeHtml4(feedbackRequest.getEmail()));
-        valueMap.put("workspace_id", StringEscapeUtils.escapeHtml4(feedbackRequest.getWorkspaceId()));
-        valueMap.put("workspace_name", StringEscapeUtils.escapeHtml4(feedbackRequest.getWorkspaceName()));
+        valueMap.put("workspace_id",
+                StringEscapeUtils.escapeHtml4(feedbackRequest.getWorkspaceId()));
+        valueMap.put("workspace_name",
+                StringEscapeUtils.escapeHtml4(feedbackRequest.getWorkspaceName()));
         valueMap.put("query", StringEscapeUtils.escapeHtml4(feedbackRequest.getQuery()));
-        valueMap.put("query_initiated_time", StringEscapeUtils.escapeHtml4(feedbackRequest.getQueryInitiated()));
-        valueMap.put("query_status", StringEscapeUtils.escapeHtml4(feedbackRequest.getQueryStatus()));
-        valueMap.put("query_results", StringEscapeUtils.escapeHtml4(feedbackRequest.getQueryResults()));
+        valueMap.put("query_initiated_time",
+                StringEscapeUtils.escapeHtml4(feedbackRequest.getQueryInitiated()));
+        valueMap.put("query_status",
+                StringEscapeUtils.escapeHtml4(feedbackRequest.getQueryStatus()));
+        valueMap.put("query_results",
+                StringEscapeUtils.escapeHtml4(feedbackRequest.getQueryResults()));
         valueMap.put("comments", StringEscapeUtils.escapeHtml4(feedbackRequest.getComments()));
 
         return valueMap;
