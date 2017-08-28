@@ -180,141 +180,141 @@ public class ImportMigrationPropertyReferencedEntryImplTest extends AbstractMigr
     }
 
     @Test
-    public void testStore() throws Exception {
+    public void testRestore() throws Exception {
         final boolean REQUIRED = true;
 
-        Mockito.when(REFERENCED_ENTRY.store(REQUIRED))
+        Mockito.when(REFERENCED_ENTRY.restore(REQUIRED))
                 .thenReturn(true);
         Mockito.doNothing()
                 .when(ENTRY)
                 .verifyPropertyAfterCompletion();
 
-        Assert.assertThat(ENTRY.store(), Matchers.equalTo(true));
+        Assert.assertThat(ENTRY.restore(), Matchers.equalTo(true));
 
         Mockito.verify(REFERENCED_ENTRY)
-                .store(REQUIRED);
+                .restore(REQUIRED);
         Mockito.verify(ENTRY)
                 .verifyPropertyAfterCompletion();
     }
 
     @Test
-    public void testStoreWhenRequired() throws Exception {
+    public void testRestoreWhenRequired() throws Exception {
         final boolean REQUIRED = true;
 
-        Mockito.when(REFERENCED_ENTRY.store(REQUIRED))
+        Mockito.when(REFERENCED_ENTRY.restore(REQUIRED))
                 .thenReturn(true);
         Mockito.doNothing()
                 .when(ENTRY)
                 .verifyPropertyAfterCompletion();
 
-        Assert.assertThat(ENTRY.store(REQUIRED), Matchers.equalTo(true));
+        Assert.assertThat(ENTRY.restore(REQUIRED), Matchers.equalTo(true));
 
         Mockito.verify(REFERENCED_ENTRY)
-                .store(REQUIRED);
+                .restore(REQUIRED);
         Mockito.verify(ENTRY)
                 .verifyPropertyAfterCompletion();
     }
 
     @Test
-    public void testStoreWhenOptional() throws Exception {
+    public void testRestoreWhenOptional() throws Exception {
         final boolean REQUIRED = false;
 
-        Mockito.when(REFERENCED_ENTRY.store(REQUIRED))
+        Mockito.when(REFERENCED_ENTRY.restore(REQUIRED))
                 .thenReturn(true);
         Mockito.doNothing()
                 .when(ENTRY)
                 .verifyPropertyAfterCompletion();
 
-        Assert.assertThat(ENTRY.store(REQUIRED), Matchers.equalTo(true));
+        Assert.assertThat(ENTRY.restore(REQUIRED), Matchers.equalTo(true));
 
         Mockito.verify(REFERENCED_ENTRY)
-                .store(REQUIRED);
+                .restore(REQUIRED);
         Mockito.verify(ENTRY)
                 .verifyPropertyAfterCompletion();
     }
 
     @Test
-    public void testStoreWhenFailed() throws Exception {
+    public void testRestoreWhenFailed() throws Exception {
         final boolean REQUIRED = true;
 
-        Mockito.when(REFERENCED_ENTRY.store(REQUIRED))
+        Mockito.when(REFERENCED_ENTRY.restore(REQUIRED))
                 .thenReturn(false);
         Mockito.doNothing()
                 .when(ENTRY)
                 .verifyPropertyAfterCompletion();
 
-        Assert.assertThat(ENTRY.store(REQUIRED), Matchers.equalTo(false));
+        Assert.assertThat(ENTRY.restore(REQUIRED), Matchers.equalTo(false));
 
         Mockito.verify(REFERENCED_ENTRY)
-                .store(REQUIRED);
+                .restore(REQUIRED);
         Mockito.verify(ENTRY, Mockito.never())
                 .verifyPropertyAfterCompletion();
     }
 
     @Test
-    public void testStoreWhenAlreadyCalled() throws Exception {
+    public void testRestoreWhenAlreadyCalled() throws Exception {
         final boolean REQUIRED = true;
 
-        Mockito.when(REFERENCED_ENTRY.store(REQUIRED))
+        Mockito.when(REFERENCED_ENTRY.restore(REQUIRED))
                 .thenReturn(true);
         Mockito.doNothing()
                 .when(ENTRY)
                 .verifyPropertyAfterCompletion();
 
-        ENTRY.store(REQUIRED);
+        ENTRY.restore(REQUIRED);
 
-        Assert.assertThat(ENTRY.store(REQUIRED), Matchers.equalTo(true));
+        Assert.assertThat(ENTRY.restore(REQUIRED), Matchers.equalTo(true));
 
         Mockito.verify(REFERENCED_ENTRY)
-                .store(REQUIRED);
+                .restore(REQUIRED);
         Mockito.verify(ENTRY)
                 .verifyPropertyAfterCompletion();
     }
 
     @Test
-    public void testStoreWithConsumer() throws Exception {
+    public void testRestoreWithConsumer() throws Exception {
         final EBiConsumer<MigrationReport, Optional<InputStream>, IOException> CONSUMER =
                 Mockito.mock(EBiConsumer.class);
 
-        Mockito.when(REFERENCED_ENTRY.store(CONSUMER))
+        Mockito.when(REFERENCED_ENTRY.restore(CONSUMER))
                 .thenReturn(true);
         Mockito.doNothing()
                 .when(ENTRY)
                 .verifyPropertyAfterCompletion();
 
-        Assert.assertThat(ENTRY.store(CONSUMER), Matchers.equalTo(true));
+        Assert.assertThat(ENTRY.restore(CONSUMER), Matchers.equalTo(true));
 
         Mockito.verify(REFERENCED_ENTRY)
-                .store(CONSUMER);
+                .restore(CONSUMER);
         Mockito.verify(ENTRY)
                 .verifyPropertyAfterCompletion();
     }
 
     @Test
-    public void testStoreWithConsumerWhenFailed() throws Exception {
+    public void testRestoreWithConsumerWhenFailed() throws Exception {
         final EBiConsumer<MigrationReport, Optional<InputStream>, IOException> CONSUMER =
                 Mockito.mock(EBiConsumer.class);
 
-        Mockito.when(REFERENCED_ENTRY.store(CONSUMER))
+        Mockito.when(REFERENCED_ENTRY.restore(CONSUMER))
                 .thenReturn(false);
         Mockito.doNothing()
                 .when(ENTRY)
                 .verifyPropertyAfterCompletion();
 
-        Assert.assertThat(ENTRY.store(CONSUMER), Matchers.equalTo(false));
+        Assert.assertThat(ENTRY.restore(CONSUMER), Matchers.equalTo(false));
 
         Mockito.verify(REFERENCED_ENTRY)
-                .store(CONSUMER);
+                .restore(CONSUMER);
         Mockito.verify(ENTRY, Mockito.never())
                 .verifyPropertyAfterCompletion();
     }
 
     @Test
-    public void testStoreWithNullConsumer() throws Exception {
+    public void testRestoreWithNullConsumer() throws Exception {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(Matchers.containsString("null consumer"));
 
-        ENTRY.store(null);
+        ENTRY.restore(null);
 
         Mockito.verify(ENTRY, Mockito.never())
                 .verifyPropertyAfterCompletion();

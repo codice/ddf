@@ -161,44 +161,44 @@ public class ImportMigrationEntryImplTest extends AbstractMigrationTest {
     }
 
     @Test
-    public void store() throws Exception {
+    public void restore() throws Exception {
         InputStream inputStream = IOUtils.toInputStream(IMPORT_CONTENTS, Charsets.UTF_8);
         when(mockContext.getInputStreamFor(null)).thenReturn(inputStream);
         final ImportMigrationEntryImpl entry = new ImportMigrationEntryImpl(mockContext,
                 importedFile.getName());
 
-        entry.store(true);
+        entry.restore(true);
 
         assertThat(FileUtils.readFileToString(importedFile, Charsets.UTF_8),
                 equalTo(IMPORT_CONTENTS));
     }
 
     @Test
-    public void storeWhenRequiredEntryWasNotImported() throws Exception {
+    public void restoreWhenRequiredEntryWasNotImported() throws Exception {
         when(mockContext.getInputStreamFor(null)).thenReturn(null);
 
         final ImportMigrationEntryImpl entry = new ImportMigrationEntryImpl(mockContext,
                 ENTRY_NAME);
 
-        entry.store(true);
+        entry.restore(true);
 
         verifyReportHasMatchingError(report, "was not exported");
     }
 
     @Test
-    public void storeWhenOptionalEntryWasNotImported() throws Exception {
+    public void restoreWhenOptionalEntryWasNotImported() throws Exception {
         when(mockContext.getInputStreamFor(null)).thenReturn(null);
 
         final ImportMigrationEntryImpl entry = new ImportMigrationEntryImpl(mockContext,
                 importedFile.getName());
 
-        entry.store(false);
+        entry.restore(false);
 
         assertThat("The file has been deleted.", importedFile.exists(), is(false));
     }
 
     @Test
-    public void storeWhenFileIsReadOnly() throws Exception {
+    public void restoreWhenFileIsReadOnly() throws Exception {
         InputStream inputStream = IOUtils.toInputStream(IMPORT_CONTENTS, Charsets.UTF_8);
         when(mockContext.getInputStreamFor(null)).thenReturn(inputStream);
 
@@ -207,7 +207,7 @@ public class ImportMigrationEntryImplTest extends AbstractMigrationTest {
         final ImportMigrationEntryImpl entry = new ImportMigrationEntryImpl(mockContext,
                 importedFile.getName());
 
-        entry.store(true);
+        entry.restore(true);
 
         assertThat(FileUtils.readFileToString(importedFile, Charsets.UTF_8),
                 equalTo(IMPORT_CONTENTS));
@@ -215,7 +215,7 @@ public class ImportMigrationEntryImplTest extends AbstractMigrationTest {
     }
 
     @Test
-    public void storeWithConsumer() throws Exception {
+    public void restoreWithConsumer() throws Exception {
         MigrationReport mockReport = mock(MigrationReport.class);
         when(mockReport.wasIOSuccessful(any(ERunnable.class))).thenAnswer(it -> {
             ((ERunnable) it.getArgument(0)).run();
@@ -229,14 +229,14 @@ public class ImportMigrationEntryImplTest extends AbstractMigrationTest {
         final ImportMigrationEntryImpl entry = new ImportMigrationEntryImpl(mockContext,
                 ENTRY_NAME);
 
-        entry.store(mockConsumer);
+        entry.restore(mockConsumer);
 
-        assertThat("The stored flag is set to true", entry.stored, is(true));
+        assertThat("The restored flag is set to true", entry.restored, is(true));
         verify(mockConsumer).accept(any(MigrationReport.class), any(Optional.class));
     }
 
     @Test
-    public void storeWithConsumerHandlesIOException() throws Exception {
+    public void restoreWithConsumerHandlesIOException() throws Exception {
         MigrationReport mockReport = mock(MigrationReport.class);
         when(mockReport.wasIOSuccessful(any(ERunnable.class))).thenAnswer(it -> {
             ((ERunnable) it.getArgument(0)).run();
@@ -250,9 +250,9 @@ public class ImportMigrationEntryImplTest extends AbstractMigrationTest {
         final ImportMigrationEntryImpl entry = new ImportMigrationEntryImpl(mockContext,
                 ENTRY_NAME);
 
-        entry.store(mockConsumer);
+        entry.restore(mockConsumer);
 
-        assertThat("The stored flag is set to false", entry.stored, is(false));
+        assertThat("The restored flag is set to false", entry.restored, is(false));
         verify(mockConsumer).accept(any(MigrationReport.class), any(Optional.class));
         verify(mockReport).record(any(MigrationException.class));
     }

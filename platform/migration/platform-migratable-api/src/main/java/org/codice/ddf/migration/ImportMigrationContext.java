@@ -34,15 +34,15 @@ import java.util.stream.Stream;
  *         ...
  *
  *         public void doImport(ImportMigrationContext context) {
- *             // import an exported file and store it back to disk
+ *             // import an exported file and restore it back to disk
  *             context.getEntry(Paths.get("etc", "myfile.properties"))
- *                 .store();
- *             // get all exported files located under a specific sub-directory and store them back on disk
+ *                 .restore();
+ *             // get all exported files located under a specific sub-directory and restore them back on disk
  *             context.entries(Paths.get("etc", "subdir")
- *                 .forEach(ImportMigrationEntry::store);
- *             // store back on disk the file referenced from the "my.property" system property
+ *                 .forEach(ImportMigrationEntry::restore);
+ *             // restore back on disk the file referenced from the "my.property" system property
  *             context.getSystemPropertyReferencedEntry("my.property")
- *                 .ifPresent(ImportMigrationEntry::store);
+ *                 .ifPresent(ImportMigrationEntry::restore);
  *         }
  *
  *         ...
@@ -89,7 +89,7 @@ public interface ImportMigrationContext extends MigrationContext {
      * path.
      * <p>
      * A "fake" entry will still be returned if the requested path was not exported. Errors will be
-     * recorded when storing the file later using one of the <code>store()</code> methods or an
+     * recorded when storing the file later using one of the <code>restore()</code> methods or an
      * exception will be thrown out when attempting to retrieve the corresponding input stream.
      *
      * @param path the path of the file that was exported (should be relative to ${ddf.home})

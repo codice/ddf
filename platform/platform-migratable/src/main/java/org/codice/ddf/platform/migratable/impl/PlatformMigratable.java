@@ -125,22 +125,22 @@ public class PlatformMigratable implements Migratable {
         LOGGER.debug("Importing required system files...");
         PlatformMigratable.REQUIRED_SYSTEM_FILES.stream()
                 .map(context::getEntry)
-                .forEach(ImportMigrationEntry::store);
+                .forEach(ImportMigrationEntry::restore);
         LOGGER.debug("Importing optional system files...");
         PlatformMigratable.OPTIONAL_SYSTEM_FILES.stream()
                 .map(context::getEntry)
-                .forEach(me -> me.store(false));
+                .forEach(me -> me.restore(false));
         LOGGER.debug("Importing [{}]...", PlatformMigratable.WS_SECURITY_DIR);
         context.cleanDirectory(PlatformMigratable.WS_SECURITY_DIR);
         context.entries(PlatformMigratable.WS_SECURITY_DIR)
-                .forEach(ImportMigrationEntry::store);
+                .forEach(ImportMigrationEntry::restore);
         LOGGER.debug("Importing keystore and truststore...");
         context.getSystemPropertyReferencedEntry(PlatformMigratable.KEYSTORE_SYSTEM_PROP)
-                .ifPresent(ImportMigrationEntry::store);
+                .ifPresent(ImportMigrationEntry::restore);
         context.getSystemPropertyReferencedEntry(PlatformMigratable.TRUSTSTORE_SYSTEM_PROP)
-                .ifPresent(ImportMigrationEntry::store);
+                .ifPresent(ImportMigrationEntry::restore);
         LOGGER.debug("Importing service wrapper config file");
         context.entries(PlatformMigratable.ETC_DIR, PlatformMigratable.SERVICE_WRAPPER_CONF_FILTER)
-                .forEach(me -> me.store(false));
+                .forEach(me -> me.restore(false));
     }
 }

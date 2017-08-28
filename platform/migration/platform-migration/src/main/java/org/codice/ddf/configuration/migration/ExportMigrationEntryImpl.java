@@ -68,6 +68,12 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
     private final String name;
 
     /**
+     * Will track if store was attempted along with its result. Will be <code>null</code> until
+     * store() is attempted, at which point it will start tracking the first store() result.
+     */
+    protected Boolean stored = null;
+
+    /**
      * Instantiates a new migration entry given a migratable context and path.
      * <p>
      * <i>Note:</i> In this version of the constructor, the path is either absolute or assumed to be
@@ -162,17 +168,17 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
             LOGGER.debug("Exporting {}{}...", (required ? "required " : ""), toDebugString());
             recordEntry();
             if (absolutePathError instanceof NoSuchFileException) {
-                super.stored = false; // until proven otherwise
+                this.stored = false; // until proven otherwise
                 // we cannot rely on file.exists() here since the path is not valid anyway
                 // relying on the exception is much safer and gives us the true story
                 if (required) {
                     getReport().record(newError("does not exist", absolutePathError));
                 } else { // optional so no warnings/errors - just skip it so treat it as successful
-                    super.stored = true;
+                    this.stored = true;
                 }
                 return stored;
             } else if (absolutePathError != null) {
-                super.stored = false; // until proven otherwise
+                this.stored = false; // until proven otherwise
                 getReport().record(newError("cannot be read", absolutePathError));
                 return stored;
             }
@@ -189,10 +195,10 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
     public boolean store(EBiConsumer<MigrationReport, OutputStream, IOException> consumer) {
         Validate.notNull(consumer, "invalid null consumer");
         if (stored == null) {
-            super.stored = false; // until proven otherwise
+            this.stored = false; // until proven otherwise
             recordEntry();
             try (final OutputStream os = getOutputStream()) {
-                super.stored = getReport().wasIOSuccessful(() -> consumer.accept(getReport(), os));
+                this.stored = getReport().wasIOSuccessful(() -> consumer.accept(getReport(), os));
             } catch (ExportIOException e) { // special case indicating the I/O error occurred while writing to the zip which would invalidate the zip so we are forced to abort
                 throw newError("failed to be exported", e.getCause());
             } catch (IOException e) { // here it means the error came out of reading/processing the input file/stream where it is safe to continue with the next entry, so don't abort

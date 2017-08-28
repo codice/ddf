@@ -61,6 +61,12 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
     private final ZipEntry entry;
 
     /**
+     * Will track if restore was attempted along with its result. Will be <code>null</code> until
+     * restore() is attempted, at which point it will start tracking the first restore() result.
+     */
+    protected Boolean restored = null;
+
+    /**
      * Instantiates a new migration entry by parsing the provided zip entry's name for a migratable
      * identifier and an entry relative name.
      *
@@ -146,31 +152,32 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
     }
 
     @Override
-    public boolean store(boolean required) {
-        return store((r, is) -> {
+    public boolean restore(boolean required) {
+        return restore((r, is) -> {
             final InputStream fis = is.orElse(null);
 
             if (fis == null) { // no entry stored!!!!
-                handleStoreWhenNoEntryWasExported(required);
+                handleRestoreWhenNoEntryWasExported(required);
             } else {
-                handleStoreWhenAnEntryWasExported(required, fis);
+                handleRestoreWhenAnEntryWasExported(required, fis);
             }
         });
     }
 
     @Override
-    public boolean store(
+    public boolean restore(
             EBiConsumer<MigrationReport, Optional<InputStream>, IOException> consumer) {
         Validate.notNull(consumer, "invalid null consumer");
-        if (stored == null) {
-            super.stored = false; // until proven otherwise
+        if (restored == null) {
+            this.restored = false; // until proven otherwise
             Optional<InputStream> is = Optional.empty();
 
             try {
                 is = getInputStream();
                 final Optional<InputStream> fis = is;
 
-                super.stored = getReport().wasIOSuccessful(() -> consumer.accept(getReport(), fis));
+                this.restored = getReport().wasIOSuccessful(() -> consumer.accept(getReport(),
+                        fis));
             } catch (IOException e) {
                 getReport().record(new MigrationException(Messages.IMPORT_PATH_COPY_ERROR,
                         path,
@@ -181,7 +188,7 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
                 is.ifPresent(IOUtils::closeQuietly); // we do not care if we cannot close it
             }
         }
-        return stored;
+        return restored;
     }
 
     @Override
@@ -244,7 +251,7 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
         return properties;
     }
 
-    private void handleStoreWhenNoEntryWasExported(boolean required) {
+    private void handleRestoreWhenNoEntryWasExported(boolean required) {
         if (required) {
             LOGGER.debug("Importing {}{}...", (required ? "required " : ""), toDebugString());
             getReport().record(new MigrationException(Messages.IMPORT_PATH_NOT_EXPORTED_ERROR,
@@ -261,7 +268,7 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
         }
     }
 
-    private void handleStoreWhenAnEntryWasExported(boolean required, InputStream is)
+    private void handleRestoreWhenAnEntryWasExported(boolean required, InputStream is)
             throws IOException {
         LOGGER.debug("Importing {}{}...", (required ? "required " : ""), toDebugString());
         try {

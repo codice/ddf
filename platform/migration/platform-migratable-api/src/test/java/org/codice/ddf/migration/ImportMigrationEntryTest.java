@@ -23,24 +23,24 @@ public class ImportMigrationEntryTest {
             Mockito.CALLS_REAL_METHODS);
 
     @Test
-    public void testStoreReturnsFalse() throws Exception {
-        Mockito.when(ENTRY.store(Mockito.eq(true)))
+    public void testRestoreReturnsFalse() throws Exception {
+        Mockito.when(ENTRY.restore(Mockito.eq(true)))
                 .thenReturn(false);
 
-        Assert.assertThat(ENTRY.store(), Matchers.equalTo(false));
+        Assert.assertThat(ENTRY.restore(), Matchers.equalTo(false));
 
         Mockito.verify(ENTRY)
-                .store(true);
+                .restore(true);
     }
 
     @Test
-    public void testStoreReturnsTrue() throws Exception {
-        Mockito.when(ENTRY.store(Mockito.eq(true)))
+    public void testRestoreReturnsTrue() throws Exception {
+        Mockito.when(ENTRY.restore(Mockito.eq(true)))
                 .thenReturn(true);
 
-        Assert.assertThat(ENTRY.store(), Matchers.equalTo(true));
+        Assert.assertThat(ENTRY.restore(), Matchers.equalTo(true));
 
         Mockito.verify(ENTRY)
-                .store(true);
+                .restore(true);
     }
 }

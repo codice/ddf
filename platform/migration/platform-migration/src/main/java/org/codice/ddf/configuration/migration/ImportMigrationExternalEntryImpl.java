@@ -64,14 +64,14 @@ public class ImportMigrationExternalEntryImpl extends ImportMigrationEntryImpl {
     }
 
     @Override
-    public boolean store(boolean required) {
-        if (stored == null) {
-            super.stored =
+    public boolean restore(boolean required) {
+        if (restored == null) {
+            super.restored =
                     false; // until proven otherwise in case the next line throws an exception
             LOGGER.debug("Verifying {}{}...", (required ? "required " : ""), toDebugString());
-            super.stored = verifyRealFile(required);
+            super.restored = verifyRealFile(required);
         }
-        return stored;
+        return restored;
     }
 
     protected String toDebugString() {
