@@ -110,6 +110,8 @@ public class MigrationContextImpl implements MigrationContext {
 
     public static final String METADATA_DATE = "date";
 
+    public static final String METADATA_DDF_HOME = "ddf.home";
+
     public static final String METADATA_MIGRATABLES = "migratables";
 
     public static final String METADATA_VERSION = "version";

@@ -244,13 +244,16 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportTest 
     }
 
     private void assertMetaData(Map<String, Object> metadata) {
-        Assert.assertThat(metadata, Matchers.aMapWithSize(4));
+        Assert.assertThat(metadata, Matchers.aMapWithSize(5));
         Assert.assertThat(metadata,
                 Matchers.hasEntry(MigrationContextImpl.METADATA_VERSION,
                         MigrationContextImpl.VERSION));
         Assert.assertThat(metadata,
                 Matchers.hasEntry(MigrationContextImpl.METADATA_PRODUCT_VERSION, PRODUCT_VERSION));
         Assert.assertThat(metadata, Matchers.hasKey(MigrationContextImpl.METADATA_DATE));
+        Assert.assertThat(metadata,
+                Matchers.hasEntry(MigrationContextImpl.METADATA_DDF_HOME,
+                        System.getProperty("ddf.home")));
         Assert.assertThat(metadata,
                 Matchers.hasEntry(Matchers.equalTo(MigrationContextImpl.METADATA_MIGRATABLES),
                         Matchers.instanceOf(Map.class)));

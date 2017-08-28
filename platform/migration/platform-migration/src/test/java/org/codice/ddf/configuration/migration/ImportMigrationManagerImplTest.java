@@ -264,7 +264,7 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportTest 
     @Test
     public void testDoImportWithInvalidProductVersion() throws Exception {
         thrown.expect(MigrationException.class);
-        thrown.expectMessage(Matchers.containsString("mismatched exported product version"));
+        thrown.expectMessage(Matchers.containsString("mismatched product version"));
 
         MGR.doImport(PRODUCT_VERSION + "2");
     }
