@@ -46,6 +46,11 @@ define([
             if (modelJSON.label.constructor === Array){
                 modelJSON.label = modelJSON.label.join(' | ');
             }
+            if (modelJSON.description) {
+                // add line breaks to separate the description from the label
+                // within the tooltip
+                modelJSON.description = '\n\n' + modelJSON.description;
+            }
             if (modelJSON.isThumbnail && !modelJSON.hasNoValue){
                 modelJSON.img = Common.getImageSrc(modelJSON.value[0]);
             }

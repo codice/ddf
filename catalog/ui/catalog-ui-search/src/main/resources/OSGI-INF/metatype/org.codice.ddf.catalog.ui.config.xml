@@ -151,6 +151,13 @@
             default="^sortOrder$,^sortField$,^cql$,^polling$,^cached$"
             required="false"/>
 
+        <AD id="attributeDescriptions"
+            name="Attribute Descriptions"
+            description="List of friendly attribute descriptions. Example 'checksum-algorithm=Method for generating a small-sized datum from a block of digital data for the purpose of detecting errors'"
+            type="String"
+            cardinality="10000"
+            required="false"/>
+
         <AD id="scheduleFrequencyList"
             name="Query Schedule Frequencies"
             description="Custom list of schedule frequencies in seconds.  This will override the frequency list in the query schedule tab.  Leave this empty to use the frequency list on the Catalog UI."

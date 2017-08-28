@@ -42,7 +42,7 @@ define([
         '<': '<',
         '=': '=',
         '<=': '<=',
-        '>=': '>=' 
+        '>=': '>='
     };
 
     var CQLtoComparator = {};
@@ -78,6 +78,7 @@ define([
                 }).map(function(metacardType){
                     return {
                         label: metacardType.alias || metacardType.id,
+                        description: (properties.attributeDescriptions || {})[metacardType.id],
                         value: metacardType.id
                     };
                 }),
@@ -113,7 +114,7 @@ define([
                         this.model.set('comparator', 'BEFORE');
                     }
                     break;
-                case 'BOOLEAN': 
+                case 'BOOLEAN':
                     if (['='].indexOf(currentComparator) === -1){
                         this.model.set('comparator', '=');
                     }

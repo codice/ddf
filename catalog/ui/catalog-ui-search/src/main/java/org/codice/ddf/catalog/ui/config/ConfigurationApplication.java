@@ -147,6 +147,13 @@ public class ConfigurationApplication implements SparkApplication {
         return hiddenAttributes;
     }
 
+    public List<String> getAttributeDescriptions() {
+        return attributeDescriptions.entrySet()
+                .stream()
+                .map(pair -> String.format("%s=%s", pair.getKey(), pair.getValue()))
+                .collect(Collectors.toList());
+    }
+
     public void setScheduleFrequencyList(List<Long> scheduleFrequencyList) {
         this.scheduleFrequencyList = scheduleFrequencyList;
     }
@@ -173,6 +180,12 @@ public class ConfigurationApplication implements SparkApplication {
         this.hiddenAttributes = hiddenAttributes;
     }
 
+    public void setAttributeDescriptions(List<String> attributeDescriptions) {
+        this.attributeDescriptions = attributeDescriptions.stream()
+                .map(str -> str.split("="))
+                .collect(Collectors.toMap(list -> list[0].trim(), list -> list[1].trim()));
+    }
+
     private List<String> readOnly = ImmutableList.of("checksum",
             "checksum-algorithm",
             "id",
@@ -189,6 +202,8 @@ public class ConfigurationApplication implements SparkApplication {
     private Map<String, String> attributeAliases = Collections.emptyMap();
 
     private List<String> hiddenAttributes = Collections.emptyList();
+
+    private Map<String, String> attributeDescriptions = Collections.emptyMap();
 
     private int sourcePollInterval = 60000;
 
@@ -252,6 +267,7 @@ public class ConfigurationApplication implements SparkApplication {
         config.put("summaryShow", summaryShow);
         config.put("resultShow", resultShow);
         config.put("hiddenAttributes", hiddenAttributes);
+        config.put("attributeDescriptions", attributeDescriptions);
         config.put("attributeAliases", attributeAliases);
         config.put("sourcePollInterval", sourcePollInterval);
         config.put("scheduleFrequencyList", scheduleFrequencyList);
