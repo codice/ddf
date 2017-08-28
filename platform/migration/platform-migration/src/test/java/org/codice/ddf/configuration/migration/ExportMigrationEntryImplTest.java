@@ -723,7 +723,8 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
         // we don't get an exception from the above code under test
         thrown.expect(MigrationException.class);
         thrown.expectMessage(Matchers.containsString(
-                "Java property [" + PROPERTY_NAME2 + "] from [" + FILE_PATH + "] is not defined"));
+                "Java property [" + PROPERTY_NAME2 + "] from file [" + FILE_PATH
+                        + "] is not defined"));
 
         REPORT.verifyCompletion(); // to get the exception thrown out
     }
@@ -741,7 +742,7 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
         // we don't get an exception from the above code under test
         thrown.expect(MigrationException.class);
         thrown.expectMessage(Matchers.containsString(
-                "Java property [" + PROPERTY_NAME2 + "] from [" + FILE_PATH + "] is empty"));
+                "Java property [" + PROPERTY_NAME2 + "] from file [" + FILE_PATH + "] is empty"));
 
         REPORT.verifyCompletion(); // to get the exception thrown out
     }
@@ -759,8 +760,8 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
         // we don't get an exception from the above code under test
         thrown.expect(MigrationException.class);
         thrown.expectMessage(Matchers.containsString(
-                "failed to retrieve Java property [" + PROPERTY_NAME + "] from [" + FILE_PATH
-                        + "]"));
+                "Java property [" + PROPERTY_NAME + "] from file [" + FILE_PATH
+                        + "] could not be retrieved"));
 
         REPORT.verifyCompletion(); // to get the exception thrown out
     }

@@ -114,10 +114,10 @@ public final class Messages {
             "Import error: system property [%s] which was originally set to [%s] is no longer defined.";
 
     public static final String EXPORT_JAVA_PROPERTY_NOT_DEFINED_ERROR =
-            "Export error: Java property [%s] from [%s] is not defined.";
+            "Export error: Java property [%s] from file [%s] is not defined.";
 
     public static final String IMPORT_JAVA_PROPERTY_NOT_DEFINED_ERROR =
-            "Import error: Java property [%s] from [%s] which was originally set to [%s] is no longer defined.";
+            "Import error: Java property [%s] from file [%s] which was originally set to [%s] is no longer defined.";
 
     public static final String EXPORT_SYSTEM_PROPERTY_IS_EMPTY_ERROR =
             "Export error: system property [%s] is empty or blank.";
@@ -126,10 +126,10 @@ public final class Messages {
             "Import error: system property [%s] which was originally set to [%s] is now empty or blank.";
 
     public static final String EXPORT_JAVA_PROPERTY_IS_EMPTY_ERROR =
-            "Export error: Java property [%s] from [%s] is empty or blank.";
+            "Export error: Java property [%s] from file [%s] is empty or blank.";
 
     public static final String IMPORT_JAVA_PROPERTY_IS_EMPTY_ERROR =
-            "Import error: Java property [%s] from [%s] which was originally set to [%s] is now empty or blank.";
+            "Import error: Java property [%s] from file [%s] which was originally set to [%s] is now empty or blank.";
 
     public static final String EXPORT_PATH_DOES_NOT_EXIST_ERROR =
             "Export error: path [%s] does not exist.";
@@ -138,10 +138,10 @@ public final class Messages {
             "Export error: path [%s] is not a directory.";
 
     public static final String EXPORT_JAVA_PROPERTY_LOAD_ERROR =
-            "Export error: failed to retrieve Java property [%s] from [%s]; %s.";
+            "Export error: Java property [%s] from file [%s] could not be retrieved; %s.";
 
     public static final String IMPORT_JAVA_PROPERTY_LOAD_ERROR =
-            "Import error: failed to retrieve Java property [%s] from [%s]; %s.";
+            "Import error: Java property [%s] from file [%s] which was originally set to [%s] could not be retrieved; %s.";
 
     public static final String EXPORT_PATH_WARNING =
             "Path [%s] %s; therefore, it will not be included in the export. "

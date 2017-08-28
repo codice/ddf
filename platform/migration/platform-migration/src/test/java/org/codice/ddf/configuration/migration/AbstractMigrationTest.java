@@ -201,7 +201,7 @@ public class AbstractMigrationTest {
     }
 
     /**
-     * Creates a test file at the given path.
+     * Creates a test file at the given path under .
      * <p>
      * <i>Note:</i> The file will be created with the filename (no directory) as its content.
      *
