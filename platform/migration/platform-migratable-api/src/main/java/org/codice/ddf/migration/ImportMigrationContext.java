@@ -34,15 +34,15 @@ import java.util.stream.Stream;
  *         ...
  *
  *         public void doImport(ImportMigrationContext context) {
- *             // export an exported file and store it back to disk
+ *             // import an exported file and store it back to disk
  *             context.getEntry(Paths.get("etc", "myfile.properties"))
  *                 .store();
  *             // get all exported files located under a specific sub-directory and store them back on disk
  *             context.entries(Paths.get("etc", "subdir")
- *                 .forEach(MigrationEntry::store);
+ *                 .forEach(ImportMigrationEntry::store);
  *             // store back on disk the file referenced from the "my.property" system property
  *             context.getSystemPropertyReferencedEntry("my.property")
- *                 .ifPresent(MigrationEntry::store);
+ *                 .ifPresent(ImportMigrationEntry::store);
  *         }
  *
  *         ...

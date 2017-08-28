@@ -28,99 +28,76 @@ import org.codice.ddf.security.common.Security;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Attribute;
 
+import com.google.common.annotations.VisibleForTesting;
+
 /**
  * Parent object to all Platform Commands. Provides common methods and instance variables that
  * Platform Commands can use.
  */
-public abstract class MigrationCommands implements Action {
+public abstract class MigrationCommand implements Action {
+    public static final String ERROR_MESSAGE =
+            "An error was encountered while executing this command. %s";
 
     public static final String NAMESPACE = "migration";
+
+    protected static final String EXPORTED = "exported";
 
     @Reference
     protected ConfigurationMigrationService configurationMigrationService;
 
     protected Security security = Security.getInstance();
 
-    protected Path defaultExportDirectory = Paths.get(System.getProperty("ddf.home"), "exported");
+    protected Path defaultExportDirectory = Paths.get(System.getProperty("ddf.home"),
+            MigrationCommand.EXPORTED);
 
-    public void setDefaultExportDirectory(Path path) {
-        this.defaultExportDirectory = path;
-    }
-
-    public void setSecurity(Security security) {
-        this.security = security;
-    }
-
-    public void setConfigurationMigrationService(
-            ConfigurationMigrationService configurationMigrationService) {
-        this.configurationMigrationService = configurationMigrationService;
+    protected void outputErrorMessage(String message) {
+        outputMessageWithColor(message, Ansi.Color.RED);
     }
 
     protected void outputMessage(MigrationMessage msg) {
         if (msg instanceof MigrationException) {
             outputErrorMessage(msg.getMessage());
         } else if (msg instanceof MigrationWarning) {
-            outputWarningMessage(msg.getMessage());
+            outputMessageWithColor(msg.getMessage(), Ansi.Color.YELLOW);
         } else if (msg instanceof MigrationSuccessfulInformation) {
-            outputSuccessMessage(msg.getMessage());
+            outputMessageWithColor(msg.getMessage(), Ansi.Color.GREEN);
         } else {
-            outputInfoMessage(msg.getMessage());
+            outputMessageWithColor(msg.getMessage(), Ansi.Color.WHITE);
         }
     }
 
-    protected void outputErrorMessage(String message) {
-        String colorAsString = Ansi.ansi()
-                .a(Attribute.RESET)
-                .fg(Ansi.Color.RED)
-                .toString();
-        PrintStream console = getConsole();
-        console.print(colorAsString);
-        console.print(message);
-        console.println(Ansi.ansi()
-                .a(Attribute.RESET)
-                .toString());
+    @VisibleForTesting
+    protected void setDefaultExportDirectory(Path path) {
+        this.defaultExportDirectory = path;
     }
 
-    protected void outputWarningMessage(String message) {
-        String colorAsString = Ansi.ansi()
-                .a(Attribute.RESET)
-                .fg(Ansi.Color.YELLOW)
-                .toString();
-        PrintStream console = getConsole();
-        console.print(colorAsString);
-        console.print(message);
-        console.println(Ansi.ansi()
-                .a(Attribute.RESET)
-                .toString());
+    @VisibleForTesting
+    protected void setSecurity(Security security) {
+        this.security = security;
     }
 
-    protected void outputInfoMessage(String message) {
-        String colorAsString = Ansi.ansi()
-                .a(Attribute.RESET)
-                .fg(Ansi.Color.WHITE)
-                .toString();
-        PrintStream console = getConsole();
-        console.print(colorAsString);
-        console.print(message);
-        console.println(Ansi.ansi()
-                .a(Attribute.RESET)
-                .toString());
+    @VisibleForTesting
+    protected void setConfigurationMigrationService(
+            ConfigurationMigrationService configurationMigrationService) {
+        this.configurationMigrationService = configurationMigrationService;
     }
 
-    protected void outputSuccessMessage(String message) {
-        String colorAsString = Ansi.ansi()
-                .a(Attribute.RESET)
-                .fg(Ansi.Color.GREEN)
-                .toString();
-        PrintStream console = getConsole();
-        console.print(colorAsString);
-        console.print(message);
-        console.println(Ansi.ansi()
-                .a(Attribute.RESET)
-                .toString());
-    }
-
-    PrintStream getConsole() {
+    @VisibleForTesting
+    protected PrintStream getConsole() {
         return System.out;
+    }
+
+    private void outputMessageWithColor(String message, Ansi.Color color) {
+        final String colorAsString = Ansi.ansi()
+                .a(Attribute.RESET)
+                .fg(color)
+                .toString();
+        final PrintStream console = getConsole();
+
+        console.print(colorAsString);
+        console.print(message);
+        console.println(Ansi.ansi()
+                .a(Attribute.RESET)
+                .toString());
     }
 }

@@ -40,10 +40,10 @@ import java.util.stream.Stream;
  *                 .store();
  *             // export all files located under a specific sub-directory
  *             context.entries(Paths.get("etc", "subdir")
- *                 .forEach(MigrationEntry::store);
+ *                 .forEach(ExportMigrationEntry::store);
  *             // export the file referenced from the "my.property" system property
  *             context.getSystemPropertyReferencedEntry("my.property")
- *                 .ifPresent(MigrationEntry::store);
+ *                 .ifPresent(ExportMigrationEntry::store);
  *         }
  *
  *         ...

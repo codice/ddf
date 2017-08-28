@@ -49,8 +49,7 @@ public class ExportMigrationEntryTest {
 
     @Test
     public void testGetPropertyReferencedEntry() throws Exception {
-        Mockito.when(ENTRY.getPropertyReferencedEntry(Mockito.eq(PROPERTY_NAME),
-                Mockito.any()))
+        Mockito.when(ENTRY.getPropertyReferencedEntry(Mockito.eq(PROPERTY_NAME), Mockito.any()))
                 .thenReturn(Optional.empty());
 
         ENTRY.getPropertyReferencedEntry(PROPERTY_NAME);
@@ -61,8 +60,7 @@ public class ExportMigrationEntryTest {
 
     @Test
     public void testGetPropertyReferencedEntryValidator() throws Exception {
-        Mockito.when(ENTRY.getPropertyReferencedEntry(Mockito.eq(PROPERTY_NAME),
-                Mockito.any()))
+        Mockito.when(ENTRY.getPropertyReferencedEntry(Mockito.eq(PROPERTY_NAME), Mockito.any()))
                 .thenAnswer(verifyValidatorWith(REPORT,
                         "etc/security/test/txt",
                         Matchers.equalTo(true)));
@@ -75,8 +73,7 @@ public class ExportMigrationEntryTest {
 
     @Test
     public void testGetPropertyReferencedEntryValidatorWithNullValue() throws Exception {
-        Mockito.when(ENTRY.getPropertyReferencedEntry(Mockito.eq(PROPERTY_NAME),
-                Mockito.any()))
+        Mockito.when(ENTRY.getPropertyReferencedEntry(Mockito.eq(PROPERTY_NAME), Mockito.any()))
                 .thenAnswer(verifyValidatorWith(REPORT, null, Matchers.equalTo(true)));
 
         ENTRY.getPropertyReferencedEntry(PROPERTY_NAME);
@@ -87,8 +84,7 @@ public class ExportMigrationEntryTest {
 
     @Test
     public void testGetPropertyReferencedEntryValidatoWithNulLReportr() throws Exception {
-        Mockito.when(ENTRY.getPropertyReferencedEntry(Mockito.eq(PROPERTY_NAME),
-                Mockito.any()))
+        Mockito.when(ENTRY.getPropertyReferencedEntry(Mockito.eq(PROPERTY_NAME), Mockito.any()))
                 .thenAnswer(verifyValidatorWith(null,
                         "etc/security/test/txt",
                         Matchers.equalTo(true)));
@@ -102,13 +98,34 @@ public class ExportMigrationEntryTest {
     @Test
     public void testGetPropertyReferencedEntryValidatorWithNullReportAndNullValue()
             throws Exception {
-        Mockito.when(ENTRY.getPropertyReferencedEntry(Mockito.eq(PROPERTY_NAME),
-                Mockito.any()))
+        Mockito.when(ENTRY.getPropertyReferencedEntry(Mockito.eq(PROPERTY_NAME), Mockito.any()))
                 .thenAnswer(verifyValidatorWith(null, null, Matchers.equalTo(true)));
 
         ENTRY.getPropertyReferencedEntry(PROPERTY_NAME);
 
         Mockito.verify(ENTRY)
                 .getPropertyReferencedEntry(Mockito.eq(PROPERTY_NAME), Mockito.any());
+    }
+
+    @Test
+    public void testStoreReturnsFalse() throws Exception {
+        Mockito.when(ENTRY.store(Mockito.eq(true)))
+                .thenReturn(false);
+
+        Assert.assertThat(ENTRY.store(), Matchers.equalTo(false));
+
+        Mockito.verify(ENTRY)
+                .store(true);
+    }
+
+    @Test
+    public void testStoreReturnsTrue() throws Exception {
+        Mockito.when(ENTRY.store(Mockito.eq(true)))
+                .thenReturn(true);
+
+        Assert.assertThat(ENTRY.store(), Matchers.equalTo(true));
+
+        Mockito.verify(ENTRY)
+                .store(true);
     }
 }

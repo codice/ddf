@@ -47,7 +47,7 @@ import org.codice.ddf.util.function.EBiConsumer;
  *
  *             // get an entry for the file referenced from "my.properties" and store it in the export file
  *             entry.getPropertyReferencedEntry("my.property")
- *                 .ifPresent(MigrationEntry::store);
+ *                 .ifPresent(ExportMigrationEntry::store);
  *         }
  *
  *         ...
@@ -169,11 +169,70 @@ public interface ExportMigrationEntry extends MigrationEntry {
             BiPredicate<MigrationReport, String> validator);
 
     /**
+     * Stores this entry's content in the export based on this entry's path which can include
+     * sub-directories.
+     * <p>
+     * All errors and warnings are automatically recorded with the associated migration report.
+     * <p>
+     * Errors can be reported in two ways:
+     * <ol>
+     * <li>Errors that aborts the whole operation would be thrown out as {@link MigrationException}
+     * (e.g. failure to write to the exported file)</li>
+     * <li>Errors that are specific to this specific entry and that will eventually fail the export
+     * operation at the end. Such errors are simply recorded with the report and <code>false</code>
+     * is returned from this method. This allows for the accumulation of has many issues as possible
+     * to report to the user before aborting the operation.</li>
+     * </ol>
+     *
+     * @return <code>true</code> if no errors were recorded as a result of processing this command;
+     * <code>false</code> otherwise
+     * @throws MigrationException if a failure that prevents the operation from continuing occurred
+     */
+    public default boolean store() {
+        return store(true);
+    }
+
+    /**
+     * Stores this entry's content in the export based on this entry's path which can include
+     * sub-directories.
+     * <p>
+     * All errors and warnings are automatically recorded with the associated migration report.
+     * <p>
+     * Errors can be reported in two ways:
+     * <ol>
+     * <li>Errors that aborts the whole operation would be thrown out as {@link MigrationException}
+     * (e.g. failure to write to the exported file)</li>
+     * <li>Errors that are specific to this specific entry and that will eventually fail the export
+     * operation at the end. Such errors are simply recorded with the report and <code>false</code>
+     * is returned from this method. This allows for the accumulation of has many issues as possible
+     * to report to the user before aborting the operation.</li>
+     * </ol>
+     *
+     * @param required <code>true</code> if the file is required to exist on disk and if it doesn't
+     *                 an error should be recorded; <code>false</code> if the file is optional and may
+     *                 not be present in which case calling this method will do nothing
+     * @return <code>true</code> if no errors were recorded as a result of processing this command;
+     * <code>false</code> otherwise
+     * @throws MigrationException if a failure that prevents the operation from continuing occurred
+     */
+    public boolean store(boolean required);
+
+    /**
      * Stores this entry's content in the export using the specified consumer based on this entry's
      * path which can include sub-directories.
      * <p>
      * All errors and warnings are automatically recorded with the associated migration report including
      * those thrown by the consumer logic.
+     * <p>
+     * Errors can be reported in two ways:
+     * <ol>
+     * <li>Errors that aborts the whole operation would be thrown out as {@link MigrationException}
+     * (e.g. failure to write to the exported file)</li>
+     * <li>Errors that are specific to this specific entry and that will eventually fail the export
+     * operation at the end. Such errors are simply recorded with the report and <code>false</code>
+     * is returned from this method. This allows for the accumulation of has many issues as possible
+     * to report to the user before aborting the operation.</li>
+     * </ol>
      * <p>
      * <i>Note:</i> The output stream will automatically be closed (if not closed already) when the
      * operation completes successfully or not.

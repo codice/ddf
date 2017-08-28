@@ -83,7 +83,7 @@ public class ImportMigrationJavaPropertyReferencedEntryImplTest extends Abstract
         path = DDF_HOME.resolve(createFile(REFERENCED_PATH))
                 .toRealPath(LinkOption.NOFOLLOW_LINKS);
 
-        report = Mockito.mock(MigrationReportImpl.class,
+        report = mock(MigrationReportImpl.class,
                 Mockito.withSettings()
                         .useConstructor(MigrationOperation.IMPORT, Optional.empty())
                         .defaultAnswer(Mockito.CALLS_REAL_METHODS));

@@ -14,6 +14,7 @@
 package org.codice.ddf.configuration.migration;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -83,12 +84,12 @@ public class ExportMigrationReportImpl implements MigrationReport {
     }
 
     @Override
-    public long getStartTime() {
+    public Instant getStartTime() {
         return report.getStartTime();
     }
 
     @Override
-    public long getEndTime() {
+    public Optional<Instant> getEndTime() {
         return report.getEndTime();
     }
 

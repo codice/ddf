@@ -174,14 +174,65 @@ public class ConfigurationMigrationManager
     }
 
     @Override
-    public MigrationReport doExport(Path exportDirectory,
-            Optional<Consumer<MigrationMessage>> consumer) {
+    public MigrationReport doExport(Path exportDirectory) throws MigrationException {
+        return doExport(exportDirectory, Optional.empty(), false); // no timestamp on filename
+    }
+
+    @Override
+    public MigrationReport doExport(Path exportDirectory, Consumer<MigrationMessage> consumer) {
+        Validate.notNull(consumer, "invalid null consumer");
+        return doExport(exportDirectory,
+                Optional.ofNullable(consumer),
+                false); // no timestamp on filename
+    }
+
+    @Override
+    public Collection<MigrationWarning> doImport(String exportDirectory) throws MigrationException {
         Validate.notNull(exportDirectory, "invalid null export directory");
-        return doExport(exportDirectory, consumer, false); // no timestamp on filename
+        final MigrationReport report = doImport(Paths.get(exportDirectory));
+
+        report.verifyCompletion(); // will throw error if it failed
+        return report.warnings()
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public MigrationReport doImport(Path exportDirectory) {
+        return doImport(exportDirectory, Optional.empty());
+    }
+
+    @Override
+    public MigrationReport doImport(Path exportDirectory, Consumer<MigrationMessage> consumer) {
+        Validate.notNull(consumer, "invalid null consumer");
+        return doImport(exportDirectory, Optional.of(consumer));
+    }
+
+    @VisibleForTesting
+    ImportMigrationManagerImpl delegateToImportMigrationManager(MigrationReportImpl report,
+            Path exportFile) {
+        final ImportMigrationManagerImpl mgr = new ImportMigrationManagerImpl(report,
+                exportFile,
+                migratables.stream());
+
+        report.record(Messages.IMPORTING_DATA, exportFile);
+        mgr.doImport(productVersion);
+        return mgr;
+    }
+
+    @VisibleForTesting
+    void delegateToExportMigrationManager(MigrationReportImpl report, Path exportFile)
+            throws IOException {
+        try (final ExportMigrationManagerImpl mgr = new ExportMigrationManagerImpl(report,
+                exportFile,
+                migratables.stream())) {
+            report.record(Messages.EXPORTING_DATA, exportFile);
+            mgr.doExport(productVersion);
+        }
     }
 
     private MigrationReportImpl doExport(Path exportDirectory,
             Optional<Consumer<MigrationMessage>> consumer, boolean timestamp) {
+        Validate.notNull(exportDirectory, "invalid null export directory");
         final MigrationReportImpl report = new MigrationReportImpl(MigrationOperation.EXPORT,
                 consumer);
 
@@ -199,7 +250,8 @@ public class ConfigurationMigrationManager
 
         if (timestamp) {
             filename.append(String.format(ConfigurationMigrationManager.EXPORT_DATE_FORMAT,
-                    report.getStartTime()));
+                    report.getStartTime()
+                            .toEpochMilli()));
         }
         filename.append(ConfigurationMigrationManager.EXPORT_EXTENSION);
         final Path exportFile = exportDirectory.resolve(filename.toString());
@@ -226,20 +278,8 @@ public class ConfigurationMigrationManager
         return report;
     }
 
-    @Override
-    public Collection<MigrationWarning> doImport(String exportDirectory) throws MigrationException {
-        Validate.notNull(exportDirectory, "invalid null export directory");
-        final MigrationReport report = doImport(Paths.get(exportDirectory));
-
-        report.verifyCompletion(); // will throw error if it failed
-        return report.warnings()
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public MigrationReport doImport(Path exportDirectory,
+    private MigrationReport doImport(Path exportDirectory,
             Optional<Consumer<MigrationMessage>> consumer) {
-        Validate.notNull(exportDirectory, "invalid null export directory");
         final MigrationReportImpl xreport = doExport(exportDirectory,
                 consumer.map(ConfigurationMigrationManager::downgradeErrorsToWarningsFor),
                 true); // timestamp the filename
@@ -280,28 +320,5 @@ public class ConfigurationMigrationManager
         }
 
         return report;
-    }
-
-    @VisibleForTesting
-    ImportMigrationManagerImpl delegateToImportMigrationManager(MigrationReportImpl report,
-            Path exportFile) {
-        final ImportMigrationManagerImpl mgr = new ImportMigrationManagerImpl(report,
-                exportFile,
-                migratables.stream());
-
-        report.record(Messages.IMPORTING_DATA, exportFile);
-        mgr.doImport(productVersion);
-        return mgr;
-    }
-
-    @VisibleForTesting
-    void delegateToExportMigrationManager(MigrationReportImpl report, Path exportFile)
-            throws IOException {
-        try (final ExportMigrationManagerImpl mgr = new ExportMigrationManagerImpl(report,
-                exportFile,
-                migratables.stream())) {
-            report.record(Messages.EXPORTING_DATA, exportFile);
-            mgr.doExport(productVersion);
-        }
     }
 }

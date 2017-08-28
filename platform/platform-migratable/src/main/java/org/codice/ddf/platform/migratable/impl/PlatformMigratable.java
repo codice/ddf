@@ -20,9 +20,10 @@ import java.nio.file.Paths;
 import java.util.List;
 
 import org.codice.ddf.migration.ExportMigrationContext;
+import org.codice.ddf.migration.ExportMigrationEntry;
 import org.codice.ddf.migration.ImportMigrationContext;
+import org.codice.ddf.migration.ImportMigrationEntry;
 import org.codice.ddf.migration.Migratable;
-import org.codice.ddf.migration.MigrationEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,19 +102,19 @@ public class PlatformMigratable implements Migratable {
         LOGGER.debug("Exporting required system files...");
         PlatformMigratable.REQUIRED_SYSTEM_FILES.stream()
                 .map(context::getEntry)
-                .forEach(MigrationEntry::store);
+                .forEach(ExportMigrationEntry::store);
         LOGGER.debug("Exporting optional system files...");
         PlatformMigratable.OPTIONAL_SYSTEM_FILES.stream()
                 .map(context::getEntry)
                 .forEach(me -> me.store(false));
         LOGGER.debug("Exporting security files from [{}]...", PlatformMigratable.WS_SECURITY_DIR);
         context.entries(PlatformMigratable.WS_SECURITY_DIR)
-                .forEach(MigrationEntry::store);
+                .forEach(ExportMigrationEntry::store);
         LOGGER.debug("Exporting keystore and truststore...");
         context.getSystemPropertyReferencedEntry(PlatformMigratable.KEYSTORE_SYSTEM_PROP)
-                .ifPresent(MigrationEntry::store);
+                .ifPresent(ExportMigrationEntry::store);
         context.getSystemPropertyReferencedEntry(PlatformMigratable.TRUSTSTORE_SYSTEM_PROP)
-                .ifPresent(MigrationEntry::store);
+                .ifPresent(ExportMigrationEntry::store);
         LOGGER.debug("Exporting service wrapper config file");
         context.entries(PlatformMigratable.ETC_DIR, PlatformMigratable.SERVICE_WRAPPER_CONF_FILTER)
                 .forEach(me -> me.store(false));
@@ -124,7 +125,7 @@ public class PlatformMigratable implements Migratable {
         LOGGER.debug("Importing required system files...");
         PlatformMigratable.REQUIRED_SYSTEM_FILES.stream()
                 .map(context::getEntry)
-                .forEach(MigrationEntry::store);
+                .forEach(ImportMigrationEntry::store);
         LOGGER.debug("Importing optional system files...");
         PlatformMigratable.OPTIONAL_SYSTEM_FILES.stream()
                 .map(context::getEntry)
@@ -132,12 +133,12 @@ public class PlatformMigratable implements Migratable {
         LOGGER.debug("Importing [{}]...", PlatformMigratable.WS_SECURITY_DIR);
         context.cleanDirectory(PlatformMigratable.WS_SECURITY_DIR);
         context.entries(PlatformMigratable.WS_SECURITY_DIR)
-                .forEach(MigrationEntry::store);
+                .forEach(ImportMigrationEntry::store);
         LOGGER.debug("Importing keystore and truststore...");
         context.getSystemPropertyReferencedEntry(PlatformMigratable.KEYSTORE_SYSTEM_PROP)
-                .ifPresent(MigrationEntry::store);
+                .ifPresent(ImportMigrationEntry::store);
         context.getSystemPropertyReferencedEntry(PlatformMigratable.TRUSTSTORE_SYSTEM_PROP)
-                .ifPresent(MigrationEntry::store);
+                .ifPresent(ImportMigrationEntry::store);
         LOGGER.debug("Importing service wrapper config file");
         context.entries(PlatformMigratable.ETC_DIR, PlatformMigratable.SERVICE_WRAPPER_CONF_FILTER)
                 .forEach(me -> me.store(false));

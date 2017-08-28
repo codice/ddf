@@ -65,44 +65,4 @@ public interface MigrationEntry extends Comparable<MigrationEntry> {
      * or -1 if not specified
      */
     public long getLastModifiedTime();
-
-    /**
-     * Stores this entry's content in the export during an export migration operation or underneath
-     * the distribution root directory during an import migration operation based on this entry's
-     * path which can include sub-directories.
-     * <p>
-     * During an import migration operation, this entry's sub-directories (if any) will be created if
-     * they don't already exist. The destination file will be overwritten if it already exists.
-     * <p>
-     * All errors and warnings are automatically recorded with the associated migration report.
-     *
-     * @return <code>true</code> if no errors were recorded as a result of processing this command;
-     * <code>false</code> otherwise
-     * @throws MigrationException if a failure that prevents the operation from continuing occurred
-     */
-    public default boolean store() {
-        return store(true);
-    }
-
-    /**
-     * Stores this entry's content in the export during an export migration operation or underneath
-     * the distribution root directory during an import migration operation based on this entry's
-     * path which can include sub-directories.
-     * <p>
-     * During an import migration operation, this entry's sub-directories (if any) will be created if
-     * they don't already exist. The destination file will be overwritten if it already exists.
-     * <p>
-     * All errors and warnings are automatically recorded with the associated migration report.
-     *
-     * @param required <code>true</code> if the file is required to exist on disk during an export
-     *                 migration operation or in the export during an import migration operation and
-     *                 if it doesn't an error should be recorded; <code>false</code> if the file is
-     *                 optional and may not be present or exported in which case calling this method
-     *                 will do nothing
-     * @return <code>true</code> if no errors were recorded as a result of processing this command;
-     * <code>false</code> otherwise
-     * @throws MigrationException if a failure that prevents the operation from continuing occurred
-     */
-    public boolean store(boolean required);
-
 }

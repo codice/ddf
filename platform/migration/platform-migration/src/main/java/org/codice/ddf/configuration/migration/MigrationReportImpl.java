@@ -14,6 +14,7 @@
 package org.codice.ddf.configuration.migration;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Deque;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -49,7 +50,7 @@ public class MigrationReportImpl implements MigrationReport {
 
     private final MigrationOperation operation;
 
-    private final long start;
+    private final Instant start;
 
     private int numInfos = 0;
 
@@ -57,7 +58,7 @@ public class MigrationReportImpl implements MigrationReport {
 
     private int numErrors = 0;
 
-    private long end = -1L;
+    private Optional<Instant> end = Optional.empty();
 
     /**
      * Creates a new migration report.
@@ -72,7 +73,7 @@ public class MigrationReportImpl implements MigrationReport {
         Validate.notNull(operation, "invalid null operation");
         this.operation = operation;
         this.consumer = consumer;
-        this.start = System.currentTimeMillis();
+        this.start = Instant.now();
         this.messages =
                 new LinkedHashSet<>(); // LinkedHashSet to prevent duplicate and maintain order
     }
@@ -109,12 +110,12 @@ public class MigrationReportImpl implements MigrationReport {
     }
 
     @Override
-    public long getStartTime() {
+    public Instant getStartTime() {
         return start;
     }
 
     @Override
-    public long getEndTime() {
+    public Optional<Instant> getEndTime() {
         return end;
     }
 
@@ -210,7 +211,7 @@ public class MigrationReportImpl implements MigrationReport {
     @SuppressWarnings("PMD.DefaultPackage")
     MigrationReportImpl end() {
         runCodes();
-        this.end = System.currentTimeMillis();
+        this.end = Optional.of(Instant.now());
         return this;
     }
 

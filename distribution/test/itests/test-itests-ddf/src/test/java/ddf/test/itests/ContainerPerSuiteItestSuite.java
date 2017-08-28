@@ -27,7 +27,6 @@ import ddf.test.itests.catalog.TestRegistry;
 import ddf.test.itests.catalog.TestSecurityAuditPlugin;
 import ddf.test.itests.catalog.TestSpatial;
 import ddf.test.itests.platform.TestApplicationService;
-import ddf.test.itests.platform.TestConfiguration;
 import ddf.test.itests.platform.TestPlatform;
 import ddf.test.itests.platform.TestSecurity;
 import ddf.test.itests.platform.TestSingleSignOn;
@@ -36,15 +35,14 @@ import ddf.test.itests.platform.TestSolrCommands;
 /**
  * This suite is for test classes that will all be run in the same container
  * The test classes are run in the same order as they appear in the array.
- * This order is important for some test classes, particularly for TestConfiguration which needs to
- * be last since it alters the configuration in an unrecoverable way
+ * This order is important for some test classes.
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({TestCatalogSearchUi.class, TestFederation.class, TestRegistry.class,
         TestFtp.class, TestSpatial.class, TestCatalogValidation.class, TestCatalog.class,
         TestSingleSignOn.class, TestSolrCommands.class, TestSecurity.class,
         TestApplicationService.class, TestPlatform.class, TestFanout.class, TestMessageBroker.class,
-        TestSecurityAuditPlugin.class, /* THIS CLASS MUST BE LAST */ TestConfiguration.class /* THIS CLASS MUST BE LAST */})
+        TestSecurityAuditPlugin.class})
 public class ContainerPerSuiteItestSuite {
 
 }

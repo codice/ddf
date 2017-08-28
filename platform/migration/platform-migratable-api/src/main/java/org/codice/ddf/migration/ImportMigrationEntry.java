@@ -20,7 +20,7 @@ import java.util.Optional;
 import org.codice.ddf.util.function.EBiConsumer;
 
 /**
- * The <code>ImportMigrationEntry</code> interfaces provides support for artifacts that are being
+ * The <code>ImportMigrationEntry</code> interface provides support for artifacts that are being
  * imported during migration.
  * <p>
  * Entries created via the import migration context or via the {@link #getPropertyReferencedEntry}
@@ -31,7 +31,7 @@ import org.codice.ddf.util.function.EBiConsumer;
  * by a given property. This is the case, for example, with Java properties file where a migratable
  * might be responsible for migrating the file being referenced from a property in a properties file
  * but not the properties file itself. In such case, the migratable would create an entry for the
- * properties file that holds the property in question via the {link ExportMigrationContext#getEntry}
+ * properties file that holds the property in question via the {link ImportMigrationContext#getEntry}
  * and then create a migration entry for the file referenced from one of its property using the
  * {@link #getPropertyReferencedEntry} method.
  * <p>
@@ -46,7 +46,7 @@ import org.codice.ddf.util.function.EBiConsumer;
  *
  *             // get an entry for the file referenced from "my.properties" and store it back on disk
  *             entry.getPropertyReferencedEntry("my.property")
- *                 .ifPresent(MigrationEntry::store);
+ *                 .ifPresent(ImportMigrationEntry::store);
  *         }
  *
  *         ...
@@ -95,17 +95,83 @@ public interface ImportMigrationEntry extends MigrationEntry {
     public Optional<ImportMigrationEntry> getPropertyReferencedEntry(String name);
 
     /**
+     * Stores this entry's content underneath the distribution root directory based on this entry's
+     * path which can include sub-directories.
+     * <p>
+     * This entry's sub-directories (if any) will be created if they don't already exist. The
+     * destination file will be overwritten if it already exists.
+     * <p>
+     * All errors and warnings are automatically recorded with the associated migration report.
+     * <p>
+     * Errors can be reported in two ways:
+     * <ol>
+     * <li>Errors that aborts the whole operation would be thrown out as {@link MigrationException}
+     * (e.g. failure to write to the exported file)</li>
+     * <li>Errors that are specific to this specific entry and that will eventually fail the export
+     * operation at the end. Such errors are simply recorded with the report and <code>false</code>
+     * is returned from this method. This allows for the accumulation of has many issues as possible
+     * to report to the user before aborting the operation.</li>
+     * </ol>
+     *
+     * @return <code>true</code> if no errors were recorded as a result of processing this command;
+     * <code>false</code> otherwise
+     * @throws MigrationException if a failure that prevents the operation from continuing occurred
+     */
+    public default boolean store() {
+        return store(true);
+    }
+
+    /**
+     * Stores this entry's content underneath the distribution root directory based on this entry's
+     * path which can include sub-directories.
+     * <p>
+     * This entry's sub-directories (if any) will be created if they don't already exist. The
+     * destination file will be overwritten if it already exists.
+     * <p>
+     * All errors and warnings are automatically recorded with the associated migration report.
+     * <p>
+     * Errors can be reported in two ways:
+     * <ol>
+     * <li>Errors that aborts the whole operation would be thrown out as {@link MigrationException}
+     * (e.g. failure to write to the exported file)</li>
+     * <li>Errors that are specific to this specific entry and that will eventually fail the export
+     * operation at the end. Such errors are simply recorded with the report and <code>false</code>
+     * is returned from this method. This allows for the accumulation of has many issues as possible
+     * to report to the user before aborting the operation.</li>
+     * </ol>
+     *
+     * @param required <code>true</code> if the file is required to exist in the export and if it
+     *                 doesn't an error should be recorded; <code>false</code> if the file is
+     *                 optional and may not be exported in which case calling this method will do
+     *                 nothing
+     * @return <code>true</code> if no errors were recorded as a result of processing this command;
+     * <code>false</code> otherwise
+     * @throws MigrationException if a failure that prevents the operation from continuing occurred
+     */
+    public boolean store(boolean required);
+
+    /**
      * Stores this required entry's content appropriately based on this entry's path which can include
      * sub-directories using the specified consumer.
      * <p>
      * All errors and warnings are automatically recorded with the associated migration report including
-     * those thrown by the exporter logic.
+     * those thrown by the consumer logic.
+     * <p>
+     * Errors can be reported in two ways:
+     * <ol>
+     * <li>Errors that aborts the whole operation would be thrown out as {@link MigrationException}
+     * (e.g. failure to read from the exported file)</li>
+     * <li>Errors that are specific to this specific entry and that will eventually fail the import
+     * operation at the end. Such errors are simply recorded with the report and <code>false</code>
+     * is returned from this method. This allows for the accumulation of has many issues as possible
+     * to report to the user before aborting the operation.</li>
+     * </ol>
      * <p>
      * <i>Note:</i> The input stream will automatically be closed (if not closed already) when the
      * operation completes successfully or not.
      *
      * @param consumer a consumer capable of importing the content of this entry from a provided input
-     *                 stream which might be empty if the entry was not exported otherwise an error
+     *                 stream which might be empty if the entry was not exported (otherwise an error
      *                 will automatically be recorded)
      * @return <code>true</code> if no errors were recorded as a result of processing this command;
      * <code>false</code> otherwise
