@@ -95,7 +95,9 @@ public abstract class ImportMigrationPropertyReferencedEntryImpl extends ImportM
 
     @Override
     public boolean equals(@Nullable Object o) {
-        if (!super.equals(o)) {
+        if (o == this) {
+            return true;
+        } else if (!super.equals(o)) {
             return false;
         } // else - they would be at least of the same class
         final ImportMigrationPropertyReferencedEntryImpl me =

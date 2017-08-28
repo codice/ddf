@@ -52,7 +52,7 @@ public class ImportMigrationSystemPropertyReferencedEntryImpl
                     if (!getAbsolutePath().toRealPath(LinkOption.NOFOLLOW_LINKS)
                             .equals(getContext().getPathUtils()
                                     .resolveAgainstDDFHome(val)
-                                    .toRealPath())) {
+                                    .toRealPath(LinkOption.NOFOLLOW_LINKS))) {
                         r.record(new MigrationException(Messages.IMPORT_SYSTEM_PROPERTY_ERROR,
                                 getProperty(),
                                 getPath(),

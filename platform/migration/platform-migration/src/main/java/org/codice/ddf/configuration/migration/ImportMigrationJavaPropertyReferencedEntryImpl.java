@@ -55,7 +55,9 @@ public class ImportMigrationJavaPropertyReferencedEntryImpl
 
     @Override
     public boolean equals(@Nullable Object o) {
-        if (!super.equals(o)) {
+        if (o == this) {
+            return true;
+        } else if (!super.equals(o)) {
             return false;
         } // else - they would be at least of the same class
         final ImportMigrationJavaPropertyReferencedEntryImpl me =
@@ -66,6 +68,9 @@ public class ImportMigrationJavaPropertyReferencedEntryImpl
 
     @Override
     public int compareTo(@Nullable MigrationEntry me) {
+        if (me == this) {
+            return 0;
+        }
         final int c = super.compareTo(me);
 
         if (c != 0) {
@@ -91,8 +96,18 @@ public class ImportMigrationJavaPropertyReferencedEntryImpl
 
         report.doAfterCompletion(r -> {
             LOGGER.debug("Verifying {}...", toDebugString());
-            final String val = getJavaPropertyValue();
+            final String val;
 
+            try {
+                val = getJavaPropertyValue();
+            } catch (IOException e) {
+                getReport().record(new MigrationException(Messages.IMPORT_JAVA_PROPERTY_LOAD_ERROR,
+                        getProperty(),
+                        propertiesPath,
+                        getPath(),
+                        e));
+                return;
+            }
             if (val == null) {
                 r.record(new MigrationException(Messages.IMPORT_JAVA_PROPERTY_NOT_DEFINED_ERROR,
                         getProperty(),
@@ -107,17 +122,18 @@ public class ImportMigrationJavaPropertyReferencedEntryImpl
                 try {
                     if (!getAbsolutePath().toRealPath(LinkOption.NOFOLLOW_LINKS)
                             .equals(getContext().getPathUtils()
-                                    .resolveAgainstDDFHome(Paths.get(val)))) {
+                                    .resolveAgainstDDFHome(Paths.get(val))
+                                    .toRealPath(LinkOption.NOFOLLOW_LINKS))) {
                         r.record(new MigrationException(Messages.IMPORT_JAVA_PROPERTY_ERROR,
-                                propertiesPath,
                                 getProperty(),
+                                propertiesPath,
                                 getPath(),
                                 "is now set to [" + val + ']'));
                     }
                 } catch (IOException e) { // cannot determine the location of either so it must not exist or be different anyway
                     r.record(new MigrationException(Messages.IMPORT_JAVA_PROPERTY_ERROR,
-                            propertiesPath,
                             getProperty(),
+                            propertiesPath,
                             getPath(),
                             String.format("is now set to [%s]; %s", val, e.getMessage()),
                             e));
@@ -126,7 +142,7 @@ public class ImportMigrationJavaPropertyReferencedEntryImpl
         });
     }
 
-    private String getJavaPropertyValue() {
+    private String getJavaPropertyValue() throws IOException {
         final Properties props = new Properties();
         InputStream is = null;
 
@@ -135,11 +151,6 @@ public class ImportMigrationJavaPropertyReferencedEntryImpl
                     .resolveAgainstDDFHome(propertiesPath)
                     .toFile()));
             props.load(is);
-        } catch (IOException e) {
-            getReport().record(new MigrationException(Messages.IMPORT_JAVA_PROPERTY_LOAD_ERROR,
-                    getProperty(),
-                    propertiesPath,
-                    e));
         } finally {
             IOUtils.closeQuietly(is); // we do not care if we cannot close it
         }
