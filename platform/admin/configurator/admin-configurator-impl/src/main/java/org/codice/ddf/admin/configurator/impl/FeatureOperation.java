@@ -22,6 +22,8 @@ import java.util.EnumSet;
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.FeatureState;
 import org.apache.karaf.features.FeaturesService;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.codice.ddf.admin.configurator.ConfiguratorException;
 import org.codice.ddf.admin.configurator.Operation;
 import org.codice.ddf.admin.configurator.Result;
@@ -31,23 +33,36 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Sets;
+
+import ddf.security.permission.KeyValueCollectionPermission;
+import ddf.security.permission.KeyValuePermission;
+
 /**
  * Transactional handler for starting and stopping features.
  */
 public class FeatureOperation implements Operation<Void> {
     private static final String INTERNAL_ERROR = "Internal error";
 
+    private static final String SECURITY_ERROR = "Security error";
+
     public static class Actions implements FeatureActions {
         @Override
         public FeatureOperation start(String featureName) throws ConfiguratorException {
             validateString(featureName, "Missing feature name");
-            return new FeatureOperation(featureName, true, getBundleContext());
+            return new FeatureOperation(featureName,
+                    true,
+                    getBundleContext(),
+                    SecurityUtils.getSubject());
         }
 
         @Override
         public FeatureOperation stop(String featureName) throws ConfiguratorException {
             validateString(featureName, "Missing feature name");
-            return new FeatureOperation(featureName, false, getBundleContext());
+            return new FeatureOperation(featureName,
+                    false,
+                    getBundleContext(),
+                    SecurityUtils.getSubject());
         }
 
         @Override
@@ -64,18 +79,27 @@ public class FeatureOperation implements Operation<Void> {
 
     private final BundleContext bundleContext;
 
+    private final Subject subject;
+
     private final boolean initActivationState;
 
-    private FeatureOperation(String featureName, boolean newState, BundleContext bundleContext) {
+    private FeatureOperation(String featureName, boolean newState, BundleContext bundleContext,
+            Subject subject) {
         this.featureName = featureName;
         this.newState = newState;
         this.bundleContext = bundleContext;
+        this.subject = subject;
 
         initActivationState = lookupFeatureStatus(getFeaturesService(), featureName);
     }
 
     @Override
     public Result<Void> commit() throws ConfiguratorException {
+        if (!isPermittedToViewFeature(featureName)) {
+            LOGGER.debug("Error installing/uninstalling feature");
+            throw new ConfiguratorException(SECURITY_ERROR);
+        }
+
         FeaturesService featuresService = getFeaturesService();
         try {
             if (initActivationState != newState) {
@@ -133,5 +157,13 @@ public class FeatureOperation implements Operation<Void> {
             throw new ConfiguratorException(String.format("No feature found named %s", featureName),
                     e);
         }
+    }
+
+    private boolean isPermittedToViewFeature(String featureName) {
+        KeyValueCollectionPermission serviceToCheck = new KeyValueCollectionPermission(
+                "view-feature.name",
+                new KeyValuePermission("feature.name", Sets.newHashSet(featureName)));
+
+        return subject.isPermitted(serviceToCheck);
     }
 }
