@@ -29,6 +29,15 @@ define([
             initialize: function () {
                 // there is no automatic chaining of initialize.
                 Modal.prototype.initialize.apply(this, arguments);
+            },
+            onRender: function () {
+                var usage = properties.admin.systemUsageMessage;
+                var $iframe = this.$el.find('iframe');
+                $iframe.ready(function(){
+                    $iframe.contents()[0].open();
+                    $iframe.contents()[0].write('<html>' +  usage + '</html>');
+                    $iframe.contents()[0].close();
+                });
             }
         });
         return SystemUsageModal;
