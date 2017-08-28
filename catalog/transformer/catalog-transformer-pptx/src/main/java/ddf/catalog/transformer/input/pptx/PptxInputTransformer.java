@@ -22,6 +22,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Objects;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.pdfbox.tools.imageio.ImageIOUtil;
@@ -173,35 +174,33 @@ public class PptxInputTransformer implements InputTransformer {
     }
 
     /**
-     * If the slide show doesn't contain any slides, then return null. Otherwise, return jpeg
-     * image data of the first slide in the deck.
+     * If the slide show does not contain any slides, then return null. Otherwise, return jpeg
+     * image data of the first slide in the deck. If there is an exceptions, log the fact and
+     * return null.
      *
      * @param slideShow
      * @return jpeg thumbnail or null if thumbnail can't be created
      * @throws IOException
      */
-    private byte[] generatePptxThumbnail(XMLSlideShow slideShow) throws IOException {
+    private byte[] generatePptxThumbnail(XMLSlideShow slideShow) {
 
         if (slideShow.getSlides()
                 .isEmpty()) {
             LOGGER.debug(
-                    "the powerpoint file does not contain any slides, skipping thumbnail generation");
+                    "Powerpoint file does not contain any slides, skipping thumbnail generation");
             return null;
         }
-
-        Dimension pgsize = slideShow.getPageSize();
-
-        int largestDimension = (int) Math.max(pgsize.getHeight(), pgsize.getWidth());
-        float scalingFactor = IMAGE_HEIGHTWIDTH / largestDimension;
-        int scaledHeight = (int) (pgsize.getHeight() * scalingFactor);
-        int scaledWidth = (int) (pgsize.getWidth() * scalingFactor);
-        BufferedImage img = new BufferedImage(scaledWidth,
-                scaledHeight,
-                BufferedImage.TYPE_INT_RGB);
-
-        Graphics2D graphics = img.createGraphics();
-
+        Graphics2D graphics = null;
         try {
+            Dimension pgsize = slideShow.getPageSize();
+            int largestDimension = (int) Math.max(pgsize.getHeight(), pgsize.getWidth());
+            float scalingFactor = IMAGE_HEIGHTWIDTH / largestDimension;
+            int scaledHeight = (int) (pgsize.getHeight() * scalingFactor);
+            int scaledWidth = (int) (pgsize.getWidth() * scalingFactor);
+            BufferedImage img = new BufferedImage(scaledWidth,
+                    scaledHeight,
+                    BufferedImage.TYPE_INT_RGB);
+            graphics = img.createGraphics();
             graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                     RenderingHints.VALUE_ANTIALIAS_ON);
             graphics.setRenderingHint(RenderingHints.KEY_RENDERING,
@@ -210,9 +209,7 @@ public class PptxInputTransformer implements InputTransformer {
                     RenderingHints.VALUE_INTERPOLATION_BICUBIC);
             graphics.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS,
                     RenderingHints.VALUE_FRACTIONALMETRICS_ON);
-
             graphics.scale(scalingFactor, scalingFactor);
-
             slideShow.getSlides()
                     .get(0)
                     .draw(graphics);
@@ -225,17 +222,14 @@ public class PptxInputTransformer implements InputTransformer {
                         IMAGE_QUALITY);
                 return outputStream.toByteArray();
             }
-        } catch (RuntimeException e) {
-            if (e.getCause() instanceof javax.imageio.IIOException) {
-                LOGGER.debug("unable to generate thumbnail for PPTX file", e);
-            } else {
-                throw e;
-            }
+        } catch (IOException | RuntimeException e) {
+            LOGGER.debug("Unable to generate thumbnail for PPTX file", e);
         } finally {
-            graphics.dispose();
+            if (Objects.nonNull(graphics)) {
+                graphics.dispose();
+            }
         }
 
         return null;
     }
-
 }

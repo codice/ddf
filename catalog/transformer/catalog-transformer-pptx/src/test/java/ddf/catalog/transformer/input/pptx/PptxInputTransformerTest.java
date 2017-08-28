@@ -114,10 +114,10 @@ public class PptxInputTransformerTest {
                 ss.write(os);
 
                 try (ByteArrayInputStream inStr = new ByteArrayInputStream(os.toByteArray())) {
-                    TikaInputTransformer inputTransformer = new TikaInputTransformer(null,
+                    TikaInputTransformer realTransformer = new TikaInputTransformer(null,
                             mock(MetacardType.class));
-                    inputTransformer.setUseResourceTitleAsTitle(true);
-                    PptxInputTransformer t = new PptxInputTransformer(inputTransformer);
+                    realTransformer.setUseResourceTitleAsTitle(true);
+                    PptxInputTransformer t = new PptxInputTransformer(realTransformer);
                     Metacard m = t.transform(inStr);
                     assertThat(m.getTitle(), is("TheTitle"));
                 }
@@ -139,10 +139,10 @@ public class PptxInputTransformerTest {
                 ss.write(os);
 
                 try (ByteArrayInputStream inStr = new ByteArrayInputStream(os.toByteArray())) {
-                    TikaInputTransformer inputTransformer = new TikaInputTransformer(null,
+                    TikaInputTransformer realTransformer = new TikaInputTransformer(null,
                             mock(MetacardType.class));
-                    inputTransformer.setUseResourceTitleAsTitle(false);
-                    PptxInputTransformer t = new PptxInputTransformer(inputTransformer);
+                    realTransformer.setUseResourceTitleAsTitle(false);
+                    PptxInputTransformer t = new PptxInputTransformer(realTransformer);
                     Metacard m = t.transform(inStr);
                     assertThat(m.getTitle(), nullValue());
                 }
