@@ -27,7 +27,7 @@ define([
         sanitizeGeometryCql: function (cqlString) {
             return cqlString.split("'POLYGON((").join("POLYGON((").split("))'").join("))")
                 .split("'POINT(").join("POINT(").replace(/(POINT\([-0-9. ]*\))/g, '$1' + specialDelimiter).split(")"+specialDelimiter+"'").join(")")
-                .split("'LINESTRING(").join("LINESTRING(").split("))'").join("))");
+                .split(")'").join(")").split("'LINESTRING(").join("LINESTRING(").split("))'").join("))");
         },
         getProperty: function (filter) {
             if (typeof(filter.property) !== 'string') {
