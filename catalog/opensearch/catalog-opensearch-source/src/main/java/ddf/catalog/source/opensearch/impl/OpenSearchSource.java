@@ -306,8 +306,9 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
             }
         } else {
             if (StringUtils.isEmpty((String) metacardId)) {
-                OpenSearchFilterVisitorObject
-                        openSearchFilterVisitorObject = (OpenSearchFilterVisitorObject) query.accept(openSearchFilterVisitor, new OpenSearchFilterVisitorObject());
+                OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
+                        (OpenSearchFilterVisitorObject) query.accept(openSearchFilterVisitor,
+                                new OpenSearchFilterVisitorObject());
                 metacardId = openSearchFilterVisitorObject.getId();
             }
             restWebClient = newRestClient(query, (String) metacardId, false, subject);
@@ -403,8 +404,9 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
             }
         }
 
-        OpenSearchFilterVisitorObject
-                openSearchFilterVisitorObject = (OpenSearchFilterVisitorObject) query.accept(openSearchFilterVisitor, new OpenSearchFilterVisitorObject());
+        OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
+                (OpenSearchFilterVisitorObject) query.accept(openSearchFilterVisitor,
+                        new OpenSearchFilterVisitorObject());
 
         ContextualSearch contextualFilter = openSearchFilterVisitorObject.getContextualSearch();
 
@@ -422,9 +424,11 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
             return true;
 
             // ensure that there is no search phrase - we will add our own
-        } else if ((openSearchFilterVisitorObject.getSpatialSearch() != null && contextualFilter != null
+        } else if ((openSearchFilterVisitorObject.getSpatialSearch() != null
+                && contextualFilter != null
                 && MapUtils.isEmpty(contextualFilter.getSearchPhraseMap())) || (
-                openSearchFilterVisitorObject.getSpatialSearch() != null && contextualFilter == null)) {
+                openSearchFilterVisitorObject.getSpatialSearch() != null
+                        && contextualFilter == null)) {
 
             openSearchParser.populateSearchOptions(client, queryRequest, subject, parameters);
 
@@ -954,12 +958,10 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
     private List<Metacard> processAdditionalForeignMarkups(Element element, String id) {
         List<Metacard> metacards = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(markUpSet)) {
+        if (CollectionUtils.isNotEmpty(markUpSet) && markUpSet.contains(element.getName())) {
             XMLOutputter xmlOutputter = new XMLOutputter();
-            if (markUpSet.contains(element.getName())) {
-                Metacard metacard = parseContent(xmlOutputter.outputString(element), id);
-                metacards.add(metacard);
-            }
+            Metacard metacard = parseContent(xmlOutputter.outputString(element), id);
+            metacards.add(metacard);
         }
         return metacards;
     }

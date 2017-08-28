@@ -537,7 +537,7 @@ public class TestOpenSearchSource {
 
     @Test
     public void testQueryResponseWithForeignMarkup() throws UnsupportedQueryException, IOException {
-        source.setMarkUpSet(Collections.singletonList("Resource"));
+        source.setMarkUpSet(Collections.singletonList(RESOURCE_TAG));
         when(response.getEntity()).thenReturn(getSampleAtomStreamWithForeignMarkup());
         
         Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT)
