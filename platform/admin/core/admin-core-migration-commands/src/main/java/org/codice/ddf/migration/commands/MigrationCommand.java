@@ -36,19 +36,29 @@ import com.google.common.annotations.VisibleForTesting;
  */
 public abstract class MigrationCommand implements Action {
     public static final String ERROR_MESSAGE =
-            "An error was encountered while executing this command. %s";
+            "An error was encountered while executing this command; %s";
 
     public static final String NAMESPACE = "migration";
 
     protected static final String EXPORTED = "exported";
 
+    protected final Security security;
+
     @Reference
     protected ConfigurationMigrationService configurationMigrationService;
 
-    protected Security security = Security.getInstance();
-
     protected Path defaultExportDirectory = Paths.get(System.getProperty("ddf.home"),
             MigrationCommand.EXPORTED);
+
+    public MigrationCommand() {
+        this.security = Security.getInstance();
+    }
+
+    @VisibleForTesting
+    MigrationCommand(ConfigurationMigrationService service, Security security) {
+        this.configurationMigrationService = service;
+        this.security = security;
+    }
 
     protected void outputErrorMessage(String message) {
         outputMessageWithColor(message, Ansi.Color.RED);
@@ -64,22 +74,6 @@ public abstract class MigrationCommand implements Action {
         } else {
             outputMessageWithColor(msg.getMessage(), Ansi.Color.WHITE);
         }
-    }
-
-    @VisibleForTesting
-    protected void setDefaultExportDirectory(Path path) {
-        this.defaultExportDirectory = path;
-    }
-
-    @VisibleForTesting
-    protected void setSecurity(Security security) {
-        this.security = security;
-    }
-
-    @VisibleForTesting
-    protected void setConfigurationMigrationService(
-            ConfigurationMigrationService configurationMigrationService) {
-        this.configurationMigrationService = configurationMigrationService;
     }
 
     @VisibleForTesting

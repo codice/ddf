@@ -23,12 +23,12 @@ import org.mockito.Mockito;
 
 import ddf.security.service.SecurityServiceException;
 
-public class ExportCommandTest extends AbstractMigrationCommandTest {
-    private ExportCommand COMMAND;
+public class ImportCommandTest extends AbstractMigrationCommandTest {
+    private ImportCommand COMMAND;
 
     @Before
     public void before() throws Exception {
-        COMMAND = initCommand(new ExportCommand(SERVICE, SECURITY, EXPORTED_ARG));
+        COMMAND = initCommand(new ImportCommand(SERVICE, SECURITY, EXPORTED_ARG));
     }
 
     @Test
@@ -36,30 +36,30 @@ public class ExportCommandTest extends AbstractMigrationCommandTest {
         COMMAND.execute();
 
         Mockito.verify(SERVICE)
-                .doExport(Mockito.eq(EXPORTED_PATH), Mockito.notNull());
+                .doImport(Mockito.eq(EXPORTED_PATH), Mockito.notNull());
     }
 
     @Test
     public void testExecuteWhenDirectoryNotSpecified() throws Exception {
-        COMMAND = initCommand(Mockito.spy(new ExportCommand(SERVICE, SECURITY, "")));
+        COMMAND = initCommand(Mockito.spy(new ImportCommand(SERVICE, SECURITY, "")));
 
         COMMAND.execute();
 
         Mockito.verify(SERVICE)
-                .doExport(Mockito.eq(DDF_HOME.resolve(MigrationCommand.EXPORTED)),
+                .doImport(Mockito.eq(DDF_HOME.resolve(MigrationCommand.EXPORTED)),
                         Mockito.notNull());
     }
 
     @Test
     public void testExecuteWhenDirectoryIsInvalid() throws Exception {
-        COMMAND = initCommand(Mockito.spy(new ExportCommand(SERVICE,
+        COMMAND = initCommand(Mockito.spy(new ImportCommand(SERVICE,
                 SECURITY,
                 "invalid path \"*?<> \0")));
 
         COMMAND.execute();
 
         Mockito.verify(SERVICE, Mockito.never())
-                .doExport(Mockito.any(), Mockito.notNull());
+                .doImport(Mockito.any(), Mockito.notNull());
 
         verifyConsoleOutput(Matchers.matchesPattern(".*error.*encountered.*command;.*invalid path.*"),
                 Ansi.Color.RED);
