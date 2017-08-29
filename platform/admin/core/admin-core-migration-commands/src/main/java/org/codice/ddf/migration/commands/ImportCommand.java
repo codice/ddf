@@ -22,6 +22,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.shell.api.action.Argument;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
+import org.codice.ddf.configuration.migration.ConfigurationMigrationService;
+import org.codice.ddf.security.common.Security;
 
 import com.google.common.annotations.VisibleForTesting;
 
@@ -33,9 +35,17 @@ import ddf.security.service.SecurityServiceException;
 @Service
 @Command(scope = MigrationCommand.NAMESPACE, name = "import", description = "Restores the system profile and configuration to the one recorded by a previously executed export command.")
 public class ImportCommand extends MigrationCommand {
-    @VisibleForTesting
     @Argument(index = 0, name = "exportDirectory", description = "Path to directory where to find the file to import and where to export the current state of the system", required = false, valueToShowInHelp = MigrationCommand.EXPORTED, multiValued = false)
-    String exportDirectoryArgument;
+    private String exportDirectoryArgument;
+
+    public ImportCommand() {
+    }
+
+    @VisibleForTesting
+    ImportCommand(ConfigurationMigrationService service, Security security, String arg) {
+        super(service, security);
+        this.exportDirectoryArgument = arg;
+    }
 
     @Override
     public Object execute() {
@@ -51,10 +61,7 @@ public class ImportCommand extends MigrationCommand {
                     exportDirectory,
                     this::outputMessage));
         } catch (InvalidPathException e) {
-            outputErrorMessage(String.format(ERROR_MESSAGE,
-                    String.format("invalid path [%s] (%s)",
-                            exportDirectoryArgument,
-                            e.getMessage())));
+            outputErrorMessage(String.format(ERROR_MESSAGE, e.getMessage()));
         } catch (SecurityServiceException e) {
             outputErrorMessage(String.format(ERROR_MESSAGE, e.getMessage()));
         } catch (InvocationTargetException e) {
