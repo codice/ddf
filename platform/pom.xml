@@ -387,5 +387,6 @@
         <module>email</module>
         <module>platform-app</module>
         <module>io</module>
+        <module>osgi</module>
     </modules>
 </project>
