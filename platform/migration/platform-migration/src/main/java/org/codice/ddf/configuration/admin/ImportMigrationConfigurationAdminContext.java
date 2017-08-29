@@ -41,16 +41,20 @@ import org.apache.commons.lang.Validate;
 import org.apache.felix.fileinstall.internal.DirectoryWatcher;
 import org.codice.ddf.configuration.persistence.PersistenceStrategy;
 import org.codice.ddf.migration.ImportMigrationContext;
+import org.codice.ddf.migration.ImportMigrationContextProxy;
 import org.codice.ddf.migration.ImportMigrationEntry;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationReport;
-import org.codice.ddf.migration.ProxyImportMigrationContext;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ImportMigrationConfigurationAdminContext extends ProxyImportMigrationContext {
+/**
+ * This class extends on the {@link ImportMigrationContext} interface to pre-process exported entries
+ * for configuration objects and compare them with the configuration objects currently in memory.
+ */
+public class ImportMigrationConfigurationAdminContext extends ImportMigrationContextProxy {
     private static final Logger LOGGER = LoggerFactory.getLogger(
             ImportMigrationConfigurationAdminContext.class);
 

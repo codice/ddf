@@ -19,7 +19,7 @@ import javax.annotation.Nullable;
  * Special informational message providing successful information about a migration operation.
  * <p>
  * <b>
- * This code is experimental. While this interface is functional
+ * This code is experimental. While this class is functional
  * and tested, it may change or be removed in a future version of the
  * library.
  * </b>

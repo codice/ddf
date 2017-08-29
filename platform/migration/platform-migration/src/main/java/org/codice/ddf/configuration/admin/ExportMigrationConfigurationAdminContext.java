@@ -34,15 +34,19 @@ import org.apache.commons.lang.Validate;
 import org.apache.felix.fileinstall.internal.DirectoryWatcher;
 import org.codice.ddf.configuration.persistence.PersistenceStrategy;
 import org.codice.ddf.migration.ExportMigrationContext;
+import org.codice.ddf.migration.ExportMigrationContextProxy;
 import org.codice.ddf.migration.ExportMigrationEntry;
 import org.codice.ddf.migration.MigrationEntry;
 import org.codice.ddf.migration.MigrationWarning;
-import org.codice.ddf.migration.ProxyExportMigrationContext;
 import org.osgi.service.cm.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ExportMigrationConfigurationAdminContext extends ProxyExportMigrationContext {
+/**
+ * This class extends on the {@link ExportMigrationContext} interface to pre-create entries for
+ * all configuration objects.
+ */
+public class ExportMigrationConfigurationAdminContext extends ExportMigrationContextProxy {
     private static final Logger LOGGER = LoggerFactory.getLogger(
             ExportMigrationConfigurationAdminContext.class);
 
@@ -84,7 +88,6 @@ public class ExportMigrationConfigurationAdminContext extends ProxyExportMigrati
     }
 
     private ExportMigrationEntry getEntry(Configuration configuration) {
-        Validate.notNull(configuration, "invalid null configuration");
         Path path = getPathFromConfiguration(configuration);
         final String extn = FilenameUtils.getExtension(path.toString());
         PersistenceStrategy ps = admin.getPersister(extn);
@@ -152,7 +155,7 @@ public class ExportMigrationConfigurationAdminContext extends ProxyExportMigrati
 
     private Path constructPath(Configuration configuration) {
         final String fpid = configuration.getFactoryPid();
-        final String bname;
+        final String basename;
 
         if (fpid != null) { // it is a managed service factory!!!
             // Felix Fileinstall uses the hyphen as separator between factoryPid and alias. For
@@ -161,11 +164,11 @@ public class ExportMigrationConfigurationAdminContext extends ProxyExportMigrati
                     .toString()
                     .replaceAll("-", "");
 
-            bname = fpid + '-' + alias;
+            basename = fpid + '-' + alias;
         } else {
-            bname = configuration.getPid();
+            basename = configuration.getPid();
         }
-        return Paths.get(bname + FilenameUtils.EXTENSION_SEPARATOR + admin.getDefaultPersister()
+        return Paths.get(basename + FilenameUtils.EXTENSION_SEPARATOR + admin.getDefaultPersister()
                 .getExtension());
     }
 }
