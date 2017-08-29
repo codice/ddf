@@ -16,12 +16,16 @@ package org.codice.ddf.configuration.admin;
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.configuration.persistence.PersistenceStrategy;
 import org.codice.ddf.migration.ExportMigrationEntry;
-import org.codice.ddf.migration.ProxyExportMigrationEntry;
+import org.codice.ddf.migration.ExportMigrationEntryProxy;
 import org.osgi.service.cm.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ExportMigrationConfigurationAdminEntry extends ProxyExportMigrationEntry {
+/**
+ * This class extends on the {@link ExportMigrationEntry} interface to represent a configuration
+ * object in memory.
+ */
+public class ExportMigrationConfigurationAdminEntry extends ExportMigrationEntryProxy {
     private static final Logger LOGGER = LoggerFactory.getLogger(
             ExportMigrationConfigurationAdminEntry.class);
 
@@ -43,9 +47,12 @@ public class ExportMigrationConfigurationAdminEntry extends ProxyExportMigration
     @Override
     public boolean store() {
         if (!stored) {
-            LOGGER.debug("Exporting configuration [{}] to [{}]...", configuration.getPid(), getPath());
+            LOGGER.debug("Exporting configuration [{}] to [{}]...",
+                    configuration.getPid(),
+                    getPath());
             this.stored = false; // until proven otherwise in case the next line throws an exception
-            this.stored = super.store((r, out) -> persister.write(out, configuration.getProperties()));
+            this.stored = super.store((r, out) -> persister.write(out,
+                    configuration.getProperties()));
         }
         return stored;
     }

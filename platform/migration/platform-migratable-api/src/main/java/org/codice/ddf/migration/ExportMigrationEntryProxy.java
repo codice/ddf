@@ -21,19 +21,19 @@ import java.util.function.BiPredicate;
 import org.codice.ddf.util.function.EBiConsumer;
 
 /**
- * The <code>ProxyExportMigrationEntry</code> class provides an implementation of the
+ * The <code>ExportMigrationEntryProxy</code> class provides an implementation of the
  * {@link ExportMigrationEntry} that proxies to another entry.
  * <p>
  * <b>
- * This code is experimental. While this interface is functional
+ * This code is experimental. While this class is functional
  * and tested, it may change or be removed in a future version of the
  * library.
  * </b>
  * </p>
  */
-public class ProxyExportMigrationEntry extends ProxyMigrationEntry<ExportMigrationEntry>
+public class ExportMigrationEntryProxy extends MigrationEntryProxy<ExportMigrationEntry>
         implements ExportMigrationEntry {
-    public ProxyExportMigrationEntry(ExportMigrationEntry proxy) {
+    public ExportMigrationEntryProxy(ExportMigrationEntry proxy) {
         super(proxy);
     }
 

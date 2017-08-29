@@ -19,19 +19,19 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * The <code>ProxyImportMigrationContext</code> class provides an implementation of the
+ * The <code>ImportMigrationContextProxy</code> class provides an implementation of the
  * {@link ImportMigrationContext} that proxies to another context.
  * <p>
  * <b>
- * This code is experimental. While this interface is functional
+ * This code is experimental. While this class is functional
  * and tested, it may change or be removed in a future version of the
  * library.
  * </b>
  * </p>
  */
-public class ProxyImportMigrationContext extends ProxyMigrationContext<ImportMigrationContext>
+public class ImportMigrationContextProxy extends MigrationContextProxy<ImportMigrationContext>
         implements ImportMigrationContext {
-    public ProxyImportMigrationContext(ImportMigrationContext proxy) {
+    public ImportMigrationContextProxy(ImportMigrationContext proxy) {
         super(proxy);
     }
 

@@ -20,19 +20,19 @@ import java.util.function.BiPredicate;
 import java.util.stream.Stream;
 
 /**
- * The <code>ProxyExportMigrationContext</code> class provides an implementation of the
+ * The <code>ExportMigrationContextProxy</code> class provides an implementation of the
  * {@link ExportMigrationContext} that proxies to another context.
  * <p>
  * <b>
- * This code is experimental. While this interface is functional
+ * This code is experimental. While this class is functional
  * and tested, it may change or be removed in a future version of the
  * library.
  * </b>
  * </p>
  */
-public class ProxyExportMigrationContext extends ProxyMigrationContext<ExportMigrationContext>
+public class ExportMigrationContextProxy extends MigrationContextProxy<ExportMigrationContext>
         implements ExportMigrationContext {
-    public ProxyExportMigrationContext(ExportMigrationContext proxy) {
+    public ExportMigrationContextProxy(ExportMigrationContext proxy) {
         super(proxy);
     }
 

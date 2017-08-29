@@ -110,12 +110,11 @@ public class ConfigurationAdminMigratable implements Migratable {
                 .forEach(ImportMigrationEntry::restore);
     }
 
-    public PersistenceStrategy getDefaultPersister() {
+    PersistenceStrategy getDefaultPersister() {
         return defaultStrategy;
     }
 
-    public PersistenceStrategy getPersister(String extension) {
-        // TODO: change to dynamically lookup strategies
+    PersistenceStrategy getPersister(String extension) {
         if ("cfg".equals(extension)) {
             return new FelixCfgPersistenceStrategy();
         } else if ("config".equals(extension)) {

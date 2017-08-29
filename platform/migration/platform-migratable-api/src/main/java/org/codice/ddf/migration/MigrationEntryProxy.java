@@ -18,11 +18,11 @@ import java.nio.file.Path;
 import org.apache.commons.lang.Validate;
 
 /**
- * The <code>ProxyMigrationEntry</code> class provides an implementation of the
+ * The <code>MigrationEntryProxy</code> class provides an implementation of the
  * {@link MigrationEntry} that proxies to another entry.
  * <p>
  * <b>
- * This code is experimental. While this interface is functional
+ * This code is experimental. While this class is functional
  * and tested, it may change or be removed in a future version of the
  * library.
  * </b>
@@ -30,10 +30,10 @@ import org.apache.commons.lang.Validate;
  *
  * @param <T> the type of migration entry being proxied
  */
-public class ProxyMigrationEntry<T extends MigrationEntry> implements MigrationEntry {
+public class MigrationEntryProxy<T extends MigrationEntry> implements MigrationEntry {
     protected final T proxy;
 
-    public ProxyMigrationEntry(T proxy) {
+    public MigrationEntryProxy(T proxy) {
         Validate.notNull(proxy, "invalid null proxy");
         this.proxy = proxy;
     }
@@ -70,8 +70,8 @@ public class ProxyMigrationEntry<T extends MigrationEntry> implements MigrationE
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof ProxyMigrationEntry) {
-            return proxy.equals(((ProxyMigrationEntry) obj).proxy);
+        if (obj instanceof MigrationEntryProxy) {
+            return proxy.equals(((MigrationEntryProxy) obj).proxy);
         }
         return proxy.equals(obj);
     }
@@ -83,8 +83,8 @@ public class ProxyMigrationEntry<T extends MigrationEntry> implements MigrationE
 
     @Override
     public int compareTo(MigrationEntry o) {
-        if (o instanceof ProxyMigrationEntry) {
-            return proxy.compareTo(((ProxyMigrationEntry) o).proxy);
+        if (o instanceof MigrationEntryProxy) {
+            return proxy.compareTo(((MigrationEntryProxy) o).proxy);
         }
         return proxy.compareTo(o);
     }

@@ -20,19 +20,19 @@ import java.util.Optional;
 import org.codice.ddf.util.function.EBiConsumer;
 
 /**
- * The <code>ProxyImportMigrationEntry</code> class provides an implementation of the
+ * The <code>ImportMigrationEntryProxy</code> class provides an implementation of the
  * {@link ImportMigrationEntry} that proxies to another entry.
  * <p>
  * <b>
- * This code is experimental. While this interface is functional
+ * This code is experimental. While this class is functional
  * and tested, it may change or be removed in a future version of the
  * library.
  * </b>
  * </p>
  */
-public class ProxyImportMigrationEntry extends ProxyMigrationEntry<ImportMigrationEntry>
+public class ImportMigrationEntryProxy extends MigrationEntryProxy<ImportMigrationEntry>
         implements ImportMigrationEntry {
-    public ProxyImportMigrationEntry(ImportMigrationEntry proxy) {
+    public ImportMigrationEntryProxy(ImportMigrationEntry proxy) {
         super(proxy);
     }
 

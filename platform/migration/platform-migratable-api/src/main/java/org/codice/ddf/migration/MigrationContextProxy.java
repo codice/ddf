@@ -16,21 +16,22 @@ package org.codice.ddf.migration;
 import org.apache.commons.lang.Validate;
 
 /**
- * The <code>ProxyMigrationContext</code> class provides an implementation of the
+ * The <code>MigrationContextProxy</code> class provides an implementation of the
  * {@link MigrationContext} that proxies to another context.
  * <p>
  * <b>
- * This code is experimental. While this interface is functional
+ * This code is experimental. While this class is functional
  * and tested, it may change or be removed in a future version of the
  * library.
  * </b>
  * </p>
+ *
  * @param <T> the type of migration context being proxied
  */
-public class ProxyMigrationContext<T extends MigrationContext> implements MigrationContext {
+public class MigrationContextProxy<T extends MigrationContext> implements MigrationContext {
     protected final T proxy;
 
-    public ProxyMigrationContext(T proxy) {
+    public MigrationContextProxy(T proxy) {
         Validate.notNull(proxy, "invalid null proxy");
         this.proxy = proxy;
     }

@@ -22,15 +22,19 @@ import javax.annotation.Nullable;
 
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.ImportMigrationEntry;
+import org.codice.ddf.migration.ImportMigrationEntryProxy;
 import org.codice.ddf.migration.MigrationException;
-import org.codice.ddf.migration.ProxyImportMigrationEntry;
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ImportMigrationConfigurationAdminEntry extends ProxyImportMigrationEntry {
+/**
+ * This class extends on the {@link ImportMigrationEntry} interface to represent an exported
+ * configuration object.
+ */
+public class ImportMigrationConfigurationAdminEntry extends ImportMigrationEntryProxy {
     private static final Logger LOGGER = LoggerFactory.getLogger(
             ImportMigrationConfigurationAdminEntry.class);
 
