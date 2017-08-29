@@ -337,7 +337,7 @@ public class CachingFederationStrategyTest {
     }
 
     @Test
-    public void testFederateDuplicateSources() throws Exception {
+    public void testConnectedSources() throws Exception {
         Query mockQ = new QueryImpl(mock(NullFilterImpl.class),
                 2,
                 2,
@@ -358,8 +358,9 @@ public class CachingFederationStrategyTest {
 
         strategy.federate(sources, fedQueryRequest);
 
+        // Make sure both sources get called even though they have the same name
         verify(sources.get(0), atLeastOnce()).query(any(QueryRequest.class));
-        verify(sources.get(1), times(0)).query(any(QueryRequest.class));
+        verify(sources.get(1), atLeastOnce()).query(any(QueryRequest.class));
     }
 
     @Test

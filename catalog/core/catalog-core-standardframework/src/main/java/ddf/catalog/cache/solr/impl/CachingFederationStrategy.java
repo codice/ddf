@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
@@ -42,7 +41,6 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
-import ddf.catalog.federation.Federatable;
 import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteResponse;
@@ -269,41 +267,35 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
         // Do NOT call source.isAvailable() when checking sources
         for (final Source source : sources) {
             if (source != null) {
-                if (!futuresContainsSource(source, futures)) {
-                    LOGGER.debug("running query on source: {}", source.getId());
+                LOGGER.debug("running query on source: {}", source.getId());
 
-                    QueryRequest sourceQueryRequest = new QueryRequestImpl(modifiedQuery,
-                            queryRequest.isEnterprise(),
-                            Collections.singleton(source.getId()),
-                            new HashMap<>(queryRequest.getProperties()));
-                    try {
-                        for (PreFederatedQueryPlugin service : preQuery) {
-                            try {
-                                sourceQueryRequest = service.process(source, sourceQueryRequest);
-                            } catch (PluginExecutionException e) {
-                                LOGGER.info("Error executing PreFederatedQueryPlugin", e);
-                            }
+                QueryRequest sourceQueryRequest = new QueryRequestImpl(modifiedQuery,
+                        queryRequest.isEnterprise(),
+                        Collections.singleton(source.getId()),
+                        new HashMap<>(queryRequest.getProperties()));
+                try {
+                    for (PreFederatedQueryPlugin service : preQuery) {
+                        try {
+                            sourceQueryRequest = service.process(source, sourceQueryRequest);
+                        } catch (PluginExecutionException e) {
+                            LOGGER.info("Error executing PreFederatedQueryPlugin", e);
                         }
-                    } catch (StopProcessingException e) {
-                        LOGGER.info("Plugin stopped processing", e);
                     }
-
-                    if (source instanceof CatalogProvider && SystemInfo.getSiteName()
-                            .equals(source.getId())) {
-                        // TODO RAP 12 Jul 16: DDF-2294 - Extract into a new PreFederatedQueryPlugin
-                        sourceQueryRequest =
-                                validationQueryFactory.getQueryRequestWithValidationFilter(
-                                        sourceQueryRequest,
-                                        showErrors,
-                                        showWarnings);
-                    }
-
-                    futures.put(queryCompletion.submit(new CallableSourceResponse(source,
-                            sourceQueryRequest)), sourceQueryRequest);
-                } else {
-                    LOGGER.info("Duplicate source found with name {}. Ignoring second one.",
-                            source.getId());
+                } catch (StopProcessingException e) {
+                    LOGGER.info("Plugin stopped processing", e);
                 }
+
+                if (source instanceof CatalogProvider && SystemInfo.getSiteName()
+                        .equals(source.getId())) {
+                    // TODO RAP 12 Jul 16: DDF-2294 - Extract into a new PreFederatedQueryPlugin
+                    sourceQueryRequest = validationQueryFactory.getQueryRequestWithValidationFilter(
+                            sourceQueryRequest,
+                            showErrors,
+                            showWarnings);
+                }
+
+                futures.put(queryCompletion.submit(new CallableSourceResponse(source,
+                        sourceQueryRequest)), sourceQueryRequest);
             }
         }
 
@@ -337,16 +329,6 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
 
         LOGGER.debug("returning Query Results: {}", queryResponse);
         return queryResponse;
-    }
-
-    private boolean futuresContainsSource(Source source,
-            Map<Future<SourceResponse>, QueryRequest> futures) {
-        return futures.entrySet()
-                .stream()
-                .map(Map.Entry::getValue)
-                .map(Federatable::getSourceIds)
-                .filter(Objects::nonNull)
-                .anyMatch(s -> s.contains(source.getId()));
     }
 
     private Query getModifiedQuery(Query originalQuery, int numberOfSources, int offset,
