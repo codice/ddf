@@ -80,12 +80,11 @@ function makeTocExpandable() {
 	var level = 1;
 
 	while (level < 6) {
-	const tocHeading = 	document.querySelectorAll(".sectlevel" + level + ">li");
+	const tocHeading = document.querySelectorAll(".sectlevel" + level + ">li");
 		for (var i = tocHeading.length - 1; i >= 0; i--) {
 			const childLevels = tocHeading[i].querySelector("ul li");
 			if (childLevels) {
 				tocHeading[i].innerHTML ='<a class="expandable">+ </a>' + tocHeading[i].innerHTML + '';
-				console.log("happening")
 			}
 		}
 		const levelUp = level + 1
