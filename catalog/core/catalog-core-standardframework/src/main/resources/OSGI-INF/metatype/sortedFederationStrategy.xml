@@ -18,7 +18,7 @@
     <!--
     This metatype resides in the standard catalog framework instead of in the SortedFederationStrategy bundle because standard catalog framework creates
     SortedFederationStrategy and uses the (executor) pool singleton from SortedFederationStrategy across a few of its instantiated implementations.
-    This metatype may goes away once a smarter federation strategy is implemented.
+    This metatype may go away once a smarter federation strategy is implemented.
      -->
     <OCD description="Catalog Caching Federation Strategy"
          name="Catalog Federation Strategy"
@@ -56,6 +56,16 @@
             name="Show Validation Warnings" id="showWarnings" required="true"
             type="Boolean"
             default="true"/>
+
+        <AD
+            description="Strategy for caching query results"
+            name="Query Result Cache Strategy" id="cacheStrategy" required="true"
+            type="String"
+            default="ALL">
+            <Option label="All" value="ALL"/>
+            <Option label="Federated" value="FEDERATED"/>
+            <Option label="None" value="NONE"/>
+        </AD>
     </OCD>
 
     <Designate pid="ddf.catalog.federation.impl.CachingFederationStrategy">
