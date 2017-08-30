@@ -36,7 +36,8 @@ define([
         },
         events: function(){
             var eventObj = {
-                'click .querySelector-add': 'addQuery'
+                'click .querySelector-add': 'addQuery',
+                'click > .if-empty .quick-add': 'triggerQuery'
             };
             eventObj['click .querySelector-list '+CustomElements.getNamespace()+'query-item'] = 'selectQuery';
             return eventObj;
@@ -86,6 +87,9 @@ define([
         },
         handleEmptyQueries: function(){
             this.$el.toggleClass('is-empty', this.model.isEmpty());
+        },
+        triggerQuery: function() {
+            $(CustomElements.getNamespace() + 'dropdown.is-query').mousedown().click();
         }
     });
 

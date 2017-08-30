@@ -2,6 +2,11 @@
     .customElement;
     overflow: hidden;
     position: relative;
+    text-align: center;
+
+    > .select-list {
+        text-align: left;
+    }
 
     > .select-add {
         width: 100%;
@@ -14,7 +19,19 @@
         color: @warning-color;
     }
 
-    > .select-limit {
+    > .select-one {
+        max-width: @minimumScreenSize;
+        text-align: center;
+    }
+
+    > .select-one .quick-add.is-button.is-link {
+        line-height: inherit;
+        height: inherit;
+        font-size: inherit;
+    }
+
+    > .select-limit,
+    > .select-one {
         display: none;
     }
 
@@ -32,6 +49,12 @@
 
 @{customElementNamespace}search-select.is-empty {
 
+}
+
+@{customElementNamespace}search-select.has-one {
+    > .select-one {
+        display: inline-block;
+    }    
 }
 
 @{customElementNamespace}search-select.hide-actions {
