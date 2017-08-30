@@ -1,51 +1,87 @@
+# This is a comment.
+# Each line is a file pattern followed by one or more owners.
+# For more information on CODEOWNERS, see https://help.github.com/articles/about-codeowners/
+
+# Order is important; the last matching pattern takes the most precedence.
+# Within each subsection, keep all pattern matches in strict alphabetical order
+# to ensure they go from least to most granular. Additionally when adding a more granular pattern,
+# you must explicitly add any users/groups marked on broader patterns. Example:
+# Given a file starting as
+# ===
+# catalog/core/                  @user1
+# distribution/docs/             @user2
+# ===
+# When updating to add a pattern match for catalog/core/catalog-core-api for user3, it SHOULD be
+# updated to read
+# ===
+# catalog/core/                  @user1
+# catalog/core/catalog-core-api/ @user3 @user1
+# distribution/docs/             @user2
+# ===
+# If user1 were not added to the newly added, more granular match, they would be tagged on all changes
+# within the catalog/core/** hierarchy EXCEPT FOR those within catalog/core/catalog-core-api/**.
+# Exceptions may be made to this rule on a case-by-case basis with the input of the more general
+# codeowners.
+#
+# Order is important; the last matching pattern takes the most precedence.
+
+
 ###############################
 # DISTRIBUTION
 ###############################
 
-distribution/ddf-common/	@stustison
+distribution/ddf-common/    @stustison
 
-distribution/docs/         @ricklarsen
+distribution/docs/          @ricklarsen
+
+distribution/test/          @codice/test
 
 
 ###############################
 # CATALOG
 ###############################
 
-catalog/core/catalog-core-contentresourcereader/	@stustison
+catalog/core/                   @codice/core-apis
 
-catalog/core/catalog-core-localstorageprovider/	@stustison
+catalog/core/catalog-core-contentresourcereader/    @codice/core-apis @stustison
 
-catalog/core/catalog-core-standardframework/src/main/java/ddf/catalog/impl/		@stustison
-catalog/core/catalog-core-standardframework/src/main/java/ddf/catalog/resource/    @stustison
+catalog/core/catalog-core-localstorageprovider/	    @codice/core-apis @stustison
 
-catalog/opensearch/	@stustison
+catalog/core/catalog-core-standardframework/src/main/**/impl/		  @codice/core-apis @stustison
+catalog/core/catalog-core-standardframework/src/main/**/resource/     @codice/core-apis @stustison
+
+catalog/opensearch/	            @stustison
 
 catalog/rest/		            @stustison
 
-catalog/security/		        @stustison
+catalog/security/		        @codice/security @stustison
 
-catalog/spatial/csw/           @bdeining
+catalog/spatial/csw/            @bdeining
 
-catalog/spatial/registry/      @clockard
+catalog/spatial/registry/       @clockard
 
-catalog/ui/search-ui/standard/		@stustison
+catalog/ui/catalog-ui-search/   @andrewkfiedler
 
-catalog/ui/catalog-ui-search/ @andrewkfiedler
+catalog/ui/search-ui/standard/	@stustison
 
 ###############################
 # PLATFORM
 ###############################
 
-platform/admin/		@stustison
+platform/admin/		                    @stustison
 
-platform/error/		@stustison
+platform/admin/configurator/            @coyotesqrl
 
-platform/platform-filter-delegate/		    @stustison
+platform/error/		                    @stustison
 
-platform/platform-http-proxy/		        @stustison
+platform/parser/                        @coyotesqrl
 
-platform/platform-paxweb-jettyconfig/	    @stustison
+platform/platform-filter-delegate/	    @codice/security @stustison
 
-platform/security/		@stustison
+platform/platform-http-proxy/	        @stustison
 
-platform/util/			@stustison
+platform/platform-paxweb-jettyconfig/	@stustison
+
+platform/security/		                @codice/security @stustison
+
+platform/util/			                @stustison
