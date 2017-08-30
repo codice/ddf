@@ -197,10 +197,12 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
             if (geometryExpression instanceof SurfaceImpl) {
                 SurfaceImpl surface = (SurfaceImpl) literalWrapper.evaluate(null);
                 Polygon polygon = (Polygon) surface.getJTSGeometry();
-                openSearchFilterVisitorObject.setSpatialSearch(new SpatialFilter(wktWriter.write(polygon)));
+                openSearchFilterVisitorObject.setSpatialSearch(new SpatialFilter(wktWriter.write(
+                        polygon)));
             } else if (geometryExpression instanceof Polygon) {
                 Polygon polygon = (Polygon) literalWrapper.evaluate(null);
-                openSearchFilterVisitorObject.setSpatialSearch(new SpatialFilter(wktWriter.write(polygon)));
+                openSearchFilterVisitorObject.setSpatialSearch(new SpatialFilter(wktWriter.write(
+                        polygon)));
             } else {
                 LOGGER.debug("Only POLYGON geometry WKT for Contains filter is supported");
             }
@@ -239,10 +241,12 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
             if (geometryExpression instanceof SurfaceImpl) {
                 SurfaceImpl surface = (SurfaceImpl) literalWrapper.evaluate(null);
                 Polygon polygon = (Polygon) surface.getJTSGeometry();
-                openSearchFilterVisitorObject.setSpatialSearch(new SpatialFilter(wktWriter.write(polygon)));
+                openSearchFilterVisitorObject.setSpatialSearch(new SpatialFilter(wktWriter.write(
+                        polygon)));
             } else if (geometryExpression instanceof Polygon) {
                 Polygon polygon = (Polygon) literalWrapper.evaluate(null);
-                openSearchFilterVisitorObject.setSpatialSearch(new SpatialFilter(wktWriter.write(polygon)));
+                openSearchFilterVisitorObject.setSpatialSearch(new SpatialFilter(wktWriter.write(
+                        polygon)));
             } else {
                 LOGGER.debug("Only POLYGON geometry WKT for Intersects filter is supported");
             }
