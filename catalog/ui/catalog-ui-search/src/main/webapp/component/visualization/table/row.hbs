@@ -19,9 +19,9 @@
             {{else}}
                 <div>
                 {{#each this.value}}
-                    <span data-value="{{this}}" title="{{this}}">
+                    <span data-value="{{this}}" title="{{getAlias ../this.property}}: {{this}}">
                         {{#ifUrl this}}
-                            <a href="{{this}}" target="_blank">{{this}}</a>
+                            <a href="{{this}}" target="_blank">{{getAlias ../this.property}}</a>
                         {{else}}
                             {{this}}
                         {{/ifUrl}}
@@ -32,7 +32,7 @@
                     {{#each this.value}}
                         <span data-value="{{this}}">
                             {{#ifUrl this}}
-                                <a href="{{this}}" target="_blank">{{this}}</a>
+                                <a href="{{this}}" target="_blank">{{getAlias ../this.property}}</a>
                             {{else}}
                                 {{this}}
                             {{/ifUrl}}
