@@ -22,6 +22,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -198,6 +199,8 @@ public class PlatformMigratableTest {
 
     private static final String DDF_HOME_SYSTEM_PROP_KEY = "ddf.home";
 
+    private static final PrintStream OUT = System.out;
+
     @Rule
     public TemporaryFolder tempDir = new TemporaryFolder();
 
@@ -260,7 +263,8 @@ public class PlatformMigratableTest {
                 new ConfigurationMigrationManager(mBeanServer, eMigratables, systemService);
 
         // Perform export
-        MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir);
+        MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir,
+                m -> OUT.println(m.getMessage()));
 
         // Verify export
         assertThat("The export report has errors.", exportReport.hasErrors(), is(false));
@@ -286,7 +290,8 @@ public class PlatformMigratableTest {
         ConfigurationMigrationManager iConfigurationMigrationManager =
                 new ConfigurationMigrationManager(mBeanServer, iMigratables, systemService);
 
-        MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir);
+        MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir,
+                m -> OUT.println(m.getMessage()));
 
         // Verify import
         assertThat("The import report has errors.", importReport.hasErrors(), is(false));
@@ -324,7 +329,8 @@ public class PlatformMigratableTest {
                 new ConfigurationMigrationManager(mBeanServer, eMigratables, systemService);
 
         // Perform export
-        MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir);
+        MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir,
+                m -> OUT.println(m.getMessage()));
 
         // Verify export
         assertThat("The export report has errors.", exportReport.hasErrors(), is(false));
@@ -350,7 +356,8 @@ public class PlatformMigratableTest {
         ConfigurationMigrationManager iConfigurationMigrationManager =
                 new ConfigurationMigrationManager(mBeanServer, iMigratables, systemService);
 
-        MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir);
+        MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir,
+                m -> OUT.println(m.getMessage()));
 
         // Verify import
         assertThat("The import report has errors.", importReport.hasErrors(), is(false));
@@ -385,7 +392,8 @@ public class PlatformMigratableTest {
                 new ConfigurationMigrationManager(mBeanServer, configMigratables, systemService);
 
         // Perform export
-        MigrationReport exportReport = configurationMigrationManager.doExport(exportDir);
+        MigrationReport exportReport = configurationMigrationManager.doExport(exportDir,
+                m -> OUT.println(m.getMessage()));
 
         // Verify export
         assertThat("The export report doesn't not have errors.",
@@ -448,7 +456,8 @@ public class PlatformMigratableTest {
                 new ConfigurationMigrationManager(mBeanServer, eMigratables, systemService);
 
         // Perform export
-        MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir);
+        MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir,
+                m -> OUT.println(m.getMessage()));
 
         // Verify export
         assertThat("The export report has errors.", exportReport.hasErrors(), is(false));
@@ -502,7 +511,8 @@ public class PlatformMigratableTest {
         ConfigurationMigrationManager iConfigurationMigrationManager =
                 new ConfigurationMigrationManager(mBeanServer, iMigratables, systemService);
 
-        MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir);
+        MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir,
+                m -> OUT.println(m.getMessage()));
 
         // Verify import
         assertThat("The import report has errors.", importReport.hasErrors(), is(false));

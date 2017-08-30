@@ -28,6 +28,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -111,6 +112,8 @@ public class ConfigurationAdminMigratableTest {
 
     private static final String DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID =
             "DDF_Custom_Mime_Type_Resolver";
+
+    private static final PrintStream OUT = System.out;
 
     @Rule
     public TemporaryFolder tempDir = new TemporaryFolder();
@@ -228,7 +231,8 @@ public class ConfigurationAdminMigratableTest {
         setupConfigFile(tag);
 
         // Perform Export
-        MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir);
+        MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir,
+                m -> OUT.println(m.getMessage()));
 
         // Verify Export
         Assert.assertThat("The export report has errors.", exportReport.hasErrors(), is(false));
@@ -260,7 +264,8 @@ public class ConfigurationAdminMigratableTest {
                 new ConfigurationMigrationManager(mBeanServer, iMigratables, systemService);
 
         // Perform Import
-        MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir);
+        MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir,
+                m -> OUT.println(m.getMessage()));
 
         // Verify import
         Assert.assertThat("The import report has errors.", importReport.hasErrors(), is(false));

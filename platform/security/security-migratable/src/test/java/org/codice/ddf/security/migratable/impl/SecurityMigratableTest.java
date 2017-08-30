@@ -21,14 +21,18 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
 import javax.management.MBeanServer;
 
@@ -120,6 +124,8 @@ public class SecurityMigratableTest {
 
     private static final String XACML_POLICY = "xacml.xml";
 
+    private static final PrintStream OUT = System.out;
+
     @Rule
     public TemporaryFolder tempDir = new TemporaryFolder();
 
@@ -182,7 +188,8 @@ public class SecurityMigratableTest {
                 new ConfigurationMigrationManager(mBeanServer, eMigratables, systemService);
 
         // Perform export
-        MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir);
+        MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir,
+                m -> OUT.println(m.getMessage()));
 
         // Verify export
         assertThat("The export report has errors.", exportReport.hasErrors(), is(false));
@@ -208,7 +215,8 @@ public class SecurityMigratableTest {
         ConfigurationMigrationManager iConfigurationMigrationManager =
                 new ConfigurationMigrationManager(mBeanServer, iMigratables, systemService);
 
-        MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir);
+        MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir,
+                m -> OUT.println(m.getMessage()));
 
         // Verify import
         assertThat("The import report has errors.", importReport.hasErrors(), is(false));
@@ -234,16 +242,13 @@ public class SecurityMigratableTest {
                 "server",
                 "encryption.properties"));
         String tag = String.format(DDF_EXPORTED_TAG_TEMPLATE, DDF_EXPORTED_HOME);
-        List<String> lines = new ArrayList<>(2);
-        lines.add(String.format("#%s:%s",
-                serverEncptProps.toRealPath()
-                        .toString(),
-                tag));
-        lines.add(String.format("#%s=%s", CRL_PROP_KEY, CRL.toString()));
-        FileUtils.writeLines(serverEncptProps.toFile(),
-                StandardCharsets.UTF_8.toString(),
-                lines,
-                System.lineSeparator());
+        writeProperties(serverEncptProps,
+                "_" + CRL_PROP_KEY,
+                CRL.toString(),
+                String.format("%s:%s",
+                        serverEncptProps.toRealPath()
+                                .toString(),
+                        tag));
 
         SecurityMigratable eSecurityMigratable = new SecurityMigratable();
         List<Migratable> eMigratables = Arrays.asList(eSecurityMigratable);
@@ -251,7 +256,8 @@ public class SecurityMigratableTest {
                 new ConfigurationMigrationManager(mBeanServer, eMigratables, systemService);
 
         // Perform export
-        MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir);
+        MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir,
+                m -> OUT.println(m.getMessage()));
 
         // Verify export
         assertThat("The export report has errors.", exportReport.hasErrors(), is(false));
@@ -277,7 +283,8 @@ public class SecurityMigratableTest {
         ConfigurationMigrationManager iConfigurationMigrationManager =
                 new ConfigurationMigrationManager(mBeanServer, iMigratables, systemService);
 
-        MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir);
+        MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir,
+                m -> OUT.println(m.getMessage()));
 
         // Verify import
         assertThat("The import report has errors.", importReport.hasErrors(), is(false));
@@ -307,7 +314,8 @@ public class SecurityMigratableTest {
                 new ConfigurationMigrationManager(mBeanServer, eMigratables, systemService);
 
         // Perform export
-        MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir);
+        MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir,
+                m -> OUT.println(m.getMessage()));
 
         // Verify export
         assertThat("The export report has errors.", exportReport.hasErrors(), is(false));
@@ -333,7 +341,8 @@ public class SecurityMigratableTest {
         ConfigurationMigrationManager iConfigurationMigrationManager =
                 new ConfigurationMigrationManager(mBeanServer, iMigratables, systemService);
 
-        MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir);
+        MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir,
+                m -> OUT.println(m.getMessage()));
 
         // Verify import
         assertThat("The import report has errors.", importReport.hasErrors(), is(false));
@@ -358,16 +367,14 @@ public class SecurityMigratableTest {
                 "server",
                 "encryption.properties"));
         String tag = String.format(DDF_EXPORTED_TAG_TEMPLATE, DDF_EXPORTED_HOME);
-        List<String> lines = new ArrayList<>(2);
-        lines.add(String.format("#%s:%s",
-                serverEncptProps.toRealPath()
-                        .toString(),
-                tag));
-        lines.add(String.format("#%s=%s", CRL_PROP_KEY, CRL.toString()));
-        FileUtils.writeLines(serverEncptProps.toFile(),
-                StandardCharsets.UTF_8.toString(),
-                lines,
-                System.lineSeparator());
+
+        writeProperties(serverEncptProps,
+                "_" + CRL_PROP_KEY,
+                CRL.toString(),
+                String.format("%s:%s",
+                        serverEncptProps.toRealPath()
+                                .toString(),
+                        tag));
 
         // Remove PDP file
         Path xacmlPolicy = ddfHome.resolve(PDP_POLICIES_DIR)
@@ -380,7 +387,8 @@ public class SecurityMigratableTest {
                 new ConfigurationMigrationManager(mBeanServer, eMigratables, systemService);
 
         // Perform export
-        MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir);
+        MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir,
+                m -> OUT.println(m.getMessage()));
 
         // Verify export
         assertThat("The export report has errors.", exportReport.hasErrors(), is(false));
@@ -406,7 +414,8 @@ public class SecurityMigratableTest {
         ConfigurationMigrationManager iConfigurationMigrationManager =
                 new ConfigurationMigrationManager(mBeanServer, iMigratables, systemService);
 
-        MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir);
+        MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir,
+                m -> OUT.println(m.getMessage()));
 
         // Verify import
         assertThat("The import report has errors.", importReport.hasErrors(), is(false));
@@ -429,23 +438,21 @@ public class SecurityMigratableTest {
             Files.createDirectories(p.getParent());
             Files.createFile(p);
             if (p.endsWith(Paths.get("server", "encryption.properties"))) {
-                List<String> lines = new ArrayList<>(2);
-                lines.add(String.format("#%s:%s",
-                        p.toRealPath()
-                                .toString(),
-                        tag));
-                lines.add(String.format("%s=%s", CRL_PROP_KEY, CRL.toString()));
-                FileUtils.writeLines(p.toFile(),
-                        StandardCharsets.UTF_8.toString(),
-                        lines,
-                        System.lineSeparator());
-            } else {
-                FileUtils.writeStringToFile(p.toFile(),
-                        String.format("#%s:%s",
+                writeProperties(p,
+                        CRL_PROP_KEY,
+                        CRL.toString(),
+                        String.format("%s:%s",
                                 p.toRealPath()
                                         .toString(),
-                                tag),
-                        StandardCharsets.UTF_8);
+                                tag));
+            } else {
+                writeProperties(p,
+                        "something",
+                        "else",
+                        String.format("%s:%s",
+                                p.toRealPath()
+                                        .toString(),
+                                tag));
             }
         }
         Files.createDirectory(ddfHome.resolve(PDP_POLICIES_DIR));
@@ -519,5 +526,15 @@ public class SecurityMigratableTest {
         String tag = lines.get(0)
                 .split(":")[1];
         return StringUtils.equals(tag, String.format(DDF_EXPORTED_TAG_TEMPLATE, DDF_EXPORTED_HOME));
+    }
+
+    private void writeProperties(Path path, String key, String val, String comment)
+            throws IOException {
+        final Properties props = new Properties();
+
+        props.put(key, val);
+        try (final Writer writer = new BufferedWriter(new FileWriter(path.toFile()))) {
+            props.store(writer, comment);
+        }
     }
 }

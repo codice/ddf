@@ -101,8 +101,8 @@ public class ExportMigrationJavaPropertyReferencedEntryImpl
     @Override
     protected MigrationWarning newWarning(String reason) {
         return new MigrationWarning(Messages.EXPORT_JAVA_PROPERTY_WARNING,
-                propertiesPath,
                 getProperty(),
+                propertiesPath,
                 getPath(),
                 reason);
     }
@@ -110,8 +110,8 @@ public class ExportMigrationJavaPropertyReferencedEntryImpl
     @Override
     protected MigrationException newError(String reason, Throwable cause) {
         return new MigrationException(Messages.EXPORT_JAVA_PROPERTY_ERROR,
-                propertiesPath,
                 getProperty(),
+                propertiesPath,
                 getPath(),
                 reason,
                 cause);
