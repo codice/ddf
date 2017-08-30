@@ -19,6 +19,7 @@ var template = require('./search-select.hbs');
 var QuerySelectView = require('component/query-select/query-select.view');
 var store = require('js/store');
 var Query = require('js/model/Query');
+var $ = require('jquery');
 
 module.exports = Marionette.LayoutView.extend({
     template: template,
@@ -27,7 +28,8 @@ module.exports = Marionette.LayoutView.extend({
         searchResults: '> .select-list'
     },
     events: {
-        'click > button.select-add': 'addQuery'
+        'click > button.select-add': 'addQuery',
+        'click > .select-one .quick-add': 'triggerQuery'
     },
     initialize: function(){
         this.listenTo(store.getCurrentQueries(), 'add', this.handleUpdate);
@@ -62,6 +64,7 @@ module.exports = Marionette.LayoutView.extend({
     handleUpdate: function(){
         this.handleMaxQueries();
         this.handleEmptyQueries();
+        this.handleOneQuery();
     },
     handleMaxQueries: function(){
         this.$el.toggleClass('is-limited', !store.getCurrentWorkspace().canAddQuery());
@@ -69,5 +72,12 @@ module.exports = Marionette.LayoutView.extend({
     },
     handleEmptyQueries: function(){
         this.$el.toggleClass('is-empty', store.getCurrentQueries().isEmpty());
+    },
+    handleOneQuery: function() {
+        this.$el.toggleClass('has-one', store.getCurrentQueries().length === 1);
+    },
+    triggerQuery: function() {
+        this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
+        $(CustomElements.getNamespace() + 'dropdown.is-query').mousedown().click();
     }
 });
