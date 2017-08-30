@@ -239,7 +239,6 @@ public class TestOpenSearchFilterVisitor {
         SpatialFilter spatialFilter = result.getSpatialSearch();
         assertThat(spatialFilter, notNullValue());
         assertThat(spatialFilter.getGeometryWkt(), is(WKT_POLYGON));
-
     }
 
     @Test
