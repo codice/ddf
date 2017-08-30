@@ -245,7 +245,7 @@ public class SecurityMigratableTest {
         writeProperties(serverEncptProps,
                 "_" + CRL_PROP_KEY,
                 CRL.toString(),
-                String.format("%s:%s",
+                String.format("%s&%s",
                         serverEncptProps.toRealPath()
                                 .toString(),
                         tag));
@@ -371,7 +371,7 @@ public class SecurityMigratableTest {
         writeProperties(serverEncptProps,
                 "_" + CRL_PROP_KEY,
                 CRL.toString(),
-                String.format("%s:%s",
+                String.format("%s&%s",
                         serverEncptProps.toRealPath()
                                 .toString(),
                         tag));
@@ -441,7 +441,7 @@ public class SecurityMigratableTest {
                 writeProperties(p,
                         CRL_PROP_KEY,
                         CRL.toString(),
-                        String.format("%s:%s",
+                        String.format("%s&%s",
                                 p.toRealPath()
                                         .toString(),
                                 tag));
@@ -449,7 +449,7 @@ public class SecurityMigratableTest {
                 writeProperties(p,
                         "something",
                         "else",
-                        String.format("%s:%s",
+                        String.format("%s&%s",
                                 p.toRealPath()
                                         .toString(),
                                 tag));
@@ -475,7 +475,7 @@ public class SecurityMigratableTest {
         FileUtils.writeStringToFile(ddfHome.resolve(CRL)
                         .toRealPath()
                         .toFile(),
-                String.format("#%s:%s",
+                String.format("#%s&%s",
                         ddfHome.resolve(CRL)
                                 .toRealPath()
                                 .toString(),
@@ -491,7 +491,7 @@ public class SecurityMigratableTest {
         Files.createFile(xacmlPolicy);
         FileUtils.writeStringToFile(xacmlPolicy.toRealPath()
                         .toFile(),
-                String.format("#%s:%s",
+                String.format("#%s&%s",
                         xacmlPolicy.toRealPath()
                                 .toString(),
                         tag),
@@ -524,7 +524,7 @@ public class SecurityMigratableTest {
     private boolean verifiyImported(Path p) throws IOException {
         List<String> lines = Files.readAllLines(p, StandardCharsets.UTF_8);
         String tag = lines.get(0)
-                .split(":")[1];
+                .split("&")[1];
         return StringUtils.equals(tag, String.format(DDF_EXPORTED_TAG_TEMPLATE, DDF_EXPORTED_HOME));
     }
 
