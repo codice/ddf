@@ -109,9 +109,14 @@ define([
             }));
         },
         addConfiguredResultProperties: function(result){
+            result.showSource = false;
             result.customDetail = [];
             if (properties.resultShow) {
                 properties.resultShow.forEach(function (additionProperty) {
+                    if (additionProperty === 'source-id') {
+                        result.showSource = true;
+                        return;
+                    }
                     var value = result.metacard.properties[additionProperty];
                     if (value && metacardDefinitions.metacardTypes[additionProperty]) {
                         switch (metacardDefinitions.metacardTypes[additionProperty].type) {

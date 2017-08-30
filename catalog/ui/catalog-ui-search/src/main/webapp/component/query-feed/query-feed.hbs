@@ -12,7 +12,7 @@
  **/
  --}}
 <div class="details-text">
-    <div class="details-results">
+    <div class="details-results" title="{{resultCount}}"> 
         {{#if pending}}
             <i class="fa fa-circle-o-notch fa-spin"></i>
         {{/if}}
@@ -21,10 +21,10 @@
         {{/if}}
         {{resultCount}}
     </div>
-    <div class="details-status">
+    <div class="details-status" title="Last run {{queryStatus}}">
         {{queryStatus}}
     </div>
 </div>
-<div class="details-view is-button" data-help="Show the full status for the search.">
+<div class="details-view is-button" title="Show the full status for the search." data-help="Show the full status for the search.">
 
 </div>
