@@ -265,6 +265,7 @@ public class ConfigurationMigrationManager
     private MigrationReport doImport(Path exportDirectory,
             Optional<Consumer<MigrationMessage>> consumer) {
         final MigrationReportImpl xreport = doExport(exportDirectory,
+                // downgrade so that errors during export doesn't fail the export just warn
                 consumer.map(ConfigurationMigrationManager::downgradeErrorsToWarningsFor),
                 true); // timestamp the filename
         final MigrationReportImpl report = new MigrationReportImpl(MigrationOperation.IMPORT,

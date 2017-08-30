@@ -26,7 +26,7 @@ import org.codice.ddf.util.function.EBiConsumer;
  * <p>
  * Entries created via the export migration context or via the {@link #getPropertyReferencedEntry}
  * methods are not stored in the export file. Storage of these entries is controlled by the
- * {@link Migratable} using the {@link #store} methods. This allows the migratable a chance to make
+ * {@link Migratable} using the {@link #store} methods. This gives the migratable a chance to make
  * additional checks if need be. In some cases, the migratable might not be responsible for actually
  * migrating the content of a file and might only be responsible for migrating the file being referenced
  * by a given property. This is the case, for example, with Java properties file where a migratable
@@ -92,7 +92,7 @@ public interface ExportMigrationEntry extends MigrationEntry {
      * </pre>
      * <p>
      * would return an entry representing the local file <code>etc/certs/demoCA/crl/crl.pem</code>
-     * allowing the migratable a chance to export it alongside the original property value so
+     * giving the migratable a chance to export it alongside the original property value so
      * it can be later restored and the property value can be verified after the import operation such
      * that it would still be defined with the same value in the local etc/ws-security/server/encryption.properties
      * file.
@@ -222,7 +222,7 @@ public interface ExportMigrationEntry extends MigrationEntry {
      * path which can include sub-directories.
      * <p>
      * All errors and warnings are automatically recorded with the associated migration report including
-     * those thrown by the consumer logic.
+     * those thrown by the consumer's logic.
      * <p>
      * Errors can be reported in two ways:
      * <ol>
@@ -235,7 +235,8 @@ public interface ExportMigrationEntry extends MigrationEntry {
      * </ol>
      * <p>
      * <i>Note:</i> The output stream will automatically be closed (if not closed already) when the
-     * operation completes successfully or not.
+     * output stream for another entry is retrieved, when calling {@link #store} on another entry, or
+     * when the export operation completes regardless of outcome for the associated migratable.
      *
      * @param consumer a consumer capable of exporting the content of this entry to a provided output stream
      * @return <code>true</code> if no errors were recorded as a result of processing this command;
@@ -249,9 +250,9 @@ public interface ExportMigrationEntry extends MigrationEntry {
      * Gets an output stream for this entry which provides a low-level way for the migratable to
      * store its own content in the export.
      * <p>
-     * <i>Note:</i> The output stream will automatically be closed (if not closed already) when the
-     * output stream for another entry is retrieved or when calling {@link #store} on another entry
-     * or again when the export operation completes successfully or not for the associated migratable.
+     * <i>Note:</i> The output stream will automatically be closed (if not closed already) wwhen the
+     * output stream for another entry is retrieved, when calling {@link #store} on another entry, or
+     * when the export operation completes regardless of outcome for the associated migratable.
      *
      * @return an output stream for this entry
      * @throws IOException if an I/O error has occurred

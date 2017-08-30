@@ -23,16 +23,16 @@ import org.codice.ddf.util.function.EBiConsumer;
  * The <code>ImportMigrationEntry</code> interface provides support for artifacts that are being
  * imported during migration.
  * <p>
- * Entries created via the import migration context or via the {@link #getPropertyReferencedEntry}
+ * Entries retrieved via the import migration context or via the {@link #getPropertyReferencedEntry}
  * methods are not restored back on disk. Storage of these entries is controlled by the
- * {@link Migratable} using the {@link #store} methods. This allows the migratable a chance to make
+ * {@link Migratable} using the {@link #restore} methods. This allows the migratable a chance to make
  * additional checks if need be. In some cases, the migratable might not be responsible for actually
  * migrating the content of a file and might only be responsible for migrating the file being referenced
- * by a given property. This is the case, for example, with Java properties file where a migratable
+ * by a given property in it. This is the case, for example, with Java properties file where a migratable
  * might be responsible for migrating the file being referenced from a property in a properties file
- * but not the properties file itself. In such case, the migratable would create an entry for the
+ * but not the properties file itself. In such case, the migratable would retrieve an entry for the
  * properties file that holds the property in question via the {link ImportMigrationContext#getEntry}
- * and then create a migration entry for the file referenced from one of its property using the
+ * and then retrieve a migration entry for the file referenced from one of its property using the
  * {@link #getPropertyReferencedEntry} method.
  * <p>
  * For example:
@@ -89,7 +89,7 @@ public interface ImportMigrationEntry extends MigrationEntry {
      *
      * @param name the name of the property that contains the reference to a migration entry
      * @return the migration entry corresponding to the property value defined by <code>name</code>
-     * in the property file referenced by this entry or empty if it was not exported
+     * in the properties file referenced by this entry or empty if it was not exported
      * @throws IllegalArgumentException if <code>name</code> is <code>null</code>
      */
     public Optional<ImportMigrationEntry> getPropertyReferencedEntry(String name);
@@ -184,8 +184,8 @@ public interface ImportMigrationEntry extends MigrationEntry {
     /**
      * Gets an input stream for this entry.
      * <p>
-     * <i>Note:</i> The input stream provided will automatically be closed (if not closed already) when
-     * the import operation completes successfully or not for the associated migratable.
+     * <i>Note:</i> The input stream provided will automatically be closed (if not closed already)
+     * regardless of whether or not the operation completes successfully for the associated migratable.
      *
      * @return an input stream for this entry or empty if it was not exported
      * @throws IOException if an I/O error has occurred

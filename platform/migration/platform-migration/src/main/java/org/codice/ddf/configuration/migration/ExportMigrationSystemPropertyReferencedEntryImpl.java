@@ -10,7 +10,7 @@ import org.codice.ddf.migration.MigrationWarning;
 public class ExportMigrationSystemPropertyReferencedEntryImpl
         extends ExportMigrationPropertyReferencedEntryImpl {
     /**
-     * Instantiated a new system property referenced migration entry given a migratable context, property
+     * Instantiates a new system property referenced migration entry given a migratable context, property
      * name and pathname.
      *
      * @param context  the migration context associated with this entry

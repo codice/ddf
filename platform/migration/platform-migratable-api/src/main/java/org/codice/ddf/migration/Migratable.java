@@ -18,8 +18,8 @@ import org.codice.ddf.platform.services.common.Describable;
 /**
  * This interface provides the mechanism for implementers to define how their data (e.g. bundle
  * specific Java properties, XML or JSON configuration files) shall be exported for later import into
- * a new system. The information exported must allow the new system to have the same configuration
- * as the original system. Only bundle or feature specific settings need be handled. All configurations
+ * a new system. The information exported will allow a new system to be automatically configured (cloned)
+ * like the exported system. Only bundle or feature specific settings need be handled. All configurations
  * stored in OSGi's {@code ConfigurationAdmin} will automatically be migrated by a migratable
  * specifically developed for this purpose and do not need to be managed by implementors of this class.
  * The framework that handles the migratables ensures that no two migratable's methods are running at

@@ -19,13 +19,13 @@ import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.MigrationEntry;
 
 /**
- * Defines a migration entry representing a property which value references another migration entry.
+ * Defines a migration entry representing a property whose value references another migration entry.
  */
 public abstract class ExportMigrationPropertyReferencedEntryImpl extends ExportMigrationEntryImpl {
     private final String property;
 
     /**
-     * Instantiated a new property referenced migration entry given a migratable context, property name
+     * Instantiates a new property referenced migration entry given a migratable context, property name
      * and pathname.
      *
      * @param context  the migration context associated with this entry

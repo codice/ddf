@@ -86,7 +86,7 @@ public class ExportMigrationContextTest {
     }
 
     @Test
-    public void testGetSystemPropertyReferencedEntryValidatoWithNulLReportr() throws Exception {
+    public void testGetSystemPropertyReferencedEntryValidatorWithNullReport() throws Exception {
         Mockito.when(CONTEXT.getSystemPropertyReferencedEntry(Mockito.eq(PROPERTY_NAME),
                 Mockito.any()))
                 .thenAnswer(verifyValidatorWith(null,

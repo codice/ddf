@@ -33,7 +33,7 @@ import ddf.security.service.SecurityServiceException;
  * Command class used to export the system configuration and data.
  */
 @Service
-@Command(scope = MigrationCommand.NAMESPACE, name = "export", description = "Exports the system configuration and profile.")
+@Command(scope = MigrationCommand.NAMESPACE, name = "export", description = "Exports the system profile and configuration.")
 public class ExportCommand extends MigrationCommand {
     @Argument(index = 0, name = "exportDirectory", description = "Path to directory where to store the exported file", required = false, valueToShowInHelp = MigrationCommand.EXPORTED, multiValued = false)
     private String exportDirectoryArgument;

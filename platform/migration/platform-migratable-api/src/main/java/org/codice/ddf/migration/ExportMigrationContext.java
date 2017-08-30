@@ -20,14 +20,14 @@ import java.util.function.BiPredicate;
 import java.util.stream.Stream;
 
 /**
- * The export migration context provides functionality for creating new migration entries and system
- * property referenced migration entries and tracking exported migration entries for a given migratable
- * while processing an export migration operation.
+ * The export migration context provides functionality for creating new migration entries for system
+ * files and configurations, entries for references in system properties files, and tracking exported
+ * migration entries for a given migratable while processing an export migration operation.
  * <p>
  * The export migration context is provided to a {@link Migratable} during the export migration operation
- * to allow the chance for the migratable to create new entries representing files or blob of information
- * it requires to be exported. It also allows the migratable a chance to indicate which system properties
- * are expected to reference files on disk that should also be migrated.
+ * to give a migratable a chance to create new entries representing files or blobs of information required
+ * for export. It also allows a migratable to indicate which system properties are expected to reference
+ * files on disk that should also be migrated.
  * <p>
  * For example:
  * <pre>
@@ -82,7 +82,7 @@ public interface ExportMigrationContext extends MigrationContext {
      * </pre>
      * <p>
      * would return an entry representing the local file <code>etc/keystores/serverKeystore.jks</code>
-     * allowing the migratable a chance to export it alongside the original system property value so
+     * giving the migratable a chance to export it alongside the original system property value so
      * it can be later restored and the property value can be verified after the import operation such
      * that it would still be defined with the same value.
      *
@@ -162,7 +162,7 @@ public interface ExportMigrationContext extends MigrationContext {
 
     /**
      * Recursively walks the provided path's tree to create or retrieve (if already created) entries
-     * for all files found that matches the provided path filter and returns existing or new migration
+     * for all files found that match the provided path filter and returns existing or new migration
      * entries for each one of them.
      * <p>
      * <i>Note:</i> Files referenced are assumed to be relative to ${ddf.home} if not defined as

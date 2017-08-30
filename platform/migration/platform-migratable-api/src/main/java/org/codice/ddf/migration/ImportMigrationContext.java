@@ -22,11 +22,10 @@ import java.util.stream.Stream;
  * The import migration context keeps track of exported migration entries for a given migratable
  * while processing an import migration operation.
  * <p>
- * The import migration context is provided to a {@link Migratable} during the import migration operation
- * to allow the chance for the migratable to create new entries representing files or blob of information
- * that might have been exported. It also allows the migratable a chance to indicate which system properties
- * that referenced files on disk might have also been exported. This allows the migratable for re-importing
- * that exported information onto the new system.
+ * The import migration context is provided to a {@link Migratable} during the import migration operation.
+ * The migratable can retrieve new entries representing files or blobs of information that may have
+ * been exported. It can also retrieve entries for system properties that reference files on disk. As
+ * a result, the migratable can re-import the exported information into the new system.
  * <p>
  * For example:
  * <pre>
@@ -108,8 +107,8 @@ public interface ImportMigrationContext extends MigrationContext {
     /**
      * Retrieves all exported migration entries located underneath the provided relative path.
      *
-     * @param path the path to the directory for which to retrieve all exported migration entries
-     *             (should be relative to ${ddf.home})
+     * @param path the path to the directory for all recursively exported files (must be relative to
+     *             ${ddf.home})
      * @return a stream of all migration entries located under <code>path</code>
      * @throws IllegalArgumentException if <code>path</code> is <code>null</code>
      */
@@ -119,8 +118,8 @@ public interface ImportMigrationContext extends MigrationContext {
      * Retrieves all exported migration entries located underneath the provided relative path that
      * matches the provided path filter.
      *
-     * @param path   the path to the directory for which to retrieve all exported migration entries that
-     *               matched the given filter (should be relative to ${ddf.home})
+     * @param path   the path to the directory to recursively search for exported files that match the
+     *               given filter (must be relative to ${ddf.home})
      * @param filter the path filter to use
      * @return a stream of all migration entries located under <code>path</code> that matches the given
      * filter
@@ -133,7 +132,7 @@ public interface ImportMigrationContext extends MigrationContext {
      * <p>
      * Errors and/or warnings will automatically be recorded with the migration report.
      *
-     * @param path the directory to recursively clean (can be relative to ${ddf.home})
+     * @param path the directory to recursively clean (must be relative to ${ddf.home})
      * @return <code>true</code> if the directory was cleaned; <code>false</code> otherwise
      * @throws IllegalArgumentException if <code>path</code> is <code>null</code>
      */
