@@ -16,6 +16,8 @@ package org.codice.ddf.configuration.migration;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.LinkOption;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.util.ArrayList;
@@ -68,7 +70,7 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
     /**
      * Creates a new migration context for an import operation representing a system context.
      *
-     * @param report the migration report where to record warnings and errors
+     * @param report the migration report where warnings and errors can be recorded
      * @param zip    the zip file associated with the import
      * @throws IllegalArgumentException if <code>report</code> or <code>zip</code> is <code>null</code>
      * @throws java.io.IOError          if unable to determine ${ddf.home}
@@ -82,7 +84,7 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
     /**
      * Creates a new migration context for an import operation.
      *
-     * @param report the migration report where to record warnings and errors
+     * @param report the migration report where warnings and errors can be recorded
      * @param zip    the zip file associated with the import
      * @param id     the migratable id
      * @throws IllegalArgumentException if <code>report</code>, <code>zip</code>, or <code>id</code>
@@ -98,7 +100,7 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
     /**
      * Creates a new migration context for an import operation.
      *
-     * @param report     the migration report where to record warnings and errors
+     * @param report     the migration report where warnings and errors can be recorded
      * @param zip        the zip file associated with the import
      * @param migratable the migratable this context is for
      * @throws IllegalArgumentException if <code>report</code>, <code>zip</code> or <code>migratable</code>
@@ -147,10 +149,26 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
     @Override
     public boolean cleanDirectory(Path path) {
         Validate.notNull(path, "invalid null path");
-        final File fdir = getPathUtils().resolveAgainstDDFHome(path)
-                .toFile();
+        final Path rpath = getPathUtils().resolveAgainstDDFHome(path);
+        final File fdir = rpath.toFile();
 
         LOGGER.debug("Cleaning up directory [{}]...", fdir);
+        try {
+            if (!getPathUtils().isRelativeToDDFHome(rpath.toRealPath(LinkOption.NOFOLLOW_LINKS))) {
+                LOGGER.info("Failed to clean directory [{}]", fdir);
+                getReport().record(new MigrationWarning(Messages.IMPORT_PATH_CLEAN_WARNING,
+                        path,
+                        String.format("not relative to [%s]", getPathUtils().getDDFHome())));
+                return false;
+            }
+        } catch (NoSuchFileException e) {
+            return true;
+        } catch (IOException e) {
+            LOGGER.info("Failed to clean directory [" + fdir + "]: ", e);
+            getReport().record(new MigrationWarning(Messages.IMPORT_PATH_CLEAN_WARNING, path, e));
+            return false;
+
+        }
         if (!fdir.exists()) {
             return true;
         }

@@ -23,7 +23,7 @@ import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationWarning;
 
 /**
- * Defines a migration entry representing a property defined in a Java properties file which value
+ * Defines a migration entry representing a property defined in a Java properties file whose value
  * references another migration entry.
  */
 public class ExportMigrationJavaPropertyReferencedEntryImpl
@@ -34,7 +34,7 @@ public class ExportMigrationJavaPropertyReferencedEntryImpl
     private final Path propertiesPath;
 
     /**
-     * Instantiated a new java property referenced migration entry given a migratable context, properties
+     * Instantiates a new java property referenced migration entry given a migratable context, properties
      * path, name, and pathname.
      *
      * @param context        the migration context associated with this entry

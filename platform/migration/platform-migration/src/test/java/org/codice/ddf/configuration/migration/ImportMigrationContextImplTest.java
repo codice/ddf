@@ -1,5 +1,6 @@
 package org.codice.ddf.configuration.migration;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
@@ -360,6 +361,28 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
     }
 
     @Test
+    public void testCleanDirectoryWithAnOutsideAbsolutePath() throws Exception {
+        final Path DIR2 = DDF_HOME.resolve(createDirectory(DIRS2));
+        final Path DIR = ROOT.resolve(Paths.get("where", "something_else"));
+        final Path PATH2 = DDF_HOME.resolve(createFile(MIGRATABLE_PATH2));
+        final Path PATH = DDF_HOME.resolve(createFile(MIGRATABLE_PATH));
+
+        DIR.toFile()
+                .mkdirs();
+
+        Assert.assertThat(CONTEXT.cleanDirectory(DIR), Matchers.equalTo(false));
+
+        Assert.assertThat(DIR2.toFile()
+                .exists(), Matchers.equalTo(true));
+        Assert.assertThat(PATH2.toFile()
+                .exists(), Matchers.equalTo(true));
+        Assert.assertThat(DIR.toFile()
+                .exists(), Matchers.equalTo(true));
+        Assert.assertThat(PATH.toFile()
+                .exists(), Matchers.equalTo(true));
+    }
+
+    @Test
     public void testCleanDirectoryWithRelativePath() throws Exception {
         final Path DIR2 = DDF_HOME.resolve(createDirectory(DIRS2));
         final Path DIR = createDirectory(DIRS);
@@ -391,6 +414,50 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
     public void testCleanDirectoryWithNonExistentPath() throws Exception {
         Assert.assertThat(CONTEXT.cleanDirectory(MIGRATABLE_PATH.getParent()),
                 Matchers.equalTo(true));
+    }
+
+    @Test
+    public void testCleanDirectoryWithNonExistentFile() throws Exception {
+        final PathUtils PATH_UTILS = Mockito.mock(PathUtils.class);
+        final Path RESOLVED_PATH = Mockito.mock(Path.class);
+
+        CONTEXT = Mockito.spy(CONTEXT);
+
+        Mockito.when(CONTEXT.getPathUtils())
+                .thenReturn(PATH_UTILS);
+        Mockito.when(PATH_UTILS.resolveAgainstDDFHome(MIGRATABLE_PATH))
+                .thenReturn(RESOLVED_PATH);
+        Mockito.when(RESOLVED_PATH.toFile())
+                .thenReturn(MIGRATABLE_PATH.toFile());
+        Mockito.when(RESOLVED_PATH.toRealPath(Mockito.any()))
+                .thenReturn(RESOLVED_PATH);
+        Mockito.when(PATH_UTILS.isRelativeToDDFHome(RESOLVED_PATH))
+                .thenReturn(true);
+
+        MIGRATABLE_PATH.toFile()
+                .delete();
+
+        Assert.assertThat(CONTEXT.cleanDirectory(MIGRATABLE_PATH), Matchers.equalTo(true));
+    }
+
+    @Test
+    public void testCleanDirectoryWhenUnableToDetermineRealPath() throws Exception {
+        final PathUtils PATH_UTILS = Mockito.mock(PathUtils.class);
+        final Path RESOLVED_PATH = Mockito.mock(Path.class);
+        final IOException EXCEPTION = new IOException("testing");
+
+        CONTEXT = Mockito.spy(CONTEXT);
+
+        Mockito.when(CONTEXT.getPathUtils())
+                .thenReturn(PATH_UTILS);
+        Mockito.when(PATH_UTILS.resolveAgainstDDFHome(MIGRATABLE_PATH))
+                .thenReturn(RESOLVED_PATH);
+        Mockito.when(RESOLVED_PATH.toFile())
+                .thenReturn(MIGRATABLE_PATH.toFile());
+        Mockito.when(RESOLVED_PATH.toRealPath(Mockito.any()))
+                .thenThrow(EXCEPTION);
+
+        Assert.assertThat(CONTEXT.cleanDirectory(MIGRATABLE_PATH), Matchers.equalTo(false));
     }
 
     @Test

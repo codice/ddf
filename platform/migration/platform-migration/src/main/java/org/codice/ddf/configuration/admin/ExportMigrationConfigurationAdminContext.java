@@ -124,7 +124,7 @@ public class ExportMigrationConfigurationAdminContext extends ExportMigrationCon
                 } else if (o instanceof Path) {
                     path = (Path) o;
                 } else {
-                    path = constructPath(configuration);
+                    path = constructPathForBasename(configuration);
                     LOGGER.debug("unsupported {} property from '{}'", DirectoryWatcher.FILENAME, o);
                     getReport().record(new MigrationWarning(
                             "Path [%s] from %s property for configuration [%s] is of an unsupported format; exporting as [%s].",
@@ -134,7 +134,7 @@ public class ExportMigrationConfigurationAdminContext extends ExportMigrationCon
                             path));
                 }
             } catch (MalformedURLException | URISyntaxException e) {
-                path = constructPath(configuration);
+                path = constructPathForBasename(configuration);
                 LOGGER.debug(String.format("failed to parse %s property from '%s'; ",
                         DirectoryWatcher.FILENAME,
                         o), e);
@@ -146,14 +146,14 @@ public class ExportMigrationConfigurationAdminContext extends ExportMigrationCon
                         path));
             }
         } else {
-            path = constructPath(configuration);
+            path = constructPathForBasename(configuration);
         }
         // ignore the whole path if any (there shouldn't be any other than etc) and force it to be under etc
         return Paths.get("etc")
                 .resolve(path.getFileName());
     }
 
-    private Path constructPath(Configuration configuration) {
+    private Path constructPathForBasename(Configuration configuration) {
         final String fpid = configuration.getFactoryPid();
         final String basename;
 

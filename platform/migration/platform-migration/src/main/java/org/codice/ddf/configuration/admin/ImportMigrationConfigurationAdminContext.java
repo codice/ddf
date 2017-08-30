@@ -63,13 +63,13 @@ public class ImportMigrationConfigurationAdminContext extends ImportMigrationCon
     private final ConfigurationAdmin configurationAdmin;
 
     /**
-     * Keeps tracked of all managed services in memory that were not found in the export file so
+     * Keeps track of all managed services in memory that were not found in the export file so
      * we know what to delete at the end.
      */
     private final Map<String, Configuration> memoryServices;
 
     /**
-     * Keeps tracked of all managed service factories in memory that were not found in the export file
+     * Keeps track of all managed service factories in memory that were not found in the export file
      * so we know what to delete at the end.
      */
     private final Map<String, List<Configuration>> memoryFactoryServices;
@@ -203,7 +203,7 @@ public class ImportMigrationConfigurationAdminContext extends ImportMigrationCon
 
         if (ps == null) {
             getReport().record(new MigrationException(
-                    "Import error: persistency strategy [%s] for configuration [%s] is not defined.",
+                    "Import error: persistence strategy [%s] for configuration [%s] is not defined.",
                     extn,
                     path));
         } else {

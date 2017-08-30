@@ -141,6 +141,8 @@ public class ThrowableMatchers {
 
     public static Matcher hasInitialCauseMessageMatching(Matcher<String> matcher) {
         return new TypeSafeMatcher<Throwable>() {
+            // PMD.CompareObjectsWithEquals - Purposely testing for identity and not equality
+            @SuppressWarnings("PMD.CompareObjectsWithEquals")
             @Override
             protected boolean matchesSafely(Throwable item) {
                 Throwable cause = item;
@@ -148,7 +150,7 @@ public class ThrowableMatchers {
                 while (cause.getCause() != null) {
                     cause = cause.getCause();
                 }
-                if (cause == item) {
+                if (cause == item) { // testing identity!!!
                     return false;
                 }
                 return matcher.matches(cause.getMessage());

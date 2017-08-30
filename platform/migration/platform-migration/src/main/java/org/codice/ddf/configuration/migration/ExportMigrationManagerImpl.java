@@ -67,9 +67,9 @@ public class ExportMigrationManagerImpl implements Closeable {
     /**
      * Creates a new migration manager for an export operation.
      *
-     * @param report      the migration report where to record warnings and errors
+     * @param report      the migration report where warnings and errors can be recorded
      * @param exportFile  the export zip file
-     * @param migratables a stream of all migratables in the system in ranking order
+     * @param migratables a stream of all migratables in the system in service ranking order
      * @throws MigrationException       if a failure occurs while generating the zip file (the error
      *                                  will not be recorded with the report)
      * @throws IllegalArgumentException if <code>report</code> is <code>null</code> or if it is not
@@ -143,14 +143,17 @@ public class ExportMigrationManagerImpl implements Closeable {
     public void close() throws IOException {
         if (!closed) {
             this.closed = true;
-            zipOutputStream.closeEntry();
             try {
-                zipOutputStream.putNextEntry(new ZipEntry(MigrationContextImpl.METADATA_FILENAME.toString()));
-                JsonUtils.MAPPER.writeValue(zipOutputStream, metadata);
-            } catch (IOException e) {
-                throw new MigrationException(Messages.EXPORT_METADATA_CREATE_ERROR, e);
+                zipOutputStream.closeEntry();
+                try {
+                    zipOutputStream.putNextEntry(new ZipEntry(MigrationContextImpl.METADATA_FILENAME.toString()));
+                    JsonUtils.MAPPER.writeValue(zipOutputStream, metadata);
+                } catch (IOException e) {
+                    throw new MigrationException(Messages.EXPORT_METADATA_CREATE_ERROR, e);
+                }
+            } finally {
+                zipOutputStream.close();
             }
-            zipOutputStream.close();
         }
     }
 

@@ -18,7 +18,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.Validate;
 
 /**
- * Class that provides information statuses for migration operations.
+ * Class that provides information status for migration operations.
  * <p>
  * <i>Note:</i> Detail messages are displayed to the administrator on the console during a
  * migration operation.

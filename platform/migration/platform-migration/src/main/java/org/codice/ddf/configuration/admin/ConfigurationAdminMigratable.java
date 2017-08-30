@@ -74,7 +74,7 @@ public class ConfigurationAdminMigratable implements Migratable {
 
     @Override
     public String getTitle() {
-        return "Configuration Admin Migration";
+        return "Configuration Admin Migratable";
     }
 
     @Override
@@ -110,10 +110,14 @@ public class ConfigurationAdminMigratable implements Migratable {
                 .forEach(ImportMigrationEntry::restore);
     }
 
+    // PMD.DefaultPackage - designed to be called from ExportMigrationConfigurationAdminContext in this package
+    @SuppressWarnings("PMD.DefaultPackage")
     PersistenceStrategy getDefaultPersister() {
         return defaultStrategy;
     }
 
+    // PMD.DefaultPackage - designed to be called from ExportMigrationConfigurationAdminContext and ImportMigrationConfigurationAdminContext in this package
+    @SuppressWarnings("PMD.DefaultPackage")
     PersistenceStrategy getPersister(String extension) {
         if ("cfg".equals(extension)) {
             return new FelixCfgPersistenceStrategy();

@@ -63,7 +63,7 @@ public class ImportMigrationManagerImpl implements Closeable {
     /**
      * Creates a new migration manager for an import operation.
      *
-     * @param report      the migration report where to record warnings and errors
+     * @param report      the migration report where warnings and errors can be recorded
      * @param exportFile  the exported zip file
      * @param migratables a stream of all migratables in the system
      * @throws MigrationException       if a failure occurs while processing the zip file (the error
@@ -101,23 +101,28 @@ public class ImportMigrationManagerImpl implements Closeable {
                     .forEach(me -> me.getContext()
                             .addEntry(me));
             metadata = retrieveMetadata();
+            this.version = JsonUtils.getStringFrom(metadata,
+                    MigrationContextImpl.METADATA_VERSION,
+                    true);
+            if (!MigrationContextImpl.VERSION.equals(version)) {
+                IOUtils.closeQuietly(zip);
+                throw new MigrationException(Messages.IMPORT_UNSUPPORTED_VERSION_ERROR,
+                        version,
+                        MigrationContextImpl.VERSION);
+            }
+            this.productVersion = JsonUtils.getStringFrom(metadata,
+                    MigrationContextImpl.METADATA_PRODUCT_VERSION,
+                    true);
+            // process migratables' metadata
+            JsonUtils.getMapFrom(metadata, MigrationContextImpl.METADATA_MIGRATABLES)
+                    .forEach((id, o) -> getContextFor(id).processMetadata(JsonUtils.convertToMap(o)));
         } catch (IOException e) {
+            IOUtils.closeQuietly(zip);
             throw new MigrationException(Messages.IMPORT_FILE_READ_ERROR, exportFile, e);
+        } catch (MigrationException e) {
+            IOUtils.closeQuietly(zip);
+            throw e;
         }
-        this.version = JsonUtils.getStringFrom(metadata,
-                MigrationContextImpl.METADATA_VERSION,
-                true);
-        if (!MigrationContextImpl.VERSION.equals(version)) {
-            throw new MigrationException(Messages.IMPORT_UNSUPPORTED_VERSION_ERROR,
-                    version,
-                    MigrationContextImpl.VERSION);
-        }
-        this.productVersion = JsonUtils.getStringFrom(metadata,
-                MigrationContextImpl.METADATA_PRODUCT_VERSION,
-                true);
-        // process migratables' metadata
-        JsonUtils.getMapFrom(metadata, MigrationContextImpl.METADATA_MIGRATABLES)
-                .forEach((id, o) -> getContextFor(id).processMetadata(JsonUtils.convertToMap(o)));
     }
 
     private static ZipFile newZipFileFor(Path exportFile) {
