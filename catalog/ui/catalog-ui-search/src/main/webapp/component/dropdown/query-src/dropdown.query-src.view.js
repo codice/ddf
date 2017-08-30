@@ -43,7 +43,8 @@ define([
                 sources: sources.toJSON().filter(function(src){
                     return srcs.indexOf(src.id) !== -1;
                 }),
-                enterprise: this.model.get('federation') === 'enterprise'
+                enterprise: this.model.get('federation') === 'enterprise',
+                localCatalog: sources.localCatalog
             };
         }
     });

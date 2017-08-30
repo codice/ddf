@@ -23,6 +23,13 @@
 
             </span>
         {{/unless}}
+        {{#if local}}
+            <span class="fa source-icon fa-home">
+            </span>
+        {{else}}
+            <span class="fa source-icon fa-cloud">
+            </span>
+        {{/if}}
         <span class="choice-text">
             {{id}}
         </span>

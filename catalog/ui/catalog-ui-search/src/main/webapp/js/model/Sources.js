@@ -75,6 +75,7 @@ define([
         initialize: function () {
           this._types = new Types();
           this.determineLocalCatalog();
+          this.listenTo(this, 'sync', this.updateLocalCatalog);
         },
         types: function () {
           return this._types;
@@ -96,6 +97,11 @@ define([
 
                 this.fetch();
             }.bind(this));
+        },
+        updateLocalCatalog: function() {
+            if (this.get(this.localCatalog)) {
+                this.get(this.localCatalog).set('local', true);
+            }
         },
         localCatalog: 'local'
     });
