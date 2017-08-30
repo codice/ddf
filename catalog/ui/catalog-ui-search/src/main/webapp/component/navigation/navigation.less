@@ -26,11 +26,12 @@
   > .navigation-right {
     position: absolute;
     right: 0px;
-    max-width: 7*@minimumButtonSize;
+    max-width: 4*@minimumButtonSize + 9rem;
+    transition: width @coreTransitionTime ease-out;
   }
 
   > .navigation-middle {
-    width: ~'calc(100% - 8*@{minimumButtonSize})';
+    width: ~'calc(100% - 5*@{minimumButtonSize} - 9rem)';
     overflow-x: auto;
     overflow-y: hidden;
     text-overflow: ellipsis;
