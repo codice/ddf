@@ -180,7 +180,7 @@ public class EndpointUtil {
                         TimeUnit.SECONDS.toMillis(10)), false));
         return resultIterable.stream()
                 .collect(Collectors.toMap(result -> result.getMetacard()
-                        .getId(), Function.identity()));
+                        .getId(), Function.identity(), EndpointUtil::firstInWinsMerge));
     }
 
     public Map<String, Result> getMetacards(Collection<String> ids, String tagFilter)
@@ -232,7 +232,7 @@ public class EndpointUtil {
 
         return resultIterable.stream()
                 .collect(Collectors.toMap(result -> result.getMetacard()
-                        .getId(), Function.identity()));
+                        .getId(), Function.identity(), EndpointUtil::firstInWinsMerge));
     }
 
     @SuppressWarnings("unchecked")
@@ -537,6 +537,16 @@ public class EndpointUtil {
 
     public FilterBuilder getFilterBuilder() {
         return filterBuilder;
+    }
+
+    private static Result firstInWinsMerge(Result current, Result incoming) {
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace(
+                    "While collecting metacards into map, there were metacards found with a duplicate key.\nOld: {}\nNew: {}",
+                    current,
+                    incoming);
+        }
+        return current;
     }
 
 }
