@@ -27,11 +27,12 @@ define([
         'moment',
         'properties',
         'component/singletons/user-instance',
+        'js/Common',
         'backboneassociations',
         'backbone.paginator'
     ],
     function (Backbone, _, $, wreqr, metacardDefinitions, Sources, Terraformer, TerraformerWKTParser, CQLUtils,
-              Turf, TurfMeta, wkx, moment, properties, user) {
+              Turf, TurfMeta, wkx, moment, properties, user, Common) {
         "use strict";
 
         var blacklist = [];
@@ -45,6 +46,12 @@ define([
             }
             newUrl += '_=' +Date.now();
             return newUrl;
+        }
+
+        function humanizeResourceSize(result) {
+            if (result.metacard.properties['resource-size']) {
+                result.metacard.properties['resource-size'] = Common.getFileSize(result.metacard.properties['resource-size']);
+            }
         }
 
 
@@ -619,6 +626,7 @@ define([
                     result.id = result.metacard.id + result.metacard.properties['source-id'];
                     result.metacard.queryId = queryId;
                     result.metacard.color = color;
+                    humanizeResourceSize(result);
                     var thumbnailAction = _.findWhere(result.actions, {id: 'catalog.data.metacard.thumbnail'});
                     if (result.hasThumbnail && thumbnailAction) {
                         result.metacard.properties.thumbnail = generateThumbnailUrl(thumbnailAction.url);
@@ -828,6 +836,7 @@ define([
                         result.id = result.metacard.id + result.metacard.properties['source-id'];
                         result.metacard.queryId = queryId;
                         result.metacard.color = color;
+                        humanizeResourceSize(result);
 
                         var thumbnailAction = _.findWhere(result.actions, {id: 'catalog.data.metacard.thumbnail'});
                         if (result.hasThumbnail && thumbnailAction) {
