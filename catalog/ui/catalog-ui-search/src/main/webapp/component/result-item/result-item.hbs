@@ -17,18 +17,18 @@
     </div>
     <div class="container-content">
         <div class="content-header">
-            <span class="header-icon fa fa-history" data-help="Indicates the type of result
+            <span class="header-icon fa fa-history" title="Type: Revision" data-help="Indicates the type of result
             (workspace, resource, history, deleted)"></span>
-            <span class="header-icon fa fa-book" data-help="Indicates the type of result
+            <span class="header-icon fa fa-book" title="Type: Workspace" data-help="Indicates the type of result
             (workspace, resource, history, deleted)"></span>
-            <span class="header-icon fa fa-file" data-help="Indicates the type of result
+            <span class="header-icon fa fa-file" title="Type: Resource" data-help="Indicates the type of result
             (workspace, resource, history, deleted)"></span>
-            <span class="header-icon fa fa-trash" data-help="Indicates the type of result
+            <span class="header-icon fa fa-trash" title="Type: Deleted" data-help="Indicates the type of result
             (workspace, resource, history, deleted)"></span>
 
-            <span class="header-icon result-icon {{icon}}" data-help="Indicates the type of result
+            <span class="header-icon result-icon {{icon}}" title="Type: Resource" data-help="Indicates the type of result
             (workspace, resource, history, deleted)"></span>
-            <span class="header-title is-bold" data-help="{{getAlias 'title'}}" title="{{metacard.properties.title}}">
+            <span class="header-title is-bold" data-help="{{getAlias 'title'}}" title="{{getAlias 'title'}}: {{metacard.properties.title}}">
                 {{metacard.properties.title}}
             </span>
         </div>
@@ -38,31 +38,28 @@
                     <img src="{{getImageSrc metacard.properties.thumbnail}}">
                 </div>
             {{/if}}
-             <div class="detail-lastModified details-property" data-help="{{getAlias 'modified'}}">
-                <span>
-                    {{niceDiff}}
-                </span>
-            </div>
-            <div class="detail-source details-property" data-help="{{getAlias 'source'}}">
-                {{#if local}}
-                    <span class="fa source-icon fa-home">
-                    </span>
-                    <span>local</span>
-                {{else}}
-                    <span class="fa source-icon fa-cloud">
-                    </span>
-                    <span>
-                        {{metacard.properties.source-id}}
-                    </span>
-                {{/if}}
-            </div>
             {{#each customDetail}}
-                <div class="detail-custom details-property" data-help="{{getAlias this.label}}" title="{{this.value}}">
+                <div class="detail-custom details-property" data-help="{{getAlias this.label}}" title="{{getAlias this.label}}: {{this.value}}">
                     <span>
                     {{this.value}}
                     </span>
                 </div>
             {{/each}}
+            {{#if showSource}}
+                <div class="detail-source details-property" title="{{getAlias 'source'}}: {{metacard.properties.source-id}}" data-help="{{getAlias 'source'}}">
+                    {{#if local}}
+                        <span class="fa source-icon fa-home">
+                        </span>
+                        <span>local</span>
+                    {{else}}
+                        <span class="fa source-icon fa-cloud">
+                        </span>
+                        <span>
+                            {{metacard.properties.source-id}}
+                        </span>
+                    {{/if}}
+                </div>
+            {{/if}}
         </div>
         <div class="content-footer">
             <div class="result-validation">
@@ -76,16 +73,16 @@
                     </span>
                 {{/if}}
             </div>
-            <button class="result-download fa fa-download is-button is-neutral" data-help="Downloads
+            <button class="result-download fa fa-download is-button is-neutral" title="Downloads the results associated product directly to your machine." data-help="Downloads
             the results associated product directly to your machine.">
             </button>
-            <button class="result-save fa fa-star-o is-button is-neutral" data-help="Adds the
+            <button class="result-save fa fa-star-o is-button is-neutral" title="Adds the result to your saved items." data-help="Adds the
             result to your saved items.">
             </button>
-            <button class="result-unsave fa fa-star is-button is-neutral" data-help="Removes the
+            <button class="result-unsave fa fa-star is-button is-neutral" title="Removes the result from your saved items." data-help="Removes the
             result from your saved items.">
             </button>
-            <div class="result-actions is-button" data-help="Provides a list
+            <div class="result-actions is-button" title="Provides a list of actions to take on the result." data-help="Provides a list
             of actions to take on the result.">
         </div>
     </div>
