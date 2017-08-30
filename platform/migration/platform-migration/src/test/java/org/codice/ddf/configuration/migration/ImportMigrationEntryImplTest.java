@@ -54,7 +54,7 @@ public class ImportMigrationEntryImplTest extends AbstractMigrationTest {
 
     public static final String ENTRY_NAME = "test_name";
 
-    public static final Path ABSOLUTE_PATH = Paths.get("/opt", "ddf", ENTRY_NAME);
+    public Path ABSOLUTE_PATH;
 
     @Mock
     public ImportMigrationContextImpl mockContext;
@@ -82,10 +82,12 @@ public class ImportMigrationEntryImplTest extends AbstractMigrationTest {
 
         importedFile = DDF_HOME.resolve(createFile(ENTRY_NAME))
                 .toFile();
+        // resolving against DDF_HOME ensures that on Windows the absolute path gets the same drive as DDF_HOME
+        ABSOLUTE_PATH = DDF_HOME.resolve(Paths.get("/opt", "ddf", ENTRY_NAME));
     }
 
     @Test
-    public void constructorWithZipEntry() {
+    public void constructorWithZipEntry() throws Exception {
         givenMockedPathUtils();
         final java.util.zip.ZipEntry zipEntry = new java.util.zip.ZipEntry(
                 "migratable/" + ENTRY_NAME);
@@ -98,7 +100,7 @@ public class ImportMigrationEntryImplTest extends AbstractMigrationTest {
     }
 
     @Test
-    public void constructorWithZipEntryForSystemEntry() {
+    public void constructorWithZipEntryForSystemEntry() throws Exception {
         givenMockedPathUtils();
         final java.util.zip.ZipEntry zipEntry = new java.util.zip.ZipEntry(ENTRY_NAME);
 
@@ -110,7 +112,7 @@ public class ImportMigrationEntryImplTest extends AbstractMigrationTest {
     }
 
     @Test
-    public void constructorWithName() {
+    public void constructorWithName() throws Exception {
         givenMockedPathUtils();
 
         final ImportMigrationEntryImpl entry = new ImportMigrationEntryImpl(mockContext,
@@ -121,7 +123,7 @@ public class ImportMigrationEntryImplTest extends AbstractMigrationTest {
     }
 
     @Test
-    public void constructorWithPath() {
+    public void constructorWithPath() throws Exception {
         givenMockedPathUtils();
 
         final ImportMigrationEntryImpl entry = new ImportMigrationEntryImpl(mockContext,
@@ -312,7 +314,7 @@ public class ImportMigrationEntryImplTest extends AbstractMigrationTest {
     }
 
     private void verifyNameAndPathInformation(ImportMigrationEntryImpl entry,
-            ImportMigrationContextImpl expectedContext) {
+            ImportMigrationContextImpl expectedContext) throws IOException {
         assertThat(entry.getName(), equalTo(ENTRY_NAME));
         assertThat(entry.getPath()
                 .toString(), equalTo(ENTRY_NAME));

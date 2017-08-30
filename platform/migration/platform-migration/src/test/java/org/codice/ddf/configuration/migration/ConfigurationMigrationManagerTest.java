@@ -235,10 +235,14 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
 
     @Test
     public void doExportFailsToCreateDirectory() throws Exception {
+        final Path PATH = DDF_HOME.resolve("invalid-directory");
+
+        PATH.toFile()
+                .createNewFile(); // create it as a file
+
         configurationMigrationManager = getConfigurationMigrationManager();
 
-        MigrationReport report = configurationMigrationManager.doExport(DDF_HOME.resolve(
-                "//invalid-directory"));
+        MigrationReport report = configurationMigrationManager.doExport(PATH);
 
         reportHasErrorWithMessage(report, "unable to create directory");
     }

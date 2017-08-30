@@ -13,17 +13,20 @@
  */
 package org.codice.ddf.configuration.migration;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.io.UncheckedIOException;
+import java.io.Writer;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
+import java.util.Properties;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.codice.ddf.migration.ExportMigrationEntry;
@@ -83,7 +86,12 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
     private ExportMigrationEntryImpl ENTRY;
 
     private void storeProperty(String name, String val) throws IOException {
-        FileUtils.writeStringToFile(ABSOLUTE_FILE_PATH.toFile(), name + '=' + val, Charsets.UTF_8);
+        final Properties props = new Properties();
+
+        props.put(name, val);
+        try (final Writer writer = new BufferedWriter(new FileWriter(ABSOLUTE_FILE_PATH.toFile()))) {
+            props.store(writer, "testing");
+        }
     }
 
     @Before

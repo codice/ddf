@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanServer;
@@ -112,11 +113,12 @@ public class ConfigurationMigrationManager
     }
 
     private static String getProductVersion(Path path) throws IOException {
-        return Files.lines(path)
-                .findFirst()
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())
-                .orElseThrow(() -> new IOException("missing product version information"));
+        try (final Stream<String> stream = Files.lines(path)) {
+            return stream.findFirst()
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .orElseThrow(() -> new IOException("missing product version information"));
+        }
     }
 
     /**

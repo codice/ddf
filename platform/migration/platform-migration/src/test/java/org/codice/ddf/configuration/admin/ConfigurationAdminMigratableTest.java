@@ -73,27 +73,26 @@ import org.osgi.service.cm.ConfigurationAdmin;
  * located under the created TemporaryFolder.
  * For example, if the TemporaryFolder is /private/var/folders/2j/q2gjqn4s2mv53c2q53_m9d_w0000gn/T/junit4916060293677644046,
  * one would see a similar directory structure to the following:
- *
- *  // This is the system exported from:
+ * <p>
+ * // This is the system exported from:
  * ./ddf
  * ./ddf/etc/DDF_Custom_Mime_Type_Resolver-csw.config
  * ./ddf/Version.txt
- *
- *  // This is the system imported into:
+ * <p>
+ * // This is the system imported into:
  * ./ddf
  * ./ddf/etc
  * ./ddf/Version.txt
- *
- *  // The backup from the imported system will look similar to this:
+ * <p>
+ * // The backup from the imported system will look similar to this:
  * ./exported-1.0-20170816T142400.zip
- *
- *  // Thw exported zip from ddfExport will look similar to this:
+ * <p>
+ * // Thw exported zip from ddfExport will look similar to this:
  * ./exported-1.0.zip
- *
+ * <p>
  * NOTE: The directory structure of the system imported into needs to be exactly the same as the
  * system exported from.  For example, if they system being exported from has a ddf.home of /opt/ddf,
  * the system being imported into must also have a ddf.home of /opt/ddf.
- *
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ConfigurationAdminMigratableTest {
@@ -110,7 +109,8 @@ public class ConfigurationAdminMigratableTest {
 
     private static final String CFG_FILE_EXT = "cfg";
 
-    private static final String DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID = "DDF_Custom_Mime_Type_Resolver";
+    private static final String DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID =
+            "DDF_Custom_Mime_Type_Resolver";
 
     @Rule
     public TemporaryFolder tempDir = new TemporaryFolder();
@@ -135,7 +135,7 @@ public class ConfigurationAdminMigratableTest {
     @Mock
     private SystemService systemService;
 
-    @Mock (answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private ExportMigrationContext exportMigrationContext;
 
     @Mock
@@ -150,21 +150,24 @@ public class ConfigurationAdminMigratableTest {
 
     @Test
     public void testGetPersisterForCfg() {
-        ConfigurationAdminMigratable cam = new ConfigurationAdminMigratable(configurationAdmin, DEFAULT_FILE_EXT);
+        ConfigurationAdminMigratable cam = new ConfigurationAdminMigratable(configurationAdmin,
+                DEFAULT_FILE_EXT);
         PersistenceStrategy strategy = cam.getPersister(CFG_FILE_EXT);
         assertThat(strategy, instanceOf(FelixCfgPersistenceStrategy.class));
     }
 
     @Test
     public void testGetPersisterForConfig() {
-        ConfigurationAdminMigratable cam = new ConfigurationAdminMigratable(configurationAdmin, DEFAULT_FILE_EXT);
+        ConfigurationAdminMigratable cam = new ConfigurationAdminMigratable(configurationAdmin,
+                DEFAULT_FILE_EXT);
         PersistenceStrategy strategy = cam.getPersister(DEFAULT_FILE_EXT);
         assertThat(strategy, instanceOf(FelixConfigPersistenceStrategy.class));
     }
 
     @Test
     public void testGetDefaultPersister() {
-        ConfigurationAdminMigratable cam = new ConfigurationAdminMigratable(configurationAdmin, DEFAULT_FILE_EXT);
+        ConfigurationAdminMigratable cam = new ConfigurationAdminMigratable(configurationAdmin,
+                DEFAULT_FILE_EXT);
         PersistenceStrategy strategy = cam.getDefaultPersister();
         assertThat(strategy, instanceOf(FelixConfigPersistenceStrategy.class));
     }
@@ -173,9 +176,11 @@ public class ConfigurationAdminMigratableTest {
     public void testDoExportConfigAdminThrowsIOException() throws Exception {
         // Setup
         when(exportMigrationContext.getReport()).thenReturn(migrationReport);
-        when(exportMigrationContext.getReport().record(any(MigrationMessage.class))).thenReturn(migrationReport);
+        when(exportMigrationContext.getReport()
+                .record(any(MigrationMessage.class))).thenReturn(migrationReport);
         when(configurationAdmin.listConfigurations(isNull())).thenThrow(IOException.class);
-        ConfigurationAdminMigratable cam = new ConfigurationAdminMigratable(configurationAdmin, DEFAULT_FILE_EXT);
+        ConfigurationAdminMigratable cam = new ConfigurationAdminMigratable(configurationAdmin,
+                DEFAULT_FILE_EXT);
 
         // Perform Test
         cam.doExport(exportMigrationContext);
@@ -188,9 +193,11 @@ public class ConfigurationAdminMigratableTest {
     public void testDoExportConfigAdminThrowsInvalidSyntaxException() throws Exception {
         // Setup
         when(exportMigrationContext.getReport()).thenReturn(migrationReport);
-        when(exportMigrationContext.getReport().record(any(MigrationMessage.class))).thenReturn(migrationReport);
+        when(exportMigrationContext.getReport()
+                .record(any(MigrationMessage.class))).thenReturn(migrationReport);
         when(configurationAdmin.listConfigurations(isNull())).thenThrow(InvalidSyntaxException.class);
-        ConfigurationAdminMigratable cam = new ConfigurationAdminMigratable(configurationAdmin, DEFAULT_FILE_EXT);
+        ConfigurationAdminMigratable cam = new ConfigurationAdminMigratable(configurationAdmin,
+                DEFAULT_FILE_EXT);
 
         // Perform Test
         cam.doExport(exportMigrationContext);
@@ -208,13 +215,15 @@ public class ConfigurationAdminMigratableTest {
     @Test
     public void testDoExportDoImport() throws Exception {
         // Setup Export
-        Path exportDir = tempDir.getRoot().toPath().toRealPath();
-        ConfigurationAdminMigratable eCam = new ConfigurationAdminMigratable(configurationAdminForExport, DEFAULT_FILE_EXT);
+        Path exportDir = tempDir.getRoot()
+                .toPath()
+                .toRealPath();
+        ConfigurationAdminMigratable eCam = new ConfigurationAdminMigratable(
+                configurationAdminForExport,
+                DEFAULT_FILE_EXT);
         List<Migratable> eMigratables = Arrays.asList(eCam);
         ConfigurationMigrationManager eConfigurationMigrationManager =
-                new ConfigurationMigrationManager(mBeanServer,
-                        eMigratables,
-                        systemService);
+                new ConfigurationMigrationManager(mBeanServer, eMigratables, systemService);
         String tag = String.format(DDF_EXPORTED_TAG_TEMPLATE, DDF_HOME);
         setupConfigFile(tag);
 
@@ -226,21 +235,29 @@ public class ConfigurationAdminMigratableTest {
         Assert.assertThat("The export report has warnings.", exportReport.hasWarnings(), is(false));
         Assert.assertThat("Export was not successful.", exportReport.wasSuccessful(), is(true));
         String exportedZipBaseName = String.format("exported-%s.zip", SUPPORTED_VERSION);
-        Path exportedZip = exportDir.resolve(exportedZipBaseName).toRealPath();
-        Assert.assertThat("Export zip does not exist.", exportedZip.toFile().exists(), is(true));
-        Assert.assertThat("Exported zip is empty.", exportedZip.toFile().length(), greaterThan(0L));
+        Path exportedZip = exportDir.resolve(exportedZipBaseName)
+                .toRealPath();
+        Assert.assertThat("Export zip does not exist.",
+                exportedZip.toFile()
+                        .exists(),
+                is(true));
+        Assert.assertThat("Exported zip is empty.",
+                exportedZip.toFile()
+                        .length(),
+                greaterThan(0L));
 
         // Setup Import
         // Clean up ddf home, so we can import into a clean directory
-        FileUtils.deleteDirectory(ddfHome.toRealPath().toFile());
+        FileUtils.deleteDirectory(ddfHome.toRealPath()
+                .toFile());
         setup(DDF_HOME);
 
-        ConfigurationAdminMigratable iCam = new ConfigurationAdminMigratable(configurationAdminForImport, DEFAULT_FILE_EXT);
+        ConfigurationAdminMigratable iCam = new ConfigurationAdminMigratable(
+                configurationAdminForImport,
+                DEFAULT_FILE_EXT);
         List<Migratable> iMigratables = Arrays.asList(iCam);
         ConfigurationMigrationManager iConfigurationMigrationManager =
-                new ConfigurationMigrationManager(mBeanServer,
-                        iMigratables,
-                        systemService);
+                new ConfigurationMigrationManager(mBeanServer, iMigratables, systemService);
 
         // Perform Import
         MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir);
@@ -253,20 +270,26 @@ public class ConfigurationAdminMigratableTest {
         // from the system being exported from.
         verify(configurationAdminForImport).createFactoryConfiguration(eq(
                 DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID), isNull());
-        ArgumentCaptor<Dictionary<String, ?>> argumentCaptor = ArgumentCaptor.forClass(Dictionary.class);
+        ArgumentCaptor<Dictionary<String, ?>> argumentCaptor =
+                ArgumentCaptor.forClass(Dictionary.class);
         verify(configurationImportedFromExport).update(argumentCaptor.capture());
-        Map<String, ?> dictionayAsMap = convertToMap(argumentCaptor.<Dictionary<String, ?>>getValue());
+        Map<String, ?> dictionayAsMap =
+                convertToMap(argumentCaptor.<Dictionary<String, ?>>getValue());
         assertThat(dictionayAsMap,
                 allOf(aMapWithSize(2),
                         hasEntry("schema", "http://www.opengis.net/cat/csw/2.0.2"),
-                        hasEntry(DirectoryWatcher.FILENAME, ddfHome.resolve("etc").toRealPath().resolve(String.format("%s-csw.config",
-                                DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID)).toUri().toString())
-                ));
+                        hasEntry(DirectoryWatcher.FILENAME,
+                                ddfHome.resolve("etc")
+                                        .toRealPath()
+                                        .resolve(String.format("%s-csw.config",
+                                                DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID))
+                                        .toUri()
+                                        .toString())));
     }
 
     private Map<String, Object> convertToMap(Dictionary<String, ?> dictionary) {
         Map<String, Object> map = new HashMap<>();
-        Enumeration<String> keys =  dictionary.keys();
+        Enumeration<String> keys = dictionary.keys();
         while (keys.hasMoreElements()) {
             String key = keys.nextElement();
             map.put(key, dictionary.get(key));
@@ -284,10 +307,12 @@ public class ConfigurationAdminMigratableTest {
         when(configurationAdminForImport.listConfigurations(isNull())).thenReturn(configurations);
         // Create a new factory Configuration object with a new PID. The properties of the new Configuration
         // object are null until the first time that its Configuration.update(Dictionary) method is called.
-        when(configurationImportedFromExport.getPid()).thenReturn(String.format("%s.8e3c2b12-9807-482a-aaa7-d3d317973581",
+        when(configurationImportedFromExport.getPid()).thenReturn(String.format(
+                "%s.8e3c2b12-9807-482a-aaa7-d3d317973581",
                 DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID));
         when(configurationAdminForImport.createFactoryConfiguration(eq(
-                DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID), isNull())).thenReturn(configurationImportedFromExport);
+                DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID), isNull())).thenReturn(
+                configurationImportedFromExport);
     }
 
     private Configuration[] getConfigurationsForExportSystem() throws IOException {
@@ -305,8 +330,12 @@ public class ConfigurationAdminMigratableTest {
     private Configuration getConfigurationForExportSystem() throws IOException {
         Configuration config = mock(Configuration.class);
         Dictionary<String, Object> props = new Hashtable<>();
-        props.put(DirectoryWatcher.FILENAME, ddfHome.resolve("etc").toRealPath().resolve(String.format("%s-csw.config",
-                DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID)).toUri());
+        props.put(DirectoryWatcher.FILENAME,
+                ddfHome.resolve("etc")
+                        .toRealPath()
+                        .resolve(String.format("%s-csw.config",
+                                DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID))
+                        .toUri());
         String pid = String.format("%s.4039089d-839f-4d52-a174-77c8a19fc03d",
                 DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID);
         props.put("service.pid", pid);
@@ -329,8 +358,12 @@ public class ConfigurationAdminMigratableTest {
     }
 
     private void setup(String ddfHomeStr) throws IOException {
-        ddfHome = tempDir.newFolder(ddfHomeStr).toPath().toRealPath();
-        System.setProperty(DDF_HOME_SYSTEM_PROP_KEY, ddfHome.toRealPath().toString());
+        ddfHome = tempDir.newFolder(ddfHomeStr)
+                .toPath()
+                .toRealPath();
+        System.setProperty(DDF_HOME_SYSTEM_PROP_KEY,
+                ddfHome.toRealPath()
+                        .toString());
         Path etcDir = ddfHome.resolve("etc");
         Files.createDirectory(etcDir);
         setupVersionFile(SUPPORTED_VERSION);
@@ -339,16 +372,27 @@ public class ConfigurationAdminMigratableTest {
     private void setupVersionFile(String version) throws IOException {
         Path versionFile = ddfHome.resolve("Version.txt");
         Files.createFile(versionFile);
-        FileUtils.writeStringToFile(versionFile.toFile().getCanonicalFile(), version, StandardCharsets.UTF_8);
+        FileUtils.writeStringToFile(versionFile.toFile()
+                .getCanonicalFile(), version, StandardCharsets.UTF_8);
     }
 
     private void setupConfigFile(String tag) throws IOException {
-        Path configFile = ddfHome.resolve("etc").toRealPath().resolve(String.format("%s-csw.config",
-                DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID));
+        Path configFile = ddfHome.resolve("etc")
+                .toRealPath()
+                .resolve(String.format("%s-csw.config", DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID));
         Files.createFile(configFile);
         List<String> lines = new ArrayList<>(2);
-        lines.add(String.format("#%s:%s", configFile.toRealPath().toString(), tag));
-        lines.add(String.format("%s=%s", DirectoryWatcher.FILENAME, configFile.toUri().toString()));
-        FileUtils.writeLines(configFile.toFile(), StandardCharsets.UTF_8.toString(), lines, System.lineSeparator());
+        lines.add(String.format("#%s:%s",
+                configFile.toRealPath()
+                        .toString(),
+                tag));
+        lines.add(String.format("%s=%s",
+                DirectoryWatcher.FILENAME,
+                configFile.toUri()
+                        .toString()));
+        FileUtils.writeLines(configFile.toFile(),
+                StandardCharsets.UTF_8.toString(),
+                lines,
+                System.lineSeparator());
     }
 }

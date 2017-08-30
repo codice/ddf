@@ -102,8 +102,8 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
      */
     protected ImportMigrationEntryImpl(ImportMigrationContextImpl context, String name) {
         this.context = context;
+        this.path = Paths.get(name);
         this.name = FilenameUtils.separatorsToUnix(name);
-        this.path = Paths.get(this.name);
         this.absolutePath = context.getPathUtils()
                 .resolveAgainstDDFHome(path);
         this.file = absolutePath.toFile();
@@ -111,7 +111,7 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
     }
 
     /**
-     * Instantiates a new migration entry with the given name.
+     * Instantiates a new migration entry with the given path.
      *
      * @param context the migration context associated with this entry
      * @param path    the entry's relative path
@@ -222,16 +222,16 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
     protected boolean isMigratable() {
         final MigrationReport report = getContext().getReport();
 
-        if (getPath().isAbsolute()) {
+        if (path.isAbsolute()) {
             report.record(new MigrationWarning(Messages.IMPORT_PATH_DELETE_WARNING,
-                    getPath(),
+                    path,
                     String.format("is outside [%s]",
                             getContext().getPathUtils()
                                     .getDDFHome())));
             return false;
         } else if (Files.isSymbolicLink(getAbsolutePath())) {
             report.record(new MigrationWarning(Messages.IMPORT_PATH_DELETE_WARNING,
-                    getPath(),
+                    path,
                     "is a symbolic link"));
             return false;
         }
@@ -255,15 +255,14 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
         if (required) {
             LOGGER.debug("Importing {}{}...", (required ? "required " : ""), toDebugString());
             getReport().record(new MigrationException(Messages.IMPORT_PATH_NOT_EXPORTED_ERROR,
-                    getPath()));
+                    path));
         } else {
             // it is optional so delete it as it was optional when we exported and wasn't on
             // disk so we want to make sure we end up without the file on disk after import
             LOGGER.debug("Deleting {}...", toDebugString());
             // but only if it is migratable to start with
             if (isMigratable() && !getFile().delete()) {
-                getReport().record(new MigrationException(Messages.IMPORT_PATH_DELETE_ERROR,
-                        getPath()));
+                getReport().record(new MigrationException(Messages.IMPORT_PATH_DELETE_ERROR, path));
             }
         }
     }
