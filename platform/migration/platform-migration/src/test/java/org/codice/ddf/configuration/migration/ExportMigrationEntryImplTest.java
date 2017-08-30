@@ -648,7 +648,7 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
         final Path MIGRATABLE_PATH = testFolder.newFile("test.cfg")
                 .toPath()
                 .toRealPath(LinkOption.NOFOLLOW_LINKS);
-        final String MIGRATABLE_NAME = MIGRATABLE_PATH.toString();
+        final String MIGRATABLE_NAME = FilenameUtils.separatorsToUnix(MIGRATABLE_PATH.toString());
 
         storeProperty(PROPERTY_NAME,
                 MIGRATABLE_PATH.toAbsolutePath()

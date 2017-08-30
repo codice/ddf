@@ -282,8 +282,10 @@ public class ImportMigrationEntryImplTest extends AbstractMigrationTest {
 
     @Test
     public void isNotMigratableWithAbsolutePath() {
+        // resolving against DDF_HOME ensures that the abosulte path gets the same drive on windows
         final ImportMigrationEntryImpl entry = new ImportMigrationEntryImpl(mockContext,
-                File.separatorChar + ENTRY_NAME);
+                DDF_HOME.resolve(Paths.get(File.separatorChar + ENTRY_NAME))
+                        .toString());
 
         assertThat("The entry is not migratable.", entry.isMigratable(), is(false));
         reportHasWarningWithMessage(entry.getReport(), "is outside");
