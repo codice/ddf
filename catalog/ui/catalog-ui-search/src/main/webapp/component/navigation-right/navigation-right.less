@@ -12,9 +12,8 @@
     }
 
     .navigation-item.item-user {
-        max-width: 4*@minimumButtonSize;
+        max-width: 9rem + @minimumButtonSize;
         width: auto;
-        padding: 0px @mediumSpacing 0px 0px;
         overflow: hidden;
         text-overflow: ellipsis;
     }
@@ -39,15 +38,18 @@
     }
 
     .user-unique span:first-of-type {
-        padding-left: @minimumSpacing;
         display: inline-block;
         overflow: hidden;
         text-overflow: ellipsis;
-        max-width: ~'calc(11rem - @{minimumButtonSize} - 2*@{mediumSpacing})';
         vertical-align: top;
+        max-width: 9rem;
+        padding-right: @minimumButtonSize;
     }
 
     .user-unique span:nth-of-type(2){
+        position: absolute;
+        right: 0px;
+        top: 0px;
         display: inline-block;
         width: @minimumButtonSize;
         line-height: inherit !important;
