@@ -1,6 +1,8 @@
 package org.codice.ddf.configuration.migration;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
@@ -474,24 +476,31 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
     }
 
     @Test
-    public void testCleanDirectoryWithAReadOnlyPath() throws Exception {
-        final Path DIR = createDirectory(DIRS);
-        final Path PATH = DDF_HOME.resolve(createFile(MIGRATABLE_PATH));
+    public void testCleanDirectoryWhenCleaningItThrowsException() throws Exception {
+        final PathUtils PATH_UTILS = Mockito.mock(PathUtils.class);
+        final File FDIR = Mockito.mock(File.class);
+        final Path DIR = Mockito.mock(Path.class);
 
-        DIR.toFile()
-                .setReadable(false);
+        CONTEXT = Mockito.spy(CONTEXT);
 
-        try {
-            Assert.assertThat(CONTEXT.cleanDirectory(DIR), Matchers.equalTo(false));
+        Mockito.when(CONTEXT.getPathUtils())
+                .thenReturn(PATH_UTILS);
+        Mockito.when(PATH_UTILS.resolveAgainstDDFHome(DIR))
+                .thenReturn(DIR);
+        Mockito.when(DIR.toFile())
+                .thenReturn(FDIR);
+        Mockito.when(DIR.toRealPath(LinkOption.NOFOLLOW_LINKS))
+                .thenReturn(DIR);
+        Mockito.when(PATH_UTILS.isRelativeToDDFHome(DIR))
+                .thenReturn(true);
+        Mockito.when(FDIR.exists())
+                .thenReturn(true);
+        Mockito.when(FDIR.isDirectory())
+                .thenReturn(true);
+        Mockito.when(FDIR.listFiles())
+                .thenReturn(null); // should trigger an I/O exception
 
-            Assert.assertThat(DIR.toFile()
-                    .exists(), Matchers.equalTo(true));
-            Assert.assertThat(PATH.toFile()
-                    .exists(), Matchers.equalTo(true));
-        } finally {
-            DIR.toFile()
-                    .setReadable(true);
-        }
+        Assert.assertThat(CONTEXT.cleanDirectory(DIR), Matchers.equalTo(false));
     }
 
     @Test

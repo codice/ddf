@@ -771,7 +771,7 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
         final String debug = ENTRY.toDebugString();
 
         Assert.assertThat(debug, Matchers.containsString("file"));
-        Assert.assertThat(debug, Matchers.containsString("[" + UNIX_NAME + "]"));
+        Assert.assertThat(debug, Matchers.containsString("[" + FILE_PATH + "]"));
     }
 
     @Test
@@ -779,7 +779,7 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
         final String REASON = "test reason";
         final MigrationWarning warning = ENTRY.newWarning(REASON);
 
-        Assert.assertThat(warning.getMessage(), Matchers.containsString("[" + UNIX_NAME + "]"));
+        Assert.assertThat(warning.getMessage(), Matchers.containsString("[" + FILE_PATH + "]"));
         Assert.assertThat(warning.getMessage(), Matchers.containsString(REASON));
     }
 
@@ -789,7 +789,7 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
         final IllegalArgumentException CAUSE = new IllegalArgumentException("test cause");
         final MigrationException error = ENTRY.newError(REASON, CAUSE);
 
-        Assert.assertThat(error.getMessage(), Matchers.containsString("[" + UNIX_NAME + "]"));
+        Assert.assertThat(error.getMessage(), Matchers.containsString("[" + FILE_PATH + "]"));
         Assert.assertThat(error.getMessage(), Matchers.containsString(REASON));
         Assert.assertThat(error.getCause(), Matchers.sameInstance(CAUSE));
     }

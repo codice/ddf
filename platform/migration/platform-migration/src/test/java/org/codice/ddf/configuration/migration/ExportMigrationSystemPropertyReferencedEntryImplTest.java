@@ -104,7 +104,7 @@ public class ExportMigrationSystemPropertyReferencedEntryImplTest extends Abstra
 
         Assert.assertThat(debug, Matchers.containsString("system property"));
         Assert.assertThat(debug, Matchers.containsString("[" + PROPERTY + "]"));
-        Assert.assertThat(debug, Matchers.containsString("[" + UNIX_NAME + "]"));
+        Assert.assertThat(debug, Matchers.containsString("[" + FILE_PATH + "]"));
     }
 
     @Test
@@ -113,7 +113,7 @@ public class ExportMigrationSystemPropertyReferencedEntryImplTest extends Abstra
         final MigrationWarning warning = ENTRY.newWarning(REASON);
 
         Assert.assertThat(warning.getMessage(), Matchers.containsString("[" + PROPERTY + "]"));
-        Assert.assertThat(warning.getMessage(), Matchers.containsString("[" + UNIX_NAME + "]"));
+        Assert.assertThat(warning.getMessage(), Matchers.containsString("[" + FILE_PATH + "]"));
         Assert.assertThat(warning.getMessage(), Matchers.containsString(REASON));
     }
 
@@ -124,7 +124,7 @@ public class ExportMigrationSystemPropertyReferencedEntryImplTest extends Abstra
         final MigrationException error = ENTRY.newError(REASON, CAUSE);
 
         Assert.assertThat(error.getMessage(), Matchers.containsString("[" + PROPERTY + "]"));
-        Assert.assertThat(error.getMessage(), Matchers.containsString("[" + UNIX_NAME + "]"));
+        Assert.assertThat(error.getMessage(), Matchers.containsString("[" + FILE_PATH + "]"));
         Assert.assertThat(error.getMessage(), Matchers.containsString(REASON));
         Assert.assertThat(error.getCause(), Matchers.sameInstance(CAUSE));
     }

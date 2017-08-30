@@ -8,7 +8,6 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import java.util.zip.ZipOutputStream;
 
-import org.apache.commons.io.FileUtils;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationOperation;
@@ -115,8 +114,8 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportTest 
 
     @Test
     public void testConstructorWhenUnableToCreateZipFile() throws Exception {
-        FileUtils.deleteQuietly(EXPORT_FILE.getParent()
-                .toFile());
+        EXPORT_FILE =
+                EXPORT_FILE.getParent(); // using a dir instead of a file should trigger file not found
 
         thrown.expect(MigrationException.class);
         thrown.expectMessage(Matchers.containsString("failed to create export file"));

@@ -189,7 +189,7 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
         final Path MIGRATABLE_PATH = testFolder.newFile("test.cfg")
                 .toPath()
                 .toRealPath(LinkOption.NOFOLLOW_LINKS);
-        final String MIGRATABLE_NAME = MIGRATABLE_PATH.toString();
+        final String MIGRATABLE_NAME = FilenameUtils.separatorsToUnix(MIGRATABLE_PATH.toString());
 
         System.setProperty(PROPERTY_NAME,
                 MIGRATABLE_PATH.toAbsolutePath()
@@ -330,7 +330,7 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
     public void testGetEntryWithAbsolutePathNotUnderDDFHome() throws Exception {
         final Path MIGRATABLE_PATH = Paths.get(MIGRATABLE_NAME)
                 .toAbsolutePath();
-        final String MIGRATABLE_NAME = MIGRATABLE_PATH.toString();
+        final String MIGRATABLE_NAME = FilenameUtils.separatorsToUnix(MIGRATABLE_PATH.toString());
 
         final ExportMigrationEntry entry = CONTEXT.getEntry(MIGRATABLE_PATH);
 
@@ -470,7 +470,7 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
         // finally make sure we got an error (register the thrown expectations after the above to make sure
         // we don't get an exception from the above code under test
         thrown.expect(MigrationException.class);
-        thrown.expectMessage(Matchers.containsString("[etc/not-a-dir]"));
+        thrown.expectMessage(Matchers.containsString("[" + NOT_A_DIR + "]"));
         thrown.expectMessage(Matchers.containsString("is not a directory"));
 
         REPORT.verifyCompletion(); // to get the exception thrown out
@@ -599,7 +599,7 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
         // finally make sure we got an error (register the thrown expectations after the above to make sure
         // we don't get an exception from the above code under test
         thrown.expect(MigrationException.class);
-        thrown.expectMessage(Matchers.containsString("[etc/not-a-dir]"));
+        thrown.expectMessage(Matchers.containsString("[" + NOT_A_DIR + "]"));
         thrown.expectMessage(Matchers.containsString("is not a directory"));
 
         REPORT.verifyCompletion(); // to get the exception thrown out

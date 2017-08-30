@@ -88,7 +88,7 @@ public class PathUtilsTest extends AbstractMigrationTest {
 
     @Test
     public void testResolveAgainstDDFHomeWhenPathIsAbsolute() throws Exception {
-        final Path PATH = Paths.get("/etc/test.cfg");
+        final Path PATH = Paths.get("/etc", "test.cfg");
 
         final Path path = PATH_UTILS.resolveAgainstDDFHome(PATH);
 
@@ -108,7 +108,7 @@ public class PathUtilsTest extends AbstractMigrationTest {
 
     @Test
     public void testResolveAgainstDDFHomeWithStringWhenPathIsAbsolute() throws Exception {
-        final Path PATH = Paths.get("/test/script.sh");
+        final Path PATH = Paths.get("/test", "script.sh");
 
         final Path path = PATH_UTILS.resolveAgainstDDFHome(PATH.toString());
 

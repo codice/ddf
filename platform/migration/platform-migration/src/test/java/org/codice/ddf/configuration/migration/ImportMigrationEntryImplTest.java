@@ -54,7 +54,7 @@ public class ImportMigrationEntryImplTest extends AbstractMigrationTest {
 
     public static final String ENTRY_NAME = "test_name";
 
-    public static final Path ABSOLUTE_PATH = Paths.get("/opt/ddf", ENTRY_NAME);
+    public static final Path ABSOLUTE_PATH = Paths.get("/opt", "ddf", ENTRY_NAME);
 
     @Mock
     public ImportMigrationContextImpl mockContext;
@@ -281,7 +281,7 @@ public class ImportMigrationEntryImplTest extends AbstractMigrationTest {
     @Test
     public void isNotMigratableWithAbsolutePath() {
         final ImportMigrationEntryImpl entry = new ImportMigrationEntryImpl(mockContext,
-                "/" + ENTRY_NAME);
+                File.separatorChar + ENTRY_NAME);
 
         assertThat("The entry is not migratable.", entry.isMigratable(), is(false));
         reportHasWarningWithMessage(entry.getReport(), "is outside");

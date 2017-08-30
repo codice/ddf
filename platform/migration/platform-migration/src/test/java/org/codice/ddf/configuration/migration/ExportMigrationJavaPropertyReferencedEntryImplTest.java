@@ -139,7 +139,7 @@ public class ExportMigrationJavaPropertyReferencedEntryImplTest extends Abstract
         Assert.assertThat(debug, Matchers.containsString("Java property"));
         Assert.assertThat(debug, Matchers.containsString("[" + PROPERTY + "]"));
         Assert.assertThat(debug, Matchers.containsString("[" + PROPERTIES_PATH + "]"));
-        Assert.assertThat(debug, Matchers.containsString("[" + UNIX_NAME + "]"));
+        Assert.assertThat(debug, Matchers.containsString("[" + FILE_PATH + "]"));
     }
 
     @Test
@@ -150,7 +150,7 @@ public class ExportMigrationJavaPropertyReferencedEntryImplTest extends Abstract
         Assert.assertThat(warning.getMessage(), Matchers.containsString("[" + PROPERTY + "]"));
         Assert.assertThat(warning.getMessage(),
                 Matchers.containsString("[" + PROPERTIES_PATH + "]"));
-        Assert.assertThat(warning.getMessage(), Matchers.containsString("[" + UNIX_NAME + "]"));
+        Assert.assertThat(warning.getMessage(), Matchers.containsString("[" + FILE_PATH + "]"));
         Assert.assertThat(warning.getMessage(), Matchers.containsString(REASON));
     }
 
@@ -162,7 +162,7 @@ public class ExportMigrationJavaPropertyReferencedEntryImplTest extends Abstract
 
         Assert.assertThat(error.getMessage(), Matchers.containsString("[" + PROPERTY + "]"));
         Assert.assertThat(error.getMessage(), Matchers.containsString("[" + PROPERTIES_PATH + "]"));
-        Assert.assertThat(error.getMessage(), Matchers.containsString("[" + UNIX_NAME + "]"));
+        Assert.assertThat(error.getMessage(), Matchers.containsString("[" + FILE_PATH + "]"));
         Assert.assertThat(error.getMessage(), Matchers.containsString(REASON));
         Assert.assertThat(error.getCause(), Matchers.sameInstance(CAUSE));
     }
