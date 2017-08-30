@@ -2,52 +2,50 @@
 # DISTRIBUTION
 ###############################
 
-distribution/ddf-common/*	@stustison
+distribution/ddf-common/	@stustison
 
-distribution/docs/*         @ricklarsen
-
-distribution/ddf-common/  @rzwiefel
+distribution/docs/         @ricklarsen
 
 
 ###############################
 # CATALOG
 ###############################
 
-catalog/core/catalog-core-contentresourcereader/*	@stustison
+catalog/core/catalog-core-contentresourcereader/	@stustison
 
-catalog/core/catalog-core-localstorageprovider/*	@stustison
+catalog/core/catalog-core-localstorageprovider/	@stustison
 
-catalog/core/catalog-core-standardframework/src/main/java/ddf/catalog/impl/*		@stustison
-catalog/core/catalog-core-standardframework/src/main/java/ddf/catalog/resource/*    @stustison
+catalog/core/catalog-core-standardframework/src/main/java/ddf/catalog/impl/		@stustison
+catalog/core/catalog-core-standardframework/src/main/java/ddf/catalog/resource/    @stustison
 
-catalog/opensearch/*	@stustison
+catalog/opensearch/	@stustison
 
-catalog/rest/*		            @stustison
+catalog/rest/		            @stustison
 
-catalog/security/*		        @stustison
+catalog/security/		        @stustison
 
-catalog/spatial/csw/*           @bdeining
+catalog/spatial/csw/           @bdeining
 
-catalog/spatial/registry/*      @clockard
+catalog/spatial/registry/      @clockard
 
-catalog/ui/search-ui/standard/*		@stustison
+catalog/ui/search-ui/standard/		@stustison
 
-catalog/ui/catalog-ui-search/* @andrewkfiedler
+catalog/ui/catalog-ui-search/ @andrewkfiedler
 
 ###############################
 # PLATFORM
 ###############################
 
-platform/admin/*		@stustison
+platform/admin/		@stustison
 
-platform/error/*		@stustison
+platform/error/		@stustison
 
-platform/platform-filter-delegate/*		    @stustison
+platform/platform-filter-delegate/		    @stustison
 
-platform/platform-http-proxy/*		        @stustison
+platform/platform-http-proxy/		        @stustison
 
-platform/platform-paxweb-jettyconfig/*	    @stustison
+platform/platform-paxweb-jettyconfig/	    @stustison
 
-platform/security/*		@stustison
+platform/security/		@stustison
 
-platform/util/*			@stustison
+platform/util/			@stustison
