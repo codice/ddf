@@ -6,6 +6,8 @@ distribution/ddf-common/*	@stustison
 
 distribution/docs/*         @ricklarsen
 
+distribution/ddf-common/  @rzwiefel
+
 
 ###############################
 # CATALOG
