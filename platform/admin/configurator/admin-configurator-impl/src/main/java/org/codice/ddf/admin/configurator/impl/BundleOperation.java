@@ -20,6 +20,8 @@ import java.util.Arrays;
 
 import org.apache.karaf.bundle.core.BundleState;
 import org.apache.karaf.bundle.core.BundleStateService;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.codice.ddf.admin.configurator.ConfiguratorException;
 import org.codice.ddf.admin.configurator.Operation;
 import org.codice.ddf.admin.configurator.Result;
@@ -31,23 +33,35 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Sets;
+
+import ddf.security.permission.KeyValueCollectionPermission;
+import ddf.security.permission.KeyValuePermission;
+
 /**
  * Transactional handler for starting and stopping bundles.
  */
 public class BundleOperation implements Operation<Void> {
     private static final String INTERNAL_ERROR = "Internal error";
 
+    private static final String SECURITY_ERROR = "Security error";
+
     public static class Actions implements BundleActions {
         @Override
         public BundleOperation start(String bundleSymName) throws ConfiguratorException {
             validateString(bundleSymName, "Missing bundle name");
-            return new BundleOperation(bundleSymName, true, getBundleContext());
+            return new BundleOperation(bundleSymName,
+                    true,
+                    getBundleContext(), SecurityUtils.getSubject());
         }
 
         @Override
         public BundleOperation stop(String bundleSymName) throws ConfiguratorException {
             validateString(bundleSymName, "Missing bundle name");
-            return new BundleOperation(bundleSymName, false, getBundleContext());
+            return new BundleOperation(bundleSymName,
+                    false,
+                    getBundleContext(),
+                    SecurityUtils.getSubject());
         }
 
         @Override
@@ -64,11 +78,15 @@ public class BundleOperation implements Operation<Void> {
 
     private final Bundle bundle;
 
+    private final Subject subject;
+
     private final boolean initActivationState;
 
-    private BundleOperation(String bundleSymName, boolean activate, BundleContext bundleContext) {
+    private BundleOperation(String bundleSymName, boolean activate, BundleContext bundleContext,
+            Subject subject) {
         this.newState = activate;
         this.bundleContext = bundleContext;
+        this.subject = subject;
 
         bundle = Arrays.stream(bundleContext.getBundles())
                 .filter(b -> b.getSymbolicName()
@@ -82,6 +100,11 @@ public class BundleOperation implements Operation<Void> {
 
     @Override
     public Result<Void> commit() throws ConfiguratorException {
+        if (!isPermittedToViewBundle(bundle)) {
+            LOGGER.debug("Error installing/uninstalling bundle");
+            throw new ConfiguratorException(SECURITY_ERROR);
+        }
+
         try {
             if (initActivationState != newState) {
                 if (newState) {
@@ -128,5 +151,31 @@ public class BundleOperation implements Operation<Void> {
 
     private boolean lookupBundleState() {
         return getBundleStateService().getState(bundle) == BundleState.Active;
+    }
+
+    private boolean isPermittedToViewBundle(Bundle bundle) {
+        ServiceReference<?>[] services = bundle.getRegisteredServices();
+        if (services == null || services.length == 0) {
+            return true;
+        }
+
+        for (ServiceReference<?> service : services) {
+            Object pidProperty = service.getProperty("service.pid");
+            if (pidProperty instanceof String) {
+                if (!isPermittedToViewService((String) pidProperty)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    private boolean isPermittedToViewService(String servicePid) {
+        KeyValueCollectionPermission serviceToCheck = new KeyValueCollectionPermission(
+                "view-service.pid",
+                new KeyValuePermission("service.pid", Sets.newHashSet(servicePid)));
+
+        return subject.isPermitted(serviceToCheck);
     }
 }

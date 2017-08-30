@@ -3,6 +3,9 @@ package org.codice.ddf.admin.configurator.impl
 import org.apache.karaf.features.Feature
 import org.apache.karaf.features.FeatureState
 import org.apache.karaf.features.FeaturesService
+import org.apache.shiro.authz.Permission
+import org.apache.shiro.subject.Subject
+import org.codice.ddf.admin.configurator.ConfiguratorException
 import org.osgi.framework.BundleContext
 import org.osgi.framework.ServiceReference
 import spock.lang.Specification
@@ -14,6 +17,7 @@ class FeatureConfigHandlerTest extends Specification {
     private ServiceReference serviceReference
     private FeaturesService featuresService
     private BundleContext bundleContext
+    private Subject subject
 
     def setup() {
         featuresService = Mock(FeaturesService)
@@ -27,12 +31,15 @@ class FeatureConfigHandlerTest extends Specification {
         bundleContext = Mock(BundleContext)
         bundleContext.getServiceReference(FeaturesService) >> serviceReference
         bundleContext.getService(serviceReference) >> featuresService
+
+        subject = Mock(Subject)
+        subject.isPermitted(_ as Permission) >> true
     }
 
     def 'test start feature that was stopped and rollback'() {
         setup:
         featuresService.getState(FEATURE_NAME_AND_VERSION) >>> [FeatureState.Installed, FeatureState.Started]
-        def handler = new FeatureOperation('xxx', true, bundleContext)
+        def handler = new FeatureOperation('xxx', true, bundleContext, subject)
 
         when:
         handler.commit()
@@ -50,7 +57,7 @@ class FeatureConfigHandlerTest extends Specification {
     def 'test stop feature that was started and rollback'() {
         setup:
         featuresService.getState(FEATURE_NAME_AND_VERSION) >>> [FeatureState.Started, FeatureState.Installed]
-        def handler = new FeatureOperation('xxx', false, bundleContext)
+        def handler = new FeatureOperation('xxx', false, bundleContext, subject)
 
         when:
         handler.commit()
@@ -68,7 +75,7 @@ class FeatureConfigHandlerTest extends Specification {
     def 'test start feature that was already started and rollback'() {
         setup:
         featuresService.getState(FEATURE_NAME_AND_VERSION) >> FeatureState.Started
-        def handler = new FeatureOperation('xxx', true, bundleContext)
+        def handler = new FeatureOperation('xxx', true, bundleContext, subject)
 
         when:
         handler.commit()
@@ -88,7 +95,7 @@ class FeatureConfigHandlerTest extends Specification {
     def 'test stop feature that was already stopped and rollback'() {
         setup:
         featuresService.getState(FEATURE_NAME_AND_VERSION) >> FeatureState.Installed
-        def handler = new FeatureOperation('xxx', false, bundleContext)
+        def handler = new FeatureOperation('xxx', false, bundleContext, subject)
 
         when:
         handler.commit()
@@ -103,5 +110,19 @@ class FeatureConfigHandlerTest extends Specification {
         then:
         0 * featuresService.installFeature('xxx', EnumSet.of(NoAutoRefreshBundles))
         0 * featuresService.uninstallFeature('xxx')
+    }
+
+    def 'test start feature that was stopped and rollback with no permissions'() {
+        setup:
+        featuresService.getState(FEATURE_NAME_AND_VERSION) >>> [FeatureState.Installed, FeatureState.Started]
+        subject = Mock(Subject)
+        subject.isPermitted(_ as Permission) >> false
+        def handler = new FeatureOperation('xxx', true, bundleContext, subject)
+
+        when:
+        handler.commit()
+
+        then:
+        thrown(ConfiguratorException)
     }
 }
