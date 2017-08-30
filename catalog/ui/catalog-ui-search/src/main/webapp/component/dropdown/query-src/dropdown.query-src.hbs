@@ -29,6 +29,13 @@
 
                             </i>
                         {{/unless}}
+                        {{#if local}}
+                            <i class="fa source-icon fa-home">
+                            </i>
+                        {{else}}
+                            <i class="fa source-icon fa-cloud">
+                            </i>
+                        {{/if}}
                         <span class="src-title">
                             {{this.id}}
                         </span>
@@ -36,7 +43,7 @@
                 {{/each}}
                 {{#unless sources}}
                     <span class="text-src is-available">
-                        None
+                        Local Only ({{localCatalog}})
                     </span>
                 {{/unless}}
             {{/if}}
