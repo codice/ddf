@@ -542,7 +542,7 @@ public class PlatformMigratableTest {
             Files.createDirectories(p.getParent());
             Files.createFile(p);
             FileUtils.writeStringToFile(p.toFile(),
-                    String.format("#%s:%s",
+                    String.format("#%s&%s",
                             p.toRealPath()
                                     .toString(),
                             tag),
@@ -553,7 +553,7 @@ public class PlatformMigratableTest {
             Files.createDirectories(p.getParent());
             Files.createFile(p);
             FileUtils.writeStringToFile(p.toFile(),
-                    String.format("#%s:%s",
+                    String.format("#%s&%s",
                             p.toRealPath()
                                     .toString(),
                             tag),
@@ -572,7 +572,7 @@ public class PlatformMigratableTest {
             Path p = ddfHome.resolve(securityFile);
             Files.createFile(p);
             FileUtils.writeStringToFile(p.toFile(),
-                    String.format("#%s:%s",
+                    String.format("#%s&%s",
                             p.toRealPath()
                                     .toString(),
                             tag),
@@ -584,7 +584,7 @@ public class PlatformMigratableTest {
         Path serviceWrapperConfig = ddfHome.resolve(SERVICE_WRAPPER);
         Files.createFile(serviceWrapperConfig);
         FileUtils.writeStringToFile(serviceWrapperConfig.toFile(),
-                String.format("#%s:%s",
+                String.format("#%s&%s",
                         serviceWrapperConfig.toRealPath()
                                 .toString(),
                         tag),
@@ -600,7 +600,7 @@ public class PlatformMigratableTest {
             Path keystore = ddfHome.resolve(entry.getValue());
             Files.createFile(keystore);
             FileUtils.writeStringToFile(keystore.toFile(),
-                    String.format("#%s:%s",
+                    String.format("#%s&%s",
                             keystore.toRealPath()
                                     .toString(),
                             tag),
@@ -698,7 +698,7 @@ public class PlatformMigratableTest {
     private boolean verifiyImported(Path p) throws IOException {
         List<String> lines = Files.readAllLines(p, StandardCharsets.UTF_8);
         String tag = lines.get(0)
-                .split(":")[1];
+                .split("&")[1];
         return StringUtils.equals(tag, String.format(DDF_EXPORTED_TAG_TEMPLATE, DDF_EXPORTED_HOME));
     }
 }
