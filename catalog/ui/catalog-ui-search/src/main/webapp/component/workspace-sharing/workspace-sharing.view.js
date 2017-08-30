@@ -162,7 +162,9 @@ define([
                 }).value();
 
             var emails = this.emailCollection.map(function (email) {
-                return email.get('value');
+                return (email.get('value') || '').trim();
+            }).filter(function (email) {
+                return email !== '';
             });
 
             this.model.set('security.access-groups', roles);
