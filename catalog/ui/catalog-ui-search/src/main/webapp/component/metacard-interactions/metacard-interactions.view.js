@@ -60,6 +60,7 @@ define([
             if (currentWorkspace) {
                 this.listenTo(currentWorkspace, 'change:metacards', this.checkIfSaved);
             }
+            this.listenTo(this.model, 'change:metacard>properties', this.onRender);
             this.listenTo(user.get('user').get('preferences').get('resultBlacklist'),
                 'add remove update reset', this.checkIfBlacklisted);
         },
@@ -129,13 +130,30 @@ define([
             });
         },
         handleCreateSearch: function(){
-            store.clearSelectedResults();
-
-            var location = this.model.first().get('metacard').get('properties').get('location');
+            var locations = this.model.reduce((locationArray, model) => {
+                let location = model.get('metacard').get('properties').get('location');
+                if (location){
+                    let locationGeometry = wkx.Geometry.parse(location);
+                    let cqlString = "(" + CQLUtils.buildIntersectCQL(locationGeometry) + ")";
+                    locationArray.push(cqlString);
+                }
+                return locationArray;
+            }, []);
+            if (locations.length === 0){
+                return;  // shouldn't happen but just in case
+            }
+            var combinedCqlString = locations.reduce((cqlString, subCqlString, index) => {
+                if (index !== 0) {
+                    cqlString = cqlString + " OR ";
+                }
+                cqlString = cqlString + subCqlString;
+                return cqlString;
+            }, '');
+            let cqlString = "(" + combinedCqlString + ")";
+            var newQuery = new Query.Model({
+                isAdvanced: locations.length > 1
+            });
             var queryModel = store.getCurrentQueries();
-            var newQuery = new Query.Model();
-            var locationGeometry = wkx.Geometry.parse(location);
-            var cqlString = "(" + CQLUtils.buildIntersectCQL(locationGeometry) + ")";
             newQuery.set('cql', cqlString);
             if (queryModel.canAddQuery()){
                 queryModel.add(newQuery);
@@ -208,8 +226,16 @@ define([
             this.$el.toggleClass('is-blacklisted', isBlacklisted);
         },
         checkHasLocation: function(){
-            var location = this.model.first().get('metacard').get('properties').get('location');
-            this.$el.toggleClass('has-location', Boolean(location !== undefined));
+            var locations = this.model.reduce((locationArray, model) => {
+                let location = model.get('metacard').get('properties').get('location');
+                if (location){
+                    let locationGeometry = wkx.Geometry.parse(location);
+                    let cqlString = "(" + CQLUtils.buildIntersectCQL(locationGeometry) + ")";
+                    locationArray.push(cqlString);
+                }
+                return locationArray;
+            }, []);
+            this.$el.toggleClass('has-location', locations.length > 0);
         },
         checkTypes: function(){
             var types = {};
