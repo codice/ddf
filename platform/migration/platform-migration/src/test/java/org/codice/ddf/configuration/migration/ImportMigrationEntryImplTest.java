@@ -54,7 +54,7 @@ public class ImportMigrationEntryImplTest extends AbstractMigrationTest {
 
     public static final String ENTRY_NAME = "test_name";
 
-    public Path ABSOLUTE_PATH;
+    public Path absolutePath;
 
     @Mock
     public ImportMigrationContextImpl mockContext;
@@ -83,7 +83,7 @@ public class ImportMigrationEntryImplTest extends AbstractMigrationTest {
         importedFile = ddfHome.resolve(createFile(ENTRY_NAME))
                 .toFile();
         // resolving against DDF_HOME ensures that on Windows the absolute path gets the same drive as DDF_HOME
-        ABSOLUTE_PATH = ddfHome.resolve(Paths.get("/opt", "ddf", ENTRY_NAME));
+        absolutePath = ddfHome.resolve(Paths.get("/opt", "ddf", ENTRY_NAME));
     }
 
     @Test
@@ -307,7 +307,7 @@ public class ImportMigrationEntryImplTest extends AbstractMigrationTest {
     private void givenMockedPathUtils() {
         when(mockContext.getPathUtils()).thenReturn(mockPathUtils);
         when(mockBlankContext.getPathUtils()).thenReturn(mockPathUtils);
-        when(mockPathUtils.resolveAgainstDDFHome(any(Path.class))).thenReturn(ABSOLUTE_PATH);
+        when(mockPathUtils.resolveAgainstDDFHome(any(Path.class))).thenReturn(absolutePath);
     }
 
     private void givenARealMigrationReport() {
@@ -320,9 +320,9 @@ public class ImportMigrationEntryImplTest extends AbstractMigrationTest {
         assertThat(entry.getName(), equalTo(ENTRY_NAME));
         assertThat(entry.getPath()
                 .toString(), equalTo(ENTRY_NAME));
-        assertThat(entry.getAbsolutePath(), sameInstance(ABSOLUTE_PATH));
+        assertThat(entry.getAbsolutePath(), sameInstance(absolutePath));
         assertThat(entry.getFile()
-                .getAbsolutePath(), equalTo(ABSOLUTE_PATH.toString()));
+                .getAbsolutePath(), equalTo(absolutePath.toString()));
         verify(expectedContext).getPathUtils();
         verify(mockPathUtils).resolveAgainstDDFHome(any(Path.class));
     }

@@ -52,7 +52,7 @@ public class ImportMigrationJavaPropertyReferencedEntryImplTest extends Abstract
 
     public static final String REFERENCED_PATH = "file.txt";
 
-    private final static Map<String, Object> METADATA_MAP =
+    private static final Map<String, Object> METADATA_MAP =
             ImmutableMap.of(MigrationEntryImpl.METADATA_NAME,
                     PROPERTIES_PATH,
                     MigrationEntryImpl.METADATA_REFERENCE,

@@ -22,16 +22,16 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportTest 
 
     private static final String MIGRATABLE_ID3 = "test-migratable-3";
 
-    private final Migratable MIGRATABLE2 = Mockito.mock(Migratable.class);
+    private final Migratable migratable2 = Mockito.mock(Migratable.class);
 
-    private final Migratable MIGRATABLE3 = Mockito.mock(Migratable.class);
+    private final Migratable migratable3 = Mockito.mock(Migratable.class);
 
-    private final Migratable[] MIGRATABLES =
-            new Migratable[] {migratable, MIGRATABLE2, MIGRATABLE3};
+    private final Migratable[] migratables =
+            new Migratable[] {migratable, migratable2, migratable3};
 
-    private Path EXPORT_FILE;
+    private Path exportFile;
 
-    private ExportMigrationManagerImpl MGR;
+    private ExportMigrationManagerImpl mgr;
 
     public ExportMigrationManagerImplTest() {
         super(MigrationOperation.EXPORT);
@@ -39,42 +39,42 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportTest 
 
     @Before
     public void setup() throws Exception {
-        EXPORT_FILE = ddfHome.resolve(createDirectory("exported"))
+        exportFile = ddfHome.resolve(createDirectory("exported"))
                 .resolve("exported.zip");
         initMigratableMock();
-        initMigratableMock(MIGRATABLE2, MIGRATABLE_ID2);
-        initMigratableMock(MIGRATABLE3, MIGRATABLE_ID3);
+        initMigratableMock(migratable2, MIGRATABLE_ID2);
+        initMigratableMock(migratable3, MIGRATABLE_ID3);
 
-        MGR = new ExportMigrationManagerImpl(report, EXPORT_FILE, Stream.of(MIGRATABLES));
+        mgr = new ExportMigrationManagerImpl(report, exportFile, Stream.of(migratables));
     }
 
     @Test
     public void testConstructor() throws Exception {
-        Assert.assertThat(MGR.getReport(), Matchers.sameInstance(report));
-        Assert.assertThat(MGR.getExportFile(), Matchers.sameInstance(EXPORT_FILE));
-        Assert.assertThat(MGR.getContexts()
+        Assert.assertThat(mgr.getReport(), Matchers.sameInstance(report));
+        Assert.assertThat(mgr.getExportFile(), Matchers.sameInstance(exportFile));
+        Assert.assertThat(mgr.getContexts()
                         .stream()
                         .map(ExportMigrationContextImpl::getMigratable)
                         .toArray(Migratable[]::new),
                 Matchers.arrayContaining(Matchers.sameInstance(migratable),
-                        Matchers.sameInstance(MIGRATABLE2),
-                        Matchers.sameInstance(MIGRATABLE3)));
+                        Matchers.sameInstance(migratable2),
+                        Matchers.sameInstance(migratable3)));
     }
 
     @Test
     public void testConstructorWithDuplicateMigratableIds() throws Exception {
-        final Migratable MIGRATABLE2_2 = Mockito.mock(Migratable.class);
+        final Migratable migratable2_2 = Mockito.mock(Migratable.class);
 
-        initMigratableMock(MIGRATABLE2_2, MIGRATABLE_ID2);
-        Assert.assertThat(MGR.getReport(), Matchers.sameInstance(report));
-        Assert.assertThat(MGR.getExportFile(), Matchers.sameInstance(EXPORT_FILE));
-        Assert.assertThat(MGR.getContexts()
+        initMigratableMock(migratable2_2, MIGRATABLE_ID2);
+        Assert.assertThat(mgr.getReport(), Matchers.sameInstance(report));
+        Assert.assertThat(mgr.getExportFile(), Matchers.sameInstance(exportFile));
+        Assert.assertThat(mgr.getContexts()
                         .stream()
                         .map(ExportMigrationContextImpl::getMigratable)
                         .toArray(Migratable[]::new),
                 Matchers.arrayContaining(Matchers.sameInstance(migratable),
-                        Matchers.sameInstance(MIGRATABLE2),
-                        Matchers.sameInstance(MIGRATABLE3)));
+                        Matchers.sameInstance(migratable2),
+                        Matchers.sameInstance(migratable3)));
     }
 
     @Test
@@ -82,18 +82,18 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportTest 
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(Matchers.containsString("null report"));
 
-        new ExportMigrationManagerImpl(null, EXPORT_FILE, Stream.empty());
+        new ExportMigrationManagerImpl(null, exportFile, Stream.empty());
     }
 
     @Test
     public void testConstructorWithInvalidReport() throws Exception {
-        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT,
+        final MigrationReportImpl report = new MigrationReportImpl(MigrationOperation.IMPORT,
                 Optional.empty());
 
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(Matchers.containsString("invalid migration operation"));
 
-        new ExportMigrationManagerImpl(REPORT, EXPORT_FILE, Stream.empty());
+        new ExportMigrationManagerImpl(report, exportFile, Stream.empty());
     }
 
     @Test
@@ -109,48 +109,48 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportTest 
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(Matchers.containsString("null migratables"));
 
-        new ExportMigrationManagerImpl(report, EXPORT_FILE, null);
+        new ExportMigrationManagerImpl(report, exportFile, null);
     }
 
     @Test
     public void testConstructorWhenUnableToCreateZipFile() throws Exception {
-        EXPORT_FILE =
-                EXPORT_FILE.getParent(); // using a dir instead of a file should trigger file not found
+        exportFile =
+                exportFile.getParent(); // using a dir instead of a file should trigger file not found
 
         thrown.expect(MigrationException.class);
         thrown.expectMessage(Matchers.containsString("failed to create export file"));
         thrown.expectCause(Matchers.instanceOf(FileNotFoundException.class));
 
-        new ExportMigrationManagerImpl(report, EXPORT_FILE, Stream.empty());
+        new ExportMigrationManagerImpl(report, exportFile, Stream.empty());
     }
 
     @Test
     public void testDoExport() throws Exception {
-        MGR.doExport(PRODUCT_VERSION);
+        mgr.doExport(PRODUCT_VERSION);
 
-        assertMetaData(MGR.getMetadata());
+        assertMetaData(mgr.getMetadata());
 
         Mockito.verify(migratable)
                 .doExport(Mockito.notNull());
-        Mockito.verify(MIGRATABLE2)
+        Mockito.verify(migratable2)
                 .doExport(Mockito.notNull());
-        Mockito.verify(MIGRATABLE3)
+        Mockito.verify(migratable3)
                 .doExport(Mockito.notNull());
     }
 
     @Test
     public void testDoExportWhenOneMigratableAborts() throws Exception {
-        final MigrationException ME = new MigrationException("testing");
+        final MigrationException me = new MigrationException("testing");
 
-        Mockito.doThrow(ME)
-                .when(MIGRATABLE2)
+        Mockito.doThrow(me)
+                .when(migratable2)
                 .doExport(Mockito.any());
 
-        thrown.expect(Matchers.sameInstance(ME));
+        thrown.expect(Matchers.sameInstance(me));
 
-        MGR.doExport(PRODUCT_VERSION);
+        mgr.doExport(PRODUCT_VERSION);
 
-        Mockito.verify(MIGRATABLE3, Mockito.never())
+        Mockito.verify(migratable3, Mockito.never())
                 .doExport(Mockito.notNull());
     }
 
@@ -159,16 +159,16 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportTest 
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(Matchers.containsString("null product version"));
 
-        MGR.doExport(null);
+        mgr.doExport(null);
     }
 
     @Test
     public void testClose() throws Exception {
-        MGR.doExport(PRODUCT_VERSION);
+        mgr.doExport(PRODUCT_VERSION);
 
-        MGR.close();
+        mgr.close();
 
-        final Map<String, ZipEntry> entries = AbstractMigrationTest.getEntriesFrom(EXPORT_FILE);
+        final Map<String, ZipEntry> entries = AbstractMigrationTest.getEntriesFrom(exportFile);
 
         Assert.assertThat(entries, Matchers.aMapWithSize(1));
         Assert.assertThat(entries,
@@ -183,63 +183,63 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportTest 
 
     @Test
     public void testCloseWhenAlreadyClosed() throws Exception {
-        final ZipOutputStream ZOS = Mockito.mock(ZipOutputStream.class);
-        final ExportMigrationManagerImpl MGR = new ExportMigrationManagerImpl(report,
-                EXPORT_FILE,
-                Stream.of(MIGRATABLES),
-                ZOS);
+        final ZipOutputStream zos = Mockito.mock(ZipOutputStream.class);
+        final ExportMigrationManagerImpl mgr = new ExportMigrationManagerImpl(report,
+                exportFile,
+                Stream.of(migratables),
+                zos);
 
         Mockito.doNothing()
-                .when(ZOS)
+                .when(zos)
                 .closeEntry();
 
-        MGR.close();
+        mgr.close();
 
-        MGR.close();
+        mgr.close();
 
-        Mockito.verify(ZOS)
+        Mockito.verify(zos)
                 .closeEntry();
     }
 
     @Test
     public void testCloseWhileFailingToCreateMetadataEntry() throws Exception {
-        final ZipOutputStream ZOS = Mockito.mock(ZipOutputStream.class);
-        final ExportMigrationManagerImpl MGR = new ExportMigrationManagerImpl(report,
-                EXPORT_FILE,
-                Stream.of(MIGRATABLES),
-                ZOS);
-        final IOException IOE = new IOException("testing");
+        final ZipOutputStream zos = Mockito.mock(ZipOutputStream.class);
+        final ExportMigrationManagerImpl mgr = new ExportMigrationManagerImpl(report,
+                exportFile,
+                Stream.of(migratables),
+                zos);
+        final IOException ioe = new IOException("testing");
 
         Mockito.doNothing()
-                .when(ZOS)
+                .when(zos)
                 .closeEntry();
-        Mockito.doThrow(IOE)
-                .when(ZOS)
+        Mockito.doThrow(ioe)
+                .when(zos)
                 .putNextEntry(Mockito.any());
 
         thrown.expect(MigrationException.class);
         thrown.expectMessage(Matchers.containsString("failed to create metadata"));
-        thrown.expectCause(Matchers.sameInstance(IOE));
+        thrown.expectCause(Matchers.sameInstance(ioe));
 
-        MGR.close();
+        mgr.close();
     }
 
     @Test
     public void testCloseWhileFailingToCloseLastEntry() throws Exception {
-        final ZipOutputStream ZOS = Mockito.mock(ZipOutputStream.class);
-        final ExportMigrationManagerImpl MGR = new ExportMigrationManagerImpl(report,
-                EXPORT_FILE,
-                Stream.of(MIGRATABLES),
-                ZOS);
-        final IOException IOE = new IOException("testing");
+        final ZipOutputStream zos = Mockito.mock(ZipOutputStream.class);
+        final ExportMigrationManagerImpl mgr = new ExportMigrationManagerImpl(report,
+                exportFile,
+                Stream.of(migratables),
+                zos);
+        final IOException ioe = new IOException("testing");
 
-        Mockito.doThrow(IOE)
-                .when(ZOS)
+        Mockito.doThrow(ioe)
+                .when(zos)
                 .closeEntry();
 
-        thrown.expect(Matchers.sameInstance(IOE));
+        thrown.expect(Matchers.sameInstance(ioe));
 
-        MGR.close();
+        mgr.close();
     }
 
     private void assertMetaData(Map<String, Object> metadata) {
@@ -259,8 +259,8 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportTest 
         final Map<String, Object> mmetadatas = (Map<String, Object>) metadata.get(
                 MigrationContextImpl.METADATA_MIGRATABLES);
 
-        Assert.assertThat(mmetadatas, Matchers.aMapWithSize(MIGRATABLES.length));
-        Stream.of(MIGRATABLES)
+        Assert.assertThat(mmetadatas, Matchers.aMapWithSize(migratables.length));
+        Stream.of(migratables)
                 .forEach(m -> {
                     Assert.assertThat(mmetadatas,
                             Matchers.hasEntry(Matchers.equalTo(m.getId()),

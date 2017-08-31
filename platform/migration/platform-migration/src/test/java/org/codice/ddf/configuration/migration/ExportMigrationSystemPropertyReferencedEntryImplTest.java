@@ -26,37 +26,39 @@ public class ExportMigrationSystemPropertyReferencedEntryImplTest extends Abstra
 
     private static final String MIGRATABLE_ID = "test-migratable";
 
-    private final ExportMigrationReportImpl REPORT = new ExportMigrationReportImpl();
+    private final ExportMigrationReportImpl report = new ExportMigrationReportImpl();
 
-    private final ExportMigrationContextImpl CONTEXT =
+    private final ExportMigrationContextImpl context =
             Mockito.mock(ExportMigrationContextImpl.class);
 
-    private Path ABSOLUTE_FILE_PATH;
+    private Path absoluteFilePath;
 
-    private ExportMigrationSystemPropertyReferencedEntryImpl ENTRY;
+    private ExportMigrationSystemPropertyReferencedEntryImpl entry;
 
     @Before
     public void setup() throws Exception {
         createFile(createDirectory(DIRS), FILENAME);
-        Mockito.when(CONTEXT.getPathUtils())
+        Mockito.when(context.getPathUtils())
                 .thenReturn(new PathUtils());
-        Mockito.when(CONTEXT.getReport())
-                .thenReturn(REPORT);
-        Mockito.when(CONTEXT.getId())
+        Mockito.when(context.getReport())
+                .thenReturn(report);
+        Mockito.when(context.getId())
                 .thenReturn(MIGRATABLE_ID);
-        ENTRY = new ExportMigrationSystemPropertyReferencedEntryImpl(CONTEXT, PROPERTY, UNIX_NAME);
-        ABSOLUTE_FILE_PATH = ddfHome.resolve(UNIX_NAME)
+
+        entry = new ExportMigrationSystemPropertyReferencedEntryImpl(context, PROPERTY, UNIX_NAME);
+
+        absoluteFilePath = ddfHome.resolve(UNIX_NAME)
                 .toRealPath(LinkOption.NOFOLLOW_LINKS);
     }
 
     @Test
     public void testConstructor() throws Exception {
-        Assert.assertThat(ENTRY.getContext(), Matchers.sameInstance(CONTEXT));
-        Assert.assertThat(ENTRY.getPath(), Matchers.equalTo(FILE_PATH));
-        Assert.assertThat(ENTRY.getAbsolutePath(), Matchers.equalTo(ABSOLUTE_FILE_PATH));
-        Assert.assertThat(ENTRY.getFile(), Matchers.equalTo(ABSOLUTE_FILE_PATH.toFile()));
-        Assert.assertThat(ENTRY.getName(), Matchers.equalTo(UNIX_NAME));
-        Assert.assertThat(ENTRY.getProperty(), Matchers.equalTo(PROPERTY));
+        Assert.assertThat(entry.getContext(), Matchers.sameInstance(context));
+        Assert.assertThat(entry.getPath(), Matchers.equalTo(FILE_PATH));
+        Assert.assertThat(entry.getAbsolutePath(), Matchers.equalTo(absoluteFilePath));
+        Assert.assertThat(entry.getFile(), Matchers.equalTo(absoluteFilePath.toFile()));
+        Assert.assertThat(entry.getName(), Matchers.equalTo(UNIX_NAME));
+        Assert.assertThat(entry.getProperty(), Matchers.equalTo(PROPERTY));
     }
 
     @Test
@@ -72,7 +74,7 @@ public class ExportMigrationSystemPropertyReferencedEntryImplTest extends Abstra
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("null property");
 
-        new ExportMigrationSystemPropertyReferencedEntryImpl(CONTEXT, null, UNIX_NAME);
+        new ExportMigrationSystemPropertyReferencedEntryImpl(context, null, UNIX_NAME);
     }
 
     @Test
@@ -80,27 +82,27 @@ public class ExportMigrationSystemPropertyReferencedEntryImplTest extends Abstra
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("null pathname");
 
-        new ExportMigrationSystemPropertyReferencedEntryImpl(CONTEXT, PROPERTY, null);
+        new ExportMigrationSystemPropertyReferencedEntryImpl(context, PROPERTY, null);
     }
 
     @Test
     public void testRecordEntry() throws Exception {
-        final ExportMigrationReportImpl REPORT = Mockito.mock(ExportMigrationReportImpl.class);
+        final ExportMigrationReportImpl report = Mockito.mock(ExportMigrationReportImpl.class);
 
-        Mockito.when(CONTEXT.getReport())
-                .thenReturn(REPORT);
-        Mockito.when(REPORT.recordSystemProperty(Mockito.any()))
-                .thenReturn(REPORT);
+        Mockito.when(context.getReport())
+                .thenReturn(report);
+        Mockito.when(report.recordSystemProperty(Mockito.any()))
+                .thenReturn(report);
 
-        ENTRY.recordEntry();
+        entry.recordEntry();
 
-        Mockito.verify(REPORT)
-                .recordSystemProperty(Mockito.same(ENTRY));
+        Mockito.verify(report)
+                .recordSystemProperty(Mockito.same(entry));
     }
 
     @Test
     public void testToDebugString() throws Exception {
-        final String debug = ENTRY.toDebugString();
+        final String debug = entry.toDebugString();
 
         Assert.assertThat(debug, Matchers.containsString("system property"));
         Assert.assertThat(debug, Matchers.containsString("[" + PROPERTY + "]"));
@@ -109,71 +111,71 @@ public class ExportMigrationSystemPropertyReferencedEntryImplTest extends Abstra
 
     @Test
     public void testNewWarning() throws Exception {
-        final String REASON = "test reason";
-        final MigrationWarning warning = ENTRY.newWarning(REASON);
+        final String reason = "test reason";
+        final MigrationWarning warning = entry.newWarning(reason);
 
         Assert.assertThat(warning.getMessage(), Matchers.containsString("[" + PROPERTY + "]"));
         Assert.assertThat(warning.getMessage(), Matchers.containsString("[" + FILE_PATH + "]"));
-        Assert.assertThat(warning.getMessage(), Matchers.containsString(REASON));
+        Assert.assertThat(warning.getMessage(), Matchers.containsString(reason));
     }
 
     @Test
     public void testNewError() throws Exception {
-        final String REASON = "test reason";
-        final IllegalArgumentException CAUSE = new IllegalArgumentException("test cause");
-        final MigrationException error = ENTRY.newError(REASON, CAUSE);
+        final String reason = "test reason";
+        final IllegalArgumentException cause = new IllegalArgumentException("test cause");
+        final MigrationException error = entry.newError(reason, cause);
 
         Assert.assertThat(error.getMessage(), Matchers.containsString("[" + PROPERTY + "]"));
         Assert.assertThat(error.getMessage(), Matchers.containsString("[" + FILE_PATH + "]"));
-        Assert.assertThat(error.getMessage(), Matchers.containsString(REASON));
-        Assert.assertThat(error.getCause(), Matchers.sameInstance(CAUSE));
+        Assert.assertThat(error.getMessage(), Matchers.containsString(reason));
+        Assert.assertThat(error.getCause(), Matchers.sameInstance(cause));
     }
 
     @Test
     public void testEqualsWhenEquals() throws Exception {
-        final ExportMigrationSystemPropertyReferencedEntryImpl ENTRY2 =
-                new ExportMigrationSystemPropertyReferencedEntryImpl(CONTEXT, PROPERTY, UNIX_NAME);
+        final ExportMigrationSystemPropertyReferencedEntryImpl entry2 =
+                new ExportMigrationSystemPropertyReferencedEntryImpl(context, PROPERTY, UNIX_NAME);
 
-        Assert.assertThat(ENTRY.equals(ENTRY2), Matchers.equalTo(true));
+        Assert.assertThat(entry.equals(entry2), Matchers.equalTo(true));
     }
 
     @Test
     public void testEqualsWhenIdentical() throws Exception {
-        Assert.assertThat(ENTRY.equals(ENTRY), Matchers.equalTo(true));
+        Assert.assertThat(entry.equals(entry), Matchers.equalTo(true));
     }
 
     // PMD.EqualsNull - Purposely testing equals() when called with null
     @SuppressWarnings("PMD.EqualsNull")
     @Test
     public void testEqualsWhenNull() throws Exception {
-        Assert.assertThat(ENTRY.equals(null), Matchers.equalTo(false));
+        Assert.assertThat(entry.equals(null), Matchers.equalTo(false));
     }
 
     @Test
     public void testEqualsWhenPropertiesAreDifferent() throws Exception {
-        final ExportMigrationSystemPropertyReferencedEntryImpl ENTRY2 =
-                new ExportMigrationSystemPropertyReferencedEntryImpl(CONTEXT,
+        final ExportMigrationSystemPropertyReferencedEntryImpl entry2 =
+                new ExportMigrationSystemPropertyReferencedEntryImpl(context,
                         PROPERTY + '2',
                         UNIX_NAME);
 
-        Assert.assertThat(ENTRY.equals(ENTRY2), Matchers.equalTo(false));
+        Assert.assertThat(entry.equals(entry2), Matchers.equalTo(false));
     }
 
     @Test
     public void testHashCodeWhenEquals() throws Exception {
-        final ExportMigrationSystemPropertyReferencedEntryImpl ENTRY2 =
-                new ExportMigrationSystemPropertyReferencedEntryImpl(CONTEXT, PROPERTY, UNIX_NAME);
+        final ExportMigrationSystemPropertyReferencedEntryImpl entry2 =
+                new ExportMigrationSystemPropertyReferencedEntryImpl(context, PROPERTY, UNIX_NAME);
 
-        Assert.assertThat(ENTRY.hashCode(), Matchers.equalTo(ENTRY2.hashCode()));
+        Assert.assertThat(entry.hashCode(), Matchers.equalTo(entry2.hashCode()));
     }
 
     @Test
     public void testHashCodeWhenDifferent() throws Exception {
-        final ExportMigrationSystemPropertyReferencedEntryImpl ENTRY2 =
-                new ExportMigrationSystemPropertyReferencedEntryImpl(CONTEXT,
+        final ExportMigrationSystemPropertyReferencedEntryImpl entry2 =
+                new ExportMigrationSystemPropertyReferencedEntryImpl(context,
                         PROPERTY + '2',
                         UNIX_NAME);
 
-        Assert.assertThat(ENTRY.hashCode(), Matchers.not(Matchers.equalTo(ENTRY2.hashCode())));
+        Assert.assertThat(entry.hashCode(), Matchers.not(Matchers.equalTo(entry2.hashCode())));
     }
 }

@@ -27,64 +27,64 @@ public class ImportMigrationSystemPropertyReferencedEntryImplTest extends Abstra
 
     private static final String MIGRATABLE_PROPERTY = "test.property";
 
-    private final MigrationReportImpl REPORT = Mockito.mock(MigrationReportImpl.class,
+    private final MigrationReportImpl report = Mockito.mock(MigrationReportImpl.class,
             Mockito.withSettings()
                     .useConstructor(MigrationOperation.IMPORT, Optional.empty())
                     .defaultAnswer(Mockito.CALLS_REAL_METHODS));
 
-    private final Map<String, Object> METADATA = new HashMap<>();
+    private final Map<String, Object> metadata = new HashMap<>();
 
-    private final ImportMigrationEntryImpl REFERENCED_ENTRY =
+    private final ImportMigrationEntryImpl referencedEntry =
             Mockito.mock(ImportMigrationEntryImpl.class);
 
-    private ImportMigrationContextImpl CONTEXT;
+    private ImportMigrationContextImpl context;
 
-    private ImportMigrationSystemPropertyReferencedEntryImpl ENTRY;
+    private ImportMigrationSystemPropertyReferencedEntryImpl entry;
 
     @Before
     public void setup() throws Exception {
         System.setProperty(MIGRATABLE_PROPERTY, createFile(MIGRATABLE_PATH).toString());
 
-        METADATA.put(MigrationEntryImpl.METADATA_REFERENCE, MIGRATABLE_NAME);
-        METADATA.put(MigrationEntryImpl.METADATA_PROPERTY, MIGRATABLE_PROPERTY);
+        metadata.put(MigrationEntryImpl.METADATA_REFERENCE, MIGRATABLE_NAME);
+        metadata.put(MigrationEntryImpl.METADATA_PROPERTY, MIGRATABLE_PROPERTY);
 
-        CONTEXT = Mockito.mock(ImportMigrationContextImpl.class);
+        context = Mockito.mock(ImportMigrationContextImpl.class);
 
-        Mockito.when(CONTEXT.getPathUtils())
+        Mockito.when(context.getPathUtils())
                 .thenReturn(new PathUtils());
-        Mockito.when(CONTEXT.getReport())
-                .thenReturn(REPORT);
-        Mockito.when(CONTEXT.getId())
+        Mockito.when(context.getReport())
+                .thenReturn(report);
+        Mockito.when(context.getId())
                 .thenReturn(MIGRATABLE_ID);
-        Mockito.when(CONTEXT.getOptionalEntry(MIGRATABLE_PATH))
-                .thenReturn(Optional.of(REFERENCED_ENTRY));
+        Mockito.when(context.getOptionalEntry(MIGRATABLE_PATH))
+                .thenReturn(Optional.of(referencedEntry));
         Mockito.doAnswer(AdditionalAnswers.<Consumer<MigrationReport>>answerVoid(c -> c.accept(
-                REPORT)))
-                .when(REPORT)
+                report)))
+                .when(report)
                 .doAfterCompletion(Mockito.any());
 
-        ENTRY = new ImportMigrationSystemPropertyReferencedEntryImpl(CONTEXT, METADATA);
+        entry = new ImportMigrationSystemPropertyReferencedEntryImpl(context, metadata);
     }
 
     @Test
     public void testConstructor() throws Exception {
-        Assert.assertThat(ENTRY.getName(), Matchers.equalTo(MIGRATABLE_NAME));
-        Assert.assertThat(ENTRY.getPath(), Matchers.equalTo(MIGRATABLE_PATH));
-        Assert.assertThat(ENTRY.getContext(), Matchers.sameInstance(CONTEXT));
-        Assert.assertThat(ENTRY.getReport(), Matchers.sameInstance(REPORT));
-        Assert.assertThat(ENTRY.getProperty(), Matchers.equalTo(MIGRATABLE_PROPERTY));
-        Assert.assertThat(ENTRY.getReferencedEntry(), Matchers.sameInstance(REFERENCED_ENTRY));
+        Assert.assertThat(entry.getName(), Matchers.equalTo(MIGRATABLE_NAME));
+        Assert.assertThat(entry.getPath(), Matchers.equalTo(MIGRATABLE_PATH));
+        Assert.assertThat(entry.getContext(), Matchers.sameInstance(context));
+        Assert.assertThat(entry.getReport(), Matchers.sameInstance(report));
+        Assert.assertThat(entry.getProperty(), Matchers.equalTo(MIGRATABLE_PROPERTY));
+        Assert.assertThat(entry.getReferencedEntry(), Matchers.sameInstance(referencedEntry));
     }
 
     @Test
     public void testVerifyPropertyAfterCompletionWhenPropertyIsStillDefined() throws Exception {
-        ENTRY.verifyPropertyAfterCompletion();
+        entry.verifyPropertyAfterCompletion();
 
-        Assert.assertThat(REPORT.wasSuccessful(), Matchers.equalTo(true));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(false));
+        Assert.assertThat(report.wasSuccessful(), Matchers.equalTo(true));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(false));
 
-        Mockito.verify(REPORT)
+        Mockito.verify(report)
                 .doAfterCompletion(Mockito.notNull());
     }
 
@@ -93,60 +93,60 @@ public class ImportMigrationSystemPropertyReferencedEntryImplTest extends Abstra
         System.getProperties()
                 .remove(MIGRATABLE_PROPERTY);
 
-        ENTRY.verifyPropertyAfterCompletion();
+        entry.verifyPropertyAfterCompletion();
 
-        Assert.assertThat(REPORT.wasSuccessful(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(true));
+        Assert.assertThat(report.wasSuccessful(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(true));
 
         thrown.expect(MigrationException.class);
         thrown.expectMessage(Matchers.matchesPattern(
                 ".*system property \\[" + MIGRATABLE_PROPERTY + "\\].* no longer defined.*"));
 
-        Mockito.verify(REPORT)
+        Mockito.verify(report)
                 .doAfterCompletion(Mockito.notNull());
 
-        REPORT.verifyCompletion(); // to trigger the exception
+        report.verifyCompletion(); // to trigger the exception
     }
 
     @Test
     public void testVerifyPropertyAfterCompletionWhenPropertyIsBlank() throws Exception {
         System.setProperty(MIGRATABLE_PROPERTY, "");
 
-        ENTRY.verifyPropertyAfterCompletion();
+        entry.verifyPropertyAfterCompletion();
 
-        Assert.assertThat(REPORT.wasSuccessful(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(true));
+        Assert.assertThat(report.wasSuccessful(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(true));
 
         thrown.expect(MigrationException.class);
         thrown.expectMessage(Matchers.matchesPattern(
                 ".*system property \\[" + MIGRATABLE_PROPERTY + "\\].* is now empty.*"));
 
-        Mockito.verify(REPORT)
+        Mockito.verify(report)
                 .doAfterCompletion(Mockito.notNull());
 
-        REPORT.verifyCompletion(); // to trigger the exception
+        report.verifyCompletion(); // to trigger the exception
     }
 
     @Test
     public void testVerifyPropertyAfterCompletionWhenReferencedFileIsDifferent() throws Exception {
         System.setProperty(MIGRATABLE_PROPERTY, createFile(MIGRATABLE_PATH + "2").toString());
 
-        ENTRY.verifyPropertyAfterCompletion();
+        entry.verifyPropertyAfterCompletion();
 
-        Assert.assertThat(REPORT.wasSuccessful(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(true));
+        Assert.assertThat(report.wasSuccessful(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(true));
 
         thrown.expect(MigrationException.class);
         thrown.expectMessage(Matchers.matchesPattern(
                 ".*system property \\[" + MIGRATABLE_PROPERTY + "\\].* is now set to \\[.*2\\].*"));
 
-        Mockito.verify(REPORT)
+        Mockito.verify(report)
                 .doAfterCompletion(Mockito.notNull());
 
-        REPORT.verifyCompletion(); // to trigger the exception
+        report.verifyCompletion(); // to trigger the exception
     }
 
     @Test
@@ -154,21 +154,21 @@ public class ImportMigrationSystemPropertyReferencedEntryImplTest extends Abstra
             throws Exception {
         System.setProperty(MIGRATABLE_PROPERTY, MIGRATABLE_PATH + "2");
 
-        ENTRY.verifyPropertyAfterCompletion();
+        entry.verifyPropertyAfterCompletion();
 
-        Assert.assertThat(REPORT.wasSuccessful(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(true));
+        Assert.assertThat(report.wasSuccessful(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(true));
 
         thrown.expect(MigrationException.class);
         thrown.expectMessage(Matchers.matchesPattern(".*system property \\[" + MIGRATABLE_PROPERTY
                 + "\\].* is now set to \\[.*2\\]; .*"));
         thrown.expectCause(Matchers.instanceOf(IOException.class));
 
-        Mockito.verify(REPORT)
+        Mockito.verify(report)
                 .doAfterCompletion(Mockito.notNull());
 
-        REPORT.verifyCompletion(); // to trigger the exception
+        report.verifyCompletion(); // to trigger the exception
     }
 
     @Test
@@ -180,20 +180,20 @@ public class ImportMigrationSystemPropertyReferencedEntryImplTest extends Abstra
 
         System.setProperty(MIGRATABLE_PROPERTY, createFile(MIGRATABLE_PATH + "2").toString());
 
-        ENTRY.verifyPropertyAfterCompletion();
+        entry.verifyPropertyAfterCompletion();
 
-        Assert.assertThat(REPORT.wasSuccessful(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(true));
+        Assert.assertThat(report.wasSuccessful(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(true));
 
         thrown.expect(MigrationException.class);
         thrown.expectMessage(Matchers.matchesPattern(".*system property \\[" + MIGRATABLE_PROPERTY
                 + "\\].* is now set to \\[.*2\\]; .*"));
         thrown.expectCause(Matchers.instanceOf(IOException.class));
 
-        Mockito.verify(REPORT)
+        Mockito.verify(report)
                 .doAfterCompletion(Mockito.notNull());
 
-        REPORT.verifyCompletion(); // to trigger the exception
+        report.verifyCompletion(); // to trigger the exception
     }
 }

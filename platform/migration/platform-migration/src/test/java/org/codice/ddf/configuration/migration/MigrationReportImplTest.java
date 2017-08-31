@@ -43,28 +43,28 @@ public class MigrationReportImplTest extends AbstractMigrationReportTest {
 
     @Test
     public void testConstructorWithExportOperation() throws Exception {
-        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.EXPORT,
+        final MigrationReportImpl report = new MigrationReportImpl(MigrationOperation.EXPORT,
                 Optional.empty());
 
-        Assert.assertThat(REPORT.getOperation(), Matchers.equalTo(MigrationOperation.EXPORT));
-        Assert.assertThat(REPORT.getStartTime()
+        Assert.assertThat(report.getOperation(), Matchers.equalTo(MigrationOperation.EXPORT));
+        Assert.assertThat(report.getStartTime()
                 .toEpochMilli(), Matchers.greaterThan(0L));
-        Assert.assertThat(REPORT.getEndTime(), OptionalMatchers.isEmpty());
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.getEndTime(), OptionalMatchers.isEmpty());
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
     }
 
     @Test
     public void testConstructorWithImportOperation() throws Exception {
-        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT,
+        final MigrationReportImpl report = new MigrationReportImpl(MigrationOperation.IMPORT,
                 Optional.empty());
 
-        Assert.assertThat(REPORT.getOperation(), Matchers.equalTo(MigrationOperation.IMPORT));
-        Assert.assertThat(REPORT.getStartTime()
+        Assert.assertThat(report.getOperation(), Matchers.equalTo(MigrationOperation.IMPORT));
+        Assert.assertThat(report.getStartTime()
                 .toEpochMilli(), Matchers.greaterThan(0L));
-        Assert.assertThat(REPORT.getEndTime(), OptionalMatchers.isEmpty());
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.getEndTime(), OptionalMatchers.isEmpty());
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
     }
 
     @Test
@@ -77,15 +77,15 @@ public class MigrationReportImplTest extends AbstractMigrationReportTest {
 
     @Test
     public void testConstructorWithReport() throws Exception {
-        final MigrationReportImpl REPORT2 = new MigrationReportImpl(MigrationOperation.IMPORT,
+        final MigrationReportImpl report2 = new MigrationReportImpl(MigrationOperation.IMPORT,
                 report,
                 Optional.empty());
 
-        Assert.assertThat(REPORT2.getOperation(), Matchers.equalTo(MigrationOperation.IMPORT));
-        Assert.assertThat(REPORT2.getStartTime(), Matchers.equalTo(report.getStartTime()));
-        Assert.assertThat(REPORT2.getEndTime(), OptionalMatchers.isEmpty());
-        Assert.assertThat(REPORT2.hasErrors(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT2.warnings()
+        Assert.assertThat(report2.getOperation(), Matchers.equalTo(MigrationOperation.IMPORT));
+        Assert.assertThat(report2.getStartTime(), Matchers.equalTo(report.getStartTime()));
+        Assert.assertThat(report2.getEndTime(), OptionalMatchers.isEmpty());
+        Assert.assertThat(report2.hasErrors(), Matchers.equalTo(false));
+        Assert.assertThat(report2.warnings()
                         .map(MigrationWarning::getMessage)
                         .toArray(String[]::new),
                 Matchers.arrayContaining(POTENTIAL_WARNING_MESSAGE_STRINGS));
@@ -95,15 +95,15 @@ public class MigrationReportImplTest extends AbstractMigrationReportTest {
     public void testConstructorWithUncompletedReport() throws Exception {
         report.doAfterCompletion(r -> r.record(new MigrationWarning("final warning")));
 
-        final MigrationReportImpl REPORT2 = new MigrationReportImpl(MigrationOperation.IMPORT,
+        final MigrationReportImpl report2 = new MigrationReportImpl(MigrationOperation.IMPORT,
                 report,
                 Optional.empty());
 
-        Assert.assertThat(REPORT2.getOperation(), Matchers.equalTo(MigrationOperation.IMPORT));
-        Assert.assertThat(REPORT2.getStartTime(), Matchers.equalTo(report.getStartTime()));
-        Assert.assertThat(REPORT2.getEndTime(), OptionalMatchers.isEmpty());
-        Assert.assertThat(REPORT2.hasErrors(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT2.warnings()
+        Assert.assertThat(report2.getOperation(), Matchers.equalTo(MigrationOperation.IMPORT));
+        Assert.assertThat(report2.getStartTime(), Matchers.equalTo(report.getStartTime()));
+        Assert.assertThat(report2.getEndTime(), OptionalMatchers.isEmpty());
+        Assert.assertThat(report2.hasErrors(), Matchers.equalTo(false));
+        Assert.assertThat(report2.warnings()
                         .map(MigrationWarning::getMessage)
                         .toArray(String[]::new),
                 Matchers.arrayContaining(ArrayUtils.add(POTENTIAL_WARNING_MESSAGE_STRINGS,
@@ -112,47 +112,47 @@ public class MigrationReportImplTest extends AbstractMigrationReportTest {
 
     @Test
     public void testRecordWithInfo() throws Exception {
-        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT,
+        final MigrationReportImpl report = new MigrationReportImpl(MigrationOperation.IMPORT,
                 Optional.empty());
-        final MigrationInformation INFO = new MigrationInformation("info");
+        final MigrationInformation info = new MigrationInformation("info");
 
-        REPORT.record(INFO);
+        report.record(info);
 
-        Assert.assertThat(REPORT.hasInfos(), Matchers.equalTo(true));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.messages()
-                .toArray(), Matchers.arrayContaining(INFO));
+        Assert.assertThat(report.hasInfos(), Matchers.equalTo(true));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(false));
+        Assert.assertThat(report.messages()
+                .toArray(), Matchers.arrayContaining(info));
     }
 
     @Test
     public void testRecordWithWarning() throws Exception {
-        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT,
+        final MigrationReportImpl report = new MigrationReportImpl(MigrationOperation.IMPORT,
                 Optional.empty());
-        final MigrationWarning WARNING = new MigrationWarning("warning");
+        final MigrationWarning warning = new MigrationWarning("warning");
 
-        REPORT.record(WARNING);
+        report.record(warning);
 
-        Assert.assertThat(REPORT.hasInfos(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(true));
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.messages()
-                .toArray(), Matchers.arrayContaining(WARNING));
+        Assert.assertThat(report.hasInfos(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(true));
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(false));
+        Assert.assertThat(report.messages()
+                .toArray(), Matchers.arrayContaining(warning));
     }
 
     @Test
     public void testRecordWithError() throws Exception {
-        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT,
+        final MigrationReportImpl report = new MigrationReportImpl(MigrationOperation.IMPORT,
                 Optional.empty());
-        final MigrationException ERROR = new MigrationException("error");
+        final MigrationException error = new MigrationException("error");
 
-        REPORT.record(ERROR);
+        report.record(error);
 
-        Assert.assertThat(REPORT.hasInfos(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(true));
-        Assert.assertThat(REPORT.messages()
-                .toArray(), Matchers.arrayContaining(ERROR));
+        Assert.assertThat(report.hasInfos(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(true));
+        Assert.assertThat(report.messages()
+                .toArray(), Matchers.arrayContaining(error));
     }
 
     @Test
@@ -165,11 +165,11 @@ public class MigrationReportImplTest extends AbstractMigrationReportTest {
 
     @Test
     public void testDoAfterCompletion() throws Exception {
-        final Consumer<MigrationReport> CODE = Mockito.mock(Consumer.class);
+        final Consumer<MigrationReport> code = Mockito.mock(Consumer.class);
 
-        report.doAfterCompletion(CODE);
+        report.doAfterCompletion(code);
 
-        Mockito.verify(CODE, Mockito.never())
+        Mockito.verify(code, Mockito.never())
                 .accept(Mockito.any());
     }
 
@@ -183,10 +183,10 @@ public class MigrationReportImplTest extends AbstractMigrationReportTest {
 
     @Test
     public void testErrorsWhenNoneRecorded() throws Exception {
-        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT,
+        final MigrationReportImpl report = new MigrationReportImpl(MigrationOperation.IMPORT,
                 Optional.empty());
 
-        Assert.assertThat(REPORT.errors()
+        Assert.assertThat(report.errors()
                 .count(), Matchers.equalTo(0L));
     }
 
@@ -198,21 +198,21 @@ public class MigrationReportImplTest extends AbstractMigrationReportTest {
 
     @Test
     public void testErrorsDoesNotCallRegisteredCode() throws Exception {
-        final Consumer<MigrationReport> CODE = Mockito.mock(Consumer.class);
+        final Consumer<MigrationReport> code = Mockito.mock(Consumer.class);
 
-        report.doAfterCompletion(CODE);
+        report.doAfterCompletion(code);
         report.errors();
 
-        Mockito.verify(CODE, Mockito.never())
+        Mockito.verify(code, Mockito.never())
                 .accept(Mockito.any());
     }
 
     @Test
     public void testWarningsWhenNoneRecorded() throws Exception {
-        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT,
+        final MigrationReportImpl report = new MigrationReportImpl(MigrationOperation.IMPORT,
                 Optional.empty());
 
-        Assert.assertThat(REPORT.warnings()
+        Assert.assertThat(report.warnings()
                 .count(), Matchers.equalTo(0L));
     }
 
@@ -225,21 +225,21 @@ public class MigrationReportImplTest extends AbstractMigrationReportTest {
 
     @Test
     public void testWarningsDoesNotCallRegisteredCode() throws Exception {
-        final Consumer<MigrationReport> CODE = Mockito.mock(Consumer.class);
+        final Consumer<MigrationReport> code = Mockito.mock(Consumer.class);
 
-        report.doAfterCompletion(CODE);
+        report.doAfterCompletion(code);
         report.warnings();
 
-        Mockito.verify(CODE, Mockito.never())
+        Mockito.verify(code, Mockito.never())
                 .accept(Mockito.any());
     }
 
     @Test
     public void testInfosWhenNoneRecorded() throws Exception {
-        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT,
+        final MigrationReportImpl report = new MigrationReportImpl(MigrationOperation.IMPORT,
                 Optional.empty());
 
-        Assert.assertThat(REPORT.infos()
+        Assert.assertThat(report.infos()
                 .count(), Matchers.equalTo(0L));
     }
 
@@ -252,21 +252,21 @@ public class MigrationReportImplTest extends AbstractMigrationReportTest {
 
     @Test
     public void testInfosDoesNotCallRegisteredCode() throws Exception {
-        final Consumer<MigrationReport> CODE = Mockito.mock(Consumer.class);
+        final Consumer<MigrationReport> code = Mockito.mock(Consumer.class);
 
-        report.doAfterCompletion(CODE);
+        report.doAfterCompletion(code);
         report.infos();
 
-        Mockito.verify(CODE, Mockito.never())
+        Mockito.verify(code, Mockito.never())
                 .accept(Mockito.any());
     }
 
     @Test
     public void testWasSuccessfulWhenNoErrorsOrWarningsAreRecorded() throws Exception {
-        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT,
+        final MigrationReportImpl report = new MigrationReportImpl(MigrationOperation.IMPORT,
                 Optional.empty());
 
-        Assert.assertThat(REPORT.wasSuccessful(), Matchers.equalTo(true));
+        Assert.assertThat(report.wasSuccessful(), Matchers.equalTo(true));
     }
 
     @Test
@@ -276,76 +276,76 @@ public class MigrationReportImplTest extends AbstractMigrationReportTest {
 
     @Test
     public void testWasSuccessfulWhenOnlyWarningsAreRecorded() throws Exception {
-        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT,
+        final MigrationReportImpl report = new MigrationReportImpl(MigrationOperation.IMPORT,
                 Optional.empty());
 
-        REPORT.record(new MigrationWarning("warning"));
+        report.record(new MigrationWarning("warning"));
 
-        Assert.assertThat(REPORT.wasSuccessful(), Matchers.equalTo(true));
+        Assert.assertThat(report.wasSuccessful(), Matchers.equalTo(true));
     }
 
     @Test
     public void testWasSuccessfulWhenOnlyErrorsRecorded() throws Exception {
-        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT,
+        final MigrationReportImpl report = new MigrationReportImpl(MigrationOperation.IMPORT,
                 Optional.empty());
 
-        REPORT.record(new MigrationException("error"));
+        report.record(new MigrationException("error"));
 
-        Assert.assertThat(REPORT.wasSuccessful(), Matchers.equalTo(false));
+        Assert.assertThat(report.wasSuccessful(), Matchers.equalTo(false));
     }
 
     @Test
     public void testWasSuccessfulCallsRegisteredCode() throws Exception {
-        final Consumer<MigrationReport> CODE = Mockito.mock(Consumer.class);
+        final Consumer<MigrationReport> code = Mockito.mock(Consumer.class);
 
-        report.doAfterCompletion(CODE);
+        report.doAfterCompletion(code);
         report.wasSuccessful();
 
-        Mockito.verify(CODE, Mockito.only())
+        Mockito.verify(code, Mockito.only())
                 .accept(Mockito.any());
     }
 
     @Test
     public void testWasSuccessfulWithRunnableWhenNoErrorsAreRecorded() throws Exception {
-        final Runnable CODE = () -> {
+        final Runnable code = () -> {
         };
 
-        Assert.assertThat(report.wasSuccessful(CODE), Matchers.equalTo(true));
+        Assert.assertThat(report.wasSuccessful(code), Matchers.equalTo(true));
     }
 
     @Test
     public void testWasSuccessfulWithRunnableWhenErrorsAreRecorded() throws Exception {
-        final Runnable CODE = () -> report.record(new MigrationException("test"));
+        final Runnable code = () -> report.record(new MigrationException("test"));
 
-        Assert.assertThat(report.wasSuccessful(CODE), Matchers.equalTo(false));
+        Assert.assertThat(report.wasSuccessful(code), Matchers.equalTo(false));
     }
 
     @Test
     public void testWasIOSuccessfulWithRunnableWhenNoErrorsAreRecorded() throws Exception {
-        final ERunnable<IOException> CODE = () -> {
+        final ERunnable<IOException> code = () -> {
         };
 
-        Assert.assertThat(report.wasIOSuccessful(CODE), Matchers.equalTo(true));
+        Assert.assertThat(report.wasIOSuccessful(code), Matchers.equalTo(true));
     }
 
     @Test
     public void testWasIOSuccessfulWithRunnableWhenErrorsAreRecorded() throws Exception {
-        final ERunnable<IOException> CODE = () -> report.record(new MigrationException("test"));
+        final ERunnable<IOException> code = () -> report.record(new MigrationException("test"));
 
-        Assert.assertThat(report.wasIOSuccessful(CODE), Matchers.equalTo(false));
+        Assert.assertThat(report.wasIOSuccessful(code), Matchers.equalTo(false));
     }
 
     @Test
     public void testWasIOSuccessfulWithRunnableThrowingException() throws Exception {
-        final IOException E = new IOException("test");
-        final ERunnable<IOException> CODE = () -> {
-            throw E;
+        final IOException e = new IOException("test");
+        final ERunnable<IOException> code = () -> {
+            throw e;
         };
 
-        thrown.expect(Matchers.sameInstance(E));
+        thrown.expect(Matchers.sameInstance(e));
         thrown.expectMessage(Matchers.containsString(""));
 
-        report.wasIOSuccessful(CODE);
+        report.wasIOSuccessful(code);
     }
 
     @Test
@@ -355,30 +355,30 @@ public class MigrationReportImplTest extends AbstractMigrationReportTest {
 
     @Test
     public void testHasErrorsWhenNoneRecorded() throws Exception {
-        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT,
+        final MigrationReportImpl report = new MigrationReportImpl(MigrationOperation.IMPORT,
                 Optional.empty());
 
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(false));
     }
 
     @Test
     public void testHasErrorsWhenOnlyWarningsAreRecorded() throws Exception {
-        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT,
+        final MigrationReportImpl report = new MigrationReportImpl(MigrationOperation.IMPORT,
                 Optional.empty());
 
-        REPORT.record(new MigrationWarning("warning"));
+        report.record(new MigrationWarning("warning"));
 
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(false));
     }
 
     @Test
     public void testHasErrorsCallsRegisteredCode() throws Exception {
-        final Consumer<MigrationReport> CODE = Mockito.mock(Consumer.class);
+        final Consumer<MigrationReport> code = Mockito.mock(Consumer.class);
 
-        report.doAfterCompletion(CODE);
+        report.doAfterCompletion(code);
         report.hasErrors();
 
-        Mockito.verify(CODE, Mockito.only())
+        Mockito.verify(code, Mockito.only())
                 .accept(Mockito.any());
     }
 
@@ -389,53 +389,53 @@ public class MigrationReportImplTest extends AbstractMigrationReportTest {
 
     @Test
     public void testHasWarningsWhenNoneRecorded() throws Exception {
-        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT,
+        final MigrationReportImpl report = new MigrationReportImpl(MigrationOperation.IMPORT,
                 Optional.empty());
 
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
     }
 
     @Test
     public void testHasWarningsWhenOnlyErrorsAreRecorded() throws Exception {
-        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT,
+        final MigrationReportImpl report = new MigrationReportImpl(MigrationOperation.IMPORT,
                 Optional.empty());
 
-        REPORT.record(new MigrationException("error"));
+        report.record(new MigrationException("error"));
 
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
     }
 
     @Test
     public void testHasWarningsCallsRegisteredCode() throws Exception {
-        final Consumer<MigrationReport> CODE = Mockito.mock(Consumer.class);
+        final Consumer<MigrationReport> code = Mockito.mock(Consumer.class);
 
-        report.doAfterCompletion(CODE);
+        report.doAfterCompletion(code);
         report.hasWarnings();
 
-        Mockito.verify(CODE, Mockito.only())
+        Mockito.verify(code, Mockito.only())
                 .accept(Mockito.any());
     }
 
     @Test
     public void testVerifyCompletionWhenNoErrorsAreRecorded() throws Exception {
-        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT,
+        final MigrationReportImpl report = new MigrationReportImpl(MigrationOperation.IMPORT,
                 Optional.empty());
 
-        REPORT.verifyCompletion();
+        report.verifyCompletion();
     }
 
     @Test
     public void testVerifyCompletionWhenOneErrorIsRecorded() throws Exception {
-        final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT,
+        final MigrationReportImpl report = new MigrationReportImpl(MigrationOperation.IMPORT,
                 Optional.empty());
-        final MigrationException ERROR = new MigrationException("error");
+        final MigrationException error = new MigrationException("error");
 
-        REPORT.record(ERROR);
+        report.record(error);
 
         thrown.expect(MigrationException.class);
-        thrown.expect(Matchers.sameInstance(ERROR));
+        thrown.expect(Matchers.sameInstance(error));
 
-        REPORT.verifyCompletion();
+        report.verifyCompletion();
     }
 
     @Test
@@ -453,15 +453,15 @@ public class MigrationReportImplTest extends AbstractMigrationReportTest {
 
     @Test
     public void testVerifyCompletionCallsRegisteredCode() throws Exception {
-        final Consumer<MigrationReport> CODE = Mockito.mock(Consumer.class);
+        final Consumer<MigrationReport> code = Mockito.mock(Consumer.class);
 
-        report.doAfterCompletion(CODE);
+        report.doAfterCompletion(code);
         try {
             report.verifyCompletion();
         } catch (MigrationException e) { // don't care here if it happens or not
         }
 
-        Mockito.verify(CODE, Mockito.only())
+        Mockito.verify(code, Mockito.only())
                 .accept(Mockito.any());
     }
 
@@ -476,12 +476,12 @@ public class MigrationReportImplTest extends AbstractMigrationReportTest {
 
     @Test
     public void testEndCallsRegisteredCode() throws Exception {
-        final Consumer<MigrationReport> CODE = Mockito.mock(Consumer.class);
+        final Consumer<MigrationReport> code = Mockito.mock(Consumer.class);
 
-        report.doAfterCompletion(CODE);
+        report.doAfterCompletion(code);
         report.end();
 
-        Mockito.verify(CODE, Mockito.only())
+        Mockito.verify(code, Mockito.only())
                 .accept(Mockito.any());
     }
 }

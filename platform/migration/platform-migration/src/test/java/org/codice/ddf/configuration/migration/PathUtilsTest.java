@@ -25,16 +25,16 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class PathUtilsTest extends AbstractMigrationTest {
-    private PathUtils PATH_UTILS;
+    private PathUtils pathUtils;
 
     @Before
     public void setup() throws Exception {
-        PATH_UTILS = new PathUtils();
+        pathUtils = new PathUtils();
     }
 
     @Test
     public void testConstructor() throws Exception {
-        Assert.assertThat(PATH_UTILS.getDDFHome(), Matchers.equalTo(ddfHome));
+        Assert.assertThat(pathUtils.getDDFHome(), Matchers.equalTo(ddfHome));
     }
 
     @Test(expected = IOError.class)
@@ -46,84 +46,84 @@ public class PathUtilsTest extends AbstractMigrationTest {
 
     @Test
     public void testGetDDFHome() throws Exception {
-        Assert.assertThat(PATH_UTILS.getDDFHome(), Matchers.equalTo(ddfHome));
+        Assert.assertThat(pathUtils.getDDFHome(), Matchers.equalTo(ddfHome));
     }
 
     @Test
     public void testIsRelativeToDDFHomeWhenRelative() throws Exception {
-        Assert.assertThat(PATH_UTILS.isRelativeToDDFHome(ddfHome.resolve("test")),
+        Assert.assertThat(pathUtils.isRelativeToDDFHome(ddfHome.resolve("test")),
                 Matchers.equalTo(true));
     }
 
     @Test
     public void testIsRelativeToDDFHomeWhenNot() throws Exception {
-        Assert.assertThat(PATH_UTILS.isRelativeToDDFHome(root.resolve("test")),
+        Assert.assertThat(pathUtils.isRelativeToDDFHome(root.resolve("test")),
                 Matchers.equalTo(false));
     }
 
     @Test
     public void testRelativizeFromDDFHomeWhenRelative() throws Exception {
-        final Path PATH = ddfHome.resolve("test");
+        final Path path = ddfHome.resolve("test");
 
-        Assert.assertThat(PATH_UTILS.relativizeFromDDFHome(PATH),
+        Assert.assertThat(pathUtils.relativizeFromDDFHome(path),
                 Matchers.equalTo(Paths.get("test")));
     }
 
     @Test
     public void testRelativeFromDDFHomeWhenNot() throws Exception {
-        final Path PATH = root.resolve("test");
+        final Path path = root.resolve("test");
 
-        Assert.assertThat(PATH_UTILS.relativizeFromDDFHome(PATH), Matchers.sameInstance(PATH));
+        Assert.assertThat(pathUtils.relativizeFromDDFHome(path), Matchers.sameInstance(path));
     }
 
     @Test
     public void testResolveAgainstDDFHomeWhenPathIsRelative() throws Exception {
-        final Path PATH = Paths.get("etc/test.cfg");
+        final Path relativePath = Paths.get("etc/test.cfg");
 
-        final Path path = PATH_UTILS.resolveAgainstDDFHome(PATH);
+        final Path path = pathUtils.resolveAgainstDDFHome(relativePath);
 
         Assert.assertThat(path.isAbsolute(), Matchers.equalTo(true));
-        Assert.assertThat(path, Matchers.equalTo(ddfHome.resolve(PATH)));
+        Assert.assertThat(path, Matchers.equalTo(ddfHome.resolve(relativePath)));
     }
 
     @Test
     public void testResolveAgainstDDFHomeWhenPathIsAbsolute() throws Exception {
         // resolving against DDF_HOME ensures that on Windows the absolute path gets the same drive as DDF_HOME
-        final Path PATH = ddfHome.resolve(Paths.get("/etc", "test.cfg"));
+        final Path absolutePath = ddfHome.resolve(Paths.get("/etc", "test.cfg"));
 
-        final Path path = PATH_UTILS.resolveAgainstDDFHome(PATH);
+        final Path path = pathUtils.resolveAgainstDDFHome(absolutePath);
 
         Assert.assertThat(path.isAbsolute(), Matchers.equalTo(true));
-        Assert.assertThat(path, Matchers.sameInstance(PATH));
+        Assert.assertThat(path, Matchers.sameInstance(absolutePath));
     }
 
     @Test
     public void testResolveAgainstDDFHomeWithStringWhenPathIsRelative() throws Exception {
-        final Path PATH = Paths.get("test/script.sh");
+        final Path relativePath = Paths.get("test/script.sh");
 
-        final Path path = PATH_UTILS.resolveAgainstDDFHome(PATH.toString());
+        final Path path = pathUtils.resolveAgainstDDFHome(relativePath.toString());
 
         Assert.assertThat(path.isAbsolute(), Matchers.equalTo(true));
-        Assert.assertThat(path, Matchers.equalTo(ddfHome.resolve(PATH)));
+        Assert.assertThat(path, Matchers.equalTo(ddfHome.resolve(relativePath)));
     }
 
     @Test
     public void testResolveAgainstDDFHomeWithStringWhenPathIsAbsolute() throws Exception {
         // resolving against DDF_HOME ensures that on Windows the absolute path gets the same drive as DDF_HOME
-        final Path PATH = ddfHome.resolve(Paths.get("/test", "script.sh"));
+        final Path absolutePath = ddfHome.resolve(Paths.get("/test", "script.sh"));
 
-        final Path path = PATH_UTILS.resolveAgainstDDFHome(PATH.toString());
+        final Path path = pathUtils.resolveAgainstDDFHome(absolutePath.toString());
 
         Assert.assertThat(path.isAbsolute(), Matchers.equalTo(true));
-        Assert.assertThat(path, Matchers.equalTo(PATH));
+        Assert.assertThat(path, Matchers.equalTo(absolutePath));
     }
 
     @Test
     public void testGetChecksumForWithFile() throws Exception {
-        final Path PATH = ddfHome.resolve(createFile("test.txt"))
+        final Path path = ddfHome.resolve(createFile("test.txt"))
                 .toAbsolutePath();
 
-        final String checksum = PATH_UTILS.getChecksumFor(PATH);
+        final String checksum = pathUtils.getChecksumFor(path);
 
         Assert.assertThat(checksum, Matchers.notNullValue());
     }
@@ -133,27 +133,27 @@ public class PathUtilsTest extends AbstractMigrationTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(Matchers.containsString("null path"));
 
-        PATH_UTILS.getChecksumFor(null);
+        pathUtils.getChecksumFor(null);
     }
 
     @Test(expected = IOException.class)
     public void testGetChecksumForWithIOException() throws Exception {
-        final Path PATH = ddfHome.resolve("test.txt");
+        final Path path = ddfHome.resolve("test.txt");
 
-        PATH_UTILS.getChecksumFor(PATH);
+        pathUtils.getChecksumFor(path);
     }
 
     @Test
     public void testGetChecksumForWithSoftlink() throws Exception {
-        final Path ABSOLUTE_FILE_PATH = ddfHome.resolve(createFile("test.txt"))
+        final Path absoluteFilePath = ddfHome.resolve(createFile("test.txt"))
                 .toAbsolutePath();
-        final Path PATH2 = ddfHome.resolve(createSoftLink(ABSOLUTE_FILE_PATH.getParent(),
+        final Path path2 = ddfHome.resolve(createSoftLink(absoluteFilePath.getParent(),
                 "test2.txt",
-                ABSOLUTE_FILE_PATH))
+                absoluteFilePath))
                 .toAbsolutePath();
 
-        final String checksum = PATH_UTILS.getChecksumFor(ABSOLUTE_FILE_PATH);
-        final String checksum2 = PATH_UTILS.getChecksumFor(PATH2);
+        final String checksum = pathUtils.getChecksumFor(absoluteFilePath);
+        final String checksum2 = pathUtils.getChecksumFor(path2);
 
         Assert.assertThat(checksum2, Matchers.equalTo(checksum));
     }

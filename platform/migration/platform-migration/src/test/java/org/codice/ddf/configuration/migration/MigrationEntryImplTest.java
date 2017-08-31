@@ -29,31 +29,31 @@ public class MigrationEntryImplTest extends AbstractMigrationTest {
 
     private static final String MIGRATABLE_ID = "test-migratable";
 
-    private final MigrationContextImpl CONTEXT = Mockito.mock(MigrationContextImpl.class);
+    private final MigrationContextImpl context = Mockito.mock(MigrationContextImpl.class);
 
-    private final MigrationEntryImpl ENTRY = Mockito.mock(MigrationEntryImpl.class,
+    private final MigrationEntryImpl entry = Mockito.mock(MigrationEntryImpl.class,
             Mockito.CALLS_REAL_METHODS);
 
-    private final ExportMigrationContextImpl CONTEXT2 =
+    private final ExportMigrationContextImpl context2 =
             Mockito.mock(ExportMigrationContextImpl.class);
 
-    private final MigrationEntryImpl ENTRY2 = Mockito.mock(MigrationEntryImpl.class,
+    private final MigrationEntryImpl entry2 = Mockito.mock(MigrationEntryImpl.class,
             Mockito.CALLS_REAL_METHODS);
 
     @Before
     public void setup() throws Exception {
-        Mockito.when(ENTRY.getName())
+        Mockito.when(entry.getName())
                 .thenReturn(ENTRY_NAME);
-        Mockito.when(ENTRY.getContext())
-                .thenReturn(CONTEXT);
-        Mockito.when(CONTEXT.getId())
+        Mockito.when(entry.getContext())
+                .thenReturn(context);
+        Mockito.when(context.getId())
                 .thenReturn(MIGRATABLE_ID);
 
-        Mockito.when(ENTRY2.getName())
+        Mockito.when(entry2.getName())
                 .thenReturn(ENTRY_NAME);
-        Mockito.when(ENTRY2.getContext())
-                .thenReturn(CONTEXT2);
-        Mockito.when(CONTEXT2.getId())
+        Mockito.when(entry2.getContext())
+                .thenReturn(context2);
+        Mockito.when(context2.getId())
                 .thenReturn(MIGRATABLE_ID);
     }
 
@@ -61,116 +61,116 @@ public class MigrationEntryImplTest extends AbstractMigrationTest {
     public void testGetReport() {
         final MigrationReport REPORT = Mockito.mock(MigrationReport.class);
 
-        Mockito.when(CONTEXT.getReport())
+        Mockito.when(context.getReport())
                 .thenReturn(REPORT);
 
-        Assert.assertThat(ENTRY.getReport(), Matchers.sameInstance(REPORT));
+        Assert.assertThat(entry.getReport(), Matchers.sameInstance(REPORT));
     }
 
     @Test
     public void testGetId() {
-        Assert.assertThat(ENTRY.getId(), Matchers.equalTo(MIGRATABLE_ID));
+        Assert.assertThat(entry.getId(), Matchers.equalTo(MIGRATABLE_ID));
     }
 
     // cannot test equals() or hashCode() on mocks, will test them via the ExportMigrationEntryImpl
 
     @Test
     public void testCompareToWhenEquals() throws Exception {
-        Assert.assertThat(ENTRY.compareTo(ENTRY2), Matchers.equalTo(0));
+        Assert.assertThat(entry.compareTo(entry2), Matchers.equalTo(0));
     }
 
     @Test
     public void testCompareToWhenIdentical() throws Exception {
-        Assert.assertThat(ENTRY.compareTo(ENTRY), Matchers.equalTo(0));
+        Assert.assertThat(entry.compareTo(entry), Matchers.equalTo(0));
     }
 
     @Test
     public void testCompareToWithLesserName() throws Exception {
-        Mockito.when(ENTRY2.getName())
+        Mockito.when(entry2.getName())
                 .thenReturn(ENTRY_NAME + '2');
 
-        Assert.assertThat(ENTRY.compareTo(ENTRY2), Matchers.lessThan(0));
+        Assert.assertThat(entry.compareTo(entry2), Matchers.lessThan(0));
     }
 
     @Test
     public void testCompareToWithGreaterName() throws Exception {
-        Mockito.when(ENTRY2.getName())
+        Mockito.when(entry2.getName())
                 .thenReturn(StringUtils.right(ENTRY_NAME, ENTRY_NAME.length() - 1));
 
-        Assert.assertThat(ENTRY.compareTo(ENTRY2), Matchers.greaterThan(0));
+        Assert.assertThat(entry.compareTo(entry2), Matchers.greaterThan(0));
     }
 
     @Test
     public void testCompareToWithLesserId() throws Exception {
-        Mockito.when(CONTEXT2.getId())
+        Mockito.when(context2.getId())
                 .thenReturn(MIGRATABLE_ID + '2');
 
-        Assert.assertThat(ENTRY.compareTo(ENTRY2), Matchers.lessThan(0));
+        Assert.assertThat(entry.compareTo(entry2), Matchers.lessThan(0));
     }
 
     @Test
     public void testCompareToWithGreaterId() throws Exception {
-        Mockito.when(CONTEXT2.getId())
+        Mockito.when(context2.getId())
                 .thenReturn('a' + StringUtils.right(MIGRATABLE_ID, MIGRATABLE_ID.length() - 1));
 
-        Assert.assertThat(ENTRY.compareTo(ENTRY2), Matchers.greaterThan(0));
+        Assert.assertThat(entry.compareTo(entry2), Matchers.greaterThan(0));
     }
 
     @Test
     public void testCompareToWhenIdIsNull() throws Exception {
-        Mockito.when(CONTEXT.getId())
+        Mockito.when(context.getId())
                 .thenReturn(null);
 
-        Assert.assertThat(ENTRY.compareTo(ENTRY2), Matchers.lessThan(0));
+        Assert.assertThat(entry.compareTo(entry2), Matchers.lessThan(0));
     }
 
     @Test
     public void testCompareToWhenOtherIdIsNull() throws Exception {
-        Mockito.when(CONTEXT2.getId())
+        Mockito.when(context2.getId())
                 .thenReturn(null);
 
-        Assert.assertThat(ENTRY.compareTo(ENTRY2), Matchers.greaterThan(0));
+        Assert.assertThat(entry.compareTo(entry2), Matchers.greaterThan(0));
     }
 
     @Test
     public void testCompareToWhenBothIdsAreNull() throws Exception {
-        Mockito.when(CONTEXT.getId())
+        Mockito.when(context.getId())
                 .thenReturn(null);
-        Mockito.when(CONTEXT2.getId())
+        Mockito.when(context2.getId())
                 .thenReturn(null);
 
-        Assert.assertThat(ENTRY.compareTo(ENTRY2), Matchers.equalTo(0));
+        Assert.assertThat(entry.compareTo(entry2), Matchers.equalTo(0));
     }
 
     @Test
     public void testCompareToWithOtherClass() throws Exception {
-        final ExportMigrationEntryImpl ENTRY2 = Mockito.mock(ExportMigrationEntryImpl.class);
+        final ExportMigrationEntryImpl entry2 = Mockito.mock(ExportMigrationEntryImpl.class);
 
-        Mockito.when(ENTRY2.getName())
+        Mockito.when(entry2.getName())
                 .thenReturn(ENTRY_NAME);
-        Mockito.when(ENTRY2.getContext())
-                .thenReturn(CONTEXT2);
-        Mockito.when(CONTEXT2.getId())
+        Mockito.when(entry2.getContext())
+                .thenReturn(context2);
+        Mockito.when(context2.getId())
                 .thenReturn(MIGRATABLE_ID);
 
-        Assert.assertThat(ENTRY.compareTo(ENTRY2), Matchers.greaterThan(0));
+        Assert.assertThat(entry.compareTo(entry2), Matchers.greaterThan(0));
     }
 
     @Test
     public void testCompareToWithNull() throws Exception {
-        Assert.assertThat(ENTRY.compareTo(null), Matchers.greaterThan(0));
+        Assert.assertThat(entry.compareTo(null), Matchers.greaterThan(0));
     }
 
     @Test
     public void testToStringWhenEquals() throws Exception {
-        Assert.assertThat(ENTRY.toString(), Matchers.equalTo(ENTRY2.toString()));
+        Assert.assertThat(entry.toString(), Matchers.equalTo(entry2.toString()));
     }
 
     @Test
     public void testToStringWhenDifferent() throws Exception {
-        Mockito.when(ENTRY2.getName())
+        Mockito.when(entry2.getName())
                 .thenReturn(ENTRY_NAME + '2');
 
-        Assert.assertThat(ENTRY.toString(), Matchers.not(Matchers.equalTo(ENTRY2.toString())));
+        Assert.assertThat(entry.toString(), Matchers.not(Matchers.equalTo(entry2.toString())));
     }
 }

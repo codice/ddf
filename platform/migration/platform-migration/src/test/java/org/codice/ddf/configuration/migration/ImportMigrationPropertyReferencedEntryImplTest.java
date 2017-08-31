@@ -33,53 +33,53 @@ public class ImportMigrationPropertyReferencedEntryImplTest extends AbstractMigr
 
     private static final String MIGRATABLE_PROPERTY = "test.property";
 
-    private final MigrationReportImpl REPORT = new MigrationReportImpl(MigrationOperation.IMPORT,
+    private final MigrationReportImpl report = new MigrationReportImpl(MigrationOperation.IMPORT,
             Optional.empty());
 
-    private final Map<String, Object> METADATA = new HashMap<>();
+    private final Map<String, Object> metadata = new HashMap<>();
 
-    private final ImportMigrationEntryImpl REFERENCED_ENTRY =
+    private final ImportMigrationEntryImpl referencedEntry =
             Mockito.mock(ImportMigrationEntryImpl.class);
 
-    private ImportMigrationContextImpl CONTEXT;
+    private ImportMigrationContextImpl context;
 
-    private ImportMigrationPropertyReferencedEntryImpl ENTRY;
+    private ImportMigrationPropertyReferencedEntryImpl entry;
 
     @Before
     public void setup() throws Exception {
-        METADATA.put(MigrationEntryImpl.METADATA_REFERENCE, MIGRATABLE_NAME);
-        METADATA.put(MigrationEntryImpl.METADATA_PROPERTY, MIGRATABLE_PROPERTY);
+        metadata.put(MigrationEntryImpl.METADATA_REFERENCE, MIGRATABLE_NAME);
+        metadata.put(MigrationEntryImpl.METADATA_PROPERTY, MIGRATABLE_PROPERTY);
 
-        CONTEXT = Mockito.mock(ImportMigrationContextImpl.class);
+        context = Mockito.mock(ImportMigrationContextImpl.class);
 
-        Mockito.when(CONTEXT.getPathUtils())
+        Mockito.when(context.getPathUtils())
                 .thenReturn(new PathUtils());
-        Mockito.when(CONTEXT.getReport())
-                .thenReturn(REPORT);
-        Mockito.when(CONTEXT.getId())
+        Mockito.when(context.getReport())
+                .thenReturn(report);
+        Mockito.when(context.getId())
                 .thenReturn(MIGRATABLE_ID);
-        Mockito.when(CONTEXT.getOptionalEntry(MIGRATABLE_PATH))
-                .thenReturn(Optional.of(REFERENCED_ENTRY));
+        Mockito.when(context.getOptionalEntry(MIGRATABLE_PATH))
+                .thenReturn(Optional.of(referencedEntry));
 
-        ENTRY = Mockito.mock(ImportMigrationPropertyReferencedEntryImpl.class,
+        entry = Mockito.mock(ImportMigrationPropertyReferencedEntryImpl.class,
                 Mockito.withSettings()
-                        .useConstructor(CONTEXT, METADATA)
+                        .useConstructor(context, metadata)
                         .defaultAnswer(Answers.CALLS_REAL_METHODS));
     }
 
     @Test
     public void testConstructor() throws Exception {
-        Assert.assertThat(ENTRY.getName(), Matchers.equalTo(MIGRATABLE_NAME));
-        Assert.assertThat(ENTRY.getPath(), Matchers.equalTo(MIGRATABLE_PATH));
-        Assert.assertThat(ENTRY.getContext(), Matchers.sameInstance(CONTEXT));
-        Assert.assertThat(ENTRY.getReport(), Matchers.sameInstance(REPORT));
-        Assert.assertThat(ENTRY.getProperty(), Matchers.equalTo(MIGRATABLE_PROPERTY));
-        Assert.assertThat(ENTRY.getReferencedEntry(), Matchers.sameInstance(REFERENCED_ENTRY));
+        Assert.assertThat(entry.getName(), Matchers.equalTo(MIGRATABLE_NAME));
+        Assert.assertThat(entry.getPath(), Matchers.equalTo(MIGRATABLE_PATH));
+        Assert.assertThat(entry.getContext(), Matchers.sameInstance(context));
+        Assert.assertThat(entry.getReport(), Matchers.sameInstance(report));
+        Assert.assertThat(entry.getProperty(), Matchers.equalTo(MIGRATABLE_PROPERTY));
+        Assert.assertThat(entry.getReferencedEntry(), Matchers.sameInstance(referencedEntry));
     }
 
     @Test
     public void testConstructorWhenReferenceMetadataIsMissing() throws Exception {
-        METADATA.remove(MigrationEntryImpl.METADATA_REFERENCE);
+        metadata.remove(MigrationEntryImpl.METADATA_REFERENCE);
 
         // Mockito will throw its own wrapper exception below, so we must go to the initial cause to get the truths
         thrown.expect(ThrowableMatchers.hasInitialCauseMatching(Matchers.instanceOf(
@@ -89,13 +89,13 @@ public class ImportMigrationPropertyReferencedEntryImplTest extends AbstractMigr
 
         Mockito.mock(ImportMigrationPropertyReferencedEntryImpl.class,
                 Mockito.withSettings()
-                        .useConstructor(CONTEXT, METADATA)
+                        .useConstructor(context, metadata)
                         .defaultAnswer(Answers.CALLS_REAL_METHODS));
     }
 
     @Test
     public void testConstructorWhenPropertyMetadataIsMissing() throws Exception {
-        METADATA.remove(MigrationEntryImpl.METADATA_PROPERTY);
+        metadata.remove(MigrationEntryImpl.METADATA_PROPERTY);
 
         // Mockito will throw its own wrapper exception below, so we must go to the initial cause to get the truths
         thrown.expect(ThrowableMatchers.hasInitialCauseMatching(Matchers.instanceOf(
@@ -105,13 +105,13 @@ public class ImportMigrationPropertyReferencedEntryImplTest extends AbstractMigr
 
         Mockito.mock(ImportMigrationPropertyReferencedEntryImpl.class,
                 Mockito.withSettings()
-                        .useConstructor(CONTEXT, METADATA)
+                        .useConstructor(context, metadata)
                         .defaultAnswer(Answers.CALLS_REAL_METHODS));
     }
 
     @Test
     public void testConstructorWhenReferencedEntryIsNotFound() throws Exception {
-        Mockito.when(CONTEXT.getOptionalEntry(MIGRATABLE_PATH))
+        Mockito.when(context.getOptionalEntry(MIGRATABLE_PATH))
                 .thenReturn(Optional.empty());
 
         // Mockito will throw its own wrapper exception below, so we must go to the initial cause to get the truths
@@ -122,190 +122,190 @@ public class ImportMigrationPropertyReferencedEntryImplTest extends AbstractMigr
 
         Mockito.mock(ImportMigrationPropertyReferencedEntryImpl.class,
                 Mockito.withSettings()
-                        .useConstructor(CONTEXT, METADATA)
+                        .useConstructor(context, metadata)
                         .defaultAnswer(Answers.CALLS_REAL_METHODS));
     }
 
     @Test
     public void testGetLastModifiedTime() throws Exception {
-        final long TIME = 123234L;
+        final long time = 123234L;
 
-        Mockito.when(REFERENCED_ENTRY.getLastModifiedTime())
-                .thenReturn(TIME);
+        Mockito.when(referencedEntry.getLastModifiedTime())
+                .thenReturn(time);
 
-        Assert.assertThat(ENTRY.getLastModifiedTime(), Matchers.equalTo(TIME));
+        Assert.assertThat(entry.getLastModifiedTime(), Matchers.equalTo(time));
 
-        Mockito.verify(REFERENCED_ENTRY)
+        Mockito.verify(referencedEntry)
                 .getLastModifiedTime();
     }
 
     @Test
     public void testGetInputStream() throws Exception {
-        final InputStream IS = Mockito.mock(InputStream.class);
+        final InputStream is = Mockito.mock(InputStream.class);
 
-        Mockito.when(REFERENCED_ENTRY.getInputStream())
-                .thenReturn(Optional.of(IS));
+        Mockito.when(referencedEntry.getInputStream())
+                .thenReturn(Optional.of(is));
         Mockito.doNothing()
-                .when(ENTRY)
+                .when(entry)
                 .verifyPropertyAfterCompletion();
 
-        Assert.assertThat(ENTRY.getInputStream(),
-                OptionalMatchers.hasValue(Matchers.sameInstance(IS)));
+        Assert.assertThat(entry.getInputStream(),
+                OptionalMatchers.hasValue(Matchers.sameInstance(is)));
 
-        Mockito.verify(REFERENCED_ENTRY)
+        Mockito.verify(referencedEntry)
                 .getInputStream();
-        Mockito.verify(ENTRY)
+        Mockito.verify(entry)
                 .verifyPropertyAfterCompletion();
     }
 
     @Test
     public void testGetInputStreamWhenAlreadyCalled() throws Exception {
-        final InputStream IS = Mockito.mock(InputStream.class);
+        final InputStream is = Mockito.mock(InputStream.class);
 
-        Mockito.when(REFERENCED_ENTRY.getInputStream())
-                .thenReturn(Optional.of(IS));
+        Mockito.when(referencedEntry.getInputStream())
+                .thenReturn(Optional.of(is));
         Mockito.doNothing()
-                .when(ENTRY)
+                .when(entry)
                 .verifyPropertyAfterCompletion();
 
-        ENTRY.getInputStream();
+        entry.getInputStream();
 
-        Assert.assertThat(ENTRY.getInputStream(),
-                OptionalMatchers.hasValue(Matchers.sameInstance(IS)));
+        Assert.assertThat(entry.getInputStream(),
+                OptionalMatchers.hasValue(Matchers.sameInstance(is)));
 
-        Mockito.verify(REFERENCED_ENTRY, Mockito.times(2))
+        Mockito.verify(referencedEntry, Mockito.times(2))
                 .getInputStream();
-        Mockito.verify(ENTRY)
+        Mockito.verify(entry)
                 .verifyPropertyAfterCompletion();
     }
 
     @Test
     public void testRestore() throws Exception {
-        final boolean REQUIRED = true;
+        final boolean required = true;
 
-        Mockito.when(REFERENCED_ENTRY.restore(REQUIRED))
+        Mockito.when(referencedEntry.restore(required))
                 .thenReturn(true);
         Mockito.doNothing()
-                .when(ENTRY)
+                .when(entry)
                 .verifyPropertyAfterCompletion();
 
-        Assert.assertThat(ENTRY.restore(), Matchers.equalTo(true));
+        Assert.assertThat(entry.restore(), Matchers.equalTo(true));
 
-        Mockito.verify(REFERENCED_ENTRY)
-                .restore(REQUIRED);
-        Mockito.verify(ENTRY)
+        Mockito.verify(referencedEntry)
+                .restore(required);
+        Mockito.verify(entry)
                 .verifyPropertyAfterCompletion();
     }
 
     @Test
     public void testRestoreWhenRequired() throws Exception {
-        final boolean REQUIRED = true;
+        final boolean required = true;
 
-        Mockito.when(REFERENCED_ENTRY.restore(REQUIRED))
+        Mockito.when(referencedEntry.restore(required))
                 .thenReturn(true);
         Mockito.doNothing()
-                .when(ENTRY)
+                .when(entry)
                 .verifyPropertyAfterCompletion();
 
-        Assert.assertThat(ENTRY.restore(REQUIRED), Matchers.equalTo(true));
+        Assert.assertThat(entry.restore(required), Matchers.equalTo(true));
 
-        Mockito.verify(REFERENCED_ENTRY)
-                .restore(REQUIRED);
-        Mockito.verify(ENTRY)
+        Mockito.verify(referencedEntry)
+                .restore(required);
+        Mockito.verify(entry)
                 .verifyPropertyAfterCompletion();
     }
 
     @Test
     public void testRestoreWhenOptional() throws Exception {
-        final boolean REQUIRED = false;
+        final boolean required = false;
 
-        Mockito.when(REFERENCED_ENTRY.restore(REQUIRED))
+        Mockito.when(referencedEntry.restore(required))
                 .thenReturn(true);
         Mockito.doNothing()
-                .when(ENTRY)
+                .when(entry)
                 .verifyPropertyAfterCompletion();
 
-        Assert.assertThat(ENTRY.restore(REQUIRED), Matchers.equalTo(true));
+        Assert.assertThat(entry.restore(required), Matchers.equalTo(true));
 
-        Mockito.verify(REFERENCED_ENTRY)
-                .restore(REQUIRED);
-        Mockito.verify(ENTRY)
+        Mockito.verify(referencedEntry)
+                .restore(required);
+        Mockito.verify(entry)
                 .verifyPropertyAfterCompletion();
     }
 
     @Test
     public void testRestoreWhenFailed() throws Exception {
-        final boolean REQUIRED = true;
+        final boolean required = true;
 
-        Mockito.when(REFERENCED_ENTRY.restore(REQUIRED))
+        Mockito.when(referencedEntry.restore(required))
                 .thenReturn(false);
         Mockito.doNothing()
-                .when(ENTRY)
+                .when(entry)
                 .verifyPropertyAfterCompletion();
 
-        Assert.assertThat(ENTRY.restore(REQUIRED), Matchers.equalTo(false));
+        Assert.assertThat(entry.restore(required), Matchers.equalTo(false));
 
-        Mockito.verify(REFERENCED_ENTRY)
-                .restore(REQUIRED);
-        Mockito.verify(ENTRY, Mockito.never())
+        Mockito.verify(referencedEntry)
+                .restore(required);
+        Mockito.verify(entry, Mockito.never())
                 .verifyPropertyAfterCompletion();
     }
 
     @Test
     public void testRestoreWhenAlreadyCalled() throws Exception {
-        final boolean REQUIRED = true;
+        final boolean required = true;
 
-        Mockito.when(REFERENCED_ENTRY.restore(REQUIRED))
+        Mockito.when(referencedEntry.restore(required))
                 .thenReturn(true);
         Mockito.doNothing()
-                .when(ENTRY)
+                .when(entry)
                 .verifyPropertyAfterCompletion();
 
-        ENTRY.restore(REQUIRED);
+        entry.restore(required);
 
-        Assert.assertThat(ENTRY.restore(REQUIRED), Matchers.equalTo(true));
+        Assert.assertThat(entry.restore(required), Matchers.equalTo(true));
 
-        Mockito.verify(REFERENCED_ENTRY)
-                .restore(REQUIRED);
-        Mockito.verify(ENTRY)
+        Mockito.verify(referencedEntry)
+                .restore(required);
+        Mockito.verify(entry)
                 .verifyPropertyAfterCompletion();
     }
 
     @Test
     public void testRestoreWithConsumer() throws Exception {
-        final EBiConsumer<MigrationReport, Optional<InputStream>, IOException> CONSUMER =
+        final EBiConsumer<MigrationReport, Optional<InputStream>, IOException> consumer =
                 Mockito.mock(EBiConsumer.class);
 
-        Mockito.when(REFERENCED_ENTRY.restore(CONSUMER))
+        Mockito.when(referencedEntry.restore(consumer))
                 .thenReturn(true);
         Mockito.doNothing()
-                .when(ENTRY)
+                .when(entry)
                 .verifyPropertyAfterCompletion();
 
-        Assert.assertThat(ENTRY.restore(CONSUMER), Matchers.equalTo(true));
+        Assert.assertThat(entry.restore(consumer), Matchers.equalTo(true));
 
-        Mockito.verify(REFERENCED_ENTRY)
-                .restore(CONSUMER);
-        Mockito.verify(ENTRY)
+        Mockito.verify(referencedEntry)
+                .restore(consumer);
+        Mockito.verify(entry)
                 .verifyPropertyAfterCompletion();
     }
 
     @Test
     public void testRestoreWithConsumerWhenFailed() throws Exception {
-        final EBiConsumer<MigrationReport, Optional<InputStream>, IOException> CONSUMER =
+        final EBiConsumer<MigrationReport, Optional<InputStream>, IOException> consumer =
                 Mockito.mock(EBiConsumer.class);
 
-        Mockito.when(REFERENCED_ENTRY.restore(CONSUMER))
+        Mockito.when(referencedEntry.restore(consumer))
                 .thenReturn(false);
         Mockito.doNothing()
-                .when(ENTRY)
+                .when(entry)
                 .verifyPropertyAfterCompletion();
 
-        Assert.assertThat(ENTRY.restore(CONSUMER), Matchers.equalTo(false));
+        Assert.assertThat(entry.restore(consumer), Matchers.equalTo(false));
 
-        Mockito.verify(REFERENCED_ENTRY)
-                .restore(CONSUMER);
-        Mockito.verify(ENTRY, Mockito.never())
+        Mockito.verify(referencedEntry)
+                .restore(consumer);
+        Mockito.verify(entry, Mockito.never())
                 .verifyPropertyAfterCompletion();
     }
 
@@ -314,95 +314,96 @@ public class ImportMigrationPropertyReferencedEntryImplTest extends AbstractMigr
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(Matchers.containsString("null consumer"));
 
-        ENTRY.restore(null);
+        entry.restore(null);
 
-        Mockito.verify(ENTRY, Mockito.never())
+        Mockito.verify(entry, Mockito.never())
                 .verifyPropertyAfterCompletion();
     }
 
     @Test
     public void testGetPropertyReferencedEntry() throws Exception {
-        final ImportMigrationEntry PROPERTY_ENTRY = Mockito.mock(ImportMigrationEntry.class);
-        final String PROPERTY_NAME = "test.property";
+        final ImportMigrationEntry propertyEntry = Mockito.mock(ImportMigrationEntry.class);
+        final String propertyName = "test.property";
 
-        Mockito.when(REFERENCED_ENTRY.getPropertyReferencedEntry(PROPERTY_NAME))
-                .thenReturn(Optional.of(PROPERTY_ENTRY));
+        Mockito.when(referencedEntry.getPropertyReferencedEntry(propertyName))
+                .thenReturn(Optional.of(propertyEntry));
 
-        Assert.assertThat(ENTRY.getPropertyReferencedEntry(PROPERTY_NAME),
-                OptionalMatchers.hasValue(Matchers.sameInstance(PROPERTY_ENTRY)));
+        Assert.assertThat(entry.getPropertyReferencedEntry(propertyName),
+                OptionalMatchers.hasValue(Matchers.sameInstance(propertyEntry)));
 
-        Mockito.verify(REFERENCED_ENTRY)
-                .getPropertyReferencedEntry(PROPERTY_NAME);
+        Mockito.verify(referencedEntry)
+                .getPropertyReferencedEntry(propertyName);
     }
 
     // cannot test equals() or hashcode() from a mocked abstract class with Mockito so they will be tested in ImportMigrationJavaPropertyReferencedEntryImplTest
 
     @Test
     public void testCompareToWhenEquals() throws Exception {
-        final ImportMigrationPropertyReferencedEntryImpl ENTRY2 = Mockito.mock(
+        final ImportMigrationPropertyReferencedEntryImpl entry2 = Mockito.mock(
                 ImportMigrationPropertyReferencedEntryImpl.class,
                 Mockito.withSettings()
-                        .useConstructor(CONTEXT, METADATA)
+                        .useConstructor(context, metadata)
                         .defaultAnswer(Answers.CALLS_REAL_METHODS));
 
-        Assert.assertThat(ENTRY.compareTo(ENTRY2), Matchers.equalTo(0));
+        Assert.assertThat(entry.compareTo(entry2), Matchers.equalTo(0));
     }
 
     @Test
     public void testCompareToWhenIdentical() throws Exception {
-        Assert.assertThat(ENTRY.compareTo(ENTRY), Matchers.equalTo(0));
+        Assert.assertThat(entry.compareTo(entry), Matchers.equalTo(0));
     }
 
     @Test
     public void testCompareToWhenNameDifferent() throws Exception {
-        final String MIGRATABLE_NAME2 = "where/some/dir/test2.txt";
-        final Path MIGRATABLE_PATH2 = Paths.get(FilenameUtils.separatorsToSystem(MIGRATABLE_NAME2));
-        final Map<String, Object> METADATA2 = ImmutableMap.of(MigrationEntryImpl.METADATA_REFERENCE,
-                MIGRATABLE_NAME2,
+        final String migratableName2 = "where/some/dir/test2.txt";
+        final Path migratablePath2 = Paths.get(FilenameUtils.separatorsToSystem(migratableName2));
+        final Map<String, Object> metadata2 = ImmutableMap.of(MigrationEntryImpl.METADATA_REFERENCE,
+                migratableName2,
                 MigrationEntryImpl.METADATA_PROPERTY,
                 MIGRATABLE_PROPERTY);
 
-        Mockito.when(CONTEXT.getOptionalEntry(MIGRATABLE_PATH2))
-                .thenReturn(Optional.of(REFERENCED_ENTRY));
+        Mockito.when(context.getOptionalEntry(migratablePath2))
+                .thenReturn(Optional.of(referencedEntry));
 
-        final ImportMigrationPropertyReferencedEntryImpl ENTRY2 = Mockito.mock(
+        final ImportMigrationPropertyReferencedEntryImpl entry2 = Mockito.mock(
                 ImportMigrationPropertyReferencedEntryImpl.class,
                 Mockito.withSettings()
-                        .useConstructor(CONTEXT, METADATA2)
+                        .useConstructor(context, metadata2)
                         .defaultAnswer(Answers.CALLS_REAL_METHODS));
 
-        Assert.assertThat(ENTRY.compareTo(ENTRY2), Matchers.not(Matchers.equalTo(0)));
+        Assert.assertThat(entry.compareTo(entry2), Matchers.not(Matchers.equalTo(0)));
     }
 
     @Test
     public void testCompareToWhenPropertyLess() throws Exception {
-        final Map<String, Object> METADATA2 = ImmutableMap.of(MigrationEntryImpl.METADATA_REFERENCE,
+        final Map<String, Object> metadata2 = ImmutableMap.of(MigrationEntryImpl.METADATA_REFERENCE,
                 MIGRATABLE_NAME,
                 MigrationEntryImpl.METADATA_PROPERTY,
                 MIGRATABLE_PROPERTY + 'a');
-        final ImportMigrationPropertyReferencedEntryImpl ENTRY2 = Mockito.mock(
+
+        final ImportMigrationPropertyReferencedEntryImpl entry2 = Mockito.mock(
                 ImportMigrationPropertyReferencedEntryImpl.class,
                 Mockito.withSettings()
-                        .useConstructor(CONTEXT, METADATA2)
+                        .useConstructor(context, metadata2)
                         .defaultAnswer(Answers.CALLS_REAL_METHODS));
 
-        Assert.assertThat(ENTRY.compareTo(ENTRY2), Matchers.lessThan(0));
+        Assert.assertThat(entry.compareTo(entry2), Matchers.lessThan(0));
     }
 
     @Test
     public void testCompareToWhenPropertyGreater() throws Exception {
-        final Map<String, Object> METADATA2 = ImmutableMap.of(MigrationEntryImpl.METADATA_REFERENCE,
+        final Map<String, Object> metadata2 = ImmutableMap.of(MigrationEntryImpl.METADATA_REFERENCE,
                 MIGRATABLE_NAME,
                 MigrationEntryImpl.METADATA_PROPERTY,
                 'a' + MIGRATABLE_PROPERTY);
 
-        final ImportMigrationPropertyReferencedEntryImpl ENTRY2 = Mockito.mock(
+        final ImportMigrationPropertyReferencedEntryImpl entry2 = Mockito.mock(
                 ImportMigrationPropertyReferencedEntryImpl.class,
                 Mockito.withSettings()
-                        .useConstructor(CONTEXT, METADATA2)
+                        .useConstructor(context, metadata2)
                         .defaultAnswer(Answers.CALLS_REAL_METHODS));
 
-        Assert.assertThat(ENTRY.compareTo(ENTRY2), Matchers.greaterThan(0));
+        Assert.assertThat(entry.compareTo(entry2), Matchers.greaterThan(0));
     }
 }
 

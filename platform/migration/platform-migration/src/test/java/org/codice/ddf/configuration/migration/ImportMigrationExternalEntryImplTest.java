@@ -47,7 +47,7 @@ public class ImportMigrationExternalEntryImplTest extends AbstractMigrationTest 
 
     public static final String CHECKSUM = "Checksum";
 
-    private final static Map<String, Object> METADATA_MAP =
+    private static final Map<String, Object> METADATA_MAP =
             ImmutableMap.of(MigrationEntryImpl.METADATA_NAME,
                     ENTRY_NAME,
                     MigrationEntryImpl.METADATA_CHECKSUM,

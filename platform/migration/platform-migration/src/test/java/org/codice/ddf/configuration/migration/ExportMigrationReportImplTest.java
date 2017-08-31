@@ -28,24 +28,24 @@ public class ExportMigrationReportImplTest extends AbstractMigrationTest {
 
     private static final String PROPERTY = MigrationEntryImpl.METADATA_PROPERTY;
 
-    private final MigrationReportImpl REPORT = Mockito.mock(MigrationReportImpl.class);
+    private final MigrationReportImpl report = Mockito.mock(MigrationReportImpl.class);
 
-    private final ExportMigrationContextImpl CONTEXT =
+    private final ExportMigrationContextImpl context =
             Mockito.mock(ExportMigrationContextImpl.class);
 
-    private ExportMigrationReportImpl XREPORT;
+    private ExportMigrationReportImpl xreport;
 
     @Before
     public void setup() throws Exception {
         initMigratableMock();
-        XREPORT = new ExportMigrationReportImpl(REPORT, migratable);
+        xreport = new ExportMigrationReportImpl(report, migratable);
     }
 
     @Test
     public void testConstructor() throws Exception {
-        final Map<String, Object> metadata = XREPORT.getMetadata();
+        final Map<String, Object> metadata = xreport.getMetadata();
 
-        Assert.assertThat(XREPORT.getReport(), Matchers.sameInstance(REPORT));
+        Assert.assertThat(xreport.getReport(), Matchers.sameInstance(report));
         Assert.assertThat(metadata, Matchers.aMapWithSize(4));
         Assert.assertThat(metadata,
                 Matchers.hasEntry(MigrationContextImpl.METADATA_VERSION, migratable.getVersion()));
@@ -72,145 +72,145 @@ public class ExportMigrationReportImplTest extends AbstractMigrationTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(Matchers.containsString("null migratable"));
 
-        new ExportMigrationReportImpl(REPORT, null);
+        new ExportMigrationReportImpl(report, null);
     }
 
     @Test
     public void testGetOperation() throws Exception {
-        XREPORT.getOperation();
+        xreport.getOperation();
 
-        Mockito.verify(REPORT)
+        Mockito.verify(report)
                 .getOperation();
     }
 
     @Test
     public void testGetStartTime() throws Exception {
-        XREPORT.getStartTime();
+        xreport.getStartTime();
 
-        Mockito.verify(REPORT)
+        Mockito.verify(report)
                 .getStartTime();
     }
 
     @Test
     public void testEndTime() throws Exception {
-        XREPORT.getEndTime();
+        xreport.getEndTime();
 
-        Mockito.verify(REPORT)
+        Mockito.verify(report)
                 .getEndTime();
     }
 
     @Test
     public void testRecordWithInfoString() throws Exception {
-        final String INFO = "info";
+        final String info = "info";
 
-        Assert.assertThat(XREPORT.record(INFO), Matchers.sameInstance(XREPORT));
+        Assert.assertThat(xreport.record(info), Matchers.sameInstance(xreport));
 
-        Mockito.verify(REPORT)
-                .record(Mockito.same(INFO));
+        Mockito.verify(report)
+                .record(Mockito.same(info));
     }
 
     @Test
     public void testRecordWithInfoFormatAndArgs() throws Exception {
-        final String FORMAT = "format %s";
-        final String ARG = "arg";
+        final String format = "format %s";
+        final String arg = "arg";
 
-        Assert.assertThat(XREPORT.record(FORMAT, ARG), Matchers.sameInstance(XREPORT));
+        Assert.assertThat(xreport.record(format, arg), Matchers.sameInstance(xreport));
 
-        Mockito.verify(REPORT)
-                .record(Mockito.same(FORMAT), Mockito.same(ARG));
+        Mockito.verify(report)
+                .record(Mockito.same(format), Mockito.same(arg));
     }
 
     @Test
     public void testRecord() throws Exception {
-        final MigrationInformation INFO = new MigrationInformation("info");
+        final MigrationInformation info = new MigrationInformation("info");
 
-        Assert.assertThat(XREPORT.record(INFO), Matchers.sameInstance(XREPORT));
+        Assert.assertThat(xreport.record(info), Matchers.sameInstance(xreport));
 
-        Mockito.verify(REPORT)
-                .record(Mockito.same(INFO));
+        Mockito.verify(report)
+                .record(Mockito.same(info));
     }
 
     @Test
     public void testDoAfterCompletion() throws Exception {
-        final Consumer<MigrationReport> CODE = Mockito.mock(Consumer.class);
+        final Consumer<MigrationReport> code = Mockito.mock(Consumer.class);
 
-        Assert.assertThat(XREPORT.doAfterCompletion(CODE), Matchers.sameInstance(XREPORT));
+        Assert.assertThat(xreport.doAfterCompletion(code), Matchers.sameInstance(xreport));
 
-        Mockito.verify(REPORT)
-                .doAfterCompletion(Mockito.same(CODE));
+        Mockito.verify(report)
+                .doAfterCompletion(Mockito.same(code));
     }
 
     @Test
     public void testWasSucessful() throws Exception {
-        XREPORT.wasSuccessful();
+        xreport.wasSuccessful();
 
-        Mockito.verify(REPORT)
+        Mockito.verify(report)
                 .wasSuccessful();
     }
 
     @Test
     public void testWasSucessfulWithCode() throws Exception {
-        final Runnable CODE = Mockito.mock(Runnable.class);
+        final Runnable code = Mockito.mock(Runnable.class);
 
-        XREPORT.wasSuccessful(CODE);
+        xreport.wasSuccessful(code);
 
-        Mockito.verify(REPORT)
-                .wasSuccessful(Mockito.same(CODE));
+        Mockito.verify(report)
+                .wasSuccessful(Mockito.same(code));
     }
 
     @Test
     public void testWasIOSucessfulWithCode() throws Exception {
-        final ERunnable<IOException> CODE = Mockito.mock(ERunnable.class);
+        final ERunnable<IOException> code = Mockito.mock(ERunnable.class);
 
-        XREPORT.wasIOSuccessful(CODE);
+        xreport.wasIOSuccessful(code);
 
-        Mockito.verify(REPORT)
-                .wasIOSuccessful(Mockito.same(CODE));
+        Mockito.verify(report)
+                .wasIOSuccessful(Mockito.same(code));
     }
 
     @Test
     public void testHasInfos() throws Exception {
-        XREPORT.hasInfos();
+        xreport.hasInfos();
 
-        Mockito.verify(REPORT)
+        Mockito.verify(report)
                 .hasInfos();
     }
 
     @Test
     public void testHasWarnings() throws Exception {
-        XREPORT.hasWarnings();
+        xreport.hasWarnings();
 
-        Mockito.verify(REPORT)
+        Mockito.verify(report)
                 .hasWarnings();
     }
 
     @Test
     public void testHasErrors() throws Exception {
-        XREPORT.hasErrors();
+        xreport.hasErrors();
 
-        Mockito.verify(REPORT)
+        Mockito.verify(report)
                 .hasErrors();
     }
 
     @Test
     public void testVerifyCompletion() throws Exception {
-        XREPORT.verifyCompletion();
+        xreport.verifyCompletion();
 
-        Mockito.verify(REPORT)
+        Mockito.verify(report)
                 .verifyCompletion();
     }
 
     @Test
     public void testGetReport() throws Exception {
-        Assert.assertThat(XREPORT.getReport(), Matchers.sameInstance(REPORT));
+        Assert.assertThat(xreport.getReport(), Matchers.sameInstance(report));
     }
 
     private void initContext() {
-        Mockito.when(CONTEXT.getPathUtils())
+        Mockito.when(context.getPathUtils())
                 .thenReturn(new PathUtils());
-        Mockito.when(CONTEXT.getReport())
-                .thenReturn(XREPORT);
-        Mockito.when(CONTEXT.getId())
+        Mockito.when(context.getReport())
+                .thenReturn(xreport);
+        Mockito.when(context.getId())
                 .thenReturn(MIGRATABLE_ID);
     }
 
@@ -218,11 +218,11 @@ public class ExportMigrationReportImplTest extends AbstractMigrationTest {
     public void testRecordExternalFile() throws Exception {
         createFile(createDirectory(DIRS), FILENAME);
         initContext();
-        final ExportMigrationEntryImpl ENTRY = new ExportMigrationEntryImpl(CONTEXT, FILE_PATH);
+        final ExportMigrationEntryImpl ENTRY = new ExportMigrationEntryImpl(context, FILE_PATH);
 
-        Assert.assertThat(XREPORT.recordExternal(ENTRY, false), Matchers.sameInstance(XREPORT));
+        Assert.assertThat(xreport.recordExternal(ENTRY, false), Matchers.sameInstance(xreport));
 
-        final Map<String, Object> metadata = XREPORT.getMetadata();
+        final Map<String, Object> metadata = xreport.getMetadata();
 
         Assert.assertThat(metadata,
                 Matchers.hasEntry(Matchers.equalTo(MigrationContextImpl.METADATA_EXTERNALS),
@@ -246,14 +246,14 @@ public class ExportMigrationReportImplTest extends AbstractMigrationTest {
     public void testRecordExternalFileWhenUnableToComputeChecksum() throws Exception {
         createFile(createDirectory(DIRS), FILENAME);
         initContext();
-        final ExportMigrationEntryImpl ENTRY = new ExportMigrationEntryImpl(CONTEXT, FILE_PATH);
+        final ExportMigrationEntryImpl ENTRY = new ExportMigrationEntryImpl(context, FILE_PATH);
 
         ENTRY.getFile()
                 .delete(); // will ensure the checksum cannot be computed
 
-        Assert.assertThat(XREPORT.recordExternal(ENTRY, false), Matchers.sameInstance(XREPORT));
+        Assert.assertThat(xreport.recordExternal(ENTRY, false), Matchers.sameInstance(xreport));
 
-        final Map<String, Object> metadata = XREPORT.getMetadata();
+        final Map<String, Object> metadata = xreport.getMetadata();
 
         Assert.assertThat(metadata,
                 Matchers.hasEntry(Matchers.equalTo(MigrationContextImpl.METADATA_EXTERNALS),
@@ -274,20 +274,20 @@ public class ExportMigrationReportImplTest extends AbstractMigrationTest {
 
     @Test
     public void testRecordExternalSoftlink() throws Exception {
-        final Path ABSOLUTE_FILE_PATH = ddfHome.resolve(createFile(createDirectory(DIRS), FILENAME))
+        final Path absoluteFilePath = ddfHome.resolve(createFile(createDirectory(DIRS), FILENAME))
                 .toAbsolutePath();
-        final String FILENAME2 = "file2.ext";
-        final Path ABSOLUTE_FILE_PATH2 = createSoftLink(ABSOLUTE_FILE_PATH.getParent(),
-                FILENAME2,
-                ABSOLUTE_FILE_PATH);
+        final String filename2 = "file2.ext";
+        final Path absoluteFilePath2 = createSoftLink(absoluteFilePath.getParent(),
+                filename2,
+                absoluteFilePath);
 
         initContext();
-        final ExportMigrationEntryImpl ENTRY = new ExportMigrationEntryImpl(CONTEXT,
-                ABSOLUTE_FILE_PATH2);
+        final ExportMigrationEntryImpl entry = new ExportMigrationEntryImpl(context,
+                absoluteFilePath2);
 
-        Assert.assertThat(XREPORT.recordExternal(ENTRY, true), Matchers.sameInstance(XREPORT));
+        Assert.assertThat(xreport.recordExternal(entry, true), Matchers.sameInstance(xreport));
 
-        final Map<String, Object> metadata = XREPORT.getMetadata();
+        final Map<String, Object> metadata = xreport.getMetadata();
 
         Assert.assertThat(metadata,
                 Matchers.hasEntry(Matchers.equalTo(MigrationContextImpl.METADATA_EXTERNALS),
@@ -302,7 +302,7 @@ public class ExportMigrationReportImplTest extends AbstractMigrationTest {
 
         Assert.assertThat(emetadata,
                 Matchers.allOf(Matchers.aMapWithSize(3),
-                        Matchers.hasEntry(MigrationEntryImpl.METADATA_NAME, ENTRY.getName()),
+                        Matchers.hasEntry(MigrationEntryImpl.METADATA_NAME, entry.getName()),
                         Matchers.hasKey(MigrationEntryImpl.METADATA_CHECKSUM),
                         Matchers.hasEntry(MigrationEntryImpl.METADATA_SOFTLINK, (Object) true)));
     }
@@ -310,14 +310,14 @@ public class ExportMigrationReportImplTest extends AbstractMigrationTest {
     @Test
     public void testRecordSystemProperty() throws Exception {
         initContext();
-        final ExportMigrationSystemPropertyReferencedEntryImpl ENTRY =
-                new ExportMigrationSystemPropertyReferencedEntryImpl(CONTEXT,
+        final ExportMigrationSystemPropertyReferencedEntryImpl entry =
+                new ExportMigrationSystemPropertyReferencedEntryImpl(context,
                         PROPERTY,
                         FILE_PATH.toString());
 
-        Assert.assertThat(XREPORT.recordSystemProperty(ENTRY), Matchers.sameInstance(XREPORT));
+        Assert.assertThat(xreport.recordSystemProperty(entry), Matchers.sameInstance(xreport));
 
-        final Map<String, Object> metadata = XREPORT.getMetadata();
+        final Map<String, Object> metadata = xreport.getMetadata();
 
         Assert.assertThat(metadata,
                 Matchers.hasEntry(Matchers.equalTo(MigrationContextImpl.METADATA_SYSTEM_PROPERTIES),
@@ -340,16 +340,16 @@ public class ExportMigrationReportImplTest extends AbstractMigrationTest {
     @Test
     public void testRecordJavaProperty() throws Exception {
         initContext();
-        final Path PROPERTIES_PATH = ddfHome.resolve("file.properties");
+        final Path propertiesPath = ddfHome.resolve("file.properties");
         final ExportMigrationJavaPropertyReferencedEntryImpl ENTRY =
-                new ExportMigrationJavaPropertyReferencedEntryImpl(CONTEXT,
-                        PROPERTIES_PATH,
+                new ExportMigrationJavaPropertyReferencedEntryImpl(context,
+                        propertiesPath,
                         PROPERTY,
                         FILE_PATH.toString());
 
-        Assert.assertThat(XREPORT.recordJavaProperty(ENTRY), Matchers.sameInstance(XREPORT));
+        Assert.assertThat(xreport.recordJavaProperty(ENTRY), Matchers.sameInstance(xreport));
 
-        final Map<String, Object> metadata = XREPORT.getMetadata();
+        final Map<String, Object> metadata = xreport.getMetadata();
 
         Assert.assertThat(metadata,
                 Matchers.hasEntry(Matchers.equalTo(MigrationContextImpl.METADATA_JAVA_PROPERTIES),
@@ -368,12 +368,12 @@ public class ExportMigrationReportImplTest extends AbstractMigrationTest {
                         Matchers.hasEntry(MigrationEntryImpl.METADATA_REFERENCE,
                                 FILE_PATH.toString()),
                         Matchers.hasEntry(MigrationEntryImpl.METADATA_NAME,
-                                PROPERTIES_PATH.toString())));
+                                propertiesPath.toString())));
     }
 
     @Test
     public void testGetMetadataWhenNothingRegistered() throws Exception {
-        final Map<String, Object> metadata = XREPORT.getMetadata();
+        final Map<String, Object> metadata = xreport.getMetadata();
 
         Assert.assertThat(metadata, Matchers.aMapWithSize(4));
         Assert.assertThat(metadata,
