@@ -30,6 +30,7 @@ import javax.xml.namespace.QName;
 
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.ExtendedGeotoolsFunctionFactory;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswQueryFactoryTest;
 import org.geotools.feature.NameImpl;
 import org.geotools.filter.AttributeExpressionImpl;
@@ -111,13 +112,18 @@ public class CswRecordMapperFilterVisitorTest {
         mockMetacardTypeList = new ArrayList<>();
         mockMetacardTypeList.add(metacardType);
 
-        visitor = new CswRecordMapperFilterVisitor(metacardType, mockMetacardTypeList);
+        visitor =
+                new CswRecordMapperFilterVisitor(DefaultCswRecordMap.getCswToMetacardAttributeNames(),
+                        metacardType,
+                        mockMetacardTypeList);
     }
 
     @Test
     public void testVisitWithUnmappedName() {
-        CswRecordMapperFilterVisitor visitor = new CswRecordMapperFilterVisitor(metacardType,
-                mockMetacardTypeList);
+        CswRecordMapperFilterVisitor visitor =
+                new CswRecordMapperFilterVisitor(DefaultCswRecordMap.getCswToMetacardAttributeNames(),
+                        metacardType,
+                        mockMetacardTypeList);
 
         PropertyName propertyName = (PropertyName) visitor.visit(attrExpr, null);
 
@@ -130,8 +136,10 @@ public class CswRecordMapperFilterVisitorTest {
                 CswConstants.DUBLIN_CORE_SCHEMA,
                 CswConstants.OWS_BOUNDING_BOX,
                 CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX)));
-        CswRecordMapperFilterVisitor visitor = new CswRecordMapperFilterVisitor(metacardType,
-                mockMetacardTypeList);
+        CswRecordMapperFilterVisitor visitor =
+                new CswRecordMapperFilterVisitor(DefaultCswRecordMap.getCswToMetacardAttributeNames(),
+                        metacardType,
+                        mockMetacardTypeList);
 
         PropertyName propertyName = (PropertyName) visitor.visit(propName, null);
 
@@ -145,8 +153,10 @@ public class CswRecordMapperFilterVisitorTest {
                 CswConstants.CSW_ALTERNATIVE,
                 CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX)));
 
-        CswRecordMapperFilterVisitor visitor = new CswRecordMapperFilterVisitor(metacardType,
-                mockMetacardTypeList);
+        CswRecordMapperFilterVisitor visitor =
+                new CswRecordMapperFilterVisitor(DefaultCswRecordMap.getCswToMetacardAttributeNames(),
+                        metacardType,
+                        mockMetacardTypeList);
 
         PropertyName propertyName = (PropertyName) visitor.visit(propName, null);
 
@@ -284,7 +294,10 @@ public class CswRecordMapperFilterVisitorTest {
 
     @Test
     public void testVisitPropertyIsFuzzy() {
-        visitor = new CswRecordMapperFilterVisitor(metacardType, mockMetacardTypeList);
+        visitor =
+                new CswRecordMapperFilterVisitor(DefaultCswRecordMap.getCswToMetacardAttributeNames(),
+                        metacardType,
+                        mockMetacardTypeList);
         Expression val1 = factory.property("fooProperty");
         Expression val2 = factory.literal("fooLiteral");
 

@@ -15,6 +15,10 @@ package org.codice.ddf.itests.common.csw;
 
 public class CswQueryBuilder {
 
+    private String typename = "Record";
+
+    private String typenameNamespace = "http://www.opengis.net/cat/csw/2.0.2";
+
     private String internalRepresentation;
 
     public static final String PROPERTY_IS_EQUAL_TO = "PropertyIsEqualTo";
@@ -35,22 +39,24 @@ public class CswQueryBuilder {
 
     public String getQuery() {
         return "<csw:GetRecords resultType=\"results\" outputFormat=\"application/xml\" outputSchema=\"http://www.opengis.net/cat/csw/2.0.2\" startPosition=\"1\" maxRecords=\"10\" service=\"CSW\" version=\"2.0.2\" xmlns:ns2=\"http://www.opengis.net/ogc\" xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\" xmlns:ns4=\"http://www.w3.org/1999/xlink\" xmlns:ns3=\"http://www.opengis.net/gml\" xmlns:ns9=\"http://www.w3.org/2001/SMIL20/Language\" xmlns:ns5=\"http://www.opengis.net/ows\" xmlns:ns6=\"http://purl.org/dc/elements/1.1/\" xmlns:ns7=\"http://purl.org/dc/terms/\" xmlns:ns8=\"http://www.w3.org/2001/SMIL20/\">"
-                + "    <ns10:Query typeNames=\"csw:Record\" xmlns=\"\" xmlns:ns10=\"http://www.opengis.net/cat/csw/2.0.2\">"
-                + "        <ns10:ElementSetName>full</ns10:ElementSetName>"
-                + "        <ns10:Constraint version=\"1.1.0\">" + "            <ns2:Filter>"
-                + internalRepresentation + "</ns2:Filter>" + "        </ns10:Constraint>"
-                + "    </ns10:Query>" + "</csw:GetRecords>";
+                + "    <csw:Query typeNames=\"ns10:" + typename + "\" xmlns=\"\" xmlns:ns10=\""
+                + typenameNamespace + "\">"
+                + "        <csw:ElementSetName>full</csw:ElementSetName>"
+                + "        <csw:Constraint version=\"1.1.0\">" + "            <ns2:Filter>"
+                + internalRepresentation + "</ns2:Filter>" + "        </csw:Constraint>"
+                + "    </csw:Query>" + "</csw:GetRecords>";
     }
 
     public String getQuery(String outputFormat, String outputSchema) {
         return "<csw:GetRecords resultType=\"results\" outputFormat=\"" + outputFormat
                 + "\" outputSchema=\"" + outputSchema
                 + "\" startPosition=\"1\" maxRecords=\"10\" service=\"CSW\" version=\"2.0.2\" xmlns:ns2=\"http://www.opengis.net/ogc\" xmlns:csw=\"http://www.opengis.net/cat/csw/2.0.2\" xmlns:ns4=\"http://www.w3.org/1999/xlink\" xmlns:ns3=\"http://www.opengis.net/gml\" xmlns:ns9=\"http://www.w3.org/2001/SMIL20/Language\" xmlns:ns5=\"http://www.opengis.net/ows\" xmlns:ns6=\"http://purl.org/dc/elements/1.1/\" xmlns:ns7=\"http://purl.org/dc/terms/\" xmlns:ns8=\"http://www.w3.org/2001/SMIL20/\">"
-                + "    <ns10:Query typeNames=\"csw:Record\" xmlns=\"\" xmlns:ns10=\"http://www.opengis.net/cat/csw/2.0.2\">"
-                + "        <ns10:ElementSetName>full</ns10:ElementSetName>"
-                + "        <ns10:Constraint version=\"1.1.0\">" + "            <ns2:Filter>"
-                + internalRepresentation + "</ns2:Filter>" + "        </ns10:Constraint>"
-                + "    </ns10:Query>" + "</csw:GetRecords>";
+                + "    <csw:Query typeNames=\"ns10:" + typename + "\" xmlns=\"\" xmlns:ns10=\""
+                + typenameNamespace + "\">"
+                + "        <csw:ElementSetName>full</csw:ElementSetName>"
+                + "        <csw:Constraint version=\"1.1.0\">" + "            <ns2:Filter>"
+                + internalRepresentation + "</ns2:Filter>" + "        </csw:Constraint>"
+                + "    </csw:Query>" + "</csw:GetRecords>";
     }
 
     public CswQueryBuilder addAttributeFilter(String filter, String propertyName,
@@ -81,6 +87,13 @@ public class CswQueryBuilder {
                 + logicalOperator + ">";
         return this;
 
+    }
+
+    public CswQueryBuilder setTypename(String typename, String namespaceURI) {
+        this.typename = typename;
+        this.typenameNamespace = namespaceURI;
+
+        return this;
     }
 
     @Override
