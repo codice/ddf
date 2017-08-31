@@ -180,16 +180,19 @@ public class MigrationReportImpl implements MigrationReport {
         return (this.numErrors == numErrors);
     }
 
+    @Override
     public boolean hasInfos() {
         runCodes();
         return (numInfos > 0);
     }
 
+    @Override
     public boolean hasWarnings() {
         runCodes();
         return (numWarnings > 0);
     }
 
+    @Override
     public boolean hasErrors() {
         runCodes();
         return (numErrors > 0);

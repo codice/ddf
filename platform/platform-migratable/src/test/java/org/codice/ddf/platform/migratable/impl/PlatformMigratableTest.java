@@ -41,7 +41,9 @@ import org.codice.ddf.configuration.migration.ConfigurationMigrationManager;
 import org.codice.ddf.migration.ImportMigrationContext;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
+import org.codice.ddf.migration.MigrationMessage;
 import org.codice.ddf.migration.MigrationReport;
+import org.codice.ddf.migration.MigrationWarning;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -264,7 +266,7 @@ public class PlatformMigratableTest {
 
         // Perform export
         MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir,
-                m -> OUT.println(m.getMessage()));
+                this::print);
 
         // Verify export
         assertThat("The export report has errors.", exportReport.hasErrors(), is(false));
@@ -291,7 +293,7 @@ public class PlatformMigratableTest {
                 new ConfigurationMigrationManager(mBeanServer, iMigratables, systemService);
 
         MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir,
-                m -> OUT.println(m.getMessage()));
+                this::print);
 
         // Verify import
         assertThat("The import report has errors.", importReport.hasErrors(), is(false));
@@ -330,7 +332,7 @@ public class PlatformMigratableTest {
 
         // Perform export
         MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir,
-                m -> OUT.println(m.getMessage()));
+                this::print);
 
         // Verify export
         assertThat("The export report has errors.", exportReport.hasErrors(), is(false));
@@ -357,7 +359,7 @@ public class PlatformMigratableTest {
                 new ConfigurationMigrationManager(mBeanServer, iMigratables, systemService);
 
         MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir,
-                m -> OUT.println(m.getMessage()));
+                this::print);
 
         // Verify import
         assertThat("The import report has errors.", importReport.hasErrors(), is(false));
@@ -393,7 +395,7 @@ public class PlatformMigratableTest {
 
         // Perform export
         MigrationReport exportReport = configurationMigrationManager.doExport(exportDir,
-                m -> OUT.println(m.getMessage()));
+                this::print);
 
         // Verify export
         assertThat("The export report doesn't not have errors.",
@@ -457,7 +459,7 @@ public class PlatformMigratableTest {
 
         // Perform export
         MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir,
-                m -> OUT.println(m.getMessage()));
+                this::print);
 
         // Verify export
         assertThat("The export report has errors.", exportReport.hasErrors(), is(false));
@@ -512,7 +514,7 @@ public class PlatformMigratableTest {
                 new ConfigurationMigrationManager(mBeanServer, iMigratables, systemService);
 
         MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir,
-                m -> OUT.println(m.getMessage()));
+                this::print);
 
         // Verify import
         assertThat("The import report has errors.", importReport.hasErrors(), is(false));
@@ -524,6 +526,16 @@ public class PlatformMigratableTest {
         verifyOptionalSystemFilesImported();
         verifyWsSecurityFilesImported();
         verifyServiceWrapperImported();
+    }
+
+    private void print(MigrationMessage msg) {
+        if (msg instanceof MigrationException) {
+            ((MigrationException) msg).printStackTrace();
+        } else if (msg instanceof MigrationWarning) {
+            OUT.println("Warning: " + msg);
+        } else {
+            OUT.println("Info: " + msg);
+        }
     }
 
     private void setup(String ddfHomeStr, String tag) throws IOException {

@@ -52,8 +52,10 @@ import org.codice.ddf.configuration.persistence.felix.FelixCfgPersistenceStrateg
 import org.codice.ddf.configuration.persistence.felix.FelixConfigPersistenceStrategy;
 import org.codice.ddf.migration.ExportMigrationContext;
 import org.codice.ddf.migration.Migratable;
+import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationMessage;
 import org.codice.ddf.migration.MigrationReport;
+import org.codice.ddf.migration.MigrationWarning;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -232,7 +234,7 @@ public class ConfigurationAdminMigratableTest {
 
         // Perform Export
         MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir,
-                m -> OUT.println(m.getMessage()));
+                this::print);
 
         // Verify Export
         Assert.assertThat("The export report has errors.", exportReport.hasErrors(), is(false));
@@ -265,7 +267,7 @@ public class ConfigurationAdminMigratableTest {
 
         // Perform Import
         MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir,
-                m -> OUT.println(m.getMessage()));
+                this::print);
 
         // Verify import
         Assert.assertThat("The import report has errors.", importReport.hasErrors(), is(false));
@@ -290,6 +292,16 @@ public class ConfigurationAdminMigratableTest {
                                                 DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID))
                                         .toUri()
                                         .toString())));
+    }
+
+    private void print(MigrationMessage msg) {
+        if (msg instanceof MigrationException) {
+            ((MigrationException) msg).printStackTrace();
+        } else if (msg instanceof MigrationWarning) {
+            OUT.println("Warning: " + msg);
+        } else {
+            OUT.println("Info: " + msg);
+        }
     }
 
     private Map<String, Object> convertToMap(Dictionary<String, ?> dictionary) {

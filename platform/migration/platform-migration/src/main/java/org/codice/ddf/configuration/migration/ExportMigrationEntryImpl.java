@@ -153,22 +153,15 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
     @Override
     public OutputStream getOutputStream() throws IOException {
         recordEntry();
-        try {
-            return outputStream.updateAndGet(os -> (os != null) ?
-                    os :
-                    context.getOutputStreamFor(this));
-        } catch (UncheckedIOException e) {
-            throw e.getCause();
-        }
+        return getOutputStreamWithoutRecordingEntry();
     }
 
     @Override
     public boolean store(boolean required) {
         if (stored == null) {
             LOGGER.debug("Exporting {}{}...", (required ? "required " : ""), toDebugString());
-            recordEntry();
+            this.stored = false; // until proven otherwise
             if (absolutePathError instanceof NoSuchFileException) {
-                this.stored = false; // until proven otherwise
                 // we cannot rely on file.exists() here since the path is not valid anyway
                 // relying on the exception is much safer and gives us the true story
                 if (required) {
@@ -176,17 +169,23 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
                 } else { // optional so no warnings/errors - just skip it so treat it as successful
                     this.stored = true;
                 }
-                return stored;
             } else if (absolutePathError != null) {
-                this.stored = false; // until proven otherwise
                 getReport().record(newError("cannot be read", absolutePathError));
-                return stored;
-            }
-            return store((r, os) -> {
+            } else {
                 if (isMigratable()) {
-                    FileUtils.copyFile(file, os);
+                    recordEntry();
+                    try (final OutputStream os = getOutputStreamWithoutRecordingEntry()) {
+                        FileUtils.copyFile(file, os);
+                        this.stored = true;
+                    } catch (ExportIOException e) { // special case indicating the I/O error occurred while writing to the zip which would invalidate the zip so we are forced to abort
+                        throw newError("failed to be exported", e.getCause());
+                    } catch (IOException e) { // here it means the error came out of reading/processing the input file/stream where it is safe to continue with the next entry, so don't abort
+                        getReport().record(newError("failed to be exported", e));
+                    }
+                } else { // if it ain't migratable then only a warning occurs so return true
+                    this.stored = true;
                 }
-            });
+            }
         }
         return stored;
     }
@@ -196,7 +195,6 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
         Validate.notNull(consumer, "invalid null consumer");
         if (stored == null) {
             this.stored = false; // until proven otherwise
-            recordEntry();
             try (final OutputStream os = getOutputStream()) {
                 this.stored = getReport().wasIOSuccessful(() -> consumer.accept(getReport(), os));
             } catch (ExportIOException e) { // special case indicating the I/O error occurred while writing to the zip which would invalidate the zip so we are forced to abort
@@ -284,6 +282,16 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
 
     protected MigrationException newError(String reason, Throwable cause) {
         return new MigrationException(Messages.EXPORT_PATH_ERROR, path, reason, cause);
+    }
+
+    private OutputStream getOutputStreamWithoutRecordingEntry() throws IOException {
+        try {
+            return outputStream.updateAndGet(os -> (os != null) ?
+                    os :
+                    context.getOutputStreamFor(this));
+        } catch (UncheckedIOException e) {
+            throw e.getCause();
+        }
     }
 
     private boolean isMigratable() {
