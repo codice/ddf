@@ -40,6 +40,7 @@ import org.apache.cxf.sts.claims.ProcessedClaimCollection;
 import org.apache.karaf.jaas.boot.principal.UserPrincipal;
 import org.forgerock.opendj.ldap.Connection;
 import org.forgerock.opendj.ldap.LDAPConnectionFactory;
+import org.forgerock.opendj.ldap.LdapException;
 import org.forgerock.opendj.ldap.LinkedAttribute;
 import org.forgerock.opendj.ldap.requests.BindRequest;
 import org.forgerock.opendj.ldap.responses.BindResult;
@@ -131,7 +132,10 @@ public class LdapClaimsHandlerTest {
         when(mockConnection.bind(any(BindRequest.class))).thenReturn(mockBindResult);
         when(mockConnection.search(anyObject(), anyObject(), anyObject(), anyObject())).thenReturn(
                 mockEntryReader);
-        when(mockEntryReader.hasNext()).thenReturn(true, false);
+        // two item list (reference and entry)
+        when(mockEntryReader.hasNext()).thenReturn(true, true, false);
+        // first time indicate a reference followed by entries
+        when(mockEntryReader.isEntry()).thenReturn(false, true);
         when(mockEntryReader.readEntry()).thenReturn(mockEntry);
         when(mockEntry.getAttribute(anyString())).thenReturn(attribute);
         claimsHandler.setLdapConnectionFactory(mockConnectionFactory);
@@ -148,7 +152,7 @@ public class LdapClaimsHandlerTest {
     }
 
     @Test
-    public void testUnsuccessfulConnectionBind() {
+    public void testUnsuccessfulConnectionBind() throws LdapException {
         when(mockBindResult.isSuccess()).thenReturn(false);
         ProcessedClaimCollection testClaimCollection =
                 claimsHandler.retrieveClaimValues(new ClaimCollection(), claimsParameters);
@@ -156,7 +160,7 @@ public class LdapClaimsHandlerTest {
     }
 
     @Test
-    public void testRetrieveClaimsValuesNullPrincipal() {
+    public void testRetrieveClaimsValuesNullPrincipal() throws LdapException {
         when(mockBindResult.isSuccess()).thenReturn(false);
         ProcessedClaimCollection processedClaims =
                 claimsHandler.retrieveClaimValues(new ClaimCollection(), claimsParameters);
@@ -164,7 +168,7 @@ public class LdapClaimsHandlerTest {
     }
 
     @Test
-    public void testRetrieveClaimsValues() throws URISyntaxException {
+    public void testRetrieveClaimsValues() throws URISyntaxException, LdapException {
         when(mockBindResult.isSuccess()).thenReturn(true);
         ProcessedClaimCollection processedClaims = claimsHandler.retrieveClaimValues(claims,
                 claimsParameters);

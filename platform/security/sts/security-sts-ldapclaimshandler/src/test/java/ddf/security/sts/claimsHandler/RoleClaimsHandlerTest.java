@@ -87,12 +87,77 @@ public class RoleClaimsHandlerTest {
 
         // hasNext() returns 'true' the first time, then 'false' every time after.
         when(membershipReader.hasNext()).thenReturn(true, false);
+        when(membershipReader.isEntry()).thenReturn(true);
         when(membershipReader.readEntry()).thenReturn(membershipSearchResult);
 
         groupNameAttribute.add(groupName);
         when(groupNameSearchResult.getAttribute(anyString())).thenReturn(groupNameAttribute);
 
         when(groupNameReader.hasNext()).thenReturn(true, false);
+        when(groupNameReader.isEntry()).thenReturn(true);
+        when(groupNameReader.readEntry()).thenReturn(groupNameSearchResult);
+
+        when(connection.bind(anyObject())).thenReturn(bindResult);
+        when(connection.search(anyObject(),
+                anyObject(),
+                eq("(&(objectClass=groupOfNames)(member=uid=tstark,))"),
+                anyVararg())).thenReturn(groupNameReader);
+        when(connection.search(anyString(), anyObject(), anyString(), matches("uid"))).thenReturn(
+                membershipReader);
+
+        when(connectionFactory.getConnection()).thenReturn(connection);
+
+        claimsHandler = new RoleClaimsHandler();
+        claimsHandler.setLdapConnectionFactory(connectionFactory);
+        claimsHandler.setBindMethod("Simple");
+        claimsHandler.setBindUserCredentials("foo");
+        claimsHandler.setBindUserDN("bar");
+
+        claimsParameters = new ClaimsParameters();
+        claimsParameters.setPrincipal(new UserPrincipal(USER_CN));
+        ClaimCollection claimCollection = new ClaimCollection();
+        processedClaims = claimsHandler.retrieveClaimValues(claimCollection, claimsParameters);
+        assertThat(processedClaims, hasSize(1));
+        ProcessedClaim claim = processedClaims.get(0);
+        assertThat(claim.getPrincipal(), equalTo(new UserPrincipal(USER_CN)));
+        assertThat(claim.getValues(), hasSize(1));
+        assertThat(claim.getValues()
+                .get(0), equalTo(groupName));
+    }
+
+    @Test
+    public void testRetrieveClaimsValuesIgnoredReferences()
+            throws LdapException, SearchResultReferenceIOException {
+        BindResult bindResult = mock(BindResult.class);
+        ClaimsParameters claimsParameters;
+        Connection connection = mock(Connection.class);
+        ConnectionEntryReader membershipReader = mock(ConnectionEntryReader.class);
+        ConnectionEntryReader groupNameReader = mock(ConnectionEntryReader.class);
+        LDAPConnectionFactory connectionFactory = PowerMockito.mock(LDAPConnectionFactory.class);
+        LinkedAttribute membershipAttribute = new LinkedAttribute("uid");
+        LinkedAttribute groupNameAttribute = new LinkedAttribute("cn");
+        ProcessedClaimCollection processedClaims;
+        RoleClaimsHandler claimsHandler;
+        SearchResultEntry membershipSearchResult = mock(SearchResultEntry.class);
+        SearchResultEntry groupNameSearchResult = mock(SearchResultEntry.class);
+        String groupName = "avengers";
+
+        when(bindResult.isSuccess()).thenReturn(true);
+
+        membershipAttribute.add("tstark");
+        when(membershipSearchResult.getAttribute(anyString())).thenReturn(membershipAttribute);
+
+        // simulate two items in the list (a reference and an entry)
+        when(membershipReader.hasNext()).thenReturn(true, true, false);
+        // test a reference followed by entries thereafter
+        when(membershipReader.isEntry()).thenReturn(false, true);
+        when(membershipReader.readEntry()).thenReturn(membershipSearchResult);
+
+        groupNameAttribute.add(groupName);
+        when(groupNameSearchResult.getAttribute(anyString())).thenReturn(groupNameAttribute);
+
+        when(groupNameReader.hasNext()).thenReturn(true, true, false);
+        when(groupNameReader.isEntry()).thenReturn(false, true);
         when(groupNameReader.readEntry()).thenReturn(groupNameSearchResult);
 
         when(connection.bind(anyObject())).thenReturn(bindResult);

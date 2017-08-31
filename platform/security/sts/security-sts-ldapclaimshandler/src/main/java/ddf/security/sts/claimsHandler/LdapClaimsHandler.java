@@ -136,39 +136,44 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
 
                     SearchResultEntry entry;
                     while (entryReader.hasNext()) {
-                        entry = entryReader.readEntry();
-                        for (Claim claim : claims) {
-                            URI claimType = claim.getClaimType();
-                            String ldapAttribute = getClaimsLdapAttributeMapping().get(
-                                    claimType.toString());
-                            Attribute attr = entry.getAttribute(ldapAttribute);
-                            if (attr == null) {
-                                LOGGER.trace("Claim '{}' is null", claim.getClaimType());
-                            } else {
-                                ProcessedClaim c = new ProcessedClaim();
-                                c.setClaimType(claimType);
-                                c.setPrincipal(principal);
+                        if (entryReader.isEntry()) {
+                            entry = entryReader.readEntry();
+                            for (Claim claim : claims) {
+                                URI claimType = claim.getClaimType();
+                                String ldapAttribute = getClaimsLdapAttributeMapping().get(
+                                        claimType.toString());
+                                Attribute attr = entry.getAttribute(ldapAttribute);
+                                if (attr == null) {
+                                    LOGGER.trace("Claim '{}' is null", claim.getClaimType());
+                                } else {
+                                    ProcessedClaim c = new ProcessedClaim();
+                                    c.setClaimType(claimType);
+                                    c.setPrincipal(principal);
 
-                                for (ByteString value : attr) {
-                                    String itemValue = value.toString();
-                                    if (this.isX500FilterEnabled()) {
-                                        try {
-                                            X500Principal x500p = new X500Principal(itemValue);
-                                            itemValue = x500p.getName();
-                                            int index = itemValue.indexOf('=');
-                                            itemValue = itemValue.substring(index + 1,
-                                                    itemValue.indexOf(',', index));
-                                        } catch (Exception ex) {
-                                            // Ignore, not X500 compliant thus use the whole
-                                            // string as the value
-                                            LOGGER.debug("Not X500 compliant", ex);
+                                    for (ByteString value : attr) {
+                                        String itemValue = value.toString();
+                                        if (this.isX500FilterEnabled()) {
+                                            try {
+                                                X500Principal x500p = new X500Principal(itemValue);
+                                                itemValue = x500p.getName();
+                                                int index = itemValue.indexOf('=');
+                                                itemValue = itemValue.substring(index + 1,
+                                                        itemValue.indexOf(',', index));
+                                            } catch (Exception ex) {
+                                                // Ignore, not X500 compliant thus use the whole
+                                                // string as the value
+                                                LOGGER.debug("Not X500 compliant", ex);
+                                            }
                                         }
+                                        c.addValue(itemValue);
                                     }
-                                    c.addValue(itemValue);
-                                }
 
-                                claimsColl.add(c);
+                                    claimsColl.add(c);
+                                }
                             }
+                        } else {
+                            // Got a continuation reference
+                            LOGGER.debug("Referral ignored while searching for user {}", user);
                         }
 
                     }
