@@ -43,7 +43,7 @@ public class SecurityMigratable implements Migratable {
 
     private static final Path PDP_POLICIES_DIR = Paths.get("etc", "pdp");
 
-    private static final List<Path> PROPERTIES_FILES = ImmutableList.of( //
+    private static final List<Path> PROPERTIES_FILES = ImmutableList.of(//
             Paths.get("etc", "ws-security", "server", "encryption.properties"),
             Paths.get("etc", "ws-security", "server", "signature.properties"),
             Paths.get("etc", "ws-security", "issuer", "encryption.properties"),
