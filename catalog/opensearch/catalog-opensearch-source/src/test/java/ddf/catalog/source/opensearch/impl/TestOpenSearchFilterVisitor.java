@@ -49,7 +49,7 @@ public class TestOpenSearchFilterVisitor {
 
     private static final String WKT_POINT = "POINT(1.0 2.0)";
 
-    private static final String WKT_POLYGON = "POLYGON((1.0 1.0,1.0 2.0,2.0 2.0,2.0 1.0,1.0 1.0))";
+    private static final String WKT_POLYGON = "POLYGON ((1.1 1.1, 1.1 2.1, 2.1 2.1, 2.1 1.1, 1.1 1.1))";
 
     private static final String CQL_DWITHIN = "(DWITHIN(anyGeo, " + WKT_POINT + ", 1, meters))";
 
