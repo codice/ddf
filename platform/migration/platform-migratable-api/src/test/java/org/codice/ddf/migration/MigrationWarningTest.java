@@ -26,14 +26,14 @@ public class MigrationWarningTest {
 
     private static final String MESSAGE = "test-message";
 
-    private final MigrationWarning WARNING = new MigrationWarning(MESSAGE);
+    private final MigrationWarning warning = new MigrationWarning(MESSAGE);
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
     @Test
     public void testConstructorWithMessage() throws Exception {
-        Assert.assertThat(WARNING.getMessage(), Matchers.equalTo(MESSAGE));
+        Assert.assertThat(warning.getMessage(), Matchers.equalTo(MESSAGE));
     }
 
     @Test
@@ -46,9 +46,9 @@ public class MigrationWarningTest {
 
     @Test
     public void testConstructorWithFormat() throws Exception {
-        final MigrationWarning WARNING = new MigrationWarning(FORMAT, ARG);
+        final MigrationWarning warning = new MigrationWarning(FORMAT, ARG);
 
-        Assert.assertThat(WARNING.getMessage(), Matchers.equalTo(MESSAGE));
+        Assert.assertThat(warning.getMessage(), Matchers.equalTo(MESSAGE));
     }
 
     @Test
@@ -61,6 +61,6 @@ public class MigrationWarningTest {
 
     @Test
     public void testToString() throws Exception {
-        Assert.assertThat(WARNING.toString(), Matchers.equalTo(MESSAGE));
+        Assert.assertThat(warning.toString(), Matchers.equalTo(MESSAGE));
     }
 }

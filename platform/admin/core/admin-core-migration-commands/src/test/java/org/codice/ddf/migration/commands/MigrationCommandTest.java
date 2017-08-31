@@ -14,11 +14,11 @@ import org.mockito.Mockito;
 public class MigrationCommandTest extends AbstractMigrationCommandTest {
     private static final String MESSAGE = "test message.";
 
-    private MigrationCommand COMMAND;
+    private MigrationCommand command;
 
     @Before
     public void setup() throws Exception {
-        COMMAND = initCommand(Mockito.mock(MigrationCommand.class,
+        command = initCommand(Mockito.mock(MigrationCommand.class,
                 Mockito.withSettings()
                         .useConstructor()
                         .defaultAnswer(Mockito.CALLS_REAL_METHODS)));
@@ -26,41 +26,41 @@ public class MigrationCommandTest extends AbstractMigrationCommandTest {
 
     @Test
     public void testConstructor() throws Exception {
-        Assert.assertThat(COMMAND.defaultExportDirectory,
-                Matchers.equalTo(DDF_HOME.resolve(MigrationCommand.EXPORTED)));
+        Assert.assertThat(command.defaultExportDirectory,
+                Matchers.equalTo(ddfHome.resolve(MigrationCommand.EXPORTED)));
     }
 
     @Test
     public void testOutputErrorMessage() throws Exception {
-        COMMAND.outputErrorMessage(MESSAGE);
+        command.outputErrorMessage(MESSAGE);
 
         verifyConsoleOutput(MESSAGE, Ansi.Color.RED);
     }
 
     @Test
     public void testOutputMessageWithException() throws Exception {
-        COMMAND.outputMessage(new MigrationException(MESSAGE));
+        command.outputMessage(new MigrationException(MESSAGE));
 
         verifyConsoleOutput(MESSAGE, Ansi.Color.RED);
     }
 
     @Test
     public void testOutputMessageWithWarning() throws Exception {
-        COMMAND.outputMessage(new MigrationWarning(MESSAGE));
+        command.outputMessage(new MigrationWarning(MESSAGE));
 
         verifyConsoleOutput(MESSAGE, Ansi.Color.YELLOW);
     }
 
     @Test
     public void testOutputMessageWithSuccess() throws Exception {
-        COMMAND.outputMessage(new MigrationSuccessfulInformation(MESSAGE));
+        command.outputMessage(new MigrationSuccessfulInformation(MESSAGE));
 
         verifyConsoleOutput(MESSAGE, Ansi.Color.GREEN);
     }
 
     @Test
     public void testOutputMessageWithInfo() throws Exception {
-        COMMAND.outputMessage(new MigrationInformation(MESSAGE));
+        command.outputMessage(new MigrationInformation(MESSAGE));
 
         verifyConsoleOutput(MESSAGE, Ansi.Color.WHITE);
     }

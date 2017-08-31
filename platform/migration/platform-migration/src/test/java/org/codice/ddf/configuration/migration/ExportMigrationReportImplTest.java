@@ -38,7 +38,7 @@ public class ExportMigrationReportImplTest extends AbstractMigrationTest {
     @Before
     public void setup() throws Exception {
         initMigratableMock();
-        XREPORT = new ExportMigrationReportImpl(REPORT, MIGRATABLE);
+        XREPORT = new ExportMigrationReportImpl(REPORT, migratable);
     }
 
     @Test
@@ -48,15 +48,15 @@ public class ExportMigrationReportImplTest extends AbstractMigrationTest {
         Assert.assertThat(XREPORT.getReport(), Matchers.sameInstance(REPORT));
         Assert.assertThat(metadata, Matchers.aMapWithSize(4));
         Assert.assertThat(metadata,
-                Matchers.hasEntry(MigrationContextImpl.METADATA_VERSION, MIGRATABLE.getVersion()));
+                Matchers.hasEntry(MigrationContextImpl.METADATA_VERSION, migratable.getVersion()));
         Assert.assertThat(metadata,
-                Matchers.hasEntry(MigrationContextImpl.METADATA_TITLE, MIGRATABLE.getTitle()));
+                Matchers.hasEntry(MigrationContextImpl.METADATA_TITLE, migratable.getTitle()));
         Assert.assertThat(metadata,
                 Matchers.hasEntry(MigrationContextImpl.METADATA_DESCRIPTION,
-                        MIGRATABLE.getDescription()));
+                        migratable.getDescription()));
         Assert.assertThat(metadata,
                 Matchers.hasEntry(MigrationContextImpl.METADATA_ORGANIZATION,
-                        MIGRATABLE.getOrganization()));
+                        migratable.getOrganization()));
     }
 
     @Test
@@ -64,7 +64,7 @@ public class ExportMigrationReportImplTest extends AbstractMigrationTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(Matchers.containsString("null report"));
 
-        new ExportMigrationReportImpl(null, MIGRATABLE);
+        new ExportMigrationReportImpl(null, migratable);
     }
 
     @Test
@@ -274,8 +274,7 @@ public class ExportMigrationReportImplTest extends AbstractMigrationTest {
 
     @Test
     public void testRecordExternalSoftlink() throws Exception {
-        final Path ABSOLUTE_FILE_PATH = DDF_HOME.resolve(createFile(createDirectory(DIRS),
-                FILENAME))
+        final Path ABSOLUTE_FILE_PATH = ddfHome.resolve(createFile(createDirectory(DIRS), FILENAME))
                 .toAbsolutePath();
         final String FILENAME2 = "file2.ext";
         final Path ABSOLUTE_FILE_PATH2 = createSoftLink(ABSOLUTE_FILE_PATH.getParent(),
@@ -341,7 +340,7 @@ public class ExportMigrationReportImplTest extends AbstractMigrationTest {
     @Test
     public void testRecordJavaProperty() throws Exception {
         initContext();
-        final Path PROPERTIES_PATH = DDF_HOME.resolve("file.properties");
+        final Path PROPERTIES_PATH = ddfHome.resolve("file.properties");
         final ExportMigrationJavaPropertyReferencedEntryImpl ENTRY =
                 new ExportMigrationJavaPropertyReferencedEntryImpl(CONTEXT,
                         PROPERTIES_PATH,
@@ -378,14 +377,14 @@ public class ExportMigrationReportImplTest extends AbstractMigrationTest {
 
         Assert.assertThat(metadata, Matchers.aMapWithSize(4));
         Assert.assertThat(metadata,
-                Matchers.hasEntry(MigrationContextImpl.METADATA_VERSION, MIGRATABLE.getVersion()));
+                Matchers.hasEntry(MigrationContextImpl.METADATA_VERSION, migratable.getVersion()));
         Assert.assertThat(metadata,
-                Matchers.hasEntry(MigrationContextImpl.METADATA_TITLE, MIGRATABLE.getTitle()));
+                Matchers.hasEntry(MigrationContextImpl.METADATA_TITLE, migratable.getTitle()));
         Assert.assertThat(metadata,
                 Matchers.hasEntry(MigrationContextImpl.METADATA_DESCRIPTION,
-                        MIGRATABLE.getDescription()));
+                        migratable.getDescription()));
         Assert.assertThat(metadata,
                 Matchers.hasEntry(MigrationContextImpl.METADATA_ORGANIZATION,
-                        MIGRATABLE.getOrganization()));
+                        migratable.getOrganization()));
     }
 }

@@ -174,7 +174,7 @@ public class ImportMigrationSystemPropertyReferencedEntryImplTest extends Abstra
     @Test
     public void testVerifyPropertyAfterCompletionWhenOriginalReferencedFileDoesNotExist()
             throws Exception {
-        DDF_HOME.resolve(MIGRATABLE_PATH)
+        ddfHome.resolve(MIGRATABLE_PATH)
                 .toFile()
                 .delete();
 

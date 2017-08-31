@@ -19,28 +19,28 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 public class ImportMigrationEntryTest {
-    private final ImportMigrationEntry ENTRY = Mockito.mock(ImportMigrationEntry.class,
+    private final ImportMigrationEntry entry = Mockito.mock(ImportMigrationEntry.class,
             Mockito.CALLS_REAL_METHODS);
 
     @Test
     public void testRestoreReturnsFalse() throws Exception {
-        Mockito.when(ENTRY.restore(Mockito.eq(true)))
+        Mockito.when(entry.restore(Mockito.eq(true)))
                 .thenReturn(false);
 
-        Assert.assertThat(ENTRY.restore(), Matchers.equalTo(false));
+        Assert.assertThat(entry.restore(), Matchers.equalTo(false));
 
-        Mockito.verify(ENTRY)
+        Mockito.verify(entry)
                 .restore(true);
     }
 
     @Test
     public void testRestoreReturnsTrue() throws Exception {
-        Mockito.when(ENTRY.restore(Mockito.eq(true)))
+        Mockito.when(entry.restore(Mockito.eq(true)))
                 .thenReturn(true);
 
-        Assert.assertThat(ENTRY.restore(), Matchers.equalTo(true));
+        Assert.assertThat(entry.restore(), Matchers.equalTo(true));
 
-        Mockito.verify(ENTRY)
+        Mockito.verify(entry)
                 .restore(true);
     }
 }

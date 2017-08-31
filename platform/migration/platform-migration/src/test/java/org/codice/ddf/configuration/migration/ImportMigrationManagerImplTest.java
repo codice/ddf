@@ -32,7 +32,7 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportTest 
     private final Migratable MIGRATABLE3 = Mockito.mock(Migratable.class);
 
     private final Migratable[] MIGRATABLES =
-            new Migratable[] {MIGRATABLE, MIGRATABLE2, MIGRATABLE3};
+            new Migratable[] {migratable, MIGRATABLE2, MIGRATABLE3};
 
     private final ZipFile ZIP = Mockito.mock(ZipFile.class);
 
@@ -48,7 +48,7 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportTest 
 
     @Before
     public void setup() throws Exception {
-        EXPORT_FILE = DDF_HOME.resolve(createDirectory("exported"))
+        EXPORT_FILE = ddfHome.resolve(createDirectory("exported"))
                 .resolve("exported.zip");
         initMigratableMock();
         initMigratableMock(MIGRATABLE2, MIGRATABLE_ID2);
@@ -67,18 +67,18 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportTest 
                 .when(ZIP)
                 .stream();
 
-        MGR = new ImportMigrationManagerImpl(REPORT, EXPORT_FILE, Stream.of(MIGRATABLES), ZIP);
+        MGR = new ImportMigrationManagerImpl(report, EXPORT_FILE, Stream.of(MIGRATABLES), ZIP);
     }
 
     @Test
     public void testConstructor() throws Exception {
-        Assert.assertThat(MGR.getReport(), Matchers.sameInstance(REPORT));
+        Assert.assertThat(MGR.getReport(), Matchers.sameInstance(report));
         Assert.assertThat(MGR.getExportFile(), Matchers.sameInstance(EXPORT_FILE));
         Assert.assertThat(MGR.getContexts()
                         .stream()
                         .map(ImportMigrationContextImpl::getMigratable)
                         .toArray(Migratable[]::new),
-                Matchers.arrayContaining(Matchers.sameInstance(MIGRATABLE),
+                Matchers.arrayContaining(Matchers.sameInstance(migratable),
                         Matchers.sameInstance(MIGRATABLE2),
                         Matchers.sameInstance(MIGRATABLE3),
                         Matchers.nullValue())); // null correspond to the system context
@@ -90,18 +90,18 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportTest 
 
         initMigratableMock(MIGRATABLE4, "test-migratable-4");
 
-        MGR = new ImportMigrationManagerImpl(REPORT,
+        MGR = new ImportMigrationManagerImpl(report,
                 EXPORT_FILE,
                 Stream.concat(Stream.of(MIGRATABLES), Stream.of(MIGRATABLE4)),
                 ZIP);
 
-        Assert.assertThat(MGR.getReport(), Matchers.sameInstance(REPORT));
+        Assert.assertThat(MGR.getReport(), Matchers.sameInstance(report));
         Assert.assertThat(MGR.getExportFile(), Matchers.sameInstance(EXPORT_FILE));
         Assert.assertThat(MGR.getContexts()
                         .stream()
                         .map(ImportMigrationContextImpl::getMigratable)
                         .toArray(Migratable[]::new),
-                Matchers.arrayContaining(Matchers.sameInstance(MIGRATABLE),
+                Matchers.arrayContaining(Matchers.sameInstance(migratable),
                         Matchers.sameInstance(MIGRATABLE2),
                         Matchers.sameInstance(MIGRATABLE3),
                         Matchers.sameInstance(MIGRATABLE4),
@@ -110,18 +110,18 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportTest 
 
     @Test
     public void testConstructorWithLessMigratables() throws Exception {
-        MGR = new ImportMigrationManagerImpl(REPORT,
+        MGR = new ImportMigrationManagerImpl(report,
                 EXPORT_FILE,
-                Stream.of(MIGRATABLE, MIGRATABLE3),
+                Stream.of(migratable, MIGRATABLE3),
                 ZIP);
 
-        Assert.assertThat(MGR.getReport(), Matchers.sameInstance(REPORT));
+        Assert.assertThat(MGR.getReport(), Matchers.sameInstance(report));
         Assert.assertThat(MGR.getExportFile(), Matchers.sameInstance(EXPORT_FILE));
         Assert.assertThat(MGR.getContexts()
                         .stream()
                         .map(ImportMigrationContextImpl::getMigratable)
                         .toArray(Migratable[]::new),
-                Matchers.arrayContaining(Matchers.sameInstance(MIGRATABLE),
+                Matchers.arrayContaining(Matchers.sameInstance(migratable),
                         Matchers.sameInstance(MIGRATABLE3),
                         Matchers.nullValue(),
                         // null correspond to the system context
@@ -142,13 +142,13 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportTest 
         final Migratable MIGRATABLE2_2 = Mockito.mock(Migratable.class);
 
         initMigratableMock(MIGRATABLE2_2, MIGRATABLE_ID2);
-        Assert.assertThat(MGR.getReport(), Matchers.sameInstance(REPORT));
+        Assert.assertThat(MGR.getReport(), Matchers.sameInstance(report));
         Assert.assertThat(MGR.getExportFile(), Matchers.sameInstance(EXPORT_FILE));
         Assert.assertThat(MGR.getContexts()
                         .stream()
                         .map(ImportMigrationContextImpl::getMigratable)
                         .toArray(Migratable[]::new),
-                Matchers.arrayContaining(Matchers.sameInstance(MIGRATABLE),
+                Matchers.arrayContaining(Matchers.sameInstance(migratable),
                         Matchers.sameInstance(MIGRATABLE2),
                         Matchers.sameInstance(MIGRATABLE3),
                         Matchers.nullValue())); // null correspond to the system context
@@ -178,7 +178,7 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportTest 
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(Matchers.containsString("null export file"));
 
-        new ImportMigrationManagerImpl(REPORT, null, Stream.empty());
+        new ImportMigrationManagerImpl(report, null, Stream.empty());
     }
 
     @Test
@@ -186,7 +186,7 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportTest 
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(Matchers.containsString("null migratables"));
 
-        new ImportMigrationManagerImpl(REPORT, EXPORT_FILE, null, ZIP);
+        new ImportMigrationManagerImpl(report, EXPORT_FILE, null, ZIP);
     }
 
     @Test
@@ -194,7 +194,7 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportTest 
         thrown.expect(MigrationException.class);
         thrown.expectCause(Matchers.instanceOf(FileNotFoundException.class));
 
-        new ImportMigrationManagerImpl(REPORT, EXPORT_FILE, Stream.empty());
+        new ImportMigrationManagerImpl(report, EXPORT_FILE, Stream.empty());
     }
 
     @Test
@@ -208,7 +208,7 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportTest 
         thrown.expect(MigrationException.class);
         thrown.expectCause(Matchers.sameInstance(IOE));
 
-        new ImportMigrationManagerImpl(REPORT, EXPORT_FILE, Stream.empty(), ZIP);
+        new ImportMigrationManagerImpl(report, EXPORT_FILE, Stream.empty(), ZIP);
     }
 
     @Test
@@ -218,14 +218,14 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportTest 
         thrown.expect(MigrationException.class);
         thrown.expectMessage("unsupported exported version");
 
-        new ImportMigrationManagerImpl(REPORT, EXPORT_FILE, Stream.empty(), ZIP);
+        new ImportMigrationManagerImpl(report, EXPORT_FILE, Stream.empty(), ZIP);
     }
 
     @Test
     public void testDoImport() throws Exception {
         MGR.doImport(PRODUCT_VERSION);
 
-        Mockito.verify(MIGRATABLE)
+        Mockito.verify(migratable)
                 .doImport(Mockito.notNull());
         Mockito.verify(MIGRATABLE2)
                 .doImport(Mockito.notNull());
@@ -245,7 +245,7 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportTest 
 
         MGR.doImport(PRODUCT_VERSION);
 
-        Mockito.verify(MIGRATABLE)
+        Mockito.verify(migratable)
                 .doImport(Mockito.notNull());
         Mockito.verify(MIGRATABLE2)
                 .doImport(Mockito.notNull());

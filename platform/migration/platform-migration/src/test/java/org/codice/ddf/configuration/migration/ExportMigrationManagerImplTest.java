@@ -27,7 +27,7 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportTest 
     private final Migratable MIGRATABLE3 = Mockito.mock(Migratable.class);
 
     private final Migratable[] MIGRATABLES =
-            new Migratable[] {MIGRATABLE, MIGRATABLE2, MIGRATABLE3};
+            new Migratable[] {migratable, MIGRATABLE2, MIGRATABLE3};
 
     private Path EXPORT_FILE;
 
@@ -39,24 +39,24 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportTest 
 
     @Before
     public void setup() throws Exception {
-        EXPORT_FILE = DDF_HOME.resolve(createDirectory("exported"))
+        EXPORT_FILE = ddfHome.resolve(createDirectory("exported"))
                 .resolve("exported.zip");
         initMigratableMock();
         initMigratableMock(MIGRATABLE2, MIGRATABLE_ID2);
         initMigratableMock(MIGRATABLE3, MIGRATABLE_ID3);
 
-        MGR = new ExportMigrationManagerImpl(REPORT, EXPORT_FILE, Stream.of(MIGRATABLES));
+        MGR = new ExportMigrationManagerImpl(report, EXPORT_FILE, Stream.of(MIGRATABLES));
     }
 
     @Test
     public void testConstructor() throws Exception {
-        Assert.assertThat(MGR.getReport(), Matchers.sameInstance(REPORT));
+        Assert.assertThat(MGR.getReport(), Matchers.sameInstance(report));
         Assert.assertThat(MGR.getExportFile(), Matchers.sameInstance(EXPORT_FILE));
         Assert.assertThat(MGR.getContexts()
                         .stream()
                         .map(ExportMigrationContextImpl::getMigratable)
                         .toArray(Migratable[]::new),
-                Matchers.arrayContaining(Matchers.sameInstance(MIGRATABLE),
+                Matchers.arrayContaining(Matchers.sameInstance(migratable),
                         Matchers.sameInstance(MIGRATABLE2),
                         Matchers.sameInstance(MIGRATABLE3)));
     }
@@ -66,13 +66,13 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportTest 
         final Migratable MIGRATABLE2_2 = Mockito.mock(Migratable.class);
 
         initMigratableMock(MIGRATABLE2_2, MIGRATABLE_ID2);
-        Assert.assertThat(MGR.getReport(), Matchers.sameInstance(REPORT));
+        Assert.assertThat(MGR.getReport(), Matchers.sameInstance(report));
         Assert.assertThat(MGR.getExportFile(), Matchers.sameInstance(EXPORT_FILE));
         Assert.assertThat(MGR.getContexts()
                         .stream()
                         .map(ExportMigrationContextImpl::getMigratable)
                         .toArray(Migratable[]::new),
-                Matchers.arrayContaining(Matchers.sameInstance(MIGRATABLE),
+                Matchers.arrayContaining(Matchers.sameInstance(migratable),
                         Matchers.sameInstance(MIGRATABLE2),
                         Matchers.sameInstance(MIGRATABLE3)));
     }
@@ -101,7 +101,7 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportTest 
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(Matchers.containsString("null export file"));
 
-        new ExportMigrationManagerImpl(REPORT, null, Stream.empty());
+        new ExportMigrationManagerImpl(report, null, Stream.empty());
     }
 
     @Test
@@ -109,7 +109,7 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportTest 
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(Matchers.containsString("null migratables"));
 
-        new ExportMigrationManagerImpl(REPORT, EXPORT_FILE, null);
+        new ExportMigrationManagerImpl(report, EXPORT_FILE, null);
     }
 
     @Test
@@ -121,7 +121,7 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportTest 
         thrown.expectMessage(Matchers.containsString("failed to create export file"));
         thrown.expectCause(Matchers.instanceOf(FileNotFoundException.class));
 
-        new ExportMigrationManagerImpl(REPORT, EXPORT_FILE, Stream.empty());
+        new ExportMigrationManagerImpl(report, EXPORT_FILE, Stream.empty());
     }
 
     @Test
@@ -130,7 +130,7 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportTest 
 
         assertMetaData(MGR.getMetadata());
 
-        Mockito.verify(MIGRATABLE)
+        Mockito.verify(migratable)
                 .doExport(Mockito.notNull());
         Mockito.verify(MIGRATABLE2)
                 .doExport(Mockito.notNull());
@@ -184,7 +184,7 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportTest 
     @Test
     public void testCloseWhenAlreadyClosed() throws Exception {
         final ZipOutputStream ZOS = Mockito.mock(ZipOutputStream.class);
-        final ExportMigrationManagerImpl MGR = new ExportMigrationManagerImpl(REPORT,
+        final ExportMigrationManagerImpl MGR = new ExportMigrationManagerImpl(report,
                 EXPORT_FILE,
                 Stream.of(MIGRATABLES),
                 ZOS);
@@ -204,7 +204,7 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportTest 
     @Test
     public void testCloseWhileFailingToCreateMetadataEntry() throws Exception {
         final ZipOutputStream ZOS = Mockito.mock(ZipOutputStream.class);
-        final ExportMigrationManagerImpl MGR = new ExportMigrationManagerImpl(REPORT,
+        final ExportMigrationManagerImpl MGR = new ExportMigrationManagerImpl(report,
                 EXPORT_FILE,
                 Stream.of(MIGRATABLES),
                 ZOS);
@@ -227,7 +227,7 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportTest 
     @Test
     public void testCloseWhileFailingToCloseLastEntry() throws Exception {
         final ZipOutputStream ZOS = Mockito.mock(ZipOutputStream.class);
-        final ExportMigrationManagerImpl MGR = new ExportMigrationManagerImpl(REPORT,
+        final ExportMigrationManagerImpl MGR = new ExportMigrationManagerImpl(report,
                 EXPORT_FILE,
                 Stream.of(MIGRATABLES),
                 ZOS);

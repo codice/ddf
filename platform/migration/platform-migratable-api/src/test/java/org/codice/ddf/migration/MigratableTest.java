@@ -27,40 +27,40 @@ public class MigratableTest {
 
     private static final String INCOMPATIBLE_VERSION = "1.1";
 
-    private final Migratable MIGRATABLE = Mockito.mock(Migratable.class,
+    private final Migratable migratable = Mockito.mock(Migratable.class,
             Mockito.CALLS_REAL_METHODS);
 
-    private final MigrationReport REPORT = Mockito.mock(MigrationReport.class);
+    private final MigrationReport report = Mockito.mock(MigrationReport.class);
 
-    private final ImportMigrationContext CONTEXT = Mockito.mock(ImportMigrationContext.class);
+    private final ImportMigrationContext context = Mockito.mock(ImportMigrationContext.class);
 
     @Before
     public void setup() {
-        Mockito.when(MIGRATABLE.getId())
+        Mockito.when(migratable.getId())
                 .thenReturn(MIGRATABLE_ID);
-        Mockito.when(MIGRATABLE.getVersion())
+        Mockito.when(migratable.getVersion())
                 .thenReturn(VERSION);
-        Mockito.when(CONTEXT.getReport())
-                .thenReturn(REPORT);
+        Mockito.when(context.getReport())
+                .thenReturn(report);
     }
 
     @Test
     public void testDoIncompatibleImport() throws Exception {
-        Mockito.when(REPORT.record(Mockito.any(MigrationMessage.class)))
-                .thenReturn(REPORT);
-        Mockito.when(REPORT.record(Mockito.any(MigrationException.class)))
-                .thenReturn(REPORT);
+        Mockito.when(report.record(Mockito.any(MigrationMessage.class)))
+                .thenReturn(report);
+        Mockito.when(report.record(Mockito.any(MigrationException.class)))
+                .thenReturn(report);
 
-        MIGRATABLE.doIncompatibleImport(CONTEXT, INCOMPATIBLE_VERSION);
+        migratable.doIncompatibleImport(context, INCOMPATIBLE_VERSION);
 
-        final ArgumentCaptor<MigrationException> CAPTURE = ArgumentCaptor.forClass(
+        final ArgumentCaptor<MigrationException> capture = ArgumentCaptor.forClass(
                 MigrationException.class);
 
-        Mockito.verify(REPORT)
-                .record(CAPTURE.capture());
+        Mockito.verify(report)
+                .record(capture.capture());
 
-        Assert.assertThat(CAPTURE.getValue(), Matchers.instanceOf(MigrationException.class));
-        Assert.assertThat(CAPTURE.getValue()
+        Assert.assertThat(capture.getValue(), Matchers.instanceOf(MigrationException.class));
+        Assert.assertThat(capture.getValue()
                         .getMessage(),
                 Matchers.matchesPattern(
                         "Incompatibility error.*\\[" + INCOMPATIBLE_VERSION + "\\].*migratable \\["
@@ -69,21 +69,21 @@ public class MigratableTest {
 
     @Test
     public void testDoMissingImport() throws Exception {
-        Mockito.when(REPORT.record(Mockito.any(MigrationMessage.class)))
-                .thenReturn(REPORT);
-        Mockito.when(REPORT.record(Mockito.any(MigrationException.class)))
-                .thenReturn(REPORT);
+        Mockito.when(report.record(Mockito.any(MigrationMessage.class)))
+                .thenReturn(report);
+        Mockito.when(report.record(Mockito.any(MigrationException.class)))
+                .thenReturn(report);
 
-        MIGRATABLE.doMissingImport(CONTEXT);
+        migratable.doMissingImport(context);
 
-        final ArgumentCaptor<MigrationException> CAPTURE = ArgumentCaptor.forClass(
+        final ArgumentCaptor<MigrationException> capture = ArgumentCaptor.forClass(
                 MigrationException.class);
 
-        Mockito.verify(REPORT)
-                .record(CAPTURE.capture());
+        Mockito.verify(report)
+                .record(capture.capture());
 
-        Assert.assertThat(CAPTURE.getValue(), Matchers.instanceOf(MigrationException.class));
-        Assert.assertThat(CAPTURE.getValue()
+        Assert.assertThat(capture.getValue(), Matchers.instanceOf(MigrationException.class));
+        Assert.assertThat(capture.getValue()
                         .getMessage(),
                 Matchers.matchesPattern(
                         "Incompatibility error.*missing exported data.*migratable \\["

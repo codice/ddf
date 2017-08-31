@@ -23,55 +23,55 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 public class AbstractMigrationCommandTest {
-    protected final PrintStream CONSOLE = Mockito.mock(PrintStream.class);
+    protected final PrintStream console = Mockito.mock(PrintStream.class);
 
-    protected final Path EXPORTED_PATH = Paths.get("test-exported");
+    protected final Path exportedPath = Paths.get("test-exported");
 
-    protected final String EXPORTED_ARG = EXPORTED_PATH.toString();
+    protected final String exportedArg = exportedPath.toString();
 
-    protected final ConfigurationMigrationService SERVICE = Mockito.mock(
+    protected final ConfigurationMigrationService service = Mockito.mock(
             ConfigurationMigrationService.class);
 
-    protected final Security SECURITY = Mockito.mock(Security.class);
+    protected final Security security = Mockito.mock(Security.class);
 
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
 
-    protected Path ROOT;
+    protected Path root;
 
-    protected Path DDF_HOME;
+    protected Path ddfHome;
 
     @Before
     public void baseSetup() throws Exception {
-        ROOT = testFolder.getRoot()
+        root = testFolder.getRoot()
                 .toPath()
                 .toRealPath(LinkOption.NOFOLLOW_LINKS);
-        DDF_HOME = testFolder.newFolder("ddf")
+        ddfHome = testFolder.newFolder("ddf")
                 .toPath()
                 .toRealPath(LinkOption.NOFOLLOW_LINKS);
-        DDF_HOME.resolve(EXPORTED_PATH)
+        ddfHome.resolve(exportedPath)
                 .toFile()
                 .mkdirs();
 
         Mockito.doAnswer(AdditionalAnswers.<MigrationReport, Callable<MigrationReport>>answer(code -> code.call()))
-                .when(SECURITY)
+                .when(security)
                 .runWithSubjectOrElevate(Mockito.notNull());
 
-        System.setProperty("ddf.home", DDF_HOME.toString());
+        System.setProperty("ddf.home", ddfHome.toString());
     }
 
     protected <T extends MigrationCommand> T initCommand(T command) {
         final T cmd = Mockito.spy(command);
 
         Mockito.when(cmd.getConsole())
-                .thenReturn(CONSOLE);
+                .thenReturn(console);
         return cmd;
     }
 
     protected void verifyConsoleOutput(Matcher<String> messageMatcher, Ansi.Color color) {
         final ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
 
-        Mockito.verify(CONSOLE, Mockito.times(2))
+        Mockito.verify(console, Mockito.times(2))
                 .print(argument.capture());
         final List<String> values = argument.getAllValues();
 
@@ -81,7 +81,7 @@ public class AbstractMigrationCommandTest {
                         .fg(color)
                         .toString()));
         Assert.assertThat(values.get(1), messageMatcher);
-        Mockito.verify(CONSOLE)
+        Mockito.verify(console)
                 .println(Ansi.ansi()
                         .a(Attribute.RESET)
                         .toString());

@@ -27,9 +27,9 @@ import org.mockito.stubbing.Answer;
 public class ExportMigrationContextTest {
     private static final String PROPERTY_NAME = "test.property";
 
-    private final MigrationReport REPORT = Mockito.mock(MigrationReport.class);
+    private final MigrationReport report = Mockito.mock(MigrationReport.class);
 
-    private final ExportMigrationContext CONTEXT = Mockito.mock(ExportMigrationContext.class,
+    private final ExportMigrationContext context = Mockito.mock(ExportMigrationContext.class,
             Mockito.CALLS_REAL_METHODS);
 
     private static Answer<Optional<ExportMigrationEntry>> verifyValidatorWith(
@@ -49,66 +49,66 @@ public class ExportMigrationContextTest {
 
     @Test
     public void testGetSystemPropertyReferencedEntry() throws Exception {
-        Mockito.when(CONTEXT.getSystemPropertyReferencedEntry(Mockito.eq(PROPERTY_NAME),
+        Mockito.when(context.getSystemPropertyReferencedEntry(Mockito.eq(PROPERTY_NAME),
                 Mockito.any()))
                 .thenReturn(Optional.empty());
 
-        CONTEXT.getSystemPropertyReferencedEntry(PROPERTY_NAME);
+        context.getSystemPropertyReferencedEntry(PROPERTY_NAME);
 
-        Mockito.verify(CONTEXT)
+        Mockito.verify(context)
                 .getSystemPropertyReferencedEntry(Mockito.eq(PROPERTY_NAME), Mockito.notNull());
     }
 
     @Test
     public void testGetSystemPropertyReferencedEntryValidator() throws Exception {
-        Mockito.when(CONTEXT.getSystemPropertyReferencedEntry(Mockito.eq(PROPERTY_NAME),
+        Mockito.when(context.getSystemPropertyReferencedEntry(Mockito.eq(PROPERTY_NAME),
                 Mockito.any()))
-                .thenAnswer(verifyValidatorWith(REPORT,
+                .thenAnswer(verifyValidatorWith(report,
                         "etc/security/test/txt",
                         Matchers.equalTo(true)));
 
-        CONTEXT.getSystemPropertyReferencedEntry(PROPERTY_NAME);
+        context.getSystemPropertyReferencedEntry(PROPERTY_NAME);
 
-        Mockito.verify(CONTEXT)
+        Mockito.verify(context)
                 .getSystemPropertyReferencedEntry(Mockito.eq(PROPERTY_NAME), Mockito.any());
     }
 
     @Test
     public void testGetSystemPropertyReferencedEntryValidatorWithNullValue() throws Exception {
-        Mockito.when(CONTEXT.getSystemPropertyReferencedEntry(Mockito.eq(PROPERTY_NAME),
+        Mockito.when(context.getSystemPropertyReferencedEntry(Mockito.eq(PROPERTY_NAME),
                 Mockito.any()))
-                .thenAnswer(verifyValidatorWith(REPORT, null, Matchers.equalTo(true)));
+                .thenAnswer(verifyValidatorWith(report, null, Matchers.equalTo(true)));
 
-        CONTEXT.getSystemPropertyReferencedEntry(PROPERTY_NAME);
+        context.getSystemPropertyReferencedEntry(PROPERTY_NAME);
 
-        Mockito.verify(CONTEXT)
+        Mockito.verify(context)
                 .getSystemPropertyReferencedEntry(Mockito.eq(PROPERTY_NAME), Mockito.any());
     }
 
     @Test
     public void testGetSystemPropertyReferencedEntryValidatorWithNullReport() throws Exception {
-        Mockito.when(CONTEXT.getSystemPropertyReferencedEntry(Mockito.eq(PROPERTY_NAME),
+        Mockito.when(context.getSystemPropertyReferencedEntry(Mockito.eq(PROPERTY_NAME),
                 Mockito.any()))
                 .thenAnswer(verifyValidatorWith(null,
                         "etc/security/test/txt",
                         Matchers.equalTo(true)));
 
-        CONTEXT.getSystemPropertyReferencedEntry(PROPERTY_NAME);
+        context.getSystemPropertyReferencedEntry(PROPERTY_NAME);
 
-        Mockito.verify(CONTEXT)
+        Mockito.verify(context)
                 .getSystemPropertyReferencedEntry(Mockito.eq(PROPERTY_NAME), Mockito.any());
     }
 
     @Test
     public void testGetSystemPropertyReferencedEntryValidatorWithNullReportAndNullValue()
             throws Exception {
-        Mockito.when(CONTEXT.getSystemPropertyReferencedEntry(Mockito.eq(PROPERTY_NAME),
+        Mockito.when(context.getSystemPropertyReferencedEntry(Mockito.eq(PROPERTY_NAME),
                 Mockito.any()))
                 .thenAnswer(verifyValidatorWith(null, null, Matchers.equalTo(true)));
 
-        CONTEXT.getSystemPropertyReferencedEntry(PROPERTY_NAME);
+        context.getSystemPropertyReferencedEntry(PROPERTY_NAME);
 
-        Mockito.verify(CONTEXT)
+        Mockito.verify(context)
                 .getSystemPropertyReferencedEntry(Mockito.eq(PROPERTY_NAME), Mockito.any());
     }
 }

@@ -39,12 +39,12 @@ public class MigrationContextImplTest extends AbstractMigrationReportTest {
     @Before
     public void setup() throws Exception {
         initMigratableMock();
-        CONTEXT = new MigrationContextImpl(REPORT);
+        CONTEXT = new MigrationContextImpl(report);
     }
 
     @Test
     public void testConstructorWithReport() throws Exception {
-        Assert.assertThat(CONTEXT.getReport(), Matchers.sameInstance(REPORT));
+        Assert.assertThat(CONTEXT.getReport(), Matchers.sameInstance(report));
         Assert.assertThat(CONTEXT.getId(), Matchers.nullValue());
         Assert.assertThat(CONTEXT.getVersion(), OptionalMatchers.isEmpty());
         Assert.assertThat(CONTEXT.migratable, Matchers.nullValue());
@@ -60,16 +60,16 @@ public class MigrationContextImplTest extends AbstractMigrationReportTest {
 
     @Test(expected = IOError.class)
     public void testConstructorWithReportWhenUndefinedDDFHome() throws Exception {
-        FileUtils.forceDelete(DDF_HOME.toFile());
+        FileUtils.forceDelete(ddfHome.toFile());
 
-        new MigrationContextImpl(REPORT);
+        new MigrationContextImpl(report);
     }
 
     @Test
     public void testConstructorWithReportAndId() throws Exception {
-        final MigrationContextImpl CONTEXT = new MigrationContextImpl(REPORT, MIGRATABLE_ID);
+        final MigrationContextImpl CONTEXT = new MigrationContextImpl(report, MIGRATABLE_ID);
 
-        Assert.assertThat(CONTEXT.getReport(), Matchers.sameInstance(REPORT));
+        Assert.assertThat(CONTEXT.getReport(), Matchers.sameInstance(report));
         Assert.assertThat(CONTEXT.getId(), Matchers.equalTo(MIGRATABLE_ID));
         Assert.assertThat(CONTEXT.getVersion(), OptionalMatchers.isEmpty());
         Assert.assertThat(CONTEXT.migratable, Matchers.nullValue());
@@ -88,24 +88,24 @@ public class MigrationContextImplTest extends AbstractMigrationReportTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(Matchers.containsString("null migratable identifier"));
 
-        new MigrationContextImpl(REPORT, (String) null);
+        new MigrationContextImpl(report, (String) null);
     }
 
     @Test(expected = IOError.class)
     public void testConstructorWithReportAndIdWhenUndefinedDDFHome() throws Exception {
-        FileUtils.forceDelete(DDF_HOME.toFile());
+        FileUtils.forceDelete(ddfHome.toFile());
 
-        new MigrationContextImpl(REPORT, MIGRATABLE_ID);
+        new MigrationContextImpl(report, MIGRATABLE_ID);
     }
 
     @Test
     public void testConstructorWithReportAndMigratable() throws Exception {
-        final MigrationContextImpl CONTEXT = new MigrationContextImpl(REPORT, MIGRATABLE);
+        final MigrationContextImpl CONTEXT = new MigrationContextImpl(report, migratable);
 
-        Assert.assertThat(CONTEXT.getReport(), Matchers.sameInstance(REPORT));
+        Assert.assertThat(CONTEXT.getReport(), Matchers.sameInstance(report));
         Assert.assertThat(CONTEXT.getId(), Matchers.equalTo(MIGRATABLE_ID));
         Assert.assertThat(CONTEXT.getVersion(), OptionalMatchers.isEmpty());
-        Assert.assertThat(CONTEXT.migratable, Matchers.sameInstance(MIGRATABLE));
+        Assert.assertThat(CONTEXT.migratable, Matchers.sameInstance(migratable));
     }
 
     @Test
@@ -113,7 +113,7 @@ public class MigrationContextImplTest extends AbstractMigrationReportTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(Matchers.containsString("null report"));
 
-        new MigrationContextImpl(null, MIGRATABLE);
+        new MigrationContextImpl(null, migratable);
     }
 
     @Test
@@ -121,24 +121,24 @@ public class MigrationContextImplTest extends AbstractMigrationReportTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(Matchers.containsString("null migratable"));
 
-        new MigrationContextImpl(REPORT, (Migratable) null);
+        new MigrationContextImpl(report, (Migratable) null);
     }
 
     @Test(expected = IOError.class)
     public void testConstructorWithReportAndMigratableWhenUndefinedDDFHome() throws Exception {
-        FileUtils.forceDelete(DDF_HOME.toFile());
+        FileUtils.forceDelete(ddfHome.toFile());
 
-        new MigrationContextImpl(REPORT, MIGRATABLE);
+        new MigrationContextImpl(report, migratable);
     }
 
     @Test
     public void testConstructorWithReportAndMigratableAndVersion() throws Exception {
-        final MigrationContextImpl CONTEXT = new MigrationContextImpl(REPORT, MIGRATABLE, VERSION);
+        final MigrationContextImpl CONTEXT = new MigrationContextImpl(report, migratable, VERSION);
 
-        Assert.assertThat(CONTEXT.getReport(), Matchers.sameInstance(REPORT));
+        Assert.assertThat(CONTEXT.getReport(), Matchers.sameInstance(report));
         Assert.assertThat(CONTEXT.getId(), Matchers.equalTo(MIGRATABLE_ID));
         Assert.assertThat(CONTEXT.getVersion(), OptionalMatchers.hasValue(VERSION));
-        Assert.assertThat(CONTEXT.migratable, Matchers.sameInstance(MIGRATABLE));
+        Assert.assertThat(CONTEXT.migratable, Matchers.sameInstance(migratable));
     }
 
     @Test
@@ -146,7 +146,7 @@ public class MigrationContextImplTest extends AbstractMigrationReportTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(Matchers.containsString("null report"));
 
-        new MigrationContextImpl(null, MIGRATABLE, VERSION);
+        new MigrationContextImpl(null, migratable, VERSION);
     }
 
     @Test
@@ -154,7 +154,7 @@ public class MigrationContextImplTest extends AbstractMigrationReportTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(Matchers.containsString("null migratable"));
 
-        new MigrationContextImpl(REPORT, (Migratable) null, VERSION);
+        new MigrationContextImpl(report, (Migratable) null, VERSION);
     }
 
     @Test
@@ -162,66 +162,66 @@ public class MigrationContextImplTest extends AbstractMigrationReportTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(Matchers.containsString("null version"));
 
-        new MigrationContextImpl(REPORT, MIGRATABLE, null);
+        new MigrationContextImpl(report, migratable, null);
     }
 
     @Test(expected = IOError.class)
     public void testConstructorWithReportAndMigratableAndVersionWhenUndefinedDDFHome()
             throws Exception {
-        FileUtils.forceDelete(DDF_HOME.toFile());
+        FileUtils.forceDelete(ddfHome.toFile());
 
-        new MigrationContextImpl(REPORT, MIGRATABLE, VERSION);
+        new MigrationContextImpl(report, migratable, VERSION);
     }
 
     @Test
     public void testEqualsWhenIdentical() throws Exception {
-        final MigrationContextImpl CONTEXT = new MigrationContextImpl(REPORT, MIGRATABLE_ID);
+        final MigrationContextImpl CONTEXT = new MigrationContextImpl(report, MIGRATABLE_ID);
 
         Assert.assertThat(CONTEXT.equals(CONTEXT), Matchers.equalTo(true));
     }
 
     @Test
     public void testEqualsWithNotContext() throws Exception {
-        final MigrationContextImpl CONTEXT = new MigrationContextImpl(REPORT, MIGRATABLE_ID);
+        final MigrationContextImpl CONTEXT = new MigrationContextImpl(report, MIGRATABLE_ID);
 
         Assert.assertThat(CONTEXT.equals(new Object()), Matchers.equalTo(false));
     }
 
     @Test
     public void testEqualsWhenIdsAreEqual() throws Exception {
-        final MigrationContextImpl CONTEXT = new MigrationContextImpl(REPORT, MIGRATABLE_ID);
-        final MigrationContextImpl CONTEXT2 = new MigrationContextImpl(REPORT, MIGRATABLE_ID);
+        final MigrationContextImpl CONTEXT = new MigrationContextImpl(report, MIGRATABLE_ID);
+        final MigrationContextImpl CONTEXT2 = new MigrationContextImpl(report, MIGRATABLE_ID);
 
         Assert.assertThat(CONTEXT.equals(CONTEXT2), Matchers.equalTo(true));
     }
 
     @Test
     public void testEqualsWhenIdIsNull() throws Exception {
-        final MigrationContextImpl CONTEXT = new MigrationContextImpl(REPORT);
-        final MigrationContextImpl CONTEXT2 = new MigrationContextImpl(REPORT, MIGRATABLE_ID);
+        final MigrationContextImpl CONTEXT = new MigrationContextImpl(report);
+        final MigrationContextImpl CONTEXT2 = new MigrationContextImpl(report, MIGRATABLE_ID);
 
         Assert.assertThat(CONTEXT.equals(CONTEXT2), Matchers.equalTo(false));
     }
 
     @Test
     public void testEqualsWhenOtherIdIsNull() throws Exception {
-        final MigrationContextImpl CONTEXT = new MigrationContextImpl(REPORT, MIGRATABLE_ID);
-        final MigrationContextImpl CONTEXT2 = new MigrationContextImpl(REPORT);
+        final MigrationContextImpl CONTEXT = new MigrationContextImpl(report, MIGRATABLE_ID);
+        final MigrationContextImpl CONTEXT2 = new MigrationContextImpl(report);
 
         Assert.assertThat(CONTEXT.equals(CONTEXT2), Matchers.equalTo(false));
     }
 
     @Test
     public void testEqualsWhenBothIdAreNull() throws Exception {
-        final MigrationContextImpl CONTEXT = new MigrationContextImpl(REPORT);
-        final MigrationContextImpl CONTEXT2 = new MigrationContextImpl(REPORT);
+        final MigrationContextImpl CONTEXT = new MigrationContextImpl(report);
+        final MigrationContextImpl CONTEXT2 = new MigrationContextImpl(report);
 
         Assert.assertThat(CONTEXT.equals(CONTEXT2), Matchers.equalTo(true));
     }
 
     @Test
     public void testProcessMetadata() throws Exception {
-        final MigrationContextImpl CONTEXT = new MigrationContextImpl(REPORT);
+        final MigrationContextImpl CONTEXT = new MigrationContextImpl(report);
         final Map<String, Object> METADATA = ImmutableMap.of(MigrationContextImpl.METADATA_VERSION,
                 VERSION);
 
@@ -232,7 +232,7 @@ public class MigrationContextImplTest extends AbstractMigrationReportTest {
 
     @Test(expected = MigrationException.class)
     public void testProcessMetadataWhenVersionIsMissing() throws Exception {
-        final MigrationContextImpl CONTEXT = new MigrationContextImpl(REPORT);
+        final MigrationContextImpl CONTEXT = new MigrationContextImpl(report);
         final Map<String, Object> METADATA = Collections.emptyMap();
 
         CONTEXT.processMetadata(METADATA);

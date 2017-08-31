@@ -49,6 +49,9 @@ import org.mockito.Mockito;
 
 import com.google.common.base.Charsets;
 
+/**
+ * Base class for test cases which handles setup for DDF_HOME.
+ */
 public class AbstractMigrationTest {
     protected static final String MIGRATABLE_ID = "test-migratable";
 
@@ -62,7 +65,7 @@ public class AbstractMigrationTest {
 
     protected static final String ORGANIZATION = "Test Organization";
 
-    protected final Migratable MIGRATABLE = Mockito.mock(Migratable.class);
+    protected final Migratable migratable = Mockito.mock(Migratable.class);
 
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
@@ -70,9 +73,9 @@ public class AbstractMigrationTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    protected Path ROOT;
+    protected Path root;
 
-    protected Path DDF_HOME;
+    protected Path ddfHome;
 
     /**
      * Retrieves all zip entries representing files from the specified zip file.
@@ -150,7 +153,7 @@ public class AbstractMigrationTest {
      * @throws IOException if an I/O error occurs while creating the test files
      */
     public List<Path> createFiles(List<Path> paths, Path dir, String... names) throws IOException {
-        final File rdir = DDF_HOME.resolve(dir)
+        final File rdir = ddfHome.resolve(dir)
                 .toFile();
 
         rdir.mkdirs();
@@ -158,7 +161,7 @@ public class AbstractMigrationTest {
             final File file = new File(rdir, name);
 
             FileUtils.writeStringToFile(file, name, Charsets.UTF_8);
-            paths.add(DDF_HOME.relativize(file.toPath()
+            paths.add(ddfHome.relativize(file.toPath()
                     .toRealPath(LinkOption.NOFOLLOW_LINKS)));
         }
         return paths;
@@ -175,7 +178,7 @@ public class AbstractMigrationTest {
      * @throws IOException if an I/O error occurs while creating the test file
      */
     public Path createFile(Path dir, String name) throws IOException {
-        final File file = new File(DDF_HOME.resolve(dir)
+        final File file = new File(ddfHome.resolve(dir)
                 .toFile(), name);
 
         dir.toFile()
@@ -184,7 +187,7 @@ public class AbstractMigrationTest {
         final Path path = file.toPath()
                 .toRealPath(LinkOption.NOFOLLOW_LINKS);
 
-        return path.startsWith(DDF_HOME) ? DDF_HOME.relativize(path) : path;
+        return path.startsWith(ddfHome) ? ddfHome.relativize(path) : path;
     }
 
     /**
@@ -197,7 +200,7 @@ public class AbstractMigrationTest {
      * @throws IOException if an I/O error occurs while creating the test file
      */
     public Path createFile(String name) throws IOException {
-        return createFile(DDF_HOME, name);
+        return createFile(ddfHome, name);
     }
 
     /**
@@ -227,7 +230,7 @@ public class AbstractMigrationTest {
      * @throws IOException if an I/O error occurs while creating the test file
      */
     public Path createFileFromResource(Path dir, String name, String resource) throws IOException {
-        final File file = new File(DDF_HOME.resolve(dir)
+        final File file = new File(ddfHome.resolve(dir)
                 .toFile(), name);
         final InputStream is = AbstractMigrationTest.class.getResourceAsStream(resource);
 
@@ -240,7 +243,7 @@ public class AbstractMigrationTest {
         final Path path = file.toPath()
                 .toRealPath(LinkOption.NOFOLLOW_LINKS);
 
-        return path.startsWith(DDF_HOME) ? DDF_HOME.relativize(path) : path;
+        return path.startsWith(ddfHome) ? ddfHome.relativize(path) : path;
     }
 
     /**
@@ -269,7 +272,7 @@ public class AbstractMigrationTest {
      * @throws UnsupportedOperationException if the implementation does not support symbolic links
      */
     public Path createSoftLink(Path dir, String name, Path dest) throws IOException {
-        final Path path = DDF_HOME.resolve(dir)
+        final Path path = ddfHome.resolve(dir)
                 .resolve(name);
 
         dir.toFile()
@@ -277,7 +280,7 @@ public class AbstractMigrationTest {
         Files.createSymbolicLink(path, dest);
         final Path apath = path.toRealPath(LinkOption.NOFOLLOW_LINKS);
 
-        return apath.startsWith(DDF_HOME) ? DDF_HOME.relativize(apath) : apath;
+        return apath.startsWith(ddfHome) ? ddfHome.relativize(apath) : apath;
     }
 
     /**
@@ -290,7 +293,7 @@ public class AbstractMigrationTest {
      * @throws UnsupportedOperationException if the implementation does not support symbolic links
      */
     public Path createSoftLink(String name, Path dest) throws IOException {
-        return createSoftLink(DDF_HOME, name, dest);
+        return createSoftLink(ddfHome, name, dest);
     }
 
     /**
@@ -323,18 +326,18 @@ public class AbstractMigrationTest {
 
     @Before
     public void baseSetup() throws Exception {
-        ROOT = testFolder.getRoot()
+        root = testFolder.getRoot()
                 .toPath()
                 .toRealPath(LinkOption.NOFOLLOW_LINKS);
-        DDF_HOME = testFolder.newFolder("ddf")
+        ddfHome = testFolder.newFolder("ddf")
                 .toPath()
                 .toRealPath(LinkOption.NOFOLLOW_LINKS);
 
-        System.setProperty("ddf.home", DDF_HOME.toString());
+        System.setProperty("ddf.home", ddfHome.toString());
     }
 
     public void initMigratableMock() {
-        initMigratableMock(MIGRATABLE, MIGRATABLE_ID);
+        initMigratableMock(migratable, MIGRATABLE_ID);
     }
 
     public void initMigratableMock(Migratable migratable, String id) {

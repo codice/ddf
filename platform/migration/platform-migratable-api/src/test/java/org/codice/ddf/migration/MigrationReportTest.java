@@ -30,25 +30,25 @@ public class MigrationReportTest {
 
     private static final String MSG = "Some message";
 
-    private final static String[] MESSAGE_STRINGS =
+    private static final String[] MESSAGE_STRINGS =
             new String[] {"warning1", "info2", "error3", "info4", "info5", "warning6", "error7",
                     "error8", "warning9", "warning10", "info11"};
 
-    private final static String[] ERROR_STRINGS = Stream.of(MESSAGE_STRINGS)
+    private static final String[] ERROR_STRINGS = Stream.of(MESSAGE_STRINGS)
             .filter(m -> m.startsWith("error"))
             .toArray(String[]::new);
 
-    private final static String[] WARNING_STRINGS = Stream.of(MESSAGE_STRINGS)
+    private static final String[] WARNING_STRINGS = Stream.of(MESSAGE_STRINGS)
             .filter(m -> m.startsWith("warning"))
             .toArray(String[]::new);
 
-    private final static String[] INFO_STRINGS = Stream.of(MESSAGE_STRINGS)
+    private static final String[] INFO_STRINGS = Stream.of(MESSAGE_STRINGS)
             .filter(m -> m.startsWith("info"))
             .toArray(String[]::new);
 
-    private final MigrationMessage[] MESSAGES = new MigrationMessage[MESSAGE_STRINGS.length];
+    private final MigrationMessage[] messages = new MigrationMessage[MESSAGE_STRINGS.length];
 
-    private final MigrationReport REPORT = Mockito.mock(MigrationReport.class,
+    private final MigrationReport report = Mockito.mock(MigrationReport.class,
             Mockito.CALLS_REAL_METHODS);
 
     @Rule
@@ -60,26 +60,26 @@ public class MigrationReportTest {
 
         for (final String msg : MESSAGE_STRINGS) {
             if (msg.startsWith("warning")) {
-                MESSAGES[i++] = new MigrationWarning(msg);
+                messages[i++] = new MigrationWarning(msg);
             } else if (msg.startsWith("info")) {
-                MESSAGES[i++] = new MigrationInformation(msg);
+                messages[i++] = new MigrationInformation(msg);
             } else {
-                MESSAGES[i++] = new MigrationException(msg);
+                messages[i++] = new MigrationException(msg);
             }
         }
 
-        Mockito.when(REPORT.messages())
-                .thenReturn(Stream.of(MESSAGES));
+        Mockito.when(report.messages())
+                .thenReturn(Stream.of(messages));
     }
 
     @Test
     public void testRecordMessage() throws Exception {
-        Mockito.when(REPORT.record(Mockito.any(MigrationMessage.class)))
-                .thenReturn(REPORT);
+        Mockito.when(report.record(Mockito.any(MigrationMessage.class)))
+                .thenReturn(report);
 
-        REPORT.record(MSG);
+        report.record(MSG);
 
-        Mockito.verify(REPORT)
+        Mockito.verify(report)
                 .record(Mockito.eq(MSG));
     }
 
@@ -88,17 +88,17 @@ public class MigrationReportTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(Matchers.containsString("null message"));
 
-        REPORT.record((String) null);
+        report.record((String) null);
     }
 
     @Test
     public void testRecordMessageWithFormat() throws Exception {
-        Mockito.when(REPORT.record(Mockito.any(MigrationMessage.class)))
-                .thenReturn(REPORT);
+        Mockito.when(report.record(Mockito.any(MigrationMessage.class)))
+                .thenReturn(report);
 
-        REPORT.record(FORMAT, ARG);
+        report.record(FORMAT, ARG);
 
-        Mockito.verify(REPORT)
+        Mockito.verify(report)
                 .record(Mockito.eq(FORMAT), Mockito.eq(ARG));
     }
 
@@ -107,42 +107,42 @@ public class MigrationReportTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(Matchers.containsString("null format"));
 
-        REPORT.record(null, ARG);
+        report.record(null, ARG);
     }
 
     @Test
     public void testErrors() throws Exception {
-        final String[] EMSGS = REPORT.errors()
+        final String[] emsgs = report.errors()
                 .map(MigrationException::getMessage)
                 .toArray(String[]::new);
 
-        Assert.assertThat(EMSGS, Matchers.arrayContaining(ERROR_STRINGS));
+        Assert.assertThat(emsgs, Matchers.arrayContaining(ERROR_STRINGS));
 
-        Mockito.verify(REPORT)
+        Mockito.verify(report)
                 .messages();
     }
 
     @Test
     public void testWarnings() throws Exception {
-        final String[] WMSGS = REPORT.warnings()
+        final String[] wmsgs = report.warnings()
                 .map(MigrationWarning::getMessage)
                 .toArray(String[]::new);
 
-        Assert.assertThat(WMSGS, Matchers.arrayContaining(WARNING_STRINGS));
+        Assert.assertThat(wmsgs, Matchers.arrayContaining(WARNING_STRINGS));
 
-        Mockito.verify(REPORT)
+        Mockito.verify(report)
                 .messages();
     }
 
     @Test
     public void testInfos() throws Exception {
-        final String[] IMSGS = REPORT.infos()
+        final String[] emsgs = report.infos()
                 .map(MigrationInformation::getMessage)
                 .toArray(String[]::new);
 
-        Assert.assertThat(IMSGS, Matchers.arrayContaining(INFO_STRINGS));
+        Assert.assertThat(emsgs, Matchers.arrayContaining(INFO_STRINGS));
 
-        Mockito.verify(REPORT)
+        Mockito.verify(report)
                 .messages();
     }
 }

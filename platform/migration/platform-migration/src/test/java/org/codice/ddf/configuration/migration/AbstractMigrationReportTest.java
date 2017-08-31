@@ -8,6 +8,9 @@ import org.codice.ddf.migration.MigrationOperation;
 import org.codice.ddf.migration.MigrationWarning;
 import org.junit.Before;
 
+/**
+ * Base class for report-type test cases which handles setup of various messages.
+ */
 public class AbstractMigrationReportTest extends AbstractMigrationTest {
     protected final static String[] MESSAGE_STRINGS =
             new String[] {"warning1", "info2", "error3", "info4", "info5", "warning6", "error7",
@@ -29,12 +32,12 @@ public class AbstractMigrationReportTest extends AbstractMigrationTest {
             .filter(m -> m.startsWith("info"))
             .toArray(String[]::new);
 
-    protected final MigrationReportImpl REPORT;
+    protected final MigrationReportImpl report;
 
-    protected final MigrationException[] EXCEPTIONS = new MigrationException[ERRORS.length];
+    protected final MigrationException[] exceptions = new MigrationException[ERRORS.length];
 
     protected AbstractMigrationReportTest(MigrationOperation operation) {
-        this.REPORT = new MigrationReportImpl(operation, Optional.empty());
+        this.report = new MigrationReportImpl(operation, Optional.empty());
     }
 
     @Before
@@ -43,14 +46,14 @@ public class AbstractMigrationReportTest extends AbstractMigrationTest {
 
         for (final String msg : MESSAGE_STRINGS) {
             if (msg.startsWith("info")) {
-                REPORT.record(msg);
+                report.record(msg);
             } else if (msg.startsWith("warning")) {
-                REPORT.record(new MigrationWarning(msg));
+                report.record(new MigrationWarning(msg));
             } else {
                 final MigrationException e = new MigrationException(msg);
 
-                EXCEPTIONS[i++] = e;
-                REPORT.record(e);
+                exceptions[i++] = e;
+                report.record(e);
             }
         }
     }

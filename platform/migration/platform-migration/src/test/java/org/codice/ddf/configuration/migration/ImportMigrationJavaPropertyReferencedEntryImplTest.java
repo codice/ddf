@@ -73,14 +73,14 @@ public class ImportMigrationJavaPropertyReferencedEntryImplTest extends Abstract
 
     @Before
     public void setup() throws Exception {
-        properties = DDF_HOME.resolve(createFile(PROPERTIES_PATH))
+        properties = ddfHome.resolve(createFile(PROPERTIES_PATH))
                 .toRealPath(LinkOption.NOFOLLOW_LINKS);
         FileUtils.writeStringToFile(properties.toFile(),
                 PROPERTY_NAME + '=' + REFERENCED_PATH,
                 Charsets.UTF_8,
                 false);
 
-        path = DDF_HOME.resolve(createFile(REFERENCED_PATH))
+        path = ddfHome.resolve(createFile(REFERENCED_PATH))
                 .toRealPath(LinkOption.NOFOLLOW_LINKS);
 
         report = mock(MigrationReportImpl.class,

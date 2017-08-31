@@ -80,10 +80,10 @@ public class ImportMigrationEntryImplTest extends AbstractMigrationTest {
 
         givenARealMigrationReport();
 
-        importedFile = DDF_HOME.resolve(createFile(ENTRY_NAME))
+        importedFile = ddfHome.resolve(createFile(ENTRY_NAME))
                 .toFile();
         // resolving against DDF_HOME ensures that on Windows the absolute path gets the same drive as DDF_HOME
-        ABSOLUTE_PATH = DDF_HOME.resolve(Paths.get("/opt", "ddf", ENTRY_NAME));
+        ABSOLUTE_PATH = ddfHome.resolve(Paths.get("/opt", "ddf", ENTRY_NAME));
     }
 
     @Test
@@ -282,9 +282,9 @@ public class ImportMigrationEntryImplTest extends AbstractMigrationTest {
 
     @Test
     public void isNotMigratableWithAbsolutePath() {
-        // resolving against DDF_HOME ensures that the abosulte path gets the same drive on windows
+        // resolving against DDF_HOME ensures that the absolute path gets the same drive on windows
         final ImportMigrationEntryImpl entry = new ImportMigrationEntryImpl(mockContext,
-                DDF_HOME.resolve(Paths.get(File.separatorChar + ENTRY_NAME))
+                ddfHome.resolve(Paths.get(File.separatorChar + ENTRY_NAME))
                         .toString());
 
         assertThat("The entry is not migratable.", entry.isMigratable(), is(false));

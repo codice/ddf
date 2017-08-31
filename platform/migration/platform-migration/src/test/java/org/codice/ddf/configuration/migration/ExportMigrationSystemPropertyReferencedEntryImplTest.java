@@ -45,7 +45,7 @@ public class ExportMigrationSystemPropertyReferencedEntryImplTest extends Abstra
         Mockito.when(CONTEXT.getId())
                 .thenReturn(MIGRATABLE_ID);
         ENTRY = new ExportMigrationSystemPropertyReferencedEntryImpl(CONTEXT, PROPERTY, UNIX_NAME);
-        ABSOLUTE_FILE_PATH = DDF_HOME.resolve(UNIX_NAME)
+        ABSOLUTE_FILE_PATH = ddfHome.resolve(UNIX_NAME)
                 .toRealPath(LinkOption.NOFOLLOW_LINKS);
     }
 

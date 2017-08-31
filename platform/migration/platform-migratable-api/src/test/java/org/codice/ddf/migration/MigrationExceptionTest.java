@@ -28,15 +28,15 @@ public class MigrationExceptionTest {
 
     private static final Throwable CAUSE = new Exception("test-cause");
 
-    private final MigrationException EXCEPTION = new MigrationException(MESSAGE);
+    private final MigrationException exception = new MigrationException(MESSAGE);
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
     @Test
     public void testConstructorWithMessage() throws Exception {
-        Assert.assertThat(EXCEPTION.getMessage(), Matchers.equalTo(MESSAGE));
-        Assert.assertThat(EXCEPTION.getCause(), Matchers.nullValue());
+        Assert.assertThat(exception.getMessage(), Matchers.equalTo(MESSAGE));
+        Assert.assertThat(exception.getCause(), Matchers.nullValue());
     }
 
     @Test
@@ -49,35 +49,35 @@ public class MigrationExceptionTest {
 
     @Test
     public void testConstructorWithFormat() throws Exception {
-        final MigrationException EXCEPTION = new MigrationException(FORMAT, ARG);
+        final MigrationException exception = new MigrationException(FORMAT, ARG);
 
-        Assert.assertThat(EXCEPTION.getMessage(), Matchers.equalTo(MESSAGE));
-        Assert.assertThat(EXCEPTION.getCause(), Matchers.nullValue());
+        Assert.assertThat(exception.getMessage(), Matchers.equalTo(MESSAGE));
+        Assert.assertThat(exception.getCause(), Matchers.nullValue());
     }
 
     @Test
     public void testConstructorWithFormatAndNoArgs() throws Exception {
-        final MigrationException EXCEPTION = new MigrationException(MESSAGE, (Object[]) null);
+        final MigrationException exception = new MigrationException(MESSAGE, (Object[]) null);
 
-        Assert.assertThat(EXCEPTION.getMessage(), Matchers.equalTo(MESSAGE));
-        Assert.assertThat(EXCEPTION.getCause(), Matchers.nullValue());
+        Assert.assertThat(exception.getMessage(), Matchers.equalTo(MESSAGE));
+        Assert.assertThat(exception.getCause(), Matchers.nullValue());
     }
 
     @Test
     public void testConstructorWithFormatAndCause() throws Exception {
-        final MigrationException EXCEPTION = new MigrationException(FORMAT + ": %s", ARG, CAUSE);
+        final MigrationException exception = new MigrationException(FORMAT + ": %s", ARG, CAUSE);
 
-        Assert.assertThat(EXCEPTION.getMessage(),
+        Assert.assertThat(exception.getMessage(),
                 Matchers.equalTo(MESSAGE + ": " + CAUSE.getMessage()));
-        Assert.assertThat(EXCEPTION.getCause(), Matchers.sameInstance(CAUSE));
+        Assert.assertThat(exception.getCause(), Matchers.sameInstance(CAUSE));
     }
 
     @Test
     public void testConstructorWithFormatAndCauseButNoSpecifierInFormatForIt() throws Exception {
-        final MigrationException EXCEPTION = new MigrationException(FORMAT, ARG, CAUSE);
+        final MigrationException exception = new MigrationException(FORMAT, ARG, CAUSE);
 
-        Assert.assertThat(EXCEPTION.getMessage(), Matchers.equalTo(MESSAGE));
-        Assert.assertThat(EXCEPTION.getCause(), Matchers.sameInstance(CAUSE));
+        Assert.assertThat(exception.getMessage(), Matchers.equalTo(MESSAGE));
+        Assert.assertThat(exception.getCause(), Matchers.sameInstance(CAUSE));
     }
 
     @Test
@@ -90,10 +90,10 @@ public class MigrationExceptionTest {
 
     @Test
     public void testConstructorWithMessageAndCause() throws Exception {
-        final MigrationException EXCEPTION = new MigrationException(MESSAGE, CAUSE);
+        final MigrationException exception = new MigrationException(MESSAGE, CAUSE);
 
-        Assert.assertThat(EXCEPTION.getMessage(), Matchers.equalTo(MESSAGE));
-        Assert.assertThat(EXCEPTION.getCause(), Matchers.sameInstance(CAUSE));
+        Assert.assertThat(exception.getMessage(), Matchers.equalTo(MESSAGE));
+        Assert.assertThat(exception.getCause(), Matchers.sameInstance(CAUSE));
     }
 
     @Test
@@ -106,9 +106,9 @@ public class MigrationExceptionTest {
 
     @Test
     public void testConstructorWithMessageAndNullCause() throws Exception {
-        final MigrationException EXCEPTION = new MigrationException(MESSAGE, (Throwable) null);
+        final MigrationException exception = new MigrationException(MESSAGE, (Throwable) null);
 
-        Assert.assertThat(EXCEPTION.getMessage(), Matchers.equalTo(MESSAGE));
-        Assert.assertThat(EXCEPTION.getCause(), Matchers.nullValue());
+        Assert.assertThat(exception.getMessage(), Matchers.equalTo(MESSAGE));
+        Assert.assertThat(exception.getCause(), Matchers.nullValue());
     }
 }

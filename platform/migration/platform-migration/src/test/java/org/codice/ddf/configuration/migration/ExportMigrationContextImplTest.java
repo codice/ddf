@@ -64,14 +64,14 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
     private static final ExportMigrationEntryImpl ENTRY =
             Mockito.mock(ExportMigrationEntryImpl.class);
 
-    private final MigrationReport REPORT = new MigrationReportImpl(MigrationOperation.EXPORT,
+    private final MigrationReport report = new MigrationReportImpl(MigrationOperation.EXPORT,
             Optional.empty());
 
-    private final ByteArrayOutputStream BAOS = new ByteArrayOutputStream();
+    private final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-    private final ZipOutputStream ZOS = new ZipOutputStream(BAOS);
+    private final ZipOutputStream zos = new ZipOutputStream(baos);
 
-    private ExportMigrationContextImpl CONTEXT;
+    private ExportMigrationContextImpl context;
 
     @Before
     public void before() throws Exception {
@@ -80,14 +80,14 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
         Mockito.when(ENTRY.getName())
                 .thenReturn(MIGRATABLE_NAME);
 
-        this.CONTEXT = new ExportMigrationContextImpl(REPORT, MIGRATABLE, ZOS);
+        this.context = new ExportMigrationContextImpl(report, migratable, zos);
 
         System.setProperty(PROPERTY_NAME, MIGRATABLE_PROPERTY_PATHNAME);
     }
 
     @After
     public void after() throws Exception {
-        ZOS.close();
+        zos.close();
         System.getProperties()
                 .remove(PROPERTY_NAME);
         System.getProperties()
@@ -96,15 +96,15 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
 
     @Test
     public void testConstructor() throws Exception {
-        Assert.assertThat(CONTEXT.getReport()
+        Assert.assertThat(context.getReport()
                 .getOperation(), Matchers.equalTo(MigrationOperation.EXPORT));
-        Assert.assertThat(CONTEXT.getId(), Matchers.equalTo(MIGRATABLE_ID));
-        Assert.assertThat(CONTEXT.getVersion(), OptionalMatchers.hasValue(VERSION));
+        Assert.assertThat(context.getId(), Matchers.equalTo(MIGRATABLE_ID));
+        Assert.assertThat(context.getVersion(), OptionalMatchers.hasValue(VERSION));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithNullReport() throws Exception {
-        new ExportMigrationContextImpl(null, MIGRATABLE, ZOS);
+        new ExportMigrationContextImpl(null, migratable, zos);
     }
 
     @Test
@@ -112,7 +112,7 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(Matchers.containsString("null migratable"));
 
-        new ExportMigrationContextImpl(REPORT, null, ZOS);
+        new ExportMigrationContextImpl(report, null, zos);
     }
 
     @Test
@@ -120,7 +120,7 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(Matchers.containsString("null zip output stream"));
 
-        new ExportMigrationContextImpl(REPORT, MIGRATABLE, null);
+        new ExportMigrationContextImpl(report, migratable, null);
     }
 
     @Test
@@ -128,7 +128,7 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
         createDirectory(MIGRATABLE_NAME_DIRS);
         createFile(MIGRATABLE_NAME);
 
-        final Optional<ExportMigrationEntry> oentry = CONTEXT.getSystemPropertyReferencedEntry(
+        final Optional<ExportMigrationEntry> oentry = context.getSystemPropertyReferencedEntry(
                 PROPERTY_NAME,
                 (r, v) -> true);
 
@@ -146,22 +146,22 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
 
         Assert.assertThat(sentry.getProperty(), Matchers.equalTo(PROPERTY_NAME));
         // finally make sure no warnings or errors were recorded
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
     }
 
     @Test
     public void testGetSystemPropertyReferencedEntryWhenValueIsAbsoluteUnderDDFHome()
             throws Exception {
         System.setProperty(PROPERTY_NAME,
-                DDF_HOME.resolve(MIGRATABLE_PATH)
+                ddfHome.resolve(MIGRATABLE_PATH)
                         .toAbsolutePath()
                         .toString());
 
         createDirectory(MIGRATABLE_NAME_DIRS);
         createFile(MIGRATABLE_NAME);
 
-        final Optional<ExportMigrationEntry> oentry = CONTEXT.getSystemPropertyReferencedEntry(
+        final Optional<ExportMigrationEntry> oentry = context.getSystemPropertyReferencedEntry(
                 PROPERTY_NAME,
                 (r, v) -> true);
 
@@ -179,8 +179,8 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
 
         Assert.assertThat(sentry.getProperty(), Matchers.equalTo(PROPERTY_NAME));
         // finally make sure no warnings or errors were recorded
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
     }
 
     @Test
@@ -195,7 +195,7 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
                 MIGRATABLE_PATH.toAbsolutePath()
                         .toString());
 
-        final Optional<ExportMigrationEntry> oentry = CONTEXT.getSystemPropertyReferencedEntry(
+        final Optional<ExportMigrationEntry> oentry = context.getSystemPropertyReferencedEntry(
                 PROPERTY_NAME,
                 (r, v) -> true);
 
@@ -213,8 +213,8 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
 
         Assert.assertThat(sentry.getProperty(), Matchers.equalTo(PROPERTY_NAME));
         // finally make sure no warnings or errors were recorded
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
     }
 
     @Test
@@ -222,7 +222,7 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(Matchers.containsString("null system property name"));
 
-        CONTEXT.getSystemPropertyReferencedEntry(null, (r, v) -> true);
+        context.getSystemPropertyReferencedEntry(null, (r, v) -> true);
     }
 
     @Test
@@ -230,31 +230,32 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(Matchers.containsString("null validator"));
 
-        CONTEXT.getSystemPropertyReferencedEntry(PROPERTY_NAME, null);
+        context.getSystemPropertyReferencedEntry(PROPERTY_NAME, null);
     }
 
     @Test
     public void testGetSystemPropertyReferencedEntryWhenAlreadyCached() throws Exception {
-        final ExportMigrationEntry ENTRY = CONTEXT.getSystemPropertyReferencedEntry(PROPERTY_NAME,
+        final ExportMigrationEntry systemPropEntry = context.getSystemPropertyReferencedEntry(
+                PROPERTY_NAME,
                 (r, v) -> true)
                 .get();
 
-        final Optional<ExportMigrationEntry> oentry = CONTEXT.getSystemPropertyReferencedEntry(
+        final Optional<ExportMigrationEntry> oentry = context.getSystemPropertyReferencedEntry(
                 PROPERTY_NAME,
                 (r, v) -> true);
 
         Assert.assertThat(oentry, OptionalMatchers.isPresent());
         final ExportMigrationEntry entry = oentry.get();
 
-        Assert.assertThat(entry, Matchers.sameInstance(ENTRY));
+        Assert.assertThat(entry, Matchers.sameInstance(systemPropEntry));
         // finally make sure no warnings or errors were recorded
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
     }
 
     @Test
     public void testGetSystemPropertyReferencedEntryWhenInvalid() throws Exception {
-        final Optional<ExportMigrationEntry> oentry = CONTEXT.getSystemPropertyReferencedEntry(
+        final Optional<ExportMigrationEntry> oentry = context.getSystemPropertyReferencedEntry(
                 PROPERTY_NAME,
                 (r, v) -> false);
 
@@ -263,7 +264,7 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
 
     @Test
     public void testGetSystemPropertyReferencedEntryWhenPropertyIsNotDefined() throws Exception {
-        final Optional<ExportMigrationEntry> oentry = CONTEXT.getSystemPropertyReferencedEntry(
+        final Optional<ExportMigrationEntry> oentry = context.getSystemPropertyReferencedEntry(
                 PROPERTY_NAME2,
                 (r, v) -> true);
 
@@ -275,14 +276,14 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
         thrown.expectMessage(Matchers.containsString(
                 "system property [" + PROPERTY_NAME2 + "] is not defined"));
 
-        REPORT.verifyCompletion(); // to get the exception thrown out
+        report.verifyCompletion(); // to get the exception thrown out
     }
 
     @Test
     public void testGetSystemPropertyReferencedEntryWhenPropertyValueIsEmpty() throws Exception {
         System.setProperty(PROPERTY_NAME2, "");
 
-        final Optional<ExportMigrationEntry> oentry = CONTEXT.getSystemPropertyReferencedEntry(
+        final Optional<ExportMigrationEntry> oentry = context.getSystemPropertyReferencedEntry(
                 PROPERTY_NAME2,
                 (r, v) -> true);
 
@@ -294,12 +295,12 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
         thrown.expectMessage(Matchers.containsString(
                 "system property [" + PROPERTY_NAME2 + "] is empty"));
 
-        REPORT.verifyCompletion(); // to get the exception thrown out
+        report.verifyCompletion(); // to get the exception thrown out
     }
 
     @Test
     public void testGetEntryWithRelativePath() throws Exception {
-        final ExportMigrationEntry entry = CONTEXT.getEntry(MIGRATABLE_PATH);
+        final ExportMigrationEntry entry = context.getEntry(MIGRATABLE_PATH);
 
         Assert.assertThat(entry.getId(), Matchers.equalTo(MIGRATABLE_ID));
         Assert.assertThat(entry.getName(), Matchers.equalTo(MIGRATABLE_NAME));
@@ -307,13 +308,13 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
         // now check that it is a standard export entry
         Assert.assertThat(entry, Matchers.instanceOf(ExportMigrationEntryImpl.class));
         // finally make sure no warnings or errors were recorded
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
     }
 
     @Test
     public void testGetEntryWithAbsolutePathUnderDDFHome() throws Exception {
-        final ExportMigrationEntry entry = CONTEXT.getEntry(DDF_HOME.resolve(MIGRATABLE_PATH)
+        final ExportMigrationEntry entry = context.getEntry(ddfHome.resolve(MIGRATABLE_PATH)
                 .toAbsolutePath());
 
         Assert.assertThat(entry.getId(), Matchers.equalTo(MIGRATABLE_ID));
@@ -322,65 +323,65 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
         // now check that it is a standard export entry
         Assert.assertThat(entry, Matchers.instanceOf(ExportMigrationEntryImpl.class));
         // finally make sure no warnings or errors were recorded
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
     }
 
     @Test
     public void testGetEntryWithAbsolutePathNotUnderDDFHome() throws Exception {
-        final Path MIGRATABLE_PATH = Paths.get(MIGRATABLE_NAME)
+        final Path migratablePath = Paths.get(MIGRATABLE_NAME)
                 .toAbsolutePath();
-        final String MIGRATABLE_NAME = FilenameUtils.separatorsToUnix(MIGRATABLE_PATH.toString());
+        final String migratableName = FilenameUtils.separatorsToUnix(migratablePath.toString());
 
-        final ExportMigrationEntry entry = CONTEXT.getEntry(MIGRATABLE_PATH);
+        final ExportMigrationEntry entry = context.getEntry(migratablePath);
 
         Assert.assertThat(entry.getId(), Matchers.equalTo(MIGRATABLE_ID));
-        Assert.assertThat(entry.getName(), Matchers.equalTo(MIGRATABLE_NAME));
-        Assert.assertThat(entry.getPath(), Matchers.equalTo(MIGRATABLE_PATH));
+        Assert.assertThat(entry.getName(), Matchers.equalTo(migratableName));
+        Assert.assertThat(entry.getPath(), Matchers.equalTo(migratablePath));
         // now check that it is a standard export entry
         Assert.assertThat(entry, Matchers.instanceOf(ExportMigrationEntryImpl.class));
         // finally make sure no warnings or errors were recorded
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
     }
 
     @Test
     public void testGetEntryWithRelativePathAlreadyExist() throws Exception {
-        final ExportMigrationEntry ENTRY = CONTEXT.getEntry(MIGRATABLE_PATH);
+        final ExportMigrationEntry firstEntry = context.getEntry(MIGRATABLE_PATH);
 
-        final ExportMigrationEntry entry = CONTEXT.getEntry(MIGRATABLE_PATH);
+        final ExportMigrationEntry entry = context.getEntry(MIGRATABLE_PATH);
 
-        Assert.assertThat(entry, Matchers.sameInstance(ENTRY));
+        Assert.assertThat(entry, Matchers.sameInstance(firstEntry));
         // finally make sure no warnings or errors were recorded
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
     }
 
     @Test
     public void testGetEntryWithAbsolutePathUnderDDFHomePathAlreadyExist() throws Exception {
-        final ExportMigrationEntry ENTRY = CONTEXT.getEntry(MIGRATABLE_PATH);
+        final ExportMigrationEntry firstEntry = context.getEntry(MIGRATABLE_PATH);
 
-        final ExportMigrationEntry entry = CONTEXT.getEntry(DDF_HOME.resolve(MIGRATABLE_PATH)
+        final ExportMigrationEntry entry = context.getEntry(ddfHome.resolve(MIGRATABLE_PATH)
                 .toAbsolutePath());
 
-        Assert.assertThat(entry, Matchers.sameInstance(ENTRY));
+        Assert.assertThat(entry, Matchers.sameInstance(firstEntry));
         // finally make sure no warnings or errors were recorded
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
     }
 
     @Test
     public void testGetEntryWithAbsolutePathNotUnderDDFHomeAlreadyExist() throws Exception {
-        final Path MIGRATABLE_PATH = Paths.get(MIGRATABLE_NAME)
+        final Path migratablePath = Paths.get(MIGRATABLE_NAME)
                 .toAbsolutePath();
-        final ExportMigrationEntry ENTRY = CONTEXT.getEntry(MIGRATABLE_PATH);
+        final ExportMigrationEntry firstEntry = context.getEntry(migratablePath);
 
-        final ExportMigrationEntry entry = CONTEXT.getEntry(MIGRATABLE_PATH);
+        final ExportMigrationEntry entry = context.getEntry(migratablePath);
 
-        Assert.assertThat(entry, Matchers.sameInstance(ENTRY));
+        Assert.assertThat(entry, Matchers.sameInstance(firstEntry));
         // finally make sure no warnings or errors were recorded
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
     }
 
     @Test
@@ -388,63 +389,63 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(Matchers.containsString("null path"));
 
-        CONTEXT.getEntry(null);
+        context.getEntry(null);
     }
 
     @Test
     public void testEntriesWithRelativePath() throws Exception {
-        final Path ETC = createDirectory("etc");
-        final Path KS = createDirectory("etc", "keystores");
-        final Path OTHER = createDirectory("other");
-        final List<Path> PATHS = createFiles(ETC, "test.cfg", "test2.config", "test3.properties");
+        final Path etc = createDirectory("etc");
+        final Path ks = createDirectory("etc", "keystores");
+        final Path other = createDirectory("other");
+        final List<Path> paths = createFiles(etc, "test.cfg", "test2.config", "test3.properties");
 
-        createFiles(PATHS, KS, "serverKeystore.jks", "serverTruststore.jks");
-        createFiles(OTHER, "a", "b");
+        createFiles(paths, ks, "serverKeystore.jks", "serverTruststore.jks");
+        createFiles(other, "a", "b");
         createDirectory("etc", "keystores", "empty");
 
-        final List<ExportMigrationEntry> entries = CONTEXT.entries(ETC)
+        final List<ExportMigrationEntry> entries = context.entries(etc)
                 .collect(Collectors.toList());
 
         Assert.assertThat(entries.stream()
                 .map(ExportMigrationEntry::getPath)
-                .collect(Collectors.toList()), Matchers.containsInAnyOrder(PATHS.toArray()));
+                .collect(Collectors.toList()), Matchers.containsInAnyOrder(paths.toArray()));
         // finally make sure no warnings or errors were recorded
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
     }
 
     @Test
     public void testEntriesWithAbsolutePathUnderDDFHome() throws Exception {
-        final Path ETC = createDirectory("etc");
-        final Path KS = createDirectory("etc", "keystores");
-        final Path OTHER = createDirectory("other");
-        final List<Path> PATHS = createFiles(ETC, "test.cfg", "test2.config", "test3.properties");
+        final Path etc = createDirectory("etc");
+        final Path ks = createDirectory("etc", "keystores");
+        final Path other = createDirectory("other");
+        final List<Path> paths = createFiles(etc, "test.cfg", "test2.config", "test3.properties");
 
-        createFiles(PATHS, KS, "serverKeystore.jks", "serverTruststore.jks");
-        createFiles(OTHER, "a", "b");
+        createFiles(paths, ks, "serverKeystore.jks", "serverTruststore.jks");
+        createFiles(other, "a", "b");
         createDirectory("etc", "keystores", "empty");
 
-        final List<ExportMigrationEntry> entries = CONTEXT.entries(ETC.toAbsolutePath())
+        final List<ExportMigrationEntry> entries = context.entries(etc.toAbsolutePath())
                 .collect(Collectors.toList());
 
         Assert.assertThat(entries.stream()
                 .map(ExportMigrationEntry::getPath)
-                .collect(Collectors.toList()), Matchers.containsInAnyOrder(PATHS.toArray()));
+                .collect(Collectors.toList()), Matchers.containsInAnyOrder(paths.toArray()));
         // finally make sure no warnings or errors were recorded
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
     }
 
     @Test
     public void testEntriesWhenPathDoesNotExist() throws Exception {
-        final Path NOT_FOUND = DDF_HOME.resolve("not-found");
+        final Path notFound = ddfHome.resolve("not-found");
 
-        final Stream<ExportMigrationEntry> entries = CONTEXT.entries(NOT_FOUND);
+        final Stream<ExportMigrationEntry> entries = context.entries(notFound);
 
         Assert.assertThat(entries.count(), Matchers.equalTo(0L));
         // verify we got an error and no warnings
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(true));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(true));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
 
         // finally make sure we got an error (register the thrown expectations after the above to make sure
         // we don't get an exception from the above code under test
@@ -452,52 +453,52 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
         thrown.expectMessage(Matchers.containsString("[not-found]"));
         thrown.expectMessage(Matchers.containsString("does not exist"));
 
-        REPORT.verifyCompletion(); // to get the exception thrown out
+        report.verifyCompletion(); // to get the exception thrown out
     }
 
     @Test
     public void testEntriesWhenPathIsNotADirectory() throws Exception {
-        final Path ETC = createDirectory("etc");
-        final Path NOT_A_DIR = createFile(ETC, "not-a-dir");
+        final Path etc = createDirectory("etc");
+        final Path notADir = createFile(etc, "not-a-dir");
 
-        final Stream<ExportMigrationEntry> entries = CONTEXT.entries(NOT_A_DIR);
+        final Stream<ExportMigrationEntry> entries = context.entries(notADir);
 
         Assert.assertThat(entries.count(), Matchers.equalTo(0L));
         // verify we got an error and no warnings
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(true));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(true));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
 
         // finally make sure we got an error (register the thrown expectations after the above to make sure
         // we don't get an exception from the above code under test
         thrown.expect(MigrationException.class);
-        thrown.expectMessage(Matchers.containsString("[" + NOT_A_DIR + "]"));
+        thrown.expectMessage(Matchers.containsString("[" + notADir + "]"));
         thrown.expectMessage(Matchers.containsString("is not a directory"));
 
-        REPORT.verifyCompletion(); // to get the exception thrown out
+        report.verifyCompletion(); // to get the exception thrown out
     }
 
     @Test
     public void testEntriesWhenSomeAlreadyExist() throws Exception {
-        final Path ETC = createDirectory("etc");
-        final Path KS = createDirectory("etc", "keystores");
-        final Path OTHER = createDirectory("other");
-        final List<Path> PATHS = createFiles(ETC, "test.cfg", "test2.config", "test3.properties");
+        final Path etc = createDirectory("etc");
+        final Path ks = createDirectory("etc", "keystores");
+        final Path other = createDirectory("other");
+        final List<Path> paths = createFiles(etc, "test.cfg", "test2.config", "test3.properties");
 
-        createFiles(PATHS, KS, "serverKeystore.jks", "serverTruststore.jks");
-        createFiles(OTHER, "a", "b");
+        createFiles(paths, ks, "serverKeystore.jks", "serverTruststore.jks");
+        createFiles(other, "a", "b");
         createDirectory("etc", "keystores", "empty");
-        final ExportMigrationEntry ENTRY = CONTEXT.getEntry(ETC.resolve("test.cfg"));
+        final ExportMigrationEntry entry = context.getEntry(etc.resolve("test.cfg"));
 
-        final List<ExportMigrationEntry> entries = CONTEXT.entries(ETC)
+        final List<ExportMigrationEntry> entries = context.entries(etc)
                 .collect(Collectors.toList());
 
         Assert.assertThat(entries.stream()
                 .map(ExportMigrationEntry::getPath)
-                .collect(Collectors.toList()), Matchers.containsInAnyOrder(PATHS.toArray()));
-        Assert.assertThat(entries, Matchers.hasItem(Matchers.sameInstance(ENTRY)));
+                .collect(Collectors.toList()), Matchers.containsInAnyOrder(paths.toArray()));
+        Assert.assertThat(entries, Matchers.hasItem(Matchers.sameInstance(entry)));
         // finally make sure no warnings or errors were recorded
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
     }
 
     @Test
@@ -505,21 +506,21 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(Matchers.containsString("null path"));
 
-        CONTEXT.entries(null);
+        context.entries(null);
     }
 
     @Test
     public void testEntriesWithFilterAndRelativePath() throws Exception {
-        final Path ETC = createDirectory("etc");
-        final Path KS = createDirectory("etc", "keystores");
-        final Path OTHER = createDirectory("other");
-        final List<Path> PATHS = createFiles(ETC, "test.cfg", "test2.config", "test3.properties");
+        final Path etc = createDirectory("etc");
+        final Path ks = createDirectory("etc", "keystores");
+        final Path other = createDirectory("other");
+        final List<Path> paths = createFiles(etc, "test.cfg", "test2.config", "test3.properties");
 
-        createFiles(KS, "serverKeystore.jks", "serverTruststore.jks");
-        createFiles(OTHER, "a", "b");
+        createFiles(ks, "serverKeystore.jks", "serverTruststore.jks");
+        createFiles(other, "a", "b");
         createDirectory("etc", "keystores", "empty");
 
-        final List<ExportMigrationEntry> entries = CONTEXT.entries(ETC,
+        final List<ExportMigrationEntry> entries = context.entries(etc,
                 p -> p.getFileName()
                         .toString()
                         .startsWith("test"))
@@ -527,24 +528,24 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
 
         Assert.assertThat(entries.stream()
                 .map(ExportMigrationEntry::getPath)
-                .collect(Collectors.toList()), Matchers.containsInAnyOrder(PATHS.toArray()));
+                .collect(Collectors.toList()), Matchers.containsInAnyOrder(paths.toArray()));
         // finally make sure no warnings or errors were recorded
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
     }
 
     @Test
     public void testEntriesWithFilterAndAbsolutePathUnderDDFHome() throws Exception {
-        final Path ETC = createDirectory("etc");
-        final Path KS = createDirectory("etc", "keystores");
-        final Path OTHER = createDirectory("other");
-        final List<Path> PATHS = createFiles(ETC, "test.cfg", "test2.config", "test3.properties");
+        final Path etc = createDirectory("etc");
+        final Path ks = createDirectory("etc", "keystores");
+        final Path other = createDirectory("other");
+        final List<Path> paths = createFiles(etc, "test.cfg", "test2.config", "test3.properties");
 
-        createFiles(KS, "serverKeystore.jks", "serverTruststore.jks");
-        createFiles(OTHER, "a", "b");
+        createFiles(ks, "serverKeystore.jks", "serverTruststore.jks");
+        createFiles(other, "a", "b");
         createDirectory("etc", "keystores", "empty");
 
-        final List<ExportMigrationEntry> entries = CONTEXT.entries(ETC.toAbsolutePath(),
+        final List<ExportMigrationEntry> entries = context.entries(etc.toAbsolutePath(),
                 p -> p.getFileName()
                         .toString()
                         .startsWith("test"))
@@ -552,25 +553,25 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
 
         Assert.assertThat(entries.stream()
                 .map(ExportMigrationEntry::getPath)
-                .collect(Collectors.toList()), Matchers.containsInAnyOrder(PATHS.toArray()));
+                .collect(Collectors.toList()), Matchers.containsInAnyOrder(paths.toArray()));
         // finally make sure no warnings or errors were recorded
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
     }
 
     @Test
     public void testEntriesWithFilterWhenPathDoesNotExist() throws Exception {
-        final Path NOT_FOUND = DDF_HOME.resolve("not-found");
+        final Path notFound = ddfHome.resolve("not-found");
 
-        final Stream<ExportMigrationEntry> entries = CONTEXT.entries(NOT_FOUND,
+        final Stream<ExportMigrationEntry> entries = context.entries(notFound,
                 p -> p.getFileName()
                         .toString()
                         .startsWith("test"));
 
         Assert.assertThat(entries.count(), Matchers.equalTo(0L));
         // verify we got an error and no warnings
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(true));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(true));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
 
         // finally make sure we got an error (register the thrown expectations after the above to make sure
         // we don't get an exception from the above code under test
@@ -578,46 +579,46 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
         thrown.expectMessage(Matchers.containsString("[not-found]"));
         thrown.expectMessage(Matchers.containsString("does not exist"));
 
-        REPORT.verifyCompletion(); // to get the exception thrown out
+        report.verifyCompletion(); // to get the exception thrown out
     }
 
     @Test
     public void testEntriesWithFilterWhenPathIsNotADirectory() throws Exception {
-        final Path ETC = createDirectory("etc");
-        final Path NOT_A_DIR = createFile(ETC, "not-a-dir");
+        final Path etc = createDirectory("etc");
+        final Path notADir = createFile(etc, "not-a-dir");
 
-        final Stream<ExportMigrationEntry> entries = CONTEXT.entries(NOT_A_DIR,
+        final Stream<ExportMigrationEntry> entries = context.entries(notADir,
                 p -> p.getFileName()
                         .toString()
                         .startsWith("test"));
 
         Assert.assertThat(entries.count(), Matchers.equalTo(0L));
         // verify we got an error and no warnings
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(true));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(true));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
 
         // finally make sure we got an error (register the thrown expectations after the above to make sure
         // we don't get an exception from the above code under test
         thrown.expect(MigrationException.class);
-        thrown.expectMessage(Matchers.containsString("[" + NOT_A_DIR + "]"));
+        thrown.expectMessage(Matchers.containsString("[" + notADir + "]"));
         thrown.expectMessage(Matchers.containsString("is not a directory"));
 
-        REPORT.verifyCompletion(); // to get the exception thrown out
+        report.verifyCompletion(); // to get the exception thrown out
     }
 
     @Test
     public void testEntriesWithFilterWhenSomeAlreadyExist() throws Exception {
-        final Path ETC = createDirectory("etc");
-        final Path KS = createDirectory("etc", "keystores");
-        final Path OTHER = createDirectory("other");
-        final List<Path> PATHS = createFiles(ETC, "test.cfg", "test2.config", "test3.properties");
+        final Path etc = createDirectory("etc");
+        final Path ks = createDirectory("etc", "keystores");
+        final Path other = createDirectory("other");
+        final List<Path> paths = createFiles(etc, "test.cfg", "test2.config", "test3.properties");
 
-        createFiles(KS, "serverKeystore.jks", "serverTruststore.jks");
-        createFiles(OTHER, "a", "b");
+        createFiles(ks, "serverKeystore.jks", "serverTruststore.jks");
+        createFiles(other, "a", "b");
         createDirectory("etc", "keystores", "empty");
-        final ExportMigrationEntry ENTRY = CONTEXT.getEntry(ETC.resolve("test.cfg"));
+        final ExportMigrationEntry entry = context.getEntry(etc.resolve("test.cfg"));
 
-        final List<ExportMigrationEntry> entries = CONTEXT.entries(ETC,
+        final List<ExportMigrationEntry> entries = context.entries(etc,
                 p -> p.getFileName()
                         .toString()
                         .startsWith("test"))
@@ -625,11 +626,11 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
 
         Assert.assertThat(entries.stream()
                 .map(ExportMigrationEntry::getPath)
-                .collect(Collectors.toList()), Matchers.containsInAnyOrder(PATHS.toArray()));
-        Assert.assertThat(entries, Matchers.hasItem(Matchers.sameInstance(ENTRY)));
+                .collect(Collectors.toList()), Matchers.containsInAnyOrder(paths.toArray()));
+        Assert.assertThat(entries, Matchers.hasItem(Matchers.sameInstance(entry)));
         // finally make sure no warnings or errors were recorded
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
     }
 
     @Test
@@ -637,7 +638,7 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(Matchers.containsString("null path"));
 
-        CONTEXT.entries(null,
+        context.entries(null,
                 p -> p.getFileName()
                         .toString()
                         .startsWith("test"));
@@ -648,18 +649,18 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(Matchers.containsString("null filter"));
 
-        final Path ETC = createDirectory("etc");
+        final Path etc = createDirectory("etc");
 
-        CONTEXT.entries(ETC, null);
+        context.entries(etc, null);
     }
 
     @Test
     public void testClose() throws Exception {
-        CONTEXT.getOutputStreamFor(ENTRY);
+        context.getOutputStreamFor(ENTRY);
 
-        ZOS.close();
+        zos.close();
 
-        final Map<String, ZipEntry> zentries = AbstractMigrationTest.getEntriesFrom(BAOS);
+        final Map<String, ZipEntry> zentries = AbstractMigrationTest.getEntriesFrom(baos);
 
         Assert.assertThat(zentries.keySet(),
                 Matchers.contains(MIGRATABLE_ID + '/' + MIGRATABLE_NAME));
@@ -667,9 +668,9 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
 
     @Test
     public void testCloseWithNoEntries() throws Exception {
-        ZOS.close();
+        zos.close();
 
-        final Map<String, ZipEntry> zentries = AbstractMigrationTest.getEntriesFrom(BAOS);
+        final Map<String, ZipEntry> zentries = AbstractMigrationTest.getEntriesFrom(baos);
 
         Assert.assertThat(zentries, Matchers.aMapWithSize(0));
     }
@@ -677,10 +678,10 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
     @Test
     public void testDoExport() throws Exception {
         Mockito.doNothing()
-                .when(MIGRATABLE)
+                .when(migratable)
                 .doExport(Mockito.any());
 
-        final Map<String, Map<String, Object>> metadata = CONTEXT.doExport();
+        final Map<String, Map<String, Object>> metadata = context.doExport();
 
         Assert.assertThat(metadata.keySet(), Matchers.contains(MIGRATABLE_ID));
         final Map<String, Object> mmetadata = (Map<String, Object>) metadata.get(MIGRATABLE_ID);
@@ -694,16 +695,16 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
         Assert.assertThat(mmetadata,
                 Matchers.hasEntry(MigrationContextImpl.METADATA_ORGANIZATION, ORGANIZATION));
 
-        Mockito.verify(MIGRATABLE)
-                .doExport(Mockito.same(CONTEXT));
+        Mockito.verify(migratable)
+                .doExport(Mockito.same(context));
     }
 
     @Test
     public void testGetOutputStreamFor() throws Exception {
-        final OutputStream out = CONTEXT.getOutputStreamFor(ENTRY);
+        final OutputStream out = context.getOutputStreamFor(ENTRY);
 
-        ZOS.close();
-        final Map<String, ZipEntry> zentries = AbstractMigrationTest.getEntriesFrom(BAOS);
+        zos.close();
+        final Map<String, ZipEntry> zentries = AbstractMigrationTest.getEntriesFrom(baos);
 
         Assert.assertThat(out, Matchers.notNullValue());
         Assert.assertThat(zentries.keySet(),
@@ -712,39 +713,39 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
 
     @Test
     public void testGetOutputStreamForWillClosePreviousEntry() throws Exception {
-        final String MIGRATABLE_NAME2 = "etc/some/dir/test.txt2";
-        final ExportMigrationEntryImpl ENTRY2 = Mockito.mock(ExportMigrationEntryImpl.class);
+        final String migratableName2 = "etc/some/dir/test.txt2";
+        final ExportMigrationEntryImpl entry2 = Mockito.mock(ExportMigrationEntryImpl.class);
 
-        Mockito.when(ENTRY2.getName())
-                .thenReturn(MIGRATABLE_NAME2);
+        Mockito.when(entry2.getName())
+                .thenReturn(migratableName2);
 
-        final OutputStream out = CONTEXT.getOutputStreamFor(ENTRY);
-        final OutputStream out2 = CONTEXT.getOutputStreamFor(ENTRY2);
+        final OutputStream out = context.getOutputStreamFor(ENTRY);
+        final OutputStream out2 = context.getOutputStreamFor(entry2);
 
-        ZOS.close();
-        final Map<String, ZipEntry> zentries = AbstractMigrationTest.getEntriesFrom(BAOS);
+        zos.close();
+        final Map<String, ZipEntry> zentries = AbstractMigrationTest.getEntriesFrom(baos);
 
         Assert.assertThat(out, Matchers.notNullValue());
         Assert.assertThat(out2, Matchers.notNullValue());
         Assert.assertThat(zentries.keySet(),
                 Matchers.containsInAnyOrder(MIGRATABLE_ID + '/' + MIGRATABLE_NAME,
-                        MIGRATABLE_ID + '/' + MIGRATABLE_NAME2));
+                        MIGRATABLE_ID + '/' + migratableName2));
     }
 
     @Test(expected = UncheckedIOException.class)
     public void testGetOutputStreamForWhenAlreadyClosed() throws Exception {
-        ZOS.close(); // to trigger IOException when trying to create a new entry
+        zos.close(); // to trigger IOException when trying to create a new entry
 
-        CONTEXT.getOutputStreamFor(ENTRY);
+        context.getOutputStreamFor(ENTRY);
     }
 
     @Test
     public void testGetOutputStreamForWhenClosingReturnedStream() throws Exception {
-        final OutputStream out = CONTEXT.getOutputStreamFor(ENTRY);
+        final OutputStream out = context.getOutputStreamFor(ENTRY);
 
         out.close();
-        ZOS.close();
-        final Map<String, ZipEntry> zentries = AbstractMigrationTest.getEntriesFrom(BAOS);
+        zos.close();
+        final Map<String, ZipEntry> zentries = AbstractMigrationTest.getEntriesFrom(baos);
 
         Assert.assertThat(zentries.keySet(),
                 Matchers.contains(MIGRATABLE_ID + '/' + MIGRATABLE_NAME));
@@ -752,12 +753,12 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
 
     @Test
     public void testGetOutputStreamForWhenDoubleClosingReturnedStream() throws Exception {
-        final OutputStream out = CONTEXT.getOutputStreamFor(ENTRY);
+        final OutputStream out = context.getOutputStreamFor(ENTRY);
 
         out.close();
         out.close();
-        ZOS.close();
-        final Map<String, ZipEntry> zentries = AbstractMigrationTest.getEntriesFrom(BAOS);
+        zos.close();
+        final Map<String, ZipEntry> zentries = AbstractMigrationTest.getEntriesFrom(baos);
 
         Assert.assertThat(zentries.keySet(),
                 Matchers.contains(MIGRATABLE_ID + '/' + MIGRATABLE_NAME));
@@ -769,7 +770,7 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
         thrown.expectCause(Matchers.instanceOf(IOException.class));
         thrown.expectCause(Matchers.not(Matchers.instanceOf(ExportIOException.class)));
 
-        final OutputStream out = CONTEXT.getOutputStreamFor(ENTRY);
+        final OutputStream out = context.getOutputStreamFor(ENTRY);
 
         out.close();
         out.write(1);
@@ -778,7 +779,7 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
     @Test
     public void testGetOutputStreamForWhenIOErrorsOccursFromReturnedStreamThrownAsCause()
             throws Exception {
-        final OutputStream out = CONTEXT.getOutputStreamFor(ENTRY);
+        final OutputStream out = context.getOutputStreamFor(ENTRY);
 
         out.close();
 

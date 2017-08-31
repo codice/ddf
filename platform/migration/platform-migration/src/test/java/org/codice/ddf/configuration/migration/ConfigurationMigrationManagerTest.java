@@ -173,7 +173,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
 
         expectExportDelegationIsSuccessful();
 
-        MigrationReport report = configurationMigrationManager.doExport(DDF_HOME.resolve(
+        MigrationReport report = configurationMigrationManager.doExport(ddfHome.resolve(
                 TEST_DIRECTORY));
 
         assertThat("Export was not successful", report.wasSuccessful(), is(true));
@@ -183,19 +183,19 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
 
     @Test
     public void doExportSucceedsWithConsumer() throws Exception {
-        final Consumer<MigrationMessage> CONSUMER = mock(Consumer.class);
+        final Consumer<MigrationMessage> consumer = mock(Consumer.class);
 
         configurationMigrationManager = spy(getConfigurationMigrationManager());
 
         expectExportDelegationIsSuccessful();
 
-        MigrationReport report = configurationMigrationManager.doExport(DDF_HOME.resolve(
-                TEST_DIRECTORY), CONSUMER);
+        MigrationReport report = configurationMigrationManager.doExport(ddfHome.resolve(
+                TEST_DIRECTORY), consumer);
 
         assertThat("Export was not successful", report.wasSuccessful(), is(true));
         verify(configurationMigrationManager).delegateToExportMigrationManager(any(
                 MigrationReportImpl.class), any(Path.class));
-        verify(CONSUMER, Mockito.atLeastOnce()).accept(Mockito.notNull());
+        verify(consumer, Mockito.atLeastOnce()).accept(Mockito.notNull());
     }
 
     @Test
@@ -209,7 +209,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
         }).when(configurationMigrationManager)
                 .delegateToExportMigrationManager(any(MigrationReportImpl.class), any(Path.class));
 
-        MigrationReport report = configurationMigrationManager.doExport(DDF_HOME.resolve(
+        MigrationReport report = configurationMigrationManager.doExport(ddfHome.resolve(
                 TEST_DIRECTORY));
 
         assertThat("Export was not successful", report.wasSuccessful(), is(true));
@@ -230,19 +230,19 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
     public void doExportWithNullConsumer() throws Exception {
         configurationMigrationManager = getConfigurationMigrationManager();
 
-        configurationMigrationManager.doExport(DDF_HOME.resolve(TEST_DIRECTORY), null);
+        configurationMigrationManager.doExport(ddfHome.resolve(TEST_DIRECTORY), null);
     }
 
     @Test
     public void doExportFailsToCreateDirectory() throws Exception {
-        final Path PATH = DDF_HOME.resolve("invalid-directory");
+        final Path path = ddfHome.resolve("invalid-directory");
 
-        PATH.toFile()
+        path.toFile()
                 .createNewFile(); // create it as a file
 
         configurationMigrationManager = getConfigurationMigrationManager();
 
-        MigrationReport report = configurationMigrationManager.doExport(PATH);
+        MigrationReport report = configurationMigrationManager.doExport(path);
 
         reportHasErrorWithMessage(report, "unable to create directory");
     }
@@ -254,7 +254,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
         doThrow(new MigrationException(TEST_MESSAGE)).when(configurationMigrationManager)
                 .delegateToExportMigrationManager(any(MigrationReportImpl.class), any(Path.class));
 
-        MigrationReport report = configurationMigrationManager.doExport(DDF_HOME.resolve(
+        MigrationReport report = configurationMigrationManager.doExport(ddfHome.resolve(
                 TEST_DIRECTORY));
 
         reportHasErrorWithMessage(report, TEST_MESSAGE);
@@ -269,7 +269,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
         doThrow(IOException.class).when(configurationMigrationManager)
                 .delegateToExportMigrationManager(any(MigrationReportImpl.class), any(Path.class));
 
-        MigrationReport report = configurationMigrationManager.doExport(DDF_HOME.resolve(
+        MigrationReport report = configurationMigrationManager.doExport(ddfHome.resolve(
                 TEST_DIRECTORY));
 
         reportHasErrorWithMessage(report, "failed to close export file");
@@ -284,7 +284,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
         doThrow(RuntimeException.class).when(configurationMigrationManager)
                 .delegateToExportMigrationManager(any(MigrationReportImpl.class), any(Path.class));
 
-        MigrationReport report = configurationMigrationManager.doExport(DDF_HOME.resolve(
+        MigrationReport report = configurationMigrationManager.doExport(ddfHome.resolve(
                 TEST_DIRECTORY));
 
         reportHasErrorWithMessage(report, "internal error");
@@ -335,7 +335,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
         expectExportDelegationIsSuccessful();
         expectImportDelegationIsSuccessful();
 
-        MigrationReport report = configurationMigrationManager.doImport(DDF_HOME.resolve(
+        MigrationReport report = configurationMigrationManager.doImport(ddfHome.resolve(
                 TEST_DIRECTORY));
 
         assertThat("Import was not successful", report.wasSuccessful(), is(true));
@@ -351,15 +351,15 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
 
     @Test
     public void doImportSucceedsWithConsumer() throws Exception {
-        final Consumer<MigrationMessage> CONSUMER = mock(Consumer.class);
+        final Consumer<MigrationMessage> consumer = mock(Consumer.class);
 
         configurationMigrationManager = spy(getConfigurationMigrationManager());
 
         expectExportDelegationIsSuccessful();
         expectImportDelegationIsSuccessful();
 
-        MigrationReport report = configurationMigrationManager.doImport(DDF_HOME.resolve(
-                TEST_DIRECTORY), CONSUMER);
+        MigrationReport report = configurationMigrationManager.doImport(ddfHome.resolve(
+                TEST_DIRECTORY), consumer);
 
         assertThat("Import was not successful", report.wasSuccessful(), is(true));
         assertThat("Restart system property was not set",
@@ -370,7 +370,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
                 MigrationReportImpl.class), any(Path.class));
         verify(configurationMigrationManager).delegateToImportMigrationManager(any(
                 MigrationReportImpl.class), any(Path.class));
-        verify(CONSUMER, Mockito.atLeastOnce()).accept(Mockito.notNull());
+        verify(consumer, Mockito.atLeastOnce()).accept(Mockito.notNull());
     }
 
     @Test
@@ -385,7 +385,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
                 .delegateToExportMigrationManager(any(MigrationReportImpl.class), any(Path.class));
         expectImportDelegationIsSuccessful();
 
-        MigrationReport report = configurationMigrationManager.doImport(DDF_HOME.resolve(
+        MigrationReport report = configurationMigrationManager.doImport(ddfHome.resolve(
                 TEST_DIRECTORY));
 
         assertThat("Import was successful", report.wasSuccessful(), is(true));
@@ -407,7 +407,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
         doThrow(Exception.class).when(mockSystemService)
                 .reboot(any(String.class), any(SystemService.Swipe.class));
 
-        MigrationReport report = configurationMigrationManager.doImport(DDF_HOME.resolve(
+        MigrationReport report = configurationMigrationManager.doImport(ddfHome.resolve(
                 TEST_DIRECTORY));
 
         assertThat("Import was successful", report.wasSuccessful(), is(true));
@@ -433,7 +433,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
                 .delegateToExportMigrationManager(any(MigrationReportImpl.class), any(Path.class));
         expectImportDelegationIsSuccessful();
 
-        MigrationReport report = configurationMigrationManager.doImport(DDF_HOME.resolve(
+        MigrationReport report = configurationMigrationManager.doImport(ddfHome.resolve(
                 TEST_DIRECTORY));
 
         assertThat("Import was successful", report.wasSuccessful(), is(true));
@@ -456,7 +456,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
     public void doImportWithNullConsumer() throws Exception {
         configurationMigrationManager = getConfigurationMigrationManager();
 
-        configurationMigrationManager.doImport(DDF_HOME.resolve(TEST_DIRECTORY), null);
+        configurationMigrationManager.doImport(ddfHome.resolve(TEST_DIRECTORY), null);
     }
 
     @Test
@@ -467,7 +467,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
         doThrow(new MigrationException(TEST_MESSAGE)).when(configurationMigrationManager)
                 .delegateToImportMigrationManager(any(MigrationReportImpl.class), any(Path.class));
 
-        MigrationReport report = configurationMigrationManager.doImport(DDF_HOME.resolve(
+        MigrationReport report = configurationMigrationManager.doImport(ddfHome.resolve(
                 TEST_DIRECTORY));
 
         reportHasErrorWithMessage(report, TEST_MESSAGE);
@@ -486,7 +486,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
         doThrow(RuntimeException.class).when(configurationMigrationManager)
                 .delegateToImportMigrationManager(any(MigrationReportImpl.class), any(Path.class));
 
-        MigrationReport report = configurationMigrationManager.doImport(DDF_HOME.resolve(
+        MigrationReport report = configurationMigrationManager.doImport(ddfHome.resolve(
                 TEST_DIRECTORY));
 
         reportHasErrorWithMessage(report, "internal error");
@@ -526,7 +526,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
     }
 
     private ConfigurationMigrationManager getConfigurationMigrationManager() throws IOException {
-        File versionFile = new File(DDF_HOME.resolve("Version.txt")
+        File versionFile = new File(ddfHome.resolve("Version.txt")
                 .toString());
         versionFile.createNewFile();
         Files.write(versionFile.toPath(), TEST_VERSION.getBytes(), StandardOpenOption.APPEND);

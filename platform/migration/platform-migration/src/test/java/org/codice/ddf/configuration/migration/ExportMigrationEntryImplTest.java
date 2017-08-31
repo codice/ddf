@@ -74,78 +74,68 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
     private static final Path MIGRATABLE_PATH = Paths.get(FilenameUtils.separatorsToSystem(
             MIGRATABLE_NAME));
 
-    private final ExportMigrationReportImpl REPORT = new ExportMigrationReportImpl();
+    private final ExportMigrationReportImpl report = new ExportMigrationReportImpl();
 
-    private final ExportMigrationContextImpl CONTEXT =
+    private final ExportMigrationContextImpl context =
             Mockito.mock(ExportMigrationContextImpl.class);
 
-    private Path ABSOLUTE_FILE_PATH;
+    private Path absoluteFilePath;
 
-    private PathUtils PATH_UTILS;
+    private PathUtils pathUtils;
 
-    private ExportMigrationEntryImpl ENTRY;
-
-    private void storeProperty(String name, String val) throws IOException {
-        final Properties props = new Properties();
-
-        props.put(name, val);
-        try (final Writer writer = new BufferedWriter(new FileWriter(ABSOLUTE_FILE_PATH.toFile()))) {
-            props.store(writer, "testing");
-        }
-    }
+    private ExportMigrationEntryImpl entry;
 
     @Before
     public void before() throws Exception {
         createFile(createDirectory(DIRS), FILENAME);
-        PATH_UTILS = new PathUtils();
-        ABSOLUTE_FILE_PATH = DDF_HOME.resolve(UNIX_NAME)
+        pathUtils = new PathUtils();
+        absoluteFilePath = ddfHome.resolve(UNIX_NAME)
                 .toRealPath(LinkOption.NOFOLLOW_LINKS);
 
-        Mockito.when(CONTEXT.getPathUtils())
-                .thenReturn(PATH_UTILS);
-        Mockito.when(CONTEXT.getReport())
-                .thenReturn(REPORT);
-        Mockito.when(CONTEXT.getId())
+        Mockito.when(context.getPathUtils())
+                .thenReturn(pathUtils);
+        Mockito.when(context.getReport())
+                .thenReturn(report);
+        Mockito.when(context.getId())
                 .thenReturn(MIGRATABLE_ID);
 
-        ENTRY = new ExportMigrationEntryImpl(CONTEXT, FILE_PATH);
+        entry = new ExportMigrationEntryImpl(context, FILE_PATH);
     }
 
     @Test
     public void testConstructorWithRelativePath() throws Exception {
-        Assert.assertThat(ENTRY.getContext(), Matchers.sameInstance(CONTEXT));
-        Assert.assertThat(ENTRY.getPath(), Matchers.equalTo(FILE_PATH));
-        Assert.assertThat(ENTRY.getAbsolutePath(), Matchers.equalTo(ABSOLUTE_FILE_PATH));
-        Assert.assertThat(ENTRY.getFile(), Matchers.equalTo(ABSOLUTE_FILE_PATH.toFile()));
-        Assert.assertThat(ENTRY.getName(), Matchers.equalTo(UNIX_NAME));
+        Assert.assertThat(entry.getContext(), Matchers.sameInstance(context));
+        Assert.assertThat(entry.getPath(), Matchers.equalTo(FILE_PATH));
+        Assert.assertThat(entry.getAbsolutePath(), Matchers.equalTo(absoluteFilePath));
+        Assert.assertThat(entry.getFile(), Matchers.equalTo(absoluteFilePath.toFile()));
+        Assert.assertThat(entry.getName(), Matchers.equalTo(UNIX_NAME));
     }
 
     @Test
     public void testConstructorWithAbsolutePathUnderDDFHome() throws Exception {
-        final ExportMigrationEntryImpl ENTRY = new ExportMigrationEntryImpl(CONTEXT,
-                ABSOLUTE_FILE_PATH);
+        final ExportMigrationEntryImpl entry = new ExportMigrationEntryImpl(context,
+                absoluteFilePath);
 
-        Assert.assertThat(ENTRY.getContext(), Matchers.sameInstance(CONTEXT));
-        Assert.assertThat(ENTRY.getPath(), Matchers.equalTo(FILE_PATH));
-        Assert.assertThat(ENTRY.getAbsolutePath(), Matchers.equalTo(ABSOLUTE_FILE_PATH));
-        Assert.assertThat(ENTRY.getFile(), Matchers.equalTo(ABSOLUTE_FILE_PATH.toFile()));
-        Assert.assertThat(ENTRY.getName(), Matchers.equalTo(UNIX_NAME));
+        Assert.assertThat(entry.getContext(), Matchers.sameInstance(context));
+        Assert.assertThat(entry.getPath(), Matchers.equalTo(FILE_PATH));
+        Assert.assertThat(entry.getAbsolutePath(), Matchers.equalTo(absoluteFilePath));
+        Assert.assertThat(entry.getFile(), Matchers.equalTo(absoluteFilePath.toFile()));
+        Assert.assertThat(entry.getName(), Matchers.equalTo(UNIX_NAME));
     }
 
     @Test
     public void testConstructorWithAbsolutePathNotUnderDDFHome() throws Exception {
-        final Path ABSOLUTE_FILE_PATH = createFile(ROOT, "test.ext");
-        final String ABSOLUTE_FILE_NAME =
-                FilenameUtils.separatorsToUnix(ABSOLUTE_FILE_PATH.toString());
+        final Path absoluteFilePath = createFile(root, "test.ext");
+        final String absoluteFileName = FilenameUtils.separatorsToUnix(absoluteFilePath.toString());
 
-        final ExportMigrationEntryImpl ENTRY = new ExportMigrationEntryImpl(CONTEXT,
-                ABSOLUTE_FILE_PATH);
+        final ExportMigrationEntryImpl entry = new ExportMigrationEntryImpl(context,
+                absoluteFilePath);
 
-        Assert.assertThat(ENTRY.getContext(), Matchers.sameInstance(CONTEXT));
-        Assert.assertThat(ENTRY.getPath(), Matchers.equalTo(ABSOLUTE_FILE_PATH));
-        Assert.assertThat(ENTRY.getAbsolutePath(), Matchers.equalTo(ABSOLUTE_FILE_PATH));
-        Assert.assertThat(ENTRY.getFile(), Matchers.equalTo(ABSOLUTE_FILE_PATH.toFile()));
-        Assert.assertThat(ENTRY.getName(), Matchers.equalTo(ABSOLUTE_FILE_NAME));
+        Assert.assertThat(entry.getContext(), Matchers.sameInstance(context));
+        Assert.assertThat(entry.getPath(), Matchers.equalTo(absoluteFilePath));
+        Assert.assertThat(entry.getAbsolutePath(), Matchers.equalTo(absoluteFilePath));
+        Assert.assertThat(entry.getFile(), Matchers.equalTo(absoluteFilePath.toFile()));
+        Assert.assertThat(entry.getName(), Matchers.equalTo(absoluteFileName));
     }
 
     @Test
@@ -161,32 +151,32 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(Matchers.containsString("null path"));
 
-        new ExportMigrationEntryImpl(CONTEXT, (Path) null);
+        new ExportMigrationEntryImpl(context, (Path) null);
     }
 
     @Test
     public void testConstructorWhenPathDoesNotExist() throws Exception {
-        ABSOLUTE_FILE_PATH.toFile()
+        absoluteFilePath.toFile()
                 .delete();
-        final ExportMigrationEntryImpl ENTRY = new ExportMigrationEntryImpl(CONTEXT, FILE_PATH);
+        final ExportMigrationEntryImpl entry = new ExportMigrationEntryImpl(context, FILE_PATH);
 
-        Assert.assertThat(ENTRY.getContext(), Matchers.sameInstance(CONTEXT));
-        Assert.assertThat(ENTRY.getPath(), Matchers.equalTo(FILE_PATH));
-        Assert.assertThat(ENTRY.getAbsolutePath(), Matchers.equalTo(FILE_PATH));
-        Assert.assertThat(ENTRY.getFile(), Matchers.equalTo(FILE_PATH.toFile()));
-        Assert.assertThat(ENTRY.getName(), Matchers.equalTo(UNIX_NAME));
+        Assert.assertThat(entry.getContext(), Matchers.sameInstance(context));
+        Assert.assertThat(entry.getPath(), Matchers.equalTo(FILE_PATH));
+        Assert.assertThat(entry.getAbsolutePath(), Matchers.equalTo(FILE_PATH));
+        Assert.assertThat(entry.getFile(), Matchers.equalTo(FILE_PATH.toFile()));
+        Assert.assertThat(entry.getName(), Matchers.equalTo(UNIX_NAME));
     }
 
     @Test
     public void testConstructorWithRelativePathname() throws Exception {
-        final ExportMigrationEntryImpl ENTRY = new ExportMigrationEntryImpl(CONTEXT,
+        final ExportMigrationEntryImpl entry = new ExportMigrationEntryImpl(context,
                 FILE_PATH.toString());
 
-        Assert.assertThat(ENTRY.getContext(), Matchers.sameInstance(CONTEXT));
-        Assert.assertThat(ENTRY.getPath(), Matchers.equalTo(FILE_PATH));
-        Assert.assertThat(ENTRY.getAbsolutePath(), Matchers.equalTo(ABSOLUTE_FILE_PATH));
-        Assert.assertThat(ENTRY.getFile(), Matchers.equalTo(ABSOLUTE_FILE_PATH.toFile()));
-        Assert.assertThat(ENTRY.getName(), Matchers.equalTo(UNIX_NAME));
+        Assert.assertThat(entry.getContext(), Matchers.sameInstance(context));
+        Assert.assertThat(entry.getPath(), Matchers.equalTo(FILE_PATH));
+        Assert.assertThat(entry.getAbsolutePath(), Matchers.equalTo(absoluteFilePath));
+        Assert.assertThat(entry.getFile(), Matchers.equalTo(absoluteFilePath.toFile()));
+        Assert.assertThat(entry.getName(), Matchers.equalTo(UNIX_NAME));
     }
 
     @Test
@@ -202,93 +192,93 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(Matchers.containsString("null pathname"));
 
-        new ExportMigrationEntryImpl(CONTEXT, (String) null);
+        new ExportMigrationEntryImpl(context, (String) null);
     }
 
     @Test
     public void testGetReport() throws Exception {
-        Assert.assertThat(ENTRY.getReport(), Matchers.sameInstance(REPORT));
+        Assert.assertThat(entry.getReport(), Matchers.sameInstance(report));
 
-        Mockito.verify(CONTEXT)
+        Mockito.verify(context)
                 .getReport();
     }
 
     @Test
     public void testOutputStream() throws Exception {
-        final OutputStream OS = Mockito.mock(OutputStream.class);
+        final OutputStream mockOutputStream = Mockito.mock(OutputStream.class);
 
-        Mockito.when(CONTEXT.getOutputStreamFor(Mockito.any()))
-                .thenReturn(OS);
+        Mockito.when(context.getOutputStreamFor(Mockito.any()))
+                .thenReturn(mockOutputStream);
 
-        final OutputStream os = ENTRY.getOutputStream();
+        final OutputStream os = entry.getOutputStream();
 
-        Assert.assertThat(os, Matchers.sameInstance(OS));
+        Assert.assertThat(os, Matchers.sameInstance(mockOutputStream));
 
-        Mockito.verify(CONTEXT)
-                .getOutputStreamFor(Mockito.same(ENTRY));
+        Mockito.verify(context)
+                .getOutputStreamFor(Mockito.same(entry));
     }
 
     @Test
     public void testOutputStreamWhenAlreadyRetrieved() throws Exception {
-        final OutputStream OS = Mockito.mock(OutputStream.class);
+        final OutputStream mockOutputStream = Mockito.mock(OutputStream.class);
 
-        Mockito.when(CONTEXT.getOutputStreamFor(Mockito.any()))
-                .thenReturn(OS);
+        Mockito.when(context.getOutputStreamFor(Mockito.any()))
+                .thenReturn(mockOutputStream);
 
-        ENTRY.getOutputStream(); // pre-cache it
+        entry.getOutputStream(); // pre-cache it
 
-        final OutputStream os = ENTRY.getOutputStream();
+        final OutputStream os = entry.getOutputStream();
 
-        Assert.assertThat(os, Matchers.sameInstance(OS));
+        Assert.assertThat(os, Matchers.sameInstance(mockOutputStream));
 
-        Mockito.verify(CONTEXT)
-                .getOutputStreamFor(Mockito.same(ENTRY));
+        Mockito.verify(context)
+                .getOutputStreamFor(Mockito.same(entry));
     }
 
     @Test
     public void testOutputStreamWithException() throws Exception {
-        final IOException E = new IOException("testing");
+        final IOException e = new IOException("testing");
 
-        Mockito.when(CONTEXT.getOutputStreamFor(Mockito.any()))
-                .thenThrow(new UncheckedIOException(E));
+        Mockito.when(context.getOutputStreamFor(Mockito.any()))
+                .thenThrow(new UncheckedIOException(e));
 
-        thrown.expect(Matchers.sameInstance(E));
+        thrown.expect(Matchers.sameInstance(e));
 
-        ENTRY.getOutputStream();
+        entry.getOutputStream();
     }
 
     @Test
     public void testStoreWhenRequiredAndFileExist() throws Exception {
-        final StringWriter WRITER = new StringWriter();
+        final StringWriter writer = new StringWriter();
 
-        Mockito.when(CONTEXT.getOutputStreamFor(Mockito.any()))
-                .thenReturn(new WriterOutputStream(WRITER, Charsets.UTF_8));
+        Mockito.when(context.getOutputStreamFor(Mockito.any()))
+                .thenReturn(new WriterOutputStream(writer, Charsets.UTF_8));
 
-        Assert.assertThat(ENTRY.store(true), Matchers.equalTo(true));
-        Assert.assertThat(WRITER.toString(), Matchers.equalTo(FILENAME));
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.wasSuccessful(), Matchers.equalTo(true));
+        Assert.assertThat(entry.store(true), Matchers.equalTo(true));
+        Assert.assertThat(writer.toString(), Matchers.equalTo(FILENAME));
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.wasSuccessful(), Matchers.equalTo(true));
     }
 
     @Test
     public void testStoreWhenRequiredAndFileIsAbsoluteOutsideDDFHome() throws Exception {
-        final StringWriter WRITER = new StringWriter();
+        final StringWriter writer = new StringWriter();
 
-        final Path ABSOLUTE_FILE_PATH = createFile(testFolder.getRoot()
+        final Path absoluteFilePath = createFile(testFolder.getRoot()
                 .toPath()
                 .resolve(FILENAME));
 
-        final ExportMigrationEntryImpl ENTRY = new ExportMigrationEntryImpl(CONTEXT,
-                ABSOLUTE_FILE_PATH);
+        final ExportMigrationEntryImpl entry = new ExportMigrationEntryImpl(context,
+                absoluteFilePath);
 
-        Assert.assertThat(ENTRY.store(true), Matchers.equalTo(true));
-        Assert.assertThat(WRITER.toString(), Matchers.emptyString());
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(true));
-        Assert.assertThat(REPORT.wasSuccessful(), Matchers.equalTo(true));
+        Assert.assertThat(entry.store(true), Matchers.equalTo(true));
+        Assert.assertThat(writer.toString(), Matchers.emptyString());
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(true));
+        Assert.assertThat(report.wasSuccessful(), Matchers.equalTo(true));
 
-        Assert.assertThat(REPORT.warnings()
+        Assert.assertThat(report.warnings()
                         .map(MigrationWarning::getMessage)
                         .toArray(String[]::new),
                 Matchers.hasItemInArray(Matchers.containsString("is outside")));
@@ -296,23 +286,23 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
 
     @Test
     public void testStoreWhenRequiredAndFileIsASoftLink() throws Exception {
-        final StringWriter WRITER = new StringWriter();
+        final StringWriter writer = new StringWriter();
 
-        final String FILENAME2 = "file2.ext";
-        final Path ABSOLUTE_FILE_PATH2 = createSoftLink(ABSOLUTE_FILE_PATH.getParent(),
-                FILENAME2,
-                ABSOLUTE_FILE_PATH);
+        final String filename2 = "file2.ext";
+        final Path absoluteFilePath2 = createSoftLink(absoluteFilePath.getParent(),
+                filename2,
+                absoluteFilePath);
 
-        final ExportMigrationEntryImpl ENTRY = new ExportMigrationEntryImpl(CONTEXT,
-                ABSOLUTE_FILE_PATH2);
+        final ExportMigrationEntryImpl entry = new ExportMigrationEntryImpl(context,
+                absoluteFilePath2);
 
-        Assert.assertThat(ENTRY.store(true), Matchers.equalTo(true));
-        Assert.assertThat(WRITER.toString(), Matchers.emptyString());
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(true));
-        Assert.assertThat(REPORT.wasSuccessful(), Matchers.equalTo(true));
+        Assert.assertThat(entry.store(true), Matchers.equalTo(true));
+        Assert.assertThat(writer.toString(), Matchers.emptyString());
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(true));
+        Assert.assertThat(report.wasSuccessful(), Matchers.equalTo(true));
 
-        Assert.assertThat(REPORT.warnings()
+        Assert.assertThat(report.warnings()
                         .map(MigrationWarning::getMessage)
                         .toArray(String[]::new),
                 Matchers.hasItemInArray(Matchers.containsString("is a symbolic link")));
@@ -320,265 +310,265 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
 
     @Test
     public void testStoreWhenOptionalAndFileExist() throws Exception {
-        final StringWriter WRITER = new StringWriter();
+        final StringWriter writer = new StringWriter();
 
-        Mockito.when(CONTEXT.getOutputStreamFor(Mockito.any()))
-                .thenReturn(new WriterOutputStream(WRITER, Charsets.UTF_8));
+        Mockito.when(context.getOutputStreamFor(Mockito.any()))
+                .thenReturn(new WriterOutputStream(writer, Charsets.UTF_8));
 
-        Assert.assertThat(ENTRY.store(false), Matchers.equalTo(true));
-        Assert.assertThat(WRITER.toString(), Matchers.equalTo(FILENAME));
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.wasSuccessful(), Matchers.equalTo(true));
+        Assert.assertThat(entry.store(false), Matchers.equalTo(true));
+        Assert.assertThat(writer.toString(), Matchers.equalTo(FILENAME));
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.wasSuccessful(), Matchers.equalTo(true));
     }
 
     @Test
     public void testStoreASecondTimeWhenFirstSucceeded() throws Exception {
-        final StringWriter WRITER = new StringWriter();
+        final StringWriter writer = new StringWriter();
 
-        Mockito.when(CONTEXT.getOutputStreamFor(Mockito.any()))
-                .thenReturn(new WriterOutputStream(WRITER, Charsets.UTF_8));
+        Mockito.when(context.getOutputStreamFor(Mockito.any()))
+                .thenReturn(new WriterOutputStream(writer, Charsets.UTF_8));
 
-        ENTRY.store();
+        entry.store();
         // reset writer's buffer to make sure it will not be re-written
-        WRITER.getBuffer()
+        writer.getBuffer()
                 .setLength(0);
 
-        Assert.assertThat(ENTRY.store(true), Matchers.equalTo(true));
-        Assert.assertThat(WRITER.toString(), Matchers.emptyString());
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.wasSuccessful(), Matchers.equalTo(true));
+        Assert.assertThat(entry.store(true), Matchers.equalTo(true));
+        Assert.assertThat(writer.toString(), Matchers.emptyString());
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.wasSuccessful(), Matchers.equalTo(true));
     }
 
     @Test
     public void testStoreWhenRequiredAndFileDoesNotExist() throws Exception {
-        ABSOLUTE_FILE_PATH.toFile()
+        absoluteFilePath.toFile()
                 .delete();
-        ENTRY = new ExportMigrationEntryImpl(CONTEXT, FILE_PATH);
-        final StringWriter WRITER = new StringWriter();
+        entry = new ExportMigrationEntryImpl(context, FILE_PATH);
+        final StringWriter writer = new StringWriter();
 
-        Mockito.when(CONTEXT.getOutputStreamFor(Mockito.any()))
-                .thenReturn(new WriterOutputStream(WRITER, Charsets.UTF_8));
+        Mockito.when(context.getOutputStreamFor(Mockito.any()))
+                .thenReturn(new WriterOutputStream(writer, Charsets.UTF_8));
 
-        Assert.assertThat(ENTRY.store(true), Matchers.equalTo(false));
-        Assert.assertThat(WRITER.toString(), Matchers.emptyString());
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(true));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.wasSuccessful(), Matchers.equalTo(false));
+        Assert.assertThat(entry.store(true), Matchers.equalTo(false));
+        Assert.assertThat(writer.toString(), Matchers.emptyString());
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(true));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.wasSuccessful(), Matchers.equalTo(false));
 
         thrown.expect(MigrationException.class);
         thrown.expectMessage(Matchers.containsString("does not exist"));
 
-        REPORT.verifyCompletion(); // to trigger an exception from the report
+        report.verifyCompletion(); // to trigger an exception from the report
     }
 
     @Test
     public void testStoreWhenOptionalAndFileDoesNotExist() throws Exception {
-        ABSOLUTE_FILE_PATH.toFile()
+        absoluteFilePath.toFile()
                 .delete();
-        final ExportMigrationEntryImpl ENTRY = new ExportMigrationEntryImpl(CONTEXT, FILE_PATH);
+        final ExportMigrationEntryImpl entry = new ExportMigrationEntryImpl(context, FILE_PATH);
 
-        final StringWriter WRITER = new StringWriter();
+        final StringWriter writer = new StringWriter();
 
-        Mockito.when(CONTEXT.getOutputStreamFor(Mockito.any()))
-                .thenReturn(new WriterOutputStream(WRITER, Charsets.UTF_8));
+        Mockito.when(context.getOutputStreamFor(Mockito.any()))
+                .thenReturn(new WriterOutputStream(writer, Charsets.UTF_8));
 
-        Assert.assertThat(ENTRY.store(false), Matchers.equalTo(true));
-        Assert.assertThat(WRITER.toString(), Matchers.emptyString());
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.wasSuccessful(), Matchers.equalTo(true));
+        Assert.assertThat(entry.store(false), Matchers.equalTo(true));
+        Assert.assertThat(writer.toString(), Matchers.emptyString());
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.wasSuccessful(), Matchers.equalTo(true));
     }
 
     @Test
     public void testStoreWhenRequiredAndFileRealPathCannotBeDetermined() throws Exception {
-        final PathUtils PATH_UTILS = Mockito.mock(PathUtils.class);
-        final Path PATH = Mockito.mock(Path.class);
-        final IOException IOE = new IOException("test");
+        final PathUtils pathUtils = Mockito.mock(PathUtils.class);
+        final Path path = Mockito.mock(Path.class);
+        final IOException ioe = new IOException("test");
 
-        Mockito.when(CONTEXT.getPathUtils())
-                .thenReturn(PATH_UTILS);
-        Mockito.when(PATH_UTILS.resolveAgainstDDFHome((Path) Mockito.any()))
-                .thenReturn(PATH);
-        Mockito.when(PATH_UTILS.relativizeFromDDFHome(Mockito.any()))
-                .thenReturn(PATH);
-        Mockito.when(PATH.toRealPath(LinkOption.NOFOLLOW_LINKS))
-                .thenThrow(IOE);
+        Mockito.when(context.getPathUtils())
+                .thenReturn(pathUtils);
+        Mockito.when(pathUtils.resolveAgainstDDFHome((Path) Mockito.any()))
+                .thenReturn(path);
+        Mockito.when(pathUtils.relativizeFromDDFHome(Mockito.any()))
+                .thenReturn(path);
+        Mockito.when(path.toRealPath(LinkOption.NOFOLLOW_LINKS))
+                .thenThrow(ioe);
 
-        final ExportMigrationEntryImpl ENTRY = new ExportMigrationEntryImpl(CONTEXT, FILE_PATH);
+        final ExportMigrationEntryImpl entry = new ExportMigrationEntryImpl(context, FILE_PATH);
 
-        final StringWriter WRITER = new StringWriter();
+        final StringWriter writer = new StringWriter();
 
-        Mockito.when(CONTEXT.getOutputStreamFor(Mockito.any()))
-                .thenReturn(new WriterOutputStream(WRITER, Charsets.UTF_8));
+        Mockito.when(context.getOutputStreamFor(Mockito.any()))
+                .thenReturn(new WriterOutputStream(writer, Charsets.UTF_8));
 
-        Assert.assertThat(ENTRY.store(true), Matchers.equalTo(false));
-        Assert.assertThat(WRITER.toString(), Matchers.emptyString());
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(true));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.wasSuccessful(), Matchers.equalTo(false));
+        Assert.assertThat(entry.store(true), Matchers.equalTo(false));
+        Assert.assertThat(writer.toString(), Matchers.emptyString());
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(true));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.wasSuccessful(), Matchers.equalTo(false));
 
         thrown.expect(MigrationException.class);
         thrown.expectMessage(Matchers.containsString("cannot be read"));
-        thrown.expectCause(Matchers.sameInstance(IOE));
+        thrown.expectCause(Matchers.sameInstance(ioe));
 
-        REPORT.verifyCompletion(); // to trigger an exception from the report
+        report.verifyCompletion(); // to trigger an exception from the report
     }
 
     @Test
     public void testStoreWhenPathIsADirectory() throws Exception {
-        final StringWriter WRITER = new StringWriter();
+        final StringWriter writer = new StringWriter();
 
-        Mockito.when(CONTEXT.getOutputStreamFor(Mockito.any()))
-                .thenReturn(new WriterOutputStream(WRITER, Charsets.UTF_8));
+        Mockito.when(context.getOutputStreamFor(Mockito.any()))
+                .thenReturn(new WriterOutputStream(writer, Charsets.UTF_8));
 
-        final ExportMigrationEntryImpl ENTRY = new ExportMigrationEntryImpl(CONTEXT,
-                ABSOLUTE_FILE_PATH.getParent());
+        final ExportMigrationEntryImpl entry = new ExportMigrationEntryImpl(context,
+                absoluteFilePath.getParent());
 
-        Assert.assertThat(ENTRY.store(true), Matchers.equalTo(false));
-        Assert.assertThat(WRITER.toString(), Matchers.emptyString());
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(true));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.wasSuccessful(), Matchers.equalTo(false));
+        Assert.assertThat(entry.store(true), Matchers.equalTo(false));
+        Assert.assertThat(writer.toString(), Matchers.emptyString());
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(true));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.wasSuccessful(), Matchers.equalTo(false));
 
         thrown.expect(MigrationException.class);
 
-        REPORT.verifyCompletion(); // to trigger an exception from the report
+        report.verifyCompletion(); // to trigger an exception from the report
     }
 
     @Test
     public void testStoreWithConsumer() throws Exception {
-        final EBiConsumer<MigrationReport, OutputStream, IOException> CONSUMER = Mockito.mock(
+        final EBiConsumer<MigrationReport, OutputStream, IOException> consumer = Mockito.mock(
                 EBiConsumer.class);
-        final OutputStream OS = Mockito.mock(OutputStream.class);
+        final OutputStream mockOutputStream = Mockito.mock(OutputStream.class);
 
-        Mockito.when(CONTEXT.getOutputStreamFor(Mockito.any()))
-                .thenReturn(OS);
+        Mockito.when(context.getOutputStreamFor(Mockito.any()))
+                .thenReturn(mockOutputStream);
 
-        Assert.assertThat(ENTRY.store(CONSUMER), Matchers.equalTo(true));
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.wasSuccessful(), Matchers.equalTo(true));
+        Assert.assertThat(entry.store(consumer), Matchers.equalTo(true));
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.wasSuccessful(), Matchers.equalTo(true));
 
-        Mockito.verify(CONSUMER)
-                .accept(Mockito.same(REPORT), Mockito.same(OS));
+        Mockito.verify(consumer)
+                .accept(Mockito.same(report), Mockito.same(mockOutputStream));
     }
 
     @Test
     public void testStoreWithConsumerReportingError() throws Exception {
-        final EBiConsumer<MigrationReport, OutputStream, IOException> CONSUMER = Mockito.mock(
+        final EBiConsumer<MigrationReport, OutputStream, IOException> consumer = Mockito.mock(
                 EBiConsumer.class);
-        final OutputStream OS = Mockito.mock(OutputStream.class);
-        final MigrationException ME = Mockito.mock(MigrationException.class);
+        final OutputStream mockOutputStream = Mockito.mock(OutputStream.class);
+        final MigrationException me = Mockito.mock(MigrationException.class);
 
-        Mockito.when(CONTEXT.getOutputStreamFor(Mockito.any()))
-                .thenReturn(OS);
+        Mockito.when(context.getOutputStreamFor(Mockito.any()))
+                .thenReturn(mockOutputStream);
         Mockito.doAnswer(AdditionalAnswers.<MigrationReport, OutputStream>answerVoid((r, os) -> r.record(
-                ME)))
-                .when(CONSUMER)
+                me)))
+                .when(consumer)
                 .accept(Mockito.any(), Mockito.any());
 
-        Assert.assertThat(ENTRY.store(CONSUMER), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(true));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.wasSuccessful(), Matchers.equalTo(false));
+        Assert.assertThat(entry.store(consumer), Matchers.equalTo(false));
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(true));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.wasSuccessful(), Matchers.equalTo(false));
 
-        Mockito.verify(CONSUMER)
-                .accept(Mockito.same(REPORT), Mockito.same(OS));
+        Mockito.verify(consumer)
+                .accept(Mockito.same(report), Mockito.same(mockOutputStream));
 
-        thrown.expect(Matchers.sameInstance(ME));
+        thrown.expect(Matchers.sameInstance(me));
 
-        REPORT.verifyCompletion(); // to trigger an exception from the report
+        report.verifyCompletion(); // to trigger an exception from the report
     }
 
     @Test
     public void testStoreWithConsumerThrowingMigrationException() throws Exception {
-        final EBiConsumer<MigrationReport, OutputStream, IOException> CONSUMER = Mockito.mock(
+        final EBiConsumer<MigrationReport, OutputStream, IOException> consumer = Mockito.mock(
                 EBiConsumer.class);
-        final EBiConsumer<MigrationReport, OutputStream, IOException> CONSUMER2 = Mockito.mock(
+        final EBiConsumer<MigrationReport, OutputStream, IOException> consumer2 = Mockito.mock(
                 EBiConsumer.class);
-        final OutputStream OS = Mockito.mock(OutputStream.class);
-        final MigrationException ME = Mockito.mock(MigrationException.class);
+        final OutputStream mockOutputStream = Mockito.mock(OutputStream.class);
+        final MigrationException me = Mockito.mock(MigrationException.class);
 
-        Mockito.when(CONTEXT.getOutputStreamFor(Mockito.any()))
-                .thenReturn(OS);
-        Mockito.doThrow(ME)
-                .when(CONSUMER)
+        Mockito.when(context.getOutputStreamFor(Mockito.any()))
+                .thenReturn(mockOutputStream);
+        Mockito.doThrow(me)
+                .when(consumer)
                 .accept(Mockito.any(), Mockito.any());
 
-        thrown.expect(Matchers.sameInstance(ME));
+        thrown.expect(Matchers.sameInstance(me));
 
         try {
-            ENTRY.store(CONSUMER);
+            entry.store(consumer);
         } finally {
-            Mockito.verify(CONSUMER)
-                    .accept(Mockito.same(REPORT), Mockito.same(OS));
+            Mockito.verify(consumer)
+                    .accept(Mockito.same(report), Mockito.same(mockOutputStream));
 
             // verify that if we were to store a second time, the consumer would not be called and false would be returned
-            Assert.assertThat(ENTRY.store(), Matchers.equalTo(false));
+            Assert.assertThat(entry.store(), Matchers.equalTo(false));
 
-            Mockito.verify(CONSUMER2, Mockito.never())
+            Mockito.verify(consumer2, Mockito.never())
                     .accept(Mockito.any(), Mockito.any());
         }
     }
 
     @Test
     public void testStoreWithConsumerThrowingIOException() throws Exception {
-        final EBiConsumer<MigrationReport, OutputStream, IOException> CONSUMER = Mockito.mock(
+        final EBiConsumer<MigrationReport, OutputStream, IOException> consumer = Mockito.mock(
                 EBiConsumer.class);
-        final OutputStream OS = Mockito.mock(OutputStream.class);
-        final IOException IOE = Mockito.mock(IOException.class);
+        final OutputStream mockOutputStream = Mockito.mock(OutputStream.class);
+        final IOException ioe = Mockito.mock(IOException.class);
 
-        Mockito.when(CONTEXT.getOutputStreamFor(Mockito.any()))
-                .thenReturn(OS);
-        Mockito.doThrow(IOE)
-                .when(CONSUMER)
+        Mockito.when(context.getOutputStreamFor(Mockito.any()))
+                .thenReturn(mockOutputStream);
+        Mockito.doThrow(ioe)
+                .when(consumer)
                 .accept(Mockito.any(), Mockito.any());
 
-        Assert.assertThat(ENTRY.store(CONSUMER), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(true));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.wasSuccessful(), Matchers.equalTo(false));
+        Assert.assertThat(entry.store(consumer), Matchers.equalTo(false));
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(true));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.wasSuccessful(), Matchers.equalTo(false));
 
-        Mockito.verify(CONSUMER)
-                .accept(Mockito.same(REPORT), Mockito.same(OS));
+        Mockito.verify(consumer)
+                .accept(Mockito.same(report), Mockito.same(mockOutputStream));
 
         thrown.expect(Matchers.instanceOf(MigrationException.class));
-        thrown.expectCause(Matchers.sameInstance(IOE));
+        thrown.expectCause(Matchers.sameInstance(ioe));
 
-        REPORT.verifyCompletion(); // to trigger an exception from the report
+        report.verifyCompletion(); // to trigger an exception from the report
     }
 
     @Test
     public void testStoreWithConsumerThrowingExportIOException() throws Exception {
-        final EBiConsumer<MigrationReport, OutputStream, IOException> CONSUMER = Mockito.mock(
+        final EBiConsumer<MigrationReport, OutputStream, IOException> consumer = Mockito.mock(
                 EBiConsumer.class);
-        final EBiConsumer<MigrationReport, OutputStream, IOException> CONSUMER2 = Mockito.mock(
+        final EBiConsumer<MigrationReport, OutputStream, IOException> consumer2 = Mockito.mock(
                 EBiConsumer.class);
-        final OutputStream OS = Mockito.mock(OutputStream.class);
-        final IOException IOE = Mockito.mock(IOException.class);
-        final ExportIOException EIOE = new ExportIOException(IOE);
+        final OutputStream mockOutputStream = Mockito.mock(OutputStream.class);
+        final IOException ioe = Mockito.mock(IOException.class);
+        final ExportIOException eioe = new ExportIOException(ioe);
 
-        Mockito.when(CONTEXT.getOutputStreamFor(Mockito.any()))
-                .thenReturn(OS);
-        Mockito.doThrow(EIOE)
-                .when(CONSUMER)
+        Mockito.when(context.getOutputStreamFor(Mockito.any()))
+                .thenReturn(mockOutputStream);
+        Mockito.doThrow(eioe)
+                .when(consumer)
                 .accept(Mockito.any(), Mockito.any());
 
         thrown.expect(Matchers.instanceOf(MigrationException.class));
-        thrown.expectCause(Matchers.sameInstance(IOE));
+        thrown.expectCause(Matchers.sameInstance(ioe));
 
         try {
-            ENTRY.store(CONSUMER);
+            entry.store(consumer);
         } finally {
-            Mockito.verify(CONSUMER)
-                    .accept(Mockito.same(REPORT), Mockito.same(OS));
+            Mockito.verify(consumer)
+                    .accept(Mockito.same(report), Mockito.same(mockOutputStream));
 
             // verify that if we were to store a second time, the consumer would not be called and false would be returned
-            Assert.assertThat(ENTRY.store(), Matchers.equalTo(false));
+            Assert.assertThat(entry.store(), Matchers.equalTo(false));
 
-            Mockito.verify(CONSUMER2, Mockito.never())
+            Mockito.verify(consumer2, Mockito.never())
                     .accept(Mockito.any(), Mockito.any());
         }
     }
@@ -591,7 +581,7 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
         createFile(MIGRATABLE_NAME);
 
         final Optional<ExportMigrationEntry> oentry =
-                ENTRY.getPropertyReferencedEntry(PROPERTY_NAME, (r, v) -> true);
+                entry.getPropertyReferencedEntry(PROPERTY_NAME, (r, v) -> true);
 
         Assert.assertThat(oentry, OptionalMatchers.isPresent());
         final ExportMigrationEntry entry = oentry.get();
@@ -607,14 +597,14 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
 
         Assert.assertThat(jentry.getProperty(), Matchers.equalTo(PROPERTY_NAME));
         // finally make sure no warnings or errors were recorded
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
     }
 
     @Test
     public void testGetPropertyReferencedEntryWhenValueIsAbsoluteUnderDDFHome() throws Exception {
         storeProperty(PROPERTY_NAME,
-                DDF_HOME.resolve(MIGRATABLE_PATH)
+                ddfHome.resolve(MIGRATABLE_PATH)
                         .toAbsolutePath()
                         .toString());
 
@@ -622,7 +612,7 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
         createFile(MIGRATABLE_NAME);
 
         final Optional<ExportMigrationEntry> oentry =
-                ENTRY.getPropertyReferencedEntry(PROPERTY_NAME, (r, v) -> true);
+                entry.getPropertyReferencedEntry(PROPERTY_NAME, (r, v) -> true);
 
         Assert.assertThat(oentry, OptionalMatchers.isPresent());
         final ExportMigrationEntry entry = oentry.get();
@@ -638,31 +628,31 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
 
         Assert.assertThat(jentry.getProperty(), Matchers.equalTo(PROPERTY_NAME));
         // finally make sure no warnings or errors were recorded
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
     }
 
     @Test
     public void testGetPropertyReferencedEntryWhenValueIsAbsoluteNotUnderDDFHome()
             throws Exception {
-        final Path MIGRATABLE_PATH = testFolder.newFile("test.cfg")
+        final Path migratablePath = testFolder.newFile("test.cfg")
                 .toPath()
                 .toRealPath(LinkOption.NOFOLLOW_LINKS);
-        final String MIGRATABLE_NAME = FilenameUtils.separatorsToUnix(MIGRATABLE_PATH.toString());
+        final String migratableName = FilenameUtils.separatorsToUnix(migratablePath.toString());
 
         storeProperty(PROPERTY_NAME,
-                MIGRATABLE_PATH.toAbsolutePath()
+                migratablePath.toAbsolutePath()
                         .toString());
 
         final Optional<ExportMigrationEntry> oentry =
-                ENTRY.getPropertyReferencedEntry(PROPERTY_NAME, (r, v) -> true);
+                entry.getPropertyReferencedEntry(PROPERTY_NAME, (r, v) -> true);
 
         Assert.assertThat(oentry, OptionalMatchers.isPresent());
         final ExportMigrationEntry entry = oentry.get();
 
         Assert.assertThat(entry.getId(), Matchers.equalTo(MIGRATABLE_ID));
-        Assert.assertThat(entry.getName(), Matchers.equalTo(MIGRATABLE_NAME));
-        Assert.assertThat(entry.getPath(), Matchers.equalTo(MIGRATABLE_PATH));
+        Assert.assertThat(entry.getName(), Matchers.equalTo(migratableName));
+        Assert.assertThat(entry.getPath(), Matchers.equalTo(migratablePath));
         // now check that it is a java property referenced entry that references the proper property name
         Assert.assertThat(entry,
                 Matchers.instanceOf(ExportMigrationJavaPropertyReferencedEntryImpl.class));
@@ -671,8 +661,8 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
 
         Assert.assertThat(jentry.getProperty(), Matchers.equalTo(PROPERTY_NAME));
         // finally make sure no warnings or errors were recorded
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
     }
 
     @Test
@@ -680,7 +670,7 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(Matchers.containsString("null java property name"));
 
-        ENTRY.getPropertyReferencedEntry(null, (r, v) -> true);
+        entry.getPropertyReferencedEntry(null, (r, v) -> true);
     }
 
     @Test
@@ -688,33 +678,33 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(Matchers.containsString("null validator"));
 
-        ENTRY.getPropertyReferencedEntry(PROPERTY_NAME, null);
+        entry.getPropertyReferencedEntry(PROPERTY_NAME, null);
     }
 
     @Test
     public void testGetPropertyReferencedEntryWhenAlreadyCached() throws Exception {
         storeProperty(PROPERTY_NAME, MIGRATABLE_PROPERTY_PATHNAME);
-        final ExportMigrationEntry JENTRY = ENTRY.getPropertyReferencedEntry(PROPERTY_NAME,
+        final ExportMigrationEntry jentry = entry.getPropertyReferencedEntry(PROPERTY_NAME,
                 (r, v) -> true)
                 .get();
 
         final Optional<ExportMigrationEntry> oentry =
-                ENTRY.getPropertyReferencedEntry(PROPERTY_NAME, (r, v) -> true);
+                entry.getPropertyReferencedEntry(PROPERTY_NAME, (r, v) -> true);
 
         Assert.assertThat(oentry, OptionalMatchers.isPresent());
         final ExportMigrationEntry entry = oentry.get();
 
-        Assert.assertThat(entry, Matchers.sameInstance(JENTRY));
+        Assert.assertThat(entry, Matchers.sameInstance(jentry));
         // finally make sure no warnings or errors were recorded
-        Assert.assertThat(REPORT.hasErrors(), Matchers.equalTo(false));
-        Assert.assertThat(REPORT.hasWarnings(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasErrors(), Matchers.equalTo(false));
+        Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
     }
 
     @Test
     public void testGetPropertyReferencedEntryWhenInvalid() throws Exception {
         storeProperty(PROPERTY_NAME, MIGRATABLE_PROPERTY_PATHNAME);
         final Optional<ExportMigrationEntry> oentry =
-                ENTRY.getPropertyReferencedEntry(PROPERTY_NAME, (r, v) -> false);
+                entry.getPropertyReferencedEntry(PROPERTY_NAME, (r, v) -> false);
 
         Assert.assertThat(oentry, OptionalMatchers.isEmpty());
     }
@@ -722,7 +712,7 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
     @Test
     public void testGetPropertyReferencedEntryWhenPropertyIsNotDefined() throws Exception {
         storeProperty(PROPERTY_NAME, MIGRATABLE_PROPERTY_PATHNAME);
-        final Optional<ExportMigrationEntry> oentry = ENTRY.getPropertyReferencedEntry(
+        final Optional<ExportMigrationEntry> oentry = entry.getPropertyReferencedEntry(
                 PROPERTY_NAME2,
                 (r, v) -> true);
 
@@ -734,14 +724,14 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
                 "Java property [" + PROPERTY_NAME2 + "] from file [" + FILE_PATH
                         + "] is not defined"));
 
-        REPORT.verifyCompletion(); // to get the exception thrown out
+        report.verifyCompletion(); // to get the exception thrown out
     }
 
     @Test
     public void testGetPropertyReferencedEntryWhenPropertyValueIsEmpty() throws Exception {
         storeProperty(PROPERTY_NAME2, "");
 
-        final Optional<ExportMigrationEntry> oentry = ENTRY.getPropertyReferencedEntry(
+        final Optional<ExportMigrationEntry> oentry = entry.getPropertyReferencedEntry(
                 PROPERTY_NAME2,
                 (r, v) -> true);
 
@@ -752,16 +742,16 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
         thrown.expectMessage(Matchers.containsString(
                 "Java property [" + PROPERTY_NAME2 + "] from file [" + FILE_PATH + "] is empty"));
 
-        REPORT.verifyCompletion(); // to get the exception thrown out
+        report.verifyCompletion(); // to get the exception thrown out
     }
 
     @Test
     public void testGetPropertyReferencedEntryWhenUnableToReadPropertyValue() throws Exception {
-        ABSOLUTE_FILE_PATH.toFile()
+        absoluteFilePath.toFile()
                 .delete();
 
         final Optional<ExportMigrationEntry> oentry =
-                ENTRY.getPropertyReferencedEntry(PROPERTY_NAME, (r, v) -> true);
+                entry.getPropertyReferencedEntry(PROPERTY_NAME, (r, v) -> true);
 
         Assert.assertThat(oentry, OptionalMatchers.isEmpty());
         // finally make sure we got an error (register the thrown expectations after the above to make sure
@@ -771,12 +761,12 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
                 "Java property [" + PROPERTY_NAME + "] from file [" + FILE_PATH
                         + "] could not be retrieved"));
 
-        REPORT.verifyCompletion(); // to get the exception thrown out
+        report.verifyCompletion(); // to get the exception thrown out
     }
 
     @Test
     public void testToDebugString() throws Exception {
-        final String debug = ENTRY.toDebugString();
+        final String debug = entry.toDebugString();
 
         Assert.assertThat(debug, Matchers.containsString("file"));
         Assert.assertThat(debug, Matchers.containsString("[" + FILE_PATH + "]"));
@@ -784,116 +774,125 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
 
     @Test
     public void testNewWarning() throws Exception {
-        final String REASON = "test reason";
-        final MigrationWarning warning = ENTRY.newWarning(REASON);
+        final String reason = "test reason";
+        final MigrationWarning warning = entry.newWarning(reason);
 
         Assert.assertThat(warning.getMessage(), Matchers.containsString("[" + FILE_PATH + "]"));
-        Assert.assertThat(warning.getMessage(), Matchers.containsString(REASON));
+        Assert.assertThat(warning.getMessage(), Matchers.containsString(reason));
     }
 
     @Test
     public void testNewError() throws Exception {
-        final String REASON = "test reason";
-        final IllegalArgumentException CAUSE = new IllegalArgumentException("test cause");
-        final MigrationException error = ENTRY.newError(REASON, CAUSE);
+        final String reason = "test reason";
+        final IllegalArgumentException cause = new IllegalArgumentException("test cause");
+        final MigrationException error = entry.newError(reason, cause);
 
         Assert.assertThat(error.getMessage(), Matchers.containsString("[" + FILE_PATH + "]"));
-        Assert.assertThat(error.getMessage(), Matchers.containsString(REASON));
-        Assert.assertThat(error.getCause(), Matchers.sameInstance(CAUSE));
+        Assert.assertThat(error.getMessage(), Matchers.containsString(reason));
+        Assert.assertThat(error.getCause(), Matchers.sameInstance(cause));
     }
 
     @Test
     public void testEqualsWhenEquals() throws Exception {
-        final ExportMigrationEntryImpl ENTRY2 = new ExportMigrationEntryImpl(CONTEXT, FILE_PATH);
+        final ExportMigrationEntryImpl entry2 = new ExportMigrationEntryImpl(context, FILE_PATH);
 
-        Assert.assertThat(ENTRY.equals(ENTRY2), Matchers.equalTo(true));
+        Assert.assertThat(entry.equals(entry2), Matchers.equalTo(true));
     }
 
     @Test
     public void testEqualsWhenIdentical() throws Exception {
-        Assert.assertThat(ENTRY.equals(ENTRY), Matchers.equalTo(true));
+        Assert.assertThat(entry.equals(entry), Matchers.equalTo(true));
     }
 
     // PMD.EqualsNull - Purposely testing equals() when called with null
     @SuppressWarnings("PMD.EqualsNull")
     @Test
     public void testEqualsWhenNull() throws Exception {
-        Assert.assertThat(ENTRY.equals(null), Matchers.equalTo(false));
+        Assert.assertThat(entry.equals(null), Matchers.equalTo(false));
     }
 
     // PMD.PositionLiteralsFirstInComparisons - Purposely testing equals() when call with something else than expected
     @SuppressWarnings("PMD.PositionLiteralsFirstInComparisons")
     @Test
     public void testEqualsWithNotAnEntry() throws Exception {
-        Assert.assertThat(ENTRY.equals("test"), Matchers.equalTo(false));
+        Assert.assertThat(entry.equals("test"), Matchers.equalTo(false));
     }
 
     @Test
     public void testEqualsWhenContextsAreDifferent() throws Exception {
-        final ExportMigrationContextImpl CONTEXT2 = Mockito.mock(ExportMigrationContextImpl.class);
+        final ExportMigrationContextImpl context2 = Mockito.mock(ExportMigrationContextImpl.class);
 
-        Mockito.when(CONTEXT2.getPathUtils())
-                .thenReturn(PATH_UTILS);
-        Mockito.when(CONTEXT2.getReport())
-                .thenReturn(REPORT);
-        Mockito.when(CONTEXT2.getId())
+        Mockito.when(context2.getPathUtils())
+                .thenReturn(pathUtils);
+        Mockito.when(context2.getReport())
+                .thenReturn(report);
+        Mockito.when(context2.getId())
                 .thenReturn(MIGRATABLE_ID);
 
-        final ExportMigrationEntryImpl ENTRY2 = new ExportMigrationEntryImpl(CONTEXT2, FILE_PATH);
+        final ExportMigrationEntryImpl ENTRY2 = new ExportMigrationEntryImpl(context2, FILE_PATH);
 
-        Assert.assertThat(ENTRY.equals(ENTRY2), Matchers.equalTo(false));
+        Assert.assertThat(entry.equals(ENTRY2), Matchers.equalTo(false));
     }
 
     @Test
     public void testEqualsWhenPathsAreDifferent() throws Exception {
-        final ExportMigrationEntryImpl ENTRY2 = new ExportMigrationEntryImpl(CONTEXT,
+        final ExportMigrationEntryImpl entry2 = new ExportMigrationEntryImpl(context,
                 FILE_PATH.getParent());
 
-        Assert.assertThat(ENTRY.equals(ENTRY2), Matchers.equalTo(false));
+        Assert.assertThat(entry.equals(entry2), Matchers.equalTo(false));
     }
 
     @Test
     public void testHashCodeWhenEquals() throws Exception {
-        final ExportMigrationEntryImpl ENTRY2 = new ExportMigrationEntryImpl(CONTEXT, FILE_PATH);
+        final ExportMigrationEntryImpl entry2 = new ExportMigrationEntryImpl(context, FILE_PATH);
 
-        Assert.assertThat(ENTRY.hashCode(), Matchers.equalTo(ENTRY2.hashCode()));
+        Assert.assertThat(entry.hashCode(), Matchers.equalTo(entry2.hashCode()));
     }
 
     @Test
     public void testHashCodeWhenDifferent() throws Exception {
-        final ExportMigrationEntryImpl ENTRY2 = new ExportMigrationEntryImpl(CONTEXT,
+        final ExportMigrationEntryImpl entry2 = new ExportMigrationEntryImpl(context,
                 FILE_PATH.getParent());
 
-        Assert.assertThat(ENTRY.hashCode(), Matchers.not(Matchers.equalTo(ENTRY2.hashCode())));
+        Assert.assertThat(entry.hashCode(), Matchers.not(Matchers.equalTo(entry2.hashCode())));
     }
 
     @Test
     public void testGetLastModifiedTime() throws Exception {
-        final PathUtils PATH_UTILS = Mockito.mock(PathUtils.class);
-        final Path FILE_PATH = Mockito.mock(Path.class);
-        final File FILE = Mockito.mock(File.class);
-        final long MODIFIED = 12345L;
+        final PathUtils pathUtils = Mockito.mock(PathUtils.class);
+        final Path filePath = Mockito.mock(Path.class);
+        final File file = Mockito.mock(File.class);
+        final long modified = 12345L;
 
-        Mockito.when(CONTEXT.getPathUtils())
-                .thenReturn(PATH_UTILS);
-        Mockito.when(PATH_UTILS.resolveAgainstDDFHome(FILE_PATH))
-                .thenReturn(FILE_PATH);
-        Mockito.when(FILE_PATH.toRealPath(Mockito.any()))
-                .thenReturn(FILE_PATH);
-        Mockito.when(PATH_UTILS.relativizeFromDDFHome(FILE_PATH))
-                .thenReturn(FILE_PATH);
-        Mockito.when(FILE_PATH.toString())
+        Mockito.when(context.getPathUtils())
+                .thenReturn(pathUtils);
+        Mockito.when(pathUtils.resolveAgainstDDFHome(filePath))
+                .thenReturn(filePath);
+        Mockito.when(filePath.toRealPath(Mockito.any()))
+                .thenReturn(filePath);
+        Mockito.when(pathUtils.relativizeFromDDFHome(filePath))
+                .thenReturn(filePath);
+        Mockito.when(filePath.toString())
                 .thenReturn(UNIX_NAME);
-        Mockito.when(FILE_PATH.toFile())
-                .thenReturn(FILE);
-        Mockito.when(FILE.lastModified())
-                .thenReturn(MODIFIED);
+        Mockito.when(filePath.toFile())
+                .thenReturn(file);
+        Mockito.when(file.lastModified())
+                .thenReturn(modified);
 
-        final ExportMigrationEntryImpl ENTRY = new ExportMigrationEntryImpl(CONTEXT, FILE_PATH);
+        final ExportMigrationEntryImpl ENTRY = new ExportMigrationEntryImpl(context, filePath);
 
-        Assert.assertThat(ENTRY.getLastModifiedTime(), Matchers.equalTo(MODIFIED));
+        Assert.assertThat(ENTRY.getLastModifiedTime(), Matchers.equalTo(modified));
 
-        Mockito.verify(FILE)
+        Mockito.verify(file)
                 .lastModified();
+    }
+
+    private void storeProperty(String name, String val) throws IOException {
+        final Properties props = new Properties();
+
+        props.put(name, val);
+        try (final Writer writer = new BufferedWriter(new FileWriter(absoluteFilePath.toFile()))) {
+            props.store(writer, "testing");
+        }
     }
 }

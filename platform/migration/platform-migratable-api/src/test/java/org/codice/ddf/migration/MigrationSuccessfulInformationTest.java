@@ -26,14 +26,14 @@ public class MigrationSuccessfulInformationTest {
 
     private static final String MESSAGE = "test-message";
 
-    private final MigrationSuccessfulInformation INFO = new MigrationSuccessfulInformation(MESSAGE);
+    private final MigrationSuccessfulInformation info = new MigrationSuccessfulInformation(MESSAGE);
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
     @Test
     public void testConstructorWithMessage() throws Exception {
-        Assert.assertThat(INFO.getMessage(), Matchers.equalTo(MESSAGE));
+        Assert.assertThat(info.getMessage(), Matchers.equalTo(MESSAGE));
     }
 
     @Test
@@ -46,9 +46,9 @@ public class MigrationSuccessfulInformationTest {
 
     @Test
     public void testConstructorWithFormat() throws Exception {
-        final MigrationSuccessfulInformation INFO = new MigrationSuccessfulInformation(FORMAT, ARG);
+        final MigrationSuccessfulInformation info = new MigrationSuccessfulInformation(FORMAT, ARG);
 
-        Assert.assertThat(INFO.getMessage(), Matchers.equalTo(MESSAGE));
+        Assert.assertThat(info.getMessage(), Matchers.equalTo(MESSAGE));
     }
 
     @Test
@@ -61,6 +61,6 @@ public class MigrationSuccessfulInformationTest {
 
     @Test
     public void testToString() throws Exception {
-        Assert.assertThat(INFO.toString(), Matchers.equalTo(MESSAGE));
+        Assert.assertThat(info.toString(), Matchers.equalTo(MESSAGE));
     }
 }

@@ -24,41 +24,41 @@ import org.mockito.Mockito;
 import ddf.security.service.SecurityServiceException;
 
 public class ImportCommandTest extends AbstractMigrationCommandTest {
-    private ImportCommand COMMAND;
+    private ImportCommand command;
 
     @Before
     public void setup() throws Exception {
-        COMMAND = initCommand(new ImportCommand(SERVICE, SECURITY, EXPORTED_ARG));
+        command = initCommand(new ImportCommand(service, security, exportedArg));
     }
 
     @Test
     public void testExecuteWhenDirectorySpecified() throws Exception {
-        COMMAND.execute();
+        command.execute();
 
-        Mockito.verify(SERVICE)
-                .doImport(Mockito.eq(EXPORTED_PATH), Mockito.notNull());
+        Mockito.verify(service)
+                .doImport(Mockito.eq(exportedPath), Mockito.notNull());
     }
 
     @Test
     public void testExecuteWhenDirectoryNotSpecified() throws Exception {
-        COMMAND = initCommand(Mockito.spy(new ImportCommand(SERVICE, SECURITY, "")));
+        command = initCommand(Mockito.spy(new ImportCommand(service, security, "")));
 
-        COMMAND.execute();
+        command.execute();
 
-        Mockito.verify(SERVICE)
-                .doImport(Mockito.eq(DDF_HOME.resolve(MigrationCommand.EXPORTED)),
+        Mockito.verify(service)
+                .doImport(Mockito.eq(ddfHome.resolve(MigrationCommand.EXPORTED)),
                         Mockito.notNull());
     }
 
     @Test
     public void testExecuteWhenDirectoryIsInvalid() throws Exception {
-        COMMAND = initCommand(Mockito.spy(new ImportCommand(SERVICE,
-                SECURITY,
+        command = initCommand(Mockito.spy(new ImportCommand(service,
+                security,
                 "invalid path \"*?<> \0")));
 
-        COMMAND.execute();
+        command.execute();
 
-        Mockito.verify(SERVICE, Mockito.never())
+        Mockito.verify(service, Mockito.never())
                 .doImport(Mockito.any(), Mockito.notNull());
 
         verifyConsoleOutput(Matchers.matchesPattern(".*error.*encountered.*command;.*invalid path.*"),
@@ -67,28 +67,28 @@ public class ImportCommandTest extends AbstractMigrationCommandTest {
 
     @Test
     public void testExecuteWhenUnableToElevateSubject() throws Exception {
-        final String MSG = "Some error";
+        final String msg = "Some error";
 
-        Mockito.when(SECURITY.runWithSubjectOrElevate(Mockito.any()))
-                .thenThrow(new SecurityServiceException(MSG));
+        Mockito.when(security.runWithSubjectOrElevate(Mockito.any()))
+                .thenThrow(new SecurityServiceException(msg));
 
-        COMMAND.execute();
+        command.execute();
 
-        verifyConsoleOutput(Matchers.matchesPattern(".*error.*encountered.*command; " + MSG),
+        verifyConsoleOutput(Matchers.matchesPattern(".*error.*encountered.*command; " + msg),
                 Ansi.Color.RED);
     }
 
     @Test
     public void testExecuteWhenServiceThrowsError() throws Exception {
-        final String MSG = "Some error";
-        final Exception EXCEPTION = new Exception(MSG);
+        final String msg = "Some error";
+        final Exception exeption = new Exception(msg);
 
-        Mockito.when(SECURITY.runWithSubjectOrElevate(Mockito.any()))
-                .thenThrow(new InvocationTargetException(EXCEPTION));
+        Mockito.when(security.runWithSubjectOrElevate(Mockito.any()))
+                .thenThrow(new InvocationTargetException(exeption));
 
-        COMMAND.execute();
+        command.execute();
 
-        verifyConsoleOutput(Matchers.matchesPattern(".*error.*encountered.*command; " + MSG),
+        verifyConsoleOutput(Matchers.matchesPattern(".*error.*encountered.*command; " + msg),
                 Ansi.Color.RED);
     }
 }

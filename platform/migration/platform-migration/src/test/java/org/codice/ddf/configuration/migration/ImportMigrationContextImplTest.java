@@ -139,10 +139,10 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
 
     @Test
     public void testConstructorWithMigratable() throws Exception {
-        CONTEXT = new ImportMigrationContextImpl(REPORT, ZIP, MIGRATABLE);
+        CONTEXT = new ImportMigrationContextImpl(REPORT, ZIP, migratable);
 
         Assert.assertThat(CONTEXT.getReport(), Matchers.sameInstance(REPORT));
-        Assert.assertThat(CONTEXT.getMigratable(), Matchers.sameInstance(MIGRATABLE));
+        Assert.assertThat(CONTEXT.getMigratable(), Matchers.sameInstance(migratable));
         Assert.assertThat(CONTEXT.getId(), Matchers.equalTo(MIGRATABLE_ID));
         Assert.assertThat(CONTEXT.getVersion(), OptionalMatchers.isEmpty());
         Assert.assertThat(CONTEXT.getZip(), Matchers.sameInstance(ZIP));
@@ -155,7 +155,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(Matchers.containsString("null "));
 
-        new ImportMigrationContextImpl(null, ZIP, MIGRATABLE);
+        new ImportMigrationContextImpl(null, ZIP, migratable);
     }
 
     @Test
@@ -163,7 +163,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(Matchers.containsString("null zip"));
 
-        new ImportMigrationContextImpl(REPORT, null, MIGRATABLE);
+        new ImportMigrationContextImpl(REPORT, null, migratable);
     }
 
     @Test
@@ -252,14 +252,14 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
         final ImportMigrationEntryImpl ENTRY3 = Mockito.mock(ImportMigrationEntryImpl.class);
 
         Mockito.when(ENTRY3.getPath())
-                .thenReturn(DDF_HOME);
+                .thenReturn(ddfHome);
 
         CONTEXT.getEntries()
                 .put(MIGRATABLE_PATH, ENTRY);
         CONTEXT.getEntries()
                 .put(MIGRATABLE_PATH2, ENTRY2);
         CONTEXT.getEntries()
-                .put(DDF_HOME, ENTRY3);
+                .put(ddfHome, ENTRY3);
 
         Assert.assertThat(CONTEXT.entries(MIGRATABLE_PATH2.getParent())
                         .toArray(ImportMigrationEntry[]::new),
@@ -281,7 +281,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
         final PathMatcher FILTER = Mockito.mock(PathMatcher.class);
 
         Mockito.when(ENTRY3.getPath())
-                .thenReturn(DDF_HOME);
+                .thenReturn(ddfHome);
         Mockito.when(FILTER.matches(Mockito.any()))
                 .thenReturn(false);
         Mockito.when(FILTER.matches(MIGRATABLE_PATH))
@@ -292,7 +292,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
         CONTEXT.getEntries()
                 .put(MIGRATABLE_PATH2, ENTRY2);
         CONTEXT.getEntries()
-                .put(DDF_HOME, ENTRY3);
+                .put(ddfHome, ENTRY3);
 
         Assert.assertThat(CONTEXT.entries(MIGRATABLE_PATH2.getParent(), FILTER)
                         .toArray(ImportMigrationEntry[]::new),
@@ -303,7 +303,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
         Mockito.verify(FILTER)
                 .matches(MIGRATABLE_PATH2);
         Mockito.verify(FILTER, Mockito.never())
-                .matches(DDF_HOME);
+                .matches(ddfHome);
     }
 
     @Test
@@ -326,10 +326,10 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
 
     @Test
     public void testCleanDirectoryWithAParentAbsolutePath() throws Exception {
-        final Path DIR2 = DDF_HOME.resolve(createDirectory(DIRS2));
+        final Path DIR2 = ddfHome.resolve(createDirectory(DIRS2));
         final Path DIR = createDirectory(DIRS);
-        final Path PATH2 = DDF_HOME.resolve(createFile(MIGRATABLE_PATH2));
-        final Path PATH = DDF_HOME.resolve(createFile(MIGRATABLE_PATH));
+        final Path PATH2 = ddfHome.resolve(createFile(MIGRATABLE_PATH2));
+        final Path PATH = ddfHome.resolve(createFile(MIGRATABLE_PATH));
 
         Assert.assertThat(CONTEXT.cleanDirectory(DIR2), Matchers.equalTo(true));
 
@@ -345,10 +345,10 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
 
     @Test
     public void testCleanDirectoryWithAChildAbsolutePath() throws Exception {
-        final Path DIR2 = DDF_HOME.resolve(createDirectory(DIRS2));
+        final Path DIR2 = ddfHome.resolve(createDirectory(DIRS2));
         final Path DIR = createDirectory(DIRS);
-        final Path PATH2 = DDF_HOME.resolve(createFile(MIGRATABLE_PATH2));
-        final Path PATH = DDF_HOME.resolve(createFile(MIGRATABLE_PATH));
+        final Path PATH2 = ddfHome.resolve(createFile(MIGRATABLE_PATH2));
+        final Path PATH = ddfHome.resolve(createFile(MIGRATABLE_PATH));
 
         Assert.assertThat(CONTEXT.cleanDirectory(DIR), Matchers.equalTo(true));
 
@@ -364,10 +364,10 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
 
     @Test
     public void testCleanDirectoryWithAnOutsideAbsolutePath() throws Exception {
-        final Path DIR2 = DDF_HOME.resolve(createDirectory(DIRS2));
-        final Path DIR = ROOT.resolve(Paths.get("where", "something_else"));
-        final Path PATH2 = DDF_HOME.resolve(createFile(MIGRATABLE_PATH2));
-        final Path PATH = DDF_HOME.resolve(createFile(MIGRATABLE_PATH));
+        final Path DIR2 = ddfHome.resolve(createDirectory(DIRS2));
+        final Path DIR = root.resolve(Paths.get("where", "something_else"));
+        final Path PATH2 = ddfHome.resolve(createFile(MIGRATABLE_PATH2));
+        final Path PATH = ddfHome.resolve(createFile(MIGRATABLE_PATH));
 
         DIR.toFile()
                 .mkdirs();
@@ -386,10 +386,10 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
 
     @Test
     public void testCleanDirectoryWithRelativePath() throws Exception {
-        final Path DIR2 = DDF_HOME.resolve(createDirectory(DIRS2));
+        final Path DIR2 = ddfHome.resolve(createDirectory(DIRS2));
         final Path DIR = createDirectory(DIRS);
-        final Path PATH2 = DDF_HOME.resolve(createFile(MIGRATABLE_PATH2));
-        final Path PATH = DDF_HOME.resolve(createFile(MIGRATABLE_PATH));
+        final Path PATH2 = ddfHome.resolve(createFile(MIGRATABLE_PATH2));
+        final Path PATH = ddfHome.resolve(createFile(MIGRATABLE_PATH));
 
         Assert.assertThat(CONTEXT.cleanDirectory(MIGRATABLE_PATH.getParent()),
                 Matchers.equalTo(true));
@@ -465,7 +465,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
     @Test
     public void testCleanDirectoryWithAFile() throws Exception {
         final Path DIR = createDirectory(DIRS);
-        final Path PATH = DDF_HOME.resolve(createFile(MIGRATABLE_PATH));
+        final Path PATH = ddfHome.resolve(createFile(MIGRATABLE_PATH));
 
         Assert.assertThat(CONTEXT.cleanDirectory(MIGRATABLE_PATH), Matchers.equalTo(false));
 
@@ -836,22 +836,22 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
         final Map<String, Object> METADATA = ImmutableMap.of(MigrationContextImpl.METADATA_VERSION,
                 VERSION);
 
-        CONTEXT = new ImportMigrationContextImpl(REPORT, ZIP, MIGRATABLE);
+        CONTEXT = new ImportMigrationContextImpl(REPORT, ZIP, migratable);
         CONTEXT.processMetadata(METADATA); // make sure context has a version
 
-        Mockito.when(MIGRATABLE.getVersion())
+        Mockito.when(migratable.getVersion())
                 .thenReturn(VERSION);
         Mockito.doNothing()
-                .when(MIGRATABLE)
+                .when(migratable)
                 .doImport(Mockito.any());
 
         CONTEXT.doImport();
 
-        Mockito.verify(MIGRATABLE)
+        Mockito.verify(migratable)
                 .doImport(CONTEXT);
-        Mockito.verify(MIGRATABLE, Mockito.never())
+        Mockito.verify(migratable, Mockito.never())
                 .doIncompatibleImport(CONTEXT, VERSION);
-        Mockito.verify(MIGRATABLE, Mockito.never())
+        Mockito.verify(migratable, Mockito.never())
                 .doMissingImport(CONTEXT);
     }
 
@@ -860,40 +860,40 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
         final Map<String, Object> METADATA = ImmutableMap.of(MigrationContextImpl.METADATA_VERSION,
                 VERSION);
 
-        CONTEXT = new ImportMigrationContextImpl(REPORT, ZIP, MIGRATABLE);
+        CONTEXT = new ImportMigrationContextImpl(REPORT, ZIP, migratable);
         CONTEXT.processMetadata(METADATA); // make sure context has a version
 
-        Mockito.when(MIGRATABLE.getVersion())
+        Mockito.when(migratable.getVersion())
                 .thenReturn(VERSION + "2");
         Mockito.doNothing()
-                .when(MIGRATABLE)
+                .when(migratable)
                 .doIncompatibleImport(Mockito.any(), Mockito.eq(VERSION));
 
         CONTEXT.doImport();
 
-        Mockito.verify(MIGRATABLE, Mockito.never())
+        Mockito.verify(migratable, Mockito.never())
                 .doImport(CONTEXT);
-        Mockito.verify(MIGRATABLE)
+        Mockito.verify(migratable)
                 .doIncompatibleImport(CONTEXT, VERSION);
-        Mockito.verify(MIGRATABLE, Mockito.never())
+        Mockito.verify(migratable, Mockito.never())
                 .doMissingImport(CONTEXT);
     }
 
     @Test
     public void testDoImportWhenNotExported() throws Exception {
-        CONTEXT = new ImportMigrationContextImpl(REPORT, ZIP, MIGRATABLE);
+        CONTEXT = new ImportMigrationContextImpl(REPORT, ZIP, migratable);
 
         Mockito.doNothing()
-                .when(MIGRATABLE)
+                .when(migratable)
                 .doMissingImport(Mockito.any());
 
         CONTEXT.doImport();
 
-        Mockito.verify(MIGRATABLE, Mockito.never())
+        Mockito.verify(migratable, Mockito.never())
                 .doImport(CONTEXT);
-        Mockito.verify(MIGRATABLE, Mockito.never())
+        Mockito.verify(migratable, Mockito.never())
                 .doIncompatibleImport(CONTEXT, VERSION);
-        Mockito.verify(MIGRATABLE)
+        Mockito.verify(migratable)
                 .doMissingImport(CONTEXT);
     }
 }

@@ -69,7 +69,7 @@ public class ImportMigrationExternalEntryImplTest extends AbstractMigrationTest 
 
     @Before
     public void setup() throws Exception {
-        final File file = new File(ROOT.toFile(), "testname");
+        final File file = new File(root.toFile(), "testname");
 
         FileUtils.writeStringToFile(file, file.getName(), Charsets.UTF_8);
         path = file.toPath()
@@ -163,7 +163,7 @@ public class ImportMigrationExternalEntryImplTest extends AbstractMigrationTest 
 
     @Test
     public void restoreRecordsWarningWhenFileIsNotNormal() throws Exception {
-        Path symlink = DDF_HOME.resolve(createSoftLink("symlink", path));
+        Path symlink = ddfHome.resolve(createSoftLink("symlink", path));
 
         when(mockPathUtils.resolveAgainstDDFHome(any(Path.class))).thenReturn(symlink);
 
