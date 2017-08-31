@@ -108,6 +108,7 @@ public class CrlCheckerTest {
 
         // should be unable to read default location during unit testing
         CrlChecker crlChecker = new CrlChecker();
+        crlChecker.setCrlLocation(null);
 
         // First cert
         String certificateString = getRevokedCert();
