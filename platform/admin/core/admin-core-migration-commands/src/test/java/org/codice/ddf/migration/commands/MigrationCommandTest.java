@@ -17,7 +17,7 @@ public class MigrationCommandTest extends AbstractMigrationCommandTest {
     private MigrationCommand COMMAND;
 
     @Before
-    public void before() throws Exception {
+    public void setup() throws Exception {
         COMMAND = initCommand(Mockito.mock(MigrationCommand.class,
                 Mockito.withSettings()
                         .useConstructor()

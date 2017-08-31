@@ -28,7 +28,7 @@ public class PathUtilsTest extends AbstractMigrationTest {
     private PathUtils PATH_UTILS;
 
     @Before
-    public void before() throws Exception {
+    public void setup() throws Exception {
         PATH_UTILS = new PathUtils();
     }
 

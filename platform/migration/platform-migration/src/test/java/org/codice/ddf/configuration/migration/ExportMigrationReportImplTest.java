@@ -36,7 +36,7 @@ public class ExportMigrationReportImplTest extends AbstractMigrationTest {
     private ExportMigrationReportImpl XREPORT;
 
     @Before
-    public void before() throws Exception {
+    public void setup() throws Exception {
         initMigratableMock();
         XREPORT = new ExportMigrationReportImpl(REPORT, MIGRATABLE);
     }

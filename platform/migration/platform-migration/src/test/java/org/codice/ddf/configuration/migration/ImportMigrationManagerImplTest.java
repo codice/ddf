@@ -47,7 +47,7 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportTest 
     }
 
     @Before
-    public void before() throws Exception {
+    public void setup() throws Exception {
         EXPORT_FILE = DDF_HOME.resolve(createDirectory("exported"))
                 .resolve("exported.zip");
         initMigratableMock();
@@ -55,7 +55,7 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportTest 
         initMigratableMock(MIGRATABLE3, MIGRATABLE_ID3);
 
         ZE = getMetadataZipEntry(ZIP,
-                Optional.of(MigrationContextImpl.VERSION),
+                Optional.of(MigrationContextImpl.CURRENT_VERSION),
                 Optional.of(PRODUCT_VERSION));
         // use answer to ensure we create a new stream each time if called multiple times
         Mockito.doAnswer(new Answer() {

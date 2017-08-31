@@ -35,7 +35,7 @@ public class MigratableTest {
     private final ImportMigrationContext CONTEXT = Mockito.mock(ImportMigrationContext.class);
 
     @Before
-    public void before() {
+    public void setup() {
         Mockito.when(MIGRATABLE.getId())
                 .thenReturn(MIGRATABLE_ID);
         Mockito.when(MIGRATABLE.getVersion())

@@ -133,7 +133,7 @@ public class MigrationContextImpl implements MigrationContext {
      * <p>
      * 1.0 - initial version
      */
-    protected static final String VERSION = "1.0";
+    protected static final String CURRENT_VERSION = "1.0";
 
     protected static final Path METADATA_FILENAME = Paths.get("export.json");
 

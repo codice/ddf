@@ -123,9 +123,9 @@ public class ExportMigrationManagerImpl implements Closeable {
         LOGGER.debug("Exporting product [{}] under [{}] with version [{}] to [{}]...",
                 productVersion,
                 ddfHome,
-                MigrationContextImpl.VERSION,
+                MigrationContextImpl.CURRENT_VERSION,
                 exportFile);
-        metadata.put(MigrationContextImpl.METADATA_VERSION, MigrationContextImpl.VERSION);
+        metadata.put(MigrationContextImpl.METADATA_VERSION, MigrationContextImpl.CURRENT_VERSION);
         metadata.put(MigrationContextImpl.METADATA_PRODUCT_VERSION, productVersion);
         metadata.put(MigrationContextImpl.METADATA_DATE, new Date().toString());
         metadata.put(MigrationContextImpl.METADATA_DDF_HOME, ddfHome);

@@ -147,7 +147,7 @@ public class ConfigurationAdminMigratableTest {
     private MigrationReport migrationReport;
 
     @Before
-    public void before() throws Exception {
+    public void setup() throws Exception {
         setup(DDF_HOME);
         setupConfigAdminForExportSystem();
         setupConfigAdminForImportSystem();

@@ -27,7 +27,7 @@ public class ExportCommandTest extends AbstractMigrationCommandTest {
     private ExportCommand COMMAND;
 
     @Before
-    public void before() throws Exception {
+    public void setup() throws Exception {
         COMMAND = initCommand(new ExportCommand(SERVICE, SECURITY, EXPORTED_ARG));
     }
 

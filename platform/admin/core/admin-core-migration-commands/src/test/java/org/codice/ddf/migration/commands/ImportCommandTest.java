@@ -27,7 +27,7 @@ public class ImportCommandTest extends AbstractMigrationCommandTest {
     private ImportCommand COMMAND;
 
     @Before
-    public void before() throws Exception {
+    public void setup() throws Exception {
         COMMAND = initCommand(new ImportCommand(SERVICE, SECURITY, EXPORTED_ARG));
     }
 

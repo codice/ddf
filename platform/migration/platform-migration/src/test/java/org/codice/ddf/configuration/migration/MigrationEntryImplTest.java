@@ -41,7 +41,7 @@ public class MigrationEntryImplTest extends AbstractMigrationTest {
             Mockito.CALLS_REAL_METHODS);
 
     @Before
-    public void before() throws Exception {
+    public void setup() throws Exception {
         Mockito.when(ENTRY.getName())
                 .thenReturn(ENTRY_NAME);
         Mockito.when(ENTRY.getContext())

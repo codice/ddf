@@ -57,8 +57,8 @@ A bundle or a feature can have as many services implementing the interfaces as n
 
 ===== `Migratable`
 
-The contract for a `migratable` is stored here. This is the only interface that should be implemented by implementers and registered as an OSGI
-service. All others will be implemented by the migration API that provides support for migratables.
+The contract for a migratable is stored here. This is the only interface that should be implemented by implementers and registered as an OSGI
+service. All other interfaces will be implemented by the migration API that provides support for migratables.
 
 The `org.codice.ddf.migration.Migratable` interface defines these methods:
 

@@ -62,7 +62,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
     private ImportMigrationContextImpl CONTEXT;
 
     @Before
-    public void before() throws Exception {
+    public void setup() throws Exception {
         initMigratableMock();
 
         Mockito.when(ENTRY.getPath())

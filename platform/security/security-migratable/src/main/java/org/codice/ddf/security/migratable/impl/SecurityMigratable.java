@@ -39,7 +39,7 @@ public class SecurityMigratable implements Migratable {
      * <p>
      * 1.0 - initial version
      */
-    private static final String VERSION = "1.0";
+    private static final String CURRENT_VERSION = "1.0";
 
     private static final Path PDP_POLICIES_DIR = Paths.get("etc", "pdp");
 
@@ -53,7 +53,7 @@ public class SecurityMigratable implements Migratable {
 
     @Override
     public String getVersion() {
-        return SecurityMigratable.VERSION;
+        return SecurityMigratable.CURRENT_VERSION;
     }
 
     @Override

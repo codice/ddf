@@ -42,7 +42,7 @@ public class AbstractMigrationCommandTest {
     protected Path DDF_HOME;
 
     @Before
-    public void baseBefore() throws Exception {
+    public void baseSetup() throws Exception {
         ROOT = testFolder.getRoot()
                 .toPath()
                 .toRealPath(LinkOption.NOFOLLOW_LINKS);

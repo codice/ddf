@@ -38,7 +38,7 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportTest 
     }
 
     @Before
-    public void before() throws Exception {
+    public void setup() throws Exception {
         EXPORT_FILE = DDF_HOME.resolve(createDirectory("exported"))
                 .resolve("exported.zip");
         initMigratableMock();
@@ -246,7 +246,7 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportTest 
         Assert.assertThat(metadata, Matchers.aMapWithSize(5));
         Assert.assertThat(metadata,
                 Matchers.hasEntry(MigrationContextImpl.METADATA_VERSION,
-                        MigrationContextImpl.VERSION));
+                        MigrationContextImpl.CURRENT_VERSION));
         Assert.assertThat(metadata,
                 Matchers.hasEntry(MigrationContextImpl.METADATA_PRODUCT_VERSION, PRODUCT_VERSION));
         Assert.assertThat(metadata, Matchers.hasKey(MigrationContextImpl.METADATA_DATE));

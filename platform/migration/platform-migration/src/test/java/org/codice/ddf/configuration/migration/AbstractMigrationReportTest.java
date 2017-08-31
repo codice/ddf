@@ -38,7 +38,7 @@ public class AbstractMigrationReportTest extends AbstractMigrationTest {
     }
 
     @Before
-    public void baseReportBefore() {
+    public void baseReportSetup() {
         int i = 0;
 
         for (final String msg : MESSAGE_STRINGS) {

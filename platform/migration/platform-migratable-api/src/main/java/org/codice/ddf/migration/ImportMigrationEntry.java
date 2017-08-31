@@ -109,7 +109,7 @@ public interface ImportMigrationEntry extends MigrationEntry {
      * (e.g. failure to write to the exported file)</li>
      * <li>Errors that are specific to this specific entry and that will eventually fail the export
      * operation at the end. Such errors are simply recorded with the report and <code>false</code>
-     * is returned from this method. This allows for the accumulation of has many issues as possible
+     * is returned from this method. This allows for the accumulation of as many issues as possible
      * to report to the user before aborting the operation.</li>
      * </ol>
      *
@@ -136,7 +136,7 @@ public interface ImportMigrationEntry extends MigrationEntry {
      * (e.g. failure to write to the exported file)</li>
      * <li>Errors that are specific to this specific entry and that will eventually fail the export
      * operation at the end. Such errors are simply recorded with the report and <code>false</code>
-     * is returned from this method. This allows for the accumulation of has many issues as possible
+     * is returned from this method. This allows for the accumulation of as many issues as possible
      * to report to the user before aborting the operation.</li>
      * </ol>
      *
@@ -163,7 +163,7 @@ public interface ImportMigrationEntry extends MigrationEntry {
      * (e.g. failure to read from the exported file)</li>
      * <li>Errors that are specific to this specific entry and that will eventually fail the import
      * operation at the end. Such errors are simply recorded with the report and <code>false</code>
-     * is returned from this method. This allows for the accumulation of has many issues as possible
+     * is returned from this method. This allows for the accumulation of as many issues as possible
      * to report to the user before aborting the operation.</li>
      * </ol>
      * <p>

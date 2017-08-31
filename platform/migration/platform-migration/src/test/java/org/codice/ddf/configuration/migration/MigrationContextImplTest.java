@@ -37,7 +37,7 @@ public class MigrationContextImplTest extends AbstractMigrationReportTest {
     }
 
     @Before
-    public void before() throws Exception {
+    public void setup() throws Exception {
         initMigratableMock();
         CONTEXT = new MigrationContextImpl(REPORT);
     }

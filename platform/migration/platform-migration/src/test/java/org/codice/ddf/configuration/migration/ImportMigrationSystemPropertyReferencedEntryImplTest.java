@@ -34,15 +34,15 @@ public class ImportMigrationSystemPropertyReferencedEntryImplTest extends Abstra
 
     private final Map<String, Object> METADATA = new HashMap<>();
 
-    private ImportMigrationContextImpl CONTEXT;
-
-    private ImportMigrationEntryImpl REFERENCED_ENTRY =
+    private final ImportMigrationEntryImpl REFERENCED_ENTRY =
             Mockito.mock(ImportMigrationEntryImpl.class);
+
+    private ImportMigrationContextImpl CONTEXT;
 
     private ImportMigrationSystemPropertyReferencedEntryImpl ENTRY;
 
     @Before
-    public void before() throws Exception {
+    public void setup() throws Exception {
         System.setProperty(MIGRATABLE_PROPERTY, createFile(MIGRATABLE_PATH).toString());
 
         METADATA.put(MigrationEntryImpl.METADATA_REFERENCE, MIGRATABLE_NAME);

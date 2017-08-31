@@ -113,12 +113,13 @@ public interface ExportMigrationEntry extends MigrationEntry {
      * in the properties file associated with this migration entry to be exported by the corresponding
      * migratable.
      * <p>
-     * The provided predicate is always invoked to validate the property value which may be <code>null</code>
-     * if not defined. Returning <code>false</code> will abort the process and yield an {@link Optional#empty}
-     * being returned out of this method. In such case, it is up to the validator to record any required
-     * errors or warnings. Returning <code>true</code> from the predicate will allow for a new entry
-     * to be created for the corresponding system property unless the property is not defined or its
-     * value is blank in which case an error will be recorded and an {@link Optional#empty} is returned
+     * The provided predicate is always invoked (as long as the entry was not previously created) to
+     * validate the property value which may be <code>null</code> if not defined. Returning
+     * <code>false</code> will abort the process and yield an {@link Optional#empty} being returned
+     * out of this method. In such case, it is up to the validator to record any required errors or
+     * warnings. Returning <code>true</code> from the predicate will allow for a new entry to be
+     * created for the corresponding system property unless the property is not defined or its value
+     * is blank in which case an error will be recorded and an {@link Optional#empty} is returned
      * from this method. In other words:
      * <ol>
      * <li>If the predicate returns <code>false</code>, no migration entry is created and no error is recorded.</li>
@@ -180,7 +181,7 @@ public interface ExportMigrationEntry extends MigrationEntry {
      * (e.g. failure to write to the exported file)</li>
      * <li>Errors that are specific to this specific entry and that will eventually fail the export
      * operation at the end. Such errors are simply recorded with the report and <code>false</code>
-     * is returned from this method. This allows for the accumulation of has many issues as possible
+     * is returned from this method. This allows for the accumulation of as many issues as possible
      * to report to the user before aborting the operation.</li>
      * </ol>
      *
@@ -204,7 +205,7 @@ public interface ExportMigrationEntry extends MigrationEntry {
      * (e.g. failure to write to the exported file)</li>
      * <li>Errors that are specific to this specific entry and that will eventually fail the export
      * operation at the end. Such errors are simply recorded with the report and <code>false</code>
-     * is returned from this method. This allows for the accumulation of has many issues as possible
+     * is returned from this method. This allows for the accumulation of as many issues as possible
      * to report to the user before aborting the operation.</li>
      * </ol>
      *
@@ -230,7 +231,7 @@ public interface ExportMigrationEntry extends MigrationEntry {
      * (e.g. failure to write to the exported file)</li>
      * <li>Errors that are specific to this specific entry and that will eventually fail the export
      * operation at the end. Such errors are simply recorded with the report and <code>false</code>
-     * is returned from this method. This allows for the accumulation of has many issues as possible
+     * is returned from this method. This allows for the accumulation of as many issues as possible
      * to report to the user before aborting the operation.</li>
      * </ol>
      * <p>

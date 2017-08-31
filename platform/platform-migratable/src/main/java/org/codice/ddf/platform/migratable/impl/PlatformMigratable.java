@@ -40,7 +40,7 @@ public class PlatformMigratable implements Migratable {
      * <p>
      * 1.0 - initial version
      */
-    private static final String VERSION = "1.0";
+    private static final String CURRENT_VERSION = "1.0";
 
     private static final String KEYSTORE_SYSTEM_PROP = "javax.net.ssl.keyStore";
 
@@ -74,7 +74,7 @@ public class PlatformMigratable implements Migratable {
 
     @Override
     public String getVersion() {
-        return PlatformMigratable.VERSION;
+        return PlatformMigratable.CURRENT_VERSION;
     }
 
     @Override

@@ -146,7 +146,7 @@ public class SecurityMigratableTest {
     private SystemService systemService;
 
     @Before
-    public void before() throws IOException {
+    public void setup() throws IOException {
         // The tag is written to all exported files so that we can verify the file actually
         // got copied on import (ie. read the tags in files in the imported system and
         // verify that they are the ones from the exported system).

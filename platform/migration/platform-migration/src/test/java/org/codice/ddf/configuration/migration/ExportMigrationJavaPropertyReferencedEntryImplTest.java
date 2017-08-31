@@ -40,7 +40,7 @@ public class ExportMigrationJavaPropertyReferencedEntryImplTest extends Abstract
     private ExportMigrationJavaPropertyReferencedEntryImpl ENTRY;
 
     @Before
-    public void before() throws Exception {
+    public void setup() throws Exception {
         final Path path = createFile(createDirectory(DIRS), FILENAME);
 
         PROPERTIES_PATH = createFile(path.getParent(), PROPERTIES_FILENAME);

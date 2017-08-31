@@ -36,7 +36,7 @@ public class ExportMigrationSystemPropertyReferencedEntryImplTest extends Abstra
     private ExportMigrationSystemPropertyReferencedEntryImpl ENTRY;
 
     @Before
-    public void before() throws Exception {
+    public void setup() throws Exception {
         createFile(createDirectory(DIRS), FILENAME);
         Mockito.when(CONTEXT.getPathUtils())
                 .thenReturn(new PathUtils());

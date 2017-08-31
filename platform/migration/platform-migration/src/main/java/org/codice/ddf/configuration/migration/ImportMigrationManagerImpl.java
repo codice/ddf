@@ -104,11 +104,11 @@ public class ImportMigrationManagerImpl implements Closeable {
             this.version = JsonUtils.getStringFrom(metadata,
                     MigrationContextImpl.METADATA_VERSION,
                     true);
-            if (!MigrationContextImpl.VERSION.equals(version)) {
+            if (!MigrationContextImpl.CURRENT_VERSION.equals(version)) {
                 IOUtils.closeQuietly(zip);
                 throw new MigrationException(Messages.IMPORT_UNSUPPORTED_VERSION_ERROR,
                         version,
-                        MigrationContextImpl.VERSION);
+                        MigrationContextImpl.CURRENT_VERSION);
             }
             this.productVersion = JsonUtils.getStringFrom(metadata,
                     MigrationContextImpl.METADATA_PRODUCT_VERSION,

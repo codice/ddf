@@ -36,7 +36,7 @@ public class ExportMigrationPropertyReferencedEntryImplTest extends AbstractMigr
     private ExportMigrationPropertyReferencedEntryImpl ENTRY;
 
     @Before
-    public void before() throws Exception {
+    public void setup() throws Exception {
         createFile(createDirectory(DIRS), FILENAME);
         ABSOLUTE_FILE_PATH = DDF_HOME.resolve(UNIX_NAME)
                 .toRealPath(LinkOption.NOFOLLOW_LINKS);

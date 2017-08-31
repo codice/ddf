@@ -55,7 +55,7 @@ public class MigrationReportTest {
     public ExpectedException thrown = ExpectedException.none();
 
     @Before
-    public void before() {
+    public void setup() {
         int i = 0;
 
         for (final String msg : MESSAGE_STRINGS) {

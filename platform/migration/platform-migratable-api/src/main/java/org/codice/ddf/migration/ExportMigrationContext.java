@@ -100,12 +100,13 @@ public interface ExportMigrationContext extends MigrationContext {
      * Creates or retrieves (if already created) a migration entry referenced from the specified system
      * property to be exported by the corresponding migratable.
      * <p>
-     * The provided predicate is always invoked to validate the property value which may be <code>null</code>
-     * if not defined. Returning <code>false</code> will abort the process and yield an {@link Optional#empty}
-     * being returned out of this method. In such case, it is up to the validator to record any required
-     * errors or warnings. Returning <code>true</code> from the predicate will allow for a new entry
-     * to be created for the corresponding system property unless the property is not defined or its
-     * value is blank in which case an error will be recorded and an {@link Optional#empty} is returned
+     * The provided predicate is always invoked (as long as the entry was not previously created) to
+     * validate the property value which may be <code>null</code> if not defined. Returning
+     * <code>false</code> will abort the process and yield an {@link Optional#empty} being returned
+     * out of this method. In such case, it is up to the validator to record any required errors or
+     * warnings. Returning <code>true</code> from the predicate will allow for a new entry to be
+     * created for the corresponding system property unless the property is not defined or its value
+     * is blank in which case an error will be recorded and an {@link Optional#empty} is returned
      * from this method. In other words:
      * <ol>
      * <li>If the predicate returns <code>false</code>, no migration entry is created and no error is recorded.</li>
