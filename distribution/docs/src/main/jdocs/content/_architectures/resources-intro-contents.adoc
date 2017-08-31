@@ -1,0 +1,78 @@
+:title: Resources
+:type: architectureIntro
+:status: published
+:children: Content Item, Resource Components, Resource Readers, Resource Writers, Content Directory Monitor
+:order: 01
+:summary: Resources.
+
+.Resources Architecture
+[ditaa, catalog_architecture_resources, png, ${image-width}]
+....
++------------------------------------------------------------+
+|                /-------------------\                       |
+|                |cDEFEndpoints      |                       |
+|                +------------+------+                       |
+|                |cDEF        |cDEF  |                       |
+|                | Operations | Data |                       |
+|/---------------+------------+------+------------+---------\|
+||cDEF           |cDEF               |cDEF        |cDEF     ||
+||  Transformers |                   | Federation | Sources ||
+|+---------------+ Catalog Framework +------------+---------+|
+||cDEF           |                   |cDEF   Eventing       ||
+||   Catalog     |                   +------------+---------+|
+||   Plugins     |                   |c369   Resources      ||
+|\---------------+-------------------+----------------------/|
+|                |cDEF               |                       |
+|                | Catalog Provider  |                       |
+|                +-------------------+                       |
+|                |cDEF               |                       |
+|                | Storage Provider  |                       |
+|                \-------------------/                       |
++------------------------------------------------------------+
+....
+
+Resources are the data that is represented by the cataloged metadata in ${branding}.
+
+Metacards are used to describe those resources through metadata. 
+This metadata includes the time the resource was created, the location where the resource was created, etc. 
+A ${branding} `Metacard` contains the `getResourceUri` method, which is used to locate and retrieve its corresponding resource.
+
+.Content Data Component Architecture
+[ditaa, content_data_components, png,${image.width}]
+....
++------------------------------------------------------------------------------+
+|                 /-=-----------------\                                        |
+|                 |      Clients      |                                        |
+|                 \-------------------/                                        |
+|                           ^                                                  |
+|                           |                                                  |
+|                           v                                                  |
+|                 /-------------------\                                        |
+|                 |cDEF Endpoints     |                                        |
+|                 +------------+------+                                        |
+|                 | cDEF       | c369 |                                        |
+|                 | Operations | Data |                                        |
+|                 +------------+------+-----------------------\                |
+|                 | cDEF              |cDEF Transformers      |                |
+|                 |                   +-----------------------+                |
+|                 | Catalog Framework |cDEFStorage Plugins    |                |
+|                 |                   +-----------------------+                |
+|                 |                   |                                        |
+|                 +-------------------+                                        |
+|                 |cDEF               |                                        |
+|                 | Storage Provider  |                                        |
+|                 \-------------------/                                        |
+|                           ^                                                  |
+|                           |                                                  |
+|                           v                                                  |
+|                   +-=-------------+                LEGEND                    |
+|                   |{s}            |                /--------------------\    |
+|                   |   Content     |                |cDEF DDF Component  |    |
+|                   |  Repository   |                \--------------------/    |
+|                   +---------------+                /-=------------------\    |
+|                                                    | External Component |    |
+|                                                    \--------------------/    |
++------------------------------------------------------------------------------+
+....
+
+

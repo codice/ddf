@@ -1,0 +1,48 @@
+:title: FilterBuilder API
+:type: subArchitecture
+:status: published
+:parent: Filters
+:order: 00
+:summary: FilterBuilder API.
+
+To avoid the complexities of working with the Filter interface directly and implementing the ${branding} Profile of the Filter specification, the ${ddf-catalog} includes an API, primarily in `${ddf-branding}.filter`, to build Filters using a fluent API.
+
+To use the `FilterBuilder` API, an instance of `${ddf-branding}.filter.FilterBuilder` should be used via the OSGi registry.
+Typically, this will be injected via a dependency injection framework.
+Once an instance of `FilterBuilder` is available, methods can be called to create and combine Filters.
+
+[TIP]
+====
+The fluent API is best accessed using an IDE that supports code-completion.
+For additional details, refer to the [Catalog API Javadoc].
+====
+
+==== Boolean Operators
+
+Filters use a number of boolean operators.
+
+`FilterBuilder.allOf(Filter ...)`:: creates a new Filter that requires all provided Filters are satisfied (Boolean AND), either from a List or Array of Filter instances.
+
+`FilterBuilder.anyOf(Filter ...)`:: creates a new Filter that requires at least one of the provided Filters are satisfied (Boolean OR), either from a List or Array of Filter instances.
+
+`FilterBuilder.not(Filter filter)`:: creates a new Filter that requires the provided Filter must not match (Boolean NOT).
+
+==== Attribute
+
+Filters can be based on specific attributes.
+
+`FilterBuilder.attribute(String attributeName)`:: begins a fluent API for creating an Attribute-based Filter, i.e., a Filter that matches on Metacards with Attributes of a particular value.
+
+==== XPath
+
+Filters can be based on XML attributes.
+
+`FilterBuilder.xpath(String xpath)`:: begins a fluent API for creating an XPath-based Filter, i.e., a Filter that matches on Metacards with Attributes of type XML that match when evaluating a provided XPath selector.
+
+.Contextual Operators
+[source,java,linenums]
+----
+FilterBuilder.attribute(attributeName).is().like().text(String contextualSearchPhrase);
+FilterBuilder.attribute(attributeName).is().like().caseSensitiveText(StringcaseSensitiveContextualSearchPhrase);
+FilterBuilder.attribute(attributeName).is().like().fuzzyText(String fuzzySearchPhrase);
+----

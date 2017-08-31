@@ -1,0 +1,182 @@
+:title: OSGi Basics
+:type: developmentGuideline
+:status: published
+:summary: Using OSGi within ${branding}.
+:order: 01
+
+${branding} runs on top of an OSGi framework, a Java virtual machine (JVM), several choices of operating systems, and the physical hardware infrastructure.
+The items within the dotted line represent the standard ${branding} components.
+
+${branding} is a customized and branded distribution of http://karaf.apache.org/[Apache Karaf].
+${branding} could also be considered to be a more lightweight OSGi distribution, as compared to Apache ServiceMix, FUSE ESB, or Talend ESB, all of which are also built upon Apache Karaf.
+Similar to its peers, ${branding} incorporates (https://tools.codice.org/#DDFArchitecture-AdditionalUpstreamDependencies[additional upstream dependencies]).
+
+The ${branding} framework hosts ${branding} applications, which are extensible by adding components via OSGi.
+The best example of this is the ${branding} Catalog (API), which offers extensibility via several types of Catalog Components.
+The ${branding} Catalog API serves as the foundation for several applications and resides in the applications tier.
+
+The Catalog Components consist of <<_endpoints,Endpoints>>, <<_plugins,Plugins>>, <<_catalog_frameworks,Catalog Frameworks>>, <<_sources,Sources>>, and <<_catalog_providers,Catalog Providers>>.
+Customized components can be added to ${branding}.
+
+Capability:: A general term used to refer to an ability of the system.
+Component:: Represents a portion of an Application that can be extended.
+Bundle:: Java Archives (JARs) with special OSGi manifest entries.
+Feature:: One or more bundles that form an installable unit; defined by Apache Karaf but portable to other OSGi containers.
+Application:: One or more features that together form a cohesive collection of capabilities.
+
+==== Packaging Capabilities as Bundles
+
+Services and code are physically deployed to ${branding} using bundles.
+The bundles within ${branding} are created using the maven bundle plug-in.
+Bundles are Java JAR files that have additional metadata in the `MANIFEST.MF` that is relevant to an OSGi container.
+
+The best resource for learning about the structure and headers in the manifest definition is in section 3.6 of the https://osgi.org/download/r5/osgi.core-5.0.0.pdf[OSGi Core Specification].
+The bundles within ${branding} are created using the http://felix.apache.org/documentation/subprojects/apache-felix-maven-bundle-plugin-bnd.html[maven bundle plug-in], which uses the http://bnd.bndtools.org/[BND tool].
+
+.Alternative Bundle Creation Methods
+[TIP]
+====
+Using Maven is not necessary to create bundles.
+Many alternative tools exist, and OSGi manifest files can also be created by hand, although hand-editing should be avoided by most developers.
+====
+
+===== Creating a Bundle
+
+====== Bundle Development Recommendations
+
+Avoid creating bundles by hand or editing a manifest file:: Many tools exist for creating bundles, notably the Maven Bundle plugin, which handle the details of OSGi configuration and automate the bundling process including generation of the manifest file.
+Always make a distinction on which imported packages are `optional` or `required`:: Requiring every package when not necessary can cause an unnecessary dependency ripple effect among bundles.
+Embedding is an implementation detail:: Using the `Embed-Dependency` instruction provided by the `maven-bundle-plugin` will insert the specified jar(s) into the target archive and add them to the `Bundle-ClassPath`. These jars and their contained packages/classes are not for public consumption; they are for the internal implementation of this service implementation only.
+Bundles should never be embedded:: Bundles expose service implementations; they do not provide arbitrary classes to be used by other bundles.
+Bundles should expose service implementations:: This is the corollary to the previous rule. Bundles should not be created when arbitrary concrete classes are being extracted to a library. In that case, a library/jar is the appropriate module packaging type.
+Bundles should generally _only_ export service packages:: If there are packages internal to a bundle that comprise its implementation but not its public manifestation of the API, they should be excluded from export and kept as private packages.
+Concrete objects that are not loaded by the root classloader should not be passed in or out of a bundle:: This is a general rule with some exceptions (JAXB generated classes being the most prominent example). Where complex objects need to be passed in or out of a service method, an interface should be defined in the API bundle.
+
+Bundles separate contract from implementation and allow for modularized development and deployment of functionality.
+For that to be effective, they must be defined and used correctly so inadvertent coupling does not occur.
+Good bundle definition and usage leads to a more flexible environment.
+
+====== Maven Bundle Plugin
+
+Below is a code snippet from a Maven `pom.xml` for creating an OSGi Bundle using the Maven Bundle plugin.
+
+.Maven `pom.xml`
+[source,xml,linenums]
+----
+...
+<packaging>bundle</packaging>
+...
+<build>
+...
+  <plugin>
+    <groupId>org.apache.felix</groupId>
+    <artifactId>maven-bundle-plugin</artifactId>
+    <configuration>
+      <instructions>
+        <Bundle-Name>${variable-prefix}project.name}</Bundle-Name>
+        <Export-Package />
+        <Bundle-SymbolicName>${variable-prefix}project.groupId}.${variable-prefix}project.artifactId}</Bundle-SymbolicName>
+        <Import-Package>
+          ${ddf-branding-lowercase}.catalog,
+          ${ddf-branding-lowercase}.catalog.*
+        </Import-Package>
+      </instructions>
+    </configuration>
+  </plugin>
+...
+</build>
+...
+----
+
+===== Third Party and Utility Bundles
+
+It is recommended to avoid building directly on included third party and utility bundles.
+These components do provide utility and reuse potential; however, they may be upgraded or even replaced at anytime as bug fixes and new capabilities dictate.
+For example, web services may be built using CXF.
+However, the distributions frequently upgrade CXF between releases to take advantage of new features.
+If building on these components, be aware of the version upgrades with each distribution release.
+
+Instead, component developers should package and deliver their own dependencies to ensure future compatibility.
+For example, if re-using a bundle, the specific bundle version that you are depending on should be included in your packaged release, and the proper versions should be referenced in your bundle(s).
+
+===== Deploying a Bundle
+
+A bundle is typically installed in one of two ways:
+
+. Installed as a feature
+. Hot deployed in the `/deploy` directory
+
+The fastest way to deploy a created bundle during development is to copy it to the `/deploy` directory of a running ${branding}.
+This directory checks for new bundles and deploys them immediately.
+According to Karaf documentation, "Karaf supports hot deployment of OSGi bundles by monitoring JAR files inside the `[home]/deploy` directory.
+Each time a JAR is copied in this folder, it will be installed inside the runtime.
+It can be updated or deleted and changes will be handled automatically.
+In addition, Karaf also supports exploded bundles and custom deployers (Blueprint and Spring DM are included by default)."
+Once deployed, the bundle should come up in the Active state, if all of the dependencies were properly met.
+When this occurs, the service is available to be used.
+
+===== Verifying Bundle State
+
+To verify if a bundle is deployed and running, go to the running command console and view the status.
+
+* Execute the `list` command.
+* If the name of the bundle is known, the `list` command can be piped to the `grep` command to quickly find the bundle.
+
+The example below shows how to verify if a Client is deployed and running.
+
+.Verifying with grep
+----
+${ddf-branding-lowercase}${at-symbol}local>list | grep -i example
+[ 162] [Active    ] [       ] [  ] [ 80] ${ddf-branding} :: Registry :: example Client (2.0.0)
+----
+
+The state is `Active`, indicating that the bundle is ready for program execution.
+
+==== Working with Features Files
+
+Features XML files group other features and/or bundle(s) for ease of installation/uninstallation.
+
+In order to ensure that the installer can correctly interpret and display application details, there are several guidelines that should be followed when creating the features file for the application.
+
+* Ensure only one feature in the `features.xml` has the same name as the project itself. (e.g. If the project name is `spatial-app`, there should be one feature named `spatial-app`)
+This is the feature that the installer displays to the user (name, description, version, etc.) and  provides the description of what the application contains.
+This feature should only declare the `prerequisite` features of the app and any bundles or features that are required by all of the features within the app.
+* Be sure all features that should be installed by default include the `auto-install` flag.
++
+[source]
+----
+install='auto'
+----
++
+* Each feature should declare its `prerequisite` features. These are the features that are required to be installed prior to this feature starting up. At a minimum this should include the application feature, so that the application prerequisites and required dependencies are satisified before this feature starts.
++
+[source]
+----
+<feature prerequisite="true">feature1</feature>
+----
+
+===== Auto-starting an Application Feature
+
+Within the `features.xml` file for an application, the feature that is named the same as the project will have the install attribute set to `auto`.
+Within this feature, refer to any prerequisites of the application as well as any features or bundles within the application that are required by all features.
+Features that should start automatically should have install set to `auto`.
+Other features should have install set to `manual`.
+
+The following example demonstrates configuring features to be auto-started. The naming convention for this feature is typically "`application name`" + "`-app`," as shown.
+
+.Auto-start Features
+[source,xml,linenums]
+----
+<feature name="example-app" install="auto">
+    <feature prerequisite="true">prereq-feature</feature>
+    <bundle>mvn:com.example/example.dependency/1.3</bundle>
+</feature>
+<feature name="auto-start-feature" install="auto">
+    <feature prerequisite="true">example-app</feature>
+    <bundle>mvn:com.example/example.auto/1.3</bundle>
+</feature>
+<feature name="manual-start-feature" install="manual">
+    <feature prerequisite="true">example-app</feature>
+    <bundle>mvn:com.example/example.manual/1.3</bundle>
+</feature>
+----
