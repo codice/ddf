@@ -192,9 +192,9 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
     }
 
     @Override
-    public Optional<ImportMigrationEntry> getPropertyReferencedEntry(String name) {
-        Validate.notNull(name, "invalid null property name");
-        return Optional.ofNullable(properties.get(name));
+    public Optional<ImportMigrationEntry> getPropertyReferencedEntry(String pname) {
+        Validate.notNull(pname, "invalid null property name");
+        return Optional.ofNullable(properties.get(pname));
     }
 
     @Override
@@ -241,9 +241,9 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
     // PMD.DefaultPackage - designed to be called from ImportMigrationContextImpl within this package
     @SuppressWarnings("PMD.DefaultPackage")
     @VisibleForTesting
-    void addPropertyReferenceEntry(String name,
+    void addPropertyReferenceEntry(String pname,
             ImportMigrationJavaPropertyReferencedEntryImpl entry) {
-        properties.put(name, entry);
+        properties.put(pname, entry);
     }
 
     @VisibleForTesting

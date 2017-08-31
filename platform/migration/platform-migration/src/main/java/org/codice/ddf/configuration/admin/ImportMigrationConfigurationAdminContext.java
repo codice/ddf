@@ -160,7 +160,7 @@ public class ImportMigrationConfigurationAdminContext extends ImportMigrationCon
     }
 
     // PMD.DefaultPackage - designed to be called only from ImportMigrationConfigurationAdminEntry within this package
-    @SuppressWarnings("PMD.DefaultPackage")
+    @SuppressWarnings({"PMD.DefaultPackage", "checkstyle:EmptyForIteratorPad"})
     Configuration getMemoryConfiguration(ImportMigrationConfigurationAdminEntry entry) {
         final String fpid = entry.getFactoryPid();
 
@@ -175,7 +175,9 @@ public class ImportMigrationConfigurationAdminContext extends ImportMigrationCon
                     () -> String.format("path '%s'", entry.getPath()));
 
             if (epath != null) {
-                for (final Iterator<Configuration> i = mcfgs.iterator(); i.hasNext(); ) {
+                // @formatter:off - to shut up checkstyle!!!!!!!
+                for (final Iterator<Configuration> i = mcfgs.iterator(); i.hasNext();) {
+                    // @formatter:on
                     final Configuration mcfg = i.next();
                     final Path mpath = getPathFromConfiguration(mcfg.getProperties(),
                             () -> String.format("configuration '%s'", mcfg.getPid()));

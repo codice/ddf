@@ -209,39 +209,39 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
     }
 
     @Override
-    public Optional<ExportMigrationEntry> getPropertyReferencedEntry(String name,
+    public Optional<ExportMigrationEntry> getPropertyReferencedEntry(String pname,
             BiPredicate<MigrationReport, String> validator) {
-        Validate.notNull(name, "invalid null java property name");
+        Validate.notNull(pname, "invalid null java property name");
         Validate.notNull(validator, "invalid null validator");
-        final ExportMigrationJavaPropertyReferencedEntryImpl me = properties.get(name);
+        final ExportMigrationJavaPropertyReferencedEntryImpl me = properties.get(pname);
 
         if (me != null) {
             return Optional.of(me);
         }
         try {
-            final String val = getJavaPropertyValue(name);
+            final String val = getJavaPropertyValue(pname);
 
             if (!validator.test(getReport(), val)) {
                 return Optional.empty();
             } else if (val == null) {
                 getReport().record(new MigrationException(Messages.EXPORT_JAVA_PROPERTY_NOT_DEFINED_ERROR,
-                        name,
+                        pname,
                         path));
                 return Optional.empty();
             } else if (val.isEmpty()) {
                 getReport().record(new MigrationException(Messages.EXPORT_JAVA_PROPERTY_IS_EMPTY_ERROR,
-                        name,
+                        pname,
                         path));
                 return Optional.empty();
             }
             final ExportMigrationJavaPropertyReferencedEntryImpl prop =
-                    new ExportMigrationJavaPropertyReferencedEntryImpl(context, path, name, val);
+                    new ExportMigrationJavaPropertyReferencedEntryImpl(context, path, pname, val);
 
-            properties.put(name, prop);
+            properties.put(pname, prop);
             return Optional.of(prop);
         } catch (IOException e) {
             getReport().record(new MigrationException(Messages.EXPORT_JAVA_PROPERTY_LOAD_ERROR,
-                    name,
+                    pname,
                     path,
                     e));
             return Optional.empty();
@@ -311,7 +311,7 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
         return true;
     }
 
-    private String getJavaPropertyValue(String name) throws IOException {
+    private String getJavaPropertyValue(String pname) throws IOException {
         final Properties props = new Properties();
         InputStream is = null;
 
@@ -321,6 +321,6 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
         } finally {
             IOUtils.closeQuietly(is);
         }
-        return props.getProperty(name);
+        return props.getProperty(pname);
     }
 }

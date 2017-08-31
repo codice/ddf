@@ -162,22 +162,22 @@ public class MigrationReportImpl implements MigrationReport {
 
     @Override
     public boolean wasSuccessful(Runnable code) {
-        final int numErrors = this.numErrors;
+        final int nerrs = this.numErrors;
 
         if (code != null) {
             code.run();
         }
-        return (this.numErrors == numErrors);
+        return (this.numErrors == nerrs);
     }
 
     @Override
     public boolean wasIOSuccessful(ERunnable<IOException> code) throws IOException {
-        final int numErrors = this.numErrors;
+        final int nerrs = this.numErrors;
 
         if (code != null) {
             code.run();
         }
-        return (this.numErrors == numErrors);
+        return (this.numErrors == nerrs);
     }
 
     @Override

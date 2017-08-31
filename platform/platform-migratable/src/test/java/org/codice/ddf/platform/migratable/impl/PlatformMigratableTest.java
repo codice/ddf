@@ -530,7 +530,7 @@ public class PlatformMigratableTest {
 
     private void print(MigrationMessage msg) {
         if (msg instanceof MigrationException) {
-            ((MigrationException) msg).printStackTrace();
+            ((MigrationException) msg).printStackTrace(System.out);
         } else if (msg instanceof MigrationWarning) {
             OUT.println("Warning: " + msg);
         } else {

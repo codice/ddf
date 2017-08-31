@@ -67,7 +67,7 @@ public class ExportMigrationReportImpl implements MigrationReport {
         Validate.notNull(report, "invalid null report");
         Validate.notNull(migratable, "invalid null migratable");
         this.report = report;
-        this.metadata = ImmutableMap.of( //
+        this.metadata = ImmutableMap.of(//
                 MigrationContextImpl.METADATA_VERSION,
                 migratable.getVersion(),
                 MigrationContextImpl.METADATA_TITLE,
@@ -164,11 +164,11 @@ public class ExportMigrationReportImpl implements MigrationReport {
     // PMD.DefaultPackage - designed to be called from ExportMigrationEntryImpl within this package
     @SuppressWarnings("PMD.DefaultPackage")
     ExportMigrationReportImpl recordExternal(ExportMigrationEntryImpl entry, boolean softlink) {
-        final Map<String, Object> metadata = new HashMap<>(8);
+        final Map<String, Object> emetadata = new HashMap<>(8);
 
-        metadata.put(MigrationEntryImpl.METADATA_NAME, entry.getName());
+        emetadata.put(MigrationEntryImpl.METADATA_NAME, entry.getName());
         try {
-            metadata.put(MigrationEntryImpl.METADATA_CHECKSUM,
+            emetadata.put(MigrationEntryImpl.METADATA_CHECKSUM,
                     entry.getContext()
                             .getPathUtils()
                             .getChecksumFor(entry.getAbsolutePath()));
@@ -178,8 +178,8 @@ public class ExportMigrationReportImpl implements MigrationReport {
                     entry.getPath(),
                     e));
         }
-        metadata.put(MigrationEntryImpl.METADATA_SOFTLINK, softlink);
-        externals.add(metadata);
+        emetadata.put(MigrationEntryImpl.METADATA_SOFTLINK, softlink);
+        externals.add(emetadata);
         return this;
     }
 
@@ -187,7 +187,7 @@ public class ExportMigrationReportImpl implements MigrationReport {
     @SuppressWarnings("PMD.DefaultPackage")
     ExportMigrationReportImpl recordSystemProperty(
             ExportMigrationSystemPropertyReferencedEntryImpl entry) {
-        systemProperties.add(ImmutableMap.of( //
+        systemProperties.add(ImmutableMap.of(//
                 MigrationEntryImpl.METADATA_PROPERTY,
                 entry.getProperty(),
                 MigrationEntryImpl.METADATA_REFERENCE,
@@ -200,7 +200,7 @@ public class ExportMigrationReportImpl implements MigrationReport {
     @SuppressWarnings("PMD.DefaultPackage")
     ExportMigrationReportImpl recordJavaProperty(
             ExportMigrationJavaPropertyReferencedEntryImpl entry) {
-        javaProperties.add(ImmutableMap.of( //
+        javaProperties.add(ImmutableMap.of(//
                 MigrationEntryImpl.METADATA_PROPERTY,
                 entry.getProperty(),
                 MigrationEntryImpl.METADATA_REFERENCE,
@@ -220,18 +220,18 @@ public class ExportMigrationReportImpl implements MigrationReport {
     // PMD.DefaultPackage - designed to be called from ExportMigrationContextImpl within this package
     @SuppressWarnings("PMD.DefaultPackage")
     Map<String, Object> getMetadata() {
-        final Map<String, Object> metadata = new LinkedHashMap<>(16);
+        final Map<String, Object> mmetadata = new LinkedHashMap<>(16);
 
-        metadata.putAll(this.metadata);
+        mmetadata.putAll(this.metadata);
         if (!externals.isEmpty()) {
-            metadata.put(MigrationContextImpl.METADATA_EXTERNALS, externals);
+            mmetadata.put(MigrationContextImpl.METADATA_EXTERNALS, externals);
         }
         if (!systemProperties.isEmpty()) {
-            metadata.put(MigrationContextImpl.METADATA_SYSTEM_PROPERTIES, systemProperties);
+            mmetadata.put(MigrationContextImpl.METADATA_SYSTEM_PROPERTIES, systemProperties);
         }
         if (!javaProperties.isEmpty()) {
-            metadata.put(MigrationContextImpl.METADATA_JAVA_PROPERTIES, javaProperties);
+            mmetadata.put(MigrationContextImpl.METADATA_JAVA_PROPERTIES, javaProperties);
         }
-        return metadata;
+        return mmetadata;
     }
 }

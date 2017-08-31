@@ -15,7 +15,6 @@ package org.codice.ddf.configuration.migration;
 
 import javax.annotation.Nullable;
 
-import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationContext;
 import org.codice.ddf.migration.MigrationEntry;
 import org.codice.ddf.migration.MigrationReport;
@@ -43,7 +42,8 @@ public abstract class MigrationEntryImpl implements MigrationEntry {
     }
 
     /**
-     * Gets the identifier for the {@link Migratable} service responsible for this entry.
+     * Gets the identifier for the {@link org.codice.ddf.migration.Migratable} service responsible for
+     * this entry.
      *
      * @return the responsible migratable service id or <code>null</code> if this is an entry defined
      * by the migration framework (e.g. Version.txt)

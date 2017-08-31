@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.configuration.migration;
 
-import java.io.IOError;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
@@ -163,7 +162,7 @@ public class MigrationContextImpl implements MigrationContext {
      *
      * @param report the migration report where to record warnings and errors
      * @throws IllegalArgumentException if <code>report</code> is <code>null</code>
-     * @throws IOError                  if unable to determine ${ddf.home}
+     * @throws java.io.IOError          if unable to determine ${ddf.home}
      */
     protected MigrationContextImpl(MigrationReport report) {
         Validate.notNull(report, "invalid null report");
@@ -179,7 +178,7 @@ public class MigrationContextImpl implements MigrationContext {
      * @param report the migration report where to record warnings and errors
      * @param id     the migratable id
      * @throws IllegalArgumentException if <code>report</code> or <code>id</code> is <code>null</code>
-     * @throws IOError                  if unable to determine ${ddf.home}
+     * @throws java.io.IOError          if unable to determine ${ddf.home}
      */
     protected MigrationContextImpl(MigrationReport report, String id) {
         Validate.notNull(report, "invalid null report");
@@ -196,7 +195,7 @@ public class MigrationContextImpl implements MigrationContext {
      * @param report     the migration report where to record warnings and errors
      * @param migratable the migratable this context is for
      * @throws IllegalArgumentException if <code>report</code> or <code>migratable</code> is <code>null</code>
-     * @throws IOError                  if unable to determine ${ddf.home}
+     * @throws java.io.IOError          if unable to determine ${ddf.home}
      */
     protected MigrationContextImpl(MigrationReport report, Migratable migratable) {
         Validate.notNull(report, "invalid null report");
@@ -215,7 +214,7 @@ public class MigrationContextImpl implements MigrationContext {
      * @param version    the migratable version
      * @throws IllegalArgumentException if <code>report</code>, <code>migratable</code>, or
      *                                  <code>version</code> is <code>null</code>
-     * @throws IOError                  if unable to determine ${ddf.home}
+     * @throws java.io.IOError          if unable to determine ${ddf.home}
      */
     protected MigrationContextImpl(MigrationReport report, Migratable migratable, String version) {
         Validate.notNull(report, "invalid null report");

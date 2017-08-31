@@ -169,7 +169,9 @@ public class ImportMigrationConfigurationAdminEntry extends ImportMigrationEntry
         if (properties.size() != memprops.size()) {
             return false;
         }
-        for (final Enumeration<String> e = properties.keys(); e.hasMoreElements(); ) {
+        // @formatter:off - to shut up checkstyle!!!!!!!
+        for (final Enumeration<String> e = properties.keys(); e.hasMoreElements();) {
+            // @formatter:on
             final String key = e.nextElement();
 
             if (!Objects.deepEquals(properties.get(key), memprops.get(key))) {

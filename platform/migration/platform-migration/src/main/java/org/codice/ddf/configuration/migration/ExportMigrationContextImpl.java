@@ -44,6 +44,8 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableMap;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * The export migration context keeps track of exported migration entries for a given migratable
  * while processing an export migration operation.
@@ -223,9 +225,10 @@ public class ExportMigrationContextImpl extends MigrationContextImpl
                     }
                 }
 
+                @SuppressFBWarnings(value = "UMAC_UNCALLABLE_METHOD_OF_ANONYMOUS_CLASS", justification = "Overriding a base class method")
                 @Override
-                public void handleIOException(IOException e) throws IOException {
-                    throw new ExportIOException(e);
+                protected void handleIOException(IOException e) throws IOException {
+                    super.handleIOException(new ExportIOException(e));
                 }
             };
 

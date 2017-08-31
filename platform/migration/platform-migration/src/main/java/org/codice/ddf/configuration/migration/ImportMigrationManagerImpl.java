@@ -139,19 +139,19 @@ public class ImportMigrationManagerImpl implements Closeable {
     /**
      * Proceed with the import migration operation.
      *
-     * @param productVersion the product version to compare against
+     * @param currentProductVersion the current product version to compare against
      * @throws IllegalArgumentException if <code>productVersion</code> is <code>null</code>
      * @throws MigrationException       if the versions don't match or if a failure occurred that required
      *                                  interrupting the operation right away
      */
-    public void doImport(String productVersion) {
-        Validate.notNull(productVersion, "invalid null product version");
-        if (!productVersion.equals(this.productVersion)) {
+    public void doImport(String currentProductVersion) {
+        Validate.notNull(currentProductVersion, "invalid null product version");
+        if (!currentProductVersion.equals(this.productVersion)) {
             throw new MigrationException(Messages.IMPORT_MISMATCH_PRODUCT_VERSION_ERROR,
                     this.productVersion,
-                    productVersion);
+                    currentProductVersion);
         }
-        LOGGER.debug("Importing product [{}] from version [{}]...", productVersion, version);
+        LOGGER.debug("Importing product [{}] from version [{}]...", currentProductVersion, version);
         contexts.values()
                 .forEach(ImportMigrationContextImpl::doImport);
     }

@@ -29,15 +29,15 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 public class JsonUtilsTest {
-    private final static Integer JSON_INT = 1;
+    private static final Integer JSON_INT = 1;
 
-    private final static Long JSON_LONG = Long.MAX_VALUE;
+    private static final Long JSON_LONG = Long.MAX_VALUE;
 
-    private final static boolean JSON_BOOL = true;
+    private static final boolean JSON_BOOL = true;
 
-    private final static String JSON_STRING = "Some String";
+    private static final String JSON_STRING = "Some String";
 
-    private final static Map<String, Object> JSON_MAP = ImmutableMap.of("int",
+    private static final Map<String, Object> JSON_MAP = ImmutableMap.of("int",
             JsonUtilsTest.JSON_INT,
             "long",
             JsonUtilsTest.JSON_LONG,
@@ -46,13 +46,13 @@ public class JsonUtilsTest {
             "bool",
             JsonUtilsTest.JSON_BOOL);
 
-    private final static List<Object> JSON_LIST = ImmutableList.of(JsonUtilsTest.JSON_INT,
+    private static final List<Object> JSON_LIST = ImmutableList.of(JsonUtilsTest.JSON_INT,
             JsonUtilsTest.JSON_LONG,
             JsonUtilsTest.JSON_STRING,
             JsonUtilsTest.JSON_BOOL,
             JsonUtilsTest.JSON_MAP);
 
-    private final static Map<String, Object> JSON_DEEP_MAP = ImmutableMap.of("list",
+    private static final Map<String, Object> JSON_DEEP_MAP = ImmutableMap.of("list",
             JsonUtilsTest.JSON_LIST,
             "map",
             JsonUtilsTest.JSON_MAP);

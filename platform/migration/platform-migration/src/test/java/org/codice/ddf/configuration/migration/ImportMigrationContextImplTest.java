@@ -1,3 +1,16 @@
+/**
+ * Copyright (c) Codice Foundation
+ * <p>
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * <p>
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ */
 package org.codice.ddf.configuration.migration;
 
 import java.io.File;
@@ -542,7 +555,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
         final Map<String, Object> metadata = ImmutableMap.of(MigrationContextImpl.METADATA_VERSION,
                 VERSION,
                 MigrationContextImpl.METADATA_EXTERNALS,
-                ImmutableList.of( //
+                ImmutableList.of(//
                         ImmutableMap.of(MigrationEntryImpl.METADATA_NAME,
                                 MIGRATABLE_NAME,
                                 MigrationEntryImpl.METADATA_CHECKSUM,
@@ -558,21 +571,21 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
 
         Assert.assertThat(context.getVersion(), OptionalMatchers.hasValue(VERSION));
         Assert.assertThat(context.entries()
-                .toArray(ImportMigrationEntry[]::new), Matchers.arrayContainingInAnyOrder( //
-                Matchers.allOf( //
+                .toArray(ImportMigrationEntry[]::new), Matchers.arrayContainingInAnyOrder(//
+                Matchers.allOf(//
                         MappingMatchers.map(MigrationEntry::getName,
                                 Matchers.equalTo(MIGRATABLE_NAME)),
                         CastingMatchers.cast(ImportMigrationExternalEntryImpl.class,
-                                Matchers.allOf( //
+                                Matchers.allOf(//
                                         MappingMatchers.map(ImportMigrationExternalEntryImpl::getChecksum,
                                                 Matchers.equalTo(checksum)),
                                         MappingMatchers.map(ImportMigrationExternalEntryImpl::isSoftlink,
                                                 Matchers.equalTo(softlink))))), //
-                Matchers.allOf( //
+                Matchers.allOf(//
                         MappingMatchers.map(MigrationEntry::getName,
                                 Matchers.equalTo(MIGRATABLE_NAME2)),
                         CastingMatchers.cast(ImportMigrationExternalEntryImpl.class,
-                                Matchers.allOf( //
+                                Matchers.allOf(//
                                         MappingMatchers.map(ImportMigrationExternalEntryImpl::getChecksum,
                                                 Matchers.equalTo(checksum2)),
                                         MappingMatchers.map(ImportMigrationExternalEntryImpl::isSoftlink,
@@ -589,7 +602,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
         final Map<String, Object> metadata = ImmutableMap.of(MigrationContextImpl.METADATA_VERSION,
                 VERSION,
                 MigrationContextImpl.METADATA_EXTERNALS,
-                ImmutableList.of( //
+                ImmutableList.of(//
                         ImmutableMap.of(MigrationEntryImpl.METADATA_NAME,
                                 MIGRATABLE_NAME,
                                 MigrationEntryImpl.METADATA_CHECKSUM,
@@ -601,7 +614,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
                                 MigrationEntryImpl.METADATA_SOFTLINK,
                                 softlink2)),
                 MigrationContextImpl.METADATA_SYSTEM_PROPERTIES,
-                ImmutableList.of( //
+                ImmutableList.of(//
                         ImmutableMap.of(MigrationEntryImpl.METADATA_PROPERTY,
                                 property,
                                 MigrationEntryImpl.METADATA_REFERENCE,
@@ -615,8 +628,8 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
                         .values()
                         .stream()
                         .toArray(ImportMigrationSystemPropertyReferencedEntryImpl[]::new),
-                Matchers.arrayContaining( //
-                        Matchers.allOf( //
+                Matchers.arrayContaining(//
+                        Matchers.allOf(//
                                 MappingMatchers.map(ImportMigrationPropertyReferencedEntryImpl::getProperty,
                                         Matchers.equalTo(property)),
                                 MappingMatchers.map(ImportMigrationPropertyReferencedEntryImpl::getReferencedEntry,
@@ -633,7 +646,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
         final Map<String, Object> metadata = ImmutableMap.of(MigrationContextImpl.METADATA_VERSION,
                 VERSION,
                 MigrationContextImpl.METADATA_EXTERNALS,
-                ImmutableList.of( //
+                ImmutableList.of(//
                         ImmutableMap.of(MigrationEntryImpl.METADATA_NAME,
                                 MIGRATABLE_NAME2,
                                 MigrationEntryImpl.METADATA_CHECKSUM,
@@ -641,7 +654,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
                                 MigrationEntryImpl.METADATA_SOFTLINK,
                                 softlink2)),
                 MigrationContextImpl.METADATA_SYSTEM_PROPERTIES,
-                ImmutableList.of( //
+                ImmutableList.of(//
                         ImmutableMap.of(MigrationEntryImpl.METADATA_PROPERTY,
                                 property,
                                 MigrationEntryImpl.METADATA_REFERENCE,
@@ -666,7 +679,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
         final Map<String, Object> metadata = ImmutableMap.of(MigrationContextImpl.METADATA_VERSION,
                 VERSION,
                 MigrationContextImpl.METADATA_EXTERNALS,
-                ImmutableList.of( //
+                ImmutableList.of(//
                         ImmutableMap.of(MigrationEntryImpl.METADATA_NAME,
                                 MIGRATABLE_NAME,
                                 MigrationEntryImpl.METADATA_CHECKSUM,
@@ -685,7 +698,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
                                 MigrationEntryImpl.METADATA_SOFTLINK,
                                 propertySoftlink)),
                 MigrationContextImpl.METADATA_JAVA_PROPERTIES,
-                ImmutableList.of( //
+                ImmutableList.of(//
                         ImmutableMap.of(MigrationEntryImpl.METADATA_NAME,
                                 migratablePropertyName,
                                 MigrationEntryImpl.METADATA_PROPERTY,
@@ -698,18 +711,18 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
         Assert.assertThat(context.getVersion(), OptionalMatchers.hasValue(VERSION));
         Assert.assertThat(context.getEntries(), Matchers.aMapWithSize(3));
         Assert.assertThat(context.getEntries()
-                .values(), Matchers.hasItem( //
-                Matchers.allOf( //
+                .values(), Matchers.hasItem(//
+                Matchers.allOf(//
                         MappingMatchers.map(MigrationEntry::getName,
                                 Matchers.equalTo(migratablePropertyName)),
                         CastingMatchers.cast(ImportMigrationExternalEntryImpl.class,
-                                Matchers.allOf( //
+                                Matchers.allOf(//
                                         MappingMatchers.map(ImportMigrationExternalEntryImpl::getChecksum,
                                                 Matchers.equalTo(propertyChecksum)),
                                         MappingMatchers.map(ImportMigrationExternalEntryImpl::isSoftlink,
                                                 Matchers.equalTo(propertySoftlink)))),
                         MappingMatchers.map(ImportMigrationEntryImpl::getJavaPropertyReferencedEntries,
-                                Matchers.allOf( //
+                                Matchers.allOf(//
                                         Matchers.aMapWithSize(1),
                                         Matchers.hasValue(MappingMatchers.map(MigrationEntry::getName,
                                                 Matchers.equalTo(MIGRATABLE_NAME))))))));
@@ -726,7 +739,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
         final Map<String, Object> metadata = ImmutableMap.of(MigrationContextImpl.METADATA_VERSION,
                 VERSION,
                 MigrationContextImpl.METADATA_EXTERNALS,
-                ImmutableList.of( //
+                ImmutableList.of(//
                         ImmutableMap.of(MigrationEntryImpl.METADATA_NAME,
                                 MIGRATABLE_NAME,
                                 MigrationEntryImpl.METADATA_CHECKSUM,
@@ -738,7 +751,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
                                 MigrationEntryImpl.METADATA_SOFTLINK,
                                 softlink2)),
                 MigrationContextImpl.METADATA_JAVA_PROPERTIES,
-                ImmutableList.of( //
+                ImmutableList.of(//
                         ImmutableMap.of(MigrationEntryImpl.METADATA_NAME,
                                 migratablePropertyName,
                                 MigrationEntryImpl.METADATA_PROPERTY,
@@ -751,12 +764,12 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
         Assert.assertThat(context.getVersion(), OptionalMatchers.hasValue(VERSION));
         Assert.assertThat(context.getEntries(), Matchers.aMapWithSize(3));
         Assert.assertThat(context.getEntries()
-                .values(), Matchers.hasItem( //
-                Matchers.allOf( //
+                .values(), Matchers.hasItem(//
+                Matchers.allOf(//
                         MappingMatchers.map(MigrationEntry::getName,
                                 Matchers.equalTo(migratablePropertyName)),
                         MappingMatchers.map(ImportMigrationEntryImpl::getJavaPropertyReferencedEntries,
-                                Matchers.allOf( //
+                                Matchers.allOf(//
                                         Matchers.aMapWithSize(1),
                                         Matchers.hasValue(MappingMatchers.map(MigrationEntry::getName,
                                                 Matchers.equalTo(MIGRATABLE_NAME))))))));

@@ -186,13 +186,13 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
     @Test
     public void testGetSystemPropertyReferencedEntryWhenValueIsAbsoluteNotUnderDDFHome()
             throws Exception {
-        final Path MIGRATABLE_PATH = testFolder.newFile("test.cfg")
+        final Path migratablePath = testFolder.newFile("test.cfg")
                 .toPath()
                 .toRealPath(LinkOption.NOFOLLOW_LINKS);
-        final String MIGRATABLE_NAME = FilenameUtils.separatorsToUnix(MIGRATABLE_PATH.toString());
+        final String migratableName = FilenameUtils.separatorsToUnix(migratablePath.toString());
 
         System.setProperty(PROPERTY_NAME,
-                MIGRATABLE_PATH.toAbsolutePath()
+                migratablePath.toAbsolutePath()
                         .toString());
 
         final Optional<ExportMigrationEntry> oentry = context.getSystemPropertyReferencedEntry(
@@ -203,8 +203,8 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
         final ExportMigrationEntry entry = oentry.get();
 
         Assert.assertThat(entry.getId(), Matchers.equalTo(MIGRATABLE_ID));
-        Assert.assertThat(entry.getName(), Matchers.equalTo(MIGRATABLE_NAME));
-        Assert.assertThat(entry.getPath(), Matchers.equalTo(MIGRATABLE_PATH));
+        Assert.assertThat(entry.getName(), Matchers.equalTo(migratableName));
+        Assert.assertThat(entry.getPath(), Matchers.equalTo(migratablePath));
         // now check that it is a system property referenced entry that references the proper property name
         Assert.assertThat(entry,
                 Matchers.instanceOf(ExportMigrationSystemPropertyReferencedEntryImpl.class));

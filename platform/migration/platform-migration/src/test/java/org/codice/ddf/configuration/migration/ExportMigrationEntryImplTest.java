@@ -829,9 +829,9 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
         Mockito.when(context2.getId())
                 .thenReturn(MIGRATABLE_ID);
 
-        final ExportMigrationEntryImpl ENTRY2 = new ExportMigrationEntryImpl(context2, FILE_PATH);
+        final ExportMigrationEntryImpl entry2 = new ExportMigrationEntryImpl(context2, FILE_PATH);
 
-        Assert.assertThat(entry.equals(ENTRY2), Matchers.equalTo(false));
+        Assert.assertThat(entry.equals(entry2), Matchers.equalTo(false));
     }
 
     @Test
@@ -879,9 +879,9 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
         Mockito.when(file.lastModified())
                 .thenReturn(modified);
 
-        final ExportMigrationEntryImpl ENTRY = new ExportMigrationEntryImpl(context, filePath);
+        final ExportMigrationEntryImpl entry = new ExportMigrationEntryImpl(context, filePath);
 
-        Assert.assertThat(ENTRY.getLastModifiedTime(), Matchers.equalTo(modified));
+        Assert.assertThat(entry.getLastModifiedTime(), Matchers.equalTo(modified));
 
         Mockito.verify(file)
                 .lastModified();

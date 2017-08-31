@@ -1,3 +1,16 @@
+/**
+ * Copyright (c) Codice Foundation
+ * <p>
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or any later version.
+ * <p>
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
+ * is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ */
 package org.codice.ddf.configuration.migration;
 
 import java.io.IOException;
@@ -218,9 +231,9 @@ public class ExportMigrationReportImplTest extends AbstractMigrationTest {
     public void testRecordExternalFile() throws Exception {
         createFile(createDirectory(DIRS), FILENAME);
         initContext();
-        final ExportMigrationEntryImpl ENTRY = new ExportMigrationEntryImpl(context, FILE_PATH);
+        final ExportMigrationEntryImpl entry = new ExportMigrationEntryImpl(context, FILE_PATH);
 
-        Assert.assertThat(xreport.recordExternal(ENTRY, false), Matchers.sameInstance(xreport));
+        Assert.assertThat(xreport.recordExternal(entry, false), Matchers.sameInstance(xreport));
 
         final Map<String, Object> metadata = xreport.getMetadata();
 
@@ -237,7 +250,7 @@ public class ExportMigrationReportImplTest extends AbstractMigrationTest {
 
         Assert.assertThat(emetadata,
                 Matchers.allOf(Matchers.aMapWithSize(3),
-                        Matchers.hasEntry(MigrationEntryImpl.METADATA_NAME, ENTRY.getName()),
+                        Matchers.hasEntry(MigrationEntryImpl.METADATA_NAME, entry.getName()),
                         Matchers.hasKey(MigrationEntryImpl.METADATA_CHECKSUM),
                         Matchers.hasEntry(MigrationEntryImpl.METADATA_SOFTLINK, (Object) false)));
     }
@@ -246,12 +259,12 @@ public class ExportMigrationReportImplTest extends AbstractMigrationTest {
     public void testRecordExternalFileWhenUnableToComputeChecksum() throws Exception {
         createFile(createDirectory(DIRS), FILENAME);
         initContext();
-        final ExportMigrationEntryImpl ENTRY = new ExportMigrationEntryImpl(context, FILE_PATH);
+        final ExportMigrationEntryImpl entry = new ExportMigrationEntryImpl(context, FILE_PATH);
 
-        ENTRY.getFile()
+        entry.getFile()
                 .delete(); // will ensure the checksum cannot be computed
 
-        Assert.assertThat(xreport.recordExternal(ENTRY, false), Matchers.sameInstance(xreport));
+        Assert.assertThat(xreport.recordExternal(entry, false), Matchers.sameInstance(xreport));
 
         final Map<String, Object> metadata = xreport.getMetadata();
 
@@ -268,7 +281,7 @@ public class ExportMigrationReportImplTest extends AbstractMigrationTest {
 
         Assert.assertThat(emetadata,
                 Matchers.allOf(Matchers.aMapWithSize(2),
-                        Matchers.hasEntry(MigrationEntryImpl.METADATA_NAME, ENTRY.getName()),
+                        Matchers.hasEntry(MigrationEntryImpl.METADATA_NAME, entry.getName()),
                         Matchers.hasEntry(MigrationEntryImpl.METADATA_SOFTLINK, (Object) false)));
     }
 
@@ -341,13 +354,13 @@ public class ExportMigrationReportImplTest extends AbstractMigrationTest {
     public void testRecordJavaProperty() throws Exception {
         initContext();
         final Path propertiesPath = ddfHome.resolve("file.properties");
-        final ExportMigrationJavaPropertyReferencedEntryImpl ENTRY =
+        final ExportMigrationJavaPropertyReferencedEntryImpl entry =
                 new ExportMigrationJavaPropertyReferencedEntryImpl(context,
                         propertiesPath,
                         PROPERTY,
                         FILE_PATH.toString());
 
-        Assert.assertThat(xreport.recordJavaProperty(ENTRY), Matchers.sameInstance(xreport));
+        Assert.assertThat(xreport.recordJavaProperty(entry), Matchers.sameInstance(xreport));
 
         final Map<String, Object> metadata = xreport.getMetadata();
 
