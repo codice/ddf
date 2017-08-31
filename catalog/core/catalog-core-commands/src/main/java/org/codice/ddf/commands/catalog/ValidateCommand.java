@@ -35,6 +35,7 @@ import org.apache.shiro.util.ThreadContext;
 import org.codice.ddf.commands.catalog.validation.ValidateExecutor;
 import org.codice.ddf.commands.catalog.validation.ValidatePrinter;
 import org.codice.ddf.commands.catalog.validation.ValidateReport;
+import org.codice.ddf.commands.util.CrossPlatformFilePathEvaluator;
 import org.codice.ddf.security.common.Security;
 
 import ddf.catalog.data.Metacard;
@@ -143,7 +144,7 @@ public class ValidateCommand extends CqlCommands {
     }
 
     private Collection<File> getFiles() throws FileNotFoundException {
-        File file = new File(path);
+        File file = CrossPlatformFilePathEvaluator.handlePath(path);
 
         if (!file.exists()) {
             printer.printError("File not found.");
