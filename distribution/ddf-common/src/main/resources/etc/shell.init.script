@@ -72,3 +72,7 @@ waitForReady = {
     echo "System Ready"
 };
 wfr = { waitForReady };
+
+// Fixes hitting `tab` on an empty console to list available commands.
+// See https://issues.apache.org/jira/browse/KARAF-5224.
+setopt no-insert-tab
