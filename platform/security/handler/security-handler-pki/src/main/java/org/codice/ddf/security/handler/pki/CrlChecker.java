@@ -50,16 +50,13 @@ public class CrlChecker {
     private static String encryptionPropertiesLocation = new AbsolutePathResolver(
             "etc/ws-security/server/encryption.properties").getPath();
 
-    private AtomicReference<CRL> crlCache = new AtomicReference<>();
+    private static AtomicReference<CRL> crlCache = new AtomicReference<>();
 
-    private CrlRefresh refresh = new CrlRefresh();
+    private static final CrlRefresh REFRESH = new CrlRefresh();
 
-    /**
-     * Constructor method. Reads encryption.properties and sets CRL location
-     */
-    public CrlChecker() {
+    static {
         Executors.newScheduledThreadPool(1)
-                .scheduleWithFixedDelay(refresh, 0, 1, TimeUnit.HOURS);
+                .scheduleWithFixedDelay(REFRESH, 0, 1, TimeUnit.HOURS);
     }
 
     /**
@@ -110,10 +107,10 @@ public class CrlChecker {
      *                 check certificate revocation.
      */
     public void setCrlLocation(String location) {
-        refresh.setCrlLocation(location);
+        REFRESH.setCrlLocation(location);
     }
 
-    URL urlFromPath(String location) {
+    static URL urlFromPath(String location) {
         try {
             return new URL(location);
         } catch (MalformedURLException e) {
@@ -127,7 +124,7 @@ public class CrlChecker {
      * @param location location of properties file
      * @return Properties from the file
      */
-    Properties loadProperties(String location) {
+    static Properties loadProperties(String location) {
         return PropertiesLoader.loadProperties(location);
     }
 
@@ -135,7 +132,7 @@ public class CrlChecker {
      * Runnable to refresh the CRL from the URL when either the nextUpdate time has elapsed
      * or it has rolled over to the next day.
      */
-    private class CrlRefresh implements Runnable {
+    private static class CrlRefresh implements Runnable {
         private Lock lock = new ReentrantLock();
 
         private Calendar start = Calendar.getInstance();
