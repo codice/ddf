@@ -52,6 +52,7 @@ import org.forgerock.opendj.ldap.requests.GSSAPISASLBindRequest;
 import org.forgerock.opendj.ldap.requests.Requests;
 import org.forgerock.opendj.ldap.responses.BindResult;
 import org.forgerock.opendj.ldap.responses.SearchResultEntry;
+import org.forgerock.opendj.ldap.responses.SearchResultReference;
 import org.forgerock.opendj.ldif.ConnectionEntryReader;
 import org.forgerock.util.Options;
 import org.osgi.framework.Bundle;
@@ -270,6 +271,10 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
                         LOGGER.info("User {} not found in LDAP.", user);
                         return false;
                     }
+                    if (entryReader.isReference()) {
+                        LOGGER.info("Referral not followed - user {} not found in local LDAP.", user);
+                        return false;
+                    }
                     SearchResultEntry searchResultEntry = entryReader.readEntry();
 
                     userDn = searchResultEntry.getName()
@@ -379,10 +384,16 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
                 //------------- ADD ROLES AS NEW PRINCIPALS -------------------
                 try {
                     while (entryReader.hasNext()) {
-                        entry = entryReader.readEntry();
-                        Attribute attr = entry.getAttribute(roleNameAttribute);
-                        for (ByteString role : attr) {
-                            principals.add(new RolePrincipal(role.toString()));
+                        if (entryReader.isEntry()) {
+                            entry = entryReader.readEntry();
+                            Attribute attr = entry.getAttribute(roleNameAttribute);
+                            for (ByteString role : attr) {
+                                principals.add(new RolePrincipal(role.toString()));
+                            }
+                        } else {
+                            // Got a continuation reference.
+                            final SearchResultReference ref = entryReader.readReference();
+                            LOGGER.debug("Skipping result reference: {}", ref.getURIs().toString());
                         }
                     }
                 } catch (Exception e) {

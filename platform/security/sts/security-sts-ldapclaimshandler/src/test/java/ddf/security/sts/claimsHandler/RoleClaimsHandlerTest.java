@@ -87,12 +87,14 @@ public class RoleClaimsHandlerTest {
 
         // hasNext() returns 'true' the first time, then 'false' every time after.
         when(membershipReader.hasNext()).thenReturn(true, false);
+        when(membershipReader.isEntry()).thenReturn(true);
         when(membershipReader.readEntry()).thenReturn(membershipSearchResult);
 
         groupNameAttribute.add(groupName);
         when(groupNameSearchResult.getAttribute(anyString())).thenReturn(groupNameAttribute);
 
         when(groupNameReader.hasNext()).thenReturn(true, false);
+        when(groupNameReader.isEntry()).thenReturn(true);
         when(groupNameReader.readEntry()).thenReturn(groupNameSearchResult);
 
         when(connection.bind(anyObject())).thenReturn(bindResult);

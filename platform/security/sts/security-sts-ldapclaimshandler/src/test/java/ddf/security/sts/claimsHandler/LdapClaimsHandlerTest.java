@@ -132,6 +132,7 @@ public class LdapClaimsHandlerTest {
         when(mockConnection.search(anyObject(), anyObject(), anyObject(), anyObject())).thenReturn(
                 mockEntryReader);
         when(mockEntryReader.hasNext()).thenReturn(true, false);
+        when(mockEntryReader.isEntry()).thenReturn(true);
         when(mockEntryReader.readEntry()).thenReturn(mockEntry);
         when(mockEntry.getAttribute(anyString())).thenReturn(attribute);
         claimsHandler.setLdapConnectionFactory(mockConnectionFactory);
