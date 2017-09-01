@@ -142,17 +142,18 @@
         <xalan.bundle.version>2.7.2_3</xalan.bundle.version>
         <!--END versions that MUST exactly match the versions used by the CXF and Camel features-->
         <!-- Artemis dependencies -->
-        <artemis.version>2.1.0</artemis.version>
+        <artemis.version>2.2.0</artemis.version>
         <!--START Camel and Artemis features should use the same versions for these bundles-->
-        <proton.version>0.19.0</proton.version>
-        <qpid-jms.version>0.23.0</qpid-jms.version>
+        <proton.version>0.20.0</proton.version>
+        <qpid-jms.version>0.24.0</qpid-jms.version>
         <!--END versions that should be kept in sync between Camel and Artemis features-->
         <jboss-logging.version>3.3.0.Final</jboss-logging.version>
         <jgroups.version>3.6.13.Final</jgroups.version>
         <commons-beanutils.version>1.9.2</commons-beanutils.version>
-        <netty.version>4.1.9.Final</netty.version>
+        <netty.version>4.1.14.Final</netty.version>
         <geronimo-json-spec.version>1.0-alpha-1</geronimo-json-spec.version>
         <johnzon.version>0.9.5</johnzon.version>
+        <servicemix-json-1.1.spec.version>2.9.0</servicemix-json-1.1.spec.version>
         <!--Documentation Replacements-->
         <branding>DDF</branding>
         <branding-lowercase>ddf</branding-lowercase>

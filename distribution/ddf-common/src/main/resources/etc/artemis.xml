@@ -54,6 +54,8 @@
         <network-check-URL-list>http://www.apache.org</network-check-URL-list> -->
 
         <network-check-period>10000</network-check-period>
+
+        <!-- Max supported value for network-check-timeout on Linux systems is 255 -->
         <network-check-timeout>255</network-check-timeout>
 
         <!-- this is a comma separated list, no spaces, just DNS or IPs
@@ -114,13 +116,13 @@
         <!-- Acceptors -->
         <acceptors>
             <!-- Default ActiveMQ Artemis Acceptor.  Multi-protocol adapter.  Supports Core, and AMQP. -->
-            <acceptor name="artemis">tcp://0.0.0.0:${artemis.multiprotocol.port}?sslEnabled=true;keyStorePath=${javax.net.ssl.keyStore};keyStorePassword=${javax.net.ssl.keyStorePassword};enabledCipherSuites=${https.cipherSuites};enabledProtocols=${https.protocols}</acceptor>
+            <acceptor name="artemis">tcp://0.0.0.0:${artemis.multiprotocol.port}?sslEnabled=true;keyStorePath=${javax.net.ssl.keyStore};keyStorePassword=${javax.net.ssl.keyStorePassword};enabledCipherSuites=${https.cipherSuites};enabledProtocols=${https.protocols};useEpoll=true;amqpCredits=1000;amqpMinCredits=300</acceptor>
 
             <!-- AMQP Acceptor.  Listens on default AMQP port for AMQP traffic.-->
-            <acceptor name="amqp">tcp://0.0.0.0:${artemis.amqp.port}?sslEnabled=true;keyStorePath=${javax.net.ssl.keyStore};keyStorePassword=${javax.net.ssl.keyStorePassword};enabledCipherSuites=${https.cipherSuites};enabledProtocols=${https.protocols};protocols=AMQP</acceptor>
+            <acceptor name="amqp">tcp://0.0.0.0:${artemis.amqp.port}?sslEnabled=true;keyStorePath=${javax.net.ssl.keyStore};keyStorePassword=${javax.net.ssl.keyStorePassword};enabledCipherSuites=${https.cipherSuites};enabledProtocols=${https.protocols};protocols=AMQP;useEpoll=true;amqpCredits=1000;amqpMinCredits=300</acceptor>
 
              <!-- performance tests have shown that openWire performs best with these buffer sizes -->
-            <acceptor name="openwire">tcp://0.0.0.0:${artemis.openwire.port}?sslEnabled=true;keyStorePath=${javax.net.ssl.keyStore};keyStorePassword=${javax.net.ssl.keyStorePassword};enabledCipherSuites=${https.cipherSuites};enabledProtocols=${https.protocols};tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=OPENWIRE</acceptor>
+            <acceptor name="openwire">tcp://0.0.0.0:${artemis.openwire.port}?sslEnabled=true;keyStorePath=${javax.net.ssl.keyStore};keyStorePassword=${javax.net.ssl.keyStorePassword};enabledCipherSuites=${https.cipherSuites};enabledProtocols=${https.protocols};tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=OPENWIRE;useEpoll=true</acceptor>
 
             <acceptor name="vm">vm://0</acceptor>
         </acceptors>
@@ -158,6 +160,8 @@
                 <permission type="deleteNonDurableQueue" roles="manager,broker-client"/>
                 <permission type="createDurableQueue" roles="manager"/>
                 <permission type="deleteDurableQueue" roles="manager"/>
+                <permission type="createAddress" roles="manager,broker-client"/>
+                <permission type="deleteAddress" roles="manager,broker-client"/>
                 <permission type="consume" roles="manager,broker-client"/>
                 <permission type="browse" roles="manager,broker-client"/>
                 <permission type="send" roles="manager,broker-client"/>
