@@ -66,9 +66,6 @@
                             <addTransitiveFeatures>false</addTransitiveFeatures>
                             <descriptors>
                                 <descriptor>
-                                    mvn:org.codice.ddf/kernel/${project.version}/xml/features
-                                </descriptor>
-                                <descriptor>
                                     mvn:ddf.platform/platform-app/${project.version}/xml/features
                                 </descriptor>
                                 <descriptor>
@@ -255,13 +252,6 @@
         </profile>
     </profiles>
     <dependencies>
-        <dependency>
-            <groupId>org.codice.ddf</groupId>
-            <artifactId>kernel</artifactId>
-            <version>${project.version}</version>
-            <classifier>features</classifier>
-            <type>xml</type>
-        </dependency>
         <dependency>
             <groupId>ddf.platform</groupId>
             <artifactId>platform-app</artifactId>

@@ -20,14 +20,14 @@
         <version>2.11.0-SNAPSHOT</version>
     </parent>
     <!--
-  Packages the DDF configured Karaf.
-  
-  This is the DDF distribution with the smallest footprint and the building block for other
-  DDF distributions, i.e., ddf distribution pom depends on this pom. 
-  
-  NOTE: This was originally called ddf-minimal based on the Apache Servicemix paradigm, but was later
-  changed to kernel.
-  -->
+    Packages the DDF configured Karaf.
+
+    This is the DDF distribution with the smallest footprint and the building block for other
+    DDF distributions, i.e., ddf distribution pom depends on this pom.
+
+    NOTE: This was originally called ddf-minimal based on the Apache Servicemix paradigm, but was later
+    changed to kernel.
+    -->
     <artifactId>kernel</artifactId>
     <groupId>org.codice.ddf</groupId>
     <name>DDF :: Distribution :: Kernel</name>
@@ -40,10 +40,10 @@
         <distribution.file.name>ddf-${project.artifactId}-${project.version}</distribution.file.name>
     </properties>
     <dependencies>
-        <!-- 
-    Depends on the base Apache Karaf Unix and Windows distribution zip files.
-    This is where all of the Karaf .cfg, .properties, and other files are extracted from.
-    -->
+        <!--
+        Depends on the base Apache Karaf Unix and Windows distribution zip files.
+        This is where all of the Karaf .cfg, .properties, and other files are extracted from.
+        -->
         <dependency>
             <groupId>org.apache.karaf</groupId>
             <artifactId>apache-karaf</artifactId>
@@ -78,9 +78,9 @@
     <build>
         <resources>
             <!--
-      Resources for this DDF Core distribution include its features XML file and the Apache Karaf
-      .cfg file that defines the feature repositories and list of features to install at startup.
-      -->
+            Resources for this DDF Kernel distribution include the Apache Karaf .cfg file that
+            defines the feature repositories and list of features to install at startup.
+            -->
             <resource>
                 <directory>src/main/filtered-resources</directory>
                 <filtering>true</filtering>
@@ -91,11 +91,11 @@
         </resources>
         <plugins>
             <!--
-      Resources plugin will do filtering on dirs/files specified in
-      <resources> above. This will result in these files being
-      filtered and their generated resource being placed in target/classes
-      directory. (This includes the kernel-features.xml file) 
-      -->
+            Resources plugin will do filtering on dirs/files specified in
+            <resources> above. This will result in these files being
+            filtered and their generated resource being placed in target/classes
+            directory.
+            -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
@@ -106,30 +106,6 @@
                         <goals>
                             <goal>resources</goal>
                         </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <!--
-      Adds all of the feature repositories from Karaf, CXF, and DDF to the Karaf system folder,
-      which is the repo for Karaf at runtime. 
-      -->
-            <plugin>
-                <groupId>org.apache.karaf.tooling</groupId>
-                <artifactId>karaf-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>features-add-to-repository</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>features-add-to-repository</goal>
-                        </goals>
-                        <configuration>
-                            <addTransitiveFeatures>false</addTransitiveFeatures>
-                            <descriptors>
-                                <descriptor>file:${basedir}/target/classes/${project.artifactId}-features.xml</descriptor>
-                            </descriptors>
-                            <repository>${setup.folder}/${karaf.folder}/system</repository>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -201,10 +177,10 @@
                                     <outputDirectory>${win.setup.folder}</outputDirectory>
                                 </artifactItem>
                                 <!--
-              	Unpacks zip created by ddf-common that includes the license files,
-              	Karaf .cfg files that DDF customizes, DDF startup scripts, and the 
-              	common assembly descriptor (common-bin.xml)
-              	-->
+                                Unpacks zip created by ddf-common that includes the license files,
+                                Karaf .cfg files that DDF customizes, DDF startup scripts, and the
+                                common assembly descriptor (common-bin.xml)
+                                -->
                                 <artifactItem>
                                     <groupId>org.codice.ddf</groupId>
                                     <artifactId>ddf-common</artifactId>
@@ -218,36 +194,10 @@
                 </executions>
             </plugin>
             <!--
-      Puts the features XML file for this DDF distribution into the maven repo. 
-      -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>attach-artifacts</id>
-                        <phase>package</phase>
-                        <inherited>false</inherited>
-                        <goals>
-                            <goal>attach-artifact</goal>
-                        </goals>
-                        <configuration>
-                            <artifacts>
-                                <artifact>
-                                    <file>target/classes/${project.artifactId}-features.xml</file>
-                                    <type>xml</type>
-                                    <classifier>features</classifier>
-                                </artifact>
-                            </artifacts>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <!--
-      Uses the assembly descriptor in this DDF distributon project (bin.xml) which
-      also injects the copied common-bin.xml descriptor from ddf-common, to create
-      the ddf-core-xxx.zip distribution in the /target directory.
-      -->
+            Uses the assembly descriptor in this DDF distribution project (bin.xml) which
+            also injects the copied common-bin.xml descriptor from ddf-common, to create
+            the ddf-kernel-xxx.zip distribution in the /target directory.
+            -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>

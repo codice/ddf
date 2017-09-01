@@ -27,6 +27,11 @@
     <packaging>pom</packaging>
     <dependencies>
         <dependency>
+            <groupId>ddf.platform</groupId>
+            <artifactId>branding-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.security.core</groupId>
             <artifactId>security-core-api</artifactId>
             <version>${project.version}</version>
@@ -348,7 +353,7 @@
             <artifactId>org.apache.felix.coordinator</artifactId>
             <version>${felix.coordinator.version}</version>
         </dependency>
-        <!--START dependencies for enterprise features in platform-app features-->
+        <!--END dependencies for enterprise features in platform-app features-->
     </dependencies>
     <properties>
         <!--START versions for camel features in platform-app features
