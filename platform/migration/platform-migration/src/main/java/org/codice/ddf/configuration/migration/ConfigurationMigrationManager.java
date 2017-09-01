@@ -65,8 +65,6 @@ public class ConfigurationMigrationManager
 
     private static final String EXPORT_EXTENSION = ".zip";
 
-    private static final String EXPORT_DATE_FORMAT = "-%tY%<tm%<tdT%<tH%<tM%<tS";
-
     private static final String EXPORT_PREFIX = "exported-";
 
     private static final String REBOOT_DELAY = "1"; // 1 minute

@@ -152,6 +152,8 @@ public class ImportMigrationConfigurationAdminContext extends ImportMigrationCon
     Configuration createConfiguration(ImportMigrationConfigurationAdminEntry entry)
             throws IOException {
         // Question: should we use the bundle location that was exported???
+        // If we do, should we perform additional checks to make sure we're not loading a malicious bundle?
+        // This might be unnecessary if we are comfortable with the encryption of the zip file as our only countermeasure.
         if (entry.isManagedServiceFactory()) {
             return configurationAdmin.createFactoryConfiguration(entry.getFactoryPid(), null);
         }
