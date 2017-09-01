@@ -70,7 +70,6 @@ public class ImportMigrationConfigurationAdminEntry extends ImportMigrationEntry
     @Override
     public boolean restore() {
         if (!restored) {
-            this.restored = false; // until proven otherwise
             final Configuration cfg;
 
             if (memoryConfiguration != null) {

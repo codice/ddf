@@ -23,6 +23,7 @@ import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
@@ -39,6 +40,7 @@ import org.codice.ddf.migration.ExportMigrationEntry;
 import org.codice.ddf.migration.MigrationEntry;
 import org.codice.ddf.migration.MigrationWarning;
 import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,8 +65,40 @@ public class ExportMigrationConfigurationAdminContext extends ExportMigrationCon
         Validate.notNull(configs, "invalid null configurations");
         this.admin = admin;
         this.entries = Stream.of(configs)
+                .filter(this::isValid)
                 .map(this::getEntry)
                 .collect(Collectors.toMap(MigrationEntry::getPath, Function.identity()));
+    }
+
+    /**
+     * This method is designed to circumvent a bug in Felix where it has been seen that a config object
+     * that is meant to represent a managed service factory is not properly created. Instead of being
+     * create using the createFactoryConfiguration(), it is obtained using getConfiguration(). After
+     * that, the proeprties are updated with the service factory pid as a property. Although it has
+     * that property, it ain't a real managed service factory as te factory or blueprint was never
+     * called to instantiate a corresponding service. In such case, we end up with a dummy config
+     * object in memory that is not attached to an actual instance of manager service.
+     * <p>
+     * If we were to export that object, we would end up re-creating it as a managed service factory
+     * on the other system and we potentially could end up with multiple instances of that manager service
+     * which could create problem. In addition, the system would not be a proper representation of the
+     * original system which didn't have that associated managed service.
+     * <p>
+     * We do not intent to protect against all possible stupidity they could do (e.g. different factory
+     * pid in properties than reported by the config object's interface). We only protect against
+     * the object not being created as a managed service factory when it should have been.
+     *
+     * @param cfg the config to check its validity
+     * @return <code>true</code> if the config is valid; <code>false</code> otherwise
+     */
+    private boolean isValid(Configuration cfg) {
+        final String fpid = Objects.toString(cfg.getProperties()
+                .get(ConfigurationAdmin.SERVICE_FACTORYPID), null);
+
+        if (fpid == null) {
+            return true;
+        } // else - property reports it shouldbe a managed service factory, so it is valid only if the cfg object reports it is too
+        return ConfigurationAdminMigratable.isManagedService(cfg);
     }
 
     public Stream<ExportMigrationEntry> entries() {

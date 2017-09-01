@@ -91,10 +91,10 @@ public class ImportMigrationConfigurationAdminContext extends ImportMigrationCon
         this.configurationAdmin = configurationAdmin;
         // categorize memory configurations
         this.memoryServices = Stream.of(memoryConfigs)
-                .filter(ImportMigrationConfigurationAdminContext::isManagedService)
+                .filter(ConfigurationAdminMigratable::isManagedService)
                 .collect(Collectors.toMap(Configuration::getPid, Function.identity()));
         this.memoryFactoryServices = Stream.of(memoryConfigs)
-                .filter(ImportMigrationConfigurationAdminContext::isManagedServiceFactory)
+                .filter(ConfigurationAdminMigratable::isManagedServiceFactory)
                 .collect(Collectors.groupingBy(Configuration::getFactoryPid));
         // categorize exported configurations
         final ImportMigrationConfigurationAdminEntry[] entries = context.entries()
@@ -111,14 +111,6 @@ public class ImportMigrationConfigurationAdminContext extends ImportMigrationCon
                 .collect(Collectors.groupingBy(ImportMigrationConfigurationAdminEntry::getFactoryPid));
         context.getReport()
                 .doAfterCompletion(this::deleteUnexportedConfigurationsAfterCompletion);
-    }
-
-    private static boolean isManagedServiceFactory(Configuration cfg) {
-        return cfg.getFactoryPid() != null;
-    }
-
-    private static boolean isManagedService(Configuration cfg) {
-        return cfg.getFactoryPid() == null;
     }
 
     @Override

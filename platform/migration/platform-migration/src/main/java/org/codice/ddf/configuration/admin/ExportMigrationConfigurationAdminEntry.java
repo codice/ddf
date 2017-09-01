@@ -50,7 +50,6 @@ public class ExportMigrationConfigurationAdminEntry extends ExportMigrationEntry
             LOGGER.debug("Exporting configuration [{}] to [{}]...",
                     configuration.getPid(),
                     getPath());
-            this.stored = false; // until proven otherwise in case the next line throws an exception
             this.stored = super.store((r, out) -> persister.write(out,
                     configuration.getProperties()));
         }

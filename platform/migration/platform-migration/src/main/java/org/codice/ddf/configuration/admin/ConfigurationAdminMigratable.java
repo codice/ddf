@@ -62,6 +62,18 @@ public class ConfigurationAdminMigratable implements Migratable {
                 "unknown persistence strategy extension: " + defaultFileExtension);
     }
 
+    // PMD.DefaultPackage - designed to be called from ExportMigrationConfigurationAdminContext and ImportMigrationConfigurationAdminContext in this package
+    @SuppressWarnings("PMD.DefaultPackage")
+    static boolean isManagedServiceFactory(Configuration cfg) {
+        return cfg.getFactoryPid() != null;
+    }
+
+    // PMD.DefaultPackage - designed to be called from ExportMigrationConfigurationAdminContext and ImportMigrationConfigurationAdminContext in this package
+    @SuppressWarnings("PMD.DefaultPackage")
+    static boolean isManagedService(Configuration cfg) {
+        return cfg.getFactoryPid() == null;
+    }
+
     @Override
     public String getVersion() {
         return ConfigurationAdminMigratable.CURRENT_VERSION;
