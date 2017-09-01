@@ -20,7 +20,7 @@ define([
             value: [''],
             type: 'anyText',
             comparator: 'CONTAINS',
-            filterParam: 2
+            distance: 2
         },
         type: 'filter'
     });

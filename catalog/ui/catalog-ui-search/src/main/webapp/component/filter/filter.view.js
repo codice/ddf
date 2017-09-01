@@ -25,12 +25,13 @@ define([
     'component/property/property',
     'component/dropdown/dropdown',
     'component/dropdown/dropdown.view',
-    './filter-param',    
+    'component/input/with-param/input-with-param.view',
+    'component/value/value',
     'js/CQLUtils',
     'properties'
 ], function (Marionette, _, $, template, CustomElements, FilterComparatorDropdownView,
              MultivalueView, metacardDefinitions, PropertyModel, DropdownModel, DropdownView,
-            FilterParamView, CQLUtils, properties) {
+            InputWithParam, ValueModel, CQLUtils, properties) {
 
     var comparatorToCQL = {
         BEFORE: 'BEFORE',
@@ -43,7 +44,7 @@ define([
         '<': '<',
         '=': '=',
         '<=': '<=',
-        '>=': '>=' 
+        '>=': '>='
     };
 
     var CQLtoComparator = {};
@@ -62,14 +63,13 @@ define([
         regions: {
             filterAttribute: '.filter-attribute',
             filterComparator: '.filter-comparator',
-            filterInput: '.filter-input',
-            filterParam: '.filter-param'
+            filterInput: '.filter-input'
         },
         initialize: function(){
             this.listenTo(this.model, 'change:type', this.updateTypeDropdown);
             this.listenTo(this.model, 'change:type', this.determineInput);
             this.listenTo(this.model, 'change:value', this.determineInput);
-            this.listenTo(this.model, 'change:comparator', this.determineFilterParam);
+            this.listenTo(this.model, 'change:comparator', this.determineInput);
         },
         onBeforeShow: function(){
             this._filterDropdownModel = new DropdownModel({value: 'CONTAINS'});
@@ -100,9 +100,6 @@ define([
         handleAttributeUpdate: function(){
             this.model.set('type', this.filterAttribute.currentView.model.get('value')[0]);
         },
-        handleFilterParamUpdate: function(){
-            this.model.set('filterParam', Math.max(1, this.filterParam.currentView.model.get('value')[0]));
-        },        
         delete: function(){
             this.model.destroy();
         },
@@ -119,7 +116,7 @@ define([
                         this.model.set('comparator', 'BEFORE');
                     }
                     break;
-                case 'BOOLEAN': 
+                case 'BOOLEAN':
                     if (['='].indexOf(currentComparator) === -1){
                         this.model.set('comparator', '=');
                     }
@@ -151,19 +148,23 @@ define([
                 propertyJSON.type = 'LOCATION';
             }
             propertyJSON.placeholder = propertyJSON.type === 'DATE' ? 'DD MMM YYYY HH:mm:ss.SSS' : 'Use * for wildcard.';
-            this.filterInput.show(new MultivalueView({
-                model: new PropertyModel(propertyJSON)
-            }));
 
-            this.filterParam.show(new FilterParamView({
-                model: new PropertyModel({ 
-                    type: 'INTEGER', 
-                    value: [this.model.get('filterParam')]
-                }),
-                label: 'within',
-                help: 'The distance (number of words) within which search terms must be found in order to match'
-            }));
-            this.listenTo(this.filterParam.currentView.model, 'change:value', this.handleFilterParamUpdate); 
+            if (this.model.get('comparator') === 'NEAR') {
+                var valueModel = new ValueModel({
+                    value: [this.model.get('value')[0], this.model.get('distance')],
+                    property: new PropertyModel()
+                });
+
+                this.filterInput.show(new InputWithParam({
+                    model: valueModel,
+                    label: 'within',
+                    help: 'The distance (number of words) within which search terms must be found in order to match'
+                }));
+            } else {
+                this.filterInput.show(new MultivalueView({
+                    model: new PropertyModel(propertyJSON)
+                }));
+            }
 
             var isEditing = this.$el.hasClass('is-editing');
             if (isEditing){
@@ -172,11 +173,6 @@ define([
                 this.turnOffEditing();
             }
             this.setDefaultComparator(propertyJSON);
-            this.determineFilterParam();           
-        },
-        determineFilterParam: function() {
-            var comparator = this.model.get('comparator');            
-            this.filterParam.$el.toggle(comparator === 'NEAR');
         },
         getValue: function(){
             var text = '(';
@@ -189,12 +185,13 @@ define([
         getFilters: function(){
             var property = this.model.get('type');
             var comparator = this.model.get('comparator');
-            
+            var value = this.filterInput.currentView.model.getValue()[0];
+
             if (comparator==='NEAR') {
-                var distance = this.model.get('filterParam');
+                var distance = this.filterInput.currentView.model.getValue()[1];
                 return CQLUtils.generateFilterForFilterFunction(
-                    'proximity', 
-                    [property, distance, this.filterInput.currentView.model.getValue()[0]]
+                    'proximity',
+                    [property, distance, value]
                 );
             }
 
@@ -207,7 +204,7 @@ define([
                     })
                 }
             } else {
-                return CQLUtils.generateFilter(type, property, this.filterInput.currentView.model.getValue()[0]);
+                return CQLUtils.generateFilter(type, property, value);
             }
         },
         deleteInvalidFilters: function(){
@@ -222,8 +219,8 @@ define([
                     filter.value = _.clone(filter);
                 }
                 if (_.isObject(filter.property)) {
-                    // if the filter is something like NEAR (which maps to a CQL filter function such as 'proximity'), 
-                    // there is an enclosing filter that creates the necessary '= TRUE' predicate, and the 'property' 
+                    // if the filter is something like NEAR (which maps to a CQL filter function such as 'proximity'),
+                    // there is an enclosing filter that creates the necessary '= TRUE' predicate, and the 'property'
                     // attribute is what actually contains that proximity() call.
                     this.setFilterFromFilterFunction(filter.property);
                 } else {
@@ -239,16 +236,16 @@ define([
         setFilterFromFilterFunction(filter) {
             if (filter.filterFunctionName === 'proximity') {
                 var property = filter.params[0];
-                var filterParam = filter.params[1];
+                var distance = filter.params[1];
                 var value = filter.params[2];
-                
+
                 this.model.set({
                     value: [value],
                     // this is confusing but 'type' on the model is actually the name of the property we're filtering on
-                    type: property, 
+                    type: property,
                     comparator: 'NEAR',
-                    filterParam
-                });   
+                    distance
+                });
             } else {
                 throw new Error('Unsupported filter function in filter view: ' + filterFunctionName);
             }
@@ -260,15 +257,21 @@ define([
             this.$el.addClass('is-editing');
             this.filterAttribute.currentView.turnOnEditing();
             this.filterComparator.currentView.turnOnEditing();
-            this.filterInput.currentView.model.set('isEditing', true);
-            this.filterParam.currentView.model.set('isEditing', true);
+
+            var property = this.filterInput.currentView.model instanceof ValueModel
+                ? this.filterInput.currentView.model.get('property')
+                : this.filterInput.currentView.model;
+            property.set('isEditing', true);
         },
         turnOffEditing: function(){
             this.$el.removeClass('is-editing');
             this.filterAttribute.currentView.turnOffEditing();
             this.filterComparator.currentView.turnOffEditing();
-            this.filterInput.currentView.model.set('isEditing', false);
-            this.filterParam.currentView.model.set('isEditing', false);
+
+            var property = this.filterInput.currentView.model instanceof ValueModel
+                ? this.filterInput.currentView.model.get('property')
+                : this.filterInput.currentView.model;
+            property.set('isEditing', false);
         }
     });
 });
