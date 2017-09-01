@@ -11,11 +11,6 @@
     <!-- styles -->
     <link href="/landing/assets/css/bootstrap.min.css" rel="stylesheet">
     <style type="text/css">
-        body {
-            background-color: {{background}};
-            color: {{foreground}};
-        }
-
         .scrollable-list {
             height: auto;
             max-height: 600px;
@@ -114,7 +109,7 @@
 
 </head>
 
-<body>
+<body data-background-color="{{background}}" data-color="{{foreground}}">
 <header>
     <div class="header-layout">
         <div class="header-container">
@@ -244,6 +239,7 @@
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="/landing/assets/js/jquery-1.10.1.min.js"></script>
+    <script>(function (body) { body.css(body.data()) })(jQuery('body'))</script>
     <script src="/landing/assets/js/spin.min.js"></script>
     <script src="/landing/assets/js/jquery.spin.js"></script>
     <script src="/landing/assets/js/index.js"></script>
