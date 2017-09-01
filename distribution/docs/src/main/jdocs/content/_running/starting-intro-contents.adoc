@@ -155,9 +155,9 @@ to:
 RUN_AS_USER=<${branding-lowercase}-user>
 ----
 +
-. (Windows users skip to next step) (All *NIX) Edit `<${branding}_HOME>/bin/${branding-lowercase}.service`. Add LimitNOFILE to the [Service] section.
+. (Windows users skip to next step) (All *NIX) Edit `<${branding}_HOME>/bin/${branding-lowercase}-service`. Add LimitNOFILE to the [Service] section.
 +
-.<${branding}_HOME>/bin/${branding-lowercase}.service
+.<${branding}_HOME>/bin/${branding-lowercase}-service
 ----
 LimitNOFILE=6815744
 ----
@@ -216,7 +216,7 @@ root${at-symbol}localhost# chkconfig ${branding-lowercase}-service on
 *Redhat 7 (systemd)*
 +
 ----
-root${at-symbol}localhost# systemctl enable <${branding}_HOME>/bin/${branding-lowercase}.service
+root${at-symbol}localhost# systemctl enable <${branding}_HOME>/bin/${branding-lowercase}-service
 ----
 +
 *Ubuntu*
