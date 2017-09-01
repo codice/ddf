@@ -29,7 +29,6 @@ import javax.annotation.Nullable;
 
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.Migratable;
-import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationMessage;
 import org.codice.ddf.migration.MigrationOperation;
 import org.codice.ddf.migration.MigrationReport;
@@ -153,7 +152,7 @@ public class ExportMigrationReportImpl implements MigrationReport {
     }
 
     @Override
-    public void verifyCompletion() throws MigrationException {
+    public void verifyCompletion() {
         report.verifyCompletion();
     }
 

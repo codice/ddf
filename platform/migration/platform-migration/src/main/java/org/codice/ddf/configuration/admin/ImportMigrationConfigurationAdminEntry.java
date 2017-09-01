@@ -13,14 +13,25 @@
  */
 package org.codice.ddf.configuration.admin;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Dictionary;
 import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
 import org.apache.commons.lang.Validate;
+import org.apache.felix.fileinstall.internal.DirectoryWatcher;
 import org.codice.ddf.migration.ImportMigrationEntry;
 import org.codice.ddf.migration.ImportMigrationEntryProxy;
 import org.codice.ddf.migration.MigrationException;
@@ -63,8 +74,7 @@ public class ImportMigrationConfigurationAdminEntry extends ImportMigrationEntry
         this.factoryPid = Objects.toString(properties.remove(ConfigurationAdmin.SERVICE_FACTORYPID),
                 null);
         this.pid = Objects.toString(properties.remove(Constants.SERVICE_PID), null);
-        this.memoryConfiguration = context.getMemoryConfiguration(this);
-        // TODO: InterpolationHelper.performSubstitution(strMap, context); where context is a BundleContext
+        this.memoryConfiguration = getMemoryConfiguration();
     }
 
     @Override
@@ -86,35 +96,11 @@ public class ImportMigrationConfigurationAdminEntry extends ImportMigrationEntry
                         memoryConfiguration.getPid(),
                         getPath());
             } else {
-                if (LOGGER.isDebugEnabled()) {
-                    if (isManagedServiceFactory()) {
-                        LOGGER.debug(
-                                "Importing configuration for [{}-?] from [{}]; creating new factory configuration...",
-                                factoryPid,
-                                getPath());
-                    } else {
-                        LOGGER.debug(
-                                "Importing configuration for [{}] from [{}]; creating new configuration...",
-                                pid,
-                                getPath());
-                    }
-                }
+                logCreatingConfig();
                 try {
                     cfg = context.createConfiguration(this);
                 } catch (IOException e) {
-                    if (isManagedServiceFactory()) {
-                        getReport().record(new MigrationException(
-                                "Import error: failed to create factory configuration [%s] with factory pid [%s]; %s.",
-                                getPath(),
-                                factoryPid,
-                                e));
-                    } else {
-                        getReport().record(new MigrationException(
-                                "Import error: failed to create configuration [%s] with pid [%s]; %s.",
-                                getPath(),
-                                pid,
-                                e));
-                    }
+                    logCreatingConfigError(e);
                     return false;
                 }
                 LOGGER.debug(
@@ -156,6 +142,84 @@ public class ImportMigrationConfigurationAdminEntry extends ImportMigrationEntry
         return properties;
     }
 
+    private Configuration getMemoryConfiguration() {
+        if (factoryPid != null) {
+            final List<Configuration> mcfgs = context.getMemoryFactoryService(factoryPid);
+
+            if (mcfgs == null) {
+                return null;
+            }
+            // search for it based on the felix file install property
+            final Path epath = getPathFromConfiguration(properties,
+                    () -> String.format("path '%s'", getPath()));
+
+            if (epath != null) {
+                // @formatter:off - to shut up checkstyle!!!!!!!
+                for (final Iterator<Configuration> i = mcfgs.iterator(); i.hasNext();) {
+                    // @formatter:on
+                    final Configuration mcfg = i.next();
+                    final Path mpath = getPathFromConfiguration(mcfg.getProperties(),
+                            () -> String.format("configuration '%s'", mcfg.getPid()));
+
+                    if (epath.equals(mpath)) {
+                        // remove it from memory list and clean the map if it was the last one
+                        i.remove();
+                        if (mcfgs.isEmpty()) {
+                            context.removeMemoryFactoryService(factoryPid);
+                        }
+                        return mcfg;
+                    }
+                }
+            }  // else - this means we will not be able to correlate an exported managed service factory
+            //           with its counterpart here, as such we will be forced to treat it as a new one
+            return null;
+        }
+        return context.removeMemoryService(pid);
+    }
+
+    @Nullable
+    private Path getPathFromConfiguration(@Nullable Dictionary<String, Object> properties,
+            Supplier<String> from) {
+        if (properties == null) {
+            return null;
+        }
+        final Object o = properties.get(DirectoryWatcher.FILENAME);
+        final Path path;
+
+        if (o != null) {
+            try {
+                if (o instanceof URL) {
+                    path = new File(((URL) o).toURI()).toPath();
+                } else if (o instanceof URI) {
+                    path = new File((URI) o).toPath();
+                } else if (o instanceof String) {
+                    path = new File(new URL((String) o).toURI()).toPath();
+                } else if (o instanceof File) {
+                    path = ((File) o).toPath();
+                } else if (o instanceof Path) {
+                    path = (Path) o;
+                } else {
+                    LOGGER.debug("unsupported {} property '{}' from {}",
+                            DirectoryWatcher.FILENAME,
+                            o,
+                            from.get());
+                    return null;
+                }
+            } catch (MalformedURLException | URISyntaxException e) {
+                LOGGER.debug(String.format("failed to parse %s property '%s' from %s; ",
+                        DirectoryWatcher.FILENAME,
+                        o,
+                        from.get()), e);
+                return null;
+            }
+        } else {
+            return null;
+        }
+        // ignore the whole path if any (there shouldn't be any other than etc) and force it to be under etc
+        return Paths.get("etc")
+                .resolve(path.getFileName());
+    }
+
     private boolean propertiesMatch() {
         final Dictionary<String, Object> memprops = memoryConfiguration.getProperties();
 
@@ -178,5 +242,37 @@ public class ImportMigrationConfigurationAdminEntry extends ImportMigrationEntry
             }
         }
         return true;
+    }
+
+    private void logCreatingConfig() {
+        if (LOGGER.isDebugEnabled()) {
+            if (isManagedServiceFactory()) {
+                LOGGER.debug(
+                        "Importing configuration for [{}-?] from [{}]; creating new factory configuration...",
+                        factoryPid,
+                        getPath());
+            } else {
+                LOGGER.debug(
+                        "Importing configuration for [{}] from [{}]; creating new configuration...",
+                        pid,
+                        getPath());
+            }
+        }
+    }
+
+    private void logCreatingConfigError(IOException e) {
+        if (isManagedServiceFactory()) {
+            getReport().record(new MigrationException(
+                    "Import error: failed to create factory configuration [%s] with factory pid [%s]; %s.",
+                    getPath(),
+                    factoryPid,
+                    e));
+        } else {
+            getReport().record(new MigrationException(
+                    "Import error: failed to create configuration [%s] with pid [%s]; %s.",
+                    getPath(),
+                    pid,
+                    e));
+        }
     }
 }

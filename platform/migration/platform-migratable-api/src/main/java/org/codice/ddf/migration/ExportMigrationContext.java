@@ -39,7 +39,7 @@ import java.util.stream.Stream;
  *             context.getEntry(Paths.get("etc", "myfile.properties"))
  *                 .store();
  *             // export all files located under a specific sub-directory
- *             context.entries(Paths.get("etc", "subdir")
+ *             context.entries(Paths.get("etc", "subdir"))
  *                 .forEach(ExportMigrationEntry::store);
  *             // export the file referenced from the "my.property" system property
  *             context.getSystemPropertyReferencedEntry("my.property")

@@ -17,7 +17,6 @@ package org.codice.ddf.configuration.migration;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 
-import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationMessage;
 import org.codice.ddf.migration.MigrationReport;
 
@@ -40,7 +39,7 @@ public interface ConfigurationMigrationService {
      * @return a migration report for the export operation
      * @throws IllegalArgumentException if <code>exportDirectory</code> is <code>null</code>
      */
-    MigrationReport doExport(Path exportDirectory) throws MigrationException;
+    MigrationReport doExport(Path exportDirectory);
 
     /**
      * Exports configurations to the specified path.
@@ -56,8 +55,7 @@ public interface ConfigurationMigrationService {
      * @throws IllegalArgumentException if <code>exportDirectory</code> <code>consumer</code> is
      *                                  <code>null</code>
      */
-    MigrationReport doExport(Path exportDirectory, Consumer<MigrationMessage> consumer)
-            throws MigrationException;
+    MigrationReport doExport(Path exportDirectory, Consumer<MigrationMessage> consumer);
 
     /**
      * Imports configurations from the specified path.

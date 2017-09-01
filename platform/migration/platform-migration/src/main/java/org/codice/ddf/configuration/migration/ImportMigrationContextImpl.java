@@ -208,7 +208,6 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
             LOGGER.debug("Importing migratable [{}] from version [{}]...",
                     id,
                     getVersion().orElse("<not-exported>"));
-            report.record(Messages.IMPORTING_MIGRATABLE, migratable.getId());
             Stopwatch stopwatch = null;
 
             if (LOGGER.isDebugEnabled()) {
@@ -231,8 +230,10 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
                 LOGGER.debug("Imported time for {}: {}", id, stopwatch.stop());
             }
         } else if (id != null) { // not a system context
-            report.record(new MigrationException(Messages.IMPORT_MIGRATABLE_NOT_INSTALLED_ERROR,
-                    id));
+            LOGGER.warn(
+                    "unable to import migration data for migratable [{}]; migratable is no longer available",
+                    id);
+            report.record(new MigrationException(Messages.IMPORT_UNKNOWN_DATA_FOUND_ERROR));
         } // else - no errors and nothing to do for the system context
     }
 
@@ -267,6 +268,7 @@ public class ImportMigrationContextImpl extends MigrationContextImpl
         return systemProperties;
     }
 
+    @Override
     protected void processMetadata(Map<String, Object> metadata) {
         LOGGER.debug("Imported metadata for {}: {}", id, metadata);
         super.processMetadata(metadata);

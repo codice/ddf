@@ -22,10 +22,6 @@ public final class Messages {
 
     public static final String IMPORT_FAILURE = "Failed to import from file [%s].";
 
-    public static final String EXPORTING_MIGRATABLE = "Exporting migratable [%s].";
-
-    public static final String IMPORTING_MIGRATABLE = "Importing migratable [%s].";
-
     public static final String EXPORT_SUCCESS_WITH_WARNINGS =
             "Successfully exported to file [%s] with warnings; make sure to review.";
 
@@ -183,6 +179,6 @@ public final class Messages {
 
     public static final String IMPORT_PATH_CLEAN_WARNING = "Failed to clean path [%s]; %s.";
 
-    public static final String IMPORT_MIGRATABLE_NOT_INSTALLED_ERROR =
-            "Import error: exported data for migratable [%s] cannot be imported; migratable is no longer available.";
+    public static final String IMPORT_UNKNOWN_DATA_FOUND_ERROR =
+            "Import error: unknown data found in exported file.";
 }

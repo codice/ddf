@@ -108,17 +108,17 @@ public class ExportMigrationConfigurationAdminContext extends ExportMigrationCon
 
     @Override
     public ExportMigrationEntry getEntry(Path path) {
-        throw new IllegalStateException("should not be called");
+        throw new UnsupportedOperationException("should not be called");
     }
 
     @Override
     public Stream<ExportMigrationEntry> entries(Path path) {
-        throw new IllegalStateException("should not be called");
+        throw new UnsupportedOperationException("should not be called");
     }
 
     @Override
     public Stream<ExportMigrationEntry> entries(Path path, PathMatcher filter) {
-        throw new IllegalStateException("should not be called");
+        throw new UnsupportedOperationException("should not be called");
     }
 
     private ExportMigrationEntry getEntry(Configuration configuration) {

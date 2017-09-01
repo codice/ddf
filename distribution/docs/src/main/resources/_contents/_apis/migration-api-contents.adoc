@@ -67,10 +67,10 @@ The `org.codice.ddf.migration.Migratable` interface defines these methods:
 .`String getTitle()`
 .`String getDescription()`
 .`String getOrganization()`
-.`void doExport(ExportMigrationContext context) throws MigrationException`
-.`void doImport(ImportMigrationContext context) throws MigrationException`
-.`void doIncompatibleImport(ImportMigrationContext context) throws MigrationException`
-.`void doMissingImport(ImportMigrationContext context) throws MigrationException`
+.`void doExport(ExportMigrationContext context)`
+.`void doImport(ImportMigrationContext context)`
+.`void doIncompatibleImport(ImportMigrationContext context)`
+.`void doMissingImport(ImportMigrationContext context)`
 
 The `getId()` method returns a unique identifier for this migratable that must remain constant between the export and the import operations in order or the migration API to correlate the exported data with the migratable during the import operation. It
 must unique across all migratables. The `getVersion()` method returns a unique version string which is meant to identify the version of the data exported or supported at import time by the migratable. It cannot be blank and its format is left to the
@@ -191,7 +191,7 @@ The `org.codice.ddf.migration.MigrationReport` interface provides information ab
 .`boolean hasInfos()`
 .`boolean hasWarnings()`
 .`boolean hasErrors()`
-.`void verifyCompletion() throws MigrationException`
+.`void verifyCompletion()`
 
 The `getOperation()` method provides the type of migration operation (i.e. export or import) currently in progress.
 The `getStartTime()` method provides the time at which the corresponding operation started.

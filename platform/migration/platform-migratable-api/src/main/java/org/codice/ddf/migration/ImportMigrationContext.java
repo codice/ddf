@@ -37,7 +37,7 @@ import java.util.stream.Stream;
  *             context.getEntry(Paths.get("etc", "myfile.properties"))
  *                 .restore();
  *             // get all exported files located under a specific sub-directory and restore them back on disk
- *             context.entries(Paths.get("etc", "subdir")
+ *             context.entries(Paths.get("etc", "subdir"))
  *                 .forEach(ImportMigrationEntry::restore);
  *             // restore back on disk the file referenced from the "my.property" system property
  *             context.getSystemPropertyReferencedEntry("my.property")

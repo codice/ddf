@@ -13,32 +13,21 @@
  */
 package org.codice.ddf.configuration.admin;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
-import java.nio.file.Paths;
 import java.util.Dictionary;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import javax.annotation.Nullable;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
-import org.apache.felix.fileinstall.internal.DirectoryWatcher;
 import org.codice.ddf.configuration.persistence.PersistenceStrategy;
 import org.codice.ddf.migration.ImportMigrationContext;
 import org.codice.ddf.migration.ImportMigrationContextProxy;
@@ -127,17 +116,35 @@ public class ImportMigrationConfigurationAdminContext extends ImportMigrationCon
 
     @Override
     public ImportMigrationEntry getEntry(Path path) {
-        throw new IllegalStateException("should not be called");
+        throw new UnsupportedOperationException("should not be called");
     }
 
     @Override
     public Stream<ImportMigrationEntry> entries(Path path) {
-        throw new IllegalStateException("should not be called");
+        throw new UnsupportedOperationException("should not be called");
     }
 
     @Override
     public Stream<ImportMigrationEntry> entries(Path path, PathMatcher filter) {
-        throw new IllegalStateException("should not be called");
+        throw new UnsupportedOperationException("should not be called");
+    }
+
+    // PMD.DefaultPackage - designed to be called only from ImportMigrationConfigurationAdminEntry within this package
+    @SuppressWarnings("PMD.DefaultPackage")
+    List<Configuration> getMemoryFactoryService(String factoryPid) {
+        return memoryFactoryServices.get(factoryPid);
+    }
+
+    // PMD.DefaultPackage - designed to be called only from ImportMigrationConfigurationAdminEntry within this package
+    @SuppressWarnings("PMD.DefaultPackage")
+    void removeMemoryFactoryService(String factoryPid) {
+        memoryFactoryServices.remove(factoryPid);
+    }
+
+    // PMD.DefaultPackage - designed to be called only from ImportMigrationConfigurationAdminEntry within this package
+    @SuppressWarnings("PMD.DefaultPackage")
+    Configuration removeMemoryService(String pid) {
+        return memoryServices.remove(pid);
     }
 
     // PMD.DefaultPackage - designed to be called only from ImportMigrationConfigurationAdminEntry within this package
@@ -149,45 +156,6 @@ public class ImportMigrationConfigurationAdminContext extends ImportMigrationCon
             return configurationAdmin.createFactoryConfiguration(entry.getFactoryPid(), null);
         }
         return configurationAdmin.getConfiguration(entry.getPid());
-    }
-
-    // PMD.DefaultPackage - designed to be called only from ImportMigrationConfigurationAdminEntry within this package
-    @SuppressWarnings({"PMD.DefaultPackage", "checkstyle:EmptyForIteratorPad"})
-    Configuration getMemoryConfiguration(ImportMigrationConfigurationAdminEntry entry) {
-        final String fpid = entry.getFactoryPid();
-
-        if (fpid != null) {
-            final List<Configuration> mcfgs = memoryFactoryServices.get(fpid);
-
-            if (mcfgs == null) {
-                return null;
-            }
-            // search for it based on the felix file install property
-            final Path epath = getPathFromConfiguration(entry.getProperties(),
-                    () -> String.format("path '%s'", entry.getPath()));
-
-            if (epath != null) {
-                // @formatter:off - to shut up checkstyle!!!!!!!
-                for (final Iterator<Configuration> i = mcfgs.iterator(); i.hasNext();) {
-                    // @formatter:on
-                    final Configuration mcfg = i.next();
-                    final Path mpath = getPathFromConfiguration(mcfg.getProperties(),
-                            () -> String.format("configuration '%s'", mcfg.getPid()));
-
-                    if (epath.equals(mpath)) {
-                        // remove it from memory list and clean the map if it was the last one
-                        i.remove();
-                        if (mcfgs.isEmpty()) {
-                            memoryFactoryServices.remove(fpid);
-                        }
-                        return mcfg;
-                    }
-                }
-            }  // else - this means we will not be able to correlate an exported managed service factory
-            //           with its counterpart here, as such we will be forced to treat it as a new one
-            return null;
-        }
-        return memoryServices.remove(entry.getPid());
     }
 
     private ImportMigrationConfigurationAdminEntry proxy(ImportMigrationEntry entry) {
@@ -234,49 +202,6 @@ public class ImportMigrationConfigurationAdminContext extends ImportMigrationCon
         }
         this.isValid = false;
         return null;
-    }
-
-    @Nullable
-    private Path getPathFromConfiguration(@Nullable Dictionary<String, Object> properties,
-            Supplier<String> from) {
-        if (properties == null) {
-            return null;
-        }
-        final Object o = properties.get(DirectoryWatcher.FILENAME);
-        final Path path;
-
-        if (o != null) {
-            try {
-                if (o instanceof URL) {
-                    path = new File(((URL) o).toURI()).toPath();
-                } else if (o instanceof URI) {
-                    path = new File((URI) o).toPath();
-                } else if (o instanceof String) {
-                    path = new File(new URL((String) o).toURI()).toPath();
-                } else if (o instanceof File) {
-                    path = ((File) o).toPath();
-                } else if (o instanceof Path) {
-                    path = (Path) o;
-                } else {
-                    LOGGER.debug("unsupported {} property '{}' from {}",
-                            DirectoryWatcher.FILENAME,
-                            o,
-                            from.get());
-                    return null;
-                }
-            } catch (MalformedURLException | URISyntaxException e) {
-                LOGGER.debug(String.format("failed to parse %s property '%s' from %s; ",
-                        DirectoryWatcher.FILENAME,
-                        o,
-                        from.get()), e);
-                return null;
-            }
-        } else {
-            return null;
-        }
-        // ignore the whole path if any (there shouldn't be any other than etc) and force it to be under etc
-        return Paths.get("etc")
-                .resolve(path.getFileName());
     }
 
     // PMD.UnusedFormalParameter - report parameter is require as this method is used as a functional interface

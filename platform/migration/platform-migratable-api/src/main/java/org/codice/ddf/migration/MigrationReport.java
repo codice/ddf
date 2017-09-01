@@ -58,7 +58,7 @@ public interface MigrationReport {
     /**
      * Records an informational message that occurred during the migration report.
      * <p>
-     * <i>Note:</i> This is a short for <code>record(new MigrationInformation(msg))</code>.
+     * <i>Note:</i> This is equivalent to <code>record(new MigrationInformation(msg))</code>.
      *
      * @param msg the information message to record
      * @return this for chaining
@@ -71,7 +71,7 @@ public interface MigrationReport {
     /**
      * Records an informational message that occurred during the migration report.
      * <p>
-     * <i>Note:</i> This is a short for <code>record(new MigrationInformation(format, args))</code>.
+     * <i>Note:</i> This is equivalent to <code>record(new MigrationInformation(format, args))</code>.
      *
      * @param format the format string for the detail message for the information message to record (see
      *               {@link String#format})
@@ -208,5 +208,5 @@ public interface MigrationReport {
      *
      * @throws MigrationException if at least one error occurred during the operation
      */
-    public void verifyCompletion() throws MigrationException;
+    public void verifyCompletion();
 }

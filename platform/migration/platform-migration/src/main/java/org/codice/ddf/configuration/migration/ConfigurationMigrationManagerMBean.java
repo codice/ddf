@@ -16,7 +16,6 @@ package org.codice.ddf.configuration.migration;
 
 import java.util.Collection;
 
-import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationWarning;
 
 /**
@@ -28,18 +27,18 @@ public interface ConfigurationMigrationManagerMBean {
      *
      * @param exportDirectory path to export configurations
      * @return a collection of {@link MigrationWarning} returned if there were non-fatal issues when exporting
-     * @throws MigrationException thrown if one or more configurations couldn't be exported
-     * @throws IllegalArgumentException if <code>exportDirectory</code> is <code>null</code>
+     * @throws org.codice.ddf.migration.MigrationException thrown if one or more configurations couldn't be exported
+     * @throws IllegalArgumentException                    if <code>exportDirectory</code> is <code>null</code>
      */
-    Collection<MigrationWarning> doExport(String exportDirectory) throws MigrationException;
+    Collection<MigrationWarning> doExport(String exportDirectory);
 
     /**
      * Imports configurations from the specified path
      *
      * @param exportDirectory path to import configurations from
      * @return a collection of {@link MigrationWarning} returned if there were non-fatal issues when importing
-     * @throws MigrationException thrown if one or more configurations couldn't be imported
-     * @throws IllegalArgumentException if <code>exportDirectory</code> is <code>null</code>
+     * @throws org.codice.ddf.migration.MigrationException thrown if one or more configurations couldn't be imported
+     * @throws IllegalArgumentException                    if <code>exportDirectory</code> is <code>null</code>
      */
-    Collection<MigrationWarning> doImport(String exportDirectory) throws MigrationException;
+    Collection<MigrationWarning> doImport(String exportDirectory);
 }

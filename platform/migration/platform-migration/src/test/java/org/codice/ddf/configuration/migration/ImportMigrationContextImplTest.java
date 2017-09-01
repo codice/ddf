@@ -838,8 +838,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
         Assert.assertThat(report.hasErrors(), Matchers.equalTo(true));
 
         thrown.expect(MigrationException.class);
-        thrown.expectMessage(Matchers.containsString("[" + MIGRATABLE_ID + "]"));
-        thrown.expectMessage(Matchers.containsString("no longer available"));
+        thrown.expectMessage(Matchers.equalTo("Import error: unknown data found in exported file."));
 
         report.verifyCompletion(); // trigger the exception
     }

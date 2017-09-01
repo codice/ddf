@@ -33,7 +33,9 @@ import ddf.security.service.SecurityServiceException;
  * Command class used to import the system configuration exported via the {@link ExportCommand} command.
  */
 @Service
-@Command(scope = MigrationCommand.NAMESPACE, name = "import", description = "Restores the system profile and configuration to the one recorded by a previously executed export command.")
+@Command(scope = MigrationCommand.NAMESPACE, name = "import", description =
+        "Restores the system profile and configuration to the one recorded by a previously executed "
+                + MigrationCommand.NAMESPACE + ":export command.")
 public class ImportCommand extends MigrationCommand {
     @Argument(index = 0, name = "exportDirectory", description = "Path to directory where to find the file to import and where to export the current state of the system", required = false, valueToShowInHelp = MigrationCommand.EXPORTED, multiValued = false)
     private String exportDirectoryArgument;
@@ -52,17 +54,13 @@ public class ImportCommand extends MigrationCommand {
         final Path exportDirectory;
 
         try {
-            if (StringUtils.isEmpty(exportDirectoryArgument)) {
-                exportDirectory = defaultExportDirectory;
-            } else {
-                exportDirectory = Paths.get(exportDirectoryArgument);
-            }
+            exportDirectory = (StringUtils.isEmpty(exportDirectoryArgument) ?
+                    defaultExportDirectory :
+                    Paths.get(exportDirectoryArgument));
             security.runWithSubjectOrElevate(() -> configurationMigrationService.doImport(
                     exportDirectory,
                     this::outputMessage));
-        } catch (InvalidPathException e) {
-            outputErrorMessage(String.format(ERROR_MESSAGE, e.getMessage()));
-        } catch (SecurityServiceException e) {
+        } catch (InvalidPathException | SecurityServiceException e) {
             outputErrorMessage(String.format(ERROR_MESSAGE, e.getMessage()));
         } catch (InvocationTargetException e) {
             outputErrorMessage(String.format(ERROR_MESSAGE,

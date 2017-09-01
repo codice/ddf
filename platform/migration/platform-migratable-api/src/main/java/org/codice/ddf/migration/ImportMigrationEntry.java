@@ -105,13 +105,17 @@ public interface ImportMigrationEntry extends MigrationEntry {
      * <p>
      * Errors can be reported in two ways:
      * <ol>
-     * <li>Errors that aborts the whole operation would be thrown out as {@link MigrationException}
+     * <li>Errors that abort the whole operation would be thrown out as {@link MigrationException}
      * (e.g. failure to write to the exported file)</li>
      * <li>Errors that are specific to this specific entry and that will eventually fail the export
      * operation at the end. Such errors are simply recorded with the report and <code>false</code>
      * is returned from this method. This allows for the accumulation of as many issues as possible
      * to report to the user before aborting the operation.</li>
      * </ol>
+     * <p>
+     * <i>Note:</i> Calling <code>store()</code> twice will not store the entry two times. The second
+     * time it is called, the same result will be returned as the first time no matter which
+     * <code>store()</code> method was called.
      *
      * @return <code>true</code> if no errors were recorded as a result of processing this command;
      * <code>false</code> otherwise
@@ -132,13 +136,17 @@ public interface ImportMigrationEntry extends MigrationEntry {
      * <p>
      * Errors can be reported in two ways:
      * <ol>
-     * <li>Errors that aborts the whole operation would be thrown out as {@link MigrationException}
+     * <li>Errors that abort the whole operation would be thrown out as {@link MigrationException}
      * (e.g. failure to write to the exported file)</li>
      * <li>Errors that are specific to this specific entry and that will eventually fail the export
      * operation at the end. Such errors are simply recorded with the report and <code>false</code>
      * is returned from this method. This allows for the accumulation of as many issues as possible
      * to report to the user before aborting the operation.</li>
      * </ol>
+     * <p>
+     * <i>Note:</i> Calling <code>store()</code> twice will not store the entry two times. The second
+     * time it is called, the same result will be returned as the first time no matter which
+     * <code>store()</code> method was called.
      *
      * @param required <code>true</code> if the file is required to exist in the export and if it
      *                 doesn't an error should be recorded; <code>false</code> if the file is
@@ -159,7 +167,7 @@ public interface ImportMigrationEntry extends MigrationEntry {
      * <p>
      * Errors can be reported in two ways:
      * <ol>
-     * <li>Errors that aborts the whole operation would be thrown out as {@link MigrationException}
+     * <li>Errors that abort the whole operation would be thrown out as {@link MigrationException}
      * (e.g. failure to read from the exported file)</li>
      * <li>Errors that are specific to this specific entry and that will eventually fail the import
      * operation at the end. Such errors are simply recorded with the report and <code>false</code>
@@ -169,6 +177,7 @@ public interface ImportMigrationEntry extends MigrationEntry {
      * <p>
      * <i>Note:</i> The input stream will automatically be closed (if not closed already) when the
      * operation completes successfully or not.
+     * c     *
      *
      * @param consumer a consumer capable of importing the content of this entry from a provided input
      *                 stream which might be empty if the entry was not exported (otherwise an error

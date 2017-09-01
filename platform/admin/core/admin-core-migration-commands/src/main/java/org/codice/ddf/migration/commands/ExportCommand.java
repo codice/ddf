@@ -52,17 +52,13 @@ public class ExportCommand extends MigrationCommand {
         Path exportDirectory;
 
         try {
-            if (StringUtils.isEmpty(exportDirectoryArgument)) {
-                exportDirectory = defaultExportDirectory;
-            } else {
-                exportDirectory = Paths.get(exportDirectoryArgument);
-            }
+            exportDirectory = (StringUtils.isEmpty(exportDirectoryArgument) ?
+                    defaultExportDirectory :
+                    Paths.get(exportDirectoryArgument));
             security.runWithSubjectOrElevate(() -> configurationMigrationService.doExport(
                     exportDirectory,
                     this::outputMessage));
-        } catch (InvalidPathException e) {
-            outputErrorMessage(String.format(MigrationCommand.ERROR_MESSAGE, e.getMessage()));
-        } catch (SecurityServiceException e) {
+        } catch (InvalidPathException | SecurityServiceException e) {
             outputErrorMessage(String.format(MigrationCommand.ERROR_MESSAGE, e.getMessage()));
         } catch (InvocationTargetException e) {
             outputErrorMessage(String.format(MigrationCommand.ERROR_MESSAGE,

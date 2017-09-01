@@ -31,8 +31,7 @@ import org.fusesource.jansi.Ansi.Attribute;
 import com.google.common.annotations.VisibleForTesting;
 
 /**
- * Parent object to all Platform Commands. Provides common methods and instance variables that
- * Platform Commands can use.
+ * Provides common methods and instance variables that migration commands can use.
  */
 public abstract class MigrationCommand implements Action {
     public static final String ERROR_MESSAGE =

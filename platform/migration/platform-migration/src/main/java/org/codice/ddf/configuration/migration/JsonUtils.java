@@ -42,7 +42,7 @@ public class JsonUtils {
      * @return the corresponding map
      * @throws MigrationException if the given object is not a map
      */
-    public static Map<String, Object> convertToMap(@Nullable Object o) throws MigrationException {
+    public static Map<String, Object> convertToMap(@Nullable Object o) {
         if (o == null) {
             return Collections.emptyMap();
         }

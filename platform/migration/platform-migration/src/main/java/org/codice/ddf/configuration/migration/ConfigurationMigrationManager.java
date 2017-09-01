@@ -135,7 +135,7 @@ public class ConfigurationMigrationManager
     }
 
     @Override
-    public Collection<MigrationWarning> doExport(String exportDirectory) throws MigrationException {
+    public Collection<MigrationWarning> doExport(String exportDirectory) {
         Validate.notNull(exportDirectory, "invalid null export directory");
         final MigrationReport report = doExport(Paths.get(exportDirectory));
 
@@ -145,7 +145,7 @@ public class ConfigurationMigrationManager
     }
 
     @Override
-    public MigrationReport doExport(Path exportDirectory) throws MigrationException {
+    public MigrationReport doExport(Path exportDirectory) {
         return doExport(exportDirectory, Optional.empty());
     }
 
@@ -156,7 +156,7 @@ public class ConfigurationMigrationManager
     }
 
     @Override
-    public Collection<MigrationWarning> doImport(String exportDirectory) throws MigrationException {
+    public Collection<MigrationWarning> doImport(String exportDirectory) {
         Validate.notNull(exportDirectory, "invalid null export directory");
         final MigrationReport report = doImport(Paths.get(exportDirectory));
 

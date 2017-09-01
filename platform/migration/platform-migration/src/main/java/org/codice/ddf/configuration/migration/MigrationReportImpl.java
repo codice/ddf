@@ -172,7 +172,7 @@ public class MigrationReportImpl implements MigrationReport {
     }
 
     @Override
-    public void verifyCompletion() throws MigrationException {
+    public void verifyCompletion() {
         runCodes();
         if (numErrors == 0) {
             return;
