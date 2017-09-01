@@ -72,4 +72,41 @@
         </cm:managed-component>
     </cm:managed-service-factory>
 
+    <bean id="kmlMetacardType" class="ddf.catalog.data.impl.MetacardTypeImpl">
+        <argument value="kml"/>
+        <argument>
+            <list>
+                <bean class="ddf.catalog.data.impl.types.AssociationsAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.ContactAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.DateTimeAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.LocationAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.ValidationAttributes"/>
+            </list>
+        </argument>
+    </bean>
+
+    <bean id="kmlTransformer"
+          class="org.codice.ddf.spatial.kml.transformer.KmlInputTransformer">
+        <argument ref="kmlMetacardType"/>
+    </bean>
+
+    <service ref="kmlMetacardType" interface="ddf.catalog.data.MetacardType">
+        <service-properties>
+            <entry key="name" value="kml"/>
+        </service-properties>
+    </service>
+
+    <service ref="kmlTransformer" interface="ddf.catalog.transform.InputTransformer">
+        <service-properties>
+            <entry key="id" value="kml"/>
+            <entry key="mime-type" >
+                <list>
+                    <value>text/xml</value>
+                    <value>application/xml</value>
+                    <value>application/vnd.google-earth.kml+xml</value>
+                </list>
+            </entry>
+        </service-properties>
+    </service>
+
 </blueprint>
