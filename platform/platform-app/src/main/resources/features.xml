@@ -1141,7 +1141,6 @@
     <feature name="landing-page" install="manual" version="${project.version}"
              description="Landing page and branding support.">
         <feature prerequisite="true">platform-dependencies</feature>
-        <feature>ddf-branding</feature>
         <bundle>mvn:ddf.platform/landing-page/${project.version}</bundle>
     </feature>
 

@@ -69,11 +69,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ddf.distribution</groupId>
-            <artifactId>ddf-branding-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.codice.ddf</groupId>
             <artifactId>ddf-common</artifactId>
             <version>${project.version}</version>
