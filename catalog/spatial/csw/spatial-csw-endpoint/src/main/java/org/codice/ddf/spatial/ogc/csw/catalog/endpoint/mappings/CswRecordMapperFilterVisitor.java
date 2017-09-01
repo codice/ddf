@@ -248,7 +248,7 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
                 propertyName) || GmdConstants.APISO_BOUNDING_BOX.equals(propertyName)) {
             name = Metacard.ANY_GEO;
         } else {
-            name = attributeNameMap.getOrDefault(propertyName, propertyName);
+            name = getDefaultMetacardFieldForPrefixedString(propertyName);
 
             if (SPATIAL_QUERY_TAG.equals(extraData)) {
                 AttributeDescriptor attrDesc = metacardType.getAttributeDescriptor(name);
@@ -608,5 +608,17 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
 
         }
     }
-}
 
+    private String getDefaultMetacardFieldForPrefixedString(String propertyName) {
+        if (propertyName.contains(":") && !isXpathPropertyName(propertyName)) {
+            String localName = propertyName.substring(propertyName.indexOf(":") + 1);
+            return attributeNameMap.getOrDefault(localName, localName);
+        } else {
+            return attributeNameMap.getOrDefault(propertyName, propertyName);
+        }
+    }
+
+    private boolean isXpathPropertyName(String propertyName) {
+        return propertyName.contains("/") || propertyName.contains("@");
+    }
+}
