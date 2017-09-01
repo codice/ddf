@@ -25,6 +25,11 @@
             description="Role claim URI.">
         </AD>
 
+        <AD name="ID Claim Type:" id="idClaimType" required="true" type="String"
+            default="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
+            description="ID claim URI.">
+        </AD>
+
         <AD name="User Role File:" id="propertyFileLocation" required="true" type="String"
             default="etc/users.properties"
             description="Location of the file which maps roles to users.">

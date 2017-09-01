@@ -15,12 +15,10 @@ package org.codice.ddf.security.sts.claims.property;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.security.Principal;
 
 import javax.security.auth.kerberos.KerberosPrincipal;
@@ -41,15 +39,15 @@ public class TestPropertyFileClaimsHandler {
         PropertyFileClaimsHandler propertyFileClaimsHandler = new PropertyFileClaimsHandler();
         propertyFileClaimsHandler.setPropertyFileLocation("/users.properties");
         propertyFileClaimsHandler.setRoleClaimType("http://myroletype");
+        propertyFileClaimsHandler.setIdClaimType("http://myidtype");
 
         ClaimCollection claimCollection = new ClaimCollection();
-        Claim claim = new Claim();
-        try {
-            claim.setClaimType(new URI("http://myroletype"));
-        } catch (URISyntaxException e) {
-            fail("Could not create URI");
-        }
-        claimCollection.add(claim);
+        Claim claim1 = new Claim();
+        claim1.setClaimType(URI.create("http://myroletype"));
+        Claim claim2 = new Claim();
+        claim2.setClaimType(URI.create("http://myidtype"));
+        claimCollection.add(claim1);
+        claimCollection.add(claim2);
         ClaimsParameters claimsParameters = mock(ClaimsParameters.class);
         Principal principal = mock(Principal.class);
         when(principal.getName()).thenReturn("admin");
@@ -57,11 +55,13 @@ public class TestPropertyFileClaimsHandler {
         ProcessedClaimCollection processedClaimCollection =
                 propertyFileClaimsHandler.retrieveClaimValues(claimCollection, claimsParameters);
 
-        assertEquals(1, processedClaimCollection.size());
+        assertEquals(2, processedClaimCollection.size());
         assertEquals(4,
                 processedClaimCollection.get(0)
                         .getValues()
                         .size());
+        assertEquals("admin",
+                processedClaimCollection.get(1).getValues().get(0));
     }
 
     @Test

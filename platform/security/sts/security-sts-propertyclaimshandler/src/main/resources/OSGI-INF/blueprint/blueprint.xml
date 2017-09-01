@@ -30,6 +30,8 @@
                 update-strategy="container-managed"/>
         <property name="roleClaimType"
                   value="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role"/>
+        <property name="idClaimType"
+                  value="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"/>
         <property name="propertyFileLocation" value="${ddf.home}/etc/users.properties"/>
     </bean>
 
