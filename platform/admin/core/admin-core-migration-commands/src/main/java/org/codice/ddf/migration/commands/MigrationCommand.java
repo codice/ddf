@@ -36,7 +36,7 @@ import com.google.common.annotations.VisibleForTesting;
  */
 public abstract class MigrationCommand implements Action {
     public static final String ERROR_MESSAGE =
-            "An error was encountered while executing this command; %s";
+            "An error was encountered while executing this command; %s.";
 
     public static final String NAMESPACE = "migration";
 

@@ -19,7 +19,6 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationInformation;
 import org.codice.ddf.migration.MigrationMessage;
@@ -73,41 +72,6 @@ public class MigrationReportImplTest extends AbstractMigrationReportTest {
         thrown.expectMessage(Matchers.containsString("null operation"));
 
         new MigrationReportImpl(null, Optional.empty());
-    }
-
-    @Test
-    public void testConstructorWithReport() throws Exception {
-        final MigrationReportImpl report2 = new MigrationReportImpl(MigrationOperation.IMPORT,
-                report,
-                Optional.empty());
-
-        Assert.assertThat(report2.getOperation(), Matchers.equalTo(MigrationOperation.IMPORT));
-        Assert.assertThat(report2.getStartTime(), Matchers.equalTo(report.getStartTime()));
-        Assert.assertThat(report2.getEndTime(), OptionalMatchers.isEmpty());
-        Assert.assertThat(report2.hasErrors(), Matchers.equalTo(false));
-        Assert.assertThat(report2.warnings()
-                        .map(MigrationWarning::getMessage)
-                        .toArray(String[]::new),
-                Matchers.arrayContaining(POTENTIAL_WARNING_MESSAGE_STRINGS));
-    }
-
-    @Test
-    public void testConstructorWithUncompletedReport() throws Exception {
-        report.doAfterCompletion(r -> r.record(new MigrationWarning("final warning")));
-
-        final MigrationReportImpl report2 = new MigrationReportImpl(MigrationOperation.IMPORT,
-                report,
-                Optional.empty());
-
-        Assert.assertThat(report2.getOperation(), Matchers.equalTo(MigrationOperation.IMPORT));
-        Assert.assertThat(report2.getStartTime(), Matchers.equalTo(report.getStartTime()));
-        Assert.assertThat(report2.getEndTime(), OptionalMatchers.isEmpty());
-        Assert.assertThat(report2.hasErrors(), Matchers.equalTo(false));
-        Assert.assertThat(report2.warnings()
-                        .map(MigrationWarning::getMessage)
-                        .toArray(String[]::new),
-                Matchers.arrayContaining(ArrayUtils.add(POTENTIAL_WARNING_MESSAGE_STRINGS,
-                        "final warning")));
     }
 
     @Test

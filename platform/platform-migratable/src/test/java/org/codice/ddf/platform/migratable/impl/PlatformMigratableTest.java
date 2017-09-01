@@ -413,7 +413,7 @@ public class PlatformMigratableTest {
 
     /**
      * Verify that when the keystore and truststore are located outside of they system home directory,
-     * warnings are recorded on export and import. Both the export and import will still be successful.
+     * warnings are recorded on export but not on import. Both the export and import will still be successful.
      */
     @Test
     public void testDoExportAndDoImportKeystoresOutsideOfDdfHome() throws IOException {
@@ -518,9 +518,7 @@ public class PlatformMigratableTest {
 
         // Verify import
         assertThat("The import report has errors.", importReport.hasErrors(), is(false));
-        assertThat("The import report does not have warnings.",
-                importReport.hasWarnings(),
-                is(true));
+        assertThat("The import report does have warnings.", importReport.hasWarnings(), is(false));
         assertThat("Import was not successful.", importReport.wasSuccessful(), is(true));
         verifyRequiredSystemFilesImported();
         verifyOptionalSystemFilesImported();

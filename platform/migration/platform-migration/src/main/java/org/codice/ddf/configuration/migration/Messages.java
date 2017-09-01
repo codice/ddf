@@ -13,12 +13,6 @@
  */
 package org.codice.ddf.configuration.migration;
 
-import java.util.Optional;
-
-import org.codice.ddf.migration.MigrationException;
-import org.codice.ddf.migration.MigrationMessage;
-import org.codice.ddf.migration.MigrationWarning;
-
 /**
  * Provides a class for defining messages or message formats for migration exceptions, warnings and
  * informational messages.
@@ -49,7 +43,7 @@ public final class Messages {
             "Restarting the system in %s minute(s) for changes to take effect.";
 
     public static final String RESTART_SYSTEM =
-            "Please restarting the system for changes to take effect.";
+            "Please restart the system for changes to take effect.";
 
     public static final String DIRECTORY_CREATE_ERROR =
             "Unexpected error: unable to create directory [%s]; %s.";
@@ -191,14 +185,4 @@ public final class Messages {
 
     public static final String IMPORT_MIGRATABLE_NOT_INSTALLED_ERROR =
             "Import error: exported data for migratable [%s] cannot be imported; migratable is no longer available.";
-
-    public static Optional<MigrationMessage> downgradeToWarning(MigrationMessage msg) {
-        if (msg instanceof MigrationException) {
-            return Optional.of(new MigrationWarning(msg.getMessage()
-                    .replaceFirst("[^:].*error: ", "")));
-        } else if (msg instanceof MigrationWarning) {
-            return Optional.of(msg);
-        }
-        return Optional.empty();
-    }
 }

@@ -365,11 +365,7 @@ public class ConfigurationAdminMigratableTest {
 
     private Configuration getConfigurationForImportSystem() throws IOException {
         Configuration config = mock(Configuration.class);
-        Dictionary<String, Object> props = new Hashtable<>();
-        props.put("background", "GREEN");
         String pid = "ddf.platform.ui.config";
-        props.put("service.pid", pid);
-        when(config.getProperties()).thenReturn(props);
         when(config.getPid()).thenReturn(pid);
         return config;
     }

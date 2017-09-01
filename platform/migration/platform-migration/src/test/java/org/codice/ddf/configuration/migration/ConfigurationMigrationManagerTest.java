@@ -39,6 +39,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.management.InstanceAlreadyExistsException;
@@ -49,10 +50,14 @@ import javax.management.ObjectName;
 import org.apache.karaf.system.SystemService;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
+import org.codice.ddf.migration.MigrationInformation;
 import org.codice.ddf.migration.MigrationMessage;
 import org.codice.ddf.migration.MigrationReport;
 import org.codice.ddf.migration.MigrationWarning;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
+import org.hamcrest.StringDescription;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -144,7 +149,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
         Collection<MigrationWarning> warnings = configurationMigrationManager.doExport(
                 TEST_DIRECTORY);
 
-        reportHasWarningMessage(warnings.stream(), TEST_MESSAGE);
+        reportHasWarningMessage(warnings.stream(), Matchers.equalTo(TEST_MESSAGE));
         verify(configurationMigrationManager).doExport(any(Path.class));
     }
 
@@ -200,6 +205,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
 
     @Test
     public void doExportSucceedsWithWarnings() throws Exception {
+        final Path path = ddfHome.resolve(TEST_DIRECTORY);
         configurationMigrationManager = spy(getConfigurationMigrationManager());
 
         doAnswer(invocation -> {
@@ -209,12 +215,13 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
         }).when(configurationMigrationManager)
                 .delegateToExportMigrationManager(any(MigrationReportImpl.class), any(Path.class));
 
-        MigrationReport report = configurationMigrationManager.doExport(ddfHome.resolve(
-                TEST_DIRECTORY));
+        MigrationReport report = configurationMigrationManager.doExport(path);
 
         assertThat("Export was not successful", report.wasSuccessful(), is(true));
-        reportHasWarningMessage(report.warnings(), TEST_MESSAGE);
-        reportHasWarningMessage(report.warnings(), "warnings");
+        reportHasWarningMessage(report.warnings(), Matchers.equalTo(TEST_MESSAGE));
+        reportHasWarningMessage(report.warnings(),
+                Matchers.equalTo("Successfully exported to file [" + path.resolve("exported") + "-"
+                        + TEST_VERSION + ".zip] with warnings; make sure to review."));
         verify(configurationMigrationManager).delegateToExportMigrationManager(any(
                 MigrationReportImpl.class), any(Path.class));
     }
@@ -244,7 +251,9 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
 
         MigrationReport report = configurationMigrationManager.doExport(path);
 
-        reportHasErrorWithMessage(report, "unable to create directory");
+        reportHasErrorMessage(report.errors(),
+                Matchers.matchesPattern(
+                        "Unexpected error: unable to create directory \\[" + path + "\\]; .*\\."));
     }
 
     @Test
@@ -257,37 +266,45 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
         MigrationReport report = configurationMigrationManager.doExport(ddfHome.resolve(
                 TEST_DIRECTORY));
 
-        reportHasErrorWithMessage(report, TEST_MESSAGE);
+        reportHasErrorMessage(report.errors(), Matchers.equalTo(TEST_MESSAGE));
         verify(configurationMigrationManager).delegateToExportMigrationManager(any(
                 MigrationReportImpl.class), any(Path.class));
     }
 
     @Test
     public void doExportRecordsErrorForIOException() throws Exception {
+        final Path path = ddfHome.resolve(TEST_DIRECTORY);
+
         configurationMigrationManager = spy(getConfigurationMigrationManager());
 
-        doThrow(IOException.class).when(configurationMigrationManager)
+        doThrow(new IOException("testing")).when(configurationMigrationManager)
                 .delegateToExportMigrationManager(any(MigrationReportImpl.class), any(Path.class));
 
-        MigrationReport report = configurationMigrationManager.doExport(ddfHome.resolve(
-                TEST_DIRECTORY));
+        MigrationReport report = configurationMigrationManager.doExport(path);
 
-        reportHasErrorWithMessage(report, "failed to close export file");
+        reportHasErrorMessage(report.errors(),
+                Matchers.equalTo(
+                        "Export error: failed to close export file [" + path.resolve("exported")
+                                + "-" + TEST_VERSION + ".zip]; testing."));
         verify(configurationMigrationManager).delegateToExportMigrationManager(any(
                 MigrationReportImpl.class), any(Path.class));
     }
 
     @Test
     public void doExportRecordsErrorForRuntimeException() throws Exception {
+        final Path path = ddfHome.resolve(TEST_DIRECTORY);
+
         configurationMigrationManager = spy(getConfigurationMigrationManager());
 
-        doThrow(RuntimeException.class).when(configurationMigrationManager)
+        doThrow(new RuntimeException("testing.")).when(configurationMigrationManager)
                 .delegateToExportMigrationManager(any(MigrationReportImpl.class), any(Path.class));
 
-        MigrationReport report = configurationMigrationManager.doExport(ddfHome.resolve(
-                TEST_DIRECTORY));
+        MigrationReport report = configurationMigrationManager.doExport(path);
 
-        reportHasErrorWithMessage(report, "internal error");
+        reportHasErrorMessage(report.errors(),
+                Matchers.equalTo(
+                        "Unexpected internal error: failed to export to file [" + path.resolve(
+                                "exported") + "-" + TEST_VERSION + ".zip]; testing."));
         verify(configurationMigrationManager).delegateToExportMigrationManager(any(
                 MigrationReportImpl.class), any(Path.class));
     }
@@ -304,7 +321,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
         Collection<MigrationWarning> warnings = configurationMigrationManager.doImport(
                 TEST_DIRECTORY);
 
-        reportHasWarningMessage(warnings.stream(), TEST_MESSAGE);
+        reportHasWarningMessage(warnings.stream(), Matchers.equalTo(TEST_MESSAGE));
         verify(configurationMigrationManager).doImport(any(Path.class));
     }
 
@@ -330,44 +347,51 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
 
     @Test
     public void doImportSucceeds() throws Exception {
+        final Path path = ddfHome.resolve(TEST_DIRECTORY);
+
         configurationMigrationManager = spy(getConfigurationMigrationManager());
 
-        expectExportDelegationIsSuccessful();
         expectImportDelegationIsSuccessful();
 
-        MigrationReport report = configurationMigrationManager.doImport(ddfHome.resolve(
-                TEST_DIRECTORY));
+        MigrationReport report = configurationMigrationManager.doImport(path);
 
         assertThat("Import was not successful", report.wasSuccessful(), is(true));
         assertThat("Restart system property was not set",
                 System.getProperty("karaf.restart.jvm"),
                 equalTo("true"));
+        reportHasInfoMessage(report.infos(),
+                Matchers.equalTo(
+                        "Successfully imported from file [" + path.resolve("exported") + "-"
+                                + TEST_VERSION + ".zip]."));
+        reportHasInfoMessage(report.infos(),
+                Matchers.equalTo("Restarting the system in 1 minute(s) for changes to take effect."));
         verify(mockSystemService).reboot(any(String.class), any(SystemService.Swipe.class));
-        verify(configurationMigrationManager).delegateToExportMigrationManager(any(
-                MigrationReportImpl.class), any(Path.class));
         verify(configurationMigrationManager).delegateToImportMigrationManager(any(
                 MigrationReportImpl.class), any(Path.class));
     }
 
     @Test
     public void doImportSucceedsWithConsumer() throws Exception {
+        final Path path = ddfHome.resolve(TEST_DIRECTORY);
         final Consumer<MigrationMessage> consumer = mock(Consumer.class);
 
         configurationMigrationManager = spy(getConfigurationMigrationManager());
 
-        expectExportDelegationIsSuccessful();
         expectImportDelegationIsSuccessful();
 
-        MigrationReport report = configurationMigrationManager.doImport(ddfHome.resolve(
-                TEST_DIRECTORY), consumer);
+        MigrationReport report = configurationMigrationManager.doImport(path, consumer);
 
         assertThat("Import was not successful", report.wasSuccessful(), is(true));
         assertThat("Restart system property was not set",
                 System.getProperty("karaf.restart.jvm"),
                 equalTo("true"));
+        reportHasInfoMessage(report.infos(),
+                Matchers.equalTo(
+                        "Successfully imported from file [" + path.resolve("exported") + "-"
+                                + TEST_VERSION + ".zip]."));
+        reportHasInfoMessage(report.infos(),
+                Matchers.equalTo("Restarting the system in 1 minute(s) for changes to take effect."));
         verify(mockSystemService).reboot(any(String.class), any(SystemService.Swipe.class));
-        verify(configurationMigrationManager).delegateToExportMigrationManager(any(
-                MigrationReportImpl.class), any(Path.class));
         verify(configurationMigrationManager).delegateToImportMigrationManager(any(
                 MigrationReportImpl.class), any(Path.class));
         verify(consumer, Mockito.atLeastOnce()).accept(Mockito.notNull());
@@ -375,6 +399,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
 
     @Test
     public void doImportSucceedsWithWarnings() throws Exception {
+        final Path path = ddfHome.resolve(TEST_DIRECTORY);
         configurationMigrationManager = spy(getConfigurationMigrationManager());
 
         doAnswer(invocation -> {
@@ -382,67 +407,44 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
             report.record(new MigrationWarning(TEST_MESSAGE));
             return null;
         }).when(configurationMigrationManager)
-                .delegateToExportMigrationManager(any(MigrationReportImpl.class), any(Path.class));
-        expectImportDelegationIsSuccessful();
+                .delegateToImportMigrationManager(any(MigrationReportImpl.class), any(Path.class));
 
-        MigrationReport report = configurationMigrationManager.doImport(ddfHome.resolve(
-                TEST_DIRECTORY));
+        MigrationReport report = configurationMigrationManager.doImport(path);
 
-        assertThat("Import was successful", report.wasSuccessful(), is(true));
-        reportHasWarningMessage(report.warnings(), TEST_MESSAGE);
-        reportHasWarningMessage(report.warnings(), "warnings");
-        verify(configurationMigrationManager).delegateToExportMigrationManager(any(
-                MigrationReportImpl.class), any(Path.class));
+        assertThat("Import was not successful", report.wasSuccessful(), is(true));
+        reportHasWarningMessage(report.warnings(), Matchers.equalTo(TEST_MESSAGE));
+        reportHasWarningMessage(report.warnings(),
+                Matchers.equalTo(
+                        "Successfully imported from file [" + path.resolve("exported") + "-"
+                                + TEST_VERSION + ".zip] with warnings; make sure to review."));
         verify(configurationMigrationManager).delegateToImportMigrationManager(any(
                 MigrationReportImpl.class), any(Path.class));
-        verifyZeroInteractions(mockSystemService);
     }
 
     @Test
     public void doImportSucceedsAndFailsToReboot() throws Exception {
+        final Path path = ddfHome.resolve(TEST_DIRECTORY);
         configurationMigrationManager = spy(getConfigurationMigrationManager());
 
-        expectExportDelegationIsSuccessful();
         expectImportDelegationIsSuccessful();
         doThrow(Exception.class).when(mockSystemService)
                 .reboot(any(String.class), any(SystemService.Swipe.class));
 
-        MigrationReport report = configurationMigrationManager.doImport(ddfHome.resolve(
-                TEST_DIRECTORY));
+        MigrationReport report = configurationMigrationManager.doImport(path);
 
         assertThat("Import was successful", report.wasSuccessful(), is(true));
         assertThat("Restart system property was set",
                 System.getProperty("karaf.restart.jvm"),
                 equalTo("true"));
+        reportHasInfoMessage(report.infos(),
+                Matchers.equalTo(
+                        "Successfully imported from file [" + path.resolve("exported") + "-"
+                                + TEST_VERSION + ".zip]."));
+        reportHasInfoMessage(report.infos(),
+                Matchers.equalTo("Please restart the system for changes to take effect."));
         verify(mockSystemService).reboot(any(String.class), any(SystemService.Swipe.class));
-        verify(configurationMigrationManager).delegateToExportMigrationManager(any(
-                MigrationReportImpl.class), any(Path.class));
         verify(configurationMigrationManager).delegateToImportMigrationManager(any(
                 MigrationReportImpl.class), any(Path.class));
-    }
-
-    @Test
-    public void doImportDowngradesExportErrors() throws Exception {
-        configurationMigrationManager = spy(getConfigurationMigrationManager());
-
-        doAnswer(invocation -> {
-            MigrationReport report = invocation.getArgument(0);
-            report.record(new MigrationException(TEST_MESSAGE));
-            return null;
-        }).when(configurationMigrationManager)
-                .delegateToExportMigrationManager(any(MigrationReportImpl.class), any(Path.class));
-        expectImportDelegationIsSuccessful();
-
-        MigrationReport report = configurationMigrationManager.doImport(ddfHome.resolve(
-                TEST_DIRECTORY));
-
-        assertThat("Import was successful", report.wasSuccessful(), is(true));
-        reportHasWarningMessage(report.warnings(), TEST_MESSAGE);
-        verify(configurationMigrationManager).delegateToExportMigrationManager(any(
-                MigrationReportImpl.class), any(Path.class));
-        verify(configurationMigrationManager).delegateToImportMigrationManager(any(
-                MigrationReportImpl.class), any(Path.class));
-        verifyZeroInteractions(mockSystemService);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -470,9 +472,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
         MigrationReport report = configurationMigrationManager.doImport(ddfHome.resolve(
                 TEST_DIRECTORY));
 
-        reportHasErrorWithMessage(report, TEST_MESSAGE);
-        verify(configurationMigrationManager).delegateToExportMigrationManager(any(
-                MigrationReportImpl.class), any(Path.class));
+        reportHasErrorMessage(report.errors(), Matchers.equalTo(TEST_MESSAGE));
         verify(configurationMigrationManager).delegateToImportMigrationManager(any(
                 MigrationReportImpl.class), any(Path.class));
         verifyZeroInteractions(mockSystemService);
@@ -480,18 +480,20 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
 
     @Test
     public void doImportRecordsErrorForRuntimeException() throws Exception {
+        final Path path = ddfHome.resolve(TEST_DIRECTORY);
+
         configurationMigrationManager = spy(getConfigurationMigrationManager());
 
         expectExportDelegationIsSuccessful();
-        doThrow(RuntimeException.class).when(configurationMigrationManager)
+        doThrow(new RuntimeException("testing")).when(configurationMigrationManager)
                 .delegateToImportMigrationManager(any(MigrationReportImpl.class), any(Path.class));
 
-        MigrationReport report = configurationMigrationManager.doImport(ddfHome.resolve(
-                TEST_DIRECTORY));
+        MigrationReport report = configurationMigrationManager.doImport(path);
 
-        reportHasErrorWithMessage(report, "internal error");
-        verify(configurationMigrationManager).delegateToExportMigrationManager(any(
-                MigrationReportImpl.class), any(Path.class));
+        reportHasErrorMessage(report.errors(),
+                Matchers.equalTo(
+                        "Unexpected internal error: failed to import from file [" + path.resolve(
+                                "exported") + "-" + TEST_VERSION + ".zip]; testing."));
         verify(configurationMigrationManager).delegateToImportMigrationManager(any(
                 MigrationReportImpl.class), any(Path.class));
         verifyZeroInteractions(mockSystemService);
@@ -507,22 +509,54 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
                 .delegateToImportMigrationManager(any(MigrationReportImpl.class), any(Path.class));
     }
 
-    private void reportHasWarningMessage(Stream<MigrationWarning> warnings, String message) {
-        warnings.filter((w) -> w.getMessage()
-                .contains(message))
-                .findFirst()
-                .orElseThrow(() -> new AssertionError(
-                        "There is no matching warning in the migration report"));
+    private void reportHasInfoMessage(Stream<MigrationInformation> infos, Matcher<String> matcher) {
+        final List<MigrationInformation> is = infos.collect(Collectors.toList());
+        final long count = is.stream()
+                .filter((w) -> matcher.matches(w.getMessage()))
+                .count();
+        final Description d = new StringDescription();
+
+        matcher.describeTo(d);
+        assertThat("There are " + count + " matching info message(s) with " + d
+                        + " in the migration report.\nWarnings are: " + is.stream()
+                        .map(MigrationInformation::getMessage)
+                        .collect(Collectors.joining("\",\n\t\"", "[\n\t\"", "\"\n]")),
+                count,
+                Matchers.equalTo(1L));
     }
 
-    private void reportHasErrorWithMessage(MigrationReport report, String message) {
-        assertThat("Report has an error message", report.hasErrors(), is(true));
-        MigrationException exception = report.errors()
-                .findFirst()
-                .get();
+    private void reportHasWarningMessage(Stream<MigrationWarning> warnings,
+            Matcher<String> matcher) {
+        final List<MigrationWarning> ws = warnings.collect(Collectors.toList());
+        final long count = ws.stream()
+                .filter((w) -> matcher.matches(w.getMessage()))
+                .count();
+        final Description d = new StringDescription();
 
-        assertThat(MigrationException.class, equalTo(exception.getClass()));
-        assertThat(exception.getMessage(), Matchers.containsString(message));
+        matcher.describeTo(d);
+        assertThat("There are " + count + " matching warning(s) with " + d
+                        + " in the migration report.\nWarnings are: " + ws.stream()
+                        .map(MigrationWarning::getMessage)
+                        .collect(Collectors.joining("\",\n\t\"", "[\n\t\"", "\"\n]")),
+                count,
+                Matchers.equalTo(1L));
+    }
+
+    private void reportHasErrorMessage(Stream<MigrationException> errors, Matcher<String> matcher) {
+        final List<MigrationException> es = errors.collect(Collectors.toList());
+        final long count = es.stream()
+                .filter((e) -> matcher.matches(e.getMessage()))
+                .count();
+        final Description d = new StringDescription();
+
+        matcher.describeTo(d);
+
+        assertThat("There are " + count + " matching error(s) with " + d
+                        + "in the migration report.\nErrors are: " + es.stream()
+                        .map(MigrationException::getMessage)
+                        .collect(Collectors.joining("\",\n\t\"", "[\n\t\"", "\"\n]")),
+                count,
+                Matchers.equalTo(1L));
     }
 
     private ConfigurationMigrationManager getConfigurationMigrationManager() throws IOException {

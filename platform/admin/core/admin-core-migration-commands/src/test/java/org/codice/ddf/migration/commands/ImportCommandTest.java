@@ -61,7 +61,8 @@ public class ImportCommandTest extends AbstractMigrationCommandTest {
         Mockito.verify(service, Mockito.never())
                 .doImport(Mockito.any(), Mockito.notNull());
 
-        verifyConsoleOutput(Matchers.matchesPattern(".*error.*encountered.*command;.*invalid path.*"),
+        verifyConsoleOutput(Matchers.matchesPattern(
+                "An error was encountered while executing this command; .*invalid path.*\\."),
                 Ansi.Color.RED);
     }
 
@@ -74,7 +75,8 @@ public class ImportCommandTest extends AbstractMigrationCommandTest {
 
         command.execute();
 
-        verifyConsoleOutput(Matchers.matchesPattern(".*error.*encountered.*command; " + msg),
+        verifyConsoleOutput(Matchers.equalTo(
+                "An error was encountered while executing this command; " + msg + "."),
                 Ansi.Color.RED);
     }
 
@@ -88,7 +90,8 @@ public class ImportCommandTest extends AbstractMigrationCommandTest {
 
         command.execute();
 
-        verifyConsoleOutput(Matchers.matchesPattern(".*error.*encountered.*command; " + msg),
+        verifyConsoleOutput(Matchers.equalTo(
+                "An error was encountered while executing this command; " + msg + "."),
                 Ansi.Color.RED);
     }
 }

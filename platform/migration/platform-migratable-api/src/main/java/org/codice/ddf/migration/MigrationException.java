@@ -16,6 +16,7 @@ package org.codice.ddf.migration;
 
 import javax.annotation.Nullable;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 
 /**
@@ -93,7 +94,9 @@ public class MigrationException extends RuntimeException implements MigrationMes
         super(error.getMessage(), error);
     }
 
-    private static Object[] sanitizeThrowables(Object[] args) {
+    // PMD.DefaultPackage - designed to be called from MigrationWarning and MigrationInformation within this package
+    @SuppressWarnings("PMD.DefaultPackage")
+    static Object[] sanitizeThrowables(Object[] args) {
         if ((args == null) || (args.length == 0)) {
             return args;
         }
@@ -102,7 +105,8 @@ public class MigrationException extends RuntimeException implements MigrationMes
         System.arraycopy(args, 0, sargs, 0, args.length);
         for (int i = 0; i < sargs.length; i++) {
             if (sargs[i] instanceof Throwable) {
-                sargs[i] = ((Throwable) sargs[i]).getMessage();
+                // make sure the message doesn't end with a period
+                sargs[i] = StringUtils.removeEnd(((Throwable) sargs[i]).getMessage(), ".");
             }
         }
         return sargs;

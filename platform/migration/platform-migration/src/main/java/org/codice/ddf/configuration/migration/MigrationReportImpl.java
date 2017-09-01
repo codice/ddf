@@ -22,7 +22,6 @@ import java.util.LinkedList;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang.Validate;
@@ -76,32 +75,6 @@ public class MigrationReportImpl implements MigrationReport {
         this.start = Instant.now();
         this.messages =
                 new LinkedHashSet<>(); // LinkedHashSet to prevent duplicate and maintain order
-    }
-
-    /**
-     * Creates a new migration report by transferring the errors and warnings from the provided report
-     * as warnings for this report. Transfer also the start time.
-     *
-     * @param operation the type of migration operation for this report
-     * @param report    the report to be transferred over
-     * @param consumer  an optional consumer to call whenever a new migration message is recorded
-     *                  during the operation
-     * @throws IllegalArgumentException if <code>operation</code> or <code>report</code> is <code>null</code>
-     */
-    public MigrationReportImpl(MigrationOperation operation, MigrationReportImpl report,
-            Optional<Consumer<MigrationMessage>> consumer) {
-        Validate.notNull(operation, "invalid null operation");
-        Validate.notNull(report, "invalid null report");
-        report.runCodes(); // to get all errors and warnings recorded
-        this.messages = report.messages.stream()
-                .map(Messages::downgradeToWarning)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toCollection(LinkedHashSet::new)); // LinkedHashSet to prevent duplicate and maintain order
-        this.numWarnings = messages.size();
-        this.operation = operation;
-        this.consumer = consumer;
-        this.start = report.getStartTime();
     }
 
     @Override

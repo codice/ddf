@@ -61,11 +61,11 @@ public class ExportCommand extends MigrationCommand {
                     exportDirectory,
                     this::outputMessage));
         } catch (InvalidPathException e) {
-            outputErrorMessage(String.format(ERROR_MESSAGE, e.getMessage()));
+            outputErrorMessage(String.format(MigrationCommand.ERROR_MESSAGE, e.getMessage()));
         } catch (SecurityServiceException e) {
-            outputErrorMessage(String.format(ERROR_MESSAGE, e.getMessage()));
+            outputErrorMessage(String.format(MigrationCommand.ERROR_MESSAGE, e.getMessage()));
         } catch (InvocationTargetException e) {
-            outputErrorMessage(String.format(ERROR_MESSAGE,
+            outputErrorMessage(String.format(MigrationCommand.ERROR_MESSAGE,
                     e.getCause()
                             .getMessage()));
         }

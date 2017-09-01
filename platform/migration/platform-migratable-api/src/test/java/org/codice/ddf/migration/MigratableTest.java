@@ -62,9 +62,9 @@ public class MigratableTest {
         Assert.assertThat(capture.getValue(), Matchers.instanceOf(MigrationException.class));
         Assert.assertThat(capture.getValue()
                         .getMessage(),
-                Matchers.matchesPattern(
-                        "Incompatibility error.*\\[" + INCOMPATIBLE_VERSION + "\\].*migratable \\["
-                                + MIGRATABLE_ID + "\\].*supporting \\[" + VERSION + "\\].*"));
+                Matchers.equalTo("Incompatibility error: unsupported exported migrated version ["
+                        + INCOMPATIBLE_VERSION + "] for migratable [" + MIGRATABLE_ID
+                        + "]; currently supporting [" + VERSION + "]."));
     }
 
     @Test
@@ -85,8 +85,7 @@ public class MigratableTest {
         Assert.assertThat(capture.getValue(), Matchers.instanceOf(MigrationException.class));
         Assert.assertThat(capture.getValue()
                         .getMessage(),
-                Matchers.matchesPattern(
-                        "Incompatibility error.*missing exported data.*migratable \\["
-                                + MIGRATABLE_ID + "\\].*supporting \\[" + VERSION + "\\].*"));
+                Matchers.equalTo("Incompatibility error: missing exported data for migratable ["
+                        + MIGRATABLE_ID + "]; currently supporting [" + VERSION + "]."));
     }
 }

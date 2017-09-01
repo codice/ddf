@@ -58,9 +58,10 @@ public class MigrationInformation implements MigrationMessage {
      */
     public MigrationInformation(String format, @Nullable Object... args) {
         Validate.notNull(format, "invalid null format message");
-        this.message = String.format(format, args);
+        this.message = String.format(format, MigrationException.sanitizeThrowables(args));
     }
 
+    @Override
     public String getMessage() {
         return message;
     }

@@ -121,21 +121,6 @@ public class ConfigurationMigrationManager
         }
     }
 
-    /**
-     * Gets a consumer that will downgrade all error messages to warnings before passing them
-     * along to the provided consumer. All informational messages are passed as is.
-     *
-     * @param consumer the consumer to pass messages to
-     * @return a new consumer that will downgrade error messages before passing them to
-     * <code>consumer</code>
-     */
-    private static Consumer<MigrationMessage> downgradeErrorsToWarningsFor(
-            Consumer<MigrationMessage> consumer) {
-        return m -> consumer.accept(Messages.downgradeToWarning(m)
-                .map(MigrationMessage.class::cast)
-                .orElse(m));
-    }
-
     public void init() throws Exception {
         final ObjectName objectName = new ObjectName(OBJECT_NAME);
 
@@ -161,15 +146,13 @@ public class ConfigurationMigrationManager
 
     @Override
     public MigrationReport doExport(Path exportDirectory) throws MigrationException {
-        return doExport(exportDirectory, Optional.empty(), false); // no timestamp on filename
+        return doExport(exportDirectory, Optional.empty());
     }
 
     @Override
     public MigrationReport doExport(Path exportDirectory, Consumer<MigrationMessage> consumer) {
         Validate.notNull(consumer, "invalid null consumer");
-        return doExport(exportDirectory,
-                Optional.ofNullable(consumer),
-                false); // no timestamp on filename
+        return doExport(exportDirectory, Optional.ofNullable(consumer));
     }
 
     @Override
@@ -217,7 +200,7 @@ public class ConfigurationMigrationManager
     }
 
     private MigrationReportImpl doExport(Path exportDirectory,
-            Optional<Consumer<MigrationMessage>> consumer, boolean timestamp) {
+            Optional<Consumer<MigrationMessage>> consumer) {
         Validate.notNull(exportDirectory, "invalid null export directory");
         final MigrationReportImpl report = new MigrationReportImpl(MigrationOperation.EXPORT,
                 consumer);
@@ -231,16 +214,9 @@ public class ConfigurationMigrationManager
                     e));
             return report;
         }
-        StringBuilder filename = new StringBuilder(
-                ConfigurationMigrationManager.EXPORT_PREFIX + productVersion);
-
-        if (timestamp) {
-            filename.append(String.format(ConfigurationMigrationManager.EXPORT_DATE_FORMAT,
-                    report.getStartTime()
-                            .toEpochMilli()));
-        }
-        filename.append(ConfigurationMigrationManager.EXPORT_EXTENSION);
-        final Path exportFile = exportDirectory.resolve(filename.toString());
+        final Path exportFile = exportDirectory.resolve(
+                ConfigurationMigrationManager.EXPORT_PREFIX + productVersion
+                        + ConfigurationMigrationManager.EXPORT_EXTENSION);
 
         try {
             delegateToExportMigrationManager(report, exportFile);
@@ -266,12 +242,8 @@ public class ConfigurationMigrationManager
 
     private MigrationReport doImport(Path exportDirectory,
             Optional<Consumer<MigrationMessage>> consumer) {
-        final MigrationReportImpl xreport = doExport(exportDirectory,
-                // downgrade so that errors during export doesn't fail the export just warn
-                consumer.map(ConfigurationMigrationManager::downgradeErrorsToWarningsFor),
-                true); // timestamp the filename
+        Validate.notNull(exportDirectory, "invalid null export directory");
         final MigrationReportImpl report = new MigrationReportImpl(MigrationOperation.IMPORT,
-                xreport,
                 consumer);
         final Path exportFile = exportDirectory.resolve(
                 ConfigurationMigrationManager.EXPORT_PREFIX + productVersion
@@ -305,7 +277,6 @@ public class ConfigurationMigrationManager
                 report.record(Messages.RESTART_SYSTEM);
             }
         }
-
         return report;
     }
 }
