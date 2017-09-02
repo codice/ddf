@@ -67,6 +67,7 @@ define([
             this.checkTags();
             this.checkIfSaved();
             this.checkIsInWorkspace();
+            this.checkIfDownloadable();
             this.checkIfBlacklisted();
             var currentWorkspace = store.getCurrentWorkspace();
             if (currentWorkspace) {
@@ -99,6 +100,7 @@ define([
             this.checkTags();
             this.checkIsInWorkspace();
             this.checkIfBlacklisted();
+            this.checkIfDownloadable();
         },
         onBeforeShow: function(){
             this.resultActions.show(new MetacardInteractionsDropdownView({
@@ -176,6 +178,9 @@ define([
         checkIsInWorkspace: function(){
             var currentWorkspace = store.getCurrentWorkspace();
             this.$el.toggleClass('in-workspace', Boolean(currentWorkspace));
+        },
+        checkIfDownloadable: function() {
+            this.$el.toggleClass('is-downloadable', this.model.get('metacard').get('properties').get('resource-download-url') !== undefined);
         },
         checkIfSaved: function(){
             var currentWorkspace = store.getCurrentWorkspace();

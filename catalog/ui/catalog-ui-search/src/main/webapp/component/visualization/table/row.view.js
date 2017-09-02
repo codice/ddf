@@ -41,7 +41,7 @@ module.exports = Marionette.ItemView.extend({
         if (!options.selectionInterface) {
             throw 'Selection interface has not been provided';
         }
-        this.listenTo(this.model.get('metacard'), 'change:properties', this.render);
+        this.listenTo(this.model, 'change:metacard>properties change:metacard', this.render);
         this.listenTo(user.get('user').get('preferences'), 'change:columnHide', this.render);
         this.listenTo(user.get('user').get('preferences'), 'change:columnOrder', this.render);
         this.listenTo(this.options.selectionInterface.getSelectedResults(), 'update add remove reset', this.handleSelectionChange);
@@ -51,6 +51,13 @@ module.exports = Marionette.ItemView.extend({
         var selectedResults = this.options.selectionInterface.getSelectedResults();
         var isSelected = selectedResults.get(this.model.id);
         this.$el.toggleClass('is-selected', Boolean(isSelected));
+    },
+    onRender: function() {
+        this.checkIfDownloadable();
+        this.$el.attr(this.attributes());
+    },
+    checkIfDownloadable: function(){
+        this.$el.toggleClass('is-downloadable', this.model.get('metacard').get('properties').get('resource-download-url') !== undefined);
     },
     triggerDownload: function(){
         window.open(this.model.get('metacard').get('properties').get('resource-download-url'));

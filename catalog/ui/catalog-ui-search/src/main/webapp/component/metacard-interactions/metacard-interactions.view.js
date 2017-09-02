@@ -68,6 +68,7 @@ define([
             this.checkTypes();
             this.checkIfSaved();
             this.checkIsInWorkspace();
+            this.checkIfDownloadable();
             this.checkIfMultiple();
             this.checkIfRouted();
             this.checkIfBlacklisted();
@@ -126,7 +127,10 @@ define([
         },
         handleDownload: function(){
             this.model.forEach(function(result){
-                window.open(result.get('metacard').get('properties').get('resource-download-url'));
+                var downloadUrl = result.get('metacard').get('properties').get('resource-download-url');
+                if (downloadUrl !== undefined){
+                    window.open(downloadUrl);
+                }
             });
         },
         handleCreateSearch: function(){
@@ -210,6 +214,13 @@ define([
         },
         checkIfRouted: function(){
             this.$el.toggleClass('is-routed', Boolean(router.toJSON().name === 'openMetacard'));
+        },
+        checkIfDownloadable: function() {
+            var downloadable = this.model.find((result) => {
+                var downloadUrl = result.get('metacard').get('properties').get('resource-download-url');
+                return downloadUrl !== undefined;
+            });
+            this.$el.toggleClass('is-downloadable', downloadable !== undefined);
         },
         checkIfBlacklisted: function(){
             var pref = user.get('user').get('preferences');

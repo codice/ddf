@@ -25,11 +25,11 @@ var GeometryView = Marionette.ItemView.extend({
     isClustered: undefined,
     initialize: function() {
         this.updateGeometry();
-        this.listenTo(this.model.get('metacard').get('properties'), 'change', this.updateGeometry);
+        this.listenTo(this.model, 'change:metacard>properties change:metacard', this.updateGeometry);
     },
     updateGeometry: function(propertiesModel){
         if (propertiesModel && _.find(Object.keys(propertiesModel.changedAttributes()), function (attribute) {
-                return metacardDefinitions.metacardTypes[attribute] && metacardDefinitions.metacardTypes[attribute].type === "GEOMETRY";
+                return (metacardDefinitions.metacardTypes[attribute] && metacardDefinitions.metacardTypes[attribute].type === "GEOMETRY") || attribute === 'id';
             }) === undefined) {
             return;
         }

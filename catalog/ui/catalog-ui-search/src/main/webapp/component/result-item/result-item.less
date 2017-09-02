@@ -23,6 +23,10 @@
     text-align: right;
     height: @minimumButtonSize;
 
+    > .result-download {
+      display: none;
+    }
+
     > .result-actions, .result-validation {
       display: inline-block;
     }
@@ -160,5 +164,13 @@
 @{customElementNamespace}result-item.is-deleted {
   .header-icon.fa-trash {
     display: inline;
+  }
+}
+
+@{customElementNamespace}result-item.is-downloadable {
+  .content-footer {
+    > .result-download {
+      display: inline-block;
+    }
   }
 }
