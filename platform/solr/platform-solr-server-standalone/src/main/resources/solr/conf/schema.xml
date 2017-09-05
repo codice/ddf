@@ -234,10 +234,9 @@
     <!-- copyField commands copy one field to another at the time a document
           is added to the index.  It's used either to index the same field differently,
           or to add multiple fields to the same field for easier/faster searching.  -->
-    <copyField source="*_txt" dest="*_txt_tokenized"/>
-    <copyField source="*_txt" dest="*_txt_tokenized_has_case"/>
-    <copyField source="*_txt" dest="*_txt_ws"/>
-    <copyField source="*_txt" dest="*_txt_ws_has_case"/>
+    <copyField source="*_txt_tokenized" dest="*_txt_tokenized_has_case"/>
+    <copyField source="*_txt_tokenized" dest="*_txt_ws"/>
+    <copyField source="*_txt_tokenized" dest="*_txt_ws_has_case"/>
 
     <!-- Necessary for Spatial4j to work -->
     <copyField source="*_geo" dest="*_geo_index"/>
