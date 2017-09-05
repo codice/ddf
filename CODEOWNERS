@@ -43,12 +43,20 @@ distribution/test/          @codice/test
 
 catalog/core/                   @codice/core-apis
 
+catalog/core/catalog-core-commands/src/main/java/org/codice/ddf/commands/catalog/ExportCommand.java		@rzwiefel
+catalog/core/catalog-core-commands/src/main/java/org/codice/ddf/commands/catalog/ImportCommand.java		@rzwiefel
+
 catalog/core/catalog-core-contentresourcereader/    @codice/core-apis @stustison
 
 catalog/core/catalog-core-localstorageprovider/	    @codice/core-apis @stustison
 
 catalog/core/catalog-core-standardframework/src/main/**/impl/		  @codice/core-apis @stustison
 catalog/core/catalog-core-standardframework/src/main/**/resource/     @codice/core-apis @stustison
+catalog/core/catalog-core-standardframework/src/main/java/ddf/catalog/history/		@rzwiefel
+
+catalog/core/catalog-core-validationparser/ 	@rzwiefel
+
+catalog/core/catalog-core-versioning/*				@rzwiefel
 
 catalog/opensearch/	            @stustison
 
@@ -60,7 +68,10 @@ catalog/spatial/csw/            @bdeining
 
 catalog/spatial/registry/       @clockard
 
-catalog/ui/catalog-ui-search/   @andrewkfiedler
+catalog/ui/catalog-ui-search/                   @andrewkfiedler
+catalog/ui/catalog-ui-search/pom.xml            @andrewkfiedler @rzwiefel
+catalog/ui/catalog-ui-search/src/**/java/       @rzwiefel
+catalog/ui/catalog-ui-search/src/**/resources/  @rzwiefel
 
 catalog/ui/search-ui/standard/	@stustison
 
