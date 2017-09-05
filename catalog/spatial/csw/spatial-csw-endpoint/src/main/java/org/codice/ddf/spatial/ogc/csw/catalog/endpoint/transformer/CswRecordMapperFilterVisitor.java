@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) Codice Foundation
  * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings;
+package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer;
 
 import java.io.Serializable;
 import java.util.ArrayList;

@@ -18,8 +18,6 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.CswRecordMap;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.CswRecordMapperFilterVisitor;
 import org.geotools.filter.FilterFactoryImpl;
 import org.opengis.filter.Filter;
 
