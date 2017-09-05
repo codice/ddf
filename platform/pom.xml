@@ -103,7 +103,7 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>ddf.distribution</groupId>
+                <groupId>ddf.platform</groupId>
                 <artifactId>branding-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -388,5 +388,7 @@
         <module>platform-crypto-provider</module>
         <module>platform-app</module>
         <module>io</module>
+        <module>console-branding</module>
+        <module>ddf-branding-plugin</module>
     </modules>
 </project>

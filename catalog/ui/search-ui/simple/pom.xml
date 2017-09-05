@@ -41,8 +41,9 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>ddf.distribution</groupId>
+            <groupId>ddf.platform</groupId>
             <artifactId>branding-api</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
     <build>

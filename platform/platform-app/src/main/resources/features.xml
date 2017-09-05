@@ -28,6 +28,8 @@
           xmlns="http://karaf.apache.org/xmlns/features/v1.3.0"
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
+    <repository>mvn:org.apache.karaf.features/standard/${karaf.version}/xml/features</repository>
+
     <repository>mvn:org.apache.karaf.features/spring/${karaf.version}/xml/features</repository>
 
     <repository>mvn:org.apache.karaf.decanter/apache-karaf-decanter/${decanter.version}/xml/features</repository>
@@ -793,6 +795,25 @@
         <bundle start-level="40">mvn:org.apache.cxf/cxf-integration-cdi/${cxf.version}</bundle>
     </feature>
     <!-- END CXF Features -->
+
+    <feature name="kernel" install="manual" version="${project.version}">
+        <feature prerequisite="true" version="${karaf.version}">standard</feature>
+        <feature prerequisite="true" version="${karaf.version}">eventadmin</feature>
+        <feature prerequisite="true" version="${karaf.version}">jasypt-encryption</feature>
+        <feature prerequisite="true" version="${karaf.version}">http</feature>
+    </feature>
+
+    <feature name="branding-api" version="${project.version}" description="Branding API">
+        <bundle>mvn:ddf.platform/branding-api/${project.version}</bundle>
+    </feature>
+
+    <feature name="ddf-branding" version="${project.version}" description="DDF Branding">
+        <feature prerequisite="true">web-container</feature>
+        <feature prerequisite="true">branding-api</feature>
+        <bundle>mvn:commons-io/commons-io/${commons-io.version}</bundle>
+        <bundle>mvn:commons-configuration/commons-configuration/${commons-configuration.version}</bundle>
+        <bundle>mvn:ddf.platform/ddf-branding-plugin/${project.version}</bundle>
+    </feature>
 
     <feature name="platform-api" install="manual" version="${project.version}"
              description="Top Level Platform API">

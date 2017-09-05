@@ -269,7 +269,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>ddf.distribution</groupId>
+            <groupId>ddf.platform</groupId>
             <artifactId>ddf-branding-plugin</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
@@ -326,7 +326,8 @@
                             hazelcast,
                             sardine,
                             httpclient,
-                            httpcore
+                            httpcore,
+                            commons-io
                         </Embed-Dependency>
                         <Import-Package>
                             !org.eclipse.jetty.server.bio,
