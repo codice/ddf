@@ -63,6 +63,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.temporal.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.helpers.NamespaceSupport;
 
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -89,14 +90,14 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
 
     private final MetacardType metacardType;
 
-    private final Map<String, String> attributeNameMap;
+    private final CswRecordMap cswRecordMap;
 
     private Filter visitedFilter;
 
-    public CswRecordMapperFilterVisitor(Map<String, String> attributeNameMap,
-            MetacardType metacardType, List<MetacardType> metacardTypes) {
+    public CswRecordMapperFilterVisitor(CswRecordMap cswRecordMap, MetacardType metacardType,
+            List<MetacardType> metacardTypes) {
         this.metacardType = metacardType;
-        this.attributeNameMap = attributeNameMap;
+        this.cswRecordMap = cswRecordMap;
 
         attributeTypes = new HashMap<>();
         for (MetacardType type : metacardTypes) {
@@ -248,7 +249,8 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
                 propertyName) || GmdConstants.APISO_BOUNDING_BOX.equals(propertyName)) {
             name = Metacard.ANY_GEO;
         } else {
-            name = getDefaultMetacardFieldForPrefixedString(propertyName);
+            NamespaceSupport namespaceContext = expression.getNamespaceContext();
+            name = cswRecordMap.getProperty(propertyName, namespaceContext);
 
             if (SPATIAL_QUERY_TAG.equals(extraData)) {
                 AttributeDescriptor attrDesc = metacardType.getAttributeDescriptor(name);
@@ -607,18 +609,5 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
                             .toArray(Expression[]::new));
 
         }
-    }
-
-    private String getDefaultMetacardFieldForPrefixedString(String propertyName) {
-        if (propertyName.contains(":") && !isXpathPropertyName(propertyName)) {
-            String localName = propertyName.substring(propertyName.indexOf(":") + 1);
-            return attributeNameMap.getOrDefault(localName, localName);
-        } else {
-            return attributeNameMap.getOrDefault(propertyName, propertyName);
-        }
-    }
-
-    private boolean isXpathPropertyName(String propertyName) {
-        return propertyName.contains("/") || propertyName.contains("@");
     }
 }

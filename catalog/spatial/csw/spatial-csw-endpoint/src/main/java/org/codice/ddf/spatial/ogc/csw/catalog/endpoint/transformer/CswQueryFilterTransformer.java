@@ -19,9 +19,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.CswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.CswRecordMapperFilterVisitor;
 import org.geotools.filter.FilterFactoryImpl;
 import org.opengis.filter.Filter;
+import org.xml.sax.helpers.NamespaceSupport;
 
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.operation.Query;
@@ -35,10 +37,9 @@ public class CswQueryFilterTransformer implements QueryFilterTransformer {
     private CswRecordMapperFilterVisitor filterVisitor;
 
     public CswQueryFilterTransformer(MetacardType metacardType, List<MetacardType> metacardTypes) {
-        filterVisitor =
-                new CswRecordMapperFilterVisitor(DefaultCswRecordMap.getCswToMetacardAttributeNames(),
-                        metacardType,
-                        metacardTypes);
+        filterVisitor = new CswRecordMapperFilterVisitor(new MetacardCswRecordMap(),
+                metacardType,
+                metacardTypes);
     }
 
     @Override
@@ -56,5 +57,19 @@ public class CswQueryFilterTransformer implements QueryFilterTransformer {
                 queryRequest.isEnterprise(),
                 queryRequest.getSourceIds(),
                 queryRequest.getProperties());
+    }
+
+    public static class MetacardCswRecordMap implements CswRecordMap {
+
+        @Override
+        public String getProperty(String propertyName, NamespaceSupport context) {
+            return DefaultCswRecordMap.getDefaultMetacardFieldForPrefixedString(propertyName,
+                    context);
+        }
+
+        @Override
+        public String getProperty(String propertyName) {
+            return DefaultCswRecordMap.getDefaultMetacardFieldFor(propertyName);
+        }
     }
 }
