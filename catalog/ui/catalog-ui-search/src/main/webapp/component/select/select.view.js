@@ -41,6 +41,11 @@ define([
                 'data-help': this.model.get('help')
             };
         },
+        onRender: function(){
+            if (this.model.get('description')) {
+                this.$el.attr('data-help', this.model.get('description'));
+            }
+        },
         serializeData: function(){
             var modelJSON = this.model.toJSON();
             if (modelJSON.label.constructor === Array){
