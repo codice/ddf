@@ -40,7 +40,7 @@ define([
             return CQLUtils.transformFilterToCQL({
                 type: 'AND',
                 filters: [
-                    CQLUtils.transformCQLToFilter(cqlString), 
+                    CQLUtils.transformCQLToFilter(cqlString),
                     {
                         property: '"metacard-tags"',
                         type: "ILIKE",
@@ -106,7 +106,7 @@ define([
 
             initialize: function () {
                 this.currentIndexForSource = {};
-                
+
                 _.bindAll.apply(_, [this].concat(_.functions(this))); // underscore bindAll does not take array arg
                 this.set('id', this.getId());
                 this.listenTo(this, 'change:north change:south change:east change:west', this.setBBox);
@@ -297,7 +297,7 @@ define([
                         // already in correct format
                         break;
                 }
-                
+
                 data.count = user.get('user').get('preferences').get('resultCount');
 
                 data.sort = this.get('sortField') + ':' + this.get('sortOrder');
@@ -414,7 +414,7 @@ define([
                             response.options = options;
                             if (options.resort === true){
                                 model.get('results').fullCollection.sort();
-                            }                          
+                            }
                         },
                         error: function (model, response, options) {
                             var srcStatus = result.get('status').get(src);
@@ -484,12 +484,12 @@ define([
             color: function () {
                 return this.get('color');
             },
-            hasPreviousServerPage: function() { 
+            hasPreviousServerPage: function() {
                 return Boolean(_.find(this.currentIndexForSource, function(index){
                     return index > 1;
                 }));
             },
-            hasNextServerPage: function() { 
+            hasNextServerPage: function() {
                 var pageSize = user.get('user').get('preferences').get('resultCount');
                 return Boolean(this.get('result').get('status').find(function(status){
                     var startingIndex = this.getStartIndexForSource(status.id);
@@ -525,6 +525,26 @@ define([
                 if (this.get('result')) {
                     this.get('result').resetResultCountsBySource();
                 }
+            },
+            getResultsRangeLabel: function(resultsCollection) {
+                var results = resultsCollection.fullCollection.length;
+                var hits = _.filter(this.get('result').get('status').toJSON(), function (status) {
+                    return status.id !== 'cache';
+                }).reduce(function(hits, status){
+                    return status.hits ? hits + status.hits : hits;
+                }, 0);
+
+                if (results > hits) {
+                    return hits + ' results';
+                }
+
+                var clientState = resultsCollection.state || this.get('result').get('results').state;
+                var serverPageSize = user.get('user>preferences>resultCount');
+                var startingIndex = this.get('serverPageIndex') * serverPageSize +
+                    (clientState.currentPage - 1) * clientState.pageSize;
+                var endingIndex = startingIndex + resultsCollection.length;
+
+                return (startingIndex + 1) + '-' + endingIndex + ' of ' + hits;w
             }
         });
         return Query;

@@ -51,39 +51,40 @@ define([
         },
         previousPage: function() {
             this.model.getPreviousPage();
+            this.updateResultsRange();
         },
         nextPage: function() {
             this.model.getNextPage();
+            this.updateResultsRange();
         },
         lastPage: function() {
             this.model.getLastPage();
         },
         previousServerPage: function() {
-            this.options.query.getPreviousServerPage();
+            this.getQuery().getPreviousServerPage();
         },
         nextServerPage: function() {
-            this.options.query.getNextServerPage();
-        },        
+            this.getQuery().getNextServerPage();
+        },
         onRender: function(){
             this.updateSelectionInterface();
         },
         serializeData: function(){
-            var query = this.options.query;
+            var query = this.getQuery();
             var resultsCollection = this.model;
             return {
-                pages: this.currentPages(resultsCollection.state.currentPage, resultsCollection.state.totalPages),
+                pages: query.getResultsRangeLabel(this.model),
                 hasPreviousPage: resultsCollection.hasPreviousPage(),
                 hasNextPage: resultsCollection.hasNextPage(),
                 showNextServerPage: !resultsCollection.hasNextPage() && query.hasNextServerPage(),
                 showPreviousServerPage: !resultsCollection.hasPreviousPage() && query.hasPreviousServerPage(),
             };
         },
-        currentPages: function(current, total){
-            var pages = '';
-            if (current && total && total > 1) {
-                pages = current + ' of ' + total;
-            }
-            return pages;
+        getQuery: function() {
+            return this.options.selectionInterface.getCurrentQuery();
+        },
+        updateResultsRange: function() {
+            this.$(".status").text(this.getQuery().getResultsRangeLabel(this.model));
         }
     });
 });

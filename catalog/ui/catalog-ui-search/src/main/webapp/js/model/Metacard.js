@@ -708,7 +708,7 @@ define([
                     }
                 });
                 return allModels.slice(startIndex, endIndex);
-            }      
+            }
         });
 
         MetaCard.SourceStatus = Backbone.AssociatedModel.extend({
@@ -867,7 +867,7 @@ define([
 
                     var resultsIncludingDuplicates = this.get('results').fullCollection.map(function(m){ return m.pick('id', 'src'); })
                         .concat(this.get('queuedResults').fullCollection.map(function(m){ return m.pick('id', 'src'); }));
-                    var metacardIdToSourcesIndex = this.createIndexOfMetacardToSources(resultsIncludingDuplicates);                                      
+                    var metacardIdToSourcesIndex = this.createIndexOfMetacardToSources(resultsIncludingDuplicates);
 
                     var interimCollection = new MetaCard.Results(this.get('results').fullCollection.models);
                     interimCollection.add(this.get('queuedResults').fullCollection.models, {merge: true});
@@ -875,7 +875,7 @@ define([
                     interimCollection.fullCollection.sort();
                     var maxResults = user.get('user').get('preferences').get('resultCount');
                     this.get('results').fullCollection.reset(interimCollection.fullCollection.slice(0, maxResults));
-                   
+
                     this.updateResultCountsBySource(
                         this.createIndexOfSourceToResultCount(metacardIdToSourcesIndex, this.get('results').fullCollection)
                     );

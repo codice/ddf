@@ -24,7 +24,7 @@ define([
     'component/singletons/user-instance',
 ], function (Marionette, _, $, template, CustomElements, store, moment, user) {
 
-    function getResultsFound(total, data, query){
+    function getResultsFound(total, data){
         var hits = data.reduce(function(hits, status){
             return status.hits ? hits + status.hits : hits;
         }, 0);
@@ -36,17 +36,7 @@ define([
         } else if (total >= hits) {
             return total + ' results';
         } else {
-            var serverPageIndex = query.get('serverPageIndex');
-            if (serverPageIndex == 0) {
-                return 'Top ' + total + ' of ' + hits + ' results';
-            } else {
-                var serverPageSize = user.get('user>preferences>resultCount');
-                var startingIndex = serverPageIndex * serverPageSize;
-                var endingIndex = (startingIndex + total);
-                var serverTotal = Math.max(endingIndex, hits);
-
-                return (startingIndex + 1) + ' to ' + endingIndex + ' of ' + serverTotal + ' results';
-            }  
+            return hits + ' results';
         }
     }
 
@@ -111,19 +101,13 @@ define([
                     return status.id !== 'cache';
                 });
                 return {
-                    query: query,
-                    status: status,
-                    resultCount: getResultsFound(
-                        this.model.get('result').get('results').fullCollection.length, 
-                        status, 
-                        this.model),
+                    resultCount: getResultsFound(this.model.get('result').get('results').fullCollection.length, status),
                     pending: getPending(status),
                     failed: getFailed(status),
                     queryStatus: getLastRan(this.model.get('result>initiated'))
                 };
             } else {
                 return {
-                    query: query,
                     resultCount: 'Has not been run',
                     queryStatus: ''
                 };
