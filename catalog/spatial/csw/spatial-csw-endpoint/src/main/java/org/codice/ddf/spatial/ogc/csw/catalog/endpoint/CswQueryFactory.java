@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -232,6 +233,90 @@ public class CswQueryFactory {
         return filter;
     }
 
+    private QueryRequest normalizeSort(QueryRequest request) {
+        if (request == null) {
+            return null;
+        }
+
+        Query query = request.getQuery();
+        if (query == null) {
+            return request;
+        }
+
+        List<SortBy> sortBys = new ArrayList<>();
+
+        // Primary sort parameter
+        SortBy sortBy = query.getSortBy();
+        SortBy newSortBy = normalizeSortBy(sortBy);
+        if (newSortBy != null) {
+            sortBys.add(newSortBy);
+        }
+
+        // Additional sort parameters
+        Serializable extraSortBys = request.getPropertyValue(EXT_SORT_BY);
+        if (extraSortBys != null && extraSortBys instanceof SortBy[]) {
+            List<SortBy> extraSortBysList = Arrays.asList((SortBy[]) extraSortBys);
+            extraSortBysList.stream()
+                    .map(this::normalizeSortBy)
+                    .filter(Objects::nonNull)
+                    .forEach(sortBys::add);
+        }
+
+        Map<String, Serializable> newProperties = request.getProperties();
+        SortBy normalizedSortBy = null;
+        if (sortBys.size() > 0) {
+            normalizedSortBy = sortBys.get(0);
+        }
+        if (sortBys.size() > 1) {
+            SortBy[] extraSortBysArray = sortBys.subList(1, sortBys.size())
+                    .toArray(new SortBy[0]);
+            newProperties.put(EXT_SORT_BY, extraSortBysArray);
+        } else {
+            newProperties.remove(EXT_SORT_BY);
+        }
+
+        Query newQuery = new QueryImpl(query,
+                query.getStartIndex(),
+                query.getPageSize(),
+                normalizedSortBy,
+                query.requestsTotalResultsCount(),
+                query.getTimeoutMillis());
+
+        return new QueryRequestImpl(newQuery,
+                request.isEnterprise(),
+                request.getSourceIds(),
+                newProperties);
+    }
+
+    private SortBy normalizeSortBy(SortBy cswSortBy) {
+        if (cswSortBy == null) {
+            return null;
+        }
+
+        if (cswSortBy.getPropertyName() != null
+                && !attributeRegistry.lookup(cswSortBy.getPropertyName()
+                .getPropertyName())
+                .isPresent() && !DefaultCswRecordMap.hasDefaultMetacardFieldForPrefixedString(
+                cswSortBy.getPropertyName()
+                        .getPropertyName(),
+                cswSortBy.getPropertyName()
+                        .getNamespaceContext())) {
+            LOGGER.debug("Property {} is not a valid SortBy Field",
+                    cswSortBy.getPropertyName()
+                            .getPropertyName());
+            return null;
+        }
+
+        String name =
+                DefaultCswRecordMap.getDefaultMetacardFieldForPrefixedString(cswSortBy.getPropertyName()
+                                .getPropertyName(),
+                        cswSortBy.getPropertyName()
+                                .getNamespaceContext());
+
+        PropertyName propName = new AttributeExpressionImpl(new NameImpl(name));
+        return new SortByImpl(propName, cswSortBy.getSortOrder());
+    }
+
     private SortBy[] buildSort(SortByType sort) throws CswException {
         if (sort == null || sort.getSortProperty() == null) {
             return null;
@@ -250,26 +335,8 @@ public class CswQueryFactory {
                 return null;
             }
 
-            if (cswSortBy.getPropertyName() != null
-                    && !attributeRegistry.lookup(cswSortBy.getPropertyName()
-                    .getPropertyName())
-                    .isPresent() && !DefaultCswRecordMap.hasDefaultMetacardFieldForPrefixedString(
-                    cswSortBy.getPropertyName()
-                            .getPropertyName(),
-                    cswSortBy.getPropertyName()
-                            .getNamespaceContext())) {
-                LOGGER.debug("Property {} is not a valid SortBy Field",
-                        cswSortBy.getPropertyName()
-                                .getPropertyName());
-                continue;
-            }
-
-            String name =
-                    DefaultCswRecordMap.getDefaultMetacardFieldForPrefixedString(cswSortBy.getPropertyName()
-                                    .getPropertyName(),
-                            cswSortBy.getPropertyName()
-                                    .getNamespaceContext());
-
+            String name = cswSortBy.getPropertyName()
+                    .getPropertyName();
             PropertyName propName = new AttributeExpressionImpl(new NameImpl(name));
             SortBy sortBy = new SortByImpl(propName, cswSortBy.getSortOrder());
             sortBys.add(sortBy);
@@ -336,7 +403,7 @@ public class CswQueryFactory {
                     .orElse(result);
         }
 
-        return result;
+        return normalizeSort(result);
     }
 
     private QueryRequest getQueryRequest(Query query, boolean isEnterprise,
