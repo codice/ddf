@@ -31,7 +31,6 @@ import javax.xml.namespace.QName;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.ExtendedGeotoolsFunctionFactory;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswQueryFactoryTest;
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.CswQueryFilterTransformer;
 import org.geotools.feature.NameImpl;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.FilterFactoryImpl;
@@ -83,8 +82,7 @@ public class CswRecordMapperFilterVisitorTest {
 
     private static final String UNMAPPED_PROPERTY = "not_mapped_to_anything";
 
-    private static final CswRecordMap DEFAULT_CSW_RECORD_MAP =
-            new CswQueryFilterTransformer.MetacardCswRecordMap();
+    private static final CswRecordMap DEFAULT_CSW_RECORD_MAP = new MetacardCswRecordMap();
 
     private static FilterFactoryImpl factory;
 
