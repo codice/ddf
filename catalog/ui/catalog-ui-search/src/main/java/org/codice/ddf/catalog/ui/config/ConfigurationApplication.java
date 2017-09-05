@@ -172,8 +172,8 @@ public class ConfigurationApplication implements SparkApplication {
 
     public void setAttributeAliases(List<String> attributeAliases) {
         this.attributeAliases = attributeAliases.stream()
-                .map(str -> str.split("="))
-                .collect(Collectors.toMap(list -> list[0].trim(), list -> list[1].trim()));
+                .map(str -> str.split("=", 2))
+                .collect(Collectors.toMap(list -> list[0].trim(), list -> list.length > 1 ? list[1].trim() : ""));
     }
 
     public void setHiddenAttributes(List<String> hiddenAttributes) {
@@ -182,8 +182,8 @@ public class ConfigurationApplication implements SparkApplication {
 
     public void setAttributeDescriptions(List<String> attributeDescriptions) {
         this.attributeDescriptions = attributeDescriptions.stream()
-                .map(str -> str.split("="))
-                .collect(Collectors.toMap(list -> list[0].trim(), list -> list[1].trim()));
+                .map(str -> str.split("=", 2))
+                .collect(Collectors.toMap(list -> list[0].trim(), list -> list.length > 1 ? list[1].trim() : ""));
     }
 
     private List<String> readOnly = ImmutableList.of("checksum",
