@@ -89,7 +89,10 @@ public class FilteringDynamicSchemaResolver extends DynamicSchemaResolver {
 
   @Override
   public String getCaseSensitiveField(String mappedPropertyName) {
-    String field = super.getCaseSensitiveField(mappedPropertyName);
+    String field =
+        mappedPropertyName.split(SchemaFields.TEXT_SUFFIX, 0)[0]
+            + getFieldSuffix(AttributeType.AttributeFormat.STRING)
+            + getSpecialIndexSuffix(AttributeType.AttributeFormat.STRING);
     usedFields.add(field);
     return field;
   }
@@ -103,7 +106,10 @@ public class FilteringDynamicSchemaResolver extends DynamicSchemaResolver {
 
   @Override
   public String getWhitespaceTokenizedField(String mappedPropertyName) {
-    String field = super.getWhitespaceTokenizedField(mappedPropertyName);
+    String field =
+        mappedPropertyName.split(SchemaFields.TEXT_SUFFIX, 0)[0]
+            + getFieldSuffix(AttributeType.AttributeFormat.STRING)
+            + getSpecialIndexSuffix(AttributeType.AttributeFormat.STRING);
     usedFields.add(field);
     return field;
   }
