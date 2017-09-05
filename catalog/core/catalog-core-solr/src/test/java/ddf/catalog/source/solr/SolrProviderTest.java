@@ -2859,6 +2859,43 @@ public class SolrProviderTest extends SolrProviderTestCase {
                         .text(soughtWord));
     }
 
+    @Test
+    public void testExcludingAttributes() throws Exception {
+
+        deleteAllIn(provider);
+
+        List<Metacard> list = new ArrayList<Metacard>();
+
+        MockMetacard metacard1 = new MockMetacard(Library.getFlagstaffRecord());
+        String soughtWord = "nitf";
+        metacard1.setTitle(soughtWord);
+        list.add(metacard1);
+
+        MockMetacard metacard2 = new MockMetacard(Library.getTampaRecord());
+        list.add(metacard2);
+
+        MockMetacard metacard3 = new MockMetacard(Library.getShowLowRecord());
+        list.add(metacard3);
+
+        create(list);
+
+        QueryImpl query = new QueryImpl(filterBuilder.attribute(Metacard.ANY_TEXT)
+                .is()
+                .like()
+                .text(soughtWord));
+        Map<String, Serializable> properties = new HashMap<>();
+        properties.put(SolrMetacardClientImpl.EXCLUDE_ATTRIBUTES,
+                com.google.common.collect.Sets.newHashSet(Metacard.TITLE));
+        SourceResponse sourceResponse = provider.query(new QueryRequestImpl(query, properties));
+        assertEquals(1,
+                sourceResponse.getResults()
+                        .size());
+        assertThat(sourceResponse.getResults()
+                .get(0)
+                .getMetacard()
+                .getTitle(), is(nullValue()));
+    }
+
     /**
      * Testing Tokenization of the search phrase.
      *

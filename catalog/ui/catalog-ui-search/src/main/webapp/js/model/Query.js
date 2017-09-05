@@ -85,6 +85,7 @@ define([
                     scheduleUnits: 'minutes',
                     timeType: 'modified',
                     radiusUnits: 'meters',
+                    excludeXmlAndBinary: true,
                     radius: 0,
                     count: properties.resultCount,
                     start: 1,
