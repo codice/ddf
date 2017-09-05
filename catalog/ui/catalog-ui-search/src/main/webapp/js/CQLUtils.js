@@ -27,9 +27,12 @@ define([
         sanitizeGeometryCql: function (cqlString) {
             return cqlString.split("'POLYGON((").join("POLYGON((").split("))'").join("))")
                 .split("'POINT(").join("POINT(").replace(/(POINT\([-0-9. ]*\))/g, '$1' + specialDelimiter).split(")"+specialDelimiter+"'").join(")")
-                .split("'LINESTRING(").join("LINESTRING(").split("))'").join("))");
+                .split(")'").join(")").split("'LINESTRING(").join("LINESTRING(").split("))'").join("))");
         },
         getProperty: function (filter) {
+            if (typeof(filter.property) !== 'string') {
+                return null;
+            }
             return filter.property.split('"').join('');
         },
         generateFilter: function (type, property, value) {
@@ -41,7 +44,7 @@ define([
                     return {
                         type: type,
                         property: '"' + property + '"',
-                        value: value
+                        value: value,
                     };
             }
         },
@@ -77,6 +80,17 @@ define([
                         distance: Number(model.radius)
                     };
             }
+        },
+        generateFilterForFilterFunction: function(filterFunctionName, params) {
+            return {
+                type: '=',
+                value: true,
+                property: {
+                    type: 'FILTER_FUNCTION',
+                    filterFunctionName,
+                    params                       
+                }
+            };
         },
         bboxToCQLPolygon: function (model) {
             if (model.locationType === 'usng'){

@@ -31,6 +31,7 @@ define([
             COMMA: /^,/,
             LOGICAL: /^(AND|OR)/i,
             VALUE: /^('([^']|'')*'|-?\d+(\.\d*)?|\.\d+)/,
+            FILTER_FUNCTION: /^[a-z]\w+\(/,
             BOOLEAN: /^(false|true)/i,
             LPAREN: /^\(/,
             RPAREN: /^\)/,
@@ -72,18 +73,19 @@ define([
         },
 
         follows = {
-            LPAREN: ['NOT', 'GEOMETRY', 'SPATIAL', 'PROPERTY', 'VALUE', 'LPAREN'],
-            RPAREN: ['NOT', 'LOGICAL', 'END', 'RPAREN'],
-            PROPERTY: ['COMPARISON', 'BETWEEN', 'COMMA', 'IS_NULL', 'BEFORE', 'AFTER', 'DURING'],
+            ROOT_NODE: ['NOT', 'GEOMETRY', 'SPATIAL', 'FILTER_FUNCTION', 'PROPERTY', 'LPAREN'],
+            LPAREN: ['NOT', 'GEOMETRY', 'SPATIAL', 'FILTER_FUNCTION', 'PROPERTY', 'VALUE', 'LPAREN'],
+            RPAREN: ['NOT', 'LOGICAL', 'END', 'RPAREN', 'COMPARISON', 'COMMA'],
+            PROPERTY: ['COMPARISON', 'BETWEEN', 'COMMA', 'IS_NULL', 'BEFORE', 'AFTER', 'DURING', 'RPAREN'],
             BETWEEN: ['VALUE'],
             IS_NULL: ['END'],
             COMPARISON: ['RELATIVE', 'VALUE', 'BOOLEAN'],
-            COMMA: ['GEOMETRY', 'VALUE', 'UNITS', 'PROPERTY'],
+            COMMA: ['FILTER_FUNCTION', 'GEOMETRY', 'VALUE', 'UNITS', 'PROPERTY'],
             VALUE: ['LOGICAL', 'COMMA', 'RPAREN', 'END'],
             BOOLEAN: ['RPAREN'],
             SPATIAL: ['LPAREN'],
             UNITS: ['RPAREN'],
-            LOGICAL: ['NOT', 'VALUE', 'SPATIAL', 'PROPERTY', 'LPAREN'],
+            LOGICAL: ['FILTER_FUNCTION', 'NOT', 'VALUE', 'SPATIAL', 'PROPERTY', 'LPAREN'],
             NOT: ['PROPERTY', 'LPAREN'],
             GEOMETRY: ['COMMA', 'RPAREN'],
             BEFORE: ['TIME'],
@@ -91,7 +93,8 @@ define([
             DURING: ['TIME_PERIOD'],
             TIME: ['LOGICAL', 'RPAREN', 'END'],
             TIME_PERIOD: ['LOGICAL', 'RPAREN', 'END'],
-            RELATIVE: ['RPAREN']
+            RELATIVE: ['RPAREN'],
+            FILTER_FUNCTION: ['LPAREN','PROPERTY','VALUE','RPAREN'],
         },
 
         precedence = {
@@ -124,6 +127,13 @@ define([
             'AFTER': temporalClass,
             'DURING': temporalClass
         },
+
+        // as an improvement, these could be figured out while building the syntax tree
+        filterFunctionParamCount = {
+            'proximity': 3,
+            'pi': 0
+        },
+
         dateTimeFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
     function tryToken(text, pattern) {
@@ -162,7 +172,7 @@ define([
 
     function tokenize(text) {
         var results = [];
-        var token, expect = ["NOT", "GEOMETRY", "SPATIAL", "PROPERTY", "LPAREN"];
+        var token, expect = follows["ROOT_NODE"];
 
         do {
             token = nextToken(text, expect);
@@ -215,6 +225,11 @@ define([
                 case "LPAREN":
                     operatorStack.push(tok);
                     break;
+                case "FILTER_FUNCTION":    
+                    operatorStack.push(tok);
+                    // insert a '(' manually because we lost the original LPAREN matching the FILTER_FUNCTION regex
+                    operatorStack.push({type: "LPAREN"});
+                    break;                               
                 case "RPAREN":
                     while (operatorStack.length > 0 &&
                     (operatorStack[operatorStack.length - 1].type !== "LPAREN")
@@ -223,8 +238,10 @@ define([
                     }
                     operatorStack.pop(); // toss out the LPAREN
 
-                    if (operatorStack.length > 0 &&
-                        operatorStack[operatorStack.length - 1].type === "SPATIAL") {
+                    // if this right parenthesis ends a function argument list (it's not for a logical grouping),
+                    // it's now time to add that function to the postfix-ordered list
+                    var lastOperatorType = operatorStack.length > 0 && operatorStack[operatorStack.length - 1].type;
+                    if (lastOperatorType === "SPATIAL" || lastOperatorType === "FILTER_FUNCTION") {
                         postfix.push(operatorStack.pop());
                     }
                     break;
@@ -311,10 +328,8 @@ define([
                         return Number(tok.text);
                     }
                 case "BOOLEAN":
-                    switch(tok.text){
-                        case 'false':
-                            return false;
-                        case 'true':
+                    switch(tok.text.toUpperCase()){
+                        case 'TRUE':
                             return true;
                         default: 
                             return false;
@@ -376,6 +391,23 @@ define([
                     };
                 case "RELATIVE":
                     return tok.text.substring(1, tok.text.length -1);
+                case "FILTER_FUNCTION": 
+                    var filterFunctionName = tok.text.slice(0, -1); // remove trailing '('
+                    var paramCount = filterFunctionParamCount[filterFunctionName];
+                    if (paramCount === undefined) {
+                        throw new Error("Unsupported filter function: " + filterFunctionName);
+                    }
+
+                    var params = Array.apply(null, Array(paramCount)).map(function(){
+                        return buildTree();
+                    }).reverse();
+
+                    return {
+                        type: tok.type,
+                        filterFunctionName,
+                        params
+                    };                    
+
                 default:
                     return tok.text;
             }
@@ -454,10 +486,10 @@ define([
                         write(filter.lowerBoundary) + " AND " +
                         write(filter.upperBoundary);
                 } else {
-                    return (filter.value !== null) ? filter.property +
-                    " " + filter.type + " " +
-                    write(filter.value) : filter.property +
-                    " " + filter.type;
+                    var property = typeof(filter.property) === "object" ? write(filter.property) : filter.property;
+                    return (filter.value !== null)
+                        ? property + " " + filter.type + " " + write(filter.value) 
+                        : property + " " + filter.type;
                 }
                 break;
             case temporalClass:
@@ -472,7 +504,12 @@ define([
                 }
                 break;
             case undefined:
-                if (typeof filter === "string") {
+                if (filter.type == "FILTER_FUNCTION") {
+                    return filter.filterFunctionName + "(" + filter.params.map(function(param){
+                        return write(param);
+                    }).join(",") + ")";
+                }
+                else if (typeof filter === "string") {
                     return "'" + filter.replace(/'/g, "''") + "'";
                 } else if (typeof filter === "number") {
                     return String(filter);

@@ -69,7 +69,7 @@ define([
             }));
             this.listenTo(this.filterOperator.currentView.model, 'change:value', this.handleOperatorUpdate);
             this.filterContents.show(new FilterCollectionView({
-                collection: new Backbone.Collection([new FilterModel()]),
+                collection: new Backbone.Collection([this.createFilterModel()]),
                 'filter-builder': this
             }));
         },
@@ -83,7 +83,7 @@ define([
             this.model.destroy();
         },
         addFilter: function() {
-            var FilterView = this.filterContents.currentView.addFilter(new FilterModel());
+            var FilterView = this.filterContents.currentView.addFilter(this.createFilterModel());
             this.handleEditing();
             return FilterView;
         },
@@ -213,6 +213,11 @@ define([
         },
         turnOffNesting: function(){
             this.$el.addClass('hide-nesting');
+        },
+        createFilterModel: function() {
+            return new FilterModel({
+                isResultFilter: Boolean(this.model.get("isResultFilter"))
+            });
         }
     });
 });
