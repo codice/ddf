@@ -33,6 +33,7 @@ import org.opengis.filter.PropertyIsEqualTo;
 import org.opengis.filter.PropertyIsLike;
 import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;
+import org.opengis.filter.spatial.BinarySpatialOperator;
 import org.opengis.filter.spatial.Contains;
 import org.opengis.filter.spatial.DWithin;
 import org.opengis.filter.spatial.Intersects;
@@ -45,6 +46,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.io.WKTWriter;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.filter.impl.PropertyIsEqualToLiteral;
@@ -135,21 +139,30 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
             // Example:
             // <ogc:Literal>org.geotools.geometry.jts.spatialschema.geometry.primitive.PointImpl@dc33f184</ogc:Literal>
             Literal literalWrapper = (Literal) filter.getExpression2();
+            Object geometryExpression = literalWrapper.getValue();
 
-            // Luckily we know what type the geometry expression should be, so
-            // we
-            // can cast it
-            PointImpl point = (PointImpl) literalWrapper.evaluate(null);
-            double[] coords = point.getCentroid()
-                    .getCoordinate();
             double distance = filter.getDistance();
 
-            LOGGER.debug("point: coords[0] = {},   coords[1] = {}", coords[0], coords[1]);
-            LOGGER.debug("radius = {}", distance);
-
-            openSearchFilterVisitorObject.setSpatialSearch(new SpatialDistanceFilter(coords[0],
-                    coords[1],
-                    distance));
+            if (geometryExpression instanceof PointImpl) {
+                PointImpl point = (PointImpl) literalWrapper.evaluate(null);
+                double[] coords = point.getCentroid()
+                        .getCoordinate();
+                LOGGER.trace("point: coords[0] = {},   coords[1] = {}", coords[0], coords[1]);
+                LOGGER.trace("radius = {}", distance);
+                openSearchFilterVisitorObject.setSpatialSearch(new SpatialDistanceFilter(coords[0],
+                        coords[1],
+                        distance));
+            } else if (geometryExpression instanceof Point) {
+                Point point = (Point) literalWrapper.evaluate(null);
+                Coordinate coords = point.getCoordinate();
+                LOGGER.trace("point: coords.x = {},   coords.y = {}", coords.x, coords.y);
+                LOGGER.trace("radius = {}", distance);
+                openSearchFilterVisitorObject.setSpatialSearch(new SpatialDistanceFilter(coords.x,
+                        coords.y,
+                        distance));
+            } else {
+                LOGGER.debug("Only POINT geometry WKT for DWithin filter is supported");
+            }
         } else {
             LOGGER.debug(ONLY_AND_MSG);
         }
@@ -165,50 +178,8 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
     @Override
     public Object visit(Contains filter, Object data) {
         LOGGER.trace("ENTERING: Contains filter");
-        OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
-                getOpenSearchFilterVisitorObjectFromData(data);
-        if (openSearchFilterVisitorObject == null) {
-            return data;
-        }
 
-        if (openSearchFilterVisitorObject.getCurrentNest() == null || NestedTypes.AND.equals(
-                openSearchFilterVisitorObject.getCurrentNest())) {
-            // The geometric point is wrapped in a <Literal> element, so have to
-            // get geometry expression as literal and then evaluate it to get
-            // the geometry.
-            // Example:
-            // <ogc:Literal>org.geotools.geometry.jts.spatialschema.geometry.primitive.SurfaceImpl@64a7c45e</ogc:Literal>
-            Literal literalWrapper = (Literal) filter.getExpression2();
-            Object geometryExpression = literalWrapper.getValue();
-
-            StringBuffer geometryWkt = new StringBuffer();
-
-            if (geometryExpression instanceof SurfaceImpl) {
-                SurfaceImpl polygon = (SurfaceImpl) literalWrapper.evaluate(null);
-
-                Coordinate[] coords = polygon.getJTSGeometry()
-                        .getCoordinates();
-
-                geometryWkt.append("POLYGON((");
-                for (int i = 0; i < coords.length; i++) {
-                    geometryWkt.append(coords[i].x);
-                    geometryWkt.append(" ");
-                    geometryWkt.append(coords[i].y);
-
-                    if (i != (coords.length - 1)) {
-                        geometryWkt.append(",");
-                    }
-                }
-                geometryWkt.append("))");
-                openSearchFilterVisitorObject.setSpatialSearch(new SpatialFilter(geometryWkt.toString()));
-
-                LOGGER.debug("geometryWkt = [{}]", geometryWkt.toString());
-            } else {
-                LOGGER.debug("Only POLYGON geometry WKT for Contains filter is supported");
-            }
-        } else {
-            LOGGER.debug(ONLY_AND_MSG);
-        }
+        buildSpatialSearch(filter, data);
 
         LOGGER.trace("EXITING: Contains filter");
 
@@ -221,10 +192,19 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
     @Override
     public Object visit(Intersects filter, Object data) {
         LOGGER.trace("ENTERING: Intersects filter");
+
+        buildSpatialSearch(filter, data);
+
+        LOGGER.trace("EXITING: Intersects filter");
+
+        return super.visit(filter, data);
+    }
+
+    private void buildSpatialSearch(BinarySpatialOperator filter, Object data) {
         OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
                 getOpenSearchFilterVisitorObjectFromData(data);
         if (openSearchFilterVisitorObject == null) {
-            return data;
+            return;
         }
 
         if (openSearchFilterVisitorObject.getCurrentNest() == null || NestedTypes.AND.equals(
@@ -236,39 +216,23 @@ public class OpenSearchFilterVisitor extends DefaultFilterVisitor {
             // <ogc:Literal>org.geotools.geometry.jts.spatialschema.geometry.primitive.SurfaceImpl@64a7c45e</ogc:Literal>
             Literal literalWrapper = (Literal) filter.getExpression2();
             Object geometryExpression = literalWrapper.getValue();
-
-            StringBuffer geometryWkt = new StringBuffer();
+            WKTWriter wktWriter = new WKTWriter();
 
             if (geometryExpression instanceof SurfaceImpl) {
-                SurfaceImpl polygon = (SurfaceImpl) literalWrapper.evaluate(null);
-
-                Coordinate[] coords = polygon.getJTSGeometry()
-                        .getCoordinates();
-
-                geometryWkt.append("POLYGON((");
-                for (int i = 0; i < coords.length; i++) {
-                    geometryWkt.append(coords[i].x);
-                    geometryWkt.append(" ");
-                    geometryWkt.append(coords[i].y);
-
-                    if (i != (coords.length - 1)) {
-                        geometryWkt.append(",");
-                    }
-                }
-                geometryWkt.append("))");
-                openSearchFilterVisitorObject.setSpatialSearch(new SpatialFilter(geometryWkt.toString()));
-
-                LOGGER.debug("geometryWkt = [{}]", geometryWkt.toString());
+                SurfaceImpl surface = (SurfaceImpl) literalWrapper.evaluate(null);
+                Polygon polygon = (Polygon) surface.getJTSGeometry();
+                openSearchFilterVisitorObject.setSpatialSearch(new SpatialFilter(wktWriter.write(
+                        polygon)));
+            } else if (geometryExpression instanceof Polygon) {
+                Polygon polygon = (Polygon) literalWrapper.evaluate(null);
+                openSearchFilterVisitorObject.setSpatialSearch(new SpatialFilter(wktWriter.write(
+                        polygon)));
             } else {
-                LOGGER.debug("Only POLYGON geometry WKT for Intersects filter is supported");
+                LOGGER.debug("Only POLYGON geometry WKT for Contains/Intersects filter is supported");
             }
         } else {
             LOGGER.debug(ONLY_AND_MSG);
         }
-
-        LOGGER.trace("EXITING: Intersects filter");
-
-        return super.visit(filter, data);
     }
 
     /**

@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.geotools.filter.temporal.TOverlapsImpl;
+import org.geotools.filter.text.cql2.CQLException;
+import org.geotools.filter.text.ecql.ECQL;
 import org.junit.Before;
 import org.junit.Test;
 import org.opengis.filter.And;
@@ -47,7 +49,13 @@ public class TestOpenSearchFilterVisitor {
 
     private static final String WKT_POINT = "POINT(1.0 2.0)";
 
-    private static final String WKT_POLYGON = "POLYGON((1.0 1.0,1.0 2.0,2.0 2.0,2.0 1.0,1.0 1.0))";
+    private static final String WKT_POLYGON = "POLYGON ((1.1 1.1, 1.1 2.1, 2.1 2.1, 2.1 1.1, 1.1 1.1))";
+
+    private static final String CQL_DWITHIN = "(DWITHIN(anyGeo, " + WKT_POINT + ", 1, meters))";
+
+    private static final String CQL_CONTAINS = "(CONTAINS(anyGeo, " + WKT_POLYGON + "))";
+
+    private static final String CQL_INTERSECTS = "(INTERSECTS(anyGeo, " + WKT_POLYGON + "))";
 
     private static final String TEST_STRING = "test";
 
@@ -95,7 +103,7 @@ public class TestOpenSearchFilterVisitor {
     }
 
     @Test
-    public void testAndilter() {
+    public void testAndFilter() {
         Filter textLikeFilter = geotoolsFilterBuilder.attribute(Core.TITLE)
                 .is()
                 .like()
@@ -159,6 +167,21 @@ public class TestOpenSearchFilterVisitor {
     }
 
     @Test
+    public void testDWithinCqlFilter() throws CQLException {
+        DWithin dWithinFilter = (DWithin) ECQL.toFilter(CQL_DWITHIN);
+
+        OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
+                new OpenSearchFilterVisitorObject();
+        openSearchFilterVisitorObject.setCurrentNest(NestedTypes.AND);
+        OpenSearchFilterVisitorObject result =
+                (OpenSearchFilterVisitorObject) openSearchFilterVisitor.visit(dWithinFilter,
+                        openSearchFilterVisitorObject);
+        SpatialFilter spatialFilter = result.getSpatialSearch();
+        assertThat(spatialFilter, notNullValue());
+        assertThat(spatialFilter.getGeometryWkt(), is(WKT_POINT));
+    }
+
+    @Test
     public void testContains() {
         Contains containsFilter = (Contains) geotoolsFilterBuilder.attribute(Core.TITLE)
                 .containing()
@@ -202,6 +225,20 @@ public class TestOpenSearchFilterVisitor {
                         openSearchFilterVisitorObject);
         SpatialFilter spatialFilter = result.getSpatialSearch();
         assertThat(spatialFilter, nullValue());
+    }
+
+    @Test
+    public void testContainsCqlFilter() throws CQLException {
+        Contains containsFilter = (Contains) ECQL.toFilter(CQL_CONTAINS);
+        OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
+                new OpenSearchFilterVisitorObject();
+        openSearchFilterVisitorObject.setCurrentNest(NestedTypes.AND);
+        OpenSearchFilterVisitorObject result =
+                (OpenSearchFilterVisitorObject) openSearchFilterVisitor.visit(containsFilter,
+                        openSearchFilterVisitorObject);
+        SpatialFilter spatialFilter = result.getSpatialSearch();
+        assertThat(spatialFilter, notNullValue());
+        assertThat(spatialFilter.getGeometryWkt(), is(WKT_POLYGON));
     }
 
     @Test
@@ -278,6 +315,20 @@ public class TestOpenSearchFilterVisitor {
                         openSearchFilterVisitorObject);
         SpatialFilter spatialFilter = result.getSpatialSearch();
         assertThat(spatialFilter, nullValue());
+    }
+
+    @Test
+    public void testIntersectsCqlFilter() throws CQLException {
+        Intersects intersectsFilter = (Intersects) ECQL.toFilter(CQL_INTERSECTS);
+        OpenSearchFilterVisitorObject openSearchFilterVisitorObject =
+                new OpenSearchFilterVisitorObject();
+        openSearchFilterVisitorObject.setCurrentNest(NestedTypes.AND);
+        OpenSearchFilterVisitorObject result =
+                (OpenSearchFilterVisitorObject) openSearchFilterVisitor.visit(intersectsFilter,
+                        openSearchFilterVisitorObject);
+        SpatialFilter spatialFilter = result.getSpatialSearch();
+        assertThat(spatialFilter, notNullValue());
+        assertThat(spatialFilter.getGeometryWkt(), is(WKT_POLYGON));
     }
 
     @Test
