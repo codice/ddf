@@ -800,6 +800,7 @@ define([
                 this.listenTo(this, 'change:currentlyViewed', this.handleCurrentlyViewed);
                 this.listenTo(this, 'error', this.handleError);
                 this.listenTo(this, 'sync', this.handleSync);
+                this.resultCountsBySource = {};
             },
             handleError: function(resultModel, response, sent){
                 var dataJSON = JSON.parse(sent.data);
@@ -832,12 +833,18 @@ define([
                         if (result.hasThumbnail && thumbnailAction) {
                            result.metacard.properties.thumbnail = generateThumbnailUrl(thumbnailAction.url);
                         }
+                        result.src = resp.status.id; // store the name of the source that this result came from
                     });
 
                     if (this.allowAutoMerge()){
                         this.lastMerge = Date.now();
                         options.resort = true;
                     }
+                }
+
+                if (_.isEmpty(this.resultCountsBySource)) {
+                    var metacardIdToSourcesIndex = this.createIndexOfMetacardToSources(resp.results);
+                    this.updateResultCountsBySource(this.createIndexOfSourceToResultCount(metacardIdToSourcesIndex, resp.results));
                 }
 
                 return {
@@ -857,14 +864,61 @@ define([
                 if (userTriggered === true || this.allowAutoMerge()) {
                     this.lastMerge = Date.now();
                     this.set('merged', true);
+
+                    var resultsIncludingDuplicates = this.get('results').fullCollection.map(function(m){ return m.pick('id', 'src'); })
+                        .concat(this.get('queuedResults').fullCollection.map(function(m){ return m.pick('id', 'src'); }));
+                    var metacardIdToSourcesIndex = this.createIndexOfMetacardToSources(resultsIncludingDuplicates);
+
                     var interimCollection = new MetaCard.Results(this.get('results').fullCollection.models);
                     interimCollection.add(this.get('queuedResults').fullCollection.models, {merge: true});
                     interimCollection.fullCollection.comparator = this.get('results').fullCollection.comparator;
                     interimCollection.fullCollection.sort();
-                    this.get('results').fullCollection.reset(interimCollection.fullCollection.slice(0, user.get('user').get('preferences').get('resultCount')));
+                    var maxResults = user.get('user').get('preferences').get('resultCount');
+                    this.get('results').fullCollection.reset(interimCollection.fullCollection.slice(0, maxResults));
+
+                    this.updateResultCountsBySource(
+                        this.createIndexOfSourceToResultCount(metacardIdToSourcesIndex, this.get('results').fullCollection)
+                    );
+
                     this.get('queuedResults').fullCollection.reset();
                     this.updateStatus();
                 }
+            },
+            updateResultCountsBySource(resultCounts) {
+                for(var src in resultCounts) {
+                    this.resultCountsBySource[src] = Math.max(
+                        this.resultCountsBySource[src] || 0,
+                        resultCounts[src]
+                    );
+                }
+            },
+            getSourceList() {
+                return Object.keys(this.resultCountsBySource);
+            },
+            getLastResultCountForSource(src) {
+                return this.resultCountsBySource[src] || 0;
+            },
+            resetResultCountsBySource() {
+                this.resultCountsBySource = {};
+            },
+            // create an index of metacard id -> list of sources it appears in
+            createIndexOfMetacardToSources: function(models) {
+                return models.reduce(function(index, metacard){
+                    index[metacard.id] = index[metacard.id] || [];
+                    index[metacard.id].push(metacard.src);
+                    return index;
+                }, {});
+            },
+            // create an index of source -> last number of results from server
+            createIndexOfSourceToResultCount: function(metacardIdToSourcesIndex, models) {
+                return models.reduce(function(index, metacard) {
+                    var sourcesForMetacard = metacardIdToSourcesIndex[metacard.id];
+                    sourcesForMetacard.forEach((src) => {
+                        index[src] = index[src] || 0;
+                        index[src]++;
+                    });
+                    return index;
+                }, {});
             },
             cacheHasReturned: function(){
                 return this.get('status').filter(function(statusModel){

@@ -11,6 +11,16 @@
   button {
     .button-mixin(@primary-color);
     width: 10%;
+
+    &.server-next, 
+    &.server-previous {
+      width: auto;
+      padding: 0 10px;
+      
+      span {
+        font-size: @mediumFontSize;
+      }
+    }
   }
 
   .status {

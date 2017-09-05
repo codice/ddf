@@ -11,18 +11,34 @@
  *
  **/
  --}}
-<button class="first" {{#unless hasPreviousPage}}disabled{{/unless}}>
-    <i class="fa fa-angle-double-left" aria-hidden="true"></i>
-</button>
-<button class="previous" {{#unless hasPreviousPage}}disabled{{/unless}}>
-    <i class="fa fa-angle-left" aria-hidden="true"></i>
-</button>
+{{#if showPreviousServerPage}}
+    <button class="server-previous">
+        <span class="fa fa-angle-double-left"/>
+        <span>Back</span>
+    </button>
+{{else}}
+    <button class="first" {{#unless hasPreviousPage}}disabled{{/unless}}>
+        <i class="fa fa-angle-double-left" aria-hidden="true"></i>
+    </button>
+    <button class="previous" {{#unless hasPreviousPage}}disabled{{/unless}}>
+        <i class="fa fa-angle-left" aria-hidden="true"></i>
+    </button>
+{{/if}}
+
 <span class="status">
     {{pages}}
 </span>
-<button class="next" {{#unless hasNextPage}}disabled{{/unless}}>
-    <i class="fa fa-angle-right" aria-hidden="true"></i>
-</button>
-<button class="last" {{#unless hasNextPage}}disabled{{/unless}}>
-    <i class="fa fa-angle-double-right" aria-hidden="true"></i>
-</button>
+
+{{#if showNextServerPage}}
+    <button class="server-next">
+        <span>More</span>
+        <span class="fa fa-angle-double-right"/>
+    </button>
+{{else}}
+    <button class="next" {{#unless hasNextPage}}disabled{{/unless}}>
+        <i class="fa fa-angle-right" aria-hidden="true"></i>
+    </button>
+    <button class="last" {{#unless hasNextPage}}disabled{{/unless}}>
+        <i class="fa fa-angle-double-right" aria-hidden="true"></i>
+    </button>
+{{/if}}

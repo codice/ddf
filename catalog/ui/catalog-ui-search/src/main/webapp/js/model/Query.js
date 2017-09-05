@@ -40,7 +40,7 @@ define([
             return CQLUtils.transformFilterToCQL({
                 type: 'AND',
                 filters: [
-                    CQLUtils.transformCQLToFilter(cqlString), 
+                    CQLUtils.transformCQLToFilter(cqlString),
                     {
                         property: '"metacard-tags"',
                         type: "ILIKE",
@@ -97,13 +97,16 @@ define([
                     sortOrder: 'descending',
                     dtstart: undefined,
                     dtend: undefined,
-                    result: undefined
+                    result: undefined,
+                    serverPageIndex: 0
                 };
             },
 
             drawing: false,
 
             initialize: function () {
+                this.currentIndexForSource = {};
+
                 _.bindAll.apply(_, [this].concat(_.functions(this))); // underscore bindAll does not take array arg
                 this.set('id', this.getId());
                 this.listenTo(this, 'change:north change:south change:east change:west', this.setBBox);
@@ -114,6 +117,7 @@ define([
                 this.listenTo(this, 'change:usng', this.setRadiusUsng);
                 this.listenTo(this, 'EndExtent', this.notDrawing);
                 this.listenTo(this, 'BeginExtent', this.drawingOn);
+                this.listenTo(user.get('user>preferences'), 'change:resultCount', this.handleChangeResultCount);
 
                 if (this.get('scheduled')) {
                     this.startSearch();
@@ -293,7 +297,7 @@ define([
                         // already in correct format
                         break;
                 }
-                
+
                 data.count = user.get('user').get('preferences').get('resultCount');
 
                 data.sort = this.get('sortField') + ':' + this.get('sortOrder');
@@ -385,8 +389,10 @@ define([
                 } else if (options.limitToHistoric) {
                     cqlString = limitToHistoric(cqlString);
                 }
+                var query = this;
                 this.currentSearches = sources.map(function (src) {
                     data.src = src;
+                    data.start = query.getStartIndexForSource(src);
 
                     // since the "cache" source will return all cached results, need to
                     // limit the cached results to only those from a selected source
@@ -477,6 +483,68 @@ define([
             },
             color: function () {
                 return this.get('color');
+            },
+            hasPreviousServerPage: function() {
+                return Boolean(_.find(this.currentIndexForSource, function(index){
+                    return index > 1;
+                }));
+            },
+            hasNextServerPage: function() {
+                var pageSize = user.get('user').get('preferences').get('resultCount');
+                return Boolean(this.get('result').get('status').find(function(status){
+                    var startingIndex = this.getStartIndexForSource(status.id);
+                    var total = status.get('hits');
+                    return (total - startingIndex) >= pageSize;
+                }.bind(this)));
+            },
+            getPreviousServerPage: function() {
+                this.get('result').getSourceList().forEach(function(src){
+                    var increment = this.get('result').getLastResultCountForSource(src);
+                    this.currentIndexForSource[src] = Math.max(this.getStartIndexForSource(src) - increment, 1);
+                }.bind(this));
+                this.set('serverPageIndex', Math.max(0, this.get('serverPageIndex') - 1));
+                this.startSearch();
+            },
+            getNextServerPage: function() {
+                this.get('result').getSourceList().forEach(function(src){
+                    var increment = this.get('result').getLastResultCountForSource(src);
+                    this.currentIndexForSource[src] = this.getStartIndexForSource(src) + increment;
+                }.bind(this));
+                this.set('serverPageIndex', this.get('serverPageIndex') + 1);
+                this.startSearch();
+            },
+            // get the starting offset (beginning of the server page) for the given source
+            getStartIndexForSource: function(src) {
+                return this.currentIndexForSource[src] || 1;
+            },
+            // if the server page size changes, reset our indices and let them get
+            // recalculated on the next fetch
+            handleChangeResultCount: function() {
+                this.currentIndexForSource = {};
+                this.set('serverPageIndex', 0);
+                if (this.get('result')) {
+                    this.get('result').resetResultCountsBySource();
+                }
+            },
+            getResultsRangeLabel: function(resultsCollection) {
+                var results = resultsCollection.fullCollection.length;
+                var hits = _.filter(this.get('result').get('status').toJSON(), function (status) {
+                    return status.id !== 'cache';
+                }).reduce(function(hits, status){
+                    return status.hits ? hits + status.hits : hits;
+                }, 0);
+
+                if (results > hits) {
+                    return hits + ' results';
+                }
+
+                var clientState = resultsCollection.state || this.get('result').get('results').state;
+                var serverPageSize = user.get('user>preferences>resultCount');
+                var startingIndex = this.get('serverPageIndex') * serverPageSize +
+                    (clientState.currentPage - 1) * clientState.pageSize;
+                var endingIndex = startingIndex + resultsCollection.length;
+
+                return (startingIndex + 1) + '-' + endingIndex + ' of ' + hits;w
             }
         });
         return Query;

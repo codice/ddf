@@ -42,37 +42,49 @@ define([
             'click .first': 'firstPage',
             'click .previous': 'previousPage',
             'click .next': 'nextPage',
-            'click .last': 'lastPage'
+            'click .last': 'lastPage',
+            'click .server-previous': 'previousServerPage',
+            'click .server-next': 'nextServerPage'
         },
         firstPage: function() {
             this.model.getFirstPage();
         },
         previousPage: function() {
             this.model.getPreviousPage();
+            this.updateResultsRange();
         },
         nextPage: function() {
             this.model.getNextPage();
+            this.updateResultsRange();
         },
         lastPage: function() {
             this.model.getLastPage();
+        },
+        previousServerPage: function() {
+            this.getQuery().getPreviousServerPage();
+        },
+        nextServerPage: function() {
+            this.getQuery().getNextServerPage();
         },
         onRender: function(){
             this.updateSelectionInterface();
         },
         serializeData: function(){
+            var query = this.getQuery();
             var resultsCollection = this.model;
             return {
-                pages: this.currentPages(resultsCollection.state.currentPage, resultsCollection.state.totalPages),
+                pages: query.getResultsRangeLabel(this.model),
                 hasPreviousPage: resultsCollection.hasPreviousPage(),
-                hasNextPage: resultsCollection.hasNextPage()
+                hasNextPage: resultsCollection.hasNextPage(),
+                showNextServerPage: !resultsCollection.hasNextPage() && query.hasNextServerPage(),
+                showPreviousServerPage: !resultsCollection.hasPreviousPage() && query.hasPreviousServerPage(),
             };
         },
-        currentPages: function(current, total){
-            var pages = '';
-            if (current && total && total > 1) {
-                pages = current + ' of ' + total;
-            }
-            return pages;
+        getQuery: function() {
+            return this.options.selectionInterface.getCurrentQuery();
+        },
+        updateResultsRange: function() {
+            this.$(".status").text(this.getQuery().getResultsRangeLabel(this.model));
         }
     });
 });
