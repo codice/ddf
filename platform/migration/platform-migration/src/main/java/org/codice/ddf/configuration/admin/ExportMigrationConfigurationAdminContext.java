@@ -98,7 +98,7 @@ public class ExportMigrationConfigurationAdminContext extends ExportMigrationCon
         if (fpid == null) {
             return true;
         } // else - property reports it shouldbe a managed service factory, so it is valid only if the cfg object reports it is too
-        return ConfigurationAdminMigratable.isManagedService(cfg);
+        return ConfigurationAdminMigratable.isManagedServiceFactory(cfg);
     }
 
     public Stream<ExportMigrationEntry> entries() {
