@@ -171,18 +171,7 @@ public class ConfigurationApplication implements SparkApplication {
     }
 
     public void setAttributeAliases(List<String> attributeAliases) {
-        this.attributeAliases = attributeAliases.stream()
-                .map(str -> str.split("=", 2))
-                .filter((list) -> {
-                    if (list.length <= 1) {
-                        if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("Filtered out invalid attribute/alias: {}", list[0]);
-                        }
-                        return false;
-                    }
-                    return true;
-                })
-                .collect(Collectors.toMap(list -> list[0].trim(), list -> list[1].trim()));
+        this.attributeAliases = parseAttributeAndValuePairs(attributeAliases);
     }
 
     public void setHiddenAttributes(List<String> hiddenAttributes) {
@@ -190,18 +179,7 @@ public class ConfigurationApplication implements SparkApplication {
     }
 
     public void setAttributeDescriptions(List<String> attributeDescriptions) {
-        this.attributeDescriptions = attributeDescriptions.stream()
-                .map(str -> str.split("=", 2))
-                .filter((list) -> {
-                    if (list.length <= 1) {
-                        if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("Filtered out invalid attribute/description: {}", list[0]);
-                        }
-                        return false;
-                    }
-                    return true;
-                })
-                .collect(Collectors.toMap(list -> list[0].trim(), list -> list[1].trim()));
+        this.attributeDescriptions = parseAttributeAndValuePairs(attributeDescriptions);
     }
 
     private List<String> readOnly = ImmutableList.of("checksum",
@@ -519,6 +497,19 @@ public class ConfigurationApplication implements SparkApplication {
         }
 
         return config;
+    }
+
+    private Map<String, String> parseAttributeAndValuePairs(List<String> pairs) {
+        return pairs.stream()
+            .map(str -> str.split("=", 2))
+            .filter((list) -> {
+                if (list.length <= 1) {
+                    LOGGER.debug("Filtered out invalid attribute/value pair: {}", list[0]);
+                    return false;
+                }
+                return true;
+            })
+            .collect(Collectors.toMap(list -> list[0].trim(), list -> list[1].trim()));
     }
 
     public HttpProxyService getHttpProxy() {
