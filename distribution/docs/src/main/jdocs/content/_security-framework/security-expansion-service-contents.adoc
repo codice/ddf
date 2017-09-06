@@ -11,9 +11,10 @@ In addition to these two defined uses of the expansion service, developers are f
 
 Each instance of the expansion service consists of a collection of rulesets.
 Each ruleset consists of a key value and its associated set of rules.
-Callers of the expansion service provide a key and an original value to be expanded.
+Callers of the expansion service provide a key and a value to be expanded.
 The expansion service then looks up the set of rules for the specified key.
-The expansion service then cumulatively applies each of the rules in the set starting with the original value, with the resulting set of values being returned to the caller.
+The expansion service cumulatively applies each of the rules in the set, starting with the original value.
+The result is returned to the caller.
 
 .Expansion Service Ruleset Format
 [cols="1,2m,2m" options="header"]
@@ -70,3 +71,4 @@ The examples below use the following collection of rulesets:
 |===
 
 Note that the rules listed for each key are processed in order, so they may build upon each other, i.e., a new value from the new replacement string may be expanded by a subsequent rule.
+In the example `Location:Goodyear` would expand to `Goodyear AZ USA` and `Title:VP-Sales` would expand to `VP-Sales VP Sales`.

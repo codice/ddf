@@ -56,12 +56,12 @@
 +------------------------------------------------------------------------------------------------------------------------------------------------------------+
 ....
 
-The Delegate Servlet Filter is the topmost filter for all web contexts.
+The Delegate Servlet Filter is the topmost filter of all web contexts.
 It initializes all Security Filters and runs them in order according to service ranking:
 
 . The *Web SSO Filter* reads from the web context policy manager and functions as the first decision point.
 If the request is from a whitelisted context, no further authentication is needed and the request goes directly to the desired endpoint.
-If the context is not on the whitelist, the filter will attempt to get a handler for the context.
+If the context is not on the whitelist, the filter will attempt to get a claims handler for the context.
 The filter loops through all configured context handlers until one signals that it has found authentication information that it can use to build a token.
 This configuration can be changed by modifying the web context policy manager configuration.
 If unable to resolve the context, the filter will return an authentication error and the process stops.

@@ -5,7 +5,7 @@
 :order: 01
 :summary: Guest Interceptor.
 
-The goal of the `GuestInterceptor` is to allow non-secure clients (SOAP requests without security headers) to access secure service endpoints. 
+The goal of the `GuestInterceptor` is to allow non-secure clients (such as SOAP requests without security headers) to access secure service endpoints. 
 
 All requests to secure endpoints must include, as part of the incoming message, a user's credentials in the form of a SAML assertion or a reference to a SAML assertion.
 For REST/HTTP requests, either the assertion itself or the session reference (that contains the assertion) is included.
