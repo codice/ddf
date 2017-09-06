@@ -28,7 +28,9 @@ pipeline {
                 retry(3) {
                     checkout scm
                 }
-                sh 'mvn clean install -DskipStatic=true -DskipTests=true -pl $POMFIX'
+                withMaven(maven: 'M3', jdk: 'jdk8-latest', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LINUX_MVN_RANDOM}') {
+                    sh 'mvn clean install -DskipStatic=true -DskipTests=true -pl $POMFIX'
+                }
             }
         }
         // The incremental build will be triggered only for PRs. It will build the differences between the PR and the target branch
