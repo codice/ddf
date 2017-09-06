@@ -13,6 +13,9 @@
  */
 package org.codice.ddf.endpoints.rest;
 
+import static ddf.catalog.data.AttributeType.AttributeFormat.BINARY;
+import static ddf.catalog.data.AttributeType.AttributeFormat.OBJECT;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,8 +23,10 @@ import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -32,7 +37,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
@@ -60,6 +64,7 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.codec.CharEncoding;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.input.BoundedInputStream;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
@@ -122,7 +127,6 @@ import ddf.mime.MimeTypeMapper;
 import ddf.mime.MimeTypeResolutionException;
 import ddf.mime.MimeTypeResolver;
 import ddf.mime.MimeTypeToTransformerMapper;
-
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
@@ -162,6 +166,8 @@ public class RESTEndpoint implements RESTService {
     private static final String DEFAULT_MIME_TYPE = "application/octet-stream";
 
     private static final String DEFAULT_FILE_NAME = "file";
+
+    public static final int MAX_INPUT_SIZE = 65_536;
 
     private UuidGenerator uuidGenerator;
 
@@ -732,20 +738,17 @@ public class RESTEndpoint implements RESTService {
                 }
 
                 if (createInfo == null) {
-                    UpdateRequest updateRequest = new UpdateRequestImpl(id, generateMetacard(
-                            mimeType,
-                            id,
-                            message,
-                            transformerParam));
+                    UpdateRequest updateRequest = new UpdateRequestImpl(id,
+                            generateMetacard(mimeType, id, message, transformerParam));
                     catalogFramework.update(updateRequest);
                 } else {
                     UpdateStorageRequest streamUpdateRequest = new UpdateStorageRequestImpl(
                             Collections.singletonList(new IncomingContentItem(id,
-                                            createInfo.getStream(),
-                                            createInfo.getContentType(),
-                                            createInfo.getFilename(),
-                                            0,
-                                            createInfo.getMetacard())),
+                                    createInfo.getStream(),
+                                    createInfo.getContentType(),
+                                    createInfo.getFilename(),
+                                    0,
+                                    createInfo.getMetacard())),
                             null);
                     catalogFramework.update(streamUpdateRequest);
                 }
@@ -820,10 +823,10 @@ public class RESTEndpoint implements RESTService {
                 } else {
                     CreateStorageRequest streamCreateRequest = new CreateStorageRequestImpl(
                             Collections.singletonList(new IncomingContentItem(uuidGenerator,
-                                            createInfo.getStream(),
-                                            createInfo.getContentType(),
-                                            createInfo.getFilename(),
-                                            createInfo.getMetacard())),
+                                    createInfo.getStream(),
+                                    createInfo.getContentType(),
+                                    createInfo.getFilename(),
+                                    createInfo.getMetacard())),
                             null);
                     createResponse = catalogFramework.create(streamCreateRequest);
                 }
@@ -922,65 +925,79 @@ public class RESTEndpoint implements RESTService {
 
     private void parseOverrideAttributes(List<Attribute> attributes, String parsedName,
             InputStream inputStream) {
-        Optional<AttributeType.AttributeFormat> attributeFormat = metacardTypes.stream()
+        metacardTypes.stream()
                 .map(metacardType -> metacardType.getAttributeDescriptor(parsedName))
                 .filter(Objects::nonNull)
                 .findFirst()
                 .map(AttributeDescriptor::getType)
-                .map(AttributeType::getAttributeFormat);
-        attributeFormat.ifPresent(attributeFormat1 -> {
-            try {
-                switch (attributeFormat1) {
-                case XML:
-                case GEOMETRY:
-                case STRING:
-                    attributes.add(new AttributeImpl(parsedName, IOUtils.toString(inputStream)));
-                    break;
-                case BOOLEAN:
-                    attributes.add(new AttributeImpl(parsedName, Boolean.valueOf(IOUtils.toString(
-                            inputStream))));
-                    break;
-                case SHORT:
-                    attributes.add(new AttributeImpl(parsedName, Short.valueOf(IOUtils.toString(
-                            inputStream))));
-                    break;
-                case LONG:
-                    attributes.add(new AttributeImpl(parsedName, Long.valueOf(IOUtils.toString(
-                            inputStream))));
-                    break;
-                case INTEGER:
-                    attributes.add(new AttributeImpl(parsedName, Integer.valueOf(IOUtils.toString(
-                            inputStream))));
-                    break;
-                case FLOAT:
-                    attributes.add(new AttributeImpl(parsedName, Float.valueOf(IOUtils.toString(
-                            inputStream))));
-                    break;
-                case DOUBLE:
-                    attributes.add(new AttributeImpl(parsedName, Double.valueOf(IOUtils.toString(
-                            inputStream))));
-                    break;
-                case DATE:
-                    Instant instant = Instant.parse(IOUtils.toString(inputStream));
-                    if (instant == null) {
-                        break;
-                    }
-                    attributes.add(new AttributeImpl(parsedName, Date.from(instant)));
-                    break;
-                case BINARY:
-                    attributes.add(new AttributeImpl(parsedName, IOUtils.toByteArray(inputStream)));
-                    break;
-                case OBJECT:
-                    LOGGER.debug("Object type not supported for override");
-                    break;
-                }
-            } catch (IOException e) {
-                LOGGER.debug("Unable to read attribute to override", e);
-            } finally {
-                IOUtils.closeQuietly(inputStream);
+                .map(AttributeType::getAttributeFormat)
+                .ifPresent((attributeFormat) -> parseAttribute(attributes,
+                        parsedName,
+                        inputStream,
+                        attributeFormat));
+    }
+
+    private void parseAttribute(List<Attribute> attributes, String parsedName,
+            InputStream inputStream, AttributeType.AttributeFormat attributeFormat) {
+        try (InputStream is = inputStream; InputStream boundedStream = new BoundedInputStream(is,
+                MAX_INPUT_SIZE + 1)) {
+            if (attributeFormat == OBJECT) {
+                LOGGER.debug("Object type not supported for override");
+                return;
             }
 
-        });
+            byte[] bytes = IOUtils.toByteArray(boundedStream);
+            if (bytes.length > MAX_INPUT_SIZE) {
+                LOGGER.debug("Attribute length is limited to {} bytes", MAX_INPUT_SIZE);
+                return;
+            }
+
+            if (attributeFormat == BINARY) {
+                attributes.add(new AttributeImpl(parsedName, bytes));
+                return;
+            }
+
+            String attribute = new String(bytes, Charset.defaultCharset());
+
+            switch (attributeFormat) {
+            case XML:
+            case GEOMETRY:
+            case STRING:
+                attributes.add(new AttributeImpl(parsedName, attribute));
+                break;
+            case BOOLEAN:
+                attributes.add(new AttributeImpl(parsedName, Boolean.valueOf(attribute)));
+                break;
+            case SHORT:
+                attributes.add(new AttributeImpl(parsedName, Short.valueOf(attribute)));
+                break;
+            case LONG:
+                attributes.add(new AttributeImpl(parsedName, Long.valueOf(attribute)));
+                break;
+            case INTEGER:
+                attributes.add(new AttributeImpl(parsedName, Integer.valueOf(attribute)));
+                break;
+            case FLOAT:
+                attributes.add(new AttributeImpl(parsedName, Float.valueOf(attribute)));
+                break;
+            case DOUBLE:
+                attributes.add(new AttributeImpl(parsedName, Double.valueOf(attribute)));
+                break;
+            case DATE:
+                try {
+                    Instant instant = Instant.parse(attribute);
+                    attributes.add(new AttributeImpl(parsedName, Date.from(instant)));
+                } catch (DateTimeParseException e) {
+                    LOGGER.debug("Unable to parse instant '{}'", attribute, e);
+                }
+                break;
+            default:
+                LOGGER.debug("Attribute format '{}' not supported", attributeFormat);
+                break;
+            }
+        } catch (IOException e) {
+            LOGGER.debug("Unable to read attribute to override", e);
+        }
     }
 
     private Metacard parseMetadata(String transformerParam, Metacard metacard,
@@ -1292,8 +1309,8 @@ public class RESTEndpoint implements RESTService {
             if (rangeHeader.startsWith(BYTES_EQUAL)) {
                 String tempString = rangeHeader.substring(BYTES_EQUAL.length());
                 if (tempString.contains("-")) {
-                    response = rangeHeader.substring(BYTES_EQUAL.length(), rangeHeader.lastIndexOf(
-                            "-"));
+                    response = rangeHeader.substring(BYTES_EQUAL.length(),
+                            rangeHeader.lastIndexOf("-"));
                 } else {
                     response = rangeHeader.substring(BYTES_EQUAL.length());
                 }

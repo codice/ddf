@@ -66,6 +66,8 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Strings;
+
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.content.operation.CreateStorageRequest;
 import ddf.catalog.data.BinaryContent;
@@ -352,6 +354,67 @@ public class TestRestEndpoint {
         createInfo = rest.parseAttachments(attachments, "xml");
 
         assertThat(createInfo.getMetacard().getMetadata(), equalTo("<meta>beta</meta>"));
+        assertThat(createInfo.getMetacard().getAttribute("foo"), equalTo(null));
+    }
+
+    @Test
+    public void testParseAttachmentsTooLarge()
+            throws IOException, CatalogTransformerException, SourceUnavailableException,
+            IngestException, InvalidSyntaxException, MimeTypeResolutionException,
+            URISyntaxException {
+        CatalogFramework framework = givenCatalogFramework(SAMPLE_ID);
+        BundleContext bundleContext = mock(BundleContext.class);
+        Collection<ServiceReference<InputTransformer>> serviceReferences = new ArrayList<>();
+        ServiceReference serviceReference = mock(ServiceReference.class);
+        InputTransformer inputTransformer = mock(InputTransformer.class);
+        MetacardImpl metacard = new MetacardImpl();
+        metacard.setMetadata("Some Text Again");
+        when(inputTransformer.transform(any())).thenReturn(metacard);
+        when(bundleContext.getService(serviceReference)).thenReturn(inputTransformer);
+        serviceReferences.add(serviceReference);
+        when(bundleContext.getServiceReferences(InputTransformer.class, "(id=xml)")).thenReturn(serviceReferences);
+
+        RESTEndpoint rest = new RESTEndpoint(framework) {
+            @Override
+            BundleContext getBundleContext() {
+                return bundleContext;
+            }
+        };
+        rest.setMetacardTypes(Collections.singletonList(BasicTypes.BASIC_METACARD));
+        MimeTypeMapper mimeTypeMapper = mock(MimeTypeMapper.class);
+        when(mimeTypeMapper.getMimeTypeForFileExtension("txt")).thenReturn("text/plain");
+        when(mimeTypeMapper.getMimeTypeForFileExtension("xml")).thenReturn("text/xml");
+        rest.setMimeTypeMapper(mimeTypeMapper);
+
+        addMatchingService(rest, Arrays.asList(getSimpleTransformer()));
+
+        List<Attachment> attachments = new ArrayList<>();
+        ContentDisposition contentDisposition = new ContentDisposition(
+                "form-data; name=parse.resource; filename=C:\\DDF\\metacard.txt");
+        Attachment attachment = new Attachment("parse.resource", new ByteArrayInputStream("Some Text".getBytes()), contentDisposition);
+        attachments.add(attachment);
+        ContentDisposition contentDisposition1 = new ContentDisposition(
+                "form-data; name=parse.metadata; filename=C:\\DDF\\metacard.xml");
+        Attachment attachment1 = new Attachment("parse.metadata", new ByteArrayInputStream("Some Text Again".getBytes()), contentDisposition1);
+        attachments.add(attachment1);
+
+        RESTEndpoint.CreateInfo createInfo = rest.parseAttachments(attachments, "xml");
+        assertThat(createInfo.getMetacard().getMetadata(), equalTo("Some Text Again"));
+
+        ContentDisposition contentDisposition2 = new ContentDisposition(
+                "form-data; name=metadata; filename=C:\\DDF\\metacard.xml");
+        Attachment attachment2 = new Attachment("metadata", new ByteArrayInputStream(Strings.repeat("hi", 100_000).getBytes()), contentDisposition2);
+        attachments.add(attachment2);
+
+        ContentDisposition contentDisposition3 = new ContentDisposition(
+                "form-data; name=foo; filename=C:\\DDF\\metacard.xml");
+        Attachment attachment3 = new Attachment("foo", new ByteArrayInputStream("bar".getBytes()), contentDisposition3);
+        attachments.add(attachment3);
+
+        createInfo = rest.parseAttachments(attachments, "xml");
+
+        // Ensure that the metadata was not overriden because it was too large to be parsed
+        assertThat(createInfo.getMetacard().getMetadata(), equalTo("Some Text Again"));
         assertThat(createInfo.getMetacard().getAttribute("foo"), equalTo(null));
     }
 
