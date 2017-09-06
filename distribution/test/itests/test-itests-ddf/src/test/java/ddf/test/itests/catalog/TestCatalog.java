@@ -14,6 +14,7 @@
 package ddf.test.itests.catalog;
 
 import static java.lang.String.format;
+import static org.codice.ddf.itests.common.AbstractIntegrationTest.DynamicUrl.SECURE_ROOT;
 import static org.codice.ddf.itests.common.WaitCondition.expect;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.deleteMetacard;
 import static org.codice.ddf.itests.common.catalog.CatalogTestCommons.ingest;
@@ -153,6 +154,13 @@ public class TestCatalog extends AbstractIntegrationTest {
             "catalog-metacard-backup-filestorage";
 
     private static final String DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS = "data/products";
+
+
+    private static final DynamicUrl SOLR_SCHEMA_PATH = new DynamicUrl(SECURE_ROOT,
+            HTTPS_PORT,
+            "/solr/catalog/schema");
+
+    private static final String SOLR_CLIENT_PID = "ddf.catalog.source.solr.rest.SolrRest";
 
     @Rule
     public TestName testName = new TestName();
@@ -2458,6 +2466,29 @@ public class TestCatalog extends AbstractIntegrationTest {
                 .statusCode(HttpStatus.SC_BAD_REQUEST)
                 .when()
                 .post(REST_PATH.getUrl());
+    }
+
+    @Test
+    public void testSolrSimilarityConfiguration() throws Exception {
+        getServiceManager().startFeature(true, "catalog-solr-solrclient");
+        getServiceManager().waitForHttpEndpoint(SOLR_SCHEMA_PATH.getUrl());
+
+        Dictionary<String, Object> props = new Hashtable<>();
+        props.put("solrSchemaUrl", SOLR_SCHEMA_PATH.getUrl());
+        props.put("b", .943f);
+        props.put("k1", 1.067f);
+        Configuration config = configAdmin.getConfiguration(SOLR_CLIENT_PID, null);
+        config.update(props);
+
+        expect("Solr Configuration Updated for instance " + SOLR_SCHEMA_PATH.getUrl()).within(60,
+                TimeUnit.SECONDS)
+                .checkEvery(1, TimeUnit.SECONDS)
+                .until(() -> {
+                    Response response = given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
+                            .get(SOLR_SCHEMA_PATH.getUrl());
+                    String responseString = response.getBody().prettyPrint();
+                    return responseString.contains("\"b\":\"0.943\"");
+                });
     }
 
     protected String ingestXmlFromResource(String resourceName) throws IOException {
