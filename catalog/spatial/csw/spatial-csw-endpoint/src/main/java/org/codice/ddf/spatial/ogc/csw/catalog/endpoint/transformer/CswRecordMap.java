@@ -25,7 +25,7 @@ public interface CswRecordMap {
      * Gets the catalog taxonomy attribute name for the property name,
      * or returns the property name if not mapped. {@link NamespaceSupport}
      * will be used to resolve namespaces. If {@link NamespaceSupport} is
-     * null, then {@link CswRecordMap#getProperty(String)} will be used.
+     * null, then {@link CswRecordMap#getProperty(String)} should be used.
      *
      * @param propertyName CSW query property name, can be prefixed.
      * @param context      Namespace context from the CSW query
