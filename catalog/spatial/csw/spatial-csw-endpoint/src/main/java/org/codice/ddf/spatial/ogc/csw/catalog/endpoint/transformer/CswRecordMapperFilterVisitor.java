@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) Codice Foundation
  * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings;
+package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -26,7 +26,6 @@ import org.codice.ddf.libs.geo.GeoFormatException;
 import org.codice.ddf.libs.geo.util.GeospatialUtil;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdConstants;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.converter.CswRecordConverter;
 import org.geotools.filter.LiteralExpressionImpl;
 import org.geotools.filter.visitor.DuplicatingFilterVisitor;
@@ -91,11 +90,15 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
 
     private final MetacardType metacardType;
 
+    private final CswRecordMap cswRecordMap;
+
     private Filter visitedFilter;
 
-    public CswRecordMapperFilterVisitor(MetacardType metacardType,
+    public CswRecordMapperFilterVisitor(CswRecordMap cswRecordMap, MetacardType metacardType,
             List<MetacardType> metacardTypes) {
         this.metacardType = metacardType;
+        this.cswRecordMap = cswRecordMap;
+
         attributeTypes = new HashMap<>();
         for (MetacardType type : metacardTypes) {
             for (AttributeDescriptor ad : type.getAttributeDescriptors()) {
@@ -246,10 +249,8 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
                 propertyName) || GmdConstants.APISO_BOUNDING_BOX.equals(propertyName)) {
             name = Metacard.ANY_GEO;
         } else {
-            NamespaceSupport namespaceSupport = expression.getNamespaceContext();
-
-            name = DefaultCswRecordMap.getDefaultCswRecordMap()
-                    .getDefaultMetacardFieldForPrefixedString(propertyName, namespaceSupport);
+            NamespaceSupport namespaceContext = expression.getNamespaceContext();
+            name = cswRecordMap.getProperty(propertyName, namespaceContext);
 
             if (SPATIAL_QUERY_TAG.equals(extraData)) {
                 AttributeDescriptor attrDesc = metacardType.getAttributeDescriptor(name);
@@ -610,4 +611,3 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
         }
     }
 }
-

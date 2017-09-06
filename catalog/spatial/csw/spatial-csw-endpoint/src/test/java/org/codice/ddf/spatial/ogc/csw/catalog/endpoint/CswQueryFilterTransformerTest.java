@@ -21,6 +21,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.MetacardCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.CswQueryFilterTransformer;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,7 +38,8 @@ public class CswQueryFilterTransformerTest {
 
     @Before
     public void setUp() {
-        transformer = new CswQueryFilterTransformer(CswQueryFactoryTest.getCswMetacardType(),
+        transformer = new CswQueryFilterTransformer(new MetacardCswRecordMap(),
+                CswQueryFactoryTest.getCswMetacardType(),
                 Collections.emptyList());
     }
 

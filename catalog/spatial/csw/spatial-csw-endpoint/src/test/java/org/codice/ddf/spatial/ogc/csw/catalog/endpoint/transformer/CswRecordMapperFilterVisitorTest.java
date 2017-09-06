@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) Codice Foundation
  * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
@@ -10,8 +10,8 @@
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- **/
-package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings;
+ */
+package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.not;
@@ -31,6 +31,7 @@ import javax.xml.namespace.QName;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.ExtendedGeotoolsFunctionFactory;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswQueryFactoryTest;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.MetacardCswRecordMap;
 import org.geotools.feature.NameImpl;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.FilterFactoryImpl;
@@ -82,6 +83,8 @@ public class CswRecordMapperFilterVisitorTest {
 
     private static final String UNMAPPED_PROPERTY = "not_mapped_to_anything";
 
+    private static final CswRecordMap DEFAULT_CSW_RECORD_MAP = new MetacardCswRecordMap();
+
     private static FilterFactoryImpl factory;
 
     private static Expression attrExpr;
@@ -111,12 +114,16 @@ public class CswRecordMapperFilterVisitorTest {
         mockMetacardTypeList = new ArrayList<>();
         mockMetacardTypeList.add(metacardType);
 
-        visitor = new CswRecordMapperFilterVisitor(metacardType, mockMetacardTypeList);
+        visitor = new CswRecordMapperFilterVisitor(DEFAULT_CSW_RECORD_MAP,
+                metacardType,
+                mockMetacardTypeList);
     }
 
     @Test
     public void testVisitWithUnmappedName() {
-        CswRecordMapperFilterVisitor visitor = new CswRecordMapperFilterVisitor(metacardType,
+        CswRecordMapperFilterVisitor visitor = new CswRecordMapperFilterVisitor(
+                DEFAULT_CSW_RECORD_MAP,
+                metacardType,
                 mockMetacardTypeList);
 
         PropertyName propertyName = (PropertyName) visitor.visit(attrExpr, null);
@@ -130,7 +137,9 @@ public class CswRecordMapperFilterVisitorTest {
                 CswConstants.DUBLIN_CORE_SCHEMA,
                 CswConstants.OWS_BOUNDING_BOX,
                 CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX)));
-        CswRecordMapperFilterVisitor visitor = new CswRecordMapperFilterVisitor(metacardType,
+        CswRecordMapperFilterVisitor visitor = new CswRecordMapperFilterVisitor(
+                DEFAULT_CSW_RECORD_MAP,
+                metacardType,
                 mockMetacardTypeList);
 
         PropertyName propertyName = (PropertyName) visitor.visit(propName, null);
@@ -145,7 +154,9 @@ public class CswRecordMapperFilterVisitorTest {
                 CswConstants.CSW_ALTERNATIVE,
                 CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX)));
 
-        CswRecordMapperFilterVisitor visitor = new CswRecordMapperFilterVisitor(metacardType,
+        CswRecordMapperFilterVisitor visitor = new CswRecordMapperFilterVisitor(
+                DEFAULT_CSW_RECORD_MAP,
+                metacardType,
                 mockMetacardTypeList);
 
         PropertyName propertyName = (PropertyName) visitor.visit(propName, null);
@@ -284,7 +295,9 @@ public class CswRecordMapperFilterVisitorTest {
 
     @Test
     public void testVisitPropertyIsFuzzy() {
-        visitor = new CswRecordMapperFilterVisitor(metacardType, mockMetacardTypeList);
+        visitor = new CswRecordMapperFilterVisitor(DEFAULT_CSW_RECORD_MAP,
+                metacardType,
+                mockMetacardTypeList);
         Expression val1 = factory.property("fooProperty");
         Expression val2 = factory.literal("fooLiteral");
 

@@ -18,7 +18,6 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.CswRecordMapperFilterVisitor;
 import org.geotools.filter.FilterFactoryImpl;
 import org.opengis.filter.Filter;
 
@@ -33,8 +32,9 @@ public class CswQueryFilterTransformer implements QueryFilterTransformer {
 
     private CswRecordMapperFilterVisitor filterVisitor;
 
-    public CswQueryFilterTransformer(MetacardType metacardType, List<MetacardType> metacardTypes) {
-        filterVisitor = new CswRecordMapperFilterVisitor(metacardType, metacardTypes);
+    public CswQueryFilterTransformer(CswRecordMap recordMap, MetacardType metacardType,
+            List<MetacardType> metacardTypes) {
+        filterVisitor = new CswRecordMapperFilterVisitor(recordMap, metacardType, metacardTypes);
     }
 
     @Override

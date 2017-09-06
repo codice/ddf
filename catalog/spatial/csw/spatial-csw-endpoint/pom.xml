@@ -125,10 +125,6 @@
         </dependency>
         <dependency>
             <groupId>ddf.platform.util</groupId>
-            <artifactId>platform-util</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util-unavailableurls</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -167,8 +163,9 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <!-- Don't Export Anything -->
-                        <Export-Package/>
+                        <Export-Package>
+                            org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer
+                        </Export-Package>
                         <Import-Package>
                             net.opengis.cat.csw.v_2_0_2;version="[2.8,3)",
                             net.opengis.cat.csw.v_2_0_2.dc.elements;version="[2.8,3)",

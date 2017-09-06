@@ -41,6 +41,7 @@ import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.MetacardCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.CswQueryFilterTransformer;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.LiteralExpressionImpl;
@@ -252,8 +253,10 @@ public class CswQueryFactoryTest {
         filterObjectFactory = new ObjectFactory();
 
         queryFilterTransformerProvider = mock(QueryFilterTransformerProvider.class);
-        QueryFilterTransformer cswQueryFilter = new CswQueryFilterTransformer(getCswMetacardType(),
-                Collections.emptyList());
+        QueryFilterTransformer cswQueryFilter =
+                new CswQueryFilterTransformer(new MetacardCswRecordMap(),
+                        getCswMetacardType(),
+                        Collections.emptyList());
         when(queryFilterTransformerProvider.getTransformer(new QName(CswConstants.CSW_OUTPUT_SCHEMA,
                 "Record"))).thenReturn(Optional.of(cswQueryFilter));
         queryFactory.setQueryFilterTransformerProvider(queryFilterTransformerProvider);
