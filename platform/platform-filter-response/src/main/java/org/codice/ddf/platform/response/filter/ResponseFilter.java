@@ -22,6 +22,7 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.codice.ddf.platform.filter.SecurityFilter;
@@ -59,16 +60,17 @@ public class ResponseFilter implements SecurityFilter {
             X_CONTENT_SECURITY_POLICY + "=" + DEFAULT_CONTENT_SECURITY_POLICY,
             CACHE_CONTROL + "=" + DEFAULT_CACHE_CONTROL_VALUE);
 
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        LOGGER.debug("Initializing Response Security Filter.");
+    // Index paths (such as /search/catalog/ or /admin/) should never be cached
+    private void disableCachingForHtml(HttpServletRequest request, HttpServletResponse response) {
+        String requestURI = request.getRequestURI();
+        if (requestURI.endsWith("/") || requestURI.endsWith(".html")) {
+            response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
+            response.setHeader("Pragma", "no-cache"); // HTTP 1.0.
+            response.setHeader("Expires", "0"); // Proxies.
+        }
     }
 
-    @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
-            FilterChain filterChain) throws IOException, ServletException {
-        HttpServletResponse response = (HttpServletResponse) servletResponse;
-
+    private void addCommonHeaders(HttpServletResponse response) {
         for (String header : headers) {
             String[] keyVal = header.split("=", 2);
             if (keyVal.length != 2) {
@@ -77,6 +79,21 @@ public class ResponseFilter implements SecurityFilter {
             }
             response.setHeader(keyVal[0], keyVal[1]);
         }
+    }
+
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+        LOGGER.trace("Initializing Response Security Filter.");
+    }
+
+    @Override
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
+            FilterChain filterChain) throws IOException, ServletException {
+        HttpServletResponse response = (HttpServletResponse) servletResponse;
+
+        addCommonHeaders(response);
+
+        disableCachingForHtml((HttpServletRequest) servletRequest, response);
 
         filterChain.doFilter(servletRequest, response);
     }
