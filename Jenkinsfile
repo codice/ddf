@@ -11,13 +11,24 @@ pipeline {
     environment {
         DOCS = 'distribution/docs'
         ITESTS = 'distribution/test/itests/test-itests-ddf'
+        POMFIX = 'libs/libs-pomfix,libs/libs-pomfix-run'
         LARGE_MVN_OPTS = '-Xmx8192M -Xss128M -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC '
         LINUX_MVN_RANDOM = '-Djava.security.egd=file:/dev/./urandom'
     }
     stages {
         stage('Setup') {
-            steps{
+            steps {
                 slackSend color: 'good', message: "STARTED: ${JOB_NAME} ${BUILD_NUMBER} ${BUILD_URL}"
+            }
+        }
+        // Use the pomfix tool to validate that bundle dependencies are properly declared
+        stage('Validate Poms') {
+            agent { label 'linux-small' }
+            steps {
+                retry(3) {
+                    checkout scm
+                }
+                sh 'mvn clean install -DskipStatic=true -DskipTests=true -pl $POMFIX'
             }
         }
         // The incremental build will be triggered only for PRs. It will build the differences between the PR and the target branch
