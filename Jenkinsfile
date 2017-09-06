@@ -123,8 +123,8 @@ pipeline {
                         coverity: {
                             node('linux-medium') {
                                 script {
-                                    if (env.CHANGE_ID != null) {
-                                        echo "Skippng Coverity on PR build"
+                                    if (env.BRANCH_NAME != 'master') {
+                                        echo "Coverity is only run on master"
                                     } else {
                                         retry(3) {
                                             checkout scm
