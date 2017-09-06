@@ -337,11 +337,6 @@
             <artifactId>tika-bundle</artifactId>
             <version>${tika.thirdparty.bundle.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.codice.ddf.platform.crypto</groupId>
-            <artifactId>platform-crypto-provider</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <!--START dependencies for enterprise features in platform-app features-->
         <dependency>
             <groupId>org.apache.felix</groupId>

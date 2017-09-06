@@ -63,11 +63,6 @@
             <groupId>ddf.security.core</groupId>
             <artifactId>security-core-api</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.codice.ddf.platform.crypto</groupId>
-            <artifactId>platform-crypto-provider</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
     <build>
         <plugins>
