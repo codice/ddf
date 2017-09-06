@@ -921,6 +921,7 @@
 
     <feature name="security-core-api" install="manual" version="${project.version}"
              description="Security Core">
+        <bundle start-level="30" dependency="true">mvn:org.apache.neethi/neethi/${wss4j.neethi.version}</bundle>
         <feature prerequisite="true">cxf-rt-security</feature>
         <feature prerequisite="true" version="${spring.version}_1">spring</feature>
         <bundle>mvn:org.apache.shiro/shiro-core/${apache.shiro.version}</bundle>

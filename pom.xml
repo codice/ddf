@@ -120,7 +120,8 @@
         <geronimo-servlet-api.group>org.apache.geronimo.specs</geronimo-servlet-api.group>
         <geronimo-servlet-api.artifact>geronimo-servlet_3.0_spec</geronimo-servlet-api.artifact>
         <geronimo-servlet-api.version>1.0</geronimo-servlet-api.version>
-        <wss4j.version>2.1.9</wss4j.version>
+        <wss4j.version>2.1.11</wss4j.version>
+        <wss4j.neethi.version>3.1.0</wss4j.neethi.version>
         <javax-el.version>3.0.0</javax-el.version>
         <saxon.version>9.6.0-4</saxon.version>
         <org.ops4j.pax.swissbox.version>1.8.0</org.ops4j.pax.swissbox.version>
