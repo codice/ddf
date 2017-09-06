@@ -2004,7 +2004,7 @@ A Subscription listens for events from federated sources if the `DistributedSear
 
 .`GetRecords` KVP (Key-Value Pairs) Encoding
 ----
-http://<DDF_HOST>:<DDF_PORT>/services/csw/subscription?service=CSW&version=2.0.2&request=GetRecords&outputFormat=application/xml&outputSchema=http://www.opengis.net/cat/csw/2.0.2&NAMESPACE=xmlns(csw=http://www.opengis.net/cat/csw/2.0.2)&resultType=results&typeNames=csw:Record&ElementSetName=brief&ResponseHandler=https%3A%2F%2Fsome.ddf%2Fservices%2Fcsw%2Fsubscription%2Fevent&ConstraintLanguage=CQL_TEXT&constraint=Text Like '%25'
+${secure_url}/services/csw/subscription?service=CSW&version=2.0.2&request=GetRecords&outputFormat=application/xml&outputSchema=http://www.opengis.net/cat/csw/2.0.2&NAMESPACE=xmlns(csw=http://www.opengis.net/cat/csw/2.0.2)&resultType=results&typeNames=csw:Record&ElementSetName=brief&ResponseHandler=https%3A%2F%2Fsome.ddf%2Fservices%2Fcsw%2Fsubscription%2Fevent&ConstraintLanguage=CQL_TEXT&constraint=Text Like '%25'
 ----
 
 ====== Subscription `GetRecords` HTTP POST
@@ -2045,7 +2045,7 @@ The `HTTP PUT` request `GetRecords` is used to update an existing subscription. 
 
 .Subscription `GetRecords` XML Request
 ----
-http://<DDF_HOST>:<DDF_PORT>/services/csw/subscription/urn:uuid:4d5a5249-be03-4fe8-afea-6115021dd62f
+${secure_url}/services/csw/subscription/urn:uuid:4d5a5249-be03-4fe8-afea-6115021dd62f
 ----
 
 .Subscription `GetRecords` XML Response
@@ -2114,7 +2114,7 @@ The following is an example `HTTP GET` Request to retrieve an active subscriptio
 
 .Subscription `HTTP GET` or `HTTP DELETE`
 ----
-http://<DDF_HOST>:<DDF_PORT>/services/csw/subscription/urn:uuid:4d5a5249-be03-4fe8-afea-6115021dd62f
+${secure_url}/services/csw/subscription/urn:uuid:4d5a5249-be03-4fe8-afea-6115021dd62f
 ----
 
 ====== Subscription `HTTP GET` or `HTTP DELETE` Response

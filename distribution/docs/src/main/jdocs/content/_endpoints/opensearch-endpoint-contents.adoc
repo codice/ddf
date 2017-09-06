@@ -35,7 +35,7 @@ The request call is an HTTP GET with the query options being parameters that are
 
 .Example of an OpenSearch request:
 ----
-http://${public_url}/services/catalog/query?q=Predator
+${public_url}/services/catalog/query?q=Predator
 ----
 
 This request performs a full-text search for the phrase 'Predator' on the ${branding} providers and provides the results as Atom-formatted XML for the web browser to render.

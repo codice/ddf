@@ -65,7 +65,7 @@ Once both servers are started, the following command can be run using curl or a 
 [source,bash]
 ----
 sh
-curl ${secure_url}/admin/jolokia/read/org.apache.activemq.artemis:broker=%22localhost%22/ReplicaSync --user admin:admin --insecure
+curl ${secure_url}/admin/jolokia/read/org.apache.activemq.artemis:broker=%22<FQDN>%22/ReplicaSync --user admin:admin --insecure
 ----
 
 .Example ReplicaSync JSON Response
