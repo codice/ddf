@@ -13,17 +13,6 @@
  */
 package org.codice.ddf.commands.catalog;
 
-import ddf.catalog.data.Metacard;
-import ddf.catalog.federation.FederationException;
-import ddf.catalog.filter.impl.SortByImpl;
-import ddf.catalog.operation.QueryRequest;
-import ddf.catalog.operation.SourceProcessingDetails;
-import ddf.catalog.operation.SourceResponse;
-import ddf.catalog.operation.impl.QueryImpl;
-import ddf.catalog.operation.impl.QueryRequestImpl;
-import ddf.catalog.source.SourceUnavailableException;
-import ddf.catalog.source.UnsupportedQueryException;
-import java.util.Arrays;
 import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.shell.api.action.Argument;
@@ -31,8 +20,6 @@ import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.codice.ddf.commands.catalog.facade.Framework;
-import org.opengis.filter.Filter;
-import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,7 +69,7 @@ public class ReplicateCommand extends DuplicateCommands {
 
     console.println("Starting replication.");
 
-    duplicateInBatches(framework, catalog, getFilter());
+    duplicateInBatches(framework, catalog, getFilter(), sourceId);
 
     console.println();
     long end = System.currentTimeMillis();
@@ -94,38 +81,5 @@ public class ReplicateCommand extends DuplicateCommands {
     console.println(completed);
 
     return null;
-  }
-
-  @Override
-  protected SourceResponse query(
-      CatalogFacade framework, Filter filter, int startIndex, long querySize) {
-    QueryImpl query = new QueryImpl(filter);
-    query.setRequestsTotalResultsCount(true);
-    query.setPageSize((int) querySize);
-    query.setSortBy(new SortByImpl(Metacard.EFFECTIVE, SortOrder.DESCENDING));
-    QueryRequest queryRequest = new QueryRequestImpl(query, Arrays.asList(sourceId));
-    query.setStartIndex(startIndex);
-    SourceResponse response;
-    try {
-      LOGGER.debug("Querying with startIndex: {}", startIndex);
-      response = framework.query(queryRequest);
-    } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
-      printErrorMessage(String.format("Received error from %s: %s%n", sourceId, e.getMessage()));
-      return null;
-    }
-    if (response.getProcessingDetails() != null && !response.getProcessingDetails().isEmpty()) {
-      for (SourceProcessingDetails details : response.getProcessingDetails()) {
-        LOGGER.debug("Got Issues: {}", details.getWarnings());
-      }
-      return null;
-    }
-
-    final long totalHits = response.getHits();
-    if (totalHits == 0) {
-      console.println("No records were found to replicate.");
-      return null;
-    }
-
-    return response;
   }
 }

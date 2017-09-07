@@ -13,17 +13,7 @@
  */
 package org.codice.ddf.commands.catalog;
 
-import ddf.catalog.data.Metacard;
-import ddf.catalog.federation.FederationException;
-import ddf.catalog.filter.impl.SortByImpl;
-import ddf.catalog.operation.QueryRequest;
-import ddf.catalog.operation.SourceProcessingDetails;
-import ddf.catalog.operation.SourceResponse;
-import ddf.catalog.operation.impl.QueryImpl;
-import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.CatalogProvider;
-import ddf.catalog.source.SourceUnavailableException;
-import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.impl.ServiceComparator;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,8 +27,6 @@ import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.codice.ddf.commands.catalog.facade.Provider;
-import org.opengis.filter.Filter;
-import org.opengis.filter.sort.SortOrder;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
@@ -130,7 +118,7 @@ public class MigrateCommand extends DuplicateCommands {
 
     console.println("Starting migration.");
 
-    duplicateInBatches(queryProvider, ingestProvider, getFilter());
+    duplicateInBatches(queryProvider, ingestProvider, getFilter(), fromProviderId);
 
     console.println();
     long end = System.currentTimeMillis();
@@ -166,33 +154,6 @@ public class MigrateCommand extends DuplicateCommands {
             .orElse(null);
 
     return provider;
-  }
-
-  @Override
-  protected SourceResponse query(
-      CatalogFacade framework, Filter filter, int startIndex, long querySize) {
-    QueryImpl query = new QueryImpl(filter);
-    query.setRequestsTotalResultsCount(true);
-    query.setPageSize((int) querySize);
-    query.setSortBy(new SortByImpl(Metacard.MODIFIED, SortOrder.DESCENDING));
-    QueryRequest queryRequest = new QueryRequestImpl(query);
-    query.setStartIndex(startIndex);
-    SourceResponse response;
-    try {
-      LOGGER.debug("Querying with startIndex: {}", startIndex);
-      response = framework.query(queryRequest);
-    } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
-      printErrorMessage(String.format("Received error from Frameworks: %s%n", e.getMessage()));
-      return null;
-    }
-    if (response.getProcessingDetails() != null && !response.getProcessingDetails().isEmpty()) {
-      for (SourceProcessingDetails details : response.getProcessingDetails()) {
-        LOGGER.debug("Got Issues: {}", details.getWarnings());
-      }
-      return null;
-    }
-
-    return response;
   }
 
   private List<CatalogProvider> getCatalogProviders() {
