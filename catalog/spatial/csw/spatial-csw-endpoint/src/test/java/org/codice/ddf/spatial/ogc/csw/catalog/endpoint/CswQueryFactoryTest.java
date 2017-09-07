@@ -1043,9 +1043,10 @@ public class CswQueryFactoryTest {
 
         QueryImpl frameworkQuery = (QueryImpl) queryFactory.getQuery(grr)
                 .getQuery();
-        assertThat(((QueryImpl) frameworkQuery.getFilter()).getFilter(), instanceOf(clz));
+        Filter queryFilter = ((QueryImpl) frameworkQuery.getFilter()).getFilter();
+        assertThat(queryFilter, instanceOf(clz));
         @SuppressWarnings("unchecked")
-        N spatial = (N) ((QueryImpl) frameworkQuery.getFilter()).getFilter();
+        N spatial = (N) queryFilter;
         assertThat(((LiteralExpressionImpl) spatial.getExpression2()).getValue(), is(polygon));
 
         assertThat(((AttributeExpressionImpl) spatial.getExpression1()).getPropertyName(),

@@ -55,6 +55,7 @@ import org.opengis.filter.sort.SortBy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
+import org.xml.sax.helpers.NamespaceSupport;
 
 import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.types.Core;
@@ -246,33 +247,37 @@ public class CswQueryFactory {
         List<SortBy> sortBys = new ArrayList<>();
 
         // Primary sort parameter
-        SortBy sortBy = query.getSortBy();
-        SortBy newSortBy = normalizeSortBy(sortBy);
-        if (newSortBy != null) {
-            sortBys.add(newSortBy);
+        SortBy sortBy = normalizeSortBy(query.getSortBy());
+        if (sortBy != null) {
+            sortBys.add(sortBy);
         }
 
         // Additional sort parameters
-        Serializable extraSortBys = request.getPropertyValue(EXT_SORT_BY);
-        if (extraSortBys != null && extraSortBys instanceof SortBy[]) {
-            List<SortBy> extraSortBysList = Arrays.asList((SortBy[]) extraSortBys);
-            extraSortBysList.stream()
-                    .map(this::normalizeSortBy)
-                    .filter(Objects::nonNull)
-                    .forEach(sortBys::add);
+        Map<String, Serializable> newProperties = request.getProperties();
+        if (newProperties != null) {
+            Serializable extraSortBys = request.getPropertyValue(EXT_SORT_BY);
+            if (extraSortBys instanceof SortBy[]) {
+                List<SortBy> extraSortBysList = Arrays.asList((SortBy[]) extraSortBys);
+                extraSortBysList.stream()
+                        .map(this::normalizeSortBy)
+                        .filter(Objects::nonNull)
+                        .forEach(sortBys::add);
+            } else {
+                LOGGER.debug("The \"{}\" query request property could not be read", EXT_SORT_BY);
+            }
+
+            if (sortBys.size() > 1) {
+                SortBy[] extraSortBysArray = sortBys.subList(1, sortBys.size())
+                        .toArray(new SortBy[0]);
+                newProperties.put(EXT_SORT_BY, extraSortBysArray);
+            } else {
+                newProperties.remove(EXT_SORT_BY);
+            }
         }
 
-        Map<String, Serializable> newProperties = request.getProperties();
         SortBy normalizedSortBy = null;
         if (sortBys.size() > 0) {
             normalizedSortBy = sortBys.get(0);
-        }
-        if (sortBys.size() > 1) {
-            SortBy[] extraSortBysArray = sortBys.subList(1, sortBys.size())
-                    .toArray(new SortBy[0]);
-            newProperties.put(EXT_SORT_BY, extraSortBysArray);
-        } else {
-            newProperties.remove(EXT_SORT_BY);
         }
 
         Query newQuery = new QueryImpl(query,
@@ -289,29 +294,29 @@ public class CswQueryFactory {
     }
 
     private SortBy normalizeSortBy(SortBy cswSortBy) {
-        if (cswSortBy == null) {
+        if (cswSortBy == null || cswSortBy.getPropertyName() == null) {
             return null;
         }
 
-        if (cswSortBy.getPropertyName() != null
-                && !attributeRegistry.lookup(cswSortBy.getPropertyName()
-                .getPropertyName())
+        String propertyName = cswSortBy.getPropertyName().getPropertyName();
+        if (propertyName == null) {
+            LOGGER.debug("Property in SortBy Field is null");
+            return null;
+        }
+
+        NamespaceSupport namespaceContext = cswSortBy.getPropertyName().getNamespaceContext();
+        if (!attributeRegistry.lookup(propertyName)
                 .isPresent() && !DefaultCswRecordMap.hasDefaultMetacardFieldForPrefixedString(
-                cswSortBy.getPropertyName()
-                        .getPropertyName(),
-                cswSortBy.getPropertyName()
-                        .getNamespaceContext())) {
+                propertyName,
+                namespaceContext)) {
             LOGGER.debug("Property {} is not a valid SortBy Field",
-                    cswSortBy.getPropertyName()
-                            .getPropertyName());
+                    propertyName);
             return null;
         }
 
         String name =
-                DefaultCswRecordMap.getDefaultMetacardFieldForPrefixedString(cswSortBy.getPropertyName()
-                                .getPropertyName(),
-                        cswSortBy.getPropertyName()
-                                .getNamespaceContext());
+                DefaultCswRecordMap.getDefaultMetacardFieldForPrefixedString(propertyName,
+                        namespaceContext);
 
         PropertyName propName = new AttributeExpressionImpl(new NameImpl(name));
         return new SortByImpl(propName, cswSortBy.getSortOrder());
