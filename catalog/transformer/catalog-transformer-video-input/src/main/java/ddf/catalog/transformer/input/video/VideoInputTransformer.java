@@ -109,7 +109,7 @@ public class VideoInputTransformer implements InputTransformer {
                 metadataText,
                 metacardType);
 
-        metacard.setAttribute(new AttributeImpl(Core.DATATYPE, DataType.VIDEO.toString()));
+        metacard.setAttribute(new AttributeImpl(Core.DATATYPE, DataType.MOVING_IMAGE.toString()));
 
         return metacard;
     }
