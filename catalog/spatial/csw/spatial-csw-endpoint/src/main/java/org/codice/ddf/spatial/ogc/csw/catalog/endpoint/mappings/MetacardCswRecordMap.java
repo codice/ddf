@@ -29,5 +29,15 @@ public class MetacardCswRecordMap implements CswRecordMap {
     public String getProperty(String propertyName) {
         return DefaultCswRecordMap.getDefaultMetacardFieldFor(propertyName);
     }
+
+    @Override
+    public boolean hasProperty(String propertyName, NamespaceSupport context) {
+        return DefaultCswRecordMap.hasDefaultMetacardFieldForPrefixedString(propertyName, context);
+    }
+
+    @Override
+    public boolean hasProperty(String propertyName) {
+        return DefaultCswRecordMap.hasDefaultMetacardFieldForPrefixedString(propertyName);
+    }
 }
 

@@ -43,6 +43,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.MetacardCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.CswQueryFilterTransformer;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.CswRecordMap;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.LiteralExpressionImpl;
 import org.geotools.styling.UomOgcMapping;
@@ -240,8 +241,9 @@ public class CswQueryFactoryTest {
             FederationException, ParseException, IngestException {
         FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
         FilterAdapter filterAdapter = new GeotoolsFilterAdapterImpl();
+        CswRecordMap cswRecordMap = new MetacardCswRecordMap();
 
-        queryFactory = new CswQueryFactory(filterBuilder, filterAdapter);
+        queryFactory = new CswQueryFactory(cswRecordMap, filterBuilder, filterAdapter);
 
         AttributeRegistry mockAttributeRegistry = mock(AttributeRegistry.class);
         when(mockAttributeRegistry.lookup(TITLE_TEST_ATTRIBUTE)).thenReturn(Optional.of(mock(
@@ -364,8 +366,9 @@ public class CswQueryFactoryTest {
 
         QueryRequest queryRequest = queryFactory.getQuery(grr);
         QueryImpl frameworkQuery = (QueryImpl) queryRequest.getQuery();
-        assertThat(frameworkQuery.getFilter(), instanceOf(PropertyIsLike.class));
-        PropertyIsLike like = (PropertyIsLike) frameworkQuery.getFilter();
+        Filter queryFilter = ((QueryImpl) frameworkQuery.getFilter()).getFilter();
+        assertThat(queryFilter, instanceOf(PropertyIsLike.class));
+        PropertyIsLike like = (PropertyIsLike) queryFilter;
         assertThat(like.getLiteral(), is(CQL_CONTEXTUAL_PATTERN));
         assertThat(((AttributeExpressionImpl) like.getExpression()).getPropertyName(),
                 is(CQL_FRAMEWORK_TEST_ATTRIBUTE));
@@ -428,8 +431,9 @@ public class CswQueryFactoryTest {
 
         QueryRequest queryRequest = queryFactory.getQuery(grr);
         QueryImpl frameworkQuery = (QueryImpl) queryRequest.getQuery();
-        assertThat(frameworkQuery.getFilter(), instanceOf(PropertyIsEqualTo.class));
-        PropertyIsEqualTo equalTo = (PropertyIsEqualTo) frameworkQuery.getFilter();
+        Filter queryFilter = ((QueryImpl) frameworkQuery.getFilter()).getFilter();
+        assertThat(queryFilter, instanceOf(PropertyIsEqualTo.class));
+        PropertyIsEqualTo equalTo = (PropertyIsEqualTo) queryFilter;
         assertThat(equalTo.getExpression1(), instanceOf(Function.class));
         Function function = (Function) equalTo.getExpression1();
         assertThat(equalTo.getExpression2(), instanceOf(Literal.class));
@@ -784,9 +788,10 @@ public class CswQueryFactoryTest {
 
         QueryImpl frameworkQuery = (QueryImpl) queryFactory.getQuery(grr)
                 .getQuery();
-        assertThat(frameworkQuery.getFilter(), instanceOf(clz));
+        Filter queryFilter = ((QueryImpl) frameworkQuery.getFilter()).getFilter();
+        assertThat(queryFilter, instanceOf(clz));
         @SuppressWarnings("unchecked")
-        N spatial = (N) frameworkQuery.getFilter();
+        N spatial = (N) queryFilter;
         assertThat(((LiteralExpressionImpl) spatial.getExpression2()).getValue(), is(polygon));
 
         assertThat(((AttributeExpressionImpl) spatial.getExpression1()).getPropertyName(),
@@ -825,9 +830,10 @@ public class CswQueryFactoryTest {
 
         QueryImpl frameworkQuery = (QueryImpl) queryFactory.getQuery(grr)
                 .getQuery();
-        assertThat(frameworkQuery.getFilter(), instanceOf(clz));
+        Filter queryFilter = ((QueryImpl) frameworkQuery.getFilter()).getFilter();
+        assertThat(queryFilter, instanceOf(clz));
         @SuppressWarnings("unchecked")
-        N spatial = (N) frameworkQuery.getFilter();
+        N spatial = (N) queryFilter;
         assertThat(((LiteralExpressionImpl) spatial.getExpression2()).getValue(), is(polygon));
 
         assertThat(((AttributeExpressionImpl) spatial.getExpression1()).getPropertyName(),
@@ -951,9 +957,10 @@ public class CswQueryFactoryTest {
 
         QueryImpl frameworkQuery = (QueryImpl) queryFactory.getQuery(grr.get202RecordsType())
                 .getQuery();
-        assertThat(frameworkQuery.getFilter(), instanceOf(clz));
+        Filter queryFilter = ((QueryImpl) frameworkQuery.getFilter()).getFilter();
+        assertThat(queryFilter, instanceOf(clz));
         @SuppressWarnings("unchecked")
-        N spatial = (N) frameworkQuery.getFilter();
+        N spatial = (N) queryFilter;
         assertThat(((LiteralExpressionImpl) spatial.getExpression2()).getValue(), is(polygon));
 
         assertThat(((AttributeExpressionImpl) spatial.getExpression1()).getPropertyName(),
@@ -994,9 +1001,10 @@ public class CswQueryFactoryTest {
 
         QueryImpl frameworkQuery = (QueryImpl) queryFactory.getQuery(grr)
                 .getQuery();
-        assertThat(frameworkQuery.getFilter(), instanceOf(clz));
+        Filter queryFilter = ((QueryImpl) frameworkQuery.getFilter()).getFilter();
+        assertThat(queryFilter, instanceOf(clz));
         @SuppressWarnings("unchecked")
-        N spatial = (N) frameworkQuery.getFilter();
+        N spatial = (N) queryFilter;
         assertThat(((LiteralExpressionImpl) spatial.getExpression2()).getValue(), is(polygon));
 
         assertThat(((AttributeExpressionImpl) spatial.getExpression1()).getPropertyName(),
@@ -1037,9 +1045,10 @@ public class CswQueryFactoryTest {
 
         QueryImpl frameworkQuery = (QueryImpl) queryFactory.getQuery(grr)
                 .getQuery();
-        assertThat(frameworkQuery.getFilter(), instanceOf(clz));
+        Filter queryFilter = ((QueryImpl) frameworkQuery.getFilter()).getFilter();
+        assertThat(queryFilter, instanceOf(clz));
         @SuppressWarnings("unchecked")
-        N spatial = (N) frameworkQuery.getFilter();
+        N spatial = (N) queryFilter;
         assertThat(((LiteralExpressionImpl) spatial.getExpression2()).getValue(), is(polygon));
 
         assertThat(((AttributeExpressionImpl) spatial.getExpression1()).getPropertyName(),
@@ -1126,7 +1135,7 @@ public class CswQueryFactoryTest {
 
         QueryImpl frameworkQuery = (QueryImpl) queryFactory.getQuery(grr)
                 .getQuery();
-        return frameworkQuery.getFilter();
+        return ((QueryImpl) frameworkQuery.getFilter()).getFilter();
     }
 
     @SuppressWarnings("unchecked")
@@ -1153,16 +1162,17 @@ public class CswQueryFactoryTest {
         QueryImpl frameworkQuery = (QueryImpl) queryFactory.getQuery(grr)
                 .getQuery();
         N temporal = null;
+        Filter queryFilter = ((QueryImpl) frameworkQuery.getFilter()).getFilter();
         if (classes.length > 1) {
-            assertThat(frameworkQuery.getFilter(), instanceOf(Or.class));
+            assertThat(queryFilter, instanceOf(Or.class));
             int i = 0;
-            for (Filter filter : ((Or) frameworkQuery.getFilter()).getChildren()) {
+            for (Filter filter : ((Or) queryFilter).getChildren()) {
                 assertThat(filter, instanceOf(classes[i++]));
                 temporal = (N) filter;
             }
         } else {
-            assertThat(frameworkQuery.getFilter(), instanceOf(classes[0]));
-            temporal = (N) frameworkQuery.getFilter();
+            assertThat(queryFilter, instanceOf(classes[0]));
+            temporal = (N) queryFilter;
         }
         assertThat(((AttributeExpressionImpl) temporal.getExpression1()).getPropertyName(),
                 is(expectedAttr));
