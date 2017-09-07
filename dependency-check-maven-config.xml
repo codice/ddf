@@ -157,4 +157,11 @@
         <cve>CVE-2015-3414</cve>
         <cve>CVE-2017-10989</cve>
     </suppress>
+    <suppress>
+        <notes>
+            This CVE is incorrectly attributing a CXF vulnerability to Camel camel-cxf-2.19.0.jar.
+            The CVE is in CXF versions in this case the camel version is incorrectly being used
+        </notes>
+        <cve>CVE-2016-8739</cve>
+    </suppress>
 </suppressions>
