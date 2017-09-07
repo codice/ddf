@@ -243,7 +243,7 @@ public class CswQueryFactoryTest {
         FilterAdapter filterAdapter = new GeotoolsFilterAdapterImpl();
         CswRecordMap cswRecordMap = new MetacardCswRecordMap();
 
-        queryFactory = new CswQueryFactory(cswRecordMap,filterBuilder, filterAdapter);
+        queryFactory = new CswQueryFactory(cswRecordMap, filterBuilder, filterAdapter);
 
         AttributeRegistry mockAttributeRegistry = mock(AttributeRegistry.class);
         when(mockAttributeRegistry.lookup(TITLE_TEST_ATTRIBUTE)).thenReturn(Optional.of(mock(
