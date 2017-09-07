@@ -1,0 +1,16 @@
+:type: plugin
+:status: published
+:title: Security Logging Plugin
+:link: _security_logging_plugin
+:plugintypes: preingest, postingest, prequery, postquery, prefederatedquery, postfederatedquery, preresource, postresource, precreatestorage, preupdatestorage, postcreatestorage, postupdatestorage
+:summary: Logs operations to the security log.
+
+The Security Logging Plugin logs operations to the security log.
+
+===== Installing Security Logging Plugin
+
+The Security Logging Plugin is installed by default in a standard installation in the ${ddf-security} application.
+
+===== Configuring the Security Logging Plugin
+
+The Security Logging Plugin has no configurable properties.
