@@ -55,12 +55,12 @@ public class SolrRest {
     }
 
     public void setK1(Float k1) {
-        LOGGER.debug("{}", k1);
+        LOGGER.trace("Setting K1 property: {}", k1);
         this.k1 = k1;
     }
 
     public void setB(Float b) {
-        LOGGER.debug("{}", b);
+        LOGGER.trace("Setting B property: {}", b);
         this.b = b;
     }
 
@@ -85,13 +85,12 @@ public class SolrRest {
             String response = factory.getClient()
                     .getFieldTypes("json");
 
-            Map<String, Object> map = gson.fromJson(response, new TypeToken<Map<String, Object>>() {
-            }
-                    .getType());
+            Map<String, Object> map = gson.fromJson(response,
+                    new TypeToken<Map<String, Object>>() {}.getType());
 
             fieldTypes = (ArrayList<Object>) map.get("fieldTypes");
         } catch (Exception e) {
-            LOGGER.error("Unable to getProperties from: {}", solrSchemaUrl, e);
+            LOGGER.debug("Unable to getProperties from: {}", solrSchemaUrl, e);
         }
     }
 
@@ -114,7 +113,7 @@ public class SolrRest {
             return;
         }
 
-        LOGGER.debug("{}", properties);
+        LOGGER.trace("Refresh configuration with properties: {}", properties);
 
         Object solrUrlObject = properties.get(SOLR_URL_PROPERTY);
         if (solrUrlObject instanceof String) {
@@ -143,12 +142,12 @@ public class SolrRest {
                 LinkedTreeMap<String, Object> replaceField = new LinkedTreeMap<>();
                 replaceField.put("replace-field-type", objectLinkedTreeMap);
 
-                LOGGER.debug("{}", gson.toJson(replaceField));
+                LOGGER.trace("Replacing field: {}", gson.toJson(replaceField));
 
                 String response = factory.getClient()
                         .replaceField(gson.toJson(replaceField));
 
-                LOGGER.debug("{}", response);
+                LOGGER.trace("Configuration update response: {}", response);
             }
         }
     }
