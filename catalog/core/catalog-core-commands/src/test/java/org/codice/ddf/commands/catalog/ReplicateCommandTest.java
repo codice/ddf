@@ -38,6 +38,7 @@ import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -65,7 +66,7 @@ public class ReplicateCommandTest extends ConsoleOutputCommon {
 
   private CommandSession mockSession = mock(CommandSession.class);
 
-  private InputStream mockIS = IOUtils.toInputStream("sourceId1");
+  private InputStream mockIS = IOUtils.toInputStream("sourceId1", Charset.defaultCharset());
 
   private ReplicateCommand replicateCommand;
 
@@ -147,7 +148,7 @@ public class ReplicateCommandTest extends ConsoleOutputCommon {
     replicateCommand.temporalProperty = Metacard.EFFECTIVE;
 
     replicateCommand.executeWithSubject();
-    verifyReplicate(HITS, Metacard.EFFECTIVE);
+    verifyReplicate(HITS, Metacard.EFFECTIVE, 2);
     verifyConsoleOutput(HITS + " record(s) replicated; " + 0 + " record(s) failed;");
   }
 
@@ -202,7 +203,7 @@ public class ReplicateCommandTest extends ConsoleOutputCommon {
     replicateCommand.lastMinutes = 30;
 
     replicateCommand.executeWithSubject();
-    verifyReplicate(HITS, Metacard.EFFECTIVE);
+    verifyReplicate(HITS, Metacard.EFFECTIVE, 2);
     verifyConsoleOutput(HITS + " record(s) replicated; " + 0 + " record(s) failed;");
     // TODO - How do I validate the actual filter
   }
@@ -224,7 +225,7 @@ public class ReplicateCommandTest extends ConsoleOutputCommon {
     replicateCommand.temporalProperty = Metacard.EFFECTIVE;
 
     replicateCommand.executeWithSubject();
-    verifyReplicate(HITS, Metacard.EFFECTIVE);
+    verifyReplicate(HITS, Metacard.EFFECTIVE, 2);
     verifyConsoleOutput(
         (int) Math.floor(HITS / 2)
             + " record(s) replicated; "
@@ -244,25 +245,21 @@ public class ReplicateCommandTest extends ConsoleOutputCommon {
   }
 
   private void verifyReplicate(int actualMaxMetacards, String sortBy) throws Exception {
+    verifyReplicate(
+        actualMaxMetacards,
+        sortBy,
+        (int) Math.ceil((double) actualMaxMetacards / (double) replicateCommand.batchSize));
+  }
+
+  private void verifyReplicate(int actualMaxMetacards, String sortBy, int catalogCallTimes)
+      throws Exception {
     ArgumentCaptor<QueryRequest> argument = ArgumentCaptor.forClass(QueryRequest.class);
-    verify(
-            catalogFramework,
-            times(
-                (int) Math.ceil((double) actualMaxMetacards / (double) replicateCommand.batchSize)))
-        .query(argument.capture());
+    verify(catalogFramework, times(catalogCallTimes)).query(argument.capture());
     QueryRequest request = argument.getValue();
     assertThat(request, notNullValue());
     Query query = request.getQuery();
     assertThat(query, notNullValue());
     assertThat(query.getPageSize(), is(replicateCommand.batchSize));
-    if (replicateCommand.multithreaded == 1) {
-      assertThat(
-          query.getStartIndex(),
-          is(
-              (((int) ((double) (actualMaxMetacards - 1) / (double) replicateCommand.batchSize))
-                      * replicateCommand.batchSize
-                  + 1)));
-    }
     assertThat(query.getSortBy().getPropertyName().getPropertyName(), is(sortBy));
   }
 
