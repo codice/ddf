@@ -6,6 +6,9 @@
 Once ${branding} is configured to use an external user (such as LDAP), remove the `users.properties` file from the `<INSTALL_HOME>/etc` directory.
 Use of a `users.properties` file should be limited to emergency recovery operations and replaced as soon as effectively possible.
 
+If SSH access to the Karaf shell is to be supported, edit the file `org.apache.karaf.shell.cfg` in the `<INSTALL_HOME>/etc` directory, changing the value
+of the `sshRealm` property from `karaf` to `ldap`.
+
 .Emergency Use of `users.properties` file
 [NOTE]
 ====
