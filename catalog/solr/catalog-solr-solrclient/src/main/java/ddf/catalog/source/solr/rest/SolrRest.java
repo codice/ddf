@@ -86,7 +86,7 @@ public class SolrRest {
                     .getFieldTypes("json");
 
             Map<String, Object> map = gson.fromJson(response,
-                    new TypeToken<Map<String, Object>>() {}.getType());
+                    new TypeToken<Map<String, Object>>() { } .getType());
 
             fieldTypes = (ArrayList<Object>) map.get("fieldTypes");
         } catch (Exception e) {
@@ -142,7 +142,9 @@ public class SolrRest {
                 LinkedTreeMap<String, Object> replaceField = new LinkedTreeMap<>();
                 replaceField.put("replace-field-type", objectLinkedTreeMap);
 
-                LOGGER.trace("Replacing field: {}", gson.toJson(replaceField));
+                if (LOGGER.isTraceEnabled()) {
+                    LOGGER.trace("Replacing field: {}", gson.toJson(replaceField));
+                }
 
                 String response = factory.getClient()
                         .replaceField(gson.toJson(replaceField));
