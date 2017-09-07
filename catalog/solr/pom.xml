@@ -34,6 +34,7 @@
     </dependencyManagement>
     <modules>
         <module>catalog-solr-provider</module>
+        <module>catalog-solr-solrclient</module>
         <module>solr-app</module>
     </modules>
 </project>
