@@ -97,6 +97,7 @@ pipeline {
                             },
                             windows: {
                                 node('proxmox-windows') {
+                                    bat 'git config --system core.longpaths true'
                                     retry(3) {
                                         checkout scm
                                     }
