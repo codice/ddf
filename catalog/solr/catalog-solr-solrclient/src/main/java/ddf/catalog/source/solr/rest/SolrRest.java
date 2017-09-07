@@ -99,8 +99,8 @@ public class SolrRest {
             factory = new SecureCxfClientFactory<>(solrSchemaUrl, SolrRestClient.class);
             similarityFormat = new LinkedTreeMap<>();
             similarityFormat.put("class", "solr.BM25SimilarityFactory");
-            similarityFormat.put("k1", k1);
-            similarityFormat.put("b", b);
+            similarityFormat.put(K1_PROPERTY, k1);
+            similarityFormat.put(B_PROPERTY, b);
 
             getProperties();
             setSimilarities();
