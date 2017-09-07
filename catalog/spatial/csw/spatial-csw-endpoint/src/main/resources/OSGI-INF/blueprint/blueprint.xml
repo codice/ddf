@@ -183,6 +183,7 @@
 
     <bean id="cswFilterFactory"
           class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswQueryFactory">
+        <argument ref="metacardCswRecordMap"/>
         <argument ref="filterBuilder"/>
         <argument ref="filterAdapter"/>
         <property name="attributeRegistry" ref="attributeRegistry"/>

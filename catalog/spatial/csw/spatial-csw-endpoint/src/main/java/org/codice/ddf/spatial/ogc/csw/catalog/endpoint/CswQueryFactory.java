@@ -39,8 +39,8 @@ import org.apache.commons.io.IOUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.PropertyIsFuzzyFunction;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.SourceIdFilterVisitor;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.CswRecordMap;
 import org.geotools.feature.NameImpl;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.FilterFactoryImpl;
@@ -95,13 +95,17 @@ public class CswQueryFactory {
 
     private final FilterAdapter adapter;
 
+    private final CswRecordMap cswRecordMap;
+
     private Map<String, Set<String>> schemaToTagsMapping = new HashMap<>();
 
     private AttributeRegistry attributeRegistry;
 
     private QueryFilterTransformerProvider queryFilterTransformerProvider;
 
-    public CswQueryFactory(FilterBuilder filterBuilder, FilterAdapter adapter) {
+    public CswQueryFactory(CswRecordMap cswRecordMap, FilterBuilder filterBuilder,
+            FilterAdapter adapter) {
+        this.cswRecordMap = cswRecordMap;
         this.builder = filterBuilder;
         this.adapter = adapter;
     }
@@ -298,25 +302,22 @@ public class CswQueryFactory {
             return null;
         }
 
-        String propertyName = cswSortBy.getPropertyName().getPropertyName();
+        String propertyName = cswSortBy.getPropertyName()
+                .getPropertyName();
         if (propertyName == null) {
             LOGGER.debug("Property in SortBy Field is null");
             return null;
         }
 
-        NamespaceSupport namespaceContext = cswSortBy.getPropertyName().getNamespaceContext();
+        NamespaceSupport namespaceContext = cswSortBy.getPropertyName()
+                .getNamespaceContext();
         if (!attributeRegistry.lookup(propertyName)
-                .isPresent() && !DefaultCswRecordMap.hasDefaultMetacardFieldForPrefixedString(
-                propertyName,
-                namespaceContext)) {
-            LOGGER.debug("Property {} is not a valid SortBy Field",
-                    propertyName);
+                .isPresent() && !cswRecordMap.hasProperty(propertyName, namespaceContext)) {
+            LOGGER.debug("Property {} is not a valid SortBy Field", propertyName);
             return null;
         }
 
-        String name =
-                DefaultCswRecordMap.getDefaultMetacardFieldForPrefixedString(propertyName,
-                        namespaceContext);
+        String name = cswRecordMap.getProperty(propertyName, namespaceContext);
 
         PropertyName propName = new AttributeExpressionImpl(new NameImpl(name));
         return new SortByImpl(propName, cswSortBy.getSortOrder());

@@ -43,6 +43,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.MetacardCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.CswQueryFilterTransformer;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.CswRecordMap;
 import org.geotools.filter.AttributeExpressionImpl;
 import org.geotools.filter.LiteralExpressionImpl;
 import org.geotools.styling.UomOgcMapping;
@@ -240,8 +241,9 @@ public class CswQueryFactoryTest {
             FederationException, ParseException, IngestException {
         FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
         FilterAdapter filterAdapter = new GeotoolsFilterAdapterImpl();
+        CswRecordMap cswRecordMap = new MetacardCswRecordMap();
 
-        queryFactory = new CswQueryFactory(filterBuilder, filterAdapter);
+        queryFactory = new CswQueryFactory(cswRecordMap,filterBuilder, filterAdapter);
 
         AttributeRegistry mockAttributeRegistry = mock(AttributeRegistry.class);
         when(mockAttributeRegistry.lookup(TITLE_TEST_ATTRIBUTE)).thenReturn(Optional.of(mock(

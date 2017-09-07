@@ -27,7 +27,7 @@ public interface CswRecordMap {
      * will be used to resolve namespaces. If {@link NamespaceSupport} is
      * null, then {@link CswRecordMap#getProperty(String)} should be used.
      *
-     * @param propertyName CSW query property name, can be prefixed.
+     * @param propertyName CSW query property name. Can be prefixed.
      * @param context      Namespace context from the CSW query
      * @return Catalog taxonomy attribute name.
      */
@@ -42,4 +42,26 @@ public interface CswRecordMap {
      * @return Catalog taxonomy attribute name
      */
     String getProperty(String propertyName);
+
+    /**
+     * Returns true if the property name has a corresponding catalog taxonomy
+     * attribute. {@link NamespaceSupport} will be used to resolve namespaces.
+     * If {@link NamespaceSupport} is null, then {@link CswRecordMap#hasProperty(String)}
+     * should be used.
+     *
+     * @param propertyName CSW query property name. Can be prefixed.
+     * @param context      Namespace context from the CSW query
+     * @return True if the property name has a corresponding catalog taxonomy attribute.
+     */
+    boolean hasProperty(String propertyName, NamespaceSupport context);
+
+    /**
+     * Returns true if the property name has a corresponding catalog taxonomy
+     * attribute. If the property name is prefixed, then the prefix will be
+     * removed before performing the check.
+     *
+     * @param propertyName CSW query property name. Can be prefixed.
+     * @return True if the property name has a corresponding catalog taxonomy attribute.
+     */
+    boolean hasProperty(String propertyName);
 }
