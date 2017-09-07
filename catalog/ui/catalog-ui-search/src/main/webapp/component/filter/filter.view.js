@@ -81,6 +81,7 @@ define([
                 }).map(function(metacardType){
                     return {
                         label: metacardType.alias || metacardType.id,
+                        description: (properties.attributeDescriptions || {})[metacardType.id],
                         value: metacardType.id
                     };
                 }),

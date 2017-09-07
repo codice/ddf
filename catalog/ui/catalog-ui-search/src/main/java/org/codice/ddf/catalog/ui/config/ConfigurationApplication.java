@@ -156,6 +156,13 @@ public class ConfigurationApplication implements SparkApplication {
         return hiddenAttributes;
     }
 
+    public List<String> getAttributeDescriptions() {
+        return attributeDescriptions.entrySet()
+                .stream()
+                .map(pair -> String.format("%s=%s", pair.getKey(), pair.getValue()))
+                .collect(Collectors.toList());
+    }
+
     public void setScheduleFrequencyList(List<Long> scheduleFrequencyList) {
         this.scheduleFrequencyList = scheduleFrequencyList;
     }
@@ -181,13 +188,15 @@ public class ConfigurationApplication implements SparkApplication {
     }
 
     public void setAttributeAliases(List<String> attributeAliases) {
-        this.attributeAliases = attributeAliases.stream()
-                .map(str -> str.split("="))
-                .collect(Collectors.toMap(list -> list[0].trim(), list -> list[1].trim()));
+        this.attributeAliases = parseAttributeAndValuePairs(attributeAliases);
     }
 
     public void setHiddenAttributes(List<String> hiddenAttributes) {
         this.hiddenAttributes = hiddenAttributes;
+    }
+
+    public void setAttributeDescriptions(List<String> attributeDescriptions) {
+        this.attributeDescriptions = parseAttributeAndValuePairs(attributeDescriptions);
     }
 
     private List<String> readOnly = ImmutableList.of("checksum",
@@ -206,6 +215,8 @@ public class ConfigurationApplication implements SparkApplication {
     private Map<String, String> attributeAliases = Collections.emptyMap();
 
     private List<String> hiddenAttributes = Collections.emptyList();
+
+    private Map<String, String> attributeDescriptions = Collections.emptyMap();
 
     private int sourcePollInterval = 60000;
 
@@ -269,6 +280,7 @@ public class ConfigurationApplication implements SparkApplication {
         config.put("summaryShow", summaryShow);
         config.put("resultShow", resultShow);
         config.put("hiddenAttributes", hiddenAttributes);
+        config.put("attributeDescriptions", attributeDescriptions);
         config.put("attributeAliases", attributeAliases);
         config.put("sourcePollInterval", sourcePollInterval);
         config.put("scheduleFrequencyList", scheduleFrequencyList);
@@ -501,6 +513,19 @@ public class ConfigurationApplication implements SparkApplication {
         }
 
         return config;
+    }
+
+    private Map<String, String> parseAttributeAndValuePairs(List<String> pairs) {
+        return pairs.stream()
+            .map(str -> str.split("=", 2))
+            .filter((list) -> {
+                if (list.length <= 1) {
+                    LOGGER.debug("Filtered out invalid attribute/value pair: {}", list[0]);
+                    return false;
+                }
+                return true;
+            })
+            .collect(Collectors.toMap(list -> list[0].trim(), list -> list[1].trim()));
     }
 
     public HttpProxyService getHttpProxy() {

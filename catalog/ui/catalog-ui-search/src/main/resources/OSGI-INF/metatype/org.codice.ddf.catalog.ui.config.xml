@@ -138,7 +138,7 @@
 
         <AD id="attributeAliases"
             name="Attribute Aliases"
-            description="List of attribute aliases. Example 'title=Title'"
+            description="List of attribute aliases. Separate the attribute name and alias with an equals (=) sign. Example: 'title=Title'"
             type="String"
             cardinality="10000"
             required="false"/>
@@ -149,6 +149,13 @@
             type="String"
             cardinality="10000"
             default="^sortOrder$,^sortField$,^cql$,^polling$,^cached$"
+            required="false"/>
+
+        <AD id="attributeDescriptions"
+            name="Attribute Descriptions"
+            description="List of friendly attribute descriptions. Separate the attribute name and description with an equals (=) sign. Example: 'checksum-algorithm=Method for generating a small-sized datum from a block of digital data for the purpose of detecting errors'"
+            type="String"
+            cardinality="10000"
             required="false"/>
 
         <AD id="scheduleFrequencyList"
