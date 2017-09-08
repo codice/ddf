@@ -921,6 +921,7 @@
 
     <feature name="security-core-api" install="manual" version="${project.version}"
              description="Security Core">
+        <bundle start-level="30" dependency="true">mvn:org.apache.neethi/neethi/${wss4j.neethi.version}</bundle>
         <feature prerequisite="true">cxf-rt-security</feature>
         <feature prerequisite="true" version="${spring.version}_1">spring</feature>
         <bundle>mvn:org.apache.shiro/shiro-core/${apache.shiro.version}</bundle>
@@ -1047,7 +1048,6 @@
     <feature name="web-container" install="manual" version="${project.version}">
         <feature prerequisite="true">platform-filter-delegate</feature>
         <feature prerequisite="true">platform-paxweb-jettyconfig</feature>
-        <bundle dependency="true">mvn:org.codice.ddf.platform.crypto/platform-crypto-provider/${project.version}</bundle>
         <feature>war</feature>
     </feature>
 

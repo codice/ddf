@@ -148,10 +148,6 @@
                         <Export-Package>
                             org.codice.ddf.security.filter.login
                         </Export-Package>
-                        <Import-Package>
-                            org.apache.wss4j.common.crypto,
-                            *
-                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>

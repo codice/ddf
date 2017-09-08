@@ -24,7 +24,6 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
 import org.apache.wss4j.common.crypto.Merlin;
-import org.apache.wss4j.common.crypto.MerlinExtension;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +47,7 @@ public class ZipValidator {
 
     public void init() {
         try {
-            merlin = new MerlinExtension(PropertiesLoader.loadProperties(signaturePropertiesPath),
+            merlin = new Merlin(PropertiesLoader.loadProperties(signaturePropertiesPath),
                     ZipDecompression.class.getClassLoader(),
                     null);
         } catch (WSSecurityException | IOException e) {
