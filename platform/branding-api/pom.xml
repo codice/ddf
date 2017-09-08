@@ -21,9 +21,9 @@
         <artifactId>platform</artifactId>
         <version>2.11.0-SNAPSHOT</version>
     </parent>
-    <groupId>ddf.distribution</groupId>
+    <groupId>ddf.platform</groupId>
     <artifactId>branding-api</artifactId>
-    <name>DDF :: Distribution :: Branding API</name>
+    <name>DDF :: Platform :: Branding API</name>
     <packaging>bundle</packaging>
     <dependencies>
         <dependency>
@@ -31,7 +31,6 @@
             <artifactId>commons-lang3</artifactId>
             <version>3.3.2</version>
         </dependency>
-
         <dependency>
             <groupId>ddf.platform.util</groupId>
             <artifactId>platform-util</artifactId>
@@ -47,6 +46,10 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.name}</Bundle-Name>
+                        <Import-Package>
+                            !org.springframework.core.io.support,
+                            *
+                        </Import-Package>
                         <Embed-Dependency>commons-lang3, platform-util</Embed-Dependency>
                         <Export-Package>
                             org.codice.ddf.branding

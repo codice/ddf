@@ -66,9 +66,6 @@
                             <addTransitiveFeatures>false</addTransitiveFeatures>
                             <descriptors>
                                 <descriptor>
-                                    mvn:org.codice.ddf/kernel/${project.version}/xml/features
-                                </descriptor>
-                                <descriptor>
                                     mvn:ddf.platform/platform-app/${project.version}/xml/features
                                 </descriptor>
                                 <descriptor>
@@ -76,9 +73,6 @@
                                 </descriptor>
                                 <descriptor>
                                     mvn:ddf.admin/admin-app/${project.version}/xml/features
-                                </descriptor>
-                                <descriptor>
-                                    mvn:ddf.distribution/install-profiles/${project.version}/xml/features
                                 </descriptor>
                                 <descriptor>
                                     mvn:org.codice.ddf.broker/broker-app/${project.version}/xml/features
@@ -106,6 +100,12 @@
                                 </descriptor>
                                 <descriptor>
                                     mvn:org.codice.ddf.registry/registry-app/${project.version}/xml/features
+                                </descriptor>
+                                <descriptor>
+                                    mvn:ddf.distribution/ddf-branding-app/${project.version}/xml/features
+                                </descriptor>
+                                <descriptor>
+                                    mvn:ddf.distribution/install-profiles/${project.version}/xml/features
                                 </descriptor>
                             </descriptors>
                             <repository>${setup.folder}/${karaf.folder}/system</repository>
@@ -253,13 +253,6 @@
     </profiles>
     <dependencies>
         <dependency>
-            <groupId>org.codice.ddf</groupId>
-            <artifactId>kernel</artifactId>
-            <version>${project.version}</version>
-            <classifier>features</classifier>
-            <type>xml</type>
-        </dependency>
-        <dependency>
             <groupId>ddf.platform</groupId>
             <artifactId>platform-app</artifactId>
             <version>${project.version}</version>
@@ -276,13 +269,6 @@
         <dependency>
             <groupId>ddf.admin</groupId>
             <artifactId>admin-app</artifactId>
-            <version>${project.version}</version>
-            <classifier>features</classifier>
-            <type>xml</type>
-        </dependency>
-        <dependency>
-            <groupId>ddf.distribution</groupId>
-            <artifactId>install-profiles</artifactId>
             <version>${project.version}</version>
             <classifier>features</classifier>
             <type>xml</type>
@@ -346,6 +332,20 @@
         <dependency>
             <groupId>org.codice.ddf.registry</groupId>
             <artifactId>registry-app</artifactId>
+            <version>${project.version}</version>
+            <classifier>features</classifier>
+            <type>xml</type>
+        </dependency>
+        <dependency>
+            <groupId>ddf.distribution</groupId>
+            <artifactId>ddf-branding-app</artifactId>
+            <version>${project.version}</version>
+            <classifier>features</classifier>
+            <type>xml</type>
+        </dependency>
+        <dependency>
+            <groupId>ddf.distribution</groupId>
+            <artifactId>install-profiles</artifactId>
             <version>${project.version}</version>
             <classifier>features</classifier>
             <type>xml</type>

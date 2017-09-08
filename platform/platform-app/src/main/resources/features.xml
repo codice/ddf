@@ -28,6 +28,8 @@
           xmlns="http://karaf.apache.org/xmlns/features/v1.3.0"
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
+    <repository>mvn:org.apache.karaf.features/standard/${karaf.version}/xml/features</repository>
+
     <repository>mvn:org.apache.karaf.features/spring/${karaf.version}/xml/features</repository>
 
     <repository>mvn:org.apache.karaf.decanter/apache-karaf-decanter/${decanter.version}/xml/features</repository>
@@ -794,6 +796,17 @@
     </feature>
     <!-- END CXF Features -->
 
+    <feature name="kernel" install="manual" version="${project.version}">
+        <feature prerequisite="true" version="${karaf.version}">standard</feature>
+        <feature prerequisite="true" version="${karaf.version}">eventadmin</feature>
+        <feature prerequisite="true" version="${karaf.version}">jasypt-encryption</feature>
+        <feature prerequisite="true" version="${karaf.version}">http</feature>
+    </feature>
+
+    <feature name="branding-api" version="${project.version}" description="Branding API">
+        <bundle>mvn:ddf.platform/branding-api/${project.version}</bundle>
+    </feature>
+
     <feature name="platform-api" install="manual" version="${project.version}"
              description="Top Level Platform API">
         <feature prerequisite="true">wrap</feature>
@@ -1141,7 +1154,6 @@
     <feature name="landing-page" install="manual" version="${project.version}"
              description="Landing page and branding support.">
         <feature prerequisite="true">platform-dependencies</feature>
-        <feature>ddf-branding</feature>
         <bundle>mvn:ddf.platform/landing-page/${project.version}</bundle>
     </feature>
 
