@@ -78,7 +78,7 @@ When calling to an endpoint from a SOAP secure client, it first requests the WSD
 The client then calls to STS for authentication token to proceed.
 If the client receives the token, it makes a secure call to the endpoint and receives results.
 
-===== Dumb SOAP Client
+===== Policy-unaware SOAP Client
 
 If calling an endpoint from a non-secure client, at the point the of the initial call, the Guest Interceptor catches the request and prepares it to be accepted by the endpoint.
 

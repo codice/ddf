@@ -18,25 +18,9 @@ Match-One Mapping:: This mapping is used to guarantee that at least one of the 
 
 ===== Configuring the Security PDP AuthZ Realm
 
-. Navigate to the ${admin-console}.
+. Navigate to the *${admin-console}*.
 . Select *${ddf-security}* Application.
 . Select *Configuration* tab.
 . Select *Security AuthZ Realm*.
 
-.Security PDP AuthZ Realm Settings
-[cols="1,1,6" options="header"]
-|===
-
-|Configuration Name
-|Default Value
-|Additional Description
-
-|Match-All Mappings
-| 
-|These map user attributes to metacard security attributes to be used in "Match All" checking. All the values in the metacard attribute must be present in the user attributes in order to "pass" and allow access. These attribute names are case-sensitive.
-
-|Match-One Mappings
-|
-|These map user attributes to metacard security attributes to be used in "Match One" checking. At least one of the values from the metacard attribute must be present in the corresponding user attribute to "pass" and allow access. These attribute names are case-sensitive.
-
-|===
+See <<ddf.security.pdp.realm.AuthzRealm,Security AuthZ Realm>> for all possible configurations.

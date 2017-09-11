@@ -6,5 +6,4 @@
 :order: 06
 :summary: Security PEP.
 
-The ${ddf-security} Policy Enforcement Point (PEP) application contains bundles and services that enable service and metacard authorization.
-These two types of authorization can be installed separately and extended with custom services.
+The ${ddf-security} Policy Enforcement Point (PEP) application contains bundles that allow for policies to be enforced at various parts of the system, for example: to reach contexts, view metacards, access catalog operations, and others.

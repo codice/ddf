@@ -5,7 +5,7 @@
 :order: 01
 :summary: Shiro realms.
 
-${branding} uses takes from <<https://shiro.apache.org,Apache Shiro>> the concept of <<https://shiro.apache.org/realm.html,Realms>> for Authentication and Authorization.
+${branding} uses <<https://shiro.apache.org,Apache Shiro>> the concept of <<https://shiro.apache.org/realm.html,Realms>> for Authentication and Authorization.
 Realms are components that access security data such as such as users or permissions.
 
 ===== Authenticating Realms
@@ -101,9 +101,14 @@ That realm selection is then passed via the token sent to the STS to determine w
 
 |===
 
+[NOTE]
+====
+Using the SAML Web SSO Identity Provider for authentication will ignore any realm settings and simply use all configured JAAS realms.
+====
+
 [WARNING]
 ====
-An update was made to the SAML Assertion Handler to pass SAML assertions through headers instead of through cookies.
+An update was made to the SAML Assertion Handler to pass SAML assertions through the Authorization HTTP header.
 Cookies _are_ still accepted and processed to maintain legacy federation compatibility, but assertions are sent in the header on outbound requests.
 While a machine's identity will still federate between versions, a user's identity will ONLY be federated when a ${branding} version 2.7.x server communicates with a ${branding} version 2.8.x+ server, or between two servers whose versions are 2.8.x or higher.
 ====

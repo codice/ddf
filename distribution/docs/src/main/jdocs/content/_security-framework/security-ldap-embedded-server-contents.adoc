@@ -7,6 +7,11 @@
 
 ${branding} includes an embedded LDAP server (OpenDJ) for testing and demonstration purposes.
 
+[WARNING]
+====
+The embedded LDAP server is intended for testing purposes only and is not recommended for production use.
+====
+
 ===== Installing the Embedded LDAP Server
 
 The embedded LDAP server is not installed by default with a standard installation.
@@ -46,16 +51,6 @@ The LDIF file being loaded may contain any LDAP entries (schemas, users, groups,
 If the location is left blank, the default base LDIF file will be used that comes with ${branding}.
 
 |===
-
-===== Trust Certificates
-
-For LDAPS or startTLS to function correctly, it is important that the LDAP server is configured with a keystore file that trusts the clients it is connecting to and vice versa.
-Complete the following procedure to provide your own keystore information for the LDAP. 
-
-[WARNING]
-====
-The embedded LDAP server is intended for testing purposes only and is not recommended for production use.
-====
 
 ===== Connecting to Standalone LDAP Servers
 
