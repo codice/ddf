@@ -624,5 +624,10 @@
             <artifactId>catalog-opensearch-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.catalog.transformer</groupId>
+            <artifactId>catalog-transformer-preview</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
