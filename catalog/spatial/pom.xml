@@ -181,6 +181,7 @@
     <modules>
         <module>kml</module>
         <module>ogc</module>
+        <module>wps</module>
         <module>wfs</module>
         <module>wcs</module>
         <module>csw</module>
