@@ -27,7 +27,7 @@ Configure the Security STS Server from the ${admin-console}:
 . Select *Security STS Server*.
 
 .Security STS Server Settings
-[cols="2,1,5" options="header"]
+[cols="2,1m,5" options="header"]
 |===
 
 |Configuration Name
@@ -39,36 +39,15 @@ Configure the Security STS Server from the ${admin-console}:
 |
  
 |Token Issuer
-|`localhost`
+|localhost
 |The name of the server issuing tokens. Generally this is the cn or hostname of this machine on the network. 
 
 |Signature Username
-|`localhost`
+|localhost
 |Alias of the private key in the STS Server's keystore used to sign messages.
 
 |Encryption Username
-|`localhost`
+|localhost
 |Alias of the private key in the STS Server's keystore used to encrypt messages. 
 
 |===
-
-.Security STS Server Imported Services
-[cols="3" options="header"]
-|===
-
-|Registered Interface
-|Availability
-|Multiple
-
-|`org.apache.cxf.sts.claims.ClaimsHandler`
-|optional
-|true
-
-|`org.apache.cxf.sts.token.validator.TokenValidator`
-|optional
-|true
-
-|===
-
-.Security STS Server Exported Services
-None.

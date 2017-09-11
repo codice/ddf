@@ -33,7 +33,7 @@ See <<ddf.catalog.ftp.FtpServerStarter,FTP Endpoint configurations>> for all pos
 
 .FTP Endpoint URL
 ----
-ftp://localhost:8021/
+ftp://<FQDN>:8021/
 ----
 
 The FTP endpoint supports the `PUT`, `MPUT DELE`, `RETR`, `RMD`, `APPE`, `RNTO`, `STOU`, and `SITE` operations.

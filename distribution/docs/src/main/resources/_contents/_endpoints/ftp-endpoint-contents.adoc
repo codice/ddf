@@ -28,7 +28,7 @@ include::{adoc-include}/_tables/ddf.catalog.ftp.FtpServerStarter-table-contents.
 
 .FTP Endpoint URL
 ----
-ftp://localhost:8021/
+ftp://<FQDN>:8021/
 ----
 
 The FTP endpoint supports the `PUT`, `MPUT DELE`, `RETR`, `RMD`, `APPE`, `RNTO`, `STOU`, and `SITE` operations.
