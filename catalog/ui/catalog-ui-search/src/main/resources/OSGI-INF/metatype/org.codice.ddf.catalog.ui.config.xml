@@ -85,6 +85,13 @@
             default="true"
             required="false"/>
 
+        <AD id="onlineGazetteer"
+            name="Use Online Gazetteer"
+            description="Should the online gazetteer be used? If unchecked a local one will be used."
+            type="Boolean"
+            default="true"
+            required="false"/>
+
         <AD id="ingest"
             name="Show Uploader"
             description="Show upload menu for adding new record."

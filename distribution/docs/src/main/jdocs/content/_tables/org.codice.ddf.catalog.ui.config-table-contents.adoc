@@ -98,6 +98,13 @@ TMS example (3d map support only): `[{"type" : "TMS", "url" : "https://cesiumjs.
 |true
 |false
 
+|Use Online Gazetteer
+|onlineGazetteer
+|Boolean
+|Should the online gazetteer be used? If unchecked a local one will be used.
+|true
+|false
+
 |Show Uploader
 |ingest
 |Boolean
