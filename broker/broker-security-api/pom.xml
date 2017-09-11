@@ -22,30 +22,15 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>broker-adapter</artifactId>
-    <name>DDF :: Broker :: Adapter</name>
+    <artifactId>broker-security-api</artifactId>
+    <name>DDF :: Broker :: Security :: API</name>
     <packaging>bundle</packaging>
 
     <dependencies>
         <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.core</artifactId>
-            <version>${osgi.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.activemq</groupId>
             <artifactId>artemis-server</artifactId>
             <version>${artemis.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codice.ddf.broker</groupId>
-            <artifactId>broker-security-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${org.slf4j.version}</version>
         </dependency>
     </dependencies>
 
@@ -58,10 +43,8 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Fragment-Host>org.apache.activemq.artemis-server-osgi</Fragment-Host>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <!-- Don't Export Anything -->
-                        <Export-Package/>
+                        <Export-Package>org.codice.ddf.broker.security.api</Export-Package>
                     </instructions>
                 </configuration>
             </plugin>
