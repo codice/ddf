@@ -1,4 +1,6 @@
 
+== Catalog Plugins
+
 <#list pluginIntros?sort_by("order") as pi>
 <#if (pi.order == "00")>
 include::${pi.file}[]

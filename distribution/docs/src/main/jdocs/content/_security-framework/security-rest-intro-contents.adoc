@@ -1,0 +1,80 @@
+:title: Securing REST
+:type: subSecurityFramework
+:status: published
+:parent: Web Service Security Architecture
+:order: 00
+:summary: Securing REST.
+
+[ditaa,security_architecture,png]
+....
++------------------------------------------------------------------------------------------------------------------------------------------------------------+
+|                                                                                                                                                            |
+|                       /----------\          /----------------\                                               /-------------------------------------------\ |
+| /-------=--\          |          |          |          cDEF  |                                               |                 STS Server                | |
+| | External | Request  | Delegate | Request  |    Web SSO     |                                   /-------\   |  /----------\  /----------\  /----------\ | |
+| |   DDF    |--------->| Servlet  |--------->|     Filter     |                             /---->|       |-->|->|Validators|->|  Claims  |->|  Token   | | |
+| |  Client  |          | Filter   |          |                |                             |     |  STS  |   |  |          |  | Handlers |  | Issuers  | | |
+| \----------/          |     cEEE |          | /------------\ |                             |     | Realm |   |  \----------/  \----------/  \----------/ | |
+|       ^               \----------/          | |Whitelisted?| |<-------\                    |     |       |   |                                    |      | |
+|       |                                     | \------------/ |        |              /-----+ /---|       |<--|<-----=-----------------------------/      | |
+|       |                   /-----------\     |    |      |    |        v              |TOKEN| |   |  cDEF |   |                                           | |
+|       |         Response  |   c5F5    |     |    |Yes   |No  |     /-----=-\         \-----+ |   \-------/   |                                cDEF       | |
+|       +-------------------|  Endpoint |<----|<-=-/      |    |     |Web Cxt|               | |               \-------------------------------------------/ |
+|       |                   \-----------/     |           :    |  /->|Policy |               | |                                                             |
+|       |                                     |           |    |  |  |Manager|               | +-------\                                                     |
+|       |                   /-----------\     |           |    |  |  \-------/               | |SUBJECT|                                                     |
+|       |                   |Basic Auth.|<-\  |           v    |  |  /---------\   /-------\ | +-------/                                                     |
+|       |                   |  Handler  |  |  | /------------\ |  |  |         |   | Shiro | | |                                                             |
+|       |                   \-----------/  \--| |loop through| |  |  |    cDEF |   |       | | |                                                             |
+|       |                         |           | | configured | |  |  |         |-->|----=->|-/ |                                                             |
+|       |                         v        /->| |  handlers  | |  |  |  Login  |   |       |   |                                                             |
+|       |                   /-----------\  |  | \------------/ |  |  |  Filter |   |       |   |                                                             |
+|       |                   |PKI Handler|  |  |       |        |  |  |         |<--|<---=--|<--/                                                             |
+|       |                   \-----------/  |  |       \---=--->|--|->|-=--\    |   |       |                                                                 |
+|       |                         |        |  |                |  |  |    |    |   |       |                                                                 |
+|       |                         v        |  \----------------/  |  |    v    |   |  c555 |                                                                 |
+|       |                  /------------\  |                      |  \---------/   |       |                                                                 |
+|       |                  |Anon Handler|  |                      |       |        |       |                                                                 |
+|       |                  \------------/  |                      |       v        |       |                                                                 |
+|       |                         |        |                      |  /---------\   |       |                                                                 |
+|       |                         v        |                      |  |    |cDEF|   |       |                                                                 |
+|       |                   /-----------\  |                      |  |    :    |   |       |       /--------\                                                |
+|       |                   |SAML Assert|  |                      |  |  AuthZ  |   |       |       |cDEF    |   /=--------\                                  |
+|       |                   |  Handler  |  |                      \->| Filter  |-->|----=->|------>|        |-->|         |                                  |
+|       |   /--------\      \-----------/  |      /-----------\      |/-------\|   |       |       |  PDP   |   |Expansion|                                  |
+|       |   | cF55   |            |        |      | cF55      |  No  || Has   ||   |       |       |        |   | Service |                                  |
+|       |   | Not    |            v        |      | Not       |<-----|| Perm? ||   |       |       |        |   |         |                                  |
+|       |   |Handled |      /-----------\  |      | Authorized|      |\-------/|<--|<----=-|<------|        |<--|         |                                  |
+|       |   \--------/      |   Other   |  |      \-----------/      |    |Yes |   |       |       |        |   \---------/                                  |
+|       |       ^           | Handlers  |  |                         |    v    |   |       |       \--------/                                                |
+|       |       |           \-----------/  |                         \---------/   \-------/                                                                 |
+|       |       |               |   |      |                              |                                                                                  |
+|       |       \---------------/   \------/                              v                                                                                  |
+|       |                                       Response        /------------------\                                                                         |
+|       \-------------------------------------------------------|c5F5 Endpoint     |                                                                         |
+|                                                               \------------------/                                                                         |
++------------------------------------------------------------------------------------------------------------------------------------------------------------+
+....
+
+The Delegate Servlet Filter is the topmost filter of all web contexts.
+It initializes all Security Filters and runs them in order according to service ranking:
+
+. The *Web SSO Filter* reads from the web context policy manager and functions as the first decision point.
+If the request is from a whitelisted context, no further authentication is needed and the request goes directly to the desired endpoint.
+If the context is not on the whitelist, the filter will attempt to get a claims handler for the context.
+The filter loops through all configured context handlers until one signals that it has found authentication information that it can use to build a token.
+This configuration can be changed by modifying the web context policy manager configuration.
+If unable to resolve the context, the filter will return an authentication error and the process stops.
+If a handler is successfully found, an auth token is assigned and the request continues to the login filter.
+
+. The *Login Filter* receives a token and returns a subject.
+To retrieve the subject, the token is sent through Shiro to the STS Realm where the token will be exchanged for a SAML assertion through a SOAP call to an STS server.
+
+. If the Subject is returned, the request moves to the *AuthZ Filter* to check permissions on the user.
+If the user has the correct permissions to access that web context, the request is allowed to hit the endpoint.
+
+[NOTE]
+====
+This diagram does not yet include the SAML 2.0 Web SSO integration.
+====
+

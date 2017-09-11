@@ -1,0 +1,74 @@
+:title: Expansion Service
+:type: securityFramework
+:status: published
+:parent: Security Framework
+:children: na
+:order: 08
+:summary: Expansion Service.
+
+The Expansion Service and its corresponding expansion-related commands provide an easy way for developers to add expansion capabilities to ${branding} during user attribute and metadata card processing.
+In addition to these two defined uses of the expansion service, developers are free to utilize the service in their own implementations.
+
+Each instance of the expansion service consists of a collection of rulesets.
+Each ruleset consists of a key value and its associated set of rules.
+Callers of the expansion service provide a key and a value to be expanded.
+The expansion service then looks up the set of rules for the specified key.
+The expansion service cumulatively applies each of the rules in the set, starting with the original value.
+The result is returned to the caller.
+
+.Expansion Service Ruleset Format
+[cols="1,2m,2m" options="header"]
+|===
+
+|Key (Attribute)
+2+^|Rules (original -> new)
+
+.3+|key1
+|value1
+|replacement1
+
+|value2
+|replacement2
+
+|value3
+|replacement3
+
+.2+|key2
+|value1
+|replacement1
+
+|value2
+|replacement2
+
+|===
+
+The examples below use the following collection of rulesets:
+
+.Expansion Service Example Ruleset
+[cols="1,2m,2m" options="header"]
+|===
+
+|Key (Attribute)
+2+^|Rules (original -> new)
+
+.3+|Location
+|Goodyear
+|Goodyear AZ
+
+|AZ
+|AZ USA
+
+|CA
+|CA USA
+
+.2+^|Title
+|VP-Sales
+|VP-Sales VP Sales
+
+|VP-Engineering
+|VP-Engineering VP Engineering
+
+|===
+
+Note that the rules listed for each key are processed in order, so they may build upon each other, i.e., a new value from the new replacement string may be expanded by a subsequent rule.
+In the example `Location:Goodyear` would expand to `Goodyear AZ USA` and `Title:VP-Sales` would expand to `VP-Sales VP Sales`.
