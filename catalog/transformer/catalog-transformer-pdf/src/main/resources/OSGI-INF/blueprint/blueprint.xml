@@ -24,6 +24,8 @@
                 <bean class="ddf.catalog.data.impl.types.MediaAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.ValidationAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.TopicAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.experimental.ExtractedAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.ValidationAttributes"/>
             </list>
         </argument>
     </bean>

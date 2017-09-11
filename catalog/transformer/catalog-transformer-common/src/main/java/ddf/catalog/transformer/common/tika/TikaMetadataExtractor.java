@@ -13,53 +13,84 @@
  */
 package ddf.catalog.transformer.common.tika;
 
-import ddf.catalog.transform.CatalogTransformerException;
+import static org.apache.commons.lang.Validate.notNull;
+
+import ddf.catalog.transformer.common.tika.handler.BodyAndMetadataContentHandler;
 import java.io.IOException;
 import java.io.InputStream;
+import org.apache.commons.io.IOUtils;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
+import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
-import org.xml.sax.ContentHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 public class TikaMetadataExtractor {
-  private final Parser parser;
 
-  private final ContentHandler handler;
+  public static final Logger LOGGER = LoggerFactory.getLogger(TikaMetadataExtractor.class);
+
+  public static final String METADATA_LIMIT_REACHED_MSG =
+      "Document metadata limit reached. To prevent this, increase the limit.";
+
+  private final BodyAndMetadataContentHandler bodyAndMetadataContentHandler;
+
+  private Metadata metadata;
 
   /**
-   * Creates a new {@code TikaMetadataExtractor} with a {@link Parser} and {@link ContentHandler}.
+   * Constructs a new tika extractor which parses the provided input stream into a tika Metadata
+   * object, the body text, and the metadata XML
    *
-   * @param parser the {@code Parser} to use
-   * @param handler the {@code ContentHandler} to use with {@code parser}
+   * @param inputStream - the input stream to be parsed
+   * @throws TikaException - if parsing fails
    */
-  public TikaMetadataExtractor(final Parser parser, final ContentHandler handler) {
-    this.parser = parser;
-    this.handler = handler;
+  public TikaMetadataExtractor(InputStream inputStream) throws TikaException {
+    this(inputStream, -1, -1);
   }
 
   /**
-   * Parses metadata from {@code inputStream} using the supplied {@link Parser}, {@link
-   * ContentHandler}, and {@link ParseContext}.
+   * Constructs a new tika extractor which parses the provided input stream into a tika Metadata
+   * object, the body text, and the metadata XML The body text is truncated after maxLength
    *
-   * @param inputStream the data to parse
-   * @param parseContext context information to pass to the {@code Parser}, may be null
-   * @return a {@link Metadata} object containing the metadata that the {@code Parser} was able to
-   *     extract from {@code inputStream}
-   * @throws CatalogTransformerException
-   * @throws IOException
+   * @param inputStream - the input stream to be parsed
+   * @param maxBodyLength - the max length of the parsed body text
+   * @param maxMetadataLength - the max length of the parsed metadata.
+   * @throws TikaException - if parsing fails
    */
-  public Metadata parseMetadata(final InputStream inputStream, final ParseContext parseContext)
-      throws CatalogTransformerException, IOException {
-    final Metadata metadata = new Metadata();
+  public TikaMetadataExtractor(InputStream inputStream, int maxBodyLength, int maxMetadataLength)
+      throws TikaException {
+    notNull(inputStream);
+    this.metadata = new Metadata();
+    this.bodyAndMetadataContentHandler =
+        new BodyAndMetadataContentHandler(maxBodyLength, maxMetadataLength);
+    parseMetadata(inputStream);
+  }
+
+  private void parseMetadata(InputStream inputStream) throws TikaException {
+    Parser parser = new AutoDetectParser();
 
     try {
-      parser.parse(inputStream, handler, metadata, parseContext);
-    } catch (SAXException | TikaException e) {
-      throw new CatalogTransformerException(e);
+      parser.parse(inputStream, this.bodyAndMetadataContentHandler, metadata, new ParseContext());
+    } catch (IOException e) {
+      throw new TikaException("Unexpected IOException. Stream may already be closed", e);
+    } catch (SAXException e) {
+      LOGGER.debug("Unexpected tika parsing failure", e);
+    } finally {
+      IOUtils.closeQuietly(inputStream);
     }
+  }
 
+  public String getBodyText() {
+    return bodyAndMetadataContentHandler.getBodyText();
+  }
+
+  public String getMetadataXml() {
+    return bodyAndMetadataContentHandler.getMetadataText();
+  }
+
+  public Metadata getMetadata() {
     return metadata;
   }
 }

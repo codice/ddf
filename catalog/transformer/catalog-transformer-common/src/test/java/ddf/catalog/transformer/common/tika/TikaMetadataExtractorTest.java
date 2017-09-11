@@ -13,55 +13,78 @@
  */
 package ddf.catalog.transformer.common.tika;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
+import static junit.framework.Assert.assertNotNull;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 
-import ddf.catalog.transform.CatalogTransformerException;
 import java.io.InputStream;
 import org.apache.tika.exception.TikaException;
-import org.apache.tika.metadata.Metadata;
-import org.apache.tika.parser.ParseContext;
-import org.apache.tika.parser.Parser;
 import org.junit.Before;
 import org.junit.Test;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
 
 public class TikaMetadataExtractorTest {
   private TikaMetadataExtractor tikaMetadataExtractor;
 
-  private Parser mockParser;
+  private static final String BODY = "this is a test\n";
+
+  private InputStream stream = null;
 
   @Before
-  public void setUp() {
-    mockParser = mock(Parser.class);
-    tikaMetadataExtractor = new TikaMetadataExtractor(mockParser, mock(ContentHandler.class));
+  public void setup() {
+    stream = Thread.currentThread().getContextClassLoader().getResourceAsStream("test.txt");
   }
 
-  @Test(expected = CatalogTransformerException.class)
-  public void testParserThrowsSaxException() throws Exception {
-    doThrow(SAXException.class)
-        .when(mockParser)
-        .parse(
-            any(InputStream.class),
-            any(ContentHandler.class),
-            any(Metadata.class),
-            any(ParseContext.class));
-
-    tikaMetadataExtractor.parseMetadata(mock(InputStream.class), mock(ParseContext.class));
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullInputStream() throws Exception {
+    InputStream stream = null;
+    tikaMetadataExtractor = new TikaMetadataExtractor(stream, 1000, 1000);
   }
 
-  @Test(expected = CatalogTransformerException.class)
-  public void testParserThrowsTikaException() throws Exception {
-    doThrow(TikaException.class)
-        .when(mockParser)
-        .parse(
-            any(InputStream.class),
-            any(ContentHandler.class),
-            any(Metadata.class),
-            any(ParseContext.class));
+  @Test
+  public void testNormalParse() throws Exception {
+    tikaMetadataExtractor = new TikaMetadataExtractor(stream);
 
-    tikaMetadataExtractor.parseMetadata(mock(InputStream.class), mock(ParseContext.class));
+    assertThat(tikaMetadataExtractor.getBodyText(), equalTo(BODY));
+    assertNotNull(tikaMetadataExtractor.getMetadata());
+    assertNotNull(tikaMetadataExtractor.getMetadataXml());
+  }
+
+  @Test
+  public void testBodyParseLimitExceeded() throws Exception {
+    tikaMetadataExtractor = new TikaMetadataExtractor(stream, 1, 1000);
+
+    assertThat(tikaMetadataExtractor.getBodyText(), equalTo("t"));
+    assertNotNull(tikaMetadataExtractor.getMetadata());
+    assertNotNull(tikaMetadataExtractor.getMetadataXml());
+  }
+
+  @Test(expected = TikaException.class)
+  public void testClosedStream() throws Exception {
+    stream.close();
+    tikaMetadataExtractor = new TikaMetadataExtractor(stream, 1, 1000);
+  }
+
+  @Test
+  public void testMetadataParseLimitExceeded() throws Exception {
+    tikaMetadataExtractor = new TikaMetadataExtractor(stream, 1000, 1);
+
+    assertThat(tikaMetadataExtractor.getBodyText(), equalTo(BODY));
+    assertNotNull(tikaMetadataExtractor.getMetadata());
+    assertNotNull(tikaMetadataExtractor.getMetadataXml());
+    assertThat(
+        tikaMetadataExtractor.getMetadataXml(),
+        equalTo(TikaMetadataExtractor.METADATA_LIMIT_REACHED_MSG));
+  }
+
+  @Test
+  public void testBothBodyAndMetadataParseLimitExceeded() throws Exception {
+    tikaMetadataExtractor = new TikaMetadataExtractor(stream, 1, 1);
+
+    assertThat(tikaMetadataExtractor.getBodyText(), equalTo("t"));
+    assertNotNull(tikaMetadataExtractor.getMetadata());
+    assertNotNull(tikaMetadataExtractor.getMetadataXml());
+    assertThat(
+        tikaMetadataExtractor.getMetadataXml(),
+        equalTo(TikaMetadataExtractor.METADATA_LIMIT_REACHED_MSG));
   }
 }

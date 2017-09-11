@@ -17,12 +17,15 @@ import com.github.jaiimageio.impl.plugins.tiff.TIFFImageReaderSpi;
 import com.github.jaiimageio.jpeg2000.impl.J2KImageReaderSpi;
 import ddf.catalog.content.operation.ContentMetadataExtractor;
 import ddf.catalog.content.operation.MetadataExtractor;
+import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.data.types.Core;
+import ddf.catalog.data.types.Validation;
+import ddf.catalog.data.types.experimental.Extracted;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.transformer.common.tika.MetacardCreator;
@@ -34,7 +37,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -51,28 +53,18 @@ import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import javax.imageio.spi.IIORegistry;
 import javax.xml.transform.Templates;
-import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.sax.SAXSource;
-import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
+import org.apache.tika.exception.TikaException;
 import org.apache.tika.io.CloseShieldInputStream;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.mime.MediaType;
 import org.apache.tika.mime.MediaTypeRegistry;
-import org.apache.tika.parser.AutoDetectParser;
-import org.apache.tika.parser.ParseContext;
-import org.apache.tika.parser.Parser;
-import org.apache.tika.sax.TeeContentHandler;
-import org.apache.tika.sax.ToTextContentHandler;
-import org.apache.tika.sax.ToXMLContentHandler;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
-import org.codice.ddf.platform.util.XMLUtils;
 import org.imgscalr.Scalr;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -81,13 +73,13 @@ import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLFilterImpl;
 
 public class TikaInputTransformer implements InputTransformer {
+
+  private int previewMaxLength = 30000;
+
+  private int metadataMaxLength = 30000;
+
   private static final Logger LOGGER = LoggerFactory.getLogger(TikaInputTransformer.class);
 
   private static final Map<com.google.common.net.MediaType, String>
@@ -97,8 +89,6 @@ public class TikaInputTransformer implements InputTransformer {
       FALLBACK_MIME_TYPE_DATA_TYPE_MAP;
 
   private static final String OVERALL_FALLBACK_DATA_TYPE = "Dataset";
-
-  private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
 
   static {
     SPECIFIC_MIME_TYPE_DATA_TYPE_MAP = new HashMap<>();
@@ -171,6 +161,18 @@ public class TikaInputTransformer implements InputTransformer {
   public TikaInputTransformer(BundleContext bundleContext, MetacardType metacardType) {
     this.commonTikaMetacardType = metacardType;
     classLoaderAndBundleContextSetup(bundleContext);
+  }
+
+  public int getPreviewMaxLength() {
+    return previewMaxLength;
+  }
+
+  public void setPreviewMaxLength(int previewMaxLength) {
+    this.previewMaxLength = previewMaxLength;
+  }
+
+  public void setMetadataMaxLength(int metadataMaxLength) {
+    this.metadataMaxLength = metadataMaxLength;
   }
 
   @SuppressWarnings("unused")
@@ -346,61 +348,49 @@ public class TikaInputTransformer implements InputTransformer {
         throw new CatalogTransformerException("Could not copy bytes of content message.", e);
       }
 
-      Parser parser = new AutoDetectParser();
       Metadata metadata;
+      String bodyText = null;
       String metadataText;
-      ToTextContentHandler textContentHandler = null;
       Metacard metacard;
       String contentType;
-      try (TemporaryFileBackedOutputStream textContentHandlerOutStream =
-          new TemporaryFileBackedOutputStream()) {
-        try (TemporaryFileBackedOutputStream xmlContentHandlerOutStream =
-            new TemporaryFileBackedOutputStream()) {
-          ToXMLContentHandler xmlContentHandler =
-              new ToXMLContentHandler(
-                  xmlContentHandlerOutStream, StandardCharsets.UTF_8.toString());
-          ContentHandler contentHandler;
-          if (!contentExtractors.isEmpty()) {
-            textContentHandler =
-                new ToTextContentHandler(
-                    textContentHandlerOutStream, StandardCharsets.UTF_8.toString());
-            contentHandler = new TeeContentHandler(xmlContentHandler, textContentHandler);
-          } else {
-            contentHandler = xmlContentHandler;
-          }
+      TikaMetadataExtractor extractor = null;
+      try (InputStream inputStreamCopy = fileBackedOutputStream.asByteSource().openStream()) {
+        extractor = new TikaMetadataExtractor(inputStreamCopy, previewMaxLength, metadataMaxLength);
 
-          TikaMetadataExtractor tikaMetadataExtractor =
-              new TikaMetadataExtractor(parser, contentHandler);
+      } catch (TikaException e) {
+        throw new CatalogTransformerException(e);
+      }
 
-          try (InputStream inputStreamCopy = fileBackedOutputStream.asByteSource().openStream()) {
-            metadata = tikaMetadataExtractor.parseMetadata(inputStreamCopy, new ParseContext());
-          }
-
-          if (templates != null) {
-            metadataText = transformToXml(xmlContentHandlerOutStream);
-          } else {
-            metadataText = xmlContentHandler.toString();
-          }
-        }
-
-        contentType = metadata.get(Metadata.CONTENT_TYPE);
-        MetacardType metacardType = mergeAttributes(getMetacardType(contentType));
-        metacard =
-            MetacardCreator.createMetacard(
-                metadata, id, metadataText, metacardType, useResourceTitleAsTitle);
-
-        if (textContentHandler != null && !contentExtractors.isEmpty()) {
-          for (ContentMetadataExtractor contentMetadataExtractor : contentExtractors.values()) {
-            try (InputStream contentStream =
-                textContentHandlerOutStream.asByteSource().openStream()) {
-              contentMetadataExtractor.process(contentStream, metacard);
-            }
-          }
+      metadataText = extractor.getMetadataXml();
+      Attribute validationAttribute = null;
+      if (metadataText.equals(TikaMetadataExtractor.METADATA_LIMIT_REACHED_MSG)) {
+        validationAttribute =
+            new AttributeImpl(
+                Validation.VALIDATION_WARNINGS, Collections.singletonList(metadataText));
+        metadataText = "";
+      }
+      bodyText = extractor.getBodyText();
+      metadata = extractor.getMetadata();
+      contentType = metadata.get(Metadata.CONTENT_TYPE);
+      MetacardType metacardType = mergeAttributes(getMetacardType(contentType));
+      metacard =
+          MetacardCreator.createMetacard(
+              metadata, id, metadataText, metacardType, useResourceTitleAsTitle);
+      if (StringUtils.isNotBlank(bodyText)) {
+        metacard.setAttribute(new AttributeImpl(Extracted.EXTRACTED_TEXT, bodyText));
+      }
+      if (!contentExtractors.isEmpty()) {
+        for (ContentMetadataExtractor contentMetadataExtractor : contentExtractors.values()) {
+          contentMetadataExtractor.process(bodyText, metacard);
         }
       }
 
       for (MetadataExtractor metadataExtractor : metadataExtractors.values()) {
         metadataExtractor.process(metadataText, metacard);
+      }
+
+      if (validationAttribute != null) {
+        metacard.setAttribute(validationAttribute);
       }
 
       enrichMetacard(fileBackedOutputStream, contentType, bytes, metacard);
@@ -628,39 +618,6 @@ public class TikaInputTransformer implements InputTransformer {
     } catch (Exception e) {
       LOGGER.debug("Unable to read image from input stream to create thumbnail.", e);
     }
-  }
-
-  private String transformToXml(TemporaryFileBackedOutputStream xhtml) {
-    LOGGER.debug("Transforming xhtml to xml.");
-
-    XMLReader xmlReader = null;
-    try {
-      XMLReader xmlParser = XML_UTILS.getSecureXmlParser();
-      xmlReader = new XMLFilterImpl(xmlParser);
-    } catch (SAXException e) {
-      LOGGER.debug(e.getMessage(), e);
-    }
-    if (xmlReader != null) {
-      try (TemporaryFileBackedOutputStream xmlOutStream = new TemporaryFileBackedOutputStream();
-          InputStream xhtmlInStream = xhtml.asByteSource().openStream()) {
-        Transformer transformer = templates.newTransformer();
-        transformer.transform(
-            new SAXSource(xmlReader, new InputSource(xhtmlInStream)),
-            new StreamResult(xmlOutStream));
-        // we should not be doing this and should be returning the stream instead
-        try (InputStream resultStream = xmlOutStream.asByteSource().openStream()) {
-          return IOUtils.toString(resultStream, StandardCharsets.UTF_8);
-        }
-      } catch (IOException | TransformerException e) {
-        LOGGER.debug("Unable to transform metadata from XHTML to XML.", e);
-      }
-    }
-    try (InputStream xhtmlStream = xhtml.asByteSource().openStream()) {
-      return IOUtils.toString(xhtmlStream, StandardCharsets.UTF_8);
-    } catch (IOException e) {
-      LOGGER.debug("Unable to read data from XHTML stream.", e);
-    }
-    return "";
   }
 
   Bundle getBundle() {

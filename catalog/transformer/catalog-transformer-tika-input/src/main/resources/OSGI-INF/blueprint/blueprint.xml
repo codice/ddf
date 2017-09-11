@@ -13,7 +13,7 @@
  **/
  -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0">
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
     <!-- The tika input transformer programmatically registers itself as a service -->
     <bean id="tikaTransformer" class="ddf.catalog.transformer.input.tika.TikaInputTransformer"
           init-method="populateMimeTypeMap">
@@ -60,6 +60,8 @@
                 <bean class="ddf.catalog.data.impl.types.AssociationsAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.DateTimeAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.CoreAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.experimental.ExtractedAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.ValidationAttributes"/>
             </list>
         </argument>
     </bean>
@@ -74,6 +76,8 @@
                 <bean class="ddf.catalog.data.impl.types.AssociationsAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.DateTimeAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.CoreAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.experimental.ExtractedAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.ValidationAttributes"/>
             </list>
         </argument>
     </bean>
@@ -88,6 +92,8 @@
                 <bean class="ddf.catalog.data.impl.types.AssociationsAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.DateTimeAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.CoreAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.experimental.ExtractedAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.ValidationAttributes"/>
             </list>
         </argument>
     </bean>
@@ -103,6 +109,8 @@
                 <bean class="ddf.catalog.data.impl.types.DateTimeAttributes"/>
                 <bean class="ddf.catalog.transformer.common.tika.Mp4MetacardType"/>
                 <bean class="ddf.catalog.data.impl.types.CoreAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.experimental.ExtractedAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.ValidationAttributes"/>
             </list>
         </argument>
     </bean>
@@ -117,6 +125,8 @@
                 <bean class="ddf.catalog.data.impl.types.AssociationsAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.DateTimeAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.CoreAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.experimental.ExtractedAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.ValidationAttributes"/>
             </list>
         </argument>
     </bean>
@@ -131,6 +141,8 @@
                 <bean class="ddf.catalog.data.impl.types.AssociationsAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.DateTimeAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.CoreAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.experimental.ExtractedAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.ValidationAttributes"/>
             </list>
         </argument>
     </bean>
@@ -145,6 +157,8 @@
                 <bean class="ddf.catalog.data.impl.types.AssociationsAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.DateTimeAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.CoreAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.experimental.ExtractedAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.ValidationAttributes"/>
             </list>
         </argument>
     </bean>
@@ -159,6 +173,8 @@
                 <bean class="ddf.catalog.data.impl.types.AssociationsAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.DateTimeAttributes"/>
                 <bean class="ddf.catalog.data.impl.types.CoreAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.experimental.ExtractedAttributes"/>
+                <bean class="ddf.catalog.data.impl.types.ValidationAttributes"/>
             </list>
         </argument>
     </bean>

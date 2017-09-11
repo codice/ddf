@@ -44,8 +44,8 @@ public class VideoInputTransformerTest {
 
     String metadata = metacard.getMetadata();
     assertThat(metadata, notNullValue());
-    assertThat(metadata, containsString("<meta name=\"tiff:ImageLength\" content=\"360\"/>"));
-    assertThat(metadata, containsString("<meta name=\"tiff:ImageWidth\" content=\"480\"/>"));
+    assertThat(metadata, containsString("<meta name=\"tiff:ImageLength\" content=\"360\" />"));
+    assertThat(metadata, containsString("<meta name=\"tiff:ImageWidth\" content=\"480\" />"));
     assertThat(metacard.getContentTypeName(), is("video/mp4"));
   }
 

@@ -13,7 +13,11 @@
  */
 package ddf.catalog.transformer.input.pdf;
 
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -22,8 +26,11 @@ import static org.mockito.Mockito.when;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.data.types.Contact;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Topic;
+import ddf.catalog.data.types.experimental.Extracted;
 import ddf.catalog.transform.CatalogTransformerException;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
@@ -61,7 +68,7 @@ public class PdfInputTransformerTest {
     pdfInputTransformer.setUsePdfTitleAsTitle(false);
     when(documentInformation.getTitle()).thenReturn("TheTitle");
 
-    Metacard metacard = pdfInputTransformer.transform(null);
+    Metacard metacard = pdfInputTransformer.transform(new ByteArrayInputStream(new byte[0]));
 
     assertThat(metacard.getTitle(), is(nullValue()));
   }
@@ -72,7 +79,7 @@ public class PdfInputTransformerTest {
     pdfInputTransformer.setUsePdfTitleAsTitle(true);
     when(documentInformation.getTitle()).thenReturn(title);
 
-    Metacard metacard = pdfInputTransformer.transform(null);
+    Metacard metacard = pdfInputTransformer.transform(new ByteArrayInputStream(new byte[0]));
 
     assertThat(metacard.getTitle(), is(title));
   }
@@ -83,7 +90,7 @@ public class PdfInputTransformerTest {
 
     when(documentInformation.getAuthor()).thenReturn(author);
 
-    Metacard metacard = pdfInputTransformer.transform(mock(InputStream.class));
+    Metacard metacard = pdfInputTransformer.transform(new ByteArrayInputStream(new byte[0]));
 
     assertThat(metacard.getAttribute(Contact.CREATOR_NAME).getValue(), is(author));
   }
@@ -94,8 +101,44 @@ public class PdfInputTransformerTest {
 
     when(documentInformation.getKeywords()).thenReturn(keywords);
 
-    Metacard metacard = pdfInputTransformer.transform(mock(InputStream.class));
+    Metacard metacard = pdfInputTransformer.transform(new ByteArrayInputStream(new byte[0]));
 
     assertThat(metacard.getAttribute(Topic.KEYWORD).getValue(), is(keywords));
+  }
+
+  @Test
+  public void testPdfMetacardValues() throws IOException, CatalogTransformerException {
+
+    InputStream stream =
+        Thread.currentThread().getContextClassLoader().getResourceAsStream("sample.pdf");
+    pdfInputTransformer.setPreviewMaxLength(-1);
+
+    Metacard metacard = pdfInputTransformer.transform(stream);
+
+    assertThat(metacard, notNullValue());
+
+    assertThat(metacard.getAttribute(Core.DATATYPE).getValue(), equalTo("Text"));
+    assertThat(
+        (String) (metacard.getAttribute(Extracted.EXTRACTED_TEXT)).getValue(),
+        containsString("TEST"));
+    assertThat(metacard.getMetadata(), containsString("2016-02-22T14:09:16Z\""));
+  }
+
+  @Test
+  public void testPdfBodyTruncation() throws IOException, CatalogTransformerException {
+
+    InputStream stream =
+        Thread.currentThread().getContextClassLoader().getResourceAsStream("sample.pdf");
+    pdfInputTransformer.setPreviewMaxLength(10);
+
+    Metacard metacard = pdfInputTransformer.transform(stream);
+
+    assertThat(metacard, notNullValue());
+
+    assertThat(metacard.getAttribute(Core.DATATYPE).getValue(), equalTo("Text"));
+    assertThat(
+        (String) (metacard.getAttribute(Extracted.EXTRACTED_TEXT)).getValue(),
+        not(containsString("TEST")));
+    assertThat(metacard.getMetadata(), containsString("2016-02-22T14:09:16Z\""));
   }
 }
