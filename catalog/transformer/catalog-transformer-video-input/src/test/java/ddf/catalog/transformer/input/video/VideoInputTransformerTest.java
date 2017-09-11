@@ -58,7 +58,7 @@ public class VideoInputTransformerTest {
         Metacard metacard = transform(stream);
 
         assertThat(metacard.getAttribute(Core.DATATYPE),
-                is(new AttributeImpl(Core.DATATYPE, DataType.VIDEO.toString())));
+                is(new AttributeImpl(Core.DATATYPE, DataType.MOVING_IMAGE.toString())));
     }
 
     private InputStream getVideoInputStream() {

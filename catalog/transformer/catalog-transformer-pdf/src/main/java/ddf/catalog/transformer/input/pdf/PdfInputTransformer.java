@@ -239,7 +239,7 @@ public class PdfInputTransformer implements InputTransformer {
         metacard.setId(id);
         metacard.setContentTypeName(MediaType.PDF.toString());
         metacard.setAttribute(Media.TYPE, MediaType.PDF.toString());
-        metacard.setAttribute(Core.DATATYPE, DataType.DOCUMENT.toString());
+        metacard.setAttribute(Core.DATATYPE, DataType.TEXT.toString());
 
         return metacard;
     }

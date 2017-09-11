@@ -15,22 +15,28 @@ package ddf.catalog.data.types.constants.core;
 
 /**
  * These are the allowed values for the attribute Core#DATATYPE.
+ * <p>
+ * These generic type(s) of the resource include the Dublin Core Metadata Initiative DCMI Type
+ * Vocabulary (http://dublincore.org/documents/dcmi-type-vocabulary/).
+ * DCMI Type term labels are included here, as opposed to term names.
  *
- * Based on Dublin Core (http://dublincore.org/documents/2012/06/14/dcmi-terms/?v=elements#terms-type) and extended to include other DDF supported types.
+ * The DDF extension types of "Document" and "Video" have been removed as of DDF-2.11.0
  */
 public enum DataType {
 
+    // DCMI type vocabulary labels
     COLLECTION("Collection"), //
     DATASET("Dataset"), //
     EVENT("Event"), //
     IMAGE("Image"), //
     INTERACTIVE_RESOURCE("Interactive Resource"), //
+    MOVING_IMAGE("Moving Image"), //
+    PHYSICAL_OBJECT("Physical Object"), //
     SERVICE("Service"), //
     SOFTWARE("Software"), //
     SOUND("Sound"), //
-    TEXT("Text"), //
-    VIDEO("Video"), //
-    DOCUMENT("Document");
+    STILL_IMAGE("Still Image"), //
+    TEXT("Text");
 
     private final String value;
 
@@ -41,6 +47,15 @@ public enum DataType {
     @Override
     public String toString() {
         return value;
+    }
+
+    public static DataType fromValue(String value) {
+        for (DataType type: DataType.values()) {
+            if (type.value.equals(value)) {
+                return type;
+            }
+        }
+        throw new IllegalArgumentException(value);
     }
 
 }
