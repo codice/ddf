@@ -199,8 +199,8 @@
         <asciidoctorj.pdf.version>1.5.0-alpha.11</asciidoctorj.pdf.version>
         <jruby.version>1.7.25</jruby.version>
 
-        <solr.version>6.6.0</solr.version>
-        <lucene.version>6.6.0</lucene.version>
+        <solr.version>6.6.1</solr.version>
+        <lucene.version>6.6.1</lucene.version>
         <spatial4j.version>0.6</spatial4j.version>
         <spring-osgi.version>1.2.1</spring-osgi.version>
         <jodah-failsafe.version>0.9.5</jodah-failsafe.version>
