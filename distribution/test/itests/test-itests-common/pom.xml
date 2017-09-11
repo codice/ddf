@@ -46,7 +46,7 @@
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.framework</artifactId>
-            <version>5.4.0</version>
+            <version>${felix.framework.version}</version>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>

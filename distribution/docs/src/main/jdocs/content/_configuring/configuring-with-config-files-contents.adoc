@@ -11,7 +11,7 @@ The ${branding} is configured using `.config` files.
 Like the Karaf `.cfg` files, these configuration files must be located in the `<${branding}_HOME>/etc/` directory.
 Unlike the Karaf `.cfg` files, `.config` files must follow the naming convention that includes the _configuration persistence ID_ (PID) that they represent.
 The filenames must be the pid with a `.config` extension.
-This type of configuration file also supports lists and vectors within configuration values (metatype `cardinality` attribute greater than 1) and booleans, floats, and double values.
+This type of configuration file also supports lists within configuration values (metatype `cardinality` attribute greater than 1) and String, Boolean, Integer, Long, Float, and Double values.
 
 [IMPORTANT]
 ====

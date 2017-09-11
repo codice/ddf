@@ -199,7 +199,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
-            <version>1.13</version>
+            <version>${common-compress.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.lib</groupId>

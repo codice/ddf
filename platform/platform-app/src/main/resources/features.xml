@@ -256,7 +256,7 @@
     <!--START Enterprise Features-->
     <!-- DO NOT EDIT
          All feature definitions come from 3rd party feature file:
-         <repository>mvn:org.apache.karaf.features/enterprise/4.1.1/xml/features</repository>
+         <repository>mvn:org.apache.karaf.features/enterprise/4.1.2/xml/features</repository>
 
          All version properties for these enterprise features are defined in the platform-app pom.
 
@@ -843,7 +843,6 @@
     <feature name="platform-scheduler" install="manual" version="${project.version}"
              description="Schedules tasks">
         <feature prerequisite="true">commons</feature>
-        <feature prerequisite="true">security-core-api</feature>
         <feature prerequisite="true">security-core</feature>
         <bundle>mvn:ddf.platform/platform-scheduler/${project.version}</bundle>
     </feature>
@@ -936,7 +935,6 @@
              description="Security Core">
         <bundle start-level="30" dependency="true">mvn:org.apache.neethi/neethi/${wss4j.neethi.version}</bundle>
         <feature prerequisite="true">cxf-rt-security</feature>
-        <feature prerequisite="true" version="${spring.version}_1">spring</feature>
         <bundle>mvn:org.apache.shiro/shiro-core/${apache.shiro.version}</bundle>
         <feature dependency="true">platform-dependencies</feature>
         <bundle>mvn:ddf.security.core/security-core-api/${project.version}</bundle>
@@ -1051,7 +1049,7 @@
     <feature name="platform-filter-delegate" install="manual" version="${project.version}">
         <feature prerequisite="true">commons</feature>
         <feature prerequisite="true" version="${project.version}">kernel</feature>
-        <feature prerequisite="true" version="${spring.version}_1">spring</feature>
+        <feature dependency="true" version="${spring.version}_1">spring</feature>
         <feature prerequisite="true">pax-http-jetty</feature>
         <feature prerequisite="true">pax-jetty</feature>
         <bundle dependency="true">mvn:com.google.guava/guava/${guava.version}</bundle>
@@ -1137,7 +1135,7 @@
 
     <feature name="platform-paxweb-jettyconfig" install="manual" version="${project.version}"
              description="Custom Session Manager">
-        <feature prerequisite="true" version="${spring.version}_1">spring</feature>
+        <feature dependency="true" version="${spring.version}_1">spring</feature>
         <feature prerequisite="true">commons</feature>
         <feature>pax-jetty</feature>
         <feature prerequisite="true">wrap</feature>

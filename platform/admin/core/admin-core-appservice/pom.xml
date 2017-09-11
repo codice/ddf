@@ -51,13 +51,6 @@
             <groupId>org.apache.karaf.features</groupId>
             <artifactId>org.apache.karaf.features.core</artifactId>
             <version>${karaf.version}</version>
-            <!-- This exclusion could be removed once we upgrade to karaf 4.1.1-->
-            <exclusions>
-                <exclusion>
-                    <artifactId>pax-url-aether</artifactId>
-                    <groupId>org.ops4j.pax.url</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.karaf.shell</groupId>

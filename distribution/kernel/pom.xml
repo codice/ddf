@@ -42,7 +42,7 @@
     <dependencies>
         <!--
         Depends on the base Apache Karaf Unix and Windows distribution zip files.
-        This is where all of the Karaf .cfg, .properties, and other files are extracted from.
+        This is from where all of the Karaf .cfg, .properties, and other files are extracted.
         -->
         <dependency>
             <groupId>org.apache.karaf</groupId>
