@@ -96,6 +96,7 @@ public class FileSystemPersistenceProvider
     public void store(String key, Object value) {
         OutputStream file = null;
         ObjectOutputStream output = null;
+        OutputStream buffer = null;
         try {
             File dir = new File(getMapStorePath());
             if (!dir.exists()) {
@@ -104,7 +105,7 @@ public class FileSystemPersistenceProvider
                 }
             }
             file = new FileOutputStream(getMapStorePath() + key + PERSISTED_FILE_SUFFIX);
-            OutputStream buffer = new BufferedOutputStream(file);
+            buffer = new BufferedOutputStream(file);
             output = new ObjectOutputStream(buffer);
             output.writeObject(value);
         } catch (IOException e) {
@@ -112,6 +113,7 @@ public class FileSystemPersistenceProvider
         } finally {
             IOUtils.closeQuietly(output);
             IOUtils.closeQuietly(file);
+            IOUtils.closeQuietly(buffer);
         }
     }
 

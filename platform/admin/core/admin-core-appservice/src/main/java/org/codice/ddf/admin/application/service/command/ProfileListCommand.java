@@ -15,7 +15,9 @@ package org.codice.ddf.admin.application.service.command;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import org.apache.karaf.bundle.core.BundleService;
 import org.apache.karaf.features.Feature;
@@ -51,9 +53,8 @@ public class ProfileListCommand extends AbstractProfileCommand {
     }
 
     private void listProfileFiles() {
-        try {
-            Files.list(profilePath)
-                    .filter(Files::isRegularFile)
+        try (Stream<Path> files = Files.list(profilePath)){
+            files.filter(Files::isRegularFile)
                     .filter(file -> file.toAbsolutePath().toString().endsWith(PROFILE_EXTENSION))
                     .forEach(profile -> console.println(profile.toFile().getName().replaceAll(PROFILE_EXTENSION, "")));
         } catch (IOException e) {

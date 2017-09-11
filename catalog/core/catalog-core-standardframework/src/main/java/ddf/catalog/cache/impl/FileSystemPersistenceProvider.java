@@ -93,7 +93,7 @@ public class FileSystemPersistenceProvider
     public void store(String key, Object value) {
         OutputStream file = null;
         ObjectOutput output = null;
-
+        OutputStream buffer = null;
         LOGGER.trace("Entering: store - key: {}", key);
         try {
             File dir = new File(getMapStorePath());
@@ -105,7 +105,7 @@ public class FileSystemPersistenceProvider
             }
             LOGGER.debug("file name: {}{}{}", getMapStorePath(), key, SER);
             file = new FileOutputStream(getMapStoreFile(key));
-            OutputStream buffer = new BufferedOutputStream(file);
+            buffer = new BufferedOutputStream(file);
             output = new ObjectOutputStream(buffer);
             output.writeObject(value);
         } catch (IOException e) {
@@ -119,6 +119,7 @@ public class FileSystemPersistenceProvider
                 // Intentionally ignored
             }
             IOUtils.closeQuietly(file);
+            IOUtils.closeQuietly(buffer);
         }
         LOGGER.trace("Exiting: store");
     }

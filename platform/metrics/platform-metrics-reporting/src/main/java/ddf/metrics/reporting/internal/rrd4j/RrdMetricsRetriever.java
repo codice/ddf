@@ -513,33 +513,29 @@ public class RrdMetricsRetriever implements MetricsRetriever {
             long endTime, String summaryInterval) throws IOException, MetricsGraphException {
         LOGGER.trace("ENTERING: createXlsReport");
 
-        Workbook wb = new HSSFWorkbook();
-        Collections.sort(metricNames);
+        try (Workbook wb = new HSSFWorkbook()) {
+            Collections.sort(metricNames);
 
-        if (StringUtils.isNotEmpty(summaryInterval)) {
-            createSummary(wb,
-                    metricNames,
-                    metricsDir,
-                    startTime,
-                    endTime,
-                    SUMMARY_INTERVALS.valueOf(summaryInterval));
-        } else {
-            for (int i = 0; i < metricNames.size(); i++) {
-                String metricName = metricNames.get(i);
-                String rrdFilename = getRrdFilename(metricsDir, metricName);
-                String displayName = i + metricName;
+            if (StringUtils.isNotEmpty(summaryInterval)) {
+                createSummary(wb, metricNames, metricsDir, startTime, endTime, SUMMARY_INTERVALS.valueOf(summaryInterval));
+            } else {
+                for (int i = 0; i < metricNames.size(); i++) {
+                    String metricName = metricNames.get(i);
+                    String rrdFilename = getRrdFilename(metricsDir, metricName);
+                    String displayName = i + metricName;
 
-                createSheet(wb, displayName, rrdFilename, startTime, endTime);
+                    createSheet(wb, displayName, rrdFilename, startTime, endTime);
+                }
             }
+
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            wb.write(bos);
+            bos.close();
+
+            LOGGER.trace("EXITING: createXlsReport");
+
+            return bos;
         }
-
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        wb.write(bos);
-        bos.close();
-
-        LOGGER.trace("EXITING: createXlsReport");
-
-        return bos;
     }
 
     private void createSummary(Workbook wb, List<String> metricNames, String metricsDir,

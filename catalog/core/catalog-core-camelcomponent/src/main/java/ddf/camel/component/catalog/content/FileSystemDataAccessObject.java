@@ -43,6 +43,7 @@ public class FileSystemDataAccessObject {
     public void store(String storePath, String suffix, String key, Object value) {
         OutputStream file = null;
         ObjectOutputStream output = null;
+        OutputStream buffer = null;
         try {
             File dir = new File(storePath);
             if (!dir.exists()) {
@@ -51,7 +52,7 @@ public class FileSystemDataAccessObject {
                 }
             }
             file = new FileOutputStream(storePath + key + suffix);
-            OutputStream buffer = new BufferedOutputStream(file);
+            buffer = new BufferedOutputStream(file);
             output = new ObjectOutputStream(buffer);
             output.writeObject(value);
         } catch (IOException e) {
@@ -59,6 +60,7 @@ public class FileSystemDataAccessObject {
         } finally {
             IOUtils.closeQuietly(output);
             IOUtils.closeQuietly(file);
+            IOUtils.closeQuietly(buffer);
         }
     }
 
