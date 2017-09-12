@@ -44,11 +44,11 @@
     <li>
         {{#if modified}}
             {{#if busy}}
-                <a id="shutdownLaterStep" class="disabled-next" href="#">Shutdown Later</a>
-                <a id="shutdownNowStep" class="disabled-next" href="#">Shutdown Now</a>
+                <a id="shutdownLaterStep" class="disabled-next" href="#">Restart Later</a>
+                <a id="shutdownNowStep" class="disabled-next" href="#">Restart Now</a>
             {{else}}
-                <a id="shutdownLaterStep" class="next shutdown-later" href="#">Shutdown Later</a>
-                <a id="shutdownNowStep" class="next shutdown-now" href="#">Shutdown Now</a>
+                <a id="shutdownLaterStep" class="next shutdown-later" href="#">Restart Later</a>
+                <a id="shutdownNowStep" class="next shutdown-now" href="#">Restart Now</a>
             {{/if}}
         {{else}}
             {{#if busy}}

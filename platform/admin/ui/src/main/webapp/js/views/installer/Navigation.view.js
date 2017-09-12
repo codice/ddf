@@ -72,7 +72,7 @@ define([
          },
          shutdown: function() {
             this.model.trigger('block');
-            this.model.set({message: 'Shutting down.... When complete please manually start the system and then go to the Admin Console.'});
+            this.model.set({message: 'Restarting now.... This could take a few minutes.'});
             this.model.save(true)
             .fail(function(){
                 alert('Final installation failed, please check application logs for details.');
