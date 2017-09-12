@@ -91,7 +91,9 @@ public interface ImportMigrationContext extends MigrationContext {
      * recorded when storing the file later using one of the <code>restore()</code> methods or an
      * exception will be thrown out when attempting to retrieve the corresponding input stream.
      *
-     * @param path the path of the file that was exported (should be relative to ${ddf.home})
+     * @param path the path of the file that was exported (must be relative to ${ddf.home} to match
+     *             an exported entry otherwise an error or a warning will be recorded later when an
+     *             attempt is made to restored to returned migration entry)
      * @return the corresponding migration entry
      * @throws IllegalArgumentException if <code>path</code> is <code>null</code>
      */
@@ -108,7 +110,7 @@ public interface ImportMigrationContext extends MigrationContext {
      * Retrieves all exported migration entries located underneath the provided relative path.
      *
      * @param path the path to the directory for all recursively exported files (must be relative to
-     *             ${ddf.home})
+     *             ${ddf.home} otherwise no entries will be found)
      * @return a stream of all migration entries located under <code>path</code>
      * @throws IllegalArgumentException if <code>path</code> is <code>null</code>
      */
@@ -119,7 +121,7 @@ public interface ImportMigrationContext extends MigrationContext {
      * matches the provided path filter.
      *
      * @param path   the path to the directory to recursively search for exported files that match the
-     *               given filter (must be relative to ${ddf.home})
+     *               given filter (must be relative to ${ddf.home} otherwise no entries will be found)
      * @param filter the path filter to use
      * @return a stream of all migration entries located under <code>path</code> that matches the given
      * filter
@@ -132,7 +134,8 @@ public interface ImportMigrationContext extends MigrationContext {
      * <p>
      * Errors and/or warnings will automatically be recorded with the migration report.
      *
-     * @param path the directory to recursively clean (must be relative to ${ddf.home})
+     * @param path the directory to recursively clean (must be relative to ${ddf.home} otherwise a
+     *             warning will be recorded)
      * @return <code>true</code> if the directory was cleaned; <code>false</code> otherwise
      * @throws IllegalArgumentException if <code>path</code> is <code>null</code>
      */

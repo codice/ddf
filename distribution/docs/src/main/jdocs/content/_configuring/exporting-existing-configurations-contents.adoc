@@ -9,7 +9,7 @@
 .Exporting Existing Configurations from ${admin-console}
 ****
 You can export the current system configurations using the ${admin-console}.
-This is useful for migrating from one running instance to another or for installing a second node in a highly-available deployment.
+This is useful for migrating from one running instance to another or for installing a second node in a highly available deployment.
 
 To export the current system configurations, follow these instructions:
 

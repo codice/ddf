@@ -33,7 +33,7 @@ import org.codice.ddf.util.function.EBiConsumer;
  * might be responsible for migrating the file being referenced from a property in a properties file
  * but not the properties file itself. In such case, the migratable would create an entry for the
  * properties file that holds the property in question via the {link ExportMigrationContext#getEntry}
- * and then create a migration entry for the file referenced from one of its property using the
+ * and then create a migration entry for the file referenced from one of its properties using the
  * {@link #getPropertyReferencedEntry} method.
  * <p>
  * For example:

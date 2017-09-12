@@ -97,6 +97,8 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
             aerror = null;
         } catch (IOException e) {
             apath = path;
+            // remember the error in case the migratable attempts to store the file from disk later
+            // instead of providing its own data
             aerror = e;
         }
         this.context = context;

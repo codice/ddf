@@ -31,8 +31,8 @@ import org.codice.ddf.util.function.EBiConsumer;
  * by a given property in it. This is the case, for example, with Java properties file where a migratable
  * might be responsible for migrating the file being referenced from a property in a properties file
  * but not the properties file itself. In such case, the migratable would retrieve an entry for the
- * properties file that holds the property in question via the {link ImportMigrationContext#getEntry}
- * and then retrieve a migration entry for the file referenced from one of its property using the
+ * properties file that holds the property in question via the {@link ImportMigrationContext#getEntry}
+ * and then retrieve a migration entry for the file referenced from one of its properties using the
  * {@link #getPropertyReferencedEntry} method.
  * <p>
  * For example:
@@ -113,9 +113,9 @@ public interface ImportMigrationEntry extends MigrationEntry {
      * to report to the user before aborting the operation.</li>
      * </ol>
      * <p>
-     * <i>Note:</i> Calling <code>store()</code> twice will not store the entry two times. The second
-     * time it is called, the same result will be returned as the first time no matter which
-     * <code>store()</code> method was called.
+     * <i>Note:</i> Calling <code>restore()</code> twice will not restore the entry two times. The
+     * second time it is called, the same result will be returned as the first time no matter which
+     * <code>restore()</code> method was called.
      *
      * @return <code>true</code> if no errors were recorded as a result of processing this command;
      * <code>false</code> otherwise
@@ -144,9 +144,9 @@ public interface ImportMigrationEntry extends MigrationEntry {
      * to report to the user before aborting the operation.</li>
      * </ol>
      * <p>
-     * <i>Note:</i> Calling <code>store()</code> twice will not store the entry two times. The second
-     * time it is called, the same result will be returned as the first time no matter which
-     * <code>store()</code> method was called.
+     * <i>Note:</i> Calling <code>restore()</code> twice will not restore the entry two times. The
+     * second time it is called, the same result will be returned as the first time no matter which
+     * <code>restore()</code> method was called.
      *
      * @param required <code>true</code> if the file is required to exist in the export and if it
      *                 doesn't an error should be recorded; <code>false</code> if the file is
@@ -177,7 +177,6 @@ public interface ImportMigrationEntry extends MigrationEntry {
      * <p>
      * <i>Note:</i> The input stream will automatically be closed (if not closed already) when the
      * operation completes successfully or not.
-     * c     *
      *
      * @param consumer a consumer capable of importing the content of this entry from a provided input
      *                 stream which might be empty if the entry was not exported (otherwise an error

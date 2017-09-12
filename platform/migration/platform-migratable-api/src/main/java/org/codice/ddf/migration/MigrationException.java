@@ -59,7 +59,7 @@ public class MigrationException extends RuntimeException implements MigrationMes
      *
      * @param format the format string for the detail message for this exception (see {@link String#format})
      * @param args   the arguments to the format message (if the last argument provided is a {@link Throwable}
-     *               it will automatically be initialized as the caused for the exception)
+     *               it will automatically be initialized as the cause for the exception)
      * @throws IllegalArgumentException if <code>format</code> is <code>null</code>
      */
     public MigrationException(String format, @Nullable Object... args) {
