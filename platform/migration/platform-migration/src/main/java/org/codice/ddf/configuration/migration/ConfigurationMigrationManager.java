@@ -13,37 +13,37 @@
  */
 package org.codice.ddf.configuration.migration;
 
-import static org.apache.commons.lang.Validate.notNull;
-
+import java.io.IOError;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.BinaryOperator;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
-import javax.validation.constraints.NotNull;
 
-import org.codice.ddf.configuration.admin.ConfigurationAdminMigration;
-import org.codice.ddf.migration.ConfigurationMigratable;
-import org.codice.ddf.migration.DataMigratable;
-import org.codice.ddf.migration.ExportMigrationException;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.Validate;
+import org.apache.karaf.system.SystemService;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
-import org.codice.ddf.migration.MigrationMetadata;
+import org.codice.ddf.migration.MigrationMessage;
+import org.codice.ddf.migration.MigrationOperation;
+import org.codice.ddf.migration.MigrationReport;
+import org.codice.ddf.migration.MigrationSuccessfulInformation;
 import org.codice.ddf.migration.MigrationWarning;
-import org.codice.ddf.migration.UnexpectedMigrationException;
-import org.codice.ddf.platform.services.common.Describable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Stopwatch;
-import com.google.common.collect.ImmutableList;
+import com.google.common.annotations.VisibleForTesting;
 
 /**
  * Implementation of the {@link ConfigurationMigrationService} that allows migration of
@@ -60,130 +60,250 @@ public class ConfigurationMigrationManager
 
     private static final String OBJECT_NAME = CLASS_NAME + ":service=configuration-migration";
 
-    private final ConfigurationAdminMigration configurationAdminMigration;
+    private static final String PRODUCT_VERSION_FILENAME = "Version.txt";
+
+    private static final String EXPORT_EXTENSION = ".zip";
+
+    private static final String EXPORT_DATE_FORMAT = "-%tY%<tm%<tdT%<tH%<tM%<tS";
+
+    private static final String EXPORT_PREFIX = "exported-";
+
+    private static final String REBOOT_DELAY = "1"; // 1 minute
 
     private final MBeanServer mBeanServer;
 
-    private final List<ConfigurationMigratable> configurationMigratables;
+    private final List<Migratable> migratables;
 
-    private final List<DataMigratable> dataMigratables;
+    private final SystemService system;
+
+    private final String productVersion;
 
     /**
      * Constructor.
      *
-     * @param configurationAdminMigration object used to export {@link org.osgi.service.cm.Configuration}
-     *                                    objects from {@link org.osgi.service.cm.ConfigurationAdmin}
-     * @param mBeanServer                 object used to register this object as an MBean
-     * @param configurationMigratables    list of {@link ConfigurationMigratable} services. Needs
-     *                                    to be kept up-to-date by the client of this class.
-     * @param dataMigratables             list of {@link DataMigratable} services. Needs
-     *                                    to be kept up-to-date by the client of this class.
+     * @param mBeanServer object used to register this object as an MBean
+     * @param migratables list of {@link Migratable} services. Needs
+     *                    to be kept up-to-date by the client of this class.
+     * @param system      the system service
+     * @throws IOError if unable to load the distribution version information.
      */
-    public ConfigurationMigrationManager(
-            @NotNull ConfigurationAdminMigration configurationAdminMigration,
-            @NotNull MBeanServer mBeanServer,
-            @NotNull List<ConfigurationMigratable> configurationMigratables,
-            @NotNull List<DataMigratable> dataMigratables) {
-        notNull(configurationAdminMigration, "ConfigurationAdminMigration cannot be null");
-        notNull(mBeanServer, "MBeanServer cannot be null");
-        notNull(configurationMigratables,
-                "List of ConfigurationMigratable services cannot be null");
-        notNull(dataMigratables, "List of DataMigratable services cannot be null");
-
-        this.configurationAdminMigration = configurationAdminMigration;
+    public ConfigurationMigrationManager(MBeanServer mBeanServer, List<Migratable> migratables,
+            SystemService system) {
+        Validate.notNull(mBeanServer, "invalid null bean server");
+        Validate.notNull(migratables, "invalid null migratables");
+        Validate.notNull(system, "invalid null system service");
         this.mBeanServer = mBeanServer;
-        this.configurationMigratables = configurationMigratables;
-        this.dataMigratables = dataMigratables;
+        this.migratables = migratables;
+        this.system = system;
+        try {
+            this.productVersion =
+                    ConfigurationMigrationManager.getProductVersion(Paths.get(System.getProperty(
+                            "ddf.home"), ConfigurationMigrationManager.PRODUCT_VERSION_FILENAME));
+        } catch (IOException e) {
+            LOGGER.warn("unable to load version information; ", e);
+            throw new IOError(e);
+        }
+    }
+
+    public static <T> BinaryOperator<T> throwingMerger() {
+        return (u, v) -> {
+            throw new IllegalStateException(String.format("Duplicate key %s", u));
+        };
+    }
+
+    private static String getProductVersion(Path path) throws IOException {
+        return Files.lines(path)
+                .findFirst()
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .orElseThrow(() -> new IOException("missing product version information"));
+    }
+
+    /**
+     * Gets a consumer that will downgrade all error messages to warnings before passing them
+     * along to the provided consumer. All informational messages are passed as is.
+     *
+     * @param consumer the consumer to pass messages to
+     * @return a new consumer that will downgrade error messages before passing them to
+     * <code>consumer</code>
+     */
+    private static Consumer<MigrationMessage> downgradeErrorsToWarningsFor(
+            Consumer<MigrationMessage> consumer) {
+        return m -> consumer.accept(Messages.downgradeToWarning(m)
+                .map(MigrationMessage.class::cast)
+                .orElse(m));
     }
 
     public void init() throws Exception {
-        ObjectName objectName = new ObjectName(OBJECT_NAME);
+        final ObjectName objectName = new ObjectName(OBJECT_NAME);
 
         try {
             mBeanServer.registerMBean(this, objectName);
         } catch (InstanceAlreadyExistsException e) {
             LOGGER.debug("{} already registered as an MBean. Re-registering.", CLASS_NAME);
-
             mBeanServer.unregisterMBean(objectName);
             mBeanServer.registerMBean(this, objectName);
-
             LOGGER.debug("Successfully re-registered {} as an MBean.", CLASS_NAME);
         }
     }
 
     @Override
-    public Collection<MigrationWarning> export(@NotNull Path exportDirectory)
-            throws MigrationException {
-        notNull(exportDirectory, "Export directory cannot be null");
-        Collection<MigrationWarning> migrationWarnings = new ArrayList<>();
+    public Collection<MigrationWarning> doExport(String exportDirectory) throws MigrationException {
+        Validate.notNull(exportDirectory, "invalid null export directory");
+        final MigrationReport report = doExport(Paths.get(exportDirectory));
 
-        try {
-            Files.createDirectories(exportDirectory);
-            configurationAdminMigration.export(exportDirectory);
-            migrationWarnings.addAll(exportMigratables(exportDirectory));
-        } catch (IOException e) {
-            LOGGER.info("Unable to create export directories", e);
-            throw new ExportMigrationException("Unable to create export directories", e);
-        } catch (MigrationException e) {
-            LOGGER.info("Export operation failed", e);
-            throw e;
-        } catch (RuntimeException e) {
-            LOGGER.info("Failure to export, internal error occurred", e);
-            throw new UnexpectedMigrationException("Export failed", e);
-        }
-
-        return migrationWarnings;
-    }
-
-    public Collection<MigrationWarning> export(@NotNull String exportDirectory)
-            throws MigrationException {
-        notNull(exportDirectory, "Export directory cannot be null");
-
-        return export(Paths.get(exportDirectory));
+        report.verifyCompletion(); // will throw error if it failed
+        return report.warnings()
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Collection<Describable> getOptionalMigratableInfo() {
-        return ImmutableList.copyOf(dataMigratables);
+    public MigrationReport doExport(Path exportDirectory) throws MigrationException {
+        return doExport(exportDirectory, Optional.empty(), false); // no timestamp on filename
     }
 
-    private Collection<MigrationWarning> exportMigratable(Migratable migratable,
-            Path exportDirectory) {
-        Stopwatch stopwatch = null;
-
-        if (LOGGER.isDebugEnabled()) {
-            stopwatch = Stopwatch.createStarted();
-        }
-
-        MigrationMetadata migrationMetadata = migratable.export(exportDirectory);
-
-        if (LOGGER.isDebugEnabled() && stopwatch != null) {
-            LOGGER.debug("Export time: {}",
-                    stopwatch.stop()
-                            .toString());
-        }
-
-        return migrationMetadata.getMigrationWarnings();
+    @Override
+    public MigrationReport doExport(Path exportDirectory, Consumer<MigrationMessage> consumer) {
+        Validate.notNull(consumer, "invalid null consumer");
+        return doExport(exportDirectory,
+                Optional.ofNullable(consumer),
+                false); // no timestamp on filename
     }
 
-    private Collection<MigrationWarning> exportMigratables(Path exportDirectory)
+    @Override
+    public Collection<MigrationWarning> doImport(String exportDirectory) throws MigrationException {
+        Validate.notNull(exportDirectory, "invalid null export directory");
+        final MigrationReport report = doImport(Paths.get(exportDirectory));
+
+        report.verifyCompletion(); // will throw error if it failed
+        return report.warnings()
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public MigrationReport doImport(Path exportDirectory) {
+        return doImport(exportDirectory, Optional.empty());
+    }
+
+    @Override
+    public MigrationReport doImport(Path exportDirectory, Consumer<MigrationMessage> consumer) {
+        Validate.notNull(consumer, "invalid null consumer");
+        return doImport(exportDirectory, Optional.of(consumer));
+    }
+
+    @VisibleForTesting
+    ImportMigrationManagerImpl delegateToImportMigrationManager(MigrationReportImpl report,
+            Path exportFile) {
+        final ImportMigrationManagerImpl mgr = new ImportMigrationManagerImpl(report,
+                exportFile,
+                migratables.stream());
+
+        report.record(Messages.IMPORTING_DATA, exportFile);
+        mgr.doImport(productVersion);
+        return mgr;
+    }
+
+    @VisibleForTesting
+    void delegateToExportMigrationManager(MigrationReportImpl report, Path exportFile)
             throws IOException {
-        List<MigrationWarning> warnings = new LinkedList<>();
+        try (final ExportMigrationManagerImpl mgr = new ExportMigrationManagerImpl(report,
+                exportFile,
+                migratables.stream())) {
+            report.record(Messages.EXPORTING_DATA, exportFile);
+            mgr.doExport(productVersion);
+        }
+    }
 
-        for (ConfigurationMigratable configMigratable : configurationMigratables) {
-            warnings.addAll(exportMigratable(configMigratable, exportDirectory));
+    private MigrationReportImpl doExport(Path exportDirectory,
+            Optional<Consumer<MigrationMessage>> consumer, boolean timestamp) {
+        Validate.notNull(exportDirectory, "invalid null export directory");
+        final MigrationReportImpl report = new MigrationReportImpl(MigrationOperation.EXPORT,
+                consumer);
 
+        try {
+            FileUtils.forceMkdir(exportDirectory.toFile());
+        } catch (IOException e) {
+            LOGGER.info("unable to create directory: " + exportDirectory + "; ", e);
+            report.record(new MigrationException(Messages.DIRECTORY_CREATE_ERROR,
+                    exportDirectory,
+                    e));
+            return report;
+        }
+        StringBuilder filename = new StringBuilder(
+                ConfigurationMigrationManager.EXPORT_PREFIX + productVersion);
+
+        if (timestamp) {
+            filename.append(String.format(ConfigurationMigrationManager.EXPORT_DATE_FORMAT,
+                    report.getStartTime()
+                            .toEpochMilli()));
+        }
+        filename.append(ConfigurationMigrationManager.EXPORT_EXTENSION);
+        final Path exportFile = exportDirectory.resolve(filename.toString());
+
+        try {
+            delegateToExportMigrationManager(report, exportFile);
+        } catch (MigrationException e) {
+            report.record(e);
+        } catch (IOException e) {
+            report.record(new MigrationException(Messages.EXPORT_FILE_CLOSE_ERROR, exportFile, e));
+        } catch (RuntimeException e) {
+            report.record(new MigrationException(Messages.EXPORT_INTERNAL_ERROR, exportFile, e));
+        }
+        report.end();
+        if (report.hasErrors()) {
+            // don't leave the zip file there if the export failed
+            FileUtils.deleteQuietly(exportFile.toFile());
+            report.record(new MigrationException(Messages.EXPORT_FAILURE, exportFile));
+        } else if (report.hasWarnings()) {
+            report.record(new MigrationWarning(Messages.EXPORT_SUCCESS_WITH_WARNINGS, exportFile));
+        } else {
+            report.record(new MigrationSuccessfulInformation(Messages.EXPORT_SUCCESS, exportFile));
+        }
+        return report;
+    }
+
+    private MigrationReport doImport(Path exportDirectory,
+            Optional<Consumer<MigrationMessage>> consumer) {
+        final MigrationReportImpl xreport = doExport(exportDirectory,
+                // downgrade so that errors during export doesn't fail the export just warn
+                consumer.map(ConfigurationMigrationManager::downgradeErrorsToWarningsFor),
+                true); // timestamp the filename
+        final MigrationReportImpl report = new MigrationReportImpl(MigrationOperation.IMPORT,
+                xreport,
+                consumer);
+        final Path exportFile = exportDirectory.resolve(
+                ConfigurationMigrationManager.EXPORT_PREFIX + productVersion
+                        + ConfigurationMigrationManager.EXPORT_EXTENSION);
+        ImportMigrationManagerImpl mgr = null;
+
+        try {
+            mgr = delegateToImportMigrationManager(report, exportFile);
+        } catch (MigrationException e) {
+            report.record(e);
+        } catch (RuntimeException e) {
+            report.record(new MigrationException(Messages.IMPORT_INTERNAL_ERROR, exportFile, e));
+        } finally {
+            IOUtils.closeQuietly(mgr); // do not care if we fail to close the mgr/zip file!!!
+        }
+        report.end();
+        if (report.hasErrors()) {
+            report.record(new MigrationException(Messages.IMPORT_FAILURE, exportFile));
+        } else if (report.hasWarnings()) {
+            report.record(new MigrationWarning(Messages.IMPORT_SUCCESS_WITH_WARNINGS, exportFile));
+            report.record(new MigrationWarning(Messages.RESTART_SYSTEM_WHEN_WARNINGS));
+        } else {
+            report.record(new MigrationSuccessfulInformation(Messages.IMPORT_SUCCESS, exportFile));
+            try {
+                System.setProperty("karaf.restart.jvm", "true"); // force a JVM restart
+                system.reboot(ConfigurationMigrationManager.REBOOT_DELAY, SystemService.Swipe.NONE);
+                report.record(Messages.RESTARTING_SYSTEM,
+                        ConfigurationMigrationManager.REBOOT_DELAY);
+            } catch (Exception e) { // yeah, their interface declares an exception can be thrown!!!!
+                LOGGER.debug("failed to request a reboot: ", e);
+                report.record(Messages.RESTART_SYSTEM);
+            }
         }
 
-        for (DataMigratable dataMigratable : dataMigratables) {
-
-            Path dataMigratableDirectory = exportDirectory.resolve(dataMigratable.getId());
-            Files.createDirectories(dataMigratableDirectory);
-
-            warnings.addAll(exportMigratable(dataMigratable, exportDirectory));
-
-        }
-
-        return warnings;
+        return report;
     }
 }
