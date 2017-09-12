@@ -1,4 +1,0 @@
-|<<org.codice.ddf.platform.email.impl.SmtpClientImpl,Email Service>>
-|org.codice.ddf.platform.email.impl.SmtpClientImpl
-|Configure the hostname (or IP address) and port number of an SMTP mail server that will receive the emails.
-

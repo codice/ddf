@@ -1,4 +1,0 @@
-|<<org.codice.ddf.registry.policy.RegistryPolicyPlugin,Registry Policy Plugin>>
-|org.codice.ddf.registry.policy.RegistryPolicyPlugin
-|Registry Policy Plugin
-

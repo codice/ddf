@@ -1,8 +1,0 @@
-
-The following connected sources are included with a standard installation of ${branding}:
-
-<<_csw_connected_source,CSW Connected Source>>:: Supports searching collections of descriptive information (metadata) for data, services, and related information objects. _Implements http://www.opengeospatial.org/standards/cat[CSW]_.
-
-<<_wfs_v100_source,WFS Source v1.0.0>>:: Allows for requests for geographical features across the web using platform-independent calls. _Implements http://www.opengeospatial.org/standards/wfs[WFS v.1.0.0]_.
-
-<<_wfs_v200_source,WFS Source v2.0.0>>:: Enables querying a WFS version 2.0.0 compliant service. _Implements http://www.opengeospatial.org/standards/wfs[WFS v.2.0.0]_.

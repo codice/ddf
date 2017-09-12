@@ -1,4 +1,0 @@
-|Security STS Guest Validator
-|ddf.security.sts.guestvalidator
-|Guest Validator Configuration
-

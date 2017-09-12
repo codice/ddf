@@ -1,4 +1,0 @@
-|<<OpenSearchSource,Catalog OpenSearch Federated Source>>
-|OpenSearchSource
-|DDF OpenSearch Federated Source
-

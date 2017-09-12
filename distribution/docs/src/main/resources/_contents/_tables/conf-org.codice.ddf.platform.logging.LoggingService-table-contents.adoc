@@ -1,4 +1,0 @@
-|Logging Service
-|org.codice.ddf.platform.logging.LoggingService
-|Service that logs system activities.
-

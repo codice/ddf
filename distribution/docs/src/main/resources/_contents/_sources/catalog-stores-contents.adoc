@@ -1,4 +1,0 @@
-
-The following catalog stores are included with a standard installation of ${branding}:
-
-<<_registry_store, Registry Store>>:: Provides a means of configuring connections to other registries and controlling update behavior.

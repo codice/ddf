@@ -1,4 +1,0 @@
-|Catalog Duplicate Validator
-|ddf.catalog.metacard.duplication.DuplicationValidator
-|
-

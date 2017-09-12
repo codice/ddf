@@ -1,4 +1,0 @@
-|Search UI Redirect
-|org.codice.ddf.ui.searchui.filter.RedirectServlet
-|Search UI Redirect
-

@@ -1,4 +1,0 @@
-|<<org.codice.ddf.admin.config.policy.AdminConfigPolicy,Admin Configuration Policy>>
-|org.codice.ddf.admin.config.policy.AdminConfigPolicy
-|Admin Configuration Policy
-

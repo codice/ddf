@@ -1,9 +1,0 @@
-
-===== Configuring Accounts
-
-* *{hardening-step}*
-
-${branding} does not define accounts or types of accounts to support access. ${branding} uses an attribute based access control (*ABAC*) model. For reference, ABAC systems control access by evaluating rules against the attributes of the entities (_subject_ and _object_), actions, and the environment relevant to a request.
-
-The default security configuration uses a property file located at `<${branding}_HOME>/etc/users.properties` to store users and passwords.
-A hardened system will remove this file and manage all users externally, via an LDAP server or by other means.

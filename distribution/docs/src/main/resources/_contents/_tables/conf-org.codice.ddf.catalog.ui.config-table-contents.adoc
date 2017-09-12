@@ -1,4 +1,0 @@
-|<<org.codice.ddf.catalog.ui.config,${catalog-ui} Search>>
-|org.codice.ddf.catalog.ui.config
-|${catalog-ui} Search
-

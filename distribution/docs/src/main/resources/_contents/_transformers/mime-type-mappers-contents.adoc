@@ -1,3 +1,0 @@
-
-.[[_included_mime_type_mappers]]Included Mime Type Mappers
-<<_ddf_mime_type_mapper,DDF Mime Type Mapper>>:: Resolves file extensions to mime types, and vice versa.

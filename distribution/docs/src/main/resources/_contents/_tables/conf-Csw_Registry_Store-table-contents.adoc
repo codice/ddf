@@ -1,4 +1,0 @@
-|<<Csw_Registry_Store,CSW Registry Store>>
-|Csw_Registry_Store
-|Registry CSW Store
-

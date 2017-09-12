@@ -1,4 +1,0 @@
-|Metacard to WFS Feature Map
-|org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper
-|Metacard to WFS Feature Map
-

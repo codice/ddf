@@ -102,7 +102,7 @@
                                     <classifier>images</classifier>
                                     <version>${project.version}</version>
                                     <type>zip</type>
-                                    <outputDirectory>${project.build.directory}/upstream-adoc/images</outputDirectory>
+                                    <outputDirectory>${project.build.directory}/images</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
@@ -114,6 +114,7 @@
                 <version>2.5</version>
                 <executions>
                     <execution>
+                        <id>copy-adocs</id>
                         <phase>process-sources</phase>
                         <goals>
                             <goal>copy-resources</goal>
@@ -127,6 +128,8 @@
                                     <filtering>true</filtering>
                                     <includes>
                                         <include>**/*.adoc</include>
+                                        <include>**/*.ftl</include>
+                                        <include>jbake.properties</include>
                                     </includes>
                                 </resource>                                            
                                 <resource>
@@ -136,15 +139,18 @@
                                         <exclude>**/*.adoc</exclude>
                                     </excludes>
                                 </resource>
-                                <resource>
-                                    <directory>src/main/jdocs</directory>
-                                    <filtering>true</filtering>
-                                    <includes>
-                                        <include>**/*.adoc</include>
-                                        <include>**/*.ftl</include>
-                                        <include>jbake.properties</include>
-                                    </includes>
-                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-upstream</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/doc-contents/content</outputDirectory>
+                            <resources>                                
                                 <resource>
                                     <directory>${project.build.directory}/upstream-adoc</directory>
                                     <filtering>true</filtering>
@@ -162,11 +168,15 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/doc-contents/images
+                            <outputDirectory>${project.build.directory}/images
                             </outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>${project.build.directory}/upstream-adoc/images/standard-${project.version}</directory>
+                                    <directory>src/main/resources/images</directory>
+                                    <filtering>false</filtering>
+                                </resource>
+                                <resource>
+                                    <directory>${project.build.directory}/images/standard-${project.version}</directory>
                                     <filtering>false</filtering>
                                     <excludes>
                                         <exclude>**/*.adoc</exclude>
@@ -190,7 +200,7 @@
                 </executions>
                 <configuration>
                     <inputDirectory>${project.build.directory}/doc-contents</inputDirectory>
-                    <outputDirectory>${project.build.directory}/doc-contents/jdoc-contents</outputDirectory>
+                    <outputDirectory>${project.build.directory}/asciidoctor-ready</outputDirectory>
                 </configuration>
                 <dependencies>
                     <dependency>
@@ -248,7 +258,7 @@
                             <doctype>book</doctype>
                             <outputDirectory>${project.build.directory}/docs/html
                             </outputDirectory>
-                            <imagesDir>${project.build.directory}/doc-contents/images</imagesDir>
+                            <imagesDir>${project.build.directory}/images</imagesDir>
                             <attributes>
                                 <webfonts>false</webfonts>
                                 <iconfont-remote>false</iconfont-remote>
@@ -272,12 +282,12 @@
                                 <idprefix>_</idprefix>
                                 <idseparator>_</idseparator>
                             </attributes>
-                            <imagesDir>${project.build.directory}/doc-contents/images</imagesDir>
+                            <imagesDir>${project.build.directory}/images</imagesDir>
                         </configuration>
                     </execution>
                 </executions>
                 <configuration>
-                    <sourceDirectory>${project.build.directory}/doc-contents
+                    <sourceDirectory>${project.build.directory}/asciidoctor-ready
                     </sourceDirectory>
                     <gemPath>${project.build.directory}/gems-provided</gemPath>
                     <headerFooter>true</headerFooter>
@@ -305,10 +315,10 @@
                     </execution>
                     <execution>
                         <configuration>
-                            <descriptor>${project.basedir}/src/assembly/jdocs.xml</descriptor>
-                            <outputDirectory>${project.build.directory}/jdoc-files</outputDirectory>
+                            <descriptor>${project.basedir}/src/assembly/images.xml</descriptor>
+                            <outputDirectory>${project.build.directory}/images</outputDirectory>
                         </configuration>
-                        <id>include-jdocs</id>
+                        <id>include-images</id>
                         <phase>package</phase>
                         <goals>
                             <goal>single</goal>
@@ -316,10 +326,10 @@
                     </execution>
                     <execution>
                         <configuration>
-                            <descriptor>${project.basedir}/src/assembly/images.xml</descriptor>
-                            <outputDirectory>${project.build.directory}/images</outputDirectory>
+                            <descriptor>${project.basedir}/src/assembly/jdocs.xml</descriptor>
+                            <outputDirectory>${project.build.directory}/export-templates</outputDirectory>
                         </configuration>
-                        <id>include-images</id>
+                        <id>include-templates</id>
                         <phase>package</phase>
                         <goals>
                             <goal>single</goal>

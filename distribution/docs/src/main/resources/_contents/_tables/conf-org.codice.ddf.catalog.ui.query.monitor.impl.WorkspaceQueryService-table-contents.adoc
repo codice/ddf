@@ -1,4 +1,0 @@
-|<<org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceQueryService,Workspace Query Monitor>>
-|org.codice.ddf.catalog.ui.query.monitor.impl.WorkspaceQueryService
-|Workspace Query Monitor
-

@@ -1,8 +1,0 @@
-=== Post-Process Plugins
-[NOTE]
-====
-This code is experimental. While this interface is functional and tested, it may change or be removed in a future version of the library.
-====
-*Post-Process Plugins* are invoked after a metacard has been created, updated, or deleted and committed to the Catalog.
-They are the last plugins to run and are triggered by a *Post-Ingest Plugin*. See the <<_asynchronous_processing_framework, Asynchronous Processing Framework>> for more information about
-how *Post-Process Plugins* are used.

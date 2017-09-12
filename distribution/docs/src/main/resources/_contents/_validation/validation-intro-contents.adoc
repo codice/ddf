@@ -1,2 +1,0 @@
-
-${branding} can be configured to perform validation on ingested documents to verify the integrity of the metadata brought into the catalog.

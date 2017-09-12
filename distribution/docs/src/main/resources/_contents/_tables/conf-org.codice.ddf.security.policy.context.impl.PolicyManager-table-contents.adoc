@@ -1,4 +1,0 @@
-|<<org.codice.ddf.security.policy.context.impl.PolicyManager,Web Context Policy Manager>>
-|org.codice.ddf.security.policy.context.impl.PolicyManager
-|Web Context Security Policies
-

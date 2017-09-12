@@ -1,4 +1,0 @@
-|<<Csw_Transactional_Federated_Source,CSW Transactional Federated Source>>
-|Csw_Transactional_Federated_Source
-|CSW Transactional Federated Source should be used when federating to an external writable (CRUD operations) CSW service.
-

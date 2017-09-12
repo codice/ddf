@@ -1,3 +1,0 @@
-
-.[[_included_resource_writers]]Included Resource Writers
-The Catalog reference implementation currently does not include any resource writers.

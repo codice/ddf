@@ -1,5 +1,0 @@
-
-* <<_idp,IdP (Identity Provider)>>
-* <<_sts,STS (Security Token Service)>>
-// * <<_federated_identity,Federated Identity>>
-// https://codice.atlassian.net/browse/DDF-2648
