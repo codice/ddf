@@ -55,10 +55,8 @@ public class FileSystemPersistenceProvider
         LOGGER.trace("INSIDE: FileSystemPersistenceProvider constructor,  mapName = {}", mapName);
         this.mapName = mapName;
         File dir = new File(getPersistencePath());
-        if (!dir.exists()) {
-            if (!dir.mkdir()) {
-                LOGGER.debug("Unable to create directory: {}", dir.getAbsolutePath());
-            }
+        if (!dir.exists() && !dir.mkdir()) {
+            LOGGER.debug("Unable to create directory: {}", dir.getAbsolutePath());
         }
     }
 
