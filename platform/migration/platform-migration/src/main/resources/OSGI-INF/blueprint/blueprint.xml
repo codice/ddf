@@ -34,10 +34,6 @@
     <service id="configurationAdminMigratableService" ref="configurationAdminMigratable"
              interface="org.codice.ddf.migration.Migratable"/>
 
-    <bean id="mBeanServer"
-          class="java.lang.management.ManagementFactory"
-          factory-method="getPlatformMBeanServer"/>
-
     <!-- Migratable service reference list -->
     <bean id="sortedMigratables"
           class="org.codice.ddf.platform.util.SortedServiceList"/>
@@ -51,9 +47,7 @@
 
     <!-- ConfigurationMigrationManager -->
     <bean id="configMigrationManager"
-          class="org.codice.ddf.configuration.migration.ConfigurationMigrationManager"
-          init-method="init">
-        <argument ref="mBeanServer"/>
+          class="org.codice.ddf.configuration.migration.ConfigurationMigrationManager">
         <argument ref="sortedMigratables"/>
         <argument ref="system"/>
     </bean>

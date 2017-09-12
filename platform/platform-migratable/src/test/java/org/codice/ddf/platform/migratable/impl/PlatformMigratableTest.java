@@ -33,7 +33,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.management.MBeanServer;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.system.SystemService;
@@ -168,8 +167,6 @@ public class PlatformMigratableTest {
 
   @Mock private MigrationReport mockMigrationReport;
 
-  @Mock private MBeanServer mBeanServer;
-
   @Mock private SystemService systemService;
 
   @Before
@@ -213,7 +210,7 @@ public class PlatformMigratableTest {
     PlatformMigratable ePlatformMigratable = new PlatformMigratable();
     List<Migratable> eMigratables = Arrays.asList(ePlatformMigratable);
     ConfigurationMigrationManager eConfigurationMigrationManager =
-        new ConfigurationMigrationManager(mBeanServer, eMigratables, systemService);
+        new ConfigurationMigrationManager(eMigratables, systemService);
 
     // Perform export
     MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir, this::print);
@@ -233,7 +230,7 @@ public class PlatformMigratableTest {
     PlatformMigratable iPlatformMigratable = new PlatformMigratable();
     List<Migratable> iMigratables = Arrays.asList(iPlatformMigratable);
     ConfigurationMigrationManager iConfigurationMigrationManager =
-        new ConfigurationMigrationManager(mBeanServer, iMigratables, systemService);
+        new ConfigurationMigrationManager(iMigratables, systemService);
 
     MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir, this::print);
 
@@ -266,7 +263,7 @@ public class PlatformMigratableTest {
     PlatformMigratable ePlatformMigratable = new PlatformMigratable();
     List<Migratable> eMigratables = Arrays.asList(ePlatformMigratable);
     ConfigurationMigrationManager eConfigurationMigrationManager =
-        new ConfigurationMigrationManager(mBeanServer, eMigratables, systemService);
+        new ConfigurationMigrationManager(eMigratables, systemService);
 
     // Perform export
     MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir, this::print);
@@ -286,7 +283,7 @@ public class PlatformMigratableTest {
     PlatformMigratable iPlatformMigratable = new PlatformMigratable();
     List<Migratable> iMigratables = Arrays.asList(iPlatformMigratable);
     ConfigurationMigrationManager iConfigurationMigrationManager =
-        new ConfigurationMigrationManager(mBeanServer, iMigratables, systemService);
+        new ConfigurationMigrationManager(iMigratables, systemService);
 
     MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir, this::print);
 
@@ -316,7 +313,7 @@ public class PlatformMigratableTest {
     PlatformMigratable platformMigratable = new PlatformMigratable();
     List<Migratable> configMigratables = Arrays.asList(platformMigratable);
     ConfigurationMigrationManager configurationMigrationManager =
-        new ConfigurationMigrationManager(mBeanServer, configMigratables, systemService);
+        new ConfigurationMigrationManager(configMigratables, systemService);
 
     // Perform export
     MigrationReport exportReport = configurationMigrationManager.doExport(exportDir, this::print);
@@ -373,7 +370,7 @@ public class PlatformMigratableTest {
     PlatformMigratable ePlatformMigratable = new PlatformMigratable();
     List<Migratable> eMigratables = Arrays.asList(ePlatformMigratable);
     ConfigurationMigrationManager eConfigurationMigrationManager =
-        new ConfigurationMigrationManager(mBeanServer, eMigratables, systemService);
+        new ConfigurationMigrationManager(eMigratables, systemService);
 
     // Perform export
     MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir, this::print);
@@ -428,7 +425,7 @@ public class PlatformMigratableTest {
     PlatformMigratable iPlatformMigratable = new PlatformMigratable();
     List<Migratable> iMigratables = Arrays.asList(iPlatformMigratable);
     ConfigurationMigrationManager iConfigurationMigrationManager =
-        new ConfigurationMigrationManager(mBeanServer, iMigratables, systemService);
+        new ConfigurationMigrationManager(iMigratables, systemService);
 
     MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir, this::print);
 
