@@ -163,7 +163,7 @@ RUN_AS_USER=<${branding-lowercase}-user>
 LimitNOFILE=6815744
 ----
 +
-. Set the memory in the wrapper config to match with ${branding} default memory setting.
+. Set the memory in the wrapper config to match with ${branding} default memory setting. 
 +
 .<${branding}_HOME>/etc/${branding-lowercase}-wrapper.conf
 [source,java,linenums]
@@ -180,7 +180,7 @@ wrapper.java.additional.18=-XX:+UnlockDiagnosticVMOptions
 wrapper.java.additional.19=-Dderby.system.home=%KARAF_HOME%/data/derby
 wrapper.java.additional.20=-Djava.awt.headless=true
 
-# Set the JVM max heap space as desired
+# Set the JVM max heap space as desired. NOTE: You must set the wrapper.java.maxmemory=0 or commount out to override the JVM Max Heap.
 wrapper.java.additional.21=-Xmx4g
 
 # (Preferred) Optionally add the disable attach mechanism to prevent connections to JMX
