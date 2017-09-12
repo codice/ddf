@@ -252,6 +252,11 @@
             <artifactId>spatial-geocoding-geocoder</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.codice.ddf</groupId>
+            <artifactId>alerts</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -331,7 +336,8 @@
                             quartz-jobs,
                             spark-core,
                             spatial4j,
-                            versioning-common
+                            versioning-common,
+                            alerts
                         </Embed-Dependency>
                         <Web-ContextPath>/search/catalog</Web-ContextPath>
                         <_wab>src/main/webapp,${project.build.directory}/webapp</_wab>

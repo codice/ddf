@@ -13,19 +13,16 @@
  */
 package org.codice.ddf.catalog.ui.security;
 
-import static java.util.stream.Stream.concat;
-
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 
 import ddf.catalog.data.impl.types.SecurityAttributes;
 import ddf.catalog.data.types.Core;
@@ -36,29 +33,22 @@ import ddf.security.policy.extension.PolicyExtension;
 
 public class WorkspacePolicyExtension implements PolicyExtension {
 
-    private String systemUserAttribute = Constants.ROLES_CLAIM_URI;
+    private static final Set<String> METACARD_PERMISSION_IMPLIED =
+            ImmutableSet.of(Constants.IS_WORKSPACE);
 
-    private String systemUserAttributeValue = "admin";
+    private static final Set<String> SHARED_PERMISSIONS_IMPLIED =
+            ImmutableSet.of(Constants.IS_WORKSPACE,
+                    Core.METACARD_OWNER,
+                    SecurityAttributes.ACCESS_INDIVIDUALS,
+                    SecurityAttributes.ACCESS_GROUPS);
 
-    // @formatter:off
-    private Map<String, String> keyMapping = ImmutableMap.of(
-            Core.METACARD_OWNER, Constants.EMAIL_ADDRESS_CLAIM_URI,
-            SecurityAttributes.ACCESS_INDIVIDUALS, Constants.EMAIL_ADDRESS_CLAIM_URI,
-            SecurityAttributes.ACCESS_GROUPS, Constants.ROLES_CLAIM_URI);
-    // @formatter:on
+    private WorkspaceSecurityConfiguration config;
 
-    private static Predicate<KeyValuePermission> byKeys(Set<String> keys) {
-        return permission -> keys.contains(permission.getKey());
+    public WorkspacePolicyExtension(WorkspaceSecurityConfiguration config) {
+        this.config = config;
     }
 
-    private static Function<KeyValuePermission, KeyValuePermission> remapKeys(
-            Map<String, String> mapping) {
-        return permission -> new KeyValuePermission(mapping.get(permission.getKey()),
-                permission.getValues());
-    }
-
-    private static List<KeyValuePermission> getPermissions(
-            KeyValueCollectionPermission collection) {
+    private List<KeyValuePermission> getPermissions(KeyValueCollectionPermission collection) {
         return collection.getPermissionList()
                 .stream()
                 .filter(p -> p instanceof KeyValuePermission)
@@ -66,75 +56,82 @@ public class WorkspacePolicyExtension implements PolicyExtension {
                 .collect(Collectors.toList());
     }
 
-    private Stream<KeyValuePermission> overrides() {
-        return Stream.of(new KeyValuePermission(systemUserAttribute, ImmutableSet.of(
-                systemUserAttributeValue)));
+    private Map<String, Set<String>> groupPermissionsByKey(List<KeyValuePermission> permissions) {
+        return permissions.stream()
+                .collect(Collectors.toMap(KeyValuePermission::getKey,
+                        KeyValuePermission::getValues,
+                        Sets::union));
+    }
+
+    private Predicate<CollectionPermission> system() {
+        Set<String> values = ImmutableSet.of(config.getSystemUserAttributeValue());
+        KeyValuePermission perm = new KeyValuePermission(config.getSystemUserAttribute(), values);
+        return (subject) -> subject.implies(perm);
+    }
+
+    private Predicate<CollectionPermission> predicate(Map<String, Set<String>> permissions,
+            String k1, String k2) {
+        if (!permissions.containsKey(k1)) {
+            return (subject) -> false;
+        }
+        return (subject) -> subject.implies(new KeyValuePermission(k2, permissions.get(k1)));
+    }
+
+    private Predicate<CollectionPermission> owner(Map<String, Set<String>> permissions) {
+        return predicate(permissions, Core.METACARD_OWNER, config.getOwnerAttribute());
+    }
+
+    private Predicate<CollectionPermission> individuals(Map<String, Set<String>> permissions) {
+        return predicate(permissions,
+                SecurityAttributes.ACCESS_INDIVIDUALS,
+                config.getOwnerAttribute());
+    }
+
+    private Predicate<CollectionPermission> groups(Map<String, Set<String>> permissions) {
+        return predicate(permissions, SecurityAttributes.ACCESS_GROUPS, Constants.ROLES_CLAIM_URI);
     }
 
     @Override
     public KeyValueCollectionPermission isPermittedMatchAll(CollectionPermission subject,
             KeyValueCollectionPermission match) {
-
         List<KeyValuePermission> permissions = getPermissions(match);
+        Map<String, Set<String>> grouped = groupPermissionsByKey(permissions);
 
-        Stream<KeyValuePermission> remapped = permissions.stream()
-                .filter(byKeys(keyMapping.keySet()))
-                .map(remapKeys(keyMapping));
-
-        boolean matched = concat(overrides(), remapped).filter(subject::implies)
-                .findFirst()
-                .isPresent();
-
-        if (!matched) {
-            return match;
+        if (!grouped.containsKey(Constants.IS_WORKSPACE)) {
+            return match; // ignore all but workspace permissions
         }
 
-        if (isOwnerPermission(getPermissions(match), subject)) {
-            return new KeyValueCollectionPermission();
-        }
+        Predicate<CollectionPermission> isSystem = system();
+        Predicate<CollectionPermission> isOwner = owner(grouped);
+        Predicate<CollectionPermission> hasAccessIndividuals = individuals(grouped);
+        Predicate<CollectionPermission> hasAccessGroups = groups(grouped);
 
-        return new KeyValueCollectionPermission(match.getAction(),
-                permissions.stream()
-                        .filter(byKeys(keyMapping.keySet()).negate())
-                        .collect(Collectors.toList()));
-    }
+        // get all permissions implied by the subject
+        Supplier<Set<String>> impliedPermissions = () -> {
+            if (isSystem.test(subject) || isOwner.test(subject)) {
+                return grouped.keySet(); // all permissions are implied
+            } else if (hasAccessIndividuals.test(subject) || hasAccessGroups.test(subject)) {
+                return SHARED_PERMISSIONS_IMPLIED;
+            } else {
+                return METACARD_PERMISSION_IMPLIED;
+            }
+        };
 
-    private boolean isOwnerPermission(List<KeyValuePermission> permissions,
-            CollectionPermission subject) {
-        Optional<KeyValuePermission> ownerPerm = permissions.stream()
-                .filter(keyValuePermission -> keyValuePermission.getKey()
-                        .equals(Core.METACARD_OWNER))
-                .findAny();
+        // filter out all implied permissions
+        Function<Set<String>, KeyValueCollectionPermission> filterPermissions = (implied) -> {
+            List<KeyValuePermission> values = permissions.stream()
+                    .filter((permission) -> !implied.contains(permission.getKey()))
+                    .collect(Collectors.toList());
 
-        if (ownerPerm.isPresent()) {
-            KeyValuePermission ownerEmailPermission =
-                    new KeyValuePermission(Constants.EMAIL_ADDRESS_CLAIM_URI,
-                            ownerPerm.get()
-                                    .getValues());
-            return subject.implies(ownerEmailPermission);
-        }
-        return false;
+            return new KeyValueCollectionPermission(match.getAction(), values);
+        };
+
+        return filterPermissions.apply(impliedPermissions.get());
     }
 
     @Override
     public KeyValueCollectionPermission isPermittedMatchOne(CollectionPermission subject,
             KeyValueCollectionPermission matchOne) {
         return matchOne;
-    }
-
-    public String getSystemUserAttribute() {
-        return systemUserAttribute;
-    }
-
-    public void setSystemUserAttribute(String systemUserAttribute) {
-        this.systemUserAttribute = systemUserAttribute;
-    }
-
-    public String getSystemUserAttributeValue() {
-        return systemUserAttributeValue;
-    }
-
-    public void setSystemUserAttributeValue(String systemUserAttributeValue) {
-        this.systemUserAttributeValue = systemUserAttributeValue;
     }
 }

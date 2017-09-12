@@ -25,7 +25,6 @@ import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl;
-import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceTransformer;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -46,10 +45,8 @@ import ddf.catalog.plugin.impl.PolicyResponseImpl;
 
 public class WorkspaceSharingPolicyPlugin implements PolicyPlugin {
 
-    private final WorkspaceTransformer transformer;
-
-    public WorkspaceSharingPolicyPlugin(WorkspaceTransformer transformer) {
-        this.transformer = transformer;
+    private static Map<String, Set<String>> getWorkspaceSecurityTag() {
+        return ImmutableMap.of(Constants.IS_WORKSPACE, ImmutableSet.of(Constants.IS_WORKSPACE));
     }
 
     private static Map<String, Set<String>> getOwnerPermission(String owner) {
@@ -87,12 +84,14 @@ public class WorkspaceSharingPolicyPlugin implements PolicyPlugin {
     }
 
     private Map<String, Set<String>> getPolicy(WorkspaceMetacardImpl workspace) {
-        return Stream.of(getOwnerPermission(workspace),
+        return Stream.of(getWorkspaceSecurityTag(),
+                getOwnerPermission(workspace),
                 getGroupPermission(workspace),
                 getIndividualPermission(workspace))
                 .map(Map::entrySet)
                 .flatMap(Collection::stream)
-                .filter(entry -> !entry.getValue().isEmpty())
+                .filter(entry -> !entry.getValue()
+                        .isEmpty())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, Sets::union));
     }
 
