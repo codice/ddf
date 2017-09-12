@@ -17,11 +17,13 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.isA;
+import static org.mockito.Matchers.notNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.InputStream;
 import java.util.concurrent.Callable;
 
 import org.apache.karaf.shell.api.console.Session;
@@ -45,6 +47,7 @@ import ddf.security.Subject;
  * @author ddf.isgs@lmco.com
  */
 public class CommandJobTest {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandJobTest.class);
 
     private SessionFactory sessionFactory;
@@ -61,7 +64,6 @@ public class CommandJobTest {
      */
     @Test
     public void testNoCommandProcessor() throws Exception {
-
         // given
         String command = "info";
 
@@ -82,7 +84,6 @@ public class CommandJobTest {
     @SuppressWarnings("ConstantConditions")
     @Test
     public void testNullCommand() throws Exception {
-
         // given
         String command = null;
 
@@ -90,7 +91,7 @@ public class CommandJobTest {
 
         Session session = getSession(captureInput);
 
-        when(sessionFactory.create(any(), any(), any())).thenReturn(session);
+        when(sessionFactory.create(notNull(InputStream.class), any(), any())).thenReturn(session);
 
         CommandJob job = getCommandJob();
 
@@ -98,8 +99,7 @@ public class CommandJobTest {
         job.execute(getJobExecutionContext(command));
 
         // then
-        verifySessionCalls(command, session, 0, 1);
-
+        verifySessionCallsAndSessionClosed(command, session, 0);
     }
 
     /**
@@ -116,7 +116,7 @@ public class CommandJobTest {
 
         Session session = getSession(captureInput);
 
-        when(sessionFactory.create(any(), any(), any())).thenReturn(session);
+        when(sessionFactory.create(notNull(InputStream.class), any(), any())).thenReturn(session);
 
         CommandJob job = getCommandJob();
 
@@ -126,8 +126,7 @@ public class CommandJobTest {
         // then
         assertThat(captureInput.getInputArg(), is(command));
 
-        verifySessionCalls(command, session, 1, 1);
-
+        verifySessionCallsAndSessionClosed(command, session, 1);
     }
 
     /**
@@ -144,7 +143,7 @@ public class CommandJobTest {
 
         Session session = getSession(captureInput);
 
-        when(sessionFactory.create(any(), any(), any())).thenReturn(session);
+        when(sessionFactory.create(notNull(InputStream.class), any(), any())).thenReturn(session);
 
         CommandJob job = getCommandJob();
 
@@ -155,14 +154,13 @@ public class CommandJobTest {
 
         assertThat(captureInput.getInputArg(), is(command));
 
-        verifySessionCalls(command, session, 1, 1);
-
+        verifySessionCallsAndSessionClosed(command, session, 1);
     }
 
     @Test
     public void testNullContext() throws JobExecutionException {
         CommandJob job = getCommandJob();
-        job.doExecute(null);
+        job.execute(null);
     }
 
     @Test
@@ -172,7 +170,7 @@ public class CommandJobTest {
         JobExecutionContext jobExecutionContext = mock(JobExecutionContext.class);
         when(jobExecutionContext.getMergedJobDataMap()).thenReturn(null);
 
-        job.doExecute(jobExecutionContext);
+        job.execute(jobExecutionContext);
     }
 
     private CommandJob getCommandJob() {
@@ -196,14 +194,12 @@ public class CommandJobTest {
         };
     }
 
-    void verifySessionCalls(String command, Session session, int expectedAmountOfCalls,
-            int expectedTimesToClose) throws Exception {
+    private void verifySessionCallsAndSessionClosed(String command, Session session, int expectedAmountOfCalls) throws Exception {
         verify(session, times(expectedAmountOfCalls)).execute(command);
-        verify(session, times(expectedTimesToClose)).close();
+        verify(session, times(1)).close();
     }
 
     private Session getSession(Answer<String> captureInput) {
-
         Session session = mock(Session.class);
 
         try {
@@ -216,7 +212,6 @@ public class CommandJobTest {
     }
 
     private JobExecutionContext getJobExecutionContext(String command) {
-
         JobExecutionContext context = mock(JobExecutionContext.class);
 
         JobDataMap jobDataMap = new JobDataMap();
