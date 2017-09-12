@@ -37,7 +37,7 @@ import ddf.security.service.SecurityServiceException;
         "Restores the system profile and configuration to the one recorded by a previously executed "
                 + MigrationCommand.NAMESPACE + ":export command.")
 public class ImportCommand extends MigrationCommand {
-    @Argument(index = 0, name = "exportDirectory", description = "Path to directory where to find the file to import and where to export the current state of the system", required = false, valueToShowInHelp = MigrationCommand.EXPORTED, multiValued = false)
+    @Argument(index = 0, name = "exportDirectory", description = "Path to directory where the import file is located", required = false, valueToShowInHelp = MigrationCommand.EXPORTED, multiValued = false)
     private String exportDirectoryArgument;
 
     public ImportCommand() {

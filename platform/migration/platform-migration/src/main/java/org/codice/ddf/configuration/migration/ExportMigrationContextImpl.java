@@ -62,12 +62,11 @@ public class ExportMigrationContextImpl extends MigrationContextImpl
     /**
      * Holds migration entries referenced from system properties keyed by the property name.
      */
-    private final Map<String, ExportMigrationSystemPropertyReferencedEntryImpl> systemProperties =
-            new TreeMap<>();
+    private final Map<String, ExportMigrationEntry> systemPropertiesEntries = new TreeMap<>();
 
     private final ExportMigrationReportImpl report;
 
-    private final ZipOutputStream zos;
+    private final ZipOutputStream zipOutputStream;
 
     private volatile OutputStream currentOutputStream;
 
@@ -88,7 +87,7 @@ public class ExportMigrationContextImpl extends MigrationContextImpl
                         .getVersion());
         Validate.notNull(zos, "invalid null zip output stream");
         this.report = new ExportMigrationReportImpl(report, migratable);
-        this.zos = zos;
+        this.zipOutputStream = zos;
     }
 
     private static <T> T validateNotNull(T t, String msg) {
@@ -106,13 +105,15 @@ public class ExportMigrationContextImpl extends MigrationContextImpl
             BiPredicate<MigrationReport, String> validator) {
         Validate.notNull(name, "invalid null system property name");
         Validate.notNull(validator, "invalid null validator");
-        final ExportMigrationSystemPropertyReferencedEntryImpl me = systemProperties.get(name);
+        final ExportMigrationEntry me = systemPropertiesEntries.get(name);
 
         if (me != null) {
             return Optional.of(me);
         }
         final String val = System.getProperty(name);
 
+        // must first let the validator deal with it before we check for the value
+        // do not check for null first!!!
         if (!validator.test(report, val)) {
             return Optional.empty();
         } else if (val == null) {
@@ -127,7 +128,7 @@ public class ExportMigrationContextImpl extends MigrationContextImpl
         final ExportMigrationSystemPropertyReferencedEntryImpl sprop =
                 new ExportMigrationSystemPropertyReferencedEntryImpl(this, name, val);
 
-        systemProperties.put(name, sprop);
+        systemPropertiesEntries.put(name, sprop);
         return Optional.of(sprop);
     }
 
@@ -214,13 +215,13 @@ public class ExportMigrationContextImpl extends MigrationContextImpl
         try {
             close();
             // zip entries are always Unix style based on our convention
-            zos.putNextEntry(new ZipEntry(id + '/' + entry.getName()));
-            final OutputStream oos = new ProxyOutputStream(zos) {
+            zipOutputStream.putNextEntry(new ZipEntry(id + '/' + entry.getName()));
+            final OutputStream oos = new ProxyOutputStream(zipOutputStream) {
                 @Override
                 public void close() throws IOException {
                     if (!(super.out instanceof ClosedOutputStream)) {
                         super.out = ClosedOutputStream.CLOSED_OUTPUT_STREAM;
-                        zos.closeEntry();
+                        zipOutputStream.closeEntry();
                     }
                 }
 

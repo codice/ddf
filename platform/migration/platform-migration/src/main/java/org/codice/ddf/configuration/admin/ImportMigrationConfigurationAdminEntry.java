@@ -13,27 +13,15 @@
  */
 package org.codice.ddf.configuration.admin;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Dictionary;
 import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Objects;
-import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
 import org.apache.commons.lang.Validate;
-import org.apache.felix.fileinstall.internal.DirectoryWatcher;
 import org.codice.ddf.migration.ImportMigrationEntry;
-import org.codice.ddf.migration.ImportMigrationEntryProxy;
 import org.codice.ddf.migration.MigrationException;
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.Configuration;
@@ -45,11 +33,13 @@ import org.slf4j.LoggerFactory;
  * This class extends on the {@link ImportMigrationEntry} interface to represent an exported
  * configuration object.
  */
-public class ImportMigrationConfigurationAdminEntry extends ImportMigrationEntryProxy {
+public class ImportMigrationConfigurationAdminEntry {
     private static final Logger LOGGER = LoggerFactory.getLogger(
             ImportMigrationConfigurationAdminEntry.class);
 
-    private final ImportMigrationConfigurationAdminContext context;
+    private final ImportMigrationEntry entry;
+
+    private final ConfigurationAdmin configurationAdmin;
 
     private final Dictionary<String, Object> properties;
 
@@ -63,21 +53,20 @@ public class ImportMigrationConfigurationAdminEntry extends ImportMigrationEntry
 
     private boolean restored = false;
 
-    public ImportMigrationConfigurationAdminEntry(ImportMigrationConfigurationAdminContext context,
-            ImportMigrationEntry entry, Dictionary<String, Object> properties) {
-        super(entry);
-        Validate.notNull(context, "invalid null context");
+    public ImportMigrationConfigurationAdminEntry(ConfigurationAdmin configurationAdmin,
+            ImportMigrationEntry entry, @Nullable String factoryPid, String pid,
+            Dictionary<String, Object> properties, @Nullable Configuration memoryConfiguration) {
+        Validate.notNull(entry, "invalid null entry");
+        Validate.notNull(configurationAdmin, "invalid null configuration admin");
         Validate.notNull(properties, "invalid null properties");
-        this.context = context;
+        this.entry = entry;
+        this.configurationAdmin = configurationAdmin;
         this.properties = properties;
-        // note: we also remove factory pid and pid from the dictionary as we do not want to restore those later
-        this.factoryPid = Objects.toString(properties.remove(ConfigurationAdmin.SERVICE_FACTORYPID),
-                null);
-        this.pid = Objects.toString(properties.remove(Constants.SERVICE_PID), null);
-        this.memoryConfiguration = getMemoryConfiguration();
+        this.factoryPid = factoryPid;
+        this.pid = pid;
+        this.memoryConfiguration = memoryConfiguration;
     }
 
-    @Override
     public boolean restore() {
         if (!restored) {
             final Configuration cfg;
@@ -86,7 +75,7 @@ public class ImportMigrationConfigurationAdminEntry extends ImportMigrationEntry
                 if (propertiesMatch()) {
                     LOGGER.debug("Importing configuration for [{}] from [{}]; no update required",
                             memoryConfiguration.getPid(),
-                            getPath());
+                            entry.getPath());
                     this.restored = true;
                     return true;
                 }
@@ -94,29 +83,30 @@ public class ImportMigrationConfigurationAdminEntry extends ImportMigrationEntry
                 LOGGER.debug(
                         "Importing configuration for [{}] from [{}]; updating existing configuration...",
                         memoryConfiguration.getPid(),
-                        getPath());
+                        entry.getPath());
             } else {
                 logCreatingConfig();
                 try {
-                    cfg = context.createConfiguration(this);
+                    cfg = createConfiguration();
                 } catch (IOException e) {
-                    logCreatingConfigError(e);
+                    reportCreatingConfigError(e);
                     return false;
                 }
                 LOGGER.debug(
                         "Importing configuration for [{}] from [{}]; initializing configuration...",
                         cfg.getPid(),
-                        getPath());
+                        entry.getPath());
             }
             try {
                 cfg.update(properties);
                 this.restored = true;
             } catch (IOException e) {
-                getReport().record(new MigrationException(
-                        "Import error: failed to update configuration [%s] with pid [%s]; %s.",
-                        getPath(),
-                        getPid(),
-                        e));
+                entry.getReport()
+                        .record(new MigrationException(
+                                "Import error: failed to update configuration [%s] with pid [%s]; %s.",
+                                entry.getPath(),
+                                getPid(),
+                                e));
             }
         }
         return restored;
@@ -138,98 +128,26 @@ public class ImportMigrationConfigurationAdminEntry extends ImportMigrationEntry
         return factoryPid == null;
     }
 
-    public Dictionary<String, Object> getProperties() {
-        return properties;
-    }
-
-    private Configuration getMemoryConfiguration() {
-        if (factoryPid != null) {
-            final List<Configuration> mcfgs = context.getMemoryFactoryService(factoryPid);
-
-            if (mcfgs == null) {
-                return null;
-            }
-            // search for it based on the felix file install property
-            final Path epath = getPathFromConfiguration(properties,
-                    () -> String.format("path '%s'", getPath()));
-
-            if (epath != null) {
-                // @formatter:off - to shut up checkstyle!!!!!!!
-                for (final Iterator<Configuration> i = mcfgs.iterator(); i.hasNext();) {
-                    // @formatter:on
-                    final Configuration mcfg = i.next();
-                    final Path mpath = getPathFromConfiguration(mcfg.getProperties(),
-                            () -> String.format("configuration '%s'", mcfg.getPid()));
-
-                    if (epath.equals(mpath)) {
-                        // remove it from memory list and clean the map if it was the last one
-                        i.remove();
-                        if (mcfgs.isEmpty()) {
-                            context.removeMemoryFactoryService(factoryPid);
-                        }
-                        return mcfg;
-                    }
-                }
-            }  // else - this means we will not be able to correlate an exported managed service factory
-            //           with its counterpart here, as such we will be forced to treat it as a new one
-            return null;
+    private Configuration createConfiguration() throws IOException {
+        // Question: should we use the bundle location that was exported???
+        // If we do, should we perform additional checks to make sure we're not loading a malicious bundle?
+        // This might be unnecessary if we are comfortable with the encryption of the zip file as our only countermeasure.
+        if (isManagedServiceFactory()) {
+            return configurationAdmin.createFactoryConfiguration(factoryPid, null);
         }
-        return context.removeMemoryService(pid);
-    }
-
-    @Nullable
-    private Path getPathFromConfiguration(@Nullable Dictionary<String, Object> properties,
-            Supplier<String> from) {
-        if (properties == null) {
-            return null;
-        }
-        final Object o = properties.get(DirectoryWatcher.FILENAME);
-        final Path path;
-
-        if (o != null) {
-            try {
-                if (o instanceof URL) {
-                    path = new File(((URL) o).toURI()).toPath();
-                } else if (o instanceof URI) {
-                    path = new File((URI) o).toPath();
-                } else if (o instanceof String) {
-                    path = new File(new URL((String) o).toURI()).toPath();
-                } else if (o instanceof File) {
-                    path = ((File) o).toPath();
-                } else if (o instanceof Path) {
-                    path = (Path) o;
-                } else {
-                    LOGGER.debug("unsupported {} property '{}' from {}",
-                            DirectoryWatcher.FILENAME,
-                            o,
-                            from.get());
-                    return null;
-                }
-            } catch (MalformedURLException | URISyntaxException e) {
-                LOGGER.debug(String.format("failed to parse %s property '%s' from %s; ",
-                        DirectoryWatcher.FILENAME,
-                        o,
-                        from.get()), e);
-                return null;
-            }
-        } else {
-            return null;
-        }
-        // ignore the whole path if any (there shouldn't be any other than etc) and force it to be under etc
-        return Paths.get("etc")
-                .resolve(path.getFileName());
+        return configurationAdmin.getConfiguration(pid);
     }
 
     private boolean propertiesMatch() {
-        final Dictionary<String, Object> memprops = memoryConfiguration.getProperties();
+        final Dictionary<String, Object> props = memoryConfiguration.getProperties();
 
-        if (memprops == null) {
+        if (props == null) {
             return false;
         }
         // remove factory pid and pid from the dictionary as we do not want to match these
-        memprops.remove(ConfigurationAdmin.SERVICE_FACTORYPID);
-        memprops.remove(Constants.SERVICE_PID);
-        if (properties.size() != memprops.size()) {
+        props.remove(ConfigurationAdmin.SERVICE_FACTORYPID);
+        props.remove(Constants.SERVICE_PID);
+        if (properties.size() != props.size()) {
             return false;
         }
         // @formatter:off - to shut up checkstyle!!!!!!!
@@ -237,7 +155,7 @@ public class ImportMigrationConfigurationAdminEntry extends ImportMigrationEntry
             // @formatter:on
             final String key = e.nextElement();
 
-            if (!Objects.deepEquals(properties.get(key), memprops.get(key))) {
+            if (!Objects.deepEquals(properties.get(key), props.get(key))) {
                 return false;
             }
         }
@@ -250,29 +168,31 @@ public class ImportMigrationConfigurationAdminEntry extends ImportMigrationEntry
                 LOGGER.debug(
                         "Importing configuration for [{}-?] from [{}]; creating new factory configuration...",
                         factoryPid,
-                        getPath());
+                        entry.getPath());
             } else {
                 LOGGER.debug(
                         "Importing configuration for [{}] from [{}]; creating new configuration...",
                         pid,
-                        getPath());
+                        entry.getPath());
             }
         }
     }
 
-    private void logCreatingConfigError(IOException e) {
+    private void reportCreatingConfigError(IOException e) {
         if (isManagedServiceFactory()) {
-            getReport().record(new MigrationException(
-                    "Import error: failed to create factory configuration [%s] with factory pid [%s]; %s.",
-                    getPath(),
-                    factoryPid,
-                    e));
+            entry.getReport()
+                    .record(new MigrationException(
+                            "Import error: failed to create factory configuration [%s] with factory pid [%s]; %s.",
+                            entry.getPath(),
+                            factoryPid,
+                            e));
         } else {
-            getReport().record(new MigrationException(
-                    "Import error: failed to create configuration [%s] with pid [%s]; %s.",
-                    getPath(),
-                    pid,
-                    e));
+            entry.getReport()
+                    .record(new MigrationException(
+                            "Import error: failed to create configuration [%s] with pid [%s]; %s.",
+                            entry.getPath(),
+                            pid,
+                            e));
         }
     }
 }

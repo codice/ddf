@@ -99,7 +99,8 @@ public class ConfigurationMigrationManager
                     ConfigurationMigrationManager.getProductVersion(Paths.get(System.getProperty(
                             "ddf.home"), ConfigurationMigrationManager.PRODUCT_VERSION_FILENAME));
         } catch (IOException e) {
-            LOGGER.warn("unable to load version information; ", e);
+            LOGGER.error(String.format("unable to load product version information from '%s'; ",
+                    ConfigurationMigrationManager.PRODUCT_VERSION_FILENAME), e);
             throw new IOError(e);
         }
     }
@@ -206,7 +207,7 @@ public class ConfigurationMigrationManager
         try {
             FileUtils.forceMkdir(exportDirectory.toFile());
         } catch (IOException e) {
-            LOGGER.info("unable to create directory: " + exportDirectory + "; ", e);
+            LOGGER.warn("unable to create directory: " + exportDirectory + "; ", e);
             report.record(new MigrationException(Messages.DIRECTORY_CREATE_ERROR,
                     exportDirectory,
                     e));

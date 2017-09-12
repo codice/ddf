@@ -19,7 +19,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
-import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Map;
@@ -35,9 +34,6 @@ import org.apache.commons.lang.Validate;
 import org.apache.felix.fileinstall.internal.DirectoryWatcher;
 import org.codice.ddf.configuration.persistence.PersistenceStrategy;
 import org.codice.ddf.migration.ExportMigrationContext;
-import org.codice.ddf.migration.ExportMigrationContextProxy;
-import org.codice.ddf.migration.ExportMigrationEntry;
-import org.codice.ddf.migration.MigrationEntry;
 import org.codice.ddf.migration.MigrationWarning;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -48,34 +44,38 @@ import org.slf4j.LoggerFactory;
  * This class extends on the {@link ExportMigrationContext} interface to pre-create entries for
  * all configuration objects.
  */
-public class ExportMigrationConfigurationAdminContext extends ExportMigrationContextProxy {
+public class ExportMigrationConfigurationAdminContext {
     private static final Logger LOGGER = LoggerFactory.getLogger(
             ExportMigrationConfigurationAdminContext.class);
+
+    private final ExportMigrationContext context;
 
     private final ConfigurationAdminMigratable admin;
 
     private final Set<String> warnedExtensions = new HashSet<>(8);
 
-    private final Map<Path, ExportMigrationEntry> entries;
+    private final Map<Path, ExportMigrationConfigurationAdminEntry> entries;
 
     public ExportMigrationConfigurationAdminContext(ExportMigrationContext context,
             ConfigurationAdminMigratable admin, Configuration[] configs) {
-        super(context);
+        Validate.notNull(context, "invalid null contexts");
         Validate.notNull(admin, "invalid null configuration admin migratable");
         Validate.notNull(configs, "invalid null configurations");
+        this.context = context;
         this.admin = admin;
         this.entries = Stream.of(configs)
                 .filter(this::isValid)
                 .map(this::getEntry)
-                .collect(Collectors.toMap(MigrationEntry::getPath, Function.identity()));
+                .collect(Collectors.toMap(ExportMigrationConfigurationAdminEntry::getPath,
+                        Function.identity()));
     }
 
     /**
      * This method is designed to circumvent a bug in Felix where it has been seen that a config object
      * that is meant to represent a managed service factory is not properly created. Instead of being
-     * create using the createFactoryConfiguration(), it is obtained using getConfiguration(). After
-     * that, the proeprties are updated with the service factory pid as a property. Although it has
-     * that property, it ain't a real managed service factory as te factory or blueprint was never
+     * created using the createFactoryConfiguration(), it is obtained using getConfiguration(). After
+     * that, the properties are updated with the service factory pid as a property. Although it has
+     * that property, it ain't a real managed service factory as the factory or blueprint was never
      * called to instantiate a corresponding service. In such case, we end up with a dummy config
      * object in memory that is not attached to an actual instance of manager service.
      * <p>
@@ -97,31 +97,16 @@ public class ExportMigrationConfigurationAdminContext extends ExportMigrationCon
 
         if (fpid == null) {
             return true;
-        } // else - property reports it shouldbe a managed service factory, so it is valid only if the cfg object reports it is too
+        } // else - property reports it should be a managed service factory, so it is valid only if the cfg object reports it is too
         return ConfigurationAdminMigratable.isManagedServiceFactory(cfg);
     }
 
-    public Stream<ExportMigrationEntry> entries() {
+    public Stream<ExportMigrationConfigurationAdminEntry> entries() {
         return entries.values()
                 .stream();
     }
 
-    @Override
-    public ExportMigrationEntry getEntry(Path path) {
-        throw new UnsupportedOperationException("should not be called");
-    }
-
-    @Override
-    public Stream<ExportMigrationEntry> entries(Path path) {
-        throw new UnsupportedOperationException("should not be called");
-    }
-
-    @Override
-    public Stream<ExportMigrationEntry> entries(Path path, PathMatcher filter) {
-        throw new UnsupportedOperationException("should not be called");
-    }
-
-    private ExportMigrationEntry getEntry(Configuration configuration) {
+    private ExportMigrationConfigurationAdminEntry getEntry(Configuration configuration) {
         Path path = getPathFromConfiguration(configuration);
         final String extn = FilenameUtils.getExtension(path.toString());
         PersistenceStrategy ps = admin.getPersister(extn);
@@ -129,15 +114,18 @@ public class ExportMigrationConfigurationAdminContext extends ExportMigrationCon
         if (ps == null) {
             ps = admin.getDefaultPersister();
             if (warnedExtensions.add(extn)) {
-                getReport().record(new MigrationWarning(String.format(
-                        "Persistence strategy [%s] is not defined; defaulting to [%s]",
-                        extn,
-                        ps.getExtension())));
+                context.getReport()
+                        .record(new MigrationWarning(String.format(
+                                "Persistence strategy [%s] is not defined; defaulting to [%s]",
+                                extn,
+                                ps.getExtension())));
             }
             path = Paths.get(
                     path.toString() + FilenameUtils.EXTENSION_SEPARATOR + ps.getExtension());
         }
-        return new ExportMigrationConfigurationAdminEntry(super.getEntry(path), configuration, ps);
+        return new ExportMigrationConfigurationAdminEntry(context.getEntry(path),
+                configuration,
+                ps);
     }
 
     private Path getPathFromConfiguration(Configuration configuration) {
@@ -160,24 +148,26 @@ public class ExportMigrationConfigurationAdminContext extends ExportMigrationCon
                 } else {
                     path = constructPathForBasename(configuration);
                     LOGGER.debug("unsupported {} property from '{}'", DirectoryWatcher.FILENAME, o);
-                    getReport().record(new MigrationWarning(
-                            "Path [%s] from %s property for configuration [%s] is of an unsupported format; exporting as [%s].",
-                            o,
-                            DirectoryWatcher.FILENAME,
-                            configuration.getPid(),
-                            path));
+                    context.getReport()
+                            .record(new MigrationWarning(
+                                    "Path [%s] from %s property for configuration [%s] is of an unsupported format; exporting as [%s].",
+                                    o,
+                                    DirectoryWatcher.FILENAME,
+                                    configuration.getPid(),
+                                    path));
                 }
             } catch (MalformedURLException | URISyntaxException e) {
                 path = constructPathForBasename(configuration);
                 LOGGER.debug(String.format("failed to parse %s property from '%s'; ",
                         DirectoryWatcher.FILENAME,
                         o), e);
-                getReport().record(new MigrationWarning(
-                        "Path [%s] from %s property for configuration [%s] cannot be parsed; exporting as [%s].",
-                        o,
-                        DirectoryWatcher.FILENAME,
-                        configuration.getPid(),
-                        path));
+                context.getReport()
+                        .record(new MigrationWarning(
+                                "Path [%s] from %s property for configuration [%s] cannot be parsed; exporting as [%s].",
+                                o,
+                                DirectoryWatcher.FILENAME,
+                                configuration.getPid(),
+                                path));
             }
         } else {
             path = constructPathForBasename(configuration);

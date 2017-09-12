@@ -360,6 +360,7 @@ public class ConfigurationAdminMigratableTest {
         props.put("schema", "http://www.opengis.net/cat/csw/2.0.2");
         when(config.getProperties()).thenReturn(props);
         when(config.getPid()).thenReturn(pid);
+        when(config.getFactoryPid()).thenReturn(DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID);
         return config;
     }
 

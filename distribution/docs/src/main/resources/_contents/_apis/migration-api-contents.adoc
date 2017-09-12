@@ -48,16 +48,10 @@ A bundle or a feature can have as many services implementing the interfaces as n
 . `org.codice.ddf.migration.MigrationWarning`
 . `org.codice.ddf.migration.MigrationInformation`
 . `org.codice.ddf.migration.MigrationSuccessfulInformation`
-. `org.codice.ddf.migration.MigrationContextProxy`
-. `org.codice.ddf.migration.MigrationEntryProxy`
-. `org.codice.ddf.migration.ExportMigrationContextProxy`
-. `org.codice.ddf.migration.ExportMigrationEntryProxy`
-. `org.codice.ddf.migration.ImportMigrationContextProxy`
-. `org.codice.ddf.migration.ImportMigrationEntryProxy`
 
 ===== `Migratable`
 
-The contract for a migratable is stored here. This is the only interface that should be implemented by implementers and registered as an OSGI
+The contract for a migratable is stored here. This is the only interface that should be implemented by implementers and registered as an OSGi
 service. All other interfaces will be implemented by the migration API that provides support for migratables.
 
 The `org.codice.ddf.migration.Migratable` interface defines these methods:
@@ -73,19 +67,19 @@ The `org.codice.ddf.migration.Migratable` interface defines these methods:
 .`void doMissingImport(ImportMigrationContext context)`
 
 The `getId()` method returns a unique identifier for this migratable that must remain constant between the export and the import operations in order or the migration API to correlate the exported data with the migratable during the import operation. It
-must unique across all migratables. The `getVersion()` method returns a unique version string which is meant to identify the version of the data exported or supported at import time by the migratable. It cannot be blank and its format is left to the
+must be unique across all migratables. The `getVersion()` method returns a unique version string which is meant to identify the version of the data exported or supported at import time by the migratable. It cannot be blank and its format is left to the
 migratable. The only noticeable requirement is that when the string compares equal using the `String.equals()` method, the migration API will call `doImport()` instead of `doIncompatibleImport()` to restore previously exported data for the migratable.
 The `getTitle()` method returns a simple title for the migratable. The `getDescription()` method returns a short description of the type of data exported by the migratable. The `getOrganization()` method provides the name of the organization responsible
 for the migratable. The `doExport()` method is called by the migration API along with a context for the current export operation to store data. The `doImport()` method is called by the migration API along with a context for the current import operation when
 the version of exported data matches the current version reported by the migratable in order to restore previously exported data. The `doImcompatibleImport()` method is called along with a context for the current import operation and the previously exported
-version to proceed with restoring incombpatible data which might require transformation. Finally, the `doMissingImport()` method will be called along with the context for the current import operation when data had not been eported for the corresponding migratable.
+version to proceed with restoring incompatible data which might require transformation. Finally, the `doMissingImport()` method will be called along with the context for the current import operation when data had not been exported for the corresponding migratable.
 This will be the case when a migratable is later introduced in the software distribution.
 
-In order to create a `Migratable` for a module of the system, the `org.codice.ddf.migration.Migratable` interface must be implemented and the implementation must be registered under the `org.codice.ddf.migration.Migratable` interface as an OSGI service in the OSGI service registry.
-Creating an OSGI service allows for the migration API to lookup all implementations of `org.codice.ddf.migration.Migratable` and command them to export or import.
+In order to create a `Migratable` for a module of the system, the `org.codice.ddf.migration.Migratable` interface must be implemented and the implementation must be registered under the `org.codice.ddf.migration.Migratable` interface as an OSGi service in the OSGi service registry.
+Creating an OSGi service allows for the migration API to lookup all implementations of `org.codice.ddf.migration.Migratable` and command them to export or import.
 
 ===== `MigrationContext`
-The `org.codice.ddf.migration.MigrationContext` provides contextual information about an operation in progress for a given migratable. This is a sort of sanbox that is unique to each migratable. This interface defines the following methods:
+The `org.codice.ddf.migration.MigrationContext` provides contextual information about an operation in progress for a given migratable. This is a sort of sandbox that is unique to each migratable. This interface defines the following methods:
 
 .`MigrationReport getReport()`
 .`String getId()`
@@ -107,7 +101,7 @@ The `getSystemPropertyReferencedEntry()` methods create a migration entry to tra
 The `getEntry()` method creates a migration entry given the path for a specific file.
 The `entries()` methods create multiple entries corresponding to all files recursively located underneath a given path with an optional path matcher to filter which files to create entries for.
 
-Once an entry is created, it is not stored with the exported data. It is the migratable' responsibility to store the data using one of the entry's provided methods.
+Once an entry is created, it is not stored with the exported data. It is the migratable's responsibility to store the data using one of the entry's provided methods.
 Entries are uniquely identified using a relative path and are specific to each migratable meaning that an entry with the same path in two migratables will not conflict with each other. Each migratable is given its own context (a.k.a. sandbox) to work with.
 
 ===== `ImportMigrationContext`
@@ -125,7 +119,7 @@ The `getEntry()` method retrieves a migration entry given the path for a specifi
 The `entries()` methods retreive multiple entries corresponding to all exported files recursively located underneath a given relative path with an optional path matcher to filter which files to retreive entries for.
 The `cleanDirectory(Path path)` method can be useful for migratables that are designed to export and import the content of a given directory structure. In such situations, the migratable might want to first clean the complete directory structure before restoring all exported files into that directory.
 
-Once an entry is retrieved, its exported data is not restored. It is the migratable' responsibility to restore the data using one of the entry's provided methods.
+Once an entry is retrieved, its exported data is not restored. It is the migratable's responsibility to restore the data using one of the entry's provided methods.
 Entries are uniquely identified using a relative path and are specific to each migratable meaning that an entry with the same path in two migratables will not conflict with each other. Each migratable is given its own context (a.k.a. sandbox) to work with.
 
 ===== `MigrationEntry`
@@ -152,8 +146,8 @@ The export migration entry provides additional methods available for entries cre
 .`OutputStream getOutputStream() throws IOException`
 
 The `getPropertyReferencedEntry()` method creates another migration entry for a file that was referenced by a given property value in the file represented by this entry.
-The `store()` and `store(boolean required)` methods will automatically copy the content of the corresponding file as part of the export making sure the file exist (if required) on disk otherwise an error will be recorded.
-The `store(EBiConsumer<MigrationReport, OutputStream, IOException> consumer)` method allows the migratable to control the export process by specifying a consumer that will be called back with an output stream where the data can be writen to instead of having a file on disk being copied by the migration API.
+The `store()` and `store(boolean required)` methods will automatically copy the content of the corresponding file as part of the export making sure the file exists (if required) on disk otherwise an error will be recorded.
+The `store(EBiConsumer<MigrationReport, OutputStream, IOException> consumer)` method allows the migratable to control the export process by specifying a callback consumer that will be called back with an output stream where the data can be writen to instead of having a file on disk being copied by the migration API.
 The `OutputStream getOutputStream()` method provides access to the low-level output stream where the migratable can write data directly as opposed to having a file on disk copied automatically.
 
 ===== `ImportMigrationEntry`
@@ -165,8 +159,8 @@ The import migration entry provides additional methods available for entries ret
 .`Optional<InputStream getInputStream() throws IOException`
 
 The `getPropertyReferencedEntry()` method retrieves another migration entry for a file that was referenced by a given property value in the file represented by this entry.
-The `restore()` and `restore(boolean required)` methods will automatically copy the exported content of the corresponding file back to disk if it was exported otherwise an error will be recorded.
-The `restore(EBiConsumer<MigrationReport, Optional<InputStream>, IOException> consumer)` method allows the migratable to control the import process by specifying a consumer that will be called back with an optional input stream (empty if the data was not exported) where the data can be read from instead of having a file on disk being created or updated by the migration API.
+The `restore()` and `restore(boolean required)` methods will automatically copy the exported content of the corresponding file back to disk if it was exported; otherwise an error will be recorded.
+The `restore(EBiConsumer<MigrationReport, Optional<InputStream>, IOException> consumer)` method allows the migratable to control the import process by specifying a callback consumer that will be called back with an optional input stream (empty if the data was not exported) where the data can be read from instead of having a file on disk being created or updated by the migration API.
 The `Optional<InputStream> getInputStream()` method provides access to the optional low-level input stream (empty if the data was not exported) where the migratable can read data directly as opposed to having a file on disk created or updated automatically.
 
 ===== `MigrationOperation`
@@ -204,11 +198,11 @@ The `warnings()` method provides access to all recorded warning messages so far.
 The `infos()` method provides access to all recorded informational messages so far.
 The `wasSuccessful()` method provides a quick check to see if the report is successful. A successful report might have warnings recorded but cannot have errors recorded.
 The `wasSuccessful(Runnable code) method allows code to be executed. It will return true if no new errors are recorded as a result of executing the provided code.
-The `wasIOSuccessful(ERunnable<IOException> code) method allows code to be executed which can thrown I/O exceptions which are automatically recorded as errors. It will return true if no new errors are recorded as a result of executing the provided code.
+The `wasIOSuccessful(ERunnable<IOException> code) method allows code to be executed which can throw I/O exceptions which are automatically recorded as errors. It will return true if no new errors are recorded as a result of executing the provided code.
 The `hasInfos()` method will return true if at least one information message has been recorded so far.
 The `hasWarnings()` method will return true if at least one warning message has been recorded so far.
 The `hasErrors()` method will return true if at least one error message has been recorded so far.
-The `verifyCompletion() method will verify if the report is successful and if not, it will throw back the first recorded exception and attached as suppressed exceptions all other recorded exceptions.
+The `verifyCompletion() method will verify if the report is successful and if not, it will throw back the first recorded exception and attach as suppressed exceptions all other recorded exceptions.
 
 ===== `MigrationMessage`
 The `org.codice.ddf.migration.MigrationException is defined as a base class for all recordable messages during migration operations. It defines the following methods:
@@ -226,11 +220,7 @@ All migration warning messages are displayed to the administrator.
 
 ===== `MigrationInformation`
 An `org.codice.ddf.migration.MigrationInformation` should be used when a migratable simply wants to provide useful information to the administrator. All
-migration information messages are displayed to the admiistrator.
+migration information messages are displayed to the administrator.
 
 ===== `MigrationSuccessfulInformation`
 The `org.codice.ddf.migration.MigrationSuccessfulInformation` can be used to further qualify an information message as representing the success of an operation.
-
-===== Proxy Classes
-The `org.codice.ddf.migration.MigrationContextProxy`, `org.codice.ddf.migration.MigrationEntryProxy`, `org.codice.ddf.migration.ExportMigrationContextProxy`, `org.codice.ddf.migration.ExportMigrationEntryProxy`, `org.codice.ddf.migration.ImportMigrationContextProxy`, and `org.codice.ddf.migration.ImportMigrationEntryProxy`
-classes are provided for migratables as a way to extend their corresponding interface while proxying all methods to instances provided at runtime by the migration API. It can be useful in cases where the migratable which to extends its functionnality for its own benefit.

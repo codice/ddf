@@ -52,7 +52,7 @@ public interface ConfigurationMigrationService {
      * @param consumer        a consumer to call whenever a new migration message is recorded
      *                        during the operation
      * @return a migration report for the export operation
-     * @throws IllegalArgumentException if <code>exportDirectory</code> <code>consumer</code> is
+     * @throws IllegalArgumentException if <code>exportDirectory</code> or <code>consumer</code> is
      *                                  <code>null</code>
      */
     MigrationReport doExport(Path exportDirectory, Consumer<MigrationMessage> consumer);

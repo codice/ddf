@@ -1,5 +1,5 @@
 
-The Configuration Export/Import capability allows administrators to export the current ${branding} configuration and use it to restore the same state on a brand new installation or when adding a second node to an highly available deployment.
+The Configuration Export/Import capability allows administrators to export the current ${branding} configuration and use it to restore the same state on a brand new installation or when adding a second node to a highly available deployment.
 
 [IMPORTANT]
 ====

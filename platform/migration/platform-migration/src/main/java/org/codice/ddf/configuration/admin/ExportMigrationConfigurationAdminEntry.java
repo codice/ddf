@@ -13,10 +13,11 @@
  */
 package org.codice.ddf.configuration.admin;
 
+import java.nio.file.Path;
+
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.configuration.persistence.PersistenceStrategy;
 import org.codice.ddf.migration.ExportMigrationEntry;
-import org.codice.ddf.migration.ExportMigrationEntryProxy;
 import org.osgi.service.cm.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,9 +26,11 @@ import org.slf4j.LoggerFactory;
  * This class extends on the {@link ExportMigrationEntry} interface to represent a configuration
  * object in memory.
  */
-public class ExportMigrationConfigurationAdminEntry extends ExportMigrationEntryProxy {
+public class ExportMigrationConfigurationAdminEntry {
     private static final Logger LOGGER = LoggerFactory.getLogger(
             ExportMigrationConfigurationAdminEntry.class);
+
+    private final ExportMigrationEntry entry;
 
     private final Configuration configuration;
 
@@ -37,20 +40,24 @@ public class ExportMigrationConfigurationAdminEntry extends ExportMigrationEntry
 
     public ExportMigrationConfigurationAdminEntry(ExportMigrationEntry entry,
             Configuration configuration, PersistenceStrategy persister) {
-        super(entry);
+        Validate.notNull(entry, "invalid null entry");
         Validate.notNull(configuration, "invalid null configuration");
         Validate.notNull(persister, "invalid null persister");
+        this.entry = entry;
         this.configuration = configuration;
         this.persister = persister;
     }
 
-    @Override
+    public Path getPath() {
+        return entry.getPath();
+    }
+
     public boolean store() {
         if (!stored) {
             LOGGER.debug("Exporting configuration [{}] to [{}]...",
                     configuration.getPid(),
-                    getPath());
-            this.stored = super.store((r, out) -> persister.write(out,
+                    entry.getPath());
+            this.stored = entry.store((r, out) -> persister.write(out,
                     configuration.getProperties()));
         }
         return stored;

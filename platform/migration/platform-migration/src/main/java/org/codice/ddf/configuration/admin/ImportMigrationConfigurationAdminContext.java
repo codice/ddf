@@ -13,27 +13,37 @@
  */
 package org.codice.ddf.configuration.admin;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Path;
-import java.nio.file.PathMatcher;
+import java.nio.file.Paths;
 import java.util.Dictionary;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import javax.annotation.Nullable;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
+import org.apache.felix.fileinstall.internal.DirectoryWatcher;
 import org.codice.ddf.configuration.persistence.PersistenceStrategy;
 import org.codice.ddf.migration.ImportMigrationContext;
-import org.codice.ddf.migration.ImportMigrationContextProxy;
 import org.codice.ddf.migration.ImportMigrationEntry;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationReport;
+import org.osgi.framework.Constants;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
@@ -43,9 +53,11 @@ import org.slf4j.LoggerFactory;
  * This class extends on the {@link ImportMigrationContext} interface to pre-process exported entries
  * for configuration objects and compare them with the configuration objects currently in memory.
  */
-public class ImportMigrationConfigurationAdminContext extends ImportMigrationContextProxy {
+public class ImportMigrationConfigurationAdminContext {
     private static final Logger LOGGER = LoggerFactory.getLogger(
             ImportMigrationConfigurationAdminContext.class);
+
+    private final ImportMigrationContext context;
 
     private final ConfigurationAdminMigratable admin;
 
@@ -55,13 +67,13 @@ public class ImportMigrationConfigurationAdminContext extends ImportMigrationCon
      * Keeps track of all managed services in memory that were not found in the export file so
      * we know what to delete at the end.
      */
-    private final Map<String, Configuration> memoryServices;
+    private final Map<String, Configuration> managedServicesToDelete;
 
     /**
      * Keeps track of all managed service factories in memory that were not found in the export file
      * so we know what to delete at the end.
      */
-    private final Map<String, List<Configuration>> memoryFactoryServices;
+    private final Map<String, List<Configuration>> managedServiceFactoriesToDelete;
 
     private final Map<String, ImportMigrationConfigurationAdminEntry> exportedServices;
 
@@ -72,17 +84,18 @@ public class ImportMigrationConfigurationAdminContext extends ImportMigrationCon
     public ImportMigrationConfigurationAdminContext(ImportMigrationContext context,
             ConfigurationAdminMigratable admin, ConfigurationAdmin configurationAdmin,
             Configuration[] memoryConfigs) {
-        super(context);
+        Validate.notNull(context, "invalid null context");
         Validate.notNull(admin, "invalid null configuration admin migratable");
         Validate.notNull(configurationAdmin, "invalid null configuration admin");
         Validate.notNull(memoryConfigs, "invalid null configurations");
+        this.context = context;
         this.admin = admin;
         this.configurationAdmin = configurationAdmin;
         // categorize memory configurations
-        this.memoryServices = Stream.of(memoryConfigs)
+        this.managedServicesToDelete = Stream.of(memoryConfigs)
                 .filter(ConfigurationAdminMigratable::isManagedService)
                 .collect(Collectors.toMap(Configuration::getPid, Function.identity()));
-        this.memoryFactoryServices = Stream.of(memoryConfigs)
+        this.managedServiceFactoriesToDelete = Stream.of(memoryConfigs)
                 .filter(ConfigurationAdminMigratable::isManagedServiceFactory)
                 .collect(Collectors.groupingBy(Configuration::getFactoryPid));
         // categorize exported configurations
@@ -102,8 +115,7 @@ public class ImportMigrationConfigurationAdminContext extends ImportMigrationCon
                 .doAfterCompletion(this::deleteUnexportedConfigurationsAfterCompletion);
     }
 
-    @Override
-    public Stream<ImportMigrationEntry> entries() {
+    public Stream<ImportMigrationConfigurationAdminEntry> entries() {
         if (!isValid) {
             return Stream.empty();
         }
@@ -114,62 +126,111 @@ public class ImportMigrationConfigurationAdminContext extends ImportMigrationCon
                         .flatMap(List::stream));
     }
 
-    @Override
-    public ImportMigrationEntry getEntry(Path path) {
-        throw new UnsupportedOperationException("should not be called");
-    }
+    @Nullable
+    private Configuration getAndRemoveMemoryFactoryService(String factoryPid,
+            Path exportedConfigPath) {
+        final List<Configuration> memoryConfigs = managedServiceFactoriesToDelete.get(factoryPid);
 
-    @Override
-    public Stream<ImportMigrationEntry> entries(Path path) {
-        throw new UnsupportedOperationException("should not be called");
-    }
-
-    @Override
-    public Stream<ImportMigrationEntry> entries(Path path, PathMatcher filter) {
-        throw new UnsupportedOperationException("should not be called");
-    }
-
-    // PMD.DefaultPackage - designed to be called only from ImportMigrationConfigurationAdminEntry within this package
-    @SuppressWarnings("PMD.DefaultPackage")
-    List<Configuration> getMemoryFactoryService(String factoryPid) {
-        return memoryFactoryServices.get(factoryPid);
-    }
-
-    // PMD.DefaultPackage - designed to be called only from ImportMigrationConfigurationAdminEntry within this package
-    @SuppressWarnings("PMD.DefaultPackage")
-    void removeMemoryFactoryService(String factoryPid) {
-        memoryFactoryServices.remove(factoryPid);
-    }
-
-    // PMD.DefaultPackage - designed to be called only from ImportMigrationConfigurationAdminEntry within this package
-    @SuppressWarnings("PMD.DefaultPackage")
-    Configuration removeMemoryService(String pid) {
-        return memoryServices.remove(pid);
-    }
-
-    // PMD.DefaultPackage - designed to be called only from ImportMigrationConfigurationAdminEntry within this package
-    @SuppressWarnings("PMD.DefaultPackage")
-    Configuration createConfiguration(ImportMigrationConfigurationAdminEntry entry)
-            throws IOException {
-        // Question: should we use the bundle location that was exported???
-        // If we do, should we perform additional checks to make sure we're not loading a malicious bundle?
-        // This might be unnecessary if we are comfortable with the encryption of the zip file as our only countermeasure.
-        if (entry.isManagedServiceFactory()) {
-            return configurationAdmin.createFactoryConfiguration(entry.getFactoryPid(), null);
+        if (memoryConfigs == null) {
+            return null;
         }
-        return configurationAdmin.getConfiguration(entry.getPid());
+        // @formatter:off - to shut up checkstyle!!!!!!!
+        for (final Iterator<Configuration> i = memoryConfigs.iterator(); i.hasNext();) {
+        // @formatter:on
+            final Configuration memoryConfig = i.next();
+            final Path memoryConfigPath = getPathFromConfiguration(memoryConfig.getProperties(),
+                    () -> String.format("configuration '%s'", memoryConfig.getPid()));
+
+            if (exportedConfigPath.equals(memoryConfigPath)) {
+                // remove it from memory list and clean the map if it was the last one
+                i.remove();
+                if (memoryConfigs.isEmpty()) {
+                    managedServiceFactoriesToDelete.remove(factoryPid);
+                }
+                return memoryConfig;
+            }
+        }
+        return null;
     }
 
+    @Nullable
+    private Configuration getAndRemoveMemoryService(String pid) {
+        return managedServicesToDelete.remove(pid);
+    }
+
+    @Nullable
+    private Configuration getAndRemoveMemoryConfig(@Nullable String factoryPid, String pid,
+            Dictionary<String, Object> properties, Path exportedPath) {
+        if (factoryPid != null) {
+            // search for it based on the felix file install property
+            final Path exportedConfigPath = getPathFromConfiguration(properties,
+                    () -> String.format("path '%s'", exportedPath));
+
+            if (exportedConfigPath == null) {
+                // this means we will not be able to correlate an exported managed service factory
+                // with its counterpart here, as such we will be forced to treat it as a new one
+                return null;
+            }
+            return getAndRemoveMemoryFactoryService(factoryPid, exportedConfigPath);
+        }
+        return getAndRemoveMemoryService(pid);
+    }
+
+    @Nullable
+    private Path getPathFromConfiguration(@Nullable Dictionary<String, Object> properties,
+            Supplier<String> from) {
+        if (properties == null) {
+            return null;
+        }
+        final Object o = properties.get(DirectoryWatcher.FILENAME);
+        final Path path;
+
+        if (o != null) {
+            try {
+                if (o instanceof URL) {
+                    path = new File(((URL) o).toURI()).toPath();
+                } else if (o instanceof URI) {
+                    path = new File((URI) o).toPath();
+                } else if (o instanceof String) {
+                    path = new File(new URL((String) o).toURI()).toPath();
+                } else if (o instanceof File) {
+                    path = ((File) o).toPath();
+                } else if (o instanceof Path) {
+                    path = (Path) o;
+                } else {
+                    LOGGER.debug("unsupported {} property '{}' from {}",
+                            DirectoryWatcher.FILENAME,
+                            o,
+                            from.get());
+                    return null;
+                }
+            } catch (MalformedURLException | URISyntaxException e) {
+                LOGGER.debug(String.format("failed to parse %s property '%s' from %s; ",
+                        DirectoryWatcher.FILENAME,
+                        o,
+                        from.get()), e);
+                return null;
+            }
+        } else {
+            return null;
+        }
+        // ignore the whole path if any (there shouldn't be any other than etc) and force it to be under etc
+        return Paths.get("etc")
+                .resolve(path.getFileName());
+    }
+
+    @Nullable
     private ImportMigrationConfigurationAdminEntry proxy(ImportMigrationEntry entry) {
         final Path path = entry.getPath();
         final String extn = FilenameUtils.getExtension(path.toString());
         final PersistenceStrategy ps = admin.getPersister(extn);
 
         if (ps == null) {
-            getReport().record(new MigrationException(
-                    "Import error: persistence strategy [%s] for configuration [%s] is not defined.",
-                    extn,
-                    path));
+            context.getReport()
+                    .record(new MigrationException(
+                            "Import error: persistence strategy [%s] for configuration [%s] is not defined.",
+                            extn,
+                            path));
         } else {
             final Dictionary<String, Object> properties;
             InputStream is = null;
@@ -196,10 +257,22 @@ public class ImportMigrationConfigurationAdminContext extends ImportMigrationCon
                 IOUtils.closeQuietly(is);
             }
             try {
-                return new ImportMigrationConfigurationAdminEntry(this, entry, properties);
+                // note: we also remove factory pid and pid from the dictionary as we do not want to restore those later
+                final String pid = Objects.toString(properties.remove(Constants.SERVICE_PID), null);
+                final String factoryPid =
+                        Objects.toString(properties.remove(ConfigurationAdmin.SERVICE_FACTORYPID),
+                                null);
+
+                return new ImportMigrationConfigurationAdminEntry(configurationAdmin,
+                        entry,
+                        factoryPid,
+                        pid,
+                        properties,
+                        getAndRemoveMemoryConfig(factoryPid, pid, properties, entry.getPath()));
             } catch (MigrationException e) {
                 // don't throw it back yet as we want to detect as many as possible so just record it
-                getReport().record(e);
+                context.getReport()
+                        .record(e);
             }
         }
         this.isValid = false;
@@ -210,9 +283,9 @@ public class ImportMigrationConfigurationAdminContext extends ImportMigrationCon
     @SuppressWarnings("PMD.UnusedFormalParameter")
     private void deleteUnexportedConfigurationsAfterCompletion(MigrationReport report) {
         if (isValid) {
-            Stream.concat(memoryServices.values()
+            Stream.concat(managedServicesToDelete.values()
                             .stream(),
-                    memoryFactoryServices.values()
+                    managedServiceFactoriesToDelete.values()
                             .stream()
                             .flatMap(List::stream))
                     .forEach(this::delete);
@@ -225,10 +298,11 @@ public class ImportMigrationConfigurationAdminContext extends ImportMigrationCon
                     configuration.getPid());
             configuration.delete();
         } catch (IOException e) {
-            getReport().record(new MigrationException(
-                    "Import error: failed to delete configuration [%s]; %s.",
-                    configuration.getPid(),
-                    e));
+            context.getReport()
+                    .record(new MigrationException(
+                            "Import error: failed to delete configuration [%s]; %s.",
+                            configuration.getPid(),
+                            e));
         }
     }
 }

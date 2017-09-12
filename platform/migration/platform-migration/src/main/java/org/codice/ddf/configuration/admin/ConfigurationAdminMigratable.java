@@ -20,9 +20,7 @@ import org.codice.ddf.configuration.persistence.PersistenceStrategy;
 import org.codice.ddf.configuration.persistence.felix.FelixCfgPersistenceStrategy;
 import org.codice.ddf.configuration.persistence.felix.FelixConfigPersistenceStrategy;
 import org.codice.ddf.migration.ExportMigrationContext;
-import org.codice.ddf.migration.ExportMigrationEntry;
 import org.codice.ddf.migration.ImportMigrationContext;
-import org.codice.ddf.migration.ImportMigrationEntry;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationContext;
 import org.codice.ddf.migration.MigrationException;
@@ -107,7 +105,7 @@ public class ConfigurationAdminMigratable implements Migratable {
                         getConfigurations(context));
 
         adminContext.entries()
-                .forEach(ExportMigrationEntry::store);
+                .forEach(ExportMigrationConfigurationAdminEntry::store);
     }
 
     @Override
@@ -119,7 +117,7 @@ public class ConfigurationAdminMigratable implements Migratable {
                         getConfigurations(context));
 
         adminContext.entries()
-                .forEach(ImportMigrationEntry::restore);
+                .forEach(ImportMigrationConfigurationAdminEntry::restore);
     }
 
     // PMD.DefaultPackage - designed to be called from ExportMigrationConfigurationAdminContext in this package

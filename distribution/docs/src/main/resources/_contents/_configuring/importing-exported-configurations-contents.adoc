@@ -13,8 +13,8 @@ To import a previously exported configuration file from the ${command-console}:
 
 [IMPORTANT]
 ====
-Some system configuration files contain paths to other configuration files. For instance, the `system.properties` file contains the `javax.net.ssl.keyStore` property which provides the path to system key store.
-The files referred to in the system configuration files would have been included in the export process only if the path is relative to `<${branding}_HOME>`. It is the responsibility of the administrator to ensure these files exists on the new system otherwise the system won't work as it did on the original system.
+Some system configuration files contain paths to other configuration files. For instance, the `system.properties` file contains the `javax.net.ssl.keyStore` property which provides the path to the system key store.
+The files referred to in the system configuration files would have been included in the export process only if the path is relative to `<${branding}_HOME>`. It is the responsibility of the administrator to ensure these files exist on the new system otherwise the system won't work as it did on the original system.
 Using absolute paths and/or symbolic links in those cases will cause the `migration:import` command to display warnings about those files if they are no longer available at import time.
 The import process itself will not be aborted.
 ====
