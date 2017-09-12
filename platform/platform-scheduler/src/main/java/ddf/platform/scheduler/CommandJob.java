@@ -15,6 +15,7 @@ package ddf.platform.scheduler;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
@@ -49,13 +50,12 @@ public class CommandJob implements Job {
 
     private static final Security SECURITY = Security.getInstance();
 
-    public Subject getSystemSubject() {
+    protected Subject getSystemSubject() {
         return SECURITY.getSystemSubject();
     }
 
     @Override
     public void execute(final JobExecutionContext context) throws JobExecutionException {
-
         SECURITY.runAsAdmin(() -> {
             Subject subject = getSystemSubject();
 
@@ -84,8 +84,7 @@ public class CommandJob implements Job {
         return bundleContext.getService(bundleContext.getServiceReference(SessionFactory.class));
     }
 
-    public void doExecute(JobExecutionContext context) throws JobExecutionException {
-
+    private void doExecute(JobExecutionContext context) {
         String commandInput;
         try {
             commandInput = checkInput(context);
@@ -101,12 +100,21 @@ public class CommandJob implements Job {
             return;
         }
 
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         Session session = null;
 
-        try (PrintStream output = getPrintStream(byteArrayOutputStream)) {
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                PrintStream output = getPrintStream(byteArrayOutputStream);
+                // TODO DDF-3280 remove work-around for NPE when creating session with a null "in" parameter from a SessionFactory
+                InputStream emptyInputStream = new InputStream() {
+                    @Override
+                    public int read() throws IOException {
+                        LOGGER.error(
+                                "This method implementation of an InputStream is just a work-around for a Karaf bug and should never be called. There is an issue with the Platform Command Scheduler implementation.");
+                        return -1;
+                    }
+                }) {
 
-            session = sessionFactory.create(null, output, output);
+            session = sessionFactory.create(emptyInputStream, output, output);
 
             if (session == null) {
                 LOGGER.debug("unable to create session: command=[{}]", commandInput);
@@ -130,15 +138,13 @@ public class CommandJob implements Job {
             }
         } catch (UnsupportedEncodingException e) {
             LOGGER.info("Unable to produce output", e);
+        } catch (IOException e) {
+            LOGGER.warn(
+                    "Error with the emptyInputStream used as a work-around for a Karaf bug. This should never happen. There is an issue with the Platform Command Scheduler implementation.",
+                    e);
         } finally {
-
             if (session != null) {
                 session.close();
-            }
-            try {
-                byteArrayOutputStream.close();
-            } catch (IOException e) {
-                LOGGER.debug("Could not close output stream", e);
             }
         }
 
@@ -150,7 +156,6 @@ public class CommandJob implements Job {
     }
 
     private String checkInput(JobExecutionContext context) throws CommandException {
-
         String command = null;
 
         if (context == null) {
@@ -174,6 +179,5 @@ public class CommandJob implements Job {
     }
 
     private static class CommandException extends Exception {
-
     }
 }
