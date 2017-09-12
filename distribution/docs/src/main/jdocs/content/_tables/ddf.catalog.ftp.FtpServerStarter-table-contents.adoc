@@ -1,4 +1,4 @@
-::title: FTP Endpoint
+:title: FTP Endpoint
 :id: ddf.catalog.ftp.FtpServerStarter
 :type: table
 :status: published
