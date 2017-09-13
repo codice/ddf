@@ -98,7 +98,8 @@ public class BodyWriter extends AbstractOutDatabindingInterceptor {
         }
 
         Method method = ori.getMethodToInvoke();
-        int bodyIndex = (Integer) outMessage.get("BODY_INDEX");
+        Integer bodyIndexObject = (Integer) outMessage.get("BODY_INDEX");
+        int bodyIndex = bodyIndexObject == null ? -1 : bodyIndexObject;
 
         Annotation[] anns =
                 customAnns != null ? customAnns : getMethodAnnotations(ori.getAnnotatedMethod(),
