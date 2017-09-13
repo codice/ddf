@@ -156,22 +156,11 @@ public class RemoveAllCommandTest extends ConsoleOutputCommon {
         verify(catalogFrameworkMock, times(numCatalogCalls)).delete(isA(DeleteRequest.class));
     }
 
-    /**
-     * Checks a series of responses ending with "yes" for the warning yes/no prompt
-     *
-     * @throws Exception
-     */
     @Test
     public void testExecuteWithSubjectWithoutForceOption() throws Exception {
         // given
         final Session mockSession = mock(Session.class);
-        when(mockSession.readLine(anyString(),
-                isNull(Character.class))).thenReturn("not yes nor no")
-                .thenReturn("something else")
-                .thenReturn("n\r")
-                .thenReturn("\n")
-                .thenReturn("\r")
-                .thenReturn("yes");
+        when(mockSession.readLine(anyString(), isNull(Character.class))).thenReturn("yes");
 
         batchSize = 11;
         numCatalogCalls = 1;
@@ -217,22 +206,35 @@ public class RemoveAllCommandTest extends ConsoleOutputCommon {
         verify(mbean, times(numCatalogCalls)).removeAll();
     }
 
-    /**
-     * Checks a series of responses ending with "no" for the warning yes/no prompt
-     *
-     * @throws Exception
-     */
     @Test
-    public void testAccidentalRemoval() throws Exception {
+    public void testInvalidWarningPromptInput() throws Exception {
         // given
         final Session mockSession = mock(Session.class);
-        when(mockSession.readLine(anyString(),
-                isNull(Character.class))).thenReturn("not yes nor no")
-                .thenReturn("something else")
-                .thenReturn("n\r")
-                .thenReturn("\n")
-                .thenReturn("\r")
-                .thenReturn("no");
+        when(mockSession.readLine(anyString(), isNull(Character.class))).thenReturn("something that isn't yes nor no");
+
+        batchSize = 11;
+        numCatalogCalls = 1;
+        forceCommand = false;
+
+        setQueryAndDeleteResponseMocks(11, 0);
+
+        setCatalogQueryAndDeleteResponses();
+
+        final RemoveAllCommand command = new RemoveAllCommand();
+        command.session = mockSession;
+
+        // when
+        newRemoveAllCommand(command).executeWithSubject();
+
+        // then
+        verifyZeroInteractions(catalogFrameworkMock);
+    }
+
+    @Test
+    public void testWarningPromptInputOfNo() throws Exception {
+        // given
+        final Session mockSession = mock(Session.class);
+        when(mockSession.readLine(anyString(), isNull(Character.class))).thenReturn("no");
 
         batchSize = 11;
         numCatalogCalls = 1;

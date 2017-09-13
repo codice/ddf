@@ -227,20 +227,23 @@ public class RemoveAllCommand extends CatalogCommands {
                     "WARNING: This will permanently remove all %1$srecords from the %2$s. Do you want to proceed? (yes/no): ",
                     (expired ? "expired " : ""),
                     (cache ? "cache" : "Catalog"));
-            while (true) {
-                final String response;
-                try {
-                    response = session.readLine(warning, null);
-                } catch (IOException e) {
-                    console.println("Please use \"removeall -f\" or \"removeall --force\" instead");
-                    return true;
-                }
-                if (response.equalsIgnoreCase("yes")) {
-                    return false;
-                } else if (response.equalsIgnoreCase("no")) {
-                    console.println("No action taken.");
-                    return true;
-                }
+
+            final String response;
+            try {
+                response = session.readLine(warning, null);
+            } catch (IOException e) {
+                console.println("Please use \"removeall -f\" or \"removeall --force\" instead");
+                return true;
+            }
+            final String noActionTakenMessage = "No action taken.";
+            if (response.equalsIgnoreCase("yes")) {
+                return false;
+            } else if (response.equalsIgnoreCase("no")) {
+                console.println(noActionTakenMessage);
+                return true;
+            } else {
+                console.println("\"" + response + "\" is invalid. " + noActionTakenMessage);
+                return true;
             }
         }
 
