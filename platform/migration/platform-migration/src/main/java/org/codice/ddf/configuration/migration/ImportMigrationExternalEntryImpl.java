@@ -32,9 +32,8 @@ import org.slf4j.LoggerFactory;
  * This class provides an implementation of the {@link
  * org.codice.ddf.migration.ImportMigrationEntry} representing an external file that was exported.
  */
-// squid:S2160 - the base class equals() is sufficient for our needs. entries are unique based on
-// their paths
-@SuppressWarnings("squid:S2160")
+@SuppressWarnings(
+    "squid:S2160" /* the base class equals() is sufficient for our needs. entries are unique based on their paths */)
 public class ImportMigrationExternalEntryImpl extends ImportMigrationEntryImpl {
   private static final Logger LOGGER =
       LoggerFactory.getLogger(ImportMigrationExternalEntryImpl.class);
@@ -98,9 +97,8 @@ public class ImportMigrationExternalEntryImpl extends ImportMigrationEntryImpl {
    * @return <code>false</code> if an error was detected during verification; <code>true</code>
    *     otherwise
    */
-  // squid:S3725 - Call to Files.isRegularFile() used for consistency and to make sure that
-  // softlinks are not followed. not worried about performance here
-  @SuppressWarnings("squid:S3725")
+  @SuppressWarnings(
+      "squid:S3725" /* Files.isRegularFile() is used for consistency and to make sure that softlinks are not followed. not worried about performance here */)
   private boolean verifyRealFile(boolean required) {
     final MigrationReport report = getReport();
     final Path apath = getAbsolutePath();

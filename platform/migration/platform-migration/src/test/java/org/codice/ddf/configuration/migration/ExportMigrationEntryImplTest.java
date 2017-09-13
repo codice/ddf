@@ -753,16 +753,14 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
     Assert.assertThat(entry.equals(entry), Matchers.equalTo(true));
   }
 
-  // PMD.EqualsNull - Purposely testing equals() when called with null
-  @SuppressWarnings("PMD.EqualsNull")
+  @SuppressWarnings("PMD.EqualsNull" /* purposely testing equals() when called with null */)
   @Test
   public void testEqualsWhenNull() throws Exception {
     Assert.assertThat(entry.equals(null), Matchers.equalTo(false));
   }
 
-  // PMD.PositionLiteralsFirstInComparisons - Purposely testing equals() when call with something
-  // else than expected
-  @SuppressWarnings("PMD.PositionLiteralsFirstInComparisons")
+  @SuppressWarnings(
+      "PMD.PositionLiteralsFirstInComparisons" /* purposely testing equals() when call with something else than expected */)
   @Test
   public void testEqualsWithNotAnEntry() throws Exception {
     Assert.assertThat(entry.equals("test"), Matchers.equalTo(false));

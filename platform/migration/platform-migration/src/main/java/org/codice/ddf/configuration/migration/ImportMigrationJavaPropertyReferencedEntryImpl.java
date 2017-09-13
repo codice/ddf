@@ -75,8 +75,7 @@ public class ImportMigrationJavaPropertyReferencedEntryImpl
     return propertiesPath.equals(me.getPropertiesPath());
   }
 
-  // squid:S2259 - the super.compareTo() will never return 0 if null is passed
-  @SuppressWarnings("squid:S2259")
+  @SuppressWarnings("squid:S2259" /* super.compareTo() will never return 0 if null is passed */)
   @Override
   public int compareTo(@Nullable MigrationEntry me) {
     if (me == this) {
@@ -170,10 +169,10 @@ public class ImportMigrationJavaPropertyReferencedEntryImpl
         });
   }
 
-  // squid:S2093 - try-with-resource will throw IOException with InputStream and we do not care to
-  // get that exception
-  // squid:S2095 - stream is closed in the finally clause
-  @SuppressWarnings({"squid:S2093", "squid:S2095"})
+  @SuppressWarnings({ //
+    "squid:S2093", /* try-with-resource will throw IOException with InputStream and we do not care to get that exception */
+    "squid:S2095" /* stream is closed in the finally clause */
+  })
   private String getJavaPropertyValue() throws IOException {
     final Properties props = new Properties();
     InputStream is = null;

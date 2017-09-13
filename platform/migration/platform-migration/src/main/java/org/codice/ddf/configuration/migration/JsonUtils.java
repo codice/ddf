@@ -27,8 +27,7 @@ import org.codice.ddf.migration.MigrationException;
  * org.boon.json</code> library.
  */
 public class JsonUtils {
-  // PMD.DefaultPackage - designed as an internal service within this package
-  @SuppressWarnings("PMD.DefaultPackage")
+  @SuppressWarnings("PMD.DefaultPackage" /* designed as an internal service within this package */)
   @VisibleForTesting
   static final ObjectMapper MAPPER = JsonFactory.create();
 

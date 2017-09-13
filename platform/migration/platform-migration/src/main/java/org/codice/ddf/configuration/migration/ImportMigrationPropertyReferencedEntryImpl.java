@@ -120,8 +120,7 @@ public abstract class ImportMigrationPropertyReferencedEntryImpl extends ImportM
     return property.equals(me.getProperty());
   }
 
-  // squid:S2259 - the super.compareTo() will never return 0 if null is passed
-  @SuppressWarnings("squid:S2259")
+  @SuppressWarnings("squid:S2259" /* super.compareTo() will never return 0 if null is passed */)
   @Override
   public int compareTo(@Nullable MigrationEntry me) {
     if (me == this) {
@@ -145,9 +144,8 @@ public abstract class ImportMigrationPropertyReferencedEntryImpl extends ImportM
    */
   protected abstract void verifyPropertyAfterCompletion();
 
-  // PMD.DefaultPackage - designed to be called from ImportMigrationContextImpl within this package
-  // and from subclasses
-  @SuppressWarnings("PMD.DefaultPackage")
+  @SuppressWarnings(
+      "PMD.DefaultPackage" /* designed to be called from ImportMigrationContextImpl within this package and from subclasses */)
   @VisibleForTesting
   String getProperty() {
     return property;

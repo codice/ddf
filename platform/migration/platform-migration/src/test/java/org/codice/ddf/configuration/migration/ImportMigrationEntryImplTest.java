@@ -258,7 +258,6 @@ public class ImportMigrationEntryImplTest extends AbstractMigrationTest {
     final InOrder inOrder = inOrder(absoluteFile);
 
     inOrder.verify(absoluteFile).setWritable(true);
-    inOrder.verify(absoluteFile).setWritable(false);
 
     assertThat("The restored flag is set to false", entry.restored, is(false));
     verify(mockReport).record(any(MigrationException.class));

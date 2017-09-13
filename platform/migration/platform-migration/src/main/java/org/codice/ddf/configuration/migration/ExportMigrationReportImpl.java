@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.configuration.migration;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.time.Instant;
@@ -53,7 +54,7 @@ public class ExportMigrationReportImpl implements MigrationReport {
 
   private final Map<String, Object> metadata;
 
-  // use for unit testing
+  @VisibleForTesting
   ExportMigrationReportImpl() {
     this.report = new MigrationReportImpl(MigrationOperation.EXPORT, Optional.empty());
     this.metadata = Collections.emptyMap();
@@ -158,8 +159,8 @@ public class ExportMigrationReportImpl implements MigrationReport {
     return report;
   }
 
-  // PMD.DefaultPackage - designed to be called from ExportMigrationEntryImpl within this package
-  @SuppressWarnings("PMD.DefaultPackage")
+  @SuppressWarnings(
+      "PMD.DefaultPackage" /* designed to be called from ExportMigrationEntryImpl within this package */)
   ExportMigrationReportImpl recordExternal(ExportMigrationEntryImpl entry, boolean softlink) {
     final Map<String, Object> emetadata = new HashMap<>(8);
 
@@ -178,9 +179,8 @@ public class ExportMigrationReportImpl implements MigrationReport {
     return this;
   }
 
-  // PMD.DefaultPackage - designed to be called from
-  // ExportMigrationSystemPropertyReferencedEntryImpl within this package
-  @SuppressWarnings("PMD.DefaultPackage")
+  @SuppressWarnings(
+      "PMD.DefaultPackage" /* designed to be called from ExportMigrationSystemPropertyReferencedEntryImpl within this package */)
   ExportMigrationReportImpl recordSystemProperty(
       ExportMigrationSystemPropertyReferencedEntryImpl entry) {
     systemProperties.add(
@@ -192,9 +192,8 @@ public class ExportMigrationReportImpl implements MigrationReport {
     return this;
   }
 
-  // PMD.DefaultPackage - designed to be called from ExportMigrationJavaPropertyReferencedEntryImpl
-  // within this package
-  @SuppressWarnings("PMD.DefaultPackage")
+  @SuppressWarnings(
+      "PMD.DefaultPackage" /* designed to be called from ExportMigrationJavaPropertyReferencedEntryImpl within this package */)
   ExportMigrationReportImpl recordJavaProperty(
       ExportMigrationJavaPropertyReferencedEntryImpl entry) {
     javaProperties.add(
@@ -213,8 +212,8 @@ public class ExportMigrationReportImpl implements MigrationReport {
    *
    * @return metadata recorded with this report
    */
-  // PMD.DefaultPackage - designed to be called from ExportMigrationContextImpl within this package
-  @SuppressWarnings("PMD.DefaultPackage")
+  @SuppressWarnings(
+      "PMD.DefaultPackage" /* designed to be called from ExportMigrationContextImpl within this package */)
   Map<String, Object> getMetadata() {
     final Map<String, Object> mmetadata = new LinkedHashMap<>(16);
 

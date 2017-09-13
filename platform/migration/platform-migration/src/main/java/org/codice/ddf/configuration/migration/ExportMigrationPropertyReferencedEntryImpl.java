@@ -60,8 +60,7 @@ public abstract class ExportMigrationPropertyReferencedEntryImpl extends ExportM
     return property.equals(me.getProperty());
   }
 
-  // squid:S2259 - the super.compareTo() will never return 0 if null is passed
-  @SuppressWarnings("squid:S2259")
+  @SuppressWarnings("squid:S2259" /* the super.compareTo() will never return 0 if null is passed */)
   @Override
   public int compareTo(@Nullable MigrationEntry me) {
     final int c = super.compareTo(me);

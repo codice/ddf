@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.configuration.migration;
 
+import ddf.security.common.audit.SecurityLogger;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -44,13 +45,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** This class provides an implementation of the {@link ExportMigrationEntry}. */
-// squid:S2160 - the base class equals() is sufficient for our needs. entries are unique based on
-// their paths
-@SuppressWarnings("squid:S2160")
+@SuppressWarnings(
+    "squid:S2160" /* the base class equals() is sufficient for our needs. entries are unique based on their paths */)
 public class ExportMigrationEntryImpl extends MigrationEntryImpl implements ExportMigrationEntry {
   private static final Logger LOGGER = LoggerFactory.getLogger(ExportMigrationEntryImpl.class);
 
   private static final String FAILED_TO_BE_EXPORTED = "failed to be exported";
+
+  private static final String ERROR_EXPORTING_FILE = "Error exporting file {}";
 
   private final Map<String, ExportMigrationJavaPropertyReferencedEntryImpl> properties =
       new HashMap<>(8);
@@ -170,6 +172,7 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
       if (absolutePathError instanceof NoSuchFileException) {
         this.stored = storeWhenNoSuchFile(required);
       } else if (absolutePathError != null) {
+        SecurityLogger.audit(ExportMigrationEntryImpl.ERROR_EXPORTING_FILE, absolutePath);
         getReport().record(newError("cannot be read", absolutePathError));
       } else {
         this.stored = storeWhenFileExist();
@@ -290,16 +293,19 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
       recordEntry();
       try (final OutputStream os = getOutputStreamWithoutRecordingEntry()) {
         FileUtils.copyFile(file, os);
+        SecurityLogger.audit("Exported file {}", absolutePath);
         return true;
       } catch (
           ExportIOException
               e) { // special case indicating the I/O error occurred while writing to the zip which
         // would invalidate the zip so we are forced to abort
+        SecurityLogger.audit(ExportMigrationEntryImpl.ERROR_EXPORTING_FILE, absolutePath);
         throw newError(ExportMigrationEntryImpl.FAILED_TO_BE_EXPORTED, e.getCause());
       } catch (
           IOException
               e) { // here it means the error came out of reading/processing the input file/stream
         // where it is safe to continue with the next entry, so don't abort
+        SecurityLogger.audit(ExportMigrationEntryImpl.ERROR_EXPORTING_FILE, absolutePath);
         getReport().record(newError(ExportMigrationEntryImpl.FAILED_TO_BE_EXPORTED, e));
       }
       return false;
@@ -331,10 +337,10 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
     return true;
   }
 
-  // squid:S2093 - try-with-resource will throw IOException with InputStream and we do not care to
-  // get that exception
-  // squid:S2095 - stream is closed in finally clause
-  @SuppressWarnings({"squid:S2093", "squid:S2095"})
+  @SuppressWarnings({ //
+    "squid:S2093", /* try-with-resource will throw IOException with InputStream and we do not care to get that exception */
+    "squid:S2095" /* stream is closed in finally clause */
+  })
   private String getJavaPropertyValue(String pname) throws IOException {
     final Properties props = new Properties();
     InputStream is = null;

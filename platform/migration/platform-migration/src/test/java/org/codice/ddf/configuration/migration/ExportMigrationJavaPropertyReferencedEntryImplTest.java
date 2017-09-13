@@ -220,8 +220,7 @@ public class ExportMigrationJavaPropertyReferencedEntryImplTest extends Abstract
     Assert.assertThat(entry.equals(entry), Matchers.equalTo(true));
   }
 
-  // PMD.EqualsNull - Purposely testing equals() when called with null
-  @SuppressWarnings("PMD.EqualsNull")
+  @SuppressWarnings("PMD.EqualsNull" /* purposely testing equals() when called with null */)
   @Test
   public void testEqualsWhenNull() throws Exception {
     Assert.assertThat(entry.equals(null), Matchers.equalTo(false));

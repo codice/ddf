@@ -15,6 +15,7 @@ package org.codice.ddf.configuration.migration;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
+import ddf.security.common.audit.SecurityLogger;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,8 +47,7 @@ import org.slf4j.LoggerFactory;
  * The import migration context keeps track of exported migration entries for a given migratable
  * while processing an import migration operation.
  */
-// squid:S2160 - the base class equals() is sufficient for our needs.
-@SuppressWarnings("squid:S2160")
+@SuppressWarnings("squid:S2160" /* the base class equals() is sufficient for our needs */)
 public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationReport>
     implements ImportMigrationContext {
   private static final Logger LOGGER = LoggerFactory.getLogger(ImportMigrationContextImpl.class);
@@ -140,7 +140,6 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
   @Override
   public Stream<ImportMigrationEntry> entries(Path path, PathMatcher filter) {
     Validate.notNull(filter, "invalid null filter");
-
     return entries(path).filter(e -> filter.matches(e.getPath()));
   }
 
@@ -181,7 +180,9 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
     }
     try {
       FileUtils.cleanDirectory(fdir);
+      SecurityLogger.audit("Deleted content of directory {}", fdir);
     } catch (IOException e) {
+      SecurityLogger.audit("Error deleting content of directory {}", fdir);
       LOGGER.info("Failed to clean directory [" + fdir + "]: ", e);
       getReport().record(new MigrationWarning(Messages.IMPORT_PATH_CLEAN_WARNING, path, e));
       return false;
@@ -189,9 +190,8 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
     return true;
   }
 
-  // PMD.DefaultPackage - designed to be called from ImportMigrationPropertyReferencedEntryImpl
-  // within this package
-  @SuppressWarnings("PMD.DefaultPackage")
+  @SuppressWarnings(
+      "PMD.DefaultPackage" /* designed to be called from ImportMigrationPropertyReferencedEntryImpl within this package */)
   @VisibleForTesting
   Optional<ImportMigrationEntry> getOptionalEntry(Path path) {
     return Optional.ofNullable(entries.get(path));
@@ -202,8 +202,8 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
    *
    * @throws org.codice.ddf.migration.MigrationException to stop the import operation
    */
-  // PMD.DefaultPackage - designed to be called from ImportMigrationManagerImpl within this package
-  @SuppressWarnings("PMD.DefaultPackage")
+  @SuppressWarnings(
+      "PMD.DefaultPackage" /* designed to be called from ImportMigrationManagerImpl within this package */)
   void doImport() {
     if (migratable != null) {
       LOGGER.debug("Importing migratable [{}] from version [{}]...", id, getVersion());
@@ -236,14 +236,14 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
     } // else - no errors and nothing to do for the system context
   }
 
-  // PMD.DefaultPackage - designed to be called from ImportMigrationManagerImpl within this package
-  @SuppressWarnings("PMD.DefaultPackage")
+  @SuppressWarnings(
+      "PMD.DefaultPackage" /* designed to be called from ImportMigrationManagerImpl within this package */)
   void addEntry(ImportMigrationEntryImpl entry) {
     entries.put(entry.getPath(), entry);
   }
 
-  // PMD.DefaultPackage - designed to be called from ImportMigrationEntryImpl within this package
-  @SuppressWarnings("PMD.DefaultPackage")
+  @SuppressWarnings(
+      "PMD.DefaultPackage" /* designed to be called from ImportMigrationEntryImpl within this package */)
   @VisibleForTesting
   InputStream getInputStreamFor(ZipEntry entry) throws IOException {
     final InputStream is = zip.getInputStream(entry);

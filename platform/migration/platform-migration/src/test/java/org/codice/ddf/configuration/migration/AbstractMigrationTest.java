@@ -50,8 +50,7 @@ import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 
 /** Base class for test cases which handles setup for DDF_HOME. */
-// squid:S2187 - hopefully the doc above indicates this is a base class for test classes
-@SuppressWarnings("squid:S2187")
+@SuppressWarnings("squid:S2187" /* base class for test cases which handles setup for DDF_HOME */)
 public class AbstractMigrationTest {
   protected static final String MIGRATABLE_ID = "test-migratable";
 
