@@ -22,6 +22,10 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 
+/**
+ * This class handles .kmz files by unzipping them and passing the first .kml file to
+ * the {@link KmlInputTransformer}. All other files within the .kmz are ignored.
+ */
 public class KmzInputTransformer implements InputTransformer {
 
     private KmlInputTransformer kmlInputTransformer;

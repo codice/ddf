@@ -13,57 +13,28 @@
  **/
 package org.codice.ddf.spatial.kml.transformer;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.Mockito.mock;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 
-import org.junit.Before;
 import org.junit.Test;
 
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardType;
-import ddf.catalog.data.impl.MetacardTypeImpl;
-import ddf.catalog.data.impl.types.AssociationsAttributes;
-import ddf.catalog.data.impl.types.ContactAttributes;
-import ddf.catalog.data.impl.types.CoreAttributes;
-import ddf.catalog.data.impl.types.DateTimeAttributes;
-import ddf.catalog.data.impl.types.LocationAttributes;
-import ddf.catalog.data.impl.types.ValidationAttributes;
+import ddf.catalog.transform.CatalogTransformerException;
 
 public class TestKmzInputTransformer {
 
-    private KmzInputTransformer kmzInputTransformer;
-    private KmlInputTransformer kmlInputTransformer;
-
-    private static List<MetacardType> metacardTypes;
-
-    static {
-        metacardTypes = new ArrayList<>();
-        metacardTypes.add(new AssociationsAttributes());
-        metacardTypes.add(new ContactAttributes());
-        metacardTypes.add(new CoreAttributes());
-        metacardTypes.add(new DateTimeAttributes());
-        metacardTypes.add(new LocationAttributes());
-        metacardTypes.add(new ValidationAttributes());
-    }
-
-    @Before
-    public void setUp() {
-        kmlInputTransformer = new KmlInputTransformer(new MetacardTypeImpl("kmzMetacardType",
-                metacardTypes));
-
-        kmzInputTransformer = new KmzInputTransformer(kmlInputTransformer);
-    }
-
     @Test
-    public void testTransformPointKmz() throws Exception {
-        InputStream stream = TestKmzInputTransformer.class.getResourceAsStream("/point.kmz");
-
-        Metacard metacard = kmzInputTransformer.transform(stream);
-        assertThat(metacard, is(notNullValue()));
+    public void testKmzWithKmlInside() throws Exception {
+        KmzInputTransformer kmzInputTransformer = new KmzInputTransformer(mock(KmlInputTransformer.class));
+        InputStream stream = TestKmzInputTransformer.class.getResourceAsStream("/kml_inside.kmz");
+        kmzInputTransformer.transform(stream);
     }
+
+    @Test (expected = CatalogTransformerException.class)
+    public void testKmzWithoutKmlInside() throws Exception {
+        KmzInputTransformer kmzInputTransformer = new KmzInputTransformer(mock(KmlInputTransformer.class));
+        InputStream stream = TestKmzInputTransformer.class.getResourceAsStream("/no_kml_inside.kmz");
+        kmzInputTransformer.transform(stream);
+    }
+
 }
