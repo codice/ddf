@@ -87,6 +87,8 @@ public class ConfigurationApplication implements SparkApplication {
 
     private Boolean isGazetteer = true;
 
+    private Boolean isOnlineGazetteer = true;
+
     private Boolean isIngest = true;
 
     private Boolean isCacheDisabled = false;
@@ -272,6 +274,7 @@ public class ConfigurationApplication implements SparkApplication {
         config.put("terrainProvider", proxiedTerrainProvider);
         config.put("imageryProviders", getConfigImageryProviders());
         config.put("gazetteer", isGazetteer);
+        config.put("onlineGazetteer", isOnlineGazetteer);
         config.put("showIngest", isIngest);
         config.put("projection", projection);
         config.put("bingKey", bingKey);
@@ -574,6 +577,14 @@ public class ConfigurationApplication implements SparkApplication {
 
     public void setGazetteer(Boolean isGazetteer) {
         this.isGazetteer = isGazetteer;
+    }
+
+    public Boolean getOnlineGazetteer() {
+        return isOnlineGazetteer;
+    }
+
+    public void setOnlineGazetteer(Boolean onlineGazetteer) {
+        isOnlineGazetteer = onlineGazetteer;
     }
 
     public Boolean getIngest() {
