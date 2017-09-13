@@ -65,6 +65,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import javax.ws.rs.core.Response;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -98,12 +99,9 @@ import org.slf4j.LoggerFactory;
  */
 public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
-  private static final String COULD_NOT_RETRIEVE_RESOURCE_MESSAGE = "Could not retrieve resource";
-
   static final String HEADER_ACCEPT_RANGES = "Accept-Ranges";
-
   static final String BYTES = "bytes";
-
+  private static final String COULD_NOT_RETRIEVE_RESOURCE_MESSAGE = "Could not retrieve resource";
   private static final String ORGANIZATION = "DDF";
 
   private static final String TITLE = "OpenSearch DDF Federated Source";
@@ -166,6 +164,8 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   private boolean allowRedirects = false;
 
+  private BiConsumer<List<Element>, SourceResponse> foreignMarkupBiConsumer;
+
   /**
    * Creates an OpenSearch Site instance. Sets an initial default endpointUrl that can be
    * overwritten using the setter methods.
@@ -175,10 +175,29 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
       OpenSearchParser openSearchParser,
       OpenSearchFilterVisitor openSearchFilterVisitor,
       EncryptionService encryptionService) {
+    this(
+        filterAdapter,
+        openSearchParser,
+        openSearchFilterVisitor,
+        encryptionService,
+        (elements, sourceResponse) -> {});
+  }
+
+  /**
+   * Creates an OpenSearch Site instance. Sets an initial default endpointUrl that can be
+   * overwritten using the setter methods.
+   */
+  public OpenSearchSource(
+      FilterAdapter filterAdapter,
+      OpenSearchParser openSearchParser,
+      OpenSearchFilterVisitor openSearchFilterVisitor,
+      EncryptionService encryptionService,
+      BiConsumer<List<Element>, SourceResponse> foreignMarkupBiConsumer) {
     this.filterAdapter = filterAdapter;
     this.encryptionService = encryptionService;
     this.openSearchParser = openSearchParser;
     this.openSearchFilterVisitor = openSearchFilterVisitor;
+    this.foreignMarkupBiConsumer = foreignMarkupBiConsumer;
   }
 
   /**
@@ -390,6 +409,12 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     return stream;
   }
 
+  /** Package-private so that tests may set the foreign markup consumer. */
+  void setForeignMarkupBiConsumer(
+      BiConsumer<List<Element>, SourceResponse> foreignMarkupBiConsumer) {
+    this.foreignMarkupBiConsumer = foreignMarkupBiConsumer;
+  }
+
   // Refactored from query() and made protected so JUnit tests could be written for this logic
   protected boolean setOpenSearchParameters(
       QueryRequest queryRequest, Subject subject, WebClient client) {
@@ -467,13 +492,14 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
     List<SyndEntry> entries;
     long totalResults = 0;
+    List<Element> foreignMarkup = null;
     if (syndFeed != null) {
       entries = syndFeed.getEntries();
       for (SyndEntry entry : entries) {
         resultQueue.addAll(createResponseFromEntry(entry));
       }
       totalResults = entries.size();
-      List<Element> foreignMarkup = syndFeed.getForeignMarkup();
+      foreignMarkup = syndFeed.getForeignMarkup();
       for (Element element : foreignMarkup) {
         if (element.getName().equals("totalResults")) {
           try {
@@ -488,6 +514,10 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
     SourceResponseImpl response = new SourceResponseImpl(queryRequest, resultQueue);
     response.setHits(totalResults);
+
+    if (foreignMarkup != null) {
+      this.foreignMarkupBiConsumer.accept(Collections.unmodifiableList(foreignMarkup), response);
+    }
 
     return response;
   }
@@ -799,36 +829,36 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     this.password = encryptionService.decryptValue(password);
   }
 
-  public void setDisableCnCheck(Boolean disableCnCheck) {
-    this.disableCnCheck = disableCnCheck;
-  }
-
   public Boolean getDisableCnCheck() {
     return disableCnCheck;
   }
 
-  public void setAllowRedirects(Boolean allowRedirects) {
-    this.allowRedirects = allowRedirects;
+  public void setDisableCnCheck(Boolean disableCnCheck) {
+    this.disableCnCheck = disableCnCheck;
   }
 
   public Boolean getAllowRedirects() {
     return allowRedirects;
   }
 
-  public void setConnectionTimeout(Integer connectionTimeout) {
-    this.connectionTimeout = connectionTimeout;
+  public void setAllowRedirects(Boolean allowRedirects) {
+    this.allowRedirects = allowRedirects;
   }
 
   public Integer getConnectionTimeout() {
     return connectionTimeout;
   }
 
-  public void setReceiveTimeout(Integer receiveTimeout) {
-    this.receiveTimeout = receiveTimeout;
+  public void setConnectionTimeout(Integer connectionTimeout) {
+    this.connectionTimeout = connectionTimeout;
   }
 
   public Integer getReceiveTimeout() {
     return receiveTimeout;
+  }
+
+  public void setReceiveTimeout(Integer receiveTimeout) {
+    this.receiveTimeout = receiveTimeout;
   }
 
   private WebClient newRestClient(

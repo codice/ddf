@@ -22,6 +22,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import ddf.catalog.data.Metacard;
@@ -57,6 +58,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
@@ -64,8 +67,10 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.codice.ddf.cxf.SecureCxfClientFactory;
+import org.jdom2.Element;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.opengis.filter.Filter;
 import org.osgi.framework.InvalidSyntaxException;
 
@@ -84,13 +89,6 @@ public class TestOpenSearchSource {
   private static final String SAMPLE_ID = "abcdef12345678900987654321fedcba";
 
   private static final String SAMPLE_SEARCH_PHRASE = "foobar";
-
-  private EncryptionService encryptionService = mock(EncryptionService.class);
-
-  private OpenSearchParserImpl openSearchParserImpl = new OpenSearchParserImpl();
-
-  private OpenSearchFilterVisitor openSearchFilterVisitor = new OpenSearchFilterVisitor();
-
   private static final List<String> DEFAULT_PARAMETERS =
       Arrays.asList(
           "q",
@@ -110,8 +108,12 @@ public class TestOpenSearchSource {
           "dateName",
           "filter",
           "sort");
-
   private static FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
+  private EncryptionService encryptionService = mock(EncryptionService.class);
+  private OpenSearchParserImpl openSearchParserImpl = new OpenSearchParserImpl();
+  private OpenSearchFilterVisitor openSearchFilterVisitor = new OpenSearchFilterVisitor();
+  private Response response;
+  private OverriddenOpenSearchSource source;
 
   private static InputStream getSampleAtomStreamWithForeignMarkup() {
     String response =
@@ -362,10 +364,6 @@ public class TestOpenSearchSource {
 
     return IOUtils.toInputStream(response);
   }
-
-  private Response response;
-
-  private OverriddenOpenSearchSource source;
 
   @Before
   public void setUp() throws Exception {
@@ -664,6 +662,91 @@ public class TestOpenSearchSource {
     return "<xml></xml>";
   }
 
+  /** This test is to demonstrate a real-world example of using a foreign markup consumer. */
+  @Test
+  public void testForeignMarkupExample() throws UnsupportedQueryException {
+    ForeignMarkupConsumerExample foreignMarkupConsumer = new ForeignMarkupConsumerExample();
+
+    source.setForeignMarkupBiConsumer(foreignMarkupConsumer);
+
+    source.setMarkUpSet(Collections.singletonList(RESOURCE_TAG));
+    when(response.getEntity()).thenReturn(getSampleAtomStreamWithForeignMarkup());
+
+    Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT).like().text(SAMPLE_SEARCH_PHRASE);
+
+    source.query(new QueryRequestImpl(new QueryImpl(filter)));
+
+    assertThat(foreignMarkupConsumer.getTotalResults(), is(1L));
+  }
+
+  /** Test to make sure the foreign markup consumer is called as expected. */
+  @Test
+  public void testForeignMarkupConsumer() throws UnsupportedQueryException, IOException {
+
+    BiConsumer<List<Element>, SourceResponse> foreignMarkupConsumer = mock(BiConsumer.class);
+
+    source.setForeignMarkupBiConsumer(foreignMarkupConsumer);
+
+    source.setMarkUpSet(Collections.singletonList(RESOURCE_TAG));
+    when(response.getEntity()).thenReturn(getSampleAtomStreamWithForeignMarkup());
+
+    Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT).like().text(SAMPLE_SEARCH_PHRASE);
+
+    source.query(new QueryRequestImpl(new QueryImpl(filter)));
+
+    ArgumentCaptor<List> elementListCaptor = ArgumentCaptor.forClass(List.class);
+
+    verify(foreignMarkupConsumer).accept(elementListCaptor.capture(), any());
+
+    assertThat(elementListCaptor.getAllValues().size(), is(1));
+
+    List<String> names =
+        ((List<?>) elementListCaptor.getAllValues().get(0))
+            .stream()
+            .filter(Element.class::isInstance)
+            .map(Element.class::cast)
+            .map(Element::getName)
+            .collect(Collectors.toList());
+
+    assertThat(names, is(Arrays.asList("totalResults", "itemsPerPage", "startIndex")));
+  }
+
+  protected SecureCxfClientFactory getMockFactory(WebClient client) {
+    SecureCxfClientFactory factory = mock(SecureCxfClientFactory.class);
+
+    doReturn(client).when(factory).getClient();
+    doReturn(client)
+        .when(factory)
+        .getWebClientForSubject(any(org.apache.shiro.subject.Subject.class));
+    doReturn(client).when(factory).getWebClient();
+
+    return factory;
+  }
+
+  /** Example of a real-world foreign markup consumer. */
+  private static class ForeignMarkupConsumerExample
+      implements BiConsumer<List<Element>, SourceResponse> {
+
+    private Long totalResults;
+
+    @Override
+    public void accept(List<Element> elements, SourceResponse sourceResponse) {
+      for (Element element : elements) {
+        if (element.getName().equals("totalResults")) {
+          try {
+            totalResults = Long.parseLong(element.getContent(0).getValue());
+          } catch (NumberFormatException | IndexOutOfBoundsException e) {
+            // ignore
+          }
+        }
+      }
+    }
+
+    public Long getTotalResults() {
+      return totalResults;
+    }
+  }
+
   private class OverriddenOpenSearchSource extends OpenSearchSource {
 
     private InputTransformer transformer;
@@ -695,17 +778,5 @@ public class TestOpenSearchSource {
         String url, String username, String password) {
       return this.factory;
     }
-  }
-
-  protected SecureCxfClientFactory getMockFactory(WebClient client) {
-    SecureCxfClientFactory factory = mock(SecureCxfClientFactory.class);
-
-    doReturn(client).when(factory).getClient();
-    doReturn(client)
-        .when(factory)
-        .getWebClientForSubject(any(org.apache.shiro.subject.Subject.class));
-    doReturn(client).when(factory).getWebClient();
-
-    return factory;
   }
 }
