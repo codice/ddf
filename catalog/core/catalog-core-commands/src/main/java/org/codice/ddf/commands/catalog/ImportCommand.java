@@ -102,9 +102,7 @@ public class ImportCommand extends CatalogCommands {
 
         if (unsafe) {
             if (!force) {
-                console.println(
-                        "This will import data with no check to see if data is modified/corrupt. Do you wish to continue?");
-                String input = getUserInputModifiable().toString();
+                String input = session.readLine("This will import data with no check to see if data is modified/corrupt. Do you wish to continue? (y/N) ", null);
                 if (!input.matches("^[yY][eE]?[sS]?$")) {
                     console.println("ABORTED IMPORT.");
                     return null;

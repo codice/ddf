@@ -115,28 +115,6 @@ public abstract class CatalogCommands extends SubjectCommands {
                 .findFirst();
     }
 
-    protected StringBuilder getUserInputModifiable() throws IOException {
-        int in;
-        StringBuilder input = new StringBuilder();
-        while ((in = session.getKeyboard()
-                .read()) != '\r' && in != '\n') {
-            if (in == 127 || in == 8) {
-                if (input.length() > 0) {
-                    input.deleteCharAt(input.length() - 1);
-                    console.print((char) 8);
-                    console.print(' ');
-                    console.print((char) 8);
-                }
-            } else {
-                input.append((char) in);
-                console.print((char) in);
-            }
-            console.flush();
-        }
-        console.println();
-        return input;
-    }
-
     protected String getFormattedDuration(Instant start) {
         return getFormattedDuration(Duration.between(start, Instant.now()));
     }

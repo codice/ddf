@@ -67,7 +67,7 @@ public class ReplicateCommand extends DuplicateCommands {
             } else {
                 break;
             }
-            sourceId = getInput("ID:  ");
+            sourceId = session.readLine("ID:  ", null);
         }
 
         start = System.currentTimeMillis();

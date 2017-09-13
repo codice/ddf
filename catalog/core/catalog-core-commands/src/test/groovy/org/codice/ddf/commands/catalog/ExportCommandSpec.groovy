@@ -34,6 +34,7 @@ import org.osgi.framework.BundleContext
 import org.osgi.framework.ServiceReference
 import spock.lang.Ignore
 import spock.lang.Specification
+import spock.lang.Unroll
 
 import javax.activation.MimeType
 import java.nio.file.Paths
@@ -166,11 +167,11 @@ class ExportCommandSpec extends Specification {
         thrown(IllegalStateException)
     }
 
-    def "Test abort command"() {
+    @Unroll
+    def "Test abort command with \"#userInputString\" response to warning prompt"(final String userInputString) {
         setup:
-        InputStream keyboardInput = new ByteArrayInputStream("n\r".getBytes('utf-8'))
         def session = Mock(Session) {
-            getKeyboard() >> keyboardInput
+            readLine(_ as String, null) >> userInputString
         }
         exportCommand.with {
             it.delete = true
@@ -181,8 +182,10 @@ class ExportCommandSpec extends Specification {
         exportCommand.executeWithSubject()
 
         then:
-        notThrown(Exception)
         tmpHomeDir.list() == [] // dir is empty
+        
+        where:
+        userInputString << ["n", "N", "no", "NO", "something that isn't no", "n\r"]
     }
 
     def "Test single metacard no content export"() {
