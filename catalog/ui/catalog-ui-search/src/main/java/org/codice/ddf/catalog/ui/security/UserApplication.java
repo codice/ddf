@@ -98,7 +98,7 @@ public class UserApplication implements SparkApplication {
         String json = JsonFactory.create()
                 .toJson(preferences);
 
-        LOGGER.debug("preferences JSON text:\n {}", json);
+        LOGGER.trace("preferences JSON text:\n {}", json);
 
         String username = SubjectUtils.getName(subject);
         PersistentItem item = new PersistentItem();
