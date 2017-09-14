@@ -27,33 +27,33 @@ The following table shows the format to use for each property type supported.
 |Example
 
 |String
-|name = "value"
-a|`name = "John"`
+|name="value"
+a|`name="John"`
 
 |Boolean
-|name = B"true\|false"
-a|`authorized = B"true"`
+|name=B"true\|false"
+a|`authorized=B"true"`
 
 |Integer
-|name = I"value"
-a|`timeout = I"10"`
+|name=I"value"
+a|`timeout=I"10"`
 
 |Long
-|name = L"value"
-a|`diameter = L"100"`
+|name=L"value"
+a|`diameter=L"100"`
 
 |Float
-|name = F"value"
-a|`cost = F"1093140480"`
+|name=F"value"
+a|`cost=F"1093140480"`
 
 |Double
-|name = D"value"
-a|`latitude = D"4636745974857667812"`
+|name=D"value"
+a|`latitude=D"4636745974857667812"`
 
 |List of Strings
-|name = ["value1","value2",…​]
+|name=["value1","value2",…​]
 a|```
-complexStringArray = [ \
+complexStringArray=[ \
   "{\"url\"\ \"http://test.sample.com\"\ \"layers\"\ [\"0\"]\ \"VERSION\"\ \"1.1\|1.2\"\ \"image/png\"}\ \"beta\"\ 1}", \
   "{\"url\"\ \"http://test.sample.com"\ 0.5}","/solr\=SAML\|PKI\|basic", \
   "/security-config\=SAML\|basic", \
@@ -61,18 +61,18 @@ complexStringArray = [ \
 ```
 
 |List of Booleans
-|name = B["true\|false","true\|false",…​]
+|name=B["true\|false","true\|false",…​]
 a|```
-authorizedList = B[ \
+authorizedList=B[ \
   "true", \
   "false", \
   ]
 ```
 
 |List of Integers
-|name = I["value1","value2",…​]
+|name=I["value1","value2",…​]
 a|```
-sizes = I[ \
+sizes=I[ \
   "10", \
   "20", \
   "30", \
@@ -80,9 +80,9 @@ sizes = I[ \
 ```
 
 |List of Longs
-|name = L["value1","value2",…​]
+|name=L["value1","value2",…​]
 a|```
-sizes = L[ \
+sizes=L[ \
   "100", \
   "200", \
   "300", \
@@ -90,9 +90,9 @@ sizes = L[ \
 ```
 
 |List of Floats
-|name = F["value1","value2",…​]
+|name=F["value1","value2",…​]
 a|```
-sizes = F[ \
+sizes=F[ \
   "1066192077", \
   "1074580685", \
   "1079194419", \
@@ -100,9 +100,9 @@ sizes = F[ \
 ```
 
 |List of Doubles
-|name = D["value1","value2",…​]
+|name=D["value1","value2",…​]
 a|```
-sizes = D[ \
+sizes=D[ \
   "4607736361554183979", \
   "4612212939583790252", \
   "4614714689176794563", \
@@ -122,7 +122,9 @@ sizes = D[ \
 * Equal signs (`=`), double quotes (`"`), and spaces within values must must be escaped using a backslash (`\`).
 * When properties are split over multiple lines for readability, end of lines must be specified with a backslash (`\`). See the examples for lists in the table.
 * A comma (`,`) after the last value in a list is optional.
-* Spaces surrounding the equal signs (`=`) for properties is optional.
+* Surrounding the equal signs (`=`) with spaces for properties is optional.
+// TODO DDF-3291 Upgrade Felix and remove .config file spaces work-around
+Because there is a known issue when using OPS4J Pax Exam 4.11.0 and modifying `.config` files that include spaces, all default `.config` files that may be modified in OPS4J Pax Exam 4.11.0 tests should not include spaces.
 * Boolean values will default to `false` if any value other than `true` is provided.
 * Float values must be representated in the IEEE 754 floating-point "single format" bit layout, preserving Not-a-Number (NaN) values.
 For example, `F"1093140480"` corresponds to `F"10.5"`.
@@ -136,7 +138,7 @@ See the documentation for https://docs.oracle.com/javase/7/docs/api/java/lang/Lo
 .Sample configuration file
 [source,linenums]
 ----
-authenticationTypes = [ \
+authenticationTypes=[ \
   "/\=SAML|GUEST", \
   "/admin\=SAML|basic", \
   "/system\=basic", \
@@ -145,17 +147,17 @@ authenticationTypes = [ \
   "/security-config\=SAML|basic", \
   "/search\=basic", \
   ]
-realms = [ \
+realms=[ \
   "/\=karaf", \
   ]
-requiredAttributes = [ \
+requiredAttributes=[ \
   "/\=", \
   "/admin\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}", \
   "/solr\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}", \
   "/system\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}", \
   "/security-config\={http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role\=admin}", \
   ]
-whiteListContexts = [ \
+whiteListContexts=[ \
   "/services/SecurityTokenService", \
   "/services/internal/metrics", \
   "/services/saml", \
