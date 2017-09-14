@@ -23,11 +23,32 @@ define([
         sanitizeForCql: function (text) {
             return text.split('[').join('(').split(']').join(')').split("'").join('').split('"').join('');
         },
-        //we should probably regex this or find a better way, but for now this works
+
         sanitizeGeometryCql: function (cqlString) {
-            return cqlString.split("'POLYGON((").join("POLYGON((").split("))'").join("))")
-                .split("'POINT(").join("POINT(").replace(/(POINT\([-0-9. ]*\))/g, '$1' + specialDelimiter).split(")"+specialDelimiter+"'").join(")")
-                .split(")'").join(")").split("'LINESTRING(").join("LINESTRING(").split("))'").join("))");
+            //sanitize polygons
+            let polygons = cqlString.match(/'POLYGON\(\(.*\)\)'/g);
+            if (polygons) {
+                polygons.forEach((polygon) => {
+                    cqlString = cqlString.replace(polygon, polygon.replace(/'/g, ''));
+                });
+            }
+
+            //sanitize points
+            let points = cqlString.match(/'POINT\(.*\)'/g);
+            if (points) {
+                points.forEach((point) => {
+                    cqlString = cqlString.replace(point, point.replace(/'/g, ''));
+                });
+            }
+
+            //sanitize linestrings
+            let linestrings = cqlString.match(/'LINESTRING\(.*\)'/g);
+            if (linestrings) {
+                linestrings.forEach((linestring) => {
+                    cqlString = cqlString.replace(linestring, linestring.replace(/'/g, ''));
+                });
+            }
+            return cqlString;
         },
         getProperty: function (filter) {
             if (typeof(filter.property) !== 'string') {
