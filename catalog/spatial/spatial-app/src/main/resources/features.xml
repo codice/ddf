@@ -82,7 +82,7 @@
         <bundle>mvn:org.codice.ddf.spatial/spatial-wfs-v2_0_0-connectedsource/${project.version}</bundle>
     </feature>
 
-    <feature name="webservice-gazetteer" install="auto" version="${project.version}"
+    <feature name="webservice-gazetteer" install="manual" version="${project.version}"
              description="Gazetteer service utilizing the Geonames.org web service.">
         <feature prerequisite="true">spatial-app</feature>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-geocoder/${project.version}</bundle>
@@ -90,7 +90,7 @@
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-plugin/${project.version}</bundle>
     </feature>
 
-    <feature name="offline-gazetteer" install="manual" version="${project.version}"
+    <feature name="offline-gazetteer" install="auto" version="${project.version}"
              description="Offline gazetteer service utilizing a local GeoNames index.">
         <feature prerequisite="true">spatial-app</feature>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-create/${project.version}</bundle>

@@ -8,10 +8,10 @@ The ${ddf-spatial} Application provides KML transformer and a KML network link e
 
 ==== Offline Gazetteer Service
 
-In the ${ddf-spatial} Application, you have the option to install a feature called `offline-gazetteer`.
+In the ${ddf-spatial} Application, the `offline-gazetteer` is installed by default.
 This feature enables you to use an offline index of GeoNames data (as an alternative to the GeoNames Web service enabled by the `webservice-gazetteer` feature) to perform searches via the gazetteer search box in the Search UI.
 
-To use the offline gazetteer, you will need to create an index using the `geonames:update` command.
+By default a small index set is included with the offline gazetteer. This index can be expanded or updated by using the `geonames:update` command.
 
 ===== ${ddf-spatial} GeoNames Console Commands
 

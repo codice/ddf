@@ -28,6 +28,21 @@
         <property name="indexLocation" value="data/geonames-index"/>
     </bean>
 
+    <reference id="geoExtractor" interface="org.codice.ddf.spatial.geocoding.GeoEntryExtractor"/>
+
+    <bean id="executorService" class="java.util.concurrent.Executors"
+          factory-method="newSingleThreadExecutor">
+    </bean>
+
+    <bean id="indexInitializer" class="org.codice.ddf.spatial.geocoding.index.IndexInitializer"
+          init-method="init" destroy-method="destroy">
+        <property name="indexLocationPath" value="data/geonames-index"/>
+        <property name="defaultGeonamesDataPath" value="data/default_geonames_data.zip"/>
+        <property name="indexer" ref="geonamesIndexer"/>
+        <property name="extractor" ref="geoExtractor"/>
+        <property name="executor" ref="executorService"/>
+    </bean>
+
     <service ref="geonamesQueryable" interface="org.codice.ddf.spatial.geocoding.GeoEntryQueryable" ranking="50"/>
     <service ref="geonamesIndexer" interface="org.codice.ddf.spatial.geocoding.GeoEntryIndexer"/>
 
