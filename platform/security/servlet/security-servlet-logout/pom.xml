@@ -21,6 +21,11 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>security-servlet-logout</artifactId>
     <packaging>bundle</packaging>
+
+    <properties>
+        <timestamp>${maven.build.timestamp}</timestamp>
+        <maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
+    </properties>
     <name>DDF :: Security :: Servlet :: Logout</name>
     <dependencies>
         <dependency>
@@ -153,6 +158,12 @@
         </dependency>
     </dependencies>
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

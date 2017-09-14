@@ -23,6 +23,11 @@
     <name>DDF :: Admin :: Modules :: Documentation UI</name>
     <artifactId>admin-docs-ui</artifactId>
     <packaging>bundle</packaging>
+
+    <properties>
+        <timestamp>${maven.build.timestamp}</timestamp>
+        <maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>com.sparkjava</groupId>

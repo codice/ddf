@@ -22,7 +22,11 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>admin-ui</artifactId>
     <packaging>bundle</packaging>
+
     <properties>
+        <timestamp>${maven.build.timestamp}</timestamp>
+        <maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
+    
         <!-- filtered plugin properties -->
         <plugin-context>/${project.artifactId}</plugin-context>
         <plugin-name>${project.artifactId}</plugin-name>
@@ -31,6 +35,7 @@
             app/js/hawt-io-tab.js,app/js/underscore/underscore.js,app/js/backbone.js,app/client/views/ManagedServiceFactory.view.js
         </plugin-scripts>
     </properties>
+    
     <dependencies>
         <dependency>
             <groupId>ddf.admin.core</groupId>
@@ -205,9 +210,7 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
-                <includes>
-                    <include>**/*.xml</include>
-                </includes>
+                
             </resource>
         </resources>
         <plugins>

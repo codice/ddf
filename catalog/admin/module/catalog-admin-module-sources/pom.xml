@@ -22,6 +22,11 @@
     <name>DDF :: Catalog :: Admin :: Module :: Sources</name>
     <artifactId>catalog-admin-module-sources</artifactId>
     <packaging>bundle</packaging>
+
+    <properties>
+        <timestamp>${maven.build.timestamp}</timestamp>
+        <maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
@@ -176,9 +181,7 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
-                <includes>
-                    <include>**/*.xml</include>
-                </includes>
+                
             </resource>
         </resources>
         <plugins>

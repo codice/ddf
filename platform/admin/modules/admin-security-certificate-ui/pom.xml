@@ -22,6 +22,11 @@
     <name>DDF :: Admin :: Modules :: Security Certificate UI</name>
     <artifactId>admin-security-certificate-ui</artifactId>
     <packaging>bundle</packaging>
+
+    <properties>
+        <timestamp>${maven.build.timestamp}</timestamp>
+        <maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>ddf.admin.core</groupId>
@@ -159,9 +164,7 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
-                <includes>
-                    <include>**/*.xml</include>
-                </includes>
+                
             </resource>
         </resources>
         <plugins>

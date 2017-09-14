@@ -23,6 +23,11 @@
     <artifactId>admin-metrics-ui</artifactId>
     <name>DDF :: Admin :: Modules :: Metrics UI</name>
     <packaging>bundle</packaging>
+
+    <properties>
+        <timestamp>${maven.build.timestamp}</timestamp>
+        <maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -169,9 +174,7 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
-                <includes>
-                    <include>**/*.xml</include>
-                </includes>
+                
             </resource>
         </resources>
         <plugins>

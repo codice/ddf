@@ -27,12 +27,12 @@
       Record View is based on bootstrap stylings and uses font-awesome fonts
     -->
     <link href="lib/bootstrap-2.3.1/css/bootstrap.min.css" rel="stylesheet">
-    <link href="lib/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <link href="lib/font-awesome/css/font-awesome.min.css?bust=${timestamp}" rel="stylesheet">
 
     <!--
       Record view specific stylings
     -->
-    <link href="css/recordView.css" rel="stylesheet">
+    <link href="css/recordView.css?bust=${timestamp}" rel="stylesheet">
 
     <!--
       browser compatability scripts
@@ -60,7 +60,7 @@
 <!--
   purl.js is a jquery extension to read the url parameter.  It is used in the example script below
 -->
-<script type="text/javascript" src="lib/jquery/js/plugin/purl.js"></script>
+<script type="text/javascript" src="lib/jquery/js/plugin/purl.js?bust=${timestamp}"></script>
 
 <!--
   bootstrap.min.js supports bootstrap stylings and fluid containers
@@ -74,12 +74,12 @@
 <!--
   recordView.js runs the handlebars templates and provides helper functions
 -->
-<script type="text/javascript" src="js/recordView.js"></script>
+<script type="text/javascript" src="js/recordView.js?bust=${timestamp}"></script>
 
 <!--
   metadataHelper.js converts the xml metadata into a bootstrap tree view
 -->
-<script type="text/javascript" src="js/metadataHelper.js"></script>
+<script type="text/javascript" src="js/metadataHelper.js?bust=${timestamp}"></script>
 
 <!--
   Example script to grab the id from the url and load the recordView
