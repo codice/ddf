@@ -16,6 +16,7 @@ package org.codice.ddf.spatial.ogc.csw.catalog.endpoint;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
@@ -1680,6 +1681,49 @@ public class TestCswEndpoint {
         verifyMarshalResponse(response,
                 "net.opengis.cat.csw.v_2_0_2:net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1",
                 cswQnameOutPutSchema);
+    }
+
+    @Test
+    public void testDeleteBatching() throws Exception {
+        //configure query responses
+        queryResponseBatch = getQueryResponseBatch(500, 800);
+
+        QueryResponse[] qrRest = queryResponseBatch.subList(1, queryResponseBatch.size())
+                .toArray(new QueryResponse[0]);
+        when(catalogFramework.query(any(QueryRequest.class))).thenReturn(queryResponseBatch.get(0),
+                qrRest);
+
+        //configure delete responses
+        DeleteType deleteType = mock(DeleteType.class);
+
+        doReturn(CswConstants.CSW_RECORD).when(deleteType)
+                .getTypeName();
+        doReturn("").when(deleteType)
+                .getHandle();
+
+        QueryConstraintType queryConstraintType = new QueryConstraintType();
+        queryConstraintType.setCqlText("title = \"foo\"");
+        doReturn(queryConstraintType).when(deleteType)
+                .getConstraint();
+
+        List<DeleteResponse> delBatch = getDelBatch(queryResponseBatch);
+
+        DeleteResponse[] delRest = delBatch.subList(1, delBatch.size())
+                .toArray(new DeleteResponse[0]);
+        when(catalogFramework.delete(any(DeleteRequest.class))).thenReturn(delBatch.get(0),
+                delRest);
+
+        DeleteAction deleteAction = new DeleteAction(deleteType,
+                DefaultCswRecordMap.getPrefixToUriMapping());
+
+        CswTransactionRequest deleteRequest = new CswTransactionRequest();
+        deleteRequest.getDeleteActions()
+                .add(deleteAction);
+
+        TransactionResponseType response = csw.transaction(deleteRequest);
+        assertThat(response.getTransactionSummary().getTotalDeleted().intValue(), equalTo(800));
+        verify(catalogFramework, times(4)).query(any());
+        verify(catalogFramework, times(2)).delete(any());
     }
 
     @Test

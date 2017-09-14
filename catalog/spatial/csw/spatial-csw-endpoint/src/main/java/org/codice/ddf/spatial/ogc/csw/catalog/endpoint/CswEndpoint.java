@@ -70,6 +70,7 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.UpdateAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
+import org.geotools.filter.text.cql2.CQLException;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
@@ -589,7 +590,7 @@ public class CswEndpoint implements Csw {
         for (DeleteAction deleteAction : request.getDeleteActions()) {
             try {
                 numDeleted += deleteRecords(deleteAction);
-            } catch (CswException | FederationException | IngestException | SourceUnavailableException | UnsupportedQueryException | CatalogQueryException e) {
+            } catch (Exception e) {
                 LOGGER.debug("Unable to delete record(s)", e);
                 throw new CswException("Unable to delete record(s).",
                         CswConstants.TRANSACTION_FAILED,
@@ -662,7 +663,7 @@ public class CswEndpoint implements Csw {
 
     private int deleteRecords(DeleteAction deleteAction)
             throws CswException, FederationException, IngestException, SourceUnavailableException,
-            UnsupportedQueryException {
+            UnsupportedQueryException, InterruptedException, ParseException, CQLException {
 
         QueryRequest queryRequest = queryFactory.getQuery(deleteAction.getConstraint(),
                 deleteAction.getTypeName());
@@ -670,34 +671,35 @@ public class CswEndpoint implements Csw {
         queryRequest = queryFactory.updateQueryRequestTags(queryRequest,
                 schemaTransformerManager.getTransformerSchemaForId(deleteAction.getTypeName()));
 
-        Iterable<List<Result>> resultLists = Iterables.partition(ResultIterable.resultIterable(
-                framework,
-                queryRequest), DEFAULT_BATCH);
         int batchCount = 1;
         int deletedCount = 0;
-        for (List<Result> results : resultLists) {
-            Set<String> idsToDelete = results.stream()
-                    .filter(Objects::nonNull)
-                    .map(Result::getMetacard)
-                    .filter(Objects::nonNull)
-                    .map(Metacard::getId)
-                    .collect(Collectors.toSet());
 
-            if (!idsToDelete.isEmpty()) {
-                DeleteRequestImpl deleteRequest =
-                        new DeleteRequestImpl(idsToDelete.toArray(new String[0]));
+        String[] idsToDelete = getNextQueryBatch(queryRequest);
 
-                LOGGER.debug("Attempting to delete {} metacards from batch {}.",
-                        idsToDelete.size(),
-                        batchCount++);
-                DeleteResponse deleteResponse = framework.delete(deleteRequest);
+        while (idsToDelete.length > 0) {
+            DeleteRequestImpl deleteRequest = new DeleteRequestImpl(idsToDelete);
+            LOGGER.debug("Attempting to delete {} metacards from batch {}.",
+                    idsToDelete.length,
+                    ++batchCount);
+            DeleteResponse deleteResponse = framework.delete(deleteRequest);
+            deletedCount += deleteResponse.getDeletedMetacards()
+                    .size();
 
-                deletedCount += deleteResponse.getDeletedMetacards()
-                        .size();
-            }
+            idsToDelete = getNextQueryBatch(queryRequest);
         }
 
         return deletedCount;
+    }
+
+    private String[] getNextQueryBatch(QueryRequest queryRequest) {
+        return ResultIterable.resultIterable(framework, queryRequest, DEFAULT_BATCH)
+                .stream()
+                .filter(Objects::nonNull)
+                .map(Result::getMetacard)
+                .filter(Objects::nonNull)
+                .map(Metacard::getId)
+                .distinct()
+                .toArray(String[]::new);
     }
 
     private int updateRecords(UpdateAction updateAction)
