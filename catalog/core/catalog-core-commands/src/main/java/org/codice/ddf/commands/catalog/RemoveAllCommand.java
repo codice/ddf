@@ -14,11 +14,9 @@
 package org.codice.ddf.commands.catalog;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -54,22 +52,14 @@ import ddf.catalog.source.UnsupportedQueryException;
 @Command(scope = CatalogCommands.NAMESPACE, name = "removeall", description = "Attempts to delete all records from the Catalog.")
 public class RemoveAllCommand extends CatalogCommands {
 
-    static final int PAGE_SIZE_LOWER_LIMIT = 1;
+    private static final int PAGE_SIZE_LOWER_LIMIT = 1;
 
-    static final long UNKNOWN_AMOUNT = -1;
+    private static final long UNKNOWN_AMOUNT = -1;
 
-    static final String PROGRESS_FORMAT = " Currently %1$s record(s) removed out of %2$s \r";
+    private static final String PROGRESS_FORMAT = " Currently %1$s record(s) removed out of %2$s \r";
 
     static final String BATCH_SIZE_ERROR_MESSAGE_FORMAT =
             "Improper batch size [%1$s]. For help with usage: removeall --help";
-
-    static final String WARNING_MESSAGE_FORMAT_CATALOG_REMOVAL =
-            "WARNING: This will permanently remove all %1$s"
-                    + "records from the Catalog. Do you want to proceed? (yes/no): ";
-
-    static final String WARNING_MESSAGE_FORMAT_CACHE_REMOVAL =
-            "WARNING: This will permanently remove all %1$s"
-                    + "records from the cache. Do you want to proceed? (yes/no): ";
 
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(RemoveAllCommand.class);
 
@@ -77,20 +67,20 @@ public class RemoveAllCommand extends CatalogCommands {
 
     @Argument(name = "Batch size", description =
             "Number of Metacards to delete at a time until completion. Change this argument based on system memory and Catalog limits. "
-                    + "Must be a positive integer.\nNOTE: Batch size may not be honored given system constraints.", index = 0, multiValued = false, required = false)
+                    + "Must be a positive integer.\nNOTE: Batch size may not be honored given system constraints.")
     int batchSize = DEFAULT_BATCH_SIZE;
 
-    @Option(name = "-e", required = false, aliases = {
-            "--expired"}, multiValued = false, description =
+    @Option(name = "-e", aliases = {
+            "--expired"}, description =
             "Remove only expired records from the Catalog. "
                     + "Expired records are based on the Metacard EXPIRATION field.")
-    boolean expired = false;
+    private boolean expired = false;
 
-    @Option(name = "-f", required = false, aliases = {
-            "--force"}, multiValued = false, description = "Force the removal without a confirmation message.")
+    @Option(name = "-f", aliases = {
+            "--force"}, description = "Force the removal without a confirmation message.")
     boolean force = false;
 
-    @Option(name = "--cache", required = false, multiValued = false, description = "Only remove cached entries.")
+    @Option(name = "--cache", description = "Only remove cached entries.")
     boolean cache = false;
 
     @Override
@@ -100,19 +90,21 @@ public class RemoveAllCommand extends CatalogCommands {
             return null;
         }
 
-        if (isAccidentalRemoval(console)) {
+        if (isAccidentalRemoval()) {
             return null;
         }
 
         if (this.cache) {
-            return executeRemoveAllFromCache();
+            executeRemoveAllFromCache();
 
         } else {
-            return executeRemoveAllFromStore();
+            executeRemoveAllFromStore();
         }
+
+        return null;
     }
 
-    private Object executeRemoveAllFromCache() throws Exception {
+    private void executeRemoveAllFromCache() throws Exception {
         long start = System.currentTimeMillis();
 
         getCacheProxy().removeAll();
@@ -127,11 +119,9 @@ public class RemoveAllCommand extends CatalogCommands {
 
         console.println();
         console.print(info);
-
-        return null;
     }
 
-    private Object executeRemoveAllFromStore() throws Exception {
+    private void executeRemoveAllFromStore() throws Exception {
         CatalogFacade catalog = getCatalog();
 
         QueryRequest firstQuery = getIntendedQuery(filterBuilder, true);
@@ -152,7 +142,7 @@ public class RemoveAllCommand extends CatalogCommands {
 
         if (response == null) {
             printErrorMessage("No response from Catalog.");
-            return null;
+            return;
         }
 
         if (needsAlternateQueryAndResponse(response)) {
@@ -209,23 +199,17 @@ public class RemoveAllCommand extends CatalogCommands {
 
         console.println();
         console.print(info);
-
-        return null;
     }
 
     private boolean needsAlternateQueryAndResponse(SourceResponse response) {
         Set<ProcessingDetails> processingDetails =
                 (Set<ProcessingDetails>) response.getProcessingDetails();
 
-        if (processingDetails == null || processingDetails.iterator() == null) {
+        if (processingDetails == null) {
             return false;
         }
 
-        Iterator<ProcessingDetails> iterator = processingDetails.iterator();
-
-        while (iterator.hasNext()) {
-
-            ProcessingDetails next = iterator.next();
+        for (ProcessingDetails next : processingDetails) {
             if (next != null && next.getException() != null && next.getException()
                     .getMessage() != null && next.getException()
                     .getMessage()
@@ -236,34 +220,29 @@ public class RemoveAllCommand extends CatalogCommands {
         return false;
     }
 
-    boolean isAccidentalRemoval(PrintStream console) throws IOException {
+    private boolean isAccidentalRemoval() {
         if (!force) {
-            StringBuffer buffer = new StringBuffer();
+            //use a message specific to cache and expired options
+            final String warning = String.format(
+                    "WARNING: This will permanently remove all %1$srecords from the %2$s. Do you want to proceed? (yes/no): ",
+                    (expired ? "expired " : ""),
+                    (cache ? "cache" : "Catalog"));
 
-            //use a message specific to whether they
-            //are removing from cache or the catalog
-            String warning = (this.cache ?
-                    WARNING_MESSAGE_FORMAT_CACHE_REMOVAL :
-                    WARNING_MESSAGE_FORMAT_CATALOG_REMOVAL);
-            System.err.println(String.format(warning, (expired ? "expired " : "")));
-            System.err.flush();
-            while (true) {
-                int byteOfData = session.getKeyboard()
-                        .read();
-
-                if (byteOfData < 0) {
-                    // end of stream
-                    return true;
-                }
-                System.err.print((char) byteOfData);
-                if (byteOfData == '\r' || byteOfData == '\n') {
-                    break;
-                }
-                buffer.append((char) byteOfData);
+            final String response;
+            try {
+                response = session.readLine(warning, null);
+            } catch (IOException e) {
+                console.println("Please use \"removeall -f\" or \"removeall --force\" instead");
+                return true;
             }
-            String str = buffer.toString();
-            if (!str.equals("yes")) {
-                console.println("No action taken.");
+            final String noActionTakenMessage = "No action taken.";
+            if (response.equalsIgnoreCase("yes")) {
+                return false;
+            } else if (response.equalsIgnoreCase("no")) {
+                console.println(noActionTakenMessage);
+                return true;
+            } else {
+                console.println("\"" + response + "\" is invalid. " + noActionTakenMessage);
                 return true;
             }
         }
@@ -279,8 +258,7 @@ public class RemoveAllCommand extends CatalogCommands {
         return Long.toString(hits);
     }
 
-    private QueryRequest getIntendedQuery(FilterBuilder filterBuilder, boolean isRequestForTotal)
-            throws InterruptedException {
+    private QueryRequest getIntendedQuery(FilterBuilder filterBuilder, boolean isRequestForTotal) {
         Filter filter = addValidationAttributeToQuery(filterBuilder.attribute(Metacard.ID)
                 .is()
                 .like()
@@ -304,8 +282,7 @@ public class RemoveAllCommand extends CatalogCommands {
         return new QueryRequestImpl(query, properties);
     }
 
-    private QueryRequest getAlternateQuery(FilterBuilder filterBuilder, boolean isRequestForTotal)
-            throws InterruptedException {
+    private QueryRequest getAlternateQuery(FilterBuilder filterBuilder, boolean isRequestForTotal) {
         Filter filter = addValidationAttributeToQuery(filterBuilder.attribute(Metacard.ANY_TEXT)
                 .is()
                 .like()

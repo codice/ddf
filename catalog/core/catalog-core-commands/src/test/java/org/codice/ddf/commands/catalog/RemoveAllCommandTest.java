@@ -17,18 +17,23 @@ import static java.util.stream.Collectors.toList;
 import static org.codice.ddf.commands.catalog.CommandSupport.ERROR_COLOR;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.isA;
+import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import org.apache.karaf.shell.api.console.Session;
 import org.fusesource.jansi.Ansi;
 import org.junit.Before;
 import org.junit.Test;
@@ -151,6 +156,30 @@ public class RemoveAllCommandTest extends ConsoleOutputCommon {
         verify(catalogFrameworkMock, times(numCatalogCalls)).delete(isA(DeleteRequest.class));
     }
 
+    @Test
+    public void testExecuteWithSubjectWithoutForceOption() throws Exception {
+        // given
+        final Session mockSession = mock(Session.class);
+        when(mockSession.readLine(anyString(), isNull(Character.class))).thenReturn("yes");
+
+        batchSize = 11;
+        numCatalogCalls = 1;
+        forceCommand = false;
+
+        setQueryAndDeleteResponseMocks(11, 0);
+
+        setCatalogQueryAndDeleteResponses();
+
+        final RemoveAllCommand command = new RemoveAllCommand();
+        command.session = mockSession;
+
+        // when
+        newRemoveAllCommand(command).executeWithSubject();
+
+        // then
+        verify(catalogFrameworkMock, times(numCatalogCalls)).delete(isA(DeleteRequest.class));
+    }
+
     /**
      * Checks the forced (-f) generic case with (--cache) option
      *
@@ -175,6 +204,79 @@ public class RemoveAllCommandTest extends ConsoleOutputCommon {
         removeAllCommand.executeWithSubject();
 
         verify(mbean, times(numCatalogCalls)).removeAll();
+    }
+
+    @Test
+    public void testInvalidWarningPromptInput() throws Exception {
+        // given
+        final Session mockSession = mock(Session.class);
+        when(mockSession.readLine(anyString(), isNull(Character.class))).thenReturn("something that isn't yes nor no");
+
+        batchSize = 11;
+        numCatalogCalls = 1;
+        forceCommand = false;
+
+        setQueryAndDeleteResponseMocks(11, 0);
+
+        setCatalogQueryAndDeleteResponses();
+
+        final RemoveAllCommand command = new RemoveAllCommand();
+        command.session = mockSession;
+
+        // when
+        newRemoveAllCommand(command).executeWithSubject();
+
+        // then
+        verifyZeroInteractions(catalogFrameworkMock);
+    }
+
+    @Test
+    public void testWarningPromptInputOfNo() throws Exception {
+        // given
+        final Session mockSession = mock(Session.class);
+        when(mockSession.readLine(anyString(), isNull(Character.class))).thenReturn("no");
+
+        batchSize = 11;
+        numCatalogCalls = 1;
+        forceCommand = false;
+
+        setQueryAndDeleteResponseMocks(11, 0);
+
+        setCatalogQueryAndDeleteResponses();
+
+        final RemoveAllCommand command = new RemoveAllCommand();
+        command.session = mockSession;
+
+        // when
+        newRemoveAllCommand(command).executeWithSubject();
+
+        // then
+        verifyZeroInteractions(catalogFrameworkMock);
+    }
+
+    @Test
+    public void testWarningPromptException() throws Exception {
+        // given
+        final Session mockSession = mock(Session.class);
+        when(mockSession.readLine(anyString(),
+                isNull(Character.class))).thenThrow(IOException.class);
+
+        batchSize = 11;
+        numCatalogCalls = 1;
+        forceCommand = false;
+
+        setQueryAndDeleteResponseMocks(11, 0);
+
+        setCatalogQueryAndDeleteResponses();
+
+        final RemoveAllCommand command = new RemoveAllCommand();
+        command.session = mockSession;
+
+        // when
+        newRemoveAllCommand(command).executeWithSubject();
+
+        // then
+        verifyZeroInteractions(catalogFrameworkMock);
     }
 
     private RemoveAllCommand newRemoveAllCommand(RemoveAllCommand removeAllCommand) {
