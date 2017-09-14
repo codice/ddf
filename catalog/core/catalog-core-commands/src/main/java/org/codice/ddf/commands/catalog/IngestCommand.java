@@ -536,9 +536,8 @@ public class IngestCommand extends CatalogCommands {
             if (includeContent) {
                 processIncludeContent(metacardQueue);
             } else {
-                try {
-                    Stream<Path> ingestStream = Files.walk(inputFile.toPath(),
-                            FileVisitOption.FOLLOW_LINKS);
+                try (Stream<Path> ingestStream = Files.walk(inputFile.toPath(),
+                            FileVisitOption.FOLLOW_LINKS)) {
                     ingestStream.map(Path::toFile)
                             .filter(file -> !file.isDirectory())
                             .forEach(file -> addFileToQueue(metacardQueue, start, file));

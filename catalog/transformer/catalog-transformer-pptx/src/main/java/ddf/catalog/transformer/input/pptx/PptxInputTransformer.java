@@ -150,10 +150,9 @@ public class PptxInputTransformer implements InputTransformer {
 
         ClassLoader originalContextClassLoader = Thread.currentThread()
                 .getContextClassLoader();
-        try {
-            Thread.currentThread()
-                    .setContextClassLoader(getClass().getClassLoader());
-            SlideShow<?, ?> genericSlideShow = SlideShowFactory.create(input);
+        Thread.currentThread()
+                .setContextClassLoader(getClass().getClassLoader());
+        try (SlideShow<?, ?> genericSlideShow = SlideShowFactory.create(input)){
 
             if (genericSlideShow instanceof XMLSlideShow) {
                 XMLSlideShow xmlSlideShow = (XMLSlideShow) genericSlideShow;

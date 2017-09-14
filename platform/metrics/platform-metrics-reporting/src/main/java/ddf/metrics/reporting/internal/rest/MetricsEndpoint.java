@@ -271,11 +271,10 @@ public class MetricsEndpoint {
             }
         } else if (outputFormat.equalsIgnoreCase("xls")) {
             LOGGER.trace("Retrieving XLS-formatted data for metric {}", metricName);
-            try {
-                OutputStream os = metricsRetriever.createXlsData(metricName,
+            try (OutputStream os = metricsRetriever.createXlsData(metricName,
                         rrdFilename,
                         startTime,
-                        endTime);
+                        endTime)) {
                 InputStream is =
                         new ByteArrayInputStream(((ByteArrayOutputStream) os).toByteArray());
                 ResponseBuilder responseBuilder = Response.ok(is);
@@ -289,11 +288,10 @@ public class MetricsEndpoint {
             }
         } else if (outputFormat.equalsIgnoreCase("ppt")) {
             LOGGER.trace("Retrieving PPT-formatted data for metric {}", metricName);
-            try {
-                OutputStream os = metricsRetriever.createPptData(metricName,
+            try (OutputStream os = metricsRetriever.createPptData(metricName,
                         rrdFilename,
                         startTime,
-                        endTime);
+                        endTime)) {
                 InputStream is =
                         new ByteArrayInputStream(((ByteArrayOutputStream) os).toByteArray());
                 ResponseBuilder responseBuilder = Response.ok(is);
@@ -483,32 +481,32 @@ public class MetricsEndpoint {
 
         try {
             if (outputFormat.equalsIgnoreCase("xls")) {
-                OutputStream os = metricsRetriever.createXlsReport(metricNames,
+                try (OutputStream os = metricsRetriever.createXlsReport(metricNames,
                         metricsDir,
                         startTime,
                         endTime,
-                        summaryInterval);
-                InputStream is =
-                        new ByteArrayInputStream(((ByteArrayOutputStream) os).toByteArray());
-                ResponseBuilder responseBuilder = Response.ok(is);
-                responseBuilder.type("application/vnd.ms-excel");
-                responseBuilder.header("Content-Disposition", dispositionString);
-                response = responseBuilder.build();
+                        summaryInterval)) {
+                    InputStream is = new ByteArrayInputStream(((ByteArrayOutputStream) os).toByteArray());
+                    ResponseBuilder responseBuilder = Response.ok(is);
+                    responseBuilder.type("application/vnd.ms-excel");
+                    responseBuilder.header("Content-Disposition", dispositionString);
+                    response = responseBuilder.build();
+                }
             } else if (outputFormat.equalsIgnoreCase("ppt")) {
                 if (StringUtils.isNotEmpty(summaryInterval)) {
                     throw new MetricsEndpointException("Summary interval not allowed for ppt format",
                             Response.Status.BAD_REQUEST);
                 }
-                OutputStream os = metricsRetriever.createPptReport(metricNames,
+                try (OutputStream os = metricsRetriever.createPptReport(metricNames,
                         metricsDir,
                         startTime,
-                        endTime);
-                InputStream is =
-                        new ByteArrayInputStream(((ByteArrayOutputStream) os).toByteArray());
-                ResponseBuilder responseBuilder = Response.ok(is);
-                responseBuilder.type("application/vnd.ms-powerpoint");
-                responseBuilder.header("Content-Disposition", dispositionString);
-                response = responseBuilder.build();
+                        endTime)) {
+                    InputStream is = new ByteArrayInputStream(((ByteArrayOutputStream) os).toByteArray());
+                    ResponseBuilder responseBuilder = Response.ok(is);
+                    responseBuilder.type("application/vnd.ms-powerpoint");
+                    responseBuilder.header("Content-Disposition", dispositionString);
+                    response = responseBuilder.build();
+                }
             }
         } catch (IOException | MetricsGraphException e) {
             LOGGER.debug("Could not create {} report", outputFormat, e);

@@ -91,34 +91,18 @@ public class FileSystemPersistenceProvider
 
     @Override
     public void store(String key, Object value) {
-        OutputStream file = null;
-        ObjectOutput output = null;
-
+        File dir = new File(getMapStorePath());
+        if (!dir.exists() && !dir.mkdir()) {
+            LOGGER.debug("Unable to create directory: {}", dir.getAbsolutePath());
+        }
         LOGGER.trace("Entering: store - key: {}", key);
-        try {
-            File dir = new File(getMapStorePath());
-            if (!dir.exists()) {
-                boolean success = dir.mkdir();
-                if (!success) {
-                    LOGGER.info("Could not make directory: {}", dir.getAbsolutePath());
-                }
-            }
+        try (OutputStream file = new FileOutputStream(getMapStoreFile(key));
+                OutputStream buffer = new BufferedOutputStream(file);
+                ObjectOutput output = new ObjectOutputStream(buffer)) {
             LOGGER.debug("file name: {}{}{}", getMapStorePath(), key, SER);
-            file = new FileOutputStream(getMapStoreFile(key));
-            OutputStream buffer = new BufferedOutputStream(file);
-            output = new ObjectOutputStream(buffer);
             output.writeObject(value);
         } catch (IOException e) {
-            LOGGER.info("IOException storing value in cache with key = {}", key, e);
-        } finally {
-            try {
-                if (output != null) {
-                    output.close();
-                }
-            } catch (IOException e) {
-                // Intentionally ignored
-            }
-            IOUtils.closeQuietly(file);
+            LOGGER.debug("IOException storing value in cache with key = " + key, e);
         }
         LOGGER.trace("Exiting: store");
     }

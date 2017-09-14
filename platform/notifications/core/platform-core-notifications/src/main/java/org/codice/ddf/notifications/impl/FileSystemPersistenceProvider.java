@@ -32,7 +32,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.io.IOUtils;
 import org.codice.ddf.configuration.AbsolutePathResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,24 +93,18 @@ public class FileSystemPersistenceProvider
 
     @Override
     public void store(String key, Object value) {
-        OutputStream file = null;
-        ObjectOutputStream output = null;
-        try {
-            File dir = new File(getMapStorePath());
-            if (!dir.exists()) {
-                if (!dir.mkdir()) {
-                    LOGGER.info("Unable to create directory: {}", dir.getAbsolutePath());
-                }
-            }
-            file = new FileOutputStream(getMapStorePath() + key + PERSISTED_FILE_SUFFIX);
-            OutputStream buffer = new BufferedOutputStream(file);
-            output = new ObjectOutputStream(buffer);
+        File dir = new File(getMapStorePath());
+        if (!dir.exists() && !dir.mkdir()) {
+            LOGGER.debug("Unable to create directory: {}", dir.getAbsolutePath());
+        }
+        LOGGER.trace("Entering: store - key: {}", key);
+        try (OutputStream file = new FileOutputStream(
+                getMapStorePath() + key + PERSISTED_FILE_SUFFIX);
+                OutputStream buffer = new BufferedOutputStream(file);
+                ObjectOutputStream output = new ObjectOutputStream(buffer)) {
             output.writeObject(value);
         } catch (IOException e) {
-            LOGGER.info("IOException storing value in cache with key = {}", key, e);
-        } finally {
-            IOUtils.closeQuietly(output);
-            IOUtils.closeQuietly(file);
+            LOGGER.debug("IOException storing value in cache with key = " + key, e);
         }
     }
 

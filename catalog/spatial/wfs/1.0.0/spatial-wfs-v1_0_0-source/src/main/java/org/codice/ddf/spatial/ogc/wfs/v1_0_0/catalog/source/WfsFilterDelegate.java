@@ -1074,13 +1074,6 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
         switch (SPATIAL_OPERATORS.valueOf(operation)) {
         case BBOX:
             return buildBBoxType(propertyName, wkt);
-        case Beyond:
-            if (distance != null) {
-                return buildDistanceBufferType(filterObjectFactory.createBeyond(new DistanceBufferType()),
-                        propertyName,
-                        wkt,
-                        distance);
-            }
         case Contains:
             return buildBinarySpatialOpType(filterObjectFactory.createContains(new BinarySpatialOpType()),
                     propertyName,
@@ -1093,13 +1086,6 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
             return buildBinarySpatialOpType(filterObjectFactory.createDisjoint(new BinarySpatialOpType()),
                     propertyName,
                     wkt);
-        case DWithin:
-            if (distance != null) {
-                return buildDistanceBufferType(filterObjectFactory.createDWithin(new DistanceBufferType()),
-                        propertyName,
-                        wkt,
-                        distance);
-            }
         case Intersect:
             return buildBinarySpatialOpType(filterObjectFactory.createIntersects(new BinarySpatialOpType()),
                     propertyName,
@@ -1116,6 +1102,20 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
             return buildBinarySpatialOpType(filterObjectFactory.createWithin(new BinarySpatialOpType()),
                     propertyName,
                     wkt);
+        case Beyond:
+            if (distance != null) {
+                return buildDistanceBufferType(filterObjectFactory.createBeyond(new DistanceBufferType()),
+                        propertyName,
+                        wkt,
+                        distance);
+            }
+        case DWithin:
+            if (distance != null) {
+                return buildDistanceBufferType(filterObjectFactory.createDWithin(new DistanceBufferType()),
+                        propertyName,
+                        wkt,
+                        distance);
+            }
         default:
             throw new UnsupportedOperationException(
                     "Unsupported geospatial filter type " + SPATIAL_OPERATORS.valueOf(operation)

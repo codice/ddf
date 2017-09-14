@@ -211,33 +211,31 @@ public final class ContextualEvaluator {
         // Create an IndexWriter using the case-insensitive StandardAnalyzer
         // NOTE: the boolean arg in the IndexWriter constructor means to create a new index,
         // overwriting any existing index
-        IndexWriter indexWriter = new IndexWriter(index,
+        try (IndexWriter indexWriter = new IndexWriter(index,
                 contextualAnalyzer,
                 true,
-                IndexWriter.MaxFieldLength.UNLIMITED);
-        logTokens(indexWriter.getAnalyzer(), FIELD_NAME, fullDocument, "ContextualAnalyzer");
+                IndexWriter.MaxFieldLength.UNLIMITED)) {
+            logTokens(indexWriter.getAnalyzer(), FIELD_NAME, fullDocument, "ContextualAnalyzer");
 
-        // Add the indexable text to the case-insensitive index writer, assigning it the
-        // "case-insensitive" field name
-        addDoc(indexWriter, FIELD_NAME, indexableText);
-        indexWriter.close();
-
+            // Add the indexable text to the case-insensitive index writer, assigning it the
+            // "case-insensitive" field name
+            addDoc(indexWriter, FIELD_NAME, indexableText);
+        }
         CaseSensitiveContextualAnalyzer caseSensitiveStandardAnalyzer =
                 new CaseSensitiveContextualAnalyzer(Version.LUCENE_30);
 
         // Create a second IndexWriter using the custom case-sensitive StandardAnalyzer
         // NOTE: set boolean to false to append the case-sensitive indexed text to the existing
         // index (populated by first IndexWriter)
-        IndexWriter csIndexWriter = new IndexWriter(index,
+        try (IndexWriter csIndexWriter = new IndexWriter(index,
                 caseSensitiveStandardAnalyzer,
                 false,
-                IndexWriter.MaxFieldLength.UNLIMITED);
+                IndexWriter.MaxFieldLength.UNLIMITED)) {
 
-        // Add the indexable text to the case-sensitive index writer, assigning it the
-        // "case-sensitive" field name
-        addDoc(csIndexWriter, CASE_SENSITIVE_FIELD_NAME, indexableText);
-        csIndexWriter.close();
-
+            // Add the indexable text to the case-sensitive index writer, assigning it the
+            // "case-sensitive" field name
+            addDoc(csIndexWriter, CASE_SENSITIVE_FIELD_NAME, indexableText);
+        }
         return index;
     }
 

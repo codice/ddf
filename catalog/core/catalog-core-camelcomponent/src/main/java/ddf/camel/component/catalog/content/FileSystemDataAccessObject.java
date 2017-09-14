@@ -28,7 +28,6 @@ import java.io.OutputStream;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,24 +40,16 @@ public class FileSystemDataAccessObject {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileSystemDataAccessObject.class);
 
     public void store(String storePath, String suffix, String key, Object value) {
-        OutputStream file = null;
-        ObjectOutputStream output = null;
-        try {
-            File dir = new File(storePath);
-            if (!dir.exists()) {
-                if (!dir.mkdir()) {
-                    LOGGER.debug("Unable to create directory: {}", dir.getAbsolutePath());
-                }
-            }
-            file = new FileOutputStream(storePath + key + suffix);
-            OutputStream buffer = new BufferedOutputStream(file);
-            output = new ObjectOutputStream(buffer);
+        File dir = new File(storePath);
+        if (!dir.exists() && !dir.mkdir()) {
+            LOGGER.debug("Unable to create directory: {}", dir.getAbsolutePath());
+        }
+        try (OutputStream file = new FileOutputStream(storePath + key + suffix);
+                OutputStream buffer = new BufferedOutputStream(file);
+                ObjectOutputStream output = new ObjectOutputStream(buffer)) {
             output.writeObject(value);
         } catch (IOException e) {
             LOGGER.debug("IOException storing value in cache with key = " + key, e);
-        } finally {
-            IOUtils.closeQuietly(output);
-            IOUtils.closeQuietly(file);
         }
     }
 
