@@ -17,13 +17,14 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.isA;
+import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -35,6 +36,7 @@ import java.util.stream.Stream;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.felix.service.command.CommandSession;
+import org.apache.karaf.shell.api.console.Session;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -45,16 +47,12 @@ import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.data.types.Core;
-import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.QueryResponse;
-import ddf.catalog.source.IngestException;
-import ddf.catalog.source.SourceUnavailableException;
-import ddf.catalog.source.UnsupportedQueryException;
 
 public class ReplicateCommandTest extends ConsoleOutputCommon {
 
@@ -74,16 +72,14 @@ public class ReplicateCommandTest extends ConsoleOutputCommon {
     private ReplicateCommand replicateCommand;
 
     @Before
-    public void setUp()
-            throws UnsupportedQueryException, SourceUnavailableException, FederationException,
-            IngestException {
+    public void setUp() throws Exception {
         catalogFramework = mock(CatalogFramework.class);
-        replicateCommand = new ReplicateCommand() {
-            @Override
-            public String getInput(String message) throws IOException {
-                return "sourceId1";
-            }
-        };
+        replicateCommand = new ReplicateCommand();
+
+        final Session session = mock(Session.class);
+        when(session.readLine(anyString(), isNull(Character.class))).thenReturn("sourceId1");
+        replicateCommand.session = session;
+
         replicateCommand.catalogFramework = catalogFramework;
         replicateCommand.filterBuilder = new GeotoolsFilterBuilder();
 

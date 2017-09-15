@@ -100,7 +100,7 @@ public abstract class SubjectCommands extends CommandSupport {
 
     private Object runWithUserName() throws InvocationTargetException {
         try {
-            String password = getLine("Password for " + user + ": ", false);
+            String password = session.readLine("Password for " + user + ": ", '*');
             Subject subject = security.getSubject(user, password);
 
             if (subject == null) {
@@ -121,38 +121,5 @@ public abstract class SubjectCommands extends CommandSupport {
         }
 
         return null;
-    }
-
-    private String getLine(String text, boolean showCharacters) throws IOException {
-        console.print(text);
-        console.flush();
-        StringBuilder buffer = new StringBuilder();
-
-        while (true) {
-            int byteOfData = session.getKeyboard()
-                    .read();
-
-            if (byteOfData < 0) {
-                break;
-            }
-
-            if (showCharacters) {
-                console.print((char) byteOfData);
-                console.flush();
-            } else {
-                console.print("*");
-                console.flush();
-            }
-
-            if (byteOfData == '\r' || byteOfData == '\n') {
-                break;
-            }
-
-            buffer.append((char) byteOfData);
-        }
-
-        console.println();
-        console.flush();
-        return buffer.toString();
     }
 }

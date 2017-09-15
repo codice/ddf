@@ -143,7 +143,7 @@ public class MigrateCommand extends DuplicateCommands {
             } else {
                 break;
             }
-            id = getInput(whichProvider + " Provider ID: ");
+            id = session.readLine(whichProvider + " Provider ID: ", null);
         }
 
         final String providerId = id;

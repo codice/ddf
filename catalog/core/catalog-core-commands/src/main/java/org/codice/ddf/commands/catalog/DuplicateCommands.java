@@ -264,27 +264,6 @@ public abstract class DuplicateCommands extends CqlCommands {
         return createdMetacards;
     }
 
-    protected String getInput(String message) throws IOException {
-        StringBuilder buffer = new StringBuilder();
-        console.print(String.format(message));
-        console.flush();
-        while (true) {
-            int byteOfData = session.getKeyboard()
-                    .read();
-
-            if (byteOfData < 0) {
-                // end of stream
-                return null;
-            }
-            console.print((char) byteOfData);
-            if (byteOfData == '\r' || byteOfData == '\n') {
-                break;
-            }
-            buffer.append((char) byteOfData);
-        }
-        return buffer.toString();
-    }
-
     protected List<Metacard> subtract(List<Metacard> queried, List<Metacard> ingested) {
         List<Metacard> result = new ArrayList<>(queried);
         result.removeAll(ingested);

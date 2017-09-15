@@ -162,9 +162,7 @@ public class ExportCommand extends CqlCommands {
         }
 
         if (delete && !force) {
-            console.println(
-                    "This action will remove all exported metacards and content from the catalog. Are you sure you wish to continue? (y/N):");
-            String input = getUserInputModifiable().toString();
+            final String input = session.readLine("This action will remove all exported metacards and content from the catalog. Are you sure you wish to continue? (y/N):", null);
             if (!input.matches("^[yY][eE]?[sS]?$")) {
                 console.println("ABORTED EXPORT.");
                 return null;

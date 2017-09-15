@@ -17,13 +17,12 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.Callable;
 
@@ -80,14 +79,14 @@ public class SubjectCommandsTest extends ConsoleOutputCommon {
     public void doExecuteWithUserName() throws Exception {
         subjectCommands.user = USERNAME;
 
-        when(session.getKeyboard()).thenReturn(new ByteArrayInputStream(PASSWORD.getBytes()));
+        when(session.readLine(anyString(), eq('*'))).thenReturn(PASSWORD);
         when(security.getSubject(USERNAME, PASSWORD)).thenReturn(subject);
         when(subject.execute(any(Callable.class))).thenAnswer(this::executeCommand);
 
         Object result = subjectCommands.execute();
 
         assertThat(result, is(SUCCESS));
-        assertThat(consoleOutput.getOutput(), containsString("Password for " + USERNAME));
+        verify(session).readLine("Password for " + USERNAME + ": ", '*');
         verify(security).getSubject(USERNAME, PASSWORD);
     }
 
@@ -95,7 +94,7 @@ public class SubjectCommandsTest extends ConsoleOutputCommon {
     public void doExecuteWithInvalidUserName() throws Exception {
         subjectCommands.user = USERNAME;
 
-        when(session.getKeyboard()).thenReturn(new ByteArrayInputStream(PASSWORD.getBytes()));
+        when(session.readLine(anyString(), eq('*'))).thenReturn(PASSWORD);
         when(security.getSubject(USERNAME, PASSWORD)).thenReturn(null);
 
         subjectCommands.execute();
@@ -108,9 +107,7 @@ public class SubjectCommandsTest extends ConsoleOutputCommon {
     public void doExecuteWithUserNameFailsToReadPassword() throws Exception {
         subjectCommands.user = USERNAME;
 
-        InputStream keyboard = mock(InputStream.class);
-        when(session.getKeyboard()).thenReturn(keyboard);
-        when(keyboard.read()).thenThrow(new IOException());
+        when(session.readLine(anyString(), eq('*'))).thenThrow(new IOException());
 
         subjectCommands.execute();
 
@@ -121,7 +118,7 @@ public class SubjectCommandsTest extends ConsoleOutputCommon {
     public void doExecuteWhenSubjectExecuteThrowsExecutionException() throws Exception {
         subjectCommands.user = USERNAME;
 
-        when(session.getKeyboard()).thenReturn(new ByteArrayInputStream(PASSWORD.getBytes()));
+        when(session.readLine(anyString(), eq('*'))).thenReturn(PASSWORD);
         when(security.getSubject(USERNAME, PASSWORD)).thenReturn(subject);
         when(subject.execute(any(Callable.class))).thenThrow(new ExecutionException(new IllegalStateException(
                 ERROR)));
