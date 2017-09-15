@@ -2,6 +2,7 @@ Version ${project.version}. Copyright (c) Codice Foundation
 :imagesdir: ${project.build.directory}/doc-contents/images
 :title: ${branding-expanded} Documentation
 :type: config
+:status: published
 :toc: left
 :toclevels: 6
 :example-caption:
