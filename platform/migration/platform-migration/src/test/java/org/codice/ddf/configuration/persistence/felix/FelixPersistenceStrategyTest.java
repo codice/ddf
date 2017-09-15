@@ -43,7 +43,8 @@ public class FelixPersistenceStrategyTest {
     @Test
     public void write() throws IOException {
 
-        FelixPersistenceStrategy felixPersistenceStrategy = new FelixPersistenceStrategy();
+        FelixConfigPersistenceStrategy
+                felixPersistenceStrategy = new FelixConfigPersistenceStrategy();
         felixPersistenceStrategy.write(outputStream, properties);
 
         assertThat(outputStream.toString(), equalTo("key1=\"value1\"\r\n"));
@@ -51,11 +52,11 @@ public class FelixPersistenceStrategyTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testWriteWithNullOutputStream() throws IOException {
-        new FelixPersistenceStrategy().write(null, properties);
+        new FelixConfigPersistenceStrategy().write(null, properties);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testWriteWithNullProperties() throws IOException {
-        new FelixPersistenceStrategy().write(outputStream, null);
+        new FelixConfigPersistenceStrategy().write(outputStream, null);
     }
 }

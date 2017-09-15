@@ -12,94 +12,53 @@
  **/ -->
 
 <blueprint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.2.0"
+           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
     <ext:property-placeholder>
         <ext:default-properties>
-            <ext:property name="configFileExtension" value=".config"/>
-            <ext:property name="configFileDirectory" value="${ddf.home}/etc"/>
+            <ext:property name="configFileExtension" value="config"/>
         </ext:default-properties>
     </ext:property-placeholder>
 
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
+    <reference id="system" interface="org.apache.karaf.system.SystemService"/>
 
-    <bean id="persistenceStrategy"
-          class="org.codice.ddf.configuration.persistence.felix.FelixPersistenceStrategy"/>
-
-    <!-- Base URI for DDF home -->
-    <bean id="ddfHomeFile" class="java.io.File">
-        <argument value="${ddf.home}"/>
-    </bean>
-
-    <bean id="ddfHomeUri" class="java.net.URI" factory-ref="ddfHomeFile" factory-method="toURI"/>
-
-    <bean id="ddfHome" class="java.nio.file.Paths" factory-method="get">
-        <argument ref="ddfHomeUri"/>
-    </bean>
-
-    <!-- Config Directory Path ${ddf.home}/etc/ -->
-    <bean id="configDirectoryPath" class="java.nio.file.Path" factory-ref="ddfHome"
-          factory-method="resolve">
-        <argument value="etc"/>
-    </bean>
-
-    <bean id="configurationFileFactory"
-          class="org.codice.ddf.configuration.admin.ConfigurationFileFactory">
-        <argument ref="persistenceStrategy"/>
-        <argument ref="configurationAdmin"/>
-    </bean>
-
-    <bean id="configDirectoryStream" class="java.nio.file.Files"
-          factory-method="newDirectoryStream">
-        <argument ref="configDirectoryPath"/>
-        <argument value="*${configFileExtension}"/>
-    </bean>
-
-    <bean id="configurationAdminMigration"
-          class="org.codice.ddf.configuration.admin.ConfigurationAdminMigration">
-        <argument ref="configDirectoryStream"/>
-        <argument ref="configurationFileFactory"/>
+    <bean id="configurationAdminMigratable"
+          class="org.codice.ddf.configuration.admin.ConfigurationAdminMigratable">
         <argument ref="configurationAdmin"/>
         <argument value="${configFileExtension}"/>
     </bean>
+
+    <service id="configurationAdminMigratableService" ref="configurationAdminMigratable"
+             interface="org.codice.ddf.migration.Migratable"/>
 
     <bean id="mBeanServer"
           class="java.lang.management.ManagementFactory"
           factory-method="getPlatformMBeanServer"/>
 
-    <!-- DataMigratable service reference list -->
-    <bean id="sortedDataMigratables" class="org.codice.ddf.platform.util.SortedServiceList"/>
-
-    <reference-list id="dataMigratables" interface="org.codice.ddf.migration.DataMigratable"
-                    availability="optional">
-        <reference-listener bind-method="bindPlugin" unbind-method="unbindPlugin"
-                            ref="sortedDataMigratables"/>
-    </reference-list>
-
-    <!-- ConfigurationMigratable service reference list -->
-    <bean id="sortedConfigurationMigratables"
+    <!-- Migratable service reference list -->
+    <bean id="sortedMigratables"
           class="org.codice.ddf.platform.util.SortedServiceList"/>
 
-    <reference-list id="configurationMigratables"
-                    interface="org.codice.ddf.migration.ConfigurationMigratable"
+    <reference-list id="migratables"
+                    interface="org.codice.ddf.migration.Migratable"
                     availability="optional">
         <reference-listener bind-method="bindPlugin" unbind-method="unbindPlugin"
-                            ref="sortedConfigurationMigratables"/>
+                            ref="sortedMigratables"/>
     </reference-list>
 
     <!-- ConfigurationMigrationManager -->
     <bean id="configMigrationManager"
           class="org.codice.ddf.configuration.migration.ConfigurationMigrationManager"
           init-method="init">
-        <argument ref="configurationAdminMigration"/>
         <argument ref="mBeanServer"/>
-        <argument ref="sortedConfigurationMigratables"/>
-        <argument ref="sortedDataMigratables"/>
+        <argument ref="sortedMigratables"/>
+        <argument ref="system"/>
     </bean>
 
     <service id="configurationMigrationManager" ref="configMigrationManager"
-             auto-export="interfaces"/>
+             auto-export="interfaces" ranking="-1000"/>
 
 </blueprint>
