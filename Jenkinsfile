@@ -193,7 +193,7 @@ pipeline {
             when {
                 allOf {
                     expression { env.CHANGE_ID == null }
-                    expression { BRANCH_NAME ==~ /((?:\d*\.)?\d.x|master)/ }
+                    expression { env.BRANCH_NAME ==~ /((?:\d*\.)?\d.x|master)/ }
                     environment name: 'JENKINS_ENV', value: 'prod'
                 }
             }
