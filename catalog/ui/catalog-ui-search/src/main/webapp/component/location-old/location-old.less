@@ -151,6 +151,11 @@
       display: none;
     }
   }
+
+  .col-lg-10 {
+    max-width: 2 * @minimumScreenSize;
+    float: none;
+  }
 }
 
 @{customElementNamespace}location-old.is-editing {
@@ -174,13 +179,6 @@
 @{customElementNamespace}location-old.is-keyword {
   .geo-types {
     display: none !important;
-  }
-}
-
-@{customElementNamespace}location-old.is-uploadshape {
-  .feature-names-dropdown {
-    display: block !important;
-    margin-bottom: 10px;
   }
 }
 

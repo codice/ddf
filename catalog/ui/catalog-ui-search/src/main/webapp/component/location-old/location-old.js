@@ -217,7 +217,7 @@ define([
         },
 
         setLatLonUtm: function(result,isDefined,parse,assign,clear) {
-            if (!(result.north !== undefined && result.south !== undefined && result.west !== undefined && result.east !== undefined) && isDefined(_this)) {
+            if (!(result.north !== undefined && result.south !== undefined && result.west !== undefined && result.east !== undefined) && isDefined(this)) {
                 var utmParts = parse(_this);
                 if (utmParts !== undefined) {
                     var utmResult = this.UTMtoLL(utmParts);
@@ -343,6 +343,7 @@ define([
                     newResult.mapEast = result.east;
                     newResult.mapWest = result.west;
                     this.set(newResult);
+                    this.set(result, {silent: true});
 
                     var utmCoords = this.LLtoUTM(result.north, result.west);
                     if(utmCoords !== undefined) {
@@ -435,8 +436,8 @@ define([
                         upperLeft = this.UTMtoLL(upperLeftParts);
 
                         if(upperLeft !== undefined) {
-                            this.set({mapNorth: upperLeft.lat, mapWest: upperLeft.lon });
-
+                            this.set({mapNorth: upperLeft.lat, mapWest: upperLeft.lon});
+                            this.set({north: upperLeft.lat, west: upperLeft.lon}, {silent: true});
                         } else {
                             this.clearUtmUpperLeft(true);
                             upperLeft = undefined;
@@ -451,7 +452,8 @@ define([
                         lowerRight = this.UTMtoLL(lowerRightParts);
 
                         if(lowerRight !== undefined) {
-                            this.set({mapSouth: lowerRight.lat, mapEast: lowerRight.lon });
+                            this.set({mapSouth: lowerRight.lat, mapEast: lowerRight.lon});
+                            this.set({south: lowerRight.lat, east: lowerRight.lon}, {silent: true});
                         } else {
                             this.clearUtmLowerRight(true);
                             lowerRight = undefined;
