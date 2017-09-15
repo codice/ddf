@@ -1,4 +1,0 @@
-|<<org.codice.ddf.catalog.security.policy.xml.XmlAttributeSecurityPolicyPlugin,XML Attribute Security Policy Plugin>>
-|org.codice.ddf.catalog.security.policy.xml.XmlAttributeSecurityPolicyPlugin
-|XML Attribute Security Policy Plugin
-

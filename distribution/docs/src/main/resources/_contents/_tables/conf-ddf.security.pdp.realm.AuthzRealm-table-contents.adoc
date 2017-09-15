@@ -1,4 +1,0 @@
-|Security AuthZ Realm
-|ddf.security.pdp.realm.AuthzRealm
-|AuthZ Security Settings
-

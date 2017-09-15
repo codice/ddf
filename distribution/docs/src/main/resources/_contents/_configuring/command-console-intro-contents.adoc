@@ -1,2 +1,0 @@
-
-In environments where access to the ${admin-console} is not possible or not desired, configurations can also be performed through a command line interface, the ${command-console}.

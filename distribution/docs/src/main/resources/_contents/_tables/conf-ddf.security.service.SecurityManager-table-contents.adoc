@@ -1,4 +1,0 @@
-|SAML NameID Policy
-|ddf.security.service.SecurityManager
-|SAML NameID Policy
-

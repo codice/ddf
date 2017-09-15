@@ -1,4 +1,0 @@
-
-<<_solr_catalog_provider,The Solr Catalog Provider>>:: An implementation of Catalog Provider using http://lucene.apache.org/solr/[Apache Solr] as a data store.
-
-

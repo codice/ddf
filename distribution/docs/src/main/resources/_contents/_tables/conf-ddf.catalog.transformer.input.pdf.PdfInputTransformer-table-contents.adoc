@@ -1,3 +1,0 @@
-|<<ddf.catalog.transformer.input.pdf.PdfInputTransformer,PDF Input Transformer>>
-|ddf.catalog.transformer.input.pdf.PdfInputTransformer
-|PDF Input Transformer

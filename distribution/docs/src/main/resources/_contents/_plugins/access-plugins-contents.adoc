@@ -1,3 +1,0 @@
-
-.[[_included_access_plugins]]Included Access Plugins
-<<_operation_plugin,Operation Plugin>>:: Validates the subject’s security attributes are adequate to make the request.

@@ -1,5 +1,0 @@
-
-.[[_included_pre-create_storage_plugins]]Included Pre-Create Storage Plugins
-<<_checksum,Checksum Plugin>>:: Creates a unique checksum for resources input into the system to identify updated content.
-
-<<_security_logging_plugin,Security Logging Plugin>>:: Logs operations to the security log.

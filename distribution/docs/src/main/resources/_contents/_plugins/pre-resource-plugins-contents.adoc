@@ -1,6 +1,0 @@
-
-.[[_included_pre-resource_plugins]]Included Pre-Resource Plugins
-<<_resource_usage_plugin,Resource Usage Plugin>>:: Monitors and limits data usage, as well as enable monitoring and cancelling running queries.
-
-<<_security_logging_plugin,Security Logging Plugin>>:: Logs operations to the security log.
-

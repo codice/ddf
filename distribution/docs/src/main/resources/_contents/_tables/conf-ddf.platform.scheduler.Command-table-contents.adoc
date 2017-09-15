@@ -1,4 +1,0 @@
-|<<_command_scheduler,Platform Command Scheduler>>
-|ddf.platform.scheduler.Command
-|
-

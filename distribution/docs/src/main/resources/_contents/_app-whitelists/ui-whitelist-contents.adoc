@@ -1,6 +1,0 @@
-
-=== ${ddf-ui} Whitelist
-
-The following packages have been exported by the ${ddf-ui} application and are approved for use by third parties:
-
-None.

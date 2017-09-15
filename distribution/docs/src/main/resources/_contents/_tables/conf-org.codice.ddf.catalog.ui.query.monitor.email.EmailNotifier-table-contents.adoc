@@ -1,4 +1,0 @@
-|<<org.codice.ddf.catalog.ui.query.monitor.email.EmailNotifier,Email Notifier>>
-|org.codice.ddf.catalog.ui.query.monitor.email.EmailNotifier
-|Email Notifier
-

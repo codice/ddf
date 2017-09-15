@@ -1,4 +1,0 @@
-|File Based Claims Handler
-|org.codice.ddf.security.sts.claims.property.PropertyFileClaimsHandler
-|File Based Claims Handler.
-

@@ -1,3 +1,0 @@
-==== Configuring Solr from ${admin-console}
-
-Solr can only be configured/installed from configuration files. See <<SolrProperties, Solr System Properties>> and <<Configuring Solr Catalog Provider Data Directory, Configuring Solr Catalog Provider Data Directory>>.

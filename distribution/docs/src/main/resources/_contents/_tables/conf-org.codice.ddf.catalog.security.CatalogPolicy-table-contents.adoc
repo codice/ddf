@@ -1,4 +1,0 @@
-|<<org.codice.ddf.catalog.security.CatalogPolicy,Catalog Policy Plugin>>
-|org.codice.ddf.catalog.security.CatalogPolicy
-|Catalog Policy Plugin
-

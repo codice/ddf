@@ -1,7 +1,0 @@
-
-Get information here on the available user interfaces in ${branding}.
-
-* <<_using_the_landing_page,Using the Landing Page>>
-* <<_using_the_catalog_search,Using the Catalog Search>>
-* <<_using_the_standard_search,Using the Standard Search>>
-* <<_using_the_simple_search,Using Simple Search>>

@@ -1,4 +1,0 @@
-|<<org.codice.ddf.ui.search.simple.properties,Simple Search UI>>
-|org.codice.ddf.ui.search.simple.properties
-|Simple Search UI
-

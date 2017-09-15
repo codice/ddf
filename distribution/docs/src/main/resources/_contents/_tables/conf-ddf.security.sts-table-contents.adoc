@@ -1,4 +1,0 @@
-|Security STS Server
-|ddf.security.sts
-|STS Configuration
-
