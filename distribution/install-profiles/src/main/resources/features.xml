@@ -17,7 +17,7 @@
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
     <feature name="profile-standard" install="manual" version="${project.version}"
-    	description="This will install the standard set of DDF applications." start-level="1">
+             description="This will install the standard set of DDF applications." start-level="1">
         <feature>admin-app</feature>
         <feature>platform-app</feature>
         <feature>security-services-app</feature>
@@ -27,9 +27,18 @@
         <feature>spatial-app</feature>
     </feature>
 
+    <feature name="profile-minimum" install="manual" version="${project.version}"
+             description="This will install only the applications required for a minimum viable profile."
+             start-level="2">
+        <feature>admin-app</feature>
+        <feature>platform-app</feature>
+        <feature>security-services-app</feature>
+    </feature>
+
     <feature name="profile-development" install="manual" version="${project.version}"
-    	description="This will install all the applications for development purposes." start-level="2">
-		<feature>opendj-embedded</feature>
+             description="This will install all the applications for development purposes."
+             start-level="3">
+        <feature>opendj-embedded</feature>
         <feature>admin-app</feature>
         <feature>platform-app</feature>
         <feature>security-services-app</feature>
