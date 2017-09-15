@@ -29,12 +29,11 @@ define([
     'component/singletons/sources-instance',
     'js/CQLUtils',
     'component/query-settings/query-settings.view',
-    'component/query-altitude/query-altitude.view',
     'component/query-time/query-time.view',
     'js/Common'
 ], function (Marionette, _, $, template, CustomElements, store, DropdownModel,
              QuerySrcView, PropertyView, Property, cql, metacardDefinitions, sources,
-            CQLUtils, QuerySettingsView, QueryAltitudeView, QueryTimeView, Common) {
+            CQLUtils, QuerySettingsView, QueryTimeView, Common) {
 
     function isNested(filter) {
         var nested = false;
@@ -137,8 +136,7 @@ define([
             basicLocation: '.basic-location',
             basicLocationSpecific: '.basic-location-specific',
             basicType: '.basic-type',
-            basicTypeSpecific: '.basic-type-specific',
-            basicAltitude: '.basic-altitude'
+            basicTypeSpecific: '.basic-type-specific'
         },
         ui: {},
         filter: undefined,
@@ -147,7 +145,6 @@ define([
             this.filter = translationToBasicMap.propertyValueMap;
             this.handleDownConversion(translationToBasicMap.downConversion);
             this.setupSettings();
-            this.setupAltitude();
             this.setupTime();
             this.setupTextInput();
             this.setupTextMatchInput();
