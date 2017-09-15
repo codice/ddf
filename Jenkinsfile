@@ -50,10 +50,10 @@ pipeline {
                                     checkout scm
                                 }
                                 timeout(time: 3, unit: 'HOURS') {
-                                    withMaven(maven: 'M35', jdk: 'jdk8-latest', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS} ${LINUX_MVN_RANDOM}', options: [artifactsPublisher(disabled: true), dependenciesFingerprintPublisher(disabled: true, includeScopeCompile: false, includeScopeProvided: false, includeScopeRuntime: false, includeSnapshotVersions: false)]) {
+                                    withMaven(maven: 'Maven 3.3.9', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS} ${LINUX_MVN_RANDOM}', options: [artifactsPublisher(disabled: true), dependenciesFingerprintPublisher(disabled: true, includeScopeCompile: false, includeScopeProvided: false, includeScopeRuntime: false, includeSnapshotVersions: false)]) {
                                         sh 'mvn install -pl !$DOCS -DskipStatic=true -DskipTests=true -T 1C'
                                         sh 'mvn clean install -B -T 1C -pl !$ITESTS -Dgib.enabled=true -Dgib.referenceBranch=/refs/remotes/origin/$CHANGE_TARGET'
-                                        sh 'mvn install -B -Dmaven.test.redirectTestOutputToFile=true -pl $ITESTS -nsu'
+                                        sh 'mvn install -B -pl $ITESTS -nsu'
                                     }
                                 }
                             }
@@ -68,7 +68,7 @@ pipeline {
                                     withMaven(maven: 'M35', jdk: 'jdk8-latest', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS}', options: [artifactsPublisher(disabled: true), dependenciesFingerprintPublisher(disabled: true, includeScopeCompile: false, includeScopeProvided: false, includeScopeRuntime: false, includeSnapshotVersions: false)]) {
                                         bat 'mvn install -pl !%DOCS% -DskipStatic=true -DskipTests=true -T 1C'
                                         bat 'mvn clean install -B -T 1C -pl !%ITESTS% -Dgib.enabled=true -Dgib.referenceBranch=/refs/remotes/origin/%CHANGE_TARGET%'
-                                        bat 'mvn install -B -Dmaven.test.redirectTestOutputToFile=true -pl %ITESTS% -nsu'
+                                        bat 'mvn install -B -pl %ITESTS% -nsu'
                                     }
                                 }
                             }
@@ -88,9 +88,9 @@ pipeline {
                                         checkout scm
                                     }
                                     timeout(time: 3, unit: 'HOURS') {
-                                        withMaven(maven: 'M35', jdk: 'jdk8-latest', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS} ${LINUX_MVN_RANDOM}') {
+                                        withMaven(maven: 'Maven 3.3.9', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS} ${LINUX_MVN_RANDOM}') {
                                             sh 'mvn clean install -B -T 1C -pl !$ITESTS'
-                                            sh 'mvn install -B -Dmaven.test.redirectTestOutputToFile=true -pl $ITESTS -nsu'
+                                            sh 'mvn install -B -pl $ITESTS -nsu'
                                         }
                                     }
                                 }
@@ -104,7 +104,7 @@ pipeline {
                                     timeout(time: 3, unit: 'HOURS') {
                                         withMaven(maven: 'M35', jdk: 'jdk8-latest', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS}') {
                                             bat 'mvn clean install -B -T 1C -pl !%ITESTS%'
-                                            bat 'mvn install -B -Dmaven.test.redirectTestOutputToFile=true -pl %ITESTS% -nsu'
+                                            bat 'mvn install -B -pl %ITESTS% -nsu'
                                         }
                                     }
                                 }
