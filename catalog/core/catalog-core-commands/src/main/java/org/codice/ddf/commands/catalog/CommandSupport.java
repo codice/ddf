@@ -27,26 +27,15 @@ public abstract class CommandSupport implements Action {
 
     protected static final double MS_PER_SECOND = 1000.0;
 
-    protected static final double PERCENTAGE_MULTIPLIER = 100.0;
-
-    protected static final int PROGESS_BAR_NOTCH_LENGTH = 50;
+    private static final int PROGRESS_BAR_WIDTH = 72;
 
     protected static final Ansi.Color ERROR_COLOR = Ansi.Color.RED;
 
-    protected static final Ansi.Color HEADER_COLOR = Ansi.Color.CYAN;
+    private static final Ansi.Color HEADER_COLOR = Ansi.Color.CYAN;
 
-    protected static final Ansi.Color SUCCESS_COLOR = Ansi.Color.GREEN;
+    private static final Ansi.Color SUCCESS_COLOR = Ansi.Color.GREEN;
 
-    protected PrintStream console = System.out;
-
-    protected String dash(int length) {
-        StringBuilder sBuilder = new StringBuilder();
-
-        for (int i = 0; i < length; i++) {
-            sBuilder.append("-");
-        }
-        return sBuilder.toString();
-    }
+    protected final PrintStream console = System.out;
 
     protected void printColor(Ansi.Color color, String message) {
         String colorString;
@@ -78,41 +67,36 @@ public abstract class CommandSupport implements Action {
         printColor(SUCCESS_COLOR, message);
     }
 
+    /**
+     * Logic mimics {@link org.apache.karaf.main.StartupListener#showProgressBar}
+     *
+     * @param start         time started processing records
+     * @param totalCount    count of total records
+     * @param currentCount  count of records completed
+     * @return
+     */
     protected void printProgressAndFlush(long start, long totalCount, long currentCount) {
-        console.print(getProgressBar(currentCount, totalCount, start, System.currentTimeMillis()));
+        final int progressPercentage;
+        if (totalCount > 0) {
+            progressPercentage = (int) ((currentCount * 100) / totalCount);
+        } else {
+            // display 100% completed progress bar if the totalCount is 0
+            progressPercentage = 100;
+        }
+
+        final int notchesCount = (int) (PROGRESS_BAR_WIDTH * (progressPercentage / 100.0));
+        final int rate = calculateRecordsPerSecond(currentCount, start, System.currentTimeMillis());
+
+        console.print(String.format("\r%1$3d%% [%2$-" + PROGRESS_BAR_WIDTH + "s] %3$5s records/sec",
+                progressPercentage,
+                StringUtils.repeat("=", notchesCount) + (notchesCount == PROGRESS_BAR_WIDTH ?
+                        "" :
+                        ">"),
+                rate));
         console.flush();
     }
 
-    private String getProgressBar(long currentCount, long totalPossible, long start, long end) {
-
-        int notches = calculateNotches(currentCount, totalPossible);
-
-        int progressPercentage = calculateProgressPercentage(currentCount, totalPossible);
-
-        int rate = calculateRecordsPerSecond(currentCount, start, end);
-
-        String progressArrow = ">";
-
-        // /r is required, it allows for the update in place
-        String progressBarFormat = "%1$4s%% [=%2$-50s] %3$5s records/sec\t\r";
-
-        return String.format(progressBarFormat,
-                progressPercentage,
-                StringUtils.repeat("=", notches) + progressArrow,
-                rate);
-    }
-
-    private int calculateNotches(long currentCount, long totalPossible) {
-        return (int) ((Double.valueOf(currentCount) / Double.valueOf(totalPossible))
-                * PROGESS_BAR_NOTCH_LENGTH);
-    }
-
-    private int calculateProgressPercentage(long currentCount, long totalPossible) {
-        return (int) ((Double.valueOf(currentCount) / Double.valueOf(totalPossible))
-                * PERCENTAGE_MULTIPLIER);
-    }
-
     protected int calculateRecordsPerSecond(long currentCount, long start, long end) {
-        return (int) (Double.valueOf(currentCount) / (Double.valueOf(end - start) / MS_PER_SECOND));
+        return (int) ((double) currentCount / ((double) (end - start) / MS_PER_SECOND));
     }
 }
