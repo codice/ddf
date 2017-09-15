@@ -76,6 +76,16 @@ define([
             this.deserialize();
             this.setupListeners();
             this.handleCurrentMode();
+            this.listenTo(this.model, 'change', this.updateMap);
+        },
+        // Updates the map with a drawing whenever the user is entering coordinates manually
+        updateMap: function() {
+            if (!this.isDestroyed) {
+                var mode = this.model.get('mode');
+                if (mode !== undefined && store.get('content').get('drawing') !== true) {
+                    wreqr.vent.trigger('search:' + mode + 'display', this.model);
+                }
+            }
         },
         handleCurrentMode: function(){
             this.$el.toggleClass('is-line', Boolean(this.model.get('line')));
@@ -89,6 +99,7 @@ define([
             this.$el.toggleClass('is-circle', mode === "circle");
             this.$el.toggleClass('is-bbox', mode === "bbox");
             this.$el.toggleClass('is-keyword', mode === "keyword");
+            this.model.set('mode', mode === 'polygon' ? 'poly' : mode);
         },
         setupListeners: function () {
             this.listenTo(this.propertyModel.get('property'), 'change:isEditing', this.handleEdit);

@@ -61,6 +61,9 @@ define([
             },
 
             modelToCircle: function (model) {
+                if (model.get('lon') === undefined || model.get('lat') === undefined){
+                    return undefined;
+                }
                 var rectangle = new ol.geom.Circle(translateToOpenlayersCoordinate([model.get('lon'), model.get('lat')]), model.get('radius') / this.map.getView().getProjection().getMetersPerUnit());
                 return rectangle;
             },
