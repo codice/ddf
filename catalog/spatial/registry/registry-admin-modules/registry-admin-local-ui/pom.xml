@@ -12,9 +12,7 @@
  *
  **/
  -->
-<project
-    xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>registry-admin-modules</artifactId>
         <groupId>org.codice.ddf.registry</groupId>
@@ -24,6 +22,11 @@
     <name>DDF :: Registry :: Admin :: Local UI</name>
     <artifactId>registry-admin-local-ui</artifactId>
     <packaging>bundle</packaging>
+
+    <properties>
+        <timestamp>${maven.build.timestamp}</timestamp>
+        <maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
@@ -164,9 +167,7 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
-                <includes>
-                    <include>**/*.xml</include>
-                </includes>
+                
             </resource>
         </resources>
         <plugins>

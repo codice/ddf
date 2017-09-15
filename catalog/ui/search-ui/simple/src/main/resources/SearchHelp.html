@@ -24,7 +24,7 @@
 
     <link href="lib/bootstrap-2.3.1/css/bootstrap.min.css" rel="stylesheet">
     <link href="lib/bootstrap-2.3.1/css/bootstrap-responsive.min.css" rel="stylesheet">
-    <link href="css/help.css" rel="stylesheet">
+    <link href="css/help.css?bust=${timestamp}" rel="stylesheet">
 
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -37,8 +37,7 @@
 <div class="navbar navbar-inverse navbar-fixed-top">
     <div class="navbar-inner">
         <div class="container">
-            <a class="brand" href="SearchPage.jsp"><i class="icon-globe icon-white"></i> <span
-                    class="branding">DDF</span></a>
+            <a class="brand" href="SearchPage.jsp"><i class="icon-globe icon-white"></i> <span class="branding">DDF</span></a>
 
             <div class="nav-collapse collapse">
                 <ul class="nav">
@@ -194,7 +193,7 @@
                     <dd>Provides the list of properties and associated values of the metacard</dd>
                     <dt>Metadata</dt>
                     <dd>The metadata, when expanded, displays a tree structure representing the
-                        metacard's custom metadata
+                        metacard&apos;s custom metadata
                     </dd>
                 </dl>
             </section>
@@ -203,7 +202,7 @@
 </div>
 
 <script src="lib/jquery/js/jquery-3.2.1.min.js"></script>
-<script src="lib/jquery/js/plugin/purl.js"></script>
+<script src="lib/jquery/js/plugin/purl.js?bust=${timestamp}"></script>
 <script src="lib/bootstrap-2.3.1/js/bootstrap.min.js"></script>
 
 <script type="text/javascript">

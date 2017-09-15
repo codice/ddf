@@ -37,10 +37,10 @@
      TODO: Leverage something like http://www.html5rocks.com/en/tutorials/developertools/sourcemaps/  for a better solution
  -->
 <!--  
-<link href="css/searchPage.css" rel="stylesheet">
-<link href="css/recordView.css" rel="stylesheet">
+<link href="css/searchPage.css?bust=${timestamp}" rel="stylesheet">
+<link href="css/recordView.css?bust=${timestamp}" rel="stylesheet">
 -->
-<link href="css/Search-min.css" rel="stylesheet">
+<link href="css/Search-min.css?bust=${timestamp}" rel="stylesheet">
 
 <style media=screen type="text/css">
 	.banner {
@@ -466,14 +466,14 @@
      TODO: Leverage something like http://www.html5rocks.com/en/tutorials/developertools/sourcemaps/  for a better solution
  -->
 <!--
-	<script type="text/javascript" src="js/searchMessagingDirect.js"></script>
-	<script type="text/javascript" src="js/recordView.js"></script>
-	<script type="text/javascript" src="js/metadataHelper.js"></script>
-	<script type="text/javascript" src="js/viewSwitcher.js"></script>
-	<script type="text/javascript" src="js/searchPage.js"></script>
+	<script type="text/javascript" src="js/searchMessagingDirect.js?bust=${timestamp}"></script>
+	<script type="text/javascript" src="js/recordView.js?bust=${timestamp}"></script>
+	<script type="text/javascript" src="js/metadataHelper.js?bust=${timestamp}"></script>
+	<script type="text/javascript" src="js/viewSwitcher.js?bust=${timestamp}"></script>
+	<script type="text/javascript" src="js/searchPage.js?bust=${timestamp}"></script>
  -->
 
- 	<script type="text/javascript" src="js/Search-min.js"></script>
+ 	<script type="text/javascript" src="js/Search-min.js?bust=${timestamp}"></script>
 
 </body>
 </html>

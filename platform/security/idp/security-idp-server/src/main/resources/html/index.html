@@ -22,7 +22,7 @@
     <!-- Stylesheets -->
     <link href="/idp/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <link href="/idp/bootswatch/3.3.7/flatly/bootstrap.min.css" rel="stylesheet">
-    <link href="/idp/css/index.css" rel="stylesheet">
+    <link href="/idp/css/index.css?bust=${timestamp}" rel="stylesheet">
 
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -44,5 +44,9 @@
 <main id="content" class="container full-height main-content-wrapper" role="main"></main>
 <footer></footer>
 </body>
-<script data-main="/idp/main" src="/idp/requirejs/2.3.3/require.js"></script>
+<script src="/idp/requirejs/2.3.3/require.js"></script>
+<script>
+require.config({ baseUrl: '/idp' });
+require({ urlArgs: "bust=${timestamp}" }, ["main"], function () {});
+</script>
 </html>

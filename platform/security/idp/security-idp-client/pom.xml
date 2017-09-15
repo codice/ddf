@@ -23,6 +23,11 @@
     <name>DDF :: Security :: IdP :: Client</name>
     <artifactId>security-idp-client</artifactId>
     <packaging>bundle</packaging>
+
+    <properties>
+        <timestamp>${maven.build.timestamp}</timestamp>
+        <maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>ddf.lib</groupId>
@@ -158,6 +163,12 @@
         </dependencies>
     </dependencyManagement>
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.felix</groupId>
