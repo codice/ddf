@@ -22,6 +22,7 @@ var MapSettings = require('js/view/preferences/PreferencesModal.view');
 var VisualizationSettings = require('component/visualization-selector/visualization-selector-old.view');
 var SearchSettings = require('component/search-settings/search-settings.view');
 var HiddenSettings = require('component/user-blacklist/user-blacklist.view');
+var TimeSettings = require('component/time-settings/time-settings.view');
 
 module.exports = Marionette.LayoutView.extend({
     template: template,
@@ -35,6 +36,7 @@ module.exports = Marionette.LayoutView.extend({
         'click > .user-settings-navigation .choice-visualization': 'handleNavigateToVisualization',
         'click > .user-settings-navigation .choice-search': 'handleNavigateToSearch',
         'click > .user-settings-navigation .choice-hidden': 'handleNavigateToHidden',
+        'click > .user-settings-navigation .choice-time': 'handleNavigateToTime',
         'click > .user-settings-content > .content-header .header-back': 'handleBack'
     },
     regions: {
@@ -63,6 +65,9 @@ module.exports = Marionette.LayoutView.extend({
     handleNavigateToAlerts: function(){
         this.settingsContent.show(new AlertSettings());
         this.repositionDropdown();
+    },
+    handleNavigateToTime: function(){
+        this.settingsContent.show(new TimeSettings());
     },
     handleNavigateToTheme: function(){
         //this.$el.find('> .user-settings-content > .content-header .header-title').html('Theme');

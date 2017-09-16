@@ -15,10 +15,6 @@
     max-height: ~"calc(100% - 2*@{minimumButtonSize})";
     padding: 10px 10px;
 
-    .basic-time-before,
-    .basic-time-after,
-    .basic-time-between,
-    .basic-time-relative,
     .basic-location-specific,
     .basic-type-specific {
       display: none;
@@ -71,42 +67,6 @@
     }
     .editor-footer {
       display: none;
-    }
-  }
-}
-
-@{customElementNamespace}query-basic.is-timeRange-before {
-   .editor-properties {
-
-     .basic-time-before {
-       display: block;
-     }
-   }
- }
-
-@{customElementNamespace}query-basic.is-timeRange-after {
-  .editor-properties {
-
-    .basic-time-after {
-      display: block;
-    }
-  }
-}
-
-@{customElementNamespace}query-basic.is-timeRange-between {
-  .editor-properties {
-
-    .basic-time-between {
-      display: block;
-    }
-  }
-}
-
-@{customElementNamespace}query-basic.is-timeRange-relative {
-  .editor-properties {
-
-    .basic-time-relative {
-      display: block;
     }
   }
 }

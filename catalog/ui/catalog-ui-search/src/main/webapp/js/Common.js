@@ -17,7 +17,10 @@ define([
     'js/requestAnimationFramePolyfill'
 ], function ($, moment) {
 
-    var format = 'DD MMM YYYY HH:mm:ss.SSS';
+    var timeFormats = {
+        24: 'DD MMM YYYY HH:mm:ss.SSS',
+        12: 'DD MMM YYYY h:mm:ss.SSS a'
+    };
 
     return {
         //randomly generated guid guaranteed to be unique ;)
@@ -57,11 +60,12 @@ define([
                 });
             });
         },
+        //can be deleted once histogram changes are merged
         getHumanReadableDate: function(date) {
-            return moment(date).format(this.getDateFormat());
+            return moment(date).format(timeFormats['24']);
         },
-        getDateFormat: function(){
-            return format;
+        getTimeFormats: function(){
+            return timeFormats;
         },
         getMomentDate: function(date){
            return moment(date).fromNow();
