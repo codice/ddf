@@ -62,8 +62,14 @@
         <bean class="org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardTypeImpl"/>
     </service>
 
+    <bean id="workspacePreIngestPlugin"
+          class="org.codice.ddf.catalog.ui.security.WorkspacePreIngestPlugin">
+        <argument ref="workspaceSecurityConfiguration" />
+        <argument ref="eventAdmin"/>
+    </bean>
+
     <service interface="ddf.catalog.plugin.PreIngestPlugin">
-        <bean class="org.codice.ddf.catalog.ui.security.WorkspacePreIngestPlugin"/>
+        <ref component-id="workspacePreIngestPlugin" />
     </service>
 
     <bean id="workspaceAccessPlugin"
@@ -75,17 +81,21 @@
     </service>
 
     <service interface="ddf.catalog.plugin.PolicyPlugin">
-        <bean class="org.codice.ddf.catalog.ui.security.WorkspaceSharingPolicyPlugin">
-            <argument ref="workspaceTransformer"/>
-        </bean>
+        <bean class="org.codice.ddf.catalog.ui.security.WorkspaceSharingPolicyPlugin" />
     </service>
 
-    <bean id="workspacePolicyExtension"
-          class="org.codice.ddf.catalog.ui.security.WorkspacePolicyExtension">
-
+    <bean id="workspaceSecurityConfiguration"
+          class="org.codice.ddf.catalog.ui.security.WorkspaceSecurityConfiguration">
         <cm:managed-properties
                 persistent-id="org.codice.ddf.catalog.ui.security"
                 update-strategy="container-managed"/>
+    </bean>
+
+    <reference id="eventAdmin" interface="org.osgi.service.event.EventAdmin"/>
+
+    <bean id="workspacePolicyExtension"
+          class="org.codice.ddf.catalog.ui.security.WorkspacePolicyExtension">
+        <argument ref="workspaceSecurityConfiguration" />
     </bean>
 
 

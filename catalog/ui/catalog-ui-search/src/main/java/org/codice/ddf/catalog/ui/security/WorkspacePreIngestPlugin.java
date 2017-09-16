@@ -13,13 +13,22 @@
  */
 package org.codice.ddf.catalog.ui.security;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.SortedSet;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl;
+import org.codice.ddf.system.alerts.NoticePriority;
+import org.codice.ddf.system.alerts.SystemNotice;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventAdmin;
+
+import com.google.common.collect.ImmutableSet;
 
 import ddf.catalog.Constants;
 import ddf.catalog.data.Metacard;
@@ -35,6 +44,24 @@ import ddf.security.common.audit.SecurityLogger;
 
 public class WorkspacePreIngestPlugin implements PreIngestPlugin {
 
+    private static final String ALERT_TITLE = "User missing owner claim for creating workspaces";
+
+    private static final String OWNER_ATTRIBUTE_MESSAGE = "The owner attribute value is [%s].";
+
+    private static final String USER_MESSAGE = "The user trying to create the workspace is [%s].";
+
+    public static final String EXCEPTION_MESSAGE =
+            "Cannot create workspace. Missing required attributes.";
+
+    private final WorkspaceSecurityConfiguration config;
+
+    private final EventAdmin eventAdmin;
+
+    public WorkspacePreIngestPlugin(WorkspaceSecurityConfiguration config, EventAdmin eventAdmin) {
+        this.config = config;
+        this.eventAdmin = eventAdmin;
+    }
+
     private static Map<String, WorkspaceMetacardImpl> getPreviousWorkspaces(UpdateRequest request) {
         OperationTransaction operationTransaction = (OperationTransaction) request.getProperties()
                 .get(Constants.OPERATION_TRANSACTION_KEY);
@@ -46,16 +73,34 @@ public class WorkspacePreIngestPlugin implements PreIngestPlugin {
                 .collect(Collectors.toMap(Metacard::getId, m -> m));
     }
 
-    protected String getSubjectEmail() {
-        return SubjectUtils.getEmailAddress(SecurityUtils.getSubject());
+    protected Map<String, SortedSet<String>> getSubjectAttributes() {
+        return SubjectUtils.getSubjectAttributes(SecurityUtils.getSubject());
+    }
+
+    private SortedSet<String> getSubjectAttribute(String key) {
+        Map<String, SortedSet<String>> attrs = getSubjectAttributes();
+
+        if (attrs.containsKey(key)) {
+            return attrs.get(key);
+        }
+
+        return Collections.emptySortedSet();
     }
 
     protected String getSubjectName() {
         return SubjectUtils.getName(SecurityUtils.getSubject());
     }
 
-    protected void warn(String message) {
-        SecurityLogger.auditWarn(message, SecurityUtils.getSubject());
+    protected void alertMissingClaim(String ownerAttribute) {
+        String attribute = String.format(OWNER_ATTRIBUTE_MESSAGE, ownerAttribute);
+        String subject = String.format(USER_MESSAGE, getSubjectName());
+        SystemNotice notice = new SystemNotice(WorkspacePolicyExtension.class.toString(),
+                NoticePriority.CRITICAL,
+                ALERT_TITLE,
+                ImmutableSet.of(attribute, subject));
+        eventAdmin.postEvent(new Event(SystemNotice.SYSTEM_NOTICE_BASE_TOPIC.concat("audit"),
+                notice.getProperties()));
+        SecurityLogger.auditWarn(ALERT_TITLE, SecurityUtils.getSubject());
     }
 
     /**
@@ -70,7 +115,10 @@ public class WorkspacePreIngestPlugin implements PreIngestPlugin {
     public CreateRequest process(CreateRequest request)
             throws PluginExecutionException, StopProcessingException {
 
-        String email = getSubjectEmail();
+        final String ownerAttr = config.getOwnerAttribute();
+
+        Optional<String> owner = getSubjectAttribute(ownerAttr).stream()
+                .findFirst();
 
         List<WorkspaceMetacardImpl> workspaces = request.getMetacards()
                 .stream()
@@ -79,14 +127,13 @@ public class WorkspacePreIngestPlugin implements PreIngestPlugin {
                 .filter(workspace -> StringUtils.isEmpty(workspace.getOwner()))
                 .collect(Collectors.toList());
 
-        if (!workspaces.isEmpty() && StringUtils.isEmpty(email)) {
-            throw new StopProcessingException(String.format(
-                    "Cannot create workspace. Subject with name '%s' not permitted because they have no email.",
-                    getSubjectName()));
+        if (!workspaces.isEmpty() && !owner.isPresent()) {
+            alertMissingClaim(ownerAttr);
+            throw new StopProcessingException(EXCEPTION_MESSAGE);
         }
 
         workspaces.stream()
-                .forEach(workspace -> workspace.setOwner(email));
+                .forEach(workspace -> workspace.setOwner(owner.get()));
 
         return request;
     }

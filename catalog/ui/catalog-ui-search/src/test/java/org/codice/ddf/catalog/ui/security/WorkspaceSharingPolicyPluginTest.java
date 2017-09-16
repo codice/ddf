@@ -21,7 +21,6 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl;
-import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceTransformer;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -38,13 +37,10 @@ public class WorkspaceSharingPolicyPluginTest {
 
     private PolicyPlugin plugin;
 
-    private WorkspaceTransformer transformer;
-
     @Before
     public void setUp() {
         properties = mock(Map.class);
-        transformer = mock(WorkspaceTransformer.class);
-        plugin = new WorkspaceSharingPolicyPlugin(transformer);
+        plugin = new WorkspaceSharingPolicyPlugin();
     }
 
     @Test
@@ -63,6 +59,9 @@ public class WorkspaceSharingPolicyPluginTest {
         workspace.setOwner(email);
         PolicyResponse response = plugin.processPreUpdate(workspace, properties);
         assertThat(response.itemPolicy(),
-                is(ImmutableMap.of(Core.METACARD_OWNER, ImmutableSet.of(email))));
+                is(ImmutableMap.of(Core.METACARD_OWNER,
+                        ImmutableSet.of(email),
+                        Constants.IS_WORKSPACE,
+                        ImmutableSet.of(Constants.IS_WORKSPACE))));
     }
 }
