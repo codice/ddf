@@ -20,10 +20,11 @@ define([
     'jquery',
     './metacard-title.hbs',
     'js/CustomElements',
+    'js/IconHelper',
     'js/store',
     'component/dropdown/dropdown',
     'component/dropdown/metacard-interactions/dropdown.metacard-interactions.view'
-], function (wreqr, Marionette, _, $, template, CustomElements, store,
+], function (wreqr, Marionette, _, $, template, CustomElements, IconHelper, store,
              DropdownModel, MetacardInteractionsDropdownView) {
 
     return Marionette.LayoutView.extend({
@@ -72,15 +73,17 @@ define([
             this.checkIsInWorkspace();
         },
         serializeData: function(){
-            var title;
+            var title, icon;
             if (this.model.length === 1){
+                icon = IconHelper.getClass(this.model.first());
                 title = this.model.first().get('metacard').get('properties').get('title');
             } else {
-                title = this.model.length + ' Items'
+                title = this.model.length + ' Items';
             }
             return {
-                title: title
-            }
+                title: title,
+                icon: icon
+            };
         },
         checkIfSaved: function(){
             var currentWorkspace = store.getCurrentWorkspace();
@@ -118,6 +121,7 @@ define([
                     types.remote = true;
                 }
             });
+
             this.$el.toggleClass('is-mixed', Object.keys(types).length > 1);
             this.$el.toggleClass('is-workspace', types.workspace !== undefined);
             this.$el.toggleClass('is-resource', types.resource !== undefined);

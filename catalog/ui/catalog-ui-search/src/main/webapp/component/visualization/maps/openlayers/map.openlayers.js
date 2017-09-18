@@ -329,10 +329,11 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
 
             feature.setStyle(new Openlayers.style.Style({
                 image: new Openlayers.style.Icon({
-                    img: DrawingUtility.getCircle({
-                        fillColor: options.color
+                    img: DrawingUtility.getCircleWithIcon({
+                        fillColor: options.color,
+                        icon: options.icon,
                     }),
-                    imgSize: [22, 22]
+                    imgSize: [44, 44]
                 })
             }));
 
@@ -455,11 +456,12 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
                 if (geometryInstance.constructor === Openlayers.geom.Point) {
                     feature.setStyle(new Openlayers.style.Style({
                         image: new Openlayers.style.Icon({
-                            img: DrawingUtility.getCircle({
+                            img: DrawingUtility.getCircleWithIcon({
                                 fillColor: options.color,
-                                strokeColor: options.isSelected ? 'black' : 'white' 
+                                strokeColor: options.isSelected ? 'black' : 'white',
+                                icon: options.icon
                             }),
-                            imgSize: [22, 22]
+                            imgSize: [44, 44]
                         })
                     }));
                 } else if (geometryInstance.constructor === Openlayers.geom.LineString) {

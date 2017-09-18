@@ -12,6 +12,7 @@
 /*global require*/
 var Marionette = require('marionette');
 var store = require('js/store');
+var iconHelper = require('js/IconHelper');
 var _ = require('underscore');
 var _debounce = require('lodash/debounce');
 var wkx = require('wkx');
@@ -100,6 +101,7 @@ var GeometryView = Marionette.ItemView.extend({
         this.geometry.push(this.options.map.addPoint(point, {
             id: this.model.id,
             color: this.model.get('metacard').get('color'),
+            icon: iconHelper.getFull(this.model),
             view: this
         }));
     },
@@ -133,6 +135,7 @@ var GeometryView = Marionette.ItemView.extend({
             this.geometry.forEach(function(geometry) {
                 this.options.map.updateGeometry(geometry, {
                     color: this.model.get('metacard').get('color'),
+                    icon: iconHelper.getFull(this.model),
                     isSelected: isSelected
                 });
             }.bind(this));

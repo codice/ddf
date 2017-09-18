@@ -20,6 +20,7 @@ define([
     './query-basic.hbs',
     'js/CustomElements',
     'js/store',
+    'js/IconHelper',
     'component/dropdown/dropdown',
     'component/dropdown/query-src/dropdown.query-src.view',
     'component/property/property.view',
@@ -31,7 +32,7 @@ define([
     'component/query-settings/query-settings.view',
     'component/query-time/query-time.view',
     'js/Common'
-], function (Marionette, _, $, template, CustomElements, store, DropdownModel,
+], function (Marionette, _, $, template, CustomElements, store, IconHelper, DropdownModel,
              QuerySrcView, PropertyView, Property, cql, metacardDefinitions, sources,
             CQLUtils, QuerySettingsView, QueryTimeView, Common) {
 
@@ -171,12 +172,6 @@ define([
                 model: this.model
             }))
         },
-        setupAltitude: function(){
-            this.basicAltitude.show(new QueryAltitudeView({
-                model: this.model,
-                filter: this.filter
-            }));
-        },
         setupTime: function(){
             this.basicTime.show(new QueryTimeView({
                 model: this.model,
@@ -202,7 +197,8 @@ define([
                                 }).length === 0)) {
                                 enumArray.push({
                                     label: contentType.name,
-                                    value: contentType.value
+                                    value: contentType.value,
+                                    class: "icon " + IconHelper.getClassByName(contentType.value)
                                 });
                             }
                         });
@@ -210,9 +206,10 @@ define([
                     }, metacardDefinitions.enums.datatype ? metacardDefinitions.enums.datatype.map(function (value) {
                         return {
                             label: value,
-                            value: value
-                        };
-                    }) : []),
+                            value: value,
+                            class : "icon " + IconHelper.getClassByName(value)
+                       };
+                   }) : []),
                     value: [currentValue],
                     id: 'Types'
                 })
@@ -386,10 +383,6 @@ define([
                 };
                 filters.push(typeFilter)
             }
-
-            this.basicAltitude.currentView.constructFilter().forEach((altitudeFilter) => {
-                filters.push(altitudeFilter);
-            });
 
             var text = this.basicText.currentView.model.getValue()[0];
             text = text === "" ? '*' : text;

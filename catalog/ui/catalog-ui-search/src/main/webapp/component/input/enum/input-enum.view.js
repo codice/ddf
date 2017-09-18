@@ -41,7 +41,7 @@ define([
         if (!multivalued){
             value = [value];
         }
-        return value; 
+        return value;
     }
 
     return InputView.extend({
@@ -81,12 +81,14 @@ define([
                         if (value.label) {
                             return {
                                 label: value.label,
-                                value: value.value
+                                value: value.value,
+                                class: value.class
                             };
                         } else {
                             return {
                                 label: value,
-                                value: value
+                                value: value,
+                                class: value
                             };
                         }
                     }),

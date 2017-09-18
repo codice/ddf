@@ -16,16 +16,19 @@
         {{#unless hasNoValue}}
             <img src="{{img}}">
         {{else}}
+            <i class="{{class}}"></i>
             <span>
                 {{label}}
             </span>
         {{/unless}}
     {{else}}
         {{#each label}}
+            <i class="{{class}}"></i>
             <span>
                 {{this}}
             </span>
         {{else}}
+            <i class="{{class}}"></i>
             <span>
                 {{label}}
             </span>
