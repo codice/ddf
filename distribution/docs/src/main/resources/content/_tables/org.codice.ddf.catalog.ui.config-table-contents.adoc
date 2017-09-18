@@ -101,7 +101,7 @@ TMS example (3d map support only): `[{"type" : "TMS", "url" : "https://cesiumjs.
 |Use Online Gazetteer
 |onlineGazetteer
 |Boolean
-|Should the online gazetteer be used? If unchecked a local one will be used.
+|Should the online gazetteer be used? If unchecked a local gazetteer service will be used. This only applies to the search gazetteer in Intrigue.
 |true
 |false
 

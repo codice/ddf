@@ -87,7 +87,7 @@
 
         <AD id="onlineGazetteer"
             name="Use Online Gazetteer"
-            description="Should the online gazetteer be used? If unchecked a local one will be used."
+            description="Should the online gazetteer be used? If unchecked a local gazetteer service will be used. This only applies to the search gazetteer in Intrigue."
             type="Boolean"
             default="true"
             required="false"/>
