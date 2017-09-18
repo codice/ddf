@@ -13,6 +13,7 @@
 //allows us to get around svg security restrictions in IE11 (see using svg in opengl)
 //make our own image and manually set dimensions because of IE: https://github.com/openlayers/openlayers/issues/3939
 var _ = require('underscore');
+
 var defaultColor = '#3c6dd5';
 
 module.exports = {
@@ -53,6 +54,30 @@ module.exports = {
         ctx.textAlign = 'center';
         ctx.textBaseline = "middle";
         ctx.fillText(options.text, options.diameter/2, options.diameter/2);
+        return canvas;
+    },
+    getCircleWithIcon: function(options) {
+        _.defaults(options, {
+            diameter: 44,
+            fillColor: defaultColor,
+            strokeWidth: 2,
+            strokeColor: "white",
+            text: "",
+            textColor: "white"
+        });
+        var canvas = this.getCircle(options);
+        var ctx = canvas.getContext("2d");
+        var style = options.icon.style;
+
+        ctx.font = style.size + " " + style.font;
+        ctx.fillStyle = options.textColor;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        if(style.code) {
+            var icon = String.fromCharCode(parseInt(style.code, 16));
+            ctx.fillText(icon, options.diameter/2, options.diameter/2);
+        }
         return canvas;
     }
 };

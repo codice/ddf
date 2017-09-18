@@ -20,6 +20,7 @@ define([
     'jquery',
     './result-item.hbs',
     'js/CustomElements',
+    'js/IconHelper',
     'js/store',
     'js/Common',
     'component/dropdown/dropdown',
@@ -32,7 +33,7 @@ define([
     'moment',
     'component/singletons/sources-instance',
     'behaviors/button.behavior'
-], function (Backbone, Marionette, _, $, template, CustomElements, store, Common, DropdownModel,
+], function (Backbone, Marionette, _, $, template, CustomElements, IconHelper, store, Common, DropdownModel,
              MetacardInteractionsDropdownView, ResultIndicatorView, properties, router, user,
              metacardDefinitions, moment, sources) {
 
@@ -73,7 +74,7 @@ define([
             this.listenTo(this.model.get('metacard').get('properties'), 'change', this.handleMetacardUpdate);
             this.listenTo(user.get('user').get('preferences'), 'change:resultDisplay', this.checkDisplayType);
             this.listenTo(router, 'change', this.handleMetacardUpdate);
-            this.listenTo(user.get('user').get('preferences').get('resultBlacklist'), 
+            this.listenTo(user.get('user').get('preferences').get('resultBlacklist'),
                 'add remove update reset', this.checkIfBlacklisted);
             this.listenTo(this.options.selectionInterface.getSelectedResults(), 'update add remove reset', this.handleSelectionChange);
             this.handleSelectionChange();
@@ -137,6 +138,10 @@ define([
             result.local = Boolean(result.metacard.properties['source-id'] === sources.localCatalog);
             var dateModified = moment(result.metacard.properties.modified);
             result.niceDiff = Common.getMomentDate(dateModified);
+
+            //icon
+            result.icon = IconHelper.getClass(this.model);
+
             //check validation errors
             var validationErrors = result.metacard.properties['validation-errors'];
             var validationWarnings = result.metacard.properties['validation-warnings'];

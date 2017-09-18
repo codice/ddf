@@ -15,12 +15,14 @@
      data-query-id="{{metacard.queryId}}">
     <div class="result-indicator" data-help="Signifies which searches this result has been found in.">
     </div>
-    <div class="result-type" data-help="Indicates the type of result 
+    <div class="result-type" data-help="Indicates the type of result
     (workspace, resource, history, deleted)">
         <span class="fa fa-history"></span>
         <span class="fa fa-book"></span>
         <span class="fa fa-file"></span>
         <span class="fa fa-trash"></span>
+
+        <span class="result-icon {{icon}}"></span>
     </div>
     <div class="result-details">
         <div class="detail-title details-property is-bold" data-help="{{getAlias 'title'}}">
@@ -61,11 +63,11 @@
     </div>
     <div class="result-validation">
         {{#if hasError}}
-            <span class="fa fa-exclamation-triangle resultError" data-help="Indicates the given result has a validation error.  
+            <span class="fa fa-exclamation-triangle resultError" data-help="Indicates the given result has a validation error.
             See the 'Quality' tab of the result for more details.">
             </span>
         {{else if hasWarning}}
-            <span class="fa fa-exclamation-triangle resultWarning" data-help="Indicates the given result has a validation warning.  
+            <span class="fa fa-exclamation-triangle resultWarning" data-help="Indicates the given result has a validation warning.
             See the 'Quality' tab of the result for more details.">
             </span>
         {{/if}}

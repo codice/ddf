@@ -357,8 +357,9 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
                 pointObject.altitude
             );
             var billboardRef = billboardCollection.add({
-                image: DrawingUtility.getCircle({
-                    fillColor: options.color
+                image: DrawingUtility.getCircleWithIcon({
+                    fillColor: options.color,
+                    icon: options.icon
                 }),
                 position: map.scene.globe.ellipsoid.cartographicToCartesian(cartographicPosition),
                 id: options.id,
@@ -516,9 +517,10 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
                 }.bind(this));
             }
             if (geometry.constructor === Cesium.Billboard) {
-                geometry.image = DrawingUtility.getCircle({
+                geometry.image = DrawingUtility.getCircleWithIcon({
                     fillColor: options.color,
-                    strokeColor: options.isSelected ? 'black' : 'white' 
+                    strokeColor: options.isSelected ? 'black' : 'white',
+                    icon: options.icon
                 });
             } else if (geometry.constructor === Cesium.PolylineCollection) {
                 geometry._polylines.forEach(function(polyline) {
