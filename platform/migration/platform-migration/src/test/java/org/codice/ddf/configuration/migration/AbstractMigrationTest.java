@@ -25,6 +25,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.FileSystemException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
@@ -41,6 +42,7 @@ import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationReport;
 import org.codice.ddf.migration.MigrationWarning;
+import org.junit.AssumptionViolatedException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
@@ -279,7 +281,13 @@ public class AbstractMigrationTest {
 
         dir.toFile()
                 .mkdirs();
-        Files.createSymbolicLink(path, dest);
+        try {
+            Files.createSymbolicLink(path, dest);
+        } catch (FileSystemException exception) {
+            //symlinks cannot be reliably created on Windows
+            throw new AssumptionViolatedException("The system cannot create symlinks.", exception);
+        }
+
         final Path apath = path.toRealPath(LinkOption.NOFOLLOW_LINKS);
 
         return apath.startsWith(ddfHome) ? ddfHome.relativize(apath) : apath;
