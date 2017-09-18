@@ -32,6 +32,13 @@
 
     <bean id="executorService" class="java.util.concurrent.Executors"
           factory-method="newSingleThreadExecutor">
+        <argument ref="geocodingThreadFactory"/>
+    </bean>
+
+    <bean id="geocodingThreadFactory"
+        class="org.codice.ddf.platform.util.StandardThreadFactoryBuilder"
+        factory-method="newThreadFactory">
+        <argument value="geocodingThread"/>
     </bean>
 
     <bean id="indexInitializer" class="org.codice.ddf.spatial.geocoding.index.IndexInitializer"
