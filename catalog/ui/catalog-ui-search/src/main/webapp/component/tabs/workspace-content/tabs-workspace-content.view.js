@@ -25,16 +25,31 @@ define([
         initialize: function(){
             TabsView.prototype.initialize.call(this);
             this.listenTo(this.model, 'change:activeTab', this.closePanelTwo);
+            this.listenTo(this.options.selectionInterface, 'change:query', this.handleQuery);
         },
         closePanelTwo: function(){
-            store.get('content').set('query', undefined);
-            this.options.selectionInterface.setCurrentQuery(undefined);
-            this.options.selectionInterface.setActiveSearchResults([]);
-            this.options.selectionInterface.clearSelectedResults();
-            this.options.selectionInterface.setCompleteActiveSearchResults([]);
+            switch (this.model.get('activeTab')) {
+              case 'Searches':
+                this.options.selectionInterface.setCurrentQuery(undefined);
+                this.options.selectionInterface.setActiveSearchResults([]);
+                this.options.selectionInterface.clearSelectedResults();
+                this.options.selectionInterface.setCompleteActiveSearchResults([]);
+                break;
+              default:
+                store.get('content').set('query', undefined);
+                this.options.selectionInterface.setCurrentQuery(undefined);
+                this.options.selectionInterface.setActiveSearchResults([]);
+                this.options.selectionInterface.clearSelectedResults();
+                this.options.selectionInterface.setCompleteActiveSearchResults([]);
+            }
         },
         onDestroy: function(){
             this.closePanelTwo();
+        },
+        handleQuery: function(){
+            if (store.get('content').get('query') !== undefined) {
+                this.model.set('activeTab', 'Searches');
+            }
         }
     });
 

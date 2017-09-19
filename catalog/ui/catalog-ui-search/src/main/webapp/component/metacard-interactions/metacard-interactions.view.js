@@ -25,8 +25,11 @@ define([
     'component/singletons/user-instance',
     'component/singletons/sources-instance',
     'decorator/menu-navigation.decorator',
-    'decorator/Decorators'
-], function (wreqr, Marionette, _, $, template, CustomElements, store, router, user, sources, MenuNavigationDecorator, Decorators) {
+    'decorator/Decorators',
+    'js/model/Query',
+    'wkx',
+    'js/CQLUtils'
+], function (wreqr, Marionette, _, $, template, CustomElements, store, router, user, sources, MenuNavigationDecorator, Decorators, Query, wkx, CQLUtils) {
 
     return Marionette.ItemView.extend(Decorators.decorate({
         template: template,
@@ -42,6 +45,7 @@ define([
             'click .interaction-expand': 'handleExpand',
             'click .interaction-share': 'handleShare',
             'click .interaction-download': 'handleDownload',
+            'click .interaction-create-search': 'handleCreateSearch',
             'click .metacard-interaction': 'handleClick'
         },
         ui: {
@@ -51,7 +55,7 @@ define([
             if (currentWorkspace) {
                 this.listenTo(currentWorkspace, 'change:metacards', this.checkIfSaved);
             }
-            this.listenTo(user.get('user').get('preferences').get('resultBlacklist'), 
+            this.listenTo(user.get('user').get('preferences').get('resultBlacklist'),
                 'add remove update reset', this.checkIfBlacklisted);
         },
         onRender: function(){
@@ -61,6 +65,7 @@ define([
             this.checkIfMultiple();
             this.checkIfRouted();
             this.checkIfBlacklisted();
+            this.checkHasLocation();
         },
         handleSave: function(){
             var currentWorkspace = store.getCurrentWorkspace();
@@ -111,12 +116,27 @@ define([
             });
         },
         handleShare: function(){
-            
+
         },
         handleDownload: function(){
             this.model.forEach(function(result){
                 window.open(result.get('metacard').get('properties').get('resource-download-url'));
             });
+        },
+        handleCreateSearch: function(){
+            store.clearSelectedResults();
+
+            var location = this.model.first().get('metacard').get('properties').get('location');
+            var queryModel = store.getCurrentQueries();
+
+            if (queryModel.canAddQuery()){
+                var newQuery = new Query.Model();
+                var locationGeometry = wkx.Geometry.parse(location);
+                var cqlString = "(" + CQLUtils.buildIntersectCQL(locationGeometry) + ")";
+
+                newQuery.set('cql', cqlString);
+                store.setQueryByReference(newQuery);
+            }
         },
         handleClick: function(){
             this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
@@ -159,6 +179,10 @@ define([
                 }
             });
             this.$el.toggleClass('is-blacklisted', isBlacklisted);
+        },
+        checkHasLocation: function(){
+            var location = this.model.first().get('metacard').get('properties').get('location');
+            this.$el.toggleClass('has-location', Boolean(location !== undefined));
         },
         checkTypes: function(){
             var types = {};

@@ -12,12 +12,10 @@
 /*global define*/
 /*jshint bitwise: false*/
 define([
+    'jquery',
     'js/cql',
-    'component/singletons/metacard-definitions',
-    'js/Common'
-], function (cql, metacardDefinitions, Common) {
-
-    var specialDelimiter = Common.undefined;
+    'component/singletons/metacard-definitions'
+], function ($, cql, metacardDefinitions) {
 
     return {
         sanitizeForCql: function (text) {
@@ -158,6 +156,71 @@ define([
         },
         isPointRadiusFilter: function(filter){
             return filter.value && filter.value.value && filter.value.value.indexOf('POINT') >= 0;
+        },
+        buildIntersectCQL: function(locationGeometry){
+            var locationFilter = "";
+            var locationWkt = locationGeometry.toWkt();
+            var locationType = locationGeometry.toGeoJSON().type.toUpperCase();
+
+            var shapes;
+            switch (locationType) {
+              case "POINT":
+              case "LINESTRING":
+                    locationFilter = "(DWITHIN(anyGeo, " + locationWkt + ", 1, meters))"
+                    break;
+              case "POLYGON":
+                    // Test if the shape wkt contains ,(
+                    if (/,\(/.test(locationWkt)) {
+                        shapes = locationWkt.split(',(');
+
+                        $.each(shapes, function (i, polygon) {
+                            locationWkt = polygon.replace(/POLYGON|[()]/g, '');
+                            locationWkt = "POLYGON((" + locationWkt + "))"
+                            locationFilter += "(INTERSECTS(anyGeo, " + locationWkt + "))";
+
+                            if (i !== shapes.length - 1) {
+                                  locationFilter += " OR ";
+                            }
+                        }.bind(this));
+                    }
+                    else {
+                        locationFilter = "(INTERSECTS(anyGeo, " + locationWkt + "))";
+                    }
+                    break;
+              case "MULTIPOINT":
+                    shapes = locationGeometry.points;
+                    locationFilter = this.buildIntersectOrCQL(shapes);
+                    break;
+              case "MULTIPOLYGON":
+                    shapes = locationGeometry.polygons;
+                    locationFilter = this.buildIntersectOrCQL(shapes);
+                    break;
+              case "MULTILINESTRING":
+                    shapes = locationGeometry.lineStrings;
+                    locationFilter = this.buildIntersectOrCQL(shapes);
+                    break;
+              case "GEOMETRYCOLLECTION":
+                    shapes = locationGeometry.geometries;
+                    locationFilter = this.buildIntersectOrCQL(shapes);
+                    break;
+              default:
+                    console.log("unknown location type");
+                    return;
+            }
+
+            return locationFilter;
+        },
+        buildIntersectOrCQL: function(shapes){
+            var locationFilter = "";
+            $.each(shapes, function (i, shape) {
+                locationFilter += this.buildIntersectCQL(shape);
+
+                if (i !== shapes.length - 1) {
+                      locationFilter += " OR ";
+                }
+            }.bind(this));
+
+            return locationFilter;
         }
     };
 });
