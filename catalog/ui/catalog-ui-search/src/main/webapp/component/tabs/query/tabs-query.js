@@ -28,7 +28,7 @@ define([
                 'Basic': QueryBasicView,
                 'Advanced': QueryAdvancedView,
                 'Settings': QuerySettingsView,
-                'Notifications': QueryScheduleView,
+                'Schedule': QueryScheduleView,
                 'Status': QueryStatusView
             }
         },

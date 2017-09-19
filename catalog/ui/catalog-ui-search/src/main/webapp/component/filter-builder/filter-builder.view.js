@@ -53,16 +53,16 @@ define([
         onBeforeShow: function(){
             this.filterOperator.show(DropdownView.createSimpleDropdown({
                 list: [{
-                    label: 'All of these',
+                    label: 'AND',
                     value: 'AND'
                 }, {
-                    label: 'Any of these',
+                    label: 'OR',
                     value: 'OR'
                 }, {
-                    label: 'Not all of these',
+                    label: 'NOT AND',
                     value: 'NOT AND'
                 }, {
-                    label: 'Not any of these',
+                    label: 'NOT OR',
                     value: 'NOT OR'
                 }],
                 defaultSelection: ['AND']
