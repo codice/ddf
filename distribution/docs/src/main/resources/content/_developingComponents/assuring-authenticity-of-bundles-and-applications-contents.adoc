@@ -7,7 +7,7 @@
 
 ${branding} Artifacts in the JAR file format (such as bundles or ${branding} applications packaged as KAR files) can be signed and verified using the tools included as part of the Java Runtime Environment.
 
-===== Prerequisites
+==== Prerequisites
 
 To work with Java signatures, a keystore/truststore is required.
 For testing or trial purposes ${branding} can sign and validate using a self-signed certificate, generated with the keytool utility.
@@ -38,7 +38,7 @@ Enter key password for <selfsigned>
 Re-enter new password:
 ----
 
-===== Signing a JAR/KAR
+==== Signing a JAR/KAR
 
 Once a keystore is available, the JAR can be signed using the `jarsigner`
  tool.
