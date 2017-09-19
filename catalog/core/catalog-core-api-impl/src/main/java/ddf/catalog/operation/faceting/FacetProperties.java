@@ -24,9 +24,11 @@ public class FacetProperties implements Serializable {
     COUNT
   }
 
-  private static final int DEFAULT_FACET_LIMIT = 100;
+  public static final int DEFAULT_FACET_LIMIT = 100;
 
-  private static final int DEFAULT_MIN_FACET_COUNT = 0;
+  public static final int DEFAULT_MIN_FACET_COUNT = 0;
+
+  public static final SortFacetsBy DEFAULT_SORT_KEY = SortFacetsBy.COUNT;
 
   private Set<String> facetAttributes;
 
@@ -42,7 +44,7 @@ public class FacetProperties implements Serializable {
    * @param facetAttributes A set of attributes to facet on
    */
   public FacetProperties(Set<String> facetAttributes) {
-    this(facetAttributes, SortFacetsBy.COUNT);
+    this(facetAttributes, DEFAULT_SORT_KEY);
   }
 
   /**
