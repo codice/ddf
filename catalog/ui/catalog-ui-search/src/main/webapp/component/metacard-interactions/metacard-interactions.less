@@ -32,7 +32,8 @@
   .interaction-save,
   .interaction-unsave,
   .interaction-show,
-  .interaction-share {
+  .interaction-share,
+  .interaction-create-search {
     display: none;
   }
 
@@ -90,5 +91,13 @@
 @{customElementNamespace}metacard-interactions.is-revision {
   .interaction-download {
     display: none;
+  }
+}
+
+[data-route=openWorkspace] {
+  @{customElementNamespace}metacard-interactions.has-location {
+    .interaction-create-search {
+      display: block;
+    }
   }
 }

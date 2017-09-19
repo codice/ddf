@@ -11,15 +11,22 @@
  **/
 /*global define, document*/
 define([
+    'jquery',
     'underscore',
     'backbone'
-], function (_, Backbone) {
+], function ($, _, Backbone) {
 
     return new (Backbone.Model.extend({
         defaults: {
             name: undefined,
             path: undefined,
             args: undefined
+        },
+        initialize: function(){
+            this.listenTo(this, 'change:name', this.handleChangeName);
+        },
+        handleChangeName: function(){
+            $('html').attr('data-route', this.get('name'));
         }
     }))();
 });
