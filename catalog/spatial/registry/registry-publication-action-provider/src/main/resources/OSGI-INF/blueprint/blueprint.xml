@@ -21,7 +21,15 @@
 
     <reference-list id="registryStores" interface="org.codice.ddf.registry.api.internal.RegistryStore" availability="optional"/>
 
-    <bean id="executor" class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor"/>
+    <bean id="executor" class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor">
+        <argument ref="registryPublicationThreadFactory"/>
+    </bean>
+
+    <bean id="registryPublicationThreadFactory"
+          class="org.codice.ddf.platform.util.StandardThreadFactoryBuilder"
+          factory-method="newThreadFactory">
+        <argument value="registryPublicationThread"/>
+    </bean>
 
     <bean id="registryActionProvider"
           class="org.codice.ddf.registry.publication.action.provider.RegistryPublicationActionProvider">

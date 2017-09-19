@@ -120,6 +120,11 @@
             <version>${project.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+        </dependency>
+
         <!-- Wanted to use this in JUnit tests to be able to get SQL representation
            of an OGC filter, but it caused class loader problems.
            No idea why ...
@@ -138,7 +143,10 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Spring-Context>*;wait-for-dependencies:=true;timeout:=604800
                         </Spring-Context>
-                        <Embed-Dependency>common-system</Embed-Dependency>
+                        <Embed-Dependency>
+                            common-system,
+                            platform-util
+                        </Embed-Dependency>
                         <Import-Package>
                             META-INF.cxf,
                             *

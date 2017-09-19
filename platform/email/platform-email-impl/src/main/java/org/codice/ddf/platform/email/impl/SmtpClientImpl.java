@@ -34,6 +34,7 @@ import javax.mail.Transport;
 
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.platform.email.SmtpClient;
+import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 
 import ddf.security.common.audit.SecurityLogger;
 
@@ -63,7 +64,8 @@ public class SmtpClientImpl implements SmtpClient {
 
     private static final String FALSE = Boolean.FALSE.toString();
 
-    private final ExecutorService executorService = Executors.newFixedThreadPool(1);
+    private final ExecutorService executorService = Executors.newFixedThreadPool(1,
+            StandardThreadFactoryBuilder.newThreadFactory("smtpClientImplThread"));
 
     private String hostName;
 

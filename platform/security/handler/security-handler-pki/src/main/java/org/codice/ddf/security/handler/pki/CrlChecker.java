@@ -35,6 +35,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.wss4j.common.crypto.Merlin;
 import org.codice.ddf.configuration.AbsolutePathResolver;
+import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +56,8 @@ public class CrlChecker {
     private static final CrlRefresh REFRESH = new CrlRefresh();
 
     static {
-        Executors.newScheduledThreadPool(1)
+        Executors.newScheduledThreadPool(1,
+                StandardThreadFactoryBuilder.newThreadFactory("crlCheckerThread"))
                 .scheduleWithFixedDelay(REFRESH, 0, 1, TimeUnit.HOURS);
     }
 

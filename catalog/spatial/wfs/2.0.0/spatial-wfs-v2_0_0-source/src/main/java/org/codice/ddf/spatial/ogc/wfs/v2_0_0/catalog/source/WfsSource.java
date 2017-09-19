@@ -54,6 +54,7 @@ import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.codice.ddf.cxf.SecureCxfClientFactory;
 import org.codice.ddf.libs.geo.util.GeospatialUtil;
+import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityCommand;
 import org.codice.ddf.spatial.ogc.catalog.common.AvailabilityTask;
@@ -109,7 +110,6 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.util.impl.MaskableImpl;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.service.SecurityServiceException;
-
 import net.opengis.filter.v_2_0_0.FilterCapabilities;
 import net.opengis.filter.v_2_0_0.FilterType;
 import net.opengis.filter.v_2_0_0.SortByType;
@@ -264,7 +264,9 @@ public class WfsSource extends MaskableImpl
     public WfsSource(EncryptionService encryptionService) {
         // Required for bean creation
         LOGGER.debug("Creating {}", WfsSource.class.getName());
-        scheduler = Executors.newSingleThreadScheduledExecutor();
+        scheduler =
+                Executors.newSingleThreadScheduledExecutor(StandardThreadFactoryBuilder.newThreadFactory(
+                        "wfsSourceThread"));
         this.encryptionService = encryptionService;
     }
 
@@ -515,8 +517,8 @@ public class WfsSource extends MaskableImpl
 
             LOGGER.debug("ftName: {}", ftSimpleName);
             try {
-                XmlSchema schema =
-                        wfs.describeFeatureType(new DescribeFeatureTypeRequest(featureTypeType.getName()));
+                XmlSchema schema = wfs.describeFeatureType(new DescribeFeatureTypeRequest(
+                        featureTypeType.getName()));
 
                 if (schema == null) {
                     // Some WFS 2.0.0 DescribeFeatureRequests return inconsistent results when

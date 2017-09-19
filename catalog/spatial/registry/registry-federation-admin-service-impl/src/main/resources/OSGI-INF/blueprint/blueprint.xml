@@ -44,6 +44,13 @@
     <bean id="registryPollerThreadPool" class="java.util.concurrent.Executors"
           factory-method="newScheduledThreadPool">
         <argument value="${org.codice.ddf.system.threadPoolSize}"/>
+        <argument ref="registryPollerThreadFactory"/>
+    </bean>
+
+    <bean id="registryPollerThreadFactory"
+          class="org.codice.ddf.platform.util.StandardThreadFactoryBuilder"
+          factory-method="newThreadFactory">
+        <argument value="registryPollerThread"/>
     </bean>
 
     <bean id="identityNodeInitialization"

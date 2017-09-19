@@ -19,6 +19,15 @@
 
     <bean id="executorService" class="java.util.concurrent.Executors"
           factory-method="newSingleThreadExecutor">
+        <argument ref="catalogCoreBackupThreadFactory"/>
+    </bean>
+
+    <bean id="catalogCoreBackupThreadFactory"
+          class="org.codice.ddf.platform.util.StandardThreadFactoryBuilder"
+          factory-method="newThreadFactory">
+        <argument value="catalogCoreBackupThread"/>
+        <argument value="false"/><!--isDaemon is set to false since this thread is performing a backup-->
+        <argument value="5"/>
     </bean>
 
     <bean id="catalogBackupPlugin" class="ddf.catalog.backup.CatalogBackupPlugin"

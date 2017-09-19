@@ -17,7 +17,15 @@
     <reference id="persistentStore" interface="org.codice.ddf.persistence.PersistentStore"/>
 
     <bean id="executor" class="java.util.concurrent.Executors"
-          factory-method="newSingleThreadScheduledExecutor"/>
+          factory-method="newSingleThreadScheduledExecutor">
+        <argument ref="solrAppenderThreadFactory"/>
+    </bean>
+
+    <bean id="solrAppenderThreadFactory"
+          class="org.codice.ddf.platform.util.StandardThreadFactoryBuilder"
+          factory-method="newThreadFactory">
+        <argument value="solrAppenderThread"/>
+    </bean>
 
     <bean id="solrAppender" class="org.codice.solr.appender.SolrAppender" init-method="init"
           destroy-method="destroy">

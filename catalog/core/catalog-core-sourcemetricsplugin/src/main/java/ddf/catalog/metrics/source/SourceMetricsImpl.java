@@ -23,6 +23,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -307,7 +308,9 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
         LOGGER.trace("ENTERING: addingSource");
 
         if (executorPool == null) {
-            executorPool = Executors.newCachedThreadPool();
+            executorPool = Executors.newCachedThreadPool(
+                    StandardThreadFactoryBuilder.newThreadFactory(
+                            "sourceMetricThread"));
         }
 
         // Creating JmxCollectors for all of the source metrics can be time consuming,
@@ -568,5 +571,4 @@ public class SourceMetricsImpl implements PreFederatedQueryPlugin, PostFederated
         }
 
     }
-
 }

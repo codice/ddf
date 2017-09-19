@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.impl.DefaultConsumer;
+import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +62,8 @@ public class PostIngestConsumer extends DefaultConsumer implements PostIngestPlu
             NUM_THREADS,
             0L,
             TimeUnit.MILLISECONDS,
-            blockingQueue);
+            blockingQueue,
+            StandardThreadFactoryBuilder.newThreadFactory("postIngestConsumerThread"));
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PostIngestConsumer.class);
 

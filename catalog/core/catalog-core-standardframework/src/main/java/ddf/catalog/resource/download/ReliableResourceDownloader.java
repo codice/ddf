@@ -30,6 +30,7 @@ import javax.activation.MimeType;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -264,7 +265,9 @@ public class ReliableResourceDownloader implements Runnable {
                 retryAttempts++;
                 LOGGER.debug("Download attempt {}", retryAttempts);
                 try {
-                    downloadExecutor = Executors.newSingleThreadExecutor();
+                    downloadExecutor = Executors.newSingleThreadExecutor(
+                            StandardThreadFactoryBuilder.newThreadFactory(
+                                    "reliableResourceDownloaderThread"));
                     downloadFuture = downloadExecutor.submit(reliableResourceCallable);
 
                     // Update callable and its Future in the ReliableResourceInputStream being read

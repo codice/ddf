@@ -29,6 +29,7 @@ import org.apache.solr.client.solrj.impl.CloudSolrClient;
 import org.apache.solr.client.solrj.request.CollectionAdminRequest;
 import org.apache.solr.client.solrj.response.CollectionAdminResponse;
 import org.apache.zookeeper.KeeperException;
+import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.codice.solr.factory.SolrClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,7 +115,8 @@ public class SolrCloudClientFactory implements SolrClientFactory {
     private static ScheduledExecutorService createExecutorService() throws NumberFormatException {
         Integer threadPoolSize = NumberUtils.toInt(System.getProperty(
                 "org.codice.ddf.system.threadPoolSize"), THREAD_POOL_DEFAULT_SIZE);
-        return Executors.newScheduledThreadPool(threadPoolSize);
+        return Executors.newScheduledThreadPool(threadPoolSize,
+                StandardThreadFactoryBuilder.newThreadFactory("solrCloudClientFactoryThread"));
     }
 
     private static SolrClient createSolrCloudClient(String zookeeperHosts, String collection) {

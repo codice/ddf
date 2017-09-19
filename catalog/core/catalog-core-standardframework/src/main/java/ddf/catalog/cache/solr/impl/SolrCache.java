@@ -38,6 +38,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrException;
+import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.codice.solr.factory.SolrClientFactory;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
@@ -187,7 +188,7 @@ public class SolrCache implements SolrCacheMBean {
         LOGGER.debug(
                 "Configuring cache expiration scheduler with an expiration interval of {} minute(s).",
                 expirationIntervalInMinutes);
-        scheduler = Executors.newSingleThreadScheduledExecutor();
+        scheduler = Executors.newSingleThreadScheduledExecutor(StandardThreadFactoryBuilder.newThreadFactory("solrCacheThread"));
         scheduler.scheduleAtFixedRate(new ExpirationRunner(),
                 0,
                 expirationIntervalInMinutes,

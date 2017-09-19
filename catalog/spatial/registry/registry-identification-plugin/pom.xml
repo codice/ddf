@@ -84,6 +84,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
+                            platform-util,
                             registry-common,
                             ddf-security-common,
                             catalog-core-api-impl;scope=!test

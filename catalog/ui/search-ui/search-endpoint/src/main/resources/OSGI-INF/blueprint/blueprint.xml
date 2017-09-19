@@ -22,6 +22,13 @@
     <bean id="searchThreadPool" class="java.util.concurrent.Executors"
           factory-method="newFixedThreadPool">
         <argument value="${org.codice.ddf.system.threadPoolSize}"/>
+        <argument ref="searchEndpointThreadFactory"/>
+    </bean>
+
+    <bean id="searchEndpointThreadFactory"
+          class="org.codice.ddf.platform.util.StandardThreadFactoryBuilder"
+          factory-method="newThreadFactory">
+        <argument value="searchEndpointThread"/>
     </bean>
 
     <reference id="eventAdmin" interface="org.osgi.service.event.EventAdmin"/>
