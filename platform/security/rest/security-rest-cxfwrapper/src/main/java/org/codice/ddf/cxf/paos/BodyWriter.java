@@ -14,8 +14,6 @@
 package org.codice.ddf.cxf.paos;
 
 import java.io.OutputStream;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.List;
 import javax.ws.rs.core.MediaType;
@@ -25,8 +23,6 @@ import javax.xml.stream.XMLStreamWriter;
 import org.apache.cxf.interceptor.AbstractOutDatabindingInterceptor;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.jaxrs.client.ClientProviderFactory;
-import org.apache.cxf.jaxrs.model.OperationResourceInfo;
-import org.apache.cxf.jaxrs.utils.InjectionUtils;
 import org.apache.cxf.jaxrs.utils.JAXRSUtils;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageContentsList;
@@ -78,60 +74,24 @@ public class BodyWriter extends AbstractOutDatabindingInterceptor {
     }
 
     Object body = objs.get(0);
-    Annotation[] customAnns = (Annotation[]) outMessage.get(Annotation.class.getName());
     Type t = outMessage.get(Type.class);
-    doWriteBody(outMessage, body, t, customAnns, os);
+    doWriteBody(outMessage, body, t);
   }
 
-  void doWriteBody(
-      Message outMessage, Object body, Type bodyType, Annotation[] customAnns, OutputStream os)
-      throws Fault {
+  void doWriteBody(Message outMessage, Object body, Type bodyType) throws Fault {
 
-    OperationResourceInfo ori = outMessage.getContent(OperationResourceInfo.class);
-    if (ori == null) {
-      return;
-    }
-
-    Method method = ori.getMethodToInvoke();
-    Integer bodyIndexObject = (Integer) outMessage.get("BODY_INDEX");
-    int bodyIndex = bodyIndexObject == null ? -1 : bodyIndexObject;
-
-    Annotation[] anns =
-        customAnns != null ? customAnns : getMethodAnnotations(ori.getAnnotatedMethod(), bodyIndex);
     try {
-      if (bodyIndex != -1) {
-        Class<?> paramClass = method.getParameterTypes()[bodyIndex];
-        Class<?> bodyClass =
-            paramClass.isAssignableFrom(body.getClass()) ? paramClass : body.getClass();
-        Type genericType = method.getGenericParameterTypes()[bodyIndex];
-        if (bodyType != null) {
-          genericType = bodyType;
-        }
-        genericType =
-            InjectionUtils.processGenericTypeIfNeeded(
-                ori.getClassResourceInfo().getServiceClass(), bodyClass, genericType);
-        bodyClass = InjectionUtils.updateParamClassToTypeIfNeeded(bodyClass, genericType);
-        writeBody(body, outMessage, bodyClass, genericType, anns, os);
-      } else {
-        Type paramType = body.getClass();
-        if (bodyType != null) {
-          paramType = bodyType;
-        }
-        writeBody(body, outMessage, body.getClass(), paramType, anns, os);
+      Type paramType = body.getClass();
+      if (bodyType != null) {
+        paramType = bodyType;
       }
+      writeBody(body, outMessage, body.getClass(), paramType);
     } catch (Exception ex) {
       throw new Fault(ex);
     }
   }
 
-  Annotation[] getMethodAnnotations(Method aMethod, int bodyIndex) {
-    return aMethod == null || bodyIndex == -1
-        ? new Annotation[0]
-        : aMethod.getParameterAnnotations()[bodyIndex];
-  }
-
-  <T> void writeBody(
-      T o, Message outMessage, Class<?> cls, Type type, Annotation[] anns, OutputStream os) {
+  <T> void writeBody(T o, Message outMessage, Class<?> cls, Type type) {
 
     if (o == null) {
       return;
@@ -148,11 +108,11 @@ public class BodyWriter extends AbstractOutDatabindingInterceptor {
     List<WriterInterceptor> writers =
         ClientProviderFactory.getInstance(outMessage)
             .createMessageBodyWriterInterceptor(
-                theClass, type, anns, contentType, outMessage, null);
+                theClass, type, null, contentType, outMessage, null);
     if (writers != null) {
       try {
         JAXRSUtils.writeMessageBody(
-            writers, o, theClass, type, anns, contentType, headers, outMessage);
+            writers, o, theClass, type, null, contentType, headers, outMessage);
 
         OutputStream realOs = outMessage.get(OutputStream.class);
         if (realOs != null) {
