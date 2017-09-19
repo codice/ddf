@@ -4,6 +4,8 @@ pipeline {
     agent none
     options {
         buildDiscarder(logRotator(numToKeepStr:'25'))
+        disableConcurrentBuilds()
+        timestamps()
     }
     triggers {
         /*
