@@ -34,9 +34,9 @@ public class Geocoding implements GeocodingMBean {
 
   private static final String BASE_DIR = System.getProperty("user.dir") + "/content/store/";
 
-  public GeoEntryExtractor geoEntryExtractor;
+  private GeoEntryExtractor geoEntryExtractor;
 
-  public GeoEntryIndexer geoEntryIndexer;
+  private GeoEntryIndexer geoEntryIndexer;
 
   private int progress = 0;
 

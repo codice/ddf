@@ -108,6 +108,7 @@ public class HttpUtils {
       Cookie cookie = new Cookie(cookieName, "");
       URL url = null;
       url = new URL(request.getRequestURL().toString());
+      cookie.setSecure(true);
       cookie.setDomain(url.getHost());
       cookie.setMaxAge(0);
       cookie.setPath("/");

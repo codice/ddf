@@ -23,6 +23,8 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ErrorServlet extends HttpServlet {
 
@@ -38,6 +40,7 @@ public class ErrorServlet extends HttpServlet {
 
   public static final String ERROR_STATUS_CODE = "javax.servlet.error.status_code";
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(ERROR_SERVLET_NAME);
   private ErrorHandler errorHandler;
 
   public void init() {
@@ -84,13 +87,24 @@ public class ErrorServlet extends HttpServlet {
     setErrorHandler();
 
     if (errorHandler != null) {
-      errorHandler.handleError(
-          Integer.parseInt(code), message, type, throwable, uri, request, response);
+      int codeInt;
+
+      try {
+        codeInt = Integer.parseInt(code);
+      } catch (NumberFormatException e) {
+        codeInt = 0;
+      }
+
+      errorHandler.handleError(codeInt, message, type, throwable, uri, request, response);
     } else {
       org.eclipse.jetty.server.handler.ErrorHandler jettyErrorHandler =
           new org.eclipse.jetty.server.handler.ErrorHandler();
-      jettyErrorHandler.handle(
-          request.getRequestURI(), (org.eclipse.jetty.server.Request) request, request, response);
+      try {
+        jettyErrorHandler.handle(
+            request.getRequestURI(), (org.eclipse.jetty.server.Request) request, request, response);
+      } catch (IOException e) {
+        LOGGER.error("Problem handling Jetty Error. ", e);
+      }
     }
   }
 }

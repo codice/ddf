@@ -51,6 +51,8 @@ public class HttpProxy {
 
   public static final String GZIP_ENCODING = "gzip";
 
+  private static final String UNKNOWN_TARGET = "0.0.0.0";
+
   private static final Logger LOGGER = LoggerFactory.getLogger(HttpProxy.class);
 
   private final HttpProxyService httpProxyService;
@@ -94,7 +96,7 @@ public class HttpProxy {
       endpointName =
           ((HttpProxyServiceImpl) httpProxyService)
               .start(
-                  "0.0.0.0:" + httpPort,
+                  UNKNOWN_TARGET + httpPort,
                   "https://" + host + ":" + httpsPort,
                   120000,
                   true,

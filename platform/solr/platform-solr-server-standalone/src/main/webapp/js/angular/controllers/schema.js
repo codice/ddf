@@ -249,8 +249,6 @@ solrAdminApp.controller('SchemaController',
                     $scope.deleteData = {'delete-field': {name: $scope.name}};
                 } else if ($scope.is.dynamicField) {
                     $scope.deleteData = {'delete-dynamic-field': {name: $scope.name}};
-                } else {
-                    alert("TYPE NOT KNOWN");
                 }
                 $scope.showDelete = true;
             }

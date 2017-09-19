@@ -251,7 +251,7 @@ public final class CswConstants {
 
   public static final String CONSTRAINT_LANGUAGE_CQL = "CQL_Text";
 
-  public static final List<String> CONSTRAINT_LANGUAGES =
+  protected static final List<String> CONSTRAINT_LANGUAGES =
       Arrays.asList(CONSTRAINT_LANGUAGE_FILTER, CONSTRAINT_LANGUAGE_CQL);
 
   public static final String OWS_NAMESPACE = "http://www.opengis.net/ows";

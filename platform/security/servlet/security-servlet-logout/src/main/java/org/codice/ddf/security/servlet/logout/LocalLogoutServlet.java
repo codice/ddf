@@ -91,14 +91,18 @@ public class LocalLogoutServlet extends HttpServlet {
         }
       }
       redirectUrlBuilder.addParameters(params);
+
       response.sendRedirect(redirectUrlBuilder.build().toString());
     } catch (URISyntaxException e) {
       LOGGER.debug("Invalid URI", e);
+    } catch (IOException e) {
+      LOGGER.error("Send Redirect failed. ", e);
     }
   }
 
   private void deleteJSessionId(HttpServletResponse response) {
     Cookie cookie = new Cookie("JSESSIONID", "");
+    cookie.setSecure(true);
     cookie.setMaxAge(0);
     cookie.setPath("/");
     cookie.setComment("EXPIRING COOKIE at " + System.currentTimeMillis());
