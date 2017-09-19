@@ -983,9 +983,9 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
   }
 
   private static class ExpressionValues {
-    public String propertyName;
+    private String propertyName;
 
-    public Object literal;
+    private Object literal;
 
     public String functionName;
 

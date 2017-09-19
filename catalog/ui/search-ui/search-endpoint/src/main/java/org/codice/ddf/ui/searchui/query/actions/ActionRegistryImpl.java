@@ -24,9 +24,9 @@ import org.apache.commons.collections.CollectionUtils;
 /** The {@code ActionRegistryImpl} provides an ActionRegistry for {@code Metacard}s. */
 public class ActionRegistryImpl implements ActionRegistry {
 
-  public List<ActionProvider> actionProviders;
+  private List<ActionProvider> actionProviders;
 
-  public List<MultiActionProvider> multiActionProviders;
+  private List<MultiActionProvider> multiActionProviders;
 
   public ActionRegistryImpl(
       List<ActionProvider> actionProviders, List<MultiActionProvider> multiActionProviders) {

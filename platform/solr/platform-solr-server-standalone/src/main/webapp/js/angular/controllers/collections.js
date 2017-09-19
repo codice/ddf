@@ -52,7 +52,6 @@ solrAdminApp.controller('CollectionsController',
                   }
               }
               if ($routeParams.collection && !$scope.collection) {
-                  alert("No collection called " + $routeParams.collection)
                   $location.path("/~collections");
               }
               $scope.liveNodes = data.cluster.liveNodes;
@@ -160,8 +159,6 @@ solrAdminApp.controller('CollectionsController',
           $scope.hideAll();
           if ($scope.collection) {
               $scope.showDelete = true;
-          } else {
-              alert("No collection selected.");
           }
       };
 
@@ -177,7 +174,6 @@ solrAdminApp.controller('CollectionsController',
 
       $scope.reloadCollection = function() {
         if (!$scope.collection) {
-            alert("No collection selected.");
             return;
         }
         Collections.reload({name: $scope.collection.name},

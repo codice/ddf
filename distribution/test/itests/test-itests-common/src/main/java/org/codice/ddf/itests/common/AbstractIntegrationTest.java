@@ -152,7 +152,7 @@ public abstract class AbstractIntegrationTest {
     "catalog-app", "solr-app", "spatial-app", "sdk-app"
   };
 
-  public KarafConsole console;
+  protected KarafConsole console;
 
   /**
    * An enum that returns a port number based on the class variable {@link #basePort}. Used to allow

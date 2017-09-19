@@ -101,8 +101,6 @@ solrAdminApp.controller('DocumentsController',
                     contentType = "xml";
                 } else if (postData[0] == "{" || postData[0] == '[') {
                     contentType = "json";
-                } else {
-                    alert("Cannot identify content type")
                 }
             }
             if (!doingFileUpload) {

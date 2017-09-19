@@ -63,7 +63,7 @@ public class SecureStubServer extends StubServer {
   private final HttpServer simpleServer;
 
   /** Whether or not the server should run in HTTPS mode. */
-  public boolean secured = true;
+  private boolean secured = true;
 
   /** Creates a server based on stubs that are used to determine behavior. */
   public SecureStubServer(Stub... stubs) {

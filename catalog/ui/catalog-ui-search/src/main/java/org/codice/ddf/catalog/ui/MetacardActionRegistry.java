@@ -24,7 +24,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class MetacardActionRegistry implements ActionRegistry {
-  public List<ActionProvider> actionProviders;
+  private List<ActionProvider> actionProviders;
 
   private List<MultiActionProvider> multiActionProviders;
 

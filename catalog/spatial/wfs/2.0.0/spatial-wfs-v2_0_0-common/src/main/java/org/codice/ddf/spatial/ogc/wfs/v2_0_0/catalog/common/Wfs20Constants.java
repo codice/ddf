@@ -76,7 +76,7 @@ public class Wfs20Constants extends WfsConstants {
 
   public static final QName MULTI_POLYGON = new QName(GML_3_2_NAMESPACE, "MultiPolygon");
 
-  public static final List<QName> GEOMETRY_QNAMES =
+  protected static final List<QName> GEOMETRY_QNAMES =
       Arrays.asList(
           POINT,
           ENVELOPE,
