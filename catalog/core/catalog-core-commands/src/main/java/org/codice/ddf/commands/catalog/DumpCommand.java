@@ -30,6 +30,7 @@ import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -57,9 +58,11 @@ import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 import ddf.catalog.transform.QueryResponseTransformer;
+import ddf.catalog.util.impl.ResultIterable;
 import ddf.security.common.audit.SecurityLogger;
 
 //TODO DDF-3116 The catalog:dump shuts down DDF when it fails to transform
@@ -111,7 +114,8 @@ public class DumpCommand extends CqlCommands {
             "Multithreaded"}, multiValued = false, description =
             "Number of threads to use when dumping. Setting "
                     + "this value too high for your system can cause performance degradation.")
-    int multithreaded = 20;
+    int multithreaded = Runtime.getRuntime()
+            .availableProcessors();
 
     @Option(name = "--dirlevel", required = false, multiValued = false, description =
             "Number of subdirectory levels to create.  Two characters from the ID "
@@ -191,7 +195,12 @@ public class DumpCommand extends CqlCommands {
 
         while (response.getResults()
                 .size() > 0) {
-            response = catalog.query(new QueryRequestImpl(query, props));
+            response = new SourceResponseImpl(new QueryRequestImpl(query, props),
+                    ResultIterable.resultIterable(catalog::query,
+                            new QueryRequestImpl(query, props),
+                            pageSize)
+                            .stream()
+                            .collect(Collectors.toList()));
 
             if (StringUtils.isNotBlank(zipFileName)) {
                 try {
@@ -241,9 +250,8 @@ public class DumpCommand extends CqlCommands {
                 break;
             }
 
-            if (pageSize > 0) {
-                query.setStartIndex(query.getStartIndex() + pageSize);
-            }
+            query.setStartIndex(query.getStartIndex() + pageSize);
+
         }
 
         executorService.shutdown();
