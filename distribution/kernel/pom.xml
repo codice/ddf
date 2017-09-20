@@ -38,6 +38,7 @@
         <win.setup.folder>target/temp/win</win.setup.folder>
         <!-- The name of the distribution zip file to generate in the /target directory -->
         <distribution.file.name>ddf-${project.artifactId}-${project.version}</distribution.file.name>
+        <pro-grade.version>1.1.2</pro-grade.version>
     </properties>
     <dependencies>
         <!--
@@ -72,6 +73,12 @@
             <groupId>org.codice.ddf</groupId>
             <artifactId>ddf-common</artifactId>
             <version>${project.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.pro-grade</groupId>
+            <artifactId>pro-grade</artifactId>
+            <version>${pro-grade.version}</version>
             <type>jar</type>
         </dependency>
     </dependencies>
@@ -148,6 +155,13 @@
                                     <version>${bouncy.version}</version>
                                     <outputDirectory>${setup.folder}/ext</outputDirectory>
                                     <destFileName>bcpkix-${bouncy.version}.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.codice.pro-grade</groupId>
+                                    <artifactId>pro-grade</artifactId>
+                                    <version>${pro-grade.version}</version>
+                                    <outputDirectory>${setup.folder}/ext</outputDirectory>
+                                    <destFileName>pro-grade-${pro-grade.version}.jar</destFileName>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
