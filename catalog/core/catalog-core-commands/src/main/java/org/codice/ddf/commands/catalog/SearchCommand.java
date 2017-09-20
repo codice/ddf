@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.commands.catalog;
 
+import static ddf.catalog.util.impl.ResultIterable.resultIterable;
+
 import java.util.List;
 
 import org.apache.karaf.shell.api.action.Argument;
@@ -25,9 +27,10 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.opengis.filter.Filter;
 
+import com.google.common.collect.Lists;
+
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
-import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.util.XPathHelper;
@@ -77,32 +80,26 @@ public class SearchCommand extends CqlCommands {
         CatalogFacade catalogProvider = getCatalog();
 
         QueryImpl query = new QueryImpl(filter);
-
         query.setRequestsTotalResultsCount(true);
-
         if (numberOfItems > -1) {
             query.setPageSize(numberOfItems);
         }
 
         long start = System.currentTimeMillis();
 
-        SourceResponse response = catalogProvider.query(new QueryRequestImpl(query));
+        List<Result> results = Lists.newArrayList(resultIterable(catalogProvider::query,
+                new QueryRequestImpl(query),
+                numberOfItems > 0 ? numberOfItems : 1000));
 
         long end = System.currentTimeMillis();
 
-        int size = 0;
-        if (response.getResults() != null) {
-            size = response.getResults()
-                    .size();
-        }
-
         console.println();
-        console.printf(" %d result(s) out of %s%d%s in %3.3f seconds",
-                (size),
+        console.printf(" %d result(s) out of %s%s%s in %3.3f seconds",
+                results.size(),
                 Ansi.ansi()
                         .fg(Ansi.Color.CYAN)
                         .toString(),
-                response.getHits(),
+                "?",
                 Ansi.ansi()
                         .reset()
                         .toString(),
@@ -110,7 +107,7 @@ public class SearchCommand extends CqlCommands {
         console.printf(formatString, "", "", "", "");
         printHeaderMessage(String.format(formatString, ID, DATE, TITLE, EXCERPT));
 
-        for (Result result : response.getResults()) {
+        for (Result result : results) {
             Metacard metacard = result.getMetacard();
 
             String title = (metacard.getTitle() != null ? metacard.getTitle() : "N/A");

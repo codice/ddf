@@ -14,6 +14,7 @@
 package org.codice.ddf.commands.catalog;
 
 import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static ddf.catalog.util.impl.ResultIterable.resultIterable;
 
 import java.util.Date;
 import java.util.List;
@@ -21,16 +22,16 @@ import java.util.List;
 import org.apache.karaf.shell.api.action.Argument;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
-import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.joda.time.DateTime;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortOrder;
+
+import com.google.common.collect.Lists;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.filter.impl.SortByImpl;
 import ddf.catalog.operation.QueryRequest;
-import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 
@@ -48,7 +49,7 @@ public class LatestCommand extends CatalogCommands {
 
     private static final String NUMBER = "#";
 
-    @Argument(name = "NUMBER_OF_ITEMS", description = "Number of maximum records to display. 0 returns all records.", index = 0, multiValued = false, required = false)
+    @Argument(name = "NUMBER_OF_ITEMS", description = "Maximum number of records to display. 0 returns 1000 records.", index = 0, multiValued = false, required = false)
     int numberOfItems = DEFAULT_NUMBER_OF_ITEMS;
 
     @Override
@@ -58,23 +59,18 @@ public class LatestCommand extends CatalogCommands {
         console.printf(formatString, "", "", "", "");
         printHeaderMessage(String.format(formatString, NUMBER, ID, DATE, TITLE));
 
-        CatalogFacade catalogProvider = getCatalog();
-
         Filter filter = filterBuilder.attribute(Metacard.MODIFIED)
                 .before()
                 .date(new Date());
 
         QueryImpl query = new QueryImpl(filter);
-
         query.setPageSize(numberOfItems);
-
         query.setSortBy(new SortByImpl(Metacard.MODIFIED, SortOrder.DESCENDING.name()));
 
         QueryRequest queryRequest = new QueryRequestImpl(query);
 
-        SourceResponse response = getCatalog().query(queryRequest);
-
-        List<Result> results = response.getResults();
+        List<Result> results = Lists.newArrayList(resultIterable(getCatalog()::query,
+                queryRequest, numberOfItems > 0 ? numberOfItems : 1000));
 
         int i = 1;
         for (Result result : results) {
