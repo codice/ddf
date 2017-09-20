@@ -1,0 +1,10 @@
+:title: Console Command Reference
+:type: configuringIntro
+:status: published
+:parent: Configuring
+:order: 01
+:summary: Console command reference
+
+== {title}
+
+${branding} provides access to a powerful ${command-console} to use to manage and configure the system.

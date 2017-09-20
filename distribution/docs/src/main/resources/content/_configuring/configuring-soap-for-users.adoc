@@ -1,0 +1,11 @@
+:title: Configuring SOAP Services for Users
+:type: configuration
+:status: published
+:summary: Configuring SOAP web service interfaces for user concerns.
+:parent: Configuring User Access
+:order: 02
+
+== {title}
+
+If using SOAP services, follow these steps to configure them to authenticate and authorize users.
+

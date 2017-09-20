@@ -1,0 +1,11 @@
+:title: Special System Deployments
+:type: configuringIntro
+:status: published
+:parent: Configuring
+:order: 10
+:summary: Special configurations
+
+== {title}
+
+In addition to standard configurations, several specialized configurations are possible for specific uses of ${branding}.
+

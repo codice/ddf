@@ -1,0 +1,10 @@
+:title: Connecting to Sources
+:type: configuration
+:status: draft
+:parent: Configuring Federation
+:order: 01
+:summary: Connecting to sources.
+////
+== {title}
+TODO: https://codice.atlassian.net/browse/DDF-3349 - Add general administrator-level directions for connecting to sources
+////

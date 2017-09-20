@@ -1,16 +1,19 @@
 :title: Configuring Solr Catalog Provider Data Directory
-:type: configuringConfigFile
+:type: subConfiguration
 :status: published
+:parent: Configuring Solr
 :summary: Configuring solr catalog provider data directory.
-:order: 10
+:order: 00
 
-==== Configuring Solr Catalog Provider Data Directory
+== {title}
 
 The HTTP Solr Catalog Provider and the Embedded Solr Catalog Provider writes index files to the file system.
 By default, these files are stored under `${branding}_HOME/data/solr/catalog/data`.
 If there is inadequate space in `${branding}_HOME`, or if it is desired to maintain backups of the indexes only, this directory can be changed.
 
 In order to change the Data Directory, the `system.properties` file in `${branding}_HOME/etc` must be edited prior to starting ${branding}.
+
+=== Changing an Empty Data Directory
 
 .Edit the `system.properties` file
 [source]
@@ -19,7 +22,7 @@ In order to change the Data Directory, the `system.properties` file in `${brandi
 # solr.data.dir = ${karaf.home}/data/solr
 ----
 
-===== Changing the Data Directory
+=== Changing the Data Directory After Ingest
 
 It may become necessary to change the data directory after ${branding} has ingested data.
 

@@ -5,14 +5,14 @@
 :order: 01
 :summary: Shiro realms.
 
-${branding} uses <<https://shiro.apache.org,Apache Shiro>> the concept of <<https://shiro.apache.org/realm.html,Realms>> for Authentication and Authorization.
+${branding} uses https://shiro.org[Apache Shiro] for the concept of https://shiro.apache.org/realm.html[Realms] for Authentication and Authorization.
 Realms are components that access security data such as such as users or permissions.
 
 ===== Authenticating Realms
 
 `org.apache.shiro.realm.AuthenticatingRealm`
 
-Authenticating Realms are used to authenticate an incoming authentication token and create a <<https://shiro.apache.org/subject.html,Subject>> on successful authentication.
+Authenticating Realms are used to authenticate an incoming authentication token and create a https://shiro.apache.org/subject.html[Subject] on successful authentication.
 A Subject is an application user and all available security-relevant information about that user.
 
 .Implementations of Authenticating Realms in ${branding}:

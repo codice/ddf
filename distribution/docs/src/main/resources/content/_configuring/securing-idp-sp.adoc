@@ -1,28 +1,27 @@
-:title: Securing Identity Provider/Service Provider
-:type: configuringAdminConsole
+:title: Included Identity Provider/Service Provider
+:type: configuration
 :status: published
-:summary: Securing IdP.
-:order: 12
+:parent: Configuring REST Services for Users
+:summary: Using the included IdP.
+:order: 00
 
-==== Securing Identity Provider/Service Provider
+== {title}
 
 The ${ddf-security} Identity Provider (IdP) application provides service provider handling that satisfies the http://docs.oasis-open.org/security/saml/v2.0/saml-profiles-2.0-os.pdf[SAML 2.0 Web SSO profile] in order to support external IdPs (Identity Providers).
 
-===== IdP (Identity Provider) and SP (Service Provider)
+Within the Identity Provider, IdP and SP (Service Provider) are used for SSO authentication purposes.
 
-IdP and SP are used for SSO authentication purposes.
-
-===== Installing the IdP
+=== Installing the IdP
 
 The IdP bundles are installed by default with the ${ddf-security} application.
 
 . Install the `security-idp` feature either by command line: `features:install security-idp`, or by the ${admin-console}: *${ddf-security}* -> *Features* -> `security-idp`
 
-===== Security IdP Service Provider (SP)
+=== Security IdP Service Provider (SP)
 
 The IdP client that interacts with the specified Identity Provider.
 
-===== IdP SSO Configuration
+=== Configuring IdP SSO
 
 . Navigate to *${admin-console}*.
 . Select the *${ddf-security}* application.
@@ -74,11 +73,11 @@ The IdP client that interacts with the specified Identity Provider.
 </md:EntityDescriptor>
 ----
 
-===== Security IdP Server
+=== Security IdP Server
 
 An internal Identity Provider solution.
 
-====== Configuring IdP Server
+==== Configuring IdP Server
 
 . Navigate to *${admin-console}*.
 . Select the *${ddf-security}* application.
@@ -121,7 +120,7 @@ An internal Identity Provider solution.
 </md:EntityDescriptor>
 ----
 
-===== Configuring IdP Authentication Types
+=== Configuring IdP Authentication Types
 
 Set the authentication types that will be accepted by the IdP.
 
@@ -142,6 +141,6 @@ With that configuration, any clients that failed to connect using either the SAM
 If you have configured /search to use IDP, ensure to select the "External Authentication" checkbox in *Search UI* standard settings.
 ====
 
-===== Identity Provider Limitations
+=== Identity Provider Limitations
 
 The internal Identity Provider solution should be used in favor of any external solutions until the IdP Service Provider fully satisfies the SAML 2.0 Web SSO profile.
