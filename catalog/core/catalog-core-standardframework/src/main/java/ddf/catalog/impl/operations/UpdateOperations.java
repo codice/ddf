@@ -1,43 +1,21 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
- * General Public License as published by the Free Software Foundation, either version 3 of the
- * License, or any later version.
- * <p/>
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
- * is distributed along with this program and can be found at
+ *
+ * <p>This is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * Lesser General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or any later version.
+ *
+ * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
+ * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 package ddf.catalog.impl.operations;
 
 import static ddf.catalog.Constants.CONTENT_PATHS;
 
-import java.io.Serializable;
-import java.nio.file.Path;
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
-import org.opengis.filter.Filter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.Iterables;
-
 import ddf.catalog.Constants;
 import ddf.catalog.content.StorageException;
 import ddf.catalog.content.data.ContentItem;
@@ -81,672 +59,679 @@ import ddf.catalog.source.InternalIngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.util.impl.Requests;
 import ddf.security.SecurityConstants;
+import java.io.Serializable;
+import java.nio.file.Path;
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
+import org.opengis.filter.Filter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Support class for update delegate operations for the {@code CatalogFrameworkImpl}.
- * <p>
- * This class contains two delegated update methods and methods to support them. No
- * operations/support methods should be added to this class except in support of CFI
- * update operations.
+ *
+ * <p>This class contains two delegated update methods and methods to support them. No
+ * operations/support methods should be added to this class except in support of CFI update
+ * operations.
  */
 public class UpdateOperations {
-    private static final Logger LOGGER = LoggerFactory.getLogger(UpdateOperations.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(UpdateOperations.class);
 
-    private static final Logger INGEST_LOGGER =
-            LoggerFactory.getLogger(Constants.INGEST_LOGGER_NAME);
+  private static final Logger INGEST_LOGGER = LoggerFactory.getLogger(Constants.INGEST_LOGGER_NAME);
 
-    private static final String PRE_INGEST_ERROR = "Error during pre-ingest:\n\n";
+  private static final String PRE_INGEST_ERROR = "Error during pre-ingest:\n\n";
 
-    // Inject properties
-    private final FrameworkProperties frameworkProperties;
+  // Inject properties
+  private final FrameworkProperties frameworkProperties;
 
-    private final QueryOperations queryOperations;
+  private final QueryOperations queryOperations;
 
-    private final SourceOperations sourceOperations;
+  private final SourceOperations sourceOperations;
 
-    private final OperationsSecuritySupport opsSecuritySupport;
+  private final OperationsSecuritySupport opsSecuritySupport;
 
-    private final OperationsMetacardSupport opsMetacardSupport;
+  private final OperationsMetacardSupport opsMetacardSupport;
 
-    private final OperationsCatalogStoreSupport opsCatStoreSupport;
+  private final OperationsCatalogStoreSupport opsCatStoreSupport;
 
-    private final OperationsStorageSupport opsStorageSupport;
+  private final OperationsStorageSupport opsStorageSupport;
 
-    private Historian historian;
+  private Historian historian;
 
-    public UpdateOperations(FrameworkProperties frameworkProperties,
-            QueryOperations queryOperations, SourceOperations sourceOperations,
-            OperationsSecuritySupport opsSecuritySupport,
-            OperationsMetacardSupport opsMetacardSupport,
-            OperationsCatalogStoreSupport opsCatStoreSupport,
-            OperationsStorageSupport opsStorageSupport) {
-        this.frameworkProperties = frameworkProperties;
-        this.queryOperations = queryOperations;
-        this.sourceOperations = sourceOperations;
-        this.opsSecuritySupport = opsSecuritySupport;
-        this.opsMetacardSupport = opsMetacardSupport;
-        this.opsCatStoreSupport = opsCatStoreSupport;
-        this.opsStorageSupport = opsStorageSupport;
-    }
+  public UpdateOperations(
+      FrameworkProperties frameworkProperties,
+      QueryOperations queryOperations,
+      SourceOperations sourceOperations,
+      OperationsSecuritySupport opsSecuritySupport,
+      OperationsMetacardSupport opsMetacardSupport,
+      OperationsCatalogStoreSupport opsCatStoreSupport,
+      OperationsStorageSupport opsStorageSupport) {
+    this.frameworkProperties = frameworkProperties;
+    this.queryOperations = queryOperations;
+    this.sourceOperations = sourceOperations;
+    this.opsSecuritySupport = opsSecuritySupport;
+    this.opsMetacardSupport = opsMetacardSupport;
+    this.opsCatStoreSupport = opsCatStoreSupport;
+    this.opsStorageSupport = opsStorageSupport;
+  }
 
-    public void setHistorian(Historian historian) {
-        this.historian = historian;
-    }
+  public void setHistorian(Historian historian) {
+    this.historian = historian;
+  }
 
-    //
-    // Delegate methods
-    //
-    public UpdateResponse update(UpdateRequest updateRequest)
-            throws IngestException, SourceUnavailableException {
-        UpdateResponse updateResponse = doUpdate(updateRequest);
-        updateResponse = doPostIngest(updateResponse);
-        return updateResponse;
-    }
+  //
+  // Delegate methods
+  //
+  public UpdateResponse update(UpdateRequest updateRequest)
+      throws IngestException, SourceUnavailableException {
+    UpdateResponse updateResponse = doUpdate(updateRequest);
+    updateResponse = doPostIngest(updateResponse);
+    return updateResponse;
+  }
 
-    @SuppressWarnings("unchecked")
-    private Map<String, Metacard> getUpdateMap(UpdateRequest updateRequest) {
-        return (Map<String, Metacard>) Optional.of(updateRequest)
-                .map(Operation::getProperties)
-                .map(p -> p.get(Constants.ATTRIBUTE_UPDATE_MAP_KEY))
-                .filter(Map.class::isInstance)
-                .map(Map.class::cast)
-                .orElseGet(HashMap::new);
-    }
+  @SuppressWarnings("unchecked")
+  private Map<String, Metacard> getUpdateMap(UpdateRequest updateRequest) {
+    return (Map<String, Metacard>)
+        Optional.of(updateRequest)
+            .map(Operation::getProperties)
+            .map(p -> p.get(Constants.ATTRIBUTE_UPDATE_MAP_KEY))
+            .filter(Map.class::isInstance)
+            .map(Map.class::cast)
+            .orElseGet(HashMap::new);
+  }
 
-    public UpdateResponse update(UpdateStorageRequest streamUpdateRequest)
-            throws IngestException, SourceUnavailableException {
-        Map<String, Metacard> metacardMap = new HashMap<>();
-        List<ContentItem> contentItems = new ArrayList<>(streamUpdateRequest.getContentItems()
-                .size());
-        HashMap<String, Map<String, Path>> tmpContentPaths = new HashMap<>();
+  public UpdateResponse update(UpdateStorageRequest streamUpdateRequest)
+      throws IngestException, SourceUnavailableException {
+    Map<String, Metacard> metacardMap = new HashMap<>();
+    List<ContentItem> contentItems = new ArrayList<>(streamUpdateRequest.getContentItems().size());
+    HashMap<String, Map<String, Path>> tmpContentPaths = new HashMap<>();
 
-        UpdateResponse updateResponse = null;
-        UpdateStorageRequest updateStorageRequest = null;
-        UpdateStorageResponse updateStorageResponse = null;
+    UpdateResponse updateResponse = null;
+    UpdateStorageRequest updateStorageRequest = null;
+    UpdateStorageResponse updateStorageResponse = null;
 
-        streamUpdateRequest = opsStorageSupport.prepareStorageRequest(streamUpdateRequest,
-                streamUpdateRequest::getContentItems);
+    streamUpdateRequest =
+        opsStorageSupport.prepareStorageRequest(
+            streamUpdateRequest, streamUpdateRequest::getContentItems);
 
-        // Operation populates the metacardMap, contentItems, and tmpContentPaths
-        opsMetacardSupport.generateMetacardAndContentItems(streamUpdateRequest.getContentItems(),
-                metacardMap,
-                contentItems,
-                tmpContentPaths);
+    // Operation populates the metacardMap, contentItems, and tmpContentPaths
+    opsMetacardSupport.generateMetacardAndContentItems(
+        streamUpdateRequest.getContentItems(), metacardMap, contentItems, tmpContentPaths);
 
-        streamUpdateRequest.getProperties()
-                .put(CONTENT_PATHS, tmpContentPaths);
+    streamUpdateRequest.getProperties().put(CONTENT_PATHS, tmpContentPaths);
 
-        streamUpdateRequest = applyAttributeOverrides(streamUpdateRequest, metacardMap);
+    streamUpdateRequest = applyAttributeOverrides(streamUpdateRequest, metacardMap);
 
-        try {
-            if (!contentItems.isEmpty()) {
-                updateStorageRequest = new UpdateStorageRequestImpl(contentItems,
-                        streamUpdateRequest.getId(),
-                        streamUpdateRequest.getProperties());
-                updateStorageRequest = processPreUpdateStoragePlugins(updateStorageRequest);
-
-                try {
-                    updateStorageResponse = sourceOperations.getStorage()
-                            .update(updateStorageRequest);
-                    updateStorageResponse.getProperties()
-                            .put(CONTENT_PATHS, tmpContentPaths);
-                } catch (StorageException e) {
-                    throw new IngestException(
-                            "Could not store content items. Removed created metacards.",
-                            e);
-                }
-
-                updateStorageResponse = processPostUpdateStoragePlugins(updateStorageResponse);
-
-                for (ContentItem contentItem : updateStorageResponse.getUpdatedContentItems()) {
-                    if (StringUtils.isBlank(contentItem.getQualifier())) {
-                        Metacard metacard = metacardMap.get(contentItem.getId());
-
-                        Metacard overrideMetacard = contentItem.getMetacard();
-
-                        Metacard updatedMetacard = OverrideAttributesSupport.overrideMetacard(
-                                metacard,
-                                overrideMetacard,
-                                true,
-                                true);
-
-                        updatedMetacard.setAttribute(new AttributeImpl(Metacard.RESOURCE_SIZE,
-                                String.valueOf(contentItem.getSize())));
-
-                        metacardMap.put(contentItem.getId(), updatedMetacard);
-                    }
-                }
-            }
-
-            UpdateRequestImpl updateRequest =
-                    new UpdateRequestImpl(Iterables.toArray(metacardMap.values()
-                            .stream()
-                            .map(Metacard::getId)
-                            .collect(Collectors.toList()), String.class),
-                            new ArrayList<>(metacardMap.values()));
-            updateRequest.setProperties(streamUpdateRequest.getProperties());
-            historian.setSkipFlag(updateRequest);
-            updateResponse = doUpdate(updateRequest);
-            historian.version(streamUpdateRequest, updateStorageResponse, updateResponse);
-        } catch (Exception e) {
-            if (updateStorageRequest != null) {
-                try {
-                    sourceOperations.getStorage()
-                            .rollback(updateStorageRequest);
-                } catch (StorageException e1) {
-                    LOGGER.info("Unable to remove temporary content for id: {}",
-                            updateStorageRequest.getId(),
-                            e1);
-                }
-            }
-            throw new IngestException(
-                    "Unable to store products for request: " + streamUpdateRequest.getId(), e);
-
-        } finally {
-            opsStorageSupport.commitAndCleanup(updateStorageRequest, tmpContentPaths);
-        }
-
-        updateResponse = doPostIngest(updateResponse);
-
-        return updateResponse;
-    }
-
-    //
-    // Private helper methods
-    //
-    private UpdateResponse doUpdate(UpdateRequest updateRequest)
-            throws IngestException, SourceUnavailableException {
-        updateRequest = queryOperations.setFlagsOnRequest(updateRequest);
-        updateRequest = validateUpdateRequest(updateRequest);
-        updateRequest = validateLocalSource(updateRequest);
+    try {
+      if (!contentItems.isEmpty()) {
+        updateStorageRequest =
+            new UpdateStorageRequestImpl(
+                contentItems, streamUpdateRequest.getId(), streamUpdateRequest.getProperties());
+        updateStorageRequest = processPreUpdateStoragePlugins(updateStorageRequest);
 
         try {
-            updateRequest = injectAttributes(updateRequest);
-            updateRequest = setDefaultValues(updateRequest);
-
-            updateRequest = populateMetacards(updateRequest);
-            updateRequest = processPreAuthorizationPlugins(updateRequest);
-
-            updateRequest = populateUpdateRequestPolicyMap(updateRequest);
-            updateRequest = processPreUpdateAccessPlugins(updateRequest);
-
-            updateRequest = processPreIngestPlugins(updateRequest);
-            updateRequest = validateUpdateRequest(updateRequest);
-
-            // Call the update on the catalog
-            LOGGER.debug("Calling catalog.update() with {} updates.",
-                    updateRequest.getUpdates()
-                            .size());
-
-            UpdateResponse updateResponse = performLocalUpdate(updateRequest);
-            updateResponse = performRemoteUpdate(updateRequest, updateResponse);
-
-            // Handle the posting of messages to pubsub
-            updateResponse = validateFixUpdateResponse(updateResponse, updateRequest);
-            return updateResponse;
-        } catch (StopProcessingException see) {
-            throw new IngestException(PRE_INGEST_ERROR, see);
-        } catch (RuntimeException re) {
-            throw new InternalIngestException("Exception during runtime while performing update",
-                    re);
+          updateStorageResponse = sourceOperations.getStorage().update(updateStorageRequest);
+          updateStorageResponse.getProperties().put(CONTENT_PATHS, tmpContentPaths);
+        } catch (StorageException e) {
+          throw new IngestException("Could not store content items. Removed created metacards.", e);
         }
-    }
 
-    private UpdateResponse doPostIngest(UpdateResponse currentUpdateResponse) {
-        UpdateResponse updateResponse = currentUpdateResponse;
+        updateStorageResponse = processPostUpdateStoragePlugins(updateStorageResponse);
+
+        for (ContentItem contentItem : updateStorageResponse.getUpdatedContentItems()) {
+          if (StringUtils.isBlank(contentItem.getQualifier())) {
+            Metacard metacard = metacardMap.get(contentItem.getId());
+
+            Metacard overrideMetacard = contentItem.getMetacard();
+
+            Metacard updatedMetacard =
+                OverrideAttributesSupport.overrideMetacard(metacard, overrideMetacard, true, true);
+
+            updatedMetacard.setAttribute(
+                new AttributeImpl(Metacard.RESOURCE_SIZE, String.valueOf(contentItem.getSize())));
+
+            metacardMap.put(contentItem.getId(), updatedMetacard);
+          }
+        }
+      }
+
+      UpdateRequestImpl updateRequest =
+          new UpdateRequestImpl(
+              Iterables.toArray(
+                  metacardMap.values().stream().map(Metacard::getId).collect(Collectors.toList()),
+                  String.class),
+              new ArrayList<>(metacardMap.values()));
+      updateRequest.setProperties(streamUpdateRequest.getProperties());
+      historian.setSkipFlag(updateRequest);
+      updateResponse = doUpdate(updateRequest);
+      historian.version(streamUpdateRequest, updateStorageResponse, updateResponse);
+    } catch (Exception e) {
+      if (updateStorageRequest != null) {
         try {
-            updateResponse = processPostIngestPlugins(currentUpdateResponse);
-        } catch (RuntimeException re) {
-            LOGGER.info(
-                    "Exception during runtime while performing doing post update operations (plugins and pubsub)",
-                    re);
+          sourceOperations.getStorage().rollback(updateStorageRequest);
+        } catch (StorageException e1) {
+          LOGGER.info(
+              "Unable to remove temporary content for id: {}", updateStorageRequest.getId(), e1);
         }
+      }
+      throw new IngestException(
+          "Unable to store products for request: " + streamUpdateRequest.getId(), e);
 
-        // if debug is enabled then catalog might take a significant performance hit w/r/t string
-        // building
-        if (INGEST_LOGGER.isDebugEnabled()) {
-            INGEST_LOGGER.debug("{} metacards were successfully updated. {}",
-                    updateResponse.getRequest()
-                            .getUpdates()
-                            .size(),
-                    buildUpdateLog(updateResponse.getRequest()));
+    } finally {
+      opsStorageSupport.commitAndCleanup(updateStorageRequest, tmpContentPaths);
+    }
+
+    updateResponse = doPostIngest(updateResponse);
+
+    return updateResponse;
+  }
+
+  //
+  // Private helper methods
+  //
+  private UpdateResponse doUpdate(UpdateRequest updateRequest)
+      throws IngestException, SourceUnavailableException {
+    updateRequest = queryOperations.setFlagsOnRequest(updateRequest);
+    updateRequest = validateUpdateRequest(updateRequest);
+    updateRequest = validateLocalSource(updateRequest);
+
+    try {
+      updateRequest = injectAttributes(updateRequest);
+      updateRequest = setDefaultValues(updateRequest);
+
+      updateRequest = populateMetacards(updateRequest);
+      updateRequest = processPreAuthorizationPlugins(updateRequest);
+
+      updateRequest = populateUpdateRequestPolicyMap(updateRequest);
+      updateRequest = processPreUpdateAccessPlugins(updateRequest);
+
+      updateRequest = processPreIngestPlugins(updateRequest);
+      updateRequest = validateUpdateRequest(updateRequest);
+
+      // Call the update on the catalog
+      LOGGER.debug("Calling catalog.update() with {} updates.", updateRequest.getUpdates().size());
+
+      UpdateResponse updateResponse = performLocalUpdate(updateRequest);
+      updateResponse = performRemoteUpdate(updateRequest, updateResponse);
+
+      // Handle the posting of messages to pubsub
+      updateResponse = validateFixUpdateResponse(updateResponse, updateRequest);
+      return updateResponse;
+    } catch (StopProcessingException see) {
+      throw new IngestException(PRE_INGEST_ERROR, see);
+    } catch (RuntimeException re) {
+      throw new InternalIngestException("Exception during runtime while performing update", re);
+    }
+  }
+
+  private UpdateResponse doPostIngest(UpdateResponse currentUpdateResponse) {
+    UpdateResponse updateResponse = currentUpdateResponse;
+    try {
+      updateResponse = processPostIngestPlugins(currentUpdateResponse);
+    } catch (RuntimeException re) {
+      LOGGER.info(
+          "Exception during runtime while performing doing post update operations (plugins and pubsub)",
+          re);
+    }
+
+    // if debug is enabled then catalog might take a significant performance hit w/r/t string
+    // building
+    if (INGEST_LOGGER.isDebugEnabled()) {
+      INGEST_LOGGER.debug(
+          "{} metacards were successfully updated. {}",
+          updateResponse.getRequest().getUpdates().size(),
+          buildUpdateLog(updateResponse.getRequest()));
+    }
+
+    return updateResponse;
+  }
+
+  private String buildUpdateLog(UpdateRequest createReq) {
+    StringBuilder strBuilder = new StringBuilder();
+    List<Metacard> metacards =
+        createReq.getUpdates().stream().map(Map.Entry::getValue).collect(Collectors.toList());
+    String metacardTitleLabel = "Metacard Title: ";
+    String metacardIdLabel = "Metacard ID: ";
+
+    for (int i = 0; i < metacards.size(); i++) {
+      Metacard card = metacards.get(i);
+      strBuilder.append(System.lineSeparator()).append("Batch #: ").append(i + 1).append(" | ");
+      if (card != null) {
+        if (card.getTitle() != null) {
+          strBuilder.append(metacardTitleLabel).append(card.getTitle()).append(" | ");
         }
-
-        return updateResponse;
-    }
-
-    private String buildUpdateLog(UpdateRequest createReq) {
-        StringBuilder strBuilder = new StringBuilder();
-        List<Metacard> metacards = createReq.getUpdates()
-                .stream()
-                .map(Map.Entry::getValue)
-                .collect(Collectors.toList());
-        String metacardTitleLabel = "Metacard Title: ";
-        String metacardIdLabel = "Metacard ID: ";
-
-        for (int i = 0; i < metacards.size(); i++) {
-            Metacard card = metacards.get(i);
-            strBuilder.append(System.lineSeparator())
-                    .append("Batch #: ")
-                    .append(i + 1)
-                    .append(" | ");
-            if (card != null) {
-                if (card.getTitle() != null) {
-                    strBuilder.append(metacardTitleLabel)
-                            .append(card.getTitle())
-                            .append(" | ");
-                }
-                if (card.getId() != null) {
-                    strBuilder.append(metacardIdLabel)
-                            .append(card.getId())
-                            .append(" | ");
-                }
-            } else {
-                strBuilder.append("Null Metacard");
-            }
+        if (card.getId() != null) {
+          strBuilder.append(metacardIdLabel).append(card.getId()).append(" | ");
         }
-        return strBuilder.toString();
+      } else {
+        strBuilder.append("Null Metacard");
+      }
+    }
+    return strBuilder.toString();
+  }
+
+  private UpdateRequest rewriteRequestToAvoidHistoryConflicts(
+      UpdateRequest updateRequest, QueryResponse response) {
+    final String attributeName = updateRequest.getAttributeName();
+    if (Metacard.ID.equals(attributeName)) {
+      return updateRequest;
     }
 
-    private UpdateRequest rewriteRequestToAvoidHistoryConflicts(UpdateRequest updateRequest,
-            QueryResponse response) {
-        final String attributeName = updateRequest.getAttributeName();
-        if (Metacard.ID.equals(attributeName)) {
-            return updateRequest;
-        }
+    List<Map.Entry<Serializable, Metacard>> updatedList =
+        response
+            .getResults()
+            .stream()
+            .map(Result::getMetacard)
+            .map(this::toEntryById)
+            .collect(Collectors.toList());
 
-        List<Map.Entry<Serializable, Metacard>> updatedList = response.getResults()
-                .stream()
-                .map(Result::getMetacard)
-                .map(this::toEntryById)
-                .collect(Collectors.toList());
+    return new UpdateRequestImpl(
+        updatedList, Metacard.ID, updateRequest.getProperties(), updateRequest.getStoreIds());
+  }
 
-        return new UpdateRequestImpl(updatedList,
-                Metacard.ID,
-                updateRequest.getProperties(),
-                updateRequest.getStoreIds());
+  private boolean foundAllUpdateRequestMetacards(
+      UpdateRequest updateRequest, QueryResponse response) {
+    Set<String> originalKeys =
+        updateRequest
+            .getUpdates()
+            .stream()
+            .map(Map.Entry::getKey)
+            .map(Object::toString)
+            .collect(Collectors.toSet());
+    Set<String> responseKeys =
+        response
+            .getResults()
+            .stream()
+            .map(Result::getMetacard)
+            .map(m -> m.getAttribute(updateRequest.getAttributeName()))
+            .filter(Objects::nonNull)
+            .map(Attribute::getValue)
+            .filter(Objects::nonNull)
+            .map(Object::toString)
+            .collect(Collectors.toSet());
+    return originalKeys.equals(responseKeys);
+  }
+
+  private Map.Entry<Serializable, Metacard> toEntryById(Metacard metacard) {
+    return new AbstractMap.SimpleEntry<>(metacard.getId(), metacard);
+  }
+
+  private UpdateRequest injectAttributes(UpdateRequest request) {
+    request
+        .getUpdates()
+        .forEach(
+            updateEntry -> {
+              Metacard original = updateEntry.getValue();
+              Metacard metacard =
+                  opsMetacardSupport.applyInjectors(
+                      original, frameworkProperties.getAttributeInjectors());
+              updateEntry.setValue(metacard);
+            });
+
+    return request;
+  }
+
+  private UpdateRequest setDefaultValues(UpdateRequest updateRequest) {
+    updateRequest
+        .getUpdates()
+        .stream()
+        .filter(Objects::nonNull)
+        .map(Map.Entry::getValue)
+        .filter(Objects::nonNull)
+        .forEach(opsMetacardSupport::setDefaultValues);
+
+    return updateRequest;
+  }
+
+  /**
+   * Validates that the {@link UpdateRequest} is non-null, has a non-empty list of {@link Metacard}s
+   * in it, and a non-null attribute name (which specifies if the update is being done by product
+   * URI or ID).
+   *
+   * @param updateRequest the {@link UpdateRequest}
+   * @throws IngestException if the {@link UpdateRequest} is null, or has null or empty {@link
+   *     Metacard} list, or a null attribute name.
+   */
+  private UpdateRequest validateUpdateRequest(UpdateRequest updateRequest) throws IngestException {
+    if (updateRequest == null) {
+      throw new IngestException(
+          "UpdateRequest was null, either passed in from endpoint, or as output from PreIngestPlugins");
+    }
+    List<Map.Entry<Serializable, Metacard>> entries = updateRequest.getUpdates();
+    if (CollectionUtils.isEmpty(entries) || updateRequest.getAttributeName() == null) {
+      throw new IngestException(
+          "Cannot perform update with null/empty attribute value list or null attributeName, "
+              + "either passed in from endpoint, or as output from PreIngestPlugins");
     }
 
-    private boolean foundAllUpdateRequestMetacards(UpdateRequest updateRequest,
-            QueryResponse response) {
-        Set<String> originalKeys = updateRequest.getUpdates()
-                .stream()
-                .map(Map.Entry::getKey)
-                .map(Object::toString)
-                .collect(Collectors.toSet());
-        Set<String> responseKeys = response.getResults()
-                .stream()
-                .map(Result::getMetacard)
-                .map(m -> m.getAttribute(updateRequest.getAttributeName()))
-                .filter(Objects::nonNull)
-                .map(Attribute::getValue)
-                .filter(Objects::nonNull)
-                .map(Object::toString)
-                .collect(Collectors.toSet());
-        return originalKeys.equals(responseKeys);
-    }
+    return updateRequest;
+  }
 
-    private Map.Entry<Serializable, Metacard> toEntryById(Metacard metacard) {
-        return new AbstractMap.SimpleEntry<>(metacard.getId(), metacard);
-    }
+  private UpdateResponse doRemoteUpdate(UpdateRequest updateRequest) {
+    HashSet<ProcessingDetails> exceptions = new HashSet<>();
+    Map<String, Serializable> properties = new HashMap<>();
 
-    private UpdateRequest injectAttributes(UpdateRequest request) {
-        request.getUpdates()
-                .forEach(updateEntry -> {
-                    Metacard original = updateEntry.getValue();
-                    Metacard metacard = opsMetacardSupport.applyInjectors(original,
-                            frameworkProperties.getAttributeInjectors());
-                    updateEntry.setValue(metacard);
-                });
+    List<CatalogStore> stores =
+        opsCatStoreSupport.getCatalogStoresForRequest(updateRequest, exceptions);
 
-        return request;
-    }
+    List<Update> updates = new ArrayList<>();
 
-    private UpdateRequest setDefaultValues(UpdateRequest updateRequest) {
-        updateRequest.getUpdates()
-                .stream()
-                .filter(Objects::nonNull)
-                .map(Map.Entry::getValue)
-                .filter(Objects::nonNull)
-                .forEach(opsMetacardSupport::setDefaultValues);
-
-        return updateRequest;
-    }
-
-    /**
-     * Validates that the {@link UpdateRequest} is non-null, has a non-empty list of
-     * {@link Metacard}s in it, and a non-null attribute name (which specifies if the update is
-     * being done by product URI or ID).
-     *
-     * @param updateRequest the {@link UpdateRequest}
-     * @throws IngestException if the {@link UpdateRequest} is null, or has null or empty {@link Metacard} list,
-     *                         or a null attribute name.
-     */
-    private UpdateRequest validateUpdateRequest(UpdateRequest updateRequest)
-            throws IngestException {
-        if (updateRequest == null) {
-            throw new IngestException(
-                    "UpdateRequest was null, either passed in from endpoint, or as output from PreIngestPlugins");
-        }
-        List<Map.Entry<Serializable, Metacard>> entries = updateRequest.getUpdates();
-        if (CollectionUtils.isEmpty(entries) || updateRequest.getAttributeName() == null) {
-            throw new IngestException(
-                    "Cannot perform update with null/empty attribute value list or null attributeName, "
-                            + "either passed in from endpoint, or as output from PreIngestPlugins");
-        }
-
-        return updateRequest;
-    }
-
-    private UpdateResponse doRemoteUpdate(UpdateRequest updateRequest) {
-        HashSet<ProcessingDetails> exceptions = new HashSet<>();
-        Map<String, Serializable> properties = new HashMap<>();
-
-        List<CatalogStore> stores = opsCatStoreSupport.getCatalogStoresForRequest(updateRequest,
-                exceptions);
-
-        List<Update> updates = new ArrayList<>();
-
-        for (CatalogStore store : stores) {
-            try {
-                if (!store.isAvailable()) {
-                    exceptions.add(new ProcessingDetailsImpl(store.getId(),
-                            null,
-                            "CatalogStore is not available"));
-                } else {
-                    UpdateResponse response = store.update(updateRequest);
-                    properties.put(store.getId(), new ArrayList<>(response.getUpdatedMetacards()));
-                    updates = response.getUpdatedMetacards();
-                }
-            } catch (IngestException e) {
-                INGEST_LOGGER.error("Error updating metacards for CatalogStore {}",
-                        store.getId(),
-                        e);
-                exceptions.add(new ProcessingDetailsImpl(store.getId(), e));
-            }
-        }
-
-        return new UpdateResponseImpl(updateRequest, properties, updates, exceptions);
-    }
-
-    /**
-     * Validates that the {@link UpdateResponse} has one or more {@link Metacard}s in it that were
-     * updated in the catalog, and that the original {@link UpdateRequest} is included in the
-     * response.
-     *
-     * @param updateResponse the original {@link UpdateResponse} returned from the catalog provider
-     * @param updateRequest  the original {@link UpdateRequest} sent to the catalog provider
-     * @return the updated {@link UpdateResponse}
-     * @throws IngestException if original {@link UpdateResponse} passed in is null or the {@link Metacard}s
-     *                         list in the response is null
-     */
-    private UpdateResponse validateFixUpdateResponse(UpdateResponse updateResponse,
-            UpdateRequest updateRequest) throws IngestException {
-        UpdateResponse updateResp = updateResponse;
-        if (updateResp != null) {
-            if (updateResp.getUpdatedMetacards() == null) {
-                throw new IngestException(
-                        "CatalogProvider returned null list of results from update method.");
-            }
-            if (updateResp.getRequest() == null) {
-                updateResp = new UpdateResponseImpl(updateRequest,
-                        updateResponse.getProperties(),
-                        updateResponse.getUpdatedMetacards());
-            }
+    for (CatalogStore store : stores) {
+      try {
+        if (!store.isAvailable()) {
+          exceptions.add(
+              new ProcessingDetailsImpl(store.getId(), null, "CatalogStore is not available"));
         } else {
-            throw new IngestException("CatalogProvider returned null UpdateResponse Object.");
+          UpdateResponse response = store.update(updateRequest);
+          properties.put(store.getId(), new ArrayList<>(response.getUpdatedMetacards()));
+          updates = response.getUpdatedMetacards();
         }
-        return updateResp;
+      } catch (IngestException e) {
+        INGEST_LOGGER.error("Error updating metacards for CatalogStore {}", store.getId(), e);
+        exceptions.add(new ProcessingDetailsImpl(store.getId(), e));
+      }
     }
 
-    private UpdateResponse processPostIngestPlugins(UpdateResponse updateResponse) {
-        for (final PostIngestPlugin plugin : frameworkProperties.getPostIngest()) {
-            try {
-                updateResponse = plugin.process(updateResponse);
-            } catch (PluginExecutionException e) {
-                LOGGER.info("Plugin exception", e);
-            }
-        }
-        return updateResponse;
+    return new UpdateResponseImpl(updateRequest, properties, updates, exceptions);
+  }
+
+  /**
+   * Validates that the {@link UpdateResponse} has one or more {@link Metacard}s in it that were
+   * updated in the catalog, and that the original {@link UpdateRequest} is included in the
+   * response.
+   *
+   * @param updateResponse the original {@link UpdateResponse} returned from the catalog provider
+   * @param updateRequest the original {@link UpdateRequest} sent to the catalog provider
+   * @return the updated {@link UpdateResponse}
+   * @throws IngestException if original {@link UpdateResponse} passed in is null or the {@link
+   *     Metacard}s list in the response is null
+   */
+  private UpdateResponse validateFixUpdateResponse(
+      UpdateResponse updateResponse, UpdateRequest updateRequest) throws IngestException {
+    UpdateResponse updateResp = updateResponse;
+    if (updateResp != null) {
+      if (updateResp.getUpdatedMetacards() == null) {
+        throw new IngestException(
+            "CatalogProvider returned null list of results from update method.");
+      }
+      if (updateResp.getRequest() == null) {
+        updateResp =
+            new UpdateResponseImpl(
+                updateRequest,
+                updateResponse.getProperties(),
+                updateResponse.getUpdatedMetacards());
+      }
+    } else {
+      throw new IngestException("CatalogProvider returned null UpdateResponse Object.");
+    }
+    return updateResp;
+  }
+
+  private UpdateResponse processPostIngestPlugins(UpdateResponse updateResponse) {
+    for (final PostIngestPlugin plugin : frameworkProperties.getPostIngest()) {
+      try {
+        updateResponse = plugin.process(updateResponse);
+      } catch (PluginExecutionException e) {
+        LOGGER.info("Plugin exception", e);
+      }
+    }
+    return updateResponse;
+  }
+
+  private UpdateResponse performRemoteUpdate(
+      UpdateRequest updateRequest, UpdateResponse updateResponse) {
+    if (opsCatStoreSupport.isCatalogStoreRequest(updateRequest)) {
+      UpdateResponse remoteUpdateResponse = doRemoteUpdate(updateRequest);
+      if (updateResponse == null) {
+        updateResponse = remoteUpdateResponse;
+      } else {
+        updateResponse.getProperties().putAll(remoteUpdateResponse.getProperties());
+        updateResponse.getProcessingErrors().addAll(remoteUpdateResponse.getProcessingErrors());
+      }
     }
 
-    private UpdateResponse performRemoteUpdate(UpdateRequest updateRequest,
-            UpdateResponse updateResponse) {
-        if (opsCatStoreSupport.isCatalogStoreRequest(updateRequest)) {
-            UpdateResponse remoteUpdateResponse = doRemoteUpdate(updateRequest);
-            if (updateResponse == null) {
-                updateResponse = remoteUpdateResponse;
-            } else {
-                updateResponse.getProperties()
-                        .putAll(remoteUpdateResponse.getProperties());
-                updateResponse.getProcessingErrors()
-                        .addAll(remoteUpdateResponse.getProcessingErrors());
-            }
-        }
+    return updateResponse;
+  }
 
-        return updateResponse;
+  private UpdateResponse performLocalUpdate(UpdateRequest updateRequest)
+      throws IngestException, SourceUnavailableException {
+    if (!Requests.isLocal(updateRequest)) {
+      return null;
     }
 
-    private UpdateResponse performLocalUpdate(UpdateRequest updateRequest)
-            throws IngestException, SourceUnavailableException {
-        if (!Requests.isLocal(updateRequest)) {
-            return null;
-        }
+    UpdateResponse updateResponse = sourceOperations.getCatalog().update(updateRequest);
+    updateResponse = historian.version(updateResponse);
+    return updateResponse;
+  }
 
-        UpdateResponse updateResponse = sourceOperations.getCatalog()
-                .update(updateRequest);
-        updateResponse = historian.version(updateResponse);
-        return updateResponse;
+  private UpdateRequest processPreIngestPlugins(UpdateRequest updateRequest)
+      throws StopProcessingException {
+    for (PreIngestPlugin plugin : frameworkProperties.getPreIngest()) {
+      try {
+        updateRequest = plugin.process(updateRequest);
+      } catch (PluginExecutionException e) {
+        LOGGER.debug("error processing update in PreIngestPlugin", e);
+      }
+    }
+    return updateRequest;
+  }
+
+  private UpdateRequest processPreUpdateAccessPlugins(UpdateRequest updateRequest)
+      throws StopProcessingException {
+    Map<String, Metacard> metacardMap = getUpdateMap(updateRequest);
+    for (AccessPlugin plugin : frameworkProperties.getAccessPlugins()) {
+      updateRequest = plugin.processPreUpdate(updateRequest, metacardMap);
+    }
+    return updateRequest;
+  }
+
+  private UpdateRequest populateUpdateRequestPolicyMap(UpdateRequest updateRequest)
+      throws StopProcessingException {
+    Map<String, Metacard> metacardMap = getUpdateMap(updateRequest);
+    HashMap<String, Set<String>> requestPolicyMap = new HashMap<>();
+    for (Map.Entry<Serializable, Metacard> update : updateRequest.getUpdates()) {
+      HashMap<String, Set<String>> itemPolicyMap = new HashMap<>();
+      HashMap<String, Set<String>> oldItemPolicyMap = new HashMap<>();
+      Metacard oldMetacard = metacardMap.get(update.getKey().toString());
+
+      for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
+        PolicyResponse updatePolicyResponse =
+            plugin.processPreUpdate(
+                update.getValue(), Collections.unmodifiableMap(updateRequest.getProperties()));
+        PolicyResponse oldPolicyResponse =
+            plugin.processPreUpdate(
+                oldMetacard, Collections.unmodifiableMap(updateRequest.getProperties()));
+
+        opsSecuritySupport.buildPolicyMap(
+            itemPolicyMap, updatePolicyResponse.itemPolicy().entrySet());
+        opsSecuritySupport.buildPolicyMap(
+            oldItemPolicyMap, oldPolicyResponse.itemPolicy().entrySet());
+        opsSecuritySupport.buildPolicyMap(
+            requestPolicyMap, updatePolicyResponse.operationPolicy().entrySet());
+      }
+      update.getValue().setAttribute(new AttributeImpl(Metacard.SECURITY, itemPolicyMap));
+      if (oldMetacard != null) {
+        oldMetacard.setAttribute(new AttributeImpl(Metacard.SECURITY, oldItemPolicyMap));
+      }
+    }
+    updateRequest.getProperties().put(PolicyPlugin.OPERATION_SECURITY, requestPolicyMap);
+
+    return updateRequest;
+  }
+
+  private UpdateRequest populateMetacards(UpdateRequest updateRequest) throws IngestException {
+    QueryRequestImpl queryRequest = createQueryRequest(updateRequest);
+    QueryResponse queryResponse;
+    try {
+      queryResponse =
+          queryOperations.doQuery(queryRequest, frameworkProperties.getFederationStrategy());
+    } catch (FederationException e) {
+      LOGGER.debug("Unable to complete query for updated metacards.", e);
+      throw new IngestException("Exception during runtime while performing update");
     }
 
-    private UpdateRequest processPreIngestPlugins(UpdateRequest updateRequest)
-            throws StopProcessingException {
-        for (PreIngestPlugin plugin : frameworkProperties.getPreIngest()) {
-            try {
-                updateRequest = plugin.process(updateRequest);
-            } catch (PluginExecutionException e) {
-                LOGGER.debug("error processing update in PreIngestPlugin", e);
-            }
-        }
-        return updateRequest;
+    if (!foundAllUpdateRequestMetacards(updateRequest, queryResponse)) {
+      logFailedQueryInfo(updateRequest, queryResponse);
+      throw new IngestException("Could not find all metacards specified in request");
     }
 
-    private UpdateRequest processPreUpdateAccessPlugins(UpdateRequest updateRequest)
-            throws StopProcessingException {
-        Map<String, Metacard> metacardMap = getUpdateMap(updateRequest);
-        for (AccessPlugin plugin : frameworkProperties.getAccessPlugins()) {
-            updateRequest = plugin.processPreUpdate(updateRequest, metacardMap);
-        }
-        return updateRequest;
-    }
+    updateRequest = rewriteRequestToAvoidHistoryConflicts(updateRequest, queryResponse);
 
-    private UpdateRequest populateUpdateRequestPolicyMap(UpdateRequest updateRequest)
-            throws StopProcessingException {
-        Map<String, Metacard> metacardMap = getUpdateMap(updateRequest);
-        HashMap<String, Set<String>> requestPolicyMap = new HashMap<>();
-        for (Map.Entry<Serializable, Metacard> update : updateRequest.getUpdates()) {
-            HashMap<String, Set<String>> itemPolicyMap = new HashMap<>();
-            HashMap<String, Set<String>> oldItemPolicyMap = new HashMap<>();
-            Metacard oldMetacard = metacardMap.get(update.getKey()
-                    .toString());
-
-            for (PolicyPlugin plugin : frameworkProperties.getPolicyPlugins()) {
-                PolicyResponse updatePolicyResponse = plugin.processPreUpdate(update.getValue(),
-                        Collections.unmodifiableMap(updateRequest.getProperties()));
-                PolicyResponse oldPolicyResponse = plugin.processPreUpdate(oldMetacard,
-                        Collections.unmodifiableMap(updateRequest.getProperties()));
-
-                opsSecuritySupport.buildPolicyMap(itemPolicyMap,
-                        updatePolicyResponse.itemPolicy()
-                                .entrySet());
-                opsSecuritySupport.buildPolicyMap(oldItemPolicyMap,
-                        oldPolicyResponse.itemPolicy()
-                                .entrySet());
-                opsSecuritySupport.buildPolicyMap(requestPolicyMap,
-                        updatePolicyResponse.operationPolicy()
-                                .entrySet());
-            }
-            update.getValue()
-                    .setAttribute(new AttributeImpl(Metacard.SECURITY, itemPolicyMap));
-            if (oldMetacard != null) {
-                oldMetacard.setAttribute(new AttributeImpl(Metacard.SECURITY, oldItemPolicyMap));
-            }
-        }
-        updateRequest.getProperties()
-                .put(PolicyPlugin.OPERATION_SECURITY, requestPolicyMap);
-
-        return updateRequest;
-    }
-
-    private UpdateRequest populateMetacards(UpdateRequest updateRequest) throws IngestException {
-        QueryRequestImpl queryRequest = createQueryRequest(updateRequest);
-        QueryResponse queryResponse;
-        try {
-            queryResponse = queryOperations.doQuery(queryRequest,
-                    frameworkProperties.getFederationStrategy());
-        } catch (FederationException e) {
-            LOGGER.debug("Unable to complete query for updated metacards.", e);
-            throw new IngestException("Exception during runtime while performing update");
-        }
-
-        if (!foundAllUpdateRequestMetacards(updateRequest, queryResponse)) {
-            logFailedQueryInfo(updateRequest, queryResponse);
-            throw new IngestException("Could not find all metacards specified in request");
-        }
-
-        updateRequest = rewriteRequestToAvoidHistoryConflicts(updateRequest, queryResponse);
-
-        //Construct the metacardMap using the metacard's ID in order to match the UpdateRequest
-        HashMap<String, Metacard> metacardMap = new HashMap<>(queryResponse.getResults()
+    //Construct the metacardMap using the metacard's ID in order to match the UpdateRequest
+    HashMap<String, Metacard> metacardMap =
+        new HashMap<>(
+            queryResponse
+                .getResults()
                 .stream()
                 .map(Result::getMetacard)
-                .collect(Collectors.toMap(metacard -> getAttributeStringValue(metacard, Core.ID),
+                .collect(
+                    Collectors.toMap(
+                        metacard -> getAttributeStringValue(metacard, Core.ID),
                         Function.identity())));
-        updateRequest.getProperties()
-                .put(Constants.ATTRIBUTE_UPDATE_MAP_KEY, metacardMap);
-        updateRequest.getProperties()
-                .put(Constants.OPERATION_TRANSACTION_KEY,
-                        new OperationTransactionImpl(OperationTransaction.OperationType.UPDATE,
-                                metacardMap.values()));
-        return updateRequest;
-    }
+    updateRequest.getProperties().put(Constants.ATTRIBUTE_UPDATE_MAP_KEY, metacardMap);
+    updateRequest
+        .getProperties()
+        .put(
+            Constants.OPERATION_TRANSACTION_KEY,
+            new OperationTransactionImpl(
+                OperationTransaction.OperationType.UPDATE, metacardMap.values()));
+    return updateRequest;
+  }
 
-    private UpdateRequest processPreAuthorizationPlugins(UpdateRequest updateRequest)
-            throws StopProcessingException {
-        Map<String, Metacard> metacardMap = getUpdateMap(updateRequest);
-        for (PreAuthorizationPlugin plugin : frameworkProperties.getPreAuthorizationPlugins()) {
-            updateRequest = plugin.processPreUpdate(updateRequest, metacardMap);
-        }
-        return updateRequest;
+  private UpdateRequest processPreAuthorizationPlugins(UpdateRequest updateRequest)
+      throws StopProcessingException {
+    Map<String, Metacard> metacardMap = getUpdateMap(updateRequest);
+    for (PreAuthorizationPlugin plugin : frameworkProperties.getPreAuthorizationPlugins()) {
+      updateRequest = plugin.processPreUpdate(updateRequest, metacardMap);
     }
+    return updateRequest;
+  }
 
-    private QueryRequestImpl createQueryRequest(UpdateRequest updateRequest) {
-        List<Filter> idFilters = updateRequest.getUpdates()
-                .stream()
-                .map(update -> frameworkProperties.getFilterBuilder()
+  private QueryRequestImpl createQueryRequest(UpdateRequest updateRequest) {
+    List<Filter> idFilters =
+        updateRequest
+            .getUpdates()
+            .stream()
+            .map(
+                update ->
+                    frameworkProperties
+                        .getFilterBuilder()
                         .attribute(updateRequest.getAttributeName())
                         .is()
                         .equalTo()
-                        .text(update.getKey()
-                                .toString()))
-                .collect(Collectors.toList());
+                        .text(update.getKey().toString()))
+            .collect(Collectors.toList());
 
-        QueryImpl queryImpl =
-                new QueryImpl(queryOperations.getFilterWithAdditionalFilters(idFilters),
-                        1,  /* start index */
-                        0,  /* page size */
-                        null,
-                        false, /* total result count */
-                        0   /* timeout */);
-        Map<String, Serializable> properties = new HashMap<>();
-        properties.put(SecurityConstants.SECURITY_SUBJECT,
-                opsSecuritySupport.getSubject(updateRequest));
-        return new QueryRequestImpl(queryImpl, false, updateRequest.getStoreIds(), properties);
+    QueryImpl queryImpl =
+        new QueryImpl(
+            queryOperations.getFilterWithAdditionalFilters(idFilters),
+            1, /* start index */
+            0, /* page size */
+            null,
+            false, /* total result count */
+            0 /* timeout */);
+    Map<String, Serializable> properties = new HashMap<>();
+    properties.put(
+        SecurityConstants.SECURITY_SUBJECT, opsSecuritySupport.getSubject(updateRequest));
+    return new QueryRequestImpl(queryImpl, false, updateRequest.getStoreIds(), properties);
+  }
+
+  private UpdateRequest validateLocalSource(UpdateRequest updateRequest)
+      throws SourceUnavailableException {
+    if (Requests.isLocal(updateRequest)
+        && !sourceOperations.isSourceAvailable(sourceOperations.getCatalog())) {
+      throw new SourceUnavailableException(
+          "Local provider is not available, cannot perform update operation.");
     }
 
-    private UpdateRequest validateLocalSource(UpdateRequest updateRequest)
-            throws SourceUnavailableException {
-        if (Requests.isLocal(updateRequest)
-                && !sourceOperations.isSourceAvailable(sourceOperations.getCatalog())) {
-            throw new SourceUnavailableException(
-                    "Local provider is not available, cannot perform update operation.");
-        }
+    return updateRequest;
+  }
 
-        return updateRequest;
+  private UpdateStorageResponse processPostUpdateStoragePlugins(
+      UpdateStorageResponse updateStorageResponse) {
+    for (final PostUpdateStoragePlugin plugin : frameworkProperties.getPostUpdateStoragePlugins()) {
+      try {
+        updateStorageResponse = plugin.process(updateStorageResponse);
+      } catch (PluginExecutionException e) {
+        LOGGER.debug("Plugin processing failed. This is allowable. Skipping to next plugin.", e);
+      }
     }
+    return updateStorageResponse;
+  }
 
-    private UpdateStorageResponse processPostUpdateStoragePlugins(
-            UpdateStorageResponse updateStorageResponse) {
-        for (final PostUpdateStoragePlugin plugin : frameworkProperties.getPostUpdateStoragePlugins()) {
-            try {
-                updateStorageResponse = plugin.process(updateStorageResponse);
-            } catch (PluginExecutionException e) {
-                LOGGER.debug("Plugin processing failed. This is allowable. Skipping to next plugin.",
-                        e);
-            }
-        }
-        return updateStorageResponse;
+  private UpdateStorageRequest processPreUpdateStoragePlugins(
+      UpdateStorageRequest updateStorageRequest) {
+    for (final PreUpdateStoragePlugin plugin : frameworkProperties.getPreUpdateStoragePlugins()) {
+      try {
+        updateStorageRequest = plugin.process(updateStorageRequest);
+      } catch (PluginExecutionException e) {
+        LOGGER.debug("Plugin processing failed. This is allowable. Skipping to next plugin.", e);
+      }
     }
+    return updateStorageRequest;
+  }
 
-    private UpdateStorageRequest processPreUpdateStoragePlugins(
-            UpdateStorageRequest updateStorageRequest) {
-        for (final PreUpdateStoragePlugin plugin : frameworkProperties.getPreUpdateStoragePlugins()) {
-            try {
-                updateStorageRequest = plugin.process(updateStorageRequest);
-            } catch (PluginExecutionException e) {
-                LOGGER.debug("Plugin processing failed. This is allowable. Skipping to next plugin.",
-                        e);
-            }
-        }
-        return updateStorageRequest;
+  private String getAttributeStringValue(Metacard mcard, String attribute) {
+    return Optional.of(mcard)
+        .map(m -> m.getAttribute(attribute))
+        .map(Attribute::getValue)
+        .map(Object::toString)
+        .orElse("");
+  }
+
+  private void logFailedQueryInfo(UpdateRequest updateRequest, QueryResponse query) {
+    if (LOGGER.isDebugEnabled()) {
+      final String attributeName = updateRequest.getAttributeName();
+      Set<String> queryResults =
+          query
+              .getResults()
+              .stream()
+              .map(Result::getMetacard)
+              .map(m -> m.getAttribute(attributeName))
+              .filter(Objects::nonNull)
+              .map(Attribute::getValue)
+              .filter(Objects::nonNull)
+              .map(Object::toString)
+              .collect(Collectors.toSet());
+
+      LOGGER.debug(
+          "While rewriting the query, did not get a metacardId corresponding to every attribute.");
+      LOGGER.debug("Original Update By attribute was: {}", attributeName);
+      LOGGER.debug(
+          "Unable to get Metacard IDs from metacards:: {}",
+          updateRequest
+              .getUpdates()
+              .stream()
+              .map(Map.Entry::getKey)
+              .map(Object::toString)
+              .filter(s -> !queryResults.contains(s))
+              .collect(Collectors.joining(", ", "[", "]")));
     }
+  }
 
-    private String getAttributeStringValue(Metacard mcard, String attribute) {
-        return Optional.of(mcard)
-                .map(m -> m.getAttribute(attribute))
-                .map(Attribute::getValue)
-                .map(Object::toString)
-                .orElse("");
-    }
+  private UpdateStorageRequest applyAttributeOverrides(
+      UpdateStorageRequest updateStorageRequest, Map<String, Metacard> metacardMap) {
+    Map<String, Serializable> attributeOverrideHeaders =
+        (HashMap<String, Serializable>)
+            updateStorageRequest.getProperties().get(Constants.ATTRIBUTE_OVERRIDES_KEY);
+    OverrideAttributesSupport.applyAttributeOverridesToMetacardMap(
+        attributeOverrideHeaders, metacardMap);
+    updateStorageRequest.getProperties().remove(Constants.ATTRIBUTE_OVERRIDES_KEY);
 
-    private void logFailedQueryInfo(UpdateRequest updateRequest, QueryResponse query) {
-        if (LOGGER.isDebugEnabled()) {
-            final String attributeName = updateRequest.getAttributeName();
-            Set<String> queryResults = query.getResults()
-                    .stream()
-                    .map(Result::getMetacard)
-                    .map(m -> m.getAttribute(attributeName))
-                    .filter(Objects::nonNull)
-                    .map(Attribute::getValue)
-                    .filter(Objects::nonNull)
-                    .map(Object::toString)
-                    .collect(Collectors.toSet());
-
-            LOGGER.debug(
-                    "While rewriting the query, did not get a metacardId corresponding to every attribute.");
-            LOGGER.debug("Original Update By attribute was: {}", attributeName);
-            LOGGER.debug("Unable to get Metacard IDs from metacards:: {}",
-                    updateRequest.getUpdates()
-                            .stream()
-                            .map(Map.Entry::getKey)
-                            .map(Object::toString)
-                            .filter(s -> !queryResults.contains(s))
-                            .collect(Collectors.joining(", ", "[", "]")));
-        }
-    }
-
-    private UpdateStorageRequest applyAttributeOverrides(UpdateStorageRequest updateStorageRequest,
-            Map<String, Metacard> metacardMap) {
-        Map<String, Serializable> attributeOverrideHeaders =
-                (HashMap<String, Serializable>) updateStorageRequest.getProperties()
-                        .get(Constants.ATTRIBUTE_OVERRIDES_KEY);
-        OverrideAttributesSupport.applyAttributeOverridesToMetacardMap(attributeOverrideHeaders,
-                metacardMap);
-        updateStorageRequest.getProperties()
-                .remove(Constants.ATTRIBUTE_OVERRIDES_KEY);
-
-        OverrideAttributesSupport.overrideAttributes(updateStorageRequest.getContentItems(),
-                metacardMap);
-        return updateStorageRequest;
-    }
+    OverrideAttributesSupport.overrideAttributes(
+        updateStorageRequest.getContentItems(), metacardMap);
+    return updateStorageRequest;
+  }
 }

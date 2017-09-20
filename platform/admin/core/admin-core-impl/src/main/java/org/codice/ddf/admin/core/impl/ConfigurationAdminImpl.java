@@ -1,14 +1,14 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
- * General Public License as published by the Free Software Foundation, either version 3 of the
- * License, or any later version.
- * <p>
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
- * is distributed along with this program and can be found at
+ *
+ * <p>This is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * Lesser General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or any later version.
+ *
+ * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
+ * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 package org.codice.ddf.admin.core.impl;
@@ -16,6 +16,9 @@ package org.codice.ddf.admin.core.impl;
 import static org.osgi.framework.Constants.SERVICE_PID;
 import static org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID;
 
+import com.google.common.collect.Sets;
+import ddf.security.permission.KeyValueCollectionPermission;
+import ddf.security.permission.KeyValuePermission;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,7 +32,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
@@ -59,689 +61,671 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Sets;
-
-import ddf.security.permission.KeyValueCollectionPermission;
-import ddf.security.permission.KeyValuePermission;
-
 public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.ConfigurationAdmin {
 
-    /**
-     * The implementation of the {@link IdGetter} interface returning the PIDs listed in the meta
-     * type information.
-     *
-     * @see #getPidObjectClasses()
-     */
-    private static final IdGetter PID_GETTER = MetaTypeInformation::getPids;
+  /**
+   * The implementation of the {@link IdGetter} interface returning the PIDs listed in the meta type
+   * information.
+   *
+   * @see #getPidObjectClasses()
+   */
+  private static final IdGetter PID_GETTER = MetaTypeInformation::getPids;
 
-    /**
-     * The implementation of the {@link IdGetter} interface returning the factory PIDs listed in the
-     * meta type information.
-     */
-    private static final IdGetter FACTORY_PID_GETTER = MetaTypeInformation::getFactoryPids;
+  /**
+   * The implementation of the {@link IdGetter} interface returning the factory PIDs listed in the
+   * meta type information.
+   */
+  private static final IdGetter FACTORY_PID_GETTER = MetaTypeInformation::getFactoryPids;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationAdminImpl.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationAdminImpl.class);
 
-    private final ConfigurationAdmin configurationAdmin;
+  private final ConfigurationAdmin configurationAdmin;
 
-    private final Map<String, ServiceTracker> services = new HashMap<String, ServiceTracker>();
+  private final Map<String, ServiceTracker> services = new HashMap<String, ServiceTracker>();
 
-    private List<ConfigurationAdminPlugin> configurationAdminPluginList;
+  private List<ConfigurationAdminPlugin> configurationAdminPluginList;
 
-    /**
-     * @param configurationAdmin
-     * @throws ClassCastException if {@code service} is not a MetaTypeService instances
-     */
-    public ConfigurationAdminImpl(final Object configurationAdmin,
-            List<ConfigurationAdminPlugin> configurationAdminPluginList) {
-        this.configurationAdmin = (ConfigurationAdmin) configurationAdmin;
-        this.configurationAdminPluginList = configurationAdminPluginList;
+  /**
+   * @param configurationAdmin
+   * @throws ClassCastException if {@code service} is not a MetaTypeService instances
+   */
+  public ConfigurationAdminImpl(
+      final Object configurationAdmin,
+      List<ConfigurationAdminPlugin> configurationAdminPluginList) {
+    this.configurationAdmin = (ConfigurationAdmin) configurationAdmin;
+    this.configurationAdminPluginList = configurationAdminPluginList;
+  }
+
+  static Bundle getBundle(final BundleContext bundleContext, final String bundleLocation) {
+    if (bundleLocation == null) {
+      return null;
     }
 
-    static Bundle getBundle(final BundleContext bundleContext, final String bundleLocation) {
-        if (bundleLocation == null) {
-            return null;
-        }
-
-        Bundle[] bundles = bundleContext.getBundles();
-        for (Bundle bundle : bundles) {
-            if (bundleLocation.equals(bundle.getLocation())) {
-                return bundle;
-            }
-        }
-
-        return null;
+    Bundle[] bundles = bundleContext.getBundles();
+    for (Bundle bundle : bundles) {
+      if (bundleLocation.equals(bundle.getLocation())) {
+        return bundle;
+      }
     }
 
-    BundleContext getBundleContext() {
-        Bundle cxfBundle = FrameworkUtil.getBundle(ConfigurationAdminImpl.class);
-        if (cxfBundle != null) {
-            return cxfBundle.getBundleContext();
+    return null;
+  }
+
+  BundleContext getBundleContext() {
+    Bundle cxfBundle = FrameworkUtil.getBundle(ConfigurationAdminImpl.class);
+    if (cxfBundle != null) {
+      return cxfBundle.getBundleContext();
+    }
+    return null;
+  }
+
+  public final Configuration getConfiguration(String pid) {
+    if (pid != null) {
+      try {
+        // we use listConfigurations to not create configuration
+        // objects persistently without the user providing actual
+        // configuration
+        String filter = '(' + SERVICE_PID + '=' + pid + ')';
+        Configuration[] configs = this.configurationAdmin.listConfigurations(filter);
+        if (configs != null && configs.length > 0 && isPermittedToViewService(pid)) {
+          return configs[0];
         }
-        return null;
+      } catch (InvalidSyntaxException ise) {
+        LOGGER.info("Invalid LDAP filter", ise);
+      } catch (IOException ioe) {
+        LOGGER.info("Unable to retrieve list of configurations.", ioe);
+      }
     }
 
-    public final Configuration getConfiguration(String pid) {
-        if (pid != null) {
-            try {
-                // we use listConfigurations to not create configuration
-                // objects persistently without the user providing actual
-                // configuration
-                String filter = '(' + SERVICE_PID + '=' + pid + ')';
-                Configuration[] configs = this.configurationAdmin.listConfigurations(filter);
-                if (configs != null && configs.length > 0 && isPermittedToViewService(pid)) {
-                    return configs[0];
-                }
-            } catch (InvalidSyntaxException ise) {
-                LOGGER.info("Invalid LDAP filter", ise);
-            } catch (IOException ioe) {
-                LOGGER.info("Unable to retrieve list of configurations.", ioe);
-            }
-        }
+    // fallback to no configuration at all
+    return null;
+  }
 
-        // fallback to no configuration at all
-        return null;
+  private Bundle getBoundBundle(Configuration config) {
+
+    if (null == config) {
+      return null;
     }
 
-    private Bundle getBoundBundle(Configuration config) {
-
-        if (null == config) {
-            return null;
-        }
-
-        final String location = config.getBundleLocation();
-        if (null == location) {
-            return null;
-        }
-
-        final Bundle bundles[] = getBundleContext().getBundles();
-        for (int i = 0; bundles != null && i < bundles.length; i++) {
-            if (bundles[i].getLocation()
-                    .equals(location)) {
-                return bundles[i];
-            }
-        }
-        return null;
+    final String location = config.getBundleLocation();
+    if (null == location) {
+      return null;
     }
 
-    public List<Service> listServices(String serviceFactoryFilter, String serviceFilter) {
-        List<Service> serviceList = null;
-        List<Service> serviceFactoryList = null;
+    final Bundle bundles[] = getBundleContext().getBundles();
+    for (int i = 0; bundles != null && i < bundles.length; i++) {
+      if (bundles[i].getLocation().equals(location)) {
+        return bundles[i];
+      }
+    }
+    return null;
+  }
 
-        try {
-            // Get ManagedService instances
-            serviceList = getServices(ManagedService.class.getName(), serviceFilter, true);
+  public List<Service> listServices(String serviceFactoryFilter, String serviceFilter) {
+    List<Service> serviceList = null;
+    List<Service> serviceFactoryList = null;
 
-            // Get ManagedService Metatypes
-            List<Metatype> metatypeList = addMetaTypeNamesToMap(getPidObjectClasses(),
-                    serviceFilter,
-                    SERVICE_PID);
+    try {
+      // Get ManagedService instances
+      serviceList = getServices(ManagedService.class.getName(), serviceFilter, true);
 
-            // Get ManagedServiceFactory instances
-            serviceFactoryList = getServices(ManagedServiceFactory.class.getName(),
-                    serviceFactoryFilter,
-                    true);
+      // Get ManagedService Metatypes
+      List<Metatype> metatypeList =
+          addMetaTypeNamesToMap(getPidObjectClasses(), serviceFilter, SERVICE_PID);
 
-            // Get ManagedServiceFactory Metatypes
-            metatypeList.addAll(addMetaTypeNamesToMap(getFactoryPidObjectClasses(),
-                    serviceFactoryFilter,
-                    SERVICE_FACTORYPID));
+      // Get ManagedServiceFactory instances
+      serviceFactoryList =
+          getServices(ManagedServiceFactory.class.getName(), serviceFactoryFilter, true);
 
-            for (Service service : serviceFactoryList) {
+      // Get ManagedServiceFactory Metatypes
+      metatypeList.addAll(
+          addMetaTypeNamesToMap(
+              getFactoryPidObjectClasses(), serviceFactoryFilter, SERVICE_FACTORYPID));
 
-                service.setFactory(true);
+      for (Service service : serviceFactoryList) {
 
-                for (Metatype metatype : metatypeList) {
-                    if (metatype.getId() != null && metatype.getId()
-                            .equals(service.getId())) {
-                        service.putAll(metatype);
-                    }
-                }
+        service.setFactory(true);
 
-                Configuration[] configs = configurationAdmin.listConfigurations(
-                        "(|(service.factoryPid=" + service.getId() + ")(service.factoryPid="
-                                + service.getId() + "_disabled))");
-                if (configs != null) {
-                    addConfigurationData(service, configs);
-                }
-            }
-
-            for (Service service : serviceList) {
-                service.setFactory(false);
-
-                for (Metatype metatype : metatypeList) {
-                    if (metatype.getId() != null && metatype.getId()
-                            .equals(service.getId())) {
-                        service.putAll(metatype);
-                    }
-                }
-
-                Configuration[] configs = configurationAdmin.listConfigurations(
-                        "(" + SERVICE_PID + "=" + service.getId() + ")");
-                if (configs != null) {
-                    addConfigurationData(service, configs);
-                }
-            }
-
-            serviceList.addAll(serviceFactoryList);
-        } catch (IOException e) {
-            LOGGER.warn("Unable to obtain list of Configuration objects from ConfigurationAdmin.",
-                    e);
-        } catch (InvalidSyntaxException e) {
-            LOGGER.info("Provided LDAP filter is incorrect: {}", serviceFilter, e);
+        for (Metatype metatype : metatypeList) {
+          if (metatype.getId() != null && metatype.getId().equals(service.getId())) {
+            service.putAll(metatype);
+          }
         }
 
-        if (serviceList != null) {
-            return serviceList.stream()
-                    .filter(service -> isPermittedToViewService(service.getId()))
-                    .collect(Collectors.toList());
+        Configuration[] configs =
+            configurationAdmin.listConfigurations(
+                "(|(service.factoryPid="
+                    + service.getId()
+                    + ")(service.factoryPid="
+                    + service.getId()
+                    + "_disabled))");
+        if (configs != null) {
+          addConfigurationData(service, configs);
+        }
+      }
+
+      for (Service service : serviceList) {
+        service.setFactory(false);
+
+        for (Metatype metatype : metatypeList) {
+          if (metatype.getId() != null && metatype.getId().equals(service.getId())) {
+            service.putAll(metatype);
+          }
+        }
+
+        Configuration[] configs =
+            configurationAdmin.listConfigurations("(" + SERVICE_PID + "=" + service.getId() + ")");
+        if (configs != null) {
+          addConfigurationData(service, configs);
+        }
+      }
+
+      serviceList.addAll(serviceFactoryList);
+    } catch (IOException e) {
+      LOGGER.warn("Unable to obtain list of Configuration objects from ConfigurationAdmin.", e);
+    } catch (InvalidSyntaxException e) {
+      LOGGER.info("Provided LDAP filter is incorrect: {}", serviceFilter, e);
+    }
+
+    if (serviceList != null) {
+      return serviceList
+          .stream()
+          .filter(service -> isPermittedToViewService(service.getId()))
+          .collect(Collectors.toList());
+    } else {
+      return new ArrayList<>();
+    }
+  }
+
+  private void addConfigurationData(Service service, Configuration[] configs) {
+    for (Configuration config : configs) {
+      // ignore configuration object if it is invalid
+      final String pid = config.getPid();
+      if (!isAllowedPid(pid)) {
+        continue;
+      }
+
+      ConfigurationDetails configData = new ConfigurationDetailsImpl();
+      configData.setId(pid);
+      String fpid = config.getFactoryPid();
+      if (fpid != null) {
+        configData.setFactoryPid(fpid);
+      }
+      // insert an entry for the PID
+      try {
+        ObjectClassDefinition ocd = getObjectClassDefinition(config);
+        if (ocd != null) {
+          configData.setName(ocd.getName());
         } else {
-            return new ArrayList<>();
+          // no object class definition, use plain PID
+          configData.setName(pid);
         }
+      } catch (IllegalArgumentException t) {
+        // Catch exception thrown by getObjectClassDefinition so other configurations
+        // are displayed
+        // no object class definition, use plain PID
+        configData.setName(pid);
+      }
+
+      final Bundle bundle = getBoundBundle(config);
+      if (null != bundle) {
+        configData.setBundle(bundle.getBundleId());
+        configData.setBundleName(getName(bundle));
+        configData.setBundleLocation(bundle.getLocation());
+      }
+
+      ConfigurationProperties propertiesTable = new ConfigurationPropertiesImpl();
+      Dictionary<String, Object> properties = config.getProperties();
+      if (properties != null) {
+        Enumeration<String> keys = properties.keys();
+        while (keys.hasMoreElements()) {
+          String key = keys.nextElement();
+          propertiesTable.put(key, properties.get(key));
+        }
+      }
+
+      // If the configuration property is a password that has been set,
+      // mask its value to "password" so that the real password value will be hidden.
+      List<MetatypeAttribute> metatypeList = service.getAttributeDefinitions();
+      metatypeList
+          .stream()
+          .filter(metatype -> AttributeDefinition.PASSWORD == metatype.getType())
+          .forEach(
+              metatype -> {
+                setPasswordMask(metatype, propertiesTable);
+              });
+
+      configData.setConfigurationProperties(propertiesTable);
+
+      Map<String, Object> pluginDataMap =
+          getConfigurationPluginData(configData.getId(), Collections.unmodifiableMap(configData));
+      if (pluginDataMap != null && !pluginDataMap.isEmpty()) {
+        configData.putAll(pluginDataMap);
+      }
+
+      List<ConfigurationDetails> configurationDetails;
+      if (service.containsKey(Service.CONFIGURATIONS)) {
+        configurationDetails = service.getConfigurations();
+      } else if (service.containsKey(Service.DISABLED_CONFIGURATIONS)) {
+        configurationDetails = service.getDisabledConfigurations();
+      } else {
+        configurationDetails = new ArrayList<>();
+      }
+
+      configurationDetails.add(configData);
+      if (configData.getId().contains(ConfigurationDetails.DISABLED_SERVICE_IDENTIFIER)) {
+        configData.setEnabled(false);
+      } else {
+        configData.setEnabled(true);
+      }
+      service.setConfigurations(configurationDetails);
+    }
+  }
+
+  private void setPasswordMask(
+      MetatypeAttribute metatype, ConfigurationProperties propertiesTable) {
+    String passwordProperty = metatype.getId();
+    if (propertiesTable.get(passwordProperty) == null) {
+      propertiesTable.put(passwordProperty, "");
+    } else if (!(propertiesTable.get(passwordProperty).toString().equals(""))) {
+      propertiesTable.put(passwordProperty, "password");
+    }
+  }
+
+  private Map<String, Object> getConfigurationPluginData(
+      String servicePid, Map<String, Object> dataMap) {
+    Map<String, Object> allPluginMap = new HashMap<>();
+    if (configurationAdminPluginList != null) {
+      for (ConfigurationAdminPlugin plugin : configurationAdminPluginList) {
+        Map<String, Object> pluginDataMap =
+            plugin.getConfigurationData(servicePid, dataMap, getBundleContext());
+        allPluginMap.putAll(pluginDataMap);
+      }
+    }
+    return allPluginMap;
+  }
+
+  /**
+   * Return a display name for the given <code>bundle</code>:
+   *
+   * <ol>
+   *   <li>If the bundle has a non-empty <code>Bundle-Name</code> manifest header that value is
+   *       returned.
+   *   <li>Otherwise the symbolic name is returned if set
+   *   <li>Otherwise the bundle's location is returned if defined
+   *   <li>Finally, as a last resort, the bundles id is returned
+   * </ol>
+   *
+   * @param bundle the bundle which name to retrieve
+   * @return the bundle name - see the description of the method for more details.
+   */
+  public String getName(Bundle bundle) {
+    Locale locale = Locale.getDefault();
+    final String loc = locale == null ? null : locale.toString();
+    String name = bundle.getHeaders(loc).get(Constants.BUNDLE_NAME);
+    if (name == null || name.length() == 0) {
+      name = bundle.getSymbolicName();
+      if (name == null) {
+        name = bundle.getLocation();
+        if (name == null) {
+          name = String.valueOf(bundle.getBundleId());
+        }
+      }
+    }
+    return name;
+  }
+
+  private boolean isAllowedPid(final String pid) {
+    if (pid == null) {
+      return false;
+    } else {
+      for (int i = 0; i < pid.length(); i++) {
+        final char c = pid.charAt(i);
+        if (c == '&' || c == '<' || c == '>' || c == '"' || c == '\'') {
+          return false;
+        }
+      }
+      return true;
+    }
+  }
+
+  public String getDefaultFactoryLdapFilter() {
+    return "(" + SERVICE_FACTORYPID + "=" + "*)";
+  }
+
+  public String getDefaultLdapFilter() {
+    return "(" + SERVICE_PID + "=" + "*)";
+  }
+
+  void setConfigurationAdminPluginList(
+      List<ConfigurationAdminPlugin> configurationAdminPluginList) {
+    this.configurationAdminPluginList = configurationAdminPluginList;
+  }
+
+  public Metatype findMetatypeForConfig(Configuration config) {
+    List<Service> services = listServices(getDefaultFactoryLdapFilter(), getDefaultLdapFilter());
+    for (Service service : services) {
+      String id = service.getId();
+      if (id.equals(config.getPid())
+          || ((id.equals(config.getFactoryPid())
+                  || (id + "_disabled").equals(config.getFactoryPid()))
+              && Boolean.valueOf(String.valueOf(service.isFactory())))) {
+        return service;
+      }
     }
 
-    private void addConfigurationData(Service service, Configuration[] configs) {
-        for (Configuration config : configs) {
-            // ignore configuration object if it is invalid
-            final String pid = config.getPid();
-            if (!isAllowedPid(pid)) {
-                continue;
-            }
+    return null;
+  }
 
-            ConfigurationDetails configData = new ConfigurationDetailsImpl();
-            configData.setId(pid);
-            String fpid = config.getFactoryPid();
-            if (fpid != null) {
-                configData.setFactoryPid(fpid);
-            }
-            // insert an entry for the PID
+  /**
+   * Returns a map of PIDs and providing bundles of MetaType information. The map is indexed by PID
+   * and the value of each entry is the bundle providing the MetaType information for that PID.
+   *
+   * @return see the method description
+   */
+  private Map<String, Object> getPidObjectClasses() {
+    return getObjectClassDefinitions(PID_GETTER);
+  }
+
+  /**
+   * Returns the <code>ObjectClassDefinition</code> objects for the IDs returned by the <code>
+   * idGetter</code>. Depending on the <code>idGetter</code> implementation this will be for factory
+   * PIDs or plain PIDs.
+   *
+   * @param idGetter The {@link IdGetter} used to get the list of factory PIDs or PIDs from <code>
+   *     MetaTypeInformation</code> objects.
+   * @return Map of <code>ObjectClassDefinition</code> objects indexed by the PID (or factory PID)
+   *     to which they pertain
+   */
+  private Map<String, Object> getObjectClassDefinitions(final IdGetter idGetter) {
+    Locale locale = Locale.getDefault();
+    final Map<String, Object> objectClassesDefinitions = new HashMap<>();
+    final MetaTypeService mts = this.getMetaTypeService();
+    if (mts != null) {
+      final Bundle[] bundles = this.getBundleContext().getBundles();
+      for (Bundle bundle : bundles) {
+        final MetaTypeInformation mti = mts.getMetaTypeInformation(bundle);
+        if (mti != null) {
+          final String[] idList = idGetter.getIds(mti);
+          for (int j = 0; idList != null && j < idList.length; j++) {
+            // After getting the list of PIDs, a configuration might be
+            // removed. So the getObjectClassDefinition will throw
+            // an exception, and this will prevent ALL configuration from
+            // being displayed. By catching it, the configurations will be
+            // visible
+            ObjectClassDefinition ocd = null;
             try {
-                ObjectClassDefinition ocd = getObjectClassDefinition(config);
-                if (ocd != null) {
-                    configData.setName(ocd.getName());
-                } else {
-                    // no object class definition, use plain PID
-                    configData.setName(pid);
-                }
-            } catch (IllegalArgumentException t) {
-                // Catch exception thrown by getObjectClassDefinition so other configurations
-                // are displayed
-                // no object class definition, use plain PID
-                configData.setName(pid);
+              ocd = mti.getObjectClassDefinition(idList[j], locale.toString());
+            } catch (IllegalArgumentException ignore) {
+              // ignore - just don't show this configuration
             }
-
-            final Bundle bundle = getBoundBundle(config);
-            if (null != bundle) {
-                configData.setBundle(bundle.getBundleId());
-                configData.setBundleName(getName(bundle));
-                configData.setBundleLocation(bundle.getLocation());
+            if (ocd != null) {
+              objectClassesDefinitions.put(idList[j], ocd);
             }
-
-            ConfigurationProperties propertiesTable = new ConfigurationPropertiesImpl();
-            Dictionary<String, Object> properties = config.getProperties();
-            if (properties != null) {
-                Enumeration<String> keys = properties.keys();
-                while (keys.hasMoreElements()) {
-                    String key = keys.nextElement();
-                    propertiesTable.put(key, properties.get(key));
-                }
-            }
-
-            // If the configuration property is a password that has been set,
-            // mask its value to "password" so that the real password value will be hidden.
-            List<MetatypeAttribute> metatypeList = service.getAttributeDefinitions();
-            metatypeList.stream()
-                    .filter(metatype -> AttributeDefinition.PASSWORD == metatype.getType())
-                    .forEach(metatype -> {
-                        setPasswordMask(metatype, propertiesTable);
-                    });
-
-            configData.setConfigurationProperties(propertiesTable);
-
-            Map<String, Object> pluginDataMap = getConfigurationPluginData(configData.getId(),
-                    Collections.unmodifiableMap(configData));
-            if (pluginDataMap != null && !pluginDataMap.isEmpty()) {
-                configData.putAll(pluginDataMap);
-            }
-
-            List<ConfigurationDetails> configurationDetails;
-            if (service.containsKey(Service.CONFIGURATIONS)) {
-                configurationDetails = service.getConfigurations();
-            } else if (service.containsKey(Service.DISABLED_CONFIGURATIONS)) {
-                configurationDetails = service.getDisabledConfigurations();
-            } else {
-                configurationDetails = new ArrayList<>();
-            }
-
-            configurationDetails.add(configData);
-            if (configData.getId()
-                    .contains(ConfigurationDetails.DISABLED_SERVICE_IDENTIFIER)) {
-                configData.setEnabled(false);
-            } else {
-                configData.setEnabled(true);
-            }
-            service.setConfigurations(configurationDetails);
+          }
         }
+      }
     }
+    return objectClassesDefinitions;
+  }
 
-    private void setPasswordMask(MetatypeAttribute metatype, ConfigurationProperties propertiesTable) {
-        String passwordProperty = metatype.getId();
-        if (propertiesTable.get(passwordProperty) == null) {
-            propertiesTable.put(passwordProperty, "");
-        } else if (!(propertiesTable.get(passwordProperty).toString().equals(""))) {
-            propertiesTable.put(passwordProperty, "password");
+  public ObjectClassDefinition getObjectClassDefinition(Configuration config) {
+    // if the configuration is bound, try to get the object class
+    // definition from the bundle installed from the given location
+    if (config.getBundleLocation() != null) {
+      Bundle bundle = getBundle(this.getBundleContext(), config.getBundleLocation());
+      if (bundle != null) {
+        String id = config.getFactoryPid();
+        if (null == id) {
+          id = config.getPid();
         }
+        return getObjectClassDefinition(bundle, id);
+      }
     }
 
-    private Map<String, Object> getConfigurationPluginData(String servicePid,
-            Map<String, Object> dataMap) {
-        Map<String, Object> allPluginMap = new HashMap<>();
-        if (configurationAdminPluginList != null) {
-            for (ConfigurationAdminPlugin plugin : configurationAdminPluginList) {
-                Map<String, Object> pluginDataMap = plugin.getConfigurationData(servicePid,
-                        dataMap,
-                        getBundleContext());
-                allPluginMap.putAll(pluginDataMap);
-            }
+    // get here if the configuration is not bound or if no
+    // bundle with the bound location is installed. We search
+    // all bundles for a matching [factory] PID
+    // if the configuration is a factory one, use the factory PID
+    if (config.getFactoryPid() != null) {
+      return getObjectClassDefinition(config.getFactoryPid());
+    }
+
+    // otherwise use the configuration PID
+    return getObjectClassDefinition(config.getPid());
+  }
+
+  public ObjectClassDefinition getObjectClassDefinition(Bundle bundle, String pid) {
+    Locale locale = Locale.getDefault();
+    if (bundle != null) {
+      MetaTypeService mts = this.getMetaTypeService();
+      if (mts != null) {
+        MetaTypeInformation mti = mts.getMetaTypeInformation(bundle);
+        if (mti != null) {
+          // see #getObjectClasses( final IdGetter idGetter, final String locale )
+          try {
+            return mti.getObjectClassDefinition(pid, locale.toString());
+          } catch (IllegalArgumentException e) {
+            // MetaTypeProvider.getObjectClassDefinition might throw illegal
+            // argument exception. So we must catch it here, otherwise the
+            // other configurations will not be shown
+            // See https://issues.apache.org/jira/browse/FELIX-2390
+            // https://issues.apache.org/jira/browse/FELIX-3694
+          }
         }
-        return allPluginMap;
+      }
     }
 
-    /**
-     * Return a display name for the given <code>bundle</code>:
-     * <ol>
-     * <li>If the bundle has a non-empty <code>Bundle-Name</code> manifest header that value is
-     * returned.</li>
-     * <li>Otherwise the symbolic name is returned if set</li>
-     * <li>Otherwise the bundle's location is returned if defined</li>
-     * <li>Finally, as a last resort, the bundles id is returned</li>
-     * </ol>
-     *
-     * @param bundle the bundle which name to retrieve
-     * @return the bundle name - see the description of the method for more details.
-     */
-    public String getName(Bundle bundle) {
-        Locale locale = Locale.getDefault();
-        final String loc = locale == null ? null : locale.toString();
-        String name = bundle.getHeaders(loc)
-                .get(Constants.BUNDLE_NAME);
-        if (name == null || name.length() == 0) {
-            name = bundle.getSymbolicName();
-            if (name == null) {
-                name = bundle.getLocation();
-                if (name == null) {
-                    name = String.valueOf(bundle.getBundleId());
-                }
-            }
+    // fallback to nothing found
+    return null;
+  }
+
+  MetaTypeService getMetaTypeService() {
+    return (MetaTypeService) getService(MetaTypeService.class.getName());
+  }
+
+  /**
+   * Gets the service with the specified class name. Will create a new {@link ServiceTracker} if the
+   * service is not already retrieved.
+   *
+   * @param serviceName the service name to obtain
+   * @return the service or <code>null</code> if missing.
+   */
+  private Object getService(String serviceName) {
+    ServiceTracker serviceTracker = services.get(serviceName);
+    if (serviceTracker == null) {
+      serviceTracker = new ServiceTracker(getBundleContext(), serviceName, null);
+      serviceTracker.open();
+
+      services.put(serviceName, serviceTracker);
+    }
+
+    return serviceTracker.getService();
+  }
+
+  public ObjectClassDefinition getObjectClassDefinition(String pid) {
+    Bundle[] bundles = this.getBundleContext().getBundles();
+    for (Bundle bundle : bundles) {
+      try {
+        ObjectClassDefinition ocd = this.getObjectClassDefinition(bundle, pid);
+        if (ocd != null) {
+          return ocd;
         }
-        return name;
+      } catch (IllegalArgumentException iae) {
+        // don't care
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Returns a map of factory PIDs and providing bundles of MetaType information. The map is indexed
+   * by factory PID and the value of each entry is the bundle providing the MetaType information for
+   * that factory PID.
+   *
+   * @return see the method description
+   */
+  private Map<String, Object> getFactoryPidObjectClasses() {
+    return getObjectClassDefinitions(FACTORY_PID_GETTER);
+  }
+
+  private List<Service> getServices(String serviceClass, String serviceFilter, boolean ocdRequired)
+      throws InvalidSyntaxException {
+    List<Service> serviceList = new ArrayList<>();
+
+    // service.factoryPid cannot be searched, but service.pid can be searched,
+    // and can contain a factoryPid
+    String newFilter = null;
+    if (serviceFilter != null) {
+      newFilter = serviceFilter.replace("service.factoryPid", "service.pid");
     }
 
-    private boolean isAllowedPid(final String pid) {
-        if (pid == null) {
-            return false;
-        } else {
-            for (int i = 0; i < pid.length(); i++) {
-                final char c = pid.charAt(i);
-                if (c == '&' || c == '<' || c == '>' || c == '"' || c == '\'') {
-                    return false;
-                }
-            }
-            return true;
-        }
-    }
+    // find all ManagedServiceFactories to get the factoryPIDs
+    ServiceReference[] refs =
+        this.getBundleContext().getAllServiceReferences(serviceClass, newFilter);
 
-    public String getDefaultFactoryLdapFilter() {
-        return "(" + SERVICE_FACTORYPID + "=" + "*)";
-    }
-
-    public String getDefaultLdapFilter() {
-        return "(" + SERVICE_PID + "=" + "*)";
-    }
-
-    void setConfigurationAdminPluginList(
-            List<ConfigurationAdminPlugin> configurationAdminPluginList) {
-        this.configurationAdminPluginList = configurationAdminPluginList;
-    }
-
-    public Metatype findMetatypeForConfig(Configuration config) {
-        List<Service> services = listServices(getDefaultFactoryLdapFilter(),
-                getDefaultLdapFilter());
-        for (Service service : services) {
-            String id = service.getId();
-            if (id.equals(config.getPid()) || ((id.equals(config.getFactoryPid()) || (id
-                    + "_disabled").equals(config.getFactoryPid()))
-                    && Boolean.valueOf(String.valueOf(service.isFactory())))) {
-                return service;
-            }
+    for (int i = 0; refs != null && i < refs.length; i++) {
+      Object pidObject = refs[i].getProperty(SERVICE_PID);
+      // only include valid PIDs
+      if (pidObject instanceof String && isAllowedPid((String) pidObject)) {
+        String pid = (String) pidObject;
+        String name = pid;
+        boolean haveOcd = !ocdRequired;
+        final ObjectClassDefinition ocd = getObjectClassDefinition(refs[i].getBundle(), pid);
+        if (ocd != null) {
+          name = ocd.getName();
+          haveOcd = true;
         }
 
-        return null;
-    }
-
-    /**
-     * Returns a map of PIDs and providing bundles of MetaType information. The map is indexed by
-     * PID and the value of each entry is the bundle providing the MetaType information for that
-     * PID.
-     *
-     * @return see the method description
-     */
-    private Map<String, Object> getPidObjectClasses() {
-        return getObjectClassDefinitions(PID_GETTER);
-    }
-
-    /**
-     * Returns the <code>ObjectClassDefinition</code> objects for the IDs returned by the
-     * <code>idGetter</code>. Depending on the <code>idGetter</code> implementation this will be for
-     * factory PIDs or plain PIDs.
-     *
-     * @param idGetter The {@link IdGetter} used to get the list of factory PIDs or PIDs from
-     *                 <code>MetaTypeInformation</code> objects.
-     * @return Map of <code>ObjectClassDefinition</code> objects indexed by the PID (or factory PID)
-     * to which they pertain
-     */
-    private Map<String, Object> getObjectClassDefinitions(final IdGetter idGetter) {
-        Locale locale = Locale.getDefault();
-        final Map<String, Object> objectClassesDefinitions = new HashMap<>();
-        final MetaTypeService mts = this.getMetaTypeService();
-        if (mts != null) {
-            final Bundle[] bundles = this.getBundleContext()
-                    .getBundles();
-            for (Bundle bundle : bundles) {
-                final MetaTypeInformation mti = mts.getMetaTypeInformation(bundle);
-                if (mti != null) {
-                    final String[] idList = idGetter.getIds(mti);
-                    for (int j = 0; idList != null && j < idList.length; j++) {
-                        // After getting the list of PIDs, a configuration might be
-                        // removed. So the getObjectClassDefinition will throw
-                        // an exception, and this will prevent ALL configuration from
-                        // being displayed. By catching it, the configurations will be
-                        // visible
-                        ObjectClassDefinition ocd = null;
-                        try {
-                            ocd = mti.getObjectClassDefinition(idList[j], locale.toString());
-                        } catch (IllegalArgumentException ignore) {
-                            // ignore - just don't show this configuration
-                        }
-                        if (ocd != null) {
-                            objectClassesDefinitions.put(idList[j], ocd);
-                        }
-                    }
-                }
-            }
+        if (haveOcd) {
+          Service service = new ServiceImpl();
+          service.setId(pid);
+          service.setName(name);
+          serviceList.add(service);
         }
-        return objectClassesDefinitions;
+      }
     }
 
-    public ObjectClassDefinition getObjectClassDefinition(Configuration config) {
-        // if the configuration is bound, try to get the object class
-        // definition from the bundle installed from the given location
-        if (config.getBundleLocation() != null) {
-            Bundle bundle = getBundle(this.getBundleContext(), config.getBundleLocation());
-            if (bundle != null) {
-                String id = config.getFactoryPid();
-                if (null == id) {
-                    id = config.getPid();
-                }
-                return getObjectClassDefinition(bundle, id);
-            }
+    return serviceList
+        .stream()
+        .filter(service -> isPermittedToViewService(service.getId()))
+        .collect(Collectors.toList());
+  }
+
+  private List<Metatype> addMetaTypeNamesToMap(
+      final Map<String, Object> ocdCollection, final String filterSpec, final String type) {
+    Filter filter = null;
+    if (filterSpec != null) {
+      try {
+        filter = getBundleContext().createFilter(filterSpec);
+      } catch (InvalidSyntaxException ignore) {
+        // don't care
+      }
+    }
+
+    List<Metatype> metatypeList = new ArrayList<>();
+    for (Entry<String, Object> ociEntry : ocdCollection.entrySet()) {
+      final String pid = ociEntry.getKey();
+      final ObjectClassDefinition ocd = (ObjectClassDefinition) ociEntry.getValue();
+      if (filter == null) {
+        AttributeDefinition[] defs = ocd.getAttributeDefinitions(ObjectClassDefinition.ALL);
+        metatypeList.add(new MetatypeImpl(pid, ocd.getName(), createMetatypeMap(defs)));
+      } else {
+        final Dictionary<String, String> props = new Hashtable<>();
+        props.put(type, pid);
+        if (filter.match(props)) {
+          AttributeDefinition[] defs = ocd.getAttributeDefinitions(ObjectClassDefinition.ALL);
+          metatypeList.add(new MetatypeImpl(pid, ocd.getName(), createMetatypeMap(defs)));
         }
+      }
+    }
+    return metatypeList;
+  }
 
-        // get here if the configuration is not bound or if no
-        // bundle with the bound location is installed. We search
-        // all bundles for a matching [factory] PID
-        // if the configuration is a factory one, use the factory PID
-        if (config.getFactoryPid() != null) {
-            return getObjectClassDefinition(config.getFactoryPid());
-        }
+  private List<MetatypeAttribute> createMetatypeMap(AttributeDefinition[] definitions) {
+    List<MetatypeAttribute> metatypeList;
 
-        // otherwise use the configuration PID
-        return getObjectClassDefinition(config.getPid());
+    if (definitions != null) {
+      metatypeList =
+          Arrays.stream(definitions).map(MetatypeAttributeImpl::new).collect(Collectors.toList());
+    } else {
+      metatypeList = new ArrayList<>();
     }
 
-    public ObjectClassDefinition getObjectClassDefinition(Bundle bundle, String pid) {
-        Locale locale = Locale.getDefault();
-        if (bundle != null) {
-            MetaTypeService mts = this.getMetaTypeService();
-            if (mts != null) {
-                MetaTypeInformation mti = mts.getMetaTypeInformation(bundle);
-                if (mti != null) {
-                    // see #getObjectClasses( final IdGetter idGetter, final String locale )
-                    try {
-                        return mti.getObjectClassDefinition(pid, locale.toString());
-                    } catch (IllegalArgumentException e) {
-                        // MetaTypeProvider.getObjectClassDefinition might throw illegal
-                        // argument exception. So we must catch it here, otherwise the
-                        // other configurations will not be shown
-                        // See https://issues.apache.org/jira/browse/FELIX-2390
-                        // https://issues.apache.org/jira/browse/FELIX-3694
-                    }
-                }
-            }
-        }
+    return metatypeList;
+  }
 
-        // fallback to nothing found
-        return null;
+  public boolean isPermittedToViewService(String servicePid, Subject subject) {
+    KeyValueCollectionPermission serviceToCheck =
+        new KeyValueCollectionPermission(
+            "view-service.pid", new KeyValuePermission("service.pid", Sets.newHashSet(servicePid)));
+    return subject.isPermitted(serviceToCheck);
+  }
+
+  public boolean isPermittedToViewService(String servicePid) {
+    return isPermittedToViewService(servicePid, SecurityUtils.getSubject());
+  }
+
+  public ConfigurationStatus disableManagedServiceFactoryConfiguration(
+      String servicePid, Configuration originalConfig) throws IOException {
+    Dictionary<String, Object> properties = originalConfig.getProperties();
+    String originalFactoryPid =
+        (String) properties.get(org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID);
+    if (originalFactoryPid == null) {
+      throw new IOException("Configuration does not belong to a managed service factory.");
+    }
+    if (StringUtils.endsWith(originalFactoryPid, ConfigurationStatus.DISABLED_EXTENSION)) {
+      throw new IOException("Configuration is already disabled.");
     }
 
-    MetaTypeService getMetaTypeService() {
-        return (MetaTypeService) getService(MetaTypeService.class.getName());
+    // Copy configuration from the original configuration and change its factory PID to end with
+    // "disabled"
+    String disabledServiceFactoryPid = originalFactoryPid + ConfigurationStatus.DISABLED_EXTENSION;
+    properties.put(
+        org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID, disabledServiceFactoryPid);
+    Configuration disabledConfig =
+        configurationAdmin.createFactoryConfiguration(disabledServiceFactoryPid, null);
+    disabledConfig.update(properties);
+
+    // remove original configuration
+    originalConfig.delete();
+    return new ConfigurationStatusImpl(
+        disabledServiceFactoryPid, disabledConfig.getPid(), originalFactoryPid, servicePid);
+  }
+
+  public ConfigurationStatus enableManagedServiceFactoryConfiguration(
+      String servicePid, Configuration disabledConfig) throws IOException {
+    Dictionary<String, Object> properties = disabledConfig.getProperties();
+    String disabledFactoryPid =
+        (String) properties.get(org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID);
+    if (disabledFactoryPid == null) {
+      throw new IOException("Configuration does not belong to a managed service factory.");
+    }
+    if (!StringUtils.endsWith(disabledFactoryPid, ConfigurationStatus.DISABLED_EXTENSION)) {
+      throw new IOException("Configuration is already enabled.");
     }
 
-    /**
-     * Gets the service with the specified class name. Will create a new {@link ServiceTracker} if
-     * the service is not already retrieved.
-     *
-     * @param serviceName the service name to obtain
-     * @return the service or <code>null</code> if missing.
-     */
-    private Object getService(String serviceName) {
-        ServiceTracker serviceTracker = services.get(serviceName);
-        if (serviceTracker == null) {
-            serviceTracker = new ServiceTracker(getBundleContext(), serviceName, null);
-            serviceTracker.open();
+    String enabledFactoryPid =
+        StringUtils.removeEnd(disabledFactoryPid, ConfigurationStatus.DISABLED_EXTENSION);
+    properties.put(org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID, enabledFactoryPid);
+    Configuration enabledConfiguration =
+        configurationAdmin.createFactoryConfiguration(enabledFactoryPid, null);
+    enabledConfiguration.update(properties);
 
-            services.put(serviceName, serviceTracker);
-        }
+    disabledConfig.delete();
 
-        return serviceTracker.getService();
-    }
+    return new ConfigurationStatusImpl(
+        enabledFactoryPid, enabledConfiguration.getPid(), disabledFactoryPid, servicePid);
+  }
 
-    public ObjectClassDefinition getObjectClassDefinition(String pid) {
-        Bundle[] bundles = this.getBundleContext()
-                .getBundles();
-        for (Bundle bundle : bundles) {
-            try {
-                ObjectClassDefinition ocd = this.getObjectClassDefinition(bundle, pid);
-                if (ocd != null) {
-                    return ocd;
-                }
-            } catch (IllegalArgumentException iae) {
-                // don't care
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Returns a map of factory PIDs and providing bundles of MetaType information. The map is
-     * indexed by factory PID and the value of each entry is the bundle providing the MetaType
-     * information for that factory PID.
-     *
-     * @return see the method description
-     */
-    private Map<String, Object> getFactoryPidObjectClasses() {
-        return getObjectClassDefinitions(FACTORY_PID_GETTER);
-    }
-
-    private List<Service> getServices(String serviceClass, String serviceFilter,
-            boolean ocdRequired) throws InvalidSyntaxException {
-        List<Service> serviceList = new ArrayList<>();
-
-        // service.factoryPid cannot be searched, but service.pid can be searched,
-        // and can contain a factoryPid
-        String newFilter = null;
-        if (serviceFilter != null) {
-            newFilter = serviceFilter.replace("service.factoryPid", "service.pid");
-        }
-
-        // find all ManagedServiceFactories to get the factoryPIDs
-        ServiceReference[] refs = this.getBundleContext()
-                .getAllServiceReferences(serviceClass, newFilter);
-
-        for (int i = 0; refs != null && i < refs.length; i++) {
-            Object pidObject = refs[i].getProperty(SERVICE_PID);
-            // only include valid PIDs
-            if (pidObject instanceof String && isAllowedPid((String) pidObject)) {
-                String pid = (String) pidObject;
-                String name = pid;
-                boolean haveOcd = !ocdRequired;
-                final ObjectClassDefinition ocd = getObjectClassDefinition(refs[i].getBundle(),
-                        pid);
-                if (ocd != null) {
-                    name = ocd.getName();
-                    haveOcd = true;
-                }
-
-                if (haveOcd) {
-                    Service service = new ServiceImpl();
-                    service.setId(pid);
-                    service.setName(name);
-                    serviceList.add(service);
-                }
-            }
-        }
-
-        return serviceList.stream()
-                .filter(service -> isPermittedToViewService(service.getId()))
-                .collect(Collectors.toList());
-    }
-
-    private List<Metatype> addMetaTypeNamesToMap(final Map<String, Object> ocdCollection,
-            final String filterSpec, final String type) {
-        Filter filter = null;
-        if (filterSpec != null) {
-            try {
-                filter = getBundleContext().createFilter(filterSpec);
-            } catch (InvalidSyntaxException ignore) {
-                // don't care
-            }
-        }
-
-        List<Metatype> metatypeList = new ArrayList<>();
-        for (Entry<String, Object> ociEntry : ocdCollection.entrySet()) {
-            final String pid = ociEntry.getKey();
-            final ObjectClassDefinition ocd = (ObjectClassDefinition) ociEntry.getValue();
-            if (filter == null) {
-                AttributeDefinition[] defs = ocd.getAttributeDefinitions(ObjectClassDefinition.ALL);
-                metatypeList.add(new MetatypeImpl(pid, ocd.getName(), createMetatypeMap(defs)));
-            } else {
-                final Dictionary<String, String> props = new Hashtable<>();
-                props.put(type, pid);
-                if (filter.match(props)) {
-                    AttributeDefinition[] defs =
-                            ocd.getAttributeDefinitions(ObjectClassDefinition.ALL);
-                    metatypeList.add(new MetatypeImpl(pid, ocd.getName(), createMetatypeMap(defs)));
-                }
-            }
-        }
-        return metatypeList;
-    }
-
-    private List<MetatypeAttribute> createMetatypeMap(AttributeDefinition[] definitions) {
-        List<MetatypeAttribute> metatypeList;
-
-        if (definitions != null) {
-            metatypeList = Arrays.stream(definitions)
-                    .map(MetatypeAttributeImpl::new)
-                    .collect(Collectors.toList());
-        } else {
-            metatypeList = new ArrayList<>();
-        }
-
-        return metatypeList;
-    }
-
-    public boolean isPermittedToViewService(String servicePid, Subject subject) {
-        KeyValueCollectionPermission serviceToCheck = new KeyValueCollectionPermission(
-                "view-service.pid",
-                new KeyValuePermission("service.pid", Sets.newHashSet(servicePid)));
-        return subject.isPermitted(serviceToCheck);
-    }
-
-    public boolean isPermittedToViewService(String servicePid) {
-        return isPermittedToViewService(servicePid, SecurityUtils.getSubject());
-    }
-
-    public ConfigurationStatus disableManagedServiceFactoryConfiguration(String servicePid,
-            Configuration originalConfig) throws IOException {
-        Dictionary<String, Object> properties = originalConfig.getProperties();
-        String originalFactoryPid =
-                (String) properties.get(org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID);
-        if (originalFactoryPid == null) {
-            throw new IOException("Configuration does not belong to a managed service factory.");
-        }
-        if (StringUtils.endsWith(originalFactoryPid, ConfigurationStatus.DISABLED_EXTENSION)) {
-            throw new IOException("Configuration is already disabled.");
-        }
-
-        // Copy configuration from the original configuration and change its factory PID to end with
-        // "disabled"
-        String disabledServiceFactoryPid =
-                originalFactoryPid + ConfigurationStatus.DISABLED_EXTENSION;
-        properties.put(org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID,
-                disabledServiceFactoryPid);
-        Configuration disabledConfig = configurationAdmin.createFactoryConfiguration(
-                disabledServiceFactoryPid,
-                null);
-        disabledConfig.update(properties);
-
-        // remove original configuration
-        originalConfig.delete();
-        return new ConfigurationStatusImpl(disabledServiceFactoryPid,
-                disabledConfig.getPid(),
-                originalFactoryPid,
-                servicePid);
-    }
-
-    public ConfigurationStatus enableManagedServiceFactoryConfiguration(String servicePid,
-            Configuration disabledConfig) throws IOException {
-        Dictionary<String, Object> properties = disabledConfig.getProperties();
-        String disabledFactoryPid =
-                (String) properties.get(org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID);
-        if (disabledFactoryPid == null) {
-            throw new IOException("Configuration does not belong to a managed service factory.");
-        }
-        if (!StringUtils.endsWith(disabledFactoryPid, ConfigurationStatus.DISABLED_EXTENSION)) {
-            throw new IOException("Configuration is already enabled.");
-        }
-
-        String enabledFactoryPid = StringUtils.removeEnd(disabledFactoryPid,
-                ConfigurationStatus.DISABLED_EXTENSION);
-        properties.put(org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID,
-                enabledFactoryPid);
-        Configuration enabledConfiguration = configurationAdmin.createFactoryConfiguration(
-                enabledFactoryPid,
-                null);
-        enabledConfiguration.update(properties);
-
-        disabledConfig.delete();
-
-        return new ConfigurationStatusImpl(enabledFactoryPid,
-                enabledConfiguration.getPid(),
-                disabledFactoryPid,
-                servicePid);
-    }
-
-    /**
-     * The <code>IdGetter</code> interface is an internal helper to abstract retrieving object class
-     * definitions from all bundles for either pids or factory pids.
-     *
-     * @see #PID_GETTER
-     * @see #FACTORY_PID_GETTER
-     */
-    private interface IdGetter {
-        String[] getIds(MetaTypeInformation metaTypeInformation);
-    }
-
+  /**
+   * The <code>IdGetter</code> interface is an internal helper to abstract retrieving object class
+   * definitions from all bundles for either pids or factory pids.
+   *
+   * @see #PID_GETTER
+   * @see #FACTORY_PID_GETTER
+   */
+  private interface IdGetter {
+    String[] getIds(MetaTypeInformation metaTypeInformation);
+  }
 }

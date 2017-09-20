@@ -13,38 +13,36 @@
  **/
 package org.codice.ddf.spatial.kml.converter;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.geotools.geometry.jts.JTSFactoryFinder;
-
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
-
 import de.micromata.opengis.kml.v_2_2_0.MultiGeometry;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.apache.commons.collections.CollectionUtils;
+import org.geotools.geometry.jts.JTSFactoryFinder;
 
 public class KmlToJtsMultiGeometryConverter {
-    private KmlToJtsMultiGeometryConverter() {
+  private KmlToJtsMultiGeometryConverter() {}
+
+  public static GeometryCollection from(MultiGeometry kmlMultiGeometry) {
+    if (kmlMultiGeometry == null) {
+      return null;
     }
 
-    public static GeometryCollection from(MultiGeometry kmlMultiGeometry) {
-        if (kmlMultiGeometry == null) {
-            return null;
-        }
+    GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory();
 
-        GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory();
+    List<Geometry> jtsGeometries =
+        kmlMultiGeometry
+            .getGeometry()
+            .stream()
+            .map(KmlToJtsGeometryConverter::from)
+            .collect(Collectors.toList());
 
-        List<Geometry> jtsGeometries = kmlMultiGeometry.getGeometry()
-                .stream()
-                .map(KmlToJtsGeometryConverter::from)
-                .collect(Collectors.toList());
-
-        if (CollectionUtils.isNotEmpty(jtsGeometries)) {
-            return geometryFactory.createGeometryCollection(jtsGeometries.toArray(new Geometry[0]));
-        }
-
-        return null;
+    if (CollectionUtils.isNotEmpty(jtsGeometries)) {
+      return geometryFactory.createGeometryCollection(jtsGeometries.toArray(new Geometry[0]));
     }
+
+    return null;
+  }
 }

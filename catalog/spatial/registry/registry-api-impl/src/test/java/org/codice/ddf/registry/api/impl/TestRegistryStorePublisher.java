@@ -1,14 +1,14 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
- * General Public License as published by the Free Software Foundation, either version 3 of the
- * License, or any later version.
- * <p>
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
- * is distributed along with this program and can be found at
+ *
+ * <p>This is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * Lesser General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or any later version.
+ *
+ * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
+ * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 package org.codice.ddf.registry.api.impl;
@@ -25,12 +25,14 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import ddf.catalog.data.Attribute;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.AttributeImpl;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
 import org.codice.ddf.registry.api.internal.RegistryStore;
 import org.codice.ddf.registry.common.metacard.RegistryObjectMetacardType;
 import org.codice.ddf.registry.federationadmin.service.internal.FederationAdminService;
@@ -44,247 +46,245 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 
-import ddf.catalog.data.Attribute;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.impl.AttributeImpl;
-
 public class TestRegistryStorePublisher extends RegistryStorePublisher {
 
-    private static final String PUBLISH = "publish";
+  private static final String PUBLISH = "publish";
 
-    private static final String UNPUBLISH = "unpublish";
+  private static final String UNPUBLISH = "unpublish";
 
-    private RegistryStorePublisher registryStorePublisher;
+  private RegistryStorePublisher registryStorePublisher;
 
-    private RegistryPublicationService mockRegPubService;
+  private RegistryPublicationService mockRegPubService;
 
-    private FederationAdminService mockFedAdminService;
+  private FederationAdminService mockFedAdminService;
 
-    private ScheduledExecutorService executorService;
+  private ScheduledExecutorService executorService;
 
-    private ServiceReference serviceReference;
+  private ServiceReference serviceReference;
 
-    private RegistryStore mockRegistryStore;
+  private RegistryStore mockRegistryStore;
 
-    private Optional<Metacard> optMetacard;
+  private Optional<Metacard> optMetacard;
 
-    private ServiceEvent mockServiceEvent;
+  private ServiceEvent mockServiceEvent;
 
-    private BundleContext bundleContext;
+  private BundleContext bundleContext;
 
-    private Metacard mockIdentity;
+  private Metacard mockIdentity;
 
-    private Attribute registryId;
+  private Attribute registryId;
 
-    private Event event;
+  private Event event;
 
-    @Before
-    public void setup() {
-        registryId = new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID, "registryId");
+  @Before
+  public void setup() {
+    registryId = new AttributeImpl(RegistryObjectMetacardType.REGISTRY_ID, "registryId");
 
-        mockRegPubService = mock(RegistryPublicationService.class);
-        mockFedAdminService = mock(FederationAdminService.class);
-        executorService = mock(ScheduledExecutorService.class);
-        serviceReference = mock(ServiceReference.class);
-        mockRegistryStore = mock(RegistryStore.class);
-        mockServiceEvent = mock(ServiceEvent.class);
-        bundleContext = mock(BundleContext.class);
-        mockIdentity = mock(Metacard.class);
+    mockRegPubService = mock(RegistryPublicationService.class);
+    mockFedAdminService = mock(FederationAdminService.class);
+    executorService = mock(ScheduledExecutorService.class);
+    serviceReference = mock(ServiceReference.class);
+    mockRegistryStore = mock(RegistryStore.class);
+    mockServiceEvent = mock(ServiceEvent.class);
+    bundleContext = mock(BundleContext.class);
+    mockIdentity = mock(Metacard.class);
 
-        optMetacard = Optional.of(mockIdentity);
+    optMetacard = Optional.of(mockIdentity);
 
-        registryStorePublisher = spy(new RegistryStorePublisher() {
-            @Override
-            BundleContext getBundleContext() {
+    registryStorePublisher =
+        spy(
+            new RegistryStorePublisher() {
+              @Override
+              BundleContext getBundleContext() {
                 return bundleContext;
-            }
-        });
+              }
+            });
 
-        registryStorePublisher.setExecutor(executorService);
-        registryStorePublisher.setFederationAdminService(mockFedAdminService);
-        registryStorePublisher.setRegistryPublicationService(mockRegPubService);
+    registryStorePublisher.setExecutor(executorService);
+    registryStorePublisher.setFederationAdminService(mockFedAdminService);
+    registryStorePublisher.setRegistryPublicationService(mockRegPubService);
 
-        Dictionary<String, Object> eventProperties = new Hashtable<>();
-        eventProperties.put(EventConstants.EVENT, mockServiceEvent);
-        eventProperties.put(Constants.SERVICE_PID, "servicePid");
-        event = new Event("org/osgi/framework/ServiceEvent/MODIFIED", eventProperties);
-    }
+    Dictionary<String, Object> eventProperties = new Hashtable<>();
+    eventProperties.put(EventConstants.EVENT, mockServiceEvent);
+    eventProperties.put(Constants.SERVICE_PID, "servicePid");
+    event = new Event("org/osgi/framework/ServiceEvent/MODIFIED", eventProperties);
+  }
 
-    @Test
-    public void testBindRegistryStoreNoContext() {
-        registryStorePublisher = spy(new RegistryStorePublisher());
-        registryStorePublisher.bindRegistryStore(serviceReference);
+  @Test
+  public void testBindRegistryStoreNoContext() {
+    registryStorePublisher = spy(new RegistryStorePublisher());
+    registryStorePublisher.bindRegistryStore(serviceReference);
 
-        verify(registryStorePublisher, times(0)).registryPublish(any(), anyString());
-    }
+    verify(registryStorePublisher, times(0)).registryPublish(any(), anyString());
+  }
 
-    @Test
-    public void testBindThenUnbindRegistryStoreAutoPush() {
-        when(bundleContext.getService(any())).thenReturn(mockRegistryStore);
-        when(mockRegistryStore.getConfigurationPid()).thenReturn("configPid");
-        when(mockRegistryStore.isAvailable(any())).thenReturn(true);
-        when(mockRegistryStore.isAutoPush()).thenReturn(true);
-        when(mockRegistryStore.getRegistryId()).thenReturn("registryId");
+  @Test
+  public void testBindThenUnbindRegistryStoreAutoPush() {
+    when(bundleContext.getService(any())).thenReturn(mockRegistryStore);
+    when(mockRegistryStore.getConfigurationPid()).thenReturn("configPid");
+    when(mockRegistryStore.isAvailable(any())).thenReturn(true);
+    when(mockRegistryStore.isAutoPush()).thenReturn(true);
+    when(mockRegistryStore.getRegistryId()).thenReturn("registryId");
 
-        registryStorePublisher.bindRegistryStore(serviceReference);
+    registryStorePublisher.bindRegistryStore(serviceReference);
 
-        registryStorePublisher.unbindRegistryStore(serviceReference);
+    registryStorePublisher.unbindRegistryStore(serviceReference);
 
-        verify(registryStorePublisher, times(1)).registryPublish(any(), eq(PUBLISH));
-    }
+    verify(registryStorePublisher, times(1)).registryPublish(any(), eq(PUBLISH));
+  }
 
-    @Test
-    public void testUnbindRegistryStoreNoContext() {
-        registryStorePublisher = spy(new RegistryStorePublisher());
-        registryStorePublisher.unbindRegistryStore(serviceReference);
+  @Test
+  public void testUnbindRegistryStoreNoContext() {
+    registryStorePublisher = spy(new RegistryStorePublisher());
+    registryStorePublisher.unbindRegistryStore(serviceReference);
 
-        verify(registryStorePublisher, times(0)).registryPublish(any(), eq(UNPUBLISH));
-    }
+    verify(registryStorePublisher, times(0)).registryPublish(any(), eq(UNPUBLISH));
+  }
 
-    @Test
-    public void testRegistryPublishFailed() throws Exception {
-        RegistryStoreImpl mockRegistryStoreImpl = mock(RegistryStoreImpl.class);
-        when(mockRegistryStoreImpl.getRegistryId()).thenReturn("registryId");
-        when(mockFedAdminService.getLocalRegistryIdentityMetacard()).thenReturn(optMetacard);
+  @Test
+  public void testRegistryPublishFailed() throws Exception {
+    RegistryStoreImpl mockRegistryStoreImpl = mock(RegistryStoreImpl.class);
+    when(mockRegistryStoreImpl.getRegistryId()).thenReturn("registryId");
+    when(mockFedAdminService.getLocalRegistryIdentityMetacard()).thenReturn(optMetacard);
 
-        registryStorePublisher.registryPublish(mockRegistryStoreImpl, PUBLISH);
+    registryStorePublisher.registryPublish(mockRegistryStoreImpl, PUBLISH);
 
-        verify(mockRegPubService, times(0)).publish(any(), any());
-    }
+    verify(mockRegPubService, times(0)).publish(any(), any());
+  }
 
-    @Test
-    public void testRegistryPublish() throws Exception {
-        when(mockRegistryStore.getRegistryId()).thenReturn("registryId");
-        when(mockFedAdminService.getLocalRegistryIdentityMetacard()).thenReturn(optMetacard);
-        when(mockIdentity.getAttribute(RegistryObjectMetacardType.REGISTRY_ID)).thenReturn(
-                registryId);
+  @Test
+  public void testRegistryPublish() throws Exception {
+    when(mockRegistryStore.getRegistryId()).thenReturn("registryId");
+    when(mockFedAdminService.getLocalRegistryIdentityMetacard()).thenReturn(optMetacard);
+    when(mockIdentity.getAttribute(RegistryObjectMetacardType.REGISTRY_ID)).thenReturn(registryId);
 
-        setupSerialExecutor();
+    setupSerialExecutor();
 
-        registryStorePublisher.registryPublish(mockRegistryStore, PUBLISH);
+    registryStorePublisher.registryPublish(mockRegistryStore, PUBLISH);
 
-        verify(mockRegPubService, times(1)).publish(any(), any());
-    }
+    verify(mockRegPubService, times(1)).publish(any(), any());
+  }
 
-    @Test
-    public void testRegistryUnpublishFailed() throws Exception {
-        RegistryStoreImpl mockRegistryStoreImpl = mock(RegistryStoreImpl.class);
-        when(mockRegistryStoreImpl.getRegistryId()).thenReturn("registryId");
-        when(mockFedAdminService.getLocalRegistryIdentityMetacard()).thenReturn(optMetacard);
+  @Test
+  public void testRegistryUnpublishFailed() throws Exception {
+    RegistryStoreImpl mockRegistryStoreImpl = mock(RegistryStoreImpl.class);
+    when(mockRegistryStoreImpl.getRegistryId()).thenReturn("registryId");
+    when(mockFedAdminService.getLocalRegistryIdentityMetacard()).thenReturn(optMetacard);
 
-        registryStorePublisher.registryPublish(mockRegistryStoreImpl, UNPUBLISH);
+    registryStorePublisher.registryPublish(mockRegistryStoreImpl, UNPUBLISH);
 
-        verify(mockRegPubService, times(0)).unpublish(any(), any());
-    }
+    verify(mockRegPubService, times(0)).unpublish(any(), any());
+  }
 
-    @Test
-    public void testRegistryUnpublish() throws Exception {
-        when(mockRegistryStore.getRegistryId()).thenReturn("registryId");
-        when(mockFedAdminService.getLocalRegistryIdentityMetacard()).thenReturn(optMetacard);
-        when(mockIdentity.getAttribute(RegistryObjectMetacardType.REGISTRY_ID)).thenReturn(
-                registryId);
+  @Test
+  public void testRegistryUnpublish() throws Exception {
+    when(mockRegistryStore.getRegistryId()).thenReturn("registryId");
+    when(mockFedAdminService.getLocalRegistryIdentityMetacard()).thenReturn(optMetacard);
+    when(mockIdentity.getAttribute(RegistryObjectMetacardType.REGISTRY_ID)).thenReturn(registryId);
 
-        setupSerialExecutor();
+    setupSerialExecutor();
 
-        registryStorePublisher.registryPublish(mockRegistryStore, UNPUBLISH);
+    registryStorePublisher.registryPublish(mockRegistryStore, UNPUBLISH);
 
-        verify(mockRegPubService, times(1)).unpublish(any(), any());
-    }
+    verify(mockRegPubService, times(1)).unpublish(any(), any());
+  }
 
-    @Test
-    public void testRegistryUnpublishNoId() throws Exception {
-        when(mockRegistryStore.getRegistryId()).thenReturn("");
+  @Test
+  public void testRegistryUnpublishNoId() throws Exception {
+    when(mockRegistryStore.getRegistryId()).thenReturn("");
 
-        registryStorePublisher.registryPublish(mockRegistryStore, UNPUBLISH);
+    registryStorePublisher.registryPublish(mockRegistryStore, UNPUBLISH);
 
-        verify(mockRegPubService, times(0)).unpublish(any(), any());
-    }
+    verify(mockRegPubService, times(0)).unpublish(any(), any());
+  }
 
-    @Test
-    public void testHandleFalseEvent() throws Exception {
-        when(mockServiceEvent.getType()).thenReturn(ServiceEvent.UNREGISTERING);
+  @Test
+  public void testHandleFalseEvent() throws Exception {
+    when(mockServiceEvent.getType()).thenReturn(ServiceEvent.UNREGISTERING);
 
-        registryStorePublisher.handleEvent(event);
+    registryStorePublisher.handleEvent(event);
 
-        verify(mockRegPubService, times(0)).publish(any(), any());
-    }
+    verify(mockRegPubService, times(0)).publish(any(), any());
+  }
 
-    @Test
-    public void testHandleEventNoAction() throws Exception {
-        when(mockServiceEvent.getType()).thenReturn(ServiceEvent.MODIFIED);
-        registryStorePublisher.handleEvent(event);
+  @Test
+  public void testHandleEventNoAction() throws Exception {
+    when(mockServiceEvent.getType()).thenReturn(ServiceEvent.MODIFIED);
+    registryStorePublisher.handleEvent(event);
 
-        verify(mockRegPubService, times(0)).publish(any(), any());
-        verify(mockRegPubService, times(0)).unpublish(any(), any());
-    }
+    verify(mockRegPubService, times(0)).publish(any(), any());
+    verify(mockRegPubService, times(0)).unpublish(any(), any());
+  }
 
-    @Test
-    public void testHandleEventPublish() throws Exception {
-        when(mockServiceEvent.getType()).thenReturn(ServiceEvent.MODIFIED);
-        when(bundleContext.getService(any())).thenReturn(mockRegistryStore);
-        when(mockRegistryStore.getConfigurationPid()).thenReturn("servicePid");
-        when(mockRegistryStore.isAvailable(any())).thenReturn(true);
-        when(mockRegistryStore.isAutoPush()).thenReturn(false);
-        when(mockRegistryStore.getRegistryId()).thenReturn("registryId");
+  @Test
+  public void testHandleEventPublish() throws Exception {
+    when(mockServiceEvent.getType()).thenReturn(ServiceEvent.MODIFIED);
+    when(bundleContext.getService(any())).thenReturn(mockRegistryStore);
+    when(mockRegistryStore.getConfigurationPid()).thenReturn("servicePid");
+    when(mockRegistryStore.isAvailable(any())).thenReturn(true);
+    when(mockRegistryStore.isAutoPush()).thenReturn(false);
+    when(mockRegistryStore.getRegistryId()).thenReturn("registryId");
 
-        registryStorePublisher.bindRegistryStore(serviceReference);
+    registryStorePublisher.bindRegistryStore(serviceReference);
 
-        when(mockRegistryStore.isAutoPush()).thenReturn(true);
+    when(mockRegistryStore.isAutoPush()).thenReturn(true);
 
-        registryStorePublisher.handleEvent(event);
+    registryStorePublisher.handleEvent(event);
 
-        verify(registryStorePublisher, times(1)).registryPublish(any(), eq(PUBLISH));
-    }
+    verify(registryStorePublisher, times(1)).registryPublish(any(), eq(PUBLISH));
+  }
 
-    @Test
-    public void testHandleEventUnpublish() throws Exception {
-        when(mockServiceEvent.getType()).thenReturn(ServiceEvent.MODIFIED);
-        when(bundleContext.getService(any())).thenReturn(mockRegistryStore);
-        when(mockRegistryStore.getConfigurationPid()).thenReturn("servicePid");
-        when(mockRegistryStore.isAvailable(any())).thenReturn(true);
-        when(mockRegistryStore.isAutoPush()).thenReturn(true);
-        when(mockRegistryStore.getRegistryId()).thenReturn("registryId");
+  @Test
+  public void testHandleEventUnpublish() throws Exception {
+    when(mockServiceEvent.getType()).thenReturn(ServiceEvent.MODIFIED);
+    when(bundleContext.getService(any())).thenReturn(mockRegistryStore);
+    when(mockRegistryStore.getConfigurationPid()).thenReturn("servicePid");
+    when(mockRegistryStore.isAvailable(any())).thenReturn(true);
+    when(mockRegistryStore.isAutoPush()).thenReturn(true);
+    when(mockRegistryStore.getRegistryId()).thenReturn("registryId");
 
-        registryStorePublisher.bindRegistryStore(serviceReference);
+    registryStorePublisher.bindRegistryStore(serviceReference);
 
-        when(mockRegistryStore.isAutoPush()).thenReturn(false);
+    when(mockRegistryStore.isAutoPush()).thenReturn(false);
 
-        registryStorePublisher.handleEvent(event);
+    registryStorePublisher.handleEvent(event);
 
-        verify(registryStorePublisher, times(1)).registryPublish(any(), eq(PUBLISH));
-        verify(registryStorePublisher, times(1)).registryPublish(any(), eq(UNPUBLISH));
-    }
+    verify(registryStorePublisher, times(1)).registryPublish(any(), eq(PUBLISH));
+    verify(registryStorePublisher, times(1)).registryPublish(any(), eq(UNPUBLISH));
+  }
 
-    @Test
-    public void testDestroy() throws Exception {
-        when(executorService.awaitTermination(anyLong(), any(TimeUnit.class))).thenReturn(true);
-        registryStorePublisher.destroy();
-        verify(executorService, times(1)).awaitTermination(anyLong(), any(TimeUnit.class));
-        verify(executorService, times(0)).shutdownNow();
-    }
+  @Test
+  public void testDestroy() throws Exception {
+    when(executorService.awaitTermination(anyLong(), any(TimeUnit.class))).thenReturn(true);
+    registryStorePublisher.destroy();
+    verify(executorService, times(1)).awaitTermination(anyLong(), any(TimeUnit.class));
+    verify(executorService, times(0)).shutdownNow();
+  }
 
-    @Test
-    public void testDestroyTerminateTasks() throws Exception {
-        when(executorService.awaitTermination(anyLong(), any(TimeUnit.class))).thenReturn(false);
-        registryStorePublisher.destroy();
-        verify(executorService, times(2)).awaitTermination(anyLong(), any(TimeUnit.class));
-        verify(executorService, times(1)).shutdownNow();
-    }
+  @Test
+  public void testDestroyTerminateTasks() throws Exception {
+    when(executorService.awaitTermination(anyLong(), any(TimeUnit.class))).thenReturn(false);
+    registryStorePublisher.destroy();
+    verify(executorService, times(2)).awaitTermination(anyLong(), any(TimeUnit.class));
+    verify(executorService, times(1)).shutdownNow();
+  }
 
-    @Test
-    public void testDestroyInterupt() throws Exception {
-        when(executorService.awaitTermination(anyLong(),
-                any(TimeUnit.class))).thenThrow(new InterruptedException("interrupt"));
-        registryStorePublisher.destroy();
-        verify(executorService, times(1)).awaitTermination(anyLong(), any(TimeUnit.class));
-        verify(executorService, times(1)).shutdownNow();
-    }
+  @Test
+  public void testDestroyInterupt() throws Exception {
+    when(executorService.awaitTermination(anyLong(), any(TimeUnit.class)))
+        .thenThrow(new InterruptedException("interrupt"));
+    registryStorePublisher.destroy();
+    verify(executorService, times(1)).awaitTermination(anyLong(), any(TimeUnit.class));
+    verify(executorService, times(1)).shutdownNow();
+  }
 
-    private void setupSerialExecutor() {
-        doAnswer((args) -> {
-            ((Runnable) args.getArguments()[0]).run();
-            return null;
-        }).when(executorService)
-                .schedule(isA(Runnable.class), anyLong(), any());
-    }
+  private void setupSerialExecutor() {
+    doAnswer(
+            (args) -> {
+              ((Runnable) args.getArguments()[0]).run();
+              return null;
+            })
+        .when(executorService)
+        .schedule(isA(Runnable.class), anyLong(), any());
+  }
 }

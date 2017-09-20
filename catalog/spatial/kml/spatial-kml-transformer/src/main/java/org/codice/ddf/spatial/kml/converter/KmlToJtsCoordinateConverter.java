@@ -13,43 +13,40 @@
  **/
 package org.codice.ddf.spatial.kml.converter;
 
+import de.micromata.opengis.kml.v_2_2_0.Coordinate;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
 import org.apache.commons.collections.CollectionUtils;
-
-import de.micromata.opengis.kml.v_2_2_0.Coordinate;
 
 public class KmlToJtsCoordinateConverter {
 
-    private KmlToJtsCoordinateConverter() {
+  private KmlToJtsCoordinateConverter() {}
 
+  public static com.vividsolutions.jts.geom.Coordinate from(Coordinate kmlCoordinate) {
+    if (kmlCoordinate == null) {
+      return null;
     }
 
-    public static com.vividsolutions.jts.geom.Coordinate from(Coordinate kmlCoordinate) {
-        if (kmlCoordinate == null) {
-            return null;
-        }
+    return new com.vividsolutions.jts.geom.Coordinate(
+        kmlCoordinate.getLongitude(), kmlCoordinate.getLatitude(), kmlCoordinate.getAltitude());
+  }
 
-        return new com.vividsolutions.jts.geom.Coordinate(kmlCoordinate.getLongitude(),
-                kmlCoordinate.getLatitude(),
-                kmlCoordinate.getAltitude());
+  public static com.vividsolutions.jts.geom.Coordinate[] from(List<Coordinate> kmlCoordinates) {
+    if (CollectionUtils.isEmpty(kmlCoordinates)) {
+      return new com.vividsolutions.jts.geom.Coordinate[0];
     }
 
-    public static com.vividsolutions.jts.geom.Coordinate[] from(List<Coordinate> kmlCoordinates) {
-        if (CollectionUtils.isEmpty(kmlCoordinates)) {
-            return new com.vividsolutions.jts.geom.Coordinate[0];
-        }
-
-        List<com.vividsolutions.jts.geom.Coordinate> jtsCoordinates = kmlCoordinates.stream()
-                .filter(Objects::nonNull)
-                .map(KmlToJtsCoordinateConverter::from)
-                .collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(jtsCoordinates)) {
-            return new com.vividsolutions.jts.geom.Coordinate[0];
-        }
-
-        return jtsCoordinates.toArray(new com.vividsolutions.jts.geom.Coordinate[0]);
+    List<com.vividsolutions.jts.geom.Coordinate> jtsCoordinates =
+        kmlCoordinates
+            .stream()
+            .filter(Objects::nonNull)
+            .map(KmlToJtsCoordinateConverter::from)
+            .collect(Collectors.toList());
+    if (CollectionUtils.isEmpty(jtsCoordinates)) {
+      return new com.vividsolutions.jts.geom.Coordinate[0];
     }
+
+    return jtsCoordinates.toArray(new com.vividsolutions.jts.geom.Coordinate[0]);
+  }
 }

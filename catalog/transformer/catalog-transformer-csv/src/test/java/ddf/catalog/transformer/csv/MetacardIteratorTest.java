@@ -20,6 +20,9 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import ddf.catalog.data.Attribute;
+import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.Metacard;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,88 +30,84 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.stubbing.Answer;
 
-import ddf.catalog.data.Attribute;
-import ddf.catalog.data.AttributeDescriptor;
-import ddf.catalog.data.Metacard;
-
 public class MetacardIteratorTest {
-    private static final Object[][] ATTRIBUTE_DATA = {{"attribute1", "value1"},
-            {"attribute2", new Integer(101)},
-            {"attribute3", new Double(3.14159)}};
+  private static final Object[][] ATTRIBUTE_DATA = {
+    {"attribute1", "value1"}, {"attribute2", new Integer(101)}, {"attribute3", new Double(3.14159)}
+  };
 
-    private static final Map<String, Serializable> METACARD_DATA_MAP = new HashMap<>();
+  private static final Map<String, Serializable> METACARD_DATA_MAP = new HashMap<>();
 
-    private static final List<AttributeDescriptor> ATTRIBUTE_DESCRIPTOR_LIST = new ArrayList<>();
+  private static final List<AttributeDescriptor> ATTRIBUTE_DESCRIPTOR_LIST = new ArrayList<>();
 
-    @Before
-    public void setUp() {
-        ATTRIBUTE_DESCRIPTOR_LIST.clear();
-        METACARD_DATA_MAP.clear();
+  @Before
+  public void setUp() {
+    ATTRIBUTE_DESCRIPTOR_LIST.clear();
+    METACARD_DATA_MAP.clear();
 
-        for (Object[] entry : ATTRIBUTE_DATA) {
-            String attributeName = entry[0].toString();
-            Serializable attributeValue = (Serializable) entry[1];
-            Attribute attribute = buildAttribute(attributeName, attributeValue);
-            METACARD_DATA_MAP.put(attributeName, attribute);
-            ATTRIBUTE_DESCRIPTOR_LIST.add(buildAttribute(attributeName));
-        }
-
-        Attribute attribute = buildAttribute("skipMe", "value");
-        METACARD_DATA_MAP.put("skipMe", attribute);
+    for (Object[] entry : ATTRIBUTE_DATA) {
+      String attributeName = entry[0].toString();
+      Serializable attributeValue = (Serializable) entry[1];
+      Attribute attribute = buildAttribute(attributeName, attributeValue);
+      METACARD_DATA_MAP.put(attributeName, attribute);
+      ATTRIBUTE_DESCRIPTOR_LIST.add(buildAttribute(attributeName));
     }
 
-    @Test
-    public void testColumnHeaderIterator() {
-        Metacard metacard = buildMetacard();
-        Iterator<Serializable> iterator = new MetacardIterator(metacard, ATTRIBUTE_DESCRIPTOR_LIST);
+    Attribute attribute = buildAttribute("skipMe", "value");
+    METACARD_DATA_MAP.put("skipMe", attribute);
+  }
 
-        for (int i = 0; i < ATTRIBUTE_DATA.length; i++) {
-            assertThat(iterator.hasNext(), is(true));
-            assertThat(iterator.next(), is(ATTRIBUTE_DATA[i][1]));
-        }
+  @Test
+  public void testColumnHeaderIterator() {
+    Metacard metacard = buildMetacard();
+    Iterator<Serializable> iterator = new MetacardIterator(metacard, ATTRIBUTE_DESCRIPTOR_LIST);
 
-        assertThat(iterator.hasNext(), is(false));
+    for (int i = 0; i < ATTRIBUTE_DATA.length; i++) {
+      assertThat(iterator.hasNext(), is(true));
+      assertThat(iterator.next(), is(ATTRIBUTE_DATA[i][1]));
     }
 
-    @Test(expected = NoSuchElementException.class)
-    public void testHasNext() {
-        Metacard metacard = buildMetacard();
-        Iterator<Serializable> iterator = new MetacardIterator(metacard, ATTRIBUTE_DESCRIPTOR_LIST);
+    assertThat(iterator.hasNext(), is(false));
+  }
 
-        while (iterator.hasNext()) {
-            iterator.next();
-        }
+  @Test(expected = NoSuchElementException.class)
+  public void testHasNext() {
+    Metacard metacard = buildMetacard();
+    Iterator<Serializable> iterator = new MetacardIterator(metacard, ATTRIBUTE_DESCRIPTOR_LIST);
 
-        iterator.next();
+    while (iterator.hasNext()) {
+      iterator.next();
     }
 
-    private Metacard buildMetacard() {
-        Metacard metacard = mock(Metacard.class);
+    iterator.next();
+  }
 
-        Answer<Serializable> answer = invocation -> {
-            String key = invocation.getArgumentAt(0, String.class);
-            return METACARD_DATA_MAP.get(key);
+  private Metacard buildMetacard() {
+    Metacard metacard = mock(Metacard.class);
+
+    Answer<Serializable> answer =
+        invocation -> {
+          String key = invocation.getArgumentAt(0, String.class);
+          return METACARD_DATA_MAP.get(key);
         };
 
-        when(metacard.getAttribute(anyString())).thenAnswer(answer);
-        return metacard;
-    }
+    when(metacard.getAttribute(anyString())).thenAnswer(answer);
+    return metacard;
+  }
 
-    private AttributeDescriptor buildAttribute(String name) {
-        AttributeDescriptor attribute = mock(AttributeDescriptor.class);
-        when(attribute.getName()).thenReturn(name);
-        return attribute;
-    }
+  private AttributeDescriptor buildAttribute(String name) {
+    AttributeDescriptor attribute = mock(AttributeDescriptor.class);
+    when(attribute.getName()).thenReturn(name);
+    return attribute;
+  }
 
-    private Attribute buildAttribute(String name, Serializable value) {
-        Attribute attribute = mock(Attribute.class);
-        when(attribute.getName()).thenReturn(name);
-        when(attribute.getValue()).thenReturn(value);
-        return attribute;
-    }
+  private Attribute buildAttribute(String name, Serializable value) {
+    Attribute attribute = mock(Attribute.class);
+    when(attribute.getName()).thenReturn(name);
+    when(attribute.getValue()).thenReturn(value);
+    return attribute;
+  }
 }

@@ -18,87 +18,76 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 
+import ddf.catalog.data.types.Core;
+import ddf.catalog.filter.FilterBuilder;
+import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.SourceIdFilterVisitor;
 import org.geotools.filter.FilterFactoryImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.opengis.filter.Filter;
 
-import ddf.catalog.data.types.Core;
-import ddf.catalog.filter.FilterBuilder;
-import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
-
 public class SourceIdFilterVisitorTest {
-    private static final List<String> SOURCE_IDS = Arrays.asList("mySource",
-            "anotherSource",
-            "source with space");
+  private static final List<String> SOURCE_IDS =
+      Arrays.asList("mySource", "anotherSource", "source with space");
 
-    private SourceIdFilterVisitor sourceIdFilter;
+  private SourceIdFilterVisitor sourceIdFilter;
 
-    private FilterBuilder filterBuilder;
+  private FilterBuilder filterBuilder;
 
-    private Filter filterWithoutSourceIds;
+  private Filter filterWithoutSourceIds;
 
-    @Before
-    public void setUp() {
-        sourceIdFilter = new SourceIdFilterVisitor();
-        filterBuilder = new GeotoolsFilterBuilder();
-        filterWithoutSourceIds = buildFilter(Collections.emptyList());
-    }
+  @Before
+  public void setUp() {
+    sourceIdFilter = new SourceIdFilterVisitor();
+    filterBuilder = new GeotoolsFilterBuilder();
+    filterWithoutSourceIds = buildFilter(Collections.emptyList());
+  }
 
-    @Test
-    public void testFilterWithoutSourceIdsIsUnchanged() {
-        Filter result = (Filter) filterWithoutSourceIds.accept(sourceIdFilter,
-                new FilterFactoryImpl());
-        assertThat(result, equalTo(filterWithoutSourceIds));
-        assertThat(sourceIdFilter.getSourceIds(), equalTo(Collections.emptyList()));
-    }
+  @Test
+  public void testFilterWithoutSourceIdsIsUnchanged() {
+    Filter result = (Filter) filterWithoutSourceIds.accept(sourceIdFilter, new FilterFactoryImpl());
+    assertThat(result, equalTo(filterWithoutSourceIds));
+    assertThat(sourceIdFilter.getSourceIds(), equalTo(Collections.emptyList()));
+  }
 
-    @Test
-    public void testVisitorContainsSourceIds() {
-        Filter filter = buildFilter(SOURCE_IDS);
-        filter.accept(sourceIdFilter, new FilterFactoryImpl());
+  @Test
+  public void testVisitorContainsSourceIds() {
+    Filter filter = buildFilter(SOURCE_IDS);
+    filter.accept(sourceIdFilter, new FilterFactoryImpl());
 
-        List<String> result = sourceIdFilter.getSourceIds();
-        assertThat(result, containsInAnyOrder(SOURCE_IDS.toArray()));
-    }
+    List<String> result = sourceIdFilter.getSourceIds();
+    assertThat(result, containsInAnyOrder(SOURCE_IDS.toArray()));
+  }
 
-    @Test
-    public void testSourceIdsAreRemovedFromFilter() {
-        Filter filter = buildFilter(SOURCE_IDS);
-        Filter result = (Filter) filter.accept(sourceIdFilter, new FilterFactoryImpl());
+  @Test
+  public void testSourceIdsAreRemovedFromFilter() {
+    Filter filter = buildFilter(SOURCE_IDS);
+    Filter result = (Filter) filter.accept(sourceIdFilter, new FilterFactoryImpl());
 
-        SourceIdFilterVisitor visitor = new SourceIdFilterVisitor();
-        result.accept(visitor, new FilterFactoryImpl());
-        assertThat(visitor.getSourceIds(), equalTo(Collections.emptyList()));
-    }
+    SourceIdFilterVisitor visitor = new SourceIdFilterVisitor();
+    result.accept(visitor, new FilterFactoryImpl());
+    assertThat(visitor.getSourceIds(), equalTo(Collections.emptyList()));
+  }
 
-    private Filter buildFilter(List<String> sourceIds) {
-        Filter equalToFilter = filterBuilder.attribute("equalToFilter")
-                .is()
-                .equalTo()
-                .text("value");
+  private Filter buildFilter(List<String> sourceIds) {
+    Filter equalToFilter = filterBuilder.attribute("equalToFilter").is().equalTo().text("value");
 
-        Filter isLikeFilter = filterBuilder.attribute("isLikeFilter")
-                .is()
-                .like()
-                .text("value");
+    Filter isLikeFilter = filterBuilder.attribute("isLikeFilter").is().like().text("value");
 
-        List<Filter> filters = sourceIds.stream()
-                .map(id -> filterBuilder.attribute(Core.SOURCE_ID)
-                        .is()
-                        .equalTo()
-                        .text(id))
-                .collect(Collectors.toList());
+    List<Filter> filters =
+        sourceIds
+            .stream()
+            .map(id -> filterBuilder.attribute(Core.SOURCE_ID).is().equalTo().text(id))
+            .collect(Collectors.toList());
 
-        filters.add(equalToFilter);
-        filters.add(isLikeFilter);
+    filters.add(equalToFilter);
+    filters.add(isLikeFilter);
 
-        return filterBuilder.allOf(filters);
-    }
+    return filterBuilder.allOf(filters);
+  }
 }

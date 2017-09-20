@@ -1,14 +1,14 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
- * General Public License as published by the Free Software Foundation, either version 3 of the
- * License, or any later version.
- * <p>
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
- * is distributed along with this program and can be found at
+ *
+ * <p>This is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * Lesser General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or any later version.
+ *
+ * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
+ * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 package org.codice.ddf.itests.common;
@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.karaf.features.FeaturesService;
 import org.osgi.framework.Constants;
@@ -30,190 +29,196 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Class that holds the state of the system at some given point
- * and provides a way to get back to that state.
+ * Class that holds the state of the system at some given point and provides a way to get back to
+ * that state.
  */
 public class SystemStateManager {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SystemStateManager.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(SystemStateManager.class);
 
-    private static final int FEATURE_STOP_RETRY_COUNT = 3;
+  private static final int FEATURE_STOP_RETRY_COUNT = 3;
 
-    private static final String CONFIGURATION_FILTER = "(" + Constants.SERVICE_PID + "=*)";
+  private static final String CONFIGURATION_FILTER = "(" + Constants.SERVICE_PID + "=*)";
 
-    private static SystemStateManager instance;
+  private static SystemStateManager instance;
 
-    private List<String> baseFeatures;
+  private List<String> baseFeatures;
 
-    private Map<String, Configuration> baseConfigurations = new HashMap<>();
+  private Map<String, Configuration> baseConfigurations = new HashMap<>();
 
-    private ServiceManager serviceManager;
+  private ServiceManager serviceManager;
 
-    private FeaturesService features;
+  private FeaturesService features;
 
-    private KarafConsole console;
+  private KarafConsole console;
 
-    private AdminConfig adminConfig;
+  private AdminConfig adminConfig;
 
-    private boolean stateInitiallized = false;
+  private boolean stateInitiallized = false;
 
-    SystemStateManager(ServiceManager serviceManager, FeaturesService features,
-            AdminConfig adminConfig, KarafConsole console) {
-        this.serviceManager = serviceManager;
-        this.features = features;
-        this.adminConfig = adminConfig;
-        this.console = console;
+  SystemStateManager(
+      ServiceManager serviceManager,
+      FeaturesService features,
+      AdminConfig adminConfig,
+      KarafConsole console) {
+    this.serviceManager = serviceManager;
+    this.features = features;
+    this.adminConfig = adminConfig;
+    this.console = console;
+  }
+
+  public static SystemStateManager getManager(
+      ServiceManager serviceManager,
+      FeaturesService features,
+      AdminConfig adminConfig,
+      KarafConsole console) {
+    //not worried about threading here since the tests are called serially
+    if (instance == null) {
+      instance = new SystemStateManager(serviceManager, features, adminConfig, console);
     }
+    return instance;
+  }
 
-    public static SystemStateManager getManager(ServiceManager serviceManager,
-            FeaturesService features, AdminConfig adminConfig, KarafConsole console) {
-        //not worried about threading here since the tests are called serially
-        if (instance == null) {
-            instance = new SystemStateManager(serviceManager, features, adminConfig, console);
-        }
-        return instance;
+  public void setSystemBaseState(Runnable runnable, boolean overwrite) throws Exception {
+    if (overwrite || !stateInitiallized) {
+      runnable.run();
+      captureSystemState();
+      stateInitiallized = true;
     }
+  }
 
-    public void setSystemBaseState(Runnable runnable, boolean overwrite) throws Exception {
-        if (overwrite || !stateInitiallized) {
-            runnable.run();
-            captureSystemState();
-            stateInitiallized = true;
-        }
+  public void waitForSystemBaseState() throws Exception {
+    if (stateInitiallized) {
+      resetSystem();
+    } else {
+      throw new IllegalStateException("The base system state has not been set");
     }
+  }
 
-    public void waitForSystemBaseState() throws Exception {
-        if (stateInitiallized) {
-            resetSystem();
-        } else {
-            throw new IllegalStateException("The base system state has not been set");
+  private void resetSystem() {
+    LOGGER.info("Resetting system to base state");
+    try {
+      long start = System.currentTimeMillis();
+      //reset the features
+      List<String> currentFeatures =
+          Arrays.stream(features.listInstalledFeatures())
+              .map(e -> e.getName())
+              .collect(Collectors.toList());
+      List<String> featuresToStart =
+          baseFeatures
+              .stream()
+              .filter(e -> !currentFeatures.contains(e))
+              .collect(Collectors.toList());
+      List<String> featuresToStop =
+          currentFeatures
+              .stream()
+              .filter(e -> !baseFeatures.contains(e))
+              .collect(Collectors.toList());
+      for (String feature : featuresToStart) {
+        LOGGER.debug("Starting feature {}", feature);
+        serviceManager.startFeature(false, feature);
+      }
+      serviceManager.waitForAllBundles();
+      //we try a couple of times here because some features might not stop the first time
+      //due to dependencies
+      List<String> stoppedFeatures = new ArrayList<>();
+      for (int i = 0; i < FEATURE_STOP_RETRY_COUNT; i++) {
+        stoppedFeatures.clear();
+        for (String feature : featuresToStop) {
+          LOGGER.debug("Stopping feature {}", feature);
+          try {
+            serviceManager.stopFeature(false, feature);
+            stoppedFeatures.add(feature);
+          } catch (Exception e) {
+            LOGGER.debug("Failed to stop feature {}", feature);
+          }
         }
+        featuresToStop.removeAll(stoppedFeatures);
+      }
+      serviceManager.waitForAllBundles();
+
+      //reset the configurations
+      Configuration[] configs = adminConfig.listConfigurations(CONFIGURATION_FILTER);
+      Map<String, Configuration> currentConfigurations = new HashMap<>();
+      for (Configuration config : configs) {
+        currentConfigurations.put(config.getPid(), config);
+      }
+      Map<String, Configuration> addedConfigs = new HashMap<>(currentConfigurations);
+      addedConfigs.keySet().removeAll(baseConfigurations.keySet());
+      for (Configuration config : addedConfigs.values()) {
+        LOGGER.debug("Deleting configuration {}", config.getPid());
+        config.delete();
+      }
+
+      Map<String, Configuration> removedConfigs = new HashMap<>(baseConfigurations);
+      removedConfigs.keySet().removeAll(currentConfigurations.keySet());
+      for (Configuration config : removedConfigs.values()) {
+        LOGGER.debug("Adding configuration {}", config.getPid());
+        Configuration newConfig = adminConfig.getConfiguration(config.getPid(), null);
+        newConfig.update(config.getProperties());
+      }
+
+      for (Configuration config : baseConfigurations.values()) {
+        if (currentConfigurations.containsKey(config.getPid())
+            && !propertiesMatch(
+                config.getProperties(),
+                currentConfigurations.get(config.getPid()).getProperties())) {
+          LOGGER.debug("Updating configuration {}", config.getPid());
+          config.update(baseConfigurations.get(config.getPid()).getProperties());
+        }
+      }
+
+      serviceManager.waitForAllBundles();
+
+      //reset the catalog
+      console.runCommand("catalog:removeall -f -p");
+      console.runCommand("catalog:removeall -f -p --cache");
+      console.runCommand(
+          "catalog:import --provider --force --skip-signature-verification  itest-catalog-entries.zip");
+      LOGGER.debug("Reset took {} sec", (System.currentTimeMillis() - start) / 1000.0);
+
+    } catch (Exception e) {
+      LOGGER.error("Error resetting system configuration.", e);
     }
+  }
 
-    private void resetSystem() {
-        LOGGER.info("Resetting system to base state");
-        try {
-            long start = System.currentTimeMillis();
-            //reset the features
-            List<String> currentFeatures = Arrays.stream(features.listInstalledFeatures())
-                    .map(e -> e.getName())
-                    .collect(Collectors.toList());
-            List<String> featuresToStart = baseFeatures.stream()
-                    .filter(e -> !currentFeatures.contains(e))
-                    .collect(Collectors.toList());
-            List<String> featuresToStop = currentFeatures.stream()
-                    .filter(e -> !baseFeatures.contains(e))
-                    .collect(Collectors.toList());
-            for (String feature : featuresToStart) {
-                LOGGER.debug("Starting feature {}", feature);
-                serviceManager.startFeature(false, feature);
-            }
-            serviceManager.waitForAllBundles();
-            //we try a couple of times here because some features might not stop the first time
-            //due to dependencies
-            List<String> stoppedFeatures = new ArrayList<>();
-            for (int i = 0; i < FEATURE_STOP_RETRY_COUNT; i++) {
-                stoppedFeatures.clear();
-                for (String feature : featuresToStop) {
-                    LOGGER.debug("Stopping feature {}", feature);
-                    try {
-                        serviceManager.stopFeature(false, feature);
-                        stoppedFeatures.add(feature);
-                    } catch (Exception e) {
-                        LOGGER.debug("Failed to stop feature {}", feature);
-                    }
-                }
-                featuresToStop.removeAll(stoppedFeatures);
-            }
-            serviceManager.waitForAllBundles();
-
-            //reset the configurations
-            Configuration[] configs = adminConfig.listConfigurations(CONFIGURATION_FILTER);
-            Map<String, Configuration> currentConfigurations = new HashMap<>();
-            for (Configuration config : configs) {
-                currentConfigurations.put(config.getPid(), config);
-            }
-            Map<String, Configuration> addedConfigs = new HashMap<>(currentConfigurations);
-            addedConfigs.keySet()
-                    .removeAll(baseConfigurations.keySet());
-            for (Configuration config : addedConfigs.values()) {
-                LOGGER.debug("Deleting configuration {}", config.getPid());
-                config.delete();
-            }
-
-            Map<String, Configuration> removedConfigs = new HashMap<>(baseConfigurations);
-            removedConfigs.keySet()
-                    .removeAll(currentConfigurations.keySet());
-            for (Configuration config : removedConfigs.values()) {
-                LOGGER.debug("Adding configuration {}", config.getPid());
-                Configuration newConfig = adminConfig.getConfiguration(config.getPid(), null);
-                newConfig.update(config.getProperties());
-            }
-
-            for (Configuration config : baseConfigurations.values()) {
-                if (currentConfigurations.containsKey(config.getPid())
-                        && !propertiesMatch(config.getProperties(),
-                        currentConfigurations.get(config.getPid())
-                                .getProperties())) {
-                    LOGGER.debug("Updating configuration {}", config.getPid());
-                    config.update(baseConfigurations.get(config.getPid())
-                            .getProperties());
-                }
-            }
-
-            serviceManager.waitForAllBundles();
-
-            //reset the catalog
-            console.runCommand("catalog:removeall -f -p");
-            console.runCommand("catalog:removeall -f -p --cache");
-            console.runCommand(
-                    "catalog:import --provider --force --skip-signature-verification  itest-catalog-entries.zip");
-            LOGGER.debug("Reset took {} sec", (System.currentTimeMillis() - start) / 1000.0);
-
-        } catch (Exception e) {
-            LOGGER.error("Error resetting system configuration.", e);
-        }
+  private boolean propertiesMatch(
+      Dictionary<String, Object> dictionary1, Dictionary<String, Object> dictionary2) {
+    if (dictionary1.size() != dictionary2.size()) {
+      return false;
     }
-
-    private boolean propertiesMatch(Dictionary<String, Object> dictionary1,
-            Dictionary<String, Object> dictionary2) {
-        if (dictionary1.size() != dictionary2.size()) {
-            return false;
+    Enumeration<String> keys = dictionary1.keys();
+    while (keys.hasMoreElements()) {
+      String key = keys.nextElement();
+      Object o = dictionary1.get(key);
+      Object o1 = dictionary2.get(key);
+      if (o.getClass().isArray() && o1.getClass().isArray()) {
+        if (!ArrayUtils.isEquals(o, o1)) {
+          return false;
         }
-        Enumeration<String> keys = dictionary1.keys();
-        while (keys.hasMoreElements()) {
-            String key = keys.nextElement();
-            Object o = dictionary1.get(key);
-            Object o1 = dictionary2.get(key);
-            if (o.getClass()
-                    .isArray() && o1.getClass()
-                    .isArray()) {
-                if (!ArrayUtils.isEquals(o, o1)) {
-                    return false;
-                }
-            } else if (!o.equals(o1)) {
-                return false;
-            }
-        }
-        return true;
+      } else if (!o.equals(o1)) {
+        return false;
+      }
     }
+    return true;
+  }
 
-    private void captureSystemState() {
-        LOGGER.info("Capturing system state");
-        try {
-            baseFeatures = Arrays.stream(features.listInstalledFeatures())
-                    .map(e -> e.getName())
-                    .collect(Collectors.toList());
-            Configuration[] configs = adminConfig.listConfigurations(CONFIGURATION_FILTER);
-            for (Configuration config : configs) {
-                baseConfigurations.put(config.getPid(), config);
-            }
-            console.runCommand(
-                    "catalog:export --provider --force --skip-signature-verification --delete=false --output \"./itest-catalog-entries.zip\" --cql \"\\\"metacard-tags\\\" like '*'\"");
-            LOGGER.info("Feature Count: {}", baseFeatures.size());
-            LOGGER.info("Configuration Count: {}", baseConfigurations.size());
-        } catch (Exception e) {
-            LOGGER.error("Error capturing system configuration.", e);
-        }
+  private void captureSystemState() {
+    LOGGER.info("Capturing system state");
+    try {
+      baseFeatures =
+          Arrays.stream(features.listInstalledFeatures())
+              .map(e -> e.getName())
+              .collect(Collectors.toList());
+      Configuration[] configs = adminConfig.listConfigurations(CONFIGURATION_FILTER);
+      for (Configuration config : configs) {
+        baseConfigurations.put(config.getPid(), config);
+      }
+      console.runCommand(
+          "catalog:export --provider --force --skip-signature-verification --delete=false --output \"./itest-catalog-entries.zip\" --cql \"\\\"metacard-tags\\\" like '*'\"");
+      LOGGER.info("Feature Count: {}", baseFeatures.size());
+      LOGGER.info("Configuration Count: {}", baseConfigurations.size());
+    } catch (Exception e) {
+      LOGGER.error("Error capturing system configuration.", e);
     }
-
+  }
 }

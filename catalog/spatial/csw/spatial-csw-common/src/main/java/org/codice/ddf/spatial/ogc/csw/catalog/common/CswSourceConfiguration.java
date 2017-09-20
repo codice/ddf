@@ -1,25 +1,24 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
- * General Public License as published by the Free Software Foundation, either version 3 of the
- * License, or any later version.
- * <p>
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
- * is distributed along with this program and can be found at
+ *
+ * <p>This is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * Lesser General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or any later version.
+ *
+ * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
+ * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- **/
+ */
 package org.codice.ddf.spatial.ogc.csw.catalog.common;
 
+import ddf.security.encryption.EncryptionService;
+import ddf.security.permission.Permissions;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
-import ddf.security.encryption.EncryptionService;
-import ddf.security.permission.Permissions;
 
 /**
  * Domain object to encapsulate the configuration of an instance of a {@link CswSource}. CSW
@@ -28,211 +27,210 @@ import ddf.security.permission.Permissions;
  */
 public class CswSourceConfiguration {
 
-    private String cswUrl;
+  private String cswUrl;
 
-    private String id;
+  private String id;
 
-    private String username;
+  private String username;
 
-    private String password;
+  private String password;
 
-    private boolean disableCnCheck = false;
+  private boolean disableCnCheck = false;
 
-    private Map<String, String> metacardCswMappings = new HashMap<>();
+  private Map<String, String> metacardCswMappings = new HashMap<>();
 
-    private CswAxisOrder cswAxisOrder;
+  private CswAxisOrder cswAxisOrder;
 
-    private boolean usePosList;
+  private boolean usePosList;
 
-    private Integer pollIntervalMinutes;
+  private Integer pollIntervalMinutes;
 
-    private Integer connectionTimeout;
+  private Integer connectionTimeout;
 
-    private Integer receiveTimeout;
+  private Integer receiveTimeout;
 
-    private boolean isCqlForced;
+  private boolean isCqlForced;
 
-    private String outputSchema;
+  private String outputSchema;
 
-    private String queryTypeName;
+  private String queryTypeName;
 
-    private String queryTypeNamespace;
+  private String queryTypeNamespace;
 
-    private String eventServiceAddress;
+  private String eventServiceAddress;
 
-    private boolean registerForEvents;
+  private boolean registerForEvents;
 
-    private EncryptionService encryptionService;
+  private EncryptionService encryptionService;
 
-    private Map<String, Set<String>> securityAttributes = new HashMap<>();
+  private Map<String, Set<String>> securityAttributes = new HashMap<>();
 
-    public CswSourceConfiguration(EncryptionService encryptionService) {
-        this.encryptionService = encryptionService;
+  public CswSourceConfiguration(EncryptionService encryptionService) {
+    this.encryptionService = encryptionService;
+  }
+
+  @Deprecated
+  public CswSourceConfiguration() {}
+
+  public String getCswUrl() {
+    return cswUrl;
+  }
+
+  public void setCswUrl(String cswUrl) {
+    this.cswUrl = cswUrl;
+  }
+
+  public String getId() {
+    return id;
+  }
+
+  public void setId(String id) {
+    this.id = id;
+  }
+
+  public String getUsername() {
+    return username;
+  }
+
+  public void setUsername(String username) {
+    this.username = username;
+  }
+
+  public String getPassword() {
+    return password;
+  }
+
+  public void setPassword(String password) {
+    String updatedPassword = password;
+    if (encryptionService != null) {
+      updatedPassword = encryptionService.decryptValue(password);
     }
+    this.password = updatedPassword;
+  }
 
-    @Deprecated
-    public CswSourceConfiguration() {
-    }
+  public void setMetacardCswMappings(Map<String, String> mapping) {
+    this.metacardCswMappings.clear();
+    this.metacardCswMappings.putAll(mapping);
+  }
 
-    public String getCswUrl() {
-        return cswUrl;
-    }
+  public void putMetacardCswMapping(String key, String value) {
+    this.metacardCswMappings.put(key, value);
+  }
 
-    public void setCswUrl(String cswUrl) {
-        this.cswUrl = cswUrl;
-    }
+  public String getMetacardMapping(String key) {
+    return metacardCswMappings.get(key);
+  }
 
-    public String getId() {
-        return id;
-    }
+  public boolean getDisableCnCheck() {
+    return disableCnCheck;
+  }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+  public void setDisableCnCheck(boolean disableCnCheck) {
+    this.disableCnCheck = disableCnCheck;
+  }
 
-    public String getUsername() {
-        return username;
-    }
+  public Map<String, String> getMetacardCswMappings() {
+    Map<String, String> newMap = new HashMap<>();
+    newMap.putAll(metacardCswMappings);
+    return newMap;
+  }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
+  public void setCswAxisOrder(CswAxisOrder cswAxisOrder) {
+    this.cswAxisOrder = cswAxisOrder;
+  }
 
-    public String getPassword() {
-        return password;
-    }
+  public CswAxisOrder getCswAxisOrder() {
+    return this.cswAxisOrder;
+  }
 
-    public void setPassword(String password) {
-        String updatedPassword = password;
-        if (encryptionService != null) {
-            updatedPassword = encryptionService.decryptValue(password);
-        }
-        this.password = updatedPassword;
-    }
+  public boolean isSetUsePosList() {
+    return usePosList;
+  }
 
-    public void setMetacardCswMappings(Map<String, String> mapping) {
-        this.metacardCswMappings.clear();
-        this.metacardCswMappings.putAll(mapping);
-    }
+  public void setUsePosList(boolean usePosList) {
+    this.usePosList = usePosList;
+  }
 
-    public void putMetacardCswMapping(String key, String value) {
-        this.metacardCswMappings.put(key, value);
-    }
+  public Integer getPollIntervalMinutes() {
+    return pollIntervalMinutes;
+  }
 
-    public String getMetacardMapping(String key) {
-        return metacardCswMappings.get(key);
-    }
+  public void setPollIntervalMinutes(Integer pollIntervalMinutes) {
+    this.pollIntervalMinutes = pollIntervalMinutes;
+  }
 
-    public boolean getDisableCnCheck() {
-        return disableCnCheck;
-    }
+  public Integer getConnectionTimeout() {
+    return connectionTimeout;
+  }
 
-    public void setDisableCnCheck(boolean disableCnCheck) {
-        this.disableCnCheck = disableCnCheck;
-    }
+  public void setConnectionTimeout(Integer connectionTimeout) {
+    this.connectionTimeout = connectionTimeout;
+  }
 
-    public Map<String, String> getMetacardCswMappings() {
-        Map<String, String> newMap = new HashMap<>();
-        newMap.putAll(metacardCswMappings);
-        return newMap;
-    }
+  public Integer getReceiveTimeout() {
+    return receiveTimeout;
+  }
 
-    public void setCswAxisOrder(CswAxisOrder cswAxisOrder) {
-        this.cswAxisOrder = cswAxisOrder;
-    }
+  public void setReceiveTimeout(Integer receiveTimeout) {
+    this.receiveTimeout = receiveTimeout;
+  }
 
-    public CswAxisOrder getCswAxisOrder() {
-        return this.cswAxisOrder;
-    }
+  public void setIsCqlForced(boolean isForceCql) {
+    this.isCqlForced = isForceCql;
+  }
 
-    public boolean isSetUsePosList() {
-        return usePosList;
-    }
+  public boolean isCqlForced() {
+    return this.isCqlForced;
+  }
 
-    public void setUsePosList(boolean usePosList) {
-        this.usePosList = usePosList;
-    }
+  public String getOutputSchema() {
+    return outputSchema;
+  }
 
-    public Integer getPollIntervalMinutes() {
-        return pollIntervalMinutes;
-    }
+  public void setOutputSchema(String outputSchema) {
+    this.outputSchema = outputSchema;
+  }
 
-    public void setPollIntervalMinutes(Integer pollIntervalMinutes) {
-        this.pollIntervalMinutes = pollIntervalMinutes;
-    }
+  public String getQueryTypeName() {
+    return queryTypeName;
+  }
 
-    public Integer getConnectionTimeout() {
-        return connectionTimeout;
-    }
+  public void setQueryTypeName(String queryTypeName) {
+    this.queryTypeName = queryTypeName;
+  }
 
-    public void setConnectionTimeout(Integer connectionTimeout) {
-        this.connectionTimeout = connectionTimeout;
-    }
+  public String getQueryTypeNamespace() {
+    return queryTypeNamespace;
+  }
 
-    public Integer getReceiveTimeout() {
-        return receiveTimeout;
-    }
+  public void setQueryTypeNamespace(String queryTypeNamespace) {
+    this.queryTypeNamespace = queryTypeNamespace;
+  }
 
-    public void setReceiveTimeout(Integer receiveTimeout) {
-        this.receiveTimeout = receiveTimeout;
-    }
+  public Map<String, Set<String>> getSecurityAttributes() {
+    return Collections.unmodifiableMap(securityAttributes);
+  }
 
-    public void setIsCqlForced(boolean isForceCql) {
-        this.isCqlForced = isForceCql;
+  public void setSecurityAttributes(String[] securityAttributStrings) {
+    if (securityAttributStrings != null) {
+      securityAttributes.clear();
+      securityAttributes.putAll(Permissions.parsePermissionsFromString(securityAttributStrings));
     }
+  }
 
-    public boolean isCqlForced() {
-        return this.isCqlForced;
-    }
+  public boolean isRegisterForEvents() {
+    return registerForEvents;
+  }
 
-    public String getOutputSchema() {
-        return outputSchema;
-    }
+  public void setRegisterForEvents(Boolean registerForEvents) {
+    this.registerForEvents = registerForEvents;
+  }
 
-    public void setOutputSchema(String outputSchema) {
-        this.outputSchema = outputSchema;
-    }
+  public String getEventServiceAddress() {
+    return eventServiceAddress;
+  }
 
-    public String getQueryTypeName() {
-        return queryTypeName;
-    }
-
-    public void setQueryTypeName(String queryTypeName) {
-        this.queryTypeName = queryTypeName;
-    }
-
-    public String getQueryTypeNamespace() {
-        return queryTypeNamespace;
-    }
-
-    public void setQueryTypeNamespace(String queryTypeNamespace) {
-        this.queryTypeNamespace = queryTypeNamespace;
-    }
-
-    public Map<String, Set<String>> getSecurityAttributes() {
-        return Collections.unmodifiableMap(securityAttributes);
-    }
-
-    public void setSecurityAttributes(String[] securityAttributStrings) {
-        if (securityAttributStrings != null) {
-            securityAttributes.clear();
-            securityAttributes.putAll(Permissions.parsePermissionsFromString(securityAttributStrings));
-        }
-    }
-
-    public boolean isRegisterForEvents() {
-        return registerForEvents;
-    }
-
-    public void setRegisterForEvents(Boolean registerForEvents) {
-        this.registerForEvents = registerForEvents;
-    }
-
-    public String getEventServiceAddress() {
-        return eventServiceAddress;
-    }
-
-    public void setEventServiceAddress(String eventServiceAddress) {
-        this.eventServiceAddress = eventServiceAddress;
-    }
+  public void setEventServiceAddress(String eventServiceAddress) {
+    this.eventServiceAddress = eventServiceAddress;
+  }
 }

@@ -17,47 +17,43 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
+import com.vividsolutions.jts.geom.Geometry;
+import de.micromata.opengis.kml.v_2_2_0.Kml;
+import de.micromata.opengis.kml.v_2_2_0.Placemark;
 import java.io.InputStream;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.vividsolutions.jts.geom.Geometry;
-
-import de.micromata.opengis.kml.v_2_2_0.Kml;
-import de.micromata.opengis.kml.v_2_2_0.Placemark;
-
 public class TestKmlPlacemarkToJtsGeometryConverter {
-    private static Placemark testKmlPlacemark;
+  private static Placemark testKmlPlacemark;
 
-    @BeforeClass
-    public static void setupClass() {
-        InputStream stream = TestKmlPlacemarkToJtsGeometryConverter.class.getResourceAsStream(
-                "/kmlPoint.kml");
+  @BeforeClass
+  public static void setupClass() {
+    InputStream stream =
+        TestKmlPlacemarkToJtsGeometryConverter.class.getResourceAsStream("/kmlPoint.kml");
 
-        Kml kml = Kml.unmarshal(stream);
+    Kml kml = Kml.unmarshal(stream);
 
-        testKmlPlacemark = (Placemark) kml.getFeature();
-    }
+    testKmlPlacemark = (Placemark) kml.getFeature();
+  }
 
-    @Test
-    public void testConvertPlacemark() {
-        Geometry geometry = KmlPlacemarkToJtsGeometryConverter.from(testKmlPlacemark);
+  @Test
+  public void testConvertPlacemark() {
+    Geometry geometry = KmlPlacemarkToJtsGeometryConverter.from(testKmlPlacemark);
 
-        assertThat(geometry, notNullValue());
+    assertThat(geometry, notNullValue());
 
-        assertPlacemark(testKmlPlacemark, geometry);
-    }
+    assertPlacemark(testKmlPlacemark, geometry);
+  }
 
-    @Test
-    public void testConvertNullPlacemarkReturnsNull() {
-        Geometry geometry = KmlPlacemarkToJtsGeometryConverter.from(null);
+  @Test
+  public void testConvertNullPlacemarkReturnsNull() {
+    Geometry geometry = KmlPlacemarkToJtsGeometryConverter.from(null);
 
-        assertThat(geometry, nullValue());
-    }
+    assertThat(geometry, nullValue());
+  }
 
-    static void assertPlacemark(Placemark kmlPlacemark, Geometry jtsGeometry) {
-        TestKmlToJtsGeometryConverter.assertSpecificGeometry(kmlPlacemark.getGeometry(),
-                jtsGeometry);
-    }
+  static void assertPlacemark(Placemark kmlPlacemark, Geometry jtsGeometry) {
+    TestKmlToJtsGeometryConverter.assertSpecificGeometry(kmlPlacemark.getGeometry(), jtsGeometry);
+  }
 }

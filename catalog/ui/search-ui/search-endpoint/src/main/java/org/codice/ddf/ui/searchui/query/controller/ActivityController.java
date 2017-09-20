@@ -1,23 +1,22 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
- * General Public License as published by the Free Software Foundation, either version 3 of the
- * License, or any later version.
- * <p>
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
- * is distributed along with this program and can be found at
+ *
+ * <p>This is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * Lesser General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or any later version.
+ *
+ * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
+ * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- **/
+ */
 package org.codice.ddf.ui.searchui.query.controller;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
@@ -39,242 +38,227 @@ import org.osgi.service.event.EventConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * The {@code ActivityController} handles the processing and routing of activities.
- */
+/** The {@code ActivityController} handles the processing and routing of activities. */
 @Service
 public class ActivityController extends AbstractEventController {
-    // CometD requires prepending the topic name with a '/' character, whereas
-    // the OSGi Event Admin doesn't allow it.
-    protected static final String ACTIVITY_TOPIC_COMETD = "/" + ActivityEvent.EVENT_TOPIC;
+  // CometD requires prepending the topic name with a '/' character, whereas
+  // the OSGi Event Admin doesn't allow it.
+  protected static final String ACTIVITY_TOPIC_COMETD = "/" + ActivityEvent.EVENT_TOPIC;
 
-    protected static final String ACTIVITY_TOPIC_COMETD_BROADCAST =
-            ACTIVITY_TOPIC_COMETD + "/broadcast";
+  protected static final String ACTIVITY_TOPIC_COMETD_BROADCAST =
+      ACTIVITY_TOPIC_COMETD + "/broadcast";
 
-    protected static final String ACTIVITY_TOPIC_COMETD_NEW = ACTIVITY_TOPIC_COMETD + "/new";
+  protected static final String ACTIVITY_TOPIC_COMETD_NEW = ACTIVITY_TOPIC_COMETD + "/new";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ActivityController.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ActivityController.class);
 
-    private static final String CANCEL_ACTION = "cancel";
+  private static final String CANCEL_ACTION = "cancel";
 
-    private static final String REMOVE_ACTION = "remove";
+  private static final String REMOVE_ACTION = "remove";
 
-    public ActivityController(PersistentStore persistentStore, BundleContext bundleContext,
-            EventAdmin eventAdmin) {
-        super(persistentStore, bundleContext, eventAdmin);
+  public ActivityController(
+      PersistentStore persistentStore, BundleContext bundleContext, EventAdmin eventAdmin) {
+    super(persistentStore, bundleContext, eventAdmin);
+  }
+
+  /**
+   * Implementation of {@link org.osgi.service.event.EventHandler#handleEvent(Event)} that receives
+   * notifications published on the {@link ActivityEvent#EVENT_TOPIC} topic from the OSGi eventing
+   * framework and forwards them to their intended recipients.
+   *
+   * @throws IllegalArgumentException when any of the following required properties are either
+   *     missing from the Event or contain empty values:
+   *     <p>
+   *     <ul>
+   *       <li>{@link ActivityEvent#ID_KEY}
+   *       <li>{@link ActivityEvent#MESSAGE_KEY}
+   *       <li>{@link ActivityEvent#TIMESTAMP_KEY}{@link ActivityEvent#STATUS_KEY}
+   *       <li>{@link ActivityEvent#USER_ID_KEY}
+   *     </ul>
+   */
+  @Override
+  public void handleEvent(Event event) throws IllegalArgumentException {
+
+    if (null == event.getProperty(ActivityEvent.ID_KEY)
+        || event.getProperty(ActivityEvent.ID_KEY).toString().isEmpty()) {
+      throw new IllegalArgumentException(
+          "Activity Event \"" + ActivityEvent.ID_KEY + "\" property is null or empty");
     }
 
-    /**
-     * Implementation of {@link org.osgi.service.event.EventHandler#handleEvent(Event)} that receives
-     * notifications published on the {@link ActivityEvent#EVENT_TOPIC} topic
-     * from the OSGi eventing framework and forwards them to their intended
-     * recipients.
-     *
-     * @throws IllegalArgumentException when any of the following required properties are either
-     *                                  missing from the Event or contain empty values:
-     *                                  <p>
-     *                                  <ul>
-     *                                  <li>{@link ActivityEvent#ID_KEY}</li>
-     *                                  <li>{@link ActivityEvent#MESSAGE_KEY}</li>
-     *                                  <li>{@link ActivityEvent#TIMESTAMP_KEY}</li
-     *                                  <li>{@link ActivityEvent#STATUS_KEY}</li>
-     *                                  <li>{@link ActivityEvent#USER_ID_KEY}</li>
-     *                                  </ul>
-     */
-    @Override
-    public void handleEvent(Event event) throws IllegalArgumentException {
+    if (null == event.getProperty(ActivityEvent.MESSAGE_KEY)
+        || event.getProperty(ActivityEvent.MESSAGE_KEY).toString().isEmpty()) {
+      throw new IllegalArgumentException(
+          "Activity Event \"" + ActivityEvent.MESSAGE_KEY + "\" property is null or empty");
+    }
 
-        if (null == event.getProperty(ActivityEvent.ID_KEY)
-                || event.getProperty(ActivityEvent.ID_KEY)
-                .toString()
-                .isEmpty()) {
-            throw new IllegalArgumentException(
-                    "Activity Event \"" + ActivityEvent.ID_KEY + "\" property is null or empty");
+    if (null == event.getProperty(ActivityEvent.TIMESTAMP_KEY)) {
+      throw new IllegalArgumentException(
+          "Activity Event \"" + ActivityEvent.TIMESTAMP_KEY + "\" property is null");
+    }
+
+    if (null == event.getProperty(ActivityEvent.STATUS_KEY)
+        || event.getProperty(ActivityEvent.STATUS_KEY).toString().isEmpty()) {
+      throw new IllegalArgumentException(
+          "Activity Event \"" + ActivityEvent.STATUS_KEY + "\" property is null or empty");
+    }
+
+    String sessionId = (String) event.getProperty(ActivityEvent.SESSION_ID_KEY);
+    String userId = (String) event.getProperty(ActivityEvent.USER_ID_KEY);
+
+    if (StringUtils.isBlank(userId) && StringUtils.isBlank(sessionId)) {
+      throw new IllegalArgumentException(
+          "No user information was provided in the Event object. userId and sessionId properties were null");
+    }
+
+    ServerSession recipient = null;
+    LOGGER.debug("Getting ServerSession for userId/sessionId {}", userId);
+    recipient = getSessionById(userId, sessionId);
+
+    if (null != recipient) {
+      Map<String, Object> propMap = new HashMap<>();
+
+      for (String key : event.getPropertyNames()) {
+        if (!EventConstants.EVENT_TOPIC.equals(key)
+            && !ActivityEvent.USER_ID_KEY.equals(key)
+            && event.getProperty(key) != null) {
+          propMap.put(key, event.getProperty(key));
         }
+      }
 
-        if (null == event.getProperty(ActivityEvent.MESSAGE_KEY)
-                || event.getProperty(ActivityEvent.MESSAGE_KEY)
-                .toString()
-                .isEmpty()) {
-            throw new IllegalArgumentException("Activity Event \"" + ActivityEvent.MESSAGE_KEY
-                    + "\" property is null or empty");
-        }
+      recipient.deliver(controllerServerSession, ACTIVITY_TOPIC_COMETD_NEW, propMap);
+    } else {
+      LOGGER.debug(
+          "Session with ID \"{}\" is not connected to the server. Ignoring activity", sessionId);
+    }
+  }
 
-        if (null == event.getProperty(ActivityEvent.TIMESTAMP_KEY)) {
-            throw new IllegalArgumentException(
-                    "Activity Event \"" + ActivityEvent.TIMESTAMP_KEY + "\" property is null");
-        }
+  public List<Map<String, Object>> getActivitiesForUser(String userId) {
+    List<Map<String, Object>> activities = new ArrayList<>();
+    List<Map<String, Object>> results = new ArrayList<>();
+    try {
+      results =
+          persistentStore.get(
+              PersistentStore.ACTIVITY_TYPE, ActivityEvent.USER_ID_KEY + " = '" + userId + "'");
+    } catch (PersistenceException e) {
+      LOGGER.debug("PersistenceException trying to get activities for user {}", userId, e);
+    }
 
-        if (null == event.getProperty(ActivityEvent.STATUS_KEY)
-                || event.getProperty(ActivityEvent.STATUS_KEY)
-                .toString()
-                .isEmpty()) {
-            throw new IllegalArgumentException("Activity Event \"" + ActivityEvent.STATUS_KEY
-                    + "\" property is null or empty");
-        }
-
-        String sessionId = (String) event.getProperty(ActivityEvent.SESSION_ID_KEY);
-        String userId = (String) event.getProperty(ActivityEvent.USER_ID_KEY);
-
-        if (StringUtils.isBlank(userId) && StringUtils.isBlank(sessionId)) {
-            throw new IllegalArgumentException("No user information was provided in the Event object. userId and sessionId properties were null");
-        }
-
-        ServerSession recipient = null;
-        LOGGER.debug("Getting ServerSession for userId/sessionId {}", userId);
-        recipient = getSessionById(userId, sessionId);
-
-        if (null != recipient) {
-            Map<String, Object> propMap = new HashMap<>();
-
-            for (String key : event.getPropertyNames()) {
-                if (!EventConstants.EVENT_TOPIC.equals(key)
-                        && !ActivityEvent.USER_ID_KEY.equals(key)
-                        && event.getProperty(key) != null) {
-                    propMap.put(key, event.getProperty(key));
-                }
-            }
-
-            recipient.deliver(controllerServerSession, ACTIVITY_TOPIC_COMETD_NEW, propMap);
+    for (Map<String, Object> result : results) {
+      Map<String, Object> sanitizedResult = PersistentItem.stripSuffixes(result);
+      Map<String, Object> activity = new HashMap<>();
+      Map<String, String> activityOperations = new HashMap<>();
+      activity.put(ActivityEvent.OPERATIONS_KEY, activityOperations);
+      for (Map.Entry<String, Object> entry : sanitizedResult.entrySet()) {
+        if (entry.getKey().contains(ActivityEvent.OPERATIONS_KEY + "_")) {
+          activityOperations.put(
+              entry.getKey().substring((ActivityEvent.OPERATIONS_KEY + "_").length()),
+              entry.getValue().toString());
         } else {
-            LOGGER.debug("Session with ID \"{}\" is not connected to the server. Ignoring activity",
-                    sessionId);
+          activity.put(entry.getKey(), entry.getValue().toString());
         }
+      }
+      activities.add(activity);
     }
 
-    public List<Map<String, Object>> getActivitiesForUser(String userId) {
-        List<Map<String, Object>> activities = new ArrayList<>();
-        List<Map<String, Object>> results = new ArrayList<>();
-        try {
-            results = persistentStore.get(PersistentStore.ACTIVITY_TYPE,
-                    ActivityEvent.USER_ID_KEY + " = '" + userId + "'");
-        } catch (PersistenceException e) {
-            LOGGER.debug("PersistenceException trying to get activities for user {}", userId, e);
-        }
+    return activities;
+  }
 
-        for (Map<String, Object> result : results) {
-            Map<String, Object> sanitizedResult = PersistentItem.stripSuffixes(result);
-            Map<String, Object> activity = new HashMap<>();
-            Map<String, String> activityOperations = new HashMap<>();
-            activity.put(ActivityEvent.OPERATIONS_KEY, activityOperations);
-            for (Map.Entry<String, Object> entry : sanitizedResult.entrySet()) {
-                if (entry.getKey()
-                        .contains(ActivityEvent.OPERATIONS_KEY + "_")) {
-                    activityOperations.put(entry.getKey()
-                                    .substring((ActivityEvent.OPERATIONS_KEY + "_").length()),
-                            entry.getValue()
-                                    .toString());
-                } else {
-                    activity.put(entry.getKey(),
-                            entry.getValue()
-                                    .toString());
-                }
-            }
-            activities.add(activity);
-        }
+  @Listener('/' + ActivityEvent.EVENT_TOPIC)
+  public void getPersistedActivities(final ServerSession remote, Message message) {
+    Map<String, Object> data = message.getDataAsMap();
+    if (MapUtils.isEmpty(data)) {
+      Subject subject = null;
+      try {
+        subject = SecurityUtils.getSubject();
+      } catch (Exception e) {
+        LOGGER.debug("Couldn't grab user subject from Shiro.", e);
+      }
 
-        return activities;
+      String userId = getUserId(remote, subject);
+
+      if (null == userId) {
+        throw new IllegalArgumentException("User ID is null");
+      }
+
+      List<Map<String, Object>> activities = getActivitiesForUser(userId);
+
+      if (CollectionUtils.isNotEmpty(activities)) {
+        queuePersistedMessages(remote, activities, ACTIVITY_TOPIC_COMETD_BROADCAST);
+      }
+    }
+  }
+
+  @Listener("/service/action")
+  public void deletePersistentActivity(ServerSession serverSession, ServerMessage serverMessage) {
+    LOGGER.debug("\nServerSession: {}\nServerMessage: {}", serverSession, serverMessage);
+
+    if (null == serverSession) {
+      throw new IllegalArgumentException("ServerSession is null");
+    }
+    if (null == serverMessage) {
+      throw new IllegalArgumentException("ServerMessage is null");
     }
 
-    @Listener('/' + ActivityEvent.EVENT_TOPIC)
-    public void getPersistedActivities(final ServerSession remote, Message message) {
-        Map<String, Object> data = message.getDataAsMap();
-        if (MapUtils.isEmpty(data)) {
-            Subject subject = null;
-            try {
-                subject = SecurityUtils.getSubject();
-            } catch (Exception e) {
-                LOGGER.debug("Couldn't grab user subject from Shiro.", e);
-            }
+    Subject subject = null;
+    try {
+      subject = SecurityUtils.getSubject();
+    } catch (Exception e) {
+      LOGGER.debug("Couldn't grab user subject from Shiro.", e);
+    }
 
-            String userId = getUserId(remote, subject);
+    String userId = getUserId(serverSession, subject);
+
+    Map<String, Object> dataAsMap = serverMessage.getDataAsMap();
+    if (dataAsMap != null) {
+      Object activitiesPreCast = dataAsMap.get("data");
+      Object[] activities =
+          activitiesPreCast instanceof List
+              ? ((List) activitiesPreCast).toArray()
+              : (Object[]) activitiesPreCast;
+
+      for (Object activityObject : activities) {
+        Map activity = (Map) activityObject;
+        String id = (String) activity.get("id");
+        String action = (String) activity.get("action");
+
+        if (action != null) {
+          if (REMOVE_ACTION.equals(action)) {
+            //You can have a blank id for guest
+            if (id != null) {
+              try {
+                this.persistentStore.delete(PersistentStore.ACTIVITY_TYPE, "id = '" + id + "'");
+              } catch (PersistenceException e) {
+                throw new IllegalArgumentException("Unable to delete activity with id = " + id);
+              }
+            } else {
+              throw new IllegalArgumentException("Message id is null");
+            }
+          } else if (CANCEL_ACTION.equals(action)) {
 
             if (null == userId) {
-                throw new IllegalArgumentException("User ID is null");
+              throw new IllegalArgumentException("User ID is null");
+            }
+            if (null == id) {
+              throw new IllegalArgumentException("Metadata ID is null");
             }
 
-            List<Map<String, Object>> activities = getActivitiesForUser(userId);
+            Map<String, Object> jsonPropMap = new HashMap<>();
+            jsonPropMap.put(ActivityEvent.DOWNLOAD_ID_KEY, id);
 
-            if (CollectionUtils.isNotEmpty(activities)) {
-                queuePersistedMessages(remote, activities, ACTIVITY_TOPIC_COMETD_BROADCAST);
-            }
-        }
-    }
-
-    @Listener("/service/action")
-    public void deletePersistentActivity(ServerSession serverSession, ServerMessage serverMessage) {
-        LOGGER.debug("\nServerSession: {}\nServerMessage: {}", serverSession, serverMessage);
-
-        if (null == serverSession) {
-            throw new IllegalArgumentException("ServerSession is null");
-        }
-        if (null == serverMessage) {
-            throw new IllegalArgumentException("ServerMessage is null");
-        }
-
-        Subject subject = null;
-        try {
-            subject = SecurityUtils.getSubject();
-        } catch (Exception e) {
-            LOGGER.debug("Couldn't grab user subject from Shiro.", e);
-        }
-
-        String userId = getUserId(serverSession, subject);
-
-        Map<String, Object> dataAsMap = serverMessage.getDataAsMap();
-        if (dataAsMap != null) {
-            Object activitiesPreCast = dataAsMap.get("data");
-            Object[] activities = activitiesPreCast instanceof List ?
-                    ((List) activitiesPreCast).toArray() :
-                    (Object[]) activitiesPreCast;
-
-            for (Object activityObject : activities) {
-                Map activity = (Map) activityObject;
-                String id = (String) activity.get("id");
-                String action = (String) activity.get("action");
-
-                if (action != null) {
-                    if (REMOVE_ACTION.equals(action)) {
-                        //You can have a blank id for guest
-                        if (id != null) {
-                            try {
-                                this.persistentStore.delete(PersistentStore.ACTIVITY_TYPE,
-                                        "id = '" + id + "'");
-                            } catch (PersistenceException e) {
-                                throw new IllegalArgumentException(
-                                        "Unable to delete activity with id = " + id);
-                            }
-                        } else {
-                            throw new IllegalArgumentException("Message id is null");
-                        }
-                    } else if (CANCEL_ACTION.equals(action)) {
-
-                        if (null == userId) {
-                            throw new IllegalArgumentException("User ID is null");
-                        }
-                        if (null == id) {
-                            throw new IllegalArgumentException("Metadata ID is null");
-                        }
-
-                        Map<String, Object> jsonPropMap = new HashMap<>();
-                        jsonPropMap.put(ActivityEvent.DOWNLOAD_ID_KEY, id);
-
-                        Event event = new Event(ActivityEvent.EVENT_TOPIC_DOWNLOAD_CANCEL,
-                                jsonPropMap);
-                        eventAdmin.postEvent(event);
-
-                    }
-                } else {
-                    throw new IllegalArgumentException("Message action is null.");
-                }
-            }
+            Event event = new Event(ActivityEvent.EVENT_TOPIC_DOWNLOAD_CANCEL, jsonPropMap);
+            eventAdmin.postEvent(event);
+          }
         } else {
-            throw new IllegalArgumentException("Server Message is null.");
+          throw new IllegalArgumentException("Message action is null.");
         }
+      }
+    } else {
+      throw new IllegalArgumentException("Server Message is null.");
     }
+  }
 
-    @Override
-    public String getControllerRootTopic() {
-        return ActivityEvent.EVENT_TOPIC;
-    }
+  @Override
+  public String getControllerRootTopic() {
+    return ActivityEvent.EVENT_TOPIC;
+  }
 }

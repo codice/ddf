@@ -15,26 +15,26 @@
 package org.codice.ddf.spatial.geocoding;
 
 /**
- * Thrown by {@link GeoEntryExtractor} when an error occurs during downloading of a GeoNames
- * zip file.
+ * Thrown by {@link GeoEntryExtractor} when an error occurs during downloading of a GeoNames zip
+ * file.
  */
 public class GeoNamesRemoteDownloadException extends Exception {
-    /**
-     * Instantiates a new exception with the provided message.
-     *
-     * @param message the message
-     */
-    public GeoNamesRemoteDownloadException(final String message) {
-        super(message);
-    }
+  /**
+   * Instantiates a new exception with the provided message.
+   *
+   * @param message the message
+   */
+  public GeoNamesRemoteDownloadException(final String message) {
+    super(message);
+  }
 
-    /**
-     * Instantiates a new exception with the provided message and {@link Throwable}.
-     *
-     * @param message   the message
-     * @param throwable the throwable
-     */
-    public GeoNamesRemoteDownloadException(final String message, final Throwable throwable) {
-        super(message, throwable);
-    }
+  /**
+   * Instantiates a new exception with the provided message and {@link Throwable}.
+   *
+   * @param message the message
+   * @param throwable the throwable
+   */
+  public GeoNamesRemoteDownloadException(final String message, final Throwable throwable) {
+    super(message, throwable);
+  }
 }

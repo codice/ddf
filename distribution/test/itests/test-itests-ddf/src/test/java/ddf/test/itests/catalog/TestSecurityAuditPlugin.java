@@ -1,14 +1,14 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
- * General Public License as published by the Free Software Foundation, either version 3 of the
- * License, or any later version.
- * <p>
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
- * is distributed along with this program and can be found at
+ *
+ * <p>This is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * Lesser General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or any later version.
+ *
+ * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
+ * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 package ddf.test.itests.catalog;
@@ -26,7 +26,6 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.io.IOUtils;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.WaitCondition;
@@ -44,96 +43,94 @@ import org.osgi.service.cm.Configuration;
 @ExamReactorStrategy(PerSuite.class)
 public class TestSecurityAuditPlugin extends AbstractIntegrationTest {
 
-    private String auditMessageFormat =
-            "Attribute %s on metacard %s with value(s) %s was updated to value(s) %s";
+  private String auditMessageFormat =
+      "Attribute %s on metacard %s with value(s) %s was updated to value(s) %s";
 
-    private String configUpdateMessage =
-            "Security Audit Plugin configuration changed to audit : description";
+  private String configUpdateMessage =
+      "Security Audit Plugin configuration changed to audit : description";
 
-    private String startedMessage = "Security Audit Plugin started";
+  private String startedMessage = "Security Audit Plugin started";
 
-    private String stoppedMessage = "Security Audit Plugin stopped";
+  private String stoppedMessage = "Security Audit Plugin stopped";
 
-    @BeforeExam
-    public void beforeExam() throws Exception {
-        waitForSystemReady();
-    }
+  @BeforeExam
+  public void beforeExam() throws Exception {
+    waitForSystemReady();
+  }
 
-    @Before
-    public void before() {
-        clearCatalogAndWait();
-    }
+  @Before
+  public void before() {
+    clearCatalogAndWait();
+  }
 
-    @After
-    public void tearDown() {
-        clearCatalog();
-    }
+  @After
+  public void tearDown() {
+    clearCatalog();
+  }
 
-    @Test
-    public void testSecurityAuditPlugin() throws Exception {
-        Configuration config = configAdmin.getConfiguration(
-                "org.codice.ddf.catalog.plugin.security.audit.SecurityAuditPlugin",
-                null);
-        List attributes = new ArrayList<>();
-        attributes.add("description");
-        Dictionary properties = new Hashtable<>();
-        properties.put("auditAttributes", attributes);
-        config.update(properties);
+  @Test
+  public void testSecurityAuditPlugin() throws Exception {
+    Configuration config =
+        configAdmin.getConfiguration(
+            "org.codice.ddf.catalog.plugin.security.audit.SecurityAuditPlugin", null);
+    List attributes = new ArrayList<>();
+    attributes.add("description");
+    Dictionary properties = new Hashtable<>();
+    properties.put("auditAttributes", attributes);
+    config.update(properties);
 
-        String logFilePath = System.getProperty("karaf.data") + "/log/security.log";
+    String logFilePath = System.getProperty("karaf.data") + "/log/security.log";
 
+    File securityLog = new File(logFilePath);
+    WaitCondition.expect("Securitylog exists")
+        .within(2, TimeUnit.MINUTES)
+        .checkEvery(2, TimeUnit.SECONDS)
+        .until(securityLog::exists);
 
-        File securityLog = new File(logFilePath);
-        WaitCondition.expect("Securitylog exists").within(2, TimeUnit.MINUTES)
-                .checkEvery(2, TimeUnit.SECONDS)
-                .until(securityLog::exists);
+    WaitCondition.expect("Securitylog has log message: " + configUpdateMessage)
+        .within(2, TimeUnit.MINUTES)
+        .checkEvery(2, TimeUnit.SECONDS)
+        .until(() -> getFileContent(securityLog).contains(configUpdateMessage));
 
-        WaitCondition.expect("Securitylog has log message: " + configUpdateMessage)
-                .within(2, TimeUnit.MINUTES)
-                .checkEvery(2, TimeUnit.SECONDS)
-                .until(() -> getFileContent(securityLog).contains(configUpdateMessage));
+    String id = ingestXmlFromResourceAndWait("metacard1.xml");
 
-        String id = ingestXmlFromResourceAndWait("metacard1.xml");
+    update(id, getResourceAsString("metacard2.xml"), "text/xml");
 
-        update(id, getResourceAsString("metacard2.xml"), "text/xml");
+    String expectedLogMessage =
+        String.format(
+            auditMessageFormat, "description", id, "My Description", "My Description (Updated)");
+    WaitCondition.expect("Securitylog has log message: " + expectedLogMessage)
+        .within(2, TimeUnit.MINUTES)
+        .checkEvery(2, TimeUnit.SECONDS)
+        .until(() -> getFileContent(securityLog).contains(expectedLogMessage));
 
-        String expectedLogMessage = String.format(auditMessageFormat,
-                "description",
-                id,
-                "My Description",
-                "My Description (Updated)");
-        WaitCondition.expect("Securitylog has log message: " + expectedLogMessage)
-                .within(2, TimeUnit.MINUTES)
-                .checkEvery(2, TimeUnit.SECONDS)
-                .until(() -> getFileContent(securityLog).contains(expectedLogMessage));
+    deleteMetacard(id);
+  }
 
-        deleteMetacard(id);
-    }
+  @Test
+  public void testFeatureStartAndStop() throws Exception {
+    String logFilePath = System.getProperty("karaf.data") + "/log/security.log";
+    File securityLog = new File(logFilePath);
+    getServiceManager().stopFeature(true, "catalog-plugin-security-audit");
+    WaitCondition.expect("Securitylog has log message: " + stoppedMessage)
+        .within(2, TimeUnit.MINUTES)
+        .checkEvery(2, TimeUnit.SECONDS)
+        .until(() -> getFileContent(securityLog).contains(stoppedMessage));
 
-    @Test
-    public void testFeatureStartAndStop() throws Exception {
-        String logFilePath = System.getProperty("karaf.data") + "/log/security.log";
-        File securityLog = new File(logFilePath);
-        getServiceManager().stopFeature(true, "catalog-plugin-security-audit");
-        WaitCondition.expect("Securitylog has log message: " + stoppedMessage)
-                .within(2, TimeUnit.MINUTES)
-                .checkEvery(2, TimeUnit.SECONDS)
-                .until(() -> getFileContent(securityLog).contains(stoppedMessage));
+    getServiceManager().startFeature(true, "catalog-plugin-security-audit");
+    WaitCondition.expect("Securitylog has log message: " + startedMessage)
+        .within(2, TimeUnit.MINUTES)
+        .checkEvery(2, TimeUnit.SECONDS)
+        .until(() -> getFileContent(securityLog).contains(startedMessage));
+  }
 
-        getServiceManager().startFeature(true, "catalog-plugin-security-audit");
-        WaitCondition.expect("Securitylog has log message: " + startedMessage)
-                .within(2, TimeUnit.MINUTES)
-                .checkEvery(2, TimeUnit.SECONDS)
-                .until(() -> getFileContent(securityLog).contains(startedMessage));
-    }
+  private String getResourceAsString(String resourcePath) throws IOException {
+    InputStream inputStream = getFileContentAsStream(resourcePath);
+    return IOUtils.toString(inputStream);
+  }
 
-    private String getResourceAsString(String resourcePath) throws IOException {
-        InputStream inputStream = getFileContentAsStream(resourcePath);
-        return IOUtils.toString(inputStream);
-    }
-
-    private String getFileContent(File file) throws IOException {
-        InputStream inputStream = new FileInputStream(file);
-        return IOUtils.toString(inputStream);
-    }
+  private String getFileContent(File file) throws IOException {
+    InputStream inputStream = new FileInputStream(file);
+    return IOUtils.toString(inputStream);
+  }
 }

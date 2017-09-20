@@ -1,30 +1,17 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
- * General Public License as published by the Free Software Foundation, either version 3 of the
- * License, or any later version.
- * <p>
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
- * is distributed along with this program and can be found at
+ *
+ * <p>This is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * Lesser General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or any later version.
+ *
+ * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
+ * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- **/
-
+ */
 package org.codice.ddf.catalog.transformer.html;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.Serializable;
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
-
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.github.jknack.handlebars.Context;
 import com.github.jknack.handlebars.Handlebars;
@@ -33,93 +20,100 @@ import com.github.jknack.handlebars.ValueResolver;
 import com.github.jknack.handlebars.context.JavaBeanValueResolver;
 import com.github.jknack.handlebars.context.MapValueResolver;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
-
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import javax.activation.MimeType;
+import javax.activation.MimeTypeParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class HtmlMetacardTransformer implements MetacardTransformer {
 
-    private static final MimeType DEFAULT_MIME_TYPE;
+  private static final MimeType DEFAULT_MIME_TYPE;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(HtmlMetacardTransformer.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(HtmlMetacardTransformer.class);
 
-    private static final String TEMPLATE_DIRECTORY = "/templates";
+  private static final String TEMPLATE_DIRECTORY = "/templates";
 
-    private static final String TEMPLATE_SUFFIX = ".hbt";
+  private static final String TEMPLATE_SUFFIX = ".hbt";
 
-    private static final String RECORD_TEMPLATE = "recordContents";
+  private static final String RECORD_TEMPLATE = "recordContents";
 
-    private static final String RECORD_HTML_TEMPLATE = "recordHtml";
+  private static final String RECORD_HTML_TEMPLATE = "recordHtml";
 
-    private static ClassPathTemplateLoader templateLoader;
+  private static ClassPathTemplateLoader templateLoader;
 
-    static {
-        MimeType mimeType = null;
-        try {
-            mimeType = new MimeType("text/html");
-        } catch (MimeTypeParseException e) {
-            LOGGER.info("Failed to parse mimeType", e);
-        }
-        DEFAULT_MIME_TYPE = mimeType;
+  static {
+    MimeType mimeType = null;
+    try {
+      mimeType = new MimeType("text/html");
+    } catch (MimeTypeParseException e) {
+      LOGGER.info("Failed to parse mimeType", e);
+    }
+    DEFAULT_MIME_TYPE = mimeType;
 
-        templateLoader = new ClassPathTemplateLoader();
-        templateLoader.setPrefix(TEMPLATE_DIRECTORY);
-        templateLoader.setSuffix(TEMPLATE_SUFFIX);
+    templateLoader = new ClassPathTemplateLoader();
+    templateLoader.setPrefix(TEMPLATE_DIRECTORY);
+    templateLoader.setSuffix(TEMPLATE_SUFFIX);
+  }
+
+  private Handlebars handlebars;
+
+  private Template template;
+
+  private ValueResolver[] resolvers;
+
+  public HtmlMetacardTransformer() {
+    handlebars = new Handlebars(templateLoader);
+    handlebars.registerHelpers(new RecordViewHelpers());
+
+    resolvers =
+        new ValueResolver[] {
+          new MetacardValueResolver(), MapValueResolver.INSTANCE, JavaBeanValueResolver.INSTANCE
+        };
+    try {
+      handlebars.compile(RECORD_TEMPLATE);
+      template = handlebars.compile(RECORD_HTML_TEMPLATE);
+    } catch (IOException e) {
+      LOGGER.debug("Failed to load templates", e);
+    }
+  }
+
+  @Override
+  public BinaryContent transform(Metacard metacard, Map<String, Serializable> arguments)
+      throws CatalogTransformerException {
+
+    if (metacard == null) {
+      throw new CatalogTransformerException("Cannot transform null metacard.");
     }
 
-    private Handlebars handlebars;
+    String html = buildHtml(metacard);
 
-    private Template template;
+    if (html != null) {
+      return new BinaryContentImpl(
+          new ByteArrayInputStream(html.getBytes(StandardCharsets.UTF_8)), DEFAULT_MIME_TYPE);
+    } else {
+      throw new CatalogTransformerException("No content.");
+    }
+  }
 
-    private ValueResolver[] resolvers;
+  private String buildHtml(Metacard metacard) {
 
-    public HtmlMetacardTransformer() {
-        handlebars = new Handlebars(templateLoader);
-        handlebars.registerHelpers(new RecordViewHelpers());
-
-        resolvers = new ValueResolver[] {new MetacardValueResolver(), MapValueResolver.INSTANCE,
-                JavaBeanValueResolver.INSTANCE};
-        try {
-            handlebars.compile(RECORD_TEMPLATE);
-            template = handlebars.compile(RECORD_HTML_TEMPLATE);
-        } catch (IOException e) {
-            LOGGER.debug("Failed to load templates", e);
-        }
+    try {
+      Context context = Context.newBuilder(metacard).resolver(resolvers).build();
+      return template.apply(context);
+    } catch (IOException e) {
+      LOGGER.debug("Failed to apply template", e);
     }
 
-    @Override
-    public BinaryContent transform(Metacard metacard, Map<String, Serializable> arguments)
-            throws CatalogTransformerException {
-
-        if (metacard == null) {
-            throw new CatalogTransformerException("Cannot transform null metacard.");
-        }
-
-        String html = buildHtml(metacard);
-
-        if (html != null) {
-            return new BinaryContentImpl(new ByteArrayInputStream(html.getBytes(StandardCharsets.UTF_8)),
-                    DEFAULT_MIME_TYPE);
-        } else {
-            throw new CatalogTransformerException("No content.");
-        }
-    }
-
-    private String buildHtml(Metacard metacard) {
-
-        try {
-            Context context = Context.newBuilder(metacard)
-                    .resolver(resolvers)
-                    .build();
-            return template.apply(context);
-        } catch (IOException e) {
-            LOGGER.debug("Failed to apply template", e);
-        }
-
-        return null;
-    }
-
+    return null;
+  }
 }

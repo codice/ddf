@@ -19,62 +19,57 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
-import java.io.InputStream;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import com.vividsolutions.jts.geom.GeometryCollection;
-
 import de.micromata.opengis.kml.v_2_2_0.Kml;
 import de.micromata.opengis.kml.v_2_2_0.MultiGeometry;
 import de.micromata.opengis.kml.v_2_2_0.Placemark;
+import java.io.InputStream;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class TestKmlToJtsMultiGeometryConverter {
-    private static MultiGeometry testKmlMultiGeometry;
+  private static MultiGeometry testKmlMultiGeometry;
 
-    @BeforeClass
-    public static void setupClass() {
-        InputStream stream = TestKmlToJtsMultiGeometryConverter.class.getResourceAsStream(
-                "/kmlMultiGeometry.kml");
+  @BeforeClass
+  public static void setupClass() {
+    InputStream stream =
+        TestKmlToJtsMultiGeometryConverter.class.getResourceAsStream("/kmlMultiGeometry.kml");
 
-        Kml kml = Kml.unmarshal(stream);
+    Kml kml = Kml.unmarshal(stream);
 
-        testKmlMultiGeometry = ((MultiGeometry) ((Placemark) kml.getFeature()).getGeometry());
+    testKmlMultiGeometry = ((MultiGeometry) ((Placemark) kml.getFeature()).getGeometry());
+  }
+
+  @Test
+  public void testNullKmlMultiGeometryReturnsNullJtsGeometryCollection() {
+    GeometryCollection geometryCollection = KmlToJtsMultiGeometryConverter.from(null);
+
+    assertThat(geometryCollection, nullValue());
+  }
+
+  @Test
+  public void testConvertMultiGeometry() {
+    GeometryCollection geometryCollection =
+        KmlToJtsMultiGeometryConverter.from(testKmlMultiGeometry);
+
+    assertJtsGeometryCollection(geometryCollection);
+  }
+
+  private void assertJtsGeometryCollection(GeometryCollection jtsGeometryCollection) {
+    assertJtsGeometryCollection(testKmlMultiGeometry, jtsGeometryCollection);
+  }
+
+  static void assertJtsGeometryCollection(
+      MultiGeometry kmlMultiGeometry, GeometryCollection jtsGeometryCollection) {
+    assertThat(jtsGeometryCollection, notNullValue());
+
+    assertThat(
+        jtsGeometryCollection.getNumGeometries(),
+        is(equalTo(kmlMultiGeometry.getGeometry().size())));
+
+    for (int i = 0; i < jtsGeometryCollection.getNumGeometries(); i++) {
+      TestKmlToJtsGeometryConverter.assertSpecificGeometry(
+          kmlMultiGeometry.getGeometry().get(i), jtsGeometryCollection.getGeometryN(i));
     }
-
-    @Test
-    public void testNullKmlMultiGeometryReturnsNullJtsGeometryCollection() {
-        GeometryCollection geometryCollection =
-                KmlToJtsMultiGeometryConverter.from(null);
-
-        assertThat(geometryCollection, nullValue());
-    }
-
-    @Test
-    public void testConvertMultiGeometry() {
-        GeometryCollection geometryCollection =
-                KmlToJtsMultiGeometryConverter.from(testKmlMultiGeometry);
-
-        assertJtsGeometryCollection(geometryCollection);
-    }
-
-    private void assertJtsGeometryCollection(
-            GeometryCollection jtsGeometryCollection) {
-        assertJtsGeometryCollection(testKmlMultiGeometry, jtsGeometryCollection);
-    }
-
-    static void assertJtsGeometryCollection(MultiGeometry kmlMultiGeometry,
-            GeometryCollection jtsGeometryCollection) {
-        assertThat(jtsGeometryCollection, notNullValue());
-
-        assertThat(jtsGeometryCollection.getNumGeometries(),
-                is(equalTo(kmlMultiGeometry.getGeometry()
-                        .size())));
-
-        for (int i = 0; i < jtsGeometryCollection.getNumGeometries(); i++) {
-            TestKmlToJtsGeometryConverter.assertSpecificGeometry(kmlMultiGeometry.getGeometry()
-                    .get(i), jtsGeometryCollection.getGeometryN(i));
-        }
-    }
+  }
 }

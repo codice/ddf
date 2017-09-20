@@ -19,77 +19,67 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
-import java.io.InputStream;
-
-import org.junit.Test;
-
 import com.vividsolutions.jts.geom.Geometry;
-
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.MetacardImpl;
 import de.micromata.opengis.kml.v_2_2_0.Kml;
 import de.micromata.opengis.kml.v_2_2_0.MultiGeometry;
 import de.micromata.opengis.kml.v_2_2_0.Placemark;
+import java.io.InputStream;
+import org.junit.Test;
 
 public class TestKmlToMetacard {
 
-    @Test
-    public void testConvertKmlMultiGeometryToMetacardWithBbox() {
-        InputStream stream =
-                TestKmlToJtsConverter.class.getResourceAsStream("/kmlMultiGeometry.kml");
+  @Test
+  public void testConvertKmlMultiGeometryToMetacardWithBbox() {
+    InputStream stream = TestKmlToJtsConverter.class.getResourceAsStream("/kmlMultiGeometry.kml");
 
-        Kml kml = Kml.unmarshal(stream);
+    Kml kml = Kml.unmarshal(stream);
 
-        assertThat(kml, notNullValue());
+    assertThat(kml, notNullValue());
 
-        Metacard metacard = KmlToMetacard.from(new MetacardImpl(), kml);
-        assertThat(metacard, notNullValue());
+    Metacard metacard = KmlToMetacard.from(new MetacardImpl(), kml);
+    assertThat(metacard, notNullValue());
 
-        MultiGeometry kmlMultiGeometry =
-                ((MultiGeometry) ((Placemark) kml.getFeature()).getGeometry());
-        assertThat(kmlMultiGeometry, notNullValue());
+    MultiGeometry kmlMultiGeometry = ((MultiGeometry) ((Placemark) kml.getFeature()).getGeometry());
+    assertThat(kmlMultiGeometry, notNullValue());
 
-        Geometry jtsGeometryCollectionGeometry =
-                KmlToJtsGeometryConverter.from(kmlMultiGeometry);
-        assertThat(jtsGeometryCollectionGeometry, notNullValue());
+    Geometry jtsGeometryCollectionGeometry = KmlToJtsGeometryConverter.from(kmlMultiGeometry);
+    assertThat(jtsGeometryCollectionGeometry, notNullValue());
 
-        String wktBbox = jtsGeometryCollectionGeometry.getEnvelope()
-                .toText();
-        assertThat(metacard.getAttribute(Metacard.GEOGRAPHY)
-                .getValue()
-                .toString(), is(equalToIgnoringWhiteSpace(wktBbox)));
-    }
+    String wktBbox = jtsGeometryCollectionGeometry.getEnvelope().toText();
+    assertThat(
+        metacard.getAttribute(Metacard.GEOGRAPHY).getValue().toString(),
+        is(equalToIgnoringWhiteSpace(wktBbox)));
+  }
 
-    @Test
-    public void testConvertBadKmlReturnsNullMetacard() {
-        InputStream stream = TestKmlToJtsConverter.class.getResourceAsStream("/notKml.kml");
+  @Test
+  public void testConvertBadKmlReturnsNullMetacard() {
+    InputStream stream = TestKmlToJtsConverter.class.getResourceAsStream("/notKml.kml");
 
-        Kml kml = Kml.unmarshal(stream);
+    Kml kml = Kml.unmarshal(stream);
 
-        Metacard metacard = KmlToMetacard.from(new MetacardImpl(), kml);
-        assertThat(metacard, nullValue());
-    }
+    Metacard metacard = KmlToMetacard.from(new MetacardImpl(), kml);
+    assertThat(metacard, nullValue());
+  }
 
-    @Test
-    public void testKmlWithNoGeometry() {
-        InputStream stream = TestKmlToJtsConverter.class.getResourceAsStream(
-                "/kmlWithNoGeometry.kml");
+  @Test
+  public void testKmlWithNoGeometry() {
+    InputStream stream = TestKmlToJtsConverter.class.getResourceAsStream("/kmlWithNoGeometry.kml");
 
-        Kml kml = Kml.unmarshal(stream);
+    Kml kml = Kml.unmarshal(stream);
 
-        Metacard metacard = KmlToMetacard.from(new MetacardImpl(), kml);
-        assertThat(metacard, notNullValue());
-    }
+    Metacard metacard = KmlToMetacard.from(new MetacardImpl(), kml);
+    assertThat(metacard, notNullValue());
+  }
 
-    @Test
-    public void testKmlWithTimeSpan() {
-        InputStream stream =
-                TestKmlToJtsConverter.class.getResourceAsStream("/kmlWithTimeSpan.kml");
+  @Test
+  public void testKmlWithTimeSpan() {
+    InputStream stream = TestKmlToJtsConverter.class.getResourceAsStream("/kmlWithTimeSpan.kml");
 
-        Kml kml = Kml.unmarshal(stream);
+    Kml kml = Kml.unmarshal(stream);
 
-        Metacard metacard = KmlToMetacard.from(new MetacardImpl(), kml);
-        assertThat(metacard, notNullValue());
-    }
-
+    Metacard metacard = KmlToMetacard.from(new MetacardImpl(), kml);
+    assertThat(metacard, notNullValue());
+  }
 }

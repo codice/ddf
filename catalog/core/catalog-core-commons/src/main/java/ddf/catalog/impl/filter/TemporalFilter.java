@@ -1,20 +1,19 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
- * General Public License as published by the Free Software Foundation, either version 3 of the
- * License, or any later version.
- * <p>
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
- * is distributed along with this program and can be found at
+ *
+ * <p>This is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * Lesser General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or any later version.
+ *
+ * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
+ * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 package ddf.catalog.impl.filter;
 
 import java.util.Date;
-
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.codice.ddf.platform.util.DateUtils;
 import org.joda.time.format.DateTimeFormatter;
@@ -26,123 +25,121 @@ import org.slf4j.LoggerFactory;
 
 public class TemporalFilter {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TemporalFilter.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(TemporalFilter.class);
 
-    private static DateTimeFormatter formatter;
+  private static DateTimeFormatter formatter;
 
-    /*
-     * The OpenSearch specification uses RFC 3339, which is a specific profile of the ISO 8601
-     * standard and corresponds to the second and (as a "rarely used option") the first parser
-     * below. We additionally support the corresponding ISO 8601 Basic profiles.
-     */
-    static {
-        DateTimeParser[] parsers = {ISODateTimeFormat.dateTime().getParser(),
-                ISODateTimeFormat.dateTimeNoMillis().getParser(),
-                ISODateTimeFormat.basicDateTime().getParser(),
-                ISODateTimeFormat.basicDateTimeNoMillis().getParser()};
-        formatter = new DateTimeFormatterBuilder().append(null, parsers)
-                .toFormatter();
+  /*
+   * The OpenSearch specification uses RFC 3339, which is a specific profile of the ISO 8601
+   * standard and corresponds to the second and (as a "rarely used option") the first parser
+   * below. We additionally support the corresponding ISO 8601 Basic profiles.
+   */
+  static {
+    DateTimeParser[] parsers = {
+      ISODateTimeFormat.dateTime().getParser(),
+      ISODateTimeFormat.dateTimeNoMillis().getParser(),
+      ISODateTimeFormat.basicDateTime().getParser(),
+      ISODateTimeFormat.basicDateTimeNoMillis().getParser()
+    };
+    formatter = new DateTimeFormatterBuilder().append(null, parsers).toFormatter();
+  }
+
+  private Date startDate;
+
+  private Date endDate;
+
+  /**
+   * Absolute time search
+   *
+   * @param dateStart
+   * @param endDate
+   */
+  public TemporalFilter(Date startDate, Date endDate) {
+    setDates(startDate, endDate);
+  }
+
+  /**
+   * Absolute time search, parses incoming strings to dates.
+   *
+   * @param dtStartStr
+   * @param dtEndStr
+   */
+  public TemporalFilter(String startDate, String endDate) {
+    this(parseDate(startDate), parseDate(endDate));
+  }
+
+  /**
+   * Relative time search.
+   *
+   * @param offset time range (in milliseconds) to search from current point in time. Positive
+   *     offset goes backwards in time. Example: offset of 30000 will perform a search where the
+   *     bounds are between now and 30 seconds prior to now.
+   */
+  public TemporalFilter(long offset) {
+    this(new Date(System.currentTimeMillis() - offset), new Date());
+  }
+
+  /**
+   * Parses the date/time string and returns a date object.
+   *
+   * @param date
+   * @return
+   */
+  public static Date parseDate(String date) {
+    Date returnDate = null;
+    if (date != null && !date.isEmpty()) {
+      try {
+        returnDate = formatter.parseDateTime(date).toDate();
+      } catch (IllegalArgumentException iae) {
+        LOGGER.debug(
+            "Could not parse out updated date in response, date will not be passed back.", iae);
+      }
+    }
+    return returnDate;
+  }
+
+  /**
+   * Sets dates and performs basic validation. dtStart and dtEnd may be null, but not at the same
+   * time.
+   *
+   * @param dtStart lower bound of the temporal range search. When null it is set to time 0.
+   * @param endDate upper bound of the temporal range search. When null it is set to now.
+   */
+  private void setDates(Date startDate, Date endDate) {
+    if (startDate == null && endDate == null) {
+      throw new RuntimeException("Cannot have empty start and end date.");
     }
 
-    private Date startDate;
-
-    private Date endDate;
-
-    /**
-     * Absolute time search
-     *
-     * @param dateStart
-     * @param endDate
-     */
-    public TemporalFilter(Date startDate, Date endDate) {
-        setDates(startDate, endDate);
+    if (startDate == null) {
+      startDate = new Date(0);
     }
 
-    /**
-     * Absolute time search, parses incoming strings to dates.
-     *
-     * @param dtStartStr
-     * @param dtEndStr
-     */
-    public TemporalFilter(String startDate, String endDate) {
-        this(parseDate(startDate), parseDate(endDate));
+    if (endDate == null) {
+      endDate = new Date();
     }
 
-    /**
-     * Relative time search.
-     *
-     * @param offset time range (in milliseconds) to search from current point in time. Positive offset
-     *               goes backwards in time. Example: offset of 30000 will perform a search where the
-     *               bounds are between now and 30 seconds prior to now.
-     */
-    public TemporalFilter(long offset) {
-        this(new Date(System.currentTimeMillis() - offset), new Date());
-    }
+    this.startDate = startDate;
+    this.endDate = endDate;
+  }
 
-    /**
-     * Parses the date/time string and returns a date object.
-     *
-     * @param date
-     * @return
-     */
-    public static Date parseDate(String date) {
-        Date returnDate = null;
-        if (date != null && !date.isEmpty()) {
-            try {
-                returnDate = formatter.parseDateTime(date)
-                        .toDate();
-            } catch (IllegalArgumentException iae) {
-                LOGGER.debug(
-                        "Could not parse out updated date in response, date will not be passed back.", iae);
-            }
-        }
-        return returnDate;
-    }
+  public Date getStartDate() {
+    return DateUtils.copy(startDate);
+  }
 
-    /**
-     * Sets dates and performs basic validation. dtStart and dtEnd may be null, but not at the same
-     * time.
-     *
-     * @param dtStart lower bound of the temporal range search. When null it is set to time 0.
-     * @param endDate upper bound of the temporal range search. When null it is set to now.
-     */
-    private void setDates(Date startDate, Date endDate) {
-        if (startDate == null && endDate == null) {
-            throw new RuntimeException("Cannot have empty start and end date.");
-        }
+  public void setStartDate(Date startDate) {
+    this.startDate = DateUtils.copy(startDate);
+  }
 
-        if (startDate == null) {
-            startDate = new Date(0);
-        }
+  public Date getEndDate() {
+    return DateUtils.copy(endDate);
+  }
 
-        if (endDate == null) {
-            endDate = new Date();
-        }
+  public void setEndDate(Date endDate) {
+    this.endDate = DateUtils.copy(endDate);
+  }
 
-        this.startDate = startDate;
-        this.endDate = endDate;
-    }
-
-    public Date getStartDate() {
-        return DateUtils.copy(startDate);
-    }
-
-    public void setStartDate(Date startDate) {
-        this.startDate = DateUtils.copy(startDate);
-    }
-
-    public Date getEndDate() {
-        return DateUtils.copy(endDate);
-    }
-
-    public void setEndDate(Date endDate) {
-        this.endDate = DateUtils.copy(endDate);
-
-    }
-
-    @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this);
-    }
-
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this);
+  }
 }

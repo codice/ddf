@@ -20,24 +20,23 @@ import org.xml.sax.helpers.NamespaceSupport;
 
 public class MetacardCswRecordMap implements CswRecordMap {
 
-    @Override
-    public String getProperty(String propertyName, NamespaceSupport context) {
-        return DefaultCswRecordMap.getDefaultMetacardFieldForPrefixedString(propertyName, context);
-    }
+  @Override
+  public String getProperty(String propertyName, NamespaceSupport context) {
+    return DefaultCswRecordMap.getDefaultMetacardFieldForPrefixedString(propertyName, context);
+  }
 
-    @Override
-    public String getProperty(String propertyName) {
-        return DefaultCswRecordMap.getDefaultMetacardFieldFor(propertyName);
-    }
+  @Override
+  public String getProperty(String propertyName) {
+    return DefaultCswRecordMap.getDefaultMetacardFieldFor(propertyName);
+  }
 
-    @Override
-    public boolean hasProperty(String propertyName, NamespaceSupport context) {
-        return DefaultCswRecordMap.hasDefaultMetacardFieldForPrefixedString(propertyName, context);
-    }
+  @Override
+  public boolean hasProperty(String propertyName, NamespaceSupport context) {
+    return DefaultCswRecordMap.hasDefaultMetacardFieldForPrefixedString(propertyName, context);
+  }
 
-    @Override
-    public boolean hasProperty(String propertyName) {
-        return DefaultCswRecordMap.hasDefaultMetacardFieldForPrefixedString(propertyName);
-    }
+  @Override
+  public boolean hasProperty(String propertyName) {
+    return DefaultCswRecordMap.hasDefaultMetacardFieldForPrefixedString(propertyName);
+  }
 }
-

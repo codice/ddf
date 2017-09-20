@@ -16,52 +16,47 @@ package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer;
 
 import org.xml.sax.helpers.NamespaceSupport;
 
-/**
- * Maps property names from a CSW query to catalog taxonomy
- */
+/** Maps property names from a CSW query to catalog taxonomy */
 public interface CswRecordMap {
 
-    /**
-     * Gets the catalog taxonomy attribute name for the property name,
-     * or returns the property name if not mapped. {@link NamespaceSupport}
-     * will be used to resolve namespaces. If {@link NamespaceSupport} is
-     * null, then {@link CswRecordMap#getProperty(String)} should be used.
-     *
-     * @param propertyName CSW query property name. Can be prefixed.
-     * @param context      Namespace context from the CSW query
-     * @return Catalog taxonomy attribute name.
-     */
-    String getProperty(String propertyName, NamespaceSupport context);
+  /**
+   * Gets the catalog taxonomy attribute name for the property name, or returns the property name if
+   * not mapped. {@link NamespaceSupport} will be used to resolve namespaces. If {@link
+   * NamespaceSupport} is null, then {@link CswRecordMap#getProperty(String)} should be used.
+   *
+   * @param propertyName CSW query property name. Can be prefixed.
+   * @param context Namespace context from the CSW query
+   * @return Catalog taxonomy attribute name.
+   */
+  String getProperty(String propertyName, NamespaceSupport context);
 
-    /**
-     * Gets the catalog taxonomy attribute name for the property name,
-     * or returns the property name if not mapped. If the property name is prefixed,
-     * then the prefix will be removed and first match will be returned.
-     *
-     * @param propertyName CSW query property name. Can be prefixed.
-     * @return Catalog taxonomy attribute name
-     */
-    String getProperty(String propertyName);
+  /**
+   * Gets the catalog taxonomy attribute name for the property name, or returns the property name if
+   * not mapped. If the property name is prefixed, then the prefix will be removed and first match
+   * will be returned.
+   *
+   * @param propertyName CSW query property name. Can be prefixed.
+   * @return Catalog taxonomy attribute name
+   */
+  String getProperty(String propertyName);
 
-    /**
-     * Returns true if the property name has a corresponding catalog taxonomy
-     * attribute. {@link NamespaceSupport} will be used to resolve namespaces.
-     * If {@link NamespaceSupport} is null, then {@link CswRecordMap#hasProperty(String)}
-     * should be used.
-     *
-     * @param propertyName CSW query property name. Can be prefixed.
-     * @param context      Namespace context from the CSW query
-     * @return True if the property name has a corresponding catalog taxonomy attribute.
-     */
-    boolean hasProperty(String propertyName, NamespaceSupport context);
+  /**
+   * Returns true if the property name has a corresponding catalog taxonomy attribute. {@link
+   * NamespaceSupport} will be used to resolve namespaces. If {@link NamespaceSupport} is null, then
+   * {@link CswRecordMap#hasProperty(String)} should be used.
+   *
+   * @param propertyName CSW query property name. Can be prefixed.
+   * @param context Namespace context from the CSW query
+   * @return True if the property name has a corresponding catalog taxonomy attribute.
+   */
+  boolean hasProperty(String propertyName, NamespaceSupport context);
 
-    /**
-     * Returns true if the property name has a corresponding catalog taxonomy
-     * attribute. If the property name is prefixed, then the prefix will be
-     * removed before performing the check.
-     *
-     * @param propertyName CSW query property name. Can be prefixed.
-     * @return True if the property name has a corresponding catalog taxonomy attribute.
-     */
-    boolean hasProperty(String propertyName);
+  /**
+   * Returns true if the property name has a corresponding catalog taxonomy attribute. If the
+   * property name is prefixed, then the prefix will be removed before performing the check.
+   *
+   * @param propertyName CSW query property name. Can be prefixed.
+   * @return True if the property name has a corresponding catalog taxonomy attribute.
+   */
+  boolean hasProperty(String propertyName);
 }

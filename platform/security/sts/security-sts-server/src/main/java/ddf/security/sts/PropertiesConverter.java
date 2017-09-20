@@ -1,14 +1,14 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
- * General Public License as published by the Free Software Foundation, either version 3 of the
- * License, or any later version.
- * <p>
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
- * is distributed along with this program and can be found at
+ *
+ * <p>This is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * Lesser General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or any later version.
+ *
+ * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
+ * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 /*
@@ -30,38 +30,35 @@
 package ddf.security.sts;
 
 import java.util.Properties;
-
 import org.osgi.service.blueprint.container.Converter;
 import org.osgi.service.blueprint.container.ReifiedType;
 
 /* TODO - Move this to a common location and embed it */
 
 /**
- * Custom converter to transform a string into a Properties instance.
- * (to avoid removing \ from the values as is done by the default blueprint converter)
+ * Custom converter to transform a string into a Properties instance. (to avoid removing \ from the
+ * values as is done by the default blueprint converter)
  */
 public class PropertiesConverter implements Converter {
 
-    public boolean canConvert(Object from, ReifiedType type) {
-        return String.class.isAssignableFrom(from.getClass())
-                && Properties.class.equals(type.getRawClass());
+  public boolean canConvert(Object from, ReifiedType type) {
+    return String.class.isAssignableFrom(from.getClass())
+        && Properties.class.equals(type.getRawClass());
+  }
+
+  public Object convert(Object from, ReifiedType type) throws Exception {
+    Properties properties = new Properties();
+
+    String text = (String) from;
+    for (String line : text.split("[\\r\\n]+")) {
+      int index = line.indexOf('=');
+      if (index > 0) {
+        String key = line.substring(0, index).trim();
+        String value = line.substring(index + 1).trim();
+        properties.put(key, value.replaceAll("\\\\", "/"));
+      }
     }
 
-    public Object convert(Object from, ReifiedType type) throws Exception {
-        Properties properties = new Properties();
-
-        String text = (String) from;
-        for (String line : text.split("[\\r\\n]+")) {
-            int index = line.indexOf('=');
-            if (index > 0) {
-                String key = line.substring(0, index)
-                        .trim();
-                String value = line.substring(index + 1)
-                        .trim();
-                properties.put(key, value.replaceAll("\\\\", "/"));
-            }
-        }
-
-        return properties;
-    }
+    return properties;
+  }
 }

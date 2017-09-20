@@ -13,32 +13,29 @@
  **/
 package org.codice.ddf.spatial.kml.converter;
 
-import org.geotools.geometry.jts.JTSFactoryFinder;
-
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
-
 import de.micromata.opengis.kml.v_2_2_0.Location;
 import de.micromata.opengis.kml.v_2_2_0.Model;
+import org.geotools.geometry.jts.JTSFactoryFinder;
 
 public class KmlModelToJtsPointConverter {
-    private KmlModelToJtsPointConverter() {
+  private KmlModelToJtsPointConverter() {}
+
+  public static Point from(Model kmlModel) {
+    if (kmlModel == null || kmlModel.getLocation() == null) {
+      return null;
     }
 
-    public static Point from(Model kmlModel) {
-        if (kmlModel == null || kmlModel.getLocation() == null) {
-            return null;
-        }
+    Location kmlLocation = kmlModel.getLocation();
 
-        Location kmlLocation = kmlModel.getLocation();
+    Coordinate jtsCoordinate =
+        new Coordinate(
+            kmlLocation.getLongitude(), kmlLocation.getLatitude(), kmlLocation.getAltitude());
 
-        Coordinate jtsCoordinate = new Coordinate(kmlLocation.getLongitude(),
-                kmlLocation.getLatitude(),
-                kmlLocation.getAltitude());
+    GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory();
 
-        GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory();
-
-        return geometryFactory.createPoint(jtsCoordinate);
-    }
+    return geometryFactory.createPoint(jtsCoordinate);
+  }
 }

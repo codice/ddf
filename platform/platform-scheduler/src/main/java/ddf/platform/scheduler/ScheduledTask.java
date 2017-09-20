@@ -1,14 +1,14 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
- * General Public License as published by the Free Software Foundation, either version 3 of the
- * License, or any later version.
- * <p>
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
- * is distributed along with this program and can be found at
+ *
+ * <p>This is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * Lesser General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or any later version.
+ *
+ * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
+ * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 package ddf.platform.scheduler;
@@ -21,28 +21,24 @@ import java.util.Map;
  *
  * @author Ashraf Barakat
  * @author ddf.isgs@lmco.com
- *
  */
 public interface ScheduledTask {
 
-    /**
-     * Creates and schedules new task
-     */
-    void newTask();
+  /** Creates and schedules new task */
+  void newTask();
 
-    /**
-     * Removes a task completely so that it does not run or exist.
-     *
-     * @param code - not used
-     * @see https://issues.apache.org/jira/browse/ARIES-1436
-     */
-    void deleteTask(int code);
+  /**
+   * Removes a task completely so that it does not run or exist.
+   *
+   * @param code - not used
+   * @see https://issues.apache.org/jira/browse/ARIES-1436
+   */
+  void deleteTask(int code);
 
-    /**
-     * Updates an existing task with new properties.
-     *
-     * @param properties
-     */
-    void updateTask(Map<String, Object> properties);
-
+  /**
+   * Updates an existing task with new properties.
+   *
+   * @param properties
+   */
+  void updateTask(Map<String, Object> properties);
 }

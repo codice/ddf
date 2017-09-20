@@ -19,67 +19,65 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import ddf.catalog.data.AttributeDescriptor;
 import java.util.Arrays;
-
 import org.junit.Before;
 import org.junit.Test;
 
-import ddf.catalog.data.AttributeDescriptor;
-
 public class CsvAttributeDescriptorComparatorTest {
-    private CsvAttributeDescriptorComparator comparator;
+  private CsvAttributeDescriptorComparator comparator;
 
-    private AttributeDescriptor attribute1;
+  private AttributeDescriptor attribute1;
 
-    private AttributeDescriptor attribute2;
+  private AttributeDescriptor attribute2;
 
-    private AttributeDescriptor nonExistendAttribute1;
+  private AttributeDescriptor nonExistendAttribute1;
 
-    private AttributeDescriptor nonExistendAttribute2;
+  private AttributeDescriptor nonExistendAttribute2;
 
-    @Before
-    public void setUp() {
-        String[] columnNames = {"columnC", "columnB", "columnA", "columnD"};
-        this.attribute1 = buildAttribute(columnNames[0]);
-        this.attribute2 = buildAttribute(columnNames[2]);
-        this.nonExistendAttribute1 = buildAttribute("columnE");
-        this.nonExistendAttribute2 = buildAttribute("columnF");
-        this.comparator = new CsvAttributeDescriptorComparator(Arrays.asList(columnNames));
-    }
+  @Before
+  public void setUp() {
+    String[] columnNames = {"columnC", "columnB", "columnA", "columnD"};
+    this.attribute1 = buildAttribute(columnNames[0]);
+    this.attribute2 = buildAttribute(columnNames[2]);
+    this.nonExistendAttribute1 = buildAttribute("columnE");
+    this.nonExistendAttribute2 = buildAttribute("columnF");
+    this.comparator = new CsvAttributeDescriptorComparator(Arrays.asList(columnNames));
+  }
 
-    @Test
-    public void testDescriptorComparator() {
-        int comparison = comparator.compare(attribute1, attribute2);
-        assertThat(comparison, is(-1));
+  @Test
+  public void testDescriptorComparator() {
+    int comparison = comparator.compare(attribute1, attribute2);
+    assertThat(comparison, is(-1));
 
-        comparison = comparator.compare(attribute2, attribute1);
-        assertThat(comparison, is(1));
+    comparison = comparator.compare(attribute2, attribute1);
+    assertThat(comparison, is(1));
 
-        comparison = comparator.compare(attribute1, attribute1);
-        assertThat(comparison, is(0));
+    comparison = comparator.compare(attribute1, attribute1);
+    assertThat(comparison, is(0));
 
-        comparison = comparator.compare(attribute1, nonExistendAttribute1);
-        assertThat(comparison, is(-1));
+    comparison = comparator.compare(attribute1, nonExistendAttribute1);
+    assertThat(comparison, is(-1));
 
-        comparison = comparator.compare(nonExistendAttribute1, attribute1);
-        assertThat(comparison, is(1));
+    comparison = comparator.compare(nonExistendAttribute1, attribute1);
+    assertThat(comparison, is(1));
 
-        comparison = comparator.compare(nonExistendAttribute1, nonExistendAttribute2);
-        assertThat(comparison, is(0));
+    comparison = comparator.compare(nonExistendAttribute1, nonExistendAttribute2);
+    assertThat(comparison, is(0));
 
-        comparison = comparator.compare(nonExistendAttribute1, null);
-        assertThat(comparison, is(1));
+    comparison = comparator.compare(nonExistendAttribute1, null);
+    assertThat(comparison, is(1));
 
-        comparison = comparator.compare(null, nonExistendAttribute2);
-        assertThat(comparison, is(-1));
+    comparison = comparator.compare(null, nonExistendAttribute2);
+    assertThat(comparison, is(-1));
 
-        comparison = comparator.compare(null, null);
-        assertThat(comparison, is(0));
-    }
+    comparison = comparator.compare(null, null);
+    assertThat(comparison, is(0));
+  }
 
-    private AttributeDescriptor buildAttribute(String name) {
-        AttributeDescriptor attribute = mock(AttributeDescriptor.class);
-        when(attribute.getName()).thenReturn(name);
-        return attribute;
-    }
+  private AttributeDescriptor buildAttribute(String name) {
+    AttributeDescriptor attribute = mock(AttributeDescriptor.class);
+    when(attribute.getName()).thenReturn(name);
+    return attribute;
+  }
 }

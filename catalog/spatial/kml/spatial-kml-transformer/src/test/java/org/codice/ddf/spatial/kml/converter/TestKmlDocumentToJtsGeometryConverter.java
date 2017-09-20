@@ -19,56 +19,48 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
-import java.io.InputStream;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import com.vividsolutions.jts.geom.Geometry;
-
 import de.micromata.opengis.kml.v_2_2_0.Document;
 import de.micromata.opengis.kml.v_2_2_0.Kml;
 import de.micromata.opengis.kml.v_2_2_0.Placemark;
+import java.io.InputStream;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class TestKmlDocumentToJtsGeometryConverter {
-    private static Document testKmlDocument;
+  private static Document testKmlDocument;
 
-    @BeforeClass
-    public static void setupClass() {
-        InputStream stream = TestKmlDocumentToJtsGeometryConverter.class.getResourceAsStream(
-                "/kmlDocument.kml");
+  @BeforeClass
+  public static void setupClass() {
+    InputStream stream =
+        TestKmlDocumentToJtsGeometryConverter.class.getResourceAsStream("/kmlDocument.kml");
 
-        Kml kml = Kml.unmarshal(stream);
+    Kml kml = Kml.unmarshal(stream);
 
-        testKmlDocument = ((Document) kml.getFeature());
+    testKmlDocument = ((Document) kml.getFeature());
+  }
+
+  @Test
+  public void testConvertKmlDocument() {
+    Geometry jtsGeometry = KmlDocumentToJtsGeometryConverter.from(testKmlDocument);
+
+    assertThat(jtsGeometry, notNullValue());
+    assertKmlDocument(testKmlDocument, jtsGeometry);
+  }
+
+  @Test
+  public void testConvertNullKmlDocumentReturnsNullJtsGeometry() {
+    Geometry jtsGeometry = KmlDocumentToJtsGeometryConverter.from(null);
+
+    assertThat(jtsGeometry, nullValue());
+  }
+
+  static void assertKmlDocument(Document kmlDocument, Geometry jtsGeometry) {
+    assertThat(kmlDocument.getFeature().size(), is(equalTo(jtsGeometry.getNumGeometries())));
+
+    for (int i = 0; i < kmlDocument.getFeature().size(); i++) {
+      TestKmlPlacemarkToJtsGeometryConverter.assertPlacemark(
+          (Placemark) kmlDocument.getFeature().get(i), jtsGeometry.getGeometryN(i));
     }
-
-    @Test
-    public void testConvertKmlDocument() {
-        Geometry jtsGeometry = KmlDocumentToJtsGeometryConverter.from(
-                testKmlDocument);
-
-        assertThat(jtsGeometry, notNullValue());
-        assertKmlDocument(testKmlDocument, jtsGeometry);
-    }
-
-    @Test
-    public void testConvertNullKmlDocumentReturnsNullJtsGeometry() {
-        Geometry jtsGeometry = KmlDocumentToJtsGeometryConverter.from(
-                null);
-
-        assertThat(jtsGeometry, nullValue());
-    }
-
-    static void assertKmlDocument(Document kmlDocument,
-            Geometry jtsGeometry) {
-        assertThat(kmlDocument.getFeature()
-                .size(), is(equalTo(jtsGeometry.getNumGeometries())));
-
-        for (int i = 0; i < kmlDocument.getFeature()
-                .size(); i++) {
-            TestKmlPlacemarkToJtsGeometryConverter.assertPlacemark((Placemark) kmlDocument.getFeature()
-                    .get(i), jtsGeometry.getGeometryN(i));
-        }
-    }
+  }
 }

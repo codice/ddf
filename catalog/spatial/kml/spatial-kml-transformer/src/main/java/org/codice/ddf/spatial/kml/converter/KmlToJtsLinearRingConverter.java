@@ -13,32 +13,28 @@
  **/
 package org.codice.ddf.spatial.kml.converter;
 
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import de.micromata.opengis.kml.v_2_2_0.LinearRing;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.springframework.util.CollectionUtils;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
-
-import de.micromata.opengis.kml.v_2_2_0.LinearRing;
-
 public class KmlToJtsLinearRingConverter {
-    private KmlToJtsLinearRingConverter() {
+  private KmlToJtsLinearRingConverter() {}
+
+  public static com.vividsolutions.jts.geom.LinearRing from(LinearRing kmlLinearRing) {
+    if (!isValidKmlLinearRing(kmlLinearRing)) {
+      return null;
     }
 
-    public static com.vividsolutions.jts.geom.LinearRing from(LinearRing kmlLinearRing) {
-        if (!isValidKmlLinearRing(kmlLinearRing)) {
-            return null;
-        }
+    GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory();
 
-        GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory();
+    Coordinate[] jtsCoordinates = KmlToJtsCoordinateConverter.from(kmlLinearRing.getCoordinates());
 
-        Coordinate[] jtsCoordinates =
-                KmlToJtsCoordinateConverter.from(kmlLinearRing.getCoordinates());
+    return geometryFactory.createLinearRing(jtsCoordinates);
+  }
 
-        return geometryFactory.createLinearRing(jtsCoordinates);
-    }
-
-    public static boolean isValidKmlLinearRing(LinearRing kmlLinearRing) {
-        return kmlLinearRing != null && !CollectionUtils.isEmpty(kmlLinearRing.getCoordinates());
-    }
+  public static boolean isValidKmlLinearRing(LinearRing kmlLinearRing) {
+    return kmlLinearRing != null && !CollectionUtils.isEmpty(kmlLinearRing.getCoordinates());
+  }
 }

@@ -13,40 +13,37 @@
  **/
 package org.codice.ddf.spatial.kml.converter;
 
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import de.micromata.opengis.kml.v_2_2_0.Document;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-
-import de.micromata.opengis.kml.v_2_2_0.Document;
-
 public class KmlDocumentToJtsGeometryConverter {
-    private KmlDocumentToJtsGeometryConverter() {
+  private KmlDocumentToJtsGeometryConverter() {}
+
+  public static Geometry from(Document kmlDocument) {
+    if (kmlDocument == null) {
+      return null;
     }
 
-    public static Geometry from(Document kmlDocument) {
-        if (kmlDocument == null) {
-            return null;
-        }
+    List<Geometry> jtsGeometries =
+        kmlDocument
+            .getFeature()
+            .stream()
+            .map(KmlFeatureToJtsGeometryConverter::from)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
 
-        List<Geometry> jtsGeometries = kmlDocument.getFeature()
-                .stream()
-                .map(KmlFeatureToJtsGeometryConverter::from)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+    GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory();
 
-        GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory();
-
-        if (CollectionUtils.isNotEmpty(jtsGeometries)) {
-            return geometryFactory.createGeometryCollection(jtsGeometries.toArray(new Geometry[0]));
-        }
-
-        return null;
+    if (CollectionUtils.isNotEmpty(jtsGeometries)) {
+      return geometryFactory.createGeometryCollection(jtsGeometries.toArray(new Geometry[0]));
     }
 
+    return null;
+  }
 }

@@ -1,33 +1,17 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
- * General Public License as published by the Free Software Foundation, either version 3 of the
- * License, or any later version.
- * <p/>
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
- * is distributed along with this program and can be found at
+ *
+ * <p>This is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * Lesser General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or any later version.
+ *
+ * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
+ * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 package ddf.catalog.metacard.validation;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import ddf.catalog.Constants;
 import ddf.catalog.data.Attribute;
@@ -45,219 +29,244 @@ import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.util.Describable;
 import ddf.catalog.validation.MetacardValidator;
 import ddf.catalog.validation.ValidationException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MetacardValidityMarkerPlugin implements PreIngestPlugin {
-    private static final Logger LOGGER =
-            LoggerFactory.getLogger(MetacardValidityMarkerPlugin.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(MetacardValidityMarkerPlugin.class);
 
-    private static final Logger INGEST_LOGGER =
-            LoggerFactory.getLogger(Constants.INGEST_LOGGER_NAME);
+  private static final Logger INGEST_LOGGER = LoggerFactory.getLogger(Constants.INGEST_LOGGER_NAME);
 
-    private final Predicate<Object> didNotFailEnforcedValidator = Objects::nonNull;
+  private final Predicate<Object> didNotFailEnforcedValidator = Objects::nonNull;
 
-    static final String INVALID_TAG = "INVALID";
+  static final String INVALID_TAG = "INVALID";
 
-    static final String VALID_TAG = "VALID";
+  static final String VALID_TAG = "VALID";
 
-    private List<String> enforcedMetacardValidators;
+  private List<String> enforcedMetacardValidators;
 
-    private List<MetacardValidator> metacardValidators;
+  private List<MetacardValidator> metacardValidators;
 
-    private boolean enforceErrors = true;
+  private boolean enforceErrors = true;
 
-    private boolean enforceWarnings = true;
+  private boolean enforceWarnings = true;
 
-    @Override
-    public CreateRequest process(CreateRequest input)
-            throws PluginExecutionException, StopProcessingException {
-        List<Metacard> validatedMetacards = validateList(input.getMetacards(), Function.identity());
-        return new CreateRequestImpl(validatedMetacards,
-                input.getProperties(),
-                input.getStoreIds());
-    }
+  @Override
+  public CreateRequest process(CreateRequest input)
+      throws PluginExecutionException, StopProcessingException {
+    List<Metacard> validatedMetacards = validateList(input.getMetacards(), Function.identity());
+    return new CreateRequestImpl(validatedMetacards, input.getProperties(), input.getStoreIds());
+  }
 
-    @Override
-    public UpdateRequest process(UpdateRequest input)
-            throws PluginExecutionException, StopProcessingException {
-        List<Map.Entry<Serializable, Metacard>> validatedUpdates = validateList(input.getUpdates(),
-                Map.Entry::getValue);
-        return new UpdateRequestImpl(validatedUpdates,
-                input.getAttributeName(),
-                input.getProperties(),
-                input.getStoreIds());
-    }
+  @Override
+  public UpdateRequest process(UpdateRequest input)
+      throws PluginExecutionException, StopProcessingException {
+    List<Map.Entry<Serializable, Metacard>> validatedUpdates =
+        validateList(input.getUpdates(), Map.Entry::getValue);
+    return new UpdateRequestImpl(
+        validatedUpdates, input.getAttributeName(), input.getProperties(), input.getStoreIds());
+  }
 
-    private <T> List<T> validateList(List<T> requestItems, Function<T, Metacard> itemToMetacard) {
-        Map<String, Integer> counter = new HashMap<>();
+  private <T> List<T> validateList(List<T> requestItems, Function<T, Metacard> itemToMetacard) {
+    Map<String, Integer> counter = new HashMap<>();
 
-        List<T> validated = requestItems.stream()
-                .map(item -> validate(item, itemToMetacard, counter))
-                .filter(didNotFailEnforcedValidator)
-                .collect(Collectors.toList());
+    List<T> validated =
+        requestItems
+            .stream()
+            .map(item -> validate(item, itemToMetacard, counter))
+            .filter(didNotFailEnforcedValidator)
+            .collect(Collectors.toList());
 
-        INGEST_LOGGER.info("Validation results: {} had warnings and {} had errors.",
-                counter.getOrDefault(Validation.VALIDATION_WARNINGS, 0),
-                counter.getOrDefault(Validation.VALIDATION_ERRORS, 0));
+    INGEST_LOGGER.info(
+        "Validation results: {} had warnings and {} had errors.",
+        counter.getOrDefault(Validation.VALIDATION_WARNINGS, 0),
+        counter.getOrDefault(Validation.VALIDATION_ERRORS, 0));
 
-        return validated;
-    }
+    return validated;
+  }
 
-    private <T> T validate(T item, Function<T, Metacard> itemToMetacard,
-            Map<String, Integer> counter) {
-        Set<Serializable> newErrors = new HashSet<>();
-        Set<Serializable> newWarnings = new HashSet<>();
-        Set<String> errorValidators = new HashSet<>();
-        Set<String> warningValidators = new HashSet<>();
+  private <T> T validate(
+      T item, Function<T, Metacard> itemToMetacard, Map<String, Integer> counter) {
+    Set<Serializable> newErrors = new HashSet<>();
+    Set<Serializable> newWarnings = new HashSet<>();
+    Set<String> errorValidators = new HashSet<>();
+    Set<String> warningValidators = new HashSet<>();
 
-        Metacard metacard = itemToMetacard.apply(item);
-        Set<String> tags = metacard.getTags();
-        tags.remove(VALID_TAG);
-        tags.remove(INVALID_TAG);
+    Metacard metacard = itemToMetacard.apply(item);
+    Set<String> tags = metacard.getTags();
+    tags.remove(VALID_TAG);
+    tags.remove(INVALID_TAG);
 
-        String valid = VALID_TAG;
+    String valid = VALID_TAG;
 
-        for (MetacardValidator validator : metacardValidators) {
-            try {
-                validator.validate(metacard);
-            } catch (ValidationException e) {
-                String validatorName = getValidatorName(validator);
-                boolean validationErrorsExist = CollectionUtils.isNotEmpty(e.getErrors());
-                boolean validationWarningsExist = CollectionUtils.isNotEmpty(e.getWarnings());
-
-                if ((isValidatorEnforced(validatorName) && validationErrorsExist && enforceErrors)
-                        || isValidatorEnforced(validatorName) && validationWarningsExist
-                        && enforceWarnings) {
-                    INGEST_LOGGER.debug(
-                            "The metacard with id={} is being removed from the operation because it failed the enforced validator [{}].",
-                            metacard.getId(),
-                            validatorName);
-                    return null;
-                } else {
-                    getValidationProblems(validatorName,
-                            e,
-                            newErrors,
-                            newWarnings,
-                            errorValidators,
-                            warningValidators,
-                            counter);
-                }
-            }
-        }
-
-        Attribute existingErrors = metacard.getAttribute(Validation.VALIDATION_ERRORS);
-        Attribute existingWarnings = metacard.getAttribute(Validation.VALIDATION_WARNINGS);
-
-        if (existingErrors != null) {
-            newErrors.addAll(existingErrors.getValues());
-        }
-
-        if (existingWarnings != null) {
-            newWarnings.addAll(existingWarnings.getValues());
-        }
-
-        if (newErrors.size() > 0 || newWarnings.size() > 0) {
-            valid = INVALID_TAG;
-        }
-
-        tags.add(valid);
-        metacard.setAttribute(new AttributeImpl(Metacard.TAGS, new ArrayList<String>(tags)));
-
-        metacard.setAttribute(new AttributeImpl(Validation.VALIDATION_ERRORS,
-                (List<Serializable>) new ArrayList<Serializable>(newErrors)));
-        metacard.setAttribute(new AttributeImpl(Validation.VALIDATION_WARNINGS,
-                (List<Serializable>) new ArrayList<Serializable>(newWarnings)));
-        metacard.setAttribute(new AttributeImpl(Validation.FAILED_VALIDATORS_WARNINGS,
-                (List<Serializable>) new ArrayList<Serializable>(warningValidators)));
-        metacard.setAttribute(new AttributeImpl(Validation.FAILED_VALIDATORS_ERRORS,
-                (List<Serializable>) new ArrayList<Serializable>(errorValidators)));
-
-        return item;
-    }
-
-    private void getValidationProblems(String validatorName, ValidationException e,
-            Set<Serializable> errors, Set<Serializable> warnings, Set<String> errorValidators,
-            Set<String> warningValidators, Map<String, Integer> counter) {
+    for (MetacardValidator validator : metacardValidators) {
+      try {
+        validator.validate(metacard);
+      } catch (ValidationException e) {
+        String validatorName = getValidatorName(validator);
         boolean validationErrorsExist = CollectionUtils.isNotEmpty(e.getErrors());
         boolean validationWarningsExist = CollectionUtils.isNotEmpty(e.getWarnings());
-        if (validationErrorsExist || validationWarningsExist) {
-            if (validationErrorsExist) {
-                errors.addAll(e.getErrors());
-                errorValidators.add(validatorName);
-                counter.merge(Validation.VALIDATION_ERRORS, 1, Integer::sum);
-            }
-            if (validationWarningsExist) {
-                warnings.addAll(e.getWarnings());
-                warningValidators.add(validatorName);
-                counter.merge(Validation.VALIDATION_WARNINGS, 1, Integer::sum);
-            }
+
+        if ((isValidatorEnforced(validatorName) && validationErrorsExist && enforceErrors)
+            || isValidatorEnforced(validatorName) && validationWarningsExist && enforceWarnings) {
+          INGEST_LOGGER.debug(
+              "The metacard with id={} is being removed from the operation because it failed the enforced validator [{}].",
+              metacard.getId(),
+              validatorName);
+          return null;
         } else {
-            LOGGER.debug(
-                    "Metacard validator {} did not have any warnings or errors but it threw a validation exception."
-                            + " There is likely something wrong with your implementation. This will result in the metacard not"
-                            + " being properly marked as invalid.",
-                    validatorName);
+          getValidationProblems(
+              validatorName,
+              e,
+              newErrors,
+              newWarnings,
+              errorValidators,
+              warningValidators,
+              counter);
         }
+      }
     }
 
-    @Override
-    public DeleteRequest process(DeleteRequest input)
-            throws PluginExecutionException, StopProcessingException {
-        return input;
+    Attribute existingErrors = metacard.getAttribute(Validation.VALIDATION_ERRORS);
+    Attribute existingWarnings = metacard.getAttribute(Validation.VALIDATION_WARNINGS);
+
+    if (existingErrors != null) {
+      newErrors.addAll(existingErrors.getValues());
     }
 
-    public List<String> getEnforcedMetacardValidators() {
-        return enforcedMetacardValidators;
+    if (existingWarnings != null) {
+      newWarnings.addAll(existingWarnings.getValues());
     }
 
-    public void setEnforcedMetacardValidators(List<String> enforcedMetacardValidators) {
-        this.enforcedMetacardValidators = enforcedMetacardValidators;
+    if (newErrors.size() > 0 || newWarnings.size() > 0) {
+      valid = INVALID_TAG;
     }
 
-    public List<MetacardValidator> getMetacardValidators() {
-        return metacardValidators;
+    tags.add(valid);
+    metacard.setAttribute(new AttributeImpl(Metacard.TAGS, new ArrayList<String>(tags)));
+
+    metacard.setAttribute(
+        new AttributeImpl(
+            Validation.VALIDATION_ERRORS,
+            (List<Serializable>) new ArrayList<Serializable>(newErrors)));
+    metacard.setAttribute(
+        new AttributeImpl(
+            Validation.VALIDATION_WARNINGS,
+            (List<Serializable>) new ArrayList<Serializable>(newWarnings)));
+    metacard.setAttribute(
+        new AttributeImpl(
+            Validation.FAILED_VALIDATORS_WARNINGS,
+            (List<Serializable>) new ArrayList<Serializable>(warningValidators)));
+    metacard.setAttribute(
+        new AttributeImpl(
+            Validation.FAILED_VALIDATORS_ERRORS,
+            (List<Serializable>) new ArrayList<Serializable>(errorValidators)));
+
+    return item;
+  }
+
+  private void getValidationProblems(
+      String validatorName,
+      ValidationException e,
+      Set<Serializable> errors,
+      Set<Serializable> warnings,
+      Set<String> errorValidators,
+      Set<String> warningValidators,
+      Map<String, Integer> counter) {
+    boolean validationErrorsExist = CollectionUtils.isNotEmpty(e.getErrors());
+    boolean validationWarningsExist = CollectionUtils.isNotEmpty(e.getWarnings());
+    if (validationErrorsExist || validationWarningsExist) {
+      if (validationErrorsExist) {
+        errors.addAll(e.getErrors());
+        errorValidators.add(validatorName);
+        counter.merge(Validation.VALIDATION_ERRORS, 1, Integer::sum);
+      }
+      if (validationWarningsExist) {
+        warnings.addAll(e.getWarnings());
+        warningValidators.add(validatorName);
+        counter.merge(Validation.VALIDATION_WARNINGS, 1, Integer::sum);
+      }
+    } else {
+      LOGGER.debug(
+          "Metacard validator {} did not have any warnings or errors but it threw a validation exception."
+              + " There is likely something wrong with your implementation. This will result in the metacard not"
+              + " being properly marked as invalid.",
+          validatorName);
     }
+  }
 
-    public void setMetacardValidators(List<MetacardValidator> metacardValidators) {
-        this.metacardValidators = metacardValidators;
+  @Override
+  public DeleteRequest process(DeleteRequest input)
+      throws PluginExecutionException, StopProcessingException {
+    return input;
+  }
 
-        List<String> validatorsNoDescribable = metacardValidators.stream()
-                .filter(validator -> !(validator instanceof Describable))
-                .map(this::getValidatorName)
-                .collect(Collectors.toList());
+  public List<String> getEnforcedMetacardValidators() {
+    return enforcedMetacardValidators;
+  }
 
-        if (validatorsNoDescribable.size() > 0) {
-            LOGGER.debug("Metacard validators SHOULD implement Describable. Validators in error: {}",
-                    validatorsNoDescribable);
-        }
+  public void setEnforcedMetacardValidators(List<String> enforcedMetacardValidators) {
+    this.enforcedMetacardValidators = enforcedMetacardValidators;
+  }
+
+  public List<MetacardValidator> getMetacardValidators() {
+    return metacardValidators;
+  }
+
+  public void setMetacardValidators(List<MetacardValidator> metacardValidators) {
+    this.metacardValidators = metacardValidators;
+
+    List<String> validatorsNoDescribable =
+        metacardValidators
+            .stream()
+            .filter(validator -> !(validator instanceof Describable))
+            .map(this::getValidatorName)
+            .collect(Collectors.toList());
+
+    if (validatorsNoDescribable.size() > 0) {
+      LOGGER.debug(
+          "Metacard validators SHOULD implement Describable. Validators in error: {}",
+          validatorsNoDescribable);
     }
+  }
 
-    private boolean isValidatorEnforced(String validatorName) {
-        return enforcedMetacardValidators != null && enforcedMetacardValidators.contains(
-                validatorName);
-    }
+  private boolean isValidatorEnforced(String validatorName) {
+    return enforcedMetacardValidators != null && enforcedMetacardValidators.contains(validatorName);
+  }
 
-    protected String getValidatorName(MetacardValidator metacardValidator) {
-        if (metacardValidator instanceof Describable) {
-            return ((Describable) metacardValidator).getId();
-        } else {
-            return metacardValidator.getClass()
-                    .getCanonicalName();
-        }
+  protected String getValidatorName(MetacardValidator metacardValidator) {
+    if (metacardValidator instanceof Describable) {
+      return ((Describable) metacardValidator).getId();
+    } else {
+      return metacardValidator.getClass().getCanonicalName();
     }
+  }
 
-    public void setEnforceErrors(boolean enforceErrors) {
-        this.enforceErrors = enforceErrors;
-    }
+  public void setEnforceErrors(boolean enforceErrors) {
+    this.enforceErrors = enforceErrors;
+  }
 
-    public boolean getEnforceErrors() {
-        return enforceErrors;
-    }
+  public boolean getEnforceErrors() {
+    return enforceErrors;
+  }
 
-    public void setEnforceWarnings(boolean enforceWarnings) {
-        this.enforceWarnings = enforceWarnings;
-    }
+  public void setEnforceWarnings(boolean enforceWarnings) {
+    this.enforceWarnings = enforceWarnings;
+  }
 
-    public boolean getEnforceWarnings() {
-        return enforceWarnings;
-    }
+  public boolean getEnforceWarnings() {
+    return enforceWarnings;
+  }
 }

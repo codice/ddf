@@ -23,39 +23,38 @@ import de.micromata.opengis.kml.v_2_2_0.Polygon;
 
 public class KmlToJtsGeometryConverter {
 
-    private KmlToJtsGeometryConverter() {
+  private KmlToJtsGeometryConverter() {}
+
+  public static com.vividsolutions.jts.geom.Geometry from(Geometry kmlGeometry) {
+    if (kmlGeometry == null) {
+      return null;
     }
 
-    public static com.vividsolutions.jts.geom.Geometry from(Geometry kmlGeometry) {
-        if (kmlGeometry == null) {
-            return null;
-        }
-
-        if (kmlGeometry instanceof Point) {
-            return KmlToJtsPointConverter.from((Point) kmlGeometry);
-        }
-
-        if (kmlGeometry instanceof LineString) {
-            return KmlToJtsLineStringConverter.from((LineString) kmlGeometry);
-        }
-
-        if (kmlGeometry instanceof LinearRing) {
-            return KmlToJtsLinearRingConverter.from((LinearRing) kmlGeometry);
-        }
-
-        if (kmlGeometry instanceof Polygon) {
-            return KmlToJtsPolygonConverter.from((Polygon) kmlGeometry);
-        }
-
-        if (kmlGeometry instanceof MultiGeometry) {
-            return KmlToJtsMultiGeometryConverter.from((MultiGeometry) kmlGeometry);
-        }
-
-        if (kmlGeometry instanceof Model) {
-            return KmlModelToJtsPointConverter.from((Model) kmlGeometry);
-        }
-
-        // Shouldn't get here
-        return null;
+    if (kmlGeometry instanceof Point) {
+      return KmlToJtsPointConverter.from((Point) kmlGeometry);
     }
+
+    if (kmlGeometry instanceof LineString) {
+      return KmlToJtsLineStringConverter.from((LineString) kmlGeometry);
+    }
+
+    if (kmlGeometry instanceof LinearRing) {
+      return KmlToJtsLinearRingConverter.from((LinearRing) kmlGeometry);
+    }
+
+    if (kmlGeometry instanceof Polygon) {
+      return KmlToJtsPolygonConverter.from((Polygon) kmlGeometry);
+    }
+
+    if (kmlGeometry instanceof MultiGeometry) {
+      return KmlToJtsMultiGeometryConverter.from((MultiGeometry) kmlGeometry);
+    }
+
+    if (kmlGeometry instanceof Model) {
+      return KmlModelToJtsPointConverter.from((Model) kmlGeometry);
+    }
+
+    // Shouldn't get here
+    return null;
+  }
 }

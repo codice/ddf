@@ -14,7 +14,6 @@
 package org.codice.ddf.spatial.kml.converter;
 
 import com.vividsolutions.jts.geom.Geometry;
-
 import de.micromata.opengis.kml.v_2_2_0.Document;
 import de.micromata.opengis.kml.v_2_2_0.Feature;
 import de.micromata.opengis.kml.v_2_2_0.Folder;
@@ -23,34 +22,33 @@ import de.micromata.opengis.kml.v_2_2_0.PhotoOverlay;
 import de.micromata.opengis.kml.v_2_2_0.Placemark;
 
 public class KmlFeatureToJtsGeometryConverter {
-    private KmlFeatureToJtsGeometryConverter() {
+  private KmlFeatureToJtsGeometryConverter() {}
+
+  public static Geometry from(Feature kmlFeature) {
+    if (kmlFeature == null) {
+      return null;
     }
 
-    public static Geometry from(Feature kmlFeature) {
-        if (kmlFeature == null) {
-            return null;
-        }
-
-        if (kmlFeature instanceof Document) {
-            return KmlDocumentToJtsGeometryConverter.from((Document) kmlFeature);
-        }
-
-        if (kmlFeature instanceof Folder) {
-            return KmlFolderToJtsGeometryConverter.from((Folder) kmlFeature);
-        }
-
-        if (kmlFeature instanceof Placemark) {
-            return KmlPlacemarkToJtsGeometryConverter.from((Placemark) kmlFeature);
-        }
-
-        if (kmlFeature instanceof PhotoOverlay) {
-            return KmlPhotoOverlayToJtsPointConverter.from((PhotoOverlay) kmlFeature);
-        }
-
-        if (kmlFeature instanceof GroundOverlay) {
-            return KmlGroundOverlayToJtsGeometryConverter.from((GroundOverlay) kmlFeature);
-        }
-
-        return null;
+    if (kmlFeature instanceof Document) {
+      return KmlDocumentToJtsGeometryConverter.from((Document) kmlFeature);
     }
+
+    if (kmlFeature instanceof Folder) {
+      return KmlFolderToJtsGeometryConverter.from((Folder) kmlFeature);
+    }
+
+    if (kmlFeature instanceof Placemark) {
+      return KmlPlacemarkToJtsGeometryConverter.from((Placemark) kmlFeature);
+    }
+
+    if (kmlFeature instanceof PhotoOverlay) {
+      return KmlPhotoOverlayToJtsPointConverter.from((PhotoOverlay) kmlFeature);
+    }
+
+    if (kmlFeature instanceof GroundOverlay) {
+      return KmlGroundOverlayToJtsGeometryConverter.from((GroundOverlay) kmlFeature);
+    }
+
+    return null;
+  }
 }

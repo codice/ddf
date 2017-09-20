@@ -1,22 +1,27 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
- * General Public License as published by the Free Software Foundation, either version 3 of the
- * License, or any later version.
- * <p>
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
- * is distributed along with this program and can be found at
+ *
+ * <p>This is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * Lesser General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or any later version.
+ *
+ * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
+ * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 package org.codice.ddf.commands.catalog;
 
 import static ddf.catalog.util.impl.ResultIterable.resultIterable;
 
+import com.google.common.collect.Lists;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.Result;
+import ddf.catalog.operation.impl.QueryImpl;
+import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.util.XPathHelper;
 import java.util.List;
-
 import org.apache.karaf.shell.api.action.Argument;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
@@ -27,181 +32,190 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.opengis.filter.Filter;
 
-import com.google.common.collect.Lists;
-
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.Result;
-import ddf.catalog.operation.impl.QueryImpl;
-import ddf.catalog.operation.impl.QueryRequestImpl;
-import ddf.util.XPathHelper;
-
 @Service
-@Command(scope = CatalogCommands.NAMESPACE, name = "search", description = "Searches records in the Catalog Provider.")
+@Command(
+  scope = CatalogCommands.NAMESPACE,
+  name = "search",
+  description = "Searches records in the Catalog Provider."
+)
 public class SearchCommand extends CqlCommands {
 
-    private static final String ID = "ID ";
+  private static final String ID = "ID ";
 
-    private static final String TITLE = "Title ";
+  private static final String TITLE = "Title ";
 
-    private static final String DATE = "Modified ";
+  private static final String DATE = "Modified ";
 
-    private static final String EXCERPT = "Excerpt ";
+  private static final String EXCERPT = "Excerpt ";
 
-    private static final int TITLE_MAX_LENGTH = 30;
+  private static final int TITLE_MAX_LENGTH = 30;
 
-    private static final int EXCERPT_MAX_LENGTH = 50;
+  private static final int EXCERPT_MAX_LENGTH = 50;
 
-    @Argument(name = "NUMBER_OF_ITEMS", description = "Number of maximum records to display.", index = 1, multiValued = false, required = false)
-    int numberOfItems = -1;
+  @Argument(
+    name = "NUMBER_OF_ITEMS",
+    description = "Number of maximum records to display.",
+    index = 1,
+    multiValued = false,
+    required = false
+  )
+  int numberOfItems = -1;
 
-    @Argument(name = "SEARCH_PHRASE", index = 0, multiValued = false, required = false, description = "Phrase to query the Catalog Provider. Will take precedence over --searchPhrase option.")
-    String searchPhraseArgument = WILDCARD;
+  @Argument(
+    name = "SEARCH_PHRASE",
+    index = 0,
+    multiValued = false,
+    required = false,
+    description =
+        "Phrase to query the Catalog Provider. Will take precedence over --searchPhrase option."
+  )
+  String searchPhraseArgument = WILDCARD;
 
-    @Option(name = "--cache", required = false, multiValued = false, aliases = {}, description = "Only search cached entries.")
-    boolean cache = false;
+  @Option(
+    name = "--cache",
+    required = false,
+    multiValued = false,
+    aliases = {},
+    description = "Only search cached entries."
+  )
+  boolean cache = false;
 
-    @Override
-    protected Object executeWithSubject() throws Exception {
-        searchPhrase = searchPhraseArgument;
+  @Override
+  protected Object executeWithSubject() throws Exception {
+    searchPhrase = searchPhraseArgument;
 
-        final Filter filter = getFilter();
+    final Filter filter = getFilter();
 
-        if (this.cache) {
-            return executeSearchCache(filter);
-        } else {
-            return executeSearchStore(filter);
-        }
+    if (this.cache) {
+      return executeSearchCache(filter);
+    } else {
+      return executeSearchStore(filter);
+    }
+  }
+
+  private Object executeSearchStore(Filter filter) throws Exception {
+    String formatString =
+        "%1$-33s %2$-26s %3$-" + TITLE_MAX_LENGTH + "s %4$-" + EXCERPT_MAX_LENGTH + "s%n";
+
+    CatalogFacade catalogProvider = getCatalog();
+
+    QueryImpl query = new QueryImpl(filter);
+    query.setRequestsTotalResultsCount(true);
+    if (numberOfItems > -1) {
+      query.setPageSize(numberOfItems);
     }
 
-    private Object executeSearchStore(Filter filter) throws Exception {
-        String formatString =
-                "%1$-33s %2$-26s %3$-" + TITLE_MAX_LENGTH + "s %4$-" + EXCERPT_MAX_LENGTH + "s%n";
+    long start = System.currentTimeMillis();
 
-        CatalogFacade catalogProvider = getCatalog();
-
-        QueryImpl query = new QueryImpl(filter);
-        query.setRequestsTotalResultsCount(true);
-        if (numberOfItems > -1) {
-            query.setPageSize(numberOfItems);
-        }
-
-        long start = System.currentTimeMillis();
-
-        List<Result> results = Lists.newArrayList(resultIterable(catalogProvider::query,
+    List<Result> results =
+        Lists.newArrayList(
+            resultIterable(
+                catalogProvider::query,
                 new QueryRequestImpl(query),
                 numberOfItems > 0 ? numberOfItems : 1000));
 
-        long end = System.currentTimeMillis();
+    long end = System.currentTimeMillis();
 
-        console.println();
-        console.printf(" %d result(s) out of %s%s%s in %3.3f seconds",
-                results.size(),
-                Ansi.ansi()
-                        .fg(Ansi.Color.CYAN)
-                        .toString(),
-                "?",
-                Ansi.ansi()
-                        .reset()
-                        .toString(),
-                (end - start) / MS_PER_SECOND);
-        console.printf(formatString, "", "", "", "");
-        printHeaderMessage(String.format(formatString, ID, DATE, TITLE, EXCERPT));
+    console.println();
+    console.printf(
+        " %d result(s) out of %s%s%s in %3.3f seconds",
+        results.size(),
+        Ansi.ansi().fg(Ansi.Color.CYAN).toString(),
+        "?",
+        Ansi.ansi().reset().toString(),
+        (end - start) / MS_PER_SECOND);
+    console.printf(formatString, "", "", "", "");
+    printHeaderMessage(String.format(formatString, ID, DATE, TITLE, EXCERPT));
 
-        for (Result result : results) {
-            Metacard metacard = result.getMetacard();
+    for (Result result : results) {
+      Metacard metacard = result.getMetacard();
 
-            String title = (metacard.getTitle() != null ? metacard.getTitle() : "N/A");
-            String excerpt = "N/A";
-            String modifiedDate = "";
+      String title = (metacard.getTitle() != null ? metacard.getTitle() : "N/A");
+      String excerpt = "N/A";
+      String modifiedDate = "";
 
-            if (searchPhrase != null) {
-                if (metacard.getMetadata() != null) {
-                    XPathHelper helper = new XPathHelper(metacard.getMetadata());
-                    String indexedText = helper.getDocument()
-                            .getDocumentElement()
-                            .getTextContent();
-                    indexedText = indexedText.replaceAll("\\r\\n|\\r|\\n", " ");
+      if (searchPhrase != null) {
+        if (metacard.getMetadata() != null) {
+          XPathHelper helper = new XPathHelper(metacard.getMetadata());
+          String indexedText = helper.getDocument().getDocumentElement().getTextContent();
+          indexedText = indexedText.replaceAll("\\r\\n|\\r|\\n", " ");
 
-                    String normalizedSearchPhrase = searchPhrase.replaceAll("\\*", "");
+          String normalizedSearchPhrase = searchPhrase.replaceAll("\\*", "");
 
-                    int index = -1;
+          int index = -1;
 
-                    if (caseSensitive) {
-                        index = indexedText.indexOf(normalizedSearchPhrase);
-                    } else {
-                        index = indexedText.toLowerCase()
-                                .indexOf(normalizedSearchPhrase.toLowerCase());
-                    }
+          if (caseSensitive) {
+            index = indexedText.indexOf(normalizedSearchPhrase);
+          } else {
+            index = indexedText.toLowerCase().indexOf(normalizedSearchPhrase.toLowerCase());
+          }
 
-                    if (index != -1) {
-                        int contextLength =
-                                (EXCERPT_MAX_LENGTH - normalizedSearchPhrase.length() - 8) / 2;
-                        excerpt = "..." + indexedText.substring(Math.max(index - contextLength, 0),
-                                index);
-                        excerpt = excerpt + Ansi.ansi()
-                                .fg(Ansi.Color.GREEN)
-                                .toString();
-                        excerpt = excerpt + indexedText.substring(index,
-                                index + normalizedSearchPhrase.length());
-                        excerpt = excerpt + Ansi.ansi()
-                                .reset()
-                                .toString();
-                        excerpt = excerpt + indexedText.substring(
-                                index + normalizedSearchPhrase.length(),
-                                Math.min(indexedText.length(),
-                                        index + normalizedSearchPhrase.length() + contextLength))
-                                + "...";
-
-                    }
-                }
-            }
-
-            if (metacard.getModifiedDate() != null) {
-                modifiedDate = new DateTime(metacard.getModifiedDate()
-                        .getTime()).toString(DATETIME_FORMATTER);
-            }
-
-            console.printf(formatString,
-                    metacard.getId(),
-                    modifiedDate,
-                    title.substring(0, Math.min(title.length(), TITLE_MAX_LENGTH)),
-                    excerpt);
+          if (index != -1) {
+            int contextLength = (EXCERPT_MAX_LENGTH - normalizedSearchPhrase.length() - 8) / 2;
+            excerpt = "..." + indexedText.substring(Math.max(index - contextLength, 0), index);
+            excerpt = excerpt + Ansi.ansi().fg(Ansi.Color.GREEN).toString();
+            excerpt =
+                excerpt + indexedText.substring(index, index + normalizedSearchPhrase.length());
+            excerpt = excerpt + Ansi.ansi().reset().toString();
+            excerpt =
+                excerpt
+                    + indexedText.substring(
+                        index + normalizedSearchPhrase.length(),
+                        Math.min(
+                            indexedText.length(),
+                            index + normalizedSearchPhrase.length() + contextLength))
+                    + "...";
+          }
         }
+      }
 
-        return null;
+      if (metacard.getModifiedDate() != null) {
+        modifiedDate =
+            new DateTime(metacard.getModifiedDate().getTime()).toString(DATETIME_FORMATTER);
+      }
+
+      console.printf(
+          formatString,
+          metacard.getId(),
+          modifiedDate,
+          title.substring(0, Math.min(title.length(), TITLE_MAX_LENGTH)),
+          excerpt);
     }
 
-    private Object executeSearchCache(Filter filter) throws Exception {
-        String formatString = "%1$-33s %2$-26s %3$-" + TITLE_MAX_LENGTH + "s %n";
+    return null;
+  }
 
-        long start = System.currentTimeMillis();
+  private Object executeSearchCache(Filter filter) throws Exception {
+    String formatString = "%1$-33s %2$-26s %3$-" + TITLE_MAX_LENGTH + "s %n";
 
-        List<Metacard> results = getCacheProxy().query(filter);
+    long start = System.currentTimeMillis();
 
-        long end = System.currentTimeMillis();
+    List<Metacard> results = getCacheProxy().query(filter);
 
-        console.println();
-        console.printf(" %d result(s) in %3.3f seconds",
-                (results.size()),
-                (end - start) / MS_PER_SECOND);
-        console.printf(formatString, "", "", "");
-        printHeaderMessage(String.format(formatString, ID, DATE, TITLE));
+    long end = System.currentTimeMillis();
 
-        for (Metacard metacard : results) {
-            String title = (metacard.getTitle() != null ? metacard.getTitle() : "N/A");
-            String modifiedDate = "";
+    console.println();
+    console.printf(
+        " %d result(s) in %3.3f seconds", (results.size()), (end - start) / MS_PER_SECOND);
+    console.printf(formatString, "", "", "");
+    printHeaderMessage(String.format(formatString, ID, DATE, TITLE));
 
-            if (metacard.getModifiedDate() != null) {
-                DateTime dt = new DateTime(DateTimeZone.UTC);
-                modifiedDate = dt.toString(DATETIME_FORMATTER);
-            }
+    for (Metacard metacard : results) {
+      String title = (metacard.getTitle() != null ? metacard.getTitle() : "N/A");
+      String modifiedDate = "";
 
-            console.printf(formatString,
-                    metacard.getId(),
-                    modifiedDate,
-                    title.substring(0, Math.min(title.length(), TITLE_MAX_LENGTH)));
-        }
+      if (metacard.getModifiedDate() != null) {
+        DateTime dt = new DateTime(DateTimeZone.UTC);
+        modifiedDate = dt.toString(DATETIME_FORMATTER);
+      }
 
-        return null;
+      console.printf(
+          formatString,
+          metacard.getId(),
+          modifiedDate,
+          title.substring(0, Math.min(title.length(), TITLE_MAX_LENGTH)));
     }
+
+    return null;
+  }
 }
