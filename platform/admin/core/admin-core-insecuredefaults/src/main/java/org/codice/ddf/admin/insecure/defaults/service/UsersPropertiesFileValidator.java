@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.admin.insecure.defaults.service;
 
+import ddf.security.common.audit.SecurityLogger;
 import java.util.List;
 import java.util.Properties;
 import org.apache.commons.lang.StringUtils;
@@ -33,6 +34,9 @@ public class UsersPropertiesFileValidator extends PropertiesFileValidator {
 
   static final String CANNOT_PARSE_PASSWORD_MSG =
       "Unable to determine if [%s] is using insecure defaults. Cannot parse password from [%s].";
+
+  static final String USERS_PROPERTIES_FILE_EXISTS_MSG =
+      "The users.properties file is present at [%s].";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(UsersPropertiesFileValidator.class);
 
@@ -66,6 +70,10 @@ public class UsersPropertiesFileValidator extends PropertiesFileValidator {
     Properties properties = readFile(false);
 
     if (properties != null && properties.size() > 0) {
+      // the existence of the properties file is an insecure default
+      SecurityLogger.audit("System is running with the users.properties file.");
+      alerts.add(
+          new Alert(Level.WARN, String.format(USERS_PROPERTIES_FILE_EXISTS_MSG, path.toString())));
       validateAdminUser(properties);
       validateCertificateUser(properties);
     }

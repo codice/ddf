@@ -94,7 +94,7 @@ public class UsersPropertiesFileValidatorTest {
               path,
               DEFAULT_ADMIN_USER_PASSWORD)
         };
-    assertThat(alerts.size(), is(3));
+    assertThat(alerts.size(), is(4));
     assertThat(actualAlertMessages, hasItems(expectedAlertMessages));
   }
 
@@ -113,7 +113,7 @@ public class UsersPropertiesFileValidatorTest {
     List<Alert> alerts = propertiesFileValidator.validate();
 
     // Verify
-    assertThat(alerts.size(), is(0));
+    assertThat(alerts.size(), is(1));
   }
 
   @Test
@@ -134,7 +134,7 @@ public class UsersPropertiesFileValidatorTest {
     List<Alert> alerts = propertiesFileValidator.validate();
 
     // Verify
-    assertThat(alerts.size(), is(0));
+    assertThat(alerts.size(), is(1));
   }
 
   private List<String> getActualAlertMessages(List<Alert> alerts) {
