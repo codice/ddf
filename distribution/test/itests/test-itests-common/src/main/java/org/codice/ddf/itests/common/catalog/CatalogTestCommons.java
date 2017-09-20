@@ -15,7 +15,6 @@ package org.codice.ddf.itests.common.catalog;
 
 import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.awaitility.Awaitility.with;
 import static org.codice.ddf.itests.common.AbstractIntegrationTest.CSW_PATH;
 import static org.codice.ddf.itests.common.AbstractIntegrationTest.REST_PATH;
 import static org.codice.ddf.itests.common.AbstractIntegrationTest.getFileContent;
@@ -30,6 +29,9 @@ import static com.jayway.restassured.RestAssured.given;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -37,6 +39,7 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
+import org.awaitility.Awaitility;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.csw.CswQueryBuilder;
 
@@ -60,7 +63,8 @@ public class CatalogTestCommons {
 
     /**
      * Ingests the provided metacard
-     * @param data - body of the message containing metacard to be ingested
+     *
+     * @param data     - body of the message containing metacard to be ingested
      * @param mimeType - content type header value
      * @return id of ingested metacard
      */
@@ -77,8 +81,9 @@ public class CatalogTestCommons {
 
     /**
      * Ingests the provided metacard
-     * @param data - body of the message containing metacard to be ingested
-     * @param mimeType - content type header value
+     *
+     * @param data          - body of the message containing metacard to be ingested
+     * @param mimeType      - content type header value
      * @param checkResponse - assert status code is 201
      * @return id of ingested metacard
      */
@@ -95,9 +100,8 @@ public class CatalogTestCommons {
     }
 
     /**
-     *
-     * @param data - body of the message containing metacard to be ingested
-     * @param mimeType - content type header value
+     * @param data               - body of the message containing metacard to be ingested
+     * @param mimeType           - content type header value
      * @param expectedStatusCode - expected status code to check for
      * @return id of ingested metacard
      */
@@ -123,23 +127,9 @@ public class CatalogTestCommons {
     public static String ingestXmlFromResourceAndWait(String resourceName) throws IOException {
         StringWriter writer = new StringWriter();
         IOUtils.copy(IOUtils.toInputStream(getFileContent(resourceName)), writer);
-        String[] id = new String[1];
-        //ingest might not succeed the first time due to the async nature of some configurations
-        //Will try several times before considering it failed.
-        with().pollInterval(1, SECONDS)
-                .await()
-                .atMost(30, SECONDS)
-                .ignoreExceptions()
-                .until(() -> {
-                    id[0] = ingest(writer.toString(), "text/xml", true);
-                    return true;
-                });
-        with().pollInterval(1, SECONDS)
-                .await()
-                .atMost(10, SECONDS)
-                .ignoreExceptions()
-                .until(() -> doesMetacardExist(id[0]));
-        return id[0];
+        return requestAndConfirm(() -> ingest(writer.toString(), "text/xml", true),
+                (id) -> doesMetacardExist(id));
+
     }
 
     /**
@@ -220,9 +210,8 @@ public class CatalogTestCommons {
     }
 
     /**
-     *
-     * @param id - id of metacard to update
-     * @param data - body of request to update with
+     * @param id       - id of metacard to update
+     * @param data     - body of request to update with
      * @param mimeType - content type header value
      */
     public static void update(String id, String data, String mimeType) {
@@ -235,10 +224,9 @@ public class CatalogTestCommons {
     }
 
     /**
-     *
-     * @param id - id of metacard to update
-     * @param data - body of request to update with
-     * @param mimeType - content type header value
+     * @param id                 - id of metacard to update
+     * @param data               - body of request to update with
+     * @param mimeType           - content type header value
      * @param expectedStatusCode - expected status code to check for
      */
     public static void update(String id, String data, String mimeType, int expectedStatusCode) {
@@ -258,16 +246,18 @@ public class CatalogTestCommons {
      * @param id metacard id to delete
      */
     public static void deleteMetacardAndWait(String id) {
-        deleteMetacard(id);
-        with().pollInterval(1, SECONDS)
-                .await()
-                .atMost(30, SECONDS)
-                .ignoreExceptions()
-                .until(() -> !doesMetacardExist(id));
+
+        Supplier<String> requestFunction = () -> {
+            deleteMetacard(id);
+            return id;
+        };
+
+        requestAndConfirm(requestFunction, (unused) -> !doesMetacardExist(id));
     }
 
     /**
      * Performs a delete request on the given metacard id
+     *
      * @param id - id of metacard to delete
      */
     public static void deleteMetacard(String id) {
@@ -276,7 +266,8 @@ public class CatalogTestCommons {
 
     /**
      * Performs a delete request on the given metacard id
-     * @param id - id of metacard to delete
+     *
+     * @param id            - id of metacard to delete
      * @param checkResponse
      */
     public static void deleteMetacard(String id, boolean checkResponse) {
@@ -299,11 +290,49 @@ public class CatalogTestCommons {
 
     /**
      * Uses ids within the responses to delete
+     *
      * @param response - response with ids of metacards to delete
      */
     public static void deleteMetacardUsingCswResponseId(Response response)
             throws IOException, XPathExpressionException {
         String id = getMetacardIdFromCswInsertResponse(response);
         CatalogTestCommons.deleteMetacard(id);
+    }
+
+    /**
+     * Operations (e.g.ingest) can fail on first attempt due to the asynchronous issues.
+     * The ingest service can also return HTTP status code 201 while it creates the metacard
+     * asynchronously. This method invokes a request function that send an HTTP request and
+     * returns a single Metacard ID from the response. The confirmation function is invoked
+     * repeatedly until the condition is met. For an ingest request, the confirmation function
+     * should return true if the Metacard exists in the Catalog. For a delete requests, the
+     * confirmation function should return true if the Metacard does NOT exist in the Catalog.
+     * For an update request, the confirmation function should query the Catalog and ensure the
+     * Metacard's values were changed as expected.
+     * This method will retry the confirmation function several times before giving up
+     * and throwing an exception.
+     *
+     * @param requestFunction a zero-arg function that returns the Metacard's ID
+     * @return Metacard ID
+     */
+    public static String requestAndConfirm(Supplier<String> requestFunction,
+            Function<String, Boolean> confirmationFunction) {
+        final AtomicReference<String> id = new AtomicReference<>();
+        Awaitility.with()
+                .pollInterval(1, SECONDS)
+                .await()
+                .atMost(30, SECONDS)
+                .ignoreExceptions()
+                .until(() -> {
+                    id.set(requestFunction.get());
+                    return true;
+                });
+        Awaitility.with()
+                .pollInterval(1, SECONDS)
+                .await()
+                .atMost(10, SECONDS)
+                .ignoreExceptions()
+                .until(() -> confirmationFunction.apply(id.get()));
+        return id.get();
     }
 }
