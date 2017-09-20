@@ -247,7 +247,7 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
             }
         },
         panToResults: function(results) {
-            var rectangle, cartArray;
+            var rectangle, cartArray, point;
 
             cartArray = _.flatten(results.filter(function(result) {
                 return result.hasGeometry();
@@ -258,9 +258,21 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
             }, true));
 
             if (cartArray.length > 0) {
-                rectangle = Cesium.Rectangle.fromCartographicArray(cartArray);
-                this.panToRectangle(rectangle);
+                if (cartArray.length === 1) {
+                    point = Cesium.Ellipsoid.WGS84
+                        .cartographicToCartesian(cartArray[0]);
+                    this.panToCoordinate(point);
+                } else {
+                    rectangle = Cesium.Rectangle.fromCartographicArray(cartArray);
+                    this.panToRectangle(rectangle);
+                }
             }
+        },
+        panToCoordinate: function(coords) {
+            map.scene.camera.flyTo({
+                duration: 0.50,
+                destination: coords
+            });
         },
         panToExtent: function(coords) {},
         panToRectangle: function(rectangle) {
