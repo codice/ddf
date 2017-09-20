@@ -62,11 +62,13 @@ define([
         handleValue: function(){
             var self = this;
             var img = this.$el.find('img')[0];
+            var lnk = this.$el.find('a');
             img.onload = function() {
                 self.resizeButton();
             };
             if (this.model.getValue() && this.model.getValue().constructor === String) {
                 img.src = Common.getImageSrc(this.model.getValue());
+                lnk.attr('href', Common.getResourceUrlFromThumbUrl(img.src));
             }
             this.handleEmpty();
         },

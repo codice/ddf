@@ -49,7 +49,8 @@ define([
         },
         events: {
             'click .result-save': 'handleSave',
-            'click .result-unsave': 'handleUnsave'
+            'click .result-unsave': 'handleUnsave',
+            'click .result-download': 'triggerDownload'
         },
         regions: {
             resultActions: '.result-actions',
@@ -197,6 +198,9 @@ define([
             this.$el.toggleClass('is-revision', this.model.isRevision());
             this.$el.toggleClass('is-deleted', this.model.isDeleted());
             this.$el.toggleClass('is-remote', this.model.isRemote());
+        },
+        triggerDownload: function(e) {
+            window.open(this.model.get('metacard').get('properties').get('resource-download-url'));
         },
         handleSave: function(e){
             e.preventDefault();

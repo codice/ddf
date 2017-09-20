@@ -28,6 +28,9 @@ var properties = require('properties');
 module.exports = Marionette.ItemView.extend({
     className: 'is-tr',
     tagName: CustomElements.register('result-row'),
+    events: {
+        'click .result-download': 'triggerDownload'
+    },
     attributes: function() {
         return {
             'data-resultid': this.model.id
@@ -48,6 +51,9 @@ module.exports = Marionette.ItemView.extend({
         var selectedResults = this.options.selectionInterface.getSelectedResults();
         var isSelected = selectedResults.get(this.model.id);
         this.$el.toggleClass('is-selected', Boolean(isSelected));
+    },
+    triggerDownload: function(){
+        window.open(this.model.get('metacard').get('properties').get('resource-download-url'));
     },
     serializeData: function() {
         var prefs = user.get('user').get('preferences');
@@ -81,7 +87,8 @@ module.exports = Marionette.ItemView.extend({
                     }
                 }
                 if (property === 'thumbnail') {
-                    html = '<img src="' +  Common.getImageSrc(Common.escapeHTML(value)) + '">';
+                    var escapedValue = Common.escapeHTML(value);
+                    html = '<img src="' +  Common.getImageSrc(escapedValue) + '"><button class="is-button is-neutral is-opaque result-download"><span class="fa fa-download"></span></button>';
                     className = "is-thumbnail";
                 }
                 return {
