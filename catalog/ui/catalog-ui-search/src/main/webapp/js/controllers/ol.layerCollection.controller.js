@@ -122,7 +122,7 @@ define(['underscore',
         reIndexLayers: function () {
             this.collection.forEach(function (model, index) {
                 var widgetLayer = this.layerForCid[model.id];
-                widgetLayer.setZIndex((index * -1) - 1);
+                widgetLayer.setZIndex((this.collection.length - index) * -1);
             }, this);
         },
         makeWidgetLayer: function (model) {
