@@ -110,6 +110,19 @@
   }
 }
 
+.is-button.is-opaque {
+  opacity: 1;
+  span {
+    opacity: @minimumOpacity;
+  }
+  &:hover,
+  &.is-active {
+    span {
+      opacity: 1;
+    }
+  }
+}
+
 .is-dropdown {
   cursor: pointer;
 

@@ -251,6 +251,9 @@ define([
             getImageSrc: function(img){
                 return Common.getImageSrc(img);
             },
+            getResourceUrlFromThumbUrl: function(img){
+                return Common.getResourceUrlFromThumbUrl(img);
+            },
             getAlias: function(field){
                 var definition = metacardDefinitions.metacardTypes[field];
                 if (definition) {

@@ -177,6 +177,9 @@ define([
                 return "data:image/png;base64," + img;
             }
         },
+        getResourceUrlFromThumbUrl: function(url){
+            return url.replace(/=thumbnail[_=&\d\w\s;]+/, '=resource');
+        },
         cancelRepaintForTimeframe: function(requestDetails){
             if (requestDetails) {
                 window.cancelAnimationFrame(requestDetails.requestId);

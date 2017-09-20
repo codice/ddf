@@ -53,6 +53,12 @@ button.is-neutral {
   background: rgba(0,0,0,0);
 }
 
+button.is-neutral.is-opaque {
+  color: @text-color;
+  .button-mixin(@dropdown-background-color);
+  background: @dropdown-background-color;
+}
+
 button.is-link,
 .is-button.is-link {
   color: @links-color;
