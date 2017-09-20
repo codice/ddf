@@ -10,6 +10,22 @@ import {
 import urls from './urls'
 
 describe('validate providers', () => {
+  describe('name', () => {
+    it('should be a valid name', () => {
+      const values = ['name', 'hello world', 'this is a name', 'hello_world-1']
+      values.forEach((name) => {
+        const providers = fromJS([ { layer: { name } } ])
+        expect(validate(providers).getIn([0, 'name'])).to.equal(undefined)
+      })
+    })
+    it('should not be a valid name', () => {
+      const values = [undefined, '!name2@& !*%', '']
+      values.forEach((name) => {
+        const providers = fromJS([ { layer: { name } } ])
+        expect(validate(providers).getIn([0, 'name'])).to.not.equal(undefined)
+      })
+    })
+  })
   describe('alpha', () => {
     it('should be a valid alpha', () => {
       const values = [0, 0.25, 0.5, 0.75, 1]

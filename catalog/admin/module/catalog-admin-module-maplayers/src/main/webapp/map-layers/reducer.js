@@ -2,6 +2,7 @@ import 'whatwg-fetch'
 import { combineReducers } from 'redux-immutable'
 import { fromJS, List, Map } from 'immutable'
 import isURL from 'validator/lib/isURL'
+import matches from 'validator/lib/matches'
 
 const select = (state) => state.get('layers')
 
@@ -149,6 +150,20 @@ export const validate = (providers) => {
 
   providers.forEach((provider, i) => {
     const layer = provider.get('layer')
+
+    const name = layer.get('name')
+    const existing = providers.findIndex(function (o, q) {
+      return o.get('layer').get('name') === name && q !== i
+    })
+
+    if (name === '' || name === undefined) {
+      errors = errors.setIn([i, 'name'], 'Name cannot be empty')
+    } else if (!matches(name, '^[\\w\\-\\s]+$')) {
+      errors = errors.setIn([i, 'name'], 'Name must be alphanumeric')
+    } else if (existing < i && existing !== -1) {
+      errors = errors.setIn([i, 'name'], 'Name is already in use and must be unique')
+    }
+
     const alpha = layer.get('alpha')
 
     if (alpha === '') {
@@ -210,6 +225,7 @@ export const validate = (providers) => {
 
 const emptyProvider = () => {
   const layer = {
+    name: '',
     url: '',
     type: '',
     alpha: '',

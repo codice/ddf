@@ -117,6 +117,15 @@ const ProviderEditor = ({ provider, onUpdate, buffer, onEdit, error = Map() }) =
   <div style={{ padding: 16 }}>
     <div style={{ padding: '0 16px' }}>
       <TextField
+        onChange={(e, value) => onUpdate(value, 'name')}
+        fullWidth
+        errorText={error.get('name')}
+        value={provider.get('name') || ''}
+        id='name'
+        floatingLabelText='Name' />
+    </div>
+    <div style={{ padding: '0 16px' }}>
+      <TextField
         onChange={(e, value) => onUpdate(value.replace(/\s/g, ''), 'url')}
         fullWidth
         errorText={error.get('url')}

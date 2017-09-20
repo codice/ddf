@@ -99,9 +99,9 @@ define([
         },
         resetDefaults: function () {
             this.model.each(function (viewLayer) {
-                var url = viewLayer.get('url');
-                var defaultConfig = _.find(properties.imageryProviders, function (layerObj) {
-                    return url === layerObj.url;
+                var name = viewLayer.get('name');
+                defaultConfig = _.find(properties.imageryProviders, function (layerObj) {
+                    return name === layerObj.name;
                 });
                 viewLayer.set('show', defaultConfig.show);
                 viewLayer.set('alpha', defaultConfig.alpha);
