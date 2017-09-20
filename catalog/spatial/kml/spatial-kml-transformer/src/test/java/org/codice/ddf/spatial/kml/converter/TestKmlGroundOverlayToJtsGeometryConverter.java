@@ -17,56 +17,51 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
+import com.vividsolutions.jts.geom.Geometry;
+import de.micromata.opengis.kml.v_2_2_0.GroundOverlay;
+import de.micromata.opengis.kml.v_2_2_0.Kml;
 import java.io.InputStream;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.vividsolutions.jts.geom.Geometry;
-
-import de.micromata.opengis.kml.v_2_2_0.GroundOverlay;
-import de.micromata.opengis.kml.v_2_2_0.Kml;
-
 public class TestKmlGroundOverlayToJtsGeometryConverter {
-    private static GroundOverlay testKmlGroundOverlay;
+  private static GroundOverlay testKmlGroundOverlay;
 
-    @BeforeClass
-    public static void setupClass() {
-        InputStream stream = TestKmlGroundOverlayToJtsGeometryConverter.class.getResourceAsStream(
-                "/kmlGroundOverlay.kml");
+  @BeforeClass
+  public static void setupClass() {
+    InputStream stream =
+        TestKmlGroundOverlayToJtsGeometryConverter.class.getResourceAsStream(
+            "/kmlGroundOverlay.kml");
 
-        Kml kml = Kml.unmarshal(stream);
+    Kml kml = Kml.unmarshal(stream);
 
-        testKmlGroundOverlay = ((GroundOverlay) kml.getFeature());
-    }
+    testKmlGroundOverlay = ((GroundOverlay) kml.getFeature());
+  }
 
-    @Test
-    public void testConvertKmlGroundOverlayToJtsPoint() {
-        Geometry jtsGeometry =
-                KmlGroundOverlayToJtsGeometryConverter.from(testKmlGroundOverlay);
+  @Test
+  public void testConvertKmlGroundOverlayToJtsPoint() {
+    Geometry jtsGeometry = KmlGroundOverlayToJtsGeometryConverter.from(testKmlGroundOverlay);
 
-        assertKmlGroundOverlayToJtsGeometry(testKmlGroundOverlay, jtsGeometry);
-    }
+    assertKmlGroundOverlayToJtsGeometry(testKmlGroundOverlay, jtsGeometry);
+  }
 
-    @Test
-    public void testConvertNullKmlGroundOverlayReturnsNullPoint() {
-        Geometry jtsGeometry =
-                KmlGroundOverlayToJtsGeometryConverter.from(null);
-        assertThat(jtsGeometry, nullValue());
-    }
+  @Test
+  public void testConvertNullKmlGroundOverlayReturnsNullPoint() {
+    Geometry jtsGeometry = KmlGroundOverlayToJtsGeometryConverter.from(null);
+    assertThat(jtsGeometry, nullValue());
+  }
 
-    @Test
-    public void testConvertEmptyKmlGroundOverlayReturnsNullPoint() {
-        Geometry jtsGeometry =
-                KmlGroundOverlayToJtsGeometryConverter.from(new GroundOverlay());
-        assertThat(jtsGeometry, nullValue());
-    }
+  @Test
+  public void testConvertEmptyKmlGroundOverlayReturnsNullPoint() {
+    Geometry jtsGeometry = KmlGroundOverlayToJtsGeometryConverter.from(new GroundOverlay());
+    assertThat(jtsGeometry, nullValue());
+  }
 
-    static void assertKmlGroundOverlayToJtsGeometry(GroundOverlay groundOverlay,
-            Geometry jtsGeometry) {
-        assertThat(jtsGeometry, notNullValue());
+  static void assertKmlGroundOverlayToJtsGeometry(
+      GroundOverlay groundOverlay, Geometry jtsGeometry) {
+    assertThat(jtsGeometry, notNullValue());
 
-        TestKmlLatLonBoxToJtsGeometryConverter.assertKmlLatLonBoxToJtsGeometry(groundOverlay.getLatLonBox(),
-                jtsGeometry);
-    }
+    TestKmlLatLonBoxToJtsGeometryConverter.assertKmlLatLonBoxToJtsGeometry(
+        groundOverlay.getLatLonBox(), jtsGeometry);
+  }
 }

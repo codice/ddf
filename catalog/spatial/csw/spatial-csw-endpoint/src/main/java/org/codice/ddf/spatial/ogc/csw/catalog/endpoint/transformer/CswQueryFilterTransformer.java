@@ -14,43 +14,44 @@
 
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
-
-import org.geotools.filter.FilterFactoryImpl;
-import org.opengis.filter.Filter;
-
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.transform.QueryFilterTransformer;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+import org.geotools.filter.FilterFactoryImpl;
+import org.opengis.filter.Filter;
 
 public class CswQueryFilterTransformer implements QueryFilterTransformer {
 
-    private CswRecordMapperFilterVisitor filterVisitor;
+  private CswRecordMapperFilterVisitor filterVisitor;
 
-    public CswQueryFilterTransformer(CswRecordMap recordMap, MetacardType metacardType,
-            List<MetacardType> metacardTypes) {
-        filterVisitor = new CswRecordMapperFilterVisitor(recordMap, metacardType, metacardTypes);
-    }
+  public CswQueryFilterTransformer(
+      CswRecordMap recordMap, MetacardType metacardType, List<MetacardType> metacardTypes) {
+    filterVisitor = new CswRecordMapperFilterVisitor(recordMap, metacardType, metacardTypes);
+  }
 
-    @Override
-    public QueryRequest transform(QueryRequest queryRequest, Map<String, Serializable> properties) {
-        Query query = queryRequest.getQuery();
-        Filter filter = (Filter) query.accept(filterVisitor, new FilterFactoryImpl());
-        Query transformedQuery = new QueryImpl(filter,
-                query.getStartIndex(),
-                query.getPageSize(),
-                query.getSortBy(),
-                query.requestsTotalResultsCount(),
-                query.getTimeoutMillis());
+  @Override
+  public QueryRequest transform(QueryRequest queryRequest, Map<String, Serializable> properties) {
+    Query query = queryRequest.getQuery();
+    Filter filter = (Filter) query.accept(filterVisitor, new FilterFactoryImpl());
+    Query transformedQuery =
+        new QueryImpl(
+            filter,
+            query.getStartIndex(),
+            query.getPageSize(),
+            query.getSortBy(),
+            query.requestsTotalResultsCount(),
+            query.getTimeoutMillis());
 
-        return new QueryRequestImpl(transformedQuery,
-                queryRequest.isEnterprise(),
-                queryRequest.getSourceIds(),
-                queryRequest.getProperties());
-    }
+    return new QueryRequestImpl(
+        transformedQuery,
+        queryRequest.isEnterprise(),
+        queryRequest.getSourceIds(),
+        queryRequest.getProperties());
+  }
 }

@@ -14,18 +14,16 @@
 package org.codice.ddf.spatial.kml.converter;
 
 import com.vividsolutions.jts.geom.Geometry;
-
 import de.micromata.opengis.kml.v_2_2_0.Kml;
 
 public class KmlToJtsConverter {
-    private KmlToJtsConverter() {
+  private KmlToJtsConverter() {}
+
+  public static Geometry from(Kml kml) {
+    if (kml == null) {
+      return null;
     }
 
-    public static Geometry from(Kml kml) {
-        if (kml == null) {
-            return null;
-        }
-
-        return KmlFeatureToJtsGeometryConverter.from(kml.getFeature());
-    }
+    return KmlFeatureToJtsGeometryConverter.from(kml.getFeature());
+  }
 }

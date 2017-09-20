@@ -21,15 +21,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.codice.ddf.spatial.kml.converter.TestKmlToJtsConverter;
-import org.junit.Before;
-import org.junit.Test;
-
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.MetacardTypeImpl;
@@ -39,60 +30,65 @@ import ddf.catalog.data.impl.types.DateTimeAttributes;
 import ddf.catalog.data.impl.types.LocationAttributes;
 import ddf.catalog.data.impl.types.ValidationAttributes;
 import ddf.catalog.transform.CatalogTransformerException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import org.codice.ddf.spatial.kml.converter.TestKmlToJtsConverter;
+import org.junit.Before;
+import org.junit.Test;
 
 public class TestKmlInputTransformer {
 
-    private KmlInputTransformer kmlInputTransformer;
+  private KmlInputTransformer kmlInputTransformer;
 
-    private static List<MetacardType> metacardTypes;
+  private static List<MetacardType> metacardTypes;
 
-    static {
-        metacardTypes = new ArrayList<>();
-        metacardTypes.add(new AssociationsAttributes());
-        metacardTypes.add(new ContactAttributes());
-        metacardTypes.add(new DateTimeAttributes());
-        metacardTypes.add(new LocationAttributes());
-        metacardTypes.add(new ValidationAttributes());
-    }
+  static {
+    metacardTypes = new ArrayList<>();
+    metacardTypes.add(new AssociationsAttributes());
+    metacardTypes.add(new ContactAttributes());
+    metacardTypes.add(new DateTimeAttributes());
+    metacardTypes.add(new LocationAttributes());
+    metacardTypes.add(new ValidationAttributes());
+  }
 
-    @Before
-    public void setUp() {
-        kmlInputTransformer = new KmlInputTransformer(new MetacardTypeImpl("kmlMetacardType",
-                metacardTypes));
-    }
+  @Before
+  public void setUp() {
+    kmlInputTransformer =
+        new KmlInputTransformer(new MetacardTypeImpl("kmlMetacardType", metacardTypes));
+  }
 
-    @Test(expected = CatalogTransformerException.class)
-    public void testTransformBadKmlThrowsException() throws Exception {
-        InputStream stream = TestKmlToJtsConverter.class.getResourceAsStream("/notKml.kml");
+  @Test(expected = CatalogTransformerException.class)
+  public void testTransformBadKmlThrowsException() throws Exception {
+    InputStream stream = TestKmlToJtsConverter.class.getResourceAsStream("/notKml.kml");
 
-        kmlInputTransformer.transform(stream);
-    }
+    kmlInputTransformer.transform(stream);
+  }
 
-    @Test
-    public void testTransformPointKml() throws Exception {
-        InputStream stream = TestKmlToJtsConverter.class.getResourceAsStream("/kmlPoint.kml");
+  @Test
+  public void testTransformPointKml() throws Exception {
+    InputStream stream = TestKmlToJtsConverter.class.getResourceAsStream("/kmlPoint.kml");
 
-        Metacard metacard = kmlInputTransformer.transform(stream);
-        assertThat(metacard, notNullValue());
-    }
+    Metacard metacard = kmlInputTransformer.transform(stream);
+    assertThat(metacard, notNullValue());
+  }
 
-    @Test
-    public void testMetacardKeepsTheIdThatTheTransformIsCalledWith() throws Exception {
-        InputStream stream = TestKmlToJtsConverter.class.getResourceAsStream("/kmlPoint.kml");
+  @Test
+  public void testMetacardKeepsTheIdThatTheTransformIsCalledWith() throws Exception {
+    InputStream stream = TestKmlToJtsConverter.class.getResourceAsStream("/kmlPoint.kml");
 
-        String id = "someId";
-        Metacard metacard = kmlInputTransformer.transform(stream, id);
-        assertThat(metacard, notNullValue());
-        assertThat(metacard.getId(), is(equalTo(id)));
-    }
+    String id = "someId";
+    Metacard metacard = kmlInputTransformer.transform(stream, id);
+    assertThat(metacard, notNullValue());
+    assertThat(metacard.getId(), is(equalTo(id)));
+  }
 
-    @Test(expected = CatalogTransformerException.class)
-    public void transformerThrowsCatalogTransformerExceptionOnIOException() throws Exception {
-        InputStream inputStream = mock(InputStream.class);
-        doThrow(IOException.class).when(inputStream)
-                .read(any(byte[].class));
+  @Test(expected = CatalogTransformerException.class)
+  public void transformerThrowsCatalogTransformerExceptionOnIOException() throws Exception {
+    InputStream inputStream = mock(InputStream.class);
+    doThrow(IOException.class).when(inputStream).read(any(byte[].class));
 
-        kmlInputTransformer.transform(inputStream);
-    }
-
+    kmlInputTransformer.transform(inputStream);
+  }
 }

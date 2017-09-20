@@ -17,54 +17,48 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
+import com.vividsolutions.jts.geom.Point;
+import de.micromata.opengis.kml.v_2_2_0.Kml;
+import de.micromata.opengis.kml.v_2_2_0.PhotoOverlay;
 import java.io.InputStream;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.vividsolutions.jts.geom.Point;
-
-import de.micromata.opengis.kml.v_2_2_0.Kml;
-import de.micromata.opengis.kml.v_2_2_0.PhotoOverlay;
-
 public class TestKmlPhotoOverlayToJtsPointConverter {
-    private static PhotoOverlay testKmlPhotoOverlay;
+  private static PhotoOverlay testKmlPhotoOverlay;
 
-    @BeforeClass
-    public static void setupClass() {
-        InputStream stream = TestKmlPhotoOverlayToJtsPointConverter.class.getResourceAsStream(
-                "/kmlPhotoOverlay.kml");
+  @BeforeClass
+  public static void setupClass() {
+    InputStream stream =
+        TestKmlPhotoOverlayToJtsPointConverter.class.getResourceAsStream("/kmlPhotoOverlay.kml");
 
-        Kml kml = Kml.unmarshal(stream);
+    Kml kml = Kml.unmarshal(stream);
 
-        testKmlPhotoOverlay = ((PhotoOverlay) kml.getFeature());
-    }
+    testKmlPhotoOverlay = ((PhotoOverlay) kml.getFeature());
+  }
 
-    @Test
-    public void testConvertKmlPhotoOverlayToJtsPoint() {
-        Point jtsPoint = KmlPhotoOverlayToJtsPointConverter.from(
-                testKmlPhotoOverlay);
+  @Test
+  public void testConvertKmlPhotoOverlayToJtsPoint() {
+    Point jtsPoint = KmlPhotoOverlayToJtsPointConverter.from(testKmlPhotoOverlay);
 
-        assertKmlPhotoOverlayToJtsPoint(testKmlPhotoOverlay, jtsPoint);
-    }
+    assertKmlPhotoOverlayToJtsPoint(testKmlPhotoOverlay, jtsPoint);
+  }
 
-    @Test
-    public void testConvertNullKmlPhotoOverlayReturnsNullPoint() {
-        Point jtsPoint = KmlPhotoOverlayToJtsPointConverter.from(null);
-        assertThat(jtsPoint, nullValue());
-    }
+  @Test
+  public void testConvertNullKmlPhotoOverlayReturnsNullPoint() {
+    Point jtsPoint = KmlPhotoOverlayToJtsPointConverter.from(null);
+    assertThat(jtsPoint, nullValue());
+  }
 
-    @Test
-    public void testConvertEmptyKmlPhotoOverlayReturnsNullPoint() {
-        Point jtsPoint =
-                KmlPhotoOverlayToJtsPointConverter.from(new PhotoOverlay());
-        assertThat(jtsPoint, nullValue());
-    }
+  @Test
+  public void testConvertEmptyKmlPhotoOverlayReturnsNullPoint() {
+    Point jtsPoint = KmlPhotoOverlayToJtsPointConverter.from(new PhotoOverlay());
+    assertThat(jtsPoint, nullValue());
+  }
 
-    static void assertKmlPhotoOverlayToJtsPoint(PhotoOverlay kmlPhotoOverlay,
-            Point jtsPoint) {
-        assertThat(jtsPoint, notNullValue());
+  static void assertKmlPhotoOverlayToJtsPoint(PhotoOverlay kmlPhotoOverlay, Point jtsPoint) {
+    assertThat(jtsPoint, notNullValue());
 
-        TestKmlToJtsPointConverter.assertJtsPoint(kmlPhotoOverlay.getPoint(), jtsPoint);
-    }
+    TestKmlToJtsPointConverter.assertJtsPoint(kmlPhotoOverlay.getPoint(), jtsPoint);
+  }
 }

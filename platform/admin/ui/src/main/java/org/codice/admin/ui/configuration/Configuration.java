@@ -1,14 +1,14 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
- * General Public License as published by the Free Software Foundation, either version 3 of the
- * License, or any later version.
- * <p>
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
- * is distributed along with this program and can be found at
+ *
+ * <p>This is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * Lesser General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or any later version.
+ *
+ * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
+ * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 package org.codice.admin.ui.configuration;
@@ -16,7 +16,6 @@ package org.codice.admin.ui.configuration;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
-
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 import javax.servlet.http.HttpServletRequest;
@@ -25,13 +24,11 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-
+import net.minidev.json.JSONObject;
+import net.minidev.json.JSONValue;
 import org.codice.ddf.branding.BrandingRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import net.minidev.json.JSONObject;
-import net.minidev.json.JSONValue;
 
 /**
  * Stores external configuration properties.
@@ -40,180 +37,178 @@ import net.minidev.json.JSONValue;
  */
 @Path("/")
 public class Configuration {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Configuration.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(Configuration.class);
 
-    public static final String SYSTEM_USAGE_TITLE = "systemUsageTitle";
+  public static final String SYSTEM_USAGE_TITLE = "systemUsageTitle";
 
-    public static final String SYSTEM_USAGE_MESSAGE = "systemUsageMessage";
+  public static final String SYSTEM_USAGE_MESSAGE = "systemUsageMessage";
 
-    public static final String SYSTEM_USAGE_ONCE_PER_SESSION = "systemUsageOncePerSession";
+  public static final String SYSTEM_USAGE_ONCE_PER_SESSION = "systemUsageOncePerSession";
 
-    private static Configuration uniqueInstance;
+  private static Configuration uniqueInstance;
 
-    private static final String JSON_MIME_TYPE_STRING = "application/json";
+  private static final String JSON_MIME_TYPE_STRING = "application/json";
 
-    private static MimeType jsonMimeType = null;
+  private static MimeType jsonMimeType = null;
 
-    static {
-        MimeType mime = null;
-        try {
-            mime = new MimeType(JSON_MIME_TYPE_STRING);
-        } catch (MimeTypeParseException e) {
-            LOGGER.info("Failed to create json mimetype.");
-        }
-        jsonMimeType = mime;
+  static {
+    MimeType mime = null;
+    try {
+      mime = new MimeType(JSON_MIME_TYPE_STRING);
+    } catch (MimeTypeParseException e) {
+      LOGGER.info("Failed to create json mimetype.");
+    }
+    jsonMimeType = mime;
+  }
+
+  private String header = "";
+
+  private String footer = "";
+
+  private String style = "";
+
+  private String textColor = "";
+
+  private boolean systemUsageEnabled;
+
+  private String systemUsageTitle;
+
+  private String systemUsageMessage;
+
+  private boolean systemUsageOncePerSession;
+
+  private String disabledInstallerApps = "";
+
+  private Optional<BrandingRegistry> branding = Optional.empty();
+
+  private Configuration() {
+    header = "";
+    footer = "";
+    style = "";
+    textColor = "";
+    disabledInstallerApps = "";
+  }
+
+  /** @return a unique instance of {@link Configuration} */
+  public static synchronized Configuration getInstance() {
+
+    if (uniqueInstance == null) {
+      uniqueInstance = new Configuration();
     }
 
-    private String header = "";
+    return uniqueInstance;
+  }
 
-    private String footer = "";
+  @GET
+  @Path("/config")
+  public Response getDocument(@Context UriInfo uriInfo, @Context HttpServletRequest httpRequest) {
+    Response response;
+    JSONObject configObj = new JSONObject();
 
-    private String style = "";
-
-    private String textColor = "";
-
-    private boolean systemUsageEnabled;
-
-    private String systemUsageTitle;
-
-    private String systemUsageMessage;
-
-    private boolean systemUsageOncePerSession;
-
-    private String disabledInstallerApps = "";
-
-    private Optional<BrandingRegistry> branding = Optional.empty();
-
-    private Configuration() {
-        header = "";
-        footer = "";
-        style = "";
-        textColor = "";
-        disabledInstallerApps = "";
+    if (systemUsageEnabled) {
+      configObj.put(SYSTEM_USAGE_TITLE, systemUsageTitle);
+      configObj.put(SYSTEM_USAGE_MESSAGE, systemUsageMessage);
+      configObj.put(SYSTEM_USAGE_ONCE_PER_SESSION, systemUsageOncePerSession);
     }
 
-    /**
-     * @return a unique instance of {@link Configuration}
-     */
-    public static synchronized Configuration getInstance() {
+    configObj.put("text", header);
+    configObj.put("footer", footer);
+    configObj.put("style", style);
+    configObj.put("textColor", textColor);
+    configObj.put("disabledInstallerApps", disabledInstallerApps);
+    configObj.put("branding", getProductName());
 
-        if (uniqueInstance == null) {
-            uniqueInstance = new Configuration();
-        }
+    String configString = JSONValue.toJSONString(configObj);
+    response =
+        Response.ok(
+                new ByteArrayInputStream(configString.getBytes(StandardCharsets.UTF_8)),
+                jsonMimeType.toString())
+            .build();
 
-        return uniqueInstance;
-    }
+    return response;
+  }
 
-    @GET
-    @Path("/config")
-    public Response getDocument(@Context UriInfo uriInfo, @Context HttpServletRequest httpRequest) {
-        Response response;
-        JSONObject configObj = new JSONObject();
+  public String getHeader() {
+    return header;
+  }
 
-        if (systemUsageEnabled) {
-            configObj.put(SYSTEM_USAGE_TITLE, systemUsageTitle);
-            configObj.put(SYSTEM_USAGE_MESSAGE, systemUsageMessage);
-            configObj.put(SYSTEM_USAGE_ONCE_PER_SESSION, systemUsageOncePerSession);
-        }
+  public void setHeader(String header) {
+    this.header = header;
+  }
 
-        configObj.put("text", header);
-        configObj.put("footer", footer);
-        configObj.put("style", style);
-        configObj.put("textColor", textColor);
-        configObj.put("disabledInstallerApps", disabledInstallerApps);
-        configObj.put("branding", getProductName());
+  public String getFooter() {
+    return footer;
+  }
 
-        String configString = JSONValue.toJSONString(configObj);
-        response =
-                Response.ok(new ByteArrayInputStream(configString.getBytes(StandardCharsets.UTF_8)),
-                        jsonMimeType.toString())
-                        .build();
+  public void setFooter(String footer) {
+    this.footer = footer;
+  }
 
-        return response;
-    }
+  public String getStyle() {
+    return style;
+  }
 
-    public String getHeader() {
-        return header;
-    }
+  public void setStyle(String style) {
+    this.style = style;
+  }
 
-    public void setHeader(String header) {
-        this.header = header;
-    }
+  public String getTextColor() {
+    return textColor;
+  }
 
-    public String getFooter() {
-        return footer;
-    }
+  public void setTextColor(String textColor) {
+    this.textColor = textColor;
+  }
 
-    public void setFooter(String footer) {
-        this.footer = footer;
-    }
+  public String getDisabledInstallerApps() {
+    return disabledInstallerApps;
+  }
 
-    public String getStyle() {
-        return style;
-    }
+  public void setDisabledInstallerApps(String disabledInstallerApps) {
+    this.disabledInstallerApps = disabledInstallerApps;
+  }
 
-    public void setStyle(String style) {
-        this.style = style;
-    }
+  public boolean getSystemUsageEnabled() {
+    return systemUsageEnabled;
+  }
 
-    public String getTextColor() {
-        return textColor;
-    }
+  public void setSystemUsageEnabled(boolean systemUsageEnabled) {
+    this.systemUsageEnabled = systemUsageEnabled;
+  }
 
-    public void setTextColor(String textColor) {
-        this.textColor = textColor;
-    }
+  public String getSystemUsageTitle() {
+    return systemUsageTitle;
+  }
 
-    public String getDisabledInstallerApps() {
-        return disabledInstallerApps;
-    }
+  public void setSystemUsageTitle(String systemUsageTitle) {
+    this.systemUsageTitle = systemUsageTitle;
+  }
 
-    public void setDisabledInstallerApps(String disabledInstallerApps) {
-        this.disabledInstallerApps = disabledInstallerApps;
-    }
+  public String getSystemUsageMessage() {
+    return systemUsageMessage;
+  }
 
-    public boolean getSystemUsageEnabled() {
-        return systemUsageEnabled;
-    }
+  public void setSystemUsageMessage(String systemUsageMessage) {
+    this.systemUsageMessage = systemUsageMessage;
+  }
 
-    public void setSystemUsageEnabled(boolean systemUsageEnabled) {
-        this.systemUsageEnabled = systemUsageEnabled;
-    }
+  public boolean getSystemUsageOncePerSession() {
+    return systemUsageOncePerSession;
+  }
 
-    public String getSystemUsageTitle() {
-        return systemUsageTitle;
-    }
+  public void setSystemUsageOncePerSession(boolean systemUsageOncePerSession) {
+    this.systemUsageOncePerSession = systemUsageOncePerSession;
+  }
 
-    public void setSystemUsageTitle(String systemUsageTitle) {
-        this.systemUsageTitle = systemUsageTitle;
-    }
+  public String getProductName() {
+    return branding.map(BrandingRegistry::getProductName).orElse("");
+  }
 
-    public String getSystemUsageMessage() {
-        return systemUsageMessage;
-    }
+  public BrandingRegistry getBranding() {
+    return branding.orElse(null);
+  }
 
-    public void setSystemUsageMessage(String systemUsageMessage) {
-        this.systemUsageMessage = systemUsageMessage;
-    }
-
-    public boolean getSystemUsageOncePerSession() {
-        return systemUsageOncePerSession;
-    }
-
-    public void setSystemUsageOncePerSession(boolean systemUsageOncePerSession) {
-        this.systemUsageOncePerSession = systemUsageOncePerSession;
-    }
-
-    public String getProductName() {
-        return branding.map(BrandingRegistry::getProductName).orElse("");
-    }
-
-    public BrandingRegistry getBranding() {
-        return branding.orElse(null);
-    }
-
-    public void setBranding(BrandingRegistry branding) {
-        this.branding = Optional.ofNullable(branding);
-    }
-
+  public void setBranding(BrandingRegistry branding) {
+    this.branding = Optional.ofNullable(branding);
+  }
 }

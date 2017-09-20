@@ -1,14 +1,14 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
- * General Public License as published by the Free Software Foundation, either version 3 of the
- * License, or any later version.
- * <p>
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
- * is distributed along with this program and can be found at
+ *
+ * <p>This is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * Lesser General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or any later version.
+ *
+ * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
+ * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 package ddf.catalog.source.solr.rest;
@@ -18,78 +18,77 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.junit.Before;
 import org.junit.Test;
 
 public class SolrRestTest {
 
-    private SolrRest solrRest;
+  private SolrRest solrRest;
 
-    @Before
-    public void setUp() {
-        solrRest = new SolrRest();
-    }
+  @Before
+  public void setUp() {
+    solrRest = new SolrRest();
+  }
 
-    @Test
-    public void testK1() {
-        float testK1 = 1.0f;
-        solrRest.setK1(testK1);
-        assertThat(solrRest.getK1(), is(testK1));
-    }
+  @Test
+  public void testK1() {
+    float testK1 = 1.0f;
+    solrRest.setK1(testK1);
+    assertThat(solrRest.getK1(), is(testK1));
+  }
 
-    @Test
-    public void testB() {
-        float testB = 0.5f;
-        solrRest.setB(testB);
-        assertThat(solrRest.getB(), is(testB));
-    }
+  @Test
+  public void testB() {
+    float testB = 0.5f;
+    solrRest.setB(testB);
+    assertThat(solrRest.getB(), is(testB));
+  }
 
-    @Test
-    public void testUrl() {
-        String testUrl = "https://www.example.com/solr/test";
-        solrRest.setSolrSchemaUrl(testUrl);
-        assertThat(solrRest.getSolrSchemaUrl(), is("https://www.example.com/solr/test"));
-    }
+  @Test
+  public void testUrl() {
+    String testUrl = "https://www.example.com/solr/test";
+    solrRest.setSolrSchemaUrl(testUrl);
+    assertThat(solrRest.getSolrSchemaUrl(), is("https://www.example.com/solr/test"));
+  }
 
-    @Test
-    public void testProperties() {
-        String testUrl = "https://www.example.com/solr/test";
-        float testK1 = 1.23f;
-        float testB = 0.63f;
+  @Test
+  public void testProperties() {
+    String testUrl = "https://www.example.com/solr/test";
+    float testK1 = 1.23f;
+    float testB = 0.63f;
 
-        Map<String, Object> testProps = new HashMap<>();
-        testProps.put("solrSchemaUrl", testUrl);
-        testProps.put("k1", testK1);
-        testProps.put("b", testB);
-        solrRest.refresh(testProps);
+    Map<String, Object> testProps = new HashMap<>();
+    testProps.put("solrSchemaUrl", testUrl);
+    testProps.put("k1", testK1);
+    testProps.put("b", testB);
+    solrRest.refresh(testProps);
 
-        assertThat(solrRest.getSolrSchemaUrl(), is(testUrl));
-        assertThat(solrRest.getB(), is(testB));
-        assertThat(solrRest.getK1(), is(testK1));
-    }
+    assertThat(solrRest.getSolrSchemaUrl(), is(testUrl));
+    assertThat(solrRest.getB(), is(testB));
+    assertThat(solrRest.getK1(), is(testK1));
+  }
 
-    @Test
-    public void testBadProps() {
-        String testUrl = "https://www.example.com/solr/test";
-        float testK1 = 1.25f;
-        float testB = 0.5f;
+  @Test
+  public void testBadProps() {
+    String testUrl = "https://www.example.com/solr/test";
+    float testK1 = 1.25f;
+    float testB = 0.5f;
 
-        Map<String, Object> testProps = new HashMap<>();
-        testProps.put("solrSchemaUrl", testUrl);
-        testProps.put("k1", testK1);
-        testProps.put("b", testB);
-        solrRest.refresh(testProps);
+    Map<String, Object> testProps = new HashMap<>();
+    testProps.put("solrSchemaUrl", testUrl);
+    testProps.put("k1", testK1);
+    testProps.put("b", testB);
+    solrRest.refresh(testProps);
 
-        Boolean testBool = Boolean.TRUE;
-        Map<String, Object> badProps = new HashMap<>();
-        badProps.put("solrSchemaUrl", testBool);
-        badProps.put("k1", testBool);
-        badProps.put("b", testBool);
-        solrRest.refresh(badProps);
+    Boolean testBool = Boolean.TRUE;
+    Map<String, Object> badProps = new HashMap<>();
+    badProps.put("solrSchemaUrl", testBool);
+    badProps.put("k1", testBool);
+    badProps.put("b", testBool);
+    solrRest.refresh(badProps);
 
-        assertThat(solrRest.getSolrSchemaUrl(), is(testUrl));
-        assertThat(solrRest.getB(), is(testB));
-        assertThat(solrRest.getK1(), is(testK1));
-    }
+    assertThat(solrRest.getSolrSchemaUrl(), is(testUrl));
+    assertThat(solrRest.getB(), is(testB));
+    assertThat(solrRest.getK1(), is(testK1));
+  }
 }

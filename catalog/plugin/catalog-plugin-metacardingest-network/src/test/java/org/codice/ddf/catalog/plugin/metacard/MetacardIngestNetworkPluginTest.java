@@ -1,14 +1,14 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
- * General Public License as published by the Free Software Foundation, either version 3 of the
- * License, or any later version.
- * <p>
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
- * is distributed along with this program and can be found at
+ *
+ * <p>This is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * Lesser General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or any later version.
+ *
+ * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
+ * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 package org.codice.ddf.catalog.plugin.metacard;
@@ -22,12 +22,22 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.operation.CreateRequest;
+import ddf.catalog.operation.DeleteRequest;
+import ddf.catalog.operation.DeleteResponse;
+import ddf.catalog.operation.QueryRequest;
+import ddf.catalog.operation.QueryResponse;
+import ddf.catalog.operation.ResourceRequest;
+import ddf.catalog.operation.ResourceResponse;
+import ddf.catalog.operation.UpdateRequest;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.shiro.util.ThreadContext;
 import org.codice.ddf.catalog.plugin.metacard.util.AttributeFactory;
 import org.codice.ddf.catalog.plugin.metacard.util.KeyValueParser;
@@ -38,199 +48,171 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-
-import ddf.catalog.data.Metacard;
-import ddf.catalog.operation.CreateRequest;
-import ddf.catalog.operation.DeleteRequest;
-import ddf.catalog.operation.DeleteResponse;
-import ddf.catalog.operation.QueryRequest;
-import ddf.catalog.operation.QueryResponse;
-import ddf.catalog.operation.ResourceRequest;
-import ddf.catalog.operation.ResourceResponse;
-import ddf.catalog.operation.UpdateRequest;
-
 /**
  * Ensure the rules and config options work correctly for any {@link MetacardIngestNetworkPlugin}.
  */
 @RunWith(MockitoJUnitRunner.class)
 public class MetacardIngestNetworkPluginTest {
 
-    private static final String CLIENT_INFO_KEY = "client-info";
+  private static final String CLIENT_INFO_KEY = "client-info";
 
-    private static final String CRITERIA_KEY = "criteria-key";
+  private static final String CRITERIA_KEY = "criteria-key";
 
-    private static final String EXPECTED_VALUE = "criteria-value";
+  private static final String EXPECTED_VALUE = "criteria-value";
 
-    private static final Map<String, Serializable> INFO_MAP = ImmutableMap.of();
+  private static final Map<String, Serializable> INFO_MAP = ImmutableMap.of();
 
-    private static final String[] NEW_ATTRIBUTES = new String[0];
+  private static final String[] NEW_ATTRIBUTES = new String[0];
 
-    private static final Map<String, Object> PROPERTIES = ImmutableMap.of(
+  private static final Map<String, Object> PROPERTIES =
+      ImmutableMap.of(
+          "criteriaKey", CRITERIA_KEY,
+          "expectedValue", EXPECTED_VALUE,
+          "newAttributes", NEW_ATTRIBUTES);
 
-            "criteriaKey", CRITERIA_KEY,
+  @Mock private CreateRequest mockCreateRequest;
 
-            "expectedValue", EXPECTED_VALUE,
+  @Mock private Map<String, String> mockParsedAttributes;
 
-            "newAttributes", NEW_ATTRIBUTES);
+  @Mock private KeyValueParser mockParser;
 
-    @Mock
-    private CreateRequest mockCreateRequest;
+  @Mock private MetacardServices mockMetacardServices;
 
-    @Mock
-    private Map<String, String> mockParsedAttributes;
+  @Mock private AttributeFactory mockAttributeFactory;
 
-    @Mock
-    private KeyValueParser mockParser;
+  @Mock private MetacardCondition mockMetacardCondition;
 
-    @Mock
-    private MetacardServices mockMetacardServices;
+  private List<Metacard> metacards;
 
-    @Mock
-    private AttributeFactory mockAttributeFactory;
+  private List<String> newAttributes;
 
-    @Mock
-    private MetacardCondition mockMetacardCondition;
+  private MetacardIngestNetworkPlugin plugin;
 
-    private List<Metacard> metacards;
+  @Before
+  public void setup() throws Exception {
 
-    private List<String> newAttributes;
+    metacards = new ArrayList<>();
+    newAttributes = new ArrayList<>();
 
-    private MetacardIngestNetworkPlugin plugin;
+    plugin =
+        new MetacardIngestNetworkPlugin(
+            mockParser, mockMetacardServices, mockAttributeFactory, mockMetacardCondition);
 
-    @Before
-    public void setup() throws Exception {
+    when(mockMetacardCondition.getParsedAttributes()).thenReturn(mockParsedAttributes);
+    when(mockCreateRequest.getMetacards()).thenReturn(metacards);
+    when(mockParser.parsePairsToMap(newAttributes)).thenReturn(mockParsedAttributes);
+  }
 
-        metacards = new ArrayList<>();
-        newAttributes = new ArrayList<>();
+  @Test
+  public void testClientInfoMapNull() throws Exception {
+    ThreadContext.put(CLIENT_INFO_KEY, null);
+    CreateRequest createRequest = plugin.processPreCreate(mockCreateRequest);
+    verifyZeroInteractions(mockMetacardServices, mockMetacardCondition);
+    assertThat(createRequest, is(mockCreateRequest));
+  }
 
-        plugin = new MetacardIngestNetworkPlugin(mockParser,
-                mockMetacardServices,
-                mockAttributeFactory,
-                mockMetacardCondition);
+  @Test
+  public void testClientInfoMapNotMap() throws Exception {
+    ThreadContext.put(CLIENT_INFO_KEY, new Object());
+    CreateRequest createRequest = plugin.processPreCreate(mockCreateRequest);
+    verifyZeroInteractions(mockMetacardServices, mockMetacardCondition);
+    assertThat(createRequest, is(mockCreateRequest));
+  }
 
-        when(mockMetacardCondition.getParsedAttributes()).thenReturn(mockParsedAttributes);
-        when(mockCreateRequest.getMetacards()).thenReturn(metacards);
-        when(mockParser.parsePairsToMap(newAttributes)).thenReturn(mockParsedAttributes);
-    }
+  @Test
+  public void testApplySucceeds() throws Exception {
+    ThreadContext.put(CLIENT_INFO_KEY, INFO_MAP);
+    when(mockMetacardCondition.applies(INFO_MAP)).thenReturn(true);
 
-    @Test
-    public void testClientInfoMapNull() throws Exception {
-        ThreadContext.put(CLIENT_INFO_KEY, null);
-        CreateRequest createRequest = plugin.processPreCreate(mockCreateRequest);
-        verifyZeroInteractions(mockMetacardServices, mockMetacardCondition);
-        assertThat(createRequest, is(mockCreateRequest));
-    }
+    CreateRequest createRequest = plugin.processPreCreate(mockCreateRequest);
 
-    @Test
-    public void testClientInfoMapNotMap() throws Exception {
-        ThreadContext.put(CLIENT_INFO_KEY, new Object());
-        CreateRequest createRequest = plugin.processPreCreate(mockCreateRequest);
-        verifyZeroInteractions(mockMetacardServices, mockMetacardCondition);
-        assertThat(createRequest, is(mockCreateRequest));
-    }
+    verify(mockMetacardServices)
+        .setAttributesIfAbsent(metacards, mockParsedAttributes, mockAttributeFactory);
 
-    @Test
-    public void testApplySucceeds() throws Exception {
-        ThreadContext.put(CLIENT_INFO_KEY, INFO_MAP);
-        when(mockMetacardCondition.applies(INFO_MAP)).thenReturn(true);
+    verifyNoMoreInteractions(mockMetacardServices);
+    assertThat(createRequest, is(not(mockCreateRequest)));
+  }
 
-        CreateRequest createRequest = plugin.processPreCreate(mockCreateRequest);
+  @Test
+  public void testApplyFails() throws Exception {
+    ThreadContext.put(CLIENT_INFO_KEY, INFO_MAP);
+    when(mockMetacardCondition.applies(INFO_MAP)).thenReturn(false);
+    CreateRequest createRequest = plugin.processPreCreate(mockCreateRequest);
+    verifyZeroInteractions(mockMetacardServices);
+    assertThat(createRequest, is(mockCreateRequest));
+  }
 
-        verify(mockMetacardServices).setAttributesIfAbsent(metacards,
-                mockParsedAttributes,
-                mockAttributeFactory);
+  @Test
+  public void testGetters() throws Exception {
+    MetacardCondition metacardCondition =
+        new MetacardCondition(CRITERIA_KEY, EXPECTED_VALUE, newAttributes, mockParser);
 
-        verifyNoMoreInteractions(mockMetacardServices);
-        assertThat(createRequest, is(not(mockCreateRequest)));
-    }
+    MetacardIngestNetworkPlugin networkPlugin =
+        new MetacardIngestNetworkPlugin(
+            mockParser, mockMetacardServices, mockAttributeFactory, metacardCondition);
 
-    @Test
-    public void testApplyFails() throws Exception {
-        ThreadContext.put(CLIENT_INFO_KEY, INFO_MAP);
-        when(mockMetacardCondition.applies(INFO_MAP)).thenReturn(false);
-        CreateRequest createRequest = plugin.processPreCreate(mockCreateRequest);
-        verifyZeroInteractions(mockMetacardServices);
-        assertThat(createRequest, is(mockCreateRequest));
-    }
+    verify(mockParser).parsePairsToMap(newAttributes);
+    verifyNoMoreInteractions(mockParser);
 
-    @Test
-    public void testGetters() throws Exception {
-        MetacardCondition metacardCondition = new MetacardCondition(CRITERIA_KEY,
-                EXPECTED_VALUE,
-                newAttributes,
-                mockParser);
+    assertThat(networkPlugin.getCriteriaKey(), is(CRITERIA_KEY));
+    assertThat(networkPlugin.getExpectedValue(), is(EXPECTED_VALUE));
+    assertThat(networkPlugin.getNewAttributes(), is(newAttributes));
+  }
 
-        MetacardIngestNetworkPlugin networkPlugin = new MetacardIngestNetworkPlugin(mockParser,
-                mockMetacardServices,
-                mockAttributeFactory,
-                metacardCondition);
+  @Test
+  public void testUpdateCondition() throws Exception {
+    List<String> tempList = ImmutableList.of();
+    MetacardCondition metacardCondition =
+        new MetacardCondition("key", "value", tempList, mockParser);
 
-        verify(mockParser).parsePairsToMap(newAttributes);
-        verifyNoMoreInteractions(mockParser);
+    MetacardIngestNetworkPlugin networkPlugin =
+        new MetacardIngestNetworkPlugin(
+            mockParser, mockMetacardServices, mockAttributeFactory, metacardCondition);
 
-        assertThat(networkPlugin.getCriteriaKey(), is(CRITERIA_KEY));
-        assertThat(networkPlugin.getExpectedValue(), is(EXPECTED_VALUE));
-        assertThat(networkPlugin.getNewAttributes(), is(newAttributes));
-    }
+    assertThat(networkPlugin.getCriteriaKey(), is("key"));
+    assertThat(networkPlugin.getExpectedValue(), is("value"));
+    assertThat(networkPlugin.getNewAttributes(), is(tempList));
 
-    @Test
-    public void testUpdateCondition() throws Exception {
-        List<String> tempList = ImmutableList.of();
-        MetacardCondition metacardCondition = new MetacardCondition("key",
-                "value",
-                tempList,
-                mockParser);
+    networkPlugin.updateCondition(PROPERTIES);
 
-        MetacardIngestNetworkPlugin networkPlugin = new MetacardIngestNetworkPlugin(mockParser,
-                mockMetacardServices,
-                mockAttributeFactory,
-                metacardCondition);
+    assertThat(networkPlugin.getCriteriaKey(), is(CRITERIA_KEY));
+    assertThat(networkPlugin.getExpectedValue(), is(EXPECTED_VALUE));
+    assertThat(networkPlugin.getNewAttributes(), is(Arrays.asList(NEW_ATTRIBUTES)));
+  }
 
-        assertThat(networkPlugin.getCriteriaKey(), is("key"));
-        assertThat(networkPlugin.getExpectedValue(), is("value"));
-        assertThat(networkPlugin.getNewAttributes(), is(tempList));
+  @Test
+  public void testPassthroughMethods() throws Exception {
+    ThreadContext.put(CLIENT_INFO_KEY, INFO_MAP);
+    when(mockMetacardCondition.applies(INFO_MAP)).thenReturn(true);
 
-        networkPlugin.updateCondition(PROPERTIES);
+    UpdateRequest updateRequest = mock(UpdateRequest.class);
+    DeleteRequest deleteRequest = mock(DeleteRequest.class);
+    QueryRequest queryRequest = mock(QueryRequest.class);
+    ResourceRequest resourceRequest = mock(ResourceRequest.class);
 
-        assertThat(networkPlugin.getCriteriaKey(), is(CRITERIA_KEY));
-        assertThat(networkPlugin.getExpectedValue(), is(EXPECTED_VALUE));
-        assertThat(networkPlugin.getNewAttributes(), is(Arrays.asList(NEW_ATTRIBUTES)));
-    }
+    DeleteResponse deleteResponse = mock(DeleteResponse.class);
+    QueryResponse queryResponse = mock(QueryResponse.class);
+    ResourceResponse resourceResponse = mock(ResourceResponse.class);
 
-    @Test
-    public void testPassthroughMethods() throws Exception {
-        ThreadContext.put(CLIENT_INFO_KEY, INFO_MAP);
-        when(mockMetacardCondition.applies(INFO_MAP)).thenReturn(true);
+    assertThat(plugin.processPreUpdate(updateRequest, mock(Map.class)), is(updateRequest));
+    assertThat(plugin.processPreDelete(deleteRequest), is(deleteRequest));
+    assertThat(plugin.processPreQuery(queryRequest), is(queryRequest));
+    assertThat(plugin.processPreResource(resourceRequest), is(resourceRequest));
 
-        UpdateRequest updateRequest = mock(UpdateRequest.class);
-        DeleteRequest deleteRequest = mock(DeleteRequest.class);
-        QueryRequest queryRequest = mock(QueryRequest.class);
-        ResourceRequest resourceRequest = mock(ResourceRequest.class);
+    assertThat(plugin.processPostDelete(deleteResponse), is(deleteResponse));
+    assertThat(plugin.processPostQuery(queryResponse), is(queryResponse));
+    assertThat(
+        plugin.processPostResource(resourceResponse, mock(Metacard.class)), is(resourceResponse));
 
-        DeleteResponse deleteResponse = mock(DeleteResponse.class);
-        QueryResponse queryResponse = mock(QueryResponse.class);
-        ResourceResponse resourceResponse = mock(ResourceResponse.class);
-
-        assertThat(plugin.processPreUpdate(updateRequest, mock(Map.class)), is(updateRequest));
-        assertThat(plugin.processPreDelete(deleteRequest), is(deleteRequest));
-        assertThat(plugin.processPreQuery(queryRequest), is(queryRequest));
-        assertThat(plugin.processPreResource(resourceRequest), is(resourceRequest));
-
-        assertThat(plugin.processPostDelete(deleteResponse), is(deleteResponse));
-        assertThat(plugin.processPostQuery(queryResponse), is(queryResponse));
-        assertThat(plugin.processPostResource(resourceResponse, mock(Metacard.class)),
-                is(resourceResponse));
-
-        verifyZeroInteractions(mockMetacardCondition,
-                mockMetacardServices,
-                updateRequest,
-                deleteRequest,
-                queryRequest,
-                resourceRequest,
-                deleteResponse,
-                queryResponse,
-                resourceResponse);
-    }
+    verifyZeroInteractions(
+        mockMetacardCondition,
+        mockMetacardServices,
+        updateRequest,
+        deleteRequest,
+        queryRequest,
+        resourceRequest,
+        deleteResponse,
+        queryResponse,
+        resourceResponse);
+  }
 }

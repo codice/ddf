@@ -19,44 +19,41 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
-import java.io.InputStream;
-
-import org.junit.Test;
-
 import com.vividsolutions.jts.geom.Geometry;
-
 import de.micromata.opengis.kml.v_2_2_0.Kml;
+import java.io.InputStream;
+import org.junit.Test;
 
 public class TestKmlToJtsConverter {
 
-    @Test
-    public void testConvertGiantKml() {
-        InputStream stream = TestKmlToJtsConverter.class.getResourceAsStream("/sampleKml.kml");
+  @Test
+  public void testConvertGiantKml() {
+    InputStream stream = TestKmlToJtsConverter.class.getResourceAsStream("/sampleKml.kml");
 
-        Kml kml = Kml.unmarshal(stream);
+    Kml kml = Kml.unmarshal(stream);
 
-        assertThat(kml, notNullValue());
+    assertThat(kml, notNullValue());
 
-        Geometry jtsGeometry = KmlToJtsConverter.from(kml);
-        assertThat(jtsGeometry, notNullValue());
-        assertThat(jtsGeometry.toString(), not(containsString("EMPTY")));
-    }
+    Geometry jtsGeometry = KmlToJtsConverter.from(kml);
+    assertThat(jtsGeometry, notNullValue());
+    assertThat(jtsGeometry.toString(), not(containsString("EMPTY")));
+  }
 
-    @Test
-    public void testConvertKml() {
-        InputStream stream = TestKmlToJtsConverter.class.getResourceAsStream("/kmlPoint.kml");
+  @Test
+  public void testConvertKml() {
+    InputStream stream = TestKmlToJtsConverter.class.getResourceAsStream("/kmlPoint.kml");
 
-        Kml kml = Kml.unmarshal(stream);
+    Kml kml = Kml.unmarshal(stream);
 
-        assertThat(kml, notNullValue());
+    assertThat(kml, notNullValue());
 
-        Geometry jtsGeometry = KmlToJtsConverter.from(kml);
-        TestKmlFeatureToJtsGeometryConverter.assertFeature(kml.getFeature(), jtsGeometry);
-    }
+    Geometry jtsGeometry = KmlToJtsConverter.from(kml);
+    TestKmlFeatureToJtsGeometryConverter.assertFeature(kml.getFeature(), jtsGeometry);
+  }
 
-    @Test
-    public void testConvertNullKmlReturnsNullGeometry() {
-        Geometry jtsGeometry = KmlToJtsConverter.from(null);
-        assertThat(jtsGeometry, nullValue());
-    }
+  @Test
+  public void testConvertNullKmlReturnsNullGeometry() {
+    Geometry jtsGeometry = KmlToJtsConverter.from(null);
+    assertThat(jtsGeometry, nullValue());
+  }
 }

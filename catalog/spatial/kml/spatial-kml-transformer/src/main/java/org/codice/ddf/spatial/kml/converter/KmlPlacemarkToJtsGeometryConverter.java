@@ -14,18 +14,16 @@
 package org.codice.ddf.spatial.kml.converter;
 
 import com.vividsolutions.jts.geom.Geometry;
-
 import de.micromata.opengis.kml.v_2_2_0.Placemark;
 
 public class KmlPlacemarkToJtsGeometryConverter {
-    private KmlPlacemarkToJtsGeometryConverter() {
+  private KmlPlacemarkToJtsGeometryConverter() {}
+
+  public static Geometry from(Placemark kmlPlacemark) {
+    if (kmlPlacemark == null) {
+      return null;
     }
 
-    public static Geometry from(Placemark kmlPlacemark) {
-        if (kmlPlacemark == null) {
-            return null;
-        }
-
-        return KmlToJtsGeometryConverter.from(kmlPlacemark.getGeometry());
-    }
+    return KmlToJtsGeometryConverter.from(kmlPlacemark.getGeometry());
+  }
 }

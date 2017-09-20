@@ -19,58 +19,49 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
-import java.io.InputStream;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import com.vividsolutions.jts.geom.Geometry;
-
 import de.micromata.opengis.kml.v_2_2_0.Folder;
 import de.micromata.opengis.kml.v_2_2_0.Kml;
 import de.micromata.opengis.kml.v_2_2_0.Placemark;
+import java.io.InputStream;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class TestKmlFolderToJtsGeometryConverter {
 
-    private static Folder testKmlFolder;
+  private static Folder testKmlFolder;
 
-    @BeforeClass
-    public static void setupClass() {
-        InputStream stream = TestKmlFolderToJtsGeometryConverter.class.getResourceAsStream(
-                "/kmlFolder.kml");
+  @BeforeClass
+  public static void setupClass() {
+    InputStream stream =
+        TestKmlFolderToJtsGeometryConverter.class.getResourceAsStream("/kmlFolder.kml");
 
-        Kml kml = Kml.unmarshal(stream);
+    Kml kml = Kml.unmarshal(stream);
 
-        testKmlFolder = ((Folder) kml.getFeature());
+    testKmlFolder = ((Folder) kml.getFeature());
+  }
 
+  @Test
+  public void testConvertKmlFolder() {
+    Geometry jtsGeometry = KmlFolderToJtsGeometryConverter.from(testKmlFolder);
+
+    assertThat(jtsGeometry, notNullValue());
+    assertKmlFolder(testKmlFolder, jtsGeometry);
+  }
+
+  @Test
+  public void testConvertNullKmlFolderReturnsNullJtsGeometry() {
+    Geometry jtsGeometry = KmlFolderToJtsGeometryConverter.from(null);
+
+    assertThat(jtsGeometry, nullValue());
+  }
+
+  static void assertKmlFolder(Folder kmlFolder, Geometry jtsGeometry) {
+    assertThat(kmlFolder.getFeature().size(), is(equalTo(jtsGeometry.getNumGeometries())));
+
+    for (int i = 0; i < kmlFolder.getFeature().size(); i++) {
+      TestKmlPlacemarkToJtsGeometryConverter.assertPlacemark(
+          (Placemark) kmlFolder.getFeature().get(i), jtsGeometry.getGeometryN(i));
     }
-
-    @Test
-    public void testConvertKmlFolder() {
-        Geometry jtsGeometry = KmlFolderToJtsGeometryConverter.from(
-                testKmlFolder);
-
-        assertThat(jtsGeometry, notNullValue());
-        assertKmlFolder(testKmlFolder, jtsGeometry);
-    }
-
-    @Test
-    public void testConvertNullKmlFolderReturnsNullJtsGeometry() {
-        Geometry jtsGeometry =
-                KmlFolderToJtsGeometryConverter.from(null);
-
-        assertThat(jtsGeometry, nullValue());
-    }
-
-    static void assertKmlFolder(Folder kmlFolder,
-            Geometry jtsGeometry) {
-        assertThat(kmlFolder.getFeature()
-                .size(), is(equalTo(jtsGeometry.getNumGeometries())));
-
-        for (int i = 0; i < kmlFolder.getFeature()
-                .size(); i++) {
-            TestKmlPlacemarkToJtsGeometryConverter.assertPlacemark((Placemark) kmlFolder.getFeature()
-                    .get(i), jtsGeometry.getGeometryN(i));
-        }
-    }
+  }
 }

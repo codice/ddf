@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
- * General Public License as published by the Free Software Foundation, either version 3 of the
- * License, or any later version.
- * <p>
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
- * is distributed along with this program and can be found at
+ *
+ * <p>This is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * Lesser General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or any later version.
+ *
+ * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
+ * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- **/
+ */
 package ddf.catalog.security.impl;
 
 import ddf.catalog.data.Metacard;
@@ -19,34 +19,34 @@ import ddf.catalog.security.FilterResult;
 
 public class FilterResultImpl implements FilterResult {
 
-    private Metacard metacard;
+  private Metacard metacard;
 
-    private Response response;
+  private Response response;
 
-    private boolean processed = false;
+  private boolean processed = false;
 
-    public FilterResultImpl(boolean processed) {
-        this.processed = processed;
-    }
+  public FilterResultImpl(boolean processed) {
+    this.processed = processed;
+  }
 
-    public FilterResultImpl(Metacard metacard, Response response, boolean processed) {
-        this(processed);
-        this.metacard = metacard;
-        this.response = response;
-    }
+  public FilterResultImpl(Metacard metacard, Response response, boolean processed) {
+    this(processed);
+    this.metacard = metacard;
+    this.response = response;
+  }
 
-    @Override
-    public Metacard metacard() {
-        return metacard;
-    }
+  @Override
+  public Metacard metacard() {
+    return metacard;
+  }
 
-    @Override
-    public Response response() {
-        return response;
-    }
+  @Override
+  public Response response() {
+    return response;
+  }
 
-    @Override
-    public boolean processed() {
-        return processed;
-    }
+  @Override
+  public boolean processed() {
+    return processed;
+  }
 }

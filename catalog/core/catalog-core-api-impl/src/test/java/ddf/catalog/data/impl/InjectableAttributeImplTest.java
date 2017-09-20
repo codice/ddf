@@ -18,38 +18,34 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
+import com.google.common.collect.Sets;
+import ddf.catalog.data.InjectableAttribute;
 import java.util.Collections;
 import java.util.Set;
-
 import org.junit.Test;
 
-import com.google.common.collect.Sets;
-
-import ddf.catalog.data.InjectableAttribute;
-
 public class InjectableAttributeImplTest {
-    @Test(expected = IllegalArgumentException.class)
-    public void testNullAttributeName() {
-        new InjectableAttributeImpl(null, Collections.emptySet());
-    }
+  @Test(expected = IllegalArgumentException.class)
+  public void testNullAttributeName() {
+    new InjectableAttributeImpl(null, Collections.emptySet());
+  }
 
-    @Test
-    public void testNullMetacardTypeCollection() {
-        final String attribute = "attribute";
-        InjectableAttribute injectableAttribute = new InjectableAttributeImpl(attribute, null);
+  @Test
+  public void testNullMetacardTypeCollection() {
+    final String attribute = "attribute";
+    InjectableAttribute injectableAttribute = new InjectableAttributeImpl(attribute, null);
 
-        assertThat(injectableAttribute.attribute(), is(attribute));
-        assertThat(injectableAttribute.metacardTypes(), is(empty()));
-    }
+    assertThat(injectableAttribute.attribute(), is(attribute));
+    assertThat(injectableAttribute.metacardTypes(), is(empty()));
+  }
 
-    @Test
-    public void testSpecificMetacardTypes() {
-        final String attribute = "attribute";
-        final Set<String> metacardTypes = Sets.newHashSet("type1", "type2", "type3");
-        InjectableAttribute injectableAttribute = new InjectableAttributeImpl(attribute,
-                metacardTypes);
+  @Test
+  public void testSpecificMetacardTypes() {
+    final String attribute = "attribute";
+    final Set<String> metacardTypes = Sets.newHashSet("type1", "type2", "type3");
+    InjectableAttribute injectableAttribute = new InjectableAttributeImpl(attribute, metacardTypes);
 
-        assertThat(injectableAttribute.attribute(), is(attribute));
-        assertThat(injectableAttribute.metacardTypes(), is(metacardTypes));
-    }
+    assertThat(injectableAttribute.attribute(), is(attribute));
+    assertThat(injectableAttribute.metacardTypes(), is(metacardTypes));
+  }
 }

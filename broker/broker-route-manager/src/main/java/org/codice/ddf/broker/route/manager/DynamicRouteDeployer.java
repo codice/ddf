@@ -1,14 +1,14 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
- * General Public License as published by the Free Software Foundation, either version 3 of the
- * License, or any later version.
- * <p/>
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
- * is distributed along with this program and can be found at
+ *
+ * <p>This is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * Lesser General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or any later version.
+ *
+ * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
+ * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 package org.codice.ddf.broker.route.manager;
@@ -19,7 +19,6 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.camel.CamelContext;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.felix.fileinstall.ArtifactInstaller;
@@ -31,66 +30,61 @@ import org.slf4j.LoggerFactory;
  * then loads them into the camelContext
  */
 public class DynamicRouteDeployer implements ArtifactInstaller {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DynamicRouteDeployer.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(DynamicRouteDeployer.class);
 
-    private final CamelContext camelContext;
+  private final CamelContext camelContext;
 
-    private Map<File, List<RouteDefinition>> processedFiles = new HashMap<>();
+  private Map<File, List<RouteDefinition>> processedFiles = new HashMap<>();
 
-    public DynamicRouteDeployer(CamelContext camelContext) {
-        this.camelContext = camelContext;
+  public DynamicRouteDeployer(CamelContext camelContext) {
+    this.camelContext = camelContext;
+  }
+
+  public void init() {}
+
+  public void destroy() throws Exception {
+    camelContext.stop();
+  }
+
+  @Override
+  public void install(File file) throws Exception {
+    try (InputStream is = new FileInputStream(file)) {
+      List<RouteDefinition> routeDefinitions;
+
+      LOGGER.info("Loading route path: {}", file.getName());
+
+      routeDefinitions = camelContext.loadRoutesDefinition(is).getRoutes();
+
+      camelContext.addRouteDefinitions(routeDefinitions);
+      processedFiles.put(file, routeDefinitions);
+      camelContext.startAllRoutes();
+
+    } catch (Exception e) {
+      LOGGER.warn("Failed to read route definition. See debug log for stack trace.");
+      LOGGER.debug(e.getMessage(), e);
     }
+  }
 
-    public void init() {
+  @Override
+  public void update(File file) throws Exception {
+    uninstall(file);
+    install(file);
+  }
 
+  @Override
+  public void uninstall(File file) throws Exception {
+    LOGGER.info("Removing route path: {}", file.getName());
+    try {
+      camelContext.removeRouteDefinitions(processedFiles.get(file));
+    } catch (Exception e) {
+      LOGGER.warn("Failed to remove routes definition. See debug log for stack trace.");
+      LOGGER.debug(e.getMessage(), e);
     }
+    processedFiles.remove(file);
+  }
 
-    public void destroy() throws Exception {
-        camelContext.stop();
-    }
-
-    @Override
-    public void install(File file) throws Exception {
-        try (InputStream is = new FileInputStream(file)) {
-            List<RouteDefinition> routeDefinitions;
-
-            LOGGER.info("Loading route path: {}", file.getName());
-
-            routeDefinitions = camelContext.loadRoutesDefinition(is)
-                    .getRoutes();
-
-            camelContext.addRouteDefinitions(routeDefinitions);
-            processedFiles.put(file, routeDefinitions);
-            camelContext.startAllRoutes();
-
-        } catch (Exception e) {
-            LOGGER.warn("Failed to read route definition. See debug log for stack trace.");
-            LOGGER.debug(e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public void update(File file) throws Exception {
-        uninstall(file);
-        install(file);
-    }
-
-    @Override
-    public void uninstall(File file) throws Exception {
-        LOGGER.info("Removing route path: {}", file.getName());
-        try {
-            camelContext.removeRouteDefinitions(processedFiles.get(file));
-        } catch (Exception e) {
-            LOGGER.warn("Failed to remove routes definition. See debug log for stack trace.");
-            LOGGER.debug(e.getMessage(), e);
-        }
-        processedFiles.remove(file);
-    }
-
-    @Override
-    public boolean canHandle(File file) {
-        return file.getName()
-                .endsWith(".xml");
-    }
-
+  @Override
+  public boolean canHandle(File file) {
+    return file.getName().endsWith(".xml");
+  }
 }

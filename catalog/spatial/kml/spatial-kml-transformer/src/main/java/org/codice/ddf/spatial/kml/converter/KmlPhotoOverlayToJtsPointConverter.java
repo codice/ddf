@@ -14,26 +14,24 @@
 package org.codice.ddf.spatial.kml.converter;
 
 import com.vividsolutions.jts.geom.Point;
-
 import de.micromata.opengis.kml.v_2_2_0.PhotoOverlay;
 
 public class KmlPhotoOverlayToJtsPointConverter {
-    private KmlPhotoOverlayToJtsPointConverter() {
+  private KmlPhotoOverlayToJtsPointConverter() {}
+
+  public static Point from(PhotoOverlay kmlPhotoOverlay) {
+    if (!isValidKmlPhotoOverlay(kmlPhotoOverlay)) {
+      return null;
     }
 
-    public static Point from(PhotoOverlay kmlPhotoOverlay) {
-        if (!isValidKmlPhotoOverlay(kmlPhotoOverlay)) {
-            return null;
-        }
+    return KmlToJtsPointConverter.from(kmlPhotoOverlay.getPoint());
+  }
 
-        return KmlToJtsPointConverter.from(kmlPhotoOverlay.getPoint());
+  public static boolean isValidKmlPhotoOverlay(PhotoOverlay kmlPhotoOverlay) {
+    if (kmlPhotoOverlay == null) {
+      return false;
     }
 
-    public static boolean isValidKmlPhotoOverlay(PhotoOverlay kmlPhotoOverlay) {
-        if (kmlPhotoOverlay == null) {
-            return false;
-        }
-
-        return KmlToJtsPointConverter.isValidKmlPoint(kmlPhotoOverlay.getPoint());
-    }
+    return KmlToJtsPointConverter.isValidKmlPoint(kmlPhotoOverlay.getPoint());
+  }
 }

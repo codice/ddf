@@ -1,73 +1,68 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
- * General Public License as published by the Free Software Foundation, either version 3 of the
- * License, or any later version.
- * <p>
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
- * is distributed along with this program and can be found at
+ *
+ * <p>This is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * Lesser General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or any later version.
+ *
+ * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
+ * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 package ddf.geo.formatter;
 
+import com.vividsolutions.jts.geom.Geometry;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.abdera.ext.geo.Line;
 import org.apache.abdera.ext.geo.Position;
 
-import com.vividsolutions.jts.geom.Geometry;
-
 public class MultiLineString extends LineString {
 
-    public static final String TYPE = "MultiLineString";
+  public static final String TYPE = "MultiLineString";
 
-    public MultiLineString(Geometry geometry) {
-        super(geometry);
+  public MultiLineString(Geometry geometry) {
+    super(geometry);
+  }
+
+  public static CompositeGeometry toCompositeGeometry(List coordinates) {
+
+    com.vividsolutions.jts.geom.LineString[] allLineStrings =
+        new com.vividsolutions.jts.geom.LineString[coordinates.size()];
+
+    for (int i = 0; i < allLineStrings.length; i++) {
+      allLineStrings[i] =
+          GEOMETRY_FACTORY.createLineString(getCoordinates((List) coordinates.get(i)));
     }
 
-    public static CompositeGeometry toCompositeGeometry(List coordinates) {
+    return new MultiLineString(GEOMETRY_FACTORY.createMultiLineString(allLineStrings));
+  }
 
-        com.vividsolutions.jts.geom.LineString[] allLineStrings =
-                new com.vividsolutions.jts.geom.LineString[coordinates.size()];
+  @Override
+  public Map toJsonMap() {
 
-        for (int i = 0; i < allLineStrings.length; i++) {
-            allLineStrings[i] =
-                    GEOMETRY_FACTORY.createLineString(getCoordinates((List) coordinates.get(i)));
-        }
+    List overallCoordsList = new ArrayList();
 
-        return new MultiLineString(GEOMETRY_FACTORY.createMultiLineString(allLineStrings));
+    for (int i = 0; i < geometry.getNumGeometries(); i++) {
+      overallCoordsList.add(buildCoordinatesList(geometry.getGeometryN(i).getCoordinates()));
     }
 
-    @Override
-    public Map toJsonMap() {
+    return createMap(COORDINATES_KEY, overallCoordsList);
+  }
 
-        List overallCoordsList = new ArrayList();
+  @Override
+  public List<Position> toGeoRssPositions() {
 
-        for (int i = 0; i < geometry.getNumGeometries(); i++) {
-            overallCoordsList.add(buildCoordinatesList(geometry.getGeometryN(i)
-                    .getCoordinates()));
+    List<Position> positions = new ArrayList<Position>();
 
-        }
+    for (int i = 0; i < geometry.getNumGeometries(); i++) {
 
-        return createMap(COORDINATES_KEY, overallCoordsList);
-
+      positions.add(new Line(getLineStringCoordinates(geometry.getGeometryN(i))));
     }
 
-    @Override
-    public List<Position> toGeoRssPositions() {
-
-        List<Position> positions = new ArrayList<Position>();
-
-        for (int i = 0; i < geometry.getNumGeometries(); i++) {
-
-            positions.add(new Line(getLineStringCoordinates(geometry.getGeometryN(i))));
-        }
-
-        return positions;
-    }
+    return positions;
+  }
 }

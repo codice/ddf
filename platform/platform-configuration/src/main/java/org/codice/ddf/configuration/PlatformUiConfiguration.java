@@ -1,185 +1,182 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
- * General Public License as published by the Free Software Foundation, either version 3 of the
- * License, or any later version.
- * <p>
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
- * is distributed along with this program and can be found at
+ *
+ * <p>This is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * Lesser General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or any later version.
+ *
+ * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
+ * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 package org.codice.ddf.configuration;
 
 import java.util.Optional;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-
+import net.minidev.json.JSONObject;
 import org.codice.ddf.branding.BrandingPlugin;
 import org.codice.ddf.branding.BrandingRegistry;
 
-import net.minidev.json.JSONObject;
-
 /**
  * Configuration class for pid=ddf.platform.ui.config.
- * <p>
- * Contains webservice method for returning the current configuration.
+ *
+ * <p>Contains webservice method for returning the current configuration.
  */
 @Path("/")
 public class PlatformUiConfiguration {
 
-    public static final String SYSTEM_USAGE_TITLE = "systemUsageTitle";
+  public static final String SYSTEM_USAGE_TITLE = "systemUsageTitle";
 
-    public static final String SYSTEM_USAGE_MESSAGE = "systemUsageMessage";
+  public static final String SYSTEM_USAGE_MESSAGE = "systemUsageMessage";
 
-    public static final String SYSTEM_USAGE_ONCE_PER_SESSION = "systemUsageOncePerSession";
+  public static final String SYSTEM_USAGE_ONCE_PER_SESSION = "systemUsageOncePerSession";
 
-    public static final String HEADER = "header";
+  public static final String HEADER = "header";
 
-    public static final String FOOTER = "footer";
+  public static final String FOOTER = "footer";
 
-    public static final String COLOR = "color";
+  public static final String COLOR = "color";
 
-    public static final String BACKGROUND = "background";
+  public static final String BACKGROUND = "background";
 
-    public static final String TITLE = "title";
+  public static final String TITLE = "title";
 
-    public static final String VERSION = "version";
+  public static final String VERSION = "version";
 
-    public static final String PRODUCT_IMAGE = "productImage";
+  public static final String PRODUCT_IMAGE = "productImage";
 
-    public static final String FAV_ICON = "favIcon";
+  public static final String FAV_ICON = "favIcon";
 
-    private boolean systemUsageEnabled;
+  private boolean systemUsageEnabled;
 
-    private String systemUsageTitle;
+  private String systemUsageTitle;
 
-    private String systemUsageMessage;
+  private String systemUsageMessage;
 
-    private boolean systemUsageOncePerSession;
+  private boolean systemUsageOncePerSession;
 
-    private String header;
+  private String header;
 
-    private String footer;
+  private String footer;
 
-    private String color;
+  private String color;
 
-    private String background;
+  private String background;
 
-    private Optional<BrandingRegistry> branding = Optional.empty();
+  private Optional<BrandingRegistry> branding = Optional.empty();
 
-    @GET
-    @Path("/config/ui")
-    @Produces("application/json")
-    public String getConfig() {
-        JSONObject jsonObject = new JSONObject();
+  @GET
+  @Path("/config/ui")
+  @Produces("application/json")
+  public String getConfig() {
+    JSONObject jsonObject = new JSONObject();
 
-        if (systemUsageEnabled) {
-            jsonObject.put(SYSTEM_USAGE_TITLE, systemUsageTitle);
-            jsonObject.put(SYSTEM_USAGE_MESSAGE, systemUsageMessage);
-            jsonObject.put(SYSTEM_USAGE_ONCE_PER_SESSION, systemUsageOncePerSession);
-        }
-
-        jsonObject.put(HEADER, this.header);
-        jsonObject.put(FOOTER, this.footer);
-        jsonObject.put(COLOR, this.color);
-        jsonObject.put(BACKGROUND, this.background);
-        jsonObject.put(TITLE, getTitle());
-        jsonObject.put(VERSION, getVersion());
-        jsonObject.put(PRODUCT_IMAGE, getProductImage());
-        jsonObject.put(FAV_ICON, getFavIcon());
-        return jsonObject.toJSONString();
+    if (systemUsageEnabled) {
+      jsonObject.put(SYSTEM_USAGE_TITLE, systemUsageTitle);
+      jsonObject.put(SYSTEM_USAGE_MESSAGE, systemUsageMessage);
+      jsonObject.put(SYSTEM_USAGE_ONCE_PER_SESSION, systemUsageOncePerSession);
     }
 
-    private String getVersion() {
-        return branding.map(BrandingRegistry::getProductVersion)
-                .orElse("");
-    }
+    jsonObject.put(HEADER, this.header);
+    jsonObject.put(FOOTER, this.footer);
+    jsonObject.put(COLOR, this.color);
+    jsonObject.put(BACKGROUND, this.background);
+    jsonObject.put(TITLE, getTitle());
+    jsonObject.put(VERSION, getVersion());
+    jsonObject.put(PRODUCT_IMAGE, getProductImage());
+    jsonObject.put(FAV_ICON, getFavIcon());
+    return jsonObject.toJSONString();
+  }
 
-    private String getTitle() {
-        return branding.map(BrandingRegistry::getProductName)
-                .orElse("");
-    }
+  private String getVersion() {
+    return branding.map(BrandingRegistry::getProductVersion).orElse("");
+  }
 
-    public void setBranding(BrandingRegistry branding) {
-        this.branding = Optional.ofNullable(branding);
-    }
+  private String getTitle() {
+    return branding.map(BrandingRegistry::getProductName).orElse("");
+  }
 
-    public boolean getSystemUsageEnabled() {
-        return systemUsageEnabled;
-    }
+  public void setBranding(BrandingRegistry branding) {
+    this.branding = Optional.ofNullable(branding);
+  }
 
-    public void setSystemUsageEnabled(boolean systemUsageEnabled) {
-        this.systemUsageEnabled = systemUsageEnabled;
-    }
+  public boolean getSystemUsageEnabled() {
+    return systemUsageEnabled;
+  }
 
-    public String getSystemUsageTitle() {
-        return systemUsageTitle;
-    }
+  public void setSystemUsageEnabled(boolean systemUsageEnabled) {
+    this.systemUsageEnabled = systemUsageEnabled;
+  }
 
-    public void setSystemUsageTitle(String systemUsageTitle) {
-        this.systemUsageTitle = systemUsageTitle;
-    }
+  public String getSystemUsageTitle() {
+    return systemUsageTitle;
+  }
 
-    public String getSystemUsageMessage() {
-        return systemUsageMessage;
-    }
+  public void setSystemUsageTitle(String systemUsageTitle) {
+    this.systemUsageTitle = systemUsageTitle;
+  }
 
-    public void setSystemUsageMessage(String systemUsageMessage) {
-        this.systemUsageMessage = systemUsageMessage;
-    }
+  public String getSystemUsageMessage() {
+    return systemUsageMessage;
+  }
 
-    public boolean getSystemUsageOncePerSession() {
-        return systemUsageOncePerSession;
-    }
+  public void setSystemUsageMessage(String systemUsageMessage) {
+    this.systemUsageMessage = systemUsageMessage;
+  }
 
-    public void setSystemUsageOncePerSession(boolean systemUsageOncePerSession) {
-        this.systemUsageOncePerSession = systemUsageOncePerSession;
-    }
+  public boolean getSystemUsageOncePerSession() {
+    return systemUsageOncePerSession;
+  }
 
-    public String getHeader() {
-        return header;
-    }
+  public void setSystemUsageOncePerSession(boolean systemUsageOncePerSession) {
+    this.systemUsageOncePerSession = systemUsageOncePerSession;
+  }
 
-    public void setHeader(String header) {
-        this.header = header;
-    }
+  public String getHeader() {
+    return header;
+  }
 
-    public String getFooter() {
-        return footer;
-    }
+  public void setHeader(String header) {
+    this.header = header;
+  }
 
-    public void setFooter(String footer) {
-        this.footer = footer;
-    }
+  public String getFooter() {
+    return footer;
+  }
 
-    public String getColor() {
-        return color;
-    }
+  public void setFooter(String footer) {
+    this.footer = footer;
+  }
 
-    public void setColor(String color) {
-        this.color = color;
-    }
+  public String getColor() {
+    return color;
+  }
 
-    public String getBackground() {
-        return background;
-    }
+  public void setColor(String color) {
+    this.color = color;
+  }
 
-    public void setBackground(String background) {
-        this.background = background;
-    }
+  public String getBackground() {
+    return background;
+  }
 
-    public String getProductImage() {
-        return branding.map(branding -> branding.getAttributeFromBranding(BrandingPlugin::getBase64ProductImage))
-                .orElse("");
-    }
+  public void setBackground(String background) {
+    this.background = background;
+  }
 
-    public String getFavIcon() {
-        return branding.map(branding -> branding.getAttributeFromBranding(BrandingPlugin::getBase64FavIcon))
-                .orElse("");
-    }
+  public String getProductImage() {
+    return branding
+        .map(branding -> branding.getAttributeFromBranding(BrandingPlugin::getBase64ProductImage))
+        .orElse("");
+  }
+
+  public String getFavIcon() {
+    return branding
+        .map(branding -> branding.getAttributeFromBranding(BrandingPlugin::getBase64FavIcon))
+        .orElse("");
+  }
 }

@@ -13,34 +13,30 @@
  **/
 package org.codice.ddf.spatial.kml.converter;
 
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import de.micromata.opengis.kml.v_2_2_0.Point;
 import org.apache.commons.collections.CollectionUtils;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
-
-import de.micromata.opengis.kml.v_2_2_0.Point;
-
 public class KmlToJtsPointConverter {
-    private static final GeometryFactory GEOMETRY_FACTORY = JTSFactoryFinder.getGeometryFactory();
+  private static final GeometryFactory GEOMETRY_FACTORY = JTSFactoryFinder.getGeometryFactory();
 
-    private KmlToJtsPointConverter() {
+  private KmlToJtsPointConverter() {}
+
+  public static com.vividsolutions.jts.geom.Point from(Point kmlPoint) {
+    if (!isValidKmlPoint(kmlPoint)) {
+      return null;
     }
 
-    public static com.vividsolutions.jts.geom.Point from(Point kmlPoint) {
-        if (!isValidKmlPoint(kmlPoint)) {
-            return null;
-        }
+    // get(0) is valid because the KML documentation states that a point contains a single tuple
+    // even though the Point object contains a list of coordinates.
+    Coordinate jtsCoordinate = KmlToJtsCoordinateConverter.from(kmlPoint.getCoordinates().get(0));
 
-        // get(0) is valid because the KML documentation states that a point contains a single tuple
-        // even though the Point object contains a list of coordinates.
-        Coordinate jtsCoordinate = KmlToJtsCoordinateConverter.from(kmlPoint.getCoordinates()
-                .get(0));
+    return GEOMETRY_FACTORY.createPoint(jtsCoordinate);
+  }
 
-        return GEOMETRY_FACTORY.createPoint(jtsCoordinate);
-    }
-
-    public static boolean isValidKmlPoint(Point kmlPoint) {
-        return kmlPoint != null && !CollectionUtils.isEmpty(kmlPoint.getCoordinates());
-    }
+  public static boolean isValidKmlPoint(Point kmlPoint) {
+    return kmlPoint != null && !CollectionUtils.isEmpty(kmlPoint.getCoordinates());
+  }
 }

@@ -17,60 +17,56 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
-import java.io.InputStream;
-import java.util.Collections;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import com.vividsolutions.jts.geom.Point;
-
 import de.micromata.opengis.kml.v_2_2_0.Coordinate;
 import de.micromata.opengis.kml.v_2_2_0.Kml;
 import de.micromata.opengis.kml.v_2_2_0.Location;
 import de.micromata.opengis.kml.v_2_2_0.Model;
 import de.micromata.opengis.kml.v_2_2_0.Placemark;
+import java.io.InputStream;
+import java.util.Collections;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class TestKmlModelToJtsPointConverter {
-    private static Model testKmlModel;
+  private static Model testKmlModel;
 
-    @BeforeClass
-    public static void setupClass() {
-        InputStream stream = TestKmlModelToJtsPointConverter.class.getResourceAsStream(
-                "/kmlModel.kml");
+  @BeforeClass
+  public static void setupClass() {
+    InputStream stream = TestKmlModelToJtsPointConverter.class.getResourceAsStream("/kmlModel.kml");
 
-        Kml kml = Kml.unmarshal(stream);
+    Kml kml = Kml.unmarshal(stream);
 
-        testKmlModel = ((Model) ((Placemark) kml.getFeature()).getGeometry());
-    }
+    testKmlModel = ((Model) ((Placemark) kml.getFeature()).getGeometry());
+  }
 
-    @Test
-    public void testConvertKmlModelToJtsPoint() {
-        Point jtsPoint = KmlModelToJtsPointConverter.from(testKmlModel);
+  @Test
+  public void testConvertKmlModelToJtsPoint() {
+    Point jtsPoint = KmlModelToJtsPointConverter.from(testKmlModel);
 
-        assertKmlModelToJtsPoint(testKmlModel, jtsPoint);
-    }
+    assertKmlModelToJtsPoint(testKmlModel, jtsPoint);
+  }
 
-    @Test
-    public void testConvertNullKmlModelReturnsNullPoint() {
-        Point jtsPoint = KmlModelToJtsPointConverter.from(null);
-        assertThat(jtsPoint, nullValue());
-    }
+  @Test
+  public void testConvertNullKmlModelReturnsNullPoint() {
+    Point jtsPoint = KmlModelToJtsPointConverter.from(null);
+    assertThat(jtsPoint, nullValue());
+  }
 
-    @Test
-    public void testConvertEmptyKmlModelReturnsNullPoint() {
-        Point jtsPoint = KmlModelToJtsPointConverter.from(new Model());
-        assertThat(jtsPoint, nullValue());
-    }
+  @Test
+  public void testConvertEmptyKmlModelReturnsNullPoint() {
+    Point jtsPoint = KmlModelToJtsPointConverter.from(new Model());
+    assertThat(jtsPoint, nullValue());
+  }
 
-    static void assertKmlModelToJtsPoint(Model kmlModel,
-            Point jtsPoint) {
-        assertThat(jtsPoint, notNullValue());
+  static void assertKmlModelToJtsPoint(Model kmlModel, Point jtsPoint) {
+    assertThat(jtsPoint, notNullValue());
 
-        Location location = kmlModel.getLocation();
-        TestKmlToJtsCoordinateConverter.assertJtsCoordinatesFromKmlCoordinates(Collections.singletonList(
-                new Coordinate(location.getLongitude(),
-                        location.getLatitude(),
-                        location.getAltitude())), jtsPoint.getCoordinates());
-    }
+    Location location = kmlModel.getLocation();
+    TestKmlToJtsCoordinateConverter.assertJtsCoordinatesFromKmlCoordinates(
+        Collections.singletonList(
+            new Coordinate(
+                location.getLongitude(), location.getLatitude(), location.getAltitude())),
+        jtsPoint.getCoordinates());
+  }
 }

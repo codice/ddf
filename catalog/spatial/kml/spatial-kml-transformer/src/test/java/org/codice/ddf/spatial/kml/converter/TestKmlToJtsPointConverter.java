@@ -17,54 +17,50 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
-import java.io.InputStream;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import de.micromata.opengis.kml.v_2_2_0.Kml;
 import de.micromata.opengis.kml.v_2_2_0.Placemark;
 import de.micromata.opengis.kml.v_2_2_0.Point;
+import java.io.InputStream;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class TestKmlToJtsPointConverter {
-    private static Point testKmlPoint;
+  private static Point testKmlPoint;
 
-    @BeforeClass
-    public static void setupClass() {
-        InputStream stream = TestKmlToJtsPointConverter.class.getResourceAsStream("/kmlPoint.kml");
+  @BeforeClass
+  public static void setupClass() {
+    InputStream stream = TestKmlToJtsPointConverter.class.getResourceAsStream("/kmlPoint.kml");
 
-        Kml kml = Kml.unmarshal(stream);
+    Kml kml = Kml.unmarshal(stream);
 
-        testKmlPoint = ((Point) ((Placemark) kml.getFeature()).getGeometry());
+    testKmlPoint = ((Point) ((Placemark) kml.getFeature()).getGeometry());
+  }
 
-    }
+  @Test
+  public void testPointConversion() {
+    com.vividsolutions.jts.geom.Point jtsPoint = KmlToJtsPointConverter.from(testKmlPoint);
 
-    @Test
-    public void testPointConversion() {
-        com.vividsolutions.jts.geom.Point jtsPoint = KmlToJtsPointConverter.from(testKmlPoint);
+    assertJtsPoint(testKmlPoint, jtsPoint);
+  }
 
-        assertJtsPoint(testKmlPoint, jtsPoint);
-    }
+  @Test
+  public void testNullKmlPointReturnsNullJtsPoint() {
+    com.vividsolutions.jts.geom.Point jtsPoint = KmlToJtsPointConverter.from(null);
 
-    @Test
-    public void testNullKmlPointReturnsNullJtsPoint() {
-        com.vividsolutions.jts.geom.Point jtsPoint = KmlToJtsPointConverter.from(null);
+    assertThat(jtsPoint, nullValue());
+  }
 
-        assertThat(jtsPoint, nullValue());
-    }
+  @Test
+  public void testKmlPointWithNoCoordinatesReturnsNullJtsPoint() {
+    com.vividsolutions.jts.geom.Point jtsPoint = KmlToJtsPointConverter.from(new Point());
 
-    @Test
-    public void testKmlPointWithNoCoordinatesReturnsNullJtsPoint() {
-        com.vividsolutions.jts.geom.Point jtsPoint = KmlToJtsPointConverter.from(new Point());
+    assertThat(jtsPoint, nullValue());
+  }
 
-        assertThat(jtsPoint, nullValue());
-    }
+  static void assertJtsPoint(Point kmlPoint, com.vividsolutions.jts.geom.Point jtsPoint) {
+    assertThat(jtsPoint, notNullValue());
 
-    static void assertJtsPoint(Point kmlPoint, com.vividsolutions.jts.geom.Point jtsPoint) {
-        assertThat(jtsPoint, notNullValue());
-
-        TestKmlToJtsCoordinateConverter.assertJtsCoordinatesFromKmlCoordinates(kmlPoint.getCoordinates(),
-                jtsPoint.getCoordinates());
-    }
-
+    TestKmlToJtsCoordinateConverter.assertJtsCoordinatesFromKmlCoordinates(
+        kmlPoint.getCoordinates(), jtsPoint.getCoordinates());
+  }
 }

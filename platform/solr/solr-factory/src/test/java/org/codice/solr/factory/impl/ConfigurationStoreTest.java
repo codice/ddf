@@ -1,14 +1,14 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
- * General Public License as published by the Free Software Foundation, either version 3 of the
- * License, or any later version.
- * <p>
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
- * is distributed along with this program and can be found at
+ *
+ * <p>This is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * Lesser General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or any later version.
+ *
+ * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
+ * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 package org.codice.solr.factory.impl;
@@ -22,31 +22,30 @@ import org.junit.Test;
 
 public class ConfigurationStoreTest {
 
-    private ConfigurationStore store;
+  private ConfigurationStore store;
 
-    @Before
-    public void beforeTests() {
-        store = ConfigurationStore.getInstance();
-    }
+  @Before
+  public void beforeTests() {
+    store = ConfigurationStore.getInstance();
+  }
 
-    @Test
-    public void isASingleton() {
-        store.setDisableTextPath(true);
-        store.setInMemory(true);
-        store.setForceAutoCommit(true);
+  @Test
+  public void isASingleton() {
+    store.setDisableTextPath(true);
+    store.setInMemory(true);
+    store.setForceAutoCommit(true);
 
-        ConfigurationStore store2 = ConfigurationStore.getInstance();
+    ConfigurationStore store2 = ConfigurationStore.getInstance();
 
-        assertThat(store.isDisableTextPath(), is(store2.isDisableTextPath()));
-        assertThat(store.isInMemory(), is(store2.isInMemory()));
-        assertThat(store.isForceAutoCommit(), is(store2.isForceAutoCommit()));
-    }
+    assertThat(store.isDisableTextPath(), is(store2.isDisableTextPath()));
+    assertThat(store.isInMemory(), is(store2.isInMemory()));
+    assertThat(store.isForceAutoCommit(), is(store2.isForceAutoCommit()));
+  }
 
-    @Test
-    public void nearestNeighborLimitIsAlwaysPositive() {
-        store.setNearestNeighborDistanceLimit(-1.0);
+  @Test
+  public void nearestNeighborLimitIsAlwaysPositive() {
+    store.setNearestNeighborDistanceLimit(-1.0);
 
-        assertThat(store.getNearestNeighborDistanceLimit(), closeTo(1.0, 0.00001));
-    }
-
+    assertThat(store.getNearestNeighborDistanceLimit(), closeTo(1.0, 0.00001));
+  }
 }

@@ -1,14 +1,14 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
- * General Public License as published by the Free Software Foundation, either version 3 of the
- * License, or any later version.
- * <p/>
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
- * is distributed along with this program and can be found at
+ *
+ * <p>This is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * Lesser General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or any later version.
+ *
+ * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
+ * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 package org.codice.ddf.catalog.ui.query.monitor.impl;
@@ -22,9 +22,20 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import ddf.catalog.CatalogFramework;
+import ddf.catalog.data.Attribute;
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.federation.FederationException;
+import ddf.catalog.filter.FilterBuilder;
+import ddf.catalog.operation.QueryRequest;
+import ddf.catalog.operation.QueryResponse;
+import ddf.catalog.source.SourceUnavailableException;
+import ddf.catalog.source.UnsupportedQueryException;
+import ddf.security.SecurityConstants;
 import java.util.Collections;
 import java.util.List;
-
 import org.codice.ddf.catalog.ui.metacard.workspace.QueryMetacardImpl;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceAttributes;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceMetacardImpl;
@@ -39,222 +50,198 @@ import org.opengis.filter.And;
 import org.opengis.filter.Filter;
 import org.opengis.filter.Or;
 
-import ddf.catalog.CatalogFramework;
-import ddf.catalog.data.Attribute;
-import ddf.catalog.data.Metacard;
-import ddf.catalog.data.Result;
-import ddf.catalog.data.impl.BasicTypes;
-import ddf.catalog.federation.FederationException;
-import ddf.catalog.filter.FilterBuilder;
-import ddf.catalog.operation.QueryRequest;
-import ddf.catalog.operation.QueryResponse;
-import ddf.catalog.source.SourceUnavailableException;
-import ddf.catalog.source.UnsupportedQueryException;
-import ddf.security.SecurityConstants;
-
 public class TestWorkspaceServiceImpl {
 
-    private CatalogFramework catalogFramework;
+  private CatalogFramework catalogFramework;
 
-    private FilterBuilder filterBuilder;
+  private FilterBuilder filterBuilder;
 
-    private WorkspaceTransformer workspaceTransformer;
+  private WorkspaceTransformer workspaceTransformer;
 
-    private FilterService filterService;
+  private FilterService filterService;
 
-    private SecurityService securityService;
+  private SecurityService securityService;
 
-    private WorkspaceServiceImpl workspaceService;
+  private WorkspaceServiceImpl workspaceService;
 
-    @Before
-    public void setup() {
-        catalogFramework = mock(CatalogFramework.class);
-        filterBuilder = mock(FilterBuilder.class);
-        workspaceTransformer = mock(WorkspaceTransformer.class);
-        filterService = mock(FilterService.class);
-        securityService = mock(SecurityService.class);
-        WorkspaceMetacardFilter workspaceMetacardFilter = mock(WorkspaceMetacardFilter.class);
+  @Before
+  public void setup() {
+    catalogFramework = mock(CatalogFramework.class);
+    filterBuilder = mock(FilterBuilder.class);
+    workspaceTransformer = mock(WorkspaceTransformer.class);
+    filterService = mock(FilterService.class);
+    securityService = mock(SecurityService.class);
+    WorkspaceMetacardFilter workspaceMetacardFilter = mock(WorkspaceMetacardFilter.class);
 
-        when(workspaceMetacardFilter.filter(any())).thenReturn(true);
+    when(workspaceMetacardFilter.filter(any())).thenReturn(true);
 
-        workspaceService = new WorkspaceServiceImpl(catalogFramework,
-                filterBuilder,
-                workspaceTransformer,
-                filterService,
-                securityService);
-    }
+    workspaceService =
+        new WorkspaceServiceImpl(
+            catalogFramework, filterBuilder, workspaceTransformer, filterService, securityService);
+  }
 
-    private void mockCatalogFrameworkQuery(String id, String subject)
-            throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+  private void mockCatalogFrameworkQuery(String id, String subject)
+      throws UnsupportedQueryException, SourceUnavailableException, FederationException {
 
-        when(securityService.addSystemSubject(any())).thenReturn(Collections.singletonMap(
-                SecurityConstants.SECURITY_SUBJECT,
-                subject));
+    when(securityService.addSystemSubject(any()))
+        .thenReturn(Collections.singletonMap(SecurityConstants.SECURITY_SUBJECT, subject));
 
-        QueryResponse queryResponse = mock(QueryResponse.class);
-        Result result = mock(Result.class);
-        Metacard metacard = mock(Metacard.class);
-        when(metacard.getMetacardType()).thenReturn(BasicTypes.BASIC_METACARD);
-        Attribute attribute = mock(Attribute.class);
-        when(attribute.getValue()).thenReturn(id);
-        when(metacard.getAttribute(Metacard.ID)).thenReturn(attribute);
-        when(metacard.getTags()).thenReturn(Collections.singleton(WorkspaceAttributes.WORKSPACE_TAG));
+    QueryResponse queryResponse = mock(QueryResponse.class);
+    Result result = mock(Result.class);
+    Metacard metacard = mock(Metacard.class);
+    when(metacard.getMetacardType()).thenReturn(BasicTypes.BASIC_METACARD);
+    Attribute attribute = mock(Attribute.class);
+    when(attribute.getValue()).thenReturn(id);
+    when(metacard.getAttribute(Metacard.ID)).thenReturn(attribute);
+    when(metacard.getTags()).thenReturn(Collections.singleton(WorkspaceAttributes.WORKSPACE_TAG));
 
-        when(result.getMetacard()).thenReturn(metacard);
+    when(result.getMetacard()).thenReturn(metacard);
 
-        List<Result> resultList = Collections.singletonList(result);
-        when(queryResponse.getResults()).thenReturn(resultList);
+    List<Result> resultList = Collections.singletonList(result);
+    when(queryResponse.getResults()).thenReturn(resultList);
 
-        when(catalogFramework.query(any())).thenReturn(queryResponse);
+    when(catalogFramework.query(any())).thenReturn(queryResponse);
+  }
 
-    }
+  @Test
+  public void testGetWorkspaceMetacards()
+      throws UnsupportedQueryException, SourceUnavailableException, FederationException {
 
-    @Test
-    public void testGetWorkspaceMetacards()
-            throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+    String id = "123";
+    String subject = "subject";
 
-        String id = "123";
-        String subject = "subject";
+    mockCatalogFrameworkQuery(id, subject);
 
-        mockCatalogFrameworkQuery(id, subject);
+    mockWorkspaceTagFilter();
 
-        mockWorkspaceTagFilter();
+    List<WorkspaceMetacardImpl> workspaceMetacards = workspaceService.getWorkspaceMetacards();
 
-        List<WorkspaceMetacardImpl> workspaceMetacards = workspaceService.getWorkspaceMetacards();
+    assertMetacardList(id, subject, workspaceMetacards);
+  }
 
-        assertMetacardList(id, subject, workspaceMetacards);
+  private void assertMetacardList(
+      String id, String subject, List<WorkspaceMetacardImpl> workspaceMetacards)
+      throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+    ArgumentCaptor<QueryRequest> argumentCaptor = ArgumentCaptor.forClass(QueryRequest.class);
+    verify(catalogFramework).query(argumentCaptor.capture());
 
-    }
+    assertThat(
+        argumentCaptor.getValue().getProperties().get(SecurityConstants.SECURITY_SUBJECT),
+        is(subject));
+    assertThat(workspaceMetacards, hasSize(1));
+    assertThat(workspaceMetacards.get(0).getId(), is(id));
+  }
 
-    private void assertMetacardList(String id, String subject,
-            List<WorkspaceMetacardImpl> workspaceMetacards)
-            throws UnsupportedQueryException, SourceUnavailableException, FederationException {
-        ArgumentCaptor<QueryRequest> argumentCaptor = ArgumentCaptor.forClass(QueryRequest.class);
-        verify(catalogFramework).query(argumentCaptor.capture());
+  private Filter mockWorkspaceTagFilter() {
+    Filter workspaceTagFilter = mock(Filter.class);
 
-        assertThat(argumentCaptor.getValue()
-                .getProperties()
-                .get(SecurityConstants.SECURITY_SUBJECT), is(subject));
-        assertThat(workspaceMetacards, hasSize(1));
-        assertThat(workspaceMetacards.get(0)
-                .getId(), is(id));
-    }
+    when(filterService.buildWorkspaceTagFilter()).thenReturn(workspaceTagFilter);
 
-    private Filter mockWorkspaceTagFilter() {
-        Filter workspaceTagFilter = mock(Filter.class);
+    return workspaceTagFilter;
+  }
 
-        when(filterService.buildWorkspaceTagFilter()).thenReturn(workspaceTagFilter);
+  @Test
+  public void testGetWorkspaceMetacardsByWorkspaceId()
+      throws UnsupportedQueryException, SourceUnavailableException, FederationException {
 
-        return workspaceTagFilter;
-    }
+    String id = "123";
+    String subject = "subject";
 
-    @Test
-    public void testGetWorkspaceMetacardsByWorkspaceId()
-            throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+    mockCatalogFrameworkQuery(id, subject);
 
-        String id = "123";
-        String subject = "subject";
+    Filter workspaceTagFilter = mockWorkspaceTagFilter();
 
-        mockCatalogFrameworkQuery(id, subject);
+    Filter metacardIdFilter = mock(Filter.class);
 
-        Filter workspaceTagFilter = mockWorkspaceTagFilter();
+    when(filterService.buildMetacardIdFilter(id)).thenReturn(metacardIdFilter);
 
-        Filter metacardIdFilter = mock(Filter.class);
+    And andFilter = mock(And.class);
 
-        when(filterService.buildMetacardIdFilter(id)).thenReturn(metacardIdFilter);
+    when(filterBuilder.allOf(metacardIdFilter, workspaceTagFilter)).thenReturn(andFilter);
 
-        And andFilter = mock(And.class);
+    Or orFilter = mock(Or.class);
 
-        when(filterBuilder.allOf(metacardIdFilter, workspaceTagFilter)).thenReturn(andFilter);
+    when(filterBuilder.anyOf(Collections.singletonList(andFilter))).thenReturn(orFilter);
 
-        Or orFilter = mock(Or.class);
+    List<WorkspaceMetacardImpl> workspaceMetacards =
+        workspaceService.getWorkspaceMetacards(Collections.singleton(id));
 
-        when(filterBuilder.anyOf(Collections.singletonList(andFilter))).thenReturn(orFilter);
+    assertMetacardList(id, subject, workspaceMetacards);
+  }
 
-        List<WorkspaceMetacardImpl> workspaceMetacards = workspaceService.getWorkspaceMetacards(
-                Collections.singleton(id));
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testGetWorkspaceMetacardsByWorkspaceIdWithException()
+      throws UnsupportedQueryException, SourceUnavailableException, FederationException {
 
-        assertMetacardList(id, subject, workspaceMetacards);
+    String id = "123";
 
-    }
+    when(catalogFramework.query(any())).thenThrow(UnsupportedQueryException.class);
 
-    @SuppressWarnings("unchecked")
-    @Test
-    public void testGetWorkspaceMetacardsByWorkspaceIdWithException()
-            throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+    Filter workspaceTagFilter = mockWorkspaceTagFilter();
 
-        String id = "123";
+    Filter metacardIdFilter = mock(Filter.class);
 
-        when(catalogFramework.query(any())).thenThrow(UnsupportedQueryException.class);
+    when(filterService.buildMetacardIdFilter(id)).thenReturn(metacardIdFilter);
 
-        Filter workspaceTagFilter = mockWorkspaceTagFilter();
+    And andFilter = mock(And.class);
 
-        Filter metacardIdFilter = mock(Filter.class);
+    when(filterBuilder.allOf(metacardIdFilter, workspaceTagFilter)).thenReturn(andFilter);
 
-        when(filterService.buildMetacardIdFilter(id)).thenReturn(metacardIdFilter);
+    Or orFilter = mock(Or.class);
 
-        And andFilter = mock(And.class);
+    when(filterBuilder.anyOf(Collections.singletonList(andFilter))).thenReturn(orFilter);
 
-        when(filterBuilder.allOf(metacardIdFilter, workspaceTagFilter)).thenReturn(andFilter);
+    List<WorkspaceMetacardImpl> workspaceMetacards =
+        workspaceService.getWorkspaceMetacards(Collections.singleton(id));
 
-        Or orFilter = mock(Or.class);
+    assertThat(workspaceMetacards, hasSize(0));
+  }
 
-        when(filterBuilder.anyOf(Collections.singletonList(andFilter))).thenReturn(orFilter);
+  /**
+   * If the catalog framework throws an exception, then getWoekspaceMetacards should return an empty
+   * list.
+   *
+   * @throws UnsupportedQueryException
+   * @throws SourceUnavailableException
+   * @throws FederationException
+   */
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testGetWorkspaceMetacardsWithException()
+      throws UnsupportedQueryException, SourceUnavailableException, FederationException {
 
-        List<WorkspaceMetacardImpl> workspaceMetacards = workspaceService.getWorkspaceMetacards(
-                Collections.singleton(id));
+    when(catalogFramework.query(any())).thenThrow(UnsupportedQueryException.class);
 
-        assertThat(workspaceMetacards, hasSize(0));
+    Filter filter = mock(Filter.class);
 
-    }
+    when(filterService.buildWorkspaceTagFilter()).thenReturn(filter);
 
-    /**
-     * If the catalog framework throws an exception, then getWoekspaceMetacards should return an empty
-     * list.
-     *
-     * @throws UnsupportedQueryException
-     * @throws SourceUnavailableException
-     * @throws FederationException
-     */
-    @SuppressWarnings("unchecked")
-    @Test
-    public void testGetWorkspaceMetacardsWithException()
-            throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+    List<WorkspaceMetacardImpl> workspaceMetacards = workspaceService.getWorkspaceMetacards();
 
-        when(catalogFramework.query(any())).thenThrow(UnsupportedQueryException.class);
+    assertThat(workspaceMetacards, hasSize(0));
+  }
 
-        Filter filter = mock(Filter.class);
+  @Test
+  public void testToString() {
+    assertThat(workspaceService.toString(), notNullValue());
+  }
 
-        when(filterService.buildWorkspaceTagFilter()).thenReturn(filter);
+  @Test
+  public void testGetQueryMetacards() {
 
-        List<WorkspaceMetacardImpl> workspaceMetacards = workspaceService.getWorkspaceMetacards();
+    Metacard metacard = mock(Metacard.class);
+    when(metacard.getMetacardType()).thenReturn(BasicTypes.BASIC_METACARD);
 
-        assertThat(workspaceMetacards, hasSize(0));
+    String xml = "<xml/>";
 
-    }
+    when(workspaceTransformer.toMetacardFromXml(xml)).thenReturn(metacard);
 
-    @Test
-    public void testToString() {
-        assertThat(workspaceService.toString(), notNullValue());
-    }
+    WorkspaceMetacardImpl workspaceMetacard = mock(WorkspaceMetacardImpl.class);
+    when(workspaceMetacard.getQueries()).thenReturn(Collections.singletonList(xml));
 
-    @Test
-    public void testGetQueryMetacards() {
+    List<QueryMetacardImpl> metacards = workspaceService.getQueryMetacards(workspaceMetacard);
 
-        Metacard metacard = mock(Metacard.class);
-        when(metacard.getMetacardType()).thenReturn(BasicTypes.BASIC_METACARD);
-
-        String xml = "<xml/>";
-
-        when(workspaceTransformer.toMetacardFromXml(xml)).thenReturn(metacard);
-
-        WorkspaceMetacardImpl workspaceMetacard = mock(WorkspaceMetacardImpl.class);
-        when(workspaceMetacard.getQueries()).thenReturn(Collections.singletonList(xml));
-
-        List<QueryMetacardImpl> metacards = workspaceService.getQueryMetacards(workspaceMetacard);
-
-        assertThat(metacards, hasSize(1));
-
-    }
-
+    assertThat(metacards, hasSize(1));
+  }
 }

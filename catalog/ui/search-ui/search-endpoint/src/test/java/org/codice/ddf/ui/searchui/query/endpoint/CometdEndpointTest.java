@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
- * General Public License as published by the Free Software Foundation, either version 3 of the
- * License, or any later version.
- * <p>
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
- * is distributed along with this program and can be found at
+ *
+ * <p>This is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * Lesser General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or any later version.
+ *
+ * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
+ * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- **/
+ */
 package org.codice.ddf.ui.searchui.query.endpoint;
 
 import static org.junit.Assert.assertEquals;
@@ -21,13 +21,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
+import ddf.catalog.CatalogFramework;
+import ddf.catalog.filter.FilterAdapter;
+import ddf.catalog.filter.FilterBuilder;
 import java.util.Collections;
 import java.util.concurrent.Executors;
-
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-
 import org.codice.ddf.persistence.PersistentStore;
 import org.codice.ddf.ui.searchui.query.actions.ActionRegistryImpl;
 import org.cometd.bayeux.ChannelId;
@@ -51,52 +52,50 @@ import org.osgi.service.event.EventAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.CatalogFramework;
-import ddf.catalog.filter.FilterAdapter;
-import ddf.catalog.filter.FilterBuilder;
-
 public class CometdEndpointTest {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CometdEndpointTest.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CometdEndpointTest.class);
 
-    private static final String MOCK_SESSION_ID = "1234-5678-9012-3456";
+  private static final String MOCK_SESSION_ID = "1234-5678-9012-3456";
 
-    private BayeuxServer bayeuxServer = mock(BayeuxServerImpl.class);
+  private BayeuxServer bayeuxServer = mock(BayeuxServerImpl.class);
 
-    private CometdEndpoint cometdEndpoint;
+  private CometdEndpoint cometdEndpoint;
 
-    private ServerSession mockServerSession = mock(ServerSession.class);
+  private ServerSession mockServerSession = mock(ServerSession.class);
 
-    private ServerMessage mockServerMessage = mock(ServerMessage.class);
+  private ServerMessage mockServerMessage = mock(ServerMessage.class);
 
-    private ServletConfig servletConfig = mock(ServletConfig.class);
+  private ServletConfig servletConfig = mock(ServletConfig.class);
 
-    /**
-     * @throws java.lang.Exception
-     */
-    @Before
-    public void setUp() throws Exception {
+  /** @throws java.lang.Exception */
+  @Before
+  public void setUp() throws Exception {
 
-        when(mockServerSession.getId()).thenReturn(MOCK_SESSION_ID);
+    when(mockServerSession.getId()).thenReturn(MOCK_SESSION_ID);
 
-        // Return a new mock of LocalSession each time newLocalSession is
-        // called on the BayeuxServer
-        when(bayeuxServer.newLocalSession(Mockito.anyString())).thenAnswer(new Answer<LocalSession>() {
-            public LocalSession answer(InvocationOnMock invocation) {
+    // Return a new mock of LocalSession each time newLocalSession is
+    // called on the BayeuxServer
+    when(bayeuxServer.newLocalSession(Mockito.anyString()))
+        .thenAnswer(
+            new Answer<LocalSession>() {
+              public LocalSession answer(InvocationOnMock invocation) {
                 LocalSession localSession = mock(LocalSession.class);
                 when(localSession.getServerSession()).thenReturn(mock(ServerSession.class));
                 return localSession;
-            }
-        });
+              }
+            });
 
-        // Mock enough of the behavior of the createChannelIfAbsent method to
-        // ensure proper processing of CometD Service annotations
-        when(bayeuxServer.createChannelIfAbsent(Mockito.anyString())).thenAnswer(new Answer<MarkedReference<ServerChannel>>() {
-            public MarkedReference<ServerChannel> answer(InvocationOnMock invokation) {
+    // Mock enough of the behavior of the createChannelIfAbsent method to
+    // ensure proper processing of CometD Service annotations
+    when(bayeuxServer.createChannelIfAbsent(Mockito.anyString()))
+        .thenAnswer(
+            new Answer<MarkedReference<ServerChannel>>() {
+              public MarkedReference<ServerChannel> answer(InvocationOnMock invokation) {
                 String channelName = invokation.getArguments()[0].toString();
                 LOGGER.debug("Channel Name: {}", channelName);
 
                 if (null == channelName) {
-                    return null;
+                  return null;
                 }
 
                 ChannelId channelId = new ChannelId(channelName);
@@ -107,7 +106,7 @@ public class CometdEndpointTest {
 
                 @SuppressWarnings("unchecked")
                 MarkedReference<ServerChannel> markedReference =
-                        (MarkedReference<ServerChannel>) mock(MarkedReference.class);
+                    (MarkedReference<ServerChannel>) mock(MarkedReference.class);
                 // Mark with value of true indicates that the serverChannel
                 // did not previously exist. Implementation of test setup
                 // needs to change if there is a later need to maintain
@@ -117,25 +116,26 @@ public class CometdEndpointTest {
                 when(markedReference.getReference()).thenReturn(serverChannel);
 
                 return markedReference;
-            }
-        });
+              }
+            });
 
-        // Call the actual BayeuxServer methods, rather than the mock methods, 
-        // when setting/getting the security policy.
-        Mockito.doCallRealMethod()
-                .when(bayeuxServer)
-                .setSecurityPolicy(Mockito.any(SecurityPolicy.class));
-        Mockito.doCallRealMethod()
-                .when(bayeuxServer)
-                .getSecurityPolicy();
+    // Call the actual BayeuxServer methods, rather than the mock methods,
+    // when setting/getting the security policy.
+    Mockito.doCallRealMethod()
+        .when(bayeuxServer)
+        .setSecurityPolicy(Mockito.any(SecurityPolicy.class));
+    Mockito.doCallRealMethod().when(bayeuxServer).getSecurityPolicy();
 
-        // Associate the BayeuxServer with a CometdServlet
-        ServletContext servletContext = mock(ServletContext.class);
-        when(servletConfig.getServletContext()).thenReturn(servletContext);
-        when(servletContext.getAttribute(BayeuxServer.ATTRIBUTE)).thenReturn(bayeuxServer);
+    // Associate the BayeuxServer with a CometdServlet
+    ServletContext servletContext = mock(ServletContext.class);
+    when(servletConfig.getServletContext()).thenReturn(servletContext);
+    when(servletContext.getAttribute(BayeuxServer.ATTRIBUTE)).thenReturn(bayeuxServer);
 
-        // Create the CometdEndpoint, passing in the mocked CometdServlet
-        cometdEndpoint = spy(new CometdEndpoint(mock(CatalogFramework.class),
+    // Create the CometdEndpoint, passing in the mocked CometdServlet
+    cometdEndpoint =
+        spy(
+            new CometdEndpoint(
+                mock(CatalogFramework.class),
                 mock(FilterBuilder.class),
                 mock(FilterAdapter.class),
                 mock(PersistentStore.class),
@@ -143,45 +143,42 @@ public class CometdEndpointTest {
                 mock(EventAdmin.class),
                 new ActionRegistryImpl(Collections.EMPTY_LIST, Collections.EMPTY_LIST),
                 Executors.newSingleThreadExecutor()));
-        doNothing().when(cometdEndpoint)
-                .init();
-    }
+    doNothing().when(cometdEndpoint).init();
+  }
 
-    /**
-     * @throws java.lang.Exception
-     */
-    @After
-    public void tearDown() throws Exception {
-    }
+  /** @throws java.lang.Exception */
+  @After
+  public void tearDown() throws Exception {}
 
-    /**
-     * Test method that verifies the {@link org.cometd.bayeux.server.SecurityPolicy#canHandshake(BayeuxServer, ServerSession, ServerMessage)}
-     * method of the custom {@link org.cometd.bayeux.server.SecurityPolicy}
-     * associated with the {@link org.cometd.bayeux.server.BayeuxServer} created
-     * by the {@link CometdEndpoint} registers users with the
-     * {@link org.codice.ddf.ui.searchui.query.controller.NotificationController}.
-     *
-     * @throws ServletException
-     */
-    @Test
-    @Ignore
-    public void testCanHandshakeRegistersUserWithNotificationController() throws ServletException {
-        cometdEndpoint.init(servletConfig);
-        SecurityPolicy securityPolicy = bayeuxServer.getSecurityPolicy();
-        assertNotNull("BayeuxServer's SecurityPolicy is null", securityPolicy);
+  /**
+   * Test method that verifies the {@link
+   * org.cometd.bayeux.server.SecurityPolicy#canHandshake(BayeuxServer, ServerSession,
+   * ServerMessage)} method of the custom {@link org.cometd.bayeux.server.SecurityPolicy} associated
+   * with the {@link org.cometd.bayeux.server.BayeuxServer} created by the {@link CometdEndpoint}
+   * registers users with the {@link
+   * org.codice.ddf.ui.searchui.query.controller.NotificationController}.
+   *
+   * @throws ServletException
+   */
+  @Test
+  @Ignore
+  public void testCanHandshakeRegistersUserWithNotificationController() throws ServletException {
+    cometdEndpoint.init(servletConfig);
+    SecurityPolicy securityPolicy = bayeuxServer.getSecurityPolicy();
+    assertNotNull("BayeuxServer's SecurityPolicy is null", securityPolicy);
 
-        // Verify that the mock ServerSession is not already being managed by
-        // the org.codice.ddf.ui.searchui.query.controller.NotificationController
-        assertNull(cometdEndpoint.notificationController.getSessionByUserId(MOCK_SESSION_ID));
+    // Verify that the mock ServerSession is not already being managed by
+    // the org.codice.ddf.ui.searchui.query.controller.NotificationController
+    assertNull(cometdEndpoint.notificationController.getSessionByUserId(MOCK_SESSION_ID));
 
-        // Invoke the canHandshake method of the SecurityPolicy
-        securityPolicy.canHandshake(bayeuxServer, mockServerSession, mockServerMessage);
+    // Invoke the canHandshake method of the SecurityPolicy
+    securityPolicy.canHandshake(bayeuxServer, mockServerSession, mockServerMessage);
 
-        // Verify that the user userId/ServerSession pair are now being managed
-        // by the org.codice.ddf.ui.searchui.query.controller.NotificationController
-        assertEquals("NotificationController did not return the expected ServerSession",
-                mockServerSession,
-                cometdEndpoint.notificationController.getSessionByUserId(MOCK_SESSION_ID));
-    }
-
+    // Verify that the user userId/ServerSession pair are now being managed
+    // by the org.codice.ddf.ui.searchui.query.controller.NotificationController
+    assertEquals(
+        "NotificationController did not return the expected ServerSession",
+        mockServerSession,
+        cometdEndpoint.notificationController.getSessionByUserId(MOCK_SESSION_ID));
+  }
 }

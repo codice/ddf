@@ -1,14 +1,14 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
- * General Public License as published by the Free Software Foundation, either version 3 of the
- * License, or any later version.
- * <p>
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
- * is distributed along with this program and can be found at
+ *
+ * <p>This is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * Lesser General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or any later version.
+ *
+ * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
+ * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 package ddf.security.realm.sts;
@@ -21,11 +21,9 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.cxf.ws.security.trust.STSClient;
@@ -45,185 +43,150 @@ import org.xml.sax.SAXException;
 
 public class TestStsRealm {
 
-    public static Document readXml(InputStream is)
-            throws SAXException, IOException, ParserConfigurationException {
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+  public static Document readXml(InputStream is)
+      throws SAXException, IOException, ParserConfigurationException {
+    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
-        dbf.setValidating(false);
-        dbf.setIgnoringComments(false);
-        dbf.setIgnoringElementContentWhitespace(true);
-        dbf.setNamespaceAware(true);
-        // dbf.setCoalescing(true);
-        // dbf.setExpandEntityReferences(true);
+    dbf.setValidating(false);
+    dbf.setIgnoringComments(false);
+    dbf.setIgnoringElementContentWhitespace(true);
+    dbf.setNamespaceAware(true);
+    // dbf.setCoalescing(true);
+    // dbf.setExpandEntityReferences(true);
 
-        DocumentBuilder db = null;
-        db = dbf.newDocumentBuilder();
-        db.setEntityResolver(new DOMUtils.NullResolver());
+    DocumentBuilder db = null;
+    db = dbf.newDocumentBuilder();
+    db.setEntityResolver(new DOMUtils.NullResolver());
 
-        // db.setErrorHandler( new MyErrorHandler());
+    // db.setErrorHandler( new MyErrorHandler());
 
-        return db.parse(is);
-    }
+    return db.parse(is);
+  }
 
-    @Test
-    public void testSupports() {
-        StsRealm realm = new StsRealm();
-        AuthenticationToken authenticationToken = mock(SAMLAuthenticationToken.class);
-        when(authenticationToken.getCredentials()).thenReturn("creds");
-        boolean supports = realm.supports(authenticationToken);
-        assertEquals(true, supports);
+  @Test
+  public void testSupports() {
+    StsRealm realm = new StsRealm();
+    AuthenticationToken authenticationToken = mock(SAMLAuthenticationToken.class);
+    when(authenticationToken.getCredentials()).thenReturn("creds");
+    boolean supports = realm.supports(authenticationToken);
+    assertEquals(true, supports);
 
-        authenticationToken = mock(BSTAuthenticationToken.class);
-        when(authenticationToken.getCredentials()).thenReturn("creds");
-        supports = realm.supports(authenticationToken);
-        assertEquals(true, supports);
+    authenticationToken = mock(BSTAuthenticationToken.class);
+    when(authenticationToken.getCredentials()).thenReturn("creds");
+    supports = realm.supports(authenticationToken);
+    assertEquals(true, supports);
 
-        authenticationToken = mock(BaseAuthenticationToken.class);
-        when(authenticationToken.getCredentials()).thenReturn("creds");
-        supports = realm.supports(authenticationToken);
-        assertEquals(true, supports);
+    authenticationToken = mock(BaseAuthenticationToken.class);
+    when(authenticationToken.getCredentials()).thenReturn("creds");
+    supports = realm.supports(authenticationToken);
+    assertEquals(true, supports);
 
-        authenticationToken = mock(BaseAuthenticationToken.class);
-        when(authenticationToken.getCredentials()).thenReturn(null);
-        supports = realm.supports(authenticationToken);
-        assertEquals(false, supports);
+    authenticationToken = mock(BaseAuthenticationToken.class);
+    when(authenticationToken.getCredentials()).thenReturn(null);
+    supports = realm.supports(authenticationToken);
+    assertEquals(false, supports);
 
-        supports = realm.supports(null);
-        assertEquals(false, supports);
+    supports = realm.supports(null);
+    assertEquals(false, supports);
 
-        WssStsRealm wssStsRealm = new WssStsRealm();
-        BaseAuthenticationToken baseAuthTok = mock(BaseAuthenticationToken.class);
-        when(baseAuthTok.isUseWssSts()).thenReturn(false);
-        when(baseAuthTok.getCredentials()).thenReturn("creds");
-        assertEquals(true, realm.supports(baseAuthTok));
-        assertEquals(false, wssStsRealm.supports(baseAuthTok));
-        when(baseAuthTok.isUseWssSts()).thenReturn(true);
-        assertEquals(false, realm.supports(baseAuthTok));
-        assertEquals(true, wssStsRealm.supports(baseAuthTok));
-    }
+    WssStsRealm wssStsRealm = new WssStsRealm();
+    BaseAuthenticationToken baseAuthTok = mock(BaseAuthenticationToken.class);
+    when(baseAuthTok.isUseWssSts()).thenReturn(false);
+    when(baseAuthTok.getCredentials()).thenReturn("creds");
+    assertEquals(true, realm.supports(baseAuthTok));
+    assertEquals(false, wssStsRealm.supports(baseAuthTok));
+    when(baseAuthTok.isUseWssSts()).thenReturn(true);
+    assertEquals(false, realm.supports(baseAuthTok));
+    assertEquals(true, wssStsRealm.supports(baseAuthTok));
+  }
 
-    @Ignore
-    @Test
-    public void testDoGetAuthenticationInfoSAML()
-            throws ParserConfigurationException, SAXException, IOException {
-        StsRealm realm = new StsRealm() {
-            protected SecurityToken renewSecurityToken(SecurityToken securityToken) {
-                return securityToken;
-            }
+  @Ignore
+  @Test
+  public void testDoGetAuthenticationInfoSAML()
+      throws ParserConfigurationException, SAXException, IOException {
+    StsRealm realm =
+        new StsRealm() {
+          protected SecurityToken renewSecurityToken(SecurityToken securityToken) {
+            return securityToken;
+          }
 
-            protected STSClient configureStsClient() {
-                return null;
-            }
+          protected STSClient configureStsClient() {
+            return null;
+          }
         };
-        Element issuedAssertion = this.readDocument("/saml.xml")
-                .getDocumentElement();
-        String assertionId = issuedAssertion.getAttributeNodeNS(null, "ID")
-                .getNodeValue();
-        SecurityToken token = new SecurityToken(assertionId, issuedAssertion, null);
-        AuthenticationToken authenticationToken = mock(SAMLAuthenticationToken.class);
-        when(authenticationToken.getCredentials()).thenReturn(token);
+    Element issuedAssertion = this.readDocument("/saml.xml").getDocumentElement();
+    String assertionId = issuedAssertion.getAttributeNodeNS(null, "ID").getNodeValue();
+    SecurityToken token = new SecurityToken(assertionId, issuedAssertion, null);
+    AuthenticationToken authenticationToken = mock(SAMLAuthenticationToken.class);
+    when(authenticationToken.getCredentials()).thenReturn(token);
 
-        AuthenticationInfo authenticationInfo = realm.doGetAuthenticationInfo(authenticationToken);
-        assertNotNull(authenticationInfo.getCredentials());
-        assertNotNull(authenticationInfo.getPrincipals());
-    }
+    AuthenticationInfo authenticationInfo = realm.doGetAuthenticationInfo(authenticationToken);
+    assertNotNull(authenticationInfo.getCredentials());
+    assertNotNull(authenticationInfo.getPrincipals());
+  }
 
-    @Ignore
-    @Test
-    public void testDoGetAuthenticationInfoBase()
-            throws ParserConfigurationException, SAXException, IOException {
-        Element issuedAssertion = this.readDocument("/saml.xml")
-                .getDocumentElement();
-        String assertionId = issuedAssertion.getAttributeNodeNS(null, "ID")
-                .getNodeValue();
-        final SecurityToken token = new SecurityToken(assertionId, issuedAssertion, null);
-        StsRealm realm = new StsRealm() {
-            protected SecurityToken requestSecurityToken(Object obj) {
-                return token;
-            }
+  @Ignore
+  @Test
+  public void testDoGetAuthenticationInfoBase()
+      throws ParserConfigurationException, SAXException, IOException {
+    Element issuedAssertion = this.readDocument("/saml.xml").getDocumentElement();
+    String assertionId = issuedAssertion.getAttributeNodeNS(null, "ID").getNodeValue();
+    final SecurityToken token = new SecurityToken(assertionId, issuedAssertion, null);
+    StsRealm realm =
+        new StsRealm() {
+          protected SecurityToken requestSecurityToken(Object obj) {
+            return token;
+          }
 
-            protected STSClient configureStsClient() {
-                return null;
-            }
+          protected STSClient configureStsClient() {
+            return null;
+          }
         };
 
-        BaseAuthenticationToken authenticationToken = mock(BaseAuthenticationToken.class);
-        when(authenticationToken.getCredentialsAsXMLString()).thenReturn("creds");
+    BaseAuthenticationToken authenticationToken = mock(BaseAuthenticationToken.class);
+    when(authenticationToken.getCredentialsAsXMLString()).thenReturn("creds");
 
-        AuthenticationInfo authenticationInfo = realm.doGetAuthenticationInfo(authenticationToken);
+    AuthenticationInfo authenticationInfo = realm.doGetAuthenticationInfo(authenticationToken);
 
-        assertNotNull(authenticationInfo.getCredentials());
-        assertNotNull(authenticationInfo.getPrincipals());
-    }
+    assertNotNull(authenticationInfo.getCredentials());
+    assertNotNull(authenticationInfo.getPrincipals());
+  }
 
-    @Test
-    public void testCreateClaimsElement() {
-        StsRealm stsRealm = new StsRealm();
-        stsRealm.setClaims(Arrays.asList("claim1", "claim2", "claim3"));
-        ContextPolicyManager contextPolicyManager = mock(ContextPolicyManager.class);
-        ContextPolicy policy1 = mock(ContextPolicy.class);
-        ContextPolicy policy2 = mock(ContextPolicy.class);
-        when(policy1.getAllowedAttributeNames()).thenReturn(Arrays.asList("claim4", "claim5"));
-        when(policy2.getAllowedAttributeNames()).thenReturn(Arrays.asList("claim6", "claim7"));
-        when(contextPolicyManager.getAllContextPolicies()).thenReturn(Arrays.asList(policy1,
-                policy2));
-        stsRealm.setContextPolicyManager(contextPolicyManager);
+  @Test
+  public void testCreateClaimsElement() {
+    StsRealm stsRealm = new StsRealm();
+    stsRealm.setClaims(Arrays.asList("claim1", "claim2", "claim3"));
+    ContextPolicyManager contextPolicyManager = mock(ContextPolicyManager.class);
+    ContextPolicy policy1 = mock(ContextPolicy.class);
+    ContextPolicy policy2 = mock(ContextPolicy.class);
+    when(policy1.getAllowedAttributeNames()).thenReturn(Arrays.asList("claim4", "claim5"));
+    when(policy2.getAllowedAttributeNames()).thenReturn(Arrays.asList("claim6", "claim7"));
+    when(contextPolicyManager.getAllContextPolicies()).thenReturn(Arrays.asList(policy1, policy2));
+    stsRealm.setContextPolicyManager(contextPolicyManager);
 
-        Element claimsElement = stsRealm.createClaimsElement();
-        assertNotNull(claimsElement);
-        NodeList childNodes = claimsElement.getChildNodes();
-        assertEquals("claim1",
-                childNodes.item(0)
-                        .getAttributes()
-                        .item(1)
-                        .getTextContent());
-        assertEquals("claim2",
-                childNodes.item(1)
-                        .getAttributes()
-                        .item(1)
-                        .getTextContent());
-        assertEquals("claim3",
-                childNodes.item(2)
-                        .getAttributes()
-                        .item(1)
-                        .getTextContent());
-        assertEquals("claim4",
-                childNodes.item(3)
-                        .getAttributes()
-                        .item(1)
-                        .getTextContent());
-        assertEquals("claim5",
-                childNodes.item(4)
-                        .getAttributes()
-                        .item(1)
-                        .getTextContent());
-        assertEquals("claim6",
-                childNodes.item(5)
-                        .getAttributes()
-                        .item(1)
-                        .getTextContent());
-        assertEquals("claim7",
-                childNodes.item(6)
-                        .getAttributes()
-                        .item(1)
-                        .getTextContent());
-    }
+    Element claimsElement = stsRealm.createClaimsElement();
+    assertNotNull(claimsElement);
+    NodeList childNodes = claimsElement.getChildNodes();
+    assertEquals("claim1", childNodes.item(0).getAttributes().item(1).getTextContent());
+    assertEquals("claim2", childNodes.item(1).getAttributes().item(1).getTextContent());
+    assertEquals("claim3", childNodes.item(2).getAttributes().item(1).getTextContent());
+    assertEquals("claim4", childNodes.item(3).getAttributes().item(1).getTextContent());
+    assertEquals("claim5", childNodes.item(4).getAttributes().item(1).getTextContent());
+    assertEquals("claim6", childNodes.item(5).getAttributes().item(1).getTextContent());
+    assertEquals("claim7", childNodes.item(6).getAttributes().item(1).getTextContent());
+  }
 
-    @Test
-    public void testAddClaimsAsString() {
-        StsRealm stsRealm = new StsRealm();
-        assertEquals(0,
-                stsRealm.getClaims()
-                        .size());
-        stsRealm.setClaims("claim1,claim2,claim3");
-        assertEquals(3,
-                stsRealm.getClaims()
-                        .size());
-    }
+  @Test
+  public void testAddClaimsAsString() {
+    StsRealm stsRealm = new StsRealm();
+    assertEquals(0, stsRealm.getClaims().size());
+    stsRealm.setClaims("claim1,claim2,claim3");
+    assertEquals(3, stsRealm.getClaims().size());
+  }
 
-    protected Document readDocument(String name)
-            throws SAXException, IOException, ParserConfigurationException {
-        InputStream inStream = getClass().getResourceAsStream(name);
-        return readXml(inStream);
-    }
+  protected Document readDocument(String name)
+      throws SAXException, IOException, ParserConfigurationException {
+    InputStream inStream = getClass().getResourceAsStream(name);
+    return readXml(inStream);
+  }
 }

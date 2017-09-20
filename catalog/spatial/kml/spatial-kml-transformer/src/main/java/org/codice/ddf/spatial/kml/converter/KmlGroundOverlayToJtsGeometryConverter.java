@@ -14,26 +14,24 @@
 package org.codice.ddf.spatial.kml.converter;
 
 import com.vividsolutions.jts.geom.Geometry;
-
 import de.micromata.opengis.kml.v_2_2_0.GroundOverlay;
 
 public class KmlGroundOverlayToJtsGeometryConverter {
-    private KmlGroundOverlayToJtsGeometryConverter() {
+  private KmlGroundOverlayToJtsGeometryConverter() {}
+
+  public static Geometry from(GroundOverlay kmlGroundOverlay) {
+    if (!isValidKmlPhotoOverlay(kmlGroundOverlay)) {
+      return null;
     }
 
-    public static Geometry from(GroundOverlay kmlGroundOverlay) {
-        if (!isValidKmlPhotoOverlay(kmlGroundOverlay)) {
-            return null;
-        }
+    return KmlLatLonBoxToJtsGeometryConverter.from(kmlGroundOverlay.getLatLonBox());
+  }
 
-        return KmlLatLonBoxToJtsGeometryConverter.from(kmlGroundOverlay.getLatLonBox());
+  public static boolean isValidKmlPhotoOverlay(GroundOverlay kmlGroundOverlay) {
+    if (kmlGroundOverlay == null) {
+      return false;
     }
 
-    public static boolean isValidKmlPhotoOverlay(GroundOverlay kmlGroundOverlay) {
-        if (kmlGroundOverlay == null) {
-            return false;
-        }
-
-        return KmlLatLonBoxToJtsGeometryConverter.isValidKmlLatLonBox(kmlGroundOverlay.getLatLonBox());
-    }
+    return KmlLatLonBoxToJtsGeometryConverter.isValidKmlLatLonBox(kmlGroundOverlay.getLatLonBox());
+  }
 }

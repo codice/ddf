@@ -1,16 +1,16 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
- * General Public License as published by the Free Software Foundation, either version 3 of the
- * License, or any later version.
- * <p>
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
- * is distributed along with this program and can be found at
+ *
+ * <p>This is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * Lesser General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or any later version.
+ *
+ * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
+ * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
- **/
+ */
 package sdk.ddf.soap.hello;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -20,12 +20,19 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * Test.
- * <p/>
- * <p/>
+ *
+ * <p>
+ *
+ * <p>
+ *
  * <p>Java class for HelloWorldResponse complex type.
- * <p/>
+ *
+ * <p>
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * <p/>
+ *
+ * <p>
+ *
  * <pre>
  * &lt;complexType name="HelloWorldResponse">
  *   &lt;complexContent>
@@ -39,30 +46,30 @@ import javax.xml.bind.annotation.XmlType;
  * </pre>
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "HelloWorldResponse", propOrder = {"result"})
+@XmlType(
+  name = "HelloWorldResponse",
+  propOrder = {"result"}
+)
 public class HelloWorldResponse {
 
-    @XmlElement(required = true, nillable = true)
-    protected String result;
+  @XmlElement(required = true, nillable = true)
+  protected String result;
 
-    /**
-     * Gets the value of the result property.
-     *
-     * @return possible object is
-     * {@link String }
-     */
-    public String getResult() {
-        return result;
-    }
+  /**
+   * Gets the value of the result property.
+   *
+   * @return possible object is {@link String }
+   */
+  public String getResult() {
+    return result;
+  }
 
-    /**
-     * Sets the value of the result property.
-     *
-     * @param value allowed object is
-     *              {@link String }
-     */
-    public void setResult(String value) {
-        this.result = value;
-    }
-
+  /**
+   * Sets the value of the result property.
+   *
+   * @param value allowed object is {@link String }
+   */
+  public void setResult(String value) {
+    this.result = value;
+  }
 }

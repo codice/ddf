@@ -14,15 +14,14 @@
 
 package ddf.catalog.transformer.csv;
 
+import ddf.catalog.data.Attribute;
+import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.Metacard;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
-
-import ddf.catalog.data.Attribute;
-import ddf.catalog.data.AttributeDescriptor;
-import ddf.catalog.data.Metacard;
 
 /**
  * An implementation of java.util.Iterator which iterates over Metacard attribute values.
@@ -30,49 +29,45 @@ import ddf.catalog.data.Metacard;
  * @see java.util.Iterator
  */
 class MetacardIterator implements Iterator<Serializable> {
-    private List<AttributeDescriptor> attributeDescriptorList;
+  private List<AttributeDescriptor> attributeDescriptorList;
 
-    private Metacard metacard;
+  private Metacard metacard;
 
-    private int index;
+  private int index;
 
-    /**
-     * @param metacard                the metacard to be iterated over.
-     * @param attributeDescriptorList the list of attributeDescriptors used to determine which
-     *                                metacard attributes to return.
-     */
-    MetacardIterator(final Metacard metacard,
-            final List<AttributeDescriptor> attributeDescriptorList) {
-        this.metacard = metacard;
-        this.attributeDescriptorList = Collections.unmodifiableList(attributeDescriptorList);
-        this.index = 0;
+  /**
+   * @param metacard the metacard to be iterated over.
+   * @param attributeDescriptorList the list of attributeDescriptors used to determine which
+   *     metacard attributes to return.
+   */
+  MetacardIterator(
+      final Metacard metacard, final List<AttributeDescriptor> attributeDescriptorList) {
+    this.metacard = metacard;
+    this.attributeDescriptorList = Collections.unmodifiableList(attributeDescriptorList);
+    this.index = 0;
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public boolean hasNext() {
+    return this.attributeDescriptorList.size() > index;
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public Serializable next() {
+    if (!this.hasNext()) {
+      throw new NoSuchElementException();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean hasNext() {
-        return this.attributeDescriptorList.size() > index;
+    AttributeDescriptor attributeDescriptor = this.attributeDescriptorList.get(index);
+    Attribute attribute = metacard.getAttribute(attributeDescriptor.getName());
+    index++;
+
+    if (attribute != null) {
+      return attribute.getValue();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Serializable next() {
-        if (!this.hasNext()) {
-            throw new NoSuchElementException();
-        }
-
-        AttributeDescriptor attributeDescriptor = this.attributeDescriptorList.get(index);
-        Attribute attribute = metacard.getAttribute(attributeDescriptor.getName());
-        index++;
-
-        if (attribute != null) {
-            return attribute.getValue();
-        }
-
-        return "";
-    }
+    return "";
+  }
 }

@@ -1,41 +1,19 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
- * General Public License as published by the Free Software Foundation, either version 3 of the
- * License, or any later version.
- * <p>
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
- * is distributed along with this program and can be found at
+ *
+ * <p>This is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * Lesser General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or any later version.
+ *
+ * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
+ * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 package org.codice.ddf.catalog.async.processingplugin;
 
 import static org.apache.commons.lang.Validate.notNull;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.codice.ddf.catalog.async.data.api.internal.ProcessCreateItem;
-import org.codice.ddf.catalog.async.data.api.internal.ProcessDeleteItem;
-import org.codice.ddf.catalog.async.data.api.internal.ProcessRequest;
-import org.codice.ddf.catalog.async.data.api.internal.ProcessResource;
-import org.codice.ddf.catalog.async.data.api.internal.ProcessUpdateItem;
-import org.codice.ddf.catalog.async.data.impl.ProcessCreateItemImpl;
-import org.codice.ddf.catalog.async.data.impl.ProcessDeleteItemImpl;
-import org.codice.ddf.catalog.async.data.impl.ProcessRequestImpl;
-import org.codice.ddf.catalog.async.data.impl.ProcessResourceImpl;
-import org.codice.ddf.catalog.async.data.impl.ProcessUpdateItemImpl;
-import org.codice.ddf.catalog.async.processingframework.api.internal.ProcessingFramework;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
@@ -54,6 +32,26 @@ import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import org.codice.ddf.catalog.async.data.api.internal.ProcessCreateItem;
+import org.codice.ddf.catalog.async.data.api.internal.ProcessDeleteItem;
+import org.codice.ddf.catalog.async.data.api.internal.ProcessRequest;
+import org.codice.ddf.catalog.async.data.api.internal.ProcessResource;
+import org.codice.ddf.catalog.async.data.api.internal.ProcessUpdateItem;
+import org.codice.ddf.catalog.async.data.impl.ProcessCreateItemImpl;
+import org.codice.ddf.catalog.async.data.impl.ProcessDeleteItemImpl;
+import org.codice.ddf.catalog.async.data.impl.ProcessRequestImpl;
+import org.codice.ddf.catalog.async.data.impl.ProcessResourceImpl;
+import org.codice.ddf.catalog.async.data.impl.ProcessUpdateItemImpl;
+import org.codice.ddf.catalog.async.processingframework.api.internal.ProcessingFramework;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The {@code ProcessingPostIngestPlugin} is a {@link PostIngestPlugin} that is responsible for
@@ -61,154 +59,163 @@ import ddf.security.Subject;
  */
 public class ProcessingPostIngestPlugin implements PostIngestPlugin {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProcessingPostIngestPlugin.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ProcessingPostIngestPlugin.class);
 
-    private static final String POST_PROCESS_COMPLETE =
-            "catalog-async-processing-plugin:post-process-complete";
+  private static final String POST_PROCESS_COMPLETE =
+      "catalog-async-processing-plugin:post-process-complete";
 
-    private ProcessingFramework processingFramework;
+  private ProcessingFramework processingFramework;
 
-    private CatalogFramework catalogFramework;
+  private CatalogFramework catalogFramework;
 
-    public ProcessingPostIngestPlugin(CatalogFramework catalogFramework,
-            ProcessingFramework processingFramework) {
-        notNull(catalogFramework, "The catalog framework must not be null");
-        notNull(processingFramework, "The processing framework must not be null");
+  public ProcessingPostIngestPlugin(
+      CatalogFramework catalogFramework, ProcessingFramework processingFramework) {
+    notNull(catalogFramework, "The catalog framework must not be null");
+    notNull(processingFramework, "The processing framework must not be null");
 
-        this.catalogFramework = catalogFramework;
-        this.processingFramework = processingFramework;
+    this.catalogFramework = catalogFramework;
+    this.processingFramework = processingFramework;
+  }
+
+  @Override
+  public CreateResponse process(CreateResponse input) throws PluginExecutionException {
+    if (input != null && input.getCreatedMetacards() != null && !isAlreadyPostProcessed(input)) {
+      processingFramework.submitCreate(createCreateRequest(input));
+    }
+    return input;
+  }
+
+  @Override
+  public UpdateResponse process(UpdateResponse input) throws PluginExecutionException {
+    if (input != null && input.getUpdatedMetacards() != null && !isAlreadyPostProcessed(input)) {
+      processingFramework.submitUpdate(createUpdateRequest(input));
+    }
+    return input;
+  }
+
+  @Override
+  public DeleteResponse process(DeleteResponse input) throws PluginExecutionException {
+    if (input != null && input.getDeletedMetacards() != null && !isAlreadyPostProcessed(input)) {
+      processingFramework.submitDelete(createDeleteRequest(input));
+    }
+    return input;
+  }
+
+  private static boolean isAlreadyPostProcessed(Response response) {
+    Map<String, Serializable> properties = response.getRequest().getProperties();
+    if (properties.containsKey(POST_PROCESS_COMPLETE)) {
+      Serializable prop = properties.get(POST_PROCESS_COMPLETE);
+      if (prop instanceof Boolean) {
+        return (boolean) prop;
+      } else {
+        LOGGER.debug(
+            "{} request property was not a boolean. Clearing the property and returning true. PostProcessingPlugins will not be run as an infinite loop may occur.",
+            POST_PROCESS_COMPLETE);
+        properties.remove(POST_PROCESS_COMPLETE);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static Map<String, Serializable> putPostProcessCompleteFlagAndGet(
+      Map<String, Serializable> properties) {
+    Map<String, Serializable> newProperties = new HashMap<>(properties);
+    newProperties.put(POST_PROCESS_COMPLETE, true);
+    return newProperties;
+  }
+
+  private ProcessRequest<ProcessCreateItem> createCreateRequest(CreateResponse createResponse) {
+    List<ProcessCreateItem> processCreateItems;
+
+    processCreateItems =
+        createResponse
+            .getCreatedMetacards()
+            .stream()
+            .map(
+                metacard ->
+                    new ProcessCreateItemImpl(
+                        getProcessResource(metacard, getSubject(createResponse)), metacard, false))
+            .collect(Collectors.toList());
+
+    return new ProcessRequestImpl(
+        processCreateItems, putPostProcessCompleteFlagAndGet(createResponse.getProperties()));
+  }
+
+  private ProcessRequest<ProcessUpdateItem> createUpdateRequest(UpdateResponse updateResponse) {
+    List<Update> updates = updateResponse.getUpdatedMetacards();
+    List<ProcessUpdateItem> processUpdateItems = new ArrayList<>();
+
+    for (Update update : updates) {
+      Metacard oldCard = update.getOldMetacard();
+      Metacard newCard = update.getNewMetacard();
+      ProcessUpdateItem processItem =
+          new ProcessUpdateItemImpl(
+              getProcessResource(newCard, getSubject(updateResponse)), newCard, oldCard, false);
+      processUpdateItems.add(processItem);
     }
 
-    @Override
-    public CreateResponse process(CreateResponse input) throws PluginExecutionException {
-        if (input != null && input.getCreatedMetacards() != null
-                && !isAlreadyPostProcessed(input)) {
-            processingFramework.submitCreate(createCreateRequest(input));
-        }
-        return input;
+    return new ProcessRequestImpl(
+        processUpdateItems, putPostProcessCompleteFlagAndGet(updateResponse.getProperties()));
+  }
+
+  private Subject getSubject(Response response) {
+    return (Subject) response.getProperties().get(SecurityConstants.SECURITY_SUBJECT);
+  }
+
+  private ProcessRequest<ProcessDeleteItem> createDeleteRequest(DeleteResponse deleteResponse) {
+    List<ProcessDeleteItem> processDeleteItems =
+        deleteResponse
+            .getDeletedMetacards()
+            .stream()
+            .map(ProcessDeleteItemImpl::new)
+            .collect(Collectors.toList());
+
+    return new ProcessRequestImpl(
+        processDeleteItems, putPostProcessCompleteFlagAndGet(deleteResponse.getProperties()));
+  }
+
+  private ProcessResource getProcessResource(Metacard metacard, Subject subject) {
+    LOGGER.trace(
+        "Attempting to retrieve process resource metacard with id \"{}\" and sourceId \"{}\".",
+        metacard.getId(),
+        metacard.getSourceId());
+
+    ResourceRequest request = new ResourceRequestById(metacard.getId());
+
+    if (subject == null) {
+      LOGGER.debug("No available subject to fetch metacard resource. Returning null");
+      return null;
     }
 
-    @Override
-    public UpdateResponse process(UpdateResponse input) throws PluginExecutionException {
-        if (input != null && input.getUpdatedMetacards() != null
-                && !isAlreadyPostProcessed(input)) {
-            processingFramework.submitUpdate(createUpdateRequest(input));
-        }
-        return input;
-    }
+    return subject.execute(
+        () -> {
+          try {
+            ResourceResponse response =
+                catalogFramework.getResource(request, metacard.getSourceId());
+            Resource resource = response.getResource();
 
-    @Override
-    public DeleteResponse process(DeleteResponse input) throws PluginExecutionException {
-        if (input != null && input.getDeletedMetacards() != null
-                && !isAlreadyPostProcessed(input)) {
-            processingFramework.submitDelete(createDeleteRequest(input));
-        }
-        return input;
-    }
+            ProcessResource processResource =
+                new ProcessResourceImpl(
+                    metacard.getId(),
+                    resource.getInputStream(),
+                    resource.getMimeTypeValue(),
+                    resource.getName(),
+                    resource.getSize(),
+                    false);
 
-    private static boolean isAlreadyPostProcessed(Response response) {
-        Map<String, Serializable> properties = response.getRequest()
-                .getProperties();
-        if (properties.containsKey(POST_PROCESS_COMPLETE)) {
-            Serializable prop = properties.get(POST_PROCESS_COMPLETE);
-            if (prop instanceof Boolean) {
-                return (boolean) prop;
-            } else {
-                LOGGER.debug(
-                        "{} request property was not a boolean. Clearing the property and returning true. PostProcessingPlugins will not be run as an infinite loop may occur.",
-                        POST_PROCESS_COMPLETE);
-                properties.remove(POST_PROCESS_COMPLETE);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static Map<String, Serializable> putPostProcessCompleteFlagAndGet(
-            Map<String, Serializable> properties) {
-        Map<String, Serializable> newProperties = new HashMap<>(properties);
-        newProperties.put(POST_PROCESS_COMPLETE, true);
-        return newProperties;
-    }
-
-    private ProcessRequest<ProcessCreateItem> createCreateRequest(CreateResponse createResponse) {
-        List<ProcessCreateItem> processCreateItems;
-
-        processCreateItems = createResponse.getCreatedMetacards()
-                .stream()
-                .map(metacard -> new ProcessCreateItemImpl(getProcessResource(metacard,
-                        getSubject(createResponse)), metacard, false))
-                .collect(Collectors.toList());
-
-        return new ProcessRequestImpl(processCreateItems,
-                putPostProcessCompleteFlagAndGet(createResponse.getProperties()));
-    }
-
-    private ProcessRequest<ProcessUpdateItem> createUpdateRequest(UpdateResponse updateResponse) {
-        List<Update> updates = updateResponse.getUpdatedMetacards();
-        List<ProcessUpdateItem> processUpdateItems = new ArrayList<>();
-
-        for (Update update : updates) {
-            Metacard oldCard = update.getOldMetacard();
-            Metacard newCard = update.getNewMetacard();
-            ProcessUpdateItem processItem = new ProcessUpdateItemImpl(getProcessResource(newCard,
-                    getSubject(updateResponse)), newCard, oldCard, false);
-            processUpdateItems.add(processItem);
-        }
-
-        return new ProcessRequestImpl(processUpdateItems,
-                putPostProcessCompleteFlagAndGet(updateResponse.getProperties()));
-    }
-
-    private Subject getSubject(Response response) {
-        return (Subject) response.getProperties()
-                .get(SecurityConstants.SECURITY_SUBJECT);
-    }
-
-    private ProcessRequest<ProcessDeleteItem> createDeleteRequest(DeleteResponse deleteResponse) {
-        List<ProcessDeleteItem> processDeleteItems = deleteResponse.getDeletedMetacards()
-                .stream()
-                .map(ProcessDeleteItemImpl::new)
-                .collect(Collectors.toList());
-
-        return new ProcessRequestImpl(processDeleteItems,
-                putPostProcessCompleteFlagAndGet(deleteResponse.getProperties()));
-    }
-
-    private ProcessResource getProcessResource(Metacard metacard, Subject subject) {
-        LOGGER.trace(
-                "Attempting to retrieve process resource metacard with id \"{}\" and sourceId \"{}\".",
+            return processResource;
+          } catch (IOException
+              | ResourceNotFoundException
+              | ResourceNotSupportedException
+              | RuntimeException e) {
+            LOGGER.debug(
+                "Unable to get resource id:{}, sourceId:{}. Returning null",
                 metacard.getId(),
-                metacard.getSourceId());
-
-        ResourceRequest request = new ResourceRequestById(metacard.getId());
-
-        if (subject == null) {
-            LOGGER.debug("No available subject to fetch metacard resource. Returning null");
-            return null;
-        }
-
-        return subject.execute(() -> {
-            try {
-                ResourceResponse response = catalogFramework.getResource(request,
-                        metacard.getSourceId());
-                Resource resource = response.getResource();
-
-                ProcessResource processResource = new ProcessResourceImpl(metacard.getId(),
-                        resource.getInputStream(),
-                        resource.getMimeTypeValue(),
-                        resource.getName(),
-                        resource.getSize(),
-                        false);
-
-                return processResource;
-            } catch (IOException | ResourceNotFoundException | ResourceNotSupportedException | RuntimeException e) {
-                LOGGER.debug("Unable to get resource id:{}, sourceId:{}. Returning null",
-                        metacard.getId(),
-                        metacard.getSourceId(),
-                        e);
-            }
-            return null;
+                metacard.getSourceId(),
+                e);
+          }
+          return null;
         });
-    }
+  }
 }

@@ -1,32 +1,31 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
- * General Public License as published by the Free Software Foundation, either version 3 of the
- * License, or any later version.
- * <p/>
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
- * is distributed along with this program and can be found at
+ *
+ * <p>This is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * Lesser General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or any later version.
+ *
+ * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
+ * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 package ddf.catalog.ftp;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import static ddf.catalog.ftp.FtpServerStarter.CLIENT_AUTH;
 import static ddf.catalog.ftp.FtpServerStarter.NEED;
 import static ddf.catalog.ftp.FtpServerStarter.PORT;
 import static ddf.catalog.ftp.FtpServerStarter.WANT;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import ddf.catalog.ftp.ftplets.FtpRequestHandler;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-
 import org.apache.ftpserver.FtpServerConfigurationException;
 import org.apache.ftpserver.FtpServerFactory;
 import org.apache.ftpserver.ftplet.FtpStatistics;
@@ -41,135 +40,127 @@ import org.apache.ftpserver.ssl.SslConfigurationFactory;
 import org.junit.Before;
 import org.junit.Test;
 
-import ddf.catalog.ftp.ftplets.FtpRequestHandler;
-
 public class FtpServerStarterTest {
 
-    private static final String DEFAULT_LISTENER = "default";
+  private static final String DEFAULT_LISTENER = "default";
 
-    private FtpServerStarter ftpServerStarter;
+  private FtpServerStarter ftpServerStarter;
 
-    private FtpServerFactory ftpServerFactory;
+  private FtpServerFactory ftpServerFactory;
 
-    private Listener defaultListener;
+  private Listener defaultListener;
 
-    private DefaultFtpServer server;
+  private DefaultFtpServer server;
 
-    private ListenerFactory listenerFactory;
+  private ListenerFactory listenerFactory;
 
-    private SslConfigurationFactory sslConfigurationFactory;
+  private SslConfigurationFactory sslConfigurationFactory;
 
-    HashSet<FtpIoSession> sessions;
+  HashSet<FtpIoSession> sessions;
 
-    @Before
-    public void setup() {
-        Ftplet ftplet = mock(FtpRequestHandler.class);
-        ftpServerFactory = mock(FtpServerFactory.class);
-        listenerFactory = mock(ListenerFactory.class);
-        UserManager userManager = mock(UserManagerImpl.class);
-        sslConfigurationFactory = mock(SslConfigurationFactory.class);
+  @Before
+  public void setup() {
+    Ftplet ftplet = mock(FtpRequestHandler.class);
+    ftpServerFactory = mock(FtpServerFactory.class);
+    listenerFactory = mock(ListenerFactory.class);
+    UserManager userManager = mock(UserManagerImpl.class);
+    sslConfigurationFactory = mock(SslConfigurationFactory.class);
 
-        defaultListener = mock(Listener.class);
-        server = mock(DefaultFtpServer.class, RETURNS_DEEP_STUBS);
+    defaultListener = mock(Listener.class);
+    server = mock(DefaultFtpServer.class, RETURNS_DEEP_STUBS);
 
-        sessions = new HashSet<>();
+    sessions = new HashSet<>();
 
-        ftpServerStarter = new FtpServerStarter(ftplet,
-                ftpServerFactory,
-                listenerFactory,
-                userManager,
-                sslConfigurationFactory);
-    }
+    ftpServerStarter =
+        new FtpServerStarter(
+            ftplet, ftpServerFactory, listenerFactory, userManager, sslConfigurationFactory);
+  }
 
-    @Test
-    public void updateConfigurationWithoutActiveConnectionsTest() {
-        FtpStatistics stats = mock(FtpStatistics.class);
+  @Test
+  public void updateConfigurationWithoutActiveConnectionsTest() {
+    FtpStatistics stats = mock(FtpStatistics.class);
 
-        Map<String, Object> properties = createProperties(8022, NEED);
+    Map<String, Object> properties = createProperties(8022, NEED);
 
-        when(ftpServerFactory.createServer()).thenReturn(server);
-        when(server.getListener(DEFAULT_LISTENER)).thenReturn(defaultListener);
-        when(server.getServerContext()
-                .getFtpStatistics()).thenReturn(stats);
-        when(stats.getCurrentConnectionNumber()).thenReturn(0);
-        when(server.isSuspended()).thenReturn(true);
+    when(ftpServerFactory.createServer()).thenReturn(server);
+    when(server.getListener(DEFAULT_LISTENER)).thenReturn(defaultListener);
+    when(server.getServerContext().getFtpStatistics()).thenReturn(stats);
+    when(stats.getCurrentConnectionNumber()).thenReturn(0);
+    when(server.isSuspended()).thenReturn(true);
 
-        ftpServerStarter.init();
-        ftpServerStarter.updateConfiguration(properties);
+    ftpServerStarter.init();
+    ftpServerStarter.updateConfiguration(properties);
 
-        assertEquals(8022, ftpServerStarter.getPort());
-        assertEquals(ClientAuth.NEED, ftpServerStarter.getClientAuthMode());
-    }
+    assertEquals(8022, ftpServerStarter.getPort());
+    assertEquals(ClientAuth.NEED, ftpServerStarter.getClientAuthMode());
+  }
 
-    @Test
-    public void updateConfigurationWithActiveConnectionsTest() {
-        FtpStatistics stats = mock(FtpStatistics.class);
+  @Test
+  public void updateConfigurationWithActiveConnectionsTest() {
+    FtpStatistics stats = mock(FtpStatistics.class);
 
-        Map<String, Object> properties = createProperties(8022, NEED);
+    Map<String, Object> properties = createProperties(8022, NEED);
 
-        when(ftpServerFactory.createServer()).thenReturn(server);
-        when(server.getListener(DEFAULT_LISTENER)).thenReturn(defaultListener);
-        when(server.getServerContext()
-                .getFtpStatistics()).thenReturn(stats);
-        when(stats.getCurrentConnectionNumber()).thenReturn(1);
-        when(server.isSuspended()).thenReturn(true);
+    when(ftpServerFactory.createServer()).thenReturn(server);
+    when(server.getListener(DEFAULT_LISTENER)).thenReturn(defaultListener);
+    when(server.getServerContext().getFtpStatistics()).thenReturn(stats);
+    when(stats.getCurrentConnectionNumber()).thenReturn(1);
+    when(server.isSuspended()).thenReturn(true);
 
-        ftpServerStarter.setMaxSleepTime(2);
-        ftpServerStarter.setResetWaitTime(1);
+    ftpServerStarter.setMaxSleepTime(2);
+    ftpServerStarter.setResetWaitTime(1);
 
-        ftpServerStarter.init();
-        ftpServerStarter.updateConfiguration(properties);
+    ftpServerStarter.init();
+    ftpServerStarter.updateConfiguration(properties);
 
-        assertEquals(8022, ftpServerStarter.getPort());
-        assertEquals(ClientAuth.NEED, ftpServerStarter.getClientAuthMode());
-    }
+    assertEquals(8022, ftpServerStarter.getPort());
+    assertEquals(ClientAuth.NEED, ftpServerStarter.getClientAuthMode());
+  }
 
-    @Test
-    public void updateConfigurationInvalidClientAuth() {
-        FtpStatistics stats = mock(FtpStatistics.class);
+  @Test
+  public void updateConfigurationInvalidClientAuth() {
+    FtpStatistics stats = mock(FtpStatistics.class);
 
-        Map<String, Object> properties = createProperties(8021, "bologna");
+    Map<String, Object> properties = createProperties(8021, "bologna");
 
-        when(ftpServerFactory.createServer()).thenReturn(server);
-        when(server.getListener(DEFAULT_LISTENER)).thenReturn(defaultListener);
-        when(server.getServerContext()
-                .getFtpStatistics()).thenReturn(stats);
-        when(stats.getCurrentConnectionNumber()).thenReturn(0);
-        when(server.isSuspended()).thenReturn(true);
+    when(ftpServerFactory.createServer()).thenReturn(server);
+    when(server.getListener(DEFAULT_LISTENER)).thenReturn(defaultListener);
+    when(server.getServerContext().getFtpStatistics()).thenReturn(stats);
+    when(stats.getCurrentConnectionNumber()).thenReturn(0);
+    when(server.isSuspended()).thenReturn(true);
 
-        ftpServerStarter.init();
-        ftpServerStarter.updateConfiguration(properties);
+    ftpServerStarter.init();
+    ftpServerStarter.updateConfiguration(properties);
 
-        assertEquals(ClientAuth.WANT, ftpServerStarter.getClientAuthMode());
-    }
+    assertEquals(ClientAuth.WANT, ftpServerStarter.getClientAuthMode());
+  }
 
-    @Test(expected = FtpServerConfigurationException.class)
-    public void sslConfigurationCreationFail() {
-        when(sslConfigurationFactory.createSslConfiguration()).thenThrow(
-                FtpServerConfigurationException.class);
+  @Test(expected = FtpServerConfigurationException.class)
+  public void sslConfigurationCreationFail() {
+    when(sslConfigurationFactory.createSslConfiguration())
+        .thenThrow(FtpServerConfigurationException.class);
 
-        ftpServerStarter.init();
-    }
+    ftpServerStarter.init();
+  }
 
-    @Test
-    public void testSetClientAuthWant() {
-        ftpServerStarter.setClientAuth(WANT);
-        assertEquals(ClientAuth.WANT, ftpServerStarter.getClientAuthMode());
-    }
+  @Test
+  public void testSetClientAuthWant() {
+    ftpServerStarter.setClientAuth(WANT);
+    assertEquals(ClientAuth.WANT, ftpServerStarter.getClientAuthMode());
+  }
 
-    @Test
-    public void testSetClientAuthNeed() {
-        ftpServerStarter.setClientAuth(NEED);
-        assertEquals(ClientAuth.NEED, ftpServerStarter.getClientAuthMode());
-    }
+  @Test
+  public void testSetClientAuthNeed() {
+    ftpServerStarter.setClientAuth(NEED);
+    assertEquals(ClientAuth.NEED, ftpServerStarter.getClientAuthMode());
+  }
 
-    private Map<String, Object> createProperties(int port, String clientAuth) {
-        Map<String, Object> properties = new HashMap<>();
+  private Map<String, Object> createProperties(int port, String clientAuth) {
+    Map<String, Object> properties = new HashMap<>();
 
-        properties.put(PORT, Integer.toString(port));
-        properties.put(CLIENT_AUTH, clientAuth);
+    properties.put(PORT, Integer.toString(port));
+    properties.put(CLIENT_AUTH, clientAuth);
 
-        return properties;
-    }
-
+    return properties;
+  }
 }

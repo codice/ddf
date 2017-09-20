@@ -13,31 +13,27 @@
  **/
 package org.codice.ddf.spatial.kml.converter;
 
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import de.micromata.opengis.kml.v_2_2_0.LineString;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.springframework.util.CollectionUtils;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
-
-import de.micromata.opengis.kml.v_2_2_0.LineString;
-
 public class KmlToJtsLineStringConverter {
-    private static final GeometryFactory GEOMETRY_FACTORY = JTSFactoryFinder.getGeometryFactory();
+  private static final GeometryFactory GEOMETRY_FACTORY = JTSFactoryFinder.getGeometryFactory();
 
-    private KmlToJtsLineStringConverter() {
+  private KmlToJtsLineStringConverter() {}
+
+  public static com.vividsolutions.jts.geom.LineString from(LineString kmlLineString) {
+    if (!isValidKmlLineString(kmlLineString)) {
+      return null;
     }
+    Coordinate[] jtsCoordinates = KmlToJtsCoordinateConverter.from(kmlLineString.getCoordinates());
 
-    public static com.vividsolutions.jts.geom.LineString from(LineString kmlLineString) {
-        if (!isValidKmlLineString(kmlLineString)) {
-            return null;
-        }
-        Coordinate[] jtsCoordinates =
-                KmlToJtsCoordinateConverter.from(kmlLineString.getCoordinates());
+    return GEOMETRY_FACTORY.createLineString(jtsCoordinates);
+  }
 
-        return GEOMETRY_FACTORY.createLineString(jtsCoordinates);
-    }
-
-    public static boolean isValidKmlLineString(LineString kmlLineString) {
-        return kmlLineString != null && !CollectionUtils.isEmpty(kmlLineString.getCoordinates());
-    }
+  public static boolean isValidKmlLineString(LineString kmlLineString) {
+    return kmlLineString != null && !CollectionUtils.isEmpty(kmlLineString.getCoordinates());
+  }
 }

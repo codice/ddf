@@ -14,35 +14,33 @@
 
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings;
 
+import ddf.catalog.data.types.Core;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.commons.lang3.StringUtils;
 import org.geotools.filter.visitor.DuplicatingFilterVisitor;
 import org.opengis.filter.PropertyIsEqualTo;
 import org.opengis.filter.expression.Literal;
 import org.opengis.filter.expression.PropertyName;
 
-import ddf.catalog.data.types.Core;
-
 public class SourceIdFilterVisitor extends DuplicatingFilterVisitor {
-    private List<String> sourceIds = new ArrayList<>();
+  private List<String> sourceIds = new ArrayList<>();
 
-    @Override
-    public Object visit(PropertyIsEqualTo filter, Object extraData) {
-        if (filter.getExpression1() instanceof PropertyName) {
-            String propertyName = ((PropertyName) filter.getExpression1()).getPropertyName();
-            if (StringUtils.equals(Core.SOURCE_ID, propertyName)) {
-                Literal sourceId = (Literal) filter.getExpression2();
-                sourceIds.add((String) sourceId.getValue());
-                return null;
-            }
-        }
-
-        return super.visit(filter, extraData);
+  @Override
+  public Object visit(PropertyIsEqualTo filter, Object extraData) {
+    if (filter.getExpression1() instanceof PropertyName) {
+      String propertyName = ((PropertyName) filter.getExpression1()).getPropertyName();
+      if (StringUtils.equals(Core.SOURCE_ID, propertyName)) {
+        Literal sourceId = (Literal) filter.getExpression2();
+        sourceIds.add((String) sourceId.getValue());
+        return null;
+      }
     }
 
-    public List<String> getSourceIds() {
-        return sourceIds;
-    }
+    return super.visit(filter, extraData);
+  }
+
+  public List<String> getSourceIds() {
+    return sourceIds;
+  }
 }

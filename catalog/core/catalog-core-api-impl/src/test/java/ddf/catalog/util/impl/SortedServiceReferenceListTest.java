@@ -1,14 +1,14 @@
 /**
  * Copyright (c) Codice Foundation
- * <p>
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
- * General Public License as published by the Free Software Foundation, either version 3 of the
- * License, or any later version.
- * <p>
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
- * is distributed along with this program and can be found at
+ *
+ * <p>This is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * Lesser General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or any later version.
+ *
+ * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
+ * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 package ddf.catalog.util.impl;
@@ -18,7 +18,6 @@ import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.junit.Assert.assertThat;
 
 import java.util.Random;
-
 import org.junit.Test;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
@@ -27,75 +26,69 @@ import org.slf4j.LoggerFactory;
 
 public class SortedServiceReferenceListTest {
 
-    private static final Logger LOGGER =
-            LoggerFactory.getLogger(SortedServiceReferenceListTest.class);
+  private static final Logger LOGGER =
+      LoggerFactory.getLogger(SortedServiceReferenceListTest.class);
 
-    @Test
-    public void testAscending() {
+  @Test
+  public void testAscending() {
 
-        SortedServiceReferenceList refList = new SortedServiceReferenceList();
+    SortedServiceReferenceList refList = new SortedServiceReferenceList();
 
-        int loopAmount = 100;
+    int loopAmount = 100;
 
-        for (int i = 0; i < loopAmount; i++) {
-            refList.bindService(new ServiceReferenceImpl(i));
-        }
-
-        assertThat(refList.size(), is(loopAmount));
-
-        assertInOrder(refList, loopAmount);
-
+    for (int i = 0; i < loopAmount; i++) {
+      refList.bindService(new ServiceReferenceImpl(i));
     }
 
-    @Test
-    public void testDescending() {
+    assertThat(refList.size(), is(loopAmount));
 
-        SortedServiceReferenceList refList = new SortedServiceReferenceList();
+    assertInOrder(refList, loopAmount);
+  }
 
-        int loopAmount = 100;
+  @Test
+  public void testDescending() {
 
-        for (int i = loopAmount; i > 0; i--) {
-            refList.bindService(new ServiceReferenceImpl(i));
-        }
+    SortedServiceReferenceList refList = new SortedServiceReferenceList();
 
-        assertThat(refList.size(), is(loopAmount));
+    int loopAmount = 100;
 
-        assertInOrder(refList, loopAmount);
-
+    for (int i = loopAmount; i > 0; i--) {
+      refList.bindService(new ServiceReferenceImpl(i));
     }
 
-    @Test
-    public void testRandomOrder() {
+    assertThat(refList.size(), is(loopAmount));
 
-        SortedServiceReferenceList refList = new SortedServiceReferenceList();
+    assertInOrder(refList, loopAmount);
+  }
 
-        int loopAmount = 100;
+  @Test
+  public void testRandomOrder() {
 
-        Random random = new Random(System.currentTimeMillis());
+    SortedServiceReferenceList refList = new SortedServiceReferenceList();
 
-        for (int i = 0; i < loopAmount; i++) {
-            refList.bindService(new ServiceReferenceImpl(random.nextInt()));
-        }
+    int loopAmount = 100;
 
-        assertThat(refList.size(), is(loopAmount));
+    Random random = new Random(System.currentTimeMillis());
 
-        assertInOrder(refList, Integer.MAX_VALUE);
-
+    for (int i = 0; i < loopAmount; i++) {
+      refList.bindService(new ServiceReferenceImpl(random.nextInt()));
     }
 
-    protected void assertInOrder(SortedServiceReferenceList refList, int startingLowestRank) {
-        int lowestRanking = startingLowestRank;
+    assertThat(refList.size(), is(loopAmount));
 
-        for (ServiceReference s : refList) {
+    assertInOrder(refList, Integer.MAX_VALUE);
+  }
 
-            Integer ranking = (Integer) s.getProperty(Constants.SERVICE_RANKING);
-            LOGGER.debug("service is ranked [{}], lowest current ranking [{}]",
-                    ranking,
-                    lowestRanking);
-            assertThat(ranking, lessThanOrEqualTo(lowestRanking));
+  protected void assertInOrder(SortedServiceReferenceList refList, int startingLowestRank) {
+    int lowestRanking = startingLowestRank;
 
-            lowestRanking = ranking;
-        }
+    for (ServiceReference s : refList) {
+
+      Integer ranking = (Integer) s.getProperty(Constants.SERVICE_RANKING);
+      LOGGER.debug("service is ranked [{}], lowest current ranking [{}]", ranking, lowestRanking);
+      assertThat(ranking, lessThanOrEqualTo(lowestRanking));
+
+      lowestRanking = ranking;
     }
-
+  }
 }

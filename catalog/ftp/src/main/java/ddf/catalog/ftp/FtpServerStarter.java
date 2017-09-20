@@ -1,23 +1,23 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
- * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
- * General Public License as published by the Free Software Foundation, either version 3 of the
- * License, or any later version.
- * <p/>
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
- * is distributed along with this program and can be found at
+ *
+ * <p>This is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * Lesser General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or any later version.
+ *
+ * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
+ * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 package ddf.catalog.ftp;
 
+import ddf.catalog.ftp.ftplets.FtpRequestHandler;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.collections.MapUtils;
 import org.apache.ftpserver.FtpServer;
 import org.apache.ftpserver.FtpServerConfigurationException;
@@ -34,311 +34,305 @@ import org.codice.ddf.configuration.PropertyResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ddf.catalog.ftp.ftplets.FtpRequestHandler;
-
-/**
- * Registers the {@link FtpRequestHandler} and starts the FTP server for the FTP Endpoint.
- */
+/** Registers the {@link FtpRequestHandler} and starts the FTP server for the FTP Endpoint. */
 public class FtpServerStarter {
-    private static final Logger LOGGER = LoggerFactory.getLogger(FtpServerStarter.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(FtpServerStarter.class);
 
-    private static final String DEFAULT_LISTENER = "default";
+  private static final String DEFAULT_LISTENER = "default";
 
-    public static final String PORT = "port";
+  public static final String PORT = "port";
 
-    public static final String CLIENT_AUTH = "clientAuth";
+  public static final String CLIENT_AUTH = "clientAuth";
 
-    public static final String WANT = "want";
+  public static final String WANT = "want";
 
-    public static final String NEED = "need";
+  public static final String NEED = "need";
 
-    private static int maxSleepTimeMillis = 60000;
+  private static int maxSleepTimeMillis = 60000;
 
-    private static int resetWaitTimeMillis = 5000;
+  private static int resetWaitTimeMillis = 5000;
 
-    private int port;
+  private int port;
 
-    private ClientAuth clientAuth = ClientAuth.WANT;
+  private ClientAuth clientAuth = ClientAuth.WANT;
 
-    private static FtpServer server;
+  private static FtpServer server;
 
-    private static FtpServerFactory serverFactory;
+  private static FtpServerFactory serverFactory;
 
-    private static UserManager userManager;
+  private static UserManager userManager;
 
-    private static ListenerFactory listenerFactory;
+  private static ListenerFactory listenerFactory;
 
-    private static SslConfigurationFactory sslConfigurationFactory;
+  private static SslConfigurationFactory sslConfigurationFactory;
 
-    private Ftplet ftplet;
+  private Ftplet ftplet;
 
-    private File keyStoreFile;
+  private File keyStoreFile;
 
-    private String keyStorePassword;
+  private String keyStorePassword;
 
-    private String keyStoreType;
+  private String keyStoreType;
 
-    private File trustStoreFile;
+  private File trustStoreFile;
 
-    private String trustStorePassword;
+  private String trustStorePassword;
 
-    private String trustStoreType;
+  private String trustStoreType;
 
-    public FtpServerStarter(Ftplet ftplet, FtpServerFactory serverFactory,
-            ListenerFactory listenerFactory, UserManager userManager,
-            SslConfigurationFactory sslConfigurationFactory) {
-        notNull(ftplet, "ftplet");
-        notNull(serverFactory, "serverFactory");
-        notNull(listenerFactory, "listenerFactory");
-        notNull(userManager, "userManager");
-        notNull(sslConfigurationFactory, "sslConfigurationFactory");
+  public FtpServerStarter(
+      Ftplet ftplet,
+      FtpServerFactory serverFactory,
+      ListenerFactory listenerFactory,
+      UserManager userManager,
+      SslConfigurationFactory sslConfigurationFactory) {
+    notNull(ftplet, "ftplet");
+    notNull(serverFactory, "serverFactory");
+    notNull(listenerFactory, "listenerFactory");
+    notNull(userManager, "userManager");
+    notNull(sslConfigurationFactory, "sslConfigurationFactory");
 
-        this.ftplet = ftplet;
-        this.serverFactory = serverFactory;
-        this.listenerFactory = listenerFactory;
-        this.userManager = userManager;
-        this.sslConfigurationFactory = sslConfigurationFactory;
+    this.ftplet = ftplet;
+    this.serverFactory = serverFactory;
+    this.listenerFactory = listenerFactory;
+    this.userManager = userManager;
+    this.sslConfigurationFactory = sslConfigurationFactory;
+  }
+
+  public void init() {
+    configureSslConfigurationFactory();
+    configureListenerFactory();
+    configureServerFactory();
+
+    server = serverFactory.createServer();
+    if (server != null) {
+      startServer();
+    }
+  }
+
+  public void destroy() {
+    if (server != null && !isStopped()) {
+      server.stop();
+      LOGGER.debug("FTP server stopped");
+    }
+  }
+
+  /**
+   * Callback for when the FTP Endpoint configuration is updated through the Admin UI
+   *
+   * @param properties map of configurable properties
+   */
+  public void updateConfiguration(Map<String, Object> properties) {
+    if (MapUtils.isEmpty(properties)) {
+      LOGGER.warn(
+          "Received null or empty FTP Endpoint configuration. Check the 'FTP Endpoint' configuration.");
+      return;
     }
 
-    public void init() {
-        configureSslConfigurationFactory();
-        configureListenerFactory();
-        configureServerFactory();
+    LOGGER.debug("Updating FTP Endpoint configuration");
+    Boolean restart = false;
 
-        server = serverFactory.createServer();
-        if (server != null) {
-            startServer();
+    if (properties.get(PORT) instanceof String) {
+      //using PropertyResolver in case properties.get("port") is ${org.codice.ddf.catalog.ftp.port}
+      PropertyResolver propertyResolver = new PropertyResolver((String) properties.get("port"));
+      int port = Integer.parseInt(propertyResolver.getResolvedString());
+      if (this.port != port) {
+        setPort(port);
+        restart = true;
+      }
+    }
+
+    if (properties.get(CLIENT_AUTH) instanceof String) {
+      String clientAuth = ((String) properties.get("clientAuth")).toLowerCase();
+      if (!this.clientAuth.toString().equalsIgnoreCase(clientAuth)) {
+        setClientAuth(clientAuth);
+        restart = true;
+      }
+    }
+
+    if (restart) {
+      restartDefaultListener();
+    }
+  }
+
+  private void configureListenerFactory() {
+    try {
+      listenerFactory.setSslConfiguration(sslConfigurationFactory.createSslConfiguration());
+    } catch (FtpServerConfigurationException e) {
+      LOGGER.warn(
+          "Failed to create an SSL configuration, server will not start. Verify keystore and trustore paths and passwords are correct");
+      throw new FtpServerConfigurationException();
+    }
+    listenerFactory.setPort(port);
+  }
+
+  private void restartDefaultListener() {
+    LOGGER.debug("Restarting FTP server with new port {}.", port);
+
+    if (server != null) {
+      waitForConnections();
+      suspendServer();
+      destroyDefaultListener();
+      configureSslConfigurationFactory();
+      configureListenerFactory();
+      addDefaultListener();
+      startServer();
+    }
+  }
+
+  private void configureSslConfigurationFactory() {
+    sslConfigurationFactory.setClientAuthentication(clientAuth.toString());
+    sslConfigurationFactory.setKeystoreFile(keyStoreFile);
+    sslConfigurationFactory.setKeystorePassword(keyStorePassword);
+    sslConfigurationFactory.setKeystoreType(keyStoreType);
+    sslConfigurationFactory.setTruststoreFile(trustStoreFile);
+    sslConfigurationFactory.setTruststorePassword(trustStorePassword);
+    sslConfigurationFactory.setTruststoreType(trustStoreType);
+  }
+
+  private void configureServerFactory() {
+    serverFactory.addListener(DEFAULT_LISTENER, listenerFactory.createListener());
+
+    Map<String, Ftplet> ftplets = new HashMap<>();
+    ftplets.put(FtpRequestHandler.class.getName(), ftplet);
+
+    serverFactory.setFtplets(ftplets);
+    serverFactory.setUserManager(userManager);
+  }
+
+  private void startServer() {
+    if (isStopped() || isSuspended()) {
+      try {
+        server.start();
+        LOGGER.debug("FTP server started on port {}", port);
+      } catch (Exception e) {
+        LOGGER.warn("Failed to start FTP server", e);
+      }
+    }
+  }
+
+  private void destroyDefaultListener() {
+    Listener defaultListener = getDefaultListener();
+    if (!defaultListener.isStopped()) {
+      defaultListener.stop();
+    }
+    ((DefaultFtpServer) server).getListeners().clear();
+  }
+
+  private void addDefaultListener() {
+    ((DefaultFtpServer) server)
+        .getListeners()
+        .put(DEFAULT_LISTENER, listenerFactory.createListener());
+  }
+
+  private void suspendServer() {
+    if (!isSuspended()) {
+      server.suspend();
+    }
+  }
+
+  private void waitForConnections() {
+    FtpStatistics serverStatistics =
+        ((DefaultFtpServer) server).getServerContext().getFtpStatistics();
+
+    int totalWait = 0;
+
+    while (serverStatistics.getCurrentConnectionNumber() > 0) {
+      LOGGER.debug(
+          "Waiting for {} connections to close before updating configuration",
+          serverStatistics.getCurrentConnectionNumber());
+      try {
+        if (totalWait <= maxSleepTimeMillis) {
+          totalWait += resetWaitTimeMillis;
+          Thread.sleep(resetWaitTimeMillis);
+        } else {
+          LOGGER.debug(
+              "Waited {} seconds for connections to close, updating FTP configuration",
+              TimeUnit.MILLISECONDS.toSeconds(totalWait));
+          break;
         }
+      } catch (InterruptedException e) {
+        Thread.interrupted();
+        LOGGER.info("Thread interrupted while waiting for FTP connections to close", e);
+      }
     }
+  }
 
-    public void destroy() {
-        if (server != null && !isStopped()) {
-            server.stop();
-            LOGGER.debug("FTP server stopped");
-        }
+  private boolean isStopped() {
+    return server.isStopped();
+  }
+
+  private boolean isSuspended() {
+    return server.isSuspended();
+  }
+
+  private Listener getDefaultListener() {
+    return ((DefaultFtpServer) server).getListener(DEFAULT_LISTENER);
+  }
+
+  public int getPort() {
+    return this.port;
+  }
+
+  public ClientAuth getClientAuthMode() {
+    return clientAuth;
+  }
+
+  public void setClientAuth(String newClientAuth) {
+    switch (newClientAuth.toLowerCase()) {
+      case WANT:
+        clientAuth = ClientAuth.WANT;
+        break;
+      case NEED:
+        clientAuth = ClientAuth.NEED;
+        break;
+      default:
+        LOGGER.debug("Invalid clientAuth configuration, defaulting to WANT");
+        clientAuth = ClientAuth.WANT;
     }
+  }
 
-    /**
-     * Callback for when the FTP Endpoint configuration is updated through the Admin UI
-     *
-     * @param properties map of configurable properties
-     */
-    public void updateConfiguration(Map<String, Object> properties) {
-        if (MapUtils.isEmpty(properties)) {
-            LOGGER.warn("Received null or empty FTP Endpoint configuration. Check the 'FTP Endpoint' configuration.");
-            return;
-        }
+  public void setPort(int port) {
+    this.port = port;
+  }
 
-        LOGGER.debug("Updating FTP Endpoint configuration");
-        Boolean restart = false;
+  public void setKeyStoreFile(String keyStoreFilePath) {
+    keyStoreFile = new File(keyStoreFilePath);
+  }
 
-        if (properties.get(PORT) instanceof String) {
-            //using PropertyResolver in case properties.get("port") is ${org.codice.ddf.catalog.ftp.port}
-            PropertyResolver propertyResolver =
-                    new PropertyResolver((String) properties.get("port"));
-            int port = Integer.parseInt(propertyResolver.getResolvedString());
-            if (this.port != port) {
-                setPort(port);
-                restart = true;
-            }
-        }
+  public void setKeyStorePassword(String password) {
+    keyStorePassword = password;
+  }
 
-        if (properties.get(CLIENT_AUTH) instanceof String) {
-            String clientAuth = ((String) properties.get("clientAuth")).toLowerCase();
-            if (!this.clientAuth.toString()
-                    .equalsIgnoreCase(clientAuth)) {
-                setClientAuth(clientAuth);
-                restart = true;
-            }
-        }
+  public void setKeyStoreType(String type) {
+    keyStoreType = type;
+  }
 
-        if (restart) {
-            restartDefaultListener();
-        }
+  public void setTrustStoreFile(String trustStoreFilePath) {
+    trustStoreFile = new File(trustStoreFilePath);
+  }
+
+  public void setTrustStorePassword(String password) {
+    trustStorePassword = password;
+  }
+
+  public void setTrustStoreType(String type) {
+    trustStoreType = type;
+  }
+
+  private void notNull(Object object, String name) {
+    if (object == null) {
+      throw new IllegalArgumentException(name + " cannot be null");
     }
+  }
 
-    private void configureListenerFactory() {
-        try {
-            listenerFactory.setSslConfiguration(sslConfigurationFactory.createSslConfiguration());
-        } catch (FtpServerConfigurationException e) {
-            LOGGER.warn(
-                    "Failed to create an SSL configuration, server will not start. Verify keystore and trustore paths and passwords are correct");
-            throw new FtpServerConfigurationException();
-        }
-        listenerFactory.setPort(port);
-    }
+  /** For testing purposes */
+  protected void setMaxSleepTime(int seconds) {
+    this.maxSleepTimeMillis = seconds;
+  }
 
-    private void restartDefaultListener() {
-        LOGGER.debug("Restarting FTP server with new port {}.", port);
-
-        if (server != null) {
-            waitForConnections();
-            suspendServer();
-            destroyDefaultListener();
-            configureSslConfigurationFactory();
-            configureListenerFactory();
-            addDefaultListener();
-            startServer();
-        }
-    }
-
-    private void configureSslConfigurationFactory() {
-        sslConfigurationFactory.setClientAuthentication(clientAuth.toString());
-        sslConfigurationFactory.setKeystoreFile(keyStoreFile);
-        sslConfigurationFactory.setKeystorePassword(keyStorePassword);
-        sslConfigurationFactory.setKeystoreType(keyStoreType);
-        sslConfigurationFactory.setTruststoreFile(trustStoreFile);
-        sslConfigurationFactory.setTruststorePassword(trustStorePassword);
-        sslConfigurationFactory.setTruststoreType(trustStoreType);
-    }
-
-    private void configureServerFactory() {
-        serverFactory.addListener(DEFAULT_LISTENER, listenerFactory.createListener());
-
-        Map<String, Ftplet> ftplets = new HashMap<>();
-        ftplets.put(FtpRequestHandler.class.getName(), ftplet);
-
-        serverFactory.setFtplets(ftplets);
-        serverFactory.setUserManager(userManager);
-    }
-
-    private void startServer() {
-        if (isStopped() || isSuspended()) {
-            try {
-                server.start();
-                LOGGER.debug("FTP server started on port {}", port);
-            } catch (Exception e) {
-                LOGGER.warn("Failed to start FTP server", e);
-            }
-        }
-    }
-
-    private void destroyDefaultListener() {
-        Listener defaultListener = getDefaultListener();
-        if (!defaultListener.isStopped()) {
-            defaultListener.stop();
-        }
-        ((DefaultFtpServer) server).getListeners()
-                .clear();
-    }
-
-    private void addDefaultListener() {
-        ((DefaultFtpServer) server).getListeners()
-                .put(DEFAULT_LISTENER, listenerFactory.createListener());
-    }
-
-    private void suspendServer() {
-        if (!isSuspended()) {
-            server.suspend();
-        }
-    }
-
-    private void waitForConnections() {
-        FtpStatistics serverStatistics = ((DefaultFtpServer) server).getServerContext()
-                .getFtpStatistics();
-
-        int totalWait = 0;
-
-        while (serverStatistics.getCurrentConnectionNumber() > 0) {
-            LOGGER.debug("Waiting for {} connections to close before updating configuration",
-                    serverStatistics.getCurrentConnectionNumber());
-            try {
-                if (totalWait <= maxSleepTimeMillis) {
-                    totalWait += resetWaitTimeMillis;
-                    Thread.sleep(resetWaitTimeMillis);
-                } else {
-                    LOGGER.debug(
-                            "Waited {} seconds for connections to close, updating FTP configuration",
-                            TimeUnit.MILLISECONDS.toSeconds(totalWait));
-                    break;
-                }
-            } catch (InterruptedException e) {
-                Thread.interrupted();
-                LOGGER.info("Thread interrupted while waiting for FTP connections to close", e);
-            }
-        }
-    }
-
-    private boolean isStopped() {
-        return server.isStopped();
-    }
-
-    private boolean isSuspended() {
-        return server.isSuspended();
-    }
-
-    private Listener getDefaultListener() {
-        return ((DefaultFtpServer) server).getListener(DEFAULT_LISTENER);
-    }
-
-    public int getPort() {
-        return this.port;
-    }
-
-    public ClientAuth getClientAuthMode() {
-        return clientAuth;
-    }
-
-    public void setClientAuth(String newClientAuth) {
-        switch (newClientAuth.toLowerCase()) {
-        case WANT:
-            clientAuth = ClientAuth.WANT;
-            break;
-        case NEED:
-            clientAuth = ClientAuth.NEED;
-            break;
-        default:
-            LOGGER.debug("Invalid clientAuth configuration, defaulting to WANT");
-            clientAuth = ClientAuth.WANT;
-        }
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
-
-    public void setKeyStoreFile(String keyStoreFilePath) {
-        keyStoreFile = new File(keyStoreFilePath);
-    }
-
-    public void setKeyStorePassword(String password) {
-        keyStorePassword = password;
-    }
-
-    public void setKeyStoreType(String type) {
-        keyStoreType = type;
-    }
-
-    public void setTrustStoreFile(String trustStoreFilePath) {
-        trustStoreFile = new File(trustStoreFilePath);
-    }
-
-    public void setTrustStorePassword(String password) {
-        trustStorePassword = password;
-    }
-
-    public void setTrustStoreType(String type) {
-        trustStoreType = type;
-    }
-
-    private void notNull(Object object, String name) {
-        if (object == null) {
-            throw new IllegalArgumentException(name + " cannot be null");
-        }
-    }
-
-    /**
-     * For testing purposes
-     */
-    protected void setMaxSleepTime(int seconds) {
-        this.maxSleepTimeMillis = seconds;
-    }
-
-    /**
-     * For testing purposes
-     */
-    protected void setResetWaitTime(int seconds) {
-        this.resetWaitTimeMillis = seconds;
-    }
-
+  /** For testing purposes */
+  protected void setResetWaitTime(int seconds) {
+    this.resetWaitTimeMillis = seconds;
+  }
 }
