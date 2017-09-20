@@ -129,7 +129,15 @@ pipeline {
                                     checkout scm
                                 }
                                 withMaven(maven: 'M35', jdk: 'jdk8-latest', globalMavenSettingsConfig: 'default-global-settings', mavenSettingsConfig: 'codice-maven-settings', mavenOpts: '${LARGE_MVN_OPTS} ${LINUX_MVN_RANDOM}') {
-                                    sh 'mvn install -q -B -Powasp -DskipTests=true -DskipStatic=true -pl !$DOCS'
+                                    script {
+                                      // If this build is not a pull request, run full owasp scan. Otherwise run incremntal scan
+                                      if (env.CHANGE_ID == null) {
+                                        sh 'mvn install -q -B -Powasp -DskipTests=true -DskipStatic=true -pl !$DOCS'
+                                      } else {
+                                        sh 'mvn install -q -B -Powasp -DskipTests=true -DskipStatic=true -pl !$DOCS -Dgib.enabled=true -Dgib.referenceBranch=/refs/remotes/origin/$CHANGE_TARGET'
+                                      }
+                                    }
+
                                 }
                             }
                         },
