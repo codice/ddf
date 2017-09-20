@@ -26,6 +26,8 @@ import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Sets;
+
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.filter.FilterBuilder;
@@ -61,6 +63,8 @@ public class CqlRequest {
     private String sort;
 
     private boolean normalize = false;
+
+    private boolean excludeXmlAndBinary = true;
 
     public String getSrc() {
         return src;
@@ -139,6 +143,11 @@ public class CqlRequest {
                     .put("mode", "update");
         }
 
+        if (excludeXmlAndBinary) {
+            queryRequest.getProperties().put("excludeAttributes", Sets.newHashSet(
+                    Metacard.METADATA, "lux"));
+        }
+
         return queryRequest;
     }
 
@@ -209,5 +218,13 @@ public class CqlRequest {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public boolean isExcludeXmlAndBinary() {
+        return excludeXmlAndBinary;
+    }
+
+    public void setExcludeXmlAndBinary(boolean excludeXmlAndBinary) {
+        this.excludeXmlAndBinary = excludeXmlAndBinary;
     }
 }

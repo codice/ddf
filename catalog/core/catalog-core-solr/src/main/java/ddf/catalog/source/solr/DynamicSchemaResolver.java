@@ -175,6 +175,9 @@ public class DynamicSchemaResolver {
         anyTextFieldsCache.addAll(basicTextAttributes);
         fieldsCache.add(Validation.VALIDATION_ERRORS + SchemaFields.TEXT_SUFFIX);
         fieldsCache.add(Validation.VALIDATION_WARNINGS + SchemaFields.TEXT_SUFFIX);
+
+        fieldsCache.add(SchemaFields.METACARD_TYPE_FIELD_NAME);
+        fieldsCache.add(SchemaFields.METACARD_TYPE_OBJECT_FIELD_NAME);
     }
 
     /**
@@ -238,30 +241,33 @@ public class DynamicSchemaResolver {
                             .getAttributeFormat();
                     String formatIndexName = ad.getName() + getFieldSuffix(format);
 
-                    if (AttributeFormat.XML.equals(format)) {
+                    if (AttributeFormat.XML.equals(format) && solrInputDocument.getFieldValue(
+                            formatIndexName +
+                                    getSpecialIndexSuffix(AttributeFormat.STRING)) == null) {
                         List<String> parsedTexts = parseTextFrom(attributeValues);
 
-                        // text => metadata_txt_ws
-                        String whitespaceTokenizedIndexName = ad.getName() + getFieldSuffix(
-                                AttributeFormat.STRING) + SchemaFields.WHITESPACE_TEXT_SUFFIX;
-                        solrInputDocument.addField(whitespaceTokenizedIndexName, parsedTexts);
-
-                        // text => metadata_txt_ws_has_case
-                        String whiteSpaceTokenizedHasCaseIndexName = ad.getName() + getFieldSuffix(
-                                AttributeFormat.STRING) + SchemaFields.WHITESPACE_TEXT_SUFFIX
-                                + SchemaFields.HAS_CASE;
-                        solrInputDocument.addField(whiteSpaceTokenizedHasCaseIndexName,
-                                parsedTexts);
-
-                        // text => metadata_txt_tokenized
+                        // parsedTexts => *_txt_tokenized
                         String specialStringIndexName = ad.getName() + getFieldSuffix(
                                 AttributeFormat.STRING)
                                 + getSpecialIndexSuffix(AttributeFormat.STRING);
                         solrInputDocument.addField(specialStringIndexName, parsedTexts);
+                    } else if (AttributeFormat.STRING.equals(format)
+                            && solrInputDocument.getFieldValue(ad.getName() + getFieldSuffix(
+                            AttributeFormat.STRING)) == null) {
+                        List<Serializable> truncatedValues = attributeValues.stream()
+                                .map(value -> value != null ?
+                                        truncateAsUTF8(value.toString(), 32766) :
+                                        value)
+                                .collect(Collectors.toList());
+                        // *_txt
+                        solrInputDocument.addField(ad.getName() + getFieldSuffix(
+                                AttributeFormat.STRING),
+                                truncatedValues);
 
-                        // text case sensitive
-                        solrInputDocument.addField(specialStringIndexName + SchemaFields.HAS_CASE,
-                                parsedTexts);
+                        // *_txt_tokenized
+                        solrInputDocument.addField(ad.getName() + getFieldSuffix(
+                                AttributeFormat.STRING) + getSpecialIndexSuffix(AttributeFormat.STRING),
+                                attributeValues);
                     } else if (AttributeFormat.OBJECT.equals(format)) {
                         ByteArrayOutputStream byteArrayOS = new ByteArrayOutputStream();
                         List<Serializable> byteArrays = new ArrayList<>();
@@ -273,15 +279,15 @@ public class DynamicSchemaResolver {
                                 out.reset();
                             }
                         } catch (IOException e) {
-                            throw new MetacardCreationException(COULD_NOT_SERIALIZE_OBJECT_MESSAGE, e);
+                            throw new MetacardCreationException(COULD_NOT_SERIALIZE_OBJECT_MESSAGE,
+                                    e);
                         }
 
                         attributeValues = byteArrays;
                     }
 
-                    // Prevent adding a field already on document
-                    if (solrInputDocument.getFieldValue(formatIndexName) == null) {
-                        solrInputDocument.addField(formatIndexName, attributeValues);
+                    if (solrInputDocument.getFieldValue(
+                            formatIndexName + SchemaFields.SORT_KEY_SUFFIX) == null) {
                         if (AttributeFormat.GEOMETRY.equals(format)) {
                             solrInputDocument.addField(
                                     formatIndexName + SchemaFields.SORT_KEY_SUFFIX,
@@ -292,6 +298,11 @@ public class DynamicSchemaResolver {
                                     formatIndexName + SchemaFields.SORT_KEY_SUFFIX,
                                     attributeValues.get(0));
                         }
+                    }
+
+                    // Prevent adding a field already on document
+                    if (solrInputDocument.getFieldValue(formatIndexName) == null) {
+                        solrInputDocument.addField(formatIndexName, attributeValues);
                     } else {
                         LOGGER.trace("Skipping adding field already found on document ({})",
                                 formatIndexName);
@@ -334,6 +345,35 @@ public class DynamicSchemaResolver {
         }
 
         solrInputDocument.addField(SchemaFields.METACARD_TYPE_OBJECT_FIELD_NAME, metacardTypeBytes);
+    }
+
+    public static String truncateAsUTF8(String value, int maximumBytes) {
+        int b = 0;
+        for (int i = 0; i < value.length(); i++) {
+            char c = value.charAt(i);
+
+            int skip = 0;
+            int more;
+            if (c <= 0x007f) {
+                more = 1;
+            } else if (c <= 0x07FF) {
+                more = 2;
+            } else if (c <= 0xd7ff) {
+                more = 3;
+            } else if (c <= 0xDFFF) {
+                more = 4;
+                skip = 1;
+            } else {
+                more = 3;
+            }
+
+            if (b + more > maximumBytes) {
+                return value.substring(0, i);
+            }
+            b += more;
+            i += skip;
+        }
+        return value;
     }
 
     private String createCenterPoint(List<Serializable> values) {

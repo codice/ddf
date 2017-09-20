@@ -13,6 +13,7 @@
  */
 package ddf.catalog.source.solr;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -65,36 +66,40 @@ public class SchemaFields {
 
     public static final String SORT_KEY_SUFFIX = "_sk";
 
-    private static final Map<String, AttributeFormat> SUFFIX_TO_FORMAT_MAP = new HashMap<>();
+    protected static final Map<String, AttributeFormat> SUFFIX_TO_FORMAT_MAP;
 
-    private static final Map<AttributeFormat, String> FORMAT_TO_SUFFIX_MAP = new HashMap<>();
+    protected static final Map<AttributeFormat, String> FORMAT_TO_SUFFIX_MAP;
 
     static {
-        SUFFIX_TO_FORMAT_MAP.put(GEO_SUFFIX, AttributeFormat.GEOMETRY);
-        SUFFIX_TO_FORMAT_MAP.put(DATE_SUFFIX, AttributeFormat.DATE);
-        SUFFIX_TO_FORMAT_MAP.put(BINARY_SUFFIX, AttributeFormat.BINARY);
-        SUFFIX_TO_FORMAT_MAP.put(XML_SUFFIX, AttributeFormat.XML);
-        SUFFIX_TO_FORMAT_MAP.put(TEXT_SUFFIX, AttributeFormat.STRING);
-        SUFFIX_TO_FORMAT_MAP.put(BOOLEAN_SUFFIX, AttributeFormat.BOOLEAN);
-        SUFFIX_TO_FORMAT_MAP.put(DOUBLE_SUFFIX, AttributeFormat.DOUBLE);
-        SUFFIX_TO_FORMAT_MAP.put(FLOAT_SUFFIX, AttributeFormat.FLOAT);
-        SUFFIX_TO_FORMAT_MAP.put(INTEGER_SUFFIX, AttributeFormat.INTEGER);
-        SUFFIX_TO_FORMAT_MAP.put(LONG_SUFFIX, AttributeFormat.LONG);
-        SUFFIX_TO_FORMAT_MAP.put(SHORT_SUFFIX, AttributeFormat.SHORT);
-        SUFFIX_TO_FORMAT_MAP.put(OBJECT_SUFFIX, AttributeFormat.OBJECT);
+        HashMap<String, AttributeFormat> suffixToFormatMap = new HashMap<>();
+        suffixToFormatMap.put(GEO_SUFFIX, AttributeFormat.GEOMETRY);
+        suffixToFormatMap.put(DATE_SUFFIX, AttributeFormat.DATE);
+        suffixToFormatMap.put(BINARY_SUFFIX, AttributeFormat.BINARY);
+        suffixToFormatMap.put(XML_SUFFIX, AttributeFormat.XML);
+        suffixToFormatMap.put(TEXT_SUFFIX, AttributeFormat.STRING);
+        suffixToFormatMap.put(BOOLEAN_SUFFIX, AttributeFormat.BOOLEAN);
+        suffixToFormatMap.put(DOUBLE_SUFFIX, AttributeFormat.DOUBLE);
+        suffixToFormatMap.put(FLOAT_SUFFIX, AttributeFormat.FLOAT);
+        suffixToFormatMap.put(INTEGER_SUFFIX, AttributeFormat.INTEGER);
+        suffixToFormatMap.put(LONG_SUFFIX, AttributeFormat.LONG);
+        suffixToFormatMap.put(SHORT_SUFFIX, AttributeFormat.SHORT);
+        suffixToFormatMap.put(OBJECT_SUFFIX, AttributeFormat.OBJECT);
+        SUFFIX_TO_FORMAT_MAP = Collections.unmodifiableMap(suffixToFormatMap);
 
-        FORMAT_TO_SUFFIX_MAP.put(AttributeFormat.GEOMETRY, GEO_SUFFIX);
-        FORMAT_TO_SUFFIX_MAP.put(AttributeFormat.DATE, DATE_SUFFIX);
-        FORMAT_TO_SUFFIX_MAP.put(AttributeFormat.BINARY, BINARY_SUFFIX);
-        FORMAT_TO_SUFFIX_MAP.put(AttributeFormat.XML, XML_SUFFIX);
-        FORMAT_TO_SUFFIX_MAP.put(AttributeFormat.STRING, TEXT_SUFFIX);
-        FORMAT_TO_SUFFIX_MAP.put(AttributeFormat.BOOLEAN, BOOLEAN_SUFFIX);
-        FORMAT_TO_SUFFIX_MAP.put(AttributeFormat.DOUBLE, DOUBLE_SUFFIX);
-        FORMAT_TO_SUFFIX_MAP.put(AttributeFormat.FLOAT, FLOAT_SUFFIX);
-        FORMAT_TO_SUFFIX_MAP.put(AttributeFormat.INTEGER, INTEGER_SUFFIX);
-        FORMAT_TO_SUFFIX_MAP.put(AttributeFormat.LONG, LONG_SUFFIX);
-        FORMAT_TO_SUFFIX_MAP.put(AttributeFormat.SHORT, SHORT_SUFFIX);
-        FORMAT_TO_SUFFIX_MAP.put(AttributeFormat.OBJECT, OBJECT_SUFFIX);
+        HashMap<AttributeFormat, String> formatToSuffixMap = new HashMap<>();
+        formatToSuffixMap.put(AttributeFormat.GEOMETRY, GEO_SUFFIX);
+        formatToSuffixMap.put(AttributeFormat.DATE, DATE_SUFFIX);
+        formatToSuffixMap.put(AttributeFormat.BINARY, BINARY_SUFFIX);
+        formatToSuffixMap.put(AttributeFormat.XML, XML_SUFFIX);
+        formatToSuffixMap.put(AttributeFormat.STRING, TEXT_SUFFIX);
+        formatToSuffixMap.put(AttributeFormat.BOOLEAN, BOOLEAN_SUFFIX);
+        formatToSuffixMap.put(AttributeFormat.DOUBLE, DOUBLE_SUFFIX);
+        formatToSuffixMap.put(AttributeFormat.FLOAT, FLOAT_SUFFIX);
+        formatToSuffixMap.put(AttributeFormat.INTEGER, INTEGER_SUFFIX);
+        formatToSuffixMap.put(AttributeFormat.LONG, LONG_SUFFIX);
+        formatToSuffixMap.put(AttributeFormat.SHORT, SHORT_SUFFIX);
+        formatToSuffixMap.put(AttributeFormat.OBJECT, OBJECT_SUFFIX);
+        FORMAT_TO_SUFFIX_MAP = Collections.unmodifiableMap(formatToSuffixMap);
 
     }
 

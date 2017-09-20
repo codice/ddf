@@ -44,6 +44,8 @@ class FilteringDynamicSchemaResolverTest extends Specification {
 
     public static final String METADATA_TXT_FIELD = "$Metacard.METADATA$SchemaFields.TEXT_SUFFIX"
 
+    public static final String METADATA_TXT_TOKENIZED_FIELD = "$METADATA_TXT_FIELD$SchemaFields.TOKENIZED"
+
     public static final String METADATA_TXT_WS_FIELD = "$METADATA_TXT_FIELD$SchemaFields.WHITESPACE_TEXT_SUFFIX"
 
     public static final String METADATA_TXT_WS_HAS_CASE_FIELD = "$METADATA_TXT_WS_FIELD$SchemaFields.HAS_CASE"
@@ -143,8 +145,7 @@ class FilteringDynamicSchemaResolverTest extends Specification {
         resolver.addFields(metacard, solrDoc)
 
         then:
-        solrDoc.getFieldNames().size() == 5
-        solrDoc.getFieldNames().contains(METADATA_TXT_WS_HAS_CASE_FIELD)
+        solrDoc.getFieldNames().contains(METADATA_TXT_TOKENIZED_FIELD)
     }
 
     def "Do not filter used whitespace tokenized fields"() {
@@ -153,8 +154,7 @@ class FilteringDynamicSchemaResolverTest extends Specification {
         resolver.addFields(metacard, solrDoc)
 
         then:
-        solrDoc.getFieldNames().size() == 4
-        solrDoc.getFieldNames().contains(METADATA_TXT_WS_FIELD)
+        solrDoc.getFieldNames().contains(METADATA_TXT_TOKENIZED_FIELD)
     }
 
     def "Do not filter used fields"() {

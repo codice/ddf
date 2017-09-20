@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -48,6 +49,8 @@ import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Sets;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeType;
@@ -90,6 +93,8 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     public static final String SORT_FIELD_KEY = "sfield";
 
     public static final String POINT_KEY = "pt";
+
+    public static final String EXCLUDE_ATTRIBUTES = "excludeAttributes";
 
     private final SolrClient client;
 
@@ -377,7 +382,55 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
         setSortProperty(request, query, filterDelegate);
 
+        filterAttributes(request, query);
+
         return query;
+    }
+
+    private void filterAttributes(QueryRequest request, SolrQuery query) {
+        if (!request.hasProperties() || !request.containsPropertyName(EXCLUDE_ATTRIBUTES)
+                || !(request.getPropertyValue(EXCLUDE_ATTRIBUTES) instanceof Set) ||
+                "true".equals(System.getProperty("solr.client.filterAttributes.disable"))) {
+            return;
+        }
+
+        Set<String> excludedAttributes = (Set<String>) request.getPropertyValue(EXCLUDE_ATTRIBUTES);
+
+        Set<String> excludedFields = resolver.fieldsCache.stream()
+                .filter(Objects::nonNull)
+                .filter(field -> excludedAttributes.stream().anyMatch(field::startsWith))
+                .collect(Collectors.toSet());
+
+        Set<String> wildcardFields = SchemaFields.FORMAT_TO_SUFFIX_MAP.values()
+                .stream()
+                .filter(suffix -> excludedFields.stream()
+                        .noneMatch(field -> field.endsWith(suffix)))
+                .map(suffix -> "*" + suffix)
+                .collect(Collectors.toSet());
+
+        Set<String> includedFields = SchemaFields.FORMAT_TO_SUFFIX_MAP.values()
+                .stream()
+                .filter(suffix -> excludedFields.stream()
+                        .anyMatch(field -> field.endsWith(suffix)))
+                .flatMap(suffix -> resolver.fieldsCache.stream()
+                        .filter(Objects::nonNull)
+                        .filter(field -> field.endsWith(suffix))
+                        .filter(field -> excludedAttributes.stream()
+                                .noneMatch(field::startsWith)))
+                .collect(Collectors.toSet());
+
+        Set<String> fields = Sets.union(includedFields, wildcardFields);
+
+        if (query.getFields() != null && query.getFields().length() > 2) {
+            fields = Sets.union(fields,
+                    Sets.newHashSet(query.getFields()
+                            .substring(2)
+                            .split(",")));
+        }
+
+        if (fields.size() > 0) {
+            query.setFields(fields.toArray(new String[fields.size()]));
+        }
     }
 
     private boolean queryingForAllRecords(QueryRequest request) {

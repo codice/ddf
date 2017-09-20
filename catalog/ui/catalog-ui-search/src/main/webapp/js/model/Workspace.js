@@ -65,7 +65,9 @@ define([
               return this.get('queries').length < 10;
             },
             addQuery: function () {
-                var query = new Query.Model();
+                var query = new Query.Model({
+                    excludeXmlAndBinary: false
+                });
                 this.get('queries').add(query);
                 return query.get('id');
             },
@@ -194,6 +196,7 @@ define([
                 var queryForWorkspace = new Query.Model({
                     title: 'Example Local',
                     federation: 'local',
+                    excludeXmlAndBinary: false,
                     cql: "anyText ILIKE '*'"
                 });
                 this.create({
@@ -207,6 +210,7 @@ define([
                 var queryForWorkspace = new Query.Model({
                     title: 'Example Federated',
                     federation: 'enterprise',
+                    excludeXmlAndBinary: false,
                     cql: "anyText ILIKE '*'"
                 });
                 this.create({
@@ -219,6 +223,7 @@ define([
             createGeoWorkspace: function(){
                 var queryForWorkspace = new Query.Model({
                     title: 'Example Location',
+                    excludeXmlAndBinary: false,
                     cql: "anyText ILIKE '*' AND INTERSECTS(anyGeo, POLYGON((-130.7514 20.6825, -130.7514 44.5780, -65.1230 44.5780, -65.1230 20.6825, -130.7514 20.6825)))"
                 });
                 this.create({
@@ -231,6 +236,7 @@ define([
             createLatestWorkspace: function(){
                 var queryForWorkspace = new Query.Model({
                     title: 'Example Temporal',
+                    excludeXmlAndBinary: false,
                     cql: 'anyText ILIKE \'*\' AND ("created" AFTER ' + moment().subtract(1, 'days').toISOString() + ')'
                 });
                 this.create({
