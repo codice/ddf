@@ -656,6 +656,7 @@ class QueryOperationsTest extends Specification {
         request.getSourceIds() >> { ['fed1', 'fed2'] }
         response.getRequest() >> { request }
         response.getResults() >> []
+        response.getProperties() >> [:]
         frameworkProperties.federationStrategy = Mock(FederationStrategy)
 
         when:
@@ -680,6 +681,7 @@ class QueryOperationsTest extends Specification {
         request.getSourceIds() >> { ['fed1', 'fed2'] }
         response.getRequest() >> { request }
         response.getResults() >> []
+        response.getProperties() >> [:]
         frameworkProperties.federationStrategy = Mock(FederationStrategy)
 
         def policyResponse = Mock(PolicyResponse)
@@ -716,6 +718,7 @@ class QueryOperationsTest extends Specification {
         request.getSourceIds() >> { ['fed1', 'fed2'] }
         response.getRequest() >> { request }
         response.getResults() >> []
+        response.getProperties() >> [:]
         frameworkProperties.federationStrategy.federate(_, _) >> { sources, queryParam ->
             capturedQuery = queryParam
             response
@@ -746,6 +749,7 @@ class QueryOperationsTest extends Specification {
         request.getSourceIds() >> { ['fed1', 'fed2'] }
         response.getRequest() >> { request }
         response.getResults() >> []
+        response.getProperties() >> [:]
         frameworkProperties.federationStrategy.federate(_, _) >> { sources, queryParam ->
             capturedQuery = queryParam
             response
@@ -776,6 +780,7 @@ class QueryOperationsTest extends Specification {
         request.getSourceIds() >> { ['fed1', 'fed2'] }
         response.getRequest() >> { request }
         response.getResults() >> []
+        response.getProperties() >> [:]
         frameworkProperties.federationStrategy.federate(_, _) >> { sources, queryParam ->
             capturedQuery = queryParam
             response
@@ -806,6 +811,7 @@ class QueryOperationsTest extends Specification {
         request.getSourceIds() >> { ['fed1', 'fed2'] }
         response.getRequest() >> { request }
         response.getResults() >> []
+        response.getProperties() >> [:]
         frameworkProperties.federationStrategy.federate(_, _) >> { sources, queryParam ->
             capturedQuery = queryParam
             response
