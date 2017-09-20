@@ -259,7 +259,8 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
             .stream()
             .collect(Collectors.toMap(RegistryUtility::getRegistryId, e -> e));
 
-    //update the new metacards with the id from the orig so that they can be found on the remote system
+    // update the new metacards with the id from the orig so that they can be found on the remote
+    // system
     try {
       for (Map.Entry<String, Metacard> entry : updatedMetacards.entrySet()) {
         setMetacardExtID(entry.getValue(), origMetacards.get(entry.getKey()).getId());
@@ -288,7 +289,7 @@ public class RegistryStoreImpl extends AbstractCswStore implements RegistryStore
   @Override
   public SourceResponse query(QueryRequest request) throws UnsupportedQueryException {
 
-    //This is a registry store so only allow registry requests through
+    // This is a registry store so only allow registry requests through
     if (!filterAdapter.adapt(
         request.getQuery(),
         new TagsFilterDelegate(

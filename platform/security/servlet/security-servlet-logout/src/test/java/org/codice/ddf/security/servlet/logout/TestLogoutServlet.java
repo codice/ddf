@@ -53,7 +53,7 @@ public class TestLogoutServlet {
     when(request.getSession().getId()).thenReturn("id");
     when(request.getRequestURL()).thenReturn(new StringBuffer("http://foo.bar"));
 
-    //Used for detecting basic auth
+    // Used for detecting basic auth
     when(request.getHeaders(anyString()))
         .thenReturn(
             new Enumeration() {
@@ -68,7 +68,7 @@ public class TestLogoutServlet {
               }
             });
 
-    //used for detecting pki
+    // used for detecting pki
     when(request.getAttribute("javax.servlet.request.X509Certificate"))
         .thenReturn(new X509Certificate[] {mock(X509Certificate.class)});
 
@@ -83,7 +83,8 @@ public class TestLogoutServlet {
     verify(httpSession).invalidate();
   }
 
-  //Since the servlet context is only set properly during startup, this mocks out the servlet context to avoid an exception during redirect
+  // Since the servlet context is only set properly during startup, this mocks out the servlet
+  // context to avoid an exception during redirect
   private class MockLocalLogoutServlet extends LocalLogoutServlet {
     @Override
     public ServletContext getServletContext() {

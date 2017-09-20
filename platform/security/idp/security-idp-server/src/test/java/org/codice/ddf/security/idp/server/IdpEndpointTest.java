@@ -391,7 +391,7 @@ public class IdpEndpointTest {
     when(request.isSecure()).thenReturn(true);
     when(request.getRequestURL()).thenReturn(requestURL);
     when(request.getAttribute(ContextPolicy.ACTIVE_REALM)).thenReturn("*");
-    //admin:admin
+    // admin:admin
     when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn("Basic YWRtaW46YWRtaW4=");
 
     Response response =
@@ -415,7 +415,7 @@ public class IdpEndpointTest {
 
     when(request.getRequestURL()).thenReturn(new StringBuffer("https://www.example.com"));
     when(request.getAttribute(ContextPolicy.ACTIVE_REALM)).thenReturn("*");
-    //admin:admin
+    // admin:admin
     when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn("Basic YWRtaW46YWRtaW4=");
 
     Response response =
@@ -440,7 +440,7 @@ public class IdpEndpointTest {
     when(request.isSecure()).thenReturn(true);
     when(request.getRequestURL()).thenReturn(requestURL);
     when(request.getAttribute(ContextPolicy.ACTIVE_REALM)).thenReturn("*");
-    //dummy cert
+    // dummy cert
     when((X509Certificate[]) request.getAttribute(requestCertificateAttributeName))
         .thenReturn(new X509Certificate[] {x509Certificate});
     when(x509Certificate.getEncoded()).thenReturn(new byte[48]);
@@ -469,7 +469,7 @@ public class IdpEndpointTest {
     when(request.isSecure()).thenReturn(true);
     when(request.getRequestURL()).thenReturn(requestURL);
     when(request.getAttribute(ContextPolicy.ACTIVE_REALM)).thenReturn("*");
-    //dummy cert
+    // dummy cert
     when((X509Certificate[]) request.getAttribute(requestCertificateAttributeName))
         .thenReturn(new X509Certificate[] {x509Certificate});
     when(x509Certificate.getEncoded()).thenReturn(new byte[48]);
@@ -543,7 +543,7 @@ public class IdpEndpointTest {
 
     Element assertionElement = readDocument("/saml.xml").getDocumentElement();
 
-    //Change the NotOnOrAfter Date on the SAML Assertion to be before "now"
+    // Change the NotOnOrAfter Date on the SAML Assertion to be before "now"
     assertionElement
         .getElementsByTagName("saml2:Conditions")
         .item(0)
@@ -614,7 +614,7 @@ public class IdpEndpointTest {
     Response response =
         idpEndpoint.showGetLogin(samlRequest, relayState, signatureAlgorithm, signature, request);
 
-    //the only cookie that should exist is the "1" cookie so "2" should send us to the login webapp
+    // the only cookie that should exist is the "1" cookie so "2" should send us to the login webapp
     assertThat(response.getEntity().toString(), containsString("<title>Login</title>"));
   }
 
@@ -655,7 +655,7 @@ public class IdpEndpointTest {
     when(request.isSecure()).thenReturn(true);
     when(request.getRequestURL()).thenReturn(requestURL);
     when(request.getAttribute(ContextPolicy.ACTIVE_REALM)).thenReturn("*");
-    //dummy cert
+    // dummy cert
     when((X509Certificate[]) request.getAttribute(requestCertificateAttributeName))
         .thenReturn(new X509Certificate[] {x509Certificate});
     when(x509Certificate.getEncoded()).thenReturn(new byte[48]);
@@ -679,7 +679,7 @@ public class IdpEndpointTest {
     when(request.isSecure()).thenReturn(true);
     when(request.getRequestURL()).thenReturn(requestURL);
     when(request.getAttribute(ContextPolicy.ACTIVE_REALM)).thenReturn("*");
-    //dummy cert
+    // dummy cert
     when((X509Certificate[]) request.getAttribute(requestCertificateAttributeName))
         .thenReturn(new X509Certificate[] {x509Certificate});
     when(x509Certificate.getEncoded()).thenReturn(new byte[48]);
@@ -707,7 +707,7 @@ public class IdpEndpointTest {
     when(request.isSecure()).thenReturn(true);
     when(request.getRequestURL()).thenReturn(requestURL);
     when(request.getAttribute(ContextPolicy.ACTIVE_REALM)).thenReturn("*");
-    //dummy cert
+    // dummy cert
     when((X509Certificate[]) request.getAttribute(requestCertificateAttributeName))
         .thenReturn(new X509Certificate[] {x509Certificate});
     when(x509Certificate.getEncoded()).thenReturn(new byte[48]);
@@ -720,7 +720,7 @@ public class IdpEndpointTest {
     responseStr = URLDecoder.decode(responseStr, "UTF-8");
     responseStr = RestSecurity.inflateBase64(responseStr);
 
-    //the only cookie that should exist is the "1" cookie so "2" should send us to the login webapp
+    // the only cookie that should exist is the "1" cookie so "2" should send us to the login webapp
     assertThat(responseStr, containsString("status:AuthnFailed"));
   }
 
@@ -739,7 +739,7 @@ public class IdpEndpointTest {
     when(request.isSecure()).thenReturn(true);
     when(request.getRequestURL()).thenReturn(requestURL);
     when(request.getAttribute(ContextPolicy.ACTIVE_REALM)).thenReturn("*");
-    //dummy cert
+    // dummy cert
     when((X509Certificate[]) request.getAttribute(requestCertificateAttributeName))
         .thenReturn(new X509Certificate[] {x509Certificate});
     when(x509Certificate.getEncoded()).thenReturn(new byte[48]);
@@ -766,7 +766,7 @@ public class IdpEndpointTest {
     when(subject.getPrincipals()).thenReturn(principalCollection);
     when(principalCollection.asList()).thenReturn(Collections.singletonList(securityAssertion));
     when(securityAssertion.getSecurityToken()).thenReturn(securityToken);
-    //this mock element is what will cause the signature error
+    // this mock element is what will cause the signature error
     when(securityToken.getToken()).thenReturn(mock(Element.class));
     when(securityManager.getSubject(anyObject())).thenReturn(subject);
     idpEndpoint.setSecurityManager(securityManager);
@@ -775,7 +775,7 @@ public class IdpEndpointTest {
     when(request.isSecure()).thenReturn(true);
     when(request.getRequestURL()).thenReturn(requestURL);
     when(request.getAttribute(ContextPolicy.ACTIVE_REALM)).thenReturn("*");
-    //dummy cert
+    // dummy cert
     when((X509Certificate[]) request.getAttribute(requestCertificateAttributeName))
         .thenReturn(new X509Certificate[] {x509Certificate});
     when(x509Certificate.getEncoded()).thenReturn(new byte[48]);
@@ -786,7 +786,7 @@ public class IdpEndpointTest {
             response.getEntity().toString(), "SAMLResponse\" value=\"", "\" />");
     responseStr = new String(Base64.getDecoder().decode(responseStr));
 
-    //the only cookie that should exist is the "1" cookie so "2" should send us to the login webapp
+    // the only cookie that should exist is the "1" cookie so "2" should send us to the login webapp
     assertThat(responseStr, containsString("status:RequestUnsupported"));
   }
 
@@ -806,7 +806,7 @@ public class IdpEndpointTest {
     when(subject.getPrincipals()).thenReturn(principalCollection);
     when(principalCollection.asList()).thenReturn(Collections.singletonList(securityAssertion));
     when(securityAssertion.getSecurityToken()).thenReturn(securityToken);
-    //this mock element is what will cause the signature error
+    // this mock element is what will cause the signature error
     when(securityToken.getToken()).thenReturn(mock(Element.class));
     when(securityManager.getSubject(anyObject())).thenReturn(subject);
     idpEndpoint.setSecurityManager(securityManager);
@@ -815,7 +815,7 @@ public class IdpEndpointTest {
     when(request.isSecure()).thenReturn(true);
     when(request.getRequestURL()).thenReturn(requestURL);
     when(request.getAttribute(ContextPolicy.ACTIVE_REALM)).thenReturn("*");
-    //dummy cert
+    // dummy cert
     when((X509Certificate[]) request.getAttribute(requestCertificateAttributeName))
         .thenReturn(new X509Certificate[] {x509Certificate});
     when(x509Certificate.getEncoded()).thenReturn(new byte[48]);
@@ -828,7 +828,7 @@ public class IdpEndpointTest {
     responseStr = URLDecoder.decode(responseStr, "UTF-8");
     responseStr = RestSecurity.inflateBase64(responseStr);
 
-    //the only cookie that should exist is the "1" cookie so "2" should send us to the login webapp
+    // the only cookie that should exist is the "1" cookie so "2" should send us to the login webapp
     assertThat(responseStr, containsString("status:RequestUnsupported"));
   }
 

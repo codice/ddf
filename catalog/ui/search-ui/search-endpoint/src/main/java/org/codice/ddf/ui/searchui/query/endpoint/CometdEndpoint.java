@@ -99,7 +99,7 @@ public class CometdEndpoint extends CometDServlet {
       ServerAnnotationProcessor cometdAnnotationProcessor =
           new ServerAnnotationProcessor(bayeuxServer);
 
-      //TODO: don't do this, we need some sort of policy
+      // TODO: don't do this, we need some sort of policy
       bayeuxServer.setSecurityPolicy(
           new DefaultSecurityPolicy() {
 

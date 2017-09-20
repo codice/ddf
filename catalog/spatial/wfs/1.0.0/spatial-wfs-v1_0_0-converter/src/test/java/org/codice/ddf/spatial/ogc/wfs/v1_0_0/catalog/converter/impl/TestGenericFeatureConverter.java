@@ -85,7 +85,7 @@ public class TestGenericFeatureConverter {
   private static final String GROUND_GEOM_ELEMENT = "ground_geom";
 
   @Test
-  @Ignore //DDF-733
+  @Ignore // DDF-733
   public void testUnmarshalSingleFeatureXmlToObject() {
     XStream xstream = new XStream(new WstxDriver());
 
@@ -278,7 +278,7 @@ public class TestGenericFeatureConverter {
   }
 
   @Test
-  @Ignore //DDF-733
+  @Ignore // DDF-733
   public void testReadCdata() {
     XStream xstream = new XStream(new WstxDriver());
     String contents = "<tag>my cdata contents</tag>";

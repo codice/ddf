@@ -223,14 +223,15 @@ public class FederationStrategyTest {
         createResponse = framework.create(new CreateRequestImpl(metacards, null));
       } catch (SourceUnavailableException e) {
         long timeout = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(10);
-        //this is a hack because the unit test is flaky and should be removed once a better test is possible
+        // this is a hack because the unit test is flaky and should be removed once a better test is
+        // possible
         while (System.currentTimeMillis() < timeout) {
           Thread.sleep(1000);
           try {
             createResponse = framework.create(new CreateRequestImpl(metacards, null));
             break;
           } catch (SourceUnavailableException e1) {
-            //ignore
+            // ignore
           }
         }
       }

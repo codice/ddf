@@ -349,7 +349,7 @@ public class TestWfsFilterDelegate {
     FilterType filter =
         delegate.during(mockMetacardAttribute, startDate.toDate(), endDate.toDate());
 
-    //Verify
+    // Verify
     assertThat(
         filter.getTemporalOps().getName().toString(), is("{http://www.opengis.net/fes/2.0}During"));
     BinaryTemporalOpType binaryTemporalOpType =
@@ -418,7 +418,7 @@ public class TestWfsFilterDelegate {
     // Perform Test
     FilterType filter = delegate.relative(mockMetacardAttribute, duration);
 
-    //Verify
+    // Verify
     assertThat(
         filter.getTemporalOps().getName().toString(), is("{http://www.opengis.net/fes/2.0}During"));
     BinaryTemporalOpType binaryTemporalOpType =
@@ -506,7 +506,7 @@ public class TestWfsFilterDelegate {
     Method method = WfsFilterDelegate.class.getMethod(methName, String.class, Date.class);
     FilterType filter = (FilterType) method.invoke(delegate, mockMetacardAttribute, date.toDate());
 
-    //Verify
+    // Verify
     assertThat(filter.getTemporalOps().getName().toString(), is(temporalOpName));
     BinaryTemporalOpType binaryTemporalOpType =
         (BinaryTemporalOpType) filter.getTemporalOps().getValue();
@@ -592,10 +592,10 @@ public class TestWfsFilterDelegate {
 
     FilterType filterToBeNoted = delegate.propertyIsLike(Metacard.ANY_TEXT, LITERAL, true);
 
-    //Perform Test
+    // Perform Test
     FilterType filter = delegate.not(filterToBeNoted);
 
-    //Verify
+    // Verify
     assertThat(filter.getLogicOps().getName().toString(), is(LOGICAL_NOT_NAME));
     UnaryLogicOpType logicOpType = (UnaryLogicOpType) filter.getLogicOps().getValue();
 
@@ -628,11 +628,11 @@ public class TestWfsFilterDelegate {
     filtersToCombine.add(compFilter1);
     filtersToCombine.add(compFilter2);
 
-    //Perform Test
+    // Perform Test
     Method method = WfsFilterDelegate.class.getMethod(methName, List.class);
     FilterType filter = (FilterType) method.invoke(delegate, filtersToCombine);
 
-    //Verify
+    // Verify
     assertThat(filter.getLogicOps().getName().toString(), is(compOpName));
     BinaryLogicOpType logicOpType = (BinaryLogicOpType) filter.getLogicOps().getValue();
 
@@ -657,10 +657,10 @@ public class TestWfsFilterDelegate {
     FilterType spatialFilter1 =
         delegate.dwithin(Metacard.ANY_GEO, "POINT (30 10)", Double.valueOf(1000));
 
-    //Perform Test
+    // Perform Test
     FilterType filter = delegate.not(spatialFilter1);
 
-    //Verify
+    // Verify
     assertThat(filter.getLogicOps().getName().toString(), is(LOGICAL_NOT_NAME));
     UnaryLogicOpType logicOpType = (UnaryLogicOpType) filter.getLogicOps().getValue();
     DistanceBufferType spatialOpsType1 =
@@ -694,11 +694,11 @@ public class TestWfsFilterDelegate {
     filtersToCombine.add(spatialFilter1);
     filtersToCombine.add(spatialFilter2);
 
-    //Perform Test
+    // Perform Test
     Method method = WfsFilterDelegate.class.getMethod(methName, List.class);
     FilterType filter = (FilterType) method.invoke(delegate, filtersToCombine);
 
-    //Verify
+    // Verify
     assertThat(filter.getLogicOps().getName().toString(), is(compOpName));
     BinaryLogicOpType logicOpType = (BinaryLogicOpType) filter.getLogicOps().getValue();
     DistanceBufferType spatialOpsType1 =
@@ -739,20 +739,20 @@ public class TestWfsFilterDelegate {
     List<FilterType> filtersToBeAnded =
         new ArrayList<>(Arrays.asList(spatialFilter, temporalFilter));
 
-    //Perform Test
+    // Perform Test
     FilterType filter = delegate.and(filtersToBeAnded);
 
-    //Verify AND op used
+    // Verify AND op used
     if (filter.getLogicOps() == null) {
       fail("No AND/OR element found in the generated FilterType.");
     }
     assertEquals(LOGICAL_AND_NAME, filter.getLogicOps().getName().toString());
     BinaryLogicOpType logicOpType = (BinaryLogicOpType) filter.getLogicOps().getValue();
 
-    //Verify two items were AND'ed
+    // Verify two items were AND'ed
     assertEquals(2, logicOpType.getComparisonOpsOrSpatialOpsOrTemporalOps().size());
 
-    //Verify first is spatial, second is temporal
+    // Verify first is spatial, second is temporal
     assertTrue(
         logicOpType.getComparisonOpsOrSpatialOpsOrTemporalOps().get(0).getValue()
             instanceof DistanceBufferType);
@@ -798,7 +798,7 @@ public class TestWfsFilterDelegate {
     Method method = WfsFilterDelegate.class.getMethod(methName, List.class);
     FilterType filter = (FilterType) method.invoke(delegate, filtersToCombine);
 
-    //Verify
+    // Verify
     assertThat(filter.getLogicOps().getName().toString(), is(compOpName));
     BinaryLogicOpType logicOpType = (BinaryLogicOpType) filter.getLogicOps().getValue();
 
@@ -852,10 +852,10 @@ public class TestWfsFilterDelegate {
     subFiltersToBeOred.add(compFilter1);
     subFiltersToBeOred.add(compFilter2);
 
-    //Perform Test
+    // Perform Test
     FilterType filter = delegate.not(delegate.or(subFiltersToBeOred));
 
-    //Verify
+    // Verify
     assertThat(filter.getLogicOps().getName().toString(), is(LOGICAL_NOT_NAME));
     UnaryLogicOpType logicOpType = (UnaryLogicOpType) filter.getLogicOps().getValue();
 
@@ -946,7 +946,7 @@ public class TestWfsFilterDelegate {
     filtersToBeAnded.add(compFilter1);
     filtersToBeAnded.add(compFilter2);
 
-    //Perform Test
+    // Perform Test
     delegate.and(filtersToBeAnded);
   }
 
@@ -960,7 +960,7 @@ public class TestWfsFilterDelegate {
     filtersToBeOred.add(compFilter1);
     filtersToBeOred.add(compFilter2);
 
-    //Perform Test
+    // Perform Test
     delegate.or(filtersToBeOred);
   }
 
@@ -969,7 +969,7 @@ public class TestWfsFilterDelegate {
     WfsFilterDelegate delegate = makeDelegateForLogicalSupportTests();
     FilterType filterToBeNoted = delegate.propertyIsLike(Metacard.ANY_TEXT, LITERAL, true);
 
-    //Perform Test
+    // Perform Test
     delegate.not(filterToBeNoted);
   }
 
@@ -992,7 +992,7 @@ public class TestWfsFilterDelegate {
 
     FilterCapabilities filterCap = MockWfsServer.getFilterCapabilities();
 
-    //Create new ScalarCapabiltiesType without Logical Operator support
+    // Create new ScalarCapabiltiesType without Logical Operator support
     ScalarCapabilitiesType scalar = new ScalarCapabilitiesType();
     scalar.setComparisonOperators(new ComparisonOperatorsType());
     for (COMPARISON_OPERATORS compOp : COMPARISON_OPERATORS.values()) {
@@ -1017,10 +1017,10 @@ public class TestWfsFilterDelegate {
     WfsFilterDelegate delegate = mockFeatureMetacardCreateDelegate(mockProperty, mockType);
     String featureId = "1234567";
 
-    //Perform Test
+    // Perform Test
     FilterType matchIdFilter = delegate.propertyIsLike(Metacard.ID, featureId, true);
 
-    //Verify
+    // Verify
     assertThat(((ResourceIdType) matchIdFilter.getId().get(0).getValue()).getRid(), is(featureId));
   }
 
@@ -1033,10 +1033,10 @@ public class TestWfsFilterDelegate {
     String featureId = "1234567";
     String mockTypeFeatureId = mockType + "." + featureId;
 
-    //Perform Test
+    // Perform Test
     FilterType matchIdFilter = delegate.propertyIsEqualTo(Metacard.ID, mockTypeFeatureId, true);
 
-    //Verify
+    // Verify
     assertThat(
         ((ResourceIdType) matchIdFilter.getId().get(0).getValue()).getRid(), is(mockTypeFeatureId));
   }
@@ -1050,7 +1050,7 @@ public class TestWfsFilterDelegate {
     String featureId = "1234567";
     String mockTypeFeatureId = nonExistentType + "." + featureId;
 
-    //Perform Test
+    // Perform Test
     FilterType matchIdFilter = delegate.propertyIsEqualTo(Metacard.ID, mockTypeFeatureId, true);
     assertNull(matchIdFilter);
   }
@@ -1650,7 +1650,7 @@ public class TestWfsFilterDelegate {
           duringFilter = convertedFilters.get(1);
         }
 
-        //Verify during Filter is correct
+        // Verify during Filter is correct
         assertThat(duringFilter.isSetTemporalOps(), is(true));
       }
 

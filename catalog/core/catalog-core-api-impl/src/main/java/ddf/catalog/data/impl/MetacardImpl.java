@@ -846,7 +846,7 @@ public class MetacardImpl implements Metacard {
 
   public int hashCode() {
 
-    //TODO: add remaining fields for hashCode
+    // TODO: add remaining fields for hashCode
     return new HashCodeBuilder(17, 37)
         .append(this.getId())
         .append(this.getMetacardType())
@@ -854,6 +854,6 @@ public class MetacardImpl implements Metacard {
         .toHashCode();
   }
 
-  //TODO: is an equals() method needed?
+  // TODO: is an equals() method needed?
 
 }

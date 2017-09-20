@@ -149,7 +149,7 @@ public class MetacardVersionImpl extends MetacardImpl implements MetacardVersion
     this.setTags(Collections.singleton(VERSION_TAG));
   }
 
-  //@formatter:off
+  // @formatter:off
   private byte[] getVersionType(Metacard sourceMetacard) {
     try {
       return METACARD_TYPE_CACHE.get(
@@ -168,7 +168,7 @@ public class MetacardVersionImpl extends MetacardImpl implements MetacardVersion
       throw new RuntimeException("Could not serialize MetacardType", e);
     }
   }
-  //@formatter:on
+  // @formatter:on
 
   /**
    * Reverts the {@link MetacardVersionImpl} to the original {@link Metacard}

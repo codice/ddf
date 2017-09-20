@@ -16,6 +16,7 @@ package org.codice.ddf.catalog.content.impl;
 import ddf.mime.MimeTypeResolver;
 import java.util.HashMap;
 import org.apache.commons.lang.StringUtils;
+
 // import org.apache.tika.mime.MimeTypeException;
 
 public class MockMimeTypeResolver implements MimeTypeResolver {

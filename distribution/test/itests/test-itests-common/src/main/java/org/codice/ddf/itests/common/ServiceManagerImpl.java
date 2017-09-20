@@ -136,7 +136,7 @@ public class ServiceManagerImpl implements ServiceManager {
     try {
       adminConfig.getAdminConsoleService().delete(sourceConfig.getPid());
     } catch (NotCompliantMBeanException e) {
-      //ignore
+      // ignore
     }
   }
 
@@ -160,13 +160,13 @@ public class ServiceManagerImpl implements ServiceManager {
     try {
       waitForService(sourceConfig);
     } catch (NotCompliantMBeanException e) {
-      //ignore
+      // ignore
     }
 
     try {
       adminConfig.getAdminConsoleService().update(sourceConfig.getPid(), properties);
     } catch (NotCompliantMBeanException e) {
-      //ignore
+      // ignore
     }
 
     long millis = 0;
@@ -303,7 +303,7 @@ public class ServiceManagerImpl implements ServiceManager {
             }
           }
         } catch (NullPointerException e) {
-          //ignore
+          // ignore
         }
       }
 

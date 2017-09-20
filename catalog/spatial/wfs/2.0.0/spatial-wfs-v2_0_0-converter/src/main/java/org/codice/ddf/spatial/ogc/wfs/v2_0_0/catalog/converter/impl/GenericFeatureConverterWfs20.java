@@ -184,8 +184,8 @@ public class GenericFeatureConverterWfs20 extends AbstractFeatureConverterWfs20 
   public Object unmarshal(HierarchicalStreamReader hreader, UnmarshallingContext context) {
 
     LOGGER.debug("Entering: {} : unmarshal", this.getClass().getName());
-    //Workaround for Xstream which seems to be having issues involving attributes with namespaces,
-    //in that it cannot fetch the attributes value directly by name.
+    // Workaround for Xstream which seems to be having issues involving attributes with namespaces,
+    // in that it cannot fetch the attributes value directly by name.
     String id = null;
     int count = hreader.getAttributeCount();
     for (int i = 0; i < count; ++i) {

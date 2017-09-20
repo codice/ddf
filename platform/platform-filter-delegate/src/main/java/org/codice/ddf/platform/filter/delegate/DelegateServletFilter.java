@@ -161,7 +161,8 @@ public class DelegateServletFilter implements Filter {
       final BundleContext bundleContext = getContext();
 
       if (bundleContext != null) {
-        // unmark the SecurityFilter as initialized so that it can be re-initialized if the SecurityFilter is registered again
+        // unmark the SecurityFilter as initialized so that it can be re-initialized if the
+        // SecurityFilter is registered again
         keysOfInitializedSecurityFilters.remove(
             getFilterKey(securityFilterServiceReference, bundleContext));
         bundleContext.getService(securityFilterServiceReference).destroy();
@@ -193,7 +194,8 @@ public class DelegateServletFilter implements Filter {
     final String HTTP_WHITEBOARD_FILTER_NAME = "osgi.http.whiteboard.filter.name";
     final String filterNameFromTheServiceProperty =
         getStringProperty(securityFilterServiceReference, HTTP_WHITEBOARD_FILTER_NAME);
-    // If this service property is not specified, the fully qualified name of the service object's class is used as the servlet filter name.
+    // If this service property is not specified, the fully qualified name of the service object's
+    // class is used as the servlet filter name.
     if (StringUtils.isBlank(filterNameFromTheServiceProperty)) {
       return bundleContext.getService(securityFilterServiceReference).getClass().getCanonicalName();
     } else {

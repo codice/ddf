@@ -264,7 +264,7 @@ public class AbstractMigrationTest {
     try {
       Files.createSymbolicLink(path, dest);
     } catch (FileSystemException exception) {
-      //symlinks cannot be reliably created on Windows
+      // symlinks cannot be reliably created on Windows
       throw new AssumptionViolatedException("The system cannot create symlinks.", exception);
     }
 

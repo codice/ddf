@@ -65,7 +65,7 @@ public class ApplicationConfigurationPluginTest {
     constructedJSON.put(ApplicationPlugin.IFRAME_LOCATION_KEY, plugin.getIframeLocation());
     constructedJSON.put(ApplicationPlugin.APPLICATION_ASSOCIATION_KEY, plugin.getAssocations());
 
-    //compare the maps.
+    // compare the maps.
     Map<String, Object> pluginMap = plugin.toJSON();
     assertTrue(compareMap(constructedJSON, pluginMap));
 
@@ -99,13 +99,13 @@ public class ApplicationConfigurationPluginTest {
    * @return true if they are equal, false if they aren't.
    */
   private boolean compareMap(Map<String, Object> original, Map<String, Object> toCheck) {
-    //compare keys here.
+    // compare keys here.
     Set<String> originalKeys = original.keySet();
     Set<String> toCheckKeys = toCheck.keySet();
     if (!Arrays.equals(originalKeys.toArray(), toCheckKeys.toArray())) {
       return false;
     }
-    //end compare key shere.
+    // end compare key shere.
 
     for (String key : original.keySet()) {
       Object orginalValue = original.get(key);

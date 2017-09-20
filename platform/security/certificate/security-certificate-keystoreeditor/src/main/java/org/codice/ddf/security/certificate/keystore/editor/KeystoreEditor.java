@@ -194,7 +194,7 @@ public class KeystoreEditor implements KeystoreEditorMBean {
           LOGGER.debug("Re-registered Keystore Editor MBean");
         }
       } catch (Exception e) {
-        //objectName is not always non-null because new ObjectName(...) can throw an exception
+        // objectName is not always non-null because new ObjectName(...) can throw an exception
         LOGGER.info(
             "Could not register MBean [{}].",
             objectName != null ? objectName.toString() : KeystoreEditor.class.getName(),
@@ -481,9 +481,9 @@ public class KeystoreEditor implements KeystoreEditorMBean {
         throw new IllegalArgumentException("Alias cannot be null.");
       }
       Path storeFile = Paths.get(path);
-      //check the two most common key/cert stores first (pkcs12 and jks)
+      // check the two most common key/cert stores first (pkcs12 and jks)
       if (PKCS12_TYPE.equals(type) || StringUtils.endsWithIgnoreCase(fileName, ".p12")) {
-        //priv key + cert chain
+        // priv key + cert chain
         KeyStore pkcs12Store = KeyStore.getInstance("PKCS12");
         pkcs12Store.load(inputStream, storePassword.toCharArray());
         Certificate[] chain = pkcs12Store.getCertificateChain(alias);
@@ -494,12 +494,12 @@ public class KeystoreEditor implements KeystoreEditorMBean {
           store.store(fos, storepass.toCharArray());
         }
       } else if (JKS_TYPE.equals(type) || StringUtils.endsWithIgnoreCase(fileName, ".jks")) {
-        //java keystore file
+        // java keystore file
         KeyStore jks = KeyStore.getInstance("jks");
         jks.load(inputStream, storePassword.toCharArray());
         Enumeration<String> aliases = jks.aliases();
 
-        //we are going to store all entries from the jks regardless of the passed in alias
+        // we are going to store all entries from the jks regardless of the passed in alias
         while (aliases.hasMoreElements()) {
           String jksAlias = aliases.nextElement();
 
@@ -515,7 +515,8 @@ public class KeystoreEditor implements KeystoreEditorMBean {
 
         fos = Files.newOutputStream(storeFile);
         store.store(fos, storepass.toCharArray());
-        //need to parse der separately from pem, der has the same mime type but is binary hence checking both
+        // need to parse der separately from pem, der has the same mime type but is binary hence
+        // checking both
       } else if (DER_TYPE.equals(type) && StringUtils.endsWithIgnoreCase(fileName, ".der")) {
         ASN1InputStream asn1InputStream = new ASN1InputStream(inputStream);
         ASN1Primitive asn1Primitive = asn1InputStream.readObject();
@@ -535,9 +536,10 @@ public class KeystoreEditor implements KeystoreEditorMBean {
         store.setCertificateEntry(alias, certificate);
         fos = Files.newOutputStream(storeFile);
         store.store(fos, storepass.toCharArray());
-        //if it isn't one of the stores we support, it might be a key or cert by itself
+        // if it isn't one of the stores we support, it might be a key or cert by itself
       } else if (isPemParsable(type, fileName)) {
-        //This is the catch all case for PEM, P7B, etc. with common file extensions if the mime type isn't read correctly in the browser
+        // This is the catch all case for PEM, P7B, etc. with common file extensions if the mime
+        // type isn't read correctly in the browser
         Reader reader =
             new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
         PEMParser pemParser = new PEMParser(reader);
@@ -640,10 +642,10 @@ public class KeystoreEditor implements KeystoreEditorMBean {
   }
 
   private boolean isPemParsable(String type, String fileName) {
-    //check mime types
+    // check mime types
     if (PKCS7_TYPE.equals(type) || CERT_TYPE.equals(type) || PEM_TYPE.equals(type)) {
       return true;
-      //check file extensions
+      // check file extensions
     } else if (StringUtils.endsWithIgnoreCase(fileName, ".crt")
         || StringUtils.endsWithIgnoreCase(fileName, ".key")
         || StringUtils.endsWithIgnoreCase(fileName, ".pem")

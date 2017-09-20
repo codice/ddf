@@ -55,7 +55,7 @@ public class CertificateGeneratorTest {
         new CertificateGenerator() {
           @Override
           public void registerMbean() {
-            //do nothing
+            // do nothing
           }
         };
     KeyStoreFile ksf = generator.getKeyStoreFile();

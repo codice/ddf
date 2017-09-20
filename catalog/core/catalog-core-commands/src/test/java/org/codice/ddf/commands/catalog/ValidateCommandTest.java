@@ -56,15 +56,15 @@ public class ValidateCommandTest {
 
   @Before
   public void setup() throws Exception {
-    //mock out validators
-    //good validator will mock out passing validation
+    // mock out validators
+    // good validator will mock out passing validation
     goodValidator = mock(MetacardValidator.class);
     doNothing().when(goodValidator).validate(anyObject());
 
-    //bad validator will mock out failing validation
+    // bad validator will mock out failing validation
     badValidator = mock(MetacardValidator.class);
     doThrow(
-            new ValidationException() { //configure bad validator to throw exception
+            new ValidationException() { // configure bad validator to throw exception
               @Override
               public List<String> getErrors() {
                 List<String> errors = new ArrayList<String>();
@@ -84,24 +84,24 @@ public class ValidateCommandTest {
         .when(badValidator)
         .validate(anyObject());
 
-    //mock out catalog
+    // mock out catalog
     validateCommand = new ValidateCommand(mockPrinter);
     validateCommand.catalogFramework = mockCatalog;
   }
 
-  //test having no validators
+  // test having no validators
   @Test
   public void testNoValidators() throws Exception {
     validateCommand.path = testFolder.getRoot().getAbsolutePath() + "aFileThatDoesntExist.xml";
     validateCommand.executeWithSubject();
 
     validateCommand.validators = Collections.emptyList();
-    validateCommand.executeWithSubject(); //execute with empty validators list
+    validateCommand.executeWithSubject(); // execute with empty validators list
 
     verify(mockPrinter, times(2)).printError("No validators have been configured");
   }
 
-  //test invalid file
+  // test invalid file
   @Test(expected = FileNotFoundException.class)
   public void testInvalidFile() throws Exception {
     validateCommand.path = testFolder.getRoot().getAbsolutePath() + "aFileThatDoesntExist.xml";
@@ -111,7 +111,7 @@ public class ValidateCommandTest {
     validateCommand.executeWithSubject();
   }
 
-  //test a single valid file
+  // test a single valid file
   @Test
   public void testValidFile() throws Exception {
     File newFile = testFolder.newFile("temp.xml");
@@ -121,10 +121,10 @@ public class ValidateCommandTest {
     validateCommand.validators.add(goodValidator);
 
     validateCommand.executeWithSubject();
-    verify(mockPrinter).printSummary(0, 1); //0 errors, one message saying so
+    verify(mockPrinter).printSummary(0, 1); // 0 errors, one message saying so
   }
 
-  //test valid file that fails validation
+  // test valid file that fails validation
   @Test
   public void testValidFileFailedValidation() throws Exception {
     File newFile = testFolder.newFile("temp.xml");
@@ -137,7 +137,7 @@ public class ValidateCommandTest {
     verify(mockPrinter).printSummary(1, 1);
   }
 
-  //test empty directory
+  // test empty directory
   @Test
   public void testEmptyDirectory() throws Exception {
     validateCommand.path = testFolder.getRoot().getAbsolutePath();
@@ -149,7 +149,7 @@ public class ValidateCommandTest {
     verify(mockPrinter).printSummary(0, 0);
   }
 
-  //test directory with one file
+  // test directory with one file
   @Test
   public void testSingleFileDirectory() throws Exception {
     testFolder.newFile("temp.xml");
@@ -162,7 +162,7 @@ public class ValidateCommandTest {
     verify(mockPrinter).printSummary(0, 1);
   }
 
-  //test directory with multiple files
+  // test directory with multiple files
   @Test
   public void testMultipleFileDirectory() throws Exception {
     testFolder.newFile("temp1.xml");
@@ -177,7 +177,7 @@ public class ValidateCommandTest {
     verify(mockPrinter).printSummary(0, 4);
   }
 
-  //test directory with multiple files with a good and bad validator
+  // test directory with multiple files with a good and bad validator
   @Test
   public void testMultipleFileDirectoryGoodBadValidation() throws Exception {
     testFolder.newFile("temp1.xml");
@@ -194,7 +194,7 @@ public class ValidateCommandTest {
     verify(mockPrinter).printSummary(4, 4);
   }
 
-  //helper methods to set up mock catalog for cqlQuery tests
+  // helper methods to set up mock catalog for cqlQuery tests
   private void setupEmptyCatalog() throws Exception {
     QueryResponse mockResponse = mock(QueryResponseImpl.class);
     doReturn(null).when(mockResponse).getResults();
@@ -215,7 +215,7 @@ public class ValidateCommandTest {
     doReturn(mockResponse).when(mockCatalog).query(anyObject());
   }
 
-  //test cqlQuery with no results
+  // test cqlQuery with no results
   @Test
   public void testQueryNoResults() throws Exception {
     setupEmptyCatalog();
@@ -228,7 +228,7 @@ public class ValidateCommandTest {
     verify(mockPrinter).printSummary(0, 0);
   }
 
-  //test cqlQuery with results
+  // test cqlQuery with results
   @Test
   public void testQueryWithResults() throws Exception {
     setupNonEmptyCatalog();

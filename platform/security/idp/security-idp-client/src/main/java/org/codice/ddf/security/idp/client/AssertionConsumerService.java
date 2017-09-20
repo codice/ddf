@@ -252,8 +252,8 @@ public class AssertionConsumerService {
     URI relayUri;
     try {
       relayUri = new URI(redirectLocation);
-      //if the host names don't match up then the cookie won't work correctly and the
-      //requester will be stuck in an infinite loop of redirects
+      // if the host names don't match up then the cookie won't work correctly and the
+      // requester will be stuck in an infinite loop of redirects
       if (relayUri.getHost() != null && !relayUri.getHost().equals(request.getServerName())) {
         relayUri =
             new URI(
@@ -265,8 +265,8 @@ public class AssertionConsumerService {
                 relayUri.getQuery(),
                 relayUri.getFragment());
       }
-      //this avoids the user ever being redirected to the built in login page if they've already
-      //logged in via the IDP.
+      // this avoids the user ever being redirected to the built in login page if they've already
+      // logged in via the IDP.
       if ((relayUri.getPath().equals("/login") || relayUri.getPath().equals("/login/"))
           && (relayUri.getQuery() != null && relayUri.getQuery().contains("prevurl"))) {
         relayUri =

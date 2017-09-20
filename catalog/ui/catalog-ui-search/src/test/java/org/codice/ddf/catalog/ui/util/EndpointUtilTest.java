@@ -122,7 +122,8 @@ public class EndpointUtilTest {
     List<Result> emptyList = populateResultMockList(0);
 
     // Internal implementation detail: ResultIterable.fetchNextResults may call resultList
-    // a varying number times. emptyList is returned to express that all resources have been exhausted
+    // a varying number times. emptyList is returned to express that all resources have been
+    // exhausted
     when(responseMock.getResults()).thenReturn(resultList, resultList, emptyList);
 
     Map<String, Result> result = endpointUtil.getMetacardsByFilter(tagFilter);

@@ -131,13 +131,13 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
 
   protected Object readGml(String xml) {
     LOGGER.debug("readGml() input XML: {}", xml);
-    //Add namespace into XML for processing
+    // Add namespace into XML for processing
     DocumentBuilder dBuilder = null;
     Document doc = null;
     Object gml = null;
     InputStream xmlIs = null;
 
-    //Check if GML 3.2.1 namespace exist on XML chunk
+    // Check if GML 3.2.1 namespace exist on XML chunk
     try {
       dBuilder = XML_UTILS.getSecureDocumentBuilder(false);
       InputSource is = new InputSource();
@@ -163,7 +163,7 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
         doc.createElementNS(
             Wfs20Constants.GML_3_2_NAMESPACE, doc.getDocumentElement().getNodeName());
       }
-      //Convert DOM to InputStream
+      // Convert DOM to InputStream
       ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
       Source xmlSource = new DOMSource(doc);
       Result outputTarget = new StreamResult(outputStream);
@@ -175,7 +175,7 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
 
       xmlIs = new ByteArrayInputStream(outputStream.toByteArray());
 
-      //Parse XML into a Geometry object
+      // Parse XML into a Geometry object
       Configuration configurationG = new org.geotools.gml3.v3_2.GMLConfiguration();
       Parser parser = new Parser(configurationG);
       parser.setStrict(false);

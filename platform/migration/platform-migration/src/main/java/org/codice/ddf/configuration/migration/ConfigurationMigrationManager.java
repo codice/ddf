@@ -176,7 +176,8 @@ public class ConfigurationMigrationManager
     return doImport(exportDirectory, Optional.of(consumer));
   }
 
-  // squid:S2093 - try-with-resource will throw IOException with InputStream and we do not care to get that exception
+  // squid:S2093 - try-with-resource will throw IOException with InputStream and we do not care to
+  // get that exception
   @SuppressWarnings("squid:S2093")
   @VisibleForTesting
   void delegateToImportMigrationManager(MigrationReportImpl report, Path exportFile) {

@@ -133,8 +133,8 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
     try {
       TransactionResponseType response = csw.transaction(transactionRequest);
       Set<String> processedIds = new HashSet<>();
-      //dive down into the response to get the created ID's. We need these so we can query
-      //the source again to get the created metacards and put them in the result
+      // dive down into the response to get the created ID's. We need these so we can query
+      // the source again to get the created metacards and put them in the result
       createdMetacardFilters =
           response
               .getInsertResult()

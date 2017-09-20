@@ -219,7 +219,8 @@ public abstract class AbstractAuthorizingRealm extends AuthorizingRealm {
         List<Permission> keyValuePermissionList =
             ((KeyValueCollectionPermission) permission).getKeyValuePermissionList();
         List<Permission> expandedCollection = expandPermissions(keyValuePermissionList);
-        //we know that everything in a key value collection is a key value permission so just do the unchecked cast
+        // we know that everything in a key value collection is a key value permission so just do
+        // the unchecked cast
         List<KeyValuePermission> castedList = castToKeyValueList(expandedCollection);
         expandedPermissions.add(
             new KeyValueCollectionPermission(

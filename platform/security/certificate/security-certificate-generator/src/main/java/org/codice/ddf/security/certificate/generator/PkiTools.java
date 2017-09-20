@@ -150,7 +150,8 @@ public abstract class PkiTools {
    *     name.
    */
   public static String getHostName() {
-    //getCannonicalHostName returns the IP address. getHostName is the closet Java method to getting
+    // getCannonicalHostName returns the IP address. getHostName is the closet Java method to
+    // getting
     // the FQDN.
     try {
       return InetAddress.getLocalHost().getHostName();
@@ -228,7 +229,7 @@ public abstract class PkiTools {
 
     X500NameBuilder nameBuilder = new X500NameBuilder(RFC4519Style.INSTANCE);
 
-    //Add more nameBuilder.addRDN(....) statements to support more X500 attributes.
+    // Add more nameBuilder.addRDN(....) statements to support more X500 attributes.
     nameBuilder.addRDN(RFC4519Style.cn, commonName);
 
     return nameBuilder.build();

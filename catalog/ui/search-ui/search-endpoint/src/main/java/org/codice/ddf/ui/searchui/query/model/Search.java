@@ -368,8 +368,8 @@ public class Search {
         actionJson.put(ACTIONS_ID, action.getId() + action.getTitle());
         actionJson.put(ACTIONS_TITLE, action.getTitle());
         actionJson.put(ACTIONS_DESCRIPTION, action.getDescription());
-        //user were seeing an issue where the json url was not quoted, we were not able to
-        //reproduce the issue but resolved it by converting the url to a string
+        // user were seeing an issue where the json url was not quoted, we were not able to
+        // reproduce the issue but resolved it by converting the url to a string
         actionJson.put(ACTIONS_URL, action.getUrl() != null ? action.getUrl().toString() : null);
         actionsJson.add(actionJson);
       }

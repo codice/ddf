@@ -41,7 +41,7 @@ public class RegistryPublicationHandler implements EventHandler {
 
   private static final int SHUTDOWN_TIMEOUT_SECONDS = 60;
 
-  private static final int PUBLICATION_DELAY = 3; //seconds
+  private static final int PUBLICATION_DELAY = 3; // seconds
 
   private final RegistryPublicationService registryPublicationService;
 
@@ -89,8 +89,8 @@ public class RegistryPublicationHandler implements EventHandler {
       datePublished = (Date) lastPublished.getValue();
     }
 
-    //If we haven't published this metacard before or if we have had an update
-    //since the last time we published send an update to the remote location
+    // If we haven't published this metacard before or if we have had an update
+    // since the last time we published send an update to the remote location
     if ((datePublished == null || datePublished.before(mcard.getModifiedDate()))) {
       try {
         Security security = Security.getInstance();

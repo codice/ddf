@@ -164,7 +164,7 @@ public class RefreshRegistryEntries {
                 .filter(e -> shouldDelete(e, remoteRegistryToMetacardMap.get(regId)))
                 .collect(Collectors.toList()));
       } else {
-        //remote registry is returning no results so delete all local metacards from that registry
+        // remote registry is returning no results so delete all local metacards from that registry
         LOGGER.trace(
             "Remote registry {} returned 0 registry entries. Scheduling all local entries from this registry for removal.",
             regId);
@@ -177,7 +177,8 @@ public class RefreshRegistryEntries {
     for (Map.Entry<String, Metacard> remoteEntry : remoteRegistryMetacardsMap.entrySet()) {
       if (registryMetacardsMap.containsKey(remoteEntry.getKey())) {
         Metacard existingMetacard = registryMetacardsMap.get(remoteEntry.getKey());
-        // If it isn't a local node and it is newer that our current internal representation update it
+        // If it isn't a local node and it is newer that our current internal representation update
+        // it
         if (!RegistryUtility.isLocalNode(existingMetacard)
             && remoteEntry.getValue().getModifiedDate().after(existingMetacard.getModifiedDate())) {
           remoteMetacardsToUpdate.add(remoteEntry.getValue());
@@ -192,7 +193,7 @@ public class RefreshRegistryEntries {
               remoteEntry.getKey());
         }
       } else {
-        //add any metacards we don't currently have
+        // add any metacards we don't currently have
         remoteMetacardsToCreate.add(remoteEntry.getValue());
         LOGGER.trace(
             "Scheduling creation for {}:{}",
@@ -291,7 +292,7 @@ public class RefreshRegistryEntries {
         SecurityConstants.SECURITY_SUBJECT, security.runAsAdmin(() -> security.getSystemSubject()));
 
     LOGGER.debug("Querying {} remote registries", registryStores.size());
-    //Create the remote query task to be run.
+    // Create the remote query task to be run.
     List<Callable<RemoteResult>> tasks = new ArrayList<>();
     for (RegistryStore store : registryStores) {
       if (!store.isPullAllowed() || !store.isAvailable()) {

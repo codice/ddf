@@ -1265,7 +1265,7 @@ public class ApplicationServiceImplTest {
     when(bundleContext.getService(mockFeatureRef)).thenReturn(featuresService);
     ApplicationService appService = createPermittedApplicationServiceImpl();
 
-    appService.startApplication(""); //Shouldn't find this
+    appService.startApplication(""); // Shouldn't find this
   }
 
   /**

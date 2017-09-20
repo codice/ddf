@@ -112,7 +112,8 @@ public class ResourceRetrievalMonitor extends TimerTask {
       LOGGER.debug(
           "No bytes downloaded in last {} ms - cancelling ResourceRetrievalMonitor and ReliableResourceCallable future (thread).",
           monitorPeriod);
-      // Stop this ResourceRetrievalMonitor since the ReliableResourceCallable being watched will be stopped now
+      // Stop this ResourceRetrievalMonitor since the ReliableResourceCallable being watched will be
+      // stopped now
       cancel();
       // Stop the download thread
       // synchronized so that Callable can finish any writing to OutputStreams before being canceled

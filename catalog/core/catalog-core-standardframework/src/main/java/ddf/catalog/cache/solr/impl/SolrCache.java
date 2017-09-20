@@ -107,7 +107,7 @@ public class SolrCache implements SolrCacheMBean {
     configureMBean();
   }
 
-  //For unit testing purposes.
+  // For unit testing purposes.
   SolrCache(SolrClientAdaptor solrClientAdaptor) {
     this.solrClientAdaptor = solrClientAdaptor;
 

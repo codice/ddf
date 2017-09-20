@@ -55,7 +55,7 @@ public class PropertyIsFuzzyFunction extends FunctionExpressionImpl {
     return super.equals(obj);
   }
 
-  //findbugs: parent class overrides equals() but not hashcode
+  // findbugs: parent class overrides equals() but not hashcode
   public int hashCode() {
 
     return 31

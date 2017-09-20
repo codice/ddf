@@ -53,14 +53,14 @@ public class CertificateAuthority {
     initialize(certificate, privateKey);
   }
 
-  //Use public constructors
+  // Use public constructors
   CertificateAuthority() {}
 
   public KeyStore.PrivateKeyEntry sign(CertificateSigningRequest csr) {
     X509Certificate signedCert;
 
     try {
-      //Converters, holders, and builders! Oh my!
+      // Converters, holders, and builders! Oh my!
       JcaX509v3CertificateBuilder builder = csr.newCertificateBuilder(getCertificate());
       X509CertificateHolder holder = builder.build(getContentSigner());
       JcaX509CertificateConverter converter = newCertConverter();

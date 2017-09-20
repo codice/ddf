@@ -47,10 +47,10 @@ public class EXIOutInterceptor extends AbstractPhaseInterceptor<Message> {
   public void handleMessage(Message message) {
 
     if (isRequestor(message)) {
-      //client sending request
+      // client sending request
       LOGGER.trace("Not performing any EXI compression for initial request.");
     } else {
-      //server sending back response
+      // server sending back response
       Message request = message.getExchange().getInMessage();
       Map<String, List<String>> requestHeaders =
           CastUtils.cast((Map<?, ?>) request.get(Message.PROTOCOL_HEADERS));

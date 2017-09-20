@@ -164,12 +164,13 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
   public SolrQuery propertyIsEqualTo(String functionName, List<Object> arguments, Object literal) {
     String not;
     SolrQuery query;
-    //add a case for each new function that is added.
-    //the literal should be cast to the functions return type (i.e. not necessarily boolean)
-    //arguments should be assumed to be in the correct order and can be cast directly.
+    // add a case for each new function that is added.
+    // the literal should be cast to the functions return type (i.e. not necessarily boolean)
+    // arguments should be assumed to be in the correct order and can be cast directly.
     switch (functionName) {
       case DivisibleByFunction.FUNCTION_NAME:
-        //the return type is boolean so cast the literal to boolean and in effect this is just a NOT so we will update the query as such
+        // the return type is boolean so cast the literal to boolean and in effect this is just a
+        // NOT so we will update the query as such
         not = (Boolean) literal ? "" : "!";
         query = propertyIsDivisibleBy((String) arguments.get(0), (Long) arguments.get(1));
         return query.setQuery(not + query.getQuery());
@@ -241,8 +242,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
         indexes.add("(" + XPATH_FILTER_QUERY_INDEX + ":\"" + xpath + "\")");
       }
       // TODO DDF-1882 add pre-filter xpath index
-      //String index = XPATH_QUERY_PARSER_PREFIX + StringUtils.join(indexes, operator);
-      //query.setParam(FILTER_QUERY_PARAM_NAME, filter, index);
+      // String index = XPATH_QUERY_PARSER_PREFIX + StringUtils.join(indexes, operator);
+      // query.setParam(FILTER_QUERY_PARAM_NAME, filter, index);
       query.setParam(FILTER_QUERY_PARAM_NAME, filter);
     } else if (queryParams.size() > 0) {
       // Pass through original filter queries if only a single XPath is present
@@ -580,7 +581,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
   }
 
   public SolrQuery propertyIsDivisibleBy(String propertyName, long divisor) {
-    //use the sort key for the field since divisible can't operate on multivalued fields (it will always be a single value).
+    // use the sort key for the field since divisible can't operate on multivalued fields (it will
+    // always be a single value).
     List<String> solrExpressions =
         resolver
             .getAnonymousField(propertyName)
@@ -729,8 +731,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
   private String fixSelfIntersectingGeometry(String wkt) {
     try {
       Shape wktShape = WKT_READER.read(wkt);
-      //All polygons will be an instance of JtsGeometry. If it is not a polygon we don't need
-      //to do anything with it so just return the original wkt string.
+      // All polygons will be an instance of JtsGeometry. If it is not a polygon we don't need
+      // to do anything with it so just return the original wkt string.
       if (!(wktShape instanceof JtsGeometry)) {
         return wkt;
       }
@@ -823,7 +825,8 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
 
   private SolrQuery getXPathQuery(
       final String pattern, final String searchPhrase, final boolean isCaseSensitive) {
-    // TODO should use XPath parser to make sure to only remove namespace pattern from path and not quoted text
+    // TODO should use XPath parser to make sure to only remove namespace pattern from path and not
+    // quoted text
     // replace quotes and remove namespaces
     String xpath = pattern.replace("\"", "'").replaceAll("[\\w]+:(?!:)", "");
     String query = "*:*";

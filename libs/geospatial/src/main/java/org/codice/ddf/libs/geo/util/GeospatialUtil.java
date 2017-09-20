@@ -198,7 +198,8 @@ public class GeospatialUtil {
       throw new GeoFormatException("Unable to convert null geometry");
     }
 
-    //If we don't have source CRS just return geometry as we can't transform without that information
+    // If we don't have source CRS just return geometry as we can't transform without that
+    // information
     if (sourceCrsName == null) {
       return geometry;
     }
@@ -230,7 +231,8 @@ public class GeospatialUtil {
       throw new GeoFormatException("Unable to convert null geometry");
     }
 
-    //If we don't have source CRS just return geometry as we can't transform without that information
+    // If we don't have source CRS just return geometry as we can't transform without that
+    // information
     if (sourceCrs == null || CollectionUtils.isEmpty(sourceCrs.getIdentifiers())) {
       return geometry;
     }

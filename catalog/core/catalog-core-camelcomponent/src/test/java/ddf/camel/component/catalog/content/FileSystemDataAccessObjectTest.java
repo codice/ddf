@@ -36,33 +36,33 @@ public class FileSystemDataAccessObjectTest {
     File testDir = temporaryFolder.newFolder("testStore");
     String testString = "test string";
 
-    //store the test string object
+    // store the test string object
     fileSystemDataAccessObject.store(testDir.getPath(), ".test", "/example", testString);
 
-    //assert that a file was made to store the string object
+    // assert that a file was made to store the string object
     assertThat(Files.exists(Paths.get(testDir.getPath() + "/example.test")), is(true));
 
-    //load the string object that was stored
+    // load the string object that was stored
     assertThat(
         fileSystemDataAccessObject
             .loadFromPersistence(testDir.getPath(), ".test", "/example")
             .equals(testString),
         is(true));
 
-    //make a filename filter to find the .test file
+    // make a filename filter to find the .test file
     FilenameFilter filenameFilter = fileSystemDataAccessObject.getFilenameFilter(".test");
 
-    //load stored keys
+    // load stored keys
     Set<String> keys =
         fileSystemDataAccessObject.loadAllKeys(testDir.getPath(), ".test", filenameFilter);
 
-    //assert that the file that was stored was in the key set
+    // assert that the file that was stored was in the key set
     assertThat(keys.contains("example"), is(true));
 
-    //clear out the stored keys
+    // clear out the stored keys
     fileSystemDataAccessObject.clear(testDir.getPath(), filenameFilter);
 
-    //assert that the key that was stored was cleared out
+    // assert that the key that was stored was cleared out
     assertThat(
         fileSystemDataAccessObject.loadFromPersistence(testDir.getPath(), ".test", "/example"),
         is(nullValue()));

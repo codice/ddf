@@ -73,7 +73,8 @@ public class DynamicSchemaResolverTest {
     // Perform Test
     resolver.addFields(mockMetacard, mockSolrInputDocument);
 
-    // Verify: Verify that TestAttributeDescritorImpl has been recreated as a AttributeDescriptorImpl.
+    // Verify: Verify that TestAttributeDescritorImpl has been recreated as a
+    // AttributeDescriptorImpl.
     verify(mockSolrInputDocument)
         .addField(eq(SchemaFields.METACARD_TYPE_OBJECT_FIELD_NAME), metacardTypeBytes.capture());
     byte[] serializedMetacardType = metacardTypeBytes.getValue();

@@ -265,7 +265,7 @@ public class LdapModuleTest {
       options.put(key, value);
       return this;
     }
-  } //end inner class
+  } // end inner class
 
   private static class TestServer {
 
@@ -419,5 +419,5 @@ public class LdapModuleTest {
         fail(e.getMessage());
       }
     }
-  } //end inner class
+  } // end inner class
 }

@@ -49,7 +49,8 @@ public class NotificationListener implements EventHandler {
           "Event \"" + Notification.NOTIFICATION_KEY_USER_ID + "\" property is blank");
     }
 
-    //TODO: Do we need to get extra properties out of event for Notification, i.e., STATUS and BYTES?
+    // TODO: Do we need to get extra properties out of event for Notification, i.e., STATUS and
+    // BYTES?
     PersistentItem item = new PersistentItem();
     item.addIdProperty(id);
     item.addProperty(Notification.NOTIFICATION_KEY_USER_ID, userId);

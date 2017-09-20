@@ -209,7 +209,7 @@ public class TestSpatial extends AbstractIntegrationTest {
   public static Map<String, String> loadResourceQueries(
       String resourcesPath, Map<String, String> savedQueries) {
 
-    //gets a list of resources available within the resource bundle
+    // gets a list of resources available within the resource bundle
     Enumeration<URL> queryResourcePaths =
         FrameworkUtil.getBundle(AbstractIntegrationTest.class)
             .getBundleContext()
@@ -432,7 +432,7 @@ public class TestSpatial extends AbstractIntegrationTest {
   }
 
   @Test
-  @ConditionalIgnore(condition = SkipUnstableTest.class) //DDF-3032
+  @ConditionalIgnore(condition = SkipUnstableTest.class) // DDF-3032
   public void testGeoCoderPlugin() throws Exception {
     getServiceManager().startFeature(true, "webservice-gazetteer");
     String id = ingestCswRecord(getFileContent(CSW_RECORD_RESOURCE_PATH + "/CswRecord2"));
@@ -503,7 +503,7 @@ public class TestSpatial extends AbstractIntegrationTest {
           "The responses contained a different count",
           hasExpectedResultCount(queryResult, expectedValues[0]));
     } else if (expectedValues[0].type == ResultType.TITLE) {
-      //assertion done within the method
+      // assertion done within the method
       hasExpectedMetacardsReturned(queryResult, expectedValues);
     } else {
       assertTrue("The expected values are an invalid type", false);

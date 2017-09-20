@@ -134,19 +134,19 @@ public class PkiToolsTest {
         equalTo("password"));
   }
 
-  //Null path to keyStore file.
+  // Null path to keyStore file.
   @Test(expected = IllegalArgumentException.class)
   public void nullPath() throws Exception {
     PkiTools.createFileObject(null);
   }
 
-  //Test constructor. Invalid path to keyStore file.
+  // Test constructor. Invalid path to keyStore file.
   @Test(expected = FileNotFoundException.class)
   public void invalidPath() throws Exception {
     PkiTools.createFileObject("");
   }
 
-  //Test Constructor. Path is a directory, not a file.
+  // Test Constructor. Path is a directory, not a file.
   @Test(expected = FileNotFoundException.class)
   public void pathIsDirectory() throws Exception {
     String anyDirectory = getPathTo("");

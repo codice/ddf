@@ -92,10 +92,11 @@ public class IdentificationPluginTest {
     System.setProperty(RegistryConstants.REGISTRY_ID_PROPERTY, "systemRegistryId");
   }
 
-  //test ext IDs are not set (origin & local)
+  // test ext IDs are not set (origin & local)
   @Test
   public void testBothExtIdMissing() throws Exception {
-    //unmarshal metacard.metadata and confirm both origin and local ext id are set to metacard.getId()
+    // unmarshal metacard.metadata and confirm both origin and local ext id are set to
+    // metacard.getId()
 
     String xml = convert("/registry-no-extid.xml");
     sampleData.setAttribute(Metacard.METADATA, xml);
@@ -121,10 +122,11 @@ public class IdentificationPluginTest {
     }
   }
 
-  //test ext IDs are not set to other items
+  // test ext IDs are not set to other items
   @Test
   public void testOtherExtIds() throws Exception {
-    //unmarshal metacard.metadata and confirm both origin and local ext id are set to metacard.getId()
+    // unmarshal metacard.metadata and confirm both origin and local ext id are set to
+    // metacard.getId()
 
     String xml = convert("/registry-extra-extid.xml");
     sampleData.setAttribute(Metacard.METADATA, xml);
@@ -149,10 +151,10 @@ public class IdentificationPluginTest {
     }
   }
 
-  //test both ids are already set
+  // test both ids are already set
   @Test
   public void testIdsAlreadySet() throws Exception {
-    //unmarshal metacard.metadata and confirm only local ext id are set to metacard.getId()
+    // unmarshal metacard.metadata and confirm only local ext id are set to metacard.getId()
 
     String xml = convert("/registry-both-extid.xml");
     sampleData.setAttribute(Metacard.METADATA, xml);

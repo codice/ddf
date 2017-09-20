@@ -317,7 +317,7 @@ public abstract class AbstractIntegrationTest {
     ddfHome = System.getProperty(DDF_HOME_PROPERTY);
     adminConfig = new AdminConfig(configAdmin);
 
-    //This proxy runs the service manager as the system subject
+    // This proxy runs the service manager as the system subject
     serviceManager =
         (ServiceManager)
             Proxy.newProxyInstance(
@@ -589,7 +589,7 @@ public abstract class AbstractIntegrationTest {
   }
 
   protected Option[] configureStartScript() {
-    //add test dependencies to the test-dependencies-app instead of here
+    // add test dependencies to the test-dependencies-app instead of here
     return options(
         junitBundles(),
         features(
@@ -600,7 +600,7 @@ public abstract class AbstractIntegrationTest {
                 .classifier("features")
                 .versionAsInProject(),
             "ddf-itest-dependencies"),
-        //Adds sdk-app to the features repo
+        // Adds sdk-app to the features repo
         features(
             maven("ddf.distribution", "sdk-app")
                 .classifier("features")

@@ -74,8 +74,8 @@ public class RegistryPublicationServiceImpl implements RegistryPublicationServic
 
     federationAdminService.addRegistryEntry(metacard, Collections.singleton(sourceId));
 
-    //need to reset the id since the framework reset it in the groomer plugin
-    //and we don't want to update with the wrong id
+    // need to reset the id since the framework reset it in the groomer plugin
+    // and we don't want to update with the wrong id
     metacard.setAttribute(new AttributeImpl(Metacard.ID, metacardId));
 
     locations.add(destinationRegistryId);
@@ -161,10 +161,11 @@ public class RegistryPublicationServiceImpl implements RegistryPublicationServic
             String.join(",", locations));
         federationAdminService.updateRegistryEntry(metacard, locations);
       } catch (FederationAdminException e) {
-        //This should not happen often but could occur if the remote registry removed the metacard
-        //that was to be updated. In that case performing an add will fix the problem. If the failure
-        //was for another reason like the site couldn't be contacted then the add will fail
-        //also and the end result will be the same.
+        // This should not happen often but could occur if the remote registry removed the metacard
+        // that was to be updated. In that case performing an add will fix the problem. If the
+        // failure
+        // was for another reason like the site couldn't be contacted then the add will fail
+        // also and the end result will be the same.
         federationAdminService.addRegistryEntry(metacard, locations);
       }
       metacard.setAttribute(

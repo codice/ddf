@@ -50,7 +50,7 @@ public class GeoNamesWebService implements GeoEntryQueryable {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(GeoNamesWebService.class);
 
-  //geonames requires an application username, this is the default name for DDF
+  // geonames requires an application username, this is the default name for DDF
   private static final String USERNAME = "ddf_ui";
 
   private static final String GEONAMES_API_ADDRESS = "api.geonames.org";

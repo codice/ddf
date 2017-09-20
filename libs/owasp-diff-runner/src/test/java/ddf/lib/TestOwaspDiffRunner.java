@@ -62,7 +62,7 @@ public class TestOwaspDiffRunner {
     fakeRepo.create();
     File fakeChangedPom = fakeRepo.newFile("pom.xml");
     System.setProperty("maven.repo.local", fakeChangedPom.getParent());
-    //Set command line returns
+    // Set command line returns
     when(mavenVersionCommandProcess.getInputStream())
         .thenReturn(
             new ByteArrayInputStream(
@@ -81,7 +81,7 @@ public class TestOwaspDiffRunner {
         .thenReturn(
             new ByteArrayInputStream(fakeChangedPom.getPath().getBytes(StandardCharsets.UTF_8)));
 
-    //Set runtime when executing commands
+    // Set runtime when executing commands
     when(runtime.exec(MAVEN_VERSION_COMMAND)).thenReturn(mavenVersionCommandProcess);
 
     when(runtime.exec(MAVEN_SETTINGS_COMMAND)).thenReturn(mavenSettingCommandProcess);
@@ -90,7 +90,7 @@ public class TestOwaspDiffRunner {
 
     when(runtime.exec(matches(GIT_DIFF_NAME_COMMAND + ".*"))).thenReturn(gitDiffNameCommandProcess);
 
-    //Set maven executor
+    // Set maven executor
     when(mavenBuildResult.getExitCode()).thenReturn(0);
 
     when(invoker.execute(any())).thenReturn(mavenBuildResult);

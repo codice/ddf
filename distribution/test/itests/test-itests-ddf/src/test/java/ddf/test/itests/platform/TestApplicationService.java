@@ -81,7 +81,7 @@ public class TestApplicationService extends AbstractIntegrationTest {
 
   private static final String CATALOG_APP = "catalog-app";
 
-  //This app just needs to be one that is not started by default
+  // This app just needs to be one that is not started by default
   private static final String REGISTRY_APP = "registry-app";
 
   private static final String SDK_APP = "sdk-app";

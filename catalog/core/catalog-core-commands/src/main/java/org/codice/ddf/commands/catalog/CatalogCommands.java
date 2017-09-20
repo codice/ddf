@@ -93,7 +93,7 @@ public abstract class CatalogCommands extends SubjectCommands {
         mBeanServer, solrCacheObjectName, SolrCacheMBean.class, false);
   }
 
-  //TODO Optional
+  // TODO Optional
   protected CatalogFacade getCatalog() throws InterruptedException {
     if (isProvider) {
       return new Provider(catalogProvider);

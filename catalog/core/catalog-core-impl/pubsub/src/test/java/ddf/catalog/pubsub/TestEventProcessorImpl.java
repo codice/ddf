@@ -86,7 +86,7 @@ public class TestEventProcessorImpl {
   @Test
   public void testDateType() throws Exception {
     for (EventProcessorImpl.DateType dt : EventProcessorImpl.DateType.values()) {
-      //for each DateType, verify enum is the same if derived from attribute string or enum name
+      // for each DateType, verify enum is the same if derived from attribute string or enum name
       assertThat(
           EventProcessorImpl.DateType.valueOf(dt.name()),
           equalTo(EventProcessorImpl.DateType.getDateType(dt.getAttributeName())));

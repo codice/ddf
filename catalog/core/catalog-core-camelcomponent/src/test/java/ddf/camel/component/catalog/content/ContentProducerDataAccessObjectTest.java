@@ -76,12 +76,12 @@ public class ContentProducerDataAccessObjectTest {
     File testFile = temporaryFolder.newFile("testRefKey");
     GenericFileMessage<File> mockMessage = getMockMessage(testFile);
 
-    //test with storeRefKey == false
+    // test with storeRefKey == false
     assertThat(
         contentProducerDataAccessObject.getFileUsingRefKey(false, mockMessage).equals(testFile),
         is(true));
 
-    //test with storeRefKey == true
+    // test with storeRefKey == true
     assertThat(
         contentProducerDataAccessObject.getFileUsingRefKey(true, mockMessage).equals(testFile),
         is(true));
@@ -92,39 +92,39 @@ public class ContentProducerDataAccessObjectTest {
     File testFile = temporaryFolder.newFile("testEventType");
     GenericFileMessage<File> mockMessage = getMockMessage(testFile);
 
-    //test that a new standard kind is created if storeRefKey == false
+    // test that a new standard kind is created if storeRefKey == false
     assertThat(
         contentProducerDataAccessObject
             .getEventType(false, mockMessage)
             .equals(StandardWatchEventKinds.ENTRY_CREATE),
         is(true));
 
-    //test that the sample kind is returned when storeRefKey == true
+    // test that the sample kind is returned when storeRefKey == true
     assertThat(
         contentProducerDataAccessObject.getEventType(true, mockMessage).name().equals("example"),
         is(true));
   }
 
   private GenericFileMessage<File> getMockMessage(File testFile) {
-    //set the mockGenericFile to return the test file when requested
+    // set the mockGenericFile to return the test file when requested
     GenericFile<File> mockGenericFileFromBody = mock(GenericFile.class);
     doReturn(testFile).when(mockGenericFileFromBody).getFile();
 
     WatchEvent<Path> mockWatchEvent = mock(WatchEvent.class);
 
-    //mock out the context that links to the file
+    // mock out the context that links to the file
     Path mockContext = mock(Path.class);
     doReturn(testFile).when(mockContext).toFile();
 
-    //mock out with a sample kind
+    // mock out with a sample kind
     WatchEvent.Kind mockKind = mock(WatchEvent.Kind.class);
     doReturn("example").when(mockKind).name();
 
-    //return the kind or context for the mockWatchEvent
+    // return the kind or context for the mockWatchEvent
     doReturn(mockKind).when(mockWatchEvent).kind();
     doReturn(mockContext).when(mockWatchEvent).context();
 
-    //return the mockWatchEvent when the file is called for
+    // return the mockWatchEvent when the file is called for
     GenericFile<File> mockGenericFile = mock(GenericFile.class);
     doReturn(mockWatchEvent).when(mockGenericFile).getFile();
 
@@ -140,20 +140,20 @@ public class ContentProducerDataAccessObjectTest {
     File testFile1 = temporaryFolder.newFile("testGetMimeType1.xml");
     File testFile2 = temporaryFolder.newFile("testGetMimeType2.txt");
 
-    //mock out two different ways for getting mimeType
+    // mock out two different ways for getting mimeType
     MimeTypeMapper mockMimeTypeMapper = mock(MimeTypeMapper.class);
     doReturn("guess").when(mockMimeTypeMapper).guessMimeType(any(), any());
     doReturn("extension").when(mockMimeTypeMapper).getMimeTypeForFileExtension(any());
 
-    //mock out Component that returns mockMimeTypeMapper when the mimeTypeMapper is requested
+    // mock out Component that returns mockMimeTypeMapper when the mimeTypeMapper is requested
     ContentComponent mockComponent = mock(ContentComponent.class);
     doReturn(mockMimeTypeMapper).when(mockComponent).getMimeTypeMapper();
 
-    //mock out ContentEndpoint that returns the mockComponent
+    // mock out ContentEndpoint that returns the mockComponent
     ContentEndpoint mockEndpoint = mock(ContentEndpoint.class);
     doReturn(mockComponent).when(mockEndpoint).getComponent();
 
-    //assert the mock mimeTypeMappers are reached if/not xml
+    // assert the mock mimeTypeMappers are reached if/not xml
     assertThat(
         contentProducerDataAccessObject.getMimeType(mockEndpoint, testFile1).equals("guess"),
         is(true));
@@ -166,13 +166,13 @@ public class ContentProducerDataAccessObjectTest {
   public void testCreateContentItem() throws Exception {
     File testFile = temporaryFolder.newFile("testCreateContentItem.txt");
 
-    //make sample list of metacard and set of keys
+    // make sample list of metacard and set of keys
     List<MetacardImpl> metacardList = ImmutableList.of(new MetacardImpl());
     String uri = testFile.toURI().toASCIIString();
     Set<String> keys =
         new HashSet<>(Collections.singletonList(String.valueOf(DigestUtils.sha1Hex(uri))));
 
-    //mock out responses for create, delete, update
+    // mock out responses for create, delete, update
     CreateResponse mockCreateResponse = mock(CreateResponse.class);
     doReturn(metacardList).when(mockCreateResponse).getCreatedMetacards();
 
@@ -182,7 +182,7 @@ public class ContentProducerDataAccessObjectTest {
     UpdateResponse mockUpdateResponse = mock(UpdateResponse.class);
     doReturn(metacardList).when(mockUpdateResponse).getUpdatedMetacards();
 
-    //setup mockFileSystemPersistenceProvider
+    // setup mockFileSystemPersistenceProvider
     FileSystemPersistenceProvider mockFileSystemPersistenceProvider =
         mock(FileSystemPersistenceProvider.class);
     doReturn(keys).when(mockFileSystemPersistenceProvider).loadAllKeys();
@@ -193,12 +193,12 @@ public class ContentProducerDataAccessObjectTest {
         .when(mockFileSystemPersistenceProvider)
         .loadFromPersistence(any(String.class));
 
-    //setup mockCatalogFramework
+    // setup mockCatalogFramework
     CatalogFramework mockCatalogFramework = mock(CatalogFramework.class);
     doReturn(mockCreateResponse).when(mockCatalogFramework).create(any(CreateStorageRequest.class));
     doReturn(mockDeleteResponse).when(mockCatalogFramework).delete(any(DeleteRequest.class));
 
-    //setup mockSourceInfo
+    // setup mockSourceInfo
     SourceInfoResponse mockSourceInfoResponse = mock(SourceInfoResponse.class);
     SourceDescriptor mockSourceDescriptor = mock(SourceDescriptor.class);
 
@@ -208,11 +208,11 @@ public class ContentProducerDataAccessObjectTest {
     when(mockCatalogFramework.getSourceInfo(any(SourceInfoRequest.class)))
         .thenReturn(mockSourceInfoResponse);
 
-    //setup mockComponent
+    // setup mockComponent
     ContentComponent mockComponent = mock(ContentComponent.class);
     doReturn(mockCatalogFramework).when(mockComponent).getCatalogFramework();
 
-    //setup mockEndpoint
+    // setup mockEndpoint
     ContentEndpoint mockEndpoint = mock(ContentEndpoint.class);
     doReturn(mockComponent).when(mockEndpoint).getComponent();
 

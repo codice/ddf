@@ -72,7 +72,7 @@ public class LocalLogoutServlet extends HttpServlet {
         deleteJSessionId(response);
       }
 
-      //Check for pki
+      // Check for pki
       if (request.getAttribute("javax.servlet.request.X509Certificate") != null
           && ((X509Certificate[]) request.getAttribute("javax.servlet.request.X509Certificate"))
                   .length
@@ -81,7 +81,7 @@ public class LocalLogoutServlet extends HttpServlet {
             new BasicNameValuePair("msg", "Please close your browser to finish logging out"));
       }
 
-      //Check for basic
+      // Check for basic
       Enumeration authHeaders = request.getHeaders(javax.ws.rs.core.HttpHeaders.AUTHORIZATION);
       while (authHeaders.hasMoreElements()) {
         if (((String) authHeaders.nextElement()).contains("Basic")) {

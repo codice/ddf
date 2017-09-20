@@ -62,8 +62,8 @@ public class AdminAlertImpl extends BasicMBean implements AdminAlertMBean {
       if (!results.isEmpty()) {
         for (Map<String, Object> item : results) {
           item = PersistentItem.stripSuffixes(item);
-          //this check and type change is needed because of how the persistent store handles
-          //strings/sets of strings. Single value sets will come back as strings.
+          // this check and type change is needed because of how the persistent store handles
+          // strings/sets of strings. Single value sets will come back as strings.
           if (item.get(SystemNotice.SYSTEM_NOTICE_DETAILS_KEY) instanceof String) {
             item.put(
                 SystemNotice.SYSTEM_NOTICE_DETAILS_KEY,

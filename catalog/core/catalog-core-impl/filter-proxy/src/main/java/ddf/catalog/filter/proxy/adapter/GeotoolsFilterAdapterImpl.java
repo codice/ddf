@@ -103,7 +103,7 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
 
   private static final FilterFactory FF = new FilterFactoryImpl();
 
-  //Does not support fractional values
+  // Does not support fractional values
   private static final Pattern RELATIVE_TEMPORAL_MATCHER =
       Pattern.compile(
           "RELATIVE\\(P(?!$)(\\d+Y)?(\\d+M)?(\\d+W)?(\\d+D)?(T(?=\\d)(\\d+H)?(\\d+M)?(\\d+S)?)?\\)");
@@ -149,12 +149,12 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
       throw new UnsupportedOperationException(
           Function.class.getSimpleName() + " requires " + argCount + " arguments.");
     }
-    //unwrap the function arguments and return them
+    // unwrap the function arguments and return them
     List<Object> ret = new ArrayList<>();
     for (int i = 0; i < argCount; i++) {
       Class<?> type = expression.getFunctionName().getArguments().get(i).getType();
       Expression arg = parameters.get(i);
-      ret.add(arg.accept(this, type)); //the type would only be used by literals
+      ret.add(arg.accept(this, type)); // the type would only be used by literals
     }
 
     return ret;
@@ -166,7 +166,7 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
       throw new UnsupportedOperationException(
           Literal.class.getSimpleName() + " value must not be null.");
     }
-    //try and get the object as the requested class otherwise just return the object
+    // try and get the object as the requested class otherwise just return the object
     if (clazz instanceof Class) {
       Object ret = Converters.convert(expression.getValue(), (Class) clazz);
       if (ret != null) {
@@ -314,12 +314,12 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
     String functionName = filterValues.functionName;
     List<Object> functionArgs = filterValues.functionArgs;
 
-    //Special case to handle relative temporal queries
+    // Special case to handle relative temporal queries
     if (literal instanceof String
         && RELATIVE_TEMPORAL_MATCHER.matcher((String) literal).matches()) {
       DateTime currentDateTime = new DateTime();
 
-      //Split out the ISO 8601 duration from the ECQL function
+      // Split out the ISO 8601 duration from the ECQL function
       String duration = (((String) literal).split("[\\(\\)]"))[1];
 
       org.joda.time.Period period = org.joda.time.Period.parse(duration);

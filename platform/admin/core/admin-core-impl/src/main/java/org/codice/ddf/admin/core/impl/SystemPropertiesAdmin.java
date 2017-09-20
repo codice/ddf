@@ -159,7 +159,7 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
       return;
     }
     // Get system.properties file
-    //save off the current/old hostname before we make any changes
+    // save off the current/old hostname before we make any changes
     oldHostName = SystemBaseUrl.getHost();
 
     String etcDir = System.getProperty(KARAF_ETC);

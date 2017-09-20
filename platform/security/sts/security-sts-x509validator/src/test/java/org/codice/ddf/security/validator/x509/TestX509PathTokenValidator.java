@@ -57,7 +57,7 @@ public class TestX509PathTokenValidator {
       when(x509PathTokenValidator.merlin.loadCertificate(any(InputStream.class)))
           .thenReturn(mockCert);
     } catch (WSSecurityException e) {
-      //ignore
+      // ignore
     }
     validator = mock(Validator.class);
   }
@@ -84,7 +84,7 @@ public class TestX509PathTokenValidator {
       when(validator.validate(any(Credential.class), any(RequestData.class)))
           .thenReturn(credential);
     } catch (WSSecurityException e) {
-      //ignore
+      // ignore
     }
     x509PathTokenValidator.setValidator(validator);
 
@@ -127,7 +127,7 @@ public class TestX509PathTokenValidator {
       when(validator.validate(any(Credential.class), any(RequestData.class)))
           .thenThrow(new WSSecurityException(WSSecurityException.ErrorCode.SECURITY_ERROR));
     } catch (WSSecurityException e) {
-      //ignore
+      // ignore
     }
     x509PathTokenValidator.setValidator(validator);
 
@@ -167,7 +167,7 @@ public class TestX509PathTokenValidator {
       when(validator.validate(any(Credential.class), any(RequestData.class)))
           .thenReturn(credential);
     } catch (WSSecurityException e) {
-      //ignore
+      // ignore
     }
     x509PathTokenValidator.setValidator(validator);
 
@@ -211,7 +211,7 @@ public class TestX509PathTokenValidator {
       when(validator.validate(any(Credential.class), any(RequestData.class)))
           .thenReturn(credential);
     } catch (WSSecurityException e) {
-      //ignore
+      // ignore
     }
     x509PathTokenValidator.setValidator(validator);
 
@@ -255,7 +255,7 @@ public class TestX509PathTokenValidator {
       when(validator.validate(any(Credential.class), any(RequestData.class)))
           .thenReturn(credential);
     } catch (WSSecurityException e) {
-      //ignore
+      // ignore
     }
     x509PathTokenValidator.setValidator(validator);
 

@@ -211,15 +211,15 @@ public class TikaInputTransformer implements InputTransformer {
    * corresponds to an ingested product's mimeType.
    */
   public void populateMimeTypeMap() {
-    //.pptm
+    // .pptm
     mimeTypeToMetacardTypeMap.put(
         "application/vnd.ms-powerpoint.presentation.macroenabled.12",
         fallbackPowerpointMetacardType);
-    //.ppt, .ppz, .pps, .pot, .ppa
+    // .ppt, .ppz, .pps, .pot, .ppa
     mimeTypeToMetacardTypeMap.put(
         com.google.common.net.MediaType.MICROSOFT_POWERPOINT.toString(),
         fallbackPowerpointMetacardType);
-    //.pptx, .thmx
+    // .pptx, .thmx
     mimeTypeToMetacardTypeMap.put(
         "application/vnd.openxmlformats-officedocument.presentationml.presentation",
         fallbackPowerpointMetacardType);
@@ -227,86 +227,86 @@ public class TikaInputTransformer implements InputTransformer {
     mimeTypeToMetacardTypeMap.put(
         "application/vnd.openxmlformats-officedocument.presentationml.slideshow",
         fallbackPowerpointMetacardType);
-    //.potx
+    // .potx
     mimeTypeToMetacardTypeMap.put(
         "application/vnd.openxmlformats-officedocument.presentationml.template",
         fallbackPowerpointMetacardType);
-    //.ppam
+    // .ppam
     mimeTypeToMetacardTypeMap.put(
         "application/vnd.ms-powerpoint.addin.macroenabled.12", fallbackPowerpointMetacardType);
-    //.ppsm
+    // .ppsm
     mimeTypeToMetacardTypeMap.put(
         "application/vnd.ms-powerpoint.slideshow.macroenabled.12", fallbackPowerpointMetacardType);
-    //.sldm
+    // .sldm
     mimeTypeToMetacardTypeMap.put(
         "application/vnd.ms-powerpoint.slide.macroenabled.12", fallbackPowerpointMetacardType);
-    //.potm
+    // .potm
     mimeTypeToMetacardTypeMap.put(
         "application/vnd.ms-powerpoint.template.macroenabled.12", fallbackPowerpointMetacardType);
-    //.doc, .dot
+    // .doc, .dot
     mimeTypeToMetacardTypeMap.put(
         com.google.common.net.MediaType.MICROSOFT_WORD.toString(), fallbackOfficeDocMetacardType);
-    //.docx
+    // .docx
     mimeTypeToMetacardTypeMap.put(
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         fallbackOfficeDocMetacardType);
-    //.doc, .dot, allias for "application/msword"
+    // .doc, .dot, allias for "application/msword"
     mimeTypeToMetacardTypeMap.put("application/vnd.ms-word", fallbackOfficeDocMetacardType);
-    //.docm
+    // .docm
     mimeTypeToMetacardTypeMap.put(
         "application/vnd.ms-word.document.macroenabled.12", fallbackOfficeDocMetacardType);
-    //.dotm
+    // .dotm
     mimeTypeToMetacardTypeMap.put(
         "application/vnd.ms-word.template.macroenabled.12", fallbackOfficeDocMetacardType);
-    //.dotx
+    // .dotx
     mimeTypeToMetacardTypeMap.put(
         "application/vnd.openxmlformats-officedocument.wordprocessingml.template",
         fallbackOfficeDocMetacardType);
-    //.pdf
+    // .pdf
     mimeTypeToMetacardTypeMap.put(
         com.google.common.net.MediaType.PDF.toString(), fallbackPdfMetacardType);
-    //.mpeg, .mpg, .mpe, .m1v, .m2v
+    // .mpeg, .mpg, .mpe, .m1v, .m2v
     mimeTypeToMetacardTypeMap.put(
         com.google.common.net.MediaType.MPEG_VIDEO.toString(), fallbackMpegMetacardType);
-    //.mpga, .mp2, .mp2a, .mp3, .m2a, .m3a
+    // .mpga, .mp2, .mp2a, .mp3, .m2a, .m3a
     mimeTypeToMetacardTypeMap.put(
         com.google.common.net.MediaType.MPEG_AUDIO.toString(), fallbackMpegMetacardType);
-    //.mp4 is defined for mpeg-4 content but is not directly correlated with this mime type
+    // .mp4 is defined for mpeg-4 content but is not directly correlated with this mime type
     mimeTypeToMetacardTypeMap.put("audio/mpeg4-generic", fallbackMpegMetacardType);
-    //.mp4 is defined for mpeg-4 content but is not directly correlated with this mime type
+    // .mp4 is defined for mpeg-4 content but is not directly correlated with this mime type
     mimeTypeToMetacardTypeMap.put("video/mpeg4-generic", fallbackMpegMetacardType);
-    //.mp4s
+    // .mp4s
     mimeTypeToMetacardTypeMap.put("application/mp4", fallbackMp4MetacardType);
-    //.mp4a, .m4a,.m4b
+    // .mp4a, .m4a,.m4b
     mimeTypeToMetacardTypeMap.put(
         com.google.common.net.MediaType.MP4_AUDIO.toString(), fallbackMp4MetacardType);
-    //.mp4, .mp4v, .mpg4
+    // .mp4, .mp4v, .mpg4
     mimeTypeToMetacardTypeMap.put(
         com.google.common.net.MediaType.MP4_VIDEO.toString(), fallbackMp4MetacardType);
-    //.jpg, .jpeg, .jpe, .jif, .jfif, .jfi
+    // .jpg, .jpeg, .jpe, .jif, .jfif, .jfi
     mimeTypeToMetacardTypeMap.put(
         com.google.common.net.MediaType.JPEG.toString(), fallbackJpegMetacardType);
-    //.jpgv is defined for jpeg content but is not directly correlated with this mime type
+    // .jpgv is defined for jpeg content but is not directly correlated with this mime type
     mimeTypeToMetacardTypeMap.put("video/jpeg", fallbackJpegMetacardType);
-    //.jpgv is defined for jpeg2000 content but is not directly correlated with this mime type
+    // .jpgv is defined for jpeg2000 content but is not directly correlated with this mime type
     mimeTypeToMetacardTypeMap.put("video/jpeg2000", fallbackJpegMetacardType);
-    //.xls, .xlm, .xla, .xlc, .xlt, .xlw, .xll, .xld
+    // .xls, .xlm, .xla, .xlc, .xlt, .xlw, .xll, .xld
     mimeTypeToMetacardTypeMap.put(
         com.google.common.net.MediaType.MICROSOFT_EXCEL.toString(), fallbackExcelMetacardType);
-    //.xlsx
+    // .xlsx
     mimeTypeToMetacardTypeMap.put(
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         fallbackExcelMetacardType);
-    //.xlsm
+    // .xlsm
     mimeTypeToMetacardTypeMap.put(
         "application/vnd.ms-excel.sheet.macroenabled.12", fallbackExcelMetacardType);
-    //.xlsb
+    // .xlsb
     mimeTypeToMetacardTypeMap.put(
         "application/vnd.ms-excel.sheet.binary.macroenabled.12", fallbackExcelMetacardType);
-    //.xlam
+    // .xlam
     mimeTypeToMetacardTypeMap.put(
         "application/vnd.ms-excel.addin.macroenabled.12", fallbackExcelMetacardType);
-    //.xltm
+    // .xltm
     mimeTypeToMetacardTypeMap.put(
         "application/vnd.ms-excel.template.macroenabled.12", fallbackExcelMetacardType);
   }
@@ -647,7 +647,7 @@ public class TikaInputTransformer implements InputTransformer {
         transformer.transform(
             new SAXSource(xmlReader, new InputSource(xhtmlInStream)),
             new StreamResult(xmlOutStream));
-        //we should not be doing this and should be returning the stream instead
+        // we should not be doing this and should be returning the stream instead
         try (InputStream resultStream = xmlOutStream.asByteSource().openStream()) {
           return IOUtils.toString(resultStream, StandardCharsets.UTF_8);
         }

@@ -223,7 +223,7 @@ public class ActivityController extends AbstractEventController {
 
         if (action != null) {
           if (REMOVE_ACTION.equals(action)) {
-            //You can have a blank id for guest
+            // You can have a blank id for guest
             if (id != null) {
               try {
                 this.persistentStore.delete(PersistentStore.ACTIVITY_TYPE, "id = '" + id + "'");

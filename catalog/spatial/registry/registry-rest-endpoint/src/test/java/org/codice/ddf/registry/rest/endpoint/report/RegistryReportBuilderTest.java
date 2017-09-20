@@ -151,15 +151,15 @@ public class RegistryReportBuilderTest {
 
   private void assertFullReportValues(Document document) {
 
-    //node info
+    // node info
     assertNodeInfo(document);
-    //services
+    // services
     assertServices(document);
-    //organizations
+    // organizations
     assertOrganizationReportValues(document);
-    //contacts
+    // contacts
     assertContacts(document);
-    //collections
+    // collections
     assertCollections(document);
   }
 

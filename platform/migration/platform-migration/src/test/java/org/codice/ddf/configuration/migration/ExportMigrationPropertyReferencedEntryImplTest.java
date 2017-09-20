@@ -123,7 +123,8 @@ public class ExportMigrationPropertyReferencedEntryImplTest extends AbstractMigr
     Assert.assertThat(entry.getProperty(), Matchers.equalTo(PROPERTY));
   }
 
-  // cannot test equals() or hashCode() on mocks, will test them via the ExportMigrationSystemPropertyReferencedEntryImpl
+  // cannot test equals() or hashCode() on mocks, will test them via the
+  // ExportMigrationSystemPropertyReferencedEntryImpl
 
   @Test
   public void testCompareToWhenEquals() throws Exception {

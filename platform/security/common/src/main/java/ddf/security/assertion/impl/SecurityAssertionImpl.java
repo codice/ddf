@@ -307,7 +307,7 @@ public class SecurityAssertionImpl implements SecurityAssertion {
       try {
         xmlStreamReader.close();
       } catch (XMLStreamException ignore) {
-        //ignore
+        // ignore
       }
     }
   }

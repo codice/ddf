@@ -95,7 +95,8 @@ public class GuestInterceptor extends AbstractWSS4JInterceptor {
     this.contextPolicyManager = contextPolicyManager;
     this.security = security;
     setPhase(Phase.PRE_PROTOCOL);
-    //make sure this interceptor runs before the WSS4J one in the same Phase, otherwise it won't work
+    // make sure this interceptor runs before the WSS4J one in the same Phase, otherwise it won't
+    // work
     Set<String> before = getBefore();
     before.add(WSS4JInInterceptor.class.getName());
     before.add(PolicyBasedWSS4JInInterceptor.class.getName());
@@ -122,14 +123,14 @@ public class GuestInterceptor extends AbstractWSS4JInterceptor {
             "SOAP request after guest interceptor: {}",
             XML_UTILS.prettyFormat(soapMessage.getSOAPHeader().getParentNode()));
       } catch (SOAPException e) {
-        //ignore
+        // ignore
       }
     }
   }
 
   private void internalHandleMessage(SoapMessage message, SOAPMessage soapMessage) throws Fault {
 
-    //Check if security header exists; if not, execute GuestInterceptor logic
+    // Check if security header exists; if not, execute GuestInterceptor logic
     String actor = (String) getOption(WSHandlerConstants.ACTOR);
     if (actor == null) {
       actor = (String) message.getContextualProperty(SecurityConstants.ACTOR);

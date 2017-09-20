@@ -99,7 +99,7 @@ public class KeyStoreFile {
     try {
       entry = getProtectedEntry(alias);
     } catch (UnsupportedOperationException e) {
-      //If keystore entry not password protected, using a password generates exception
+      // If keystore entry not password protected, using a password generates exception
       entry = getUnprotectedEntry(alias);
     }
     return entry;
@@ -158,7 +158,7 @@ public class KeyStoreFile {
   /** Save the keyStore to the original file and encrypt it with the original password. */
   public void save() {
 
-    //Use the try-with-resources statement. If an exception is raised, rethrow the exception.
+    // Use the try-with-resources statement. If an exception is raised, rethrow the exception.
     try (FileOutputStream fd = new FileOutputStream(file)) {
       keyStore.store(fd, password);
     } catch (Exception e) {

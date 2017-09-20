@@ -134,10 +134,10 @@ public class CertificateSigningRequestTest {
 
   @Test
   public void setValidDates() throws Exception {
-    //Test default dates
+    // Test default dates
     assertDates();
 
-    //Try new dates
+    // Try new dates
     DateTime effectiveDate = DateTime.now();
     csr.setNotBefore(effectiveDate);
     assertDates();

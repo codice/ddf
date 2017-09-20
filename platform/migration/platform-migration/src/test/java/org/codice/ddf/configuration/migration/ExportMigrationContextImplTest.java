@@ -127,7 +127,8 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
     Assert.assertThat(entry.getId(), Matchers.equalTo(MIGRATABLE_ID));
     Assert.assertThat(entry.getName(), Matchers.equalTo(MIGRATABLE_NAME));
     Assert.assertThat(entry.getPath(), Matchers.equalTo(MIGRATABLE_PATH));
-    // now check that it is a system property referenced entry that references the proper property name
+    // now check that it is a system property referenced entry that references the proper property
+    // name
     Assert.assertThat(
         entry, Matchers.instanceOf(ExportMigrationSystemPropertyReferencedEntryImpl.class));
     final ExportMigrationSystemPropertyReferencedEntryImpl sentry =
@@ -156,7 +157,8 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
     Assert.assertThat(entry.getId(), Matchers.equalTo(MIGRATABLE_ID));
     Assert.assertThat(entry.getName(), Matchers.equalTo(MIGRATABLE_NAME));
     Assert.assertThat(entry.getPath(), Matchers.equalTo(MIGRATABLE_PATH));
-    // now check that it is a system property referenced entry that references the proper property name
+    // now check that it is a system property referenced entry that references the proper property
+    // name
     Assert.assertThat(
         entry, Matchers.instanceOf(ExportMigrationSystemPropertyReferencedEntryImpl.class));
     final ExportMigrationSystemPropertyReferencedEntryImpl sentry =
@@ -186,7 +188,8 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
     Assert.assertThat(entry.getId(), Matchers.equalTo(MIGRATABLE_ID));
     Assert.assertThat(entry.getName(), Matchers.equalTo(migratableName));
     Assert.assertThat(entry.getPath(), Matchers.equalTo(migratablePath));
-    // now check that it is a system property referenced entry that references the proper property name
+    // now check that it is a system property referenced entry that references the proper property
+    // name
     Assert.assertThat(
         entry, Matchers.instanceOf(ExportMigrationSystemPropertyReferencedEntryImpl.class));
     final ExportMigrationSystemPropertyReferencedEntryImpl sentry =
@@ -246,7 +249,8 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
 
     Assert.assertThat(oentry, OptionalMatchers.isEmpty());
 
-    // finally make sure we got an error (register the thrown expectations after the above to make sure
+    // finally make sure we got an error (register the thrown expectations after the above to make
+    // sure
     // we don't get an exception from the above code under test
     thrown.expect(MigrationException.class);
     thrown.expectMessage(
@@ -264,7 +268,8 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
 
     Assert.assertThat(oentry, OptionalMatchers.isEmpty());
 
-    // finally make sure we got an error (register the thrown expectations after the above to make sure
+    // finally make sure we got an error (register the thrown expectations after the above to make
+    // sure
     // we don't get an exception from the above code under test
     thrown.expect(MigrationException.class);
     thrown.expectMessage(
@@ -419,7 +424,8 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
     Assert.assertThat(report.hasErrors(), Matchers.equalTo(true));
     Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
 
-    // finally make sure we got an error (register the thrown expectations after the above to make sure
+    // finally make sure we got an error (register the thrown expectations after the above to make
+    // sure
     // we don't get an exception from the above code under test
     thrown.expect(MigrationException.class);
     thrown.expectMessage(Matchers.containsString("[not-found]"));
@@ -440,7 +446,8 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
     Assert.assertThat(report.hasErrors(), Matchers.equalTo(true));
     Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
 
-    // finally make sure we got an error (register the thrown expectations after the above to make sure
+    // finally make sure we got an error (register the thrown expectations after the above to make
+    // sure
     // we don't get an exception from the above code under test
     thrown.expect(MigrationException.class);
     thrown.expectMessage(Matchers.containsString("[" + notADir + "]"));
@@ -540,7 +547,8 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
     Assert.assertThat(report.hasErrors(), Matchers.equalTo(true));
     Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
 
-    // finally make sure we got an error (register the thrown expectations after the above to make sure
+    // finally make sure we got an error (register the thrown expectations after the above to make
+    // sure
     // we don't get an exception from the above code under test
     thrown.expect(MigrationException.class);
     thrown.expectMessage(Matchers.containsString("[not-found]"));
@@ -562,7 +570,8 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
     Assert.assertThat(report.hasErrors(), Matchers.equalTo(true));
     Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
 
-    // finally make sure we got an error (register the thrown expectations after the above to make sure
+    // finally make sure we got an error (register the thrown expectations after the above to make
+    // sure
     // we don't get an exception from the above code under test
     thrown.expect(MigrationException.class);
     thrown.expectMessage(Matchers.containsString("[" + notADir + "]"));

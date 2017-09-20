@@ -74,8 +74,8 @@ public class GuestPrincipal implements Principal, Serializable {
     return null;
   }
 
-  //IPv6 addresses should be contained within brackets to conform
-  //to the spec IETF RFC 2732
+  // IPv6 addresses should be contained within brackets to conform
+  // to the spec IETF RFC 2732
   private static String formatIpAddress(String ipAddress) {
     try {
       if (InetAddress.getByName(ipAddress) instanceof Inet6Address) {

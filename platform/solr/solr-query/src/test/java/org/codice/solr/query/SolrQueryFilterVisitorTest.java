@@ -122,7 +122,7 @@ public class SolrQueryFilterVisitorTest {
 
   @Test
   public void testInSingleParam() throws Exception {
-    //this is effectively an or with a single param which is allowed
+    // this is effectively an or with a single param which is allowed
     Filter filter = ECQL.toFilter("property IN ('val')");
     SolrQuery solrQuery = (SolrQuery) filter.accept(solrVisitor, null);
     assertThat(solrQuery.getQuery().trim(), equalTo("( property_txt:\"val\" )"));

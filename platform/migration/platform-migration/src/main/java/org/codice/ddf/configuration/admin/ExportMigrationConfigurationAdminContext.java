@@ -98,7 +98,8 @@ public class ExportMigrationConfigurationAdminContext {
 
     if (fpid == null) {
       return true;
-    } // else - property reports it should be a managed service factory, so it is valid only if the cfg object reports it is too
+    } // else - property reports it should be a managed service factory, so it is valid only if the
+    // cfg object reports it is too
     return ConfigurationAdminMigratable.isManagedServiceFactory(cfg);
   }
 
@@ -168,7 +169,8 @@ public class ExportMigrationConfigurationAdminContext {
     } else {
       path = constructPathForBasename(configuration);
     }
-    // ignore the whole path if any (there shouldn't be any other than etc) and force it to be under etc
+    // ignore the whole path if any (there shouldn't be any other than etc) and force it to be under
+    // etc
     return Paths.get("etc").resolve(path.getFileName());
   }
 

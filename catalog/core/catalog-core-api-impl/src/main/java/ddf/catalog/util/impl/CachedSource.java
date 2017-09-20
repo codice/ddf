@@ -16,6 +16,7 @@ package ddf.catalog.util.impl;
 /**
  * {@link CachedSource} wraps a {@link Source) and caches information about the source
  */
+
 import ddf.catalog.data.ContentType;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.SourceResponse;

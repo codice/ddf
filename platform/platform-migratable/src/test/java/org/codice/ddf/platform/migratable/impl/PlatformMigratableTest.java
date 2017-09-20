@@ -395,8 +395,10 @@ public class PlatformMigratableTest {
 
     // Setup import
     setup(DDF_IMPORTED_HOME, DDF_IMPORTED_TAG);
-    // For import, delete keystore and truststore since they are already in tempDir and reset system properties.
-    // Since these are outside of ddf.home, they should not be imported. A checksum should be computed
+    // For import, delete keystore and truststore since they are already in tempDir and reset system
+    // properties.
+    // Since these are outside of ddf.home, they should not be imported. A checksum should be
+    // computed
     // to verify that they are the same as the exported files.
     for (Map.Entry<String, Path> entry : KEYSTORES_MAP.entrySet()) {
       Path keystore = ddfHome.resolve(entry.getValue()).toRealPath();

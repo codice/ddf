@@ -169,7 +169,7 @@ public class DescribableServiceMap<V extends Describable> implements Map<String,
     String pid = event.getProperty(Constants.SERVICE_PID).toString();
     String oldName = pidToNameMap.get(pid);
 
-    //if we don't have it in our map then it's a service we don't care about
+    // if we don't have it in our map then it's a service we don't care about
     if (oldName == null) {
       return;
     }

@@ -139,7 +139,7 @@ public class FederationAdminServiceImpl implements FederationAdminService {
     try {
       CreateResponse createResponse =
           security.runWithSubjectOrElevate(() -> catalogFramework.create(createRequest));
-      //loop through to get id's
+      // loop through to get id's
       if (!createResponse.getProcessingErrors().isEmpty()) {
         throw new FederationAdminException(
             "Processing error occurred while creating registry entry. Details:"

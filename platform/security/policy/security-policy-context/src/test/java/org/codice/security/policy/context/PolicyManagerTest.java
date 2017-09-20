@@ -150,7 +150,8 @@ public class PolicyManagerTest {
           entry.getKey(), new Policy(entry.getKey(), null, new ArrayList<>(), entry.getValue()));
     }
 
-    // Can't use Collections.singletonList because the context policy manager must be able to change the passed in list
+    // Can't use Collections.singletonList because the context policy manager must be able to change
+    // the passed in list
     manager.setWhiteListContexts(Arrays.asList("/foo"));
 
     Map<String, Object> contextPolicies = new HashMap<>();
@@ -189,38 +190,38 @@ public class PolicyManagerTest {
 
   @Test
   public void testBadTraversal() {
-    //test that we can still resolve policies for paths larger than the limit
+    // test that we can still resolve policies for paths larger than the limit
     ContextPolicy contextPolicy = manager.getContextPolicy("/1/2/3/4/5/6/7/8/9/10/11/12/13/14/15");
     assertThat("/1/2/3/4/5/6/7/8/9/10/11/12/13/14", is(contextPolicy.getContextPath()));
 
-    //test that extra /s are removed from the end
+    // test that extra /s are removed from the end
     ContextPolicy contextPolicy1 =
         manager.getContextPolicy("/1/2/3/4/5/6/7/8/9/10/11/12/13/14////////////////");
     assertThat("/1/2/3/4/5/6/7/8/9/10/11/12/13/14", is(contextPolicy1.getContextPath()));
 
-    //test that all slashes resolves to just /
+    // test that all slashes resolves to just /
     ContextPolicy contextPolicy2 =
         manager.getContextPolicy(
             "///////////////////////////////////////////////////////////////////////////");
     assertThat("/", is(contextPolicy2.getContextPath()));
 
-    //test that we can remove slashes within paths and still resolve a policy
+    // test that we can remove slashes within paths and still resolve a policy
     ContextPolicy contextPolicy3 =
         manager.getContextPolicy(
             "/1/2/3/////////////////////////////////////4/5//6/7////////////////");
     assertThat("/1/2", is(contextPolicy3.getContextPath()));
 
-    //test same as above but with a path that is too long so it resolves to /
+    // test same as above but with a path that is too long so it resolves to /
     ContextPolicy contextPolicy4 =
         manager.getContextPolicy(
             "/1/2/3////////4/5//////////6/7/8//////////9/10//////////11/12/13/14////////////////");
     assertThat("/", is(contextPolicy4.getContextPath()));
 
-    //test two slashes
+    // test two slashes
     ContextPolicy contextPolicy5 = manager.getContextPolicy("//");
     assertThat("/", is(contextPolicy5.getContextPath()));
 
-    //test one slash
+    // test one slash
     ContextPolicy contextPolicy6 = manager.getContextPolicy("/");
     assertThat("/", is(contextPolicy6.getContextPath()));
   }
@@ -394,7 +395,7 @@ public class PolicyManagerTest {
   }
 
   private void testAllPolicies() {
-    //check search policy
+    // check search policy
     ContextPolicy policy = manager.getContextPolicy("/search");
     assertThat("/search", is(policy.getContextPath()));
     Iterator<String> authIter = policy.getAuthenticationMethods().iterator();
@@ -416,7 +417,7 @@ public class PolicyManagerTest {
     assertThat("control : foo", is(permissionList.get(1).toString()));
     assertThat("control : bar", is(permissionList.get(2).toString()));
 
-    //check admin policy
+    // check admin policy
     policy = manager.getContextPolicy("/admin");
     assertThat("/admin", is(policy.getContextPath()));
     authIter = policy.getAuthenticationMethods().iterator();
@@ -431,7 +432,7 @@ public class PolicyManagerTest {
       i++;
     }
 
-    //check foo policy
+    // check foo policy
     policy = manager.getContextPolicy("/foo");
     assertThat("/foo", is(policy.getContextPath()));
     authIter = policy.getAuthenticationMethods().iterator();
@@ -444,7 +445,7 @@ public class PolicyManagerTest {
       i++;
     }
 
-    //make sure some random context points to /
+    // make sure some random context points to /
     policy = manager.getContextPolicy("/random");
     assertThat("/", is(policy.getContextPath()));
     authIter = policy.getAuthenticationMethods().iterator();
@@ -459,7 +460,7 @@ public class PolicyManagerTest {
       i++;
     }
 
-    //check unprotected contexts
+    // check unprotected contexts
     policy = manager.getContextPolicy("/unprotected");
     assertThat("/unprotected", is(policy.getContextPath()));
     authIter = policy.getAuthenticationMethods().iterator();

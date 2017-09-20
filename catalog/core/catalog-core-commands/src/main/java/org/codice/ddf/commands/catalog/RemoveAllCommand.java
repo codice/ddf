@@ -233,7 +233,7 @@ public class RemoveAllCommand extends CatalogCommands {
 
   private boolean isAccidentalRemoval() {
     if (!force) {
-      //use a message specific to cache and expired options
+      // use a message specific to cache and expired options
       final String warning =
           String.format(
               "WARNING: This will permanently remove all %1$srecords from the %2$s. Do you want to proceed? (yes/no): ",

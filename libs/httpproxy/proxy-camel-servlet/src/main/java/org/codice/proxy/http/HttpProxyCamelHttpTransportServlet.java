@@ -169,7 +169,7 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet implements 
   protected void doService(HttpServletRequest oldRequest, HttpServletResponse response)
       throws ServletException, IOException {
 
-    //Wrap request and clean the query String
+    // Wrap request and clean the query String
     HttpProxyWrappedCleanRequest request = new HttpProxyWrappedCleanRequest(oldRequest);
 
     log.trace("Service: {}", request);

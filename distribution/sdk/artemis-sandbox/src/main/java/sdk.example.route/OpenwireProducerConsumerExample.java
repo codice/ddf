@@ -36,8 +36,9 @@ public class OpenwireProducerConsumerExample extends RouteBuilder {
   private final int period = 1000;
 
   public static void main(String... args) throws Exception {
-    //normally this would run inside of some container and be converted to a camel blueprint.xml
-    // but to simplify testing of a route we can use the dsl camel language and run it from a camel main
+    // normally this would run inside of some container and be converted to a camel blueprint.xml
+    // but to simplify testing of a route we can use the dsl camel language and run it from a camel
+    // main
     Main main = new Main();
     main.addRouteBuilder(new OpenwireProducerConsumerExample());
     main.run(args);

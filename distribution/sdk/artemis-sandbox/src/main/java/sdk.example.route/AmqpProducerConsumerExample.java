@@ -36,8 +36,9 @@ import org.apache.qpid.jms.JmsConnectionFactory;
 public class AmqpProducerConsumerExample extends RouteBuilder {
 
   public static void main(String... args) throws Exception {
-    //normally this would run inside of some container and be converted to a camel blueprint.xml
-    // but to simplify testing of a route we can use the dsl camel language and run it from a camel main
+    // normally this would run inside of some container and be converted to a camel blueprint.xml
+    // but to simplify testing of a route we can use the dsl camel language and run it from a camel
+    // main
     Main main = new Main();
     main.addRouteBuilder(new AmqpProducerConsumerExample());
     System.setProperty(

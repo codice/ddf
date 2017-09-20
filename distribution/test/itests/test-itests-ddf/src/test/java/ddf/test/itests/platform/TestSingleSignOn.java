@@ -625,7 +625,8 @@ public class TestSingleSignOn extends AbstractIntegrationTest {
     Response response =
         given().cookies(acsResponse.getCookies()).expect().statusCode(200).when().get(queryUrl);
 
-    //The federated query using username/password against the IDP auth type on all of /services would fail without ECP
+    // The federated query using username/password against the IDP auth type on all of /services
+    // would fail without ECP
 
     // @formatter:off
     response

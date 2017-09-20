@@ -106,7 +106,8 @@ public class PathUtils {
    * @throws IllegalArgumentException if <code>path</code> is <code>null</code>
    * @throws IOException if an I/O error occurred
    */
-  // squid:S2093 - try-with-resource will throw IOException with InputStream and we do not care to get that exception
+  // squid:S2093 - try-with-resource will throw IOException with InputStream and we do not care to
+  // get that exception
   @SuppressWarnings("squid:S2093")
   public String getChecksumFor(Path path) throws IOException {
     Validate.notNull(path, "invalid null path");

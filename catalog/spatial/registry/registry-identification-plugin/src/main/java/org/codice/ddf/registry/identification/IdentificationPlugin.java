@@ -219,7 +219,7 @@ public class IdentificationPlugin implements PreIngestPlugin {
 
       List<ExternalIdentifierType> extIdList = new ArrayList<>();
 
-      //check if external ids are already present
+      // check if external ids are already present
       if (registryPackage.isSetExternalIdentifier()) {
         List<ExternalIdentifierType> currentExtIdList = registryPackage.getExternalIdentifier();
 

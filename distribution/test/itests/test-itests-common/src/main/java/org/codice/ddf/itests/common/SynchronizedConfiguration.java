@@ -61,8 +61,8 @@ public class SynchronizedConfiguration {
       if (configCallable.call()) {
         break;
       } else {
-        //this is a hack to retry the configuration since it sometimes fails
-        //if it still keeps failing then we should remove this
+        // this is a hack to retry the configuration since it sometimes fails
+        // if it still keeps failing then we should remove this
         if (!retried
             && System.currentTimeMillis() > timeoutLimit - CONFIG_UPDATE_MAX_WAIT_MILLIS / 2) {
           config.update(new Hashtable<>(configProps));

@@ -201,7 +201,8 @@ public class TestFanout extends AbstractIntegrationTest {
 
   @Test
   public void testCswDeleteFailsWithFanoutEnabledAndBlacklistSet() throws IOException {
-    // The case where delete works with fanout on and empty blacklist is tested as clean up in the other tests.
+    // The case where delete works with fanout on and empty blacklist is tested as clean up in the
+    // other tests.
     getCatalogBundle().setFanoutTagBlacklist(Collections.emptyList());
     String id =
         CatalogTestCommons.ingest(

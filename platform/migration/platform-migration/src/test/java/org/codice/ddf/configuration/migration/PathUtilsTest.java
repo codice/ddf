@@ -85,7 +85,8 @@ public class PathUtilsTest extends AbstractMigrationTest {
 
   @Test
   public void testResolveAgainstDDFHomeWhenPathIsAbsolute() throws Exception {
-    // resolving against DDF_HOME ensures that on Windows the absolute path gets the same drive as DDF_HOME
+    // resolving against DDF_HOME ensures that on Windows the absolute path gets the same drive as
+    // DDF_HOME
     final Path absolutePath = ddfHome.resolve(Paths.get("/etc", "test.cfg"));
 
     final Path path = pathUtils.resolveAgainstDDFHome(absolutePath);
@@ -106,7 +107,8 @@ public class PathUtilsTest extends AbstractMigrationTest {
 
   @Test
   public void testResolveAgainstDDFHomeWithStringWhenPathIsAbsolute() throws Exception {
-    // resolving against DDF_HOME ensures that on Windows the absolute path gets the same drive as DDF_HOME
+    // resolving against DDF_HOME ensures that on Windows the absolute path gets the same drive as
+    // DDF_HOME
     final Path absolutePath = ddfHome.resolve(Paths.get("/test", "script.sh"));
 
     final Path path = pathUtils.resolveAgainstDDFHome(absolutePath.toString());

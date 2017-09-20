@@ -471,15 +471,17 @@ public class LoginFilter implements SecurityFilter {
                 CertificateFactory cf = CertificateFactory.getInstance("X.509");
                 X509Certificate cert =
                     (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(byteValue));
-                //check that the certificate is still valid
+                // check that the certificate is still valid
                 cert.checkValidity();
 
-                //HoK spec section 2.5:
-                //relying party MUST ensure that the certificate bound to the assertion matches the X.509 certificate in its possession.
-                //Matching is done by comparing the base64-decoded certificates, or the hash values of the base64-decoded certificates, byte-for-byte.
-                //if the certs aren't the same, verify
+                // HoK spec section 2.5:
+                // relying party MUST ensure that the certificate bound to the assertion matches the
+                // X.509 certificate in its possession.
+                // Matching is done by comparing the base64-decoded certificates, or the hash values
+                // of the base64-decoded certificates, byte-for-byte.
+                // if the certs aren't the same, verify
                 if (!tlsCertificate.equals(cert)) {
-                  //verify that the cert was signed by the same private key as the TLS cert
+                  // verify that the cert was signed by the same private key as the TLS cert
                   cert.verify(tlsCertificate.getPublicKey());
                 }
               } catch (CertificateException
@@ -493,16 +495,19 @@ public class LoginFilter implements SecurityFilter {
 
             } else if (dataNode.getLocalName().equals("X509SubjectName")) {
               String textContent = dataText.getTextContent();
-              //HoK spec section 2.5:
-              //relying party MUST ensure that the subject distinguished name (DN) bound to the assertion matches the DN bound to the X.509 certificate.
-              //If, however, the relying party does not trust the certificate issuer to issue such a DN, the attesting entity is not confirmed and the relying party SHOULD disregard the assertion.
+              // HoK spec section 2.5:
+              // relying party MUST ensure that the subject distinguished name (DN) bound to the
+              // assertion matches the DN bound to the X.509 certificate.
+              // If, however, the relying party does not trust the certificate issuer to issue such
+              // a DN, the attesting entity is not confirmed and the relying party SHOULD disregard
+              // the assertion.
               if (!tlsCertificate.getSubjectDN().getName().equals(textContent)) {
                 throw new SecurityServiceException(
                     "Unable to validate Holder of Key assertion with subject DN.");
               }
 
             } else if (dataNode.getLocalName().equals("X509IssuerSerial")) {
-              //we have no way to support this confirmation type so we have to throw an error
+              // we have no way to support this confirmation type so we have to throw an error
               throw new SecurityServiceException(
                   "Unable to validate Holder of Key assertion with issuer serial. NOT SUPPORTED");
             } else if (dataNode.getLocalName().equals("X509SKI")) {
@@ -516,10 +521,13 @@ public class LoginFilter implements SecurityFilter {
                     SubjectKeyIdentifier.getInstance(tlsOs.getOctets());
                 SubjectKeyIdentifier assertSubjectKeyIdentifier =
                     SubjectKeyIdentifier.getInstance(assertionOs.getOctets());
-                //HoK spec section 2.5:
-                //relying party MUST ensure that the value bound to the assertion matches the Subject Key Identifier (SKI) extension bound to the X.509 certificate.
-                //Matching is done by comparing the base64-decoded SKI values byte-for-byte. If the X.509 certificate does not contain an SKI extension,
-                //the attesting entity is not confirmed and the relying party SHOULD disregard the assertion.
+                // HoK spec section 2.5:
+                // relying party MUST ensure that the value bound to the assertion matches the
+                // Subject Key Identifier (SKI) extension bound to the X.509 certificate.
+                // Matching is done by comparing the base64-decoded SKI values byte-for-byte. If the
+                // X.509 certificate does not contain an SKI extension,
+                // the attesting entity is not confirmed and the relying party SHOULD disregard the
+                // assertion.
                 if (!Arrays.equals(
                     tlsSubjectKeyIdentifier.getKeyIdentifier(),
                     assertSubjectKeyIdentifier.getKeyIdentifier())) {
@@ -608,7 +616,8 @@ public class LoginFilter implements SecurityFilter {
       HttpServletRequest httpRequest, BaseAuthenticationToken token) throws ServletException {
     Subject subject;
     HttpSession session = sessionFactory.getOrCreateSession(httpRequest);
-    //if we already have an assertion inside the session and it has not expired, then use that instead
+    // if we already have an assertion inside the session and it has not expired, then use that
+    // instead
     SecurityToken sessionToken = getSecurityToken(session, token.getRealm());
 
     if (sessionToken == null) {
@@ -699,7 +708,7 @@ public class LoginFilter implements SecurityFilter {
         securityAssertion.getPrincipal().getName(),
         Hashing.sha256().hashString(session.getId(), StandardCharsets.UTF_8).toString());
     int minutes = getExpirationTime();
-    //we just want to set this to some non-zero value if the configuration is messed up
+    // we just want to set this to some non-zero value if the configuration is messed up
     int seconds = 60;
     if (minutes > 0) {
       seconds = minutes * 60;

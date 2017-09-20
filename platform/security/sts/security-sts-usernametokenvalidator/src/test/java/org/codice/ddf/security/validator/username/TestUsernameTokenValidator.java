@@ -64,7 +64,7 @@ public class TestUsernameTokenValidator {
       when(niceValidator.validate(any(Credential.class), any(RequestData.class)))
           .thenReturn(credential);
     } catch (WSSecurityException ignore) {
-      //do nothing
+      // do nothing
     }
 
     failedLoginDelayer = mock(FailedLoginDelayer.class);

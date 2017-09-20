@@ -65,7 +65,7 @@ public class AlertListener implements EventHandler {
       dismissAlert(event);
       return;
     }
-    //need source to lookup previous alerts
+    // need source to lookup previous alerts
     if (event.getProperty(Alert.SYSTEM_NOTICE_SOURCE_KEY) == null) {
       return;
     }
@@ -102,7 +102,7 @@ public class AlertListener implements EventHandler {
     return new Alert(properties);
   }
 
-  //returns null if no results found
+  // returns null if no results found
   private Alert getAlertBySource(String source) {
     return getSingleAlertFromStore(
         String.format(
@@ -115,12 +115,12 @@ public class AlertListener implements EventHandler {
             hostName));
   }
 
-  //returns null if no results found
+  // returns null if no results found
   private Alert getAlertById(String id) {
     return getSingleAlertFromStore(String.format("'id' = '%s'", id));
   }
 
-  //returns null if no results found
+  // returns null if no results found
   private Alert getSingleAlertFromStore(String cql) {
     List<Alert> alerts = getAlertFromStore(cql);
     if (!alerts.isEmpty()) {

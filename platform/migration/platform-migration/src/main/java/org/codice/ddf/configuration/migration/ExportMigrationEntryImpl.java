@@ -44,7 +44,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** This class provides an implementation of the {@link ExportMigrationEntry}. */
-// squid:S2160 - the base class equals() is sufficient for our needs. entries are unique based on their paths
+// squid:S2160 - the base class equals() is sufficient for our needs. entries are unique based on
+// their paths
 @SuppressWarnings("squid:S2160")
 public class ExportMigrationEntryImpl extends MigrationEntryImpl implements ExportMigrationEntry {
   private static final Logger LOGGER = LoggerFactory.getLogger(ExportMigrationEntryImpl.class);
@@ -186,11 +187,13 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
         this.stored = getReport().wasIOSuccessful(() -> consumer.accept(getReport(), os));
       } catch (
           ExportIOException
-              e) { // special case indicating the I/O error occurred while writing to the zip which would invalidate the zip so we are forced to abort
+              e) { // special case indicating the I/O error occurred while writing to the zip which
+        // would invalidate the zip so we are forced to abort
         throw newError(ExportMigrationEntryImpl.FAILED_TO_BE_EXPORTED, e.getCause());
       } catch (
           IOException
-              e) { // here it means the error came out of reading/processing the input file/stream where it is safe to continue with the next entry, so don't abort
+              e) { // here it means the error came out of reading/processing the input file/stream
+        // where it is safe to continue with the next entry, so don't abort
         getReport().record(newError(ExportMigrationEntryImpl.FAILED_TO_BE_EXPORTED, e));
       } catch (MigrationException e) {
         throw e;
@@ -290,11 +293,13 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
         return true;
       } catch (
           ExportIOException
-              e) { // special case indicating the I/O error occurred while writing to the zip which would invalidate the zip so we are forced to abort
+              e) { // special case indicating the I/O error occurred while writing to the zip which
+        // would invalidate the zip so we are forced to abort
         throw newError(ExportMigrationEntryImpl.FAILED_TO_BE_EXPORTED, e.getCause());
       } catch (
           IOException
-              e) { // here it means the error came out of reading/processing the input file/stream where it is safe to continue with the next entry, so don't abort
+              e) { // here it means the error came out of reading/processing the input file/stream
+        // where it is safe to continue with the next entry, so don't abort
         getReport().record(newError(ExportMigrationEntryImpl.FAILED_TO_BE_EXPORTED, e));
       }
       return false;
@@ -326,7 +331,8 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
     return true;
   }
 
-  // squid:S2093 - try-with-resource will throw IOException with InputStream and we do not care to get that exception
+  // squid:S2093 - try-with-resource will throw IOException with InputStream and we do not care to
+  // get that exception
   // squid:S2095 - stream is closed in finally clause
   @SuppressWarnings({"squid:S2093", "squid:S2095"})
   private String getJavaPropertyValue(String pname) throws IOException {

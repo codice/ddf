@@ -107,7 +107,7 @@ public class SecurityAssertionImplTest {
     assertEquals(
         DatatypeConverter.parseDateTime(AFTER).getTimeInMillis(),
         assertion.getNotOnOrAfter().getTime());
-    //we don't currently parse these
+    // we don't currently parse these
     //        assertEquals(NUM_AUTHZ, assertion.getAuthzDecisionStatements().size());
     assertNotNull(assertion.toString());
     assertTrue(assertion.isPresentlyValid());
@@ -117,7 +117,7 @@ public class SecurityAssertionImplTest {
   public void testIsPresentlyValidWithNullBounds() throws Exception {
     Element issuedAssertion = this.readDocument("/saml.xml").getDocumentElement();
 
-    //Remove Time Bounds
+    // Remove Time Bounds
     issuedAssertion
         .getElementsByTagName("saml2:Conditions")
         .item(0)
@@ -138,7 +138,7 @@ public class SecurityAssertionImplTest {
   public void testIsPresentlyValidWithNullNotBefore() throws Exception {
     Element issuedAssertion = this.readDocument("/saml.xml").getDocumentElement();
 
-    //Remove NotBefore
+    // Remove NotBefore
     issuedAssertion
         .getElementsByTagName("saml2:Conditions")
         .item(0)
@@ -154,7 +154,7 @@ public class SecurityAssertionImplTest {
   public void testIsPresentlyValidWithNullNotOnOrAfter() throws Exception {
     Element issuedAssertion = this.readDocument("/saml.xml").getDocumentElement();
 
-    //Remove NotOnOrAfter
+    // Remove NotOnOrAfter
     issuedAssertion
         .getElementsByTagName("saml2:Conditions")
         .item(0)
@@ -170,7 +170,7 @@ public class SecurityAssertionImplTest {
   public void testIsPresentlyValidBeforeNotBefore() throws Exception {
     Element issuedAssertion = this.readDocument("/saml.xml").getDocumentElement();
 
-    //Change the NotBefore Date on the SAML Assertion to be after "now"
+    // Change the NotBefore Date on the SAML Assertion to be after "now"
     issuedAssertion
         .getElementsByTagName("saml2:Conditions")
         .item(0)
@@ -187,7 +187,7 @@ public class SecurityAssertionImplTest {
   public void testIsPresentlyValidAfterNotOnOrAfter() throws Exception {
     Element issuedAssertion = this.readDocument("/saml.xml").getDocumentElement();
 
-    //Change the NotOnOrAfter Date on the SAML Assertion to be before "now"
+    // Change the NotOnOrAfter Date on the SAML Assertion to be before "now"
     issuedAssertion
         .getElementsByTagName("saml2:Conditions")
         .item(0)

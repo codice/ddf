@@ -112,7 +112,8 @@ public class MimeTypeMapperTest {
     LOGGER.debug("mimeType = {}", mimeType);
     assertEquals("image/nitf", mimeType);
 
-    // Verify an XML file with a root element namespace, e.g., a pom.xml file, that does not match any
+    // Verify an XML file with a root element namespace, e.g., a pom.xml file, that does not match
+    // any
     // MimeTypeResolver returns a null mime type
     is = FileUtils.openInputStream(new File(NO_NAMESPACE_MATCHES_XML_FILE));
     mimeType = mapper.guessMimeType(is, "xml");

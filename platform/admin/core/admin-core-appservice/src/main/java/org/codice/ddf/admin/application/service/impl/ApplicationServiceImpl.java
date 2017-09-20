@@ -785,9 +785,9 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
   @Override
   public void removeApplication(URI applicationURL) throws ApplicationServiceException {
     try {
-      //This is a workaround for the Karaf FeaturesService
-      //To remove the repository, it attempts to uninstall all features
-      //whether they are uninstalled or not.
+      // This is a workaround for the Karaf FeaturesService
+      // To remove the repository, it attempts to uninstall all features
+      // whether they are uninstalled or not.
       uninstallAllFeatures(applicationURL);
       featuresService.removeRepository(applicationURL, false);
     } catch (Exception e) {
@@ -826,7 +826,7 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
     if (applicationURL != null) {
       Set<Application> applications = getApplications();
 
-      //Loop through all the applications for a match
+      // Loop through all the applications for a match
       for (Application application : applications) {
         URI applicationURI = application.getURI();
         if (applicationURI != null) {
@@ -849,7 +849,8 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
             featuresService.uninstallFeature(
                 feature.getName(), feature.getVersion(), EnumSet.of(Option.NoAutoRefreshBundles));
           } catch (Exception e) {
-            //if there is an issue uninstalling a feature try to keep uninstalling the other features
+            // if there is an issue uninstalling a feature try to keep uninstalling the other
+            // features
             LOGGER.warn(
                 "Could not uninstall feature: {} version: {}",
                 feature.getName(),

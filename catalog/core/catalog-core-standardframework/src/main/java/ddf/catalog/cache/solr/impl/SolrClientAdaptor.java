@@ -163,18 +163,18 @@ class SolrClientAdaptor {
     this.client = metacardClientSupplierFunction.apply(solrClient);
   }
 
-  //For unit testing purposes.
+  // For unit testing purposes.
   State getState() {
     return state;
   }
 
-  //For unit testing purposes.
+  // For unit testing purposes.
   void setMetacardClientSupplierFunction(
       Function<SolrClient, CacheSolrMetacardClient> metacardClientSupplierFunction) {
     this.metacardClientSupplierFunction = metacardClientSupplierFunction;
   }
 
-  //For unit testing purposes.
+  // For unit testing purposes.
   void setClientAdaptorSupplierFunction(
       Function<SolrClient, InitializedSolrClientAdaptor> clientAdaptorSupplierFunction) {
     this.clientAdaptorSupplierFunction = clientAdaptorSupplierFunction;

@@ -223,7 +223,8 @@ public class ImportMigrationConfigurationAdminContext {
     } else {
       return null;
     }
-    // ignore the whole path if any (there shouldn't be any other than etc) and force it to be under etc
+    // ignore the whole path if any (there shouldn't be any other than etc) and force it to be under
+    // etc
     return Paths.get("etc").resolve(path.getFileName());
   }
 
@@ -272,7 +273,8 @@ public class ImportMigrationConfigurationAdminContext {
         IOUtils.closeQuietly(is);
       }
       try {
-        // note: we also remove factory pid and pid from the dictionary as we do not want to restore those later
+        // note: we also remove factory pid and pid from the dictionary as we do not want to restore
+        // those later
         final String pid = Objects.toString(properties.remove(Constants.SERVICE_PID), null);
         final String factoryPid =
             Objects.toString(properties.remove(ConfigurationAdmin.SERVICE_FACTORYPID), null);
@@ -293,7 +295,8 @@ public class ImportMigrationConfigurationAdminContext {
     return null;
   }
 
-  // PMD.UnusedFormalParameter - report parameter is require as this method is used as a functional interface
+  // PMD.UnusedFormalParameter - report parameter is require as this method is used as a functional
+  // interface
   @SuppressWarnings("PMD.UnusedFormalParameter")
   private void deleteUnexportedConfigurationsAfterCompletion(MigrationReport report) {
     if (isValid) {

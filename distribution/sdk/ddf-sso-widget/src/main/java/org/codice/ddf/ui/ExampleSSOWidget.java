@@ -150,11 +150,14 @@ public class ExampleSSOWidget extends HttpServlet {
 
     //        sb.append( "<br/><br/>" ).append( endl );
     //        sb.append( "<form name=\"Logout\" action=\"LogoutServlet\" method=\"get\">" );
-    //        sb.append( "<input type=\"hidden\" name=\"LogoutType\" value=\"ApplicationLogout\"/>" ).append( endl );
+    //        sb.append( "<input type=\"hidden\" name=\"LogoutType\" value=\"ApplicationLogout\"/>"
+    // ).append( endl );
     //        sb.append( "<input type=\"submit\" value=\"Logout\"/></form><br/>" ).append( endl );
     //        sb.append( "<form name=\"SSOLogout\" action=\"LogoutServlet\" method=\"get\">" );
-    //        sb.append( "<input type=\"hidden\" name=\"LogoutType\" value=\"SingleSignOut\"/>" ).append( endl );
-    //        sb.append( "<input type=\"submit\" value=\"Single Sign-Out\"/></form><br/>" ).append( endl );
+    //        sb.append( "<input type=\"hidden\" name=\"LogoutType\" value=\"SingleSignOut\"/>"
+    // ).append( endl );
+    //        sb.append( "<input type=\"submit\" value=\"Single Sign-Out\"/></form><br/>" ).append(
+    // endl );
 
     sb.append("</body></html>").append(endl);
     out.println(sb.toString());

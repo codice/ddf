@@ -88,7 +88,8 @@ public class SAMLAuthenticationToken extends BaseAuthenticationToken {
             .getDomConfig()
             .setParameter(
                 "xml-declaration",
-                false); //by default its true, so set it to false to get String without xml-declaration
+                false); // by default its true, so set it to false to get String without
+        // xml-declaration
         creds = serializer.writeToString(element);
       }
       LOGGER.trace("XML representation of SAML token: {}", creds);

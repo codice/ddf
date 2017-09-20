@@ -264,9 +264,9 @@ public class IdpHandler implements AuthenticationHandler {
 
     if (userAgentCheck && userAgentIsNotBrowser(httpRequest)) {
       SecurityLogger.audit("Attempting to log client in as a legacy system.");
-      //if we get here, it is most likely an older DDF that is federating
-      //it isn't going to understand the redirect to the IdP and it doesn't support ECP
-      //so we need to fall back to other handlers to allow it to log in using PKI, Basic or Guest
+      // if we get here, it is most likely an older DDF that is federating
+      // it isn't going to understand the redirect to the IdP and it doesn't support ECP
+      // so we need to fall back to other handlers to allow it to log in using PKI, Basic or Guest
 
       return new HandlerResult(HandlerResult.Status.NO_ACTION, null);
     }
@@ -290,9 +290,9 @@ public class IdpHandler implements AuthenticationHandler {
 
   private boolean userAgentIsNotBrowser(HttpServletRequest httpRequest) {
     String userAgentHeader = httpRequest.getHeader("User-Agent");
-    //basically all browsers support the "Mozilla" way of operating, so they all have "Mozilla"
-    //in the string. I just added the rest in case that ever changes for existing browsers.
-    //New browsers should contain "Mozilla" as well, though.
+    // basically all browsers support the "Mozilla" way of operating, so they all have "Mozilla"
+    // in the string. I just added the rest in case that ever changes for existing browsers.
+    // New browsers should contain "Mozilla" as well, though.
     return userAgentHeader == null
         || !(userAgentHeader.contains("Mozilla")
             || userAgentHeader.contains("Safari")
@@ -318,8 +318,8 @@ public class IdpHandler implements AuthenticationHandler {
     handlerResult.setSource("idp-" + SOURCE);
     String paosHeader = ((HttpServletRequest) request).getHeader(PAOS);
 
-    //some of these options aren't currently used, leaving these here as a marker for what
-    //isn't implemented
+    // some of these options aren't currently used, leaving these here as a marker for what
+    // isn't implemented
     boolean wantChannelBind =
         paosHeader.contains("urn:oasis:names:tc:SAML:protocol:ext:channel-binding");
     boolean wantHok = paosHeader.contains("urn:oasis:names:tc:SAML:2.0:cm:holder-of-key");
