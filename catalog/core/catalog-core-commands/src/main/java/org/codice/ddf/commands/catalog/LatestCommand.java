@@ -49,7 +49,7 @@ public class LatestCommand extends CatalogCommands {
 
     private static final String NUMBER = "#";
 
-    @Argument(name = "NUMBER_OF_ITEMS", description = "Number of maximum records to display. 0 returns 1000 records.", index = 0, multiValued = false, required = false)
+    @Argument(name = "NUMBER_OF_ITEMS", description = "Maximum number of records to display. 0 returns 1000 records.", index = 0, multiValued = false, required = false)
     int numberOfItems = DEFAULT_NUMBER_OF_ITEMS;
 
     @Override
