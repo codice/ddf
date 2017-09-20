@@ -64,6 +64,16 @@ define([
                 var east = parseFloat(model.get('mapEast'));
                 var west = parseFloat(model.get('mapWest'));
 
+                // If we are crossing the date line, we must go outside [-180, 180]
+                // for openlayers to draw correctly. This means we can't draw boxes
+                // that encompass more than half the world. This actually matches
+                // how the backend searches anyway.
+                if (east - west < -180) {
+                    east += 360;
+                } else if (east - west > 180) {
+                    west += 360;
+                }
+
                 var northWest = ol.proj.transform([west,north], 'EPSG:4326', properties.projection);
                 var northEast = ol.proj.transform([east,north], 'EPSG:4326', properties.projection);
                 var southWest = ol.proj.transform([west,south], 'EPSG:4326', properties.projection);

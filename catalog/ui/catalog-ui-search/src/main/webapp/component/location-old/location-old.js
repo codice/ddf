@@ -28,21 +28,18 @@ define([
     var northingOffset = 10000000;
     var usngPrecision = 6;
 
+    function wrapNum(x, range) {
+        var max = range[1],
+            min = range[0],
+            d = max - min;
+        return ((x - min) % d + d) % d + min;
+    }
+
     function convertToValid(key, model){
         if (key.mapSouth !== undefined && 
             (key.mapSouth >= key.mapNorth || 
             (key.mapNorth === undefined && key.mapSouth >= model.get('mapNorth')))){
             key.mapSouth = parseFloat((key.mapNorth || model.get('mapNorth'))) - minimumDifference;
-        }
-        if (key.mapEast !== undefined &&
-            (key.mapEast <= key.mapWest || 
-            (key.mapWest === undefined && key.mapEast <= model.get('mapWest')))){
-            key.mapEast = parseFloat((key.mapWest || model.get('mapWest'))) + minimumDifference;
-        }
-        if (key.mapWest !== undefined && 
-            (key.mapWest >= key.mapEast || 
-            (key.mapEast === undefined && key.mapWest >= model.get('mapEast')))){
-            key.mapWest = parseFloat((key.mapEast || model.get('mapEast'))) - minimumDifference;
         }
         if (key.mapNorth !== undefined &&
             (key.mapNorth <= key.mapSouth || 
@@ -58,12 +55,10 @@ define([
             key.mapSouth = Math.min(90 - minimumDifference, key.mapSouth);
         }
         if (key.mapWest !== undefined){
-            key.mapWest = Math.max(-180, key.mapWest);
-            key.mapWest = Math.min(180 - minimumDifference, key.mapWest);
+            key.mapWest = wrapNum(key.mapWest, [-180, 180]);
         }
         if (key.mapEast !== undefined){
-            key.mapEast = Math.max(-180 + minimumDifference, key.mapEast);
-            key.mapEast = Math.min(180, key.mapEast);
+            key.mapEast = wrapNum(key.mapEast, [-180, 180]);
         }
         if (key.lat !== undefined){
             key.lat = Math.max(-90, key.lat);

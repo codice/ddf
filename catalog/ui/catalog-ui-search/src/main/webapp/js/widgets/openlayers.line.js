@@ -29,6 +29,12 @@ define([
         function translateFromOpenlayersCoordinates(coords) {
             var coordinates = [];
             _.each(coords, function (point) {
+                if (point[1] > 90) {
+                    point[1] = 89.9;
+                }
+                else if (point[1] < -90) {
+                    point[1] = -89.9;
+                }
                 coordinates.push(ol.proj.transform([point[0], point[1]], properties.projection, 'EPSG:4326'));
             });
             return coordinates;

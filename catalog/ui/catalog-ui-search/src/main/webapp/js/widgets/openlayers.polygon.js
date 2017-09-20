@@ -48,6 +48,12 @@ define([
 
                 _.each(coords, function(item) {
                     _.each(item, function(point) {
+                        if (point[1] > 90) {
+                            point[1] = 89.9;
+                        }
+                        else if (point[1] < -90) {
+                            point[1] = -89.9;
+                        }
                         coordinates.push(ol.proj.transform([point[0], point[1]], properties.projection, 'EPSG:4326'));
                     });
                 });
