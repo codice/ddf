@@ -120,11 +120,9 @@ define(['underscore',
             layer.setVisible(model.get('show'));
         },
         reIndexLayers: function () {
-            var olMapLayers = this.map.getLayers();
-            olMapLayers.clear();
-            this.collection.forEach(function (model) {
+            this.collection.forEach(function (model, index) {
                 var widgetLayer = this.layerForCid[model.id];
-                olMapLayers.push(widgetLayer);
+                widgetLayer.setZIndex((index * -1) - 1);
             }, this);
         },
         makeWidgetLayer: function (model) {
