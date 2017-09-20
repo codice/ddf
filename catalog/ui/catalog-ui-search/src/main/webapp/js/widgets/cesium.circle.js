@@ -140,6 +140,7 @@ define([
                 this.stopListening(this.model, 'change:lat change:lon change:radius', this.updatePrimitive);
                 this.listenTo(this.model, 'change:lat change:lon change:radius', this.drawBorderedCircle);
                 this.model.trigger("EndExtent", this.model);
+                wreqr.vent.trigger('search:circledisplay', this.model);
             },
             handleRegionInter: function(movement) {
                 var cartesian = this.options.map.scene.camera.pickEllipsoid(movement.endPosition, this.options.map.scene.globe.ellipsoid),
@@ -177,6 +178,11 @@ define([
                 this.enableInput();
             },
 
+            drawStop: function() {
+                this.enableInput();
+                this.mouseHandler.destroy();
+            },
+
             destroyPrimitive: function() {
                 if (!this.mouseHandler.isDestroyed()) {
                     this.mouseHandler.destroy();
@@ -197,14 +203,10 @@ define([
             enabled: true,
             initialize: function() {
                 this.listenTo(wreqr.vent, 'search:circledisplay', function(model) {
-                    if (this.isVisible()) {
-                        this.showCircle(model);
-                    }
+                    this.showCircle(model);
                 });
                 this.listenTo(wreqr.vent, 'search:drawcircle', function(model) {
-                    if (this.isVisible()) {
-                        this.draw(model);
-                    }
+                    this.draw(model);
                 });
                 this.listenTo(wreqr.vent, 'search:drawstop', function(model) {
                     this.stop(model);
@@ -227,8 +229,8 @@ define([
             },
             getViewForModel: function(model) {
                 return this.views.filter(function(view) {
-                    return view.model === model;
-                })[0];
+                    return view.model === model && view.options.map === this.options.map;
+                }.bind(this))[0];
             },
             removeViewForModel: function(model) {
                 var view = this.getViewForModel(model);
@@ -253,7 +255,7 @@ define([
 
                     var existingView = this.getViewForModel(model);
                     if (existingView) {
-                        existingView.stop();
+                        existingView.drawStop();
                         existingView.destroyPrimitive();
                         existingView.updatePrimitive(model);
                     } else {
@@ -298,7 +300,6 @@ define([
                 var view = this.getViewForModel(model);
                 if (view) {
                     view.stop();
-                    view.handleRegionStop();
                 }
                 if (this.notificationView) {
                     this.notificationView.destroy();

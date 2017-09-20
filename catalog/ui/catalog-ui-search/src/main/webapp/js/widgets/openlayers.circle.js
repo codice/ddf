@@ -49,6 +49,7 @@ define([
         Draw.CircleView = Marionette.View.extend({
             initialize: function (options) {
                 this.map = options.map;
+                this.listenTo(this.model, 'change:lat change:lon change:radius', this.updateGeometry);
                 this.updateGeometry(this.model);
             },
             setModelFromGeometry: function (geometry) {
@@ -129,6 +130,7 @@ define([
                 this.listenTo(this.model, 'change:lat change:lon change:radius', this.updateGeometry);
 
                 this.model.trigger("EndExtent", this.model);
+                wreqr.vent.trigger('search:circledisplay', this.model);
             },
             start: function () {
                 var that = this;
@@ -157,6 +159,7 @@ define([
                 this.accurateCircleId = window.requestAnimationFrame(function(){
                     this.drawBorderedPolygon(sketchFeature.feature.getGeometry());
                     this.showAccurateCircle(sketchFeature);
+                    this.setModelFromGeometry(sketchFeature.feature.getGeometry());
                 }.bind(this));
             },
 
@@ -188,14 +191,10 @@ define([
                 this.notificationEl = options.notificationEl;
 
                 this.listenTo(wreqr.vent, 'search:circledisplay', function (model) {
-                    if (this.isVisible()) {
-                        this.showBox(model);
-                    }
+                    this.showBox(model);
                 });
                 this.listenTo(wreqr.vent, 'search:drawcircle', function (model) {
-                    if (this.isVisible()) {
-                        this.draw(model);
-                    }
+                    this.draw(model);
                 });
                 this.listenTo(wreqr.vent, 'search:drawstop', function(model) {
                     this.stop(model);
@@ -216,10 +215,10 @@ define([
                     this.destroyView(this.views[i]);
                 }
             },
-            getViewForModel: function (model) {
-                return this.views.filter(function (view) {
-                    return view.model === model;
-                })[0];
+            getViewForModel: function(model) {
+                return this.views.filter(function(view) {
+                    return view.model === model && view.map === this.map;
+                }.bind(this))[0];
             },
             removeViewForModel: function (model) {
                 var view = this.getViewForModel(model);
@@ -238,9 +237,8 @@ define([
 
                     var existingView = this.getViewForModel(model);
                     if (existingView) {
-                        existingView.stop();
                         existingView.destroyPrimitive();
-                        existingView.updatePrimitive(model);
+                        existingView.updateGeometry(model);
                     } else {
                         var view = new Draw.CircleView(
                             {

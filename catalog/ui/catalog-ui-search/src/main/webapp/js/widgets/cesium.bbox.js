@@ -271,6 +271,7 @@ define([
                 this.dir = undefined;
                 this.lastLongitude = undefined;
                 this.crossDateLine = undefined;
+                wreqr.vent.trigger('search:bboxdisplay', this.model);
             },
             handleRegionInter: function(movement) {
                 var cartesian = this.options.map.scene.camera
@@ -317,6 +318,10 @@ define([
 
             },
 
+            drawStop: function() {
+                this.enableInput();
+                this.mouseHandler.destroy();
+            },
 
             destroyPrimitive: function() {
                 if (!this.mouseHandler.isDestroyed()) {
@@ -333,14 +338,10 @@ define([
             enabled: true,
             initialize: function() {
                 this.listenTo(wreqr.vent, 'search:bboxdisplay', function(model) {
-                    if (this.isVisible()) {
-                        this.showBox(model);
-                    }
+                    this.showBox(model);
                 });
                 this.listenTo(wreqr.vent, 'search:drawbbox', function(model) {
-                    if (this.isVisible()) {
-                        this.draw(model);
-                    }
+                    this.draw(model);
                 });
                 this.listenTo(wreqr.vent, 'search:drawstop', function(model) {
                     this.stop(model);
@@ -363,8 +364,8 @@ define([
             },
             getViewForModel: function(model) {
                 return this.views.filter(function(view) {
-                    return view.model === model;
-                })[0];
+                    return view.model === model && view.options.map === this.options.map;
+                }.bind(this))[0];
             },
             removeViewForModel: function(model) {
                 var view = this.getViewForModel(model);
@@ -384,7 +385,7 @@ define([
 
                     var existingView = this.getViewForModel(model);
                     if (existingView) {
-                        existingView.stop();
+                        existingView.drawStop();
                         existingView.destroyPrimitive();
                         existingView.updatePrimitive(model);
                     } else {
@@ -395,7 +396,7 @@ define([
                         view.updatePrimitive(model);
                         this.addView(view);
                     }
-                    
+
                     return bboxModel;
                 }
             },
