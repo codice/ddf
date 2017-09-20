@@ -62,6 +62,8 @@ public class ConfigurationApplication implements SparkApplication {
 
   private List imageryProviders = new ArrayList<>();
 
+  private List defaultLayout = new ArrayList<>();
+
   private List<Map> imageryProviderUrlMaps = new ArrayList<>();
 
   private List<Map<String, Object>> imageryProviderMaps = new ArrayList<>();
@@ -267,6 +269,31 @@ public class ConfigurationApplication implements SparkApplication {
     }
   }
 
+  private List<Map> getDefaultLayoutConfig() {
+    if (defaultLayout == null || defaultLayout.isEmpty()) {
+      // @formatter:off
+      return Collections.singletonList(
+          ImmutableMap.of(
+              "type",
+              "stack",
+              "content",
+              Arrays.asList(
+                  ImmutableMap.of(
+                      "type", "component",
+                      "component", "cesium",
+                      "componentName", "cesium",
+                      "title", "3D Map"),
+                  ImmutableMap.of(
+                      "type", "component",
+                      "component", "inspector",
+                      "componentName", "inspector",
+                      "title", "Inspector"))));
+      // @formatter:on
+    } else {
+      return defaultLayout;
+    }
+  }
+
   public Map<String, Object> getConfig() {
     Map<String, Object> config = new HashMap<>();
 
@@ -304,6 +331,7 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("queryFeedbackEmailDestination", queryFeedbackEmailDestination);
     config.put("zoomPercentage", zoomPercentage);
     config.put("spacingMode", spacingMode);
+    config.put("defaultLayout", getDefaultLayoutConfig());
 
     return config;
   }
@@ -388,6 +416,29 @@ public class ConfigurationApplication implements SparkApplication {
       } catch (ClassCastException e) {
         this.imageryProviders = Collections.emptyList();
         LOGGER.error("Unable to parse terrain provider {} into map.", imageryProviders, e);
+      }
+    }
+  }
+
+  public String getDefaultLayout() {
+    return JsonFactory.create().writeValueAsString(defaultLayout);
+  }
+
+  public void setDefaultLayout(String defaultLayout) {
+    if (StringUtils.isEmpty(defaultLayout)) {
+      this.defaultLayout = Collections.emptyList();
+    } else {
+      try {
+        Object o = JsonFactory.create().readValue(defaultLayout, List.class);
+        if (o != null) {
+          this.defaultLayout = (List) o;
+        } else {
+          this.defaultLayout = Collections.emptyList();
+          LOGGER.warn("Could not parse default layout config as JSON, {}", defaultLayout);
+        }
+      } catch (ClassCastException e) {
+        this.defaultLayout = Collections.emptyList();
+        LOGGER.error("Unable to parse default layout config {} into map.", defaultLayout, e);
       }
     }
   }
