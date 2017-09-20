@@ -100,6 +100,7 @@ var GeometryView = Marionette.ItemView.extend({
     handlePoint: function(point) {
         this.geometry.push(this.options.map.addPoint(point, {
             id: this.model.id,
+            title: this.model.get('metacard').get('properties').get('title'),
             color: this.model.get('metacard').get('color'),
             icon: iconHelper.getFull(this.model),
             view: this
@@ -109,6 +110,7 @@ var GeometryView = Marionette.ItemView.extend({
         this.geometry.push(this.options.map.addLine(line, {
             id: this.model.id,
             color: this.model.get('metacard').get('color'),
+            title: this.model.get('metacard').get('properties').get('title'),
             view: this
         }));
     },
@@ -116,6 +118,7 @@ var GeometryView = Marionette.ItemView.extend({
         this.geometry = this.geometry.concat(this.options.map.addPolygon(polygon, {
             id: this.model.id,
             color: this.model.get('metacard').get('color'),
+            title: this.model.get('metacard').get('properties').get('title'),
             view: this
         }));
     },

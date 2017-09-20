@@ -6161,6 +6161,10 @@ ms@0.7.3:
   version "0.7.3"
   resolved "https://registry.yarnpkg.com/ms/-/ms-0.7.3.tgz#708155a5e44e33f5fd0fc53e81d0d40a91be1fff"
 
+mt-geo@1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/mt-geo/-/mt-geo-1.0.1.tgz#ec748465be5a9aa28ee9fcd95035c8a120082f3a"
+
 multimatch@^2.0.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/multimatch/-/multimatch-2.1.0.tgz#9c7906a22fb4c02919e2f5f75161b4cdbd4b2a2b"

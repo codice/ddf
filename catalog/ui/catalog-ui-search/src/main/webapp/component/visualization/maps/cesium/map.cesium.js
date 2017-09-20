@@ -31,6 +31,7 @@ var user = require('component/singletons/user-instance');
 var User = require('js/model/User');
 var wreqr = require('wreqr');
 var gazetteer = require('./geocoder');
+var mtgeo = require('mt-geo');
 
 var defaultColor = '#3c6dd5';
 var eyeOffset = new Cesium.Cartesian3(0, 0, 0);
@@ -61,7 +62,7 @@ function createMap(insertionElement) {
             timeline: false,
             geocoder: new gazetteer(),
             homeButton: true,
-            sceneModePicker: true,
+            sceneModePicker: false,
             selectionIndicator: false,
             infoBox: false,
             //skyBox: false,
@@ -153,13 +154,51 @@ function isNotVisible(cartesian3CenterOfGeometry, occluder) {
     return !occluder.isPointVisible(cartesian3CenterOfGeometry);
 }
 
-module.exports = function CesiumMap(insertionElement, selectionInterface, notificationEl) {
+module.exports = function CesiumMap(insertionElement, selectionInterface, notificationEl, componentElement) {
     var overlays = {};
     var shapes = [];
     var map = createMap(insertionElement);
     var drawHelper = new DrawHelper(map);
     var billboardCollection = setupBillboard();
     var drawingTools = setupDrawingTools(map);
+    setupTooltip(map, selectionInterface);
+
+    function updateFeatureTooltip(position) {
+        var pickedObject = map.scene.pick(position);
+        if (pickedObject !== undefined && pickedObject.id && selectionInterface) {
+            var metacard = selectionInterface
+                .getCompleteActiveSearchResults()
+                .get(pickedObject.id);
+
+            if (metacard && metacard.has('metacard')){
+                $(componentElement).addClass('has-feature');
+                componentElement.querySelector('.info-feature').innerHTML = metacard.get('metacard').get('properties').get('title');
+            }  
+        }
+    }
+
+    function updateCoordinatesTooltip(position) {
+        if (map.scene.pickPositionSupported) {
+            var cartesian = map.scene.pickPosition(position);
+            if (Cesium.defined(cartesian)){
+                let cartographic = Cesium.Cartographic.fromCartesian(cartesian);
+                componentElement.querySelector('.coordinate-lat').innerHTML = mtgeo.toLat((cartographic.latitude * Cesium.Math.DEGREES_PER_RADIAN).toFixed(2));
+                componentElement.querySelector('.coordinate-lon').innerHTML = mtgeo.toLon((cartographic.longitude * Cesium.Math.DEGREES_PER_RADIAN).toFixed(2));
+            }
+        }
+    }
+    
+    function setupTooltip(map, selectionInterface) {
+        var handler = new Cesium.ScreenSpaceEventHandler(map.scene.canvas);
+        handler.setInputAction(function(movement) {
+            $(componentElement).removeClass('has-feature');
+            if (map.scene.mode === Cesium.SceneMode.MORPHING) {
+                return;
+            }
+            updateCoordinatesTooltip(movement.endPosition);
+            updateFeatureTooltip(movement.endPosition);
+        }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+    }
 
     function setupDrawingTools(map) {
         return {

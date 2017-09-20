@@ -17,3 +17,39 @@
         }
     }
 }
+
+@{customElementNamespace}map {
+  .mapInfo {
+    color: @text-color;
+    font-size: @minimumFontSize;
+    position: absolute;
+    left: 0px;
+    bottom: 0px;
+    text-align: left;
+    padding: @minimumSpacing;
+    background: rgba(0,0,0,.7);
+    max-width: 50%;
+    //text-shadow: 0px 0px 5px @dropdown-background-color, 0px 0px 5px @dropdown-background-color, 0px 0px 5px @dropdown-background-color, 0px 0px 5px @dropdown-background-color,  0px 0px 5px @dropdown-background-color,  0px 0px 5px @dropdown-background-color;
+  }
+
+  .info-coordinates {
+    display: inline-block;
+  }
+
+  .info-feature {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: none;
+  }
+}
+
+@{customElementNamespace}map.has-feature {
+  .info-feature {
+    display: block;
+  }
+
+  .info-coordinates {
+    padding-top: 0px;
+  }
+}

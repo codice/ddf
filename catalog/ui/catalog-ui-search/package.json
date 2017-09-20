@@ -89,6 +89,8 @@
     "less-vars-to-js": "1.1.2",
     "lodash": "4.17.4",
     "moment": "2.18.1",
+    "lodash.get": "4.4.2",
+    "mt-geo": "1.0.1",
     "openlayers": "3.20.1",
     "plotly.js": "1.10.5",
     "q": "1.5.0",

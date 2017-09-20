@@ -97,7 +97,7 @@ module.exports = Marionette.LayoutView.extend({
     },
     createMap: function(Map){
         this.map = Map(this.el.querySelector('#mapContainer'),
-                this.options.selectionInterface, this.mapDrawingPopup.el);
+                this.options.selectionInterface, this.mapDrawingPopup.el, this.el);
         this.setupCollections();
         this.setupListeners();
         this.endLoading();

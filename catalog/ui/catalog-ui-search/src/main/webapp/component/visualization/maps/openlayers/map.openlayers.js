@@ -29,6 +29,7 @@ var LayerCollectionController = require('js/controllers/ol.layerCollection.contr
 var user = require('component/singletons/user-instance');
 var User = require('js/model/User');
 var wreqr = require('wreqr');
+var mtgeo = require('mt-geo');
 
 var defaultColor = '#3c6dd5';
 
@@ -78,12 +79,28 @@ function unconvertPointCoordinate(point) {
     return Openlayers.proj.transform(point, properties.projection, 'EPSG:4326');
 }
 
-module.exports = function OpenlayersMap(insertionElement, selectionInterface, notificationEl) {
+module.exports = function OpenlayersMap(insertionElement, selectionInterface, notificationEl, componentElement) {
     var overlays = {};
     var shapes = [];
     var map = createMap(insertionElement);
     listenToResize();
+    setupTooltip(map);
     var drawingTools = setupDrawingTools(map);
+  
+    function setupTooltip(map) {        
+        map.on('pointermove', function(e){
+            componentElement.querySelector('.coordinate-lon').innerHTML = mtgeo.toLon(e.coordinate[0].toFixed(2));
+            componentElement.querySelector('.coordinate-lat').innerHTML = mtgeo.toLat(e.coordinate[1].toFixed(2));
+            $(componentElement).removeClass('has-feature');
+            var feature = map.forEachFeatureAtPixel(e.pixel, function(feature) {
+                if (feature.get('name')) {
+                    $(componentElement).addClass('has-feature');
+                    componentElement.querySelector('.info-feature').innerHTML = feature.get('name');
+                    return feature;
+                }
+            });
+        });
+    }
 
     function setupDrawingTools(map) {
         return {
@@ -337,7 +354,8 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
         addPoint: function(point, options) {
             var pointObject = convertPointCoordinate(point);
             var feature = new Openlayers.Feature({
-                geometry: new Openlayers.geom.Point(pointObject)
+                geometry: new Openlayers.geom.Point(pointObject),
+                name: options.title
             });
             feature.setId(options.id);
 
@@ -383,7 +401,8 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
             });
 
             var feature = new Openlayers.Feature({
-                geometry: new Openlayers.geom.LineString(lineObject)
+                geometry: new Openlayers.geom.LineString(lineObject),
+                name: options.title
             });
             feature.setId(options.id);
 
