@@ -104,7 +104,7 @@ define([
             style: {
                 code: "f08d",
                 font: "FontAwesome",
-                size: "12px"
+                size: "15px"
             }
         },
     };

@@ -34,6 +34,7 @@ var gazetteer = require('./geocoder');
 
 var defaultColor = '#3c6dd5';
 var eyeOffset = new Cesium.Cartesian3(0, 0, 0);
+var pixelOffset = new Cesium.Cartesian2(0.0, 0);
 
 Cesium.BingMapsApi.defaultKey = properties.bingKey || 0;
 var imageryProviderTypes = LayerCollectionController.imageryProviderTypes;
@@ -390,13 +391,16 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
                 pointObject.altitude
             );
             var billboardRef = billboardCollection.add({
-                image: DrawingUtility.getCircleWithIcon({
+                image: DrawingUtility.getPin({
                     fillColor: options.color,
                     icon: options.icon
                 }),
                 position: map.scene.globe.ellipsoid.cartographicToCartesian(cartographicPosition),
                 id: options.id,
-                eyeOffset: eyeOffset
+                eyeOffset: eyeOffset,
+                pixelOffset: pixelOffset,
+                verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                horizontalOrigin: Cesium.HorizontalOrigin.CENTER
             });
             //if there is a terrain provider and no altitude has been specified, sample it from the configured terrain provider
             if (!pointObject.altitude && map.scene.terrainProvider) {
@@ -550,7 +554,7 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
                 }.bind(this));
             }
             if (geometry.constructor === Cesium.Billboard) {
-                geometry.image = DrawingUtility.getCircleWithIcon({
+                geometry.image = DrawingUtility.getPin({
                     fillColor: options.color,
                     strokeColor: options.isSelected ? 'black' : 'white',
                     icon: options.icon

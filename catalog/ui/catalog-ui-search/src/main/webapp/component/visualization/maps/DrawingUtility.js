@@ -79,5 +79,49 @@ module.exports = {
             ctx.fillText(icon, options.diameter/2, options.diameter/2);
         }
         return canvas;
+    },
+    getPin: function(options) {
+      _.defaults(options, {
+          width: 40,
+          height: 40,
+          fillColor: defaultColor,
+          strokeWidth: 2,
+          strokeColor: 'white',
+          textColor: "white"
+      });
+      var canvas = document.createElement('canvas');
+      canvas.width = options.width;
+      canvas.height = options.height;
+      var ctx = canvas.getContext("2d");
+      
+      ctx.strokeStyle = options.strokeColor;
+      ctx.lineWidth = options.strokeWidth;
+      ctx.fillStyle = options.fillColor;
+      
+      var s = options.scale;
+      ctx.beginPath();
+      ctx.moveTo(19.36, 2);
+      ctx.bezierCurveTo(11.52, 2, 4.96, 6.64, 4.96, 14.64) ;
+      ctx.bezierCurveTo(4.96, 17.92, 6.08, 20.96, 7.84, 23.44);
+      ctx.lineTo(19.52, 38.96) ;
+      ctx.lineTo(31.2, 23.44) ;
+      ctx.bezierCurveTo(33.04, 20.96, 34.08, 17.92, 34.08, 14.64);
+      ctx.bezierCurveTo(34.08, 6.64, 27.6, 2, 19.52, 2);
+      ctx.fillStyle = options.fillColor;
+      ctx.fill();
+      ctx.stroke();
+        
+      var style = options.icon.style;
+      if(style.code) {
+          ctx.font = style.size + " " + style.font;
+          ctx.fillStyle = options.textColor;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          
+          var icon = String.fromCharCode(parseInt(style.code, 16));
+          ctx.fillText(icon, options.width/2, (options.height/2) - 5);
+      }
+
+      return canvas;
     }
 };

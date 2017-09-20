@@ -341,13 +341,22 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
             });
             feature.setId(options.id);
 
+            var x = 40, y = 40;
+            if (options.size) {
+                x = options.size.x;
+                y = options.size.y;
+            }
             feature.setStyle(new Openlayers.style.Style({
                 image: new Openlayers.style.Icon({
-                    img: DrawingUtility.getCircleWithIcon({
+                    img: DrawingUtility.getPin({
                         fillColor: options.color,
                         icon: options.icon,
                     }),
-                    imgSize: [44, 44]
+                    imgSize: [x, y],
+                    anchor: [20, 0],
+                    anchorOrigin: 'bottom-left',
+                    anchorXUnits: 'pixels',
+                    anchorYUnits: 'pixels'
                 })
             }));
 
@@ -470,12 +479,16 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
                 if (geometryInstance.constructor === Openlayers.geom.Point) {
                     feature.setStyle(new Openlayers.style.Style({
                         image: new Openlayers.style.Icon({
-                            img: DrawingUtility.getCircleWithIcon({
+                            img: DrawingUtility.getPin({
                                 fillColor: options.color,
                                 strokeColor: options.isSelected ? 'black' : 'white',
                                 icon: options.icon
                             }),
-                            imgSize: [44, 44]
+                            imgSize: [40, 40],
+                            anchor: [20, 0],
+                            anchorOrigin: 'bottom-left',
+                            anchorXUnits: 'pixels',
+                            anchorYUnits: 'pixels'
                         })
                     }));
                 } else if (geometryInstance.constructor === Openlayers.geom.LineString) {
