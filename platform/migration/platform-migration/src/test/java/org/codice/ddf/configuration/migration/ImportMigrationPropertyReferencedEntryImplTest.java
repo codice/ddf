@@ -91,7 +91,8 @@ public class ImportMigrationPropertyReferencedEntryImplTest extends AbstractMigr
   public void testConstructorWhenReferenceMetadataIsMissing() throws Exception {
     metadata.remove(MigrationEntryImpl.METADATA_REFERENCE);
 
-    // Mockito will throw its own wrapper exception below, so we must go to the initial cause to get the truths
+    // Mockito will throw its own wrapper exception below, so we must go to the initial cause to get
+    // the truths
     thrown.expect(
         ThrowableMatchers.hasInitialCauseMatching(Matchers.instanceOf(MigrationException.class)));
     thrown.expect(
@@ -110,7 +111,8 @@ public class ImportMigrationPropertyReferencedEntryImplTest extends AbstractMigr
   public void testConstructorWhenPropertyMetadataIsMissing() throws Exception {
     metadata.remove(MigrationEntryImpl.METADATA_PROPERTY);
 
-    // Mockito will throw its own wrapper exception below, so we must go to the initial cause to get the truths
+    // Mockito will throw its own wrapper exception below, so we must go to the initial cause to get
+    // the truths
     thrown.expect(
         ThrowableMatchers.hasInitialCauseMatching(Matchers.instanceOf(MigrationException.class)));
     thrown.expect(
@@ -129,7 +131,8 @@ public class ImportMigrationPropertyReferencedEntryImplTest extends AbstractMigr
   public void testConstructorWhenReferencedEntryIsNotFound() throws Exception {
     Mockito.when(context.getOptionalEntry(MIGRATABLE_PATH)).thenReturn(Optional.empty());
 
-    // Mockito will throw its own wrapper exception below, so we must go to the initial cause to get the truths
+    // Mockito will throw its own wrapper exception below, so we must go to the initial cause to get
+    // the truths
     thrown.expect(
         ThrowableMatchers.hasInitialCauseMatching(Matchers.instanceOf(MigrationException.class)));
     thrown.expect(
@@ -303,7 +306,8 @@ public class ImportMigrationPropertyReferencedEntryImplTest extends AbstractMigr
     Mockito.verify(referencedEntry).getPropertyReferencedEntry(propertyName);
   }
 
-  // cannot test equals() or hashcode() from a mocked abstract class with Mockito so they will be tested in ImportMigrationJavaPropertyReferencedEntryImplTest
+  // cannot test equals() or hashcode() from a mocked abstract class with Mockito so they will be
+  // tested in ImportMigrationJavaPropertyReferencedEntryImplTest
 
   @Test
   public void testCompareToWhenEquals() throws Exception {

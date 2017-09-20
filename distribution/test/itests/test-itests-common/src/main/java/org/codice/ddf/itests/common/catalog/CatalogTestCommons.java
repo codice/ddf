@@ -125,8 +125,8 @@ public class CatalogTestCommons {
     StringWriter writer = new StringWriter();
     IOUtils.copy(IOUtils.toInputStream(getFileContent(resourceName)), writer);
     String[] id = new String[1];
-    //ingest might not succeed the first time due to the async nature of some configurations
-    //Will try several times before considering it failed.
+    // ingest might not succeed the first time due to the async nature of some configurations
+    // Will try several times before considering it failed.
     with()
         .pollInterval(1, SECONDS)
         .await()
@@ -178,12 +178,12 @@ public class CatalogTestCommons {
   }
 
   public static Map<String, String> ingestMetacards(Map<String, String> metacardsIds) {
-    //ingest csw
+    // ingest csw
     String cswRecordId =
         ingestCswRecord(getFileContent(CSW_RESOURCE_ROOT + "csw/record/CswRecord.xml"));
     metacardsIds.put(CSW_METACARD, cswRecordId);
 
-    //ingest xml
+    // ingest xml
     String plainXmlNearId =
         ingest(getFileContent(CSW_RESOURCE_ROOT + "xml/PlainXmlNear.xml"), MediaType.TEXT_XML);
     String plainXmlFarId =
@@ -191,7 +191,7 @@ public class CatalogTestCommons {
     metacardsIds.put(PLAINXML_NEAR_METACARD, plainXmlNearId);
     metacardsIds.put(PLAINXML_FAR_METACARD, plainXmlFarId);
 
-    //ingest json
+    // ingest json
     String geoJsonNearId =
         ingestGeoJson(getFileContent(CSW_RESOURCE_ROOT + "json/GeoJsonNear.json"));
     String geoJsonFarId = ingestGeoJson(getFileContent(CSW_RESOURCE_ROOT + "json/GeoJsonFar.json"));

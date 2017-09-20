@@ -105,7 +105,8 @@ public class InternationalStringTypeHelperTest {
     }
 
     String istString = istHelper.getString(ist);
-    // If unknown locale isn't matched, the first in the list of localized strings will be returned. US, in this case.
+    // If unknown locale isn't matched, the first in the list of localized strings will be returned.
+    // US, in this case.
     assertThat(istString, is(equalTo(US)));
   }
 

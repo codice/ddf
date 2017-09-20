@@ -404,7 +404,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
 
   public CswSubscription createSubscription(GetRecordsType request) throws CswException {
     QueryRequest query = queryFactory.getQuery(request);
-    //if it is an empty query we need to create a filterless subscription
+    // if it is an empty query we need to create a filterless subscription
     if (((QueryType) request.getAbstractQuery().getValue()).getConstraint() == null) {
       return CswSubscription.getFilterlessSubscription(mimeTypeTransformerManager, request, query);
     }
@@ -540,7 +540,8 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
           .marshal(objectFactory.createGetRecords(subscription.getOriginalRequest()), sw);
       String filterXml = sw.toString();
 
-      // Store filter XML, deliveryMethod URL, this endpoint's factory PID, and subscription ID into OSGi CongiAdmin
+      // Store filter XML, deliveryMethod URL, this endpoint's factory PID, and subscription ID into
+      // OSGi CongiAdmin
       if (filterXml != null) {
         Configuration config =
             getConfigAdmin()

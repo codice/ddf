@@ -189,7 +189,8 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
     return true;
   }
 
-  // PMD.DefaultPackage - designed to be called from ImportMigrationPropertyReferencedEntryImpl within this package
+  // PMD.DefaultPackage - designed to be called from ImportMigrationPropertyReferencedEntryImpl
+  // within this package
   @SuppressWarnings("PMD.DefaultPackage")
   @VisibleForTesting
   Optional<ImportMigrationEntry> getOptionalEntry(Path path) {
@@ -295,7 +296,8 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
                     me.getPropertiesPath(),
                     (p, mpe) -> {
                       if (mpe == null) {
-                        // create a new empty migration entry as it was not exported out (at least not by this migratable)!!!!
+                        // create a new empty migration entry as it was not exported out (at least
+                        // not by this migratable)!!!!
                         mpe = new ImportMigrationEmptyEntryImpl(this, p);
                       }
                       mpe.addPropertyReferenceEntry(me.getProperty(), me);

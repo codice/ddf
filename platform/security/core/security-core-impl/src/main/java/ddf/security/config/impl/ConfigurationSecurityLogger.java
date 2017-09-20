@@ -43,17 +43,17 @@ public class ConfigurationSecurityLogger implements SynchronousConfigurationList
           configurationAdmin.listConfigurations("(service.pid=" + event.getPid() + ')');
 
       String updatedConfiguration = "{}";
-      //the service.pid is unique so we just need to check if we got anything.
+      // the service.pid is unique so we just need to check if we got anything.
       if (configuration != null && configuration.length > 0) {
         updatedConfiguration = dictionaryToString(configuration[0].getProperties());
       }
 
-      //check if there is a subject associated with the configuration change
+      // check if there is a subject associated with the configuration change
       if (ThreadContext.getSubject() != null
           || Subject.getSubject(AccessController.getContext()) != null) {
         SecurityLogger.audit("Configuration {}: {}", type, updatedConfiguration);
       } else {
-        //there was no subject change was caused by an update to the config file on the filesystem
+        // there was no subject change was caused by an update to the config file on the filesystem
         SecurityLogger.auditWarn("Configuration {} via filesystem: {}", type, updatedConfiguration);
       }
     } catch (Throwable e) {

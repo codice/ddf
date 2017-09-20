@@ -173,7 +173,7 @@ public class ServiceSelector<T> {
 
     if (preferredServiceReference != null) {
 
-      //extract the preferred Service from the stored ServiceReferences;
+      // extract the preferred Service from the stored ServiceReferences;
       BundleContext bundleContext = this.getBundleContext();
 
       if (bundleContext != null) {

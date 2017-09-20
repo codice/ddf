@@ -55,7 +55,7 @@ public class ResourceCacheImpl implements ResourceCacheInterface {
 
   private static final long BYTES_IN_MEGABYTES = FileUtils.ONE_MB;
 
-  private static final long DEFAULT_MAX_CACHE_DIR_SIZE_BYTES = 10737418240L; //10 GB
+  private static final long DEFAULT_MAX_CACHE_DIR_SIZE_BYTES = 10737418240L; // 10 GB
 
   private List<String> pendingCache = new ArrayList<>();
 

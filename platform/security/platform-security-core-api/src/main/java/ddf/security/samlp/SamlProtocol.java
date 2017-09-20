@@ -327,7 +327,7 @@ public class SamlProtocol {
     EntityDescriptor entityDescriptor = entityDescriptorBuilder.buildObject();
     entityDescriptor.setEntityID(entityId);
     IDPSSODescriptor idpssoDescriptor = idpssoDescriptorBuilder.buildObject();
-    //signing
+    // signing
     KeyDescriptor signingKeyDescriptor = keyDescriptorBuilder.buildObject();
     signingKeyDescriptor.setUse(UsageType.SIGNING);
     KeyInfo signingKeyInfo = keyInfoBuilder.buildObject(KeyInfo.DEFAULT_ELEMENT_NAME);
@@ -339,7 +339,7 @@ public class SamlProtocol {
     signingKeyInfo.getX509Datas().add(signingX509Data);
     signingKeyDescriptor.setKeyInfo(signingKeyInfo);
     idpssoDescriptor.getKeyDescriptors().add(signingKeyDescriptor);
-    //encryption
+    // encryption
     KeyDescriptor encKeyDescriptor = keyDescriptorBuilder.buildObject();
     encKeyDescriptor.setUse(UsageType.ENCRYPTION);
     KeyInfo encKeyInfo = keyInfoBuilder.buildObject(KeyInfo.DEFAULT_ELEMENT_NAME);
@@ -403,7 +403,7 @@ public class SamlProtocol {
     EntityDescriptor entityDescriptor = entityDescriptorBuilder.buildObject();
     entityDescriptor.setEntityID(entityId);
     SPSSODescriptor spSsoDescriptor = spSsoDescriptorBuilder.buildObject();
-    //signing
+    // signing
     KeyDescriptor signingKeyDescriptor = keyDescriptorBuilder.buildObject();
     signingKeyDescriptor.setUse(UsageType.SIGNING);
     KeyInfo signingKeyInfo = keyInfoBuilder.buildObject(KeyInfo.DEFAULT_ELEMENT_NAME);
@@ -415,7 +415,7 @@ public class SamlProtocol {
     signingKeyInfo.getX509Datas().add(signingX509Data);
     signingKeyDescriptor.setKeyInfo(signingKeyInfo);
     spSsoDescriptor.getKeyDescriptors().add(signingKeyDescriptor);
-    //encryption
+    // encryption
     KeyDescriptor encKeyDescriptor = keyDescriptorBuilder.buildObject();
     encKeyDescriptor.setUse(UsageType.ENCRYPTION);
     KeyInfo encKeyInfo = keyInfoBuilder.buildObject(KeyInfo.DEFAULT_ELEMENT_NAME);
@@ -563,7 +563,7 @@ public class SamlProtocol {
     return null;
   }
 
-  //converting the DOM impl is necessary because OpenSAML expects a particular implementation
+  // converting the DOM impl is necessary because OpenSAML expects a particular implementation
   public static Element convertDomImplementation(Element node) throws XMLStreamException {
     if (DOMUtils.createDocument().getImplementation()
         != node.getOwnerDocument().getImplementation()) {

@@ -42,7 +42,7 @@ public class BSTDelegationHandler implements TokenDelegationHandler {
   private static final org.slf4j.Logger LOGGER =
       LoggerFactory.getLogger(BSTDelegationHandler.class);
 
-  //private boolean checkAudienceRestriction;
+  // private boolean checkAudienceRestriction;
 
   public boolean canHandleToken(ReceivedToken delegateTarget) {
     Object token = delegateTarget.getToken();

@@ -70,7 +70,8 @@ public abstract class MigrationCommand implements Action {
     }
   }
 
-  // squid:S106 - we purposely need to output to the output stream for the info to get to the admin console
+  // squid:S106 - we purposely need to output to the output stream for the info to get to the admin
+  // console
   @SuppressWarnings("squid:S106")
   @VisibleForTesting
   protected PrintStream getConsole() {

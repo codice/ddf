@@ -60,7 +60,7 @@ public final class SecurityLogger {
         return SubjectUtils.getName(subject, NO_USER);
       }
     } catch (Exception e) {
-      //ignore and return NO_USER
+      // ignore and return NO_USER
     }
     return NO_USER;
   }

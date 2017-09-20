@@ -63,7 +63,7 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-//TODO DDF-3116 The catalog:dump shuts down DDF when it fails to transform
+// TODO DDF-3116 The catalog:dump shuts down DDF when it fails to transform
 @Service
 @Command(
   scope = CatalogCommands.NAMESPACE,

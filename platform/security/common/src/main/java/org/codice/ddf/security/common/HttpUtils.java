@@ -101,7 +101,7 @@ public class HttpUtils {
 
   public static void deleteCookie(
       String cookieName, HttpServletRequest request, HttpServletResponse response) {
-    //remove session cookie
+    // remove session cookie
     try {
       LOGGER.debug("Removing cookie {}", cookieName);
       response.setContentType("text/html");

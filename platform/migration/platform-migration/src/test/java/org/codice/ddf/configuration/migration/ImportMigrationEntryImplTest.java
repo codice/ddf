@@ -81,7 +81,8 @@ public class ImportMigrationEntryImplTest extends AbstractMigrationTest {
     givenARealMigrationReport();
 
     importedFile = ddfHome.resolve(createFile(ENTRY_NAME)).toFile();
-    // resolving against DDF_HOME ensures that on Windows the absolute path gets the same drive as DDF_HOME
+    // resolving against DDF_HOME ensures that on Windows the absolute path gets the same drive as
+    // DDF_HOME
     absolutePath = ddfHome.resolve(Paths.get("/opt", "ddf", ENTRY_NAME));
   }
 
@@ -206,7 +207,8 @@ public class ImportMigrationEntryImplTest extends AbstractMigrationTest {
     when(pathUtils.resolveAgainstDDFHome(Mockito.eq(importedPath))).thenReturn(absolutePath);
     when(absolutePath.toFile()).thenReturn(absoluteFile);
     when(absoluteFile.canWrite()).thenReturn(false, false, true);
-    // must reverse mockito calls otherwise using when() will actually call the setWritable() on the spy and affect the file system
+    // must reverse mockito calls otherwise using when() will actually call the setWritable() on the
+    // spy and affect the file system
     doReturn(true).when(absoluteFile).setWritable(true);
     doReturn(true).when(absoluteFile).setWritable(false);
 
@@ -244,7 +246,8 @@ public class ImportMigrationEntryImplTest extends AbstractMigrationTest {
     when(pathUtils.resolveAgainstDDFHome(Mockito.eq(importedPath))).thenReturn(absolutePath);
     when(absolutePath.toFile()).thenReturn(absoluteFile);
     when(absoluteFile.canWrite()).thenReturn(false, false, true);
-    // must reverse mockito calls otherwise using when() will actually call the setWritable() on the spy and affect the file system
+    // must reverse mockito calls otherwise using when() will actually call the setWritable() on the
+    // spy and affect the file system
     doReturn(false).when(absoluteFile).setWritable(true);
 
     final ImportMigrationEntryImpl entry =

@@ -497,9 +497,9 @@ public class FileSystemStorageProvider implements StorageProvider {
     }
   }
 
-  //separating into 2 directories of 3 characters each allows us to
-  //get to 361,000,000,000 records before we would run up against the
-  //NTFS file system limits for a single directory
+  // separating into 2 directories of 3 characters each allows us to
+  // get to 361,000,000,000 records before we would run up against the
+  // NTFS file system limits for a single directory
   List<String> getContentFilePathParts(String id, String qualifier) {
     String partsId = id;
     if (id.length() < 6) {
@@ -532,7 +532,7 @@ public class FileSystemStorageProvider implements StorageProvider {
             "Content ID: " + uri.getSchemeSpecificPart() + " storage folder is corrupted.");
       }
 
-      //there should only be one file
+      // there should only be one file
       return contentFiles.get(0);
     }
     return null;

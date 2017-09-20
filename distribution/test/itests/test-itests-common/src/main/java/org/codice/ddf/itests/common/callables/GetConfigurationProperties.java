@@ -71,7 +71,7 @@ public class GetConfigurationProperties implements Callable<Dictionary<String, O
       return null;
     }
 
-    //multiple configurations are returned because there are multiple persistence managers
+    // multiple configurations are returned because there are multiple persistence managers
     Set<Configuration> configurationSet = new HashSet<>(Arrays.asList(configurations));
 
     if (configurationSet.isEmpty()) {

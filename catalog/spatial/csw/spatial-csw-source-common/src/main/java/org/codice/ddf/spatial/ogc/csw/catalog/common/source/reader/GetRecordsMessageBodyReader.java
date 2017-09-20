@@ -106,7 +106,8 @@ public class GetRecordsMessageBodyReader implements MessageBodyReader<CswRecordC
 
     CswRecordCollection cswRecords = null;
     Map<String, Serializable> resourceProperties = new HashMap<>();
-    // Check if the server returned a Partial Content response (hopefully in response to a range header)
+    // Check if the server returned a Partial Content response (hopefully in response to a range
+    // header)
     String contentRangeHeader = httpHeaders.getFirst(HttpHeaders.CONTENT_RANGE);
     if (StringUtils.isNotBlank(contentRangeHeader)) {
       contentRangeHeader =

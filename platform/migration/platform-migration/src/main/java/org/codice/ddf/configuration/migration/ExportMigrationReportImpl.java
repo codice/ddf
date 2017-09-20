@@ -178,7 +178,8 @@ public class ExportMigrationReportImpl implements MigrationReport {
     return this;
   }
 
-  // PMD.DefaultPackage - designed to be called from ExportMigrationSystemPropertyReferencedEntryImpl within this package
+  // PMD.DefaultPackage - designed to be called from
+  // ExportMigrationSystemPropertyReferencedEntryImpl within this package
   @SuppressWarnings("PMD.DefaultPackage")
   ExportMigrationReportImpl recordSystemProperty(
       ExportMigrationSystemPropertyReferencedEntryImpl entry) {
@@ -191,7 +192,8 @@ public class ExportMigrationReportImpl implements MigrationReport {
     return this;
   }
 
-  // PMD.DefaultPackage - designed to be called from ExportMigrationJavaPropertyReferencedEntryImpl within this package
+  // PMD.DefaultPackage - designed to be called from ExportMigrationJavaPropertyReferencedEntryImpl
+  // within this package
   @SuppressWarnings("PMD.DefaultPackage")
   ExportMigrationReportImpl recordJavaProperty(
       ExportMigrationJavaPropertyReferencedEntryImpl entry) {

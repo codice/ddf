@@ -171,11 +171,12 @@ public class PaosInInterceptor extends AbstractPhaseInterceptor<Message> {
                   new AccessDeniedException(
                       "Unable to complete SAML ECP connection. Unable to determine IdP server."));
             }
-            //choose the right entry, probably need to do something better than select the first one
-            //but the spec doesn't specify how this is supposed to be done
+            // choose the right entry, probably need to do something better than select the first
+            // one
+            // but the spec doesn't specify how this is supposed to be done
             idpEntry = idpEntrys.get(0);
           } catch (WSSecurityException e) {
-            //TODO figure out IdP alternatively
+            // TODO figure out IdP alternatively
             LOGGER.info(
                 "Unable to determine IdP appropriately. ECP connection will fail. SP may be incorrectly configured. Contact the administrator for the remote system.");
           }
@@ -287,11 +288,12 @@ public class PaosInInterceptor extends AbstractPhaseInterceptor<Message> {
 
   HttpResponseWrapper getHttpResponse(
       String responseConsumerURL, String soapResponse, Message message) throws IOException {
-    //This used to use the ApacheHttpTransport which appeared to not work with 2 way TLS auth but this one does
+    // This used to use the ApacheHttpTransport which appeared to not work with 2 way TLS auth but
+    // this one does
     HttpTransport httpTransport = new NetHttpTransport();
     HttpContent httpContent =
         new InputStreamContent(TEXT_XML, new ByteArrayInputStream(soapResponse.getBytes("UTF-8")));
-    //this handles redirects for us
+    // this handles redirects for us
     ((InputStreamContent) httpContent).setRetrySupported(true);
     HttpRequest httpRequest =
         httpTransport
@@ -336,7 +338,7 @@ public class PaosInInterceptor extends AbstractPhaseInterceptor<Message> {
         };
     httpRequest.setUnsuccessfulResponseHandler(httpUnsuccessfulResponseHandler);
     httpRequest.getHeaders().put(SOAP_ACTION, HTTP_WWW_OASIS_OPEN_ORG_COMMITTEES_SECURITY);
-    //has 20 second timeout by default
+    // has 20 second timeout by default
     HttpResponse httpResponse = httpRequest.execute();
     HttpResponseWrapper httpResponseWrapper = new HttpResponseWrapper();
     httpResponseWrapper.statusCode = httpResponse.getStatusCode();

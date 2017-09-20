@@ -44,12 +44,12 @@ public class FileSystemPersistenceProviderTest {
 
   @Before
   public void setup() {
-    //mock out dao
+    // mock out dao
     mockFileSystemDao = mock(FileSystemDataAccessObject.class);
     doReturn(testObj).when(mockFileSystemDao).loadFromPersistence(any(), any(), any());
     doReturn(ImmutableSet.of(testKey)).when(mockFileSystemDao).loadAllKeys(any(), any(), any());
 
-    //create and verify instance, inject mock dao
+    // create and verify instance, inject mock dao
     fileSystemPersistenceProvider = new FileSystemPersistenceProvider("test");
     fileSystemPersistenceProvider.fileSystemDataAccessObject = mockFileSystemDao;
     assertThat(

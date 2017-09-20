@@ -462,7 +462,8 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
     } finally {
       Mockito.verify(consumer).accept(Mockito.same(report), Mockito.same(mockOutputStream));
 
-      // verify that if we were to store a second time, the consumer would not be called and false would be returned
+      // verify that if we were to store a second time, the consumer would not be called and false
+      // would be returned
       Assert.assertThat(entry.store(), Matchers.equalTo(false));
 
       Mockito.verify(consumer2, Mockito.never()).accept(Mockito.any(), Mockito.any());
@@ -513,7 +514,8 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
     } finally {
       Mockito.verify(consumer).accept(Mockito.same(report), Mockito.same(mockOutputStream));
 
-      // verify that if we were to store a second time, the consumer would not be called and false would be returned
+      // verify that if we were to store a second time, the consumer would not be called and false
+      // would be returned
       Assert.assertThat(entry.store(), Matchers.equalTo(false));
 
       Mockito.verify(consumer2, Mockito.never()).accept(Mockito.any(), Mockito.any());
@@ -536,7 +538,8 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
     Assert.assertThat(entry.getId(), Matchers.equalTo(MIGRATABLE_ID));
     Assert.assertThat(entry.getName(), Matchers.equalTo(MIGRATABLE_NAME));
     Assert.assertThat(entry.getPath(), Matchers.equalTo(MIGRATABLE_PATH));
-    // now check that it is a java property referenced entry that references the proper property name
+    // now check that it is a java property referenced entry that references the proper property
+    // name
     Assert.assertThat(
         entry, Matchers.instanceOf(ExportMigrationJavaPropertyReferencedEntryImpl.class));
     final ExportMigrationJavaPropertyReferencedEntryImpl jentry =
@@ -564,7 +567,8 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
     Assert.assertThat(entry.getId(), Matchers.equalTo(MIGRATABLE_ID));
     Assert.assertThat(entry.getName(), Matchers.equalTo(MIGRATABLE_NAME));
     Assert.assertThat(entry.getPath(), Matchers.equalTo(MIGRATABLE_PATH));
-    // now check that it is a java property referenced entry that references the proper property name
+    // now check that it is a java property referenced entry that references the proper property
+    // name
     Assert.assertThat(
         entry, Matchers.instanceOf(ExportMigrationJavaPropertyReferencedEntryImpl.class));
     final ExportMigrationJavaPropertyReferencedEntryImpl jentry =
@@ -593,7 +597,8 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
     Assert.assertThat(entry.getId(), Matchers.equalTo(MIGRATABLE_ID));
     Assert.assertThat(entry.getName(), Matchers.equalTo(migratableName));
     Assert.assertThat(entry.getPath(), Matchers.equalTo(migratablePath));
-    // now check that it is a java property referenced entry that references the proper property name
+    // now check that it is a java property referenced entry that references the proper property
+    // name
     Assert.assertThat(
         entry, Matchers.instanceOf(ExportMigrationJavaPropertyReferencedEntryImpl.class));
     final ExportMigrationJavaPropertyReferencedEntryImpl jentry =
@@ -655,7 +660,8 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
         entry.getPropertyReferencedEntry(PROPERTY_NAME2, (r, v) -> true);
 
     Assert.assertThat(oentry, OptionalMatchers.isEmpty());
-    // finally make sure we got an error (register the thrown expectations after the above to make sure
+    // finally make sure we got an error (register the thrown expectations after the above to make
+    // sure
     // we don't get an exception from the above code under test
     thrown.expect(MigrationException.class);
     thrown.expectMessage(
@@ -673,7 +679,8 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
         entry.getPropertyReferencedEntry(PROPERTY_NAME2, (r, v) -> true);
 
     Assert.assertThat(oentry, OptionalMatchers.isEmpty());
-    // finally make sure we got an error (register the thrown expectations after the above to make sure
+    // finally make sure we got an error (register the thrown expectations after the above to make
+    // sure
     // we don't get an exception from the above code under test
     thrown.expect(MigrationException.class);
     thrown.expectMessage(
@@ -691,7 +698,8 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
         entry.getPropertyReferencedEntry(PROPERTY_NAME, (r, v) -> true);
 
     Assert.assertThat(oentry, OptionalMatchers.isEmpty());
-    // finally make sure we got an error (register the thrown expectations after the above to make sure
+    // finally make sure we got an error (register the thrown expectations after the above to make
+    // sure
     // we don't get an exception from the above code under test
     thrown.expect(MigrationException.class);
     thrown.expectMessage(
@@ -752,7 +760,8 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
     Assert.assertThat(entry.equals(null), Matchers.equalTo(false));
   }
 
-  // PMD.PositionLiteralsFirstInComparisons - Purposely testing equals() when call with something else than expected
+  // PMD.PositionLiteralsFirstInComparisons - Purposely testing equals() when call with something
+  // else than expected
   @SuppressWarnings("PMD.PositionLiteralsFirstInComparisons")
   @Test
   public void testEqualsWithNotAnEntry() throws Exception {

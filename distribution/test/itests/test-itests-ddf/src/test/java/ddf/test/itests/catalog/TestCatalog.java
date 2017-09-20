@@ -1044,7 +1044,7 @@ public class TestCatalog extends AbstractIntegrationTest {
       return;
     }
 
-    //test with resultType="results" first
+    // test with resultType="results" first
     ValidatableResponse validatableResponse =
         given()
             .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
@@ -1054,7 +1054,7 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     validatableResponse.body(hasXPath("/GetRecordsResponse/SearchResults/Record"));
 
-    //test with resultType="hits"
+    // test with resultType="hits"
     query = query.replace("results", "hits");
     validatableResponse =
         given()
@@ -1062,12 +1062,12 @@ public class TestCatalog extends AbstractIntegrationTest {
             .body(query)
             .post(CSW_PATH.getUrl())
             .then();
-    //assert that no records have been returned
+    // assert that no records have been returned
     validatableResponse.body(not(hasXPath("//Record")));
 
-    //testing with resultType='validate' is not
-    //possible due to DDF-1537, this test will need
-    //to be updated to test this once it is fixed.
+    // testing with resultType='validate' is not
+    // possible due to DDF-1537, this test will need
+    // to be updated to test this once it is fixed.
 
     deleteMetacard(id);
   }
@@ -1132,10 +1132,10 @@ public class TestCatalog extends AbstractIntegrationTest {
 
   @Test
   public void testCswNumericalQuery() throws IOException {
-    //ingest test record
+    // ingest test record
     String id = ingestXmlFromResource(XML_RECORD_RESOURCE_PATH + "/testNumerical.xml");
 
-    //query for it by the numerical query
+    // query for it by the numerical query
     String numericalQuery =
         "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
             + "<GetRecords resultType=\"results\"\n"
@@ -1282,10 +1282,10 @@ public class TestCatalog extends AbstractIntegrationTest {
 
     LOGGER.error("URL: " + url);
 
-    //Get the product once
+    // Get the product once
     get(url).then().log().headers();
 
-    //Get again to hit the cache
+    // Get again to hit the cache
     get(url + "&mode=cache")
         .then()
         .log()
@@ -1469,15 +1469,15 @@ public class TestCatalog extends AbstractIntegrationTest {
   @Test
   public void testIngestPlugin() throws Exception {
 
-    //ingest a data set to make sure we don't have any issues initially
+    // ingest a data set to make sure we don't have any issues initially
     String id1 = ingestGeoJson(getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"));
     String xPath1 = format(METACARD_X_PATH, id1);
 
-    //verify ingest by querying
+    // verify ingest by querying
     ValidatableResponse response = getOpenSearch("xml", null, null, "q=*");
     response.body(hasXPath(xPath1));
 
-    //change ingest plugin role to ingest
+    // change ingest plugin role to ingest
     CatalogPolicyProperties catalogPolicyProperties = new CatalogPolicyProperties();
     catalogPolicyProperties.put(
         "createPermissions",
@@ -1488,7 +1488,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     config.update(configProps);
     getServiceManager().waitForAllBundles();
 
-    //try ingesting again - it should fail this time
+    // try ingesting again - it should fail this time
     given()
         .body(getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"))
         .header(HttpHeaders.CONTENT_TYPE, "application/json")
@@ -1499,11 +1499,11 @@ public class TestCatalog extends AbstractIntegrationTest {
         .when()
         .post(REST_PATH.getUrl());
 
-    //verify query for first id works
+    // verify query for first id works
     response = getOpenSearch("xml", null, null, "q=*");
     response.body(hasXPath(xPath1));
 
-    //revert to original configuration
+    // revert to original configuration
     configProps.put(
         "createPermissions",
         new String[] {"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role=guest"});
@@ -1724,26 +1724,26 @@ public class TestCatalog extends AbstractIntegrationTest {
             .createManagedService(
                 "org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor", cdmProperties);
 
-    //assert that the file was ingested
+    // assert that the file was ingested
     ValidatableResponse response = assertIngestedDirectoryMonitor("SysAdmin", 1);
 
-    //assert that the metacard contains the overridden attribute
+    // assert that the metacard contains the overridden attribute
     assertStringMetacardAttribute(response, attribute, value);
 
-    //edit the file
+    // edit the file
     Files.copy(
         getFileContentAsStream("metacard4.xml"), tmpFile, StandardCopyOption.REPLACE_EXISTING);
 
-    //assert updated
+    // assert updated
     response = assertIngestedDirectoryMonitor("Space", 1);
 
-    //assert that the metacard still contains the overridden attribute
+    // assert that the metacard still contains the overridden attribute
     assertStringMetacardAttribute(response, attribute, value);
 
-    //delete the file
+    // delete the file
     tmpFile.toFile().delete();
 
-    //assert deleted
+    // assert deleted
     assertIngestedDirectoryMonitor("SysAdmin", 0);
 
     getServiceManager().stopManagedService(managedService.getPid());
@@ -1779,30 +1779,30 @@ public class TestCatalog extends AbstractIntegrationTest {
             .createManagedService(
                 "org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor", cdmProperties);
 
-    //assert that the file was ingested
+    // assert that the file was ingested
     assertIngestedDirectoryMonitor("SysAdmin", 1);
 
-    //edit the file
+    // edit the file
     Files.copy(
         getFileContentAsStream("metacard4.xml"), tmpFile, StandardCopyOption.REPLACE_EXISTING);
 
-    //assert updated
+    // assert updated
     assertIngestedDirectoryMonitor("Space", 1);
 
-    //rename the file and change
+    // rename the file and change
     Path newPath = Paths.get(tmpFile.toAbsolutePath().toString().replace("tmp.xml", "tmp2.xml"));
     Files.move(tmpFile, newPath, StandardCopyOption.REPLACE_EXISTING);
     tmpFile = newPath;
     Files.copy(
         getFileContentAsStream("metacard5.xml"), tmpFile, StandardCopyOption.REPLACE_EXISTING);
 
-    //assert renamed
+    // assert renamed
     assertIngestedDirectoryMonitor("SysAdmin", 1);
 
-    //delete the file
+    // delete the file
     tmpFile.toFile().delete();
 
-    //assert deleted
+    // assert deleted
     assertIngestedDirectoryMonitor("SysAdmin", 0);
 
     getServiceManager().stopManagedService(managedService.getPid());
@@ -1831,7 +1831,7 @@ public class TestCatalog extends AbstractIntegrationTest {
             .createManagedService(
                 "org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor", cdmProperties);
 
-    //assert that the file was ingested
+    // assert that the file was ingested
     assertIngestedDirectoryMonitor("SysAdmin", 1);
 
     getServiceManager()
@@ -1839,11 +1839,11 @@ public class TestCatalog extends AbstractIntegrationTest {
     getServiceManager()
         .startBundle("org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor");
 
-    //edit the file
+    // edit the file
     Files.copy(
         getFileContentAsStream("metacard4.xml"), tmpFile, StandardCopyOption.REPLACE_EXISTING);
 
-    //assert updated
+    // assert updated
     assertIngestedDirectoryMonitor("Space", 1);
 
     getServiceManager()
@@ -1851,7 +1851,7 @@ public class TestCatalog extends AbstractIntegrationTest {
     getServiceManager()
         .startBundle("org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor");
 
-    //rename the file and change
+    // rename the file and change
     Path newPath = Paths.get(tmpFile.toAbsolutePath().toString().replace("tmp.xml", "tmp2.xml"));
     Files.move(tmpFile, newPath, StandardCopyOption.REPLACE_EXISTING);
     tmpFile = newPath;
@@ -1863,13 +1863,13 @@ public class TestCatalog extends AbstractIntegrationTest {
     getServiceManager()
         .startBundle("org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor");
 
-    //assert renamed
+    // assert renamed
     assertIngestedDirectoryMonitor("SysAdmin", 1);
 
-    //delete the file
+    // delete the file
     tmpFile.toFile().delete();
 
-    //assert deleted
+    // assert deleted
     assertIngestedDirectoryMonitor("SysAdmin", 0);
 
     getServiceManager().stopManagedService(managedService.getPid());

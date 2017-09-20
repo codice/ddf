@@ -78,7 +78,8 @@ public class ImportMigrationSystemPropertyReferencedEntryImpl
               }
             } catch (
                 IOException
-                    e) { // cannot determine the location of either so it must not exist or be different anyway
+                    e) { // cannot determine the location of either so it must not exist or be
+              // different anyway
               r.record(
                   new MigrationException(
                       Messages.IMPORT_SYSTEM_PROPERTY_ERROR,

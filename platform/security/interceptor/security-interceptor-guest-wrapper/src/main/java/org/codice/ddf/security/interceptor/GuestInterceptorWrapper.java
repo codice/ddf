@@ -39,7 +39,8 @@ public class GuestInterceptorWrapper extends AbstractWSS4JInterceptor {
   public GuestInterceptorWrapper() {
     super();
     setPhase(Phase.PRE_PROTOCOL);
-    //make sure this interceptor runs before the WSS4J one in the same Phase, otherwise it won't work
+    // make sure this interceptor runs before the WSS4J one in the same Phase, otherwise it won't
+    // work
     Set<String> before = getBefore();
     before.add(WSS4JInInterceptor.class.getName());
     before.add(PolicyBasedWSS4JInInterceptor.class.getName());
@@ -63,7 +64,7 @@ public class GuestInterceptorWrapper extends AbstractWSS4JInterceptor {
         guestIntercepRefs =
             context.getServiceReferences(PhaseInterceptor.class, "(interceptor=guest)");
       } catch (InvalidSyntaxException e) {
-        //ignore, it isn't invalid
+        // ignore, it isn't invalid
       }
 
       if (guestIntercepRefs != null && guestIntercepRefs.size() > 0) {

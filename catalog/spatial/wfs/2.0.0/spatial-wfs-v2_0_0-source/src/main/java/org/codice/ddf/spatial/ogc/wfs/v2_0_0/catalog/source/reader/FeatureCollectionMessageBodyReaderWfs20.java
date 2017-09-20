@@ -137,7 +137,7 @@ public class FeatureCollectionMessageBodyReaderWfs20
     try {
       Thread.currentThread()
           .setContextClassLoader(FeatureCollectionMessageBodyReaderWfs20.class.getClassLoader());
-      //Fetch FeatureCollection attributes
+      // Fetch FeatureCollection attributes
       Unmarshaller unmarshaller = null;
       JAXBElement<FeatureCollectionType> wfsFeatureCollectionType = null;
       try {

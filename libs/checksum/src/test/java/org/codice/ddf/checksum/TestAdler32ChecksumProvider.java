@@ -45,9 +45,9 @@ public class TestAdler32ChecksumProvider {
     InputStream stringInputStream = getInputStreamFromObject(testString);
     String checksumValue = checksumProvider.calculateChecksum(stringInputStream);
 
-    //compare returned checksum to previous checksum
-    //as they should be the same if the checksum is calculated
-    //correctly
+    // compare returned checksum to previous checksum
+    // as they should be the same if the checksum is calculated
+    // correctly
     assertThat(checksumValue, is(checksumCompareHash));
   }
 
@@ -75,9 +75,9 @@ public class TestAdler32ChecksumProvider {
     InputStream stringInputStream = getInputStreamFromObject(obj);
     String checksumValue = checksumProvider.calculateChecksum(stringInputStream);
 
-    //compare returned checksum to previous checksum
-    //as they should be the same if the checksum is calculated
-    //correctly
+    // compare returned checksum to previous checksum
+    // as they should be the same if the checksum is calculated
+    // correctly
     Assert.assertThat(checksumValue, is(checksumCompareHash));
   }
 
@@ -94,9 +94,9 @@ public class TestAdler32ChecksumProvider {
     String expectedAlgorithm = "Adler32";
     String checksumAlgorithm = checksumProvider.getChecksumAlgorithm();
 
-    //we want to make sure that the checksum algrithm
-    //returned does not change in the event their exists
-    //checks against the 'Adler32'
+    // we want to make sure that the checksum algrithm
+    // returned does not change in the event their exists
+    // checks against the 'Adler32'
     assertThat(expectedAlgorithm, is(checksumAlgorithm));
   }
 

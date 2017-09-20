@@ -86,7 +86,8 @@ public class SimpleSignTest {
     cannedResponse =
         Resources.toString(Resources.getResource(getClass(), "/SAMLResponse.xml"), Charsets.UTF_8);
 
-    //Normally you would have the cert in a string already but for this test we will have to pull it out of the jks file
+    // Normally you would have the cert in a string already but for this test we will have to pull
+    // it out of the jks file
     Certificate cert =
         ((Merlin) systemCrypto.getSignatureCrypto()).getKeyStore().getCertificate("dsa");
     StringWriter writer = new StringWriter();

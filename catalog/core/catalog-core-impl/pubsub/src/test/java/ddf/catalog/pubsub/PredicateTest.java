@@ -1459,7 +1459,8 @@ public class PredicateTest {
 
   @Test
   public void testSpatialAndTemporalAnd2EntryPredicates() throws Exception {
-    // LOGGER.debug("**************************  START: testSpatial_And_Temporal_And_2_EntryPredicates()  ***********************");
+    // LOGGER.debug("**************************  START:
+    // testSpatial_And_Temporal_And_2_EntryPredicates()  ***********************");
     //
     // Calendar calendar = Calendar.getInstance();
     // Date start = calendar.getTime();
@@ -1492,12 +1493,14 @@ public class PredicateTest {
     // Predicate finalPredicate = pubSub.createFinalPredicate(subscription);
     // LOGGER.debug("finalPredicate:\n" + finalPredicate.toString());
     //
-    // LOGGER.debug("**************************  END: testSpatial_And_Temporal_And_2_EntryPredicates()  ***********************");
+    // LOGGER.debug("**************************  END:
+    // testSpatial_And_Temporal_And_2_EntryPredicates()  ***********************");
   }
 
   @Test
   public void testSpatialOrTemporalAnd2EntryPredicates() throws Exception {
-    // LOGGER.debug("**************************  START: testSpatial_Or_Temporal_And_2_EntryPredicates()  ***********************");
+    // LOGGER.debug("**************************  START:
+    // testSpatial_Or_Temporal_And_2_EntryPredicates()  ***********************");
     //
     // Calendar calendar = Calendar.getInstance();
     // Date start = calendar.getTime();
@@ -1530,7 +1533,8 @@ public class PredicateTest {
     // Predicate finalPredicate = pubSub.createFinalPredicate(subscription);
     // LOGGER.debug("finalPredicate:\n" + finalPredicate.toString());
     //
-    // LOGGER.debug("**************************  END: testSpatial_Or_Temporal_And_2_EntryPredicates()  ***********************");
+    // LOGGER.debug("**************************  END:
+    // testSpatial_Or_Temporal_And_2_EntryPredicates()  ***********************");
   }
 
   @Test

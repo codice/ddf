@@ -96,8 +96,8 @@ public class PolicyManager implements ContextPolicyManager {
       if (StringUtils.isNotEmpty(pathFragment) && depth <= traversalDepth) {
         return getContextPolicy(pathFragment, policyStore, whiteListContexts, ++depth);
       } else {
-        //this is just here for safety
-        //if we get down to the point where we can never get an entry, return the default
+        // this is just here for safety
+        // if we get down to the point where we can never get an entry, return the default
         return policyStore.get("/");
       }
     }
@@ -122,7 +122,7 @@ public class PolicyManager implements ContextPolicyManager {
 
     LOGGER.debug("setContextPolicy called with path = {}", path);
 
-    //gather all context realms, authorization types, & required attributes
+    // gather all context realms, authorization types, & required attributes
     Map<String, String> contextsToRealms = new HashMap<String, String>();
     Map<String, List<ContextAttributeMapping>> contextsToAttrs = new HashMap<>();
     Map<String, List<String>> contextsToAuths = new HashMap<>();
@@ -136,7 +136,7 @@ public class PolicyManager implements ContextPolicyManager {
           new ArrayList<>(contextPolicy.getAuthenticationMethods()));
     }
 
-    //duplicate and add the new context policy
+    // duplicate and add the new context policy
     String newContextRealm = newContextPolicy.getRealm();
 
     List<ContextAttributeMapping> newContextAttrs =
@@ -270,7 +270,7 @@ public class PolicyManager implements ContextPolicyManager {
       Map<String, List<String>> allContextsToAuths,
       Map<String, List<ContextAttributeMapping>> allContextsToAttrs) {
 
-    //add default context values if they do not exist
+    // add default context values if they do not exist
     if (allContextsToRealms.get("/") == null) {
       allContextsToRealms.put("/", DEFAULT_REALM_CONTEXT_VALUE);
     }
@@ -283,7 +283,7 @@ public class PolicyManager implements ContextPolicyManager {
       allContextsToAuths.put("/", new ArrayList<String>());
     }
 
-    //gather all given context paths
+    // gather all given context paths
     Set<String> allContextPaths = new HashSet<>();
     allContextPaths.addAll(allContextsToRealms.keySet());
     allContextPaths.addAll(allContextsToAuths.keySet());
@@ -292,7 +292,7 @@ public class PolicyManager implements ContextPolicyManager {
     Map<String, ContextPolicy> newPolicyStore = new HashMap<>();
     newPolicyStore.put("/", defaultPolicy);
 
-    //resolve all realms, authorization types & required attributes
+    // resolve all realms, authorization types & required attributes
     for (String path : allContextPaths) {
       String contextRealm = getContextRealm(path, allContextsToRealms);
       List<String> contextAuthTypes = getContextAuthTypes(path, allContextsToAuths);
@@ -441,7 +441,7 @@ public class PolicyManager implements ContextPolicyManager {
   }
 
   public String rollbackPath(String path) {
-    //Continue splitting by last "/"  down path until value found,
+    // Continue splitting by last "/"  down path until value found,
     if (path.endsWith("/")) {
       while (path.endsWith("/") && path.length() > 1) {
         path = path.substring(0, path.length() - 1);

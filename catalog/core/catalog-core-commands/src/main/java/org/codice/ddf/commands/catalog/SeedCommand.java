@@ -47,7 +47,7 @@ import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-//@formatter:off
+// @formatter:off
 @Service
 @Command(
   scope = CatalogCommands.NAMESPACE,
@@ -65,7 +65,7 @@ import org.slf4j.LoggerFactory;
           + "control is returned to the console. Also, resource caching must be enabled in the Catalog Framework "
           + "for this command to seed the resource cache."
 )
-//@formatter:on
+// @formatter:on
 public class SeedCommand extends CqlCommands {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SeedCommand.class);

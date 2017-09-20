@@ -123,7 +123,7 @@ public class SolrFilterDelegateTest {
 
   @Test
   public void polygonWithHoleAndSelfIntersecting() {
-    //in the case of a self-intersecting polygon with a hole the hole is lost in the conversion
+    // in the case of a self-intersecting polygon with a hole the hole is lost in the conversion
     String wkt = "POLYGON ((0 0, 0 10, 13 3, 13 9, 0 0), (1 4, 1 7, 3 6, 3 4, 1 4))";
     stub(mockResolver.getField("testProperty", AttributeFormat.GEOMETRY, false))
         .toReturn("testProperty_geohash_index");

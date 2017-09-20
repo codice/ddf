@@ -52,10 +52,10 @@ public class RegistryObjectMetacardType extends MetacardTypeImpl {
 
   public static final String SECURITY_LEVEL = "registry.security-level";
 
-  //list of bindingType fields from all the service bindings
+  // list of bindingType fields from all the service bindings
   public static final String SERVICE_BINDING_TYPES = "registry.service-binding-types";
 
-  //list of all the service binding ids
+  // list of all the service binding ids
   public static final String SERVICE_BINDINGS = "registry.service-bindings";
 
   public static final Set<String> TRANSIENT_ATTRIBUTES;

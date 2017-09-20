@@ -97,11 +97,11 @@ public class CatalogBackupPluginTest {
    */
   @Test
   public void testCreateResponseSubdirectoryLevelsTooBigForMetacardId() throws Exception {
-    //Setup
+    // Setup
     String[] ids = {"6c38", "0283"};
     getPlugin(1000).process(getCreateResponse(ids));
 
-    //Verify
+    // Verify
     assertFilesExist(ids, 2);
   }
 
@@ -142,7 +142,7 @@ public class CatalogBackupPluginTest {
   @Test
   public void testDeleteResponseFailToDeleteOneMetacard() throws PluginExecutionException {
 
-    //Verify assumptions about hard-codes indexes
+    // Verify assumptions about hard-codes indexes
     assertThat("The list of metacard IDs has changed sized", METACARD_IDS, arrayWithSize(2));
 
     CatalogBackupPlugin plugin = getPlugin();
@@ -382,7 +382,7 @@ public class CatalogBackupPluginTest {
   }
 
   private ExecutorService getSynchronousExecutor() {
-    //Create an executor that synchronously executes the task.
+    // Create an executor that synchronously executes the task.
     return new ThreadPoolExecutor(
         1,
         1,

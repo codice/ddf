@@ -296,8 +296,10 @@ public class ConfigurationAdminMigratableTest {
   private void setupConfigAdminForImportSystem() throws Exception {
     Configuration[] configurations = getConfigurationsForImportSystem();
     when(configurationAdminForImport.listConfigurations(isNull())).thenReturn(configurations);
-    // Create a new factory Configuration object with a new PID. The properties of the new Configuration
-    // object are null until the first time that its Configuration.update(Dictionary) method is called.
+    // Create a new factory Configuration object with a new PID. The properties of the new
+    // Configuration
+    // object are null until the first time that its Configuration.update(Dictionary) method is
+    // called.
     when(configurationImportedFromExport.getPid())
         .thenReturn(
             String.format(

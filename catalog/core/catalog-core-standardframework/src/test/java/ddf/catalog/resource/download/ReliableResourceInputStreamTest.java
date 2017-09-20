@@ -247,7 +247,7 @@ public class ReliableResourceInputStreamTest {
     Appender appender = new WriterAppender(layout, out);
     logger.addAppender(appender);
 
-    //downloadState.setDownloadState(DownloadManagerState.DownloadState.IN_PROGRESS);
+    // downloadState.setDownloadState(DownloadManagerState.DownloadState.IN_PROGRESS);
     try {
       // Write zero bytes to FileBackedOutputStream
       byte[] bytes = new String("").getBytes();
@@ -264,7 +264,7 @@ public class ReliableResourceInputStreamTest {
       String logMsg = out.toString();
       assertThat(logMsg, is(notNullValue()));
       assertThat(logMsg, containsString("First time reading inputstream"));
-      //assertThat(logMsg, containsString("Retry reading inputstream"));
+      // assertThat(logMsg, containsString("Retry reading inputstream"));
 
     } finally {
       logger.removeAppender(appender);

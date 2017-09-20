@@ -91,7 +91,7 @@ public class SolrClientAdaptorTest {
   @Test
   public void retriesToGetSolrClientWhenNull() throws Exception {
     when(mockSolrClientFactory.newClient(CORE_NAME)).thenReturn(mockFutureSolrClient);
-    //Try to get the client twice
+    // Try to get the client twice
     when(mockFutureSolrClient.get(5, TimeUnit.SECONDS))
         .thenAnswer(
             new Answer<SolrClient>() {
@@ -119,7 +119,7 @@ public class SolrClientAdaptorTest {
   @Test
   public void retriesToGetSolrClientWhenTimesOut() throws Exception {
     when(mockSolrClientFactory.newClient(CORE_NAME)).thenReturn(mockFutureSolrClient);
-    //Try to get the client twice
+    // Try to get the client twice
     when(mockFutureSolrClient.get(5, TimeUnit.SECONDS))
         .thenAnswer(
             new Answer<SolrClient>() {

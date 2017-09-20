@@ -176,8 +176,8 @@ public class EntityInformation {
 
     Builder parseAssertionConsumerServiceInfo() {
       AssertionConsumerService defaultACS = spssoDescriptor.getDefaultAssertionConsumerService();
-      //see if the default service uses our supported bindings, and then use that
-      //as we add more bindings, we'll need to update this
+      // see if the default service uses our supported bindings, and then use that
+      // as we add more bindings, we'll need to update this
       if (defaultACS != null && supportedBindings.contains(Binding.from(defaultACS.getBinding()))) {
         LOGGER.debug(
             "Using AssertionConsumerServiceURL from default assertion consumer service: {}",

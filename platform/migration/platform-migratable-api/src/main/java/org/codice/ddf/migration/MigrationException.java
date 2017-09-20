@@ -81,10 +81,12 @@ public class MigrationException extends RuntimeException implements MigrationMes
    * @param cause the cause for this exception
    * @throws IllegalArgumentException if <code>message</code> is <code>null</code>
    */
-  // squid:S1905 - cast required to ensure the array received is null and not an array with a null element
+  // squid:S1905 - cast required to ensure the array received is null and not an array with a null
+  // element
   @SuppressWarnings("squid:S1905")
   public MigrationException(String message, @Nullable Throwable cause) {
-    // in case they were using a format with only a Throwable - leave this ctor as people are familiar with it
+    // in case they were using a format with only a Throwable - leave this ctor as people are
+    // familiar with it
     this(
         MigrationException.validateNotNull(message, "invalid null message"),
         (cause != null) ? new Object[] {cause} : (Object[]) null);
@@ -94,7 +96,8 @@ public class MigrationException extends RuntimeException implements MigrationMes
     super(error.getMessage(), error);
   }
 
-  // PMD.DefaultPackage - designed to be called from MigrationWarning and MigrationInformation within this package
+  // PMD.DefaultPackage - designed to be called from MigrationWarning and MigrationInformation
+  // within this package
   @SuppressWarnings("PMD.DefaultPackage")
   static Object[] sanitizeThrowables(Object[] args) {
     if ((args == null) || (args.length == 0)) {

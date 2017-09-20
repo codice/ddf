@@ -25,10 +25,10 @@ import java.util.Set;
  * not included in the SystemNotice class and provides convenient helpers for accessing them.
  */
 public class Alert extends SystemNotice {
-  //topics
+  // topics
   public static final String ALERT_DISMISS_TOPIC = "ddf/alert/dismiss";
 
-  //alert specific constants
+  // alert specific constants
   public static final String ALERT_EVENT_TYPE = "system-alert";
 
   /** Key for the date/time when this alert was last updated */

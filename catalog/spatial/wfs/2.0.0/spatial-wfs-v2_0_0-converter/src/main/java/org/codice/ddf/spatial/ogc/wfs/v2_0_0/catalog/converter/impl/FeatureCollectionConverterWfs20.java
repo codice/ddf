@@ -176,7 +176,7 @@ public class FeatureCollectionConverterWfs20 implements Converter {
       if (FEATURE_MEMBER.equals(nodeName)) {
         reader.moveDown();
         String subNodeName = reader.getNodeName();
-        //If the member contains a sub feature collection, step in and get members
+        // If the member contains a sub feature collection, step in and get members
         if (subNodeName.equals(FEATURE_COLLECTION)) {
 
           while (reader.hasMoreChildren()) {

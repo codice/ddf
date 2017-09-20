@@ -892,7 +892,7 @@ public class SourceConfigurationHandlerTest {
     return buffer.lines().collect(Collectors.joining("\n"));
   }
 
-  //taken from org.apache.felix.webconsole.internal.servlet.ConfigurationMetatypeSupport
+  // taken from org.apache.felix.webconsole.internal.servlet.ConfigurationMetatypeSupport
   private static class AttributeDefinitionImpl implements AttributeDefinition {
 
     private final String id;

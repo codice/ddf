@@ -87,7 +87,7 @@ public class CasHandler implements AuthenticationHandler {
       if (token != null) {
         handlerResult.setToken(token);
         handlerResult.setStatus(HandlerResult.Status.COMPLETED);
-        //update cache with new information
+        // update cache with new information
         if (LOGGER.isDebugEnabled()) {
           LOGGER.debug(
               "Adding new CAS assertion for session {}",

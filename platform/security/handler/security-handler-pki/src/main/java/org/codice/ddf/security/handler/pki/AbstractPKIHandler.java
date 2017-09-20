@@ -72,7 +72,7 @@ public abstract class AbstractPKIHandler implements AuthenticationHandler {
     String path = httpRequest.getServletPath();
     LOGGER.debug("Doing PKI authentication and authorization for path {}", path);
 
-    //doesn't matter what the resolve flag is set to, we do the same action
+    // doesn't matter what the resolve flag is set to, we do the same action
     BaseAuthenticationToken token =
         extractAuthenticationInfo(
             realm,
@@ -95,7 +95,8 @@ public abstract class AbstractPKIHandler implements AuthenticationHandler {
       return handlerResult;
     }
 
-    // CRL was specified, check against CRL and return the result or throw a ServletException to the WebSSOFilter
+    // CRL was specified, check against CRL and return the result or throw a ServletException to the
+    // WebSSOFilter
     if (crlChecker.passesCrlCheck(certs)) {
       handlerResult.setToken(token);
       handlerResult.setStatus(HandlerResult.Status.COMPLETED);

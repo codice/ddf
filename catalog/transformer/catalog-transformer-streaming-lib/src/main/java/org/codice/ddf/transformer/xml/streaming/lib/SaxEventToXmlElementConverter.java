@@ -92,7 +92,7 @@ public class SaxEventToXmlElementConverter {
     while (iter.hasNext()) {
       NamespaceMapping tmpPair = iter.next();
 
-      //switch prefix and URI
+      // switch prefix and URI
       scopedNamespaces.put(tmpPair.getUri(), tmpPair.getPrefix());
     }
 

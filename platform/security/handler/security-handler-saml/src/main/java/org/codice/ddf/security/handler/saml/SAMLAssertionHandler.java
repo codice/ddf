@@ -159,8 +159,8 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
       session = sessionFactory.getOrCreateSession(httpRequest);
     }
     if (session != null) {
-      //Check if there is a SAML Assertion in the session
-      //If so, create a SAMLAuthenticationToken using the sessionId
+      // Check if there is a SAML Assertion in the session
+      // If so, create a SAMLAuthenticationToken using the sessionId
       SecurityTokenHolder savedToken =
           (SecurityTokenHolder) session.getAttribute(SecurityConstants.SAML_ASSERTION);
       if (savedToken != null && savedToken.getSecurityToken(realm) != null) {

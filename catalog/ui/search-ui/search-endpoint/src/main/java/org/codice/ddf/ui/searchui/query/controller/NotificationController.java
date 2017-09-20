@@ -212,7 +212,7 @@ public class NotificationController extends AbstractEventController {
 
         if (action != null) {
           if ("remove".equals(action)) {
-            //You can have a blank id for guest
+            // You can have a blank id for guest
             if (id != null) {
               try {
                 this.persistentStore.delete(PersistentStore.NOTIFICATION_TYPE, "id = '" + id + "'");

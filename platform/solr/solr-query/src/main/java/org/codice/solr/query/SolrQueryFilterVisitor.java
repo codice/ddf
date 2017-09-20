@@ -182,7 +182,8 @@ public class SolrQueryFilterVisitor extends DefaultFilterVisitor {
 
     // propertyName will not have the suffix. Field names (the keys) in the fieldsInfo map
     // will have the suffix and the variations on the property name, e.g., for propertyName="user"
-    // fieldsInfo will have keys for "user_txt", "user_txt_tokenized", and "user_txt_tokenized_has_case"
+    // fieldsInfo will have keys for "user_txt", "user_txt_tokenized", and
+    // "user_txt_tokenized_has_case"
     SchemaField schemaField = null;
     String cacheKey = solrCoreName + "." + propertyName;
     if (schemaFieldsCache.containsKey(cacheKey)) {
@@ -254,7 +255,8 @@ public class SolrQueryFilterVisitor extends DefaultFilterVisitor {
     //            break;
     //        }
     //
-    //        LOGGER.info("Could not find exact schema field name for [{}], attempting to search with [{}]", propertyName, fieldName);
+    //        LOGGER.info("Could not find exact schema field name for [{}], attempting to search
+    // with [{}]", propertyName, fieldName);
 
     return fieldName;
   }

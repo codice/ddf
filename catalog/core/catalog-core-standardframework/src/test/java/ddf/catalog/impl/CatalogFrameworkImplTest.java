@@ -1063,7 +1063,8 @@ public class CatalogFrameworkImplTest {
             new CreateStorageRequestImpl(Collections.singletonList(contentItem), null));
     Metacard createResponseMetacard = response.getCreatedMetacards().get(0);
 
-    // update with 2 more content items that have a qualifier and the same id and metacard as the already-created item
+    // update with 2 more content items that have a qualifier and the same id and metacard as the
+    // already-created item
     List<ContentItem> updateRequestContentItems = new ArrayList<>();
 
     ByteSource q1ByteSource =
@@ -1341,7 +1342,8 @@ public class CatalogFrameworkImplTest {
      * We really don't need to assert this since we return our mockResourceResponse from
      * PostResourcePlugin.process()
      */
-    // assertNotNull("ResourceResponse.getResource() returned a ResourceResponse with a null ResourceRequest.",
+    // assertNotNull("ResourceResponse.getResource() returned a ResourceResponse with a null
+    // ResourceRequest.",
     // resourceResponse.getRequest());
   }
 
@@ -2441,7 +2443,7 @@ public class CatalogFrameworkImplTest {
     Map<String, Serializable> reqProps = new HashMap<>();
     HashSet<String> destinations = new HashSet<>();
 
-    //==== test writing to store and not local ====
+    // ==== test writing to store and not local ====
     destinations.add("catalogStoreId-1");
     CreateResponse response =
         framework.create(new CreateRequestImpl(metacards, reqProps, destinations));
@@ -2450,7 +2452,7 @@ public class CatalogFrameworkImplTest {
     assertEquals(1, store.size());
     assertFalse(eventAdmin.wasEventPosted());
 
-    //==== test writing to store and local ====
+    // ==== test writing to store and local ====
     destinations.add("mockMemoryProvider");
     newCard.setId(null);
     reqProps = new HashMap<>();
@@ -2460,7 +2462,7 @@ public class CatalogFrameworkImplTest {
     assertEquals(2, store.size());
     assertTrue(eventAdmin.wasEventPosted());
 
-    //==== test writing to local when no destination ====
+    // ==== test writing to local when no destination ====
     destinations.clear();
     newCard.setId(null);
     reqProps = new HashMap<>();
@@ -2657,7 +2659,7 @@ public class CatalogFrameworkImplTest {
     Map<String, Serializable> reqProps = new HashMap<>();
     HashSet<String> destinations = new HashSet<>();
 
-    //==== test writing to store and not local ====
+    // ==== test writing to store and not local ====
     destinations.add("catalogStoreId-1");
     framework.create(new CreateRequestImpl(metacards, reqProps, destinations));
 
@@ -2683,7 +2685,7 @@ public class CatalogFrameworkImplTest {
    * @throws Exception
    */
   @Test
-  @Ignore //CACHE
+  @Ignore // CACHE
   public void
       testGetResourceToTestSecondResourceReaderWithSameSchemeGetsCalledIfFirstDoesNotReturnAnything()
           throws Exception {

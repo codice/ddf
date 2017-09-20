@@ -57,7 +57,7 @@ public class Checksum implements PreCreateStoragePlugin, PreUpdateStoragePlugin 
   private void runChecksum(List<ContentItem> contentItems) throws PluginExecutionException {
     for (ContentItem contentItem : contentItems) {
       try (InputStream inputStream = contentItem.getInputStream()) {
-        //calculate checksum so that it can be added as an attribute on metacard
+        // calculate checksum so that it can be added as an attribute on metacard
         String checksumAlgorithm = checksumProvider.getChecksumAlgorithm();
         String checksumValue;
 

@@ -99,7 +99,7 @@ public class Wfs20JTStoGML321Converter {
   public static PolygonType convertToPolygonType(Polygon polygon, String srsName) {
     PolygonType polygonType = GML320_OBJECT_FACTORY.createPolygonType();
 
-    //exterior
+    // exterior
     LineString lineString = polygon.getExteriorRing();
     LinearRing linearRing =
         lineString.getFactory().createLinearRing(lineString.getCoordinateSequence());
@@ -110,7 +110,7 @@ public class Wfs20JTStoGML321Converter {
     abstractRingPropertyType.setAbstractRing(ringTypeJAXBElement);
     polygonType.setExterior(abstractRingPropertyType);
 
-    //interiors
+    // interiors
     for (int i = 0; i < polygon.getNumInteriorRing(); i++) {
       LineString interiorRingN = polygon.getInteriorRingN(i);
       LinearRing linearRing1 =

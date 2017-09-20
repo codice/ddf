@@ -63,7 +63,7 @@ public class AddApplicationCommandTest {
     AddApplicationCommand addApplicationCommand = new AddApplicationCommand();
     addApplicationCommand.appName = ">BadURI<";
 
-    //Should have a graceful recovery, if an exception is thrown, this test fails.
+    // Should have a graceful recovery, if an exception is thrown, this test fails.
     addApplicationCommand.doExecute(testAppService);
   }
 

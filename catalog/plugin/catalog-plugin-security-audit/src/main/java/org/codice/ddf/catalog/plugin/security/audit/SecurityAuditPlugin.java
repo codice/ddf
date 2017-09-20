@@ -84,16 +84,16 @@ public class SecurityAuditPlugin implements AccessPlugin {
 
   private boolean hasAttributeValueChanged(Attribute oldAttribute, Attribute newAttribute) {
     if (oldAttribute == null && (newAttribute != null)) {
-      //The attribute was added and is not null
+      // The attribute was added and is not null
       return true;
     } else if (oldAttribute == null || CollectionUtils.isEmpty(oldAttribute.getValues())) {
-      //The old attribute is null
+      // The old attribute is null
       return false;
     } else if (newAttribute == null || CollectionUtils.isEmpty(newAttribute.getValues())) {
-      //The attribute has been removed
+      // The attribute has been removed
       return true;
     }
-    //The attribute exists in both metacards, check their equality
+    // The attribute exists in both metacards, check their equality
     return !CollectionUtils.isEqualCollection(oldAttribute.getValues(), newAttribute.getValues());
   }
 

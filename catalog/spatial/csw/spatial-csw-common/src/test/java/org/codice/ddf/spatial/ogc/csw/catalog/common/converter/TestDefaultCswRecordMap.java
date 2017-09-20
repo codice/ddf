@@ -53,7 +53,7 @@ public class TestDefaultCswRecordMap {
             propertyNameXpathWithoutNamespace),
         is("/Record/title"));
 
-    //Sortby does not support Xpath
+    // Sortby does not support Xpath
     assertThat(
         DefaultCswRecordMap.hasDefaultMetacardFieldForPrefixedString(propertyNameWithXpath),
         is(false));

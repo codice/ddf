@@ -588,7 +588,7 @@ public class MetacardValidityMarkerPluginTest {
     List<Metacard> createdMetacards = createRequest.getMetacards();
     assertThat(createdMetacards.size(), is(numNotFiltered));
 
-    //reset
+    // reset
     metacardValidators.remove(validator);
     enforcedMetacardValidators.remove(validatorName);
     plugin.setEnforceErrors(true);

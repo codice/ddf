@@ -39,7 +39,8 @@ public class GeospatialEvaluatorTest {
   @Test
   public void testBuildGeometry() {
     // String gmlText =
-    // "<gml:Polygon xmlns:gml=\"http://www.opengis.net/gml\" gml:id=\"BGE-1\" srsName=\"http://metadata.dod.mil/mdr/ns/GSIP/crs/WGS84E_2D\">\n"
+    // "<gml:Polygon xmlns:gml=\"http://www.opengis.net/gml\" gml:id=\"BGE-1\"
+    // srsName=\"http://metadata.dod.mil/mdr/ns/GSIP/crs/WGS84E_2D\">\n"
     // +
     // "<gml:exterior>\n" +
     // "<gml:LinearRing>\n" +

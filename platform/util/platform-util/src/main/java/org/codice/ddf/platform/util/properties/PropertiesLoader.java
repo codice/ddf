@@ -197,7 +197,7 @@ public final class PropertiesLoader {
         }
       }
 
-      //replace any ${prop} with system properties
+      // replace any ${prop} with system properties
       Properties filtered = new Properties();
       for (Map.Entry<?, ?> entry : properties.entrySet()) {
         filtered.put(

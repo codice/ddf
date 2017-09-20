@@ -589,7 +589,7 @@ public class UpdateOperations {
 
     updateRequest = rewriteRequestToAvoidHistoryConflicts(updateRequest, queryResponse);
 
-    //Construct the metacardMap using the metacard's ID in order to match the UpdateRequest
+    // Construct the metacardMap using the metacard's ID in order to match the UpdateRequest
     HashMap<String, Metacard> metacardMap =
         new HashMap<>(
             queryResponse

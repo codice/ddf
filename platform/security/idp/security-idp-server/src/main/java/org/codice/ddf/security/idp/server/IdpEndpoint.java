@@ -416,7 +416,8 @@ public class IdpEndpoint implements Idp {
         }
       }
     } else {
-      //The requested auth context isn't required so we don't know what they want... just set both to true
+      // The requested auth context isn't required so we don't know what they want... just set both
+      // to true
       requestingPki = true;
       requestingUp = true;
     }
@@ -646,7 +647,8 @@ public class IdpEndpoint implements Idp {
       if (!request.isSecure()) {
         throw new IllegalArgumentException("Authn Request must use TLS.");
       }
-      //the authn request is always encoded as if it came in via redirect when coming from the web app
+      // the authn request is always encoded as if it came in via redirect when coming from the web
+      // app
       Binding redirectBinding = new RedirectBinding(systemCrypto, getServiceProvidersMap());
       AuthnRequest authnRequest = redirectBinding.decoder().decodeRequest(samlRequest);
       String assertionConsumerServiceBinding =

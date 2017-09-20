@@ -516,7 +516,8 @@ public class RESTEndpoint implements RESTService {
               .build();
         }
 
-        // Check for Range header set the value in the map appropriately so that the catalogFramework
+        // Check for Range header set the value in the map appropriately so that the
+        // catalogFramework
         // can take care of the skipping
         long bytesToSkip = getRangeStart(httpRequest);
 

@@ -221,7 +221,7 @@ public class TestSecurity extends AbstractIntegrationTest {
   private static final DynamicUrl ADMIN_PATH =
       new DynamicUrl(SECURE_ROOT_AND_PORT, "/admin/index.html");
 
-  //this uses a cert that won't be sent by the TLS connection
+  // this uses a cert that won't be sent by the TLS connection
   private static final String BAD_HOK_EXAMPLE =
       "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n"
           + "   <soap:Header>\n"
@@ -291,7 +291,7 @@ public class TestSecurity extends AbstractIntegrationTest {
           + "   </soap:Body>\n"
           + "</soap:Envelope>";
 
-  //this uses the default localhost cert which will be in the TLS connection
+  // this uses the default localhost cert which will be in the TLS connection
   private static final String GOOD_HOK_EXAMPLE =
       "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n"
           + "   <soap:Header>\n"
@@ -408,7 +408,7 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     waitForSecurityHandlers(url);
 
-    //test that guest works and check that we get an sso token
+    // test that guest works and check that we get an sso token
     String cookie =
         when()
             .get(url)
@@ -422,7 +422,7 @@ public class TestSecurity extends AbstractIntegrationTest {
             .extract()
             .cookie("JSESSIONID");
 
-    //try again with the sso token
+    // try again with the sso token
     given()
         .cookie("JSESSIONID", cookie)
         .when()
@@ -433,7 +433,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         .assertThat()
         .statusCode(equalTo(200));
 
-    //try to hit an admin restricted page and see that we are unauthorized
+    // try to hit an admin restricted page and see that we are unauthorized
     given()
         .cookie("JSESSIONID", cookie)
         .when()
@@ -453,11 +453,11 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     waitForSecurityHandlers(url);
 
-    //test that we get a 401 if no credentials are specified
+    // test that we get a 401 if no credentials are specified
     getSecurityPolicy().waitForBasicAuthReady(url);
     when().get(url).then().log().all().assertThat().statusCode(equalTo(401));
 
-    //try a random user and get a 401
+    // try a random user and get a 401
     given()
         .auth()
         .basic("bad", "user")
@@ -469,7 +469,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         .assertThat()
         .statusCode(equalTo(401));
 
-    //try a real user and get an sso token back
+    // try a real user and get an sso token back
     String cookie =
         given()
             .auth()
@@ -486,7 +486,7 @@ public class TestSecurity extends AbstractIntegrationTest {
             .extract()
             .cookie("JSESSIONID");
 
-    //try the sso token instead of basic auth
+    // try the sso token instead of basic auth
     given()
         .cookie("JSESSIONID", cookie)
         .when()
@@ -497,7 +497,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         .assertThat()
         .statusCode(equalTo(200));
 
-    //try that admin level sso token on a restricted resource and get in... sso works!
+    // try that admin level sso token on a restricted resource and get in... sso works!
     given()
         .cookie("JSESSIONID", cookie)
         .when()
@@ -573,17 +573,26 @@ public class TestSecurity extends AbstractIntegrationTest {
   public void testDisallowedCipherSuites() throws Exception {
     String[] disallowedCipherSuites =
         new String[] {
-          // We can't test any cipher suite with > 128 encryption. 256 requires the unlimited strength policy to be installed
-          //                "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384", "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384", "TLS_RSA_WITH_AES_256_CBC_SHA256",
-          //                "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384", "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384",
-          //                "TLS_DHE_RSA_WITH_AES_256_CBC_SHA256", "TLS_DHE_DSS_WITH_AES_256_CBC_SHA256",
-          //                "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA", "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
+          // We can't test any cipher suite with > 128 encryption. 256 requires the unlimited
+          // strength policy to be installed
+          //                "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384",
+          // "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384", "TLS_RSA_WITH_AES_256_CBC_SHA256",
+          //                "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384",
+          // "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384",
+          //                "TLS_DHE_RSA_WITH_AES_256_CBC_SHA256",
+          // "TLS_DHE_DSS_WITH_AES_256_CBC_SHA256",
+          //                "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
+          // "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
           //                "TLS_RSA_WITH_AES_256_CBC_SHA", "TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA",
           //                "TLS_ECDH_RSA_WITH_AES_256_CBC_SHA", "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
-          //                "TLS_DHE_DSS_WITH_AES_256_CBC_SHA", "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
-          //                "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384", "TLS_RSA_WITH_AES_256_GCM_SHA384",
-          //                "TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384", "TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384",
-          //                "TLS_DHE_RSA_WITH_AES_256_GCM_SHA384", "TLS_DHE_DSS_WITH_AES_256_GCM_SHA384",
+          //                "TLS_DHE_DSS_WITH_AES_256_CBC_SHA",
+          // "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
+          //                "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+          // "TLS_RSA_WITH_AES_256_GCM_SHA384",
+          //                "TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384",
+          // "TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384",
+          //                "TLS_DHE_RSA_WITH_AES_256_GCM_SHA384",
+          // "TLS_DHE_DSS_WITH_AES_256_GCM_SHA384",
           "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
           "TLS_RSA_WITH_AES_128_CBC_SHA256", "TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256",
           "TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256", "TLS_DHE_DSS_WITH_AES_128_CBC_SHA256",
@@ -671,7 +680,7 @@ public class TestSecurity extends AbstractIntegrationTest {
             getFileContent(JSON_RECORD_RESOURCE_PATH + "/SimpleGeoJsonRecord"), "application/json");
     configureRestForBasic(SDK_SOAP_CONTEXT);
 
-    //Positive tests
+    // Positive tests
     Map<String, Object> openSearchProperties =
         getOpenSearchSourceProperties(
             OPENSEARCH_SOURCE_ID, OPENSEARCH_PATH.getUrl(), getServiceManager());
@@ -721,7 +730,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         .body(
             hasXPath("//metacard/string[@name='" + Metacard.TITLE + "']/value[text()='myTitle']"));
 
-    //Negative tests
+    // Negative tests
     String unavailableCswSourceId = "Unavailable Csw";
     cswProperties =
         getCswSourceProperties(unavailableCswSourceId, CSW_PATH.getUrl(), getServiceManager());
@@ -781,7 +790,8 @@ public class TestSecurity extends AbstractIntegrationTest {
             + "      <hel:helloWorld/>\n"
             + "   </soapenv:Body>\n"
             + "</soapenv:Envelope>";
-    //we are only testing guest because that hits the most code, testing with an assertion would be mostly testing the same stuff that this is hitting
+    // we are only testing guest because that hits the most code, testing with an assertion would be
+    // mostly testing the same stuff that this is hitting
     given()
         .log()
         .all()
@@ -813,7 +823,8 @@ public class TestSecurity extends AbstractIntegrationTest {
             + "      <hel:helloWorld/>\n"
             + "   </soapenv:Body>\n"
             + "</soapenv:Envelope>";
-    //we are only testing guest because that hits the most code, testing with an assertion would be mostly testing the same stuff that this is hitting
+    // we are only testing guest because that hits the most code, testing with an assertion would be
+    // mostly testing the same stuff that this is hitting
     given()
         .log()
         .all()
@@ -1092,7 +1103,7 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     LOGGER.trace(assertionHeader);
 
-    //try that admin level assertion token on a restricted resource
+    // try that admin level assertion token on a restricted resource
     given()
         .header(
             SecurityConstants.SAML_HEADER_NAME,
@@ -1137,7 +1148,7 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     LOGGER.trace(assertionHeader);
 
-    //try that admin level assertion token on a restricted resource
+    // try that admin level assertion token on a restricted resource
     given()
         .auth()
         .certificate(
@@ -1187,7 +1198,7 @@ public class TestSecurity extends AbstractIntegrationTest {
 
     LOGGER.trace(assertionHeader);
 
-    //try that admin level assertion token on a restricted resource
+    // try that admin level assertion token on a restricted resource
     given()
         .auth()
         .certificate(
@@ -1242,8 +1253,8 @@ public class TestSecurity extends AbstractIntegrationTest {
     Files.copy(Paths.get(getBackupFilename()), Paths.get(getKeystoreFilename()), REPLACE_EXISTING);
   }
 
-  //Purpose is to make sure operations of the security certificate generator are accessible
-  //at runtime. The actual functionality of these operations is proved in unit tests.
+  // Purpose is to make sure operations of the security certificate generator are accessible
+  // at runtime. The actual functionality of these operations is proved in unit tests.
   @Test
   public void testCertificateGeneratorService() throws Exception {
     String commonName = "myCn";
@@ -1256,7 +1267,7 @@ public class TestSecurity extends AbstractIntegrationTest {
     try {
       getServiceManager().startFeature(true, featureName);
 
-      //Test first operation
+      // Test first operation
       Response response =
           given()
               .auth()
@@ -1267,7 +1278,7 @@ public class TestSecurity extends AbstractIntegrationTest {
       String actualValue = JsonPath.from(response.getBody().asString()).getString("value");
       assertThat(actualValue, equalTo(expectedValue));
 
-      //Test second operation
+      // Test second operation
       response =
           given()
               .auth()
@@ -1278,10 +1289,10 @@ public class TestSecurity extends AbstractIntegrationTest {
 
       String jsonString = response.getBody().asString();
       JsonPath jsonPath = JsonPath.from(jsonString);
-      //If the key value exists, the return value is well-formatted (i.e. not a stacktrace)
+      // If the key value exists, the return value is well-formatted (i.e. not a stacktrace)
       assertThat(jsonPath.getString("value"), notNullValue());
 
-      //Make sure an invalid key would return null
+      // Make sure an invalid key would return null
       assertThat(jsonPath.getString("someinvalidkey"), nullValue());
     } finally {
       restoreKeystoreFile();
@@ -1291,7 +1302,8 @@ public class TestSecurity extends AbstractIntegrationTest {
 
   @Test
   public void testTransportSoapPolicy() {
-    //verify that transport policy is observed indirectly by verifying that a security header with a timestamp was added to the response
+    // verify that transport policy is observed indirectly by verifying that a security header with
+    // a timestamp was added to the response
     given()
         .log()
         .all()
@@ -1309,7 +1321,8 @@ public class TestSecurity extends AbstractIntegrationTest {
 
   @Test
   public void testAsymmetricSoapPolicy() {
-    //verify that asymmetric policy is observed indirectly by verifying that a security header with encrypted data was added to the response
+    // verify that asymmetric policy is observed indirectly by verifying that a security header with
+    // encrypted data was added to the response
     given()
         .log()
         .all()
@@ -1327,7 +1340,8 @@ public class TestSecurity extends AbstractIntegrationTest {
 
   @Test
   public void testSymmetricSoapPolicy() throws Exception {
-    //verify that symmetric policy is observed indirectly by verifying that a security header with a signature was added to the response
+    // verify that symmetric policy is observed indirectly by verifying that a security header with
+    // a signature was added to the response
     given()
         .log()
         .all()
@@ -1343,7 +1357,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         .body(hasXPath("/Envelope/Header/Security/Signature/SignatureValue"));
   }
 
-  //ConfigurationAdmin tests
+  // ConfigurationAdmin tests
   @Test
   public void testAdminConfigPolicyGetServices() {
 
@@ -1359,7 +1373,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         sendNotPermittedRequest(
             "/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/listServices");
 
-    //Verify there are configurations the user can see other than the restricted ones
+    // Verify there are configurations the user can see other than the restricted ones
     assertTrue(
         getAllServicesResponseNotPermitted.contains(
             "org.codice.ddf.ui.admin.api.ConfigurationAdmin"));
@@ -1372,7 +1386,7 @@ public class TestSecurity extends AbstractIntegrationTest {
   @Test
   public void testAdminConfigPolicyCreateAndModifyConfiguration() {
 
-    //create config CreateFactoryConfiguration
+    // create config CreateFactoryConfiguration
 
     String createFactoryConfigPermittedResponse =
         sendPermittedRequest(
@@ -1386,7 +1400,7 @@ public class TestSecurity extends AbstractIntegrationTest {
             "/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/createFactoryConfiguration/testCreateFactoryPid");
     assertNull(JsonPath.given(createFactoryConfigNotPermittedResponse).get("value"));
 
-    //get config GetConfigurations
+    // get config GetConfigurations
 
     String getConfigurationsPermitted =
         sendPermittedRequest(
@@ -1444,7 +1458,7 @@ public class TestSecurity extends AbstractIntegrationTest {
   @Test
   public void testAdminConfigPolicyConfigureApplication() {
 
-    //stop sdk-app
+    // stop sdk-app
     String stopApplicationNotPermitted =
         sendNotPermittedRequest(
             "/admin/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/stopApplication/sdk-app");
@@ -1455,7 +1469,7 @@ public class TestSecurity extends AbstractIntegrationTest {
             "/admin/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/stopApplication/sdk-app");
     assertTrue(JsonPath.given(stopApplicationPermitted).get("value"));
 
-    //remove sdk-app
+    // remove sdk-app
     sendNotPermittedRequest(
         "/admin/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/removeApplication/sdk-app");
 
@@ -1476,7 +1490,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         JsonPath.given(checkApplicationRemovedResponse).getString("value.name");
     assertThat(checkApplicationRemovedResponse, not(containsString("sdk-app")));
 
-    //add the sdk-app back
+    // add the sdk-app back
     given()
         .auth()
         .basic("admin", "admin")
@@ -1488,7 +1502,7 @@ public class TestSecurity extends AbstractIntegrationTest {
         .body()
         .print();
 
-    //start sdk-app
+    // start sdk-app
     String startApplicationNotPermitted =
         sendNotPermittedRequest(
             "/admin/jolokia/exec/org.codice.ddf.admin.application.service.ApplicationService:service=application-service/startApplication/sdk-app");
@@ -1557,20 +1571,20 @@ public class TestSecurity extends AbstractIntegrationTest {
       waitForSecurityHandlers(url);
       getSecurityPolicy().waitForGuestAuthReady(url);
 
-      //anon guest
+      // anon guest
       String response = getGuestRestResponseAsString(url);
       assertThat(response, containsString("Lady Liberty"));
 
-      //configure for basic
+      // configure for basic
       configureRestForBasic(SDK_SOAP_CONTEXT);
       waitForSecurityHandlers(url);
       getSecurityPolicy().waitForBasicAuthReady(url);
 
-      //user with permissions gets results
+      // user with permissions gets results
       response = getBasicRestResponseAsString(url, A_USER, USER_PASSWORD);
       assertThat(response, containsString("Lady Liberty"));
 
-      //user without permissions gets results
+      // user without permissions gets results
       response = getBasicRestResponseAsString(url, B_USER, USER_PASSWORD);
       assertThat(response, containsString("Lady Liberty"));
 
@@ -1582,7 +1596,7 @@ public class TestSecurity extends AbstractIntegrationTest {
       }
       configureRestForGuest(SDK_SOAP_CONTEXT);
       getSecurityPolicy().waitForGuestAuthReady(url);
-      //metacard will be deleted in @After
+      // metacard will be deleted in @After
     }
   }
 
@@ -1615,20 +1629,20 @@ public class TestSecurity extends AbstractIntegrationTest {
       waitForSecurityHandlers(url);
       getSecurityPolicy().waitForBasicAuthReady(url);
 
-      //user without permissions cannot get results
+      // user without permissions cannot get results
       String response = getBasicRestResponseAsString(url, A_USER, USER_PASSWORD);
       assertThat(response, not(containsString("Lady Liberty")));
 
-      //user with permissions gets results
+      // user with permissions gets results
       response = getBasicRestResponseAsString(url, B_USER, USER_PASSWORD);
       assertThat(response, containsString("Lady Liberty"));
 
-      //configure for guest
+      // configure for guest
       configureRestForGuest(SDK_SOAP_CONTEXT);
       waitForSecurityHandlers(url);
       getSecurityPolicy().waitForGuestAuthReady(url);
 
-      //anon guest cannot get results
+      // anon guest cannot get results
       response = getGuestRestResponseAsString(url);
       assertThat(response, not(containsString("Lady Liberty")));
 
@@ -1640,7 +1654,7 @@ public class TestSecurity extends AbstractIntegrationTest {
       }
       configureRestForGuest(SDK_SOAP_CONTEXT);
       getSecurityPolicy().waitForGuestAuthReady(url);
-      //metacard will be deleted in @After
+      // metacard will be deleted in @After
     }
   }
 

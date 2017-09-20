@@ -234,7 +234,7 @@ public class ResultIterable implements Iterable<Result> {
               query.getStartIndex(),
               pageSize,
               query.getSortBy(),
-              true, //always get the hit count
+              true, // always get the hit count
               query.getTimeoutMillis());
 
       this.queryRequestCopy =

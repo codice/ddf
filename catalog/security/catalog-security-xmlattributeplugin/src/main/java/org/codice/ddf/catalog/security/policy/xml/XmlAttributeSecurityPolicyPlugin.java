@@ -99,14 +99,14 @@ public class XmlAttributeSecurityPolicyPlugin implements PolicyPlugin {
         }
       }
     } catch (XMLStreamException e) {
-      //if this happens and message redacting is enabled, the message will be excluded from results
+      // if this happens and message redacting is enabled, the message will be excluded from results
       LOGGER.info("Unable to parse security from XML metadata.", e);
     } finally {
       if (xmlStreamReader != null) {
         try {
           xmlStreamReader.close();
         } catch (XMLStreamException e) {
-          //ignore
+          // ignore
         }
       }
     }

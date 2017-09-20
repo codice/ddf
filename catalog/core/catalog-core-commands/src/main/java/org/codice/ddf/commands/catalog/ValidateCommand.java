@@ -160,9 +160,9 @@ public class ValidateCommand extends CqlCommands {
     Collection<File> files;
     if (file.isFile()) {
       files = Collections.singletonList(file);
-    } else if (filteredExtensions == null) { //directory with any extensions
+    } else if (filteredExtensions == null) { // directory with any extensions
       files = FileUtils.listFiles(file, null, recurse);
-    } else { //directory with restricted extensions
+    } else { // directory with restricted extensions
       files =
           FileUtils.listFiles(
               file, filteredExtensions.toArray(new String[filteredExtensions.size()]), recurse);

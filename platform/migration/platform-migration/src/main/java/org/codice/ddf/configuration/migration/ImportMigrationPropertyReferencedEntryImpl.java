@@ -145,7 +145,8 @@ public abstract class ImportMigrationPropertyReferencedEntryImpl extends ImportM
    */
   protected abstract void verifyPropertyAfterCompletion();
 
-  // PMD.DefaultPackage - designed to be called from ImportMigrationContextImpl within this package and from subclasses
+  // PMD.DefaultPackage - designed to be called from ImportMigrationContextImpl within this package
+  // and from subclasses
   @SuppressWarnings("PMD.DefaultPackage")
   @VisibleForTesting
   String getProperty() {

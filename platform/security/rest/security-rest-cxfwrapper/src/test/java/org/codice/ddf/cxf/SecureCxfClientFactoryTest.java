@@ -89,31 +89,31 @@ public class SecureCxfClientFactoryTest {
 
   @Test
   public void testConstructor() throws SecurityServiceException {
-    //negative tests
+    // negative tests
     SecureCxfClientFactory<IDummy> secureCxfClientFactory;
     boolean invalid = false;
-    try { //test empty string for url
+    try { // test empty string for url
       secureCxfClientFactory = new SecureCxfClientFactory<>("", IDummy.class);
     } catch (IllegalArgumentException e) {
       invalid = true;
     }
     assertTrue(invalid);
     invalid = false;
-    try { //null for url
+    try { // null for url
       secureCxfClientFactory = new SecureCxfClientFactory<>(null, IDummy.class);
     } catch (IllegalArgumentException e) {
       invalid = true;
     }
     assertTrue(invalid);
     invalid = false;
-    try { //null for url and class
+    try { // null for url and class
       secureCxfClientFactory = new SecureCxfClientFactory<>(null, null);
     } catch (IllegalArgumentException e) {
       invalid = true;
     }
     assertTrue(invalid);
     invalid = false;
-    try { //null for class
+    try { // null for class
       secureCxfClientFactory = new SecureCxfClientFactory<>(INSECURE_ENDPOINT, null);
     } catch (IllegalArgumentException e) {
       invalid = true;

@@ -216,7 +216,8 @@ public class BasicAuthenticationHandlerTest {
 
   @Test
   public void testExtractAuthenticationInfo() {
-    // only test valid authorization header and missing header - invalid values are tested in textExtractAuthInfo
+    // only test valid authorization header and missing header - invalid values are tested in
+    // textExtractAuthInfo
     BasicAuthenticationHandler handler = new BasicAuthenticationHandler();
     HttpServletRequest request = mock(HttpServletRequest.class);
 

@@ -35,7 +35,7 @@ public class ServiceManagerProxy implements InvocationHandler {
 
   @Override
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-    //wait until the security manager is available otherwise the getSystemSubject command will fail
+    // wait until the security manager is available otherwise the getSystemSubject command will fail
     with()
         .pollInterval(1, SECONDS)
         .await()

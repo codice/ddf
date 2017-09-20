@@ -306,7 +306,7 @@ public class CswRecordMapperFilterVisitorTest {
     Expression val1 = factory.property("fooProperty");
     Expression val2 = factory.literal("fooLiteral");
 
-    //PropertyIsFuzzy maps to a propertyIsLike filter with a fuzzy function
+    // PropertyIsFuzzy maps to a propertyIsLike filter with a fuzzy function
     GeotoolsFilterBuilder builder = new GeotoolsFilterBuilder();
     PropertyIsLike fuzzySearch =
         (PropertyIsLike) builder.attribute(val1.toString()).is().like().fuzzyText(val2.toString());

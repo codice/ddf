@@ -1642,7 +1642,7 @@ public class TestCswEndpoint {
 
   @Test
   public void testDeleteBatching() throws Exception {
-    //configure query responses
+    // configure query responses
     queryResponseBatch = getQueryResponseBatch(500, 800);
 
     QueryResponse[] qrRest =
@@ -1650,7 +1650,7 @@ public class TestCswEndpoint {
     when(catalogFramework.query(any(QueryRequest.class)))
         .thenReturn(queryResponseBatch.get(0), qrRest);
 
-    //configure delete responses
+    // configure delete responses
     DeleteType deleteType = mock(DeleteType.class);
 
     doReturn(CswConstants.CSW_RECORD).when(deleteType).getTypeName();

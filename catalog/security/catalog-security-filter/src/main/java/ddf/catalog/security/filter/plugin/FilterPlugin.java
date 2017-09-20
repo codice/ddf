@@ -201,7 +201,7 @@ public class FilterPlugin implements AccessPlugin {
               newResults.add(filterResult.metacard());
             }
             break;
-            //returned responses are ignored for deletes
+            // returned responses are ignored for deletes
           }
         }
         filteredMetacards++;
@@ -251,7 +251,7 @@ public class FilterPlugin implements AccessPlugin {
               newResults.add(new ResultImpl(filterResult.metacard()));
             }
             break;
-            //returned responses are ignored for queries
+            // returned responses are ignored for queries
           }
         }
         filteredMetacards++;
@@ -297,7 +297,7 @@ public class FilterPlugin implements AccessPlugin {
             input = (ResourceResponse) filterResult.response();
           }
           break;
-          //returned metacards are ignored for resource requests
+          // returned metacards are ignored for resource requests
         }
       }
       if (filterStrategies.size() == 0) {

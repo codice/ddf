@@ -30,8 +30,8 @@ public class RegistryConstants {
 
   public static final String CONFIGURATION_REGISTRY_ID_PROPERTY = "registry-id";
 
-  //ebrim constants
-  //Object types
+  // ebrim constants
+  // Object types
   public static final String REGISTRY_NODE_OBJECT_TYPE = "urn:registry:federation:node";
 
   public static final String REGISTRY_SERVICE_OBJECT_TYPE = "urn:registry:federation:service";
@@ -39,21 +39,21 @@ public class RegistryConstants {
   public static final String REGISTRY_CONTENT_COLLECTION_OBJECT_TYPE =
       "urn:registry:content:collection";
 
-  //object ids
+  // object ids
   public static final String REGISTRY_MCARD_ID_LOCAL = "urn:registry:metacard:local-id";
 
   public static final String REGISTRY_MCARD_ID_ORIGIN = "urn:registry:metacard:origin-id";
 
   public static final String REGISTRY_ID_ORIGIN = "urn:registry:origin-id";
 
-  //classifications
+  // classifications
   public static final String REGISTRY_METACARD_ID_CLASS = "MetacardId";
 
   public static final String REGISTRY_ID_CLASS = "RegistryId";
 
   public static final String REGISTRY_ASSOCIATION_CLASS = "RelatedTo";
 
-  //xml slot names
+  // xml slot names
   public static final String XML_LIVE_DATE_NAME = "liveDate";
 
   public static final String XML_LAST_UPDATED_NAME = "lastUpdated";

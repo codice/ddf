@@ -368,7 +368,8 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
       @Override
       public void configure() throws Exception {
         StringBuilder stringBuilder = new StringBuilder();
-        // Configure the camel route to ignore changing files (larger files that are in the process of being copied)
+        // Configure the camel route to ignore changing files (larger files that are in the process
+        // of being copied)
         // Set the readLockTimeout to 2 * readLockIntervalMilliseconds
         // Set the readLockCheckInterval to check every readLockIntervalMilliseconds
         boolean isDav = false;

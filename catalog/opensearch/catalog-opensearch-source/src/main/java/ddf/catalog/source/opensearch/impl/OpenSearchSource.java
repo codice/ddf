@@ -410,7 +410,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
     ContextualSearch contextualFilter = openSearchFilterVisitorObject.getContextualSearch();
 
-    //TODO fix this so we aren't just triggering off of a contextual query
+    // TODO fix this so we aren't just triggering off of a contextual query
     if (contextualFilter != null && MapUtils.isNotEmpty(contextualFilter.getSearchPhraseMap())) {
       // All queries must have at least a search phrase to be valid, hence this check
       // for a contextual filter with a non-empty search phrase
@@ -437,7 +437,8 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
       }
       searchPhraseMap.put(OpenSearchParserImpl.SEARCH_TERMS, "*");
 
-      // add a wildcard search term - this query came in with no search phrase and a search phrase is necessary
+      // add a wildcard search term - this query came in with no search phrase and a search phrase
+      // is necessary
       openSearchParser.populateContextual(client, searchPhraseMap, parameters);
 
       applyFilters(openSearchFilterVisitorObject, client);
@@ -518,7 +519,8 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
       }
       metacards.addAll(processAdditionalForeignMarkups(element, id));
     }
-    //we currently do not support downloading content via an RSS enclosure, this support can be added at a later date if we decide to include it
+    // we currently do not support downloading content via an RSS enclosure, this support can be
+    // added at a later date if we decide to include it
     for (SyndContent content : contents) {
       Metacard metacard = parseContent(content.getValue(), id);
       if (metacard != null) {

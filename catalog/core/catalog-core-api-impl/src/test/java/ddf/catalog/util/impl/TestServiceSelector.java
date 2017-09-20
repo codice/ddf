@@ -143,7 +143,7 @@ public class TestServiceSelector {
   }
 
   private Comparator buildMockComparator() {
-    //this is intentionally the reverse order of (Mock)ServiceReference.compare()
+    // this is intentionally the reverse order of (Mock)ServiceReference.compare()
     Comparator comparator = mock(Comparator.class);
 
     when(comparator.compare(mockServiceReference1, mockServiceReference2)).thenReturn(1);

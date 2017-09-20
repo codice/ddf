@@ -186,7 +186,7 @@ public class CswQueryFactory {
       }
     } else {
       // not supported by catalog:
-      //filter = Filter.INCLUDE;
+      // filter = Filter.INCLUDE;
       filter = builder.attribute(Core.ID).is().like().text(FilterDelegate.WILDCARD_CHAR);
     }
 

@@ -84,13 +84,16 @@ public class AdminConfigPolicy implements PolicyExtension {
       Set<String> valuesToMatch = new HashSet<>();
       valuesToMatch.addAll(((KeyValuePermission) permission).getValues());
 
-      //Typically only one feature or service is desired to be permitted at a time but there is support for multiple feature
-      //If there are multiple features in the permission and one is not authorized, the user is not authorized to see any of the features in the group
+      // Typically only one feature or service is desired to be permitted at a time but there is
+      // support for multiple feature
+      // If there are multiple features in the permission and one is not authorized, the user is not
+      // authorized to see any of the features in the group
       for (String matchPermissionValue : ((KeyValuePermission) permission).getValues()) {
         List<KeyValueCollectionPermission> matchOneAttributes =
             policyPermissions.get(matchPermissionValue);
 
-        //If null, there is no configuration with this attribute in the policy, the feature or service is white listed
+        // If null, there is no configuration with this attribute in the policy, the feature or
+        // service is white listed
         if (matchOneAttributes == null) {
           valuesToMatch.remove(matchPermissionValue);
         } else {
@@ -133,7 +136,7 @@ public class AdminConfigPolicy implements PolicyExtension {
         continue;
       }
 
-      //Example input: featureName="attributeName=attributeValue","attributeName2=attributeValue2"
+      // Example input: featureName="attributeName=attributeValue","attributeName2=attributeValue2"
       String[] policyTrimmed = policy.replaceAll("\\s+", "").split("=", 2);
       String permissionName = policyTrimmed[0];
       String policyAttributes = policyTrimmed[1];

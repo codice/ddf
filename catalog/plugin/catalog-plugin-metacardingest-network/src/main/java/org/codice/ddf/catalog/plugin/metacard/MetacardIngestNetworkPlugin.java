@@ -150,7 +150,7 @@ public class MetacardIngestNetworkPlugin implements PreAuthorizationPlugin {
     return createNewMetacardsIfConditionApplies(input, clientInfoProperties);
   }
 
-  //region - Passthrough  methods
+  // region - Passthrough  methods
 
   @Override
   public UpdateRequest processPreUpdate(
@@ -189,7 +189,7 @@ public class MetacardIngestNetworkPlugin implements PreAuthorizationPlugin {
     return input;
   }
 
-  //endregion
+  // endregion
 
   private CreateRequest createNewMetacardsIfConditionApplies(
       CreateRequest request, Map<String, Serializable> criteria) {

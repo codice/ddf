@@ -109,7 +109,7 @@ public class ActiveMQJMSClientFactoryWrapper {
     password = ((String) properties.get("password")).toCharArray();
     username = (String) properties.get("username");
     url = (String) properties.get("url");
-    //test if the url is good
+    // test if the url is good
     createConnectionFactory();
   }
 }

@@ -81,44 +81,44 @@ public class KeyStoreFileTest {
     refreshKeyStoreFile();
   }
 
-  //Test constructor. Null path to keyStore file.
+  // Test constructor. Null path to keyStore file.
   @Test(expected = IllegalArgumentException.class)
   public void constructorNullPath() throws Exception {
     KeyStoreFile.openFile(null, null);
   }
 
-  //Test constructor. Invalid path to keyStore file.
+  // Test constructor. Invalid path to keyStore file.
   @Test(expected = CertificateGeneratorException.class)
   public void constructorInvalidPath() throws Exception {
     KeyStoreFile.openFile("", null);
   }
 
-  //Test Constructor. Path is a directory, not a file.
+  // Test Constructor. Path is a directory, not a file.
   @Test(expected = CertificateGeneratorException.class)
   public void constructorPathIsDirectory() throws Exception {
     String anyDirectory = getPathTo("");
     KeyStoreFile.openFile(anyDirectory, null);
   }
 
-  //Test Constructor. File is not keyStore.
+  // Test Constructor. File is not keyStore.
   @Test(expected = CertificateGeneratorException.class)
   public void constructorFileNotKeyStore() throws Exception {
     KeyStoreFile.openFile(getPathTo(BOGUS_FILENAME), null);
   }
 
-  //Test Constructor. Password is null.
+  // Test Constructor. Password is null.
   @Test(expected = CertificateGeneratorException.class)
   public void constructorNullPassword() throws Exception {
     KeyStoreFile.openFile(getPathTo(KEYSTORE_COPY), null);
   }
 
-  //Test Constructor. Password is wrong.
+  // Test Constructor. Password is wrong.
   @Test(expected = CertificateGeneratorException.class)
   public void constructorWrongPassword() throws Exception {
     KeyStoreFile.openFile(getPathTo(KEYSTORE_COPY), BOGUS_PASSWORD);
   }
 
-  //Test Constructor. Valid file, valid password.
+  // Test Constructor. Valid file, valid password.
   @Test
   public void testConstructor() {
     KeyStoreFile keyStore = KeyStoreFile.openFile(getPathTo(KEYSTORE_COPY), PASSWORD);
@@ -140,7 +140,7 @@ public class KeyStoreFileTest {
 
     KeyStoreFile ksFile = KeyStoreFile.openFile(getPathTo(KEYSTORE_COPY), PASSWORD);
 
-    //Get a cert from the keystore
+    // Get a cert from the keystore
     KeyStore.TrustedCertificateEntry demoCa =
         (KeyStore.TrustedCertificateEntry) ksFile.getEntry(ALIAS_DEMO_CA);
     assertThat(
@@ -149,11 +149,11 @@ public class KeyStoreFileTest {
         instanceOf(KeyStore.TrustedCertificateEntry.class));
     assertThat(ksFile.isKey(ALIAS_DEMO_CA), is(false));
 
-    //Delete a cert from the file
+    // Delete a cert from the file
     ksFile.deleteEntry(ALIAS_DEMO_CA);
     assertThat("Could not delete key from keystore", ksFile.aliases(), not(hasItem(ALIAS_DEMO_CA)));
 
-    //Add a new entry to the file
+    // Add a new entry to the file
     KeyStore.Entry pkEntry = ksFile.getEntry(ALIAS_SAMPLE_PRIVATE_KEY_ENTRY);
     assertThat(
         "Could not find sample private key in keystore",
@@ -164,7 +164,7 @@ public class KeyStoreFileTest {
     assertThat("Did not add key to file as expected", ksFile.aliases(), hasItem(alias));
     assertThat(ksFile.isKey(alias), is(true));
 
-    //Save and reload file
+    // Save and reload file
     ksFile.save();
     ksFile = KeyStoreFile.openFile(getPathTo(KEYSTORE_COPY), PASSWORD);
     assertThat("Keystore file did not save the new key", ksFile.aliases(), hasItem(alias));

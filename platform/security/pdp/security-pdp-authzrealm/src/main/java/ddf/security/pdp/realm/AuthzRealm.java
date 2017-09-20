@@ -237,10 +237,11 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
             // this key was not specified in either - default to match all with the
             // same key value
           } else {
-            //creating a KeyValuePermission list to try to quick match all of these permissions
-            //if that fails, then XACML will try to match them
-            //this covers the case where attributes on the user match up perfectly with the permissions being implied
-            //this also allows the xacml permissions to run through the policy extensions
+            // creating a KeyValuePermission list to try to quick match all of these permissions
+            // if that fails, then XACML will try to match them
+            // this covers the case where attributes on the user match up perfectly with the
+            // permissions being implied
+            // this also allows the xacml permissions to run through the policy extensions
             matchAllPreXacmlPermissions.add(keyValuePermission);
           }
         }
@@ -272,7 +273,7 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
                   + "] is not implied.");
         }
 
-        //if we weren't able to automatically imply these permissions, call out to XACML
+        // if we weren't able to automatically imply these permissions, call out to XACML
         if (!matchAllXacml) {
           KeyValueCollectionPermission xacmlPermissions =
               new KeyValueCollectionPermission(kvcp.getAction(), matchAllPreXacmlPermissions);

@@ -282,7 +282,7 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
 
     if (filter.getExpression1() instanceof Function) {
       Expression function = (Expression) visit((Function) filter.getExpression1(), extraData);
-      //given a function we can use its return value to infer the type of expression2
+      // given a function we can use its return value to infer the type of expression2
       Expression typedExpression =
           factory.literal(
               filter
@@ -328,7 +328,7 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
     // work around since Solr Provider doesn't support greater on temporal  (DDF-311)
     if (isTemporalQuery(expr1, expr2)) {
       // also not supported by provider (DDF-311)
-      //TODO: work around 1: return getFactory(extraData).after(expr1, expr2);
+      // TODO: work around 1: return getFactory(extraData).after(expr1, expr2);
       Object val = null;
       Expression other = null;
       if (expr2 instanceof Literal) {
@@ -368,9 +368,9 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
     // work around since Solr Provider doesn't support greaterOrEqual on temporal (DDF-311)
     if (isTemporalQuery(expr1, expr2)) {
       // also not supported by provider (DDF-311)
-      //TEquals tEquals = getFactory(extraData).tequals(expr1, expr2);
-      //After after = getFactory(extraData).after(expr1, expr2);
-      //return getFactory(extraData).or(tEquals, after);
+      // TEquals tEquals = getFactory(extraData).tequals(expr1, expr2);
+      // After after = getFactory(extraData).after(expr1, expr2);
+      // return getFactory(extraData).or(tEquals, after);
 
       Object val = null;
       Expression other = null;
@@ -431,9 +431,9 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
     // work around since solr provider doesn't support lessOrEqual on temporal (DDF-311)
     if (isTemporalQuery(expr1, expr2)) {
       // work around #1 fails, solr provider doesn't support tEquals either (DDF-311)
-      //TEquals tEquals = getFactory(extraData).tequals(expr1, expr2);
-      //Before before = getFactory(extraData).before(expr1, expr2);
-      //return getFactory(extraData).or(tEquals, before);
+      // TEquals tEquals = getFactory(extraData).tequals(expr1, expr2);
+      // Before before = getFactory(extraData).before(expr1, expr2);
+      // return getFactory(extraData).or(tEquals, before);
 
       Object val = null;
       Expression other = null;
@@ -588,7 +588,7 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
   public Object visit(Function function, Object extraData) {
 
     if (function instanceof FuzzyFunction) {
-      //FuzzyFunction has 1 parameter to visit
+      // FuzzyFunction has 1 parameter to visit
       Expression expr1 = visit(function.getParameters().get(0), null);
       ((FuzzyFunction) function).setParameters(Arrays.asList(expr1));
       return function;

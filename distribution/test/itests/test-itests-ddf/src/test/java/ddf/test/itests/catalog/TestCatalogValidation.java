@@ -114,11 +114,11 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
 
   @Test
   public void testEnforceValidityErrorsOnly() throws Exception {
-    //Configure to enforce validator
+    // Configure to enforce validator
     configureEnforcedMetacardValidators(
         Collections.singletonList("sample-validator"), getAdminConfig());
 
-    //Configure to enforce errors but not warnings
+    // Configure to enforce errors but not warnings
     configureEnforceValidityErrorsAndWarnings("true", "false", getAdminConfig());
 
     ingestXmlFromResourceAndWait(XML_RECORD_RESOURCE_PATH + "/sampleWarningMetacard.xml");
@@ -136,7 +136,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
             .post(CSW_PATH.getUrl())
             .then();
 
-    //clean metacard and warning metacard should be in results but not error one
+    // clean metacard and warning metacard should be in results but not error one
     response.body(containsString("warning metacard"));
     response.body(containsString("clean metacard"));
     response.body(not(containsString("error metacard")));
@@ -144,11 +144,11 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
 
   @Test
   public void testEnforceValidityWarningsOnly() throws Exception {
-    //Configure to enforce validator
+    // Configure to enforce validator
     configureEnforcedMetacardValidators(
         Collections.singletonList("sample-validator"), getAdminConfig());
 
-    //Configure to enforce warnings but not errors
+    // Configure to enforce warnings but not errors
     configureEnforceValidityErrorsAndWarnings("false", "true", getAdminConfig());
 
     ingestXmlFromResourceWaitForFailure(XML_RECORD_RESOURCE_PATH + "/sampleWarningMetacard.xml");
@@ -166,7 +166,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
             .post(CSW_PATH.getUrl())
             .then();
 
-    //clean metacard and error metacard should be in results but not warning one
+    // clean metacard and error metacard should be in results but not warning one
     response.body(not(containsString("warning metacard")));
     response.body(containsString("clean metacard"));
     response.body(containsString("error metacard"));
@@ -174,11 +174,11 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
 
   @Test
   public void testEnforceValidityErrorsAndWarnings() throws Exception {
-    //Configure to enforce validator
+    // Configure to enforce validator
     configureEnforcedMetacardValidators(
         Collections.singletonList("sample-validator"), getAdminConfig());
 
-    //Configure to enforce errors and warnings
+    // Configure to enforce errors and warnings
     configureEnforceValidityErrorsAndWarnings("true", "true", getAdminConfig());
 
     ingestXmlFromResourceWaitForFailure(XML_RECORD_RESOURCE_PATH + "/sampleWarningMetacard.xml");
@@ -198,7 +198,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
                   .post(CSW_PATH.getUrl())
                   .then();
 
-          //clean metacard should be in results but not invalid ones
+          // clean metacard should be in results but not invalid ones
           response.body(not(containsString("warning metacard")));
           response.body(containsString("clean metacard"));
           response.body(not(containsString("error metacard")));
@@ -207,11 +207,11 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
 
   @Test
   public void testNoEnforceValidityErrorsOrWarnings() throws Exception {
-    //Configure to enforce validator
+    // Configure to enforce validator
     configureEnforcedMetacardValidators(
         Collections.singletonList("sample-validator"), getAdminConfig());
 
-    //Configure to enforce neither errors nor warnings
+    // Configure to enforce neither errors nor warnings
     configureEnforceValidityErrorsAndWarnings("false", "false", getAdminConfig());
 
     ingestXmlFromResourceAndWait(XML_RECORD_RESOURCE_PATH + "/sampleWarningMetacard.xml");
@@ -234,7 +234,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
 
   @Test
   public void testQueryByErrorFailedValidators() throws Exception {
-    //Don't enforce the validator, so that it will be marked but ingested
+    // Don't enforce the validator, so that it will be marked but ingested
     configureEnforcedMetacardValidators(Collections.singletonList(""), getAdminConfig());
 
     ingestXmlFromResourceAndWait(XML_RECORD_RESOURCE_PATH + "/sampleWarningMetacard.xml");
@@ -260,7 +260,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
 
   @Test
   public void testQueryByWarningFailedValidators() throws Exception {
-    //Don't enforce the validator, so that it will be marked but ingested
+    // Don't enforce the validator, so that it will be marked but ingested
     configureEnforcedMetacardValidators(Collections.singletonList(""), getAdminConfig());
 
     ingestXmlFromResourceAndWait(XML_RECORD_RESOURCE_PATH + "/sampleWarningMetacard.xml");
@@ -279,7 +279,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
             .post(CSW_PATH.getUrl())
             .then();
 
-    //clean metacard and warning metacard should be in results but not error one
+    // clean metacard and warning metacard should be in results but not error one
     response.body(not(containsString("error metacard")));
     response.body(not(containsString("clean metacard")));
     response.body(containsString("warning metacard"));
@@ -287,7 +287,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
 
   @Test
   public void testFilterPluginWarningsOnly() throws Exception {
-    //Configure not enforcing validators so invalid metacards can ingest
+    // Configure not enforcing validators so invalid metacards can ingest
     configureEnforcedMetacardValidators(Collections.singletonList(""), getAdminConfig());
 
     ingestXmlFromResourceAndWait(XML_RECORD_RESOURCE_PATH + "/sampleWarningMetacard.xml");
@@ -298,7 +298,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
     configureMetacardValidityFilterPlugin(
         Arrays.asList("invalid-state=system-admin"), getAdminConfig());
 
-    //Configure to filter metacards with validation warnings but not validation errors
+    // Configure to filter metacards with validation warnings but not validation errors
     configureFilterInvalidMetacards("false", "true", getAdminConfig());
 
     testWithRetry(
@@ -312,7 +312,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
                   .post(CSW_PATH.getUrl())
                   .then();
 
-          //clean metacard should be in results but not invalid one
+          // clean metacard should be in results but not invalid one
           response.body(not(containsString("warning metacard")));
           response.body(containsString("clean metacard"));
           response.body(containsString("error metacard"));
@@ -321,7 +321,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
 
   @Test
   public void testFilterPluginErrorsOnly() throws Exception {
-    //Configure not enforcing validators so invalid metacards can ingest
+    // Configure not enforcing validators so invalid metacards can ingest
     configureEnforcedMetacardValidators(Collections.singletonList(""), getAdminConfig());
 
     ingestXmlFromResourceAndWait(XML_RECORD_RESOURCE_PATH + "/sampleErrorMetacard.xml");
@@ -332,7 +332,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
     configureMetacardValidityFilterPlugin(
         Arrays.asList("invalid-state=system-admin"), getAdminConfig());
 
-    //Configure to filter metacards with validation errors but not validation warnings
+    // Configure to filter metacards with validation errors but not validation warnings
     configureFilterInvalidMetacards("true", "false", getAdminConfig());
 
     testWithRetry(
@@ -346,7 +346,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
                   .post(CSW_PATH.getUrl())
                   .then();
 
-          //clean metacard should be in results but not invalid one
+          // clean metacard should be in results but not invalid one
           response.body(not(containsString("error metacard")));
           response.body(containsString("clean metacard"));
           response.body(containsString("warning metacard"));
@@ -355,7 +355,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
 
   @Test
   public void testFilterPluginWarningsAndErrors() throws Exception {
-    //Configure not enforcing validators so invalid metacards can ingest
+    // Configure not enforcing validators so invalid metacards can ingest
     configureEnforcedMetacardValidators(Collections.singletonList(""), getAdminConfig());
 
     ingestXmlFromResourceAndWait(XML_RECORD_RESOURCE_PATH + "/sampleErrorMetacard.xml");
@@ -366,7 +366,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
     configureMetacardValidityFilterPlugin(
         Arrays.asList("invalid-state=system-admin"), getAdminConfig());
 
-    //configure to filter both metacards with validation errors and validation warnings
+    // configure to filter both metacards with validation errors and validation warnings
     configureFilterInvalidMetacards("true", "true", getAdminConfig());
 
     testWithRetry(
@@ -380,7 +380,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
                   .post(CSW_PATH.getUrl())
                   .then();
 
-          //clean metacard should be in results but not invalid one
+          // clean metacard should be in results but not invalid one
           response.body(not(containsString("error metacard")));
           response.body(not(containsString("warning metacard")));
           response.body(containsString("clean metacard"));
@@ -389,7 +389,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
 
   @Test
   public void testFilterPluginNoFiltering() throws Exception {
-    //Configure not enforcing validators so invalid metacards can ingest
+    // Configure not enforcing validators so invalid metacards can ingest
     configureEnforcedMetacardValidators(Collections.singletonList(""), getAdminConfig());
 
     ingestXmlFromResourceAndWait(XML_RECORD_RESOURCE_PATH + "/sampleErrorMetacard.xml");
@@ -411,7 +411,7 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
                   .post(CSW_PATH.getUrl())
                   .then();
 
-          //clean metacard should be in results but not invalid one
+          // clean metacard should be in results but not invalid one
           response.body(containsString("error metacard"));
           response.body(containsString("warning metacard"));
           response.body(containsString("clean metacard"));
@@ -430,7 +430,8 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
     configureShowInvalidMetacards("false", "true", getAdminConfig());
     configureFilterInvalidMetacards("true", "false", getAdminConfig());
 
-    // Search for all entries, implicit "validation-warnings is null" and "validation-errors is null"
+    // Search for all entries, implicit "validation-warnings is null" and "validation-errors is
+    // null"
     // should get added by ValidationQueryFactory
     String query =
         new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE, "AnyText", "*").getQuery();
@@ -459,8 +460,9 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
     response.body(
         hasXPath(format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id1)));
 
-    //Search for all entries that have validation-warnings from sample-validator or no validation warnings
-    //Only search that will actually return all entries
+    // Search for all entries that have validation-warnings from sample-validator or no validation
+    // warnings
+    // Only search that will actually return all entries
 
     query =
         new CswQueryBuilder()
@@ -509,7 +511,8 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
 
     try {
       // metacardMarkerPlugin has no enforcedMetacardValidators
-      // Search for all entries, implicit "validation-warnings is null" and "validation-errors is null"
+      // Search for all entries, implicit "validation-warnings is null" and "validation-errors is
+      // null"
       // should get added by ValidationQueryFactory
       String query =
           new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE, "AnyText", "*").getQuery();
@@ -546,8 +549,8 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
               hasXPath(
                   format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id2))));
 
-      //Search for all entries that have validation-warnings or no validation warnings
-      //Only search that will actually return all entries
+      // Search for all entries that have validation-warnings or no validation warnings
+      // Only search that will actually return all entries
       query =
           new CswQueryBuilder()
               .addAttributeFilter(
@@ -818,7 +821,8 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
 
     configureShowInvalidMetacards("true", "true", getAdminConfig());
 
-    // Search for all entries, implicit "validation-warnings is null" and "validation-errors is null"
+    // Search for all entries, implicit "validation-warnings is null" and "validation-errors is
+    // null"
     // should get added by ValidationQueryFactory
     String query =
         new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE, "AnyText", "*").getQuery();
@@ -851,7 +855,8 @@ public class TestCatalogValidation extends AbstractIntegrationTest {
     response.body(
         not(hasXPath(format("/GetRecordsResponse/SearchResults/Record[identifier=\"%s\"]", id2))));
 
-    //Search for all entries that have validation-warnings from sample-validator or no validation warnings
+    // Search for all entries that have validation-warnings from sample-validator or no validation
+    // warnings
 
     query =
         new CswQueryBuilder()

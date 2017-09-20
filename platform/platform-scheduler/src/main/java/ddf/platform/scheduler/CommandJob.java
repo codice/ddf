@@ -104,7 +104,8 @@ public class CommandJob implements Job {
 
     try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         PrintStream output = getPrintStream(byteArrayOutputStream);
-        // TODO DDF-3280 remove work-around for NPE when creating session with a null "in" parameter from a SessionFactory
+        // TODO DDF-3280 remove work-around for NPE when creating session with a null "in" parameter
+        // from a SessionFactory
         InputStream emptyInputStream =
             new InputStream() {
               @Override

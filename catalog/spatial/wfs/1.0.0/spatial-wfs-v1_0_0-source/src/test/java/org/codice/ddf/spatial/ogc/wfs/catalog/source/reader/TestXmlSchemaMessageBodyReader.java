@@ -24,7 +24,7 @@ import org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source.reader.XmlSchemaMess
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-//import org.junit.BeforeClass;
+// import org.junit.BeforeClass;
 
 public class TestXmlSchemaMessageBodyReader {
 

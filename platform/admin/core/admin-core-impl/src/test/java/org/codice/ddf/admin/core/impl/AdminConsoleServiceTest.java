@@ -1124,7 +1124,7 @@ public class AdminConsoleServiceTest {
     serviceList.add(testService);
     when(testConfigAdminExt.listServices(TEST_FILTER_1, TEST_FILTER_1)).thenReturn(serviceList);
 
-    //check call before setting handler
+    // check call before setting handler
     assertNotNull(configAdmin.getClaimsConfiguration(TEST_FILTER_1));
 
     GuestClaimsHandlerExt handlerExt = mock(GuestClaimsHandlerExt.class);
@@ -1135,7 +1135,7 @@ public class AdminConsoleServiceTest {
 
     assertNotNull(configAdmin.getClaimsConfiguration(TEST_FILTER_1));
 
-    //check with bad filter
+    // check with bad filter
     assertNull(configAdmin.getClaimsConfiguration("bad_filter"));
   }
 

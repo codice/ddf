@@ -36,7 +36,7 @@ public class TestAttributeSharingHashSessionIdManager {
   public void testAddSessionAndInvalidate() {
     AttributeSharingHashSessionIdManager hashSessionIdManager =
         new AttributeSharingHashSessionIdManager();
-    //create a mock session
+    // create a mock session
     HashedSession session = mock(HashedSession.class);
     when(session.getId()).thenReturn("1234");
     doCallRealMethod().when(session).setAttribute(anyString(), anyObject());
@@ -46,39 +46,40 @@ public class TestAttributeSharingHashSessionIdManager {
     when(session.getAttributeNames()).thenReturn(enumeration);
     when(session.getMaxInactiveInterval()).thenReturn(1);
     when(session.getAttribute(anyString())).thenReturn("myobj");
-    //check that our manager has nothing currently
+    // check that our manager has nothing currently
     assertEquals(0, hashSessionIdManager.getSessions().size());
     hashSessionIdManager.addSession(session);
-    //now we have 1 session
+    // now we have 1 session
     assertEquals(1, hashSessionIdManager.getSessions().size());
 
-    //create another session with the same id
+    // create another session with the same id
     HashedSession session1 = mock(HashedSession.class);
     when(session1.getId()).thenReturn("1234");
     doCallRealMethod().when(session1).isValid();
     ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
     ArgumentCaptor<Integer> integerArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
     hashSessionIdManager.addSession(session1);
-    //capture arguments to these calls
+    // capture arguments to these calls
     verify(session1).setAttribute(anyString(), stringArgumentCaptor.capture());
     verify(session1).setMaxInactiveInterval(integerArgumentCaptor.capture());
-    //we still have 1 "session"
+    // we still have 1 "session"
     assertEquals(1, hashSessionIdManager.getSessions().size());
-    //but our session cluster now has 2 sessions
+    // but our session cluster now has 2 sessions
     assertEquals(2, hashSessionIdManager.getSession("1234").size());
-    //make sure we set the inactive interval
+    // make sure we set the inactive interval
     assertEquals(1, integerArgumentCaptor.getValue().intValue());
-    //make sure that all attributes have been set
+    // make sure that all attributes have been set
     assertEquals("myobj", stringArgumentCaptor.getValue());
 
-    //create a mock session with a different id
+    // create a mock session with a different id
     HashedSession session2 = mock(HashedSession.class);
     when(session2.getId()).thenReturn("4321");
     hashSessionIdManager.addSession(session2);
-    //make sure we now have 2 clusters
+    // make sure we now have 2 clusters
     assertEquals(2, hashSessionIdManager.getSessions().size());
 
-    //invalidate the 1234 session and make sure that both sessions got killed but the 4321 session is still good
+    // invalidate the 1234 session and make sure that both sessions got killed but the 4321 session
+    // is still good
     hashSessionIdManager.invalidateAll("1234");
     verify(session).invalidate();
     verify(session1).invalidate();

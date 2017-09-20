@@ -442,7 +442,7 @@ public class ResourceCacheImplTest {
     metacard.setContentTypeName("content-type-name");
     metacard.setContentTypeVersion("content-type-version");
     Calendar c = Calendar.getInstance();
-    c.setTimeInMillis(1400673600); //hardcode date to ensure it is the same time.
+    c.setTimeInMillis(1400673600); // hardcode date to ensure it is the same time.
     metacard.setCreatedDate(c.getTime());
     metacard.setEffectiveDate(c.getTime());
     metacard.setExpirationDate(c.getTime());

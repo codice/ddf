@@ -289,7 +289,8 @@ public class TestFtp extends AbstractIntegrationTest {
         ftp.connect(FTP_SERVER, Integer.parseInt(FTP_PORT.getPort()));
         break;
       } catch (SocketException e) {
-        //a socket exception can be thrown if the ftp server is still in the process of coming up or down
+        // a socket exception can be thrown if the ftp server is still in the process of coming up
+        // or down
         Thread.sleep(1000);
         if (attempts++ > 30) {
           throw e;
@@ -333,7 +334,8 @@ public class TestFtp extends AbstractIntegrationTest {
         ftps.connect(FTP_SERVER, Integer.parseInt(FTP_PORT.getPort()));
         break;
       } catch (SocketException e) {
-        //a socket exception can be thrown if the ftp server is still in the process of coming up or down
+        // a socket exception can be thrown if the ftp server is still in the process of coming up
+        // or down
         Thread.sleep(1000);
         if (attempts++ > 30) {
           throw e;
@@ -450,7 +452,7 @@ public class TestFtp extends AbstractIntegrationTest {
     properties.put(CLIENT_AUTH, clientAuth);
     config.update(properties);
 
-    //wait until the clientAuth configuration has taken effect at the FTP server level
+    // wait until the clientAuth configuration has taken effect at the FTP server level
     switch (clientAuth) {
       case WANT:
         expect(
@@ -464,10 +466,10 @@ public class TestFtp extends AbstractIntegrationTest {
                     disconnectClient(client);
                     return true;
                   } catch (SSLException e) {
-                    //SSL handshake failed
+                    // SSL handshake failed
                     return false;
                   } catch (SocketException | FTPConnectionClosedException e) {
-                    //connection failed
+                    // connection failed
                     return false;
                   }
                 });
@@ -484,10 +486,10 @@ public class TestFtp extends AbstractIntegrationTest {
                     disconnectClient(client);
                     return false;
                   } catch (SSLException e) {
-                    //SSL handshake failed
+                    // SSL handshake failed
                     return true;
                   } catch (SocketException | FTPConnectionClosedException e) {
-                    //connection failed
+                    // connection failed
                     return false;
                   }
                 });

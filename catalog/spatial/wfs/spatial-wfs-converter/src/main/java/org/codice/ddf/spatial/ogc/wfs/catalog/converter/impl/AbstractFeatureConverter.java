@@ -153,7 +153,7 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
       AttributeDescriptor attributeDescriptor =
           metacardType.getAttributeDescriptor(featureProperty);
 
-      //Check MetacardMapper for mappings of incoming values
+      // Check MetacardMapper for mappings of incoming values
       String mappedMetacardAttribute = null;
       if (metacardMapper != null) {
         LOGGER.debug(

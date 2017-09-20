@@ -153,7 +153,7 @@ public class SystemPropertiesAdminTest {
     assertThat(SystemInfo.getVersion(), equalTo("version"));
     assertThat(details.size(), is(expectedSystemPropertiesCount));
 
-    //only writes out the changed props
+    // only writes out the changed props
     assertTrue(systemPropsFile.exists());
     Properties sysProps = new Properties();
     try (FileReader sysPropsReader = new FileReader(systemPropsFile)) {

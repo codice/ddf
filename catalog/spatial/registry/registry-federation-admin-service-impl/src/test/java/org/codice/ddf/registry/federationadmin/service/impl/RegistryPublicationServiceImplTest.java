@@ -285,7 +285,8 @@ public class RegistryPublicationServiceImplTest {
     metacard.setAttribute(new AttributeImpl(RegistryObjectMetacardType.LAST_PUBLISHED, before));
 
     registryPublicationService.update(metacard);
-    // update will only be callled with storeIds 1 and 3, 2 didn't have a storeId match for registryId2
+    // update will only be callled with storeIds 1 and 3, 2 didn't have a storeId match for
+    // registryId2
     verify(federationAdminService, times(1))
         .updateRegistryEntry(eq(metacard), (Set<String>) argThat(contains(storeId1, storeId3)));
     verify(federationAdminService, times(1)).updateRegistryEntry(metacard);

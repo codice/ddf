@@ -312,11 +312,11 @@ public class RefreshRegistryEntriesTest {
 
   @Test
   public void testAddUpdateAndDeleteAtOnce() throws Exception {
-    //returned metacards
+    // returned metacards
     Metacard createdMetacard = getPopulatedTestRegistryMetacard("createId", "createRegId", 0, true);
     Metacard updatedMetacard =
         getPopulatedTestRegistryMetacard("updateId", "updateRegId", 5000, true);
-    //local metacards
+    // local metacards
     Metacard localUpdatedMetacard =
         getPopulatedTestRegistryMetacard("localUpdateId", "updateRegId", 0, true, "updateId");
     Metacard localDeletedMetacard =

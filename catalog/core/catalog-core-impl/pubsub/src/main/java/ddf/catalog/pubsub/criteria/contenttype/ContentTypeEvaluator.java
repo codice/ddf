@@ -46,21 +46,21 @@ public class ContentTypeEvaluator {
     String inputType;
     String inputVersion;
 
-    //Check if both type and version are blank
+    // Check if both type and version are blank
     if (input == null || input.matches(",")) {
       inputType = "null";
       inputVersion = "null";
     } else {
       String[] inputTypeVersionPair = input.split(",");
 
-      //Check if content type is blank. If yes, set to null.
+      // Check if content type is blank. If yes, set to null.
       if (inputTypeVersionPair[0].isEmpty()) {
         inputType = "null";
       } else {
         inputType = inputTypeVersionPair[0];
       }
 
-      //Check if version is blank. If yes, set to null.
+      // Check if version is blank. If yes, set to null.
       if (inputTypeVersionPair.length == 1) {
         inputVersion = "null";
       } else {

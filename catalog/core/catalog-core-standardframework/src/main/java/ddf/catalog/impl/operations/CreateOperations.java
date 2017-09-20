@@ -600,7 +600,8 @@ public class CreateOperations {
   @SuppressWarnings("unchecked")
   private CreateStorageRequest applyAttributeOverrides(
       CreateStorageRequest createStorageRequest, Map<String, Metacard> metacardMap) {
-    // Get attributeOverrides, apply them and then remove them from the streamCreateRequest so they are not exposed to plugins
+    // Get attributeOverrides, apply them and then remove them from the streamCreateRequest so they
+    // are not exposed to plugins
     Map<String, Serializable> attributeOverrideHeaders =
         (HashMap<String, Serializable>)
             createStorageRequest.getProperties().get(Constants.ATTRIBUTE_OVERRIDES_KEY);

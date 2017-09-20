@@ -133,7 +133,7 @@ public class FtpServerStarter {
     Boolean restart = false;
 
     if (properties.get(PORT) instanceof String) {
-      //using PropertyResolver in case properties.get("port") is ${org.codice.ddf.catalog.ftp.port}
+      // using PropertyResolver in case properties.get("port") is ${org.codice.ddf.catalog.ftp.port}
       PropertyResolver propertyResolver = new PropertyResolver((String) properties.get("port"));
       int port = Integer.parseInt(propertyResolver.getResolvedString());
       if (this.port != port) {

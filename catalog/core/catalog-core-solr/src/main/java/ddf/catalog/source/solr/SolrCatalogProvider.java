@@ -333,7 +333,8 @@ public class SolrCatalogProvider extends MaskableImpl implements CatalogProvider
     SolrQuery query = new SolrQuery(attributeQuery);
     // Set number of rows to the result size + 1.  The default row size in Solr is 10, so this
     // needs to be set in situations where the number of metacards to update is > 10.  Since there
-    // could be more results in the query response than the number of metacards in the update request,
+    // could be more results in the query response than the number of metacards in the update
+    // request,
     // 1 is added to the row size, so we can still determine whether we found more metacards than
     // updated metacards provided
     query.setRows(updates.size() + 1);

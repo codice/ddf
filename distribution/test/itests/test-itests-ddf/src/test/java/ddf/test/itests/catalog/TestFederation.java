@@ -364,7 +364,7 @@ public class TestFederation extends AbstractIntegrationTest {
 
                 cometDClient.shutdown();
               } catch (Exception e) {
-                //ignore, cometd clients should all be recreated when necessary in each test
+                // ignore, cometd clients should all be recreated when necessary in each test
               }
             });
   }
@@ -559,7 +559,7 @@ public class TestFederation extends AbstractIntegrationTest {
     Configuration openSourceConfig = null;
     String newOpenSearchSourceId = OPENSEARCH_SOURCE_ID + "2";
     try {
-      //change the opensearch source id
+      // change the opensearch source id
       Map<String, Object> openSearchProperties =
           getOpenSearchSourceProperties(
               newOpenSearchSourceId, OPENSEARCH_PATH.getUrl(), getServiceManager());
@@ -592,7 +592,7 @@ public class TestFederation extends AbstractIntegrationTest {
                       + "']"),
               not(containsString(RECORD_TITLE_2)));
     } finally {
-      //reset the opensearch source id
+      // reset the opensearch source id
       Map<String, Object> openSearchProperties =
           getOpenSearchSourceProperties(
               OPENSEARCH_SOURCE_ID, OPENSEARCH_PATH.getUrl(), getServiceManager());
@@ -1172,7 +1172,7 @@ public class TestFederation extends AbstractIntegrationTest {
 
     String wildcardQuery = getCswSubscription("xml", "*", RESTITO_STUB_SERVER.getUrl());
 
-    //CswSubscribe
+    // CswSubscribe
     String subscriptionId =
         given()
             .contentType(ContentType.XML)
@@ -1199,7 +1199,7 @@ public class TestFederation extends AbstractIntegrationTest {
       sleep(1000);
     }
     getServiceManager().waitForHttpEndpoint(CSW_SUBSCRIPTION_PATH + "?_wadl");
-    //get subscription
+    // get subscription
     given()
         .contentType(ContentType.XML)
         .when()
@@ -1405,7 +1405,7 @@ public class TestFederation extends AbstractIntegrationTest {
    * @throws Exception
    */
   @Test
-  //TODO DDF-3077 Fix unstable cometd itests in TestFederation
+  // TODO DDF-3077 Fix unstable cometd itests in TestFederation
   @ConditionalIgnore(condition = SkipUnstableTest.class)
   public void testRetrievalReliablility() throws Exception {
     getSecurityPolicy()
@@ -1601,7 +1601,7 @@ public class TestFederation extends AbstractIntegrationTest {
    * @throws Exception
    */
   @Test
-  //TODO DDF-3077 Fix unstable cometd itests in TestFederation
+  // TODO DDF-3077 Fix unstable cometd itests in TestFederation
   @ConditionalIgnore(condition = SkipUnstableTest.class)
   public void testRetrievalReliabilityFails() throws Exception {
     cometDClient = setupCometDClient(Arrays.asList(NOTIFICATIONS_CHANNEL, ACTIVITIES_CHANNEL));
@@ -1718,7 +1718,7 @@ public class TestFederation extends AbstractIntegrationTest {
   @Test
   public void testMetacardCache() throws Exception {
 
-    //Start with a clean cache
+    // Start with a clean cache
     clearCache();
     String cqlUrl = SEARCH_ROOT + "/catalog/internal/cql";
 
@@ -1732,7 +1732,7 @@ public class TestFederation extends AbstractIntegrationTest {
         .within(20, SECONDS)
         .until(() -> getMetacardCacheSize(OPENSEARCH_SOURCE_ID) == 0);
 
-    //This query will put the ingested metacards from the BeforeExam method into the cache
+    // This query will put the ingested metacards from the BeforeExam method into the cache
     given()
         .contentType("application/json")
         .auth()
@@ -1743,7 +1743,7 @@ public class TestFederation extends AbstractIntegrationTest {
         .then()
         .statusCode(200);
 
-    //CacheBulkProcessor could take up to 10 seconds to flush the cached results into solr
+    // CacheBulkProcessor could take up to 10 seconds to flush the cached results into solr
     expect("Waiting for metacards to be written to cache")
         .checkEvery(1, SECONDS)
         .within(20, SECONDS)
@@ -2022,7 +2022,7 @@ public class TestFederation extends AbstractIntegrationTest {
   }
 
   @Test
-  //TODO DDF-3077 Fix unstable cometd itests in TestFederation
+  // TODO DDF-3077 Fix unstable cometd itests in TestFederation
   @ConditionalIgnore(condition = SkipUnstableTest.class)
   public void testCancelDownload() throws Exception {
     getCatalogBundle().setupCaching(true);
@@ -2514,7 +2514,7 @@ public class TestFederation extends AbstractIntegrationTest {
   }
 
   @Test
-  //TODO DDF-3077 Fix unstable cometd itests in TestFederation
+  // TODO DDF-3077 Fix unstable cometd itests in TestFederation
   @ConditionalIgnore(condition = SkipUnstableTest.class)
   public void testTwoUsersSameProductRetrySuccess() throws Exception {
 
@@ -2554,7 +2554,7 @@ public class TestFederation extends AbstractIntegrationTest {
   }
 
   @Test
-  //TODO DDF-3077 Fix unstable cometd itests in TestFederation
+  // TODO DDF-3077 Fix unstable cometd itests in TestFederation
   @ConditionalIgnore(condition = SkipUnstableTest.class)
   public void testTwoUsersSameProductRetryFailure() throws Exception {
 

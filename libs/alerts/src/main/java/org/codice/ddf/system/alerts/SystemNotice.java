@@ -31,12 +31,12 @@ import java.util.UUID;
  * notification events and provides convenient helpers for accessing them.
  */
 public class SystemNotice {
-  //topics
+  // topics
   public static final String SYSTEM_NOTICE_BASE_TOPIC = "decanter/collect/";
 
   public static final String SYSTEM_NOTICE_EVENT_TYPE = "system-notice";
 
-  //common decanter fields
+  // common decanter fields
 
   /**
    * Key for a type identifier. Included to be consistent with other decanter events. Will always be
@@ -50,7 +50,7 @@ public class SystemNotice {
   /** Key for the host address on which this notice originated */
   public static final String SYSTEM_NOTICE_HOST_ADDRESS_KEY = "hostAddress";
 
-  //custom system notice fields
+  // custom system notice fields
 
   /** Key for the notice id. This is an auto generated unique id */
   public static final String SYSTEM_NOTICE_ID_KEY = "id";

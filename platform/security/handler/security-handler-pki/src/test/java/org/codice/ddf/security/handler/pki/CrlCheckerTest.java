@@ -125,11 +125,11 @@ public class CrlCheckerTest {
 
     CrlChecker crlChecker = getConfiguredCrlChecker("encryption-crl-none.properties");
 
-    //Get a URL path for the file, this will generate a URL
+    // Get a URL path for the file, this will generate a URL
     String urlPath = ClassLoader.getSystemResource("crl-revoked.pem").toString();
     crlChecker.setCrlLocation(urlPath);
 
-    //Cert should fail
+    // Cert should fail
     String certificateString = getRevokedCert();
     X509Certificate[] certs = extractX509CertsFromString(certificateString);
     assertThat(crlChecker.passesCrlCheck(certs), equalTo(false));
@@ -140,11 +140,11 @@ public class CrlCheckerTest {
 
     CrlChecker crlChecker = getConfiguredCrlChecker("encryption-crl-none.properties");
 
-    //Get a URL path for the file, this will generate a URL
+    // Get a URL path for the file, this will generate a URL
     String urlPath = ClassLoader.getSystemResource("crl-revoked.pem").toString();
     crlChecker.setCrlLocation(urlPath);
 
-    //Cert should pass
+    // Cert should pass
     String certificateString = getUnrevokedCert();
     X509Certificate[] certs = extractX509CertsFromString(certificateString);
     assertThat(crlChecker.passesCrlCheck(certs), equalTo(true));
@@ -155,11 +155,11 @@ public class CrlCheckerTest {
 
     CrlChecker crlChecker = getConfiguredCrlChecker("encryption-crl-none.properties");
 
-    //Get a URL path for the file, this will generate a URL
+    // Get a URL path for the file, this will generate a URL
     String urlPath = ClassLoader.getSystemResource("crl-valid.pem").toString();
     crlChecker.setCrlLocation(urlPath);
 
-    //Cert should pass
+    // Cert should pass
     String certificateString = getRevokedCert();
     X509Certificate[] certs = extractX509CertsFromString(certificateString);
     assertThat(crlChecker.passesCrlCheck(certs), equalTo(true));
@@ -170,11 +170,11 @@ public class CrlCheckerTest {
 
     CrlChecker crlChecker = getConfiguredCrlChecker("encryption-crl-none.properties");
 
-    //Get a URL path for the file, this will generate a URL
+    // Get a URL path for the file, this will generate a URL
     String urlPath = ClassLoader.getSystemResource("crl-valid.pem").toString();
     crlChecker.setCrlLocation(urlPath);
 
-    //Cert should pass
+    // Cert should pass
     String certificateString = getUnrevokedCert();
     X509Certificate[] certs = extractX509CertsFromString(certificateString);
     assertThat(crlChecker.passesCrlCheck(certs), equalTo(true));
@@ -183,14 +183,14 @@ public class CrlCheckerTest {
   @Test
   public void testCrlFromUrlDoesNotExist() throws CertificateException {
 
-    //Start with valid CRL with revoked certs
+    // Start with valid CRL with revoked certs
     CrlChecker crlChecker = getConfiguredCrlChecker("encryption-crl-revoked.properties");
 
-    //URL does not contain a CRL
+    // URL does not contain a CRL
     String urlPath = "http://example.com/";
     crlChecker.setCrlLocation(urlPath);
 
-    //Cert should fail because existing crl was maintained
+    // Cert should fail because existing crl was maintained
     String certificateString = getRevokedCert();
     X509Certificate[] certs = extractX509CertsFromString(certificateString);
     assertThat(crlChecker.passesCrlCheck(certs), equalTo(false));
@@ -199,14 +199,14 @@ public class CrlCheckerTest {
   @Test
   public void testCrlFromUrlDoesNotResolve() throws CertificateException {
 
-    //Start with valid CRL with revoked certs
+    // Start with valid CRL with revoked certs
     CrlChecker crlChecker = getConfiguredCrlChecker("encryption-crl-revoked.properties");
 
-    //URL does not resolve
+    // URL does not resolve
     String urlPath = "http://example.com/nocrl.pem";
     crlChecker.setCrlLocation(urlPath);
 
-    //Cert should fail because the existing crl was maintained
+    // Cert should fail because the existing crl was maintained
     String certificateString = getRevokedCert();
     X509Certificate[] certs = extractX509CertsFromString(certificateString);
     assertThat(crlChecker.passesCrlCheck(certs), equalTo(false));
@@ -224,7 +224,7 @@ public class CrlCheckerTest {
       URL url = crlChecker.urlFromPath(crlPropertyValue);
       String crlPath;
 
-      //If this isn't a URL get the absolute path
+      // If this isn't a URL get the absolute path
       if (url != null) {
         crlPath = crlPropertyValue;
       } else {

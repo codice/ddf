@@ -592,8 +592,8 @@ public class FilterAdapterTest {
     doReturn(mockPropertyName).when(mockTemporalFilter).getExpression1();
     doReturn(mockLiteral).when(mockTemporalFilter).getExpression2();
 
-    //Use fake delegate to return fake result to verify operation
-    //This will only return the expected result if the relative temporal path is followed
+    // Use fake delegate to return fake result to verify operation
+    // This will only return the expected result if the relative temporal path is followed
     FilterDelegate mockFilterDelegate = mock(FilterDelegate.class);
     doReturn(Boolean.TRUE)
         .when(mockFilterDelegate)

@@ -764,7 +764,7 @@ public class WfsSource extends MaskableImpl
         debugResult(result);
       }
 
-      //Fetch total results available
+      // Fetch total results available
       long totalResults = 0;
       if (featureCollection.getNumberMatched() == null) {
         totalResults = Long.valueOf(numResults);
@@ -884,7 +884,7 @@ public class WfsSource extends MaskableImpl
         throw new UnsupportedQueryException(
             "Unable to build query. Start index has a negative value.");
       } else if (startIndex != 0) {
-        //Convert DDF index of 1 back to index of 0 for WFS 2.0
+        // Convert DDF index of 1 back to index of 0 for WFS 2.0
         startIndex = query.getStartIndex() - 1;
       } else {
         LOGGER.debug("Query already has a start index of 0");
@@ -1389,7 +1389,8 @@ public class WfsSource extends MaskableImpl
         // Simple "ping" to ensure the source is responding
         newAvailability = (null != getCapabilities());
         // If the source becomes available, configure it.
-        // When the source is available, we need to account for new feature converter factories being added
+        // When the source is available, we need to account for new feature converter factories
+        // being added
         // while the system is running.
         if (newAvailability) {
           LOGGER.debug("WFS Source {} is available...configuring.", getId());

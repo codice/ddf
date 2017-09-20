@@ -147,7 +147,8 @@ public class TestGetRecordsMessageBodyReader {
     assertThat(metacards, contains(metacard));
   }
 
-  // verifies UTF-8 encoding configured properly when XML includes foreign text with special characters
+  // verifies UTF-8 encoding configured properly when XML includes foreign text with special
+  // characters
   @Test
   public void testGetMultipleMetacardsWithForeignText() throws Exception {
     List<Metacard> inputMetacards = new ArrayList<>();
@@ -223,11 +224,13 @@ public class TestGetRecordsMessageBodyReader {
 
     Resource resource = cswRecords.getResource();
 
-    // assert that the CswRecordCollection properly extracted the bytes skipped from the Partial Content response
+    // assert that the CswRecordCollection properly extracted the bytes skipped from the Partial
+    // Content response
     assertThat(
         cswRecords.getResourceProperties().get(GetRecordsMessageBodyReader.BYTES_SKIPPED), is(1L));
 
-    // assert that the input stream has not been skipped at this stage. Since AbstractCswSource has the number
+    // assert that the input stream has not been skipped at this stage. Since AbstractCswSource has
+    // the number
     // of bytes that was attempted to be skipped, the stream must be aligned there instead.
     assertThat(resource.getByteArray(), is(data));
   }
@@ -254,12 +257,14 @@ public class TestGetRecordsMessageBodyReader {
 
     Resource resource = cswRecords.getResource();
 
-    // assert that the CswRecordCollection property is not set if the server does not support Partial Content responses
+    // assert that the CswRecordCollection property is not set if the server does not support
+    // Partial Content responses
     assertThat(
         cswRecords.getResourceProperties().get(GetRecordsMessageBodyReader.BYTES_SKIPPED),
         nullValue());
 
-    // assert that the input stream has not been skipped at this stage. Since AbstractCswSource has the number
+    // assert that the input stream has not been skipped at this stage. Since AbstractCswSource has
+    // the number
     // of bytes that was attempted to be skipped, the stream must be aligned there instead.
     assertThat(resource.getByteArray(), is(data));
   }

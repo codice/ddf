@@ -61,8 +61,8 @@ public class OperationsSecuritySupport {
         return (Subject) subjectFromContext;
       }
     } catch (Exception e) {
-      //Error thrown if no subject/security manager found for thread context
-      //Ignore
+      // Error thrown if no subject/security manager found for thread context
+      // Ignore
     }
     return null;
   }

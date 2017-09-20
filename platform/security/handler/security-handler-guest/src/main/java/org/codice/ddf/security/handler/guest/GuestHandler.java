@@ -87,7 +87,7 @@ public class GuestHandler implements AuthenticationHandler {
    */
   private BaseAuthenticationToken getAuthToken(
       HttpServletRequest request, HttpServletResponse response, FilterChain chain) {
-    //check for basic auth first
+    // check for basic auth first
     String realm = (String) request.getAttribute(ContextPolicy.ACTIVE_REALM);
     BasicAuthenticationHandler basicAuthenticationHandler = new BasicAuthenticationHandler();
     HandlerResult handlerResult =
@@ -95,7 +95,7 @@ public class GuestHandler implements AuthenticationHandler {
     if (handlerResult.getStatus().equals(HandlerResult.Status.COMPLETED)) {
       return handlerResult.getToken();
     }
-    //if basic fails, check for PKI
+    // if basic fails, check for PKI
     PKIHandler pkiHandler = new PKIHandler();
     pkiHandler.setTokenFactory(tokenFactory);
     try {
@@ -107,7 +107,7 @@ public class GuestHandler implements AuthenticationHandler {
       LOGGER.info("Encountered an exception while checking for PKI auth info.", e);
     }
 
-    //if everything fails, the user is guest, log in as such
+    // if everything fails, the user is guest, log in as such
 
     return new GuestAuthenticationToken(realm, request.getRemoteAddr());
   }

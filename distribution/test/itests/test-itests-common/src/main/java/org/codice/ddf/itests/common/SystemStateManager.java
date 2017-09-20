@@ -71,7 +71,7 @@ public class SystemStateManager {
       FeaturesService features,
       AdminConfig adminConfig,
       KarafConsole console) {
-    //not worried about threading here since the tests are called serially
+    // not worried about threading here since the tests are called serially
     if (instance == null) {
       instance = new SystemStateManager(serviceManager, features, adminConfig, console);
     }
@@ -98,7 +98,7 @@ public class SystemStateManager {
     LOGGER.info("Resetting system to base state");
     try {
       long start = System.currentTimeMillis();
-      //reset the features
+      // reset the features
       List<String> currentFeatures =
           Arrays.stream(features.listInstalledFeatures())
               .map(e -> e.getName())
@@ -118,8 +118,8 @@ public class SystemStateManager {
         serviceManager.startFeature(false, feature);
       }
       serviceManager.waitForAllBundles();
-      //we try a couple of times here because some features might not stop the first time
-      //due to dependencies
+      // we try a couple of times here because some features might not stop the first time
+      // due to dependencies
       List<String> stoppedFeatures = new ArrayList<>();
       for (int i = 0; i < FEATURE_STOP_RETRY_COUNT; i++) {
         stoppedFeatures.clear();
@@ -136,7 +136,7 @@ public class SystemStateManager {
       }
       serviceManager.waitForAllBundles();
 
-      //reset the configurations
+      // reset the configurations
       Configuration[] configs = adminConfig.listConfigurations(CONFIGURATION_FILTER);
       Map<String, Configuration> currentConfigurations = new HashMap<>();
       for (Configuration config : configs) {
@@ -169,7 +169,7 @@ public class SystemStateManager {
 
       serviceManager.waitForAllBundles();
 
-      //reset the catalog
+      // reset the catalog
       console.runCommand("catalog:removeall -f -p");
       console.runCommand("catalog:removeall -f -p --cache");
       console.runCommand(

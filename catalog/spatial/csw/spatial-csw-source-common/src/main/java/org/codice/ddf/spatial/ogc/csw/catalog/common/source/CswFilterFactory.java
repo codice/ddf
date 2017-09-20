@@ -809,7 +809,8 @@ public class CswFilterFactory {
     return binarySpatialOpType;
   }
 
-  //default implementation just assume the first argument is a parameter name and the rest are values
+  // default implementation just assume the first argument is a parameter name and the rest are
+  // values
   public FilterType buildPropertyIsEqualTo(
       String functionName, List<Object> arguments, Object literal) {
     int propertyCount = 1;

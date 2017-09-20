@@ -184,7 +184,7 @@ public class TestWfsSource {
       when(mockWfs.describeFeatureType(any(DescribeFeatureTypeRequest.class)))
           .thenReturn(xmlSchema);
     }
-    //when(mockWfs.getFeatureCollectionReader()).thenReturn(mockReader);
+    // when(mockWfs.getFeatureCollectionReader()).thenReturn(mockReader);
 
     // GetFeature Response
     when(mockWfs.getFeature(any(GetFeatureType.class))).thenReturn(mockFeatureCollection);
@@ -427,7 +427,7 @@ public class TestWfsSource {
   public void testTypeNameHasPrefix()
       throws WfsException, SecurityServiceException, UnsupportedQueryException {
 
-    //Setup
+    // Setup
     final String TITLE = "title";
     final String searchPhrase = "*";
     final int pageSize = 1;
@@ -451,7 +451,7 @@ public class TestWfsSource {
     // Perform test
     GetFeatureType featureType = source.buildGetFeatureRequest(query);
 
-    //Validate
+    // Validate
     List<JAXBElement<?>> queryList = featureType.getAbstractQueryExpression();
     for (JAXBElement<?> queryType : queryList) {
       Object val = queryType.getValue();
@@ -466,7 +466,7 @@ public class TestWfsSource {
   public void testTypeNameHasNoPrefix()
       throws WfsException, SecurityServiceException, UnsupportedQueryException {
 
-    //Setup
+    // Setup
     final String TITLE = "title";
     final String searchPhrase = "*";
     final int pageSize = 1;
@@ -490,7 +490,7 @@ public class TestWfsSource {
     // Perform test
     GetFeatureType featureType = source.buildGetFeatureRequest(query);
 
-    //Validate
+    // Validate
     List<JAXBElement<?>> queryList = featureType.getAbstractQueryExpression();
     for (JAXBElement<?> queryType : queryList) {
       Object val = queryType.getValue();
@@ -514,7 +514,7 @@ public class TestWfsSource {
       throws WfsException, SecurityServiceException, TransformerConfigurationException,
           UnsupportedQueryException {
 
-    //Setup
+    // Setup
     int pageSize = 4;
     int startIndex = 0;
 
@@ -528,12 +528,12 @@ public class TestWfsSource {
     Filter filter = builder.attribute(Metacard.ANY_TEXT).is().like().text(LITERAL);
     Query query = new QueryImpl(filter, startIndex, pageSize, null, false, 0);
 
-    //Execute
+    // Execute
     GetFeatureType featureType = source.buildGetFeatureRequest(query);
     BigInteger startIndexGetFeature = featureType.getStartIndex();
     BigInteger countGetFeature = featureType.getCount();
 
-    //Verify
+    // Verify
     assertThat(countGetFeature.intValue(), is(pageSize));
     assertThat(startIndexGetFeature.intValue(), is(startIndex));
   }
@@ -550,7 +550,7 @@ public class TestWfsSource {
   public void testPagingStartIndexNegative()
       throws WfsException, SecurityServiceException, TransformerConfigurationException,
           UnsupportedQueryException {
-    //Setup
+    // Setup
     int pageSize = 4;
     int startIndex = -1;
 
@@ -564,7 +564,7 @@ public class TestWfsSource {
     Filter filter = builder.attribute(Metacard.ANY_TEXT).is().like().text(LITERAL);
     Query query = new QueryImpl(filter, startIndex, pageSize, null, false, 0);
 
-    //Execute
+    // Execute
     source.buildGetFeatureRequest(query);
   }
 
@@ -580,7 +580,7 @@ public class TestWfsSource {
   public void testPagingPageSizeNegative()
       throws WfsException, SecurityServiceException, TransformerConfigurationException,
           UnsupportedQueryException {
-    //Setup
+    // Setup
     int pageSize = -4;
     int startIndex = 0;
 
@@ -594,7 +594,7 @@ public class TestWfsSource {
     Filter filter = builder.attribute(Metacard.ANY_TEXT).is().like().text(LITERAL);
     Query query = new QueryImpl(filter, startIndex, pageSize, null, false, 0);
 
-    //Execute
+    // Execute
     source.buildGetFeatureRequest(query);
   }
 
@@ -602,7 +602,7 @@ public class TestWfsSource {
   public void testResultNumReturnedNegative()
       throws WfsException, SecurityServiceException, TransformerConfigurationException,
           UnsupportedQueryException {
-    //Setup
+    // Setup
     final String TITLE = "title";
     final String searchPhrase = "*";
     final int pageSize = 1;
@@ -640,7 +640,7 @@ public class TestWfsSource {
   public void testResultNumReturnedIsNull()
       throws WfsException, SecurityServiceException, TransformerConfigurationException,
           UnsupportedQueryException {
-    //Setup
+    // Setup
     final String TITLE = "title";
     final String searchPhrase = "*";
     final int pageSize = 1;
@@ -679,7 +679,7 @@ public class TestWfsSource {
   public void testResultNumReturnedIsWrong()
       throws WfsException, SecurityServiceException, TransformerConfigurationException,
           UnsupportedQueryException {
-    //Setup
+    // Setup
     final String TITLE = "title";
     final String searchPhrase = "*";
     final int pageSize = 1;
@@ -710,7 +710,7 @@ public class TestWfsSource {
   public void testResultNumReturnedIsZero()
       throws WfsException, SecurityServiceException, TransformerConfigurationException,
           UnsupportedQueryException {
-    //Setup
+    // Setup
     final String TITLE = "title";
     final String searchPhrase = "*";
     final int pageSize = 1;
@@ -1007,7 +1007,7 @@ public class TestWfsSource {
 
   @Test
   public void testSearchByType() throws Exception {
-    //Setup
+    // Setup
     int pageSize = 10;
     WfsSource source =
         getWfsSource(
@@ -1021,17 +1021,17 @@ public class TestWfsSource {
     QueryImpl query = new QueryImpl(filter);
     query.setPageSize(pageSize);
 
-    //Execute
+    // Execute
     GetFeatureType featureType = source.buildGetFeatureRequest(query);
     QueryType queryType = (QueryType) featureType.getAbstractQueryExpression().get(0).getValue();
 
-    //Validate
+    // Validate
     assertEquals(SAMPLE_FEATURE_NAME + "0", queryType.getTypeNames().get(0));
   }
 
   @Test
   public void testSearchByMultipleTypes() throws Exception {
-    //Setup
+    // Setup
     int pageSize = 10;
     WfsSource source =
         getWfsSource(
@@ -1051,11 +1051,11 @@ public class TestWfsSource {
     QueryImpl query = new QueryImpl(builder.allOf(filter2, typeSearchFilters));
     query.setPageSize(pageSize);
 
-    //Execute
+    // Execute
     GetFeatureType featureType = source.buildGetFeatureRequest(query);
     int numTypes = featureType.getAbstractQueryExpression().size();
 
-    //Validate
+    // Validate
     assertEquals(2, numTypes);
   }
 
@@ -1077,7 +1077,7 @@ public class TestWfsSource {
     QueryImpl query = new QueryImpl(filter);
     query.setPageSize(pageSize);
 
-    //Execute
+    // Execute
     GetFeatureType featureType = source.buildGetFeatureRequest(query);
     QueryType queryType = (QueryType) featureType.getAbstractQueryExpression().get(0).getValue();
 
@@ -1101,7 +1101,7 @@ public class TestWfsSource {
     QueryImpl query = new QueryImpl(filter);
     query.setPageSize(pageSize);
 
-    //Execute
+    // Execute
     GetFeatureType featureType = source.buildGetFeatureRequest(query);
     QueryType queryType = (QueryType) featureType.getAbstractQueryExpression().get(0).getValue();
 

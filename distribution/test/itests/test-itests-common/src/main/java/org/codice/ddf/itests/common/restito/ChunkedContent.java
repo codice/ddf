@@ -203,7 +203,8 @@ public class ChunkedContent {
         LOGGER.debug("ChunkedContentResponse: extracted request headers [{}]", requestHeaders);
       }
 
-      // if range header is present, return 206 - Partial Content status and set Content-Range header if byte Offset is specified
+      // if range header is present, return 206 - Partial Content status and set Content-Range
+      // header if byte Offset is specified
       ByteRange byteRange;
       if (StringUtils.isNotBlank(requestHeaders.get("range"))) {
         byteRange = new ByteRange(requestHeaders.get("range"), responseMessage.length);

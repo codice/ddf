@@ -152,7 +152,7 @@ public class CertificateSigningRequest {
     return cbuilder;
   }
 
-  //Set reasonable defaults
+  // Set reasonable defaults
   void initialize() {
     setSerialNumber(System.currentTimeMillis());
     setNotBefore(DateTime.now().minusDays(1));

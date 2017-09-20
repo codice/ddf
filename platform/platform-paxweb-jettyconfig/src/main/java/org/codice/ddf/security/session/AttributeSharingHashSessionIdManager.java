@@ -52,7 +52,7 @@ import org.eclipse.jetty.server.session.HashSessionIdManager;
  * session data between sessions in a cluster.
  */
 public class AttributeSharingHashSessionIdManager extends HashSessionIdManager {
-  //changed this to extend Jetty's impl instead of the abstract class because of a hack in pax web
+  // changed this to extend Jetty's impl instead of the abstract class because of a hack in pax web
 
   private final Map<String, Set<WeakReference<HttpSession>>> sessions = new ConcurrentHashMap<>();
 
@@ -113,7 +113,7 @@ public class AttributeSharingHashSessionIdManager extends HashSessionIdManager {
         sessions = new HashSet<>();
         this.sessions.put(id, sessions);
       } else {
-        //Check for session already in cluster, copy over session information to new session
+        // Check for session already in cluster, copy over session information to new session
         Iterator<WeakReference<HttpSession>> iterator = sessions.iterator();
         if (iterator.hasNext()) {
           WeakReference<HttpSession> weakReference = iterator.next();
@@ -223,13 +223,13 @@ public class AttributeSharingHashSessionIdManager extends HashSessionIdManager {
 
   @Override
   public void renewSessionId(String oldClusterId, String oldNodeId, HttpServletRequest request) {
-    //generate a new id
+    // generate a new id
     String newClusterId = newSessionId(request.hashCode());
 
     synchronized (this) {
       Set<WeakReference<HttpSession>> sessions =
           this.sessions.remove(
-              oldClusterId); //get the list of sessions with same id from other contexts
+              oldClusterId); // get the list of sessions with same id from other contexts
       if (sessions != null) {
         for (Iterator<WeakReference<HttpSession>> iter = sessions.iterator(); iter.hasNext(); ) {
           WeakReference<HttpSession> ref = iter.next();

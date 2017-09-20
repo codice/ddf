@@ -39,7 +39,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** This class provides an implementation of the {@link ImportMigrationEntry} interface. */
-// squid:S2160 - the base class equals() is sufficient for our needs. entries are unique based on their paths
+// squid:S2160 - the base class equals() is sufficient for our needs. entries are unique based on
+// their paths
 @SuppressWarnings("squid:S2160")
 public class ImportMigrationEntryImpl extends MigrationEntryImpl implements ImportMigrationEntry {
   private static final Logger LOGGER = LoggerFactory.getLogger(ImportMigrationEntryImpl.class);
@@ -74,7 +75,8 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
    */
   ImportMigrationEntryImpl(
       Function<String, ImportMigrationContextImpl> contextProvider, ZipEntry ze) {
-    // we still must sanitize because there could be a mix of / and \ and Paths.get() doesn't support that
+    // we still must sanitize because there could be a mix of / and \ and Paths.get() doesn't
+    // support that
     final Path fqn = Paths.get(FilenameUtils.separatorsToSystem(ze.getName()));
     final int count = fqn.getNameCount();
 

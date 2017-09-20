@@ -49,7 +49,8 @@ public class HazelcastNotificationListener implements EventHandler {
               + "\" property is null or empty");
     }
 
-    //TODO: Do we need to get extra properties out of event for Notification, i.e., STATUS and BYTES?
+    // TODO: Do we need to get extra properties out of event for Notification, i.e., STATUS and
+    // BYTES?
 
     PersistentNotification notification =
         new PersistentNotification(application, title, message, timestamp, userId);

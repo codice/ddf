@@ -165,7 +165,8 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
       LOGGER.info(msg);
       throw new AuthenticationException(msg);
     } else {
-      //removed the credentials from the log message for now, I don't think we should be dumping user/pass into log
+      // removed the credentials from the log message for now, I don't think we should be dumping
+      // user/pass into log
       LOGGER.debug("Received credentials.");
     }
 
@@ -334,7 +335,7 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
     }
 
     LOGGER.debug("Setting callback handler on STSClient");
-    //DDF-733 map.put(SecurityConstants.CALLBACK_HANDLER, new CommonCallbackHandler());
+    // DDF-733 map.put(SecurityConstants.CALLBACK_HANDLER, new CommonCallbackHandler());
 
     LOGGER.debug("Setting STS TOKEN USE CERT FOR KEY INFO to \"true\"");
     map.put(SecurityConstants.STS_TOKEN_USE_CERT_FOR_KEYINFO, String.valueOf(getUseKey()));
@@ -457,7 +458,7 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
           try {
             writer.close();
           } catch (XMLStreamException ignore) {
-            //ignore
+            // ignore
           }
         }
       }

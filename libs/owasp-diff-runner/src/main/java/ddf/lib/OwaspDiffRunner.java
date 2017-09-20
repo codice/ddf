@@ -129,7 +129,7 @@ public class OwaspDiffRunner {
                     ? path.replace(File.separator + "pom.xml", "")
                     : path.replace(
                         "pom.xml",
-                        File.separator)) //Special case for the root pom, change path pom.xml -> /
+                        File.separator)) // Special case for the root pom, change path pom.xml -> /
         .collect(Collectors.joining(","));
   }
 
@@ -140,7 +140,7 @@ public class OwaspDiffRunner {
     try {
       mavenVersionInfo = IOUtils.toString(runTime.exec(MAVEN_VERSION_COMMAND).getInputStream());
 
-      //parsing console response, confirmed to work with at least maven version 3.3.9
+      // parsing console response, confirmed to work with at least maven version 3.3.9
       mavenHome =
           Arrays.stream(mavenVersionInfo.split(System.getProperty("line.separator")))
               .filter(str -> str.contains("Maven home:"))
@@ -171,7 +171,7 @@ public class OwaspDiffRunner {
     try {
       mavenHelpInfo = IOUtils.toString(runTime.exec(MAVEN_SETTINGS_COMMAND).getInputStream());
 
-      //parsing console response, confirmed to work with at least maven version 3.3.9
+      // parsing console response, confirmed to work with at least maven version 3.3.9
       return mavenHelpInfo.split("<localRepository(.*\")?>")[1].split("</localRepository>")[0];
 
     } catch (Exception e) {

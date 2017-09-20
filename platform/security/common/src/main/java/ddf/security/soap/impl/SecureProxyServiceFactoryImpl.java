@@ -327,7 +327,7 @@ public class SecureProxyServiceFactoryImpl implements ProxyServiceFactory {
                       switch (localName) {
                         case "TokenType":
                           elementText = xmlStreamReader.getElementText();
-                          //check that the token type is the same
+                          // check that the token type is the same
                           if (elementText == null
                               || !securityAssertion.getTokenType().equals(elementText.trim())) {
                             shouldRequestNewToken = true;
@@ -335,7 +335,7 @@ public class SecureProxyServiceFactoryImpl implements ProxyServiceFactory {
                           break;
                         case "KeyType":
                           elementText = xmlStreamReader.getElementText();
-                          //bearer only lines up with bearer, so make sure they match
+                          // bearer only lines up with bearer, so make sure they match
                           if (StringUtils.containsIgnoreCase(elementText, "bearer")) {
                             if (!securityAssertion
                                 .getSubjectConfirmations()
@@ -344,7 +344,8 @@ public class SecureProxyServiceFactoryImpl implements ProxyServiceFactory {
                               shouldRequestNewToken = true;
                             }
                           }
-                          //either of these key types can line up with either of the key confirmation methods
+                          // either of these key types can line up with either of the key
+                          // confirmation methods
                           if (StringUtils.containsIgnoreCase(elementText, "publickey")
                               || StringUtils.containsIgnoreCase(elementText, "symmetrickey")) {
                             if (!securityAssertion
@@ -375,18 +376,21 @@ public class SecureProxyServiceFactoryImpl implements ProxyServiceFactory {
                             }
                           }
                           if (!isOptional) {
-                            //claim is not optional so make sure that the assertion we have includes it
+                            // claim is not optional so make sure that the assertion we have
+                            // includes it
                             foundRequired = false;
                             for (AttributeStatement attributeStatement : attributeStatements) {
                               for (Attribute attribute : attributeStatement.getAttributes()) {
                                 if (attribute.getName().equals(uri)) {
-                                  //found the required attribute, so we don't need to do anything else
+                                  // found the required attribute, so we don't need to do anything
+                                  // else
                                   foundRequired = true;
                                 }
                               }
                             }
                           }
-                          //there is a required attribute that the token doesn't contain so we need to get a new one
+                          // there is a required attribute that the token doesn't contain so we need
+                          // to get a new one
                           if (!foundRequired) {
                             shouldRequestNewToken = true;
                           }

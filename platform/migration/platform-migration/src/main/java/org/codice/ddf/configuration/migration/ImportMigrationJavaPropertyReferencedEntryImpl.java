@@ -155,7 +155,8 @@ public class ImportMigrationJavaPropertyReferencedEntryImpl
               }
             } catch (
                 IOException
-                    e) { // cannot determine the location of either so it must not exist or be different anyway
+                    e) { // cannot determine the location of either so it must not exist or be
+              // different anyway
               r.record(
                   new MigrationException(
                       Messages.IMPORT_JAVA_PROPERTY_ERROR,
@@ -169,7 +170,8 @@ public class ImportMigrationJavaPropertyReferencedEntryImpl
         });
   }
 
-  // squid:S2093 - try-with-resource will throw IOException with InputStream and we do not care to get that exception
+  // squid:S2093 - try-with-resource will throw IOException with InputStream and we do not care to
+  // get that exception
   // squid:S2095 - stream is closed in the finally clause
   @SuppressWarnings({"squid:S2093", "squid:S2095"})
   private String getJavaPropertyValue() throws IOException {

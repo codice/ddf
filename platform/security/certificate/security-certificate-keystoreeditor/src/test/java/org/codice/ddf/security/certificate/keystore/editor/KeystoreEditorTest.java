@@ -253,7 +253,7 @@ public class KeystoreEditorTest {
         try (InputStream tfis = Files.newInputStream(Paths.get(trustStoreFile.getAbsolutePath()))) {
           trustStore.load(tfis, trustStorePassword.toCharArray());
         } catch (CertificateException | NoSuchAlgorithmException e) {
-          //ignore
+          // ignore
         }
         X509Certificate[] certificates = new X509Certificate[2];
         certificates[0] = (X509Certificate) trustStore.getCertificate("asdf");

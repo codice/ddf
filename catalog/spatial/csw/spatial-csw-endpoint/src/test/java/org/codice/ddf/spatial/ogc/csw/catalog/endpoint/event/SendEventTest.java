@@ -181,15 +181,15 @@ public class SendEventTest {
     while (!sendEvent.ping()) {}
 
     long lastPing = sendEvent.getLastPing();
-    //sleep incase the test runs too fast we want to make sure their is a time difference
+    // sleep incase the test runs too fast we want to make sure their is a time difference
     Thread.sleep(1);
-    //run within the expiration period of the assertion
+    // run within the expiration period of the assertion
     available = sendEvent.ping();
     assertThat(available, is(true));
     assertThat(lastPing, not(sendEvent.getLastPing()));
-    //sleep incase the test runs too fast we want to make sure their is a time difference
+    // sleep incase the test runs too fast we want to make sure their is a time difference
     Thread.sleep(1);
-    //run with expired assertion
+    // run with expired assertion
     available = sendEvent.ping();
     assertThat(available, is(true));
     assertThat(lastPing, not(sendEvent.getLastPing()));
@@ -205,7 +205,7 @@ public class SendEventTest {
     assertThat(lastPing, is(sendEvent.getLastPing()));
     lastPing = sendEvent.getLastPing();
     Thread.sleep(1);
-    //run within the expiration period of the assertion
+    // run within the expiration period of the assertion
     available = sendEvent.ping();
     assertThat(available, is(true));
     assertThat(lastPing, is(sendEvent.getLastPing()));

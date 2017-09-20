@@ -265,7 +265,8 @@ public class LandingPage extends HttpServlet {
     // The template is "index.handlebars".
     final TemplateLoader templateLoader = new ClassPathTemplateLoader("/", ".handlebars");
     final Handlebars handlebars = new Handlebars(templateLoader);
-    // extractDate(), extractAnnouncement(), expanded(), and in() are helper functions used in the template.
+    // extractDate(), extractAnnouncement(), expanded(), and in() are helper functions used in the
+    // template.
     handlebars.registerHelpers(this);
     String landingPageHtml;
     try {
@@ -282,9 +283,11 @@ public class LandingPage extends HttpServlet {
   public String extractDate(String announcement, boolean reformat) {
     announcement = announcement.trim();
 
-    // Regular expression to (loosely) match a date at the beginning of the string (we don't require leading 0s
+    // Regular expression to (loosely) match a date at the beginning of the string (we don't require
+    // leading 0s
     // for the month and day).
-    // We expect the date to be at the beginning of the string and be in the format MM/dd/yy (where the month and
+    // We expect the date to be at the beginning of the string and be in the format MM/dd/yy (where
+    // the month and
     // day can have either 1 or 2 digits).
     final String pattern = "^\\d{1,2}/\\d{1,2}/\\d\\d";
     final Pattern regex = Pattern.compile(pattern);
@@ -292,7 +295,8 @@ public class LandingPage extends HttpServlet {
 
     if (matcher.find()) {
       final String matchedText = matcher.group();
-      if (reformat) { // Return the date in a nice-looking format. Used for displaying the dates on the Web page.
+      if (reformat) { // Return the date in a nice-looking format. Used for displaying the dates on
+        // the Web page.
         final Date date = dateFromString(matchedText);
         final SimpleDateFormat format = new SimpleDateFormat("MMMM dd, yyyy");
         return format.format(date);
@@ -309,7 +313,8 @@ public class LandingPage extends HttpServlet {
     // Try and grab the date from the beginning of the announcement.
     final String date = extractDate(announcement, false);
     if (!date.equals(
-        NO_DATE)) { // There is a valid date, so we need to exclude it from what we display (it's not
+        NO_DATE)) { // There is a valid date, so we need to exclude it from what we display (it's
+      // not
       try { // part of the announcement).
         // Ignore the date part of the announcement.
         announcement = announcement.substring(announcement.indexOf(date) + date.length());

@@ -196,7 +196,7 @@ public class CrlChecker {
     private CRL createCrl(String location) {
       URL url = urlFromPath(location);
 
-      //If we get a URL, use URL, otherwise use as local file path
+      // If we get a URL, use URL, otherwise use as local file path
       try (InputStream is =
           url != null ? url.openStream() : new FileInputStream(new File(location))) {
 

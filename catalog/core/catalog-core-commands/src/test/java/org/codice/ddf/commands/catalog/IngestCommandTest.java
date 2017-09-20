@@ -52,7 +52,7 @@ public class IngestCommandTest extends CommandCatalogFrameworkCommon {
       InputTransformer inputTransformer = mock(InputTransformer.class);
       when(bundleContext.getService(anyObject())).thenReturn(inputTransformer);
     } catch (InvalidSyntaxException e) {
-      //ignore
+      // ignore
     }
     ingestCommand.bundleContext = bundleContext;
 

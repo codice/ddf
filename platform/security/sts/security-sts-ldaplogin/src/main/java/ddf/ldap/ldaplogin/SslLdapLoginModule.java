@@ -134,7 +134,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
 
   protected boolean doLogin() throws LoginException {
 
-    //--------- EXTRACT USERNAME AND PASSWORD FOR LDAP LOOKUP -------------
+    // --------- EXTRACT USERNAME AND PASSWORD FOR LDAP LOOKUP -------------
     Callback[] callbacks = new Callback[2];
     callbacks[0] = new NameCallback("Username: ");
     callbacks[1] = new PasswordCallback("Password: ", false);
@@ -177,14 +177,14 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
       tmpPassword = new char[0];
     }
 
-    //---------------------------------------------------------------------
+    // ---------------------------------------------------------------------
     // RESET OBJECT STATE AND DECLARE LOCAL VARS
     principals = new HashSet<>();
     Connection connection;
     String userDn;
-    //---------------------------------------------------------------------
+    // ---------------------------------------------------------------------
 
-    //------------- CREATE CONNECTION #1 ----------------------------------
+    // ------------- CREATE CONNECTION #1 ----------------------------------
     try {
       connection = ldapConnectionFactory.getConnection();
     } catch (LdapException e) {
@@ -194,7 +194,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
     if (connection != null) {
       try {
 
-        //------------- BIND #1 (CONNECTION USERNAME & PASSWORD) --------------
+        // ------------- BIND #1 (CONNECTION USERNAME & PASSWORD) --------------
         try {
           BindRequest request;
           switch (getBindMethod()) {
@@ -241,7 +241,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
           return false;
         }
         LOGGER.trace("LDAP bind successful for administrator: {}", connectionUsername);
-        //--------- SEARCH #1, FIND USER DISTINGUISHED NAME -----------
+        // --------- SEARCH #1, FIND USER DISTINGUISHED NAME -----------
         SearchScope scope;
         if (userSearchSubtree) {
           scope = SearchScope.WHOLE_SUBTREE;
@@ -275,14 +275,14 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
         }
       } finally {
 
-        //------------ CLOSE CONNECTION -------------------------------
+        // ------------ CLOSE CONNECTION -------------------------------
         connection.close();
       }
     } else {
       return false;
     }
 
-    //------------- CREATE CONNECTION #2 ----------------------------------
+    // ------------- CREATE CONNECTION #2 ----------------------------------
     try {
       connection = ldapConnectionFactory.getConnection();
     } catch (LdapException e) {
@@ -291,7 +291,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
     }
 
     if (connection != null) {
-      //----- BIND #2 (USER DISTINGUISHED NAME AND PASSWORD) ------------
+      // ----- BIND #2 (USER DISTINGUISHED NAME AND PASSWORD) ------------
       // Validate user's credentials.
       try {
         LOGGER.trace("Attempting LDAP bind for user: {}", userDn);
@@ -306,20 +306,20 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
         return false;
       } finally {
 
-        //------------ CLOSE CONNECTION -------------------------------
+        // ------------ CLOSE CONNECTION -------------------------------
         connection.close();
       }
 
       LOGGER.trace("LDAP bind successful for user: {}", userDn);
 
-      //---------- ADD USER AS PRINCIPAL --------------------------------
+      // ---------- ADD USER AS PRINCIPAL --------------------------------
       principals.add(new UserPrincipal(user));
     } else {
       LOGGER.trace("No LDAP connection available to attempt bind for user: {}", userDn);
       return false;
     }
 
-    //-------------- CREATE CONNECTION #3 ---------------------------------
+    // -------------- CREATE CONNECTION #3 ---------------------------------
     try {
       connection = ldapConnectionFactory.getConnection();
     } catch (LdapException e) {
@@ -329,7 +329,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
     if (connection != null) {
       try {
 
-        //----- BIND #3 (CONNECTION USERNAME & PASSWORD) --------------
+        // ----- BIND #3 (CONNECTION USERNAME & PASSWORD) --------------
         try {
           LOGGER.trace("Attempting LDAP bind for administrator: {}", connectionUsername);
           BindResult bindResult = connection.bind(connectionUsername, connectionPassword);
@@ -344,7 +344,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
         }
         LOGGER.trace("LDAP bind successful for administrator: {}", connectionUsername);
 
-        //--------- SEARCH #3, GET ROLES ------------------------------
+        // --------- SEARCH #3, GET ROLES ------------------------------
         SearchScope scope;
         if (roleSearchSubtree) {
           scope = SearchScope.WHOLE_SUBTREE;
@@ -367,7 +367,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
             connection.search(roleBaseDN, scope, roleFilter, roleNameAttribute);
         SearchResultEntry entry;
 
-        //------------- ADD ROLES AS NEW PRINCIPALS -------------------
+        // ------------- ADD ROLES AS NEW PRINCIPALS -------------------
         try {
           while (entryReader.hasNext()) {
             if (entryReader.isEntry()) {
@@ -388,7 +388,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
         }
       } finally {
 
-        //------------ CLOSE CONNECTION -------------------------------
+        // ------------ CLOSE CONNECTION -------------------------------
         connection.close();
       }
     } else {

@@ -148,8 +148,9 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
     Service service = null;
 
     if (services.size() > 0) {
-      //just grab the first one, they should have specified a filter that returned just a single result
-      //if not, that is not our problem
+      // just grab the first one, they should have specified a filter that returned just a single
+      // result
+      // if not, that is not our problem
       service = services.get(0);
     }
 

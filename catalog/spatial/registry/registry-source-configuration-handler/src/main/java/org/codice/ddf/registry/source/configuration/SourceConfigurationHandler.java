@@ -269,9 +269,9 @@ public class SourceConfigurationHandler implements EventHandler, RegistrySourceC
       fpidToConfigurationMap.remove(curConfig.getFactoryPid().concat(factoryPidMask));
     }
 
-    //if a binding was removed the configuration could still exist, If the registry
-    //entry gets renamed the non-binding configs will not get renamed appropriately so we
-    //go through them here and make sure the name is set correctly.
+    // if a binding was removed the configuration could still exist, If the registry
+    // entry gets renamed the non-binding configs will not get renamed appropriately so we
+    // go through them here and make sure the name is set correctly.
     fpidToConfigurationMap
         .values()
         .stream()
@@ -355,8 +355,8 @@ public class SourceConfigurationHandler implements EventHandler, RegistrySourceC
         break;
       }
     }
-    //Order of disable/enable important. Can't have two enabled configurations with the same
-    //id so if there is one to disable, disable it before enabling another one.
+    // Order of disable/enable important. Can't have two enabled configurations with the same
+    // id so if there is one to disable, disable it before enabling another one.
     if (configToDisable != null) {
       fpidToConfigurationMap.remove(
           configToDisable
@@ -473,10 +473,10 @@ public class SourceConfigurationHandler implements EventHandler, RegistrySourceC
       return configurationMap;
     }
 
-    //we have found a set of source configurations with a matching registry-id
-    //now we need to search again with the id of one of the matching configs because
-    //all source configurations for an id might not all have a registry id if they
-    //were manually added but we want to make sure we include them here.
+    // we have found a set of source configurations with a matching registry-id
+    // now we need to search again with the id of one of the matching configs because
+    // all source configurations for an id might not all have a registry id if they
+    // were manually added but we want to make sure we include them here.
     configurations =
         configurationAdmin.listConfigurations(
             String.format(CONFIGURATION_FILTER, "id", configurations[0].getProperties().get("id")));

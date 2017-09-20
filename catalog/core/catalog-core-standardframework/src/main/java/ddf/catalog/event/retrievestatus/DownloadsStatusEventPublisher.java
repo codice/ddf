@@ -147,7 +147,7 @@ public class DownloadsStatusEventPublisher {
       Notification notification =
           new Notification(
               id,
-              //get sessionId from resource request
+              // get sessionId from resource request
               getProperty(resourceResponse, ActivityEvent.SESSION_ID_KEY),
               APPLICATION_NAME,
               resourceResponse.getResource().getName(),

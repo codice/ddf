@@ -410,7 +410,7 @@ public class FilterPluginTest {
     } catch (URISyntaxException e) {
       LOGGER.error("", e);
     }
-    //Intentionally do not set the Metacard.SECURITY attribute
+    // Intentionally do not set the Metacard.SECURITY attribute
     metacard.setContentTypeName("Resource");
     metacard.setTitle("Metacard 1");
     metacard.setContentTypeVersion("1");

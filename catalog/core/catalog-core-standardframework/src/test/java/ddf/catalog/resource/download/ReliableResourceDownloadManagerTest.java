@@ -235,7 +235,7 @@ public class ReliableResourceDownloadManagerTest {
   }
 
   @Test
-  //@Ignore
+  // @Ignore
   public void testDownloadWithoutCaching() throws Exception {
     mis = new MockInputStream(productInputFilename);
     Metacard metacard = getMockMetacard(EXPECTED_METACARD_ID, EXPECTED_METACARD_SOURCE_ID);
@@ -261,7 +261,7 @@ public class ReliableResourceDownloadManagerTest {
   }
 
   @Test
-  //@Ignore
+  // @Ignore
   public void testDownloadWithCaching() throws Exception {
     mis = new MockInputStream(productInputFilename);
     Metacard metacard = getMockMetacard(EXPECTED_METACARD_ID, EXPECTED_METACARD_SOURCE_ID);
@@ -299,7 +299,7 @@ public class ReliableResourceDownloadManagerTest {
    * @throws Exception
    */
   @Test
-  //@Ignore
+  // @Ignore
   public void testDownloadWithCachingDifferentChunkSizes() throws Exception {
     mis = new MockInputStream(productInputFilename);
     Metacard metacard = getMockMetacard(EXPECTED_METACARD_ID, EXPECTED_METACARD_SOURCE_ID);
@@ -399,7 +399,7 @@ public class ReliableResourceDownloadManagerTest {
    * @throws Exception
    */
   @Test
-  //@Ignore
+  // @Ignore
   public void testStoreWithTimeoutExceptionCachingEnabled() throws Exception {
 
     mis = new MockInputStream(productInputFilename);
@@ -445,7 +445,8 @@ public class ReliableResourceDownloadManagerTest {
     int chunkSize = 50;
     startDownload(true, chunkSize, true, metacard, retriever);
 
-    // On second read of ReliableResourceInputStream, client will close the stream simulating a cancel
+    // On second read of ReliableResourceInputStream, client will close the stream simulating a
+    // cancel
     // of the product download
     clientRead(chunkSize, productInputStream, 2);
 
@@ -484,7 +485,8 @@ public class ReliableResourceDownloadManagerTest {
     int chunkSize = 50;
     startDownload(true, chunkSize, false, metacard, retriever);
 
-    // On second read of ReliableResourceInputStream, client will close the stream simulating a cancel
+    // On second read of ReliableResourceInputStream, client will close the stream simulating a
+    // cancel
     // of the product download
     clientRead(chunkSize, productInputStream, 2);
 
@@ -615,8 +617,10 @@ public class ReliableResourceDownloadManagerTest {
    */
   @Test
   @Ignore
-  // Currently Ignored because cannot figure out how to get FileBackedOutputStream (FBOS) to throw exception
-  // during product download - this test successfully closes the FBOS, but the ReliableResourceCallable
+  // Currently Ignored because cannot figure out how to get FileBackedOutputStream (FBOS) to throw
+  // exception
+  // during product download - this test successfully closes the FBOS, but the
+  // ReliableResourceCallable
   // does not seem to detect this and continues to stream successfully to the client.
   public void testStreamToClientExceptionDuringProductDownloadCachingEnabled() throws Exception {
 

@@ -635,7 +635,8 @@ public abstract class AbstractCswSource extends MaskableImpl
       cswSourceConfiguration.putMetacardCswMapping(Metacard.CONTENT_TYPE, CswConstants.CSW_TYPE);
     }
 
-    //if the event service address has changed attempt to remove the subscription before changing to the new event service address
+    // if the event service address has changed attempt to remove the subscription before changing
+    // to the new event service address
     if (cswSourceConfiguration.getEventServiceAddress() != null
         && cswSourceConfiguration.isRegisterForEvents()
         && !cswSourceConfiguration

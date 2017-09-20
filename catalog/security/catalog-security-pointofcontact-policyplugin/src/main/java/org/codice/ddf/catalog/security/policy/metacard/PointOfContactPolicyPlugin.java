@@ -55,7 +55,7 @@ public class PointOfContactPolicyPlugin implements PolicyPlugin {
   @Override
   public PolicyResponse processPreUpdate(Metacard newMetacard, Map<String, Serializable> properties)
       throws StopProcessingException {
-    //If it's not a resource metacard, don't apply the policy.
+    // If it's not a resource metacard, don't apply the policy.
     if (!newMetacard.getTags().isEmpty() && !newMetacard.getTags().contains("resource")) {
       return new PolicyResponseImpl();
     }
@@ -90,7 +90,7 @@ public class PointOfContactPolicyPlugin implements PolicyPlugin {
       return !newPointOfContact.getValue().equals(oldPointOfContact.getValue());
     }
 
-    //Return true if only one of them is null
+    // Return true if only one of them is null
     return newPointOfContact != oldPointOfContact;
   }
 

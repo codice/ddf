@@ -187,7 +187,7 @@ public class AdminPollerTest {
         OpenSearchSource badSource = mock(OpenSearchSource.class);
         when(badSource.isAvailable()).thenThrow(new RuntimeException());
 
-        //CONFIG_PID, EXCEPTION_PID, FAKE_SOURCE
+        // CONFIG_PID, EXCEPTION_PID, FAKE_SOURCE
         when(helper.getConfiguration(any(ConfiguredService.class)))
             .thenReturn(config, config, config);
         when(helper.getSources()).thenReturn(CollectionUtils.asList((Source) source, badSource));
