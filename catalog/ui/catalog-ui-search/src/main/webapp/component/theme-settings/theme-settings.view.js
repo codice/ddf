@@ -20,6 +20,7 @@ var user = require('component/singletons/user-instance');
 var $ = require('jquery');
 var PropertyView = require('component/property/property.view');
 var Property = require('component/property/property');
+var ThemeUtils = require('js/ThemeUtils');
 
 function getPreferences(user){
     return user.get('user').get('preferences');
@@ -27,15 +28,6 @@ function getPreferences(user){
 
 function getFontSize(user){
     return getPreferences(user).get('fontSize');
-}
-
-function calculatePercentZoom(user){
-    var fontSize = getFontSize(user);
-    return Math.floor(100*(fontSize/16));
-}
-
-function calculateFontSize(percentage){
-    return (percentage * 16) / 100;
 }
 
 function getSpacingMode(user){
@@ -56,7 +48,7 @@ module.exports = Marionette.LayoutView.extend({
     showFontSize: function(){
         var fontSizeModel = new Property({
             label: 'Zoom Percentage',
-            value: [calculatePercentZoom(user)],
+            value: [ThemeUtils.getZoomScale(getFontSize(user))],
             min: 62,
             max: 200,
             units: '%',
@@ -98,7 +90,7 @@ module.exports = Marionette.LayoutView.extend({
     saveFontChanges: function(){
         var preferences = getPreferences(user);
         var newFontSize = this.fontSize.currentView.model.getValue()[0];
-        preferences.set('fontSize', calculateFontSize(newFontSize));
+        preferences.set('fontSize', ThemeUtils.getFontSize(newFontSize));
     },
     saveSpacingChanges: function(){
         var preferences = getPreferences(user);

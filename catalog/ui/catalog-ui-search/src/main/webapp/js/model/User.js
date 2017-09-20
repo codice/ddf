@@ -14,6 +14,7 @@
 
 define([
     'underscore',
+    'lodash.get',
     'wreqr',
     'backbone',
     'properties',
@@ -24,8 +25,9 @@ define([
     'component/blacklist-item/blacklist-item',
     'moment',
     'js/model/Theme',
+    'js/ThemeUtils',
     'backboneassociations'
-], function (_, wreqr, Backbone, properties, Alert, Common, UploadBatch, announcement, BlackListItem, moment, Theme) {
+], function (_, _get, wreqr, Backbone, properties, Alert, Common, UploadBatch, announcement, BlackListItem, moment, Theme, ThemeUtils) {
     'use strict';
 
     var User = {};
@@ -148,7 +150,7 @@ define([
                 columnHide: [],
                 columnOrder: ['title', 'created', 'modified', 'thumbnail'],
                 uploads: [],
-                fontSize: '16',
+                fontSize: ThemeUtils.getFontSize(_get(properties, 'zoomPercentage', 100)),
                 resultCount: properties.resultCount,
                 timeFormat: Common.getTimeFormats()['24'],
                 goldenLayout: undefined,

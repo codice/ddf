@@ -46,16 +46,29 @@ function handleThemeChange(){
     });
 }
 
-preferences.on('change:fontSize', function () {
+function handleFontSizeChange() {
     var fontSize = preferences.get('fontSize');
     $('html').css('fontSize', fontSize + 'px');
     Common.repaintForTimeframe(500, () => {
         wreqr.vent.trigger('resize');
         $(window).trigger('resize');
     });
+}
 
-});
-preferences.on('change:theme', handleThemeChange);
+function attemptToStart() {
+    if (user.fetched) {
+        handleFontSizeChange();
+        handleThemeChange();
+        preferences.on('change:fontSize', handleFontSizeChange);
+        preferences.on('change:theme', handleThemeChange);
+    } else {
+        user.once('sync', function () {
+            attemptToStart();
+        });
+    }
+}
+
+attemptToStart();
 
 if (module.hot) {
     module.hot.accept('./uncompiled-less.unless', function() {

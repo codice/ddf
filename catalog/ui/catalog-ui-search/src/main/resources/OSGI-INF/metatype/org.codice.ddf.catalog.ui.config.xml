@@ -49,6 +49,24 @@
             type="String"
             default=""
             required="false"/>
+            
+        <AD id="spacingMode" 
+            name="Theme Spacing Mode" 
+            description="Specifies the default theme spacing mode."
+            required="true" 
+            type="String"
+            default="comfortable">
+              <Option label="Comfortable" value="comfortable"/>
+              <Option label="Cozy" value="cozy"/>
+              <Option label="Compact" value="compact"/>
+        </AD>
+        
+        <AD id="zoomPercentage"
+            name="Theme Zoom"
+            description="Specifies the default theme zoom percentage."
+            type="Integer"
+            default="100"
+            required="true"/>
 
         <AD id="timeout"
             name="Connection Timeout"

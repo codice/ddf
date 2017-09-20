@@ -94,6 +94,10 @@ public class ConfigurationApplication implements SparkApplication {
 
   private Integer timeout = 300000;
 
+  private Integer zoomPercentage = 100;
+
+  private String spacingMode = "comfortable";
+
   private HttpProxyService httpProxy;
 
   private int incrementer = 0;
@@ -298,6 +302,8 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("queryFeedbackEmailSubjectTemplate", queryFeedbackEmailSubjectTemplate);
     config.put("queryFeedbackEmailBodyTemplate", queryFeedbackEmailBodyTemplate);
     config.put("queryFeedbackEmailDestination", queryFeedbackEmailDestination);
+    config.put("zoomPercentage", zoomPercentage);
+    config.put("spacingMode", spacingMode);
 
     return config;
   }
@@ -706,5 +712,21 @@ public class ConfigurationApplication implements SparkApplication {
 
   public void setQueryFeedbackEmailDestination(String queryFeedbackEmailDestination) {
     this.queryFeedbackEmailDestination = queryFeedbackEmailDestination;
+  }
+
+  public String getSpacingMode() {
+    return spacingMode;
+  }
+
+  public void setSpacingMode(String spacingMode) {
+    this.spacingMode = spacingMode;
+  }
+
+  public Integer getZoomPercentage() {
+    return zoomPercentage;
+  }
+
+  public void setZoomPercentage(Integer zoomPercentage) {
+    this.zoomPercentage = zoomPercentage;
   }
 }
