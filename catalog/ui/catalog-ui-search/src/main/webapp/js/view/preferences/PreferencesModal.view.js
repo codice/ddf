@@ -103,7 +103,7 @@ define([
                 var defaultConfig = _.find(properties.imageryProviders, function (layerObj) {
                     return url === layerObj.url;
                 });
-                viewLayer.set('show', true);
+                viewLayer.set('show', defaultConfig.show);
                 viewLayer.set('alpha', defaultConfig.alpha);
             });
             this.model.sort();

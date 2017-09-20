@@ -167,6 +167,14 @@ export const validate = (providers) => {
       errors = errors.setIn([i, 'proxyEnabled'], 'Proxy enabled settings needs to be true or false')
     }
 
+    const show = layer.get('show')
+
+    if (show === undefined) {
+      errors = errors.setIn([i, 'buffer'], 'Show must be true or false')
+    } else if (typeof show !== 'boolean') {
+      errors = errors.setIn([i, 'buffer'], `Show must be set to true or false`)
+    }
+
     const type = layer.get('type')
 
     if (type === '') {
@@ -206,6 +214,7 @@ const emptyProvider = () => {
     type: '',
     alpha: '',
     proxyEnabled: true,
+    show: true,
     parameters: {}
   }
   const buffer = JSON.stringify(layer, null, 2)

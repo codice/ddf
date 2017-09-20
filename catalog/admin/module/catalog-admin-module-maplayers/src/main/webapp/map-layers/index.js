@@ -18,6 +18,7 @@ import RaisedButton from 'material-ui/RaisedButton'
 import SelectField from 'material-ui/SelectField'
 import Snackbar from 'material-ui/Snackbar'
 import TextField from 'material-ui/TextField'
+import Toggle from 'material-ui/Toggle'
 import muiThemeable from 'material-ui/styles/muiThemeable'
 import { List, ListItem } from 'material-ui/List'
 
@@ -176,6 +177,19 @@ const ProviderEditor = ({ provider, onUpdate, buffer, onEdit, error = Map() }) =
           }} />
       </Flexbox>
     </Flexbox>
+    <div style={{ padding: '0 16px' }}>
+      <Toggle
+        label='Show'
+        id='show'
+        toggled={provider.get('show')}
+        labelStyle={{
+          width: 'auto'
+        }}
+        onToggle={(e, value) => {
+          onUpdate(value, 'show')
+        }}
+      />
+    </div>
     <List>
       <ListItem
         primaryTogglesNestedList

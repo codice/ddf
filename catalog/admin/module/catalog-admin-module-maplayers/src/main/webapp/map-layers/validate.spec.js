@@ -26,6 +26,22 @@ describe('validate providers', () => {
       })
     })
   })
+  describe('show', () => {
+    it('should be a valid show flag', () => {
+      const values = [true, false]
+      values.forEach((show) => {
+        const providers = fromJS([ { layer: { show }, buffer: '[]' } ])
+        expect(validate(providers).getIn([0, 'buffer'])).to.equal(undefined)
+      })
+    })
+    it('should not be a valid show flag', () => {
+      const values = [undefined]
+      values.forEach((show) => {
+        const providers = fromJS([ { layer: { show } } ])
+        expect(validate(providers).getIn([0, 'buffer'])).to.not.equal(undefined)
+      })
+    })
+  })
   describe('type', () => {
     it('should be a valid type', () => {
       const values = ['OSM', 'WMS', 'GE']
