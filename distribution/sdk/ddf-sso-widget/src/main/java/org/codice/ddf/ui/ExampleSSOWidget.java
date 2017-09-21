@@ -41,7 +41,7 @@ public class ExampleSSOWidget extends HttpServlet {
     try {
       createPage(request, response.getWriter());
     } catch (IOException e) {
-      LOGGER.error("Cannot create page.");
+      LOGGER.warn("Cannot create page due to: ", e);
     }
   }
 

@@ -103,7 +103,7 @@ public class ErrorServlet extends HttpServlet {
         jettyErrorHandler.handle(
             request.getRequestURI(), (org.eclipse.jetty.server.Request) request, request, response);
       } catch (IOException e) {
-        LOGGER.error("Problem handling Jetty Error. ", e);
+        LOGGER.warn("Problem handling Jetty Error due to: ", e);
       }
     }
   }
