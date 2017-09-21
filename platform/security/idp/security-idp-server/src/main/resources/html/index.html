@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -18,11 +17,12 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Login</title>
     <!-- Stylesheets -->
-    <link href="/idp/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <link href="/idp/bootswatch/3.3.7/flatly/bootstrap.min.css" rel="stylesheet">
-    <link href="/idp/css/index.css?bust=${timestamp}" rel="stylesheet">
+    <link href="/idp/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"/>
+    <link href="/idp/bootswatch/3.3.7/flatly/bootstrap.min.css" rel="stylesheet"/>
+    <link href="/idp/css/index.css?bust=${timestamp}" rel="stylesheet"/>
 
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -32,21 +32,22 @@
     <script type="application/javascript">
         window.idpState = IDP_STATE_OBJ;
     </script>
+    <script src="/idp/requirejs/2.3.3/require.js"></script>
+    <script>
+        require.config({baseUrl: '/idp'});
+        require({urlArgs: "bust=${timestamp}"}, ["main"], function () {
+        });
+    </script>
 </head>
 <body>
 <header></header>
 <div id="appHeader">
-
 </div>
 <div class="container page-header">
     <h2 id="pageHeader"></h2>
 </div>
-<main id="content" class="container full-height main-content-wrapper" role="main"></main>
+<main id="content" class="container full-height main-content-wrapper"></main>
 <footer></footer>
 </body>
-<script src="/idp/requirejs/2.3.3/require.js"></script>
-<script>
-require.config({ baseUrl: '/idp' });
-require({ urlArgs: "bust=${timestamp}" }, ["main"], function () {});
-</script>
+
 </html>
