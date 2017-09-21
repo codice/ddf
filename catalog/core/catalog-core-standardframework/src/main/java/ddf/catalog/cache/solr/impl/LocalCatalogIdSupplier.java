@@ -14,20 +14,19 @@
 
 package ddf.catalog.cache.solr.impl;
 
+import ddf.catalog.CatalogFramework;
 import java.util.function.Supplier;
 
-import ddf.catalog.CatalogFramework;
-
 public class LocalCatalogIdSupplier implements Supplier<String> {
-    private final CatalogFramework catalogFramework;
+  private final CatalogFramework catalogFramework;
 
-    public LocalCatalogIdSupplier(CatalogFramework catalogFramework) {
-        this.catalogFramework = catalogFramework;
-        CacheStrategy.setLocalSourceIdSupplier(this);
-    }
-    
-    @Override
-    public String get() {
-        return catalogFramework.getId();
-    }
+  public LocalCatalogIdSupplier(CatalogFramework catalogFramework) {
+    this.catalogFramework = catalogFramework;
+    CacheStrategy.setLocalSourceIdSupplier(this);
+  }
+
+  @Override
+  public String get() {
+    return catalogFramework.getId();
+  }
 }
