@@ -14,6 +14,7 @@
 package org.codice.ddf.persistence.commands;
 
 import java.io.PrintStream;
+import java.util.Arrays;
 import org.apache.karaf.shell.api.action.Action;
 import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
@@ -64,7 +65,9 @@ public abstract class AbstractStoreCommand implements Action {
         storeCommand();
       } else {
         console.println(
-            "Type passed in was not correct. Must be one of " + PersistenceType.values() + ".");
+            "Type passed in was not correct. Must be one of "
+                + Arrays.toString(PersistenceType.values())
+                + ".");
       }
 
     } catch (PersistenceException pe) {
