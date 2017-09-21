@@ -82,7 +82,7 @@ module.exports = {
     },
     getPin: function(options) {
       _.defaults(options, {
-          width: 40,
+          width: 39,
           height: 40,
           fillColor: defaultColor,
           strokeWidth: 2,
@@ -101,7 +101,7 @@ module.exports = {
       var s = options.scale;
       ctx.beginPath();
       ctx.moveTo(19.36, 2);
-      ctx.bezierCurveTo(11.52, 2, 4.96, 6.64, 4.96, 14.64) ;
+      ctx.bezierCurveTo(11.52, 2, 4.96, 6.64, 4.96, 14.64);
       ctx.bezierCurveTo(4.96, 17.92, 6.08, 20.96, 7.84, 23.44);
       ctx.lineTo(19.52, 38.96) ;
       ctx.lineTo(31.2, 23.44) ;

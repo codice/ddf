@@ -359,7 +359,7 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
             });
             feature.setId(options.id);
 
-            var x = 40, y = 40;
+            var x = 39, y = 40;
             if (options.size) {
                 x = options.size.x;
                 y = options.size.y;
@@ -371,7 +371,7 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
                         icon: options.icon,
                     }),
                     imgSize: [x, y],
-                    anchor: [20, 0],
+                    anchor: [x / 2, 0],
                     anchorOrigin: 'bottom-left',
                     anchorXUnits: 'pixels',
                     anchorYUnits: 'pixels'
@@ -496,6 +496,11 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
                 var feature = geometry.getSource().getFeatures()[0];
                 var geometryInstance = feature.getGeometry();
                 if (geometryInstance.constructor === Openlayers.geom.Point) {
+                    var x = 39, y = 40;
+                    if (options.size) {
+                        x = options.size.x;
+                        y = options.size.y;
+                    }
                     feature.setStyle(new Openlayers.style.Style({
                         image: new Openlayers.style.Icon({
                             img: DrawingUtility.getPin({
@@ -503,8 +508,8 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
                                 strokeColor: options.isSelected ? 'black' : 'white',
                                 icon: options.icon
                             }),
-                            imgSize: [40, 40],
-                            anchor: [20, 0],
+                            imgSize: [x, y],
+                            anchor: [x / 2, 0],
                             anchorOrigin: 'bottom-left',
                             anchorXUnits: 'pixels',
                             anchorYUnits: 'pixels'
