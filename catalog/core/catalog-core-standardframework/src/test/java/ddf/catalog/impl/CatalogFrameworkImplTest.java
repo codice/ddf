@@ -447,8 +447,7 @@ public class CatalogFrameworkImplTest {
               String site,
               boolean isEnterprise,
               StringBuilder federatedSite,
-              Map<String, Serializable> requestProperties,
-              boolean fanoutEnabled)
+              Map<String, Serializable> requestProperties)
               throws ResourceNotSupportedException, ResourceNotFoundException {
             URI uri = null;
             Metacard metacard = new MetacardImpl();

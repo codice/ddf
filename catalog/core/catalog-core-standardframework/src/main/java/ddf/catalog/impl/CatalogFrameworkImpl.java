@@ -77,16 +77,6 @@ import org.slf4j.LoggerFactory;
 public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFramework {
   private static final Logger LOGGER = LoggerFactory.getLogger(CatalogFrameworkImpl.class);
 
-  private static final String FANOUT_MESSAGE =
-      "Fanout proxy does not support create, update, and delete operations";
-
-  //
-  // Injected properties
-  //
-  private boolean fanoutEnabled;
-
-  private List<String> fanoutTagBlacklist = new ArrayList<>();
-
   private Masker masker;
 
   private CreateOperations createOperations;
@@ -165,14 +155,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
     return transformOperations;
   }
 
-  public void setFanoutEnabled(boolean fanoutEnabled) {
-    this.fanoutEnabled = fanoutEnabled;
-  }
-
-  public void setFanoutTagBlacklist(List<String> fanoutTagBlacklist) {
-    this.fanoutTagBlacklist = fanoutTagBlacklist;
-  }
-
   /**
    * Sets the {@link Masker}
    *
@@ -216,13 +198,13 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
   @Override
   public Set<String> getSourceIds() {
-    return sourceOperations.getSourceIds(fanoutEnabled);
+    return sourceOperations.getSourceIds();
   }
 
   @Override
   public SourceInfoResponse getSourceInfo(SourceInfoRequest sourceInfoRequest)
       throws SourceUnavailableException {
-    return sourceOperations.getSourceInfo(sourceInfoRequest, fanoutEnabled);
+    return sourceOperations.getSourceInfo(sourceInfoRequest);
   }
 
   @Override
@@ -230,19 +212,12 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
       throws IngestException, SourceUnavailableException {
     List<String> blacklist = Collections.emptyList();
 
-    if (fanoutEnabled) {
-      blacklist = new ArrayList<>(fanoutTagBlacklist);
-    }
-
-    return createOperations.create(createRequest, blacklist);
+    return createOperations.create(createRequest);
   }
 
   @Override
   public CreateResponse create(CreateRequest createRequest)
       throws IngestException, SourceUnavailableException {
-    if (fanoutEnabled && blockFanoutCreate(createRequest)) {
-      throw new IngestException(FANOUT_MESSAGE);
-    }
 
     return createOperations.create(createRequest);
   }
@@ -250,9 +225,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
   @Override
   public UpdateResponse update(UpdateStorageRequest updateRequest)
       throws IngestException, SourceUnavailableException {
-    if (fanoutEnabled && blockFanoutStorageRequest(updateRequest)) {
-      throw new IngestException(FANOUT_MESSAGE);
-    }
 
     return updateOperations.update(updateRequest);
   }
@@ -260,9 +232,6 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
   @Override
   public UpdateResponse update(UpdateRequest updateRequest)
       throws IngestException, SourceUnavailableException {
-    if (fanoutEnabled && blockFanoutUpdate(updateRequest)) {
-      throw new IngestException(FANOUT_MESSAGE);
-    }
 
     return updateOperations.update(updateRequest);
   }
@@ -273,22 +242,19 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
 
     List<String> blacklist = Collections.emptyList();
 
-    if (fanoutEnabled) {
-      blacklist = new ArrayList<>(fanoutTagBlacklist);
-    }
-    return deleteOperations.delete(deleteRequest, blacklist);
+    return deleteOperations.delete(deleteRequest);
   }
 
   @Override
   public QueryResponse query(QueryRequest fedQueryRequest)
       throws UnsupportedQueryException, SourceUnavailableException, FederationException {
-    return queryOperations.query(fedQueryRequest, fanoutEnabled);
+    return queryOperations.query(fedQueryRequest);
   }
 
   @Override
   public QueryResponse query(QueryRequest queryRequest, FederationStrategy strategy)
       throws SourceUnavailableException, UnsupportedQueryException, FederationException {
-    return queryOperations.query(queryRequest, strategy, fanoutEnabled);
+    return queryOperations.query(queryRequest, strategy);
   }
 
   @Override
@@ -308,78 +274,45 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
   @Override
   public ResourceResponse getLocalResource(ResourceRequest resourceRequest)
       throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
-    return resourceOperations.getLocalResource(resourceRequest, fanoutEnabled);
+    return resourceOperations.getLocalResource(resourceRequest);
   }
 
   @Override
   public ResourceResponse getResource(ResourceRequest resourceRequest, String resourceSiteName)
       throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
-    return resourceOperations.getResource(resourceRequest, resourceSiteName, fanoutEnabled);
+    return resourceOperations.getResource(resourceRequest, resourceSiteName);
   }
 
   @Override
   public ResourceResponse getEnterpriseResource(ResourceRequest resourceRequest)
       throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
-    return resourceOperations.getEnterpriseResource(resourceRequest, fanoutEnabled);
+    return resourceOperations.getEnterpriseResource(resourceRequest);
   }
 
   @Deprecated
   @Override
   public Map<String, Set<String>> getLocalResourceOptions(String metacardId)
       throws ResourceNotFoundException {
-    return resourceOperations.getLocalResourceOptions(metacardId, fanoutEnabled);
+    return resourceOperations.getLocalResourceOptions(metacardId);
   }
 
   @Deprecated
   @Override
   public Map<String, Set<String>> getEnterpriseResourceOptions(String metacardId)
       throws ResourceNotFoundException {
-    return resourceOperations.getEnterpriseResourceOptions(metacardId, fanoutEnabled);
+    return resourceOperations.getEnterpriseResourceOptions(metacardId);
   }
 
   @Deprecated
   @Override
   public Map<String, Set<String>> getResourceOptions(String metacardId, String sourceId)
       throws ResourceNotFoundException {
-    return resourceOperations.getResourceOptions(metacardId, sourceId, fanoutEnabled);
+    return resourceOperations.getResourceOptions(metacardId, sourceId);
   }
 
   /** String representation of this {@code CatalogFrameworkImpl}. */
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this);
-  }
-
-  private boolean blockFanoutStorageRequest(UpdateStorageRequest updateStorageRequest) {
-    return blockFanoutContentItems(updateStorageRequest.getContentItems());
-  }
-
-  private boolean blockFanoutContentItems(List<ContentItem> contentItems) {
-    return contentItems
-        .stream()
-        .map(ContentItem::getMetacard)
-        .anyMatch(this::isMetacardBlacklisted);
-  }
-
-  private boolean blockFanoutCreate(CreateRequest createRequest) {
-    return createRequest.getMetacards().stream().anyMatch(this::isMetacardBlacklisted);
-  }
-
-  private boolean blockFanoutUpdate(UpdateRequest updateRequest) {
-    return updateRequest
-        .getUpdates()
-        .stream()
-        .anyMatch((updateEntry) -> isMetacardBlacklisted(updateEntry.getValue()));
-  }
-
-  private boolean isMetacardBlacklisted(Metacard metacard) {
-    Set<String> tags = new HashSet<>(metacard.getTags());
-
-    // defaulting to resource tag if the metacard doesn't contain any tags
-    if (tags.isEmpty()) {
-      tags.add(Metacard.DEFAULT_TAG);
-    }
-
-    return CollectionUtils.containsAny(tags, fanoutTagBlacklist);
   }
 }

@@ -69,8 +69,6 @@ public class RemoteDeleteOperationsTest {
 
   DeleteResponse deleteResponse;
 
-  List<String> fanoutTagBlacklist;
-
   RemoteDeleteOperations remoteDeleteOperations;
 
   OperationsCatalogStoreSupport opsCatStoreSupport;
@@ -335,8 +333,6 @@ public class RemoteDeleteOperationsTest {
   }
 
   private void setUpBlacklist() {
-    fanoutTagBlacklist = new ArrayList<>();
-    fanoutTagBlacklist.add("");
 
     opsSecuritySupport = mock(OperationsSecuritySupport.class);
 

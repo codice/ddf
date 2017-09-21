@@ -18,24 +18,13 @@
     <OCD description="Local site"
          name="Catalog Standard Framework"
          id="ddf.catalog.CatalogFrameworkImpl">
-        <AD name="Enable Fanout Proxy" id="fanoutEnabled" required="true" type="Boolean"
-            default="false"
-            description="When enabled the Framework acts as a proxy, federating requests to all available sources. All requests are executed as federated queries and resource retrievals, allowing the framework to be the sole component exposing the functionality of all of its Federated Sources."/>
         <AD name="Enable Notifications" id="notificationEnabled" required="false" type="Boolean"
             default="true"
             description="Check to enable notifications."/>
-        <AD name="Fanout tag blacklist" id="fanoutTagBlacklist" required="true" type="String"
-            cardinality="100"
-            description="Ingest operations with tags in this list will be rejected."/>
-
     </OCD>
 
     <OCD name="Query Operations"
          id="ddf.catalog.impl.operations.QueryOperations">
-        <AD name="Fanout proxy tag blacklist" id="fanoutProxyTagBlacklist" required="true"
-            type="String" cardinality="100"
-            default="registry,registry-remote"
-            description="Query operations with tags in this list will not be passed through."/>
         <AD name="Query timeout (milliseconds)" id="queryTimeoutMillis" required="true" type="Long"
             default="300000"
             description="Time in milliseconds that a query will wait on the queue before timeout."/>

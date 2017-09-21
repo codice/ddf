@@ -56,11 +56,6 @@
         <cm:managed-properties persistent-id="ddf.catalog.impl.operations.SourceOperations"
                                update-strategy="container-managed"/>
         <argument ref="frameworkProperties"/>
-        <property name="fanoutTagWhitelist">
-            <list value-type="java.lang.String">
-                <value>resource</value>
-            </list>
-        </property>
     </bean>
 
     <bean id="cfQueryOps" class="ddf.catalog.impl.operations.QueryOperations">
@@ -71,12 +66,6 @@
         <argument ref="cfOpsSecurity"/>
         <argument ref="cfOpsMetacard"/>
         <property name="filterAdapter" ref="filterAdapter"/>
-        <property name="fanoutProxyTagBlacklist">
-            <list value-type="java.lang.String">
-                <value>registry</value>
-                <value>registry-remote</value>
-            </list>
-        </property>
         <property name="queryTimeoutMillis" value="300000"/>
     </bean>
 

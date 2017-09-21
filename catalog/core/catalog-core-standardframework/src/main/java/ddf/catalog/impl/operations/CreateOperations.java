@@ -52,7 +52,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -122,8 +121,7 @@ public class CreateOperations {
     return createResponse;
   }
 
-  public CreateResponse create(
-      CreateStorageRequest streamCreateRequest, List<String> fanoutTagBlacklist)
+  public CreateResponse create(CreateStorageRequest streamCreateRequest)
       throws IngestException, SourceUnavailableException {
     Map<String, Metacard> metacardMap = new HashMap<>();
     List<ContentItem> contentItems = new ArrayList<>(streamCreateRequest.getContentItems().size());
@@ -140,13 +138,6 @@ public class CreateOperations {
     // Operation populates the metacardMap, contentItems, and tmpContentPaths
     opsMetacardSupport.generateMetacardAndContentItems(
         streamCreateRequest.getContentItems(), metacardMap, contentItems, tmpContentPaths);
-
-    if (blockCreateMetacards(metacardMap.values(), fanoutTagBlacklist)) {
-      String message =
-          "Fanout proxy does not support create operations with blacklisted metacard tag";
-      LOGGER.debug("{}. Tags blacklist: {}", message, fanoutTagBlacklist);
-      throw new IngestException(message);
-    }
 
     streamCreateRequest.getProperties().put(CONTENT_PATHS, tmpContentPaths);
 
@@ -299,23 +290,6 @@ public class CreateOperations {
     }
 
     return createResponse;
-  }
-
-  private boolean blockCreateMetacards(
-      Collection<Metacard> metacards, List<String> fanoutBlacklist) {
-    return metacards
-        .stream()
-        .anyMatch((metacard) -> isMetacardBlacklisted(metacard, fanoutBlacklist));
-  }
-
-  private boolean isMetacardBlacklisted(Metacard metacard, List<String> fanoutBlacklist) {
-    Set<String> tags = new HashSet<>(metacard.getTags());
-
-    if (tags.isEmpty()) {
-      tags.add(Metacard.DEFAULT_TAG);
-    }
-
-    return CollectionUtils.containsAny(tags, fanoutBlacklist);
   }
 
   private void injectAttributes(Map<String, Metacard> metacardMap) {

@@ -106,8 +106,6 @@ public class ResourceOperationsTest {
 
   boolean isEnterprise;
 
-  boolean fanoutEnabled;
-
   String resourceName;
 
   @Before
@@ -137,7 +135,6 @@ public class ResourceOperationsTest {
     resourceOperations = new ResourceOperations(frameworkProperties, queryOperationsMock, null);
 
     isEnterprise = true;
-    fanoutEnabled = true;
     resourceName = "bob";
   }
 
@@ -183,7 +180,7 @@ public class ResourceOperationsTest {
 
     frameworkProperties.setReliableResourceDownloadManager(reliableResourceDownloadManagerMock);
 
-    resourceOperations.getResource(resourceRequestMock, isEnterprise, resourceName, fanoutEnabled);
+    resourceOperations.getResource(resourceRequestMock, isEnterprise, resourceName);
 
     verify(resourceResponseMock).getResource();
   }
@@ -207,7 +204,7 @@ public class ResourceOperationsTest {
 
     frameworkProperties.setReliableResourceDownloadManager(reliableResourceDownloadManagerMock);
 
-    resourceOperations.getResource(resourceRequestMock, isEnterprise, resourceName, fanoutEnabled);
+    resourceOperations.getResource(resourceRequestMock, isEnterprise, resourceName);
   }
 
   @Test(expected = ResourceNotFoundException.class)
@@ -227,7 +224,7 @@ public class ResourceOperationsTest {
 
     frameworkProperties.setReliableResourceDownloadManager(reliableResourceDownloadManagerMock);
 
-    resourceOperations.getResource(resourceRequestMock, isEnterprise, resourceName, fanoutEnabled);
+    resourceOperations.getResource(resourceRequestMock, isEnterprise, resourceName);
 
     verify(queryResponseMock).getResults();
     verify(reliableResourceDownloadManagerMock)
@@ -252,7 +249,7 @@ public class ResourceOperationsTest {
 
     frameworkProperties.setReliableResourceDownloadManager(reliableResourceDownloadManagerMock);
 
-    resourceOperations.getResource(resourceRequestMock, isEnterprise, resourceName, fanoutEnabled);
+    resourceOperations.getResource(resourceRequestMock, isEnterprise, resourceName);
 
     verify(queryResponseMock).getResults();
     verify(reliableResourceDownloadManagerMock)
@@ -280,7 +277,7 @@ public class ResourceOperationsTest {
 
     frameworkProperties.setReliableResourceDownloadManager(reliableResourceDownloadManagerMock);
 
-    resourceOperations.getResource(resourceRequestMock, isEnterprise, resourceName, fanoutEnabled);
+    resourceOperations.getResource(resourceRequestMock, isEnterprise, resourceName);
 
     verify(queryResponseMock).getResults();
     verify(reliableResourceDownloadManagerMock)
@@ -294,7 +291,7 @@ public class ResourceOperationsTest {
     when(resourceRequestMock.getProperties()).thenThrow(DataUsageLimitExceededException.class);
     getResourceRequestAttributeUris();
 
-    resourceOperations.getResource(resourceRequestMock, isEnterprise, resourceName, fanoutEnabled);
+    resourceOperations.getResource(resourceRequestMock, isEnterprise, resourceName);
 
     verifyResourceRequestAttributes();
   }
@@ -305,7 +302,7 @@ public class ResourceOperationsTest {
     when(resourceRequestMock.getProperties()).thenThrow(RuntimeException.class);
     getResourceRequestAttributeUris();
 
-    resourceOperations.getResource(resourceRequestMock, isEnterprise, resourceName, fanoutEnabled);
+    resourceOperations.getResource(resourceRequestMock, isEnterprise, resourceName);
 
     verifyResourceRequestAttributes();
   }
@@ -316,7 +313,7 @@ public class ResourceOperationsTest {
     when(resourceRequestMock.getProperties()).thenThrow(StopProcessingException.class);
     getResourceRequestAttributeUris();
 
-    resourceOperations.getResource(resourceRequestMock, isEnterprise, resourceName, fanoutEnabled);
+    resourceOperations.getResource(resourceRequestMock, isEnterprise, resourceName);
 
     verifyResourceRequestAttributes();
   }
@@ -326,10 +323,9 @@ public class ResourceOperationsTest {
       throws Exception {
 
     boolean isEnterprise = false;
-    boolean fanoutEnabled = false;
     String resourceName = null;
 
-    resourceOperations.getResource(resourceRequestMock, isEnterprise, resourceName, fanoutEnabled);
+    resourceOperations.getResource(resourceRequestMock, isEnterprise, resourceName);
 
     verifyGetResourceMocks();
   }
@@ -340,7 +336,7 @@ public class ResourceOperationsTest {
     when(resourceRequestMock.getAttributeValue()).thenReturn("bob");
     when(resourceRequestMock.getAttributeName()).thenReturn("bob");
 
-    resourceOperations.getResource(resourceRequestMock, isEnterprise, resourceName, fanoutEnabled);
+    resourceOperations.getResource(resourceRequestMock, isEnterprise, resourceName);
 
     verify(resourceRequestMock).getAttributeValue();
     verify(resourceRequestMock).getAttributeName();
@@ -351,7 +347,7 @@ public class ResourceOperationsTest {
 
     getResourceRequestAttributeUris();
 
-    resourceOperations.getResource(resourceRequestMock, isEnterprise, resourceName, fanoutEnabled);
+    resourceOperations.getResource(resourceRequestMock, isEnterprise, resourceName);
 
     verify(resourceRequestMock).getAttributeValue();
     verify(resourceRequestMock).getAttributeName();
@@ -367,13 +363,13 @@ public class ResourceOperationsTest {
     mockResultList.add(resultMock);
     when(resultMock.getMetacard()).thenReturn(metacard);
     when(queryOperationsMock.query(
-            any(QueryRequest.class), any(FederationStrategy.class), anyBoolean(), anyBoolean()))
+            any(QueryRequest.class), any(FederationStrategy.class), anyBoolean()))
         .thenReturn(queryResponseMock);
     when(queryResponseMock.getResults()).thenReturn(mockResultList);
 
     ResourceOperations resourceOperationsSpy = spy(resourceOperations);
     resourceOperationsSpy.getResourceInfo(
-        resourceRequestMock, "site", isEnterprise, federatedSite, requestProperties, false);
+        resourceRequestMock, "site", isEnterprise, federatedSite, requestProperties);
     verify(resourceOperationsSpy)
         .createPropertyStartsWithQuery(Metacard.RESOURCE_URI, "bobUri:test");
   }
@@ -393,14 +389,14 @@ public class ResourceOperationsTest {
     mockResultList.add(resultMock);
     when(resultMock.getMetacard()).thenReturn(metacard);
     when(queryOperationsMock.query(
-            any(QueryRequest.class), any(FederationStrategy.class), anyBoolean(), anyBoolean()))
+            any(QueryRequest.class), any(FederationStrategy.class), anyBoolean()))
         .thenReturn(queryResponseMock);
     when(queryResponseMock.getResults()).thenReturn(mockResultList);
 
     ResourceOperations resourceOperationsSpy = spy(resourceOperations);
     ResourceOperations.ResourceInfo resourceInfo =
         resourceOperationsSpy.getResourceInfo(
-            resourceRequestMock, "site", isEnterprise, federatedSite, requestProperties, false);
+            resourceRequestMock, "site", isEnterprise, federatedSite, requestProperties);
     verify(resourceOperationsSpy)
         .createPropertyStartsWithQuery(
             Metacard.RESOURCE_URI,
@@ -426,14 +422,14 @@ public class ResourceOperationsTest {
     when(mockResult1.getMetacard()).thenReturn(wrongMetacard);
     when(mockResult2.getMetacard()).thenReturn(metacard);
     when(queryOperationsMock.query(
-            any(QueryRequest.class), any(FederationStrategy.class), anyBoolean(), anyBoolean()))
+            any(QueryRequest.class), any(FederationStrategy.class), anyBoolean()))
         .thenReturn(queryResponseMock);
     when(queryResponseMock.getResults()).thenReturn(mockResultList);
 
     ResourceOperations resourceOperationsSpy = spy(resourceOperations);
     ResourceOperations.ResourceInfo resourceInfo =
         resourceOperationsSpy.getResourceInfo(
-            resourceRequestMock, "site", isEnterprise, federatedSite, requestProperties, false);
+            resourceRequestMock, "site", isEnterprise, federatedSite, requestProperties);
     verify(resourceOperationsSpy)
         .createPropertyStartsWithQuery(Metacard.RESOURCE_URI, "bobUri:test");
     assertThat(resourceInfo.getResourceUri(), equalTo(testUri));
@@ -442,22 +438,17 @@ public class ResourceOperationsTest {
   @Test(expected = ResourceNotFoundException.class)
   public void testAnyTagIsNotEnterpriseNorSiteId() throws Exception {
     boolean isEnterprise = false;
-    boolean fanoutEnabled = false;
     String resourceName = "";
 
     setGetResourceMocks();
 
-    resourceOperations.getResource(resourceRequestMock, isEnterprise, resourceName, fanoutEnabled);
+    resourceOperations.getResource(resourceRequestMock, isEnterprise, resourceName);
 
     verifyGetResourceMocks();
   }
 
   @Test(expected = ResourceNotFoundException.class)
   public void testAnyTagReturnsQuery() throws Exception {
-    boolean isEnterprise = true;
-    boolean fanoutEnabled = false;
-    String resourceName = "";
-
     helperGetResource();
   }
 
@@ -467,7 +458,7 @@ public class ResourceOperationsTest {
 
     setGetResourceMocks();
 
-    resourceOperations.getResource(resourceRequestMock, isEnterprise, resourceName, fanoutEnabled);
+    resourceOperations.getResource(resourceRequestMock, isEnterprise, resourceName);
 
     verifyGetResourceMocks();
   }
@@ -475,7 +466,7 @@ public class ResourceOperationsTest {
   private void setGetResourceMocks() throws FederationException, UnsupportedQueryException {
     getResourceRequestAttributeUris();
     when(queryOperationsMock.query(
-            any(QueryRequest.class), any(FederationStrategy.class), anyBoolean(), anyBoolean()))
+            any(QueryRequest.class), any(FederationStrategy.class), anyBoolean()))
         .thenReturn(queryResponseMock);
   }
 
@@ -483,7 +474,7 @@ public class ResourceOperationsTest {
     verify(resourceRequestMock).getAttributeValue();
     verify(resourceRequestMock).getAttributeName();
     verify(queryOperationsMock)
-        .query(any(QueryRequest.class), any(FederationStrategy.class), anyBoolean(), anyBoolean());
+        .query(any(QueryRequest.class), any(FederationStrategy.class), anyBoolean());
   }
 
   private void verifyResourceRequestAttributes() {
