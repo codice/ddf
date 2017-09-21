@@ -192,10 +192,28 @@ const ProviderEditor = ({ provider, onUpdate, buffer, onEdit, error = Map() }) =
         id='show'
         toggled={provider.get('show')}
         labelStyle={{
-          width: 'auto'
+          width: '100px'
         }}
         onToggle={(e, value) => {
           onUpdate(value, 'show')
+        }}
+      />
+    </div>
+    <div style={{ padding: '0 16px' }}>
+      <Toggle
+        label='Transparent'
+        id='transparent'
+        toggled={provider.getIn(['parameters', 'transparent'], false)}
+        labelStyle={{
+          width: '100px'
+        }}
+        onToggle={(e, value) => {
+          onUpdate(value, ['parameters', 'transparent'])
+          if (value) {
+            onUpdate('image/png', ['parameters', 'format'])
+          } else {
+            onUpdate('', ['parameters', 'format'])
+          }
         }}
       />
     </div>

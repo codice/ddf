@@ -231,7 +231,10 @@ const emptyProvider = () => {
     alpha: '',
     proxyEnabled: true,
     show: true,
-    parameters: {}
+    parameters: {
+      transparent: false,
+      format: ''
+    }
   }
   const buffer = JSON.stringify(layer, null, 2)
   return fromJS({ buffer, layer })
