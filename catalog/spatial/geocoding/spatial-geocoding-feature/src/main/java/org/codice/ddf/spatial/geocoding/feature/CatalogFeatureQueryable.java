@@ -72,7 +72,10 @@ public class CatalogFeatureQueryable implements FeatureQueryable {
 
     List<SimpleFeature> results = new ArrayList<>();
     for (Result result : response.getResults()) {
-      results.add(getFeatureForMetacard(result.getMetacard()));
+      SimpleFeature feature = getFeatureForMetacard(result.getMetacard());
+      if (feature != null) {
+        results.add(feature);
+      }
     }
     return results;
   }
@@ -90,13 +93,13 @@ public class CatalogFeatureQueryable implements FeatureQueryable {
     String geometryWkt = (String) metacard.getAttribute(Metacard.GEOGRAPHY).getValue();
 
     WKTReader wkt = new WKTReader();
-    Geometry geometry = null;
     try {
-      geometry = wkt.read(geometryWkt);
+      Geometry geometry = wkt.read(geometryWkt);
+      SimpleFeatureBuilder builder = getSimpleFeatureBuilder(geometry);
+      return builder.buildFeature(countryCode);
     } catch (ParseException e) {
     }
-    SimpleFeatureBuilder builder = getSimpleFeatureBuilder(geometry);
-    return builder.buildFeature(countryCode);
+    return null;
   }
 
   private SimpleFeatureBuilder getSimpleFeatureBuilder(Geometry geometry) {
