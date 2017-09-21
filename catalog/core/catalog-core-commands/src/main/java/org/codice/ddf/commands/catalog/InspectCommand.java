@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.commands.catalog;
 
+import com.google.common.collect.ImmutableList;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
@@ -22,6 +23,7 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.List;
 import org.apache.karaf.shell.api.action.Argument;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
@@ -79,12 +81,17 @@ public class InspectCommand extends CatalogCommands {
 
       for (AttributeDescriptor ad : mType.getAttributeDescriptors()) {
 
+        boolean isMultiValued = ad.isMultiValued();
+
         Attribute attribute = card.getAttribute(ad.getName());
 
-        Serializable value = null;
+        List<Serializable> value = null;
 
         if (attribute != null) {
-          value = attribute.getValue();
+          value =
+              isMultiValued
+                  ? ImmutableList.copyOf(attribute.getValues())
+                  : ImmutableList.of(attribute.getValue());
         }
 
         // indent items with new lines in the value
