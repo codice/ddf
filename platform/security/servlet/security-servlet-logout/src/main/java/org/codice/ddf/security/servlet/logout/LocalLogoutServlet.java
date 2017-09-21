@@ -94,9 +94,9 @@ public class LocalLogoutServlet extends HttpServlet {
 
       response.sendRedirect(redirectUrlBuilder.build().toString());
     } catch (URISyntaxException e) {
-      LOGGER.debug("Invalid URI", e);
+      LOGGER.debug("Invalid URI: ", e);
     } catch (IOException e) {
-      LOGGER.error("Send Redirect failed. ", e);
+      LOGGER.warn("Send Redirect failed due to: ", e);
     }
   }
 

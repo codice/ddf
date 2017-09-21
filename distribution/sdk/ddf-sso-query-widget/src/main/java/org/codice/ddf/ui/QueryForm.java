@@ -44,7 +44,7 @@ public class QueryForm extends HttpServlet {
     try {
       doPost(request, response);
     } catch (ServletException | IOException e) {
-      LOGGER.error("Could not post response.");
+      LOGGER.warn("Could not post response due to: ", e);
     }
   }
 
@@ -58,7 +58,7 @@ public class QueryForm extends HttpServlet {
       String html = createPage(request);
       writer.println(html);
     } catch (IOException e) {
-      LOGGER.error("Could not get PrintWriter");
+      LOGGER.warn("Could not get PrintWriter due to: ", e);
     }
   }
 

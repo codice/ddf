@@ -232,7 +232,7 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet implements 
         return;
       }
     } catch (IOException e) {
-      LOG.error("Could not send error.");
+      LOG.warn("Could not send error due to: ", e);
     }
 
     // create exchange and set data on it
