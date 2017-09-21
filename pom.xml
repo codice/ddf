@@ -563,7 +563,7 @@
                             <executions>
                                 <execution>
                                     <id>checkstyle-check</id>
-                                    <phase>verify</phase>
+                                    <phase>validate</phase>
                                     <goals>
                                         <goal>check</goal>
                                     </goals>
@@ -581,7 +581,7 @@
                                 </execution>
                                 <execution>
                                     <id>checkstyle-check-xml</id>
-                                    <phase>verify</phase>
+                                    <phase>validate</phase>
                                     <goals>
                                         <goal>check</goal>
                                     </goals>
