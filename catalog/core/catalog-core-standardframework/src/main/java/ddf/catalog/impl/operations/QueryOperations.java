@@ -13,22 +13,6 @@
  */
 package ddf.catalog.impl.operations;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.opengis.filter.Filter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import ddf.catalog.Constants;
 import ddf.catalog.core.versioning.DeletedMetacard;
 import ddf.catalog.core.versioning.MetacardVersion;
@@ -131,8 +115,6 @@ public class QueryOperations extends DescribableImpl {
 
   private FilterAdapter filterAdapter;
 
-  private List<String> fanoutProxyTagBlacklist = new ArrayList<>();
-
   private long queryTimeoutMillis = 300000;
 
   public QueryOperations(
@@ -150,10 +132,6 @@ public class QueryOperations extends DescribableImpl {
     return NumberUtils.toInt(System.getProperty(MAX_PAGE_SIZE_PROPERTY), DEFAULT_MAX_PAGE_SIZE);
   }
 
-  public void setFanoutProxyTagBlacklist(List<String> fanoutProxyTagBlacklist) {
-    this.fanoutProxyTagBlacklist = fanoutProxyTagBlacklist;
-  }
-
   public void setFilterAdapter(FilterAdapter filterAdapter) {
     this.filterAdapter = filterAdapter;
   }
@@ -165,25 +143,21 @@ public class QueryOperations extends DescribableImpl {
   //
   // Delegate methods
   //
-  public QueryResponse query(QueryRequest fedQueryRequest, boolean fanoutEnabled)
+  public QueryResponse query(QueryRequest fedQueryRequest)
       throws UnsupportedQueryException, SourceUnavailableException, FederationException {
-    return query(fedQueryRequest, null, fanoutEnabled);
+    return query(fedQueryRequest, null);
   }
 
-  public QueryResponse query(
-      QueryRequest queryRequest, FederationStrategy strategy, boolean fanoutEnabled)
+  public QueryResponse query(QueryRequest queryRequest, FederationStrategy strategy)
       throws SourceUnavailableException, UnsupportedQueryException, FederationException {
-    return query(queryRequest, strategy, false, fanoutEnabled);
+    return query(queryRequest, strategy, false);
   }
 
   //
   // Helper methods
   //
   QueryResponse query(
-      QueryRequest queryRequest,
-      FederationStrategy strategy,
-      boolean overrideFanoutRename,
-      boolean fanoutEnabled)
+      QueryRequest queryRequest, FederationStrategy strategy, boolean overrideFanoutRename)
       throws UnsupportedQueryException, FederationException {
 
     FederationStrategy fedStrategy = strategy;
@@ -193,7 +167,6 @@ public class QueryOperations extends DescribableImpl {
 
     try {
       queryRequest = validateQueryRequest(queryRequest);
-      queryRequest = getFanoutQuery(queryRequest, fanoutEnabled);
       queryRequest = preProcessPreAuthorizationPlugins(queryRequest);
       queryRequest = populateQueryRequestPolicyMap(queryRequest);
       queryRequest = processPreQueryAccessPlugins(queryRequest);
@@ -219,7 +192,7 @@ public class QueryOperations extends DescribableImpl {
       queryResponse.getProperties().put("actualResultSize", queryResponse.getResults().size());
 
       queryResponse = injectAttributes(queryResponse);
-      queryResponse = validateFixQueryResponse(queryResponse, overrideFanoutRename, fanoutEnabled);
+      queryResponse = validateFixQueryResponse(queryResponse);
       queryResponse = postProcessPreAuthorizationPlugins(queryResponse);
       queryResponse = populateQueryResponsePolicyMap(queryResponse);
       queryResponse = processPostQueryAccessPlugins(queryResponse);
@@ -531,29 +504,6 @@ public class QueryOperations extends DescribableImpl {
     return queryReq;
   }
 
-  private QueryRequest getFanoutQuery(QueryRequest queryRequest, boolean fanoutEnabled) {
-    if (!fanoutEnabled || blockProxyFanoutQuery(queryRequest)) {
-      return queryRequest;
-    }
-
-    return new QueryRequestImpl(queryRequest.getQuery(), true, null, queryRequest.getProperties());
-  }
-
-  private boolean blockProxyFanoutQuery(QueryRequest queryRequest) {
-    if (filterAdapter == null) {
-      return false;
-    }
-
-    try {
-      return filterAdapter.adapt(
-          queryRequest.getQuery(), new TagsFilterDelegate(new HashSet<>(fanoutProxyTagBlacklist)));
-    } catch (UnsupportedQueryException e) {
-      LOGGER.debug(
-          "Error checking if fanout query should be proxied. Defaulting to yes, proxy the query");
-      return false;
-    }
-  }
-
   /**
    * Validates that the {@link QueryRequest} is non-null and that the query in it is non-null. Also
    * checks that the query's page size is between 1 and the {@link #MAX_PAGE_SIZE}. If not, the
@@ -639,14 +589,11 @@ public class QueryOperations extends DescribableImpl {
    * the original {@link QueryRequest} is included in the response.
    *
    * @param queryResponse the original {@link QueryResponse} returned from the source
-   * @param overrideFanoutRename
-   * @param fanoutEnabled
    * @return the updated {@link QueryResponse}
    * @throws UnsupportedQueryException if the original {@link QueryResponse} is null or the results
    *     list is null
    */
-  private QueryResponse validateFixQueryResponse(
-      QueryResponse queryResponse, boolean overrideFanoutRename, boolean fanoutEnabled)
+  private QueryResponse validateFixQueryResponse(QueryResponse queryResponse)
       throws UnsupportedQueryException {
     if (queryResponse == null) {
       throw new UnsupportedQueryException("CatalogProvider returned null QueryResponse Object.");
@@ -654,10 +601,6 @@ public class QueryOperations extends DescribableImpl {
     if (queryResponse.getResults() == null) {
       throw new UnsupportedQueryException(
           "CatalogProvider returned null list of results from query method.");
-    }
-
-    if (fanoutEnabled && !overrideFanoutRename) {
-      queryResponse = replaceSourceId(queryResponse);
     }
 
     return queryResponse;
@@ -841,13 +784,13 @@ public class QueryOperations extends DescribableImpl {
         // default to local sources
         addConnectedSources =
             CollectionUtils.isNotEmpty(frameworkProperties.getConnectedSources())
-                || CollectionUtils.isNotEmpty(queryOps.sourceOperations.getFanoutSourceList());
+                || CollectionUtils.isNotEmpty(queryOps.sourceOperations.getFilteredFanoutSources());
         addCatalogProvider = queryOps.hasCatalogProvider();
       }
 
       try {
         TagsFilterDelegate tagsFilterDelegate =
-            new TagsFilterDelegate(new HashSet<>(queryOps.sourceOperations.getFanoutSourceList()));
+            new TagsFilterDelegate(new HashSet<>(queryOps.sourceOperations.getFanoutTagWhitelist()));
         whitelistQuery =
             queryOps.filterAdapter.adapt(queryRequest.getQuery(), tagsFilterDelegate)
                 || !queryOps.filterAdapter.adapt(queryRequest.getQuery(), new TagsFilterDelegate());
