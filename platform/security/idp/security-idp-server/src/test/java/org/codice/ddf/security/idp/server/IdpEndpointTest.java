@@ -58,6 +58,7 @@ import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.wss4j.common.ext.WSSecurityException;
+import org.codice.ddf.itests.common.XmlSearch;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory;
 import org.codice.ddf.security.policy.context.ContextPolicy;
@@ -750,9 +751,7 @@ public class IdpEndpointTest {
   }
 
   @Test
-  public void testPassiveLoginPkiUnsupportedPost()
-      throws SecurityServiceException, WSSecurityException, CertificateEncodingException,
-          IOException {
+  public void testPassiveLoginPkiUnsupportedPost() throws Exception {
     String samlRequest = authNRequestPassivePkiPost;
     HttpServletRequest request = mock(HttpServletRequest.class);
     X509Certificate x509Certificate = mock(X509Certificate.class);
@@ -782,8 +781,8 @@ public class IdpEndpointTest {
 
     Response response = idpEndpoint.showPostLogin(samlRequest, relayState, request);
     String responseStr =
-        StringUtils.substringBetween(
-            response.getEntity().toString(), "SAMLResponse\" value=\"", "\" />");
+        XmlSearch.evaluate(
+            "/html/body/form/input[@name='SAMLResponse']/@value", response.getEntity().toString());
     responseStr = new String(Base64.getDecoder().decode(responseStr));
 
     // the only cookie that should exist is the "1" cookie so "2" should send us to the login webapp
