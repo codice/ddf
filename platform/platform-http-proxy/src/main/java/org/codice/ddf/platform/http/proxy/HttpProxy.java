@@ -75,33 +75,34 @@ public class HttpProxy {
     Properties properties = getProperties();
     stopProxy();
 
-        boolean isSecureEnabled = Boolean.valueOf(properties.getProperty(SECURE_ENABLED_PROPERTY));
-        boolean isHttpEnabled = Boolean.valueOf(properties.getProperty(HTTP_ENABLED_PROPERTY));
-        if (isSecureEnabled && !isHttpEnabled) {
-            String httpPort = properties.getProperty(PORT_PROPERTY);
-            String httpsPort = properties.getProperty(SECURE_PORT_PROPERTY);
-            String cxfContext = properties.getProperty(CXF_CONTEXT);
-            String host;
-            try {
-                host = StringUtils.isNotBlank(hostname) ?
-                        hostname :
-                        InetAddress.getLocalHost()
-                                .getHostName();
-            } catch (UnknownHostException e) {
-                LOGGER.warn(
-                        "Unable to determine hostname, using localhost instead. Check the configuration of the system. Set logging to DEBUG for more details.");
-                LOGGER.debug(
-                        "Unable to determine hostname, using localhost instead. Check the configuration of the system.",
-                        e);
-                host = "localhost";
-            }
-            endpointName = ((HttpProxyServiceImpl) httpProxyService).start(UNKNOWN_TARGET + ":" + httpPort,
-                    "https://" + host + ":" + httpsPort,
-                    120000,
-                    true,
-                    new PolicyRemoveBean(httpPort, httpsPort, host, cxfContext));
-        }
+    boolean isSecureEnabled = Boolean.valueOf(properties.getProperty(SECURE_ENABLED_PROPERTY));
+    boolean isHttpEnabled = Boolean.valueOf(properties.getProperty(HTTP_ENABLED_PROPERTY));
+    if (isSecureEnabled && !isHttpEnabled) {
+      String httpPort = properties.getProperty(PORT_PROPERTY);
+      String httpsPort = properties.getProperty(SECURE_PORT_PROPERTY);
+      String cxfContext = properties.getProperty(CXF_CONTEXT);
+      String host;
+      try {
+        host =
+            StringUtils.isNotBlank(hostname) ? hostname : InetAddress.getLocalHost().getHostName();
+      } catch (UnknownHostException e) {
+        LOGGER.warn(
+            "Unable to determine hostname, using localhost instead. Check the configuration of the system. Set logging to DEBUG for more details.");
+        LOGGER.debug(
+            "Unable to determine hostname, using localhost instead. Check the configuration of the system.",
+            e);
+        host = "localhost";
+      }
+      endpointName =
+          ((HttpProxyServiceImpl) httpProxyService)
+              .start(
+                  UNKNOWN_TARGET + ":" + httpPort,
+                  "https://" + host + ":" + httpsPort,
+                  120000,
+                  true,
+                  new PolicyRemoveBean(httpPort, httpsPort, host, cxfContext));
     }
+  }
 
   /**
    * Returns the pax web properties.
