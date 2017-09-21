@@ -18,6 +18,7 @@ import org.codice.ddf.activities.ActivityEvent;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentItem;
 import org.codice.ddf.persistence.PersistentStore;
+import org.codice.ddf.persistence.PersistentStore.PersistenceType;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
@@ -71,7 +72,7 @@ public class ActivityListener implements EventHandler {
     activityToStore.addProperty(ActivityEvent.BYTES_READ_KEY, bytes);
     activityToStore.addProperty(ActivityEvent.DOWNLOAD_ID_KEY, downloadId);
     try {
-      persistentStore.add(PersistentStore.ACTIVITY_TYPE, activityToStore);
+      persistentStore.add(PersistenceType.ACTIVITY_TYPE.toString(), activityToStore);
     } catch (PersistenceException e) {
       LOGGER.info("Error while handling activity event", e);
     }

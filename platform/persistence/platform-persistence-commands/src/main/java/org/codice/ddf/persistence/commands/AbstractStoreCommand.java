@@ -19,6 +19,7 @@ import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentStore;
+import org.codice.ddf.persistence.PersistentStore.PersistenceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,13 +60,11 @@ public abstract class AbstractStoreCommand implements Action {
 
     try {
 
-      if (PersistentStore.PERSISTENCE_TYPES.contains(type)) {
+      if (PersistenceType.hasType(type)) {
         storeCommand();
       } else {
         console.println(
-            "Type passed in was not correct. Must be one of "
-                + PersistentStore.PERSISTENCE_TYPES
-                + ".");
+            "Type passed in was not correct. Must be one of " + PersistenceType.values() + ".");
       }
 
     } catch (PersistenceException pe) {

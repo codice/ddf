@@ -13,41 +13,45 @@
  */
 package org.codice.ddf.persistence;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public interface PersistentStore {
 
-  String METACARD_TYPE = "metacard";
-  String SAVED_QUERY_TYPE = "saved_query";
-  String NOTIFICATION_TYPE = "notification";
-  String ACTIVITY_TYPE = "activity";
-  String WORKSPACE_TYPE = "workspace";
-  String PREFERENCES_TYPE = "preferences";
-  String USER_ATTRIBUTE_TYPE = "attributes";
-  String SUBSCRIPTION_TYPE = "subscriptions";
-  String EVENT_SUBSCRIPTIONS_TYPE = "event_subscriptions";
-  String ALERT_TYPE = "alerts";
-  String DECANTER_TYPE = "decanter";
+  enum PersistenceType {
+    METACARD_TYPE("metacard"),
+    SAVED_QUERY_TYPE("saved_query"),
+    NOTIFICATION_TYPE("notification"),
+    ACTIVITY_TYPE("activity"),
+    WORKSPACE_TYPE("workspace"),
+    PREFERENCES_TYPE("preferences"),
+    USER_ATTRIBUTE_TYPE("attributes"),
+    SUBSCRIPTION_TYPE("subscriptions"),
+    EVENT_SUBSCRIPTIONS_TYPE("event_subscriptions"),
+    ALERT_TYPE("alerts"),
+    DECANTER_TYPE("decanter");
 
-  Set<String> PERSISTENCE_TYPES =
-      new HashSet<String>(
-          Arrays.asList(
-              METACARD_TYPE,
-              SAVED_QUERY_TYPE,
-              NOTIFICATION_TYPE,
-              ACTIVITY_TYPE,
-              WORKSPACE_TYPE,
-              PREFERENCES_TYPE,
-              USER_ATTRIBUTE_TYPE,
-              SUBSCRIPTION_TYPE,
-              EVENT_SUBSCRIPTIONS_TYPE,
-              ALERT_TYPE,
-              DECANTER_TYPE));
+    private String type;
+
+    PersistenceType(final String type) {
+      this.type = type;
+    }
+
+    public static boolean hasType(String type) {
+      return Stream.of(PersistenceType.values())
+          .map(PersistenceType::toString)
+          .collect(Collectors.toList())
+          .contains(type);
+    }
+
+    @Override
+    public String toString() {
+      return type;
+    }
+  }
 
   /**
    * Adds item of specified type with the specified properties.

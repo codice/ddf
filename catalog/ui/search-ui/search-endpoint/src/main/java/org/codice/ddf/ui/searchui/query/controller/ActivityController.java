@@ -26,6 +26,7 @@ import org.codice.ddf.activities.ActivityEvent;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentItem;
 import org.codice.ddf.persistence.PersistentStore;
+import org.codice.ddf.persistence.PersistentStore.PersistenceType;
 import org.cometd.annotation.Listener;
 import org.cometd.annotation.Service;
 import org.cometd.bayeux.Message;
@@ -138,7 +139,8 @@ public class ActivityController extends AbstractEventController {
     try {
       results =
           persistentStore.get(
-              PersistentStore.ACTIVITY_TYPE, ActivityEvent.USER_ID_KEY + " = '" + userId + "'");
+              PersistenceType.ACTIVITY_TYPE.toString(),
+              ActivityEvent.USER_ID_KEY + " = '" + userId + "'");
     } catch (PersistenceException e) {
       LOGGER.debug("PersistenceException trying to get activities for user {}", userId, e);
     }
@@ -226,7 +228,8 @@ public class ActivityController extends AbstractEventController {
             // You can have a blank id for guest
             if (id != null) {
               try {
-                this.persistentStore.delete(PersistentStore.ACTIVITY_TYPE, "id = '" + id + "'");
+                this.persistentStore.delete(
+                    PersistenceType.ACTIVITY_TYPE.toString(), "id = '" + id + "'");
               } catch (PersistenceException e) {
                 throw new IllegalArgumentException("Unable to delete activity with id = " + id);
               }

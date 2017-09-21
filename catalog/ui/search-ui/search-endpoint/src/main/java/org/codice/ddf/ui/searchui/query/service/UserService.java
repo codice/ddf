@@ -25,6 +25,7 @@ import javax.inject.Inject;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentItem;
 import org.codice.ddf.persistence.PersistentStore;
+import org.codice.ddf.persistence.PersistentStore.PersistenceType;
 import org.codice.ddf.ui.searchui.query.model.Search;
 import org.cometd.annotation.Listener;
 import org.cometd.annotation.Service;
@@ -72,7 +73,8 @@ public class UserService {
         List<Map<String, Object>> preferencesList;
         try {
           preferencesList =
-              persistentStore.get(PersistentStore.PREFERENCES_TYPE, "user = '" + username + "'");
+              persistentStore.get(
+                  PersistenceType.PREFERENCES_TYPE.toString(), "user = '" + username + "'");
           if (preferencesList.size() == 1) {
             Map<String, Object> preferences = preferencesList.get(0);
             JSONContext.Client jsonContext = new Jackson1JSONContextClient();
@@ -108,7 +110,7 @@ public class UserService {
         item.addProperty("user", username);
         item.addProperty("preferences_json", json);
         try {
-          persistentStore.add(PersistentStore.PREFERENCES_TYPE, item);
+          persistentStore.add(PersistenceType.PREFERENCES_TYPE.toString(), item);
         } catch (PersistenceException e) {
           LOGGER.info(
               "PersistenceException while trying to persist preferences for user {}", username, e);

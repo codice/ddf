@@ -38,6 +38,7 @@ import org.codice.ddf.catalog.ui.util.EndpointUtil;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentItem;
 import org.codice.ddf.persistence.PersistentStore;
+import org.codice.ddf.persistence.PersistentStore.PersistenceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.servlet.SparkApplication;
@@ -112,7 +113,7 @@ public class UserApplication implements SparkApplication {
         Base64.getEncoder().encodeToString(json.getBytes(Charset.defaultCharset())));
 
     try {
-      persistentStore.add(PersistentStore.PREFERENCES_TYPE, item);
+      persistentStore.add(PersistenceType.PREFERENCES_TYPE.toString(), item);
     } catch (PersistenceException e) {
       LOGGER.info(
           "PersistenceException while trying to persist preferences for user {}", username, e);
@@ -129,7 +130,7 @@ public class UserApplication implements SparkApplication {
     try {
       String filter = String.format("user = '%s'", username);
       List<Map<String, Object>> preferencesList =
-          persistentStore.get(PersistentStore.PREFERENCES_TYPE, filter);
+          persistentStore.get(PersistenceType.PREFERENCES_TYPE.toString(), filter);
       if (preferencesList.size() == 1) {
         byte[] json = (byte[]) preferencesList.get(0).get("preferences_json_bin");
 

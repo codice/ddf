@@ -28,6 +28,7 @@ import org.codice.ddf.notifications.Notification;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentItem;
 import org.codice.ddf.persistence.PersistentStore;
+import org.codice.ddf.persistence.PersistentStore.PersistenceType;
 import org.fusesource.jansi.Ansi;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -162,14 +163,14 @@ public class ListCommand implements Action {
         try {
           List<Map<String, Object>> results;
           if (StringUtils.isNotBlank(cql)) {
-            results = persistentStore.get(PersistentStore.NOTIFICATION_TYPE, cql);
+            results = persistentStore.get(PersistenceType.NOTIFICATION_TYPE.toString(), cql);
           } else if (StringUtils.isNotBlank(userId)) {
             results =
                 persistentStore.get(
-                    PersistentStore.NOTIFICATION_TYPE,
+                    PersistenceType.NOTIFICATION_TYPE.toString(),
                     Notification.NOTIFICATION_KEY_USER_ID + " = '" + userId + "'");
           } else {
-            results = persistentStore.get(PersistentStore.NOTIFICATION_TYPE);
+            results = persistentStore.get(PersistenceType.NOTIFICATION_TYPE.toString());
           }
 
           for (Map<String, Object> result : results) {
