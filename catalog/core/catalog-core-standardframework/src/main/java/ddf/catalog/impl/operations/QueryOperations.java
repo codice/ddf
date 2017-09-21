@@ -790,7 +790,8 @@ public class QueryOperations extends DescribableImpl {
 
       try {
         TagsFilterDelegate tagsFilterDelegate =
-            new TagsFilterDelegate(new HashSet<>(queryOps.sourceOperations.getFanoutTagWhitelist()));
+            new TagsFilterDelegate(
+                new HashSet<>(queryOps.sourceOperations.getFanoutTagWhitelist()));
         whitelistQuery =
             queryOps.filterAdapter.adapt(queryRequest.getQuery(), tagsFilterDelegate)
                 || !queryOps.filterAdapter.adapt(queryRequest.getQuery(), new TagsFilterDelegate());

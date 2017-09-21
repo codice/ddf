@@ -43,7 +43,7 @@
             description="Dynamic fanout sources that should be queried when the local catalog provider is queried. List is an exclusion list if the Invert Fanout Sources option is selected."/>
 
         <AD name="Invert Fanout Sources" id="invertFanoutList" required="true" type="Boolean"
-            default="true"
+            default="false"
             description="Inverts the Dynamic Fanout Sources list to be an exclusion list instead of an inclusion list."/>
     </OCD>
 

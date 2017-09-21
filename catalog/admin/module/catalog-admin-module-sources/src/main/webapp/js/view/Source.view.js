@@ -27,15 +27,19 @@ define([
         'js/view/Utils.js',
         'text!templates/deleteModal.handlebars',
         'text!templates/deleteSource.handlebars',
+        'text!templates/fanoutModal.handlebars',
+        'text!templates/fanoutItem.handlebars',
         'text!templates/sourcePage.handlebars',
         'text!templates/sourceList.handlebars',
         'text!templates/sourceRow.handlebars'
     ],
-    function (ich, Marionette, _, $, Q, ModalSource, EmptyView, Service, Status, wreqr, Utils, deleteModal, deleteSource, sourcePage, sourceList, sourceRow) {
+    function (ich, Marionette, _, $, Q, ModalSource, EmptyView, Service, Status, wreqr, Utils, deleteModal, deleteSource, fanoutModal, fanoutItem, sourcePage, sourceList, sourceRow) {
         var SourceView = {};
 
         ich.addTemplate('deleteModal', deleteModal);
         ich.addTemplate('deleteSource', deleteSource);
+        ich.addTemplate('fanoutModal', fanoutModal);
+        ich.addTemplate('fanoutItem', fanoutItem);
         ich.addTemplate('sourcePage', sourcePage);
         ich.addTemplate('sourceList', sourceList);
         ich.addTemplate('sourceRow', sourceRow);
@@ -82,6 +86,7 @@ define([
                 }
 
                 data.name = this.model.get('name');
+                data.fanout = this.model.get('fanout');
 
                 return data;
             },
@@ -160,6 +165,13 @@ define([
             hideSourcesLoading: function() {
                 this.$el.find("#sources-loading").addClass('hide');
                 this.$el.find('table').removeClass('hide');
+                var collection = this.model.get('collection');
+                var fanout = this.options.fanout;
+                _.each(collection.models, function(item){
+                    var found = _.indexOf(fanout.get('fanoutSourceList'), item.get('name')) >= 0;
+                    var invert = fanout.get('invertFanoutList');
+                    item.set('fanout',(found && !invert) || (!found && invert));
+                });
             }
         });
 
@@ -167,7 +179,8 @@ define([
             template: 'sourcePage',
             events: {
                 'click #removeSourceButton': 'removeSource',
-                'click #addSourceButton': 'addSource'
+                'click #addSourceButton': 'addSource',
+                'click #configureFanoutButton': 'configureFanout'
             },
             initialize: function () {
                 _.bindAll.apply(_, [this].concat(_.functions(this)));
@@ -192,7 +205,8 @@ define([
                 var collection = this.model.get('collection');
                 var table = new SourceView.SourceTable({
                     model: this.model,
-                    collection: collection
+                    collection: collection,
+                    fanout: this.options.fanout
                 });
                 this.collectionRegion.show(table);
                 this.refreshSources();
@@ -236,6 +250,17 @@ define([
                             model: this.model.getSourceModelWithServices(),
                             source: this.model,
                             mode: 'add'
+                        })
+                    );
+                }
+            },
+            configureFanout: function () {
+                if (this.model) {
+                    wreqr.vent.trigger("showModal",
+                        new SourceView.FanoutModal({
+                            model: this.model,
+                            collection: this.model.get('collection'),
+                            fanout: this.options.fanout
                         })
                     );
                 }
@@ -356,6 +381,45 @@ define([
                         view.$el.modal("hide");
                     }).done();
                 }
+            }
+        });
+        SourceView.FanoutItem = Marionette.ItemView.extend({
+            template: "fanoutItem"
+        });
+        SourceView.FanoutModal = Marionette.CompositeView.extend({
+            template: 'fanoutModal',
+            className: 'modal',
+            itemView: SourceView.FanoutItem,
+            itemViewContainer: '.modal-body',
+            events: {
+                'click .submit-button': 'saveFanout',
+
+            },
+            serializeData: function () {
+                var data = this.model.toJSON();
+                var fanout = this.options.fanout;
+                _.each(data.collection.models, function(item){
+                    item.attributes.fanout = _.indexOf(fanout.get('fanoutSourceList'), item.attributes.name) >= 0;
+                });
+                data.filterInverted = fanout.get('invertFanoutList');
+                return data;
+            },
+            saveFanout: function () {
+                var view = this;
+                var fanoutSources = [];
+                view.$(".fanoutSource").each(function (index, content) {
+                    if (content.checked) {
+                        fanoutSources.push(content.value);
+                    }
+                });
+
+                var fanout = this.options.fanout;
+                fanout.set('invertFanoutList', view.$(".invert-filtered-check")[0].checked);
+                fanout.set('fanoutSourceList', fanoutSources);
+                fanout.save().done(function () {
+                    wreqr.vent.trigger('refreshSources');
+                    view.$el.modal("hide");
+                });
             }
         });
 

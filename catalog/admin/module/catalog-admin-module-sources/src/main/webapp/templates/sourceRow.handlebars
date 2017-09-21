@@ -60,5 +60,8 @@
                 <span class='label label-warning'>Unavailable</span>
             {{/if}}
         {{/if}}
+        {{#if fanout}}
+            <i class="fa fa-wifi fa-rotate-90 {{#if available}}fanout-success{{else}}fanout-warning{{/if}}" title="This source is configured as a fanout source"></i>
+        {{/if}}
     {{/if}}
 </td>
