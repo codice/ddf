@@ -102,6 +102,12 @@
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-plugin/${project.version}</bundle>
     </feature>
 
+    <feature name="feature-index" install="manual" version="${project.version}"
+             description="Offline gazetteer service storing geographic features in the catalog">
+        <feature prerequisite="true">spatial-app</feature>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-feature/${project.version}</bundle>
+    </feature>
+
     <feature name="spatial-app" install="auto" version="${project.version}"
              description="Spatial contains standards-based, geospatial endpoints, sources, and transforms.::Spatial">
         <feature prerequisite="true">catalog-app</feature>
