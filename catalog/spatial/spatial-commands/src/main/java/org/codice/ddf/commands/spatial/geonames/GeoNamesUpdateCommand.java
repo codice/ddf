@@ -20,6 +20,10 @@ import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Reference;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
+import org.codice.ddf.spatial.geocoding.FeatureExtractionException;
+import org.codice.ddf.spatial.geocoding.FeatureExtractor;
+import org.codice.ddf.spatial.geocoding.FeatureIndexer;
+import org.codice.ddf.spatial.geocoding.FeatureIndexingException;
 import org.codice.ddf.spatial.geocoding.GeoEntryExtractionException;
 import org.codice.ddf.spatial.geocoding.GeoEntryExtractor;
 import org.codice.ddf.spatial.geocoding.GeoEntryIndexer;
@@ -68,12 +72,24 @@ public final class GeoNamesUpdateCommand implements Action {
 
   @Reference private GeoEntryExtractor geoEntryExtractor;
 
+  @Reference private FeatureIndexer featureIndexer;
+
+  @Reference private FeatureExtractor featureExtractor;
+
   public void setGeoEntryExtractor(final GeoEntryExtractor geoEntryExtractor) {
     this.geoEntryExtractor = geoEntryExtractor;
   }
 
   public void setGeoEntryIndexer(final GeoEntryIndexer geoEntryIndexer) {
     this.geoEntryIndexer = geoEntryIndexer;
+  }
+
+  public void setFeatureIndexer(FeatureIndexer featureIndexer) {
+    this.featureIndexer = featureIndexer;
+  }
+
+  public void setFeatureExtractor(FeatureExtractor featureExtractor) {
+    this.featureExtractor = featureExtractor;
   }
 
   public void setResource(String resource) {
@@ -85,27 +101,35 @@ public final class GeoNamesUpdateCommand implements Action {
     final PrintStream console = System.out;
 
     final ProgressCallback progressCallback =
-        new ProgressCallback() {
-          @Override
-          public void updateProgress(final int progress) {
-            console.printf("\r%d%%", progress);
-            console.flush();
-          }
+        progress -> {
+          console.printf("\r%d%%", progress);
+          console.flush();
+        };
+
+    final FeatureIndexer.IndexCallback featureIndexCallback =
+        count -> {
+          console.printf("\r%d features indexed", count);
+          console.flush();
         };
 
     console.println("Updating...");
 
     try {
-      geoEntryIndexer.updateIndex(resource, geoEntryExtractor, create, progressCallback);
+      if (resource.toLowerCase().endsWith(".geojson")) {
+        featureIndexer.updateIndex(resource, featureExtractor, create, featureIndexCallback);
+      } else {
+        geoEntryIndexer.updateIndex(resource, geoEntryExtractor, create, progressCallback);
+      }
+
       console.println("\nDone.");
-    } catch (GeoEntryExtractionException e) {
+    } catch (GeoEntryExtractionException | FeatureExtractionException e) {
       LOGGER.debug("Error extracting GeoNames data from resource {}", resource, e);
       console.printf(
           "Could not extract GeoNames data from resource %s.%n"
               + "Message: %s%n"
               + "Check the logs for more details.%n",
           resource, e.getMessage());
-    } catch (GeoEntryIndexingException e) {
+    } catch (GeoEntryIndexingException | FeatureIndexingException e) {
       LOGGER.debug("Error indexing GeoNames data", e);
       console.printf(
           "Could not index the GeoNames data.%n"
