@@ -62,47 +62,52 @@ public class SourceOperations extends DescribableImpl {
 
   private StorageProvider storage;
 
-    private List<String> fanoutTagWhitelist = new ArrayList<>();
+  private List<String> fanoutTagWhitelist = new ArrayList<>();
 
-    private List<String> fanoutSourceList = new ArrayList<>();
+  private List<String> fanoutSourceList = new ArrayList<>();
 
-    private boolean invertFanoutList = false;public SourceOperations(FrameworkProperties frameworkProperties) {
-        this.frameworkProperties = frameworkProperties;
-    }
+  private boolean invertFanoutList = false;
 
-    public List<String> getFanoutTagWhitelist() {
-        return fanoutTagWhitelist;
-    }
+  public SourceOperations(FrameworkProperties frameworkProperties) {
+    this.frameworkProperties = frameworkProperties;
+  }
 
-    public void setFanoutTagWhitelist(List<String> fanoutTagWhitelist) {
-        this.fanoutTagWhitelist = fanoutTagWhitelist;
-    }
+  public List<String> getFanoutTagWhitelist() {
+    return fanoutTagWhitelist;
+  }
 
-    public List<String> getFanoutSourceList() {
-        return fanoutSourceList;
-    }
+  public void setFanoutTagWhitelist(List<String> fanoutTagWhitelist) {
+    this.fanoutTagWhitelist = fanoutTagWhitelist;
+  }
 
-    public void setFanoutSourceList(List<String> fanoutSourceList) {
-        this.fanoutSourceList = fanoutSourceList;
-    }
+  public List<String> getFanoutSourceList() {
+    return fanoutSourceList;
+  }
 
-    public boolean isInvertFanoutList() {
-        return invertFanoutList;
-    }
+  public void setFanoutSourceList(List<String> fanoutSourceList) {
+    this.fanoutSourceList = fanoutSourceList;
+  }
 
-    public void setInvertFanoutList(boolean invertFanoutList) {
-        this.invertFanoutList = invertFanoutList;
-    }/**
-     * Invoked by blueprint when a {@link CatalogProvider} is created and bound to this
-     * CatalogFramework instance.
-     *
-     * <p>The local catalog provider will be set to the first item in the {@link java.util.List} of
-     * {@link CatalogProvider}s bound to this CatalogFramework.
-     *
-     * @param catalogProvider the {@link CatalogProvider} being bound to this CatalogFramework* instance
-     */
-    public void bind(CatalogProvider catalogProvider) {
-        LOGGER.trace("ENTERING: bind");
+  public boolean isInvertFanoutList() {
+    return invertFanoutList;
+  }
+
+  public void setInvertFanoutList(boolean invertFanoutList) {
+    this.invertFanoutList = invertFanoutList;
+  }
+  /**
+   * Invoked by blueprint when a {@link CatalogProvider} is created and bound to this
+   * CatalogFramework instance.
+   *
+   * <p>The local catalog provider will be set to the first item in the {@link java.util.List} of
+   * {@link CatalogProvider}s bound to this CatalogFramework.
+   *
+   * @param catalogProvider the {@link CatalogProvider} being bound to this CatalogFramework*
+   *     instance
+   */
+
+  public void bind(CatalogProvider catalogProvider) {
+    LOGGER.trace("ENTERING: bind");
 
     catalog = frameworkProperties.getCatalogProviders().stream().findFirst().orElse(null);
 

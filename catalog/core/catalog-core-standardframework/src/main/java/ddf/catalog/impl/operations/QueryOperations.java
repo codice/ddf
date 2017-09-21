@@ -13,6 +13,22 @@
  */
 package ddf.catalog.impl.operations;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.opengis.filter.Filter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ddf.catalog.Constants;
 import ddf.catalog.core.versioning.DeletedMetacard;
 import ddf.catalog.core.versioning.MetacardVersion;
@@ -146,13 +162,13 @@ public class QueryOperations extends DescribableImpl {
     this.queryTimeoutMillis = queryTimeoutMillis;
   }
 
-    //
-    // Delegate methods
-    //
-    public QueryResponse query(QueryRequest fedQueryRequest, boolean fanoutEnabled)
-            throws UnsupportedQueryException, SourceUnavailableException, FederationException {
-        return query(fedQueryRequest, null, fanoutEnabled);
-    }
+  //
+  // Delegate methods
+  //
+  public QueryResponse query(QueryRequest fedQueryRequest, boolean fanoutEnabled)
+      throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+    return query(fedQueryRequest, null, fanoutEnabled);
+  }
 
   public QueryResponse query(
       QueryRequest queryRequest, FederationStrategy strategy, boolean fanoutEnabled)
@@ -270,6 +286,7 @@ public class QueryOperations extends DescribableImpl {
 
     QueryResponse response = strategy.federate(querySources.sourcesToQuery, queryRequest);
     frameworkProperties.getQueryResponsePostProcessor().processResponse(response);
+    maskSources(querySources.getDynamicFanoutSources(), response);
     return addProcessingDetails(querySources.exceptions, response);
   }
 
@@ -809,34 +826,34 @@ public class QueryOperations extends DescribableImpl {
               }
             }
 
-                        if (!sourceFound) {
-                            exceptions.add(new ProcessingDetailsImpl(id,
-                                    new SourceUnavailableException("Source id is not found")));
-                        }
-                    }
-                    if (!notPermittedSources.isEmpty()) {
-                        SecurityLogger.audit("Subject is not permitted to access sources {}",
-                                notPermittedSources);
-                    }
-                }
-            } else {
-                // default to local sources
-                addConnectedSources =
-                        CollectionUtils.isNotEmpty(frameworkProperties.getConnectedSources())
-                                || CollectionUtils.isNotEmpty(queryOps.sourceOperations.getFanoutSourceList());
-                addCatalogProvider = queryOps.hasCatalogProvider();
+            if (!sourceFound) {
+              exceptions.add(
+                  new ProcessingDetailsImpl(
+                      id, new SourceUnavailableException("Source id is not found")));
             }
+          }
+          if (!notPermittedSources.isEmpty()) {
+            SecurityLogger.audit(
+                "Subject is not permitted to access sources {}", notPermittedSources);
+          }
+        }
+      } else {
+        // default to local sources
+        addConnectedSources =
+            CollectionUtils.isNotEmpty(frameworkProperties.getConnectedSources())
+                || CollectionUtils.isNotEmpty(queryOps.sourceOperations.getFanoutSourceList());
+        addCatalogProvider = queryOps.hasCatalogProvider();
+      }
 
-            try {
-                TagsFilterDelegate tagsFilterDelegate = new TagsFilterDelegate(new HashSet<>(
-                        queryOps.sourceOperations.getFanoutSourceList()));
-                whitelistQuery = queryOps.filterAdapter.adapt(queryRequest.getQuery(),
-                        tagsFilterDelegate)
-                        || !queryOps.filterAdapter.adapt(queryRequest.getQuery(),
-                        new TagsFilterDelegate());
-            } catch (UnsupportedQueryException e) {
-                LOGGER.debug("Error checking tags on query request", e);
-            }
+      try {
+        TagsFilterDelegate tagsFilterDelegate =
+            new TagsFilterDelegate(new HashSet<>(queryOps.sourceOperations.getFanoutSourceList()));
+        whitelistQuery =
+            queryOps.filterAdapter.adapt(queryRequest.getQuery(), tagsFilterDelegate)
+                || !queryOps.filterAdapter.adapt(queryRequest.getQuery(), new TagsFilterDelegate());
+      } catch (UnsupportedQueryException e) {
+        LOGGER.debug("Error checking tags on query request", e);
+      }
 
       return this;
     }
@@ -859,15 +876,16 @@ public class QueryOperations extends DescribableImpl {
           Map<String, FederatedSource> federatedSourceMap =
               frameworkProperties.getFederatedSources();
 
-                    List<String> sourceIds = queryOps.sourceOperations.getFanoutSourceList();
-                    if (queryOps.sourceOperations.isInvertFanoutList()) {
-                        sourceIds = frameworkProperties.getFederatedSources()
-                                .keySet()
-                                .stream()
-                                .filter(id -> !queryOps.sourceOperations.getFanoutSourceList()
-                                        .contains(id))
-                                .collect(Collectors.toList());
-                    }
+          List<String> sourceIds = queryOps.sourceOperations.getFanoutSourceList();
+          if (queryOps.sourceOperations.isInvertFanoutList()) {
+            sourceIds =
+                frameworkProperties
+                    .getFederatedSources()
+                    .keySet()
+                    .stream()
+                    .filter(id -> !queryOps.sourceOperations.getFanoutSourceList().contains(id))
+                    .collect(Collectors.toList());
+          }
 
           for (String sourceId : sourceIds) {
             if (federatedSourceMap.containsKey(sourceId)) {
