@@ -26,11 +26,11 @@ import org.junit.Test;
 
 public class StraightExpansionImplTest {
 
-  public List<String[]> rulesList1 = new ArrayList<String[]>();
+  private List<String[]> rulesList1 = new ArrayList<String[]>();
 
-  public List<String[]> rulesList2 = new ArrayList<String[]>();
+  private List<String[]> rulesList2 = new ArrayList<String[]>();
 
-  public Map<String, List<String[]>> testmap = new HashMap<String, List<String[]>>();
+  private Map<String, List<String[]>> testmap = new HashMap<String, List<String[]>>();
 
   /*
    * Rules for the various tests \A and \z represent the start of input and end of input
@@ -68,7 +68,7 @@ public class StraightExpansionImplTest {
   private String rule4Str = "VP:";
 
   @Before
-  public void setupData() {
+  public void setup() {
     rulesList1.add(rule1a);
     rulesList1.add(rule1b);
     rulesList1.add(rule1c);
