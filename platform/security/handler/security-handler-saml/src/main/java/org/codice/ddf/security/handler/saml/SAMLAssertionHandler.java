@@ -59,8 +59,6 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SAMLAssertionHandler.class);
 
-  private static final String SAML_NAMESPACE = "urn:oasis:names:tc:SAML:2.0:assertion";
-
   private static final String EVIDENCE =
       "<%1$s:Evidence xmlns:%1$s=\"urn:oasis:names:tc:SAML:2.0:assertion\">%2$s</%1$s:Evidence>";
 
