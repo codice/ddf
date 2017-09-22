@@ -19,7 +19,9 @@ require([
     'component/singletons/user-instance',
     'js/MediaQueries',
     'js/Theming',
-    'js/SystemUsage'
+    'js/SystemUsage',
+    'component/singletons/session-auto-renew',
+    'js/SessionTimeout'
 ], function($, app, properties, store, user) {
 
     var workspaces = store.get('workspaces');

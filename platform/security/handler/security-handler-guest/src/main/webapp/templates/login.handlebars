@@ -12,28 +12,28 @@
  **/
  --}}
 <div class="login-container">
-    <form role="form" id="loginForm">
+    <form role="form" id="loginForm" style="max-width: 400px; margin: 0 auto;">
         <div id="loginError" class="text-danger" style="display: none;">Credentials are invalid.
         </div>
         <div class="form-group login-field">
-            <label for="username">Username:</label>
+
 
             <div class="row">
-                <div class="col-xs-4">
-                    <input type="text" id="username" name="username" class="form-control" placeholder="Enter Username"/>
+                <div class="col-xs-4" style="width: 100%">
+                    <input type="text" id="username" name="username" class="form-control" placeholder="Username"/>
                 </div>
             </div>
-            <label for="password">Password:</label>
+            <br/>
 
             <div class="row">
-                <div class="col-xs-4">
+                <div class="col-xs-4" style="width: 100%">
                     <input type="password" id="password" name="password" class="form-control" placeholder="Password"/>
                 </div>
             </div>
         </div>
-        <div class="form-actions btn-group">
-            <button type="button" class="btn btn-medium btn-primary btn-signin">Sign In</button>
-            <button type="button" class="btn btn-medium btn-clear">Clear</button>
+        <div class="form-actions btn-group" style="width: 100%">
+            <button type="button" class="btn btn-medium btn-primary btn-signin" style="width: 50%">Sign In</button>
+            <button type="button" class="btn btn-medium btn-clear" style="width: 50%">Clear</button>
         </div>
     </form>
 </div>
