@@ -442,6 +442,7 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
                 var feature = geometry.getSource().getFeatures()[0];
                 var geometryInstance = feature.getGeometry();
                 if (geometryInstance.constructor === Openlayers.geom.Point) {
+                    geometry.setZIndex(options.isSelected ? 2 : 1);
                     feature.setStyle(new Openlayers.style.Style({
                         image: new Openlayers.style.Icon({
                             img: DrawingUtility.getCircleWithText({
@@ -490,6 +491,7 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
                         x = options.size.x;
                         y = options.size.y;
                     }
+                    geometry.setZIndex(options.isSelected ? 2 : 1);
                     feature.setStyle(new Openlayers.style.Style({
                         image: new Openlayers.style.Icon({
                             img: DrawingUtility.getPin({

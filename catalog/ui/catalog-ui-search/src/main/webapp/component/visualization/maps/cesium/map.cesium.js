@@ -560,6 +560,7 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
                     text: options.count,
                     textColor: options.textFill
                 });
+                geometry.eyeOffset = new Cesium.Cartesian3(0, 0, options.isSelected ? -1 : 0);
             } else if (geometry.constructor === Cesium.PolylineCollection) {
                 geometry._polylines.forEach(function(polyline) {
                     polyline.material = Cesium.Material.fromType('PolylineOutline', {
@@ -590,6 +591,7 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
                     strokeColor: options.isSelected ? 'black' : 'white',
                     icon: options.icon
                 });
+                geometry.eyeOffset = new Cesium.Cartesian3(0, 0, options.isSelected ? -1 : 0);
             } else if (geometry.constructor === Cesium.PolylineCollection) {
                 geometry._polylines.forEach(function(polyline) {
                     polyline.material = Cesium.Material.fromType('PolylineOutline', {
