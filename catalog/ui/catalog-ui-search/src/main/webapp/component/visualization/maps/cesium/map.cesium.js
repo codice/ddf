@@ -76,6 +76,12 @@ function createMap(insertionElement) {
         }
     }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
 
+    viewer.screenSpaceEventHandler.setInputAction(function() {
+        if (!store.get('content').get('drawing')){
+             $('body').mousedown();
+        }
+    }, Cesium.ScreenSpaceEventType.RIGHT_DOWN);
+
     if (properties.terrainProvider && properties.terrainProvider.type) {
         var type = imageryProviderTypes[properties.terrainProvider.type];
         var initObj = _.omit(properties.terrainProvider, 'type');
