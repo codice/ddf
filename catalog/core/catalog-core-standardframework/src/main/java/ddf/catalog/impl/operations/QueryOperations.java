@@ -715,6 +715,9 @@ public class QueryOperations extends DescribableImpl {
         // add all the federated sources
         Set<String> notPermittedSources = new HashSet<>();
         for (FederatedSource source : frameworkProperties.getFederatedSources().values()) {
+          if (queryOps.sourceOperations.getFilteredFanoutSources().contains(source.getId())) {
+            continue;
+          }
           boolean canAccessSource = queryOps.canAccessSource(source, queryRequest);
           if (!canAccessSource) {
             notPermittedSources.add(source.getId());
@@ -738,7 +741,8 @@ public class QueryOperations extends DescribableImpl {
           LOGGER.debug("Local source is included in sourceIds");
           addConnectedSources =
               CollectionUtils.isNotEmpty(frameworkProperties.getConnectedSources())
-                  || CollectionUtils.isNotEmpty(queryOps.sourceOperations.getFanoutSourceList());
+                  || CollectionUtils.isNotEmpty(
+                      queryOps.sourceOperations.getFilteredFanoutSources());
           addCatalogProvider = queryOps.hasCatalogProvider();
           sourceIds.remove(queryOps.getId());
           sourceIds.remove(null);
