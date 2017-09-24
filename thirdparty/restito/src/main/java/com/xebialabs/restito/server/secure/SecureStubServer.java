@@ -51,9 +51,6 @@ import org.slf4j.LoggerFactory;
 @SuppressFBWarnings("MF_CLASS_MASKS_FIELD")
 public class SecureStubServer extends StubServer {
 
-  @SuppressWarnings("WeakerAccess")
-  public static final int DEFAULT_PORT = 6666;
-
   private static final Logger LOGGER = LoggerFactory.getLogger(StubServer.class);
 
   private final List<Call> calls = new CopyOnWriteArrayList<>();
@@ -63,7 +60,7 @@ public class SecureStubServer extends StubServer {
   private final HttpServer simpleServer;
 
   /** Whether or not the server should run in HTTPS mode. */
-  private boolean secured = true;
+  private boolean isSecured = true;
 
   /** Creates a server based on stubs that are used to determine behavior. */
   public SecureStubServer(Stub... stubs) {
@@ -94,16 +91,18 @@ public class SecureStubServer extends StubServer {
   }
 
   /** It is possible to add a stub even after the server is started */
+  @Override
   public SecureStubServer addStub(Stub s) {
     this.stubs.add(s);
     return this;
   }
 
   /** Starts the server */
+  @Override
   public SecureStubServer run() {
     simpleServer.getServerConfiguration().addHttpHandler(stubsToHandler(), "/");
     try {
-      if (secured) {
+      if (isSecured) {
         for (NetworkListener networkListener : simpleServer.getListeners()) {
           networkListener.setSecure(true);
           SSLEngineConfigurator sslEngineConfig =
@@ -113,11 +112,12 @@ public class SecureStubServer extends StubServer {
       }
       simpleServer.start();
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw new IllegalStateException(e);
     }
     return this;
   }
 
+  @SuppressWarnings("squid:S2177")
   private SSLContextConfigurator getSslConfig() throws IOException {
     SSLContextConfigurator defaultConfig = SSLContextConfigurator.DEFAULT_CONFIG;
     if (!defaultConfig.validateConfiguration(true)) {
@@ -139,6 +139,7 @@ public class SecureStubServer extends StubServer {
    * @return The absolute path to the temporary keystore.
    * @throws IOException If the store could not be copied.
    */
+  @SuppressWarnings("squid:S2177")
   private String createCertificateStore(String resourceName) throws IOException {
     URL resource = StubServer.class.getResource("/" + resourceName);
     File store = File.createTempFile(resourceName, "store");
@@ -151,25 +152,29 @@ public class SecureStubServer extends StubServer {
   }
 
   /** Alias for StubServer.run() */
+  @Override
   public void start() {
     run();
   }
 
   /** Stops the server */
+  @Override
   public SecureStubServer stop() {
     simpleServer.shutdownNow();
     return this;
   }
 
   /** Sets the Server in Secure mode. If it is already running, ignores the call. */
+  @Override
   public SecureStubServer secured() {
     if (!simpleServer.isStarted()) {
-      this.secured = true;
+      this.isSecured = true;
     }
     return this;
   }
 
   /** Returns the port which the server is running at */
+  @Override
   public int getPort() {
     return simpleServer.getListeners().iterator().next().getPort();
   }
@@ -179,6 +184,7 @@ public class SecureStubServer extends StubServer {
    * This is done to prevent concurrency issues. See <a
    * href="https://github.com/mkotsur/restito/issues/33">#33</a>.
    */
+  @Override
   public List<Call> getCalls() {
     return unmodifiableList(calls);
   }
@@ -188,10 +194,12 @@ public class SecureStubServer extends StubServer {
    * This is done to prevent concurrency issues. See <a
    * href="https://github.com/mkotsur/restito/issues/33">#33</a>.
    */
+  @Override
   public List<Stub> getStubs() {
     return unmodifiableList(stubs);
   }
 
+  @SuppressWarnings("squid:S2177")
   private HttpHandler stubsToHandler() {
     return new HttpHandler() {
       @Override

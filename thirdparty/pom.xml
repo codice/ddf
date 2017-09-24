@@ -24,7 +24,7 @@
 
     <groupId>ddf.thirdparty</groupId>
     <artifactId>thirdparty</artifactId>
-    <name>DDF :: Test :: Thirdparty</name>
+    <name>DDF :: Thirdparty</name>
     <packaging>pom</packaging>
 
     <properties>
