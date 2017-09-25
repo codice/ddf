@@ -14,15 +14,25 @@
 package org.codice.ddf.catalog.ui.query.geofeature;
 
 import static java.util.stream.Collectors.toList;
-import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
 
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Polygon;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import org.codice.ddf.spatial.geocoder.GeoResult;
 import org.codice.ddf.spatial.geocoder.GeoResultCreator;
+import org.codice.ddf.spatial.geocoding.FeatureQueryable;
 import org.codice.ddf.spatial.geocoding.GeoEntry;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryException;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryable;
+import org.geotools.feature.simple.SimpleFeatureBuilder;
+import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
+import org.geotools.geometry.jts.JTS;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.geometry.primitive.Point;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,8 +47,14 @@ public class GazetteerFeatureService implements FeatureService {
 
   private GeoEntryQueryable geoEntryQueryable;
 
+  private FeatureQueryable featureQueryable;
+
   public void setGeoEntryQueryable(GeoEntryQueryable geoEntryQueryable) {
     this.geoEntryQueryable = geoEntryQueryable;
+  }
+
+  public void setFeatureQueryable(FeatureQueryable featureQueryable) {
+    this.featureQueryable = featureQueryable;
   }
 
   @Override
@@ -56,11 +72,21 @@ public class GazetteerFeatureService implements FeatureService {
   }
 
   @Override
-  public Feature getFeatureByName(String name) {
+  public SimpleFeature getFeatureByName(String name) {
     try {
       List<GeoEntry> entries = this.geoEntryQueryable.query(name, 1);
       if (!entries.isEmpty()) {
-        GeoResult geoResult = getGeoResultFromGeoEntry(entries.get(0));
+        GeoEntry entry = entries.get(0);
+
+        String countryCode = getAlpha3CountryCodeForGeoEntry(entry);
+        if (countryCode != null) {
+          List<SimpleFeature> countries = this.featureQueryable.query(countryCode, 1);
+          if (!countries.isEmpty()) {
+            return countries.get(0);
+          }
+        }
+
+        GeoResult geoResult = GeoResultCreator.createGeoResult(entry);
         return getFeatureFromGeoResult(geoResult);
       }
     } catch (GeoEntryQueryException e) {
@@ -69,22 +95,36 @@ public class GazetteerFeatureService implements FeatureService {
     return null;
   }
 
-  protected GeoResult getGeoResultFromGeoEntry(GeoEntry entry) {
-    return GeoResultCreator.createGeoResult(entry);
+  private String getAlpha3CountryCodeForGeoEntry(GeoEntry entry) {
+    String featureCode = entry.getFeatureCode().toUpperCase();
+    if (!featureCode.startsWith("PCL")) return null;
+    return new Locale(Locale.ENGLISH.getLanguage(), entry.getCountryCode()).getISO3Country();
   }
 
-  private Feature getFeatureFromGeoResult(GeoResult geoResult) {
+  private SimpleFeature getFeatureFromGeoResult(GeoResult geoResult) {
+    Polygon polygon = getPolygonFromBBox(geoResult.getBbox());
+    SimpleFeatureBuilder builder = getSimpleFeatureBuilder(polygon);
+    SimpleFeature feature = builder.buildFeature(geoResult.getFullName());
+    return feature;
+  }
 
-    BoundingBoxFeature boundingBoxFeature = new BoundingBoxFeature();
-    boundingBoxFeature.setName(geoResult.getFullName());
+  private SimpleFeatureBuilder getSimpleFeatureBuilder(Geometry geometry) {
+    SimpleFeatureTypeBuilder typeBuilder = new SimpleFeatureTypeBuilder();
+    typeBuilder.setName("testFeatureType");
+    typeBuilder.setCRS(DefaultGeographicCRS.WGS84);
+    typeBuilder.add("coordinates", geometry.getClass());
+    SimpleFeatureType featureType = typeBuilder.buildFeatureType();
+    SimpleFeatureBuilder builder = new SimpleFeatureBuilder(featureType);
+    builder.add(geometry);
+    return builder;
+  }
 
-    List<Point> bbox = geoResult.getBbox();
-    if (isNotEmpty(bbox)) {
-      boundingBoxFeature.setWest(bbox.get(0).getDirectPosition().getCoordinate()[0]);
-      boundingBoxFeature.setNorth(bbox.get(0).getDirectPosition().getCoordinate()[1]);
-      boundingBoxFeature.setEast(bbox.get(1).getDirectPosition().getCoordinate()[0]);
-      boundingBoxFeature.setSouth(bbox.get(1).getDirectPosition().getCoordinate()[1]);
-    }
-    return boundingBoxFeature;
+  private Polygon getPolygonFromBBox(List<Point> bbox) {
+    double[] p0 = bbox.get(0).getDirectPosition().getCoordinate();
+    double[] p1 = bbox.get(1).getDirectPosition().getCoordinate();
+    Envelope envelope = new Envelope();
+    envelope.expandToInclude(p0[0], p0[1]);
+    envelope.expandToInclude(p1[0], p1[1]);
+    return JTS.toGeometry(envelope);
   }
 }
