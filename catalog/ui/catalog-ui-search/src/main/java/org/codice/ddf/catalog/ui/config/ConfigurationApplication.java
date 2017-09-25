@@ -258,15 +258,16 @@ public class ConfigurationApplication implements SparkApplication {
     if (imageryProviderUrlMaps.isEmpty()) {
       // @formatter:off
       return Collections.singletonList(
-          ImmutableMap.of(
-              "type",
-              "SI",
-              "url",
-              "/search/catalog/images/natural_earth_50m.png",
-              "parameters",
-              ImmutableMap.of("imageSize", Arrays.asList(10800, 5400)),
-              "alpha",
-              1));
+          ImmutableMap.builder()
+              .put("type", "SI")
+              .put("url", "/search/catalog/images/natural_earth_50m.png")
+              .put("parameters", ImmutableMap.of("imageSize", Arrays.asList(10800, 5400)))
+              .put("alpha", 1)
+              .put("name", "Default Layer")
+              .put("show", true)
+              .put("proxyEnabled", true)
+              .put("order", 0)
+              .build());
       // @formatter:on
     } else {
       return imageryProviderUrlMaps;
