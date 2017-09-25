@@ -206,8 +206,8 @@
 * org.apache.wss4j:wss4j-ws-security-dom:jar:2.1.11
 * org.apache.wss4j:wss4j-ws-security-policy-stax:jar:2.1.11
 * org.apache.wss4j:wss4j-ws-security-stax:jar:2.1.11
-* org.asciidoctor:asciidoctorj-diagram:jar:1.5.0
-* org.asciidoctor:asciidoctorj:jar:1.5.4.1
+* org.asciidoctor:asciidoctorj-diagram:jar:1.5.4.1
+* org.asciidoctor:asciidoctorj:jar:1.5.6
 * org.assertj:assertj-core:jar:2.1.0
 * org.awaitility:awaitility:jar:3.0.0
 * org.bouncycastle:bcmail-jdk15on:jar:1.55
@@ -285,7 +285,7 @@
 * org.jdom:jdom:jar:2.0.2
 * org.joda:joda-convert:jar:1.2
 * org.jolokia:jolokia-osgi:jar:1.2.3
-* org.jruby:jruby-complete:jar:1.7.25
+* org.jruby:jruby-complete:jar:1.7.26
 * org.jscience:jscience:jar:4.3.1
 * org.jvnet.jaxb2_commons:jaxb2-basics-runtime:jar:0.6.0
 * org.jvnet.jaxb2_commons:jaxb2-basics-runtime:jar:0.9.4
