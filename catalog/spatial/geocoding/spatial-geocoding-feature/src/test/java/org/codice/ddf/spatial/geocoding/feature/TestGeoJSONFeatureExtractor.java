@@ -50,12 +50,6 @@ public class TestGeoJSONFeatureExtractor {
     assertThat(geometry.getNumPoints(), is(258));
   }
 
-  @Test(expected = FeatureExtractionException.class)
-  public void testFailureToSimplify() throws FeatureExtractionException, FeatureIndexingException {
-    geoJSONFeatureExtractor.setMaxPointsPerFeature(3);
-    loadFeaturesFromPath(RUSSIA_GEOJSON_PATH);
-  }
-
   private List<SimpleFeature> loadFeaturesFromPath(String path)
       throws FeatureExtractionException, FeatureIndexingException {
     final FeatureExtractor.ExtractionCallback extractionCallback =
