@@ -596,6 +596,16 @@ public class TikaInputTransformerTest {
   }
 
   @Test
+  public void testBadPpt() throws Exception {
+    InputStream stream =
+        Thread.currentThread().getContextClassLoader().getResourceAsStream("testBadPPT.ppt");
+    Metacard metacard = transform(stream);
+    assertNotNull(metacard);
+    assertNull(metacard.getMetadata());
+    assertThat(metacard.getAttribute(Core.DATATYPE).getValue(), is("Dataset"));
+  }
+
+  @Test
   public void testXls() throws Exception {
     InputStream stream =
         Thread.currentThread().getContextClassLoader().getResourceAsStream("testEXCEL.xls");
