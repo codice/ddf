@@ -15,18 +15,18 @@ package org.codice.ddf.admin.application.service.command;
 
 import static org.boon.Boon.fromJson;
 
-import ddf.security.Subject;
-import ddf.security.SubjectUtils;
+import ddf.security.common.audit.SecurityLogger;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.Callable;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.apache.karaf.bundle.core.BundleService;
@@ -134,24 +134,20 @@ public class ProfileInstallCommand extends AbstractProfileCommand {
       throws ApplicationServiceException {
     if (startupApps != null) {
       printSectionHeading("Starting Applications");
-      startupApps
-          .stream()
-          .distinct()
-          .forEach(
-              application -> {
-                printItemStatusPending("Starting: ", application);
-                executeAsSystem(
-                    () -> {
-                      try {
-                        applicationService.startApplication(application);
-                      } catch (ApplicationServiceException e) {
-                        printItemStatusFailure("Start Failed: ", application);
-                        throw e;
-                      }
-                      return true;
-                    });
-                printItemStatusSuccess("Started: ", application);
-              });
+      Set<String> uniqueValues = new HashSet<>();
+      for (String application : startupApps) {
+        if (uniqueValues.add(application)) {
+          printItemStatusPending("Starting: ", application);
+          try {
+            applicationService.startApplication(application);
+            SecurityLogger.audit("Started Application: {}", application);
+          } catch (ApplicationServiceException e) {
+            printItemStatusFailure("Start Failed: ", application);
+            throw e;
+          }
+          printItemStatusSuccess("Started: ", application);
+        }
+      }
     }
   }
 
@@ -160,9 +156,11 @@ public class ProfileInstallCommand extends AbstractProfileCommand {
       if (!featuresService.isInstalled(featuresService.getFeature("admin-post-install-modules"))) {
         printSectionHeading("Finalizing Installation");
         featuresService.installFeature("admin-post-install-modules", NO_AUTO_REFRESH);
+        SecurityLogger.audit("Installed admin-post-install-modules");
       }
       if (featuresService.isInstalled(featuresService.getFeature("admin-modules-installer"))) {
         featuresService.uninstallFeature("admin-modules-installer", NO_AUTO_REFRESH);
+        SecurityLogger.audit("Uninstalled admin-modules-installer");
       }
     } catch (Exception e) {
       printError("An error occurred while trying to perform post-install operations");
@@ -174,24 +172,20 @@ public class ProfileInstallCommand extends AbstractProfileCommand {
       throws Exception {
     if (installFeatures != null) {
       printSectionHeading("Installing Features");
-      installFeatures
-          .stream()
-          .distinct()
-          .forEach(
-              feature -> {
-                printItemStatusPending("Installing: ", feature);
-                executeAsSystem(
-                    () -> {
-                      try {
-                        featuresService.installFeature(feature, NO_AUTO_REFRESH);
-                      } catch (Exception e) {
-                        printItemStatusFailure("Install Failed: ", feature);
-                        throw e;
-                      }
-                      return true;
-                    });
-                printItemStatusSuccess("Installed: ", feature);
-              });
+      Set<String> uniqueValues = new HashSet<>();
+      for (String feature : installFeatures) {
+        if (uniqueValues.add(feature)) {
+          printItemStatusPending("Installing: ", feature);
+          try {
+            featuresService.installFeature(feature, NO_AUTO_REFRESH);
+            SecurityLogger.audit("Installed Feature: {}", feature);
+          } catch (Exception e) {
+            printItemStatusFailure("Install Failed: ", feature);
+            throw e;
+          }
+          printItemStatusSuccess("Installed: ", feature);
+        }
+      }
     }
   }
 
@@ -199,32 +193,34 @@ public class ProfileInstallCommand extends AbstractProfileCommand {
       throws Exception {
     if (uninstallFeatures != null) {
       printSectionHeading("Uninstalling Features");
-      uninstallFeatures
-          .stream()
-          .distinct()
-          .forEach(
-              feature -> {
-                printItemStatusPending("Uninstalling: ", feature);
-                executeAsSystem(
-                    () -> {
-                      Feature featureObject = featuresService.getFeature(feature);
-                      if (featureObject == null) {
-                        printItemStatusFailure("Uninstall Failed: ", feature);
-                        printError(String.format("Feature: %s does not exist", feature));
-                        throw new IllegalArgumentException(
-                            String.format("Feature: %s does not exist", feature));
-                      }
-                      try {
-                        featuresService.uninstallFeature(
-                            featureObject.getName(), featureObject.getVersion(), NO_AUTO_REFRESH);
-                      } catch (Exception e) {
-                        printItemStatusFailure("Uninstall Failed: ", feature);
-                        throw e;
-                      }
-                      return true;
-                    });
-                printItemStatusSuccess("Uninstalled: ", feature);
-              });
+      Set<String> uniqueValues = new HashSet<>();
+      for (String feature : uninstallFeatures) {
+        if (uniqueValues.add(feature)) {
+          printItemStatusPending("Uninstalling: ", feature);
+          Feature featureObject = null;
+          try {
+            featureObject = featuresService.getFeature(feature);
+          } catch (Exception e) {
+            printError(String.format("Feature: %s does not exist", feature));
+            throw e;
+          }
+          if (featureObject == null) {
+            printItemStatusFailure("Uninstall Failed: ", feature);
+            printError(String.format("Feature: %s does not exist", feature));
+            throw new IllegalArgumentException(
+                String.format("Feature: %s does not exist", feature));
+          }
+          try {
+            featuresService.uninstallFeature(
+                featureObject.getName(), featureObject.getVersion(), NO_AUTO_REFRESH);
+            SecurityLogger.audit("Uninstalled Feature: {}", feature);
+          } catch (Exception e) {
+            printItemStatusFailure("Uninstall Failed: ", feature);
+            throw e;
+          }
+          printItemStatusSuccess("Uninstalled: ", feature);
+        }
+      }
     }
   }
 
@@ -232,28 +228,24 @@ public class ProfileInstallCommand extends AbstractProfileCommand {
       throws BundleException, IllegalArgumentException {
     if (stopBundleNames != null) {
       printSectionHeading("Stopping Bundles");
-      stopBundleNames
-          .stream()
-          .distinct()
-          .forEach(
-              bundle -> {
-                printItemStatusPending("Stopping: ", bundle);
-                executeAsSystem(
-                    () -> {
-                      try {
-                        bundleService.getBundle(bundle).stop();
-                      } catch (BundleException e) {
-                        printItemStatusFailure("Stop Failed: ", bundle);
-                        throw e;
-                      } catch (IllegalArgumentException ie) {
-                        printItemStatusFailure("Stop Failed: ", bundle);
-                        printError(String.format("Bundle: %s does not exist", bundle));
-                        throw ie;
-                      }
-                      return true;
-                    });
-                printItemStatusSuccess("Stopped: ", bundle);
-              });
+      Set<String> uniqueValues = new HashSet<>();
+      for (String bundle : stopBundleNames) {
+        if (uniqueValues.add(bundle)) {
+          printItemStatusPending("Stopping: ", bundle);
+          try {
+            bundleService.getBundle(bundle).stop();
+            SecurityLogger.audit("Stopped Bundle: {}", bundle);
+          } catch (BundleException e) {
+            printItemStatusFailure("Stop Failed: ", bundle);
+            throw e;
+          } catch (IllegalArgumentException ie) {
+            printItemStatusFailure("Stop Failed: ", bundle);
+            printError(String.format("Bundle: %s does not exist", bundle));
+            throw ie;
+          }
+          printItemStatusSuccess("Stopped: ", bundle);
+        }
+      }
     }
   }
 
@@ -294,15 +286,5 @@ public class ProfileInstallCommand extends AbstractProfileCommand {
     }
 
     return Optional.ofNullable(profileMap);
-  }
-
-  private <T> T executeAsSystem(Callable<T> func) {
-    Subject systemSubject = security.getSystemSubject();
-    LOGGER.debug("System Subject retrieved: " + SubjectUtils.getName(systemSubject));
-    if (systemSubject == null) {
-      printError(SECURITY_ERROR);
-      throw new IllegalStateException(SECURITY_ERROR);
-    }
-    return systemSubject.execute(func);
   }
 }

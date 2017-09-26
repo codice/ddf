@@ -194,13 +194,6 @@ public class ProfileInstallCommandTest {
     verify(applicationService, times(3)).startApplication(anyString());
   }
 
-  @Test(expected = RuntimeException.class)
-  public void testSystemSubjectNull() throws Exception {
-    when(security.getSystemSubject()).thenReturn(null);
-    profileInstallCommand.profileName = "devProfile";
-    profileInstallCommand.doExecute(applicationService, featuresService, bundleService);
-  }
-
   @Test(expected = IllegalArgumentException.class)
   public void testBundleNotExist() throws Exception {
     doThrow(IllegalArgumentException.class).when(bundleService).getBundle(any());
