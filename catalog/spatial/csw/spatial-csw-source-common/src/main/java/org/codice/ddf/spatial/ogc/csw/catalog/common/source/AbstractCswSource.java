@@ -918,6 +918,14 @@ public abstract class AbstractCswSource extends MaskableImpl
       URI resourceUri, Map<String, Serializable> requestProperties)
       throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
 
+    String username = cswSourceConfiguration.getUsername();
+    String password = cswSourceConfiguration.getPassword();
+
+    if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(password)) {
+      requestProperties.put(USERNAME_PROPERTY, username);
+      requestProperties.put(PASSWORD_PROPERTY, password);
+    }
+
     if (canRetrieveResourceById()) {
       // If no resource reader was found, retrieve the product through a GetRecordById request
       Serializable serializableId = null;

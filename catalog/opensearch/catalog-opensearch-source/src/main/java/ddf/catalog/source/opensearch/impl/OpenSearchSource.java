@@ -117,6 +117,10 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   private static final String LOCAL_SEARCH_PARAMETER = "local";
 
+  private static final String USERNAME_PROPERTY = "username";
+
+  private static final String PASSWORD_PROPERTY = "password";
+
   private static final Logger LOGGER = LoggerFactory.getLogger(OpenSearchSource.class);
 
   private final EncryptionService encryptionService;
@@ -733,6 +737,10 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     if (serializableId != null) {
       String metacardId = serializableId.toString();
       WebClient restClient = newRestClient(null, metacardId, true, null);
+      if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(password)) {
+        requestProperties.put(USERNAME_PROPERTY, username);
+        requestProperties.put(PASSWORD_PROPERTY, password);
+      }
       return resourceReader.retrieveResource(restClient.getCurrentURI(), requestProperties);
     }
 
