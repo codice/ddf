@@ -109,4 +109,20 @@
         </service-properties>
     </service>
 
+    <bean id="kmzTransformer"
+          class="org.codice.ddf.spatial.kml.transformer.KmzInputTransformer">
+        <argument ref="kmlTransformer" />
+    </bean>
+
+    <service ref="kmzTransformer" interface="ddf.catalog.transform.InputTransformer">
+        <service-properties>
+            <entry key="id" value="kmz"/>
+            <entry key="mime-type" >
+                <list>
+                    <value>application/vnd.google-earth.kmz</value>
+                </list>
+            </entry>
+        </service-properties>
+    </service>
+
 </blueprint>
