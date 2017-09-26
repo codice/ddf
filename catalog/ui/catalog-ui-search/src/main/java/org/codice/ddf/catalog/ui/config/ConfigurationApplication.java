@@ -120,7 +120,7 @@ public class ConfigurationApplication implements SparkApplication {
 
   private Boolean isExperimental = false;
 
-  private Integer autoMergeTime = 100;
+  private Integer autoMergeTime = 1000;
 
   public List<Long> getScheduleFrequencyList() {
     return scheduleFrequencyList;

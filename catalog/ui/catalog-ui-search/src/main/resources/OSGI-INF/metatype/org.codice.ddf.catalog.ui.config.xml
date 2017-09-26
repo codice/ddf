@@ -216,7 +216,7 @@
             name="Auto Merge Time"
             description="Specifies the interval during which new results can be merged automatically.  This is the time allowed since last merge (in millseconds)."
             type="Integer"
-            default="100"
+            default="1000"
             required="true"/>
 
         <AD id="resultPageSize"

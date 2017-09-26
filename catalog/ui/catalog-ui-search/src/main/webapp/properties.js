@@ -11,7 +11,7 @@
  **/
 /*global define*/
 var DEFAULT_PAGE_SIZE = 25;
-var DEFAULT_AUTO_MERGE_TIME = 100;
+var DEFAULT_AUTO_MERGE_TIME = 1000;
 
 define(function (require) {
     'use strict';
