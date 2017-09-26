@@ -38,6 +38,7 @@ import org.apache.felix.cm.impl.helper.ConfigurationMap;
 import org.apache.felix.cm.impl.helper.ManagedServiceFactoryTracker;
 import org.apache.felix.cm.impl.helper.ManagedServiceTracker;
 import org.apache.felix.cm.impl.helper.TargetedPID;
+import org.codice.felix.cm.file.EncryptingPersistenceManager;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -57,7 +58,11 @@ import org.osgi.service.log.LogService;
 import org.osgi.util.tracker.ServiceTracker;
 
 /**
- * The <code>ConfigurationManager</code> is the central class in this implementation of the
+ * Code taken from Felix:
+ * http://svn.apache.org/viewvc/felix/releases/org.apache.felix.configadmin-1.8.14
+ * /src/main/java/org/apache/felix/cm/impl/ConfigurationManager.java?view=co
+ *
+ * <p>The <code>ConfigurationManager</code> is the central class in this implementation of the
  * Configuration Admin Service Specification. As such it has the following tasks:
  *
  * <ul>
@@ -83,6 +88,8 @@ import org.osgi.util.tracker.ServiceTracker;
  * config</code> directory in the current working directory as specified in the <code>user.dir
  * </code> system property is used.
  */
+// Suppression because this code is copied from the felix code base. Refer to link above.
+@SuppressWarnings("all")
 public class ConfigurationManager implements BundleActivator, BundleListener {
 
   /**
@@ -223,8 +230,11 @@ public class ConfigurationManager implements BundleActivator, BundleListener {
 
     // set up the location (might throw IllegalArgumentException)
     try {
-      FilePersistenceManager fpm =
-          new FilePersistenceManager(bundleContext, bundleContext.getProperty(CM_CONFIG_DIR));
+      // the only major change codice made to this class is wrapping cache persistence with
+      // encryption
+      PersistenceManager fpm =
+          new EncryptingPersistenceManager(
+              new FilePersistenceManager(bundleContext, bundleContext.getProperty(CM_CONFIG_DIR)));
 
       Hashtable props = new Hashtable();
       props.put(Constants.SERVICE_PID, fpm.getClass().getName());
@@ -1016,6 +1026,8 @@ public class ConfigurationManager implements BundleActivator, BundleListener {
       // FELIX-2771 Secure Random not available on Mika
       try {
         ng = new SecureRandom();
+      } catch (OutOfMemoryError | StackOverflowError | ThreadDeath e) {
+        throw e;
       } catch (Throwable t) {
         // fall back to Random
         ng = new Random();

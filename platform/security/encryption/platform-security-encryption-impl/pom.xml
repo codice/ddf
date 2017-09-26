@@ -39,7 +39,7 @@
         <dependency>
             <groupId>org.keyczar</groupId>
             <artifactId>keyczar</artifactId>
-            <version>0.66</version>
+            <version>${keyczar.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
