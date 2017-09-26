@@ -13,16 +13,26 @@
 -->
 <assembly>
 
-  <id>bin</id>
+    <id>bin</id>
 
-  <formats>
-    <format>zip</format>
-  </formats>
+    <formats>
+        <format>zip</format>
+    </formats>
 
- 
     <componentDescriptors>
         <componentDescriptor>target/dependencies/common-bin.xml</componentDescriptor>
     </componentDescriptors>
-    
-  
+
+    <!-- We need this because the feature service is not up when we want to provision our
+    own config admin -->
+    <dependencySets>
+        <dependencySet>
+            <outputDirectory>system/ddf/platform/osgi/platform-osgi-configadmin/${project.version}
+            </outputDirectory>
+            <includes>
+                <include>ddf.platform.osgi:platform-osgi-configadmin</include>
+            </includes>
+        </dependencySet>
+    </dependencySets>
+
 </assembly>

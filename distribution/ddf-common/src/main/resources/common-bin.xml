@@ -33,6 +33,7 @@
                 <exclude>etc/org.ops4j.pax.url.mvn.cfg</exclude>
                 <exclude>etc/org.apache.karaf.log.cfg</exclude>
                 <exclude>etc/org.ops4j.pax.web.cfg</exclude>
+                <exclude>etc/startup.properties</exclude>
                 <exclude>etc/users.properties</exclude>
                 <exclude>etc/system.properties</exclude>
                 <exclude>etc/shell.init.script</exclude>

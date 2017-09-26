@@ -27,7 +27,10 @@
     <packaging>pom</packaging>
     <properties>
         <joda-convert.version>1.7</joda-convert.version>
+        <!-- Be warned! Changing the osgi version here could impact platform-osgi-configadmin since we
+        are essentially embedding a slightly modified version of felix -->
         <osgi.version>5.0.0</osgi.version>
+        <keyczar.version>0.66</keyczar.version>
         <cas.client.version>3.1.10</cas.client.version>
         <javax.inject.version>1</javax.inject.version>
         <!--  Third-party bundle versions. These should only be used in the features.xml file.
