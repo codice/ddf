@@ -25,18 +25,16 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** Bulk adds metacards to the cache that are not needed immediately. */
-class CacheBulkProcessor {
+public class CacheBulkProcessor {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CacheBulkProcessor.class);
 
   private final ScheduledExecutorService batchScheduler =
-      Executors.newSingleThreadScheduledExecutor(
-          StandardThreadFactoryBuilder.newThreadFactory("cacheBulkProcessorThread"));
+      Executors.newSingleThreadScheduledExecutor();
 
   private final Map<String, Metacard> metacardsToCache = new ConcurrentHashMap<>();
 
@@ -48,8 +46,10 @@ class CacheBulkProcessor {
 
   private Date lastBulkAdd = new Date();
 
+  private CacheStrategy cacheStrategy;
+
   public CacheBulkProcessor(final SolrCache cache) {
-    this(cache, 1, TimeUnit.SECONDS);
+    this(cache, 1, TimeUnit.SECONDS, CacheStrategy.ALL);
   }
 
   /**
@@ -60,7 +60,11 @@ class CacheBulkProcessor {
    * @param delay delay between decision to bulk add
    * @param delayUnit units of the delay
    */
-  public CacheBulkProcessor(final SolrCache cache, final long delay, final TimeUnit delayUnit) {
+  public CacheBulkProcessor(
+      final SolrCache cache,
+      final long delay,
+      final TimeUnit delayUnit,
+      CacheStrategy cacheStrategy) {
     batchScheduler.scheduleWithFixedDelay(
         new Runnable() {
           @Override
@@ -90,6 +94,8 @@ class CacheBulkProcessor {
         delay,
         delay,
         delayUnit);
+
+    this.cacheStrategy = cacheStrategy;
   }
 
   private boolean timeToFlush() {
@@ -105,14 +111,9 @@ class CacheBulkProcessor {
    */
   public void add(final List<Result> results) {
     if (metacardsToCache.size() < maximumBacklogSize) {
-      for (Result result : results) {
-        if (result != null) {
-          Metacard metacard = result.getMetacard();
-          if (metacard != null) {
-            metacardsToCache.put(metacard.getId(), metacard);
-          }
-        }
-      }
+      cacheStrategy
+          .getCacheStrategyFunction()
+          .accept(results, m -> metacardsToCache.put(m.getId(), m));
     }
   }
 
@@ -135,5 +136,9 @@ class CacheBulkProcessor {
 
   public void setMaximumBacklogSize(int maximumBacklogSize) {
     this.maximumBacklogSize = maximumBacklogSize;
+  }
+
+  public void setCacheStrategy(CacheStrategy cacheStrategy) {
+    this.cacheStrategy = cacheStrategy;
   }
 }

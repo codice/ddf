@@ -586,4 +586,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
   }
 
   /** Phaser that forces all added metacards to commit to the cache on phase advance */
+  public void setCacheStrategy(String cacheStrategy) {
+    cacheBulkProcessor.setCacheStrategy(CacheStrategy.valueOf(cacheStrategy));
+  }
 }

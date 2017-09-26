@@ -51,7 +51,8 @@ public class CacheBulkProcessorTest {
 
   @Before
   public void setUp() throws Exception {
-    cacheBulkProcessor = new CacheBulkProcessor(mockSolrCache, 1, TimeUnit.MILLISECONDS);
+    cacheBulkProcessor =
+        new CacheBulkProcessor(mockSolrCache, 1, TimeUnit.MILLISECONDS, CacheStrategy.ALL);
     cacheBulkProcessor.setBatchSize(10);
   }
 
