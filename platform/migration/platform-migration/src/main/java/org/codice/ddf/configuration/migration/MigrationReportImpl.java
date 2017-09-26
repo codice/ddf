@@ -183,9 +183,8 @@ public class MigrationReportImpl implements MigrationReport {
     throw e;
   }
 
-  // PMD.DefaultPackage - designed to be called from ConfigurationMigrationManager within this
-  // package
-  @SuppressWarnings("PMD.DefaultPackage")
+  @SuppressWarnings(
+      "PMD.DefaultPackage" /* designed to be called from ConfigurationMigrationManager within this package */)
   MigrationReportImpl end() {
     runCodes();
     this.end = Optional.of(Instant.now());

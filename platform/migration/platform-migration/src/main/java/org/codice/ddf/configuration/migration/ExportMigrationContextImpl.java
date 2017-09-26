@@ -47,8 +47,7 @@ import org.slf4j.LoggerFactory;
  * The export migration context keeps track of exported migration entries for a given migratable
  * while processing an export migration operation.
  */
-// squid:S2160 - the base class equals() is sufficient for our needs.
-@SuppressWarnings("squid:S2160")
+@SuppressWarnings("squid:S2160" /* the base class equals() is sufficient for our needs. */)
 public class ExportMigrationContextImpl extends MigrationContextImpl<ExportMigrationReportImpl>
     implements ExportMigrationContext, Closeable {
   private static final Logger LOGGER = LoggerFactory.getLogger(ExportMigrationContextImpl.class);
@@ -171,8 +170,8 @@ public class ExportMigrationContextImpl extends MigrationContextImpl<ExportMigra
    * @return metadata to export for the corresponding migratable keyed by the migratable's id
    * @throws org.codice.ddf.migration.MigrationException to stop the export operation
    */
-  // PMD.DefaultPackage - designed to be called from ExportMigrationManagerImpl within this package
-  @SuppressWarnings("PMD.DefaultPackage")
+  @SuppressWarnings(
+      "PMD.DefaultPackage" /* designed to be called from ExportMigrationManagerImpl within this package */)
   Map<String, Map<String, Object>> doExport() {
     LOGGER.debug(
         "Exporting [{}] with version [{}]...", id, getVersion()); // version will never be empty
@@ -191,8 +190,8 @@ public class ExportMigrationContextImpl extends MigrationContextImpl<ExportMigra
     return metadata;
   }
 
-  // PMD.DefaultPackage - designed to be called from ExportMigrationEntryImpl within this package
-  @SuppressWarnings("PMD.DefaultPackage")
+  @SuppressWarnings(
+      "PMD.DefaultPackage" /* designed to be called from ExportMigrationEntryImpl within this package */)
   OutputStream getOutputStreamFor(ExportMigrationEntryImpl entry) {
     try {
       close();

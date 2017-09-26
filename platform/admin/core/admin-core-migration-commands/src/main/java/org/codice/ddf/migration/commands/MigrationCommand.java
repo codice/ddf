@@ -30,12 +30,12 @@ import org.fusesource.jansi.Ansi.Attribute;
 
 /** Provides common methods and instance variables that migration commands can use. */
 public abstract class MigrationCommand implements Action {
+  protected static final String EXPORTED = "exported";
+
   public static final String ERROR_MESSAGE =
       "An error was encountered while executing this command; %s.";
 
   public static final String NAMESPACE = "migration";
-
-  protected static final String EXPORTED = "exported";
 
   protected final Security security;
 
@@ -44,14 +44,23 @@ public abstract class MigrationCommand implements Action {
   protected Path defaultExportDirectory =
       Paths.get(System.getProperty("ddf.home"), MigrationCommand.EXPORTED);
 
-  public MigrationCommand() {
-    this.security = Security.getInstance();
-  }
-
   @VisibleForTesting
   MigrationCommand(ConfigurationMigrationService service, Security security) {
     this.configurationMigrationService = service;
     this.security = security;
+  }
+
+  public MigrationCommand() {
+    this.security = Security.getInstance();
+  }
+
+  private void outputMessageWithColor(String message, Ansi.Color color) {
+    final String colorAsString = Ansi.ansi().a(Attribute.RESET).fg(color).toString();
+    final PrintStream console = getConsole();
+
+    console.print(colorAsString);
+    console.print(message);
+    console.println(Ansi.ansi().a(Attribute.RESET).toString());
   }
 
   protected void outputErrorMessage(String message) {
@@ -70,20 +79,11 @@ public abstract class MigrationCommand implements Action {
     }
   }
 
-  // squid:S106 - we purposely need to output to the output stream for the info to get to the admin
-  // console
-  @SuppressWarnings("squid:S106")
+  @SuppressWarnings("squid:S106"
+  /* we purposely need to output to the output stream for the info to get to the admin console */
+  )
   @VisibleForTesting
   protected PrintStream getConsole() {
     return System.out;
-  }
-
-  private void outputMessageWithColor(String message, Ansi.Color color) {
-    final String colorAsString = Ansi.ansi().a(Attribute.RESET).fg(color).toString();
-    final PrintStream console = getConsole();
-
-    console.print(colorAsString);
-    console.print(message);
-    console.println(Ansi.ansi().a(Attribute.RESET).toString());
   }
 }

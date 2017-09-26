@@ -58,16 +58,14 @@ public class ConfigurationAdminMigratable implements Migratable {
         defaultStrategy, "unknown persistence strategy extension: " + defaultFileExtension);
   }
 
-  // PMD.DefaultPackage - designed to be called from ExportMigrationConfigurationAdminContext and
-  // ImportMigrationConfigurationAdminContext in this package
-  @SuppressWarnings("PMD.DefaultPackage")
+  @SuppressWarnings(
+      "PMD.DefaultPackage" /* designed to be called from ExportMigrationConfigurationAdminContext and ImportMigrationConfigurationAdminContext in this package */)
   static boolean isManagedServiceFactory(Configuration cfg) {
     return cfg.getFactoryPid() != null;
   }
 
-  // PMD.DefaultPackage - designed to be called from ExportMigrationConfigurationAdminContext and
-  // ImportMigrationConfigurationAdminContext in this package
-  @SuppressWarnings("PMD.DefaultPackage")
+  @SuppressWarnings(
+      "PMD.DefaultPackage" /* designed to be called from ExportMigrationConfigurationAdminContext and ImportMigrationConfigurationAdminContext in this package */)
   static boolean isManagedService(Configuration cfg) {
     return cfg.getFactoryPid() == null;
   }
@@ -114,16 +112,14 @@ public class ConfigurationAdminMigratable implements Migratable {
     adminContext.entries().forEach(ImportMigrationConfigurationAdminEntry::restore);
   }
 
-  // PMD.DefaultPackage - designed to be called from ExportMigrationConfigurationAdminContext in
-  // this package
-  @SuppressWarnings("PMD.DefaultPackage")
+  @SuppressWarnings(
+      "PMD.DefaultPackage" /* designed to be called from ExportMigrationConfigurationAdminContext in this package */)
   PersistenceStrategy getDefaultPersister() {
     return defaultStrategy;
   }
 
-  // PMD.DefaultPackage - designed to be called from ExportMigrationConfigurationAdminContext and
-  // ImportMigrationConfigurationAdminContext in this package
-  @SuppressWarnings("PMD.DefaultPackage")
+  @SuppressWarnings(
+      "PMD.DefaultPackage" /* designed to be called from ExportMigrationConfigurationAdminContext and ImportMigrationConfigurationAdminContext in this package */)
   PersistenceStrategy getPersister(String extension) {
     if ("cfg".equals(extension)) {
       return new FelixCfgPersistenceStrategy();

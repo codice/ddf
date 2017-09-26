@@ -35,8 +35,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 /** Base class for migration command test classes. */
-// squid:S2187 - hopefully the doc above indicates this is a base class for test classes
-@SuppressWarnings("squid:S2187")
+@SuppressWarnings("squid:S2187" /* base class for mgiration command test classes */)
 public class AbstractMigrationCommandTest {
   protected final PrintStream console = Mockito.mock(PrintStream.class);
 

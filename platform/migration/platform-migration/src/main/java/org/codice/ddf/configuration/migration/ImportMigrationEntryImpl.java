@@ -14,6 +14,7 @@
 package org.codice.ddf.configuration.migration;
 
 import com.google.common.annotations.VisibleForTesting;
+import ddf.security.common.audit.SecurityLogger;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,9 +40,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** This class provides an implementation of the {@link ImportMigrationEntry} interface. */
-// squid:S2160 - the base class equals() is sufficient for our needs. entries are unique based on
-// their paths
-@SuppressWarnings("squid:S2160")
+@SuppressWarnings(
+    "squid:S2160" /* the base class equals() is sufficient for our needs. entries are unique based on their paths */)
 public class ImportMigrationEntryImpl extends MigrationEntryImpl implements ImportMigrationEntry {
   private static final Logger LOGGER = LoggerFactory.getLogger(ImportMigrationEntryImpl.class);
 
@@ -235,8 +235,8 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
     return true;
   }
 
-  // PMD.DefaultPackage - designed to be called from ImportMigrationContextImpl within this package
-  @SuppressWarnings("PMD.DefaultPackage")
+  @SuppressWarnings(
+      "PMD.DefaultPackage" /* designed to be called from ImportMigrationContextImpl within this package */)
   @VisibleForTesting
   void addPropertyReferenceEntry(
       String pname, ImportMigrationJavaPropertyReferencedEntryImpl entry) {
@@ -255,10 +255,14 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
     } else {
       // it is optional so delete it as it was optional when we exported and wasn't on
       // disk so we want to make sure we end up without the file on disk after import
-      LOGGER.debug("Deleting {}...", debugString);
-      // but only if it is migratable to start with
-      if (isMigratable() && !getFile().delete()) {
-        getReport().record(new MigrationException(Messages.IMPORT_PATH_DELETE_ERROR, path));
+      if (isMigratable()) { // but only if it is migratable to start with
+        LOGGER.debug("Deleting {}...", debugString);
+        if (file.delete()) {
+          SecurityLogger.audit("Deleted file {}", file);
+        } else {
+          SecurityLogger.audit("Error deleting file {}", file);
+          getReport().record(new MigrationException(Messages.IMPORT_PATH_DELETE_ERROR, path));
+        }
       }
     }
   }
@@ -268,24 +272,44 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
     LOGGER.debug("Importing {}...", debugString);
     try {
       FileUtils.copyInputStreamToFile(is, file);
+      SecurityLogger.audit("Imported file {}", file);
     } catch (IOException e) {
       if (!file.canWrite()) { // make it writable and try again
-        InputStream ris = context.getInputStreamFor(entry);
-
-        try {
-          LOGGER.debug("temporarily overriding write privileges for {}", file);
-          if (!file.setWritable(true)) { // cannot set it writable so bail
-            throw e;
-          }
-          FileUtils.copyInputStreamToFile(ris, file);
-        } finally {
-          IOUtils.closeQuietly(ris); // we do not care if we cannot close it
-          // reset the permissions properly
-          file.setWritable(false);
+        if (!retryHandleRestoreWhenAnEntryWasExported(context.getInputStreamFor(entry))) {
+          throw e;
         }
+      } else {
+        SecurityLogger.audit("Error importing file {}", file);
+        throw e;
       }
     } finally {
       IOUtils.closeQuietly(is); // we do not care if we cannot close it
+    }
+  }
+
+  // Meant to be called when the file is not writeable.
+  private boolean retryHandleRestoreWhenAnEntryWasExported(InputStream is) throws IOException {
+    LOGGER.debug("temporarily overriding write privileges for {}", file);
+    if (file.setWritable(true)) {
+      SecurityLogger.audit("Enabled write privileges for file {}", file);
+    } else { // cannot set it writable so bail
+      SecurityLogger.audit("Error enabling write privileges for file {}", file);
+      return false;
+    }
+    try {
+      FileUtils.copyInputStreamToFile(is, file);
+      SecurityLogger.audit("Imported file {}", file);
+      return true;
+    } catch (IOException ee) {
+      SecurityLogger.audit("Error importing file {}", file);
+      throw ee;
+    } finally {
+      IOUtils.closeQuietly(is); // we do not care if we cannot close it
+      if (file.setWritable(false)) { // reset the permissions properly
+        SecurityLogger.audit("Disabled write privileges for file {}", file);
+      } else {
+        SecurityLogger.audit("Error disabling write privileges for file {}", file);
+      }
     }
   }
 }

@@ -21,8 +21,8 @@ import org.codice.ddf.migration.MigrationWarning;
 import org.junit.Before;
 
 /** Base class for report-type test cases which handles setup of various messages. */
-// squid:S2187 - hopefully the doc above indicates this is a base class for test classes
-@SuppressWarnings("squid:S2187")
+@SuppressWarnings(
+    "squid:S2187" /* base class for report-type test cases which handles setup of various messages */)
 public class AbstractMigrationReportTest extends AbstractMigrationTest {
   protected static final String[] MESSAGE_STRINGS =
       new String[] {

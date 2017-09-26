@@ -105,8 +105,8 @@ public class ThrowableMatchers {
         return matcher.matches(cause);
       }
 
-      // PMD.CompareObjectsWithEquals - Purposely testing for identity and not equality
-      @SuppressWarnings("PMD.CompareObjectsWithEquals")
+      @SuppressWarnings(
+          "PMD.CompareObjectsWithEquals" /* purposely testing for identity and not equality */)
       @Override
       protected void describeMismatchSafely(Throwable item, Description description) {
         Throwable cause = item;
@@ -132,8 +132,8 @@ public class ThrowableMatchers {
 
   public static Matcher hasInitialCauseMessageMatching(Matcher<String> matcher) {
     return new TypeSafeMatcher<Throwable>() {
-      // PMD.CompareObjectsWithEquals - Purposely testing for identity and not equality
-      @SuppressWarnings("PMD.CompareObjectsWithEquals")
+      @SuppressWarnings(
+          "PMD.CompareObjectsWithEquals" /* purposely testing for identity and not equality */)
       @Override
       protected boolean matchesSafely(Throwable item) {
         Throwable cause = item;
@@ -147,8 +147,8 @@ public class ThrowableMatchers {
         return matcher.matches(cause.getMessage());
       }
 
-      // PMD.CompareObjectsWithEquals - Purposely testing for identity and not equality
-      @SuppressWarnings("PMD.CompareObjectsWithEquals")
+      @SuppressWarnings(
+          "PMD.CompareObjectsWithEquals" /* purposely testing for identity and not equality */)
       @Override
       protected void describeMismatchSafely(Throwable item, Description description) {
         Throwable cause = item;

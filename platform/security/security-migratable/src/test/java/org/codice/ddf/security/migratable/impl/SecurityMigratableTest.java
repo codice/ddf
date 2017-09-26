@@ -77,7 +77,7 @@ import org.mockito.runners.MockitoJUnitRunner;
  * <p>// The backup from the imported system will look similar to this:
  * ./exported-1.0-20170814T152846.zip
  *
- * <p>// Thw exported zip from ddfExport will look similar to this: ./exported-1.0.zip
+ * <p>// The exported zip from ddfExport will look similar to this: ./exported-1.0.zip
  */
 @RunWith(MockitoJUnitRunner.class)
 public class SecurityMigratableTest {

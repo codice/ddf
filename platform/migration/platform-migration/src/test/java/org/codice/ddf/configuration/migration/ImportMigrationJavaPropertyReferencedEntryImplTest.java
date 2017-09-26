@@ -131,8 +131,7 @@ public class ImportMigrationJavaPropertyReferencedEntryImplTest extends Abstract
     assertThat("The entries are equal", entry.equals(entry), is(true));
   }
 
-  // PMD.EqualsNull - Purposely testing equals() when called with null
-  @SuppressWarnings("PMD.EqualsNull")
+  @SuppressWarnings("PMD.EqualsNull" /* purposely testing equals() when called with null */)
   @Test
   public void shouldNotBeEqualBecauseSuperIsNotEqual() {
     assertThat("The entries are not equal", entry.equals(null), is(false));

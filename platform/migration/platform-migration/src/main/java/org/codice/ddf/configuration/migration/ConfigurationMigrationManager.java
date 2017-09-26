@@ -14,6 +14,8 @@
 package org.codice.ddf.configuration.migration;
 
 import com.google.common.annotations.VisibleForTesting;
+import ddf.security.common.audit.SecurityLogger;
+import java.io.File;
 import java.io.IOError;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -27,8 +29,10 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.management.InstanceAlreadyExistsException;
+import javax.management.MBeanException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
+import javax.management.OperationsException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
@@ -123,7 +127,7 @@ public class ConfigurationMigrationManager
     }
   }
 
-  public void init() throws Exception {
+  public void init() throws OperationsException, MBeanException {
     final ObjectName objectName = new ObjectName(OBJECT_NAME);
 
     try {
@@ -176,9 +180,8 @@ public class ConfigurationMigrationManager
     return doImport(exportDirectory, Optional.of(consumer));
   }
 
-  // squid:S2093 - try-with-resource will throw IOException with InputStream and we do not care to
-  // get that exception
-  @SuppressWarnings("squid:S2093")
+  @SuppressWarnings(
+      "squid:S2093" /* try-with-resource will throw IOException with InputStream and we do not care to get that exception */)
   @VisibleForTesting
   void delegateToImportMigrationManager(MigrationReportImpl report, Path exportFile) {
     final ImportMigrationManagerImpl mgr =
@@ -209,8 +212,10 @@ public class ConfigurationMigrationManager
 
     try {
       FileUtils.forceMkdir(exportDirectory.toFile());
+      SecurityLogger.audit("Created export directory {}", exportDirectory);
     } catch (IOException e) {
       LOGGER.warn("unable to create directory: " + exportDirectory + "; ", e);
+      SecurityLogger.audit("Failed to create export directory {}", exportDirectory);
       report.record(new MigrationException(Messages.DIRECTORY_CREATE_ERROR, exportDirectory, e));
       return report;
     }
@@ -231,12 +236,19 @@ public class ConfigurationMigrationManager
     }
     report.end();
     if (report.hasErrors()) {
+      SecurityLogger.audit("Errors exporting configuration settings to file {}", exportFile);
       // don't leave the zip file there if the export failed
-      FileUtils.deleteQuietly(exportFile.toFile());
+      if (FileUtils.deleteQuietly(exportFile.toFile())) {
+        SecurityLogger.audit("Deleted exported file {}", exportFile);
+      } else {
+        SecurityLogger.audit("Failed to delete exported file {}", exportFile);
+      }
       report.record(new MigrationException(Messages.EXPORT_FAILURE, exportFile));
     } else if (report.hasWarnings()) {
+      SecurityLogger.audit("Warnings exporting configuration settings to file {}", exportFile);
       report.record(new MigrationWarning(Messages.EXPORT_SUCCESS_WITH_WARNINGS, exportFile));
     } else {
+      SecurityLogger.audit("Exported configuration settings to file {}", exportFile);
       report.record(new MigrationSuccessfulInformation(Messages.EXPORT_SUCCESS, exportFile));
     }
     return report;
@@ -261,21 +273,39 @@ public class ConfigurationMigrationManager
     }
     report.end();
     if (report.hasErrors()) {
+      SecurityLogger.audit("Errors importing configuration settings from file {}", exportFile);
       report.record(new MigrationException(Messages.IMPORT_FAILURE, exportFile));
     } else if (report.hasWarnings()) {
+      SecurityLogger.audit("Warnings importing configuration settings from file {}", exportFile);
+      // don't leave the zip file there if the import succeeded
+      deleteQuietly(exportFile.toFile());
       report.record(new MigrationWarning(Messages.IMPORT_SUCCESS_WITH_WARNINGS, exportFile));
       report.record(new MigrationWarning(Messages.RESTART_SYSTEM_WHEN_WARNINGS));
     } else {
+      SecurityLogger.audit("Exported configuration settings from file {}", exportFile);
+      // don't leave the zip file there if the import succeeded
+      deleteQuietly(exportFile.toFile());
       report.record(new MigrationSuccessfulInformation(Messages.IMPORT_SUCCESS, exportFile));
       try {
         System.setProperty("karaf.restart.jvm", "true"); // force a JVM restart
         system.reboot(ConfigurationMigrationManager.REBOOT_DELAY, SystemService.Swipe.NONE);
+        SecurityLogger.audit(
+            "Rebooting system in {} minutes", ConfigurationMigrationManager.REBOOT_DELAY);
         report.record(Messages.RESTARTING_SYSTEM, ConfigurationMigrationManager.REBOOT_DELAY);
       } catch (Exception e) { // yeah, their interface declares an exception can be thrown!!!!
+        SecurityLogger.audit("Failed to reboot system");
         LOGGER.debug("failed to request a reboot: ", e);
         report.record(Messages.RESTART_SYSTEM);
       }
     }
     return report;
+  }
+
+  private void deleteQuietly(File exportFile) {
+    if (FileUtils.deleteQuietly(exportFile)) {
+      SecurityLogger.audit("Exported file {} deleted", exportFile);
+    } else {
+      SecurityLogger.audit("Failed to delete exported file {}", exportFile);
+    }
   }
 }

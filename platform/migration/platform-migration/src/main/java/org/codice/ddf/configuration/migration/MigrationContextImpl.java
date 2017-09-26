@@ -273,8 +273,7 @@ public class MigrationContextImpl<R extends MigrationReport> implements Migratio
         Optional.of(JsonUtils.getStringFrom(metadata, MigrationContextImpl.METADATA_VERSION, true));
   }
 
-  // PMD.DefaultPackage - designed as an internal service within this package
-  @SuppressWarnings("PMD.DefaultPackage")
+  @SuppressWarnings("PMD.DefaultPackage" /* designed as an internal service within this package */)
   @VisibleForTesting
   PathUtils getPathUtils() {
     return pathUtils;
