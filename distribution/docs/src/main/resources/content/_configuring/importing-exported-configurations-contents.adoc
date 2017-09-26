@@ -6,20 +6,21 @@
 
 ==== Importing the Exported Configuration Settings
 
-[WARNING]
-====
-Importing of configurations must take place instead of performing installation for the first time and after performing OS-level hardening.
-====
-
 To import a previously exported configuration file from the ${command-console}:
 
 . Launch the newly installed ${branding}.
-. Type in `migration:import <directory>`. This command reads the previously exported configuration file `exported-${project-version}.zip` from the specified directory. If no directory is specified it will default to `<${branding}_HOME>/exported`
+. Step through the installation process.
+. Copy the previously exported file from your secure place to the `exported` directory underneath `<${branding}_HOME>`, but an alternative location can be specified with the `migration:import`. Create the directory if it does not exist.
+. Run the command migration:import from the ${command-console}.
+. Finish <<_hardening_checklist,hardening>> the system (e.g. file and directory permissions).
 
 [IMPORTANT]
 ====
-Some system configuration files contain paths to other configuration files. For instance, the `system.properties` file contains the `javax.net.ssl.keyStore` property which provides the path to the system key store.
-The files referred to in the system configuration files would have been included in the export process only if the path is relative to `<${branding}_HOME>`. It is the responsibility of the administrator to ensure these files exist on the new system otherwise the system won't work as it did on the original system.
-Using absolute paths and/or symbolic links in those cases will cause the `migration:import` command to display warnings about those files if they are no longer available at import time.
-The import process itself will not be aborted.
+* The following is currently not supported when importing configuration files:
+** importing from a different ${branding} version
+** importing from a system installed on a different OS
+** importing from a system installed in a different directory location
+* To keep the export/import process simple and consistent, all system configuration files are required to be under the `<${branding}_HOME>` directory and not be softlinks. Presence of external files or symbolic links during export will not fail the export; they will yield warnings. It will be up to the adminsitrator to manually copy these files over to the new system before proceeding with the import. The import process will verify their presence and consistency and yield warnings if they don't match the original files.
+* The import process will re-import all configurations done on the original system as part of the <<_hardening_checklist,hardening process>> including changes to starting scripts and certificates.
 ====
+
