@@ -24,58 +24,16 @@ import ddf.catalog.transformer.common.tika.MetacardCreator;
 import ddf.catalog.transformer.common.tika.TikaMetadataExtractor;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
-import javax.xml.transform.Templates;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.sax.SAXSource;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
-import net.sf.saxon.TransformerFactoryImpl;
+import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
-import org.apache.tika.parser.AutoDetectParser;
-import org.apache.tika.parser.ParseContext;
-import org.apache.tika.parser.Parser;
-import org.apache.tika.sax.ToXMLContentHandler;
-import org.codice.ddf.platform.util.XMLUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLFilterImpl;
 
 public class VideoInputTransformer implements InputTransformer {
-  private static final Logger LOGGER = LoggerFactory.getLogger(VideoInputTransformer.class);
-
-  private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
-
-  private Templates templates = null;
 
   private MetacardType metacardType = null;
 
   public VideoInputTransformer(MetacardType metacardType) {
 
     this.metacardType = metacardType;
-
-    ClassLoader tccl = Thread.currentThread().getContextClassLoader();
-    try (InputStream stream = TikaMetadataExtractor.class.getResourceAsStream("/metadata.xslt")) {
-      Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
-      templates =
-          TransformerFactory.newInstance(
-                  TransformerFactoryImpl.class.getName(), this.getClass().getClassLoader())
-              .newTemplates(new StreamSource(stream));
-    } catch (TransformerConfigurationException e) {
-      LOGGER.debug("Couldn't create XML transformer", e);
-    } catch (IOException e) {
-      LOGGER.debug("Could not get Tiki metadata XSLT", e);
-    } finally {
-      Thread.currentThread().setContextClassLoader(tccl);
-    }
   }
 
   @Override
@@ -86,45 +44,21 @@ public class VideoInputTransformer implements InputTransformer {
   @Override
   public Metacard transform(InputStream input, String id)
       throws IOException, CatalogTransformerException {
-    Parser parser = new AutoDetectParser();
-    ToXMLContentHandler handler = new ToXMLContentHandler();
-    TikaMetadataExtractor tikaMetadataExtractor = new TikaMetadataExtractor(parser, handler);
 
-    Metadata metadata = tikaMetadataExtractor.parseMetadata(input, new ParseContext());
-
-    String metadataText = handler.toString();
-    if (templates != null) {
-      metadataText = transformToXml(metadataText);
-    }
-
-    Metacard metacard = MetacardCreator.createMetacard(metadata, id, metadataText, metacardType);
-
-    metacard.setAttribute(new AttributeImpl(Core.DATATYPE, DataType.MOVING_IMAGE.toString()));
-
-    return metacard;
-  }
-
-  private String transformToXml(String xhtml) {
-    LOGGER.debug("Transforming xhtml to xml.");
-    XMLReader xmlReader = null;
+    Metacard metacard;
     try {
-      XMLReader xmlParser = XML_UTILS.getSecureXmlParser();
-      xmlReader = new XMLFilterImpl(xmlParser);
-    } catch (SAXException e) {
-      LOGGER.debug(e.getMessage(), e);
+      TikaMetadataExtractor tikaMetadataExtractor = new TikaMetadataExtractor(input);
+
+      Metadata metadata = tikaMetadataExtractor.getMetadata();
+
+      String metadataText = tikaMetadataExtractor.getMetadataXml();
+
+      metacard = MetacardCreator.createMetacard(metadata, id, metadataText, metacardType);
+
+      metacard.setAttribute(new AttributeImpl(Core.DATATYPE, DataType.MOVING_IMAGE.toString()));
+    } catch (TikaException e) {
+      throw new CatalogTransformerException(e);
     }
-    if (xmlReader != null) {
-      try {
-        Writer xml = new StringWriter();
-        Transformer transformer = templates.newTransformer();
-        transformer.transform(
-            new SAXSource(xmlReader, new InputSource(new StringReader(xhtml))),
-            new StreamResult(xml));
-        return xml.toString();
-      } catch (TransformerException e) {
-        LOGGER.debug("Unable to transform metadata from XHTML to XML.", e);
-      }
-    }
-    return xhtml;
+    return metacard;
   }
 }

@@ -18,23 +18,26 @@ import static org.apache.commons.lang3.Validate.notNull;
 import com.google.common.io.ByteSource;
 import com.google.common.net.MediaType;
 import ddf.catalog.content.operation.ContentMetadataExtractor;
+import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.data.types.Contact;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Media;
 import ddf.catalog.data.types.Topic;
+import ddf.catalog.data.types.Validation;
 import ddf.catalog.data.types.constants.core.DataType;
+import ddf.catalog.data.types.experimental.Extracted;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.transformer.common.tika.TikaMetadataExtractor;
 import ddf.catalog.util.impl.ServiceComparator;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -48,19 +51,19 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.apache.pdfbox.pdmodel.encryption.InvalidPasswordException;
-import org.apache.tika.parser.AutoDetectParser;
-import org.apache.tika.parser.ParseContext;
-import org.apache.tika.parser.Parser;
-import org.apache.tika.sax.ToTextContentHandler;
+import org.apache.tika.exception.TikaException;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.ContentHandler;
 
 public class PdfInputTransformer implements InputTransformer {
+
+  private int previewMaxLength = 30000;
+
+  private int metadataMaxLength = 30000;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PdfInputTransformer.class);
 
@@ -103,6 +106,18 @@ public class PdfInputTransformer implements InputTransformer {
     this.pdfThumbnailGenerator = pdfThumbnailGenerator;
   }
 
+  public int getPreviewMaxLength() {
+    return previewMaxLength;
+  }
+
+  public void setPreviewMaxLength(int previewMaxLength) {
+    this.previewMaxLength = previewMaxLength;
+  }
+
+  public void setMetadataMaxLength(int metadataMaxLength) {
+    this.metadataMaxLength = metadataMaxLength;
+  }
+
   @SuppressWarnings("unused")
   public boolean isUsePdfTitleAsTitle() {
     return usePdfTitleAsTitle;
@@ -141,79 +156,36 @@ public class PdfInputTransformer implements InputTransformer {
   @Override
   public Metacard transform(InputStream input, String id)
       throws IOException, CatalogTransformerException {
-    if (contentMetadataExtractors.isEmpty()) {
-      return transformWithoutExtractors(input, id);
-    } else {
-      return transformWithExtractors(input, id);
-    }
-  }
-
-  private Metacard transformWithoutExtractors(InputStream input, String id) throws IOException {
-    try (PDDocument pdfDocument = pdDocumentGenerator.apply(input)) {
-      return transformPdf(id, pdfDocument);
-    } catch (InvalidPasswordException e) {
-      LOGGER.debug("Cannot transform encrypted pdf", e);
-      return initializeMetacard(id);
-    }
-  }
-
-  private Metacard transformWithExtractors(InputStream input, String id)
-      throws IOException, CatalogTransformerException {
     try (TemporaryFileBackedOutputStream fbos = new TemporaryFileBackedOutputStream()) {
       try {
         IOUtils.copy(input, fbos);
       } catch (IOException e) {
         throw new CatalogTransformerException("Could not copy bytes of content message.", e);
       }
-
       ByteSource docByteSource = fbos.asByteSource();
-
-      try (InputStream isCopy = docByteSource.openStream(); //
+      Metacard metacard;
+      try (InputStream isCopy = docByteSource.openStream();
           PDDocument pdfDocument = pdDocumentGenerator.apply(isCopy)) {
-
-        Parser parser = new AutoDetectParser();
-        try (InputStream metaIs = docByteSource.openStream(); //
-            TemporaryFileBackedOutputStream contentHandlerStream =
-                new TemporaryFileBackedOutputStream()) {
-          ContentHandler contentHandler =
-              new ToTextContentHandler(contentHandlerStream, StandardCharsets.UTF_8.toString());
-          TikaMetadataExtractor tikaMetadataExtractor =
-              new TikaMetadataExtractor(parser, contentHandler);
-          ByteSource plainTextByteSource =
-              extractPlainText(metaIs, contentHandlerStream, tikaMetadataExtractor);
-
-          return transformPdf(id, pdfDocument, plainTextByteSource);
+        try (InputStream metaIs = docByteSource.openStream()) {
+          metacard = transformPdf(id, pdfDocument, metaIs);
         }
       } catch (InvalidPasswordException e) {
         LOGGER.debug("Cannot transform encrypted pdf", e);
         return initializeMetacard(id);
       }
+      return metacard;
     }
-  }
-
-  private ByteSource extractPlainText(
-      InputStream metaIs,
-      TemporaryFileBackedOutputStream contentHandlerStream,
-      TikaMetadataExtractor tikaMetadataExtractor)
-      throws IOException {
-    ByteSource plainTextByteSource = null;
-    try {
-      tikaMetadataExtractor.parseMetadata(metaIs, new ParseContext());
-      plainTextByteSource = contentHandlerStream.asByteSource();
-    } catch (CatalogTransformerException e) {
-      LOGGER.warn("Cannot extract metadata from pdf", e);
-    }
-    return plainTextByteSource;
   }
 
   private MetacardImpl initializeMetacard(String id) {
-    return initializeMetacard(id, null);
+    return initializeMetacard(id, null, null);
   }
 
-  private MetacardImpl initializeMetacard(String id, ByteSource contentByteSource) {
+  private MetacardImpl initializeMetacard(String id, String bodyText, String metadataXml) {
     MetacardImpl metacard;
 
-    if (contentByteSource != null && !contentMetadataExtractors.isEmpty()) {
+    if (StringUtils.isNotEmpty(bodyText) && !contentMetadataExtractors.isEmpty()) {
+
       Set<AttributeDescriptor> attributes =
           contentMetadataExtractors
               .values()
@@ -226,11 +198,7 @@ public class PdfInputTransformer implements InputTransformer {
           new MetacardImpl(new MetacardTypeImpl(metacardType.getName(), metacardType, attributes));
 
       for (ContentMetadataExtractor contentMetadataExtractor : contentMetadataExtractors.values()) {
-        try (InputStream content = contentByteSource.openStream()) {
-          contentMetadataExtractor.process(content, metacard);
-        } catch (IOException e) {
-          LOGGER.debug("Problem opening ByteSource for content metadata extraction", e);
-        }
+        contentMetadataExtractor.process(bodyText, metacard);
       }
     } else {
       metacard = new MetacardImpl(metacardType);
@@ -241,20 +209,41 @@ public class PdfInputTransformer implements InputTransformer {
     metacard.setAttribute(Media.TYPE, MediaType.PDF.toString());
     metacard.setAttribute(Core.DATATYPE, DataType.TEXT.toString());
 
+    setIfNotBlank(metadataXml, (MetacardImpl) metacard, Metacard.METADATA);
+    setIfNotBlank(bodyText, (MetacardImpl) metacard, Extracted.EXTRACTED_TEXT);
     return metacard;
   }
 
-  private Metacard transformPdf(String id, PDDocument pdfDocument) throws IOException {
-    return transformPdf(id, pdfDocument, null);
-  }
-
-  private Metacard transformPdf(String id, PDDocument pdfDocument, ByteSource contentByteSource)
-      throws IOException {
-    MetacardImpl metacard = initializeMetacard(id, contentByteSource);
-
+  private Metacard transformPdf(String id, PDDocument pdfDocument, InputStream contentInput)
+      throws IOException, CatalogTransformerException {
     if (pdfDocument.isEncrypted()) {
       LOGGER.debug("Cannot transform encrypted pdf");
-      return metacard;
+      return initializeMetacard(id);
+    }
+    String bodyText = null;
+    String metadataXml = null;
+
+    TikaMetadataExtractor tikaMetadataExtractor = null;
+
+    try {
+      tikaMetadataExtractor =
+          new TikaMetadataExtractor(contentInput, previewMaxLength, metadataMaxLength);
+    } catch (TikaException e) {
+      throw new CatalogTransformerException(e);
+    }
+    metadataXml = tikaMetadataExtractor.getMetadataXml();
+    Attribute validationAttribute = null;
+    if (metadataXml.equals(TikaMetadataExtractor.METADATA_LIMIT_REACHED_MSG)) {
+      validationAttribute =
+          new AttributeImpl(Validation.VALIDATION_WARNINGS, Collections.singletonList(metadataXml));
+      metadataXml = "";
+    }
+    bodyText = tikaMetadataExtractor.getBodyText();
+
+    MetacardImpl metacard = initializeMetacard(id, bodyText, metadataXml);
+
+    if (validationAttribute != null) {
+      metacard.setAttribute(validationAttribute);
     }
 
     extractPdfMetadata(pdfDocument, metacard);

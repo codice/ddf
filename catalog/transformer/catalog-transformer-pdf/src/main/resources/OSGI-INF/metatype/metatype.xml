@@ -22,6 +22,15 @@
             name="Use PDF Title" id="usePdfTitleAsTitle" required="true" type="Boolean"
             default="false"/>
 
+        <AD description="The maximum length of text to be extracted."
+            name="Maximum text extraction length (bytes)" id="previewMaxLength" required="true" type="Integer"
+            default="30000"/>
+
+        <AD description="The maximum length of xml metadata to be extracted."
+            name="Maximum xml metadata length (bytes)" id="metadataMaxLength" required="true"
+            type="Integer"
+            default="30000"/>
+
     </OCD>
 
     <Designate pid="ddf.catalog.transformer.input.pdf.PdfInputTransformer">
