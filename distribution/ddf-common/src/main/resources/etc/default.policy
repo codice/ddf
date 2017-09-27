@@ -1,0 +1,79 @@
+priority "grant";
+
+deny {
+  // Read, write to, or execute any file.
+  permission java.io.FilePermission "<<ALL FILES>>", "read, write, execute";
+
+  permission java.util.PropertyPermission "javax.net.ssl.*", "read, write";
+
+  // Change current security manager
+  permission java.lang.RuntimePermission "setSecurityManager";
+
+  // Modify application permissions at will.
+  permission java.security.SecurityPermission "setPolicy";
+
+  // Load classes into any protection domain
+  permission java.lang.RuntimePermission "createClassLoader";
+};
+
+grant codeBase "file:/${ddf.home.policy}system/ddf/-" {
+  permission java.io.FilePermission "${ddf.home}${/}-", "read, write";
+  permission java.io.FilePermission "${ddf.home}", "read, write";
+  permission java.util.PropertyPermission "*", "read, write";
+};
+
+grant codeBase "file:/${ddf.home.policy}system/org/codice/-" {
+  permission java.io.FilePermission "${ddf.home}${/}-", "read, write";
+  permission java.io.FilePermission "${ddf.home}", "read, write";
+  permission java.util.PropertyPermission "*", "read, write";
+};
+
+grant codeBase "file:/${ddf.home.policy}system/org/eclipse/platform/-" {
+  permission java.lang.RuntimePermission "createClassLoader";
+  permission java.util.PropertyPermission "*", "read, write";
+};
+
+grant codeBase "file:/${ddf.home.policy}system/org/apache/karaf/-" {
+  permission java.lang.RuntimePermission "createClassLoader";
+  permission java.util.PropertyPermission "*", "read, write";
+};
+
+grant codeBase "file:/${ddf.home.policy}system/org/apache/aries/blueprint/-" {
+  permission java.lang.RuntimePermission "createClassLoader";
+};
+
+grant codeBase "file:/${ddf.home.policy}lib/-" {
+  permission java.lang.RuntimePermission "createClassLoader";
+  permission java.util.PropertyPermission "*", "read, write";
+};
+
+grant principal org.apache.karaf.jaas.boot.principal.RolePrincipal "manager", principal org.apache.karaf.jaas.boot.principal.RolePrincipal "admin" {
+  permission java.io.FilePermission "${ddf.home}${/}-", "read, write";
+  permission java.io.FilePermission "${ddf.home}", "read, write";
+
+  permission javax.security.auth.AuthPermission "getSubject";
+};
+
+grant {
+  permission java.util.PropertyPermission "java.*", "read";
+  permission java.util.PropertyPermission "os.name", "read";
+  permission java.util.PropertyPermission "os.version", "read";
+  permission java.util.PropertyPermission "os.arch", "read";
+  permission java.util.PropertyPermission "file.separator", "read";
+  permission java.util.PropertyPermission "path.separator", "read";
+  permission java.util.PropertyPermission "line.separator", "read";
+  permission java.util.PropertyPermission "user.*", "read";
+  permission java.util.PropertyPermission "solr.*", "read";
+
+  permission java.io.FilePermission "${ddf.home}", "read";
+  permission java.io.FilePermission "${ddf.home}${/}-", "read";
+  permission java.io.FilePermission "${ddf.home}${/}data${/}-", "write";
+  permission java.io.FilePermission "${ddf.home}${/}system${/}-", "write";
+  permission java.io.FilePermission "${ddf.home}${/}instances${/}-", "write";
+  permission java.io.FilePermission "${ddf.home}${/}workspace${/}-", "write";
+  permission java.io.FilePermission "${ddf.home}${/}karaf.pid", "write";
+  permission java.io.FilePermission "${ddf.home}${/}solr${/}-", "write";
+  permission java.io.FilePermission "${user.home}${/}-", "read, write";
+  permission java.io.FilePermission "${java.home}${/}release", "read";
+  permission java.io.FilePermission "${java.home}${/}lib${/}-", "read";
+};

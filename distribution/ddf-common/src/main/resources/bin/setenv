@@ -64,5 +64,5 @@ export EXTRA_JAVA_OPTS
 # export KARAF_DATA # Karaf data folder
 # export KARAF_BASE # Karaf base folder
 
-export KARAF_OPTS="-Dfile.encoding=UTF8 -Dddf.home=$DDF_HOME"
-export JAVA_OPTS="-Xms2g -Xmx4g -XX:+UnlockDiagnosticVMOptions -XX:+DisableAttachMechanism"
+export KARAF_OPTS="-Dfile.encoding=UTF8 -Dddf.home=$DDF_HOME -Dddf.home.policy=$DDF_HOME/"
+export JAVA_OPTS="-Xms2g -Xmx4g -XX:+UnlockDiagnosticVMOptions -XX:+DisableAttachMechanism -Djava.security.manager=net.sourceforge.prograde.sm.ProGradeJSM -Djava.security.policy==$DDF_HOME/etc/default.policy -DproGrade.getPermissions.override=sun.rmi.server.LoaderHandler:loadClass,org.apache.jasper.compiler.JspRuntimeContext:initSecurity"
