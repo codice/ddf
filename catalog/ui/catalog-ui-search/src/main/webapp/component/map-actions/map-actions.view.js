@@ -47,13 +47,13 @@ define([
 
         getMapActions: function () {
             return this.getActions().filter(function(action) {
-                return action.get('id').startsWith('catalog.data.metacard.map.');
+                return action.get('id').indexOf('catalog.data.metacard.map.') === 0;
             });
         },
 
         getOverlayActions: function () {
             var modelOverlayActions = this.getActions().filter(function(action) {
-                return action.get('id').startsWith('catalog.data.metacard.map.overlay.');
+                return action.get('id').indexOf('catalog.data.metacard.map.overlay.') === 0;
             });
 
             var _this = this;
