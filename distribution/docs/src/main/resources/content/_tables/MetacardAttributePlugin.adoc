@@ -18,17 +18,25 @@
 
 |Metacard Intersect Attributes:
 |intersectMetacardAttributes
-|String
-|Metacard attributes that will be collected and mapped to security information. Example: security.classification=classification Any duplicate destinations in this group will result in an intersection of values. E.g. source1=dest and source2=val where source1 is the set of
-|
-|true
+|List of rules
+|List of metacard attributes whose values will be collected (source attributes) and combined into a
+ metacard attribute (destination attribute). Each rule consists of a the name of a source attribute
+ and destination attribute, separated by an equals sign.
+
+ Example If `codewords`=`compartments` is one rule and `sci-tokens=compartments` is another rule, then
+  values common to **both** `codewords` and `sci-tokens` attributes will be added to a new attribute
+   named `compartments`.
+|none
+|false
 
 |Metacard Union Attributes:
 |unionMetacardAttributes
-|String
-|'a', 'b', 'c'
-|null
-|true
+|List of rules
+|Similar to  `intersectMetacardAttributes`. Only the logic of how to combine the source values is different.
+ Instead of using only the values common to the source attributes, the destination attribute will
+ contain **all** values of the source attributes.
+|none
+|false
 
 |===
 
