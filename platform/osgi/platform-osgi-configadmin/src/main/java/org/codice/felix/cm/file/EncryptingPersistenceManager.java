@@ -13,18 +13,20 @@
  */
 package org.codice.felix.cm.file;
 
+import static java.util.Collections.enumeration;
 import static org.osgi.framework.Constants.SERVICE_PID;
 import static org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Set;
-import java.util.Vector;
 import org.apache.felix.cm.PersistenceManager;
 import org.keyczar.Crypter;
 import org.keyczar.KeyczarTool;
@@ -74,12 +76,12 @@ public class EncryptingPersistenceManager extends WrappedPersistenceManager {
 
   @Override
   public Enumeration getDictionaries() throws IOException {
-    Vector<Dictionary> plaintextDictionaries = new Vector<>();
+    List<Dictionary> plaintextDictionaries = new ArrayList<>();
     Enumeration<Dictionary<String, Object>> encryptedDictionaries = super.getDictionaries();
     while (encryptedDictionaries.hasMoreElements()) {
       plaintextDictionaries.add(decryptAndReturnDictonary(encryptedDictionaries.nextElement()));
     }
-    return plaintextDictionaries.elements();
+    return enumeration(plaintextDictionaries);
   }
 
   @Override
@@ -92,10 +94,12 @@ public class EncryptingPersistenceManager extends WrappedPersistenceManager {
     super.store(pid, encryptAndReturnDictonary(properties));
   }
 
-  // The 2.3.7 version of the maven-bundle-plugin fails on lambdas,
-  // so we need to use Java 7 constructs
+  /* The 2.3.7 version of the maven-bundle-plugin fails on lambdas so we need to use Java 7 constructs */
+  /* squid:S1149 Synchronized classes Vector, Hashtable, Stack and StringBuffer should not be used
+  but we are API bound on Dictionary and need to return one */
+  @SuppressWarnings("squid:S1149")
   private Dictionary<String, Object> encryptAndReturnDictonary(Dictionary<String, Object> dict) {
-    Dictionary<String, Object> encryptedDictionaryToReturn = new Hashtable<>();
+    Dictionary<String, Object> encryptedDictionaryToReturn = new Hashtable<>(); // S1149
     Enumeration<String> keys = dict.keys();
     while (keys.hasMoreElements()) {
       String key = keys.nextElement();
@@ -104,10 +108,12 @@ public class EncryptingPersistenceManager extends WrappedPersistenceManager {
     return encryptedDictionaryToReturn;
   }
 
-  // The 2.3.7 version of the maven-bundle-plugin fails on lambdas,
-  // so we need to use Java 7 constructs
+  /* The 2.3.7 version of the maven-bundle-plugin fails on lambdas so we need to use Java 7 constructs */
+  /* squid:S1149 Synchronized classes Vector, Hashtable, Stack and StringBuffer should not be used
+  but we are API bound on Dictionary and need to return one */
+  @SuppressWarnings("squid:S1149")
   private Dictionary<String, Object> decryptAndReturnDictonary(Dictionary<String, Object> dict) {
-    Dictionary<String, Object> decryptedDictionaryToReturn = new Hashtable<>();
+    Dictionary<String, Object> decryptedDictionaryToReturn = new Hashtable<>(); // S1149
     Enumeration<String> keys = dict.keys();
     while (keys.hasMoreElements()) {
       String key = keys.nextElement();
