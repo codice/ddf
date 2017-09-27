@@ -221,7 +221,8 @@ public class ProfileInstallCommandTest {
     when(featuresService.isInstalled(installerFeature)).thenReturn(true);
     profileInstallCommand.profileName = "invalidStopBundles";
     profileInstallCommand.doExecute(applicationService, featuresService, bundleService);
-    verify(featuresService).uninstallFeature(eq("admin-modules-installer"), eq(NO_AUTO_REFRESH));
+    verify(featuresService)
+        .uninstallFeature(eq("admin-modules-installer"), eq("0.0.0"), eq(NO_AUTO_REFRESH));
   }
 
   @Test
@@ -236,7 +237,8 @@ public class ProfileInstallCommandTest {
     profileInstallCommand.profileName = "invalidStopBundles";
     profileInstallCommand.doExecute(applicationService, featuresService, bundleService);
     verify(featuresService).installFeature(eq("admin-post-install-modules"), eq(NO_AUTO_REFRESH));
-    verify(featuresService).uninstallFeature(eq("admin-modules-installer"), eq(NO_AUTO_REFRESH));
+    verify(featuresService)
+        .uninstallFeature(eq("admin-modules-installer"), eq("0.0.0"), eq(NO_AUTO_REFRESH));
   }
 
   @Test(expected = Exception.class)
@@ -247,7 +249,7 @@ public class ProfileInstallCommandTest {
     when(featuresService.isInstalled(installerFeature)).thenReturn(true);
     doThrow(Exception.class)
         .when(featuresService)
-        .uninstallFeature("admin-modules-installer", NO_AUTO_REFRESH);
+        .uninstallFeature("admin-modules-installer", "0.0.0", NO_AUTO_REFRESH);
     profileInstallCommand.profileName = "invalidStopBundles";
     profileInstallCommand.doExecute(applicationService, featuresService, bundleService);
   }

@@ -70,6 +70,11 @@ public class ProfileInstallCommand extends AbstractProfileCommand {
   private static final String SECURITY_ERROR = "Could not get system user to install profile ";
   private static final Logger LOGGER = LoggerFactory.getLogger(ProfileInstallCommand.class);
 
+  private int startedAppCount;
+  private int installedFeatureCount;
+  private int uninstalledFeatureCount;
+  private int stoppedBundleCount;
+
   // Added as a convenience for unit testing
   void setSecurity(Security security) {
     this.security = security;
@@ -81,6 +86,11 @@ public class ProfileInstallCommand extends AbstractProfileCommand {
       FeaturesService featuresService,
       BundleService bundleService)
       throws Exception {
+
+    startedAppCount = 0;
+    installedFeatureCount = 0;
+    uninstalledFeatureCount = 0;
+    stoppedBundleCount = 0;
 
     profileName = profileName.trim();
 
@@ -127,6 +137,13 @@ public class ProfileInstallCommand extends AbstractProfileCommand {
         | IllegalArgumentException e) {
       printError(RESTART_WARNING);
       throw e;
+    } finally {
+      SecurityLogger.audit(
+          "Started {} applications, installed {} features, uninstalled {} features, and stopped {} bundles",
+          startedAppCount,
+          installedFeatureCount,
+          uninstalledFeatureCount,
+          stoppedBundleCount);
     }
   }
 
@@ -138,13 +155,7 @@ public class ProfileInstallCommand extends AbstractProfileCommand {
       for (String application : startupApps) {
         if (uniqueValues.add(application)) {
           printItemStatusPending("Starting: ", application);
-          try {
-            applicationService.startApplication(application);
-            SecurityLogger.audit("Started Application: {}", application);
-          } catch (ApplicationServiceException e) {
-            printItemStatusFailure("Start Failed: ", application);
-            throw e;
-          }
+          startApplication(applicationService, application);
           printItemStatusSuccess("Started: ", application);
         }
       }
@@ -155,12 +166,10 @@ public class ProfileInstallCommand extends AbstractProfileCommand {
     try {
       if (!featuresService.isInstalled(featuresService.getFeature("admin-post-install-modules"))) {
         printSectionHeading("Finalizing Installation");
-        featuresService.installFeature("admin-post-install-modules", NO_AUTO_REFRESH);
-        SecurityLogger.audit("Installed admin-post-install-modules");
+        installFeature(featuresService, "admin-post-install-modules");
       }
       if (featuresService.isInstalled(featuresService.getFeature("admin-modules-installer"))) {
-        featuresService.uninstallFeature("admin-modules-installer", NO_AUTO_REFRESH);
-        SecurityLogger.audit("Uninstalled admin-modules-installer");
+        uninstallFeature(featuresService, featuresService.getFeature("admin-modules-installer"));
       }
     } catch (Exception e) {
       printError("An error occurred while trying to perform post-install operations");
@@ -176,13 +185,7 @@ public class ProfileInstallCommand extends AbstractProfileCommand {
       for (String feature : installFeatures) {
         if (uniqueValues.add(feature)) {
           printItemStatusPending("Installing: ", feature);
-          try {
-            featuresService.installFeature(feature, NO_AUTO_REFRESH);
-            SecurityLogger.audit("Installed Feature: {}", feature);
-          } catch (Exception e) {
-            printItemStatusFailure("Install Failed: ", feature);
-            throw e;
-          }
+          installFeature(featuresService, feature);
           printItemStatusSuccess("Installed: ", feature);
         }
       }
@@ -210,14 +213,7 @@ public class ProfileInstallCommand extends AbstractProfileCommand {
             throw new IllegalArgumentException(
                 String.format("Feature: %s does not exist", feature));
           }
-          try {
-            featuresService.uninstallFeature(
-                featureObject.getName(), featureObject.getVersion(), NO_AUTO_REFRESH);
-            SecurityLogger.audit("Uninstalled Feature: {}", feature);
-          } catch (Exception e) {
-            printItemStatusFailure("Uninstall Failed: ", feature);
-            throw e;
-          }
+          uninstallFeature(featuresService, featureObject);
           printItemStatusSuccess("Uninstalled: ", feature);
         }
       }
@@ -233,15 +229,9 @@ public class ProfileInstallCommand extends AbstractProfileCommand {
         if (uniqueValues.add(bundle)) {
           printItemStatusPending("Stopping: ", bundle);
           try {
-            bundleService.getBundle(bundle).stop();
-            SecurityLogger.audit("Stopped Bundle: {}", bundle);
+            stopBundle(bundleService, bundle);
           } catch (BundleException e) {
-            printItemStatusFailure("Stop Failed: ", bundle);
             throw e;
-          } catch (IllegalArgumentException ie) {
-            printItemStatusFailure("Stop Failed: ", bundle);
-            printError(String.format("Bundle: %s does not exist", bundle));
-            throw ie;
           }
           printItemStatusSuccess("Stopped: ", bundle);
         }
@@ -286,5 +276,50 @@ public class ProfileInstallCommand extends AbstractProfileCommand {
     }
 
     return Optional.ofNullable(profileMap);
+  }
+
+  private void startApplication(ApplicationService applicationService, String application)
+      throws ApplicationServiceException {
+    try {
+      applicationService.startApplication(application);
+      startedAppCount += 1;
+    } catch (ApplicationServiceException e) {
+      printItemStatusFailure("Start Failed: ", application);
+      throw e;
+    }
+  }
+
+  private void installFeature(FeaturesService featuresService, String feature) throws Exception {
+    try {
+      featuresService.installFeature(feature, NO_AUTO_REFRESH);
+      installedFeatureCount += 1;
+    } catch (Exception e) {
+      printItemStatusFailure("Install Failed: ", feature);
+      throw e;
+    }
+  }
+
+  private void uninstallFeature(FeaturesService featuresService, Feature feature) throws Exception {
+    try {
+      featuresService.uninstallFeature(feature.getName(), feature.getVersion(), NO_AUTO_REFRESH);
+      uninstalledFeatureCount += 1;
+    } catch (Exception e) {
+      printItemStatusFailure("Uninstall Failed: ", feature.getName());
+      throw e;
+    }
+  }
+
+  private void stopBundle(BundleService bundleService, String bundle) throws BundleException {
+    try {
+      bundleService.getBundle(bundle).stop();
+      stoppedBundleCount += 1;
+    } catch (BundleException e) {
+      printItemStatusFailure("Stop Failed: ", bundle);
+      throw e;
+    } catch (IllegalArgumentException ie) {
+      printItemStatusFailure("Stop Failed: ", bundle);
+      printError(String.format("Bundle: %s does not exist", bundle));
+      throw ie;
+    }
   }
 }
