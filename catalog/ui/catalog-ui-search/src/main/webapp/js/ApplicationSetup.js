@@ -37,31 +37,58 @@ require([
     'js/HandlebarsHelpers',
     'js/ApplicationHelpers',
     'js/Autocomplete',
+    'backbone.customFunctions'
 ], function(_, Backbone, Marionette, hbs, announcement) {
 
-    $(window.document).ajaxError(function(event, jqxhr, settings, throwError) {
-        var message;
-        console.error(event, jqxhr, settings, throwError);
+    let getShortErrorMessage = function (error) {
+        var extraMessage = error instanceof Error ? error.name : String(error);
 
-        if (jqxhr.responseJSON !== undefined) {
+        if (extraMessage.length === 0) {
+            return extraMessage;
+        }
+
+        // limit to 20 characters so we do not worry about overflow
+        if (extraMessage.length > 20) {
+            extraMessage = extraMessage.substr(0, 20) + '...';
+        }
+
+        return ' - ' + extraMessage;
+    };
+
+    let getErrorResponse = function (event, jqxhr, settings, throwError) {
+        switch (jqxhr.status) {
+            case 403:
+                return {title: 'Forbidden', message: 'Not Authorized'};
+            case 405:
+                return {title: 'Error', message: 'Method not allowed. Please try refreshing your browser'};
+            default:
+                return {title: 'Error', message: 'Unknown Error' + getShortErrorMessage(throwError)};
+        }
+    };
+
+    $(window.document).ajaxError(function (event, jqxhr, settings, throwError) {
+        if (settings.customErrorHandling) {
+            // Do nothing if caller is handling their own error
+            return;
+        }
+
+        var response = getErrorResponse(event, jqxhr, settings, throwError);
+        var message;
+
+        console.error(event, jqxhr, settings, throwError);
+        if (jqxhr.getResponseHeader('content-type') === 'application/json' && jqxhr.responseText.startsWith('<') &&
+            jqxhr.responseText.indexOf('ACSURL') > -1 && jqxhr.responseText.indexOf('SAMLRequest') > -1) {
+            response = {title: 'Logged out', message: 'Please refresh page to log in'}
+        } else if (jqxhr.responseJSON !== undefined) {
             message = jqxhr.responseJSON.message;
         }
 
-        if (!settings.customErrorHandling) {
-            var defaultTitle = 'Server Error';
-            var defaultMessage = 'Unknown error.';
+        announcement.announce({
+            title: response.title,
+            message: message || response.message,
+            type: 'error'
+        });
 
-            if (jqxhr.status === 403) {
-                defaultTitle = 'Forbidden';
-                defaultMessage = 'Not Authorized';
-            }
-
-            announcement.announce({
-                title: defaultTitle,
-                message: message || defaultMessage,
-                type: 'error'
-            });
-        }
     });
 
     //in here we drop in any top level patches, etc.

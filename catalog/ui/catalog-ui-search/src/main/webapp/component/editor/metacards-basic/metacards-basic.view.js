@@ -101,7 +101,9 @@ define([
                     }).always(function(){
                         setTimeout(function(){  //let solr flush
                             LoadingCompanionView.endLoading(self);
-                            self.onBeforeShow();
+                            if (!self.isDestroyed) {
+                                self.onBeforeShow();
+                            }
                         }, 1000);
                     });
                 }, 1000);

@@ -2,6 +2,7 @@ import 'whatwg-fetch'
 import { combineReducers } from 'redux-immutable'
 import { fromJS, List, Map } from 'immutable'
 import isURL from 'validator/lib/isURL'
+import matches from 'validator/lib/matches'
 
 const select = (state) => state.get('layers')
 
@@ -149,6 +150,20 @@ export const validate = (providers) => {
 
   providers.forEach((provider, i) => {
     const layer = provider.get('layer')
+
+    const name = layer.get('name')
+    const existing = providers.findIndex(function (o, q) {
+      return o.get('layer').get('name') === name && q !== i
+    })
+
+    if (name === '' || name === undefined) {
+      errors = errors.setIn([i, 'name'], 'Name cannot be empty')
+    } else if (!matches(name, '^[\\w\\-\\s]+$')) {
+      errors = errors.setIn([i, 'name'], 'Name must be alphanumeric')
+    } else if (existing < i && existing !== -1) {
+      errors = errors.setIn([i, 'name'], 'Name is already in use and must be unique')
+    }
+
     const alpha = layer.get('alpha')
 
     if (alpha === '') {
@@ -165,6 +180,14 @@ export const validate = (providers) => {
 
     if (typeof proxyEnabled !== 'boolean') {
       errors = errors.setIn([i, 'proxyEnabled'], 'Proxy enabled settings needs to be true or false')
+    }
+
+    const show = layer.get('show')
+
+    if (show === undefined) {
+      errors = errors.setIn([i, 'buffer'], 'Show must be true or false')
+    } else if (typeof show !== 'boolean') {
+      errors = errors.setIn([i, 'buffer'], `Show must be set to true or false`)
     }
 
     const type = layer.get('type')
@@ -195,18 +218,41 @@ export const validate = (providers) => {
     if (err !== undefined) {
       errors = errors.setIn([i, 'buffer'], err)
     }
+
+    const order = layer.get('order')
+
+    if (order === '' || order === undefined) {
+      errors = errors.setIn([i, 'buffer'], 'Order cannot be empty')
+    } else if (typeof order !== 'number') {
+      errors = errors.setIn([i, 'buffer'], 'Order must be a number')
+    } else if (order < 0 || order > providers.size - 1) {
+      errors = errors.setIn([i, 'buffer'], `Order should be between 0 and ${providers.size - 1}`)
+    } else {
+      const previous = providers.slice(0, i)
+        .find((provider) => order === provider.getIn(['layer', 'order']))
+      if (previous !== undefined) {
+        errors = errors.setIn([i, 'buffer'],
+          `Order ${order} previously used for ${previous.getIn(['layer', 'name'])}`)
+      }
+    }
   })
 
   return errors
 }
 
-const emptyProvider = () => {
+const emptyProvider = (index) => {
   const layer = {
+    name: '',
     url: '',
     type: '',
     alpha: '',
     proxyEnabled: true,
-    parameters: {}
+    show: true,
+    parameters: {
+      transparent: false,
+      format: ''
+    },
+    order: index
   }
   const buffer = JSON.stringify(layer, null, 2)
   return fromJS({ buffer, layer })
@@ -234,11 +280,12 @@ const updateLayerFromBuffer = (provider) => {
 }
 
 const updateBufferFromLayer = (provider) => {
-  const buffer = JSON.stringify(provider.get('layer'), null, 2)
+  const layer = provider.get('layer')
+  const buffer = JSON.stringify(layer, null, 2)
   return provider.set('buffer', buffer)
 }
 
-const providers = (state = List(), { type, path, value = emptyProvider() }) => {
+const providers = (state = List(), { type, path, value = emptyProvider(state.size) }) => {
   switch (type) {
     case 'map-layers/SET':
       return value.get('imageryProviders')
@@ -258,6 +305,7 @@ const providers = (state = List(), { type, path, value = emptyProvider() }) => {
       return state.setIn(path, fromJS(value))
         .update(index, applyDefaults(previousType))
         .update(index, updater)
+        .sortBy((provider) => provider.getIn(['layer', 'order']))
     default:
       return state
   }

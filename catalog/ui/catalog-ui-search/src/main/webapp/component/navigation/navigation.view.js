@@ -20,6 +20,7 @@ var NavigationLeftView = require('component/navigation-left/navigation-left.view
 var NavigationRightView = require('component/navigation-right/navigation-right.view');
 var store = require('js/store');
 var wreqr = require('wreqr');
+var sources = require('component/singletons/sources-instance');
 
 module.exports = Marionette.LayoutView.extend({
     template: template,
@@ -32,6 +33,12 @@ module.exports = Marionette.LayoutView.extend({
         navigationMiddle: '.navigation-middle',
         navigationRight: '.navigation-right'
     },
+    initialize: function() {
+        this.listenTo(store.get('workspaces'), 'change:saved update add remove', this.handleSaved);
+        this.listenTo(sources, 'all', this.handleSources);
+        this.handleSaved();
+        this.handleSources();
+    },
     showNavigationMiddle: function(){
         //override in extensions
     },
@@ -43,5 +50,17 @@ module.exports = Marionette.LayoutView.extend({
     handleCancelDrawing: function(e){
         e.stopPropagation();
         wreqr.vent.trigger('search:drawend', store.get('content').get('drawingModel'));
+    },
+    handleSaved: function(){
+        var hasUnsaved = store.get('workspaces').some(function(workspace){
+            return !workspace.isSaved();
+        });
+        this.$el.toggleClass('has-unsaved', hasUnsaved);
+    },
+    handleSources: function(){
+        var hasDown = sources.some(function(source){
+            return !source.get('available');
+        });
+        this.$el.toggleClass('has-unavailable', hasDown);
     }
 });

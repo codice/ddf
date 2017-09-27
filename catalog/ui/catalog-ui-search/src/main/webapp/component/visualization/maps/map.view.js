@@ -25,12 +25,29 @@ var ClusterCollection = require('./cluster.collection');
 var CQLUtils = require('js/CQLUtils');
 var LocationModel = require('component/location-old/location-old');
 var user = require('component/singletons/user-instance');
+var LayersDropdown = require('component/dropdown/layers/dropdown.layers.view');
+var DropdownModel = require('component/dropdown/dropdown');
+
+var DropdownModel = require('component/dropdown/dropdown');
+var MapContextMenuDropdown = require('component/dropdown/map-context-menu/dropdown.map-context-menu.view');
+var MapModel = require('./map.model');
+var MapInfoView = require('component/map-info/map-info.view');
+var MapSettingsDropdown = require('component/dropdown/map-settings/dropdown.map-settings.view');
+
+function wrapNum(x, range) {
+    var max = range[1],
+        min = range[0],
+        d = max - min;
+    return ((x - min) % d + d) % d + min;
+}
 
 module.exports = Marionette.LayoutView.extend({
     tagName: CustomElements.register('map'),
     template: template,
     regions: {
-        mapDrawingPopup: '#mapDrawingPopup'
+        mapDrawingPopup: '#mapDrawingPopup',
+        mapContextMenu: '.map-context-menu',
+        mapInfo: '.mapInfo'
     },
     events: {
         'click .cluster-button': 'toggleClustering'
@@ -39,10 +56,12 @@ module.exports = Marionette.LayoutView.extend({
     clusterCollectionView: undefined,
     geometryCollectionView: undefined,
     map: undefined,
+    mapModel: undefined,
     initialize: function(options) {
         if (!options.selectionInterface) {
             throw 'Selection interface has not been provided';
         }
+        this.mapModel = new MapModel();
         this.listenTo(store.get('content'), 'change:drawing', this.handleDrawing);
         this.handleDrawing();
     },
@@ -81,9 +100,63 @@ module.exports = Marionette.LayoutView.extend({
             this.map.zoomToSelected(this.options.selectionInterface.getSelectedResults());
         }
         this.map.onMouseMove(this.onMapHover.bind(this));
+        this.map.onRightClick(this.onRightClick.bind(this));
+        this.setupRightClickMenu();
+        this.setupMapInfo();
+        this.addSettings();
+    },
+    addSettings: function(){
+        this.$el.find('.cesium-viewer-toolbar').append('<div class="toolbar-settings"></div>');
+        this.addRegion('toolbarSettings', '.toolbar-settings');
+        this.toolbarSettings.show(new MapSettingsDropdown({
+            model: new DropdownModel()
+        }), {
+            replaceElement: true
+        });
     },
     onMapHover: function(event, mapEvent) {
+        var metacard = this.options.selectionInterface
+            .getCompleteActiveSearchResults()
+            .get(mapEvent.mapTarget);
+        this.updateTarget(metacard);
         this.$el.toggleClass('is-hovering', Boolean(mapEvent.mapTarget && mapEvent.mapTarget !== ('userDrawing')));
+    },
+    updateMouseCoordinates: function(coordinates){
+        this.mapModel.set({
+            mouseLat: Number(coordinates.lat.toFixed(6)), // wrap in Number to chop off trailing zero
+            mouseLon: Number(wrapNum(coordinates.lon, [-180, 180]).toFixed(6))
+        });
+    },
+    updateTarget: function(metacard){
+        var target;
+        var targetMetacard;
+        if (metacard) {
+            target = metacard.get('metacard').get('properties').get('title');
+            targetMetacard = metacard;
+        }
+        this.mapModel.set({
+            target: target,
+            targetMetacard: targetMetacard
+        });
+    },
+    onRightClick: function(event, mapEvent) {
+        event.preventDefault();
+        this.$el.find('.map-context-menu').css('left', event.offsetX)
+            .css('top', event.offsetY);
+        this.mapModel.updateClickCoordinates();
+        this.mapContextMenu.currentView.model.open();
+    },
+    setupRightClickMenu: function(){
+        this.mapContextMenu.show(new MapContextMenuDropdown({
+            model: new DropdownModel(),
+            mapModel: this.mapModel,
+            selectionInterface: this.options.selectionInterface
+        }));
+    },
+    setupMapInfo: function(){
+        this.mapInfo.show(new MapInfoView({
+            model: this.mapModel
+        }));
     },
     /*
         Map creation is deferred to this method, so that all resources pertaining to the map can be loaded lazily and 
@@ -97,10 +170,20 @@ module.exports = Marionette.LayoutView.extend({
     },
     createMap: function(Map){
         this.map = Map(this.el.querySelector('#mapContainer'),
-                this.options.selectionInterface, this.mapDrawingPopup.el);
+                this.options.selectionInterface, this.mapDrawingPopup.el, this.el, this);
         this.setupCollections();
         this.setupListeners();
+        this.addLayers();
         this.endLoading();
+    },
+    addLayers: function(){
+        this.$el.find('.cesium-viewer-toolbar').append('<div class="toolbar-layers"></div>');
+        this.addRegion('toolbarLayers', '.toolbar-layers');
+        this.toolbarLayers.show(new LayersDropdown({
+            model: new DropdownModel()
+        }), {
+            replaceElement: true
+        });
     },
     initializeMap: function(){
         this.loadMap().then(function(Map) {

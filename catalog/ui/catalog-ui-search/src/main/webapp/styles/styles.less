@@ -38,6 +38,24 @@ body {
   position: relative;
 }
 
+html.no-animation,
+html.no-animation *:not(.is-critical-animation),
+html.no-animation *:not(.is-critical-animation)::before,
+html.no-animation *:not(.is-critical-animation)::after {
+  transition: none !important;
+  animation: none !important;
+}
+
+// need to figure out why there are issues using animations / transitions while the lightbox is open (might be a browser bug)
+html.open-lightbox {
+  > body > #content {
+    * {
+      transition: none;
+      animation: none;
+    }
+  }
+}
+
 .fa-star {
   color: @favorite-color;
 }

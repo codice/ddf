@@ -18,5 +18,7 @@ var $ = require('jquery');
 
 module.exports = LightboxView.extend({
     className: 'is-blocking',
-    handleOutsideClick: $.noop
+    handleOutsideClick: $.noop,
+    handleRouteChange: $.noop,
+    handleEscape: $.noop
 });

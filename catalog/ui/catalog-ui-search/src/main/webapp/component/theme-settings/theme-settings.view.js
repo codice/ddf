@@ -20,6 +20,7 @@ var user = require('component/singletons/user-instance');
 var $ = require('jquery');
 var PropertyView = require('component/property/property.view');
 var Property = require('component/property/property');
+var ThemeUtils = require('js/ThemeUtils');
 
 function getPreferences(user){
     return user.get('user').get('preferences');
@@ -29,17 +30,12 @@ function getFontSize(user){
     return getPreferences(user).get('fontSize');
 }
 
-function calculatePercentZoom(user){
-    var fontSize = getFontSize(user);
-    return Math.floor(100*(fontSize/16));
-}
-
-function calculateFontSize(percentage){
-    return (percentage * 16) / 100;
-}
-
 function getSpacingMode(user){
     return getPreferences(user).get('theme').getSpacingMode();
+}
+
+function getAnimationMode(user){
+    return getPreferences(user).get('animation');
 }
 
 module.exports = Marionette.LayoutView.extend({
@@ -47,16 +43,41 @@ module.exports = Marionette.LayoutView.extend({
     tagName: CustomElements.register('theme-settings'),
     regions: {
         fontSize: '.theme-font-size',
-        spacingMode: '.theme-spacing-mode'
+        spacingMode: '.theme-spacing-mode',
+        animationMode: '.theme-animation'
     },
     onBeforeShow: function() {
         this.showFontSize();
         this.showSpacingMode();
+        this.showAnimation();
+    },
+    showAnimation: function(){
+        var animationModel = new Property({
+            label: 'Animation',
+            value: [getAnimationMode(user)],
+            enum: [
+                {
+                    label: 'On',
+                    value: true
+                },
+                {
+                    label: 'Off',
+                    value: false
+                }
+            ],
+            id: 'Animation'
+        });
+        this.animationMode.show(new PropertyView({
+            model: animationModel
+        }));
+        this.animationMode.currentView.turnOnLimitedWidth();
+        this.animationMode.currentView.turnOnEditing();
+        this.listenTo(animationModel, 'change:value', this.saveAnimationChanges);
     },
     showFontSize: function(){
         var fontSizeModel = new Property({
             label: 'Zoom Percentage',
-            value: [calculatePercentZoom(user)],
+            value: [ThemeUtils.getZoomScale(getFontSize(user))],
             min: 62,
             max: 200,
             units: '%',
@@ -98,14 +119,20 @@ module.exports = Marionette.LayoutView.extend({
     saveFontChanges: function(){
         var preferences = getPreferences(user);
         var newFontSize = this.fontSize.currentView.model.getValue()[0];
-        preferences.set('fontSize', calculateFontSize(newFontSize));
+        preferences.set('fontSize', ThemeUtils.getFontSize(newFontSize));
     },
+    saveAnimationChanges: function(){
+        var preferences = getPreferences(user);
+        var newAnimationMode = this.animationMode.currentView.model.getValue()[0];
+        preferences.set('animation', newAnimationMode);
+        getPreferences(user).savePreferences();
+    },  
     saveSpacingChanges: function(){
         var preferences = getPreferences(user);
         var newSpacingMode = this.spacingMode.currentView.model.getValue()[0];
         preferences.get('theme').set('spacingMode', newSpacingMode);
         getPreferences(user).savePreferences();
-    },  
+    },
     saveChanges: function(){
         this.saveFontChanges();
         this.saveSpacingChanges();

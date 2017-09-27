@@ -127,14 +127,10 @@ define([
             enabled: true,
             initialize: function() {
                 this.listenTo(wreqr.vent, 'search:linedisplay', function(model) {
-                    if (this.isVisible()) {
-                        this.showLine(model);
-                    }
+                    this.showLine(model);
                 });
                 this.listenTo(wreqr.vent, 'search:drawline', function(model) {
-                    if (this.isVisible()) {
-                        this.draw(model);
-                    }
+                    this.draw(model);
                 });
                 this.listenTo(wreqr.vent, 'search:drawstop', function(model) {
                     this.stop(model);
@@ -157,8 +153,8 @@ define([
             },
             getViewForModel: function(model) {
                 return this.views.filter(function(view) {
-                    return view.model === model;
-                })[0];
+                    return view.model === model && view.options.map === this.options.map;
+                }.bind(this))[0];
             },
             removeViewForModel: function(model) {
                 var view = this.getViewForModel(model);

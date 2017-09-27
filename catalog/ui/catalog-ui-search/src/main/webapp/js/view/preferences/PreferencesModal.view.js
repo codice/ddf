@@ -26,11 +26,15 @@ define([
     'templates/preferences/layer.list.handlebars',
     'templates/preferences/layerPicker.handlebars',
     'templates/preferences/preference.buttons.handlebars',
-    'component/singletons/user-instance'
+    'component/singletons/user-instance',
+    'js/CustomElements',
+    'sortablejs'
 ], function (Application, _, Marionette, Backbone, $, properties, maptype,
              preferencesModalTemplate, layerPrefsTabTemplate, layerListTemplate,
-             layerPickerTemplate, preferenceButtonsTemplate, user) {
+             layerPickerTemplate, preferenceButtonsTemplate, user, CustomElements,
+             Sortable) {
     var PrefsModalView = Marionette.LayoutView.extend({
+        tagName: CustomElements.register('layer-preferences'),
         setDefaultModel: function(){
             this.model = user.get('user>preferences');
         },
@@ -54,16 +58,12 @@ define([
     PrefsModalView.Buttons = Marionette.LayoutView.extend({
         template: preferenceButtonsTemplate,
         events: {
-            'click button.save': 'save',
-            'click button.reset-defaults': 'resetDefaults'
+            'click button.reset-defaults': 'resetDefaults',
         },
         className: 'preferenceTabButtons',
         ui: { save: 'button.save' },
         initialize: function (options) {
             this.tabView = options.tabView;
-        },
-        save: function () {
-            this.tabView.save();
         },
         resetDefaults: function () {
             this.tabView.resetDefaults();
@@ -76,14 +76,22 @@ define([
             layerButtonsRegion: '#layerButtons'
         },
         initialize: function () {
+            this.listenToModel();
+        },
+        listenToModel: function(){
+            this.stopListeningToModel();
+            this.listenTo(this.model, 'change:alpha change:show', this.save);
+        },
+        stopListeningToModel: function(){
+            this.stopListening(this.model, 'change:alpha change:show', this.save);
         },
         onRender: function () {
-            // listen to any change on all models in collection.
-            this.listenTo(this.model, 'change', this.save);
             // HACK fix it
             this.layerPickers = new PrefsModalView.LayerPickerTable({
                 childView: PrefsModalView.LayerPicker,
-                collection: this.model
+                collection: this.model,
+                updateOrdering: this.updateOrdering.bind(this)
+                //sort: false
             });
             this.layerButtons = new PrefsModalView.Buttons({ tabView: this });
             this.showLayerPickersAndLayerButtons();
@@ -92,22 +100,28 @@ define([
             this.layerPickersRegion.show(this.layerPickers);
             this.layerButtonsRegion.show(this.layerButtons);
         },
-        save: function () {
-            this.model.sort();
-            this.model.savePreferences();
-            this.layerButtons.ui.save.toggleClass('btn-default').toggleClass('btn-primary');
-        },
-        resetDefaults: function () {
-            this.model.each(function (viewLayer) {
-                var url = viewLayer.get('url');
-                var defaultConfig = _.find(properties.imageryProviders, function (layerObj) {
-                    return url === layerObj.url;
-                });
-                viewLayer.set('show', true);
-                viewLayer.set('alpha', defaultConfig.alpha);
+        updateOrdering: function() {
+            _.forEach(this.$el.find('#pickerList tr'), (element, index) => {
+                this.model.get(element.getAttribute('data-id')).set('order', index + 1);
             });
             this.model.sort();
             this.save();
+        },
+        save: function () {
+            this.model.savePreferences();
+        },
+        resetDefaults: function () {
+            this.stopListeningToModel();
+            this.model.forEach(function(viewLayer){
+                var name = viewLayer.get('name');
+                defaultConfig = _.find(properties.imageryProviders, function (layerObj) {
+                    return name === layerObj.name;
+                });
+                viewLayer.set(defaultConfig);
+            });
+            this.model.sort();
+            this.save();
+            this.listenToModel();
         }
     });
     /*
@@ -116,42 +130,28 @@ define([
     PrefsModalView.LayerPickerTable = Marionette.CompositeView.extend({
         template: layerListTemplate,
         childViewContainer: '#pickerList',
-        ui: { tbody: 'tbody' },
-        viewComparator: 'label',
-        initialize: function() {
-            this.collection.each(function(model) {
-                this.listenTo(model, 'change:alpha', this.updateSort);
-            }, this);
-        },
-        updateSort: function() {
-            var sort = false;
-            var prevAlpha = 0;
-            for (var index=0;index<this.collection.models.length;index++) {
-                if (index !== 0) {
-                    if (this.collection.at(index).get('alpha') > prevAlpha) {
-                        sort = true;
-                        break;
-                    } else {
-                        prevAlpha = this.collection.at(index).get('alpha');
-                    }
-                } else {
-                    prevAlpha = this.collection.at(index).get('alpha');
+        onRender: function(){
+            Sortable.create(this.el.querySelector('#pickerList'), {
+                handle: '.layer-rearrange',
+                onEnd: () => {
+                    this.options.updateOrdering();
                 }
-            }
-            if (sort) {
-                this.collection.sort();
-            }
+            });
         }
     });
+
     PrefsModalView.LayerPicker = Marionette.ItemView.extend({
         template: layerPickerTemplate,
         tagName: 'tr',
         className: 'layerPicker-row',
         ui: { range: 'input[type="range"]' },
-        events: { 'sort': 'render' },
+        attributes: function(){
+            return {
+                'data-id': this.model.id
+            };
+        },
         initialize: function () {
             this.modelBinder = new Backbone.ModelBinder();
-            this.$el.data('layerPicker', this);    // make model available to sortable.update()
             this.listenTo(this.model, 'change:show', this.changeShow);
         },
         onRender: function () {

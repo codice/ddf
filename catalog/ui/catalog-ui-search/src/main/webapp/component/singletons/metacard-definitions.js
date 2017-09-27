@@ -61,7 +61,7 @@ define([
             }
         },
         isHiddenType: function(id){
-            return this.metacardTypes[id].type === 'XML' ||
+            return this.metacardTypes[id] === undefined || this.metacardTypes[id].type === 'XML' ||
             this.metacardTypes[id].type === 'BINARY' ||
             this.metacardTypes[id].type === 'OBJECT';
         },

@@ -21,6 +21,7 @@
 
   > .navigation-left {
     width: @minimumButtonSize;
+    transition: width @coreTransitionTime ease-out;
   }
 
   > .navigation-right {
@@ -47,6 +48,17 @@
     transition: transform @coreTransitionTime ease-in-out;
   }
 
+}
+
+@{customElementNamespace}navigation.has-unavailable,
+@{customElementNamespace}navigation.has-unsaved {
+  > .navigation-left {
+    width: @minimumButtonSize + 0.625rem;
+  }
+
+  > .navigation-middle {
+    width: ~'calc(100% - 8*@{minimumButtonSize} - 0.625rem)';
+  }
 }
 
 html.is-drawing {

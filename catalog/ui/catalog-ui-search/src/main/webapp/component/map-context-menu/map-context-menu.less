@@ -1,0 +1,63 @@
+@{customElementNamespace}map-context-menu {
+  .metacard-interaction,
+  .interaction-icon,
+  .interaction-text {
+    line-height: @minimumButtonSize;
+    height: auto;
+  }
+  .metacard-interaction {
+    white-space: nowrap;
+    padding: 0px 10px;
+    cursor: pointer;
+    overflow: hidden;
+  }
+  .interaction-icon {
+    text-align: center;
+    width: @minimumButtonSize;
+  }
+  .interaction-text {
+    max-width: ~'calc(100% - @{minimumButtonSize})';
+    > div {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+  .interaction-icon,
+  .interaction-text {
+    display: inline-block;
+    vertical-align: middle;
+  }
+  .metacard-interaction:hover,
+  .metacard-interaction.is-active {
+    background: @lighten-inherited-background-color;
+  }
+  .interaction-view-details,
+  .interaction-view-details-selection,
+  .interaction-view-histogram-selection {
+    display: none;
+  }
+}
+
+@{customElementNamespace}map-context-menu.has-target {
+  .interaction-view-details {
+    display: block;
+  }
+}
+
+@{customElementNamespace}map-context-menu.has-selection {
+  .interaction-view-details-selection,
+  .interaction-view-histogram-selection {
+    display: block;
+  }
+}
+
+html:not(.is-experimental) {
+  @{customElementNamespace}map-context-menu {
+    .interaction-view-histogram,
+    .interaction-view-details,
+    .interaction-view-details-selection,
+    .interaction-view-histogram-selection {
+      display: none;
+    }
+  }
+}

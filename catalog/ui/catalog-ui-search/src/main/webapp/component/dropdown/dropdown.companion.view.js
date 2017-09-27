@@ -60,7 +60,6 @@ define([
         initialize: function(){
             this.listenTo(this.options.linkedView.model, 'change:isOpen', this.handleOpenChange);
             this.listenForClose();
-            this.listenForReposition();
         },
         hasFiltering: function(){
             return Boolean(this.options.linkedView.hasFiltering || this.options.linkedView.options.hasFiltering);
@@ -78,7 +77,7 @@ define([
                 extraRoom = '2.75rem';
             }
             if (this.hasFiltering()){
-                this.componentToShow.el.style.maxHeight = 'calc('+bottomRoom+'px - 1.875rem - 2.75rem - 1.25rem - '+extraRoom+')';
+                this.componentToShow.$el.css('max-height', 'calc('+bottomRoom+'px - 1.875rem - 2.75rem - 1.25rem - '+extraRoom+')');
             }
         },
         updatePosition: function () {
@@ -131,6 +130,7 @@ define([
                 this.componentToShow.show(new componentToShow(_.extend(this.options.linkedView.options,{
                     model: this.options.linkedView.modelForComponent
                 })));
+                this.listenForReposition();
             }
             this.updateWidth();
             this.updatePosition();

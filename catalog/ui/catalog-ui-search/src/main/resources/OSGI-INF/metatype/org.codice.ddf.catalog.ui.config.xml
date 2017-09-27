@@ -35,7 +35,14 @@
             type="String"
             default='{ "type": "CT"\, "url": "http://assets.agi.com/stk-terrain/tilesets/world/tiles" }'
             required="false"/>
-
+            
+        <AD id="defaultLayout"
+            name="Default Layout"
+            description='The default UI layout and visualization configuration used in the Catalog UI. See http://golden-layout.com/docs/Config.html for more information. Example: [{"type": "stack", "content": [{"type": "component", "component": "cesium", "componentName": "cesium", "title": "3D Map"}, {"type": "component", "component": "inspector", "componentName": "inspector", "title": "Inspector"}]}]'
+            type="String"
+            default='[{"type": "stack", "content": [{"type": "component", "component": "cesium", "componentName": "cesium", "title": "3D Map"}, {"type": "component", "component": "inspector", "componentName": "inspector", "title": "Inspector"}]}]'
+            required="true"/>
+            
         <AD id="projection"
             name="Map Projection"
             description="Projection of imagery providers (e.g. EPSG:3857, EPSG:4326)"
@@ -49,6 +56,24 @@
             type="String"
             default=""
             required="false"/>
+            
+        <AD id="spacingMode" 
+            name="Theme Spacing Mode" 
+            description="Specifies the default theme spacing mode."
+            required="true" 
+            type="String"
+            default="comfortable">
+              <Option label="Comfortable" value="comfortable"/>
+              <Option label="Cozy" value="cozy"/>
+              <Option label="Compact" value="compact"/>
+        </AD>
+        
+        <AD id="zoomPercentage"
+            name="Theme Zoom"
+            description="Specifies the default theme zoom percentage."
+            type="Integer"
+            default="100"
+            required="true"/>
 
         <AD id="timeout"
             name="Connection Timeout"
@@ -178,6 +203,20 @@
             description="Allow editing capability to be visible in the UI"
             type="Boolean"
             default="true"
+            required="true"/>
+        
+        <AD id="isExperimental"
+            name="Enable Experimental Features"
+            description="WARNING:  Enables experimental features in the UI.  This allows users to preview upcoming features."
+            type="Boolean"
+            default="false"
+            required="true"/>
+
+        <AD id="autoMergeTime"
+            name="Auto Merge Time"
+            description="Specifies the interval during which new results can be merged automatically.  This is the time allowed since last merge (in millseconds)."
+            type="Integer"
+            default="1000"
             required="true"/>
 
         <AD id="resultPageSize"

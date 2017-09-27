@@ -26,8 +26,9 @@ define([
     'component/singletons/metacard-definitions',
     'js/Common',
     'properties',
-    'moment'
-], function (wreqr, $, _, Marionette, CustomElements, template, Plotly, Property, PropertyView, metacardDefinitions, Common, properties, moment) {
+    'moment',
+    'component/singletons/user-instance'
+], function (wreqr, $, _, Marionette, CustomElements, template, Plotly, Property, PropertyView, metacardDefinitions, Common, properties, moment, user) {
 
     var zeroWidthSpace = "\u200B";
     var plotlyDateFormat = 'YYYY-MM-DD HH:mm:ss.SS';
@@ -149,25 +150,47 @@ define([
                 });
         }
     }
+    
+    function getTheme(theme) {
+        var config = {
+            margin: {
+                t: 10,
+                l: 50,
+                r: 115,
+                b: 90,
+                pad: 0,
+                autoexpand: true
+            }
+        };
+        switch(theme) {
+            case 'comfortable':
+                config.margin.b = 140;
+                return config;
+            case 'cozy':
+                config.margin.b = 115;
+                return config;
+            case 'compact':
+                config.margin.b = 90;
+                return config;
+            default:
+                return config;
+        }
+    }
 
     function getLayout(plot){
+        var prefs = user.get('user').get('preferences');
+        var theme = getTheme(prefs.get('theme').get('spacingMode'));
+        
         var baseLayout = {
             autosize: true,
             paper_bgcolor:'rgba(0,0,0,0)',
             plot_bgcolor: 'rgba(0,0,0,0)',
             font: {
                 family: '"Open Sans Light","Helvetica Neue",Helvetica,Arial,sans-serif',
-                size: 18,
+                size: prefs.get('fontSize'),
                 color: 'white'
             },
-            margin: {
-                l: 100,
-                r: 100,
-                t: 100,
-                b: 200,
-                pad: 20,
-                autoexpand: true
-            },
+            margin: theme.margin,
             barmode: 'overlay',
             xaxis: {
                 fixedrange: true
@@ -236,6 +259,19 @@ define([
                 this.el.querySelector('.histogram-container').innerHTML = '';
             }
         },
+        updateTheme: function(e){
+            var histogramElement = this.el.querySelector('.histogram-container');
+            if (histogramElement.children.length !== 0 && this.histogramAttribute.currentView.model.getValue()[0] && this.options.selectionInterface.getCompleteActiveSearchResults().length !== 0){
+                var theme = getTheme(e.get('spacingMode'));
+                histogramElement.layout.margin = theme.margin;
+            }
+        },
+        updateFontSize: function(e){
+            var histogramElement = this.el.querySelector('.histogram-container');
+            if (histogramElement.children.length !== 0 && this.histogramAttribute.currentView.model.getValue()[0] && this.options.selectionInterface.getCompleteActiveSearchResults().length !== 0){
+                histogramElement.layout.font.size = e.get('fontSize');
+            }
+        },
         showHistogramAttributeSelector: function(){
             var defaultValue = [];
             defaultValue = this.defaultValue || defaultValue;
@@ -290,6 +326,7 @@ define([
                     x: calculateAttributeArray(activeResults, this.histogramAttribute.currentView.model.getValue()[0]),
                     opacity: 1,
                     type: 'histogram',
+                    hoverinfo: 'y+x+name',
                     name: 'Hits        ',
                     marker: {
                         color: 'rgba(255, 255, 255, .05)',
@@ -304,6 +341,7 @@ define([
                     x: calculateAttributeArray(selectedResults, this.histogramAttribute.currentView.model.getValue()[0]),
                     opacity: 1,
                     type: 'histogram',
+                    hoverinfo: 'y+x+name',
                     name: 'Selected',
                     marker: {
                         color: 'rgba(255, 255, 255, .2)'
@@ -347,6 +385,9 @@ define([
             this.listenTo(this.options.selectionInterface.getSelectedResults(), 'add', this.updateHistogram);
             this.listenTo(this.options.selectionInterface.getSelectedResults(), 'remove', this.updateHistogram);
             this.listenTo(this.options.selectionInterface.getSelectedResults(), 'reset', this.updateHistogram);
+            
+            this.listenTo(user.get('user').get('preferences'), 'change:fontSize', this.updateFontSize);
+            this.listenTo(user.get('user').get('preferences'), 'change:theme', this.updateTheme);
         },
         listenToHistogram: function(){
             this.el.querySelector('.histogram-container').on('plotly_click', this.plotlyClickHandler.bind(this));

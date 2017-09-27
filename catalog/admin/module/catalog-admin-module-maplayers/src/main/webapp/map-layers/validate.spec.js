@@ -10,6 +10,22 @@ import {
 import urls from './urls'
 
 describe('validate providers', () => {
+  describe('name', () => {
+    it('should be a valid name', () => {
+      const values = ['name', 'hello world', 'this is a name', 'hello_world-1']
+      values.forEach((name) => {
+        const providers = fromJS([ { layer: { name } } ])
+        expect(validate(providers).getIn([0, 'name'])).to.equal(undefined)
+      })
+    })
+    it('should not be a valid name', () => {
+      const values = [undefined, '!name2@& !*%', '']
+      values.forEach((name) => {
+        const providers = fromJS([ { layer: { name } } ])
+        expect(validate(providers).getIn([0, 'name'])).to.not.equal(undefined)
+      })
+    })
+  })
   describe('alpha', () => {
     it('should be a valid alpha', () => {
       const values = [0, 0.25, 0.5, 0.75, 1]
@@ -23,6 +39,22 @@ describe('validate providers', () => {
       values.forEach((alpha) => {
         const providers = fromJS([ { layer: { alpha } } ])
         expect(validate(providers).getIn([0, 'alpha'])).to.not.equal(undefined)
+      })
+    })
+  })
+  describe('show', () => {
+    it('should be a valid show flag', () => {
+      const values = [true, false]
+      values.forEach((show) => {
+        const providers = fromJS([ { layer: { show, order: 0 }, buffer: '[]' } ])
+        expect(validate(providers).getIn([0, 'buffer'])).to.equal(undefined)
+      })
+    })
+    it('should not be a valid show flag', () => {
+      const values = [undefined]
+      values.forEach((show) => {
+        const providers = fromJS([ { layer: { show, order: 0 } } ])
+        expect(validate(providers).getIn([0, 'buffer'])).to.not.equal(undefined)
       })
     })
   })
@@ -110,6 +142,30 @@ describe('validate providers', () => {
       values.forEach((value) => {
         expect(validateStructure(value))
           .to.not.equal(undefined, `${value} should not be a valid provider`)
+      })
+    })
+  })
+  describe('order', () => {
+    it('should be a valid order', () => {
+      const values = [0, 1, 2, 3, 4]
+      const providers = fromJS(values.map((order) => ({ layer: { order, show: true }, buffer: '[]' })))
+      values.forEach((order) => {
+        expect(validate(providers).getIn([0, 'buffer'])).to.equal(undefined)
+      })
+    })
+    it('should be out of bounds order', () => {
+      const values = [0, 1, 2, 4]
+      const providers = fromJS(values.map((order) => ({ layer: { order, show: true }, buffer: '[]' })))
+      values.slice(0, values.length - 2).forEach((order) => {
+        expect(validate(providers).getIn([0, 'buffer'])).to.equal(undefined)
+      })
+      expect(validate(providers).getIn([values.length - 1, 'buffer'])).to.not.equal(undefined)
+    })
+    it('should not be a valid order', () => {
+      const values = [-1, {}, [], 1.1, true, false, 2]
+      values.forEach((order) => {
+        const providers = fromJS([ { layer: { order }, buffer: '[]' } ])
+        expect(validate(providers).getIn([0, 'buffer'])).to.not.equal(undefined)
       })
     })
   })

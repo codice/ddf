@@ -67,12 +67,13 @@ define([
             this.checkTags();
             this.checkIfSaved();
             this.checkIsInWorkspace();
+            this.checkIfDownloadable();
             this.checkIfBlacklisted();
             var currentWorkspace = store.getCurrentWorkspace();
             if (currentWorkspace) {
                 this.listenTo(currentWorkspace, 'change:metacards', this.checkIfSaved);
             }
-            this.listenTo(this.model.get('metacard').get('properties'), 'change', this.handleMetacardUpdate);
+            this.listenTo(this.model, 'change:metacard>properties change:metacard', this.handleMetacardUpdate);
             this.listenTo(user.get('user').get('preferences'), 'change:resultDisplay', this.checkDisplayType);
             this.listenTo(router, 'change', this.handleMetacardUpdate);
             this.listenTo(user.get('user').get('preferences').get('resultBlacklist'),
@@ -91,6 +92,7 @@ define([
                 this.stopListening(currentWorkspace);
                 this.listenTo(currentWorkspace, 'change:metacards', this.handleMetacardUpdate);
             }
+            this.$el.attr(this.attributes());
             this.render();
             this.onBeforeShow();
             this.checkDisplayType();
@@ -98,6 +100,7 @@ define([
             this.checkTags();
             this.checkIsInWorkspace();
             this.checkIfBlacklisted();
+            this.checkIfDownloadable();
         },
         onBeforeShow: function(){
             this.resultActions.show(new MetacardInteractionsDropdownView({
@@ -175,6 +178,9 @@ define([
         checkIsInWorkspace: function(){
             var currentWorkspace = store.getCurrentWorkspace();
             this.$el.toggleClass('in-workspace', Boolean(currentWorkspace));
+        },
+        checkIfDownloadable: function() {
+            this.$el.toggleClass('is-downloadable', this.model.get('metacard').get('properties').get('resource-download-url') !== undefined);
         },
         checkIfSaved: function(){
             var currentWorkspace = store.getCurrentWorkspace();

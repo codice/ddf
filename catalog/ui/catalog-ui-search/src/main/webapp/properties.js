@@ -11,6 +11,7 @@
  **/
 /*global define*/
 var DEFAULT_PAGE_SIZE = 25;
+var DEFAULT_AUTO_MERGE_TIME = 1000;
 
 define(function (require) {
     'use strict';
@@ -85,6 +86,7 @@ define(function (require) {
 
             this.handleEditing();
             this.handleFeedback();
+            this.handleExperimental();
 
             return props;
         },
@@ -94,6 +96,9 @@ define(function (require) {
         handleFeedback: function(){
             $('html').toggleClass('is-feedback-restricted', this.isFeedbackRestricted());
         },
+        handleExperimental: function() {
+            $('html').toggleClass('is-experimental', this.hasExperimentalEnabled());
+        },  
         isHidden: function(attribute){
           return match(this.hiddenAttributes, attribute);
         },
@@ -103,8 +108,14 @@ define(function (require) {
         isEditingRestricted: function(){
             return !this.isEditingAllowed;
         },
+        hasExperimentalEnabled: function() {
+            return this.isExperimental;
+        },
         getPageSize: function(){
             return this.resultPageSize || DEFAULT_PAGE_SIZE;
+        },
+        getAutoMergeTime: function() {
+            return this.autoMergeTime || DEFAULT_AUTO_MERGE_TIME;
         },
         isFeedbackRestricted: function(){
             return !this.queryFeedbackEnabled;

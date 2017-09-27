@@ -14,6 +14,7 @@
 
 define([
     'underscore',
+    'lodash.get',
     'wreqr',
     'backbone',
     'properties',
@@ -24,8 +25,9 @@ define([
     'component/blacklist-item/blacklist-item',
     'moment',
     'js/model/Theme',
+    'js/ThemeUtils',
     'backboneassociations'
-], function (_, wreqr, Backbone, properties, Alert, Common, UploadBatch, announcement, BlackListItem, moment, Theme) {
+], function (_, _get, wreqr, Backbone, properties, Alert, Common, UploadBatch, announcement, BlackListItem, moment, Theme, ThemeUtils) {
     'use strict';
 
     var User = {};
@@ -35,8 +37,8 @@ define([
             var found = false;
             if (layer) {
                 for (var i = 0; i < properties.imageryProviders.length; i++) {
-                    var layerObj = _.omit(layer.toJSON(), ['id', 'show', 'label', 'alpha']);
-                    var propProvider = _.omit(properties.imageryProviders[i], 'alpha');
+                    var layerObj = _.omit(layer.toJSON(), ['id', 'show', 'label', 'alpha', 'order']);
+                    var propProvider = _.omit(properties.imageryProviders[i], ['alpha', 'show', 'order']);
                     if (_.isEqual(propProvider, layerObj)) {
                         found = true;
                     }
@@ -50,8 +52,8 @@ define([
         for (var i = 0; i < properties.imageryProviders.length; i++) {
             var found = false;
             for (var j = 0; j < layerPrefs.models.length; j++) {
-                var layerObj = _.omit(layerPrefs.at(j).toJSON(), ['id', 'show', 'label', 'alpha']);
-                var propProvider = _.omit(properties.imageryProviders[i], 'alpha');
+                var layerObj = _.omit(layerPrefs.at(j).toJSON(), ['id', 'show', 'label', 'alpha', 'order']);
+                var propProvider = _.omit(properties.imageryProviders[i], ['show', 'alpha', 'order']);
                 if (_.isEqual(propProvider, layerObj)) {
                     found = true;
                 }
@@ -111,7 +113,7 @@ define([
             }
         },
         comparator: function (model) {
-            return 1 - model.get('alpha');
+            return model.get('order');
         },
         getMapLayerConfig: function (url) {
             return this.findWhere({url: url});
@@ -148,14 +150,16 @@ define([
                 columnHide: [],
                 columnOrder: ['title', 'created', 'modified', 'thumbnail'],
                 uploads: [],
-                fontSize: '16',
+                fontSize: ThemeUtils.getFontSize(_get(properties, 'zoomPercentage', 100)),
                 resultCount: properties.resultCount,
                 timeFormat: Common.getTimeFormats()['24'],
+                coordinateFormat: 'degrees',
                 goldenLayout: undefined,
                 goldenLayoutUpload: undefined,
                 goldenLayoutMetacard: undefined,
                 goldenLayoutAlert: undefined,
-                theme: new Theme()
+                theme: new Theme(),
+                animation: true
             };
         },
         relations: [

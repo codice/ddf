@@ -26,23 +26,19 @@ var DrawLine = require('js/widgets/cesium.line');
 var properties = require('properties');
 var Cesium = require('cesium');
 var DrawHelper = require('imports?Cesium=cesium!exports?DrawHelper!drawHelper');
-var LayerCollectionController = require('js/controllers/cesium.layerCollection.controller');
+var CesiumLayerCollectionController = require('js/controllers/cesium.layerCollection.controller');
 var user = require('component/singletons/user-instance');
 var User = require('js/model/User');
 var wreqr = require('wreqr');
 var gazetteer = require('./geocoder');
+var mtgeo = require('mt-geo');
 
 var defaultColor = '#3c6dd5';
 var eyeOffset = new Cesium.Cartesian3(0, 0, 0);
+var pixelOffset = new Cesium.Cartesian2(0.0, 0);
 
 Cesium.BingMapsApi.defaultKey = properties.bingKey || 0;
-var imageryProviderTypes = LayerCollectionController.imageryProviderTypes;
-var CesiumLayerCollectionController = LayerCollectionController.extend({
-    initialize: function() {
-        // there is no automatic chaining of initialize.
-        LayerCollectionController.prototype.initialize.apply(this, arguments);
-    }
-});
+var imageryProviderTypes = CesiumLayerCollectionController.imageryProviderTypes;
 
 function createMap(insertionElement) {
     var layerPrefs = user.get('user>preferences>mapLayers');
@@ -60,7 +56,7 @@ function createMap(insertionElement) {
             timeline: false,
             geocoder: new gazetteer(),
             homeButton: true,
-            sceneModePicker: true,
+            sceneModePicker: false,
             selectionIndicator: false,
             infoBox: false,
             //skyBox: false,
@@ -71,11 +67,20 @@ function createMap(insertionElement) {
         }
     });
 
+    // disable right click drag to zoom (context menu instead);
+    viewer.scene.screenSpaceCameraController.zoomEventTypes = [Cesium.CameraEventType.WHEEL, Cesium.CameraEventType.PINCH];
+
     viewer.screenSpaceEventHandler.setInputAction(function() {
         if (!store.get('content').get('drawing')){
              $('body').mousedown();
         }
     }, Cesium.ScreenSpaceEventType.LEFT_DOWN);
+
+    viewer.screenSpaceEventHandler.setInputAction(function() {
+        if (!store.get('content').get('drawing')){
+             $('body').mousedown();
+        }
+    }, Cesium.ScreenSpaceEventType.RIGHT_DOWN);
 
     if (properties.terrainProvider && properties.terrainProvider.type) {
         var type = imageryProviderTypes[properties.terrainProvider.type];
@@ -152,13 +157,51 @@ function isNotVisible(cartesian3CenterOfGeometry, occluder) {
     return !occluder.isPointVisible(cartesian3CenterOfGeometry);
 }
 
-module.exports = function CesiumMap(insertionElement, selectionInterface, notificationEl) {
+module.exports = function CesiumMap(insertionElement, selectionInterface, notificationEl, componentElement, parentView) {
     var overlays = {};
     var shapes = [];
     var map = createMap(insertionElement);
     var drawHelper = new DrawHelper(map);
     var billboardCollection = setupBillboard();
     var drawingTools = setupDrawingTools(map);
+    setupTooltip(map, selectionInterface);
+
+    function updateCoordinatesTooltip(position) {
+        if (map.scene.pickPositionSupported) {
+            var cartesian = map.scene.pickPosition(position);
+            if (Cesium.defined(cartesian)){
+                let cartographic = Cesium.Cartographic.fromCartesian(cartesian);
+                parentView.updateMouseCoordinates({
+                    lat: cartographic.latitude * Cesium.Math.DEGREES_PER_RADIAN,
+                    lon: cartographic.longitude * Cesium.Math.DEGREES_PER_RADIAN
+                });
+            }
+        }
+    }
+
+    function getCartographicCoordinatesFromEvent(e, boundingRect){
+        if (map.scene.pickPositionSupported){
+            let cartesian = map.scene.pickPosition({
+                x: e.clientX - boundingRect.left,
+                y: e.clientY - boundingRect.top
+            });
+            if (Cesium.defined(cartesian)){
+                let cartographic = Cesium.Cartographic.fromCartesian(cartesian);
+                return cartographic;
+            }
+        }
+    }
+
+    function setupTooltip(map, selectionInterface) {
+        var handler = new Cesium.ScreenSpaceEventHandler(map.scene.canvas);
+        handler.setInputAction(function(movement) {
+            $(componentElement).removeClass('has-feature');
+            if (map.scene.mode === Cesium.SceneMode.MORPHING) {
+                return;
+            }
+            updateCoordinatesTooltip(movement.endPosition);
+        }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+    }
 
     function setupDrawingTools(map) {
         return {
@@ -216,12 +259,7 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
         onRightClick: function(callback) {
             $(map.scene.canvas).on('contextmenu', function(e) {
                 var boundingRect = map.scene.canvas.getBoundingClientRect();
-                callback(e, {
-                    mapTarget: determineIdFromPosition({
-                        x: e.clientX - boundingRect.left,
-                        y: e.clientY - boundingRect.top
-                    }, map)
-                });
+                callback(e);
             });
         },
         onMouseMove: function(callback) {
@@ -247,7 +285,7 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
             }
         },
         panToResults: function(results) {
-            var rectangle, cartArray;
+            var rectangle, cartArray, point;
 
             cartArray = _.flatten(results.filter(function(result) {
                 return result.hasGeometry();
@@ -258,9 +296,21 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
             }, true));
 
             if (cartArray.length > 0) {
-                rectangle = Cesium.Rectangle.fromCartographicArray(cartArray);
-                this.panToRectangle(rectangle);
+                if (cartArray.length === 1) {
+                    point = Cesium.Ellipsoid.WGS84
+                        .cartographicToCartesian(cartArray[0]);
+                    this.panToCoordinate(point);
+                } else {
+                    rectangle = Cesium.Rectangle.fromCartographicArray(cartArray);
+                    this.panToRectangle(rectangle);
+                }
             }
+        },
+        panToCoordinate: function(coords) {
+            map.scene.camera.flyTo({
+                duration: 0.50,
+                destination: coords
+            });
         },
         panToExtent: function(coords) {},
         panToRectangle: function(rectangle) {
@@ -378,13 +428,16 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
                 pointObject.altitude
             );
             var billboardRef = billboardCollection.add({
-                image: DrawingUtility.getCircleWithIcon({
+                image: DrawingUtility.getPin({
                     fillColor: options.color,
                     icon: options.icon
                 }),
                 position: map.scene.globe.ellipsoid.cartographicToCartesian(cartographicPosition),
                 id: options.id,
-                eyeOffset: eyeOffset
+                eyeOffset: eyeOffset,
+                pixelOffset: pixelOffset,
+                verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                horizontalOrigin: Cesium.HorizontalOrigin.CENTER
             });
             //if there is a terrain provider and no altitude has been specified, sample it from the configured terrain provider
             if (!pointObject.altitude && map.scene.terrainProvider) {
@@ -513,6 +566,7 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
                     text: options.count,
                     textColor: options.textFill
                 });
+                geometry.eyeOffset = new Cesium.Cartesian3(0, 0, options.isSelected ? -1 : 0);
             } else if (geometry.constructor === Cesium.PolylineCollection) {
                 geometry._polylines.forEach(function(polyline) {
                     polyline.material = Cesium.Material.fromType('PolylineOutline', {
@@ -538,11 +592,12 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
                 }.bind(this));
             }
             if (geometry.constructor === Cesium.Billboard) {
-                geometry.image = DrawingUtility.getCircleWithIcon({
+                geometry.image = DrawingUtility.getPin({
                     fillColor: options.color,
                     strokeColor: options.isSelected ? 'black' : 'white',
                     icon: options.icon
                 });
+                geometry.eyeOffset = new Cesium.Cartesian3(0, 0, options.isSelected ? -1 : 0);
             } else if (geometry.constructor === Cesium.PolylineCollection) {
                 geometry._polylines.forEach(function(polyline) {
                     polyline.material = Cesium.Material.fromType('PolylineOutline', {

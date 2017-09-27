@@ -22,6 +22,7 @@ var template = require('./golden-layout.hbs');
 var Marionette = require('marionette');
 var CustomElements = require('js/CustomElements');
 var GoldenLayout = require('golden-layout');
+var properties = require('properties');
 var TableView = require('component/visualization/table/table-viz.view');
 var InspectorView = require('component/visualization/inspector/inspector.view');
 var OpenlayersView = require('component/visualization/maps/openlayers/openlayers.view');
@@ -34,7 +35,7 @@ var VisualizationDropdown = require('component/dropdown/visualization-selector/d
 var DropdownModel = require('component/dropdown/dropdown');
 
 var defaultGoldenLayoutContent = {
-    content: [{
+    content: properties.defaultLayout || [{
         type: 'stack',
         content: [{
             type: 'component',

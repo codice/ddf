@@ -378,6 +378,12 @@
         <bundle>mvn:ddf.catalog.admin/catalog-admin-module-maplayers/${project.version}</bundle>
     </feature>
 
+    <feature name="catalog-admin-module-layout" install="auto" version="${project.version}"
+             description="Catalog Admin Module Default Layout">
+        <feature prerequisite="true">catalog-app</feature>
+        <bundle>mvn:ddf.catalog.admin/catalog-admin-module-layout/${project.version}</bundle>
+    </feature>
+
     <feature name="admin-poller-service-bean" install="auto" version="${project.version}"
              description="Admin Poller">
         <feature prerequisite="true">catalog-app</feature>

@@ -20,12 +20,14 @@ import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.types.Associations;
 import ddf.catalog.data.types.Core;
+import ddf.catalog.data.types.Security;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -36,6 +38,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
 
 public class WorkspaceTransformer {
@@ -76,6 +79,19 @@ public class WorkspaceTransformer {
                   .map(transformIntoMetacard(new QueryMetacardImpl()))
                   .map(this::toMetacardXml)
                   .collect(Collectors.toList());
+            }));
+    metacardToJsonEntryMapper.put(
+        Security.ACCESS_INDIVIDUALS,
+        remapValue(
+            value -> {
+              if (!(value instanceof List)) {
+                return value;
+              }
+
+              return ((List<String>) value)
+                  .stream()
+                  .filter(StringUtils::isNotBlank)
+                  .collect(Collectors.toCollection(ArrayList::new));
             }));
   }
 

@@ -40,3 +40,6 @@ the tests.
 Run `npm test` to execute the automated tests using PhantomJS.
 
 Run `npm testplus` to execute the automated tests in a browser.
+
+###Layers for testing
+https://server.arcgisonline.com/arcgis/rest/services/

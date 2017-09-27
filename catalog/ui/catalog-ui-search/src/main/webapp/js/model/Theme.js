@@ -14,7 +14,8 @@ var Backbone = require('backbone');
 var _ = require('underscore');
 var lessStyles = require('js/uncompiled-less.unless');
 var lessToJs = require('less-vars-to-js');
-var _ = require('underscore');
+var _get = require('lodash.get');
+var properties = require('properties');
 
 var spacingVariables = ['minimumButtonSize', 'minimumLineSize', 'minimumSpacing'];
 var colorVariables = ['baseColor', 'primary-color', 'positive-color', 'negative-color', 'warning-color', 'favorite-color'];
@@ -67,7 +68,7 @@ var colorModes = {
 module.exports = Backbone.Model.extend({
     defaults: function() {
         return {
-            spacingMode: 'comfortable',
+            spacingMode: _get(properties, 'spacingMode', 'comfortable'),
             colorMode: 'dark'
         };
     },

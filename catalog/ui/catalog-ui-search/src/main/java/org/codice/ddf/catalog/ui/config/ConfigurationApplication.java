@@ -62,6 +62,8 @@ public class ConfigurationApplication implements SparkApplication {
 
   private List imageryProviders = new ArrayList<>();
 
+  private List defaultLayout = new ArrayList<>();
+
   private List<Map> imageryProviderUrlMaps = new ArrayList<>();
 
   private List<Map<String, Object>> imageryProviderMaps = new ArrayList<>();
@@ -94,6 +96,10 @@ public class ConfigurationApplication implements SparkApplication {
 
   private Integer timeout = 300000;
 
+  private Integer zoomPercentage = 100;
+
+  private String spacingMode = "comfortable";
+
   private HttpProxyService httpProxy;
 
   private int incrementer = 0;
@@ -111,6 +117,10 @@ public class ConfigurationApplication implements SparkApplication {
   private List<Long> scheduleFrequencyList;
 
   private Map<String, Set<String>> typeNameMapping = new HashMap<String, Set<String>>();
+
+  private Boolean isExperimental = false;
+
+  private Integer autoMergeTime = 1000;
 
   public List<Long> getScheduleFrequencyList() {
     return scheduleFrequencyList;
@@ -248,18 +258,44 @@ public class ConfigurationApplication implements SparkApplication {
     if (imageryProviderUrlMaps.isEmpty()) {
       // @formatter:off
       return Collections.singletonList(
-          ImmutableMap.of(
-              "type",
-              "SI",
-              "url",
-              "/search/catalog/images/natural_earth_50m.png",
-              "parameters",
-              ImmutableMap.of("imageSize", Arrays.asList(10800, 5400)),
-              "alpha",
-              1));
+          ImmutableMap.builder()
+              .put("type", "SI")
+              .put("url", "/search/catalog/images/natural_earth_50m.png")
+              .put("parameters", ImmutableMap.of("imageSize", Arrays.asList(10800, 5400)))
+              .put("alpha", 1)
+              .put("name", "Default Layer")
+              .put("show", true)
+              .put("proxyEnabled", true)
+              .put("order", 0)
+              .build());
       // @formatter:on
     } else {
       return imageryProviderUrlMaps;
+    }
+  }
+
+  private List<Map> getDefaultLayoutConfig() {
+    if (defaultLayout == null || defaultLayout.isEmpty()) {
+      // @formatter:off
+      return Collections.singletonList(
+          ImmutableMap.of(
+              "type",
+              "stack",
+              "content",
+              Arrays.asList(
+                  ImmutableMap.of(
+                      "type", "component",
+                      "component", "cesium",
+                      "componentName", "cesium",
+                      "title", "3D Map"),
+                  ImmutableMap.of(
+                      "type", "component",
+                      "component", "inspector",
+                      "componentName", "inspector",
+                      "title", "Inspector"))));
+      // @formatter:on
+    } else {
+      return defaultLayout;
     }
   }
 
@@ -298,6 +334,11 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("queryFeedbackEmailSubjectTemplate", queryFeedbackEmailSubjectTemplate);
     config.put("queryFeedbackEmailBodyTemplate", queryFeedbackEmailBodyTemplate);
     config.put("queryFeedbackEmailDestination", queryFeedbackEmailDestination);
+    config.put("zoomPercentage", zoomPercentage);
+    config.put("spacingMode", spacingMode);
+    config.put("defaultLayout", getDefaultLayoutConfig());
+    config.put("isExperimental", isExperimental);
+    config.put("autoMergeTime", autoMergeTime);
 
     return config;
   }
@@ -382,6 +423,29 @@ public class ConfigurationApplication implements SparkApplication {
       } catch (ClassCastException e) {
         this.imageryProviders = Collections.emptyList();
         LOGGER.error("Unable to parse terrain provider {} into map.", imageryProviders, e);
+      }
+    }
+  }
+
+  public String getDefaultLayout() {
+    return JsonFactory.create().writeValueAsString(defaultLayout);
+  }
+
+  public void setDefaultLayout(String defaultLayout) {
+    if (StringUtils.isEmpty(defaultLayout)) {
+      this.defaultLayout = Collections.emptyList();
+    } else {
+      try {
+        Object o = JsonFactory.create().readValue(defaultLayout, List.class);
+        if (o != null) {
+          this.defaultLayout = (List) o;
+        } else {
+          this.defaultLayout = Collections.emptyList();
+          LOGGER.warn("Could not parse default layout config as JSON, {}", defaultLayout);
+        }
+      } catch (ClassCastException e) {
+        this.defaultLayout = Collections.emptyList();
+        LOGGER.error("Unable to parse default layout config {} into map.", defaultLayout, e);
       }
     }
   }
@@ -706,5 +770,37 @@ public class ConfigurationApplication implements SparkApplication {
 
   public void setQueryFeedbackEmailDestination(String queryFeedbackEmailDestination) {
     this.queryFeedbackEmailDestination = queryFeedbackEmailDestination;
+  }
+
+  public String getSpacingMode() {
+    return spacingMode;
+  }
+
+  public void setSpacingMode(String spacingMode) {
+    this.spacingMode = spacingMode;
+  }
+
+  public Integer getZoomPercentage() {
+    return zoomPercentage;
+  }
+
+  public void setZoomPercentage(Integer zoomPercentage) {
+    this.zoomPercentage = zoomPercentage;
+  }
+
+  public Integer getAutoMergeTime() {
+    return autoMergeTime;
+  }
+
+  public void setAutoMergeTime(Integer autoMergeTime) {
+    this.autoMergeTime = autoMergeTime;
+  }
+
+  public Boolean getIsExperimental() {
+    return isExperimental;
+  }
+
+  public void setIsExperimental(Boolean isExperimental) {
+    this.isExperimental = isExperimental;
   }
 }

@@ -29,6 +29,7 @@ var LayerCollectionController = require('js/controllers/ol.layerCollection.contr
 var user = require('component/singletons/user-instance');
 var User = require('js/model/User');
 var wreqr = require('wreqr');
+var mtgeo = require('mt-geo');
 
 var defaultColor = '#3c6dd5';
 
@@ -78,12 +79,22 @@ function unconvertPointCoordinate(point) {
     return Openlayers.proj.transform(point, properties.projection, 'EPSG:4326');
 }
 
-module.exports = function OpenlayersMap(insertionElement, selectionInterface, notificationEl) {
+module.exports = function OpenlayersMap(insertionElement, selectionInterface, notificationEl, componentElement, parentView) {
     var overlays = {};
     var shapes = [];
     var map = createMap(insertionElement);
     listenToResize();
+    setupTooltip(map);
     var drawingTools = setupDrawingTools(map);
+  
+    function setupTooltip(map) {        
+        map.on('pointermove', function(e){
+            parentView.updateMouseCoordinates({
+                lat: e.coordinate[1],
+                lon: e.coordinate[0]
+            });
+        });
+    }
 
     function setupDrawingTools(map) {
         return {
@@ -145,12 +156,7 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
         onRightClick: function(callback) {
             $(map.getTargetElement()).on('contextmenu', function(e) {
                 var boundingRect = map.getTargetElement().getBoundingClientRect();
-                callback(e, {
-                    mapTarget: determineIdFromPosition([
-                        e.clientX - boundingRect.left,
-                        e.clientY - boundingRect.top
-                    ], map)
-                });
+                callback(e);
             });
         },
         onMouseMove: function(callback) {
@@ -337,17 +343,27 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
         addPoint: function(point, options) {
             var pointObject = convertPointCoordinate(point);
             var feature = new Openlayers.Feature({
-                geometry: new Openlayers.geom.Point(pointObject)
+                geometry: new Openlayers.geom.Point(pointObject),
+                name: options.title
             });
             feature.setId(options.id);
 
+            var x = 39, y = 40;
+            if (options.size) {
+                x = options.size.x;
+                y = options.size.y;
+            }
             feature.setStyle(new Openlayers.style.Style({
                 image: new Openlayers.style.Icon({
-                    img: DrawingUtility.getCircleWithIcon({
+                    img: DrawingUtility.getPin({
                         fillColor: options.color,
                         icon: options.icon,
                     }),
-                    imgSize: [44, 44]
+                    imgSize: [x, y],
+                    anchor: [x / 2, 0],
+                    anchorOrigin: 'bottom-left',
+                    anchorXUnits: 'pixels',
+                    anchorYUnits: 'pixels'
                 })
             }));
 
@@ -374,7 +390,8 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
             });
 
             var feature = new Openlayers.Feature({
-                geometry: new Openlayers.geom.LineString(lineObject)
+                geometry: new Openlayers.geom.LineString(lineObject),
+                name: options.title
             });
             feature.setId(options.id);
 
@@ -425,6 +442,7 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
                 var feature = geometry.getSource().getFeatures()[0];
                 var geometryInstance = feature.getGeometry();
                 if (geometryInstance.constructor === Openlayers.geom.Point) {
+                    geometry.setZIndex(options.isSelected ? 2 : 1);
                     feature.setStyle(new Openlayers.style.Style({
                         image: new Openlayers.style.Icon({
                             img: DrawingUtility.getCircleWithText({
@@ -468,14 +486,24 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
                 var feature = geometry.getSource().getFeatures()[0];
                 var geometryInstance = feature.getGeometry();
                 if (geometryInstance.constructor === Openlayers.geom.Point) {
+                    var x = 39, y = 40;
+                    if (options.size) {
+                        x = options.size.x;
+                        y = options.size.y;
+                    }
+                    geometry.setZIndex(options.isSelected ? 2 : 1);
                     feature.setStyle(new Openlayers.style.Style({
                         image: new Openlayers.style.Icon({
-                            img: DrawingUtility.getCircleWithIcon({
+                            img: DrawingUtility.getPin({
                                 fillColor: options.color,
                                 strokeColor: options.isSelected ? 'black' : 'white',
                                 icon: options.icon
                             }),
-                            imgSize: [44, 44]
+                            imgSize: [x, y],
+                            anchor: [x / 2, 0],
+                            anchorOrigin: 'bottom-left',
+                            anchorXUnits: 'pixels',
+                            anchorYUnits: 'pixels'
                         })
                     }));
                 } else if (geometryInstance.constructor === Openlayers.geom.LineString) {

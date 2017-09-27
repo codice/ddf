@@ -1,7 +1,6 @@
 @{customElementNamespace}dropdown.is-querySelect {
   cursor: pointer;
   display: block;
-  text-align: center;
   white-space: nowrap;
   position: relative;
   min-height: @minimumButtonSize;
@@ -18,12 +17,9 @@
     padding: 0px;
   }
 
-  .querySelect-item {
-    width: ~'calc(100% - @{minimumButtonSize})';
-  }
-
+  .querySelect-item,
   .querySelect-default {
-    max-width: ~'calc(100% - @{minimumButtonSize})';
+    width: ~'calc(100% - @{minimumButtonSize})';
   }
 
   > .dropdown-icon {

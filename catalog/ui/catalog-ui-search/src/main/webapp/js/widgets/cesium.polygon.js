@@ -24,6 +24,7 @@ define([
 
         Draw.PolygonRenderView = Marionette.View.extend({
             initialize: function() {
+                this.listenTo(this.model, 'change:polygon', this.updatePrimitive);
                 this.updatePrimitive(this.model);
             },
             modelEvents: {
@@ -78,14 +79,10 @@ define([
             enabled: true,
             initialize: function() {
                 this.listenTo(wreqr.vent, 'search:polydisplay', function(model) {
-                    if (this.isVisible()) {
-                        this.showPolygon(model);
-                    }
+                    this.showPolygon(model);
                 });
                 this.listenTo(wreqr.vent, 'search:drawpoly', function(model) {
-                    if (this.isVisible()) {
-                        this.draw(model);
-                    }
+                    this.draw(model);
                 });
                 this.listenTo(wreqr.vent, 'search:drawstop', function(model) {
                     this.stop(model);
@@ -108,8 +105,8 @@ define([
             },
             getViewForModel: function(model) {
                 return this.views.filter(function(view) {
-                    return view.model === model;
-                })[0];
+                    return view.model === model && view.options.map === this.options.map;
+                }.bind(this))[0];
             },
             removeViewForModel: function(model) {
                 var view = this.getViewForModel(model);

@@ -37,6 +37,7 @@ define([
         Draw.BboxView = Marionette.View.extend({
             initialize: function (options) {
                 this.map = options.map;
+                this.listenTo(this.model, 'change:mapNorth change:mapSouth change:mapEast change:mapWest', this.updateGeometry);
             },
             setModelFromGeometry: function (geometry) {
 
@@ -62,6 +63,16 @@ define([
                 var south = parseFloat(model.get('mapSouth'));
                 var east = parseFloat(model.get('mapEast'));
                 var west = parseFloat(model.get('mapWest'));
+
+                // If we are crossing the date line, we must go outside [-180, 180]
+                // for openlayers to draw correctly. This means we can't draw boxes
+                // that encompass more than half the world. This actually matches
+                // how the backend searches anyway.
+                if (east - west < -180) {
+                    east += 360;
+                } else if (east - west > 180) {
+                    west += 360;
+                }
 
                 var northWest = ol.proj.transform([west,north], 'EPSG:4326', properties.projection);
                 var northEast = ol.proj.transform([east,north], 'EPSG:4326', properties.projection);
@@ -138,6 +149,7 @@ define([
                 this.listenTo(this.model, 'change:mapNorth change:mapSouth change:mapEast change:mapWest', this.updateGeometry);
 
                 this.model.trigger("EndExtent", this.model);
+                wreqr.vent.trigger('search:bboxdisplay', this.model);
             },
             start: function () {
                 var that = this;
@@ -167,6 +179,7 @@ define([
                         that.startCoordinate
                     ]);
                     that.drawBorderedRectangle(geometryRepresentation);
+                    that.setModelFromGeometry(that.primitive.getGeometry());
                 });
             },
             startCoordinate: undefined,
@@ -194,14 +207,10 @@ define([
                 this.notificationEl = options.notificationEl;
 
                 this.listenTo(wreqr.vent, 'search:bboxdisplay', function(model){
-                    if (this.isVisible()){
-                        this.showBox(model);
-                    }
+                    this.showBox(model);
                 });
                 this.listenTo(wreqr.vent, 'search:drawbbox', function(model){
-                    if (this.isVisible()){
-                        this.draw(model);
-                    }
+                    this.draw(model);
                 });
                 this.listenTo(wreqr.vent, 'search:drawstop', function(model) {
                     this.stop(model);
@@ -222,10 +231,10 @@ define([
                     this.destroyView(this.views[i]);
                 }
             },
-            getViewForModel: function(model){
-                return this.views.filter(function(view){
-                    return view.model === model;
-                })[0];
+            getViewForModel: function(model) {
+                return this.views.filter(function(view) {
+                    return view.model === model && view.map === this.map;
+                }.bind(this))[0];
             },
             removeViewForModel: function(model){
                 var view = this.getViewForModel(model);
@@ -245,7 +254,6 @@ define([
 
                     var existingView = this.getViewForModel(model);
                     if (existingView) {
-                        existingView.stop();
                         existingView.destroyPrimitive();
                         existingView.updatePrimitive(model);
                     } else {

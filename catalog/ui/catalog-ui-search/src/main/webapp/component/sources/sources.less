@@ -1,0 +1,29 @@
+@{customElementNamespace}sources {
+  .customElement;
+  overflow: hidden;
+
+  > .sources-menu {
+    margin: auto;
+  }
+
+  > .sources-menu {
+    height: 2*@minimumLineSize;
+  }
+
+  .sources-center {
+    margin: auto;
+    max-width: 1200px;
+    padding: 0px 100px;
+    overflow: auto;
+    height: ~'calc(100% - 2*@{minimumLineSize})';
+  }
+}
+
+.is-small-screen, .is-mobile-screen {
+  @{customElementNamespace}sources {
+    .sources-center {
+      max-width: 100%;
+      padding: 0px 20px;
+    }
+  }
+}

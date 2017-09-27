@@ -20,8 +20,9 @@ define([
     './Lightbox.hbs',
     'js/CustomElements',
     'js/store',
-    './Lightbox.js'
-], function (Marionette, _, $, LightboxTemplate, CustomElements, store, Lightbox) {
+    './Lightbox.js',
+    'component/router/router'
+], function (Marionette, _, $, LightboxTemplate, CustomElements, store, Lightbox, router) {
 
     var componentName = 'lightbox';
 
@@ -43,6 +44,26 @@ define([
             $('body').append(this.el);
             this.listenTo(store.get('workspaces'), 'change:currentWorkspace', this.close);
             this.listenForClose();
+            this.listenForRoute();
+            this.listenForEscape();
+        },
+        listenForEscape: function() {
+            $(window).on('keydown.'+CustomElements.getNamespace()+componentName, this.handleSpecialKeys.bind(this));
+        },
+        handleSpecialKeys: function(event) {
+            var code = event.keyCode;
+            if (event.charCode && code == 0)
+                code = event.charCode;
+            switch (code) {
+                case 27:
+                    // Escape
+                    event.preventDefault();
+                    this.handleEscape();
+                    break;
+            }
+        },
+        listenForRoute: function() {
+            this.listenTo(router, 'change', this.handleRouteChange);
         },
         listenForClose: function () {
             this.$el.on(CustomElements.getNamespace()+'close-'+componentName, function () {
@@ -51,6 +72,13 @@ define([
         },
         handleOpen: function () {
             this.$el.toggleClass('is-open', this.model.isOpen());
+            $('html').toggleClass('open-lightbox', true);
+        },
+        handleRouteChange: function() {
+            this.close();
+        },
+        handleEscape: function() {
+            this.close();
         },
         handleOutsideClick: function (event) {
             if (event.target === this.el) {
@@ -60,6 +88,7 @@ define([
         close: function () {
             this.model.close();
             this.lightboxContent.empty();
+            $('html').toggleClass('open-lightbox', false);
         }
     },{
         generateNewLightbox: function(){

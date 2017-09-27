@@ -37,6 +37,7 @@ define([
         Draw.PolygonView = Marionette.View.extend({
             initialize: function(options) {
                 this.map = options.map;
+                this.listenTo(this.model, 'change:polygon', this.updateGeometry);
                 this.updatePrimitive(this.model);
             },
             setModelFromGeometry: function(geometry) {
@@ -47,6 +48,12 @@ define([
 
                 _.each(coords, function(item) {
                     _.each(item, function(point) {
+                        if (point[1] > 90) {
+                            point[1] = 89.9;
+                        }
+                        else if (point[1] < -90) {
+                            point[1] = -89.9;
+                        }
                         coordinates.push(ol.proj.transform([point[0], point[1]], properties.projection, 'EPSG:4326'));
                     });
                 });
@@ -67,6 +74,10 @@ define([
                     coords.push(ol.proj.transform([item[0], item[1]], 'EPSG:4326', properties.projection));
                 });
 
+                // Ensure that the first and last coordinate are the same
+                if (!_.isEqual(coords[0], coords[coords.length - 1])) {
+                    coords.push(coords[0]);
+                }
                 var rectangle = new ol.geom.LineString(coords);
                 return rectangle;
             },
@@ -126,6 +137,7 @@ define([
                 this.listenTo(this.model, 'change:polygon', this.updateGeometry);
 
                 this.model.trigger("EndExtent", this.model);
+                wreqr.vent.trigger('search:polydisplay', this.model);
             },
             start: function() {
                 var that = this;
@@ -185,14 +197,10 @@ define([
                 this.notificationEl = options.notificationEl;
 
                 this.listenTo(wreqr.vent, 'search:polydisplay', function(model) {
-                    if (this.isVisible()) {
-                        this.showBox(model);
-                    }
+                    this.showBox(model);
                 });
                 this.listenTo(wreqr.vent, 'search:drawpoly', function(model) {
-                    if (this.isVisible()) {
-                        this.draw(model);
-                    }
+                    this.draw(model);
                 });
                 this.listenTo(wreqr.vent, 'search:drawstop', function(model) {
                     this.stop(model);
@@ -215,8 +223,8 @@ define([
             },
             getViewForModel: function(model) {
                 return this.views.filter(function(view) {
-                    return view.model === model;
-                })[0];
+                    return view.model === model && view.map === this.map;
+                }.bind(this))[0];
             },
             removeViewForModel: function(model) {
                 var view = this.getViewForModel(model);
@@ -241,7 +249,6 @@ define([
 
                     var existingView = this.getViewForModel(model);
                     if (existingView) {
-                        existingView.stop();
                         existingView.destroyPrimitive();
                         existingView.updatePrimitive(model);
                     } else {

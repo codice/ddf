@@ -33,7 +33,8 @@
   .interaction-unsave,
   .interaction-show,
   .interaction-share,
-  .interaction-create-search {
+  .interaction-create-search,
+  .interaction-download {
     display: none;
   }
 
@@ -86,11 +87,9 @@
   }
 }
 
-@{customElementNamespace}metacard-interactions.is-deleted,
-@{customElementNamespace}metacard-interactions.is-workspace,
-@{customElementNamespace}metacard-interactions.is-revision {
+@{customElementNamespace}metacard-interactions.is-downloadable {
   .interaction-download {
-    display: none;
+    display: block;
   }
 }
 

@@ -80,10 +80,11 @@ define(['underscore',
         makeMap: function (options) {
             var layers = [];
 
-            this.collection.forEach(function (model) {
+            this.collection.forEach(function (model, index) {
                 var widgetLayer = this.makeWidgetLayer(model);
                 layers.push(widgetLayer);
                 this.layerForCid[model.id] = widgetLayer;
+                widgetLayer.setZIndex(-(index + 1));
             }, this);
 
             var view = new ol.View({
@@ -120,11 +121,9 @@ define(['underscore',
             layer.setVisible(model.get('show'));
         },
         reIndexLayers: function () {
-            var olMapLayers = this.map.getLayers();
-            olMapLayers.clear();
-            this.collection.forEach(function (model) {
+            this.collection.forEach(function (model, index) {
                 var widgetLayer = this.layerForCid[model.id];
-                olMapLayers.push(widgetLayer);
+                widgetLayer.setZIndex(-(index + 1));
             }, this);
         },
         makeWidgetLayer: function (model) {
