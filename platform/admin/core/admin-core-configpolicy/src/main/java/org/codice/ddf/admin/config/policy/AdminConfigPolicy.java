@@ -47,13 +47,17 @@ public class AdminConfigPolicy implements PolicyExtension {
 
   @Override
   public KeyValueCollectionPermission isPermittedMatchAll(
-      CollectionPermission subjectAllCollection, KeyValueCollectionPermission matchAllCollection) {
-    return isPermittedMatchOne(subjectAllCollection, matchAllCollection);
+      CollectionPermission subjectAllCollection,
+      KeyValueCollectionPermission matchAllCollection,
+      KeyValueCollectionPermission allPermissionsCollection) {
+    return isPermittedMatchOne(subjectAllCollection, matchAllCollection, allPermissionsCollection);
   }
 
   @Override
   public KeyValueCollectionPermission isPermittedMatchOne(
-      CollectionPermission subjectAllCollection, KeyValueCollectionPermission matchOneCollection) {
+      CollectionPermission subjectAllCollection,
+      KeyValueCollectionPermission matchOneCollection,
+      KeyValueCollectionPermission allPermissionsCollection) {
 
     if (matchOneCollection.getAction() == null
         || (!matchOneCollection.getAction().equals(VIEW_FEATURE_ACTION)

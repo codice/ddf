@@ -23,38 +23,42 @@ import ddf.security.permission.KeyValueCollectionPermission;
 public interface PolicyExtension {
 
   /**
-   * Returns true if the subject collection can imply the two sets of KeyValueCollectionPermission
-   * objects. This method should return any permissions that it was unable to imply. That should
-   * include any permissions that the method does not understand. For example: if 10 match all
-   * permissions are passed into the method and 2 of those permissions can be implied, then the
-   * method should return the remaining 8 match all permissions.
+   * This method should return any permissions that it was unable to imply. That should include any
+   * permissions that the method does not understand. For example: if 10 match all permissions are
+   * passed into the method and 2 of those permissions can be implied, then the method should return
+   * the remaining 8 match all permissions.
    *
    * <p>Warning: not returning any permissions from this method will immediately grant access to
    * every request and bypass the rest of the PDP.
    *
-   * @param subjectAllCollection
-   * @param matchAllCollection
+   * @param subjectAllCollection Subject permissions
+   * @param matchAllCollection Match all permissions
+   * @param allPermissionsCollection Reference list of all permissions
    * @return KeyValueCollectionPermission - set of permissions that can not be implied by this
    *     extension
    */
   KeyValueCollectionPermission isPermittedMatchAll(
-      CollectionPermission subjectAllCollection, KeyValueCollectionPermission matchAllCollection);
+      CollectionPermission subjectAllCollection,
+      KeyValueCollectionPermission matchAllCollection,
+      KeyValueCollectionPermission allPermissionsCollection);
 
   /**
-   * Returns true if the subject collection can imply the two sets of KeyValueCollectionPermission
-   * objects. This method should return any permissions that it was unable to imply. That should
-   * include any permissions that the method does not understand. For example: if 10 match one
-   * permissions are passed into the method and 2 of those permissions can be implied, then the
-   * method should return the remaining 8 match one permissions.
+   * This method should return any permissions that it was unable to imply. That should include any
+   * permissions that the method does not understand. For example: if 10 match one permissions are
+   * passed into the method and 2 of those permissions can be implied, then the method should return
+   * the remaining 8 match one permissions.
    *
    * <p>Warning: not returning any permissions from this method will immediately grant access to
    * every request and bypass the rest of the PDP.
    *
-   * @param subjectAllCollection
-   * @param matchOneCollection
+   * @param subjectAllCollection Subject permissions
+   * @param matchOneCollection Match one permissions
+   * @param allPermissionsCollection Reference list of all permissions
    * @return KeyValueCollectionPermission - set of permissions that can not be implied by this
    *     extension
    */
   KeyValueCollectionPermission isPermittedMatchOne(
-      CollectionPermission subjectAllCollection, KeyValueCollectionPermission matchOneCollection);
+      CollectionPermission subjectAllCollection,
+      KeyValueCollectionPermission matchOneCollection,
+      KeyValueCollectionPermission allPermissionsCollection);
 }
