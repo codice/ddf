@@ -119,6 +119,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   private static final String USERNAME_PROPERTY = "username";
 
+  @SuppressWarnings("squid:S2068" /*Key for the requestProperties map, not a hardcoded password*/)
   private static final String PASSWORD_PROPERTY = "password";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OpenSearchSource.class);
