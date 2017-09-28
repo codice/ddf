@@ -32,10 +32,7 @@ import java.util.Collections;
 import java.util.List;
 import org.codice.ddf.spatial.geocoding.FeatureQueryable;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
-import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
 
 public class CatalogFeatureQueryable implements FeatureQueryable {
@@ -95,21 +92,10 @@ public class CatalogFeatureQueryable implements FeatureQueryable {
     WKTReader wkt = new WKTReader();
     try {
       Geometry geometry = wkt.read(geometryWkt);
-      SimpleFeatureBuilder builder = getSimpleFeatureBuilder(geometry);
+      SimpleFeatureBuilder builder = FeatureBuilder.forGeometry(geometry);
       return builder.buildFeature(countryCode);
     } catch (ParseException e) {
     }
     return null;
-  }
-
-  private SimpleFeatureBuilder getSimpleFeatureBuilder(Geometry geometry) {
-    SimpleFeatureTypeBuilder typeBuilder = new SimpleFeatureTypeBuilder();
-    typeBuilder.setName("testFeatureType");
-    typeBuilder.setCRS(DefaultGeographicCRS.WGS84);
-    typeBuilder.add("coordinates", geometry.getClass());
-    SimpleFeatureType featureType = typeBuilder.buildFeatureType();
-    SimpleFeatureBuilder builder = new SimpleFeatureBuilder(featureType);
-    builder.add(geometry);
-    return builder;
   }
 }

@@ -27,6 +27,7 @@
     <service id="featureIndexer" interface="org.codice.ddf.spatial.geocoding.FeatureIndexer">
         <bean class="org.codice.ddf.spatial.geocoding.feature.CatalogFeatureIndexer">
             <property name="catalogFramework" ref="catalogFramework"/>
+            <property name="filterBuilder" ref="filterBuilder"/>
         </bean>
     </service>
 
