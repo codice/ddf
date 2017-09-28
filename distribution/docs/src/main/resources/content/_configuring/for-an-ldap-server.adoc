@@ -52,12 +52,19 @@ Then change the LDAP Bind User Password in the configurations to use the encrypt
 |secret
 |yes
 
-|LDAP Username Attribute
-|userNameAttribute
+|LDAP Group User Membership Attribute
+|membershipUserAttribute
 |String
-|Attribute used to designate the user's name in LDAP. Usually this is uid, cn, or something similar.
+|Attribute used as the membership attribute for the user in the group. Usually this is uid, cn, or something similar.
 |uid
-|yes
+|true
+
+|LDAP User Login Attribute
+|loginUserAttribute
+|String
+|Attribute used as the login username. Usually this is uid, cn, or something similar.
+|uid
+|true
 
 |LDAP Base User DN
 |userBaseDn

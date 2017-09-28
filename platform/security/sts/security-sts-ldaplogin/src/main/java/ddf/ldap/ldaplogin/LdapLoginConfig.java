@@ -57,7 +57,9 @@ public class LdapLoginConfig {
 
   private static final String SUFFICIENT_FLAG = "sufficient";
 
-  private static final String USER_NAME_ATTRIBUTE = "userNameAttribute";
+  private static final String LOGIN_USER_ATTRIBUTE = "loginUserAtttribute";
+
+  private static final String MEMBER_USER_ATTRIBUTE = "membershipUserAttribute";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(LdapLoginConfig.class);
 
@@ -102,11 +104,13 @@ public class LdapLoginConfig {
     final Object userBaseDn = properties.get(USER_BASE_DN);
     props.put(SslLdapLoginModule.USER_BASE_DN, userBaseDn);
 
-    final Object userNameAttribute = properties.get(USER_NAME_ATTRIBUTE);
-    props.put(USER_FILTER, String.format("(%s=%%u)", userNameAttribute));
+    final Object loginUserAttribute = properties.get(LOGIN_USER_ATTRIBUTE);
+    final Object membershipUserAttribute = properties.get(MEMBER_USER_ATTRIBUTE);
+    props.put(USER_FILTER, String.format("(%s=%%u)", loginUserAttribute));
     props.put(USER_SEARCH_SUBTREE, "true");
     props.put(ROLE_BASE_DN, properties.get(GROUP_BASE_DN));
-    props.put(ROLE_FILTER, String.format("(member=%s=%%u,%s)", userNameAttribute, userBaseDn));
+    props.put(
+        ROLE_FILTER, String.format("(member=%s=%%u,%s)", membershipUserAttribute, userBaseDn));
     props.put(ROLE_NAME_ATTRIBUTE, "cn");
     props.put(ROLE_SEARCH_SUBTREE, "true");
     props.put("authentication", "simple");
@@ -167,9 +171,14 @@ public class LdapLoginConfig {
     ldapProperties.put(START_TLS, startTls);
   }
 
-  public void setUserNameAttribute(String userNameAttribute) {
-    LOGGER.trace("setUserNameAttribute called: {}", userNameAttribute);
-    ldapProperties.put(USER_NAME_ATTRIBUTE, userNameAttribute);
+  public void setLoginUserAttribute(String loginUserAttribute) {
+    LOGGER.trace("setLoginUserAttribute called: {}", loginUserAttribute);
+    ldapProperties.put(LOGIN_USER_ATTRIBUTE, loginUserAttribute);
+  }
+
+  public void setMembershipUserAttribute(String membershipUserAttribute) {
+    LOGGER.trace("setMemberUserAttribute called: {}", membershipUserAttribute);
+    ldapProperties.put(MEMBER_USER_ATTRIBUTE, membershipUserAttribute);
   }
 
   public void setBindMethod(String bindMethod) {
