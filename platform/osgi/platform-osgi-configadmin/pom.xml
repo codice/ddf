@@ -80,8 +80,8 @@
             </plugin>
             <plugin>
                 <!-- Notice that down below in the bundle plugin config we don't embed felix.
-                We don't have to. Shading allows us to own the compiled class files ourself,
-                as if we owned the sources ourself. However, we're excluding one of their classes
+                We don't have to. Shading allows us to own the compiled class files as if
+                we owned the sources ourselves. However, we're excluding one of their classes
                 in favor of our own version (see below in <filters>). -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>

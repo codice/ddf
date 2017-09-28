@@ -74,6 +74,11 @@
             <version>${project.version}</version>
             <type>jar</type>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.osgi</groupId>
+            <artifactId>platform-osgi-configadmin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <resources>
@@ -148,6 +153,15 @@
                                     <version>${bouncy.version}</version>
                                     <outputDirectory>${setup.folder}/ext</outputDirectory>
                                     <destFileName>bcpkix-${bouncy.version}.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>ddf.platform.osgi</groupId>
+                                    <artifactId>platform-osgi-configadmin</artifactId>
+                                    <version>${project.version}</version>
+                                    <outputDirectory>
+                                        ${setup.folder}/system/ddf/platform/osgi/platform-osgi-configadmin/${project.version}
+                                    </outputDirectory>
+                                    <destFileName>platform-osgi-configadmin-${project.version}.jar</destFileName>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
