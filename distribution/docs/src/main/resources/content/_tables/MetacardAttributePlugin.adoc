@@ -19,13 +19,15 @@
 |Metacard Intersect Attributes:
 |intersectMetacardAttributes
 |List of rules
-|List of metacard attributes whose values will be collected (source attributes) and combined into a
- metacard attribute (destination attribute). Each rule consists of a the name of a source attribute
- and destination attribute, separated by an equals sign.
+|List of metacard attributes whose values will be collected (source attributes) and combined
+into a (new) metacard attribute (destination attribute). The format is the name of a source attribute,
+folowed by an equals sign, followed by a destination attribute. Intersection means that only the values
+common to all source attributes become values of the destination attribute.
+Note: duplicate destinations for Intersect and Union attributes behave unpredictably.
 
- Example If `codewords`=`compartments` is one rule and `sci-tokens=compartments` is another rule, then
-  values common to **both** `codewords` and `sci-tokens` attributes will be added to a new attribute
-   named `compartments`.
+Example If `codewords`=`compartments` is one rule and `sci-tokens=compartments` is another rule,
+then values common to **both** `codewords` and `sci-tokens` attributes will be added to a new
+attribute named `compartments`.
 |none
 |false
 
@@ -33,8 +35,8 @@
 |unionMetacardAttributes
 |List of rules
 |Similar to  `intersectMetacardAttributes`. Only the logic of how to combine the source values is different.
- Instead of using only the values common to the source attributes, the destination attribute will
- contain **all** values of the source attributes.
+Instead of using only the values common to the source attributes, the destination attribute will
+contain every value from every source attributes. Duplicate values are only included once.
 |none
 |false
 
