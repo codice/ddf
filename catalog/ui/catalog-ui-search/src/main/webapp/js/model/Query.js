@@ -535,7 +535,9 @@ define([
                     return status.hits ? hits + status.hits : hits;
                 }, 0);
 
-                if (results > hits) {
+                if (hits === 0 ) {
+                    return '0 results';
+                } else if (results > hits) {
                     return hits + ' results';
                 }
 
@@ -545,7 +547,7 @@ define([
                     (clientState.currentPage - 1) * clientState.pageSize;
                 var endingIndex = startingIndex + resultsCollection.length;
 
-                return (startingIndex + 1) + '-' + endingIndex + ' of ' + hits;w
+                return (startingIndex + 1) + '-' + endingIndex + ' of ' + hits;
             }
         });
         return Query;
