@@ -92,7 +92,7 @@ public class ErrorServlet extends HttpServlet {
       try {
         codeInt = Integer.parseInt(code);
       } catch (NumberFormatException e) {
-        codeInt = 0;
+        codeInt = 500;
       }
 
       errorHandler.handleError(codeInt, message, type, throwable, uri, request, response);
