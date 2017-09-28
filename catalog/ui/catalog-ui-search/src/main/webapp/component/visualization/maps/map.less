@@ -19,6 +19,10 @@
 }
 
 @{customElementNamespace}map {
+  .cesium-button {
+    vertical-align: top;
+  }
+
   .map-context-menu {
     position: absolute;
     left: 0px;
@@ -26,5 +30,23 @@
     width: 1px;
     height: 1px;
     overflow: hidden;
+  }
+
+  .is-clustering {
+      display: none;
+  }
+
+  .is-clustering.fa-toggle-on {
+    color: lighten(@warning-color, 20%);
+  }
+}
+
+@{customElementNamespace}map.is-clustering {
+  .is-clustering {
+    display: inline;
+  }
+
+  .is-not-clustering {
+    display: none;
   }
 }
