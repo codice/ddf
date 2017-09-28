@@ -594,7 +594,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
   public void setEndpointUrl(String endpointUrl) {
     this.endpointUrl = new PropertyResolver(endpointUrl);
     if (isInitialized) {
-      createClientFactory(endpointUrl, username, password);
+      factory = createClientFactory(endpointUrl, username, password);
     }
   }
 
