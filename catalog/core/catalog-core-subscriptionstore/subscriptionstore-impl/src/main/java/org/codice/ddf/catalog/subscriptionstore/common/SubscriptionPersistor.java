@@ -25,6 +25,7 @@ import org.codice.ddf.catalog.subscriptionstore.internal.SubscriptionStoreExcept
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentItem;
 import org.codice.ddf.persistence.PersistentStore;
+import org.codice.ddf.persistence.PersistentStore.PersistenceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,7 +74,7 @@ public class SubscriptionPersistor {
   public Map<String, SubscriptionMetadata> getSubscriptions() {
     List<Map<String, Object>> results;
     try {
-      results = persistentStore.get(PersistentStore.EVENT_SUBSCRIPTIONS_TYPE);
+      results = persistentStore.get(PersistenceType.EVENT_SUBSCRIPTIONS_TYPE.toString());
     } catch (PersistenceException e) {
       throw new SubscriptionStoreException("Exception while reading subscriptions from Solr: ", e);
     }
@@ -98,7 +99,8 @@ public class SubscriptionPersistor {
     LOGGER.debug("Adding [{}] to persistence store. ", metadata.getId());
     PersistentItem persistentSubscription = metadataToPersistentItem(metadata);
     try {
-      persistentStore.add(PersistentStore.EVENT_SUBSCRIPTIONS_TYPE, persistentSubscription);
+      persistentStore.add(
+          PersistenceType.EVENT_SUBSCRIPTIONS_TYPE.toString(), persistentSubscription);
     } catch (PersistenceException e) {
       throw new SubscriptionStoreException("Exception while persisting subscription: ", e);
     }
@@ -107,7 +109,7 @@ public class SubscriptionPersistor {
   /**
    * Remove the subscription metadata from the persistent store that corresponds to the given id.
    *
-   * <p>Redundant deletes are valid as a no-op to support javax.cache events propogating
+   * <p>Redundant deletes are valid as a no-op to support javax.cache events propogating*
    * write-through processing to other cache nodes.
    *
    * @param subscriptionId the unique id of the subscription to delete.
@@ -117,7 +119,7 @@ public class SubscriptionPersistor {
     LOGGER.debug("Deleting [{}] from persistence store", subscriptionId);
     try {
       persistentStore.delete(
-          PersistentStore.EVENT_SUBSCRIPTIONS_TYPE, getEcqlStringForId(subscriptionId));
+          PersistenceType.EVENT_SUBSCRIPTIONS_TYPE.toString(), getEcqlStringForId(subscriptionId));
     } catch (PersistenceException e) {
       throw new SubscriptionStoreException("Exception while deleting subscription: ", e);
     }

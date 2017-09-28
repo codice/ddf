@@ -27,6 +27,7 @@ import org.codice.ddf.notifications.Notification;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentItem;
 import org.codice.ddf.persistence.PersistentStore;
+import org.codice.ddf.persistence.PersistentStore.PersistenceType;
 import org.cometd.annotation.Listener;
 import org.cometd.annotation.Service;
 import org.cometd.bayeux.Message;
@@ -215,7 +216,8 @@ public class NotificationController extends AbstractEventController {
             // You can have a blank id for guest
             if (id != null) {
               try {
-                this.persistentStore.delete(PersistentStore.NOTIFICATION_TYPE, "id = '" + id + "'");
+                this.persistentStore.delete(
+                    PersistenceType.NOTIFICATION_TYPE.toString(), "id = '" + id + "'");
               } catch (PersistenceException e) {
                 throw new IllegalArgumentException("Unable to delete notification with id = " + id);
               }
@@ -238,7 +240,7 @@ public class NotificationController extends AbstractEventController {
     try {
       results =
           persistentStore.get(
-              PersistentStore.NOTIFICATION_TYPE,
+              PersistenceType.NOTIFICATION_TYPE.toString(),
               Notification.NOTIFICATION_KEY_USER_ID + " = '" + userId + "'");
     } catch (PersistenceException e) {
       LOGGER.debug("PersistenceException trying to get notifications for user {}", userId, e);

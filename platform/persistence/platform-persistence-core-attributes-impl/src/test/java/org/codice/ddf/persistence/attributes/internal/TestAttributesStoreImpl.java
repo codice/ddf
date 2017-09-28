@@ -30,6 +30,7 @@ import java.util.Map;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentItem;
 import org.codice.ddf.persistence.PersistentStore;
+import org.codice.ddf.persistence.PersistentStore.PersistenceType;
 import org.codice.ddf.persistence.attributes.AttributesStore;
 import org.junit.Before;
 import org.junit.Test;
@@ -96,8 +97,8 @@ public class TestAttributesStoreImpl {
     verify(persistentStore, atLeast(2)).get(keyArg1.capture(), cqlArg.capture());
     verify(persistentStore).add(keyArg2.capture(), itemArg.capture());
 
-    assertThat(keyArg1.getValue(), is(PersistentStore.USER_ATTRIBUTE_TYPE));
-    assertThat(keyArg2.getValue(), is(PersistentStore.USER_ATTRIBUTE_TYPE));
+    assertThat(keyArg1.getValue(), is(PersistenceType.USER_ATTRIBUTE_TYPE.toString()));
+    assertThat(keyArg2.getValue(), is(PersistenceType.USER_ATTRIBUTE_TYPE.toString()));
 
     assertThat(itemArg.getValue().getLongProperty(AttributesStore.DATA_USAGE_KEY), is(600L));
 
@@ -112,7 +113,7 @@ public class TestAttributesStoreImpl {
     ArgumentCaptor<PersistentItem> itemArg = ArgumentCaptor.forClass(PersistentItem.class);
     attributesStore.setDataUsage(USER, DATA_USAGE);
     verify(persistentStore).add(keyArg.capture(), itemArg.capture());
-    assertThat(keyArg.getValue(), is(PersistentStore.USER_ATTRIBUTE_TYPE));
+    assertThat(keyArg.getValue(), is(PersistenceType.USER_ATTRIBUTE_TYPE.toString()));
 
     assertThat(itemArg.getValue().getLongProperty(AttributesStore.DATA_USAGE_KEY), is(DATA_USAGE));
   }
@@ -187,7 +188,7 @@ public class TestAttributesStoreImpl {
     ArgumentCaptor<PersistentItem> itemArg = ArgumentCaptor.forClass(PersistentItem.class);
     attributesStore.setDataLimit(USER, DATA_LIMIT);
     verify(persistentStore).add(keyArg.capture(), itemArg.capture());
-    assertThat(keyArg.getValue(), is(PersistentStore.USER_ATTRIBUTE_TYPE));
+    assertThat(keyArg.getValue(), is(PersistenceType.USER_ATTRIBUTE_TYPE.toString()));
 
     assertThat(
         itemArg.getValue().getLongProperty(AttributesStore.DATA_USAGE_LIMIT_KEY), is(DATA_LIMIT));
@@ -207,7 +208,7 @@ public class TestAttributesStoreImpl {
     ArgumentCaptor<PersistentItem> itemArg = ArgumentCaptor.forClass(PersistentItem.class);
     attributesStore.setDataLimit(USER, DATA_LIMIT);
     verify(persistentStore).add(keyArg.capture(), itemArg.capture());
-    assertThat(keyArg.getValue(), is(PersistentStore.USER_ATTRIBUTE_TYPE));
+    assertThat(keyArg.getValue(), is(PersistenceType.USER_ATTRIBUTE_TYPE.toString()));
 
     assertThat(
         itemArg.getValue().getLongProperty(AttributesStore.DATA_USAGE_LIMIT_KEY), is(DATA_LIMIT));
@@ -248,7 +249,7 @@ public class TestAttributesStoreImpl {
     ArgumentCaptor<PersistentItem> itemArg = ArgumentCaptor.forClass(PersistentItem.class);
     attributesStore.resetUserDataUsages();
     verify(persistentStore).add(keyArg.capture(), itemArg.capture());
-    assertThat(keyArg.getValue(), is(PersistentStore.USER_ATTRIBUTE_TYPE));
+    assertThat(keyArg.getValue(), is(PersistenceType.USER_ATTRIBUTE_TYPE.toString()));
 
     assertThat(itemArg.getValue().getLongProperty(AttributesStore.DATA_USAGE_KEY), is(0L));
     assertThat(

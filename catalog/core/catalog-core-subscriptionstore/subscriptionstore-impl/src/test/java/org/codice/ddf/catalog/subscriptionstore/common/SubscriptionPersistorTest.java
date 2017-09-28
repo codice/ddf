@@ -32,6 +32,7 @@ import java.util.Map;
 import org.codice.ddf.catalog.subscriptionstore.internal.SubscriptionStoreException;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentStore;
+import org.codice.ddf.persistence.PersistentStore.PersistenceType;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -77,7 +78,8 @@ public class SubscriptionPersistorTest {
   @Test
   public void testValidInsert() throws Exception {
     persistor.insert(metadata);
-    verify(mockPersistentStore).add(eq(PersistentStore.EVENT_SUBSCRIPTIONS_TYPE), anyMap());
+    verify(mockPersistentStore)
+        .add(eq(PersistenceType.EVENT_SUBSCRIPTIONS_TYPE.toString()), anyMap());
     verifyNoMoreInteractions(mockPersistentStore);
   }
 
@@ -91,7 +93,7 @@ public class SubscriptionPersistorTest {
   public void testValidDelete() throws Exception {
     persistor.delete(SUBSCRIPTION_ID);
     verify(mockPersistentStore)
-        .delete(eq(PersistentStore.EVENT_SUBSCRIPTIONS_TYPE), eq(ECQL_FOR_ID));
+        .delete(eq(PersistenceType.EVENT_SUBSCRIPTIONS_TYPE.toString()), eq(ECQL_FOR_ID));
     verifyNoMoreInteractions(mockPersistentStore);
   }
 
@@ -113,7 +115,7 @@ public class SubscriptionPersistorTest {
 
   @Test
   public void testGetWhenResultIsNotPersistentItem() throws Exception {
-    when(mockPersistentStore.get(eq(PersistentStore.EVENT_SUBSCRIPTIONS_TYPE)))
+    when(mockPersistentStore.get(eq(PersistenceType.EVENT_SUBSCRIPTIONS_TYPE.toString())))
         .thenReturn(Collections.singletonList(nonPersistentItemResponse));
     Map<String, SubscriptionMetadata> results = persistor.getSubscriptions();
     SubscriptionMetadata resultMetadata = results.get(SUBSCRIPTION_ID);

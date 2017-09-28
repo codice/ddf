@@ -104,6 +104,7 @@ import org.codice.ddf.itests.common.config.UrlResourceReaderConfigurator;
 import org.codice.ddf.itests.common.utils.LoggingUtils;
 import org.codice.ddf.persistence.PersistentItem;
 import org.codice.ddf.persistence.PersistentStore;
+import org.codice.ddf.persistence.PersistentStore.PersistenceType;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
@@ -2301,11 +2302,12 @@ public class TestCatalog extends AbstractIntegrationTest {
     item.addProperty("user", "itest");
     item.addProperty("workspaces_json", jsonString);
 
+    final String WORKSPACE_TYPE = PersistenceType.WORKSPACE_TYPE.toString();
     try {
       int wait = 0;
       while (true) {
         try {
-          pstore.get(PersistentStore.WORKSPACE_TYPE);
+          pstore.get(WORKSPACE_TYPE);
           break;
         } catch (Exception e) {
           LOGGER.info("Waiting for persistence store to come online.");
@@ -2315,22 +2317,21 @@ public class TestCatalog extends AbstractIntegrationTest {
           }
         }
       }
-      assertThat(pstore.get(PersistentStore.WORKSPACE_TYPE), is(empty()));
-      pstore.add(PersistentStore.WORKSPACE_TYPE, item);
+      assertThat(pstore.get(WORKSPACE_TYPE), is(empty()));
+      pstore.add(WORKSPACE_TYPE, item);
 
       expect("Solr core to be spun up and item to be persisted")
           .within(5, TimeUnit.MINUTES)
-          .until(() -> pstore.get(PersistentStore.WORKSPACE_TYPE).size(), equalTo(1));
+          .until(() -> pstore.get(WORKSPACE_TYPE).size(), equalTo(1));
 
-      List<Map<String, Object>> storedWs =
-          pstore.get(PersistentStore.WORKSPACE_TYPE, "\"id\" = 'itest'");
+      List<Map<String, Object>> storedWs = pstore.get(WORKSPACE_TYPE, "\"id\" = 'itest'");
       assertThat(storedWs, hasSize(1));
       assertThat(storedWs.get(0).get("user_txt"), is("itest"));
     } finally {
-      pstore.delete(PersistentStore.WORKSPACE_TYPE, "\"id\" = 'itest'");
+      pstore.delete(WORKSPACE_TYPE, "\"id\" = 'itest'");
       expect("Workspace to be empty")
           .within(5, TimeUnit.MINUTES)
-          .until(() -> pstore.get(PersistentStore.WORKSPACE_TYPE).size(), equalTo(0));
+          .until(() -> pstore.get(WORKSPACE_TYPE).size(), equalTo(0));
     }
   }
 

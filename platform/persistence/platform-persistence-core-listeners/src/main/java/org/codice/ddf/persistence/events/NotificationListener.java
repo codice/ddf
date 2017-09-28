@@ -18,6 +18,7 @@ import org.codice.ddf.notifications.Notification;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentItem;
 import org.codice.ddf.persistence.PersistentStore;
+import org.codice.ddf.persistence.PersistentStore.PersistenceType;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
@@ -59,7 +60,7 @@ public class NotificationListener implements EventHandler {
     item.addProperty(Notification.NOTIFICATION_KEY_TITLE, title);
     item.addProperty(Notification.NOTIFICATION_KEY_MESSAGE, message);
     try {
-      persistentStore.add(PersistentStore.NOTIFICATION_TYPE, item);
+      persistentStore.add(PersistenceType.NOTIFICATION_TYPE.toString(), item);
     } catch (PersistenceException e) {
 
     }

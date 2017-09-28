@@ -23,6 +23,7 @@ import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.notifications.Notification;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentStore;
+import org.codice.ddf.persistence.PersistentStore.PersistenceType;
 import org.fusesource.jansi.Ansi;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -88,7 +89,7 @@ public class DeleteCommand implements Action {
           try {
             numDeleted =
                 persistentStore.delete(
-                    PersistentStore.NOTIFICATION_TYPE,
+                    PersistenceType.NOTIFICATION_TYPE.toString(),
                     Notification.NOTIFICATION_KEY_ID + " = '" + id + "'");
           } catch (PersistenceException e) {
             LOGGER.info("PersistenceException during deletion of notifications for ID {}", id, e);
@@ -97,7 +98,7 @@ public class DeleteCommand implements Action {
           try {
             numDeleted =
                 persistentStore.delete(
-                    PersistentStore.NOTIFICATION_TYPE,
+                    PersistenceType.NOTIFICATION_TYPE.toString(),
                     Notification.NOTIFICATION_KEY_USER_ID + " = '" + userId + "'");
           } catch (PersistenceException e) {
             LOGGER.info(

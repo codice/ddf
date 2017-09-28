@@ -26,6 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentItem;
 import org.codice.ddf.persistence.PersistentStore;
+import org.codice.ddf.persistence.PersistentStore.PersistenceType;
 import org.codice.ddf.ui.searchui.query.model.Search;
 import org.cometd.annotation.Listener;
 import org.cometd.annotation.Service;
@@ -73,7 +74,8 @@ public class WorkspaceService {
         List<Map<String, Object>> workspacesList = new ArrayList<Map<String, Object>>();
         try {
           workspacesList =
-              persistentStore.get(PersistentStore.WORKSPACE_TYPE, "user = '" + username + "'");
+              persistentStore.get(
+                  PersistenceType.WORKSPACE_TYPE.toString(), "user = '" + username + "'");
           if (workspacesList.size() == 1) {
             // Convert workspace's JSON representation back to nested maps of Map<String, Object>
             Map<String, Object> workspaces = (Map<String, Object>) workspacesList.get(0);
@@ -110,7 +112,7 @@ public class WorkspaceService {
         item.addProperty("user", username);
         item.addProperty("workspaces_json", json);
         try {
-          persistentStore.add(PersistentStore.WORKSPACE_TYPE, item);
+          persistentStore.add(PersistenceType.WORKSPACE_TYPE.toString(), item);
         } catch (PersistenceException e) {
           LOGGER.info(
               "PersistenceException while trying to persist workspaces for user {}", username, e);

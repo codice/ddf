@@ -21,6 +21,7 @@ import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.persistence.PersistenceException;
 import org.codice.ddf.persistence.PersistentItem;
 import org.codice.ddf.persistence.PersistentStore;
+import org.codice.ddf.persistence.PersistentStore.PersistenceType;
 import org.codice.ddf.persistence.attributes.AttributesStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,7 +93,7 @@ public class AttributesStoreImpl implements AttributesStore {
 
         LOGGER.debug("Updating user {} data usage to {}", username, dataUsage);
         persistentStore.add(
-            PersistentStore.USER_ATTRIBUTE_TYPE,
+            PersistenceType.USER_ATTRIBUTE_TYPE.toString(),
             toPersistentItem(username, dataUsage, getDataLimitByUser(username)));
       } finally {
         readWriteLock.writeLock().unlock();
@@ -113,7 +114,7 @@ public class AttributesStoreImpl implements AttributesStore {
 
         LOGGER.debug("Updating user {} data usage to {}", username, dataUsage);
         persistentStore.add(
-            PersistentStore.USER_ATTRIBUTE_TYPE,
+            PersistenceType.USER_ATTRIBUTE_TYPE.toString(),
             toPersistentItem(username, dataUsage, NO_DATA_LIMIT));
       } finally {
         readWriteLock.writeLock().unlock();
@@ -134,7 +135,7 @@ public class AttributesStoreImpl implements AttributesStore {
 
         LOGGER.debug("Updating user {} data limit to {}", username, dataLimit);
         persistentStore.add(
-            PersistentStore.USER_ATTRIBUTE_TYPE,
+            PersistenceType.USER_ATTRIBUTE_TYPE.toString(),
             toPersistentItem(username, getCurrentDataUsageByUser(username), dataLimit));
       } finally {
         readWriteLock.writeLock().unlock();
@@ -147,7 +148,7 @@ public class AttributesStoreImpl implements AttributesStore {
     List<Map<String, Object>> userMap;
     try {
       readWriteLock.readLock().lock();
-      userMap = persistentStore.get(PersistentStore.USER_ATTRIBUTE_TYPE);
+      userMap = persistentStore.get(PersistenceType.USER_ATTRIBUTE_TYPE.toString());
     } finally {
       readWriteLock.readLock().unlock();
     }
@@ -165,7 +166,8 @@ public class AttributesStoreImpl implements AttributesStore {
 
         LOGGER.debug("Resetting Data usage for user : {}", username);
         persistentStore.add(
-            PersistentStore.USER_ATTRIBUTE_TYPE, toPersistentItem(username, 0L, dataLimit));
+            PersistenceType.USER_ATTRIBUTE_TYPE.toString(),
+            toPersistentItem(username, 0L, dataLimit));
       } finally {
         readWriteLock.writeLock().unlock();
       }
@@ -192,7 +194,8 @@ public class AttributesStoreImpl implements AttributesStore {
     List<Map<String, Object>> attributesList;
     attributesList =
         persistentStore.get(
-            PersistentStore.USER_ATTRIBUTE_TYPE, String.format("%s = '%s'", USER_KEY, username));
+            PersistenceType.USER_ATTRIBUTE_TYPE.toString(),
+            String.format("%s = '%s'", USER_KEY, username));
 
     if (attributesList != null && attributesList.size() == 1) {
       Map<String, Object> attributes = PersistentItem.stripSuffixes(attributesList.get(0));
@@ -208,7 +211,8 @@ public class AttributesStoreImpl implements AttributesStore {
     List<Map<String, Object>> attributesList;
     attributesList =
         persistentStore.get(
-            PersistentStore.USER_ATTRIBUTE_TYPE, String.format("%s = '%s'", USER_KEY, username));
+            PersistenceType.USER_ATTRIBUTE_TYPE.toString(),
+            String.format("%s = '%s'", USER_KEY, username));
 
     if (attributesList != null && attributesList.size() == 1) {
       Map<String, Object> attributes = PersistentItem.stripSuffixes(attributesList.get(0));
