@@ -32,40 +32,84 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.util.ThreadContext;
+import org.junit.Before;
 import org.junit.Test;
 
 public class TestLogoutServlet {
-  @Test
-  public void testLocalLogout() {
+  private LocalLogoutServlet localLogoutServlet;
 
-    LocalLogoutServlet localLogoutServlet = new MockLocalLogoutServlet();
-    HttpServletRequest request = mock(HttpServletRequest.class);
-    HttpServletResponse response = mock(HttpServletResponse.class);
+  private HttpServletRequest request;
+
+  private HttpServletResponse response;
+
+  private HttpSession httpSession;
+
+  @Before
+  public void testsetup() {
+    localLogoutServlet = new MockLocalLogoutServlet();
+    request = mock(HttpServletRequest.class);
+    response = mock(HttpServletResponse.class);
+
+    httpSession = mock(HttpSession.class);
+    when(request.getSession()).thenReturn(httpSession);
+    when(request.getSession().getId()).thenReturn("id");
+    when(request.getRequestURL()).thenReturn(new StringBuffer("http://foo.bar"));
+
     Subject subject = mock(Subject.class);
     when(subject.hasRole(anyString())).thenReturn(false);
     ThreadContext.bind(subject);
 
     System.setProperty("security.audit.roles", "none");
+  }
 
-    HttpSession httpSession = mock(HttpSession.class);
-    when(request.getSession()).thenReturn(httpSession);
-    when(request.getSession().getId()).thenReturn("id");
-    when(request.getRequestURL()).thenReturn(new StringBuffer("http://foo.bar"));
+  @Test
+  public void testLocalLogout() {
+    // Used for detecting basic auth
+    when(request.getHeaders(anyString())).thenReturn(new LogoutServletEnumeration());
+
+    // used for detecting pki
+    when(request.getAttribute("javax.servlet.request.X509Certificate"))
+        .thenReturn(new X509Certificate[] {mock(X509Certificate.class)});
+
+    SecurityTokenHolder securityTokenHolder = mock(SecurityTokenHolder.class);
+    when(httpSession.getAttribute(SecurityConstants.SAML_ASSERTION))
+        .thenReturn(securityTokenHolder);
+    try {
+      localLogoutServlet.doGet(request, response);
+    } catch (ServletException e) {
+      fail(e.getMessage());
+    }
+    verify(httpSession).invalidate();
+  }
+
+  @Test()
+  public void testNullSubject() throws Exception {
+    ThreadContext.bind((Subject) null);
 
     // Used for detecting basic auth
-    when(request.getHeaders(anyString()))
-        .thenReturn(
-            new Enumeration() {
-              @Override
-              public boolean hasMoreElements() {
-                return true;
-              }
+    when(request.getHeaders(anyString())).thenReturn(new LogoutServletEnumeration());
 
-              @Override
-              public Object nextElement() {
-                return "Basic";
-              }
-            });
+    // used for detecting pki
+    when(request.getAttribute("javax.servlet.request.X509Certificate"))
+        .thenReturn(new X509Certificate[] {mock(X509Certificate.class)});
+
+    SecurityTokenHolder securityTokenHolder = mock(SecurityTokenHolder.class);
+    when(httpSession.getAttribute(SecurityConstants.SAML_ASSERTION))
+        .thenReturn(securityTokenHolder);
+    try {
+      localLogoutServlet.doGet(request, response);
+    } catch (ServletException e) {
+      fail(e.getMessage());
+    }
+    verify(httpSession).invalidate();
+  }
+
+  @Test
+  public void testNullSystemProperty() throws Exception {
+    System.clearProperty("security.audit.roles");
+
+    // Used for detecting basic auth
+    when(request.getHeaders(anyString())).thenReturn(new LogoutServletEnumeration());
 
     // used for detecting pki
     when(request.getAttribute("javax.servlet.request.X509Certificate"))
@@ -92,6 +136,18 @@ public class TestLogoutServlet {
       when(servletContext.getRequestDispatcher(any(String.class)))
           .thenReturn(mock(RequestDispatcher.class));
       return servletContext;
+    }
+  }
+
+  private class LogoutServletEnumeration implements Enumeration<String> {
+    @Override
+    public boolean hasMoreElements() {
+      return true;
+    }
+
+    @Override
+    public String nextElement() {
+      return "Basic";
     }
   }
 }
