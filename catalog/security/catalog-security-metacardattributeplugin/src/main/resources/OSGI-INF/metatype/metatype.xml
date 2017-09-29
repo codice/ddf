@@ -18,19 +18,33 @@
          name="Metacard Attribute Security Policy Plugin"
          id="org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin">
 
-        <AD name="Metacard Intersect Attributes:" id="intersectMetacardAttributes"
-            description="List of metacard attributes whose values will be collected (source attributes) and combined
-            into a (new) metacard attribute (destination attribute). The format is the name of a source attribute,
-            folowed by an equals sign, followed by a destination attribute. Intersection means that only the values
-            common to all source attributes become values of the destination attribute.
-            Note: duplicate destinations for Intersect and Union attributes will behave unpredictably."
+        <AD name="Intersection of Source Attribute Values:" id="intersectMetacardAttributes"
+            description="Each line item in the configuration is a rule.
+            The format of a rule is the name of a single source attribute,
+            followed by an equals sign, followed by the destination attribute.
+            For example: source_attribute1=destination_attribute
+            The plugin gathers the source attributes that have a common destination.
+            It takes the combined values of the source attributes and makes them the values of
+            a (new) metacard attribute, the destination attribute.
+            The strategy for combining the values is intersection, which means only the
+            values common to all source atrribute are added to the destination attribute.
+            Note: Do not use the same destination attributes in both the Intersect and Union
+            rule sets. The plugin will behave unpredictably."
             required="true" type="String" cardinality="1000"
             default=""/>
 
-        <AD name="Metacard Union Attributes:" id="unionMetacardAttributes"
-            description="Similar to Intersect Attributes. The logic of how to combine the source values is different.
-            Instead of using only the values common to all the source attributes, the destination attribute will
-            contain every value from every source attributes. Duplicate values are only included once."
+        <AD name="Union of Source Attribute Values:" id="unionMetacardAttributes"
+            description="Each line item in the configuration is a rule.
+            The format of a rule is the name of a single source attribute,
+            followed by an equals sign, followed by the destination attribute.
+            For example: source_attribute1=destination_attribute
+            The plugin gathers the source attributes that have a common destination.
+            It takes the combined values of the source attributes and makes them the values of
+            a (new) metacard attribute, the destination attribute.
+            The strategy for combining the values is union, which means only all the values
+            of the source atrribute are added to the destination attribute (excluding duplicates)
+            Note: Do not use the same destination attributes in both the Intersect and Union
+            rule sets. The plugin will behave unpredictably."
             required="true" type="String" cardinality="1000"
             default=""/>
     </OCD>
