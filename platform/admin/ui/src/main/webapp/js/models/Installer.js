@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define , location , window*/
+/*global define , window*/
 define([
     'backbone',
     'underscore',
@@ -49,6 +49,7 @@ define([
     Installer.Model = Backbone.Model.extend({
         installUrl: '/admin/jolokia/exec/org.apache.karaf:type=feature,name=root/installFeature(java.lang.String,boolean)/',
         uninstallUrl: '/admin/jolokia/exec/org.apache.karaf:type=feature,name=root/uninstallFeature(java.lang.String,boolean)/',
+        shutdownUrl: '/admin/jolokia/exec/org.apache.karaf:type=system,name=root/halt()',
         propertiesUrl: '/admin/jolokia/exec/org.apache.karaf:type=system,name=root/setProperty(java.lang.String,java.lang.String,boolean)/karaf.restart.jvm/true/false',
         restartUrl: '/admin/jolokia/exec/org.apache.karaf:type=system,name=root/reboot()',
         defaults: function () {
@@ -154,7 +155,15 @@ define([
                             });
                         });
                     } else {
-                        location.reload();
+                        $.ajax({
+                            type: 'GET',
+                            url: that.shutdownUrl,
+                            dataType: 'JSON'
+                        }).done(function () {
+                            window.setTimeout(function () {
+                              window.location.href = that.get("redirectUrl");
+                            }, 30000);
+                        });
                     }
                 });
             });
