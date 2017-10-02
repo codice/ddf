@@ -228,11 +228,7 @@ public class ProfileInstallCommand extends AbstractProfileCommand {
       for (String bundle : stopBundleNames) {
         if (uniqueValues.add(bundle)) {
           printItemStatusPending("Stopping: ", bundle);
-          try {
-            stopBundle(bundleService, bundle);
-          } catch (BundleException e) {
-            throw e;
-          }
+          stopBundle(bundleService, bundle);
           printItemStatusSuccess("Stopped: ", bundle);
         }
       }
@@ -268,6 +264,7 @@ public class ProfileInstallCommand extends AbstractProfileCommand {
       profileMap =
           (Map<String, List<String>>)
               fromJson(FileUtils.readFileToString(profileFile, StandardCharsets.UTF_8));
+      SecurityLogger.audit("Read profile {} from {}", profileName, profileFile.getAbsolutePath());
     } catch (FileNotFoundException e) {
       LOGGER.debug(
           "The file associated with profile: {} was not found under {}", profileName, profilePath);
