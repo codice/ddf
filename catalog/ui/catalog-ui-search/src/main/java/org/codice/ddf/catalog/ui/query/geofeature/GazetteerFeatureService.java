@@ -24,6 +24,7 @@ import java.util.Locale;
 import org.apache.commons.collections.CollectionUtils;
 import org.codice.ddf.spatial.geocoder.GeoResult;
 import org.codice.ddf.spatial.geocoder.GeoResultCreator;
+import org.codice.ddf.spatial.geocoding.FeatureQueryException;
 import org.codice.ddf.spatial.geocoding.FeatureQueryable;
 import org.codice.ddf.spatial.geocoding.GeoEntry;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryException;
@@ -92,7 +93,9 @@ public class GazetteerFeatureService implements FeatureService {
         return getFeatureFromGeoResult(geoResult);
       }
     } catch (GeoEntryQueryException e) {
-      LOGGER.debug("Error while making feature service request.", e);
+      LOGGER.warn("Error while making feature service request.", e);
+    } catch (FeatureQueryException e) {
+      LOGGER.warn("Error while querying for feature.", e);
     }
     return null;
   }
@@ -102,17 +105,20 @@ public class GazetteerFeatureService implements FeatureService {
     if (!featureCode.startsWith("PCL")) {
       return null;
     }
+    if (entry.getCountryCode() == null) {
+      return null;
+    }
     return new Locale(Locale.ENGLISH.getLanguage(), entry.getCountryCode()).getISO3Country();
   }
 
-  private SimpleFeature getFeatureFromGeoResult(GeoResult geoResult) {
+  public static SimpleFeature getFeatureFromGeoResult(GeoResult geoResult) {
     Polygon polygon = getPolygonFromBBox(geoResult.getBbox());
     SimpleFeatureBuilder builder = getSimpleFeatureBuilder(polygon);
     SimpleFeature feature = builder.buildFeature(geoResult.getFullName());
     return feature;
   }
 
-  private SimpleFeatureBuilder getSimpleFeatureBuilder(Geometry geometry) {
+  public static SimpleFeatureBuilder getSimpleFeatureBuilder(Geometry geometry) {
     SimpleFeatureTypeBuilder typeBuilder = new SimpleFeatureTypeBuilder();
     typeBuilder.setName("testFeatureType");
     typeBuilder.setCRS(DefaultGeographicCRS.WGS84);
@@ -123,7 +129,7 @@ public class GazetteerFeatureService implements FeatureService {
     return builder;
   }
 
-  private Polygon getPolygonFromBBox(List<Point> bbox) {
+  public static Polygon getPolygonFromBBox(List<Point> bbox) {
     double[] p0 = bbox.get(0).getDirectPosition().getCoordinate();
     double[] p1 = bbox.get(1).getDirectPosition().getCoordinate();
     Envelope envelope = new Envelope();
