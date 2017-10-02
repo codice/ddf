@@ -190,6 +190,7 @@
             <plugin>
                 <groupId>br.com.ingenieux</groupId>
                 <artifactId>jbake-maven-plugin</artifactId>
+                <version>${jbake.maven.plugin.version}</version>
                 <executions>
                     <execution>
                         <phase>generate-resources</phase>
