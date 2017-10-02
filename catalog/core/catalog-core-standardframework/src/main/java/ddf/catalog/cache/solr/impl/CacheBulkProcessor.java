@@ -86,6 +86,8 @@ public class CacheBulkProcessor {
 
                 lastBulkAdd = new Date();
               }
+            } catch (VirtualMachineError vme) {
+              throw vme;
             } catch (Throwable throwable) {
               LOGGER.warn("Scheduled bulk ingest to cache failed", throwable);
             }

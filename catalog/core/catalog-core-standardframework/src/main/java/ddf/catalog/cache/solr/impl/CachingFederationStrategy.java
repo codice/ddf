@@ -38,6 +38,7 @@ import ddf.catalog.plugin.PreFederatedQueryPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.Source;
+import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.util.impl.RelevanceResultComparator;
 import ddf.catalog.util.impl.Requests;
 import java.util.ArrayList;
@@ -536,16 +537,12 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
 
     @Override
     public SourceResponse call() throws Exception {
-      QueryRequest queryRequest;
-      if (CACHE_QUERY_MODE.equals(request.getPropertyValue(QUERY_MODE))
-          || INDEX_QUERY_MODE.equals(request.getPropertyValue(QUERY_MODE))) {
-        queryRequest =
-            new QueryRequestImpl(
-                request.getQuery(), false, request.getSourceIds(), request.getProperties());
-      } else {
-        queryRequest = new QueryRequestImpl(request.getQuery(), request.getProperties());
-      }
+      QueryRequest queryRequest = getQueryRequest();
+      return getSourceResponse(queryRequest);
+    }
 
+    private SourceResponse getSourceResponse(QueryRequest queryRequest)
+        throws UnsupportedQueryException {
       final SourceResponse sourceResponse = source.query(queryRequest);
       final SourceResponse clonedSourceResponse = cloneResponse(sourceResponse);
 
@@ -557,6 +554,8 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
               () -> {
                 try {
                   cacheBulkProcessor.add(clonedSourceResponse.getResults());
+                } catch (VirtualMachineError vme) {
+                  throw vme;
                 } catch (Throwable throwable) {
                   LOGGER.warn("Unable to add results for bulk processing", throwable);
                 }
@@ -564,6 +563,19 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
         }
       }
       return sourceResponse;
+    }
+
+    private QueryRequest getQueryRequest() {
+      QueryRequest queryRequest;
+      if (CACHE_QUERY_MODE.equals(request.getPropertyValue(QUERY_MODE))
+          || INDEX_QUERY_MODE.equals(request.getPropertyValue(QUERY_MODE))) {
+        queryRequest =
+            new QueryRequestImpl(
+                request.getQuery(), false, request.getSourceIds(), request.getProperties());
+      } else {
+        queryRequest = new QueryRequestImpl(request.getQuery(), request.getProperties());
+      }
+      return queryRequest;
     }
 
     private SourceResponse cloneResponse(SourceResponse sourceResponse) {
