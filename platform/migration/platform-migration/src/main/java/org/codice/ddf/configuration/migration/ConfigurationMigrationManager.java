@@ -54,8 +54,6 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
 
   private static final String EXPORT_PREFIX = "exported-";
 
-  private static final String REBOOT_DELAY = "1"; // 1 minute
-
   private static final String INVALID_NULL_EXPORT_DIR = "invalid null export directory";
 
   private final List<Migratable> migratables;
@@ -79,11 +77,13 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
     this.system = system;
     try {
       this.productVersion =
-          ConfigurationMigrationManager.getProductVersion(
-              Paths.get(
-                  System.getProperty("ddf.home"),
-                  ConfigurationMigrationManager.PRODUCT_VERSION_FILENAME));
-    } catch (IOException e) {
+          AccessUtils.doPrivileged(
+              () ->
+                  ConfigurationMigrationManager.getProductVersion(
+                      Paths.get(
+                          System.getProperty("ddf.home"),
+                          ConfigurationMigrationManager.PRODUCT_VERSION_FILENAME)));
+    } catch (SecurityException | IOException e) {
       LOGGER.error(
           String.format(
               "unable to load product version information from '%s'; ",
@@ -162,9 +162,9 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
     final MigrationReportImpl report = new MigrationReportImpl(MigrationOperation.EXPORT, consumer);
 
     try {
-      FileUtils.forceMkdir(exportDirectory.toFile());
+      AccessUtils.doPrivileged(() -> FileUtils.forceMkdir(exportDirectory.toFile()));
       SecurityLogger.audit("Created export directory {}", exportDirectory);
-    } catch (IOException e) {
+    } catch (SecurityException | IOException e) {
       LOGGER.warn("unable to create directory: " + exportDirectory + "; ", e);
       SecurityLogger.audit("Failed to create export directory {}", exportDirectory);
       report.record(new MigrationException(Messages.DIRECTORY_CREATE_ERROR, exportDirectory, e));
@@ -182,6 +182,8 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
       report.record(e);
     } catch (IOException e) {
       report.record(new MigrationException(Messages.EXPORT_FILE_CLOSE_ERROR, exportFile, e));
+    } catch (SecurityException e) {
+      report.record(new MigrationException(Messages.EXPORT_SECURITY_ERROR, exportFile, e));
     } catch (RuntimeException e) {
       report.record(new MigrationException(Messages.EXPORT_INTERNAL_ERROR, exportFile, e));
     }
@@ -219,6 +221,8 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
       delegateToImportMigrationManager(report, exportFile);
     } catch (MigrationException e) {
       report.record(e);
+    } catch (SecurityException e) {
+      report.record(new MigrationException(Messages.IMPORT_SECURITY_ERROR, exportFile, e));
     } catch (RuntimeException e) {
       report.record(new MigrationException(Messages.IMPORT_INTERNAL_ERROR, exportFile, e));
     }
@@ -238,11 +242,13 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
       deleteQuietly(exportFile.toFile());
       report.record(new MigrationSuccessfulInformation(Messages.IMPORT_SUCCESS, exportFile));
       try {
-        System.setProperty("karaf.restart.jvm", "true"); // force a JVM restart
-        system.reboot(ConfigurationMigrationManager.REBOOT_DELAY, SystemService.Swipe.NONE);
-        SecurityLogger.audit(
-            "Rebooting system in {} minutes", ConfigurationMigrationManager.REBOOT_DELAY);
-        report.record(Messages.RESTARTING_SYSTEM, ConfigurationMigrationManager.REBOOT_DELAY);
+        AccessUtils.doPrivileged(
+            () -> { // force a JVM restart
+              System.setProperty("karaf.restart.jvm", "true");
+              system.reboot();
+            });
+        SecurityLogger.audit("Rebooting system");
+        report.record(Messages.RESTARTING_SYSTEM);
       } catch (Exception e) { // yeah, their interface declares an exception can be thrown!!!!
         SecurityLogger.audit("Failed to reboot system");
         LOGGER.debug("failed to request a reboot: ", e);
@@ -253,7 +259,7 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
   }
 
   private void deleteQuietly(File exportFile) {
-    if (FileUtils.deleteQuietly(exportFile)) {
+    if (AccessUtils.doPrivileged(() -> FileUtils.deleteQuietly(exportFile))) {
       SecurityLogger.audit("Exported file {} deleted", exportFile);
     } else {
       SecurityLogger.audit("Failed to delete exported file {}", exportFile);

@@ -24,12 +24,14 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Stream;
-import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -50,6 +52,7 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings("squid:S2160" /* the base class equals() is sufficient for our needs */)
 public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationReport>
     implements ImportMigrationContext {
+
   private static final Logger LOGGER = LoggerFactory.getLogger(ImportMigrationContextImpl.class);
 
   private static final String INVALID_NULL_ZIP = "invalid null zip";
@@ -63,6 +66,8 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
   private final Map<String, ImportMigrationSystemPropertyReferencedEntryImpl> systemProperties =
       new TreeMap<>();
 
+  private final Set<String> files = new HashSet<>();
+
   private final ZipFile zip;
 
   private final List<InputStream> inputStreams = new ArrayList<>();
@@ -73,7 +78,7 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
    * @param report the migration report where warnings and errors can be recorded
    * @param zip the zip file associated with the import
    * @throws IllegalArgumentException if <code>report</code> or <code>zip</code> is <code>null
-   *     </code>
+   * </code>
    * @throws java.io.IOError if unable to determine ${ddf.home}
    */
   public ImportMigrationContextImpl(MigrationReport report, ZipFile zip) {
@@ -105,7 +110,7 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
    * @param zip the zip file associated with the import
    * @param migratable the migratable this context is for
    * @throws IllegalArgumentException if <code>report</code>, <code>zip</code> or <code>migratable
-   *     </code> is <code>null</code>
+   * </code> is <code>null</code>
    * @throws java.io.IOError if unable to determine ${ddf.home}
    */
   public ImportMigrationContextImpl(MigrationReport report, ZipFile zip, Migratable migratable) {
@@ -151,7 +156,8 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
 
     LOGGER.debug("Cleaning up directory [{}]...", fdir);
     try {
-      if (!getPathUtils().isRelativeToDDFHome(rpath.toRealPath(LinkOption.NOFOLLOW_LINKS))) {
+      if (!AccessUtils.doPrivileged(
+          () -> getPathUtils().isRelativeToDDFHome(rpath.toRealPath(LinkOption.NOFOLLOW_LINKS)))) {
         LOGGER.info("Failed to clean directory [{}]", fdir);
         getReport()
             .record(
@@ -193,7 +199,7 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
   @SuppressWarnings(
       "PMD.DefaultPackage" /* designed to be called from ImportMigrationPropertyReferencedEntryImpl within this package */)
   @VisibleForTesting
-  Optional<ImportMigrationEntry> getOptionalEntry(Path path) {
+  Optional<ImportMigrationEntryImpl> getOptionalEntry(Path path) {
     return Optional.ofNullable(entries.get(path));
   }
 
@@ -245,16 +251,39 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
   @SuppressWarnings(
       "PMD.DefaultPackage" /* designed to be called from ImportMigrationEntryImpl within this package */)
   @VisibleForTesting
-  InputStream getInputStreamFor(ZipEntry entry) throws IOException {
-    final InputStream is = zip.getInputStream(entry);
+  InputStream getInputStreamFor(ImportMigrationEntryImpl entry, boolean checkAccess)
+      throws IOException {
+    if (checkAccess && files.contains(entry.getName())) {
+      // we were asked to check if the migratable that is requesting this stream has read access
+      // and the content was exported by the framework and not by the migratable directly, as
+      // such we need to check with the security manager if one was installed
+      final SecurityManager sm = System.getSecurityManager();
+
+      if (sm != null) {
+        sm.checkRead(entry.getFile().getPath());
+      }
+    }
+    final InputStream is = zip.getInputStream(entry.getZipEntry());
 
     inputStreams.add(is);
     return is;
   }
 
+  @SuppressWarnings(
+      "PMD.DefaultPackage" /* designed to be called from ImportMigrationEntryImpl within this package */)
+  boolean requiresWriteAccess(ImportMigrationEntryImpl entry) {
+    // if the framework didn't export that file then write access is required
+    return !files.contains(entry.getName());
+  }
+
   @VisibleForTesting
   ZipFile getZip() {
     return zip;
+  }
+
+  @VisibleForTesting
+  Set<String> getFiles() {
+    return files;
   }
 
   @VisibleForTesting
@@ -272,6 +301,14 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
   protected void processMetadata(Map<String, Object> metadata) {
     LOGGER.debug("Imported metadata for {}: {}", id, metadata);
     super.processMetadata(metadata);
+    // process set of exported files by the framework
+    JsonUtils.getListFrom(metadata, MigrationContextImpl.METADATA_FILES)
+        .stream()
+        .map(JsonUtils::convertToMap)
+        .map(m -> m.get(MigrationEntryImpl.METADATA_NAME))
+        .filter(Objects::nonNull)
+        .map(Object::toString)
+        .forEach(files::add);
     // process external entries first so we have a complete set of migratable data entries that
     // were exported by a migratable before we start looking at the property references
     JsonUtils.getListFrom(metadata, MigrationContextImpl.METADATA_EXTERNALS)

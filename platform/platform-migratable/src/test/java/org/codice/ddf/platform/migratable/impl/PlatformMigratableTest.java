@@ -95,6 +95,7 @@ import org.mockito.runners.MockitoJUnitRunner;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class PlatformMigratableTest {
+
   private static final String KEYSTORE_SYSTEM_PROP_KEY = "javax.net.ssl.keyStore";
 
   private static final String TRUSTSTORE_SYSTEM_PROP_KEY = "javax.net.ssl.trustStore";
@@ -122,6 +123,7 @@ public class PlatformMigratableTest {
 
   private static final List<Path> REQUIRED_SYSTEM_FILES =
       ImmutableList.of(
+          Paths.get("security", "default.policy"),
           Paths.get("etc", "system.properties"),
           Paths.get("etc", "startup.properties"),
           Paths.get("etc", "custom.properties"),

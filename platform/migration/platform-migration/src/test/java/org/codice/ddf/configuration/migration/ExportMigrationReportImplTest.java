@@ -30,6 +30,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 public class ExportMigrationReportImplTest extends AbstractMigrationTest {
+
   private static final String[] DIRS = new String[] {"path", "path2"};
 
   private static final String FILENAME = "file.ext";
@@ -208,6 +209,37 @@ public class ExportMigrationReportImplTest extends AbstractMigrationTest {
     Mockito.when(context.getPathUtils()).thenReturn(new PathUtils());
     Mockito.when(context.getReport()).thenReturn(xreport);
     Mockito.when(context.getId()).thenReturn(MIGRATABLE_ID);
+  }
+
+  @Test
+  public void testRecordFile() throws Exception {
+    final Path cfgPath = ddfHome.resolve("file.cfg");
+
+    initContext();
+    final ExportMigrationEntryImpl entry = new ExportMigrationEntryImpl(context, cfgPath);
+
+    Assert.assertThat(xreport.recordFile(entry), Matchers.sameInstance(xreport));
+
+    final Map<String, Object> metadata = xreport.getMetadata();
+
+    Assert.assertThat(
+        metadata,
+        Matchers.hasEntry(
+            Matchers.equalTo(MigrationContextImpl.METADATA_FILES),
+            Matchers.instanceOf(List.class)));
+    final List<Object> fmetadata = (List<Object>) metadata.get(MigrationContextImpl.METADATA_FILES);
+
+    Assert.assertThat(
+        fmetadata,
+        Matchers.allOf(
+            Matchers.iterableWithSize(1), Matchers.contains(Matchers.instanceOf(Map.class))));
+    final Map<String, Object> cmetadata = (Map<String, Object>) fmetadata.get(0);
+
+    Assert.assertThat(
+        cmetadata,
+        Matchers.allOf(
+            Matchers.aMapWithSize(1),
+            Matchers.hasEntry(MigrationEntryImpl.METADATA_NAME, entry.getName())));
   }
 
   @Test

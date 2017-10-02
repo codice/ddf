@@ -55,6 +55,7 @@ import java.util.stream.Stream;
  * be removed in a future version of the library. </b>
  */
 public interface ExportMigrationContext extends MigrationContext {
+
   /**
    * Creates or retrieves (if already created) a migration entry referenced from the specified
    * system property to be exported by the corresponding migratable.
@@ -129,7 +130,9 @@ public interface ExportMigrationContext extends MigrationContext {
    *     referenced from the specified system property value or empty if the property is not defined
    *     or is invalid
    * @throws IllegalArgumentException if <code>name</code> or <code>validator</code> is <code>null
-   *     </code>
+   * </code>
+   * @throws SecurityException if a security manager exists and its <code>checkPropertyAccess()
+   *     </code> method doesn't allow read access to the specified system property
    */
   public Optional<ExportMigrationEntry> getSystemPropertyReferencedEntry(
       String name, BiPredicate<MigrationReport, String> validator);
@@ -159,6 +162,8 @@ public interface ExportMigrationContext extends MigrationContext {
    * @return a stream of all created or retrieved entries corresponding to all files recursively
    *     found under <code>path</code>
    * @throws IllegalArgumentException if <code>path</code> is <code>null</code>
+   * @throws SecurityException if a security manager exists and its <code>checkRead()</code> method
+   *     doesn't allow read access to the specified path
    */
   public Stream<ExportMigrationEntry> entries(Path path);
 
@@ -175,7 +180,9 @@ public interface ExportMigrationContext extends MigrationContext {
    * @return a stream of all created or retrieved entries corresponding to all files recursively
    *     found under <code>path</code> which matches the given filter
    * @throws IllegalArgumentException if <code>path</code> or <code>filter</code> is <code>null
-   *     </code>
+   * </code>
+   * @throws SecurityException if a security manager exists and its <code>checkRead()</code> method
+   *     doesn't allow read access to the specified path
    */
   public Stream<ExportMigrationEntry> entries(Path path, PathMatcher filter);
 }
