@@ -13,14 +13,17 @@
  */
 package org.codice.ddf.configuration.migration;
 
+import com.github.npathai.hamcrestopt.OptionalMatchers;
 import com.google.common.base.Charsets;
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.stream.Stream;
 import java.util.zip.ZipFile;
+import org.apache.commons.io.input.NullInputStream;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationOperation;
@@ -37,6 +40,8 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportTest 
   private static final String MIGRATABLE_ID2 = "test-migratable-2";
 
   private static final String MIGRATABLE_ID3 = "test-migratable-3";
+
+  private static final Path DIR_PATH = Paths.get("some", "dir");
 
   private final Migratable migratable2 = Mockito.mock(Migratable.class);
 
@@ -80,6 +85,78 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportTest 
         .stream();
 
     mgr = new ImportMigrationManagerImpl(report, exportFile, Stream.of(migratables), zip);
+  }
+
+  private ZipEntry getMetadataZipEntry(
+      ZipFile zip, Optional<String> version, Optional<String> productVersion) throws IOException {
+    final StringBuilder sb = new StringBuilder();
+
+    sb.append("{\"dummy\":\"dummy");
+    version.ifPresent(
+        v ->
+            sb.append("\",\"")
+                .append(MigrationContextImpl.METADATA_VERSION)
+                .append("\":\"")
+                .append(v));
+    productVersion.ifPresent(
+        v ->
+            sb.append("\",\"")
+                .append(MigrationContextImpl.METADATA_PRODUCT_VERSION)
+                .append("\":\"")
+                .append(v));
+    sb.append("\",\"").append(MigrationContextImpl.METADATA_MIGRATABLES).append("\":{");
+    boolean first = true;
+
+    for (final Migratable m : migratables) {
+      if (first) {
+        first = false;
+      } else {
+        sb.append(",");
+      }
+      sb.append("\"")
+          .append(m.getId())
+          .append("\":{\"")
+          .append(MigrationContextImpl.METADATA_VERSION)
+          .append("\":\"")
+          .append(m.getVersion())
+          .append("\",\"")
+          .append(MigrationContextImpl.METADATA_TITLE)
+          .append("\":\"")
+          .append(m.getTitle())
+          .append("\",\"")
+          .append(MigrationContextImpl.METADATA_DESCRIPTION)
+          .append("\":\"")
+          .append(m.getDescription())
+          .append("\",\"")
+          .append(MigrationContextImpl.METADATA_ORGANIZATION)
+          .append("\":\"")
+          .append(m.getOrganization())
+          .append("\"}");
+    }
+    sb.append("\"}");
+    final ZipEntry ze = Mockito.mock(ZipEntry.class);
+
+    Mockito.when(ze.getName()).thenReturn(MigrationContextImpl.METADATA_FILENAME.toString());
+    Mockito.when(ze.isDirectory()).thenReturn(false);
+    // use answer to ensure we create a new stream each time if called multiple times
+    Mockito.doAnswer(
+            AdditionalAnswers.answer(
+                zea -> new ByteArrayInputStream(sb.toString().getBytes(Charsets.UTF_8))))
+        .when(zip)
+        .getInputStream(ze);
+    return ze;
+  }
+
+  private ZipEntry getDirZipEntry(ZipFile zip, String migratableId, Path path) throws IOException {
+    final ZipEntry ze = Mockito.mock(ZipEntry.class);
+
+    Mockito.when(ze.getName()).thenReturn(Paths.get(migratableId).resolve(path).toString() + '/');
+    Mockito.when(ze.isDirectory()).thenReturn(true);
+    // use answer to ensure we create a new stream each time if called multiple times
+    Mockito.doAnswer(AdditionalAnswers.answer(zea -> new NullInputStream(0L)))
+        .when(zip)
+        .getInputStream(ze);
+    return ze;
   }
 
   @Test
@@ -245,6 +322,32 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportTest 
   }
 
   @Test
+  public void testConstructorWithDirectoryEntriesInZip() throws Exception {
+    final ZipEntry zipDirEntry = getDirZipEntry(zip, MIGRATABLE_ID, DIR_PATH);
+
+    Mockito.doReturn(Stream.of(zipEntry, zipDirEntry)).when(zip).stream();
+    Assert.assertThat(mgr.getReport(), Matchers.sameInstance(report));
+    Assert.assertThat(mgr.getExportFile(), Matchers.sameInstance(exportFile));
+    Assert.assertThat(
+        mgr.getContexts()
+            .stream()
+            .map(ImportMigrationContextImpl::getMigratable)
+            .toArray(Migratable[]::new),
+        Matchers.arrayContaining(
+            Matchers.sameInstance(migratable),
+            Matchers.sameInstance(migratable2),
+            Matchers.sameInstance(migratable3),
+            Matchers.nullValue())); // null correspond to the system context
+    Assert.assertThat(
+        mgr.getContexts()
+            .stream()
+            .filter(c -> c.getMigratable() == migratable)
+            .map(ImportMigrationContextImpl::getEntries)
+            .findFirst(),
+        OptionalMatchers.hasValue(Matchers.anEmptyMap()));
+  }
+
+  @Test
   public void testDoImportWhenOneMigratableAborts() throws Exception {
     final MigrationException me = new MigrationException("testing");
 
@@ -280,64 +383,5 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportTest 
     mgr.close();
 
     Mockito.verify(zip).close();
-  }
-
-  private ZipEntry getMetadataZipEntry(
-      ZipFile zip, Optional<String> version, Optional<String> productVersion) throws IOException {
-    final StringBuilder sb = new StringBuilder();
-
-    sb.append("{\"dummy\":\"dummy");
-    version.ifPresent(
-        v ->
-            sb.append("\",\"")
-                .append(MigrationContextImpl.METADATA_VERSION)
-                .append("\":\"")
-                .append(v));
-    productVersion.ifPresent(
-        v ->
-            sb.append("\",\"")
-                .append(MigrationContextImpl.METADATA_PRODUCT_VERSION)
-                .append("\":\"")
-                .append(v));
-    sb.append("\",\"").append(MigrationContextImpl.METADATA_MIGRATABLES).append("\":{");
-    boolean first = true;
-
-    for (final Migratable m : migratables) {
-      if (first) {
-        first = false;
-      } else {
-        sb.append(",");
-      }
-      sb.append("\"")
-          .append(m.getId())
-          .append("\":{\"")
-          .append(MigrationContextImpl.METADATA_VERSION)
-          .append("\":\"")
-          .append(m.getVersion())
-          .append("\",\"")
-          .append(MigrationContextImpl.METADATA_TITLE)
-          .append("\":\"")
-          .append(m.getTitle())
-          .append("\",\"")
-          .append(MigrationContextImpl.METADATA_DESCRIPTION)
-          .append("\":\"")
-          .append(m.getDescription())
-          .append("\",\"")
-          .append(MigrationContextImpl.METADATA_ORGANIZATION)
-          .append("\":\"")
-          .append(m.getOrganization())
-          .append("\"}");
-    }
-    sb.append("\"}");
-    final ZipEntry ze = Mockito.mock(ZipEntry.class);
-
-    Mockito.when(ze.getName()).thenReturn(MigrationContextImpl.METADATA_FILENAME.toString());
-    // use answer to ensure we create a new stream each time if called multiple times
-    Mockito.doAnswer(
-            AdditionalAnswers.answer(
-                zea -> new ByteArrayInputStream(sb.toString().getBytes(Charsets.UTF_8))))
-        .when(zip)
-        .getInputStream(ze);
-    return ze;
   }
 }
