@@ -738,7 +738,7 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     if (serializableId != null) {
       String metacardId = serializableId.toString();
       WebClient restClient = newRestClient(null, metacardId, true, null);
-      if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(password)) {
+      if (StringUtils.isNotBlank(username)) {
         requestProperties.put(USERNAME_PROPERTY, username);
         requestProperties.put(PASSWORD_PROPERTY, password);
       }
