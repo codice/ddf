@@ -15,18 +15,11 @@ package org.codice.ddf.transformer.xml.streaming.impl;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyList;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import ddf.catalog.validation.ValidationException;
 import java.io.InputStream;
-import org.codice.ddf.parser.Parser;
-import org.codice.ddf.parser.ParserConfigurator;
-import org.codice.ddf.parser.ParserException;
-import org.codice.ddf.parser.xml.XmlParser;
 import org.codice.ddf.transformer.xml.streaming.Gml3ToWkt;
+import org.geotools.gml3.GMLConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,24 +42,31 @@ public class TestGml3ToWktImpl {
 
   @Before
   public void setUp() throws Exception {
-    gtw = new Gml3ToWktImpl(new XmlParser());
+    gtw = new Gml3ToWktImpl(new GMLConfiguration());
   }
 
   @Test
   public void testGmlPointToWkt() throws ValidationException {
     assertThat(gtw.convert(createGmlPoint(0, 0)), is(createWktPoint(0, 0)));
-    assertThat(gtw.convert(createGmlPoint(0, 1)), is(createWktPoint(0, 1)));
-    assertThat(gtw.convert(createGmlPoint(1, 0)), is(createWktPoint(1, 0)));
+    assertThat(gtw.convert(createGmlPoint(0, 1)), is(createWktPoint(1, 0)));
+    assertThat(gtw.convert(createGmlPoint(1, 0)), is(createWktPoint(0, 1)));
     assertThat(gtw.convert(createGmlPoint(1, 1)), is(createWktPoint(1, 1)));
   }
 
   @Test(expected = ValidationException.class)
-  public void testBadParser() throws ParserException, ValidationException {
-    Parser parser = mock(XmlParser.class);
-    when(parser.configureParser(anyList(), any(ClassLoader.class))).thenCallRealMethod();
-    when(parser.unmarshal(any(ParserConfigurator.class), any(Class.class), any(InputStream.class)))
-        .thenThrow(new ParserException());
-    gtw = new Gml3ToWktImpl(parser);
-    gtw.convert(createGmlPoint(0, 0));
+  public void testBadGml() throws ValidationException {
+    String badGml = createGmlPoint(0, 0).replaceAll("pos", "badType");
+    gtw.convert(badGml);
+  }
+
+  @Test(expected = ValidationException.class)
+  public void testBadInputStream() throws ValidationException {
+    gtw.convert((InputStream) null, null);
+  }
+
+  @Test(expected = ValidationException.class)
+  public void testBadXmlStructure() throws ValidationException {
+    String badXml = "<gml:Point></gml:Point>";
+    gtw.convert(badXml);
   }
 }
