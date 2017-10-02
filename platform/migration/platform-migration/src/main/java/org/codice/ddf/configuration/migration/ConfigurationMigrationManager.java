@@ -21,18 +21,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.MBeanException;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-import javax.management.OperationsException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
@@ -51,14 +44,9 @@ import org.slf4j.LoggerFactory;
  * Implementation of the {@link ConfigurationMigrationService} that allows migration of {@link
  * org.osgi.service.cm.Configuration} objects as well as any other configuration files needed.
  */
-public class ConfigurationMigrationManager
-    implements ConfigurationMigrationService, ConfigurationMigrationManagerMBean {
+public class ConfigurationMigrationManager implements ConfigurationMigrationService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationMigrationManager.class);
-
-  private static final String CLASS_NAME = ConfigurationMigrationManager.class.getName();
-
-  private static final String OBJECT_NAME = CLASS_NAME + ":service=configuration-migration";
 
   private static final String PRODUCT_VERSION_FILENAME = "Version.txt";
 
@@ -70,8 +58,6 @@ public class ConfigurationMigrationManager
 
   private static final String INVALID_NULL_EXPORT_DIR = "invalid null export directory";
 
-  private final MBeanServer mBeanServer;
-
   private final List<Migratable> migratables;
 
   private final SystemService system;
@@ -81,18 +67,14 @@ public class ConfigurationMigrationManager
   /**
    * Constructor.
    *
-   * @param mBeanServer object used to register this object as an MBean
    * @param migratables list of {@link Migratable} services. Needs to be kept up-to-date by the
    *     client of this class.
    * @param system the system service
    * @throws IOError if unable to load the distribution version information.
    */
-  public ConfigurationMigrationManager(
-      MBeanServer mBeanServer, List<Migratable> migratables, SystemService system) {
-    Validate.notNull(mBeanServer, "invalid null bean server");
+  public ConfigurationMigrationManager(List<Migratable> migratables, SystemService system) {
     Validate.notNull(migratables, "invalid null migratables");
     Validate.notNull(system, "invalid null system service");
-    this.mBeanServer = mBeanServer;
     this.migratables = migratables;
     this.system = system;
     try {
@@ -127,28 +109,6 @@ public class ConfigurationMigrationManager
     }
   }
 
-  public void init() throws OperationsException, MBeanException {
-    final ObjectName objectName = new ObjectName(OBJECT_NAME);
-
-    try {
-      mBeanServer.registerMBean(this, objectName);
-    } catch (InstanceAlreadyExistsException e) {
-      LOGGER.debug("{} already registered as an MBean. Re-registering.", CLASS_NAME);
-      mBeanServer.unregisterMBean(objectName);
-      mBeanServer.registerMBean(this, objectName);
-      LOGGER.debug("Successfully re-registered {} as an MBean.", CLASS_NAME);
-    }
-  }
-
-  @Override
-  public Collection<MigrationWarning> doExport(String exportDirectory) {
-    Validate.notNull(exportDirectory, ConfigurationMigrationManager.INVALID_NULL_EXPORT_DIR);
-    final MigrationReport report = doExport(Paths.get(exportDirectory));
-
-    report.verifyCompletion(); // will throw error if it failed
-    return report.warnings().collect(Collectors.toList());
-  }
-
   @Override
   public MigrationReport doExport(Path exportDirectory) {
     return doExport(exportDirectory, Optional.empty());
@@ -158,15 +118,6 @@ public class ConfigurationMigrationManager
   public MigrationReport doExport(Path exportDirectory, Consumer<MigrationMessage> consumer) {
     Validate.notNull(consumer, "invalid null consumer");
     return doExport(exportDirectory, Optional.ofNullable(consumer));
-  }
-
-  @Override
-  public Collection<MigrationWarning> doImport(String exportDirectory) {
-    Validate.notNull(exportDirectory, ConfigurationMigrationManager.INVALID_NULL_EXPORT_DIR);
-    final MigrationReport report = doImport(Paths.get(exportDirectory));
-
-    report.verifyCompletion(); // will throw error if it failed
-    return report.warnings().collect(Collectors.toList());
   }
 
   @Override
