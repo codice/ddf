@@ -4,20 +4,19 @@
 :summary: Export a current ${branding} configuration and use it to restore the system to the same state on a brand new installation.
 :order: 00
 
-==== Exporting/Importing Configuration Settings
-
 The Configuration Export/Import capability allows administrators to export the current ${branding} configuration and use it to restore the same state for either a brand new installation or a second node for a highly available deployment.
 
 To export the current configuration settings:
 
 . Run the command migration:export from the ${command-console}.
-. A file named `exported-${project.version}.zip` will be created in the `exported` directory underneath `<${branding}_HOME>`, but an alternative location can be specified with the `migration:export`. Copy this file to a secure place.
+. A file named `exported-${project.version}.zip` will be created in the `exported` directory underneath `<${branding}_HOME>`, but an alternative location can be specified when invoking the command. Copy this file to a secure place.
 
 To import previously exported configuration settings:
 
 . Launch the newly installed ${branding}.
 . Step through the installation process.
-. Copy the previously exported file from your secure place to the `exported` directory underneath `<${branding}_HOME>`, but an alternative location can be specified with the `migration:import`. Create the directory if it does not exist.
+. Make sure to re-enable <<_automatic_start_on_system_boot,automatic startup and shutdown>> of ${branding} on the new system if it was enabled on the originating system.
+. Copy the previously exported file from your secure place to the `exported` directory underneath `<${branding}_HOME>`, but an alternative location can be specified when invoking the command. Create the directory if it does not exist.
 . Run the command migration:import from the ${command-console}.
 . Finish <<_hardening_checklist,hardening>> the system (e.g. file and directory permissions).
 

@@ -34,7 +34,6 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
-import javax.management.MBeanServer;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.system.SystemService;
@@ -120,8 +119,6 @@ public class SecurityMigratableTest {
 
   @Mock private MigrationReport mockMigrationReport;
 
-  @Mock private MBeanServer mBeanServer;
-
   @Mock private SystemService systemService;
 
   @Before
@@ -165,7 +162,7 @@ public class SecurityMigratableTest {
     SecurityMigratable eSecurityMigratable = new SecurityMigratable();
     List<Migratable> eMigratables = Arrays.asList(eSecurityMigratable);
     ConfigurationMigrationManager eConfigurationMigrationManager =
-        new ConfigurationMigrationManager(mBeanServer, eMigratables, systemService);
+        new ConfigurationMigrationManager(eMigratables, systemService);
 
     // Perform export
     MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir, this::print);
@@ -185,7 +182,7 @@ public class SecurityMigratableTest {
     SecurityMigratable iSecurityMigratable = new SecurityMigratable();
     List<Migratable> iMigratables = Arrays.asList(iSecurityMigratable);
     ConfigurationMigrationManager iConfigurationMigrationManager =
-        new ConfigurationMigrationManager(mBeanServer, iMigratables, systemService);
+        new ConfigurationMigrationManager(iMigratables, systemService);
 
     MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir, this::print);
 
@@ -216,7 +213,7 @@ public class SecurityMigratableTest {
     SecurityMigratable eSecurityMigratable = new SecurityMigratable();
     List<Migratable> eMigratables = Arrays.asList(eSecurityMigratable);
     ConfigurationMigrationManager eConfigurationMigrationManager =
-        new ConfigurationMigrationManager(mBeanServer, eMigratables, systemService);
+        new ConfigurationMigrationManager(eMigratables, systemService);
 
     // Perform export
     MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir, this::print);
@@ -236,7 +233,7 @@ public class SecurityMigratableTest {
     SecurityMigratable iSecurityMigratable = new SecurityMigratable();
     List<Migratable> iMigratables = Arrays.asList(iSecurityMigratable);
     ConfigurationMigrationManager iConfigurationMigrationManager =
-        new ConfigurationMigrationManager(mBeanServer, iMigratables, systemService);
+        new ConfigurationMigrationManager(iMigratables, systemService);
 
     MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir, this::print);
 
@@ -260,7 +257,7 @@ public class SecurityMigratableTest {
     SecurityMigratable eSecurityMigratable = new SecurityMigratable();
     List<Migratable> eMigratables = Arrays.asList(eSecurityMigratable);
     ConfigurationMigrationManager eConfigurationMigrationManager =
-        new ConfigurationMigrationManager(mBeanServer, eMigratables, systemService);
+        new ConfigurationMigrationManager(eMigratables, systemService);
 
     // Perform export
     MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir, this::print);
@@ -280,7 +277,7 @@ public class SecurityMigratableTest {
     SecurityMigratable iSecurityMigratable = new SecurityMigratable();
     List<Migratable> iMigratables = Arrays.asList(iSecurityMigratable);
     ConfigurationMigrationManager iConfigurationMigrationManager =
-        new ConfigurationMigrationManager(mBeanServer, iMigratables, systemService);
+        new ConfigurationMigrationManager(iMigratables, systemService);
 
     MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir, this::print);
 
@@ -315,7 +312,7 @@ public class SecurityMigratableTest {
     SecurityMigratable eSecurityMigratable = new SecurityMigratable();
     List<Migratable> eMigratables = Arrays.asList(eSecurityMigratable);
     ConfigurationMigrationManager eConfigurationMigrationManager =
-        new ConfigurationMigrationManager(mBeanServer, eMigratables, systemService);
+        new ConfigurationMigrationManager(eMigratables, systemService);
 
     // Perform export
     MigrationReport exportReport = eConfigurationMigrationManager.doExport(exportDir, this::print);
@@ -335,7 +332,7 @@ public class SecurityMigratableTest {
     SecurityMigratable iSecurityMigratable = new SecurityMigratable();
     List<Migratable> iMigratables = Arrays.asList(iSecurityMigratable);
     ConfigurationMigrationManager iConfigurationMigrationManager =
-        new ConfigurationMigrationManager(mBeanServer, iMigratables, systemService);
+        new ConfigurationMigrationManager(iMigratables, systemService);
 
     MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir, this::print);
 

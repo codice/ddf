@@ -19,14 +19,11 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.IOError;
@@ -35,16 +32,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import org.apache.karaf.system.SystemService;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
@@ -74,96 +67,28 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
 
   private ConfigurationMigrationManager configurationMigrationManager;
 
-  private ObjectName configMigrationServiceObjectName;
-
   private List<Migratable> migratables;
-
-  @Mock private MBeanServer mockMBeanServer;
 
   @Mock private SystemService mockSystemService;
 
   @Before
   public void setup() throws MalformedObjectNameException {
-    configMigrationServiceObjectName =
-        new ObjectName(
-            ConfigurationMigrationManager.class.getName() + ":service=configuration-migration");
     migratables = Collections.emptyList();
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void constructorWithNullMBeanServer() {
-    new ConfigurationMigrationManager(null, new ArrayList<>(), mockSystemService);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
   public void constructorWithNullConfigurationMigratablesList() {
-    new ConfigurationMigrationManager(mockMBeanServer, null, mockSystemService);
+    new ConfigurationMigrationManager(null, mockSystemService);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void constructorWithNullSystemService() {
-    new ConfigurationMigrationManager(mockMBeanServer, new ArrayList<>(), null);
+    new ConfigurationMigrationManager(new ArrayList<>(), null);
   }
 
   @Test(expected = IOError.class)
   public void constructorWithoutProductVersion() {
-    new ConfigurationMigrationManager(mockMBeanServer, new ArrayList<>(), mockSystemService);
-  }
-
-  @Test
-  public void init() throws Exception {
-    configurationMigrationManager = getConfigurationMigrationManager();
-    configurationMigrationManager.init();
-
-    verify(mockMBeanServer)
-        .registerMBean(configurationMigrationManager, configMigrationServiceObjectName);
-  }
-
-  @Test
-  public void initWhenServiceAlreadyRegisteredAsMBean() throws Exception {
-    configurationMigrationManager = getConfigurationMigrationManager();
-
-    when(mockMBeanServer.registerMBean(
-            configurationMigrationManager, configMigrationServiceObjectName))
-        .thenThrow(new InstanceAlreadyExistsException())
-        .thenReturn(null);
-
-    configurationMigrationManager.init();
-
-    verify(mockMBeanServer, times(2))
-        .registerMBean(configurationMigrationManager, configMigrationServiceObjectName);
-    verify(mockMBeanServer).unregisterMBean(configMigrationServiceObjectName);
-  }
-
-  @Test
-  public void doExportWithStringSucceedsWithWarnings() throws Exception {
-    configurationMigrationManager = spy(getConfigurationMigrationManager());
-    MigrationReport mockReport = mock(MigrationReport.class);
-
-    when(mockReport.warnings()).thenReturn(Stream.of(new MigrationWarning(TEST_MESSAGE)));
-    doReturn(mockReport).when(configurationMigrationManager).doExport(any(Path.class));
-
-    Collection<MigrationWarning> warnings = configurationMigrationManager.doExport(TEST_DIRECTORY);
-
-    reportHasWarningMessage(warnings.stream(), equalTo(TEST_MESSAGE));
-    verify(configurationMigrationManager).doExport(any(Path.class));
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void doExportWithNullString() throws Exception {
-    configurationMigrationManager = getConfigurationMigrationManager();
-
-    configurationMigrationManager.doExport((String) null);
-  }
-
-  @Test(expected = MigrationException.class)
-  public void doExportWithStringThrowsException() throws Exception {
-    configurationMigrationManager = spy(getConfigurationMigrationManager());
-    MigrationReport mockReport = mock(MigrationReport.class);
-    doThrow(MigrationException.class).when(mockReport).verifyCompletion();
-    doReturn(mockReport).when(configurationMigrationManager).doExport(any(Path.class));
-
-    configurationMigrationManager.doExport(TEST_DIRECTORY);
+    new ConfigurationMigrationManager(new ArrayList<>(), mockSystemService);
   }
 
   @Test
@@ -321,38 +246,6 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
                 + ".zip]; testing."));
     verify(configurationMigrationManager)
         .delegateToExportMigrationManager(any(MigrationReportImpl.class), any(Path.class));
-  }
-
-  @Test
-  public void doImportWithStringSucceedsWithWarnings() throws Exception {
-    configurationMigrationManager = spy(getConfigurationMigrationManager());
-    MigrationReport mockReport = mock(MigrationReport.class);
-
-    when(mockReport.warnings()).thenReturn(Stream.of(new MigrationWarning(TEST_MESSAGE)));
-    doReturn(mockReport).when(configurationMigrationManager).doImport(any(Path.class));
-
-    Collection<MigrationWarning> warnings = configurationMigrationManager.doImport(TEST_DIRECTORY);
-
-    reportHasWarningMessage(warnings.stream(), equalTo(TEST_MESSAGE));
-    verify(configurationMigrationManager).doImport(any(Path.class));
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void doImportWithNullString() throws Exception {
-    configurationMigrationManager = getConfigurationMigrationManager();
-
-    configurationMigrationManager.doImport((String) null);
-  }
-
-  @Test(expected = MigrationException.class)
-  public void doImportWithStringThrowsException() throws Exception {
-    configurationMigrationManager = spy(getConfigurationMigrationManager());
-    MigrationReport mockReport = mock(MigrationReport.class);
-
-    doThrow(MigrationException.class).when(mockReport).verifyCompletion();
-    doReturn(mockReport).when(configurationMigrationManager).doImport(any(Path.class));
-
-    configurationMigrationManager.doImport(TEST_DIRECTORY);
   }
 
   @Test
@@ -614,6 +507,6 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
     versionFile.createNewFile();
     Files.write(versionFile.toPath(), TEST_VERSION.getBytes(), StandardOpenOption.APPEND);
 
-    return new ConfigurationMigrationManager(mockMBeanServer, migratables, mockSystemService);
+    return new ConfigurationMigrationManager(migratables, mockSystemService);
   }
 }
