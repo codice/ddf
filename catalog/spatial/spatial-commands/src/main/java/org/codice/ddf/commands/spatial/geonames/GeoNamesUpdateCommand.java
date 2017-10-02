@@ -115,7 +115,7 @@ public final class GeoNamesUpdateCommand implements Action {
     console.println("Updating...");
 
     try {
-      if (resource.toLowerCase().endsWith(".geojson")) {
+      if (isResourceGeoJSON()) {
         featureIndexer.updateIndex(resource, featureExtractor, create, featureIndexCallback);
       } else {
         geoEntryIndexer.updateIndex(resource, geoEntryExtractor, create, progressCallback);
@@ -145,5 +145,9 @@ public final class GeoNamesUpdateCommand implements Action {
     }
 
     return null;
+  }
+
+  private boolean isResourceGeoJSON() {
+    return resource.toLowerCase().endsWith(".geojson");
   }
 }

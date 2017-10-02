@@ -42,6 +42,10 @@ public class GeoJSONFeatureExtractor implements FeatureExtractor {
   public void pushFeaturesToExtractionCallback(
       String resource, ExtractionCallback extractionCallback) throws FeatureExtractionException {
 
+    if (extractionCallback == null) {
+      throw new IllegalArgumentException("extractionCallback can't be null");
+    }
+
     FeatureIterator<SimpleFeature> iterator = getFeatureIteratorFromResource(resource);
     try {
       while (iterator.hasNext()) {
@@ -50,14 +54,14 @@ public class GeoJSONFeatureExtractor implements FeatureExtractor {
         Geometry simplifiedGeometry = getSimplifiedGeometry(geometry);
 
         if (simplifiedGeometry == null) {
-          LOGGER.info("Failed to simplify geometry below {} point maximum", MAX_POINTS_PER_FEATURE);
+          LOGGER.warn("Failed to simplify geometry below {} point maximum", MAX_POINTS_PER_FEATURE);
         } else {
           feature.setDefaultGeometry(simplifiedGeometry);
           extractionCallback.extracted(feature);
         }
       }
     } catch (FeatureIndexingException e) {
-      throw new FeatureExtractionException("Unable to extract feature from " + resource + ".");
+      throw new FeatureExtractionException("Unable to extract feature from " + resource, e);
     } finally {
       iterator.close();
     }
@@ -69,7 +73,7 @@ public class GeoJSONFeatureExtractor implements FeatureExtractor {
       Reader reader = new InputStreamReader(new FileInputStream(resource), "UTF-8");
       return new FeatureJSON().streamFeatureCollection(reader);
     } catch (IOException e) {
-      throw new FeatureExtractionException(e.getMessage());
+      throw new FeatureExtractionException("Failed to load resource", e);
     }
   }
 

@@ -15,8 +15,25 @@ package org.codice.ddf.spatial.geocoding;
 
 import org.opengis.feature.simple.SimpleFeature;
 
+/**
+ * A {@code FeatureExtractor} provides methods for extracting {@link SimpleFeature} objects from
+ * various resources.
+ */
 public interface FeatureExtractor {
 
+  /**
+   * Extracts geographic features from a resource as {@link SimpleFeature} objects and passes each
+   * through the callback {@code extractionCallback}. The callback is called exactly once for each
+   * {@code SimpleFeature} object extracted from the resource.
+   *
+   * @param resource identifier for the resource containing geographic features. the implementation
+   *     decides how to resolve it (filesystem, url, etc).
+   * @param extractionCallback the callback that receives each extracted {@code SimpleFeature}
+   *     object, must not be null
+   * @throws IllegalArgumentException if {@code extractionCallback} is null
+   * @throws FeatureExtractionException if an error occurs while extracting features from the
+   *     resource
+   */
   void pushFeaturesToExtractionCallback(String resource, ExtractionCallback extractionCallback)
       throws FeatureExtractionException;
 

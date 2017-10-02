@@ -21,6 +21,7 @@ import com.vividsolutions.jts.geom.Polygon;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import org.apache.commons.collections.CollectionUtils;
 import org.codice.ddf.spatial.geocoder.GeoResult;
 import org.codice.ddf.spatial.geocoder.GeoResultCreator;
 import org.codice.ddf.spatial.geocoding.FeatureQueryable;
@@ -78,10 +79,11 @@ public class GazetteerFeatureService implements FeatureService {
       if (!entries.isEmpty()) {
         GeoEntry entry = entries.get(0);
 
+        String featureCode = entry.getFeatureCode().toUpperCase();
         String countryCode = getAlpha3CountryCodeForGeoEntry(entry);
         if (countryCode != null) {
-          List<SimpleFeature> countries = this.featureQueryable.query(countryCode, 1);
-          if (!countries.isEmpty()) {
+          List<SimpleFeature> countries = this.featureQueryable.query(countryCode, featureCode, 1);
+          if (CollectionUtils.isNotEmpty(countries)) {
             return countries.get(0);
           }
         }
@@ -97,7 +99,9 @@ public class GazetteerFeatureService implements FeatureService {
 
   private String getAlpha3CountryCodeForGeoEntry(GeoEntry entry) {
     String featureCode = entry.getFeatureCode().toUpperCase();
-    if (!featureCode.startsWith("PCL")) return null;
+    if (!featureCode.startsWith("PCL")) {
+      return null;
+    }
     return new Locale(Locale.ENGLISH.getLanguage(), entry.getCountryCode()).getISO3Country();
   }
 

@@ -25,12 +25,10 @@ import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.federation.FederationException;
-import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.CreateRequestImpl;
 import ddf.catalog.operation.impl.DeleteRequestImpl;
-import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.source.SourceUnavailableException;
@@ -40,53 +38,67 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.codice.ddf.security.common.Security;
 import org.codice.ddf.spatial.geocoding.FeatureExtractionException;
 import org.codice.ddf.spatial.geocoding.FeatureExtractor;
 import org.codice.ddf.spatial.geocoding.FeatureIndexer;
 import org.codice.ddf.spatial.geocoding.FeatureIndexingException;
+import org.codice.ddf.spatial.geocoding.GazetteerConstants;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.filter.Filter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CatalogFeatureIndexer implements FeatureIndexer {
+  private static final Logger LOGGER = LoggerFactory.getLogger(CatalogFeatureIndexer.class);
 
   private Security security = Security.getInstance();
 
   private CatalogFramework catalogFramework;
 
-  private FilterBuilder filterBuilder;
+  private CatalogHelper catalogHelper;
+
+  private IndexCallback indexCallback;
+  private int extractionCount;
+  private boolean doCreate;
+
+  private static final ThreadLocal<WKTWriter> WKT_WRITER_THREAD_LOCAL =
+      new ThreadLocal<WKTWriter>() {
+        @Override
+        protected WKTWriter initialValue() {
+          return new WKTWriter();
+        }
+      };
 
   public void setSecurity(Security security) {
     this.security = security;
   }
 
-  public void setCatalogFramework(CatalogFramework catalogFramework) {
+  public CatalogFeatureIndexer(CatalogFramework catalogFramework, CatalogHelper catalogHelper) {
     this.catalogFramework = catalogFramework;
-  }
-
-  public void setFilterBuilder(FilterBuilder filterBuilder) {
-    this.filterBuilder = filterBuilder;
+    this.catalogHelper = catalogHelper;
   }
 
   @Override
   public void updateIndex(
       String resource, FeatureExtractor featureExtractor, boolean create, IndexCallback callback)
       throws FeatureExtractionException, FeatureIndexingException {
+    if (featureExtractor == null) {
+      throw new IllegalArgumentException("featureExtractor can't be null");
+    }
+    doCreate = create;
+    indexCallback = callback;
+    extractionCount = 0;
 
     if (create) {
       removeExistingMetacards();
     }
 
-    AtomicInteger count = new AtomicInteger(0);
+    featureExtractor.pushFeaturesToExtractionCallback(resource, this::handleFeatureExtraction);
+  }
 
-    final FeatureExtractor.ExtractionCallback extractionCallback =
-        (SimpleFeature feature) -> {
-          createOrUpdateMetacardForFeature(feature, create);
-          callback.indexed(count.incrementAndGet());
-        };
-
-    featureExtractor.pushFeaturesToExtractionCallback(resource, extractionCallback);
+  private void handleFeatureExtraction(SimpleFeature feature) throws FeatureIndexingException {
+    createOrUpdateMetacardForFeature(feature, doCreate);
+    indexCallback.indexed(++extractionCount);
   }
 
   private void createOrUpdateMetacardForFeature(SimpleFeature feature, boolean create)
@@ -108,6 +120,7 @@ public class CatalogFeatureIndexer implements FeatureIndexer {
             return null;
           });
     } catch (SecurityServiceException | InvocationTargetException e) {
+      LOGGER.warn("Failed to index feature", e);
       throw new FeatureIndexingException(e.getMessage());
     }
   }
@@ -118,13 +131,12 @@ public class CatalogFeatureIndexer implements FeatureIndexer {
     String countryCode = (String) feature.getAttribute("ISO_A3");
     metacard.setAttribute(new AttributeImpl(Metacard.TITLE, countryCode));
 
-    WKTWriter writer = new WKTWriter();
-    String wkt = writer.write((Geometry) feature.getDefaultGeometry());
+    String wkt = WKT_WRITER_THREAD_LOCAL.get().write((Geometry) feature.getDefaultGeometry());
     metacard.setAttribute(new AttributeImpl(Metacard.GEOGRAPHY, wkt));
 
     List<Serializable> tags = new ArrayList<>();
-    tags.add("gazetteer");
-    tags.add("country");
+    tags.add(GazetteerConstants.DEFAULT_TAG);
+    tags.add(GazetteerConstants.COUNTRY_TAG);
     metacard.setAttribute(new AttributeImpl(Metacard.TAGS, tags));
 
     return metacard;
@@ -134,7 +146,7 @@ public class CatalogFeatureIndexer implements FeatureIndexer {
     String countryCode = (String) feature.getAttribute("ISO_A3");
 
     QueryRequest queryRequest =
-        new QueryRequestImpl(new QueryImpl(getFilterForCountryCode(countryCode)));
+        new QueryRequestImpl(catalogHelper.getQueryForCountryCode(countryCode));
     try {
       SourceResponse response = catalogFramework.query(queryRequest);
       if (response.getResults().isEmpty()) {
@@ -142,12 +154,13 @@ public class CatalogFeatureIndexer implements FeatureIndexer {
       }
       return response.getResults().get(0).getMetacard();
     } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
+      LOGGER.warn("Failed to query for existing feature", e);
       throw new FeatureIndexingException(e.getMessage());
     }
   }
 
   private void removeExistingMetacards() throws FeatureIndexingException {
-    QueryRequest queryRequest = new QueryRequestImpl(new QueryImpl(getFilter()));
+    QueryRequest queryRequest = new QueryRequestImpl(catalogHelper.getQueryForAllCountries());
 
     try {
       security.runWithSubjectOrElevate(
@@ -159,21 +172,8 @@ public class CatalogFeatureIndexer implements FeatureIndexer {
             return null;
           });
     } catch (SecurityServiceException | InvocationTargetException e) {
+      LOGGER.warn("Failed to remove existing feature", e);
       throw new FeatureIndexingException(e.getMessage());
     }
-  }
-
-  private Filter getFilterForCountryCode(String countryCode) {
-    List<Filter> filters = new ArrayList<>();
-    filters.add(filterBuilder.attribute(Metacard.TAGS).is().like().text("gazetteer"));
-    filters.add(filterBuilder.attribute(Metacard.TAGS).is().like().text("country"));
-    if (countryCode != null) {
-      filters.add(filterBuilder.attribute(Metacard.TITLE).is().equalTo().text(countryCode));
-    }
-    return filterBuilder.allOf(filters);
-  }
-
-  private Filter getFilter() {
-    return getFilterForCountryCode(null);
   }
 }

@@ -13,10 +13,32 @@
  */
 package org.codice.ddf.spatial.geocoding;
 
-public interface FeatureIndexer {
+import org.opengis.feature.simple.SimpleFeature;
 
+/**
+ * A {@code FeatureIndexer} provides methods for adding {@link SimpleFeature} objects to a new or
+ * existing local index.
+ */
+public interface FeatureIndexer {
+  /**
+   * Updates a GeoNames index with {@link SimpleFeature} objects extracted by a {@link
+   * GeoEntryExtractor}.
+   *
+   * @param resource the resource containing GeoNames entries
+   * @param featureExtractor the {@code FeatureExtractor} that will extract {@code SimpleFeature}
+   *     objects from {@code resource}
+   * @param create true will create a new index and false will add to the existing index
+   * @param indexCallback called each time a feature is indexed, receives the running total of
+   *     features
+   * @throws FeatureExtractionException if an error occurs while extracting features from the
+   *     resource
+   * @throws FeatureIndexingException if an error occurs while indexing the new features
+   */
   void updateIndex(
-      String resource, FeatureExtractor featureExtractor, boolean create, IndexCallback callback)
+      String resource,
+      FeatureExtractor featureExtractor,
+      boolean create,
+      IndexCallback indexCallback)
       throws FeatureExtractionException, FeatureIndexingException;
 
   interface IndexCallback {

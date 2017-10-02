@@ -18,83 +18,81 @@ import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.Result;
 import ddf.catalog.federation.FederationException;
-import ddf.catalog.filter.FilterBuilder;
+import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.SourceResponse;
-import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import org.codice.ddf.spatial.geocoding.FeatureQueryException;
 import org.codice.ddf.spatial.geocoding.FeatureQueryable;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.filter.Filter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CatalogFeatureQueryable implements FeatureQueryable {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(CatalogFeatureQueryable.class);
+
+  private static final ThreadLocal<WKTReader> WKT_READER_THREAD_LOCAL =
+      ThreadLocal.withInitial(() -> new WKTReader());
+
   private CatalogFramework catalogFramework;
 
-  private FilterBuilder filterBuilder;
+  private CatalogHelper catalogHelper;
 
-  public void setCatalogFramework(CatalogFramework catalogFramework) {
+  public CatalogFeatureQueryable(CatalogFramework catalogFramework, CatalogHelper catalogHelper) {
     this.catalogFramework = catalogFramework;
-  }
-
-  public void setFilterBuilder(FilterBuilder filterBuilder) {
-    this.filterBuilder = filterBuilder;
+    this.catalogHelper = catalogHelper;
   }
 
   @Override
-  public List<SimpleFeature> query(String queryString, int maxResults) {
-    Filter filter = getFilterForQuery(queryString);
+  public List<SimpleFeature> query(String queryString, String featureCode, int maxResults)
+      throws FeatureQueryException {
+    if (queryString == null) {
+      throw new IllegalArgumentException("queryString can't be null");
+    }
 
-    QueryImpl query = new QueryImpl(filter);
+    if (maxResults < 0) {
+      throw new IllegalArgumentException("maxResults can't be negative");
+    }
+
+    Query query = catalogHelper.getQueryForCountryCode(queryString);
     QueryRequest queryRequest = new QueryRequestImpl(query);
 
     SourceResponse response;
     try {
       response = catalogFramework.query(queryRequest);
-    } catch (UnsupportedQueryException e) {
-      return Collections.emptyList();
-    } catch (SourceUnavailableException e) {
-      return Collections.emptyList();
-    } catch (FederationException e) {
-      return Collections.emptyList();
+    } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
+      LOGGER.warn("Failed to query catalog for feature {}", queryString, e);
+      throw new FeatureQueryException("Failed to query catalog", e);
     }
 
-    List<SimpleFeature> results = new ArrayList<>();
-    for (Result result : response.getResults()) {
-      SimpleFeature feature = getFeatureForMetacard(result.getMetacard());
-      if (feature != null) {
-        results.add(feature);
-      }
-    }
-    return results;
-  }
-
-  private Filter getFilterForQuery(String queryString) {
-    Filter countryCodeFilter =
-        filterBuilder.attribute(Metacard.TITLE).is().equalTo().text(queryString);
-    Filter tagsFilter = filterBuilder.attribute(Metacard.TAGS).is().like().text("gazetteer");
-
-    return filterBuilder.allOf(countryCodeFilter, tagsFilter);
+    return response
+        .getResults()
+        .stream()
+        .map(result -> result.getMetacard())
+        .map(this::getFeatureForMetacard)
+        .filter(Objects::nonNull)
+        .limit(maxResults)
+        .collect(Collectors.toList());
   }
 
   private SimpleFeature getFeatureForMetacard(Metacard metacard) {
     String countryCode = (String) metacard.getAttribute(Metacard.TITLE).getValue();
     String geometryWkt = (String) metacard.getAttribute(Metacard.GEOGRAPHY).getValue();
 
-    WKTReader wkt = new WKTReader();
     try {
-      Geometry geometry = wkt.read(geometryWkt);
+      Geometry geometry = WKT_READER_THREAD_LOCAL.get().read(geometryWkt);
       SimpleFeatureBuilder builder = FeatureBuilder.forGeometry(geometry);
       return builder.buildFeature(countryCode);
     } catch (ParseException e) {
+      LOGGER.warn("Failed to parse feature", e);
     }
     return null;
   }

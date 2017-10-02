@@ -1,6 +1,7 @@
 package org.codice.ddf.spatial.geocoding.feature;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.atLeastOnce;
@@ -23,6 +24,8 @@ import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import java.util.Collections;
 import java.util.List;
+import org.codice.ddf.spatial.geocoding.FeatureQueryException;
+import org.codice.ddf.spatial.geocoding.GazetteerConstants;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -30,35 +33,35 @@ import org.opengis.feature.simple.SimpleFeature;
 
 public class TestCatalogFeatureQueryable {
   private FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
-
+  private CatalogHelper catalogHelper;
   private CatalogFramework catalogFramework;
 
   private CatalogFeatureQueryable catalogFeatureQueryable;
 
+  static final String COUNTRY_CODE = "JAM";
   static final String WKT_STRING = "POLYGON((30 10, 10 20, 20 40, 40 40, 30 10))";
   static final String WKT_TYPE = "Polygon";
   static final int WKT_NUM_POINTS = 5;
 
   @Before
   public void setUp() {
+    catalogHelper = new CatalogHelper(filterBuilder);
     catalogFramework = mock(CatalogFramework.class);
-    catalogFeatureQueryable = new CatalogFeatureQueryable();
-    catalogFeatureQueryable.setCatalogFramework(catalogFramework);
-    catalogFeatureQueryable.setFilterBuilder(filterBuilder);
+    catalogFeatureQueryable = new CatalogFeatureQueryable(catalogFramework, catalogHelper);
   }
 
   @Test
   public void testQuery()
-      throws UnsupportedQueryException, SourceUnavailableException, FederationException {
+      throws UnsupportedQueryException, SourceUnavailableException, FederationException,
+          FeatureQueryException {
 
     final ArgumentCaptor<QueryRequest> requestArgument =
         ArgumentCaptor.forClass(QueryRequest.class);
 
-    // stub query response (list of metacards), test how features are returned
     QueryResponse queryResponse = getMockQueryResponse();
     when(catalogFramework.query(any())).thenReturn(queryResponse);
 
-    List<SimpleFeature> results = catalogFeatureQueryable.query("JAM", 1);
+    List<SimpleFeature> results = catalogFeatureQueryable.query(COUNTRY_CODE, "PCL1", 1);
 
     verify(catalogFramework, atLeastOnce()).query(requestArgument.capture());
 
@@ -68,14 +71,19 @@ public class TestCatalogFeatureQueryable {
     assertThat(geometry.getGeometryType(), is(WKT_TYPE));
 
     QueryImpl query = (QueryImpl) requestArgument.getValue().getQuery();
+    String queryString = query.getFilter().toString();
+
     assertThat(
-        query.getFilter().toString(),
-        is("[[ title = JAM ] AND [ metacard-tags is like gazetteer ]]"));
+        queryString,
+        containsString(String.format("metacard-tags is like %s", GazetteerConstants.DEFAULT_TAG)));
+    assertThat(
+        queryString,
+        containsString(String.format("metacard-tags is like %s", GazetteerConstants.COUNTRY_TAG)));
+    assertThat(queryString, containsString(String.format("title = %s", COUNTRY_CODE)));
   }
 
   private QueryResponse getMockQueryResponse() {
     Metacard metacard = mock(Metacard.class);
-    // when(metacard.getMetacardType()).thenReturn(BasicTypes.BASIC_METACARD);
 
     Attribute titleAttribute = mock(Attribute.class);
     when(titleAttribute.getValue()).thenReturn("JAM");

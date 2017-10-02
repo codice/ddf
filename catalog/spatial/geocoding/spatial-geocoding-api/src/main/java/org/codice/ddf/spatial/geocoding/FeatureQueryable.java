@@ -16,6 +16,24 @@ package org.codice.ddf.spatial.geocoding;
 import java.util.List;
 import org.opengis.feature.simple.SimpleFeature;
 
+/**
+ * A {@code FeatureQueryable} provides methods for querying a resource containing geographic
+ * features.
+ */
 public interface FeatureQueryable {
-  List<SimpleFeature> query(String queryString, int maxResults);
+  /**
+   * Retrieves the top results for the given query up to {@code maxResults} results.
+   *
+   * @param queryString a {@code String} containing search terms
+   * @param featureCode geonames feature code identifying the type of feature to search for. this
+   *     can be null and the implementation can choose to ignore it.
+   * @param maxResults the maximum number of results to return
+   * @return the top results for the query in descending order of relevance, or an empty {@code
+   *     List} if no results are found
+   * @throws IllegalArgumentException if {@code queryString} is null or empty, or if {@code
+   *     maxResults} is not a positive integer
+   * @throws FeatureQueryException if an exception occurs while querying
+   */
+  List<SimpleFeature> query(String queryString, String featureCode, int maxResults)
+      throws FeatureQueryException;
 }

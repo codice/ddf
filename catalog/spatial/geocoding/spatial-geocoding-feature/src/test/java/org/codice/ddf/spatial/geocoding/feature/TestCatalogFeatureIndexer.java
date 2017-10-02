@@ -42,6 +42,7 @@ import org.codice.ddf.spatial.geocoding.FeatureExtractionException;
 import org.codice.ddf.spatial.geocoding.FeatureExtractor;
 import org.codice.ddf.spatial.geocoding.FeatureIndexer;
 import org.codice.ddf.spatial.geocoding.FeatureIndexingException;
+import org.codice.ddf.spatial.geocoding.GazetteerConstants;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.junit.Before;
@@ -52,6 +53,7 @@ import org.opengis.feature.simple.SimpleFeature;
 
 public class TestCatalogFeatureIndexer {
   private FilterBuilder filterBuilder = new GeotoolsFilterBuilder();
+  private CatalogHelper catalogHelper;
   private FeatureExtractor featureExtractor;
   private CatalogFramework catalogFramework;
 
@@ -92,9 +94,8 @@ public class TestCatalogFeatureIndexer {
             eq(RESOURCE_PATH), any(FeatureExtractor.ExtractionCallback.class));
 
     catalogFramework = mock(CatalogFramework.class);
-    featureIndexer = new CatalogFeatureIndexer();
-    featureIndexer.setCatalogFramework(catalogFramework);
-    featureIndexer.setFilterBuilder(filterBuilder);
+    catalogHelper = new CatalogHelper(filterBuilder);
+    featureIndexer = new CatalogFeatureIndexer(catalogFramework, catalogHelper);
     featureIndexer.setSecurity(security);
 
     QueryResponse queryResponse = mock(QueryResponse.class);
@@ -172,8 +173,8 @@ public class TestCatalogFeatureIndexer {
   private Metacard getExampleMetacard() {
     Metacard metacard = new MetacardImpl();
     List<Serializable> tags = new ArrayList<>();
-    tags.add("gazetteer");
-    tags.add("country");
+    tags.add(GazetteerConstants.DEFAULT_TAG);
+    tags.add(GazetteerConstants.COUNTRY_TAG);
     metacard.setAttribute(new AttributeImpl(Metacard.TAGS, tags));
 
     WKTWriter writer = new WKTWriter();
