@@ -148,6 +148,7 @@ public final class GeoNamesUpdateCommand implements Action {
   }
 
   private boolean isResourceGeoJSON() {
-    return resource.toLowerCase().endsWith(".geojson");
+    String path = resource.toLowerCase();
+    return path.endsWith(".geojson") || path.endsWith(".geo.json");
   }
 }
