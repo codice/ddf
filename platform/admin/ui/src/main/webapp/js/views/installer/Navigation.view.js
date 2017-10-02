@@ -33,8 +33,8 @@ define([
             'click .previous': 'previous',
             'click .next': 'next',
             'click .finish': 'finish',
-            'click .shutdown-later': 'finish',
-            'click .shutdown-now': 'shutdown'
+            'click .shutdown-now': 'finish',
+            'click .restart-now': 'shutdown'
         },
         initialize: function() {
             this.listenTo(this.model, 'change', this.updateProgress);
@@ -65,7 +65,7 @@ define([
         },
         finish: function() {
             this.model.trigger('block');
-            this.model.set({message: 'Completing installation. Please wait...'});
+            this.model.set({message: 'Shutting down.... When complete please manually start the system and then go to the Admin Console.'});
             this.model.save().fail(function() {
                 alert('Final installation failed, please check application logs for details.');
             });
