@@ -25,6 +25,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
 
 public class PathUtils {
+
   // Forced to define it as non-static to simplify unit testing.
   private final Path ddfHome;
 
@@ -36,7 +37,9 @@ public class PathUtils {
   public PathUtils() {
     try {
       this.ddfHome =
-          Paths.get(System.getProperty("ddf.home")).toRealPath(LinkOption.NOFOLLOW_LINKS);
+          AccessUtils.doPrivileged(
+              () ->
+                  Paths.get(System.getProperty("ddf.home")).toRealPath(LinkOption.NOFOLLOW_LINKS));
     } catch (IOException e) {
       throw new IOError(e);
     }
@@ -81,7 +84,7 @@ public class PathUtils {
    *
    * @param path the path to resolve against ${ddf.home}
    * @return the corresponding path resolved against ${ddf.home} if it is relative; otherwise <code>
-   *     path</code>
+   * path</code>
    */
   public Path resolveAgainstDDFHome(Path path) {
     return ddfHome.resolve(path);
@@ -113,7 +116,7 @@ public class PathUtils {
     InputStream is = null;
 
     try {
-      is = new FileInputStream(path.toFile());
+      is = AccessUtils.doPrivileged(() -> new FileInputStream(path.toFile()));
       return DigestUtils.md5Hex(is);
     } finally {
       IOUtils.closeQuietly(is); // don't care about errors when closing

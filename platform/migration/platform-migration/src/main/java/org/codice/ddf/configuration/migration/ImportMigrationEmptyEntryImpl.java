@@ -23,6 +23,7 @@ import java.util.Optional;
  * org.codice.ddf.migration.ImportMigrationEntry} representing a file that was not exported.
  */
 public class ImportMigrationEmptyEntryImpl extends ImportMigrationEntryImpl {
+
   ImportMigrationEmptyEntryImpl(ImportMigrationContextImpl context, Path path) {
     super(context, path);
   }
@@ -33,7 +34,7 @@ public class ImportMigrationEmptyEntryImpl extends ImportMigrationEntryImpl {
   }
 
   @Override
-  public Optional<InputStream> getInputStream() throws IOException {
+  protected Optional<InputStream> getInputStream(boolean checkAccess) throws IOException {
     return Optional.empty();
   }
 }

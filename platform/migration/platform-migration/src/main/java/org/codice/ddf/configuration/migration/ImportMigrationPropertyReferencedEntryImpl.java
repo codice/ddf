@@ -32,12 +32,13 @@ import org.slf4j.LoggerFactory;
  * Defines a migration entry representing a property which value references another migration entry.
  */
 public abstract class ImportMigrationPropertyReferencedEntryImpl extends ImportMigrationEntryImpl {
+
   private static final Logger LOGGER =
       LoggerFactory.getLogger(ImportMigrationPropertyReferencedEntryImpl.class);
 
   private final String property;
 
-  private final ImportMigrationEntry referenced;
+  private final ImportMigrationEntryImpl referenced;
 
   private boolean verifierRegistered = false;
 
@@ -58,14 +59,6 @@ public abstract class ImportMigrationPropertyReferencedEntryImpl extends ImportM
   @Override
   public long getLastModifiedTime() {
     return referenced.getLastModifiedTime();
-  }
-
-  @Override
-  public Optional<InputStream> getInputStream() throws IOException {
-    final Optional<InputStream> is = referenced.getInputStream();
-
-    verifyPropertyAfterCompletionOnce();
-    return is;
   }
 
   @Override
@@ -135,6 +128,14 @@ public abstract class ImportMigrationPropertyReferencedEntryImpl extends ImportM
         (ImportMigrationPropertyReferencedEntryImpl) me;
 
     return property.compareTo(ime.getProperty());
+  }
+
+  @Override
+  protected Optional<InputStream> getInputStream(boolean checkAccess) throws IOException {
+    final Optional<InputStream> is = referenced.getInputStream(checkAccess);
+
+    verifyPropertyAfterCompletionOnce();
+    return is;
   }
 
   /**

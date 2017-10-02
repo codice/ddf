@@ -272,9 +272,8 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
                 + TEST_VERSION
                 + ".zip]."));
     reportHasInfoMessage(
-        report.infos(),
-        equalTo("Restarting the system in 1 minute(s) for changes to take effect."));
-    verify(mockSystemService).reboot(any(String.class), any(SystemService.Swipe.class));
+        report.infos(), equalTo("Restarting the system for changes to take effect."));
+    verify(mockSystemService).reboot();
     verify(configurationMigrationManager)
         .delegateToImportMigrationManager(any(MigrationReportImpl.class), any(Path.class));
   }
@@ -304,9 +303,8 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
                 + TEST_VERSION
                 + ".zip]."));
     reportHasInfoMessage(
-        report.infos(),
-        equalTo("Restarting the system in 1 minute(s) for changes to take effect."));
-    verify(mockSystemService).reboot(any(String.class), any(SystemService.Swipe.class));
+        report.infos(), equalTo("Restarting the system for changes to take effect."));
+    verify(mockSystemService).reboot();
     verify(configurationMigrationManager)
         .delegateToImportMigrationManager(any(MigrationReportImpl.class), any(Path.class));
     verify(consumer, Mockito.atLeastOnce()).accept(Mockito.notNull());
@@ -348,9 +346,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
     configurationMigrationManager = spy(getConfigurationMigrationManager());
 
     expectImportDelegationIsSuccessful();
-    doThrow(Exception.class)
-        .when(mockSystemService)
-        .reboot(any(String.class), any(SystemService.Swipe.class));
+    doThrow(Exception.class).when(mockSystemService).reboot();
 
     MigrationReport report = configurationMigrationManager.doImport(path);
 
@@ -369,7 +365,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
                 + ".zip]."));
     reportHasInfoMessage(
         report.infos(), equalTo("Please restart the system for changes to take effect."));
-    verify(mockSystemService).reboot(any(String.class), any(SystemService.Swipe.class));
+    verify(mockSystemService).reboot();
     verify(configurationMigrationManager)
         .delegateToImportMigrationManager(any(MigrationReportImpl.class), any(Path.class));
   }

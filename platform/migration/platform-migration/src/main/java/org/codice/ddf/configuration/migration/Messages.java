@@ -18,6 +18,7 @@ package org.codice.ddf.configuration.migration;
  * informational messages.
  */
 public final class Messages {
+
   public static final String MAKE_SURE_IT_EXISTS =
       "Make sure it exists on the system you're migrating to or update the path and export again.";
 
@@ -39,7 +40,7 @@ public final class Messages {
   public static final String IMPORT_SUCCESS = "Successfully imported from file [%s].";
 
   public static final String RESTARTING_SYSTEM =
-      "Restarting the system in %s minute(s) for changes to take effect.";
+      "Restarting the system for changes to take effect.";
 
   public static final String RESTART_SYSTEM =
       "Please restart the system for changes to take effect.";
@@ -83,6 +84,12 @@ public final class Messages {
 
   public static final String IMPORT_INTERNAL_ERROR =
       "Unexpected internal error: failed to import from file [%s]; %s.";
+
+  public static final String EXPORT_SECURITY_ERROR =
+      "Export security error: failed to export to file [%s]; %s.";
+
+  public static final String IMPORT_SECURITY_ERROR =
+      "Import security error: failed to import from file [%s]; %s.";
 
   public static final String EXPORTING_DATA = "Exporting data to file [%s].";
 

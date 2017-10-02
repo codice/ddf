@@ -29,7 +29,6 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.commons.io.FileUtils;
-import org.codice.ddf.migration.ImportMigrationEntry;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationOperation;
 import org.codice.ddf.migration.MigrationReport;
@@ -44,6 +43,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ImportMigrationJavaPropertyReferencedEntryImplTest extends AbstractMigrationTest {
+
   public static final String PROPERTIES_PATH = "file.properties";
 
   public static final String PROPERTY_NAME = "property.name";
@@ -87,7 +87,7 @@ public class ImportMigrationJavaPropertyReferencedEntryImplTest extends Abstract
     when(mockContext.getPathUtils()).thenReturn(new PathUtils());
     when(mockContext.getReport()).thenReturn(report);
     when(mockContext.getOptionalEntry(any(Path.class)))
-        .thenReturn(Optional.of(mock(ImportMigrationEntry.class)));
+        .thenReturn(Optional.of(mock(ImportMigrationEntryImpl.class)));
 
     entry = new ImportMigrationJavaPropertyReferencedEntryImpl(mockContext, METADATA_MAP);
   }

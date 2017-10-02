@@ -50,6 +50,7 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings("squid:S2160" /* the base class equals() is sufficient for our needs. */)
 public class ExportMigrationContextImpl extends MigrationContextImpl<ExportMigrationReportImpl>
     implements ExportMigrationContext, Closeable {
+
   private static final Logger LOGGER = LoggerFactory.getLogger(ExportMigrationContextImpl.class);
 
   /** Holds exported migration entries keyed by the exported path. */
@@ -69,7 +70,7 @@ public class ExportMigrationContextImpl extends MigrationContextImpl<ExportMigra
    * @param migratable the migratable this context is for
    * @param zos the output stream for the zip file being generated
    * @throws IllegalArgumentException if <code>report</code>, <code>migratable</code>, <code>zos
-   *     </code> is <code>null</code>
+   * </code> is <code>null</code>
    * @throws java.io.IOError if unable to determine ${ddf.home}
    */
   ExportMigrationContextImpl(MigrationReport report, Migratable migratable, ZipOutputStream zos) {
@@ -85,6 +86,11 @@ public class ExportMigrationContextImpl extends MigrationContextImpl<ExportMigra
   private static <T> T validateNotNull(T t, String msg) {
     Validate.notNull(t, msg);
     return t;
+  }
+
+  @Override
+  public Optional<ExportMigrationEntry> getSystemPropertyReferencedEntry(String name) {
+    return AccessUtils.doPrivileged(() -> getSystemPropertyReferencedEntry(name, (r, v) -> true));
   }
 
   @Override
@@ -140,9 +146,9 @@ public class ExportMigrationContextImpl extends MigrationContextImpl<ExportMigra
 
   @Override
   public Stream<ExportMigrationEntry> entries(Path path, PathMatcher filter) {
+    Validate.notNull(filter, "invalid null filter");
     final ExportMigrationEntryImpl entry = new ExportMigrationEntryImpl(this, path);
 
-    Validate.notNull(filter, "invalid null filter");
     if (!isDirectory(entry)) {
       return Stream.empty();
     }
@@ -251,6 +257,7 @@ public class ExportMigrationContextImpl extends MigrationContextImpl<ExportMigra
  * we shall simply stop processing the export operation.
  */
 class ExportIOException extends IOException {
+
   private final IOException cause;
 
   ExportIOException(IOException e) {

@@ -13,15 +13,18 @@
  */
 package org.codice.ddf.migration.commands;
 
+import ddf.security.Subject;
 import java.io.PrintStream;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
+import org.apache.karaf.shell.api.console.Session;
 import org.codice.ddf.configuration.migration.ConfigurationMigrationService;
-import org.codice.ddf.migration.MigrationReport;
 import org.codice.ddf.security.common.Security;
+import org.codice.ddf.system.alerts.NoticePriority;
+import org.codice.ddf.system.alerts.SystemNotice;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Attribute;
 import org.hamcrest.Matcher;
@@ -33,20 +36,29 @@ import org.junit.rules.TemporaryFolder;
 import org.mockito.AdditionalAnswers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventAdmin;
 
 /** Base class for migration command test classes. */
-@SuppressWarnings("squid:S2187" /* base class for mgiration command test classes */)
+@SuppressWarnings("squid:S2187" /* base class for migration command test classes */)
 public class AbstractMigrationCommandTest {
+
+  protected static final String SUBJECT_NAME = "test.subject";
+
+  protected static final String PASSWORD = "test.password";
+
   protected final PrintStream console = Mockito.mock(PrintStream.class);
-
-  protected final Path exportedPath = Paths.get("test-exported");
-
-  protected final String exportedArg = exportedPath.toString();
 
   protected final ConfigurationMigrationService service =
       Mockito.mock(ConfigurationMigrationService.class);
 
   protected final Security security = Mockito.mock(Security.class);
+
+  protected final EventAdmin eventAdmin = Mockito.mock(EventAdmin.class);
+
+  protected final Session session = Mockito.mock(Session.class);
+
+  protected final Subject subject = Mockito.mock(Subject.class);
 
   @Rule public TemporaryFolder testFolder = new TemporaryFolder();
 
@@ -54,26 +66,66 @@ public class AbstractMigrationCommandTest {
 
   protected Path ddfHome;
 
+  protected Path exportedPath;
+
+  protected MigrationCommand command;
+
   @Before
   public void baseSetup() throws Exception {
     root = testFolder.getRoot().toPath().toRealPath(LinkOption.NOFOLLOW_LINKS);
     ddfHome = testFolder.newFolder("ddf").toPath().toRealPath(LinkOption.NOFOLLOW_LINKS);
-    ddfHome.resolve(exportedPath).toFile().mkdirs();
+    exportedPath = ddfHome.resolve("exported");
 
-    Mockito.doAnswer(
-            AdditionalAnswers.<MigrationReport, Callable<MigrationReport>>answer(
-                code -> code.call()))
+    exportedPath.toFile().mkdirs();
+
+    Mockito.doAnswer(AdditionalAnswers.<Object, Callable<Object>>answer(code -> code.call()))
         .when(security)
         .runWithSubjectOrElevate(Mockito.notNull());
+
+    Mockito.doNothing().when(eventAdmin).postEvent(Mockito.notNull());
+    Mockito.doReturn(PASSWORD).when(session).readLine(Mockito.anyString(), Mockito.anyChar());
+
+    Mockito.doReturn(subject).when(security).getSubject(SUBJECT_NAME, PASSWORD);
+    Mockito.doAnswer(AdditionalAnswers.<Object, Callable<Object>>answer(code -> code.call()))
+        .when(subject)
+        .execute(Mockito.<Callable<Object>>notNull());
 
     System.setProperty("ddf.home", ddfHome.toString());
   }
 
-  protected <T extends MigrationCommand> T initCommand(T command) {
-    final T cmd = Mockito.spy(command);
+  protected void initCommand(MigrationCommand cmd) throws Exception {
+    this.command = Mockito.spy(cmd);
 
-    Mockito.when(cmd.getConsole()).thenReturn(console);
-    return cmd;
+    Mockito.doReturn(console).when(command).getConsole();
+    Mockito.doReturn(SUBJECT_NAME).when(command).getSubjectName();
+  }
+
+  protected void verifyPostedEvent(String cmd) {
+    final ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+
+    Mockito.verify(eventAdmin).postEvent(eventCaptor.capture());
+    final Event event = eventCaptor.getValue();
+
+    Assert.assertThat(
+        event.getTopic(), Matchers.equalTo(SystemNotice.SYSTEM_NOTICE_BASE_TOPIC + "migration"));
+    Assert.assertThat(
+        (String) event.getProperty(SystemNotice.SYSTEM_NOTICE_SOURCE_KEY),
+        Matchers.startsWith(command.getClass().getName() + '.'));
+    Assert.assertThat(
+        event.getProperty(SystemNotice.SYSTEM_NOTICE_PRIORITY_KEY),
+        Matchers.equalTo(NoticePriority.IMPORTANT.value()));
+    Assert.assertThat(
+        event.getProperty(SystemNotice.SYSTEM_NOTICE_TITLE_KEY),
+        Matchers.equalTo("User is " + cmd + "ing configuration settings"));
+    Assert.assertThat(
+        (Collection<String>) event.getProperty(SystemNotice.SYSTEM_NOTICE_DETAILS_KEY),
+        Matchers.contains(
+            Matchers.equalTo(
+                "The user trying to "
+                    + cmd
+                    + " configuration settings is ["
+                    + SUBJECT_NAME
+                    + "].")));
   }
 
   protected void verifyConsoleOutput(Matcher<String> messageMatcher, Ansi.Color color) {

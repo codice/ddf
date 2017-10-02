@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings(
     "squid:S2160" /* the base class equals() is sufficient for our needs. entries are unique based on their paths */)
 public class ImportMigrationExternalEntryImpl extends ImportMigrationEntryImpl {
+
   private static final Logger LOGGER =
       LoggerFactory.getLogger(ImportMigrationExternalEntryImpl.class);
 
@@ -55,11 +56,6 @@ public class ImportMigrationExternalEntryImpl extends ImportMigrationEntryImpl {
   }
 
   @Override
-  public Optional<InputStream> getInputStream() throws IOException {
-    return Optional.empty();
-  }
-
-  @Override
   public boolean restore(boolean required) {
     if (restored == null) {
       // until proven otherwise in case the next line throws an exception
@@ -71,6 +67,11 @@ public class ImportMigrationExternalEntryImpl extends ImportMigrationEntryImpl {
       super.restored = verifyRealFile(required);
     }
     return restored;
+  }
+
+  @Override
+  protected Optional<InputStream> getInputStream(boolean checkAccess) throws IOException {
+    return Optional.empty();
   }
 
   @Override
@@ -100,30 +101,42 @@ public class ImportMigrationExternalEntryImpl extends ImportMigrationEntryImpl {
   @SuppressWarnings(
       "squid:S3725" /* Files.isRegularFile() is used for consistency and to make sure that softlinks are not followed. not worried about performance here */)
   private boolean verifyRealFile(boolean required) {
-    final MigrationReport report = getReport();
-    final Path apath = getAbsolutePath();
-    final File file = getFile();
+    return AccessUtils.doPrivileged(
+        () -> {
+          final MigrationReport report = getReport();
+          final Path apath = getAbsolutePath();
+          final File file = getFile();
 
-    if (!file.exists()) {
-      if (required) {
-        report.record(new MigrationException(Messages.IMPORT_PATH_ERROR, apath, "does not exist"));
-        return false;
-      }
-      return true;
-    }
-    if (softlink) {
-      if (!Files.isSymbolicLink(getAbsolutePath())) {
-        report.record(
-            new MigrationWarning(Messages.IMPORT_PATH_WARNING, apath, "is not a symbolic link"));
-        return false;
-      }
-    } else if (!Files.isRegularFile(getAbsolutePath(), LinkOption.NOFOLLOW_LINKS)) {
-      report.record(
-          new MigrationWarning(Messages.IMPORT_PATH_WARNING, apath, "is not a regular file"));
-    }
+          if (!file.exists()) {
+            if (required) {
+              report.record(
+                  new MigrationException(Messages.IMPORT_PATH_ERROR, apath, "does not exist"));
+              return false;
+            }
+            return true;
+          }
+          if (softlink) {
+            if (!Files.isSymbolicLink(apath)) {
+              report.record(
+                  new MigrationWarning(
+                      Messages.IMPORT_PATH_WARNING, apath, "is not a symbolic link"));
+              return false;
+            }
+          } else if (!Files.isRegularFile(apath, LinkOption.NOFOLLOW_LINKS)) {
+            report.record(
+                new MigrationWarning(Messages.IMPORT_PATH_WARNING, apath, "is not a regular file"));
+          }
+          return verifyChecksum();
+        });
+  }
+
+  private boolean verifyChecksum() {
     if (checksum != null) {
+      final MigrationReport report = getReport();
+      final Path apath = getAbsolutePath();
+
       try {
-        final String rchecksum = getContext().getPathUtils().getChecksumFor(getAbsolutePath());
+        final String rchecksum = getContext().getPathUtils().getChecksumFor(apath);
 
         if (!rchecksum.equals(checksum)) {
           report.record(new MigrationWarning(Messages.IMPORT_CHECKSUM_MISMATCH_WARNING, apath));
