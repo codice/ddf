@@ -35,15 +35,13 @@ import org.slf4j.LoggerFactory;
 
 @Service
 @Command(
-  scope = "geonames",
+  scope = "gazetteer",
   name = "update",
   description =
-      "Adds new entries to an existing local GeoNames index. "
-          + "Attempting to "
-          + "add entries when no index exists is an error."
+      "Updates the gazetter entries from a resource"
 )
-public final class GeoNamesUpdateCommand implements Action {
-  private static final Logger LOGGER = LoggerFactory.getLogger(GeoNamesUpdateCommand.class);
+public final class GazetteerUpdateCommand implements Action {
+  private static final Logger LOGGER = LoggerFactory.getLogger(GazetteerUpdateCommand.class);
 
   @Argument(
     index = 0,
@@ -56,7 +54,10 @@ public final class GeoNamesUpdateCommand implements Action {
             + "`cities15000` can be used to get all of the cities with at "
             + "least 1000, 5000, 15000 people respectively.  "
             + "To download all country codes, use the keyword 'all'.  "
-            + "When the resource is a path to a file, it will be imported locally.",
+            + "When the resource is a path to a file, it will be imported locally."
+            + "If a path to a file ends in .geo.json, it will processed as a"
+            + "geoJSON feature collection and imported as supplimentary shape "
+            + "data for geonames entries.",
     required = true
   )
   private String resource = null;
@@ -123,16 +124,16 @@ public final class GeoNamesUpdateCommand implements Action {
 
       console.println("\nDone.");
     } catch (GeoEntryExtractionException | FeatureExtractionException e) {
-      LOGGER.debug("Error extracting GeoNames data from resource {}", resource, e);
+      LOGGER.debug("Error extracting data from resource {}", resource, e);
       console.printf(
-          "Could not extract GeoNames data from resource %s.%n"
+          "Could not extract data from resource %s.%n"
               + "Message: %s%n"
               + "Check the logs for more details.%n",
           resource, e.getMessage());
     } catch (GeoEntryIndexingException | FeatureIndexingException e) {
-      LOGGER.debug("Error indexing GeoNames data", e);
+      LOGGER.debug("Error indexing data", e);
       console.printf(
-          "Could not index the GeoNames data.%n"
+          "Could not index the  data.%n"
               + "Message: %s%n"
               + "Check the logs for more details.%n",
           e.getMessage());

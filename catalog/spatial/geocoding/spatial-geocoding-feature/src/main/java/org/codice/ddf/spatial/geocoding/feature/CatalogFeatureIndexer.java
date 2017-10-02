@@ -62,12 +62,7 @@ public class CatalogFeatureIndexer implements FeatureIndexer {
   private boolean doCreate;
 
   private static final ThreadLocal<WKTWriter> WKT_WRITER_THREAD_LOCAL =
-      new ThreadLocal<WKTWriter>() {
-        @Override
-        protected WKTWriter initialValue() {
-          return new WKTWriter();
-        }
-      };
+          ThreadLocal.withInitial(() -> new WKTWriter());
 
   public void setSecurity(Security security) {
     this.security = security;

@@ -43,16 +43,16 @@ import org.codice.ddf.spatial.geocoding.ProgressCallback;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestGeoNamesUpdateCommand {
+public class TestGazetteerUpdateCommand {
   private ConsoleInterceptor consoleInterceptor;
 
-  private GeoNamesUpdateCommand geoNamesUpdateCommand;
+  private GazetteerUpdateCommand gazetteerUpdateCommand;
 
   @Before
   public void setUp() {
     consoleInterceptor = new ConsoleInterceptor();
     consoleInterceptor.interceptSystemOut();
-    geoNamesUpdateCommand = new GeoNamesUpdateCommand();
+    gazetteerUpdateCommand = new GazetteerUpdateCommand();
   }
 
   @Test
@@ -140,11 +140,11 @@ public class TestGeoNamesUpdateCommand {
     geoEntryExtractors.add(geoEntryExtractor);
     geoEntryExtractors.add(geoEntryUrlExtractor);
 
-    geoNamesUpdateCommand.setGeoEntryExtractor(geoEntryExtractor);
-    geoNamesUpdateCommand.setGeoEntryIndexer(geoEntryIndexer);
+    gazetteerUpdateCommand.setGeoEntryExtractor(geoEntryExtractor);
+    gazetteerUpdateCommand.setGeoEntryIndexer(geoEntryIndexer);
 
-    geoNamesUpdateCommand.setResource("test");
-    geoNamesUpdateCommand.execute();
+    gazetteerUpdateCommand.setResource("test");
+    gazetteerUpdateCommand.execute();
 
     consoleInterceptor.resetSystemOut();
     consoleInterceptor.closeBuffer();
@@ -184,11 +184,11 @@ public class TestGeoNamesUpdateCommand {
           }
         };
 
-    geoNamesUpdateCommand.setGeoEntryIndexer(geoEntryIndexer);
-    geoNamesUpdateCommand.setGeoEntryExtractor(geoEntryExtractor);
-    geoNamesUpdateCommand.setResource("temp.txt");
+    gazetteerUpdateCommand.setGeoEntryIndexer(geoEntryIndexer);
+    gazetteerUpdateCommand.setGeoEntryExtractor(geoEntryExtractor);
+    gazetteerUpdateCommand.setResource("temp.txt");
 
-    geoNamesUpdateCommand.execute();
+    gazetteerUpdateCommand.execute();
     assertThat(consoleInterceptor.getOutput(), containsString(errorText));
 
     consoleInterceptor.resetSystemOut();
@@ -210,10 +210,10 @@ public class TestGeoNamesUpdateCommand {
         .updateIndex(
             anyString(), any(GeoEntryExtractor.class), anyBoolean(), any(ProgressCallback.class));
 
-    geoNamesUpdateCommand.setGeoEntryIndexer(geoEntryIndexer);
-    geoNamesUpdateCommand.setGeoEntryExtractor(geoEntryExtractor);
-    geoNamesUpdateCommand.setResource("temp");
-    geoNamesUpdateCommand.execute();
+    gazetteerUpdateCommand.setGeoEntryIndexer(geoEntryIndexer);
+    gazetteerUpdateCommand.setGeoEntryExtractor(geoEntryExtractor);
+    gazetteerUpdateCommand.setResource("temp");
+    gazetteerUpdateCommand.execute();
     assertThat(consoleInterceptor.getOutput(), containsString(errorText));
 
     consoleInterceptor.resetSystemOut();
@@ -243,10 +243,10 @@ public class TestGeoNamesUpdateCommand {
                   throws FeatureExtractionException, FeatureIndexingException {}
             });
 
-    geoNamesUpdateCommand.setResource(resource);
-    geoNamesUpdateCommand.setFeatureExtractor(featureExtractor);
-    geoNamesUpdateCommand.setFeatureIndexer(featureIndexer);
-    geoNamesUpdateCommand.execute();
+    gazetteerUpdateCommand.setResource(resource);
+    gazetteerUpdateCommand.setFeatureExtractor(featureExtractor);
+    gazetteerUpdateCommand.setFeatureIndexer(featureIndexer);
+    gazetteerUpdateCommand.execute();
     verify(featureIndexer, times(1))
         .updateIndex(
             eq(resource), eq(featureExtractor), eq(false), any(FeatureIndexer.IndexCallback.class));
