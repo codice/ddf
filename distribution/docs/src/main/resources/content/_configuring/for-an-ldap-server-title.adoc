@@ -1,0 +1,7 @@
+:title: Configuring for an LDAP Server
+:type: configuringAdminConsole
+:status: published
+:summary: Configurations to enable using an LDAP server.
+:order: 03
+
+==== Configuring for an LDAP Server
