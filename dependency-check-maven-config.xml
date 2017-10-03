@@ -164,4 +164,22 @@
         </notes>
         <cve>CVE-2016-8739</cve>
     </suppress>
+
+    <suppress>
+        <notes>
+            These suppressions are all related to asciidoc and jruby vulnerabilites which do not
+            affect the running system.
+        </notes>
+        <cve>CVE-1999-0428</cve>
+        <cve>CVE-2009-3245</cve>
+        <cve>CVE-2010-0742</cve>
+        <cve>CVE-2010-4252</cve>
+        <cve>CVE-2011-4838</cve>
+        <cve>CVE-2012-2110</cve>
+        <cve>CVE-2014-3567</cve>
+        <cve>CVE-2014-8176</cve>
+        <cve>CVE-2015-0292</cve>
+        <cve>CVE-2016-2108</cve>
+        <cve>CVE-2016-2109</cve>
+    </suppress>
 </suppressions>
