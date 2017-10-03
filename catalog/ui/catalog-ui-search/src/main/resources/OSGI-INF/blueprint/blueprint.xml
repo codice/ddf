@@ -108,7 +108,6 @@
     <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
     <reference id="inputTransformer" interface="ddf.catalog.transform.InputTransformer"
                filter="(id=xml)"/>
-    <reference id="featureQueryable" interface="org.codice.ddf.spatial.geocoding.FeatureQueryable"/>
 
     <reference-list id="metacardActionProviders" interface="ddf.action.ActionProvider"
                     filter="(id=catalog.data.metacard.*)"/>
@@ -354,6 +353,9 @@
              interface="org.codice.ddf.catalog.ui.query.monitor.api.WorkspaceQueryService"/>
 
     <reference id="geoEntryQueryable" interface="org.codice.ddf.spatial.geocoding.GeoEntryQueryable"/>
+
+    <reference id="featureQueryable" interface="org.codice.ddf.spatial.geocoding.FeatureQueryable"
+               availability="optional"/>
 
     <bean id="featureService" class="org.codice.ddf.catalog.ui.query.geofeature.GazetteerFeatureService">
         <property name="geoEntryQueryable" ref="geoEntryQueryable"/>

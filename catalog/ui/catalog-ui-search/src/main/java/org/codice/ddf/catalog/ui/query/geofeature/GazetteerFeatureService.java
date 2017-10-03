@@ -36,6 +36,7 @@ import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.geometry.primitive.Point;
+import org.osgi.service.blueprint.container.ServiceUnavailableException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,27 +76,43 @@ public class GazetteerFeatureService implements FeatureService {
 
   @Override
   public SimpleFeature getFeatureByName(String name) {
+    List<GeoEntry> entries;
     try {
-      List<GeoEntry> entries = this.geoEntryQueryable.query(name, 1);
-      if (!entries.isEmpty()) {
-        GeoEntry entry = entries.get(0);
-
-        String featureCode = entry.getFeatureCode().toUpperCase();
-        String countryCode = getAlpha3CountryCodeForGeoEntry(entry);
-        if (countryCode != null) {
-          List<SimpleFeature> countries = this.featureQueryable.query(countryCode, featureCode, 1);
-          if (CollectionUtils.isNotEmpty(countries)) {
-            return countries.get(0);
-          }
-        }
-
-        GeoResult geoResult = GeoResultCreator.createGeoResult(entry);
-        return getFeatureFromGeoResult(geoResult);
-      }
+      entries = this.geoEntryQueryable.query(name, 1);
     } catch (GeoEntryQueryException e) {
       LOGGER.warn("Error while making feature service request.", e);
+      return null;
+    }
+    if (entries.isEmpty()) {
+      return null;
+    }
+    GeoEntry entry = entries.get(0);
+
+    SimpleFeature feature = findDetailedFeatureForGeoEntry(entry);
+    if (feature != null) {
+      return feature;
+    }
+
+    GeoResult geoResult = GeoResultCreator.createGeoResult(entry);
+    return getFeatureFromGeoResult(geoResult);
+  }
+
+  private SimpleFeature findDetailedFeatureForGeoEntry(GeoEntry entry) {
+    String featureCode = entry.getFeatureCode().toUpperCase();
+    String countryCode = getAlpha3CountryCodeForGeoEntry(entry);
+    if (countryCode == null) {
+      return null;
+    }
+
+    try {
+      List<SimpleFeature> countries = this.featureQueryable.query(countryCode, featureCode, 1);
+      if (CollectionUtils.isNotEmpty(countries)) {
+        return countries.get(0);
+      }
     } catch (FeatureQueryException e) {
       LOGGER.warn("Error while querying for feature.", e);
+    } catch (ServiceUnavailableException e) {
+      LOGGER.warn("Feature service unavailable!", e);
     }
     return null;
   }
