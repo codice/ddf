@@ -25,6 +25,8 @@
   .panel-body {
     padding: 0px @app-card-overlay-width 0px 0px; // reset bootstrap
     height: 100%;
+    display: -ms-flexbox;
+    -ms-flex-direction: column;
     display: flex;
     flex-direction: column;
   }
@@ -35,6 +37,7 @@
   }
 
   .description {
+    -ms-flex: 1;
     height: 150px;
     .divider {
       margin: 1px 0px;
