@@ -41,6 +41,8 @@ import org.xml.sax.SAXException;
 public class Gml3ToWktImpl implements Gml3ToWkt {
   private static final Logger LOGGER = LoggerFactory.getLogger(Gml3ToWkt.class);
 
+  private static final String EPSG_4326 = "EPSG:4326";
+
   private final MathTransform latLonTransform;
 
   private final org.geotools.xml.Parser parser;
@@ -50,7 +52,7 @@ public class Gml3ToWktImpl implements Gml3ToWkt {
   public Gml3ToWktImpl(Configuration gmlConfiguration) {
     MathTransform transform = null;
     try {
-      transform = CRS.findMathTransform(DefaultGeographicCRS.WGS84, CRS.decode("EPSG:4326", false));
+      transform = CRS.findMathTransform(DefaultGeographicCRS.WGS84, CRS.decode(EPSG_4326, false));
     } catch (FactoryException e) {
       LOGGER.warn("Couldn't create lat/lon transform");
     }
@@ -107,11 +109,10 @@ public class Gml3ToWktImpl implements Gml3ToWkt {
             "", Collections.singletonList("Couldn't not convert GML to WKT"), new ArrayList<>());
       }
       return result;
-    } else {
-      LOGGER.debug("Unknown object parsed from GML and unable to convert to WKT");
-      throw new ValidationExceptionImpl(
-          "", Collections.singletonList("Couldn't not convert GML to WKT"), new ArrayList<>());
     }
+    LOGGER.debug("Unknown object parsed from GML and unable to convert to WKT");
+    throw new ValidationExceptionImpl(
+        "", Collections.singletonList("Couldn't not convert GML to WKT"), new ArrayList<>());
   }
 
   private Object parseXml(InputStream xml) throws ValidationException {
