@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.util.Objects;
 import org.apache.commons.io.IOUtils;
 import org.apache.pdfbox.tools.imageio.ImageIOUtil;
+import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.sl.usermodel.SlideShow;
 import org.apache.poi.sl.usermodel.SlideShowFactory;
 import org.apache.poi.xslf.usermodel.XMLSlideShow;
@@ -111,7 +112,11 @@ public class PptxInputTransformer implements InputTransformer {
       Metacard metacard =
           extractInitialMetadata(fileBackedOutputStream.asByteSource().openStream());
 
-      extractThumbnail(metacard, fileBackedOutputStream.asByteSource().openStream());
+      try {
+        extractThumbnail(metacard, fileBackedOutputStream.asByteSource().openStream());
+      } catch (EncryptedDocumentException e) {
+        LOGGER.debug("Unable to generate thumbnail", e);
+      }
       return metacard;
     }
   }
@@ -140,6 +145,7 @@ public class PptxInputTransformer implements InputTransformer {
    * @param metacard
    * @param input
    * @throws IOException
+   * @throws EncryptedDocumentException
    */
   private void extractThumbnail(Metacard metacard, InputStream input) throws IOException {
 
