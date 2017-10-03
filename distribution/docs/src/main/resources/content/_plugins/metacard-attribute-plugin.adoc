@@ -53,7 +53,7 @@ See <<org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityP
 
 ===== Sample configuration of the Metacard Attribute Security Policy Plugin
 
-To configure the plug in to combine the attributes `sci-tokens` and `codewords` into a new
+To configure the plugin to combine the attributes `sci-tokens` and `codewords` into a new
 attribute `compartments` using the union,
 enter these two lines under the title **Metacard Union Attributes**
 

@@ -22,7 +22,7 @@
       description="Each line item in the configuration is a rule.
             The format of a rule is the name of a single source attribute,
             followed by an equals sign, followed by the destination attribute.
-            For example: source_attribute1=destination_attribute
+            For example: source_attribute1=destination_attribute.
             The plugin gathers the source attributes that have a common destination.
             It takes the combined values of the source attributes and makes them the values of
             a (new) metacard attribute, the destination attribute.
@@ -37,7 +37,7 @@
       description="Each line item in the configuration is a rule.
             The format of a rule is the name of a single source attribute,
             followed by an equals sign, followed by the destination attribute.
-            For example: source_attribute1=destination_attribute
+            For example: source_attribute1=destination_attribute.
             The plugin gathers the source attributes that have a common destination.
             It takes the combined values of the source attributes and makes them the values of
             a (new) metacard attribute, the destination attribute.
