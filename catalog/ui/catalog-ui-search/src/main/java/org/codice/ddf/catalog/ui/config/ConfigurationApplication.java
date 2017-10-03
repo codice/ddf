@@ -122,6 +122,8 @@ public class ConfigurationApplication implements SparkApplication {
 
   private Integer autoMergeTime = 1000;
 
+  private String mapHome = "";
+
   public List<Long> getScheduleFrequencyList() {
     return scheduleFrequencyList;
   }
@@ -339,6 +341,7 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("defaultLayout", getDefaultLayoutConfig());
     config.put("isExperimental", isExperimental);
     config.put("autoMergeTime", autoMergeTime);
+    config.put("mapHome", mapHome);
 
     return config;
   }
@@ -802,5 +805,13 @@ public class ConfigurationApplication implements SparkApplication {
 
   public void setIsExperimental(Boolean isExperimental) {
     this.isExperimental = isExperimental;
+  }
+
+  public String getMapHome() {
+    return mapHome;
+  }
+
+  public void setMapHome(String mapHome) {
+    this.mapHome = mapHome;
   }
 }

@@ -27,12 +27,11 @@ var LocationModel = require('component/location-old/location-old');
 var user = require('component/singletons/user-instance');
 var LayersDropdown = require('component/dropdown/layers/dropdown.layers.view');
 var DropdownModel = require('component/dropdown/dropdown');
-
-var DropdownModel = require('component/dropdown/dropdown');
 var MapContextMenuDropdown = require('component/dropdown/map-context-menu/dropdown.map-context-menu.view');
 var MapModel = require('./map.model');
 var MapInfoView = require('component/map-info/map-info.view');
 var MapSettingsDropdown = require('component/dropdown/map-settings/dropdown.map-settings.view');
+var properties = require('properties');
 
 function wrapNum(x, range) {
     var max = range[1],
@@ -40,6 +39,86 @@ function wrapNum(x, range) {
         d = max - min;
     return ((x - min) % d + d) % d + min;
 }
+
+function findExtreme({objArray, property, comparator}) {
+    if (objArray.length === 0) {
+        return undefined;
+    }
+    return objArray.reduce((extreme, coordinateObj) => extreme = comparator(extreme, coordinateObj[property]), objArray[0][property]);
+}
+
+function getHomeCoordinates() {
+    if (properties.mapHome !== "") {
+        const separateCoordinates = properties.mapHome.replace(/\s/g, "").split(",");
+        if (separateCoordinates.length % 2 === 0){
+            return separateCoordinates.reduce((coordinates, coordinate, index) => {
+                if (index % 2 === 0) {
+                    coordinates.push({
+                        lon: coordinate,
+                        lat: separateCoordinates[index + 1]
+                    });
+                }
+                return coordinates;
+            }, []).map((coordinateObj) => {
+                let lon = parseFloat(coordinateObj.lon);
+                let lat = parseFloat(coordinateObj.lat);
+                if (isNaN(lon) || isNaN(lat)) {
+                    return undefined;
+                } 
+                lon = wrapNum(lon, [-180, 180]);
+                lat = wrapNum(lat, [-90, 90]);
+                return {
+                    lon: lon,
+                    lat: lat
+                };
+            }).filter((coordinateObj) => {
+                return coordinateObj !== undefined;  
+            });
+        }
+    } else {
+        return [];
+    }
+}
+
+function getBoundingBox(coordinates) {
+    const north = findExtreme({
+        objArray: coordinates,
+        property: 'lat',
+        comparator: Math.max
+    });
+    const south = findExtreme({
+        objArray: coordinates,
+        property: 'lat',
+        comparator: Math.min
+    });
+    const east = findExtreme({
+        objArray: coordinates,
+        property: 'lon',
+        comparator: Math.max
+    });
+    const west = findExtreme({
+        objArray: coordinates,
+        property: 'lon',
+        comparator: Math.min
+    });
+    if (north === undefined || south === undefined || east === undefined || west === undefined) {
+        return undefined;
+    }
+    return {
+        north: north,
+        east: east,
+        south: south,
+        west: west
+    };
+}
+
+const homeBoundingBox = getBoundingBox(getHomeCoordinates());
+const defaultHomeBoundingBox = {
+    west: -128,
+    south: 24,
+    east: -63,
+    north: 52
+};
 
 module.exports = Marionette.LayoutView.extend({
     tagName: CustomElements.register('map'),
@@ -50,7 +129,8 @@ module.exports = Marionette.LayoutView.extend({
         mapInfo: '.mapInfo'
     },
     events: {
-        'click .cluster-button': 'toggleClustering'
+        'click .cluster-button': 'toggleClustering',
+        'click .zoomToHome': 'zoomToHome'
     },
     clusterCollection: undefined,
     clusterCollectionView: undefined,
@@ -96,14 +176,29 @@ module.exports = Marionette.LayoutView.extend({
         this.listenTo(this.options.selectionInterface, 'change:currentQuery', this.handleCurrentQuery);
         this.handleCurrentQuery();
 
-        if (this.options.selectionInterface.getSelectedResults()) {
+        if (this.options.selectionInterface.getSelectedResults().length > 0) {
             this.map.zoomToSelected(this.options.selectionInterface.getSelectedResults());
+        } else {
+            this.zoomToHome();
         }
         this.map.onMouseMove(this.onMapHover.bind(this));
         this.map.onRightClick(this.onRightClick.bind(this));
         this.setupRightClickMenu();
         this.setupMapInfo();
-        this.addSettings();
+    },
+    zoomToHome: function() {
+        this.map.zoomToBoundingBox(homeBoundingBox !== undefined ? homeBoundingBox : defaultHomeBoundingBox);
+    },
+    addHome: function() {
+        this.$el.find('.cesium-viewer-toolbar').append('<button class="cesium-button zoomToHome"><span class="fa fa-home"></span><span> Home</span></div>');
+    },
+    addClustering: function() {
+        this.$el.find('.cesium-viewer-toolbar').append('<button class="cesium-button cluster cluster-button">' +
+            '<span class="fa fa-cubes is-not-clustering"></span>' +
+            '<span class="fa fa-cube is-clustering"></span>' +
+            '<span> Cluster </span>' +
+            '<span class="fa fa-toggle-on is-clustering"></span>' +
+            '</div>');
     },
     addSettings: function(){
         this.$el.find('.cesium-viewer-toolbar').append('<div class="toolbar-settings"></div>');
@@ -173,7 +268,10 @@ module.exports = Marionette.LayoutView.extend({
                 this.options.selectionInterface, this.mapDrawingPopup.el, this.el, this);
         this.setupCollections();
         this.setupListeners();
+        this.addHome();
+        this.addClustering();
         this.addLayers();
+        this.addSettings();
         this.endLoading();
     },
     addLayers: function(){
