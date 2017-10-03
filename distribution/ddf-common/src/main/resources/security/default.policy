@@ -1,0 +1,169 @@
+priority "grant";
+
+deny {
+    // Read, write, or execute any file
+    permission java.io.FilePermission "<<ALL FILES>>", "read, write, execute";
+
+    // Deny deletion of the security policy file through any Java code
+    permission java.io.FilePermission "${ddf.home}${/}security${/}default.policy", "read, write, execute, delete";
+
+    permission java.util.PropertyPermission "javax.net.ssl.*", "read, write";
+    permission java.util.PropertyPermission "java.io.tmpdir", "write";
+    permission java.util.PropertyPermission "user.home", "write";
+
+    // Change current security manager
+    permission java.lang.RuntimePermission "setSecurityManager";
+
+    // Modify application permissions at will.
+    permission java.security.SecurityPermission "setPolicy, insertProvider, removeProvider.*, clearProviderProperties.*, putProviderProperty.*, removeProviderProperty.*";
+
+    // Load classes into any protection domain
+    permission java.lang.RuntimePermission "createClassLoader";
+};
+
+//
+// DDF Libraries have broad file permissions within the install directory
+//
+grant
+  codeBase "file:${ddf.home.policy}system/ddf/-" {
+    permission java.io.FilePermission "${ddf.home}", "read, write";
+    permission java.io.FilePermission "${ddf.home}${/}etc${/}-", "read, write";
+
+    permission java.util.PropertyPermission "javax.net.ssl.*", "read, write";
+};
+grant
+  codeBase "file:${ddf.home.policy}system/org/codice/-" {
+    permission java.io.FilePermission "${ddf.home}", "read, write";
+    permission java.io.FilePermission "${ddf.home}${/}etc${/}-", "read, write";
+
+    permission java.util.PropertyPermission "javax.net.ssl.*", "read, write";
+};
+
+//
+// DDF Migration Framework and Config Admin Migratable
+//
+grant
+  codeBase "file:${ddf.home.policy}system/ddf/platform/platform-migratable/-" {
+    // some permissions might be repeated here to ensure that they are granted to the migration
+    // framework if we ever tighten the permissions above
+
+    permission java.io.FilePermission "<<ALL FILES>>", "read, readlink";
+    permission java.io.FilePermission "${ddf.home}", "read, write";
+
+    permission java.util.PropertyPermission "*", "read";
+    permission java.util.PropertyPermission "ddf.home", "read";
+    permission java.util.PropertyPermission "karaf.restart.jvm", "write";
+};
+
+//
+// DDF Platform Migratable
+//
+grant
+  codeBase "file:${ddf.home.policy}system/ddf/platform/platform-migratable/-" {
+    // some permissions might be repeated here to ensure that they are granted to the migration
+    // framework if we ever tighten the permissions above
+
+    permission java.io.FilePermission "${ddf.home}${/}etc${/}ws-security", "read";
+    permission java.io.FilePermission "${ddf.home}${/}etc${/}ws-security${/}-", "read, delete";
+
+    permission java.util.PropertyPermission "javax.net.ssl.keyStore", "read";
+    permission java.util.PropertyPermission "javax.net.ssl.trustStore", "read";
+};
+
+//
+// DDF Security Migratable
+//
+grant
+  codeBase "file:${ddf.home.policy}system/ddf/security/migration/security-migratable/-" {
+    // some permissions might be repeated here to ensure that they are granted to the migration
+    // framework if we ever tighten the permissions above
+
+    permission java.io.FilePermission "${ddf.home}${/}etc${/}pdp", "read";
+    permission java.io.FilePermission "${ddf.home}${/}etc${/}pdp${/}-", "read, delete";
+};
+
+//
+// The lib directory contains root, trusted jars for DDF, OSGi, and security
+//
+grant
+  codeBase "file:${ddf.home.policy}lib/-" {
+    permission java.io.FilePermission "${ddf.home}", "read, write";
+    permission java.io.FilePermission "${ddf.home}${/}etc${/}*", "read, write";
+    permission java.io.FilePermission "${ddf.home}${/}etc${/}-", "read";
+
+    permission java.lang.RuntimePermission "createClassLoader";
+    permission java.util.PropertyPermission "javax.net.ssl.*", "read, write";
+};
+grant
+  codeBase "file:${ddf.home.policy}lib/boot/-" {
+    permission java.io.FilePermission "${ddf.home}${/}*", "read, write";
+    permission java.io.FilePermission "${ddf.home}${/}etc${/}config.properties", "write";
+    permission java.util.PropertyPermission "karaf.restart.jvm", "write";
+};
+grant
+  codeBase "file:${ddf.home.policy}lib/boot/org.osgi.core-6.0.0.jar" {
+    permission java.io.FilePermission "${ddf.home}${/}*", "read, execute";
+    permission java.io.FilePermission "${ddf.home}${/}deploy${/}-", "read, execute";
+    permission java.io.FilePermission "${ddf.home}${/}etc${/}-", "read, execute";
+};
+
+//
+// Core OSGi libraries
+//
+grant
+  codeBase "file:${ddf.home.policy}system/org/eclipse/platform/org.eclipse.osgi/-" {
+    permission java.io.FilePermission "${ddf.home}", "read, write, execute";
+    permission java.io.FilePermission "${ddf.home}${/}*", "read, write, execute";
+
+    permission java.io.FilePermission "${ddf.home}${/}deploy${/}-", "read, execute";
+
+    permission java.io.FilePermission "${ddf.home}${/}etc${/}-", "read, write, execute";
+
+    permission java.io.FilePermission "${ddf.home}${/}examples", "read, write";
+    permission java.io.FilePermission "${ddf.home}${/}examples${/}-", "read, write";
+
+    permission java.lang.RuntimePermission "createClassLoader";
+    permission java.util.PropertyPermission "javax.net.ssl.*", "read";
+
+    permission java.io.FilePermission "${ddf.home}${/}bin_third_party${/}-", "read, execute";
+};
+
+grant {
+    // User's home directory
+    permission java.io.FilePermission "${user.home}${/}-", "read, write";
+
+    // Temporary file storage
+    permission java.io.FilePermission "${java.io.tmpdir}", "read, write, execute, delete";
+    permission java.io.FilePermission "${java.io.tmpdir}${/}-", "read, write, execute, delete";
+
+    // Java libraries
+    permission java.io.FilePermission "${java.home}${/}release", "read";
+    permission java.io.FilePermission "${java.home}${/}lib${/}-", "read";
+
+    // System libraries
+    permission java.io.FilePermission "/dev/urandom", "read";
+    permission java.io.FilePermission "/lib", "read";
+    permission java.io.FilePermission "/proc/self/exe", "read";
+    permission java.io.FilePermission "/usr/lib", "read";
+
+
+    // Distribution File Permissions
+    permission java.io.FilePermission "${ddf.home}", "read";
+    permission java.io.FilePermission "${ddf.home}${/}*", "read";
+    permission java.io.FilePermission "${ddf.home}${/}lib${/}-", "read";
+    permission java.io.FilePermission "${ddf.home}${/}documentation${/}-", "read";
+
+    permission java.io.FilePermission "${ddf.home}${/}karaf.pid", "read, write";
+
+    permission java.io.FilePermission "${ddf.home}${/}data", "read, write";
+    permission java.io.FilePermission "${ddf.home}${/}instances", "read, write";
+    permission java.io.FilePermission "${ddf.home}${/}solr", "read, write";
+    permission java.io.FilePermission "${ddf.home}${/}system", "read, write";
+    permission java.io.FilePermission "${ddf.home}${/}workspace", "read, write";
+
+    permission java.io.FilePermission "${ddf.home}${/}data${/}-", "read, write";
+    permission java.io.FilePermission "${ddf.home}${/}instances${/}-", "read, write";
+    permission java.io.FilePermission "${ddf.home}${/}solr${/}-", "read, write";
+    permission java.io.FilePermission "${ddf.home}${/}system${/}-", "read, write";
+    permission java.io.FilePermission "${ddf.home}${/}workspace${/}-", "read, write";
+};

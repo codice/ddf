@@ -56,10 +56,28 @@ rem SET KARAF_DATA
 rem Karaf base folder
 rem SET KARAF_BASE
 rem Additional available Karaf options
-rem SET KARAF_OPTS=-Dderby.system.home="..\data\derby"  -Dderby.storage.fileSyncTransactionLog=true -Dfile.encoding=UTF8 -Dddf.home=%DDF_HOME% -XX:+DisableAttachMechanism
+rem SET KARAF_OPTS=
 
 rem comment out the line below to enable cxf logging interceptors
 rem set EXTRA_JAVA_OPTS="-Dcom.sun.xml.ws.transport.http.HttpAdapter.dump=true"
 
-set JAVA_OPTS=-Xms2g -Xmx4g -Dderby.system.home="%DDF_HOME%\data\derby"  -Dderby.storage.fileSyncTransactionLog=true -Dfile.encoding=UTF8 -Dddf.home=%DDF_HOME% -XX:+DisableAttachMechanism
-:: set JAVA_OPTS=-Xms2g -Xmx4g -Dfile.encoding=UTF8 -Djavax.net.ssl.keyStore=../etc/keystores/serverKeystore.jks -Djavax.net.ssl.keyStorePassword=changeit -Djavax.net.ssl.trustStore=../etc/keystores/serverTruststore.jks -Djavax.net.ssl.trustStorePassword=changeit -Dddf.home=%DDF_HOME%
+set DDF_HOME_POLICY=/%DDF_HOME:/bin/..=/%
+
+rem
+rem Admins can uncomment the following line and comment out the other definition of
+rem the KARAF_SYSTEM_OPTS variable in order to determine any missing security permissions
+rem should they install third-party bundles requiring additional access.
+rem
+rem Please note that turning on the PolicyFileGeneratorJSM has the side-effect of turning off
+rem security on your system. It should be used with caution, only to ascertain missing
+rem permissions to be added to the default.policy file.
+rem
+rem N.B. The use of the double equals on the 'java.security.policy' property is intentional.
+rem See http://docs.oracle.com/javase/7/docs/technotes/guides/security/PolicyFiles.html#DefaultLocs
+rem for more information.
+rem
+rem set KARAF_SYSTEM_OPTS=-Dprograde.generated.policy="%DDF_HOME%/generated.policy" -Dprograde.use.own.policy=true -Dpolicy.provider=net.sourceforge.prograde.policy.ProGradePolicy -Djava.security.manager=net.sourceforge.prograde.sm.PolicyFileGeneratorJSM -Djava.security.policy==%DDF_HOME%\security\default.policy -DproGrade.getPermissions.override=sun.rmi.server.LoaderHandler:loadClass,org.apache.jasper.compiler.JspRuntimeContext:initSecurity
+
+set KARAF_SYSTEM_OPTS=-Dpolicy.provider=net.sourceforge.prograde.policy.ProGradePolicy -Djava.security.manager=net.sourceforge.prograde.sm.ProGradeJSM -Djava.security.policy==%DDF_HOME%\security\default.policy -DproGrade.getPermissions.override=sun.rmi.server.LoaderHandler:loadClass,org.apache.jasper.compiler.JspRuntimeContext:initSecurity
+
+set JAVA_OPTS=-Xms2g -Xmx4g -Dderby.system.home="%DDF_HOME%\data\derby" -Dderby.storage.fileSyncTransactionLog=true -Dfile.encoding=UTF8 -Dddf.home=%DDF_HOME% -Dddf.home.policy=%DDF_HOME_POLICY% -XX:+DisableAttachMechanism
