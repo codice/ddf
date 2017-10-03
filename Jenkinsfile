@@ -152,12 +152,8 @@ pipeline {
                                         def packageFile = readJSON file: 'package.json'
                                         if (packageFile.scripts =~ /.*webpack.*/ || packageFile.containsKey("browserify")) {
                                             nodejs(configId: 'npmrc-default', nodeJSInstallationName: 'nodejs') {
-                                                try {
-                                                    echo "Scanning ${packageFiles[i].path}"
-                                                    sh 'nsp check'
-                                                } catch (err) {
-                                                    echo "Failed for ${packageFiles[i].path}"
-                                                }
+                                                echo "Scanning ${packageFiles[i].path}"
+                                                sh 'nsp check'
                                             }
                                         }
                                     }
