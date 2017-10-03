@@ -40,7 +40,6 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import javax.management.MBeanServer;
 import org.apache.commons.io.FileUtils;
 import org.apache.felix.fileinstall.internal.DirectoryWatcher;
 import org.apache.karaf.system.SystemService;
@@ -120,8 +119,6 @@ public class ConfigurationAdminMigratableTest {
   @Mock private ConfigurationAdmin configurationAdminForImport;
 
   @Mock private Configuration configurationImportedFromExport;
-
-  @Mock private MBeanServer mBeanServer;
 
   @Mock private SystemService systemService;
 
@@ -210,7 +207,7 @@ public class ConfigurationAdminMigratableTest {
         new ConfigurationAdminMigratable(configurationAdminForExport, DEFAULT_FILE_EXT);
     List<Migratable> eMigratables = Arrays.asList(eCam);
     ConfigurationMigrationManager eConfigurationMigrationManager =
-        new ConfigurationMigrationManager(mBeanServer, eMigratables, systemService);
+        new ConfigurationMigrationManager(eMigratables, systemService);
     String tag = String.format(DDF_EXPORTED_TAG_TEMPLATE, DDF_HOME);
     setupConfigFile(tag);
 
@@ -235,7 +232,7 @@ public class ConfigurationAdminMigratableTest {
         new ConfigurationAdminMigratable(configurationAdminForImport, DEFAULT_FILE_EXT);
     List<Migratable> iMigratables = Arrays.asList(iCam);
     ConfigurationMigrationManager iConfigurationMigrationManager =
-        new ConfigurationMigrationManager(mBeanServer, iMigratables, systemService);
+        new ConfigurationMigrationManager(iMigratables, systemService);
 
     // Perform Import
     MigrationReport importReport = iConfigurationMigrationManager.doImport(exportDir, this::print);
