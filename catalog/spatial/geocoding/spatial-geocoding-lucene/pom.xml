@@ -97,7 +97,10 @@
             <groupId>org.codice.ddf.spatial</groupId>
             <artifactId>spatial-geocoding-api</artifactId>
             <version>${project.version}</version>
-            <type>test-jar</type>
+            <type>jar</type>
+            <!-- Bug in dependency-plugin 3.0.2 requires using classifier for test-jars instead of type.
+                See: https://issues.apache.org/jira/browse/MDEP-587 -->
+            <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>
         <dependency>
