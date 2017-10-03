@@ -24,7 +24,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.function.Function;
 import javax.xml.parsers.ParserConfigurationException;
 import org.codice.ddf.transformer.xml.streaming.Gml3ToWkt;
 import org.geotools.geometry.jts.JTS;
@@ -76,11 +75,6 @@ public class Gml3ToWktImpl implements Gml3ToWkt {
   }
 
   public String convert(InputStream xml) throws ValidationException {
-    return convert(xml, null);
-  }
-
-  public String convert(InputStream xml, Function<Object, String> unknownClassCallback)
-      throws ValidationException {
     if (latLonTransform == null) {
       LOGGER.debug("Lat/Lon transform is null");
       throw new ValidationExceptionImpl("Unable to transform geometry due to null transform");
@@ -103,21 +97,13 @@ public class Gml3ToWktImpl implements Gml3ToWkt {
             Collections.singletonList("Cannot transform geometry to lon/lat"),
             new ArrayList<>());
       }
-    } else if (unknownClassCallback != null) {
-      String result = unknownClassCallback.apply(parsedObject);
-      if (result == null) {
-        LOGGER.debug("Unknown object parsed from GML and unable to convert to WKT");
-        throw new ValidationExceptionImpl(
-            "", Collections.singletonList("Couldn't not convert GML to WKT"), new ArrayList<>());
-      }
-      return result;
     }
     LOGGER.debug("Unknown object parsed from GML and unable to convert to WKT");
     throw new ValidationExceptionImpl(
         "", Collections.singletonList("Couldn't not convert GML to WKT"), new ArrayList<>());
   }
 
-  private Object parseXml(InputStream xml) throws ValidationException {
+  public Object parseXml(InputStream xml) throws ValidationException {
     try {
       return parser.parse(xml);
     } catch (ParserConfigurationException | IOException e) {

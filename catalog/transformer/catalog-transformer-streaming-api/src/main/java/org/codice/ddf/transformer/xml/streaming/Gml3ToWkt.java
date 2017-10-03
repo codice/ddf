@@ -15,7 +15,6 @@ package org.codice.ddf.transformer.xml.streaming;
 
 import ddf.catalog.validation.ValidationException;
 import java.io.InputStream;
-import java.util.function.Function;
 
 public interface Gml3ToWkt {
 
@@ -36,12 +35,10 @@ public interface Gml3ToWkt {
   String convert(InputStream xml) throws ValidationException;
 
   /**
-   * Convert a GML3 XML snippet Input Stream to a WKT String
+   * Parses XML through the Geotools parser
    *
-   * @param xml an Input Stream of GML XML
-   * @param unknownClassCallback a function to call when the parsed input isn't Geometry
-   * @return a WKT String representation of the input
+   * @param xml InputStream of GML XML
+   * @return Objected parsed from the Geotools parser
    */
-  String convert(InputStream xml, Function<Object, String> unknownClassCallback)
-      throws ValidationException;
+  Object parseXml(InputStream xml) throws ValidationException;
 }
