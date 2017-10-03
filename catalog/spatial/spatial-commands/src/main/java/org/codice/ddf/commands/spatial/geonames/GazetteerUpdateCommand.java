@@ -37,8 +37,7 @@ import org.slf4j.LoggerFactory;
 @Command(
   scope = "gazetteer",
   name = "update",
-  description =
-      "Updates the gazetter entries from a resource"
+  description = "Updates the gazetter entries from a resource"
 )
 public final class GazetteerUpdateCommand implements Action {
   private static final Logger LOGGER = LoggerFactory.getLogger(GazetteerUpdateCommand.class);
@@ -56,7 +55,7 @@ public final class GazetteerUpdateCommand implements Action {
             + "To download all country codes, use the keyword 'all'.  "
             + "When the resource is a path to a file, it will be imported locally."
             + "If a path to a file ends in .geo.json, it will processed as a"
-            + "geoJSON feature collection and imported as supplimentary shape "
+            + "geoJSON feature collection and imported as supplementary shape "
             + "data for geonames entries.",
     required = true
   )
@@ -133,9 +132,7 @@ public final class GazetteerUpdateCommand implements Action {
     } catch (GeoEntryIndexingException | FeatureIndexingException e) {
       LOGGER.debug("Error indexing data", e);
       console.printf(
-          "Could not index the  data.%n"
-              + "Message: %s%n"
-              + "Check the logs for more details.%n",
+          "Could not index the  data.%n" + "Message: %s%n" + "Check the logs for more details.%n",
           e.getMessage());
     } catch (GeoNamesRemoteDownloadException e) {
       LOGGER.debug("Error downloading resource from remote source {}", resource, e);
