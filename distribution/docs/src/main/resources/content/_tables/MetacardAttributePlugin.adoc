@@ -27,7 +27,7 @@
              It takes the combined values of the source attributes and makes them the values of
              a (new) metacard attribute, the destination attribute.
              The strategy for combining the values is intersection, which means only the
-             values common to all source atrribute are added to the destination attribute.
+             values common to all source attribute are added to the destination attribute.
              Note: Do not use the same destination attributes in both the Intersect and Union
              rule sets. The plugin will behave unpredictably.
 |none
@@ -44,7 +44,7 @@
              It takes the combined values of the source attributes and makes them the values of
              a (new) metacard attribute, the destination attribute.
              The strategy for combining the values is union, which means only all the values
-             of the source atrribute are added to the destination attribute (excluding duplicates)
+             of the source attribute are added to the destination attribute (excluding duplicates)
              Note: Do not use the same destination attributes in both the Intersect and Union
              rule sets. The plugin will behave unpredictably.
 |none
