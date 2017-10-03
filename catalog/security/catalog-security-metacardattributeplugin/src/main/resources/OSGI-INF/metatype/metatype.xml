@@ -14,12 +14,12 @@
 -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-    <OCD description="Metacard Attribute Security Policy Plugin"
-         name="Metacard Attribute Security Policy Plugin"
-         id="org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin">
+  <OCD description="Metacard Attribute Security Policy Plugin"
+    name="Metacard Attribute Security Policy Plugin"
+    id="org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin">
 
-        <AD name="Intersection of Source Attribute Values:" id="intersectMetacardAttributes"
-            description="Each line item in the configuration is a rule.
+    <AD name="Intersection of Source Attribute Values:" id="intersectMetacardAttributes"
+      description="Each line item in the configuration is a rule.
             The format of a rule is the name of a single source attribute,
             followed by an equals sign, followed by the destination attribute.
             For example: source_attribute1=destination_attribute
@@ -30,11 +30,11 @@
             values common to all source atrribute are added to the destination attribute.
             Note: Do not use the same destination attributes in both the Intersect and Union
             rule sets. The plugin will behave unpredictably."
-            required="true" type="String" cardinality="1000"
-            default=""/>
+      required="true" type="String" cardinality="1000"
+      default=""/>
 
-        <AD name="Union of Source Attribute Values:" id="unionMetacardAttributes"
-            description="Each line item in the configuration is a rule.
+    <AD name="Union of Source Attribute Values:" id="unionMetacardAttributes"
+      description="Each line item in the configuration is a rule.
             The format of a rule is the name of a single source attribute,
             followed by an equals sign, followed by the destination attribute.
             For example: source_attribute1=destination_attribute
@@ -45,12 +45,13 @@
             of the source atrribute are added to the destination attribute (excluding duplicates)
             Note: Do not use the same destination attributes in both the Intersect and Union
             rule sets. The plugin will behave unpredictably."
-            required="true" type="String" cardinality="1000"
-            default=""/>
-    </OCD>
-    <Designate
-            pid="org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin">
-        <Object ocdref="org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin"/>
-    </Designate>
+      required="true" type="String" cardinality="1000"
+      default=""/>
+  </OCD>
+  <Designate
+    pid="org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin">
+    <Object
+      ocdref="org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin"/>
+  </Designate>
 
 </metatype:MetaData>
