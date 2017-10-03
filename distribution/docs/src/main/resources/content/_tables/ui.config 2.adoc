@@ -235,5 +235,12 @@ TMS example (3d map support only): `[{"name": "Example TMS", "show": true, type"
 |
 |true
 
+|Maximum Endpoint Upload Size
+|maximumUploadSize
+|Integer
+|The maximum size of data that the Intrigue REST endpoints will receive. Please note this is not related to the product upload size, this only refers to the json data sent and received from the Intrigue endpoints.
+|1048576
+|false
+
 |===
 
