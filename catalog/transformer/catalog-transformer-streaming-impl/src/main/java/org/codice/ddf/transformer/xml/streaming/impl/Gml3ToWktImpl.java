@@ -31,6 +31,7 @@ import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.xml.Configuration;
+import org.geotools.xml.Parser;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
@@ -43,11 +44,11 @@ public class Gml3ToWktImpl implements Gml3ToWkt {
 
   private static final String EPSG_4326 = "EPSG:4326";
 
-  private final MathTransform latLonTransform;
+  private final ThreadLocal<MathTransform> latLonTransform;
 
-  private final org.geotools.xml.Parser parser;
+  private final Parser parser;
 
-  private final WKTWriter wktWriter = new WKTWriter();
+  private static final ThreadLocal<WKTWriter> WKT_WRITER = ThreadLocal.withInitial(WKTWriter::new);
 
   public Gml3ToWktImpl(Configuration gmlConfiguration) {
     MathTransform transform = null;
@@ -57,9 +58,10 @@ public class Gml3ToWktImpl implements Gml3ToWkt {
       LOGGER.warn("Couldn't create lat/lon transform");
     }
 
-    latLonTransform = transform;
+    latLonTransform = new ThreadLocal<>();
+    latLonTransform.set(transform);
 
-    parser = new org.geotools.xml.Parser(gmlConfiguration);
+    parser = new Parser(gmlConfiguration);
     parser.setStrict(false);
   }
 
@@ -92,8 +94,8 @@ public class Gml3ToWktImpl implements Gml3ToWkt {
 
     if (parsedObject instanceof Geometry) {
       try {
-        Geometry geometry = JTS.transform((Geometry) parsedObject, latLonTransform);
-        return wktWriter.write(geometry);
+        Geometry geometry = JTS.transform((Geometry) parsedObject, latLonTransform.get());
+        return WKT_WRITER.get().write(geometry);
       } catch (TransformException e) {
         LOGGER.debug("Failed to transform geometry to lon/lat", e);
         throw new ValidationExceptionImpl(

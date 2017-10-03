@@ -75,7 +75,7 @@
 
 
     <bean id="gml3Configuration" class="org.geotools.gml3.GMLConfiguration"/>
-    <bean id="gml3_2Configuration" class="org.geotools.gml3.v3_2.GMLConfiguration"/>
+    <bean id="gml3_2Configuration" class="org.geotools.gml3.v32.GMLConfiguration"/>
     <bean id="gml3ToWkt" class="org.codice.ddf.transformer.xml.streaming.impl.Gml3ToWktImpl">
         <argument ref="gml3Configuration"/>
     </bean>
