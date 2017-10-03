@@ -7,28 +7,28 @@
 
 The Metacard Attribute Security Policy Plugin combines existing metacard attributes to make new
  attributes and adds them to the metacard. For example, if a metacard has two attributes,
-`sci-tokens` and `codewords`, the values of the two attributes could be combined into a new
- attribute, `compartments`. The `sci-tokens` and `codewords` are the _source attributes_
- and `compartments` is the _destination attribute_.
+`sourceattribute1` and `sourceattribute2`, the values of the two attributes could be combined into a new
+ attribute, `destinationattribute1`. The `sourceattribute1` and `sourceattribute2` are the _source attributes_
+ and `destinationattribute1` is the _destination attribute_.
 
 There are two way to combine the values of source attributes. The first, and most common,
 is to take all of the attribute values and put them together.
 This is called the union.
-For example, if the source attributes `sci-tokens` and `codewords` had the values:
+For example, if the source attributes `sourceattribute1` and `sourceattribute2` had the values:
 
-`sci-tokens = MASK, VESSEL`
+`sourceattribute1 = MASK, VESSEL`
 
-`codewords = WIRE, SACK, MASK`
+`sourceattribute2 = WIRE, SACK, MASK`
 
-...the **union** would result in the new attribute `compartments`:
+...the **union** would result in the new attribute `destinationattribute1`:
 
-`compartments = MASK, VESSEL, WIRE, SACK`
+`destinationattribute1 = MASK, VESSEL, WIRE, SACK`
 
 The other way to combine attributes is use the values common to all of the attributes.
 This is called the intersection. Using our previous example, the **intersection** of
-`sci-tokens` and `codewords` would create the new attribute `compartments`
+`sourceattribute1` and `sourceattribute2` would create the new attribute `destinationattribute1`
 
-`compartments = MASK`
+`destinationattribute1 = MASK`
 
 because only `MASK` is common to all  of the source attributes.
 
@@ -53,14 +53,14 @@ See <<org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityP
 
 ===== Sample configuration of the Metacard Attribute Security Policy Plugin
 
-To configure the plugin to combine the attributes `sci-tokens` and `codewords` into a new
-attribute `compartments` using the union,
+To configure the plugin to combine the attributes `sourceattribute1` and `sourceattribute2` into a new
+attribute `destinationattribute1` using the union,
 enter these two lines under the title **Metacard Union Attributes**
 
 |===
 |Metacard Union Attributes
 
-|`sci-tokens=compartments`
+|`sourceattribute1=destinationattribute1`
 
-|`codewords=compartments`
+|`sourceattribute2=destinationattribute1`
 |===
