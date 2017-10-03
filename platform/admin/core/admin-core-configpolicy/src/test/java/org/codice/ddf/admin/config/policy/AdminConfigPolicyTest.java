@@ -77,12 +77,14 @@ public class AdminConfigPolicyTest {
 
     assertTrue(
         adminConfigPolicy
-            .isPermittedMatchOne(getSubjectPermissions(), requestedFeaturePermissions)
+            .isPermittedMatchOne(
+                getSubjectPermissions(), requestedFeaturePermissions, requestedFeaturePermissions)
             .isEmpty());
 
     assertTrue(
         adminConfigPolicy
-            .isPermittedMatchOne(getSubjectPermissions(), requestedServicePermissions)
+            .isPermittedMatchOne(
+                getSubjectPermissions(), requestedServicePermissions, requestedServicePermissions)
             .isEmpty());
   }
 
@@ -150,28 +152,34 @@ public class AdminConfigPolicyTest {
     assertEquals(
         1,
         adminConfigPolicy
-            .isPermittedMatchOne(getSubjectPermissions(), requestedFeaturePermissions)
+            .isPermittedMatchOne(
+                getSubjectPermissions(), requestedFeaturePermissions, requestedFeaturePermissions)
             .getPermissionList()
             .size());
 
     assertEquals(
         1,
         adminConfigPolicy
-            .isPermittedMatchOne(getSubjectPermissions(), requestedServicePermissions)
+            .isPermittedMatchOne(
+                getSubjectPermissions(), requestedServicePermissions, requestedServicePermissions)
             .getPermissionList()
             .size());
 
     assertEquals(
         1,
         adminConfigPolicy
-            .isPermittedMatchOne(getSubjectPermissions(), requestedServicePermissions)
+            .isPermittedMatchOne(
+                getSubjectPermissions(), requestedServicePermissions, requestedServicePermissions)
             .getPermissionList()
             .size());
 
     assertEquals(
         1,
         adminConfigPolicy
-            .isPermittedMatchOne(getSubjectPermissions(), requestedInvalidActionPermissions)
+            .isPermittedMatchOne(
+                getSubjectPermissions(),
+                requestedInvalidActionPermissions,
+                requestedInvalidActionPermissions)
             .getPermissionList()
             .size());
   }
@@ -191,7 +199,8 @@ public class AdminConfigPolicyTest {
 
     assertTrue(
         adminConfigPolicy
-            .isPermittedMatchAll(getSubjectPermissions(), requestedServicePermissions)
+            .isPermittedMatchAll(
+                getSubjectPermissions(), requestedServicePermissions, requestedServicePermissions)
             .isEmpty());
   }
 

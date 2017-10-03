@@ -91,10 +91,11 @@ public class WorkspacePolicyExtension implements PolicyExtension {
     return predicate(permissions, SecurityAttributes.ACCESS_GROUPS, Constants.ROLES_CLAIM_URI);
   }
 
-  @Override
-  public KeyValueCollectionPermission isPermittedMatchAll(
-      CollectionPermission subject, KeyValueCollectionPermission match) {
-    List<KeyValuePermission> permissions = getPermissions(match);
+  private KeyValueCollectionPermission isPermitted(
+      CollectionPermission subject,
+      KeyValueCollectionPermission match,
+      KeyValueCollectionPermission allPerms) {
+    List<KeyValuePermission> permissions = getPermissions(allPerms);
     Map<String, Set<String>> grouped = groupPermissionsByKey(permissions);
 
     if (!grouped.containsKey(Constants.IS_WORKSPACE)) {
@@ -134,8 +135,18 @@ public class WorkspacePolicyExtension implements PolicyExtension {
   }
 
   @Override
+  public KeyValueCollectionPermission isPermittedMatchAll(
+      CollectionPermission subject,
+      KeyValueCollectionPermission matchAll,
+      KeyValueCollectionPermission allPermissionsCollection) {
+    return isPermitted(subject, matchAll, allPermissionsCollection);
+  }
+
+  @Override
   public KeyValueCollectionPermission isPermittedMatchOne(
-      CollectionPermission subject, KeyValueCollectionPermission matchOne) {
-    return matchOne;
+      CollectionPermission subject,
+      KeyValueCollectionPermission matchOne,
+      KeyValueCollectionPermission allPermissionsCollection) {
+    return isPermitted(subject, matchOne, allPermissionsCollection);
   }
 }
