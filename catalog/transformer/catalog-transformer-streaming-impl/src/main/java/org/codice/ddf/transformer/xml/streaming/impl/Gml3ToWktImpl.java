@@ -43,23 +43,11 @@ public class Gml3ToWktImpl implements Gml3ToWkt {
 
   private static final String EPSG_4326 = "EPSG:4326";
 
-  private final ThreadLocal<MathTransform> latLonTransform;
-
   private final Parser parser;
 
   private static final ThreadLocal<WKTWriter> WKT_WRITER = ThreadLocal.withInitial(WKTWriter::new);
 
   public Gml3ToWktImpl(Configuration gmlConfiguration) {
-    MathTransform transform = null;
-    try {
-      transform = CRS.findMathTransform(DefaultGeographicCRS.WGS84, CRS.decode(EPSG_4326, false));
-    } catch (FactoryException e) {
-      LOGGER.warn("Couldn't create lat/lon transform");
-    }
-
-    latLonTransform = new ThreadLocal<>();
-    latLonTransform.set(transform);
-
     parser = new Parser(gmlConfiguration);
     parser.setStrict(false);
   }
@@ -70,16 +58,11 @@ public class Gml3ToWktImpl implements Gml3ToWkt {
     } catch (IOException e) {
       LOGGER.debug("IO exception during conversion of {}", xml, e);
       throw new ValidationExceptionImpl(
-          e, Collections.singletonList("IO exception during conversion"), new ArrayList<String>());
+          e, Collections.singletonList("IO exception during conversion"), new ArrayList<>());
     }
   }
 
   public String convert(InputStream xml) throws ValidationException {
-    if (latLonTransform == null) {
-      LOGGER.debug("Lat/Lon transform is null");
-      throw new ValidationExceptionImpl("Unable to transform geometry due to null transform");
-    }
-
     Object parsedObject = parseXml(xml);
 
     if (parsedObject instanceof Envelope) {
@@ -88,7 +71,7 @@ public class Gml3ToWktImpl implements Gml3ToWkt {
 
     if (parsedObject instanceof Geometry) {
       try {
-        Geometry geometry = JTS.transform((Geometry) parsedObject, latLonTransform.get());
+        Geometry geometry = convertCRS((Geometry) parsedObject);
         return WKT_WRITER.get().write(geometry);
       } catch (TransformException e) {
         LOGGER.debug("Failed to transform geometry to lon/lat", e);
@@ -114,6 +97,20 @@ public class Gml3ToWktImpl implements Gml3ToWkt {
       LOGGER.debug("Failed to parse gml xml", e);
       throw new ValidationExceptionImpl(
           e, Collections.singletonList("Cannot parse gml xml"), new ArrayList<>());
+    }
+  }
+
+  private synchronized Geometry convertCRS(Geometry geometry)
+      throws ValidationException, TransformException {
+    return JTS.transform(geometry, getLatLonTransform());
+  }
+
+  private MathTransform getLatLonTransform() throws ValidationException {
+    try {
+      return CRS.findMathTransform(DefaultGeographicCRS.WGS84, CRS.decode(EPSG_4326, false));
+    } catch (FactoryException e) {
+      throw new ValidationExceptionImpl(
+          "Failed to find EPSG:4326 CRS, do you have the dependencies added?", e);
     }
   }
 }
