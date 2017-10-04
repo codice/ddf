@@ -160,8 +160,8 @@ define([
                 type: 'LOCATION',
                 multivalued: false
             },
-            'metacard-type': {
-                id: 'metacard-type',
+            'metacard_type_name': {
+                id: 'metacard_type_name',
                 type: 'STRING',
                 multivalued: false,
                 readOnly: true
