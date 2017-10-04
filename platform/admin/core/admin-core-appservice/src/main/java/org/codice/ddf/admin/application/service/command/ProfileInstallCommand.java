@@ -70,11 +70,6 @@ public class ProfileInstallCommand extends AbstractProfileCommand {
   private static final String SECURITY_ERROR = "Could not get system user to install profile ";
   private static final Logger LOGGER = LoggerFactory.getLogger(ProfileInstallCommand.class);
 
-  private int startedAppCount;
-  private int installedFeatureCount;
-  private int uninstalledFeatureCount;
-  private int stoppedBundleCount;
-
   // Added as a convenience for unit testing
   void setSecurity(Security security) {
     this.security = security;
@@ -86,11 +81,6 @@ public class ProfileInstallCommand extends AbstractProfileCommand {
       FeaturesService featuresService,
       BundleService bundleService)
       throws Exception {
-
-    startedAppCount = 0;
-    installedFeatureCount = 0;
-    uninstalledFeatureCount = 0;
-    stoppedBundleCount = 0;
 
     profileName = profileName.trim();
 
@@ -127,6 +117,7 @@ public class ProfileInstallCommand extends AbstractProfileCommand {
           stopBundles(bundleService, profile.get(ADVANCED_PROFILE_STOP_BUNDLES));
           uninstallInstallerModule(featuresService);
           printSuccess("Installation Complete");
+          SecurityLogger.audit("Installed profile: {}", profile);
         } else {
           printError(String.format("Profile: %s not found", profileName));
         }
@@ -135,15 +126,9 @@ public class ProfileInstallCommand extends AbstractProfileCommand {
         | ResolutionException
         | BundleException
         | IllegalArgumentException e) {
+      SecurityLogger.audit("Failed to install profile: {}", profileName);
       printError(RESTART_WARNING);
       throw e;
-    } finally {
-      SecurityLogger.audit(
-          "Started {} applications, installed {} features, uninstalled {} features, and stopped {} bundles",
-          startedAppCount,
-          installedFeatureCount,
-          uninstalledFeatureCount,
-          stoppedBundleCount);
     }
   }
 
@@ -279,7 +264,6 @@ public class ProfileInstallCommand extends AbstractProfileCommand {
       throws ApplicationServiceException {
     try {
       applicationService.startApplication(application);
-      startedAppCount += 1;
     } catch (ApplicationServiceException e) {
       printItemStatusFailure("Start Failed: ", application);
       throw e;
@@ -289,7 +273,6 @@ public class ProfileInstallCommand extends AbstractProfileCommand {
   private void installFeature(FeaturesService featuresService, String feature) throws Exception {
     try {
       featuresService.installFeature(feature, NO_AUTO_REFRESH);
-      installedFeatureCount += 1;
     } catch (Exception e) {
       printItemStatusFailure("Install Failed: ", feature);
       throw e;
@@ -299,7 +282,6 @@ public class ProfileInstallCommand extends AbstractProfileCommand {
   private void uninstallFeature(FeaturesService featuresService, Feature feature) throws Exception {
     try {
       featuresService.uninstallFeature(feature.getName(), feature.getVersion(), NO_AUTO_REFRESH);
-      uninstalledFeatureCount += 1;
     } catch (Exception e) {
       printItemStatusFailure("Uninstall Failed: ", feature.getName());
       throw e;
@@ -309,7 +291,6 @@ public class ProfileInstallCommand extends AbstractProfileCommand {
   private void stopBundle(BundleService bundleService, String bundle) throws BundleException {
     try {
       bundleService.getBundle(bundle).stop();
-      stoppedBundleCount += 1;
     } catch (BundleException e) {
       printItemStatusFailure("Stop Failed: ", bundle);
       throw e;
