@@ -522,7 +522,8 @@ public abstract class AbstractIntegrationTest {
         editConfigurationFilePut(
             "etc/system.properties",
             "ddf.version",
-            MavenUtils.getArtifactVersion("ddf.test.itests", "test-itests-common")));
+            MavenUtils.getArtifactVersion("ddf.test.itests", "test-itests-common")),
+        editConfigurationFilePut("etc/system.properties", "artemis.diskusage", "100"));
   }
 
   protected Option[] configureLogLevel() {
