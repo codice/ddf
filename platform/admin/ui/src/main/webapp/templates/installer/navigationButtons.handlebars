@@ -42,20 +42,12 @@
     {{/ifNotAnd}}
 {{else}}
     <li>
-        {{#if modified}}
-            {{#if busy}}
-                <a id="shutdownLaterStep" class="disabled-next" href="#">Restart Later</a>
-                <a id="shutdownNowStep" class="disabled-next" href="#">Restart Now</a>
-            {{else}}
-                <a id="shutdownLaterStep" class="next shutdown-later" href="#">Restart Later</a>
-                <a id="shutdownNowStep" class="next shutdown-now" href="#">Restart Now</a>
-            {{/if}}
+        {{#if busy}}
+            <a id="shutdownNowStep" class="disabled-next" href="#">Shutdown Now</a>
+            <a id="restartNowStep" class="disabled-next" href="#">Restart Now</a>
         {{else}}
-            {{#if busy}}
-                <a id="finishStep" class="disabled-next" href="#">Finish</a>
-            {{else}}
-                <a id="finishStep" class="next finish" href="#">Finish</a>
-            {{/if}}
+            <a id="shutdownNowStep" class="next shutdown-now" href="#">Shutdown Now</a>
+            <a id="restartNowStep" class="next restart-now" href="#">Restart Now</a>
         {{/if}}
     </li>
 {{/if}}
