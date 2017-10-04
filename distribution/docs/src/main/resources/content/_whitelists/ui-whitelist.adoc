@@ -6,6 +6,6 @@
 :order: 07
 :summary: ${ddf-ui} whitelist.
 
-The following packages have been exported by the ${ddf-ui} application and are approved for use by third parties:
+The following classes have been exported by the ${ddf-ui} application and are approved for use by third parties:
 
 None.
