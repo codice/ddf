@@ -9,19 +9,15 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, setInterval, clearInterval*/
+/*global define*/
 
 define([
         'backbone',
         'underscore',
         'properties',
-        'moment',
         'js/cql',
-        'wellknown',
         'js/model/Metacard',
         'component/singletons/sources-instance',
-        'usngs',
-        'wreqr',
         'js/Common',
         'js/CacheSourceSelector',
         'component/announcement',
@@ -29,12 +25,10 @@ define([
         'component/singletons/user-instance',
         'backboneassociations',
     ],
-    function (Backbone, _, properties, moment, cql, wellknown, Metacard, Sources, usngs, wreqr, Common, CacheSourceSelector, announcement,
+    function (Backbone, _, properties, cql, Metacard, Sources, Common, CacheSourceSelector, announcement,
             CQLUtils, user) {
         "use strict";
         var Query = {};
-
-        var converter = new usngs.Converter();
 
         function limitToDeleted(cqlString){
             return CQLUtils.transformFilterToCQL({
@@ -81,210 +75,24 @@ define([
                 return {
                     cql: "anyText ILIKE ''",
                     title: 'Search Name',
-                    offsetTimeUnits: 'hours',
-                    scheduleUnits: 'minutes',
-                    timeType: 'modified',
-                    radiusUnits: 'meters',
                     excludeUnnecessaryAttributes: true,
-                    radius: 0,
                     count: properties.resultCount,
                     start: 1,
-                    format: "geojson",
-                    locationType: 'latlon',
-                    lat: undefined,
-                    lon: undefined,
                     federation: 'enterprise',
                     sortField: 'modified',
                     sortOrder: 'descending',
-                    dtstart: undefined,
-                    dtend: undefined,
                     result: undefined,
                     serverPageIndex: 0,
                     isAdvanced: false
                 };
             },
-
-            drawing: false,
-
             initialize: function () {
                 this.currentIndexForSource = {};
 
                 _.bindAll.apply(_, [this].concat(_.functions(this))); // underscore bindAll does not take array arg
                 this.set('id', this.getId());
-                this.listenTo(this, 'change:north change:south change:east change:west', this.setBBox);
-                this.listenTo(this, 'change:scheduled change:scheduleValue change:scheduleUnits', this.startScheduledSearch);
-                this.listenTo(this, 'change:bbox', this.setBboxLatLon);
-                this.listenTo(this, 'change:lat change:lon', this.setRadiusLatLon);
-                this.listenTo(this, 'change:usngbb', this.setBboxUsng);
-                this.listenTo(this, 'change:usng', this.setRadiusUsng);
-                this.listenTo(this, 'EndExtent', this.notDrawing);
-                this.listenTo(this, 'BeginExtent', this.drawingOn);
                 this.listenTo(user.get('user>preferences'), 'change:resultCount', this.handleChangeResultCount);
-
-                if (this.get('scheduled')) {
-                    this.startSearch();
-                }
-
-                this.startScheduledSearch();
             },
-
-            notDrawing: function () {
-                this.drawing = false;
-            },
-
-            drawingOn: function () {
-                this.drawing = true;
-            },
-
-            repositionLatLon: function () {
-                if (this.get('usngbb')) {
-                    var result = converter.USNGtoLL(this.get('usngbb'));
-                    var newResult = {};
-                    newResult.mapNorth = result.north;
-                    newResult.mapSouth = result.south;
-                    newResult.mapEast = result.east;
-                    newResult.mapWest = result.west;
-
-                    this.set(newResult);
-                }
-            },
-
-            setLatLon: function () {
-                var result = {};
-                result.north = this.get('mapNorth');
-                result.south = this.get('mapSouth');
-                result.west = this.get('mapWest');
-                result.east = this.get('mapEast');
-                if (!(result.north && result.south && result.west && result.east)) {
-                    result = converter.USNGtoLL(this.get('usngbb'));
-
-                }
-                this.set(result);
-            },
-
-            setFilterBBox: function (model) {
-                var north = parseFloat(model.get('north'));
-                var south = parseFloat(model.get('south'));
-                var west = parseFloat(model.get('west'));
-                var east = parseFloat(model.get('east'));
-
-                model.set({mapNorth: north, mapSouth: south, mapEast: east, mapWest: west});
-            },
-
-            setBboxLatLon: function () {
-                var north = this.get('north'),
-                    south = this.get('south'),
-                    west = this.get('west'),
-                    east = this.get('east');
-                if (north && south && east && west) {
-                    var usngsStr = converter.LLBboxtoUSNG(north, south, east, west);
-
-                    this.set('usngbb', usngsStr, {silent: this.get('locationType') !== 'usng'});
-                    if (this.get('locationType') === 'usng' && this.drawing) {
-                        this.repositionLatLon();
-                    }
-                }
-            },
-
-            setRadiusLatLon: function () {
-                var lat = this.get('lat'),
-                    lon = this.get('lon');
-                if (lat && lon) {
-                    var usngsStr = converter.LLtoUSNG(lat, lon, 5);
-                    this.set('usng', usngsStr, {silent: true});
-                }
-            },
-
-            setBboxUsng: function () {
-                var result = converter.USNGtoLL(this.get('usngbb'));
-                var newResult = {};
-                newResult.mapNorth = result.north;
-                newResult.mapSouth = result.south;
-                newResult.mapEast = result.east;
-                newResult.mapWest = result.west;
-                this.set(newResult);
-            },
-
-            setBBox: function () {
-
-                //we need these to always be inferred
-                //as numeric values and never as strings
-                var north = parseFloat(this.get('north'));
-                var south = parseFloat(this.get('south'));
-                var west = parseFloat(this.get('west'));
-                var east = parseFloat(this.get('east'));
-
-                if (north && south && east && west) {
-                    this.set('bbox', [west, south, east, north].join(','), {silent: this.get('locationType') === 'usng' && !this.drawing});
-                }
-                if (this.get('locationType') !== 'usng') {
-                    this.set({mapNorth: north, mapSouth: south, mapEast: east, mapWest: west});
-                }
-            },
-
-            setRadiusUsng: function () {
-                var result = converter.USNGtoLL(this.get('usng'), true);
-                this.set(result);
-            },
-
-            getValue: function (value) {
-                switch (typeof value) {
-                    case 'string':
-                        return "'" + value.replace(/'/g, "''") + "'";
-                    case 'number':
-                        return String(value);
-                    case 'object':
-                        if (_.isDate(value)) {
-                            return moment.utc(value).format(properties.CQL_DATE_FORMAT);
-                        } else {
-                            throw new Error("Can't write object to CQL: " + value);
-                        }
-                        break;
-                    default:
-                        throw new Error("Can't write value to CQL: " + value);
-                }
-            },
-
-            startScheduledSearch: function () {
-                var model = this;
-                if (this.get('scheduled')) {
-                    var scheduleDelay = this.getScheduleDelay();
-                    this.stopScheduledSearch();
-                    this.timeoutId = setInterval(function () {
-                        model.startSearch();
-                    }, scheduleDelay);
-                } else {
-                    this.stopScheduledSearch();
-                }
-            },
-
-            stopScheduledSearch: function () {
-                if (this.timeoutId) {
-                    clearInterval(this.timeoutId);
-                }
-            },
-
-            getScheduleDelay: function () {
-                var val;
-                switch (this.get('scheduleUnits')) {
-                    case 'minutes':
-                        val = (this.get('scheduleValue') || 5) * 60 * 1000;
-                        break;
-                    case 'hours':
-                        val = (this.get('scheduleValue') || 1) * 60 * 60 * 1000;
-                        break;
-                }
-                return val;
-            },
-
-            clearSearch: function () {
-                if (this.get('result')) {
-                    this.get('result').cleanup();
-                }
-                this.set({result: undefined});
-                this.trigger('searchCleared');
-            },
-
             buildSearchData: function(){
                 var data = this.toJSON();
 
@@ -306,7 +114,6 @@ define([
 
                 return _.pick(data, 'src', 'start', 'count', 'timeout', 'cql', 'sort', 'id');
             },
-
             startSearch: function (options) {
                 options = _.extend({
                     limitToDeleted: false,
@@ -432,21 +239,17 @@ define([
                 });
                 return this.currentSearches;
             },
-
             currentSearches: [],
-
             cancelCurrentSearches: function(){
                 this.currentSearches.forEach(function(request){
                     request.abort('Canceled');
                 });
                 this.currentSearches = [];
             },
-
             clearResults: function(){
                 this.cancelCurrentSearches();
                 this.set({result: undefined});
             },
-
             setSources: function (sources) {
                 var sourceArr = [];
                 sources.each(function (src) {
@@ -460,14 +263,6 @@ define([
                     this.set('src', '');
                 }
             },
-
-            setDefaults: function () {
-                var model = this;
-                _.each(_.keys(model.defaults), function (key) {
-                    model.set(key, model.defaults[key]);
-                });
-            },
-
             getId: function () {
                 if (this.get('id')) {
                     return this.get('id');
@@ -552,5 +347,4 @@ define([
             }
         });
         return Query;
-
     });
