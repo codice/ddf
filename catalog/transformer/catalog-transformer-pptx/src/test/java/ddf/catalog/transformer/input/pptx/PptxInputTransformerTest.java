@@ -13,6 +13,7 @@
  */
 package ddf.catalog.transformer.input.pptx;
 
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -22,6 +23,7 @@ import static org.mockito.Mockito.when;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.transformer.input.tika.TikaInputTransformer;
@@ -33,6 +35,8 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import org.apache.poi.openxml4j.util.Nullable;
 import org.apache.poi.xslf.usermodel.XMLSlideShow;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 
 public class PptxInputTransformerTest {
@@ -64,11 +68,15 @@ public class PptxInputTransformerTest {
     t.transform(null);
   }
 
-  @Test(expected = CatalogTransformerException.class)
+  @Test
   public void testPasswordProtected() throws IOException, CatalogTransformerException {
     PptxInputTransformer t = new PptxInputTransformer(inputTransformer);
     try (InputStream is = getResource("/password-powerpoint.pptx")) {
-      t.transform(is);
+      Metacard metacard = t.transform(is);
+      assertThat(metacard, notNullValue());
+      assertThat(metacard.getThumbnail(), nullValue());
+      MatcherAssert.assertThat(
+          metacard.getAttribute(Core.DATATYPE).getValue(), Matchers.is("Dataset"));
     }
   }
 

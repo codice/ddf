@@ -22,9 +22,11 @@ import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Validation;
+import ddf.catalog.data.types.constants.core.DataType;
 import ddf.catalog.data.types.experimental.Extracted;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
@@ -351,52 +353,63 @@ public class TikaInputTransformer implements InputTransformer {
       Metadata metadata;
       String bodyText = null;
       String metadataText;
-      Metacard metacard;
-      String contentType;
+      Metacard metacard = new MetacardImpl(commonTikaMetacardType);
+      String contentType = DataType.DATASET.name();
       TikaMetadataExtractor extractor = null;
       try (InputStream inputStreamCopy = fileBackedOutputStream.asByteSource().openStream()) {
         extractor = new TikaMetadataExtractor(inputStreamCopy, previewMaxLength, metadataMaxLength);
 
-      } catch (TikaException e) {
-        throw new CatalogTransformerException(e);
+      } catch (TikaException | RuntimeException t) {
+        LOGGER.debug("Unable to extract tika metadata", t);
       }
 
-      metadataText = extractor.getMetadataXml();
-      Attribute validationAttribute = null;
-      if (metadataText.equals(TikaMetadataExtractor.METADATA_LIMIT_REACHED_MSG)) {
-        validationAttribute =
-            new AttributeImpl(
-                Validation.VALIDATION_WARNINGS, Collections.singletonList(metadataText));
-        metadataText = "";
-      }
-      bodyText = extractor.getBodyText();
-      metadata = extractor.getMetadata();
-      contentType = metadata.get(Metadata.CONTENT_TYPE);
-      MetacardType metacardType = mergeAttributes(getMetacardType(contentType));
-      metacard =
-          MetacardCreator.createMetacard(
-              metadata, id, metadataText, metacardType, useResourceTitleAsTitle);
-      if (StringUtils.isNotBlank(bodyText)) {
-        metacard.setAttribute(new AttributeImpl(Extracted.EXTRACTED_TEXT, bodyText));
-      }
-      if (!contentExtractors.isEmpty()) {
-        for (ContentMetadataExtractor contentMetadataExtractor : contentExtractors.values()) {
-          contentMetadataExtractor.process(bodyText, metacard);
+      if (extractor != null) {
+        metadataText = extractor.getMetadataXml();
+        Attribute validationAttribute = null;
+        if (metadataText.equals(TikaMetadataExtractor.METADATA_LIMIT_REACHED_MSG)) {
+          validationAttribute =
+              new AttributeImpl(
+                  Validation.VALIDATION_WARNINGS, Collections.singletonList(metadataText));
+          metadataText = "";
         }
-      }
+        bodyText = extractor.getBodyText();
+        metadata = extractor.getMetadata();
+        contentType = metadata.get(Metadata.CONTENT_TYPE);
+        MetacardType metacardType = mergeAttributes(getMetacardType(contentType));
+        metacard =
+            MetacardCreator.createMetacard(
+                metadata, id, metadataText, metacardType, useResourceTitleAsTitle);
+        if (StringUtils.isNotBlank(bodyText)) {
+          metacard.setAttribute(new AttributeImpl(Extracted.EXTRACTED_TEXT, bodyText));
+        }
 
-      for (MetadataExtractor metadataExtractor : metadataExtractors.values()) {
-        metadataExtractor.process(metadataText, metacard);
-      }
+        processContentMetadataExtractors(bodyText, metacard);
 
-      if (validationAttribute != null) {
-        metacard.setAttribute(validationAttribute);
+        processMetadataExtractors(bodyText, metacard);
+
+        if (validationAttribute != null) {
+          metacard.setAttribute(validationAttribute);
+        }
       }
 
       enrichMetacard(fileBackedOutputStream, contentType, bytes, metacard);
 
       LOGGER.debug("Finished transforming input stream using Tika.");
       return metacard;
+    }
+  }
+
+  private void processMetadataExtractors(String metadataText, Metacard metacard) {
+    for (MetadataExtractor metadataExtractor : metadataExtractors.values()) {
+      metadataExtractor.process(metadataText, metacard);
+    }
+  }
+
+  private void processContentMetadataExtractors(String bodyText, Metacard metacard) {
+    if (!contentExtractors.isEmpty()) {
+      for (ContentMetadataExtractor contentMetadataExtractor : contentExtractors.values()) {
+        contentMetadataExtractor.process(bodyText, metacard);
+      }
     }
   }
 
@@ -516,6 +529,10 @@ public class TikaInputTransformer implements InputTransformer {
   private String getDatatype(String mimeType) {
     if (mimeType == null) {
       return null;
+    }
+
+    if (mimeType.matches(DataType.DATASET.name())) {
+      return OVERALL_FALLBACK_DATA_TYPE;
     }
 
     com.google.common.net.MediaType mediaType = com.google.common.net.MediaType.parse(mimeType);
