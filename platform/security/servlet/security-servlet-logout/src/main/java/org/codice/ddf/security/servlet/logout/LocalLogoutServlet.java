@@ -42,7 +42,7 @@ public class LocalLogoutServlet extends HttpServlet {
 
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
-      throws ServletException, IOException {
+      throws ServletException {
     response.setHeader("Cache-Control", "no-cache, no-store");
     response.setHeader("Pragma", "no-cache");
     response.setContentType("text/html");
@@ -91,14 +91,18 @@ public class LocalLogoutServlet extends HttpServlet {
         }
       }
       redirectUrlBuilder.addParameters(params);
+
       response.sendRedirect(redirectUrlBuilder.build().toString());
     } catch (URISyntaxException e) {
-      LOGGER.debug("Invalid URI", e);
+      LOGGER.debug("Invalid URI: ", e);
+    } catch (IOException e) {
+      LOGGER.warn("Send Redirect failed due to: ", e);
     }
   }
 
   private void deleteJSessionId(HttpServletResponse response) {
     Cookie cookie = new Cookie("JSESSIONID", "");
+    cookie.setSecure(true);
     cookie.setMaxAge(0);
     cookie.setPath("/");
     cookie.setComment("EXPIRING COOKIE at " + System.currentTimeMillis());
