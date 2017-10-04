@@ -20,19 +20,19 @@ require('backboneassociations');
 
 const WorkspaceQueryCollection = Backbone.Collection.extend({
     model: Query.Model,
-    initialize: function(){
+    initialize: function () {
         var searchList = this;
         this._colorGenerator = ColorGenerator.getNewGenerator();
-        this.listenTo(this, 'add', function(query){
+        this.listenTo(this, 'add', function (query) {
             query.setColor(searchList._colorGenerator.getColor(query.getId()));
             QueryPolling.handleAddingQuery(query);
         });
-        this.listenTo(this, 'remove', function(query){
+        this.listenTo(this, 'remove', function (query) {
             searchList._colorGenerator.removeColor(query.getId());
             QueryPolling.handleRemovingQuery(query);
         });
     },
-    canAddQuery: function(){
+    canAddQuery: function () {
         return this.length < 10;
     }
 });
@@ -44,19 +44,17 @@ module.exports = Backbone.AssociatedModel.extend({
         metacards: [],
         saved: true
     },
-    relations: [
-        {
-            type: Backbone.Many,
-            key: 'queries',
-            collectionType: WorkspaceQueryCollection
-        }
-    ],
-    canAddQuery: function(){
-      return this.get('queries').length < 10;
+    relations: [{
+        type: Backbone.Many,
+        key: 'queries',
+        collectionType: WorkspaceQueryCollection
+    }],
+    canAddQuery: function () {
+        return this.get('queries').length < 10;
     },
-    tryToAddQuery: function(queryModel){
-        if (this.canAddQuery()){
-            this.get('queries').add(queryModel); 
+    tryToAddQuery: function (queryModel) {
+        if (this.canAddQuery()) {
+            this.get('queries').add(queryModel);
         }
     },
     addQuery: function () {
@@ -66,8 +64,8 @@ module.exports = Backbone.AssociatedModel.extend({
         this.get('queries').add(query);
         return query.get('id');
     },
-    initialize: function() {
-        this.get('queries').on('add',function(){
+    initialize: function () {
+        this.get('queries').on('add', function () {
             this.trigger('change');
         });
         this.listenTo(this.get('queries'), 'update add remove', this.handleQueryChange);
@@ -75,25 +73,25 @@ module.exports = Backbone.AssociatedModel.extend({
         this.listenTo(this, 'change', this.handleChange);
         this.listenTo(this, 'error', this.handleError);
     },
-    handleQueryChange: function(){
+    handleQueryChange: function () {
         this.set('saved', false);
     },
-    handleChange: function(model){
-        if (model !==undefined &&
-             _.intersection(Object.keys(model.changedAttributes()), [
-                 'result', 'saved', 'metacard.modified', 'id', 'subscribed'
-             ]).length === 0){
+    handleChange: function (model) {
+        if (model !== undefined &&
+            _.intersection(Object.keys(model.changedAttributes()), [
+                'result', 'saved', 'metacard.modified', 'id', 'subscribed'
+            ]).length === 0) {
             this.set('saved', false);
         }
     },
-    saveLocal: function(options){
+    saveLocal: function (options) {
         this.set('id', this.get('id') || Common.generateUUID());
         var localWorkspaces = this.collection.getLocalWorkspaces();
         localWorkspaces[this.get('id')] = this.toJSON();
         window.localStorage.setItem('workspaces', JSON.stringify(localWorkspaces));
         this.trigger('sync', this, options);
     },
-    destroyLocal: function(options){
+    destroyLocal: function (options) {
         var localWorkspaces = this.collection.getLocalWorkspaces();
         delete localWorkspaces[this.get('id')];
         window.localStorage.setItem('workspaces', JSON.stringify(localWorkspaces));
@@ -108,14 +106,14 @@ module.exports = Backbone.AssociatedModel.extend({
             Backbone.AssociatedModel.prototype.save.apply(this, arguments);
         }
     },
-    handleError: function(){
+    handleError: function () {
         this.set('saved', false);
     },
     isSaved: function () {
         return this.get('saved');
     },
     destroy: function (options) {
-        this.get('queries').forEach(function(query){
+        this.get('queries').forEach(function (query) {
             QueryPolling.handleRemovingQuery(query);
         });
         if (this.get('localStorage')) {
@@ -140,8 +138,8 @@ module.exports = Backbone.AssociatedModel.extend({
             this.set('subscribed', false);
         }.bind(this));
     },
-    clearResults: function(){
-        this.get('queries').forEach(function(queryModel){
+    clearResults: function () {
+        this.get('queries').forEach(function (queryModel) {
             queryModel.clearResults();
         });
     }

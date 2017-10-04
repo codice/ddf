@@ -19,14 +19,14 @@ require('backboneassociations');
 
 var Metacard = require('js/model/Metacard');
 
-function generateThumbnailUrl(url){
+function generateThumbnailUrl(url) {
     var newUrl = url;
-    if(url.indexOf("?") >= 0) {
+    if (url.indexOf("?") >= 0) {
         newUrl += '&';
     } else {
         newUrl += '?';
     }
-    newUrl += '_=' +Date.now();
+    newUrl += '_=' + Date.now();
     return newUrl;
 }
 
@@ -37,67 +37,62 @@ function humanizeResourceSize(result) {
 }
 
 module.exports = Backbone.AssociatedModel.extend({
-    defaults: function(){
+    defaults: function () {
         return {
             isResourceLocal: false
         };
     },
-    relations: [
-        {
-            type: Backbone.One,
-            key: 'metacard',
-            relatedModel: Metacard
-        }
-    ],
-    initialize: function(){
+    relations: [{
+        type: Backbone.One,
+        key: 'metacard',
+        relatedModel: Metacard
+    }],
+    initialize: function () {
         this.refreshData = _.throttle(this.refreshData, 200);
     },
-    isWorkspace: function(){
+    isWorkspace: function () {
         return this.get('metacard').get('properties').get('metacard-tags').indexOf('workspace') >= 0;
     },
-    isResource: function(){
+    isResource: function () {
         return this.get('metacard').get('properties').get('metacard-tags').indexOf('resource') >= 0;
     },
-    isRevision: function(){
+    isRevision: function () {
         return this.get('metacard').get('properties').get('metacard-tags').indexOf('revision') >= 0;
     },
-    isDeleted: function(){
+    isDeleted: function () {
         return this.get('metacard').get('properties').get('metacard-tags').indexOf('deleted') >= 0;
     },
-    isRemote: function(){
+    isRemote: function () {
         return this.get('metacard').get('properties').get('source-id') !== Sources.localCatalog;
     },
-    hasGeometry: function(attribute){
+    hasGeometry: function (attribute) {
         return this.get('metacard').hasGeometry(attribute);
     },
-    getPoints: function(attribute){
+    getPoints: function (attribute) {
         return this.get('metacard').getPoints(attribute);
     },
-    getGeometries: function(attribute){
+    getGeometries: function (attribute) {
         return this.get('metacard').getGeometries(attribute);
     },
-    refreshData: function (){
+    refreshData: function () {
         //let solr flush
-        setTimeout(function (){
+        setTimeout(function () {
             var metacard = this.get('metacard');
             var req = {
                 count: 1,
                 cql: CQLUtils.transformFilterToCQL({
                     type: 'AND',
-                    filters: [
-                        {
+                    filters: [{
                             type: 'OR',
-                            filters: [
-                                {
-                                    type: '=',
-                                    property: '"id"',
-                                    value: metacard.get('properties').get('metacard.deleted.id') || metacard.id
-                                }, {
-                                    type: '=',
-                                    property: '"metacard.deleted.id"',
-                                    value: metacard.id
-                                }
-                            ]
+                            filters: [{
+                                type: '=',
+                                property: '"id"',
+                                value: metacard.get('properties').get('metacard.deleted.id') || metacard.id
+                            }, {
+                                type: '=',
+                                property: '"metacard.deleted.id"',
+                                value: metacard.id
+                            }]
                         },
                         {
                             type: 'ILIKE',
@@ -120,10 +115,10 @@ module.exports = Backbone.AssociatedModel.extend({
 
         }.bind(this), 1000);
     },
-    handleRefreshError: function(){
+    handleRefreshError: function () {
         //do nothing for now, should we announce this?
     },
-    parseRefresh: function(response){
+    parseRefresh: function (response) {
         var queryId = this.get('metacard').get('queryId');
         var color = this.get('metacard').get('color');
         _.forEach(response.results, function (result) {
@@ -135,7 +130,9 @@ module.exports = Backbone.AssociatedModel.extend({
             result.metacard.queryId = queryId;
             result.metacard.color = color;
             humanizeResourceSize(result);
-            var thumbnailAction = _.findWhere(result.actions, {id: 'catalog.data.metacard.thumbnail'});
+            var thumbnailAction = _.findWhere(result.actions, {
+                id: 'catalog.data.metacard.thumbnail'
+            });
             if (result.hasThumbnail && thumbnailAction) {
                 result.metacard.properties.thumbnail = generateThumbnailUrl(thumbnailAction.url);
             } else {

@@ -11,24 +11,22 @@
  **/
 var Backbone = require('backbone');
 var _ = require('underscore');
-var wreqr = require('wreqr');
 require('backboneassociations');
 
 var MetacardPropertiesModel = require('js/model/MetacardProperties');
 var MetacardActionModel = require('js/model/MetacardAction');
 
 module.exports = Backbone.AssociatedModel.extend({
-    hasGeometry: function(attribute){
+    hasGeometry: function (attribute) {
         return this.get('properties').hasGeometry(attribute);
     },
-    getPoints: function(attribute){
+    getPoints: function (attribute) {
         return this.get('properties').getPoints(attribute);
     },
-    getGeometries: function(attribute){
+    getGeometries: function (attribute) {
         return this.get('properties').getGeometries(attribute);
     },
-    relations: [
-        {
+    relations: [{
             type: Backbone.One,
             key: 'properties',
             relatedModel: MetacardPropertiesModel

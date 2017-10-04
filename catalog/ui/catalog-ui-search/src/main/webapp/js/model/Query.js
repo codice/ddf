@@ -26,11 +26,11 @@ define([
         'backboneassociations',
     ],
     function (Backbone, _, properties, cql, QueryResponse, Sources, Common, CacheSourceSelector, announcement,
-            CQLUtils, user) {
+        CQLUtils, user) {
         "use strict";
         var Query = {};
 
-        function limitToDeleted(cqlString){
+        function limitToDeleted(cqlString) {
             return CQLUtils.transformFilterToCQL({
                 type: 'AND',
                 filters: [
@@ -44,7 +44,7 @@ define([
             });
         }
 
-        function limitToHistoric(cqlString){
+        function limitToHistoric(cqlString) {
             return CQLUtils.transformFilterToCQL({
                 type: 'AND',
                 filters: [
@@ -59,19 +59,17 @@ define([
         }
 
         Query.Model = Backbone.AssociatedModel.extend({
-            relations: [
-                {
-                    type: Backbone.One,
-                    key: 'result',
-                    relatedModel: QueryResponse,
-                    isTransient: true
-                }
-            ],
+            relations: [{
+                type: Backbone.One,
+                key: 'result',
+                relatedModel: QueryResponse,
+                isTransient: true
+            }],
             //in the search we are checking for whether or not the model
             //only contains 5 items to know if we can search or not
             //as soon as the model contains more than 5 items, we assume
             //that we have enough values to search
-            defaults: function() {
+            defaults: function () {
                 return {
                     cql: "anyText ILIKE ''",
                     title: 'Search Name',
@@ -93,7 +91,7 @@ define([
                 this.set('id', this.getId());
                 this.listenTo(user.get('user>preferences'), 'change:resultCount', this.handleChangeResultCount);
             },
-            buildSearchData: function(){
+            buildSearchData: function () {
                 var data = this.toJSON();
 
                 switch (data.federation) {
@@ -145,7 +143,9 @@ define([
                         color: this.getColor(),
                         status: initialStatus
                     });
-                    this.set({result: result});
+                    this.set({
+                        result: result
+                    });
                 }
 
                 var sortField = this.get('sortField');
@@ -179,9 +179,9 @@ define([
                 result.set('initiated', Date.now());
                 result.get('results').fullCollection.sort();
 
-                if (sources.length === 0){
+                if (sources.length === 0) {
                     announcement.announce({
-                        title: 'Search "'+ this.get('title') + '" cannot be run.',
+                        title: 'Search "' + this.get('title') + '" cannot be run.',
                         message: 'No sources are currently selected.  Edit the search and select at least one source.',
                         type: 'warn'
                     });
@@ -219,9 +219,9 @@ define([
                         method: "POST",
                         processData: false,
                         timeout: properties.timeout,
-                        success: function(model, response, options) {
+                        success: function (model, response, options) {
                             response.options = options;
-                            if (options.resort === true){
+                            if (options.resort === true) {
                                 model.get('results').fullCollection.sort();
                             }
                         },
@@ -240,15 +240,17 @@ define([
                 return this.currentSearches;
             },
             currentSearches: [],
-            cancelCurrentSearches: function(){
-                this.currentSearches.forEach(function(request){
+            cancelCurrentSearches: function () {
+                this.currentSearches.forEach(function (request) {
                     request.abort('Canceled');
                 });
                 this.currentSearches = [];
             },
-            clearResults: function(){
+            clearResults: function () {
                 this.cancelCurrentSearches();
-                this.set({result: undefined});
+                this.set({
+                    result: undefined
+                });
             },
             setSources: function (sources) {
                 var sourceArr = [];
@@ -281,29 +283,29 @@ define([
             color: function () {
                 return this.get('color');
             },
-            hasPreviousServerPage: function() {
-                return Boolean(_.find(this.currentIndexForSource, function(index){
+            hasPreviousServerPage: function () {
+                return Boolean(_.find(this.currentIndexForSource, function (index) {
                     return index > 1;
                 }));
             },
-            hasNextServerPage: function() {
+            hasNextServerPage: function () {
                 var pageSize = user.get('user').get('preferences').get('resultCount');
-                return Boolean(this.get('result').get('status').find(function(status){
+                return Boolean(this.get('result').get('status').find(function (status) {
                     var startingIndex = this.getStartIndexForSource(status.id);
                     var total = status.get('hits');
                     return (total - startingIndex) >= pageSize;
                 }.bind(this)));
             },
-            getPreviousServerPage: function() {
-                this.get('result').getSourceList().forEach(function(src){
+            getPreviousServerPage: function () {
+                this.get('result').getSourceList().forEach(function (src) {
                     var increment = this.get('result').getLastResultCountForSource(src);
                     this.currentIndexForSource[src] = Math.max(this.getStartIndexForSource(src) - increment, 1);
                 }.bind(this));
                 this.set('serverPageIndex', Math.max(0, this.get('serverPageIndex') - 1));
                 this.startSearch();
             },
-            getNextServerPage: function() {
-                this.get('result').getSourceList().forEach(function(src){
+            getNextServerPage: function () {
+                this.get('result').getSourceList().forEach(function (src) {
                     var increment = this.get('result').getLastResultCountForSource(src);
                     this.currentIndexForSource[src] = this.getStartIndexForSource(src) + increment;
                 }.bind(this));
@@ -311,27 +313,27 @@ define([
                 this.startSearch();
             },
             // get the starting offset (beginning of the server page) for the given source
-            getStartIndexForSource: function(src) {
+            getStartIndexForSource: function (src) {
                 return this.currentIndexForSource[src] || 1;
             },
             // if the server page size changes, reset our indices and let them get
             // recalculated on the next fetch
-            handleChangeResultCount: function() {
+            handleChangeResultCount: function () {
                 this.currentIndexForSource = {};
                 this.set('serverPageIndex', 0);
                 if (this.get('result')) {
                     this.get('result').resetResultCountsBySource();
                 }
             },
-            getResultsRangeLabel: function(resultsCollection) {
+            getResultsRangeLabel: function (resultsCollection) {
                 var results = resultsCollection.fullCollection.length;
                 var hits = _.filter(this.get('result').get('status').toJSON(), function (status) {
                     return status.id !== 'cache';
-                }).reduce(function(hits, status){
+                }).reduce(function (hits, status) {
                     return status.hits ? hits + status.hits : hits;
                 }, 0);
 
-                if (hits === 0 ) {
+                if (hits === 0) {
                     return '0 results';
                 } else if (results > hits) {
                     return hits + ' results';

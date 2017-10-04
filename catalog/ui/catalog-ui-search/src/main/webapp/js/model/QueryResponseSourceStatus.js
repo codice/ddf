@@ -28,20 +28,20 @@ module.exports = Backbone.AssociatedModel.extend({
         hasReturned: false,
         messages: []
     },
-    initialize: function(){
+    initialize: function () {
         this.listenToOnce(this, 'change:successful', this.setHasReturned);
     },
-    setHasReturned: function(){
+    setHasReturned: function () {
         this.set('hasReturned', true);
     },
-    setCacheHasReturned: function(){
+    setCacheHasReturned: function () {
         this.set('cacheHasReturned', true);
     },
-    updateMessages: function(messages, id, status){
-        if (this.id === id){
+    updateMessages: function (messages, id, status) {
+        if (this.id === id) {
             this.set('messages', messages);
         }
-        if (id === 'cache'){
+        if (id === 'cache') {
             this.set({
                 cacheHasReturned: true,
                 cacheSuccessful: status ? status.successful : false,
@@ -49,13 +49,13 @@ module.exports = Backbone.AssociatedModel.extend({
             });
         }
     },
-    updateStatus: function(results){
+    updateStatus: function (results) {
         var top = 0;
         var fromcache = 0;
-        results.forEach(function(result){
-            if (result.get('metacard').get('properties').get('source-id') === this.id){
+        results.forEach(function (result) {
+            if (result.get('metacard').get('properties').get('source-id') === this.id) {
                 top++;
-                if (!result.get('uncached')){
+                if (!result.get('uncached')) {
                     fromcache++;
                 }
             }

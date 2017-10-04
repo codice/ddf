@@ -23,39 +23,45 @@ module.exports = Backbone.Collection.extend({
     url: '/search/catalog/internal/workspaces',
     useAjaxSync: true,
     fetched: false,
-    handleSync: function(){
+    handleSync: function () {
         this.fetched = true;
     },
-    initialize: function(){
+    initialize: function () {
         this.listenTo(this, 'sync', this.handleSync);
         this.handleUserChange();
         this.listenTo(user, 'change', this.handleUserChange);
         var collection = this;
-        collection.on('add',function(workspace){
-            workspace.on('change:lastModifiedDate',function(){
+        collection.on('add', function (workspace) {
+            workspace.on('change:lastModifiedDate', function () {
                 collection.sort();
             });
         });
         this.listenTo(this, 'add', this.tagGuestWorkspace);
     },
-    handleUserChange: function(){
-        this.fetch({remove: false});
+    handleUserChange: function () {
+        this.fetch({
+            remove: false
+        });
     },
     tagGuestWorkspace: function (model) {
         if (this.isGuestUser() && model.isNew()) {
-            model.set({ localStorage: true });
+            model.set({
+                localStorage: true
+            });
         }
     },
     isGuestUser: function () {
         return user.get('user').isGuestUser();
     },
-    comparator: function(workspace){
+    comparator: function (workspace) {
         return -(moment(workspace.get('lastModifiedDate'))).unix();
     },
-    createWorkspace: function(title){
-        this.create({title: title || 'New Workspace'});
+    createWorkspace: function (title) {
+        this.create({
+            title: title || 'New Workspace'
+        });
     },
-    createWorkspaceWithQuery: function(queryModel){
+    createWorkspaceWithQuery: function (queryModel) {
         this.create({
             title: 'New Workspace',
             queries: [
@@ -63,7 +69,7 @@ module.exports = Backbone.Collection.extend({
             ]
         }).get('queries').first().startSearch();
     },
-    createAdhocWorkspace: function(text){
+    createAdhocWorkspace: function (text) {
         var cql;
         var title = text;
         if (text.length === 0) {
@@ -81,9 +87,9 @@ module.exports = Backbone.Collection.extend({
             queries: [
                 queryForWorkspace.toJSON()
             ]
-        }).get('queries').first().startSearch();               
+        }).get('queries').first().startSearch();
     },
-    createLocalWorkspace: function(){
+    createLocalWorkspace: function () {
         var queryForWorkspace = new Query.Model({
             title: 'Example Local',
             federation: 'local',
@@ -97,7 +103,7 @@ module.exports = Backbone.Collection.extend({
             ]
         }).get('queries').first().startSearch();
     },
-    createAllWorkspace: function(){
+    createAllWorkspace: function () {
         var queryForWorkspace = new Query.Model({
             title: 'Example Federated',
             federation: 'enterprise',
@@ -111,7 +117,7 @@ module.exports = Backbone.Collection.extend({
             ]
         }).get('queries').first().startSearch();
     },
-    createGeoWorkspace: function(){
+    createGeoWorkspace: function () {
         var queryForWorkspace = new Query.Model({
             title: 'Example Location',
             excludeUnnecessaryAttributes: false,
@@ -124,7 +130,7 @@ module.exports = Backbone.Collection.extend({
             ]
         }).get('queries').first().startSearch();
     },
-    createLatestWorkspace: function(){
+    createLatestWorkspace: function () {
         var queryForWorkspace = new Query.Model({
             title: 'Example Temporal',
             excludeUnnecessaryAttributes: false,
@@ -137,12 +143,12 @@ module.exports = Backbone.Collection.extend({
             ]
         }).get('queries').first().startSearch();
     },
-    duplicateWorkspace: function(workspace){
+    duplicateWorkspace: function (workspace) {
         this.create(_.omit(workspace.toJSON(), 'id', 'owner', 'metacard.sharing'));
     },
-    saveAll: function(){
-        this.forEach(function(workspace){
-            if (!workspace.isSaved()){
+    saveAll: function () {
+        this.forEach(function (workspace) {
+            if (!workspace.isSaved()) {
                 workspace.save();
             }
         });
@@ -160,9 +166,9 @@ module.exports = Backbone.Collection.extend({
 
         window.localStorage.setItem('workspaces', JSON.stringify(localWorkspaces));
     },
-    convert2_10Format: function(localWorkspaceJSON){
-        if (localWorkspaceJSON.constructor === Array){
-            return localWorkspaceJSON.reduce(function(blob, workspace){
+    convert2_10Format: function (localWorkspaceJSON) {
+        if (localWorkspaceJSON.constructor === Array) {
+            return localWorkspaceJSON.reduce(function (blob, workspace) {
                 blob[workspace.id] = workspace;
                 return blob;
             }, {});
