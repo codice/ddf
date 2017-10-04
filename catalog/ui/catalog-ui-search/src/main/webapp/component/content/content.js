@@ -30,7 +30,7 @@ define([
             {
                 type: Backbone.One,
                 key: 'currentWorkspace',
-                relatedModel: Workspace.Model
+                relatedModel: Workspace
             },
             {
                 type: Backbone.Many,
