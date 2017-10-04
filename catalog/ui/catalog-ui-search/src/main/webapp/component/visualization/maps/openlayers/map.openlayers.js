@@ -248,6 +248,9 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
             map.beforeRender(pan1, zoom);
             map.getView().fit(extent, map.getSize());
         },
+        zoomToBoundingBox: function({north, east, south, west}) {
+            this.zoomToExtent([[west, south], [east, north]]);
+        },
         overlayImage: function(model) {
             var metacardId = model.get('properties').get('id');
             this.removeOverlay(metacardId);

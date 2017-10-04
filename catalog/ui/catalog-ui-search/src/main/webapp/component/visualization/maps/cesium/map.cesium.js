@@ -55,7 +55,8 @@ function createMap(insertionElement) {
             fullscreenButton: false,
             timeline: false,
             geocoder: new gazetteer(),
-            homeButton: true,
+            homeButton: false,
+            navigationHelpButton: false,
             sceneModePicker: false,
             selectionIndicator: false,
             infoBox: false,
@@ -87,13 +88,6 @@ function createMap(insertionElement) {
         var initObj = _.omit(properties.terrainProvider, 'type');
         viewer.scene.terrainProvider = new type(initObj);
     }
-
-    $(insertionElement).find('.cesium-viewer-toolbar')
-        .append("<button class='cesium-button cesium-toolbar-button cluster-button' " +
-            "data-help='Toggles whether or not results on the map are clustered.'>" +
-            "<span class='fa fa-cubes'></span>" +
-            "</span><span class='fa fa-cube'></span>" +
-            "</button>");
 
     return viewer;
 }
@@ -326,6 +320,12 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
             });
         },
         zoomToExtent: function(coords) {},
+        zoomToBoundingBox: function({north, south, east, west}) {
+            map.scene.camera.flyTo({
+                duration: 0.50,
+                destination: Cesium.Rectangle.fromDegrees(west, south, east, north)
+            });
+        },
         overlayImage: function(model) {
             var metacardId = model.get('properties').get('id');
             this.removeOverlay(metacardId);
