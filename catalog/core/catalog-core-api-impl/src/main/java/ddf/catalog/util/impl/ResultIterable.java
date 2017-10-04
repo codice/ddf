@@ -18,6 +18,7 @@ import static org.apache.commons.lang.Validate.isTrue;
 import static org.apache.commons.lang.Validate.notNull;
 
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.operation.Query;
@@ -27,13 +28,19 @@ import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+import javax.annotation.Nullable;
 
 /**
  * Class used to iterate over the {@link Result} objects contained in a {@link
@@ -52,6 +59,22 @@ public class ResultIterable implements Iterable<Result> {
   private final QueryRequest queryRequest;
 
   private final int maxResultCount;
+
+  private ResultIterable(
+      CatalogFramework catalogFramework, QueryRequest queryRequest, int maxResultCount) {
+    this(catalogFramework::query, queryRequest, maxResultCount);
+  }
+
+  private ResultIterable(
+      QueryFunction queryFunction, QueryRequest queryRequest, int maxResultCount) {
+    notNull(queryFunction, "Query function cannot be null");
+    notNull(queryRequest, "Query request cannot be null");
+    isTrue(maxResultCount >= 0, "Max Results cannot be negative", maxResultCount);
+
+    this.queryFunction = queryFunction;
+    this.queryRequest = queryRequest;
+    this.maxResultCount = maxResultCount;
+  }
 
   /**
    * Creates an iterable that will call the {@link CatalogFramework} to retrieve the results that
@@ -112,20 +135,9 @@ public class ResultIterable implements Iterable<Result> {
     return new ResultIterable(queryFunction, queryRequest, maxResultCount);
   }
 
-  private ResultIterable(
-      CatalogFramework catalogFramework, QueryRequest queryRequest, int maxResultCount) {
-    this(catalogFramework::query, queryRequest, maxResultCount);
-  }
-
-  private ResultIterable(
-      QueryFunction queryFunction, QueryRequest queryRequest, int maxResultCount) {
-    notNull(queryFunction, "Query function cannot be null");
-    notNull(queryRequest, "Query request cannot be null");
-    isTrue(maxResultCount >= 0, "Max Results cannot be negative", maxResultCount);
-
-    this.queryFunction = queryFunction;
-    this.queryRequest = queryRequest;
-    this.maxResultCount = maxResultCount;
+  private static Stream<Result> stream(Iterator<Result> iterator) {
+    return StreamSupport.stream(
+        Spliterators.spliteratorUnknownSize(iterator, Spliterator.ORDERED), false);
   }
 
   @Override
@@ -140,23 +152,14 @@ public class ResultIterable implements Iterable<Result> {
     return stream(iterator());
   }
 
-  private static Stream<Result> stream(Iterator<Result> iterator) {
-    return StreamSupport.stream(
-        Spliterators.spliteratorUnknownSize(iterator, Spliterator.ORDERED), false);
-  }
-
   private static class ResultIterator implements Iterator<Result> {
 
     private final QueryFunction queryFunction;
-
+    private final Set<String> foundIds = new HashSet<>(2048);
     private int currentIndex;
-
     private QueryImpl queryCopy;
-
     private QueryRequestImpl queryRequestCopy;
-
     private Iterator<Result> results = Collections.emptyIterator();
-
     private boolean finished = false;
 
     ResultIterator(QueryFunction queryFunction, QueryRequest queryRequest) {
@@ -179,7 +182,8 @@ public class ResultIterable implements Iterable<Result> {
 
       fetchNextResults();
 
-      return results.hasNext();
+      // Recurse to ensure we continue querying even if we get 1 or more completely filtered pages.
+      return hasNext();
     }
 
     @Override
@@ -201,19 +205,51 @@ public class ResultIterable implements Iterable<Result> {
       return results.next();
     }
 
+    @SuppressWarnings("squid:CommentedOutCodeLine")
     private void fetchNextResults() {
       queryCopy.setStartIndex(currentIndex);
 
       try {
         SourceResponse response = queryFunction.query(queryRequestCopy);
 
-        if (response.getResults().size() == 0) {
+        final List<Result> resultList = response.getResults();
+
+        // Because some of the results may be filtered out by the catalog framework's
+        // plugins, we need a way to know the actual page size and increment currentIndex based
+        // on that number instead of using the result list size.
+        // If the property is not present, we will have no option but to fallback to the size
+        // of the (potentially filtered) resultList.
+        //
+        // This means that if the filtered results size is zero, but the raw number of results
+        // had been greater than zero, we will not find results beyond the filtered gap. In practice
+        // this should not happen, as queries will run through the QueryOperations.query() method;
+        // however, should a user ever construct a QueryFunction that does NOT rely on that method,
+        // there is no guarantee that this property will be properly set.
+        int actualResultSize =
+            Optional.ofNullable(response.getProperties())
+                .map(m -> m.get("actualResultSize"))
+                .filter(Integer.class::isInstance)
+                .map(Integer.class::cast)
+                .orElse(resultList.size());
+
+        if (actualResultSize == 0) {
           finished = true;
           return;
         }
+        currentIndex += actualResultSize;
 
-        results = response.getResults().iterator();
-        currentIndex += response.getResults().size();
+        List<Result> dedupedResults = new ArrayList<>(resultList.size());
+        for (Result result : resultList) {
+          if (isDistinctResult(result)) {
+            dedupedResults.add(result);
+          }
+          Optional.ofNullable(result)
+              .map(Result::getMetacard)
+              .map(Metacard::getId)
+              .ifPresent(foundIds::add);
+        }
+
+        this.results = dedupedResults.iterator();
 
         if (response.getHits() >= 0 && currentIndex > response.getHits()) {
           finished = true;
@@ -221,6 +257,13 @@ public class ResultIterable implements Iterable<Result> {
       } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
         throw new CatalogQueryException(e);
       }
+    }
+
+    private boolean isDistinctResult(@Nullable Result result) {
+      return result != null
+          && (result.getMetacard() == null
+              || result.getMetacard().getId() == null
+              || !foundIds.contains(result.getMetacard().getId()));
     }
 
     private void copyQueryRequestAndQuery(QueryRequest queryRequest) {
@@ -234,7 +277,8 @@ public class ResultIterable implements Iterable<Result> {
               query.getStartIndex(),
               pageSize,
               query.getSortBy(),
-              true, // always get the hit count
+              true,
+              // always get the hit count
               query.getTimeoutMillis());
 
       this.queryRequestCopy =
