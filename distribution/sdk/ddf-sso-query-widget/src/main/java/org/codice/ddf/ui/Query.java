@@ -92,21 +92,29 @@ public class Query extends HttpServlet {
   }
 
   @Override
-  protected void doGet(HttpServletRequest request, HttpServletResponse response)
-      throws ServletException, IOException {
-    doPost(request, response);
+  protected void doGet(HttpServletRequest request, HttpServletResponse response) {
+    try {
+      doPost(request, response);
+    } catch (ServletException | IOException e) {
+      LOGGER.warn("Could not post response due to: ", e);
+    }
   }
 
   @Override
   protected void doPost(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
     response.setContentType("text/html");
-    PrintWriter writer = response.getWriter();
-    LOGGER.debug(
-        "serviceticket request parameter: {}", request.getParameter(PROXY_TICKET_REQUEST_PARAM));
-    LOGGER.debug("query request parameter: {}", request.getParameter(QUERY_REQUEST_PARAM));
-    String html = createPage(request);
-    writer.println(html);
+
+    try {
+      PrintWriter writer = response.getWriter();
+      LOGGER.debug(
+          "serviceticket request parameter: {}", request.getParameter(PROXY_TICKET_REQUEST_PARAM));
+      LOGGER.debug("query request parameter: {}", request.getParameter(QUERY_REQUEST_PARAM));
+      String html = createPage(request);
+      writer.println(html);
+    } catch (IOException e) {
+      LOGGER.warn("Could not get PrintWriter due to: ", e);
+    }
   }
 
   /**

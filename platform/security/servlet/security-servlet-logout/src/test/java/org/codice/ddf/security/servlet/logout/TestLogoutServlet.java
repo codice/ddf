@@ -22,7 +22,6 @@ import static org.mockito.Mockito.when;
 
 import ddf.security.SecurityConstants;
 import ddf.security.common.SecurityTokenHolder;
-import java.io.IOException;
 import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 import javax.servlet.RequestDispatcher;
@@ -77,7 +76,7 @@ public class TestLogoutServlet {
         .thenReturn(securityTokenHolder);
     try {
       localLogoutServlet.doGet(request, response);
-    } catch (ServletException | IOException e) {
+    } catch (ServletException e) {
       fail(e.getMessage());
     }
     verify(httpSession).invalidate();

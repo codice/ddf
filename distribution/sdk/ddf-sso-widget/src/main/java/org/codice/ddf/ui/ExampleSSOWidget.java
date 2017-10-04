@@ -26,20 +26,28 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.jasig.cas.client.authentication.AttributePrincipal;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ExampleSSOWidget extends HttpServlet {
   private static final long serialVersionUID = 1L;
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(ExampleSSOWidget.class);
+
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
-      throws ServletException, IOException {
+      throws ServletException {
     response.setContentType("text/html");
-    createPage(request, response.getWriter());
+    try {
+      createPage(request, response.getWriter());
+    } catch (IOException e) {
+      LOGGER.warn("Cannot create page due to: ", e);
+    }
   }
 
   @SuppressWarnings("rawtypes")
-  protected void createPage(HttpServletRequest request, PrintWriter out)
-      throws IOException, ServletException {
+  protected void createPage(HttpServletRequest request, PrintWriter out) {
+
     String endl = System.getProperty("line.separator");
     StringBuilder sb = new StringBuilder();
 

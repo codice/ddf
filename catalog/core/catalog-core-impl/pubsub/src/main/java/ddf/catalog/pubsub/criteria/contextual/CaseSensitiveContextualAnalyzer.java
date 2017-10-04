@@ -60,7 +60,7 @@ public class CaseSensitiveContextualAnalyzer extends Analyzer {
    * An unmodifiable set containing some common English words that are usually not useful for
    * searching.
    */
-  public static final Set<?> STOP_WORDS_SET = StopAnalyzer.ENGLISH_STOP_WORDS_SET;
+  protected static final Set<?> STOP_WORDS_SET = StopAnalyzer.ENGLISH_STOP_WORDS_SET;
 
   /** Default maximum allowed token length */
   public static final int DEFAULT_MAX_TOKEN_LENGTH = 255;
