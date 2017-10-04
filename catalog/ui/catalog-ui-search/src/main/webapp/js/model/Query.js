@@ -16,7 +16,7 @@ define([
         'underscore',
         'properties',
         'js/cql',
-        'js/model/Metacard',
+        'js/model/QueryResponse',
         'component/singletons/sources-instance',
         'js/Common',
         'js/CacheSourceSelector',
@@ -25,7 +25,7 @@ define([
         'component/singletons/user-instance',
         'backboneassociations',
     ],
-    function (Backbone, _, properties, cql, Metacard, Sources, Common, CacheSourceSelector, announcement,
+    function (Backbone, _, properties, cql, QueryResponse, Sources, Common, CacheSourceSelector, announcement,
             CQLUtils, user) {
         "use strict";
         var Query = {};
@@ -63,7 +63,7 @@ define([
                 {
                     type: Backbone.One,
                     key: 'result',
-                    relatedModel: Metacard.SearchResult,
+                    relatedModel: QueryResponse,
                     isTransient: true
                 }
             ],
@@ -140,7 +140,7 @@ define([
                     result.get('results').reset();
                     result.get('status').reset(initialStatus);
                 } else {
-                    result = new Metacard.SearchResult({
+                    result = new QueryResponse({
                         queryId: this.getId(),
                         color: this.getColor(),
                         status: initialStatus

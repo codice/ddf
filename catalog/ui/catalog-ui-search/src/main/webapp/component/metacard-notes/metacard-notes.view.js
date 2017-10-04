@@ -4,7 +4,6 @@ define([
     'marionette',
     'underscore',
     'properties',
-    'js/model/Metacard',
     'wreqr',
     './metacard-notes.hbs',
     'maptype',
@@ -17,7 +16,7 @@ define([
     'component/input/textarea/input-textarea.view',
     'component/loading-companion/loading-companion.view',
     'component/announcement'
-], function ($, Backbone, Marionette, _, properties, MetaCard, wreqr, template, maptype,
+], function ($, Backbone, Marionette, _, properties, wreqr, template, maptype,
              store, CustomElements, PropertyView, Property, NoteCollection, NoteCollectionView,
              TextAreaView, LoadingCompanionView, announcement) {
 

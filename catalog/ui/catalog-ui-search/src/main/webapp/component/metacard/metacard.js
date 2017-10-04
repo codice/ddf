@@ -14,8 +14,10 @@ define([
     'underscore',
     'backbone',
     'js/model/Metacard',
-    'js/model/Query'
-], function (_, Backbone, Metacard, Query) {
+    'js/model/Query',
+    'js/model/QueryResponse',
+    'js/model/QueryResult'
+], function (_, Backbone, Metacard, Query, QueryResponse, QueryResult) {
 
     return new (Backbone.AssociatedModel.extend({
         relations: [
@@ -27,22 +29,22 @@ define([
             {
                 type: Backbone.One,
                 key: 'currentMetacard',
-                relatedModel: Metacard.SearchResult
+                relatedModel: QueryResponse
             },
             {
                 type: Backbone.Many,
                 key: 'selectedResults',
-                relatedModel: Metacard.Metacard
+                relatedModel: Metacard
             },
             {
                 type: Backbone.Many,
                 key: 'activeSearchResults',
-                relatedModel: Metacard.MetacardResult
+                relatedModel: QueryResult
             },
             {
                 type: Backbone.Many,
                 key: 'completeActiveSearchResults',
-                relatedModel: Metacard.MetacardResult
+                relatedModel: QueryResult
             }
         ],
         defaults: {
@@ -55,7 +57,7 @@ define([
             completeActiveSearchResultsAttributes: [],
         },
         initialize: function(){
-            this.set('currentResult', new Metacard.SearchResult());
+            this.set('currentResult', new QueryResponse());
             this.listenTo(this, 'change:currentMetacard', this.handleUpdate);
             this.listenTo(this, 'change:currentMetacard', this.handleCurrentMetacard);
             this.listenTo(this, 'change:currentResult', this.handleResultChange);

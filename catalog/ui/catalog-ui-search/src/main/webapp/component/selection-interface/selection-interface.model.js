@@ -14,6 +14,8 @@ var _ = require('underscore');
 var Backbone = require('backbone');
 var Metacard = require('js/model/Metacard');
 var Query = require('js/model/Query');
+var QueryResponse = require('js/model/QueryResponse');
+var QueryResult = require('js/model/QueryResult');
 
 module.exports = Backbone.AssociatedModel.extend({
     relations: [{
@@ -24,22 +26,22 @@ module.exports = Backbone.AssociatedModel.extend({
         {
             type: Backbone.One,
             key: 'currentMetacard',
-            relatedModel: Metacard.SearchResult
+            relatedModel:QueryResponse
         },
         {
             type: Backbone.Many,
             key: 'selectedResults',
-            relatedModel: Metacard.Metacard
+            relatedModel: Metacard
         },
         {
             type: Backbone.Many,
             key: 'activeSearchResults',
-            relatedModel: Metacard.MetacardResult
+            relatedModel: QueryResult
         },
         {
             type: Backbone.Many,
             key: 'completeActiveSearchResults',
-            relatedModel: Metacard.MetacardResult
+            relatedModel: QueryResult
         }
     ],
     defaults: {

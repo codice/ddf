@@ -22,8 +22,8 @@ define([
     'js/CustomElements',
     'js/store',
     'js/Common',
-    'js/model/Metacard'
-], function (Backbone, Marionette, _, $, template, CustomElements, store, Common, Metacard) {
+    'js/model/QueryResult.collection'
+], function (Backbone, Marionette, _, $, template, CustomElements, store, Common, QueryResultCollection) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -41,7 +41,7 @@ define([
             this.resultItemCollectionView = require('component/result-item/result-item.collection.view');
         },
         onBeforeShow: function(){
-            var resultCollection = new Metacard.Results();
+            var resultCollection = new QueryResultCollection();
             resultCollection.add(this.model);
             resultCollection.add(this.model.duplicates);
             this.groupResults.show(new this.resultItemCollectionView({

@@ -9,25 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define*/
-define([
-    'underscore',
-    'backbone',
-    'js/model/QueryResult',
-], function (_, Backbone, QueryResult) {
+var Backbone = require('backbone');
+require('backboneassociations');
 
-    return Backbone.AssociatedModel.extend({
-        relations: [
-            {
-                type: Backbone.Many,
-                key: 'results',
-                relatedModel: QueryResult
-            }
-        ],
-        defaults: {
-            results: []
-        },
-        initialize: function(){
-        }
-    });
-});
+module.exports = Backbone.AssociatedModel.extend({});
