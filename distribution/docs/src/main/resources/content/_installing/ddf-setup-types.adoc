@@ -18,6 +18,11 @@ ${branding} is pre-configured with several installation profiles.
 ** <<_spatial_reference,${ddf-spatial}>>
 ** <<_search_ui_reference,${ddf-ui}>>
 
+* Minimum Installation: Includes these applications for a minimum install:
+** <<_admin_reference,${ddf-admin}>>
+** <<_platform_reference,${ddf-platform}>>
+** <<_security_reference,${ddf-security}>>
+
 * Development: Includes all demo, beta, and experimental applications.
 * Custom Installation: *Advanced*. Click *Customize* on either profile to add or remove applications to be installed.
 
