@@ -14,7 +14,6 @@
 define([
         'jquery',
         'underscore',
-        'wreqr',
         'backbone',
         'js/model/Query',
         'js/Common',
@@ -24,7 +23,7 @@ define([
         'moment',
         'backboneassociations'
     ],
-    function ($, _, wreqr, Backbone, Query, Common, ColorGenerator, QueryPolling, user, moment) {
+    function ($, _, Backbone, Query, Common, ColorGenerator, QueryPolling, user, moment) {
 
         var Workspace = {};
 
@@ -176,9 +175,6 @@ define([
                     workspace.on('change:lastModifiedDate',function(){
                         collection.sort();
                     });
-                });
-                wreqr.vent.on('workspace:save', function(){
-                    collection.save();
                 });
                 this.listenTo(this, 'add', this.tagGuestWorkspace);
             },
