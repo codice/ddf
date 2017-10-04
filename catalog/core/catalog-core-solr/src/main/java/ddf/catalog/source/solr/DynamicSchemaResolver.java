@@ -43,6 +43,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -90,6 +91,8 @@ public class DynamicSchemaResolver {
   public static final String LUX_XML_FIELD_NAME = "lux_xml";
 
   public static final String SCORE_FIELD_NAME = "score";
+
+  public static final int TOKEN_MAXIMUM_BYTES = 32766;
 
   protected static final char FIRST_CHAR_OF_SUFFIX = '_';
 
@@ -148,7 +151,7 @@ public class DynamicSchemaResolver {
 
   private Processor processor = new Processor(new Config());
 
-  public DynamicSchemaResolver() {
+  public DynamicSchemaResolver(List<String> additionalFields) {
     this.schemaFields = new SchemaFields();
 
     fieldsCache.add(Metacard.ID + SchemaFields.TEXT_SUFFIX);
@@ -168,6 +171,19 @@ public class DynamicSchemaResolver {
     anyTextFieldsCache.addAll(basicTextAttributes);
     fieldsCache.add(Validation.VALIDATION_ERRORS + SchemaFields.TEXT_SUFFIX);
     fieldsCache.add(Validation.VALIDATION_WARNINGS + SchemaFields.TEXT_SUFFIX);
+
+    fieldsCache.add(SchemaFields.METACARD_TYPE_FIELD_NAME);
+    fieldsCache.add(SchemaFields.METACARD_TYPE_OBJECT_FIELD_NAME);
+
+    for (String field : additionalFields) {
+      if (StringUtils.isNotBlank(field)) {
+        fieldsCache.add(field);
+      }
+    }
+  }
+
+  public DynamicSchemaResolver() {
+    this(Collections.emptyList());
   }
 
   /**
@@ -226,33 +242,41 @@ public class DynamicSchemaResolver {
           AttributeFormat format = ad.getType().getAttributeFormat();
           String formatIndexName = ad.getName() + getFieldSuffix(format);
 
-          if (AttributeFormat.XML.equals(format)) {
+          if (AttributeFormat.XML.equals(format)
+              && solrInputDocument.getFieldValue(
+                      formatIndexName + getSpecialIndexSuffix(AttributeFormat.STRING))
+                  == null) {
             List<String> parsedTexts = parseTextFrom(attributeValues);
 
-            // text => metadata_txt_ws
-            String whitespaceTokenizedIndexName =
-                ad.getName()
-                    + getFieldSuffix(AttributeFormat.STRING)
-                    + SchemaFields.WHITESPACE_TEXT_SUFFIX;
-            solrInputDocument.addField(whitespaceTokenizedIndexName, parsedTexts);
-
-            // text => metadata_txt_ws_has_case
-            String whiteSpaceTokenizedHasCaseIndexName =
-                ad.getName()
-                    + getFieldSuffix(AttributeFormat.STRING)
-                    + SchemaFields.WHITESPACE_TEXT_SUFFIX
-                    + SchemaFields.HAS_CASE;
-            solrInputDocument.addField(whiteSpaceTokenizedHasCaseIndexName, parsedTexts);
-
-            // text => metadata_txt_tokenized
+            // parsedTexts => *_txt_tokenized
             String specialStringIndexName =
                 ad.getName()
                     + getFieldSuffix(AttributeFormat.STRING)
                     + getSpecialIndexSuffix(AttributeFormat.STRING);
             solrInputDocument.addField(specialStringIndexName, parsedTexts);
+          } else if (AttributeFormat.STRING.equals(format)
+              && solrInputDocument.getFieldValue(
+                      ad.getName() + getFieldSuffix(AttributeFormat.STRING))
+                  == null) {
+            List<Serializable> truncatedValues =
+                attributeValues
+                    .stream()
+                    .map(
+                        value ->
+                            value != null
+                                ? truncateAsUTF8(value.toString(), TOKEN_MAXIMUM_BYTES)
+                                : value)
+                    .collect(Collectors.toList());
+            // *_txt
+            solrInputDocument.addField(
+                ad.getName() + getFieldSuffix(AttributeFormat.STRING), truncatedValues);
 
-            // text case sensitive
-            solrInputDocument.addField(specialStringIndexName + SchemaFields.HAS_CASE, parsedTexts);
+            // *_txt_tokenized
+            solrInputDocument.addField(
+                ad.getName()
+                    + getFieldSuffix(AttributeFormat.STRING)
+                    + getSpecialIndexSuffix(AttributeFormat.STRING),
+                attributeValues);
           } else if (AttributeFormat.OBJECT.equals(format)) {
             ByteArrayOutputStream byteArrayOS = new ByteArrayOutputStream();
             List<Serializable> byteArrays = new ArrayList<>();
@@ -270,9 +294,8 @@ public class DynamicSchemaResolver {
             attributeValues = byteArrays;
           }
 
-          // Prevent adding a field already on document
-          if (solrInputDocument.getFieldValue(formatIndexName) == null) {
-            solrInputDocument.addField(formatIndexName, attributeValues);
+          if (solrInputDocument.getFieldValue(formatIndexName + SchemaFields.SORT_KEY_SUFFIX)
+              == null) {
             if (AttributeFormat.GEOMETRY.equals(format)) {
               solrInputDocument.addField(
                   formatIndexName + SchemaFields.SORT_KEY_SUFFIX,
@@ -282,6 +305,11 @@ public class DynamicSchemaResolver {
               solrInputDocument.addField(
                   formatIndexName + SchemaFields.SORT_KEY_SUFFIX, attributeValues.get(0));
             }
+          }
+
+          // Prevent adding a field already on document
+          if (solrInputDocument.getFieldValue(formatIndexName) == null) {
+            solrInputDocument.addField(formatIndexName, attributeValues);
           } else {
             LOGGER.trace("Skipping adding field already found on document ({})", formatIndexName);
           }
@@ -323,6 +351,39 @@ public class DynamicSchemaResolver {
     }
 
     solrInputDocument.addField(SchemaFields.METACARD_TYPE_OBJECT_FIELD_NAME, metacardTypeBytes);
+  }
+
+  /*
+   * Truncation that takes multibyte UTF-8 characters and surrogate pairs into consideration.
+   * https://stackoverflow.com/questions/119328/how-do-i-truncate-a-java-string-to-fit-in-a-given-number-of-bytes-once-utf-8-en
+   */
+  private String truncateAsUTF8(String value, int maximumBytes) {
+    int b = 0;
+    int skip;
+    for (int i = 0; i < value.length(); i = i + 1 + skip) {
+      char c = value.charAt(i);
+
+      skip = 0;
+      int more;
+      if (c <= 0x007f) {
+        more = 1;
+      } else if (c <= 0x07FF) {
+        more = 2;
+      } else if (c <= 0xd7ff) {
+        more = 3;
+      } else if (c <= 0xDFFF) {
+        more = 4;
+        skip = 1;
+      } else {
+        more = 3;
+      }
+
+      if (b + more > maximumBytes) {
+        return value.substring(0, i);
+      }
+      b += more;
+    }
+    return value;
   }
 
   private String createCenterPoint(List<Serializable> values) {

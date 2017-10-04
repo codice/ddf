@@ -14,6 +14,8 @@
 package ddf.catalog.source.solr;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
@@ -31,7 +33,10 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import org.apache.commons.io.IOUtils;
 import org.apache.solr.common.SolrInputDocument;
@@ -39,6 +44,8 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 public class DynamicSchemaResolverTest {
+
+  private static final int INITIAL_FIELDS_CACHE_COUNT = 8;
   /**
    * Verify that when a metacard type has attribute descriptors that inherit from
    * AttributeDescriptorImpl, the attribute descriptors are recreated as AttributeDescriptorsImpls
@@ -83,6 +90,31 @@ public class DynamicSchemaResolverTest {
       assertThat(
           attributeDescriptor.getClass().getName(), is(AttributeDescriptorImpl.class.getName()));
     }
+  }
+
+  @Test
+  public void testAdditionalFieldConstructorWithEmptyList() throws Exception {
+    DynamicSchemaResolver resolver = new DynamicSchemaResolver(Collections.EMPTY_LIST);
+    int fieldsCacheSize = resolver.fieldsCache.size();
+
+    assertThat(fieldsCacheSize, equalTo(INITIAL_FIELDS_CACHE_COUNT));
+  }
+
+  @Test
+  public void testAdditionalFieldConstructor() throws Exception {
+    String someExtraField = "someExtraField";
+    String anotherExtraField = "anotherExtraField";
+
+    List<String> additionalFields = new ArrayList<>();
+    additionalFields.add(someExtraField);
+    additionalFields.add(anotherExtraField);
+
+    DynamicSchemaResolver resolver = new DynamicSchemaResolver(additionalFields);
+
+    assertThat(
+        resolver.fieldsCache.size(), equalTo(INITIAL_FIELDS_CACHE_COUNT + additionalFields.size()));
+    assertThat(resolver.fieldsCache, hasItem(someExtraField));
+    assertThat(resolver.fieldsCache, hasItem(anotherExtraField));
   }
 
   private MetacardType deserializeMetacardType(byte[] serializedMetacardType)

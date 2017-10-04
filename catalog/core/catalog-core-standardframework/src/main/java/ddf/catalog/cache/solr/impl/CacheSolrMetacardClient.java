@@ -21,7 +21,9 @@ import ddf.catalog.source.solr.DynamicSchemaResolver;
 import ddf.catalog.source.solr.SolrFilterDelegateFactory;
 import ddf.catalog.source.solr.SolrMetacardClientImpl;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -32,11 +34,18 @@ import org.apache.solr.common.SolrInputDocument;
 /** {@link SolrCache} specific implementation of {@link SolrMetacardClientImpl}. */
 class CacheSolrMetacardClient extends SolrMetacardClientImpl {
 
+  private static final List<String> ADDITIONAL_FIELDS =
+      Arrays.asList(SolrCache.METACARD_SOURCE_NAME, SolrCache.METACARD_ID_NAME);
+
   public CacheSolrMetacardClient(
       SolrClient client,
       FilterAdapter catalogFilterAdapter,
       SolrFilterDelegateFactory solrFilterDelegateFactory) {
-    super(client, catalogFilterAdapter, solrFilterDelegateFactory, new DynamicSchemaResolver());
+    super(
+        client,
+        catalogFilterAdapter,
+        solrFilterDelegateFactory,
+        new DynamicSchemaResolver(ADDITIONAL_FIELDS));
   }
 
   @Override

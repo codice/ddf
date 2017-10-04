@@ -15,6 +15,7 @@ package org.codice.ddf.catalog.ui.query.cql;
 
 import static spark.Spark.halt;
 
+import com.google.common.collect.Sets;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.filter.FilterBuilder;
@@ -59,6 +60,8 @@ public class CqlRequest {
   private String sort;
 
   private boolean normalize = false;
+
+  private boolean excludeUnnecessaryAttributes = true;
 
   public String getSrc() {
     return src;
@@ -131,6 +134,12 @@ public class CqlRequest {
       queryRequest.getProperties().put("mode", "update");
     }
 
+    if (excludeUnnecessaryAttributes) {
+      queryRequest
+          .getProperties()
+          .put("excludeAttributes", Sets.newHashSet(Metacard.METADATA, "lux"));
+    }
+
     return queryRequest;
   }
 
@@ -199,5 +208,13 @@ public class CqlRequest {
 
   public void setId(String id) {
     this.id = id;
+  }
+
+  public boolean isExcludeUnnecessaryAttributes() {
+    return excludeUnnecessaryAttributes;
+  }
+
+  public void setExcludeUnnecessaryAttributes(boolean excludeUnnecessaryAttributes) {
+    this.excludeUnnecessaryAttributes = excludeUnnecessaryAttributes;
   }
 }
