@@ -31,6 +31,7 @@ import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.codice.ddf.itests.common.utils.LoggingUtils;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.junit.PaxExam;
@@ -73,12 +74,16 @@ public class TestSolrCommands extends AbstractIntegrationTest {
     cleanUpBackups(CATALOG_CORE_NAME);
   }
 
+  // TODO: Turn on this test once DDF-3340 is complete
+  @Ignore
   @Test
   public void testSolrBackupCommand() {
     String output = console.runCommand(BACKUP_COMMAND);
     assertThat(output, containsString(BACKUP_SUCCESS_MESSAGE));
   }
 
+  // TODO: Turn on this test once DDF-3340 is complete
+  @Ignore
   @Test
   public void testSolrBackupBadCoreName() {
     String coreName = "blah";
@@ -88,6 +93,8 @@ public class TestSolrCommands extends AbstractIntegrationTest {
     assertThat(output, containsString(String.format(BACKUP_ERROR_MESSAGE_FORMAT, coreName)));
   }
 
+  // TODO: Turn on this test once DDF-3340 is complete
+  @Ignore
   @Test
   public void testSolrBackupNumToKeep() throws InterruptedException {
     int numToKeep = 2;
