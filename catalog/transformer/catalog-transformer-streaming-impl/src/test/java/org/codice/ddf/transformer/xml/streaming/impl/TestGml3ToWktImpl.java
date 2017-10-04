@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.transformer.xml.streaming.impl;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -73,5 +74,13 @@ public class TestGml3ToWktImpl {
   public void testBadXmlStructure() throws ValidationException {
     String badXml = "<gml:Point></gml:Point>";
     gtw.convert(badXml);
+  }
+
+  @Test
+  public void testConvertEnvelope() throws ValidationException {
+    String gml =
+        "<gml:Envelope xmlns:gml=\"http://www.opengis.net/gml\"><gml:lowerCorner>1.0 0.0</gml:lowerCorner><gml:upperCorner>0.0 1.0</gml:upperCorner></gml:Envelope>";
+    String wkt = gtw.convert(gml);
+    assertThat(wkt, equalTo("POLYGON ((0 0, 0 1, 1 1, 1 0, 0 0))"));
   }
 }
