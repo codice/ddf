@@ -15,6 +15,7 @@ package ddf.catalog.resource.impl;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.net.HttpHeaders;
+import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.operation.impl.ResourceResponseImpl;
@@ -41,6 +42,7 @@ import java.util.Set;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -258,6 +260,16 @@ public class URLResourceReader implements ResourceReader {
     if (resourceURI.getScheme().equals(URL_HTTP_SCHEME)
         || resourceURI.getScheme().equals(URL_HTTPS_SCHEME)) {
       LOGGER.debug("Resource URI is HTTP or HTTPS");
+
+      final Serializable qualifierSerializable = properties.get(ContentItem.QUALIFIER);
+      if (qualifierSerializable instanceof String) {
+        final String qualifier = (String) qualifierSerializable;
+        if (StringUtils.isNotBlank(qualifier)) {
+          resourceURI =
+              UriBuilder.fromUri(resourceURI).queryParam(ContentItem.QUALIFIER, qualifier).build();
+        }
+      }
+
       String fileAddress = resourceURI.toURL().getFile();
       LOGGER.debug("resource name: {}", fileAddress);
       return retrieveHttpProduct(resourceURI, fileAddress, bytesToSkip, properties);
@@ -274,7 +286,7 @@ public class URLResourceReader implements ResourceReader {
                 + resourceURI.toString()
                 + "]. Invalid Resource URI of ["
                 + resourceURI.toString()
-                + "]. Resources  must be in one of the following directories: "
+                + "]. Resources must be in one of the following directories: "
                 + this.rootResourceDirectories.toString());
       }
     } else {
