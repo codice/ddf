@@ -38,7 +38,6 @@ import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.ApplicationServiceException;
-import org.codice.ddf.security.common.Security;
 import org.osgi.framework.BundleException;
 import org.osgi.service.resolver.ResolutionException;
 import org.slf4j.Logger;
@@ -56,24 +55,17 @@ public class ProfileInstallCommand extends AbstractProfileCommand {
   )
   String profileName;
 
-  private Security security = Security.getInstance();
-
   private static final String ADVANCED_PROFILE_INSTALL_FEATURES = "install-features";
   private static final String ADVANCED_PROFILE_UNINSTALL_FEATURES = "uninstall-features";
   private static final String ADVANCED_PROFILE_START_APPS = "start-apps";
   private static final String ADVANCED_PROFILE_STOP_BUNDLES = "stop-bundles";
+  private static final String FEATURE_FAILURE_MESSAGE = "Feature: %s does not exist";
   private static final EnumSet NO_AUTO_REFRESH =
       EnumSet.of(FeaturesService.Option.NoAutoRefreshBundles);
   private static final String PROFILE_PREFIX = "profile-";
   private static final String RESTART_WARNING =
       "An unexpected error occurred during the installation process. The system is in unknown state. It is strongly recommended to restart the installation from the beginning.";
-  private static final String SECURITY_ERROR = "Could not get system user to install profile ";
   private static final Logger LOGGER = LoggerFactory.getLogger(ProfileInstallCommand.class);
-
-  // Added as a convenience for unit testing
-  void setSecurity(Security security) {
-    this.security = security;
-  }
 
   @Override
   protected void doExecute(
@@ -189,14 +181,13 @@ public class ProfileInstallCommand extends AbstractProfileCommand {
           try {
             featureObject = featuresService.getFeature(feature);
           } catch (Exception e) {
-            printError(String.format("Feature: %s does not exist", feature));
+            printError(String.format(FEATURE_FAILURE_MESSAGE, feature));
             throw e;
           }
           if (featureObject == null) {
             printItemStatusFailure("Uninstall Failed: ", feature);
-            printError(String.format("Feature: %s does not exist", feature));
-            throw new IllegalArgumentException(
-                String.format("Feature: %s does not exist", feature));
+            printError(String.format(FEATURE_FAILURE_MESSAGE, feature));
+            throw new IllegalArgumentException(String.format(FEATURE_FAILURE_MESSAGE, feature));
           }
           uninstallFeature(featuresService, featureObject);
           printItemStatusSuccess("Uninstalled: ", feature);

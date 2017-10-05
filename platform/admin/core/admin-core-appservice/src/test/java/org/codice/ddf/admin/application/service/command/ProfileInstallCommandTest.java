@@ -337,14 +337,13 @@ public class ProfileInstallCommandTest {
               return callable.call();
             });
     security = mock(Security.class);
-    when(security.getSystemSubject()).thenReturn(subject);
     return security;
   }
 
   private ProfileInstallCommand getProfileInstallCommand(Path profilePath) {
     ProfileInstallCommand command = new ProfileInstallCommand();
     command.setProfilePath(profilePath);
-    command.setSecurity(createSecurityMock());
+    //    command.setSecurity(createSecurityMock());
     return command;
   }
 }
