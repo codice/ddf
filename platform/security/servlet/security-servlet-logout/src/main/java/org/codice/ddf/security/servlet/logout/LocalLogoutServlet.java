@@ -53,50 +53,62 @@ public class LocalLogoutServlet extends HttpServlet {
     try {
       redirectUrlBuilder = new URIBuilder("/logout/logout-response.html");
 
-      HttpSession session = request.getSession();
-      if (session != null) {
-        SecurityTokenHolder savedToken =
-            (SecurityTokenHolder) session.getAttribute(SecurityConstants.SAML_ASSERTION);
-        if (savedToken != null) {
-          Subject subject = ThreadContext.getSubject();
-          boolean hasSecurityAuditRole =
-              Arrays.stream(System.getProperty("security.audit.roles").split(","))
-                  .anyMatch(subject::hasRole);
-          if (hasSecurityAuditRole) {
-            SecurityLogger.audit("Subject with admin privileges has logged out", subject);
-          }
+      invalidateSession(request, response);
 
-          savedToken.removeAll();
-        }
-        session.invalidate();
-        deleteJSessionId(response);
-      }
+      checkForPki(request, params);
 
-      // Check for pki
-      if (request.getAttribute("javax.servlet.request.X509Certificate") != null
-          && ((X509Certificate[]) request.getAttribute("javax.servlet.request.X509Certificate"))
-                  .length
-              > 0) {
-        params.add(
-            new BasicNameValuePair("msg", "Please close your browser to finish logging out"));
-      }
-
-      // Check for basic
-      Enumeration authHeaders = request.getHeaders(javax.ws.rs.core.HttpHeaders.AUTHORIZATION);
-      while (authHeaders.hasMoreElements()) {
-        if (((String) authHeaders.nextElement()).contains("Basic")) {
-          params.add(
-              new BasicNameValuePair("msg", "Please close your browser to finish logging out"));
-          break;
-        }
-      }
-      redirectUrlBuilder.addParameters(params);
+      checkForBasic(request, redirectUrlBuilder, params);
 
       response.sendRedirect(redirectUrlBuilder.build().toString());
     } catch (URISyntaxException e) {
       LOGGER.debug("Invalid URI: ", e);
     } catch (IOException e) {
       LOGGER.warn("Send Redirect failed due to: ", e);
+    }
+  }
+
+  private void checkForBasic(
+      HttpServletRequest request, URIBuilder redirectUrlBuilder, List<NameValuePair> params) {
+    Enumeration authHeaders = request.getHeaders(javax.ws.rs.core.HttpHeaders.AUTHORIZATION);
+    while (authHeaders.hasMoreElements()) {
+      if (((String) authHeaders.nextElement()).contains("Basic")) {
+        params.add(
+            new BasicNameValuePair("msg", "Please close your browser to finish logging out"));
+        break;
+      }
+    }
+    redirectUrlBuilder.addParameters(params);
+  }
+
+  private void checkForPki(HttpServletRequest request, List<NameValuePair> params) {
+    if (request.getAttribute("javax.servlet.request.X509Certificate") != null
+        && ((X509Certificate[]) request.getAttribute("javax.servlet.request.X509Certificate"))
+                .length
+            > 0) {
+      params.add(new BasicNameValuePair("msg", "Please close your browser to finish logging out"));
+    }
+  }
+
+  private void invalidateSession(HttpServletRequest request, HttpServletResponse response) {
+    HttpSession session = request.getSession();
+    if (session != null) {
+      SecurityTokenHolder savedToken =
+          (SecurityTokenHolder) session.getAttribute(SecurityConstants.SAML_ASSERTION);
+      if (savedToken != null) {
+        Subject subject = ThreadContext.getSubject();
+
+        if (subject != null) {
+          boolean hasSecurityAuditRole =
+              Arrays.stream(System.getProperty("security.audit.roles", "").split(","))
+                  .anyMatch(subject::hasRole);
+          if (hasSecurityAuditRole) {
+            SecurityLogger.audit("Subject with admin privileges has logged out", subject);
+          }
+        }
+        savedToken.removeAll();
+      }
+      session.invalidate();
+      deleteJSessionId(response);
     }
   }
 
