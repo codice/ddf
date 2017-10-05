@@ -194,13 +194,6 @@ public class ProfileInstallCommandTest {
     verify(applicationService, times(3)).startApplication(anyString());
   }
 
-  @Test(expected = RuntimeException.class)
-  public void testSystemSubjectNull() throws Exception {
-    when(security.getSystemSubject()).thenReturn(null);
-    profileInstallCommand.profileName = "devProfile";
-    profileInstallCommand.doExecute(applicationService, featuresService, bundleService);
-  }
-
   @Test(expected = IllegalArgumentException.class)
   public void testBundleNotExist() throws Exception {
     doThrow(IllegalArgumentException.class).when(bundleService).getBundle(any());
@@ -228,7 +221,8 @@ public class ProfileInstallCommandTest {
     when(featuresService.isInstalled(installerFeature)).thenReturn(true);
     profileInstallCommand.profileName = "invalidStopBundles";
     profileInstallCommand.doExecute(applicationService, featuresService, bundleService);
-    verify(featuresService).uninstallFeature(eq("admin-modules-installer"), eq(NO_AUTO_REFRESH));
+    verify(featuresService)
+        .uninstallFeature(eq("admin-modules-installer"), eq("0.0.0"), eq(NO_AUTO_REFRESH));
   }
 
   @Test
@@ -243,7 +237,8 @@ public class ProfileInstallCommandTest {
     profileInstallCommand.profileName = "invalidStopBundles";
     profileInstallCommand.doExecute(applicationService, featuresService, bundleService);
     verify(featuresService).installFeature(eq("admin-post-install-modules"), eq(NO_AUTO_REFRESH));
-    verify(featuresService).uninstallFeature(eq("admin-modules-installer"), eq(NO_AUTO_REFRESH));
+    verify(featuresService)
+        .uninstallFeature(eq("admin-modules-installer"), eq("0.0.0"), eq(NO_AUTO_REFRESH));
   }
 
   @Test(expected = Exception.class)
@@ -254,7 +249,7 @@ public class ProfileInstallCommandTest {
     when(featuresService.isInstalled(installerFeature)).thenReturn(true);
     doThrow(Exception.class)
         .when(featuresService)
-        .uninstallFeature("admin-modules-installer", NO_AUTO_REFRESH);
+        .uninstallFeature("admin-modules-installer", "0.0.0", NO_AUTO_REFRESH);
     profileInstallCommand.profileName = "invalidStopBundles";
     profileInstallCommand.doExecute(applicationService, featuresService, bundleService);
   }
@@ -342,14 +337,13 @@ public class ProfileInstallCommandTest {
               return callable.call();
             });
     security = mock(Security.class);
-    when(security.getSystemSubject()).thenReturn(subject);
     return security;
   }
 
   private ProfileInstallCommand getProfileInstallCommand(Path profilePath) {
     ProfileInstallCommand command = new ProfileInstallCommand();
     command.setProfilePath(profilePath);
-    command.setSecurity(createSecurityMock());
+    //    command.setSecurity(createSecurityMock());
     return command;
   }
 }
