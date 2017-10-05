@@ -80,6 +80,10 @@ const Title = muiThemeable()(({ children, muiTheme }) => (
   <h1 style={{ color: muiTheme.palette.textColor, textAlign: 'center' }}>{children}</h1>
 ))
 
+const DeleteIconThemed = muiThemeable()(({ muiTheme }) => (
+    <DeleteIcon style={{ color: muiTheme.palette.errorColor}}/>
+))
+
 const implementationSupport = (implementors) => {
   if (!implementors.includes('ol')) {
     return '3D Only'
@@ -418,7 +422,7 @@ const MapLayers = (props) => {
               <IconButton
                 tooltip='Delete Layer'
                 onClick={() => onUpdate(null, [i])}>
-                <DeleteIcon />
+                <DeleteIconThemed />
               </IconButton>
             </div>
             <ProviderEditor
