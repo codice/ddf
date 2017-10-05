@@ -53,6 +53,7 @@ import org.slf4j.LoggerFactory;
  * memory.
  */
 public class ImportMigrationConfigurationAdminContext {
+
   private static final Logger LOGGER =
       LoggerFactory.getLogger(ImportMigrationConfigurationAdminContext.class);
 
@@ -272,23 +273,36 @@ public class ImportMigrationConfigurationAdminContext {
       } finally {
         IOUtils.closeQuietly(is);
       }
-      try {
-        // note: we also remove factory pid and pid from the dictionary as we do not want to restore
-        // those later
-        final String pid = Objects.toString(properties.remove(Constants.SERVICE_PID), null);
+      // note: we also remove bunde location, factory pid, and pid from the dictionary as we do not
+      // want to restore those later
+      final String pid = Objects.toString(properties.remove(Constants.SERVICE_PID), null);
+
+      if (pid == null) {
+        // this should never happen unless someone created the zip file manually and messed up the
+        // config file
+        context
+            .getReport()
+            .record(
+                new MigrationException("Import error: missing pid from configuration [%s].", path));
+      } else {
+        final String bundleLocation =
+            Objects.toString(properties.remove(ConfigurationAdmin.SERVICE_BUNDLELOCATION), null);
         final String factoryPid =
             Objects.toString(properties.remove(ConfigurationAdmin.SERVICE_FACTORYPID), null);
 
-        return new ImportMigrationConfigurationAdminEntry(
-            configurationAdmin,
-            entry,
-            factoryPid,
-            pid,
-            properties,
-            getAndRemoveMemoryConfig(factoryPid, pid, properties, entry.getPath()));
-      } catch (MigrationException e) {
-        // don't throw it back yet as we want to detect as many as possible so just record it
-        context.getReport().record(e);
+        try {
+          return new ImportMigrationConfigurationAdminEntry(
+              configurationAdmin,
+              entry,
+              bundleLocation,
+              factoryPid,
+              pid,
+              properties,
+              getAndRemoveMemoryConfig(factoryPid, pid, properties, entry.getPath()));
+        } catch (MigrationException e) {
+          // don't throw it back yet as we want to detect as many as possible so just record it
+          context.getReport().record(e);
+        }
       }
     }
     this.isValid = false;
