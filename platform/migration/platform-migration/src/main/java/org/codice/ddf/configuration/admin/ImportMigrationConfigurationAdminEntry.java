@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
  * configuration object.
  */
 public class ImportMigrationConfigurationAdminEntry {
+
   private static final Logger LOGGER =
       LoggerFactory.getLogger(ImportMigrationConfigurationAdminEntry.class);
 
@@ -40,6 +41,8 @@ public class ImportMigrationConfigurationAdminEntry {
   private final ConfigurationAdmin configurationAdmin;
 
   private final Dictionary<String, Object> properties;
+
+  @Nullable private final String bundleLocation;
 
   @Nullable private final String factoryPid;
 
@@ -52,16 +55,19 @@ public class ImportMigrationConfigurationAdminEntry {
   public ImportMigrationConfigurationAdminEntry(
       ConfigurationAdmin configurationAdmin,
       ImportMigrationEntry entry,
+      @Nullable String bundleLocation,
       @Nullable String factoryPid,
       String pid,
       Dictionary<String, Object> properties,
       @Nullable Configuration memoryConfiguration) {
     Validate.notNull(entry, "invalid null entry");
+    Validate.notNull(pid, "invalid null pid");
     Validate.notNull(configurationAdmin, "invalid null configuration admin");
     Validate.notNull(properties, "invalid null properties");
     this.entry = entry;
     this.configurationAdmin = configurationAdmin;
     this.properties = properties;
+    this.bundleLocation = bundleLocation;
     this.factoryPid = factoryPid;
     this.pid = pid;
     this.memoryConfiguration = memoryConfiguration;
@@ -130,15 +136,16 @@ public class ImportMigrationConfigurationAdminEntry {
   }
 
   private Configuration createConfiguration() throws IOException {
-    // Question: should we use the bundle location that was exported???
-    // If we do, should we perform additional checks to make sure we're not loading a malicious
-    // bundle?
-    // This might be unnecessary if we are comfortable with the encryption of the zip file as our
-    // only countermeasure.
+    // use the original bundle location when re-creating the managed service or managed service
+    // factory
+    // config object. If there was none than null would have been exported and passed in to these
+    // next
+    // 2 calls. When that happens, the location wuld automatically be set to the first bundle that
+    // // registers a managed service or a managed service factory
     if (isManagedServiceFactory()) {
-      return configurationAdmin.createFactoryConfiguration(factoryPid, null);
+      return configurationAdmin.createFactoryConfiguration(factoryPid, bundleLocation);
     }
-    return configurationAdmin.getConfiguration(pid);
+    return configurationAdmin.getConfiguration(pid, bundleLocation);
   }
 
   private boolean propertiesMatch() {
@@ -147,8 +154,10 @@ public class ImportMigrationConfigurationAdminEntry {
     if (props == null) {
       return false;
     }
-    // remove factory pid and pid from the dictionary as we do not want to match these
+    // remove bundle location, factory pid, and pid from the dictionary as we do not want to match
+    // these
     props.remove(ConfigurationAdmin.SERVICE_FACTORYPID);
+    props.remove(ConfigurationAdmin.SERVICE_BUNDLELOCATION);
     props.remove(Constants.SERVICE_PID);
     if (properties.size() != props.size()) {
       return false;
