@@ -18,17 +18,37 @@
 
 |Metacard Intersect Attributes:
 |intersectMetacardAttributes
-|String
-|Metacard attributes that will be collected and mapped to security information. Example: security.classification=classification Any duplicate destinations in this group will result in an intersection of values. E.g. source1=dest and source2=val where source1 is the set of
-|
-|true
+|List of rules
+|Each line item in the configuration is a rule.
+             The format of a rule is the name of a single source attribute,
+             followed by an equals sign, followed by the destination attribute.
+             For example: source_attribute1=destination_attribute.
+             The plugin gathers the source attributes that have a common destination.
+             It takes the combined values of the source attributes and makes them the values of
+             a (new) metacard attribute, the destination attribute.
+             The strategy for combining the values is intersection, which means only the
+             values common to all source attribute are added to the destination attribute.
+             Note: Do not use the same destination attributes in both the Intersect and Union
+             rule sets. The plugin will behave unpredictably.
+|none
+|false
 
 |Metacard Union Attributes:
 |unionMetacardAttributes
-|String
-|'a', 'b', 'c'
-|null
-|true
+|List of rules
+|Each line item in the configuration is a rule.
+             The format of a rule is the name of a single source attribute,
+             followed by an equals sign, followed by the destination attribute.
+             For example: source_attribute1=destination_attribute.
+             The plugin gathers the source attributes that have a common destination.
+             It takes the combined values of the source attributes and makes them the values of
+             a (new) metacard attribute, the destination attribute.
+             The strategy for combining the values is union, which means only all the values
+             of the source attribute are added to the destination attribute (excluding duplicates)
+             Note: Do not use the same destination attributes in both the Intersect and Union
+             rule sets. The plugin will behave unpredictably.
+|none
+|false
 
 |===
 
