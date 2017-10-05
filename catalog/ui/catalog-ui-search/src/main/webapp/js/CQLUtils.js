@@ -237,7 +237,7 @@ define([
         },
         arrayFromCQLGeometry: function(cql) {
             // remove opening 'POLYGON(' or 'MULTIPOLYGON(' as well as closing ')'
-            var result = cql.replace(/^\w+\(/, "").replace(/\)$/, "")
+            var result = cql.replace(/^\w+\(/, "").replace(/\)$/, "");
             // change parentheses to array brackets
             result = result.replace(/\(/g,'[').replace(/\)/g,']');
             // change each space-separated coordinate pair to a two-element array

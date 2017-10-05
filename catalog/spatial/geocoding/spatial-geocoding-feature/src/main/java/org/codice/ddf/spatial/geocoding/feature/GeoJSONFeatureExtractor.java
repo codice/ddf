@@ -19,6 +19,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import org.apache.commons.lang.Validate;
 import org.codice.ddf.spatial.geocoding.FeatureExtractionException;
 import org.codice.ddf.spatial.geocoding.FeatureExtractor;
 import org.codice.ddf.spatial.geocoding.FeatureIndexingException;
@@ -32,19 +33,16 @@ public class GeoJSONFeatureExtractor implements FeatureExtractor {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(GeoJSONFeatureExtractor.class);
 
-  static final int MAX_SIMPLIFY_ITERATIONS = 5;
+  private static final int MAX_SIMPLIFY_ITERATIONS = 5;
 
-  static final double SIMPLIFY_DISTANCE_TOLERANCE = .1;
+  private static final double SIMPLIFY_DISTANCE_TOLERANCE = .1;
 
-  static final int MAX_POINTS_PER_FEATURE = 500;
+  private static final int MAX_POINTS_PER_FEATURE = 500;
 
   @Override
   public void pushFeaturesToExtractionCallback(
       String resource, ExtractionCallback extractionCallback) throws FeatureExtractionException {
-
-    if (extractionCallback == null) {
-      throw new IllegalArgumentException("extractionCallback can't be null");
-    }
+    Validate.notNull(extractionCallback, "extractionCallback can't be null");
 
     FeatureIterator<SimpleFeature> iterator = getFeatureIteratorFromResource(resource);
     try {

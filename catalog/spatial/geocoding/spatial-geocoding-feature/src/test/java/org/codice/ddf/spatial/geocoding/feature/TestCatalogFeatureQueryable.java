@@ -38,10 +38,10 @@ public class TestCatalogFeatureQueryable {
 
   private CatalogFeatureQueryable catalogFeatureQueryable;
 
-  static final String COUNTRY_CODE = "JAM";
-  static final String WKT_STRING = "POLYGON((30 10, 10 20, 20 40, 40 40, 30 10))";
-  static final String WKT_TYPE = "Polygon";
-  static final int WKT_NUM_POINTS = 5;
+  private static final String COUNTRY_CODE = "JAM";
+  private static final String WKT_STRING = "POLYGON((30 10, 10 20, 20 40, 40 40, 30 10))";
+  private static final String WKT_TYPE = "Polygon";
+  private static final int WKT_NUM_POINTS = 5;
 
   @Before
   public void setUp() {

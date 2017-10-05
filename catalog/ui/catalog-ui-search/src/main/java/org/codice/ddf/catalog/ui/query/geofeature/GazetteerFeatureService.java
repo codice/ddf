@@ -80,7 +80,7 @@ public class GazetteerFeatureService implements FeatureService {
     try {
       entries = this.geoEntryQueryable.query(name, 1);
     } catch (GeoEntryQueryException e) {
-      LOGGER.warn("Error while making feature service request.", e);
+      LOGGER.debug("Error while making feature service request.", e);
       return null;
     }
     if (entries.isEmpty()) {
@@ -110,9 +110,9 @@ public class GazetteerFeatureService implements FeatureService {
         return countries.get(0);
       }
     } catch (FeatureQueryException e) {
-      LOGGER.warn("Error while querying for feature.", e);
+      LOGGER.debug("Error while querying for feature.", e);
     } catch (ServiceUnavailableException e) {
-      LOGGER.warn("Feature service unavailable!", e);
+      LOGGER.debug("Feature index unavailable", e);
     }
     return null;
   }

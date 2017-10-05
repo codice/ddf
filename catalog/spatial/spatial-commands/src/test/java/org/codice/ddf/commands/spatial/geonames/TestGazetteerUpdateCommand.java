@@ -228,7 +228,9 @@ public class TestGazetteerUpdateCommand {
               @Override
               public void pushFeaturesToExtractionCallback(
                   String resource, ExtractionCallback extractionCallback)
-                  throws FeatureExtractionException {}
+                  throws FeatureExtractionException {
+                /* stub */
+              }
             });
 
     final FeatureIndexer featureIndexer =
@@ -240,7 +242,9 @@ public class TestGazetteerUpdateCommand {
                   FeatureExtractor featureExtractor,
                   boolean create,
                   IndexCallback callback)
-                  throws FeatureExtractionException, FeatureIndexingException {}
+                  throws FeatureExtractionException, FeatureIndexingException {
+                /* stub */
+              }
             });
 
     gazetteerUpdateCommand.setResource(resource);

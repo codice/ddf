@@ -18,6 +18,7 @@ import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
@@ -28,6 +29,7 @@ import ddf.catalog.source.UnsupportedQueryException;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.apache.commons.lang.Validate;
 import org.codice.ddf.spatial.geocoding.FeatureQueryException;
 import org.codice.ddf.spatial.geocoding.FeatureQueryable;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
@@ -40,7 +42,7 @@ public class CatalogFeatureQueryable implements FeatureQueryable {
   private static final Logger LOGGER = LoggerFactory.getLogger(CatalogFeatureQueryable.class);
 
   private static final ThreadLocal<WKTReader> WKT_READER_THREAD_LOCAL =
-      ThreadLocal.withInitial(() -> new WKTReader());
+      ThreadLocal.withInitial(WKTReader::new);
 
   private CatalogFramework catalogFramework;
 
@@ -54,9 +56,7 @@ public class CatalogFeatureQueryable implements FeatureQueryable {
   @Override
   public List<SimpleFeature> query(String queryString, String featureCode, int maxResults)
       throws FeatureQueryException {
-    if (queryString == null) {
-      throw new IllegalArgumentException("queryString can't be null");
-    }
+    Validate.notNull(queryString, "queryString can't be null");
 
     if (maxResults < 0) {
       throw new IllegalArgumentException("maxResults can't be negative");
@@ -69,7 +69,7 @@ public class CatalogFeatureQueryable implements FeatureQueryable {
     try {
       response = catalogFramework.query(queryRequest);
     } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
-      LOGGER.warn("Failed to query catalog for feature {}", queryString, e);
+      LOGGER.debug("Failed to query catalog for feature {}", queryString, e);
       throw new FeatureQueryException("Failed to query catalog", e);
     }
 
@@ -84,15 +84,15 @@ public class CatalogFeatureQueryable implements FeatureQueryable {
   }
 
   private SimpleFeature getFeatureForMetacard(Metacard metacard) {
-    String countryCode = (String) metacard.getAttribute(Metacard.TITLE).getValue();
-    String geometryWkt = (String) metacard.getAttribute(Metacard.GEOGRAPHY).getValue();
+    String countryCode = (String) metacard.getAttribute(Core.TITLE).getValue();
+    String geometryWkt = (String) metacard.getAttribute(Core.LOCATION).getValue();
 
     try {
       Geometry geometry = WKT_READER_THREAD_LOCAL.get().read(geometryWkt);
       SimpleFeatureBuilder builder = FeatureBuilder.forGeometry(geometry);
       return builder.buildFeature(countryCode);
     } catch (ParseException e) {
-      LOGGER.warn("Failed to parse feature", e);
+      LOGGER.debug("Failed to parse feature", e);
     }
     return null;
   }

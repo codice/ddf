@@ -83,7 +83,7 @@ define([
 
             modelToPolygon: function(model) {
                 var coords = model.get('polygon');
-                if (!coords) { return };
+                if (!coords) { return; }
                 var isMultiPolygon = ShapeUtils.isArray3D(coords);
                 var multiPolygon = isMultiPolygon ? coords : [coords];
 

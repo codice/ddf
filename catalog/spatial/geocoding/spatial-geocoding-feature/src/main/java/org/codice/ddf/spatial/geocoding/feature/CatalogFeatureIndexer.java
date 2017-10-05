@@ -24,6 +24,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.SourceResponse;
@@ -38,6 +39,7 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang.Validate;
 import org.codice.ddf.security.common.Security;
 import org.codice.ddf.spatial.geocoding.FeatureExtractionException;
 import org.codice.ddf.spatial.geocoding.FeatureExtractor;
@@ -50,19 +52,15 @@ import org.slf4j.LoggerFactory;
 
 public class CatalogFeatureIndexer implements FeatureIndexer {
   private static final Logger LOGGER = LoggerFactory.getLogger(CatalogFeatureIndexer.class);
+  private static final ThreadLocal<WKTWriter> WKT_WRITER_THREAD_LOCAL =
+      ThreadLocal.withInitial(WKTWriter::new);
 
   private Security security = Security.getInstance();
-
   private CatalogFramework catalogFramework;
-
   private CatalogHelper catalogHelper;
-
   private IndexCallback indexCallback;
   private int extractionCount;
   private boolean doCreate;
-
-  private static final ThreadLocal<WKTWriter> WKT_WRITER_THREAD_LOCAL =
-      ThreadLocal.withInitial(() -> new WKTWriter());
 
   public void setSecurity(Security security) {
     this.security = security;
@@ -77,9 +75,8 @@ public class CatalogFeatureIndexer implements FeatureIndexer {
   public void updateIndex(
       String resource, FeatureExtractor featureExtractor, boolean create, IndexCallback callback)
       throws FeatureExtractionException, FeatureIndexingException {
-    if (featureExtractor == null) {
-      throw new IllegalArgumentException("featureExtractor can't be null");
-    }
+    Validate.notNull(featureExtractor, "featureExtractor can't be null");
+
     doCreate = create;
     indexCallback = callback;
     extractionCount = 0;
@@ -115,7 +112,7 @@ public class CatalogFeatureIndexer implements FeatureIndexer {
             return null;
           });
     } catch (SecurityServiceException | InvocationTargetException e) {
-      LOGGER.warn("Failed to index feature", e);
+      LOGGER.debug("Failed to index feature", e);
       throw new FeatureIndexingException(e.getMessage());
     }
   }
@@ -124,15 +121,15 @@ public class CatalogFeatureIndexer implements FeatureIndexer {
     Metacard metacard = new MetacardImpl();
 
     String countryCode = (String) feature.getAttribute("ISO_A3");
-    metacard.setAttribute(new AttributeImpl(Metacard.TITLE, countryCode));
+    metacard.setAttribute(new AttributeImpl(Core.TITLE, countryCode));
 
     String wkt = WKT_WRITER_THREAD_LOCAL.get().write((Geometry) feature.getDefaultGeometry());
-    metacard.setAttribute(new AttributeImpl(Metacard.GEOGRAPHY, wkt));
+    metacard.setAttribute(new AttributeImpl(Core.LOCATION, wkt));
 
     List<Serializable> tags = new ArrayList<>();
     tags.add(GazetteerConstants.DEFAULT_TAG);
     tags.add(GazetteerConstants.COUNTRY_TAG);
-    metacard.setAttribute(new AttributeImpl(Metacard.TAGS, tags));
+    metacard.setAttribute(new AttributeImpl(Core.METACARD_TAGS, tags));
 
     return metacard;
   }
@@ -149,7 +146,7 @@ public class CatalogFeatureIndexer implements FeatureIndexer {
       }
       return response.getResults().get(0).getMetacard();
     } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
-      LOGGER.warn("Failed to query for existing feature", e);
+      LOGGER.debug("Failed to query for existing feature", e);
       throw new FeatureIndexingException(e.getMessage());
     }
   }
@@ -167,7 +164,7 @@ public class CatalogFeatureIndexer implements FeatureIndexer {
             return null;
           });
     } catch (SecurityServiceException | InvocationTargetException e) {
-      LOGGER.warn("Failed to remove existing feature", e);
+      LOGGER.debug("Failed to remove existing feature", e);
       throw new FeatureIndexingException(e.getMessage());
     }
   }

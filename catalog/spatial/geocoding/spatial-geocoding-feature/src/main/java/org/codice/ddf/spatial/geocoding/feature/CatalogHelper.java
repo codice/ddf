@@ -1,6 +1,6 @@
 package org.codice.ddf.spatial.geocoding.feature;
 
-import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.impl.QueryImpl;
@@ -19,9 +19,17 @@ public class CatalogHelper {
 
     countryFilters = new ArrayList<>();
     countryFilters.add(
-        filterBuilder.attribute(Metacard.TAGS).is().like().text(GazetteerConstants.DEFAULT_TAG));
+        filterBuilder
+            .attribute(Core.METACARD_TAGS)
+            .is()
+            .like()
+            .text(GazetteerConstants.DEFAULT_TAG));
     countryFilters.add(
-        filterBuilder.attribute(Metacard.TAGS).is().like().text(GazetteerConstants.COUNTRY_TAG));
+        filterBuilder
+            .attribute(Core.METACARD_TAGS)
+            .is()
+            .like()
+            .text(GazetteerConstants.COUNTRY_TAG));
   }
 
   public Query getQueryForAllCountries() {
@@ -30,7 +38,7 @@ public class CatalogHelper {
 
   public Query getQueryForCountryCode(String countryCode) {
     List<Filter> filters = new ArrayList<>(countryFilters);
-    filters.add(filterBuilder.attribute(Metacard.TITLE).is().equalTo().text(countryCode));
+    filters.add(filterBuilder.attribute(Core.TITLE).is().equalTo().text(countryCode));
     return new QueryImpl(filterBuilder.allOf(filters));
   }
 }
