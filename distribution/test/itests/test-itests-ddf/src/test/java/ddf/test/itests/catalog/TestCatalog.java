@@ -2599,6 +2599,8 @@ public class TestCatalog extends AbstractIntegrationTest {
         .post(REST_PATH.getUrl());
   }
 
+  // TODO: Turn on this test once DDF-3340 is complete
+  @Ignore
   @Test
   public void testSolrSimilarityConfiguration() throws Exception {
     getServiceManager().startFeature(true, "catalog-solr-solrclient");
