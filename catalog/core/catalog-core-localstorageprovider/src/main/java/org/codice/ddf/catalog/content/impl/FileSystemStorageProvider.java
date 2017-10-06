@@ -397,7 +397,10 @@ public class FileSystemStorageProvider implements StorageProvider {
       extension = FilenameUtils.getExtension(FilenameUtils.removeExtension(filename));
       try {
         reference = new URI(new String(Files.readAllBytes(file), Charset.forName("UTF-8")));
-        if (reference.getScheme().equalsIgnoreCase("file")) {
+
+        if (reference.getScheme() == null) {
+          file = Paths.get(reference.toASCIIString());
+        } else if (reference.getScheme().equalsIgnoreCase("file")) {
           file = Paths.get(reference);
         } else {
           file = null;
