@@ -914,6 +914,9 @@ public abstract class AbstractCswSource extends MaskableImpl
   }
 
   @Override
+  @SuppressWarnings("squid:S3776"
+  /* The codes complexity is not unreasonable in this case. Breaking up this method would serve little value as of this writing */
+  )
   public ResourceResponse retrieveResource(
       URI resourceUri, Map<String, Serializable> requestProperties)
       throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
