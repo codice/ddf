@@ -54,3 +54,9 @@ If you want to change the logging level, use the flags `-DitestLogLevel=<level>`
 
 ## Run unstable tests
 By default, all tests that include a call to `unstableTest` will not be run. To include them as part of a build, add the `-DincludeUnstableTests=true` property to the Maven command.
+
+## Generate missing security permissions
+When adding new functionality that requires security permissions that have
+not been added to `security/default.policy`, running with the `DgeneratePolicyFile=true`
+flag and the `-DkeepRuntimeFolder=true` flag will generate the missing
+policies in the `generated.policy` file in the exam folder.
