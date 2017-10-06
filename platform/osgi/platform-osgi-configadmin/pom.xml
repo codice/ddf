@@ -144,6 +144,10 @@
                             won't even start if we allow this import to be included (since it's not
                             installed in the container anymore). -->
                             !org.apache.felix.cm.*,
+                            !org.apache.log4j;resolution:=optional,
+                            !org.slf4j;resolution:=optional,
+                            !javax.crypto;resolution:=optional,
+                            !javax.crypto.spec;resolution:=optional,
                             org.osgi.service.cm;version="[1.5,1.6)",
                             org.osgi.framework;version="[1.4,2)",
                             org.osgi.service.log;resolution:=optional;version="1.3",

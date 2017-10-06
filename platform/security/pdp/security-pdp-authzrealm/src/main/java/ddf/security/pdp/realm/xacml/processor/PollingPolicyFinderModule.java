@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Set;
 import org.apache.commons.io.monitor.FileAlterationListener;
 import org.apache.commons.io.monitor.FileAlterationMonitor;
@@ -172,13 +174,16 @@ public class PollingPolicyFinderModule extends FileBasedPolicyFinderModule
    * @return true if the directory is empty and false otherwise.
    */
   private boolean isXacmlPoliciesDirectoryEmpty(File xacmlPoliciesDirectory) {
-    boolean empty = false;
-    if (null != xacmlPoliciesDirectory && xacmlPoliciesDirectory.isDirectory()) {
-      File[] files = xacmlPoliciesDirectory.listFiles();
-      empty = files == null || files.length == 0;
-    }
-
-    return empty;
+    return AccessController.doPrivileged(
+        (PrivilegedAction<Boolean>)
+            () -> {
+              if (null != xacmlPoliciesDirectory && xacmlPoliciesDirectory.isDirectory()) {
+                File[] files = xacmlPoliciesDirectory.listFiles();
+                return files == null || files.length == 0;
+              } else {
+                return false;
+              }
+            });
   }
 
   /**

@@ -703,54 +703,6 @@ public class TestFederation extends AbstractIntegrationTest {
         .body(containsString("Unable to transform Metacard."));
   }
 
-  /**
-   * Tests Source CANNOT retrieve existing product. The product is NOT located in one of the
-   * URLResourceReader's root resource directories, so it CANNOT be downloaded.
-   *
-   * <p>For example: The resource uri in the metacard is:
-   * file:/Users/andrewreynolds/projects/ddf-projects/ddf/distribution/test/itests/test-itests-ddf/target/exam/e59b02bf-5774-489f-8aa9-53cf99c25d25/../../testFederatedRetrieveProductInvalidResourceUrlWithBackReferences.txt
-   * which really means:
-   * file:/Users/andrewreynolds/projects/ddf-projects/ddf/distribution/test/itests/test-itests-ddf/target/testFederatedRetrieveProductInvalidResourceUrlWithBackReferences.txt
-   *
-   * <p>The URLResourceReader's root resource directories are: <ddf.home>/data/products and
-   * /Users/andrewreynolds/projects/ddf-projects/ddf/distribution/test/itests/test-itests-ddf/target/exam/e59b02bf-5774-489f-8aa9-53cf99c25d25
-   *
-   * <p>So the product
-   * (/Users/andrewreynolds/projects/ddf-projects/ddf/distribution/test/itests/test-itests-ddf/target/testFederatedRetrieveProductInvalidResourceUrlWithBackReferences.txt)
-   * is not located under either of the URLResourceReader's root resource directories.
-   *
-   * @throws Exception
-   */
-  @Test
-  public void testFederatedRetrieveProductInvalidResourceUrlWithBackReferences() throws Exception {
-    // Setup
-    String fileName = testName.getMethodName() + HTTPS_PORT.getPort() + ".txt";
-    String fileNameWithBackReferences = ".." + File.separator + ".." + File.separator + fileName;
-    resourcesToDelete.add(fileNameWithBackReferences);
-    // Add back references to file name
-    String metacardId = ingestXmlWithProduct(fileNameWithBackReferences);
-    String productDirectory = new File(fileName).getAbsoluteFile().getParent();
-    urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(
-        DEFAULT_URL_RESOURCE_READER_ROOT_RESOURCE_DIRS, productDirectory);
-
-    String restUrl =
-        REST_PATH.getUrl()
-            + "sources/"
-            + OPENSEARCH_SOURCE_ID
-            + "/"
-            + metacardId
-            + "?transform=resource";
-
-    // Perform Test and Verify
-    when()
-        .get(restUrl)
-        .then()
-        .assertThat()
-        .contentType("text/html")
-        .statusCode(equalTo(500))
-        .body(containsString("Unable to transform Metacard."));
-  }
-
   @Test
   public void testFederatedRetrieveExistingProductCsw() throws Exception {
     String productDirectory =
@@ -788,22 +740,6 @@ public class TestFederation extends AbstractIntegrationTest {
             + "?transform=resource";
 
     // Perform Test and Verify
-    when().get(restUrl).then().assertThat().statusCode(equalTo(500));
-  }
-
-  @Test
-  public void testFederatedRetrieveNoProductCsw() throws Exception {
-    File[] rootDirectories = File.listRoots();
-    String rootDir = rootDirectories[0].getCanonicalPath();
-    urlResourceReaderConfigurator.setUrlResourceReaderRootDirs(rootDir);
-    String restUrl =
-        REST_PATH.getUrl()
-            + "sources/"
-            + CSW_SOURCE_ID
-            + "/"
-            + metacardIds[GEOJSON_RECORD_INDEX]
-            + "?transform=resource";
-
     when().get(restUrl).then().assertThat().statusCode(equalTo(500));
   }
 

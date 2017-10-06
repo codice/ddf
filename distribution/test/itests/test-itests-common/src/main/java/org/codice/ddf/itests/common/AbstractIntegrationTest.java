@@ -46,11 +46,17 @@ import java.lang.reflect.Proxy;
 import java.net.ServerSocket;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Dictionary;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -73,6 +79,7 @@ import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
 import org.ops4j.pax.exam.karaf.options.LogLevelOption;
+import org.ops4j.pax.exam.options.extra.VMOption;
 import org.osgi.framework.BundleException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -116,6 +123,8 @@ public abstract class AbstractIntegrationTest {
   public static final String REMOVE_ALL = "catalog:removeall -f -p";
 
   private static final String CLEAR_CACHE = "catalog:removeall -f -p --cache";
+
+  private static final File UNPACK_DIRECTORY = new File("target/exam");
 
   protected static ServerSocket placeHolderSocket;
 
@@ -422,7 +431,7 @@ public abstract class AbstractIntegrationTest {
                     .getURL(),
                 "ddf",
                 KARAF_VERSION)
-            .unpackDirectory(new File("target/exam"))
+            .unpackDirectory(UNPACK_DIRECTORY)
             .useDeployFolder(false));
   }
 
@@ -442,7 +451,8 @@ public abstract class AbstractIntegrationTest {
         editConfigurationFilePut("etc/system.properties", "host", "localhost"),
         editConfigurationFilePut("etc/system.properties", "jetty.port", HTTPS_PORT.getPort()),
         editConfigurationFilePut("etc/system.properties", "hostContext", "/solr"),
-        editConfigurationFilePut("etc/system.properties", "ddf.home", "${karaf.home}"),
+        editConfigurationFilePut("etc/system.properties", "maven.home", "${user.home}"),
+        editConfigurationFilePut("etc/system.properties", "M2_HOME", "${user.home}"),
         editConfigurationFilePut(
             "etc/users.properties",
             SYSTEM_ADMIN_USER,
@@ -586,7 +596,27 @@ public abstract class AbstractIntegrationTest {
         vmOption("-Xmx2048M"),
         // avoid integration tests stealing focus on OS X
         vmOption("-Djava.awt.headless=true"),
-        vmOption("-Dfile.encoding=UTF8"));
+        vmOption("-Dfile.encoding=UTF8"),
+        vmOption("-Djava.security.policy==security/default.policy"),
+        vmOption(
+            "-DproGrade.getPermissions.override=sun.rmi.server.LoaderHandler:loadClass,org.apache.jasper.compiler.JspRuntimeContext:initSecurity"),
+        vmOption("-Dpolicy.provider=net.sourceforge.prograde.policy.ProGradePolicy"),
+        HomeAwareVmOption.homeAwareVmOption("-Dddf.home={karaf.home}"),
+        HomeAwareVmOption.homeAwareVmOption("-Dddf.home.policy={karaf.home}/"),
+        when(Boolean.getBoolean("generatePolicyFile")).useOptions(generatorSecurityManager()),
+        when(!Boolean.getBoolean("generatePolicyFile")).useOptions(standardSecurityManager()));
+  }
+
+  private Option[] generatorSecurityManager() {
+    return options(
+        HomeAwareVmOption.homeAwareVmOption(
+            "-Dprograde.generated.policy={karaf.home}/generated.policy"),
+        vmOption("-Dprograde.use.own.policy=true"),
+        vmOption("-Djava.security.manager=net.sourceforge.prograde.sm.PolicyFileGeneratorJSM"));
+  }
+
+  private Option[] standardSecurityManager() {
+    return options(vmOption("-Djava.security.manager=net.sourceforge.prograde.sm.ProGradeJSM"));
   }
 
   protected Option[] configureStartScript() {
@@ -802,6 +832,46 @@ public abstract class AbstractIntegrationTest {
       return true;
     } catch (AssertionError e) {
       return false;
+    }
+  }
+
+  /**
+   * Helper Option class to allow interpolation of {@code karaf.home} directory based on the
+   * provided {@link #UNPACK_DIRECTORY}.
+   */
+  static class HomeAwareVmOption extends VMOption {
+    static HomeAwareVmOption homeAwareVmOption(String option) {
+      return new HomeAwareVmOption(option);
+    }
+
+    private HomeAwareVmOption(String option) {
+      super(option);
+    }
+
+    @Override
+    @SuppressWarnings({
+      "squid:S00112" /* A generic RuntimeException is perfectly reasonable in this case. */
+    })
+    public String getOption() {
+      final Function<Path, FileTime> createTimeComp =
+          path -> {
+            try {
+              return Files.readAttributes(path, BasicFileAttributes.class).creationTime();
+            } catch (IOException e) {
+              throw new RuntimeException("Unable to determine current exam directory", e);
+            }
+          };
+
+      try (final Stream<Path> dirContents = Files.list(UNPACK_DIRECTORY.toPath())) {
+        return dirContents
+            .max(Comparator.comparing(createTimeComp))
+            .map(Path::toAbsolutePath)
+            .map(Path::toString)
+            .map(s -> StringUtils.replace(super.getOption(), "{karaf.home}", s))
+            .orElseGet(super::getOption);
+      } catch (IOException e) {
+        throw new RuntimeException("Unable to determine current exam directory", e);
+      }
     }
   }
 }
