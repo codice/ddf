@@ -1,0 +1,2 @@
+(java.util.PropertyPermission "*" "read")
+(java.lang.RuntimePermission "createClassLoader")

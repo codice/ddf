@@ -18,6 +18,8 @@ import static org.osgi.service.cm.ConfigurationEvent.CM_UPDATED;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
@@ -94,18 +96,24 @@ public class ConfigurationInstaller implements SynchronousConfigurationListener 
   @Override
   public void configurationEvent(ConfigurationEvent event) {
     String pid = event.getPid();
-    switch (event.getType()) {
-      case CM_UPDATED:
-        LOGGER.debug("Handling update for pid {}", pid);
-        handleUpdate(event);
-        break;
-      case CM_DELETED:
-        LOGGER.debug("Handling delete for pid {}", pid);
-        handleDelete(event);
-        break;
-      default:
-        LOGGER.debug("Unknown configuration event type, taking no action for pid {}", pid);
-    }
+    AccessController.doPrivileged(
+        (PrivilegedAction<Void>)
+            () -> {
+              switch (event.getType()) {
+                case CM_UPDATED:
+                  LOGGER.debug("Handling update for pid {}", pid);
+                  handleUpdate(event);
+                  break;
+                case CM_DELETED:
+                  LOGGER.debug("Handling delete for pid {}", pid);
+                  handleDelete(event);
+                  break;
+                default:
+                  LOGGER.debug(
+                      "Unknown configuration event type, taking no action for pid {}", pid);
+              }
+              return null;
+            });
   }
 
   /**
