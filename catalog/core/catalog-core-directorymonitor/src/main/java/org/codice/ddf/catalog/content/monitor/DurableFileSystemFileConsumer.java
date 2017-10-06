@@ -14,15 +14,13 @@
 package org.codice.ddf.catalog.content.monitor;
 
 import java.io.File;
-import java.nio.file.StandardWatchEventKinds;
 import org.apache.camel.Processor;
 import org.apache.camel.component.file.GenericFileEndpoint;
 import org.apache.camel.component.file.GenericFileOperations;
-import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
 import org.apache.commons.io.monitor.FileAlterationObserver;
 
 public class DurableFileSystemFileConsumer extends AbstractDurableFileConsumer {
-  private DurableFileAlterationListener listener = new DurableFileAlterationListener();
+  private DurableFileAlterationListener listener;
 
   private FileAlterationObserver observer;
 
@@ -31,6 +29,7 @@ public class DurableFileSystemFileConsumer extends AbstractDurableFileConsumer {
       Processor processor,
       GenericFileOperations<EventfulFileWrapper> operations) {
     super(endpoint, processor, operations);
+    listener = new DurableFileAlterationListener(this);
   }
 
   @Override
@@ -66,22 +65,6 @@ public class DurableFileSystemFileConsumer extends AbstractDurableFileConsumer {
     if (observer != null) {
       observer.destroy();
     }
-  }
-
-  protected class DurableFileAlterationListener extends FileAlterationListenerAdaptor {
-    @Override
-    public void onFileChange(File file) {
-      createExchangeHelper(file, StandardWatchEventKinds.ENTRY_MODIFY);
-    }
-
-    @Override
-    public void onFileCreate(File file) {
-      createExchangeHelper(file, StandardWatchEventKinds.ENTRY_CREATE);
-    }
-
-    @Override
-    public void onFileDelete(File file) {
-      createExchangeHelper(file, StandardWatchEventKinds.ENTRY_DELETE);
-    }
+    listener.destroy();
   }
 }
