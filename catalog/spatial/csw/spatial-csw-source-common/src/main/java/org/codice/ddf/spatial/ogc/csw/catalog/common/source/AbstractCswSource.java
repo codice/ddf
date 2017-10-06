@@ -955,26 +955,31 @@ public abstract class AbstractCswSource extends MaskableImpl
       CswRecordCollection recordCollection;
       try {
         recordCollection = csw.getRecordById(getRecordByIdRequest, rangeValue);
+      } catch (CswException e) {
+        throw new ResourceNotFoundException(
+            String.format(ERROR_ID_PRODUCT_RETRIEVAL, metacardId), e);
+      }
 
-        Resource resource = recordCollection.getResource();
-        if (resource != null) {
+      Resource resource = recordCollection.getResource();
+      if (resource != null) {
 
-          long responseBytesSkipped = 0L;
-          if (recordCollection.getResourceProperties().get(BYTES_SKIPPED) != null) {
-            responseBytesSkipped =
-                (Long) recordCollection.getResourceProperties().get(BYTES_SKIPPED);
-          }
-          alignStream(resource.getInputStream(), requestedBytesToSkip, responseBytesSkipped);
+        long responseBytesSkipped = 0L;
+        if (recordCollection.getResourceProperties().get(BYTES_SKIPPED) != null) {
+          responseBytesSkipped = (Long) recordCollection.getResourceProperties().get(BYTES_SKIPPED);
+        }
+
+        try (InputStream resourceIs = resource.getInputStream()) {
+          alignStream(resourceIs, requestedBytesToSkip, responseBytesSkipped);
 
           return new ResourceResponseImpl(
               new ResourceImpl(
-                  new BufferedInputStream(resource.getInputStream()),
+                  new BufferedInputStream(resourceIs),
                   resource.getMimeTypeValue(),
                   FilenameUtils.getName(resource.getName())));
+        } catch (IOException e) {
+          throw new ResourceNotFoundException(
+              String.format(ERROR_ID_PRODUCT_RETRIEVAL, metacardId), e);
         }
-      } catch (CswException | IOException e) {
-        throw new ResourceNotFoundException(
-            String.format(ERROR_ID_PRODUCT_RETRIEVAL, metacardId), e);
       }
     }
     LOGGER.debug("Retrieving resource at : {}", resourceUri);
