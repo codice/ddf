@@ -14,9 +14,9 @@
 package ddf.catalog.resource.impl;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
@@ -27,6 +27,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.net.HttpHeaders;
+import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.operation.ResourceResponse;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
@@ -42,7 +43,6 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -64,9 +64,9 @@ import org.junit.runners.model.FrameworkMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ResourceReaderTest {
+public class URLResourceReaderTest {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(ResourceReaderTest.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(URLResourceReaderTest.class);
 
   private static final String TEST_PATH = "/src/test/resources/data/";
 
@@ -366,12 +366,7 @@ public class ResourceReaderTest {
   public void testHTTPReturnsFileNameWithoutPath() throws Exception {
     URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + TEST_PATH + JPEG_FILE_NAME_1);
 
-    verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE);
-
-    Path pathForUri = Paths.get(ABSOLUTE_PATH, TEST_PATH, JPEG_FILE_NAME_1);
-    uri = pathForUri.toUri();
-
-    verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE);
+    verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, 5);
   }
 
   @Test
@@ -388,11 +383,35 @@ public class ResourceReaderTest {
 
     when(mockResponse.getEntity()).thenReturn(getBinaryData());
 
-    ResourceResponse response =
-        verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, null);
-
     // verify that we got the entire resource
-    assertEquals(5, response.getResource().getByteArray().length);
+    verifyFileFromURLResourceReader(
+        uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, null, null, 5, uri.toString());
+  }
+
+  /**
+   * Exactly the same as {@link URLResourceReaderTest#testNameInContentDisposition} except with a
+   * "qualifier" property. Tests that the {@link WebClient} is created with the correct URL.
+   */
+  @Test
+  public void testRetrieveQualifiedResource() throws Exception {
+    URI uri = new URI(HTTP_SCHEME_PLUS_SEP + HOST + TEST_PATH + BAD_FILE_NAME);
+    Response mockResponse = mock(Response.class);
+    when(mockWebClient.get()).thenReturn(mockResponse);
+    MultivaluedMap<String, Object> map = new MultivaluedHashMap<>();
+    map.put(
+        HttpHeaders.CONTENT_DISPOSITION,
+        Arrays.<Object>asList("inline; filename=\"" + JPEG_FILE_NAME_1 + "\""));
+    when(mockResponse.getHeaders()).thenReturn(map);
+    when(mockResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
+
+    when(mockResponse.getEntity()).thenReturn(getBinaryData());
+
+    final String qualifierValue = "qualifierValue";
+    final String expectedWebClientUri =
+        String.format("%s&%s=%s", uri, ContentItem.QUALIFIER, qualifierValue);
+    // verify that we got the entire resource
+    verifyFileFromURLResourceReader(
+        uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, null, qualifierValue, 5, expectedWebClientUri);
   }
 
   /**
@@ -419,11 +438,9 @@ public class ResourceReaderTest {
 
     String bytesToSkip = "2";
 
-    ResourceResponse response =
-        verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, bytesToSkip);
-
     // verify that the requested bytes 3-5 were returned
-    assertEquals(3, response.getResource().getByteArray().length);
+    verifyFileFromURLResourceReader(
+        uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, bytesToSkip, null, 3, uri.toString());
   }
 
   /**
@@ -451,11 +468,9 @@ public class ResourceReaderTest {
 
     String bytesToSkip = "2";
 
-    ResourceResponse response =
-        verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, bytesToSkip);
-
     // verify that the requested bytes 3-5 were returned
-    assertEquals(3, response.getResource().getByteArray().length);
+    verifyFileFromURLResourceReader(
+        uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, bytesToSkip, null, 3, uri.toString());
   }
 
   /**
@@ -483,7 +498,8 @@ public class ResourceReaderTest {
     String bytesToSkip = "2";
 
     // this should throw an IOException since more bytes were skipped than requested
-    verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, bytesToSkip);
+    verifyFileFromURLResourceReader(
+        uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, bytesToSkip, null, 2135, uri.toString());
   }
 
   /**
@@ -510,11 +526,9 @@ public class ResourceReaderTest {
 
     String bytesToSkip = "2";
 
-    ResourceResponse response =
-        verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, bytesToSkip);
-
     // verify that the requested bytes 3-5 were returned
-    assertEquals(3, response.getResource().getByteArray().length);
+    verifyFileFromURLResourceReader(
+        uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, bytesToSkip, null, 3, uri.toString());
   }
 
   @Test
@@ -532,7 +546,8 @@ public class ResourceReaderTest {
 
     when(mockResponse.getEntity()).thenReturn(getBinaryData());
 
-    verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, null);
+    verifyFileFromURLResourceReader(
+        uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, null, null, 5, uri.toString());
   }
 
   @Test
@@ -549,7 +564,8 @@ public class ResourceReaderTest {
 
     when(mockResponse.getEntity()).thenReturn(getBinaryData());
 
-    verifyFileFromURLResourceReader(uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, null);
+    verifyFileFromURLResourceReader(
+        uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, null, null, 5, uri.toString());
   }
 
   @Test
@@ -743,7 +759,8 @@ public class ResourceReaderTest {
     assertThat(resource.getMimeType().toString(), containsString(expectedMimeType));
   }
 
-  private void verifyFileFromURLResourceReader(URI uri, String filename, String expectedMimeType)
+  private void verifyFileFromURLResourceReader(
+      URI uri, String filename, String expectedMimeType, int expectedResponseResourceLength)
       throws URISyntaxException, IOException, ResourceNotFoundException {
     Response mockResponse = mock(Response.class);
     when(mockWebClient.get()).thenReturn(mockResponse);
@@ -755,12 +772,25 @@ public class ResourceReaderTest {
     when(mockResponse.getStatus()).thenReturn(Response.Status.OK.getStatusCode());
 
     when(mockResponse.getEntity()).thenReturn(getBinaryData());
-    verifyFileFromURLResourceReader(uri, filename, expectedMimeType, null);
+    verifyFileFromURLResourceReader(
+        uri,
+        filename,
+        expectedMimeType,
+        null,
+        null,
+        expectedResponseResourceLength,
+        uri.toString());
   }
 
-  // Create arguments, adding bytesToSkip if present, and call doVerification
-  private ResourceResponse verifyFileFromURLResourceReader(
-      URI uri, String filename, String expectedMimeType, String bytesToSkip)
+  // Create arguments, adding bytesToSkip and qualifier if present, and verify
+  private void verifyFileFromURLResourceReader(
+      URI uri,
+      String filename,
+      String expectedMimeType,
+      String bytesToSkip,
+      String qualifier,
+      int expectedResponseResourceLength,
+      String expectedWebClientUri)
       throws URISyntaxException, IOException, ResourceNotFoundException {
 
     Map<String, Serializable> arguments = new HashMap<String, Serializable>();
@@ -769,14 +799,11 @@ public class ResourceReaderTest {
       arguments.put(BYTES_TO_SKIP, bytesToSkip);
     }
 
-    return doVerification(uri, filename, expectedMimeType, arguments);
-  }
+    if (qualifier != null) {
+      arguments.put(ContentItem.QUALIFIER, qualifier);
+    }
 
-  private ResourceResponse doVerification(
-      URI uri, String filename, String expectedMimeType, Map<String, Serializable> arguments)
-      throws URISyntaxException, IOException, ResourceNotFoundException {
-
-    URLResourceReader resourceReader = new TestURLResourceReader(mimeTypeMapper);
+    TestURLResourceReader resourceReader = new TestURLResourceReader(mimeTypeMapper);
     resourceReader.setRootResourceDirectories(ImmutableSet.of(ABSOLUTE_PATH + TEST_PATH));
 
     // Test using the URL ResourceReader
@@ -794,10 +821,20 @@ public class ResourceReaderTest {
     assertThat(name, is(filename));
     assertTrue(resource.getMimeType().toString().contains(expectedMimeType));
 
-    return resourceResponse;
+    assertThat(
+        "The length of the resource in the response should be " + expectedResponseResourceLength,
+        resourceResponse.getResource().getByteArray().length,
+        is(expectedResponseResourceLength));
+
+    assertThat(
+        "The web client should be created with uri=" + uri,
+        resourceReader.capturedWebClientUri,
+        equalTo(expectedWebClientUri));
   }
 
   private class TestURLResourceReader extends URLResourceReader {
+
+    public String capturedWebClientUri;
 
     public TestURLResourceReader(MimeTypeMapper mimeTypeMapper) {
       super(mimeTypeMapper);
@@ -805,6 +842,7 @@ public class ResourceReaderTest {
 
     @Override
     protected WebClient getWebClient(String uri, Map<String, Serializable> properties) {
+      capturedWebClientUri = uri;
       return mockWebClient;
     }
   }
