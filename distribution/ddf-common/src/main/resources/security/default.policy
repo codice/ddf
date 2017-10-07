@@ -126,11 +126,16 @@ grant
     permission java.util.PropertyPermission "javax.net.ssl.*", "read";
 
     permission java.io.FilePermission "${ddf.home}${/}bin_third_party${/}-", "read, execute";
+
+    permission java.io.FilePermission "<<ALL FILES>>", "execute";
 };
 
 grant {
     // User's home directory
     permission java.io.FilePermission "${user.home}${/}-", "read, write";
+
+    // DDF third-party directory for common resources
+    permission java.io.FilePermission "${ddf.home}${/}thirdparty${/}-", "read";
 
     // Temporary file storage
     permission java.io.FilePermission "${java.io.tmpdir}", "read, write, execute, delete";
@@ -145,7 +150,6 @@ grant {
     permission java.io.FilePermission "/lib", "read";
     permission java.io.FilePermission "/proc/self/exe", "read";
     permission java.io.FilePermission "/usr/lib", "read";
-
 
     // Distribution File Permissions
     permission java.io.FilePermission "${ddf.home}", "read";

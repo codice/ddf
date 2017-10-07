@@ -223,6 +223,13 @@
             <fileMode>0644</fileMode>
         </fileSet>
 
+        <!-- DDF Third-party directory -->
+        <fileSet>
+            <directory>${setup.folder}/thirdparty</directory>
+            <outputDirectory>/thirdparty</outputDirectory>
+            <fileMode>0644</fileMode>
+        </fileSet>
+
         <fileSet>
             <directory>${setup.folder}/data</directory>
             <outputDirectory>/data</outputDirectory>
