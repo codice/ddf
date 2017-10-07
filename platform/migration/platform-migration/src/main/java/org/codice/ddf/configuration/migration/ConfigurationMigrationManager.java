@@ -18,6 +18,7 @@ import ddf.security.common.audit.SecurityLogger;
 import java.io.File;
 import java.io.IOError;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -26,6 +27,11 @@ import java.util.Optional;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanException;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.management.ReflectionException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
@@ -111,24 +117,32 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
 
   @Override
   public MigrationReport doExport(Path exportDirectory) {
-    return doExport(exportDirectory, Optional.empty());
+    // start the access control starting with this class' privileges; thus ignoring whoever called
+    // us
+    return AccessUtils.doPrivileged(() -> doExport(exportDirectory, Optional.empty()));
   }
 
   @Override
   public MigrationReport doExport(Path exportDirectory, Consumer<MigrationMessage> consumer) {
     Validate.notNull(consumer, "invalid null consumer");
-    return doExport(exportDirectory, Optional.ofNullable(consumer));
+    // start the access control starting with this class' privileges; thus ignoring whoever called
+    // us
+    return AccessUtils.doPrivileged(() -> doExport(exportDirectory, Optional.ofNullable(consumer)));
   }
 
   @Override
   public MigrationReport doImport(Path exportDirectory) {
-    return doImport(exportDirectory, Optional.empty());
+    // start the access control starting with this class' privileges; thus ignoring whoever called
+    // us
+    return AccessUtils.doPrivileged(() -> doImport(exportDirectory, Optional.empty()));
   }
 
   @Override
   public MigrationReport doImport(Path exportDirectory, Consumer<MigrationMessage> consumer) {
     Validate.notNull(consumer, "invalid null consumer");
-    return doImport(exportDirectory, Optional.of(consumer));
+    // start the access control starting with this class' privileges; thus ignoring whoever called
+    // us
+    return AccessUtils.doPrivileged(() -> doImport(exportDirectory, Optional.of(consumer)));
   }
 
   @SuppressWarnings(
@@ -162,7 +176,7 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
     final MigrationReportImpl report = new MigrationReportImpl(MigrationOperation.EXPORT, consumer);
 
     try {
-      AccessUtils.doPrivileged(() -> FileUtils.forceMkdir(exportDirectory.toFile()));
+      FileUtils.forceMkdir(exportDirectory.toFile());
       SecurityLogger.audit("Created export directory {}", exportDirectory);
     } catch (SecurityException | IOException e) {
       LOGGER.warn("unable to create directory: " + exportDirectory + "; ", e);
@@ -241,25 +255,46 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
       // don't leave the zip file there if the import succeeded
       deleteQuietly(exportFile.toFile());
       report.record(new MigrationSuccessfulInformation(Messages.IMPORT_SUCCESS, exportFile));
-      try {
-        AccessUtils.doPrivileged(
-            () -> { // force a JVM restart
-              System.setProperty("karaf.restart.jvm", "true");
-              system.reboot();
-            });
-        SecurityLogger.audit("Rebooting system");
-        report.record(Messages.RESTARTING_SYSTEM);
-      } catch (Exception e) { // yeah, their interface declares an exception can be thrown!!!!
-        SecurityLogger.audit("Failed to reboot system");
-        LOGGER.debug("failed to request a reboot: ", e);
-        report.record(Messages.RESTART_SYSTEM);
-      }
+      // force a JVM restart
+      restart(report);
     }
     return report;
   }
 
+  private void restart(MigrationReport report) {
+    try {
+      if (!restartServiceWrapperIfControlled()) {
+        LOGGER.debug("asking karaf to restart");
+        System.setProperty("karaf.restart.jvm", "true");
+        system.reboot();
+      }
+      SecurityLogger.audit("Rebooting system");
+      report.record(Messages.RESTARTING_SYSTEM);
+    } catch (Exception e) {
+      SecurityLogger.audit("Failed to reboot system");
+      LOGGER.debug("failed to request a reboot: ", e);
+      report.record(Messages.RESTART_SYSTEM);
+    }
+  }
+
+  private boolean restartServiceWrapperIfControlled()
+      throws InstanceNotFoundException, MBeanException, ReflectionException,
+          MalformedObjectNameException {
+    if ((System.getProperty("wrapper.key")) != null) {
+      LOGGER.debug("asking service wrapper to restart");
+      ManagementFactory.getPlatformMBeanServer()
+          .invoke(
+              new ObjectName("org.tanukisoftware.wrapper:type=WrapperManager"),
+              "restart",
+              null,
+              null);
+      return true;
+    }
+    return false;
+  }
+
   private void deleteQuietly(File exportFile) {
-    if (AccessUtils.doPrivileged(() -> FileUtils.deleteQuietly(exportFile))) {
+    if (FileUtils.deleteQuietly(exportFile)) {
       SecurityLogger.audit("Exported file {} deleted", exportFile);
     } else {
       SecurityLogger.audit("Failed to delete exported file {}", exportFile);

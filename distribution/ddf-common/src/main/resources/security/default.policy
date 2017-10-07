@@ -7,6 +7,9 @@ deny {
     // Deny deletion of the security policy file through any Java code
     permission java.io.FilePermission "${ddf.home}${/}security${/}default.policy", "read, write, execute, delete";
 
+    // Deny deletion of the restart.jvm command file through any Java code
+    permission java.io.FilePermission "${ddf.home}${/}bin{/}restart.jvm", "read, write, execute, delete";
+
     permission java.util.PropertyPermission "javax.net.ssl.*", "read, write";
     permission java.util.PropertyPermission "java.io.tmpdir", "write";
     permission java.util.PropertyPermission "user.home", "write";
@@ -53,12 +56,16 @@ grant
     // some permissions might be repeated here to ensure that they are granted to the migration
     // framework if we ever tighten the permissions above
 
+    permission javax.management.MBeanServerPermission "createMBeanServer";
+
     permission java.io.FilePermission "<<ALL FILES>>", "read, readlink";
     permission java.io.FilePermission "${ddf.home}", "read, write";
+    permission java.io.FilePermission "${ddf.home}${/}-", "read, write, delete";
 
     permission java.util.PropertyPermission "*", "read";
     permission java.util.PropertyPermission "ddf.home", "read";
     permission java.util.PropertyPermission "karaf.restart.jvm", "write";
+    permission java.util.PropertyPermission "wrapper.key", "read";
 };
 
 //
@@ -69,6 +76,9 @@ grant
     // some permissions might be repeated here to ensure that they are granted to the migration
     // framework if we ever tighten the permissions above
 
+    permission java.io.FilePermission "${ddf.home}${/}bin${/}-", "read";
+    permission java.io.FilePermission "${ddf.home}${/}etc${/}-", "read";
+    permission java.io.FilePermission "${ddf.home}${/}etc${/}pdp${/}-", "read, delete";
     permission java.io.FilePermission "${ddf.home}${/}etc${/}ws-security", "read";
     permission java.io.FilePermission "${ddf.home}${/}etc${/}ws-security${/}-", "read, delete";
 

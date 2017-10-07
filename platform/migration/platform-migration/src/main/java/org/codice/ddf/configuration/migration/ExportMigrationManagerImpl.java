@@ -110,10 +110,8 @@ public class ExportMigrationManagerImpl implements Closeable {
   private static ZipOutputStream newZipOutputStreamFor(Path exportFile) {
     Validate.notNull(exportFile, "invalid null export file");
     try {
-      return AccessUtils.doPrivileged(
-          () ->
-              new ZipOutputStream(
-                  new BufferedOutputStream(new FileOutputStream(exportFile.toFile()))));
+      return new ZipOutputStream(
+          new BufferedOutputStream(new FileOutputStream(exportFile.toFile())));
     } catch (SecurityException | FileNotFoundException e) {
       throw new MigrationException(Messages.EXPORT_FILE_CREATE_ERROR, exportFile, e);
     }
@@ -128,7 +126,7 @@ public class ExportMigrationManagerImpl implements Closeable {
    */
   public void doExport(String productVersion) {
     Validate.notNull(productVersion, "invalid null product version");
-    final String ddfHome = AccessUtils.doPrivileged(() -> System.getProperty("ddf.home"));
+    final String ddfHome = System.getProperty("ddf.home");
 
     LOGGER.debug(
         "Exporting product [{}] under [{}] with version [{}] to [{}]...",

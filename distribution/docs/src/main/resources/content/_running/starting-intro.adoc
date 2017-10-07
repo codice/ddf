@@ -130,15 +130,34 @@ Always use the shutdown command or the shortcut from the command line console.
 
 ==== Automatic Start on System Boot
 
-Because ${branding} is built on top of Apache Karaf, ${branding} can use the Karaf Wrapper to enable automatic startup and shutdown.
+Because ${branding} is built on top of Apache Karaf, ${branding} can use the Karaf Wrapper to enable automatic startup and shutdown. When ${branding} is started using Karaf Wrapper, new `wrapper.log` and `wrapper.log.n` (where n goes from 1 to 5 by default) log files will be generated to include wrapper and console specific information.
 
+. Temporarly disable the security manager
++
+.. Stop ${branding}
+.. Comment out the `KARAF_SYSTEM_OPTS` environment variable in `<${branding}_HOME>/bin/setenv` (all *NIX) or `<${branding}_HOME>\bin\setenv.bat` (Windows) and restart ${branding}.
+.. Start ${branding}
++
 . Create the Karaf wrapper.
 +
-.Within the ${branding} console
+Within the ${branding} console:
++
+.*NIX
 ----
 ${branding-lowercase}${at-symbol}local> feature:install -r wrapper
-${branding-lowercase}${at-symbol}local> wrapper:install -s AUTO_START -n ${branding-lowercase} -d ${branding-lowercase} -D "${branding} Service"
+${branding-lowercase}${at-symbol}local> wrapper:install -i setenv-wrapper.conf -s AUTO_START -n ${branding-lowercase} -d ${branding-lowercase} -D "${branding} Service"
 ----
++
+.Windows
+----
+${branding-lowercase}${at-symbol}local> feature:install -r wrapper
+${branding-lowercase}${at-symbol}local> wrapper:install -i setenv-windows-wrapper.conf -s AUTO_START -n ${branding-lowercase} -d ${branding-lowercase} -D "${branding} Service"
+----
++
+. Re-enable the security manager
++
+.. Stop ${branding}
+.. Uncomment the `KARAF_SYSTEM_OPTS` environment variable in `<${branding}_HOME>/bin/setenv` (all *NIX) or `<${branding}_HOME>\bin\setenv.bat` (Windows) previously commented out and restart ${branding}.
 +
 . (Windows users skip to next step) (All *NIX) If ${branding} was installed to run as a non-root user (recommended,) edit `<${branding}_HOME>/bin/${branding-lowercase}-service`.
 +
@@ -163,38 +182,6 @@ RUN_AS_USER=<${branding-lowercase}-user>
 LimitNOFILE=6815744
 ----
 +
-. Set the memory in the wrapper config to match with ${branding} default memory setting. 
-+
-.<${branding}_HOME>/etc/${branding-lowercase}-wrapper.conf
-[source,java,linenums]
-----
-#Add the following:
-wrapper.java.additional.11=-D${ddf-branding-lowercase}.home=%KARAF_HOME%
-wrapper.java.additional.12=-Dderby.storage.fileSyncTransactionLog=true
-wrapper.java.additional.13=-Djava.security.egd=file:/dev/./urandom
-wrapper.java.additional.14=-Dfile.encoding=UTF8
-wrapper.java.additional.15=-Dkaraf.instances=%KARAF_HOME%/instances
-wrapper.java.additional.16=-Dkaraf.restart.jvm.supported=true
-wrapper.java.additional.17=-Djava.util.logging.config.file=%KARAF_HOME%/etc/java.util.logging.properties
-wrapper.java.additional.18=-XX:+UnlockDiagnosticVMOptions
-wrapper.java.additional.19=-Dderby.system.home=%KARAF_HOME%/data/derby
-wrapper.java.additional.20=-Djava.awt.headless=true
-
-# Set the JVM max heap space as desired. NOTE: You must set the wrapper.java.maxmemory=0 or comment out to override the JVM Max Heap.
-wrapper.java.additional.21=-Xmx4g
-
-# (Preferred) Optionally add the disable attach mechanism to prevent connections to JMX
-wrapper.java.additional.22=-XX:+DisableAttachMechanism
-
-----
-+
-Remove or comment out `wrapper.java.maxmemory=512`:
-+
-.<${branding}_HOME>/etc/${branding-lowercase}-wrapper.conf
-----
-#wrapper.java.maxmemory=512
-----
-+
 . Install the wrapper startup/shutdown scripts.
 +
 *Windows*
@@ -202,11 +189,11 @@ Remove or comment out `wrapper.java.maxmemory=512`:
 Run the following command in a console window. The command must be run with elevated permissions.
 +
 ----
-<${branding}_HOME>/bin/${branding-lowercase}-service.bat install
+<${branding}_HOME>\bin\${branding-lowercase}-service.bat install
 ----
 Startup and shutdown settings can then be managed through *Services -> MMC Start -> Control Panel -> Administrative Tools -> Services*.
 +
-*Redhat*
+*Redhat, Fedora, or Centos (SystemV)*
 +
 ----
 root${at-symbol}localhost# ln -s <${branding}_HOME>/bin/${branding-lowercase}-service /etc/init.d/
@@ -241,26 +228,6 @@ root${at-symbol}localhost# ln -s /etc/init.d/${branding-lowercase}-service /etc/
 ====
 While it is not a necessary step, information on how to convert the System V init scripts to the Solaris System Management Facility can be found at http://www.oracle.com/technetwork/articles/servers-storage-admin/scripts-to-smf-1641705.html
 ====
-+
-.Solaris-Specific Modification
-[WARNING]
-====
-Due to a slight difference between the Linux and Solaris implementation of the `ps` command, the `${ddf-branding-lowercase}-service` script needs to be modified.
-====
-+
-. Locate the following line in <${branding}_HOME>/bin/${branding-lowercase}-service
-+
-.Solaris <${branding}_HOME>/bin/${branding-lowercase}-service
-----
-pidtest=`$PSEXE -p $pid -o command | grep $WRAPPER_CMD | tail -1`
-----
-+
-. Change the word command to comm.
-+
-.Solaris <${branding}_HOME>/bin/${branding-lowercase}-service
-----
-pidtest=`$PSEXE -p $pid -o comm | grep $WRAPPER_CMD | tail -1`
-----
 
 ===== Karaf Documentation
 
