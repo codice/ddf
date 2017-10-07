@@ -45,6 +45,8 @@ public class PlatformMigratable implements Migratable {
 
   private static final Path ETC_DIR = Paths.get("etc");
 
+  private static final Path BIN_DIR = Paths.get("bin");
+
   private static final Path WS_SECURITY_DIR = Paths.get("etc", "ws-security");
 
   private static final List<Path> REQUIRED_SYSTEM_FILES =
@@ -122,6 +124,9 @@ public class PlatformMigratable implements Migratable {
     context
         .entries(PlatformMigratable.ETC_DIR, PlatformMigratable.SERVICE_WRAPPER_CONF_FILTER)
         .forEach(me -> me.store(false));
+    context
+        .entries(PlatformMigratable.BIN_DIR, PlatformMigratable.SERVICE_WRAPPER_CONF_FILTER)
+        .forEach(me -> me.store(false));
   }
 
   @Override
@@ -149,6 +154,9 @@ public class PlatformMigratable implements Migratable {
     LOGGER.debug("Importing service wrapper config file");
     context
         .entries(PlatformMigratable.ETC_DIR, PlatformMigratable.SERVICE_WRAPPER_CONF_FILTER)
+        .forEach(me -> me.restore(false));
+    context
+        .entries(PlatformMigratable.BIN_DIR, PlatformMigratable.SERVICE_WRAPPER_CONF_FILTER)
         .forEach(me -> me.restore(false));
   }
 }

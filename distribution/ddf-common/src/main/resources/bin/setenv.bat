@@ -58,7 +58,7 @@ rem SET KARAF_BASE
 rem Additional available Karaf options
 rem SET KARAF_OPTS=
 
-rem comment out the line below to enable cxf logging interceptors
+rem Uncomment out the line below to enable cxf logging interceptors
 rem set EXTRA_JAVA_OPTS="-Dcom.sun.xml.ws.transport.http.HttpAdapter.dump=true"
 
 set DDF_HOME_POLICY=/%DDF_HOME:/bin/..=/%
@@ -77,7 +77,8 @@ rem See http://docs.oracle.com/javase/7/docs/technotes/guides/security/PolicyFil
 rem for more information.
 rem
 rem set KARAF_SYSTEM_OPTS=-Dprograde.generated.policy="%DDF_HOME%/generated.policy" -Dprograde.use.own.policy=true -Dpolicy.provider=net.sourceforge.prograde.policy.ProGradePolicy -Djava.security.manager=net.sourceforge.prograde.sm.PolicyFileGeneratorJSM -Djava.security.policy==%DDF_HOME%\security\default.policy -DproGrade.getPermissions.override=sun.rmi.server.LoaderHandler:loadClass,org.apache.jasper.compiler.JspRuntimeContext:initSecurity
-
+rem
+rem Production Security Permissions
 set KARAF_SYSTEM_OPTS=-Dpolicy.provider=net.sourceforge.prograde.policy.ProGradePolicy -Djava.security.manager=net.sourceforge.prograde.sm.ProGradeJSM -Djava.security.policy==%DDF_HOME%\security\default.policy -DproGrade.getPermissions.override=sun.rmi.server.LoaderHandler:loadClass,org.apache.jasper.compiler.JspRuntimeContext:initSecurity
 
 set JAVA_OPTS=-Xms2g -Xmx4g -Dderby.system.home="%DDF_HOME%\data\derby" -Dderby.storage.fileSyncTransactionLog=true -Dfile.encoding=UTF8 -Dddf.home=%DDF_HOME% -Dddf.home.policy=%DDF_HOME_POLICY% -XX:+DisableAttachMechanism

@@ -131,7 +131,7 @@ public class ImportMigrationManagerImpl implements Closeable {
   private static ZipFile newZipFileFor(Path exportFile) {
     Validate.notNull(exportFile, "invalid null export file");
     try {
-      return AccessUtils.doPrivileged(() -> new ZipFile(exportFile.toFile()));
+      return new ZipFile(exportFile.toFile());
     } catch (FileNotFoundException e) {
       throw new MigrationException(Messages.IMPORT_FILE_MISSING_ERROR, exportFile, e);
     } catch (SecurityException | IOException e) {
@@ -183,26 +183,19 @@ public class ImportMigrationManagerImpl implements Closeable {
   }
 
   private Map<String, Object> retrieveMetadata() throws IOException {
-    return AccessUtils.doPrivileged(
-        () -> {
-          final ImportMigrationEntry me =
-              contexts
-                  .get(
-                      null) // metadata entries have no migratable id and will always exist see ctor
-                  .getEntry(MigrationContextImpl.METADATA_FILENAME);
-          InputStream is = null;
+    final ImportMigrationEntry me =
+        contexts
+            .get(null) // metadata entries have no migratable id and will always exist see ctor
+            .getEntry(MigrationContextImpl.METADATA_FILENAME);
+    InputStream is = null;
 
-          try {
-            is =
-                me.getInputStream()
-                    .orElseThrow(
-                        () -> new MigrationException(Messages.IMPORT_METADATA_MISSING_ERROR));
-            return JsonUtils.MAPPER
-                .parser()
-                .parseMap(IOUtils.toString(is, Charset.defaultCharset()));
-          } finally {
-            IOUtils.closeQuietly(is);
-          }
-        });
+    try {
+      is =
+          me.getInputStream()
+              .orElseThrow(() -> new MigrationException(Messages.IMPORT_METADATA_MISSING_ERROR));
+      return JsonUtils.MAPPER.parser().parseMap(IOUtils.toString(is, Charset.defaultCharset()));
+    } finally {
+      IOUtils.closeQuietly(is);
+    }
   }
 }

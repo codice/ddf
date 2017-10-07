@@ -16,6 +16,7 @@ package org.codice.ddf.configuration.migration;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
@@ -28,6 +29,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import java.io.File;
 import java.io.IOError;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -37,7 +39,8 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.management.MalformedObjectNameException;
+import javax.management.MBeanException;
+import javax.management.ObjectName;
 import org.apache.karaf.system.SystemService;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
@@ -49,6 +52,7 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.hamcrest.StringDescription;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -65,15 +69,33 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
 
   public static final String TEST_DIRECTORY = "exported";
 
+  private static final String WRAPPER_KEY = "wrapper.key";
+
+  private static final String RESTART_JVM = "karaf.restart.jvm";
+
   private ConfigurationMigrationManager configurationMigrationManager;
 
   private List<Migratable> migratables;
 
   @Mock private SystemService mockSystemService;
 
+  @Mock private WrapperManagerMXBean mockWrapperManager;
+
   @Before
-  public void setup() throws MalformedObjectNameException {
+  public void setup() throws Exception {
     migratables = Collections.emptyList();
+    ManagementFactory.getPlatformMBeanServer()
+        .registerMBean(
+            mockWrapperManager, new ObjectName("org.tanukisoftware.wrapper:type=WrapperManager"));
+    doNothing().when(mockWrapperManager).restart();
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    System.getProperties().remove(RESTART_JVM);
+    System.getProperties().remove(WRAPPER_KEY);
+    ManagementFactory.getPlatformMBeanServer()
+        .unregisterMBean(new ObjectName("org.tanukisoftware.wrapper:type=WrapperManager"));
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -249,7 +271,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
   }
 
   @Test
-  public void doImportSucceeds() throws Exception {
+  public void doImportSucceedsWithKarafRestart() throws Exception {
     final Path path = ddfHome.resolve(TEST_DIRECTORY);
 
     configurationMigrationManager = spy(getConfigurationMigrationManager());
@@ -260,9 +282,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
 
     assertThat("Import was not successful", report.wasSuccessful(), is(true));
     assertThat(
-        "Restart system property was not set",
-        System.getProperty("karaf.restart.jvm"),
-        equalTo("true"));
+        "Restart system property was not set", System.getProperty(RESTART_JVM), equalTo("true"));
     reportHasInfoMessage(
         report.infos(),
         equalTo(
@@ -274,6 +294,36 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
     reportHasInfoMessage(
         report.infos(), equalTo("Restarting the system for changes to take effect."));
     verify(mockSystemService).reboot();
+    verify(mockWrapperManager, Mockito.never()).restart();
+    verify(configurationMigrationManager)
+        .delegateToImportMigrationManager(any(MigrationReportImpl.class), any(Path.class));
+  }
+
+  @Test
+  public void doImportSucceedsWithWrapperRestart() throws Exception {
+    System.setProperty(WRAPPER_KEY, "abc");
+    final Path path = ddfHome.resolve(TEST_DIRECTORY);
+
+    configurationMigrationManager = spy(getConfigurationMigrationManager());
+
+    expectImportDelegationIsSuccessful();
+
+    MigrationReport report = configurationMigrationManager.doImport(path);
+
+    assertThat("Import was not successful", report.wasSuccessful(), is(true));
+    assertThat("Restart system property was set", System.getProperty(RESTART_JVM), nullValue());
+    reportHasInfoMessage(
+        report.infos(),
+        equalTo(
+            "Successfully imported from file ["
+                + path.resolve("exported")
+                + "-"
+                + TEST_VERSION
+                + ".zip]."));
+    reportHasInfoMessage(
+        report.infos(), equalTo("Restarting the system for changes to take effect."));
+    verify(mockSystemService, Mockito.never()).reboot();
+    verify(mockWrapperManager).restart();
     verify(configurationMigrationManager)
         .delegateToImportMigrationManager(any(MigrationReportImpl.class), any(Path.class));
   }
@@ -291,9 +341,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
 
     assertThat("Import was not successful", report.wasSuccessful(), is(true));
     assertThat(
-        "Restart system property was not set",
-        System.getProperty("karaf.restart.jvm"),
-        equalTo("true"));
+        "Restart system property was not set", System.getProperty(RESTART_JVM), equalTo("true"));
     reportHasInfoMessage(
         report.infos(),
         equalTo(
@@ -307,6 +355,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
     verify(mockSystemService).reboot();
     verify(configurationMigrationManager)
         .delegateToImportMigrationManager(any(MigrationReportImpl.class), any(Path.class));
+    verify(mockWrapperManager, Mockito.never()).restart();
     verify(consumer, Mockito.atLeastOnce()).accept(Mockito.notNull());
   }
 
@@ -336,12 +385,13 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
                 + "-"
                 + TEST_VERSION
                 + ".zip] with warnings; make sure to review."));
+    verify(mockWrapperManager, Mockito.never()).restart();
     verify(configurationMigrationManager)
         .delegateToImportMigrationManager(any(MigrationReportImpl.class), any(Path.class));
   }
 
   @Test
-  public void doImportSucceedsAndFailsToReboot() throws Exception {
+  public void doImportSucceedsWithKarafAndFailsToReboot() throws Exception {
     final Path path = ddfHome.resolve(TEST_DIRECTORY);
     configurationMigrationManager = spy(getConfigurationMigrationManager());
 
@@ -351,10 +401,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
     MigrationReport report = configurationMigrationManager.doImport(path);
 
     assertThat("Import was successful", report.wasSuccessful(), is(true));
-    assertThat(
-        "Restart system property was set",
-        System.getProperty("karaf.restart.jvm"),
-        equalTo("true"));
+    assertThat("Restart system property was set", System.getProperty(RESTART_JVM), equalTo("true"));
     reportHasInfoMessage(
         report.infos(),
         equalTo(
@@ -366,6 +413,36 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
     reportHasInfoMessage(
         report.infos(), equalTo("Please restart the system for changes to take effect."));
     verify(mockSystemService).reboot();
+    verify(mockWrapperManager, Mockito.never()).restart();
+    verify(configurationMigrationManager)
+        .delegateToImportMigrationManager(any(MigrationReportImpl.class), any(Path.class));
+  }
+
+  @Test
+  public void doImportSucceedsWithWrapperRestartAndFailsToReboot() throws Exception {
+    System.setProperty(WRAPPER_KEY, "abc");
+    final Path path = ddfHome.resolve(TEST_DIRECTORY);
+    configurationMigrationManager = spy(getConfigurationMigrationManager());
+
+    doThrow(new MBeanException(null)).when(mockWrapperManager).restart();
+    expectImportDelegationIsSuccessful();
+
+    MigrationReport report = configurationMigrationManager.doImport(path);
+
+    assertThat("Import was successful", report.wasSuccessful(), is(true));
+    assertThat("Restart system property was set", System.getProperty(RESTART_JVM), nullValue());
+    reportHasInfoMessage(
+        report.infos(),
+        equalTo(
+            "Successfully imported from file ["
+                + path.resolve("exported")
+                + "-"
+                + TEST_VERSION
+                + ".zip]."));
+    reportHasInfoMessage(
+        report.infos(), equalTo("Please restart the system for changes to take effect."));
+    verify(mockSystemService, Mockito.never()).reboot();
+    verify(mockWrapperManager).restart();
     verify(configurationMigrationManager)
         .delegateToImportMigrationManager(any(MigrationReportImpl.class), any(Path.class));
   }
@@ -399,6 +476,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
     reportHasErrorMessage(report.errors(), equalTo(TEST_MESSAGE));
     verify(configurationMigrationManager)
         .delegateToImportMigrationManager(any(MigrationReportImpl.class), any(Path.class));
+    verify(mockWrapperManager, Mockito.never()).restart();
     verifyZeroInteractions(mockSystemService);
   }
 
@@ -425,6 +503,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
                 + ".zip]; testing."));
     verify(configurationMigrationManager)
         .delegateToImportMigrationManager(any(MigrationReportImpl.class), any(Path.class));
+    verify(mockWrapperManager, Mockito.never()).restart();
     verifyZeroInteractions(mockSystemService);
   }
 
@@ -504,5 +583,10 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
     Files.write(versionFile.toPath(), TEST_VERSION.getBytes(), StandardOpenOption.APPEND);
 
     return new ConfigurationMigrationManager(migratables, mockSystemService);
+  }
+
+  public static interface WrapperManagerMXBean {
+
+    public void restart() throws MBeanException;
   }
 }

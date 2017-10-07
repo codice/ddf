@@ -145,6 +145,8 @@ public class PlatformMigratableTest {
 
   private static final Path SERVICE_WRAPPER = Paths.get("etc", "ddf-wrapper.conf");
 
+  private static final Path SERVICE_WRAPPER_2 = Paths.get("bin", "setenv-wrapper.conf");
+
   private static final String SUPPORTED_VERSION = "1.0";
 
   private static final String UNSUPPORTED_VERSION = "666.0";
@@ -502,6 +504,12 @@ public class PlatformMigratableTest {
         serviceWrapperConfig.toFile(),
         String.format("#%s&%s", serviceWrapperConfig.toRealPath().toString(), tag),
         StandardCharsets.UTF_8);
+    serviceWrapperConfig = ddfHome.resolve(SERVICE_WRAPPER_2);
+    Files.createFile(serviceWrapperConfig);
+    FileUtils.writeStringToFile(
+        serviceWrapperConfig.toFile(),
+        String.format("#%s&%s", serviceWrapperConfig.toRealPath().toString(), tag),
+        StandardCharsets.UTF_8);
   }
 
   private void setupKeystores(String tag) throws IOException {
@@ -576,6 +584,9 @@ public class PlatformMigratableTest {
 
   private void verifyServiceWrapperImported() throws IOException {
     Path p = ddfHome.resolve(SERVICE_WRAPPER).toRealPath();
+    assertThat(String.format("%s does not exist.", p), p.toFile().exists(), is(true));
+    assertThat(String.format("%s was not imported.", p), verifiyImported(p), is(true));
+    p = ddfHome.resolve(SERVICE_WRAPPER_2).toRealPath();
     assertThat(String.format("%s does not exist.", p), p.toFile().exists(), is(true));
     assertThat(String.format("%s was not imported.", p), verifiyImported(p), is(true));
   }
