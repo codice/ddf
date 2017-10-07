@@ -14,10 +14,13 @@
 package org.codice.ddf.configuration.admin;
 
 import java.nio.file.Path;
+import java.util.Dictionary;
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.configuration.persistence.PersistenceStrategy;
 import org.codice.ddf.migration.ExportMigrationEntry;
+import org.osgi.framework.Constants;
 import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +29,7 @@ import org.slf4j.LoggerFactory;
  * object in memory.
  */
 public class ExportMigrationConfigurationAdminEntry {
+
   private static final Logger LOGGER =
       LoggerFactory.getLogger(ExportMigrationConfigurationAdminEntry.class);
 
@@ -55,7 +59,28 @@ public class ExportMigrationConfigurationAdminEntry {
     if (!stored) {
       LOGGER.debug(
           "Exporting configuration [{}] to [{}]...", configuration.getPid(), entry.getPath());
-      this.stored = entry.store((r, out) -> persister.write(out, configuration.getProperties()));
+      final Dictionary<String, Object> props = configuration.getProperties();
+
+      // just make sure the pid, bundle location, and factory pid are correct as sometimes they
+      // might
+      // get out of sync by an invalid update to the properties and we do rely on those at import
+      // time
+      final String factoryPid = configuration.getFactoryPid();
+
+      if (factoryPid != null) {
+        props.put(ConfigurationAdmin.SERVICE_FACTORYPID, factoryPid);
+      } else {
+        props.remove(ConfigurationAdmin.SERVICE_FACTORYPID);
+      }
+      props.put(Constants.SERVICE_PID, configuration.getPid());
+      final String location = configuration.getBundleLocation();
+
+      if (location != null) {
+        props.put(ConfigurationAdmin.SERVICE_BUNDLELOCATION, location);
+      } else {
+        props.remove(ConfigurationAdmin.SERVICE_BUNDLELOCATION);
+      }
+      this.stored = entry.store((r, out) -> persister.write(out, props));
     }
     return stored;
   }
