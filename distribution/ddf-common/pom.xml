@@ -92,6 +92,7 @@
                 <artifactId>maven-resources-plugin</artifactId>
                 <configuration>
                     <includeEmptyDirs>true</includeEmptyDirs>
+                    <escapeString>\</escapeString>
                 </configuration>
                 <executions>
                     <execution>
