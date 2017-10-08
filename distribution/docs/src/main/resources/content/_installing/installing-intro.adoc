@@ -25,33 +25,32 @@ Adding other components does not have any security/hardening implications.
 
 These are the system/environment requirements to configure _prior_ to an installation.
 
+[NOTE]
+====
+These requirements assume the Recommended installation profile was used (see <<_setup_types, Setup Types>>)
+and the use of a remote catalog. Extra resources will need to be allocated if the system will also be
+hosting a local catalog.
+====
+
 ======
 
 .Using the Standard installation of the ${branding} application:
 [cols="2,3,3" options="header"]
 |===
 
-3+^|Minimum and Recommended Requirements for ${branding} Systems^*^
+3+^|Minimum and Recommended Requirements for ${branding} Systems
 
 
 |*Criteria*
 |*Minimum*
 |*Recommended*
 
-|Operating System
-|Windows Server 2012, Linux CentOS 5, Mac OS X 10.9 Mavericks
-|Windows 10, Linux CentOS 7.3. macOS Sierra 10.12
-
-|Additional Software
-|JDK 8 x64, IE 10
-|JDK 8 x64, Edge/FireFox/Chrome
-
 |CPU
 |Dual Core 1.6 GHz
 |Quad Core 2.6 GHz
 
 |RAM
-|4 GB^**^
+|4 GB^*^
 |32 GB
 
 |Disk Space
@@ -59,25 +58,45 @@ These are the system/environment requirements to configure _prior_ to an install
 |4 GB
 
 |Video Card
+|--
 |WebGL capable GPU
-|
+
+|Additional Software
+|JDK 8 x64
+|JDK 8 x64
 
 |===
-*These requirements assume the use of a remote catalog. Extra resources will need to be allocated if the system will also be hosting a local catalog.
 
-[NOTE]
-====
-If installing a test, demo, or development installation, see the <<_quick_install_prerequisites,Quick Start Installation Prerequisites>>.
-====
-
-^*^These requirements assume the use of a remote catalog. Extra resources will need to be allocated if the system will also be hosting a local catalog.
-
-^**^The amount of RAM can be increased to support memory-intensive applications. See <<jvm-memory-configuration, Memory Considerations>>
+^*^The amount of RAM can be increased to support memory-intensive applications. See <<jvm-memory-configuration, Memory Considerations>>
 
 ======
 
+.Operating Systems
+${branding} has been tested on the following operating systems and with the following browsers.
+Other operating systems or browsers may be used but have not been officially tested.
+
+=====
+
+.Tested Operating Systems and Browsers
+[cols="2,2" options="header"]
+|===
+|Operating Systems
+|Browsers
+
+|Windows Server 2012 R2 +
+Windows Server 2008 R2 Service Pack 1 +
+Windows 10 +
+Linux CentOS 7 +
+Debian 9
+
+|Internet Explorer 11 +
+Microsoft Edge +
+Firefox +
+Chrome
+
+=====
+
 .Java Requirements
-* Supported platforms are *NIX - Unix/Linux/OSX, Solaris, and Windows.
 * http://www.oracle.com/technetwork/java/javase/downloads/index.html[JDK8] must be installed.
 * The `JAVA_HOME` environment variable must be set to the location where the JDK is installed.
 
