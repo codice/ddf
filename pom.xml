@@ -521,6 +521,7 @@
                 <version>2.0.0</version>
                 <executions>
                     <execution>
+                        <phase>validate</phase>
                         <goals>
                             <goal>check</goal>
                         </goals>

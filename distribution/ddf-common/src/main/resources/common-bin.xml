@@ -27,6 +27,8 @@
                 <exclude>etc/custom.properties</exclude>
                 <exclude>etc/jetty.xml</exclude>
                 <exclude>etc/profile.cfg</exclude>
+                <exclude>etc/org.apache.karaf.command.acl.shell.cfg</exclude>
+                <exclude>etc/org.apache.karaf.command.acl.ssh.cfg</exclude>
                 <exclude>etc/org.apache.karaf.features.cfg</exclude>
                 <exclude>etc/org.apache.karaf.shell.cfg</exclude>
                 <exclude>etc/org.ops4j.pax.logging.cfg</exclude>
