@@ -918,67 +918,82 @@ public abstract class AbstractCswSource extends MaskableImpl
       URI resourceUri, Map<String, Serializable> requestProperties)
       throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
 
+    Serializable serializableId = null;
+    String username = cswSourceConfiguration.getUsername();
+    String password = cswSourceConfiguration.getPassword();
+
+    if (requestProperties != null) {
+      serializableId = requestProperties.get(Core.ID);
+      if (StringUtils.isNotBlank(username)) {
+        requestProperties.put(USERNAME_PROPERTY, username);
+        requestProperties.put(PASSWORD_PROPERTY, password);
+      }
+    }
+
     if (canRetrieveResourceById()) {
       // If no resource reader was found, retrieve the product through a GetRecordById request
-      Serializable serializableId = null;
-      if (requestProperties != null) {
-        serializableId = requestProperties.get(Core.ID);
-      }
-
       if (serializableId == null) {
         throw new ResourceNotFoundException(
             "Unable to retrieve resource because no metacard ID was found.");
       }
       String metacardId = serializableId.toString();
-
       LOGGER.debug("Retrieving resource for ID : {}", metacardId);
-      Csw csw =
-          factory.getClientForSubject(
-              (Subject) requestProperties.get(SecurityConstants.SECURITY_SUBJECT));
-      GetRecordByIdRequest getRecordByIdRequest = new GetRecordByIdRequest();
-      getRecordByIdRequest.setService(CswConstants.CSW);
-      getRecordByIdRequest.setOutputSchema(OCTET_STREAM_OUTPUT_SCHEMA);
-      getRecordByIdRequest.setOutputFormat(MediaType.APPLICATION_OCTET_STREAM);
-      getRecordByIdRequest.setId(metacardId);
-
-      String rangeValue = "";
-      long requestedBytesToSkip = 0;
-      if (requestProperties.containsKey(CswConstants.BYTES_TO_SKIP)) {
-        requestedBytesToSkip = (Long) requestProperties.get(CswConstants.BYTES_TO_SKIP);
-        rangeValue =
-            String.format(
-                "%s%s-",
-                CswConstants.BYTES_EQUAL,
-                requestProperties.get(CswConstants.BYTES_TO_SKIP).toString());
-        LOGGER.debug("Range: {}", rangeValue);
-      }
-      CswRecordCollection recordCollection;
-      try {
-        recordCollection = csw.getRecordById(getRecordByIdRequest, rangeValue);
-
-        Resource resource = recordCollection.getResource();
-        if (resource != null) {
-
-          long responseBytesSkipped = 0L;
-          if (recordCollection.getResourceProperties().get(BYTES_SKIPPED) != null) {
-            responseBytesSkipped =
-                (Long) recordCollection.getResourceProperties().get(BYTES_SKIPPED);
-          }
-          alignStream(resource.getInputStream(), requestedBytesToSkip, responseBytesSkipped);
-
-          return new ResourceResponseImpl(
-              new ResourceImpl(
-                  new BufferedInputStream(resource.getInputStream()),
-                  resource.getMimeTypeValue(),
-                  FilenameUtils.getName(resource.getName())));
-        }
-      } catch (CswException | IOException e) {
-        throw new ResourceNotFoundException(
-            String.format(ERROR_ID_PRODUCT_RETRIEVAL, metacardId), e);
+      ResourceResponse response = retrieveResourceById(requestProperties, metacardId);
+      if (response != null) {
+        return response;
       }
     }
     LOGGER.debug("Retrieving resource at : {}", resourceUri);
     return resourceReader.retrieveResource(resourceUri, requestProperties);
+  }
+
+  private ResourceResponse retrieveResourceById(
+      Map<String, Serializable> requestProperties, String metacardId)
+      throws ResourceNotFoundException {
+    Csw csw =
+        factory.getClientForSubject(
+            (Subject) requestProperties.get(SecurityConstants.SECURITY_SUBJECT));
+    GetRecordByIdRequest getRecordByIdRequest = new GetRecordByIdRequest();
+    getRecordByIdRequest.setService(CswConstants.CSW);
+    getRecordByIdRequest.setOutputSchema(OCTET_STREAM_OUTPUT_SCHEMA);
+    getRecordByIdRequest.setOutputFormat(MediaType.APPLICATION_OCTET_STREAM);
+    getRecordByIdRequest.setId(metacardId);
+
+    String rangeValue = "";
+    long requestedBytesToSkip = 0;
+    if (requestProperties.containsKey(CswConstants.BYTES_TO_SKIP)) {
+      requestedBytesToSkip = (Long) requestProperties.get(CswConstants.BYTES_TO_SKIP);
+      rangeValue =
+          String.format(
+              "%s%s-",
+              CswConstants.BYTES_EQUAL,
+              requestProperties.get(CswConstants.BYTES_TO_SKIP).toString());
+      LOGGER.debug("Range: {}", rangeValue);
+    }
+    CswRecordCollection recordCollection;
+    try {
+      recordCollection = csw.getRecordById(getRecordByIdRequest, rangeValue);
+
+      Resource resource = recordCollection.getResource();
+      if (resource != null) {
+
+        long responseBytesSkipped = 0L;
+        if (recordCollection.getResourceProperties().get(BYTES_SKIPPED) != null) {
+          responseBytesSkipped = (Long) recordCollection.getResourceProperties().get(BYTES_SKIPPED);
+        }
+        alignStream(resource.getInputStream(), requestedBytesToSkip, responseBytesSkipped);
+
+        return new ResourceResponseImpl(
+            new ResourceImpl(
+                new BufferedInputStream(resource.getInputStream()),
+                resource.getMimeTypeValue(),
+                FilenameUtils.getName(resource.getName())));
+      } else {
+        return null;
+      }
+    } catch (CswException | IOException e) {
+      throw new ResourceNotFoundException(String.format(ERROR_ID_PRODUCT_RETRIEVAL, metacardId), e);
+    }
   }
 
   private void alignStream(InputStream in, long requestedBytesToSkip, long responseBytesSkipped)

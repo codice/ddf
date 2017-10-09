@@ -14,10 +14,13 @@
 package ddf.catalog.source.opensearch.impl;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.collection.IsMapContaining.hasEntry;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.doReturn;
@@ -575,6 +578,42 @@ public class TestOpenSearchSource {
     requestProperties.put(Metacard.ID, SAMPLE_ID);
 
     // when
+    ResourceResponse response = source.retrieveResource(null, requestProperties);
+    assertThat(response.getResource().getByteArray().length, is(3));
+  }
+
+  /**
+   * Retrieve Product case using Basic Authentication. Test that the properties map passed to the
+   * resource reader includes a username and password.
+   *
+   * @throws Exception
+   */
+  @Test
+  public void testRetrieveResourceBasicAuth() throws Exception {
+
+    ResourceReader mockReader = mock(ResourceReader.class);
+    when(response.getEntity()).thenReturn(getBinaryData());
+    when(mockReader.retrieveResource(
+            any(URI.class),
+            argThat(
+                allOf(
+                    hasEntry("username", (Serializable) "user"),
+                    hasEntry("password", (Serializable) "secret")))))
+        .thenReturn(new ResourceResponseImpl(new ResourceImpl(getBinaryData(), "")));
+    when(encryptionService.decryptValue("secret")).thenReturn("secret");
+    MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
+    headers.put(HttpHeaders.CONTENT_TYPE, Arrays.asList("application/octet-stream"));
+    when(response.getHeaders()).thenReturn(headers);
+
+    source.setLocalQueryOnly(true);
+    source.setInputTransformer(getMockInputTransformer());
+    source.setResourceReader(mockReader);
+    source.setUsername("user");
+    source.setPassword("secret");
+
+    Map<String, Serializable> requestProperties = new HashMap<>();
+    requestProperties.put(Metacard.ID, SAMPLE_ID);
+
     ResourceResponse response = source.retrieveResource(null, requestProperties);
     assertThat(response.getResource().getByteArray().length, is(3));
   }

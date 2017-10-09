@@ -15,7 +15,9 @@ package org.codice.ddf.spatial.ogc.csw.catalog.common.source;
 
 import static org.custommonkey.xmlunit.XMLAssert.assertXMLEqual;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -24,6 +26,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doReturn;
@@ -1285,6 +1288,32 @@ public class TestCswSource extends TestCswSourceBase {
     cswSource.retrieveResource(new URI("http://example.com/resource"), props);
     // Verify
     verify(reader, times(1)).retrieveResource(any(URI.class), anyMap());
+  }
+
+  @Test
+  public void testRetrieveResourceUsingReaderBasicAuth()
+      throws URISyntaxException, ResourceNotFoundException, IOException,
+          ResourceNotSupportedException, CswException {
+    configureMockCsw();
+    AbstractCswSource cswSource = getCswSource(mockCsw, mockContext, null, null, null, null);
+    ResourceReader reader = mock(ResourceReader.class);
+    when(reader.retrieveResource(any(URI.class), any(Map.class)))
+        .thenReturn(mock(ResourceResponse.class));
+    cswSource.setResourceReader(reader);
+
+    cswSource.setUsername("user");
+    cswSource.setPassword("secret");
+
+    Map<String, Serializable> props = new HashMap<>();
+    props.put(Core.ID, "ID");
+    cswSource.retrieveResource(new URI("http://example.com/resource"), props);
+    verify(reader, times(1))
+        .retrieveResource(
+            any(URI.class),
+            argThat(
+                allOf(
+                    hasEntry("username", (Serializable) "user"),
+                    hasEntry("password", (Serializable) "secret"))));
   }
 
   @Test
