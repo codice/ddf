@@ -19,15 +19,14 @@ define([
     'properties',
     'maptype',
     // Templates
-    'templates/header.layout.handlebars',
-    'templates/footer.layout.handlebars',
+    'templates/banner.layout.handlebars',
     // Load non attached libs and plugins
     'bootstrap/dist/js/bootstrap.min',
     'backboneassociations',
     'modelbinder',
     'collectionbinder',
     'multiselect',
-], function ($, _, Marionette, Backbone, properties, maptype, header, footer) {
+], function ($, _, Marionette, Backbone, properties, maptype, banner) {
     var Application = {};
     Application.App = new Marionette.Application();
     Application.AppModel = new Backbone.Model(properties);
@@ -46,29 +45,49 @@ define([
         controlPanelRegion: '#controlPanel'
     });
 
+    const BannerView = Marionette.ItemView.extend({
+        tagName: 'header',
+        template: banner,
+        model: Application.AppModel,
+        events: {
+            'click .fa-times': 'triggerHide'
+        },
+        initialize: function() {
+            var message = this.model.get('ui')[this.tagName];
+            if (message && message !== '') {
+                this.$el.addClass('is-not-blank');
+            }
+        },
+        getMessage: function () {
+            return this.model.get('ui')[this.tagName];
+        },
+        serializeData: function () {
+            var modelJSON = this.model.toJSON();
+            modelJSON.message = this.getMessage();
+            return modelJSON;
+        },
+        triggerHide: function () {
+            $('body').removeClass('has-' + this.tagName);
+        }
+    });
+
     //setup the header
     Application.App.addInitializer(function () {
-        Application.App.headerRegion.show(new Marionette.ItemView({
-            tagName: 'header',
-            template: header,
-            model: Application.AppModel
-        }), {
+        Application.App.headerRegion.show(new BannerView(), {
             replaceElement: true
         });
-        if (Application.AppModel.get('ui').header && Application.AppModel.get('ui').header !== ""){
+        if (process.env.NODE_ENV !== 'production' || (Application.AppModel.get('ui').header && Application.AppModel.get('ui').header !== "")) {
             $('body').addClass('has-header');
         }
     });
     //setup the footer
     Application.App.addInitializer(function () {
-        Application.App.footerRegion.show(new Marionette.ItemView({
-            tagName: 'footer',
-            template: footer,
-            model: Application.AppModel
-        }), {
+        Application.App.footerRegion.show(new (BannerView.extend({
+            tagName: 'footer'
+        }))(), {
             replaceElement: true
         });
-        if (Application.AppModel.get('ui').footer &&Application.AppModel.get('ui').footer !== ""){
+        if (process.env.NODE_ENV !== 'production' || (Application.AppModel.get('ui').footer && Application.AppModel.get('ui').footer !== "")) {
             $('body').addClass('has-footer');
         }
     });

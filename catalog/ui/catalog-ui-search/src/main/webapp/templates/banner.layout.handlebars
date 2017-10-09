@@ -11,6 +11,13 @@
  *
  **/
  --}}
-<div class="is-bold" style="color: {{ui.color}}; background-color: {{ui.background}}" title="{{ui.footer}}">
-    {{ui.footer}}
+<div class="is-bold" style="color: {{ui.color}}; background-color: {{ui.background}}" title="{{message}}">
+    <span class="is-development">Development Version</span>
+    <span class="is-hot-reloading"> with Hot Reloading</span> 
+    <span class="is-development"> : {{commitHash}}</span>
+    {{#if isDirty}}
+        <span class="is-development"> with Changes</span>
+    {{/if}}
+    {{message}}
+    <button class="is-development is-button is-neutral fa fa-times"></button>
 </div>

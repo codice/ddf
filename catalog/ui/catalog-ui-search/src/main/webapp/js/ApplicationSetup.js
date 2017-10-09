@@ -25,6 +25,13 @@ $.ajaxSetup({
     cache: false
 });
 
+if (process.env.NODE_ENV !== 'production') {
+    $('html').addClass('is-development');
+    if (module.hot) {
+        $('html').addClass('is-hot-reloading');
+    }
+}
+
 window.CESIUM_BASE_URL = './cesium/';
 require([
     'underscore',

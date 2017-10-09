@@ -29,6 +29,8 @@ define(function (require) {
     }
 
     var properties = {
+        commitHash: __COMMIT_HASH__,
+        isDirty: __IS_DIRTY__,
         canvasThumbnailScaleFactor : 10,
         slidingAnimationDuration : 150,
 

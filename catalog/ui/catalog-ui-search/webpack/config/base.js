@@ -1,4 +1,5 @@
 var path = require('path');
+var webpack = require('webpack');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var LessPluginCleanCSS = require('less-plugin-clean-css');
@@ -6,6 +7,14 @@ var LessPluginCleanCSS = require('less-plugin-clean-css');
 var resolve = function (place) {
   return path.resolve(__dirname, '../../', place)
 };
+
+let commitHash = require('child_process')
+    .execSync('git rev-parse --short HEAD')
+    .toString();
+
+let isDirty = require('child_process')
+    .execSync('git st')
+    .toString().indexOf('working directory clean') === -1;
 
 module.exports = {
     devtool: 'source-map',
@@ -52,6 +61,10 @@ module.exports = {
         }
     },
     plugins: [
+        new webpack.DefinePlugin({
+            __COMMIT_HASH__: JSON.stringify(commitHash),
+            __IS_DIRTY__: JSON.stringify(isDirty)
+        }),
         new CopyWebpackPlugin([
             {
                 from: resolve('node_modules/cesium/Build/Cesium'),
