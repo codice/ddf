@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
  * operation.
  */
 public class ExportMigrationManagerImpl implements Closeable {
+
   private static final Logger LOGGER = LoggerFactory.getLogger(ExportMigrationManagerImpl.class);
 
   private final MigrationReport report;
@@ -109,9 +110,11 @@ public class ExportMigrationManagerImpl implements Closeable {
   private static ZipOutputStream newZipOutputStreamFor(Path exportFile) {
     Validate.notNull(exportFile, "invalid null export file");
     try {
-      return new ZipOutputStream(
-          new BufferedOutputStream(new FileOutputStream(exportFile.toFile())));
-    } catch (FileNotFoundException e) {
+      return AccessUtils.doPrivileged(
+          () ->
+              new ZipOutputStream(
+                  new BufferedOutputStream(new FileOutputStream(exportFile.toFile()))));
+    } catch (SecurityException | FileNotFoundException e) {
       throw new MigrationException(Messages.EXPORT_FILE_CREATE_ERROR, exportFile, e);
     }
   }
@@ -125,7 +128,7 @@ public class ExportMigrationManagerImpl implements Closeable {
    */
   public void doExport(String productVersion) {
     Validate.notNull(productVersion, "invalid null product version");
-    final String ddfHome = System.getProperty("ddf.home");
+    final String ddfHome = AccessUtils.doPrivileged(() -> System.getProperty("ddf.home"));
 
     LOGGER.debug(
         "Exporting product [{}] under [{}] with version [{}] to [{}]...",

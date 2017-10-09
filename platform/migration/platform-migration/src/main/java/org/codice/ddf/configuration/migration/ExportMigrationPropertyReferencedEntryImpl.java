@@ -21,6 +21,7 @@ import org.codice.ddf.migration.MigrationEntry;
  * Defines a migration entry representing a property whose value references another migration entry.
  */
 public abstract class ExportMigrationPropertyReferencedEntryImpl extends ExportMigrationEntryImpl {
+
   private final String property;
 
   /**
@@ -31,7 +32,7 @@ public abstract class ExportMigrationPropertyReferencedEntryImpl extends ExportM
    * @param property the property name for this entry
    * @param pathname the pathname for this entry
    * @throws IllegalArgumentException if <code>context</code>, <code>property</code>, or <code>
-   *     pathname</code> is <code>null</code>
+   * pathname</code> is <code>null</code>
    */
   ExportMigrationPropertyReferencedEntryImpl(
       ExportMigrationContextImpl context, String property, String pathname) {
@@ -57,7 +58,7 @@ public abstract class ExportMigrationPropertyReferencedEntryImpl extends ExportM
     final ExportMigrationPropertyReferencedEntryImpl me =
         (ExportMigrationPropertyReferencedEntryImpl) o;
 
-    return property.equals(me.getProperty());
+    return property.equals(me.property);
   }
 
   @SuppressWarnings("squid:S2259" /* the super.compareTo() will never return 0 if null is passed */)
@@ -71,6 +72,6 @@ public abstract class ExportMigrationPropertyReferencedEntryImpl extends ExportM
     final ExportMigrationPropertyReferencedEntryImpl eme =
         (ExportMigrationPropertyReferencedEntryImpl) me;
 
-    return property.compareTo(eme.getProperty());
+    return property.compareTo(eme.property);
   }
 }

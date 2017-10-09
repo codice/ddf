@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ImportMigrationJavaPropertyReferencedEntryImpl
     extends ImportMigrationPropertyReferencedEntryImpl {
+
   private static final Logger LOGGER =
       LoggerFactory.getLogger(ImportMigrationJavaPropertyReferencedEntryImpl.class);
 
@@ -104,69 +105,74 @@ public class ImportMigrationJavaPropertyReferencedEntryImpl
     final MigrationReport report = getReport();
 
     report.doAfterCompletion(
-        r -> {
-          LOGGER.debug("Verifying {}...", toDebugString());
-          final String val;
+        r ->
+            AccessUtils.doPrivileged(
+                () -> {
+                  LOGGER.debug("Verifying {}...", toDebugString());
+                  final String val;
 
-          try {
-            val = getJavaPropertyValue();
-          } catch (IOException e) {
-            getReport()
-                .record(
-                    new MigrationException(
-                        Messages.IMPORT_JAVA_PROPERTY_LOAD_ERROR,
-                        getProperty(),
-                        propertiesPath,
-                        getPath(),
-                        e));
-            return;
-          }
-          if (val == null) {
-            r.record(
-                new MigrationException(
-                    Messages.IMPORT_JAVA_PROPERTY_NOT_DEFINED_ERROR,
-                    getProperty(),
-                    propertiesPath,
-                    getPath()));
-          } else if (StringUtils.isBlank(val)) {
-            r.record(
-                new MigrationException(
-                    Messages.IMPORT_JAVA_PROPERTY_IS_EMPTY_ERROR,
-                    getProperty(),
-                    propertiesPath,
-                    getPath()));
-          } else {
-            try {
-              if (!getAbsolutePath()
-                  .toRealPath(LinkOption.NOFOLLOW_LINKS)
-                  .equals(
-                      getContext()
-                          .getPathUtils()
-                          .resolveAgainstDDFHome(Paths.get(val))
-                          .toRealPath(LinkOption.NOFOLLOW_LINKS))) {
-                r.record(
-                    new MigrationException(
-                        Messages.IMPORT_JAVA_PROPERTY_ERROR,
-                        getProperty(),
-                        propertiesPath,
-                        getPath(),
-                        "is now set to [" + val + ']'));
-              }
-            } catch (
-                IOException
-                    e) { // cannot determine the location of either so it must not exist or be
-              // different anyway
-              r.record(
-                  new MigrationException(
-                      Messages.IMPORT_JAVA_PROPERTY_ERROR,
-                      getProperty(),
-                      propertiesPath,
-                      getPath(),
-                      String.format("is now set to [%s]; %s", val, e.getMessage()),
-                      e));
-            }
-          }
-        });
+                  try {
+                    val = getJavaPropertyValue();
+                  } catch (IOException e) {
+                    getReport()
+                        .record(
+                            new MigrationException(
+                                Messages.IMPORT_JAVA_PROPERTY_LOAD_ERROR,
+                                getProperty(),
+                                propertiesPath,
+                                getPath(),
+                                e));
+                    return;
+                  }
+                  if (val == null) {
+                    r.record(
+                        new MigrationException(
+                            Messages.IMPORT_JAVA_PROPERTY_NOT_DEFINED_ERROR,
+                            getProperty(),
+                            propertiesPath,
+                            getPath()));
+                  } else if (StringUtils.isBlank(val)) {
+                    r.record(
+                        new MigrationException(
+                            Messages.IMPORT_JAVA_PROPERTY_IS_EMPTY_ERROR,
+                            getProperty(),
+                            propertiesPath,
+                            getPath()));
+                  } else {
+                    verifyReferencedFileAfterCompletion(r, val);
+                  }
+                }));
+  }
+
+  private void verifyReferencedFileAfterCompletion(MigrationReport r, String val) {
+    try {
+      if (!getAbsolutePath()
+          .toRealPath(LinkOption.NOFOLLOW_LINKS)
+          .equals(
+              getContext()
+                  .getPathUtils()
+                  .resolveAgainstDDFHome(Paths.get(val))
+                  .toRealPath(LinkOption.NOFOLLOW_LINKS))) {
+        r.record(
+            new MigrationException(
+                Messages.IMPORT_JAVA_PROPERTY_ERROR,
+                getProperty(),
+                propertiesPath,
+                getPath(),
+                "is now set to [" + val + ']'));
+      }
+    } catch (IOException e) {
+      // cannot determine the location of either so it must not exist or be
+      // different anyway
+      r.record(
+          new MigrationException(
+              Messages.IMPORT_JAVA_PROPERTY_ERROR,
+              getProperty(),
+              propertiesPath,
+              getPath(),
+              String.format("is now set to [%s]; %s", val, e.getMessage()),
+              e));
+    }
   }
 
   @SuppressWarnings({ //

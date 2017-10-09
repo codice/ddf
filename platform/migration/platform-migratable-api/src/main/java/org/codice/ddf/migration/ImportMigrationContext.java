@@ -38,7 +38,8 @@ import java.util.stream.Stream;
  *             // import an exported file and restore it back to disk
  *             context.getEntry(Paths.get("etc", "myfile.properties"))
  *                 .restore();
- *             // get all exported files located under a specific sub-directory and restore them back on disk
+ *             // get all exported files located under a specific sub-directory and restore them
+ * back on disk
  *             context.entries(Paths.get("etc", "subdir"))
  *                 .forEach(ImportMigrationEntry::restore);
  *             // restore back on disk the file referenced from the "my.property" system property
@@ -54,6 +55,7 @@ import java.util.stream.Stream;
  * be removed in a future version of the library. </b>
  */
 public interface ImportMigrationContext extends MigrationContext {
+
   /**
    * Retrieves a migration entry referenced from a given system property that was exported by the
    * corresponding migratable.
@@ -126,7 +128,7 @@ public interface ImportMigrationContext extends MigrationContext {
    * @return a stream of all migration entries located under <code>path</code> that matches the
    *     given filter
    * @throws IllegalArgumentException if <code>path</code> or <code>filter</code> is <code>null
-   *     </code>
+   * </code>
    */
   public Stream<ImportMigrationEntry> entries(Path path, PathMatcher filter);
 
@@ -139,6 +141,9 @@ public interface ImportMigrationContext extends MigrationContext {
    *     warning will be recorded)
    * @return <code>true</code> if the directory was cleaned; <code>false</code> otherwise
    * @throws IllegalArgumentException if <code>path</code> is <code>null</code>
+   * @throws SecurityException if a security manager exists and its <code>checkRead()</code> method
+   *     denies read access to the specified path and to any directories underneath it or its <code>
+   *     checkDelete()</code> method denies delete access to any files or directories underneath it
    */
   public boolean cleanDirectory(Path path);
 }

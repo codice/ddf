@@ -48,6 +48,7 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings(
     "squid:S2160" /* the base class equals() is sufficient for our needs. entries are unique based on their paths */)
 public class ExportMigrationEntryImpl extends MigrationEntryImpl implements ExportMigrationEntry {
+
   private static final Logger LOGGER = LoggerFactory.getLogger(ExportMigrationEntryImpl.class);
 
   private static final String FAILED_TO_BE_EXPORTED = "failed to be exported";
@@ -63,7 +64,7 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
 
   private final Path absolutePath;
 
-  private final Throwable absolutePathError;
+  private final Exception absolutePathError;
 
   private final Path path;
 
@@ -86,18 +87,23 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
    * @param context the migration context associated with this entry
    * @param path the path for this entry
    * @throws IllegalArgumentException if <code>context</code> or <code>path</code> is <code>null
-   *     </code>
+   * </code>
    */
   protected ExportMigrationEntryImpl(ExportMigrationContextImpl context, Path path) {
     Validate.notNull(context, "invalid null context");
     Validate.notNull(path, "invalid null path");
     Path apath;
-    IOException aerror;
+    Exception aerror;
 
     try {
       // make sure it is resolved against ddf.home and not the current working directory
       apath =
-          context.getPathUtils().resolveAgainstDDFHome(path).toRealPath(LinkOption.NOFOLLOW_LINKS);
+          AccessUtils.doPrivileged(
+              () ->
+                  context
+                      .getPathUtils()
+                      .resolveAgainstDDFHome(path)
+                      .toRealPath(LinkOption.NOFOLLOW_LINKS));
       aerror = null;
     } catch (IOException e) {
       apath = path;
@@ -123,7 +129,7 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
    * @param context the migration context associated with this entry
    * @param pathname the path string for this entry
    * @throws IllegalArgumentException if <code>context</code> or <code>pathname</code> is <code>null
-   *     </code>
+   * </code>
    */
   protected ExportMigrationEntryImpl(ExportMigrationContextImpl context, String pathname) {
     this(
@@ -188,14 +194,12 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
       this.stored = false; // until proven otherwise
       try (final OutputStream os = getOutputStream()) {
         this.stored = getReport().wasIOSuccessful(() -> consumer.accept(getReport(), os));
-      } catch (
-          ExportIOException
-              e) { // special case indicating the I/O error occurred while writing to the zip which
+      } catch (ExportIOException e) {
+        // special case indicating the I/O error occurred while writing to the zip which
         // would invalidate the zip so we are forced to abort
         throw newError(ExportMigrationEntryImpl.FAILED_TO_BE_EXPORTED, e.getCause());
-      } catch (
-          IOException
-              e) { // here it means the error came out of reading/processing the input file/stream
+      } catch (IOException e) {
+        // here it means the error came out of reading/processing the input file/stream
         // where it is safe to continue with the next entry, so don't abort
         getReport().record(newError(ExportMigrationEntryImpl.FAILED_TO_BE_EXPORTED, e));
       } catch (MigrationException e) {
@@ -203,6 +207,11 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
       }
     }
     return stored;
+  }
+
+  @Override
+  public Optional<ExportMigrationEntry> getPropertyReferencedEntry(String name) {
+    return AccessUtils.doPrivileged(() -> getPropertyReferencedEntry(name, (r, n) -> true));
   }
 
   @Override
@@ -289,28 +298,30 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
   }
 
   private boolean storeWhenFileExist() {
-    if (isMigratable()) {
-      recordEntry();
-      try (final OutputStream os = getOutputStreamWithoutRecordingEntry()) {
-        FileUtils.copyFile(file, os);
-        SecurityLogger.audit("Exported file {}", absolutePath);
-        return true;
-      } catch (
-          ExportIOException
-              e) { // special case indicating the I/O error occurred while writing to the zip which
-        // would invalidate the zip so we are forced to abort
-        SecurityLogger.audit(ExportMigrationEntryImpl.ERROR_EXPORTING_FILE, absolutePath);
-        throw newError(ExportMigrationEntryImpl.FAILED_TO_BE_EXPORTED, e.getCause());
-      } catch (
-          IOException
-              e) { // here it means the error came out of reading/processing the input file/stream
-        // where it is safe to continue with the next entry, so don't abort
-        SecurityLogger.audit(ExportMigrationEntryImpl.ERROR_EXPORTING_FILE, absolutePath);
-        getReport().record(newError(ExportMigrationEntryImpl.FAILED_TO_BE_EXPORTED, e));
-      }
-      return false;
-    } // else - if it ain't migratable then only a warning occurs so return true
-    return true;
+    return AccessUtils.doPrivileged(
+        () -> {
+          if (isMigratable()) {
+            recordEntry();
+            try (final OutputStream os = getOutputStreamWithoutRecordingEntry()) {
+              context.getReport().recordFile(this);
+              FileUtils.copyFile(file, os);
+              SecurityLogger.audit("Exported file {}", absolutePath);
+              return true;
+            } catch (ExportIOException e) {
+              // special case indicating the I/O error occurred while writing to the zip which
+              // would invalidate the zip so we are forced to abort
+              SecurityLogger.audit(ExportMigrationEntryImpl.ERROR_EXPORTING_FILE, absolutePath);
+              throw newError(ExportMigrationEntryImpl.FAILED_TO_BE_EXPORTED, e.getCause());
+            } catch (IOException e) {
+              // here it means the error came out of reading/processing the input file/stream
+              // where it is safe to continue with the next entry, so don't abort
+              SecurityLogger.audit(ExportMigrationEntryImpl.ERROR_EXPORTING_FILE, absolutePath);
+              getReport().record(newError(ExportMigrationEntryImpl.FAILED_TO_BE_EXPORTED, e));
+            }
+            return false;
+          } // else - if it ain't migratable then only a warning occurs so return true
+          return true;
+        });
   }
 
   private OutputStream getOutputStreamWithoutRecordingEntry() throws IOException {

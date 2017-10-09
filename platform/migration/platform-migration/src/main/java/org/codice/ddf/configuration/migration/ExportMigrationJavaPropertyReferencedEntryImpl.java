@@ -26,6 +26,7 @@ import org.codice.ddf.migration.MigrationWarning;
  */
 public class ExportMigrationJavaPropertyReferencedEntryImpl
     extends ExportMigrationPropertyReferencedEntryImpl {
+
   /** Holds the path for the properties file where the reference is defined. */
   private final Path propertiesPath;
 
@@ -38,7 +39,7 @@ public class ExportMigrationJavaPropertyReferencedEntryImpl
    * @param property the property name for this entry
    * @param pathname the pathname for this entry
    * @throws IllegalArgumentException if <code>context</code>, <code>propertiesPath</code>, <code>
-   *     property</code>, or <code>pathname</code> is <code>null</code>
+   * property</code>, or <code>pathname</code> is <code>null</code>
    */
   ExportMigrationJavaPropertyReferencedEntryImpl(
       ExportMigrationContextImpl context, Path propertiesPath, String property, String pathname) {
@@ -64,7 +65,7 @@ public class ExportMigrationJavaPropertyReferencedEntryImpl
     final ExportMigrationJavaPropertyReferencedEntryImpl me =
         (ExportMigrationJavaPropertyReferencedEntryImpl) o;
 
-    return propertiesPath.equals(me.getPropertiesPath());
+    return propertiesPath.equals(me.propertiesPath);
   }
 
   @SuppressWarnings("squid:S2259" /* the super.compareTo() will never return 0 if null is passed */)
@@ -78,7 +79,7 @@ public class ExportMigrationJavaPropertyReferencedEntryImpl
     final ExportMigrationJavaPropertyReferencedEntryImpl eme =
         (ExportMigrationJavaPropertyReferencedEntryImpl) me;
 
-    return propertiesPath.compareTo(eme.getPropertiesPath());
+    return propertiesPath.compareTo(eme.propertiesPath);
   }
 
   @Override

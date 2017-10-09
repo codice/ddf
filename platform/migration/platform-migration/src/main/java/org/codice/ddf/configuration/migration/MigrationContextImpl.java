@@ -50,6 +50,14 @@ import org.codice.ddf.migration.MigrationReport;
  *           "title": "",
  *           "description": "",
  *           "organization": "",
+ *           "files": [
+ *             {
+ *               "name": "etc/startup.properties"
+ *             },
+ *             {
+ *               "name": "etc/system.properties"
+ *             }
+ *           ],
  *           "externals": [
  *             {
  *               "name": "/tmp/some.txt",
@@ -95,6 +103,7 @@ import org.codice.ddf.migration.MigrationReport;
  *   <li>'title' provides an optional title associated with the migratable
  *   <li>'description' provides an optional description associated with the migratable
  *   <li>'organization' provides an optional organization defining the migratable
+ *   <li>'files' provides a list of exported files by the framework on behalf of the migratables
  *   <li>'externals' provides an optional list of external files that should be present on the
  *       destination system as they were not exported
  *   <li>'system.properties' provides an optional list of java properties files containing a system
@@ -115,6 +124,7 @@ import org.codice.ddf.migration.MigrationReport;
  * @param <R> the type of report for this context
  */
 public class MigrationContextImpl<R extends MigrationReport> implements MigrationContext {
+
   public static final String METADATA_PRODUCT_VERSION = "product.version";
 
   public static final String METADATA_DATE = "date";
@@ -130,6 +140,8 @@ public class MigrationContextImpl<R extends MigrationReport> implements Migratio
   public static final String METADATA_DESCRIPTION = "description";
 
   public static final String METADATA_ORGANIZATION = "organization";
+
+  public static final String METADATA_FILES = "files";
 
   public static final String METADATA_EXTERNALS = "externals";
 
@@ -205,7 +217,7 @@ public class MigrationContextImpl<R extends MigrationReport> implements Migratio
    * @param report the migration report where to record warnings and errors
    * @param migratable the migratable this context is for
    * @throws IllegalArgumentException if <code>report</code> or <code>migratable</code> is <code>
-   *     null</code>
+   * null</code>
    * @throws java.io.IOError if unable to determine ${ddf.home}
    */
   protected MigrationContextImpl(R report, Migratable migratable) {
@@ -224,7 +236,7 @@ public class MigrationContextImpl<R extends MigrationReport> implements Migratio
    * @param migratable the migratable this context is for
    * @param version the migratable version
    * @throws IllegalArgumentException if <code>report</code>, <code>migratable</code>, or <code>
-   *     version</code> is <code>null</code>
+   * version</code> is <code>null</code>
    * @throws java.io.IOError if unable to determine ${ddf.home}
    */
   protected MigrationContextImpl(R report, Migratable migratable, String version) {
