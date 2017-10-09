@@ -24,6 +24,8 @@ public class CommandExecutor {
     try {
       int exitCode = cmd.run();
       System.exit(exitCode);
+    } catch (VirtualMachineError vme) {
+      throw vme;
     } catch (Throwable e) {
       Notify.error("Command threw error: ", e.getMessage());
     }
@@ -36,6 +38,8 @@ public class CommandExecutor {
       execute(cmd);
     } catch (ParseException e) {
       Notify.error("Parser error: ", e.getMessage());
+    } catch (VirtualMachineError vme) {
+      throw vme;
     } catch (Throwable e) {
       Notify.error("Unexpected error: ", e.getMessage());
     }
@@ -47,6 +51,8 @@ public class CommandExecutor {
       execute(cmd);
     } catch (ParseException e) {
       Notify.error("Parser error: ", e.getMessage());
+    } catch (VirtualMachineError vme) {
+      throw vme;
     } catch (Throwable e) {
       Notify.error("Unexpected error: ", e.getMessage());
     }

@@ -62,8 +62,10 @@ public class ConfigurationSecurityLogger implements SynchronousConfigurationList
                   SecurityLogger.auditWarn(
                       "Configuration {} via filesystem: {}", type, updatedConfiguration);
                 }
+              } catch (VirtualMachineError vme) {
+                throw vme;
               } catch (Throwable e) {
-                LOGGER.error("Error auditing config update for {}", event.getPid(), e);
+                LOGGER.error("Error auditing config update for " + event.getPid(), e);
                 SecurityLogger.audit("Error auditing config update for {}", event.getPid());
               }
 
