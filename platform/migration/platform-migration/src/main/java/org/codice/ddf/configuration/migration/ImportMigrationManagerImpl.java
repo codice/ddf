@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
  * The import migration manager process an exported file and manages the import migration operation.
  */
 public class ImportMigrationManagerImpl implements Closeable {
+
   private static final Logger LOGGER = LoggerFactory.getLogger(ImportMigrationManagerImpl.class);
 
   private final MigrationReport report;
@@ -104,7 +105,7 @@ public class ImportMigrationManagerImpl implements Closeable {
           .filter(ze -> !ze.isDirectory())
           .map(ze -> new ImportMigrationEntryImpl(this::getContextFor, ze))
           .forEach(me -> me.getContext().addEntry(me));
-      metadata = retrieveMetadata();
+      metadata = retrieveMetadata(); // do this after retreiving all exported entries
       this.version = JsonUtils.getStringFrom(metadata, MigrationContextImpl.METADATA_VERSION, true);
       if (!MigrationContextImpl.CURRENT_VERSION.equals(version)) {
         IOUtils.closeQuietly(zip);
@@ -118,10 +119,10 @@ public class ImportMigrationManagerImpl implements Closeable {
       // process migratables' metadata
       JsonUtils.getMapFrom(metadata, MigrationContextImpl.METADATA_MIGRATABLES)
           .forEach((id, o) -> getContextFor(id).processMetadata(JsonUtils.convertToMap(o)));
-    } catch (IOException e) {
+    } catch (SecurityException | IOException e) {
       IOUtils.closeQuietly(zip);
       throw new MigrationException(Messages.IMPORT_FILE_READ_ERROR, exportFile, e);
-    } catch (MigrationException e) {
+    } catch (RuntimeException e) {
       IOUtils.closeQuietly(zip);
       throw e;
     }
@@ -130,10 +131,10 @@ public class ImportMigrationManagerImpl implements Closeable {
   private static ZipFile newZipFileFor(Path exportFile) {
     Validate.notNull(exportFile, "invalid null export file");
     try {
-      return new ZipFile(exportFile.toFile());
+      return AccessUtils.doPrivileged(() -> new ZipFile(exportFile.toFile()));
     } catch (FileNotFoundException e) {
       throw new MigrationException(Messages.IMPORT_FILE_MISSING_ERROR, exportFile, e);
-    } catch (IOException e) {
+    } catch (SecurityException | IOException e) {
       throw new MigrationException(Messages.IMPORT_FILE_OPEN_ERROR, exportFile, e);
     }
   }
@@ -182,19 +183,26 @@ public class ImportMigrationManagerImpl implements Closeable {
   }
 
   private Map<String, Object> retrieveMetadata() throws IOException {
-    final ImportMigrationEntry me =
-        contexts
-            .get(null) // metadata entries have no migratable id and will always exist see ctor
-            .getEntry(MigrationContextImpl.METADATA_FILENAME);
-    InputStream is = null;
+    return AccessUtils.doPrivileged(
+        () -> {
+          final ImportMigrationEntry me =
+              contexts
+                  .get(
+                      null) // metadata entries have no migratable id and will always exist see ctor
+                  .getEntry(MigrationContextImpl.METADATA_FILENAME);
+          InputStream is = null;
 
-    try {
-      is =
-          me.getInputStream()
-              .orElseThrow(() -> new MigrationException(Messages.IMPORT_METADATA_MISSING_ERROR));
-      return JsonUtils.MAPPER.parser().parseMap(IOUtils.toString(is, Charset.defaultCharset()));
-    } finally {
-      IOUtils.closeQuietly(is);
-    }
+          try {
+            is =
+                me.getInputStream()
+                    .orElseThrow(
+                        () -> new MigrationException(Messages.IMPORT_METADATA_MISSING_ERROR));
+            return JsonUtils.MAPPER
+                .parser()
+                .parseMap(IOUtils.toString(is, Charset.defaultCharset()));
+          } finally {
+            IOUtils.closeQuietly(is);
+          }
+        });
   }
 }

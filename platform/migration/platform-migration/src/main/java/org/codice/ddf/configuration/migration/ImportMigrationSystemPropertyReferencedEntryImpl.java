@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ImportMigrationSystemPropertyReferencedEntryImpl
     extends ImportMigrationPropertyReferencedEntryImpl {
+
   private static final Logger LOGGER =
       LoggerFactory.getLogger(ImportMigrationSystemPropertyReferencedEntryImpl.class);
 
@@ -48,47 +49,52 @@ public class ImportMigrationSystemPropertyReferencedEntryImpl
     final MigrationReport report = getReport();
 
     report.doAfterCompletion(
-        r -> {
-          LOGGER.debug("Verifying {}...", toDebugString());
-          final String val = System.getProperty(getProperty());
+        r ->
+            AccessUtils.doPrivileged(
+                () -> {
+                  LOGGER.debug("Verifying {}...", toDebugString());
+                  final String val = System.getProperty(getProperty());
 
-          if (val == null) {
-            r.record(
-                new MigrationException(
-                    Messages.IMPORT_SYSTEM_PROPERTY_NOT_DEFINED_ERROR, getProperty(), getPath()));
-          } else if (StringUtils.isBlank(val)) {
-            r.record(
-                new MigrationException(
-                    Messages.IMPORT_SYSTEM_PROPERTY_IS_EMPTY_ERROR, getProperty(), getPath()));
-          } else {
-            try {
-              if (!getAbsolutePath()
-                  .toRealPath(LinkOption.NOFOLLOW_LINKS)
-                  .equals(
-                      getContext()
-                          .getPathUtils()
-                          .resolveAgainstDDFHome(val)
-                          .toRealPath(LinkOption.NOFOLLOW_LINKS))) {
-                r.record(
-                    new MigrationException(
-                        Messages.IMPORT_SYSTEM_PROPERTY_ERROR,
-                        getProperty(),
-                        getPath(),
-                        "is now set to [" + val + ']'));
-              }
-            } catch (
-                IOException
-                    e) { // cannot determine the location of either so it must not exist or be
-              // different anyway
-              r.record(
-                  new MigrationException(
-                      Messages.IMPORT_SYSTEM_PROPERTY_ERROR,
-                      getProperty(),
-                      getPath(),
-                      String.format("is now set to [%s]; %s", val, e.getMessage()),
-                      e));
-            }
-          }
-        });
+                  if (val == null) {
+                    r.record(
+                        new MigrationException(
+                            Messages.IMPORT_SYSTEM_PROPERTY_NOT_DEFINED_ERROR,
+                            getProperty(),
+                            getPath()));
+                  } else if (StringUtils.isBlank(val)) {
+                    r.record(
+                        new MigrationException(
+                            Messages.IMPORT_SYSTEM_PROPERTY_IS_EMPTY_ERROR,
+                            getProperty(),
+                            getPath()));
+                  } else {
+                    try {
+                      if (!getAbsolutePath()
+                          .toRealPath(LinkOption.NOFOLLOW_LINKS)
+                          .equals(
+                              getContext()
+                                  .getPathUtils()
+                                  .resolveAgainstDDFHome(val)
+                                  .toRealPath(LinkOption.NOFOLLOW_LINKS))) {
+                        r.record(
+                            new MigrationException(
+                                Messages.IMPORT_SYSTEM_PROPERTY_ERROR,
+                                getProperty(),
+                                getPath(),
+                                "is now set to [" + val + ']'));
+                      }
+                    } catch (IOException e) {
+                      // cannot determine the location of either so it must not exist or be
+                      // different anyway
+                      r.record(
+                          new MigrationException(
+                              Messages.IMPORT_SYSTEM_PROPERTY_ERROR,
+                              getProperty(),
+                              getPath(),
+                              String.format("is now set to [%s]; %s", val, e.getMessage()),
+                              e));
+                    }
+                  }
+                }));
   }
 }

@@ -134,11 +134,12 @@ public class ImportMigrationEntryImplTest extends AbstractMigrationTest {
   @Test
   public void getInputStream() throws Exception {
     final java.util.zip.ZipEntry zipEntry = new java.util.zip.ZipEntry("migratable/" + ENTRY_NAME);
-    InputStream mockInputStream = mock(InputStream.class);
-    when(mockContext.getInputStreamFor(zipEntry)).thenReturn(mockInputStream);
-
     final ImportMigrationEntryImpl entry =
         new ImportMigrationEntryImpl(getContextFunction, zipEntry);
+    InputStream mockInputStream = mock(InputStream.class);
+
+    when(mockContext.getInputStreamFor(Mockito.same(entry), Mockito.anyBoolean()))
+        .thenReturn(mockInputStream);
 
     Optional<InputStream> optionalInput = entry.getInputStream();
 
@@ -162,9 +163,11 @@ public class ImportMigrationEntryImplTest extends AbstractMigrationTest {
   @Test
   public void restore() throws Exception {
     InputStream inputStream = IOUtils.toInputStream(IMPORT_CONTENTS, Charsets.UTF_8);
-    when(mockContext.getInputStreamFor(null)).thenReturn(inputStream);
     final ImportMigrationEntryImpl entry =
         new ImportMigrationEntryImpl(mockContext, importedFile.getName());
+
+    when(mockContext.getInputStreamFor(Mockito.same(entry), Mockito.anyBoolean()))
+        .thenReturn(inputStream);
 
     entry.restore(true);
 
@@ -173,9 +176,9 @@ public class ImportMigrationEntryImplTest extends AbstractMigrationTest {
 
   @Test
   public void restoreWhenRequiredEntryWasNotImported() throws Exception {
-    when(mockContext.getInputStreamFor(null)).thenReturn(null);
-
     final ImportMigrationEntryImpl entry = new ImportMigrationEntryImpl(mockContext, ENTRY_NAME);
+
+    when(mockContext.getInputStreamFor(Mockito.same(entry), Mockito.anyBoolean())).thenReturn(null);
 
     entry.restore(true);
 
@@ -184,10 +187,10 @@ public class ImportMigrationEntryImplTest extends AbstractMigrationTest {
 
   @Test
   public void restoreWhenOptionalEntryWasNotImported() throws Exception {
-    when(mockContext.getInputStreamFor(null)).thenReturn(null);
-
     final ImportMigrationEntryImpl entry =
         new ImportMigrationEntryImpl(mockContext, importedFile.getName());
+
+    when(mockContext.getInputStreamFor(Mockito.same(entry), Mockito.anyBoolean())).thenReturn(null);
 
     entry.restore(false);
 
@@ -203,17 +206,19 @@ public class ImportMigrationEntryImplTest extends AbstractMigrationTest {
     InputStream inputStream = IOUtils.toInputStream(IMPORT_CONTENTS, Charsets.UTF_8);
 
     when(mockContext.getPathUtils()).thenReturn(pathUtils);
-    when(mockContext.getInputStreamFor(null)).thenReturn(inputStream);
     when(pathUtils.resolveAgainstDDFHome(Mockito.eq(importedPath))).thenReturn(absolutePath);
     when(absolutePath.toFile()).thenReturn(absoluteFile);
+
+    final ImportMigrationEntryImpl entry =
+        new ImportMigrationEntryImpl(mockContext, importedFile.getName());
+
+    when(mockContext.getInputStreamFor(Mockito.same(entry), Mockito.anyBoolean()))
+        .thenReturn(inputStream);
     when(absoluteFile.canWrite()).thenReturn(false, false, true);
     // must reverse mockito calls otherwise using when() will actually call the setWritable() on the
     // spy and affect the file system
     doReturn(true).when(absoluteFile).setWritable(true);
     doReturn(true).when(absoluteFile).setWritable(false);
-
-    final ImportMigrationEntryImpl entry =
-        new ImportMigrationEntryImpl(mockContext, importedFile.getName());
 
     entry.restore(true);
 
@@ -242,16 +247,18 @@ public class ImportMigrationEntryImplTest extends AbstractMigrationTest {
     when(mockContext.getReport()).thenReturn(mockReport);
 
     when(mockContext.getPathUtils()).thenReturn(pathUtils);
-    when(mockContext.getInputStreamFor(null)).thenReturn(inputStream);
     when(pathUtils.resolveAgainstDDFHome(Mockito.eq(importedPath))).thenReturn(absolutePath);
     when(absolutePath.toFile()).thenReturn(absoluteFile);
+
+    final ImportMigrationEntryImpl entry =
+        new ImportMigrationEntryImpl(mockContext, importedFile.getName());
+
+    when(mockContext.getInputStreamFor(Mockito.same(entry), Mockito.anyBoolean()))
+        .thenReturn(inputStream);
     when(absoluteFile.canWrite()).thenReturn(false, false, true);
     // must reverse mockito calls otherwise using when() will actually call the setWritable() on the
     // spy and affect the file system
     doReturn(false).when(absoluteFile).setWritable(true);
-
-    final ImportMigrationEntryImpl entry =
-        new ImportMigrationEntryImpl(mockContext, importedFile.getName());
 
     entry.restore(true);
 
@@ -273,11 +280,12 @@ public class ImportMigrationEntryImplTest extends AbstractMigrationTest {
               return true;
             });
     when(mockContext.getReport()).thenReturn(mockReport);
-    when(mockContext.getInputStreamFor(null)).thenReturn(mock(InputStream.class));
-
     BiThrowingConsumer<MigrationReport, Optional<InputStream>, IOException> mockConsumer =
         mock(BiThrowingConsumer.class);
     final ImportMigrationEntryImpl entry = new ImportMigrationEntryImpl(mockContext, ENTRY_NAME);
+
+    when(mockContext.getInputStreamFor(Mockito.same(entry), Mockito.anyBoolean()))
+        .thenReturn(mock(InputStream.class));
 
     entry.restore(mockConsumer);
 
@@ -295,11 +303,12 @@ public class ImportMigrationEntryImplTest extends AbstractMigrationTest {
               throw new IOException();
             });
     when(mockContext.getReport()).thenReturn(mockReport);
-    when(mockContext.getInputStreamFor(null)).thenReturn(mock(InputStream.class));
-
     BiThrowingConsumer<MigrationReport, Optional<InputStream>, IOException> mockConsumer =
         mock(BiThrowingConsumer.class);
     final ImportMigrationEntryImpl entry = new ImportMigrationEntryImpl(mockContext, ENTRY_NAME);
+
+    when(mockContext.getInputStreamFor(Mockito.same(entry), Mockito.anyBoolean()))
+        .thenReturn(mock(InputStream.class));
 
     entry.restore(mockConsumer);
 

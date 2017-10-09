@@ -43,9 +43,11 @@ import org.codice.ddf.util.function.BiThrowingConsumer;
  *
  *         public void doExport(ExportMigrationContext context) {
  *             // get an entry for my properties file
- *             final ExportMigrationEntry entry = context.getEntry(Paths.get("etc", "myfile.properties"));
+ *             final ExportMigrationEntry entry = context.getEntry(Paths.get("etc",
+ * "myfile.properties"));
  *
- *             // get an entry for the file referenced from "my.properties" and store it in the export file
+ *             // get an entry for the file referenced from "my.properties" and store it in the
+ * export file
  *             entry.getPropertyReferencedEntry("my.property")
  *                 .ifPresent(ExportMigrationEntry::store);
  *         }
@@ -58,6 +60,7 @@ import org.codice.ddf.util.function.BiThrowingConsumer;
  * be removed in a future version of the library. </b>
  */
 public interface ExportMigrationEntry extends MigrationEntry {
+
   /**
    * Creates or retrieves (if already created) a migration entry referenced from the specified
    * property in the properties file associated with this migration entry to be exported by the
@@ -166,7 +169,9 @@ public interface ExportMigrationEntry extends MigrationEntry {
    *     from the specified property value or empty if the property is not defined, is blank or is
    *     invalid
    * @throws IllegalArgumentException if <code>name</code> or <code>validator</code> is <code>null
-   *     </code>
+   * </code>
+   * @throws SecurityException if a security manager exists and its <code>checkRead()</code> method
+   *     denies read access to the file represented by this entry
    */
   public Optional<ExportMigrationEntry> getPropertyReferencedEntry(
       String name, BiPredicate<MigrationReport, String> validator);
@@ -262,6 +267,8 @@ public interface ExportMigrationEntry extends MigrationEntry {
    *     <code>false</code> otherwise
    * @throws MigrationException if a failure that prevents the operation from continuing occurred
    * @throws IllegalArgumentException if <code>consumer</code> is <code>null</code>
+   * @throws SecurityException if a security manager exists and its <code>checkRead()</code> method
+   *     denies read access to the file represented by this entry
    */
   public boolean store(BiThrowingConsumer<MigrationReport, OutputStream, IOException> consumer);
 
@@ -275,6 +282,8 @@ public interface ExportMigrationEntry extends MigrationEntry {
    *
    * @return an output stream for this entry
    * @throws IOException if an I/O error has occurred
+   * @throws SecurityException if a security manager exists and its <code>checkRead()</code> method
+   *     denies read access to the file represented by this entry
    */
   public OutputStream getOutputStream() throws IOException;
 }

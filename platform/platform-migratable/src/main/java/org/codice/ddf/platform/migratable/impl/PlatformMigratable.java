@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 /** This class handles the export process for all Platform system files. */
 public class PlatformMigratable implements Migratable {
+
   private static final Logger LOGGER = LoggerFactory.getLogger(PlatformMigratable.class);
 
   /**
@@ -48,6 +49,7 @@ public class PlatformMigratable implements Migratable {
 
   private static final List<Path> REQUIRED_SYSTEM_FILES =
       ImmutableList.of( //
+          Paths.get("security", "default.policy"),
           Paths.get("etc", "system.properties"),
           Paths.get("etc", "startup.properties"),
           Paths.get("etc", "custom.properties"),

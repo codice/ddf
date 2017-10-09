@@ -43,9 +43,11 @@ import org.codice.ddf.util.function.BiThrowingConsumer;
  *
  *         public void doImport(ImportMigrationContext context) {
  *             // get an entry for my properties file
- *             final ImportMigrationEntry entry = context.getEntry(Paths.get("etc", "myfile.properties"));
+ *             final ImportMigrationEntry entry = context.getEntry(Paths.get("etc",
+ * "myfile.properties"));
  *
- *             // get an entry for the file referenced from "my.properties" and restore it back on disk
+ *             // get an entry for the file referenced from "my.properties" and restore it back on
+ * disk
  *             entry.getPropertyReferencedEntry("my.property")
  *                 .ifPresent(ImportMigrationEntry::restore);
  *         }
@@ -58,6 +60,7 @@ import org.codice.ddf.util.function.BiThrowingConsumer;
  * be removed in a future version of the library. </b>
  */
 public interface ImportMigrationEntry extends MigrationEntry {
+
   /**
    * Retrieves a migration entry referenced from a property value defined in the properties file
    * associated with this migration entry.
@@ -119,6 +122,11 @@ public interface ImportMigrationEntry extends MigrationEntry {
    * @return <code>true</code> if no errors were recorded as a result of processing this command;
    *     <code>false</code> otherwise
    * @throws MigrationException if a failure that prevents the operation from continuing occurred
+   * @throws SecurityException if a security manager exists and the entry was exported by the
+   *     migratable directly using {@link ExportMigrationEntry#store(BiThrowingConsumer)} or {@link
+   *     ExportMigrationEntry#getOutputStream()}) and its <code>checkWrite()</code> method denies
+   *     write access or its <code>checkDelete()</code> denies delete access to the file represented
+   *     by this entry
    */
   public default boolean restore() {
     return restore(true);
@@ -154,6 +162,11 @@ public interface ImportMigrationEntry extends MigrationEntry {
    * @return <code>true</code> if no errors were recorded as a result of processing this command;
    *     <code>false</code> otherwise
    * @throws MigrationException if a failure that prevents the operation from continuing occurred
+   * @throws SecurityException if a security manager exists and the entry was exported by the
+   *     migratable directly using {@link ExportMigrationEntry#store(BiThrowingConsumer)} or {@link
+   *     ExportMigrationEntry#getOutputStream()}) and its <code>checkWrite()</code> method denies
+   *     write access or its <code>checkDelete()</code> denies delete access to the file represented
+   *     by this entry
    */
   public boolean restore(boolean required);
 
@@ -185,6 +198,10 @@ public interface ImportMigrationEntry extends MigrationEntry {
    *     <code>false</code> otherwise
    * @throws MigrationException if a failure that prevents the operation from continuing occurred
    * @throws IllegalArgumentException if <code>consumer</code> is <code>null</code>
+   * @throws SecurityException if a security manager exists and the entry was exported by the
+   *     framework using {@link ExportMigrationEntry#store()} or {@link
+   *     ExportMigrationEntry#store(boolean)} and its <code>checkRead()</code> method denies read
+   *     access to the file represented by this entry
    */
   public boolean restore(
       BiThrowingConsumer<MigrationReport, Optional<InputStream>, IOException> consumer);
@@ -198,6 +215,10 @@ public interface ImportMigrationEntry extends MigrationEntry {
    *
    * @return an input stream for this entry or empty if it was not exported
    * @throws IOException if an I/O error has occurred
+   * @throws SecurityException if a security manager exists and the entry was exported by the
+   *     framework using {@link ExportMigrationEntry#store()} or {@link
+   *     ExportMigrationEntry#store(boolean)} and its <code>checkRead()</code> method denies read
+   *     access to the file represented by this entry
    */
   public Optional<InputStream> getInputStream() throws IOException;
 }

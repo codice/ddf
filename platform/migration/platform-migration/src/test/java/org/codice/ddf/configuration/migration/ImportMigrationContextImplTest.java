@@ -40,6 +40,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 public class ImportMigrationContextImplTest extends AbstractMigrationTest {
+
   private static final String[] DIRS = new String[] {"where", "some", "dir"};
 
   private static final String[] DIRS2 = new String[] {"where", "some"};
@@ -89,6 +90,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
     Assert.assertThat(context.getId(), Matchers.nullValue());
     Assert.assertThat(context.getVersion(), OptionalMatchers.isEmpty());
     Assert.assertThat(context.getZip(), Matchers.sameInstance(zip));
+    Assert.assertThat(context.getFiles(), Matchers.empty());
     Assert.assertThat(context.getEntries(), Matchers.anEmptyMap());
     Assert.assertThat(context.getSystemPropertiesReferencedEntries(), Matchers.anEmptyMap());
   }
@@ -118,6 +120,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
     Assert.assertThat(context.getId(), Matchers.equalTo(MIGRATABLE_ID));
     Assert.assertThat(context.getVersion(), OptionalMatchers.isEmpty());
     Assert.assertThat(context.getZip(), Matchers.sameInstance(zip));
+    Assert.assertThat(context.getFiles(), Matchers.empty());
     Assert.assertThat(context.getEntries(), Matchers.anEmptyMap());
     Assert.assertThat(context.getSystemPropertiesReferencedEntries(), Matchers.anEmptyMap());
   }
@@ -155,6 +158,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
     Assert.assertThat(context.getId(), Matchers.equalTo(MIGRATABLE_ID));
     Assert.assertThat(context.getVersion(), OptionalMatchers.isEmpty());
     Assert.assertThat(context.getZip(), Matchers.sameInstance(zip));
+    Assert.assertThat(context.getFiles(), Matchers.empty());
     Assert.assertThat(context.getEntries(), Matchers.anEmptyMap());
     Assert.assertThat(context.getSystemPropertiesReferencedEntries(), Matchers.anEmptyMap());
   }
@@ -459,14 +463,14 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
   public void testGetOptionalEntry() throws Exception {
     context.getEntries().put(MIGRATABLE_PATH, ENTRY);
 
-    final Optional<ImportMigrationEntry> entry = context.getOptionalEntry(MIGRATABLE_PATH);
+    final Optional<ImportMigrationEntryImpl> entry = context.getOptionalEntry(MIGRATABLE_PATH);
 
     Assert.assertThat(entry, OptionalMatchers.hasValue(Matchers.sameInstance(ENTRY)));
   }
 
   @Test
   public void testGetOptionalEntryWhenNotDefined() throws Exception {
-    final Optional<ImportMigrationEntry> entry = context.getOptionalEntry(MIGRATABLE_PATH);
+    final Optional<ImportMigrationEntryImpl> entry = context.getOptionalEntry(MIGRATABLE_PATH);
 
     Assert.assertThat(entry, OptionalMatchers.isEmpty());
   }
@@ -479,6 +483,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
     context.processMetadata(metadata);
 
     Assert.assertThat(context.getVersion(), OptionalMatchers.hasValue(VERSION));
+    Assert.assertThat(context.getFiles(), Matchers.empty());
     Assert.assertThat(context.entries().count(), Matchers.equalTo(0L));
     Assert.assertThat(context.getSystemPropertiesReferencedEntries(), Matchers.anEmptyMap());
   }
@@ -511,6 +516,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
     context.processMetadata(metadata);
 
     Assert.assertThat(context.getVersion(), OptionalMatchers.hasValue(VERSION));
+    Assert.assertThat(context.getFiles(), Matchers.empty());
     Assert.assertThat(
         context.entries().toArray(ImportMigrationEntry[]::new),
         Matchers.arrayContainingInAnyOrder( //
@@ -540,7 +546,26 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
   }
 
   @Test
-  public void testProcessMetadataWithSystemPropertyReferencedEntries() throws Exception {
+  public void testProcessMetadataWithOnlyFiles() throws Exception {
+    final Map<String, Object> metadata =
+        ImmutableMap.of(
+            MigrationContextImpl.METADATA_VERSION,
+            VERSION,
+            MigrationContextImpl.METADATA_FILES,
+            ImmutableList.of( //
+                ImmutableMap.of(MigrationEntryImpl.METADATA_NAME, MIGRATABLE_NAME),
+                ImmutableMap.of(MigrationEntryImpl.METADATA_NAME, MIGRATABLE_NAME2)));
+
+    context.processMetadata(metadata);
+
+    Assert.assertThat(context.getVersion(), OptionalMatchers.hasValue(VERSION));
+    Assert.assertThat(context.getFiles(), Matchers.contains(MIGRATABLE_NAME, MIGRATABLE_NAME2));
+    Assert.assertThat(context.getEntries(), Matchers.anEmptyMap());
+    Assert.assertThat(context.getSystemPropertiesReferencedEntries(), Matchers.anEmptyMap());
+  }
+
+  @Test
+  public void testProcessMetadataWithSystemPropertyReferencedEntriesAndNoFiles() throws Exception {
     final String property = "property.name";
     final String checksum = "abcdef";
     final String checksum2 = "12345";
@@ -574,6 +599,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
     context.processMetadata(metadata);
 
     Assert.assertThat(context.getVersion(), OptionalMatchers.hasValue(VERSION));
+    Assert.assertThat(context.getFiles(), Matchers.empty());
     Assert.assertThat(context.getEntries(), Matchers.aMapWithSize(2));
     Assert.assertThat(
         context
@@ -626,8 +652,9 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
   }
 
   @Test
-  public void testProcessMetadataWithJavaPropertyReferencedEntriesWhenPropertiesWasAlsoExported()
-      throws Exception {
+  public void
+      testProcessMetadataWithJavaPropertyReferencedEntriesWhenPropertiesWasAlsoExportedAndNoFiles()
+          throws Exception {
     final String migratablePropertyName = "where/some/dir/test.properties";
     final String property = "property.name";
     final String checksum = "abcdef";
@@ -674,6 +701,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
     context.processMetadata(metadata);
 
     Assert.assertThat(context.getVersion(), OptionalMatchers.hasValue(VERSION));
+    Assert.assertThat(context.getFiles(), Matchers.empty());
     Assert.assertThat(context.getEntries(), Matchers.aMapWithSize(3));
     Assert.assertThat(
         context.getEntries().values(),
@@ -700,8 +728,9 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
   }
 
   @Test
-  public void testProcessMetadataWithJavaPropertyReferencedEntriesWhenPropertiesWasNotExported()
-      throws Exception {
+  public void
+      testProcessMetadataWithJavaPropertyReferencedEntriesWhenPropertiesWasNotExportedAndNoFiles()
+          throws Exception {
     final String migratablePropertyName = "where/some/dir/test.properties";
     final String property = "property.name";
     final String checksum = "abcdef";
@@ -738,6 +767,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
     context.processMetadata(metadata);
 
     Assert.assertThat(context.getVersion(), OptionalMatchers.hasValue(VERSION));
+    Assert.assertThat(context.getFiles(), Matchers.empty());
     Assert.assertThat(context.getEntries(), Matchers.aMapWithSize(3));
     Assert.assertThat(
         context.getEntries().values(),
@@ -752,6 +782,22 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
                         Matchers.hasValue(
                             MappingMatchers.map(
                                 MigrationEntry::getName, Matchers.equalTo(MIGRATABLE_NAME))))))));
+  }
+
+  @Test
+  public void testProcessMetadataWhenFilesIsNotAList() throws Exception {
+    final Map<String, Object> metadata =
+        ImmutableMap.of(
+            MigrationContextImpl.METADATA_VERSION,
+            VERSION,
+            MigrationContextImpl.METADATA_FILES,
+            "not a list");
+
+    thrown.expect(MigrationException.class);
+    thrown.expectMessage(Matchers.containsString("invalid metadata"));
+    thrown.expectMessage(Matchers.containsString("[" + MigrationContextImpl.METADATA_FILES + "]"));
+
+    context.processMetadata(metadata);
   }
 
   @Test
