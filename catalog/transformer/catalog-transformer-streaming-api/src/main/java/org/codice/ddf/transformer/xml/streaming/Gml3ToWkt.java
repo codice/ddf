@@ -38,7 +38,7 @@ public interface Gml3ToWkt {
    * Parses XML through the Geotools parser
    *
    * @param xml InputStream of GML XML
-   * @return Objected parsed from the Geotools parser
+   * @return Object parsed from the Geotools parser
    */
   Object parseXml(InputStream xml) throws ValidationException;
 }
