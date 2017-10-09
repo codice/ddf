@@ -53,6 +53,8 @@ public class SystemPropertiesAdminTest {
 
   File userAttrsFile = null;
 
+  File paxWebFile = null;
+
   int expectedSystemPropertiesCount = 0;
 
   @Before
@@ -81,6 +83,7 @@ public class SystemPropertiesAdminTest {
     systemPropsFile = new File(etcFolder, "system.properties");
     userPropsFile = new File(etcFolder, "users.properties");
     userAttrsFile = new File(etcFolder, "users.attributes");
+    paxWebFile = new File(etcFolder, "org.ops4j.pax.web.cfg");
   }
 
   @Test
@@ -191,6 +194,50 @@ public class SystemPropertiesAdminTest {
         fail("User attribute file did not get updated.");
       }
     }
+  }
+
+  @Test
+  public void testPaxWebPortUpdate() throws Exception {
+    SystemPropertiesAdmin spa = new SystemPropertiesAdmin(mockGuestClaimsHandlerExt);
+    spa.syncPaxWebFilePorts(true, true);
+    Properties paxProps = new Properties();
+    try (FileReader userPropsReader = new FileReader(paxWebFile)) {
+      paxProps.load(userPropsReader);
+      assertThat(paxProps.size(), is(2));
+      assertThat(paxProps.getProperty("org.osgi.service.http.port"), equalTo("4567"));
+      assertThat(paxProps.getProperty("org.osgi.service.http.port.secure"), equalTo("8901"));
+    }
+  }
+
+  @Test
+  public void testPaxWebPortUpdateHttpsOnly() throws Exception {
+    SystemPropertiesAdmin spa = new SystemPropertiesAdmin(mockGuestClaimsHandlerExt);
+    spa.syncPaxWebFilePorts(true, false);
+    Properties paxProps = new Properties();
+    try (FileReader userPropsReader = new FileReader(paxWebFile)) {
+      paxProps.load(userPropsReader);
+      assertThat(paxProps.size(), is(1));
+      assertThat(paxProps.getProperty("org.osgi.service.http.port.secure"), equalTo("8901"));
+    }
+  }
+
+  @Test
+  public void testPaxWebPortUpdateHttpOnly() throws Exception {
+    SystemPropertiesAdmin spa = new SystemPropertiesAdmin(mockGuestClaimsHandlerExt);
+    spa.syncPaxWebFilePorts(false, true);
+    Properties paxProps = new Properties();
+    try (FileReader userPropsReader = new FileReader(paxWebFile)) {
+      paxProps.load(userPropsReader);
+      assertThat(paxProps.size(), is(1));
+      assertThat(paxProps.getProperty("org.osgi.service.http.port"), equalTo("4567"));
+    }
+  }
+
+  @Test
+  public void testPaxWebPortNoUpdate() throws Exception {
+    SystemPropertiesAdmin spa = new SystemPropertiesAdmin(mockGuestClaimsHandlerExt);
+    spa.syncPaxWebFilePorts(false, false);
+    assertThat(paxWebFile.exists(), is(false));
   }
 
   private String getDetailsValue(List<SystemPropertyDetails> props, String key) {

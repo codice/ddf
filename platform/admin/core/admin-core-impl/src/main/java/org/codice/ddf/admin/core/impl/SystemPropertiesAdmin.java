@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.management.InstanceAlreadyExistsException;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
@@ -52,9 +54,15 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
 
   private String oldHostName = SystemBaseUrl.getHost();
 
+  private String oldHttpsPort = SystemBaseUrl.getHttpsPort();
+
+  private String oldHttpPort = SystemBaseUrl.getHttpPort();
+
   private static final String KARAF_ETC = "karaf.etc";
 
   private static final String LOCAL_HOST = "localhost";
+
+  private static final String PAX_WEB_FILE = "org.ops4j.pax.web.cfg";
 
   private static final String SYSTEM_PROPERTIES_FILE = "system.properties";
 
@@ -67,22 +75,12 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
   private static final String HOST_DESCRIPTION =
       "The host name or IP address used to advertise the system. Possibilities include the address of a single node of that of a load balancer in a multi-node deployment. NOTE: This setting will take effect after a system restart.";
 
-  private static final String PROTOCOL_TITLE = "Default Protocol";
-
-  private static final String PROTOCOL_DESCRIPTION =
-      "The protocol used to advertise the system. When selecting the protocol, be sure to enter the port number corresponding to that protocol.";
-
   private static final ArrayList<String> PROTOCOL_OPTIONS = new ArrayList<>();
 
   static {
     PROTOCOL_OPTIONS.add("https://");
     PROTOCOL_OPTIONS.add("http://");
   }
-
-  private static final String DEFAULT_PORT_TITLE = "Default Port";
-
-  private static final String DEFAULT_PORT_DESCRIPTION =
-      "The default port used to advertise the system. The default port should match either the http or https port. Possibilities include the port of a single node of that of a load balancer in a multi-node deployment. NOTE: This setting will take effect after a system restart.";
 
   private static final String HTTP_PORT_TITLE = "HTTP Port";
 
@@ -182,7 +180,7 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
       updateProperty(SystemInfo.SITE_CONTACT, updatedSystemProperties, systemDotProperties);
       updateProperty(SystemInfo.SITE_NAME, updatedSystemProperties, systemDotProperties);
       updateProperty(SystemInfo.VERSION, updatedSystemProperties, systemDotProperties);
-      updatePortProperty(updatedSystemProperties, systemDotProperties);
+      updatePortProperty(systemDotProperties);
 
       systemDotProperties.save();
 
@@ -192,6 +190,45 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
 
     writeOutUsersDotPropertiesFile(userPropertiesFile);
     writeOutUsersDotAttributesFile(userAttributesFile);
+
+    // We need to update the pax web config when the ports are changed. However if we change it
+    // when the system is running some parts might not correctly handle the update. We need to
+    // make the change as the system is coming down so that it will be in place when the system
+    // comes back up.
+    LOGGER.info("Adding shutdown hook to update {} port numbers.", PAX_WEB_FILE);
+    Runtime.getRuntime()
+        .addShutdownHook(
+            new Thread(
+                () ->
+                    syncPaxWebFilePorts(
+                        oldHttpsPort.equals(SystemBaseUrl.getInternalHttpsPort()),
+                        oldHttpPort.equals(SystemBaseUrl.getInternalHttpPort()))));
+  }
+
+  void syncPaxWebFilePorts(boolean updateHttps, boolean updateHttp) {
+
+    if (!updateHttp && !updateHttps) {
+      return;
+    }
+
+    String etcDir = System.getProperty(KARAF_ETC);
+    String paxWebFilename = etcDir + File.separator + PAX_WEB_FILE;
+    File paxWebFile = new File(paxWebFilename);
+
+    try {
+      Properties paxWebProperties = new Properties(paxWebFile);
+      if (updateHttp) {
+        paxWebProperties.setProperty("org.osgi.service.http.port", SystemBaseUrl.getHttpPort());
+      }
+      if (updateHttps) {
+        paxWebProperties.setProperty(
+            "org.osgi.service.http.port.secure", SystemBaseUrl.getHttpsPort());
+      }
+      paxWebProperties.save();
+
+    } catch (IOException e) {
+      LOGGER.warn("Exception while writing to org.ops4j.pax.web.cfg file.", e);
+    }
   }
 
   /*
@@ -305,8 +342,7 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
     }
   }
 
-  private void updatePortProperty(
-      Map<String, String> updatedProperties, Properties systemDotProperties) {
+  private void updatePortProperty(Properties systemDotProperties) {
     String protocol = SystemBaseUrl.getProtocol();
 
     String port = SystemBaseUrl.getHttpsPort();
@@ -319,6 +355,7 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
   }
 
   private void configureMBean() {
+
     mbeanServer = ManagementFactory.getPlatformMBeanServer();
 
     try {
@@ -347,9 +384,8 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
       if (objectName != null && mbeanServer != null) {
         mbeanServer.unregisterMBean(objectName);
       }
-    } catch (Exception e) {
+    } catch (InstanceNotFoundException | MBeanRegistrationException e) {
       LOGGER.debug("Exception unregistering mbean: ", e);
-      throw new RuntimeException(e);
     }
   }
 }
