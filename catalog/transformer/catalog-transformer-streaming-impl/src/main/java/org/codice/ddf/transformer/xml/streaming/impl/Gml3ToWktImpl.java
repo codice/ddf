@@ -100,8 +100,7 @@ public class Gml3ToWktImpl implements Gml3ToWkt {
     }
   }
 
-  private synchronized Geometry convertCRS(Geometry geometry)
-      throws ValidationException, TransformException {
+  private Geometry convertCRS(Geometry geometry) throws ValidationException, TransformException {
     return JTS.transform(geometry, getLatLonTransform());
   }
 
