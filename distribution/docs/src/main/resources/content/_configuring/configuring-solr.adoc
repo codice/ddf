@@ -1,0 +1,10 @@
+:title: Configuring Solr
+:type: configuration
+:status: published
+:parent: Configuring Data Management
+:summary: Configure Solr.
+:order: 00
+
+== {title}
+
+The default catalog provider for ${branding} is <<_solr_catalog_provider,Solr>>.

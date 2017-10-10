@@ -1,0 +1,11 @@
+:title: Configuring IdP
+:type: subConfiguration
+:status: published
+:parent: Configuring REST Services for Users
+:summary: Configuring an IdP.
+:order: 00
+////
+== {title}
+
+TODO: https://codice.atlassian.net/browse/DDF-3351 - Update documentation for Configuring User Access section
+////

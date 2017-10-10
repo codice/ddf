@@ -1,0 +1,68 @@
+:title: Configuring Guest Access
+:type: configuration
+:status: published
+:summary: Allow or prohibit guest user access
+:parent: Configuring User Access
+:order: 00
+
+== {title}
+
+Unauthenticated access to a secured ${branding} system is provided by the *Guest* user.
+By default, the Search UI allows guest access as part of the karaf security realm.
+
+These instructions assume that all security components are running on the same physical or virtual machine.
+For installations where some or all of these components reside on different network locations, adjust accordingly.
+
+* Make sure that all the default logical names for locations of the security services are defined.
+
+=== Denying Guest User Access
+
+By default, the Search UI allows guest access as part of the karaf security realm.
+To disable guest access for a context, use the <<_web_context_policy_manager, Web Context Policy Manager>> configuration to remove *Guest*
+from the *Authentication Type* for that context.
+Only authorized users are then allowed to continue to the Search UI page.
+
+==== Configuring SOAP Guest Interceptor if Prohibiting Guest Users
+
+* *{hardening-step}*
+
+Uninstall the <<_guest_interceptor,Guest Interceptor>>.
+
+==== Configuring Guest Validator if Prohibiting Guest Users
+
+Uninstall the <<_guest_validator,Guest Validator>>.
+
+=== Allowing Guest User Access
+
+Guest authentication must be enabled and configured to allow guest users.
+Once the guest user is configured, redaction and filtering of metadata is done for the guest user the same way it is done for normal users.
+
+To enable guest authentication for a context, use the <<_web_context_policy_manager, Web Context Policy Manager>> configuration to change the *Authentication Type* for that context to *Guest*.
+
+. Navigate to the *${admin-console}*.
+. Select the *${ddf-security}* application.
+. Select the *Configuration* tab.
+. Select *Web Context Policy Manager*.
+. Select the desired context (`/`, `/search`, `/admin`, etc.).
+. Add `Guest` to the *Authentication Type* list.
+.. Separate entries with a `|` symbol (eg. `/=SAML|Guest`).
+
+==== Configuring Guest Interceptor if Allowing Guest Users
+
+* *{hardening-step}*
+
+If a legacy client requires the use of the secured SOAP endpoints, the <<_configuring_guest_interceptor,guest interceptor>> should be configured.
+Otherwise, the guest interceptor and `public` endpoints should be uninstalled for a hardened system.
+
+==== Configuring Guest Claim Attributes
+
+A guest user's attributes define the most permissive set of claims for an unauthenticated user.
+
+A guest user's claim attributes are stored in configuration, not in the LDAP as normal authenticated users' attributes are.
+
+. Navigate to the *${admin-console}*.
+. Select the *${ddf-security}* application.
+. Select the *Configuration* tab.
+. Select the **Security Guest Claims Handler**.
+. Add any additional attributes desired for the guest user.
+. Save changes.

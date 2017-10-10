@@ -1,14 +1,15 @@
-:title: Configuring Product Cache from the ${admin-console}
-:type: configuringAdminConsole
+:title: Configuring Product Cache
+:type: configuration
 :status: published
+:parent: Configuring Data Managment
 :summary: Configure product cache.
-:order: 10
+:order: 01
 
-==== Configuring the Product Cache from the ${admin-console}
+== {title }
 
 All caching properties are part of the <<ddf.catalog.resource.download.ReliableResourceDownloadManager,Resource Download Settings>>.
 
-===== Invalidating the Product Cache
+=== Invalidating the Product Cache
 
 . The product cache directory can be administratively invalidated by turning off the product caching using the Enable Product Caching configuration.
 . Alternatively, an administrator may manually invalidate products by removing them from the file system. Products are cached at the directory specified in the Product Cache Directory configuration.

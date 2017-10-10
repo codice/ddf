@@ -1,10 +1,11 @@
 :title: Isolating Solr Cloud and Zookeeper
-:type: configuringConfigFile
+:type: subConfiguration
 :status: published
+:parent: Multiple Installations
 :summary: Isolating Solr Cloud and Zookeeper.
-:order: 13
+:order: 01
 
-==== Isolating Solr Cloud and Zookeeper
+== {title}
 
 * *{hardening-step}* (if using Solr Cloud/Zookeeper)
 
@@ -17,7 +18,6 @@ To use Solr Cloud and Zookeeper securely, these processes must be isolated on th
 The ${branding} process must be visible on the network to allow authorized parties to interact with it.
 
 .Examples of Isolation:
-
 * Create a private network for Solr Cloud and Zookeeper. Only ${branding} is allowed to contact devices inside the private network.
 * Use IPsec to encrypt the connections between ${branding}, Solr Cloud nodes, and Zookeeper nodes.
 * Put ${branding}, Solr Cloud and Zookeeper behind a firewall that only allows access to ${branding}.

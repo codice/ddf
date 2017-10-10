@@ -1,10 +1,11 @@
 :title: Auditing
-:type: configuringAdminConsole
+:type: configuration
 :status: published
+:parent: Securing
 :summary: Configure auditing.
-:order: 14
+:order: 00
 
-==== Auditing
+== {title}
 
 * *{hardening-step}*
 
@@ -36,7 +37,7 @@ The security audit logging function does not have any configuration for audit re
 The logs themselves could be used to generate such reports outside the scope of ${branding}.
 ====
 
-===== Enabling Fallback Audit Logging
+=== Enabling Fallback Audit Logging
 
 * *{hardening-step}*
 

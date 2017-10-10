@@ -1,0 +1,67 @@
+:title: Enable SSL for Clients
+:type: configuration
+:status: published
+:parent: Configuring Federation
+:order: 00
+
+== {title}
+
+In order for outbound secure connections (HTTPS) to be made from components like Federated Sources and Resource Readers configuration may need to be updated with keystores and security properties.
+These values are configured in the `<${branding}_HOME>/etc/system.properties` file.
+The following values can be set:
+
+[cols="1,1,3" options="header"]
+|===
+
+|Property
+|Sample Value
+|Description
+
+|`javax.net.ssl.trustStore`
+|`etc/keystores/serverTruststore.jks`
+|The java keystore that contains the trusted public certificates for Certificate Authorities (CA's) that can be used to validate SSL Connections for outbound TLS/SSL connections (e.g. HTTPS).
+When making outbound secure connections a handshake will be done with the remote secure server and the CA that is in the signing chain for the remote server's certificate must be present in the trust store for the secure connection to be successful.
+
+|`javax.net.ssl.trustStorePassword`
+|`changeit`
+|This is the password for the truststore listed in the above property
+
+|`javax.net.ssl.keyStore`
+|`etc/keystores/serverKeystore.jks`
+|The keystore that contains the private key for the local server that can be used for signing, encryption, and SSL/TLS.
+
+|`javax.net.ssl.keyStorePassword`
+|`changeit`
+|The password for the keystore listed above
+
+|`javax.net.ssl.keyStoreType`
+|`jks`
+|The type of keystore
+
+|`https.cipherSuites`
+|`TLS_DHE_RSA_WITH_AES_128_GCM_SHA256`,
+`TLS_DHE_RSA_WITH_AES_128_CBC_SHA256`,
+`TLS_DHE_RSA_WITH_AES_128_CBC_SHA`,
+`TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256`,
+`TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256`
+|The cipher suites that are supported when making outbound HTTPS connections
+
+|`https.protocols`
+|`TLSv1.1`,`TLSv1.2`
+|The protocols that are supported when making outbound HTTPS connections
+
+|`jdk.tls.client.protocols`
+|`TLSv1.1`,`TLSv1.2`
+|The protocols that are supported when making inbound HTTPS connections
+
+|`jdk.tls.ephemeralDHKeySize`
+|'matched'
+|For X.509 certificate based authentication (of non-exportable cipher suites), the DH key size matching the corresponding authentication key is used, except that the size must be between 1024 bits and 2048 bits. For example, if the public key size of an authentication certificate is 2048 bits, then the ephemeral DH key size should be 2048 bits unless the cipher suite is exportable. This key sizing scheme keeps the cryptographic strength consistent between authentication keys and key-exchange keys.
+
+|===
+
+.`<${branding}_HOME>` Directory
+[NOTE]
+====
+${branding} is installed in the `<${branding}_HOME>` directory.
+====

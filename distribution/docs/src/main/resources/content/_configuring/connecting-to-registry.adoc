@@ -1,0 +1,11 @@
+:title: Connecting to a Registry
+:type: configuration
+:status: draft
+:parent: Configuring Federation
+:order: 01
+:summary: Connecting to registry.
+////
+== {title}
+
+TODO: https://codice.atlassian.net/browse/DDF-3350 - Add general administrator-level directions for connecting to a registry
+////

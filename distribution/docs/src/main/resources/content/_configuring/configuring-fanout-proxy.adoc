@@ -1,0 +1,24 @@
+:title: Configuring for a Fanout Proxy
+:type: configuration
+:status: published
+:parent: Special Configurations
+:summary: Configure ${branding} as a fanout proxy such that only queries and resource retrieval requests are processed and create/update/delete requests are rejected.
+:order: 01
+
+== {title}
+
+This scenario describes how to configure ${branding} as a fanout proxy such that only queries and resource retrieval requests are processed and create/update/delete requests are rejected.
+All queries are enterprise queries and no catalog provider needs to be configured.
+
+. Reconfigure ${branding} in fanout proxy mode by going to the Features tab in the
+. Navigate to the *${admin-console}*.
+. Select the *${ddf-catalog}* application.
+. Select the *Configuration* tab.
+. Select *Catalog Standard Framework*.
+. Select *Enable Fanout Proxy*.
+. Save changes.
+
+${branding} is now operating as a fanout proxy.
+Only queries and resource retrieval requests will be allowed.
+All queries will be federated.
+Create, update, and delete requests will throw an `UnsupportedOperationException`, even if a Catalog Provider was configured prior to the reconfiguration to fanout.

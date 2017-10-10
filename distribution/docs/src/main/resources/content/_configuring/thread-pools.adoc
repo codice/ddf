@@ -1,10 +1,11 @@
 :title: Configuring Thread Pools
-:type: configuringConfigFile
+:type: configuration
 :status: published
+:parent: Miscellaneous Configurations
 :summary: Configuring thread pools.
-:order: 11
+:order: 00
 
-==== Configuring Thread Pools
+== {title}
 
 The `org.codice.ddf.system.threadPoolSize` property can be used to specify the size of thread pools used by:
 

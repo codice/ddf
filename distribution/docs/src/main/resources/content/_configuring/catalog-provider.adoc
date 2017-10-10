@@ -1,10 +1,11 @@
-:title: Reconfiguring ${branding} with a Different Catalog Provider
-:type: configuringAdminConsole
+:title: Changing Catalog Providers
+:type: configuration
 :status: published
+:parent: Configuring Data Management
 :summary: Change catalog providers.
-:order: 08
+:order: 01
 
-==== Reconfiguring ${branding} with a Different Catalog Provider
+== {title}
 
 This scenario describes how to reconfigure ${branding} to use a different catalog provider.
 

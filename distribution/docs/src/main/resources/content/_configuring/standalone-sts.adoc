@@ -1,10 +1,11 @@
 :title: Standalone Security Token Service (STS) Installation
-:type: configuringCommandConsole
+:type: configuration
 :status: published
+:parent: Special Configurations
+:order: 02
 :summary: Standalone Security Token Service (STS) installation.
-:order: 05
 
-==== Standalone Security Token Service (STS) Installation
+== {title}
 
 To run a STS-only ${branding} installation, uninstall the catalog components that are not being used.
 The following list displays the features that can be uninstalled to minimize the runtime size of ${branding} in an STS-only mode.

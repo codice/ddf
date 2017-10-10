@@ -1,10 +1,11 @@
 :title: Configuring the Web Context Policy Manager
-:type: configuringAdminConsole
+:type: configuration
 :status: published
+:parent: Configuring Security Policies
 :summary: Configuring the Web Context Policy Manager.
-:order: 07
+:order: 00
 
-==== Configuring the Web Context Policy Manager
+== {title}
 
 The Web Context Policy Manager defines all security policies for REST endpoints within ${branding}.
 It defines:
@@ -15,7 +16,7 @@ It defines:
 
 See <<org.codice.ddf.security.policy.context.impl.PolicyManager, Web Context Policy Manager Configurations>> for detailed descriptions of all fields.
 
-===== Context Realms
+=== Context Realms
 
 The karaf realm is the only realm available by default and it authenticates against the `users.properties` file.
 As JAAS authentication realms are added to the STS, more realms become available to authenticate against.
@@ -23,7 +24,7 @@ As JAAS authentication realms are added to the STS, more realms become available
 For example, installing the `security-sts-ldaplogin` feature adds an ldap realm.
 Contexts can then be pointed to the ldap realm for authentication and STS will be instructed to authenticate them against ldap.
 
-===== Authentication Types
+=== Authentication Types
 
 As you add REST endpoints, you may need to add different types of authentication through the Web Context Policy Manager.
 
@@ -60,23 +61,12 @@ Any web context that allows or requires specific authentication types should be 
 
 |===
 
-===== Required Attributes
+=== Required Attributes
 
 The fields for required attributes allows configuring certain contexts to only be accessible to users with pre-defined attributes.
 For example, the default required attribute for the `/admin` context is `role=system-admin`, limiting access to the ${admin-console} to system administrators
 
-===== White Listed Contexts
+=== White Listed Contexts
 
 White listed contexts are trusted contexts which will bypass security.
 Any sub-contexts of a white listed context will be white listed as well, unless they are specifically assigned a policy.
-
-===== Limiting Access to the STS
-
-* *{hardening-step}*
-
-Be sure to limit the hosts that are allowed to connect to the STS:
-
-* Open the `<${branding}_HOME>/etc/system.properties` file.
-* Edit the line `ws-security.subject.cert.constraints = .*`.
-** Remove the `.*` and replace with a comma-delimited list of regular expressions for the DNs of all desired hosts (`<MY_HOST_DN>`):
-*** `ws-security.subject.cert.constraints = <MY_HOST_DN>,<OTHER_HOST_DN>`
