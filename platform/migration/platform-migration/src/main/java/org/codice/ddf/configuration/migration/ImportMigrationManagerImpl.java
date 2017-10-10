@@ -15,7 +15,6 @@ package org.codice.ddf.configuration.migration;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.io.Closeable;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -25,7 +24,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.zip.ZipFile;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.ImportMigrationEntry;
@@ -51,7 +49,7 @@ public class ImportMigrationManagerImpl implements Closeable {
    */
   private final Map<String, ImportMigrationContextImpl> contexts;
 
-  private final ZipFile zip;
+  private final MigrationZipFile zip;
 
   private final String version;
 
@@ -65,7 +63,7 @@ public class ImportMigrationManagerImpl implements Closeable {
    * Creates a new migration manager for an import operation.
    *
    * @param report the migration report where warnings and errors can be recorded
-   * @param exportFile the exported zip file
+   * @param zip the exported zip file
    * @param migratables a stream of all migratables in the system
    * @throws MigrationException if a failure occurs while processing the zip file (the error will
    *     not be recorded with the report)
@@ -74,21 +72,19 @@ public class ImportMigrationManagerImpl implements Closeable {
    *     is <code>null</code>
    */
   public ImportMigrationManagerImpl(
-      MigrationReport report, Path exportFile, Stream<? extends Migratable> migratables) {
-    this(report, exportFile, migratables, ImportMigrationManagerImpl.newZipFileFor(exportFile));
+      MigrationReport report, MigrationZipFile zip, Stream<? extends Migratable> migratables) {
+    this(report, migratables, zip);
   }
 
   ImportMigrationManagerImpl(
-      MigrationReport report,
-      Path exportFile,
-      Stream<? extends Migratable> migratables,
-      ZipFile zip) {
+      MigrationReport report, Stream<? extends Migratable> migratables, MigrationZipFile zip) {
     Validate.notNull(report, "invalid null report");
+    Validate.notNull(zip, "null zip file");
     Validate.isTrue(
         report.getOperation() == MigrationOperation.IMPORT, "invalid migration operation");
     Validate.notNull(migratables, "invalid null migratables");
     this.report = report;
-    this.exportFile = exportFile;
+    this.exportFile = zip.getZipPath();
     this.zip = zip;
     Map<String, Object> metadata;
 
@@ -129,17 +125,6 @@ public class ImportMigrationManagerImpl implements Closeable {
     } catch (RuntimeException e) {
       IOUtils.closeQuietly(zip);
       throw e;
-    }
-  }
-
-  private static ZipFile newZipFileFor(Path exportFile) {
-    Validate.notNull(exportFile, "invalid null export file");
-    try {
-      return new ZipFile(exportFile.toFile());
-    } catch (FileNotFoundException e) {
-      throw new MigrationException(Messages.IMPORT_FILE_MISSING_ERROR, exportFile, e);
-    } catch (SecurityException | IOException e) {
-      throw new MigrationException(Messages.IMPORT_FILE_OPEN_ERROR, exportFile, e);
     }
   }
 

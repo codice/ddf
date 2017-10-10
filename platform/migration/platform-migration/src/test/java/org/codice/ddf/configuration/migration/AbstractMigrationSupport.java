@@ -13,11 +13,14 @@
  */
 package org.codice.ddf.configuration.migration;
 
+import static org.apache.commons.codec.binary.Hex.decodeHex;
+import static org.apache.commons.io.FileUtils.readFileToByteArray;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 
 import com.google.common.base.Charsets;
+import com.google.common.io.ByteSource;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -26,15 +29,26 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystemException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipInputStream;
+import javax.crypto.Cipher;
+import javax.crypto.CipherInputStream;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import org.apache.commons.codec.DecoderException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ArrayUtils;
@@ -83,9 +97,26 @@ public class AbstractMigrationSupport {
    * @return a map keyed by entry names with the corresponding entry
    * @throws IOException if an I/O error occurs while reading the file
    */
-  public static Map<String, ZipEntry> getEntriesFrom(Path path) throws IOException {
+  public static Map<String, MigrationZipEntry> getEntriesFrom(Path path) throws IOException {
     return AbstractMigrationSupport.getEntriesFrom(
         new BufferedInputStream(new FileInputStream(path.toFile())));
+  }
+
+  public static String decrypt(byte[] data, Path keyPath)
+      throws IOException, DecoderException, NoSuchPaddingException, NoSuchAlgorithmException,
+          InvalidKeyException, InvalidAlgorithmParameterException {
+
+    String keyData = new String(readFileToByteArray(keyPath.toFile()), StandardCharsets.UTF_8);
+    byte[] keyBytes = decodeHex(keyData.toCharArray());
+    SecretKey secretKey = new SecretKeySpec(keyBytes, MigrationZipConstants.KEY_ALGORITHM);
+    Cipher cipher = Cipher.getInstance(MigrationZipConstants.CIPHER_ALGORITHM);
+    IvParameterSpec iv = new IvParameterSpec(MigrationZipConstants.CIPHER_IV);
+    cipher.init(Cipher.DECRYPT_MODE, secretKey, iv);
+    String decryptedContent;
+    try (InputStream is = new CipherInputStream(ByteSource.wrap(data).openStream(), cipher)) {
+      decryptedContent = IOUtils.toString(is, StandardCharsets.UTF_8);
+    }
+    return decryptedContent;
   }
 
   /**
@@ -95,7 +126,7 @@ public class AbstractMigrationSupport {
    * @return a map keyed by entry names with the corresponding entry
    * @throws IOException if an I/O error occurs while reading the stream
    */
-  public static Map<String, ZipEntry> getEntriesFrom(ByteArrayOutputStream baos)
+  public static Map<String, MigrationZipEntry> getEntriesFrom(ByteArrayOutputStream baos)
       throws IOException {
     baos.close(); // not really required!
     return AbstractMigrationSupport.getEntriesFrom(new ByteArrayInputStream(baos.toByteArray()));
@@ -108,10 +139,10 @@ public class AbstractMigrationSupport {
    * @return a map keyed by entry names with the corresponding entry
    * @throws IOException if an I/O error occurs while reading the stream
    */
-  public static Map<String, ZipEntry> getEntriesFrom(InputStream in) throws IOException {
+  public static Map<String, MigrationZipEntry> getEntriesFrom(InputStream in) throws IOException {
     try (final ZipInputStream zin =
         (in instanceof ZipInputStream) ? (ZipInputStream) in : new ZipInputStream(in)) {
-      final Map<String, ZipEntry> entries = new HashMap<>();
+      final Map<String, MigrationZipEntry> entries = new HashMap<>();
 
       while (true) {
         final java.util.zip.ZipEntry ze = zin.getNextEntry();
@@ -119,7 +150,7 @@ public class AbstractMigrationSupport {
         if (ze == null) {
           return entries;
         } else if (!ze.isDirectory()) {
-          entries.put(ze.getName(), new ZipEntry(ze, IOUtils.toByteArray(zin)));
+          entries.put(ze.getName(), new MigrationZipEntry(ze, IOUtils.toByteArray(zin)));
         }
       }
     }
@@ -345,11 +376,10 @@ public class AbstractMigrationSupport {
     assertThat(warning.getMessage(), containsString(message));
   }
 
-  public static class ZipEntry extends java.util.zip.ZipEntry {
-
+  public static class MigrationZipEntry extends java.util.zip.ZipEntry {
     private final byte[] content;
 
-    private ZipEntry(java.util.zip.ZipEntry ze, byte[] content) {
+    private MigrationZipEntry(java.util.zip.ZipEntry ze, byte[] content) {
       super(ze);
       this.content = content;
     }

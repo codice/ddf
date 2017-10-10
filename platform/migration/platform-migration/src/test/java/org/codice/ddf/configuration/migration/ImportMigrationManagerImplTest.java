@@ -16,14 +16,11 @@ package org.codice.ddf.configuration.migration;
 import com.github.npathai.hamcrestopt.OptionalMatchers;
 import com.google.common.base.Charsets;
 import java.io.ByteArrayInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.stream.Stream;
-import java.util.zip.ZipFile;
-import org.apache.commons.io.input.NullInputStream;
+import java.util.zip.ZipEntry;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationOperation;
@@ -42,21 +39,19 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
 
   private static final String MIGRATABLE_ID3 = "test-migratable-3";
 
-  private static final Path DIR_PATH = Paths.get("some", "dir");
-
   private final Migratable migratable2 = Mockito.mock(Migratable.class);
 
   private final Migratable migratable3 = Mockito.mock(Migratable.class);
 
   private final Migratable[] migratables = new Migratable[] {migratable, migratable2, migratable3};
 
-  private final ZipFile zip = Mockito.mock(ZipFile.class);
-
   private Path exportFile;
 
-  private ZipEntry zipEntry;
-
   private ImportMigrationManagerImpl mgr;
+
+  private MigrationZipFile mockMigrationZipFile = Mockito.mock(MigrationZipFile.class);
+
+  private ZipEntry zipEntry;
 
   public ImportMigrationManagerImplTest() {
     super(MigrationOperation.IMPORT);
@@ -64,7 +59,14 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
 
   @Before
   public void setup() throws Exception {
-    exportFile = ddfHome.resolve(createDirectory("exported")).resolve("exported.zip");
+    exportFile = ddfHome.resolve(createDirectory("exported")).resolve("exported.dar");
+
+    mockMigrationZipFile = Mockito.mock(MigrationZipFile.class);
+    Mockito.when(mockMigrationZipFile.getZipPath()).thenReturn(exportFile);
+    Mockito.when(mockMigrationZipFile.getChecksumPath())
+        .thenReturn(MigrationZipConstants.getDefaultChecksumPathFor(exportFile));
+    Mockito.when(mockMigrationZipFile.getKeyPath())
+        .thenReturn(MigrationZipConstants.getDefaultKeyPathFor(exportFile));
 
     initMigratableMock();
     initMigratableMock(migratable2, MIGRATABLE_ID2);
@@ -72,7 +74,6 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
 
     zipEntry =
         getMetadataZipEntry(
-            zip,
             Optional.of(MigrationContextImpl.CURRENT_VERSION),
             Optional.of(PRODUCT_BRANDING),
             Optional.of(PRODUCT_VERSION));
@@ -85,17 +86,14 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
                 return Stream.of(zipEntry);
               }
             })
-        .when(zip)
+        .when(mockMigrationZipFile)
         .stream();
 
-    mgr = new ImportMigrationManagerImpl(report, exportFile, Stream.of(migratables), zip);
+    mgr = new ImportMigrationManagerImpl(report, Stream.of(migratables), mockMigrationZipFile);
   }
 
-  private ZipEntry getMetadataZipEntry(
-      ZipFile zip,
-      Optional<String> version,
-      Optional<String> productBranding,
-      Optional<String> productVersion)
+  private MigrationZipEntry getMetadataZipEntry(
+      Optional<String> version, Optional<String> productBranding, Optional<String> productVersion)
       throws IOException {
     final StringBuilder sb = new StringBuilder();
 
@@ -120,7 +118,6 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
                 .append(v));
     sb.append("\",\"").append(MigrationContextImpl.METADATA_MIGRATABLES).append("\":{");
     boolean first = true;
-
     for (final Migratable m : migratables) {
       if (first) {
         first = false;
@@ -148,7 +145,7 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
           .append("\"}");
     }
     sb.append("\"}");
-    final ZipEntry ze = Mockito.mock(ZipEntry.class);
+    final MigrationZipEntry ze = Mockito.mock(MigrationZipEntry.class);
 
     Mockito.when(ze.getName()).thenReturn(MigrationContextImpl.METADATA_FILENAME.toString());
     Mockito.when(ze.isDirectory()).thenReturn(false);
@@ -156,19 +153,7 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
     Mockito.doAnswer(
             AdditionalAnswers.answer(
                 zea -> new ByteArrayInputStream(sb.toString().getBytes(Charsets.UTF_8))))
-        .when(zip)
-        .getInputStream(ze);
-    return ze;
-  }
-
-  private ZipEntry getDirZipEntry(ZipFile zip, String migratableId, Path path) throws IOException {
-    final ZipEntry ze = Mockito.mock(ZipEntry.class);
-
-    Mockito.when(ze.getName()).thenReturn(Paths.get(migratableId).resolve(path).toString() + '/');
-    Mockito.when(ze.isDirectory()).thenReturn(true);
-    // use answer to ensure we create a new stream each time if called multiple times
-    Mockito.doAnswer(AdditionalAnswers.answer(zea -> new NullInputStream(0L)))
-        .when(zip)
+        .when(mockMigrationZipFile)
         .getInputStream(ze);
     return ze;
   }
@@ -197,7 +182,9 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
 
     mgr =
         new ImportMigrationManagerImpl(
-            report, exportFile, Stream.concat(Stream.of(migratables), Stream.of(migratable4)), zip);
+            report,
+            Stream.concat(Stream.of(migratables), Stream.of(migratable4)),
+            mockMigrationZipFile);
 
     Assert.assertThat(mgr.getReport(), Matchers.sameInstance(report));
     Assert.assertThat(mgr.getExportFile(), Matchers.sameInstance(exportFile));
@@ -217,7 +204,8 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
   @Test
   public void testConstructorWithLessMigratables() throws Exception {
     mgr =
-        new ImportMigrationManagerImpl(report, exportFile, Stream.of(migratable, migratable3), zip);
+        new ImportMigrationManagerImpl(
+            report, Stream.of(migratable, migratable3), mockMigrationZipFile);
 
     Assert.assertThat(mgr.getReport(), Matchers.sameInstance(report));
     Assert.assertThat(mgr.getExportFile(), Matchers.sameInstance(exportFile));
@@ -266,7 +254,7 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage(Matchers.containsString("null report"));
 
-    new ImportMigrationManagerImpl(null, exportFile, Stream.empty(), zip);
+    new ImportMigrationManagerImpl(null, Stream.empty(), mockMigrationZipFile);
   }
 
   @Test
@@ -277,13 +265,13 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage(Matchers.containsString("invalid migration operation"));
 
-    new ImportMigrationManagerImpl(report, exportFile, Stream.empty(), zip);
+    new ImportMigrationManagerImpl(report, Stream.empty(), mockMigrationZipFile);
   }
 
   @Test
   public void testConstructorWithNullExportFile() throws Exception {
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage(Matchers.containsString("null export file"));
+    thrown.expectMessage(Matchers.containsString("null zip file"));
 
     new ImportMigrationManagerImpl(report, null, Stream.empty());
   }
@@ -293,39 +281,19 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage(Matchers.containsString("null migratables"));
 
-    new ImportMigrationManagerImpl(report, exportFile, null, zip);
-  }
-
-  @Test
-  public void testConstructorWhenZipFileNotFound() throws Exception {
-    thrown.expect(MigrationException.class);
-    thrown.expectCause(Matchers.instanceOf(FileNotFoundException.class));
-
-    new ImportMigrationManagerImpl(report, exportFile, Stream.empty());
-  }
-
-  @Test
-  public void testConstructorWhenUnableToProcessMetadata() throws Exception {
-    final IOException ioe = new IOException("testing");
-
-    Mockito.doThrow(ioe).when(zip).getInputStream(zipEntry);
-
-    thrown.expect(MigrationException.class);
-    thrown.expectCause(Matchers.sameInstance(ioe));
-
-    new ImportMigrationManagerImpl(report, exportFile, Stream.empty(), zip);
+    new ImportMigrationManagerImpl(report, null, mockMigrationZipFile);
   }
 
   @Test
   public void testConstructorWhenZipIsOfInvalidVersion() throws Exception {
     zipEntry =
         getMetadataZipEntry(
-            zip, Optional.of(VERSION), Optional.of(PRODUCT_BRANDING), Optional.of(PRODUCT_VERSION));
+            Optional.of(VERSION), Optional.of(PRODUCT_BRANDING), Optional.of(PRODUCT_VERSION));
 
     thrown.expect(MigrationException.class);
     thrown.expectMessage("unsupported exported version");
 
-    new ImportMigrationManagerImpl(report, exportFile, Stream.empty(), zip);
+    new ImportMigrationManagerImpl(report, Stream.empty(), mockMigrationZipFile);
   }
 
   @Test
@@ -339,9 +307,6 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
 
   @Test
   public void testConstructorWithDirectoryEntriesInZip() throws Exception {
-    final ZipEntry zipDirEntry = getDirZipEntry(zip, MIGRATABLE_ID, DIR_PATH);
-
-    Mockito.doReturn(Stream.of(zipEntry, zipDirEntry)).when(zip).stream();
     Assert.assertThat(mgr.getReport(), Matchers.sameInstance(report));
     Assert.assertThat(mgr.getExportFile(), Matchers.sameInstance(exportFile));
     Assert.assertThat(
@@ -408,12 +373,5 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
     thrown.expectMessage(Matchers.containsString("mismatched product version"));
 
     mgr.doImport(PRODUCT_BRANDING, PRODUCT_VERSION + "2");
-  }
-
-  @Test
-  public void testClose() throws Exception {
-    mgr.close();
-
-    Mockito.verify(zip).close();
   }
 }

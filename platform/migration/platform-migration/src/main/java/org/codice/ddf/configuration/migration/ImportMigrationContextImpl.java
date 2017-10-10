@@ -28,7 +28,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Stream;
-import java.util.zip.ZipFile;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.ImportMigrationContext;
@@ -61,7 +60,7 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
 
   private final Set<String> files = new HashSet<>();
 
-  private final ZipFile zip;
+  private final MigrationZipFile zip;
 
   private final List<InputStream> inputStreams = new ArrayList<>();
 
@@ -74,7 +73,7 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
    * </code>
    * @throws java.io.IOError if unable to determine ${ddf.home}
    */
-  public ImportMigrationContextImpl(MigrationReport report, ZipFile zip) {
+  public ImportMigrationContextImpl(MigrationReport report, MigrationZipFile zip) {
     super(report);
     Validate.notNull(zip, ImportMigrationContextImpl.INVALID_NULL_ZIP);
     this.zip = zip;
@@ -90,7 +89,7 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
    *     is <code>null</code>
    * @throws java.io.IOError if unable to determine ${ddf.home}
    */
-  public ImportMigrationContextImpl(MigrationReport report, ZipFile zip, String id) {
+  public ImportMigrationContextImpl(MigrationReport report, MigrationZipFile zip, String id) {
     super(report, id);
     Validate.notNull(zip, ImportMigrationContextImpl.INVALID_NULL_ZIP);
     this.zip = zip;
@@ -106,7 +105,8 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
    * </code> is <code>null</code>
    * @throws java.io.IOError if unable to determine ${ddf.home}
    */
-  public ImportMigrationContextImpl(MigrationReport report, ZipFile zip, Migratable migratable) {
+  public ImportMigrationContextImpl(
+      MigrationReport report, MigrationZipFile zip, Migratable migratable) {
     super(report, migratable);
     Validate.notNull(zip, ImportMigrationContextImpl.INVALID_NULL_ZIP);
     this.zip = zip;
@@ -222,7 +222,7 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
   }
 
   @VisibleForTesting
-  ZipFile getZip() {
+  MigrationZipFile getZip() {
     return zip;
   }
 

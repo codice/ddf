@@ -81,9 +81,9 @@ import org.osgi.service.cm.ConfigurationAdmin;
  * <p>// This is the system imported into: ./ddf ./ddf/etc ./ddf/Version.txt
  *
  * <p>// The backup from the imported system will look similar to this:
- * ./exported-1.0-20170816T142400.zip
+ * ./exported-1.0-20170816T142400.dar
  *
- * <p>// Thw exported zip from ddfExport will look similar to this: ./exported-1.0.zip
+ * <p>// The exported zip from ddfExport will look similar to this: ./exported-1.0.dar
  *
  * <p>NOTE: The directory structure of the system imported into needs to be exactly the same as the
  * system exported from. For example, if they system being exported from has a ddf.home of /opt/ddf,
