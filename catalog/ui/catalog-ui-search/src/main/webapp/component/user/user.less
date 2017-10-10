@@ -26,5 +26,21 @@
         text-align: center;
     }
 
+    .is-guest,
+    .is-idp {
+        display: none;
+    }
+}
 
+@{customElementNamespace}user.is-guest:not(.is-idp) {
+    .is-guest {
+        display: block;
+    }
+}
+
+@{customElementNamespace}user.is-idp,
+@{customElementNamespace}user:not(.is-guest) {
+    .is-idp {
+        display: block;
+    }
 }

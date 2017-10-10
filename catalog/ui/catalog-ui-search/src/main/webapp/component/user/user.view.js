@@ -19,6 +19,7 @@ var user = require('component/singletons/user-instance');
 var template = require('./user.hbs');
 var $ = require('jquery');
 var announcement = require('component/announcement');
+var logoutActions = require('component/singletons/logout-actions');
 
 module.exports = Marionette.ItemView.extend({
     tagName: CustomElements.register('user'),
@@ -29,6 +30,16 @@ module.exports = Marionette.ItemView.extend({
         'click #sign-out': 'logout'
     },
     template: template,
+    initialize: function() {
+        this.handleGuest();
+        this.handleIdp();
+    },
+    handleGuest: function() {
+        this.$el.toggleClass('is-guest', this.model.get('user').get('isGuest'));
+    },
+    handleIdp: function() {
+        this.$el.toggleClass('is-idp', logoutActions.isIdp());
+    },
     onAttach: function() {
         this.$el.find('#username').focus();
     },
@@ -78,6 +89,9 @@ module.exports = Marionette.ItemView.extend({
         });
     },
     serializeData: function() {
-        return this.model.toJSON();
+        return {
+            user: this.model.toJSON(),
+            idp: logoutActions.isIdp()
+        };
     }
 });
