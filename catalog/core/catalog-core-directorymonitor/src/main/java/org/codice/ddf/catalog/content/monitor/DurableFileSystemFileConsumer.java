@@ -26,9 +26,10 @@ public class DurableFileSystemFileConsumer extends AbstractDurableFileConsumer {
 
   DurableFileSystemFileConsumer(
       GenericFileEndpoint<EventfulFileWrapper> endpoint,
+      String remaining,
       Processor processor,
       GenericFileOperations<EventfulFileWrapper> operations) {
-    super(endpoint, processor, operations);
+    super(endpoint, remaining, processor, operations);
     listener = new DurableFileAlterationListener(this);
   }
 

@@ -46,13 +46,17 @@ public class DurableFileEndpoint extends GenericFileEndpoint<EventfulFileWrapper
 
   private final Boolean isDav;
 
+  private String remaining;
+
   @UriPath(name = "directoryName")
   @Metadata(required = "true")
   private File file;
 
-  DurableFileEndpoint(String uri, DurableFileComponent durableFileComponent) {
+  DurableFileEndpoint(
+      String uri, String remaining, boolean isDav, DurableFileComponent durableFileComponent) {
     super(uri, durableFileComponent);
-    this.isDav = durableFileComponent.isDav;
+    this.remaining = remaining;
+    this.isDav = isDav;
   }
 
   @Override
@@ -62,10 +66,10 @@ public class DurableFileEndpoint extends GenericFileEndpoint<EventfulFileWrapper
 
     if (isDav) {
       return new DurableWebDavFileConsumer(
-          this, processor, new EventfulFileWrapperGenericFileOperations());
+          this, remaining, processor, new EventfulFileWrapperGenericFileOperations());
     } else {
       return new DurableFileSystemFileConsumer(
-          this, processor, new EventfulFileWrapperGenericFileOperations());
+          this, remaining, processor, new EventfulFileWrapperGenericFileOperations());
     }
   }
 
@@ -116,7 +120,9 @@ public class DurableFileEndpoint extends GenericFileEndpoint<EventfulFileWrapper
   private static class EventfulFileWrapperGenericFileOperations
       implements GenericFileOperations<EventfulFileWrapper> {
     @Override
-    public void setEndpoint(GenericFileEndpoint<EventfulFileWrapper> endpoint) {}
+    public void setEndpoint(GenericFileEndpoint<EventfulFileWrapper> endpoint) {
+      // do nothing
+    }
 
     @Override
     public boolean deleteFile(String name) throws GenericFileOperationFailedException {
@@ -161,7 +167,9 @@ public class DurableFileEndpoint extends GenericFileEndpoint<EventfulFileWrapper
 
     @Override
     public void releaseRetreivedFileResources(Exchange exchange)
-        throws GenericFileOperationFailedException {}
+        throws GenericFileOperationFailedException {
+      // do nothing
+    }
 
     @Override
     public boolean storeFile(String name, Exchange exchange)
@@ -175,10 +183,14 @@ public class DurableFileEndpoint extends GenericFileEndpoint<EventfulFileWrapper
     }
 
     @Override
-    public void changeCurrentDirectory(String path) throws GenericFileOperationFailedException {}
+    public void changeCurrentDirectory(String path) throws GenericFileOperationFailedException {
+      // do nothing
+    }
 
     @Override
-    public void changeToParentDirectory() throws GenericFileOperationFailedException {}
+    public void changeToParentDirectory() throws GenericFileOperationFailedException {
+      // do nothing
+    }
 
     @Override
     public List<EventfulFileWrapper> listFiles() throws GenericFileOperationFailedException {

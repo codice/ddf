@@ -40,9 +40,10 @@ public class DurableWebDavFileConsumer extends AbstractDurableFileConsumer {
 
   DurableWebDavFileConsumer(
       GenericFileEndpoint<EventfulFileWrapper> endpoint,
+      String remaining,
       Processor processor,
       GenericFileOperations<EventfulFileWrapper> operations) {
-    super(endpoint, processor, operations);
+    super(endpoint, remaining, processor, operations);
   }
 
   @Override
