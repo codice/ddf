@@ -23,6 +23,10 @@ public final class SystemBaseUrl {
 
   public static final String HTTPS_PORT = "org.codice.ddf.system.httpsPort";
 
+  public static final String INTERNAL_HTTP_PORT = "org.codice.ddf.system.internalHttpPort";
+
+  public static final String INTERNAL_HTTPS_PORT = "org.codice.ddf.system.internalHttpsPort";
+
   public static final String PORT = "org.codice.ddf.system.port";
 
   public static final String HOST = "org.codice.ddf.system.hostname";
@@ -172,6 +176,14 @@ public final class SystemBaseUrl {
 
   public static String getHttpsPort() {
     return System.getProperty(HTTPS_PORT, DEFAULT_HTTPS_PORT);
+  }
+
+  public static String getInternalHttpPort() {
+    return System.getProperty(INTERNAL_HTTP_PORT, DEFAULT_HTTP_PORT);
+  }
+
+  public static String getInternalHttpsPort() {
+    return System.getProperty(INTERNAL_HTTPS_PORT, DEFAULT_HTTPS_PORT);
   }
 
   /**
