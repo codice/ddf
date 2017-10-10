@@ -22,9 +22,6 @@ import org.apache.camel.util.StringHelper;
 import org.apache.commons.lang.StringUtils;
 
 public class DurableFileComponent extends GenericFileComponent<EventfulFileWrapper> {
-  Boolean isDav;
-
-  String remaining;
 
   @Override
   protected GenericFileEndpoint<EventfulFileWrapper> buildFileEndpoint(
@@ -41,9 +38,8 @@ public class DurableFileComponent extends GenericFileComponent<EventfulFileWrapp
       throw new IllegalArgumentException("Location to monitor must be specified");
     }
 
-    this.remaining = remaining;
     String davParam = String.valueOf(parameters.get("isDav"));
-    isDav = Boolean.valueOf(davParam);
+    boolean isDav = Boolean.parseBoolean(davParam);
     parameters.remove("isDav");
 
     GenericFileConfiguration config = new GenericFileConfiguration();
@@ -52,17 +48,15 @@ public class DurableFileComponent extends GenericFileComponent<EventfulFileWrapp
       file = new File("");
     }
     config.setDirectory(file.getCanonicalPath());
-    DurableFileEndpoint result = new DurableFileEndpoint(uri, this);
+    DurableFileEndpoint result = new DurableFileEndpoint(uri, remaining, isDav, this);
     result.setFile(file);
     result.setConfiguration(config);
 
     return result;
   }
 
-  public void setIsDav(String paramDav) {
-    isDav = Boolean.valueOf(paramDav);
-  }
-
   @Override
-  protected void afterPropertiesSet(GenericFileEndpoint endpoint) throws Exception {}
+  protected void afterPropertiesSet(GenericFileEndpoint endpoint) throws Exception {
+    // do nothing
+  }
 }
