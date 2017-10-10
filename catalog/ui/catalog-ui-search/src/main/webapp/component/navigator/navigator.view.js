@@ -39,6 +39,7 @@ module.exports = Marionette.LayoutView.extend({
         'click .choice-previous-metacard': 'handlePreviousMetacard',
         'click .choice-upload': 'handleUpload',
         'click .choice-sources': 'handleSources',
+        'click .choice-about': 'handleAbout',
         'click .navigation-choice': 'closeSlideout',
     },
     initialize: function(){
@@ -86,6 +87,14 @@ module.exports = Marionette.LayoutView.extend({
     handleSources: function() {
         wreqr.vent.trigger('router:navigate', {
             fragment: 'sources',
+            options: {
+                trigger: true
+            }
+        });
+    },
+    handleAbout() {
+        wreqr.vent.trigger('router:navigate', {
+            fragment: 'about',
             options: {
                 trigger: true
             }

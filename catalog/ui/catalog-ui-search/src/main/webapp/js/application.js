@@ -42,7 +42,8 @@ define([
         alertRegion: '#alert',
         ingestRegion: '#ingest',
         uploadRegion: '#upload',
-        controlPanelRegion: '#controlPanel'
+        controlPanelRegion: '#controlPanel',
+        aboutRegion: '#about'
     });
 
     const BannerView = Marionette.ItemView.extend({
@@ -52,21 +53,21 @@ define([
         events: {
             'click .fa-times': 'triggerHide'
         },
-        initialize: function() {
+        initialize() {
             var message = this.model.get('ui')[this.tagName];
             if (message && message !== '') {
                 this.$el.addClass('is-not-blank');
             }
         },
-        getMessage: function () {
+        getMessage() {
             return this.model.get('ui')[this.tagName];
         },
-        serializeData: function () {
+        serializeData() {
             var modelJSON = this.model.toJSON();
             modelJSON.message = this.getMessage();
             return modelJSON;
         },
-        triggerHide: function () {
+        triggerHide() {
             $('body').removeClass('has-' + this.tagName);
         }
     });

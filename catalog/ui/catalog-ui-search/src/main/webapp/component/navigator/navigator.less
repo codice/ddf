@@ -14,6 +14,11 @@
         position: relative;
     }
 
+    .navigation-choice > span:first-of-type {
+        min-width: @minimumButtonSize;
+        text-align: center;
+    }
+
     .navigation-links {
         position: relative;
         .navigation-choice .fa {
@@ -47,6 +52,15 @@
         color: @warning-color;
         padding: 0px @minimumSpacing;
         transition: transform @coreTransitionTime ease-out, opacity @coreTransitionTime ease-out;
+    }
+
+    .dynamic-text {
+        display: inline-block;
+        vertical-align: top;
+        width: ~'calc(100% - @{minimumButtonSize} - @{minimumSpacing})';
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 }
 
