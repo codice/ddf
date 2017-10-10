@@ -16,6 +16,7 @@ package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source.reader;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.XStreamException;
 import com.thoughtworks.xstream.io.xml.WstxDriver;
+import com.thoughtworks.xstream.security.NoTypePermission;
 import ddf.catalog.data.Metacard;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -73,6 +74,7 @@ public class FeatureCollectionMessageBodyReaderWfs20
 
   public FeatureCollectionMessageBodyReaderWfs20() {
     xstream = new XStream(new WstxDriver());
+    xstream.addPermission(NoTypePermission.NONE);
     xstream.setClassLoader(this.getClass().getClassLoader());
     xstream.registerConverter(new GmlGeometryConverter());
     xstream.registerConverter(new GmlEnvelopeConverter());
@@ -140,6 +142,7 @@ public class FeatureCollectionMessageBodyReaderWfs20
       // Fetch FeatureCollection attributes
       Unmarshaller unmarshaller = null;
       JAXBElement<FeatureCollectionType> wfsFeatureCollectionType = null;
+      xstream.allowTypeHierarchy(Wfs20FeatureCollection.class);
       try {
         unmarshaller = JAXB_CONTEXT.createUnmarshaller();
         XMLInputFactory xmlInputFactory = XMLInputFactory.newFactory();
@@ -189,6 +192,7 @@ public class FeatureCollectionMessageBodyReaderWfs20
         inStream = new ByteArrayInputStream(originalInputStream.getBytes("UTF-8"));
 
         try {
+          xstream.allowTypeHierarchy(Wfs20FeatureCollection.class);
           featureCollection = (Wfs20FeatureCollection) xstream.fromXML(inStream);
           featureCollection.setNumberMatched(numberMatched);
           featureCollection.setNumberReturned(numberReturned);

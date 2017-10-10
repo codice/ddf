@@ -16,6 +16,7 @@ package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.reader;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.io.xml.Xpp3Driver;
+import com.thoughtworks.xstream.security.NoTypePermission;
 import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.MetacardType;
 import java.io.IOException;
@@ -65,10 +66,12 @@ public class TransactionMessageBodyReader implements MessageBodyReader<CswTransa
       InputStream inputStream)
       throws IOException, WebApplicationException {
     XStream xStream = new XStream(new Xpp3Driver());
+    xStream.addPermission(NoTypePermission.NONE);
     TransactionRequestConverter transactionRequestConverter =
         new TransactionRequestConverter(cswRecordConverter, registry);
     transactionRequestConverter.setCswRecordConverter(new CswRecordConverter(metacardType));
     xStream.registerConverter(transactionRequestConverter);
+    xStream.allowTypeHierarchy(CswTransactionRequest.class);
     xStream.alias("csw:" + CswConstants.TRANSACTION, CswTransactionRequest.class);
     xStream.alias(CswConstants.TRANSACTION, CswTransactionRequest.class);
     return (CswTransactionRequest) xStream.fromXML(inputStream);
