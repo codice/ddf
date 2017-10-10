@@ -25,7 +25,7 @@ import org.codice.ddf.catalog.async.data.api.internal.ProcessRequest;
 public class ProcessRequestImpl<T extends ProcessItem> extends OperationImpl
     implements ProcessRequest {
 
-  private List<T> processItems;
+  private transient List<T> processItems;
 
   public ProcessRequestImpl(List<T> processItems, Map<String, Serializable> properties) {
     super(properties);
