@@ -10,6 +10,7 @@
  *
  **/
 /*global define, window, setTimeout, location*/
+/* eslint-disable no-undefined */
 
 define([
     'wreqr',
@@ -34,11 +35,12 @@ define([
     'component/upload/upload.view',
     'component/navigator/navigator.view',
     'component/singletons/slideout.left.view-instance.js',
-    'component/sources/sources.view'
+    'component/sources/sources.view',
+    'component/about/about.view'
 ], function (wreqr, $, Backbone, Marionette, store, ConfirmationView, Application, ContentView,
              HomeView, MetacardView, metacardInstance, Query, cql, alertInstance, AlertView,
             IngestView, router, user, uploadInstance, UploadView,
-            NavigatorView, SlideoutLeftViewInstance, SourcesView) {
+            NavigatorView, SlideoutLeftViewInstance, SourcesView, AboutView) {
 
     function toggleNavigator() {
         SlideoutLeftViewInstance.updateContent(new NavigatorView());
@@ -53,6 +55,7 @@ define([
         Application.App.ingestRegion.$el.addClass('is-hidden');
         Application.App.uploadRegion.$el.addClass('is-hidden');
         Application.App.sourcesRegion.$el.addClass('is-hidden');
+        Application.App.aboutRegion.$el.addClass('is-hidden');
     }
 
     var Router = Marionette.AppRouter.extend({
@@ -80,6 +83,9 @@ define([
             },
             openSources: function(){
                 //console.log('route to sources');
+            },
+            openAbout() {
+                //console.log('route to about');
             }
         },
         appRoutes: {
@@ -90,7 +96,8 @@ define([
             'alerts/:id': 'openAlert',
             'ingest(/)': 'openIngest',
             'uploads/:id': 'openUpload',
-            'sources(/)': 'openSources'
+            'sources(/)': 'openSources',
+            'about(/)': 'openAbout'
         },
         initialize: function(){
             this.listenTo(wreqr.vent, 'router:navigate', this.handleNavigate);
@@ -286,6 +293,13 @@ define([
                         Application.App.sourcesRegion.show(new SourcesView());
                     }
                     Application.App.sourcesRegion.$el.removeClass('is-hidden');
+                    this.updateRoute(name, path, args);
+                    break;
+                case 'openAbout':
+                    if (Application.App.aboutRegion.currentView === undefined) {
+                        Application.App.aboutRegion.show(new AboutView());
+                    }
+                    Application.App.aboutRegion.$el.removeClass('is-hidden');
                     this.updateRoute(name, path, args);
                     break;
             }

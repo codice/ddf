@@ -31,6 +31,7 @@ npm start
 ```
 * Open http://localhost:8080/ to test and debug.
 
+Note that the various variables (commit hash, commit date, isDirty) will be tied to when the dev server is initialized.
 
 ###Testing
 Automated tests are executed as part of the maven build but it is also possible to manually run 

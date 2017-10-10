@@ -1,20 +1,27 @@
+/* eslint-disable security/detect-child-process */
+
 var path = require('path');
 var webpack = require('webpack');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var LessPluginCleanCSS = require('less-plugin-clean-css');
+var childProcess = require('child_process');
 
 var resolve = function (place) {
   return path.resolve(__dirname, '../../', place)
 };
 
-let commitHash = require('child_process')
+let commitHash = childProcess
     .execSync('git rev-parse --short HEAD')
     .toString();
 
-let isDirty = require('child_process')
+let isDirty = childProcess
     .execSync('git st')
     .toString().indexOf('working directory clean') === -1;
+
+let commitDate = childProcess
+    .execSync('git log -1 --pretty=format:%cI')
+    .toString();
 
 module.exports = {
     devtool: 'source-map',
@@ -57,13 +64,17 @@ module.exports = {
             require: true,
             console: true,
             module: true,
-            define: true
+            define: true,
+            __COMMIT_HASH__: true,
+            __IS_DIRTY__: true,
+            __COMMIT_DATE__: true
         }
     },
     plugins: [
         new webpack.DefinePlugin({
             __COMMIT_HASH__: JSON.stringify(commitHash),
-            __IS_DIRTY__: JSON.stringify(isDirty)
+            __IS_DIRTY__: JSON.stringify(isDirty),
+            __COMMIT_DATE__: JSON.stringify(commitDate)
         }),
         new CopyWebpackPlugin([
             {

@@ -33,17 +33,25 @@
     <div class="is-divider"></div>
     <div class="navigation-links">
         {{#if workspace}}
-            <button class="navigation-choice is-neutral choice-previous-workspace is-button">
-                <span class="fa fa-history"></span><span>{{workspace.title}}</span>
+            <button class="navigation-choice is-neutral choice-previous-workspace is-button" title="Most Recent Workspace: {{workspace.title}}">
+                <div class="">Most Recent Workspace</div>
+                <span class="fa fa-history"></span><span class="dynamic-text">{{workspace.title}}</span>
             </button>
         {{/if}}
         {{#if metacard}}
-            <button class="navigation-choice is-neutral choice-previous-metacard is-button">
-                <span class="fa fa-history"></span><span>{{metacard.metacard.properties.title}}</span>
+            <button class="navigation-choice is-neutral choice-previous-metacard is-button" title="Most Recent Metacard: {{metacard.metacard.properties.title}}">
+                <div class="">Most Recent Metacard</div>
+                <span class="fa fa-history"></span><span class="dynamic-text">{{metacard.metacard.properties.title}}</span>
             </button>
         {{/if}}
     </div>
 {{/if}}
+<div class="is-divider"></div>
+<div class="navigation-links">
+    <button class="navigation-choice is-neutral choice-about is-button">
+        <span class="fa fa-info"></span><span>About</span>
+    </button>
+</div>
 <!--<div class="is-divider"></div>
 <button class="navigation-choice is-neutral is-button">
     <span>Other Apps</span>

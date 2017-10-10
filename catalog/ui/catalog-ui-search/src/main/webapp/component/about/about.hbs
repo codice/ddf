@@ -12,7 +12,31 @@
  **/
  --}}
 <div class="about-menu">
-
 </div>
-<div class="about-details">
+<div class="about-content is-large-font">
+    <div>
+         <span class="is-bold">{{properties.branding}}</span> 
+         <span> {{properties.product}}</span>
+    </div>
+    <div class="is-divider"></div>
+    <div class="content-version">
+        <div>
+            <div class="version-title">Version</div>
+            <div class="version-message is-medium-font">{{properties.version}}</div>
+        </div>
+        <div class="is-divider"></div>
+        <div>
+            <div class="version-title">Unique Identifier</div>
+            <div class="version-message is-medium-font">{{properties.commitHash}}
+                {{#if properties.isDirty}}
+                    <span> with Changes</span>
+                {{/if}}
+            </div>
+        </div>
+        <div class="is-divider"></div>
+        <div>
+            <div class="version-title">Release Date</div>
+            <div class="version-message is-medium-font">{{date}}</div>
+        </div>
+    </div>
 </div>
