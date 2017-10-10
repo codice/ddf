@@ -13,8 +13,10 @@
  */
 package org.codice.ddf.transformer.xml.streaming.impl;
 
+import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.WKTWriter;
+import ddf.catalog.validation.ValidationException;
 import ddf.catalog.validation.impl.ValidationExceptionImpl;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -22,63 +24,92 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
-import javax.xml.bind.JAXBElement;
-import net.opengis.gml.v_3_1_1.AbstractGeometryType;
-import org.codice.ddf.parser.Parser;
-import org.codice.ddf.parser.ParserConfigurator;
-import org.codice.ddf.parser.ParserException;
+import javax.xml.parsers.ParserConfigurationException;
 import org.codice.ddf.transformer.xml.streaming.Gml3ToWkt;
-import org.jvnet.jaxb2_commons.locator.DefaultRootObjectLocator;
-import org.jvnet.ogc.gml.v_3_1_1.jts.ConversionFailedException;
-import org.jvnet.ogc.gml.v_3_1_1.jts.GML311ToJTSGeometryConverter;
+import org.geotools.geometry.jts.JTS;
+import org.geotools.referencing.CRS;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.geotools.xml.Configuration;
+import org.geotools.xml.Parser;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.TransformException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 public class Gml3ToWktImpl implements Gml3ToWkt {
-  private final Parser parser;
-
-  private final ParserConfigurator configurator;
-
   private static final Logger LOGGER = LoggerFactory.getLogger(Gml3ToWkt.class);
 
-  public Gml3ToWktImpl(Parser parser) {
-    this.parser = parser;
-    this.configurator =
-        parser.configureParser(
-            Collections.singletonList(AbstractGeometryType.class.getPackage().getName()),
-            Gml3ToWktImpl.class.getClassLoader());
+  private static final String EPSG_4326 = "EPSG:4326";
+
+  private final Parser parser;
+
+  private static final ThreadLocal<WKTWriter> WKT_WRITER = ThreadLocal.withInitial(WKTWriter::new);
+
+  public Gml3ToWktImpl(Configuration gmlConfiguration) {
+    parser = new Parser(gmlConfiguration);
+    parser.setStrict(false);
   }
 
-  public String convert(String xml) throws ValidationExceptionImpl {
+  public String convert(String xml) throws ValidationException {
     try (InputStream stream = new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8))) {
       return convert(stream);
     } catch (IOException e) {
       LOGGER.debug("IO exception during conversion of {}", xml, e);
       throw new ValidationExceptionImpl(
-          e, Collections.singletonList("IO exception during conversion"), new ArrayList<String>());
+          e, Collections.singletonList("IO exception during conversion"), new ArrayList<>());
     }
   }
 
-  @SuppressWarnings("unchecked")
-  public String convert(InputStream xml) throws ValidationExceptionImpl {
-    AbstractGeometryType geometry = null;
+  public String convert(InputStream xml) throws ValidationException {
+    Object parsedObject = parseXml(xml);
+
+    if (parsedObject instanceof Envelope) {
+      parsedObject = JTS.toGeometry((Envelope) parsedObject);
+    }
+
+    if (parsedObject instanceof Geometry) {
+      try {
+        Geometry geometry = convertCRS((Geometry) parsedObject);
+        return WKT_WRITER.get().write(geometry);
+      } catch (TransformException e) {
+        LOGGER.debug("Failed to transform geometry to lon/lat", e);
+        throw new ValidationExceptionImpl(
+            e,
+            Collections.singletonList("Cannot transform geometry to lon/lat"),
+            new ArrayList<>());
+      }
+    }
+    LOGGER.debug("Unknown object parsed from GML and unable to convert to WKT");
+    throw new ValidationExceptionImpl(
+        "", Collections.singletonList("Couldn't not convert GML to WKT"), new ArrayList<>());
+  }
+
+  public Object parseXml(InputStream xml) throws ValidationException {
     try {
-      JAXBElement<AbstractGeometryType> jaxbElement =
-          parser.unmarshal(configurator, JAXBElement.class, xml);
-      geometry = jaxbElement.getValue();
-      GML311ToJTSGeometryConverter geometryConverter = new GML311ToJTSGeometryConverter();
-      Geometry jtsGeo =
-          geometryConverter.createGeometry(new DefaultRootObjectLocator(jaxbElement), geometry);
-      WKTWriter wktWriter = new WKTWriter();
-      return wktWriter.write(jtsGeo);
-    } catch (ParserException e) {
-      LOGGER.debug("Cannot parse gml", e);
+      return parser.parse(xml);
+    } catch (ParserConfigurationException | IOException e) {
+      LOGGER.debug("Failed to read gml InputStream", e);
       throw new ValidationExceptionImpl(
-          e, Collections.singletonList("Cannot parse gml"), new ArrayList<String>());
-    } catch (ConversionFailedException e) {
-      LOGGER.debug("Cannot convert gml311 geo object {} to jts", geometry, e);
+          e, Collections.singletonList("Cannot read gml"), new ArrayList<>());
+    } catch (SAXException e) {
+      LOGGER.debug("Failed to parse gml xml", e);
       throw new ValidationExceptionImpl(
-          e, Collections.singletonList("Cannot convert geo object"), new ArrayList<String>());
+          e, Collections.singletonList("Cannot parse gml xml"), new ArrayList<>());
+    }
+  }
+
+  private Geometry convertCRS(Geometry geometry) throws ValidationException, TransformException {
+    return JTS.transform(geometry, getLatLonTransform());
+  }
+
+  private MathTransform getLatLonTransform() throws ValidationException {
+    try {
+      return CRS.findMathTransform(DefaultGeographicCRS.WGS84, CRS.decode(EPSG_4326, false));
+    } catch (FactoryException e) {
+      throw new ValidationExceptionImpl(
+          "Failed to find EPSG:4326 CRS, do you have the dependencies added?", e);
     }
   }
 }
