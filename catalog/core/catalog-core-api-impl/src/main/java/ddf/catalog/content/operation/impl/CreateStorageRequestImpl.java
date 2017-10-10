@@ -25,7 +25,7 @@ import org.apache.commons.lang.StringUtils;
 
 public class CreateStorageRequestImpl extends OperationImpl implements CreateStorageRequest {
 
-  private List<ContentItem> contentItems = new ArrayList<>();
+  private transient List<ContentItem> contentItems = new ArrayList<>();
 
   private String id;
 

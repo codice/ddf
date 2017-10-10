@@ -23,7 +23,7 @@ public class SecurityTokenHolder implements Serializable {
 
   private static final long serialVersionUID = 1L;
 
-  final Map<String, SecurityToken> realmTokenMap = new ConcurrentHashMap<>();
+  private final Map<String, SecurityToken> realmTokenMap = new ConcurrentHashMap<>();
 
   public SecurityToken getSecurityToken(String realm) {
     return realmTokenMap.get(realm);

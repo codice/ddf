@@ -24,7 +24,7 @@ import javax.annotation.Nullable;
 
 public class ReadStorageResponseImpl extends ResponseImpl<ReadStorageRequest>
     implements ReadStorageResponse {
-  private ContentItem contentItem;
+  private transient ContentItem contentItem;
 
   /**
    * Instantiates an empty, new ResponseImpl

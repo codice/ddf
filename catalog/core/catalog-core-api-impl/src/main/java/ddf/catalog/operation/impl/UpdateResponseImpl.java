@@ -32,9 +32,9 @@ public class UpdateResponseImpl extends ResponseImpl<UpdateRequest> implements U
 
   private static final Logger LOGGER = LoggerFactory.getLogger(UpdateResponseImpl.class.getName());
 
-  protected List<Update> updatedMetacards;
+  protected transient List<Update> updatedMetacards;
 
-  protected Set<ProcessingDetails> processingErrors = new HashSet<>();
+  private Set<ProcessingDetails> processingErrors = new HashSet<>();
 
   /**
    * Instantiates a new UpdateResponseImpl.
