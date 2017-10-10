@@ -1,16 +1,15 @@
-:title: Securing the ${admin-console}
-:type: configuringAdminConsole
+:title: Restricting Access to ${admin-console}
+:type: configuration
 :status: published
+:parent: Configuring User Access
 :summary: Introduction to the ${admin-console}.
-:order: 02
+:order: 05
 
-==== Securing ${admin-console}
-
-If you have integrated ${branding} with your existing security infrastructure, then you may want to limit access to parts of the ${branding} based on user roles/groups.
-
-===== Restricting Access to ${admin-console}
+== {title}
 
 * *{hardening-step}*
+
+If you have integrated ${branding} with your existing security infrastructure, then you may want to limit access to parts of the ${branding} based on user roles/groups.
 
 Limit access to the ${admin-console} to those users who need access.
 To set access restrictions on the ${admin-console}, consult the organization's security architecture to identify specific realms, authentication methods, and roles required.
@@ -25,7 +24,7 @@ To set access restrictions on the ${admin-console}, consult the organization's s
 .. Role requirements may be enforced by configuring the <<org.codice.ddf.security.policy.context.impl.PolicyManager,required attributes>> for a given context.
 .. The <<org.codice.ddf.security.policy.context.impl.PolicyManager,white listed contexts>> allows child contexts to be excluded from the authentication constraints of their parents.
 
-===== Restricting Feature, App, Service, and Configuration Access
+=== Restricting Feature, App, Service, and Configuration Access
 
 * *{hardening-step}*
 

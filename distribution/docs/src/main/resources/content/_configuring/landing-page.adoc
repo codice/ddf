@@ -1,19 +1,25 @@
-:title: Configuring Landing Page
-:type: configuringAdminConsole
+:title: Landing Page
+:type: configuration
 :status: published
+:parent: Miscellaneous Configurations
 :summary: Configure landing page.
-:order: 15
+:order: 03
 
-==== Configuring the Landing Page
+== {title}
+
+The Landing Page is the first page presented to users of ${branding}.
+It is customizable to allow adding organizationally-relevant content.
+
+=== Installing the Landing Page
+
+The Landing Page is installed by default with a standard installation.
+
+=== Configuring the Landing Page
 
 The ${branding} landing page offers a starting point and general information for a ${branding} node.
 It is accessible at `/(index|home|landing(.htm|html))`.
 
-===== Installing the Landing Page
-
-The Landing Page is installed by default with a standard installation.
-
-===== Customizing the Landing Page
+=== Customizing the Landing Page
 
 Configure the Landing Page from the ${admin-console}:
 

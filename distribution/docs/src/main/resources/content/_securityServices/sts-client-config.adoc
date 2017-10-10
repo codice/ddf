@@ -22,20 +22,3 @@ Configure the Security STS Client Config from the ${admin-console}:
 . Select *Security STS Client*.
 
 See <<ddf.security.sts.client.configuration,Security STS Client configurations>> for all possible configurations.
-
-.Security STS Client Config Imported Services
-[cols="3" options="header"]
-|===
-
-|Registered Interface
-|Availability
-|Multiple
-
-|`org.osgi.service.cm.ConfigurationAdmin`
-|required
-|false
-
-|===
-
-.Security STS Client Config Exported Services
-None.
