@@ -39,12 +39,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import org.codice.ddf.parser.xml.XmlParser;
 import org.codice.ddf.transformer.xml.streaming.Gml3ToWkt;
 import org.codice.ddf.transformer.xml.streaming.SaxEventHandler;
 import org.codice.ddf.transformer.xml.streaming.SaxEventHandlerFactory;
 import org.codice.ddf.transformer.xml.streaming.lib.SaxEventHandlerDelegate;
 import org.codice.ddf.transformer.xml.streaming.lib.XmlInputTransformer;
+import org.geotools.gml3.GMLConfiguration;
 import org.junit.Test;
 import org.xml.sax.Attributes;
 import org.xml.sax.ErrorHandler;
@@ -57,7 +57,7 @@ public class TestXmlInputTransformer {
 
   static GmlHandler gmlHandler;
 
-  static Gml3ToWkt gml3ToWkt = new Gml3ToWktImpl(new XmlParser());
+  static Gml3ToWkt gml3ToWkt = new Gml3ToWktImpl(new GMLConfiguration());
 
   static SaxEventHandlerDelegate saxEventHandlerDelegate;
 
@@ -157,12 +157,11 @@ public class TestXmlInputTransformer {
     xmlInputTransformer.setSaxEventHandlerConfiguration(Collections.singletonList("gml-handler"));
     GmlHandlerFactory factory = new GmlHandlerFactory();
     factory.setGml3ToWkt(gml3ToWkt);
-    xmlInputTransformer.setSaxEventHandlerFactories(
-        Collections.singletonList((SaxEventHandlerFactory) factory));
+    xmlInputTransformer.setSaxEventHandlerFactories(Collections.singletonList(factory));
     Metacard metacard = xmlInputTransformer.transform(inputStream);
     assertThat(
         metacard.getAttribute(Metacard.GEOGRAPHY).getValue(),
-        is("POLYGON ((35 10, 10 20, 15 40, 45 45, 35 10), (20 30, 35 35, 30 20, 20 30))"));
+        is("POLYGON ((10 35, 20 10, 40 15, 45 45, 10 35), (30 20, 35 35, 20 30, 30 20))"));
   }
 
   @Test
