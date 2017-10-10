@@ -81,7 +81,7 @@ const Title = muiThemeable()(({ children, muiTheme }) => (
 ))
 
 const DeleteIconThemed = muiThemeable()(({ muiTheme }) => (
-    <DeleteIcon style={{ color: muiTheme.palette.errorColor}}/>
+  <DeleteIcon style={{ color: muiTheme.palette.errorColor }} />
 ))
 
 const implementationSupport = (implementors) => {
