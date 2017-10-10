@@ -16,6 +16,7 @@ package org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.source.reader;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.XStreamException;
 import com.thoughtworks.xstream.io.xml.WstxDriver;
+import com.thoughtworks.xstream.security.NoTypePermission;
 import ddf.catalog.data.Metacard;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -59,6 +60,7 @@ public class FeatureCollectionMessageBodyReaderWfs10
 
   public FeatureCollectionMessageBodyReaderWfs10() {
     xstream = new XStream(new WstxDriver());
+    xstream.addPermission(NoTypePermission.NONE);
     xstream.setClassLoader(this.getClass().getClassLoader());
     xstream.registerConverter(new GmlGeometryConverter());
     xstream.registerConverter(new GmlEnvelopeConverter());
@@ -100,6 +102,7 @@ public class FeatureCollectionMessageBodyReaderWfs10
     WfsFeatureCollection featureCollection = null;
 
     try {
+      xstream.allowTypeHierarchy(WfsFeatureCollection.class);
       featureCollection = (WfsFeatureCollection) xstream.fromXML(inStream);
     } catch (XStreamException e) {
       // If a ServiceExceptionReport is sent from the remote WFS site it will be sent with an

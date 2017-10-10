@@ -25,6 +25,7 @@ import com.thoughtworks.xstream.converters.ConversionException;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
+import com.thoughtworks.xstream.security.ForbiddenClassException;
 import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeRegistryImpl;
@@ -281,6 +282,17 @@ public class TestTransactionMessageBodyReader {
           + "      </csw:RecordProperty>\n"
           + "    </csw:Update>\n"
           + "</csw:Transaction>";
+
+  private static final String DYNAMIC_PROXY_SERIALIZED_XML =
+      "<dynamic-proxy>  \n"
+          + "            <interface>org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest</interface>  \n"
+          + "            <handler class=\"java.beans.EventHandler\">  \n"
+          + "                <target class=\"java.lang.ProcessBuilder\">\n"
+          + "                    <command><string>/bin/sh</string><string>-c</string><string>'''+ echo ThisShouldntWork +'''</string></command>\n"
+          + "                </target>\n"
+          + "                <action>start</action>\n"
+          + "            </handler>  \n"
+          + "        </dynamic-proxy>";
 
   private CswRecordConverter cswRecordConverter;
 
@@ -624,6 +636,20 @@ public class TestTransactionMessageBodyReader {
         null,
         null,
         IOUtils.toInputStream(UPDATE_REQUEST_NO_CONSTRAINT_XML));
+  }
+
+  @Test(expected = ForbiddenClassException.class)
+  public void testForbiddenDeserialization() throws IOException {
+    TransactionMessageBodyReader reader =
+        new TransactionMessageBodyReader(
+            mock(Converter.class), CswQueryFactoryTest.getCswMetacardType(), registry);
+    reader.readFrom(
+        CswTransactionRequest.class,
+        null,
+        null,
+        null,
+        null,
+        IOUtils.toInputStream(DYNAMIC_PROXY_SERIALIZED_XML));
   }
 
   private String getInsertRequest(int count) {
