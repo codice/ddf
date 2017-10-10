@@ -21,7 +21,7 @@ import java.util.Set;
  */
 public class SourceInfoRequestSources extends SourceInfoRequestLocal {
 
-  protected Set<String> ids = null;
+  private Set<String> ids = null;
 
   /**
    * Instantiates a new SourceInfoRequestSources.

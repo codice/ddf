@@ -24,9 +24,9 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 public class QueryRequestImpl extends OperationImpl implements QueryRequest {
 
-  protected Query query;
+  protected transient Query query;
 
-  protected Set<String> sourceIds;
+  private Set<String> sourceIds;
 
   protected boolean isEnterprise = false;
 

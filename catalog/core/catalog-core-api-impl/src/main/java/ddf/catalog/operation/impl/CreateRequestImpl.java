@@ -29,10 +29,10 @@ import java.util.Set;
 public class CreateRequestImpl extends OperationImpl implements CreateRequest {
 
   /** The metacards to be created */
-  protected List<Metacard> metacards;
+  private List<Metacard> metacards;
 
   /** The set of destination ids to send this request to */
-  protected Set<String> destinations = new HashSet<>();
+  private Set<String> destinations = new HashSet<>();
 
   /**
    * Instantiates a new CreateRequestImpl with a single {@link Metacard}.

@@ -91,7 +91,7 @@ public class SecurityAssertionImpl implements SecurityAssertion {
   private SecurityToken securityToken;
 
   /** Principal associated with the security token */
-  private Principal principal;
+  private transient Principal principal;
 
   private String name;
 

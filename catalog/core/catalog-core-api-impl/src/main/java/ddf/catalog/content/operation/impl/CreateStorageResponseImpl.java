@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 public class CreateStorageResponseImpl extends ResponseImpl<CreateStorageRequest>
     implements CreateStorageResponse {
 
-  private List<ContentItem> createdContentItems;
+  private transient List<ContentItem> createdContentItems;
 
   /**
    * Instantiates a new ResponseImpl

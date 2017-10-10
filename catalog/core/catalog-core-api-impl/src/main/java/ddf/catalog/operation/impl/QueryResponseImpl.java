@@ -40,13 +40,13 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
 
   protected long hits;
 
-  protected Set<ProcessingDetails> details = new HashSet<ProcessingDetails>();
+  private Set<ProcessingDetails> details = new HashSet<ProcessingDetails>();
 
   protected boolean isQueueClosed = false;
 
   LinkedBlockingQueue<Result> queue = null;
 
-  List<Result> resultList = null;
+  transient List<Result> resultList = null;
 
   private long timeoutMillis = 300000;
 
