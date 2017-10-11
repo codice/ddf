@@ -385,7 +385,7 @@ public class TikaInputTransformer implements InputTransformer {
 
         processContentMetadataExtractors(bodyText, metacard);
 
-        processMetadataExtractors(bodyText, metacard);
+        processMetadataExtractors(metadataText, metacard);
 
         if (validationAttribute != null) {
           metacard.setAttribute(validationAttribute);
