@@ -738,7 +738,7 @@ public class TikaInputTransformerTest {
   }
 
   @Test
-  public void textMaxMetadataLength() throws Exception {
+  public void testMaxMetadataLength() throws Exception {
     this.tikaInputTransformer.setMetadataMaxLength(1);
     InputStream stream =
         Thread.currentThread().getContextClassLoader().getResourceAsStream("test.txt");
@@ -752,7 +752,7 @@ public class TikaInputTransformerTest {
   }
 
   @Test
-  public void textMaxPreviewAndMetadataLength() throws Exception {
+  public void testMaxPreviewAndMetadataLength() throws Exception {
     this.tikaInputTransformer.setMetadataMaxLength(1);
     this.tikaInputTransformer.setPreviewMaxLength(10);
     InputStream stream =
@@ -769,6 +769,26 @@ public class TikaInputTransformerTest {
     assertThat(metacard.getAttribute(Core.DATATYPE).getValue(), is(TEXT));
   }
 
+  @Test
+  public void testMetadataExtractorReceivesXml() throws Exception {
+    TestMetacardExtractor metadataExtractor = new TestMetacardExtractor(null);
+    addMetadataExtractor(metadataExtractor);
+    transform(new ByteArrayInputStream("something".getBytes()));
+    assertThat(
+        metadataExtractor.getMetadata(),
+        containsString("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"));
+  }
+
+  @Test
+  public void testMetadataExtractorMetacardType() throws Exception {
+    MetacardType metacardType = mock(MetacardType.class);
+    TestMetacardExtractor metacardExtractor = new TestMetacardExtractor(metacardType);
+    addMetadataExtractor(metacardExtractor);
+
+    Metacard metacard = transform(new ByteArrayInputStream("something".getBytes()));
+    assertThat(metacard.getMetacardType(), equalTo(metacardType));
+  }
+
   private String convertDate(Date date) {
     DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
     df.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -778,5 +798,49 @@ public class TikaInputTransformerTest {
 
   private Metacard transform(InputStream stream) throws Exception {
     return tikaInputTransformer.transform(stream);
+  }
+
+  private void addMetadataExtractor(MetadataExtractor metadataExtractor) {
+    ServiceReference<MetadataExtractor> serviceReference = mock(ServiceReference.class);
+    when(bundleCtx.getService(serviceReference)).thenReturn(metadataExtractor);
+    tikaInputTransformer.addMetadataExtractor(serviceReference);
+  }
+
+  private class TestMetacardExtractor implements MetadataExtractor {
+    private String metadata;
+    private Metacard metacard;
+    private MetacardType metacardType;
+
+    TestMetacardExtractor(MetacardType metacardType) {
+      this.metacardType = metacardType;
+    }
+
+    public String getMetadata() {
+      return metadata;
+    }
+
+    public MetacardType getMetacardType() {
+      return metacardType;
+    }
+
+    public Metacard getMetacard() {
+      return metacard;
+    }
+
+    @Override
+    public void process(String metadata, Metacard metacard) {
+      this.metadata = metadata;
+      this.metacard = metacard;
+    }
+
+    @Override
+    public MetacardType getMetacardType(String contentType) {
+      return metacardType;
+    }
+
+    @Override
+    public boolean canProcess(String contentType) {
+      return true;
+    }
   }
 }
