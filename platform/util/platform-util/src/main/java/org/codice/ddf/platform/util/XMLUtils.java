@@ -20,9 +20,12 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Map.Entry;
 import java.util.function.BiFunction;
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
@@ -40,6 +43,8 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXNotRecognizedException;
+import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
@@ -165,6 +170,7 @@ public class XMLUtils {
     Thread.currentThread().setContextClassLoader(XMLUtils.class.getClassLoader());
     try {
       TransformerFactory transFactory = TransformerFactory.newInstance();
+      setSecureTransformerFactorySettings(transFactory);
       Transformer transformer = transFactory.newTransformer();
 
       for (Entry<String, String> entry : transformProperties.getOutputProperties()) {
@@ -231,53 +237,6 @@ public class XMLUtils {
     return result.get();
   }
 
-  public DocumentBuilderFactory getSecureDocumentBuilderFactory(
-      String className, ClassLoader classLoader) {
-    DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance(className, classLoader);
-    setSecureSettings(domFactory);
-    return domFactory;
-  }
-
-  public DocumentBuilderFactory getSecureDocumentBuilderFactory() {
-    DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
-    setSecureSettings(domFactory);
-    return domFactory;
-  }
-
-  public DocumentBuilder getSecureDocumentBuilder(boolean namespaceAware)
-      throws ParserConfigurationException {
-    DocumentBuilderFactory domFactory = getSecureDocumentBuilderFactory();
-    domFactory.setNamespaceAware(namespaceAware);
-    return domFactory.newDocumentBuilder();
-  }
-
-  public XMLReader getSecureXmlParser() throws SAXException {
-    XMLReader xmlParser = XMLReaderFactory.createXMLReader();
-    xmlParser.setFeature("http://xml.org/sax/features/external-general-entities", false);
-    xmlParser.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-    xmlParser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-    return xmlParser;
-  }
-
-  public Document parseDocument(InputStream inputStream, boolean namespaceAware)
-      throws ParserConfigurationException, IOException, SAXException {
-    DocumentBuilder builder = getSecureDocumentBuilder(namespaceAware);
-    return builder.parse(inputStream);
-  }
-
-  public Transformer getXmlTransformer(boolean omitXml) throws TransformerException {
-    TransformerFactory transformerFactory = TransformerFactory.newInstance();
-    Transformer transformer = transformerFactory.newTransformer();
-    if (omitXml) {
-      transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-    }
-    transformer.setOutputProperty(OutputKeys.METHOD, "xml");
-    transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-    transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-    transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
-    return transformer;
-  }
-
   /**
    * This class is used with the processElements method. Inside the function, set the value of the
    * result holder. That value is then returned by the processElementsFunction.
@@ -307,13 +266,132 @@ public class XMLUtils {
     }
   }
 
-  private void setSecureSettings(DocumentBuilderFactory domFactory) {
+  public DocumentBuilderFactory getSecureDocumentBuilderFactory(
+      String className, ClassLoader classLoader) {
+    DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance(className, classLoader);
+    setSecureDocumentBuilderSettings(domFactory);
+    return domFactory;
+  }
+
+  public DocumentBuilderFactory getSecureDocumentBuilderFactory() {
+    DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
+    setSecureDocumentBuilderSettings(domFactory);
+    return domFactory;
+  }
+
+  public DocumentBuilder getSecureDocumentBuilder(boolean namespaceAware)
+      throws ParserConfigurationException {
+    DocumentBuilderFactory domFactory = getSecureDocumentBuilderFactory();
+    domFactory.setNamespaceAware(namespaceAware);
+    return domFactory.newDocumentBuilder();
+  }
+
+  public Document parseDocument(InputStream inputStream, boolean namespaceAware)
+      throws ParserConfigurationException, IOException, SAXException {
+    DocumentBuilder builder = getSecureDocumentBuilder(namespaceAware);
+    return builder.parse(inputStream);
+  }
+
+  /**
+   * Given a DocumentBuilderFactory, sets secure features according to OWASP guidelines
+   *
+   * @param domFactory DocumentBuilderFactory to be configured
+   */
+  private void setSecureDocumentBuilderSettings(DocumentBuilderFactory domFactory) {
     try {
-      domFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+      domFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+      domFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+      domFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
       domFactory.setFeature(
           "http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+      domFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+      domFactory.setXIncludeAware(false);
+      domFactory.setExpandEntityReferences(false);
+
     } catch (ParserConfigurationException e) {
       LOGGER.debug("Unable to set features on document builder.", e);
     }
+  }
+
+  public Transformer getXmlTransformer(boolean omitXml) throws TransformerException {
+    TransformerFactory transformerFactory = TransformerFactory.newInstance();
+    setSecureTransformerFactorySettings(transformerFactory);
+    Transformer transformer = transformerFactory.newTransformer();
+    if (omitXml) {
+      transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+    }
+    transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+    transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+    transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+    transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+    return transformer;
+  }
+
+  /**
+   * Given a TransformerFactory, sets secure settings according to OWASP guidelines
+   *
+   * @param tf TransformerFactory to be configured
+   */
+  private void setSecureTransformerFactorySettings(TransformerFactory tf) {
+    tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+    tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+  }
+
+  public SAXParserFactory getSecureSAXParserFactory(String className, ClassLoader classLoader) {
+    SAXParserFactory saxParserFactory = SAXParserFactory.newInstance(className, classLoader);
+    setSecureSAXParserSettings(saxParserFactory);
+    return saxParserFactory;
+  }
+
+  public SAXParserFactory getSecureSAXParserFactory() {
+    SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
+    setSecureSAXParserSettings(saxParserFactory);
+    return saxParserFactory;
+  }
+
+  public SAXParser getSecureSAXParser(boolean namespaceAware)
+      throws ParserConfigurationException, SAXException {
+    SAXParserFactory saxParserFactory = getSecureSAXParserFactory();
+    saxParserFactory.setNamespaceAware(namespaceAware);
+    return saxParserFactory.newSAXParser();
+  }
+
+  /**
+   * Given a SAXParserFactory, sets secure settings according to OWASP guidelines
+   *
+   * @param saxFactory SAXParserFactory to be configured
+   */
+  private void setSecureSAXParserSettings(SAXParserFactory saxFactory) {
+    try {
+      saxFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+      saxFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+      saxFactory.setFeature(
+          "http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+      saxFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+      saxFactory.setXIncludeAware(false);
+
+    } catch (ParserConfigurationException
+        | SAXNotSupportedException
+        | SAXNotRecognizedException e) {
+      LOGGER.debug("Unable to set features on sax parser factory.", e);
+    }
+  }
+
+  public XMLReader getSecureXmlParser() throws SAXException {
+    XMLReader xmlParser = XMLReaderFactory.createXMLReader();
+    setSecureXMLReaderSettings(xmlParser);
+    return xmlParser;
+  }
+
+  /**
+   * Given an XMLReader, sets secure settings according to OWASP guidelines
+   *
+   * @param xmlReader XMLReader to be configured
+   * @throws SAXException Thrown if the XMLReader was unable to be properly configured
+   */
+  private void setSecureXMLReaderSettings(XMLReader xmlReader) throws SAXException {
+    xmlReader.setFeature("http://xml.org/sax/features/external-general-entities", false);
+    xmlReader.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+    xmlReader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
   }
 }
