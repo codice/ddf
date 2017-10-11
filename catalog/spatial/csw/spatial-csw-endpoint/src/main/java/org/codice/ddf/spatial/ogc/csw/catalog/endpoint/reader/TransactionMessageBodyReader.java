@@ -15,6 +15,7 @@ package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.reader;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.Converter;
+import com.thoughtworks.xstream.io.naming.NoNameCoder;
 import com.thoughtworks.xstream.io.xml.Xpp3Driver;
 import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.MetacardType;
@@ -64,7 +65,7 @@ public class TransactionMessageBodyReader implements MessageBodyReader<CswTransa
       MultivaluedMap<String, String> multivaluedMap,
       InputStream inputStream)
       throws IOException, WebApplicationException {
-    XStream xStream = new XStream(new Xpp3Driver());
+    XStream xStream = new XStream(new Xpp3Driver(new NoNameCoder()));
     TransactionRequestConverter transactionRequestConverter =
         new TransactionRequestConverter(cswRecordConverter, registry);
     transactionRequestConverter.setCswRecordConverter(new CswRecordConverter(metacardType));
