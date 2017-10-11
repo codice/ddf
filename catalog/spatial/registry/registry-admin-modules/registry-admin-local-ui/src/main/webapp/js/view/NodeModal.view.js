@@ -70,7 +70,11 @@ define([
                 this.listenTo(wreqr.vent, 'fieldErrorChange:' + this.model.contentInfo.get('segmentId'), this.updateContentTabError);
 
                 this.model.generalInfo.get('segments').forEach(function (segment){
-                    segment.set('identityNode', this.model.get('identityNode'));
+                    if(this.model.get('summary').constructor === Object){
+                        segment.set('identityNode', this.model.get('identityNode'));
+                    } else {
+                        segment.set('identityNode', this.model.get('summary').get('identityNode'));
+                    }
                 }.bind(this));
 
                 this.generalInfoView = new Segment.SegmentCollectionView({
