@@ -636,7 +636,7 @@ public class UpdateOperations {
 
     QueryImpl queryImpl =
         new QueryImpl(
-            queryOperations.getFilterWithAdditionalFilters(idFilters),
+            queryOperations.getFilterWithAdditionalFilters(idFilters, updateRequest),
             1, /* start index */
             0, /* page size */
             null,

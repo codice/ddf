@@ -803,7 +803,7 @@ class QueryOperationsTest extends Specification {
         def capturedQuery
         frameworkProperties.federationStrategy = Mock(FederationStrategy)
 
-        def query = new QueryImpl(queryOperations.getNonVersionTagsFilter())
+        def query = new QueryImpl(queryOperations.getNonVersionTagsFilter(request))
 
         request.query >> { query }
         request.getQuery() >> { query }

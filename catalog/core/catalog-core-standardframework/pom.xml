@@ -256,6 +256,11 @@
             <artifactId>jetty-servlet</artifactId>
         </dependency>
         <dependency>
+            <groupId>ddf.security.core</groupId>
+            <artifactId>security-core-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-util</artifactId>
             <version>${jetty.version}</version>
@@ -402,6 +407,7 @@
                             ddf.catalog.transform;version="2.0",
                             ddf.catalog.util;version="2.0",
                             ddf.catalog;version="2.0",
+                            ddf.security.common.audit;version="2.0",
                             ddf.measure;version="2.0",
                             ddf.mime,
                             ddf.security,
@@ -523,7 +529,7 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.76</minimum>
+                                            <minimum>0.73</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
