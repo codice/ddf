@@ -156,10 +156,10 @@ grant
 //
 // Commons-io includes functionality to monitor directories asynchronously
 //
-//grant
-//  codeBase "file:${ddf.home.policy}system/commons-io/commons-io/-" {
-//    permission java.io.FilePermission "${ddf.home}${/}-", "read";
-//};
+grant
+  codeBase "file:${ddf.home.policy}system/commons-io/commons-io/-" {
+    permission java.io.FilePermission "${ddf.home}${/}-", "read";
+};
 
 grant {
     // User's home directory
