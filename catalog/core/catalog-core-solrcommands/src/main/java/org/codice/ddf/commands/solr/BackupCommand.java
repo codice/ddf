@@ -28,6 +28,7 @@ import org.apache.solr.client.solrj.response.CollectionAdminResponse;
 import org.apache.solr.client.solrj.response.RequestStatusState;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.util.NamedList;
+import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.solr.factory.impl.HttpSolrClientFactory;
 import org.osgi.service.cm.Configuration;
 
@@ -200,7 +201,7 @@ public class BackupCommand extends SolrCommands {
                 && System.getProperty("jetty.port") != null
                 && System.getProperty("hostContext") != null) {
               backupUrl =
-                  System.getProperty("urlScheme", "http")
+                  SystemBaseUrl.getProtocol()
                       + "://"
                       + System.getProperty("host")
                       + ":"

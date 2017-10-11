@@ -142,10 +142,8 @@ public abstract class BSTAuthenticationToken extends BaseAuthenticationToken {
             "Credentials String: {}\n{}\n{}", lines[0], BST_CREDENTIALS + "******", lines[2]);
       }
     }
-    LOGGER.trace("Credential String: {}", retVal);
     String encodedCreds =
         Base64.getEncoder().encodeToString(builder.toString().getBytes(StandardCharsets.UTF_8));
-    LOGGER.trace("BST: {}", encodedCreds);
     return encodedCreds;
   }
 
