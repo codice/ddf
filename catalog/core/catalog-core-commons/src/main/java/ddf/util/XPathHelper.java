@@ -70,7 +70,7 @@ public class XPathHelper {
             this.getClass().getClassLoader());
     dbf.setNamespaceAware(true);
     tf =
-        TransformerFactory.newInstance(
+        XML_UTILS.getSecureXmlTransformerFactory(
             org.apache.xalan.processor.TransformerFactoryImpl.class.getName(),
             this.getClass().getClassLoader());
   }
@@ -245,7 +245,7 @@ public class XPathHelper {
     byte[] array;
     try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
       documentBuilder = dbf.newDocumentBuilder();
-      TransformerFactory transformerFactory = TransformerFactory.newInstance();
+      TransformerFactory transformerFactory = XML_UTILS.getSecureXmlTransformerFactory();
       Transformer transformer = transformerFactory.newTransformer();
       DOMSource source = new DOMSource(document);
       StreamResult result = new StreamResult(bos);

@@ -313,6 +313,19 @@ public class XMLUtils {
     }
   }
 
+  public TransformerFactory getSecureXmlTransformerFactory(
+      String className, ClassLoader classLoader) {
+    TransformerFactory transformerFactory = TransformerFactory.newInstance(className, classLoader);
+    setSecureTransformerFactorySettings(transformerFactory);
+    return transformerFactory;
+  }
+
+  public TransformerFactory getSecureXmlTransformerFactory() {
+    TransformerFactory transformerFactory = TransformerFactory.newInstance();
+    setSecureTransformerFactorySettings(transformerFactory);
+    return transformerFactory;
+  }
+
   public Transformer getXmlTransformer(boolean omitXml) throws TransformerException {
     TransformerFactory transformerFactory = TransformerFactory.newInstance();
     setSecureTransformerFactorySettings(transformerFactory);

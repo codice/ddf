@@ -62,7 +62,7 @@ public class StringxmlAdapter extends XmlAdapter<StringxmlElement, Attribute> {
     FACTORY.setNamespaceAware(true);
 
     // Create Transformer
-    TransformerFactory transFactory = TransformerFactory.newInstance();
+    TransformerFactory transFactory = XML_UTILS.getSecureXmlTransformerFactory();
     Source xsltSource =
         new StreamSource(
             StringxmlAdapter.class.getClassLoader().getResourceAsStream("stringxml.xslt"));
