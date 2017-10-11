@@ -226,5 +226,10 @@
             <artifactId>spatial-geocoding-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>spatial-geocoding-feature</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

@@ -28,6 +28,7 @@
         <module>spatial-geocoding-api-impl</module>
         <module>spatial-geocoding-create</module>
         <module>spatial-geocoding-extract</module>
+        <module>spatial-geocoding-feature</module>
         <module>spatial-geocoding-geocoder</module>
         <module>spatial-geocoding-lucene</module>
         <module>spatial-geocoding-websearch</module>
