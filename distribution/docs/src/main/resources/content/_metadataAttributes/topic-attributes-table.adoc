@@ -1,5 +1,5 @@
 ﻿:title: Topic
-:type: subappendix
+:type: subAppendix
 :parent: Catalog Taxonomy
 :status: published
 :summary: Attributes in this group describe the topic of the resource.

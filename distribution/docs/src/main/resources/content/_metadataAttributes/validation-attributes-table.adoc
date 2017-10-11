@@ -1,5 +1,5 @@
 ﻿:title: Validation
-:type: subappendix
+:type: subAppendix
 :parent: Catalog Taxonomy
 :status: published
 :summary: Attributes in this group identify validation issues with the metacard and/or resource.

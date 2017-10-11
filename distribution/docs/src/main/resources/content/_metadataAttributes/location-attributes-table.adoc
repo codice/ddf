@@ -1,5 +1,5 @@
 :title: Location
-:type: subappendix
+:type: subAppendix
 :parent: Catalog Taxonomy
 :status: published
 :summary: Attributes in this group reflect location aspects about the resource.
