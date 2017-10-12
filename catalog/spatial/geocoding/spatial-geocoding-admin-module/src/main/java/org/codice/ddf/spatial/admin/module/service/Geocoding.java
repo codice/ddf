@@ -32,7 +32,7 @@ public class Geocoding implements GeocodingMBean {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(Geocoding.class);
 
-  private static final String BASE_DIR = System.getProperty("user.dir") + "/content/store/";
+  private static final String BASE_DIR = System.getProperty("ddf.home") + "/content/store/";
 
   private GeoEntryExtractor geoEntryExtractor;
 
