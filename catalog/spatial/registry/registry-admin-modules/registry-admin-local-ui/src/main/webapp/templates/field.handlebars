@@ -41,10 +41,10 @@
                                         {{/each}}
                                     {{/if}}"
                                        name="value{{@index}}" value="{{this}}"
-                                       {{#unless ../../editable}}readonly{{/unless}}/>
+                                       {{#unless ../editable}}readonly{{/unless}}/>
                             </div>
                         </td>
-                        {{#if ../../editable}}
+                        {{#if ../editable}}
                             <td>
                                 <a href="#" name="{{@index}}"
                                    class="remove-value fa fa-minus-square fa-lg minus-button"></a>
