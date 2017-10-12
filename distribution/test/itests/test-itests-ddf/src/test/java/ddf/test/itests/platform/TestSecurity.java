@@ -79,6 +79,8 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.tika.io.IOUtils;
+import org.awaitility.Awaitility;
+import org.awaitility.Duration;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
 import org.codice.ddf.itests.common.annotations.BeforeExam;
 import org.codice.ddf.itests.common.catalog.CatalogTestCommons;
@@ -1263,9 +1265,28 @@ public class TestSecurity extends AbstractIntegrationTest {
     String certGenPath =
         SECURE_ROOT_AND_PORT
             + "/admin/jolokia/exec/org.codice.ddf.security.certificate.generator.CertificateGenerator:service=certgenerator";
+
     getBackupKeystoreFile();
+
     try {
       getServiceManager().startFeature(true, featureName);
+
+      Awaitility.await("Waiting for CertificateGenerator service")
+          .pollDelay(Duration.FIVE_SECONDS)
+          .atMost(Duration.ONE_MINUTE)
+          .until(
+              () -> {
+                Response response =
+                    given()
+                        .auth()
+                        .preemptive()
+                        .basic("admin", "admin")
+                        .when()
+                        .get(certGenPath + "/configureDemoCert/" + commonName);
+                LOGGER.error("response: {}", response.getBody().asString());
+                String status = JsonPath.from(response.getBody().asString()).getString("status");
+                return status.equals("200");
+              });
 
       // Test first operation
       Response response =

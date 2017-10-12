@@ -61,25 +61,27 @@ public class CertificateGenerator implements CertificateGeneratorMBean {
   protected void registerMbean() {
     ObjectName objectName = null;
     MBeanServer mBeanServer = null;
+
     try {
       objectName = new ObjectName(CertificateGenerator.class.getName() + ":service=certgenerator");
       mBeanServer = ManagementFactory.getPlatformMBeanServer();
     } catch (MalformedObjectNameException e) {
-      LOGGER.info("Unable to create Certificate Generator MBean.", e);
+      LOGGER.error("Unable to create Certificate Generator MBean.", e);
     }
+
     if (mBeanServer != null) {
       try {
         try {
           mBeanServer.registerMBean(this, objectName);
-          LOGGER.debug(
+          LOGGER.error(
               "Registered Certificate Generator MBean under object name: {}",
               objectName.toString());
         } catch (InstanceAlreadyExistsException e) {
-          LOGGER.debug("Re-registered Certificate Generator MBean");
+          LOGGER.error("Re-registered Certificate Generator MBean");
         }
       } catch (Exception e) {
         // objectName is not always non-null because new ObjectName(...) can throw an exception
-        LOGGER.info(
+        LOGGER.error(
             "Could not register MBean [{}].",
             objectName != null ? objectName.toString() : CertificateGenerator.class.getName(),
             e);
