@@ -64,6 +64,7 @@ import javax.ws.rs.core.MediaType;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.lang.text.StrSubstitutor;
 import org.apache.karaf.features.BootFinished;
 import org.apache.karaf.features.FeaturesService;
@@ -594,6 +595,13 @@ public abstract class AbstractIntegrationTest {
   }
 
   protected Option[] configureVmOptions() {
+    String ddfHomePolicyPath;
+    if (SystemUtils.IS_OS_WINDOWS) {
+      ddfHomePolicyPath = "-Dddf.home.policy=/{karaf.home}/";
+    } else {
+      ddfHomePolicyPath = "-Dddf.home.policy={karaf.home}/";
+    }
+
     return options(
         vmOption("-Xmx2048M"),
         // avoid integration tests stealing focus on OS X
@@ -604,7 +612,7 @@ public abstract class AbstractIntegrationTest {
             "-DproGrade.getPermissions.override=sun.rmi.server.LoaderHandler:loadClass,org.apache.jasper.compiler.JspRuntimeContext:initSecurity"),
         vmOption("-Dpolicy.provider=net.sourceforge.prograde.policy.ProGradePolicy"),
         HomeAwareVmOption.homeAwareVmOption("-Dddf.home={karaf.home}"),
-        HomeAwareVmOption.homeAwareVmOption("-Dddf.home.policy={karaf.home}/"),
+        HomeAwareVmOption.homeAwareVmOption(ddfHomePolicyPath),
         when(Boolean.getBoolean("generatePolicyFile")).useOptions(generatorSecurityManager()),
         when(!Boolean.getBoolean("generatePolicyFile")).useOptions(standardSecurityManager()));
   }
