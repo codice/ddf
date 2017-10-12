@@ -305,5 +305,6 @@ public class DavAlterationObserver implements Serializable {
 
   private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
     in.defaultReadObject();
+    listeners = new LinkedHashSet<>();
   }
 }
