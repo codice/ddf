@@ -11,7 +11,7 @@
  *
  **/
  --}}
-{{#if user.isGuest}}
+<div class="is-guest">
     <div class="user-info">
         <input placeholder="Username" type="text" id="username" name="username" />
         <input placeholder="Password" type="password" id="password" name="password" />
@@ -19,15 +19,16 @@
     <div class="is-divider">
     </div>
     <button id="sign-in" class="is-primary">Sign In</button>
-{{else}}
+</div>
+<div class="is-idp">
     <div class="user-info">
         <div class="info-username is-large-font is-bold">
-            {{user.username}}
+            {{this.user.user.username}}
         </div>
         <div class="info-email is-medium-font">
-            {{user.email}}
+            {{this.user.user.email}}
         </div>
     </div>
     <div class="is-divider"></div>
     <button id="sign-out" class="is-negative">Sign Out</button>
-{{/if}}
+</div>

@@ -120,7 +120,8 @@ public class LdapLoginConfigTest {
     ldapConfig.setUserBaseDn("ou=users,dc=example,dc=com");
     ldapConfig.setGroupBaseDn("ou=groups,dc=example,dc=com");
     ldapConfig.setStartTls(false);
-    ldapConfig.setUserNameAttribute("uid");
+    ldapConfig.setLoginUserAttribute("uid");
+    ldapConfig.setMembershipUserAttribute("uid");
     ldapConfig.setBindMethod("Simple");
     ldapConfig.setRealm("");
     ldapConfig.setKdcAddress("");
@@ -145,12 +146,26 @@ public class LdapLoginConfigTest {
   public void testSetUserNameAttribute() {
     LdapService ldapService = new LdapService(context);
     LdapLoginConfig config = createLdapConfig(ldapService);
-    config.setUserNameAttribute("cn");
+    config.setLoginUserAttribute("cn");
 
     config.configure();
 
     Properties properties = ldapService.getModules().get(0).getOptions();
     assertThat(properties.getProperty(USER_FILTER), is("(cn=%u)"));
+    assertThat(
+        properties.getProperty(ROLE_FILTER), is("(member=uid=%u,ou=users,dc=example,dc=com)"));
+  }
+
+  @Test
+  public void testSetMembershipAttribute() {
+    LdapService ldapService = new LdapService(context);
+    LdapLoginConfig config = createLdapConfig(ldapService);
+    config.setMembershipUserAttribute("cn");
+
+    config.configure();
+
+    Properties properties = ldapService.getModules().get(0).getOptions();
+    assertThat(properties.getProperty(USER_FILTER), is("(uid=%u)"));
     assertThat(
         properties.getProperty(ROLE_FILTER), is("(member=cn=%u,ou=users,dc=example,dc=com)"));
   }

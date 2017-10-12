@@ -43,9 +43,13 @@ Configure the Security STS LDAP Login from the ${admin-console}:
 |`secret`
 |This password value is encrypted by default using the Security Encryption application.
 
-|LDAP Username Attribute
+|LDAP Group User Membership Attribute
 |`uid`
-|
+|Attribute used as the membership attribute for the user in the group. Usually this is uid, cn, or something similar.
+
+|LDAP User Login Attribute
+|`uid`
+|Attribute used as the login username. Usually this is uid, cn, or something similar.
  
 |LDAP Base User DN
 |`ou=users,dc=example,dc=com`
