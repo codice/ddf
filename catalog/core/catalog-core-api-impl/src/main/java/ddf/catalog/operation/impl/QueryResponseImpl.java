@@ -46,7 +46,7 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
 
   LinkedBlockingQueue<Result> queue = null;
 
-  transient List<Result> resultList = null;
+  List<Result> resultList = null;
 
   private long timeoutMillis = 300000;
 

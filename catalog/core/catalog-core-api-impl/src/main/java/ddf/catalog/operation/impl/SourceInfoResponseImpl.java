@@ -33,7 +33,7 @@ import java.util.TreeSet;
 public class SourceInfoResponseImpl extends ResponseImpl<SourceInfoRequest>
     implements SourceInfoResponse {
 
-  protected transient Set<SourceDescriptor> sourceInfos =
+  protected Set<SourceDescriptor> sourceInfos =
       new TreeSet<SourceDescriptor>(new SourceDescriptorComparator());
 
   /**

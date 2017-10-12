@@ -28,11 +28,11 @@ public class SourceResponseImpl extends ResponseImpl<QueryRequest> implements So
 
   protected long hits;
 
-  protected transient Set<SourceProcessingDetails> sourceProcessingDetails = null;
+  protected Set<SourceProcessingDetails> sourceProcessingDetails = null;
 
   ResponseImpl<QueryRequest> queryResponse;
 
-  private transient List<Result> results;
+  private List<Result> results;
 
   /**
    * Instantiates a new SourceResponseImpl with the original query request and results from the

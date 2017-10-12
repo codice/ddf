@@ -24,7 +24,7 @@ import java.util.Map;
 
 public class UpdateStorageResponseImpl extends ResponseImpl<UpdateStorageRequest>
     implements UpdateStorageResponse {
-  private transient List<ContentItem> updatedContentItems;
+  private List<ContentItem> updatedContentItems;
 
   /**
    * Instantiates a new ResponseImpl

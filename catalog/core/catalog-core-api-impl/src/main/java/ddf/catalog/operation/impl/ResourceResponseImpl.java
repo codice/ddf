@@ -23,7 +23,7 @@ import java.util.Map;
 public class ResourceResponseImpl extends ResponseImpl<ResourceRequest>
     implements ResourceResponse {
 
-  protected transient Resource resource;
+  protected Resource resource;
 
   /**
    * Instantiates a new ResourceResponseImpl from the given {@link Resource}.

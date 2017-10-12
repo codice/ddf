@@ -25,7 +25,7 @@ import org.apache.commons.lang.StringUtils;
 
 public class UpdateStorageRequestImpl extends OperationImpl implements UpdateStorageRequest {
 
-  private transient List<ContentItem> contentItems = new ArrayList<>();
+  private List<ContentItem> contentItems = new ArrayList<>();
 
   private String id;
 
