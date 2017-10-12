@@ -179,15 +179,13 @@ export const validate = (providers) => {
     const proxyEnabled = layer.get('proxyEnabled')
 
     if (typeof proxyEnabled !== 'boolean') {
-      errors = errors.setIn([i, 'proxyEnabled'], 'Proxy enabled settings needs to be true or false')
+      errors = errors.setIn([i, 'proxyEnabled'], 'Proxy enabled must be true or false')
     }
 
     const show = layer.get('show')
 
-    if (show === undefined) {
-      errors = errors.setIn([i, 'buffer'], 'Show must be true or false')
-    } else if (typeof show !== 'boolean') {
-      errors = errors.setIn([i, 'buffer'], `Show must be set to true or false`)
+    if (typeof show !== 'boolean') {
+      errors = errors.setIn([i, 'show'], 'Show must be true or false')
     }
 
     const type = layer.get('type')
@@ -222,18 +220,24 @@ export const validate = (providers) => {
     const order = layer.get('order')
 
     if (order === '' || order === undefined) {
-      errors = errors.setIn([i, 'buffer'], 'Order cannot be empty')
+      errors = errors.setIn([i, 'order'], 'Order cannot be empty')
     } else if (typeof order !== 'number') {
-      errors = errors.setIn([i, 'buffer'], 'Order must be a number')
+      errors = errors.setIn([i, 'order'], 'Order must be a number')
     } else if (order < 0 || order > providers.size - 1) {
-      errors = errors.setIn([i, 'buffer'], `Order should be between 0 and ${providers.size - 1}`)
+      errors = errors.setIn([i, 'order'], `Order should be between 0 and ${providers.size - 1}`)
     } else {
       const previous = providers.slice(0, i)
         .find((provider) => order === provider.getIn(['layer', 'order']))
       if (previous !== undefined) {
-        errors = errors.setIn([i, 'buffer'],
+        errors = errors.setIn([i, 'order'],
           `Order ${order} previously used for ${previous.getIn(['layer', 'name'])}`)
       }
+    }
+
+    const redirects = layer.get('allowRedirects')
+
+    if (typeof redirects !== 'boolean') {
+      errors = errors.setIn([i, 'allowRedirects'], 'Allow redirects must be true or false')
     }
   })
 
@@ -247,6 +251,7 @@ const emptyProvider = (index) => {
     type: '',
     alpha: '',
     proxyEnabled: true,
+    allowRedirects: false,
     show: true,
     parameters: {
       transparent: false,

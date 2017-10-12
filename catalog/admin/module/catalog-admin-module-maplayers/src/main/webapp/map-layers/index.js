@@ -6,6 +6,7 @@ import { connect } from 'react-redux'
 import CircularProgress from 'material-ui/CircularProgress'
 import ContentAdd from 'material-ui/svg-icons/content/add'
 import DeleteIcon from 'material-ui/svg-icons/action/delete'
+import WarningIcon from 'material-ui/svg-icons/alert/warning'
 import Checkbox from 'material-ui/Checkbox'
 import Dialog from 'material-ui/Dialog'
 import FlatButton from 'material-ui/FlatButton'
@@ -18,7 +19,6 @@ import RaisedButton from 'material-ui/RaisedButton'
 import SelectField from 'material-ui/SelectField'
 import Snackbar from 'material-ui/Snackbar'
 import TextField from 'material-ui/TextField'
-import Toggle from 'material-ui/Toggle'
 import muiThemeable from 'material-ui/styles/muiThemeable'
 import { List, ListItem } from 'material-ui/List'
 import SortUp from 'material-ui/svg-icons/navigation/arrow-upward'
@@ -82,6 +82,16 @@ const Title = muiThemeable()(({ children, muiTheme }) => (
 
 const DeleteIconThemed = muiThemeable()(({ muiTheme }) => (
   <DeleteIcon style={{ color: muiTheme.palette.errorColor }} />
+
+const Warning = muiThemeable()(({ children, muiTheme }) => (
+  <Flexbox style={{ color: muiTheme.palette.warningColor }} alignItems='center'>
+    <div style={{ paddingRight: 10 }}>
+      <WarningIcon color={muiTheme.palette.warningColor} />
+    </div>
+    <div>
+      {children}
+    </div>
+  </Flexbox>
 ))
 
 const implementationSupport = (implementors) => {
@@ -119,6 +129,8 @@ let Link = ({ muiTheme: { palette }, children, ...props }) => (
 
 Link = muiThemeable()(Link)
 
+const bool = (value) => typeof value === 'boolean' ? value : false
+
 const ProviderEditor = ({ provider, onUpdate, buffer, onEdit, error = Map() }) => (
   <div style={{ padding: 16 }}>
     <div style={{ padding: '0 16px' }}>
@@ -142,11 +154,28 @@ const ProviderEditor = ({ provider, onUpdate, buffer, onEdit, error = Map() }) =
     <div style={{ padding: '0 16px' }}>
       <Flexbox flex='1'>
         <Checkbox
-          checked={typeof provider.get('proxyEnabled') === 'boolean' ? provider.get('proxyEnabled') : ''}
           label='Proxy Imagery Provider URL'
+          checked={bool(provider.get('proxyEnabled'))}
           onCheck={(e, value) => {
             onUpdate(value, 'proxyEnabled')
           }} />
+      </Flexbox>
+    </div>
+    <div style={{ padding: '0 16px' }}>
+      <Flexbox flex='1'>
+        <Flexbox width='200px'>
+          <Checkbox
+            label='Allow Redirects'
+            checked={bool(provider.get('allowRedirects'))}
+            onCheck={(e, value) => {
+              onUpdate(value, 'allowRedirects')
+            }} />
+        </Flexbox>
+        <Flexbox flex='1'>
+          {bool(provider.get('allowRedirects'))
+            ? <Warning>STOP</Warning>
+            : null}
+        </Flexbox>
       </Flexbox>
     </div>
     <Flexbox flex='1' style={{ padding: '0 16px' }}>
@@ -193,27 +222,24 @@ const ProviderEditor = ({ provider, onUpdate, buffer, onEdit, error = Map() }) =
       </Flexbox>
     </Flexbox>
     <div style={{ padding: '0 16px' }}>
-      <Toggle
+      <Checkbox
         label='Show'
         id='show'
-        toggled={provider.get('show')}
-        labelStyle={{
-          width: '100px'
-        }}
-        onToggle={(e, value) => {
+        checked={bool(provider.get('show'))}
+        onCheck={(e, value) => {
           onUpdate(value, 'show')
         }}
       />
     </div>
     <div style={{ padding: '0 16px' }}>
-      <Toggle
+      <Checkbox
         label='Transparent'
         id='transparent'
-        toggled={provider.getIn(['parameters', 'transparent'], false)}
+        checked={bool(provider.getIn(['parameters', 'transparent']))}
         labelStyle={{
-          width: '100px'
+          width: '200px'
         }}
-        onToggle={(e, value) => {
+        onCheck={(e, value) => {
           onUpdate(value, ['parameters', 'transparent'])
           if (value) {
             onUpdate('image/png', ['parameters', 'format'])
@@ -251,7 +277,11 @@ const ProviderEditor = ({ provider, onUpdate, buffer, onEdit, error = Map() }) =
                 href={options[provider.get('type')].help.cesium} />
             </div> : null,
           <div key='ace' style={{ margin: '0 15px' }}>
-            <Error errorText={error.get('buffer')}>
+            <Error errorText={
+              ['buffer', 'proxyEnabled', 'order', 'show', 'allowRedirects']
+              .map((key) => error.get(key))
+              .filter((msg) => msg !== undefined)[0]
+            }>
               <AceEditor
                 mode='json'
                 theme='github'
