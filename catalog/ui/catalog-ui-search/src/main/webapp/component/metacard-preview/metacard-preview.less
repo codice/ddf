@@ -1,0 +1,17 @@
+@{customElementNamespace}metacard-preview {
+    .customElement;
+    padding: @largeSpacing;
+
+    iframe {
+        .dropshadow;
+        .customElement;
+    }
+}
+
+html.is-iframe.is-preview {
+    background: @lighten-inherited-background-color;
+    body {
+        background: none;
+        padding: @largeSpacing;
+    }
+}
