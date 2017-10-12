@@ -24,7 +24,7 @@ import java.util.Map;
 
 public class DeleteStorageResponseImpl extends ResponseImpl<DeleteStorageRequest>
     implements DeleteStorageResponse {
-  private transient List<ContentItem> deletedContentItems;
+  private List<ContentItem> deletedContentItems;
 
   /**
    * Instantiates a new ResponseImpl
