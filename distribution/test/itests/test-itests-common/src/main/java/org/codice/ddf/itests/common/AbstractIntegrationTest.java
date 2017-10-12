@@ -45,6 +45,7 @@ import java.io.InputStream;
 import java.lang.reflect.Proxy;
 import java.net.ServerSocket;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -485,7 +486,7 @@ public abstract class AbstractIntegrationTest {
         editConfigurationFilePut(
             "etc/org.apache.karaf.management.cfg", "rmiServerPort", RMI_SERVER_PORT.getPort()),
         installStartupFile(
-            getClass().getClassLoader().getResourceAsStream("hazelcast.xml"), "/etc/hazelcast.xml"),
+            getClass().getClassLoader().getResource("hazelcast.xml"), "/etc/hazelcast.xml"),
         KarafDistributionOption.editConfigurationFilePut(
             "etc/ddf.security.sts.client.configuration.config",
             "address",
@@ -493,12 +494,12 @@ public abstract class AbstractIntegrationTest {
         installStartupFile(
             getClass()
                 .getClassLoader()
-                .getResourceAsStream("ddf.catalog.solr.external.SolrHttpCatalogProvider.config"),
+                .getResource("ddf.catalog.solr.external.SolrHttpCatalogProvider.config"),
             "/etc/ddf.catalog.solr.external.SolrHttpCatalogProvider.config"),
         installStartupFile(
             getClass()
                 .getClassLoader()
-                .getResourceAsStream("ddf.catalog.solr.provider.SolrCatalogProvider.config"),
+                .getResource("ddf.catalog.solr.provider.SolrCatalogProvider.config"),
             "/etc/ddf.catalog.solr.provider.SolrCatalogProvider.config"));
   }
 
@@ -655,14 +656,11 @@ public abstract class AbstractIntegrationTest {
     try {
       return options( // extra config options for catalog-ui and security
           installStartupFile(
-              getClass().getResourceAsStream("/etc/test-users.properties"),
-              "/etc/users.properties"),
+              getClass().getResource("/etc/test-users.properties"), "/etc/users.properties"),
           installStartupFile(
-              getClass().getResourceAsStream("/etc/test-users.attributes"),
-              "/etc/users.attributes"),
+              getClass().getResource("/etc/test-users.attributes"), "/etc/users.attributes"),
           installStartupFile(
-              getClass().getResourceAsStream("/injections.json"),
-              "/etc/definitions/injections.json"));
+              getClass().getResource("/injections.json"), "/etc/definitions/injections.json"));
     } catch (IOException e) {
       LoggingUtils.failWithThrowableStacktrace(e, "Failed to deploy configuration files: ");
     }
@@ -682,16 +680,17 @@ public abstract class AbstractIntegrationTest {
    * Copies the content of a JAR resource to the destination specified before the container starts
    * up. Useful to add test configuration files before tests are run.
    *
-   * @param resourceInputStream input stream to te he JAR resource to copy
+   * @param resource URL to the JAR resource to copy
    * @param destination destination relative to DDF_HOME
    * @return option object to include in a {@link #configureCustom()} method
    * @throws IOException thrown if a problem occurs while copying the resource
    */
-  protected Option installStartupFile(InputStream resourceInputStream, String destination)
-      throws IOException {
+  protected Option installStartupFile(URL resource, String destination) throws IOException {
     File tempFile = Files.createTempFile("StartupFile", ".temp").toFile();
     tempFile.deleteOnExit();
-    FileUtils.copyInputStreamToFile(resourceInputStream, tempFile);
+    try (InputStream is = resource.openStream()) {
+      FileUtils.copyInputStreamToFile(is, tempFile);
+    }
     return replaceConfigurationFile(destination, tempFile);
   }
 
