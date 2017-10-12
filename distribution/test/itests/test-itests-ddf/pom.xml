@@ -135,6 +135,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>ddf.security.certificate</groupId>
+            <artifactId>security-certificate-generator</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.persistence.core</groupId>
             <artifactId>persistence-core-api</artifactId>
             <version>${project.version}</version>

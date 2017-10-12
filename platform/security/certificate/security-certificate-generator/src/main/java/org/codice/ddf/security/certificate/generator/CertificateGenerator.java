@@ -69,6 +69,7 @@ public class CertificateGenerator implements CertificateGeneratorMBean {
       LOGGER.error("Unable to create Certificate Generator MBean.", e);
     }
 
+    // TODO - Revert LOGGER.error
     if (mBeanServer != null) {
       try {
         try {

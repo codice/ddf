@@ -1271,6 +1271,7 @@ public class TestSecurity extends AbstractIntegrationTest {
     try {
       getServiceManager().startFeature(true, featureName);
 
+      // TODO - Remove LOGGER.error()
       Awaitility.await("Waiting for CertificateGenerator service")
           .pollDelay(Duration.FIVE_SECONDS)
           .atMost(Duration.ONE_MINUTE)
