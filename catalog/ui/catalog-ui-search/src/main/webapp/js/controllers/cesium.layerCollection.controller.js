@@ -60,6 +60,17 @@ define(['underscore',
                 }
 
                 var provider = new type(initObj);
+
+                /* Optionally add this provider as a TrustedServer to allow redirects */
+                if (model.get('allowRedirects')) {
+                  var parsedUrl = new URL(provider.url);
+                  var port = parsedUrl.port;
+                  if (!port) {
+                    port = (parsedUrl.protocol === "https") ? 443 : 80;
+                  }
+                  Cesium.TrustedServers.add(parsedUrl.hostname, port);
+                }
+
                 var layer = this.map.imageryLayers.addImageryProvider(provider, 0);  // the collection is sorted by order, so later things should go at bottom of stack
                 this.layerForCid[model.id] = layer;
                 layer.alpha = model.get('alpha');
