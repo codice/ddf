@@ -65,6 +65,7 @@ import java.util.List;
 import java.util.TimeZone;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -771,18 +772,24 @@ public class TikaInputTransformerTest {
 
   @Test
   public void testMetadataExtractorReceivesXml() throws Exception {
-    TestMetacardExtractor metadataExtractor = new TestMetacardExtractor(null);
+    MetadataExtractor metadataExtractor = mock(MetadataExtractor.class);
+    when(metadataExtractor.canProcess(any())).thenReturn(true);
     addMetadataExtractor(metadataExtractor);
     transform(new ByteArrayInputStream("something".getBytes()));
+
+    ArgumentCaptor<String> metadataText = ArgumentCaptor.forClass(String.class);
+    verify(metadataExtractor).process(metadataText.capture(), any());
+
     assertThat(
-        metadataExtractor.getMetadata(),
-        containsString("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"));
+        metadataText.getValue(), containsString("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"));
   }
 
   @Test
   public void testMetadataExtractorMetacardType() throws Exception {
     MetacardType metacardType = mock(MetacardType.class);
-    TestMetacardExtractor metacardExtractor = new TestMetacardExtractor(metacardType);
+    MetadataExtractor metacardExtractor = mock(MetadataExtractor.class);
+    when(metacardExtractor.canProcess(any())).thenReturn(true);
+    when(metacardExtractor.getMetacardType(any())).thenReturn(metacardType);
     addMetadataExtractor(metacardExtractor);
 
     Metacard metacard = transform(new ByteArrayInputStream("something".getBytes()));
@@ -804,43 +811,5 @@ public class TikaInputTransformerTest {
     ServiceReference<MetadataExtractor> serviceReference = mock(ServiceReference.class);
     when(bundleCtx.getService(serviceReference)).thenReturn(metadataExtractor);
     tikaInputTransformer.addMetadataExtractor(serviceReference);
-  }
-
-  private class TestMetacardExtractor implements MetadataExtractor {
-    private String metadata;
-    private Metacard metacard;
-    private MetacardType metacardType;
-
-    TestMetacardExtractor(MetacardType metacardType) {
-      this.metacardType = metacardType;
-    }
-
-    public String getMetadata() {
-      return metadata;
-    }
-
-    public MetacardType getMetacardType() {
-      return metacardType;
-    }
-
-    public Metacard getMetacard() {
-      return metacard;
-    }
-
-    @Override
-    public void process(String metadata, Metacard metacard) {
-      this.metadata = metadata;
-      this.metacard = metacard;
-    }
-
-    @Override
-    public MetacardType getMetacardType(String contentType) {
-      return metacardType;
-    }
-
-    @Override
-    public boolean canProcess(String contentType) {
-      return true;
-    }
   }
 }
