@@ -2,6 +2,23 @@
 
 SCRIPTDIR=`dirname $0`
 
-# Argument to Karaf is optional. 
-# Provides ability to start Karaf in different modes, e.g., server, client, etc.
-$SCRIPTDIR/karaf "$1"
+while true; do
+  # Remove the restart file indicator so we can detect later if restart was requested
+  rm -f "${SCRIPTDIR}/restart.jvm"
+
+  # Argument to Karaf is optional.
+  # Provides ability to start Karaf in different modes, e.g., server, client, etc.
+  $SCRIPTDIR/karaf "$1"
+  RC=$?
+  if [ "$1" = "daemon" ]; then
+    exit ${RC}
+  else
+    # Check if restart was requested by ddf_on_error.sh
+    if [ -f "${SCRIPTDIR}/restart.jvm" ]; then
+      rm -f "${SCRIPTDIR}/restart.jvm"
+      echo "Restarting JVM..."
+    else
+      exit $RC
+    fi
+  fi
+done
