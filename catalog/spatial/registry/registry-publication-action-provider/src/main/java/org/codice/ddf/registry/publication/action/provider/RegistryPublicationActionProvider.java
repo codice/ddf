@@ -78,9 +78,6 @@ public class RegistryPublicationActionProvider implements MultiActionProvider {
   @Override
   public <T> List<Action> getActions(T subject) {
     String registryIdToPublish = getRegistryId(subject);
-    if (StringUtils.isBlank(registryIdToPublish)) {
-      return Collections.emptyList();
-    }
 
     List<String> currentPublications =
         registryPublicationManager

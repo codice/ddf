@@ -63,15 +63,12 @@ public class RegistryReportActionProvider implements MultiActionProvider {
   }
 
   public <T> List<Action> getActions(T subject) {
-
-    if (canHandle(subject)) {
-      if (subject instanceof Metacard) {
-        return processSubject((Metacard) subject);
-      } else if (subject instanceof Source) {
-        return processSubject((Source) subject);
-      } else if (subject instanceof Configuration) {
-        return processSubject((Configuration) subject);
-      }
+    if (subject instanceof Metacard) {
+      return processSubject((Metacard) subject);
+    } else if (subject instanceof Source) {
+      return processSubject((Source) subject);
+    } else if (subject instanceof Configuration) {
+      return processSubject((Configuration) subject);
     }
     return Collections.emptyList();
   }
@@ -153,7 +150,6 @@ public class RegistryReportActionProvider implements MultiActionProvider {
   }
 
   private Action getAction(String metacardId, String sourceId) {
-
     if (StringUtils.isNotBlank(sourceId)) {
       sourceId = SOURCE_ID_QUERY_PARAM + sourceId;
     }
@@ -185,7 +181,6 @@ public class RegistryReportActionProvider implements MultiActionProvider {
   }
 
   public <T> boolean canHandle(T subject) {
-
     return (subject instanceof Metacard && RegistryUtility.isRegistryMetacard((Metacard) subject))
         || subject instanceof Source
         || (subject instanceof Configuration
@@ -196,7 +191,6 @@ public class RegistryReportActionProvider implements MultiActionProvider {
   }
 
   protected String getSource(Metacard metacard) {
-
     if (StringUtils.isNotBlank(metacard.getSourceId())) {
       return metacard.getSourceId();
     }

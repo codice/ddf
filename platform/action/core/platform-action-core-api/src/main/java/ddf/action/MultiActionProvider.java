@@ -28,6 +28,8 @@ import java.util.List;
 public interface MultiActionProvider {
 
   /**
+   * Assumes that {@link #canHandle(Object)} for the {@param subject} has already been checked.
+   *
    * @param subject object for which the {@link ActionProvider} is requested to provide an {@link
    *     Action}
    * @return an {@link Action} object. If no action can be taken on the input, then <code>
