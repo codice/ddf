@@ -39,6 +39,7 @@ import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.useOwnExa
 import com.google.common.collect.ImmutableMap;
 import com.jayway.restassured.response.ValidatableResponse;
 import com.sun.istack.NotNull;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -677,6 +678,21 @@ public abstract class AbstractIntegrationTest {
   }
 
   /**
+   * Copies a String into the destination specified before the container starts up. Useful to add
+   * test configuration files before tests are run.
+   *
+   * @param content content to use for file
+   * @param destination destination relative to DDF_HOME
+   * @return option object to include in a {@link #configureCustom()} method
+   * @throws IOException thrown if a problem occurs while copying the resource
+   */
+  protected Option installStartupFile(String content, String destination) throws IOException {
+    try (InputStream is = new ByteArrayInputStream(content.getBytes("UTF-8"))) {
+      return installStartupFile(is, destination);
+    }
+  }
+
+  /**
    * Copies the content of a JAR resource to the destination specified before the container starts
    * up. Useful to add test configuration files before tests are run.
    *
@@ -686,11 +702,15 @@ public abstract class AbstractIntegrationTest {
    * @throws IOException thrown if a problem occurs while copying the resource
    */
   protected Option installStartupFile(URL resource, String destination) throws IOException {
+    try (InputStream is = resource.openStream()) {
+      return installStartupFile(is, destination);
+    }
+  }
+
+  private Option installStartupFile(InputStream is, String destination) throws IOException {
     File tempFile = Files.createTempFile("StartupFile", ".temp").toFile();
     tempFile.deleteOnExit();
-    try (InputStream is = resource.openStream()) {
-      FileUtils.copyInputStreamToFile(is, tempFile);
-    }
+    FileUtils.copyInputStreamToFile(is, tempFile);
     return replaceConfigurationFile(destination, tempFile);
   }
 
