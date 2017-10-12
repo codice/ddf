@@ -1,0 +1,25 @@
+:title: Disabling Security Manager
+:type: subConfiguration
+:status: published
+:parent: Setting Security Manager Policies
+:summary: Setting security manager policies.
+:order: 00
+
+== {title}
+
+To disable the security manager entirely, edit the `setenv` file located in `${branding}_HOME/bin`.
+(`setenv.bat` for Windows)
+
+. Comment out the `KARAF_SYSTEM_OPTS` line:
+
+.Unix/Linux
+----
+export KARAF_SYSTEM_OPTS="-Dpolicy.provider=net.sourceforge.prograde.policy.ProGradePolicy -Djava.security.manager=net.sourceforge.prograde.sm.ProGradeJSM -Djava.security.policy==$DDF_HOME/security/default.policy -DproGrade.getPermissions.override=sun.rmi.server.LoaderHandler:loadClass,org.apache.jasper.compiler.JspRuntimeContext:initSecurity"
+----
+
+.Windows
+----
+set KARAF_SYSTEM_OPTS=-Dpolicy.provider=net.sourceforge.prograde.policy.ProGradePolicy -Djava.security.manager=net.sourceforge.prograde.sm.ProGradeJSM -Djava.security.policy==%DDF_HOME%\security\default.policy -DproGrade.getPermissions.override=sun.rmi.server.LoaderHandler:loadClass,org.apache.jasper.compiler.JspRuntimeContext:initSecurity
+----
+
+Without these lines, the security manager will be disabled.

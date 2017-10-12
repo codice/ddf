@@ -1,18 +1,19 @@
 :title: Content Directory Monitor
-:type: architecture
+:type: configuration
 :status: published
-:parent: Resources
-:children: none
-:order: 04
+:parent: Configuring Data Management
+:order: 03
 :summary: Content Directory Monitor.
+
+== {title}
 
 The Content Directory Monitor (CDM) provides the capability to easily add content and metacards into the ${ddf-catalog} by placing a file in a directory.
 
-==== Installing the Content Directory Monitor
+=== Installing the Content Directory Monitor
 
 The Content Directory Monitor is installed by default with a standard installation of the ${ddf-catalog} application.
 
-==== Configuring the Content Directory Monitor
+=== Configuring the Content Directory Monitor
 
 Configure the CDM from the ${admin-console}:
 
@@ -21,9 +22,15 @@ Configure the CDM from the ${admin-console}:
 . Select the *Configuration* tab.
 . Select *Catalog Content Directory Monitor*.
 
+.Content Directory Monitor Permissions
+[IMPORTANT]
+====
+If changing the monitored directory directory from the default, make sure to set permissions on the new directory to allow ${branding} to access it.
+====
+
 See <<org.codice.ddf.catalog.content.monitor.ContentDirectoryMonitor,Content Directory Monitor configurations>> for all possible configurations.
 
-==== Using the Content Directory Monitor
+=== Using the Content Directory Monitor
 
 The CDM processes files in a directory, and all of its sub-directories. The CDM offers three options:
 

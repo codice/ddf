@@ -31,8 +31,6 @@ These are the system/environment requirements to configure _prior_ to an install
 |
 2+^|Minimum and Recommended Requirements for ${branding} Systems in Production Mode*
 
-
-
 |*Criteria*
 |*Minimum*
 |*Recommended*
@@ -181,6 +179,12 @@ This will be referred to as `<${branding}_HOME>`.
 ====
 Do not use spaces in directory or file names of the `<${branding}_HOME>` path.
 For example, do not install in the default `Program Files` directory.
+====
++
+.File Location Security Warning
+[WARNING]
+====
+To avoid file permission problems, it is not recommended to install ${branding} in the user's `home` directory or a subdirectory of `home`.
 ====
 +
 .Example: Create a Directory (Windows and *NIX)

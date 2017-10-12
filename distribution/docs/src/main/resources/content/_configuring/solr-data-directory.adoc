@@ -13,6 +13,12 @@ If there is inadequate space in `${branding}_HOME`, or if it is desired to maint
 
 In order to change the Data Directory, the `system.properties` file in `${branding}_HOME/etc` must be edited prior to starting ${branding}.
 
+.Solr Data Directory Permissions
+[IMPORTANT]
+====
+If changing the data directory from the default, make sure to set permissions on the new directory to allow ${branding} to access it.
+====
+
 === Changing an Empty Data Directory
 
 .Edit the `system.properties` file
@@ -53,12 +59,13 @@ solr.data.dir = /path/to/new/data/dir
 +
 . Restart the ${branding}.
 
+.Changes Require a Distribution Restart
 [WARNING]
 ====
-*Changes Require a Distribution Restart* +
 If the Data Directory File Path property is changed, no changes will occur to the Solr Catalog Provider until the distribution has been restarted.
 ====
 
+.Multiple Data Sets
 [NOTE]
 ====
 If data directory file path property is changed to a new directory, and the previous data is not moved into that directory, no data will exist in Solr.

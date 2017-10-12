@@ -121,6 +121,13 @@ Prior to installing ${branding}, ensure the system time is accurate to prevent f
 
 === Quick Install of ${branding}
 
+
+.File Location Security Warning
+[WARNING]
+====
+To avoid file permission problems, it is not recommended to install ${branding} in the user's home directory or a subdirectory of home.
+====
+
 . Download the ${branding} {download-url}[zip file].
 . Install ${branding} by unzipping the zip file.
 +
@@ -130,7 +137,7 @@ Prior to installing ${branding}, ensure the system time is accurate to prevent f
 The Windows Zip implementation, which is invoked when a user double-clicks on a zip file in the Windows Explorer, creates a corrupted installation.
 This is a consequence of its inability to process long file paths.
 Instead, use the java jar command line utility to unzip the distribution (see example below) or use a third party utility such as 7-Zip.
-
++
 .Use Java to Unzip in Windows(Replace `<PATH_TO_JAVA>` with correct path `and <JAVA_VERSION>` with current version.)
 ----
 "<PATH_TO_JAVA>\jdk<JAVA_VERSION>\bin\jar.exe" xf ${branding-lowercase}-${project.version}.zip
@@ -140,6 +147,7 @@ Instead, use the java jar command line utility to unzip the distribution (see ex
 . This will create an installation directory, which is typically created with the name and version of the application.
 This installation directory will be referred to as `<${branding}_HOME>`.
 (Substitute the actual directory name.)
++
 . Start ${branding} by running the `<${branding}_HOME>/bin/${branding-lowercase}` script (or `${branding-lowercase}.bat` on Windows).
 . The ${command-console} will display.
 
