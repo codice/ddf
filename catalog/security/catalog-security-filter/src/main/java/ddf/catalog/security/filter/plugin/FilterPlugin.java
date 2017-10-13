@@ -244,9 +244,11 @@ public class FilterPlugin implements AccessPlugin {
       metacard = result.getMetacard();
       Attribute attr = metacard.getAttribute(Metacard.SECURITY);
       if (!checkPermissions(attr, securityPermission, subject, CollectionPermission.READ_ACTION)) {
+        boolean foundProcessor = false;
         for (FilterStrategy filterStrategy : filterStrategies.values()) {
           FilterResult filterResult = filterStrategy.process(input, metacard);
           if (filterResult.processed()) {
+            foundProcessor = true;
             if (filterResult.metacard() != null) {
               newResults.add(new ResultImpl(filterResult.metacard()));
             }
@@ -254,7 +256,12 @@ public class FilterPlugin implements AccessPlugin {
             // returned responses are ignored for queries
           }
         }
-        filteredMetacards++;
+        // If nothing could process the metacard, leave it as is
+        if (!foundProcessor) {
+          newResults.add(result);
+        } else {
+          filteredMetacards++;
+        }
       } else {
         newResults.add(result);
       }
