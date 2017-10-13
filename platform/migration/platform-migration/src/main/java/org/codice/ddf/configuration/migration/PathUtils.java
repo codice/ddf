@@ -37,9 +37,7 @@ public class PathUtils {
   public PathUtils() {
     try {
       this.ddfHome =
-          AccessUtils.doPrivileged(
-              () ->
-                  Paths.get(System.getProperty("ddf.home")).toRealPath(LinkOption.NOFOLLOW_LINKS));
+          Paths.get(System.getProperty("ddf.home")).toRealPath(LinkOption.NOFOLLOW_LINKS);
     } catch (IOException e) {
       throw new IOError(e);
     }
