@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -12,28 +11,27 @@
  *
  **/
 -->
-<!DOCTYPE html
-        PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<!DOCTYPE html>
+<html>
 <head>
+    <meta charset="UTF-8"/>
     <title>Form Submit</title>
 </head>
 <body>
- <form id="postform" method="post" action="{{ACSURL}}">
-     <input class="idp-form-submit" type="submit" style="display:none;" />
-     <input type="hidden" name="{{SAML_TYPE}}" value="{{SAMLResponse}}" />
-     <input type="hidden" name="RelayState" value="{{RelayState}}" />
- </form>
+<form id="postform" method="post" action="{{ACSURL}}">
+    <input class="idp-form-submit" type="submit" style="display:none;"/>
+    <input type="hidden" name="{{SAML_TYPE}}" value="{{SAMLResponse}}"/>
+    <input type="hidden" name="RelayState" value="{{RelayState}}"/>
+</form>
 
- <script type="text/javascript">
-     window.onload = function() {
-         window.setTimeout(function () {
-             window.setInterval(function () {
-                 document.forms["postform"].submit();
-             }, 2000);
-         }, 100);
-     }
- </script>
+<script type="text/javascript">
+    window.onload = function () {
+        window.setTimeout(function () {
+            window.setInterval(function () {
+                document.forms["postform"].submit();
+            }, 2000);
+        }, 100);
+    }
+</script>
 </body>
 </html>

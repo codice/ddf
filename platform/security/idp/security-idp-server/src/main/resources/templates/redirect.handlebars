@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <!--
 /**
  * Copyright (c) Codice Foundation
@@ -12,24 +11,22 @@
  *
  **/
 -->
-<!DOCTYPE html
-        PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<!DOCTYPE html>
+<html>
 <head>
+    <meta charset="UTF-8"/>
     <title>Redirect</title>
+    <script type="text/javascript">
+        window.onload = function () {
+            window.setTimeout(function () {
+                window.setInterval(function () {
+                    var encoded = "{{redirect}}";
+                    window.location.replace(encoded);
+                }, 2000);
+            }, 100);
+        }
+    </script>
 </head>
 <body>
-
-<script type="text/javascript">
-    window.onload = function() {
-        window.setTimeout(function () {
-            window.setInterval(function () {
-                var encoded = "{{redirect}}";
-                window.location.replace(encoded);
-            }, 2000);
-        }, 100);
-    }
-</script>
 </body>
 </html>
