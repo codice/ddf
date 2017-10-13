@@ -51,6 +51,7 @@ import ddf.catalog.data.impl.types.MediaAttributes;
 import ddf.catalog.data.impl.types.ValidationAttributes;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Validation;
+import ddf.catalog.data.types.constants.core.DataType;
 import ddf.catalog.data.types.experimental.Extracted;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
@@ -83,17 +84,15 @@ public class TikaInputTransformerTest {
 
   private static final String COMMON_METACARDTYPE_NAME = "fallback.common";
 
-  private static final String SOUND = "Sound";
+  private static final String SOUND = DataType.SOUND.toString();
 
-  private static final String IMAGE = "Image";
+  private static final String IMAGE = DataType.IMAGE.toString();
 
-  private static final String TEXT = "Text";
+  private static final String TEXT = DataType.TEXT.toString();
 
-  private static final String DOCUMENT = "Document";
+  private static final String DATASET = DataType.DATASET.toString();
 
-  private static final String DATASET = "Dataset";
-
-  private static final String COLLECTION = "Collection";
+  private static final String COLLECTION = DataType.COLLECTION.toString();
 
   private static final String EXCEL_METACARDTYPE_NAME = "fallback.excel";
 
@@ -251,7 +250,7 @@ public class TikaInputTransformerTest {
         metacard.getAttribute(Extracted.EXTRACTED_TEXT).getValue().toString(),
         containsString("DEFAULT_RESOURCE_NOT_FOUND_MESSAGE"));
     assertThat(metacard.getContentTypeName(), is("application/java-vm"));
-    assertThat(metacard.getAttribute(Core.DATATYPE).getValue(), is(DOCUMENT));
+    assertThat(metacard.getAttribute(Core.DATATYPE).getValue(), is(TEXT));
   }
 
   @Test
@@ -510,7 +509,7 @@ public class TikaInputTransformerTest {
     assertThat(
         metacard.getMetadata(), containsString("<meta name=\"xmpTPg:NPages\" content=\"1\" />"));
     assertThat(metacard.getContentTypeName(), is("application/pdf"));
-    assertThat(metacard.getAttribute(Core.DATATYPE).getValue(), is(DOCUMENT));
+    assertThat(metacard.getAttribute(Core.DATATYPE).getValue(), is(TEXT));
   }
 
   @Test
@@ -526,7 +525,7 @@ public class TikaInputTransformerTest {
         metacard.getAttribute(Extracted.EXTRACTED_TEXT).getValue().toString(),
         containsString("John Smith"));
     assertThat(metacard.getContentTypeName(), is("application/xml"));
-    assertThat(metacard.getAttribute(Core.DATATYPE).getValue(), is(DOCUMENT));
+    assertThat(metacard.getAttribute(Core.DATATYPE).getValue(), is(TEXT));
   }
 
   @Test
@@ -558,7 +557,7 @@ public class TikaInputTransformerTest {
     assertThat(
         metacard.getContentTypeName(),
         is("application/vnd.openxmlformats-officedocument.wordprocessingml.document"));
-    assertThat(metacard.getAttribute(Core.DATATYPE).getValue(), is(DOCUMENT));
+    assertThat(metacard.getAttribute(Core.DATATYPE).getValue(), is(TEXT));
   }
 
   @Test
@@ -575,7 +574,7 @@ public class TikaInputTransformerTest {
         metacard.getAttribute(Extracted.EXTRACTED_TEXT).getValue().toString(),
         containsString("Created with Microsoft"));
     assertThat(metacard.getContentTypeName(), is("application/vnd.ms-powerpoint"));
-    assertThat(metacard.getAttribute(Core.DATATYPE).getValue(), is(DOCUMENT));
+    assertThat(metacard.getAttribute(Core.DATATYPE).getValue(), is(TEXT));
   }
 
   @Test
@@ -594,7 +593,7 @@ public class TikaInputTransformerTest {
     assertThat(
         metacard.getContentTypeName(),
         is("application/vnd.openxmlformats-officedocument.presentationml.presentation"));
-    assertThat(metacard.getAttribute(Core.DATATYPE).getValue(), is(DOCUMENT));
+    assertThat(metacard.getAttribute(Core.DATATYPE).getValue(), is(TEXT));
   }
 
   @Test
@@ -621,7 +620,7 @@ public class TikaInputTransformerTest {
         metacard.getAttribute(Extracted.EXTRACTED_TEXT).getValue().toString(),
         containsString("Written and saved in Microsoft Excel X for Mac Service Release 1."));
     assertThat(metacard.getContentTypeName(), is("application/vnd.ms-excel"));
-    assertThat(metacard.getAttribute(Core.DATATYPE).getValue(), is(DOCUMENT));
+    assertThat(metacard.getAttribute(Core.DATATYPE).getValue(), is(TEXT));
   }
 
   @Test
@@ -640,7 +639,7 @@ public class TikaInputTransformerTest {
     assertThat(
         metacard.getContentTypeName(),
         is("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
-    assertThat(metacard.getAttribute(Core.DATATYPE).getValue(), is(DOCUMENT));
+    assertThat(metacard.getAttribute(Core.DATATYPE).getValue(), is(TEXT));
   }
 
   @Test
@@ -699,7 +698,7 @@ public class TikaInputTransformerTest {
 
     // Reset timezone back to local time zone.
     TimeZone.setDefault(defaultTimeZone);
-    assertThat(metacard.getAttribute(Core.DATATYPE).getValue(), is(DOCUMENT));
+    assertThat(metacard.getAttribute(Core.DATATYPE).getValue(), is(TEXT));
   }
 
   @Test
@@ -714,7 +713,7 @@ public class TikaInputTransformerTest {
         metacard.getMetadata(),
         containsString(
             "<meta name=\"Content-Type\" content=\"application/vnd.ms-visio.drawing\" />"));
-    assertThat(metacard.getAttribute(Core.DATATYPE).getValue(), is(DOCUMENT));
+    assertThat(metacard.getAttribute(Core.DATATYPE).getValue(), is(TEXT));
   }
 
   @Test
