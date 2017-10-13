@@ -608,26 +608,7 @@ public abstract class AbstractIntegrationTest {
         // avoid integration tests stealing focus on OS X
         vmOption("-Djava.awt.headless=true"),
         vmOption("-Dfile.encoding=UTF8"),
-        vmOption("-Djava.security.policy==security/default.policy"),
-        vmOption(
-            "-DproGrade.getPermissions.override=sun.rmi.server.LoaderHandler:loadClass,org.apache.jasper.compiler.JspRuntimeContext:initSecurity"),
-        vmOption("-Dpolicy.provider=net.sourceforge.prograde.policy.ProGradePolicy"),
-        HomeAwareVmOption.homeAwareVmOption("-Dddf.home={karaf.home}"),
-        HomeAwareVmOption.homeAwareVmOption(ddfHomePolicyPath),
-        when(Boolean.getBoolean("generatePolicyFile")).useOptions(generatorSecurityManager()),
-        when(!Boolean.getBoolean("generatePolicyFile")).useOptions(standardSecurityManager()));
-  }
-
-  private Option[] generatorSecurityManager() {
-    return options(
-        HomeAwareVmOption.homeAwareVmOption(
-            "-Dprograde.generated.policy={karaf.home}/generated.policy"),
-        vmOption("-Dprograde.use.own.policy=true"),
-        vmOption("-Djava.security.manager=net.sourceforge.prograde.sm.PolicyFileGeneratorJSM"));
-  }
-
-  private Option[] standardSecurityManager() {
-    return options(vmOption("-Djava.security.manager=net.sourceforge.prograde.sm.ProGradeJSM"));
+        HomeAwareVmOption.homeAwareVmOption("-Dddf.home={karaf.home}"));
   }
 
   protected Option[] configureStartScript() {
