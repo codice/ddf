@@ -330,7 +330,9 @@ public class ImportMigrationContextImplTest extends AbstractMigrationTest {
 
     Assert.assertThat(dir2.toFile().exists(), Matchers.equalTo(true));
     Assert.assertThat(path2.toFile().exists(), Matchers.equalTo(false));
-    Assert.assertThat(dir.toFile().exists(), Matchers.equalTo(false));
+    // because we are temporarly not deleting sub-sirectories when cleaning, it should still exist
+    // Assert.assertThat(dir.toFile().exists(), Matchers.equalTo(false));
+    Assert.assertThat(dir.toFile().exists(), Matchers.equalTo(true));
     Assert.assertThat(path.toFile().exists(), Matchers.equalTo(false));
   }
 
