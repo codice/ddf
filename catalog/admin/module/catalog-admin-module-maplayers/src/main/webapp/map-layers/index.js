@@ -279,7 +279,7 @@ const ProviderEditor = ({ provider, onUpdate, buffer, onEdit, error = Map() }) =
             </div> : null,
           <div key='ace' style={{ margin: '0 15px' }}>
             <Error errorText={
-              ['buffer', 'proxyEnabled', 'order', 'show', 'allowRedirects']
+              ['buffer', 'proxyEnabled', 'order', 'show', 'withCredentials']
               .map((key) => error.get(key))
               .filter((msg) => msg !== undefined)[0]
             }>

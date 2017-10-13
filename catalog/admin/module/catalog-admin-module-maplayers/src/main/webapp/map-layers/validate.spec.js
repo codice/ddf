@@ -169,19 +169,19 @@ describe('validate providers', () => {
       })
     })
   })
-  describe('allowRedirects', () => {
+  describe('withCredentials', () => {
     it('should be a valid trusted value', () => {
       const values = [true, false]
-      values.forEach((allowRedirects) => {
-        const providers = fromJS([{ layer: { allowRedirects } }])
-        expect(validate(providers).getIn([0, 'allowRedirects'])).to.equal(undefined)
+      values.forEach((withCredentials) => {
+        const providers = fromJS([{ layer: { withCredentials } }])
+        expect(validate(providers).getIn([0, 'withCredentials'])).to.equal(undefined)
       })
     })
     it('should not be a valid trusted value', () => {
       const values = ['hello', undefined, null]
-      values.forEach((allowRedirects) => {
-        const providers = fromJS([{ layer: { allowRedirects } }])
-        expect(validate(providers).getIn([0, 'allowRedirects'])).to.not.equal(undefined)
+      values.forEach((withCredentials) => {
+        const providers = fromJS([{ layer: { withCredentials } }])
+        expect(validate(providers).getIn([0, 'withCredentials'])).to.not.equal(undefined)
       })
     })
   })

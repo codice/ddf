@@ -234,10 +234,10 @@ export const validate = (providers) => {
       }
     }
 
-    const redirects = layer.get('allowRedirects')
+    const redirects = layer.get('withCredentials')
 
     if (typeof redirects !== 'boolean') {
-      errors = errors.setIn([i, 'allowRedirects'], 'Allow redirects must be true or false')
+      errors = errors.setIn([i, 'withCredentials'], 'With credentials must be true or false')
     }
   })
 
@@ -251,7 +251,7 @@ const emptyProvider = (index) => {
     type: '',
     alpha: '',
     proxyEnabled: true,
-    allowRedirects: false,
+    withCredentials: false,
     show: true,
     parameters: {
       transparent: false,
