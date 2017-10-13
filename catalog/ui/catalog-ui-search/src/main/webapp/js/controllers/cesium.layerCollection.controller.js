@@ -61,8 +61,11 @@ define(['underscore',
 
                 var provider = new type(initObj);
 
-                /* Optionally add this provider as a TrustedServer to allow redirects */
-                if (model.get('allowRedirects')) {
+                /*
+                  Optionally add this provider as a TrustedServer. This sets withCredentials = true
+                  on the XmlHttpRequests for CORS.
+                 */
+                if (model.get('withCredentials')) {
                   var parsedUrl = new URL(provider.url);
                   var port = parsedUrl.port;
                   if (!port) {

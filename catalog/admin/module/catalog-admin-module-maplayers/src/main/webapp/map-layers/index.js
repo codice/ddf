@@ -82,6 +82,7 @@ const Title = muiThemeable()(({ children, muiTheme }) => (
 
 const DeleteIconThemed = muiThemeable()(({ muiTheme }) => (
   <DeleteIcon style={{ color: muiTheme.palette.errorColor }} />
+))
 
 const Warning = muiThemeable()(({ children, muiTheme }) => (
   <Flexbox style={{ color: muiTheme.palette.warningColor }} alignItems='center'>
@@ -163,17 +164,17 @@ const ProviderEditor = ({ provider, onUpdate, buffer, onEdit, error = Map() }) =
     </div>
     <div style={{ padding: '0 16px' }}>
       <Flexbox flex='1'>
-        <Flexbox width='200px'>
+        <Flexbox width='250px'>
           <Checkbox
-            label='Allow Redirects'
-            checked={bool(provider.get('allowRedirects'))}
+            label='Use Stored Credentials'
+            checked={bool(provider.get('withCredentials'))}
             onCheck={(e, value) => {
-              onUpdate(value, 'allowRedirects')
+              onUpdate(value, 'withCredentials')
             }} />
         </Flexbox>
         <Flexbox flex='1'>
-          {bool(provider.get('allowRedirects'))
-            ? <Warning>STOP</Warning>
+          {bool(provider.get('withCredentials'))
+            ? <Warning>Requests will fail if the server is not configured to use CORS</Warning>
             : null}
         </Flexbox>
       </Flexbox>
