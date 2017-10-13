@@ -58,8 +58,8 @@
 
                 <!--
                 Skipping customized libraries.
-                -->
                 <exclude>**/org/apache/aries/blueprint/org.apache.aries.blueprint.core/1.8.2/org.apache.aries.blueprint.core-1.8.2.jar</exclude>
+                -->
 
                 <!-- excluding jars we don't need that have OWASP vulnerabilities -->
                 <!--
@@ -245,6 +245,7 @@
         </fileSet>
 
         <!-- Custom library overrides -->
+        <!--
         <fileSet>
             <directory>${setup.folder}/libraryOverrides</directory>
             <outputDirectory>
@@ -254,7 +255,7 @@
                 <include>org.apache.aries.blueprint.core-1.8.2.jar</include>
             </includes>
         </fileSet>
-
+        -->
     </fileSets>
 
     <!-- We need this because the feature service is not up when we want to provision our

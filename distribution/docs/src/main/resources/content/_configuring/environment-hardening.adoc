@@ -65,8 +65,10 @@ By definition, all connections over SSH will be authenticated and authorized and
 [WARNING]
 ====
 Enabling SSH will expose your file system such that any user with access to your ${branding} shell will
-have read/write access to all directories and files accessible to your installation user. It is not
-recommended in a secure environment.
+have read/write/execute access to all directories and files accessible to your installation user.
+
+*Because of this, SSH is not recommended in a secure environment and should be turned off
+in a fully hardened system.*
 ====
 
 Set `karaf.shutdown.port=-1` in `<${branding}_HOME>/etc/custom.properties` or `<${branding}_HOME>/etc/config.properties`.
