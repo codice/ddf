@@ -38,8 +38,8 @@ These are the system/environment requirements to configure _prior_ to an install
 |*Recommended*
 
 |Operating System
-|Windows Server 2012, Linux CentOS 5, Mac OS X 10.9 Mavericks
-|Windows 10, Linux CentOS 7.3. macOS Sierra 10.12
+|Windows 10, Linux CentOS 5
+|Windows Server 2012, Linux CentOS 7.3
 
 |Additional Software
 |JDK 8, IE 10
@@ -59,7 +59,7 @@ These are the system/environment requirements to configure _prior_ to an install
 
 |Video Card
 |WebGL capable GPU
-|
+|WebGL capable GPU
 
 |===
 *These requirements assume the use of a remote catalog. Extra resources will need to be allocated if the system will also be hosting a local catalog.
