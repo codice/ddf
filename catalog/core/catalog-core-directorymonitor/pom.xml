@@ -326,8 +326,7 @@
                             hazelcast,
                             sardine,
                             httpclient,
-                            httpcore,
-                            commons-io
+                            httpcore
                         </Embed-Dependency>
                         <Import-Package>
                             !org.eclipse.jetty.server.bio,

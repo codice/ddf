@@ -21,7 +21,6 @@ import java.nio.file.Path;
 import java.nio.file.WatchEvent;
 import java.util.List;
 import javax.validation.constraints.NotNull;
-import org.apache.camel.Component;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
@@ -39,11 +38,15 @@ public abstract class AbstractDurableFileConsumer extends GenericFileConsumer<Ev
 
   FileSystemPersistenceProvider fileSystemPersistenceProvider;
 
+  String remaining;
+
   AbstractDurableFileConsumer(
       GenericFileEndpoint<EventfulFileWrapper> endpoint,
+      String remaining,
       Processor processor,
       GenericFileOperations<EventfulFileWrapper> operations) {
     super(endpoint, processor, operations);
+    this.remaining = remaining;
   }
 
   @Override
@@ -58,16 +61,12 @@ public abstract class AbstractDurableFileConsumer extends GenericFileConsumer<Ev
 
   @Override
   protected boolean pollDirectory(String fileName, List list, int depth) {
-    Component component = endpoint.getComponent();
-    String remaining;
-    if (component != null) {
-      remaining = ((DurableFileComponent) component).remaining;
-      if (remaining != null) {
-        String sha1 = DigestUtils.sha1Hex(remaining);
-        initialize(remaining, sha1);
-        return doPoll(sha1);
-      }
+    if (remaining != null) {
+      String sha1 = DigestUtils.sha1Hex(remaining);
+      initialize(remaining, sha1);
+      return doPoll(sha1);
     }
+
     return false;
   }
 
