@@ -37,7 +37,7 @@ public class TestGeocodingMbean {
 
   private GeoEntryIndexer geoEntryIndexer;
 
-  private static final String PATH = System.getProperty("user.dir") + "/src/test/resources/";
+  private static final String PATH = "/src/test/resources/";
 
   private static final String CONTENT_FILE = "0000-0000-0000-0000";
 
@@ -54,6 +54,7 @@ public class TestGeocodingMbean {
     geoEntryIndexer = Mockito.mock(GeoEntryIndexer.class);
     geocoding.setGeoEntryIndexer(geoEntryIndexer);
     geocoding.setGeoEntryExtractor(geoEntryExtractor);
+    System.setProperty("ddf.home", System.getProperty("user.dir"));
   }
 
   @Test
