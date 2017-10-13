@@ -50,9 +50,13 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.AccessControlException;
+import java.security.AccessController;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
+import java.security.Policy;
+import java.security.Provider;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1655,6 +1659,102 @@ public class TestSecurity extends AbstractIntegrationTest {
       configureRestForGuest(SDK_SOAP_CONTEXT);
       getSecurityPolicy().waitForGuestAuthReady(url);
       // metacard will be deleted in @After
+    }
+  }
+
+  @Test
+  public void testSecurityManagerPolicy() {
+    // TODO: tbatie - 10/12/1 - Because the security policy currently allows access to anything
+    // under ${user.home} there isn't an easy way to test file system access. Once the security
+    // policy does not wildcard everything under ${user.home} these tests cases can be added.
+    //
+    //
+    //      Path securityPolicyPath = Paths.get(System.getProperty("ddf.home"), "etc", "security",
+    // "default.policy");
+    //      Path root = Paths.get(System.getProperty("ddf.home")).getRoot();
+    //
+    //      try {
+    //          assertThat(Files.isWritable(securityPolicyPath), is(false));
+    //          fail("Should not have permission to write the security manager policy");
+    //      } catch (AccessControlException e) {
+    //      }
+    //
+    //      try {
+    //          assertThat(Files.isReadable(securityPolicyPath), is(false));
+    //          fail("hould not have permission to read the security manager policy");
+    //      } catch (AccessControlException e) {
+    //      }
+    //
+    //      try {
+    //          assertThat(Files.isExecutable(securityPolicyPath), is(false));
+    //          fail("Should not have permission to execute the security manager policy");
+    //      } catch (AccessControlException e) {
+    //      }
+    //
+    //      try {
+    //          securityPolicyPath.toFile().delete();
+    //          fail("Should not have permission to delete the security manager policy");
+    //      } catch (AccessControlException e) {
+    //      }
+    //
+    //      try {
+    //          assertThat(Files.isWritable(root), is(false));
+    //          fail("Should not have permission to write outside user.home");
+    //      } catch (AccessControlException e) {
+    //      }
+    //
+    //      try {
+    //          assertThat(Files.isReadable(root), is(false));
+    //          fail("Should not have permission to read outside user.home");
+    //      } catch (AccessControlException e) {
+    //      }
+    //
+    //      try {
+    //          assertThat(Files.isExecutable(root), is(false));
+    //          fail("Should not have permission to execute outside user.home");
+    //      } catch (AccessControlException e) {
+    //      }
+
+    try {
+      System.setSecurityManager(null);
+      fail("Should not have permissions to \"setSecurityManager\"");
+    } catch (AccessControlException e) {
+    }
+
+    try {
+      AccessController.getContext().getDomainCombiner();
+      fail("Should not have permissions to \"getDomainCombiner\"");
+    } catch (AccessControlException e) {
+    }
+
+    try {
+      Policy.setPolicy(null);
+      fail("Should not have permissions to \"setPolicy\"");
+    } catch (AccessControlException e) {
+    }
+
+    try {
+      java.security.Security.addProvider(new Provider("testProviderName", 0.0, null) {});
+      fail("Should not have permissions to \"insertProvider.*\"");
+    } catch (AccessControlException e) {
+    }
+
+    try {
+      java.security.Security.removeProvider("testing");
+      fail("Should not have permissions to \"removeProvider.*\"");
+    } catch (AccessControlException e) {
+    }
+
+    try {
+      java.security.Security.getProviders()[0].clear();
+      fail("Should not have permissions to \"clearProviderProperties.*\"");
+    } catch (AccessControlException e) {
+    }
+
+    try {
+      java.security.Security.getProviders()[0].remove("testProperty");
+      fail("Should not have permissions to \"removeProviderProperty.*\"");
+    } catch (AccessControlException e) {
     }
   }
 
