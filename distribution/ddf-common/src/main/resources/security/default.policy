@@ -207,10 +207,12 @@ grant {
     permission java.io.FilePermission "${ddf.home}${/}solr", "read, write";
     permission java.io.FilePermission "${ddf.home}${/}system", "read, write";
     permission java.io.FilePermission "${ddf.home}${/}workspace", "read, write";
+    permission java.io.FilePermission "${ddf.home}${/}content", "read, write";
 
     permission java.io.FilePermission "${ddf.home}${/}data${/}-", "read, write";
     permission java.io.FilePermission "${ddf.home}${/}instances${/}-", "read, write";
     permission java.io.FilePermission "${ddf.home}${/}solr${/}-", "read, write";
     permission java.io.FilePermission "${ddf.home}${/}system${/}-", "read, write";
     permission java.io.FilePermission "${ddf.home}${/}workspace${/}-", "read, write";
+    permission java.io.FilePermission "${ddf.home}${/}content${/}-", "read, write";
 };
