@@ -477,7 +477,7 @@ public class DeleteOperations {
 
     QueryImpl queryImpl =
         new QueryImpl(
-            queryOperations.getFilterWithAdditionalFilters(idFilters),
+            queryOperations.getFilterWithAdditionalFilters(idFilters, deleteRequest),
             1, /* start index */
             deleteRequest.getAttributeValues().size(), /* page size */
             null,
