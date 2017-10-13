@@ -13,21 +13,7 @@
  */
 package org.codice.ddf.security.certificate.generator;
 
-import java.lang.management.ManagementFactory;
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-public class CertificateGenerator implements CertificateGeneratorMBean {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(CertificateGenerator.class);
-
-  public CertificateGenerator() {
-    registerMbean();
-  }
+public class CertificateGenerator {
 
   /**
    * Generates new signed certificate. The hostname is used as the certificate's common name.
@@ -56,37 +42,5 @@ public class CertificateGenerator implements CertificateGeneratorMBean {
 
   public KeyStoreFile getKeyStoreFile() {
     return CertificateCommand.getKeyStoreFile();
-  }
-
-  protected void registerMbean() {
-    ObjectName objectName = null;
-    MBeanServer mBeanServer = null;
-
-    try {
-      objectName = new ObjectName(CertificateGenerator.class.getName() + ":service=certgenerator");
-      mBeanServer = ManagementFactory.getPlatformMBeanServer();
-    } catch (MalformedObjectNameException e) {
-      LOGGER.error("Unable to create Certificate Generator MBean.", e);
-    }
-
-    // TODO - Revert LOGGER.error
-    if (mBeanServer != null) {
-      try {
-        try {
-          mBeanServer.registerMBean(this, objectName);
-          LOGGER.error(
-              "Registered Certificate Generator MBean under object name: {}",
-              objectName.toString());
-        } catch (InstanceAlreadyExistsException e) {
-          LOGGER.error("Re-registered Certificate Generator MBean");
-        }
-      } catch (Exception e) {
-        // objectName is not always non-null because new ObjectName(...) can throw an exception
-        LOGGER.error(
-            "Could not register MBean [{}].",
-            objectName != null ? objectName.toString() : CertificateGenerator.class.getName(),
-            e);
-      }
-    }
   }
 }
