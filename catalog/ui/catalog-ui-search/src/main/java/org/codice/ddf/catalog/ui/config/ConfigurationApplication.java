@@ -116,29 +116,13 @@ public class ConfigurationApplication implements SparkApplication {
 
   private List<Long> scheduleFrequencyList;
 
-  private Map<String, Set<String>> typeNameMapping = new HashMap<String, Set<String>>();
+  private Map<String, Set<String>> typeNameMapping = new HashMap<>();
 
   private Boolean isExperimental = false;
 
   private Integer autoMergeTime = 1000;
 
   private String mapHome = "";
-
-  public List<Long> getScheduleFrequencyList() {
-    return scheduleFrequencyList;
-  }
-
-  public List<String> getSummaryShow() {
-    return summaryShow;
-  }
-
-  public List<String> getResultShow() {
-    return resultShow;
-  }
-
-  public List<String> getReadOnly() {
-    return readOnly;
-  }
 
   private ObjectMapper objectMapper =
       JsonFactory.create(
@@ -155,6 +139,49 @@ public class ConfigurationApplication implements SparkApplication {
   private String queryFeedbackEmailDestination;
 
   private int maximumUploadSize = 1_048_576;
+
+  private List<String> readOnly =
+      ImmutableList.of(
+          "checksum",
+          "checksum-algorithm",
+          "id",
+          "metadata",
+          "source-id",
+          "^metacard\\.",
+          "^version\\.",
+          "^validation\\.");
+
+  private List<String> summaryShow = Collections.emptyList();
+
+  private List<String> resultShow = Collections.emptyList();
+
+  private Map<String, String> attributeAliases = Collections.emptyMap();
+
+  private List<String> hiddenAttributes = Collections.emptyList();
+
+  private Map<String, String> attributeDescriptions = Collections.emptyMap();
+
+  private int sourcePollInterval = 60000;
+
+  private String uiName;
+
+  public ConfigurationApplication() {}
+
+  public List<Long> getScheduleFrequencyList() {
+    return scheduleFrequencyList;
+  }
+
+  public List<String> getSummaryShow() {
+    return summaryShow;
+  }
+
+  public List<String> getResultShow() {
+    return resultShow;
+  }
+
+  public List<String> getReadOnly() {
+    return readOnly;
+  }
 
   public List<String> getAttributeAliases() {
     return attributeAliases
@@ -212,29 +239,6 @@ public class ConfigurationApplication implements SparkApplication {
     this.attributeDescriptions = parseAttributeAndValuePairs(attributeDescriptions);
   }
 
-  private List<String> readOnly =
-      ImmutableList.of(
-          "checksum",
-          "checksum-algorithm",
-          "id",
-          "metadata",
-          "source-id",
-          "^metacard\\.",
-          "^version\\.",
-          "^validation\\.");
-
-  private List<String> summaryShow = Collections.emptyList();
-
-  private List<String> resultShow = Collections.emptyList();
-
-  private Map<String, String> attributeAliases = Collections.emptyMap();
-
-  private List<String> hiddenAttributes = Collections.emptyList();
-
-  private Map<String, String> attributeDescriptions = Collections.emptyMap();
-
-  private int sourcePollInterval = 60000;
-
   public void setSourcePollInterval(int sourcePollInterval) {
     this.sourcePollInterval = sourcePollInterval;
   }
@@ -242,8 +246,6 @@ public class ConfigurationApplication implements SparkApplication {
   public int getSourcePollInterval() {
     return sourcePollInterval;
   }
-
-  public ConfigurationApplication() {}
 
   public void destroy() {
     stopImageryEndpoints(imageryEndpoints);
@@ -342,6 +344,7 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("isExperimental", isExperimental);
     config.put("autoMergeTime", autoMergeTime);
     config.put("mapHome", mapHome);
+    config.put("product", uiName);
 
     return config;
   }
@@ -773,6 +776,14 @@ public class ConfigurationApplication implements SparkApplication {
 
   public void setQueryFeedbackEmailDestination(String queryFeedbackEmailDestination) {
     this.queryFeedbackEmailDestination = queryFeedbackEmailDestination;
+  }
+
+  public String getUiName() {
+    return uiName;
+  }
+
+  public void setUiName(String uiName) {
+    this.uiName = uiName;
   }
 
   public String getSpacingMode() {

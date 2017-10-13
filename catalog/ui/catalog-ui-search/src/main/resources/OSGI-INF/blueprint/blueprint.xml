@@ -54,6 +54,7 @@
         <cm:managed-properties
                 persistent-id="org.codice.ddf.catalog.ui.config"
                 update-strategy="container-managed"/>
+        <property name="uiName" value="Intrigue"/>
         <property name="branding" ref="webBranding"/>
         <property name="httpProxy" ref="httpProxyService"/>
     </bean>

@@ -74,6 +74,7 @@ define([
     });
 
     Application.App.loadingRegion.$el.find('.welcome-branding').text(properties.branding);
+    Application.App.loadingRegion.$el.find('.welcome-branding-name').text(properties.product);
     Application.App.loadingRegion.$el.addClass('show-welcome');
 
     //load all modules
