@@ -32,7 +32,8 @@
             <property name="groupBaseDn" value="ou=groups,dc=example,dc=com"/>
             <property name="startTls" value="false"/>
             <property name="ldapService" ref="ldapService"/>
-            <property name="userNameAttribute" value="uid"/>
+            <property name="loginUserAttribute" value="uid"/>
+            <property name="membershipUserAttribute" value="uid"/>
             <cm:managed-properties persistent-id=""
                                    update-strategy="component-managed" update-method="update"/>
         </cm:managed-component>
