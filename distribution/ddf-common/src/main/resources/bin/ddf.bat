@@ -1,4 +1,9 @@
 @echo off
 setlocal
 
-call "%~dp0%"karaf.bat
+set ARGS=%*
+set DIRNAME=%~dp0%
+
+# Actually invoke ddf to gain restart support
+call "%DIRNAME%/karaf.bat" %ARGS%
+
