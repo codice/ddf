@@ -61,6 +61,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import javax.ws.rs.core.HttpHeaders;
@@ -84,6 +85,8 @@ import org.osgi.framework.InvalidSyntaxException;
  * @author ddf.isgs@lmco.com
  */
 public class TestOpenSearchSource {
+
+  private static final String SOURCE_ID = "TEST-OS";
 
   private static final String RESOURCE_TAG = "Resource";
 
@@ -384,6 +387,7 @@ public class TestOpenSearchSource {
     SecureCxfClientFactory factory = getMockFactory(webClient);
 
     source = new OverriddenOpenSearchSource(FILTER_ADAPTER, encryptionService);
+    source.setShortname(SOURCE_ID);
     source.setInputTransformer(getMockInputTransformer());
     source.setEndpointUrl("http://localhost:8181/services/catalog/query");
     source.init();
@@ -713,7 +717,7 @@ public class TestOpenSearchSource {
 
     Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT).like().text(SAMPLE_SEARCH_PHRASE);
 
-    source.query(new QueryRequestImpl(new QueryImpl(filter)));
+    SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
 
     assertThat(foreignMarkupConsumer.getTotalResults(), is(1L));
   }
@@ -731,7 +735,7 @@ public class TestOpenSearchSource {
 
     Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT).like().text(SAMPLE_SEARCH_PHRASE);
 
-    source.query(new QueryRequestImpl(new QueryImpl(filter)));
+    SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
 
     ArgumentCaptor<List> elementListCaptor = ArgumentCaptor.forClass(List.class);
 
@@ -748,6 +752,34 @@ public class TestOpenSearchSource {
             .collect(Collectors.toList());
 
     assertThat(names, is(Arrays.asList("totalResults", "itemsPerPage", "startIndex")));
+  }
+
+  @Test
+  public void testSourceId() throws UnsupportedQueryException, IOException {
+
+    BiConsumer<List<Element>, SourceResponse> foreignMarkupConsumer = mock(BiConsumer.class);
+
+    source.setForeignMarkupBiConsumer(foreignMarkupConsumer);
+
+    source.setMarkUpSet(Collections.singletonList(RESOURCE_TAG));
+    when(response.getEntity()).thenReturn(getSampleAtomStreamWithForeignMarkup());
+
+    Filter filter = filterBuilder.attribute(Metacard.ANY_TEXT).like().text(SAMPLE_SEARCH_PHRASE);
+
+    SourceResponse response = source.query(new QueryRequestImpl(new QueryImpl(filter)));
+    assertSourceId(response);
+  }
+
+  private void assertSourceId(SourceResponse sourceResponse) {
+    if (sourceResponse != null && sourceResponse.getResults() != null) {
+      sourceResponse
+          .getResults()
+          .stream()
+          .filter(Objects::nonNull)
+          .map(Result::getMetacard)
+          .filter(Objects::nonNull)
+          .forEach(metacard -> assertThat(metacard.getSourceId(), is(SOURCE_ID)));
+    }
   }
 
   protected SecureCxfClientFactory getMockFactory(WebClient client) {

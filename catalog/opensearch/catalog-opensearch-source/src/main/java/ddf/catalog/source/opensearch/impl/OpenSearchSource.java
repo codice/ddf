@@ -64,6 +64,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import javax.ws.rs.core.Response;
@@ -374,9 +375,25 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
       }
     }
 
+    setSourceId(response);
+
     LOGGER.trace(methodName);
 
     return response;
+  }
+
+  /** Set the source-id on every metacard this is missing a source-id. */
+  private void setSourceId(SourceResponse sourceResponse) {
+    if (sourceResponse != null && sourceResponse.getResults() != null) {
+      sourceResponse
+          .getResults()
+          .stream()
+          .filter(Objects::nonNull)
+          .map(Result::getMetacard)
+          .filter(Objects::nonNull)
+          .filter(metacard -> StringUtils.isBlank(metacard.getSourceId()))
+          .forEach(metacard -> metacard.setSourceId(getId()));
+    }
   }
 
   /**
@@ -546,7 +563,6 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
     List<Metacard> metacards = new ArrayList<>();
     List<Element> foreignMarkup = entry.getForeignMarkup();
     String relevance = "";
-    String source = "";
 
     for (Element element : foreignMarkup) {
       if (element.getName().equals("score")) {
@@ -563,9 +579,6 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
         String title = metacard.getTitle();
         if (StringUtils.isEmpty(title)) {
           metacard.setAttribute(new AttributeImpl(Core.TITLE, entry.getTitle()));
-        }
-        if (!source.isEmpty()) {
-          metacard.setSourceId(source);
         }
         metacards.add(metacard);
       }
