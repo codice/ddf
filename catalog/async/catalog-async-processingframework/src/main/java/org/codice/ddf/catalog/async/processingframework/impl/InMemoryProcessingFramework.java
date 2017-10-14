@@ -30,6 +30,7 @@ import ddf.catalog.source.SourceUnavailableException;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -217,9 +218,9 @@ public class InMemoryProcessingFramework implements ProcessingFramework {
           && processResource.isModified()
           && !contentItemsToUpdate.containsKey(
               getContentItemKey(item.getMetacard(), processResource))) {
-        try {
+        try (final InputStream prInputStream = processResource.getInputStream()) {
           tfbos = new TemporaryFileBackedOutputStream();
-          long numberOfBytes = IOUtils.copyLarge(processResource.getInputStream(), tfbos);
+          long numberOfBytes = IOUtils.copyLarge(prInputStream, tfbos);
           LOGGER.debug("Copied {} bytes to TemporaryFileBackedOutputStream.", numberOfBytes);
           ByteSource byteSource = tfbos.asByteSource();
 
