@@ -6,10 +6,20 @@
 :order: 00
 :summary: ${ddf-admin} whitelist.
 
-The following packages have been exported by the ${ddf-admin} application and are approved for use by third parties:
+The following classes have been exported by the ${ddf-admin} application and are approved for use by third parties:
 
-* `org.codice.ddf.ui.admin.api.module`
-* `org.codice.ddf.ui.admin.api.plugin`
-* `org.codice.ddf.admin.configuration.plugin`
-* `org.codice.ddf.admin.application.service`
-* `org.codice.ddf.admin.application.plugin`
+In package `org.codice.ddf.ui.admin.api.module`
+
+* `AdminModule`
+
+In package `org.codice.ddf.admin.application.service`
+
+* `Application`
+* `ApplicationNode`
+* `ApplicationService`
+* `ApplicationStatus`
+* `ApplicationServiceException`
+
+In package `org.codice.ddf.admin.application.plugin`
+
+* `ApplicationPlugin`
