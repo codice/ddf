@@ -29,6 +29,12 @@ The system administrator must restrict certain directories to ensure that the ap
 For example the `${branding}_USER` should have read-only access to `<${branding}_HOME>`, except for the sub-directories `etc`, `data`, `solr` and `instances`.
 ====
 
+.File Location Security Warning
+[WARNING]
+====
+To avoid file permission problems, it is not recommended to install ${branding} in the user's home directory or a subdirectory of home.
+====
+
 .Setting Directory Permissions on Windows
 ****
 Set directory permissions on the `<${branding}_HOME>`; all sub-directories except `etc`, `data`, and `instances`; and any directory intended to interact with the ${branding} to protect from unauthorized access.

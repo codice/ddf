@@ -35,7 +35,7 @@ or `doIncompatibleImport()` methods based on whether the recorded version string
 The services that implement the migratable interface will be called one at a time based on their service ranking order, and do not need to be thread safe.
 A bundle or a feature can have as many services implementing the interfaces as needed.
 
-==== The Migration API Interfaces and Classes
+=== The Migration API Interfaces and Classes
 
 . `org.codice.ddf.migration.Migratable`
 . `org.codice.ddf.migration.MigrationContext`
@@ -52,7 +52,7 @@ A bundle or a feature can have as many services implementing the interfaces as n
 . `org.codice.ddf.migration.MigrationInformation`
 . `org.codice.ddf.migration.MigrationSuccessfulInformation`
 
-===== `Migratable`
+==== `Migratable`
 
 The contract for a migratable is stored here. This is the only interface that should be implemented by implementers and registered as an OSGi
 service. All other interfaces will be implemented by the migration API that provides support for migratables.
@@ -88,6 +88,7 @@ In order to create a `Migratable` for a module of the system, the `org.codice.dd
 Creating an OSGi service allows for the migration API to lookup all implementations of `org.codice.ddf.migration.Migratable` and command them to export or import.
 
 ===== `MigrationContext`
+
 The `org.codice.ddf.migration.MigrationContext` provides contextual information about an operation in progress for a given migratable. This is a sort of sandbox that is unique to each migratable. This interface defines the following methods:
 
 - `MigrationReport getReport()`
@@ -97,6 +98,7 @@ The `getReport()` method returns a migration report that can be used to record m
 The `getId()` method returns the identifier for the currently processing migratable.
 
 ===== `ExportMigrationContext`
+
 The export migration context provides methods for creating new migration entries and system property referenced migration entries to track exported migration files for a given migratable
 while processing an export migration operation. It defines the following methods:
 
@@ -114,6 +116,7 @@ Once an entry is created, it is not stored with the exported data. It is the mig
 Entries are uniquely identified using a relative path and are specific to each migratable meaning that an entry with the same path in two migratables will not conflict with each other. Each migratable is given its own context (a.k.a. sandbox) to work with.
 
 ===== `ImportMigrationContext`
+
 The import migration context provides methods for retrieving migration entries and system property referenced migration entries corresponding to exported files for a given migratable
 while processing an import migration operation. It defines the following methods:
 
@@ -132,6 +135,7 @@ Once an entry is retrieved, its exported data is not restored. It is the migrata
 Entries are uniquely identified using a relative path and are specific to each migratable meaning that an entry with the same path in two migratables will not conflict with each other. Each migratable is given its own context (a.k.a. sandbox) to work with.
 
 ===== `MigrationEntry`
+
 This interface provides supports for exported files. It defines the following methods:
 
 - `MigrationReport getReport()`
@@ -147,6 +151,7 @@ The `getPath()` method provides the unique path to the corresponding file for th
 The `getLastModifiedTime()` method provides the last modification time for the corresponding file as available when the file is exported.
 
 ===== `ExportMigrationEntry`
+
 The export migration entry provides additional methods available for entries created at export time. It defines the following methods:
 
 - `Optional<ExportMigrationEntry> getPropertyReferencedEntry(String name)`
@@ -162,6 +167,7 @@ The `store(BiThrowingConsumer<MigrationReport, OutputStream, IOException> consum
 The `OutputStream getOutputStream()` method provides access to the low-level output stream where the migratable can write data directly as opposed to having a file on disk copied automatically.
 
 ===== `ImportMigrationEntry`
+
 The import migration entry provides additional methods available for entries retrieved at import time. It defines the following methods:
 
 - `Optional<ImportMigrationEntry> getPropertyReferencedEntry(String name)`
@@ -176,9 +182,11 @@ The `restore(BiThrowingConsumer<MigrationReport, Optional<InputStream>, IOExcept
 The `Optional<InputStream> getInputStream()` method provides access to the optional low-level input stream (empty if the data was not exported) where the migratable can read data directly as opposed to having a file on disk created or updated automatically.
 
 ===== `MigrationOperation`
+
 The `org.codice.ddf.migration.MigrationOperation` provides a simple enumeration for identifying the various migration operations available.
 
 ===== `MigrationReport`
+
 The `org.codice.ddf.migration.MigrationReport` interface provides information about the execution of a migration operation. It defines the following methods:
 
 - `MigrationOperation getOperation()`
@@ -218,13 +226,15 @@ The `hasErrors()` method will return true if at least one error message has been
 The `verifyCompletion() method will verify if the report is successful and if not, it will throw back the first recorded exception and attach as suppressed exceptions all other recorded exceptions.
 
 ===== `MigrationMessage`
-The `org.codice.ddf.migration.MigrationException is defined as a base class for all recordable messages during migration operations. It defines the following methods:
+
+The `org.codice.ddf.migration.MigrationException` is defined as a base class for all recordable messages during migration operations. It defines the following methods:
 
 - `String getMessage()`
 
 The `getMessage()` method provides a message for the corresponding exception, warning, or info that will be displayed to the administrator on the console.
 
 ===== `MigrationException`
+
 An `org.codice.ddf.migration.MigrationException` should be thrown when an unrecoverable exception occurs that prevents the export or the import operation from continuing. It is also possible to simply record one or many exception(s) with the migration report in order to fail the export or import operation
 while not aborting it right away. This provides for the ability to record as many errors as possible and report all of them back to the administrator. All migration exception messages are displayed to the administrator.
 

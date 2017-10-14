@@ -1,0 +1,10 @@
+:title: Setting Security Manager Policies
+:type: configuration
+:status: published
+:parent: Configuring Security Policies
+:summary: Setting security manager policies.
+:order: 02
+
+== {title}
+
+For more information about editing the policy file provided by the Java Security Manager included in ${branding} see the https://github.com/codice/pro-grade[Pro-Grade documentation].
