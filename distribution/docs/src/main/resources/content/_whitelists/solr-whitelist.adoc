@@ -1,11 +1,11 @@
-:title: ${ddf-registry} Whitelist
+:title: ${ddf-solr} Whitelist
 :type: appendix
 :parent: Application Whitelists
 :children: none
 :status: published
 :order: 05
-:summary: ${ddf-registry} whitelist.
+:summary: ${ddf-solr} whitelist.
 
-The following packages have been exported by the ${ddf-solr} application and are approved for use by third parties:
+The following classes have been exported by the ${ddf-solr} application and are approved for use by third parties:
 
 None.

@@ -17,8 +17,11 @@ import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 
 /**
- * Extends the policy of the Java PDP realm. These objects can provide additional policy information
- * that cannot be captured through the standard match-all or match-one scenarios.
+ * <b> This code is experimental. While this interface is functional and tested, it may change or be
+ * removed in a future version of the library. </b>
+ *
+ * <p>Extends the policy of the Java PDP realm. These objects can provide additional policy
+ * information that cannot be captured through the standard match-all or match-one scenarios.
  */
 public interface PolicyExtension {
 
