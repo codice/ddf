@@ -135,8 +135,8 @@
             <id>webpack dev</id>
             <activation>
                 <property>
-                    <name>skipStatic</name>
-                    <value>true</value>
+                    <name>webBuildEnv</name>
+                    <value>dev</value>
                 </property>
             </activation>
             <properties>

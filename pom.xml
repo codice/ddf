@@ -128,6 +128,7 @@
         <pax.cdi.version>0.12.0</pax.cdi.version>
         <validation.version>1.1.0.Final</validation.version>
         <commons-configuration.version>1.10</commons-configuration.version>
+        <commons-csv.version>1.4</commons-csv.version>
         <commons.fileupload.version>1.3.2</commons.fileupload.version>
         <logback.version>1.2.3</logback.version>
         <logback.classic.version>1.2.3</logback.classic.version>
@@ -227,15 +228,13 @@
         <apache.shiro.version>1.3.2</apache.shiro.version>
         <spark.version>2.5.5</spark.version>
         <sardine.version>5.7</sardine.version>
+        <xerces.version>2.11.0</xerces.version>
 
         <!-- gitflow-incremental-builder -->
         <!-- See https://github.com/vackosar/gitflow-incremental-builder for a list of all the options -->
         <gib.referenceBranch>refs/remotes/origin/master</gib.referenceBranch>
         <gib.baseBranch>HEAD</gib.baseBranch>
         <gib.enabled>false</gib.enabled>
-        <commons-lang3.version>3.4</commons-lang3.version>
-        <commons-csv.version>1.4</commons-csv.version>
-        <xerces.version>2.11.0</xerces.version>
     </properties>
     <!--
     NOTE: The properties ddf.scm.connection.url, snapshots.repository.url and releases.repository.url should be defined
@@ -301,7 +300,7 @@
             <extension>
                 <groupId>com.vackosar.gitflowincrementalbuilder</groupId>
                 <artifactId>gitflow-incremental-builder</artifactId>
-                <version>3.1</version>
+                <version>3.3</version>
             </extension>
         </extensions>
         <pluginManagement>
