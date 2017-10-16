@@ -41,8 +41,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons-lang3.version}</version>
         </dependency>
         <dependency>
             <groupId>net.jodah</groupId>
@@ -326,7 +327,8 @@
                             hazelcast,
                             sardine,
                             httpclient,
-                            httpcore
+                            httpcore,
+                            commons-lang3
                         </Embed-Dependency>
                         <Import-Package>
                             !org.eclipse.jetty.server.bio,
