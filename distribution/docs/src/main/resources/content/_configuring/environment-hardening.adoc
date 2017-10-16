@@ -1,10 +1,10 @@
 :title: Environment Hardening
-:type: configuringOther
+:type: configuringIntro
 :status: published
 :summary: Environment security mitigations.
-:order: 00
+:order: 09
 
-==== Environment Hardening
+== {title}
 
 * *{hardening-step}*
 

@@ -1,0 +1,17 @@
+:title: Configuring HTTP Port
+:type: configuration
+:status: published
+:parent: Configuring Federation
+:summary: Configure HTTP Port
+:order: 01
+
+== {title}
+
+[IMPORTANT]
+====
+Do not use the ${admin-console} to change the HTTP port.
+While the ${admin-console}'s Pax Web Runtime offers this configuration option, it has proven to be unreliable and may crash the system.
+Use the ${command-console} instead.
+====
+
+// TODO: https://codice.atlassian.net/browse/DDF-3347 Update changing HTTP port instructions.

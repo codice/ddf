@@ -1,8 +1,11 @@
-:title: Hardening Intro
-:type: configuringIntro
+:title: Security Hardening
+:type: configuration
 :status: published
 :summary: Introduction to Hardening.
-:order: 03
+:parent: Securing
+:order: 00
+
+== {title}
 
 .Security Hardening
 ****

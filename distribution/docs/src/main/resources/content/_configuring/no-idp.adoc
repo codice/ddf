@@ -1,0 +1,11 @@
+:title: Configuring Without an IdP
+:type: subConfiguration
+:status: draft
+:parent: Configuring REST Services for Users
+:summary: Configuring without an IdP.
+:order: 02
+////
+== {title}
+
+TODO: https://codice.atlassian.net/browse/DDF-3351 - Update documentation for Configuring User Access section
+////

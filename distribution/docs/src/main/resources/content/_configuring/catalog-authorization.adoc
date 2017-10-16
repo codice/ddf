@@ -1,14 +1,15 @@
-:title: Configuring Catalog Operation Authorization
-:type: configuringAdminConsole
+:title: Catalog Operation Authorization
+:type: configuration
 :status: published
-:summary: Configuring Catalog operation authorization.
-:order: 17
+:parent: Configuring Security Polices
+:order: 01
+:summary: Catalog operation authorization.
 
-==== Configuring Catalog Operation Authorization
+== {title}
 
 All ${branding} Catalog operations can be restricted to users with certain attributes.
 
-===== Configuring Operation Authorization
+=== Configuring Catalog Operation Authorization
 
 . Navigate to the *${admin-console}*.
 . Select the *${ddf-catalog}* application.

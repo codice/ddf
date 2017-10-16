@@ -1,8 +1,11 @@
-:title: Securing Intro
+:title: Securing
 :type: configuringIntro
 :status: published
 :summary: Introduction to security configurations.
-:order: 02
+:parent: Configuring
+:order: 03
+
+== {title}
 
 Security is an important consideration for ${branding}, so it is imperative to update configurations away from the defaults to unique, secure settings.
 

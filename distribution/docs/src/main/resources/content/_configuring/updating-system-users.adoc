@@ -1,10 +1,11 @@
 :title: Updating System Users
-:type: configuringConfigFile
+:type: configuration
 :status: published
 :summary: Updating system users.
-:order: 02
+:parent: Configuring User Access
+:order: 04
 
-==== Updating System Users
+== {title}
 
 By default, all system users are located in the `<DDF_INSTALL_DIR>/etc/users.properties` and `<DDF_INSTALL_DIR>/etc/users.attributes` files.
 The default users included in these two files are "admin" and "localhost".
