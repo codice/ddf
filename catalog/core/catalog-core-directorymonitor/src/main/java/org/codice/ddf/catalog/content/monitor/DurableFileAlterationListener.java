@@ -24,9 +24,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import javafx.util.Pair;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,13 +98,13 @@ public class DurableFileAlterationListener extends FileAlterationListenerAdaptor
   @Override
   public void onFileChange(File file) {
     if (!fileMap.containsKey(file)) {
-      fileMap.put(file, new Pair<>(-1L, StandardWatchEventKinds.ENTRY_MODIFY));
+      fileMap.put(file, new ImmutablePair<>(-1L, StandardWatchEventKinds.ENTRY_MODIFY));
     }
   }
 
   @Override
   public void onFileCreate(File file) {
-    fileMap.put(file, new Pair<>(-1L, StandardWatchEventKinds.ENTRY_CREATE));
+    fileMap.put(file, new ImmutablePair<>(-1L, StandardWatchEventKinds.ENTRY_CREATE));
   }
 
   @Override
@@ -118,7 +119,7 @@ public class DurableFileAlterationListener extends FileAlterationListenerAdaptor
         completedFiles.add(entry.getKey());
         consumer.createExchangeHelper(entry.getKey(), entry.getValue().getValue());
       } else {
-        entry.setValue(new Pair<>(entry.getKey().length(), entry.getValue().getValue()));
+        entry.setValue(new ImmutablePair<>(entry.getKey().length(), entry.getValue().getValue()));
       }
     }
     completedFiles.stream().forEach(file -> fileMap.remove(file));
