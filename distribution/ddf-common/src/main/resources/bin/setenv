@@ -48,7 +48,7 @@ if [ "$OS" != "${OS%$LINUX*}" ]; then
    fi
 fi
 
-# uncomment to enable cxf logging interceptors
+# Uncomment to enable cxf logging interceptors
 # EXTRA_JAVA_OPTS="$EXTRA_JAVA_OPTS -Dcom.sun.xml.ws.transport.http.HttpAdapter.dump=true"
 
 export EXTRA_JAVA_OPTS
@@ -78,11 +78,19 @@ export EXTRA_JAVA_OPTS
 # for more information.
 #
 # export KARAF_SYSTEM_OPTS="-Dprograde.generated.policy=$DDF_HOME/generated.policy -Dprograde.use.own.policy=true -Dpolicy.provider=net.sourceforge.prograde.policy.ProGradePolicy -Djava.security.manager=net.sourceforge.prograde.sm.PolicyFileGeneratorJSM -Djava.security.policy==$DDF_HOME/security/default.policy -DproGrade.getPermissions.override=sun.rmi.server.LoaderHandler:loadClass,org.apache.jasper.compiler.JspRuntimeContext:initSecurity"
-
 #
 # The Security Manager is turned off by default in DDF.
 #
 # export KARAF_SYSTEM_OPTS="-Dpolicy.provider=net.sourceforge.prograde.policy.ProGradePolicy -Djava.security.manager=net.sourceforge.prograde.sm.ProGradeJSM -Djava.security.policy==$DDF_HOME/security/default.policy -DproGrade.getPermissions.override=sun.rmi.server.LoaderHandler:loadClass,org.apache.jasper.compiler.JspRuntimeContext:initSecurity"
 
+# The following defines an environment variable referencing our script to be executed by the JVM
+# when errors are detected. The environment variable will be expanded by the JVM.
+# The space is important at the end of the DDF_ON_ERROR value to separate the last argument from
+# the %p used by the JVM to represent the pid of the JVM
+export DDF_ON_ERROR="bin/ddf_on_error.sh script "
+
+# Defines the special on-error Java options
+JAVA_ERROR_OPTS="-XX:OnOutOfMemoryError=\_DO_NOT_EXPAND_${DDF_ON_ERROR}%p -XX:OnError=\_DO_NOT_EXPAND_${DDF_ON_ERROR}%p"
+
 export KARAF_OPTS="-Dfile.encoding=UTF8 -Dddf.home=$DDF_HOME -Dddf.home.policy=$DDF_HOME/"
-export JAVA_OPTS="-Xms2g -Xmx4g -XX:+UnlockDiagnosticVMOptions -XX:+DisableAttachMechanism"
+export JAVA_OPTS="-Xms2g -Xmx4g -XX:+UnlockDiagnosticVMOptions -XX:+DisableAttachMechanism $JAVA_ERROR_OPTS"
