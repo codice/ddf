@@ -89,7 +89,6 @@ The `GuestHandler` also checks for the existence of basic auth credentials or PK
 However, it is possible to extend this realm using the ddf.security.policy.extension.PolicyExtension interface.
 This interface allows an integrator to add additional policy information to the PDP that can't be covered via its generic matching policies.
 This approach is often easier to configure for those that are not familiar with XACML.
-Note that no `PolicyExtension` implementations are provided out of the box.
 
 |org.codice.ddf.security.validator.*
 |A number of STS validators are provided for X.509 (BinarySecurityToken), UsernameToken, SAML Assertion, and ${branding} custom tokens.

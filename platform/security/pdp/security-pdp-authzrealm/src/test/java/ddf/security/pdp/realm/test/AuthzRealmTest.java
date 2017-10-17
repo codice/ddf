@@ -242,14 +242,16 @@ public class AuthzRealmTest {
           @Override
           public KeyValueCollectionPermission isPermittedMatchAll(
               CollectionPermission subjectAllCollection,
-              KeyValueCollectionPermission matchAllCollection) {
+              KeyValueCollectionPermission matchAllCollection,
+              KeyValueCollectionPermission allPermissionsCollection) {
             throw new NullPointerException();
           }
 
           @Override
           public KeyValueCollectionPermission isPermittedMatchOne(
               CollectionPermission subjectAllCollection,
-              KeyValueCollectionPermission matchOneCollection) {
+              KeyValueCollectionPermission matchOneCollection,
+              KeyValueCollectionPermission allPermissionsCollection) {
             throw new NullPointerException();
           }
         });
@@ -268,14 +270,16 @@ public class AuthzRealmTest {
           @Override
           public KeyValueCollectionPermission isPermittedMatchAll(
               CollectionPermission subjectAllCollection,
-              KeyValueCollectionPermission matchAllCollection) {
+              KeyValueCollectionPermission matchAllCollection,
+              KeyValueCollectionPermission allPermissionsCollection) {
             throw new NullPointerException();
           }
 
           @Override
           public KeyValueCollectionPermission isPermittedMatchOne(
               CollectionPermission subjectAllCollection,
-              KeyValueCollectionPermission matchOneCollection) {
+              KeyValueCollectionPermission matchOneCollection,
+              KeyValueCollectionPermission allPermissionsCollection) {
             throw new NullPointerException();
           }
         };

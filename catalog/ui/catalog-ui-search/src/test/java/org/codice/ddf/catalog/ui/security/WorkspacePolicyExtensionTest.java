@@ -110,7 +110,7 @@ public class WorkspacePolicyExtensionTest {
     CollectionPermission subject = makeSubject((p) -> false);
 
     List<Permission> after =
-        extension.isPermittedMatchAll(subject, coll(before)).getPermissionList();
+        extension.isPermittedMatchAll(subject, coll(before), coll(before)).getPermissionList();
 
     assertThat(after, is(ImmutableList.of(RANDOM)));
   }
@@ -122,7 +122,7 @@ public class WorkspacePolicyExtensionTest {
     CollectionPermission subject = subjectFrom(OWNER);
 
     List<Permission> after =
-        extension.isPermittedMatchAll(subject, coll(before)).getPermissionList();
+        extension.isPermittedMatchAll(subject, coll(before), coll(before)).getPermissionList();
 
     assertThat(after, is(before));
   }
@@ -134,7 +134,7 @@ public class WorkspacePolicyExtensionTest {
     CollectionPermission subject = subjectFrom(makePermission(Constants.ROLES_CLAIM_URI, VALUES));
 
     List<Permission> after =
-        extension.isPermittedMatchAll(subject, coll(before)).getPermissionList();
+        extension.isPermittedMatchAll(subject, coll(before), coll(before)).getPermissionList();
 
     assertThat(after, is(ImmutableList.of(RANDOM)));
   }
@@ -147,7 +147,7 @@ public class WorkspacePolicyExtensionTest {
         subjectFrom(makePermission(Constants.ROLES_CLAIM_URI, ImmutableSet.of()));
 
     List<Permission> after =
-        extension.isPermittedMatchAll(subject, coll(before)).getPermissionList();
+        extension.isPermittedMatchAll(subject, coll(before), coll(before)).getPermissionList();
 
     assertThat(after, is(ImmutableList.of(OWNER, ROLES, EMAILS, RANDOM)));
   }
@@ -160,7 +160,7 @@ public class WorkspacePolicyExtensionTest {
         subjectFrom(makePermission(Constants.EMAIL_ADDRESS_CLAIM_URI, VALUES));
 
     List<Permission> after =
-        extension.isPermittedMatchAll(subject, coll(before)).getPermissionList();
+        extension.isPermittedMatchAll(subject, coll(before), coll(before)).getPermissionList();
 
     assertThat(after, is(ImmutableList.of(RANDOM)));
   }
@@ -173,7 +173,7 @@ public class WorkspacePolicyExtensionTest {
         subjectFrom(makePermission(Constants.EMAIL_ADDRESS_CLAIM_URI, ImmutableSet.of()));
 
     List<Permission> after =
-        extension.isPermittedMatchAll(subject, coll(before)).getPermissionList();
+        extension.isPermittedMatchAll(subject, coll(before), coll(before)).getPermissionList();
 
     assertThat(after, is(ImmutableList.of(OWNER, ROLES, EMAILS, RANDOM)));
   }
@@ -185,7 +185,7 @@ public class WorkspacePolicyExtensionTest {
     CollectionPermission subject = subjectFrom(ADMIN_ROLE);
 
     List<Permission> after =
-        extension.isPermittedMatchAll(subject, coll(before)).getPermissionList();
+        extension.isPermittedMatchAll(subject, coll(before), coll(before)).getPermissionList();
 
     assertThat(after, is(ImmutableList.of()));
   }
@@ -198,7 +198,7 @@ public class WorkspacePolicyExtensionTest {
         subjectFrom(makePermission(Constants.EMAIL_ADDRESS_CLAIM_URI, ImmutableSet.of("owner")));
 
     List<Permission> after =
-        extension.isPermittedMatchAll(subject, coll(before)).getPermissionList();
+        extension.isPermittedMatchAll(subject, coll(before), coll(before)).getPermissionList();
 
     assertThat(after, is(ImmutableList.of()));
   }
@@ -215,7 +215,7 @@ public class WorkspacePolicyExtensionTest {
         subjectFrom(makePermission(Constants.EMAIL_ADDRESS_CLAIM_URI, ImmutableSet.of(email)));
 
     List<Permission> after =
-        extension.isPermittedMatchAll(subject, coll(before)).getPermissionList();
+        extension.isPermittedMatchAll(subject, coll(before), coll(before)).getPermissionList();
 
     assertThat(after, is(ImmutableList.of()));
   }
@@ -232,7 +232,7 @@ public class WorkspacePolicyExtensionTest {
         subjectFrom(makePermission(Constants.ROLES_CLAIM_URI, ImmutableSet.of(role)));
 
     List<Permission> after =
-        extension.isPermittedMatchAll(subject, coll(before)).getPermissionList();
+        extension.isPermittedMatchAll(subject, coll(before), coll(before)).getPermissionList();
 
     assertThat(after, is(ImmutableList.of()));
   }
@@ -247,7 +247,7 @@ public class WorkspacePolicyExtensionTest {
     CollectionPermission subject = subjectFrom(makePermission(attr, ImmutableSet.of("owner")));
 
     List<Permission> after =
-        extension.isPermittedMatchAll(subject, coll(before)).getPermissionList();
+        extension.isPermittedMatchAll(subject, coll(before), coll(before)).getPermissionList();
 
     assertThat(after, is(ImmutableList.of()));
   }
@@ -262,7 +262,7 @@ public class WorkspacePolicyExtensionTest {
         subjectFrom(makePermission(Constants.EMAIL_ADDRESS_CLAIM_URI, ImmutableSet.of("owner")));
 
     List<Permission> after =
-        extension.isPermittedMatchAll(subject, coll(before)).getPermissionList();
+        extension.isPermittedMatchAll(subject, coll(before), coll(before)).getPermissionList();
 
     assertThat(after, is(ImmutableList.of(OWNER, ROLES, EMAILS, RANDOM)));
   }

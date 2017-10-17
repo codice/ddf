@@ -57,6 +57,9 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
 
   private static final String PERMISSION_FINISH_2_MSG = "]. Result is that permission [";
 
+  private static final String POLICY_EXTENSION_WARNING_MSG =
+      "Policy Extension plugin did not complete correctly. This could allow access to a resource.";
+
   private List<PolicyExtension> policyExtensions = new ArrayList<>();
 
   private HashMap<String, String> matchAllMap = new HashMap<>();
@@ -255,10 +258,12 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
         KeyValueCollectionPermission matchOneCollection =
             new KeyValueCollectionPermission(kvcp.getAction(), matchOnePermissions);
 
-        matchAllCollection = isPermittedByExtensionAll(subjectAllCollection, matchAllCollection);
+        matchAllCollection =
+            isPermittedByExtensionAll(subjectAllCollection, matchAllCollection, kvcp);
         matchAllPreXacmlCollection =
-            isPermittedByExtensionAll(subjectAllCollection, matchAllPreXacmlCollection);
-        matchOneCollection = isPermittedByExtensionOne(subjectAllCollection, matchOneCollection);
+            isPermittedByExtensionAll(subjectAllCollection, matchAllPreXacmlCollection, kvcp);
+        matchOneCollection =
+            isPermittedByExtensionOne(subjectAllCollection, matchOneCollection, kvcp);
         MatchOneCollectionPermission subjectOneCollection = new MatchOneCollectionPermission(perms);
 
         boolean matchAll = subjectAllCollection.implies(matchAllCollection);
@@ -307,7 +312,9 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
   }
 
   private KeyValueCollectionPermission isPermittedByExtensionAll(
-      CollectionPermission subjectAllCollection, KeyValueCollectionPermission matchAllCollection) {
+      CollectionPermission subjectAllCollection,
+      KeyValueCollectionPermission matchAllCollection,
+      KeyValueCollectionPermission allPermissionsCollection) {
     if (!CollectionUtils.isEmpty(policyExtensions)) {
       KeyValueCollectionPermission resultCollection = new KeyValueCollectionPermission();
       resultCollection.addAll(matchAllCollection.getPermissionList());
@@ -315,14 +322,11 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
       for (PolicyExtension policyExtension : policyExtensions) {
         try {
           resultCollection =
-              policyExtension.isPermittedMatchAll(subjectAllCollection, resultCollection);
+              policyExtension.isPermittedMatchAll(
+                  subjectAllCollection, resultCollection, allPermissionsCollection);
         } catch (Exception e) {
-          SecurityLogger.auditWarn(
-              "Policy Extension plugin did not complete correctly. This could allow access to a resource.",
-              e);
-          LOGGER.warn(
-              "Policy Extension plugin did not complete correctly. This could allow access to a resource.",
-              e);
+          SecurityLogger.auditWarn(POLICY_EXTENSION_WARNING_MSG, e);
+          LOGGER.warn(POLICY_EXTENSION_WARNING_MSG, e);
         }
       }
       return resultCollection;
@@ -331,7 +335,9 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
   }
 
   private KeyValueCollectionPermission isPermittedByExtensionOne(
-      CollectionPermission subjectAllCollection, KeyValueCollectionPermission matchOneCollection) {
+      CollectionPermission subjectAllCollection,
+      KeyValueCollectionPermission matchOneCollection,
+      KeyValueCollectionPermission allPermissionsCollection) {
     if (!CollectionUtils.isEmpty(policyExtensions)) {
       KeyValueCollectionPermission resultCollection = new KeyValueCollectionPermission();
       resultCollection.addAll(matchOneCollection.getPermissionList());
@@ -339,14 +345,11 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
       for (PolicyExtension policyExtension : policyExtensions) {
         try {
           resultCollection =
-              policyExtension.isPermittedMatchOne(subjectAllCollection, resultCollection);
+              policyExtension.isPermittedMatchOne(
+                  subjectAllCollection, resultCollection, allPermissionsCollection);
         } catch (Exception e) {
-          SecurityLogger.auditWarn(
-              "Policy Extension plugin did not complete correctly. This could allow access to a resource.",
-              e);
-          LOGGER.warn(
-              "Policy Extension plugin did not complete correctly. This could allow access to a resource.",
-              e);
+          SecurityLogger.auditWarn(POLICY_EXTENSION_WARNING_MSG, e);
+          LOGGER.warn(POLICY_EXTENSION_WARNING_MSG, e);
         }
       }
       return resultCollection;
@@ -361,6 +364,7 @@ public class AuthzRealm extends AbstractAuthorizingRealm {
    * @param authorizationInfo the application-specific subject/user identifier.
    * @return collection of Permissions.
    */
+  @Override
   protected Collection<Permission> getPermissions(AuthorizationInfo authorizationInfo) {
     Set<Permission> permissions = new HashSet<>();
 
