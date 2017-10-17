@@ -17,7 +17,7 @@
     <parent>
         <artifactId>admin-modules</artifactId>
         <groupId>ddf.admin.modules</groupId>
-        <version>2.11.0-SNAPSHOT</version>
+        <version>2.11.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>admin-metrics-ui</artifactId>
@@ -218,7 +218,7 @@
                         <Web-ContextPath>/admin/metrics</Web-ContextPath>
                         <_wab>src/main/webapp,${project.build.directory}/webapp,${project.build.directory}/META-INF/resources/webjars</_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Export-Package/>
+                        <Export-Package />
                         <Embed-Dependency>
                             jetty-servlets
                         </Embed-Dependency>
