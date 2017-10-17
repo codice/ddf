@@ -256,5 +256,12 @@ TMS example (3d map support only): `[{"name": "Example TMS", "show": true, type"
 |Intrigue
 |true
 
+|Show Logo in Title Bar
+|showLogo
+|Boolean
+|Toggles the visibility of the logo in the title bar.
+|false
+|false
+
 |===
 

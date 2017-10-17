@@ -1,7 +1,6 @@
 @{customElementNamespace}navigation-left {
     .customElement;
     position: relative;
-    overflow: hidden;
     cursor: pointer;
 
     button {
@@ -51,6 +50,10 @@
         right: 0px;
         top: @minimumSpacing;
         color: @warning-color;
+    }
+
+    img {
+      max-height: 50px;
     }
     
     .navigation-multiple,

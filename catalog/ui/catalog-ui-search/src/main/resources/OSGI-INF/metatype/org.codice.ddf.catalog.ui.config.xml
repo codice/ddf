@@ -295,6 +295,13 @@
           default="5"
           required="false"/>
 
+        <AD id="showLogo"
+          name="Show Logo in Title Bar"
+          description="Toggles the visibility of the logo in the title bar."
+          type="Boolean"
+          default="false"
+          required="false"/>
+
     </OCD>
 
     <Designate pid="org.codice.ddf.catalog.ui.config">

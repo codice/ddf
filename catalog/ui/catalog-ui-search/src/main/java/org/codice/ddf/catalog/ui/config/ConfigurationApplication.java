@@ -169,6 +169,8 @@ public class ConfigurationApplication implements SparkApplication {
 
   private Integer relevancePrecision = 5;
 
+  private Boolean showLogo = false;
+
   public ConfigurationApplication() {}
 
   public List<Long> getScheduleFrequencyList() {
@@ -351,6 +353,7 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("product", uiName);
     config.put("showRelevanceScores", showRelevanceScores);
     config.put("relevancePrecision", relevancePrecision);
+    config.put("showLogo", showLogo);
 
     return config;
   }
@@ -808,6 +811,14 @@ public class ConfigurationApplication implements SparkApplication {
     if (relevancePrecision > 0) {
       this.relevancePrecision = relevancePrecision;
     }
+  }
+
+  public Boolean getShowLogo() {
+    return showLogo;
+  }
+
+  public void setShowLogo(Boolean showLogo) {
+    this.showLogo = showLogo;
   }
 
   public String getSpacingMode() {

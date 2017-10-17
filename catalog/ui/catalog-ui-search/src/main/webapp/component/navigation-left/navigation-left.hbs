@@ -11,10 +11,15 @@
  *
  **/
  --}}
-<button data-help="Click here to bring up the navigator.">
+<button class="is-button" data-help="Click here to bring up the navigator.">
     <span class="fa fa-bars"></span>
     <div class="navigation-indicator"></div>
     <span class="navigation-sources fa fa-bolt">
     </span>
      <span class="navigation-multiple fa fa-exclamation"></span>
 </button>
+{{#if showLogo}}
+<span>
+     <img src="data:image/png;base64,{{logo}}"/>
+</span>
+{{/if}}
