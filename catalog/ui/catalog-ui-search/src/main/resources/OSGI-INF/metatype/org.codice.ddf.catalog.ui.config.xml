@@ -274,6 +274,13 @@
             default=""
             required="false"/>
 
+        <AD id="uiName"
+            name="UI Branding Name"
+            description="Specifies a custom UI branding name in the UI. This defaults to 'Intrigue'."
+            type="String"
+            default="Intrigue"
+            required="true"/>
+
     </OCD>
 
     <Designate pid="org.codice.ddf.catalog.ui.config">

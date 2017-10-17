@@ -242,5 +242,19 @@ TMS example (3d map support only): `[{"name": "Example TMS", "show": true, type"
 |1048576
 |false
 
+|Map Home
+|mapHome
+|String
+|Specifies the default home view for the map by bounding box.  The format is: 'West, South, East, North' where North, East, South, and West are coordinates in degrees.  An example is: '-124, 60, -100, 40'.
+|
+|false
+
+|UI Branding Name
+|uiName
+|String
+|Specifies a custom UI branding name in the UI. This defaults to 'Intrigue'.
+|Intrigue
+|true
+
 |===
 
