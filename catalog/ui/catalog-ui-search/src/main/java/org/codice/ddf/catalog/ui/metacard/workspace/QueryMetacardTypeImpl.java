@@ -136,7 +136,7 @@ public class QueryMetacardTypeImpl extends MetacardTypeImpl {
             true /* stored */,
             false /* tokenized */,
             false /* multivalued */,
-            BasicTypes.STRING_TYPE));
+            BasicTypes.BOOLEAN_TYPE));
   }
 
   public QueryMetacardTypeImpl() {
