@@ -90,44 +90,54 @@ public class TikaInputTransformer implements InputTransformer {
   private static final Map<com.google.common.net.MediaType, String>
       FALLBACK_MIME_TYPE_DATA_TYPE_MAP;
 
-  private static final String OVERALL_FALLBACK_DATA_TYPE = "Dataset";
+  private static final String OVERALL_FALLBACK_DATA_TYPE = DataType.DATASET.toString();
 
   static {
     SPECIFIC_MIME_TYPE_DATA_TYPE_MAP = new HashMap<>();
     SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(
-        com.google.common.net.MediaType.MICROSOFT_EXCEL, "Document");
+        com.google.common.net.MediaType.MICROSOFT_EXCEL, DataType.TEXT.toString());
     SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(
-        com.google.common.net.MediaType.MICROSOFT_POWERPOINT, "Document");
+        com.google.common.net.MediaType.MICROSOFT_POWERPOINT, DataType.TEXT.toString());
     SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(
-        com.google.common.net.MediaType.MICROSOFT_WORD, "Document");
+        com.google.common.net.MediaType.MICROSOFT_WORD, DataType.TEXT.toString());
     SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(
-        com.google.common.net.MediaType.OPENDOCUMENT_GRAPHICS, "Document");
+        com.google.common.net.MediaType.OPENDOCUMENT_GRAPHICS, DataType.TEXT.toString());
     SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(
-        com.google.common.net.MediaType.OPENDOCUMENT_PRESENTATION, "Document");
+        com.google.common.net.MediaType.OPENDOCUMENT_PRESENTATION, DataType.TEXT.toString());
     SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(
-        com.google.common.net.MediaType.OPENDOCUMENT_SPREADSHEET, "Document");
+        com.google.common.net.MediaType.OPENDOCUMENT_SPREADSHEET, DataType.TEXT.toString());
     SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(
-        com.google.common.net.MediaType.OPENDOCUMENT_TEXT, "Document");
+        com.google.common.net.MediaType.OPENDOCUMENT_TEXT, DataType.TEXT.toString());
     SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(
-        com.google.common.net.MediaType.APPLICATION_BINARY, "Document");
-    SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(com.google.common.net.MediaType.PDF, "Document");
+        com.google.common.net.MediaType.APPLICATION_BINARY, DataType.TEXT.toString());
     SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(
-        com.google.common.net.MediaType.APPLICATION_XML_UTF_8, "Text");
-    SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(com.google.common.net.MediaType.JSON_UTF_8, "Text");
-    SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(com.google.common.net.MediaType.KML, "Text");
-    SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(com.google.common.net.MediaType.ZIP, "Collection");
-    SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(com.google.common.net.MediaType.TAR, "Collection");
-    SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(com.google.common.net.MediaType.GZIP, "Collection");
-    SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(com.google.common.net.MediaType.BZIP2, "Collection");
+        com.google.common.net.MediaType.PDF, DataType.TEXT.toString());
+    SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(
+        com.google.common.net.MediaType.APPLICATION_XML_UTF_8, DataType.TEXT.toString());
+    SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(
+        com.google.common.net.MediaType.JSON_UTF_8, DataType.TEXT.toString());
+    SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(
+        com.google.common.net.MediaType.KML, DataType.TEXT.toString());
+    SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(
+        com.google.common.net.MediaType.ZIP, DataType.COLLECTION.toString());
+    SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(
+        com.google.common.net.MediaType.TAR, DataType.COLLECTION.toString());
+    SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(
+        com.google.common.net.MediaType.GZIP, DataType.COLLECTION.toString());
+    SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(
+        com.google.common.net.MediaType.BZIP2, DataType.COLLECTION.toString());
     SPECIFIC_MIME_TYPE_DATA_TYPE_MAP.put(
         com.google.common.net.MediaType.OCTET_STREAM, OVERALL_FALLBACK_DATA_TYPE);
 
     FALLBACK_MIME_TYPE_DATA_TYPE_MAP = new HashMap<>();
     FALLBACK_MIME_TYPE_DATA_TYPE_MAP.put(
-        com.google.common.net.MediaType.ANY_APPLICATION_TYPE, "Document");
-    FALLBACK_MIME_TYPE_DATA_TYPE_MAP.put(com.google.common.net.MediaType.ANY_IMAGE_TYPE, "Image");
-    FALLBACK_MIME_TYPE_DATA_TYPE_MAP.put(com.google.common.net.MediaType.ANY_TEXT_TYPE, "Text");
-    FALLBACK_MIME_TYPE_DATA_TYPE_MAP.put(com.google.common.net.MediaType.ANY_AUDIO_TYPE, "Sound");
+        com.google.common.net.MediaType.ANY_APPLICATION_TYPE, DataType.TEXT.toString());
+    FALLBACK_MIME_TYPE_DATA_TYPE_MAP.put(
+        com.google.common.net.MediaType.ANY_IMAGE_TYPE, DataType.IMAGE.toString());
+    FALLBACK_MIME_TYPE_DATA_TYPE_MAP.put(
+        com.google.common.net.MediaType.ANY_TEXT_TYPE, DataType.TEXT.toString());
+    FALLBACK_MIME_TYPE_DATA_TYPE_MAP.put(
+        com.google.common.net.MediaType.ANY_AUDIO_TYPE, DataType.SOUND.toString());
   }
 
   private Templates templates = null;
