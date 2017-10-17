@@ -21,7 +21,7 @@ import java.util.Set;
 
 public abstract class OperationImpl implements Operation {
 
-  protected transient Map<String, Serializable> properties;
+  private transient Map<String, Serializable> properties;
 
   public OperationImpl(Map<String, Serializable> properties) {
     this.properties = properties;
