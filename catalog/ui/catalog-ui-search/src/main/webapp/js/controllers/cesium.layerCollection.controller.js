@@ -66,10 +66,11 @@ define(['underscore',
                   on the XmlHttpRequests for CORS.
                  */
                 if (model.get('withCredentials')) {
-                  var parsedUrl = new URL(provider.url);
+                  const url = require('url');
+                  var parsedUrl = url.parse(provider.url);
                   var port = parsedUrl.port;
                   if (!port) {
-                    port = (parsedUrl.protocol === "https") ? 443 : 80;
+                    port = (parsedUrl.protocol === "https:") ? 443 : 80;
                   }
                   Cesium.TrustedServers.add(parsedUrl.hostname, port);
                 }
