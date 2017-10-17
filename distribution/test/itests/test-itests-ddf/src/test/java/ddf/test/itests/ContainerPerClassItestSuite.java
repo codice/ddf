@@ -13,7 +13,6 @@
  */
 package ddf.test.itests;
 
-import ddf.test.itests.catalog.TestEmbeddedSolr;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -22,5 +21,5 @@ import org.junit.runners.Suite;
  * order as they appear in the array.
  */
 @RunWith(Suite.class)
-@Suite.SuiteClasses({TestEmbeddedSolr.class})
+@Suite.SuiteClasses({})
 public class ContainerPerClassItestSuite {}
