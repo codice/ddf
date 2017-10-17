@@ -1,7 +1,7 @@
 :title: Exporting Existing Configurations
 :type: configuration
 :status: published
-:parent: Cloning Configurations
+:parent: Reusing Configurations
 :summary: Exporting existing configurations.
 :order: 00
 
@@ -10,7 +10,7 @@
 .Exporting Existing Configurations from ${admin-console}
 ****
 You can export the current system configurations using the ${admin-console}.
-This is useful for migrating from one running instance to another or for installing a second node in a highly available deployment.
+This is useful for migrating from one running instance to another or for installing a second node in a Highly Available Cluster.
 
 To export the current ${branding} configurations, follow these instructions:
 

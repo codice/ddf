@@ -8,7 +8,9 @@ include::${ai.file}[]
 <#list appendixs?sort_by("order") as appendix>
 <#if (ai.children?contains (appendix.parent))>
 
+<#if appendix.title??>
 === ${appendix.title}
+</#if>
 include::${appendix.file}[]
 <#list subappendixs as subappendix>
 <#if (subappendix.parent == appendix.children)>

@@ -37,6 +37,13 @@ include::${intro.file}[]
 
 include::${coreConcept.file}[]
 
+<#list subCoreConcepts?sort_by("order") as subCoreConcept>
+<#if (subCoreConcept.parent == coreConcept.title)>
+
+include::${subCoreConcept.file}[]
+
+</#if>
+</#list>
 </#if>
 </#list>
 <#if (count == 0)>

@@ -1,4 +1,4 @@
-:title: Special System Deployments
+:title: Special Configurations
 :type: configuringIntro
 :status: published
 :parent: Configuring

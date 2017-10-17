@@ -1,0 +1,47 @@
+:type: coreConcept
+:status: published
+:title: Introduction to High Availability
+:order: 10
+
+${branding} can be made to be highly available. In this context, High Availability is defined as the ability for the ${branding} to be continuously operational with very little down time.
+
+In a Highly Available Cluster, the ${branding} has failover capabilities when a system fails.
+This setup consists of a Solr Cloud instance, 2 ${branding} nodes connected to that Solr Cloud, and a load balancer that sits in front of those 2 nodes.
+One of the ${branding} nodes will be arbitrarily chosen to be the active node, and the other will be the standby node.
+The load balancer will route all traffic to the active node.
+If the active node fails for any reason, the standby node will become active and the load balancer will route all traffic to the new active node.
+See the below diagrams for more detail.
+
+.Highly Available Cluster
+[ditaa,highly-available-setup,png]
+....
+                                    /-------------\
+                                    |cDEF         |
+                                /-->+${branding} (active) +--\
+/---------\     /-------------\ |   |             |  |   +----------+
+|cDEF     |     |cDEF         +-/   \-------------/  \-->+ {s} cDEF |
+| Browser +---->|Load Balancer|                          |Solr Cloud|
+|         |     |             |     /-------------\  /-->+          |
+\---------/     \-------------/     |cYEL         |  |   +----------+
+                                    |${branding} (standby)+--/
+                                    |             |
+                                    \-------------/
+....
+
+.Highly Available Cluster (after failover)
+[ditaa,highly-available-setup-after-failover,png]
+....
+                                    /-------------\
+                                    |cRED         |
+                                    |${branding} (failed) |
+/---------\     /-------------\     |             |      +----------+
+|cDEF     |     |cDEF         |     \-------------/      | {s} cDEF |
+| Browser +---->|Load Balancer|                          |Solr Cloud|
+|         |     |             +--\  /-------------\  /-->+          |
+\---------/     \-------------/  |  |cDEF         |  |   +----------+
+                                 \->+${branding} (active) +--/
+                                    |             |
+                                    \-------------/
+....
+
+There are special procedures for initial setup and configuration of a highly available ${branding}. See <<_high_availability_initial_setup,High Availability Initial Setup>> and <<_configuring_for_highly_available_cluster,High Availability Configuration>> for those procedures.

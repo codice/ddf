@@ -7,7 +7,7 @@
 
 == {title}
 
-The Configuration Export/Import capability allows administrators to export the current ${branding} configuration and use it to restore the same state for either a brand new installation or a second node for a highly available deployment.
+The Configuration Export/Import capability allows administrators to export the current ${branding} configuration and use it to restore the same state for either a brand new installation or a second node for a Highly Available Cluster.
 
 To export the current configuration settings:
 
@@ -17,7 +17,7 @@ To export the current configuration settings:
 To import previously exported configuration settings:
 
 . Install ${branding}
-. Restore all external files, softlinks, and directories that would not have been exported and for which warnings would have been generated during export. This could include among other things: external certificates, content store, and monitored directories.
+. Restore all external files, softlinks, and directories that would not have been exported and for which warnings would have been generated during export. This could include among other things such as external certificates or monitored directories.
 . Launch the newly installed ${branding}.
 . Step through the installation process.
 . Make sure to re-enable <<_automatic_start_on_system_boot,automatic startup and shutdown>> of ${branding} on the new system if it was enabled on the originating system.

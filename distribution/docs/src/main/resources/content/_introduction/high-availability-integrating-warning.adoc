@@ -1,0 +1,9 @@
+:title: High Availability Warning
+:type: integratingIntro
+:status: published
+:summary: Integrator's warning block for High Availability concerns.
+
+[WARNING]
+====
+If integrating with a Highly Available Cluster of ${branding}, see <<_high_availability_guidance,High Availability Guidance>>.
+====

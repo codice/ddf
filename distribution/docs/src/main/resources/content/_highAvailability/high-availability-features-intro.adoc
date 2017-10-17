@@ -1,0 +1,6 @@
+:title: High Availability Supported Features
+:type: appendixIntro
+:status: published
+:children: High Availability Supported Features
+:order: 03
+:summary: Introduction to High Availability Supported Features.
