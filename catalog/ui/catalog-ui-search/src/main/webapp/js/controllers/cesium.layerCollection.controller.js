@@ -20,6 +20,9 @@ define(['underscore',
 ], function (_, Marionette, Cesium, CommonLayerController, properties) {
     "use strict";
 
+    const DEFAULT_HTTPS_PORT = 443;
+    const DEFAULT_HTTP_PORT = 80;
+
     var imageryProviderTypes = {
         OSM: Cesium.createOpenStreetMapImageryProvider,
         AGM: Cesium.ArcGisMapServerImageryProvider,
@@ -70,7 +73,7 @@ define(['underscore',
                   var parsedUrl = url.parse(provider.url);
                   var port = parsedUrl.port;
                   if (!port) {
-                    port = (parsedUrl.protocol === "https:") ? 443 : 80;
+                    port = (parsedUrl.protocol === "https:") ? DEFAULT_HTTPS_PORT : DEFAULT_HTTP_PORT;
                   }
                   Cesium.TrustedServers.add(parsedUrl.hostname, port);
                 }
