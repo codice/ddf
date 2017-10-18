@@ -9,7 +9,7 @@
 
 * *{hardening-step}*
 
-The default security configuration uses a property file located at `<${branding}_HOME>/etc/users.properties` to store users and passwords.
+The default security configuration uses a property file located at `${home_directory}/etc/users.properties` to store users and passwords.
 A hardened system will remove this file and manage all users externally, via an LDAP server or by other means.
 
 .Default Users are an Insecure Default
@@ -18,10 +18,10 @@ A hardened system will remove this file and manage all users externally, via an 
 The ${admin-console} has an insecure default warning if the default users are not removed.
 ====
 
-Once ${branding} is configured to use an external user (such as LDAP), remove the `users.properties` file from the `<INSTALL_HOME>/etc` directory.
+Once ${branding} is configured to use an external user (such as LDAP), remove the `users.properties` file from the `${home_directory}/etc` directory.
 Use of a `users.properties` file should be limited to emergency recovery operations and replaced as soon as effectively possible.
 
-If SSH access to the Karaf shell is to be supported, edit the file `org.apache.karaf.shell.cfg` in the `<INSTALL_HOME>/etc` directory, changing the value
+If SSH access to the Karaf shell is to be supported, edit the file `org.apache.karaf.shell.cfg` in the `${home_directory}/etc` directory, changing the value
 of the `sshRealm` property from `karaf` to `ldap`.
 
 .Emergency Use of `users.properties` file

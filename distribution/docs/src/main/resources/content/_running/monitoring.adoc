@@ -27,7 +27,7 @@ The ${branding} supports a dynamic and customizable logging system including log
 
 ===== Configuring Logging
 
-Edit the configuration file `<${branding}_HOME>/etc/org.ops4j.pax.logging.cfg]`
+Edit the configuration file `${home_directory}/etc/org.ops4j.pax.logging.cfg]`
 
 ===== ${branding} log file
 
@@ -113,7 +113,7 @@ This is the most popular format for access logs and can be parsed by many web se
 
 Monitor system logs with the *LogViewer*, a convenient "viewing portal" for incoming logs.
 
-* Navigate to the LogViewer at \${secure_url}/admin/logviewer
+* Navigate to the LogViewer at ${secure_url}/admin/logviewer
 
 or
 
@@ -137,7 +137,7 @@ Log events can be filtered by:
 It is not recommended to use the LogViewer if the system logger is set to a low reporting level such as `TRACE`.
 The volume of messages logged will exceed the polling rate, and incoming logs may be missed.
 
-The actual logs being polled by the LogViewer can still be accessed at `<INSTALL_HOME>/data/log`
+The actual logs being polled by the LogViewer can still be accessed at `${home_directory}/data/log`
 ====
 
 [NOTE]

@@ -12,7 +12,7 @@ Further information on Karaf Decanter services and configurations can be found h
 
 === Configuring Decanter Service Level Agreement (SLA) Checker
 
-The Decanter SLA Checker provides a way to create alerts based on configurable conditions in events posted to `decanter/collect/*` and can be configured by editing the file `<${branding}_HOME>/etc/org.apache.karaf.decanter.sla.checker.cfg`.
+The Decanter SLA Checker provides a way to create alerts based on configurable conditions in events posted to `decanter/collect/*` and can be configured by editing the file `${home_directory}/etc/org.apache.karaf.decanter.sla.checker.cfg`.
 By default there are only two checks that will produce alerts, and they are based on the SystemNotice event property of `priority`.
 
 .Decanter SLA Configuration
@@ -33,7 +33,7 @@ By default there are only two checks that will produce alerts, and they are base
 === Configuring Decanter Scheduler
 
 The Decanter Scheduler looks up services implementing the Runnable interface with the service-property `decanter.collector.name` and executes the Runnable periodically.
-The Scheduler can be configured by editing the file `<${branding}_HOME>/etc/org.apache.karaf.decanter.scheduler.simple.cfg`.
+The Scheduler can be configured by editing the file `${home_directory}/etc/org.apache.karaf.decanter.scheduler.simple.cfg`.
 
 
 .Decanter Scheduler Configuration

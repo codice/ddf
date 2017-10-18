@@ -47,12 +47,12 @@ $> openssl ca -gencrl -out crl-tokenissuer-revoked.pem
 Enabling CRL revocation or modifying the CRL file will require a restart of ${branding} to apply updates.
 ====
 
-. Place the CRL in <${branding}_HOME>/etc/keystores.
+. Place the CRL in ${home_directory}/etc/keystores.
 . Add the line `org.apache.ws.security.crypto.merlin.x509crl.file=etc/keystores/<CRL_FILENAME>` to the following files (Replace `<CRL_FILENAME>` with the URL or file path of the CRL location):
-.. `<${branding}_HOME>/etc/ws-security/server/encryption.properties`
-.. `<${branding}_HOME>/etc/ws-security/issuer/encryption.properties`
-.. `<${branding}_HOME>/etc/ws-security/server/signature.properties`
-.. `<${branding}_HOME>/etc/ws-security/issuer/signature.properties`
+.. `${home_directory}/etc/ws-security/server/encryption.properties`
+.. `${home_directory}/etc/ws-security/issuer/encryption.properties`
+.. `${home_directory}/etc/ws-security/server/signature.properties`
+.. `${home_directory}/etc/ws-security/issuer/signature.properties`
 . (Replace <CRL_FILENAME> with the file path or URL of the CRL file used in previous step.)
 
 Adding this property will also enable CRL revocation for any context policy implementing PKI authentication.

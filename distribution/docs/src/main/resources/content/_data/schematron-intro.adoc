@@ -11,7 +11,7 @@ Custom schematron rulesets can be used to validate metacard metadata.
 Multiple services can be created, and each service can have multiple rulesets associated with it.
 Namespaces are used to distinguish services.
 The root schematron files may be placed anywhere on the file system as long as they are configured with an absolute path.
-Any root schematron files with a relative path are assumed to be relative to `<${branding}_HOME>/schematron`.
+Any root schematron files with a relative path are assumed to be relative to `${home_directory}/schematron`.
 
 [TIP]
 ====

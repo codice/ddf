@@ -84,7 +84,7 @@ To install an External Solr server, refer to https://cwiki.apache.org/confluence
 
 ====== Configuring HTTP Solr
 
-. Edit the `<INSTALLATION_DIR>/etc/system.properties`
+. Edit the `${home_directory}/etc/system.properties`
 
 .. Comment out the Solr Client Configuration for *Cloud Solr Client* and *Embedded Solr Client* sections.
 .. Uncomment the section for the *Http Solr Client*.
@@ -148,7 +148,7 @@ No installation required. Follow the Configuring section below and restart the {
 
 ====== Configuring Embedded Solr
 
-. Edit the `<INSTALLATION_DIR>/etc/system.properties`
+. Edit the `${home_directory}/etc/system.properties`
 
 .. Comment out the Solr Client Configuration for *Cloud Solr Client* and *Http Solr Client* sections.
 .. Uncomment the section for the *Embedded Solr Client*:
@@ -250,7 +250,7 @@ The two shards enables the document mapping to be restored if one shard becomes 
 
 ====== Configuring Solr Cloud
 
-. On the ${branding} server, edit `<INSTALLATION_DIRECTORY>/etc/system.properties`:
+. On the ${branding} server, edit `${home_directory}/etc/system.properties`:
 .. Comment out the Solr Client Configuration for *Http Solr Client* and *Embedded Solr Client* sections.
 .. Uncomment the section for the *Cloud Solr Client*:
 .. Set `solr.cloud.zookeeper` to `<ZOOKEEPER_1_HOSTNAME>:<PORT_NUMBER>`, `<ZOOKEEPER_2_HOSTNAME>:<PORT_NUMBER>`, `<ZOOKEEPER_n_HOSTNAME>:<PORT_NUMBER>`

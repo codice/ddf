@@ -18,7 +18,7 @@ This may include using cryptographic mechanisms, such as encrypted file volumes 
 
 [NOTE]
 ====
-The Audit Log default location is `<${branding}_HOME>/data/log/security.log`
+The Audit Log default location is `${home_directory}/data/log/security.log`
 ====
 
 .Audit Logging Best Practices
@@ -43,10 +43,10 @@ The logs themselves could be used to generate such reports outside the scope of 
 
 In the event the system is unable to write to the `security.log` file, ${branding} must be configured to fall back to report the error in the application log:
 
-* edit `<INSTALL_HOME>/etc/org.ops4j.pax.logging.cfg`
+* edit `${home_directory}/etc/org.ops4j.pax.logging.cfg`
 ** uncomment the line (remove the `#` from the beginning of the line) for `log4j2` (`org.ops4j.pax.logging.log4j2.config.file = ${karaf.etc}/log4j2.config.xml`)
 ** delete all subsequent lines
-* edit `<INSTALL_HOME>/etc/log4j2.config.xml`
+* edit `${home_directory}/etc/log4j2.config.xml`
 ** find the entry for the `securityBackup` appender. (see example)
 ** change value of `filename` and prefix of `filePattern` to the name/path of the desired failover security logs (<NEW_FILE_NAME>)
 

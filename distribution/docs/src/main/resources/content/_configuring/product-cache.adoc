@@ -16,10 +16,10 @@ All caching properties are part of the <<ddf.catalog.resource.download.ReliableR
 
 Format:
 
-`<INSTALL-DIR>/data/product-cache/<source-id>-<metacard-id>`
+`${home_directory}/data/product-cache/<source-id>-<metacard-id>`
 
 Example:
 
-`<INSTALL-DIR>/data/product-cache/abc123`
+`${home_directory}/data/product-cache/abc123`
 
 See <<_metacard_ingest_network_plugin, Metacard Ingest Network Plugin>>.
