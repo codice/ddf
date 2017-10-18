@@ -138,9 +138,9 @@ Instead, use the java jar command line utility to unzip the distribution (see ex
 ====
 +
 . This will create an installation directory, which is typically created with the name and version of the application.
-This installation directory will be referred to as `<${branding}_HOME>`.
+This installation directory will be referred to as `${home_directory}`.
 (Substitute the actual directory name.)
-. Start ${branding} by running the `<${branding}_HOME>/bin/${branding-lowercase}` script (or `${branding-lowercase}.bat` on Windows).
+. Start ${branding} by running the `${home_directory}/bin/${branding-lowercase}` script (or `${branding-lowercase}.bat` on Windows).
 . The ${command-console} will display.
 
 .${command-console} Prompt

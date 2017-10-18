@@ -174,12 +174,12 @@ To install the ${branding} distribution zip, perform the following:
 
 . Download the ${branding} {download-url}[zip file].
 . After the <<_installation_prerequisites,prerequisites>> have been met, change the current directory to the desired install directory, creating a new directory if desired.
-This will be referred to as `<${branding}_HOME>`.
+This will be referred to as `${home_directory}`.
 +
 .Windows Pathname Warning
 [WARNING]
 ====
-Do not use spaces in directory or file names of the `<${branding}_HOME>` path.
+Do not use spaces in directory or file names of the `${home_directory}` path.
 For example, do not install in the default `Program Files` directory.
 ====
 +
@@ -218,26 +218,26 @@ cd /home/user/cdrom
 ----
 cd D:\
 ----
-. Copy ${branding-lowercase}-${project.version}.zip to <${branding}_HOME>.
+. Copy ${branding-lowercase}-${project.version}.zip to ${home_directory}.
 +
 .*NIX
 ----
-cp ${branding-lowercase}-${project.version}.zip <${branding}_HOME>
+cp ${branding-lowercase}-${project.version}.zip ${home_directory}
 ----
 +
 .Windows
 ----
-copy ${branding-lowercase}-${project.version}.zip <${branding}_HOME>
+copy ${branding-lowercase}-${project.version}.zip ${home_directory}
 ----
 +
 . Change the current directory to the desired install location.
 +
 .*NIX or Windows
 ----
-cd <${branding}_HOME>
+cd ${home_directory}
 ----
 +
-. The ${branding} zip is now located within the `<${branding}_HOME>`. Unzip ${branding-lowercase}-${project.version}.zip.
+. The ${branding} zip is now located within the `${home_directory}`. Unzip ${branding-lowercase}-${project.version}.zip.
 +
 .*NIX
 ----

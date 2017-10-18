@@ -7,7 +7,7 @@
 
 == {title}
 
-By default, all system users are located in the `<DDF_INSTALL_DIR>/etc/users.properties` and `<DDF_INSTALL_DIR>/etc/users.attributes` files.
+By default, all system users are located in the `${home_directory}/etc/users.properties` and `${home_directory}/etc/users.attributes` files.
 The default users included in these two files are "admin" and "localhost".
 The `users.properties` file contains username, password, and role information; while the `users.attributes` file is used to mix in additional attributes.
 The `users.properties` file must also contain the user corresponding to the fully qualified domain name (FQDN) of the system where ${branding} is running.

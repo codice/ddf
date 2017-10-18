@@ -13,13 +13,13 @@ If the ${branding} will be running memory-intensive applications, consider incre
 
 .Setenv Script: *NIX
 ----
-<${branding}_HOME>/bin/setenv
+${home_directory}/bin/setenv
 Update the JAVA_OPTS -Xmx value
 ----
 
 .Setenv Script: Windows
 ----
-<${branding}_HOME>/bin/setenv.bat
+${home_directory}/bin/setenv.bat
 Update the JAVA_OPTS -Xmx value
 ----
 ====
@@ -32,13 +32,13 @@ By default the ${branding} prevents connections to JMX. To monitor the ${brandin
 
 .Setenv Script: *NIX
 ----
-<${branding}_HOME>/bin/setenv
+${home_directory}/bin/setenv
 Remove -XX:+DisableAttachMechanism from JAVA_OPTS
 ----
 
 .Setenv Script: Windows
 ----
-<${branding}_HOME>/bin/setenv.bat
+${home_directory}/bin/setenv.bat
 Remove -XX:+DisableAttachMechanism from JAVA_OPTS
 ----
 ====
@@ -49,12 +49,12 @@ Run one of the start scripts from a command shell to start the distribution and 
 
 .Start Script: *NIX
 ----
-<${branding}_HOME>/bin/${ddf-branding-lowercase}
+${home_directory}/bin/${ddf-branding-lowercase}
 ----
 
 .Start Script: Windows
 ----
-<${branding}_HOME>/bin/${branding-lowercase}.bat
+${home_directory}/bin/${branding-lowercase}.bat
 ----
 
 ==== Starting as a Service
@@ -63,12 +63,12 @@ Alternatively, to run ${branding} as a background service, run the `start` scrip
 
 .*NIX
 ----
-<${branding}_HOME>/bin/start
+${home_directory}/bin/start
 ----
 
 .Windows
 ----
-<${branding}_HOME>/bin/start.bat
+${home_directory}/bin/start.bat
 ----
 
 [NOTE]
@@ -77,12 +77,12 @@ If console access is needed while running as a service, run the `client` script 
 
 .*NIX
 ----
-<${branding}_HOME>/bin/client
+${home_directory}/bin/client
 ----
 
 .Windows
 ----
-<${branding}_HOME>/bin/client.bat -h <FQDN>
+${home_directory}/bin/client.bat -h <FQDN>
 ----
 
 Use the `-h` option followed by the name (`<FQDN>`) or IP of the host where ${branding} is running.
@@ -112,12 +112,12 @@ ${branding-lowercase}${at-symbol}local>shutdown -f
 
 .*NIX
 ----
-<${branding}_HOME>/bin/stop
+${home_directory}/bin/stop
 ----
 
 .Windows
 ----
-<${branding}_HOME>/bin/stop.bat
+${home_directory}/bin/stop.bat
 ----
 
 .Shut Down
@@ -135,7 +135,7 @@ Because ${branding} is built on top of Apache Karaf, ${branding} can use the Kar
 . Temporarly disable the security manager
 +
 .. Stop ${branding}
-.. Comment out the `KARAF_SYSTEM_OPTS` environment variable in `<${branding}_HOME>/bin/setenv` (all *NIX) or `<${branding}_HOME>\bin\setenv.bat` (Windows) and restart ${branding}.
+.. Comment out the `KARAF_SYSTEM_OPTS` environment variable in `${home_directory}/bin/setenv` (all *NIX) or `${home_directory}\bin\setenv.bat` (Windows) and restart ${branding}.
 .. Start ${branding}
 +
 . Create the Karaf wrapper.
@@ -157,27 +157,27 @@ ${branding-lowercase}${at-symbol}local> wrapper:install -i setenv-windows-wrappe
 . Re-enable the security manager
 +
 .. Stop ${branding}
-.. Uncomment the `KARAF_SYSTEM_OPTS` environment variable in `<${branding}_HOME>/bin/setenv` (all *NIX) or `<${branding}_HOME>\bin\setenv.bat` (Windows) previously commented out and restart ${branding}.
+.. Uncomment the `KARAF_SYSTEM_OPTS` environment variable in `${home_directory}/bin/setenv` (all *NIX) or `${home_directory}\bin\setenv.bat` (Windows) previously commented out and restart ${branding}.
 +
-. (Windows users skip to next step) (All *NIX) If ${branding} was installed to run as a non-root user (recommended,) edit `<${branding}_HOME>/bin/${branding-lowercase}-service`.
+. (Windows users skip to next step) (All *NIX) If ${branding} was installed to run as a non-root user (recommended,) edit `${home_directory}/bin/${branding-lowercase}-service`.
 +
 Change:
 +
-.<${branding}_HOME>/bin/${branding-lowercase}-service
+.${home_directory}/bin/${branding-lowercase}-service
 ----
 #RUN_AS_USER=
 ----
 +
 to:
 +
-.<${branding}_HOME>/bin/${branding-lowercase}-service
+.${home_directory}/bin/${branding-lowercase}-service
 ----
 RUN_AS_USER=<${branding-lowercase}-user>
 ----
 +
-. (Windows users skip to next step) (All *NIX) Edit `<${branding}_HOME>/bin/${branding-lowercase}-service`. Add LimitNOFILE to the [Service] section.
+. (Windows users skip to next step) (All *NIX) Edit `${home_directory}/bin/${branding-lowercase}-service`. Add LimitNOFILE to the [Service] section.
 +
-.<${branding}_HOME>/bin/${branding-lowercase}-service
+.${home_directory}/bin/${branding-lowercase}-service
 ----
 LimitNOFILE=6815744
 ----
@@ -189,14 +189,14 @@ LimitNOFILE=6815744
 Run the following command in a console window. The command must be run with elevated permissions.
 +
 ----
-<${branding}_HOME>\bin\${branding-lowercase}-service.bat install
+${home_directory}\bin\${branding-lowercase}-service.bat install
 ----
 Startup and shutdown settings can then be managed through *Services -> MMC Start -> Control Panel -> Administrative Tools -> Services*.
 +
 *Redhat, Fedora, or Centos (SystemV)*
 +
 ----
-root${at-symbol}localhost# ln -s <${branding}_HOME>/bin/${branding-lowercase}-service /etc/init.d/
+root${at-symbol}localhost# ln -s ${home_directory}/bin/${branding-lowercase}-service /etc/init.d/
 root${at-symbol}localhost# chkconfig ${branding-lowercase}-service --add
 root${at-symbol}localhost# chkconfig ${branding-lowercase}-service on
 ----
@@ -204,20 +204,20 @@ root${at-symbol}localhost# chkconfig ${branding-lowercase}-service on
 *Redhat 7 (systemd)*
 +
 ----
-root${at-symbol}localhost# systemctl enable <${branding}_HOME>/bin/${branding-lowercase}-service
+root${at-symbol}localhost# systemctl enable ${home_directory}/bin/${branding-lowercase}-service
 ----
 +
 *Ubuntu*
 +
 ----
-root${at-symbol}localhost# ln -s <${branding}_HOME>/bin/${branding-lowercase}-service /etc/init.d/
+root${at-symbol}localhost# ln -s ${home_directory}/bin/${branding-lowercase}-service /etc/init.d/
 root${at-symbol}localhost# update-rc.d -f ${branding-lowercase}-service defaults
 ----
 +
 *Solaris*
 +
 ----
-root${at-symbol}localhost# ln -s <${branding}_HOME>/bin/${branding-lowercase}-service /etc/init.d/
+root${at-symbol}localhost# ln -s ${home_directory}/bin/${branding-lowercase}-service /etc/init.d/
 root${at-symbol}localhost# ln -s /etc/init.d/${branding-lowercase}-service /etc/rc0.d/K20${branding-lowercase}-service
 root${at-symbol}localhost# ln -s /etc/init.d/${branding-lowercase}-service /etc/rc1.d/K20${branding-lowercase}-service
 root${at-symbol}localhost# ln -s /etc/init.d/${branding-lowercase}-service /etc/rc2.d/K20${branding-lowercase}-service

@@ -27,7 +27,7 @@ a|* Stop the management feature using the command line console: `feature:stop ma
 
 |File System Access
 |tampering, information disclosure, and denial of service
-a|Set OS File permissions under the `<${branding}_HOME>` directory (e.g. `/deploy`, `/etc`) to ensure unauthorized viewing and writing is not allowed.
+a|Set OS File permissions under the `${home_directory}` directory (e.g. `/deploy`, `/etc`) to ensure unauthorized viewing and writing is not allowed.
 
  If Caching is installed:
 
@@ -51,13 +51,13 @@ For remote access to ${branding},
  first establish an SSH session with the host running
  ${branding}. From within that session, initiate a new SSH connection (to **localhost**), and use
  the `sshPort` as configured in the file
- `<${branding}_HOME>/etc/org.apache.karaf.shell.cfg`.
+ `${home_directory}/etc/org.apache.karaf.shell.cfg`.
 
 To allow direct remote access to the ${branding} shell from any host, change the value of the
-`sshHost` property to `0.0.0.0` in the `<${branding}_HOME>/etc/org.apache.karaf.shell.cfg` file.
+`sshHost` property to `0.0.0.0` in the `${home_directory}/etc/org.apache.karaf.shell.cfg` file.
 
 SSH can also be authenticated and authorized through an external Realm,
-such as LDAP. This can be accomplished by editing the `<${branding}_HOME>/etc/org.apache.karaf.shell.cfg` file and setting the
+such as LDAP. This can be accomplished by editing the `${home_directory}/etc/org.apache.karaf.shell.cfg` file and setting the
 value for `sshRealm`, e.g. to `ldap`. No restart of ${branding} is necessary after this change.
 
 By definition, all connections over SSH will be authenticated and authorized and secure from eavesdropping.
@@ -71,11 +71,11 @@ have read/write/execute access to all directories and files accessible to your i
 in a fully hardened system.*
 ====
 
-Set `karaf.shutdown.port=-1` in `<${branding}_HOME>/etc/custom.properties` or `<${branding}_HOME>/etc/config.properties`.
+Set `karaf.shutdown.port=-1` in `${home_directory}/etc/custom.properties` or `${home_directory}/etc/config.properties`.
 
 |SSL/TLS
 |man-in-the-middle, information disclosure
-a|Update the `<${branding}_HOME>/etc/org.ops4j.pax.web.cfg` file to add the entry `org.ops4j.pax.web.ssl.clientauthneeded=true`.
+a|Update the `${home_directory}/etc/org.ops4j.pax.web.cfg` file to add the entry `org.ops4j.pax.web.ssl.clientauthneeded=true`.
 
 [WARNING]
 ====

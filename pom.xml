@@ -187,6 +187,7 @@
         <!--default url substitutions-->
         <public_url>\http://{FQDN}:{PORT}</public_url>
         <secure_url>\https://{FQDN}:{PORT}</secure_url>
+        <home_directory>&lt;DDF_HOME&gt;</home_directory>
         <!--Needed for documentation formatting
             '@' is an escape character for maven filtering. Use this property if '@'
             appears on the same line as other filtered properties-->

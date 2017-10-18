@@ -15,7 +15,7 @@ ${branding} includes a demo <<_embedded_ldap_server,LDAP server>>, but an extern
 The STS is installed by default in ${branding}.
 
 .Configuring STS
-. Verify that the `serverKeystores.jks` file in `<${branding}_HOME>/etc/keystores` trusts the hostnames used in your environment (the hostnames of LDAP, and any ${branding} users that make use of this STS server).
+. Verify that the `serverKeystores.jks` file in `${home_directory}/etc/keystores` trusts the hostnames used in your environment (the hostnames of LDAP, and any ${branding} users that make use of this STS server).
 . Navigate to the *${admin-console}*.
 . Select the ${ddf-security} application.
 . Select the *Features* tab.
@@ -36,7 +36,7 @@ Configure the ${branding} to use this authentication scheme.
 . Select the *${ddf-catalog}* application.
 . Open the *Web Context Policy Manager* configuration.
 .. Under *Context Realms* add the contexts that should be protected under the ldap realm.
-... The default setting is `/=karaf`, the `karaf` realm refers to the `user.properties` user store file located in the `<${branding}_HOME>/etc` directory. This can be changed to `/=ldap`, if it is desired that the entire container be protected under ldap. If the `/admin` context is changed to something other than the default (`karaf`), it will be required that you refresh the page in order to log in again, or your changes may not be saved. This includes changing the root context to something other than `karaf`, without specifically setting `/admin` to a realm. The policies for all contexts will roll up, for example: the `/admin` context policy will roll up to the karaf realm with the default configuration because `/` is higher in the context heirarchy than `/admin` and no realm is specifically set for `/admin`.
+... The default setting is `/=karaf`, the `karaf` realm refers to the `user.properties` user store file located in the `${home_directory}/etc` directory. This can be changed to `/=ldap`, if it is desired that the entire container be protected under ldap. If the `/admin` context is changed to something other than the default (`karaf`), it will be required that you refresh the page in order to log in again, or your changes may not be saved. This includes changing the root context to something other than `karaf`, without specifically setting `/admin` to a realm. The policies for all contexts will roll up, for example: the `/admin` context policy will roll up to the karaf realm with the default configuration because `/` is higher in the context heirarchy than `/admin` and no realm is specifically set for `/admin`.
 .. Under *Authentication Types*, make any desired authentication changes to contexts.
 ... In order to use the SAML 2.0 Web SSO profile against a context, you must specify only the IdP authentication type
 . Open the *Security STS Client* configuration. Verify that the host/port information in the *STS Address* field points to your STS server. If you are using the default bundled STS, this information will already be correct.
