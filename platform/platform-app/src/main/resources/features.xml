@@ -1046,7 +1046,7 @@
         <bundle>mvn:ddf.platform/platform-parser-xml/${project.version}</bundle>
     </feature>
 
-    <feature name="platform-filter-delegate" install="manual" version="${project.version}">
+    <feature name="platform-filter-delegate" install="auto" version="${project.version}">
         <feature prerequisite="true">commons</feature>
         <feature prerequisite="true" version="${project.version}">kernel</feature>
         <feature dependency="true" version="${spring.version}_1">spring</feature>
