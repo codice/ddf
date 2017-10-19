@@ -1046,6 +1046,11 @@
         <bundle>mvn:ddf.platform/platform-parser-xml/${project.version}</bundle>
     </feature>
 
+    <feature name="io" install="manual" version="${project.version}" description="I/O Utilities">
+        <bundle dependency="true">mvn:ddf.platform.io/platform-io-internal-api/${project.version}</bundle>
+        <bundle>mvn:ddf.platform.io/platform-io-impl/${project.version}</bundle>
+    </feature>
+
     <feature name="platform-filter-delegate" install="manual" version="${project.version}">
         <feature prerequisite="true">commons</feature>
         <feature prerequisite="true" version="${project.version}">kernel</feature>
@@ -1119,6 +1124,7 @@
         <feature>solr</feature>
         <feature>persistence-core</feature>
         <feature>error</feature>
+        <feature>io</feature>
         <feature>parser-xml</feature>
         <feature>landing-page</feature>
         <feature>platform-filter-response</feature>
