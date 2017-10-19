@@ -28,6 +28,7 @@
 
     <modules>
         <module>platform-osgi-configadmin</module>
+        <module>platform-osgi-internal-api</module>
     </modules>
 
 </project>
