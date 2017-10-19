@@ -22,7 +22,7 @@ import org.apache.felix.cm.PersistenceManager;
  * Basic wrapper class for enhancing functionality of any persistence manager with additional layers
  * of processing.
  */
-public class WrappedPersistenceManager implements PersistenceManager {
+public class WrappedPersistenceManager implements PersistenceManager, AutoCloseable {
 
   private final PersistenceManager persistenceManager;
 
@@ -31,6 +31,13 @@ public class WrappedPersistenceManager implements PersistenceManager {
       throw new IllegalArgumentException("PersistenceManager cannot be null");
     }
     this.persistenceManager = persistenceManager;
+  }
+
+  @Override
+  public void close() throws Exception {
+    if (persistenceManager instanceof WrappedPersistenceManager) {
+      ((WrappedPersistenceManager) persistenceManager).close();
+    }
   }
 
   @Override
