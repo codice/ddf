@@ -164,9 +164,9 @@ const ProviderEditor = ({ provider, onUpdate, buffer, onEdit, error = Map() }) =
     </div>
     <div style={{ padding: '0 16px' }}>
       <Flexbox flex='1'>
-        <Flexbox width='250px'>
+        <Flexbox width='290px'>
           <Checkbox
-            label='Use Stored Credentials'
+            label='Allow Credential Forwarding'
             checked={bool(provider.get('withCredentials'))}
             onCheck={(e, value) => {
               onUpdate(value, 'withCredentials')
@@ -174,7 +174,7 @@ const ProviderEditor = ({ provider, onUpdate, buffer, onEdit, error = Map() }) =
         </Flexbox>
         <Flexbox flex='1'>
           {bool(provider.get('withCredentials'))
-            ? <Warning>Requests will fail if the server is not configured to use CORS</Warning>
+            ? <Warning>Requests will fail if the server does not prompt for credentials</Warning>
             : null}
         </Flexbox>
       </Flexbox>
