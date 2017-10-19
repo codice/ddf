@@ -13,204 +13,259 @@
  */
 package org.codice.ddf.admin.configuration;
 
-import static org.osgi.service.cm.ConfigurationEvent.CM_DELETED;
-import static org.osgi.service.cm.ConfigurationEvent.CM_UPDATED;
+import static com.google.common.io.Files.getFileExtension;
+import static java.lang.String.format;
 
+import ddf.security.encryption.EncryptionService;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.codice.ddf.admin.configurator.Configurator;
-import org.codice.ddf.admin.configurator.ConfiguratorException;
-import org.codice.ddf.admin.configurator.ConfiguratorFactory;
-import org.codice.ddf.admin.configurator.Operation;
-import org.codice.ddf.admin.configurator.OperationReport;
-import org.codice.ddf.admin.configurator.Result;
-import org.codice.ddf.internal.admin.configurator.actions.ConfigActions;
+import org.codice.ddf.admin.core.api.ConfigurationAdmin;
+import org.codice.ddf.platform.io.internal.PersistenceStrategy;
+import org.codice.felix.cm.internal.ConfigurationContext;
+import org.codice.felix.cm.internal.ConfigurationContextFactory;
+import org.codice.felix.cm.internal.ConfigurationPersistencePlugin;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.cm.ConfigurationEvent;
-import org.osgi.service.cm.SynchronousConfigurationListener;
+import org.osgi.service.metatype.AttributeDefinition;
+import org.osgi.service.metatype.ObjectClassDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Addresses shortcomings of the Felix {@code ConfigInstaller} with our own implementation that
- * properly syncs the etc directory using the {@code felix.fileinstall.filename} property.
+ * properly updates the etc directory.
  *
- * @see #handleUpdate(ConfigurationEvent)
- * @see #handleDelete(ConfigurationEvent)
+ * <p>This configuration installer handles <b>writeback</b> like the Felix one did and does a few
+ * other things:
+ *
+ * <ul>
+ *   <li>Removes files from etc when they are deleted from {@link
+ *       org.osgi.service.cm.ConfigurationAdmin}
+ *   <li>Protects against tampering with the {@code felix.fileinstall.filename} by third parties,
+ *       which could disrupt the dropping of config files
+ *   <li>Ensures password fields in config files are encrypted
+ * </ul>
+ *
+ * Handling <b>writeback</b> means running this class handles the updating of dropped-in config
+ * files in the etc directory. To keep Felix itself from disrupting this process, {@code
+ * enableConfigSave} in {@code custom.properties} should be set to {@code false}.
  */
-public class ConfigurationInstaller implements SynchronousConfigurationListener {
+public class ConfigurationInstaller implements ConfigurationPersistencePlugin {
   private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationInstaller.class);
 
-  private final ConfigurationAdmin configurationAdmin;
+  private static final Logger SECURITY_LOGGER = LoggerFactory.getLogger("securityLogger");
 
-  private final ConfiguratorFactory configuratorFactory;
+  private final ConfigurationAdmin ddfConfigAdmin;
 
-  private final ConfigActions configActions;
+  private final List<PersistenceStrategy> strategies;
 
-  private final Map<String, File> pidFileMap;
+  private final EncryptionService encryptionService;
 
+  private final Map<String, CachedConfigData> pidDataMap;
+
+  private final ConfigurationContextFactory configurationContextFactory;
+
+  /**
+   * {@code SortedServiceList} implements {@link java.util.List} using generic parameter <code>
+   * &lt;T&gt;</code> and not a concrete type, so the ctor cannot be matched by the blueprint
+   * container if we did <code>List&lt;PersistenceStrategy&gt;</code>
+   *
+   * <p>See https://issues.apache.org/jira/browse/ARIES-960
+   */
   public ConfigurationInstaller(
-      ConfigurationAdmin configurationAdmin,
-      ConfiguratorFactory configuratorFactory,
-      ConfigActions configActions) {
-    this.configurationAdmin = configurationAdmin;
-    this.pidFileMap = new ConcurrentHashMap<>();
+      ConfigurationAdmin ddfConfigAdmin,
+      List strategies,
+      EncryptionService encryptionService,
+      ConfigurationContextFactory configurationContextFactory) {
+    this.ddfConfigAdmin = ddfConfigAdmin;
+    this.strategies = strategies;
+    this.encryptionService = encryptionService;
+    this.pidDataMap = new ConcurrentHashMap<>();
 
-    this.configuratorFactory = configuratorFactory;
-    this.configActions = configActions;
+    this.configurationContextFactory = configurationContextFactory;
   }
 
   /** @return a read-only map of configuration pids to felix file install properties. */
-  Map<String, File> getPidFileMap() {
-    return Collections.unmodifiableMap(pidFileMap);
-  }
-
-  public void init() throws IOException, InvalidSyntaxException {
-    Configuration[] configs = configurationAdmin.listConfigurations(null);
-    if (configs == null) {
-      return;
-    }
-    pidFileMap.putAll(
-        Arrays.stream(configs)
-            .map(FelixConfig::new)
-            .filter(config -> config.getFelixFile() != null)
-            .collect(
-                Collectors.toMap(
-                    FelixConfig::getPid,
-                    FelixConfig::getFelixFile,
-                    // API guarantees no duplicates in production but itests may violate this.
-                    // Workaround is to shut off admin-configuration-passwordencryption.
-                    (file1, file2) -> file2)));
-  }
-
-  @Override
-  public void configurationEvent(ConfigurationEvent event) {
-    String pid = event.getPid();
-    AccessController.doPrivileged(
-        (PrivilegedAction<Void>)
-            () -> {
-              switch (event.getType()) {
-                case CM_UPDATED:
-                  LOGGER.debug("Handling update for pid {}", pid);
-                  handleUpdate(event);
-                  break;
-                case CM_DELETED:
-                  LOGGER.debug("Handling delete for pid {}", pid);
-                  handleDelete(event);
-                  break;
-                default:
-                  LOGGER.debug(
-                      "Unknown configuration event type, taking no action for pid {}", pid);
-              }
-              return null;
-            });
+  Map<String, CachedConfigData> getPidDataMap() {
+    return Collections.unmodifiableMap(pidDataMap);
   }
 
   /**
-   * Sync the config files in etc when an update occurs. There are four cases, which will be denoted
-   * using 2-tuple combinations of variables: [felixFileOriginal, felixFileNew]
-   *
-   * <p>[null, null] (1) Felix file prop wasn't tracked and is still not tracked. We don't need to
-   * do anything, and we further guarantee that beyond this point, one variable must not be null.
-   *
-   * <p>[null, X] (2) Unrecognized config with a felix file prop to track. The config's presence in
-   * etc was previously not being tracked by the system and we should start tracking it.
-   *
-   * <p>[Y, null] [Y, X] (3) Felix prop was externally changed or removed. Revert this change.
-   *
-   * <p>[Y, Y] (4) Felix file prop did not change, do nothing. This is the happy path.
-   *
-   * @param event the configuration event for which an update is needed
+   * @see ConfigurationPersistencePlugin
+   * @throws IOException if an error occurs reading configuration data
+   * @throws InvalidSyntaxException technically impossible since {@code null} is being passed as the
+   *     configuration filter. See {@link ConfigurationAdmin#listConfigurations(String)}.
    */
-  private void handleUpdate(ConfigurationEvent event) {
-    Configuration configuration = getConfiguration(event);
-    if (configuration == null) {
-      LOGGER.debug("Configuration was null for pid {}", event.getPid());
+  public void init() throws IOException, InvalidSyntaxException {
+    Configuration[] configs = ddfConfigAdmin.listConfigurations(null);
+    if (configs == null) {
       return;
     }
+    pidDataMap.putAll(
+        Arrays.stream(configs)
+            .map(configurationContextFactory::createContext)
+            .filter(context -> context.getConfigFile() != null)
+            .collect(Collectors.toMap(ConfigurationContext::getServicePid, CachedConfigData::new)));
+  }
 
-    FelixConfig felixConfig = new FelixConfig(configuration);
-    String pid = felixConfig.getPid();
-    File felixFileNew = felixConfig.getFelixFile();
-    File felixFileOriginal = pidFileMap.get(pid);
+  /**
+   * {@inheritDoc}
+   *
+   * <p>Sync the config files in etc when an update occurs. There are four cases, which will be
+   * denoted using 2-tuple combinations of variables: [felixFileFromCache, felixFileFromConfig]
+   *
+   * <p>[null, null] (1) Config was created from config admin directly; not by dropping a file.
+   * There is nothing to track.
+   *
+   * <p>[null, X] (2) Some config was just created by dropping a file into etc; track the file.
+   * Update the properties on disk if necessary and perform any special first time processing.
+   *
+   * <p>[Y, null] [Y, X] (3) Felix prop was externally changed or removed. This is an error.
+   *
+   * <p>[Y, Y] (4) Felix file prop did not change, do nothing. This is the happy path. Properties
+   * will be updated on disk if necessary.
+   */
+  @Override
+  public void handleStore(ConfigurationContext context) throws IOException {
+    String pid = context.getServicePid();
+    File fileFromConfig = context.getConfigFile();
 
-    // Config not tracked and will not be tracked? (1)
-    if (felixFileOriginal == null && felixFileNew == null) {
+    CachedConfigData cachedConfigData = pidDataMap.get(pid);
+    File fileFromCache = (cachedConfigData != null) ? cachedConfigData.getFelixFile() : null;
+
+    if (fileFromCache == null && fileFromConfig == null) {
+      // This config doesn't have an etc file, so we ignore this case (1)
       LOGGER.debug("Was not tracked and will not track pid {}", pid);
       return;
     }
 
-    boolean filePropChanged = felixConfig.filePropChanged(felixFileOriginal);
-
-    // Felix file prop did not change? (4)
-    if (filePropChanged) {
-      // Are we seeing the config for the first time? (2) (3)
-      if (felixFileOriginal != null) {
-        try {
-          felixConfig.setFelixFile(felixFileOriginal);
-        } catch (IOException e) {
-          LOGGER.error("Could not set felix file name, error writing to config admin: ", e);
-        }
-        return;
-      }
-      pidFileMap.put(pid, felixFileNew);
+    if (fileFromCache == null) {
+      // An etc config file was just dropped and we're seeing it for the first time (2)
       LOGGER.debug("Tracking pid {}", pid);
+      CachedConfigData createdConfigData = new CachedConfigData(context);
+      pidDataMap.put(pid, createdConfigData);
+      writeIfNecessary(context, createdConfigData);
+      return;
+    }
+
+    if (!Objects.equals(fileFromConfig, fileFromCache)) {
+      // The felix file prop changed, which is not allowed (3)
+      String msg =
+          (fileFromConfig == null)
+              ? format("Felix filename has been illegally removed, was [%s]", fileFromCache)
+              : format(
+                  "Felix filename has been illegally changed from [%s] to [%s]",
+                  fileFromCache, fileFromConfig);
+      throw new IllegalStateException(msg);
+    }
+
+    // Write to disk if necessary (4)
+    writeIfNecessary(context, cachedConfigData);
+  }
+
+  /**
+   * {@inheritDoc}
+   *
+   * <p>Remove config files from etc when a delete occurs but only if felix is tracking the file.
+   *
+   * @param pid the pid pointing to the configuration to delete.
+   */
+  @Override
+  public void handleDelete(String pid) throws IOException {
+    CachedConfigData cachedConfigData = pidDataMap.remove(pid);
+    File fileFromCache = (cachedConfigData != null) ? cachedConfigData.getFelixFile() : null;
+    if (fileFromCache != null && fileFromCache.exists()) {
+      LOGGER.debug("Deleting file because config was deleted for pid {}", pid);
+      try {
+        Files.delete(fileFromCache.toPath());
+        SECURITY_LOGGER.info("Removing a deleted config: {}", fileFromCache.toPath());
+      } catch (IOException e) {
+        LOGGER.debug("Problem deleting config file: ", e);
+        // Synchronous with config admin, so we can report the failure to the UI this way
+        throw e;
+      }
     }
   }
 
   /**
-   * Remove config files from etc when a delete occurs but only if felix is tracking the file.
-   *
-   * @param event the configuration event for which a delete is needed
+   * In this block, based upon the circumstances of where it gets called, there's a guarantee that
+   * {@link ConfigurationContext#getConfigFile()} will not return null.
    */
-  private void handleDelete(ConfigurationEvent event) {
-    String pid = event.getPid();
-    File felixFileOriginal = pidFileMap.remove(pid);
-    if (felixFileOriginal != null) {
-      LOGGER.debug("Deleting file because config was deleted for pid {}", pid);
-      try {
-        performOperation(configActions.delete(felixFileOriginal.toPath()));
-      } catch (IllegalArgumentException | ConfiguratorException e) {
-        LOGGER.debug("Problem deleting config file: ", e);
+  private void writeIfNecessary(ConfigurationContext context, CachedConfigData data)
+      throws IOException {
+    File dest = context.getConfigFile();
+    if (dest.exists()) {
+      // Improvement: These would become checksums
+      Dictionary<String, Object> fileState = data.getProps();
+      Dictionary<String, Object> configState = context.getSanitizedProperties();
+      processPasswords(context.getServicePid(), configState, encryptionService::encryptValue);
+      if (!equalDictionaries(configState, fileState)) {
+        try (OutputStream outputStream = new FileOutputStream(dest)) {
+          getAppropriateStrategy(dest.toPath()).write(outputStream, configState);
+        }
+        SECURITY_LOGGER.info("Updating config file: {}", dest.toPath());
+        data.setProps(configState);
       }
     }
   }
 
-  private void performOperation(Operation operation) {
-    Configurator configurator = configuratorFactory.getConfigurator();
-    configurator.add(operation);
-    OperationReport report = configurator.commit("Synchronizing the etc directory");
-    if (report.containsFailedResults()) {
-      LOGGER.error("One or more file operations failed, see debug logs for more info");
-      if (LOGGER.isDebugEnabled()) {
-        report
-            .getFailedResults()
-            .stream()
-            .map(Result::getError)
-            .filter(Optional::isPresent)
-            .map(Optional::get)
-            .map(Exception.class::cast)
-            .forEach(e -> LOGGER.debug("Failed file operation: ", e));
+  private void processPasswords(
+      String pid,
+      Dictionary<String, Object> dictionary,
+      Function<String, String> passwordTransform) {
+    ObjectClassDefinition objectClassDefinition = ddfConfigAdmin.getObjectClassDefinition(pid);
+    if (objectClassDefinition != null) {
+      AttributeDefinition[] attributeDefinitions =
+          objectClassDefinition.getAttributeDefinitions(ObjectClassDefinition.ALL);
+      for (AttributeDefinition metatypeAttribute : attributeDefinitions) {
+        if (metatypeAttribute.getType() == AttributeDefinition.PASSWORD) {
+          Object beforePassword = dictionary.get(metatypeAttribute.getID());
+          if (beforePassword instanceof String) {
+            String afterPassword = passwordTransform.apply((String) beforePassword);
+            dictionary.put(metatypeAttribute.getID(), afterPassword);
+          }
+        }
       }
     }
   }
 
-  private Configuration getConfiguration(ConfigurationEvent configurationEvent) {
-    try {
-      return configurationAdmin.getConfiguration(configurationEvent.getPid(), null);
-    } catch (IOException e) {
-      LOGGER.debug("Problem reading from config admin: ", e);
-      return null;
+  private PersistenceStrategy getAppropriateStrategy(Path path) {
+    String ext = getFileExtension(path.toString());
+    if (ext.isEmpty()) {
+      throw new IllegalArgumentException("Path has no file extension");
     }
+    return strategies
+        .stream()
+        .filter(s -> s.getExtension().equals(ext))
+        .findFirst()
+        .orElseThrow(
+            () -> new IllegalArgumentException("File extension is not a supported config type"));
+  }
+
+  private static boolean equalDictionaries(Dictionary x, Dictionary y) {
+    if (x.size() != y.size()) {
+      return false;
+    }
+    for (final Enumeration e = x.keys(); e.hasMoreElements(); ) {
+      final Object key = e.nextElement();
+      if (!Objects.deepEquals(x.get(key), y.get(key))) {
+        return false;
+      }
+    }
+    return true;
   }
 }

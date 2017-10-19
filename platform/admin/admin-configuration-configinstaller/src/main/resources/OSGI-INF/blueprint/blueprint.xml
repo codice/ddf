@@ -12,25 +12,35 @@
  **/ -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
+    <bean id="strategiesBean" class="org.codice.ddf.platform.util.SortedServiceList"/>
+    <reference-list id="strategiesRefList"
+                    interface="org.codice.ddf.platform.io.internal.PersistenceStrategy"
+                    availability="optional">
+        <reference-listener ref="strategiesBean" bind-method="bindPlugin"
+                            unbind-method="unbindPlugin"/>
+    </reference-list>
+
     <reference id="configAdmin"
-               interface="org.osgi.service.cm.ConfigurationAdmin"
+               interface="org.codice.ddf.admin.core.api.ConfigurationAdmin"
                availability="mandatory"/>
 
-    <reference id="configuratorFactory"
-               interface="org.codice.ddf.admin.configurator.ConfiguratorFactory"
+    <reference id="encryptionService"
+               interface="ddf.security.encryption.EncryptionService"
                availability="mandatory"/>
 
-    <reference id="configActions"
-               interface="org.codice.ddf.internal.admin.configurator.actions.ConfigActions"
+    <reference id="contextFactory"
+               interface="org.codice.felix.cm.internal.ConfigurationContextFactory"
                availability="mandatory"/>
 
     <bean id="configInstaller" class="org.codice.ddf.admin.configuration.ConfigurationInstaller"
           init-method="init">
         <argument ref="configAdmin"/>
-        <argument ref="configuratorFactory"/>
-        <argument ref="configActions"/>
+        <argument ref="strategiesBean"/>
+        <argument ref="encryptionService"/>
+        <argument ref="contextFactory"/>
     </bean>
 
-    <service ref="configInstaller" interface="org.osgi.service.cm.ConfigurationListener"/>
+    <service ref="configInstaller"
+             interface="org.codice.felix.cm.internal.ConfigurationPersistencePlugin"/>
 
 </blueprint>
