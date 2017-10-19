@@ -13,13 +13,13 @@
 
     button > .navigation-indicator {
         position: absolute;
-        right: 0px;
+        left: @minimumButtonSize - 0.5*@minimumSpacing;
         top: -.3125rem;
     }
 
     button > .navigation-sources {
         position: absolute;
-        right: 0px;
+        left: @minimumButtonSize - 0.5*@minimumSpacing;
         top: @minimumSpacing;
         color: @warning-color;
 
@@ -47,7 +47,7 @@
 
     button > .navigation-multiple {
         position: absolute;
-        right: 0px;
+        left: @minimumButtonSize - 0.5*@minimumSpacing;
         top: @minimumSpacing;
         color: @warning-color;
     }
@@ -87,14 +87,6 @@
         .navigation-multiple {
             opacity: 1;
             transform: scale(1);
-        }
-    }
-
-    &.has-unavailable,
-    &.has-unsaved {
-        button {
-            width: @minimumButtonSize + 0.625rem;
-            padding-right: 0.625rem;
         }
     }
 }
