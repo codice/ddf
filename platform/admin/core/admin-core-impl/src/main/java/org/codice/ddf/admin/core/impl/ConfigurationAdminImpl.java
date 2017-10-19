@@ -161,6 +161,11 @@ public class ConfigurationAdminImpl implements org.codice.ddf.admin.core.api.Con
     return null;
   }
 
+  public Configuration[] listConfigurations(String filter)
+      throws IOException, InvalidSyntaxException {
+    return configurationAdmin.listConfigurations(filter);
+  }
+
   public List<Service> listServices(String serviceFactoryFilter, String serviceFilter) {
     List<Service> serviceList = null;
     List<Service> serviceFactoryList = null;

@@ -192,12 +192,7 @@
         </dependency>
         <dependency>
             <groupId>ddf.admin</groupId>
-            <artifactId>admin-configuration-passwordencryption</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ddf.admin</groupId>
-            <artifactId>admin-configuration-configinstaller</artifactId>
+            <artifactId>admin-configuration-configupdater</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

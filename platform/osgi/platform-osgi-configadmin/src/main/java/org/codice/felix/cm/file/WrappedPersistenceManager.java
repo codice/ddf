@@ -21,8 +21,11 @@ import org.apache.felix.cm.PersistenceManager;
 /**
  * Basic wrapper class for enhancing functionality of any persistence manager with additional layers
  * of processing.
+ *
+ * <p><b>See FELIX-4005 & FELIX-4556. This class cannot utilize Java 8 language constructs due to
+ * maven bundle plugin 2.3.7</b>
  */
-public class WrappedPersistenceManager implements PersistenceManager {
+public class WrappedPersistenceManager implements PersistenceManager, AutoCloseable {
 
   private final PersistenceManager persistenceManager;
 
@@ -31,6 +34,13 @@ public class WrappedPersistenceManager implements PersistenceManager {
       throw new IllegalArgumentException("PersistenceManager cannot be null");
     }
     this.persistenceManager = persistenceManager;
+  }
+
+  @Override
+  public void close() throws Exception {
+    if (persistenceManager instanceof AutoCloseable) {
+      ((WrappedPersistenceManager) persistenceManager).close();
+    }
   }
 
   @Override
