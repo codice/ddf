@@ -1,9 +1,9 @@
-:title: Special Configurations
+:title: Configuring for Special Deployments
 :type: configuringIntro
 :status: published
 :parent: Configuring
 :order: 10
-:summary: Special configurations
+:summary: Configuring for Special Deployments
 
 == {title}
 

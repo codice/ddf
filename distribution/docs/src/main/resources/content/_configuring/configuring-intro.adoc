@@ -28,4 +28,4 @@ Set up <<_configuring_user_access,Users>> with security attributes, then configu
 
 Connecting ${branding} to other data sources, including other instances of ${branding} is covered in the <<_configuring_federation,Configuring Federation>> section.
 
-Lastly, see the <<_special_configurations,Special Configurations>> section for guidance on common specialized installations, such as <<_configuring_for_a_fanout_proxy,fanout>> or <<_reusing_configurations,multiple identical configurations>>.
+Lastly, see the <<_configuring_for_special_deployments,Configuring for Special Deployments>> section for guidance on common specialized installations, such as <<_configuring_for_a_fanout_proxy,fanout>> or <<_reusing_configurations,multiple identical configurations>>.

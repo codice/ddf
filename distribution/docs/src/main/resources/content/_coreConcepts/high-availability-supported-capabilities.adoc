@@ -6,16 +6,16 @@
 
 ===== {title}
 
-Only these capabilities are supported in a Highly Available Cluster. For an even more detailed view, see the <<_high_availability_supported_features,List of Supported Features>>.
+Only these capabilities are supported in a Highly Available Cluster. For a detailed list of features, look at the `ha.json` file located in `<${branding}_HOME>/etc/profiles/`.
 
 * User Interfaces:
 ** Simple
-** Standard
 ** Intrigue
 * Catalog:
 ** Validation
 ** Plug-ins: Expiration Date, JPEG2000, Metacard Validation, Schematron, Versioning
 ** Transformers
+** Content File System Storage Provider
 * Platform:
 ** Actions
 ** Configuration
@@ -24,6 +24,10 @@ Only these capabilities are supported in a Highly Available Cluster. For an even
 ** Security: Audit, Encryption
 * Solr
 * Security
+* Thirdy Party:
+** CXF
+** Camel
 * Endpoints:
 ** REST Endpoint
 ** CSW Endpoint
+** OpenSearch Endpoint
