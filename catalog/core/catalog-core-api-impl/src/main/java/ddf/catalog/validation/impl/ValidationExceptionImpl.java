@@ -22,9 +22,9 @@ public class ValidationExceptionImpl extends ValidationException {
 
   private static final long serialVersionUID = 1L;
 
-  protected List<String> errors;
+  private List<String> errors;
 
-  protected List<String> warnings;
+  private List<String> warnings;
 
   public ValidationExceptionImpl() {
     super();

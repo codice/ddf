@@ -68,6 +68,6 @@ public class FacetedQueryRequest extends QueryRequestImpl {
       FacetProperties facetProperties) {
     super(query, isEnterprise, sourceIds, new HashMap<>(properties));
 
-    this.properties.put(EXPERIMENTAL_FACET_PROPERTIES_KEY, facetProperties);
+    this.getProperties().put(EXPERIMENTAL_FACET_PROPERTIES_KEY, facetProperties);
   }
 }

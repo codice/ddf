@@ -18,7 +18,7 @@ import ddf.catalog.data.MetacardType;
 import java.util.Set;
 
 public class DynamicMetacardType implements MetacardType {
-  Set<AttributeDescriptor> attributeDescriptors;
+  private Set<AttributeDescriptor> attributeDescriptors;
 
   String name;
 
