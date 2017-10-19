@@ -69,6 +69,15 @@
         <argument ref="eventAdmin"/>
     </bean>
 
+    <bean id="noteMetacardType" class="org.codice.ddf.catalog.ui.metacard.notes.NoteMetacardType"/>
+
+    <service ref="noteMetacardType" interface="ddf.catalog.data.MetacardType">
+        <service-properties>
+            <entry key="name" value="ddf.metacard.NoteMetacardType"/>
+            <entry key="id" value="resource-note"/>
+        </service-properties>
+    </service>
+
     <service interface="ddf.catalog.plugin.PreIngestPlugin">
         <ref component-id="workspacePreIngestPlugin" />
     </service>
@@ -137,13 +146,17 @@
         <argument ref="configurationApplication" />
     </bean>
 
+    <bean id="noteUtil" class="org.codice.ddf.catalog.ui.metacard.notes.NoteUtil">
+        <argument ref="filterBuilder"/>
+        <argument ref="catalogFramework"/>
+    </bean>
+
     <bean id="workspaceTransformer"
           class="org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceTransformer">
         <argument ref="catalogFramework"/>
         <argument ref="inputTransformer"/>
         <argument ref="endpointUtil"/>
     </bean>
-
 
     <bean id="validator" class="org.codice.ddf.catalog.ui.metacard.validation.Validator">
         <argument>
@@ -212,6 +225,7 @@
         <argument ref="csvQueryResponseTransformer" />
         <argument ref="attributeRegistry" />
         <argument ref="configurationApplication" />
+        <argument ref="noteUtil" />
     </bean>
 
     <bean id="queryApplication" class="org.codice.ddf.catalog.ui.query.QueryApplication">

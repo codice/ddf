@@ -40,6 +40,7 @@ import ddf.catalog.core.versioning.DeletedMetacard;
 import ddf.catalog.core.versioning.MetacardVersion;
 import ddf.catalog.core.versioning.MetacardVersion.Action;
 import ddf.catalog.core.versioning.impl.MetacardVersionImpl;
+import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.AttributeType;
@@ -49,6 +50,8 @@ import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.data.impl.types.SecurityAttributes;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.DeleteResponse;
@@ -71,6 +74,7 @@ import ddf.catalog.transform.QueryResponseTransformer;
 import ddf.catalog.util.impl.ResultIterable;
 import ddf.security.Subject;
 import ddf.security.SubjectUtils;
+import ddf.security.common.audit.SecurityLogger;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -110,6 +114,9 @@ import org.codice.ddf.catalog.ui.metacard.associations.Associated;
 import org.codice.ddf.catalog.ui.metacard.edit.AttributeChange;
 import org.codice.ddf.catalog.ui.metacard.edit.MetacardChanges;
 import org.codice.ddf.catalog.ui.metacard.history.HistoryResponse;
+import org.codice.ddf.catalog.ui.metacard.notes.NoteConstants;
+import org.codice.ddf.catalog.ui.metacard.notes.NoteMetacard;
+import org.codice.ddf.catalog.ui.metacard.notes.NoteUtil;
 import org.codice.ddf.catalog.ui.metacard.transform.CsvTransform;
 import org.codice.ddf.catalog.ui.metacard.validation.Validator;
 import org.codice.ddf.catalog.ui.metacard.workspace.WorkspaceAttributes;
@@ -137,6 +144,12 @@ public class MetacardApplication implements SparkApplication {
 
   private static final Security SECURITY = Security.getInstance();
 
+  private static final String ERROR_RESPONSE_TYPE = "error";
+
+  private static final String SUCCESS_RESPONSE_TYPE = "success";
+
+  private static final MetacardType SECURITY_ATTRIBUTES = new SecurityAttributes();
+  private static int pageSize = 250;
   private final ObjectMapper mapper =
       JsonFactory.create(
           new JsonParserFactory().usePropertyOnly(),
@@ -145,32 +158,22 @@ public class MetacardApplication implements SparkApplication {
               .includeNulls()
               .includeDefaultValues()
               .setJsonFormatForDates(false));
-
   private final CatalogFramework catalogFramework;
-
   private final FilterBuilder filterBuilder;
-
   private final EndpointUtil util;
-
   private final Validator validator;
-
   private final WorkspaceTransformer transformer;
-
   private final ExperimentalEnumerationExtractor enumExtractor;
-
   private final SubscriptionsPersistentStore subscriptions;
-
   private final List<MetacardType> types;
-
   private final Associated associated;
-
-  private static int pageSize = 250;
-
   private final QueryResponseTransformer csvQueryResponseTransformer;
 
   private final AttributeRegistry attributeRegistry;
 
   private final ConfigurationApplication configuration;
+
+  private final NoteUtil noteUtil;
 
   public MetacardApplication(
       CatalogFramework catalogFramework,
@@ -184,7 +187,8 @@ public class MetacardApplication implements SparkApplication {
       Associated associated,
       QueryResponseTransformer csvQueryResponseTransformer,
       AttributeRegistry attributeRegistry,
-      ConfigurationApplication configuration) {
+      ConfigurationApplication configuration,
+      NoteUtil noteUtil) {
     this.catalogFramework = catalogFramework;
     this.filterBuilder = filterBuilder;
     this.util = endpointUtil;
@@ -197,6 +201,7 @@ public class MetacardApplication implements SparkApplication {
     this.csvQueryResponseTransformer = csvQueryResponseTransformer;
     this.attributeRegistry = attributeRegistry;
     this.configuration = configuration;
+    this.noteUtil = noteUtil;
   }
 
   private String getSubjectEmail() {
@@ -584,6 +589,137 @@ public class MetacardApplication implements SparkApplication {
             }
           }
           return "";
+        });
+
+    post(
+        "/annotations",
+        (req, res) -> {
+          Map<String, Object> incoming =
+              JsonFactory.create().parser().parseMap(util.safeGetBody(req));
+          String workspaceId = incoming.get("workspace").toString();
+          String queryId = incoming.get("parent").toString();
+          String annotation = incoming.get("note").toString();
+          String user = getSubjectEmail();
+          if (user == null) {
+            res.status(401);
+            return util.getResponseWrapper(
+                ERROR_RESPONSE_TYPE,
+                "You are not authorized to create notes! A user email is required. "
+                    + "Please ensure you are logged in and/or have a valid email registered in the system.");
+          }
+          if (StringUtils.isBlank(annotation)) {
+            res.status(400);
+            return util.getResponseWrapper(ERROR_RESPONSE_TYPE, "No annotation!");
+          }
+          NoteMetacard noteMetacard = new NoteMetacard(queryId, user, annotation);
+
+          Metacard workspaceMetacard = util.findWorkspace(workspaceId);
+
+          if (workspaceMetacard == null) {
+            res.status(404);
+            return util.getResponseWrapper(
+                ERROR_RESPONSE_TYPE, "Cannot find the workspace metacard!");
+          }
+
+          util.copyAttributes(workspaceMetacard, SECURITY_ATTRIBUTES, noteMetacard);
+
+          Metacard note = saveMetacard(noteMetacard);
+
+          SecurityLogger.auditWarn(
+              "Attaching an annotation to a resource: resource={} annotation={}",
+              SecurityUtils.getSubject(),
+              workspaceId,
+              noteMetacard.getId());
+
+          Map<String, String> responseNote = noteUtil.getResponseNote(note);
+          if (responseNote == null) {
+            res.status(500);
+            return util.getResponseWrapper(
+                ERROR_RESPONSE_TYPE, "Cannot serialize note metacard to json!");
+          }
+          return util.getResponseWrapper(SUCCESS_RESPONSE_TYPE, util.getJson(responseNote));
+        });
+
+    get(
+        "/annotations/:queryid",
+        (req, res) -> {
+          String queryId = req.params(":queryid");
+
+          List<Metacard> retrievedMetacards =
+              noteUtil.getAssociatedMetacardsByTwoAttributes(
+                  NoteConstants.PARENT_ID, Core.METACARD_TAGS, queryId, "note");
+          ArrayList<String> getResponse = new ArrayList<>();
+          retrievedMetacards.sort(Comparator.comparing(Metacard::getCreatedDate));
+          for (Metacard metacard : retrievedMetacards) {
+            Map<String, String> responseNote = noteUtil.getResponseNote(metacard);
+            if (responseNote != null) {
+              getResponse.add(util.getJson(responseNote));
+            }
+          }
+          return util.getResponseWrapper(SUCCESS_RESPONSE_TYPE, getResponse.toString());
+        });
+
+    put(
+        "/annotations/:id",
+        APPLICATION_JSON,
+        (req, res) -> {
+          Map<String, Object> incoming =
+              JsonFactory.create().parser().parseMap(util.safeGetBody(req));
+          String noteMetacardId = req.params(":id");
+          String note = incoming.get("note").toString();
+          Metacard metacard;
+          try {
+            metacard = util.getMetacard(noteMetacardId);
+          } catch (NotFoundException e) {
+            LOGGER.debug("Note metacard was not found for updating. id={}", noteMetacardId);
+            res.status(404);
+            return util.getResponseWrapper(ERROR_RESPONSE_TYPE, "Note metacard was not found!");
+          }
+
+          Attribute attribute = metacard.getAttribute(Core.METACARD_OWNER);
+          if (attribute != null
+              && attribute.getValue() != null
+              && !attribute.getValue().equals(getSubjectEmail())) {
+            res.status(401);
+            return util.getResponseWrapper(
+                ERROR_RESPONSE_TYPE, "Owner of note metacard is invalid!");
+          }
+          metacard.setAttribute(new AttributeImpl(NoteConstants.COMMENT, note));
+          metacard = updateMetacard(metacard.getId(), metacard);
+          Map<String, String> responseNote = noteUtil.getResponseNote(metacard);
+          return util.getResponseWrapper(SUCCESS_RESPONSE_TYPE, util.getJson(responseNote));
+        });
+
+    delete(
+        "/annotations/:id",
+        (req, res) -> {
+          String noteToDeleteMetacardId = req.params(":id");
+          Metacard metacard;
+          try {
+            metacard = util.getMetacard(noteToDeleteMetacardId);
+          } catch (NotFoundException e) {
+            LOGGER.debug("Note metacard was not found for deleting. id={}", noteToDeleteMetacardId);
+            res.status(404);
+            return util.getResponseWrapper(ERROR_RESPONSE_TYPE, "Note metacard was not found!");
+          }
+          Attribute attribute = metacard.getAttribute(Core.METACARD_OWNER);
+          if (attribute != null
+              && attribute.getValue() != null
+              && !attribute.getValue().equals(getSubjectEmail())) {
+            res.status(401);
+            return util.getResponseWrapper(
+                ERROR_RESPONSE_TYPE, "Owner of note metacard is invalid!");
+          }
+          DeleteResponse deleteResponse =
+              catalogFramework.delete(new DeleteRequestImpl(noteToDeleteMetacardId));
+          if (deleteResponse.getDeletedMetacards() != null
+              && !deleteResponse.getDeletedMetacards().isEmpty()) {
+            Map<String, String> responseNote =
+                noteUtil.getResponseNote(deleteResponse.getDeletedMetacards().get(0));
+            return util.getResponseWrapper(SUCCESS_RESPONSE_TYPE, util.getJson(responseNote));
+          }
+          res.status(500);
+          return util.getResponseWrapper(ERROR_RESPONSE_TYPE, "Could not delete note metacard!");
         });
 
     after(

@@ -15,6 +15,7 @@ package org.codice.ddf.catalog.ui.util;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
@@ -22,12 +23,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.InjectableAttribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.filter.AttributeBuilder;
 import ddf.catalog.filter.ContextualExpressionBuilder;
 import ddf.catalog.filter.EqualityExpressionBuilder;
@@ -35,7 +38,10 @@ import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -178,5 +184,39 @@ public class EndpointUtilTest {
     }
 
     return resultMockList;
+  }
+
+  @Test
+  public void testCopyAttributes() {
+
+    AttributeDescriptor firstAttributeDescriptor = mock(AttributeDescriptor.class);
+    when(firstAttributeDescriptor.getName()).thenReturn("first");
+
+    AttributeDescriptor secondAttributeDescriptor = mock(AttributeDescriptor.class);
+    when(secondAttributeDescriptor.getName()).thenReturn("second");
+
+    MetacardType metacardType = mock(MetacardType.class);
+    when(metacardType.getAttributeDescriptors())
+        .thenReturn(
+            new HashSet<>(Arrays.asList(firstAttributeDescriptor, secondAttributeDescriptor)));
+
+    String firstValue = "a";
+    String secondValue = "b";
+
+    Metacard sourceMetacard = new MetacardImpl();
+    sourceMetacard.setAttribute(new AttributeImpl(firstAttributeDescriptor.getName(), firstValue));
+    sourceMetacard.setAttribute(
+        new AttributeImpl(secondAttributeDescriptor.getName(), secondValue));
+
+    Metacard destinationMetacard = new MetacardImpl();
+
+    endpointUtil.copyAttributes(sourceMetacard, metacardType, destinationMetacard);
+
+    assertThat(
+        Collections.singletonList(firstValue),
+        is(destinationMetacard.getAttribute(firstAttributeDescriptor.getName()).getValues()));
+    assertThat(
+        Collections.singletonList(secondValue),
+        is(destinationMetacard.getAttribute(secondAttributeDescriptor.getName()).getValues()));
   }
 }

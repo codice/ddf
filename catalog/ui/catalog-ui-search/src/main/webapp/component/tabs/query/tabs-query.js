@@ -17,9 +17,10 @@ define([
     'component/query-settings/query-settings.view',
     'component/query-status/query-status.view',
     'component/query-schedule/query-schedule.view',
-    'component/query-editor/query-editor.view'
+    'component/query-editor/query-editor.view',
+    'component/query-annotations/query-annotations.view'
 ], function (_, Tabs, store, QuerySettingsView, QueryStatusView,
-             QueryScheduleView, QueryEditorView) {
+             QueryScheduleView, QueryEditorView, QueryAnnotationsView) {
 
     var WorkspaceContentTabs = Tabs.extend({
         defaults: {
@@ -27,7 +28,8 @@ define([
                 'Search': QueryEditorView,
                 'Settings': QuerySettingsView,
                 'Schedule': QueryScheduleView,
-                'Status': QueryStatusView
+                'Status': QueryStatusView,
+                'Annotations' : QueryAnnotationsView
             }
         },
         getAssociatedQuery: function(){

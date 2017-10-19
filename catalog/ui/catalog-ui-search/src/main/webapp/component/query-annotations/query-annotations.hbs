@@ -11,12 +11,19 @@
  *
  **/
  --}}
-<div class="if-editing">
-    <textarea class="ta-enabled" id="{{cid}}" value="{{value}}"
-              placeholder="{{property.placeholder}}" name="{{property.id}}">{{value}}</textarea>
+
+<div class="add-annotation-field">
 </div>
-<div class="if-viewing">
-    <textarea class="ta-disabled" disabled id="{{cid}}" value="{{value}}"
-              placeholder="{{property.placeholder}}" name="{{property.id}}">{{value}}</textarea>
-    <button class="ta-expand"><i class="fa fa-ellipsis-h"></i></button>
+
+<button class="add-annotation-btn is-positive">
+    <span class="fa fa-plus"></span>
+</button>
+<button class="refresh-btn is-primary">
+    <span class="fa fa-refresh"></span>
+</button>
+
+<div class="annotations-list"></div>
+
+<div class="no-annotations">
+    No annotations have been added yet!
 </div>
