@@ -585,12 +585,6 @@ The Platform Commands are installed when the ${ddf-platform} application is inst
 |Command
 |Description
 
-|config-export
-|Exports the current configurations.
-
-|config-status
-|Lists import status of configuration files.
-
 |describe
 |Shows the current platform configuration.
 

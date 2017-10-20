@@ -1,9 +1,9 @@
-:title: Miscellaneous Customizations
+:title: Miscellaneous Configurations
 :type: configuringIntro
 :status: published
 :parent: Configuring
 :order: 11
-:Summary: Miscellaneous customizations and optimizations
+:Summary: Miscellaneous configurations and optimizations
 
 == {title}
 

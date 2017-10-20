@@ -1,0 +1,25 @@
+:title: Configuring for a Highly Available Cluster
+:type: configuration
+:status: published
+:parent: Configuring for Special Deployments
+:summary: Environment security mitigations.
+:order: 04
+
+== Configuring for a Highly Available Cluster
+
+This section describes how to make configuration changes after the initial setup for a ${branding} in a <<_introduction_to_high_availability,Highly Available Cluster>>.
+
+In a Highly Available Cluster, configuration changes must be made on both ${branding} nodes.
+The changes can still be made in the standard ways via the <<_admin_console_tutorial,Admin Console>>,
+the <<_console_command_reference,Command Line>>, or the <<_configuration_files, file system>>.
+
+[NOTE]
+====
+Changes made in the Admin Console must be made through the HTTP proxy.
+This means that the below steps should be followed to make a change in the Admin Console:
+
+* Make a configuration change on the currently active ${branding} node
+* Shut down the active ${branding} node, making the failover proxy switch to the standby ${branding} node
+* Make the same configuration change on the newly active ${branding} node
+* Start the ${branding} node that was just shut down
+====
