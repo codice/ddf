@@ -21,6 +21,7 @@ var NavigationRightView = require('component/navigation-right/navigation-right.v
 var store = require('js/store');
 var wreqr = require('wreqr');
 var sources = require('component/singletons/sources-instance');
+var properties = require('properties');
 
 module.exports = Marionette.LayoutView.extend({
     template: template,
@@ -38,6 +39,7 @@ module.exports = Marionette.LayoutView.extend({
         this.listenTo(sources, 'all', this.handleSources);
         this.handleSaved();
         this.handleSources();
+        this.handleLogo();
     },
     showNavigationMiddle: function(){
         //override in extensions
@@ -62,5 +64,9 @@ module.exports = Marionette.LayoutView.extend({
             return !source.get('available');
         });
         this.$el.toggleClass('has-unavailable', hasDown);
+    },
+    handleLogo: function() {
+        var hasLogo = properties.showLogo && properties.ui.productImage !== "";
+        this.$el.toggleClass('has-logo', hasLogo);
     }
 });

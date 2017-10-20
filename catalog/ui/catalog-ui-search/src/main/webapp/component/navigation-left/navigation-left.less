@@ -53,7 +53,8 @@
     }
 
     img {
-      max-height: @minimumButtonSize;
+        width: @minimumButtonSize;
+        height: @minimumButtonSize;
     }
     
     .navigation-multiple,
@@ -62,6 +63,7 @@
         transform: scale(2);
         transition: transform @coreTransitionTime ease-out, opacity @coreTransitionTime ease-out;
     }
+
 
     &.has-unavailable {
         .navigation-sources {

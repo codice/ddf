@@ -20,7 +20,7 @@
   }
 
   > .navigation-left {
-    min-width: @minimumButtonSize;
+    width: @minimumButtonSize;
     transition: width @coreTransitionTime ease-out;
   }
 
@@ -55,6 +55,22 @@
   > .navigation-middle {
     width: ~'calc(100% - 8*@{minimumButtonSize} - 0.625rem)';
   }
+}
+
+@{customElementNamespace}navigation.has-logo {
+  > .navigation-left {
+    width: 2.0*@minimumButtonSize;
+  }
+
+  > .navigation-middle {
+      width: ~'calc(100% - 6*@{minimumButtonSize} - 9rem)';
+    }
+
+    &.has-unavailable, &.has-unsaved {
+    > .navigation-middle{
+      width: ~'calc(100% - 9*@{minimumButtonSize} - 0.625rem)';
+    }
+    }
 }
 
 html.is-drawing {
