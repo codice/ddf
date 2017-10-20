@@ -1,0 +1,10 @@
+:title: Highly Available Cluster Notice
+:type: developingIntro
+:status: published
+:summary: Links to highly-available guidance.
+:order: 001
+
+[IMPORTANT]
+====
+If developing for a Highly Available Cluster of ${branding}, see <<_high_availability_guidance,High Availability Guidance>>.
+====

@@ -1,7 +1,7 @@
 :title: Configuring for a Fanout Proxy
 :type: configuration
 :status: published
-:parent: Special Configurations
+:parent: Configuring for Special Deployments
 :summary: Configure ${branding} as a fanout proxy such that only queries and resource retrieval requests are processed and create/update/delete requests are rejected.
 :order: 01
 

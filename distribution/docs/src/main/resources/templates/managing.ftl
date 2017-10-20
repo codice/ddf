@@ -18,6 +18,14 @@ include::${ii.file}[]
 
 include::${installing.file}[]
 
+<#list subInstallings?sort_by("order") as subInstalling>
+<#if (subInstalling.parent == installing.title)>
+
+include::${subInstalling.file}[]
+
+</#if>
+</#list>
+
 </#if>
 </#list>
 
