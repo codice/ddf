@@ -17,12 +17,14 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Dictionary;
 import javax.servlet.Filter;
 import javax.servlet.FilterRegistration;
+import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
 import javax.servlet.SessionCookieConfig;
 import org.junit.Test;
@@ -30,6 +32,7 @@ import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 
@@ -39,7 +42,9 @@ import org.osgi.framework.ServiceRegistration;
  */
 public class FilterInjectorTest {
 
-  private ServiceReference<ServletContext> curReference;
+  private ServiceReference curReference;
+
+  private ServiceEvent curEvent;
 
   private ServletContext curContext;
 
@@ -50,13 +55,72 @@ public class FilterInjectorTest {
     FilterInjector injector = new FilterInjector(filter);
     updateMockReference();
 
-    injector.injectFilter(curReference);
+    injector.event(curEvent, null);
 
     verify(curContext).addFilter("delegating-filter", filter);
   }
 
+  @Test
+  public void testInjectFilterHandlesOnlyServletContext() {
+    Filter filter = mock(Filter.class);
+    FilterInjector injector = new FilterInjector(filter);
+    curEvent = mock(ServiceEvent.class);
+    curReference = mock(ServiceReference.class);
+    curContext = mock(ServletContext.class);
+    Servlet service = mock(Servlet.class);
+    Bundle bundle = mock(Bundle.class);
+    BundleContext context = mock(BundleContext.class);
+
+    when(curEvent.getType()).thenReturn(ServiceEvent.REGISTERED);
+    when(curEvent.getServiceReference()).thenReturn(curReference);
+    when(curReference.getBundle()).thenReturn(bundle);
+    when(bundle.getBundleContext()).thenReturn(context);
+    when(context.getService(curReference)).thenReturn(service);
+
+    injector.event(curEvent, null);
+
+    verify(curContext, never()).addFilter("delegating-filter", filter);
+  }
+
+  @Test
+  public void testInjectFilterIgnoresUnregisteringEvents() {
+    Filter filter = mock(Filter.class);
+    FilterInjector injector = new FilterInjector(filter);
+    curEvent = mock(ServiceEvent.class);
+    when(curEvent.getType()).thenReturn(ServiceEvent.UNREGISTERING);
+
+    injector.event(curEvent, null);
+
+    verify(curEvent, never()).getServiceReference();
+  }
+
+  @Test
+  public void testInjectFilterIgnoresModifiedEvents() {
+    Filter filter = mock(Filter.class);
+    FilterInjector injector = new FilterInjector(filter);
+    curEvent = mock(ServiceEvent.class);
+    when(curEvent.getType()).thenReturn(ServiceEvent.MODIFIED);
+
+    injector.event(curEvent, null);
+
+    verify(curEvent, never()).getServiceReference();
+  }
+
+  @Test
+  public void testInjectFilterIgnoresModifiedEndMatchEvents() {
+    Filter filter = mock(Filter.class);
+    FilterInjector injector = new FilterInjector(filter);
+    curEvent = mock(ServiceEvent.class);
+    when(curEvent.getType()).thenReturn(ServiceEvent.MODIFIED_ENDMATCH);
+
+    injector.event(curEvent, null);
+
+    verify(curEvent, never()).getServiceReference();
+  }
+
   @SuppressWarnings("unchecked")
   private void updateMockReference() {
+    curEvent = mock(ServiceEvent.class);
     curReference = mock(ServiceReference.class);
     Bundle bundle = mock(Bundle.class);
     BundleContext context = mock(BundleContext.class);
@@ -74,5 +138,7 @@ public class FilterInjectorTest {
     when(bundle.getBundleContext()).thenReturn(context);
     when(bundle.getSymbolicName()).thenReturn("Mock Bundle.");
     when(curReference.getBundle()).thenReturn(bundle);
+    when(curEvent.getType()).thenReturn(ServiceEvent.REGISTERED);
+    when(curEvent.getServiceReference()).thenReturn(curReference);
   }
 }

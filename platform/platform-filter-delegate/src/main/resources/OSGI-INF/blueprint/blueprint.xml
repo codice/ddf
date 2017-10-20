@@ -15,12 +15,6 @@
 
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <!-- Get a List of all ServletContexts. Every Web App that gets registered will have a ServletContext.
-    More Info on ServletContext: http://docs.oracle.com/cd/E17802_01/products/products/servlet/2.5/docs/servlet-2_5-mr2/ -->
-    <reference-list id="servletContexts" interface="javax.servlet.ServletContext">
-        <reference-listener ref="filterInjector" bind-method="injectFilter"/>
-    </reference-list>
-
     <reference-list id="securityFilters" interface="org.codice.ddf.platform.filter.SecurityFilter"
                     member-type="service-reference" availability="optional">
         <reference-listener unbind-method="removeSecurityFilter" ref="delegateServletFilter"/>
@@ -32,6 +26,8 @@
     <bean id="filterInjector" class="org.codice.ddf.platform.filter.delegate.FilterInjector">
         <argument ref="delegateServletFilter"/>
     </bean>
+
+    <service interface="org.osgi.framework.hooks.service.EventListenerHook" ref="filterInjector" />
 
     <reference-list id="sessionListener" interface="javax.servlet.http.HttpSessionListener"
                     availability="optional">
