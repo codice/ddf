@@ -15,8 +15,10 @@ package org.codice.ddf.platform.filter.delegate;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
 import javax.servlet.FilterRegistration;
@@ -29,7 +31,10 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceReference;
+import org.osgi.framework.hooks.service.EventListenerHook;
+import org.osgi.framework.hooks.service.ListenerHook.ListenerInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +45,7 @@ import org.slf4j.LoggerFactory;
  * Sets up all {@link javax.servlet.Servlet}s with the {@link DelegateServletFilter} as the first in
  * the {@link javax.servlet.FilterChain}.
  */
-public class FilterInjector {
+public class FilterInjector implements EventListenerHook {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FilterInjector.class);
 
@@ -61,18 +66,25 @@ public class FilterInjector {
     this.delegateServletFilter = filter;
   }
 
+  @Override
+  public void event(ServiceEvent event, Map<BundleContext, Collection<ListenerInfo>> listeners) {
+    if (event.getType() == ServiceEvent.REGISTERED) {
+      Bundle refBundle = event.getServiceReference().getBundle();
+      BundleContext bundlectx = refBundle.getBundleContext();
+      Object service = bundlectx.getService(event.getServiceReference());
+      if (service instanceof ServletContext) {
+        injectFilter((ServletContext) service, refBundle);
+      }
+    }
+  }
+
   /**
-   * Injects the filter into the passed-in servlet context. This only works if the servlet has not
-   * already been initialized.
+   * Injects the filter into the passed-in servlet context.
    *
-   * @param serviceReference Reference to the servlet context that the filter should be injected
-   *     into.
+   * @param context The servlet context that the filter should be injected into.
+   * @param refBundle The bundle of the ServletContext
    */
-  public void injectFilter(ServiceReference<ServletContext> serviceReference) {
-    Bundle refBundle = serviceReference.getBundle();
-    LOGGER.debug("Adding Servlet Filter for {}", refBundle.getSymbolicName());
-    BundleContext bundlectx = refBundle.getBundleContext();
-    ServletContext context = bundlectx.getService(serviceReference);
+  private void injectFilter(ServletContext context, Bundle refBundle) {
     try {
       SessionCookieConfig sessionCookieConfig = context.getSessionCookieConfig();
       sessionCookieConfig.setPath("/");

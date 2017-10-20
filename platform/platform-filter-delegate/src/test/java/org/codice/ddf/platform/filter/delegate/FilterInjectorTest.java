@@ -30,6 +30,7 @@ import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 
@@ -39,7 +40,9 @@ import org.osgi.framework.ServiceRegistration;
  */
 public class FilterInjectorTest {
 
-  private ServiceReference<ServletContext> curReference;
+  private ServiceReference curReference;
+
+  private ServiceEvent curEvent;
 
   private ServletContext curContext;
 
@@ -50,13 +53,14 @@ public class FilterInjectorTest {
     FilterInjector injector = new FilterInjector(filter);
     updateMockReference();
 
-    injector.injectFilter(curReference);
+    injector.event(curEvent, null);
 
     verify(curContext).addFilter("delegating-filter", filter);
   }
 
   @SuppressWarnings("unchecked")
   private void updateMockReference() {
+    curEvent = mock(ServiceEvent.class);
     curReference = mock(ServiceReference.class);
     Bundle bundle = mock(Bundle.class);
     BundleContext context = mock(BundleContext.class);
@@ -74,5 +78,7 @@ public class FilterInjectorTest {
     when(bundle.getBundleContext()).thenReturn(context);
     when(bundle.getSymbolicName()).thenReturn("Mock Bundle.");
     when(curReference.getBundle()).thenReturn(bundle);
+    when(curEvent.getType()).thenReturn(ServiceEvent.REGISTERED);
+    when(curEvent.getServiceReference()).thenReturn(curReference);
   }
 }
