@@ -26,6 +26,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,6 +102,6 @@ public class FileSystemDataAccessObject {
   }
 
   public FilenameFilter getFilenameFilter(String suffix) {
-    return (file, name) -> name.toLowerCase().endsWith(suffix);
+    return (file, name) -> name.toLowerCase(Locale.getDefault()).endsWith(suffix);
   }
 }
