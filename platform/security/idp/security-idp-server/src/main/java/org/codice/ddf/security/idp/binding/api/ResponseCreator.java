@@ -59,10 +59,13 @@ public interface ResponseCreator {
     EntityInformation.ServiceInfo assertionConsumerService =
         serviceProviders
             .get(authnRequest.getIssuer().getValue())
-            .getAssertionConsumerService(authnRequest, null);
+            .getAssertionConsumerService(
+                authnRequest, null, authnRequest.getAssertionConsumerServiceIndex());
     if (assertionConsumerService == null) {
       return null;
     }
     return assertionConsumerService.getBinding().getUri();
   }
+
+  String getAssertionConsumerServiceURL(AuthnRequest authnRequest);
 }

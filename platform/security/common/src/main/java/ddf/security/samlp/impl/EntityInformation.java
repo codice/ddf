@@ -18,12 +18,13 @@ import static java.util.Objects.nonNull;
 import com.google.common.collect.ImmutableSet;
 import ddf.security.samlp.SamlProtocol;
 import ddf.security.samlp.SamlProtocol.Binding;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import javax.annotation.concurrent.Immutable;
 import org.apache.commons.lang.StringUtils;
 import org.opensaml.core.xml.schema.XSBase64Binary;
@@ -33,6 +34,7 @@ import org.opensaml.saml.saml2.metadata.Endpoint;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml.saml2.metadata.KeyDescriptor;
 import org.opensaml.saml.saml2.metadata.SPSSODescriptor;
+import org.opensaml.saml.saml2.metadata.SingleLogoutService;
 import org.opensaml.security.credential.UsageType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,8 +98,24 @@ public class EntityInformation {
     return preferred != null ? preferred : PREFERRED_BINDING;
   }
 
-  public ServiceInfo getAssertionConsumerService(AuthnRequest request, Binding preferred) {
-    ServiceInfo si;
+  public ServiceInfo getAssertionConsumerService(
+      AuthnRequest request, Binding preferred, Integer index) {
+    ServiceInfo si = null;
+    if (request != null && request.getAssertionConsumerServiceURL() != null) {
+      return getAssertionConsumerServiceInfoByUrl(request);
+    }
+    if (index != null) {
+      si =
+          assertionConsumerServices
+              .values()
+              .stream()
+              .filter(serviceInfo -> index.equals(serviceInfo.getIndex()))
+              .findFirst()
+              .orElse(null);
+      if (si != null) {
+        return si;
+      }
+    }
     if (request != null
         && request.getProtocolBinding() != null
         && supportedBindings.contains(Binding.from(request.getProtocolBinding()))) {
@@ -119,6 +137,31 @@ public class EntityInformation {
     return assertionConsumerServices.values().stream().findFirst().orElse(null);
   }
 
+  private ServiceInfo getAssertionConsumerServiceInfoByUrl(AuthnRequest request) {
+    String assertionConsumerServiceURL = request.getAssertionConsumerServiceURL();
+    List<ServiceInfo> infos =
+        assertionConsumerServices
+            .values()
+            .stream()
+            .filter(service -> assertionConsumerServiceURL.equals(service.getUrl()))
+            .collect(Collectors.toList());
+    ServiceInfo si = null;
+    if (!infos.isEmpty()) {
+      si =
+          infos
+              .stream()
+              .filter(service -> service.getBinding().getUri().equals(request.getProtocolBinding()))
+              .findFirst()
+              .orElse(null);
+    }
+    if (si != null) {
+      return si;
+    } else {
+      return new ServiceInfo(
+          assertionConsumerServiceURL, Binding.from(request.getProtocolBinding()), null);
+    }
+  }
+
   public static class Builder {
     private static final ImmutableSet<UsageType> SIGNING_TYPES =
         ImmutableSet.of(UsageType.UNSPECIFIED, UsageType.SIGNING);
@@ -133,9 +176,10 @@ public class EntityInformation {
 
     private ServiceInfo defaultAssertionConsumerService;
 
-    private final Map<Binding, ServiceInfo> assertionConsumerServices = new HashMap<>();
+    private final Map<Binding, ServiceInfo> assertionConsumerServices =
+        new EnumMap<>(Binding.class);
 
-    private final Map<Binding, ServiceInfo> logoutServices = new HashMap<>();
+    private final Map<Binding, ServiceInfo> logoutServices = new EnumMap<>(Binding.class);
 
     public Builder(EntityDescriptor ed, Set<Binding> supportedBindings) {
       spssoDescriptor = getSpssoDescriptor(ed);
@@ -155,11 +199,12 @@ public class EntityInformation {
     }
 
     SPSSODescriptor getSpssoDescriptor(EntityDescriptor ed) {
-      SPSSODescriptor spssoDescriptor = ed.getSPSSODescriptor(SamlProtocol.SUPPORTED_PROTOCOL);
-      if (spssoDescriptor == null) {
+      SPSSODescriptor supportedSpssoDescriptor =
+          ed.getSPSSODescriptor(SamlProtocol.SUPPORTED_PROTOCOL);
+      if (supportedSpssoDescriptor == null) {
         LOGGER.debug("Unable to find supported protocol in EntityDescriptor {}", ed.getEntityID());
       }
-      return spssoDescriptor;
+      return supportedSpssoDescriptor;
     }
 
     Builder parseSigningCertificate() {
@@ -183,35 +228,60 @@ public class EntityInformation {
             "Using AssertionConsumerServiceURL from default assertion consumer service: {}",
             defaultACS.getLocation());
         defaultAssertionConsumerService =
-            new ServiceInfo(defaultACS.getLocation(), Binding.from(defaultACS.getBinding()));
+            new ServiceInfo(
+                defaultACS.getLocation(),
+                Binding.from(defaultACS.getBinding()),
+                defaultACS.getIndex());
       }
 
-      putAllSupported(assertionConsumerServices, spssoDescriptor.getAssertionConsumerServices());
+      putAllSupported(
+          assertionConsumerServices, spssoDescriptor.getAssertionConsumerServices(), null);
       return this;
     }
 
     Builder parseLogoutServices() {
-      putAllSupported(logoutServices, spssoDescriptor.getSingleLogoutServices());
+      putAllSupported(logoutServices, null, spssoDescriptor.getSingleLogoutServices());
       return this;
     }
 
-    void putAllSupported(Map<Binding, ServiceInfo> target, List<? extends Endpoint> services) {
+    void putAllSupported(
+        Map<Binding, ServiceInfo> target,
+        List<AssertionConsumerService> acServices,
+        List<SingleLogoutService> slServices) {
       for (Binding binding : supportedBindings) {
-        ServiceInfo serviceInfo = parseServiceInfo(services, e -> binding.isEqual(e.getBinding()));
-        if (serviceInfo.url != null) {
+        ServiceInfo serviceInfo = null;
+        if (acServices != null) {
+          serviceInfo =
+              parseAssertionConsumerServiceInfo(acServices, e -> binding.isEqual(e.getBinding()));
+        } else if (slServices != null) {
+          serviceInfo =
+              parseSingleLogoutServiceInfo(slServices, e -> binding.isEqual(e.getBinding()));
+        }
+        if (serviceInfo != null && serviceInfo.url != null) {
           target.put(binding, serviceInfo);
         }
       }
     }
 
-    ServiceInfo parseServiceInfo(
-        List<? extends Endpoint> services, Predicate<Endpoint> bindingFilter) {
+    ServiceInfo parseAssertionConsumerServiceInfo(
+        List<AssertionConsumerService> services, Predicate<Endpoint> bindingFilter) {
       return services
           .stream()
           .filter(bindingFilter)
           .findFirst()
-          .map(si -> new ServiceInfo(si.getLocation(), Binding.from(si.getBinding())))
-          .orElse(new ServiceInfo(null, null));
+          .map(
+              si -> new ServiceInfo(si.getLocation(), Binding.from(si.getBinding()), si.getIndex()))
+          .orElse(new ServiceInfo(null, null, null));
+    }
+
+    ServiceInfo parseSingleLogoutServiceInfo(
+        List<SingleLogoutService> services, Predicate<Endpoint> bindingFilter) {
+      return services
+          .stream()
+          .filter(bindingFilter)
+          .findFirst()
+          .map(si -> new ServiceInfo(si.getLocation(), Binding.from(si.getBinding()), null))
+          .orElse(new ServiceInfo(null, null, null));
     }
 
     String extractCertificate(
@@ -245,9 +315,16 @@ public class EntityInformation {
 
     private final Binding binding;
 
-    ServiceInfo(String url, Binding binding) {
+    private final Integer index;
+
+    ServiceInfo(String url, Binding binding, Integer index) {
       this.url = url;
       this.binding = binding;
+      this.index = index;
+    }
+
+    public Integer getIndex() {
+      return index;
     }
 
     public String getUrl() {

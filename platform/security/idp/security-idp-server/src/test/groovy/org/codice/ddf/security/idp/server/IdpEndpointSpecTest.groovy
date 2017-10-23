@@ -1,4 +1,5 @@
 package org.codice.ddf.security.idp.server
+
 import ddf.security.encryption.EncryptionService
 import ddf.security.samlp.LogoutMessage
 import ddf.security.samlp.ValidationException
@@ -42,6 +43,7 @@ class IdpEndpointSpecTest extends Specification {
                               HttpServletRequest request, String samlString, SignableXMLObject logoutRequest,
                               String issuer, String requestId) throws ValidationException {
         }
+
         @Override
         void validatePost(HttpServletRequest request, SignableSAMLObject samlObject, String requestId)
                 throws ValidationException {

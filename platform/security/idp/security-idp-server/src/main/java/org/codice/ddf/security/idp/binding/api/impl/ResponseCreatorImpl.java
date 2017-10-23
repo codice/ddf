@@ -44,7 +44,9 @@ public abstract class ResponseCreatorImpl implements ResponseCreator {
     EntityInformation.ServiceInfo assertionConsumerService =
         serviceProviders
             .get(authnRequest.getIssuer().getValue())
-            .getAssertionConsumerService(authnRequest, null);
+            .getAssertionConsumerService(
+                authnRequest, null, authnRequest.getAssertionConsumerServiceIndex());
+
     if (assertionConsumerService == null) {
       throw new IllegalArgumentException(
           "No valid AssertionConsumerServiceURL available for given AuthnRequest.");
