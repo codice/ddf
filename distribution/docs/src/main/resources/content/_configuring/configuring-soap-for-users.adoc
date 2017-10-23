@@ -7,5 +7,4 @@
 
 == {title}
 
-If using SOAP services, follow these steps to configure them to authenticate and authorize users.
-
+If using SOAP services, ${branding} can be configured to use the included <<_included_security_token_server_sts,Security Token Service (STS)>>, or <<_external_sts,connected to an external STS>>.
