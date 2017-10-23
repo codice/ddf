@@ -785,7 +785,7 @@ public class TikaInputTransformerTest {
   }
 
   @Test
-  public void testMetadataExtractorMetacardType() throws Exception {
+  public void testMetadataExtractorExtractedText() throws Exception {
     MetacardType metacardType = mock(MetacardType.class);
     MetadataExtractor metacardExtractor = mock(MetadataExtractor.class);
     when(metacardExtractor.canProcess(any())).thenReturn(true);
@@ -793,7 +793,10 @@ public class TikaInputTransformerTest {
     addMetadataExtractor(metacardExtractor);
 
     Metacard metacard = transform(new ByteArrayInputStream("something".getBytes()));
-    assertThat(metacard.getMetacardType(), equalTo(metacardType));
+    assertThat(
+        metacard.getMetacardType().getAttributeDescriptor(Extracted.EXTRACTED_TEXT),
+        notNullValue());
+    assertThat(metacard.getAttribute(Extracted.EXTRACTED_TEXT).getValue(), is("something\n"));
   }
 
   @Test
