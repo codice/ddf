@@ -135,9 +135,9 @@ public class AssertionConsumerService {
       SOAPPart soapMessage = SamlProtocol.parseSoapMessage(IOUtils.toString(body));
       String relayState = getRelayState(soapMessage);
       org.opensaml.saml.saml2.core.Response samlpResponse = getSamlpResponse(soapMessage);
-      boolean validateResponse = validateResponse(samlpResponse);
+      boolean validateResponse = validateResponse(samlpResponse, true);
       if (validateResponse) {
-        return processSamlResponse(samlpResponse, relayState);
+        return processSamlResponse(samlpResponse, relayState, true);
       }
     } catch (XMLStreamException e) {
       LOGGER.debug("Unable to parse SOAP message from response.", e);
@@ -233,12 +233,12 @@ public class AssertionConsumerService {
   }
 
   public Response processSamlResponse(
-      org.opensaml.saml.saml2.core.Response samlResponse, String relayState) {
+      org.opensaml.saml.saml2.core.Response samlResponse, String relayState, boolean isSoap) {
     if (samlResponse == null) {
       return Response.serverError().entity("Unable to parse AuthN response.").build();
     }
 
-    if (!validateResponse(samlResponse)) {
+    if (!validateResponse(samlResponse, isSoap)) {
       return Response.serverError().entity("AuthN response failed validation.").build();
     }
 
@@ -296,12 +296,13 @@ public class AssertionConsumerService {
     LOGGER.trace(authnResponse);
 
     org.opensaml.saml.saml2.core.Response samlResponse = extractSamlResponse(authnResponse);
-    return processSamlResponse(samlResponse, relayState);
+    return processSamlResponse(samlResponse, relayState, false);
   }
 
-  private boolean validateResponse(org.opensaml.saml.saml2.core.Response samlResponse) {
+  private boolean validateResponse(
+      org.opensaml.saml.saml2.core.Response samlResponse, boolean isSoap) {
     try {
-      AuthnResponseValidator validator = new AuthnResponseValidator(simpleSign);
+      AuthnResponseValidator validator = new AuthnResponseValidator(simpleSign, isSoap);
       validator.validate(samlResponse);
     } catch (ValidationException e) {
       LOGGER.info("Invalid AuthN response received from {}", samlResponse.getIssuer(), e);

@@ -15,6 +15,7 @@ package org.codice.ddf.security.idp.client;
 
 import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.ValidationException;
+import org.codice.ddf.configuration.SystemBaseUrl;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.StatusCode;
@@ -27,8 +28,11 @@ public class AuthnResponseValidator {
 
   private final SimpleSign simpleSign;
 
-  public AuthnResponseValidator(SimpleSign simpleSign) {
+  private final boolean isSoap;
+
+  public AuthnResponseValidator(SimpleSign simpleSign, boolean isSoap) {
     this.simpleSign = simpleSign;
+    this.isSoap = isSoap;
   }
 
   public void validate(XMLObject xmlObject) throws ValidationException {
@@ -59,6 +63,26 @@ public class AuthnResponseValidator {
       } catch (SimpleSign.SignatureException e) {
         throw new ValidationException("Invalid or untrusted signature.");
       }
+      if (!isSoap && authnResponse.getDestination() == null) {
+        throw new ValidationException(
+            "Invalid Destination attribute, must be not null for signed responses.");
+      } else if (!isSoap
+          && !authnResponse
+              .getDestination()
+              .equals(getSpAssertionConsumerServiceUrl(getSpIssuerId()))) {
+        throw new ValidationException(
+            "Invalid Destination attribute, does not match requested destination.");
+      }
     }
+  }
+
+  private String getSpAssertionConsumerServiceUrl(String spIssuerId) {
+    return spIssuerId + "/sso";
+  }
+
+  private String getSpIssuerId() {
+    return String.format(
+        "https://%s:%s%s/saml",
+        SystemBaseUrl.getHost(), SystemBaseUrl.getHttpsPort(), SystemBaseUrl.getRootContext());
   }
 }

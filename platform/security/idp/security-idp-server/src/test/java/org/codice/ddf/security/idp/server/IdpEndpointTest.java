@@ -243,6 +243,7 @@ public class IdpEndpointTest {
     signature = authNRequestGetSignature;
     signatureAlgorithm = "http://www.w3.org/2000/09/xmldsig#rsa-sha1";
     ssoSAMLResponse = "https://localhost:8993/services/saml/sso?SAMLResponse=";
+    System.setProperty("org.codice.ddf.system.rootContext", "/services");
   }
 
   @Test

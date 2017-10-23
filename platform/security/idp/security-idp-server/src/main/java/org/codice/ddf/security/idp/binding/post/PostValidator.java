@@ -18,6 +18,7 @@ import ddf.security.samlp.SystemCrypto;
 import ddf.security.samlp.ValidationException;
 import ddf.security.samlp.impl.EntityInformation;
 import java.util.Map;
+import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.security.idp.binding.api.Validator;
 import org.codice.ddf.security.idp.binding.api.impl.ValidatorImpl;
 import org.opensaml.saml.saml2.core.AuthnRequest;
@@ -47,6 +48,14 @@ public class PostValidator extends ValidatorImpl implements Validator {
         getSimpleSign()
             .validateSignature(
                 authnRequest.getSignature(), authnRequest.getDOM().getOwnerDocument());
+        if (authnRequest.getDestination() == null) {
+          throw new ValidationException("Signed AuthnRequest must have a Destination attribute.");
+        } else if (!authnRequest
+            .getDestination()
+            .equals(SystemBaseUrl.constructUrl("/idp/login", true))) {
+          throw new ValidationException(
+              "Signed AuthnRequest must have Destination attribute matching this IdP server.");
+        }
       } else {
         throw new SimpleSign.SignatureException("No signature present on AuthnRequest.");
       }
