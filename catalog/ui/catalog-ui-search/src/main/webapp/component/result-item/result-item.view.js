@@ -163,6 +163,10 @@ define([
                 result.warning = validationWarnings;
             }
 
+            //relevance score
+            result.showRelevanceScore = properties.showRelevanceScores;
+            result.relevancePrecision = properties.relevancePrecision;
+
             return result;
         },
         serializeData: function(){

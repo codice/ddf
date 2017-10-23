@@ -262,16 +262,19 @@ define([
                     return field;
                 }
             },
-          json: function (obj) {
-            return JSON.stringify(obj);
-          },
-          ifUrl: function(value, options){
-            if (value && value.toString().substring(0, 4) === 'http'){
-                return options.fn(this);
-            } else {
-                return options.inverse(this);
-            }
-          },
+            round: function(number, precision) {
+                return parseFloat(number).toPrecision(precision);
+            },
+            json: function (obj) {
+                return JSON.stringify(obj);
+            },
+            ifUrl: function(value, options){
+                if (value && value.toString().substring(0, 4) === 'http'){
+                    return options.fn(this);
+                } else {
+                    return options.inverse(this);
+                }
+            },
             bindInput: function(options){
                 var callback = function() {
                     var $target = this.$el.find(options.hash.selector);
