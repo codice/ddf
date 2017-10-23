@@ -49,7 +49,7 @@ Run one of the start scripts from a command shell to start the distribution and 
 
 .Start Script: *NIX
 ----
-${home_directory}/bin/${ddf-branding-lowercase}
+${home_directory}/bin/${branding-lowercase}
 ----
 
 .Start Script: Windows
@@ -130,14 +130,9 @@ Always use the shutdown command or the shortcut from the command line console.
 
 ==== Automatic Start on System Boot
 
-Because ${branding} is built on top of Apache Karaf, ${branding} can use the Karaf Wrapper to enable automatic startup and shutdown. When ${branding} is started using Karaf Wrapper, new `wrapper.log` and `wrapper.log.n` (where n goes from 1 to 5 by default) log files will be generated to include wrapper and console specific information.
+Because ${branding} is built on top of Apache Karaf, ${branding} can use the Karaf Wrapper to enable automatic startup and shutdown.
+When ${branding} is started using Karaf Wrapper, new `wrapper.log` and `wrapper.log.n` (where n goes from 1 to 5 by default) log files will be generated to include wrapper and console specific information.
 
-. Temporarly disable the security manager
-+
-.. Stop ${branding}
-.. Comment out the `KARAF_SYSTEM_OPTS` environment variable in `${home_directory}/bin/setenv` (all *NIX) or `${home_directory}\bin\setenv.bat` (Windows) and restart ${branding}.
-.. Start ${branding}
-+
 . Create the Karaf wrapper.
 +
 Within the ${branding} console:
@@ -153,11 +148,6 @@ ${branding-lowercase}${at-symbol}local> wrapper:install -i setenv-wrapper.conf -
 ${branding-lowercase}${at-symbol}local> feature:install -r wrapper
 ${branding-lowercase}${at-symbol}local> wrapper:install -i setenv-windows-wrapper.conf -s AUTO_START -n ${branding-lowercase} -d ${branding-lowercase} -D "${branding} Service"
 ----
-+
-. Re-enable the security manager
-+
-.. Stop ${branding}
-.. Uncomment the `KARAF_SYSTEM_OPTS` environment variable in `${home_directory}/bin/setenv` (all *NIX) or `${home_directory}\bin\setenv.bat` (Windows) previously commented out and restart ${branding}.
 +
 . (Windows users skip to next step) (All *NIX) If ${branding} was installed to run as a non-root user (recommended,) edit `${home_directory}/bin/${branding-lowercase}-service`.
 +
@@ -178,6 +168,7 @@ RUN_AS_USER=<${branding-lowercase}-user>
 . (Windows users skip to next step) (All *NIX) Edit `${home_directory}/bin/${branding-lowercase}-service`. Add LimitNOFILE to the [Service] section.
 +
 .${home_directory}/bin/${branding-lowercase}.service
+----
 LimitNOFILE=6815744
 ----
 +

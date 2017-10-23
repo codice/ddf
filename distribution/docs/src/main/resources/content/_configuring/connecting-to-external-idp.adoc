@@ -1,11 +1,19 @@
 :title: Connecting to an External IdP
 :type: subConfiguration
-:status: draft
+:status: published
 :parent: Configuring REST Services for Users
 :summary: Configuring to use an existing IdP outside of ${branding}.
-:order: 01
-////
+:order: 10
+
 == {title}
 
-TODO: https://codice.atlassian.net/browse/DDF-3351 - Update documentation for Configuring User Access section
-////
+.Service Provider Metadata
+See <<_configuring_idp_sp, Configuring Security IdP Service Provider>> for details on configuring the IdP client.
+
+.Disable Included IdP
+Remove the included IdP.
+
+. Navigate to the *${admin-console}*.
+. Select the *${ddf-security}* application.
+. Select *Features*.
+. Uninstall `security-idp` feature.
