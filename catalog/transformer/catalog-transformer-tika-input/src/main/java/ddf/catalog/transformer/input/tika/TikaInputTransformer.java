@@ -24,6 +24,7 @@ import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.impl.types.experimental.ExtractedAttributes;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Validation;
 import ddf.catalog.data.types.constants.core.DataType;
@@ -497,7 +498,6 @@ public class TikaInputTransformer implements InputTransformer {
   }
 
   protected MetacardType mergeAttributes(MetacardType metacardType) {
-    MetacardType returnObject = metacardType;
     Set<AttributeDescriptor> additionalAttributes =
         contentExtractors
             .values()
@@ -506,14 +506,11 @@ public class TikaInputTransformer implements InputTransformer {
             .flatMap(Collection::stream)
             .collect(Collectors.toSet());
 
-    // Guard against empty collection. If the collection is empty,
-    // the MetacardTypeImpl constructor throws an exception.
-    if (!additionalAttributes.isEmpty()) {
-      returnObject =
-          new MetacardTypeImpl(metacardType.getName(), metacardType, additionalAttributes);
-    }
+    // Always add extracted attribute descriptors since the given type might not have them
+    // defined. If they are not defined the attributes like extracted text will not be saved.
+    additionalAttributes.addAll(new ExtractedAttributes().getAttributeDescriptors());
 
-    return returnObject;
+    return new MetacardTypeImpl(metacardType.getName(), metacardType, additionalAttributes);
   }
 
   protected void enrichMetacard(
