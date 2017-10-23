@@ -29,12 +29,16 @@ package org.codice.ddf.security.validator.pki;
 import ddf.security.PropertiesLoader;
 import ddf.security.SubjectUtils;
 import java.io.IOException;
+import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.x500.X500Principal;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.sts.STSPropertiesMBean;
 import org.apache.cxf.sts.request.ReceivedToken;
@@ -63,6 +67,8 @@ import org.w3c.dom.Node;
 public class PKITokenValidator implements TokenValidator {
 
   private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(PKITokenValidator.class);
+
+  private static final int SAN_RFC822NAME = 1;
 
   private Validator validator = new SignatureTrustValidator();
 
@@ -204,17 +210,28 @@ public class PKITokenValidator implements TokenValidator {
       Credential returnedCredential = validator.validate(credential, requestData);
       X500Principal subjectX500Principal =
           returnedCredential.getCertificates()[0].getSubjectX500Principal();
+
       response.setPrincipal(subjectX500Principal);
       if (response.getAdditionalProperties() == null) {
         response.setAdditionalProperties(new HashMap<>());
       }
+
+      List<String> emailAddresses = new ArrayList<>();
+
+      addRfc822Name(returnedCredential, emailAddresses);
+
       try {
         String emailAddress = SubjectUtils.getEmailAddress(subjectX500Principal);
         if (emailAddress != null) {
+          emailAddresses.add(emailAddress);
+        }
+
+        if (CollectionUtils.isNotEmpty(emailAddresses)) {
           response
               .getAdditionalProperties()
-              .put(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI, emailAddress);
+              .put(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI, emailAddresses);
         }
+
         String country = SubjectUtils.getCountry(subjectX500Principal);
         if (country != null) {
           response.getAdditionalProperties().put(SubjectUtils.COUNTRY_CLAIM_URI, country);
@@ -228,6 +245,40 @@ public class PKITokenValidator implements TokenValidator {
       LOGGER.info("Unable to validate credentials.", ex);
     }
     return response;
+  }
+
+  private void addRfc822Name(Credential credential, List<String> emailAddresses) {
+    try {
+      Collection<List<?>> subjectAlternativeNames =
+          credential.getCertificates()[0].getSubjectAlternativeNames();
+      if (CollectionUtils.isNotEmpty(subjectAlternativeNames)) {
+        subjectAlternativeNames
+            .stream()
+            .filter(sanData -> sanData.size() > 1)
+            .map(this::getRfc822Name)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .forEach(emailAddresses::add);
+      }
+    } catch (CertificateParsingException e) {
+      LOGGER.debug("Unable to get Subject Alternative Names from certificate", e);
+    }
+  }
+
+  private Optional<String> getRfc822Name(List<?> alternativeNameData) {
+    if (alternativeNameData.size() > 1) {
+      Object typeData = alternativeNameData.get(0);
+      if (typeData instanceof Integer) {
+        Integer type = (Integer) typeData;
+        if (type == SAN_RFC822NAME) {
+          Object emailAddress = alternativeNameData.get(1);
+          if (emailAddress instanceof String) {
+            return Optional.of((String) emailAddress);
+          }
+        }
+      }
+    }
+    return Optional.empty();
   }
 
   public String getSignaturePropertiesPath() {
