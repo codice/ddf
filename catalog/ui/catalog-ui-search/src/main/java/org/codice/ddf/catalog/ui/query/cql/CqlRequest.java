@@ -26,6 +26,7 @@ import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import java.util.Collections;
+import java.util.Locale;
 import org.apache.commons.lang.StringUtils;
 import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.filter.text.ecql.ECQL;
@@ -181,7 +182,7 @@ public class CqlRequest {
     }
 
     SortBy sort;
-    switch (sortOrder.toLowerCase()) {
+    switch (sortOrder.toLowerCase(Locale.getDefault())) {
       case "ascending":
       case "asc":
         sort = new SortByImpl(sortField, SortOrder.ASCENDING);
