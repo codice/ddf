@@ -12,7 +12,9 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>idp</artifactId>
         <groupId>ddf.security.idp</groupId>
@@ -254,6 +256,12 @@
             <artifactId>bootswatch</artifactId>
             <version>3.3.7</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.test.itests</groupId>
+            <artifactId>test-itests-common</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <dependencyManagement>
         <dependencies>
@@ -330,7 +338,9 @@
                 <configuration>
                     <instructions>
                         <Web-ContextPath>/idp</Web-ContextPath>
-                        <_wab>src/main/webapp,${project.build.directory}/webapp,${project.build.directory}/META-INF/resources/webjars</_wab>
+                        <_wab>
+                            src/main/webapp,${project.build.directory}/webapp,${project.build.directory}/META-INF/resources/webjars
+                        </_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
                             boon,
