@@ -5,7 +5,7 @@
 :project: ${ddf-branding}
 :order: 05
 
-.Setup Types
+.[[_setup_types]]Setup Types
 ****
 ${branding} is pre-configured with several installation profiles.
 

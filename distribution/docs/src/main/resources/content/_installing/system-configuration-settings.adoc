@@ -5,7 +5,7 @@
 :project: ${branding}
 :order: 06
 
-.System Configuration Settings
+.[[_configuring_system_settings]]System Configuration Settings
 ****
 * System Settings: Set `hostname` and `ports` for this installation.
 * Contact Info: Contact information for the point-of-contact or administrator for this installation.
