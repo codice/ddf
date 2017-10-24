@@ -105,10 +105,10 @@ public abstract class AbstractPKIHandler implements AuthenticationHandler {
       LOGGER.info(errorMsg);
       try {
         httpResponse.sendError(
-            HttpServletResponse.SC_FORBIDDEN, "Your certificate has been revoked.");
+            HttpServletResponse.SC_FORBIDDEN, "Your certificate is revoked.");
         httpResponse.flushBuffer();
       } catch (Exception e) {
-        LOGGER.error("Error returning 403 to revoked certificate request.");
+        LOGGER.error("Error returning revoked certificate request.");
       }
       handlerResult.setStatus(HandlerResult.Status.REDIRECTED);
     }
