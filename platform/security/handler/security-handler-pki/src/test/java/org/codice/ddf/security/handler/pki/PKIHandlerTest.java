@@ -113,10 +113,8 @@ public class PKIHandlerTest {
     verify(handler.crlChecker, never()).passesCrlCheck(getTestCerts());
   }
 
-  /**
-   * Tests that the PKIHandler trows a ServletException when the cert fails to pass the CRL check
-   */
-  @Test(expected = ServletException.class)
+  /** Tests that the PKIHandler returns REDIRECTED when the cert fails to pass the CRL check */
+  @Test
   public void testGetNormalizedTokenFailsWhenCrlFails()
       throws ServletException, CertificateException {
     PKIHandler handler = getPKIHandlerWithMockedCrl("signature.properties", false);
@@ -128,8 +126,9 @@ public class PKIHandlerTest {
     when(request.getAttribute(("javax.servlet.request.X509Certificate")))
         .thenReturn(getTestCerts());
 
-    // should throw ServletException from the CrlChecker failing
-    handler.getNormalizedToken(request, response, chain, true);
+    // should return REDIRECTED
+    HandlerResult handlerResult = handler.getNormalizedToken(request, response, chain, true);
+    assertThat(handlerResult.getStatus(), equalTo(HandlerResult.Status.REDIRECTED));
   }
 
   /**

@@ -56,6 +56,7 @@
                 <value>${org.codice.ddf.system.rootContext}/logout</value>
                 <value>${org.codice.ddf.system.rootContext}/internal/session</value>
                 <value>/logout</value>
+                <value>/error</value>
             </array>
         </property>
         <property name="traversalDepth">
