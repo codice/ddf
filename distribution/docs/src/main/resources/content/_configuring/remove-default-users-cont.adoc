@@ -1,0 +1,28 @@
+:title: Removing Default Users
+:type: configuration
+:status: published
+:summary: Remove users.properties file.
+:parent: Configuring User Access
+:order: 07
+
+If SSH access to the Karaf shell is to be supported, edit the file `org.apache.karaf.shell.cfg` in the `<INSTALL_HOME>/etc` directory, changing the value of the `sshRealm` property from `karaf` to `ldap`.
+
+.Emergency Use of `users.properties` file
+[NOTE]
+====
+Typically, the ${branding} does not manage passwords.
+Authenticators are stored in an external identity management solution. However, administrators may temporarily use a `users.properties` file for emergencies.
+
+If a system recovery account is configured in `users.properties`, ensure:
+
+* The use of this account should be for as short a time as possible.
+* The default username/password of "`admin/admin`" should not be used.
+* All organizational standards for password complexity should still apply.
+* The password should be encrypted. For steps on how, see the section "Passwords Encryption" at https://karaf.apache.org/manual/latest/security.
+====
+
+.Compliance Reviews
+[NOTE]
+====
+It is recommended to perform yearly reviews of accounts for compliance with organizational account management requirements.
+====
