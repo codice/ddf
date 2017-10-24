@@ -86,6 +86,8 @@ public class LogoutService {
 
     return Response.ok(
             new ByteArrayInputStream(toJson(realmToPropMaps).getBytes(StandardCharsets.UTF_8)))
+        .header("Cache-Control", "no-cache, no-store")
+        .header("Pragma", "no-cache")
         .build();
   }
 
