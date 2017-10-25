@@ -805,7 +805,9 @@ public class ConfigurationApplication implements SparkApplication {
   }
 
   public void setRelevancePrecision(Integer relevancePrecision) {
-    this.relevancePrecision = relevancePrecision;
+    if (relevancePrecision > 0) {
+      this.relevancePrecision = relevancePrecision;
+    }
   }
 
   public String getSpacingMode() {
