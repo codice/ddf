@@ -1,5 +1,5 @@
 ﻿:title: Associations
-:type: subappendix
+:type: subAppendix
 :parent: Catalog Taxonomy
 :status: published
 :summary: Attributes in this group represent associations between products.

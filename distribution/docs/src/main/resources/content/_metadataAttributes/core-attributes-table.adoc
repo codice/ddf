@@ -1,5 +1,5 @@
 :title: Core Attributes
-:type: subappendix
+:type: subAppendix
 :parent: Catalog Taxonomy
 :status: published
 :summary: Core Attributes.

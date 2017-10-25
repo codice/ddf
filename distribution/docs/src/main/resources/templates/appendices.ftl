@@ -10,11 +10,11 @@ include::${ai.file}[]
 
 === ${appendix.title}
 include::${appendix.file}[]
-<#list subappendixs as subappendix>
-<#if (subappendix.parent == appendix.children)>
+<#list subAppendixs as subAppendix>
+<#if (subAppendix.parent == appendix.children)>
 
-==== ${subappendix.title}
-include::${subappendix.file}[]
+==== ${subAppendix.title}
+include::${subAppendix.file}[]
 </#if>
 </#list>
 </#if>

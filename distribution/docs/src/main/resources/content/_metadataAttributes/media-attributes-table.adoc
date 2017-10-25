@@ -1,5 +1,5 @@
 :title: Media
-:type: subappendix
+:type: subAppendix
 :parent: Catalog Taxonomy
 :status: published
 :summary: Attributes in this group reflect metadata about media in general.
