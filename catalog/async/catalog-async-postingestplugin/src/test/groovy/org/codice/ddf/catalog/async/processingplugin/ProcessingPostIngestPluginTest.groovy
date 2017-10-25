@@ -14,6 +14,7 @@
 package org.codice.ddf.catalog.async.processingplugin
 
 import ddf.catalog.CatalogFramework
+import ddf.catalog.data.Attribute
 import ddf.catalog.data.Metacard
 import ddf.catalog.operation.*
 import ddf.catalog.resource.Resource
@@ -25,10 +26,12 @@ import org.codice.ddf.catalog.async.data.api.internal.ProcessCreateItem
 import org.codice.ddf.catalog.async.data.api.internal.ProcessDeleteItem
 import org.codice.ddf.catalog.async.data.api.internal.ProcessRequest
 import org.codice.ddf.catalog.async.data.api.internal.ProcessUpdateItem
+import org.codice.ddf.catalog.async.data.impl.LazyProcessResourceImpl
 import org.codice.ddf.catalog.async.processingframework.api.internal.ProcessingFramework
 import org.codice.ddf.catalog.async.processingplugin.ProcessingPostIngestPlugin
 import spock.lang.Specification
 
+import java.util.function.Supplier
 import java.util.concurrent.Callable
 
 class ProcessingPostIngestPluginTest extends Specification {
@@ -85,9 +88,7 @@ class ProcessingPostIngestPluginTest extends Specification {
         then:
         output == input
 
-        3 * catalogFramework.getResource(_ as ResourceRequest, sourceId) >> Mock(ResourceResponse) {
-            getResource() >> Mock(Resource)
-        }
+        0 * catalogFramework._
         1 * processingFramework.submitCreate(_ as ProcessRequest<ProcessCreateItem>) >> { ProcessRequest<ProcessCreateItem> processCreateRequest ->
             assert processCreateRequest.getProcessItems().size() == 3
 
@@ -105,6 +106,94 @@ class ProcessingPostIngestPluginTest extends Specification {
 
         where:
         properties << [createFalseProcessingCompleteProperties(), [:]]
+    }
+
+    def 'test process CreateResponse with processResource populated from metacard'() {
+        given:
+        String sourceId = "source"
+        Metacard metacard = mockMetacard("metacardId", sourceId)
+        URI expectedUri = new URI("content:ac39ae14d22d4bbba39148973a70be39#frag")
+        String expectedQualifier = "frag"
+        long expectedSize = 3914
+
+        metacard.getAttribute("resource-uri") >> mockAttribute("resource-uri","content:ac39ae14d22d4bbba39148973a70be39#frag")
+        metacard.getAttribute("resource-size") >> mockAttribute("name", Long.toString(expectedSize))
+
+        def responseProperties = propertiesWithSubject()
+
+        def input = Mock(CreateResponse) {
+            getRequest() >> Mock(CreateRequest) {
+                getProperties() >> properties
+            }
+
+            getCreatedMetacards() >> [metacard]
+
+            getProperties() >> responseProperties
+        }
+
+        when:
+        def output = processingPostIngestPlugin.process(input);
+
+        then:
+        output == input
+
+        0 * catalogFramework._
+        1 * processingFramework.submitCreate(_ as ProcessRequest<ProcessCreateItem>) >> { ProcessRequest<ProcessCreateItem> processCreateRequest ->
+            assert processCreateRequest.getProcessItems().size() == 1
+
+            final processCreateItem = processCreateRequest.getProcessItems().get(0)
+            assert processCreateItem.getMetacard() == metacard
+
+            final LazyProcessResourceImpl processResource = processCreateItem.getProcessResource()
+            assert processResource.getUri() == expectedUri
+            assert processResource.getQualifier() == expectedQualifier
+            assert processResource.getSize() == expectedSize
+
+        }
+
+    }
+
+    def 'test process CreateResponse with processResource populated from metacard with a non long size and uri without a qualifier'() {
+        String sourceId = "source"
+        Metacard metacard = mockMetacard("metacardId", sourceId)
+        URI expectedUri = new URI("content:ac39ae14d22d4bbba39148973a70be39")
+        long expectedSize = -1
+
+        metacard.getAttribute("resource-uri") >> mockAttribute("resource-uri","content:ac39ae14d22d4bbba39148973a70be39")
+        metacard.getAttribute("resource-size") >> mockAttribute("name", "3914 MB")
+
+        def responseProperties = propertiesWithSubject()
+
+        def input = Mock(CreateResponse) {
+            getRequest() >> Mock(CreateRequest) {
+                getProperties() >> properties
+            }
+
+            getCreatedMetacards() >> [metacard]
+
+            getProperties() >> responseProperties
+        }
+
+        when:
+        def output = processingPostIngestPlugin.process(input);
+
+        then:
+        output == input
+
+        0 * catalogFramework._
+        1 * processingFramework.submitCreate(_ as ProcessRequest<ProcessCreateItem>) >> { ProcessRequest<ProcessCreateItem> processCreateRequest ->
+            assert processCreateRequest.getProcessItems().size() == 1
+
+            final processCreateItem = processCreateRequest.getProcessItems().get(0)
+            assert processCreateItem.getMetacard() == metacard
+
+            final LazyProcessResourceImpl processResource = processCreateItem.getProcessResource()
+            assert processResource.getUri() == expectedUri
+            assert processResource.getQualifier() == null
+            assert processResource.getSize() == expectedSize
+
+        }
+
     }
 
     def 'test process CreateResponse invalid already-processed request property'() {
@@ -218,12 +307,7 @@ class ProcessingPostIngestPluginTest extends Specification {
         then:
         output == input
 
-        3 * catalogFramework.getResource(_ as ResourceRequest, _ as String) >> Mock(ResourceResponse) {
-            getResource() >> Mock(Resource) {
-                getSize() >> 1
-                getInputStream() >> Mock(InputStream)
-            }
-        }
+        0 * catalogFramework._
         1 * processingFramework.submitUpdate(_ as ProcessRequest<ProcessUpdateItem>) >> { ProcessRequest<ProcessUpdateItem> processUpdateRequest ->
             assert processUpdateRequest.getProcessItems().size() == 3
             verifyUpdate(processUpdateRequest.getProcessItems().get(0), newCard1, oldCard1)
@@ -419,42 +503,43 @@ class ProcessingPostIngestPluginTest extends Specification {
     other tests
     */
 
-    def 'test catalogFramework.getResource Exceptions'() {
+    def 'test catalogFramework in resource supplier.get'() {
         given:
-        final String sourceId
-        def metacard = Mock(Metacard) {
-            getSourceId() >> sourceId
-        }
+        String sourceId = "sourceId"
+        Metacard metacard = mockMetacard("metacardId", sourceId)
 
-        def responseProperties = propertiesWithSubject()
+        CatalogFramework cf = Mock(CatalogFramework)
 
-        def input = Mock(CreateResponse) {
-            getRequest() >> Mock(CreateRequest) {
-                getProperties() >> [:]
-            }
+        processingPostIngestPlugin = new ProcessingPostIngestPlugin(cf, processingFramework)
 
-            getCreatedMetacards() >> [metacard]
-
-            getProperties() >> responseProperties
-        }
+        Supplier<Resource> supplier = processingPostIngestPlugin.getResourceSupplier(metacard, mockSubject())
 
         when:
-        def output = processingPostIngestPlugin.process(input)
+        supplier.get()
 
         then:
-        output == input
+        1 * cf.getResource(_ as ResourceRequest, sourceId)
+    }
 
-        1 * catalogFramework.getResource(_ as ResourceRequest, sourceId) >> {
-            throw exception
+    def 'test catalogFramework.getResource Exceptions'() {
+        given:
+        String sourceId = "sourceId"
+        Metacard metacard = mockMetacard("metacardId", sourceId)
+        CatalogFramework cf = Mock(CatalogFramework) {
+            getResource(_ as ResourceRequest, sourceId) >> { throw exception}
         }
 
-        1 * processingFramework.submitCreate(_ as ProcessRequest<ProcessCreateItem>) >> { ProcessRequest<ProcessCreateItem> processCreateRequest ->
-            assert processCreateRequest.getProcessItems().size() == 1
-            final processCreateItem = processCreateRequest.getProcessItems().get(0)
-            assert processCreateItem.getProcessResource() == null
-            assert processCreateItem.getMetacard() == metacard
-            assert postProcessCompleteEntryAdded(processCreateRequest.getProperties(), responseProperties)
-        }
+        processingPostIngestPlugin = new ProcessingPostIngestPlugin(cf, processingFramework)
+
+        Supplier<Resource> supplier = processingPostIngestPlugin.getResourceSupplier(metacard, mockSubject())
+
+        when:
+        def output = supplier.get()
+
+        then:
+        assert output == null
+
+        0 * catalogFramework.getResource(_ as ResourceRequest, sourceId)
 
         where:
         exception << [new IOException(), new ResourceNotFoundException(), new ResourceNotSupportedException(), new RuntimeException()]
@@ -499,6 +584,13 @@ class ProcessingPostIngestPluginTest extends Specification {
         return Mock(Metacard) {
             getId() >> id
             getSourceId() >> source
+        }
+    }
+
+    def mockAttribute(String attributeName, String attributeValue) {
+        return Mock(Attribute) {
+            getName() >> attributeName
+            getValue() >> attributeValue
         }
     }
 

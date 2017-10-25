@@ -62,6 +62,7 @@ public class ProcessCreateItemImpl extends ProcessItemImpl implements ProcessCre
     return isMetacardModified;
   }
 
+  @Override
   public void markMetacardAsModified() {
     isMetacardModified = true;
   }

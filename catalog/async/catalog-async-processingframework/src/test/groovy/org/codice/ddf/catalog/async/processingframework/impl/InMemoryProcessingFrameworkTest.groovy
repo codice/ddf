@@ -21,6 +21,7 @@ import ddf.catalog.plugin.PluginExecutionException
 import ddf.catalog.source.IngestException
 import ddf.catalog.source.SourceUnavailableException
 import ddf.security.Subject
+import org.codice.ddf.catalog.async.data.api.internal.ProcessCreateItem
 import org.codice.ddf.catalog.async.data.api.internal.ProcessDeleteItem
 import org.codice.ddf.catalog.async.data.api.internal.ProcessRequest
 import org.codice.ddf.catalog.async.data.api.internal.ProcessResource
@@ -417,6 +418,24 @@ class InMemoryProcessingFrameworkTest extends Specification {
         1 * threadPool.awaitTermination(60, TimeUnit.SECONDS)
     }
 
+    def 'test submitCreate with modified metacard but not a modified resource'() {
+        given:
+        def postProcessPlugin = Mock(PostProcessPlugin)
+        inMemoryProcessingFramework.setPostProcessPlugins([postProcessPlugin])
+
+        def processCreateRequest = createMockProcessResourceRequest()
+
+        when:
+        inMemoryProcessingFramework.submitCreate(processCreateRequest)
+
+        then:
+        1 * threadPool.submit(_ as Runnable) >> { Runnable runnable -> runnable.run() }
+        1 * postProcessPlugin.processCreate(processCreateRequest) >> markMetacardAsModifiedAndGet(processCreateRequest)
+        0 * catalogFramework.update(_ as UpdateStorageRequest)
+        1 * catalogFramework.update(_ as UpdateRequest)
+
+    }
+
     private <T extends ProcessResourceItem> ProcessRequest<T> createMockProcessResourceRequest() {
         return createMockProcessResourceRequest(new ByteArrayInputStream((_ as String).getBytes()))
     }
@@ -454,6 +473,14 @@ class InMemoryProcessingFrameworkTest extends Specification {
         for (T processResourceItem : processResourceRequest.getProcessItems()) {
             processResourceItem.isMetacardModified() >> true
             processResourceItem.getProcessResource().isModified() >> true
+        }
+
+        return processResourceRequest
+    }
+
+    private <T extends ProcessResourceItem> ProcessRequest<T> markMetacardAsModifiedAndGet(ProcessRequest<T> processResourceRequest) {
+        for (T processResourceItem : processResourceRequest.getProcessItems()) {
+            processResourceItem.isMetacardModified() >> true
         }
 
         return processResourceRequest

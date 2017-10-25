@@ -16,7 +16,9 @@ package org.codice.ddf.catalog.async.processingplugin;
 import static org.apache.commons.lang.Validate.notNull;
 
 import ddf.catalog.CatalogFramework;
+import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.types.Core;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.ResourceRequest;
@@ -34,20 +36,27 @@ import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.codice.ddf.catalog.async.data.api.internal.ProcessCreateItem;
 import org.codice.ddf.catalog.async.data.api.internal.ProcessDeleteItem;
 import org.codice.ddf.catalog.async.data.api.internal.ProcessRequest;
 import org.codice.ddf.catalog.async.data.api.internal.ProcessResource;
 import org.codice.ddf.catalog.async.data.api.internal.ProcessUpdateItem;
+import org.codice.ddf.catalog.async.data.impl.LazyProcessResourceImpl;
 import org.codice.ddf.catalog.async.data.impl.ProcessCreateItemImpl;
 import org.codice.ddf.catalog.async.data.impl.ProcessDeleteItemImpl;
 import org.codice.ddf.catalog.async.data.impl.ProcessRequestImpl;
-import org.codice.ddf.catalog.async.data.impl.ProcessResourceImpl;
 import org.codice.ddf.catalog.async.data.impl.ProcessUpdateItemImpl;
 import org.codice.ddf.catalog.async.processingframework.api.internal.ProcessingFramework;
 import org.slf4j.Logger;
@@ -176,46 +185,80 @@ public class ProcessingPostIngestPlugin implements PostIngestPlugin {
   }
 
   private ProcessResource getProcessResource(Metacard metacard, Subject subject) {
-    LOGGER.trace(
-        "Attempting to retrieve process resource metacard with id \"{}\" and sourceId \"{}\".",
-        metacard.getId(),
-        metacard.getSourceId());
-
-    ResourceRequest request = new ResourceRequestById(metacard.getId());
-
     if (subject == null) {
       LOGGER.debug("No available subject to fetch metacard resource. Returning null");
       return null;
     }
 
-    return subject.execute(
-        () -> {
-          try {
-            ResourceResponse response =
-                catalogFramework.getResource(request, metacard.getSourceId());
-            Resource resource = response.getResource();
+    Supplier<Resource> resourceSupplier = getResourceSupplier(metacard, subject);
 
-            ProcessResource processResource =
-                new ProcessResourceImpl(
+    LazyProcessResourceImpl lazyProcessResource =
+        new LazyProcessResourceImpl(metacard.getId(), resourceSupplier);
+
+    populateProcessResourceFromMetacard(lazyProcessResource, metacard);
+
+    return lazyProcessResource;
+  }
+
+  private Supplier<Resource> getResourceSupplier(Metacard metacard, Subject subject) {
+    return () ->
+        subject.execute(
+            () -> {
+              LOGGER.trace(
+                  "Attempting to retrieve process resource metacard with id \"{}\" and sourceId \"{}\".",
+                  metacard.getId(),
+                  metacard.getSourceId());
+
+              ResourceRequest request = new ResourceRequestById(metacard.getId());
+              try {
+                ResourceResponse response =
+                    catalogFramework.getResource(request, metacard.getSourceId());
+
+                return response.getResource();
+
+              } catch (IOException
+                  | ResourceNotFoundException
+                  | ResourceNotSupportedException
+                  | RuntimeException e) {
+                LOGGER.debug(
+                    "Unable to get resource id:{}, sourceId:{}. Returning null",
                     metacard.getId(),
-                    resource.getInputStream(),
-                    resource.getMimeTypeValue(),
-                    resource.getName(),
-                    resource.getSize(),
-                    false);
+                    metacard.getSourceId(),
+                    e);
+              }
+              return null;
+            });
+  }
 
-            return processResource;
-          } catch (IOException
-              | ResourceNotFoundException
-              | ResourceNotSupportedException
-              | RuntimeException e) {
-            LOGGER.debug(
-                "Unable to get resource id:{}, sourceId:{}. Returning null",
-                metacard.getId(),
-                metacard.getSourceId(),
-                e);
-          }
-          return null;
-        });
+  private void populateProcessResourceFromMetacard(
+      LazyProcessResourceImpl processResource, Metacard metacard) {
+    String value = getMetacardStringValue(metacard, Core.RESOURCE_SIZE);
+    if (StringUtils.isNotBlank(value) && NumberUtils.isNumber(value)) {
+      processResource.setSize(NumberUtils.toLong(value));
+    }
+
+    value = getMetacardStringValue(metacard, Core.RESOURCE_URI);
+    if (StringUtils.isNotBlank(value)) {
+      try {
+        URI uri = new URI(value);
+        processResource.setUri(uri);
+      } catch (URISyntaxException e) {
+        LOGGER.debug("Error creating URI from string: {}. Caught an exception: {}", value, e);
+      }
+    }
+  }
+
+  private String getMetacardStringValue(Metacard metacard, String attributeName) {
+    Attribute attribute = metacard.getAttribute(attributeName);
+    if (attribute == null) {
+      return null;
+    }
+
+    return Stream.of(attribute.getValue())
+        .filter(Objects::nonNull)
+        .filter(String.class::isInstance)
+        .map(String.class::cast)
+        .findFirst()
+        .orElse(null);
   }
 }

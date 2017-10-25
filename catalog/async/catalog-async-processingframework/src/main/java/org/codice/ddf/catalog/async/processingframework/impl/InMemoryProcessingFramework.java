@@ -30,7 +30,6 @@ import ddf.catalog.source.SourceUnavailableException;
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Serializable;
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -43,6 +42,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.IOUtils;
+import org.codice.ddf.catalog.async.data.api.internal.InaccessibleResourceException;
 import org.codice.ddf.catalog.async.data.api.internal.ProcessCreateItem;
 import org.codice.ddf.catalog.async.data.api.internal.ProcessDeleteItem;
 import org.codice.ddf.catalog.async.data.api.internal.ProcessRequest;
@@ -124,6 +124,10 @@ public class InMemoryProcessingFramework implements ProcessingFramework {
                     "Unable to process create request through plugin: {}",
                     plugin.getClass().getCanonicalName(),
                     e);
+              } catch (InaccessibleResourceException e) {
+                LOGGER.debug(
+                    "Unable to process create request. The resource is not available. Failing the entire process request.",
+                    e);
               }
             }
 
@@ -149,6 +153,10 @@ public class InMemoryProcessingFramework implements ProcessingFramework {
                 LOGGER.debug(
                     "Unable to process update request through plugin: {}",
                     plugin.getClass().getCanonicalName(),
+                    e);
+              } catch (InaccessibleResourceException e) {
+                LOGGER.debug(
+                    "Unable to process update request. The resource is not available. Failing the entire process request.",
                     e);
               }
             }
@@ -176,6 +184,10 @@ public class InMemoryProcessingFramework implements ProcessingFramework {
                     "Unable to process request through plugin: {}",
                     plugin.getClass().getCanonicalName(),
                     e);
+              } catch (InaccessibleResourceException e) {
+                LOGGER.debug(
+                    "Unable to process delete request. The resource is not available. Failing the entire process request.",
+                    e);
               }
             }
           });
@@ -188,15 +200,7 @@ public class InMemoryProcessingFramework implements ProcessingFramework {
         .stream()
         .map(ProcessResourceItem::getProcessResource)
         .filter(Objects::nonNull)
-        .forEach(
-            resource -> {
-              try {
-                resource.getInputStream().close();
-              } catch (IOException e) {
-                LOGGER.debug(
-                    "Failed to stream of process request. There may be temporary files left in data/tmp.");
-              }
-            });
+        .forEach(ProcessResource::close);
   }
 
   private <T extends ProcessResourceItem> void storeProcessRequest(
@@ -208,19 +212,19 @@ public class InMemoryProcessingFramework implements ProcessingFramework {
     List<TemporaryFileBackedOutputStream> tfbosToCleanUp = new ArrayList<>();
 
     for (T item : processRequest.getProcessItems()) {
-      if (item.getProcessResource() == null && item.isMetacardModified()) {
+      final ProcessResource processResource = item.getProcessResource();
+      if ((processResource == null || !processResource.isModified()) && item.isMetacardModified()) {
         metacardsToUpdate.put(item.getMetacard().getId(), item.getMetacard());
       }
 
-      final ProcessResource processResource = item.getProcessResource();
       TemporaryFileBackedOutputStream tfbos = null;
       if (processResource != null
           && processResource.isModified()
           && !contentItemsToUpdate.containsKey(
               getContentItemKey(item.getMetacard(), processResource))) {
-        try (final InputStream prInputStream = processResource.getInputStream()) {
+        try {
           tfbos = new TemporaryFileBackedOutputStream();
-          long numberOfBytes = IOUtils.copyLarge(prInputStream, tfbos);
+          long numberOfBytes = IOUtils.copyLarge(processResource.getInputStream(), tfbos);
           LOGGER.debug("Copied {} bytes to TemporaryFileBackedOutputStream.", numberOfBytes);
           ByteSource byteSource = tfbos.asByteSource();
 
