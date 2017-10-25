@@ -148,24 +148,40 @@ describe('validate providers', () => {
   describe('order', () => {
     it('should be a valid order', () => {
       const values = [0, 1, 2, 3, 4]
-      const providers = fromJS(values.map((order) => ({ layer: { order, show: true }, buffer: '[]' })))
+      const providers = fromJS(values.map((order) => ({ layer: { order } })))
       values.forEach((order) => {
-        expect(validate(providers).getIn([0, 'buffer'])).to.equal(undefined)
+        expect(validate(providers).getIn([order, 'order'])).to.equal(undefined)
       })
     })
     it('should be out of bounds order', () => {
       const values = [0, 1, 2, 4]
-      const providers = fromJS(values.map((order) => ({ layer: { order, show: true }, buffer: '[]' })))
+      const providers = fromJS(values.map((order) => ({ layer: { order } })))
       values.slice(0, values.length - 2).forEach((order) => {
-        expect(validate(providers).getIn([0, 'buffer'])).to.equal(undefined)
+        expect(validate(providers).getIn([0, 'order'])).to.equal(undefined)
       })
-      expect(validate(providers).getIn([values.length - 1, 'buffer'])).to.not.equal(undefined)
+      expect(validate(providers).getIn([values.length - 1, 'order'])).to.not.equal(undefined)
     })
     it('should not be a valid order', () => {
       const values = [-1, {}, [], 1.1, true, false, 2]
       values.forEach((order) => {
-        const providers = fromJS([ { layer: { order }, buffer: '[]' } ])
-        expect(validate(providers).getIn([0, 'buffer'])).to.not.equal(undefined)
+        const providers = fromJS([ { layer: { order } } ])
+        expect(validate(providers).getIn([0, 'order'])).to.not.equal(undefined)
+      })
+    })
+  })
+  describe('withCredentials', () => {
+    it('should be a valid trusted value', () => {
+      const values = [true, false]
+      values.forEach((withCredentials) => {
+        const providers = fromJS([{ layer: { withCredentials } }])
+        expect(validate(providers).getIn([0, 'withCredentials'])).to.equal(undefined)
+      })
+    })
+    it('should not be a valid trusted value', () => {
+      const values = ['hello', undefined, null]
+      values.forEach((withCredentials) => {
+        const providers = fromJS([{ layer: { withCredentials } }])
+        expect(validate(providers).getIn([0, 'withCredentials'])).to.not.equal(undefined)
       })
     })
   })

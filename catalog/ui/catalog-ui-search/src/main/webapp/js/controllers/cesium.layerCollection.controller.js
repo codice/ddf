@@ -20,6 +20,9 @@ define(['underscore',
 ], function (_, Marionette, Cesium, CommonLayerController, properties) {
     "use strict";
 
+    const DEFAULT_HTTPS_PORT = 443;
+    const DEFAULT_HTTP_PORT = 80;
+
     var imageryProviderTypes = {
         OSM: Cesium.createOpenStreetMapImageryProvider,
         AGM: Cesium.ArcGisMapServerImageryProvider,
@@ -60,6 +63,21 @@ define(['underscore',
                 }
 
                 var provider = new type(initObj);
+
+                /*
+                  Optionally add this provider as a TrustedServer. This sets withCredentials = true
+                  on the XmlHttpRequests for CORS.
+                 */
+                if (model.get('withCredentials')) {
+                  const url = require('url');
+                  var parsedUrl = url.parse(provider.url);
+                  var port = parsedUrl.port;
+                  if (!port) {
+                    port = (parsedUrl.protocol === "https:") ? DEFAULT_HTTPS_PORT : DEFAULT_HTTP_PORT;
+                  }
+                  Cesium.TrustedServers.add(parsedUrl.hostname, port);
+                }
+
                 var layer = this.map.imageryLayers.addImageryProvider(provider, 0);  // the collection is sorted by order, so later things should go at bottom of stack
                 this.layerForCid[model.id] = layer;
                 layer.alpha = model.get('alpha');
