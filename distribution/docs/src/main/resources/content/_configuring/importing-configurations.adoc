@@ -1,7 +1,7 @@
 :title: Importing the Exported Configuration Settings
 :type: configuration
 :status: published
-:parent: Cloning Configurations
+:parent: Reusing Configurations
 :summary: Importing the exported configuration settings.
 :order: 01
 

@@ -1,0 +1,56 @@
+:type: coreConcept
+:status: published
+:title: Introduction to High Availability
+:order: 10
+
+${branding} can be made highly available. In this context, High Availability is defined as the ability for ${branding} to be continuously operational with very little down time.
+
+In a Highly Available Cluster, ${branding} has failover capabilities when a ${branding} node fails.
+
+[NOTE]
+====
+The word "node", from a High Availability perspective, is one of the two ${branding} systems running within the Highly Available Cluster.
+Though there are multiple systems running with the Highly Available Cluster, it is still considered a single ${branding} from a user's
+perspective or from other ${branding}s' perspectives.
+====
+
+This setup consists of a Solr Cloud instance, 2 ${branding} nodes connected to that Solr Cloud, and a failover proxy that sits in front of those 2 nodes.
+One of the ${branding} nodes will be arbitrarily chosen to be the active node, and the other will be the "hot standby" node.
+It is called a "hot standby" node because it is ready to receive traffic even though it's not currently receiving any.
+The failover proxy will route all traffic to the active node.
+If the active node fails for any reason, the standby node will become active and the failover proxy will route all traffic to the new active node.
+See the below diagrams for more detail.
+
+.Highly Available Cluster
+[ditaa,highly-available-setup,png]
+....
+                                    /-------------\
+                                    |cDEF         |
+                                /-->+${branding} (active) +--\
+/---------\     /-------------\ |   |             |  |   +----------+
+|cDEF     |     |cDEF         +-/   \-------------/  \-->+ {s} cDEF |
+| Browser +---->|    Proxy    |                          |Solr Cloud|
+|         |     |             |     /-------------\  /-->+          |
+\---------/     \-------------/     |cYEL         |  |   +----------+
+                                    |${branding} (standby)+--/
+                                    |             |
+                                    \-------------/
+....
+
+.Highly Available Cluster (after failover)
+[ditaa,highly-available-setup-after-failover,png]
+....
+                                    /-------------\
+                                    |cRED         |
+                                    |${branding} (failed) |
+/---------\     /-------------\     |             |      +----------+
+|cDEF     |     |cDEF         |     \-------------/      | {s} cDEF |
+| Browser +---->|    Proxy    |                          |Solr Cloud|
+|         |     |             +--\  /-------------\  /-->+          |
+\---------/     \-------------/  |  |cDEF         |  |   +----------+
+                                 \->+${branding} (active) +--/
+                                    |             |
+                                    \-------------/
+....
+
+There are special procedures for initial setup and configuration of a highly available ${branding}. See <<_high_availability_initial_setup,High Availability Initial Setup>> and <<_configuring_for_a_highly_available_cluster,High Availability Configuration>> for those procedures.
