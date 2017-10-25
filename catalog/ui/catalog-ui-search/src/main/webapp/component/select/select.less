@@ -93,3 +93,11 @@
     vertical-align: top;
   }
 }
+
+@{customElementNamespace}select.isFilterChoice {
+  color: lighten(@warning-color, 20%);
+
+  .choice-text span::after {
+    content: '(custom)';
+  }
+}

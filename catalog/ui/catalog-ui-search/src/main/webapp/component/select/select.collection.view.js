@@ -38,6 +38,17 @@ define([
         },
         initialize: function(){
             this.collection = new Backbone.Collection(this.options.list);
+            if (this.collection.first().get('filterChoice') === true) {
+                this.collection.first().listenTo(this.model, 'change:filterValue', this.updateFilterChoice.bind(this));
+            }
+            this.listenTo(this.model, 'change:filterValue', this.handleFilterUpdate);
+        },
+        updateFilterChoice: function() {
+            var filterValue = this.model.get('filterValue');
+            this.collection.first().set({
+                label: filterValue !== '' ? filterValue : this.model.get('value')[0],
+                value: filterValue !== '' ? filterValue : this.model.get('value')[0]
+            });
         },
         onAddChild: function(childView){
             if (!childView.isDestroyed && childView.model) {
@@ -92,8 +103,7 @@ define([
                 this.removeValues(values);
             }
         },
-        handleFilterUpdate: function(filterValue){
-            this.filterValue = filterValue.toLowerCase();
+        handleFilterUpdate: function(){
             this.render();
         },
         handleEnter: function(e){
@@ -137,8 +147,24 @@ define([
                 }
             }
         },
+        getAppropriateString: function(str) {
+            str = str.toString();
+            return this.options.matchcase === true ? str : str.toLowerCase();
+        },
         filter: function(child){
-            return child.get('label').toString().toLowerCase().indexOf(this.filterValue) > -1;
+            var filterValue = this.model.get('filterValue');
+            filterValue = filterValue !== undefined ? filterValue : '';
+            filterValue = this.getAppropriateString(filterValue);
+            if (child.get('filterChoice') === true && (
+                    (this.collection.filter((model) => {
+                        return this.getAppropriateString(model.get('value')) === this.getAppropriateString(child.get('value'));
+                    }).length > 1))) {
+                return false;
+            }
+            if (this.getAppropriateString(child.get('value')).indexOf(filterValue) === -1) {
+                return false;
+            }
+            return true;
         },
         addValues: function(values){
             var currentValues = this.model.get('value').slice();

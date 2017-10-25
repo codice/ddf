@@ -135,7 +135,7 @@ define([
     }, {
         createSimpleDropdown: function(options){
             return new this({
-                model: new DropdownModel({
+                model: options.model || new DropdownModel({
                     value: options.defaultSelection
                 }),
                 list: options.list,
@@ -143,7 +143,8 @@ define([
                 componentToShow: SelectView,
                 isMultiSelect: options.isMultiSelect,
                 defaultSelection: options.defaultSelection,
-                customChildView: options.customChildView
+                customChildView: options.customChildView,
+                matchcase: options.matchcase
             });
         }
     });

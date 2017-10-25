@@ -23,8 +23,9 @@ define([
     '../input.view',
     'component/dropdown/dropdown.view',
     'moment',
-    'component/singletons/user-instance'
-], function (Marionette, _, $, template, CustomElements, Common, InputView, DropdownView, moment, user) {
+    'component/singletons/user-instance',
+    'component/dropdown/dropdown'
+], function (Marionette, _, $, template, CustomElements, Common, InputView, DropdownView, moment, user, DropdownModel) {
 
     function getValue(model){
         var multivalued = model.get('property').get('enumMulti');
@@ -75,26 +76,40 @@ define([
         },
         initializeEnum: function(){
             var value = getValue(this.model);
+            var dropdownModel = new DropdownModel({
+                value: value
+            }); 
+            const list = this.model.get('property').get('enum').map(function(value){
+                if (value.label) {
+                    return {
+                        label: value.label,
+                        value: value.value,
+                        class: value.class
+                    };
+                } else {
+                    return {
+                        label: value,
+                        value: value,
+                        class: value
+                    };
+                }
+            });
+            if (this.model.get('property').get('enumCustom')) {
+                list.unshift( {
+                    label: value[0],
+                    value: value[0],
+                    filterChoice: true
+                });
+            }
             this.enumRegion.show(DropdownView.createSimpleDropdown(
                 {
-                    list: this.model.get('property').get('enum').map(function(value){
-                        if (value.label) {
-                            return {
-                                label: value.label,
-                                value: value.value,
-                                class: value.class
-                            };
-                        } else {
-                            return {
-                                label: value,
-                                value: value,
-                                class: value
-                            };
-                        }
-                    }),
+                    list: list,
+                    model: dropdownModel,
                     defaultSelection: value,
                     isMultiSelect: this.model.get('property').get('enumMulti'),
-                    hasFiltering: this.model.get('property').get('enumFiltering')
+                    hasFiltering: this.model.get('property').get('enumFiltering'),
+                    filterChoice: this.model.get('property').get('enumCustom'),
+                    matchcase: this.model.get('property').get('matchcase')
                 }
             ));
         },

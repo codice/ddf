@@ -31,10 +31,11 @@ define([
     'component/input/textarea/input-textarea.view',
     'component/input/geometry/input-geometry.view',
     'component/input/autocomplete/input-autocomplete.view',
-    'component/input/color/input-color.view'
+    'component/input/color/input-color.view',
+    'component/input/with-param/input-with-param.view'
 ], function (Marionette, _, $, template, CustomElements, InputView, InputThumbnailView, InputDateView,
              InputLocationView, InputEnumView, InputRadioView, InputNumberView, InputBooleanView, InputRangeView, InputTextareaView,
-             InputGeometryView, InputAutocompleteView, InputColorView) {
+             InputGeometryView, InputAutocompleteView, InputColorView, InputWithParamView) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -110,6 +111,11 @@ define([
                         break;          
                     case 'color':
                         this.input.show(new InputColorView({
+                            model: this.model
+                        }));
+                        break;         
+                    case 'near':
+                        this.input.show(new InputWithParamView({
                             model: this.model
                         }));
                         break;

@@ -19,8 +19,7 @@ define([
         defaults: {
             value: [''],
             type: 'anyText',
-            comparator: 'CONTAINS',
-            distance: 2
+            comparator: 'CONTAINS'
         },
         type: 'filter'
     });

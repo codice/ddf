@@ -99,7 +99,7 @@ define([
             currentValue.sort();
             switch(this.getCalculatedType()){
                 case 'location': 
-                    return JSON.stringify(this.getInitialValue().map(function(val){
+                    return JSON.stringify(this.getInitialValue()) !== JSON.stringify(currentValue) && JSON.stringify(this.getInitialValue().map(function(val){
                         return _.omit(val, ['property']);
                     })) !== JSON.stringify(currentValue.map(function(val){
                         val = CQLUtils.generateFilter(undefined, 'anyGeo', val);
@@ -200,6 +200,9 @@ define([
                     break;
                 case 'COLOR':
                     calculatedType = 'color';
+                    break;
+                case 'NEAR': 
+                    calculatedType = 'near';
                     break;
                 case 'STRING':
                 case 'XML':
