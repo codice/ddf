@@ -16,14 +16,14 @@ define([
     'backbone',
     'poller',
     'underscore',
-    'js/model/Workspace',
+    'js/model/workspace.collection',
     'component/content/content'
-], function ($, Backbone, poller, _, Workspace, Content) {
+], function ($, Backbone, poller, _, WorkspaceCollection, Content) {
 
     return new (Backbone.Model.extend({
         initialize: function () {
             this.set('content', new Content());
-            this.set('workspaces', new Workspace.Collection());
+            this.set('workspaces', new WorkspaceCollection());
 
             window.onbeforeunload = function () {
                 var unsaved = this.get('workspaces').chain()

@@ -20,7 +20,7 @@ module.exports = Backbone.AssociatedModel.extend({
     relations: [{
         type: Backbone.One,
         key: 'targetMetacard',
-        relatedModel: MetacardModel.Metacard,
+        relatedModel: MetacardModel,
         isTransient: true
     }],
     defaults: {

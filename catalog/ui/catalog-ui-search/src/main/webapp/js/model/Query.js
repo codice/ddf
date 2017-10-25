@@ -9,19 +9,15 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, setInterval, clearInterval*/
+/*global define*/
 
 define([
         'backbone',
         'underscore',
         'properties',
-        'moment',
         'js/cql',
-        'wellknown',
-        'js/model/Metacard',
+        'js/model/QueryResponse',
         'component/singletons/sources-instance',
-        'usngs',
-        'wreqr',
         'js/Common',
         'js/CacheSourceSelector',
         'component/announcement',
@@ -29,14 +25,12 @@ define([
         'component/singletons/user-instance',
         'backboneassociations',
     ],
-    function (Backbone, _, properties, moment, cql, wellknown, Metacard, Sources, usngs, wreqr, Common, CacheSourceSelector, announcement,
-            CQLUtils, user) {
+    function (Backbone, _, properties, cql, QueryResponse, Sources, Common, CacheSourceSelector, announcement,
+        CQLUtils, user) {
         "use strict";
         var Query = {};
 
-        var converter = new usngs.Converter();
-
-        function limitToDeleted(cqlString){
+        function limitToDeleted(cqlString) {
             return CQLUtils.transformFilterToCQL({
                 type: 'AND',
                 filters: [
@@ -50,7 +44,7 @@ define([
             });
         }
 
-        function limitToHistoric(cqlString){
+        function limitToHistoric(cqlString) {
             return CQLUtils.transformFilterToCQL({
                 type: 'AND',
                 filters: [
@@ -65,227 +59,39 @@ define([
         }
 
         Query.Model = Backbone.AssociatedModel.extend({
-            relations: [
-                {
-                    type: Backbone.One,
-                    key: 'result',
-                    relatedModel: Metacard.SearchResult,
-                    isTransient: true
-                }
-            ],
+            relations: [{
+                type: Backbone.One,
+                key: 'result',
+                relatedModel: QueryResponse,
+                isTransient: true
+            }],
             //in the search we are checking for whether or not the model
             //only contains 5 items to know if we can search or not
             //as soon as the model contains more than 5 items, we assume
             //that we have enough values to search
-            defaults: function() {
+            defaults: function () {
                 return {
                     cql: "anyText ILIKE ''",
                     title: 'Search Name',
-                    offsetTimeUnits: 'hours',
-                    scheduleUnits: 'minutes',
-                    timeType: 'modified',
-                    radiusUnits: 'meters',
                     excludeUnnecessaryAttributes: true,
-                    radius: 0,
                     count: properties.resultCount,
                     start: 1,
-                    format: "geojson",
-                    locationType: 'latlon',
-                    lat: undefined,
-                    lon: undefined,
                     federation: 'enterprise',
                     sortField: 'modified',
                     sortOrder: 'descending',
-                    dtstart: undefined,
-                    dtend: undefined,
                     result: undefined,
                     serverPageIndex: 0,
                     isAdvanced: false
                 };
             },
-
-            drawing: false,
-
             initialize: function () {
                 this.currentIndexForSource = {};
 
                 _.bindAll.apply(_, [this].concat(_.functions(this))); // underscore bindAll does not take array arg
                 this.set('id', this.getId());
-                this.listenTo(this, 'change:north change:south change:east change:west', this.setBBox);
-                this.listenTo(this, 'change:scheduled change:scheduleValue change:scheduleUnits', this.startScheduledSearch);
-                this.listenTo(this, 'change:bbox', this.setBboxLatLon);
-                this.listenTo(this, 'change:lat change:lon', this.setRadiusLatLon);
-                this.listenTo(this, 'change:usngbb', this.setBboxUsng);
-                this.listenTo(this, 'change:usng', this.setRadiusUsng);
-                this.listenTo(this, 'EndExtent', this.notDrawing);
-                this.listenTo(this, 'BeginExtent', this.drawingOn);
                 this.listenTo(user.get('user>preferences'), 'change:resultCount', this.handleChangeResultCount);
-
-                if (this.get('scheduled')) {
-                    this.startSearch();
-                }
-
-                this.startScheduledSearch();
             },
-
-            notDrawing: function () {
-                this.drawing = false;
-            },
-
-            drawingOn: function () {
-                this.drawing = true;
-            },
-
-            repositionLatLon: function () {
-                if (this.get('usngbb')) {
-                    var result = converter.USNGtoLL(this.get('usngbb'));
-                    var newResult = {};
-                    newResult.mapNorth = result.north;
-                    newResult.mapSouth = result.south;
-                    newResult.mapEast = result.east;
-                    newResult.mapWest = result.west;
-
-                    this.set(newResult);
-                }
-            },
-
-            setLatLon: function () {
-                var result = {};
-                result.north = this.get('mapNorth');
-                result.south = this.get('mapSouth');
-                result.west = this.get('mapWest');
-                result.east = this.get('mapEast');
-                if (!(result.north && result.south && result.west && result.east)) {
-                    result = converter.USNGtoLL(this.get('usngbb'));
-
-                }
-                this.set(result);
-            },
-
-            setFilterBBox: function (model) {
-                var north = parseFloat(model.get('north'));
-                var south = parseFloat(model.get('south'));
-                var west = parseFloat(model.get('west'));
-                var east = parseFloat(model.get('east'));
-
-                model.set({mapNorth: north, mapSouth: south, mapEast: east, mapWest: west});
-            },
-
-            setBboxLatLon: function () {
-                var north = this.get('north'),
-                    south = this.get('south'),
-                    west = this.get('west'),
-                    east = this.get('east');
-                if (north && south && east && west) {
-                    var usngsStr = converter.LLBboxtoUSNG(north, south, east, west);
-
-                    this.set('usngbb', usngsStr, {silent: this.get('locationType') !== 'usng'});
-                    if (this.get('locationType') === 'usng' && this.drawing) {
-                        this.repositionLatLon();
-                    }
-                }
-            },
-
-            setRadiusLatLon: function () {
-                var lat = this.get('lat'),
-                    lon = this.get('lon');
-                if (lat && lon) {
-                    var usngsStr = converter.LLtoUSNG(lat, lon, 5);
-                    this.set('usng', usngsStr, {silent: true});
-                }
-            },
-
-            setBboxUsng: function () {
-                var result = converter.USNGtoLL(this.get('usngbb'));
-                var newResult = {};
-                newResult.mapNorth = result.north;
-                newResult.mapSouth = result.south;
-                newResult.mapEast = result.east;
-                newResult.mapWest = result.west;
-                this.set(newResult);
-            },
-
-            setBBox: function () {
-
-                //we need these to always be inferred
-                //as numeric values and never as strings
-                var north = parseFloat(this.get('north'));
-                var south = parseFloat(this.get('south'));
-                var west = parseFloat(this.get('west'));
-                var east = parseFloat(this.get('east'));
-
-                if (north && south && east && west) {
-                    this.set('bbox', [west, south, east, north].join(','), {silent: this.get('locationType') === 'usng' && !this.drawing});
-                }
-                if (this.get('locationType') !== 'usng') {
-                    this.set({mapNorth: north, mapSouth: south, mapEast: east, mapWest: west});
-                }
-            },
-
-            setRadiusUsng: function () {
-                var result = converter.USNGtoLL(this.get('usng'), true);
-                this.set(result);
-            },
-
-            getValue: function (value) {
-                switch (typeof value) {
-                    case 'string':
-                        return "'" + value.replace(/'/g, "''") + "'";
-                    case 'number':
-                        return String(value);
-                    case 'object':
-                        if (_.isDate(value)) {
-                            return moment.utc(value).format(properties.CQL_DATE_FORMAT);
-                        } else {
-                            throw new Error("Can't write object to CQL: " + value);
-                        }
-                        break;
-                    default:
-                        throw new Error("Can't write value to CQL: " + value);
-                }
-            },
-
-            startScheduledSearch: function () {
-                var model = this;
-                if (this.get('scheduled')) {
-                    var scheduleDelay = this.getScheduleDelay();
-                    this.stopScheduledSearch();
-                    this.timeoutId = setInterval(function () {
-                        model.startSearch();
-                    }, scheduleDelay);
-                } else {
-                    this.stopScheduledSearch();
-                }
-            },
-
-            stopScheduledSearch: function () {
-                if (this.timeoutId) {
-                    clearInterval(this.timeoutId);
-                }
-            },
-
-            getScheduleDelay: function () {
-                var val;
-                switch (this.get('scheduleUnits')) {
-                    case 'minutes':
-                        val = (this.get('scheduleValue') || 5) * 60 * 1000;
-                        break;
-                    case 'hours':
-                        val = (this.get('scheduleValue') || 1) * 60 * 60 * 1000;
-                        break;
-                }
-                return val;
-            },
-
-            clearSearch: function () {
-                if (this.get('result')) {
-                    this.get('result').cleanup();
-                }
-                this.set({result: undefined});
-                this.trigger('searchCleared');
-            },
-
-            buildSearchData: function(){
+            buildSearchData: function () {
                 var data = this.toJSON();
 
                 switch (data.federation) {
@@ -306,7 +112,6 @@ define([
 
                 return _.pick(data, 'src', 'start', 'count', 'timeout', 'cql', 'sort', 'id');
             },
-
             startSearch: function (options) {
                 options = _.extend({
                     limitToDeleted: false,
@@ -333,12 +138,14 @@ define([
                     result.get('results').reset();
                     result.get('status').reset(initialStatus);
                 } else {
-                    result = new Metacard.SearchResult({
+                    result = new QueryResponse({
                         queryId: this.getId(),
                         color: this.getColor(),
                         status: initialStatus
                     });
-                    this.set({result: result});
+                    this.set({
+                        result: result
+                    });
                 }
 
                 var sortField = this.get('sortField');
@@ -372,9 +179,9 @@ define([
                 result.set('initiated', Date.now());
                 result.get('results').fullCollection.sort();
 
-                if (sources.length === 0){
+                if (sources.length === 0) {
                     announcement.announce({
-                        title: 'Search "'+ this.get('title') + '" cannot be run.',
+                        title: 'Search "' + this.get('title') + '" cannot be run.',
                         message: 'No sources are currently selected.  Edit the search and select at least one source.',
                         type: 'warn'
                     });
@@ -412,9 +219,9 @@ define([
                         method: "POST",
                         processData: false,
                         timeout: properties.timeout,
-                        success: function(model, response, options) {
+                        success: function (model, response, options) {
                             response.options = options;
-                            if (options.resort === true){
+                            if (options.resort === true) {
                                 model.get('results').fullCollection.sort();
                             }
                         },
@@ -432,21 +239,19 @@ define([
                 });
                 return this.currentSearches;
             },
-
             currentSearches: [],
-
-            cancelCurrentSearches: function(){
-                this.currentSearches.forEach(function(request){
+            cancelCurrentSearches: function () {
+                this.currentSearches.forEach(function (request) {
                     request.abort('Canceled');
                 });
                 this.currentSearches = [];
             },
-
-            clearResults: function(){
+            clearResults: function () {
                 this.cancelCurrentSearches();
-                this.set({result: undefined});
+                this.set({
+                    result: undefined
+                });
             },
-
             setSources: function (sources) {
                 var sourceArr = [];
                 sources.each(function (src) {
@@ -460,14 +265,6 @@ define([
                     this.set('src', '');
                 }
             },
-
-            setDefaults: function () {
-                var model = this;
-                _.each(_.keys(model.defaults), function (key) {
-                    model.set(key, model.defaults[key]);
-                });
-            },
-
             getId: function () {
                 if (this.get('id')) {
                     return this.get('id');
@@ -486,29 +283,29 @@ define([
             color: function () {
                 return this.get('color');
             },
-            hasPreviousServerPage: function() {
-                return Boolean(_.find(this.currentIndexForSource, function(index){
+            hasPreviousServerPage: function () {
+                return Boolean(_.find(this.currentIndexForSource, function (index) {
                     return index > 1;
                 }));
             },
-            hasNextServerPage: function() {
+            hasNextServerPage: function () {
                 var pageSize = user.get('user').get('preferences').get('resultCount');
-                return Boolean(this.get('result').get('status').find(function(status){
+                return Boolean(this.get('result').get('status').find(function (status) {
                     var startingIndex = this.getStartIndexForSource(status.id);
                     var total = status.get('hits');
                     return (total - startingIndex) >= pageSize;
                 }.bind(this)));
             },
-            getPreviousServerPage: function() {
-                this.get('result').getSourceList().forEach(function(src){
+            getPreviousServerPage: function () {
+                this.get('result').getSourceList().forEach(function (src) {
                     var increment = this.get('result').getLastResultCountForSource(src);
                     this.currentIndexForSource[src] = Math.max(this.getStartIndexForSource(src) - increment, 1);
                 }.bind(this));
                 this.set('serverPageIndex', Math.max(0, this.get('serverPageIndex') - 1));
                 this.startSearch();
             },
-            getNextServerPage: function() {
-                this.get('result').getSourceList().forEach(function(src){
+            getNextServerPage: function () {
+                this.get('result').getSourceList().forEach(function (src) {
                     var increment = this.get('result').getLastResultCountForSource(src);
                     this.currentIndexForSource[src] = this.getStartIndexForSource(src) + increment;
                 }.bind(this));
@@ -516,27 +313,27 @@ define([
                 this.startSearch();
             },
             // get the starting offset (beginning of the server page) for the given source
-            getStartIndexForSource: function(src) {
+            getStartIndexForSource: function (src) {
                 return this.currentIndexForSource[src] || 1;
             },
             // if the server page size changes, reset our indices and let them get
             // recalculated on the next fetch
-            handleChangeResultCount: function() {
+            handleChangeResultCount: function () {
                 this.currentIndexForSource = {};
                 this.set('serverPageIndex', 0);
                 if (this.get('result')) {
                     this.get('result').resetResultCountsBySource();
                 }
             },
-            getResultsRangeLabel: function(resultsCollection) {
+            getResultsRangeLabel: function (resultsCollection) {
                 var results = resultsCollection.fullCollection.length;
                 var hits = _.filter(this.get('result').get('status').toJSON(), function (status) {
                     return status.id !== 'cache';
-                }).reduce(function(hits, status){
+                }).reduce(function (hits, status) {
                     return status.hits ? hits + status.hits : hits;
                 }, 0);
 
-                if (hits === 0 ) {
+                if (hits === 0) {
                     return '0 results';
                 } else if (results > hits) {
                     return hits + ' results';
@@ -552,5 +349,4 @@ define([
             }
         });
         return Query;
-
     });

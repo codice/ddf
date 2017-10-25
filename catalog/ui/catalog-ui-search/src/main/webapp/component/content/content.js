@@ -17,8 +17,9 @@ define([
     'wreqr',
     'js/model/Metacard',
     'js/model/Query',
-    'js/model/Workspace'
-], function ($, _, Backbone, wreqr, Metacard, Query, Workspace) {
+    'js/model/Workspace',
+    'js/model/QueryResult'
+], function ($, _, Backbone, wreqr, Metacard, Query, Workspace, QueryResult) {
 
     return Backbone.AssociatedModel.extend({
         relations: [
@@ -30,17 +31,17 @@ define([
             {
                 type: Backbone.One,
                 key: 'currentWorkspace',
-                relatedModel: Workspace.Model
+                relatedModel: Workspace
             },
             {
                 type: Backbone.Many,
                 key: 'selectedResults',
-                relatedModel: Metacard.Metacard
+                relatedModel: Metacard
             },
             {
                 type: Backbone.Many,
                 key: 'results',
-                relatedModel: Metacard.Metacard
+                relatedModel: Metacard
             },
             {
                 type: Backbone.Many,
@@ -50,12 +51,12 @@ define([
             {
                 type: Backbone.Many,
                 key: 'activeSearchResults',
-                relatedModel: Metacard.MetacardResult
+                relatedModel: QueryResult
             },
             {
                 type: Backbone.Many,
                 key: 'completeActiveSearchResults',
-                relatedModel: Metacard.MetacardResult
+                relatedModel: QueryResult
             }
         ],
         defaults: {

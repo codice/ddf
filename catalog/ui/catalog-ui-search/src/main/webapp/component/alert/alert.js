@@ -15,8 +15,10 @@ define([
     'backbone',
     'js/model/Metacard',
     'js/model/Alert',
-    'js/model/Query'
-], function (_, Backbone, Metacard, Alert, Query) {
+    'js/model/Query',
+    'js/model/QueryResponse',
+    'js/model/QueryResult'
+], function (_, Backbone, Metacard, Alert, Query, QueryResponse, QueryResult) {
 
     return new (Backbone.AssociatedModel.extend({
         relations: [
@@ -28,7 +30,7 @@ define([
             {
                 type: Backbone.One,
                 key: 'currentResult',
-                relatedModel: Metacard.SearchResult
+                relatedModel: QueryResponse
             },
             {
                 type: Backbone.One,
@@ -38,17 +40,17 @@ define([
             {
                 type: Backbone.Many,
                 key: 'selectedResults',
-                relatedModel: Metacard.Metacard
+                relatedModel: Metacard
             },
             {
                 type: Backbone.Many,
                 key: 'activeSearchResults',
-                relatedModel: Metacard.MetacardResult
+                relatedModel: QueryResult
             },
             {
                 type: Backbone.Many,
                 key: 'completeActiveSearchResults',
-                relatedModel: Metacard.MetacardResult
+                relatedModel: QueryResult
             }
         ],
         defaults: {
@@ -62,7 +64,7 @@ define([
             completeActiveSearchResultsAttributes: [],
         },
         initialize: function(){
-            this.set('currentResult', new Metacard.SearchResult());
+            this.set('currentResult', new QueryResponse());
             this.listenTo(this, 'change:currentAlert', this.clearSelectedResults);
             this.listenTo(this.get('activeSearchResults'), 'update add remove reset', this.updateActiveSearchResultsAttributes);
             this.listenTo(this.get('completeActiveSearchResults'), 'update add remove reset', this.updateActiveSearchResultsFullAttributes);

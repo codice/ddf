@@ -17,7 +17,6 @@ define([
     'marionette',
     'underscore',
     'properties',
-    'js/model/Metacard',
     'wreqr',
     './location-old.hbs',
     'maptype',
@@ -28,7 +27,7 @@ define([
     'component/property/property',
     'component/announcement',
     'js/DistanceUtils'
-], function (require, $, Backbone, Marionette, _, properties, MetaCard, wreqr, template, maptype,
+], function (require, $, Backbone, Marionette, _, properties, wreqr, template, maptype,
              store, CustomElements, LocationOldModel, CQLUtils, Property, Announcement, 
              DistanceUtils) {
     var minimumDifference = 0.0001;

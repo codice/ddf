@@ -45,6 +45,7 @@ module.exports = {
 
         // options here to override JSHint defaults
         globals: {
+            require: true,
             console: true,
             module: true,
             define: true
