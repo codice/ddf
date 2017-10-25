@@ -84,10 +84,7 @@ public abstract class AbstractXsltTransformer {
    */
   public void init(String mimeString, InputStream xslStream) {
 
-    TransformerFactory tf =
-        XMLUtils.getInstance()
-            .getSecureXmlTransformerFactory(
-                net.sf.saxon.TransformerFactoryImpl.class.getName(), getClass().getClassLoader());
+    TransformerFactory tf = XMLUtils.getInstance().getSecureXmlTransformerFactory();
     Source xsltSource;
     xsltSource = new StreamSource(xslStream);
     try {

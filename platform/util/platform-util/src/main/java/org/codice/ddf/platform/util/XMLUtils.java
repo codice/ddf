@@ -13,11 +13,13 @@
  */
 package org.codice.ddf.platform.util;
 
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.function.BiFunction;
 import javax.xml.XMLConstants;
@@ -34,6 +36,7 @@ import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -55,22 +58,35 @@ public class XMLUtils {
 
   private static final XMLUtils INSTANCE = new XMLUtils();
 
+  static final List<String> DOCUMENT_BUILDER_FACTORY_IMPL_WHITELIST =
+      ImmutableList.<String>builder()
+          .add("com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl")
+          .build();
+
+  static final List<String> TRANSFORMER_FACTORY_IMPL_WHITELIST =
+      ImmutableList.<String>builder()
+          .add("com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl")
+          .add("net.sf.saxon.TransformerFactoryImpl")
+          .build();
+
+  static final List<String> SAX_PARSER_FACTORY_IMPL_WHITELIST =
+      ImmutableList.<String>builder()
+          .add("com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl")
+          .build();
+
+  static final List<String> XML_READER_IMPL_WHITELIST =
+      ImmutableList.<String>builder()
+          .add("com.sun.org.apache.xerces.internal.parsers.SAXParser")
+          .build();
+
+  private static final String FACTORY_NOT_WHITELISTED_MSG =
+      "Factory %s is not a whitelisted implementation. Aborting attempt to load.";
+
   protected XMLInputFactory xmlInputFactory;
 
   public static synchronized XMLUtils getInstance() {
     INSTANCE.initializeXMLInputFactory();
     return INSTANCE;
-  }
-
-  private void initializeXMLInputFactory() {
-    if (xmlInputFactory == null) {
-      xmlInputFactory = XMLInputFactory.newInstance();
-    }
-    xmlInputFactory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, Boolean.FALSE);
-    xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
-    xmlInputFactory.setProperty(
-        XMLInputFactory.SUPPORT_DTD, Boolean.FALSE); // This disables DTDs entirely for that factory
-    xmlInputFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.FALSE);
   }
 
   /**
@@ -169,7 +185,9 @@ public class XMLUtils {
     ClassLoader tccl = Thread.currentThread().getContextClassLoader();
     Thread.currentThread().setContextClassLoader(XMLUtils.class.getClassLoader());
     try {
-      TransformerFactory transFactory = TransformerFactory.newInstance();
+      TransformerFactory transFactory =
+          TransformerFactory.newInstance(
+              TRANSFORMER_FACTORY_IMPL_WHITELIST.get(0), XMLUtils.class.getClassLoader());
       setSecureTransformerFactorySettings(transFactory);
       Transformer transformer = transFactory.newTransformer();
 
@@ -266,17 +284,39 @@ public class XMLUtils {
     }
   }
 
+  private void initializeXMLInputFactory() {
+    if (xmlInputFactory == null) {
+      xmlInputFactory = XMLInputFactory.newFactory();
+    }
+    setSecureXMLInputFactorySettings(xmlInputFactory);
+  }
+
+  public XMLInputFactory getSecureXmlInputFactory() {
+    return xmlInputFactory;
+  }
+
+  private void setSecureXMLInputFactorySettings(XMLInputFactory xmlInputFactory) {
+    xmlInputFactory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, Boolean.FALSE);
+    xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
+    xmlInputFactory.setProperty(
+        XMLInputFactory.SUPPORT_DTD, Boolean.FALSE); // This disables DTDs entirely for that factory
+    xmlInputFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.FALSE);
+  }
+
   public DocumentBuilderFactory getSecureDocumentBuilderFactory(
       String className, ClassLoader classLoader) {
-    DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance(className, classLoader);
-    setSecureDocumentBuilderSettings(domFactory);
-    return domFactory;
+    if (DOCUMENT_BUILDER_FACTORY_IMPL_WHITELIST.contains(className)) {
+      DocumentBuilderFactory domFactory =
+          DocumentBuilderFactory.newInstance(className, classLoader);
+      setSecureDocumentBuilderSettings(domFactory);
+      return domFactory;
+    }
+    throw new SecurityException(String.format(FACTORY_NOT_WHITELISTED_MSG, className));
   }
 
   public DocumentBuilderFactory getSecureDocumentBuilderFactory() {
-    DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
-    setSecureDocumentBuilderSettings(domFactory);
-    return domFactory;
+    return getSecureDocumentBuilderFactory(
+        DOCUMENT_BUILDER_FACTORY_IMPL_WHITELIST.get(0), XMLUtils.class.getClassLoader());
   }
 
   public DocumentBuilder getSecureDocumentBuilder(boolean namespaceAware)
@@ -307,7 +347,6 @@ public class XMLUtils {
       domFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
       domFactory.setXIncludeAware(false);
       domFactory.setExpandEntityReferences(false);
-
     } catch (ParserConfigurationException e) {
       LOGGER.debug("Unable to set features on document builder.", e);
     }
@@ -315,20 +354,22 @@ public class XMLUtils {
 
   public TransformerFactory getSecureXmlTransformerFactory(
       String className, ClassLoader classLoader) {
-    TransformerFactory transformerFactory = TransformerFactory.newInstance(className, classLoader);
-    setSecureTransformerFactorySettings(transformerFactory);
-    return transformerFactory;
+    if (TRANSFORMER_FACTORY_IMPL_WHITELIST.contains(className)) {
+      TransformerFactory transformerFactory =
+          TransformerFactory.newInstance(className, classLoader);
+      setSecureTransformerFactorySettings(transformerFactory);
+      return transformerFactory;
+    }
+    throw new SecurityException(String.format(FACTORY_NOT_WHITELISTED_MSG, className));
   }
 
   public TransformerFactory getSecureXmlTransformerFactory() {
-    TransformerFactory transformerFactory = TransformerFactory.newInstance();
-    setSecureTransformerFactorySettings(transformerFactory);
-    return transformerFactory;
+    return getSecureXmlTransformerFactory(
+        TRANSFORMER_FACTORY_IMPL_WHITELIST.get(0), XMLUtils.class.getClassLoader());
   }
 
   public Transformer getXmlTransformer(boolean omitXml) throws TransformerException {
-    TransformerFactory transformerFactory = TransformerFactory.newInstance();
-    setSecureTransformerFactorySettings(transformerFactory);
+    TransformerFactory transformerFactory = getSecureXmlTransformerFactory();
     Transformer transformer = transformerFactory.newTransformer();
     if (omitXml) {
       transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
@@ -346,20 +387,45 @@ public class XMLUtils {
    * @param tf TransformerFactory to be configured
    */
   private void setSecureTransformerFactorySettings(TransformerFactory tf) {
-    tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-    tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+    try {
+      tf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+      switch (tf.getClass().getName()) {
+        case "net.sf.saxon.TransformerFactoryImpl":
+          tf.setFeature(
+              "http://saxon.sf.net/feature/parserFeature?uri="
+                  + XMLConstants.FEATURE_SECURE_PROCESSING,
+              true);
+          tf.setFeature(
+              "http://saxon.sf.net/feature/parserFeature?uri="
+                  + "http://xml.org/sax/features/external-parameter-entities",
+              false);
+          tf.setFeature(
+              "http://saxon.sf.net/feature/parserFeature?uri="
+                  + "http://xml.org/sax/features/external-general-entities",
+              false);
+          break;
+        default:
+          tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+          tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+          break;
+      }
+    } catch (IllegalArgumentException | TransformerConfigurationException e) {
+      LOGGER.debug("XMLUtils failed to set secure attributes on TransformerFactory.");
+    }
   }
 
   public SAXParserFactory getSecureSAXParserFactory(String className, ClassLoader classLoader) {
-    SAXParserFactory saxParserFactory = SAXParserFactory.newInstance(className, classLoader);
-    setSecureSAXParserSettings(saxParserFactory);
-    return saxParserFactory;
+    if (SAX_PARSER_FACTORY_IMPL_WHITELIST.contains(className)) {
+      SAXParserFactory saxParserFactory = SAXParserFactory.newInstance(className, classLoader);
+      setSecureSAXParserSettings(saxParserFactory);
+      return saxParserFactory;
+    }
+    throw new SecurityException(String.format(FACTORY_NOT_WHITELISTED_MSG, className));
   }
 
   public SAXParserFactory getSecureSAXParserFactory() {
-    SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
-    setSecureSAXParserSettings(saxParserFactory);
-    return saxParserFactory;
+    return getSecureSAXParserFactory(
+        SAX_PARSER_FACTORY_IMPL_WHITELIST.get(0), XMLUtils.class.getClassLoader());
   }
 
   public SAXParser getSecureSAXParser(boolean namespaceAware)
@@ -390,10 +456,17 @@ public class XMLUtils {
     }
   }
 
+  public XMLReader getSecureXmlParser(String className) throws SAXException {
+    if (XML_READER_IMPL_WHITELIST.contains(className)) {
+      XMLReader xmlParser = XMLReaderFactory.createXMLReader(className);
+      setSecureXMLReaderSettings(xmlParser);
+      return xmlParser;
+    }
+    throw new SecurityException(String.format(FACTORY_NOT_WHITELISTED_MSG, className));
+  }
+
   public XMLReader getSecureXmlParser() throws SAXException {
-    XMLReader xmlParser = XMLReaderFactory.createXMLReader();
-    setSecureXMLReaderSettings(xmlParser);
-    return xmlParser;
+    return getSecureXmlParser(XML_READER_IMPL_WHITELIST.get(0));
   }
 
   /**

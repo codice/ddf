@@ -15,37 +15,33 @@ package org.codice.ddf.platform.util;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLEventWriter;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.ErrorListener;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.DefaultHandler;
 
 public class XMLUtilsTest {
 
@@ -182,112 +178,53 @@ public class XMLUtilsTest {
         equalTo(expectedValue));
   }
 
-  @Test(expected = org.xml.sax.SAXParseException.class)
-  public void testDocumentBuilderLimitsEntityExpansion()
-      throws IOException, SAXException, ParserConfigurationException {
-    InputStream is = new ByteArrayInputStream(XML_XXE_EXPANSION.getBytes(StandardCharsets.UTF_8));
-    XML_UTILS.parseDocument(is, false);
-  }
+  @Test
+  public void testXMLInputFactoryLimitsEntityExpansion()
+      throws XMLStreamException, ClassNotFoundException, IllegalAccessException,
+          InstantiationException {
+    XMLOutputFactory outputFactory =
+        (XMLOutputFactory)
+            Class.forName("com.sun.xml.internal.stream.XMLOutputFactoryImpl").newInstance();
 
-  @Test(expected = org.xml.sax.SAXParseException.class)
-  public void testDocumentBuilderDisallowsEntityInjection()
-      throws IOException, SAXException, ParserConfigurationException {
-    URL resource = XMLUtilsTest.class.getClassLoader().getResource("xxe_injection.txt");
-    String xmlStr = String.format(XML_XXE_INJECTION, resource.toString());
+    StringReader stringReader = new StringReader(XML_XXE_EXPANSION);
+    StringWriter stringWriter = new StringWriter();
 
-    InputStream is = new ByteArrayInputStream(xmlStr.getBytes(StandardCharsets.UTF_8));
-    XML_UTILS.parseDocument(is, false);
-  }
+    XMLEventReader eventReader = XML_UTILS.xmlInputFactory.createXMLEventReader(stringReader);
+    XMLEventWriter eventWriter = outputFactory.createXMLEventWriter(stringWriter);
 
-  @Test(expected = javax.xml.transform.TransformerException.class)
-  public void testXMLTransformerLimitsEntityExpansion() throws TransformerException {
-    Source xmlSource = new StreamSource(new StringReader(XML_XXE_EXPANSION));
-    StreamResult result = new StreamResult(new StringWriter());
+    eventWriter.add(eventReader);
+    eventWriter.close();
 
-    Transformer transformer = XML_UTILS.getXmlTransformer(true);
-    transformer.transform(xmlSource, result);
-  }
-
-  @Test(expected = javax.xml.transform.TransformerException.class)
-  public void testXMLTransformerDisallowsEntityInjection() throws TransformerException {
-    URL resource = XMLUtilsTest.class.getClassLoader().getResource("xxe_injection.txt");
-    String xmlStr = String.format(XML_XXE_INJECTION, resource.toString());
-    Source xmlSource = new StreamSource(new StringReader(xmlStr));
-    StreamResult result = new StreamResult(new StringWriter());
-
-    Transformer transformer = XML_UTILS.getXmlTransformer(true);
-    transformer.transform(xmlSource, result);
-  }
-
-  @Test(expected = org.xml.sax.SAXParseException.class)
-  public void testSaxParserLimitsEntityExpansion()
-      throws ParserConfigurationException, SAXException, IOException {
-    InputStream is = new ByteArrayInputStream(XML_XXE_EXPANSION.getBytes(StandardCharsets.UTF_8));
-    XML_UTILS.getSecureSAXParser(false).parse(is, new DefaultHandler());
+    assertThat(
+        "The \"&Q100000;\" entity shouldn't be expanded",
+        stringWriter.toString(),
+        containsString("&Q100000;"));
   }
 
   @Test
-  public void testSaxParserDisallowsEntityInjection()
-      throws IOException, ParserConfigurationException, SAXException {
+  public void testXMLInputFactoryDisallowsEntityInjection()
+      throws XMLStreamException, ClassNotFoundException, IllegalAccessException,
+          InstantiationException {
     URL resource = XMLUtilsTest.class.getClassLoader().getResource("xxe_injection.txt");
     String xmlStr = String.format(XML_XXE_INJECTION, resource.toString());
-    String injectedContent = IOUtils.toString(resource, StandardCharsets.UTF_8);
 
-    InputStream is = new ByteArrayInputStream(xmlStr.getBytes(StandardCharsets.UTF_8));
-    StringBuilder strBuf = new StringBuilder();
-    XML_UTILS
-        .getSecureSAXParser(false)
-        .parse(
-            is,
-            new DefaultHandler() {
-              @Override
-              public void characters(char ch[], int start, int length) {
-                strBuf.append(ch, start, length);
-              }
-            });
+    XMLOutputFactory outputFactory =
+        (XMLOutputFactory)
+            Class.forName("com.sun.xml.internal.stream.XMLOutputFactoryImpl").newInstance();
 
-    assertThat(
-        "External XML Entity should not be injected",
-        strBuf.toString(),
-        not(containsString(injectedContent)));
-  }
+    StringReader stringReader = new StringReader(xmlStr);
+    StringWriter stringWriter = new StringWriter();
 
-  @Test(expected = org.xml.sax.SAXParseException.class)
-  public void testXMLReaderLimitsEntityExpansion() throws SAXException, IOException {
-    InputStream is = new ByteArrayInputStream(XML_XXE_EXPANSION.getBytes(StandardCharsets.UTF_8));
-    InputSource ins = new InputSource(is);
-    XML_UTILS.getSecureXmlParser().parse(ins);
-  }
+    XMLEventReader eventReader = XML_UTILS.xmlInputFactory.createXMLEventReader(stringReader);
+    XMLEventWriter eventWriter = outputFactory.createXMLEventWriter(stringWriter);
 
-  @Test
-  public void testXMLReaderDisallowsEntityInjection() throws SAXException, IOException {
-    URL resource = XMLUtilsTest.class.getClassLoader().getResource("xxe_injection.txt");
-    String injectedContent = IOUtils.toString(resource, StandardCharsets.UTF_8);
-    String xmlStr = String.format(XML_XXE_INJECTION, resource.toString());
-
-    InputSource ins =
-        new InputSource(new ByteArrayInputStream(xmlStr.getBytes(StandardCharsets.UTF_8)));
-    XMLReader xmlReader = XML_UTILS.getSecureXmlParser();
-
-    StringBuilder strBuf = new StringBuilder();
-    DefaultHandler handler =
-        new DefaultHandler() {
-          @Override
-          public void characters(char ch[], int start, int length) {
-            strBuf.append(ch, start, length);
-          }
-        };
-
-    xmlReader.setErrorHandler(handler);
-    xmlReader.setContentHandler(handler);
-    xmlReader.setDTDHandler(handler);
-    xmlReader.setEntityResolver(handler);
-    xmlReader.parse(ins);
+    eventWriter.add(eventReader);
+    eventWriter.close();
 
     assertThat(
-        "External XML Entity should not be injected",
-        strBuf.toString(),
-        not(containsString(injectedContent)));
+        "The \"&bar;\" entity shouldn't be expanded",
+        stringWriter.toString(),
+        containsString("&bar;"));
   }
 
   private TransformerProperties setTransformerProperties() {

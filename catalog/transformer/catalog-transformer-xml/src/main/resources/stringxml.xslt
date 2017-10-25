@@ -1,6 +1,6 @@
 <!-- Stylesheet is used to remove the namespaces on Metacard XML attributes. -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-                version="1.0">
+                version="2.0">
  <xsl:output omit-xml-declaration="yes" indent="yes"/>
  <xsl:strip-space elements="*"/>
 

@@ -64,15 +64,9 @@ public class XPathHelper {
   private Document document;
 
   public XPathHelper() {
-    dbf =
-        XML_UTILS.getSecureDocumentBuilderFactory(
-            org.apache.xerces.jaxp.DocumentBuilderFactoryImpl.class.getName(),
-            this.getClass().getClassLoader());
+    dbf = XML_UTILS.getSecureDocumentBuilderFactory();
     dbf.setNamespaceAware(true);
-    tf =
-        XML_UTILS.getSecureXmlTransformerFactory(
-            org.apache.xalan.processor.TransformerFactoryImpl.class.getName(),
-            this.getClass().getClassLoader());
+    tf = XML_UTILS.getSecureXmlTransformerFactory();
   }
 
   /** @param document - To parse */
