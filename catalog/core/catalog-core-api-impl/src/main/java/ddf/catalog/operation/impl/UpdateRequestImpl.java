@@ -33,7 +33,7 @@ public class UpdateRequestImpl extends OperationImpl implements UpdateRequest {
 
   protected List<Entry<Serializable, Metacard>> updates;
 
-  protected Set<String> destinations = new HashSet<>();
+  private Set<String> destinations = new HashSet<>();
 
   /**
    * Instantiates a new UpdateRequestImpl.

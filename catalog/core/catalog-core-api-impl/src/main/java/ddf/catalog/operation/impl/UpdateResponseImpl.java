@@ -34,7 +34,7 @@ public class UpdateResponseImpl extends ResponseImpl<UpdateRequest> implements U
 
   protected List<Update> updatedMetacards;
 
-  protected Set<ProcessingDetails> processingErrors = new HashSet<>();
+  private Set<ProcessingDetails> processingErrors = new HashSet<>();
 
   /**
    * Instantiates a new UpdateResponseImpl.

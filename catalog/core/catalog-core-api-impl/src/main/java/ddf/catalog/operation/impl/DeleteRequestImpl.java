@@ -32,10 +32,10 @@ public class DeleteRequestImpl extends OperationImpl implements DeleteRequest {
   protected String name;
 
   /** Ids or URIs */
-  protected List<Serializable> values;
+  private List<Serializable> values;
 
   /** Set of destination ids this request should be sent to */
-  protected Set<String> destinations = new HashSet<>();
+  private Set<String> destinations = new HashSet<>();
 
   /**
    * Instantiates a new DeleteRequestImpl with a single {@link String} id to be deleted.

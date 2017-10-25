@@ -30,9 +30,9 @@ import java.util.Set;
 public class CreateResponseImpl extends ResponseImpl<CreateRequest> implements CreateResponse {
 
   /** The created metacards. */
-  protected List<Metacard> createdMetacards;
+  private List<Metacard> createdMetacards;
 
-  protected Set<ProcessingDetails> processingErrors = new HashSet<>();
+  private Set<ProcessingDetails> processingErrors = new HashSet<>();
 
   /**
    * Instantiates a new CreateResponsImpl

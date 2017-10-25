@@ -26,7 +26,7 @@ public class QueryRequestImpl extends OperationImpl implements QueryRequest {
 
   protected Query query;
 
-  protected Set<String> sourceIds;
+  private Set<String> sourceIds;
 
   protected boolean isEnterprise = false;
 

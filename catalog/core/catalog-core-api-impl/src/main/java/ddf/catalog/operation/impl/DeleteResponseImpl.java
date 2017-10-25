@@ -26,9 +26,9 @@ import java.util.Set;
 /** The DeleteResponseImpl represents a default implementation of the {@link DefaultResponse}. */
 public class DeleteResponseImpl extends ResponseImpl<DeleteRequest> implements DeleteResponse {
 
-  protected List<Metacard> deletedMetacards;
+  private List<Metacard> deletedMetacards;
 
-  protected Set<ProcessingDetails> processingErrors = new HashSet<>();
+  private Set<ProcessingDetails> processingErrors = new HashSet<>();
 
   /**
    * Instantiates a new DeleteResponseImpl.
