@@ -17,6 +17,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
 import ddf.security.common.audit.SecurityLogger;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.LinkOption;
@@ -33,7 +34,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 import java.util.zip.ZipFile;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.ImportMigrationContext;
@@ -185,7 +185,7 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
       return false;
     }
     try {
-      FileUtils.cleanDirectory(fdir);
+      ImportMigrationContextImpl.cleanDirectory(fdir);
       SecurityLogger.audit("Deleted content of directory {}", fdir);
     } catch (IOException e) {
       SecurityLogger.audit("Error deleting content of directory {}", fdir);
@@ -194,6 +194,47 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
       return false;
     }
     return true;
+  }
+
+  /**
+   * Temporary version of cleanDirectory() that doesn't delete any directories but only files found.
+   * This is to work around a directory handle issue on Windows which leaves the directory in a
+   * weird state and prevents us from recreating it.
+   *
+   * <p>Cleans a directory without deleting it.
+   *
+   * @param directory directory to clean
+   * @throws IOException in case cleaning is unsuccessful
+   */
+  private static void cleanDirectory(final File directory) throws IOException {
+    final File[] files = directory.listFiles();
+
+    if (files == null) { // null if security restricted
+      throw new IOException("failed to list contents of " + directory);
+    }
+    IOException ioe = null;
+
+    for (final File file : files) {
+      try {
+        if (file.isDirectory()) {
+          ImportMigrationContextImpl.cleanDirectory(file);
+        } else {
+          final boolean exists = file.exists();
+
+          if (!file.delete()) {
+            if (!exists) {
+              throw new FileNotFoundException("file does not exist: " + file);
+            }
+            throw new IOException("unable to delete file: " + file);
+          }
+        }
+      } catch (IOException e) {
+        ioe = e;
+      }
+    }
+    if (ioe != null) {
+      throw ioe;
+    }
   }
 
   @SuppressWarnings(
