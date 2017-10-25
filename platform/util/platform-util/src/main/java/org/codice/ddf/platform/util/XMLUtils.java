@@ -58,6 +58,27 @@ public class XMLUtils {
 
   private static final XMLUtils INSTANCE = new XMLUtils();
 
+  private static final String FACTORY_NOT_WHITELISTED_MSG =
+      "Factory %s is not a whitelisted implementation. Aborting attempt to load.";
+
+  private static final String XML_SAX_FEATURES_EXTERNAL_GENERAL_ENTITIES =
+      "http://xml.org/sax/features/external-general-entities";
+
+  private static final String XML_SAX_FEATURES_EXTERNAL_PARAMETER_ENTITIES =
+      "http://xml.org/sax/features/external-parameter-entities";
+
+  private static final String APACHE_FEATURES_DISALLOW_DOCTYPE_DECL =
+      "http://apache.org/xml/features/disallow-doctype-decl";
+
+  private static final String APACHE_FEATURES_LOAD_EXTERNAL_DTD =
+      "http://apache.org/xml/features/nonvalidating/load-external-dtd";
+
+  private static final String APACHE_FEATURES_LOAD_DTD_GRAMMAR =
+      "http://apache.org/xml/features/nonvalidating/load-dtd-grammar";
+
+  private static final String SAXON_PARSER_FEATURE_BASE_URI =
+      "http://saxon.sf.net/feature/parserFeature?uri=";
+
   static final List<String> DOCUMENT_BUILDER_FACTORY_IMPL_WHITELIST =
       ImmutableList.<String>builder()
           .add("com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl")
@@ -78,9 +99,6 @@ public class XMLUtils {
       ImmutableList.<String>builder()
           .add("com.sun.org.apache.xerces.internal.parsers.SAXParser")
           .build();
-
-  private static final String FACTORY_NOT_WHITELISTED_MSG =
-      "Factory %s is not a whitelisted implementation. Aborting attempt to load.";
 
   protected XMLInputFactory xmlInputFactory;
 
@@ -339,12 +357,11 @@ public class XMLUtils {
    */
   private void setSecureDocumentBuilderSettings(DocumentBuilderFactory domFactory) {
     try {
-      domFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-      domFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
-      domFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-      domFactory.setFeature(
-          "http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-      domFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+      domFactory.setFeature(APACHE_FEATURES_DISALLOW_DOCTYPE_DECL, true);
+      domFactory.setFeature(XML_SAX_FEATURES_EXTERNAL_GENERAL_ENTITIES, false);
+      domFactory.setFeature(XML_SAX_FEATURES_EXTERNAL_PARAMETER_ENTITIES, false);
+      domFactory.setFeature(APACHE_FEATURES_LOAD_EXTERNAL_DTD, false);
+      domFactory.setFeature(APACHE_FEATURES_LOAD_DTD_GRAMMAR, false);
       domFactory.setXIncludeAware(false);
       domFactory.setExpandEntityReferences(false);
     } catch (ParserConfigurationException e) {
@@ -392,17 +409,11 @@ public class XMLUtils {
       switch (tf.getClass().getName()) {
         case "net.sf.saxon.TransformerFactoryImpl":
           tf.setFeature(
-              "http://saxon.sf.net/feature/parserFeature?uri="
-                  + XMLConstants.FEATURE_SECURE_PROCESSING,
-              true);
+              SAXON_PARSER_FEATURE_BASE_URI + XMLConstants.FEATURE_SECURE_PROCESSING, true);
           tf.setFeature(
-              "http://saxon.sf.net/feature/parserFeature?uri="
-                  + "http://xml.org/sax/features/external-parameter-entities",
-              false);
+              SAXON_PARSER_FEATURE_BASE_URI + XML_SAX_FEATURES_EXTERNAL_PARAMETER_ENTITIES, false);
           tf.setFeature(
-              "http://saxon.sf.net/feature/parserFeature?uri="
-                  + "http://xml.org/sax/features/external-general-entities",
-              false);
+              SAXON_PARSER_FEATURE_BASE_URI + XML_SAX_FEATURES_EXTERNAL_GENERAL_ENTITIES, false);
           break;
         default:
           tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
@@ -442,11 +453,10 @@ public class XMLUtils {
    */
   private void setSecureSAXParserSettings(SAXParserFactory saxFactory) {
     try {
-      saxFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
-      saxFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-      saxFactory.setFeature(
-          "http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-      saxFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+      saxFactory.setFeature(XML_SAX_FEATURES_EXTERNAL_GENERAL_ENTITIES, false);
+      saxFactory.setFeature(XML_SAX_FEATURES_EXTERNAL_PARAMETER_ENTITIES, false);
+      saxFactory.setFeature(APACHE_FEATURES_LOAD_EXTERNAL_DTD, false);
+      saxFactory.setFeature(APACHE_FEATURES_LOAD_DTD_GRAMMAR, false);
       saxFactory.setXIncludeAware(false);
 
     } catch (ParserConfigurationException
@@ -476,8 +486,8 @@ public class XMLUtils {
    * @throws SAXException Thrown if the XMLReader was unable to be properly configured
    */
   private void setSecureXMLReaderSettings(XMLReader xmlReader) throws SAXException {
-    xmlReader.setFeature("http://xml.org/sax/features/external-general-entities", false);
-    xmlReader.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-    xmlReader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+    xmlReader.setFeature(XML_SAX_FEATURES_EXTERNAL_GENERAL_ENTITIES, false);
+    xmlReader.setFeature(XML_SAX_FEATURES_EXTERNAL_PARAMETER_ENTITIES, false);
+    xmlReader.setFeature(APACHE_FEATURES_LOAD_EXTERNAL_DTD, false);
   }
 }
