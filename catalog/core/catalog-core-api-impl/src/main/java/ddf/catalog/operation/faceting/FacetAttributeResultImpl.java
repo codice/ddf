@@ -20,26 +20,26 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FacetedAttributeResult {
+public class FacetAttributeResultImpl implements FacetAttributeResult {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(FacetedAttributeResult.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(FacetAttributeResultImpl.class);
 
   private String attributeName;
 
   private List<FacetValueCount> facetValues;
 
   /**
-   * Instantiates a FacetedAttributeResult representing a portion of the results of a faceted query.
-   * A FacetedAttributeResult is representative of a single attribute's faceting results, and zero
-   * to many FacetedAttributeResults may make up a complete faceted query result. This constructor
-   * zips together the attributeValues and valueCounts provided, and these list should correspond
-   * and be of the same length if sane results are desired.
+   * Instantiates a FacetAttributeResultImpl representing a portion of the results of a faceted
+   * query. A FacetAttributeResultImpl is representative of a single attribute's faceting results,
+   * and zero to many {@link FacetAttributeResult}s may make up a complete faceted query result.
+   * This constructor zips together the attributeValues and valueCounts provided, and these list
+   * should correspond and be of the same length if sane results are desired.
    *
    * @param attributeName The attribute name for which faceting data is reported
    * @param attributeValues A list of the discovered facet values
    * @param valueCounts A list of the number of occurrences for each facet value
    */
-  public FacetedAttributeResult(
+  public FacetAttributeResultImpl(
       String attributeName, List<String> attributeValues, List<Long> valueCounts) {
     this.attributeName = attributeName;
     facetValues = new ArrayList<>();
@@ -55,29 +55,31 @@ public class FacetedAttributeResult {
     Iterator<Long> countItr = valueCounts.iterator();
 
     while (valueItr.hasNext() && countItr.hasNext()) {
-      facetValues.add(new FacetValueCount(valueItr.next(), countItr.next()));
+      facetValues.add(new FacetValueCountImpl(valueItr.next(), countItr.next()));
     }
   }
 
   /**
-   * Instantiates a FacetedAttributeResult representing a portion of the results of a faceted query.
-   * This constructor takes a zipped list of value to count pairings.
+   * Instantiates a FacetAttributeResultImpl representing a portion of the results of a faceted
+   * query. This constructor takes a zipped list of value to count pairings.
    *
    * @param attributeName The field name for which faceting data is reported
    * @param valueCountPairs A list of value-count pairs for the faceted field
    */
-  public FacetedAttributeResult(String attributeName, List<Pair<String, Long>> valueCountPairs) {
+  public FacetAttributeResultImpl(String attributeName, List<Pair<String, Long>> valueCountPairs) {
     this.attributeName = attributeName;
     facetValues = new ArrayList<>();
     for (Pair<String, Long> valueCountPair : valueCountPairs) {
-      facetValues.add(new FacetValueCount(valueCountPair.getLeft(), valueCountPair.getRight()));
+      facetValues.add(new FacetValueCountImpl(valueCountPair.getLeft(), valueCountPair.getRight()));
     }
   }
 
+  @Override
   public String getAttributeName() {
     return attributeName;
   }
 
+  @Override
   public List<FacetValueCount> getFacetValues() {
     return new ArrayList<>(facetValues);
   }

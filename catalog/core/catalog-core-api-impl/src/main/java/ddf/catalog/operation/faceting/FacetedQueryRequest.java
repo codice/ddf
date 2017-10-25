@@ -38,17 +38,17 @@ public class FacetedQueryRequest extends QueryRequestImpl {
         false,
         Collections.emptySet(),
         Collections.emptyMap(),
-        new FacetProperties(facetAttributes));
+        new TermFacetPropertiesImpl(facetAttributes));
   }
 
   /**
-   * Instantiates a FacetedQueryRequest to facet using the provided FacetProperties.
+   * Instantiates a FacetedQueryRequest to facet using the provided TermFacetPropertiesImpl.
    *
    * @param query The query to be sent to the data source.
-   * @param facetProperties Properties describing the faceting parameters.
+   * @param termFacetProperties Properties describing the faceting parameters.
    */
-  public FacetedQueryRequest(Query query, FacetProperties facetProperties) {
-    this(query, false, Collections.emptySet(), Collections.emptyMap(), facetProperties);
+  public FacetedQueryRequest(Query query, TermFacetProperties termFacetProperties) {
+    this(query, false, Collections.emptySet(), Collections.emptyMap(), termFacetProperties);
   }
 
   /**
@@ -65,7 +65,7 @@ public class FacetedQueryRequest extends QueryRequestImpl {
       boolean isEnterprise,
       Collection<String> sourceIds,
       Map<String, Serializable> properties,
-      FacetProperties facetProperties) {
+      TermFacetProperties facetProperties) {
     super(query, isEnterprise, sourceIds, new HashMap<>(properties));
 
     this.getProperties().put(EXPERIMENTAL_FACET_PROPERTIES_KEY, facetProperties);

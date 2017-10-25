@@ -60,8 +60,8 @@ import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.Update;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.operation.UpdateResponse;
+import ddf.catalog.operation.faceting.FacetAttributeResult;
 import ddf.catalog.operation.faceting.FacetValueCount;
-import ddf.catalog.operation.faceting.FacetedAttributeResult;
 import ddf.catalog.operation.faceting.FacetedQueryRequest;
 import ddf.catalog.operation.impl.DeleteRequestImpl;
 import ddf.catalog.operation.impl.QueryImpl;
@@ -5626,11 +5626,11 @@ public class SolrProviderTest extends SolrProviderTestCase {
     assertThat(rawFacetResult, notNullValue());
     assertThat(rawFacetResult, instanceOf(List.class));
 
-    List<FacetedAttributeResult> facetResult = (List<FacetedAttributeResult>) rawFacetResult;
+    List<FacetAttributeResult> facetResult = (List<FacetAttributeResult>) rawFacetResult;
 
     assertThat(facetResult.size(), is(1));
 
-    FacetedAttributeResult descriptionResult = facetResult.get(0);
+    FacetAttributeResult descriptionResult = facetResult.get(0);
 
     assertThat(descriptionResult.getAttributeName(), is(Metacard.DESCRIPTION));
     assertThat(descriptionResult.getFacetValues().size(), is(5));

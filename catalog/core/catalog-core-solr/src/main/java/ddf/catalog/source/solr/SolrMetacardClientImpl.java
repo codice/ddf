@@ -32,8 +32,9 @@ import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.SourceResponse;
-import ddf.catalog.operation.faceting.FacetProperties;
-import ddf.catalog.operation.faceting.FacetedAttributeResult;
+import ddf.catalog.operation.faceting.FacetAttributeResult;
+import ddf.catalog.operation.faceting.FacetAttributeResultImpl;
+import ddf.catalog.operation.faceting.TermFacetProperties;
 import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.source.UnsupportedQueryException;
@@ -127,8 +128,8 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     boolean isFacetedQuery = false;
     Serializable textFacetPropRaw = request.getPropertyValue(EXPERIMENTAL_FACET_PROPERTIES_KEY);
 
-    if (textFacetPropRaw != null && textFacetPropRaw instanceof FacetProperties) {
-      FacetProperties textFacetProp = (FacetProperties) textFacetPropRaw;
+    if (textFacetPropRaw != null && textFacetPropRaw instanceof TermFacetProperties) {
+      TermFacetProperties textFacetProp = (TermFacetProperties) textFacetPropRaw;
       isFacetedQuery = true;
       if (LOGGER.isTraceEnabled()) {
         LOGGER.trace("Enabling faceted query for request [{}] on field {}", request, textFacetProp);
@@ -155,14 +156,12 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       SolrDocumentList docs = solrResponse.getResults();
 
       if (isFacetedQuery) {
-        List<FacetedAttributeResult> facetedAttributeResults =
-            solrResponse
-                .getFacetFields()
-                .stream()
-                .map(this::convertFacetField)
-                .collect(Collectors.toList());
-
-        responseProps.put(EXPERIMENTAL_FACET_RESULTS_KEY, (Serializable) facetedAttributeResults);
+        List<FacetField> facetFields = solrResponse.getFacetFields();
+        if (CollectionUtils.isNotEmpty(facetFields)) {
+          List<FacetAttributeResult> facetedAttributeResults =
+              facetFields.stream().map(this::convertFacetField).collect(Collectors.toList());
+          responseProps.put(EXPERIMENTAL_FACET_RESULTS_KEY, (Serializable) facetedAttributeResults);
+        }
       }
 
       for (SolrDocument doc : docs) {
@@ -190,7 +189,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     return resolver.getAnonymousField(attribute).stream().findFirst().orElse(attribute);
   }
 
-  private FacetedAttributeResult convertFacetField(FacetField facetField) {
+  private FacetAttributeResult convertFacetField(FacetField facetField) {
     List<String> values = new ArrayList<>();
     List<Long> counts = new ArrayList<>();
 
@@ -202,7 +201,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
               counts.add(val.getCount());
             });
 
-    return new FacetedAttributeResult(
+    return new FacetAttributeResultImpl(
         resolver.resolveFieldName(facetField.getName()), values, counts);
   }
 
