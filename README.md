@@ -129,20 +129,20 @@ mvn fmt:format
 ```
 
 
-For additional information about building DDF, see [Building DDF](https://codice.atlassian.net/wiki/display/DDF/Building+DDF).
+For additional information about building DDF, see [Building DDF](https://codice.atlassian.net/wiki/spaces/DDF/pages/70986756).
 
 ## How to Run
 * Unzip the distribution. 
 * Run the executable at <distribution_home>/bin/ddf.bat or <distribution_home>/bin/ddf
 
 ## Additional information
-The [wiki](https://tools.codice.org/wiki/display/DDF) is the right place to find any documentation about DDF.
+The [wiki](https://codice.atlassian.net/wiki/display/DDF) is the right place to find any documentation about DDF.
 
 Discussions can be found on the [Announcements forum](http://groups.google.com/group/ddf-announcements),  [Users forum](http://groups.google.com/group/ddf-users), and  [Developers forum](http://groups.google.com/group/ddf-developers).
 
 For a DDF binary distribution, please read  the release notes on the wiki for a list of supported and unsupported features.
 
-If you find any issues with DDF, please submit reports with [JIRA](https://tools.codice.org/jira/browse/DDF).
+If you find any issues with DDF, please submit reports with [JIRA](https://codice.atlassian.net/projects/DDF).
 
 For information on contributing to DDF see [Contributing to Codice](http://www.codice.org/contributing).
 
