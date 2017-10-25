@@ -205,7 +205,7 @@ public class TestRegistryReportActionProvider {
   }
 
   @Test
-  public void testFederatedMetacard() {
+  public void testCanHandleFederatedMetacard() {
     metacard.setTags(new HashSet<>());
 
     String newSourceName = "newSource";
@@ -213,9 +213,7 @@ public class TestRegistryReportActionProvider {
 
     configureActionProvider();
 
-    List<Action> action = actionProvider.getActions(metacard);
-
-    assertThat(action.size(), is(0));
+    assertThat(actionProvider.canHandle(metacard), is(false));
   }
 
   @Test

@@ -116,12 +116,6 @@ public class DerivedContentActionProviderTest {
   }
 
   @Test
-  public void testGetActionsForNonMetacard() throws Exception {
-    List<Action> actions = actionProvider.getActions("bad");
-    assertThat(actions, hasSize(0));
-  }
-
-  @Test
   public void testCanHandle() throws Exception {
     assertThat(actionProvider.canHandle(metacard), is(true));
   }
@@ -140,7 +134,7 @@ public class DerivedContentActionProviderTest {
 
   @Test
   public void testCanHandleNonMetacard() throws Exception {
-    assertThat(actionProvider.canHandle(new String("bad")), is(false));
+    assertThat(actionProvider.canHandle("bad"), is(false));
   }
 
   @Test
