@@ -54,22 +54,33 @@ public class CommandJob implements Job {
 
   @Override
   public void execute(final JobExecutionContext context) throws JobExecutionException {
-    SECURITY.runAsAdmin(
-        () -> {
-          Subject subject = getSystemSubject();
+    // TODO extract the command name and use that in the log messages
 
-          if (subject != null) {
-            subject.execute(
-                () -> {
-                  doExecute(context);
-                  return null;
-                });
-          } else {
-            LOGGER.debug("Could not execute command. Could not get subject to run command");
-          }
+    try {
+      SECURITY.runAsAdmin(
+          () -> {
+            Subject subject = getSystemSubject();
 
-          return null;
-        });
+            if (subject != null) {
+              subject.execute(
+                  () -> {
+                    doExecute(context);
+                    return null;
+                  });
+            } else {
+              // This might happen when the system is very slow to start up where not all of the
+              // required security bundles are started yet.
+              LOGGER.debug("Could not execute command. Could not get subject to run command.");
+            }
+
+            return null;
+          });
+    } catch (RuntimeException e) {
+      // This might happen when the system is very slow to start up where not all of the required
+      // security bundles are started yet.
+      LOGGER.info("Could not execute command as admin. See debug log for more details.");
+      LOGGER.debug("Could not execute command as admin.", e);
+    }
   }
 
   private Bundle getBundle() {
