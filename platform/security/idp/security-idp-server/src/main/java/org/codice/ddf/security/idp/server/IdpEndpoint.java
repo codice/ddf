@@ -798,11 +798,16 @@ public class IdpEndpoint implements Idp {
     }
 
     LOGGER.debug("User log in successful.");
-    return SamlProtocol.createResponse(
-        SamlProtocol.createIssuer(SystemBaseUrl.constructUrl("/idp/login", true)),
-        SamlProtocol.createStatus(statusCode),
-        authnRequest.getID(),
-        samlToken);
+    org.opensaml.saml.saml2.core.Response response =
+        SamlProtocol.createResponse(
+            SamlProtocol.createIssuer(SystemBaseUrl.constructUrl("/idp/login", true)),
+            SamlProtocol.createStatus(statusCode),
+            authnRequest.getID(),
+            samlToken);
+    if (authnRequest.getSignature() != null) {
+      response.setDestination(authnRequest.getAssertionConsumerServiceURL());
+    }
+    return response;
   }
 
   private Cookie getCookie(HttpServletRequest request) {

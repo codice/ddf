@@ -22,6 +22,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.security.idp.binding.api.Validator;
 import org.codice.ddf.security.idp.binding.api.impl.ValidatorImpl;
 import org.opensaml.saml.saml2.core.AuthnRequest;
@@ -77,6 +78,14 @@ public class RedirectValidator extends ValidatorImpl implements Validator {
             getSimpleSign().validateSignature(signedParts, signature, signingCertificate);
         if (!result) {
           throw new ValidationException("Signature verification failed for redirect binding.");
+        }
+        if (authnRequest.getDestination() == null) {
+          throw new ValidationException("Signed AuthnRequest must have a Destination attribute.");
+        } else if (!authnRequest
+            .getDestination()
+            .equals(SystemBaseUrl.constructUrl("/idp/login", true))) {
+          throw new ValidationException(
+              "Signed AuthnRequest must have Destination attribute matching this IdP server.");
         }
       } else {
         throw new SimpleSign.SignatureException("No signature present for AuthnRequest.");
