@@ -33,6 +33,9 @@ define([
             if(this.model.get('isThumbnail') && !this.model.get('hasNoValue')){
                 className+=' isThumbnail';
             }
+            if (this.model.get('filterChoice') === true) {
+                className+=' isFilterChoice';
+            }
             return className;
         },
         attributes: function(){

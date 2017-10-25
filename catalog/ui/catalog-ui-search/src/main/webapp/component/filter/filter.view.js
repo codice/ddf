@@ -28,10 +28,11 @@ define([
     'component/input/with-param/input-with-param.view',
     'component/value/value',
     'js/CQLUtils',
-    'properties'
+    'properties',
+    'js/Common'
 ], function (Marionette, _, $, template, CustomElements, FilterComparatorDropdownView,
              MultivalueView, metacardDefinitions, PropertyModel, DropdownModel, DropdownView,
-            InputWithParam, ValueModel, CQLUtils, properties) {
+            InputWithParam, ValueModel, CQLUtils, properties, Common) {
 
     var comparatorToCQL = {
         BEFORE: 'BEFORE',
@@ -50,6 +51,56 @@ define([
     var CQLtoComparator = {};
     for (var key in comparatorToCQL){
         CQLtoComparator[comparatorToCQL[key]] = key;
+    }
+
+    const transformValue = (value, comparator) => {
+        switch (comparator) {
+            case 'NEAR':
+                if (value[0].constructor !== Object) {
+                    value[0] = {
+                        value: value[0],
+                        distance: 2
+                    };
+                }
+                break;
+            case 'INTERSECTS':
+            case 'DWITHIN':
+                break;
+            default:
+                if (value[0].constructor === Object) {
+                    value[0] = value[0].value;
+                }
+                break;
+        }
+        return value;
+    };
+
+    const generatePropertyJSON = (value, type, comparator) => {
+        const propertyJSON = _.extend({},
+            metacardDefinitions.metacardTypes[type],
+            {
+                value: value,
+                multivalued: false,
+                enumFiltering: true,
+                enumCustom: true,
+                matchcase: ['MATCHCASE', '='].indexOf(comparator) !== -1 ? true : false,
+                enum: metacardDefinitions.enums[type],
+                showValidationIssues: false
+            });
+            
+        if (propertyJSON.type === 'GEOMETRY'){
+            propertyJSON.type = 'LOCATION';
+        }
+
+        propertyJSON.placeholder = propertyJSON.type === 'DATE' ? 'DD MMM YYYY HH:mm:ss.SSS' : 'Use * for wildcard.';
+
+        if (comparator === 'NEAR') {
+            propertyJSON.type = 'NEAR';
+            propertyJSON.param = 'within';
+            propertyJSON.help =  'The distance (number of words) within which search terms must be found in order to match';
+            delete propertyJSON.enum;
+        }
+        return propertyJSON;
     }
 
     return Marionette.LayoutView.extend({
@@ -143,34 +194,21 @@ define([
                     break;
             }
         },
+        updateValueFromInput: function() {
+            if (this.filterInput.currentView && this.filterInput.currentView.model.hasChanged()) {
+                this.model.set('value', Common.duplicate(this.filterInput.currentView.model.getValue()));
+            }
+        },
         determineInput: function(){
-            var propertyJSON = _.extend({},
-                metacardDefinitions.metacardTypes[this.model.get('type')],
-                {
-                    value: this.model.get('value'),
-                    multivalued: false
-                });
-            if (propertyJSON.type === 'GEOMETRY'){
-                propertyJSON.type = 'LOCATION';
-            }
-            propertyJSON.placeholder = propertyJSON.type === 'DATE' ? 'DD MMM YYYY HH:mm:ss.SSS' : 'Use * for wildcard.';
+            this.updateValueFromInput();
+            let value = Common.duplicate(this.model.get('value'));
+            const currentComparator = this.model.get('comparator');
+            value = transformValue(value, currentComparator);
+            const propertyJSON = generatePropertyJSON(value, this.model.get('type'), currentComparator);
 
-            if (this.model.get('comparator') === 'NEAR') {
-                var valueModel = new ValueModel({
-                    value: [this.model.get('value')[0], this.model.get('distance')],
-                    property: new PropertyModel()
-                });
-
-                this.filterInput.show(new InputWithParam({
-                    model: valueModel,
-                    label: 'within',
-                    help: 'The distance (number of words) within which search terms must be found in order to match'
-                }));
-            } else {
-                this.filterInput.show(new MultivalueView({
-                    model: new PropertyModel(propertyJSON)
-                }));
-            }
+            this.filterInput.show(new MultivalueView({
+                model: new PropertyModel(propertyJSON)
+            }));
 
             var isEditing = this.$el.hasClass('is-editing');
             if (isEditing){
@@ -193,11 +231,10 @@ define([
             var comparator = this.model.get('comparator');
             var value = this.filterInput.currentView.model.getValue()[0];
 
-            if (comparator==='NEAR') {
-                var distance = this.filterInput.currentView.model.getValue()[1];
+            if (comparator === 'NEAR') {
                 return CQLUtils.generateFilterForFilterFunction(
                     'proximity',
-                    [property, distance, value]
+                    [property, value.distance, value.value]
                 );
             }
 
@@ -246,11 +283,13 @@ define([
                 var value = filter.params[2];
 
                 this.model.set({
-                    value: [value],
+                    value: [{
+                        value: value,
+                        distance: distance
+                    }],
                     // this is confusing but 'type' on the model is actually the name of the property we're filtering on
                     type: property,
-                    comparator: 'NEAR',
-                    distance
+                    comparator: 'NEAR'
                 });
             } else {
                 throw new Error('Unsupported filter function in filter view: ' + filterFunctionName);

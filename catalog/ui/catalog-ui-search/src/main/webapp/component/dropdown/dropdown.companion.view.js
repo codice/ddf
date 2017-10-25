@@ -186,7 +186,9 @@ define([
                     break;
                 default:
                     var filterValue = this.$el.children('input').val();
-                    this.componentToShow.currentView.handleFilterUpdate(filterValue);
+                    this.options.linkedView.model.set('filterValue', filterValue);
+                    this.updateWidth();
+                    this.updatePosition();
                     break;
             }
         },

@@ -155,6 +155,7 @@ define([
             if (this.propertyModel) {
                 var filter = this.propertyModel.get('value');
                 switch (filter.type) {
+                    // these cases are for when the model matches the filter model
                     case 'DWITHIN':
                         if (CQLUtils.isPointRadiusFilter(filter)){
                             var pointText = filter.value.value.substring(6);
@@ -186,6 +187,24 @@ define([
                             polygon: CQLUtils.arrayFromCQLGeometry(filterValue)
                         });
                         wreqr.vent.trigger('search:polydisplay', this.model);
+                        break;
+                    // these cases are for when the model matches the location model
+                    case 'BBOX':
+                        this.model.set(_.pick(filter, 'north', 'south', 'east', 'west'));
+                        wreqr.vent.trigger('search:bboxdisplay', this.model);
+                        break;
+                    case 'MULTIPOLYGON':
+                    case 'POLYGON':
+                        this.model.set(_.pick(filter, 'polygon'));
+                        wreqr.vent.trigger('search:polydisplay', this.model);
+                        break;
+                    case 'POINTRADIUS':
+                        this.model.set(_.pick(filter, 'lat', 'lon', 'radius'));
+                        wreqr.vent.trigger('search:circledisplay', this.model);
+                        break;
+                    case 'LINE':
+                        this.model.set(_.pick(filter, 'line', 'lineWidth'));
+                        wreqr.vent.trigger('search:linedisplay', this.model);
                         break;
                 }
             }
@@ -573,14 +592,14 @@ define([
         getCurrentValue: function () {
             var modelJSON = this.model.toJSON();
             var type;
-            if (modelJSON.north !== undefined && modelJSON.south !== undefined && modelJSON.east !== undefined && modelJSON.west !== undefined) {
-                type = 'BBOX';
-            } else if (modelJSON.polygon !== undefined) {
+            if (modelJSON.polygon !== undefined) {
                 type = ShapeUtils.isArray3D(modelJSON.polygon) ? 'MULTIPOLYGON' : 'POLYGON';
             } else if (modelJSON.lat !== undefined && modelJSON.lon !== undefined && (modelJSON.radius !== undefined)) {
                 type = 'POINTRADIUS'
             } else if (modelJSON.line !== undefined && (modelJSON.lineWidth !== undefined)) {
                 type = 'LINE';
+            } else if (modelJSON.north !== undefined && modelJSON.south !== undefined && modelJSON.east !== undefined && modelJSON.west !== undefined) {
+                type = 'BBOX';
             }
 
             return _.extend(modelJSON, {

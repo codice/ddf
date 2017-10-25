@@ -25,24 +25,29 @@ module.exports = InputView.extend({
     getCurrentValue: function(){
         var text = this.$el.find('[type=text]').val();
         var param = parseInt(this.$el.find('[type=number]').val())
-        return [text, Math.max(1, param || 0)];
+        return {
+            value: text,
+            distance: Math.max(1, param || 0)
+        };
     },
     handleValue: function(){
-        var values = this.model.getValue() || [];
-        this.$el.find('[type=text]').val(values[0]);
-        this.$el.find('[type=number]').val(values[1]);
+        var value = this.model.getValue() || {
+            value: undefined,
+            distance: 2
+        };
+        this.$el.find('[type=text]').val(value.value);
+        this.$el.find('[type=number]').val(value.distance);
     },
     serializeData: function () {
-        var values = this.model.getValue() || []
+        var value = this.model.getValue() || {
+            value: undefined,
+            distance: 2
+        };
         return _.extend(this.model.toJSON(), {
-            text: values[0],
-            param: values[1],
-            label: this.options.label,
-            help: this.options.help
+            text: value.value,
+            param: value.distance,
+            label: this.model.get('property').get('param'),
+            help: this.model.get('property').get('help')
         });
-    },
-    isValid: function(){
-        var values = this.model.getValue() || []
-        return values[0] !== '' && (values[1] > 0);
     }
 });
