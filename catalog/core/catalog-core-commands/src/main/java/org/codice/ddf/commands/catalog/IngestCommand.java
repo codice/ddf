@@ -626,8 +626,6 @@ public class IngestCommand extends CatalogCommands {
       if (failedIngestDirectory != null) {
         moveToFailedIngestDirectory(file);
       }
-      printErrorMessage(String.format("Failed to ingest file [%s].", file.getAbsolutePath()));
-      INGEST_LOGGER.warn("Failed to ingest file [{}].", file.getAbsolutePath());
     }
 
     if (result != null) {
