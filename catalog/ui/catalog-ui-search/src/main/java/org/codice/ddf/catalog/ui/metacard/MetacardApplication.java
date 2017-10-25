@@ -901,12 +901,12 @@ public class MetacardApplication implements SparkApplication {
       LOGGER.debug("There should have been one deleted metacard marker");
       return;
     }
-    final QueryResponse _response = response;
+
+    final DeleteRequestImpl deleteRequest =
+        new DeleteRequestImpl(response.getResults().get(0).getMetacard().getId());
+    deleteRequest.getProperties().put("operation.query-tags", ImmutableSet.of("*"));
     try {
-      executeAsSystem(
-          () ->
-              catalogFramework.delete(
-                  new DeleteRequestImpl(_response.getResults().get(0).getMetacard().getId())));
+      executeAsSystem(() -> catalogFramework.delete(deleteRequest));
     } catch (ExecutionException e) {
       LOGGER.debug("Could not delete the deleted metacard marker", e);
     }

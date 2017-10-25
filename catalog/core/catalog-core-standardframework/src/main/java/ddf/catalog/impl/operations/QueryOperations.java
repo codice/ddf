@@ -24,6 +24,7 @@ import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.federation.FederationStrategy;
 import ddf.catalog.filter.FilterAdapter;
+import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.delegate.TagsFilterDelegate;
 import ddf.catalog.impl.FrameworkProperties;
 import ddf.catalog.operation.Operation;
@@ -63,8 +64,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.opengis.filter.Filter;
@@ -81,6 +84,19 @@ import org.slf4j.LoggerFactory;
 public class QueryOperations extends DescribableImpl {
   private static final Logger LOGGER = LoggerFactory.getLogger(QueryOperations.class);
 
+  private static final String MAX_PAGE_SIZE_PROPERTY = "catalog.maxPageSize";
+
+  /**
+   * Enforcing a default maximum page size of 1000 to avoid overloading the system with too many
+   * records. In practice, correct paging techniques should be implemented. If needed, this property
+   * can be overridden by setting "catalog.maxPageSize" in system properties.
+   *
+   * <p>(See DDF-2872 for more details)
+   */
+  private static final Integer DEFAULT_MAX_PAGE_SIZE = 1000;
+
+  public static final Integer MAX_PAGE_SIZE = determineAndRetrieveMaxPageSize();
+
   // Inject properties
   private final FrameworkProperties frameworkProperties;
 
@@ -96,19 +112,6 @@ public class QueryOperations extends DescribableImpl {
 
   private long queryTimeoutMillis = 300000;
 
-  private static final String MAX_PAGE_SIZE_PROPERTY = "catalog.maxPageSize";
-
-  /**
-   * Enforcing a default maximum page size of 1000 to avoid overloading the system with too many
-   * records. In practice, correct paging techniques should be implemented. If needed, this property
-   * can be overridden by setting "catalog.maxPageSize" in system properties.
-   *
-   * <p>(See DDF-2872 for more details)
-   */
-  private static final Integer DEFAULT_MAX_PAGE_SIZE = 1000;
-
-  public static final Integer MAX_PAGE_SIZE = determineAndRetrieveMaxPageSize();
-
   public QueryOperations(
       FrameworkProperties frameworkProperties,
       SourceOperations sourceOperations,
@@ -118,6 +121,10 @@ public class QueryOperations extends DescribableImpl {
     this.sourceOperations = sourceOperations;
     this.opsSecuritySupport = opsSecuritySupport;
     this.opsMetacardSupport = opsMetacardSupport;
+  }
+
+  private static Integer determineAndRetrieveMaxPageSize() {
+    return NumberUtils.toInt(System.getProperty(MAX_PAGE_SIZE_PROPERTY), DEFAULT_MAX_PAGE_SIZE);
   }
 
   public void setFanoutProxyTagBlacklist(List<String> fanoutProxyTagBlacklist) {
@@ -281,11 +288,20 @@ public class QueryOperations extends DescribableImpl {
     return request;
   }
 
-  Filter getFilterWithAdditionalFilters(List<Filter> originalFilter) {
+  Filter getFilterWithAdditionalFilters(List<Filter> originalFilter, Operation requestOperation) {
+    Filter nonVersionTags = getNonVersionTagsFilter(requestOperation);
+    if (nonVersionTags != null) {
+      return frameworkProperties
+          .getFilterBuilder()
+          .allOf(
+              nonVersionTags,
+              frameworkProperties.getValidationQueryFactory().getFilterWithValidationFilter(),
+              frameworkProperties.getFilterBuilder().anyOf(originalFilter));
+    }
+
     return frameworkProperties
         .getFilterBuilder()
         .allOf(
-            getNonVersionTagsFilter(),
             frameworkProperties.getValidationQueryFactory().getFilterWithValidationFilter(),
             frameworkProperties.getFilterBuilder().anyOf(originalFilter));
   }
@@ -361,10 +377,6 @@ public class QueryOperations extends DescribableImpl {
   boolean includesLocalSources(Set<String> sourceIds) {
     return sourceIds != null
         && (sourceIds.contains(getId()) || sourceIds.contains("") || sourceIds.contains(null));
-  }
-
-  private static Integer determineAndRetrieveMaxPageSize() {
-    return NumberUtils.toInt(System.getProperty(MAX_PAGE_SIZE_PROPERTY), DEFAULT_MAX_PAGE_SIZE);
   }
 
   private QueryResponse processPostQueryPlugins(QueryResponse queryResponse)
@@ -659,25 +671,29 @@ public class QueryOperations extends DescribableImpl {
     return ids;
   }
 
-  protected Filter getNonVersionTagsFilter() {
-    return frameworkProperties
-        .getFilterBuilder()
-        .not(
-            frameworkProperties
-                .getFilterBuilder()
-                .anyOf(
-                    frameworkProperties
-                        .getFilterBuilder()
-                        .attribute(Metacard.TAGS)
-                        .is()
-                        .like()
-                        .text(MetacardVersion.VERSION_TAG),
-                    frameworkProperties
-                        .getFilterBuilder()
-                        .attribute(Metacard.TAGS)
-                        .is()
-                        .like()
-                        .text(DeletedMetacard.DELETED_TAG)));
+  @Nullable
+  protected Filter getNonVersionTagsFilter(Operation requestOperation) {
+    FilterBuilder filterBuilder = frameworkProperties.getFilterBuilder();
+    if (requestOperation.containsPropertyName("operation.query-tags")) {
+      Set<String> queryTags =
+          Optional.of(requestOperation)
+              .map((ro) -> ro.getPropertyValue("operation.query-tags"))
+              .filter(Set.class::isInstance)
+              .map(Set.class::cast)
+              .orElse(Collections.emptySet());
+      if (queryTags.isEmpty()) {
+        return null;
+      }
+      return filterBuilder.anyOf(
+          queryTags
+              .stream()
+              .map(tag -> filterBuilder.attribute(Metacard.TAGS).is().like().text(tag))
+              .collect(Collectors.toList()));
+    }
+    return filterBuilder.not(
+        filterBuilder.anyOf(
+            filterBuilder.attribute(Metacard.TAGS).is().like().text(MetacardVersion.VERSION_TAG),
+            filterBuilder.attribute(Metacard.TAGS).is().like().text(DeletedMetacard.DELETED_TAG)));
   }
 
   static class QuerySources {
