@@ -262,9 +262,6 @@ define([
                     return field;
                 }
             },
-            round: function(number, precision) {
-                return parseFloat(number).toPrecision(precision);
-            },
             json: function (obj) {
                 return JSON.stringify(obj);
             },

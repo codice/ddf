@@ -164,8 +164,10 @@ define([
             }
 
             //relevance score
-            result.showRelevanceScore = properties.showRelevanceScores;
-            result.relevancePrecision = properties.relevancePrecision;
+            result.showRelevanceScore = properties.showRelevanceScores && result.relevance !== null;
+            if (result.showRelevanceScores === true) {
+                result.roundedRelevance = parseFloat(result.relevance).toPrecision(properties.relevancePrecision);
+            }
 
             return result;
         },
