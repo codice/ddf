@@ -1,5 +1,5 @@
 :title: DateTime
-:type: subappendix
+:type: subAppendix
 :parent: Catalog Taxonomy
 :status: published
 :summary: Attributes in this group reflect temporal aspects about the resource.  
