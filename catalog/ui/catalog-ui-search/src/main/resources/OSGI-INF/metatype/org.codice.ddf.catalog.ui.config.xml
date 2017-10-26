@@ -281,6 +281,20 @@
             default="Intrigue"
             required="true"/>
 
+        <AD id="showRelevanceScores"
+          name="Show Relevance Scores"
+          description="Toggle the display of relevance scores of search results."
+          type="Boolean"
+          default="false"
+          required="false"/>
+
+        <AD id="relevancePrecision"
+          name="Relevance Score Precision"
+          description="Set the number of digits to display in for each relevance score. The default is 5 (i.e. 12.345)."
+          type="Integer"
+          default="5"
+          required="false"/>
+
     </OCD>
 
     <Designate pid="org.codice.ddf.catalog.ui.config">

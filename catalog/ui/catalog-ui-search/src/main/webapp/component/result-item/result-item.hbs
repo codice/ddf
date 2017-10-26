@@ -45,6 +45,13 @@
                     </span>
                 </div>
             {{/each}}
+            {{#if showRelevanceScore}}
+                <div class="detail-custom details-property" data-help="Relevance: {{relevance}}" title="Relevance: {{relevance}}">
+                    <span>
+                    {{roundedRelevance}}
+                    </span>
+                </div>
+            {{/if}}
             {{#if showSource}}
                 <div class="detail-source details-property" title="{{getAlias 'source'}}: {{metacard.properties.source-id}}" data-help="{{getAlias 'source'}}">
                     {{#if local}}

@@ -125,7 +125,7 @@ define([
                 }
             },
             isUrl: function (value, options) {
-                if (value && value !== '' && _.isString(value)) {
+                if (value !== null && value !== '' && _.isString(value)) {
                     var protocol = value.toLowerCase().split('/')[0];
                     if (protocol && (protocol === 'http:' || protocol === 'https:')) {
                         return options.fn(this);
@@ -262,16 +262,16 @@ define([
                     return field;
                 }
             },
-          json: function (obj) {
-            return JSON.stringify(obj);
-          },
-          ifUrl: function(value, options){
-            if (value && value.toString().substring(0, 4) === 'http'){
-                return options.fn(this);
-            } else {
-                return options.inverse(this);
-            }
-          },
+            json: function (obj) {
+                return JSON.stringify(obj);
+            },
+            ifUrl: function(value, options){
+                if (value && value.toString().substring(0, 4) === 'http'){
+                    return options.fn(this);
+                } else {
+                    return options.inverse(this);
+                }
+            },
             bindInput: function(options){
                 var callback = function() {
                     var $target = this.$el.find(options.hash.selector);

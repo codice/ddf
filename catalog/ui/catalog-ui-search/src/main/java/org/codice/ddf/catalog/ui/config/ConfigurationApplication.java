@@ -165,6 +165,10 @@ public class ConfigurationApplication implements SparkApplication {
 
   private String uiName;
 
+  private Boolean showRelevanceScores = false;
+
+  private Integer relevancePrecision = 5;
+
   public ConfigurationApplication() {}
 
   public List<Long> getScheduleFrequencyList() {
@@ -345,6 +349,8 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("autoMergeTime", autoMergeTime);
     config.put("mapHome", mapHome);
     config.put("product", uiName);
+    config.put("showRelevanceScores", showRelevanceScores);
+    config.put("relevancePrecision", relevancePrecision);
 
     return config;
   }
@@ -784,6 +790,24 @@ public class ConfigurationApplication implements SparkApplication {
 
   public void setUiName(String uiName) {
     this.uiName = uiName;
+  }
+
+  public Boolean getShowRelevanceScores() {
+    return this.showRelevanceScores;
+  }
+
+  public void setShowRelevanceScores(Boolean showRelevanceScores) {
+    this.showRelevanceScores = showRelevanceScores;
+  }
+
+  public Integer getRelevancePrecision() {
+    return this.relevancePrecision;
+  }
+
+  public void setRelevancePrecision(Integer relevancePrecision) {
+    if (relevancePrecision > 0) {
+      this.relevancePrecision = relevancePrecision;
+    }
   }
 
   public String getSpacingMode() {

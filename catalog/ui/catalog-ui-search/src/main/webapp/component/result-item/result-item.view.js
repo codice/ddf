@@ -163,6 +163,12 @@ define([
                 result.warning = validationWarnings;
             }
 
+            //relevance score
+            result.showRelevanceScore = properties.showRelevanceScores && result.relevance !== null;
+            if (result.showRelevanceScore === true) {
+                result.roundedRelevance = parseFloat(result.relevance).toPrecision(properties.relevancePrecision);
+            }
+
             return result;
         },
         serializeData: function(){
