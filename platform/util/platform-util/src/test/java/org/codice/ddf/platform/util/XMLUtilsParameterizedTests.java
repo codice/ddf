@@ -86,7 +86,7 @@ public class XMLUtilsParameterizedTests {
       dbf.newDocumentBuilder().parse(is);
     }
 
-    @Test(expected = org.xml.sax.SAXParseException.class)
+    @Test
     public void testDocumentBuilderDisallowsEntityInjection()
         throws IOException, SAXException, ParserConfigurationException {
       URL resource = XMLUtilsTest.class.getClassLoader().getResource("xxe_injection.txt");
@@ -95,15 +95,29 @@ public class XMLUtilsParameterizedTests {
       InputStream is = new ByteArrayInputStream(xmlStr.getBytes(StandardCharsets.UTF_8));
       DocumentBuilderFactory dbf =
           XML_UTILS.getSecureDocumentBuilderFactory(implClass, XMLUtils.class.getClassLoader());
-      Document doc = dbf.newDocumentBuilder().parse(is);
+      Document doc = null;
+      try {
+        doc = dbf.newDocumentBuilder().parse(is);
+      } catch (org.xml.sax.SAXParseException e) {
+        // This specific implementation throws a TransformerException when external entity injection
+        // is attempted
+        // If you aren't this implementation, assume that the exception was actually a bad thing
+        if (!dbf.getClass()
+            .getName()
+            .equals("com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl")) {
+          throw e;
+        }
+      }
 
-      // If you've gotten this far, then there's likely already an issue, but at least check that
-      // content wasn't injected
-      String injectedContent = IOUtils.toString(resource, StandardCharsets.UTF_8);
-      assertThat(
-          "External XML Entity should not be injected",
-          doc.getElementsByTagName("foo").item(0).getTextContent(),
-          not(containsString(injectedContent)));
+      if (doc != null
+          && doc.getElementsByTagName("foo") != null
+          && doc.getElementsByTagName("foo").getLength() > 0) {
+        String injectedContent = IOUtils.toString(resource, StandardCharsets.UTF_8);
+        assertThat(
+            "External XML Entity should not be injected",
+            doc.getElementsByTagName("foo").item(0).getTextContent(),
+            not(containsString(injectedContent)));
+      }
     }
   }
 
