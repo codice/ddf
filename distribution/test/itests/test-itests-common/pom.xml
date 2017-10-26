@@ -83,9 +83,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.xebialabs.restito</groupId>
+            <groupId>ddf.thirdparty</groupId>
             <artifactId>restito</artifactId>
-            <version>${restito.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish.grizzly</groupId>

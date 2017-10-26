@@ -139,7 +139,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>ddf.test.thirdparty</groupId>
+            <groupId>ddf.thirdparty</groupId>
             <artifactId>restito</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
