@@ -16,7 +16,7 @@ let commitHash = childProcess
     .toString();
 
 let isDirty = childProcess
-    .execSync('git st')
+    .execSync('git status')
     .toString().indexOf('working directory clean') === -1;
 
 let commitDate = childProcess
