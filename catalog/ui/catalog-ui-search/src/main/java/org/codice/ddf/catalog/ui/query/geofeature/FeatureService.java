@@ -14,6 +14,7 @@
 package org.codice.ddf.catalog.ui.query.geofeature;
 
 import java.util.List;
+import org.opengis.feature.simple.SimpleFeature;
 
 /**
  * <b> This code is experimental. While this interface is functional and tested, it may change or be
@@ -37,5 +38,5 @@ public interface FeatureService {
    * @param name name of a geographic feature
    * @return the feature if found, otherwise null
    */
-  Feature getFeatureByName(String name);
+  SimpleFeature getFeatureByName(String name);
 }

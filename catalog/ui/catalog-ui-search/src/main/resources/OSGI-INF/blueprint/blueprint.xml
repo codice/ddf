@@ -369,8 +369,12 @@
 
     <reference id="geoEntryQueryable" interface="org.codice.ddf.spatial.geocoding.GeoEntryQueryable"/>
 
+    <reference id="featureQueryable" interface="org.codice.ddf.spatial.geocoding.FeatureQueryable"
+               availability="optional"/>
+
     <bean id="featureService" class="org.codice.ddf.catalog.ui.query.geofeature.GazetteerFeatureService">
         <property name="geoEntryQueryable" ref="geoEntryQueryable"/>
+        <property name="featureQueryable" ref="featureQueryable"/>
     </bean>
 
     <service ref="featureService" interface="org.codice.ddf.catalog.ui.query.geofeature.FeatureService"/>

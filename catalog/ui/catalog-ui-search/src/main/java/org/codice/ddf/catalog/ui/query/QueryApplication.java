@@ -41,9 +41,10 @@ import org.boon.json.implementation.ObjectMapperImpl;
 import org.codice.ddf.catalog.ui.metacard.EntityTooLargeException;
 import org.codice.ddf.catalog.ui.query.cql.CqlQueryResponse;
 import org.codice.ddf.catalog.ui.query.cql.CqlRequest;
-import org.codice.ddf.catalog.ui.query.geofeature.Feature;
 import org.codice.ddf.catalog.ui.query.geofeature.FeatureService;
 import org.codice.ddf.catalog.ui.util.EndpointUtil;
+import org.geotools.geojson.feature.FeatureJSON;
+import org.opengis.feature.simple.SimpleFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.servlet.SparkApplication;
@@ -111,12 +112,12 @@ public class QueryApplication implements SparkApplication {
         "/geofeature",
         (req, res) -> {
           String name = req.queryParams("name");
-          Feature feature = this.featureService.getFeatureByName(name);
+          SimpleFeature feature = this.featureService.getFeatureByName(name);
           if (feature == null) {
             res.status(404);
             return mapper.toJson(ImmutableMap.of("message", "Feature not found"));
           } else {
-            return mapper.toJson(feature.getJsonObject());
+            return new FeatureJSON().toString(feature);
           }
         });
 

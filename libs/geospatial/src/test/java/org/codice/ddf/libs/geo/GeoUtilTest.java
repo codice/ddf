@@ -135,7 +135,7 @@ public class GeoUtilTest {
     double lon = 33.45;
     double lat = 25.22;
 
-    CoordinateReferenceSystem sourceCRS = CRS.decode("EPSG:4326");
+    CoordinateReferenceSystem sourceCRS = CRS.decode(GeospatialUtil.EPSG_4326);
     GeometryFactory geometryFactory = new GeometryFactory();
     Coordinate coordinate = new Coordinate(lon, lat);
     Point utmPoint = geometryFactory.createPoint(coordinate);
@@ -166,8 +166,8 @@ public class GeoUtilTest {
   @Test(expected = GeoFormatException.class)
   public void testTransformEpsg4326EpsgNullGeom()
       throws FactoryException, TransformException, GeoFormatException {
-    CoordinateReferenceSystem sourceCRS = CRS.decode("EPSG:4326");
-    Geometry lonLatGeom = GeospatialUtil.transformToEPSG4326LonLatFormat(null, sourceCRS);
+    CoordinateReferenceSystem sourceCRS = CRS.decode(GeospatialUtil.EPSG_4326);
+    GeospatialUtil.transformToEPSG4326LonLatFormat(null, sourceCRS);
   }
 
   @Test(expected = GeoFormatException.class)
@@ -175,7 +175,7 @@ public class GeoUtilTest {
     GeometryFactory gf = new GeometryFactory();
     Coordinate coord = new Coordinate(25.22, 33.45);
     Point point = gf.createPoint(coord);
-    Geometry geom = GeospatialUtil.transformToEPSG4326LonLatFormat(point, "ESPG:Bad");
+    GeospatialUtil.transformToEPSG4326LonLatFormat(point, "ESPG:Bad");
   }
 
   @Test
@@ -189,7 +189,7 @@ public class GeoUtilTest {
 
   @Test(expected = GeoFormatException.class)
   public void testTransformEpsg4326LonLatNullGeom() throws GeoFormatException {
-    Geometry geom = GeospatialUtil.transformToEPSG4326LonLatFormat(null, "EPSG:4326");
+    GeospatialUtil.transformToEPSG4326LonLatFormat(null, "EPSG:4326");
   }
 
   @Test(expected = GeoFormatException.class)

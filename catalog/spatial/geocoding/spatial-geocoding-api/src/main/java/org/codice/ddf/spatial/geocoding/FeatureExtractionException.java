@@ -11,34 +11,25 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.commands.spatial.geonames;
+package org.codice.ddf.spatial.geocoding;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-
-class ConsoleInterceptor {
-  private ByteArrayOutputStream buffer;
-
-  private PrintStream realSystemOut;
-
-  public void interceptSystemOut() {
-    this.realSystemOut = System.out;
-
-    this.buffer = new ByteArrayOutputStream();
-
-    System.setOut(new PrintStream(this.buffer));
+public class FeatureExtractionException extends Exception {
+  /**
+   * Instantiates a new exception with the provided message.
+   *
+   * @param message the message
+   */
+  public FeatureExtractionException(final String message) {
+    super(message);
   }
 
-  public void closeBuffer() throws IOException {
-    buffer.close();
-  }
-
-  public String getOutput() {
-    return buffer.toString();
-  }
-
-  public void resetSystemOut() {
-    System.setOut(realSystemOut);
+  /**
+   * Instantiates a new exception with the provided message and {@link Throwable}.
+   *
+   * @param message the message
+   * @param throwable the throwable
+   */
+  public FeatureExtractionException(final String message, final Throwable throwable) {
+    super(message, throwable);
   }
 }

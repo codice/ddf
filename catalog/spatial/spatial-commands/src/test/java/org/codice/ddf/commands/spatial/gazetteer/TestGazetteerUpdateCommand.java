@@ -11,7 +11,7 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.commands.spatial.geonames;
+package org.codice.ddf.commands.spatial.gazetteer;
 
 import static org.codice.ddf.spatial.geocoding.GeoEntryExtractor.ExtractionCallback;
 import static org.hamcrest.Matchers.containsString;
@@ -19,13 +19,20 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.codice.ddf.spatial.geocoding.FeatureExtractionException;
+import org.codice.ddf.spatial.geocoding.FeatureExtractor;
+import org.codice.ddf.spatial.geocoding.FeatureIndexer;
+import org.codice.ddf.spatial.geocoding.FeatureIndexingException;
 import org.codice.ddf.spatial.geocoding.GeoEntry;
 import org.codice.ddf.spatial.geocoding.GeoEntryExtractionException;
 import org.codice.ddf.spatial.geocoding.GeoEntryExtractor;
@@ -36,16 +43,16 @@ import org.codice.ddf.spatial.geocoding.ProgressCallback;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestGeoNamesUpdateCommand {
+public class TestGazetteerUpdateCommand {
   private ConsoleInterceptor consoleInterceptor;
 
-  private GeoNamesUpdateCommand geoNamesUpdateCommand;
+  private GazetteerUpdateCommand gazetteerUpdateCommand;
 
   @Before
   public void setUp() {
     consoleInterceptor = new ConsoleInterceptor();
     consoleInterceptor.interceptSystemOut();
-    geoNamesUpdateCommand = new GeoNamesUpdateCommand();
+    gazetteerUpdateCommand = new GazetteerUpdateCommand();
   }
 
   @Test
@@ -133,11 +140,11 @@ public class TestGeoNamesUpdateCommand {
     geoEntryExtractors.add(geoEntryExtractor);
     geoEntryExtractors.add(geoEntryUrlExtractor);
 
-    geoNamesUpdateCommand.setGeoEntryExtractor(geoEntryExtractor);
-    geoNamesUpdateCommand.setGeoEntryIndexer(geoEntryIndexer);
+    gazetteerUpdateCommand.setGeoEntryExtractor(geoEntryExtractor);
+    gazetteerUpdateCommand.setGeoEntryIndexer(geoEntryIndexer);
 
-    geoNamesUpdateCommand.setResource("test");
-    geoNamesUpdateCommand.execute();
+    gazetteerUpdateCommand.setResource("test");
+    gazetteerUpdateCommand.execute();
 
     consoleInterceptor.resetSystemOut();
     consoleInterceptor.closeBuffer();
@@ -177,11 +184,11 @@ public class TestGeoNamesUpdateCommand {
           }
         };
 
-    geoNamesUpdateCommand.setGeoEntryIndexer(geoEntryIndexer);
-    geoNamesUpdateCommand.setGeoEntryExtractor(geoEntryExtractor);
-    geoNamesUpdateCommand.setResource("temp.txt");
+    gazetteerUpdateCommand.setGeoEntryIndexer(geoEntryIndexer);
+    gazetteerUpdateCommand.setGeoEntryExtractor(geoEntryExtractor);
+    gazetteerUpdateCommand.setResource("temp.txt");
 
-    geoNamesUpdateCommand.execute();
+    gazetteerUpdateCommand.execute();
     assertThat(consoleInterceptor.getOutput(), containsString(errorText));
 
     consoleInterceptor.resetSystemOut();
@@ -203,12 +210,49 @@ public class TestGeoNamesUpdateCommand {
         .updateIndex(
             anyString(), any(GeoEntryExtractor.class), anyBoolean(), any(ProgressCallback.class));
 
-    geoNamesUpdateCommand.setGeoEntryIndexer(geoEntryIndexer);
-    geoNamesUpdateCommand.setGeoEntryExtractor(geoEntryExtractor);
-    geoNamesUpdateCommand.setResource("temp");
-    geoNamesUpdateCommand.execute();
+    gazetteerUpdateCommand.setGeoEntryIndexer(geoEntryIndexer);
+    gazetteerUpdateCommand.setGeoEntryExtractor(geoEntryExtractor);
+    gazetteerUpdateCommand.setResource("temp");
+    gazetteerUpdateCommand.execute();
     assertThat(consoleInterceptor.getOutput(), containsString(errorText));
 
     consoleInterceptor.resetSystemOut();
+  }
+
+  @Test
+  public void testFeatureIndexing() throws FeatureIndexingException, FeatureExtractionException {
+    String resource = "example.geojson";
+    final FeatureExtractor featureExtractor =
+        spy(
+            new FeatureExtractor() {
+              @Override
+              public void pushFeaturesToExtractionCallback(
+                  String resource, ExtractionCallback extractionCallback)
+                  throws FeatureExtractionException {
+                /* stub */
+              }
+            });
+
+    final FeatureIndexer featureIndexer =
+        spy(
+            new FeatureIndexer() {
+              @Override
+              public void updateIndex(
+                  String resource,
+                  FeatureExtractor featureExtractor,
+                  boolean create,
+                  IndexCallback callback)
+                  throws FeatureExtractionException, FeatureIndexingException {
+                /* stub */
+              }
+            });
+
+    gazetteerUpdateCommand.setResource(resource);
+    gazetteerUpdateCommand.setFeatureExtractor(featureExtractor);
+    gazetteerUpdateCommand.setFeatureIndexer(featureIndexer);
+    gazetteerUpdateCommand.execute();
+    verify(featureIndexer, times(1))
+        .updateIndex(
+            eq(resource), eq(featureExtractor), eq(false), any(FeatureIndexer.IndexCallback.class));
   }
 }
