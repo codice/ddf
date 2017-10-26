@@ -18,8 +18,11 @@ import static ddf.catalog.util.impl.ResultIterable.resultIterable;
 import com.google.common.collect.Lists;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.federation.FederationException;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.source.SourceUnavailableException;
+import ddf.catalog.source.UnsupportedQueryException;
 import ddf.util.XPathHelper;
 import java.util.List;
 import org.apache.karaf.shell.api.action.Argument;
@@ -31,6 +34,8 @@ import org.fusesource.jansi.Ansi;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.opengis.filter.Filter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 @Command(
@@ -39,6 +44,8 @@ import org.opengis.filter.Filter;
   description = "Searches records in the Catalog Provider."
 )
 public class SearchCommand extends CqlCommands {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(SearchCommand.class);
 
   private static final String ID = "ID ";
 
@@ -100,7 +107,6 @@ public class SearchCommand extends CqlCommands {
     CatalogFacade catalogProvider = getCatalog();
 
     QueryImpl query = new QueryImpl(filter);
-    query.setRequestsTotalResultsCount(true);
     if (numberOfItems > -1) {
       query.setPageSize(numberOfItems);
     }
@@ -116,12 +122,14 @@ public class SearchCommand extends CqlCommands {
 
     long end = System.currentTimeMillis();
 
+    final long hits = getHits(filter, catalogProvider);
+
     console.println();
     console.printf(
         " %d result(s) out of %s%s%s in %3.3f seconds",
         results.size(),
         Ansi.ansi().fg(Ansi.Color.CYAN).toString(),
-        "?",
+        hits == -1 ? "?" : hits,
         Ansi.ansi().reset().toString(),
         (end - start) / MS_PER_SECOND);
     console.printf(formatString, "", "", "", "");
@@ -183,6 +191,19 @@ public class SearchCommand extends CqlCommands {
     }
 
     return null;
+  }
+
+  /** Returns the total hits matching {@param filter} or -1 if unknown */
+  private static long getHits(final Filter filter, final CatalogFacade catalogProvider) {
+    try {
+      final QueryImpl hitsQuery = new QueryImpl(filter);
+      hitsQuery.setRequestsTotalResultsCount(true);
+      hitsQuery.setPageSize(1);
+      return catalogProvider.query(new QueryRequestImpl(hitsQuery)).getHits();
+    } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
+      LOGGER.debug("Unable to get hits for catalog:search command", e);
+      return -1;
+    }
   }
 
   private Object executeSearchCache(Filter filter) throws Exception {
