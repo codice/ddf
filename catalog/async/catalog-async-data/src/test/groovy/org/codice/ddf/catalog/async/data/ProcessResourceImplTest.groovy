@@ -36,6 +36,7 @@ class ProcessResourceImplTest extends Specification {
     def 'process resource no qualifier'() {
         when:
         def processResource = new ProcessResourceImpl(ID, inputStream, MIME_TYPE, RESOURCE_NAME, SIZE)
+        processResource.markAsModified()
 
         then:
         processResource.getQualifier() == ''
@@ -51,6 +52,7 @@ class ProcessResourceImplTest extends Specification {
     def 'process resource unknown size'() {
         when:
         def processResource = new ProcessResourceImpl(ID, inputStream, MIME_TYPE, RESOURCE_NAME)
+        processResource.markAsModified()
 
         then:
         processResource.getSize() == ProcessResource.UNKNOWN_SIZE
@@ -65,7 +67,7 @@ class ProcessResourceImplTest extends Specification {
 
     def 'process resource no qualifier and not modified'() {
         when:
-        def processResource = new ProcessResourceImpl(ID, inputStream, MIME_TYPE, RESOURCE_NAME, SIZE, false)
+        def processResource = new ProcessResourceImpl(ID, inputStream, MIME_TYPE, RESOURCE_NAME, SIZE)
 
         then:
         processResource.getQualifier() == ''
@@ -81,6 +83,7 @@ class ProcessResourceImplTest extends Specification {
     def 'test process resource is qualified'() {
         when:
         def processResource = new ProcessResourceImpl(ID, inputStream, MIME_TYPE, RESOURCE_NAME, SIZE, QUALIFIER)
+        processResource.markAsModified()
 
         then:
         processResource.getQualifier() == QUALIFIER
@@ -91,7 +94,7 @@ class ProcessResourceImplTest extends Specification {
     def 'test ProcessResourceImpl(String, InputStream, String, String, Int, String, Boolean)'() {
         when:
         def stream = Mock(InputStream)
-        def processResource = new ProcessResourceImpl(ID, stream, MIME_TYPE, RESOURCE_NAME, SIZE, QUALIFIER, false)
+        def processResource = new ProcessResourceImpl(ID, stream, MIME_TYPE, RESOURCE_NAME, SIZE, QUALIFIER)
 
         then:
         assert processResource.getQualifier() == QUALIFIER
@@ -106,7 +109,7 @@ class ProcessResourceImplTest extends Specification {
     def 'test process resource ProcessResourceImpl null qualifier'() {
         when:
         def stream = Mock(InputStream)
-        def processResource = new ProcessResourceImpl(ID, stream, MIME_TYPE, RESOURCE_NAME, SIZE, null, false)
+        def processResource = new ProcessResourceImpl(ID, stream, MIME_TYPE, RESOURCE_NAME, SIZE, null)
 
         then:
         assert processResource.getUri().toString() == RESOURCE_URI
@@ -122,7 +125,7 @@ class ProcessResourceImplTest extends Specification {
     def 'test process resource ProcessResourceImpl null mimeType and null fileName'() {
         when:
         def stream = Mock(InputStream)
-        def processResource = new ProcessResourceImpl(ID, stream, null, null, SIZE, QUALIFIER, false)
+        def processResource = new ProcessResourceImpl(ID, stream, null, null, SIZE, QUALIFIER)
 
         then:
         assert processResource.getName() == ProcessResourceImpl.DEFAULT_NAME

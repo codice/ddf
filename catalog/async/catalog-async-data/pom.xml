@@ -64,24 +64,21 @@
                             <rules>
                                 <rule>
                                     <element>BUNDLE</element>
-                                    <!-- The ratios are low here because, besides
-                                    ProcessResourceImpl, the impl classes only include setters,
-                                    getters, and constructors with no logic.-->
                                     <limits>
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.70</minimum>
+                                            <minimum>0.75</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.99</minimum>
+                                            <minimum>0.90</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.70</minimum>
+                                            <minimum>0.78</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

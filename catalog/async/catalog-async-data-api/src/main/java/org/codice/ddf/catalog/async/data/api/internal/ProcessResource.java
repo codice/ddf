@@ -86,4 +86,11 @@ public interface ProcessResource {
    * @return {@code true} if modified, {@code false} otherwise
    */
   boolean isModified();
+
+  /**
+   * This is used to close the input stream.
+   *
+   * <p>Look into having the ProcessResource implement InputStream
+   */
+  void close();
 }

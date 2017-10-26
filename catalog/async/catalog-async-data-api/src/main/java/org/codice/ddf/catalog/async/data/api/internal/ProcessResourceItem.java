@@ -41,4 +41,7 @@ public interface ProcessResourceItem extends ProcessItem {
    * @return {@code true} if modified, {@code false} otherwise
    */
   boolean isMetacardModified();
+
+  /** Mark the metacard as modified. */
+  void markMetacardAsModified();
 }
