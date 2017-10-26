@@ -19,7 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class ImportCommandTest extends AbstractMigrationCommandTest {
+public class ImportCommandTest extends AbstractMigrationCommandSupport {
 
   @Before
   public void setup() throws Exception {

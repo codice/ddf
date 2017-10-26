@@ -33,7 +33,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class MigrationReportImplTest extends AbstractMigrationReportTest {
+public class MigrationReportImplTest extends AbstractMigrationReportSupport {
   public MigrationReportImplTest() {
     super(MigrationOperation.EXPORT);
   }

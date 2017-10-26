@@ -29,7 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class ExportMigrationManagerImplTest extends AbstractMigrationReportTest {
+public class ExportMigrationManagerImplTest extends AbstractMigrationReportSupport {
   private static final String MIGRATABLE_ID2 = "test-migratable-2";
 
   private static final String MIGRATABLE_ID3 = "test-migratable-3";
@@ -176,7 +176,7 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportTest 
 
     mgr.close();
 
-    final Map<String, ZipEntry> entries = AbstractMigrationTest.getEntriesFrom(exportFile);
+    final Map<String, ZipEntry> entries = AbstractMigrationSupport.getEntriesFrom(exportFile);
 
     Assert.assertThat(entries, Matchers.aMapWithSize(1));
     Assert.assertThat(entries, Matchers.hasKey(MigrationContextImpl.METADATA_FILENAME.toString()));

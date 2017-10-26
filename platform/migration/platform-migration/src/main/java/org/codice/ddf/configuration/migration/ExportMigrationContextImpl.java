@@ -47,7 +47,6 @@ import org.slf4j.LoggerFactory;
  * The export migration context keeps track of exported migration entries for a given migratable
  * while processing an export migration operation.
  */
-@SuppressWarnings("squid:S2160" /* the base class equals() is sufficient for our needs. */)
 public class ExportMigrationContextImpl extends MigrationContextImpl<ExportMigrationReportImpl>
     implements ExportMigrationContext, Closeable {
 
@@ -243,6 +242,27 @@ public class ExportMigrationContextImpl extends MigrationContextImpl<ExportMigra
       return false;
     }
     return true;
+  }
+
+  /**
+   * The superclass implementation is sufficient for our needs.
+   *
+   * @param o the object to check
+   * @return true if equal
+   */
+  @Override
+  public boolean equals(Object o) {
+    return super.equals(o);
+  }
+
+  /**
+   * The superclass implementation is sufficient for our needs.
+   *
+   * @return the hashcode
+   */
+  @Override
+  public int hashCode() {
+    return super.hashCode();
   }
 }
 

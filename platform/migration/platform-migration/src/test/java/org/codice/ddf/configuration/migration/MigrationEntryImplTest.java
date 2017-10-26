@@ -22,7 +22,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class MigrationEntryImplTest extends AbstractMigrationTest {
+public class MigrationEntryImplTest extends AbstractMigrationSupport {
   private static final String ENTRY_NAME = Paths.get("path/path2/file.ext").toString();
 
   private static final String MIGRATABLE_ID = "test-migratable";

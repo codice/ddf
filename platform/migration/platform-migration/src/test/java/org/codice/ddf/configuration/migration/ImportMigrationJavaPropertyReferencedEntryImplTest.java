@@ -42,7 +42,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ImportMigrationJavaPropertyReferencedEntryImplTest extends AbstractMigrationTest {
+public class ImportMigrationJavaPropertyReferencedEntryImplTest extends AbstractMigrationSupport {
 
   public static final String PROPERTIES_PATH = "file.properties";
 
