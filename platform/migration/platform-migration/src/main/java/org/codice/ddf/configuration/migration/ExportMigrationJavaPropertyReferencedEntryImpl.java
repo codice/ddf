@@ -101,7 +101,7 @@ public class ExportMigrationJavaPropertyReferencedEntryImpl
   }
 
   @Override
-  protected MigrationException newError(String reason, Throwable cause) {
+  protected MigrationException newError(String reason, Object cause) {
     return new MigrationException(
         Messages.EXPORT_JAVA_PROPERTY_ERROR,
         getProperty(),

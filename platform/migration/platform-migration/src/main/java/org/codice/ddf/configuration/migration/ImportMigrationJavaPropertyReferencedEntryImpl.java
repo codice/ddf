@@ -114,14 +114,13 @@ public class ImportMigrationJavaPropertyReferencedEntryImpl
                   try {
                     val = getJavaPropertyValue();
                   } catch (IOException e) {
-                    getReport()
-                        .record(
-                            new MigrationException(
-                                Messages.IMPORT_JAVA_PROPERTY_LOAD_ERROR,
-                                getProperty(),
-                                propertiesPath,
-                                getPath(),
-                                e));
+                    r.record(
+                        new MigrationException(
+                            Messages.IMPORT_JAVA_PROPERTY_LOAD_ERROR,
+                            getProperty(),
+                            propertiesPath,
+                            getPath(),
+                            e));
                     return;
                   }
                   if (val == null) {

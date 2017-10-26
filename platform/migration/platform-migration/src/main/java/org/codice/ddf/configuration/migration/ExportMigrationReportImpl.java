@@ -16,6 +16,7 @@ package org.codice.ddf.configuration.migration;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
+import java.nio.file.PathMatcher;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,6 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -48,6 +50,8 @@ public class ExportMigrationReportImpl implements MigrationReport {
   private final MigrationReport report;
 
   private final List<Map<String, Object>> files = new ArrayList<>();
+
+  private final List<Map<String, Object>> folders = new ArrayList<>();
 
   private final List<Map<String, Object>> externals = new ArrayList<>(8);
 
@@ -171,21 +175,42 @@ public class ExportMigrationReportImpl implements MigrationReport {
 
   @SuppressWarnings(
       "PMD.DefaultPackage" /* designed to be called from ExportMigrationEntryImpl within this package */)
+  ExportMigrationReportImpl recordDirectory(
+      ExportMigrationEntryImpl entry, @Nullable PathMatcher filter, Set<String> files) {
+    folders.add(
+        ImmutableMap.of( //
+            MigrationEntryImpl.METADATA_NAME,
+            entry.getName(),
+            MigrationEntryImpl.METADATA_FILTERED,
+            (filter != null),
+            MigrationEntryImpl.METADATA_FILES,
+            files,
+            MigrationEntryImpl.METADATA_LAST_MODIFIED,
+            entry.getLastModifiedTime()));
+    return this;
+  }
+
+  @SuppressWarnings(
+      "PMD.DefaultPackage" /* designed to be called from ExportMigrationEntryImpl within this package */)
   ExportMigrationReportImpl recordExternal(ExportMigrationEntryImpl entry, boolean softlink) {
     AccessUtils.doPrivileged(
         () -> {
           final Map<String, Object> emetadata = new HashMap<>(8);
 
           emetadata.put(MigrationEntryImpl.METADATA_NAME, entry.getName());
-          try {
-            emetadata.put(
-                MigrationEntryImpl.METADATA_CHECKSUM,
-                entry.getContext().getPathUtils().getChecksumFor(entry.getAbsolutePath()));
-          } catch (SecurityException | IOException e) {
-            LOGGER.info("failed to compute MD5 checksum for '" + entry.getName() + "': ", e);
-            report.record(
-                new MigrationWarning(Messages.EXPORT_CHECKSUM_COMPUTE_WARNING, entry.getPath(), e));
-          }
+          emetadata.put(MigrationEntryImpl.METADATA_FOLDER, entry.isDirectory());
+          if (entry.isFile()) {
+            try {
+              emetadata.put(
+                  MigrationEntryImpl.METADATA_CHECKSUM,
+                  entry.getContext().getPathUtils().getChecksumFor(entry.getAbsolutePath()));
+            } catch (SecurityException | IOException e) {
+              LOGGER.info("failed to compute MD5 checksum for '" + entry.getName() + "': ", e);
+              report.record(
+                  new MigrationWarning(
+                      Messages.EXPORT_CHECKSUM_COMPUTE_WARNING, entry.getPath(), e));
+            }
+          } // else - cannot compute a checksum for directories
           emetadata.put(MigrationEntryImpl.METADATA_SOFTLINK, softlink);
           externals.add(emetadata);
         });
@@ -237,6 +262,9 @@ public class ExportMigrationReportImpl implements MigrationReport {
     mmetadata.putAll(this.metadata);
     if (!files.isEmpty()) {
       mmetadata.put(MigrationContextImpl.METADATA_FILES, files);
+    }
+    if (!folders.isEmpty()) {
+      mmetadata.put(MigrationContextImpl.METADATA_FOLDERS, folders);
     }
     if (!externals.isEmpty()) {
       mmetadata.put(MigrationContextImpl.METADATA_EXTERNALS, externals);

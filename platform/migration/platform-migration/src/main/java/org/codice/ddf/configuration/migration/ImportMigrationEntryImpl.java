@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,6 +45,8 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ImportMigrationEntryImpl.class);
 
+  private static final String IMPORTING = "Importing {}...";
+
   private final Map<String, ImportMigrationJavaPropertyReferencedEntryImpl> properties =
       new HashMap<>(8);
 
@@ -57,7 +60,9 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
 
   private final String name;
 
-  private final ZipEntry entry;
+  @Nullable private final ZipEntry entry;
+
+  private final boolean isFile;
 
   /**
    * Will track if restore was attempted along with its result. Will be <code>null</code> until
@@ -90,6 +95,7 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
     this.file = absolutePath.toFile();
     this.name = FilenameUtils.separatorsToUnix(path.toString());
     this.entry = ze;
+    this.isFile = true;
   }
 
   /**
@@ -97,14 +103,18 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
    *
    * @param context the migration context associated with this entry
    * @param name the entry's relative name
+   * @param isFile <code>true</code> if the entry represents a file; <code>false</code> if it
+   *     represents a directory
    */
-  protected ImportMigrationEntryImpl(ImportMigrationContextImpl context, String name) {
+  protected ImportMigrationEntryImpl(
+      ImportMigrationContextImpl context, String name, boolean isFile) {
     this.context = context;
     this.path = Paths.get(name);
     this.name = FilenameUtils.separatorsToUnix(name);
     this.absolutePath = context.getPathUtils().resolveAgainstDDFHome(path);
     this.file = absolutePath.toFile();
     this.entry = null;
+    this.isFile = isFile;
   }
 
   /**
@@ -112,14 +122,18 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
    *
    * @param context the migration context associated with this entry
    * @param path the entry's relative path
+   * @param isFile <code>true</code> if the entry represents a file; <code>false</code> if it
+   *     represents a directory
    */
-  protected ImportMigrationEntryImpl(ImportMigrationContextImpl context, Path path) {
+  protected ImportMigrationEntryImpl(
+      ImportMigrationContextImpl context, Path path, boolean isFile) {
     this.context = context;
     this.path = path;
     this.name = FilenameUtils.separatorsToUnix(path.toString());
     this.absolutePath = context.getPathUtils().resolveAgainstDDFHome(path);
     this.file = absolutePath.toFile();
     this.entry = null;
+    this.isFile = isFile;
   }
 
   @Override
@@ -139,7 +153,17 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
 
   @Override
   public long getLastModifiedTime() {
-    return entry.getTime();
+    return (entry != null) ? entry.getTime() : -1L;
+  }
+
+  @Override
+  public boolean isDirectory() {
+    return !isFile;
+  }
+
+  @Override
+  public boolean isFile() {
+    return isFile;
   }
 
   @Override
@@ -151,42 +175,20 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
   public boolean restore(boolean required) {
     if (restored == null) {
       this.restored = false; // until proven otherwise
-      InputStream is = null;
+      this.restored = handleRestore(required, null);
+    }
+    return restored;
+  }
 
-      try {
-        is = getInputStream(false).orElse(null);
-        final InputStream fis = is;
-
-        // if the file was exported by the framework then no need to check any permissions and we
-        // can
-        // simply execute with our own privileges
-        // but if the file was not exported by the framework then we want to make sure the
-        // migratable
-        // has the right to do what we will be doing; so let's make sure to not extend our
-        // privileges
-        this.restored =
-            AccessUtils.doConditionallyPrivileged(
-                !context.requiresWriteAccess(this),
-                () ->
-                    getReport()
-                        .wasIOSuccessful(
-                            () -> {
-                              final String debugString =
-                                  LOGGER.isDebugEnabled() ? ("required " + toDebugString()) : null;
-
-                              if (fis == null) { // no entry stored!!!!
-                                handleRestoreWhenNoEntryWasExported(required, debugString);
-                              } else {
-                                handleRestoreWhenAnEntryWasExported(fis, debugString);
-                              }
-                            }));
-      } catch (IOException e) {
-        getReport()
-            .record(
-                new MigrationException(
-                    Messages.IMPORT_PATH_COPY_ERROR, path, context.getPathUtils().getDDFHome(), e));
-      } finally {
-        IOUtils.closeQuietly(is); // we do not care if we cannot close it
+  @Override
+  public boolean restore(boolean required, PathMatcher filter) {
+    Validate.notNull(filter, "invalid null path filter");
+    if (restored == null) {
+      this.restored = false; // until proven otherwise
+      if (filter.matches(path)) {
+        this.restored = handleRestore(required, filter);
+      } else {
+        this.restored = handleRestoreWhenFilterNotMatching(required);
       }
     }
     return restored;
@@ -264,6 +266,7 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
 
   @SuppressWarnings(
       "PMD.DefaultPackage" /* designed to be called from ImportMigrationContextImpl within this package */)
+  @Nullable
   ZipEntry getZipEntry() {
     return entry;
   }
@@ -275,21 +278,87 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
     if (path.isAbsolute()) {
       report.record(
           new MigrationWarning(
-              Messages.IMPORT_PATH_DELETE_WARNING,
+              Messages.IMPORT_OPTIONAL_PATH_DELETE_WARNING,
               path,
               String.format("is outside [%s]", getContext().getPathUtils().getDDFHome())));
       return false;
     } else if (AccessUtils.doPrivileged(() -> Files.isSymbolicLink(getAbsolutePath()))) {
       report.record(
-          new MigrationWarning(Messages.IMPORT_PATH_DELETE_WARNING, path, "is a symbolic link"));
+          new MigrationWarning(
+              Messages.IMPORT_OPTIONAL_PATH_DELETE_WARNING, path, "is a symbolic link"));
       return false;
     }
     return true;
   }
 
+  private boolean handleRestore(boolean required, @Nullable PathMatcher filter) {
+    InputStream is = null;
+
+    try {
+      is = getInputStream(false).orElse(null);
+      final InputStream fis = is;
+
+      // if the file was exported by the framework then no need to check any permissions and we
+      // can simply execute with our own privileges
+      // but if the file was not exported by the framework then we want to make sure the
+      // migratable has the right to do what we will be doing; so let's make sure to not extend
+      // our privileges
+      return AccessUtils.doConditionallyPrivileged(
+          !context.requiresWriteAccess(this),
+          () -> getReport().wasIOSuccessful(() -> handlePrivilegedRestore(required, filter, fis)));
+    } catch (IOException e) {
+      getReport()
+          .record(
+              new MigrationException(
+                  Messages.IMPORT_PATH_COPY_ERROR, path, context.getPathUtils().getDDFHome(), e));
+      return false;
+    } finally {
+      IOUtils.closeQuietly(is); // we do not care if we cannot close it
+    }
+  }
+
+  private void handlePrivilegedRestore(
+      boolean required, @Nullable PathMatcher filter, @Nullable InputStream is) throws IOException {
+    String debugString = null;
+
+    if (LOGGER.isDebugEnabled()) {
+      debugString = toDebugString();
+      if (required) {
+        debugString = "required " + debugString;
+      }
+      if (filter != null) {
+        debugString += " with path filter";
+      }
+    }
+    if (is == null) { // no entry stored!!!!
+      handleRestoreWhenNoEntryWasExported(required, debugString);
+    } else {
+      handleRestoreWhenAnEntryWasExported(is, debugString);
+    }
+  }
+
+  private boolean handleRestoreWhenFilterNotMatching(boolean required) {
+    // we have a filter that doesn't match this entry, so treat it as if the file was not
+    // there to start with
+    if (required) {
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug(ImportMigrationEntryImpl.IMPORTING, toDebugString());
+      }
+      getReport()
+          .record(
+              new MigrationException(
+                  Messages.IMPORT_PATH_COPY_ERROR,
+                  path,
+                  context.getPathUtils().getDDFHome(),
+                  "it does not match filter"));
+      return false;
+    } // else - optional so no warnings/errors - just skip it and treat it as successful
+    return true;
+  }
+
   private void handleRestoreWhenNoEntryWasExported(boolean required, @Nullable String debugString) {
     if (required) {
-      LOGGER.debug("Importing {}...", debugString);
+      LOGGER.debug(ImportMigrationEntryImpl.IMPORTING, debugString);
       getReport().record(new MigrationException(Messages.IMPORT_PATH_NOT_EXPORTED_ERROR, path));
     } else {
       // it is optional so delete it as it was optional when we exported and wasn't on
@@ -302,17 +371,28 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
           SecurityLogger.audit("Deleted file {}", file);
         } else {
           SecurityLogger.audit("Error deleting file {}", file);
-          getReport().record(new MigrationException(Messages.IMPORT_PATH_DELETE_ERROR, path));
+          getReport()
+              .record(new MigrationException(Messages.IMPORT_OPTIONAL_PATH_DELETE_ERROR, path));
         }
       }
     }
   }
 
+  private void restoreLastModifiedTime() {
+    final long modified = getLastModifiedTime();
+
+    if ((modified != -1L)
+        && !file.setLastModified(getLastModifiedTime())) { // propagate last modified time
+      LOGGER.debug("Failed to reset last modified time for {} to {}", getAbsolutePath(), modified);
+    }
+  }
+
   private void handleRestoreWhenAnEntryWasExported(InputStream is, @Nullable String debugString)
       throws IOException {
-    LOGGER.debug("Importing {}...", debugString);
+    LOGGER.debug(ImportMigrationEntryImpl.IMPORTING, debugString);
     try {
       FileUtils.copyInputStreamToFile(is, file);
+      restoreLastModifiedTime();
       SecurityLogger.audit("Imported file {}", file);
     } catch (IOException e) {
       if (!file.canWrite()) { // make it writable and try again
@@ -323,8 +403,6 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
         SecurityLogger.audit("Error importing file {}", file);
         throw e;
       }
-    } finally {
-      IOUtils.closeQuietly(is); // we do not care if we cannot close it
     }
   }
 
@@ -339,6 +417,7 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
     }
     try {
       FileUtils.copyInputStreamToFile(is, file);
+      restoreLastModifiedTime();
       SecurityLogger.audit("Imported file {}", file);
       return true;
     } catch (IOException ee) {

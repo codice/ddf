@@ -15,7 +15,6 @@ package org.codice.ddf.configuration.migration;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -27,15 +26,18 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.commons.io.FileUtils;
 import org.codice.ddf.migration.MigrationOperation;
 import org.codice.ddf.migration.MigrationReport;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -49,6 +51,19 @@ public class ImportMigrationExternalEntryImplTest extends AbstractMigrationSuppo
       ImmutableMap.of(
           MigrationEntryImpl.METADATA_NAME,
           ENTRY_NAME,
+          MigrationEntryImpl.METADATA_FOLDER,
+          false,
+          MigrationEntryImpl.METADATA_CHECKSUM,
+          CHECKSUM,
+          MigrationEntryImpl.METADATA_SOFTLINK,
+          false);
+
+  private static final Map<String, Object> METADATA_DIR_MAP =
+      ImmutableMap.of(
+          MigrationEntryImpl.METADATA_NAME,
+          ENTRY_NAME,
+          MigrationEntryImpl.METADATA_FOLDER,
+          true,
           MigrationEntryImpl.METADATA_CHECKSUM,
           CHECKSUM,
           MigrationEntryImpl.METADATA_SOFTLINK,
@@ -94,10 +109,25 @@ public class ImportMigrationExternalEntryImplTest extends AbstractMigrationSuppo
 
   @Test
   public void restoreSuccessfullyWithMatchingChecksum() throws Exception {
-    entry.restore(true);
+    assertThat(entry.restore(true), equalTo(true));
 
     verify(mockPathUtils).getChecksumFor(any(Path.class));
-    assertThat("Entry was verified successfully.", entry.restored, is(true));
+  }
+
+  @Test
+  public void restoreWithFilterSuccessfullyWithMatchingChecksumWhenMatching() throws Exception {
+    assertThat(entry.restore(true, p -> true), equalTo(true));
+
+    verify(mockPathUtils).getChecksumFor(any(Path.class));
+  }
+
+  @Test
+  public void restoreWithFilterSuccessfullyWithMatchingChecksumWhenNotMatching() throws Exception {
+    assertThat(entry.restore(true, p -> false), equalTo(false));
+
+    verify(mockPathUtils, Mockito.never()).getChecksumFor(any(Path.class));
+
+    verifyReportHasMatchingError(report, "does not match filter");
   }
 
   @Test
@@ -110,18 +140,67 @@ public class ImportMigrationExternalEntryImplTest extends AbstractMigrationSuppo
                 ENTRY_NAME,
                 MigrationEntryImpl.METADATA_SOFTLINK,
                 false));
-    entry.restore(true);
+    assertThat(entry.restore(true), equalTo(true));
+  }
 
-    assertThat("Entry was verified successfully.", entry.restored, is(true));
+  @Test
+  public void restoreWithFilterSuccessfullyWithoutChecksumAndMatching() throws Exception {
+    entry =
+        new ImportMigrationExternalEntryImpl(
+            mockContext,
+            ImmutableMap.of(
+                MigrationEntryImpl.METADATA_NAME,
+                ENTRY_NAME,
+                MigrationEntryImpl.METADATA_SOFTLINK,
+                false));
+    assertThat(entry.restore(true, p -> true), equalTo(true));
+  }
+
+  @Test
+  public void restoreWithFilterSuccessfullyWithoutChecksumAndNotMatching() throws Exception {
+    entry =
+        new ImportMigrationExternalEntryImpl(
+            mockContext,
+            ImmutableMap.of(
+                MigrationEntryImpl.METADATA_NAME,
+                ENTRY_NAME,
+                MigrationEntryImpl.METADATA_SOFTLINK,
+                false));
+    assertThat(entry.restore(true, p -> false), equalTo(false));
+
+    verifyReportHasMatchingError(report, "does not match filter");
   }
 
   @Test
   public void restoreSuccessfullyWhenOptionalFileDoesNotExist() throws Exception {
     if (path.toFile().delete()) {
-      entry.restore(false);
+      assertThat(entry.restore(false), equalTo(true));
 
       verify(mockPathUtils, never()).getChecksumFor(any(Path.class));
-      assertThat("Entry was verified successfully.", entry.restored, is(true));
+    } else {
+      throw new AssertionError("Was unable to delete the file.");
+    }
+  }
+
+  @Test
+  public void restoreWithFilterSuccessfullyWhenOptionalFileDoesNotExistAndMatching()
+      throws Exception {
+    if (path.toFile().delete()) {
+      assertThat(entry.restore(false, p -> true), equalTo(true));
+
+      verify(mockPathUtils, never()).getChecksumFor(any(Path.class));
+    } else {
+      throw new AssertionError("Was unable to delete the file.");
+    }
+  }
+
+  @Test
+  public void restoreWithFilterSuccessfullyWhenOptionalFileDoesNotExistAndNotMatching()
+      throws Exception {
+    if (path.toFile().delete()) {
+      assertThat(entry.restore(false, p -> false), equalTo(true));
+
+      verify(mockPathUtils, never()).getChecksumFor(any(Path.class));
     } else {
       throw new AssertionError("Was unable to delete the file.");
     }
@@ -130,11 +209,34 @@ public class ImportMigrationExternalEntryImplTest extends AbstractMigrationSuppo
   @Test
   public void restoreFailsWhenRequiredFileDoesNotExist() throws Exception {
     if (path.toFile().delete()) {
-      entry.restore(true);
+      assertThat(entry.restore(true), equalTo(false));
 
       verify(mockPathUtils, never()).getChecksumFor(any(Path.class));
-      assertThat("Entry failed verification because it does not exist.", entry.restored, is(false));
       verifyReportHasMatchingError(report, "does not exist");
+    } else {
+      throw new AssertionError("Was unable to delete the file.");
+    }
+  }
+
+  @Test
+  public void restoreWithFilterFailsWhenRequiredFileDoesNotExistAndMatching() throws Exception {
+    if (path.toFile().delete()) {
+      assertThat(entry.restore(true, p -> true), equalTo(false));
+
+      verify(mockPathUtils, never()).getChecksumFor(any(Path.class));
+      verifyReportHasMatchingError(report, "does not exist");
+    } else {
+      throw new AssertionError("Was unable to delete the file.");
+    }
+  }
+
+  @Test
+  public void restoreWithFilterFailsWhenRequiredFileDoesNotExistAndNotMatching() throws Exception {
+    if (path.toFile().delete()) {
+      assertThat(entry.restore(true, p -> false), equalTo(false));
+
+      verify(mockPathUtils, never()).getChecksumFor(any(Path.class));
+      verifyReportHasMatchingError(report, "does not match filter");
     } else {
       throw new AssertionError("Was unable to delete the file.");
     }
@@ -150,12 +252,42 @@ public class ImportMigrationExternalEntryImplTest extends AbstractMigrationSuppo
                 ENTRY_NAME,
                 MigrationEntryImpl.METADATA_SOFTLINK,
                 true));
-    entry.restore(true);
+    assertThat(entry.restore(true), equalTo(false));
 
     verify(mockPathUtils, never()).getChecksumFor(any(Path.class));
-    assertThat(
-        "Entry failed verification because it was not a symbolic link.", entry.restored, is(false));
     verifyReportHasMatchingWarning(report, "not a symbolic link");
+  }
+
+  @Test
+  public void restoreWithFilterFailsWhenFileIsNotSoftLinkAndMatching() throws Exception {
+    entry =
+        new ImportMigrationExternalEntryImpl(
+            mockContext,
+            ImmutableMap.of(
+                MigrationEntryImpl.METADATA_NAME,
+                ENTRY_NAME,
+                MigrationEntryImpl.METADATA_SOFTLINK,
+                true));
+    assertThat(entry.restore(true, p -> true), equalTo(false));
+
+    verify(mockPathUtils, never()).getChecksumFor(any(Path.class));
+    verifyReportHasMatchingWarning(report, "not a symbolic link");
+  }
+
+  @Test
+  public void restoreWithFilterFailsWhenFileIsNotSoftLinkAndNotMatching() throws Exception {
+    entry =
+        new ImportMigrationExternalEntryImpl(
+            mockContext,
+            ImmutableMap.of(
+                MigrationEntryImpl.METADATA_NAME,
+                ENTRY_NAME,
+                MigrationEntryImpl.METADATA_SOFTLINK,
+                true));
+    assertThat(entry.restore(true, p -> false), equalTo(false));
+
+    verify(mockPathUtils, never()).getChecksumFor(any(Path.class));
+    verifyReportHasMatchingError(report, "does not match filter");
   }
 
   @Test
@@ -165,33 +297,130 @@ public class ImportMigrationExternalEntryImplTest extends AbstractMigrationSuppo
     when(mockPathUtils.resolveAgainstDDFHome(any(Path.class))).thenReturn(symlink);
 
     entry = new ImportMigrationExternalEntryImpl(mockContext, METADATA_MAP);
-    entry.restore(true);
+    assertThat(entry.restore(true), equalTo(true));
 
     verify(mockPathUtils).getChecksumFor(any(Path.class));
-    assertThat("Entry was verified successfully.", entry.restored, is(true));
     verifyReportHasMatchingWarning(report, "is not a regular file");
+  }
+
+  @Test
+  public void restoreWithFilterRecordsWarningWhenFileIsNotNormalAndMatching() throws Exception {
+    Path symlink = ddfHome.resolve(createSoftLink("symlink", path));
+
+    when(mockPathUtils.resolveAgainstDDFHome(any(Path.class))).thenReturn(symlink);
+
+    entry = new ImportMigrationExternalEntryImpl(mockContext, METADATA_MAP);
+    assertThat(entry.restore(true, p -> true), equalTo(true));
+
+    verify(mockPathUtils).getChecksumFor(any(Path.class));
+    verifyReportHasMatchingWarning(report, "is not a regular file");
+  }
+
+  @Test
+  public void restoreWithFilterRecordsWarningWhenFileIsNotNormalAndNotMatching() throws Exception {
+    Path symlink = ddfHome.resolve(createSoftLink("symlink", path));
+
+    when(mockPathUtils.resolveAgainstDDFHome(any(Path.class))).thenReturn(symlink);
+
+    entry = new ImportMigrationExternalEntryImpl(mockContext, METADATA_MAP);
+    assertThat(entry.restore(true, p -> false), equalTo(false));
+
+    verifyReportHasMatchingError(report, "does not match filter");
+  }
+
+  @Test
+  public void restoreRecordsWarningWhenDirectoryIsNotNormal() throws Exception {
+    Path symlink = ddfHome.resolve(createSoftLink("symlink", path));
+
+    when(mockPathUtils.resolveAgainstDDFHome(any(Path.class))).thenReturn(symlink);
+
+    entry = new ImportMigrationExternalEntryImpl(mockContext, METADATA_DIR_MAP);
+    assertThat(entry.restore(true), equalTo(true));
+
+    verify(mockPathUtils).getChecksumFor(any(Path.class));
+    verifyReportHasMatchingWarning(report, "is not a regular directory");
+  }
+
+  @Test
+  public void restoreWithFilterRecordsWarningWhenDirectoryIsNotNormalAndMatching()
+      throws Exception {
+    Path symlink = ddfHome.resolve(createSoftLink("symlink", path));
+
+    when(mockPathUtils.resolveAgainstDDFHome(any(Path.class))).thenReturn(symlink);
+
+    entry = new ImportMigrationExternalEntryImpl(mockContext, METADATA_DIR_MAP);
+    assertThat(entry.restore(true, p -> true), equalTo(true));
+
+    verify(mockPathUtils).getChecksumFor(any(Path.class));
+    verifyReportHasMatchingWarning(report, "is not a regular directory");
+  }
+
+  @Test
+  public void restoreWithFilterRecordsWarningWhenDirectoryIsNotNormalAndNotMatching()
+      throws Exception {
+    Path symlink = ddfHome.resolve(createSoftLink("symlink", path));
+
+    when(mockPathUtils.resolveAgainstDDFHome(any(Path.class))).thenReturn(symlink);
+
+    entry = new ImportMigrationExternalEntryImpl(mockContext, METADATA_DIR_MAP);
+    assertThat(entry.restore(true, p -> false), equalTo(false));
+
+    verifyReportHasMatchingError(report, "does not match filter");
   }
 
   @Test
   public void restoreFailsWhenChecksumDoesNotMatch() throws Exception {
     when(mockPathUtils.getChecksumFor(any(Path.class))).thenReturn("Different-Checksum");
 
-    entry.restore(true);
+    assertThat(entry.restore(true), equalTo(false));
 
     verify(mockPathUtils).getChecksumFor(any(Path.class));
-    assertThat(
-        "Entry failed verification because the checksum didn't match.", entry.restored, is(false));
     verifyReportHasMatchingWarning(report, "doesn't match");
+  }
+
+  @Test
+  public void restoreWithFilterFailsWhenChecksumDoesNotMatchAndMatching() throws Exception {
+    when(mockPathUtils.getChecksumFor(any(Path.class))).thenReturn("Different-Checksum");
+
+    assertThat(entry.restore(true, p -> true), equalTo(false));
+
+    verify(mockPathUtils).getChecksumFor(any(Path.class));
+    verifyReportHasMatchingWarning(report, "doesn't match");
+  }
+
+  @Test
+  public void restoreWithFilterFailsWhenChecksumDoesNotMatchAndNotMatching() throws Exception {
+    assertThat(entry.restore(true, p -> false), equalTo(false));
+
+    verifyReportHasMatchingError(report, "does not match filter");
   }
 
   @Test
   public void restoreFailsWhenChecksumCheckThrowsIOException() throws Exception {
     when(mockPathUtils.getChecksumFor(any(Path.class))).thenThrow(IOException.class);
 
-    entry.restore(true);
+    assertThat(entry.restore(true), equalTo(false));
 
     verify(mockPathUtils).getChecksumFor(any(Path.class));
-    assertThat("Entry failed verification because of an IOException.", entry.restored, is(false));
     verifyReportHasMatchingWarning(report, "Failed to compute checksum");
+  }
+
+  @Test
+  public void testRestoreWithFilterWhenFilterIsNull() throws Exception {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage(Matchers.containsString("null path filter"));
+
+    entry.restore(true, null);
+  }
+
+  @Test
+  public void testRestoreWithFilterVerifyingFilterReceivingEntryPath() throws Exception {
+    final PathMatcher filter = Mockito.mock(PathMatcher.class);
+
+    Mockito.when(filter.matches(entry.getPath())).thenReturn(false);
+
+    entry.restore(false, filter);
+
+    Mockito.verify(filter).matches(entry.getPath());
   }
 }

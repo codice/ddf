@@ -37,6 +37,7 @@ import org.mockito.Answers;
 import org.mockito.Mockito;
 
 public class ImportMigrationPropertyReferencedEntryImplTest extends AbstractMigrationSupport {
+
   private static final String MIGRATABLE_NAME = "where/some/dir/test.txt";
 
   private static final Path MIGRATABLE_PATH =
@@ -92,7 +93,7 @@ public class ImportMigrationPropertyReferencedEntryImplTest extends AbstractMigr
     metadata.remove(MigrationEntryImpl.METADATA_REFERENCE);
 
     // Mockito will throw its own wrapper exception below, so we must go to the initial cause to get
-    // the truths
+    // the truth
     thrown.expect(
         ThrowableMatchers.hasInitialCauseMatching(Matchers.instanceOf(MigrationException.class)));
     thrown.expect(
@@ -112,7 +113,7 @@ public class ImportMigrationPropertyReferencedEntryImplTest extends AbstractMigr
     metadata.remove(MigrationEntryImpl.METADATA_PROPERTY);
 
     // Mockito will throw its own wrapper exception below, so we must go to the initial cause to get
-    // the truths
+    // the truth
     thrown.expect(
         ThrowableMatchers.hasInitialCauseMatching(Matchers.instanceOf(MigrationException.class)));
     thrown.expect(
@@ -132,7 +133,7 @@ public class ImportMigrationPropertyReferencedEntryImplTest extends AbstractMigr
     Mockito.when(context.getOptionalEntry(MIGRATABLE_PATH)).thenReturn(Optional.empty());
 
     // Mockito will throw its own wrapper exception below, so we must go to the initial cause to get
-    // the truths
+    // the truth
     thrown.expect(
         ThrowableMatchers.hasInitialCauseMatching(Matchers.instanceOf(MigrationException.class)));
     thrown.expect(
@@ -187,19 +188,6 @@ public class ImportMigrationPropertyReferencedEntryImplTest extends AbstractMigr
   }
 
   @Test
-  public void testRestore() throws Exception {
-    final boolean required = true;
-
-    Mockito.when(referencedEntry.restore(required)).thenReturn(true);
-    Mockito.doNothing().when(entry).verifyPropertyAfterCompletion();
-
-    Assert.assertThat(entry.restore(), Matchers.equalTo(true));
-
-    Mockito.verify(referencedEntry).restore(required);
-    Mockito.verify(entry).verifyPropertyAfterCompletion();
-  }
-
-  @Test
   public void testRestoreWhenRequired() throws Exception {
     final boolean required = true;
 
@@ -210,6 +198,32 @@ public class ImportMigrationPropertyReferencedEntryImplTest extends AbstractMigr
 
     Mockito.verify(referencedEntry).restore(required);
     Mockito.verify(entry).verifyPropertyAfterCompletion();
+  }
+
+  @Test
+  public void testRestoreWithFilterWhenRequiredAndMatching() throws Exception {
+    final boolean required = true;
+
+    Mockito.when(referencedEntry.restore(Mockito.eq(required), Mockito.any())).thenReturn(true);
+    Mockito.doNothing().when(entry).verifyPropertyAfterCompletion();
+
+    Assert.assertThat(entry.restore(required, p -> true), Matchers.equalTo(true));
+
+    Mockito.verify(referencedEntry).restore(Mockito.eq(required), Mockito.any());
+    Mockito.verify(entry).verifyPropertyAfterCompletion();
+  }
+
+  @Test
+  public void testRestoreWithFilterWhenRequiredAndNotMatching() throws Exception {
+    final boolean required = true;
+
+    Mockito.when(referencedEntry.restore(Mockito.eq(required), Mockito.any())).thenReturn(false);
+    Mockito.doNothing().when(entry).verifyPropertyAfterCompletion();
+
+    Assert.assertThat(entry.restore(required, p -> false), Matchers.equalTo(false));
+
+    Mockito.verify(referencedEntry).restore(Mockito.eq(required), Mockito.any());
+    Mockito.verify(entry, Mockito.never()).verifyPropertyAfterCompletion();
   }
 
   @Test
@@ -226,7 +240,33 @@ public class ImportMigrationPropertyReferencedEntryImplTest extends AbstractMigr
   }
 
   @Test
-  public void testRestoreWhenFailed() throws Exception {
+  public void testRestoreWithFilterWhenOptionalAndMatching() throws Exception {
+    final boolean required = false;
+
+    Mockito.when(referencedEntry.restore(Mockito.eq(required), Mockito.any())).thenReturn(true);
+    Mockito.doNothing().when(entry).verifyPropertyAfterCompletion();
+
+    Assert.assertThat(entry.restore(required, p -> true), Matchers.equalTo(true));
+
+    Mockito.verify(referencedEntry).restore(Mockito.eq(required), Mockito.any());
+    Mockito.verify(entry).verifyPropertyAfterCompletion();
+  }
+
+  @Test
+  public void testRestoreWithFilterWhenOptionalAndNotMatching() throws Exception {
+    final boolean required = false;
+
+    Mockito.when(referencedEntry.restore(Mockito.eq(required), Mockito.any())).thenReturn(true);
+    Mockito.doNothing().when(entry).verifyPropertyAfterCompletion();
+
+    Assert.assertThat(entry.restore(required, p -> false), Matchers.equalTo(true));
+
+    Mockito.verify(referencedEntry).restore(Mockito.eq(required), Mockito.any());
+    Mockito.verify(entry, Mockito.never()).verifyPropertyAfterCompletion();
+  }
+
+  @Test
+  public void testRestoreWhenRequiredAndFailed() throws Exception {
     final boolean required = true;
 
     Mockito.when(referencedEntry.restore(required)).thenReturn(false);
@@ -235,6 +275,71 @@ public class ImportMigrationPropertyReferencedEntryImplTest extends AbstractMigr
     Assert.assertThat(entry.restore(required), Matchers.equalTo(false));
 
     Mockito.verify(referencedEntry).restore(required);
+    Mockito.verify(entry, Mockito.never()).verifyPropertyAfterCompletion();
+  }
+
+  @Test
+  public void testRestoreWithFilterWhenRequiredAndFailedAndMatching() throws Exception {
+    final boolean required = true;
+
+    Mockito.when(referencedEntry.restore(Mockito.eq(required), Mockito.any())).thenReturn(false);
+    Mockito.doNothing().when(entry).verifyPropertyAfterCompletion();
+
+    Assert.assertThat(entry.restore(required, p -> true), Matchers.equalTo(false));
+
+    Mockito.verify(referencedEntry).restore(Mockito.eq(required), Mockito.any());
+    Mockito.verify(entry, Mockito.never()).verifyPropertyAfterCompletion();
+  }
+
+  @Test
+  public void testRestoreWithFilterWhenRequiredAndFailedAndNotMatching() throws Exception {
+    final boolean required = true;
+
+    Mockito.when(referencedEntry.restore(Mockito.eq(required), Mockito.any())).thenReturn(false);
+    Mockito.doNothing().when(entry).verifyPropertyAfterCompletion();
+
+    Assert.assertThat(entry.restore(required, p -> false), Matchers.equalTo(false));
+
+    Mockito.verify(referencedEntry).restore(Mockito.eq(required), Mockito.any());
+    Mockito.verify(entry, Mockito.never()).verifyPropertyAfterCompletion();
+  }
+
+  @Test
+  public void testRestoreWhenOptionalAndFailed() throws Exception {
+    final boolean required = false;
+
+    Mockito.when(referencedEntry.restore(required)).thenReturn(false);
+    Mockito.doNothing().when(entry).verifyPropertyAfterCompletion();
+
+    Assert.assertThat(entry.restore(required), Matchers.equalTo(false));
+
+    Mockito.verify(referencedEntry).restore(required);
+    Mockito.verify(entry, Mockito.never()).verifyPropertyAfterCompletion();
+  }
+
+  @Test
+  public void testRestoreWithFilterWhenOptionalAndFailedAndMatching() throws Exception {
+    final boolean required = false;
+
+    Mockito.when(referencedEntry.restore(Mockito.eq(required), Mockito.any())).thenReturn(false);
+    Mockito.doNothing().when(entry).verifyPropertyAfterCompletion();
+
+    Assert.assertThat(entry.restore(required, p -> true), Matchers.equalTo(false));
+
+    Mockito.verify(referencedEntry).restore(Mockito.eq(required), Mockito.any());
+    Mockito.verify(entry, Mockito.never()).verifyPropertyAfterCompletion();
+  }
+
+  @Test
+  public void testRestoreWithFilterWhenOptionalAndFailedAndNotMatching() throws Exception {
+    final boolean required = false;
+
+    Mockito.when(referencedEntry.restore(Mockito.eq(required), Mockito.any())).thenReturn(false);
+    Mockito.doNothing().when(entry).verifyPropertyAfterCompletion();
+
+    Assert.assertThat(entry.restore(required, p -> false), Matchers.equalTo(false));
+
+    Mockito.verify(referencedEntry).restore(Mockito.eq(required), Mockito.any());
     Mockito.verify(entry, Mockito.never()).verifyPropertyAfterCompletion();
   }
 
@@ -251,6 +356,48 @@ public class ImportMigrationPropertyReferencedEntryImplTest extends AbstractMigr
 
     Mockito.verify(referencedEntry).restore(required);
     Mockito.verify(entry).verifyPropertyAfterCompletion();
+  }
+
+  @Test
+  public void testRestoreWithFilterWhenAlreadyCalledAndMatching() throws Exception {
+    final boolean required = true;
+
+    Mockito.when(referencedEntry.restore(required)).thenReturn(true);
+    Mockito.when(referencedEntry.restore(Mockito.eq(required), Mockito.any())).thenReturn(false);
+    Mockito.doNothing().when(entry).verifyPropertyAfterCompletion();
+
+    entry.restore(required);
+
+    Assert.assertThat(entry.restore(required, p -> true), Matchers.equalTo(true));
+
+    Mockito.verify(referencedEntry).restore(required);
+    Mockito.verify(entry).verifyPropertyAfterCompletion();
+    Mockito.verify(referencedEntry, Mockito.never()).restore(Mockito.eq(required), Mockito.any());
+  }
+
+  @Test
+  public void testRestoreWithFilterWhenAlreadyCalledAndNotMatching() throws Exception {
+    final boolean required = true;
+
+    Mockito.when(referencedEntry.restore(required)).thenReturn(false);
+    Mockito.when(referencedEntry.restore(Mockito.eq(required), Mockito.any())).thenReturn(false);
+    Mockito.doNothing().when(entry).verifyPropertyAfterCompletion();
+
+    entry.restore(required);
+
+    Assert.assertThat(entry.restore(required, p -> false), Matchers.equalTo(false));
+
+    Mockito.verify(referencedEntry).restore(required);
+    Mockito.verify(entry, Mockito.never()).verifyPropertyAfterCompletion();
+    Mockito.verify(referencedEntry, Mockito.never()).restore(Mockito.eq(required), Mockito.any());
+  }
+
+  @Test
+  public void testRestoreWithFilterWhenFilterIsNull() throws Exception {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage(Matchers.containsString("null path filter"));
+
+    entry.restore(true, null);
   }
 
   @Test
@@ -286,7 +433,7 @@ public class ImportMigrationPropertyReferencedEntryImplTest extends AbstractMigr
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage(Matchers.containsString("null consumer"));
 
-    entry.restore(null);
+    entry.restore((BiThrowingConsumer<MigrationReport, Optional<InputStream>, IOException>) null);
 
     Mockito.verify(entry, Mockito.never()).verifyPropertyAfterCompletion();
   }
@@ -386,5 +533,23 @@ public class ImportMigrationPropertyReferencedEntryImplTest extends AbstractMigr
                 .defaultAnswer(Answers.CALLS_REAL_METHODS));
 
     Assert.assertThat(entry.compareTo(entry2), Matchers.greaterThan(0));
+  }
+
+  @Test
+  public void testIsFile() throws Exception {
+    Mockito.when(referencedEntry.isFile()).thenReturn(true);
+
+    Assert.assertThat(entry.isFile(), Matchers.equalTo(true));
+
+    Mockito.verify(referencedEntry).isFile();
+  }
+
+  @Test
+  public void testIsDirectory() throws Exception {
+    Mockito.when(referencedEntry.isDirectory()).thenReturn(false);
+
+    Assert.assertThat(entry.isDirectory(), Matchers.equalTo(false));
+
+    Mockito.verify(referencedEntry).isDirectory();
   }
 }

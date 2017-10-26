@@ -131,19 +131,4 @@ public interface ImportMigrationContext extends MigrationContext {
    * </code>
    */
   public Stream<ImportMigrationEntry> entries(Path path, PathMatcher filter);
-
-  /**
-   * Cleans the specified directory path recursively.
-   *
-   * <p>Errors and/or warnings will automatically be recorded with the migration report.
-   *
-   * @param path the directory to recursively clean (must be relative to ${ddf.home} otherwise a
-   *     warning will be recorded)
-   * @return <code>true</code> if the directory was cleaned; <code>false</code> otherwise
-   * @throws IllegalArgumentException if <code>path</code> is <code>null</code>
-   * @throws SecurityException if a security manager exists and its <code>checkRead()</code> method
-   *     denies read access to the specified path and to any directories underneath it or its <code>
-   *     checkDelete()</code> method denies delete access to any files or directories underneath it
-   */
-  public boolean cleanDirectory(Path path);
 }

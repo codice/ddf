@@ -145,7 +145,7 @@ public class ExportMigrationContextImpl extends MigrationContextImpl<ExportMigra
 
   @Override
   public Stream<ExportMigrationEntry> entries(Path path, PathMatcher filter) {
-    Validate.notNull(filter, "invalid null filter");
+    Validate.notNull(filter, "invalid null path filter");
     final ExportMigrationEntryImpl entry = new ExportMigrationEntryImpl(this, path);
 
     if (!isDirectory(entry)) {
@@ -201,7 +201,10 @@ public class ExportMigrationContextImpl extends MigrationContextImpl<ExportMigra
     try {
       close();
       // zip entries are always Unix style based on our convention
-      zipOutputStream.putNextEntry(new ZipEntry(id + '/' + entry.getName()));
+      final ZipEntry ze = new ZipEntry(id + '/' + entry.getName());
+
+      ze.setTime(entry.getLastModifiedTime()); // save the current modified time
+      zipOutputStream.putNextEntry(ze);
       final OutputStream oos =
           new ProxyOutputStream(zipOutputStream) {
             @Override
