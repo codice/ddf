@@ -23,6 +23,7 @@ import javax.xml.transform.Templates;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamSource;
+import org.codice.ddf.platform.util.XMLUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
@@ -78,14 +79,12 @@ public abstract class AbstractXsltTransformer {
    * non-OSGi environment to setup the transformer. <b>NOTE:</b> When using in a non-OSGi
    * environment, some transformers may not work.
    *
-   * @param mimeHeaderName String value of the mimeType to be returned.
-   * @param xslFilePath Full, absolute path of the xsl file.
+   * @param mimeString String value of the mimeType to be returned.
+   * @param xslStream Full, absolute path of the xsl file.
    */
   public void init(String mimeString, InputStream xslStream) {
 
-    TransformerFactory tf =
-        TransformerFactory.newInstance(
-            net.sf.saxon.TransformerFactoryImpl.class.getName(), getClass().getClassLoader());
+    TransformerFactory tf = XMLUtils.getInstance().getSecureXmlTransformerFactory();
     Source xsltSource;
     xsltSource = new StreamSource(xslStream);
     try {

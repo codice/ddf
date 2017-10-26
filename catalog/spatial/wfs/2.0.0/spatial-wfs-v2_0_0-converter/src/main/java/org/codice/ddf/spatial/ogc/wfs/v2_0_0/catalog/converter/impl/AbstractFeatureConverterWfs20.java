@@ -31,7 +31,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -168,7 +167,7 @@ public abstract class AbstractFeatureConverterWfs20 extends AbstractFeatureConve
       Source xmlSource = new DOMSource(doc);
       Result outputTarget = new StreamResult(outputStream);
       try {
-        TransformerFactory.newInstance().newTransformer().transform(xmlSource, outputTarget);
+        XML_UTILS.getXmlTransformer(false).transform(xmlSource, outputTarget);
       } catch (TransformerException | TransformerFactoryConfigurationError e) {
         LOGGER.debug(CREATE_TRANSFORMER_FAILURE);
       }

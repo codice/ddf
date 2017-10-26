@@ -98,24 +98,4 @@ public class HttpUtils {
 
     return map;
   }
-
-  public static void deleteCookie(
-      String cookieName, HttpServletRequest request, HttpServletResponse response) {
-    // remove session cookie
-    try {
-      LOGGER.debug("Removing cookie {}", cookieName);
-      response.setContentType("text/html");
-      Cookie cookie = new Cookie(cookieName, "");
-      URL url = null;
-      url = new URL(request.getRequestURL().toString());
-      cookie.setSecure(true);
-      cookie.setDomain(url.getHost());
-      cookie.setMaxAge(0);
-      cookie.setPath("/");
-      cookie.setComment("EXPIRING COOKIE at " + System.currentTimeMillis());
-      response.addCookie(cookie);
-    } catch (MalformedURLException e) {
-      LOGGER.info("Unable to delete cookie {}", cookieName, e);
-    }
-  }
 }

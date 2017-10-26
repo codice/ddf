@@ -273,7 +273,7 @@ public class XacmlClient {
     ClassLoader tccl = Thread.currentThread().getContextClassLoader();
     Thread.currentThread().setContextClassLoader(XacmlClient.class.getClassLoader());
     try {
-      TransformerFactory transformerFactory = TransformerFactory.newInstance();
+      TransformerFactory transformerFactory = XML_UTILS.getSecureXmlTransformerFactory();
 
       domResult = new DOMResult();
 

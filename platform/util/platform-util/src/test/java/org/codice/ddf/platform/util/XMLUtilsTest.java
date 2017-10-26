@@ -14,6 +14,7 @@
 package org.codice.ddf.platform.util;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -22,8 +23,13 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.URL;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLEventWriter;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.ErrorListener;
 import javax.xml.transform.OutputKeys;
@@ -62,6 +68,19 @@ public class XMLUtilsTest {
           + "    <year>2005</year>\n"
           + "    <price>29.99</price>\n"
           + "  </book>";
+
+  private static final String XML_XXE_EXPANSION =
+      "<!DOCTYPE Qs [\n"
+          + "<!ENTITY Q \"Q\">\n"
+          + "<!ENTITY Q10 \"&Q;&Q;&Q;&Q;&Q;&Q;&Q;&Q;&Q;&Q;\">\n"
+          + "<!ENTITY Q100 \"&Q10;&Q10;&Q10;&Q10;&Q10;&Q10;&Q10;&Q10;&Q10;&Q10;\">\n"
+          + "<!ENTITY Q1000 \"&Q100;&Q100;&Q100;&Q100;&Q100;&Q100;&Q100;&Q100;&Q100;&Q100;\">\n"
+          + "<!ENTITY Q10000 \"&Q1000;&Q1000;&Q1000;&Q1000;&Q1000;&Q1000;&Q1000;&Q1000;&Q1000;&Q1000;\">\n"
+          + "<!ENTITY Q100000 \"&Q10000;&Q10000;&Q10000;&Q10000;&Q10000;&Q10000;&Q10000;&Q10000;&Q10000;&Q10000;\">]>\n"
+          + "<Qs>&Q100000;</Qs>\n";
+
+  private static final String XML_XXE_INJECTION =
+      "<!DOCTYPE foo [<!ENTITY bar SYSTEM \"%s\" >]>\n" + "<foo>&bar;</foo>\n";
 
   private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
 
@@ -157,6 +176,55 @@ public class XMLUtilsTest {
         String.format("Expected result value to be %s", expectedValue),
         returnValue,
         equalTo(expectedValue));
+  }
+
+  @Test
+  public void testXMLInputFactoryLimitsEntityExpansion()
+      throws XMLStreamException, ClassNotFoundException, IllegalAccessException,
+          InstantiationException {
+    XMLOutputFactory outputFactory =
+        (XMLOutputFactory)
+            Class.forName("com.sun.xml.internal.stream.XMLOutputFactoryImpl").newInstance();
+
+    StringReader stringReader = new StringReader(XML_XXE_EXPANSION);
+    StringWriter stringWriter = new StringWriter();
+
+    XMLEventReader eventReader = XML_UTILS.xmlInputFactory.createXMLEventReader(stringReader);
+    XMLEventWriter eventWriter = outputFactory.createXMLEventWriter(stringWriter);
+
+    eventWriter.add(eventReader);
+    eventWriter.close();
+
+    assertThat(
+        "The \"&Q100000;\" entity shouldn't be expanded",
+        stringWriter.toString(),
+        containsString("&Q100000;"));
+  }
+
+  @Test
+  public void testXMLInputFactoryDisallowsEntityInjection()
+      throws XMLStreamException, ClassNotFoundException, IllegalAccessException,
+          InstantiationException {
+    URL resource = XMLUtilsTest.class.getClassLoader().getResource("xxe_injection.txt");
+    String xmlStr = String.format(XML_XXE_INJECTION, resource.toString());
+
+    XMLOutputFactory outputFactory =
+        (XMLOutputFactory)
+            Class.forName("com.sun.xml.internal.stream.XMLOutputFactoryImpl").newInstance();
+
+    StringReader stringReader = new StringReader(xmlStr);
+    StringWriter stringWriter = new StringWriter();
+
+    XMLEventReader eventReader = XML_UTILS.xmlInputFactory.createXMLEventReader(stringReader);
+    XMLEventWriter eventWriter = outputFactory.createXMLEventWriter(stringWriter);
+
+    eventWriter.add(eventReader);
+    eventWriter.close();
+
+    assertThat(
+        "The \"&bar;\" entity shouldn't be expanded",
+        stringWriter.toString(),
+        containsString("&bar;"));
   }
 
   private TransformerProperties setTransformerProperties() {
