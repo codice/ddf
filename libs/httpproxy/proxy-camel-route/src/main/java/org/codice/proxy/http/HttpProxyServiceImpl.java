@@ -43,13 +43,12 @@ public class HttpProxyServiceImpl implements HttpProxyService {
 
   private static final String SERVLET_COMPONENT = "servlet";
 
-  public static final String SERVLET_PATH = "/proxy";
-
   public static final String GENERIC_ENDPOINT_NAME = "endpoint";
 
   public static final String TRUSTSTORE_VALUE_DEFAULT =
       new AbsolutePathResolver("etc/keystores/serverTruststore.jks").getPath();
 
+  @SuppressWarnings("squid:S2068" /* Default password only */)
   public static final String TRUSTSTORE_PASSWORD_VALUE = "changeit";
 
   public static final String HTTP_PROXY_KEY = "http.";
@@ -64,6 +63,7 @@ public class HttpProxyServiceImpl implements HttpProxyService {
 
   public static final String HTTP_PROXY_AUTH_USERNAME_KEY = "proxyAuthUsername";
 
+  @SuppressWarnings("squid:S2068" /* Default password only */)
   public static final String HTTP_PROXY_AUTH_PASSWORD_KEY = "proxyAuthPassword";
 
   public static final String HTTP_PROXY_AUTH_DOMAIN_KEY = "proxyAuthDomain";
@@ -86,7 +86,7 @@ public class HttpProxyServiceImpl implements HttpProxyService {
 
   private final Set<String> endpointIds = Collections.synchronizedSet(new HashSet<>());
 
-  public HttpProxyServiceImpl(CamelContext camelContext, String endpointType) throws Exception {
+  public HttpProxyServiceImpl(CamelContext camelContext, String endpointType) {
     this(camelContext);
     this.routeEndpointType = endpointType;
     if (!this.routeEndpointType.equals(SERVLET)) {
@@ -94,14 +94,16 @@ public class HttpProxyServiceImpl implements HttpProxyService {
     }
   }
 
-  public HttpProxyServiceImpl(CamelContext camelContext) throws Exception {
+  public HttpProxyServiceImpl(CamelContext camelContext) {
     this.camelContext = camelContext;
 
     // Add servlet to the Camel Context
     ServletComponent servlet = new ServletComponent();
     servlet.setCamelContext(camelContext);
     servlet.setServletName(SERVLET_NAME);
-    this.camelContext.addComponent(SERVLET_COMPONENT, servlet);
+    if (camelContext != null) {
+      this.camelContext.addComponent(SERVLET_COMPONENT, servlet);
+    }
   }
 
   public synchronized String start(String targetUri, Integer timeout) throws Exception {
@@ -120,6 +122,7 @@ public class HttpProxyServiceImpl implements HttpProxyService {
     return start(endpointName, targetUri, timeout, false, null);
   }
 
+  @SuppressWarnings("squid:CallToDeprecatedMethod" /* Calling deprecated CTOR for Protocol. */)
   public String start(
       final String endpointName,
       final String targetUri,
@@ -210,7 +213,7 @@ public class HttpProxyServiceImpl implements HttpProxyService {
 
     // Fetch all proxy settings and add settings to Camel context if not null, whitespace or
     // empty
-    ArrayList<String> sysProxyConfigs = new ArrayList<String>();
+    ArrayList<String> sysProxyConfigs = new ArrayList<>();
     sysProxyConfigs.add(HTTP_PROXY_KEY + HTTP_PROXY_HOST_KEY);
     sysProxyConfigs.add(HTTP_PROXY_KEY + HTTP_PROXY_PORT_KEY);
     sysProxyConfigs.add(HTTP_PROXY_KEY + HTTP_PROXY_AUTH_METHOD_KEY);
@@ -230,7 +233,7 @@ public class HttpProxyServiceImpl implements HttpProxyService {
       String prop = System.getProperty(sysProxyConfig);
       if (StringUtils.isNotBlank(prop)) {
         LOGGER.debug("Enabling Proxy Property: {}", sysProxyConfig);
-        camelContext.getProperties().put(sysProxyConfig, prop);
+        camelContext.getGlobalOptions().put(sysProxyConfig, prop);
       }
     }
   }
@@ -245,12 +248,16 @@ public class HttpProxyServiceImpl implements HttpProxyService {
   }
 
   public void stop(String endpointName) throws Exception {
-    LOGGER.debug("Stopping proxy route at endpoint: {}", endpointName);
-    LOGGER.debug("Route list before = {}", Arrays.toString(camelContext.getRoutes().toArray()));
+    if (LOGGER.isDebugEnabled()) {
+      LOGGER.debug("Stopping proxy route at endpoint: {}", endpointName);
+      LOGGER.debug("Route list before = {}", Arrays.toString(camelContext.getRoutes().toArray()));
+    }
     camelContext.stopRoute(endpointName);
     camelContext.removeRoute(endpointName);
     endpointIds.remove(endpointName);
-    LOGGER.debug("Route list after = {}", Arrays.toString(camelContext.getRoutes().toArray()));
+    if (LOGGER.isDebugEnabled()) {
+      LOGGER.debug("Route list after = {}", Arrays.toString(camelContext.getRoutes().toArray()));
+    }
   }
 
   public void destroy() {
