@@ -2856,6 +2856,6 @@ public class TestFederation extends AbstractIntegrationTest {
 
   @Override
   protected Option[] configureCustom() {
-    return options(mavenBundle("ddf.test.thirdparty", "restito").versionAsInProject());
+    return options(mavenBundle("ddf.thirdparty", "restito").versionAsInProject());
   }
 }
