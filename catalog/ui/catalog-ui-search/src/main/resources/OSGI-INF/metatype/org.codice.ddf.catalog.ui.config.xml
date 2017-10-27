@@ -297,7 +297,7 @@
 
         <AD id="showLogo"
           name="Show Logo in Title Bar"
-          description="Toggles the visibility of the logo in the title bar."
+          description="Toggles the visibility of the logo in the menu bar."
           type="Boolean"
           default="false"
           required="false"/>

@@ -17,9 +17,9 @@
     <span class="navigation-sources fa fa-bolt">
     </span>
      <span class="navigation-multiple fa fa-exclamation"></span>
-</button>
-{{#if showLogo}}
-<span>
-     <img src="{{getImageSrc logo}}"/>
-</span>
+</button><!--
+    This comment removes the whitespace before this inline-block div
+    -->{{#if showLogo}}<div class="logo-holder">
+  <img class="logo" src="{{getImageSrc logo}}"/>
+</div>
 {{/if}}

@@ -13,13 +13,19 @@
  */
 package org.codice.ddf.configuration;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.Optional;
+import javax.imageio.ImageIO;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import net.minidev.json.JSONObject;
+import org.apache.commons.lang3.StringUtils;
 import org.codice.ddf.branding.BrandingPlugin;
 import org.codice.ddf.branding.BrandingRegistry;
+import sun.misc.BASE64Decoder;
 
 /**
  * Configuration class for pid=ddf.platform.ui.config.
@@ -51,6 +57,10 @@ public class PlatformUiConfiguration {
 
   public static final String FAV_ICON = "favIcon";
 
+  public static final String VENDOR_IMAGE = "vendorImage";
+
+  public static final String VENDOR_IMAGE_ASPECT_RATIO = "vendorImageAspectRatio";
+
   private boolean systemUsageEnabled;
 
   private String systemUsageTitle;
@@ -81,6 +91,8 @@ public class PlatformUiConfiguration {
       jsonObject.put(SYSTEM_USAGE_ONCE_PER_SESSION, systemUsageOncePerSession);
     }
 
+    String vendorImage = getVendorImage();
+
     jsonObject.put(HEADER, this.header);
     jsonObject.put(FOOTER, this.footer);
     jsonObject.put(COLOR, this.color);
@@ -89,6 +101,9 @@ public class PlatformUiConfiguration {
     jsonObject.put(VERSION, getVersion());
     jsonObject.put(PRODUCT_IMAGE, getProductImage());
     jsonObject.put(FAV_ICON, getFavIcon());
+    jsonObject.put(VENDOR_IMAGE, vendorImage);
+    jsonObject.put(VENDOR_IMAGE_ASPECT_RATIO, getAspectRatio(vendorImage));
+
     return jsonObject.toJSONString();
   }
 
@@ -178,5 +193,27 @@ public class PlatformUiConfiguration {
     return branding
         .map(branding -> branding.getAttributeFromBranding(BrandingPlugin::getBase64FavIcon))
         .orElse("");
+  }
+
+  public String getVendorImage() {
+    return branding
+        .map(branding -> branding.getAttributeFromBranding(BrandingPlugin::getBase64VendorImage))
+        .orElse("");
+  }
+
+  public float getAspectRatio(String base64Image) {
+    if (StringUtils.isBlank(base64Image)) {
+      return 0;
+    }
+    BASE64Decoder b64Decoder = new BASE64Decoder();
+    try {
+      byte[] imageBytes = b64Decoder.decodeBuffer(base64Image);
+      ByteArrayInputStream stream = new ByteArrayInputStream(imageBytes);
+      BufferedImage image = ImageIO.read(stream);
+      stream.close();
+      return ((float) image.getWidth()) / image.getHeight();
+    } catch (IOException e) {
+      return 0;
+    }
   }
 }

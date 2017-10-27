@@ -37,6 +37,7 @@ module.exports = Marionette.LayoutView.extend({
         this.listenTo(sources, 'all', this.handleSources);
         this.handleSaved();
         this.handleSources();
+        this.handleLogo();
     },
     onBeforeShow: function(){
         this.unsavedIndicator.show(new UnsavedIndicatorView());
@@ -57,9 +58,21 @@ module.exports = Marionette.LayoutView.extend({
         });
         this.$el.toggleClass('has-unavailable', hasDown);
     },
+    handleLogo: function() {
+        var hasLogo = properties.showLogo && properties.ui.vendorImage !== "";
+        if (hasLogo) {
+          if (properties.ui.vendorImageAspectRatio !== null && properties.ui.vendorImageAspectRatio > 1.05) {
+            this.$el.toggleClass('has-logo-1-to-1', false);
+            this.$el.toggleClass('has-logo-1-to-2', true);
+          } else {
+            this.$el.toggleClass('has-logo-1-to-1', true);
+            this.$el.toggleClass('has-logo-1-to-2', false);
+          }
+        }
+    },
     serializeData: function(){
         return {
-            logo: properties.ui.productImage,
+            logo: properties.ui.vendorImage,
             showLogo: properties.showLogo
         };
     }

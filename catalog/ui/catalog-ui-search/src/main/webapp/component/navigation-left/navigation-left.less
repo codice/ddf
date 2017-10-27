@@ -51,11 +51,6 @@
         top: @minimumSpacing;
         color: @warning-color;
     }
-
-    img {
-        width: @minimumButtonSize;
-        height: @minimumButtonSize;
-    }
     
     .navigation-multiple,
     .navigation-sources {
@@ -64,6 +59,36 @@
         transition: transform @coreTransitionTime ease-out, opacity @coreTransitionTime ease-out;
     }
 
+    &.has-logo-1-to-2 {
+
+      .logo-holder {
+        width: 2.0*@minimumButtonSize;
+        height: 100%;
+        text-align: center;
+        display: inline-block;
+
+        .logo {
+          max-width: 2*@minimumButtonSize;
+          max-height: @minimumButtonSize;
+          vertical-align: middle;
+        }
+      }
+    }
+
+    &.has-logo-1-to-1 {
+      .logo-holder {
+        width: @minimumButtonSize;
+        height: 100%;
+        text-align: center;
+        display: inline-block;
+
+        .logo {
+          max-width: @minimumButtonSize;
+          max-height: @minimumButtonSize;
+          vertical-align: middle;
+        }
+      }
+    }
 
     &.has-unavailable {
         .navigation-sources {

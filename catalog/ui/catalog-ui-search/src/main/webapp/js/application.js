@@ -32,6 +32,7 @@ define([
     Application.AppModel = new Backbone.Model(properties);
     // Set up the main regions that will be available at the Application level.
     Application.App.addRegions({
+        favicon: '#favicon',
         loadingRegion: '#loading',
         headerRegion: 'header',
         footerRegion: 'footer',
@@ -93,6 +94,7 @@ define([
         }
     });
 
+    Application.App.favicon.$el.attr('href', 'data:image/png;base64,' + properties.ui.favIcon);
     Application.App.loadingRegion.$el.find('.welcome-branding').text(properties.branding);
     Application.App.loadingRegion.$el.find('.welcome-branding-name').text(properties.product);
     Application.App.loadingRegion.$el.addClass('show-welcome');
