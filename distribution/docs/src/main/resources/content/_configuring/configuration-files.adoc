@@ -7,7 +7,7 @@
 
 == {title}
 
-Many important configuration settings are stored in the `<${branding}_HOME>` directory.
+Many important configuration settings are stored in the `${home_directory}` directory.
 
 [NOTE]
 ====

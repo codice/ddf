@@ -183,7 +183,7 @@ Integrators and developers can add more claims handlers that can handle other ty
 |propertyFileLocation
 |String
 |Location of the file which contains user attribute maps to use.
-|`<INSTALL_HOME>/etc/ws-security/attributeMap.properties`
+|`${home_directory}/etc/ws-security/attributeMap.properties`
 |true
 
 |===
