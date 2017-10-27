@@ -58,13 +58,9 @@
     padding: 0px @minimumSpacing;
   }
 
-  .property-readOnly {
+  .property-readOnly,
+  .property-conflictingDefinitions {
     display: none;
-  }
-}
-
-@{customElementNamespace}property.is-readOnly.is-editing {
-  .property-readOnly {
     left: 0px;
     top: 0px;
     width: 100%;
@@ -75,11 +71,22 @@
     height: 100%;
     padding-right: @largeSpacing;
     padding-top: @minimumSpacing;
-    display: inline-block;
     color: @heavily-lighten-inherited-background-color;
     opacity: @minimumOpacity;
     .background-gradient(@lighten-inherited-background-color, @darken-inherited-background-color);
     z-index: 0;
+  }
+}
+
+@{customElementNamespace}property.is-editing.has-conflicting-definitions:not(.is-readOnly) {
+  .property-conflictingDefinitions {
+    display: inline-block;
+  }
+}
+
+@{customElementNamespace}property.is-readOnly.is-editing {
+  .property-readOnly {
+    display: inline-block;
   }
 }
 

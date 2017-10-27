@@ -216,23 +216,16 @@ define([
                 metacards.forEach(function(metacard) {
                     var value = metacard[property.id];
                     var isDefined = value !== undefined;
+                    let hasConflictingDefinition = false;
                     if (isDefined) {
                         if (!metacardDefinitions.metacardTypes[property.id].multivalued){
-                            if (value.sort === undefined){
+                            if (!Array.isArray(value)){
                                 value = [value];
                             } else {
-                                announcement.announce({
-                                    title: 'Conflicting Attribute Definition',
-                                    message: property.id+' claims to be singlevalued by definition, but the value on the result is not.  If this problem persists, contact your Administrator.',
-                                    type: 'warn'
-                                });
+                                hasConflictingDefinition = true;
                             }
-                        } else if (value.sort === undefined){
-                            announcement.announce({
-                                title: 'Conflicting Attribute Definition',
-                                message: property.id+' claims to be multivalued by definition, but the value on the result is not.  If this problem persists, contact your Administrator.',
-                                type: 'warn'
-                            });
+                        } else if (!Array.isArray(value)){
+                            hasConflictingDefinition = true;
                             value = [value];
                         }
                     } else {
@@ -245,8 +238,9 @@ define([
                         value: isDefined ? value : [],
                         hits: 0,
                         ids: [],
-                        hasNoValue: !isDefined 
+                        hasNoValue: !isDefined
                     };
+                    property.hasConflictingDefinition = hasConflictingDefinition;
                     property.values[key].ids.push(metacard.id);
                     property.values[key].hits++;
                 });
@@ -263,10 +257,19 @@ define([
             });
         },
         determinePropertyIntersection: function(metacards) {
+            var metacardTypes = metacards.reduce((types, metacard) => {
+                if (types.indexOf(metacard['metacard-type']) === -1) {
+                    types.push(metacard['metacard-type']);
+                }
+                return types;
+            }, []);
+            var typeIntersection = _.intersection.apply(_, metacardTypes.map((type) => {
+                return Object.keys(metacardDefinitions.metacardDefinitions[type])
+            }));
             var attributeKeys = metacards.map(function(metacard) {
                 return Object.keys(metacard);
             });
-            var propertyIntersection = _.union.apply(_, attributeKeys);
+            var propertyIntersection = _.intersection(_.union.apply(_, attributeKeys), typeIntersection);
             propertyIntersection = propertyIntersection.filter(function(property) {
                 if (metacardDefinitions.metacardTypes[property]){
                     return (!properties.isHidden(property)

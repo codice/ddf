@@ -39,10 +39,16 @@ function filterAndSort(attributes){
 }
 
 function calculateAvailableAttributesFromSelection(selectionInterface) {
+    var types = _.union.apply(this, selectionInterface.getSelectedResults().map((result) => {
+        return [result.get('metacardType')];
+    }));
+    var possibleAttributes = _.intersection.apply(this, types.map((type) => {
+        return Object.keys(metacardDefinitions.metacardDefinitions[type]);
+    }));
     return selectionInterface.getSelectedResults().reduce(function (currentAvailable, result) {
         currentAvailable = _.union(currentAvailable, Object.keys(result.get('metacard').get('properties').toJSON()));
         return currentAvailable;
-    }, []);
+    }, []).filter((attribute) => possibleAttributes.indexOf(attribute) >= 0);
 }
 
 function calculateDetailsAttributes() {
