@@ -1,5 +1,5 @@
 :title: Contact
-:type: subappendix
+:type: subAppendix
 :parent: Catalog Taxonomy
 :status: published
 :summary: Attributes in this group reflect metadata about different kinds of people/groups/units/organizations that can be associated with a metacard.
