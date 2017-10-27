@@ -108,8 +108,8 @@ public class ConfigurationContextImpl implements ConfigurationContext {
 
   /**
    * Code adopted from Karaf's Config Repository Impl:
-   * https://github.com/apache/karaf/blob/master/config/src/main/java/org/apache/karaf/config/core/impl/
-   * ConfigRepositoryImpl.java#L101-L114
+   * https://github.com/apache/karaf/blob/karaf-4.1.2/config/src/main/java/org/apache/karaf/
+   * config/core/impl/ConfigRepositoryImpl.java#L100-L109
    */
   private static File createFileFromFelixProp(Object felixConfigFileName) {
     if (felixConfigFileName == null) {

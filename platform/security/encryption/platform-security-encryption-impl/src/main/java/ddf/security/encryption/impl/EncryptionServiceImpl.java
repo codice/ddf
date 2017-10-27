@@ -79,17 +79,6 @@ public class EncryptionServiceImpl implements EncryptionService {
     }
   }
 
-  /** {@inheritDoc} */
-  @Override
-  public String encryptValue(String plaintextValue) {
-    Matcher m = ENC_PATTERN.matcher(plaintextValue);
-    if (m.find()) {
-      LOGGER.debug("Password already encrypted");
-      return plaintextValue;
-    }
-    return "ENC(".concat(encrypt(plaintextValue)).concat(")");
-  }
-
   // @formatter:off
   /**
    * {@inheritDoc}
@@ -119,9 +108,6 @@ public class EncryptionServiceImpl implements EncryptionService {
     // If the password is not in the form ENC(my-encrypted-password),
     // we assume the password is not encrypted.
     if (wrappedEncryptedValue.equals(encryptedValue)) {
-      LOGGER.warn(
-          "A plain text password was provided in the configuration in the console. "
-              + "Consider using an encrypted password.");
       return wrappedEncryptedValue;
     }
     LOGGER.debug("Unwrapped encrypted password is now being decrypted");
@@ -155,10 +141,6 @@ public class EncryptionServiceImpl implements EncryptionService {
       LOGGER.debug("Wrapped encrypted password value found.");
       return m.group(1);
     }
-
-    LOGGER.warn(
-        "You have provided a plain text password in your configuration. "
-            + "Consider using an encrypted password.");
     return wrappedEncryptedValue;
   }
 }

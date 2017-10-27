@@ -42,7 +42,7 @@ public class EncryptCommand implements Action {
       return null;
     }
 
-    String encryptedValue = encryptionService.encryptValue(plainTextValue);
+    String encryptedValue = "ENC(".concat(encryptionService.encrypt(plainTextValue)).concat(")");
     System.out.print(Ansi.ansi().fg(Ansi.Color.YELLOW).toString());
     System.out.println(encryptedValue);
     System.out.print(Ansi.ansi().reset().toString());

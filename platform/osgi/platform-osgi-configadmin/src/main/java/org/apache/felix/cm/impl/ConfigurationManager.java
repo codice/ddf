@@ -1040,8 +1040,8 @@ public class ConfigurationManager implements BundleActivator, BundleListener {
       // FELIX-2771 Secure Random not available on Mika
       try {
         ng = new SecureRandom();
-      } catch (OutOfMemoryError | StackOverflowError | ThreadDeath e) {
-        // (CODICE) rethrow the three unrecoverable errors
+      } catch (VirtualMachineError e) {
+        // (CODICE) rethrow when unrecoverable
         throw e;
       } catch (Throwable t) {
         // fall back to Random

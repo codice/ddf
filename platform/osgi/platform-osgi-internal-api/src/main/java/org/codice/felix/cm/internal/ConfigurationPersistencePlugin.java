@@ -41,6 +41,8 @@ public interface ConfigurationPersistencePlugin {
    * @param context an object of relevant info that is safe to access during a config operation.
    * @throws IOException to abort the configuration update operation and indicate to the user that
    *     it failed.
+   * @throws IllegalStateException if configuration data disappeared or felix internal data was
+   *     otherwise corrupt.
    */
   void handleStore(ConfigurationContext context) throws IOException;
 

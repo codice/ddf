@@ -97,7 +97,7 @@ public class DelegatingPersistenceManager extends WrappedPersistenceManager {
     if (serviceObjects == null) {
       return Collections.emptyList();
     }
-    List<ConfigurationPersistencePlugin> plugins = new ArrayList<>();
+    List<ConfigurationPersistencePlugin> plugins = new ArrayList<>(serviceObjects.length);
     for (Object object : serviceObjects) {
       if (object instanceof ConfigurationPersistencePlugin) {
         plugins.add((ConfigurationPersistencePlugin) object);

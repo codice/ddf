@@ -18,16 +18,6 @@ import org.apache.wss4j.common.crypto.PasswordEncryptor;
 public interface EncryptionService extends PasswordEncryptor {
 
   /**
-   * Encrypts the provided value and wraps the result in "ENC(*)" format. Any input that is already
-   * wrapped is assumed to be encrypted and is a no-op.
-   *
-   * @param plaintextValue any plaintext value.
-   * @return the encrypted value of the provided plaintext wrapped in "ENC(" and ")", or the
-   *     original value if already wrapped.
-   */
-  String encryptValue(String plaintextValue);
-
-  /**
    * Decrypts a wrapped encrypted value in the "ENC(*)" format. Inputs that are not wrapped are
    * returned as a no-op.
    *

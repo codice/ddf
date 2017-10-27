@@ -228,7 +228,7 @@ public class ConfigurationInstallerTest {
    */
   @Test
   public void testHandleStoreConfigPropsEncrypted() throws Exception {
-    when(mockEncryptionService.encryptValue(PASSWORD_PLAIN_TEXT)).thenReturn(PASSWORD_ENCRYPTED);
+    when(mockEncryptionService.encrypt(PASSWORD_PLAIN_TEXT)).thenReturn("abcdefg");
 
     ObjectClassDefinition mockClassDef = mock(ObjectClassDefinition.class);
     AttributeDefinition mockAttributeDef = mock(AttributeDefinition.class);

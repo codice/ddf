@@ -22,7 +22,7 @@ public class CachedConfigData {
 
   private File felixFile;
 
-  // Future performance/memory improvement - replace with checksum
+  // DDF-3413: Future performance/memory improvement - replace with checksum
   private Dictionary<String, Object> props;
 
   public CachedConfigData(ConfigurationContext context) {

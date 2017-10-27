@@ -16,13 +16,19 @@ package org.codice.ddf.admin.configuration;
 import static com.google.common.io.Files.getFileExtension;
 import static java.lang.String.format;
 
+import com.google.common.annotations.VisibleForTesting;
+import ddf.security.common.audit.SecurityLogger;
 import ddf.security.encryption.EncryptionService;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Dictionary;
@@ -32,7 +38,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.codice.ddf.admin.core.api.ConfigurationAdmin;
 import org.codice.ddf.platform.io.internal.PersistenceStrategy;
 import org.codice.felix.cm.internal.ConfigurationContext;
@@ -67,7 +76,7 @@ import org.slf4j.LoggerFactory;
 public class ConfigurationInstaller implements ConfigurationPersistencePlugin {
   private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationInstaller.class);
 
-  private static final Logger SECURITY_LOGGER = LoggerFactory.getLogger("securityLogger");
+  private static final Pattern ENC_PATTERN = Pattern.compile("^ENC\\((.*)\\)$");
 
   private final ConfigurationAdmin ddfConfigAdmin;
 
@@ -100,6 +109,7 @@ public class ConfigurationInstaller implements ConfigurationPersistencePlugin {
   }
 
   /** @return a read-only map of configuration pids to felix file install properties. */
+  @VisibleForTesting
   Map<String, CachedConfigData> getPidDataMap() {
     return Collections.unmodifiableMap(pidDataMap);
   }
@@ -115,6 +125,7 @@ public class ConfigurationInstaller implements ConfigurationPersistencePlugin {
     if (configs == null) {
       return;
     }
+    // TODO: Could we miss configurations?
     pidDataMap.putAll(
         Arrays.stream(configs)
             .map(configurationContextFactory::createContext)
@@ -122,11 +133,24 @@ public class ConfigurationInstaller implements ConfigurationPersistencePlugin {
             .collect(Collectors.toMap(ConfigurationContext::getServicePid, CachedConfigData::new)));
   }
 
+  @Override
+  public void handleStore(ConfigurationContext context) throws IOException {
+    try {
+      AccessController.doPrivileged(
+          (PrivilegedExceptionAction<Object>)
+              () -> {
+                doHandleStore(context);
+                return null;
+              });
+    } catch (PrivilegedActionException e) {
+      // Only caught if the action through a CHECKED exception, thus it MUST be an IOException.
+      throw new IOException(e);
+    }
+  }
+
   /**
-   * {@inheritDoc}
-   *
-   * <p>Sync the config files in etc when an update occurs. There are four cases, which will be
-   * denoted using 2-tuple combinations of variables: [felixFileFromCache, felixFileFromConfig]
+   * Sync the config files in etc when an update occurs. There are four cases, which will be denoted
+   * using 2-tuple combinations of variables: [felixFileFromCache, felixFileFromConfig]
    *
    * <p>[null, null] (1) Config was created from config admin directly; not by dropping a file.
    * There is nothing to track.
@@ -139,8 +163,7 @@ public class ConfigurationInstaller implements ConfigurationPersistencePlugin {
    * <p>[Y, Y] (4) Felix file prop did not change, do nothing. This is the happy path. Properties
    * will be updated on disk if necessary.
    */
-  @Override
-  public void handleStore(ConfigurationContext context) throws IOException {
+  private void doHandleStore(ConfigurationContext context) throws IOException {
     String pid = context.getServicePid();
     File fileFromConfig = context.getConfigFile();
 
@@ -158,10 +181,25 @@ public class ConfigurationInstaller implements ConfigurationPersistencePlugin {
       LOGGER.debug("Tracking pid {}", pid);
       CachedConfigData createdConfigData = new CachedConfigData(context);
       pidDataMap.put(pid, createdConfigData);
-      writeIfNecessary(context, createdConfigData);
+      writeIfNecessary(
+          context.getServicePid(),
+          fileFromConfig,
+          context.getSanitizedProperties(),
+          createdConfigData);
       return;
     }
 
+    guardAgainstFelixFilePropChanging(fileFromConfig, fileFromCache);
+
+    // Routine property updates for tracked files - write to disk if necessary (4)
+    writeIfNecessary(
+        context.getServicePid(),
+        fileFromConfig,
+        context.getSanitizedProperties(),
+        cachedConfigData);
+  }
+
+  private void guardAgainstFelixFilePropChanging(File fileFromConfig, File fileFromCache) {
     if (!Objects.equals(fileFromConfig, fileFromCache)) {
       // The felix file prop changed, which is not allowed (3)
       String msg =
@@ -172,9 +210,6 @@ public class ConfigurationInstaller implements ConfigurationPersistencePlugin {
                   fileFromCache, fileFromConfig);
       throw new IllegalStateException(msg);
     }
-
-    // Write to disk if necessary (4)
-    writeIfNecessary(context, cachedConfigData);
   }
 
   /**
@@ -186,41 +221,68 @@ public class ConfigurationInstaller implements ConfigurationPersistencePlugin {
    */
   @Override
   public void handleDelete(String pid) throws IOException {
+    try {
+      AccessController.doPrivileged(
+          (PrivilegedExceptionAction<Object>)
+              () -> {
+                doHandleDelete(pid);
+                return null;
+              });
+    } catch (PrivilegedActionException e) {
+      // Only caught if the action through a CHECKED exception, thus it MUST be an IOException.
+      throw new IOException(e);
+    }
+  }
+
+  private void doHandleDelete(String pid) throws IOException {
     CachedConfigData cachedConfigData = pidDataMap.remove(pid);
     File fileFromCache = (cachedConfigData != null) ? cachedConfigData.getFelixFile() : null;
     if (fileFromCache != null && fileFromCache.exists()) {
-      LOGGER.debug("Deleting file because config was deleted for pid {}", pid);
+      LOGGER.debug("Deleting file because config was deleted for pid [{}]", pid);
       try {
         Files.delete(fileFromCache.toPath());
-        SECURITY_LOGGER.info("Removing a deleted config: {}", fileFromCache.toPath());
+        SecurityLogger.audit("Removing a deleted config [{}]", fileFromCache.toPath());
       } catch (IOException e) {
-        LOGGER.debug("Problem deleting config file: ", e);
+        LOGGER.debug(
+            format("Problem deleting config file [%s]: ", fileFromCache.getAbsolutePath()), e);
         // Synchronous with config admin, so we can report the failure to the UI this way
         throw e;
       }
     }
   }
 
-  /**
-   * In this block, based upon the circumstances of where it gets called, there's a guarantee that
-   * {@link ConfigurationContext#getConfigFile()} will not return null.
-   */
-  private void writeIfNecessary(ConfigurationContext context, CachedConfigData data)
+  private void writeIfNecessary(
+      String pid, File dest, Dictionary<String, Object> configState, CachedConfigData cachedData)
       throws IOException {
-    File dest = context.getConfigFile();
     if (dest.exists()) {
-      // Improvement: These would become checksums
-      Dictionary<String, Object> fileState = data.getProps();
-      Dictionary<String, Object> configState = context.getSanitizedProperties();
-      processPasswords(context.getServicePid(), configState, encryptionService::encryptValue);
+      // DDF-3413: Future performance/memory improvement - this would become a checksum
+      Dictionary<String, Object> fileState = cachedData.getProps();
+      processPasswords(pid, configState, this::encryptValue);
       if (!equalDictionaries(configState, fileState)) {
-        try (OutputStream outputStream = new FileOutputStream(dest)) {
+        try (OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(dest))) {
           getAppropriateStrategy(dest.toPath()).write(outputStream, configState);
+        } catch (IOException e) {
+          LOGGER.debug("Writing to config file failed: ", e);
+          SecurityLogger.audit("Failure to update config file [{}]", dest.getAbsolutePath());
+          throw e;
         }
-        SECURITY_LOGGER.info("Updating config file: {}", dest.toPath());
-        data.setProps(configState);
+        SecurityLogger.audit("Updating config file [{}]", dest.toPath());
+        cachedData.setProps(configState);
       }
     }
+  }
+
+  /**
+   * {@link EncryptionService} is whitelisted, so we cannot add this method onto the interface and
+   * impl until a major release.
+   */
+  private String encryptValue(String plaintextValue) {
+    Matcher m = ENC_PATTERN.matcher(plaintextValue);
+    if (m.find()) {
+      LOGGER.debug("Password already encrypted");
+      return plaintextValue;
+    }
+    return "ENC(".concat(encryptionService.encrypt(plaintextValue)).concat(")");
   }
 
   private void processPasswords(
@@ -228,19 +290,16 @@ public class ConfigurationInstaller implements ConfigurationPersistencePlugin {
       Dictionary<String, Object> dictionary,
       Function<String, String> passwordTransform) {
     ObjectClassDefinition objectClassDefinition = ddfConfigAdmin.getObjectClassDefinition(pid);
-    if (objectClassDefinition != null) {
-      AttributeDefinition[] attributeDefinitions =
-          objectClassDefinition.getAttributeDefinitions(ObjectClassDefinition.ALL);
-      for (AttributeDefinition metatypeAttribute : attributeDefinitions) {
-        if (metatypeAttribute.getType() == AttributeDefinition.PASSWORD) {
-          Object beforePassword = dictionary.get(metatypeAttribute.getID());
-          if (beforePassword instanceof String) {
-            String afterPassword = passwordTransform.apply((String) beforePassword);
-            dictionary.put(metatypeAttribute.getID(), afterPassword);
-          }
-        }
-      }
+    if (objectClassDefinition == null) {
+      return;
     }
+    Stream.of(objectClassDefinition)
+        .map(ocd -> ocd.getAttributeDefinitions(ObjectClassDefinition.ALL))
+        .flatMap(Arrays::stream)
+        .filter(ad -> ad.getType() == AttributeDefinition.PASSWORD)
+        .map(AttributeDefinition::getID)
+        .filter(id -> dictionary.get(id) instanceof String)
+        .forEach(id -> dictionary.put(id, passwordTransform.apply((String) dictionary.get(id))));
   }
 
   private PersistenceStrategy getAppropriateStrategy(Path path) {
@@ -253,9 +312,12 @@ public class ConfigurationInstaller implements ConfigurationPersistencePlugin {
         .filter(s -> s.getExtension().equals(ext))
         .findFirst()
         .orElseThrow(
-            () -> new IllegalArgumentException("File extension is not a supported config type"));
+            () ->
+                new IllegalArgumentException(
+                    format("File extension [%s] is not a supported config type", ext)));
   }
 
+  // DDF-3413: This method would no longer be necessary
   private static boolean equalDictionaries(Dictionary x, Dictionary y) {
     if (x.size() != y.size()) {
       return false;

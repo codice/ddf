@@ -15,11 +15,13 @@
 
 # Apache Felix Configuration Admin Service
 # Bundle permissions
-# see FELIX-4039
+# See FELIX-4039
+
+# This file is not currently being used but is here for future deployments where the
+# OSGi security manager has been turned on.
 
 # (java.util.PropertyPermission "*" "read")
 # (java.lang.RuntimePermission "createClassLoader")
-#
 
 # Imported/Exported packages
 # -> MANIFEST.MF

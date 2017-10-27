@@ -35,7 +35,7 @@ public class WrappedPersistenceManager implements PersistenceManager, AutoClosea
 
   @Override
   public void close() throws Exception {
-    if (persistenceManager instanceof WrappedPersistenceManager) {
+    if (persistenceManager instanceof AutoCloseable) {
       ((WrappedPersistenceManager) persistenceManager).close();
     }
   }
