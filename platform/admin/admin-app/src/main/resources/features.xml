@@ -31,8 +31,6 @@
         <bundle>mvn:ddf.admin.core/admin-core-appservice/${project.version}</bundle>
         <bundle>mvn:ddf.admin.core/admin-core-insecuredefaults/${project.version}</bundle>
         <bundle>mvn:ddf.admin.core/admin-core-impl/${project.version}</bundle>
-        <!--Shut off password encryption to circumvent the config admin issue-->
-        <!--<bundle>mvn:ddf.admin/admin-configuration-passwordencryption/${project.version}</bundle>-->
     </feature>
 
     <feature name="admin-ui" install="manual" version="${project.version}"
@@ -100,10 +98,9 @@
         <bundle>mvn:ddf.admin/admin-configurator-impl/${project.version}</bundle>
     </feature>
 
-    <feature name="admin-config-installer" install="manual" version="${project.version}"
+    <feature name="admin-config-updater" install="manual" version="${project.version}"
              description="Synchronizes config admin with the etc directory">
-        <feature prerequisite="true">admin-configurator</feature>
-        <bundle>mvn:ddf.admin/admin-configuration-configinstaller/${project.version}</bundle>
+        <bundle>mvn:ddf.admin/admin-configuration-configupdater/${project.version}</bundle>
     </feature>
 
     <feature name="admin-app" install="auto" version="${project.version}"
@@ -113,6 +110,6 @@
         <feature>admin-ui</feature>
         <feature>admin-core-migration-commands</feature>
         <feature>admin-configurator</feature>
-        <feature>admin-config-installer</feature>
+        <feature>admin-config-updater</feature>
     </feature>
 </features>

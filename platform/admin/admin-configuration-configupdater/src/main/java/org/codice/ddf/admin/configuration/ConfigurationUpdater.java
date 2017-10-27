@@ -73,8 +73,8 @@ import org.slf4j.LoggerFactory;
  * files in the etc directory. To keep Felix itself from disrupting this process, {@code
  * enableConfigSave} in {@code custom.properties} should be set to {@code false}.
  */
-public class ConfigurationInstaller implements ConfigurationPersistencePlugin {
-  private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationInstaller.class);
+public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
+  private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationUpdater.class);
 
   private static final Pattern ENC_PATTERN = Pattern.compile("^ENC\\((.*)\\)$");
 
@@ -95,7 +95,7 @@ public class ConfigurationInstaller implements ConfigurationPersistencePlugin {
    *
    * <p>See https://issues.apache.org/jira/browse/ARIES-960
    */
-  public ConfigurationInstaller(
+  public ConfigurationUpdater(
       ConfigurationAdmin ddfConfigAdmin,
       List strategies,
       EncryptionService encryptionService,

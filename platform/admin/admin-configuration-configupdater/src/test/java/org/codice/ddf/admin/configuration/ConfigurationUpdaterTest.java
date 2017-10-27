@@ -48,7 +48,7 @@ import org.osgi.service.metatype.AttributeDefinition;
 import org.osgi.service.metatype.ObjectClassDefinition;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ConfigurationInstallerTest {
+public class ConfigurationUpdaterTest {
   private static final String TEMP_FILE_EXT = "tmp";
 
   // Will be tracked in the installer's map after init()
@@ -76,7 +76,7 @@ public class ConfigurationInstallerTest {
 
   @Mock private ConfigurationContext mockContextFromFactory;
 
-  private ConfigurationInstaller installer;
+  private ConfigurationUpdater installer;
 
   @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
@@ -104,7 +104,7 @@ public class ConfigurationInstallerTest {
     when(mockContext.getSanitizedProperties()).thenReturn(new Hashtable<>());
 
     installer =
-        new ConfigurationInstaller(
+        new ConfigurationUpdater(
             configurationAdmin,
             Collections.singletonList(mockStrategy),
             mockEncryptionService,

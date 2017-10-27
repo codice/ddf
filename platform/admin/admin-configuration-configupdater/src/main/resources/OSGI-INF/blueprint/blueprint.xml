@@ -32,7 +32,7 @@
                interface="org.codice.felix.cm.internal.ConfigurationContextFactory"
                availability="mandatory"/>
 
-    <bean id="configInstaller" class="org.codice.ddf.admin.configuration.ConfigurationInstaller"
+    <bean id="configUpdater" class="org.codice.ddf.admin.configuration.ConfigurationUpdater"
           init-method="init">
         <argument ref="configAdmin"/>
         <argument ref="strategiesBean"/>
@@ -40,7 +40,7 @@
         <argument ref="contextFactory"/>
     </bean>
 
-    <service ref="configInstaller"
+    <service ref="configUpdater"
              interface="org.codice.felix.cm.internal.ConfigurationPersistencePlugin"/>
 
 </blueprint>
