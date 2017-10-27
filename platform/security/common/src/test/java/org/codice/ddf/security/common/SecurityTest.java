@@ -11,8 +11,10 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.security;
+package org.codice.ddf.security.common;
 
+import static org.codice.ddf.security.common.Security.MAX_RETRIES;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.not;
@@ -39,12 +41,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.security.PrivilegedAction;
 import java.util.concurrent.Callable;
+import net.jodah.failsafe.RetryPolicy;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.UnavailableSecurityManagerException;
 import org.apache.shiro.subject.ExecutionException;
 import org.apache.shiro.subject.PrincipalCollection;
-import org.codice.ddf.security.common.Security;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -178,6 +180,121 @@ public class SecurityTest {
     configureMocksForBundleContext("bad-alias");
 
     assertThat(security.getSystemSubject(), equalTo(null));
+  }
+
+  @Test
+  public void testGetSecurityManager() {
+    final Bundle bundle = mock(Bundle.class);
+    when(FrameworkUtil.getBundle(any(Class.class))).thenReturn(bundle);
+    final BundleContext bundleContext = mock(BundleContext.class);
+    when(bundle.getBundleContext()).thenReturn(bundleContext);
+    final ServiceReference securityManagerServiceReference = mock(ServiceReference.class);
+    when(bundleContext.getServiceReference(SecurityManager.class))
+        .thenReturn(securityManagerServiceReference);
+    final SecurityManager securityManager = mock(SecurityManager.class);
+    when(bundleContext.getService(securityManagerServiceReference)).thenReturn(securityManager);
+
+    security.runAsAdmin(
+        () -> {
+          assertThat(security.getSecurityManager(), is(securityManager));
+          return null;
+        });
+  }
+
+  /** Tests the default retryPolicy for the getSecurityManager method */
+  @Test
+  public void testGetSecurityManagerWhenTheSecurityManagerServiceIsNotImmediatelyAvailable() {
+    final Bundle bundle = mock(Bundle.class);
+    when(FrameworkUtil.getBundle(any(Class.class))).thenReturn(bundle);
+    final BundleContext bundleContext = mock(BundleContext.class);
+    when(bundle.getBundleContext()).thenReturn(bundleContext);
+    final ServiceReference securityManagerServiceReference = mock(ServiceReference.class);
+    when(bundleContext.getServiceReference(SecurityManager.class))
+        .thenReturn(securityManagerServiceReference);
+    final SecurityManager securityManager = mock(SecurityManager.class);
+    // the SecurityManager service is available by the 3rd (less than the max retries) try
+    when(bundleContext.getService(securityManagerServiceReference))
+        .thenReturn(null, null, securityManager);
+
+    security.runAsAdmin(
+        () -> {
+          assertThat(security.getSecurityManager(), is(securityManager));
+          return null;
+        });
+  }
+
+  @Test
+  public void testGetSecurityManagerWhenUnableToGetSecurityManagerService() {
+    // inject a RetryPolicy that does not include a delay so that the unit test completes quickly
+    security.retryPolicySupplier =
+        () -> new RetryPolicy().withMaxRetries(MAX_RETRIES).retryWhen(null);
+
+    final Bundle bundle = mock(Bundle.class);
+    when(FrameworkUtil.getBundle(any(Class.class))).thenReturn(bundle);
+    final BundleContext bundleContext = mock(BundleContext.class);
+    when(bundle.getBundleContext()).thenReturn(bundleContext);
+    final ServiceReference securityManagerServiceReference = mock(ServiceReference.class);
+    when(bundleContext.getServiceReference(SecurityManager.class))
+        .thenReturn(securityManagerServiceReference);
+    // the SecurityManager service is never available
+    when(bundleContext.getService(securityManagerServiceReference)).thenReturn(null);
+
+    security.runAsAdmin(
+        () -> {
+          assertThat(security.getSecurityManager(), nullValue());
+          return null;
+        });
+  }
+
+  @Test
+  public void testGetSecurityManagerWhenUnableToGetSecurityManagerServiceReference() {
+    // inject a RetryPolicy that does not include a delay so that the unit test completes quickly
+    security.retryPolicySupplier =
+        () -> new RetryPolicy().withMaxRetries(MAX_RETRIES).retryWhen(null);
+
+    final Bundle bundle = mock(Bundle.class);
+    when(FrameworkUtil.getBundle(any(Class.class))).thenReturn(bundle);
+    final BundleContext bundleContext = mock(BundleContext.class);
+    when(bundle.getBundleContext()).thenReturn(bundleContext);
+    when(bundleContext.getServiceReference(SecurityManager.class)).thenReturn(null);
+
+    security.runAsAdmin(
+        () -> {
+          assertThat(security.getSecurityManager(), nullValue());
+          return null;
+        });
+  }
+
+  @Test
+  public void testGetSecurityManagerWhenUnableToGetBundleContext() {
+    // inject a RetryPolicy that does not include a delay so that the unit test completes quickly
+    security.retryPolicySupplier =
+        () -> new RetryPolicy().withMaxRetries(MAX_RETRIES).retryWhen(null);
+
+    final Bundle bundle = mock(Bundle.class);
+    when(FrameworkUtil.getBundle(any(Class.class))).thenReturn(bundle);
+    when(bundle.getBundleContext()).thenReturn(null);
+
+    security.runAsAdmin(
+        () -> {
+          assertThat(security.getSecurityManager(), nullValue());
+          return null;
+        });
+  }
+
+  @Test
+  public void testGetSecurityManagerWhenUnableToGetBundle() {
+    // inject a RetryPolicy that does not include a delay so that the unit test completes quickly
+    security.retryPolicySupplier =
+        () -> new RetryPolicy().withMaxRetries(MAX_RETRIES).retryWhen(null);
+
+    when(FrameworkUtil.getBundle(any(Class.class))).thenReturn(null);
+
+    security.runAsAdmin(
+        () -> {
+          assertThat(security.getSecurityManager(), nullValue());
+          return null;
+        });
   }
 
   @Test

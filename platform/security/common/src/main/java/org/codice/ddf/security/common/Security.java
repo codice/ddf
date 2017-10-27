@@ -15,6 +15,7 @@ package org.codice.ddf.security.common;
 
 import static org.apache.commons.lang.Validate.notNull;
 
+import com.google.common.annotations.VisibleForTesting;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.common.audit.SecurityLogger;
@@ -45,7 +46,11 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
+import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
+import net.jodah.failsafe.Failsafe;
+import net.jodah.failsafe.RetryPolicy;
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.apache.shiro.UnavailableSecurityManagerException;
 import org.apache.shiro.subject.ExecutionException;
@@ -81,6 +86,17 @@ public class Security {
   private Subject cachedSystemSubject;
 
   private static final javax.security.auth.Subject JAVA_ADMIN_SUBJECT = getAdminJavaSubject();
+
+  @VisibleForTesting static final int MAX_RETRIES = 10;
+
+  // using a Supplier here to prevent threading issues
+  @VisibleForTesting
+  Supplier<RetryPolicy> retryPolicySupplier =
+      () ->
+          new RetryPolicy()
+              .withMaxRetries(MAX_RETRIES)
+              .withDelay(1, TimeUnit.SECONDS)
+              .retryWhen(null);
 
   private Security() {
     // Singleton
@@ -283,18 +299,49 @@ public class Security {
   }
 
   /**
-   * Gets a reference to the {@link SecurityManager}.
+   * Gets a reference to the {@link SecurityManager} or {@code null} if unable to get the {@link
+   * SecurityManager}. Retries according to the defined retry policy.
    *
    * @return reference to the {@link SecurityManager}
    */
+  @Nullable
   public SecurityManager getSecurityManager() {
-    BundleContext context = getBundleContext();
-    if (context != null) {
-      ServiceReference securityManagerRef = context.getServiceReference(SecurityManager.class);
-      return (SecurityManager) context.getService(securityManagerRef);
+    return Failsafe.with(retryPolicySupplier.get())
+        .onRetry(
+            (securityManager, failure, executionContext) ->
+                LOGGER.debug(
+                    "Attempt {} failed to get SecurityManager. Retrying again.",
+                    executionContext.getExecutions()))
+        .onSuccess(cxn -> LOGGER.trace("Successfully got SecurityManager"))
+        .onFailure(
+            failure ->
+                LOGGER.error(
+                    "Unable to get SecurityManager. Authentication and Authorization mechanisms will not work correctly. A restart of the system may be necessary."))
+        .get(Security::attemptToGetSecurityManager);
+  }
+
+  @Nullable
+  private static SecurityManager attemptToGetSecurityManager() {
+    final Bundle bundle = FrameworkUtil.getBundle(Security.class);
+
+    if (bundle != null) {
+      final BundleContext bundleContext = bundle.getBundleContext();
+
+      if (bundleContext != null) {
+        final ServiceReference securityManagerServiceReference =
+            bundleContext.getServiceReference(SecurityManager.class);
+
+        if (securityManagerServiceReference != null) {
+          return (SecurityManager) bundleContext.getService(securityManagerServiceReference);
+        } else {
+          LOGGER.debug("Unable to get securityManagerServiceReference on this attempt");
+        }
+      } else {
+        LOGGER.debug("Unable to get bundleContext on this attempt");
+      }
+    } else {
+      LOGGER.debug("Unable to get bundle on this attempt");
     }
-    LOGGER.warn(
-        "Unable to get Security Manager. Authentication and Authorization mechanisms will not work correctly. A restart of the system may be necessary.");
     return null;
   }
 
@@ -314,14 +361,6 @@ public class Security {
       principals.add(new RolePrincipal(role));
     }
     return new javax.security.auth.Subject(true, principals, new HashSet(), new HashSet());
-  }
-
-  private BundleContext getBundleContext() {
-    Bundle bundle = FrameworkUtil.getBundle(Security.class);
-    if (bundle != null) {
-      return bundle.getBundleContext();
-    }
-    return null;
   }
 
   private PKIAuthenticationTokenFactory createPKITokenFactory() {
