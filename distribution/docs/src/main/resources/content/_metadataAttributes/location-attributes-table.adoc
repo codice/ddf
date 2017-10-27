@@ -1,10 +1,13 @@
-:title: Location
+:title: Location Attributes Table
 :type: subAppendix
+:order: 05
 :parent: Catalog Taxonomy
 :status: published
 :summary: Attributes in this group reflect location aspects about the resource.
 
-.[[_location_attributes_table]]Location: Attributes in this group reflect location aspects about the resource.
+== {title}
+
+.Location: Attributes in this group reflect location aspects about the resource.
 [cols="1,2,1,1,1" options="header"]
 |===
 |Term

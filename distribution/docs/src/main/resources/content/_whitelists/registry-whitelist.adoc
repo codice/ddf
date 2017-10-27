@@ -6,6 +6,8 @@
 :order: 03
 :summary: ${ddf-registry} whitelist.
 
+== {title}
+
 The following classes have been exported by the ${ddf-registry} Application and are approved for use by third parties:
 
 None.

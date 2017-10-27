@@ -6,6 +6,8 @@
 :order: 04
 :summary: ${ddf-security} whitelist.
 
+== {title}
+
 The following classes have been exported by the ${ddf-security} application and are approved for use by third parties:
 
 In package `ddf.security`

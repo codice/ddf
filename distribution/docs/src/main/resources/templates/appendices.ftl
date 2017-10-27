@@ -2,19 +2,15 @@
 <#if (ai.status == "published")>
 
 [appendix]
-== ${ai.title}
-
 include::${ai.file}[]
 <#list appendixs?sort_by("order") as appendix>
-<#if (ai.children?contains (appendix.parent))>
+<#if (appendix.parent == ai.title && appendix.status == "published")>
 
-=== ${appendix.title}
-include::${appendix.file}[]
-<#list subAppendixs as subAppendix>
-<#if (subAppendix.parent == appendix.children)>
+include::${appendix.file}[leveloffset=+1]
+<#list subAppendixs?sort_by("order") as subAppendix>
+<#if (subAppendix.parent == appendix.title && subAppendix.status == "published")>
 
-==== ${subAppendix.title}
-include::${subAppendix.file}[]
+include::${subAppendix.file}[leveloffset=+2]
 </#if>
 </#list>
 </#if>

@@ -1,10 +1,13 @@
-﻿:title: Validation
+﻿:title: Validation Attributes Table
 :type: subAppendix
+:order: 10
 :parent: Catalog Taxonomy
 :status: published
 :summary: Attributes in this group identify validation issues with the metacard and/or resource.
 
-.[[_validation_attributes_table]]Validation: Attributes in this group identify validation issues with the metacard and/or resource.
+== {title}
+
+.Validation: Attributes in this group identify validation issues with the metacard and/or resource.
 [cols="1,2,1,1,1" options="header"]
 |===
 

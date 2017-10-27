@@ -1,10 +1,13 @@
-﻿:title: Topic
+﻿:title: Topic Attributes Table
 :type: subAppendix
+:order: 09
 :parent: Catalog Taxonomy
 :status: published
 :summary: Attributes in this group describe the topic of the resource.
 
-.[[_topic_attributes_table]]Topic: Attributes in this group describe the topic of the resource.
+== {title}
+
+.Topic: Attributes in this group describe the topic of the resource.
 [cols="1,2,1,1,1" options="header"]
 |===
 

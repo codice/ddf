@@ -6,6 +6,8 @@
 :order: 03
 :summary: Complete list of supported file types.
 
+== {title}
+
 Using the various input transformers, ${branding} supports ingest of the following MIME types.
 
 .[[supported_file_types]]Supported File Types
