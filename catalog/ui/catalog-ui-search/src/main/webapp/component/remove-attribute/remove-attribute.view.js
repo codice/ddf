@@ -26,7 +26,7 @@ function determineAttributes(selectionInterface) {
     var types = _.union.apply(this, selectionInterface.getSelectedResults().map((result) => {
         return [result.get('metacardType')];
     }));
-    var possibleAttributes = _.union.apply(this, types.map((type) => {
+    var possibleAttributes = _.intersection.apply(this, types.map((type) => {
         return Object.keys(metacardDefinitions.metacardDefinitions[type]);
     }));
     var attributes = _.union.apply(this, selectionInterface.getSelectedResults().map((result) => {

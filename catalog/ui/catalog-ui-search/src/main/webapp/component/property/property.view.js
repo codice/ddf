@@ -54,6 +54,7 @@ define([
         onRender: function () {
             this.handleEdit();
             this.handleReadOnly();
+            this.handleConflictingAttributeDefinition();
             this.handleValue();
             this.handleRevert();
             this.handleValidation();
@@ -77,6 +78,9 @@ define([
         handleLabel: function(){
             this.$el.toggleClass('hide-label', !this.model.showLabel());
         },
+        handleConflictingAttributeDefinition: function() {
+            this.$el.toggleClass('has-conflicting-definitions', this.model.hasConflictingDefinitions());
+        },
         handleReadOnly: function () {
             this.$el.toggleClass('is-readOnly', this.model.isReadOnly());
         },
@@ -87,7 +91,7 @@ define([
             this.$el.find('input').val(this.model.getValue());
         },
         turnOnEditing: function(){
-            if (!this.model.get('readOnly')) {
+            if (!this.model.get('readOnly') && !this.model.hasConflictingDefinitions()) {
                 this.model.set('isEditing', true);
             }
             this.$el.addClass('is-editing');
