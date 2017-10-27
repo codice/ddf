@@ -13,16 +13,21 @@
  */
 package org.codice.ddf.platform.util;
 
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.function.BiFunction;
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
@@ -31,6 +36,7 @@ import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -40,6 +46,8 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXNotRecognizedException;
+import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
@@ -50,22 +58,53 @@ public class XMLUtils {
 
   private static final XMLUtils INSTANCE = new XMLUtils();
 
+  private static final String FACTORY_NOT_WHITELISTED_MSG =
+      "Factory %s is not a whitelisted implementation. Aborting attempt to load.";
+
+  private static final String XML_SAX_FEATURES_EXTERNAL_GENERAL_ENTITIES =
+      "http://xml.org/sax/features/external-general-entities";
+
+  private static final String XML_SAX_FEATURES_EXTERNAL_PARAMETER_ENTITIES =
+      "http://xml.org/sax/features/external-parameter-entities";
+
+  private static final String APACHE_FEATURES_DISALLOW_DOCTYPE_DECL =
+      "http://apache.org/xml/features/disallow-doctype-decl";
+
+  private static final String APACHE_FEATURES_LOAD_EXTERNAL_DTD =
+      "http://apache.org/xml/features/nonvalidating/load-external-dtd";
+
+  private static final String APACHE_FEATURES_LOAD_DTD_GRAMMAR =
+      "http://apache.org/xml/features/nonvalidating/load-dtd-grammar";
+
+  private static final String SAXON_PARSER_FEATURE_BASE_URI =
+      "http://saxon.sf.net/feature/parserFeature?uri=";
+
+  static final List<String> DOCUMENT_BUILDER_FACTORY_IMPL_WHITELIST =
+      ImmutableList.<String>builder()
+          .add("com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl")
+          .build();
+
+  static final List<String> TRANSFORMER_FACTORY_IMPL_WHITELIST =
+      ImmutableList.<String>builder()
+          .add("com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl")
+          .add("net.sf.saxon.TransformerFactoryImpl")
+          .build();
+
+  static final List<String> SAX_PARSER_FACTORY_IMPL_WHITELIST =
+      ImmutableList.<String>builder()
+          .add("com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl")
+          .build();
+
+  static final List<String> XML_READER_IMPL_WHITELIST =
+      ImmutableList.<String>builder()
+          .add("com.sun.org.apache.xerces.internal.parsers.SAXParser")
+          .build();
+
   protected XMLInputFactory xmlInputFactory;
 
   public static synchronized XMLUtils getInstance() {
     INSTANCE.initializeXMLInputFactory();
     return INSTANCE;
-  }
-
-  private void initializeXMLInputFactory() {
-    if (xmlInputFactory == null) {
-      xmlInputFactory = XMLInputFactory.newInstance();
-    }
-    xmlInputFactory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, Boolean.FALSE);
-    xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
-    xmlInputFactory.setProperty(
-        XMLInputFactory.SUPPORT_DTD, Boolean.FALSE); // This disables DTDs entirely for that factory
-    xmlInputFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.FALSE);
   }
 
   /**
@@ -164,7 +203,10 @@ public class XMLUtils {
     ClassLoader tccl = Thread.currentThread().getContextClassLoader();
     Thread.currentThread().setContextClassLoader(XMLUtils.class.getClassLoader());
     try {
-      TransformerFactory transFactory = TransformerFactory.newInstance();
+      TransformerFactory transFactory =
+          TransformerFactory.newInstance(
+              TRANSFORMER_FACTORY_IMPL_WHITELIST.get(0), XMLUtils.class.getClassLoader());
+      setSecureTransformerFactorySettings(transFactory);
       Transformer transformer = transFactory.newTransformer();
 
       for (Entry<String, String> entry : transformProperties.getOutputProperties()) {
@@ -231,53 +273,6 @@ public class XMLUtils {
     return result.get();
   }
 
-  public DocumentBuilderFactory getSecureDocumentBuilderFactory(
-      String className, ClassLoader classLoader) {
-    DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance(className, classLoader);
-    setSecureSettings(domFactory);
-    return domFactory;
-  }
-
-  public DocumentBuilderFactory getSecureDocumentBuilderFactory() {
-    DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
-    setSecureSettings(domFactory);
-    return domFactory;
-  }
-
-  public DocumentBuilder getSecureDocumentBuilder(boolean namespaceAware)
-      throws ParserConfigurationException {
-    DocumentBuilderFactory domFactory = getSecureDocumentBuilderFactory();
-    domFactory.setNamespaceAware(namespaceAware);
-    return domFactory.newDocumentBuilder();
-  }
-
-  public XMLReader getSecureXmlParser() throws SAXException {
-    XMLReader xmlParser = XMLReaderFactory.createXMLReader();
-    xmlParser.setFeature("http://xml.org/sax/features/external-general-entities", false);
-    xmlParser.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-    xmlParser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-    return xmlParser;
-  }
-
-  public Document parseDocument(InputStream inputStream, boolean namespaceAware)
-      throws ParserConfigurationException, IOException, SAXException {
-    DocumentBuilder builder = getSecureDocumentBuilder(namespaceAware);
-    return builder.parse(inputStream);
-  }
-
-  public Transformer getXmlTransformer(boolean omitXml) throws TransformerException {
-    TransformerFactory transformerFactory = TransformerFactory.newInstance();
-    Transformer transformer = transformerFactory.newTransformer();
-    if (omitXml) {
-      transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-    }
-    transformer.setOutputProperty(OutputKeys.METHOD, "xml");
-    transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-    transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-    transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
-    return transformer;
-  }
-
   /**
    * This class is used with the processElements method. Inside the function, set the value of the
    * result holder. That value is then returned by the processElementsFunction.
@@ -307,13 +302,192 @@ public class XMLUtils {
     }
   }
 
-  private void setSecureSettings(DocumentBuilderFactory domFactory) {
+  private void initializeXMLInputFactory() {
+    if (xmlInputFactory == null) {
+      xmlInputFactory = XMLInputFactory.newFactory();
+    }
+    setSecureXMLInputFactorySettings(xmlInputFactory);
+  }
+
+  public XMLInputFactory getSecureXmlInputFactory() {
+    return xmlInputFactory;
+  }
+
+  private void setSecureXMLInputFactorySettings(XMLInputFactory xmlInputFactory) {
+    xmlInputFactory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, Boolean.FALSE);
+    xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
+    xmlInputFactory.setProperty(
+        XMLInputFactory.SUPPORT_DTD, Boolean.FALSE); // This disables DTDs entirely for that factory
+    xmlInputFactory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.FALSE);
+  }
+
+  public DocumentBuilderFactory getSecureDocumentBuilderFactory(
+      String className, ClassLoader classLoader) {
+    if (DOCUMENT_BUILDER_FACTORY_IMPL_WHITELIST.contains(className)) {
+      DocumentBuilderFactory domFactory =
+          DocumentBuilderFactory.newInstance(className, classLoader);
+      setSecureDocumentBuilderSettings(domFactory);
+      return domFactory;
+    }
+    throw new SecurityException(String.format(FACTORY_NOT_WHITELISTED_MSG, className));
+  }
+
+  public DocumentBuilderFactory getSecureDocumentBuilderFactory() {
+    return getSecureDocumentBuilderFactory(
+        DOCUMENT_BUILDER_FACTORY_IMPL_WHITELIST.get(0), XMLUtils.class.getClassLoader());
+  }
+
+  public DocumentBuilder getSecureDocumentBuilder(boolean namespaceAware)
+      throws ParserConfigurationException {
+    DocumentBuilderFactory domFactory = getSecureDocumentBuilderFactory();
+    domFactory.setNamespaceAware(namespaceAware);
+    return domFactory.newDocumentBuilder();
+  }
+
+  public Document parseDocument(InputStream inputStream, boolean namespaceAware)
+      throws ParserConfigurationException, IOException, SAXException {
+    DocumentBuilder builder = getSecureDocumentBuilder(namespaceAware);
+    return builder.parse(inputStream);
+  }
+
+  /**
+   * Given a DocumentBuilderFactory, sets secure features according to OWASP guidelines
+   *
+   * @param domFactory DocumentBuilderFactory to be configured
+   */
+  private void setSecureDocumentBuilderSettings(DocumentBuilderFactory domFactory) {
     try {
-      domFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
-      domFactory.setFeature(
-          "http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+      domFactory.setFeature(APACHE_FEATURES_DISALLOW_DOCTYPE_DECL, true);
+      domFactory.setFeature(XML_SAX_FEATURES_EXTERNAL_GENERAL_ENTITIES, false);
+      domFactory.setFeature(XML_SAX_FEATURES_EXTERNAL_PARAMETER_ENTITIES, false);
+      domFactory.setFeature(APACHE_FEATURES_LOAD_EXTERNAL_DTD, false);
+      domFactory.setFeature(APACHE_FEATURES_LOAD_DTD_GRAMMAR, false);
+      domFactory.setXIncludeAware(false);
+      domFactory.setExpandEntityReferences(false);
     } catch (ParserConfigurationException e) {
       LOGGER.debug("Unable to set features on document builder.", e);
     }
+  }
+
+  public TransformerFactory getSecureXmlTransformerFactory(
+      String className, ClassLoader classLoader) {
+    if (TRANSFORMER_FACTORY_IMPL_WHITELIST.contains(className)) {
+      TransformerFactory transformerFactory =
+          TransformerFactory.newInstance(className, classLoader);
+      setSecureTransformerFactorySettings(transformerFactory);
+      return transformerFactory;
+    }
+    throw new SecurityException(String.format(FACTORY_NOT_WHITELISTED_MSG, className));
+  }
+
+  public TransformerFactory getSecureXmlTransformerFactory() {
+    return getSecureXmlTransformerFactory(
+        TRANSFORMER_FACTORY_IMPL_WHITELIST.get(0), XMLUtils.class.getClassLoader());
+  }
+
+  public Transformer getXmlTransformer(boolean omitXml) throws TransformerException {
+    TransformerFactory transformerFactory = getSecureXmlTransformerFactory();
+    Transformer transformer = transformerFactory.newTransformer();
+    if (omitXml) {
+      transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+    }
+    transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+    transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+    transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+    transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+    return transformer;
+  }
+
+  /**
+   * Given a TransformerFactory, sets secure settings according to OWASP guidelines
+   *
+   * @param tf TransformerFactory to be configured
+   */
+  private void setSecureTransformerFactorySettings(TransformerFactory tf) {
+    try {
+      tf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+      switch (tf.getClass().getName()) {
+        case "net.sf.saxon.TransformerFactoryImpl":
+          tf.setFeature(
+              SAXON_PARSER_FEATURE_BASE_URI + XMLConstants.FEATURE_SECURE_PROCESSING, true);
+          tf.setFeature(
+              SAXON_PARSER_FEATURE_BASE_URI + XML_SAX_FEATURES_EXTERNAL_PARAMETER_ENTITIES, false);
+          tf.setFeature(
+              SAXON_PARSER_FEATURE_BASE_URI + XML_SAX_FEATURES_EXTERNAL_GENERAL_ENTITIES, false);
+          break;
+        default:
+          tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+          tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+          break;
+      }
+    } catch (IllegalArgumentException | TransformerConfigurationException e) {
+      LOGGER.debug("XMLUtils failed to set secure attributes on TransformerFactory.");
+    }
+  }
+
+  public SAXParserFactory getSecureSAXParserFactory(String className, ClassLoader classLoader) {
+    if (SAX_PARSER_FACTORY_IMPL_WHITELIST.contains(className)) {
+      SAXParserFactory saxParserFactory = SAXParserFactory.newInstance(className, classLoader);
+      setSecureSAXParserSettings(saxParserFactory);
+      return saxParserFactory;
+    }
+    throw new SecurityException(String.format(FACTORY_NOT_WHITELISTED_MSG, className));
+  }
+
+  public SAXParserFactory getSecureSAXParserFactory() {
+    return getSecureSAXParserFactory(
+        SAX_PARSER_FACTORY_IMPL_WHITELIST.get(0), XMLUtils.class.getClassLoader());
+  }
+
+  public SAXParser getSecureSAXParser(boolean namespaceAware)
+      throws ParserConfigurationException, SAXException {
+    SAXParserFactory saxParserFactory = getSecureSAXParserFactory();
+    saxParserFactory.setNamespaceAware(namespaceAware);
+    return saxParserFactory.newSAXParser();
+  }
+
+  /**
+   * Given a SAXParserFactory, sets secure settings according to OWASP guidelines
+   *
+   * @param saxFactory SAXParserFactory to be configured
+   */
+  private void setSecureSAXParserSettings(SAXParserFactory saxFactory) {
+    try {
+      saxFactory.setFeature(XML_SAX_FEATURES_EXTERNAL_GENERAL_ENTITIES, false);
+      saxFactory.setFeature(XML_SAX_FEATURES_EXTERNAL_PARAMETER_ENTITIES, false);
+      saxFactory.setFeature(APACHE_FEATURES_LOAD_EXTERNAL_DTD, false);
+      saxFactory.setFeature(APACHE_FEATURES_LOAD_DTD_GRAMMAR, false);
+      saxFactory.setXIncludeAware(false);
+
+    } catch (ParserConfigurationException
+        | SAXNotSupportedException
+        | SAXNotRecognizedException e) {
+      LOGGER.debug("Unable to set features on sax parser factory.", e);
+    }
+  }
+
+  public XMLReader getSecureXmlParser(String className) throws SAXException {
+    if (XML_READER_IMPL_WHITELIST.contains(className)) {
+      XMLReader xmlParser = XMLReaderFactory.createXMLReader(className);
+      setSecureXMLReaderSettings(xmlParser);
+      return xmlParser;
+    }
+    throw new SecurityException(String.format(FACTORY_NOT_WHITELISTED_MSG, className));
+  }
+
+  public XMLReader getSecureXmlParser() throws SAXException {
+    return getSecureXmlParser(XML_READER_IMPL_WHITELIST.get(0));
+  }
+
+  /**
+   * Given an XMLReader, sets secure settings according to OWASP guidelines
+   *
+   * @param xmlReader XMLReader to be configured
+   * @throws SAXException Thrown if the XMLReader was unable to be properly configured
+   */
+  private void setSecureXMLReaderSettings(XMLReader xmlReader) throws SAXException {
+    xmlReader.setFeature(XML_SAX_FEATURES_EXTERNAL_GENERAL_ENTITIES, false);
+    xmlReader.setFeature(XML_SAX_FEATURES_EXTERNAL_PARAMETER_ENTITIES, false);
+    xmlReader.setFeature(APACHE_FEATURES_LOAD_EXTERNAL_DTD, false);
   }
 }

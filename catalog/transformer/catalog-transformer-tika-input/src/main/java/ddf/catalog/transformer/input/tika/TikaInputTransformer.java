@@ -57,7 +57,6 @@ import javax.imageio.ImageIO;
 import javax.imageio.spi.IIORegistry;
 import javax.xml.transform.Templates;
 import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamSource;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -68,6 +67,7 @@ import org.apache.tika.metadata.Metadata;
 import org.apache.tika.mime.MediaType;
 import org.apache.tika.mime.MediaTypeRegistry;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
+import org.codice.ddf.platform.util.XMLUtils;
 import org.imgscalr.Scalr;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -463,7 +463,8 @@ public class TikaInputTransformer implements InputTransformer {
     try (InputStream stream = TikaMetadataExtractor.class.getResourceAsStream("/metadata.xslt")) {
       Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
       templates =
-          TransformerFactory.newInstance(
+          XMLUtils.getInstance()
+              .getSecureXmlTransformerFactory(
                   net.sf.saxon.TransformerFactoryImpl.class.getName(),
                   net.sf.saxon.TransformerFactoryImpl.class.getClassLoader())
               .newTemplates(new StreamSource(stream));

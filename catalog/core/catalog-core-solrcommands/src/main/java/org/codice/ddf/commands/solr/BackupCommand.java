@@ -28,6 +28,7 @@ import org.apache.solr.client.solrj.response.CollectionAdminResponse;
 import org.apache.solr.client.solrj.response.RequestStatusState;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.util.NamedList;
+import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.solr.factory.impl.HttpSolrClientFactory;
 import org.osgi.service.cm.Configuration;
 
@@ -196,17 +197,10 @@ public class BackupCommand extends SolrCommands {
             backupUrl = (String) solrConfig.getProperties().get("url");
           } else {
             LOGGER.debug("No Solr config found, checking System settings");
-            if (System.getProperty("host") != null
-                && System.getProperty("jetty.port") != null
-                && System.getProperty("hostContext") != null) {
+            if (System.getProperty("hostContext") != null) {
               backupUrl =
-                  System.getProperty("urlScheme", "http")
-                      + "://"
-                      + System.getProperty("host")
-                      + ":"
-                      + System.getProperty("jetty.port")
-                      + "/"
-                      + StringUtils.strip(System.getProperty("hostContext"), "/");
+                  SystemBaseUrl.constructUrl(
+                      SystemBaseUrl.getProtocol(), System.getProperty("hostContext"));
               LOGGER.debug("Trying system configured URL instead: {}", backupUrl);
             } else {
               LOGGER.info(
