@@ -58,4 +58,18 @@
 |null
 |false
 
+|Connection Timeout
+|connectionTimeout
+|Integer
+|Amount of time to attempt to establish a connection before timing out,in milliseconds.
+|30000
+|true
+
+|Receive Timeout
+|receiveTimeout
+|Integer
+|Amount of time to wait for a response before timing out,in milliseconds.
+|60000
+|true
+
 |===
