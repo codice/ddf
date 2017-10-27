@@ -220,19 +220,8 @@ define([
                         if (!metacardDefinitions.metacardTypes[property.id].multivalued){
                             if (value.sort === undefined){
                                 value = [value];
-                            } else {
-                                announcement.announce({
-                                    title: 'Conflicting Attribute Definition',
-                                    message: property.id+' claims to be singlevalued by definition, but the value on the result is not.  If this problem persists, contact your Administrator.',
-                                    type: 'warn'
-                                });
                             }
                         } else if (value.sort === undefined){
-                            announcement.announce({
-                                title: 'Conflicting Attribute Definition',
-                                message: property.id+' claims to be multivalued by definition, but the value on the result is not.  If this problem persists, contact your Administrator.',
-                                type: 'warn'
-                            });
                             value = [value];
                         }
                     } else {
