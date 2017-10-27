@@ -21,6 +21,7 @@ import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
 import java.util.List;
+import java.util.Locale;
 import oasis.names.tc.xacml._3_0.core.schema.wd_17.AttributeType;
 import oasis.names.tc.xacml._3_0.core.schema.wd_17.AttributeValueType;
 import oasis.names.tc.xacml._3_0.core.schema.wd_17.AttributesType;
@@ -304,7 +305,7 @@ public class XacmlPdp {
       return BOOLEAN_DATA_TYPE;
     } else if (IntegerValidator.getInstance().validate(curPermValue) != null) {
       return INTEGER_DATA_TYPE;
-    } else if (DoubleValidator.getInstance().validate(curPermValue) != null) {
+    } else if (DoubleValidator.getInstance().validate(curPermValue, Locale.getDefault()) != null) {
       return DOUBLE_DATA_TYPE;
     } else if (TimeValidator.getInstance().validate(curPermValue, "H:mm:ss") != null
         || TimeValidator.getInstance().validate(curPermValue, "H:mm:ss.SSS") != null

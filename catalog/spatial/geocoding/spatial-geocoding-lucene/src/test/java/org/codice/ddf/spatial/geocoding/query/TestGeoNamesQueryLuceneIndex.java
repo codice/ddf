@@ -27,8 +27,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -368,7 +370,8 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
     assertThat(first.getCardinalDirection(), is("S"));
 
     final double firstDistance = first.getDistance();
-    assertThat(String.format("%.2f", firstDistance), is("26.02"));
+    String expected1 = NumberFormat.getNumberInstance(Locale.getDefault()).format(26.02);
+    assertThat(String.format("%.2f", firstDistance), is(expected1));
 
     assertThat(first.getName(), is("Phoenix"));
 
@@ -376,7 +379,8 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
     assertThat(second.getCardinalDirection(), is("W"));
 
     final double secondDistance = second.getDistance();
-    assertThat(String.format("%.2f", secondDistance), is("24.46"));
+    String expected2 = NumberFormat.getNumberInstance(Locale.getDefault()).format(24.46);
+    assertThat(String.format("%.2f", secondDistance), is(expected2));
 
     assertThat(second.getName(), is("Glendale"));
   }
@@ -402,7 +406,8 @@ public class TestGeoNamesQueryLuceneIndex extends TestBase {
     assertThat(first.getCardinalDirection(), is("N"));
 
     final double distance = first.getDistance();
-    assertThat(String.format("%.2f", distance), is("29.58"));
+    String expected = NumberFormat.getNumberInstance(Locale.getDefault()).format(29.58);
+    assertThat(String.format("%.2f", distance), is(expected));
 
     assertThat(first.getName(), is("Phoenix"));
   }
