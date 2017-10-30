@@ -32,6 +32,7 @@ import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.io.IOUtils;
@@ -177,7 +178,7 @@ public class FileSystemPersistenceProvider
         new FilenameFilter() {
           @Override
           public boolean accept(File file, String name) {
-            return name.toLowerCase().endsWith(SER);
+            return name.toLowerCase(Locale.getDefault()).endsWith(SER);
           }
         };
     return filter;
