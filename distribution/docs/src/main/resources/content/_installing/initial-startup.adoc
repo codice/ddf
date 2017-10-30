@@ -110,3 +110,7 @@ During ${branding} installation, the major directories and files shown in the ta
 |Local bundle repository. Contains all of the JARs required by ${branding}, including third-party JARs.
 
 |===
+
+==== Complete Installation
+
+Upon startup, complete installation from either the Admin Console or the command line.

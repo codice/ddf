@@ -3,7 +3,7 @@
 :status: published
 :summary: Initial setup in a Highly Available Cluster.
 :project: ${branding}
-:order: 09
+:order: 10
 
 === {title}
 
