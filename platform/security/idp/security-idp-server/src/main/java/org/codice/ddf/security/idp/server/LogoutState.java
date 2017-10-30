@@ -14,15 +14,18 @@
 package org.codice.ddf.security.idp.server;
 
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import org.opensaml.saml.saml2.core.SessionIndex;
 
 /** LogoutState represents the current state of an in progress logout */
 public class LogoutState {
-  private String initialRelayState;
-
   private final Set<String> spDescriptors;
-
+  private String initialRelayState;
   private String originalIssuer;
 
   private String nameId;
@@ -33,10 +36,13 @@ public class LogoutState {
 
   private boolean partialLogout = false;
 
+  private List<String> sessionIndexes = Collections.emptyList();
+
   public LogoutState(Set<String> spDescriptors) {
-    this.spDescriptors = Collections.synchronizedSet(spDescriptors);
+    this.spDescriptors = new HashSet(spDescriptors);
   }
 
+  @SuppressWarnings("unused")
   public synchronized void removeSpDescriptor(String descriptor) {
     spDescriptors.remove(descriptor);
   }
@@ -74,12 +80,12 @@ public class LogoutState {
     this.nameId = nameId;
   }
 
-  public void setOriginalRequestId(String originalRequestId) {
-    this.originalRequestId = originalRequestId;
-  }
-
   public String getOriginalRequestId() {
     return originalRequestId;
+  }
+
+  public void setOriginalRequestId(String originalRequestId) {
+    this.originalRequestId = originalRequestId;
   }
 
   public boolean isPartialLogout() {
@@ -96,5 +102,23 @@ public class LogoutState {
 
   public void setCurrentRequestId(String currentRequestId) {
     this.currentRequestId = currentRequestId;
+  }
+
+  public List<String> getSessionIndexes() {
+    return sessionIndexes;
+  }
+
+  @SuppressWarnings("unused")
+  public void setSessionIndexes(List<String> sessionIndexes) {
+    if (Objects.nonNull(sessionIndexes)) {
+      this.sessionIndexes = sessionIndexes;
+    }
+  }
+
+  public void setSessionIndexObjects(List<SessionIndex> sessionIndexes) {
+    if (Objects.nonNull(sessionIndexes)) {
+      setSessionIndexes(
+          sessionIndexes.stream().map(SessionIndex::getSessionIndex).collect(Collectors.toList()));
+    }
   }
 }
