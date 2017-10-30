@@ -40,4 +40,4 @@ When the permissions are of a key-value type, the key being used is populated as
 
 ==== Using a XACML Policy
 
-To use a XACML policy, copy the XACML policy into the `<${branding}_HOME>/etc/pdp/policies` directory.
+To use a XACML policy, copy the XACML policy into the `${home_directory}/etc/pdp/policies` directory.

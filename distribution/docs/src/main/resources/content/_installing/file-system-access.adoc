@@ -9,12 +9,12 @@
 
 Restrict access to sensitive files by ensuring that the only users with access privileges are administrators.
 
-Within the `<${branding}_HOME>`, a directory is created named ${branding-lowercase}-${project.version}.
-This directory will be referred to in the documentation as `<${branding}_HOME>`.
+Within the `${home_directory}`, a directory is created named ${branding-lowercase}-${project.version}.
+This directory will be referred to in the documentation as `${home_directory}`.
 
 . Do not assume the deployment is from a trusted source; verify its origination.
 . Check the available storage space on the system to ensure the deployment will not exceed the available space.
-. Set maximum storage space on the `<${branding}_HOME>/deploy` and `<${branding}_HOME>/system` directories to restrict the amount of space used by deployments.
+. Set maximum storage space on the `${home_directory}/deploy` and `${home_directory}/system` directories to restrict the amount of space used by deployments.
 
 ===== Setting Directory Permissions
 
@@ -26,21 +26,21 @@ System administrators MUST perform the following steps prior to deploying bundle
 [IMPORTANT]
 ====
 The system administrator must restrict certain directories to ensure that the application (user) cannot access restricted directories on the system.
-For example the `${branding}_USER` should have read-only access to `<${branding}_HOME>`, except for the sub-directories `etc`, `data`, `solr` and `instances`.
+For example the `${branding}_USER` should have read-only access to `${home_directory}`, except for the sub-directories `etc`, `data`, `solr` and `instances`.
 ====
 
 .Setting Directory Permissions on Windows
 ****
-Set directory permissions on the `<${branding}_HOME>`; all sub-directories except `etc`, `data`, and `instances`; and any directory intended to interact with the ${branding} to protect from unauthorized access.
+Set directory permissions on the `${home_directory}`; all sub-directories except `etc`, `data`, and `instances`; and any directory intended to interact with the ${branding} to protect from unauthorized access.
 
-. Right-click on the `<${branding}_HOME>` directory.
+. Right-click on the `${home_directory}` directory.
 . Select *Properties -> Security -> Advanced*.
 . Under *Owner*, select *Change*.
 . Enter `Creator Owner` into the *Enter the Object Name...* field.
 . Select *Check Names*.
 . Select *Apply*.
 .. If prompted *Do you wish to continue*, select *Yes*.
-. Remove all Permission Entries for any groups or users with access to <${branding}_HOME> other than *System*, *Administrators*, and *Creator Owner*.
+. Remove all Permission Entries for any groups or users with access to ${home_directory} other than *System*, *Administrators*, and *Creator Owner*.
 .. Note: If prompted with a message such as: *You can’t remove X because this object is inheriting permissions from its parent.* when removing entries from the Permission entries table:
 ... Select *Disable Inheritance*.
 ... Select *Convert Inherited Permissions into explicit permissions on this object*.
@@ -54,15 +54,15 @@ Set directory permissions on the `<${branding}_HOME>`; all sub-directories excep
 ****
 Set directory permissions to protect the ${branding} from unauthorized access.
 
-* Change ownership of `<${branding}_HOME>`
-** `chown -R ${branding-lowercase}-user <${branding}_HOME>`
+* Change ownership of `${home_directory}`
+** `chown -R ${branding-lowercase}-user ${home_directory}`
 * Create instances sub-directory if does not exist
-** `mkdir -p <${branding}_HOME>/instances <${branding}_HOME>/solr`
+** `mkdir -p ${home_directory}/instances ${home_directory}/solr`
 * Change group ownership on sub-directories
-** `chgrp -R ${branding}_GROUP <${branding}_HOME>/etc <${branding}_HOME>/data <${branding}_HOME>/instances <${branding}_HOME>/solr`
+** `chgrp -R ${branding}_GROUP ${home_directory}/etc ${home_directory}/data ${home_directory}/instances ${home_directory}/solr`
 * Change group permissions
-** `chmod -R g-w <${branding}_HOME>/etc <${branding}_HOME>/data <${branding}_HOME>/instances <${branding}_HOME>/solr`
+** `chmod -R g-w ${home_directory}/etc ${home_directory}/data ${home_directory}/instances ${home_directory}/solr`
 * Remove permissions for other users
-** `chmod -R o-rwx <${branding}_HOME>/etc <${branding}_HOME>/data <${branding}_HOME>/instances`
+** `chmod -R o-rwx ${home_directory}/etc ${home_directory}/data ${home_directory}/instances`
 ****
 

@@ -29,7 +29,7 @@ To install:
 
 ====  Customizing ${ddf-registry} Fields
 
-All the fields that appear in a registry node are customizable. This is done through a JSON configuration file located at ``<${branding}_HOME>/etc/registry/registry-custom-slots.json`` that defines the registry fields. In this file there are JSON objects that relate to each part of the edit registry modal.
+All the fields that appear in a registry node are customizable. This is done through a JSON configuration file located at ``${home_directory}/etc/registry/registry-custom-slots.json`` that defines the registry fields. In this file there are JSON objects that relate to each part of the edit registry modal.
 These objects are
 
 * General

@@ -14,4 +14,3 @@ ${ddf-branding} is:
 * a flexible and modular integration framework.
 * built to "unzip and run" even when scaled to large enterprise systems.
 * primarily focused on data integration, enabling clients to insert, query, and transform information from disparate data sources via the ${ddf-branding} Catalog.
-

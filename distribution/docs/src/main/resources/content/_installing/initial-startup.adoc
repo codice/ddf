@@ -11,12 +11,12 @@ Run the ${branding} using the appropriate script.
 
 .*NIX
 ----
-<${branding}_HOME>/bin/${branding-lowercase}
+${home_directory}/bin/${branding-lowercase}
 ----
 
 .Windows
 ----
-<${branding}_HOME>/bin/${branding-lowercase}.bat
+${home_directory}/bin/${branding-lowercase}.bat
 ----
 
 The distribution takes a few moments to load depending on the hardware configuration.

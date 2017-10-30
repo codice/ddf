@@ -50,7 +50,7 @@ Plugins are called in a specific order during different operations. <<_developin
 |                       |                      |
 |                       v                      |
 | /------------------------------------------\ |
-| |      AccessPlugin.processPostQuery  c369| |
+| |      AccessPlugin.processPostQuery   c369| |
 | \------------------------------------------/ |
 |                       |                      |
 |                       v                      |
