@@ -11,8 +11,9 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.operation.faceting;
+package ddf.catalog.operation.impl;
 
+import ddf.catalog.operation.TermFacetProperties;
 import java.util.HashSet;
 import java.util.Set;
 

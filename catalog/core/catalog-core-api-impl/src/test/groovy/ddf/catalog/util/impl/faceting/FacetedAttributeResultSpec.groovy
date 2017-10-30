@@ -14,6 +14,7 @@
 
 package ddf.catalog.operation.faceting
 
+import ddf.catalog.operation.impl.FacetAttributeResultImpl
 import spock.lang.Specification
 
 class FacetedAttributeResultSpec extends Specification {

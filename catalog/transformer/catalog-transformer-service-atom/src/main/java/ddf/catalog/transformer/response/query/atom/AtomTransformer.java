@@ -185,7 +185,6 @@ public class AtomTransformer implements QueryResponseTransformer {
     feed.addLink("#", Link.REL_SELF);
 
     if (!StringUtils.isEmpty(SystemInfo.getOrganization())) {
-
       feed.addAuthor(SystemInfo.getOrganization());
     } else {
       feed.addAuthor(DEFAULT_AUTHOR);

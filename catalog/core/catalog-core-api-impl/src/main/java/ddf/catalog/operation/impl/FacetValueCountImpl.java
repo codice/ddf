@@ -11,7 +11,9 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.operation.faceting;
+package ddf.catalog.operation.impl;
+
+import ddf.catalog.operation.FacetValueCount;
 
 /** A simple tuple object pairing text faceting value results with their respective counts. */
 public class FacetValueCountImpl implements FacetValueCount {
