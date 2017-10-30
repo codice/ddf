@@ -8,14 +8,13 @@ while true; do
 
   # Argument to Karaf is optional.
   # Provides ability to start Karaf in different modes, e.g., server, client, etc.
-  $SCRIPTDIR/karaf "$1"
+  $SCRIPTDIR/karaf "$@"
   RC=$?
   if [ "$1" = "daemon" ]; then
     exit ${RC}
   else
     # Check if restart was requested by ddf_on_error.sh
     if [ -f "${SCRIPTDIR}/restart.jvm" ]; then
-      rm -f "${SCRIPTDIR}/restart.jvm"
       echo "Restarting JVM..."
     else
       exit $RC
