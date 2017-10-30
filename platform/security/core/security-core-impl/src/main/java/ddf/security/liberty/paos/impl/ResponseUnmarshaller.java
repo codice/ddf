@@ -26,6 +26,7 @@ import org.w3c.dom.Attr;
 public class ResponseUnmarshaller extends AbstractSAMLObjectUnmarshaller {
 
   /** {@inheritDoc} */
+  @Override
   protected void processAttribute(XMLObject samlObject, Attr attribute)
       throws UnmarshallingException {
     Response response = (Response) samlObject;

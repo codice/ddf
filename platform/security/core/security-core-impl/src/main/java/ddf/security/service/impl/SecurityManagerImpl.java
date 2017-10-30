@@ -133,14 +133,16 @@ public class SecurityManagerImpl implements SecurityManager {
   private SimplePrincipalCollection createPrincipalFromToken(SecurityToken token) {
     SimplePrincipalCollection principals = new SimplePrincipalCollection();
     for (Realm curRealm : realms) {
-      LOGGER.debug(
-          "Configuring settings for realm name: {} type: {}",
-          curRealm.getName(),
-          curRealm.getClass().toString());
-      LOGGER.debug(
-          "Is authorizer: {}, is AuthorizingRealm: {}",
-          curRealm instanceof Authorizer,
-          curRealm instanceof AuthorizingRealm);
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug(
+            "Configuring settings for realm name: {} type: {}",
+            curRealm.getName(),
+            curRealm.getClass().toString());
+        LOGGER.debug(
+            "Is authorizer: {}, is AuthorizingRealm: {}",
+            curRealm instanceof Authorizer,
+            curRealm instanceof AuthorizingRealm);
+      }
       SecurityAssertion securityAssertion = null;
       try {
         securityAssertion = new SecurityAssertionImpl(token, usernameAttributeList);
