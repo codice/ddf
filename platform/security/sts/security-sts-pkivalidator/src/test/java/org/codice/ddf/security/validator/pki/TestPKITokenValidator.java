@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.security.validator.pki;
 
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
@@ -29,6 +31,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 import org.apache.commons.io.IOUtils;
 import org.apache.cxf.sts.STSPropertiesMBean;
@@ -49,13 +52,15 @@ public class TestPKITokenValidator {
 
   private static Properties properties;
 
-  PKITokenValidator pkiTokenValidator;
+  private PKITokenValidator pkiTokenValidator;
 
-  X509Certificate[] certificates;
+  private X509Certificate[] certificates;
 
-  X509Certificate[] badCertificates;
+  private X509Certificate[] badCertificates;
 
-  Merlin merlin;
+  private X509Certificate[] userCertificates;
+
+  private Merlin merlin;
 
   @BeforeClass
   public static void setUpBeforeClass() {
@@ -112,6 +117,15 @@ public class TestPKITokenValidator {
                   TestPKITokenValidator.class.getResource("/signature.properties").getPath()),
               PKITokenValidator.class.getClassLoader(),
               null);
+
+      KeyStore keystore = KeyStore.getInstance(System.getProperty(SecurityConstants.KEYSTORE_TYPE));
+      try (InputStream keystoreIS =
+          TestPKITokenValidator.class.getResourceAsStream("/test-user.jks")) {
+        keystore.load(keystoreIS, "changeit".toCharArray());
+      }
+      Certificate cert = keystore.getCertificate("test");
+      userCertificates = new X509Certificate[] {(X509Certificate) cert};
+
     } catch (Exception e) {
       fail(e.getMessage());
     }
@@ -206,9 +220,38 @@ public class TestPKITokenValidator {
 
     assertEquals(
         "US", tokenValidatorResponse.getAdditionalProperties().get(SubjectUtils.COUNTRY_CLAIM_URI));
+    verifyEmail(tokenValidatorResponse, "localhost@example.org");
+  }
+
+  @Test
+  public void testValidateSubjectAlternativeNameEmailToken() throws Exception {
+    BinarySecurityTokenType binarySecurityTokenType = new BinarySecurityTokenType();
+    binarySecurityTokenType.setEncodingType(WSConstants.SOAPMESSAGE_NS + "#Base64Binary");
+    binarySecurityTokenType.setValueType(PKIAuthenticationToken.PKI_TOKEN_VALUE_TYPE);
+    PKIAuthenticationTokenFactory pkiAuthenticationTokenFactory =
+        new PKIAuthenticationTokenFactory();
+    pkiAuthenticationTokenFactory.init();
+    PKIAuthenticationToken pkiAuthenticationToken =
+        pkiAuthenticationTokenFactory.getTokenFromCerts(userCertificates, "karaf");
+    binarySecurityTokenType.setValue(pkiAuthenticationToken.getEncodedCredentials());
+    ReceivedToken receivedToken = mock(ReceivedToken.class);
+    when(receivedToken.getToken()).thenReturn(binarySecurityTokenType);
+    TokenValidatorParameters tokenValidatorParameters = mock(TokenValidatorParameters.class);
+    STSPropertiesMBean stsPropertiesMBean = mock(STSPropertiesMBean.class);
+    when(stsPropertiesMBean.getSignatureCrypto()).thenReturn(merlin);
+    when(tokenValidatorParameters.getStsProperties()).thenReturn(stsPropertiesMBean);
+    when(tokenValidatorParameters.getToken()).thenReturn(receivedToken);
+    doCallRealMethod().when(receivedToken).setState(any(ReceivedToken.STATE.class));
+    doCallRealMethod().when(receivedToken).getState();
+
+    TokenValidatorResponse tokenValidatorResponse =
+        pkiTokenValidator.validateToken(tokenValidatorParameters);
+    assertEquals(ReceivedToken.STATE.VALID, tokenValidatorResponse.getToken().getState());
+
     assertEquals(
-        "localhost@example.org",
-        tokenValidatorResponse.getAdditionalProperties().get(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI));
+        "US", tokenValidatorResponse.getAdditionalProperties().get(SubjectUtils.COUNTRY_CLAIM_URI));
+
+    verifyEmail(tokenValidatorResponse, "test2@test");
   }
 
   @Test
@@ -240,9 +283,8 @@ public class TestPKITokenValidator {
 
     assertEquals(
         "US", tokenValidatorResponse.getAdditionalProperties().get(SubjectUtils.COUNTRY_CLAIM_URI));
-    assertEquals(
-        "localhost@example.org",
-        tokenValidatorResponse.getAdditionalProperties().get(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI));
+
+    verifyEmail(tokenValidatorResponse, "localhost@example.org");
   }
 
   @Test
@@ -271,5 +313,14 @@ public class TestPKITokenValidator {
     TokenValidatorResponse tokenValidatorResponse =
         pkiTokenValidator.validateToken(tokenValidatorParameters);
     assertEquals(ReceivedToken.STATE.INVALID, tokenValidatorResponse.getToken().getState());
+  }
+
+  private void verifyEmail(TokenValidatorResponse tokenValidatorResponse, String emailAddress) {
+    List<String> emailAddresses =
+        (List<String>)
+            tokenValidatorResponse
+                .getAdditionalProperties()
+                .get(SubjectUtils.EMAIL_ADDRESS_CLAIM_URI);
+    assertThat(emailAddresses, hasItem(emailAddress));
   }
 }
