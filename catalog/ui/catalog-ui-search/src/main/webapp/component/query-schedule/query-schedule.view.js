@@ -110,9 +110,14 @@ define([
             this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
         },
         save: function() {
-            this.model.set({
-                polling: this.propertyInterval.currentView.model.getValue()[0]
-            });
+            var value =  this.propertyInterval.currentView.model.getValue()[0];
+            if (value === false) {
+                this.model.unset('polling');
+            } else {
+                this.model.set({
+                    polling: value
+                });
+            }
             this.cancel();
         }
     });

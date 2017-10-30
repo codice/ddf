@@ -26,10 +26,11 @@ define([
     'component/lightbox/lightbox.view.instance',
     'component/query-feedback/query-feedback.view',
     'component/confirmation/query/confirmation.query.view',
-    'component/loading/loading.view'
+    'component/loading/loading.view',
+    'component/query-annotations/query-annotations.view'
 ], function (wreqr, Marionette, _, $, template, CustomElements, 
     store, MenuNavigationDecorator, Decorators, lightboxInstance, 
-    QueryFeedbackView, QueryConfirmationView, LoadingView) {
+    QueryFeedbackView, QueryConfirmationView, LoadingView, QueryAnnotationsView) {
 
     return Marionette.ItemView.extend(Decorators.decorate({
         template: template,
@@ -44,6 +45,7 @@ define([
             'click .interaction-deleted': 'handleDeleted',
             'click .interaction-historic': 'handleHistoric',
             'click .interaction-feedback': 'handleFeedback',
+            'click .interaction-annotations': 'handleAnnotations',
             'click': 'handleClick'
         },
         ui: {
@@ -56,6 +58,10 @@ define([
             QueryConfirmationView = require('component/confirmation/query/confirmation.query.view');
         },
         onRender: function(){
+            this.handleLocal();
+        },
+        handleLocal: function() {
+            this.$el.toggleClass('is-local', this.model.isLocal());
         },
         startListeningToSearch: function(){
             this.listenToOnce(this.model, 'change:result', this.startListeningForResult);
@@ -122,6 +128,13 @@ define([
                 model: this.model
             }));
         },  
+        handleAnnotations: function() {
+            lightboxInstance.model.updateTitle('Search Notes');
+            lightboxInstance.model.open();
+            lightboxInstance.lightboxContent.show(new QueryAnnotationsView({
+                model: this.model
+            }));
+        },
         handleResult: function(){
             this.$el.toggleClass('has-results', this.model.get('result') !== undefined);
         },

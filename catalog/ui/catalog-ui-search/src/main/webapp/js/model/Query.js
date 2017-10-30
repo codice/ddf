@@ -81,8 +81,12 @@ define([
                     sortOrder: 'descending',
                     result: undefined,
                     serverPageIndex: 0,
-                    isAdvanced: false
+                    isAdvanced: false,
+                    isLocal: false
                 };
+            },
+            isLocal: function() {
+                return this.get('isLocal');
             },
             initialize: function () {
                 this.currentIndexForSource = {};
