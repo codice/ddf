@@ -65,7 +65,7 @@ module.exports = Marionette.LayoutView.extend({
     serializeData: function(){
         return {
             logo: properties.ui.vendorImage,
-            showLogo: properties.showLogo
+            showLogo: properties.showLogo && properties.ui.vendorImage !== ""
         };
     }
 });
