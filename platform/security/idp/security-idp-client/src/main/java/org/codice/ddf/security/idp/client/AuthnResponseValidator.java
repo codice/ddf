@@ -15,6 +15,7 @@ package org.codice.ddf.security.idp.client;
 
 import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.ValidationException;
+import org.codice.ddf.configuration.SystemBaseUrl;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.StatusCode;
@@ -27,8 +28,11 @@ public class AuthnResponseValidator {
 
   private final SimpleSign simpleSign;
 
-  public AuthnResponseValidator(SimpleSign simpleSign) {
+  private final boolean wasRedirectSigned;
+
+  public AuthnResponseValidator(SimpleSign simpleSign, boolean wasRedirectSigned) {
     this.simpleSign = simpleSign;
+    this.wasRedirectSigned = wasRedirectSigned;
   }
 
   public void validate(XMLObject xmlObject) throws ValidationException {
@@ -52,6 +56,18 @@ public class AuthnResponseValidator {
           "Received multiple assertions in AuthN response.  Only using the first assertion.");
     }
 
+    if (wasRedirectSigned) {
+      if (authnResponse.getDestination() == null) {
+        throw new ValidationException(
+            "Invalid Destination attribute, must be not null for signed responses.");
+      } else if (!authnResponse
+          .getDestination()
+          .equals(getSpAssertionConsumerServiceUrl(getSpIssuerId()))) {
+        throw new ValidationException(
+            "Invalid Destination attribute, does not match requested destination.");
+      }
+    }
+
     if (authnResponse.getSignature() != null) {
       try {
         simpleSign.validateSignature(
@@ -60,5 +76,15 @@ public class AuthnResponseValidator {
         throw new ValidationException("Invalid or untrusted signature.");
       }
     }
+  }
+
+  private String getSpAssertionConsumerServiceUrl(String spIssuerId) {
+    return spIssuerId + "/sso";
+  }
+
+  private String getSpIssuerId() {
+    return String.format(
+        "https://%s:%s%s/saml",
+        SystemBaseUrl.getHost(), SystemBaseUrl.getHttpsPort(), SystemBaseUrl.getRootContext());
   }
 }

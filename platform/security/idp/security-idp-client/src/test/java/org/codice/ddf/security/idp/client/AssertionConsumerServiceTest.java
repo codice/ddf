@@ -78,7 +78,7 @@ public class AssertionConsumerServiceTest {
   private static final String SIG_ALG_VAL = "http://www.w3.org/2000/09/xmldsig#rsa-sha1";
 
   private static final String SIGNATURE_VAL =
-      "UTSaVBKoDCw7BM6gLtaJOU7xXo5G4oHaZwvUaHE2Cc48IiJ4nCJLlTamGnGbec/MQhTXv//yHpGQ/jFoasQ4cJ0kRomGItdBQZoOLcmtZ2bJc8V8yTKNctEYziIG9NTQevZOoRCiVzClOFhflTqc+kZ4FZBjLgLBdtySP0OL08Q=";
+      "Xwl1U2xqGx9Q/mWvBSsvv3oolPODCTvs920soROMh54fNNRYA+3hEF1oIoC4IaR4IhZfpGTTwuVyoVBpWOGd/8jh515/056CAGezFsG/sD1E5h36XHnV+Xdnlua2wl+c9TfedynfIexRgL+IGTsTm6SPyM0W9B9ddjg96g8shEY=";
 
   private static String deflatedSamlResponse;
 
@@ -114,6 +114,7 @@ public class AssertionConsumerServiceTest {
         Resources.toString(
             Resources.getResource(getClass(), "/DeflatedSAMLResponse.txt"), Charsets.UTF_8);
     idpMetadata.setMetadata(metadata);
+    System.setProperty("org.codice.ddf.system.rootContext", "/services");
   }
 
   @Test
@@ -225,7 +226,8 @@ public class AssertionConsumerServiceTest {
     String badRequest =
         Resources.toString(Resources.getResource(getClass(), "/SAMLRequest.xml"), Charsets.UTF_8);
 
-    Response response = assertionConsumerService.processSamlResponse(badRequest, RELAY_STATE_VAL);
+    Response response =
+        assertionConsumerService.processSamlResponse(badRequest, RELAY_STATE_VAL, true);
     assertThat(
         "The http response was not 500 SEVER ERROR",
         response.getStatus(),
@@ -237,7 +239,7 @@ public class AssertionConsumerServiceTest {
     when(relayStates.decode(RELAY_STATE_VAL)).thenReturn("https://test/login?prevurl=/newurl");
 
     Response response =
-        assertionConsumerService.processSamlResponse(cannedResponse, RELAY_STATE_VAL);
+        assertionConsumerService.processSamlResponse(cannedResponse, RELAY_STATE_VAL, true);
     assertThat(
         "The http response was not 307 TEMPORARY REDIRECT",
         response.getStatus(),
@@ -253,7 +255,7 @@ public class AssertionConsumerServiceTest {
     when(relayStates.decode(RELAY_STATE_VAL)).thenReturn("https://test/login/?prevurl=/newurl");
 
     Response response =
-        assertionConsumerService.processSamlResponse(cannedResponse, RELAY_STATE_VAL);
+        assertionConsumerService.processSamlResponse(cannedResponse, RELAY_STATE_VAL, false);
     assertThat(
         "The http response was not 307 TEMPORARY REDIRECT",
         response.getStatus(),
@@ -269,7 +271,7 @@ public class AssertionConsumerServiceTest {
     when(relayStates.decode(RELAY_STATE_VAL)).thenReturn("https://test/login?blah=/newurl");
 
     Response response =
-        assertionConsumerService.processSamlResponse(cannedResponse, RELAY_STATE_VAL);
+        assertionConsumerService.processSamlResponse(cannedResponse, RELAY_STATE_VAL, false);
     assertThat(
         "The http response was not 307 TEMPORARY REDIRECT",
         response.getStatus(),
@@ -284,7 +286,7 @@ public class AssertionConsumerServiceTest {
   public void testProcessSamlResponseAuthnFailure() throws Exception {
     String failureRequest = cannedResponse.replace(StatusCode.SUCCESS, StatusCode.AUTHN_FAILED);
     Response response =
-        assertionConsumerService.processSamlResponse(failureRequest, RELAY_STATE_VAL);
+        assertionConsumerService.processSamlResponse(failureRequest, RELAY_STATE_VAL, false);
     assertThat(
         "The http response was not 500 SEVER ERROR",
         response.getStatus(),
@@ -295,7 +297,7 @@ public class AssertionConsumerServiceTest {
   public void testProcessSamlResponseRequestDenied() throws Exception {
     String failureRequest = cannedResponse.replace(StatusCode.SUCCESS, StatusCode.REQUEST_DENIED);
     Response response =
-        assertionConsumerService.processSamlResponse(failureRequest, RELAY_STATE_VAL);
+        assertionConsumerService.processSamlResponse(failureRequest, RELAY_STATE_VAL, false);
     assertThat(
         "The http response was not 500 SEVER ERROR",
         response.getStatus(),
@@ -307,7 +309,7 @@ public class AssertionConsumerServiceTest {
     String failureRequest =
         cannedResponse.replace(StatusCode.SUCCESS, StatusCode.REQUEST_UNSUPPORTED);
     Response response =
-        assertionConsumerService.processSamlResponse(failureRequest, RELAY_STATE_VAL);
+        assertionConsumerService.processSamlResponse(failureRequest, RELAY_STATE_VAL, false);
     assertThat(
         "The http response was not 500 SEVER ERROR",
         response.getStatus(),
@@ -319,7 +321,7 @@ public class AssertionConsumerServiceTest {
     String failureRequest =
         cannedResponse.replace(StatusCode.SUCCESS, StatusCode.UNSUPPORTED_BINDING);
     Response response =
-        assertionConsumerService.processSamlResponse(failureRequest, RELAY_STATE_VAL);
+        assertionConsumerService.processSamlResponse(failureRequest, RELAY_STATE_VAL, false);
     assertThat(
         "The http response was not 500 SEVER ERROR",
         response.getStatus(),
@@ -333,7 +335,7 @@ public class AssertionConsumerServiceTest {
             Resources.getResource(getClass(), "/SAMLResponse-noAssertion.xml"), Charsets.UTF_8);
 
     Response response =
-        assertionConsumerService.processSamlResponse(failureRequest, RELAY_STATE_VAL);
+        assertionConsumerService.processSamlResponse(failureRequest, RELAY_STATE_VAL, false);
     assertThat(
         "The http response was not 500 SEVER ERROR",
         response.getStatus(),
@@ -347,7 +349,7 @@ public class AssertionConsumerServiceTest {
             Resources.getResource(getClass(), "/SAMLResponse-nullAssertion.xml"), Charsets.UTF_8);
 
     Response response =
-        assertionConsumerService.processSamlResponse(failureRequest, RELAY_STATE_VAL);
+        assertionConsumerService.processSamlResponse(failureRequest, RELAY_STATE_VAL, false);
     assertThat(
         "The http response was not 307 TEMPORARY REDIRECT",
         response.getStatus(),
@@ -366,7 +368,7 @@ public class AssertionConsumerServiceTest {
             Charsets.UTF_8);
 
     Response response =
-        assertionConsumerService.processSamlResponse(failureRequest, RELAY_STATE_VAL);
+        assertionConsumerService.processSamlResponse(failureRequest, RELAY_STATE_VAL, false);
     assertThat(
         "The http response was not 500 SEVER ERROR",
         response.getStatus(),
@@ -381,7 +383,7 @@ public class AssertionConsumerServiceTest {
             Charsets.UTF_8);
 
     Response response =
-        assertionConsumerService.processSamlResponse(multipleAssertions, RELAY_STATE_VAL);
+        assertionConsumerService.processSamlResponse(multipleAssertions, RELAY_STATE_VAL, false);
     assertThat(
         "The http response was not 307 TEMPORARY REDIRECT",
         response.getStatus(),
@@ -394,7 +396,7 @@ public class AssertionConsumerServiceTest {
 
   @Test
   public void testProcessSamlResponseEmptySamlResponse() throws Exception {
-    Response response = assertionConsumerService.processSamlResponse("", RELAY_STATE_VAL);
+    Response response = assertionConsumerService.processSamlResponse("", RELAY_STATE_VAL, false);
     assertThat(
         "The http response was not 500 SEVER ERROR",
         response.getStatus(),
@@ -407,7 +409,7 @@ public class AssertionConsumerServiceTest {
         .when(loginFilter)
         .doFilter(any(ServletRequest.class), isNull(ServletResponse.class), any(FilterChain.class));
     Response response =
-        assertionConsumerService.processSamlResponse(this.cannedResponse, RELAY_STATE_VAL);
+        assertionConsumerService.processSamlResponse(this.cannedResponse, RELAY_STATE_VAL, false);
     assertThat(
         "The http response was not 500 SEVER ERROR",
         response.getStatus(),
@@ -416,7 +418,8 @@ public class AssertionConsumerServiceTest {
 
   @Test
   public void testProcessSamlResponseEmptyRelayState() throws Exception {
-    Response response = assertionConsumerService.processSamlResponse(this.cannedResponse, "");
+    Response response =
+        assertionConsumerService.processSamlResponse(this.cannedResponse, "", false);
     assertThat(
         "The http response was not 500 SEVER ERROR",
         response.getStatus(),

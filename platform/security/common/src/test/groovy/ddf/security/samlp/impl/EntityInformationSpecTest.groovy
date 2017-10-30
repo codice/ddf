@@ -106,7 +106,7 @@ class EntityInformationSpecTest extends Specification {
         EntityInformation entityInfo = getFakeEntityInfo()
 
         when:
-        def serviceInfo = entityInfo.getAssertionConsumerService(null, null)
+        def serviceInfo = entityInfo.getAssertionConsumerService(null, null, null)
 
         then:
         Binding.HTTP_REDIRECT.equals(serviceInfo.binding)
@@ -115,7 +115,7 @@ class EntityInformationSpecTest extends Specification {
         AuthnRequest authnRequest = Mock(AuthnRequest) {
             getProtocolBinding() >> Binding.HTTP_REDIRECT.uri
         }
-        serviceInfo = entityInfo.getAssertionConsumerService(authnRequest, Binding.HTTP_POST)
+        serviceInfo = entityInfo.getAssertionConsumerService(authnRequest, Binding.HTTP_POST, null)
 
         then:
         Binding.HTTP_REDIRECT.equals(serviceInfo.binding)
@@ -124,7 +124,7 @@ class EntityInformationSpecTest extends Specification {
         authnRequest = Mock(AuthnRequest) {
             getProtocolBinding() >> Binding.HTTP_POST.uri
         }
-        serviceInfo = entityInfo.getAssertionConsumerService(authnRequest, Binding.HTTP_REDIRECT)
+        serviceInfo = entityInfo.getAssertionConsumerService(authnRequest, Binding.HTTP_REDIRECT, null)
 
         then:
         Binding.HTTP_POST.equals(serviceInfo.binding)
@@ -133,7 +133,7 @@ class EntityInformationSpecTest extends Specification {
         authnRequest = Mock(AuthnRequest) {
             getProtocolBinding() >> Binding.HTTP_ARTIFACT.uri
         }
-        serviceInfo = entityInfo.getAssertionConsumerService(authnRequest, Binding.HTTP_POST)
+        serviceInfo = entityInfo.getAssertionConsumerService(authnRequest, Binding.HTTP_POST, null)
 
         then:
         Binding.HTTP_POST.equals(serviceInfo.binding)
@@ -147,7 +147,7 @@ class EntityInformationSpecTest extends Specification {
         EntityInformation entityInfo = new EntityInformation.Builder(ed, DEFAULT_BINDINGS).build()
 
         when:
-        def serviceInfo = entityInfo.getAssertionConsumerService(null, null)
+        def serviceInfo = entityInfo.getAssertionConsumerService(null, null, null)
 
         then: "should be only supported binding (post)"
         Binding.HTTP_POST.equals(serviceInfo.binding)
@@ -163,7 +163,7 @@ class EntityInformationSpecTest extends Specification {
         reflectAndSetDefaultAssertionConsumerService(entityInfo)
 
         when:
-        def serviceInfo = entityInfo.getAssertionConsumerService(null, null)
+        def serviceInfo = entityInfo.getAssertionConsumerService(null, null, null)
 
         then:
         Binding.HTTP_REDIRECT.equals(serviceInfo.binding)
@@ -199,7 +199,7 @@ class EntityInformationSpecTest extends Specification {
         Field f = entityInfo.class.getDeclaredField("defaultAssertionConsumerService")
         f.setAccessible(true)
         f.set(entityInfo,
-                new EntityInformation.ServiceInfo("https://default.com", Binding.HTTP_REDIRECT))
+                new EntityInformation.ServiceInfo("https://default.com", Binding.HTTP_REDIRECT, null))
         f.setAccessible(false)
     }
 
