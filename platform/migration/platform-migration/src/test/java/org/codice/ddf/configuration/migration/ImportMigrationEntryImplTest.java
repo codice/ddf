@@ -263,7 +263,6 @@ public class ImportMigrationEntryImplTest extends AbstractMigrationSupport {
 
   @Test
   public void restoreWithFilterWhenRequiredAndNotMatching() throws Exception {
-    InputStream inputStream = IOUtils.toInputStream(IMPORT_CONTENTS, Charsets.UTF_8);
     final ImportMigrationEntryImpl entry =
         new ImportMigrationEntryImpl(mockContext, importedFile.getName(), true);
 
@@ -452,16 +451,16 @@ public class ImportMigrationEntryImplTest extends AbstractMigrationSupport {
 
   @Test
   public void testRestoreWithFilterVerifyingFilterReceivingEntryPath() throws Exception {
-    final PathMatcher filter = Mockito.mock(PathMatcher.class);
+    final PathMatcher filter = mock(PathMatcher.class);
 
     final ImportMigrationEntryImpl entry =
         new ImportMigrationEntryImpl(mockContext, ENTRY_NAME, true);
 
-    Mockito.when(filter.matches(entry.getPath())).thenReturn(false);
+    when(filter.matches(entry.getPath())).thenReturn(false);
 
     entry.restore(false, filter);
 
-    Mockito.verify(filter).matches(entry.getPath());
+    verify(filter).matches(entry.getPath());
   }
 
   @Test

@@ -94,10 +94,6 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationSupport {
 
   private Path absoluteFilePath;
 
-  private Path absoluteFilePath2;
-
-  private Path absoluteFilePath3;
-
   private PathUtils pathUtils;
 
   private ExportMigrationEntryImpl entry;
@@ -111,8 +107,6 @@ public class ExportMigrationEntryImplTest extends AbstractMigrationSupport {
     createFile(createDirectory(DIRS3), FILENAME3);
     pathUtils = new PathUtils();
     absoluteFilePath = ddfHome.resolve(UNIX_NAME).toRealPath(LinkOption.NOFOLLOW_LINKS);
-    absoluteFilePath2 = ddfHome.resolve(UNIX_NAME2).toRealPath(LinkOption.NOFOLLOW_LINKS);
-    absoluteFilePath3 = ddfHome.resolve(UNIX_NAME3).toRealPath(LinkOption.NOFOLLOW_LINKS);
 
     Mockito.when(context.getPathUtils()).thenReturn(pathUtils);
     Mockito.when(context.getReport()).thenReturn(report);

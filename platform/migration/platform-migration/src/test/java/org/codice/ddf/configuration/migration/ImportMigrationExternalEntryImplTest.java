@@ -125,7 +125,7 @@ public class ImportMigrationExternalEntryImplTest extends AbstractMigrationSuppo
   public void restoreWithFilterSuccessfullyWithMatchingChecksumWhenNotMatching() throws Exception {
     assertThat(entry.restore(true, p -> false), equalTo(false));
 
-    verify(mockPathUtils, Mockito.never()).getChecksumFor(any(Path.class));
+    verify(mockPathUtils, never()).getChecksumFor(any(Path.class));
 
     verifyReportHasMatchingError(report, "does not match filter");
   }
@@ -417,10 +417,10 @@ public class ImportMigrationExternalEntryImplTest extends AbstractMigrationSuppo
   public void testRestoreWithFilterVerifyingFilterReceivingEntryPath() throws Exception {
     final PathMatcher filter = Mockito.mock(PathMatcher.class);
 
-    Mockito.when(filter.matches(entry.getPath())).thenReturn(false);
+    when(filter.matches(entry.getPath())).thenReturn(false);
 
     entry.restore(false, filter);
 
-    Mockito.verify(filter).matches(entry.getPath());
+    verify(filter).matches(entry.getPath());
   }
 }
