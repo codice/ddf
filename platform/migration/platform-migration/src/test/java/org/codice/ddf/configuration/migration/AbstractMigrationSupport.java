@@ -50,8 +50,7 @@ import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 
 /** Base class for test cases which handles setup for DDF_HOME. */
-@SuppressWarnings("squid:S2187" /* base class for test cases which handles setup for DDF_HOME */)
-public class AbstractMigrationTest {
+public class AbstractMigrationSupport {
   protected static final String MIGRATABLE_ID = "test-migratable";
 
   protected static final String VERSION = "3.1415";
@@ -82,7 +81,7 @@ public class AbstractMigrationTest {
    * @throws IOException if an I/O error occurs while reading the file
    */
   public static Map<String, ZipEntry> getEntriesFrom(Path path) throws IOException {
-    return AbstractMigrationTest.getEntriesFrom(
+    return AbstractMigrationSupport.getEntriesFrom(
         new BufferedInputStream(new FileInputStream(path.toFile())));
   }
 
@@ -96,7 +95,7 @@ public class AbstractMigrationTest {
   public static Map<String, ZipEntry> getEntriesFrom(ByteArrayOutputStream baos)
       throws IOException {
     baos.close(); // not really required!
-    return AbstractMigrationTest.getEntriesFrom(new ByteArrayInputStream(baos.toByteArray()));
+    return AbstractMigrationSupport.getEntriesFrom(new ByteArrayInputStream(baos.toByteArray()));
   }
 
   /**
@@ -221,7 +220,7 @@ public class AbstractMigrationTest {
    */
   public Path createFileFromResource(Path dir, String name, String resource) throws IOException {
     final File file = new File(ddfHome.resolve(dir).toFile(), name);
-    final InputStream is = AbstractMigrationTest.class.getResourceAsStream(resource);
+    final InputStream is = AbstractMigrationSupport.class.getResourceAsStream(resource);
 
     if (is == null) {
       throw new FileNotFoundException("resource '" + resource + "' not found");

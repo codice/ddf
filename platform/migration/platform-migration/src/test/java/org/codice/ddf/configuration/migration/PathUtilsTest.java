@@ -23,7 +23,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class PathUtilsTest extends AbstractMigrationTest {
+public class PathUtilsTest extends AbstractMigrationSupport {
   private PathUtils pathUtils;
 
   @Before

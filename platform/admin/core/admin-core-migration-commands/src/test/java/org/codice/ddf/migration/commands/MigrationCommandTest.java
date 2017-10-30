@@ -29,7 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class MigrationCommandTest extends AbstractMigrationCommandTest {
+public class MigrationCommandTest extends AbstractMigrationCommandSupport {
 
   private static final String MESSAGE = "test message.";
 

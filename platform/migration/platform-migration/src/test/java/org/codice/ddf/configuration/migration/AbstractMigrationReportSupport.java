@@ -21,9 +21,7 @@ import org.codice.ddf.migration.MigrationWarning;
 import org.junit.Before;
 
 /** Base class for report-type test cases which handles setup of various messages. */
-@SuppressWarnings(
-    "squid:S2187" /* base class for report-type test cases which handles setup of various messages */)
-public class AbstractMigrationReportTest extends AbstractMigrationTest {
+public class AbstractMigrationReportSupport extends AbstractMigrationSupport {
   protected static final String[] MESSAGE_STRINGS =
       new String[] {
         "warning1",
@@ -55,7 +53,7 @@ public class AbstractMigrationReportTest extends AbstractMigrationTest {
 
   protected final MigrationException[] exceptions = new MigrationException[ERRORS.length];
 
-  protected AbstractMigrationReportTest(MigrationOperation operation) {
+  protected AbstractMigrationReportSupport(MigrationOperation operation) {
     this.report = new MigrationReportImpl(operation, Optional.empty());
   }
 

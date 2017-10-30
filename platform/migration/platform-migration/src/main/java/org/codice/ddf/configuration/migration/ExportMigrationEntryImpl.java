@@ -45,8 +45,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** This class provides an implementation of the {@link ExportMigrationEntry}. */
-@SuppressWarnings(
-    "squid:S2160" /* the base class equals() is sufficient for our needs. entries are unique based on their paths */)
 public class ExportMigrationEntryImpl extends MigrationEntryImpl implements ExportMigrationEntry {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ExportMigrationEntryImpl.class);
@@ -363,5 +361,26 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
       IOUtils.closeQuietly(is);
     }
     return props.getProperty(pname);
+  }
+
+  /**
+   * The superclass implementation is sufficient for our needs.
+   *
+   * @param o the object to check
+   * @return true if equal
+   */
+  @Override
+  public boolean equals(Object o) {
+    return super.equals(o);
+  }
+
+  /**
+   * The superclass implementation is sufficient for our needs.
+   *
+   * @return the hashcode
+   */
+  @Override
+  public int hashCode() {
+    return super.hashCode();
   }
 }

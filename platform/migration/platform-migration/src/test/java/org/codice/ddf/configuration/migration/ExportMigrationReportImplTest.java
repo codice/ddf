@@ -29,7 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class ExportMigrationReportImplTest extends AbstractMigrationTest {
+public class ExportMigrationReportImplTest extends AbstractMigrationSupport {
 
   private static final String[] DIRS = new String[] {"path", "path2"};
 
