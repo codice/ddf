@@ -25,6 +25,7 @@ import org.w3c.dom.Element;
 public class ResponseMarshaller extends AbstractSAMLObjectMarshaller {
 
   /** {@inheritDoc} */
+  @Override
   protected void marshallAttributes(XMLObject xmlObject, Element domElement)
       throws MarshallingException {
     Response response = (Response) xmlObject;

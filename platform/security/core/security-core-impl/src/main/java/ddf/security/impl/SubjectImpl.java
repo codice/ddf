@@ -20,6 +20,8 @@ import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.support.DelegatingSubject;
 
+@SuppressWarnings(
+    "squid:S2055" /* Object is never serialized; it is serializable for contract purposes only.*/)
 public class SubjectImpl extends DelegatingSubject implements Subject {
 
   private static final long serialVersionUID = 1L;
@@ -55,9 +57,8 @@ public class SubjectImpl extends DelegatingSubject implements Subject {
   public boolean isGuest() {
     PrincipalCollection collection = getPrincipals();
     for (Object principal : collection.asList()) {
-      if (principal instanceof GuestPrincipal) {
-        return true;
-      } else if (principal.toString().startsWith(GuestPrincipal.GUEST_NAME_PREFIX)) {
+      if (principal instanceof GuestPrincipal
+          || principal.toString().startsWith(GuestPrincipal.GUEST_NAME_PREFIX)) {
         return true;
       }
     }

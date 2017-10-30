@@ -37,6 +37,7 @@ public class ConfigurationSecurityLogger implements SynchronousConfigurationList
   private ConfigurationAdmin configurationAdmin;
 
   @Override
+  @SuppressWarnings("squid:S1181" /* Intentionally catching all Throwable */)
   public void configurationEvent(ConfigurationEvent event) {
     AccessController.doPrivileged(
         (PrivilegedAction<Void>)
@@ -73,6 +74,7 @@ public class ConfigurationSecurityLogger implements SynchronousConfigurationList
             });
   }
 
+  @SuppressWarnings("squid:S00112" /* Generic RuntimeException is acceptable here */)
   private String dictionaryToString(Dictionary<String, Object> properties) {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     try {
