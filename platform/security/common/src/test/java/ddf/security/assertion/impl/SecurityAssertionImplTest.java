@@ -25,6 +25,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 import java.util.TimeZone;
 import javax.xml.bind.DatatypeConverter;
 import javax.xml.parsers.DocumentBuilder;
@@ -33,6 +35,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.junit.Test;
+import org.opensaml.saml.saml2.core.AuthnStatement;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -55,6 +58,8 @@ public class SecurityAssertionImplTest {
   private static final int NUM_NAUTH = 1;
 
   private static final int NUM_AUTHZ = 0;
+
+  private static final String SESSION_INDEX = "42";
 
   public static Document readXml(InputStream is)
       throws SAXException, IOException, ParserConfigurationException {
@@ -100,7 +105,14 @@ public class SecurityAssertionImplTest {
     assertEquals(PRINCIPAL, assertion.getPrincipal().getName());
     assertEquals(PRINCIPAL, assertion.getPrincipal().toString());
     assertEquals(NUM_ATTRIBUTES, assertion.getAttributeStatements().size());
-    assertEquals(NUM_NAUTH, assertion.getAuthnStatements().size());
+    List<AuthnStatement> authnStatements = assertion.getAuthnStatements();
+    assertEquals(NUM_NAUTH, authnStatements.size());
+    assertEquals(
+        (long) NUM_NAUTH, authnStatements.stream().map(AuthnStatement::getSessionIndex).count());
+    Optional<String> sessionIndex =
+        authnStatements.stream().map(AuthnStatement::getSessionIndex).findFirst();
+    assertTrue(sessionIndex.isPresent());
+    assertEquals(SESSION_INDEX, sessionIndex.get());
     assertEquals(
         DatatypeConverter.parseDateTime(BEFORE).getTimeInMillis(),
         assertion.getNotBefore().getTime());

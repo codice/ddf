@@ -149,9 +149,7 @@ import org.w3c.dom.Node;
 public class IdpEndpoint implements Idp {
 
   public static final String SERVICES_IDP_PATH = SystemBaseUrl.getRootContext() + "/idp";
-
   private static final Logger LOGGER = LoggerFactory.getLogger(IdpEndpoint.class);
-
   private static final String CERTIFICATES_ATTR = "javax.servlet.request.X509Certificate";
   private static final String IDP_LOGIN = "/idp/login";
   private static final String IDP_LOGOUT = "/idp/logout";
@@ -171,32 +169,19 @@ public class IdpEndpoint implements Idp {
   }
 
   protected CookieCache cookieCache = new CookieCache();
-
   private PKIAuthenticationTokenFactory tokenFactory;
-
   private SecurityManager securityManager;
-
   private AtomicReference<Map<String, EntityInformation>> serviceProviders =
       new AtomicReference<>();
-
   private List<String> spMetadata;
-
   private String indexHtml;
-
   private String submitForm;
-
   private String redirectPage;
-
   private String soapMessage;
-
   private Boolean strictSignature = true;
-
   private SystemCrypto systemCrypto;
-
   private LogoutMessage logoutMessage;
-
   private RelayStates<LogoutState> logoutStates;
-
   private boolean guestAccess = true;
 
   private Map<ServiceReference<SamlPresignPlugin>, SamlPresignPlugin> presignPlugins =
@@ -1223,6 +1208,8 @@ public class IdpEndpoint implements Idp {
     localLogoutState.setNameId(logoutRequest.getNameID().getValue());
     localLogoutState.setOriginalRequestId(logoutRequest.getID());
     localLogoutState.setInitialRelayState(relayState);
+    localLogoutState.setSessionIndexObjects(logoutRequest.getSessionIndexes());
+
     logoutStates.encode(cookie.getValue(), localLogoutState);
 
     cookieCache.removeSamlAssertion(cookie.getValue());
@@ -1251,7 +1238,9 @@ public class IdpEndpoint implements Idp {
         }
         LogoutRequest logoutRequest =
             logoutMessage.buildLogoutRequest(
-                logoutState.getNameId(), SystemBaseUrl.constructUrl(IDP_LOGOUT, true));
+                logoutState.getNameId(),
+                SystemBaseUrl.constructUrl(IDP_LOGOUT, true),
+                logoutState.getSessionIndexes());
         logoutState.setCurrentRequestId(logoutRequest.getID());
         logoutObject = logoutRequest;
         samlType = SamlProtocol.Type.REQUEST;
