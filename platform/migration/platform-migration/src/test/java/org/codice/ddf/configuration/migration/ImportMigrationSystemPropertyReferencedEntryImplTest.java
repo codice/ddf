@@ -31,7 +31,7 @@ import org.junit.Test;
 import org.mockito.AdditionalAnswers;
 import org.mockito.Mockito;
 
-public class ImportMigrationSystemPropertyReferencedEntryImplTest extends AbstractMigrationTest {
+public class ImportMigrationSystemPropertyReferencedEntryImplTest extends AbstractMigrationSupport {
   private static final String MIGRATABLE_NAME = "where/some/dir/test.txt";
 
   private static final Path MIGRATABLE_PATH =

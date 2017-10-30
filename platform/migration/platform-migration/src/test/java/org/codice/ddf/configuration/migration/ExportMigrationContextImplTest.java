@@ -39,7 +39,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class ExportMigrationContextImplTest extends AbstractMigrationTest {
+public class ExportMigrationContextImplTest extends AbstractMigrationSupport {
   private static final String PROPERTY_NAME = "test.property";
 
   private static final String PROPERTY_NAME2 = "test.property2";
@@ -630,7 +630,7 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
 
     zos.close();
 
-    final Map<String, ZipEntry> zentries = AbstractMigrationTest.getEntriesFrom(baos);
+    final Map<String, ZipEntry> zentries = AbstractMigrationSupport.getEntriesFrom(baos);
 
     Assert.assertThat(zentries.keySet(), Matchers.contains(MIGRATABLE_ID + '/' + MIGRATABLE_NAME));
   }
@@ -639,7 +639,7 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
   public void testCloseWithNoEntries() throws Exception {
     zos.close();
 
-    final Map<String, ZipEntry> zentries = AbstractMigrationTest.getEntriesFrom(baos);
+    final Map<String, ZipEntry> zentries = AbstractMigrationSupport.getEntriesFrom(baos);
 
     Assert.assertThat(zentries, Matchers.aMapWithSize(0));
   }
@@ -669,7 +669,7 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
     final OutputStream out = context.getOutputStreamFor(ENTRY);
 
     zos.close();
-    final Map<String, ZipEntry> zentries = AbstractMigrationTest.getEntriesFrom(baos);
+    final Map<String, ZipEntry> zentries = AbstractMigrationSupport.getEntriesFrom(baos);
 
     Assert.assertThat(out, Matchers.notNullValue());
     Assert.assertThat(zentries.keySet(), Matchers.contains(MIGRATABLE_ID + '/' + MIGRATABLE_NAME));
@@ -686,7 +686,7 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
     final OutputStream out2 = context.getOutputStreamFor(entry2);
 
     zos.close();
-    final Map<String, ZipEntry> zentries = AbstractMigrationTest.getEntriesFrom(baos);
+    final Map<String, ZipEntry> zentries = AbstractMigrationSupport.getEntriesFrom(baos);
 
     Assert.assertThat(out, Matchers.notNullValue());
     Assert.assertThat(out2, Matchers.notNullValue());
@@ -709,7 +709,7 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
 
     out.close();
     zos.close();
-    final Map<String, ZipEntry> zentries = AbstractMigrationTest.getEntriesFrom(baos);
+    final Map<String, ZipEntry> zentries = AbstractMigrationSupport.getEntriesFrom(baos);
 
     Assert.assertThat(zentries.keySet(), Matchers.contains(MIGRATABLE_ID + '/' + MIGRATABLE_NAME));
   }
@@ -721,7 +721,7 @@ public class ExportMigrationContextImplTest extends AbstractMigrationTest {
     out.close();
     out.close();
     zos.close();
-    final Map<String, ZipEntry> zentries = AbstractMigrationTest.getEntriesFrom(baos);
+    final Map<String, ZipEntry> zentries = AbstractMigrationSupport.getEntriesFrom(baos);
 
     Assert.assertThat(zentries.keySet(), Matchers.contains(MIGRATABLE_ID + '/' + MIGRATABLE_NAME));
   }

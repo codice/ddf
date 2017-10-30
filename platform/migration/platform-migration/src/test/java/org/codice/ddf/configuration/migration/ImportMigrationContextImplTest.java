@@ -39,7 +39,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class ImportMigrationContextImplTest extends AbstractMigrationTest {
+public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
 
   private static final String[] DIRS = new String[] {"where", "some", "dir"};
 

@@ -40,8 +40,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** This class provides an implementation of the {@link ImportMigrationEntry} interface. */
-@SuppressWarnings(
-    "squid:S2160" /* the base class equals() is sufficient for our needs. entries are unique based on their paths */)
 public class ImportMigrationEntryImpl extends MigrationEntryImpl implements ImportMigrationEntry {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ImportMigrationEntryImpl.class);
@@ -354,5 +352,26 @@ public class ImportMigrationEntryImpl extends MigrationEntryImpl implements Impo
         SecurityLogger.audit("Error disabling write privileges for file {}", file);
       }
     }
+  }
+
+  /**
+   * The superclass implementation is sufficient for our needs.
+   *
+   * @param o the object to check
+   * @return true if equal
+   */
+  @Override
+  public boolean equals(Object o) {
+    return super.equals(o);
+  }
+
+  /**
+   * The superclass implementation is sufficient for our needs.
+   *
+   * @return the hashcode
+   */
+  @Override
+  public int hashCode() {
+    return super.hashCode();
   }
 }
