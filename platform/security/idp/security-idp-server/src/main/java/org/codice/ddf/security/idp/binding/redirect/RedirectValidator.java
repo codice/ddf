@@ -78,6 +78,7 @@ public class RedirectValidator extends ValidatorImpl implements Validator {
         if (!result) {
           throw new ValidationException("Signature verification failed for redirect binding.");
         }
+        checkDestination(authnRequest);
       } else {
         throw new SimpleSign.SignatureException("No signature present for AuthnRequest.");
       }

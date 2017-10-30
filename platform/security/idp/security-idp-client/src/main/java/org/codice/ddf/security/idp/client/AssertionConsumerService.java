@@ -125,7 +125,7 @@ public class AssertionConsumerService {
       @FormParam(SAML_RESPONSE) String encodedSamlResponse,
       @FormParam(RELAY_STATE) String relayState) {
 
-    return processSamlResponse(decodeBase64(encodedSamlResponse), relayState);
+    return processSamlResponse(decodeBase64(encodedSamlResponse), relayState, false);
   }
 
   @POST
@@ -135,9 +135,9 @@ public class AssertionConsumerService {
       SOAPPart soapMessage = SamlProtocol.parseSoapMessage(IOUtils.toString(body));
       String relayState = getRelayState(soapMessage);
       org.opensaml.saml.saml2.core.Response samlpResponse = getSamlpResponse(soapMessage);
-      boolean validateResponse = validateResponse(samlpResponse);
+      boolean validateResponse = validateResponse(samlpResponse, false);
       if (validateResponse) {
-        return processSamlResponse(samlpResponse, relayState);
+        return processSamlResponse(samlpResponse, relayState, false);
       }
     } catch (XMLStreamException e) {
       LOGGER.debug("Unable to parse SOAP message from response.", e);
@@ -188,7 +188,8 @@ public class AssertionConsumerService {
 
     if (validateSignature(deflatedSamlResponse, relayState, signatureAlgorithm, signature)) {
       try {
-        return processSamlResponse(RestSecurity.inflateBase64(deflatedSamlResponse), relayState);
+        return processSamlResponse(
+            RestSecurity.inflateBase64(deflatedSamlResponse), relayState, signature != null);
       } catch (IOException e) {
         String msg = "Unable to decode and inflate AuthN response.";
         LOGGER.info(msg, e);
@@ -233,12 +234,14 @@ public class AssertionConsumerService {
   }
 
   public Response processSamlResponse(
-      org.opensaml.saml.saml2.core.Response samlResponse, String relayState) {
+      org.opensaml.saml.saml2.core.Response samlResponse,
+      String relayState,
+      boolean wasRedirectSigned) {
     if (samlResponse == null) {
       return Response.serverError().entity("Unable to parse AuthN response.").build();
     }
 
-    if (!validateResponse(samlResponse)) {
+    if (!validateResponse(samlResponse, wasRedirectSigned)) {
       return Response.serverError().entity("AuthN response failed validation.").build();
     }
 
@@ -292,16 +295,19 @@ public class AssertionConsumerService {
     return Response.temporaryRedirect(relayUri).build();
   }
 
-  public Response processSamlResponse(String authnResponse, String relayState) {
+  public Response processSamlResponse(
+      String authnResponse, String relayState, boolean wasRedirectSigned) {
     LOGGER.trace(authnResponse);
 
     org.opensaml.saml.saml2.core.Response samlResponse = extractSamlResponse(authnResponse);
-    return processSamlResponse(samlResponse, relayState);
+    boolean responseHasSignature = samlResponse != null && samlResponse.getSignature() != null;
+    return processSamlResponse(samlResponse, relayState, wasRedirectSigned || responseHasSignature);
   }
 
-  private boolean validateResponse(org.opensaml.saml.saml2.core.Response samlResponse) {
+  private boolean validateResponse(
+      org.opensaml.saml.saml2.core.Response samlResponse, boolean wasRedirectSigned) {
     try {
-      AuthnResponseValidator validator = new AuthnResponseValidator(simpleSign);
+      AuthnResponseValidator validator = new AuthnResponseValidator(simpleSign, wasRedirectSigned);
       validator.validate(samlResponse);
     } catch (ValidationException e) {
       LOGGER.info("Invalid AuthN response received from {}", samlResponse.getIssuer(), e);
