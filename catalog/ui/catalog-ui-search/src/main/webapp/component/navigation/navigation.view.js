@@ -67,15 +67,6 @@ module.exports = Marionette.LayoutView.extend({
     },
     handleLogo: function() {
         var hasLogo = properties.showLogo && properties.ui.vendorImage !== "";
-        if (hasLogo) {
-          if (properties.ui.vendorImageAspectRatio !== null && properties.ui.vendorImageAspectRatio > 1.05) {
-            this.$el.toggleClass('has-logo-1-to-1', false);
-            this.$el.toggleClass('has-logo-1-to-2', true);
-          } else {
-            this.$el.toggleClass('has-logo-1-to-1', true);
-            this.$el.toggleClass('has-logo-1-to-2', false);
-          }
-        }
-
+        this.$el.toggleClass('has-logo', hasLogo);
     }
 });
