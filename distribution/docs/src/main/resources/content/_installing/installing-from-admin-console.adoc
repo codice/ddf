@@ -5,9 +5,9 @@
 :project: ${branding}
 :order: 03
 
-==== Completing Installation from the ${admin-console}
+===== Completing Installation from the ${admin-console}
 
-Upon startup, complete installation by navigating to the ${admin-console} at ${secure_url}/admin.
+Upon startup, the installation can be completed by navigating to the ${admin-console} at ${secure_url}/admin.
 
 .Internet Explorer 10 TLS Warning
 [WARNING]
