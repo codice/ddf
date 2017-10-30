@@ -88,10 +88,17 @@ public class CertificateClaimsHandler implements ClaimsHandler, RealmSupport {
     if (value == null) {
       return;
     }
+
     ProcessedClaim c = new ProcessedClaim();
     c.setClaimType(claimType);
     c.setPrincipal(principal);
-    c.addValue(value);
+
+    if (value instanceof List) {
+      List<?> valueList = (List<?>) value;
+      valueList.forEach(c::addValue);
+    } else {
+      c.addValue(value);
+    }
     claimsColl.add(c);
   }
 
