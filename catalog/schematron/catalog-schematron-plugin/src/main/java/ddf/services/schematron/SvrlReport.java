@@ -25,6 +25,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import org.codice.ddf.platform.util.XMLUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -245,7 +246,7 @@ public class SvrlReport implements SchematronReport {
     Writer sw = new StringWriter();
     PrintWriter out = new PrintWriter(sw);
 
-    TransformerFactory tfactory = TransformerFactory.newInstance();
+    TransformerFactory tfactory = XMLUtils.getInstance().getSecureXmlTransformerFactory();
     Transformer transformer = tfactory.newTransformer();
     Properties props = new Properties();
     props.put("method", "xml");

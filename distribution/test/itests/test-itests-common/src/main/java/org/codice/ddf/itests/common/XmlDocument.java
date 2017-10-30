@@ -46,6 +46,8 @@ public class XmlDocument {
    */
   public static Document build(String input, boolean isNamespaceAware) throws Exception {
     DocumentBuilderFactory factory = XML_UTILS.getSecureDocumentBuilderFactory();
+    // Required for IdpEndpointTest because of HTML <!DOCTYPE html> declaration
+    factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false);
     factory.setNamespaceAware(isNamespaceAware);
     factory.setExpandEntityReferences(false);
     return factory
