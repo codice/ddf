@@ -39,7 +39,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ImportMigrationExternalEntryImplTest extends AbstractMigrationTest {
+public class ImportMigrationExternalEntryImplTest extends AbstractMigrationSupport {
 
   public static final String ENTRY_NAME = "Entry name";
 

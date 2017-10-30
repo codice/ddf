@@ -42,7 +42,7 @@ import org.junit.Test;
 import org.mockito.AdditionalAnswers;
 import org.mockito.Mockito;
 
-public class ExportMigrationEntryImplTest extends AbstractMigrationTest {
+public class ExportMigrationEntryImplTest extends AbstractMigrationSupport {
   private static final String[] DIRS = new String[] {"path", "path2"};
 
   private static final String FILENAME = "file.ext";

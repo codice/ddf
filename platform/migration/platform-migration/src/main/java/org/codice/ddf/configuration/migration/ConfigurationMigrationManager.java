@@ -145,8 +145,6 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
     return AccessUtils.doPrivileged(() -> doImport(exportDirectory, Optional.of(consumer)));
   }
 
-  @SuppressWarnings(
-      "squid:S2093" /* try-with-resource will throw IOException with InputStream and we do not care to get that exception */)
   @VisibleForTesting
   void delegateToImportMigrationManager(MigrationReportImpl report, Path exportFile) {
     final ImportMigrationManagerImpl mgr =

@@ -36,7 +36,7 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-public class ImportMigrationManagerImplTest extends AbstractMigrationReportTest {
+public class ImportMigrationManagerImplTest extends AbstractMigrationReportSupport {
   private static final String MIGRATABLE_ID2 = "test-migratable-2";
 
   private static final String MIGRATABLE_ID3 = "test-migratable-3";
