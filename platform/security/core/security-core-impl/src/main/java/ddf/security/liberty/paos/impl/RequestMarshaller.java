@@ -25,6 +25,7 @@ import org.w3c.dom.Element;
 public class RequestMarshaller extends AbstractSAMLObjectMarshaller {
 
   /** {@inheritDoc} */
+  @Override
   protected void marshallAttributes(XMLObject xmlObject, Element domElement)
       throws MarshallingException {
     Request request = (Request) xmlObject;
