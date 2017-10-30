@@ -40,8 +40,7 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 
 /** Base class for migration command test classes. */
-@SuppressWarnings("squid:S2187" /* base class for migration command test classes */)
-public class AbstractMigrationCommandTest {
+public class AbstractMigrationCommandSupport {
 
   protected static final String SUBJECT_NAME = "test.subject";
 

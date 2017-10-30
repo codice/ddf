@@ -61,7 +61,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ConfigurationMigrationManagerTest extends AbstractMigrationTest {
+public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport {
 
   public static final String TEST_VERSION = "1.0";
 

@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.mockito.Answers;
 import org.mockito.Mockito;
 
-public class ExportMigrationPropertyReferencedEntryImplTest extends AbstractMigrationTest {
+public class ExportMigrationPropertyReferencedEntryImplTest extends AbstractMigrationSupport {
   private static final String[] DIRS = new String[] {"path", "path2"};
 
   private static final String FILENAME = "file.ext";

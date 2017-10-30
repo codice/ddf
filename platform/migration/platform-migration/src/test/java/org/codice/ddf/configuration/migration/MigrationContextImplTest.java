@@ -28,7 +28,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class MigrationContextImplTest extends AbstractMigrationReportTest {
+public class MigrationContextImplTest extends AbstractMigrationReportSupport {
   private MigrationContextImpl<MigrationReport> context;
 
   public MigrationContextImplTest() {

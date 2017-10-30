@@ -36,10 +36,12 @@ public final class CacheStrategy {
       new CacheStrategy(
           "FEDERATED", m -> !m.getSourceId().equals(CacheStrategy.localSourceIdSupplier.get()));
 
-  // squid:S00108 -  Nested blocks of code should not be left empty
-  @SuppressWarnings(
-      "squid:S00108" /*The Consumer being supplied is intended to be a no-op consumer, which disables caching. */)
-  public static final CacheStrategy NONE = new CacheStrategy("NONE", (rs, c) -> {});
+  public static final CacheStrategy NONE =
+      new CacheStrategy(
+          "NONE",
+          (rs, c) -> {
+            /*noop*/
+          });
 
   private BiConsumer<Collection<Result>, Consumer<Metacard>> cacheStrategyFunction;
 

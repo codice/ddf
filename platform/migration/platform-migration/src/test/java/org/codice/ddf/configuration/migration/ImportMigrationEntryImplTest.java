@@ -51,7 +51,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ImportMigrationEntryImplTest extends AbstractMigrationTest {
+public class ImportMigrationEntryImplTest extends AbstractMigrationSupport {
 
   public static final String IMPORT_CONTENTS = "import contents";
 
