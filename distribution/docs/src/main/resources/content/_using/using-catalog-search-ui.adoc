@@ -28,7 +28,7 @@ The default view for ${catalog-ui} is the *Workspaces* view. For other views or 
 
 image::navigator-icon.png[navigator icon]
 
-.Select the desired view from the *Mavigation* menu.
+.Select the desired view from the *Navigation* menu.
 image::navigator-menu-icon.png[navigation menu]
 
 === Workspaces in ${catalog-ui}
@@ -399,4 +399,4 @@ image::catalog-ui-settings-options.png[]
 
 ==== ${catalog-ui} Notifications
 
-Notifications can be checked/dismissed by clicking the *Notifications* icon (image:notifications-icon.png[]) on the navigator bar.
+Notifications can be checked/dismissed by clicking the *Notifications* icon (image:notifications-icon.png[]) on the navigation bar.
