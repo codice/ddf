@@ -6,6 +6,8 @@
 :order: 05
 :summary: ${ddf-solr} whitelist.
 
+== {title}
+
 The following classes have been exported by the ${ddf-solr} application and are approved for use by third parties:
 
 None.

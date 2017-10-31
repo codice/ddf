@@ -1,10 +1,13 @@
-:title: Media
+:title: Media Attributes Table
 :type: subAppendix
+:order: 06
 :parent: Catalog Taxonomy
 :status: published
 :summary: Attributes in this group reflect metadata about media in general.
 
-.[[_media_attributes_table]]Media: Attributes in this group reflect metadata about media in general.
+== {title}
+
+.Media: Attributes in this group reflect metadata about media in general.
 [cols="1,2,1,1,1" options="header"]
 |===
 |Term
