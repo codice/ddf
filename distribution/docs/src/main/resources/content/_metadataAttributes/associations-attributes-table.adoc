@@ -1,10 +1,13 @@
-﻿:title: Associations
+﻿:title: Associations Attributes Table
 :type: subAppendix
+:order: 01
 :parent: Catalog Taxonomy
 :status: published
 :summary: Attributes in this group represent associations between products.
 
-.[[_associations_attributes_table]]Associations: Attributes in this group represent associations between products.
+== {title}
+
+.Associations: Attributes in this group represent associations between products.
 [cols="1,2,1,1,1" options="header"]
 |===
 

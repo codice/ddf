@@ -2,10 +2,10 @@
 :type: appendix
 :status: published
 :parent: ${ddf-branding} Dependency List
-:children: none
 :order: 00
 :summary: ${ddf-branding} ${project.version} Dependency List.
 
+.{summary} {status}
 * antlr:antlr:jar:2.7.7
 * c3p0:c3p0:jar:0.9.1.1
 * ca.juliusdavies:not-yet-commons-ssl:jar:0.3.11

@@ -1,10 +1,13 @@
-:title: DateTime
+:title: DateTime Attributes Table
 :type: subAppendix
+:order: 03
 :parent: Catalog Taxonomy
 :status: published
 :summary: Attributes in this group reflect temporal aspects about the resource.  
 
-.[[_datetime_attributes_table]]DateTime: Attributes in this group reflect temporal aspects about the resource.  
+== {title}
+
+.DateTime: Attributes in this group reflect temporal aspects about the resource.  
 [cols="5" options="header"]
 |===
 |Term

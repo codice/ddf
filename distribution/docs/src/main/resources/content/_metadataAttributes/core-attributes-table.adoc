@@ -1,10 +1,13 @@
-:title: Core Attributes
+:title: Core Attributes Table
 :type: subAppendix
+:order: 00
 :parent: Catalog Taxonomy
 :status: published
 :summary: Core Attributes.
 
-.[[_core_attributes_table]]Core Attributes
+== {title}
+
+.Core Attributes
 [cols="1,2,1,1,1" options="header"]
 |===
 |Term

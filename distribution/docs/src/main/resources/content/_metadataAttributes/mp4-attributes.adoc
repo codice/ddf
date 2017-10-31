@@ -1,8 +1,11 @@
 :title: Mp4 Additional Attribute
 :type: subAppendix
-:parent: Metadata Attributes
+:order: 10
+:parent: Format-specific Attribute Mappings
 :status: published
 :summary: Additional attribute for Mp4 files.
+
+== {title}
 
 Mp4 files have an additional attribute:
 
