@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.cxf.SecureCxfClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +29,15 @@ import org.slf4j.LoggerFactory;
 public class SolrRest {
   private static final Logger LOGGER = LoggerFactory.getLogger(SolrRest.class);
 
-  private static final String SOLR_URL_PROPERTY = "solrSchemaUrl";
+  private static final String SOLR_BASE_URL_PROPERTY = "solrBaseUrl";
+
+  private static final String SOLR_CATALOG_CORE = "/catalog";
+
+  private static final String SOLR_METACARD_CACHE_CORE = "/metacard_cache";
+
+  private static final String SOLR_SCHEMA_URI = "/schema";
+
+  private static final String SOLR_UPDATE_URI = "/update";
 
   private static final String K1_PROPERTY = "k1";
 
@@ -38,7 +47,13 @@ public class SolrRest {
 
   private List fieldTypes;
 
-  private SecureCxfClientFactory<SolrRestClient> factory;
+  private SecureCxfClientFactory<SolrRestClient> solrCatalogSchemaClientFactory;
+
+  private SecureCxfClientFactory<SolrUpdateClient> solrCatalogUpdateClientFactory;
+
+  private SecureCxfClientFactory<SolrRestClient> solrMetacardCacheSchemaClientFactory;
+
+  private SecureCxfClientFactory<SolrUpdateClient> solrMetacardCacheUpdateClientFactory;
 
   private Float k1;
 
@@ -46,7 +61,7 @@ public class SolrRest {
 
   private Float b;
 
-  private String solrSchemaUrl;
+  private String solrBaseUrl;
 
   public SolrRest() {
     gson = new Gson();
@@ -62,10 +77,6 @@ public class SolrRest {
     this.b = b;
   }
 
-  public void setSolrSchemaUrl(String solrSchemaUrl) {
-    this.solrSchemaUrl = solrSchemaUrl;
-  }
-
   public Float getK1() {
     return k1;
   }
@@ -74,26 +85,38 @@ public class SolrRest {
     return b;
   }
 
-  public String getSolrSchemaUrl() {
-    return solrSchemaUrl;
+  public void setSolrBaseUrl(String solrBaseUrl) {
+    this.solrBaseUrl = solrBaseUrl;
+  }
+
+  public String getSolrBaseUrl() {
+    return solrBaseUrl;
   }
 
   public void getProperties() {
     try {
-      String response = factory.getClient().getFieldTypes("json");
+      String response = solrCatalogSchemaClientFactory.getClient().getFieldTypes("json");
 
       Map<String, Object> map =
           gson.fromJson(response, new TypeToken<Map<String, Object>>() {}.getType());
 
       fieldTypes = (ArrayList<Object>) map.get("fieldTypes");
     } catch (Exception e) {
-      LOGGER.debug("Unable to getProperties from: {}", solrSchemaUrl, e);
+      LOGGER.debug("Unable to getProperties from: {}", getSolrCatalogSchemaUrl(), e);
     }
   }
 
   public void init() {
-    if (solrSchemaUrl != null) {
-      factory = new SecureCxfClientFactory<>(solrSchemaUrl, SolrRestClient.class);
+    if (StringUtils.isNotBlank(solrBaseUrl)) {
+      solrCatalogSchemaClientFactory =
+          new SecureCxfClientFactory<>(getSolrCatalogSchemaUrl(), SolrRestClient.class);
+      solrCatalogUpdateClientFactory =
+          new SecureCxfClientFactory<>(getSolrCatalogUpdateUrl(), SolrUpdateClient.class);
+      solrMetacardCacheSchemaClientFactory =
+          new SecureCxfClientFactory<>(getSolrMetacardCacheSchemaUrl(), SolrRestClient.class);
+      solrMetacardCacheUpdateClientFactory =
+          new SecureCxfClientFactory<>(getSolrMetacardCacheUpdateUrl(), SolrUpdateClient.class);
+
       similarityFormat = new LinkedTreeMap<>();
       similarityFormat.put("class", "solr.BM25SimilarityFactory");
       similarityFormat.put(K1_PROPERTY, k1);
@@ -112,9 +135,9 @@ public class SolrRest {
 
     LOGGER.trace("Refresh configuration with properties: {}", properties);
 
-    Object solrUrlObject = properties.get(SOLR_URL_PROPERTY);
+    Object solrUrlObject = properties.get(SOLR_BASE_URL_PROPERTY);
     if (solrUrlObject instanceof String) {
-      setSolrSchemaUrl((String) solrUrlObject);
+      setSolrBaseUrl((String) solrUrlObject);
     }
 
     Object k1Object = properties.get(K1_PROPERTY);
@@ -132,21 +155,46 @@ public class SolrRest {
 
   private void setSimilarities() {
     if (CollectionUtils.isNotEmpty(fieldTypes)) {
+      LinkedTreeMap<String, Object> replaceField = new LinkedTreeMap<>();
       for (Object fieldType : fieldTypes) {
         LinkedTreeMap<String, Object> objectLinkedTreeMap =
             (LinkedTreeMap<String, Object>) fieldType;
         objectLinkedTreeMap.put("similarity", similarityFormat);
-        LinkedTreeMap<String, Object> replaceField = new LinkedTreeMap<>();
         replaceField.put("replace-field-type", objectLinkedTreeMap);
 
         if (LOGGER.isTraceEnabled()) {
           LOGGER.trace("Replacing field: {}", gson.toJson(replaceField));
         }
 
-        String response = factory.getClient().replaceField(gson.toJson(replaceField));
+        String response =
+            solrCatalogSchemaClientFactory.getClient().replaceField(gson.toJson(replaceField));
+        LOGGER.trace("Catalog Configuration update response: {}", response);
 
-        LOGGER.trace("Configuration update response: {}", response);
+        response =
+            solrMetacardCacheSchemaClientFactory
+                .getClient()
+                .replaceField(gson.toJson(replaceField));
+        LOGGER.trace("Metacard Cache Configuration update response: {}", response);
       }
+      solrCatalogUpdateClientFactory.getClient().optimize(true);
+      solrMetacardCacheUpdateClientFactory.getClient().optimize(true);
+      LOGGER.trace("Sent optimize requests to Solr cores");
     }
+  }
+
+  private String getSolrCatalogSchemaUrl() {
+    return solrBaseUrl + SOLR_CATALOG_CORE + SOLR_SCHEMA_URI;
+  }
+
+  private String getSolrCatalogUpdateUrl() {
+    return solrBaseUrl + SOLR_CATALOG_CORE + SOLR_UPDATE_URI;
+  }
+
+  private String getSolrMetacardCacheSchemaUrl() {
+    return solrBaseUrl + SOLR_METACARD_CACHE_CORE + SOLR_SCHEMA_URI;
+  }
+
+  private String getSolrMetacardCacheUpdateUrl() {
+    return solrBaseUrl + SOLR_METACARD_CACHE_CORE + SOLR_UPDATE_URI;
   }
 }
