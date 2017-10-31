@@ -53,6 +53,8 @@ import ddf.catalog.operation.CreateRequest;
 import ddf.catalog.operation.CreateResponse;
 import ddf.catalog.operation.DeleteRequest;
 import ddf.catalog.operation.DeleteResponse;
+import ddf.catalog.operation.FacetAttributeResult;
+import ddf.catalog.operation.FacetValueCount;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.Response;
@@ -60,10 +62,8 @@ import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.Update;
 import ddf.catalog.operation.UpdateRequest;
 import ddf.catalog.operation.UpdateResponse;
-import ddf.catalog.operation.faceting.FacetValueCount;
-import ddf.catalog.operation.faceting.FacetedAttributeResult;
-import ddf.catalog.operation.faceting.FacetedQueryRequest;
 import ddf.catalog.operation.impl.DeleteRequestImpl;
+import ddf.catalog.operation.impl.FacetedQueryRequest;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
@@ -5626,11 +5626,11 @@ public class SolrProviderTest extends SolrProviderTestCase {
     assertThat(rawFacetResult, notNullValue());
     assertThat(rawFacetResult, instanceOf(List.class));
 
-    List<FacetedAttributeResult> facetResult = (List<FacetedAttributeResult>) rawFacetResult;
+    List<FacetAttributeResult> facetResult = (List<FacetAttributeResult>) rawFacetResult;
 
     assertThat(facetResult.size(), is(1));
 
-    FacetedAttributeResult descriptionResult = facetResult.get(0);
+    FacetAttributeResult descriptionResult = facetResult.get(0);
 
     assertThat(descriptionResult.getAttributeName(), is(Metacard.DESCRIPTION));
     assertThat(descriptionResult.getFacetValues().size(), is(5));

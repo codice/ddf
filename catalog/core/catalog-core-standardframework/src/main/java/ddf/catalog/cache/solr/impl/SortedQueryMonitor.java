@@ -306,6 +306,9 @@ class SortedQueryMonitor implements Runnable {
       LOGGER.info("Plugin stopped processing", e);
     }
     return new SourceResponseImpl(
-        queryRequest, queryResponse.getResults(), queryResponse.getHits());
+        queryRequest,
+        sourceResponse.getProperties(),
+        queryResponse.getResults(),
+        queryResponse.getHits());
   }
 }

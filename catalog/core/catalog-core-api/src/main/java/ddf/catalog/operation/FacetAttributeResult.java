@@ -11,29 +11,23 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.operation.faceting;
+package ddf.catalog.operation;
 
-/** A simple tuple object pairing text faceting value results with their respective counts. */
-public class FacetValueCount {
-  private String value;
-  private long count;
+import java.util.List;
 
-  /**
-   * Creates a pairing from the provided value and count
-   *
-   * @param value The faceted attribute value
-   * @param count The number of occurrences of value
-   */
-  FacetValueCount(String value, long count) {
-    this.value = value;
-    this.count = count;
-  }
+/**
+ * <b> This code is experimental. While this interface is functional and tested, it may change or be
+ * removed in a future version of the library. </b>
+ */
 
-  public long getCount() {
-    return count;
-  }
+/**
+ * FacetAttributeResult representing a portion of the results of a faceted query. A
+ * FacetAttributeResult is representative of a single attribute's faceting results, and zero to many
+ * {@link FacetAttributeResult}s may make up a complete faceted query result.
+ */
+public interface FacetAttributeResult {
 
-  public String getValue() {
-    return value;
-  }
+  String getAttributeName();
+
+  List<FacetValueCount> getFacetValues();
 }

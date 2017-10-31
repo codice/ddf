@@ -14,6 +14,7 @@
 
 package ddf.catalog.operation.faceting
 
+import ddf.catalog.operation.impl.FacetAttributeResultImpl
 import spock.lang.Specification
 
 class FacetedAttributeResultSpec extends Specification {
@@ -28,7 +29,7 @@ class FacetedAttributeResultSpec extends Specification {
 
     def "test empty lists"() {
         when:
-        def ffr = new FacetedAttributeResult("emptyTest", [], [])
+        def ffr = new FacetAttributeResultImpl("emptyTest", [], [])
 
         then:
         ffr.getAttributeName() == "emptyTest"
@@ -37,7 +38,7 @@ class FacetedAttributeResultSpec extends Specification {
 
     def "test creation with equal length value and count lists"() {
         when:
-        def ffr = new FacetedAttributeResult("equalTest", testSameLenValues, testCounts)
+        def ffr = new FacetAttributeResultImpl("equalTest", testSameLenValues, testCounts)
 
         then:
         ffr.facetValues.size() == 4
@@ -45,7 +46,7 @@ class FacetedAttributeResultSpec extends Specification {
 
     def "test creation with unequal length value and count lists"(values, long length) {
         when:
-        def ffr = new FacetedAttributeResult("unequalTest", values, testCounts)
+        def ffr = new FacetAttributeResultImpl("unequalTest", values, testCounts)
 
         then:
         ffr.facetValues.size() == length
