@@ -398,9 +398,7 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
       // "password", do not update the password.
       for (Map.Entry<String, Object> configEntry : configEntries) {
         String configEntryKey = configEntry.getKey();
-        Object configEntryValue = configEntry.getValue();
-        configEntryValue = sanitizeUIConfiguration(pid, configEntryKey, configEntryValue);
-
+        Object configEntryValue = sanitizeUIConfiguration(pid, configEntryKey, configEntry.getValue());
         if (configEntryValue.equals("password")) {
           for (Map<String, Object> metatypeProperties : metatype.getAttributeDefinitions()) {
             if (metatypeProperties.get("id").equals(configEntry.getKey())
