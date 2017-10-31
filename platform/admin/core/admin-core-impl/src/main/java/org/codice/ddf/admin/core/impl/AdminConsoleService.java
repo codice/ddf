@@ -62,6 +62,8 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
 
   private static final String GUEST_CLAIMS_CONFIG_PID = "ddf.security.sts.guestclaims";
 
+  private static final String UI_CONFIG_PID = "ddf.platform.ui.config";
+
   private static final String PROFILE_KEY = "profile";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AdminConsoleService.class);
@@ -419,7 +421,7 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
   }
 
   private Object sanitizeUIConfiguration(String pid, String configEntryKey, Object configEntryValue) {
-    if (pid.equals("ddf.platform.ui.config")) {
+    if (pid.equals(UI_CONFIG_PID)) {
       if (configEntryKey.equals("color") || configEntryKey.equals("background")) {
         return String.valueOf(configEntryValue).split(";")[0];
       }
