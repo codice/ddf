@@ -19,28 +19,13 @@ import ddf.catalog.transformer.api.PrintWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.BitSet;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * EscapingPrintWriter supports the examination of individual 16 bit characters in a stream writer.
- *
- * <p>In the default mode, EscapingPrintWriter escapes XML/HTML metacharacters, supplementary
- * UNICODE characters, most control characters and any undefined char values.
- *
- * <p>EscapingPrintWriter is optimized for speed by caching well-known characters locally and by
- * calling write() on the underlying writer only once, after examining every character in the
- * stream.
- *
- * <p>In raw mode, EscapingPrintWriter does no escaping of characters.
- *
- * <p>EscapingPrintWriter is not thread-safe; instances should not be shared.
- *
- * <p>There are existing XML escaping libraries, such as
+ * Uses the apache-commons escaping utility
  * https://commons.apache.org/proper/commons-lang/javadocs/api-2.6/org/apache/commons/lang/StringEscapeUtils.html
- *
- * <p>But the public static String escapeXml(String str) method supports only the five basic XML
- * entities (gt, lt, quot, amp, apos).
  */
 public class EscapingPrintWriter extends PrettyPrintWriter implements PrintWriter {
 
@@ -146,43 +131,7 @@ public class EscapingPrintWriter extends PrettyPrintWriter implements PrintWrite
     if (isRawText) {
       writer.write(text);
     } else {
-      int length = text.length();
-      StringBuilder sb = new StringBuilder();
-      char c;
-      for (int i = 0; i < length; i++) {
-        c = text.charAt(i);
-        switch (c) {
-          case '&':
-            sb.append(AMP);
-            break;
-          case '<':
-            sb.append(LT);
-            break;
-          case '>':
-            sb.append(GT);
-            break;
-          case '\'':
-            sb.append(APOS);
-            break;
-          case '\"':
-            sb.append(QUOT);
-            break;
-          case '\r':
-            sb.append(CR);
-            break;
-          case '\t':
-          case '\n':
-            sb.append(c); // allow these control chars as is.
-            break;
-          default:
-            if (WELL_KNOWN_CHARACTERS.get((int) c)) {
-              sb.append(c);
-            } else {
-              sb.append("&#x").append(Integer.toHexString(c)).append(';');
-            }
-        }
-      } // for loop
-      writer.write(sb.toString());
+      writer.write(StringEscapeUtils.escapeXml10(text));
     }
   } // end writeText()
 }
