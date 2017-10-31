@@ -168,7 +168,7 @@ Change:
 #RUN_AS_USER=
 ----
 +
-to:
+to (<${branding-lowercase}-user> is the intended username):
 +
 .${home_directory}/bin/${branding-lowercase}-service
 ----
@@ -177,8 +177,7 @@ RUN_AS_USER=<${branding-lowercase}-user>
 +
 . (Windows users skip to next step) (All *NIX) Edit `${home_directory}/bin/${branding-lowercase}-service`. Add LimitNOFILE to the [Service] section.
 +
-.${home_directory}/bin/${branding-lowercase}-service
-----
+.${home_directory}/bin/${branding-lowercase}.service
 LimitNOFILE=6815744
 ----
 +
@@ -201,10 +200,10 @@ root${at-symbol}localhost# chkconfig ${branding-lowercase}-service --add
 root${at-symbol}localhost# chkconfig ${branding-lowercase}-service on
 ----
 +
-*Redhat 7 (systemd)*
+*Redhat 7 or Centos 7 (systemd)*
 +
 ----
-root${at-symbol}localhost# systemctl enable ${home_directory}/bin/${branding-lowercase}-service
+root${at-symbol}localhost# systemctl enable ${home_directory}/bin/${branding-lowercase}.service
 ----
 +
 *Ubuntu*
@@ -224,6 +223,10 @@ root${at-symbol}localhost# ln -s /etc/init.d/${branding-lowercase}-service /etc/
 root${at-symbol}localhost# ln -s /etc/init.d/${branding-lowercase}-service /etc/rc3.d/S20${branding-lowercase}-service
 ----
 +
+[NOTE]
+====
+If the system fails to start automatically on boot with any messages about the JVM, ensure that JAVA_HOME is properly set. <<_java_requirements_quick_install,Java Requirements (Quick Install)>>
+====
 [WARNING]
 ====
 While it is not a necessary step, information on how to convert the System V init scripts to the Solaris System Management Facility can be found at http://www.oracle.com/technetwork/articles/servers-storage-admin/scripts-to-smf-1641705.html
