@@ -397,6 +397,8 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
       for (Map.Entry<String, Object> configEntry : configEntries) {
         String configEntryKey = configEntry.getKey();
         Object configEntryValue = configEntry.getValue();
+        configEntryValue = sanitizeConfig(pid, configEntryKey, configEntryValue);
+
         if (configEntryValue.equals("password")) {
           for (Map<String, Object> metatypeProperties : metatype.getAttributeDefinitions()) {
             if (metatypeProperties.get("id").equals(configEntry.getKey())
@@ -414,6 +416,15 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
 
       config.update(newConfigProperties);
     }
+  }
+
+  private Object sanitizeConfig(String pid, String configEntryKey, Object configEntryValue) {
+    if (pid.equals("ddf.platform.ui.config")) {
+      if (configEntryKey.equals("color") || configEntryKey.equals("background")) {
+        return String.valueOf(configEntryValue).split(";")[0];
+      }
+    }
+    return configEntryValue;
   }
 
   public ConfigurationStatus disableConfiguration(String servicePid) throws IOException {
