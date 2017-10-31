@@ -87,48 +87,6 @@ public class TestEscapingPrintWriter {
   }
 
   @Test
-  public void testUndefinedCharacter() throws CatalogTransformerException {
-    String input = new String(Character.toChars(55296));
-    String expected = "&#xd800;";
-
-    StringWriter stringWriter = new StringWriter(8);
-    PrintWriter escapingPrintWriter = new EscapingPrintWriter(stringWriter);
-    escapingPrintWriter.setValue(input);
-
-    escapingPrintWriter.flush();
-    String output = stringWriter.toString();
-    assertEquals(expected, output);
-  }
-
-  @Test
-  public void testSurrogateCharacter() throws CatalogTransformerException {
-    String input = new String(Character.toChars(888));
-    String expected = "&#x378;";
-
-    StringWriter stringWriter = new StringWriter(8);
-    PrintWriter escapingPrintWriter = new EscapingPrintWriter(stringWriter);
-    escapingPrintWriter.setValue(input);
-
-    escapingPrintWriter.flush();
-    String output = stringWriter.toString();
-    assertEquals(expected, output);
-  }
-
-  @Test
-  public void testControlCharacters() throws CatalogTransformerException {
-    String input = "\0 \t \n \r";
-    String expected = "&#x0; \t \n &#xd;";
-
-    StringWriter stringWriter = new StringWriter(8);
-    PrintWriter escapingPrintWriter = new EscapingPrintWriter(stringWriter);
-    escapingPrintWriter.setValue(input);
-
-    escapingPrintWriter.flush();
-    String output = stringWriter.toString();
-    assertEquals(expected, output);
-  }
-
-  @Test
   public void testXmlMetaCharacters() throws CatalogTransformerException {
     String unescaped = "& > < \" \'";
     String escaped = "&amp; &gt; &lt; &quot; &apos;";
