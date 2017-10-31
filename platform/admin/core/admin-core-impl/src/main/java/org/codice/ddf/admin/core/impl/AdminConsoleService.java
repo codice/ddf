@@ -421,8 +421,8 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
   }
 
   private Object sanitizeUIConfiguration(String pid, String configEntryKey, Object configEntryValue) {
-    if (pid.equals(UI_CONFIG_PID)) {
-      if (configEntryKey.equals("color") || configEntryKey.equals("background")) {
+    if (UI_CONFIG_PID.equals(pid)) {
+      if ("color".equals(configEntryKey) || "background".equals(configEntryKey)) {
         return String.valueOf(configEntryValue).split(";")[0];
       }
     }
