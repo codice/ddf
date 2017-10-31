@@ -397,7 +397,7 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
       for (Map.Entry<String, Object> configEntry : configEntries) {
         String configEntryKey = configEntry.getKey();
         Object configEntryValue = configEntry.getValue();
-        configEntryValue = sanitizeConfig(pid, configEntryKey, configEntryValue);
+        configEntryValue = sanitizeUIConfiguration(pid, configEntryKey, configEntryValue);
 
         if (configEntryValue.equals("password")) {
           for (Map<String, Object> metatypeProperties : metatype.getAttributeDefinitions()) {
@@ -418,7 +418,7 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
     }
   }
 
-  private Object sanitizeConfig(String pid, String configEntryKey, Object configEntryValue) {
+  private Object sanitizeUIConfiguration(String pid, String configEntryKey, Object configEntryValue) {
     if (pid.equals("ddf.platform.ui.config")) {
       if (configEntryKey.equals("color") || configEntryKey.equals("background")) {
         return String.valueOf(configEntryValue).split(";")[0];

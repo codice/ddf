@@ -811,6 +811,28 @@ public class AdminConsoleServiceTest {
   }
 
   @Test
+  public void testSanitizeUIConfiguration() throws Exception {
+    AdminConsoleService configAdmin = getConfigAdmin();
+
+    // Initialize sanitized values.
+    Map<String, Object> currentProps = new Hashtable<>();
+    currentProps.put(
+        "color",
+        "white; height: 210px; z-index: 999999; background-image: url(https://gifimage.net/wp-content/uploads/2017/06/troll-face-gif-8.gif); background-repeat: no-repeat; background-attachment: fixed; background-position-x: center");
+    currentProps.put(
+        "background",
+        "black; float: left; text-align: center; width: 120px; border: 1px solid gray; margin: 4px; padding: 6px;");
+
+    ArgumentCaptor<Dictionary> captor = ArgumentCaptor.forClass(Dictionary.class);
+    configAdmin.update(UI_CONFIG_PID, currentProps);
+    verify(testConfig, times(1)).update(captor.capture());
+
+    // Assert the Text Color and Background Color fields have been sanitized.
+    assertThat(captor.getValue().get("color"), equalTo("white"));
+    assertThat(captor.getValue().get("background"), equalTo("black"));
+  }
+
+  @Test
   public void testUpdateGuestClaimsProfile() throws Exception {
     Map<String, Object> guestClaims = new HashMap<>();
     Map<String, Object> systemClaims = new HashMap<>();
