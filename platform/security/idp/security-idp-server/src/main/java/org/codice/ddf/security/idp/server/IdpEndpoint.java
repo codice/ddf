@@ -113,7 +113,6 @@ import org.codice.ddf.security.handler.basic.BasicAuthenticationHandler;
 import org.codice.ddf.security.handler.pki.PKIHandler;
 import org.codice.ddf.security.idp.binding.api.Binding;
 import org.codice.ddf.security.idp.binding.api.ResponseCreator;
-import org.codice.ddf.security.idp.binding.api.impl.ResponseCreatorImpl;
 import org.codice.ddf.security.idp.binding.post.PostBinding;
 import org.codice.ddf.security.idp.binding.redirect.RedirectBinding;
 import org.codice.ddf.security.idp.binding.soap.SoapBinding;
@@ -309,7 +308,14 @@ public class IdpEndpoint implements Idp {
       AuthObj authObj = determineAuthMethod(bodyStr, authnRequest);
       org.opensaml.saml.saml2.core.Response response =
           handleLogin(
-              authnRequest, authObj.method, request, authObj, authnRequest.isPassive(), hasCookie);
+              authnRequest,
+              authObj.method,
+              request,
+              authObj,
+              soapBinding,
+              authnRequest.isPassive(),
+              hasCookie,
+              authnRequest.getSignature() != null);
 
       Response samlpResponse =
           soapBinding
@@ -512,7 +518,15 @@ public class IdpEndpoint implements Idp {
         org.opensaml.saml.saml2.core.Response samlpResponse;
         try {
           samlpResponse =
-              handleLogin(authnRequest, PKI, request, null, authnRequest.isPassive(), hasCookie);
+              handleLogin(
+                  authnRequest,
+                  PKI,
+                  request,
+                  null,
+                  binding,
+                  authnRequest.isPassive(),
+                  hasCookie,
+                  authnRequest.getSignature() != null || signature != null);
           LOGGER.debug("Passive & PKI AuthnRequest logged in successfully.");
         } catch (SecurityServiceException e) {
           LOGGER.debug(e.getMessage(), e);
@@ -552,7 +566,7 @@ public class IdpEndpoint implements Idp {
         responseMap.put(SAML_REQ, encodedAuthn);
         responseMap.put(RELAY_STATE, relayState);
         String assertionConsumerServiceURL =
-            ((ResponseCreatorImpl) binding.creator()).getAssertionConsumerServiceURL(authnRequest);
+            binding.creator().getAssertionConsumerServiceURL(authnRequest);
         responseMap.put(ACS_URL, assertionConsumerServiceURL);
         responseMap.put(SSOConstants.SIG_ALG, signatureAlgorithm);
         responseMap.put(SSOConstants.SIGNATURE, signature);
@@ -628,6 +642,7 @@ public class IdpEndpoint implements Idp {
 
   @GET
   @Path("/login/sso")
+  @SuppressWarnings("squid:S3776" /*complexity*/)
   public Response processLogin(
       @QueryParam(SAML_REQ) String samlRequest,
       @QueryParam(RELAY_STATE) String relayState,
@@ -674,17 +689,23 @@ public class IdpEndpoint implements Idp {
               signature,
               strictSignature);
 
-      if (HTTP_POST_BINDING.equals(assertionConsumerServiceBinding)) {
-        if (!(binding instanceof PostBinding)) {
-          binding = new PostBinding(systemCrypto, getServiceProvidersMap());
-        }
-      } else if (HTTP_REDIRECT_BINDING.equals(assertionConsumerServiceBinding)) {
-        if (!(binding instanceof RedirectBinding)) {
-          binding = new RedirectBinding(systemCrypto, getServiceProvidersMap());
-        }
+      if (HTTP_POST_BINDING.equals(assertionConsumerServiceBinding)
+          && !(binding instanceof PostBinding)) {
+        binding = new PostBinding(systemCrypto, getServiceProvidersMap());
+      } else if (HTTP_REDIRECT_BINDING.equals(assertionConsumerServiceBinding)
+          && !(binding instanceof RedirectBinding)) {
+        binding = new RedirectBinding(systemCrypto, getServiceProvidersMap());
       }
       org.opensaml.saml.saml2.core.Response encodedSaml =
-          handleLogin(authnRequest, authMethod, request, null, false, false);
+          handleLogin(
+              authnRequest,
+              authMethod,
+              request,
+              null,
+              binding,
+              false,
+              false,
+              authnRequest.getSignature() != null || signature != null);
       LOGGER.debug("Returning SAML Response for relayState: {}" + relayState);
       NewCookie newCookie = createCookie(request, encodedSaml);
       Response response =
@@ -704,7 +725,7 @@ public class IdpEndpoint implements Idp {
       LOGGER.info("Unable to encode SAMLP response.", e);
     } catch (SimpleSign.SignatureException e) {
       LOGGER.info("Unable to sign SAML response.", e);
-    } catch (IllegalArgumentException e) {
+    } catch (IllegalArgumentException | IdpException e) {
       LOGGER.info(e.getMessage(), e);
       return Response.status(Response.Status.BAD_REQUEST).build();
     } catch (ValidationException e) {
@@ -712,21 +733,21 @@ public class IdpEndpoint implements Idp {
       return Response.status(Response.Status.BAD_REQUEST).build();
     } catch (IOException e) {
       LOGGER.info("Unable to create SAML Response.", e);
-    } catch (IdpException e) {
-      LOGGER.info(e.getMessage(), e);
-      return Response.status(Response.Status.BAD_REQUEST).build();
     }
 
     return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
   }
 
+  @SuppressWarnings({"squid:S3776" /*Cognitive complexity*/, "squid:S00107" /* too many params */})
   protected org.opensaml.saml.saml2.core.Response handleLogin(
       AuthnRequest authnRequest,
       String authMethod,
       HttpServletRequest request,
       AuthObj authObj,
+      Binding binding,
       boolean passive,
-      boolean hasCookie)
+      boolean hasCookie,
+      boolean hasSignature)
       throws SecurityServiceException, WSSecurityException, SimpleSign.SignatureException,
           ConstraintViolationException {
     LOGGER.debug("Performing login for user. passive: {}, cookie: {}", passive, hasCookie);
@@ -798,11 +819,16 @@ public class IdpEndpoint implements Idp {
     }
 
     LOGGER.debug("User log in successful.");
-    return SamlProtocol.createResponse(
-        SamlProtocol.createIssuer(SystemBaseUrl.constructUrl("/idp/login", true)),
-        SamlProtocol.createStatus(statusCode),
-        authnRequest.getID(),
-        samlToken);
+    org.opensaml.saml.saml2.core.Response response =
+        SamlProtocol.createResponse(
+            SamlProtocol.createIssuer(SystemBaseUrl.constructUrl("/idp/login", true)),
+            SamlProtocol.createStatus(statusCode),
+            authnRequest.getID(),
+            samlToken);
+    if (hasSignature) {
+      response.setDestination(binding.creator().getAssertionConsumerServiceURL(authnRequest));
+    }
+    return response;
   }
 
   private Cookie getCookie(HttpServletRequest request) {
@@ -1109,7 +1135,8 @@ public class IdpEndpoint implements Idp {
     if (logoutObject != null
         && logoutObject.getStatus() != null
         && logoutObject.getStatus().getStatusCode() != null
-        && !StatusCode.SUCCESS.equals(logoutObject.getStatus().getStatusCode().getValue())) {
+        && !StatusCode.SUCCESS.equals(logoutObject.getStatus().getStatusCode().getValue())
+        && logoutState != null) {
       logoutState.setPartialLogout(true);
     }
     return continueLogout(logoutState, cookie, incomingBinding);

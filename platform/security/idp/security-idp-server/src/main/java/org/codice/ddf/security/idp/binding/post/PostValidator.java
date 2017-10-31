@@ -47,6 +47,7 @@ public class PostValidator extends ValidatorImpl implements Validator {
         getSimpleSign()
             .validateSignature(
                 authnRequest.getSignature(), authnRequest.getDOM().getOwnerDocument());
+        checkDestination(authnRequest);
       } else {
         throw new SimpleSign.SignatureException("No signature present on AuthnRequest.");
       }

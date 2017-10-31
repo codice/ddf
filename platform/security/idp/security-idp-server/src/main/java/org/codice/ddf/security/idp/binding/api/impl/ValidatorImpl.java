@@ -20,6 +20,7 @@ import ddf.security.samlp.ValidationException;
 import ddf.security.samlp.impl.EntityInformation;
 import java.util.Map;
 import org.apache.wss4j.common.saml.builder.SAML2Constants;
+import org.codice.ddf.configuration.SystemBaseUrl;
 import org.codice.ddf.security.idp.binding.api.Validator;
 import org.codice.ddf.security.idp.server.Idp;
 import org.opensaml.saml.saml2.core.AuthnContextClassRef;
@@ -101,6 +102,17 @@ public abstract class ValidatorImpl implements Validator {
       LOGGER.info(
           "RelayState has invalid size: {}",
           (relayState == null) ? "no RelayState" : relayState.length());
+    }
+  }
+
+  protected void checkDestination(AuthnRequest authnRequest) throws ValidationException {
+    if (authnRequest.getDestination() == null) {
+      throw new ValidationException("Signed AuthnRequest must have a Destination attribute.");
+    } else if (!authnRequest
+        .getDestination()
+        .equals(SystemBaseUrl.constructUrl("/idp/login", true))) {
+      throw new ValidationException(
+          "Signed AuthnRequest must have Destination attribute matching this IdP server.");
     }
   }
 
