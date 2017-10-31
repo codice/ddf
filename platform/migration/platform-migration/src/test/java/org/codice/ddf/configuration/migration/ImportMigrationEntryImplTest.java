@@ -278,7 +278,6 @@ public class ImportMigrationEntryImplTest extends AbstractMigrationSupport {
 
   @Test
   public void restoreWithFilterWhenOptionalAndNotMatching() throws Exception {
-    InputStream inputStream = IOUtils.toInputStream(IMPORT_CONTENTS, Charsets.UTF_8);
     final ImportMigrationEntryImpl entry =
         new ImportMigrationEntryImpl(mockContext, importedFile.getName(), true);
 
