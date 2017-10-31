@@ -109,6 +109,7 @@ import net.opengis.ows.v_1_0_0.DomainType;
 import net.opengis.ows.v_1_0_0.Operation;
 import net.opengis.ows.v_1_0_0.OperationsMetadata;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.codice.ddf.configuration.SystemBaseUrl;
@@ -1018,6 +1019,9 @@ public abstract class AbstractCswSource extends MaskableImpl
         throw new IOException("Server skipped more bytes than requested in the range header.");
       }
     } catch (IOException e) {
+      /*In the event an IOException is thrown, the InputStream should be closed to prevent resource
+      leakage. Otherwise the stream should be kept open to pass into the ResourceImpl constructor.*/
+      IOUtils.closeQuietly(in);
       throw new IOException(
           String.format(
               "Unable to align input stream with the requested byteOffset of %d",
