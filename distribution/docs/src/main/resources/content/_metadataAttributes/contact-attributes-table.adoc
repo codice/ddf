@@ -1,10 +1,13 @@
-:title: Contact
+:title: Contact Attributes Table
 :type: subAppendix
+:order: 02
 :parent: Catalog Taxonomy
 :status: published
 :summary: Attributes in this group reflect metadata about different kinds of people/groups/units/organizations that can be associated with a metacard.
 
-.[[_contact_attributes_table]]Contact: Attributes in this group reflect metadata about different kinds of people/groups/units/organizations that can be associated with a metacard.
+== {title}
+
+.Contact: Attributes in this group reflect metadata about different kinds of people/groups/units/organizations that can be associated with a metacard.
 [cols="1,2,1,1,1" options="header"]
 |===
 |Term

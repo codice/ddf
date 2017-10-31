@@ -6,6 +6,8 @@
 :order: 00
 :summary: ${ddf-admin} whitelist.
 
+== {title}
+
 The following classes have been exported by the ${ddf-admin} application and are approved for use by third parties:
 
 In package `org.codice.ddf.ui.admin.api.module`

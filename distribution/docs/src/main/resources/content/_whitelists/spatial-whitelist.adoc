@@ -6,6 +6,8 @@
 :order: 06
 :summary: ${ddf-spatial} whitelist.
 
+== {title}
+
 The following classes have been exported by the ${ddf-spatial} application and are approved for use by third parties:
 
 In package `org.codice.ddf.spatial.kml.transformer`
