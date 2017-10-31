@@ -39,8 +39,6 @@ import org.slf4j.LoggerFactory;
  * This class provides an implementation of the {@link
  * org.codice.ddf.migration.ImportMigrationEntry} representing a directory that was exported.
  */
-@SuppressWarnings(
-    "squid:S2160" /* the base class equals() is sufficient for our needs. entries are unique based on their paths */)
 public class ImportMigrationDirectoryEntryImpl extends ImportMigrationEntryImpl {
 
   private static final Logger LOGGER =
@@ -171,6 +169,27 @@ public class ImportMigrationDirectoryEntryImpl extends ImportMigrationEntryImpl 
           });
     }
     return restored;
+  }
+
+  /**
+   * The superclass implementation is sufficient for our needs.
+   *
+   * @param o the object to check
+   * @return true if equal
+   */
+  @Override
+  public boolean equals(Object o) {
+    return super.equals(o);
+  }
+
+  /**
+   * The superclass implementation is sufficient for our needs.
+   *
+   * @return the hashcode
+   */
+  @Override
+  public int hashCode() {
+    return super.hashCode();
   }
 
   @VisibleForTesting
