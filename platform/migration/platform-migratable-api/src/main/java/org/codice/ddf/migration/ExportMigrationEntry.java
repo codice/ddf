@@ -319,14 +319,21 @@ public interface ExportMigrationEntry extends MigrationEntry {
    *   <li>Errors that abort the whole operation would be thrown out as {@link MigrationException}
    *       (e.g. failure to write to the exported file)
    *   <li>Errors that are specific to this specific entry and that will eventually fail the export
-   *       operation at the end. Such errors are simply recorded with the report s of outcome for
-   *       the associated migratable.
-   *       <p><i>Note:</i> Calling <code>store()</code> twice will not store the entry twice. The
-   *       second time it is called, the same result will be returned as the first time no matter
-   *       which <code>
+   *       operation at the end. Such errors are simply recorded with the report and <code>false
+   *       </code> is returned from this method. This allows for the accumulation of as many issues
+   *       as possible to report to the user before aborting the operation.
+   * </ol>
+   *
+   * <p><i>Note:</i> The output stream will automatically be closed (if not closed already) when the
+   * output stream for another entry is retrieved, when calling {@link #store} on another entry, or
+   * when the export operation completes regardless of outcome for the associated migratable.
+   *
+   * <p><i>Note:</i> Calling <code>store()</code> twice will not store the entry twice. The second
+   * time it is called, the same result will be returned as the first time no matter which <code>
    * store()</code> method was called.
-   *       <p><i>Note:</i> Storing an entry in this fashion will automatically mark the entry as a
-   *       file even though on disk it might have represented a directory.
+   *
+   * <p><i>Note:</i> Storing an entry in this fashion will automatically mark the entry as a file
+   * even though on disk it might have represented a directory.
    *
    * @param consumer a consumer capable of exporting the content of this entry to a provided output
    *     stream
@@ -350,13 +357,7 @@ public interface ExportMigrationEntry extends MigrationEntry {
    * directory.
    *
    * @return an output stream for this entry
-   * @throws IOException if an I/O error has occurred and <code>false </code> is returned from this
-   *     method. This allows for the accumulation of as many issues as possible to report to the
-   *     user before aborting the operation.
-   *     </ol>
-   *     <p><i>Note:</i> The output stream will automatically be closed (if not closed already) when
-   *     the output stream for another entry is retrieved, when calling {@link #store} on another
-   *     entry, or when the export operation completes regardles
+   * @throws IOException if an I/O error has occurred
    */
   public OutputStream getOutputStream() throws IOException;
 }

@@ -89,7 +89,7 @@ public class ImportMigrationDirectoryEntryImpl extends ImportMigrationEntryImpl 
           () -> {
             final PathUtils pathUtils = getContext().getPathUtils();
             final Path apath = getAbsolutePath();
-            // find all existing files ans keep track of it relative from ddf.home to absolute path
+            // find all existing files and keep track of it relative from ddf.home to absolute path
             final Map<Path, Path> existingFiles =
                 FileUtils.listFiles(
                         apath.toFile(), TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE)
