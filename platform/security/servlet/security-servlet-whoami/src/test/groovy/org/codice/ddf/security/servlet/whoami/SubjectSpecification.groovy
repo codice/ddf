@@ -30,7 +30,10 @@ import java.util.stream.Collectors
 class SubjectSpecification extends Specification {
 
     protected Date notOnOrAfter = Date.from(LocalDateTime.now()
-            .plusDays(7)
+            .plusDays(6)
+            .plusHours(18)
+            .plusMinutes(20)
+            .plusSeconds(35)
             .atZone(ZoneId.systemDefault()).toInstant())
 
     protected def mockSubject() {
