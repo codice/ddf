@@ -197,17 +197,10 @@ public class BackupCommand extends SolrCommands {
             backupUrl = (String) solrConfig.getProperties().get("url");
           } else {
             LOGGER.debug("No Solr config found, checking System settings");
-            if (System.getProperty("host") != null
-                && System.getProperty("jetty.port") != null
-                && System.getProperty("hostContext") != null) {
+            if (System.getProperty("hostContext") != null) {
               backupUrl =
-                  SystemBaseUrl.getProtocol()
-                      + "://"
-                      + System.getProperty("host")
-                      + ":"
-                      + System.getProperty("jetty.port")
-                      + "/"
-                      + StringUtils.strip(System.getProperty("hostContext"), "/");
+                  SystemBaseUrl.constructUrl(
+                      SystemBaseUrl.getProtocol(), System.getProperty("hostContext"));
               LOGGER.debug("Trying system configured URL instead: {}", backupUrl);
             } else {
               LOGGER.info(
