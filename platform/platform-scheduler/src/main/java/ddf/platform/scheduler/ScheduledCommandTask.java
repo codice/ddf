@@ -155,16 +155,16 @@ public class ScheduledCommandTask implements ScheduledTask {
       this.command = commandValue.toString();
     }
 
-    Object intervalString = properties.get(INTERVAL_STRING);
-    if (intervalString != null) {
-      LOGGER.debug("Updating intervalString : {}", intervalString);
-      this.intervalString = (String) intervalString;
+    Object intervalStringPropertyValue = properties.get(INTERVAL_STRING);
+    if (intervalStringPropertyValue != null) {
+      LOGGER.debug("Updating intervalString : {}", intervalStringPropertyValue);
+      this.intervalString = (String) intervalStringPropertyValue;
     }
 
-    Object intervalType = properties.get(INTERVAL_TYPE);
-    if (intervalType != null) {
-      LOGGER.debug("Updating intervalType : {}", intervalType);
-      this.intervalType = (String) intervalType;
+    Object intervalTypePropertyValue = properties.get(INTERVAL_TYPE);
+    if (intervalTypePropertyValue != null) {
+      LOGGER.debug("Updating intervalType : {}", intervalTypePropertyValue);
+      this.intervalType = (String) intervalTypePropertyValue;
     }
 
     JobDetail newJob = createJob();
@@ -229,12 +229,13 @@ public class ScheduledCommandTask implements ScheduledTask {
   }
 
   private Date getTriggerStartTime() {
+    final String timeUnitString = TRIGGER_DELAY_TIME_UNIT.name().toLowerCase();
     LOGGER.debug(
         "Creating trigger with {} {}. Delaying start by {} {}.",
         intervalString,
         intervalType,
         TRIGGER_DELAY_DURATION,
-        TRIGGER_DELAY_TIME_UNIT.name().toLowerCase());
+        timeUnitString);
 
     return new Date(
         System.currentTimeMillis() + TRIGGER_DELAY_TIME_UNIT.toMillis(TRIGGER_DELAY_DURATION));
