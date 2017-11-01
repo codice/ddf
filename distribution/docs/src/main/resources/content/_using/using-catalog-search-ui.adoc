@@ -21,7 +21,7 @@ The default URL for ${catalog-ui} is ${secure_url}/search/catalog
 .Catalog UI Guest Users
 [NOTE]
 ====
-If Guest access has been enabled, users not signed in to ${branding} (ie. guest users) will have access to search functions, but all workspace configuration and settings will only exist locally and will not be available for sharing.
+If Guest access has been enabled, users not signed in to ${branding} (i.e. guest users) will have access to search functions, but all workspace configuration and settings will only exist locally and will not be available for sharing.
 ====
 
 The default view for ${catalog-ui} is the *Workspaces* view. For other views or to return to the *Workspaces* view, click the *Navigation* menu in the upper-left corner of ${catalog-ui} and select the desired view.
@@ -85,7 +85,7 @@ Configure each workspace with searches and share options.
 ** *View Sharing*: View and edit settings for sharing this workspace. Users must be signed in to share workspaces or view shared workspaces.
 ** *View Details*: View the current details for a cloud-based workspace Users must be signed in to view workspace details.
 ** *Duplicate*: Create a copy of this workspace.
-** *Subscribe*: Receive email notifications for search results on this workspace. This requires email notifications to be enabled.
+** *Subscribe/Unsubscribe*: Selecting *Subscribe* will enable email notifications for search results on this workspace. Selecting *Unsubscribe* will disable email notifications for search results on this workspace.
 ** *Move to Trash*: Delete (archive) this workspace.
 
 ==== Sharing Workspaces
@@ -235,7 +235,7 @@ image::search-results-options.png[search results options]
 ===== Search Result Options
 
 .Options for each individual search result
-* *Download*: Downloads the result's associated product directly to the local machine.. This option is only available for results that have products.
+* *Download*: Downloads the result's associated product directly to the local machine. This option is only available for results that have products.
 * *Bookmark*: Adds/removes the results to/from the saved bookmarks.
 * *Hide from Future Searches*: Adds to a list of results that will be hidden from future searches.
 * *Expand Metacard View*: Navigates to a view that only focuses on this particular result.
