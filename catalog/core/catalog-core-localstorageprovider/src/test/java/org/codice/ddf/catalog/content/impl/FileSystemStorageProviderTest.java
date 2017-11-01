@@ -177,6 +177,20 @@ public class FileSystemStorageProviderTest {
     provider.read(new ReadStorageRequestImpl(uri, Collections.emptyMap()));
   }
 
+  @Test(expected = StorageException.class)
+  public void testReadDeletedRemoteReference() throws Exception {
+    CreateStorageResponse createResponse =
+        assertContentItem(
+            TEST_INPUT_CONTENTS,
+            NITF_MIME_TYPE,
+            TEST_INPUT_FILENAME,
+            Collections.singletonMap(
+                Constants.STORE_REFERENCE_KEY, "http://testHostName:12345/test.txt"));
+
+    URI uri = new URI(createResponse.getCreatedContentItems().get(0).getUri());
+    provider.read(new ReadStorageRequestImpl(uri, Collections.emptyMap()));
+  }
+
   @Test
   public void testUpdate() throws Exception {
     CreateStorageResponse createResponse =
@@ -377,8 +391,6 @@ public class FileSystemStorageProviderTest {
   public void testUpdateWithMultipleItems() throws Exception {
     CreateStorageResponse createResponse =
         assertContentItem(TEST_INPUT_CONTENTS, NITF_MIME_TYPE, TEST_INPUT_FILENAME);
-    URI unqualifiedUri = new URI(createResponse.getCreatedContentItems().get(0).getUri());
-
     createResponse =
         assertContentItemWithQualifier(
             TEST_INPUT_CONTENTS,
