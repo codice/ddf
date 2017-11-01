@@ -27,7 +27,7 @@
                                update-method="refresh"/>
         <property name="k1" value="1.25"/>
         <property name="b" value="0.75" />
-        <property name="solrSchemaUrl" value="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}/solr/catalog/schema"/>
+        <property name="solrBaseUrl" value="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}/solr"/>
     </bean>
 
 </blueprint>

@@ -46,48 +46,48 @@ public class SolrRestTest {
 
   @Test
   public void testUrl() {
-    String testUrl = "https://www.example.com/solr/test";
-    solrRest.setSolrSchemaUrl(testUrl);
-    assertThat(solrRest.getSolrSchemaUrl(), is("https://www.example.com/solr/test"));
+    String testUrl = "https://www.example.com/solr";
+    solrRest.setSolrBaseUrl(testUrl);
+    assertThat(solrRest.getSolrBaseUrl(), is("https://www.example.com/solr"));
   }
 
   @Test
   public void testProperties() {
-    String testUrl = "https://www.example.com/solr/test";
+    String testUrl = "https://www.example.com/solr";
     float testK1 = 1.23f;
     float testB = 0.63f;
 
     Map<String, Object> testProps = new HashMap<>();
-    testProps.put("solrSchemaUrl", testUrl);
+    testProps.put("solrBaseUrl", testUrl);
     testProps.put("k1", testK1);
     testProps.put("b", testB);
     solrRest.refresh(testProps);
 
-    assertThat(solrRest.getSolrSchemaUrl(), is(testUrl));
+    assertThat(solrRest.getSolrBaseUrl(), is(testUrl));
     assertThat(solrRest.getB(), is(testB));
     assertThat(solrRest.getK1(), is(testK1));
   }
 
   @Test
   public void testBadProps() {
-    String testUrl = "https://www.example.com/solr/test";
+    String testUrl = "https://www.example.com/solr";
     float testK1 = 1.25f;
     float testB = 0.5f;
 
     Map<String, Object> testProps = new HashMap<>();
-    testProps.put("solrSchemaUrl", testUrl);
+    testProps.put("solrBaseUrl", testUrl);
     testProps.put("k1", testK1);
     testProps.put("b", testB);
     solrRest.refresh(testProps);
 
     Boolean testBool = Boolean.TRUE;
     Map<String, Object> badProps = new HashMap<>();
-    badProps.put("solrSchemaUrl", testBool);
+    badProps.put("solrBaseUrl", testBool);
     badProps.put("k1", testBool);
     badProps.put("b", testBool);
     solrRest.refresh(badProps);
 
-    assertThat(solrRest.getSolrSchemaUrl(), is(testUrl));
+    assertThat(solrRest.getSolrBaseUrl(), is(testUrl));
     assertThat(solrRest.getB(), is(testB));
     assertThat(solrRest.getK1(), is(testK1));
   }

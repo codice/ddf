@@ -18,10 +18,10 @@
     <OCD name="Catalog Solr Relevancy Ranking"
          id="ddf.catalog.source.solr.rest.SolrRest">
 
-        <AD description="URL for retrieving Solr schema"
-            name="Solr Schema URL."
-            id="solrSchemaUrl"
-            type="String" default="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}/solr/catalog/schema" />
+        <AD description="Base URL for Solr Endpoints"
+            name="Solr Base URL"
+            id="solrBaseUrl"
+            type="String" default="${org.codice.ddf.system.protocol}${org.codice.ddf.system.hostname}:${org.codice.ddf.system.port}/solr" />
 
         <AD description="This parameter controls how quickly an increase in term frequency results in term-frequency saturation. The default value is 1.2. Lower values result in quicker saturation, and higher values in slower saturation."
             name="k1" id="k1"
