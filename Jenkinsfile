@@ -20,6 +20,7 @@ pipeline {
         POMFIX = 'libs/libs-pomfix,libs/libs-pomfix-run'
         LARGE_MVN_OPTS = '-Xmx8192M -Xss128M -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC '
         LINUX_MVN_RANDOM = '-Djava.security.egd=file:/dev/./urandom'
+        COVERAGE_EXCLUSIONS = '**/test/**,**/itests/**,**/*Test*,**/sdk/**,**/*.js,**/node_modules/**,**/jaxb/,**/wsdl/,**/nces/sws/**,**/*.adoc,**/*.txt,**/*.xml'
     }
     stages {
         stage('Setup') {
@@ -200,9 +201,9 @@ pipeline {
                                     script {
                                         // If this build is not a pull request, run sonar scan. otherwise run incremental scan
                                         if (env.CHANGE_ID == null) {
-                                            sh 'mvn -q -B -Dfindbugs.skip=true -Dcheckstyle.skip=true org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -Dsonar.host.url=https://sonarqube.com -Dsonar.login=$SONAR_TOKEN  -Dsonar.organization=codice -Dsonar.projectKey=ddf -pl !$DOCS,!$ITESTS'
+                                            sh 'mvn -q -B -Dfindbugs.skip=true -Dcheckstyle.skip=true org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -Dsonar.host.url=https://sonarqube.com -Dsonar.login=$SONAR_TOKEN  -Dsonar.organization=codice -Dsonar.projectKey=ddf -Dsonar.coverage.exclusions=$COVERAGE_EXCLUSIONS -pl !$DOCS,!$ITESTS'
                                         } else {
-                                            sh 'mvn -q -B -Dfindbugs.skip=true -Dcheckstyle.skip=true org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -Dsonar.github.pullRequest=${CHANGE_ID} -Dsonar.github.oauth=${SONARQUBE_GITHUB_TOKEN} -Dsonar.analysis.mode=preview -Dsonar.host.url=https://sonarqube.com -Dsonar.login=$SONAR_TOKEN -Dsonar.organization=codice -Dsonar.projectKey=ddf -pl !$DOCS,!$ITESTS -Dgib.enabled=true -Dgib.referenceBranch=/refs/remotes/origin/$CHANGE_TARGET'
+                                            sh 'mvn -q -B -Dfindbugs.skip=true -Dcheckstyle.skip=true org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -Dsonar.github.pullRequest=${CHANGE_ID} -Dsonar.github.oauth=${SONARQUBE_GITHUB_TOKEN} -Dsonar.analysis.mode=preview -Dsonar.host.url=https://sonarqube.com -Dsonar.login=$SONAR_TOKEN -Dsonar.organization=codice -Dsonar.projectKey=ddf -Dsonar.coverage.exclusions=$COVERAGE_EXCLUSIONS -pl !$DOCS,!$ITESTS -Dgib.enabled=true -Dgib.referenceBranch=/refs/remotes/origin/$CHANGE_TARGET'
                                         }
                                     }
                                 }
