@@ -16,6 +16,8 @@ package org.codice.ddf.spatial.geocoding.context.impl;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
+import java.text.NumberFormat;
+import java.util.Locale;
 import org.codice.ddf.spatial.geocoding.context.NearbyLocation;
 import org.junit.Test;
 import org.locationtech.spatial4j.context.SpatialContext;
@@ -33,7 +35,8 @@ public class NearbyLocationImplTest {
     assertThat(nearbyLocation.getCardinalDirection(), is("SW"));
 
     // This distance value was obtained from http://www.movable-type.co.uk/scripts/latlong.html
-    assertThat(String.format("%.2f", nearbyLocation.getDistance()), is("65.99"));
+    String expected = NumberFormat.getNumberInstance(Locale.getDefault()).format(65.99);
+    assertThat(String.format("%.2f", nearbyLocation.getDistance()), is(expected));
 
     assertThat(nearbyLocation.getName(), is("Nearby"));
   }

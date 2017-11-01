@@ -26,11 +26,14 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import oasis.names.tc.xacml._3_0.core.schema.wd_17.AttributesType;
 import oasis.names.tc.xacml._3_0.core.schema.wd_17.RequestType;
@@ -236,9 +239,9 @@ public class XacmlPdpTest {
   }
 
   @Test
-  public void testParseAttributeTypeDouble() {
-
-    assertThat(testRealm.getXacmlDataType("42.42"), is(DOUBLE_DATA_TYPE));
+  public void testParseAttributeTypeDouble() throws ParseException {
+    String val = NumberFormat.getNumberInstance(Locale.getDefault()).format(42.42);
+    assertThat(testRealm.getXacmlDataType(val), is(DOUBLE_DATA_TYPE));
   }
 
   @Test
