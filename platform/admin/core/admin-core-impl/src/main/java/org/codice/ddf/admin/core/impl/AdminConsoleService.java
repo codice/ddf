@@ -402,7 +402,7 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
       for (Map.Entry<String, Object> configEntry : configEntries) {
         String configEntryKey = configEntry.getKey();
         Object configEntryValue =
-            sanitizeUIConfiguration(pid, configEntryKey, configEntry.getValue());
+            sanitizeUIConfiguration(pid, configEntryKey.toLowerCase(), configEntry.getValue());
         if (configEntryValue.equals("password")) {
           for (Map<String, Object> metatypeProperties : metatype.getAttributeDefinitions()) {
             if (metatypeProperties.get("id").equals(configEntry.getKey())
