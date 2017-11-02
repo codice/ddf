@@ -17,6 +17,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,16 +31,18 @@ public class InputValidation {
   private static final String DEFAULT_FILE = "file" + DEFAULT_EXTENSION;
 
   private static final List<String> BAD_FILES =
-      Arrays.asList(System.getProperty("bad.files").toLowerCase().split(","));
+      Arrays.asList(System.getProperty("bad.files").toLowerCase(Locale.getDefault()).split(","));
 
   private static final List<String> BAD_FILE_EXTENSIONS =
-      Arrays.asList(System.getProperty("bad.file.extensions").toLowerCase().split(","));
+      Arrays.asList(
+          System.getProperty("bad.file.extensions").toLowerCase(Locale.getDefault()).split(","));
 
   private static final List<String> BAD_MIME_TYPES =
-      Arrays.asList(System.getProperty("bad.mime.types").toLowerCase().split(","));
+      Arrays.asList(
+          System.getProperty("bad.mime.types").toLowerCase(Locale.getDefault()).split(","));
 
   private static final List<String> IGNORE_FILES =
-      Arrays.asList(System.getProperty("ignore.files").toLowerCase().split(","));
+      Arrays.asList(System.getProperty("ignore.files").toLowerCase(Locale.getDefault()).split(","));
 
   private static final Pattern BAD_CHAR_PATTERN = Pattern.compile("[^a-z0-9.-]");
 
@@ -54,7 +57,7 @@ public class InputValidation {
    * @return sanitized filename
    */
   public static String sanitizeFilename(String filename) {
-    Path path = Paths.get(filename.toLowerCase());
+    Path path = Paths.get(filename.toLowerCase(Locale.getDefault()));
     filename = path.getFileName().toString();
     if (BAD_FILES.contains(filename)) {
       filename = DEFAULT_FILE;
@@ -79,11 +82,10 @@ public class InputValidation {
   /**
    * Checks for mime types that have been disallowed by the system.
    *
-   * @param mimetype
    * @return true if the mime type is acceptable
    */
   public static boolean isMimeTypeClientSideSafe(String mimetype) {
-    mimetype = mimetype.toLowerCase();
+    mimetype = mimetype.toLowerCase(Locale.getDefault());
     for (String type : BAD_MIME_TYPES) {
       if (mimetype.contains(type)) {
         LOGGER.debug("Mime type {} is flagged as client side vulnerable.", mimetype);
@@ -96,11 +98,10 @@ public class InputValidation {
   /**
    * Checks for filenames that have been disallowed by the system.
    *
-   * @param filename
    * @return true if the filename is acceptable
    */
   public static boolean isFileNameClientSideSafe(String filename) {
-    filename = filename.toLowerCase();
+    filename = filename.toLowerCase(Locale.getDefault());
     for (String ignoreFile : IGNORE_FILES) {
       if (ignoreFile.contains(filename)) {
         LOGGER.debug("Filename {} is flagged as client side vulnerable.", ignoreFile);
