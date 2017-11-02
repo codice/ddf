@@ -130,11 +130,7 @@ public class DurableWebDavFileConsumer extends AbstractDurableFileConsumer {
 
     @Override
     public void onFileDelete(DavEntry entry) {
-      processExchange(
-          getExchange(
-              new File(entry.getLocation()),
-              StandardWatchEventKinds.ENTRY_DELETE,
-              entry.getLocation()));
+      processExchange(getExchange(null, StandardWatchEventKinds.ENTRY_DELETE, entry.getLocation()));
     }
   }
 }
