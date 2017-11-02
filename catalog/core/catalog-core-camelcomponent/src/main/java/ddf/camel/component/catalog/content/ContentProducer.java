@@ -30,13 +30,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ContentProducer extends DefaultProducer {
-  public static final int KB = 1024;
 
-  public static final int MB = 1024 * KB;
-
-  private static final transient Logger LOGGER = LoggerFactory.getLogger(ContentProducer.class);
-
-  private static final int DEFAULT_FILE_BACKED_OUTPUT_STREAM_THRESHOLD = 1 * MB;
+  private static final Logger LOGGER = LoggerFactory.getLogger(ContentProducer.class);
 
   private final FileSystemPersistenceProvider fileIdMap =
       new FileSystemPersistenceProvider("processed");
@@ -79,16 +74,11 @@ public class ContentProducer extends DefaultProducer {
 
     boolean storeRefKey = headers.containsKey(Constants.STORE_REFERENCE_KEY);
 
-    File ingestedFile = contentProducerDataAccessObject.getFileUsingRefKey(storeRefKey, in);
-
     WatchEvent.Kind<Path> eventType = contentProducerDataAccessObject.getEventType(storeRefKey, in);
 
-    if (ingestedFile == null) {
-      LOGGER.trace("EXITING: process - ingestedFile is NULL");
-      return;
-    }
+    File exchangeFile = contentProducerDataAccessObject.getFileUsingRefKey(storeRefKey, in);
 
-    String mimeType = contentProducerDataAccessObject.getMimeType(endpoint, ingestedFile);
+    String mimeType = contentProducerDataAccessObject.getMimeType(endpoint, exchangeFile);
 
     LOGGER.trace("Preparing content item for mimeType = {}", mimeType);
 
@@ -97,7 +87,7 @@ public class ContentProducer extends DefaultProducer {
     }
 
     contentProducerDataAccessObject.createContentItem(
-        fileIdMap, endpoint, ingestedFile, eventType, mimeType, headers);
+        fileIdMap, endpoint, exchangeFile, eventType, mimeType, headers);
 
     LOGGER.trace("EXITING: process");
   }

@@ -64,24 +64,27 @@ import org.slf4j.LoggerFactory;
 
 public class ContentProducerDataAccessObject {
 
+  private static final Logger LOGGER =
+      LoggerFactory.getLogger(ContentProducerDataAccessObject.class);
+
   private UuidGenerator uuidGenerator;
 
   public ContentProducerDataAccessObject(UuidGenerator uuidGenerator) {
     this.uuidGenerator = uuidGenerator;
   }
 
-  private static final transient Logger LOGGER =
-      LoggerFactory.getLogger(ContentProducerDataAccessObject.class);
-
   public File getFileUsingRefKey(boolean storeRefKey, Message in) throws ContentComponentException {
-    File ingestedFile;
+    File ingestedFile = null;
     try {
       if (!storeRefKey) {
         ingestedFile = ((GenericFile<File>) in.getBody()).getFile();
       } else {
         WatchEvent<Path> pathWatchEvent =
             (WatchEvent<Path>) ((GenericFileMessage) in).getGenericFile().getFile();
-        ingestedFile = pathWatchEvent.context().toFile();
+
+        if (pathWatchEvent != null && pathWatchEvent.context() != null) {
+          ingestedFile = pathWatchEvent.context().toFile();
+        }
       }
     } catch (ClassCastException e) {
       throw new ContentComponentException(
@@ -102,6 +105,10 @@ public class ContentProducerDataAccessObject {
 
   public String getMimeType(ContentEndpoint endpoint, File ingestedFile)
       throws ContentComponentException {
+    if (ingestedFile == null) {
+      return null;
+    }
+
     String fileExtension = FilenameUtils.getExtension(ingestedFile.getAbsolutePath());
 
     String mimeType = null;
@@ -140,7 +147,6 @@ public class ContentProducerDataAccessObject {
     String refKey = (String) headers.get(Constants.STORE_REFERENCE_KEY);
     String safeKey = null;
     String id = null;
-    String name = ingestedFile.getName();
 
     // null if the file is being stored in the content store
     // not null if the file lives outside the content store (external reference)
@@ -162,7 +168,7 @@ public class ContentProducerDataAccessObject {
                       uuidGenerator.generateUuid(),
                       Files.asByteSource(ingestedFile),
                       mimeType,
-                      name,
+                      ingestedFile.getName(),
                       ingestedFile.length(),
                       null)),
               getProperties(headers));
@@ -186,7 +192,12 @@ public class ContentProducerDataAccessObject {
           new UpdateStorageRequestImpl(
               Collections.singletonList(
                   new ContentItemImpl(
-                      id, Files.asByteSource(ingestedFile), mimeType, name, 0, null)),
+                      id,
+                      Files.asByteSource(ingestedFile),
+                      mimeType,
+                      ingestedFile.getName(),
+                      0,
+                      null)),
               getProperties(headers));
 
       UpdateResponse updateResponse =
