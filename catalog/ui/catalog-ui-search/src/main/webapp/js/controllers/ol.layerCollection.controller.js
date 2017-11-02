@@ -128,7 +128,7 @@ define(['underscore',
             }, this);
         },
         showLayer: function(model) {
-          return model.get('show') && model.get('alpha') > 0;
+            return model.get('show') && model.get('alpha') > 0;
         },
         makeWidgetLayer: function (model) {
             var typeStr = model.get('type');
