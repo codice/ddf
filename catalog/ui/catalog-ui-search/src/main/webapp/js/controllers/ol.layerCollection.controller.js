@@ -115,16 +115,20 @@ define(['underscore',
         setAlpha: function (model) {
             var layer = this.layerForCid[model.id];
             layer.setOpacity(model.get('alpha'));
+            layer.setVisible(this.showLayer(model));
         },
         setShow: function (model) {
             var layer = this.layerForCid[model.id];
-            layer.setVisible(model.get('show'));
+            layer.setVisible(this.showLayer(model));
         },
         reIndexLayers: function () {
             this.collection.forEach(function (model, index) {
                 var widgetLayer = this.layerForCid[model.id];
                 widgetLayer.setZIndex(-(index + 1));
             }, this);
+        },
+        showLayer: function(model) {
+          return model.get('show') && model.get('alpha') > 0;
         },
         makeWidgetLayer: function (model) {
             var typeStr = model.get('type');
@@ -178,7 +182,7 @@ define(['underscore',
                       options.urls = [initObj.url];
                       initObj = options;
                       var layer = new layerType({
-                            visible: model.get('show'),
+                            visible: this.showLayer(model),
                             preload: Infinity,
                             opacity: model.get('alpha'),
                             source: new type(initObj)
@@ -195,7 +199,7 @@ define(['underscore',
             }
 
             return new layerType({
-                visible: model.get('show'),
+                visible: this.showLayer(model),
                 preload: Infinity,
                 opacity: model.get('alpha'),
                 source: new type(initObj)
