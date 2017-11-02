@@ -20,6 +20,7 @@ import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Dictionary;
@@ -67,6 +68,8 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
   private static final String PROFILE_KEY = "profile";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AdminConsoleService.class);
+
+  private static final String[] ILLEGAL_CHARACTERS = {";", "<", ">", "{", "}"};
 
   private final org.osgi.service.cm.ConfigurationAdmin configurationAdmin;
 
@@ -398,7 +401,8 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
       // "password", do not update the password.
       for (Map.Entry<String, Object> configEntry : configEntries) {
         String configEntryKey = configEntry.getKey();
-        Object configEntryValue = sanitizeUIConfiguration(pid, configEntryKey, configEntry.getValue());
+        Object configEntryValue =
+            sanitizeUIConfiguration(pid, configEntryKey, configEntry.getValue());
         if (configEntryValue.equals("password")) {
           for (Map<String, Object> metatypeProperties : metatype.getAttributeDefinitions()) {
             if (metatypeProperties.get("id").equals(configEntry.getKey())
@@ -418,10 +422,14 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
     }
   }
 
-  private Object sanitizeUIConfiguration(String pid, String configEntryKey, Object configEntryValue) {
-    if (UI_CONFIG_PID.equals(pid)) {
-      if ("color".equals(configEntryKey) || "background".equals(configEntryKey)) {
-        return String.valueOf(configEntryValue).split(";")[0];
+  private Object sanitizeUIConfiguration(
+      String pid, String configEntryKey, Object configEntryValue) {
+    if (UI_CONFIG_PID.equals(pid)
+        && ("color".equals(configEntryKey) || "background".equals(configEntryKey))) {
+      if (Arrays.stream(ILLEGAL_CHARACTERS)
+          .parallel()
+          .anyMatch(String.valueOf(configEntryValue)::contains)) {
+        throw loggedException("Invalid UI Configuration");
       }
     }
     return configEntryValue;
