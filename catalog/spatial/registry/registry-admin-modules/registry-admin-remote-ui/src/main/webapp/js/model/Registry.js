@@ -126,7 +126,7 @@ function (Q, Service, Backbone, _) {
         createDeletePromise: function(registry, config) {
             var deferred = Q.defer();
             var serviceModels = this.model.get('value');
-            config.destroy().success(function() {
+            config.destroy().done(function() {
                 //sync up the service model so that the refresh updates properly
                 serviceModels.remove(config.getService());
                 deferred.resolve({
