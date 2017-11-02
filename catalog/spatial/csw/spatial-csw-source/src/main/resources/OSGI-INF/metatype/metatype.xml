@@ -134,6 +134,14 @@
             required="false" type="String"/>
         <AD description="Password for CSW Service (optional)" name="Password" id="password"
             required="false" type="Password" default=""/>
+
+        <AD description="Amount of time to attempt to establish a connection before timing out, in milliseconds."
+            name="Connection Timeout" id="connectionTimeout"
+            required="true" type="Integer" default="30000"/>
+
+        <AD description="Amount of time to wait for a response before timing out, in milliseconds."
+            name="Receive Timeout" id="receiveTimeout"
+            required="true" type="Integer" default="60000"/>
     </OCD>
 
     <OCD name="GMD CSW ISO Federated Source" id="Gmd_Csw_Federated_Source"
