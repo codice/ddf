@@ -13,23 +13,28 @@
  */
 package org.codice.ddf.catalog.ui.query.geofeature;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Polygon;
 import java.util.Arrays;
 import java.util.List;
 import org.codice.ddf.spatial.geocoder.GeoResult;
+import org.codice.ddf.spatial.geocoder.GeoResultCreator;
+import org.codice.ddf.spatial.geocoding.FeatureQueryException;
+import org.codice.ddf.spatial.geocoding.FeatureQueryable;
 import org.codice.ddf.spatial.geocoding.GeoEntry;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryException;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryable;
-import org.geotools.geometry.jts.spatialschema.geometry.DirectPositionImpl;
-import org.geotools.geometry.jts.spatialschema.geometry.primitive.PointImpl;
 import org.junit.Before;
 import org.junit.Test;
-import org.opengis.geometry.DirectPosition;
+import org.opengis.feature.simple.SimpleFeature;
 
 public class GazetteerFeatureServiceTest {
   private static final GeoEntry GEO_ENTRY_1 =
@@ -44,10 +49,11 @@ public class GazetteerFeatureServiceTest {
 
   private static final GeoEntry GEO_ENTRY_2 =
       new GeoEntry.Builder()
-          .name("Camden")
-          .latitude(40)
-          .longitude(-70)
-          .featureCode("PPLC")
+          .name("Canada")
+          .latitude(55)
+          .longitude(-100)
+          .featureCode("PCL1")
+          .countryCode("CA")
           .population(10000000)
           .alternateNames("")
           .build();
@@ -60,11 +66,15 @@ public class GazetteerFeatureServiceTest {
 
   private GeoEntryQueryable geoEntryQueryable;
 
+  private FeatureQueryable featureQueryable;
+
   @Before
   public void setUp() {
     geoEntryQueryable = mock(GeoEntryQueryable.class);
+    featureQueryable = mock(FeatureQueryable.class);
     gazetteerFeatureService = new GazetteerFeatureService();
     gazetteerFeatureService.setGeoEntryQueryable(geoEntryQueryable);
+    gazetteerFeatureService.setFeatureQueryable(featureQueryable);
   }
 
   @Test
@@ -77,34 +87,57 @@ public class GazetteerFeatureServiceTest {
   }
 
   @Test
-  public void testGetFeatureByName() throws GeoEntryQueryException {
-    final double north = 1;
-    final double south = -2;
-    final double east = 3;
-    final double west = -4;
-    GeoResult geoResult = new GeoResult();
-    geoResult.setFullName(GEO_ENTRY_1.getName());
-    final DirectPosition northWest = new DirectPositionImpl(west, north);
-    final DirectPosition southEast = new DirectPositionImpl(east, south);
-    geoResult.setBbox(Arrays.asList(new PointImpl(northWest), new PointImpl(southEast)));
-
-    gazetteerFeatureService =
-        new GazetteerFeatureService() {
-          @Override
-          protected GeoResult getGeoResultFromGeoEntry(GeoEntry entry) {
-            return geoResult;
-          }
-        };
-    gazetteerFeatureService.setGeoEntryQueryable(geoEntryQueryable);
-
+  public void testGetCityFeatureByName() throws GeoEntryQueryException {
     doReturn(QUERYABLE_RESULTS).when(geoEntryQueryable).query(TEST_QUERY, 1);
 
-    BoundingBoxFeature feature =
-        (BoundingBoxFeature) gazetteerFeatureService.getFeatureByName(TEST_QUERY);
-    assertThat(feature.getName(), is(geoResult.getFullName()));
-    assertThat(feature.getNorth(), is(north));
-    assertThat(feature.getSouth(), is(south));
-    assertThat(feature.getEast(), is(east));
-    assertThat(feature.getWest(), is(west));
+    SimpleFeature feature = gazetteerFeatureService.getFeatureByName(TEST_QUERY);
+    Geometry geometry = (Geometry) feature.getDefaultGeometry();
+
+    assertThat(feature.getID(), is(GEO_ENTRY_1.getName()));
+    assertThat(geometry.getGeometryType(), is("Polygon"));
+
+    GeoResult geoResult = GeoResultCreator.createGeoResult(GEO_ENTRY_1);
+    double[] p0 = geoResult.getBbox().get(0).getDirectPosition().getCoordinate();
+    double[] p1 = geoResult.getBbox().get(1).getDirectPosition().getCoordinate();
+
+    Coordinate[] expectedCoordinates =
+        new Coordinate[] {
+          new Coordinate(p0[0], p1[1]),
+          new Coordinate(p1[0], p1[1]),
+          new Coordinate(p1[0], p0[1]),
+          new Coordinate(p0[0], p0[1]),
+          new Coordinate(p0[0], p1[1]),
+        };
+    assertThat(geometry.getCoordinates(), is(expectedCoordinates));
+  }
+
+  @Test
+  public void testGetCountryFeatureByName() throws GeoEntryQueryException, FeatureQueryException {
+    doReturn(Arrays.asList(GEO_ENTRY_2)).when(geoEntryQueryable).query(TEST_QUERY, 1);
+
+    Coordinate[] countryCoordinates =
+        new Coordinate[] {
+          new Coordinate(10, 10),
+          new Coordinate(10, 20),
+          new Coordinate(20, 20),
+          new Coordinate(10, 10)
+        };
+    GeometryFactory geometryFactory = new GeometryFactory();
+    Polygon countryPolygon =
+        geometryFactory.createPolygon(geometryFactory.createLinearRing(countryCoordinates), null);
+
+    SimpleFeature expectedFeature =
+        GazetteerFeatureService.getSimpleFeatureBuilder(countryPolygon)
+            .buildFeature(GEO_ENTRY_2.getName());
+    doReturn(Arrays.asList(expectedFeature))
+        .when(featureQueryable)
+        .query("CAN", GEO_ENTRY_2.getFeatureCode(), 1);
+
+    SimpleFeature feature = gazetteerFeatureService.getFeatureByName(TEST_QUERY);
+    Geometry geometry = (Geometry) feature.getDefaultGeometry();
+
+    assertThat(feature.getID(), is(GEO_ENTRY_2.getName()));
+    assertThat(geometry.getGeometryType(), is("Polygon"));
+    assertThat(geometry.equalsExact((Geometry) expectedFeature.getDefaultGeometry()), is(true));
   }
 }

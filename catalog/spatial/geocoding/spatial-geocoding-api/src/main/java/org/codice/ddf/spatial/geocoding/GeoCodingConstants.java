@@ -39,4 +39,8 @@ public class GeoCodingConstants {
   public static final String SEAT_FOURTH_ORDER = "A4";
 
   public static final String CAPITAL = "C";
+
+  public static final String DEFAULT_TAG = "gazetteer";
+
+  public static final String COUNTRY_TAG = "country-shape";
 }

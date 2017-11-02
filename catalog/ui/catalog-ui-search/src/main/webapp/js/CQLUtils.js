@@ -31,6 +31,14 @@ define([
                 });
             }
 
+            //sanitize multipolygons
+            let multipolygons = cqlString.match(/'MULTIPOLYGON\(\(\(.*\)\)\)'/g);
+            if (multipolygons) {
+                multipolygons.forEach((multipolygon) => {
+                    cqlString = cqlString.replace(multipolygon, multipolygon.replace(/'/g, ''));
+                });
+            }
+
             //sanitize points
             let points = cqlString.match(/'POINT\(.*\)'/g);
             if (points) {
@@ -84,6 +92,14 @@ define([
                         value: 'POLYGON(' +
                         this.sanitizeForCql(JSON.stringify(this.polygonToCQLPolygon(model.polygon))) + ')'
                     };
+                case 'MULTIPOLYGON':
+                    var poly = 'MULTIPOLYGON(' +
+                        this.sanitizeForCql(JSON.stringify(this.polygonToCQLMultiPolygon(model.polygon))) + ')';
+                    return {
+                        type: 'INTERSECTS',
+                        property: property,
+                        value: poly
+                    };
                 case 'BBOX':
                     return {
                         type: 'INTERSECTS',
@@ -107,7 +123,7 @@ define([
                 property: {
                     type: 'FILTER_FUNCTION',
                     filterFunctionName,
-                    params                       
+                    params
                 }
             };
         },
@@ -138,6 +154,9 @@ define([
                 cqlPolygon.push(cqlPolygon[0]);
             }
             return cqlPolygon;
+        },
+        polygonToCQLMultiPolygon: function(model) {
+            return model.map(this.polygonToCQLPolygon);
         },
         lineToCQLLIne: function(model){
             var cqlLINE = model.map(function (point) {
@@ -221,6 +240,16 @@ define([
             }.bind(this));
 
             return locationFilter;
+        },
+        arrayFromCQLGeometry: function(cql) {
+            // remove opening 'POLYGON(' or 'MULTIPOLYGON(' as well as closing ')'
+            var result = cql.replace(/^\w+\(/, "").replace(/\)$/, "");
+            // change parentheses to array brackets
+            result = result.replace(/\(/g,'[').replace(/\)/g,']');
+            // change each space-separated coordinate pair to a two-element array
+            result = result.replace(/([^,\[\]]+)\s+([^,\[\]]+)/g, '[$1,$2]');
+            // build nested arrays from the string
+            return JSON.parse(result);
         }
     };
 });

@@ -16,9 +16,10 @@ define([
         'underscore',
         'wreqr',
         'maptype',
-        './notification.view'
+        './notification.view',
+        'js/ShapeUtils'
     ],
-    function(Marionette, Backbone, Cesium, _, wreqr, maptype, NotificationView) {
+    function(Marionette, Backbone, Cesium, _, wreqr, maptype, NotificationView, ShapeUtils) {
         "use strict";
         var Draw = {};
 
@@ -34,36 +35,37 @@ define([
                 this.drawPolygon(this.model);
             },
             drawPolygon: function(model) {
-                var polygonPoints = model.toJSON().polygon;
-                if (!polygonPoints) {
-                    return;
-                }
-                var setArr = polygonPoints;
-                if (setArr.length < 3) {
-                    return;
-                }
-                if (polygonPoints[0].toString() !== polygonPoints[polygonPoints.length - 1].toString()) {
-                    polygonPoints.push(polygonPoints[0]);
-                }
+                var json = model.toJSON();
+                var isMultiPolygon =  ShapeUtils.isArray3D(json.polygon);
+                var polygons = isMultiPolygon ? json.polygon : [ json.polygon ];
+
+                var color = this.model.get('color');
 
                 // first destroy old one
                 if (this.primitive && !this.primitive.isDestroyed()) {
                     this.options.map.scene.primitives.remove(this.primitive);
                 }
 
-                var color = this.model.get('color');
-
                 this.primitive = new Cesium.PolylineCollection();
-                this.primitive.add({
-                    width: 8,
-                    material: Cesium.Material.fromType('PolylineOutline', {
-                        color: color ? Cesium.Color.fromCssColorString(color) : Cesium.Color.KHAKI,
-                        outlineColor: Cesium.Color.WHITE,
-                        outlineWidth: 4
-                    }),
-                    id: 'userDrawing',
-                    positions: Cesium.Cartesian3.fromDegreesArray(_.flatten(setArr))
-                });
+
+                (polygons || []).forEach(function(polygonPoints){
+                    if (!polygonPoints || polygonPoints.length < 3) {
+                        return;
+                    }
+                    if (polygonPoints[0].toString() !== polygonPoints[polygonPoints.length - 1].toString()) {
+                        polygonPoints.push(polygonPoints[0]);
+                    }
+                    this.primitive.add({
+                        width: 8,
+                        material: Cesium.Material.fromType('PolylineOutline', {
+                            color: color ? Cesium.Color.fromCssColorString(color) : Cesium.Color.KHAKI,
+                            outlineColor: Cesium.Color.WHITE,
+                            outlineWidth: 4
+                        }),
+                        id: 'userDrawing',
+                        positions: Cesium.Cartesian3.fromDegreesArray(_.flatten(polygonPoints))
+                    });
+                }.bind(this));
 
                 this.options.map.scene.primitives.add(this.primitive);
             },

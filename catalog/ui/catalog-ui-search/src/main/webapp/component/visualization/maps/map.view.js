@@ -254,9 +254,9 @@ module.exports = Marionette.LayoutView.extend({
         }));
     },
     /*
-        Map creation is deferred to this method, so that all resources pertaining to the map can be loaded lazily and 
+        Map creation is deferred to this method, so that all resources pertaining to the map can be loaded lazily and
         not be included in the initial page payload.
-        Because of this, make sure to return a deferred that will resolve when your respective map implementation 
+        Because of this, make sure to return a deferred that will resolve when your respective map implementation
         is finished loading / starting up.
         Also, make sure you resolve that deferred by passing the reference to the map implementation.
     */
@@ -355,16 +355,9 @@ module.exports = Marionette.LayoutView.extend({
                     }
                     break;
                 case 'INTERSECTS':
-                    pointText = filter.value.value.substring(9);
-                    pointText = pointText.substring(0, pointText.length - 2);
-                    pointText = pointText.split(',');
-                    var points = pointText.map(function(pairText) {
-                        return pairText.trim().split(' ').map(function(point) {
-                            return Number(point);
-                        });
-                    });
+                    var filterValue = typeof(filter.value) === 'string' ? filter.value : filter.value.value;
                     locationModel = new LocationModel({
-                        polygon: points,
+                        polygon: CQLUtils.arrayFromCQLGeometry(filterValue),
                         color: color
                     });
                     this.map.showPolygonShape(locationModel);

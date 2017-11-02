@@ -19,9 +19,10 @@ define([
         'properties',
         'wreqr',
         'maptype',
-        './notification.view'
+        './notification.view',
+        'js/ShapeUtils'
     ],
-    function(Marionette, Backbone, ol, _, properties, wreqr, maptype, NotificationView) {
+    function(Marionette, Backbone, ol, _, properties, wreqr, maptype, NotificationView, ShapeUtils) {
         "use strict";
 
         var Draw = {};
@@ -63,10 +64,9 @@ define([
                 });
             },
 
-            modelToPolygon: function(model) {
-                var polygon = model.get('polygon');
+            coordsToLineString: function(rawCoords) {
                 var coords = [];
-                var setArr = _.uniq(polygon);
+                var setArr = _.uniq(rawCoords);
                 if (setArr.length < 3) {
                     return;
                 }
@@ -78,8 +78,21 @@ define([
                 if (!_.isEqual(coords[0], coords[coords.length - 1])) {
                     coords.push(coords[0]);
                 }
-                var rectangle = new ol.geom.LineString(coords);
-                return rectangle;
+                return new ol.geom.LineString(coords);
+            },
+
+            modelToPolygon: function(model) {
+                var coords = model.get('polygon');
+                if (!coords) { return; }
+                var isMultiPolygon = ShapeUtils.isArray3D(coords);
+                var multiPolygon = isMultiPolygon ? coords : [coords];
+
+                var multiLineString = new ol.geom.MultiLineString([]);
+                _.each(multiPolygon, function(polygon) {
+                    multiLineString.appendLineString(this.coordsToLineString(polygon));
+                }.bind(this));
+
+                return multiLineString;
             },
 
             updatePrimitive: function(model) {

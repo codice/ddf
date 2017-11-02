@@ -191,11 +191,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-main</artifactId>
-            <version>14.4</version>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>filter-proxy</artifactId>
             <scope>test</scope>
@@ -254,6 +249,15 @@
             <groupId>org.codice.ddf</groupId>
             <artifactId>alerts</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.thirdparty</groupId>
+            <artifactId>geotools-suite</artifactId>
+            <version>${org.geotools.bundle.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.vividsolutions</groupId>
+            <artifactId>jts</artifactId>
         </dependency>
     </dependencies>
 

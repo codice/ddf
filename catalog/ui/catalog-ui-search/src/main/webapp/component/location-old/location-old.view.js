@@ -26,10 +26,11 @@ define([
     'js/CQLUtils',
     'component/property/property',
     'component/announcement',
-    'js/DistanceUtils'
+    'js/DistanceUtils',
+    'js/ShapeUtils'
 ], function (require, $, Backbone, Marionette, _, properties, wreqr, template, maptype,
              store, CustomElements, LocationOldModel, CQLUtils, Property, Announcement, 
-             DistanceUtils) {
+             DistanceUtils, ShapeUtils) {
     var minimumDifference = 0.0001;
     var minimumBuffer = 0.000001;
     var deltaThreshold = 0.0000001;
@@ -180,16 +181,9 @@ define([
                         }
                         break;
                     case 'INTERSECTS':
-                        var pointText = filter.value.value.substring(9);
-                        pointText = pointText.substring(0, pointText.length - 2);
-                        pointText = pointText.split(',');
-                        var points = pointText.map(function (pairText) {
-                            return pairText.trim().split(' ').map(function (point) {
-                                return Number(point);
-                            });
-                        });
+                        var filterValue = typeof(filter.value) === 'string' ? filter.value : filter.value.value;
                         this.model.set({
-                            polygon: points
+                            polygon: CQLUtils.arrayFromCQLGeometry(filterValue)
                         });
                         wreqr.vent.trigger('search:polydisplay', this.model);
                         break;
@@ -376,18 +370,9 @@ define([
                 }
             }, polygonConverter = function (direction, value) {
                 if (value !== undefined && direction === 'ViewToModel') {
-                    return $.parseJSON(value);
+                    return JSON.parse(value);
                 } else if (value !== undefined && direction === 'ModelToView') {
-                    var retVal = '[';
-                    for (var i = 0; i < value.length; i++) {
-                        var point = value[i];
-                        retVal += '[' + point[0] + ', ' + point[1] + ']';
-                        if (i < value.length - 1) {
-                            retVal += ', ';
-                        }
-                    }
-                    retVal += ']';
-                    return retVal;
+                    return JSON.stringify(value);
                 }
             }, utmZoneConverter = function (direction, value) {
                 if (direction === 'ModelToView') {
@@ -462,9 +447,9 @@ define([
                 url: '/search/catalog/internal/geofeature/suggestions',
                 type: 'AUTOCOMPLETE'
             });
-            this.listenTo(keywordProperty, 'change:value', this.handleGetKeyword);            
+            this.listenTo(keywordProperty, 'change:value', this.handleGetKeyword);
             var PropertyView = require('component/property/property.view');
-            var keywordPropertyView = new PropertyView({ model: keywordProperty });            
+            var keywordPropertyView = new PropertyView({ model: keywordProperty });
             keywordPropertyView.turnOnLimitedWidth();
             this.keyword.show(keywordPropertyView);
         },
@@ -501,27 +486,20 @@ define([
             var eventToDrawShape = null;
             var attrsToSet = null;
 
-            switch(data.type) {
-                case "bbox": {
-                    var { north, south, west, east } = data;
-                    attrsToSet = { north, south, west, east };
-                    eventToDrawShape = 'search:bboxdisplay';                    
-                    break;
-                }
-                case "polygon": {
-                    var polygon = data.coordinates.map(function(coord){
-                        return [coord.latitude, coord.longitude];
-                    });
+            var geometry = data.geometry || {};
+            switch(geometry.type) {
+                case "Polygon": {
+                    var polygon = geometry.coordinates[0]; // outer ring only
                     attrsToSet = { polygon, bbox: undefined };
                     eventToDrawShape = 'search:polydisplay';
                     break;
                 }
-                case "point-radius": {
-                    var lat = data.center.latitude;
-                    var lon = data.center.longitude;
-                    var radius = data.radius;
-                    attrsToSet = { lat, lon, radius, bbox: undefined };
-                    eventToDrawShape = 'search:circledisplay';                    
+                case "MultiPolygon": {
+                    var polygon = geometry.coordinates.map(function(ring){
+                        return ring[0]; // outer ring only
+                    });
+                    attrsToSet = { polygon, bbox: undefined };
+                    eventToDrawShape = 'search:polydisplay';
                     break;
                 }
                 default: {
@@ -535,10 +513,10 @@ define([
             }
 
             _.extend(attrsToSet, { locationType: "latlon", hasKeyword: true });
-            this.clearLocation();                 
+            this.clearLocation();
             this.model.set(attrsToSet);
             this.render(); // redraw template so appropriate fields appear
-            wreqr.vent.trigger(eventToDrawShape, this.model);      
+            wreqr.vent.trigger(eventToDrawShape, this.model);
         },
         blockMultiselectEvents: function () {
             $('.ui-multiselect-menu').on('mousedown', function (e) {
@@ -598,7 +576,7 @@ define([
             if (modelJSON.north !== undefined && modelJSON.south !== undefined && modelJSON.east !== undefined && modelJSON.west !== undefined) {
                 type = 'BBOX';
             } else if (modelJSON.polygon !== undefined) {
-                type = 'POLYGON';
+                type = ShapeUtils.isArray3D(modelJSON.polygon) ? 'MULTIPOLYGON' : 'POLYGON';
             } else if (modelJSON.lat !== undefined && modelJSON.lon !== undefined && (modelJSON.radius !== undefined)) {
                 type = 'POINTRADIUS'
             } else if (modelJSON.line !== undefined && (modelJSON.lineWidth !== undefined)) {
@@ -615,7 +593,7 @@ define([
             wreqr.vent.trigger('search:drawend', this.model);
             if (this.getFeatureByKeywordXHR){
                 this.getFeatureByKeywordXHR.abort();
-            }            
+            }
         }
     });
 });
