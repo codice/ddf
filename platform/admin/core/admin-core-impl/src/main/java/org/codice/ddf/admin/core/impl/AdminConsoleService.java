@@ -425,12 +425,11 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
   private Object sanitizeUIConfiguration(
       String pid, String configEntryKey, Object configEntryValue) {
     if (UI_CONFIG_PID.equals(pid)
-        && ("color".equals(configEntryKey) || "background".equals(configEntryKey))) {
-      if (Arrays.stream(ILLEGAL_CHARACTERS)
-          .parallel()
-          .anyMatch(String.valueOf(configEntryValue)::contains)) {
-        throw loggedException("Invalid UI Configuration");
-      }
+        && ("color".equals(configEntryKey) || "background".equals(configEntryKey))
+        && (Arrays.stream(ILLEGAL_CHARACTERS)
+            .parallel()
+            .anyMatch(String.valueOf(configEntryValue)::contains))) {
+      throw loggedException("Invalid UI Configuration");
     }
     return configEntryValue;
   }
