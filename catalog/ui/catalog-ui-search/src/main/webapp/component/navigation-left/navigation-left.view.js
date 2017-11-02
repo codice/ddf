@@ -58,14 +58,16 @@ module.exports = Marionette.LayoutView.extend({
         });
         this.$el.toggleClass('has-unavailable', hasDown);
     },
+    hasLogo: function() {
+        return properties.showLogo && properties.ui.vendorImage !== "";
+    },
     handleLogo: function() {
-        var hasLogo = properties.showLogo && properties.ui.vendorImage !== "";
-        this.$el.toggleClass('has-logo', hasLogo);
+        this.$el.toggleClass('has-logo', this.hasLogo());
     },
     serializeData: function(){
         return {
             logo: properties.ui.vendorImage,
-            showLogo: properties.showLogo && properties.ui.vendorImage !== ""
+            showLogo: this.hasLogo()
         };
     }
 });
