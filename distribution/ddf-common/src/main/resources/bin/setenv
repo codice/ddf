@@ -91,7 +91,7 @@ export EXTRA_JAVA_OPTS
 export DDF_ON_ERROR="bin/ddf_on_error.sh script "
 
 # Defines the special on-error Java options
-JAVA_ERROR_OPTS="-XX:OnOutOfMemoryError=\_DO_NOT_EXPAND_${DDF_ON_ERROR}%p -XX:OnError=\_DO_NOT_EXPAND_${DDF_ON_ERROR}%p"
+JAVA_ERROR_OPTS="-XX:OnOutOfMemoryError=\${DDF_ON_ERROR}%p -XX:OnError=\${DDF_ON_ERROR}%p"
 
 export KARAF_OPTS="-Dfile.encoding=UTF8 -Dddf.home=$DDF_HOME -Dddf.home.policy=$DDF_HOME/"
 export JAVA_OPTS="-Xms2g -Xmx4g -XX:+UnlockDiagnosticVMOptions -XX:+DisableAttachMechanism $JAVA_ERROR_OPTS"
