@@ -122,8 +122,6 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public void run() {
-      String methodName = "run";
-
       SortBy sortBy = query.getSortBy();
       // Prepare the Comparators that we will use
       Comparator<Result> coreComparator = DEFAULT_COMPARATOR;
@@ -165,6 +163,7 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
               site.getId(),
               e);
           processingDetails.add(new ProcessingDetailsImpl(site.getId(), e));
+          Thread.currentThread().interrupt();
         } catch (ExecutionException e) {
           LOGGER.info(
               "Couldn't get results from completed federated query on site {}", site.getId(), e);

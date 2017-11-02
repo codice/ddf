@@ -275,7 +275,7 @@ public abstract class AbstractFederationStrategy implements FederationStrategy {
       this.maxStartIndex = maxStartIndex;
       LOGGER.debug("New max start index: {}", this.maxStartIndex);
     } else {
-      LOGGER.debug("Invalid max start index input. Reset to default value: " + this.maxStartIndex);
+      LOGGER.debug("Invalid max start index input. Reset to default value: {}", this.maxStartIndex);
     }
   }
 

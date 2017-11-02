@@ -28,7 +28,6 @@ import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.data.ReliableResource;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -109,15 +108,9 @@ public class ResourceCacheImpl implements ResourceCacheInterface {
         cfg = xmlConfigBuilder.build();
         LOGGER.debug(
             "Successfully built hazelcast config from XML config file {}", xmlConfigFilename);
-      } catch (FileNotFoundException e) {
-        LOGGER.info(
-            "FileNotFoundException trying to build hazelcast config from XML file "
-                + xmlConfigFilename,
-            e);
-        cfg = null;
       } catch (IOException e) {
         LOGGER.info(
-            "IOException trying to build hazelcast config from XML file " + xmlConfigFilename, e);
+            e.getClass().getSimpleName() + " trying to build hazelcast config from XML file " + xmlConfigFilename, e);
         cfg = null;
       }
     }
@@ -304,8 +297,8 @@ public class ResourceCacheImpl implements ResourceCacheInterface {
     if (cachedResource != null) {
       if (!validateCacheEntry(cachedResource, latestMetacard)) {
         LOGGER.debug(
-            "Entry found in cache was out-of-date or otherwise invalid.  Will need to be re-cached.  Entry key: {} "
-                + key);
+            "Entry found in cache was out-of-date or otherwise invalid.  Will need to be re-cached.  Entry key: {} ",
+                key);
         return null;
       }
 
@@ -315,8 +308,8 @@ public class ResourceCacheImpl implements ResourceCacheInterface {
       } else {
         cache.remove(key);
         LOGGER.debug(
-            "Entry found in the cache, but no product found in cache directory for key = {} "
-                + key);
+            "Entry found in the cache, but no product found in cache directory for key = {} ",
+                key);
         return null;
       }
     } else {

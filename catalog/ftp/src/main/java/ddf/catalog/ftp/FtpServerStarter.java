@@ -58,13 +58,13 @@ public class FtpServerStarter {
 
   private static FtpServer server;
 
-  private static FtpServerFactory serverFactory;
+  private FtpServerFactory serverFactory;
 
-  private static UserManager userManager;
+  private UserManager userManager;
 
-  private static ListenerFactory listenerFactory;
+  private ListenerFactory listenerFactory;
 
-  private static SslConfigurationFactory sslConfigurationFactory;
+  private SslConfigurationFactory sslConfigurationFactory;
 
   private Ftplet ftplet;
 
@@ -252,7 +252,8 @@ public class FtpServerStarter {
           break;
         }
       } catch (InterruptedException e) {
-        Thread.interrupted();
+        Thread.interrupted();                   //<<<<<<<< Do we still need this line?
+        Thread.currentThread().interrupt();
         LOGGER.info("Thread interrupted while waiting for FTP connections to close", e);
       }
     }

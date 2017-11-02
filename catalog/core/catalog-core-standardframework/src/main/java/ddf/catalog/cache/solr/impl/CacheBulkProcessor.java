@@ -65,10 +65,7 @@ public class CacheBulkProcessor {
       final long delay,
       final TimeUnit delayUnit,
       CacheStrategy cacheStrategy) {
-    batchScheduler.scheduleWithFixedDelay(
-        new Runnable() {
-          @Override
-          public void run() {
+    batchScheduler.scheduleWithFixedDelay(() -> {
             try {
               if (metacardsToCache.size() > 0
                   && (metacardsToCache.size() >= batchSize || timeToFlush())) {
@@ -88,10 +85,9 @@ public class CacheBulkProcessor {
               }
             } catch (VirtualMachineError vme) {
               throw vme;
-            } catch (Throwable throwable) {
-              LOGGER.warn("Scheduled bulk ingest to cache failed", throwable);
+            } catch (Exception e) {
+              LOGGER.warn("Scheduled bulk ingest to cache failed", e);
             }
-          }
         },
         delay,
         delay,

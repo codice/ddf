@@ -544,6 +544,10 @@ public class QueryOperations extends DescribableImpl {
 
     int queryPageSize = queryRequest.getQuery().getPageSize();
 
+    if (queryPageSize > MAX_PAGE_SIZE || queryPageSize <= 0) {
+      LOGGER.error("IllegalArgumentException PAGE SIZE EXCEEDED");
+    }
+
     if (queryPageSize >= 1 && queryPageSize <= MAX_PAGE_SIZE) {
       return queryRequest;
     }

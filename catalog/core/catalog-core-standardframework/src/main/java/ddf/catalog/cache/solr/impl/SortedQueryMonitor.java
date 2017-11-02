@@ -170,7 +170,7 @@ class SortedQueryMonitor implements Runnable {
           LOGGER.debug("Source {} returned null response", sourceId);
           executePostFederationQueryPluginsWithSourceError(
               queryRequest, sourceId, new NullPointerException(), processingDetails);
-        } else {
+        } else if (queryRequest != null) {
           sourceResponse = executePostFederationQueryPlugins(sourceResponse, queryRequest);
           resultList.addAll(sourceResponse.getResults());
           long hits = sourceResponse.getHits();
@@ -190,6 +190,7 @@ class SortedQueryMonitor implements Runnable {
 
         // Then add the interrupted exception for the remaining sources
         interruptRemainingSources(processingDetails, e);
+        Thread.currentThread().interrupt();
         break;
       } catch (ExecutionException e) {
         LOGGER.info(
@@ -296,12 +297,10 @@ class SortedQueryMonitor implements Runnable {
 
     try {
       for (PostFederatedQueryPlugin service : postQuery) {
-        try {
           queryResponse = service.process(queryResponse);
-        } catch (PluginExecutionException e) {
-          LOGGER.info("Error executing PostFederatedQueryPlugin", e);
-        }
       }
+    } catch (PluginExecutionException e) {
+        LOGGER.info("Error executing PostFederatedQueryPlugin", e);
     } catch (StopProcessingException e) {
       LOGGER.info("Plugin stopped processing", e);
     }
