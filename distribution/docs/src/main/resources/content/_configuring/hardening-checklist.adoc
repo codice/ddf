@@ -9,7 +9,6 @@
 
 The following list enumerates the required mitigations needed for hardening:
 
-* [ ] <<_environment_hardening,Environment Hardening>>
 * [ ] <<_setting_directory_permissions, Set Directory Permissions>>
 * [ ] <<_managing_keystores_and_certificates,Configure Keystore and Certificates>>
 * [ ] <<_managing_certificate_revocation_list_crl,Configure Certificate Revocation List>>
@@ -18,9 +17,12 @@ The following list enumerates the required mitigations needed for hardening:
 * [ ] <<_restricting_feature_app_service_and_configuration_access, Restrict Feature, App, Service, and Configuration Access>>
 * [ ] <<_limiting_access_to_the_sts, Limit Access to the STS>>
 * [ ] <<_removing_default_users,Remove Default Users>>
-* [ ] <<_enabling_guest_authentication,Enable Guest Authentication>> (if allowing Guest users)
+* [ ] <<_configuring_guest_access,Configure Guest User Authentication>>
+** [ ] <<_denying_guest_user_access,Deny Guest User Access>> (if denying Guest users)
+** [ ] <<_allowing_guest_user_access,Allow Guest User Access>> (if allowing Guest users)
 * [ ] <<_configuring_guest_claim_attributes,Configure Guest Claim Attributes>> (if allowing Guest users)
 * [ ] <<_hardening_solr_index,Harden Solr Index>>
 * [ ] <<_isolating_solr_cloud_and_zookeeper,Isolate Solr Cloud and Zookeeper>>. (If using)
 * [ ] <<_auditing,Configure Auditing>>
+* [ ] <<_environment_hardening,Environment Hardening>>
 

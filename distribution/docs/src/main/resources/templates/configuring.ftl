@@ -8,12 +8,14 @@ include::${ci.file}[leveloffset=+1]
 
 include::${configuration.file}[leveloffset=+2]
 
-'''
 
 <#list subConfigurations?sort_by("order") as subConfiguration>
 <#if (subConfiguration.parent == configuration.title)>
 
 include::${subConfiguration.file}[leveloffset=+3]
+
+'''
+
 </#if>
 </#list>
 </#if>

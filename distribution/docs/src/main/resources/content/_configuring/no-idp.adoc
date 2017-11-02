@@ -1,11 +1,16 @@
 :title: Configuring Without an IdP
 :type: subConfiguration
-:status: draft
+:status: published
 :parent: Configuring REST Services for Users
 :summary: Configuring without an IdP.
-:order: 02
-////
+:order: 20
+
 == {title}
 
-TODO: https://codice.atlassian.net/browse/DDF-3351 - Update documentation for Configuring User Access section
-////
+To configure ${branding} to not use an Identity Provider (IdP), simply disable the IdP feature.
+
+. Navigate to the *{admin-console}*.
+. Select the *${ddf-security}* application.
+. Select *Features*.
+. Uninstall the `security-idp` feature.
+

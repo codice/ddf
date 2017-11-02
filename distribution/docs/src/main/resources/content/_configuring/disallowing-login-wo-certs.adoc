@@ -1,9 +1,11 @@
 :title: Disallowing Login Without Certificates
-:type: subConfiguration
+:type: configuration
 :status: published
 :parent: Managing Keystores and Certificates
 :summary: Requiring certificate to log in.
-:order: 02
+:order: 01
+
+== {title}
 
 ${branding} can be configured to prevent login without a valid PKI certificate.
 

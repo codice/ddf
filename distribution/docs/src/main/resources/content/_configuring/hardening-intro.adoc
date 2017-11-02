@@ -16,3 +16,6 @@ Where available, necessary migitations to harden an installation of ${branding} 
 Refer to the <<_hardening_checklist,Hardening Checklist>> for a compilation of these mitigations.
 ****
 
+These security precautions are best performed as configuration is taking place, so hardening steps are integrated into configuration steps.
+This is to avoid setting an insecure configuration and having to revisit during hardening.
+Most configurations have a security component to them, and important considerations for hardening are labeled as such during configuration as well as provided in a checklist format.
