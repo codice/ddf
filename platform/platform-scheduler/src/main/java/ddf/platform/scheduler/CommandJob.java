@@ -127,7 +127,7 @@ public class CommandJob implements Job {
         try {
           LOGGER.trace("Executing command [{}]", commandInput);
           session.execute(commandInput);
-          LOGGER.trace(
+          LOGGER.info(
               "Execution Output: {}",
               byteArrayOutputStream.toString(StandardCharsets.UTF_8.name()));
         } catch (CommandNotFoundException e) {
