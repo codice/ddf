@@ -33,8 +33,9 @@ rem karaf script afterwards.
 rem
 
 rem Set environment variable for DDF home directory (used by DDF Java code)
-set DDF_HOME=%~dp0%..
-set DDF_HOME=%DDF_HOME:\=/%
+rem DDF-3433: Settings for DDF_HOME and related items have been migrated to etc/system.properties
+rem set DDF_HOME=%~dp0%..
+rem set DDF_HOME=%DDF_HOME:\=/%
 
 rem
 rem The following section shows the possible configuration options for the default 
@@ -60,8 +61,6 @@ rem Additional available Karaf options
 rem SET KARAF_OPTS=
 rem Uncomment out the line below to enable cxf logging interceptors
 rem set EXTRA_JAVA_OPTS="-Dcom.sun.xml.ws.transport.http.HttpAdapter.dump=true"
-
-set DDF_HOME_POLICY=/%DDF_HOME:/bin/..=/%
 
 rem
 rem Admins can uncomment the following line and comment out the other definition of
@@ -100,5 +99,6 @@ rem Defines the special on-error Java options
 rem set JAVA_ERROR_OPTS=-XX:OnOutOfMemoryError=%DDF_ON_ERROR%%%p -XX:OnError=%DDF_ON_ERROR%%%p
 set JAVA_ERROR_OPTS=-XX:OnOutOfMemoryError=%DDF_ON_ERROR% -XX:OnError=%DDF_ON_ERROR%
 
-set KARAF_OPTS=-Dfile.encoding=UTF8 -Dddf.home=%DDF_HOME% -Dddf.home.policy=%DDF_HOME_POLICY% 
-set JAVA_OPTS=-Xms2g -Xmx4g -Dderby.system.home="%DDF_HOME%\data\derby" -Dderby.storage.fileSyncTransactionLog=true -XX:+DisableAttachMechanism %JAVA_ERROR_OPTS%
+set KARAF_OPTS=-Dfile.encoding=UTF8
+
+set JAVA_OPTS=-Xms2g -Xmx4g -Dderby.storage.fileSyncTransactionLog=true -Dfile.encoding=UTF8 -XX:+DisableAttachMechanism %JAVA_ERROR_OPTS%

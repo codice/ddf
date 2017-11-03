@@ -30,10 +30,10 @@
 # in example of the start script where the start script is executed first and the
 # karaf script afterwards.
 #
-DIRNAME=`dirname "$0"`
+DIRNAME=$(dirname "$0")
 
 # Set environment variable for DDF home directory (used by DDF Java code)
-DDF_HOME=`cd $DIRNAME/..; pwd -P`
+DDF_HOME=$(cd "${DIRNAME}/.."; pwd -P)
 
 # NOTE: export on separate line to support caveat of Solaris OS
 export DDF_HOME
@@ -93,5 +93,6 @@ export DDF_ON_ERROR="bin/ddf_on_error.sh script "
 # Defines the special on-error Java options
 JAVA_ERROR_OPTS="-XX:OnOutOfMemoryError=\${DDF_ON_ERROR}%p -XX:OnError=\${DDF_ON_ERROR}%p"
 
-export KARAF_OPTS="-Dfile.encoding=UTF8 -Dddf.home=$DDF_HOME -Dddf.home.policy=$DDF_HOME/"
+export KARAF_OPTS="-Dfile.encoding=UTF8"
+
 export JAVA_OPTS="-Xms2g -Xmx4g -XX:+UnlockDiagnosticVMOptions -XX:+DisableAttachMechanism $JAVA_ERROR_OPTS"
