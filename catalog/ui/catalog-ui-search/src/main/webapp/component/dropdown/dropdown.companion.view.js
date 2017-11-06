@@ -72,7 +72,7 @@ define([
             this.$el.css('min-width', Math.min(clientRect.width, window.innerWidth - 20));
         },
         updateFilterMaxHeight: function(bottomRoom){
-            var extraRoom = 0;
+            var extraRoom = '0rem';
             if (this.isMultiSelect()){
                 extraRoom = '2.75rem';
             }
