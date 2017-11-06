@@ -33,6 +33,34 @@ var store = require('js/store');
 var user = require('component/singletons/user-instance');
 var VisualizationDropdown = require('component/dropdown/visualization-selector/dropdown.visualization-selector.view');
 var DropdownModel = require('component/dropdown/dropdown');
+const sanitize = require('sanitize-html');
+
+const treeMap = (obj, fn, path = []) => {
+    if (Array.isArray(obj)) {
+        return obj.map((v, i) => treeMap(v, fn, path.concat(i)));
+    }
+
+    if (obj !== null && typeof obj === 'object') {
+        return Object.keys(obj)
+            .map((k) => [k, treeMap(obj[k], fn, path.concat(k))])
+            .reduce((o, [k, v]) => {
+                o[k] = v;
+                return o;
+            }, {});
+    }
+
+    return fn(obj, path);
+};
+
+const sanitizeTree = (tree) => treeMap(tree, (obj) => {
+    if (typeof obj === 'string') {
+        return sanitize(obj, {
+            allowedTags: [],
+            allowedAttributes: []
+        });
+    }
+    return obj;
+});
 
 var defaultGoldenLayoutContent = {
     content: properties.defaultLayout || [{
@@ -185,7 +213,7 @@ module.exports = Marionette.LayoutView.extend({
             currentConfig = defaultGoldenLayoutContent;
         }
         _merge(currentConfig, getGoldenLayoutSettings());
-        return currentConfig;
+        return sanitizeTree(currentConfig);
     },
     registerGoldenLayoutComponents: function(){
         registerComponent(this, 'inspector', InspectorView);
