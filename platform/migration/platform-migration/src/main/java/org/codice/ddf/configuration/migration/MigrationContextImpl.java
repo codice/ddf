@@ -34,7 +34,7 @@ import org.codice.ddf.migration.MigrationReport;
  * folder will correspond to a specific {@link Migratable} instance used to export configurations
  * where the folder name will correspond to the identifier of the migratable. Underneath these
  * folders, the structure will be specific to each migratables. By convention files should be in a
- * path corresponding to where it was originally located underneath DDF_HOME.
+ * path corresponding to where they were originally located underneath DDF_HOME.
  *
  * <p>The metadata used by the framework will be located in the root of the zip in a file named
  * export.json and follow the following format:
@@ -58,19 +58,35 @@ import org.codice.ddf.migration.MigrationReport;
  *               "name": "etc/system.properties"
  *             }
  *           ],
+ *           "folders": [
+ *             {
+ *               "name": "etc/ws-security",
+ *               "filtered": false,
+ *               "files": [
+ *                 "etc/ws-security/issuer/encryption.properties",
+ *                 "etc/ws-security/issuer/signature.properties"
+ *               ],
+ *               "last-modified" : 123456
+ *             }
+ *           ],
  *           "externals": [
  *             {
  *               "name": "/tmp/some.txt",
- *               "checksum": "a234f",
+ *               "folder": false,
+ *               "checksum": "a234f"
  *             },
  *             {
  *               "name": "etc/ws-security/some.link",
  *               "checksum": "123a234f",
- *               "softlink": true,
+ *               "softlink": true
  *             },
  *             {
  *               "name": "../tmp/bob.txt",
  *               "checksum": "bcda234f"
+ *             },
+ *             {
+ *               "name": "../tmp",
+ *               "folder": false
  *             }
  *           ],
  *           "system.properties": [
@@ -104,6 +120,13 @@ import org.codice.ddf.migration.MigrationReport;
  *   <li>'description' provides an optional description associated with the migratable
  *   <li>'organization' provides an optional organization defining the migratable
  *   <li>'files' provides a list of exported files by the framework on behalf of the migratables
+ *   <li>'folders' provides a list of exported folders by the framework on behalf of the migratables
+ *       with a list of all the files ('files') that were actually exported
+ *   <li>'filtered' is used to indicate if the content of the directory was filtered if <code>true
+ *       </code> or if all files in the directory were exported if <code>false</code> or if not
+ *       provided
+ *   <li>'last-modified' provides the last modified time for the directory in milliseconds from the
+ *       epoch if provided
  *   <li>'externals' provides an optional list of external files that should be present on the
  *       destination system as they were not exported
  *   <li>'system.properties' provides an optional list of java properties files containing a system
@@ -111,6 +134,8 @@ import org.codice.ddf.migration.MigrationReport;
  *   <li>'java.properties' provides an optional list of java properties files containing a Java
  *       property that references a file
  *   <li>'name' indicates the name of a file (absolute or relative to DDF_HOME). It is required
+ *   <li>'folder' indicates the entry represents an external folder if <code>true</code> or a file
+ *       if <code>false</code> or if not provided
  *   <li>'checksum' provides the optional MD5 checksum for the file as computed on the original
  *       system
  *   <li>'softlink' provides an optional boolean flag indicating if the file on the original system
@@ -142,6 +167,8 @@ public class MigrationContextImpl<R extends MigrationReport> implements Migratio
   public static final String METADATA_ORGANIZATION = "organization";
 
   public static final String METADATA_FILES = "files";
+
+  public static final String METADATA_FOLDERS = "folders";
 
   public static final String METADATA_EXTERNALS = "externals";
 

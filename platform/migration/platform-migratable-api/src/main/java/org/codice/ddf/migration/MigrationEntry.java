@@ -23,6 +23,7 @@ import java.nio.file.Path;
  * be removed in a future version of the library. </b>
  */
 public interface MigrationEntry extends Comparable<MigrationEntry> {
+
   /**
    * Gets the migration report associated with this entry. Warnings or errors can be recorded with
    * the report.
@@ -53,6 +54,22 @@ public interface MigrationEntry extends Comparable<MigrationEntry> {
    * @return a path for this entry
    */
   public Path getPath();
+
+  /**
+   * Tests whether this entry represents a directory.
+   *
+   * @return <code>true</code> if and only if the entry represents a directory; <code>false</code>
+   *     otherwise
+   */
+  public boolean isDirectory();
+
+  /**
+   * Tests whether this entry represents a file.
+   *
+   * @return <code>true</code> if and only if the entry represents a file; <code>false</code>
+   *     otherwise
+   */
+  public boolean isFile();
 
   /**
    * Gets the last modification time of the entry.

@@ -13,12 +13,14 @@
  */
 package org.codice.ddf.migration;
 
+import java.nio.file.PathMatcher;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 public class ImportMigrationEntryTest {
+
   private final ImportMigrationEntry entry =
       Mockito.mock(ImportMigrationEntry.class, Mockito.CALLS_REAL_METHODS);
 
@@ -38,5 +40,27 @@ public class ImportMigrationEntryTest {
     Assert.assertThat(entry.restore(), Matchers.equalTo(true));
 
     Mockito.verify(entry).restore(true);
+  }
+
+  @Test
+  public void testRestoreWithFilterReturnsFalse() throws Exception {
+    final PathMatcher filter = Mockito.mock(PathMatcher.class);
+
+    Mockito.when(entry.restore(Mockito.eq(true), Mockito.same(filter))).thenReturn(false);
+
+    Assert.assertThat(entry.restore(filter), Matchers.equalTo(false));
+
+    Mockito.verify(entry).restore(Mockito.eq(true), Mockito.same(filter));
+  }
+
+  @Test
+  public void testRestoreWithFilterReturnsTrue() throws Exception {
+    final PathMatcher filter = Mockito.mock(PathMatcher.class);
+
+    Mockito.when(entry.restore(Mockito.eq(true), Mockito.same(filter))).thenReturn(true);
+
+    Assert.assertThat(entry.restore(filter), Matchers.equalTo(true));
+
+    Mockito.verify(entry).restore(Mockito.eq(true), Mockito.same(filter));
   }
 }

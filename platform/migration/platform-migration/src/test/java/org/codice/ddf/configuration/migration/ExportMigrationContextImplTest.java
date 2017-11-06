@@ -40,6 +40,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 public class ExportMigrationContextImplTest extends AbstractMigrationSupport {
+
   private static final String PROPERTY_NAME = "test.property";
 
   private static final String PROPERTY_NAME2 = "test.property2";
@@ -617,7 +618,7 @@ public class ExportMigrationContextImplTest extends AbstractMigrationSupport {
   @Test
   public void testEntriesWithNullFilter() throws Exception {
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage(Matchers.containsString("null filter"));
+    thrown.expectMessage(Matchers.containsString("null path filter"));
 
     final Path etc = createDirectory("etc");
 

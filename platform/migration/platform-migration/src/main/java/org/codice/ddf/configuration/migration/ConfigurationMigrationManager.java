@@ -15,7 +15,6 @@ package org.codice.ddf.configuration.migration;
 
 import com.google.common.annotations.VisibleForTesting;
 import ddf.security.common.audit.SecurityLogger;
-import java.io.File;
 import java.io.IOError;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
@@ -58,7 +57,9 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
 
   private static final String EXPORT_EXTENSION = ".zip";
 
-  private static final String EXPORT_PREFIX = "exported-";
+  private static final String EXPORTED = "exported";
+
+  private static final String EXPORT_PREFIX = ConfigurationMigrationManager.EXPORTED + '-';
 
   private static final String INVALID_NULL_EXPORT_DIR = "invalid null export directory";
 
@@ -203,11 +204,7 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
     if (report.hasErrors()) {
       SecurityLogger.audit("Errors exporting configuration settings to file {}", exportFile);
       // don't leave the zip file there if the export failed
-      if (FileUtils.deleteQuietly(exportFile.toFile())) {
-        SecurityLogger.audit("Deleted exported file {}", exportFile);
-      } else {
-        SecurityLogger.audit("Failed to delete exported file {}", exportFile);
-      }
+      PathUtils.deleteQuietly(exportFile, ConfigurationMigrationManager.EXPORTED);
       report.record(new MigrationException(Messages.EXPORT_FAILURE, exportFile));
     } else if (report.hasWarnings()) {
       SecurityLogger.audit("Warnings exporting configuration settings to file {}", exportFile);
@@ -245,13 +242,13 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
     } else if (report.hasWarnings()) {
       SecurityLogger.audit("Warnings importing configuration settings from file {}", exportFile);
       // don't leave the zip file there if the import succeeded
-      deleteQuietly(exportFile.toFile());
+      PathUtils.deleteQuietly(exportFile, ConfigurationMigrationManager.EXPORTED);
       report.record(new MigrationWarning(Messages.IMPORT_SUCCESS_WITH_WARNINGS, exportFile));
       report.record(new MigrationWarning(Messages.RESTART_SYSTEM_WHEN_WARNINGS));
     } else {
       SecurityLogger.audit("Exported configuration settings from file {}", exportFile);
       // don't leave the zip file there if the import succeeded
-      deleteQuietly(exportFile.toFile());
+      PathUtils.deleteQuietly(exportFile, ConfigurationMigrationManager.EXPORTED);
       report.record(new MigrationSuccessfulInformation(Messages.IMPORT_SUCCESS, exportFile));
       // force a JVM restart
       restart(report);
@@ -289,13 +286,5 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
       return true;
     }
     return false;
-  }
-
-  private void deleteQuietly(File exportFile) {
-    if (FileUtils.deleteQuietly(exportFile)) {
-      SecurityLogger.audit("Exported file {} deleted", exportFile);
-    } else {
-      SecurityLogger.audit("Failed to delete exported file {}", exportFile);
-    }
   }
 }

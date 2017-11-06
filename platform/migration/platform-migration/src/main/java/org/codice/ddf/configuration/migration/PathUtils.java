@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.configuration.migration;
 
+import ddf.security.common.audit.SecurityLogger;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOError;
 import java.io.IOException;
@@ -21,10 +23,103 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
+import org.codice.ddf.migration.MigrationReport;
+import org.codice.ddf.migration.MigrationWarning;
 
 public class PathUtils {
+
+  private static final String INVALID_NULL_PATH = "invalid null path";
+
+  /**
+   * Quietly deletes the specified file or recursively deletes the specified directory and audit the
+   * result. The provided directory is deleted.
+   *
+   * @param path the file or directory to be deleted
+   * @param type a string representing the type of file or directory to delete
+   * @return <code>true</code> if the file or directory was deleted, <code>false</code> otherwise
+   * @throws IllegalArgumentException if <code>path</code> or <code>type</code> is <code>null</code>
+   */
+  public static boolean deleteQuietly(Path path, String type) {
+    Validate.notNull(path, PathUtils.INVALID_NULL_PATH);
+    Validate.notNull(type, "invalid null type");
+    final File file = path.toFile();
+
+    if (FileUtils.deleteQuietly(file)) {
+      SecurityLogger.audit("{} file {} deleted", StringUtils.capitalize(type), file);
+      return true;
+    }
+    SecurityLogger.audit("Failed to delete {} file {}", StringUtils.lowerCase(type), file);
+    return false;
+  }
+
+  /**
+   * Quietly deletes the specified file or recursively cleans up the specified directory by removing
+   * all empty sub-directories. The provided directory is not deleted even if it becomes empty.
+   *
+   * @param path the file ot directory to be cleaned
+   * @param report the report where to record warning messages if unable to delete the file or
+   *     directories
+   * @return <code>true</code> if the file was deleted or the directory is empty, <code>false</code>
+   *     otherwise
+   * @throws IllegalArgumentException if <code>path</code> or <code>report</code> is <code>null
+   * </code>
+   */
+  public static boolean cleanQuietly(Path path, MigrationReport report) {
+    Validate.notNull(path, PathUtils.INVALID_NULL_PATH);
+    Validate.notNull(report, "invalid null report");
+    final File file = path.toFile();
+
+    if (file.isDirectory()) {
+      return PathUtils.cleanQuietly(file, report);
+    }
+    if (FileUtils.deleteQuietly(file)) {
+      SecurityLogger.audit("File {} deleted", file);
+      return true;
+    }
+    SecurityLogger.audit("Failed to delete file {}", file);
+    report.record(new MigrationWarning(Messages.IMPORT_PATH_DELETE_WARNING, file));
+    return false;
+  }
+
+  /**
+   * Recursively cleans up a given directory by removing all empty sub-directories. The provided
+   * directory is not deleted even if it is or becomes empty.
+   *
+   * @param directory the directory to be cleaned
+   * @param report the report where to record warnings for directories that could not be deleted
+   * @return <code>true</code> if the directory is empty; <code>false</code> otherwise
+   */
+  private static boolean cleanQuietly(File directory, MigrationReport report) {
+    if (!directory.isDirectory()) {
+      return false;
+    }
+    final File[] files = directory.listFiles();
+
+    if (ArrayUtils.isEmpty(files)) {
+      return true;
+    }
+    boolean empty = true; // until proven otherwise
+
+    for (final File f : files) {
+      if (PathUtils.cleanQuietly(f, report)) {
+        if (!f.delete()) {
+          SecurityLogger.audit("Failed to delete directory {}", f);
+          report.record(new MigrationWarning(Messages.IMPORT_PATH_DELETE_WARNING, f));
+          empty = false;
+        } else {
+          SecurityLogger.audit("Directory {} deleted", f);
+        }
+      } else {
+        empty = false;
+      }
+    }
+    return empty;
+  }
 
   // Forced to define it as non-static to simplify unit testing.
   private final Path ddfHome;
@@ -110,7 +205,7 @@ public class PathUtils {
   @SuppressWarnings(
       "squid:S2093" /* try-with-resource will throw IOException with InputStream and we do not care to get that exception */)
   public String getChecksumFor(Path path) throws IOException {
-    Validate.notNull(path, "invalid null path");
+    Validate.notNull(path, PathUtils.INVALID_NULL_PATH);
     InputStream is = null;
 
     try {

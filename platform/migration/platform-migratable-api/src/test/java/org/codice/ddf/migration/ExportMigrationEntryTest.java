@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.migration;
 
+import java.nio.file.PathMatcher;
 import java.util.Optional;
 import java.util.function.BiPredicate;
 import org.hamcrest.Matcher;
@@ -24,6 +25,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 public class ExportMigrationEntryTest {
+
   private static final String PROPERTY_NAME = "test.property";
 
   private final MigrationReport report = Mockito.mock(MigrationReport.class);
@@ -111,5 +113,27 @@ public class ExportMigrationEntryTest {
     Assert.assertThat(entry.store(), Matchers.equalTo(true));
 
     Mockito.verify(entry).store(true);
+  }
+
+  @Test
+  public void testStoreWithFilterReturnsFalse() throws Exception {
+    final PathMatcher filter = Mockito.mock(PathMatcher.class);
+
+    Mockito.when(entry.store(Mockito.eq(true), Mockito.same(filter))).thenReturn(false);
+
+    Assert.assertThat(entry.store(filter), Matchers.equalTo(false));
+
+    Mockito.verify(entry).store(Mockito.eq(true), Mockito.same(filter));
+  }
+
+  @Test
+  public void testStoreWithFilterReturnsTrue() throws Exception {
+    final PathMatcher filter = Mockito.mock(PathMatcher.class);
+
+    Mockito.when(entry.store(Mockito.eq(true), Mockito.same(filter))).thenReturn(true);
+
+    Assert.assertThat(entry.store(filter), Matchers.equalTo(true));
+
+    Mockito.verify(entry).store(Mockito.eq(true), Mockito.same(filter));
   }
 }

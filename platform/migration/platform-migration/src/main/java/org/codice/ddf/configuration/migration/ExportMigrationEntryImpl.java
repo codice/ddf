@@ -25,13 +25,17 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiPredicate;
+import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -70,6 +74,8 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
 
   private final String name;
 
+  private boolean isFile;
+
   /**
    * Will track if store was attempted along with its result. Will be <code>null</code> until
    * store() is attempted, at which point it will start tracking the first store() result.
@@ -97,14 +103,21 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
       // make sure it is resolved against ddf.home and not the current working directory
       apath =
           AccessUtils.doPrivileged(
-              () ->
-                  context
-                      .getPathUtils()
-                      .resolveAgainstDDFHome(path)
-                      .toRealPath(LinkOption.NOFOLLOW_LINKS));
+              () -> {
+                final Path p =
+                    context
+                        .getPathUtils()
+                        .resolveAgainstDDFHome(path)
+                        .toRealPath(LinkOption.NOFOLLOW_LINKS);
+
+                this.isFile = p.toFile().isFile();
+                return p;
+              });
       aerror = null;
     } catch (IOException e) {
       apath = path;
+      this.isFile =
+          true; // since we can't find an absolute path on disk, we got to assume it's a file
       // remember the error in case the migratable attempts to store the file from disk later
       // instead of providing its own data
       aerror = e;
@@ -156,12 +169,25 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
   }
 
   @Override
+  public boolean isDirectory() {
+    return !isFile;
+  }
+
+  @Override
+  public boolean isFile() {
+    return isFile;
+  }
+
+  @Override
   public long getLastModifiedTime() {
     return file.lastModified();
   }
 
   @Override
   public OutputStream getOutputStream() throws IOException {
+    this.isFile =
+        true; // force it to be represented as a file since the migratable will be providing the
+    // data
     recordEntry();
     return getOutputStreamWithoutRecordingEntry();
   }
@@ -174,12 +200,35 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
       }
       this.stored = false; // until proven otherwise
       if (absolutePathError instanceof NoSuchFileException) {
-        this.stored = storeWhenNoSuchFile(required);
+        this.stored = handleStoreWhenNoSuchFile(required);
       } else if (absolutePathError != null) {
         SecurityLogger.audit(ExportMigrationEntryImpl.ERROR_EXPORTING_FILE, absolutePath);
         getReport().record(newError("cannot be read", absolutePathError));
       } else {
-        this.stored = storeWhenFileExist();
+        this.stored = handleStoreWhenFileExist(null);
+      }
+    }
+    return stored;
+  }
+
+  @Override
+  public boolean store(boolean required, PathMatcher filter) {
+    Validate.notNull(filter, "invalid null path filter");
+    if (stored == null) {
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug(
+            "Exporting {}{} with path filter...", (required ? "required " : ""), toDebugString());
+      }
+      this.stored = false; // until proven otherwise
+      if (isFile && !filter.matches(path)) {
+        this.stored = handleStoreWhenFilterMismatch(required);
+      } else if (absolutePathError instanceof NoSuchFileException) {
+        this.stored = handleStoreWhenNoSuchFile(required);
+      } else if (absolutePathError != null) {
+        SecurityLogger.audit(ExportMigrationEntryImpl.ERROR_EXPORTING_FILE, absolutePath);
+        getReport().record(newError("cannot be read", absolutePathError));
+      } else {
+        this.stored = handleStoreWhenFileExist(filter);
       }
     }
     return stored;
@@ -281,11 +330,21 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
     return new MigrationWarning(Messages.EXPORT_PATH_WARNING, path, reason);
   }
 
-  protected MigrationException newError(String reason, Throwable cause) {
+  protected MigrationException newError(String reason, Object cause) {
     return new MigrationException(Messages.EXPORT_PATH_ERROR, path, reason, cause);
   }
 
-  private boolean storeWhenNoSuchFile(boolean required) {
+  private boolean handleStoreWhenFilterMismatch(boolean required) {
+    // we have a filter that doesn't match this entry and the entry represents
+    // a file, so treat it as if the file was not there to start with
+    if (required) {
+      getReport().record(newError("was not copied", "it does not match filter"));
+      return false;
+    } // else - optional so no warnings/errors - just skip it and treat it as successful
+    return true;
+  }
+
+  private boolean handleStoreWhenNoSuchFile(boolean required) {
     // we cannot rely on file.exists() here since the path is not valid anyway
     // relying on the exception is much safer and gives us the true story
     if (required) {
@@ -295,31 +354,57 @@ public class ExportMigrationEntryImpl extends MigrationEntryImpl implements Expo
     return true;
   }
 
-  private boolean storeWhenFileExist() {
+  private boolean handleStoreWhenFileExist(@Nullable PathMatcher filter) {
     return AccessUtils.doPrivileged(
         () -> {
           if (isMigratable()) {
             recordEntry();
-            try (final OutputStream os = getOutputStreamWithoutRecordingEntry()) {
-              context.getReport().recordFile(this);
-              FileUtils.copyFile(file, os);
-              SecurityLogger.audit("Exported file {}", absolutePath);
-              return true;
-            } catch (ExportIOException e) {
-              // special case indicating the I/O error occurred while writing to the zip which
-              // would invalidate the zip so we are forced to abort
-              SecurityLogger.audit(ExportMigrationEntryImpl.ERROR_EXPORTING_FILE, absolutePath);
-              throw newError(ExportMigrationEntryImpl.FAILED_TO_BE_EXPORTED, e.getCause());
-            } catch (IOException e) {
-              // here it means the error came out of reading/processing the input file/stream
-              // where it is safe to continue with the next entry, so don't abort
-              SecurityLogger.audit(ExportMigrationEntryImpl.ERROR_EXPORTING_FILE, absolutePath);
-              getReport().record(newError(ExportMigrationEntryImpl.FAILED_TO_BE_EXPORTED, e));
-            }
-            return false;
+            return isFile ? handleStoreFile() : handleStoreDirectory(filter);
           } // else - if it ain't migratable then only a warning occurs so return true
           return true;
         });
+  }
+
+  private boolean handleStoreFile() {
+    try (final OutputStream os = getOutputStreamWithoutRecordingEntry()) {
+      context.getReport().recordFile(this);
+      FileUtils.copyFile(file, os);
+      SecurityLogger.audit("Exported file {}", absolutePath);
+      return true;
+    } catch (ExportIOException e) {
+      // special case indicating the I/O error occurred while writing to the zip which
+      // would invalidate the zip so we are forced to abort
+      SecurityLogger.audit(ExportMigrationEntryImpl.ERROR_EXPORTING_FILE, absolutePath);
+      throw newError(ExportMigrationEntryImpl.FAILED_TO_BE_EXPORTED, e.getCause());
+    } catch (IOException e) {
+      // here it means the error came out of reading/processing the input file/stream
+      // where it is safe to continue with the next entry, so don't abort
+      SecurityLogger.audit(ExportMigrationEntryImpl.ERROR_EXPORTING_FILE, absolutePath);
+      getReport().record(newError(ExportMigrationEntryImpl.FAILED_TO_BE_EXPORTED, e));
+    }
+    return false;
+  }
+
+  private boolean handleStoreDirectory(@Nullable PathMatcher filter) {
+    final Set<String> files = new HashSet<>();
+    // all files underneath the directory are optional so pass false to store()
+    final boolean dirStored =
+        ((filter != null) ? context.entries(path, filter) : context.entries(path))
+            .peek(e -> files.add(e.getName()))
+            .map(e -> e.store(false))
+            .reduce(true, Boolean::logicalAnd);
+
+    if (dirStored) {
+      context.getReport().recordDirectory(this, filter, files);
+      SecurityLogger.audit("Exported directory {}", absolutePath);
+    } else {
+      SecurityLogger.audit("Error exporting directory {}", absolutePath);
+      getReport()
+          .record(
+              newError(
+                  ExportMigrationEntryImpl.FAILED_TO_BE_EXPORTED, "some directory entries failed"));
+    }
+    return dirStored;
   }
 
   private OutputStream getOutputStreamWithoutRecordingEntry() throws IOException {
