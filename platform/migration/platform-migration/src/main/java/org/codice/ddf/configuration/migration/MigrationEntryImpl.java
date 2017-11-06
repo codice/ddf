@@ -20,15 +20,24 @@ import org.codice.ddf.migration.MigrationReport;
 
 /** This class provides an abstract and base implementation of the {@link MigrationEntry}. */
 public abstract class MigrationEntryImpl implements MigrationEntry {
+
   public static final String METADATA_NAME = "name";
 
-  public static final String METADATA_CHECKSUM = "checksum";
+  public static final String METADATA_FOLDER = "folder";
 
   public static final String METADATA_SOFTLINK = "softlink";
 
   public static final String METADATA_PROPERTY = "property";
 
   public static final String METADATA_REFERENCE = "reference";
+
+  public static final String METADATA_CHECKSUM = "checksum";
+
+  public static final String METADATA_FILTERED = "filtered";
+
+  public static final String METADATA_LAST_MODIFIED = "last-modified";
+
+  public static final String METADATA_FILES = "files";
 
   protected MigrationEntryImpl() {}
 

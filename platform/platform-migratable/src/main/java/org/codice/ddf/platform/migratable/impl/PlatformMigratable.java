@@ -47,17 +47,16 @@ public class PlatformMigratable implements Migratable {
 
   private static final Path BIN_DIR = Paths.get("bin");
 
-  private static final Path WS_SECURITY_DIR = Paths.get("etc", "ws-security");
-
-  private static final List<Path> REQUIRED_SYSTEM_FILES =
+  private static final List<Path> REQUIRED_SYSTEM_PATHS =
       ImmutableList.of( //
           Paths.get("security", "default.policy"),
+          Paths.get("etc", "ws-security"),
           Paths.get("etc", "system.properties"),
           Paths.get("etc", "startup.properties"),
           Paths.get("etc", "custom.properties"),
           Paths.get("etc", "config.properties"));
 
-  private static final List<Path> OPTIONAL_SYSTEM_FILES =
+  private static final List<Path> OPTIONAL_SYSTEM_PATHS =
       ImmutableList.of( //
           Paths.get("etc", "users.properties"),
           Paths.get("etc", "users.attributes"),
@@ -101,18 +100,16 @@ public class PlatformMigratable implements Migratable {
 
   @Override
   public void doExport(ExportMigrationContext context) {
-    LOGGER.debug("Exporting required system files...");
-    PlatformMigratable.REQUIRED_SYSTEM_FILES
+    LOGGER.debug("Exporting required system files & directories...");
+    PlatformMigratable.REQUIRED_SYSTEM_PATHS
         .stream()
         .map(context::getEntry)
         .forEach(ExportMigrationEntry::store);
-    LOGGER.debug("Exporting optional system files...");
-    PlatformMigratable.OPTIONAL_SYSTEM_FILES
+    LOGGER.debug("Exporting optional system files & directories...");
+    PlatformMigratable.OPTIONAL_SYSTEM_PATHS
         .stream()
         .map(context::getEntry)
         .forEach(me -> me.store(false));
-    LOGGER.debug("Exporting security files from [{}]...", PlatformMigratable.WS_SECURITY_DIR);
-    context.entries(PlatformMigratable.WS_SECURITY_DIR).forEach(ExportMigrationEntry::store);
     LOGGER.debug("Exporting keystore and truststore...");
     context
         .getSystemPropertyReferencedEntry(PlatformMigratable.KEYSTORE_SYSTEM_PROP)
@@ -131,19 +128,16 @@ public class PlatformMigratable implements Migratable {
 
   @Override
   public void doImport(ImportMigrationContext context) {
-    LOGGER.debug("Importing required system files...");
-    PlatformMigratable.REQUIRED_SYSTEM_FILES
+    LOGGER.debug("Importing required system files & directories...");
+    PlatformMigratable.REQUIRED_SYSTEM_PATHS
         .stream()
         .map(context::getEntry)
         .forEach(ImportMigrationEntry::restore);
-    LOGGER.debug("Importing optional system files...");
-    PlatformMigratable.OPTIONAL_SYSTEM_FILES
+    LOGGER.debug("Importing optional system files & directories...");
+    PlatformMigratable.OPTIONAL_SYSTEM_PATHS
         .stream()
         .map(context::getEntry)
         .forEach(me -> me.restore(false));
-    LOGGER.debug("Importing [{}]...", PlatformMigratable.WS_SECURITY_DIR);
-    context.cleanDirectory(PlatformMigratable.WS_SECURITY_DIR);
-    context.entries(PlatformMigratable.WS_SECURITY_DIR).forEach(ImportMigrationEntry::restore);
     LOGGER.debug("Importing keystore and truststore...");
     context
         .getSystemPropertyReferencedEntry(PlatformMigratable.KEYSTORE_SYSTEM_PROP)

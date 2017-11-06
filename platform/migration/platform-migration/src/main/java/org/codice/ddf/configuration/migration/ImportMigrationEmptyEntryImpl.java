@@ -25,7 +25,7 @@ import java.util.Optional;
 public class ImportMigrationEmptyEntryImpl extends ImportMigrationEntryImpl {
 
   ImportMigrationEmptyEntryImpl(ImportMigrationContextImpl context, Path path) {
-    super(context, path);
+    super(context, path, true);
   }
 
   @Override

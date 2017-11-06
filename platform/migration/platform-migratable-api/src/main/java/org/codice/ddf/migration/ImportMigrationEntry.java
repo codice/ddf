@@ -15,6 +15,7 @@ package org.codice.ddf.migration;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.PathMatcher;
 import java.util.Optional;
 import org.codice.ddf.util.function.BiThrowingConsumer;
 
@@ -97,7 +98,8 @@ public interface ImportMigrationEntry extends MigrationEntry {
 
   /**
    * Restores this entry's content underneath the distribution root directory based on this entry's
-   * path which can include sub-directories.
+   * path which can include sub-directories. If the entry represents a directory than all files
+   * recursively located underneath the directory will automatically be imported.
    *
    * <p>This entry's sub-directories (if any) will be created if they don't already exist. The
    * destination file will be overwritten if it already exists.
@@ -115,6 +117,11 @@ public interface ImportMigrationEntry extends MigrationEntry {
    *       as possible to report to the user before aborting the operation.
    * </ol>
    *
+   * <p><i>Note:</i> If this entry represents a directory which had been completely exported using
+   * {@link ExportMigrationEntry#store} or {@link ExportMigrationEntry#store(boolean)} then in
+   * addition to restoring all entries recursively, calling this method will also remove any
+   * existing files or directories that were not on the original system.
+   *
    * <p><i>Note:</i> Calling <code>restore()</code> twice will not restore the entry two times. The
    * second time it is called, the same result will be returned as the first time no matter which
    * <code>restore()</code> method was called.
@@ -122,7 +129,7 @@ public interface ImportMigrationEntry extends MigrationEntry {
    * @return <code>true</code> if no errors were recorded as a result of processing this command;
    *     <code>false</code> otherwise
    * @throws MigrationException if a failure that prevents the operation from continuing occurred
-   * @throws SecurityException if a security manager exists and the entry was exported by the
+   * @throws SecurityException if a security manager exists and the file entry was exported by the
    *     migratable directly using {@link ExportMigrationEntry#store(BiThrowingConsumer)} or {@link
    *     ExportMigrationEntry#getOutputStream()}) and its <code>checkWrite()</code> method denies
    *     write access or its <code>checkDelete()</code> denies delete access to the file represented
@@ -134,7 +141,53 @@ public interface ImportMigrationEntry extends MigrationEntry {
 
   /**
    * Restores this entry's content underneath the distribution root directory based on this entry's
-   * path which can include sub-directories.
+   * path which can include sub-directories. If the entry represents a directory then all files
+   * recursively located underneath the directory will automatically be imported.
+   *
+   * <p>This entry's sub-directories (if any) will be created if they don't already exist. The
+   * destination file will be overwritten if it already exists.
+   *
+   * <p>All errors and warnings are automatically recorded with the associated migration report.
+   *
+   * <p>Errors can be reported in two ways:
+   *
+   * <ol>
+   *   <li>Errors that abort the whole operation would be thrown out as {@link MigrationException}
+   *       (e.g. failure to write to the exported file)
+   *   <li>Errors that are specific to this specific entry and that will eventually fail the export
+   *       operation at the end. Such errors are simply recorded with the report and <code>false
+   *       </code> is returned from this method. This allows for the accumulation of as many issues
+   *       as possible to report to the user before aborting the operation.
+   * </ol>
+   *
+   * <p><i>Note:</i> If this entry represents a directory which had been completely exported using
+   * {@link ExportMigrationEntry#store} or {@link ExportMigrationEntry#store(boolean)} then in
+   * addition to restoring all entries recursively, calling this method will also remove any
+   * existing files or directories that were not on the original system.
+   *
+   * <p><i>Note:</i> Calling <code>restore()</code> twice will not restore the entry two times. The
+   * second time it is called, the same result will be returned as the first time no matter which
+   * <code>restore()</code> method was called.
+   *
+   * @param required <code>true</code> if the file or directory is required to exist in the export
+   *     and if it doesn't an error should be recorded; <code>false</code> if the file or directory
+   *     is optional and may not be exported in which case calling this method will do nothing
+   * @return <code>true</code> if no errors were recorded as a result of processing this command;
+   *     <code>false</code> otherwise
+   * @throws MigrationException if a failure that prevents the operation from continuing occurred
+   * @throws SecurityException if a security manager exists and the file entry was exported by the
+   *     migratable directly using {@link ExportMigrationEntry#store(BiThrowingConsumer)} or {@link
+   *     ExportMigrationEntry#getOutputStream()}) and its <code>checkWrite()</code> method denies
+   *     write access or its <code>checkDelete()</code> denies delete access to the file represented
+   *     by this entry
+   */
+  public boolean restore(boolean required);
+
+  /**
+   * Restores all files that recursively match the provided path filter underneath the distribution
+   * root directory based on this entry's path which can include sub-directories. If the entry
+   * represents a file that does not match the provided path filter then nothing will be imported
+   * and <code>true</code> will be returned.
    *
    * <p>This entry's sub-directories (if any) will be created if they don't already exist. The
    * destination file will be overwritten if it already exists.
@@ -156,11 +209,55 @@ public interface ImportMigrationEntry extends MigrationEntry {
    * second time it is called, the same result will be returned as the first time no matter which
    * <code>restore()</code> method was called.
    *
-   * @param required <code>true</code> if the file is required to exist in the export and if it
-   *     doesn't an error should be recorded; <code>false</code> if the file is optional and may not
-   *     be exported in which case calling this method will do nothing
+   * @param filter the path filter to use
    * @return <code>true</code> if no errors were recorded as a result of processing this command;
    *     <code>false</code> otherwise
+   * @throws IllegalArgumentException if <code>filter</code> is <code>null </code>
+   * @throws MigrationException if a failure that prevents the operation from continuing occurred
+   * @throws SecurityException if a security manager exists and the file entry was exported by the
+   *     migratable directly using {@link ExportMigrationEntry#store(BiThrowingConsumer)} or {@link
+   *     ExportMigrationEntry#getOutputStream()}) and its <code>checkWrite()</code> method denies
+   *     write access or its <code>checkDelete()</code> denies delete access to the file represented
+   *     by this entry
+   */
+  public default boolean restore(PathMatcher filter) {
+    return restore(true, filter);
+  }
+
+  /**
+   * Restores all entries that recursively match the provided path filter underneath the
+   * distribution root directory based on this entry's path which can include sub-directories. If
+   * the entry represents a file that does not match the provided path filter then nothing will be
+   * imported and the entry will be considered as non-existent when the <code>required</code>
+   * parameter is interpreted for recording errors and deciding what to return.
+   *
+   * <p>This entry's sub-directories (if any) will be created if they don't already exist. The
+   * destination file will be overwritten if it already exists.
+   *
+   * <p>All errors and warnings are automatically recorded with the associated migration report.
+   *
+   * <p>Errors can be reported in two ways:
+   *
+   * <ol>
+   *   <li>Errors that abort the whole operation would be thrown out as {@link MigrationException}
+   *       (e.g. failure to write to the exported file)
+   *   <li>Errors that are specific to this specific entry and that will eventually fail the export
+   *       operation at the end. Such errors are simply recorded with the report and <code>false
+   *       </code> is returned from this method. This allows for the accumulation of as many issues
+   *       as possible to report to the user before aborting the operation.
+   * </ol>
+   *
+   * <p><i>Note:</i> Calling <code>restore()</code> twice will not restore the entry two times. The
+   * second time it is called, the same result will be returned as the first time no matter which
+   * <code>restore()</code> method was called.
+   *
+   * @param required <code>true</code> if the file or directory is required to exist in the export
+   *     and if it doesn't an error should be recorded; <code>false</code> if the file or directory
+   *     is optional and may not be exported in which case calling this method will do nothing
+   * @param filter the path filter to use
+   * @return <code>true</code> if no errors were recorded as a result of processing this command;
+   *     <code>false</code> otherwise
+   * @throws IllegalArgumentException if <code>filter</code> is <code>null </code>
    * @throws MigrationException if a failure that prevents the operation from continuing occurred
    * @throws SecurityException if a security manager exists and the entry was exported by the
    *     migratable directly using {@link ExportMigrationEntry#store(BiThrowingConsumer)} or {@link
@@ -168,7 +265,7 @@ public interface ImportMigrationEntry extends MigrationEntry {
    *     write access or its <code>checkDelete()</code> denies delete access to the file represented
    *     by this entry
    */
-  public boolean restore(boolean required);
+  public boolean restore(boolean required, PathMatcher filter);
 
   /**
    * Restores this required entry's content appropriately based on this entry's path which can
@@ -192,12 +289,12 @@ public interface ImportMigrationEntry extends MigrationEntry {
    * operation completes successfully or not.
    *
    * @param consumer a consumer capable of importing the content of this entry from a provided input
-   *     stream which might be empty if the entry was not exported (otherwise an error will
-   *     automatically be recorded)
+   *     stream which might be empty if the entry was not exported or if the entry represents a
+   *     directory (otherwise an error will automatically be recorded)
    * @return <code>true</code> if no errors were recorded as a result of processing this command;
    *     <code>false</code> otherwise
-   * @throws MigrationException if a failure that prevents the operation from continuing occurred
    * @throws IllegalArgumentException if <code>consumer</code> is <code>null</code>
+   * @throws MigrationException if a failure that prevents the operation from continuing occurred
    * @throws SecurityException if a security manager exists and the entry was exported by the
    *     framework using {@link ExportMigrationEntry#store()} or {@link
    *     ExportMigrationEntry#store(boolean)} and its <code>checkRead()</code> method denies read
@@ -213,7 +310,8 @@ public interface ImportMigrationEntry extends MigrationEntry {
    * regardless of whether or not the operation completes successfully for the associated
    * migratable.
    *
-   * @return an input stream for this entry or empty if it was not exported
+   * @return an input stream for this entry or empty if it was not exported or if it represents a
+   *     directory
    * @throws IOException if an I/O error has occurred
    * @throws SecurityException if a security manager exists and the entry was exported by the
    *     framework using {@link ExportMigrationEntry#store()} or {@link
