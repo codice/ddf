@@ -13,11 +13,13 @@
  */
 package org.codice.ddf.configuration.migration;
 
+import com.google.common.collect.ImmutableSet;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 import org.apache.commons.io.FilenameUtils;
 import org.codice.ddf.migration.MigrationInformation;
@@ -243,6 +245,85 @@ public class ExportMigrationReportImplTest extends AbstractMigrationSupport {
   }
 
   @Test
+  public void testRecordDirectoryWhenNotFiltered() throws Exception {
+    final Set<String> files = ImmutableSet.of(UNIX_NAME);
+    final Path dirPath = ddfHome.resolve("dir");
+
+    initContext();
+    final ExportMigrationEntryImpl entry = new ExportMigrationEntryImpl(context, dirPath);
+
+    Assert.assertThat(xreport.recordDirectory(entry, null, files), Matchers.sameInstance(xreport));
+
+    final Map<String, Object> metadata = xreport.getMetadata();
+
+    Assert.assertThat(
+        metadata,
+        Matchers.hasEntry(
+            Matchers.equalTo(MigrationContextImpl.METADATA_FOLDERS),
+            Matchers.instanceOf(List.class)));
+    final List<Object> fmetadata =
+        (List<Object>) metadata.get(MigrationContextImpl.METADATA_FOLDERS);
+
+    Assert.assertThat(
+        fmetadata,
+        Matchers.allOf(
+            Matchers.iterableWithSize(1), Matchers.contains(Matchers.instanceOf(Map.class))));
+    final Map<String, Object> cmetadata = (Map<String, Object>) fmetadata.get(0);
+
+    Assert.assertThat(
+        cmetadata,
+        Matchers.allOf(
+            Matchers.aMapWithSize(4),
+            Matchers.hasEntry(MigrationEntryImpl.METADATA_NAME, entry.getName()),
+            Matchers.hasEntry(MigrationEntryImpl.METADATA_FILTERED, (Object) false),
+            Matchers.hasEntry(
+                MigrationEntryImpl.METADATA_LAST_MODIFIED, (Object) entry.getLastModifiedTime()),
+            Matchers.hasEntry(
+                Matchers.equalTo(MigrationEntryImpl.METADATA_FILES),
+                Matchers.<Object>sameInstance(files))));
+  }
+
+  @Test
+  public void testRecordDirectoryWhenFiltered() throws Exception {
+    final Set<String> files = ImmutableSet.of(UNIX_NAME);
+    final Path dirPath = ddfHome.resolve("dir");
+
+    initContext();
+    final ExportMigrationEntryImpl entry = new ExportMigrationEntryImpl(context, dirPath);
+
+    Assert.assertThat(
+        xreport.recordDirectory(entry, p -> true, files), Matchers.sameInstance(xreport));
+
+    final Map<String, Object> metadata = xreport.getMetadata();
+
+    Assert.assertThat(
+        metadata,
+        Matchers.hasEntry(
+            Matchers.equalTo(MigrationContextImpl.METADATA_FOLDERS),
+            Matchers.instanceOf(List.class)));
+    final List<Object> fmetadata =
+        (List<Object>) metadata.get(MigrationContextImpl.METADATA_FOLDERS);
+
+    Assert.assertThat(
+        fmetadata,
+        Matchers.allOf(
+            Matchers.iterableWithSize(1), Matchers.contains(Matchers.instanceOf(Map.class))));
+    final Map<String, Object> cmetadata = (Map<String, Object>) fmetadata.get(0);
+
+    Assert.assertThat(
+        cmetadata,
+        Matchers.allOf(
+            Matchers.aMapWithSize(4),
+            Matchers.hasEntry(MigrationEntryImpl.METADATA_NAME, entry.getName()),
+            Matchers.hasEntry(MigrationEntryImpl.METADATA_FILTERED, (Object) true),
+            Matchers.hasEntry(
+                MigrationEntryImpl.METADATA_LAST_MODIFIED, (Object) entry.getLastModifiedTime()),
+            Matchers.hasEntry(
+                Matchers.equalTo(MigrationEntryImpl.METADATA_FILES),
+                Matchers.<Object>sameInstance(files))));
+  }
+
+  @Test
   public void testRecordExternalFile() throws Exception {
     createFile(createDirectory(DIRS), FILENAME);
     initContext();
@@ -269,9 +350,45 @@ public class ExportMigrationReportImplTest extends AbstractMigrationSupport {
     Assert.assertThat(
         emetadata,
         Matchers.allOf(
+            Matchers.aMapWithSize(4),
+            Matchers.hasEntry(MigrationEntryImpl.METADATA_NAME, entry.getName()),
+            Matchers.hasEntry(MigrationEntryImpl.METADATA_FOLDER, (Object) false),
+            Matchers.hasKey(MigrationEntryImpl.METADATA_CHECKSUM),
+            Matchers.hasEntry(MigrationEntryImpl.METADATA_SOFTLINK, (Object) false)));
+  }
+
+  @Test
+  public void testRecordExternalDirectory() throws Exception {
+    final Path dir = createDirectory(DIRS);
+
+    initContext();
+    final ExportMigrationEntryImpl entry = new ExportMigrationEntryImpl(context, dir);
+
+    Assert.assertThat(xreport.recordExternal(entry, false), Matchers.sameInstance(xreport));
+
+    final Map<String, Object> metadata = xreport.getMetadata();
+
+    Assert.assertThat(
+        metadata,
+        Matchers.hasEntry(
+            Matchers.equalTo(MigrationContextImpl.METADATA_EXTERNALS),
+            Matchers.instanceOf(List.class)));
+    final List<Object> xmetadata =
+        (List<Object>) metadata.get(MigrationContextImpl.METADATA_EXTERNALS);
+
+    Assert.assertThat(
+        xmetadata,
+        Matchers.allOf(
+            Matchers.iterableWithSize(1), Matchers.contains(Matchers.instanceOf(Map.class))));
+    final Map<String, Object> emetadata = (Map<String, Object>) xmetadata.get(0);
+
+    Assert.assertThat(
+        emetadata,
+        Matchers.allOf(
             Matchers.aMapWithSize(3),
             Matchers.hasEntry(MigrationEntryImpl.METADATA_NAME, entry.getName()),
-            Matchers.hasKey(MigrationEntryImpl.METADATA_CHECKSUM),
+            Matchers.hasEntry(MigrationEntryImpl.METADATA_FOLDER, (Object) true),
+            Matchers.not(Matchers.hasKey(MigrationEntryImpl.METADATA_CHECKSUM)),
             Matchers.hasEntry(MigrationEntryImpl.METADATA_SOFTLINK, (Object) false)));
   }
 
@@ -304,8 +421,9 @@ public class ExportMigrationReportImplTest extends AbstractMigrationSupport {
     Assert.assertThat(
         emetadata,
         Matchers.allOf(
-            Matchers.aMapWithSize(2),
+            Matchers.aMapWithSize(3),
             Matchers.hasEntry(MigrationEntryImpl.METADATA_NAME, entry.getName()),
+            Matchers.hasEntry(MigrationEntryImpl.METADATA_FOLDER, (Object) false),
             Matchers.hasEntry(MigrationEntryImpl.METADATA_SOFTLINK, (Object) false)));
   }
 
@@ -341,8 +459,9 @@ public class ExportMigrationReportImplTest extends AbstractMigrationSupport {
     Assert.assertThat(
         emetadata,
         Matchers.allOf(
-            Matchers.aMapWithSize(3),
+            Matchers.aMapWithSize(4),
             Matchers.hasEntry(MigrationEntryImpl.METADATA_NAME, entry.getName()),
+            Matchers.hasEntry(MigrationEntryImpl.METADATA_FOLDER, (Object) false),
             Matchers.hasKey(MigrationEntryImpl.METADATA_CHECKSUM),
             Matchers.hasEntry(MigrationEntryImpl.METADATA_SOFTLINK, (Object) true)));
   }

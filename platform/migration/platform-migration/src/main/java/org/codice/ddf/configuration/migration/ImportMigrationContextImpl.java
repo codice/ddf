@@ -15,13 +15,8 @@ package org.codice.ddf.configuration.migration;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
-import ddf.security.common.audit.SecurityLogger;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.LinkOption;
-import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.util.ArrayList;
@@ -41,7 +36,6 @@ import org.codice.ddf.migration.ImportMigrationEntry;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationReport;
-import org.codice.ddf.migration.MigrationWarning;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -143,97 +137,8 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
 
   @Override
   public Stream<ImportMigrationEntry> entries(Path path, PathMatcher filter) {
-    Validate.notNull(filter, "invalid null filter");
+    Validate.notNull(filter, "invalid null path filter");
     return entries(path).filter(e -> filter.matches(e.getPath()));
-  }
-
-  @Override
-  public boolean cleanDirectory(Path path) {
-    Validate.notNull(path, ImportMigrationContextImpl.INVALID_NULL_PATH);
-    final Path rpath = getPathUtils().resolveAgainstDDFHome(path);
-    final File fdir = rpath.toFile();
-
-    LOGGER.debug("Cleaning up directory [{}]...", fdir);
-    try {
-      if (!AccessUtils.doPrivileged(
-          () -> getPathUtils().isRelativeToDDFHome(rpath.toRealPath(LinkOption.NOFOLLOW_LINKS)))) {
-        LOGGER.info("Failed to clean directory [{}]", fdir);
-        getReport()
-            .record(
-                new MigrationWarning(
-                    Messages.IMPORT_PATH_CLEAN_WARNING,
-                    path,
-                    String.format("not relative to [%s]", getPathUtils().getDDFHome())));
-        return false;
-      }
-    } catch (NoSuchFileException e) {
-      return true;
-    } catch (IOException e) {
-      LOGGER.info("Failed to clean directory [" + fdir + "]: ", e);
-      getReport().record(new MigrationWarning(Messages.IMPORT_PATH_CLEAN_WARNING, path, e));
-      return false;
-    }
-    if (!fdir.exists()) {
-      return true;
-    }
-    if (!fdir.isDirectory()) {
-      LOGGER.info("Failed to clean directory [{}]", fdir);
-      getReport()
-          .record(
-              new MigrationWarning(Messages.IMPORT_PATH_CLEAN_WARNING, path, "not a directory"));
-      return false;
-    }
-    try {
-      ImportMigrationContextImpl.cleanDirectory(fdir);
-      SecurityLogger.audit("Deleted content of directory {}", fdir);
-    } catch (IOException e) {
-      SecurityLogger.audit("Error deleting content of directory {}", fdir);
-      LOGGER.info("Failed to clean directory [" + fdir + "]: ", e);
-      getReport().record(new MigrationWarning(Messages.IMPORT_PATH_CLEAN_WARNING, path, e));
-      return false;
-    }
-    return true;
-  }
-
-  /**
-   * Temporary version of cleanDirectory() that doesn't delete any directories but only files found.
-   * This is to work around a directory handle issue on Windows which leaves the directory in a
-   * weird state and prevents us from recreating it.
-   *
-   * <p>Cleans a directory without deleting it.
-   *
-   * @param directory directory to clean
-   * @throws IOException in case cleaning is unsuccessful
-   */
-  private static void cleanDirectory(final File directory) throws IOException {
-    final File[] files = directory.listFiles();
-
-    if (files == null) { // null if security restricted
-      throw new IOException("failed to list contents of " + directory);
-    }
-    IOException ioe = null;
-
-    for (final File file : files) {
-      try {
-        if (file.isDirectory()) {
-          ImportMigrationContextImpl.cleanDirectory(file);
-        } else {
-          final boolean exists = file.exists();
-
-          if (!file.delete()) {
-            if (!exists) {
-              throw new FileNotFoundException("file does not exist: " + file);
-            }
-            throw new IOException("unable to delete file: " + file);
-          }
-        }
-      } catch (IOException e) {
-        ioe = e;
-      }
-    }
-    if (ioe != null) {
-      throw ioe;
-    }
   }
 
   @SuppressWarnings(
@@ -341,7 +246,7 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
   protected void processMetadata(Map<String, Object> metadata) {
     LOGGER.debug("Imported metadata for {}: {}", id, metadata);
     super.processMetadata(metadata);
-    // process set of exported files by the framework
+    // process files exported by the framework
     JsonUtils.getListFrom(metadata, MigrationContextImpl.METADATA_FILES)
         .stream()
         .map(JsonUtils::convertToMap)
@@ -367,19 +272,28 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
         .stream()
         .map(JsonUtils::convertToMap)
         .map(m -> new ImportMigrationJavaPropertyReferencedEntryImpl(this, m))
-        .forEach(
-            me ->
-                entries.compute(
-                    me.getPropertiesPath(),
-                    (p, mpe) -> {
-                      if (mpe == null) {
-                        // create a new empty migration entry as it was not exported out (at least
-                        // not by this migratable)!!!!
-                        mpe = new ImportMigrationEmptyEntryImpl(this, p);
-                      }
-                      mpe.addPropertyReferenceEntry(me.getProperty(), me);
-                      return mpe;
-                    }));
+        .forEach(this::addToPropertyEntry);
+    // process directories exported by the framework
+    // do this last so it can find all the files that were exported underneath the folders
+    JsonUtils.getListFrom(metadata, MigrationContextImpl.METADATA_FOLDERS)
+        .stream()
+        .map(JsonUtils::convertToMap)
+        .map(m -> new ImportMigrationDirectoryEntryImpl(this, m))
+        .forEach(me -> entries.put(me.getPath(), me));
+  }
+
+  private void addToPropertyEntry(ImportMigrationJavaPropertyReferencedEntryImpl me) {
+    entries.compute(
+        me.getPropertiesPath(),
+        (p, mpe) -> {
+          if (mpe == null) {
+            // create a new empty migration entry as it was not exported out (at least
+            // not by this migratable)!!!!
+            mpe = new ImportMigrationEmptyEntryImpl(this, p);
+          }
+          mpe.addPropertyReferenceEntry(me.getProperty(), me);
+          return mpe;
+        });
   }
 
   /**

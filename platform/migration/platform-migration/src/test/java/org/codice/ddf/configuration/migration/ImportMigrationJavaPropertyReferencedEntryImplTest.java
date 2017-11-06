@@ -61,6 +61,8 @@ public class ImportMigrationJavaPropertyReferencedEntryImplTest extends Abstract
 
   @Mock public ImportMigrationContextImpl mockContext;
 
+  @Mock private ImportMigrationEntryImpl referencedEntry;
+
   public ImportMigrationJavaPropertyReferencedEntryImpl entry;
 
   public Path properties;
@@ -86,8 +88,7 @@ public class ImportMigrationJavaPropertyReferencedEntryImplTest extends Abstract
 
     when(mockContext.getPathUtils()).thenReturn(new PathUtils());
     when(mockContext.getReport()).thenReturn(report);
-    when(mockContext.getOptionalEntry(any(Path.class)))
-        .thenReturn(Optional.of(mock(ImportMigrationEntryImpl.class)));
+    when(mockContext.getOptionalEntry(any(Path.class))).thenReturn(Optional.of(referencedEntry));
 
     entry = new ImportMigrationJavaPropertyReferencedEntryImpl(mockContext, METADATA_MAP);
   }

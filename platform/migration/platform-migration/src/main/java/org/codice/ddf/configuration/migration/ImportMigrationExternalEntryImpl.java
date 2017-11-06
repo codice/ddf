@@ -20,8 +20,10 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.util.Map;
 import java.util.Optional;
+import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationReport;
 import org.codice.ddf.migration.MigrationWarning;
@@ -43,7 +45,10 @@ public class ImportMigrationExternalEntryImpl extends ImportMigrationEntryImpl {
 
   ImportMigrationExternalEntryImpl(
       ImportMigrationContextImpl context, Map<String, Object> metadata) {
-    super(context, JsonUtils.getStringFrom(metadata, MigrationEntryImpl.METADATA_NAME, true));
+    super(
+        context,
+        JsonUtils.getStringFrom(metadata, MigrationEntryImpl.METADATA_NAME, true),
+        !JsonUtils.getBooleanFrom(metadata, MigrationEntryImpl.METADATA_FOLDER, false));
     this.checksum = JsonUtils.getStringFrom(metadata, MigrationEntryImpl.METADATA_CHECKSUM, false);
     this.softlink = JsonUtils.getBooleanFrom(metadata, MigrationEntryImpl.METADATA_SOFTLINK, false);
   }
@@ -58,11 +63,28 @@ public class ImportMigrationExternalEntryImpl extends ImportMigrationEntryImpl {
     if (restored == null) {
       // until proven otherwise in case the next line throws an exception
       super.restored = false;
-
       if (LOGGER.isDebugEnabled()) {
         LOGGER.debug("Verifying {}{}...", (required ? "required " : ""), toDebugString());
       }
-      super.restored = verifyRealFile(required);
+      super.restored = verifyRealFileOrDirectory(required);
+    }
+    return restored;
+  }
+
+  @Override
+  public boolean restore(boolean required, PathMatcher filter) {
+    Validate.notNull(filter, "invalid null path filter");
+    if (restored == null) {
+      this.restored = false; // until proven otherwise
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug(
+            "Verifying {}{} with path filter...", (required ? "required " : ""), toDebugString());
+      }
+      if (filter.matches(getPath())) {
+        super.restored = verifyRealFileOrDirectory(required);
+      } else {
+        super.restored = verifyRealFileOrDirectoryWhenFilterNotMatching(required);
+      }
     }
     return restored;
   }
@@ -87,18 +109,31 @@ public class ImportMigrationExternalEntryImpl extends ImportMigrationEntryImpl {
     return softlink;
   }
 
+  private boolean verifyRealFileOrDirectoryWhenFilterNotMatching(boolean required) {
+    // we have a filter that doesn't match this entry, so treat it as if the file was not
+    // there to start with
+    if (required) {
+      getReport()
+          .record(
+              new MigrationException(
+                  Messages.IMPORT_PATH_ERROR, getAbsolutePath(), "it does not match filter"));
+      return false;
+    } // else - optional so no warnings/errors - just skip it and treat it as successful
+    return true;
+  }
+
   /**
-   * Verifies the corresponding existing file to see if it matches the original one based on the
-   * exported info.
+   * Verifies the corresponding existing file or directory to see if it matches the original one
+   * based on the exported info.
    *
-   * @param required <code>true</code> if the file was required to be exported; <code>false</code>
-   *     if it was optional
+   * @param required <code>true</code> if the file or directory was required to be exported; <code>
+   * false</code> if it was optional
    * @return <code>false</code> if an error was detected during verification; <code>true</code>
    *     otherwise
    */
   @SuppressWarnings(
       "squid:S3725" /* Files.isRegularFile() is used for consistency and to make sure that softlinks are not followed. not worried about performance here */)
-  private boolean verifyRealFile(boolean required) {
+  private boolean verifyRealFileOrDirectory(boolean required) {
     return AccessUtils.doPrivileged(
         () -> {
           final MigrationReport report = getReport();
@@ -120,9 +155,13 @@ public class ImportMigrationExternalEntryImpl extends ImportMigrationEntryImpl {
                       Messages.IMPORT_PATH_WARNING, apath, "is not a symbolic link"));
               return false;
             }
-          } else if (!Files.isRegularFile(apath, LinkOption.NOFOLLOW_LINKS)) {
+          } else if (isFile() && !Files.isRegularFile(apath, LinkOption.NOFOLLOW_LINKS)) {
             report.record(
                 new MigrationWarning(Messages.IMPORT_PATH_WARNING, apath, "is not a regular file"));
+          } else if (isDirectory() && !Files.isDirectory(apath, LinkOption.NOFOLLOW_LINKS)) {
+            report.record(
+                new MigrationWarning(
+                    Messages.IMPORT_PATH_WARNING, apath, "is not a regular directory"));
           }
           return verifyChecksum();
         });
