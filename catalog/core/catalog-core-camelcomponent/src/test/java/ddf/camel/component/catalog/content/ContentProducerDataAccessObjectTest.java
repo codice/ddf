@@ -14,6 +14,7 @@
 package ddf.camel.component.catalog.content;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -85,6 +86,19 @@ public class ContentProducerDataAccessObjectTest {
     assertThat(
         contentProducerDataAccessObject.getFileUsingRefKey(true, mockMessage).equals(testFile),
         is(true));
+  }
+
+  @Test
+  public void testGetFileUsingRefKeyWithNullFile() throws Exception {
+    GenericFileMessage<File> mockMessage = getMockMessage(null);
+
+    // test with storeRefKey == false
+    assertThat(
+        contentProducerDataAccessObject.getFileUsingRefKey(false, mockMessage), is(nullValue()));
+
+    // test with storeRefKey == true
+    assertThat(
+        contentProducerDataAccessObject.getFileUsingRefKey(true, mockMessage), is(nullValue()));
   }
 
   @Test
@@ -160,6 +174,13 @@ public class ContentProducerDataAccessObjectTest {
     assertThat(
         contentProducerDataAccessObject.getMimeType(mockEndpoint, testFile2).equals("extension"),
         is(true));
+  }
+
+  @Test
+  public void testGetMimeTypeWithNullFile() throws Exception {
+    assertThat(
+        contentProducerDataAccessObject.getMimeType(mock(ContentEndpoint.class), null),
+        is(nullValue()));
   }
 
   @Test
