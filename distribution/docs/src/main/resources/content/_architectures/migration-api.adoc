@@ -35,7 +35,7 @@ or `doIncompatibleImport()` methods based on whether the recorded version string
 The services that implement the migratable interface will be called one at a time based on their service ranking order, and do not need to be thread safe.
 A bundle or a feature can have as many services implementing the interfaces as needed.
 
-==== The Migration API Interfaces and Classes
+=== The Migration API Interfaces and Classes
 
 . `org.codice.ddf.migration.Migratable`
 . `org.codice.ddf.migration.MigrationContext`
@@ -52,7 +52,7 @@ A bundle or a feature can have as many services implementing the interfaces as n
 . `org.codice.ddf.migration.MigrationInformation`
 . `org.codice.ddf.migration.MigrationSuccessfulInformation`
 
-===== `Migratable`
+==== `Migratable`
 
 The contract for a migratable is stored here. This is the only interface that should be implemented by implementers and registered as an OSGi
 service. All other interfaces will be implemented by the migration API that provides support for migratables.
@@ -87,7 +87,7 @@ This will be the case when a migratable is later introduced in the software dist
 In order to create a `Migratable` for a module of the system, the `org.codice.ddf.migration.Migratable` interface must be implemented and the implementation must be registered under the `org.codice.ddf.migration.Migratable` interface as an OSGi service in the OSGi service registry.
 Creating an OSGi service allows for the migration API to lookup all implementations of `org.codice.ddf.migration.Migratable` and command them to export or import.
 
-===== `MigrationContext`
+==== `MigrationContext`
 The `org.codice.ddf.migration.MigrationContext` provides contextual information about an operation in progress for a given migratable. This is a sort of sandbox that is unique to each migratable. This interface defines the following methods:
 
 - `MigrationReport getReport()`
@@ -96,7 +96,7 @@ The `org.codice.ddf.migration.MigrationContext` provides contextual information 
 The `getReport()` method returns a migration report that can be used to record messages while processing an export or an import operation. +
 The `getId()` method returns the identifier for the currently processing migratable.
 
-===== `ExportMigrationContext`
+==== `ExportMigrationContext`
 The export migration context provides methods for creating new migration entries and system property referenced migration entries to track exported migration files for a given migratable
 while processing an export migration operation. It defines the following methods:
 
@@ -113,7 +113,7 @@ The `entries()` methods create multiple entries corresponding to all files recur
 Once an entry is created, it is not stored with the exported data. It is the migratable's responsibility to store the data using one of the entry's provided methods.
 Entries are uniquely identified using a relative path and are specific to each migratable meaning that an entry with the same path in two migratables will not conflict with each other. Each migratable is given its own context (a.k.a. sandbox) to work with.
 
-===== `ImportMigrationContext`
+==== `ImportMigrationContext`
 The import migration context provides methods for retrieving migration entries and system property referenced migration entries corresponding to exported files for a given migratable
 while processing an import migration operation. It defines the following methods:
 
@@ -129,8 +129,9 @@ The `entries()` methods retrieve multiple entries corresponding to all exported 
 Once an entry is retrieved, its exported data is not restored. It is the migratable's responsibility to restore the data using one of the entry's provided methods.
 Entries are uniquely identified using a relative path and are specific to each migratable meaning that an entry with the same path in two migratables will not conflict with each other. Each migratable is given its own context (a.k.a. sandbox) to work with.
 
-===== `MigrationEntry`
-This interface provides supports for exported files or directories. It defines the following methods:
+==== `MigrationEntry`
+
+This interface provides supports for exported files. It defines the following methods:
 
 - `MigrationReport getReport()`
 - `String getId()`
@@ -148,7 +149,7 @@ The `isDirectory()` method indicates if the entry represents a directory.
 The `isFile()` method indicates if the entry represents a file.
 The `getLastModifiedTime()` method provides the last modification time for the corresponding file or directory as available when the file or directory is exported.
 
-===== `ExportMigrationEntry`
+==== `ExportMigrationEntry`
 The export migration entry provides additional methods available for entries created at export time. It defines the following methods:
 
 - `Optional<ExportMigrationEntry> getPropertyReferencedEntry(String name)`
@@ -166,7 +167,7 @@ The `store(PathMatcher filter)` and `store(boolean required, PathMatcher filter)
 The `store(BiThrowingConsumer<MigrationReport, OutputStream, IOException> consumer)` method allows the migratable to control the export process by specifying a callback consumer that will be called back with an output stream where the data can be writen to instead of having a file on disk being copied by the migration API.
 The `OutputStream getOutputStream()` method provides access to the low-level output stream where the migratable can write data directly as opposed to having a file on disk copied automatically.
 
-===== `ImportMigrationEntry`
+==== `ImportMigrationEntry`
 The import migration entry provides additional methods available for entries retrieved at import time. It defines the following methods:
 
 - `Optional<ImportMigrationEntry> getPropertyReferencedEntry(String name)`
@@ -183,10 +184,10 @@ The `restore(PathMatcher filter)` and `restore(boolean required, PathMatcher fil
 The `restore(BiThrowingConsumer<MigrationReport, Optional<InputStream>, IOException> consumer)` method allows the migratable to control the import process by specifying a callback consumer that will be called back with an optional input stream (empty if the data was not exported) where the data can be read from instead of having a file on disk being created or updated by the migration API. +
 The `Optional<InputStream> getInputStream()` method provides access to the optional low-level input stream (empty if the data was not exported) where the migratable can read data directly as opposed to having a file on disk created or updated automatically.
 
-===== `MigrationOperation`
+==== `MigrationOperation`
 The `org.codice.ddf.migration.MigrationOperation` provides a simple enumeration for identifying the various migration operations available.
 
-===== `MigrationReport`
+==== `MigrationReport`
 The `org.codice.ddf.migration.MigrationReport` interface provides information about the execution of a migration operation. It defines the following methods:
 
 - `MigrationOperation getOperation()`
@@ -225,24 +226,24 @@ The `hasWarnings()` method will return true if at least one warning message has 
 The `hasErrors()` method will return true if at least one error message has been recorded so far. +
 The `verifyCompletion() method will verify if the report is successful and if not, it will throw back the first recorded exception and attach as suppressed exceptions all other recorded exceptions.
 
-===== `MigrationMessage`
+==== `MigrationMessage`
 The `org.codice.ddf.migration.MigrationException is defined as a base class for all recordable messages during migration operations. It defines the following methods:
 
 - `String getMessage()`
 
 The `getMessage()` method provides a message for the corresponding exception, warning, or info that will be displayed to the administrator on the console.
 
-===== `MigrationException`
+==== `MigrationException`
 An `org.codice.ddf.migration.MigrationException` should be thrown when an unrecoverable exception occurs that prevents the export or the import operation from continuing. It is also possible to simply record one or many exception(s) with the migration report in order to fail the export or import operation
 while not aborting it right away. This provides for the ability to record as many errors as possible and report all of them back to the administrator. All migration exception messages are displayed to the administrator.
 
-===== `MigrationWarning`
+==== `MigrationWarning`
 An `org.codice.ddf.migration.MigrationWarning` should be used when a migratable wants to warn the administrator that certain aspects of the export or the import may cause problems. For example, if an absolute path is encountered, that path may not exist on the target system and cause the installation to fail.
 All migration warning messages are displayed to the administrator.
 
-===== `MigrationInformation`
+==== `MigrationInformation`
 An `org.codice.ddf.migration.MigrationInformation` should be used when a migratable simply wants to provide useful information to the administrator. All
 migration information messages are displayed to the administrator.
 
-===== `MigrationSuccessfulInformation`
+==== `MigrationSuccessfulInformation`
 The `org.codice.ddf.migration.MigrationSuccessfulInformation` can be used to further qualify an information message as representing the success of an operation.
