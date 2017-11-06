@@ -64,7 +64,7 @@ define([
             }
         },
         serializeData: function () {
-            return _.extend(this.model.toJSON(), {displayName: this.model.getConfigurationDisplayName()});
+            return _.extend(this.model.toJSON(), {displayName: this.model.getConfigurationDisplayName()}, {hasFactory: this.model.get('fpid')});
         }
     });
 
