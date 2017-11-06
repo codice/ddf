@@ -49,9 +49,7 @@ public class TestFeatureCollectionMessageBodyReaderWfs20 {
   }
   /** Helper method to open streams from resource */
   private InputStream open(String name) {
-    InputStream inStream =
-        new BufferedInputStream(
-            TestFeatureCollectionMessageBodyReaderWfs20.class.getClass().getResourceAsStream(name));
-    return inStream;
+    return new BufferedInputStream(
+        TestFeatureCollectionMessageBodyReaderWfs20.class.getResourceAsStream(name));
   }
 }

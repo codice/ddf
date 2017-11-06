@@ -82,11 +82,10 @@
             <artifactId>platform-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>findbugs</artifactId>
-            <scope>compile</scope>
-        </dependency>
+      <dependency>
+        <groupId>com.google.code.findbugs</groupId>
+        <artifactId>jsr305</artifactId>
+      </dependency>
     </dependencies>
     <build>
         <plugins>

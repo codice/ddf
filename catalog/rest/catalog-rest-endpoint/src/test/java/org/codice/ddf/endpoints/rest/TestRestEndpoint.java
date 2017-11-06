@@ -909,7 +909,7 @@ public class TestRestEndpoint {
       case RESOURCE_TEST:
         transformer = "resource";
         /* FALLTHRU */
-
+        // fall through
       case SUCCESS_TEST:
         list = new ArrayList<Result>();
         list.add(result);

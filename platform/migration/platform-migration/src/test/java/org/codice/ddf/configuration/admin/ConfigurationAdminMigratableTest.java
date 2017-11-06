@@ -248,7 +248,7 @@ public class ConfigurationAdminMigratableTest {
     ArgumentCaptor<Dictionary<String, ?>> argumentCaptor =
         ArgumentCaptor.forClass(Dictionary.class);
     verify(configurationImportedFromExport).update(argumentCaptor.capture());
-    Map<String, ?> dictionayAsMap = convertToMap(argumentCaptor.<Dictionary<String, ?>>getValue());
+    Map<String, ?> dictionayAsMap = convertToMap(argumentCaptor.getValue());
     assertThat(
         dictionayAsMap,
         allOf(

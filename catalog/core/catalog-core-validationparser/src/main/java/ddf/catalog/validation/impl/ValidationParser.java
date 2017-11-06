@@ -38,7 +38,6 @@ import ddf.catalog.validation.impl.validator.PatternValidator;
 import ddf.catalog.validation.impl.validator.RangeValidator;
 import ddf.catalog.validation.impl.validator.RequiredAttributesMetacardValidator;
 import ddf.catalog.validation.impl.validator.SizeValidator;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -79,7 +78,6 @@ import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@SuppressFBWarnings
 public class ValidationParser implements ArtifactInstaller {
   private static final String METACARD_VALIDATORS_PROPERTY = "metacardvalidators";
 
@@ -315,6 +313,7 @@ public class ValidationParser implements ArtifactInstaller {
     return staged;
   }
 
+  @SuppressWarnings("squid:S1149" /* Confined by underlying contract */)
   private List<Callable<Boolean>> parseMetacardTypes(
       Changeset changeset, List<Outer.MetacardType> metacardTypes) {
     List<Callable<Boolean>> staged = new ArrayList<>();
@@ -727,6 +726,7 @@ public class ValidationParser implements ArtifactInstaller {
       boolean multivalued;
     }
 
+    @SuppressWarnings("squid:S1700" /* Ignoring the duplication of classname */)
     class Validator {
       String validator;
 

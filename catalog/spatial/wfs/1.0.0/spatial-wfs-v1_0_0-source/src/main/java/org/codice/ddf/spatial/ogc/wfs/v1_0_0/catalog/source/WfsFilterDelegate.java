@@ -93,6 +93,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
   private static final String MISSING_PARAMETERS_MSG = "Required parameters are missing";
 
   private static final String PROPERTY_NOT_QUERYABLE = "'%s' is not a queryable property.";
+  private static final String UNABLE_TO_PARSE_WKT_STRING = "Unable to parse WKT String";
 
   private FeatureMetacardType featureMetacardType;
 
@@ -137,7 +138,9 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
   }
 
   public void setSupportedGeoFilters(List<String> supportedGeos) {
-    LOGGER.debug("Updating supportedGeos to: {}", Arrays.toString(supportedGeos.toArray()));
+    if (LOGGER.isDebugEnabled()) {
+      LOGGER.debug("Updating supportedGeos to: {}", Arrays.toString(supportedGeos.toArray()));
+    }
     this.supportedGeo = supportedGeos;
   }
 
@@ -525,7 +528,9 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
                 createPropertyIsFilter(attrDesc.getPropertyName(), literal, propertyIsType));
             binaryCompOpsToBeOred.add(filter);
           } else {
-            LOGGER.debug(String.format(PROPERTY_NOT_QUERYABLE, property));
+            if (LOGGER.isDebugEnabled()) {
+              LOGGER.debug(String.format(PROPERTY_NOT_QUERYABLE, property));
+            }
           }
         }
         if (!binaryCompOpsToBeOred.isEmpty()) {
@@ -930,7 +935,9 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
                 createSpatialOpType(spatialOpType, attrDesc.getPropertyName(), wkt, distance));
             filtersToBeOred.add(filter);
           } else {
-            LOGGER.debug(String.format(PROPERTY_NOT_QUERYABLE, property));
+            if (LOGGER.isDebugEnabled()) {
+              LOGGER.debug(String.format(PROPERTY_NOT_QUERYABLE, property));
+            }
           }
         }
         if (!filtersToBeOred.isEmpty()) {
@@ -993,6 +1000,10 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
               wkt,
               distance);
         }
+        throw new UnsupportedOperationException(
+            String.format(
+                "Geospatial filter type %s requires distance",
+                SPATIAL_OPERATORS.valueOf(operation)));
       case DWithin:
         if (distance != null) {
           return buildDistanceBufferType(
@@ -1001,6 +1012,10 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
               wkt,
               distance);
         }
+        throw new UnsupportedOperationException(
+            String.format(
+                "Geospatial filter type %s requires distance",
+                SPATIAL_OPERATORS.valueOf(operation)));
       default:
         throw new UnsupportedOperationException(
             "Unsupported geospatial filter type "
@@ -1054,7 +1069,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
     Coordinate[] coordinates = getCoordinatesFromWkt(wkt);
     if (coordinates != null && coordinates.length > 0) {
-      StringBuffer coordString = new StringBuffer();
+      StringBuilder coordString = new StringBuilder();
 
       for (Coordinate coordinate : coordinates) {
         coordString.append(coordinate.x).append(",").append(coordinate.y).append(" ");
@@ -1155,7 +1170,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       Geometry geo = getGeometryFromWkt(wkt);
       envelope = geo.getEnvelopeInternal();
     } catch (ParseException e) {
-      throw new IllegalArgumentException("Unable to parse WKT String", e);
+      throw new IllegalArgumentException(UNABLE_TO_PARSE_WKT_STRING, e);
     }
 
     return envelope;
@@ -1167,7 +1182,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       Geometry geo = getGeometryFromWkt(wkt);
       coordinates = geo.getCoordinates();
     } catch (ParseException e) {
-      throw new IllegalArgumentException("Unable to parse WKT String", e);
+      throw new IllegalArgumentException(UNABLE_TO_PARSE_WKT_STRING, e);
     }
     return coordinates;
   }
@@ -1188,7 +1203,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
       bufferedWkt = new WKTWriter().write(bufferedGeometry);
       LOGGER.debug("Buffered WKT: {}.", bufferedWkt);
     } catch (ParseException e) {
-      throw new IllegalArgumentException("Unable to parse WKT String", e);
+      throw new IllegalArgumentException(UNABLE_TO_PARSE_WKT_STRING, e);
     }
 
     return bufferedWkt;
@@ -1347,7 +1362,8 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     throw new IllegalArgumentException("Unable to create Geometry from WKT String");
   }
 
-  private static enum PROPERTY_IS_OPS {
+  @SuppressWarnings("squid:S00115")
+  private enum PROPERTY_IS_OPS {
     PropertyIsEqualTo,
     PropertyIsLike,
     PropertyIsNotEqualTo,

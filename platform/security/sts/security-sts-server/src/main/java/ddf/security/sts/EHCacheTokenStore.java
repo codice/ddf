@@ -32,6 +32,7 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
@@ -45,15 +46,13 @@ import org.apache.cxf.common.util.StringUtils;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.cxf.ws.security.tokenstore.TokenStore;
 
-@edu.umd.cs.findbugs.annotations.SuppressWarnings(
-  value = "ML_SYNC_ON_FIELD_TO_GUARD_CHANGING_THAT_FIELD"
-)
 public class EHCacheTokenStore implements TokenStore, Closeable, BusLifeCycleListener {
 
   public static final long DEFAULT_TTL = 3600L;
   public static final long MAX_TTL = DEFAULT_TTL * 12L;
 
   private Ehcache cache;
+  private final ReentrantLock lock = new ReentrantLock();
   private Bus bus;
   private CacheManager cacheManager;
   private long ttl = DEFAULT_TTL;
@@ -71,19 +70,23 @@ public class EHCacheTokenStore implements TokenStore, Closeable, BusLifeCycleLis
 
     Cache newCache = new RefCountCache(cc);
     cache = cacheManager.addCacheIfAbsent(newCache);
-    synchronized (cache) {
+    lock.lock();
+    try {
       if (cache.getStatus() != Status.STATUS_ALIVE) {
         cache = cacheManager.addCacheIfAbsent(newCache);
       }
       if (cache instanceof RefCountCache) {
         ((RefCountCache) cache).incrementAndGet();
       }
+    } finally {
+      lock.unlock();
     }
 
     // Set the TimeToLive value from the CacheConfiguration
     ttl = cc.getTimeToLiveSeconds();
   }
 
+  @SuppressWarnings("squid:S2160" /* Relying on superclass equals/hashcode methods */)
   private static class RefCountCache extends Cache {
     AtomicInteger count = new AtomicInteger();
 
@@ -163,10 +166,13 @@ public class EHCacheTokenStore implements TokenStore, Closeable, BusLifeCycleLis
     if (cacheManager != null) {
       // this step is especially important for global shared cache manager
       if (cache != null) {
-        synchronized (cache) {
+        lock.lock();
+        try {
           if (cache instanceof RefCountCache && ((RefCountCache) cache).decrementAndGet() == 0) {
             cacheManager.removeCache(cache.getName());
           }
+        } finally {
+          lock.unlock();
         }
       }
 
@@ -179,7 +185,9 @@ public class EHCacheTokenStore implements TokenStore, Closeable, BusLifeCycleLis
     }
   }
 
-  public void initComplete() {}
+  public void initComplete() {
+    // not implemented; required by contract
+  }
 
   public void preShutdown() {
     close();

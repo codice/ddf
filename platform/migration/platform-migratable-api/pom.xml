@@ -42,9 +42,7 @@
         </dependency>
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
-            <artifactId>findbugs</artifactId>
-            <version>${findbugs.version}</version>
-            <scope>compile</scope>
+            <artifactId>jsr305</artifactId>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>

@@ -1601,7 +1601,9 @@ public class TestWfsFilterDelegate {
     marshaller.marshal(getFilterTypeJaxbElement(filterType), writer);
     String xml = writer.toString();
     LOGGER.debug("XML returned by Marshaller:\n{}", xml);
-    LOGGER.trace(Thread.currentThread().getStackTrace().toString());
+    if (LOGGER.isTraceEnabled()) {
+      LOGGER.trace(Arrays.toString(Thread.currentThread().getStackTrace()));
+    }
     return xml;
   }
 

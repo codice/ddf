@@ -375,9 +375,7 @@ public class BackupCommandTest {
     assertThat(
         consoleOutput.getOutput(),
         containsString(
-            String.format(
-                "Backup failed. Collection not found: %s",
-                INVALID_COLLECTION_NAME, INVALID_COLLECTION_NAME)));
+            String.format("Backup failed. Collection not found: %s", INVALID_COLLECTION_NAME)));
   }
 
   @Test

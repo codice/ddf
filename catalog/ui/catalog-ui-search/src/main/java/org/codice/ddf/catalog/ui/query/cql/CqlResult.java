@@ -135,8 +135,8 @@ public class CqlResult {
         mc.getMetacardType()
             .getAttributeDescriptors()
             .stream()
-            .filter(CqlResult::isTextAttribute)
             .filter(Objects::nonNull)
+            .filter(CqlResult::isTextAttribute)
             .map(descriptor -> mc.getAttribute(descriptor.getName()))
             .filter(Objects::nonNull)
             .map(attribute -> Optional.ofNullable(attribute.getValue()))
@@ -184,7 +184,7 @@ public class CqlResult {
   }
 
   private Double normalizeDistance(Result result, Query query, FilterAdapter filterAdapter) {
-    Double distance = result.getDistanceInMeters();
+    Double resultDistance = result.getDistanceInMeters();
 
     try {
       String queryWkt = filterAdapter.adapt(query, WKT_QUERY_DELEGATE);
@@ -194,7 +194,7 @@ public class CqlResult {
             && StringUtils.isNotBlank(result.getMetacard().getLocation())) {
           Shape locationShape = WKT_READER.read(result.getMetacard().getLocation());
 
-          distance =
+          resultDistance =
               DistanceUtils.degrees2Dist(
                       SPATIAL_CONTEXT.calcDistance(
                           locationShape.getCenter(), queryShape.getCenter()),
@@ -206,10 +206,10 @@ public class CqlResult {
       LOGGER.debug("Unable to parse query wkt", e);
     }
 
-    if (distance != null && (distance < 0 || distance > Double.MAX_VALUE)) {
-      distance = null;
+    if (resultDistance != null && (resultDistance < 0 || resultDistance > Double.MAX_VALUE)) {
+      resultDistance = null;
     }
-    return distance;
+    return resultDistance;
   }
 
   private Map<String, Object> metacardToMap(Result result) {
@@ -225,6 +225,7 @@ public class CqlResult {
           case XML:
           case OBJECT:
             resultMetacard.setAttribute(descriptor.getName(), null);
+            break;
           default:
             break;
         }

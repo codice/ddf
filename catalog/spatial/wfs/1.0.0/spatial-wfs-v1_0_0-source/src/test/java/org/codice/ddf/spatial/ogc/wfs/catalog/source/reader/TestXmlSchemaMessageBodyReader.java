@@ -36,14 +36,11 @@ public class TestXmlSchemaMessageBodyReader {
   public static void setUp() {
     ser =
         new BufferedInputStream(
-            TestXmlSchemaMessageBodyReader.class
-                .getClass()
-                .getResourceAsStream("/serviceExceptionReport.xml"));
+            TestXmlSchemaMessageBodyReader.class.getResourceAsStream(
+                "/serviceExceptionReport.xml"));
     schemaXml =
         new BufferedInputStream(
-            TestXmlSchemaMessageBodyReader.class
-                .getClass()
-                .getResourceAsStream("/SampleSchema.xsd"));
+            TestXmlSchemaMessageBodyReader.class.getResourceAsStream("/SampleSchema.xsd"));
     ser.mark(1000);
     schemaXml.mark(1000);
   }

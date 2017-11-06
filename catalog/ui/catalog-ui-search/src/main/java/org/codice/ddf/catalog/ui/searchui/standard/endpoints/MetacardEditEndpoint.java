@@ -21,7 +21,6 @@ import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -125,10 +124,10 @@ public class MetacardEditEndpoint {
     return Response.ok(endpointUtil.getJson(responseMap), MediaType.APPLICATION_JSON).build();
   }
 
-  @SuppressFBWarnings
   @PUT
   @Path("/{id}/{attribute}")
   @Consumes(MediaType.APPLICATION_OCTET_STREAM)
+  @SuppressWarnings("squid:S2175" /* byte[] in the list is appropriate */)
   public Response setBinaryAttribute(
       @Context HttpServletResponse response,
       @PathParam("id") String id,

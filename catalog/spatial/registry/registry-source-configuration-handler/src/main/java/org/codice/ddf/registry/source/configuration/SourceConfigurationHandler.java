@@ -14,7 +14,6 @@
 package org.codice.ddf.registry.source.configuration;
 
 import ddf.catalog.data.Metacard;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
 import java.security.PrivilegedActionException;
 import java.util.ArrayList;
@@ -63,7 +62,6 @@ import org.slf4j.LoggerFactory;
  * This handler class is responsible for the create/update/delete of source configurations that come
  * from registry nodes. It listens to the create/update/delete events to trigger its logic.
  */
-@SuppressFBWarnings("IS2_INCONSISTENT_SYNC")
 public class SourceConfigurationHandler implements EventHandler, RegistrySourceConfiguration {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SourceConfigurationHandler.class);
@@ -132,6 +130,7 @@ public class SourceConfigurationHandler implements EventHandler, RegistrySourceC
       }
     } catch (InterruptedException e) {
       executor.shutdownNow();
+      Thread.currentThread().interrupt();
     }
   }
 
@@ -200,6 +199,7 @@ public class SourceConfigurationHandler implements EventHandler, RegistrySourceC
    * @throws InvalidSyntaxException
    * @throws ParserException
    */
+  @SuppressWarnings("squid:S1149" /* Confined by underlying contract */)
   private synchronized void updateRegistryConfigurations(Metacard metacard, boolean activationHint)
       throws IOException, InvalidSyntaxException, ParserException {
     if (RegistryUtility.isIdentityNode(metacard)) {
@@ -580,6 +580,7 @@ public class SourceConfigurationHandler implements EventHandler, RegistrySourceC
     return bindingTypeToActivate;
   }
 
+  @SuppressWarnings("squid:S1149" /* Confined by underlying contract */)
   private Hashtable<String, Object> getConfigurationsFromDictionary(
       Dictionary<String, Object> properties) {
     Hashtable<String, Object> configProperties = new Hashtable<>();
@@ -652,19 +653,17 @@ public class SourceConfigurationHandler implements EventHandler, RegistrySourceC
 
   private ObjectClassDefinition getObjectClassDefinition(Bundle bundle, String pid) {
     Locale locale = Locale.getDefault();
-    if (bundle != null) {
-      if (metaTypeService != null) {
-        MetaTypeInformation mti = metaTypeService.getMetaTypeInformation(bundle);
-        if (mti != null) {
-          try {
-            return mti.getObjectClassDefinition(pid, locale.toString());
-          } catch (IllegalArgumentException e) {
-            // MetaTypeProvider.getObjectClassDefinition might throw illegal
-            // argument exception. So we must catch it here, otherwise the
-            // other configurations will not be shown
-            // See https://issues.apache.org/jira/browse/FELIX-2390
-            // https://issues.apache.org/jira/browse/FELIX-3694
-          }
+    if (bundle != null && metaTypeService != null) {
+      MetaTypeInformation mti = metaTypeService.getMetaTypeInformation(bundle);
+      if (mti != null) {
+        try {
+          return mti.getObjectClassDefinition(pid, locale.toString());
+        } catch (IllegalArgumentException e) {
+          // MetaTypeProvider.getObjectClassDefinition might throw illegal
+          // argument exception. So we must catch it here, otherwise the
+          // other configurations will not be shown
+          // See https://issues.apache.org/jira/browse/FELIX-2390
+          // https://issues.apache.org/jira/browse/FELIX-3694
         }
       }
     }
@@ -732,7 +731,7 @@ public class SourceConfigurationHandler implements EventHandler, RegistrySourceC
   }
 
   public void setActivateConfigurations(boolean activateConfigurations) {
-    if (!(activateConfigurations == this.activateConfigurations)) {
+    if (activateConfigurations != this.activateConfigurations) {
       this.activateConfigurations = activateConfigurations;
 
       if (!activateConfigurations || preserveActiveConfigurations) {
@@ -744,7 +743,7 @@ public class SourceConfigurationHandler implements EventHandler, RegistrySourceC
   }
 
   public void setPreserveActiveConfigurations(boolean preserveActiveConfigurations) {
-    if (!(preserveActiveConfigurations == this.preserveActiveConfigurations)) {
+    if (preserveActiveConfigurations != this.preserveActiveConfigurations) {
       this.preserveActiveConfigurations = preserveActiveConfigurations;
 
       if (preserveActiveConfigurations || !activateConfigurations) {
