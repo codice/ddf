@@ -46,6 +46,7 @@ import ddf.catalog.resource.impl.ResourceImpl;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.catalog.transform.QueryFilterTransformer;
 import ddf.catalog.util.impl.CatalogQueryException;
 import ddf.catalog.util.impl.QueryFunction;
 import ddf.catalog.util.impl.ResultIterable;
@@ -57,6 +58,7 @@ import java.math.BigInteger;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -68,7 +70,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 import javax.ws.rs.Consumes;
@@ -147,7 +151,10 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.UpdateAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
 import org.geotools.filter.text.cql2.CQLException;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -156,6 +163,8 @@ import org.xml.sax.SAXException;
 
 /** CswEndpoint provides a server implementation of the Catalogue Service for Web (CSW) 2.0.2. */
 public class CswEndpoint implements Csw {
+
+  protected static final String QUERY_FILTER_TRANSFORMER_TYPE_NAMES_FIELD = "typeNames";
 
   protected static final String SERVICE_TITLE = "Catalog Service for the Web";
 
@@ -1124,6 +1133,41 @@ public class CswEndpoint implements Csw {
     return filterCapabilities;
   }
 
+  private List<String> getQueryFilterTransformerTypeNames() {
+    return Stream.of(getBundle())
+        .map(Bundle::getBundleContext)
+        .map(this::getQueryFilterTransformerServices)
+        .flatMap(Collection::stream)
+        .map(
+            queryFilterTransformerServiceReference ->
+                queryFilterTransformerServiceReference.getProperty(
+                    QUERY_FILTER_TRANSFORMER_TYPE_NAMES_FIELD))
+        .filter(Objects::nonNull)
+        .filter(List.class::isInstance)
+        .map(List.class::cast)
+        .flatMap((Function<List, Stream<Object>>) Collection::stream)
+        .filter(String.class::isInstance)
+        .map(String.class::cast)
+        .collect(Collectors.toList());
+  }
+
+  private Collection<ServiceReference<QueryFilterTransformer>> getQueryFilterTransformerServices(
+      BundleContext bundleContext) {
+    try {
+      return bundleContext.getServiceReferences(QueryFilterTransformer.class, null);
+    } catch (InvalidSyntaxException e) {
+      LOGGER.debug("Unable to get service references for QueryFilterTransformers.", e);
+    }
+    return Collections.emptyList();
+  }
+
+  private List<String> getTypeNames() {
+    return Stream.of(getQueryFilterTransformerTypeNames(), TYPE_NAMES_LIST)
+        .flatMap(Collection::stream)
+        .distinct()
+        .collect(Collectors.toList());
+  }
+
   /**
    * Creates the OperationsMetadata portion of the GetCapabilities response TODO: As these
    * operations are implemented or added, update their descriptions to ensure they match up with the
@@ -1132,6 +1176,8 @@ public class CswEndpoint implements Csw {
    * @return The constructed OperationsMetadata object
    */
   private OperationsMetadata buildOperationsMetadata() {
+
+    List<String> typeNames = getTypeNames();
 
     OperationsMetadata om = new OperationsMetadata();
 
@@ -1143,7 +1189,7 @@ public class CswEndpoint implements Csw {
 
     // Builds DescribeRecord operation metadata
     Operation describeRecordOp = buildOperation(CswConstants.DESCRIBE_RECORD, getAndPost);
-    addOperationParameter(CswConstants.TYPE_NAME_PARAMETER, TYPE_NAMES_LIST, describeRecordOp);
+    addOperationParameter(CswConstants.TYPE_NAME_PARAMETER, typeNames, describeRecordOp);
     Set<String> mimeTypeSet = new HashSet<>();
     mimeTypeSet.add(DEFAULT_OUTPUT_FORMAT);
     mimeTypeSet.addAll(mimeTypeTransformerManager.getAvailableMimeTypes());
@@ -1162,7 +1208,7 @@ public class CswEndpoint implements Csw {
         CswConstants.OUTPUT_SCHEMA_PARAMETER,
         schemaTransformerManager.getAvailableSchemas(),
         getRecordsOp);
-    addOperationParameter(CswConstants.TYPE_NAMES_PARAMETER, TYPE_NAMES_LIST, getRecordsOp);
+    addOperationParameter(CswConstants.TYPE_NAMES_PARAMETER, typeNames, getRecordsOp);
     addOperationParameter(
         CswConstants.CONSTRAINT_LANGUAGE_PARAMETER,
         CswConstants.CONSTRAINT_LANGUAGES,
@@ -1184,7 +1230,7 @@ public class CswEndpoint implements Csw {
 
     // Builds Transactions operation metadata
     Operation transactionOp =
-        buildOperation(CswConstants.TRANSACTION, Arrays.asList(CswConstants.POST));
+        buildOperation(CswConstants.TRANSACTION, Collections.singletonList(CswConstants.POST));
     addOperationParameter(
         CswConstants.TYPE_NAMES_PARAMETER,
         inputTransformerManager.getAvailableIds(),
