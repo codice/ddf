@@ -14,13 +14,13 @@
 
     button > .navigation-indicator {
         position: absolute;
-        left: @minimumButtonSize - 0.5*@minimumSpacing;
+        left: @minimumButtonSize;
         top: -.3125rem;
     }
 
     button > .navigation-sources {
         position: absolute;
-        left: @minimumButtonSize - 0.5*@minimumSpacing;
+        left: @minimumButtonSize;
         top: @minimumSpacing;
         color: @warning-color;
 
@@ -48,7 +48,7 @@
 
     button > .navigation-multiple {
         position: absolute;
-        left: @minimumButtonSize - 0.5*@minimumSpacing;
+        left: @minimumButtonSize;
         top: @minimumSpacing;
         color: @warning-color;
     }
@@ -67,7 +67,15 @@
             vertical-align: top;
             position: relative;
             top: 50%;
-            transform: translateY(-50%);
+            transform: translateY(-50%) translateX(0);
+            transition: transform @coreTransitionTime ease-out;
+        }
+
+        &.has-unavailable,
+        &.has-unsaved {
+            img {
+                transform: translateY(-50%) translateX(1rem);
+            }
         }
     }
 

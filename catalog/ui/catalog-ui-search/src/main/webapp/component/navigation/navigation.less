@@ -52,14 +52,18 @@
 
 @{customElementNamespace}navigation.has-unavailable,
 @{customElementNamespace}navigation.has-unsaved {
+  > .navigation-left {
+    width: @minimumButtonSize + 1rem;
+  }
+
   > .navigation-middle {
-    width: ~'calc(100% - 8*@{minimumButtonSize} - 0.625rem)';
+    width: ~'calc(100% - 5*@{minimumButtonSize} - 9rem - 1rem)';
   }
 }
 
 @{customElementNamespace}navigation.has-logo {
   > .navigation-left {
-    width: 2.0*@minimumButtonSize + 0.625rem;
+    width: 2.0*@minimumButtonSize;
   }
 
   > .navigation-middle {
@@ -67,8 +71,12 @@
   }
 
   &.has-unavailable, &.has-unsaved {
+    > .navigation-left {
+      width: 2*@minimumButtonSize + 1rem;
+    }
+
     > .navigation-middle{
-      width: ~'calc(100% - 9*@{minimumButtonSize} - 0.625rem)';
+      width: ~'calc(100% - 6*@{minimumButtonSize} - 9rem - 1rem)';
     }
   }
 }
