@@ -36,10 +36,6 @@ include::${project.build.directory}/doc-contents/content/config.adoc[]
 
 <#include "eventing.ftl">
 
-== Sources
-
-<#include "sources.ftl">
-
 == Security Services
 
 <#include "security-services.ftl">

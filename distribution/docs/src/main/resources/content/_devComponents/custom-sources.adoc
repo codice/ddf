@@ -61,9 +61,15 @@ The procedure for implementing any of the source types follows a similar format:
 .. Import ${branding} packages.
 .. Register source class as service to the OSGi registry.
 . Deploy to ${branding}.
+
 [IMPORTANT]
 ====
 The `factory-pid` property of the metatype must contain one of the following in the name: service, Service, source, Source
+====
+
+[NOTE]
+====
+Remote sources currently extend the `ResourceReader` interface. However, a `RemoteSource` is not treated as a `ResourceReader`. The `getSupportedSchemes()` method should never be called on a `RemoteSource`, thus the suggested implementation for a `RemoteSource` is to return an empty set. The `retrieveResource( …​ )` and `getOptions( …​ )` methods will be called and MUST be properly implemented by a `RemoteSource`.
 ====
 
 ===== Developing Catalog Providers

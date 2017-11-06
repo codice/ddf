@@ -8,7 +8,10 @@ include::${ci.file}[leveloffset=+1]
 
 include::${configuration.file}[leveloffset=+2]
 
+<#if (configuration.title == "Connecting to Sources")>
 
+<#include "sources.ftl">
+</#if>
 <#list subConfigurations?sort_by("order") as subConfiguration>
 <#if (subConfiguration.parent == configuration.title)>
 

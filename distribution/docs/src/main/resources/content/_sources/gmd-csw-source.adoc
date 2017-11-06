@@ -9,12 +9,13 @@
 :storageprovider:
 :catalogstore:
 
+== {title}
+
 The GMD CSW source supports the ability to search collections of descriptive information (metadata) for data, services, and related information objects, based on the https://portal.opengeospatial.org/files/?artifact_id=6495[Application Profile ISO 19115/ISO19119].
 
 Use the GMD CSW source if querying a GMD CSW APISO compliant service.
 
-===== Installing the GMD CSW APISO v2.0.2 Source
-
+.Installing the GMD CSW APISO v2.0.2 Source
 The GMD CSW source is installed by default with a standard installation in the ${ddf-spatial} application.
 
 Configure a new GMD CSW APISO v2.0.2 Source through the ${admin-console}:
@@ -26,8 +27,7 @@ Configure a new GMD CSW APISO v2.0.2 Source through the ${admin-console}:
 * Name the New source.
 * Select *GMD CSW ISO Federated Source* from *Binding Configurations*.
 
-===== Configuring the GMD CSW APISO v2.0.2 Source
-
+.Configuring the GMD CSW APISO v2.0.2 Source
 Configure an existing GMD CSW APISO v2.0.2 Source through the ${admin-console}:
 
 * Navigate to the *${admin-console}*.

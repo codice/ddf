@@ -10,18 +10,18 @@
 ${branding} is pre-configured with several installation profiles.
 
 * Standard Installation: *Recommended*. Includes these applications by default:
-** <<_admin_reference,${ddf-admin}>>
-** <<_catalog_reference,${ddf-catalog}>>
-** <<_platform_reference,${ddf-platform}>>
-** <<_security_reference,${ddf-security}>>
-** <<_solr_reference,${ddf-solr}>>
-** <<_spatial_reference,${ddf-spatial}>>
-** <<_search_ui_reference,${ddf-ui}>>
+** <<_admin_application_reference,${ddf-admin}>>
+** <<_catalog_application_reference,${ddf-catalog}>>
+** <<_platform_application_reference,${ddf-platform}>>
+** <<_security_application_reference,${ddf-security}>>
+** <<_solr_application_reference,${ddf-solr}>>
+** <<_spatial_application_reference,${ddf-spatial}>>
+** <<_intrigue_application_reference,${catalog-ui}>>
 
 * Minimum Installation: Includes these applications for a minimum install:
-** <<_admin_reference,${ddf-admin}>>
-** <<_platform_reference,${ddf-platform}>>
-** <<_security_reference,${ddf-security}>>
+** <<_admin_application_reference,${ddf-admin}>>
+** <<_platform_application_reference,${ddf-platform}>>
+** <<_security_application_reference,${ddf-security}>>
 
 * Development: Includes all demo, beta, and experimental applications.
 * Custom Installation: *Advanced*. Click *Customize* on either profile to add or remove applications to be installed.
