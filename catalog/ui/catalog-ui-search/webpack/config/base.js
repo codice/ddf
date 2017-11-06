@@ -137,6 +137,10 @@ module.exports = {
                 exclude: /(node_modules|target)/
             },
             {
+                test: /\.json$/,
+                loader: 'json-loader'
+            },
+            {
                 test: /\.(hbs|handlebars)$/,
                 loader: 'handlebars'
             },
