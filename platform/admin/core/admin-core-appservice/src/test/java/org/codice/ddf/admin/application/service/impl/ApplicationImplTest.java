@@ -40,6 +40,8 @@ public class ApplicationImplTest {
 
   private static final String FILE_MAIN_FEATURE = "test-features-with-main-feature.xml";
 
+  private static final String FILE_MAIN_FEATURE3 = "test-features-with-main-feature3.xml";
+
   private static final String MAIN_FEATURE_NAME = "Main Feature Test";
 
   private static final String TEST_APP = "test-app";
@@ -119,6 +121,32 @@ public class ApplicationImplTest {
     String appToString = mainFeatureName + " - " + mainFeatureVersion;
     RepositoryImpl repo =
         new RepositoryImpl(getClass().getClassLoader().getResource(FILE_MAIN_FEATURE).toURI());
+    repo.load();
+    Application testApp = new ApplicationImpl(repo);
+
+    assertEquals(mainFeatureName, testApp.getName());
+    assertEquals(mainFeatureVersion, testApp.getVersion());
+    assertEquals(mainFeatureDescription, testApp.getDescription());
+    assertNotNull(testApp.toString());
+    assertEquals(appToString, testApp.toString());
+
+    assertNotNull(testApp.getMainFeature());
+  }
+
+  /**
+   * Tests that properties in a feature are properly parsed and set when an application doesn't have
+   * any auto-install features, but one feature has a name that matches the repo name.
+   *
+   * @throws Exception
+   */
+  @Test
+  public void testMainFeatureNoAutoInstall() throws Exception {
+    String mainFeatureName = "test-app3";
+    String mainFeatureVersion = "1.0.1";
+    String mainFeatureDescription = "Main Feature Test 3";
+    String appToString = mainFeatureName + " - " + mainFeatureVersion;
+    RepositoryImpl repo =
+        new RepositoryImpl(getClass().getClassLoader().getResource(FILE_MAIN_FEATURE3).toURI());
     repo.load();
     Application testApp = new ApplicationImpl(repo);
 
