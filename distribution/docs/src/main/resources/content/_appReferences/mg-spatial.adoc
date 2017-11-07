@@ -9,15 +9,15 @@ The ${ddf-spatial} Application provides KML transformer and a KML network link e
 ==== Offline Gazetteer Service
 
 In the ${ddf-spatial} Application, the `offline-gazetteer` is installed by default.
-This feature enables you to use an offline index of GeoNames data (as an alternative to the GeoNames Web service enabled by the `webservice-gazetteer` feature) to perform searches via the gazetteer search box in the Search UI.
+This feature enables you to use an offline source of GeoNames data (as an alternative to the GeoNames Web service enabled by the `webservice-gazetteer` feature) to perform searches via the gazetteer search box in the Search UI.
 
-By default a small index set is included with the offline gazetteer. This index can be expanded or updated by using the `geonames:update` command.
+By default a small set of GeoNames data is included with the offline gazetteer. The GeoNames data is stored as metacards in the core catalog and are tagged with `geonames` and `gazetteer`. This collection of GeoNames metacards can be expanded or updated by using the `gazetteer:update` command.
 
-===== ${ddf-spatial} GeoNames Console Commands
+===== ${ddf-spatial} Gazetteer Console Commands
 
-The `geonames` commands provide the ability to interact with a local GeoNames index. The local GeoNames index is used by the `offline-gazetteer` feature, which is an optional feature available in this application and is explained above. Note that these commands are only available if the `offline-gazetteer` feature is installed.
+The `gazetteer` commands provide the ability to interact with the local GeoNames metacard collection in the core catalog. These GeoNames metacards are used by the `offline-gazetteer` feature, which is an optional feature available in this application and is explained above. Note that these commands are only available if the `offline-gazetteer` feature is installed.
 
-.GeoNames Command Descriptions
+.Gazetteer Command Descriptions
 [cols="2,8a,1m" options="header"]
 |===
 |Command
@@ -25,13 +25,10 @@ The `geonames` commands provide the ability to interact with a local GeoNames in
 |Usage
 
 |`update`
-|Adds new entries to an existing local GeoNames index. Entries can be manually downloaded from http://download.geonames.org/export/dump, where the absolute path of the file would be passed as an argument to the command (ex. /Users/johndoe/Downloads/AU.zip). Currently .txt and .zip files are supported for manual entries. Entries can also be automatically downloaded from http://download.geonames.org/export/dump by passing the country code as an argument to the command (ex. AU) which will add the country to the local GeoNames index. The full list of country codes available can be found in http://download.geonames.org/export/dump/countryInfo.txt. Using the argument "all" will download all of the current country codes (this process may take some time). In addition to country codes, GeoNames also provides entries for cities based on their population sizes. The arguments "cities1000", "cities5000", and "cities15000" will add cities to the index that have at least 1000, 5000, or 15000 people respectively.
+|Adds new GeoNames metacards to the core catalog. Entries can be manually downloaded from http://download.geonames.org/export/dump, where the absolute path of the file would be passed as an argument to the command (ex. /Users/johndoe/Downloads/AU.zip). Currently .txt and .zip files are supported for manual entries. Entries can also be automatically downloaded from http://download.geonames.org/export/dump by passing the country code as an argument to the command (ex. AU) which will add the country as GeoNames metacards in the core catalog. The full list of country codes available can be found in http://download.geonames.org/export/dump/countryInfo.txt. Using the argument "all" will download all of the current country codes (this process may take some time). In addition to country codes, GeoNames also provides entries for cities based on their population sizes. The arguments "cities1000", "cities5000", and "cities15000" will add cities to the index that have at least 1000, 5000, or 15000 people respectively.
 
-The index location can be configured via the ${admin-console}. By default, the index location is `data/geonames-index`. If you specify a relative path, it is relative to the location of the unzipped
-${branding} distribution. You may specify an absolute path if you want the index to be located somewhere else.
-
-The `-c` or `--create` flag can be added to create a new GeoNames index. This will overwrite any existing index at the location specified in the ${admin-console}. The new index will be filled with the entries in the file you pass to the command. You must create an index before you can add additional entries to it (i.e. running the command without the `-c` or `--create` flag).
-|geonames:update
+The `-c` or `--create` flag can be used to clear out the existing GeoNames metacards before adding new entries.
+|gazetteer:update
 
 |===
 
