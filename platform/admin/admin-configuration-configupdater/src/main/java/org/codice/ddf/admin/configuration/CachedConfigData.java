@@ -21,9 +21,7 @@ import java.util.Objects;
 import javax.annotation.Nullable;
 import org.codice.felix.cm.internal.ConfigurationContext;
 
-/**
- * Data structure stored in the {@link ConfigurationUpdater}'s cache.
- */
+/** Data structure stored in the {@link ConfigurationUpdater}'s cache. */
 class CachedConfigData {
 
   private File felixFile;

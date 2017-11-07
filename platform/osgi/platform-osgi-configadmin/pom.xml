@@ -160,8 +160,6 @@
                         <Provide-Capability>
                             osgi.service;objectClass:List&lt;String&gt;="org.osgi.service.cm.ConfigurationAdmin",
                             osgi.service;objectClass:List&lt;String&gt;="org.apache.felix.cm.PersistenceManager",
-                            <!--(CODICE) Exposed for use with Felix configs-->
-                            osgi.service;objectClass:List&lt;String&gt;="org.codice.felix.cm.internal.ConfigurationContextFactory"
                         </Provide-Capability>
                         <Require-Capability>
                             osgi.service;filter:="(objectClass=org.osgi.service.log.LogService)";effective:=active;resolution:=optional

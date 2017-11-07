@@ -30,6 +30,13 @@ public interface ConfigurationContext {
   String getServicePid();
 
   /**
+   * @return the unique identifier for the configuration factory, or null if the config belongs to a
+   *     singleton service.
+   */
+  @Nullable
+  String getFactoryPid();
+
+  /**
    * @return a {@link File} in the {@code etc} directory that defines this config if and only if the
    *     config was created by the Felix directory watcher. Returns {@code null} otherwise.
    */

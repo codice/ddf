@@ -130,12 +130,14 @@ public class ConfigurationUpdaterTest {
     installer.initialize(mockContextFactory);
     Map<String, CachedConfigData> pidFileMap = installer.getPidDataMap();
     assertThat(pidFileMap.entrySet(), is(empty()));
+    verifyZeroInteractions(mockContextFactory);
   }
 
-  @Test(expected = IOException.class)
+  @Test
   public void testInitWhenListConfigsThrowsException() throws Exception {
     when(configurationAdmin.listConfigurations(null)).thenThrow(IOException.class);
     installer.initialize(mockContextFactory);
+    verifyZeroInteractions(mockContextFactory);
   }
 
   @Test

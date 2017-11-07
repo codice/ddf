@@ -13,8 +13,10 @@
  */
 package org.codice.ddf.admin.configuration;
 
-import com.google.common.annotations.VisibleForTesting;
 import static com.google.common.io.Files.getFileExtension;
+import static java.lang.String.format;
+
+import com.google.common.annotations.VisibleForTesting;
 import ddf.security.common.audit.SecurityLogger;
 import ddf.security.encryption.EncryptionService;
 import java.io.BufferedOutputStream;
@@ -22,7 +24,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import static java.lang.String.format;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.AccessController;
@@ -173,16 +174,16 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
       return;
     }
 
+    String appropriatePid =
+        (context.getFactoryPid() == null) ? context.getServicePid() : context.getFactoryPid();
+
     if (fileFromCache == null) {
       // An etc config file was just dropped and we're seeing it for the first time (2)
       LOGGER.debug("Tracking pid {}", pid);
       CachedConfigData createdConfigData = new CachedConfigData(context);
       pidDataMap.put(pid, createdConfigData);
       writeIfNecessary(
-          context.getServicePid(),
-          fileFromConfigAdmin,
-          context.getSanitizedProperties(),
-          createdConfigData);
+          appropriatePid, fileFromConfigAdmin, context.getSanitizedProperties(), createdConfigData);
       return;
     }
 
@@ -190,10 +191,7 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
 
     // Routine property updates for tracked files - write to disk if necessary (4)
     writeIfNecessary(
-        context.getServicePid(),
-        fileFromConfigAdmin,
-        context.getSanitizedProperties(),
-        cachedConfigData);
+        appropriatePid, fileFromConfigAdmin, context.getSanitizedProperties(), cachedConfigData);
   }
 
   private void guardAgainstFelixFilePropChanging(File fileFromConfig, File fileFromCache) {
@@ -249,10 +247,13 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
   }
 
   private void writeIfNecessary(
-      String pid, File dest, Dictionary<String, Object> configState, CachedConfigData cachedData)
+      String appropriatePid,
+      File dest,
+      Dictionary<String, Object> configState,
+      CachedConfigData cachedData)
       throws IOException {
     if (dest.exists()) {
-      processPasswords(pid, configState, this::encryptValue);
+      processPasswords(appropriatePid, configState, this::encryptValue);
       if (!cachedData.equalProps(configState)) {
         try (OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(dest))) {
           getAppropriateStrategy(dest.toPath()).write(outputStream, configState);
@@ -281,10 +282,11 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
   }
 
   private void processPasswords(
-      String pid,
+      String appropriatePid,
       Dictionary<String, Object> dictionary,
       Function<String, String> passwordTransform) {
-    ObjectClassDefinition objectClassDefinition = ddfConfigAdmin.getObjectClassDefinition(pid);
+    ObjectClassDefinition objectClassDefinition =
+        ddfConfigAdmin.getObjectClassDefinition(appropriatePid);
     if (objectClassDefinition == null) {
       return;
     }

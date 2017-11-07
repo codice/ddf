@@ -13,6 +13,7 @@
  */
 package org.codice.felix.cm.file;
 
+import static java.lang.String.format;
 import static org.codice.felix.cm.file.ConfigurationContextImpl.FELIX_FILENAME;
 import static org.codice.felix.cm.file.ConfigurationContextImpl.FELIX_NEW_CONFIG;
 import static org.codice.felix.cm.file.ConfigurationContextImpl.SERVICE_FACTORY_PIDLIST;
@@ -29,6 +30,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.UUID;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -41,6 +43,9 @@ import org.osgi.service.cm.Configuration;
 @RunWith(MockitoJUnitRunner.class)
 public class ConfigurationContextImplTest {
   private static final String TEST_PID = "org.codice.test.ServiceFactory";
+
+  private static final String TEST_MSF_PID =
+      format("%s.%s", TEST_PID, UUID.randomUUID().toString());
 
   private static final String MALFORMED_URL = "htp:/www.google.com";
 
@@ -120,6 +125,33 @@ public class ConfigurationContextImplTest {
         "Configurations without any property fields should not be processed",
         context.shouldBeVisibleToPlugins(),
         is(false));
+  }
+
+  @Test
+  public void testPidIsSetCorrectly() {
+    context = new ConfigurationContextImpl(TEST_PID, new Hashtable<>());
+    assertThat(
+        "PIDs for singleton services should be equal to the passed PID",
+        context.getServicePid(),
+        is(TEST_PID));
+  }
+
+  @Test
+  public void testGetFactoryPid() {
+    context = new ConfigurationContextImpl(TEST_PID, new Hashtable<>());
+    assertThat(
+        "Factory PIDs for singleton services should be null, since they are the same",
+        context.getFactoryPid(),
+        is(nullValue()));
+  }
+
+  @Test
+  public void testGetFactoryPidSingletonService() {
+    context = new ConfigurationContextImpl(TEST_MSF_PID, new Hashtable<>());
+    assertThat(
+        "Factory PIDs for factory services should be regular PIDs without a UUID",
+        context.getFactoryPid(),
+        is(TEST_PID));
   }
 
   @Test

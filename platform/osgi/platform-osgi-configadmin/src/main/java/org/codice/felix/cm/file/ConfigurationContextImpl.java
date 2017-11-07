@@ -60,6 +60,8 @@ public class ConfigurationContextImpl implements ConfigurationContext {
 
   private final String servicePid;
 
+  private final String factoryPid;
+
   private final File configFile;
 
   private final Dictionary<String, Object> props;
@@ -77,10 +79,12 @@ public class ConfigurationContextImpl implements ConfigurationContext {
   ConfigurationContextImpl(String pid, Dictionary<String, Object> props) {
     Dictionary<String, Object> propsCopy = copyDictionary(props);
 
+    // No guarantee these are in the props dictionary so do not assign from the removal
     propsCopy.remove(SERVICE_PID);
     propsCopy.remove(SERVICE_FACTORYPID);
 
     this.servicePid = pid;
+    this.factoryPid = parseFactoryPid(pid);
     this.configFile = createFileFromFelixProp(propsCopy.remove(FELIX_FILENAME));
 
     this.configIsNew = propsCopy.remove(FELIX_NEW_CONFIG);
@@ -96,6 +100,11 @@ public class ConfigurationContextImpl implements ConfigurationContext {
   }
 
   @Override
+  public String getFactoryPid() {
+    return factoryPid;
+  }
+
+  @Override
   public File getConfigFile() {
     return configFile;
   }
@@ -107,6 +116,14 @@ public class ConfigurationContextImpl implements ConfigurationContext {
 
   public boolean shouldBeVisibleToPlugins() {
     return servicePid != null && configIsNew == null && pidList == null && propertyCount > 0;
+  }
+
+  // Config files in etc may delimit on the '-' but in memory it's always last '.'
+  private static String parseFactoryPid(String pid) {
+    if (pid != null && pid.contains("-")) {
+      return pid.substring(0, pid.lastIndexOf("."));
+    }
+    return null;
   }
 
   /**
