@@ -17,6 +17,12 @@ import org.codice.felix.cm.internal.ConfigurationContext;
 import org.codice.felix.cm.internal.ConfigurationContextFactory;
 import org.osgi.service.cm.Configuration;
 
+/**
+ * Default factory implementation.
+ *
+ * <p><b>See FELIX-4005 & FELIX-4556. This class cannot utilize Java 8 language constructs due to
+ * maven bundle plugin 2.3.7</b>
+ */
 public class ConfigurationContextFactoryImpl implements ConfigurationContextFactory {
   @Override
   public ConfigurationContext createContext(Configuration configuration) {

@@ -42,6 +42,9 @@ import org.slf4j.LoggerFactory;
  *   <li>There was no felix.fileinstall.filename property
  *   <li>The felix.fileinstall.filename property was invalid
  * </ul>
+ *
+ * <b>See FELIX-4005 & FELIX-4556. This class cannot utilize Java 8 language constructs due to maven
+ * bundle plugin 2.3.7</b>
  */
 public class ConfigurationContextImpl implements ConfigurationContext {
   private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationContextImpl.class);
@@ -102,7 +105,7 @@ public class ConfigurationContextImpl implements ConfigurationContext {
     return copyDictionary(props);
   }
 
-  public boolean shouldBeVisibleForProcessing() {
+  public boolean shouldBeVisibleToPlugins() {
     return servicePid != null && configIsNew == null && pidList == null && propertyCount > 0;
   }
 

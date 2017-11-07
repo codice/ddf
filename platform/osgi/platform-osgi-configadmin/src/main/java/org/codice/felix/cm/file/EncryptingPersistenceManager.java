@@ -43,6 +43,9 @@ import org.slf4j.LoggerFactory;
  * are loaded.
  *
  * <p>This allows the configuration data in the bundle cache to be fully encrypted.
+ *
+ * <p><b>See FELIX-4005 & FELIX-4556. This class cannot utilize Java 8 language constructs due to
+ * maven bundle plugin 2.3.7</b>
  */
 public class EncryptingPersistenceManager extends WrappedPersistenceManager {
   private static final Logger LOGGER = LoggerFactory.getLogger(EncryptingPersistenceManager.class);

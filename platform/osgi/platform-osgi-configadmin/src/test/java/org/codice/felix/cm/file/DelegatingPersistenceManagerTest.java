@@ -51,7 +51,7 @@ public class DelegatingPersistenceManagerTest {
     Object[] services = new Object[] {plugin1, plugin2, new Object()};
 
     when(mockTracker.getServices()).thenReturn(services);
-    when(mockContext.shouldBeVisibleForProcessing()).thenReturn(true);
+    when(mockContext.shouldBeVisibleToPlugins()).thenReturn(true);
 
     delegatingPersistenceManager =
         new DelegatingPersistenceManager(mockManager, mockTracker) {

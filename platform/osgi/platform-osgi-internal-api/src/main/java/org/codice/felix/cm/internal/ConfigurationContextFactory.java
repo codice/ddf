@@ -16,7 +16,7 @@ package org.codice.felix.cm.internal;
 import org.osgi.service.cm.Configuration;
 
 /**
- * Provides a way to transform various configuration forms into {@link ConfigurationContext} objects
+ * Provides a way to transform {@link Configuration}s into {@link ConfigurationContext} objects
  * for consistent processing despite changing Felix internals.
  */
 public interface ConfigurationContextFactory {

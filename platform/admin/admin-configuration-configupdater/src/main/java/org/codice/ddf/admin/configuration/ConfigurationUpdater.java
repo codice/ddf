@@ -13,10 +13,8 @@
  */
 package org.codice.ddf.admin.configuration;
 
-import static com.google.common.io.Files.getFileExtension;
-import static java.lang.String.format;
-
 import com.google.common.annotations.VisibleForTesting;
+import static com.google.common.io.Files.getFileExtension;
 import ddf.security.common.audit.SecurityLogger;
 import ddf.security.encryption.EncryptionService;
 import java.io.BufferedOutputStream;
@@ -24,6 +22,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import static java.lang.String.format;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.AccessController;
@@ -32,7 +31,6 @@ import java.security.PrivilegedExceptionAction;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Dictionary;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -86,12 +84,11 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
 
   private final Map<String, CachedConfigData> pidDataMap;
 
-  /**
-   * {@code SortedServiceList} implements {@link java.util.List} using generic parameter <code>
-   * &lt;T&gt;</code> and not a concrete type, so the ctor cannot be matched by the blueprint
-   * container if we did <code>List&lt;PersistenceStrategy&gt;</code>
+  /*
+   * SortedServiceList implements java.util.List using generic parameter <T> and not a concrete type,
+   * so the ctor cannot be matched by the blueprint container if we did List<PersistenceStrategy>
    *
-   * <p>See https://issues.apache.org/jira/browse/ARIES-960
+   * See https://issues.apache.org/jira/browse/ARIES-960
    */
   public ConfigurationUpdater(
       ConfigurationAdmin ddfConfigAdmin, List strategies, EncryptionService encryptionService) {
@@ -109,10 +106,10 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
 
   /**
    * @inheritDoc
-   * @see ConfigurationPersistencePlugin
    * @throws IOException if an error occurs reading configuration data
    * @throws InvalidSyntaxException technically impossible since {@code null} is being passed as the
    *     configuration filter. See {@link ConfigurationAdmin#listConfigurations(String)}.
+   * @see ConfigurationPersistencePlugin
    */
   @Override
   public void initialize(ConfigurationContextFactory factory) {
@@ -143,8 +140,8 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
                 return null;
               });
     } catch (PrivilegedActionException e) {
-      // Only caught if the action through a CHECKED exception, thus it MUST be an IOException.
-      throw new IOException(e);
+      // Only caught if the action threw a CHECKED exception, thus it MUST be an IOException.
+      throw (IOException) e.getCause();
     }
   }
 
@@ -165,12 +162,12 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
    */
   private void doHandleStore(ConfigurationContext context) throws IOException {
     String pid = context.getServicePid();
-    File fileFromConfig = context.getConfigFile();
+    File fileFromConfigAdmin = context.getConfigFile();
 
     CachedConfigData cachedConfigData = pidDataMap.get(pid);
     File fileFromCache = (cachedConfigData != null) ? cachedConfigData.getFelixFile() : null;
 
-    if (fileFromCache == null && fileFromConfig == null) {
+    if (fileFromCache == null && fileFromConfigAdmin == null) {
       // This config doesn't have an etc file, so we ignore this case (1)
       LOGGER.debug("Was not tracked and will not track pid {}", pid);
       return;
@@ -183,18 +180,18 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
       pidDataMap.put(pid, createdConfigData);
       writeIfNecessary(
           context.getServicePid(),
-          fileFromConfig,
+          fileFromConfigAdmin,
           context.getSanitizedProperties(),
           createdConfigData);
       return;
     }
 
-    guardAgainstFelixFilePropChanging(fileFromConfig, fileFromCache);
+    guardAgainstFelixFilePropChanging(fileFromConfigAdmin, fileFromCache);
 
     // Routine property updates for tracked files - write to disk if necessary (4)
     writeIfNecessary(
         context.getServicePid(),
-        fileFromConfig,
+        fileFromConfigAdmin,
         context.getSanitizedProperties(),
         cachedConfigData);
   }
@@ -229,8 +226,8 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
                 return null;
               });
     } catch (PrivilegedActionException e) {
-      // Only caught if the action through a CHECKED exception, thus it MUST be an IOException.
-      throw new IOException(e);
+      // Only caught if the action threw a CHECKED exception, thus it MUST be an IOException.
+      throw (IOException) e.getCause();
     }
   }
 
@@ -255,10 +252,8 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
       String pid, File dest, Dictionary<String, Object> configState, CachedConfigData cachedData)
       throws IOException {
     if (dest.exists()) {
-      // DDF-3413: Future performance/memory improvement - this would become a checksum
-      Dictionary<String, Object> fileState = cachedData.getProps();
       processPasswords(pid, configState, this::encryptValue);
-      if (!equalDictionaries(configState, fileState)) {
+      if (!cachedData.equalProps(configState)) {
         try (OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(dest))) {
           getAppropriateStrategy(dest.toPath()).write(outputStream, configState);
         } catch (IOException e) {
@@ -282,7 +277,7 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
       LOGGER.debug("Password already encrypted");
       return plaintextValue;
     }
-    return "ENC(".concat(encryptionService.encrypt(plaintextValue)).concat(")");
+    return format("ENC(%s)", encryptionService.encrypt(plaintextValue));
   }
 
   private void processPasswords(
@@ -315,19 +310,5 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
             () ->
                 new IllegalArgumentException(
                     format("File extension [%s] is not a supported config type", ext)));
-  }
-
-  // DDF-3413: This method would no longer be necessary
-  private static boolean equalDictionaries(Dictionary x, Dictionary y) {
-    if (x.size() != y.size()) {
-      return false;
-    }
-    for (final Enumeration e = x.keys(); e.hasMoreElements(); ) {
-      final Object key = e.nextElement();
-      if (!Objects.deepEquals(x.get(key), y.get(key))) {
-        return false;
-      }
-    }
-    return true;
   }
 }

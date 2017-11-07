@@ -31,6 +31,9 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
 /**
  * The {@link DelegatingPersistenceManager} is responsible for iterating over relevant configuration
  * plugin points prior to moving the configs to the inner {@link PersistenceManager}.
+ *
+ * <p><b>See FELIX-4005 & FELIX-4556. This class cannot utilize Java 8 language constructs due to
+ * maven bundle plugin 2.3.7</b>
  */
 public class DelegatingPersistenceManager extends WrappedPersistenceManager {
   private final ServiceTracker<ConfigurationPersistencePlugin, ConfigurationPersistencePlugin>
@@ -63,7 +66,7 @@ public class DelegatingPersistenceManager extends WrappedPersistenceManager {
   @Override
   public void store(String pid, Dictionary properties) throws IOException {
     ConfigurationContextImpl context = createContext(pid, properties);
-    if (context.shouldBeVisibleForProcessing()) {
+    if (context.shouldBeVisibleToPlugins()) {
       List<ConfigurationPersistencePlugin> plugins =
           asPlugins(configPersistenceTracker.getServices());
       for (ConfigurationPersistencePlugin plugin : plugins) {

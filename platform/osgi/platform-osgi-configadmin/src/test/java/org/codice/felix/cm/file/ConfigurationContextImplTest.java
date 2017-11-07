@@ -81,7 +81,7 @@ public class ConfigurationContextImplTest {
   @Test
   public void testVisibleForProcessing() {
     context = new ConfigurationContextImpl(TEST_PID, testProps);
-    assertThat(context.shouldBeVisibleForProcessing(), is(true));
+    assertThat(context.shouldBeVisibleToPlugins(), is(true));
   }
 
   @Test
@@ -89,7 +89,7 @@ public class ConfigurationContextImplTest {
     context = new ConfigurationContextImpl(null, testProps);
     assertThat(
         "Configurations with null pids, if any, should not be processed",
-        context.shouldBeVisibleForProcessing(),
+        context.shouldBeVisibleToPlugins(),
         is(false));
   }
 
@@ -99,7 +99,7 @@ public class ConfigurationContextImplTest {
     context = new ConfigurationContextImpl(TEST_PID, testProps);
     assertThat(
         "Configurations with the new config flag should not be processed",
-        context.shouldBeVisibleForProcessing(),
+        context.shouldBeVisibleToPlugins(),
         is(false));
   }
 
@@ -109,7 +109,7 @@ public class ConfigurationContextImplTest {
     context = new ConfigurationContextImpl(TEST_PID, testProps);
     assertThat(
         "Configurations that store linking data for factories should not be processed",
-        context.shouldBeVisibleForProcessing(),
+        context.shouldBeVisibleToPlugins(),
         is(false));
   }
 
@@ -118,7 +118,7 @@ public class ConfigurationContextImplTest {
     context = new ConfigurationContextImpl(TEST_PID, new Hashtable<>());
     assertThat(
         "Configurations without any property fields should not be processed",
-        context.shouldBeVisibleForProcessing(),
+        context.shouldBeVisibleToPlugins(),
         is(false));
   }
 
