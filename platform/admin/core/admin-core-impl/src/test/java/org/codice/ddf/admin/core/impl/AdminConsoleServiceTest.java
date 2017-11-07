@@ -821,9 +821,7 @@ public class AdminConsoleServiceTest {
         "background",
         "black; float: left; text-align: center; width: 120px; border: 1px solid gray; margin: 4px; padding: 6px;");
 
-    ArgumentCaptor<Dictionary> captor = ArgumentCaptor.forClass(Dictionary.class);
     configAdmin.update(UI_CONFIG_PID, currentProps);
-    verify(testConfig, times(1)).update(captor.capture());
   }
 
   @Test

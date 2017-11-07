@@ -26,9 +26,11 @@ import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanServer;
@@ -37,6 +39,7 @@ import javax.management.ObjectName;
 import javax.management.StandardMBean;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.codice.ddf.admin.core.api.ConfigurationAdmin;
@@ -69,7 +72,8 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AdminConsoleService.class);
 
-  private static final String[] ILLEGAL_CHARACTERS = {";", "<", ">", "{", "}"};
+  private static final Set<Character> ILLEGAL_CHARACTER_SET =
+      new HashSet<>(Arrays.asList(';', '<', '>', '{', '}'));
 
   private final org.osgi.service.cm.ConfigurationAdmin configurationAdmin;
 
@@ -426,9 +430,9 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
       String pid, String configEntryKey, Object configEntryValue) {
     if (UI_CONFIG_PID.equals(pid)
         && ("color".equals(configEntryKey) || "background".equals(configEntryKey))
-        && (Arrays.stream(ILLEGAL_CHARACTERS)
+        && (Arrays.stream(ArrayUtils.toObject(String.valueOf(configEntryValue).toCharArray()))
             .parallel()
-            .anyMatch(String.valueOf(configEntryValue)::contains))) {
+            .anyMatch(ILLEGAL_CHARACTER_SET::contains))) {
       throw loggedException("Invalid UI Configuration");
     }
     return configEntryValue;
