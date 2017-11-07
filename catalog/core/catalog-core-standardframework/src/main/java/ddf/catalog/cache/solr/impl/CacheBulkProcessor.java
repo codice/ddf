@@ -65,29 +65,30 @@ public class CacheBulkProcessor {
       final long delay,
       final TimeUnit delayUnit,
       CacheStrategy cacheStrategy) {
-    batchScheduler.scheduleWithFixedDelay(() -> {
-            try {
-              if (metacardsToCache.size() > 0
-                  && (metacardsToCache.size() >= batchSize || timeToFlush())) {
-                LOGGER.debug("{} metacards to batch add to cache", metacardsToCache.size());
+    batchScheduler.scheduleWithFixedDelay(
+        () -> {
+          try {
+            if (metacardsToCache.size() > 0
+                && (metacardsToCache.size() >= batchSize || timeToFlush())) {
+              LOGGER.debug("{} metacards to batch add to cache", metacardsToCache.size());
 
-                List<Metacard> metacards = new ArrayList<>(metacardsToCache.values());
-                for (Collection<Metacard> batch : Lists.partition(metacards, batchSize)) {
-                  LOGGER.debug("Caching a batch of {} metacards", batch.size());
-                  cache.create(batch);
+              List<Metacard> metacards = new ArrayList<>(metacardsToCache.values());
+              for (Collection<Metacard> batch : Lists.partition(metacards, batchSize)) {
+                LOGGER.debug("Caching a batch of {} metacards", batch.size());
+                cache.create(batch);
 
-                  for (Metacard metacard : batch) {
-                    metacardsToCache.remove(metacard.getId());
-                  }
+                for (Metacard metacard : batch) {
+                  metacardsToCache.remove(metacard.getId());
                 }
-
-                lastBulkAdd = new Date();
               }
-            } catch (VirtualMachineError vme) {
-              throw vme;
-            } catch (Exception e) {
-              LOGGER.warn("Scheduled bulk ingest to cache failed", e);
+
+              lastBulkAdd = new Date();
             }
+          } catch (VirtualMachineError vme) {
+            throw vme;
+          } catch (Exception e) {
+            LOGGER.warn("Scheduled bulk ingest to cache failed", e);
+          }
         },
         delay,
         delay,

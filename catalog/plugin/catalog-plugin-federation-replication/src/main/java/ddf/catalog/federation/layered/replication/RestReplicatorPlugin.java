@@ -31,7 +31,6 @@ import java.util.HashMap;
 import java.util.List;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.codice.ddf.configuration.PropertyResolver;
 import org.slf4j.Logger;
@@ -66,7 +65,7 @@ public class RestReplicatorPlugin implements PostIngestPlugin {
         Response r = client.post(data);
 
         LOGGER.debug("Posted the following GeoJSON: {}\n", data);
-        LOGGER.debug(RESPONSE, ToStringBuilder.reflectionToString(r));
+        LOGGER.debug(RESPONSE, r);
       }
     }
 
@@ -112,7 +111,7 @@ public class RestReplicatorPlugin implements PostIngestPlugin {
 
           Response r = updateClient.put(newData);
 
-          LOGGER.debug(RESPONSE, ToStringBuilder.reflectionToString(r));
+          LOGGER.debug(RESPONSE, r);
         }
       }
     }
@@ -143,7 +142,7 @@ public class RestReplicatorPlugin implements PostIngestPlugin {
 
           Response r = updateClient.delete();
 
-          LOGGER.debug(RESPONSE, ToStringBuilder.reflectionToString(r));
+          LOGGER.debug(RESPONSE, r);
         }
       }
     }

@@ -110,7 +110,10 @@ public class ResourceCacheImpl implements ResourceCacheInterface {
             "Successfully built hazelcast config from XML config file {}", xmlConfigFilename);
       } catch (IOException e) {
         LOGGER.info(
-            e.getClass().getSimpleName() + " trying to build hazelcast config from XML file " + xmlConfigFilename, e);
+            e.getClass().getSimpleName()
+                + " trying to build hazelcast config from XML file "
+                + xmlConfigFilename,
+            e);
         cfg = null;
       }
     }
@@ -298,7 +301,7 @@ public class ResourceCacheImpl implements ResourceCacheInterface {
       if (!validateCacheEntry(cachedResource, latestMetacard)) {
         LOGGER.debug(
             "Entry found in cache was out-of-date or otherwise invalid.  Will need to be re-cached.  Entry key: {} ",
-                key);
+            key);
         return null;
       }
 
@@ -308,8 +311,7 @@ public class ResourceCacheImpl implements ResourceCacheInterface {
       } else {
         cache.remove(key);
         LOGGER.debug(
-            "Entry found in the cache, but no product found in cache directory for key = {} ",
-                key);
+            "Entry found in the cache, but no product found in cache directory for key = {} ", key);
         return null;
       }
     } else {

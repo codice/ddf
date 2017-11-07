@@ -252,7 +252,7 @@ public class FtpServerManager {
           break;
         }
       } catch (InterruptedException e) {
-        Thread.interrupted();                   //<<<<<<<< Do we still need this line?
+        Thread.interrupted(); // <<<<<<<< Do we still need this line?
         Thread.currentThread().interrupt();
         LOGGER.info("Thread interrupted while waiting for FTP connections to close", e);
       }

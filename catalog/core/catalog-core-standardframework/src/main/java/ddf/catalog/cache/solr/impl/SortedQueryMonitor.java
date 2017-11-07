@@ -297,10 +297,10 @@ class SortedQueryMonitor implements Runnable {
 
     try {
       for (PostFederatedQueryPlugin service : postQuery) {
-          queryResponse = service.process(queryResponse);
+        queryResponse = service.process(queryResponse);
       }
     } catch (PluginExecutionException e) {
-        LOGGER.info("Error executing PostFederatedQueryPlugin", e);
+      LOGGER.info("Error executing PostFederatedQueryPlugin", e);
     } catch (StopProcessingException e) {
       LOGGER.info("Plugin stopped processing", e);
     }

@@ -43,7 +43,7 @@ public class UserManagerImpl implements UserManager {
 
   private static final int MAX_IDLE_TIME_SECONDS = 300;
 
-  private static SecurityManager securityManager;
+  private SecurityManager securityManager;
 
   private String karafLocalRoles;
 

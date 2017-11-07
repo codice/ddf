@@ -262,6 +262,7 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
       } catch (InterruptedException e) {
         LOGGER.debug(
             "QueryResponseImpl queue thread was interrputed.  Returning null for last result");
+        Thread.currentThread().interrupt();
       }
     }
     return result;
@@ -299,6 +300,7 @@ public class QueryResponseImpl extends ResponseImpl<QueryRequest> implements Que
     } catch (InterruptedException e) {
       LOGGER.debug(
           "QueryResponseImpl queue thread was interrputed.  Returning null for last result");
+      Thread.currentThread().interrupt();
     }
     return result;
   }

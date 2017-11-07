@@ -22,7 +22,6 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.tokenattributes.TermAttribute;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -82,8 +81,6 @@ public final class ContextualEvaluator {
    */
   public static boolean evaluate(ContextualEvaluationCriteria cec)
       throws IOException, ParseException {
-    String methodName = "evaluate";
-
     Directory index = cec.getIndex();
     String searchPhrase = cec.getCriteria();
 
@@ -179,8 +176,6 @@ public final class ContextualEvaluator {
    * @throws IOException
    */
   public static Directory buildIndex(String fullDocument) throws IOException {
-    String methodName = "buildIndex (DEFAULT)";
-
     return buildIndex(fullDocument, DEFAULT_XPATH_SELECTORS);
   }
 
@@ -197,47 +192,46 @@ public final class ContextualEvaluator {
    */
   public static Directory buildIndex(String fullDocument, String[] xpathSelectors)
       throws IOException {
-    String methodName = "buildIndex";
-
-    // LOGGER.debug( XPathHelper.xmlToString( fullDocument ) );
 
     // 0. Specify the analyzer for tokenizing text.
     // The same analyzer should be used for indexing and searching
-    ContextualAnalyzer contextualAnalyzer = new ContextualAnalyzer(Version.LUCENE_30);
+    try (ContextualAnalyzer contextualAnalyzer = new ContextualAnalyzer(Version.LUCENE_30);
+        // 1. create the index
+        Directory index = new RAMDirectory();
+        // Create an IndexWriter using the case-insensitive StandardAnalyzer
+        // NOTE: the boolean arg in the IndexWriter constructor means to create a new index,
+        // overwriting any existing index
+        IndexWriter indexWriter =
+            new IndexWriter(index, contextualAnalyzer, true, IndexWriter.MaxFieldLength.UNLIMITED);
+        CaseSensitiveContextualAnalyzer caseSensitiveStandardAnalyzer =
+            new CaseSensitiveContextualAnalyzer(Version.LUCENE_30);
 
-    // 1. create the index
-    Directory index = new RAMDirectory();
+        // Create a second IndexWriter using the custom case-sensitive StandardAnalyzer
+        // NOTE: set boolean to false to append the case-sensitive indexed text to the existing
+        // index (populated by first IndexWriter)
+        IndexWriter csIndexWriter =
+            new IndexWriter(
+                index,
+                caseSensitiveStandardAnalyzer,
+                false,
+                IndexWriter.MaxFieldLength.UNLIMITED)) {
 
-    // Retrieve the text from the document that can be indexed using the specified XPath
-    // selectors
-    String indexableText = getIndexableText(fullDocument, xpathSelectors);
+      // Retrieve the text from the document that can be indexed using the specified XPath
+      // selectors
+      String indexableText = getIndexableText(fullDocument, xpathSelectors);
 
-    // Create an IndexWriter using the case-insensitive StandardAnalyzer
-    // NOTE: the boolean arg in the IndexWriter constructor means to create a new index,
-    // overwriting any existing index
-    try (IndexWriter indexWriter =
-        new IndexWriter(index, contextualAnalyzer, true, IndexWriter.MaxFieldLength.UNLIMITED)) {
       logTokens(indexWriter.getAnalyzer(), FIELD_NAME, fullDocument, "ContextualAnalyzer");
 
       // Add the indexable text to the case-insensitive index writer, assigning it the
       // "case-insensitive" field name
       addDoc(indexWriter, FIELD_NAME, indexableText);
-    }
-    CaseSensitiveContextualAnalyzer caseSensitiveStandardAnalyzer =
-        new CaseSensitiveContextualAnalyzer(Version.LUCENE_30);
-
-    // Create a second IndexWriter using the custom case-sensitive StandardAnalyzer
-    // NOTE: set boolean to false to append the case-sensitive indexed text to the existing
-    // index (populated by first IndexWriter)
-    try (IndexWriter csIndexWriter =
-        new IndexWriter(
-            index, caseSensitiveStandardAnalyzer, false, IndexWriter.MaxFieldLength.UNLIMITED)) {
 
       // Add the indexable text to the case-sensitive index writer, assigning it the
       // "case-sensitive" field name
       addDoc(csIndexWriter, CASE_SENSITIVE_FIELD_NAME, indexableText);
+
+      return index;
     }
-    return index;
   }
 
   private static void logTokens(
@@ -248,12 +242,9 @@ public final class ContextualEvaluator {
     }
 
     TokenStream tokenStream = analyzer.tokenStream(fieldName, new StringReader(fullDocument));
-    OffsetAttribute offsetAttribute = tokenStream.getAttribute(OffsetAttribute.class);
     TermAttribute termAttribute = tokenStream.getAttribute(TermAttribute.class);
     LOGGER.debug("-----  {} tokens  -----", analyzerName);
     while (tokenStream.incrementToken()) {
-      int startOffset = offsetAttribute.startOffset();
-      int endOffset = offsetAttribute.endOffset();
       String term = termAttribute.term();
       LOGGER.debug(term);
     }
@@ -269,8 +260,7 @@ public final class ContextualEvaluator {
    * @return
    */
   private static String getIndexableText(String document, String[] xpathSelectors) {
-    String methodName = "getIndexableText";
-    List<String> indexedText = new ArrayList<String>();
+    List<String> indexedText = new ArrayList<>();
 
     LOGGER.debug("xpathSelectors.size = {}", xpathSelectors.length);
 
