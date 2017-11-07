@@ -105,15 +105,12 @@ public class ConfigurationUpdaterTest {
 
     installer =
         new ConfigurationUpdater(
-            configurationAdmin,
-            Collections.singletonList(mockStrategy),
-            mockEncryptionService,
-            mockContextFactory);
+            configurationAdmin, Collections.singletonList(mockStrategy), mockEncryptionService);
   }
 
   @Test
   public void testInit() throws Exception {
-    installer.init();
+    installer.initialize(mockContextFactory);
     Map<String, CachedConfigData> pidFileMap = installer.getPidDataMap();
     assertThat(pidFileMap.entrySet(), hasSize(1));
     assertThat(pidFileMap.get(PID_001).getFelixFile(), is(fileB));
@@ -122,7 +119,7 @@ public class ConfigurationUpdaterTest {
   @Test
   public void testInitNoFelixFile() throws Exception {
     when(mockContextFromFactory.getConfigFile()).thenReturn(null);
-    installer.init();
+    installer.initialize(mockContextFactory);
     Map<String, CachedConfigData> pidFileMap = installer.getPidDataMap();
     assertThat(pidFileMap.entrySet(), is(empty()));
   }
@@ -130,7 +127,7 @@ public class ConfigurationUpdaterTest {
   @Test
   public void testInitWhenListConfigsReturnsNull() throws Exception {
     when(configurationAdmin.listConfigurations(null)).thenReturn(null);
-    installer.init();
+    installer.initialize(mockContextFactory);
     Map<String, CachedConfigData> pidFileMap = installer.getPidDataMap();
     assertThat(pidFileMap.entrySet(), is(empty()));
   }
@@ -138,13 +135,13 @@ public class ConfigurationUpdaterTest {
   @Test(expected = IOException.class)
   public void testInitWhenListConfigsThrowsException() throws Exception {
     when(configurationAdmin.listConfigurations(null)).thenThrow(IOException.class);
-    installer.init();
+    installer.initialize(mockContextFactory);
   }
 
   @Test
   public void testHandleStoreWontTrackConfig() throws Exception {
     when(mockContext.getServicePid()).thenReturn(PID_002);
-    installer.init();
+    installer.initialize(mockContextFactory);
     installer.handleStore(mockContext);
 
     Map<String, CachedConfigData> pidFileMap = installer.getPidDataMap();
@@ -161,7 +158,7 @@ public class ConfigurationUpdaterTest {
   public void testHandleStoreConfigAdded() throws Exception {
     when(mockContext.getServicePid()).thenReturn(PID_002);
     when(mockContext.getConfigFile()).thenReturn(fileA);
-    installer.init();
+    installer.initialize(mockContextFactory);
     installer.handleStore(mockContext);
 
     Map<String, CachedConfigData> pidFileMap = installer.getPidDataMap();
@@ -188,7 +185,7 @@ public class ConfigurationUpdaterTest {
     Map<String, CachedConfigData> pidFileMap;
     Dictionary<String, Object> props;
 
-    installer.init();
+    installer.initialize(mockContextFactory);
 
     pidFileMap = installer.getPidDataMap();
     props = pidFileMap.get(PID_001).getProps();
@@ -216,7 +213,7 @@ public class ConfigurationUpdaterTest {
     when(mockContext.getConfigFile()).thenReturn(fileB);
     when(mockContext.getSanitizedProperties()).thenReturn(propsNew);
 
-    installer.init();
+    installer.initialize(mockContextFactory);
     installer.handleStore(mockContext);
   }
 
@@ -246,7 +243,7 @@ public class ConfigurationUpdaterTest {
     when(mockContext.getConfigFile()).thenReturn(fileB);
     when(mockContext.getSanitizedProperties()).thenReturn(propsBefore);
 
-    installer.init();
+    installer.initialize(mockContextFactory);
     installer.handleStore(mockContext);
 
     Map<String, CachedConfigData> pidFileMap = installer.getPidDataMap();
@@ -261,7 +258,7 @@ public class ConfigurationUpdaterTest {
   public void testHandleStoreConfigFileIllegallyChanged() throws Exception {
     when(mockContext.getServicePid()).thenReturn(PID_001);
     when(mockContext.getConfigFile()).thenReturn(fileA);
-    installer.init();
+    installer.initialize(mockContextFactory);
     installer.handleStore(mockContext);
 
     verifyZeroInteractions(mockStrategy);
@@ -269,7 +266,7 @@ public class ConfigurationUpdaterTest {
 
   @Test
   public void testDeletedEvent() throws Exception {
-    installer.init();
+    installer.initialize(mockContextFactory);
     installer.handleDelete(PID_001);
     assertThat(installer.getPidDataMap().entrySet(), is(empty()));
     assertThat(fileB.exists(), is(false));

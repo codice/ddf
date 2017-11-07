@@ -22,14 +22,12 @@ import java.io.IOException;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import org.apache.felix.cm.PersistenceManager;
-import org.codice.felix.cm.internal.ConfigurationContextFactory;
 import org.codice.felix.cm.internal.ConfigurationPersistencePlugin;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.framework.ServiceRegistration;
 import org.osgi.util.tracker.ServiceTracker;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -39,8 +37,6 @@ public class DelegatingPersistenceManagerTest {
   @Mock private PersistenceManager mockManager;
 
   @Mock private ServiceTracker mockTracker;
-
-  @Mock private ServiceRegistration<ConfigurationContextFactory> mockRegistration;
 
   @Mock private ConfigurationContextImpl mockContext;
 
@@ -58,7 +54,7 @@ public class DelegatingPersistenceManagerTest {
     when(mockContext.shouldBeVisibleForProcessing()).thenReturn(true);
 
     delegatingPersistenceManager =
-        new DelegatingPersistenceManager(mockManager, mockTracker, mockRegistration) {
+        new DelegatingPersistenceManager(mockManager, mockTracker) {
           @Override
           ConfigurationContextImpl createContext(String pid, Dictionary props) {
             return mockContext;
@@ -72,7 +68,6 @@ public class DelegatingPersistenceManagerTest {
   public void testClose() throws Exception {
     delegatingPersistenceManager.close();
     verify(mockTracker).close();
-    verify(mockRegistration).unregister();
   }
 
   @Test

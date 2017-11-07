@@ -28,16 +28,10 @@
                interface="ddf.security.encryption.EncryptionService"
                availability="mandatory"/>
 
-    <reference id="contextFactory"
-               interface="org.codice.felix.cm.internal.ConfigurationContextFactory"
-               availability="mandatory"/>
-
-    <bean id="configUpdater" class="org.codice.ddf.admin.configuration.ConfigurationUpdater"
-          init-method="init">
+    <bean id="configUpdater" class="org.codice.ddf.admin.configuration.ConfigurationUpdater">
         <argument ref="configAdmin"/>
         <argument ref="strategiesBean"/>
         <argument ref="encryptionService"/>
-        <argument ref="contextFactory"/>
     </bean>
 
     <service ref="configUpdater"

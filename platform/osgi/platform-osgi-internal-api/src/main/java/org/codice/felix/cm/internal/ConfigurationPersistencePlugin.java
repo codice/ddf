@@ -35,6 +35,16 @@ import java.io.IOException;
 public interface ConfigurationPersistencePlugin {
 
   /**
+   * Provide an initialization hook for synchronous resource allocation <b>after</b> a plugin is
+   * available to be called, unlike an OSGi life-cycle {@code init()} method, which is called prior
+   * to the service becoming available.
+   *
+   * @param factory the configuration context factory used for obtaining {@link
+   *     ConfigurationContext}s.
+   */
+  void initialize(ConfigurationContextFactory factory);
+
+  /**
    * Given the {@link ConfigurationContext} of a configuration about to be written, perform
    * processing <b>before</b> the results get stored.
    *

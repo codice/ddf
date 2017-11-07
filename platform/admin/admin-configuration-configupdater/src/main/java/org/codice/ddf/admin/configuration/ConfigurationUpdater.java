@@ -86,8 +86,6 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
 
   private final Map<String, CachedConfigData> pidDataMap;
 
-  private final ConfigurationContextFactory configurationContextFactory;
-
   /**
    * {@code SortedServiceList} implements {@link java.util.List} using generic parameter <code>
    * &lt;T&gt;</code> and not a concrete type, so the ctor cannot be matched by the blueprint
@@ -96,16 +94,11 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
    * <p>See https://issues.apache.org/jira/browse/ARIES-960
    */
   public ConfigurationUpdater(
-      ConfigurationAdmin ddfConfigAdmin,
-      List strategies,
-      EncryptionService encryptionService,
-      ConfigurationContextFactory configurationContextFactory) {
+      ConfigurationAdmin ddfConfigAdmin, List strategies, EncryptionService encryptionService) {
     this.ddfConfigAdmin = ddfConfigAdmin;
     this.strategies = strategies;
     this.encryptionService = encryptionService;
     this.pidDataMap = new ConcurrentHashMap<>();
-
-    this.configurationContextFactory = configurationContextFactory;
   }
 
   /** @return a read-only map of configuration pids to felix file install properties. */
@@ -115,20 +108,27 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
   }
 
   /**
+   * @inheritDoc
    * @see ConfigurationPersistencePlugin
    * @throws IOException if an error occurs reading configuration data
    * @throws InvalidSyntaxException technically impossible since {@code null} is being passed as the
    *     configuration filter. See {@link ConfigurationAdmin#listConfigurations(String)}.
    */
-  public void init() throws IOException, InvalidSyntaxException {
-    Configuration[] configs = ddfConfigAdmin.listConfigurations(null);
+  @Override
+  public void initialize(ConfigurationContextFactory factory) {
+    Configuration[] configs;
+    try {
+      configs = ddfConfigAdmin.listConfigurations(null);
+    } catch (IOException | InvalidSyntaxException e) {
+      LOGGER.error("Problem fetching configurations. ", e);
+      return;
+    }
     if (configs == null) {
       return;
     }
-    // TODO: Could we miss configurations?
     pidDataMap.putAll(
         Arrays.stream(configs)
-            .map(configurationContextFactory::createContext)
+            .map(factory::createContext)
             .filter(context -> context.getConfigFile() != null)
             .collect(Collectors.toMap(ConfigurationContext::getServicePid, CachedConfigData::new)));
   }

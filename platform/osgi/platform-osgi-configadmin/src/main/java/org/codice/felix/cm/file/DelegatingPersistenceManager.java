@@ -18,50 +18,45 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.List;
+import java.util.concurrent.locks.StampedLock;
 import org.apache.felix.cm.PersistenceManager;
 import org.codice.felix.cm.internal.ConfigurationContextFactory;
 import org.codice.felix.cm.internal.ConfigurationPersistencePlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceRegistration;
+import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
+import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
 /**
  * The {@link DelegatingPersistenceManager} is responsible for iterating over relevant configuration
  * plugin points prior to moving the configs to the inner {@link PersistenceManager}.
  */
 public class DelegatingPersistenceManager extends WrappedPersistenceManager {
+  private final ServiceTracker<ConfigurationPersistencePlugin, ConfigurationPersistencePlugin>
+      configPersistenceTracker;
 
-  private final ServiceTracker configPersistenceTracker;
-
-  private final ServiceRegistration<ConfigurationContextFactory> contextFactoryRegistration;
-
-  public DelegatingPersistenceManager(PersistenceManager persistenceManager) {
+  public DelegatingPersistenceManager(
+      PersistenceManager persistenceManager, StampedLock configDeadZoneLock) {
     this(
         persistenceManager,
-        new ServiceTracker(getBundleContext(), ConfigurationPersistencePlugin.class, null),
-        getBundleContext()
-            .registerService(
-                ConfigurationContextFactory.class, new ConfigurationContextFactoryImpl(), null));
+        new ServiceTracker<>(
+            getBundleContext(),
+            ConfigurationPersistencePlugin.class,
+            new ConfigInterceptingCustomizer(configDeadZoneLock)));
   }
 
   DelegatingPersistenceManager(
       PersistenceManager persistenceManager,
-      ServiceTracker tracker,
-      ServiceRegistration<ConfigurationContextFactory> registration) {
+      ServiceTracker<ConfigurationPersistencePlugin, ConfigurationPersistencePlugin> tracker) {
     super(persistenceManager);
-    tracker.open();
-
     this.configPersistenceTracker = tracker;
-    this.contextFactoryRegistration = registration;
+    configPersistenceTracker.open();
   }
 
   @Override
   public void close() throws Exception {
     configPersistenceTracker.close();
-    if (contextFactoryRegistration != null) {
-      contextFactoryRegistration.unregister();
-    }
     super.close();
   }
 
@@ -108,5 +103,40 @@ public class DelegatingPersistenceManager extends WrappedPersistenceManager {
 
   private static BundleContext getBundleContext() {
     return FrameworkUtil.getBundle(DelegatingPersistenceManager.class).getBundleContext();
+  }
+
+  private static class ConfigInterceptingCustomizer
+      implements ServiceTrackerCustomizer<
+          ConfigurationPersistencePlugin, ConfigurationPersistencePlugin> {
+    private final ConfigurationContextFactory factory = new ConfigurationContextFactoryImpl();
+    private final StampedLock configDeadZoneLock;
+
+    ConfigInterceptingCustomizer(StampedLock configDeadZoneLock) {
+      this.configDeadZoneLock = configDeadZoneLock;
+    }
+
+    @Override
+    public ConfigurationPersistencePlugin addingService(
+        ServiceReference<ConfigurationPersistencePlugin> serviceReference) {
+      ConfigurationPersistencePlugin plugin = getBundleContext().getService(serviceReference);
+      // Write lock because no configs should be getting saved while we initialize
+      long stamp = configDeadZoneLock.writeLock();
+      try {
+        plugin.initialize(factory);
+      } finally {
+        configDeadZoneLock.unlockWrite(stamp);
+      }
+      return plugin;
+    }
+
+    @Override
+    public void modifiedService(
+        ServiceReference<ConfigurationPersistencePlugin> serviceReference,
+        ConfigurationPersistencePlugin configurationPersistencePlugin) {}
+
+    @Override
+    public void removedService(
+        ServiceReference<ConfigurationPersistencePlugin> serviceReference,
+        ConfigurationPersistencePlugin configurationPersistencePlugin) {}
   }
 }
