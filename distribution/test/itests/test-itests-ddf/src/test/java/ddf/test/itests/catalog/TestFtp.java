@@ -13,9 +13,9 @@
  */
 package ddf.test.itests.catalog;
 
-import static ddf.catalog.ftp.FtpServerStarter.CLIENT_AUTH;
-import static ddf.catalog.ftp.FtpServerStarter.NEED;
-import static ddf.catalog.ftp.FtpServerStarter.WANT;
+import static ddf.catalog.ftp.FtpServerManager.CLIENT_AUTH;
+import static ddf.catalog.ftp.FtpServerManager.NEED;
+import static ddf.catalog.ftp.FtpServerManager.WANT;
 import static org.codice.ddf.itests.common.WaitCondition.expect;
 import static org.codice.ddf.itests.common.opensearch.OpenSearchTestCommons.getOpenSearch;
 import static org.junit.Assert.assertTrue;
@@ -446,7 +446,7 @@ public class TestFtp extends AbstractIntegrationTest {
    * @throws Exception
    */
   private void setClientAuthConfiguration(String clientAuth) throws Exception {
-    Configuration config = getAdminConfig().getConfiguration("ddf.catalog.ftp.FtpServerStarter");
+    Configuration config = getAdminConfig().getConfiguration("ddf.catalog.ftp.FtpServerManager");
     config.setBundleLocation("mvn:ddf.catalog/ftp/" + System.getProperty("ddf.version"));
     Dictionary properties = new Hashtable<>();
     properties.put(CLIENT_AUTH, clientAuth);

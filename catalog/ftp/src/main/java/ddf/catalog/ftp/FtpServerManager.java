@@ -35,8 +35,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** Registers the {@link FtpRequestHandler} and starts the FTP server for the FTP Endpoint. */
-public class FtpServerStarter {
-  private static final Logger LOGGER = LoggerFactory.getLogger(FtpServerStarter.class);
+public class FtpServerManager {
+  private static final Logger LOGGER = LoggerFactory.getLogger(FtpServerManager.class);
 
   private static final String DEFAULT_LISTENER = "default";
 
@@ -80,7 +80,7 @@ public class FtpServerStarter {
 
   private String trustStoreType;
 
-  public FtpServerStarter(
+  public FtpServerManager(
       Ftplet ftplet,
       FtpServerFactory serverFactory,
       ListenerFactory listenerFactory,

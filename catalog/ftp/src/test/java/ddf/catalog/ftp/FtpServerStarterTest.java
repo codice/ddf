@@ -13,10 +13,10 @@
  */
 package ddf.catalog.ftp;
 
-import static ddf.catalog.ftp.FtpServerStarter.CLIENT_AUTH;
-import static ddf.catalog.ftp.FtpServerStarter.NEED;
-import static ddf.catalog.ftp.FtpServerStarter.PORT;
-import static ddf.catalog.ftp.FtpServerStarter.WANT;
+import static ddf.catalog.ftp.FtpServerManager.CLIENT_AUTH;
+import static ddf.catalog.ftp.FtpServerManager.NEED;
+import static ddf.catalog.ftp.FtpServerManager.PORT;
+import static ddf.catalog.ftp.FtpServerManager.WANT;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
@@ -44,7 +44,7 @@ public class FtpServerStarterTest {
 
   private static final String DEFAULT_LISTENER = "default";
 
-  private FtpServerStarter ftpServerStarter;
+  private FtpServerManager ftpServerStarter;
 
   private FtpServerFactory ftpServerFactory;
 
@@ -72,7 +72,7 @@ public class FtpServerStarterTest {
     sessions = new HashSet<>();
 
     ftpServerStarter =
-        new FtpServerStarter(
+        new FtpServerManager(
             ftplet, ftpServerFactory, listenerFactory, userManager, sslConfigurationFactory);
   }
 

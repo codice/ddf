@@ -18,9 +18,9 @@
 
     <ext:property-placeholder/>
 
-    <bean id="server" class="ddf.catalog.ftp.FtpServerStarter" init-method="init"
+    <bean id="server" class="ddf.catalog.ftp.FtpServerManager" init-method="init"
           destroy-method="destroy">
-        <cm:managed-properties persistent-id="ddf.catalog.ftp.FtpServerStarter"
+        <cm:managed-properties persistent-id="ddf.catalog.ftp.FtpServerManager"
                                update-strategy="component-managed"
                                update-method="updateConfiguration"/>
         <property name="port" value="${org.codice.ddf.catalog.ftp.port}"/>
