@@ -471,7 +471,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
                             ImportMigrationDirectoryEntryImpl::isFiltered, Matchers.equalTo(false)),
                         MappingMatchers.map(
                             ImportMigrationDirectoryEntryImpl::getFileEntries,
-                            Matchers.contains(
+                            Matchers.containsInAnyOrder(
                                 Matchers.sameInstance(ENTRY),
                                 Matchers.sameInstance(context.getEntry(MIGRATABLE_PATH2))))))), //
             Matchers.allOf( //
