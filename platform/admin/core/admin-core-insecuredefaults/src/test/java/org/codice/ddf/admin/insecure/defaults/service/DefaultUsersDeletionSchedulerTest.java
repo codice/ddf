@@ -19,35 +19,44 @@ import static junit.framework.TestCase.assertNull;
 import static junit.framework.TestCase.assertTrue;
 import static org.mockito.Mockito.mock;
 
+import com.google.common.collect.ImmutableMap;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.concurrent.TimeUnit;
 import org.apache.camel.CamelContext;
 import org.apache.camel.impl.DefaultCamelContext;
+import org.apache.karaf.jaas.modules.BackingEngine;
+import org.apache.karaf.jaas.modules.BackingEngineFactory;
+import org.apache.karaf.jaas.modules.properties.PropertiesBackingEngineFactory;
 import org.codice.ddf.configuration.AbsolutePathResolver;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class UsersPropertiesDeletionSchedulerTest {
+public class DefaultUsersDeletionSchedulerTest {
 
-  private static final Path PATH = UsersPropertiesDeletionScheduler.USERS_PROPERTIES_FILE_PATH;
+  private static final Path PATH = DefaultUsersDeletionScheduler.USERS_PROPERTIES_FILE_PATH;
   private static final Path TEMP_FILE_PATH =
       Paths.get(new AbsolutePathResolver("data/tmp/timestamp.bin").getPath());
   private CamelContext context;
-  private UsersPropertiesDeletionScheduler scheduler;
+  private DefaultUsersDeletionScheduler scheduler;
 
   @Before
   public void setup() throws IOException {
     context = mock(DefaultCamelContext.class);
-    scheduler = new UsersPropertiesDeletionScheduler(context);
+    scheduler = new DefaultUsersDeletionScheduler(context);
     File testFile = PATH.toFile();
     File testFileParent = new File(testFile.getParent());
     testFileParent.mkdirs();
@@ -66,7 +75,7 @@ public class UsersPropertiesDeletionSchedulerTest {
 
   @Test
   public void scheduleDeletionFileExistsTest() throws Exception {
-    Mockito.doAnswer(invocationOnMock -> UsersPropertiesDeletionScheduler.deleteFiles())
+    Mockito.doAnswer(invocationOnMock -> DefaultUsersDeletionScheduler.removeDefaultUsers())
         .when(context)
         .start();
     createTempFile();
@@ -74,11 +83,11 @@ public class UsersPropertiesDeletionSchedulerTest {
 
     scheduler.scheduleDeletion();
 
-    assertTrue("The users.properties file was not deleted in time.", Files.notExists(PATH));
+    assertTrue(!scheduler.defaultUsersExist() && Files.notExists(TEMP_FILE_PATH));
   }
 
   @Test
-  public void getCronTempFileExistsTest() throws IOException, InterruptedException {
+  public void getCronTempFileExistsTest() throws Exception {
     createTempFile();
     writeTimestamp(Instant.now());
 
@@ -109,16 +118,23 @@ public class UsersPropertiesDeletionSchedulerTest {
   @Test(expected = ClassCastException.class)
   public void writeToFileWithError() throws Exception {
     createTempFile();
-    writeIncorrectTimestamp("Incorrect type");
+    writeTimestamp("Incorrect type");
 
     String actual = scheduler.getCron();
     assertNull("Incorrect error handling.", actual);
   }
 
   @Test
-  public void deleteFileTest() throws IOException {
-    UsersPropertiesDeletionScheduler.deleteFiles();
-    assertTrue(Files.notExists(PATH));
+  public void removeDefaultUsersFromLongerFileTest() throws Exception {
+    writeUsersPropertiesFile("/mockLongUsers.properties");
+
+    // What removeDefaultUsers does (whichout having to do service properties
+    BackingEngineFactory backingEngineFactory = new PropertiesBackingEngineFactory();
+    BackingEngine backingEngine =
+        backingEngineFactory.build(ImmutableMap.of("users", PATH.toString()));
+    backingEngine.listUsers().forEach(user -> backingEngine.deleteUser(user.getName()));
+
+    assertTrue(!scheduler.defaultUsersExist());
   }
 
   @Test
@@ -131,6 +147,17 @@ public class UsersPropertiesDeletionSchedulerTest {
     assertEquals("Incorrect Instant read.", instant, actual);
   }
 
+  @Test
+  @Ignore
+  public void generateTimestamp() throws Exception {
+    createTempFile();
+    writeTimestamp(Instant.now().plus(6, ChronoUnit.MINUTES).minus(3, ChronoUnit.DAYS));
+
+    TimeUnit.MINUTES.sleep(2);
+
+    // NOTE: manually delete both files!!!
+  }
+
   private void createTempFile() throws IOException {
     File tempFile = TEMP_FILE_PATH.toFile();
     File tempFileParent = new File(tempFile.getParent());
@@ -139,17 +166,19 @@ public class UsersPropertiesDeletionSchedulerTest {
     assertTrue("No temporary file found.", Files.exists(TEMP_FILE_PATH));
   }
 
-  private void writeTimestamp(Instant instant) throws IOException {
+  private void writeTimestamp(Object instant) throws IOException {
     try (ObjectOutputStream objectOutputStream =
         new ObjectOutputStream(new FileOutputStream(TEMP_FILE_PATH.toFile()))) {
       objectOutputStream.writeObject(instant);
     }
   }
 
-  private void writeIncorrectTimestamp(String string) throws IOException {
-    try (ObjectOutputStream objectOutputStream =
-        new ObjectOutputStream(new FileOutputStream(TEMP_FILE_PATH.toFile()))) {
-      objectOutputStream.writeObject(string);
+  private void writeUsersPropertiesFile(String name) throws Exception {
+    try (FileChannel source =
+            new FileInputStream(Paths.get(getClass().getResource(name).toURI()).toFile())
+                .getChannel();
+        FileChannel destination = new FileOutputStream(PATH.toFile()).getChannel()) {
+      destination.transferFrom(source, 0, source.size());
     }
   }
 }
