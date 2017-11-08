@@ -13,6 +13,9 @@
  */
 package ddf.camel.component.catalog.content;
 
+import static ddf.camel.component.catalog.content.ContentProducerDataAccessObject.ENTRY_CREATE;
+import static ddf.camel.component.catalog.content.ContentProducerDataAccessObject.ENTRY_DELETE;
+import static ddf.camel.component.catalog.content.ContentProducerDataAccessObject.ENTRY_MODIFY;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -21,7 +24,9 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
@@ -63,7 +68,7 @@ import org.junit.rules.TemporaryFolder;
 public class ContentProducerDataAccessObjectTest {
   @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-  ContentProducerDataAccessObject contentProducerDataAccessObject;
+  private ContentProducerDataAccessObject contentProducerDataAccessObject;
 
   @Before
   public void setUp() {
@@ -91,14 +96,72 @@ public class ContentProducerDataAccessObjectTest {
   @Test
   public void testGetFileUsingRefKeyWithNullFile() throws Exception {
     GenericFileMessage<File> mockMessage = getMockMessage(null);
-
-    // test with storeRefKey == false
-    assertThat(
-        contentProducerDataAccessObject.getFileUsingRefKey(false, mockMessage), is(nullValue()));
-
-    // test with storeRefKey == true
     assertThat(
         contentProducerDataAccessObject.getFileUsingRefKey(true, mockMessage), is(nullValue()));
+  }
+
+  @Test
+  public void testGetFileWithoutRefKeyWithNullFile() throws Exception {
+    GenericFileMessage<File> mockMessage = getMockMessage(null);
+    assertThat(
+        contentProducerDataAccessObject.getFileUsingRefKey(false, mockMessage), is(nullValue()));
+  }
+
+  @Test
+  public void testProcessNullFileOnEntryCreate() throws Exception {
+    Map<String, Object> headers = mock(Map.class);
+    CatalogFramework mockCatalogFramework = mock(CatalogFramework.class);
+    FileSystemPersistenceProvider mockFileSystemPersistenceProvider =
+        mock(FileSystemPersistenceProvider.class);
+
+    ContentComponent mockComponent = mock(ContentComponent.class);
+    doReturn(mockCatalogFramework).when(mockComponent).getCatalogFramework();
+
+    ContentEndpoint mockEndpoint = mock(ContentEndpoint.class);
+    doReturn(mockComponent).when(mockEndpoint).getComponent();
+
+    contentProducerDataAccessObject.createContentItem(
+        mockFileSystemPersistenceProvider, mockEndpoint, null, ENTRY_CREATE, "", headers);
+
+    verifyZeroInteractions(headers, mockCatalogFramework, mockComponent);
+  }
+
+  @Test
+  public void testProcessNullFileOnEntryUpdate() throws Exception {
+    Map<String, Object> headers = mock(Map.class);
+    CatalogFramework mockCatalogFramework = mock(CatalogFramework.class);
+    FileSystemPersistenceProvider mockFileSystemPersistenceProvider =
+        mock(FileSystemPersistenceProvider.class);
+
+    ContentComponent mockComponent = mock(ContentComponent.class);
+    doReturn(mockCatalogFramework).when(mockComponent).getCatalogFramework();
+
+    ContentEndpoint mockEndpoint = mock(ContentEndpoint.class);
+    doReturn(mockComponent).when(mockEndpoint).getComponent();
+
+    contentProducerDataAccessObject.createContentItem(
+        mockFileSystemPersistenceProvider, mockEndpoint, null, ENTRY_MODIFY, "", headers);
+
+    verifyZeroInteractions(headers, mockCatalogFramework, mockComponent);
+  }
+
+  @Test
+  public void testProcessNullFileOnEntryDelete() throws Exception {
+    Map<String, Object> headers = mock(Map.class);
+    CatalogFramework mockCatalogFramework = mock(CatalogFramework.class);
+    FileSystemPersistenceProvider mockFileSystemPersistenceProvider =
+        mock(FileSystemPersistenceProvider.class);
+
+    ContentComponent mockComponent = mock(ContentComponent.class);
+    doReturn(mockCatalogFramework).when(mockComponent).getCatalogFramework();
+
+    ContentEndpoint mockEndpoint = mock(ContentEndpoint.class);
+    doReturn(mockComponent).when(mockEndpoint).getComponent();
+
+    contentProducerDataAccessObject.createContentItem(
+        mockFileSystemPersistenceProvider, mockEndpoint, null, ENTRY_DELETE, "", headers);
+
+    verify(mockCatalogFramework, times(1)).delete(any(DeleteRequest.class));
   }
 
   @Test

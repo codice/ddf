@@ -42,6 +42,7 @@ import java.io.Serializable;
 import java.nio.file.Path;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
+import java.nio.file.WatchEvent.Kind;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -66,6 +67,9 @@ public class ContentProducerDataAccessObject {
 
   private static final Logger LOGGER =
       LoggerFactory.getLogger(ContentProducerDataAccessObject.class);
+  public static final Kind<Path> ENTRY_CREATE = StandardWatchEventKinds.ENTRY_CREATE;
+  public static final Kind<Path> ENTRY_MODIFY = StandardWatchEventKinds.ENTRY_MODIFY;
+  public static final Kind<Path> ENTRY_DELETE = StandardWatchEventKinds.ENTRY_DELETE;
 
   private UuidGenerator uuidGenerator;
 
@@ -99,7 +103,7 @@ public class ContentProducerDataAccessObject {
           (WatchEvent<Path>) ((GenericFileMessage) in).getGenericFile().getFile();
       return pathWatchEvent.kind();
     } else {
-      return StandardWatchEventKinds.ENTRY_CREATE;
+      return ENTRY_CREATE;
     }
   }
 
@@ -144,6 +148,14 @@ public class ContentProducerDataAccessObject {
       throws SourceUnavailableException, IngestException {
     LOGGER.debug("Creating content item.");
 
+    if (!eventType.equals(ENTRY_DELETE) && ingestedFile == null) {
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug(
+            "Ingested File was null with eventType [{}]. Doing nothing.", eventType.name());
+      }
+      return;
+    }
+
     String refKey = (String) headers.get(Constants.STORE_REFERENCE_KEY);
     String safeKey = null;
     String id = null;
@@ -155,12 +167,12 @@ public class ContentProducerDataAccessObject {
       safeKey = DigestUtils.sha1Hex(refKey);
       if (fileIdMap.loadAllKeys().contains(safeKey)) {
         id = String.valueOf(fileIdMap.loadFromPersistence(safeKey));
-      } else if (!StandardWatchEventKinds.ENTRY_CREATE.equals(eventType)) {
+      } else if (!ENTRY_CREATE.equals(eventType)) {
         LOGGER.warn("Unable to look up id for {}, not performing {}", refKey, eventType.name());
         return;
       }
     }
-    if (StandardWatchEventKinds.ENTRY_CREATE.equals(eventType)) {
+    if (ENTRY_CREATE.equals(eventType)) {
       CreateStorageRequest createRequest =
           new CreateStorageRequestImpl(
               Collections.singletonList(
@@ -187,7 +199,7 @@ public class ContentProducerDataAccessObject {
         }
         logIds(createdMetacards, "created");
       }
-    } else if (StandardWatchEventKinds.ENTRY_MODIFY.equals(eventType)) {
+    } else if (ENTRY_MODIFY.equals(eventType)) {
       UpdateStorageRequest updateRequest =
           new UpdateStorageRequestImpl(
               Collections.singletonList(
@@ -209,7 +221,7 @@ public class ContentProducerDataAccessObject {
             updatedMetacards.stream().map(Update::getNewMetacard).collect(Collectors.toList()),
             "updated");
       }
-    } else if (StandardWatchEventKinds.ENTRY_DELETE.equals(eventType)) {
+    } else if (ENTRY_DELETE.equals(eventType)) {
       DeleteRequest deleteRequest = new DeleteRequestImpl(id);
 
       DeleteResponse deleteResponse =
