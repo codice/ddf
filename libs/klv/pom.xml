@@ -51,9 +51,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.tika</groupId>
-            <artifactId>tika-parsers</artifactId>
-            <version>${tika.version}</version>
+            <groupId>org.codice.thirdparty</groupId>
+            <artifactId>tika-bundle</artifactId>
+            <version>${tika.thirdparty.bundle.version}</version>
         </dependency>
     </dependencies>
 
