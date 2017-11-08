@@ -671,7 +671,9 @@ module.exports = function CesiumMap(insertionElement, selectionInterface, notifi
             });
             shapes = [];
         },
-        destroy: function() {}
+        destroy: function() {
+            map.destroy();
+        }
     });
 
     return exposedMethods;
