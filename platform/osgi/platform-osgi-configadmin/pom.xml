@@ -158,8 +158,8 @@
                             org.osgi.service.log;version="1.3"
                         </DynamicImport-Package>
                         <Provide-Capability>
-                            osgi.service;objectClass:List&lt;String&gt;="org.osgi.service.cm.ConfigurationAdmin",
-                            osgi.service;objectClass:List&lt;String&gt;="org.apache.felix.cm.PersistenceManager",
+                            osgi.service;objectClass:List="org.osgi.service.cm.ConfigurationAdmin",
+                            osgi.service;objectClass:List="org.apache.felix.cm.PersistenceManager"
                         </Provide-Capability>
                         <Require-Capability>
                             osgi.service;filter:="(objectClass=org.osgi.service.log.LogService)";effective:=active;resolution:=optional
