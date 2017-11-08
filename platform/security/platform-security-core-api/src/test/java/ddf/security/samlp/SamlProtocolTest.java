@@ -13,17 +13,25 @@
  */
 package ddf.security.samlp;
 
+import static ddf.security.samlp.SamlProtocol.PAOS_BINDING;
+import static ddf.security.samlp.SamlProtocol.POST_BINDING;
+import static ddf.security.samlp.SamlProtocol.REDIRECT_BINDING;
+import static ddf.security.samlp.SamlProtocol.SOAP_BINDING;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
+import java.util.List;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.junit.Test;
 import org.opensaml.saml.saml2.core.AttributeQuery;
 import org.opensaml.saml.saml2.core.LogoutRequest;
 import org.opensaml.saml.saml2.core.LogoutResponse;
 import org.opensaml.saml.saml2.core.Response;
+import org.opensaml.saml.saml2.metadata.AssertionConsumerService;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
+import org.opensaml.saml.saml2.metadata.SingleSignOnService;
 
 public class SamlProtocolTest {
 
@@ -50,6 +58,7 @@ public class SamlProtocolTest {
             Arrays.asList("mynameid"),
             "redirectlocation",
             "postlocation",
+            "soaplocation",
             "logoutlocation");
     assertEquals("myid", entityDescriptor.getEntityID());
     assertEquals(
@@ -83,20 +92,7 @@ public class SamlProtocolTest {
             .getNameIDFormats()
             .get(0)
             .getFormat());
-    assertEquals(
-        "redirectlocation",
-        entityDescriptor
-            .getIDPSSODescriptor(SamlProtocol.SUPPORTED_PROTOCOL)
-            .getSingleSignOnServices()
-            .get(0)
-            .getLocation());
-    assertEquals(
-        "postlocation",
-        entityDescriptor
-            .getIDPSSODescriptor(SamlProtocol.SUPPORTED_PROTOCOL)
-            .getSingleSignOnServices()
-            .get(1)
-            .getLocation());
+
     assertEquals(
         "logoutlocation",
         entityDescriptor
@@ -104,6 +100,41 @@ public class SamlProtocolTest {
             .getSingleLogoutServices()
             .get(0)
             .getLocation());
+
+    List<SingleSignOnService> ssoServices =
+        entityDescriptor
+            .getIDPSSODescriptor(SamlProtocol.SUPPORTED_PROTOCOL)
+            .getSingleSignOnServices();
+
+    assertTrue(
+        ssoServices
+            .stream()
+            .filter(
+                service ->
+                    service.getBinding().equals(REDIRECT_BINDING)
+                        && service.getLocation().equals("redirectlocation"))
+            .findFirst()
+            .isPresent());
+
+    assertTrue(
+        ssoServices
+            .stream()
+            .filter(
+                service ->
+                    service.getBinding().equals(POST_BINDING)
+                        && service.getLocation().equals("postlocation"))
+            .findFirst()
+            .isPresent());
+
+    assertTrue(
+        ssoServices
+            .stream()
+            .filter(
+                service ->
+                    service.getBinding().equals(SOAP_BINDING)
+                        && service.getLocation().equals("soaplocation"))
+            .findFirst()
+            .isPresent());
   }
 
   @Test
@@ -115,7 +146,8 @@ public class SamlProtocolTest {
             "myencryptioncert",
             "logoutlocation",
             "redirectlocation",
-            "postlocation");
+            "postlocation",
+            "paoslocation");
     assertEquals("myid", entityDescriptor.getEntityID());
     assertEquals(
         "mysigningcert",
@@ -141,20 +173,7 @@ public class SamlProtocolTest {
             .getX509Certificates()
             .get(0)
             .getValue());
-    assertEquals(
-        "redirectlocation",
-        entityDescriptor
-            .getSPSSODescriptor(SamlProtocol.SUPPORTED_PROTOCOL)
-            .getAssertionConsumerServices()
-            .get(0)
-            .getLocation());
-    assertEquals(
-        "postlocation",
-        entityDescriptor
-            .getSPSSODescriptor(SamlProtocol.SUPPORTED_PROTOCOL)
-            .getAssertionConsumerServices()
-            .get(1)
-            .getLocation());
+
     assertEquals(
         "logoutlocation",
         entityDescriptor
@@ -162,6 +181,41 @@ public class SamlProtocolTest {
             .getSingleLogoutServices()
             .get(0)
             .getLocation());
+
+    List<AssertionConsumerService> acServices =
+        entityDescriptor
+            .getSPSSODescriptor(SamlProtocol.SUPPORTED_PROTOCOL)
+            .getAssertionConsumerServices();
+
+    assertTrue(
+        acServices
+            .stream()
+            .filter(
+                service ->
+                    service.getBinding().equals(REDIRECT_BINDING)
+                        && service.getLocation().equals("redirectlocation"))
+            .findFirst()
+            .isPresent());
+
+    assertTrue(
+        acServices
+            .stream()
+            .filter(
+                service ->
+                    service.getBinding().equals(POST_BINDING)
+                        && service.getLocation().equals("postlocation"))
+            .findFirst()
+            .isPresent());
+
+    assertTrue(
+        acServices
+            .stream()
+            .filter(
+                service ->
+                    service.getBinding().equals(PAOS_BINDING)
+                        && service.getLocation().equals("paoslocation"))
+            .findFirst()
+            .isPresent());
   }
 
   @Test

@@ -81,6 +81,10 @@ public class SamlProtocol {
   public static final String REDIRECT_BINDING =
       "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect";
 
+  public static final String SOAP_BINDING = "urn:oasis:names:tc:SAML:2.0:bindings:SOAP";
+
+  public static final String PAOS_BINDING = "urn:oasis:names:tc:SAML:2.0:bindings:PAOS";
+
   public static final String POST_BINDING = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST";
 
   /** Input factory */
@@ -218,11 +222,11 @@ public class SamlProtocol {
       (HeaderBuilder) builderFactory.getBuilder(Header.DEFAULT_ELEMENT_NAME);
 
   public enum Binding {
-    HTTP_POST("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"),
-    HTTP_REDIRECT("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"),
-    HTTP_ARTIFACT("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact"),
-    SOAP("urn:oasis:names:tc:SAML:2.0:bindings:SOAP"),
-    PAOS("urn:oasis:names:tc:SAML:2.0:bindings:PAOS");
+    HTTP_POST(POST_BINDING),
+    HTTP_REDIRECT(REDIRECT_BINDING),
+    HTTP_ARTIFACT(SOAP_BINDING),
+    SOAP(SOAP_BINDING),
+    PAOS(PAOS_BINDING);
 
     private final String uri;
 
@@ -316,6 +320,7 @@ public class SamlProtocol {
     return status;
   }
 
+  @SuppressWarnings("squid:S00107")
   public static EntityDescriptor createIdpMetadata(
       String entityId,
       String signingCert,
@@ -323,6 +328,7 @@ public class SamlProtocol {
       List<String> nameIds,
       String singleSignOnLocationRedirect,
       String singleSignOnLocationPost,
+      String singleSignOnLocationSoap,
       String singleLogOutLocation) {
     EntityDescriptor entityDescriptor = entityDescriptorBuilder.buildObject();
     entityDescriptor.setEntityID(entityId);
@@ -384,6 +390,13 @@ public class SamlProtocol {
       idpssoDescriptor.getSingleLogoutServices().add(singleLogoutServicePost);
     }
 
+    if (StringUtils.isNotBlank(singleSignOnLocationSoap)) {
+      SingleSignOnService singleSignOnServiceSoap = singleSignOnServiceBuilder.buildObject();
+      singleSignOnServiceSoap.setBinding(SOAP_BINDING);
+      singleSignOnServiceSoap.setLocation(singleSignOnLocationSoap);
+      idpssoDescriptor.getSingleSignOnServices().add(singleSignOnServiceSoap);
+    }
+
     idpssoDescriptor.setWantAuthnRequestsSigned(true);
 
     idpssoDescriptor.addSupportedProtocol(SUPPORTED_PROTOCOL);
@@ -399,7 +412,8 @@ public class SamlProtocol {
       String encryptionCert,
       String singleLogOutLocation,
       String assertionConsumerServiceLocationRedirect,
-      String assertionConsumerServiceLocationPost) {
+      String assertionConsumerServiceLocationPost,
+      String assertionConsumerServiceLocationPaos) {
     EntityDescriptor entityDescriptor = entityDescriptorBuilder.buildObject();
     entityDescriptor.setEntityID(entityId);
     SPSSODescriptor spSsoDescriptor = spSsoDescriptorBuilder.buildObject();
@@ -458,6 +472,15 @@ public class SamlProtocol {
       assertionConsumerService.setIndex(acsIndex++);
       assertionConsumerService.setLocation(assertionConsumerServiceLocationPost);
       spSsoDescriptor.getAssertionConsumerServices().add(assertionConsumerService);
+    }
+
+    if (StringUtils.isNotBlank(assertionConsumerServiceLocationPaos)) {
+      AssertionConsumerService assertionConsumerServicePaos =
+          assertionConsumerServiceBuilder.buildObject();
+      assertionConsumerServicePaos.setBinding(PAOS_BINDING);
+      assertionConsumerServicePaos.setIndex(acsIndex++);
+      assertionConsumerServicePaos.setLocation(assertionConsumerServiceLocationPaos);
+      spSsoDescriptor.getAssertionConsumerServices().add(assertionConsumerServicePaos);
     }
 
     spSsoDescriptor.addSupportedProtocol(SUPPORTED_PROTOCOL);
