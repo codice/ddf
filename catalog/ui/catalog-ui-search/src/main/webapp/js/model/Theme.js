@@ -18,7 +18,7 @@ var _get = require('lodash.get');
 var properties = require('properties');
 
 var spacingVariables = ['minimumButtonSize', 'minimumLineSize', 'minimumSpacing'];
-var colorVariables = ['baseColor', 'primary-color', 'positive-color', 'negative-color', 'warning-color', 'favorite-color'];
+var colorVariables = ['baseColor', 'primary-color', 'positive-color', 'negative-color', 'warning-color', 'favorite-color', 'baseGrey', 'text-color', 'button-text-color', 'links-visited-color', 'links-color'];
 var themeableVariables = spacingVariables.concat(colorVariables);
 
 function trimVariables(variables){
@@ -60,7 +60,7 @@ var colorModes = {
         'positive-color': 'blue',
         'negative-color': 'red',
         'warning-color': 'yellow',
-        'favorite-color': 'orange'
+        'favorite-color': 'orange',
     },
     custom: {}
 };
@@ -69,13 +69,35 @@ module.exports = Backbone.Model.extend({
     defaults: function() {
         return {
             spacingMode: _get(properties, 'spacingMode', 'comfortable'),
-            colorMode: 'dark'
+            colorMode: 'dark',
+            backgroundColor: _get(properties, 'backgroundColor', colorModes.dark['baseGrey']),
+            textColor: _get(properties, 'textColor', colorModes.dark['text-color']),
+            buttonTextColor: _get(properties, 'buttonTextColor', colorModes.dark['button-text-color']),
+            primaryColor: _get(properties, 'primaryColor', colorModes.dark['primary-color']),
+            positiveColor: _get(properties, 'positiveColor', colorModes.dark['positive-color']),
+            negativeColor: _get(properties, 'negativeColor', colorModes.dark['negative-color']),
+            warningColor: _get(properties, 'warningColor', colorModes.dark['warning-color']),
+            favoriteColor: _get(properties, 'favoriteColor', colorModes.dark['favorite-color']),
+            linksVisitedColor: _get(properties, 'linksVisitedColor', colorModes.dark['links-visited-color']),
+            linksColor: _get(properties, 'linksColor', colorModes.dark['links-color'])
         };
     },
     initialize: function() {
     },
     getTheme: function(){
         var theme = this.toJSON();
+
+        colorModes.dark['baseGrey'] = theme.backgroundColor;
+        colorModes.dark['text-color'] = theme.textColor;
+        colorModes.dark['button-text-color'] = theme.buttonTextColor;
+        colorModes.dark['primary-color'] = theme.primaryColor;
+        colorModes.dark['positive-color'] = theme.positiveColor;
+        colorModes.dark['negative-color'] = theme.negativeColor;
+        colorModes.dark['warning-color'] = theme.warningColor;
+        colorModes.dark['favorite-color'] = theme.favoriteColor;
+        colorModes.dark['links-visited-color'] = theme.linksVisitedColor;
+        colorModes.dark['links-color'] = theme.linksColor;
+
         return _.defaults(theme, spacingModes[theme.spacingMode], colorModes[theme.colorMode]);
     },
     getColorMode: function(){
@@ -83,7 +105,38 @@ module.exports = Backbone.Model.extend({
     },
     getSpacingMode: function(){
         return this.get('spacingMode');
+    },
+    getBackgroundColor: function(){
+        return this.get('backgroundColor');
+    },
+    getTextColor: function(){
+        return this.get('textColor');
+    },
+    getButtonTextColor: function(){
+        return this.get('buttonTextColor');
+    },
+    getPrimaryColor: function(){
+        return this.get('primaryColor');
+    },
+    getPositiveColor: function(){
+        return this.get('positiveColor');
+    },
+    getNegativeColor: function(){
+        return this.get('negativeColor');
+    },
+    getWarningColor: function(){
+        return this.get('warningColor');
+    },
+    getFavoriteColor: function(){
+        return this.get('favoriteColor');
+    },
+    getLinksVisitedColor: function(){
+        return this.get('linksVisitedColor');
+    },
+    getLinksColor: function(){
+        return this.get('linksColor');
     }
+
 });
 
 if (module.hot) {
