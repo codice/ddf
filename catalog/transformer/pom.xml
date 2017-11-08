@@ -77,6 +77,13 @@
                 <groupId>org.apache.tika</groupId>
                 <artifactId>tika-parsers</artifactId>
                 <version>${tika.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <!-- excluding openlp due to CVE-2017-12620 https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-12620 -->
+                        <groupId>org.apache.opennlp</groupId>
+                       <artifactId>opennlp-tools</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
         </dependencies>
     </dependencyManagement>
