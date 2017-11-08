@@ -110,6 +110,7 @@
         <junit.version>4.12</junit.version>
         <awaitility.version>3.0.0</awaitility.version>
         <tika.version>1.15</tika.version>
+        <tika.thirdparty.bundle.version>1.14.0_2</tika.thirdparty.bundle.version>
         <poi.version>3.12</poi.version>
         <poi.contrib.version>3.7-beta3</poi.contrib.version>
         <commons-lang.version>2.6</commons-lang.version>
