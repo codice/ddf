@@ -15,7 +15,7 @@ waitForPid() {
    until kill -0 $1; do
      sleep 1
      i=$((i+1))
-     if [ $i -eq 60 ]; then
+     if [ $i -eq 120 ]; then
        return 1
      fi
    done

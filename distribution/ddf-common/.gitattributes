@@ -1,0 +1,2 @@
+# Declare files that will always have CRLF line endings on checkout.
+**/setenv-windows-wrapper.conf text eol=crlf
