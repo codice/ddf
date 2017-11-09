@@ -351,9 +351,10 @@ define([
             var filters = [];
 
             var text = this.basicText.currentView.model.getValue()[0];
-            text = text === "" ? '*' : text;
-            var matchCase = this.basicTextMatch.currentView.model.getValue()[0];
-            filters.push(CQLUtils.generateFilter(matchCase, 'anyText', text));
+            if (text !== "") {
+                var matchCase = this.basicTextMatch.currentView.model.getValue()[0];
+                filters.push(CQLUtils.generateFilter(matchCase, 'anyText', text));
+            }
 
             this.basicTime.currentView.constructFilter().forEach((timeFilter) => {
                 filters.push(timeFilter);
@@ -380,12 +381,8 @@ define([
                 filters.push(typeFilter)
             }
 
-            var text = this.basicText.currentView.model.getValue()[0];
-            text = text === "" ? '*' : text;
-
-            if (filters.length === 0 || text !== '*') {
-                var matchCase = this.basicTextMatch.currentView.model.getValue()[0];
-                filters.unshift(CQLUtils.generateFilter(matchCase, 'anyText', text));
+            if (filters.length === 0) {
+                filters.unshift(CQLUtils.generateFilter('ILIKE', 'anyText', '*'));
             }
 
             return {
