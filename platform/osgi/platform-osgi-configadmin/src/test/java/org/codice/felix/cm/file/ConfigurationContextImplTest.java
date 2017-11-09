@@ -128,6 +128,54 @@ public class ConfigurationContextImplTest {
   }
 
   @Test
+  public void testSetNormalProperty() {
+    Dictionary<String, Object> innerProps = new Hashtable<>();
+    context = new ConfigurationContextImpl(TEST_PID, innerProps);
+    context.setProperty("key", "value");
+
+    assertThat(
+        "Inner properties should get updated with the new mapping so it gets persisted",
+        innerProps.size(),
+        is(1));
+    assertThat(
+        "Inner properties should have the mapping so Felix can persist it",
+        innerProps.get("key"),
+        is("value"));
+
+    Dictionary<String, Object> sanitizedProps = context.getSanitizedProperties();
+    assertThat(
+        "Sanitized properties should get updated with the new mapping so it's visible",
+        sanitizedProps.size(),
+        is(1));
+    assertThat(
+        "Sanitized properties should have the mapping key=value so it's visible",
+        sanitizedProps.get("key"),
+        is("value"));
+  }
+
+  @Test
+  public void testSetInternalProperty() {
+    Dictionary<String, Object> innerProps = new Hashtable<>();
+    context = new ConfigurationContextImpl(TEST_PID, innerProps);
+    context.setProperty(FELIX_FILENAME, temporaryFile.getAbsolutePath());
+
+    assertThat(
+        "Inner properties should get updated with the new mapping so it gets persisted",
+        innerProps.size(),
+        is(1));
+    assertThat(
+        "Inner properties should have the mapping so Felix can persist it",
+        innerProps.get(FELIX_FILENAME),
+        is(temporaryFile.getAbsolutePath()));
+
+    Dictionary<String, Object> sanitizedProps = context.getSanitizedProperties();
+    assertThat(
+        "Sanitized properties should ignore the new mapping because it's internal",
+        sanitizedProps.size(),
+        is(0));
+  }
+
+  @Test
   public void testPidIsSetCorrectly() {
     context = new ConfigurationContextImpl(TEST_PID, new Hashtable<>());
     assertThat(

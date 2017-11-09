@@ -48,4 +48,13 @@ public interface ConfigurationContext {
    *     of Felix internal control values.
    */
   Dictionary<String, Object> getSanitizedProperties();
+
+  /**
+   * Provides a mechanism to add or change property values on the internal felix map to be persisted
+   * without going back through the config admin service.
+   *
+   * @param key the key of the property to add or change.
+   * @param value the intended new value for the specified property to hold.
+   */
+  void setProperty(String key, Object value);
 }

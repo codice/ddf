@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.admin.configuration;
 
+import static org.codice.ddf.admin.configuration.ConfigurationUpdater.FELIX_FILENAME;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
@@ -254,6 +255,16 @@ public class ConfigurationUpdaterTest {
 
     // Confirm we wrote to disk using the strategy
     verify(mockStrategy).write(anyObject(), eq(propsAfter));
+  }
+
+  @Test
+  public void testHandleStoreConfigFileRemoved() throws Exception {
+    when(mockContext.getServicePid()).thenReturn(PID_001);
+    when(mockContext.getConfigFile()).thenReturn(null);
+    installer.initialize(mockContextFactory);
+    installer.handleStore(mockContext);
+
+    verify(mockContext).setProperty(eq(FELIX_FILENAME), eq(fileB.getAbsolutePath()));
   }
 
   @Test(expected = IllegalStateException.class)

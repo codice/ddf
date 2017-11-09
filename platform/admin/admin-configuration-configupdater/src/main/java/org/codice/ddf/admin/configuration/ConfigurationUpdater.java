@@ -77,6 +77,8 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
 
   private static final Pattern ENC_PATTERN = Pattern.compile("^ENC\\((.*)\\)$");
 
+  static final String FELIX_FILENAME = "felix.fileinstall.filename";
+
   private final ConfigurationAdmin ddfConfigAdmin;
 
   private final List<PersistenceStrategy> strategies;
@@ -187,24 +189,28 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
       return;
     }
 
-    guardAgainstFelixFilePropChanging(fileFromConfigAdmin, fileFromCache);
+    if (!Objects.equals(fileFromConfigAdmin, fileFromCache)) {
+      if (fileFromConfigAdmin != null) {
+        // The felix file prop changed, which is not allowed (3)
+        String msg =
+            format(
+                "Felix filename has been illegally changed from [%s] to [%s]",
+                fileFromCache, fileFromConfigAdmin);
+        throw new IllegalStateException(msg);
+      }
+      if (fileFromCache.exists()) {
+        // The felix file prop was removed, which we can revert if the file exists (3)
+        LOGGER.info("Felix filename has been illegally removed, reverting to [{}]", fileFromCache);
+        context.setProperty(FELIX_FILENAME, fileFromCache.getAbsolutePath());
+        writeIfNecessary(
+            appropriatePid, fileFromCache, context.getSanitizedProperties(), cachedConfigData);
+        return;
+      }
+    }
 
     // Routine property updates for tracked files - write to disk if necessary (4)
     writeIfNecessary(
         appropriatePid, fileFromConfigAdmin, context.getSanitizedProperties(), cachedConfigData);
-  }
-
-  private void guardAgainstFelixFilePropChanging(File fileFromConfig, File fileFromCache) {
-    if (!Objects.equals(fileFromConfig, fileFromCache)) {
-      // The felix file prop changed, which is not allowed (3)
-      String msg =
-          (fileFromConfig == null)
-              ? format("Felix filename has been illegally removed, was [%s]", fileFromCache)
-              : format(
-                  "Felix filename has been illegally changed from [%s] to [%s]",
-                  fileFromCache, fileFromConfig);
-      throw new IllegalStateException(msg);
-    }
   }
 
   /**
@@ -252,7 +258,7 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
       Dictionary<String, Object> configState,
       CachedConfigData cachedData)
       throws IOException {
-    if (dest.exists()) {
+    if (dest != null && dest.exists()) {
       processPasswords(appropriatePid, configState, this::encryptValue);
       if (!cachedData.equalProps(configState)) {
         try (OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(dest))) {

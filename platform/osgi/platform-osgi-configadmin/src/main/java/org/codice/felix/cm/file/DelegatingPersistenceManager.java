@@ -135,11 +135,15 @@ public class DelegatingPersistenceManager extends WrappedPersistenceManager {
     @Override
     public void modifiedService(
         ServiceReference<ConfigurationPersistencePlugin> serviceReference,
-        ConfigurationPersistencePlugin configurationPersistencePlugin) {}
+        ConfigurationPersistencePlugin configurationPersistencePlugin) {
+      // Listener for modified service properties. Does not apply to us. No customization required.
+    }
 
     @Override
     public void removedService(
         ServiceReference<ConfigurationPersistencePlugin> serviceReference,
-        ConfigurationPersistencePlugin configurationPersistencePlugin) {}
+        ConfigurationPersistencePlugin configurationPersistencePlugin) {
+      // Listener for service removal. Does not apply to us. No customization required.
+    }
   }
 }

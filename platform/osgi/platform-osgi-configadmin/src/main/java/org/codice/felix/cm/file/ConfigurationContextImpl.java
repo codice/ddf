@@ -13,6 +13,7 @@
  */
 package org.codice.felix.cm.file;
 
+import static java.lang.String.format;
 import static org.osgi.framework.Constants.SERVICE_PID;
 import static org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID;
 
@@ -21,9 +22,12 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Set;
 import org.codice.felix.cm.internal.ConfigurationContext;
 import org.osgi.service.cm.Configuration;
 import org.slf4j.Logger;
@@ -58,13 +62,24 @@ public class ConfigurationContextImpl implements ConfigurationContext {
   // Property of a special config that tracks all the individual configurations from a factory
   static final String SERVICE_FACTORY_PIDLIST = "factory.pidList";
 
+  private static final Set<String> SPECIAL_PROPERTIES =
+      new HashSet<>(
+          Arrays.asList(
+              SERVICE_PID,
+              SERVICE_FACTORYPID,
+              FELIX_FILENAME,
+              FELIX_NEW_CONFIG,
+              SERVICE_FACTORY_PIDLIST));
+
   private final String servicePid;
 
   private final String factoryPid;
 
   private final File configFile;
 
-  private final Dictionary<String, Object> props;
+  private final Dictionary<String, Object> originalProperties;
+
+  private final Dictionary<String, Object> sanitizedProperties;
 
   private final Object configIsNew;
 
@@ -77,6 +92,8 @@ public class ConfigurationContextImpl implements ConfigurationContext {
   }
 
   ConfigurationContextImpl(String pid, Dictionary<String, Object> props) {
+    this.originalProperties = props;
+
     Dictionary<String, Object> propsCopy = copyDictionary(props);
 
     // No guarantee these are in the props dictionary so do not assign from the removal
@@ -91,7 +108,7 @@ public class ConfigurationContextImpl implements ConfigurationContext {
     this.pidList = propsCopy.remove(SERVICE_FACTORY_PIDLIST);
 
     this.propertyCount = propsCopy.size();
-    this.props = propsCopy;
+    this.sanitizedProperties = propsCopy;
   }
 
   @Override
@@ -111,7 +128,19 @@ public class ConfigurationContextImpl implements ConfigurationContext {
 
   @Override
   public Dictionary<String, Object> getSanitizedProperties() {
-    return copyDictionary(props);
+    return copyDictionary(sanitizedProperties);
+  }
+
+  @Override
+  public void setProperty(String key, Object value) {
+    if (key == null || value == null || key.isEmpty()) {
+      throw new IllegalArgumentException(
+          format("Property parameters were not valid, key = [%s] and value = [%s]", key, value));
+    }
+    originalProperties.put(key, value);
+    if (!SPECIAL_PROPERTIES.contains(key)) {
+      sanitizedProperties.put(key, value);
+    }
   }
 
   public boolean shouldBeVisibleToPlugins() {
@@ -121,7 +150,7 @@ public class ConfigurationContextImpl implements ConfigurationContext {
   // Config files in etc may delimit on the '-' but in memory it's always last '.'
   private static String parseFactoryPid(String pid) {
     if (pid != null && pid.contains("-")) {
-      return pid.substring(0, pid.lastIndexOf("."));
+      return pid.substring(0, pid.lastIndexOf('.'));
     }
     return null;
   }
@@ -156,6 +185,7 @@ public class ConfigurationContextImpl implements ConfigurationContext {
     return null;
   }
 
+  @SuppressWarnings("squid:S1149" /* we are API bound on Dictionary - Felix uses them everywhere */)
   private static Dictionary<String, Object> copyDictionary(Dictionary<String, Object> original) {
     Dictionary<String, Object> copy = new Hashtable<>();
     Enumeration<String> keys = original.keys();
