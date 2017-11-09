@@ -16,6 +16,7 @@ package org.codice.ddf.configuration.migration;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.PathMatcher;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
@@ -40,11 +41,14 @@ public abstract class ImportMigrationPropertyReferencedEntryImpl extends ImportM
 
   private final ImportMigrationEntryImpl referenced;
 
-  private boolean verifierRegistered = false;
+  private volatile boolean verifierRegistered = false;
 
   ImportMigrationPropertyReferencedEntryImpl(
       ImportMigrationContextImpl context, Map<String, Object> metadata) {
-    super(context, JsonUtils.getStringFrom(metadata, MigrationEntryImpl.METADATA_REFERENCE, true));
+    super(
+        context,
+        JsonUtils.getStringFrom(metadata, MigrationEntryImpl.METADATA_REFERENCE, true),
+        true);
     this.property = JsonUtils.getStringFrom(metadata, MigrationEntryImpl.METADATA_PROPERTY, true);
     this.referenced =
         context
@@ -62,6 +66,16 @@ public abstract class ImportMigrationPropertyReferencedEntryImpl extends ImportM
   }
 
   @Override
+  public boolean isFile() {
+    return referenced.isFile();
+  }
+
+  @Override
+  public boolean isDirectory() {
+    return referenced.isDirectory();
+  }
+
+  @Override
   public boolean restore(boolean required) {
     if (restored == null) {
       super.restored = false; // until proven otherwise in case next line throws exception
@@ -71,6 +85,26 @@ public abstract class ImportMigrationPropertyReferencedEntryImpl extends ImportM
       if (referenced.restore(required)) {
         super.restored = true;
         verifyPropertyAfterCompletionOnce();
+      }
+    }
+    return restored;
+  }
+
+  @Override
+  public boolean restore(boolean required, PathMatcher filter) {
+    Validate.notNull(filter, "invalid null path filter");
+    if (restored == null) {
+      super.restored = false; // until proven otherwise
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug(
+            "Importing {}{} with path filter...", (required ? "required " : ""), toDebugString());
+      }
+      if (referenced.restore(required, filter)) {
+        super.restored = true;
+        // don't bother verifying if the filter didn't match!
+        if (required || filter.matches(referenced.getPath())) {
+          verifyPropertyAfterCompletionOnce();
+        }
       }
     }
     return restored;

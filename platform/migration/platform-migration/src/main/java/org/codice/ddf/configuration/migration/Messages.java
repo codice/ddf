@@ -144,10 +144,14 @@ public final class Messages {
       "Import error: Java property [%s] from file [%s] which was originally set to [%s] could not be retrieved; %s.";
 
   public static final String IMPORT_PATH_WARNING =
-      "Path [%s] %s.  Make sure it matches the file from the original system.";
+      "Path [%s] %s. Make sure it matches the file from the original system.";
+
+  public static final String IMPORT_OPTIONAL_PATH_DELETE_WARNING =
+      "Optional path [%s], which was not exported, %s; therefore, it cannot be deleted. "
+          + "Manually clean it if it is no longer required.";
 
   public static final String IMPORT_PATH_DELETE_WARNING =
-      "Optional path [%s], which was not exported, %s; therefore, it cannot be deleted. "
+      "Path [%s], which did not exist on original system, could not be deleted. "
           + "Manually clean it if it is no longer required.";
 
   public static final String EXPORT_PATH_ERROR = "Export error: path [%s] %s; %s.";
@@ -157,7 +161,7 @@ public final class Messages {
   public static final String IMPORT_PATH_NOT_EXPORTED_ERROR =
       "Import error: path [%s] was not exported.";
 
-  public static final String IMPORT_PATH_DELETE_ERROR =
+  public static final String IMPORT_OPTIONAL_PATH_DELETE_ERROR =
       "Import error: optional path [%s], which was not exported, could not be deleted.";
 
   public static final String IMPORT_PATH_COPY_ERROR =
@@ -174,8 +178,6 @@ public final class Messages {
   public static final String IMPORT_CHECKSUM_COMPUTE_WARNING =
       "Failed to compute checksum for file [%s] (%s); therefore, it will not be possible to verify the integrity of the file on the local system.  "
           + "Make sure the file matches the one from the system you migrated from.";
-
-  public static final String IMPORT_PATH_CLEAN_WARNING = "Failed to clean path [%s]; %s.";
 
   public static final String IMPORT_UNKNOWN_DATA_FOUND_ERROR =
       "Import error: unknown data found in exported file.";

@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 /** This class handles the export process for all Security system files */
 public class SecurityMigratable implements Migratable {
+
   private static final Logger LOGGER = LoggerFactory.getLogger(SecurityMigratable.class);
 
   private static final String WS_SECURITY = "ws-security";
@@ -95,7 +96,7 @@ public class SecurityMigratable implements Migratable {
         .map(Optional::get)
         .forEach(ExportMigrationEntry::store);
     LOGGER.debug("Exporting PDP files from [{}]...", SecurityMigratable.PDP_POLICIES_DIR);
-    context.entries(SecurityMigratable.PDP_POLICIES_DIR).forEach(ExportMigrationEntry::store);
+    context.getEntry(SecurityMigratable.PDP_POLICIES_DIR).store();
   }
 
   @Override
@@ -114,7 +115,6 @@ public class SecurityMigratable implements Migratable {
         .map(Optional::get)
         .forEach(ImportMigrationEntry::restore);
     LOGGER.debug("Importing PDP Directory at [{}]...", SecurityMigratable.PDP_POLICIES_DIR);
-    context.cleanDirectory(SecurityMigratable.PDP_POLICIES_DIR);
-    context.entries(SecurityMigratable.PDP_POLICIES_DIR).forEach(ImportMigrationEntry::restore);
+    context.getEntry(SecurityMigratable.PDP_POLICIES_DIR).restore();
   }
 }

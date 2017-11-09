@@ -15,6 +15,7 @@ package org.codice.ddf.migration;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.PathMatcher;
 import java.util.Optional;
 import java.util.function.BiPredicate;
 import org.codice.ddf.util.function.BiThrowingConsumer;
@@ -178,7 +179,8 @@ public interface ExportMigrationEntry extends MigrationEntry {
 
   /**
    * Stores this entry's content in the export based on this entry's path which can include
-   * sub-directories.
+   * sub-directories. If the entry represents a directory then all files recursively located
+   * underneath the directory will automatically be exported.
    *
    * <p>All errors and warnings are automatically recorded with the associated migration report.
    *
@@ -207,7 +209,8 @@ public interface ExportMigrationEntry extends MigrationEntry {
 
   /**
    * Stores this entry's content in the export based on this entry's path which can include
-   * sub-directories.
+   * sub-directories. If the entry represents a directory then all files recursively located
+   * underneath the directory will automatically be exported.
    *
    * <p>All errors and warnings are automatically recorded with the associated migration report.
    *
@@ -226,14 +229,82 @@ public interface ExportMigrationEntry extends MigrationEntry {
    * time it is called, the same result will be returned as the first time no matter which <code>
    * store()</code> method was called.
    *
-   * @param required <code>true</code> if the file is required to exist on disk and if it doesn't an
-   *     error should be recorded; <code>false</code> if the file is optional and may not be present
-   *     in which case calling this method will do nothing
+   * @param required <code>true</code> if the file or directory is required to exist on disk and if
+   *     it doesn't an error should be recorded; <code>false</code> if the file or directory is
+   *     optional and may not be present in which case calling this method will do nothing
    * @return <code>true</code> if no errors were recorded as a result of processing this command;
    *     <code>false</code> otherwise
    * @throws MigrationException if a failure that prevents the operation from continuing occurred
    */
   public boolean store(boolean required);
+
+  /**
+   * Stores all files that recursively match the provided path filter in the export based on this
+   * entry's path which can include sub-directories. If this entry represents a file that does not
+   * match the provided path filter then nothing will be exported and <code>true</code> will be
+   * returned.
+   *
+   * <p>All errors and warnings are automatically recorded with the associated migration report.
+   *
+   * <p>Errors can be reported in two ways:
+   *
+   * <ol>
+   *   <li>Errors that abort the whole operation would be thrown out as {@link MigrationException}
+   *       (e.g. failure to write to the exported file)
+   *   <li>Errors that are specific to this specific entry and that will eventually fail the export
+   *       operation at the end. Such errors are simply recorded with the report and <code>false
+   *       </code> is returned from this method. This allows for the accumulation of as many issues
+   *       as possible to report to the user before aborting the operation.
+   * </ol>
+   *
+   * <p><i>Note:</i> Calling <code>store()</code> twice will not store the entry twice. The second
+   * time it is called, the same result will be returned as the first time no matter which <code>
+   * store()</code> method was called.
+   *
+   * @param filter the path filter to use
+   * @return <code>true</code> if no errors were recorded as a result of processing this command;
+   *     <code>false</code> otherwise
+   * @throws IllegalArgumentException if <code>filter</code> is <code>null </code>
+   * @throws MigrationException if a failure that prevents the operation from continuing occurred
+   */
+  public default boolean store(PathMatcher filter) {
+    return store(true, filter);
+  }
+
+  /**
+   * Stores all files that recursively match the provided path filter in the export based on this
+   * entry's path which can include sub-directories. If this entry represents a file that doesn't
+   * match the provided path filter then nothing will be exported and the entry will be considered
+   * as non-existent when the <code>required</code> parameter is interpreted for recording errors
+   * and deciding what to return.
+   *
+   * <p>All errors and warnings are automatically recorded with the associated migration report.
+   *
+   * <p>Errors can be reported in two ways:
+   *
+   * <ol>
+   *   <li>Errors that abort the whole operation would be thrown out as {@link MigrationException}
+   *       (e.g. failure to write to the exported file)
+   *   <li>Errors that are specific to this specific entry and that will eventually fail the export
+   *       operation at the end. Such errors are simply recorded with the report and <code>false
+   *       </code> is returned from this method. This allows for the accumulation of as many issues
+   *       as possible to report to the user before aborting the operation.
+   * </ol>
+   *
+   * <p><i>Note:</i> Calling <code>store()</code> twice will not store the entry twice. The second
+   * time it is called, the same result will be returned as the first time no matter which <code>
+   * store()</code> method was called.
+   *
+   * @param required <code>true</code> if the file or directory is required to exist on disk and if
+   *     it doesn't an error should be recorded; <code>false</code> if the file or directory is
+   *     optional and may not be present in which case calling this method will do nothing
+   * @param filter the path filter to use
+   * @return <code>true</code> if no errors were recorded as a result of processing this command;
+   *     <code>false</code> otherwise
+   * @throws IllegalArgumentException if <code>filter</code> is <code>null </code>
+   * @throws MigrationException if a failure that prevents the operation from continuing occurred
+   */
+  public boolean store(boolean required, PathMatcher filter);
 
   /**
    * Stores this entry's content in the export using the specified consumer based on this entry's
@@ -261,14 +332,15 @@ public interface ExportMigrationEntry extends MigrationEntry {
    * time it is called, the same result will be returned as the first time no matter which <code>
    * store()</code> method was called.
    *
+   * <p><i>Note:</i> Storing an entry in this fashion will automatically mark the entry as a file
+   * even though on disk it might have represented a directory.
+   *
    * @param consumer a consumer capable of exporting the content of this entry to a provided output
    *     stream
    * @return <code>true</code> if no errors were recorded as a result of processing this command;
    *     <code>false</code> otherwise
    * @throws MigrationException if a failure that prevents the operation from continuing occurred
    * @throws IllegalArgumentException if <code>consumer</code> is <code>null</code>
-   * @throws SecurityException if a security manager exists and its <code>checkRead()</code> method
-   *     denies read access to the file represented by this entry
    */
   public boolean store(BiThrowingConsumer<MigrationReport, OutputStream, IOException> consumer);
 
@@ -280,10 +352,12 @@ public interface ExportMigrationEntry extends MigrationEntry {
    * the output stream for another entry is retrieved, when calling {@link #store} on another entry,
    * or when the export operation completes regardless of outcome for the associated migratable.
    *
+   * <p><i>Note:</i> Storing an entry via the output stream returned by this method will
+   * automatically mark the entry as a file even though on disk it might have represented a
+   * directory.
+   *
    * @return an output stream for this entry
    * @throws IOException if an I/O error has occurred
-   * @throws SecurityException if a security manager exists and its <code>checkRead()</code> method
-   *     denies read access to the file represented by this entry
    */
   public OutputStream getOutputStream() throws IOException;
 }

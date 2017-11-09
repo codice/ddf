@@ -13,22 +13,198 @@
  */
 package org.codice.ddf.configuration.migration;
 
+import java.io.File;
 import java.io.IOError;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 import org.apache.commons.io.FileUtils;
+import org.codice.ddf.migration.MigrationOperation;
+import org.codice.ddf.migration.MigrationReport;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 public class PathUtilsTest extends AbstractMigrationSupport {
+
   private PathUtils pathUtils;
+
+  private final MigrationReport report =
+      new MigrationReportImpl(MigrationOperation.IMPORT, Optional.empty());
 
   @Before
   public void setup() throws Exception {
     pathUtils = new PathUtils();
+  }
+
+  @Test
+  public void testDeleteQuietlyADirectory() throws Exception {
+    Assert.assertThat(PathUtils.deleteQuietly(ddfHome, "what"), Matchers.equalTo(true));
+
+    Assert.assertThat(ddfHome.toFile().exists(), Matchers.equalTo(false));
+  }
+
+  @Test
+  public void testDeleteQuietlyAFile() throws Exception {
+    final Path path = ddfHome.resolve(createFile("test.txt"));
+
+    Assert.assertThat(PathUtils.deleteQuietly(path, "what"), Matchers.equalTo(true));
+
+    Assert.assertThat(path.toFile().exists(), Matchers.equalTo(false));
+  }
+
+  @Test
+  public void testDeleteQuietlyWhenFail() throws Exception {
+    final Path path = ddfHome.resolve("unknown");
+
+    Assert.assertThat(PathUtils.deleteQuietly(path, "what"), Matchers.equalTo(false));
+  }
+
+  @Test
+  public void testDeleteQuietlyWithNullPath() throws Exception {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage(Matchers.containsString("null path"));
+
+    PathUtils.deleteQuietly(null, "what");
+  }
+
+  @Test
+  public void testDeleteQuietlyWithNullType() throws Exception {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage(Matchers.containsString("null type"));
+
+    PathUtils.deleteQuietly(ddfHome, null);
+  }
+
+  @Test
+  public void testCleanQuietlyADirectoryWithFiles() throws Exception {
+    final Path path = createDirectory("dir");
+    final Path path2 = createDirectory("dir", "dir2");
+    final Path path3 = createDirectory("dir3");
+    final Path path4 = createDirectory("dir", "dir2", "dir4");
+    final Path file = ddfHome.resolve(createFile(path, "test.txt"));
+    final Path file0 = ddfHome.resolve(createFile(ddfHome, "test0.txt"));
+    final Path file3 = ddfHome.resolve(createFile(path3, "test3.txt"));
+    final Path file33 = ddfHome.resolve(createFile(path3, "test33.txt"));
+
+    Assert.assertThat(PathUtils.cleanQuietly(ddfHome, report), Matchers.equalTo(false));
+
+    Assert.assertThat(ddfHome.toFile().exists(), Matchers.equalTo(true));
+    Assert.assertThat(path.toFile().exists(), Matchers.equalTo(true));
+    Assert.assertThat(path2.toFile().exists(), Matchers.equalTo(false));
+    Assert.assertThat(path3.toFile().exists(), Matchers.equalTo(true));
+    Assert.assertThat(path4.toFile().exists(), Matchers.equalTo(false));
+    Assert.assertThat(file.toFile().exists(), Matchers.equalTo(true));
+    Assert.assertThat(file0.toFile().exists(), Matchers.equalTo(true));
+    Assert.assertThat(file3.toFile().exists(), Matchers.equalTo(true));
+    Assert.assertThat(file33.toFile().exists(), Matchers.equalTo(true));
+    Assert.assertThat(report.wasSuccessful(), Matchers.equalTo(true));
+    Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
+    Assert.assertThat(report.hasErrors(), Matchers.equalTo(false));
+  }
+
+  @Test
+  public void testCleanQuietlyADirectoryWithoutFiles() throws Exception {
+    final Path path = createDirectory("dir");
+    final Path path2 = createDirectory("dir", "dir2");
+    final Path path3 = createDirectory("dir3");
+    final Path path4 = createDirectory("dir", "dir2", "dir4");
+
+    Assert.assertThat(PathUtils.cleanQuietly(ddfHome, report), Matchers.equalTo(true));
+
+    Assert.assertThat(ddfHome.toFile().exists(), Matchers.equalTo(true));
+    Assert.assertThat(path.toFile().exists(), Matchers.equalTo(false));
+    Assert.assertThat(path2.toFile().exists(), Matchers.equalTo(false));
+    Assert.assertThat(path3.toFile().exists(), Matchers.equalTo(false));
+    Assert.assertThat(path4.toFile().exists(), Matchers.equalTo(false));
+    Assert.assertThat(report.wasSuccessful(), Matchers.equalTo(true));
+    Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
+    Assert.assertThat(report.hasErrors(), Matchers.equalTo(false));
+  }
+
+  @Test
+  public void testCleanQuietlyADirectoryWithoutFilesAndFailing() throws Exception {
+    final File file = Mockito.mock(File.class);
+    final File file2 = Mockito.mock(File.class);
+    final File file3 = Mockito.mock(File.class);
+    final File file4 = Mockito.mock(File.class);
+    final Path path = Mockito.mock(Path.class);
+    final Path path2 = Mockito.mock(Path.class);
+    final Path path3 = Mockito.mock(Path.class);
+    final Path path4 = Mockito.mock(Path.class);
+
+    Mockito.when(path.toFile()).thenReturn(file);
+    Mockito.when(path2.toFile()).thenReturn(file2);
+    Mockito.when(path3.toFile()).thenReturn(file3);
+    Mockito.when(path4.toFile()).thenReturn(file3);
+    Mockito.when(file.isDirectory()).thenReturn(true);
+    Mockito.when(file2.isDirectory()).thenReturn(true);
+    Mockito.when(file3.isDirectory()).thenReturn(true);
+    Mockito.when(file4.isDirectory()).thenReturn(true);
+    Mockito.when(file.listFiles()).thenReturn(new File[] {file2, file3});
+    Mockito.when(file2.listFiles()).thenReturn(new File[] {file4});
+    Mockito.when(file3.listFiles()).thenReturn(new File[] {});
+    Mockito.when(file4.listFiles()).thenReturn(null);
+    Mockito.when(file4.delete()).thenReturn(true);
+    Mockito.when(file2.delete()).thenReturn(false);
+    Mockito.when(file3.delete()).thenReturn(true);
+
+    Assert.assertThat(PathUtils.cleanQuietly(path, report), Matchers.equalTo(false));
+
+    Assert.assertThat(report.wasSuccessful(), Matchers.equalTo(true));
+    Assert.assertThat(report.hasWarnings(), Matchers.equalTo(true));
+    Assert.assertThat(report.hasErrors(), Matchers.equalTo(false));
+
+    Mockito.verify(file, Mockito.never()).delete();
+    Mockito.verify(file2).delete();
+    Mockito.verify(file3).delete();
+    Mockito.verify(file4).delete();
+  }
+
+  @Test
+  public void testCleanQuietlyAFile() throws Exception {
+    final Path path = ddfHome.resolve(createFile("test.txt"));
+
+    Assert.assertThat(PathUtils.cleanQuietly(path, report), Matchers.equalTo(true));
+
+    Assert.assertThat(path.toFile().exists(), Matchers.equalTo(false));
+    Assert.assertThat(report.wasSuccessful(), Matchers.equalTo(true));
+    Assert.assertThat(report.hasWarnings(), Matchers.equalTo(false));
+    Assert.assertThat(report.hasErrors(), Matchers.equalTo(false));
+  }
+
+  @Test
+  public void testCleanQuietlyAFileWhenFail() throws Exception {
+    final File file = Mockito.mock(File.class);
+    final Path path = Mockito.mock(Path.class);
+
+    Mockito.when(path.toFile()).thenReturn(file);
+    Mockito.when(file.isDirectory()).thenReturn(false);
+    Mockito.when(file.delete()).thenReturn(false);
+
+    Assert.assertThat(PathUtils.cleanQuietly(path, report), Matchers.equalTo(false));
+    Assert.assertThat(report.wasSuccessful(), Matchers.equalTo(true));
+    Assert.assertThat(report.hasWarnings(), Matchers.equalTo(true));
+    Assert.assertThat(report.hasErrors(), Matchers.equalTo(false));
+  }
+
+  @Test
+  public void testCleanQuietlyWithNullPath() throws Exception {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage(Matchers.containsString("null path"));
+
+    PathUtils.cleanQuietly(null, report);
+  }
+
+  @Test
+  public void testCleanQuietlyWithNullType() throws Exception {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage(Matchers.containsString("null report"));
+
+    PathUtils.cleanQuietly(ddfHome, null);
   }
 
   @Test

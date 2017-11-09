@@ -22,6 +22,7 @@ import org.codice.ddf.migration.MigrationWarning;
  */
 public class ExportMigrationSystemPropertyReferencedEntryImpl
     extends ExportMigrationPropertyReferencedEntryImpl {
+
   /**
    * Instantiates a new system property referenced migration entry given a migratable context,
    * property name and pathname.
@@ -30,7 +31,7 @@ public class ExportMigrationSystemPropertyReferencedEntryImpl
    * @param property the property name for this entry
    * @param pathname the pathname for this entry
    * @throws IllegalArgumentException if <code>context</code>, <code>property</code>, or <code>
-   *     pathname</code> is <code>null</code>
+   * pathname</code> is <code>null</code>
    */
   ExportMigrationSystemPropertyReferencedEntryImpl(
       ExportMigrationContextImpl context, String property, String pathname) {
@@ -56,7 +57,7 @@ public class ExportMigrationSystemPropertyReferencedEntryImpl
   }
 
   @Override
-  protected MigrationException newError(String reason, Throwable cause) {
+  protected MigrationException newError(String reason, Object cause) {
     return new MigrationException(
         Messages.EXPORT_SYSTEM_PROPERTY_ERROR, getProperty(), getPath(), reason, cause);
   }

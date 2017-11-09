@@ -16,12 +16,10 @@ package org.codice.ddf.configuration.migration;
 import com.github.npathai.hamcrestopt.OptionalMatchers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.zip.ZipFile;
@@ -50,6 +48,10 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
   private static final String MIGRATABLE_NAME = "where/some/dir/test.txt";
 
   private static final String MIGRATABLE_NAME2 = "where/some/test.txt";
+
+  private static final String MIGRATABLE_DIR = "where/some/dir";
+
+  private static final String MIGRATABLE_DIR2 = "where/someOther";
 
   private static final Path MIGRATABLE_PATH =
       Paths.get(FilenameUtils.separatorsToSystem(MIGRATABLE_NAME));
@@ -314,151 +316,9 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
   @Test
   public void testEntriesWithPathAndNullFilter() throws Exception {
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage(Matchers.containsString("null filter"));
+    thrown.expectMessage(Matchers.containsString("null path filter"));
 
     context.entries(MIGRATABLE_PATH, null);
-  }
-
-  @Test
-  public void testCleanDirectoryWithAParentAbsolutePath() throws Exception {
-    final Path dir2 = ddfHome.resolve(createDirectory(DIRS2));
-    final Path dir = createDirectory(DIRS);
-    final Path path2 = ddfHome.resolve(createFile(MIGRATABLE_PATH2));
-    final Path path = ddfHome.resolve(createFile(MIGRATABLE_PATH));
-
-    Assert.assertThat(context.cleanDirectory(dir2), Matchers.equalTo(true));
-
-    Assert.assertThat(dir2.toFile().exists(), Matchers.equalTo(true));
-    Assert.assertThat(path2.toFile().exists(), Matchers.equalTo(false));
-    // because we are temporarly not deleting sub-sirectories when cleaning, it should still exist
-    // Assert.assertThat(dir.toFile().exists(), Matchers.equalTo(false));
-    Assert.assertThat(dir.toFile().exists(), Matchers.equalTo(true));
-    Assert.assertThat(path.toFile().exists(), Matchers.equalTo(false));
-  }
-
-  @Test
-  public void testCleanDirectoryWithAChildAbsolutePath() throws Exception {
-    final Path dir2 = ddfHome.resolve(createDirectory(DIRS2));
-    final Path dir = createDirectory(DIRS);
-    final Path path2 = ddfHome.resolve(createFile(MIGRATABLE_PATH2));
-    final Path path = ddfHome.resolve(createFile(MIGRATABLE_PATH));
-
-    Assert.assertThat(context.cleanDirectory(dir), Matchers.equalTo(true));
-
-    Assert.assertThat(dir2.toFile().exists(), Matchers.equalTo(true));
-    Assert.assertThat(path2.toFile().exists(), Matchers.equalTo(true));
-    Assert.assertThat(dir.toFile().exists(), Matchers.equalTo(true));
-    Assert.assertThat(path.toFile().exists(), Matchers.equalTo(false));
-  }
-
-  @Test
-  public void testCleanDirectoryWithAnOutsideAbsolutePath() throws Exception {
-    final Path dir2 = ddfHome.resolve(createDirectory(DIRS2));
-    final Path dir = root.resolve(Paths.get("where", "something_else"));
-    final Path path2 = ddfHome.resolve(createFile(MIGRATABLE_PATH2));
-    final Path path = ddfHome.resolve(createFile(MIGRATABLE_PATH));
-
-    dir.toFile().mkdirs();
-
-    Assert.assertThat(context.cleanDirectory(dir), Matchers.equalTo(false));
-
-    Assert.assertThat(dir2.toFile().exists(), Matchers.equalTo(true));
-    Assert.assertThat(path2.toFile().exists(), Matchers.equalTo(true));
-    Assert.assertThat(dir.toFile().exists(), Matchers.equalTo(true));
-    Assert.assertThat(path.toFile().exists(), Matchers.equalTo(true));
-  }
-
-  @Test
-  public void testCleanDirectoryWithRelativePath() throws Exception {
-    final Path dir2 = ddfHome.resolve(createDirectory(DIRS2));
-    final Path dir = createDirectory(DIRS);
-    final Path path2 = ddfHome.resolve(createFile(MIGRATABLE_PATH2));
-    final Path path = ddfHome.resolve(createFile(MIGRATABLE_PATH));
-
-    Assert.assertThat(context.cleanDirectory(MIGRATABLE_PATH.getParent()), Matchers.equalTo(true));
-
-    Assert.assertThat(dir2.toFile().exists(), Matchers.equalTo(true));
-    Assert.assertThat(path2.toFile().exists(), Matchers.equalTo(true));
-    Assert.assertThat(dir.toFile().exists(), Matchers.equalTo(true));
-    Assert.assertThat(path.toFile().exists(), Matchers.equalTo(false));
-  }
-
-  @Test
-  public void testCleanDirectoryWithNullPath() throws Exception {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage(Matchers.containsString("null path"));
-
-    context.cleanDirectory(null);
-  }
-
-  @Test
-  public void testCleanDirectoryWithNonExistentPath() throws Exception {
-    Assert.assertThat(context.cleanDirectory(MIGRATABLE_PATH.getParent()), Matchers.equalTo(true));
-  }
-
-  @Test
-  public void testCleanDirectoryWithNonExistentFile() throws Exception {
-    final PathUtils pathUtils = Mockito.mock(PathUtils.class);
-    final Path resolvedPath = Mockito.mock(Path.class);
-
-    context = Mockito.spy(context);
-
-    Mockito.when(context.getPathUtils()).thenReturn(pathUtils);
-    Mockito.when(pathUtils.resolveAgainstDDFHome(MIGRATABLE_PATH)).thenReturn(resolvedPath);
-    Mockito.when(resolvedPath.toFile()).thenReturn(MIGRATABLE_PATH.toFile());
-    Mockito.when(resolvedPath.toRealPath(Mockito.any())).thenReturn(resolvedPath);
-    Mockito.when(pathUtils.isRelativeToDDFHome(resolvedPath)).thenReturn(true);
-
-    MIGRATABLE_PATH.toFile().delete();
-
-    Assert.assertThat(context.cleanDirectory(MIGRATABLE_PATH), Matchers.equalTo(true));
-  }
-
-  @Test
-  public void testCleanDirectoryWhenUnableToDetermineRealPath() throws Exception {
-    final PathUtils pathUtils = Mockito.mock(PathUtils.class);
-    final Path resolvedPath = Mockito.mock(Path.class);
-    final IOException exception = new IOException("testing");
-
-    context = Mockito.spy(context);
-
-    Mockito.when(context.getPathUtils()).thenReturn(pathUtils);
-    Mockito.when(pathUtils.resolveAgainstDDFHome(MIGRATABLE_PATH)).thenReturn(resolvedPath);
-    Mockito.when(resolvedPath.toFile()).thenReturn(MIGRATABLE_PATH.toFile());
-    Mockito.when(resolvedPath.toRealPath(Mockito.any())).thenThrow(exception);
-
-    Assert.assertThat(context.cleanDirectory(MIGRATABLE_PATH), Matchers.equalTo(false));
-  }
-
-  @Test
-  public void testCleanDirectoryWithAFile() throws Exception {
-    final Path dir = createDirectory(DIRS);
-    final Path path = ddfHome.resolve(createFile(MIGRATABLE_PATH));
-
-    Assert.assertThat(context.cleanDirectory(MIGRATABLE_PATH), Matchers.equalTo(false));
-
-    Assert.assertThat(dir.toFile().exists(), Matchers.equalTo(true));
-    Assert.assertThat(path.toFile().exists(), Matchers.equalTo(true));
-  }
-
-  @Test
-  public void testCleanDirectoryWhenCleaningItThrowsException() throws Exception {
-    final PathUtils pathUtils = Mockito.mock(PathUtils.class);
-    final File fdir = Mockito.mock(File.class);
-    final Path dir = Mockito.mock(Path.class);
-
-    context = Mockito.spy(context);
-
-    Mockito.when(context.getPathUtils()).thenReturn(pathUtils);
-    Mockito.when(pathUtils.resolveAgainstDDFHome(dir)).thenReturn(dir);
-    Mockito.when(dir.toFile()).thenReturn(fdir);
-    Mockito.when(dir.toRealPath(LinkOption.NOFOLLOW_LINKS)).thenReturn(dir);
-    Mockito.when(pathUtils.isRelativeToDDFHome(dir)).thenReturn(true);
-    Mockito.when(fdir.exists()).thenReturn(true);
-    Mockito.when(fdir.isDirectory()).thenReturn(true);
-    Mockito.when(fdir.listFiles()).thenReturn(null); // should trigger an I/O exception
-
-    Assert.assertThat(context.cleanDirectory(dir), Matchers.equalTo(false));
   }
 
   @Test
@@ -491,7 +351,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
   }
 
   @Test
-  public void testProcessMetadataWithOnlyEntries() throws Exception {
+  public void testProcessMetadataWithOnlyExternalEntries() throws Exception {
     final String checksum = "abcdef";
     final String checksum2 = "12345";
     final boolean softlink = false;
@@ -563,6 +423,69 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
     Assert.assertThat(context.getVersion(), OptionalMatchers.hasValue(VERSION));
     Assert.assertThat(context.getFiles(), Matchers.contains(MIGRATABLE_NAME, MIGRATABLE_NAME2));
     Assert.assertThat(context.getEntries(), Matchers.anEmptyMap());
+    Assert.assertThat(context.getSystemPropertiesReferencedEntries(), Matchers.anEmptyMap());
+  }
+
+  @Test
+  public void testProcessMetadataWithOnlyFolders() throws Exception {
+    final Map<String, Object> metadata =
+        ImmutableMap.of(
+            MigrationContextImpl.METADATA_VERSION,
+            VERSION,
+            MigrationContextImpl.METADATA_FOLDERS,
+            ImmutableList.of( //
+                ImmutableMap.of(
+                    MigrationEntryImpl.METADATA_NAME,
+                    MIGRATABLE_DIR,
+                    MigrationEntryImpl.METADATA_FILES,
+                    ImmutableList.of(MIGRATABLE_NAME, MIGRATABLE_NAME2)), // ommit filtered
+                ImmutableMap.of(
+                    MigrationEntryImpl.METADATA_NAME,
+                    MIGRATABLE_DIR2,
+                    MigrationEntryImpl.METADATA_FILTERED,
+                    true,
+                    MigrationEntryImpl.METADATA_FILES,
+                    Collections.emptyList())));
+
+    // pre-populate
+    context.addEntry(ENTRY);
+
+    context.processMetadata(metadata);
+
+    Assert.assertThat(context.getVersion(), OptionalMatchers.hasValue(VERSION));
+    Assert.assertThat(context.getFiles(), Matchers.empty());
+    Assert.assertThat(context.getEntries(), Matchers.aMapWithSize(4));
+    Assert.assertThat(
+        context.entries().toArray(ImportMigrationEntry[]::new),
+        Matchers.arrayContainingInAnyOrder( //
+            Matchers.sameInstance(ENTRY), //
+            Matchers.allOf( //
+                MappingMatchers.map(MigrationEntry::getName, Matchers.equalTo(MIGRATABLE_NAME2)),
+                Matchers.instanceOf(ImportMigrationEmptyEntryImpl.class)), //
+            Matchers.allOf( //
+                MappingMatchers.map(MigrationEntry::getName, Matchers.equalTo(MIGRATABLE_DIR)),
+                CastingMatchers.cast(
+                    ImportMigrationDirectoryEntryImpl.class,
+                    Matchers.allOf( //
+                        MappingMatchers.map(
+                            ImportMigrationDirectoryEntryImpl::isFiltered, Matchers.equalTo(false)),
+                        MappingMatchers.map(
+                            ImportMigrationDirectoryEntryImpl::getFileEntries,
+                            Matchers.containsInAnyOrder(
+                                Matchers.sameInstance(ENTRY),
+                                Matchers.sameInstance(context.getEntry(MIGRATABLE_PATH2))))))), //
+            Matchers.allOf( //
+                MappingMatchers.map(MigrationEntry::getName, Matchers.equalTo(MIGRATABLE_DIR2)),
+                CastingMatchers.cast(
+                    ImportMigrationDirectoryEntryImpl.class,
+                    Matchers.allOf( //
+                        MappingMatchers.map(
+                            ImportMigrationDirectoryEntryImpl::isFiltered, Matchers.equalTo(true)),
+                        MappingMatchers.map(
+                            ImportMigrationDirectoryEntryImpl::getFileEntries,
+                            Matchers.emptyIterable())))) //
+            ) //
+        );
     Assert.assertThat(context.getSystemPropertiesReferencedEntries(), Matchers.anEmptyMap());
   }
 
@@ -798,6 +721,23 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
     thrown.expect(MigrationException.class);
     thrown.expectMessage(Matchers.containsString("invalid metadata"));
     thrown.expectMessage(Matchers.containsString("[" + MigrationContextImpl.METADATA_FILES + "]"));
+
+    context.processMetadata(metadata);
+  }
+
+  @Test
+  public void testProcessMetadataWhenFoldersIsNotAList() throws Exception {
+    final Map<String, Object> metadata =
+        ImmutableMap.of(
+            MigrationContextImpl.METADATA_VERSION,
+            VERSION,
+            MigrationContextImpl.METADATA_FOLDERS,
+            "not a list");
+
+    thrown.expect(MigrationException.class);
+    thrown.expectMessage(Matchers.containsString("invalid metadata"));
+    thrown.expectMessage(
+        Matchers.containsString("[" + MigrationContextImpl.METADATA_FOLDERS + "]"));
 
     context.processMetadata(metadata);
   }
