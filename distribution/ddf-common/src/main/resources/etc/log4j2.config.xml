@@ -147,6 +147,8 @@
         <Logger name="org.apache.aries.spifly" level="warn"/>
         <Logger name="org.apache.cxf.jaxrs.impl.WebApplicationExceptionMapper" level="error"/>
         <Logger name="org.apache.cxf.phase.PhaseInterceptorChain" level="error"/>
+        <!-- Camel - Suppresses an NPE warning that is ignored by Camel -->
+        <Logger name="org.apache.camel.impl.DefaultUnitOfWork" level="error"/>
 
         <Root level="info">
             <AppenderRef ref="out"/>
