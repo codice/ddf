@@ -83,7 +83,8 @@
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>findbugs</artifactId>
-            <scope>compile</scope>
+            <version>${findbugs.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
     <build>

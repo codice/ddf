@@ -53,6 +53,12 @@
             <artifactId>joda-time</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>annotations</artifactId>
+            <version>${findbugs.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>ddf.mime.core</groupId>
             <artifactId>mime-core-impl</artifactId>
             <scope>test</scope>

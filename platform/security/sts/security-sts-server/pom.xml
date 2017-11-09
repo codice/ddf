@@ -109,6 +109,7 @@
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>findbugs</artifactId>
             <version>${findbugs.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
     <build>

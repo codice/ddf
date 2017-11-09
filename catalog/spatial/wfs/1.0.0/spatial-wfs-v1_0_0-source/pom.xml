@@ -105,6 +105,8 @@
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>findbugs</artifactId>
+            <version>${findbugs.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>javax.validation</groupId>

@@ -83,6 +83,12 @@
             <artifactId>Saxon-HE</artifactId>
             <version>${saxon.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+            <version>${findbugs.version}</version>
+            <scope>provided</scope>
+        </dependency>
 
         <!-- Test Dependencies -->
         <dependency>
