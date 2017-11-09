@@ -27,7 +27,7 @@ public class ServiceStore {
 
   private static ServiceStore uniqueInstance;
 
-  private Map<String, Object> map = new HashMap<>();
+  private final Map<String, Object> map = new HashMap<>();
 
   private ServiceStore() {}
 

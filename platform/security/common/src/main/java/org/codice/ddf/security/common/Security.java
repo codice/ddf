@@ -45,6 +45,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.apache.shiro.UnavailableSecurityManagerException;
@@ -176,8 +177,9 @@ public class Security {
    * Gets the {@link Subject} associated with this system. Uses a cached subject since the subject
    * will not change between calls.
    *
-   * @return system's {@link Subject}
+   * @return system's {@link Subject} or {@code null} if unable to get the system's {@link Subject}
    */
+  @Nullable
   public synchronized Subject getSystemSubject() {
 
     if (!javaSubjectHasAdminRole()) {
@@ -285,13 +287,17 @@ public class Security {
   /**
    * Gets a reference to the {@link SecurityManager}.
    *
-   * @return reference to the {@link SecurityManager}
+   * @return reference to the {@link SecurityManager} or {@code null} if unable to get the {@link
+   *     SecurityManager}
    */
+  @Nullable
   public SecurityManager getSecurityManager() {
     BundleContext context = getBundleContext();
     if (context != null) {
       ServiceReference securityManagerRef = context.getServiceReference(SecurityManager.class);
-      return (SecurityManager) context.getService(securityManagerRef);
+      if (securityManagerRef != null) {
+        return (SecurityManager) context.getService(securityManagerRef);
+      }
     }
     LOGGER.warn(
         "Unable to get Security Manager. Authentication and Authorization mechanisms will not work correctly. A restart of the system may be necessary.");
