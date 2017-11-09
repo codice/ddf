@@ -324,7 +324,7 @@ public class TestTransactionMessageBodyReader {
   @Test
   public void testReadInsertFrom() throws Exception {
     Converter mockConverter = mock(Converter.class);
-    when(mockConverter.canConvert(any(Metacard.class.getClass()))).thenReturn(true);
+    when(mockConverter.canConvert(any(Class.class))).thenReturn(true);
     when(mockConverter.unmarshal(
             any(HierarchicalStreamReader.class), any(UnmarshallingContext.class)))
         .thenReturn(mock(Metacard.class));
@@ -413,7 +413,7 @@ public class TestTransactionMessageBodyReader {
   @Test
   public void testReadInsertAndDeleteFrom() throws IOException {
     Converter mockConverter = mock(Converter.class);
-    when(mockConverter.canConvert(any(Metacard.class.getClass()))).thenReturn(true);
+    when(mockConverter.canConvert(any(Class.class))).thenReturn(true);
     when(mockConverter.unmarshal(
             any(HierarchicalStreamReader.class), any(UnmarshallingContext.class)))
         .thenReturn(mock(Metacard.class));

@@ -15,7 +15,6 @@ package org.codice.ddf.configuration.migration;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableMap;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -215,10 +214,6 @@ public class ExportMigrationContextImpl extends MigrationContextImpl<ExportMigra
               }
             }
 
-            @SuppressFBWarnings(
-              value = "UMAC_UNCALLABLE_METHOD_OF_ANONYMOUS_CLASS",
-              justification = "Overriding a base class method"
-            )
             @Override
             protected void handleIOException(IOException e) throws IOException {
               super.handleIOException(new ExportIOException(e));

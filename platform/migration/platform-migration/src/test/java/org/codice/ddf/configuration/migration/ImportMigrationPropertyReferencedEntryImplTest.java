@@ -469,6 +469,7 @@ public class ImportMigrationPropertyReferencedEntryImplTest extends AbstractMigr
   }
 
   @Test
+  @SuppressWarnings("SelfComparison")
   public void testCompareToWhenIdentical() throws Exception {
     Assert.assertThat(entry.compareTo(entry), Matchers.equalTo(0));
   }

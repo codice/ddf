@@ -163,10 +163,7 @@ public class KeystoreValidatorTest {
               path,
               DEFAULT_KEYSTORE_PASSWORD),
           String.format(
-              KeystoreValidator.BLACKLIST_KEYSTORE_DOES_NOT_EXIST_MSG,
-              path,
-              FAKE_BLACK_LIST_PATH,
-              FAKE_BLACK_LIST_PATH)
+              KeystoreValidator.BLACKLIST_KEYSTORE_DOES_NOT_EXIST_MSG, path, FAKE_BLACK_LIST_PATH)
         };
     assertThat(actualMessages, hasItems(expectedAlertMessages));
   }
@@ -191,9 +188,7 @@ public class KeystoreValidatorTest {
     assertThat(alerts.size(), is(1));
     assertThat(
         alerts.get(0).getMessage(),
-        is(
-            String.format(
-                KeystoreValidator.KEYSTORE_DOES_NOT_EXIST_MSG, Paths.get(FAKE_KEYSTORE), "")));
+        is(String.format(KeystoreValidator.KEYSTORE_DOES_NOT_EXIST_MSG, Paths.get(FAKE_KEYSTORE))));
   }
 
   @Test

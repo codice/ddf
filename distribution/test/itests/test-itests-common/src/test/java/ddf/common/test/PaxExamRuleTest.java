@@ -50,15 +50,11 @@ public class PaxExamRuleTest {
 
   public static final String EXPECTED_BEFORE_EXAM_ERROR_MESSAGE =
       String.format(
-          PaxExamRule.BEFORE_EXAM_FAILURE_MESSAGE,
-          FailingBeforeExamTest.class.getSimpleName(),
-          BEFORE_EXAM_EXCEPTION_MESSAGE);
+          PaxExamRule.BEFORE_EXAM_FAILURE_MESSAGE, FailingBeforeExamTest.class.getSimpleName());
 
   public static final String EXPECTED_AFTER_EXAM_ERROR_MESSAGE =
       String.format(
-          PaxExamRule.AFTER_EXAM_FAILURE_MESSAGE,
-          FailingAfterExamTest.class.getSimpleName(),
-          AFTER_EXAM_EXCEPTION_MESSAGE);
+          PaxExamRule.AFTER_EXAM_FAILURE_MESSAGE, FailingAfterExamTest.class.getSimpleName());
 
   public static class SuperDummyTest {
 
@@ -91,6 +87,7 @@ public class PaxExamRuleTest {
 
     @Test
     @Ignore
+    @SuppressWarnings("squid:S1607")
     public void ignoredTest() {}
   }
 
@@ -176,7 +173,7 @@ public class PaxExamRuleTest {
             .stream()
             .anyMatch(failure -> failure.getMessage().contains(EXPECTED_BEFORE_EXAM_ERROR_MESSAGE));
 
-    assertThat(examFail && beforeExamFail);
+    assertThat(examFail && beforeExamFail).isTrue();
     assertResultCounts(result, 4);
   }
 
@@ -189,15 +186,14 @@ public class PaxExamRuleTest {
         result
             .getFailures()
             .stream()
-            .anyMatch(
-                failure -> failure.getMessage().equals(PaxExamRule.EXAM_SETUP_FAILED_MESSAGE));
+            .anyMatch(failure -> failure.getMessage().equals(FAILING_TEST_MESSAGE));
     boolean afterExamFail =
         result
             .getFailures()
             .stream()
             .anyMatch(failure -> failure.getMessage().contains(EXPECTED_AFTER_EXAM_ERROR_MESSAGE));
 
-    assertThat(examFail && afterExamFail);
+    assertThat(examFail && afterExamFail).isTrue();
     assertResultCounts(result, 2);
   }
 

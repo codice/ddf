@@ -86,7 +86,7 @@ public class TestPlatform extends AbstractIntegrationTest {
 
     final String bodyString = response.getBody().asString();
     assertThat(
-        String.format("The response body from {} should not be empty", LOGGING_SERVICE_JOLOKIA_URL),
+        String.format("The response body from %s should not be empty", LOGGING_SERVICE_JOLOKIA_URL),
         bodyString,
         not(isEmptyString()));
 
@@ -96,9 +96,8 @@ public class TestPlatform extends AbstractIntegrationTest {
     final String unknownLevel = LogEvent.Level.UNKNOWN.getLevel();
     assertThat(
         String.format(
-            "The level of an event returned by {} should not be {}",
-            LOGGING_SERVICE_JOLOKIA_URL,
-            unknownLevel),
+            "The level of an event returned by %s should not be %s",
+            LOGGING_SERVICE_JOLOKIA_URL, unknownLevel),
         levelOfFirstEvent,
         not(equalTo(unknownLevel)));
   }

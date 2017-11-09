@@ -20,7 +20,6 @@ import com.xebialabs.restito.semantics.Stub;
 import com.xebialabs.restito.server.StubServer;
 import com.xebialabs.restito.support.behavior.Behavior;
 import com.xebialabs.restito.support.log.CallsHelper;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,7 +47,6 @@ import org.slf4j.LoggerFactory;
  * This class can be removed if pull request https://github.com/mkotsur/restito/pull/46 is merged
  * into master this just extends StubServer to adds the functionality present in that pull request
  */
-@SuppressFBWarnings("MF_CLASS_MASKS_FIELD")
 public class SecureStubServer extends StubServer {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(StubServer.class);

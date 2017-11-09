@@ -36,7 +36,6 @@ import ddf.catalog.content.operation.impl.UpdateStorageResponseImpl;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.mime.MimeTypeMapper;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -236,16 +235,16 @@ public class FileSystemStorageProvider implements StorageProvider {
         // For deletion we can ignore the qualifier and assume everything under a given ID is
         // to be removed.
         Path contentIdDir = getContentItemDir(new URI(deletedContentItem.getUri()));
-        if (Files.exists(contentIdDir)) {
+        if (contentIdDir != null && contentIdDir.toFile().exists()) {
           List<Path> paths = new ArrayList<>();
-          if (Files.isDirectory(contentIdDir)) {
+          if (contentIdDir.toFile().isDirectory()) {
             paths = listPaths(contentIdDir);
           } else {
             paths.add(contentIdDir);
           }
 
           for (Path path : paths) {
-            if (Files.exists(path)) {
+            if (path.toFile().exists()) {
               deletedContentItems.add(deletedContentItem);
             }
           }
@@ -289,7 +288,7 @@ public class FileSystemStorageProvider implements StorageProvider {
         Path contentIdDir =
             Paths.get(baseContentDirectory.toString(), parts.toArray(new String[parts.size()]));
 
-        if (!Files.exists(contentIdDir)) {
+        if (!contentIdDir.toFile().exists()) {
           throw new StorageException("File doesn't exist for id: " + metacard.getId());
         }
 
@@ -297,10 +296,10 @@ public class FileSystemStorageProvider implements StorageProvider {
           FileUtils.deleteDirectory(contentIdDir.toFile());
 
           Path part1 = contentIdDir.getParent();
-          if (Files.isDirectory(part1) && isDirectoryEmpty(part1)) {
+          if (part1.toFile().isDirectory() && isDirectoryEmpty(part1)) {
             FileUtils.deleteDirectory(part1.toFile());
             Path part0 = part1.getParent();
-            if (Files.isDirectory(part0) && isDirectoryEmpty(part0)) {
+            if (part0.toFile().isDirectory() && isDirectoryEmpty(part0)) {
               FileUtils.deleteDirectory(part0.toFile());
             }
           }
@@ -329,11 +328,11 @@ public class FileSystemStorageProvider implements StorageProvider {
         Path contentIdDir = getTempContentItemDir(request.getId(), new URI(contentUri));
         Path target = getContentItemDir(new URI(contentUri));
         try {
-          if (Files.exists(contentIdDir)) {
-            if (Files.exists(target)) {
+          if (contentIdDir.toFile().exists() && target != null) {
+            if (target.toFile().exists()) {
               List<Path> files = listPaths(target);
               for (Path file : files) {
-                if (!Files.isDirectory(file)) {
+                if (!file.toFile().isDirectory()) {
                   Files.deleteIfExists(file);
                 }
               }
@@ -461,7 +460,7 @@ public class FileSystemStorageProvider implements StorageProvider {
 
   private List<Path> listPaths(Path dir) throws IOException {
     List<Path> result = new ArrayList<>();
-    if (Files.exists(dir)) {
+    if (dir.toFile().exists()) {
       try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
         for (Path entry : stream) {
           result.add(entry);
@@ -521,7 +520,7 @@ public class FileSystemStorageProvider implements StorageProvider {
   private Path getContentFilePath(URI uri) throws StorageException {
     Path contentIdDir = getContentItemDir(uri);
     List<Path> contentFiles;
-    if (contentIdDir != null && Files.exists(contentIdDir)) {
+    if (contentIdDir != null && contentIdDir.toFile().exists()) {
       try {
         contentFiles = listPaths(contentIdDir);
       } catch (IOException e) {
@@ -542,11 +541,10 @@ public class FileSystemStorageProvider implements StorageProvider {
   }
 
   private ContentItem generateContentFile(
-      ContentItem item, Path contentDirectory, String storeReference)
-      throws IOException, StorageException {
+      ContentItem item, Path contentDirectory, String storeReference) throws IOException {
     LOGGER.trace("ENTERING: generateContentFile");
 
-    if (!Files.exists(contentDirectory)) {
+    if (!contentDirectory.toFile().exists()) {
       Files.createDirectories(contentDirectory);
     }
 
@@ -574,14 +572,14 @@ public class FileSystemStorageProvider implements StorageProvider {
       }
       byteSource = com.google.common.io.Files.asByteSource(contentItemPath.toFile());
 
-      if (copy != item.getSize()) {
+      if (copy != item.getSize() && LOGGER.isWarnEnabled()) {
         LOGGER.warn(
-            "Created content item {} size {} does not match expected size {}"
-                + System.lineSeparator()
+            "Created content item {} size {} does not match expected size {} {}. "
                 + "Verify filesystem and/or network integrity.",
             item.getId(),
             copy,
-            item.getSize());
+            item.getSize(),
+            System.lineSeparator());
       }
     }
 
@@ -608,7 +606,6 @@ public class FileSystemStorageProvider implements StorageProvider {
     this.mimeTypeMapper = mimeTypeMapper;
   }
 
-  @SuppressFBWarnings
   public void setBaseContentDirectory(final String baseDirectory) throws IOException {
 
     Path directory;
@@ -626,20 +623,24 @@ public class FileSystemStorageProvider implements StorageProvider {
     }
 
     Path directories;
-    if (!Files.exists(directory)) {
+    if (!directory.toFile().exists()) {
       directories = Files.createDirectories(directory);
-      LOGGER.debug(
-          "Setting base content directory to: {}", directories.toAbsolutePath().toString());
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug(
+            "Setting base content directory to: {}", directories.toAbsolutePath().toString());
+      }
     } else {
       directories = directory;
     }
 
     Path tmpDirectories;
     Path tmpDirectory = Paths.get(directories.toAbsolutePath().toString(), DEFAULT_TMP);
-    if (!Files.exists(tmpDirectory)) {
+    if (!tmpDirectory.toFile().exists()) {
       tmpDirectories = Files.createDirectories(tmpDirectory);
-      LOGGER.debug(
-          "Setting base content directory to: {}", tmpDirectory.toAbsolutePath().toString());
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug(
+            "Setting base content directory to: {}", tmpDirectory.toAbsolutePath().toString());
+      }
     } else {
       tmpDirectories = tmpDirectory;
     }

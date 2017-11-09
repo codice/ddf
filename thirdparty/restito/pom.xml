@@ -37,11 +37,6 @@
             <artifactId>grizzly-http-server</artifactId>
             <version>2.3.25</version>
         </dependency>
-        <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>findbugs</artifactId>
-            <version>${findbugs.version}</version>
-        </dependency>
     </dependencies>
 
     <build>

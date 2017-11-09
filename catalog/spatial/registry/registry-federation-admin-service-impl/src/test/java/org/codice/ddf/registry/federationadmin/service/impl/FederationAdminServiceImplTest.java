@@ -1027,7 +1027,8 @@ public class FederationAdminServiceImplTest {
   public void testGetRegistryObjectsWithQueryException() throws Exception {
     doThrow(FederationAdminException.class).when(catalogFramework).query(any(QueryRequest.class));
     federationAdminServiceImpl.getRegistryObjects();
-    verify(catalogFramework.query(any(QueryRequest.class)));
+    // throws exception
+    catalogFramework.query(any(QueryRequest.class));
   }
 
   @Test(expected = FederationAdminException.class)
@@ -1040,7 +1041,8 @@ public class FederationAdminServiceImplTest {
         .when(parser)
         .unmarshal(any(ParserConfigurator.class), eq(JAXBElement.class), any(InputStream.class));
     federationAdminServiceImpl.getRegistryObjects();
-    verify(catalogFramework.query(any(QueryRequest.class)));
+    // throws exception
+    catalogFramework.query(any(QueryRequest.class));
   }
 
   @Test

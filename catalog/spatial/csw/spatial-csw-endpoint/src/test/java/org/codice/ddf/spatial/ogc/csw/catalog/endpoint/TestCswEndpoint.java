@@ -207,7 +207,7 @@ public class TestCswEndpoint {
     URI mockUri = new URI("http://example.com/services/csw");
     when(mockUriInfo.getBaseUri()).thenReturn(mockUri);
     URL resourceUrl = TestCswEndpoint.class.getResource("/record.xsd");
-    URL resourceUrlDot = TestCswEndpoint.class.getClass().getResource(".");
+    URL resourceUrlDot = TestCswEndpoint.class.getResource(".");
     when(mockBundle.getResource("record.xsd")).thenReturn(resourceUrl);
     when(mockBundle.getResource("csw/2.0.2/record.xsd")).thenReturn(resourceUrl);
     when(mockBundle.getResource("gmd/record_gmd.xsd")).thenReturn(resourceUrl);

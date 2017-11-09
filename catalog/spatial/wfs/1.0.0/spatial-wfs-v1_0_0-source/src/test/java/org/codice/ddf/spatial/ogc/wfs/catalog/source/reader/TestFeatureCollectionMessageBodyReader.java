@@ -51,9 +51,7 @@ public class TestFeatureCollectionMessageBodyReader {
 
   /** Helper method to open streams from resource */
   private InputStream open(String name) {
-    InputStream inStream =
-        new BufferedInputStream(
-            TestFeatureCollectionMessageBodyReader.class.getClass().getResourceAsStream(name));
-    return inStream;
+    return new BufferedInputStream(
+        TestFeatureCollectionMessageBodyReader.class.getResourceAsStream(name));
   }
 }

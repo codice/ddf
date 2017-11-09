@@ -41,7 +41,6 @@ import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.util.impl.MaskableImpl;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.service.SecurityServiceException;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -135,6 +134,7 @@ public class WfsSource extends MaskableImpl
 
   private static final String USERNAME_PROPERTY = "username";
 
+  @SuppressWarnings("squid:S2068" /* Not a password */)
   private static final String PASSWORD_PROPERTY = "password";
 
   private static final String NON_QUERYABLE_PROPS_PROPERTY = "nonQueryableProperties";
@@ -256,6 +256,7 @@ public class WfsSource extends MaskableImpl
     setupAvailabilityPoll();
   }
 
+  @SuppressWarnings("squid:S1172")
   public void destroy(int code) {
     unregisterAllMetacardTypes();
     availabilityPollFuture.cancel(true);
@@ -379,7 +380,6 @@ public class WfsSource extends MaskableImpl
     return !StringUtils.equals(getId(), id);
   }
 
-  @SuppressFBWarnings("RC_REF_COMPARISON_BAD_PRACTICE_BOOLEAN")
   private boolean hasDisableCnCheck(Boolean disableCnCheck) {
     return this.disableCnCheck != disableCnCheck;
   }
@@ -487,6 +487,7 @@ public class WfsSource extends MaskableImpl
     return supportedGeoFilters;
   }
 
+  @SuppressWarnings("squid:S1149" /* Constrained by contract */)
   private void buildFeatureFilters(List<FeatureTypeType> featureTypes, List<String> supportedGeo)
       throws SecurityServiceException {
 
@@ -524,10 +525,10 @@ public class WfsSource extends MaskableImpl
                   featureTypeType.getName(),
                   nonQueryableProperties != null
                       ? Arrays.asList(nonQueryableProperties)
-                      : new ArrayList<String>(),
+                      : new ArrayList<>(),
                   Wfs10Constants.GML_NAMESPACE);
 
-          Dictionary<String, Object> props = new Hashtable<String, Object>();
+          Dictionary<String, Object> props = new Hashtable<>();
           props.put(Metacard.CONTENT_TYPE, new String[] {ftName});
 
           LOGGER.debug("WfsSource {}: Registering MetacardType: {}", getId(), ftName);
@@ -738,7 +739,7 @@ public class WfsSource extends MaskableImpl
 
   private GetFeatureType buildGetFeatureRequest(Query query) throws UnsupportedQueryException {
     List<ContentType> contentTypes = getContentTypesFromQuery(query);
-    List<QueryType> queries = new ArrayList<QueryType>();
+    List<QueryType> queries = new ArrayList<>();
 
     for (Entry<QName, WfsFilterDelegate> filterDelegateEntry : featureTypeFilters.entrySet()) {
       if (contentTypes.isEmpty()
@@ -757,7 +758,7 @@ public class WfsSource extends MaskableImpl
         }
       }
     }
-    if (queries != null && !queries.isEmpty()) {
+    if (!queries.isEmpty()) {
 
       GetFeatureType getFeatureType = new GetFeatureType();
       getFeatureType.setMaxFeatures(BigInteger.valueOf(query.getPageSize()));
@@ -1067,22 +1068,21 @@ public class WfsSource extends MaskableImpl
   }
 
   private void debugResult(Result result) {
-    if (LOGGER.isDebugEnabled()) {
-      if (result != null && result.getMetacard() != null) {
-        StringBuffer sb = new StringBuffer();
-        sb.append("\nid:\t" + result.getMetacard().getId());
-        sb.append("\nmetacardType:\t" + result.getMetacard().getMetacardType());
-        if (result.getMetacard().getMetacardType() != null) {
-          sb.append("\nmetacardType name:\t" + result.getMetacard().getMetacardType().getName());
-        }
-        sb.append("\ncontentType:\t" + result.getMetacard().getContentTypeName());
-        sb.append("\ntitle:\t" + result.getMetacard().getTitle());
-        sb.append("\nsource:\t" + result.getMetacard().getSourceId());
-        sb.append("\nmetadata:\t" + result.getMetacard().getMetadata());
-        sb.append("\nlocation:\t" + result.getMetacard().getLocation());
-
-        LOGGER.debug("Transform complete. Metacard: {}", sb.toString());
+    if (LOGGER.isDebugEnabled() && result != null && result.getMetacard() != null) {
+      StringBuilder sb = new StringBuilder();
+      sb.append("\nid:\t").append(result.getMetacard().getId());
+      sb.append("\nmetacardType:\t").append(result.getMetacard().getMetacardType());
+      if (result.getMetacard().getMetacardType() != null) {
+        sb.append("\nmetacardType name:\t")
+            .append(result.getMetacard().getMetacardType().getName());
       }
+      sb.append("\ncontentType:\t").append(result.getMetacard().getContentTypeName());
+      sb.append("\ntitle:\t").append(result.getMetacard().getTitle());
+      sb.append("\nsource:\t").append(result.getMetacard().getSourceId());
+      sb.append("\nmetadata:\t").append(result.getMetacard().getMetadata());
+      sb.append("\nlocation:\t").append(result.getMetacard().getLocation());
+
+      LOGGER.debug("Transform complete. Metacard: {}", sb.toString());
     }
   }
 
@@ -1134,8 +1134,6 @@ public class WfsSource extends MaskableImpl
    * @author kcwire
    */
   private class WfsSourceAvailabilityCommand implements AvailabilityCommand {
-
-    public WfsSourceAvailabilityCommand() {}
 
     @Override
     public boolean isAvailable() {
