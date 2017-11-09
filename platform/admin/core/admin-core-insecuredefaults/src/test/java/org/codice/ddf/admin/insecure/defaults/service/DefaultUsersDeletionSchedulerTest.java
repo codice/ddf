@@ -38,39 +38,36 @@ import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.karaf.jaas.modules.BackingEngine;
 import org.apache.karaf.jaas.modules.BackingEngineFactory;
 import org.apache.karaf.jaas.modules.properties.PropertiesBackingEngineFactory;
-import org.codice.ddf.configuration.AbsolutePathResolver;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 
 public class DefaultUsersDeletionSchedulerTest {
 
-  private static final Path PATH = DefaultUsersDeletionScheduler.USERS_PROPERTIES_FILE_PATH;
-  private static final Path TEMP_FILE_PATH =
-      Paths.get(new AbsolutePathResolver("data/tmp/timestamp.bin").getPath());
+  private Path path;
+  private Path tempFilePath;
   private CamelContext context;
   private DefaultUsersDeletionScheduler scheduler;
 
+  @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
   @Before
   public void setup() throws IOException {
+    temporaryFolder.create();
     context = mock(DefaultCamelContext.class);
     scheduler = new DefaultUsersDeletionScheduler(context);
-    File testFile = PATH.toFile();
-    File testFileParent = new File(testFile.getParent());
-    testFileParent.mkdirs();
-    testFile.createNewFile();
-    Files.exists(PATH);
+    File testFile = temporaryFolder.newFile("users.properties");
+    path = Paths.get(testFile.getPath());
+    DefaultUsersDeletionScheduler.setUsersPropertiesFilePath(path);
   }
 
   @After
   public void cleanup() throws IOException {
-    Files.deleteIfExists(PATH);
-    Files.deleteIfExists(PATH.getParent());
-    Files.deleteIfExists(TEMP_FILE_PATH);
-    Files.deleteIfExists(TEMP_FILE_PATH.getParent());
-    Files.deleteIfExists(TEMP_FILE_PATH.getParent().getParent());
+    temporaryFolder.delete();
   }
 
   @Test
@@ -83,7 +80,7 @@ public class DefaultUsersDeletionSchedulerTest {
 
     scheduler.scheduleDeletion();
 
-    assertTrue(!scheduler.defaultUsersExist() && Files.notExists(TEMP_FILE_PATH));
+    assertTrue(!scheduler.defaultUsersExist() && Files.notExists(tempFilePath));
   }
 
   @Test
@@ -93,17 +90,6 @@ public class DefaultUsersDeletionSchedulerTest {
 
     String actual = scheduler.getCron();
     assertNotNull("Incorrect cron calculation.", actual);
-  }
-
-  @Test
-  public void getCronNoTempFileTest() throws IOException {
-    // Create directory for temp file (this is for testing purposes only. In production it will be
-    // placed in an already existing directory /data/tmp)
-    File tempFileParent = TEMP_FILE_PATH.getParent().toFile();
-    assertTrue("Unable to create temp file directories.", tempFileParent.mkdirs());
-
-    assertNotNull("Incorrect cron calculation.", scheduler.getCron());
-    assertTrue("No temporary file found.", Files.exists(TEMP_FILE_PATH));
   }
 
   @Test
@@ -131,7 +117,7 @@ public class DefaultUsersDeletionSchedulerTest {
     // What removeDefaultUsers does (whichout having to do service properties
     BackingEngineFactory backingEngineFactory = new PropertiesBackingEngineFactory();
     BackingEngine backingEngine =
-        backingEngineFactory.build(ImmutableMap.of("users", PATH.toString()));
+        backingEngineFactory.build(ImmutableMap.of("users", path.toString()));
     backingEngine.listUsers().forEach(user -> backingEngine.deleteUser(user.getName()));
 
     assertTrue(!scheduler.defaultUsersExist());
@@ -159,16 +145,14 @@ public class DefaultUsersDeletionSchedulerTest {
   }
 
   private void createTempFile() throws IOException {
-    File tempFile = TEMP_FILE_PATH.toFile();
-    File tempFileParent = new File(tempFile.getParent());
-    assertTrue("Unable to create temp file directories.", tempFileParent.mkdirs());
-    assertTrue("Unable to create temp file.", tempFile.createNewFile());
-    assertTrue("No temporary file found.", Files.exists(TEMP_FILE_PATH));
+    File testFile = temporaryFolder.newFile("timestamp.bin");
+    tempFilePath = Paths.get(testFile.getPath());
+    DefaultUsersDeletionScheduler.setTempTimestampFilePath(tempFilePath);
   }
 
   private void writeTimestamp(Object instant) throws IOException {
     try (ObjectOutputStream objectOutputStream =
-        new ObjectOutputStream(new FileOutputStream(TEMP_FILE_PATH.toFile()))) {
+        new ObjectOutputStream(new FileOutputStream(tempFilePath.toFile()))) {
       objectOutputStream.writeObject(instant);
     }
   }
@@ -177,7 +161,7 @@ public class DefaultUsersDeletionSchedulerTest {
     try (FileChannel source =
             new FileInputStream(Paths.get(getClass().getResource(name).toURI()).toFile())
                 .getChannel();
-        FileChannel destination = new FileOutputStream(PATH.toFile()).getChannel()) {
+        FileChannel destination = new FileOutputStream(path.toFile()).getChannel()) {
       destination.transferFrom(source, 0, source.size());
     }
   }

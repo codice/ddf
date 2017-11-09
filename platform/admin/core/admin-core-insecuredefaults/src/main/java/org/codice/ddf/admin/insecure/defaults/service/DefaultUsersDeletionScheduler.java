@@ -43,9 +43,9 @@ import org.slf4j.LoggerFactory;
 
 public class DefaultUsersDeletionScheduler {
 
-  public static final Path USERS_PROPERTIES_FILE_PATH =
+  private static Path usersPropertiesFilePath =
       Paths.get(new AbsolutePathResolver("etc/users.properties").getPath());
-  private static final Path TEMP_TIMESTAMP_FILE_PATH =
+  private static Path tempTimestampFilePath =
       Paths.get(new AbsolutePathResolver("data/tmp/timestamp.bin").getPath());
   private static final Logger LOGGER = LoggerFactory.getLogger(DefaultUsersDeletionScheduler.class);
   private static final String ROUTE_ID = "deletionJob";
@@ -83,7 +83,7 @@ public class DefaultUsersDeletionScheduler {
 
   @VisibleForTesting
   String getCron() {
-    if (!TEMP_TIMESTAMP_FILE_PATH.toFile().exists()) {
+    if (!getTempTimestampFilePath().toFile().exists()) {
 
       // Create temp file and add timestamp
       Instant instant = Instant.now();
@@ -115,7 +115,7 @@ public class DefaultUsersDeletionScheduler {
 
   private boolean createTempFile(Instant instant) {
     try {
-      if (TEMP_TIMESTAMP_FILE_PATH.toFile().createNewFile()) {
+      if (getTempTimestampFilePath().toFile().createNewFile()) {
         return writeTimestamp(instant);
       }
     } catch (IOException e) {
@@ -126,7 +126,7 @@ public class DefaultUsersDeletionScheduler {
 
   private boolean writeTimestamp(Instant instant) throws IOException {
     try (ObjectOutputStream objectOutputStream =
-        new ObjectOutputStream(new FileOutputStream(TEMP_TIMESTAMP_FILE_PATH.toFile()))) {
+        new ObjectOutputStream(new FileOutputStream(getTempTimestampFilePath().toFile()))) {
       objectOutputStream.writeObject(instant);
       return true;
     }
@@ -144,7 +144,7 @@ public class DefaultUsersDeletionScheduler {
           BackingEngineFactory backingEngineFactory = bundleContext.getService(impl);
           BackingEngine backingEngine =
               backingEngineFactory.build(
-                  ImmutableMap.of("users", USERS_PROPERTIES_FILE_PATH.toString()));
+                  ImmutableMap.of("users", getUsersPropertiesFilePath().toString()));
 
           if (!backingEngine.listUsers().isEmpty()) {
             backingEngine.listUsers().forEach(user -> backingEngine.deleteUser(user.getName()));
@@ -154,7 +154,7 @@ public class DefaultUsersDeletionScheduler {
 
       LOGGER.debug("Default users have been deleted successfully.");
 
-      Files.deleteIfExists(TEMP_TIMESTAMP_FILE_PATH);
+      Files.deleteIfExists(getTempTimestampFilePath());
       return true;
     } catch (Exception e) {
       LOGGER.debug("Unable to remove default users.", e);
@@ -178,11 +178,11 @@ public class DefaultUsersDeletionScheduler {
   }
 
   public Instant installationDate() {
-    if (!TEMP_TIMESTAMP_FILE_PATH.toFile().exists()) {
+    if (!getTempTimestampFilePath().toFile().exists()) {
       return null;
     }
     try (ObjectInputStream objectInputStream =
-        new ObjectInputStream(new FileInputStream(TEMP_TIMESTAMP_FILE_PATH.toFile()))) {
+        new ObjectInputStream(new FileInputStream(getTempTimestampFilePath().toFile()))) {
 
       return (Instant) objectInputStream.readObject();
     } catch (IOException | ClassNotFoundException e) {
@@ -197,7 +197,7 @@ public class DefaultUsersDeletionScheduler {
           && context.getRouteStatus(ROUTE_ID).isStarted()
           && context.getRouteStatus(ROUTE_ID).isStoppable()) {
         context.stopRoute(ROUTE_ID);
-        Files.deleteIfExists(TEMP_TIMESTAMP_FILE_PATH);
+        Files.deleteIfExists(getTempTimestampFilePath());
         LOGGER.debug("The deletion of default users has been stopped successfully.");
       }
     } catch (Exception e) {
@@ -207,7 +207,7 @@ public class DefaultUsersDeletionScheduler {
 
   public boolean defaultUsersExist() {
     try {
-      return Files.lines(USERS_PROPERTIES_FILE_PATH)
+      return Files.lines(getUsersPropertiesFilePath())
               .filter(line -> !line.trim().isEmpty() && !line.startsWith("#"))
               .count()
           != 0;
@@ -215,5 +215,21 @@ public class DefaultUsersDeletionScheduler {
       LOGGER.debug("Unable to access users.properties file.", e);
       return true;
     }
+  }
+
+  public static Path getUsersPropertiesFilePath() {
+    return usersPropertiesFilePath;
+  }
+
+  public static void setUsersPropertiesFilePath(Path usersPropertiesFilePath) {
+    DefaultUsersDeletionScheduler.usersPropertiesFilePath = usersPropertiesFilePath;
+  }
+
+  public static Path getTempTimestampFilePath() {
+    return tempTimestampFilePath;
+  }
+
+  public static void setTempTimestampFilePath(Path tempTimestampFilePath) {
+    DefaultUsersDeletionScheduler.tempTimestampFilePath = tempTimestampFilePath;
   }
 }

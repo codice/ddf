@@ -31,7 +31,7 @@ import org.osgi.service.event.EventAdmin;
 public class UsersPropertiesCollectorTest {
 
   private static final Path USERS_PROPERTIES_FILE_PATH =
-      DefaultUsersDeletionScheduler.USERS_PROPERTIES_FILE_PATH;
+      DefaultUsersDeletionScheduler.getUsersPropertiesFilePath();
   private UsersPropertiesCollector collector;
   private EventAdmin eventAdmin;
   private DefaultUsersDeletionScheduler scheduler;
