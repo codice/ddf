@@ -118,7 +118,7 @@ define(['underscore',
         },
         setShow: function (model) {
             var layer = this.layerForCid[model.id];
-            layer.setVisible(model.get('show'));
+            layer.setVisible(model.shouldShowLayer());
         },
         reIndexLayers: function () {
             this.collection.forEach(function (model, index) {
@@ -178,7 +178,7 @@ define(['underscore',
                       options.urls = [initObj.url];
                       initObj = options;
                       var layer = new layerType({
-                            visible: model.get('show'),
+                            visible: model.shouldShowLayer(),
                             preload: Infinity,
                             opacity: model.get('alpha'),
                             source: new type(initObj)
@@ -195,7 +195,7 @@ define(['underscore',
             }
 
             return new layerType({
-                visible: model.get('show'),
+                visible: model.shouldShowLayer(),
                 preload: Infinity,
                 opacity: model.get('alpha'),
                 source: new type(initObj)

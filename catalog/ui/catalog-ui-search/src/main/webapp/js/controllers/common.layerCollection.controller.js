@@ -23,7 +23,7 @@ define([
             this.layerForCid = {};
 
             this.listenTo(this.collection, 'change:alpha', this.setAlpha);
-            this.listenTo(this.collection, 'change:show', this.setShow);
+            this.listenTo(this.collection, 'change:show change:alpha', this.setShow);
 
             // subclasses must implement reIndexLayers()
             this.listenTo(this.collection, 'sort', this.reIndexLayers);

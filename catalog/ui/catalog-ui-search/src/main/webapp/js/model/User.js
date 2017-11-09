@@ -87,6 +87,9 @@ define([
                 id: Common.generateUUID()
             };
         },
+        shouldShowLayer: function() {
+            return this.get('show') && this.get('alpha') > 0;
+        },
         parse: function(resp) {
             var layer = _.clone(resp);
             layer.label = 'Type: ' + layer.type;

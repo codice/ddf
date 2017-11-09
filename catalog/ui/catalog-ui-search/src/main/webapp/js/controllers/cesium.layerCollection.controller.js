@@ -81,7 +81,7 @@ define(['underscore',
                 var layer = this.map.imageryLayers.addImageryProvider(provider, 0);  // the collection is sorted by order, so later things should go at bottom of stack
                 this.layerForCid[model.id] = layer;
                 layer.alpha = model.get('alpha');
-                layer.show = model.get('show');
+                layer.show = model.shouldShowLayer();
             }, this);
 
             this.isMapCreated = true;
@@ -99,7 +99,7 @@ define(['underscore',
         },
         setShow: function (model) {
             var layer = this.layerForCid[model.id];
-            layer.show = model.get('show');
+            layer.show = model.shouldShowLayer();
         },
         /*
             removing/re-adding the layers causes visible "re-render" of entire map;
