@@ -20,7 +20,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
@@ -32,15 +31,15 @@ import org.osgi.service.event.EventAdmin;
 public class UsersPropertiesCollectorTest {
 
   private static final Path USERS_PROPERTIES_FILE_PATH =
-      UsersPropertiesDeletionScheduler.USERS_PROPERTIES_FILE_PATH;
+      DefaultUsersDeletionScheduler.USERS_PROPERTIES_FILE_PATH;
   private UsersPropertiesCollector collector;
   private EventAdmin eventAdmin;
-  private UsersPropertiesDeletionScheduler scheduler;
+  private DefaultUsersDeletionScheduler scheduler;
 
   @Before
   public void setUp() throws Exception {
     eventAdmin = mock(EventAdmin.class);
-    scheduler = mock(UsersPropertiesDeletionScheduler.class);
+    scheduler = mock(DefaultUsersDeletionScheduler.class);
     collector = new UsersPropertiesCollector(eventAdmin, scheduler);
 
     assertTrue(USERS_PROPERTIES_FILE_PATH.getParent().toFile().mkdirs());
@@ -48,9 +47,11 @@ public class UsersPropertiesCollectorTest {
   }
 
   @Test
-  public void usersPropertiesNotice() throws IOException {
+  public void usersPropertiesNotice() throws Exception {
     collector.setUsersPropertiesDeletion(true);
+    when(scheduler.defaultUsersExist()).thenReturn(true);
     when(scheduler.scheduleDeletion()).thenReturn(true);
+
     collector.run();
 
     verify(scheduler, times(1)).installationDate();
@@ -61,7 +62,9 @@ public class UsersPropertiesCollectorTest {
   public void usersPropertiesNoticeWithTimestamp() throws Exception {
     collector.setUsersPropertiesDeletion(true);
     when(scheduler.scheduleDeletion()).thenReturn(true);
+    when(scheduler.defaultUsersExist()).thenReturn(true);
     when(scheduler.installationDate()).thenReturn(Instant.now());
+
     collector.run();
 
     verify(eventAdmin, times(1)).postEvent(anyObject());

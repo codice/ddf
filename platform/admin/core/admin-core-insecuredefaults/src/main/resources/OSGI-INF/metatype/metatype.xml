@@ -14,10 +14,10 @@
  -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-  <OCD name="Users.properties Deletion Scheduler"
+  <OCD name="Default Users Deletion Scheduler"
     id="org.codice.ddf.admin.insecure.defaults.service.UsersPropertiesCollector">
-    <AD name="Enable users.properties automatic deletion:" id="usersPropertiesDeletion"
-      description="Enables the automatic deletion of the user.properties file after 72 hours. If enabled, it requires the admin to configure and harden the system to prevent lock down."
+    <AD name="Enable default users automatic deletion:" id="usersPropertiesDeletion"
+      description="Enables the automatic deletion of the default users in the user.properties file after 72 hours. If enabled, it requires the admin to configure and harden the system to prevent lock down."
       required="true" type="Boolean"
       default="false"/>
   </OCD>

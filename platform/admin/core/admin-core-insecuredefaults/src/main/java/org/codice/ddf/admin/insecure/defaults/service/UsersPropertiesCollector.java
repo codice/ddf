@@ -28,32 +28,33 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 
 public class UsersPropertiesCollector implements Runnable {
-  private static final String FILE_FOUND_MSG = "A users.properties file was found!";
+  private static final String FILE_FOUND_MSG =
+      "A users.properties file was found with default values!";
   private static final String FOLLOW_DOC_MSG =
-      "After the deletion of this file you will not be able to log back in to the system. Please follow the hardening guide in the documentation under Removing Default Users to avoid the system lock down.";
+      "After the deletion of the default users, you will not be able to log back in to the system. Please follow the hardening guide in the documentation under Removing Default Users to avoid the system lock down.";
   private static final Path USERS_PROPERTIES_FILE_PATH =
-      UsersPropertiesDeletionScheduler.USERS_PROPERTIES_FILE_PATH;
-  private final UsersPropertiesDeletionScheduler scheduler;
+      DefaultUsersDeletionScheduler.USERS_PROPERTIES_FILE_PATH;
+  private final DefaultUsersDeletionScheduler scheduler;
   private boolean usersPropertiesDeletion;
   private final EventAdmin eventAdmin;
 
-  public UsersPropertiesCollector(
-      EventAdmin eventAdmin, UsersPropertiesDeletionScheduler scheduler) {
+  public UsersPropertiesCollector(EventAdmin eventAdmin, DefaultUsersDeletionScheduler scheduler) {
     this.eventAdmin = eventAdmin;
     this.scheduler = scheduler;
   }
 
   @Override
   public void run() {
-    if (usersPropertiesDeletionOn() && USERS_PROPERTIES_FILE_PATH.toFile().exists()) {
+    if (usersPropertiesDeletionOn()
+        && USERS_PROPERTIES_FILE_PATH.toFile().exists()
+        && scheduler.defaultUsersExist()) {
       boolean deletionScheduled = scheduler.scheduleDeletion();
 
       if (deletionScheduled) {
-        SystemNotice usersPropertiesNotice = createUsersPropertiesNotice();
         eventAdmin.postEvent(
             new Event(
                 SystemNotice.SYSTEM_NOTICE_BASE_TOPIC + "userProperties",
-                usersPropertiesNotice.getProperties()));
+                createUsersPropertiesNotice().getProperties()));
       }
     } else {
       scheduler.deleteScheduledDeletions();
@@ -81,12 +82,12 @@ public class UsersPropertiesCollector implements Runnable {
 
     String title =
         String.format(
-            "USERS.PROPERTIES FILE FOUND! Follow the instructions below %sto prevent the system from locking down.",
+            "USERS.PROPERTIES FILE FOUND WITH DEFAULT USERS! Follow the instructions below %sto prevent the system from locking down.",
             timestampTitle);
 
     details.add(
         String.format(
-            "%s It will be automatically deleted%s. %s",
+            "%s They will be automatically deleted%s. %s",
             FILE_FOUND_MSG, timestampDetail, FOLLOW_DOC_MSG));
 
     return new SystemNotice(this.getClass().getName(), NoticePriority.CRITICAL, title, details);

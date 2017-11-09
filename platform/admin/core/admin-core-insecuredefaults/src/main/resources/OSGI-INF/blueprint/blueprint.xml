@@ -28,7 +28,7 @@
 
     <camelContext xmlns="http://camel.apache.org/schema/blueprint" id="camelContext"/>
     <bean id="scheduler"
-      class="org.codice.ddf.admin.insecure.defaults.service.UsersPropertiesDeletionScheduler">
+      class="org.codice.ddf.admin.insecure.defaults.service.DefaultUsersDeletionScheduler">
         <argument ref="camelContext"/>
     </bean>
 

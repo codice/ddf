@@ -14,6 +14,7 @@
 package org.codice.ddf.admin.insecure.defaults.service;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableMap;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -26,24 +27,31 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Collection;
 import org.apache.camel.CamelContext;
+import org.apache.camel.ServiceStatus;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.karaf.jaas.modules.BackingEngine;
+import org.apache.karaf.jaas.modules.BackingEngineFactory;
 import org.codice.ddf.configuration.AbsolutePathResolver;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class UsersPropertiesDeletionScheduler {
+public class DefaultUsersDeletionScheduler {
 
   public static final Path USERS_PROPERTIES_FILE_PATH =
       Paths.get(new AbsolutePathResolver("etc/users.properties").getPath());
   private static final Path TEMP_TIMESTAMP_FILE_PATH =
       Paths.get(new AbsolutePathResolver("data/tmp/timestamp.bin").getPath());
-  private static final Logger LOGGER =
-      LoggerFactory.getLogger(UsersPropertiesDeletionScheduler.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(DefaultUsersDeletionScheduler.class);
   private static final String ROUTE_ID = "deletionJob";
   private final CamelContext context;
 
-  public UsersPropertiesDeletionScheduler(CamelContext camelContext) {
+  public DefaultUsersDeletionScheduler(CamelContext camelContext) {
     this.context = camelContext;
   }
 
@@ -52,23 +60,25 @@ public class UsersPropertiesDeletionScheduler {
     if (cron == null) {
       return false;
     }
-    try {
-      RouteBuilder builder =
-          new RouteBuilder() {
-            @Override
-            public void configure() throws Exception {
-              fromF("quartz2://scheduler/deletionTimer?cron=%s", cron)
-                  .routeId(ROUTE_ID)
-                  .bean(UsersPropertiesDeletionScheduler.class, "deleteFiles");
-            }
-          };
-      context.addRoutes(builder);
-      context.start();
-      return true;
-    } catch (Exception e) {
-      LOGGER.debug("Unable to create camel route.", e);
+    if (context != null && context.getRouteStatus(ROUTE_ID) != ServiceStatus.Started) {
+      try {
+        RouteBuilder builder =
+            new RouteBuilder() {
+              @Override
+              public void configure() throws Exception {
+                fromF("quartz2://scheduler/deletionTimer?cron=%s", cron)
+                    .routeId(ROUTE_ID)
+                    .bean(DefaultUsersDeletionScheduler.class, "removeDefaultUsers");
+              }
+            };
+        context.addRoutes(builder);
+        context.start();
+      } catch (Exception e) {
+        LOGGER.debug("Unable to create camel route.", e);
+        return false;
+      }
     }
-    return false;
+    return true;
   }
 
   @VisibleForTesting
@@ -90,8 +100,12 @@ public class UsersPropertiesDeletionScheduler {
         return null;
       }
 
-      if (Instant.now().isAfter(firstInstall.plus(Duration.ofDays(3)))) { // Timestamp expired
-        deleteFiles();
+      if (Instant.now()
+          .isAfter(
+              firstInstall
+                  .plus(Duration.ofDays(3))
+                  .minus(Duration.ofMinutes(30)))) { // Timestamp expired
+        removeDefaultUsers();
         return null;
       }
 
@@ -118,31 +132,44 @@ public class UsersPropertiesDeletionScheduler {
     }
   }
 
-  public static boolean deleteFiles() {
+  public static boolean removeDefaultUsers() {
     try {
-      Files.deleteIfExists(USERS_PROPERTIES_FILE_PATH);
-      LOGGER.debug("Users.properties file deleted successfully.");
-    } catch (Exception e) {
-      LOGGER.debug("Unable to delete the users.properties file.", e);
-      return false;
-    }
-    try {
+      Bundle bundle = FrameworkUtil.getBundle(DefaultUsersDeletionScheduler.class);
+      if (bundle != null) {
+        BundleContext bundleContext = bundle.getBundleContext();
+        Collection<ServiceReference<BackingEngineFactory>> implementers =
+            bundleContext.getServiceReferences(BackingEngineFactory.class, null);
+        for (ServiceReference<BackingEngineFactory> impl : implementers) {
+
+          BackingEngineFactory backingEngineFactory = bundleContext.getService(impl);
+          BackingEngine backingEngine =
+              backingEngineFactory.build(
+                  ImmutableMap.of("users", USERS_PROPERTIES_FILE_PATH.toString()));
+
+          if (!backingEngine.listUsers().isEmpty()) {
+            backingEngine.listUsers().forEach(user -> backingEngine.deleteUser(user.getName()));
+          }
+        }
+      }
+
+      LOGGER.debug("Default users have been deleted successfully.");
+
       Files.deleteIfExists(TEMP_TIMESTAMP_FILE_PATH);
-      LOGGER.debug("Temporary file deleted successfully.");
       return true;
-    } catch (IOException e) {
-      LOGGER.debug("Unable to delete the temporary file.", e);
+    } catch (Exception e) {
+      LOGGER.debug("Unable to remove default users.", e);
       return false;
     }
   }
 
   private String cronCalculator(Instant firstInstall) {
-    Instant threeDayTimestamp = firstInstall.plus(Duration.ofDays(3));
+    Instant threeDayTimestamp = firstInstall.plus(Duration.ofDays(3).minus(Duration.ofMinutes(30)));
     LocalDateTime localDateTime =
         LocalDateTime.ofInstant(threeDayTimestamp, ZoneId.systemDefault());
 
     return String.format(
-        "0+%d+%d+%d+%d+?+%d",
+        "%d+%d+%d+%d+%d+?+%d",
+        localDateTime.getSecond(),
         localDateTime.getMinute(),
         localDateTime.getHour(),
         localDateTime.getDayOfMonth(),
@@ -171,9 +198,22 @@ public class UsersPropertiesDeletionScheduler {
           && context.getRouteStatus(ROUTE_ID).isStoppable()) {
         context.stopRoute(ROUTE_ID);
         Files.deleteIfExists(TEMP_TIMESTAMP_FILE_PATH);
+        LOGGER.debug("The deletion of default users has been stopped successfully.");
       }
     } catch (Exception e) {
       LOGGER.debug("Unable to stop deletion.", e);
+    }
+  }
+
+  public boolean defaultUsersExist() {
+    try {
+      return Files.lines(USERS_PROPERTIES_FILE_PATH)
+              .filter(line -> !line.trim().isEmpty() && !line.startsWith("#"))
+              .count()
+          != 0;
+    } catch (IOException e) {
+      LOGGER.debug("Unable to access users.properties file.", e);
+      return true;
     }
   }
 }
