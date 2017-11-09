@@ -69,13 +69,21 @@ import org.slf4j.LoggerFactory;
  */
 public class HttpSolrClientFactory implements SolrClientFactory {
 
+  private static final String HTTPS_PROTOCOLS = "https.protocols";
+  private static final String HTTPS_CIPHER_SUITES = "https.cipherSuites";
+  private static final String SOLR_CONTEXT = "/solr";
+  private static final String SOLR_DATA_DIR = "solr.data.dir";
+  private static final String KEY_STORE_PASS = "javax.net.ssl.keyStorePassword";
+  private static final String TRUST_STORE = "javax.net.ssl.trustStore";
+  private static final String TRUST_STORE_PASS = "javax.net.ssl.trustStorePassword";
+  private static final String KEY_STORE = "javax.net.ssl.keyStore";
   public static final List<String> DEFAULT_PROTOCOLS =
       Collections.unmodifiableList(
-          Arrays.asList(StringUtils.split(System.getProperty("https.protocols", ""), ",")));
+          Arrays.asList(StringUtils.split(System.getProperty(HTTPS_PROTOCOLS, ""), ",")));
 
   public static final List<String> DEFAULT_CIPHER_SUITES =
       Collections.unmodifiableList(
-          Arrays.asList(StringUtils.split(System.getProperty("https.cipherSuites", ""), ",")));
+          Arrays.asList(StringUtils.split(System.getProperty(HTTPS_CIPHER_SUITES, ""), ",")));
 
   public static final String DEFAULT_SCHEMA_XML = "schema.xml";
 
@@ -101,7 +109,7 @@ public class HttpSolrClientFactory implements SolrClientFactory {
    * @return Solr server secure HTTP address
    */
   public static String getDefaultHttpsAddress() {
-    return SystemBaseUrl.constructUrl("https", "/solr");
+    return SystemBaseUrl.constructUrl("https", SOLR_CONTEXT);
   }
 
   /**
@@ -110,7 +118,7 @@ public class HttpSolrClientFactory implements SolrClientFactory {
    * @return Solr server HTTP address
    */
   public static String getDefaultHttpAddress() {
-    return SystemBaseUrl.constructUrl("http", "/solr");
+    return SystemBaseUrl.constructUrl("http", SOLR_CONTEXT);
   }
 
   /**
@@ -154,8 +162,8 @@ public class HttpSolrClientFactory implements SolrClientFactory {
     String solrUrl = StringUtils.defaultIfBlank(url, SystemBaseUrl.constructUrl("/solr"));
     String coreUrl = url + "/" + coreName;
 
-    if (System.getProperty("solr.data.dir") != null) {
-      ConfigurationStore.getInstance().setDataDirectoryPath(System.getProperty("solr.data.dir"));
+    if (System.getProperty(SOLR_DATA_DIR) != null) {
+      ConfigurationStore.getInstance().setDataDirectoryPath(System.getProperty(SOLR_DATA_DIR));
     }
 
     RetryPolicy retryPolicy =
@@ -231,48 +239,43 @@ public class HttpSolrClientFactory implements SolrClientFactory {
   }
 
   private static String[] getProtocols() {
-    if (System.getProperty("https.protocols") != null) {
-      return StringUtils.split(System.getProperty("https.protocols"), ",");
+    if (System.getProperty(HTTPS_PROTOCOLS) != null) {
+      return StringUtils.split(System.getProperty(HTTPS_PROTOCOLS), ",");
     } else {
       return DEFAULT_PROTOCOLS.toArray(new String[DEFAULT_PROTOCOLS.size()]);
     }
   }
 
   private static String[] getCipherSuites() {
-    if (System.getProperty("https.cipherSuites") != null) {
-      return StringUtils.split(System.getProperty("https.cipherSuites"), ",");
+    if (System.getProperty(HTTPS_CIPHER_SUITES) != null) {
+      return StringUtils.split(System.getProperty(HTTPS_CIPHER_SUITES), ",");
     } else {
       return DEFAULT_CIPHER_SUITES.toArray(new String[DEFAULT_CIPHER_SUITES.size()]);
     }
   }
 
   private static SSLContext getSslContext() {
-    if (System.getProperty("javax.net.ssl.keyStore") == null
+    if (System.getProperty(KEY_STORE) == null
         || //
-        System.getProperty("javax.net.ssl.keyStorePassword") == null
+        System.getProperty(KEY_STORE_PASS) == null
         || //
-        System.getProperty("javax.net.ssl.trustStore") == null
+        System.getProperty(TRUST_STORE) == null
         || //
-        System.getProperty("javax.net.ssl.trustStorePassword") == null) {
+        System.getProperty(TRUST_STORE_PASS) == null) {
       throw new IllegalArgumentException("KeyStore and TrustStore system properties must be set.");
     }
 
     KeyStore trustStore =
-        getKeyStore(
-            System.getProperty("javax.net.ssl.trustStore"),
-            System.getProperty("javax.net.ssl.trustStorePassword"));
+        getKeyStore(System.getProperty(TRUST_STORE), System.getProperty(TRUST_STORE_PASS));
     KeyStore keyStore =
-        getKeyStore(
-            System.getProperty("javax.net.ssl.keyStore"),
-            System.getProperty("javax.net.ssl.keyStorePassword"));
+        getKeyStore(System.getProperty(KEY_STORE), System.getProperty(KEY_STORE_PASS));
 
     SSLContext sslContext = null;
 
     try {
       sslContext =
           SSLContexts.custom()
-              .loadKeyMaterial(
-                  keyStore, System.getProperty("javax.net.ssl.keyStorePassword").toCharArray())
+              .loadKeyMaterial(keyStore, System.getProperty(KEY_STORE_PASS).toCharArray())
               .loadTrustMaterial(trustStore)
               .useTLS()
               .build();
@@ -307,43 +310,41 @@ public class HttpSolrClientFactory implements SolrClientFactory {
   private static void createSolrCore(
       String url, String coreName, String configFileName, HttpClient httpClient)
       throws IOException, SolrServerException {
-    HttpSolrClient client;
-    if (httpClient != null) {
-      client = new HttpSolrClient(url, httpClient);
-    } else {
-      client = new HttpSolrClient(url);
-    }
 
-    HttpResponse ping = client.getHttpClient().execute(new HttpHead(url));
-    if (ping != null && ping.getStatusLine().getStatusCode() == 200) {
-      ConfigurationFileProxy configProxy =
-          new ConfigurationFileProxy(ConfigurationStore.getInstance());
-      configProxy.writeSolrConfiguration(coreName);
-      if (!solrCoreExists(client, coreName)) {
-        LOGGER.debug("Creating Solr core {}", coreName);
+    try (HttpSolrClient client =
+        (httpClient != null ? new HttpSolrClient(url, httpClient) : new HttpSolrClient(url))) {
 
-        String configFile = StringUtils.defaultIfBlank(configFileName, DEFAULT_SOLRCONFIG_XML);
+      HttpResponse ping = client.getHttpClient().execute(new HttpHead(url));
+      if (ping != null && ping.getStatusLine().getStatusCode() == 200) {
+        ConfigurationFileProxy configProxy =
+            new ConfigurationFileProxy(ConfigurationStore.getInstance());
+        configProxy.writeSolrConfiguration(coreName);
+        if (!solrCoreExists(client, coreName)) {
+          LOGGER.debug("Creating Solr core {}", coreName);
 
-        String solrDir;
-        if (System.getProperty("solr.data.dir") != null) {
-          solrDir = System.getProperty("solr.data.dir");
+          String configFile = StringUtils.defaultIfBlank(configFileName, DEFAULT_SOLRCONFIG_XML);
+
+          String solrDir;
+          if (System.getProperty(SOLR_DATA_DIR) != null) {
+            solrDir = System.getProperty(SOLR_DATA_DIR);
+          } else {
+            solrDir = Paths.get(System.getProperty("karaf.home"), "data", "solr").toString();
+          }
+
+          String instanceDir = Paths.get(solrDir, coreName).toString();
+
+          String dataDir = Paths.get(instanceDir, "data").toString();
+
+          CoreAdminRequest.createCore(
+              coreName, instanceDir, client, configFile, DEFAULT_SCHEMA_XML, dataDir, dataDir);
         } else {
-          solrDir = Paths.get(System.getProperty("karaf.home"), "data", "solr").toString();
+          LOGGER.debug("Solr core ({}) already exists - reloading it", coreName);
+          CoreAdminRequest.reloadCore(coreName, client);
         }
-
-        String instanceDir = Paths.get(solrDir, coreName).toString();
-
-        String dataDir = Paths.get(instanceDir, "data").toString();
-
-        CoreAdminRequest.createCore(
-            coreName, instanceDir, client, configFile, DEFAULT_SCHEMA_XML, dataDir, dataDir);
       } else {
-        LOGGER.debug("Solr core ({}) already exists - reloading it", coreName);
-        CoreAdminRequest.reloadCore(coreName, client);
+        LOGGER.debug("Unable to ping Solr core {}", coreName);
+        throw new SolrServerException("Unable to ping Solr core");
       }
-    } else {
-      LOGGER.debug("Unable to ping Solr core {}", coreName);
-      throw new SolrServerException("Unable to ping Solr core");
     }
   }
 
