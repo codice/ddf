@@ -11,12 +11,38 @@
  *
  **/
  --}}
-<button class="is-negative archive" data-help="This will remove the item(s) from standard search results.
-To restore archived items, you can click on 'File' in the toolbar,
-and then click 'Restore Archived Items'.">
-    <span class="mainText">Archive item(s)</span>
-    <span class="subText">WARNING: This will remove the item(s) from standard search results.</span>
-</button>
-<button class="is-positive restore" data-help="This will restore the item(s) to standard search results.">
-    <span class="mainText">Restore item(s)</span>
-</button>
+<div class="is-not-archived">
+    {{#if this.orphans}}
+        <div class="section">
+            <div class="section-title">
+                The following were found to have associations to results in the current selection.  If you continue with archiving, these associations and possibly 
+            more will be orphaned:
+            </div>
+            <div class="section-content">
+                {{#each this.orphans}}
+                    <div>
+                        <a href="#metacards/{{this}}" target="_blank">{{this}}</a>
+                    </div>
+                {{/each}}
+            </div>
+        </div>
+        <button class="is-negative archive-confirm" data-help="This will remove the item(s) from standard search results.
+        To restore archived items, you can click on 'File' in the toolbar,
+        and then click 'Restore Archived Items'.">
+            <span class="mainText">Confirm Archive item(s)</span>
+            <span class="subText">WARNING: This will remove the item(s) from standard search results and possibly orphan associations.</span>
+        </button>
+    {{else}}
+        <button class="is-negative archive" data-help="This will remove the item(s) from standard search results.
+    To restore archived items, you can click on 'File' in the toolbar,
+    and then click 'Restore Archived Items'.">
+            <span class="mainText">Archive item(s)</span>
+            <span class="subText">WARNING: This will remove the item(s) from standard search results.</span>
+        </button>
+    {{/if}}
+</div>
+<div class="is-archived">
+    <button class="is-positive restore" data-help="This will restore the item(s) to standard search results.">
+        <span class="mainText">Restore item(s)</span>
+    </button>
+</div>
