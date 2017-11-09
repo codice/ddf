@@ -31,7 +31,7 @@ public interface ScheduledTask {
    * Removes a task completely so that it does not run or exist.
    *
    * @param code - not used
-   * @see https://issues.apache.org/jira/browse/ARIES-1436
+   * @see <a href="ARIES-1436">https://issues.apache.org/jira/browse/ARIES-1436</a>
    */
   void deleteTask(int code);
 

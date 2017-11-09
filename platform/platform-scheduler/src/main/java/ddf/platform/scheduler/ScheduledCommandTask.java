@@ -18,7 +18,9 @@ import static org.quartz.JobBuilder.newJob;
 import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 import static org.quartz.TriggerBuilder.newTrigger;
 
+import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.quartz.Job;
@@ -39,6 +41,8 @@ import org.slf4j.LoggerFactory;
  */
 public class ScheduledCommandTask implements ScheduledTask {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(ScheduledCommandTask.class);
+
   public static final String SECOND_INTERVAL = "secondInterval";
 
   public static final String CRON_STRING = "cronString";
@@ -49,17 +53,20 @@ public class ScheduledCommandTask implements ScheduledTask {
 
   public static final String ONE_DAY = "0 0 0 1/1 * ? *";
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(ScheduledCommandTask.class);
+  /** Delay trigger start time to allow bundles to start during start-up. */
+  private static final TimeUnit TRIGGER_DELAY_TIME_UNIT = TimeUnit.MINUTES;
 
-  private Class<? extends Job> jobClass;
+  private static final long TRIGGER_DELAY_DURATION = 1;
+
+  private final Class<? extends Job> jobClass;
+
+  private final Scheduler scheduler;
 
   private String intervalString = ONE_DAY;
 
   private String intervalType = CRON_STRING;
 
   private String command;
-
-  private Scheduler scheduler;
 
   private JobKey jobKey;
 
@@ -148,16 +155,16 @@ public class ScheduledCommandTask implements ScheduledTask {
       this.command = commandValue.toString();
     }
 
-    Object intervalString = properties.get(INTERVAL_STRING);
-    if (intervalString != null) {
-      LOGGER.debug("Updating intervalString : {}", intervalString);
-      this.intervalString = (String) intervalString;
+    Object intervalStringPropertyValue = properties.get(INTERVAL_STRING);
+    if (intervalStringPropertyValue != null) {
+      LOGGER.debug("Updating intervalString : {}", intervalStringPropertyValue);
+      this.intervalString = (String) intervalStringPropertyValue;
     }
 
-    Object intervalType = properties.get(INTERVAL_TYPE);
-    if (intervalType != null) {
-      LOGGER.debug("Updating intervalType : {}", intervalType);
-      this.intervalType = (String) intervalType;
+    Object intervalTypePropertyValue = properties.get(INTERVAL_TYPE);
+    if (intervalTypePropertyValue != null) {
+      LOGGER.debug("Updating intervalType : {}", intervalTypePropertyValue);
+      this.intervalType = (String) intervalTypePropertyValue;
     }
 
     JobDetail newJob = createJob();
@@ -206,20 +213,31 @@ public class ScheduledCommandTask implements ScheduledTask {
   }
 
   private Trigger createSimpleTrigger(int secondsInterval) {
-    LOGGER.debug("Creating trigger with {} second interval", secondsInterval);
     return newTrigger()
         .withIdentity(triggerKey)
-        .startNow()
+        .startAt(getTriggerStartTime())
         .withSchedule(simpleSchedule().withIntervalInSeconds(secondsInterval).repeatForever())
         .build();
   }
 
   private Trigger createCronTrigger() {
-    LOGGER.debug("Creating trigger with cron string : {}", intervalString);
     return newTrigger()
         .withIdentity(triggerKey)
-        .startNow()
+        .startAt(getTriggerStartTime())
         .withSchedule(cronSchedule(intervalString))
         .build();
+  }
+
+  private Date getTriggerStartTime() {
+    final String timeUnitString = TRIGGER_DELAY_TIME_UNIT.name().toLowerCase();
+    LOGGER.debug(
+        "Creating trigger with {} {}. Delaying start by {} {}.",
+        intervalString,
+        intervalType,
+        TRIGGER_DELAY_DURATION,
+        timeUnitString);
+
+    return new Date(
+        System.currentTimeMillis() + TRIGGER_DELAY_TIME_UNIT.toMillis(TRIGGER_DELAY_DURATION));
   }
 }
