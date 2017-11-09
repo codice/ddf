@@ -14,27 +14,28 @@
 -->
 <metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
 
-  <OCD description="" name="Platform Command Scheduler" id="ddf.platform.scheduler.Command">
-  
-    <AD name="Command" id="command" required="true" type="String" default=""
-        description="Shell command to be used within the container. For example, log:set DEBUG">
-    </AD>
-    
-    <AD name="Interval" id="intervalString"
-        description="The Interval String for each execution. Based on the Interval Type, this will either be a Cron String or a Second Interval.  (e.x. '0 0 0 1/1 * ? *' or '12')"
-        required="true" type="String"/>
+    <OCD name="Platform Command Scheduler"
+         description="The Platform Command Scheduler allows administrators to schedule Command Line Commands to be run at specified intervals."
+         id="ddf.platform.scheduler.Command">
 
-    <AD name="Interval Type" id="intervalType"
-        description="Interval Type"
-        required="true" type="String" default="cronString">
-        <Option label="Cron Expression" value="cronString"/>
-        <Option label="Second Interval" value="secondInterval"/>
-    </AD>
+        <AD name="Command"
+            description="Shell command to be used within the container. For example, log:set DEBUG"
+            id="command" type="String"/>
 
-  </OCD>
+        <AD name="Interval"
+            description="The Interval String for each execution. Based on the Interval Type, this will either be a Cron Expression (e.g. '0 0 0 1/1 * ? *') or a Second Interval (e.g. '12'). NOTE: Scheduling commands will be delayed by 1 minute. See the Documentation for more details."
+            id="intervalString" type="String"/>
 
-  <Designate pid="ddf.platform.scheduler.Command" factoryPid="ddf.platform.scheduler.Command">
-    <Object ocdref="ddf.platform.scheduler.Command"/>
-  </Designate>
-  
+        <AD name="Interval Type" description="Interval Type" id="intervalType" type="String"
+            default="cronString">
+            <Option label="Cron Expression" value="cronString"/>
+            <Option label="Second Interval" value="secondInterval"/>
+        </AD>
+
+    </OCD>
+
+    <Designate pid="ddf.platform.scheduler.Command" factoryPid="ddf.platform.scheduler.Command">
+        <Object ocdref="ddf.platform.scheduler.Command"/>
+    </Designate>
+
 </metatype:MetaData>

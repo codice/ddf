@@ -16,24 +16,30 @@ Writing these types of scripts are specific to the administrator's operating sys
 The administrator can also create a Command Schedule, which currently requires only two fields.
 The Command Scheduler only runs when the container is running, so there is no need to verify if the container is up.
 In addition, when the container is restarted, the commands are rescheduled and executed again.
+A command will be repeatedly executed indefinitely according to the configured interval until the container is shutdown or the Scheduled Command is deleted.
+
+[NOTE]
+====
+There will be further attempts to execute the command according to the configured interval even if an attempt fails.
+See the log for details about failures.
+====
 
 ====== Schedule a Command
 
 Configure the Command Scheduler to execute a command at specific intervals.
 
-. Navigate to the ${admin-console} (${secure_url}/admin).
+. Navigate to the *${admin-console}* (${secure_url}/admin).
 . Select the *${ddf-platform}* application.
+. Click on the *Configuration* tab.
 . Select *Platform Command Scheduler*.
 . Enter the command or commands to be executed in the *Command* text field. Commands can be separated by a semicolon and will execute in order from left to right.
-. Enter an interval in the *Interval* field.  This can either be a Quartz Cron expression or a positive integer (seconds) (e.x. '0 0 0 1/1 * ? *' or '12').
+. Enter an interval in the *Interval* field. This can either be a Quartz Cron expression or a positive integer (seconds) (e.x. `0 0 0 1/1 * ? *` or `12`).
 . Select the interval type in the *Interval Type* drop-down.
-. Select the *Save* button.
+. Click the *Save changes* button.
 
 [NOTE]
 ====
-Scheduled Commands can be updated and deleted.
-To delete, clear the fields and click *Save*.
-To update, modify the fields and click *Save*.
+Scheduling commands will be delayed by 1 minute to allow time for bundles to load when ${branding} is starting up.
 ====
 
 ===== Updating a Scheduled Command
@@ -43,17 +49,15 @@ Change the timing, order, or execution of scheduled commands.
 . Navigate to the *${admin-console}*.
 . Click on the *${ddf-platform}* application.
 . Click on the *Configuration* tab.
-. Under the *Platform Command Scheduler* configuration are all the scheduled commands.
-Scheduled commands have the following syntax `${ddf-branding-lowercase}.platform.scheduler.Command.{GUID}` such as `${ddf-branding-lowercase}.platform.scheduler.Command.4d60c917-003a-42e8-9367-1da0f822ca6e`.
-. Find the desired configuration to modify and update either the *Command* text field, the *Interval* field, or the *Interval Type*.
-. Click *Save changes*.
-Once the Save button has been clicked, the command will be executed immediately.
-Its next scheduled execution happens after the time specified in Interval In Seconds and repeats indefinitely until the container is shutdown or the Scheduled Command is deleted.
+. Under the *Platform Command Scheduler* configuration are all of the scheduled commands.
+Scheduled commands have the following syntax: `${ddf-branding-lowercase}.platform.scheduler.Command.{GUID}` such as `${ddf-branding-lowercase}.platform.scheduler.Command.4d60c917-003a-42e8-9367-1da0f822ca6e`.
+. Find the desired configuration to modify, and update fields.
+. Click the *Save changes* button.
 
 ====== Command Output
 
-Commands that normally write out to the console will write out to the distribution's log.
-For example, if an `echo "Hello World"` command is set to run every five seconds, the log displays the following:
+Commands that normally write out to the console will write out to the log.
+For example, if an `echo "Hello World"` command is set to run every five seconds, the log contains the following:
 
 .Sample Command Output in the Log
 ----

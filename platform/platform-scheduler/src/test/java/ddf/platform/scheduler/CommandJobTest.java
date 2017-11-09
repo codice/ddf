@@ -28,15 +28,11 @@ import java.io.InputStream;
 import java.util.concurrent.Callable;
 import org.apache.karaf.shell.api.console.Session;
 import org.apache.karaf.shell.api.console.SessionFactory;
-import org.junit.Before;
+import org.apache.shiro.subject.ExecutionException;
 import org.junit.Test;
 import org.mockito.Matchers;
-import org.mockito.stubbing.Answer;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Tests the {@link CommandJob} class.
@@ -46,180 +42,199 @@ import org.slf4j.LoggerFactory;
  */
 public class CommandJobTest {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(CommandJobTest.class);
+  private static final String VALID_COMMAND = "info";
 
-  private SessionFactory sessionFactory;
-
-  @Before
-  public void setup() {
-    sessionFactory = mock(SessionFactory.class);
-  }
-
-  /**
-   * Do no execution when no command processor available
-   *
-   * @throws Exception
-   */
+  /** Tests that there is no exception when command input is null */
   @Test
-  public void testNoCommandProcessor() throws Exception {
+  public void testNullCommand() {
     // given
-    String command = "info";
+    CommandJob commandJob = new CommandJob();
 
-    CommandJob job = getCommandJob();
-
-    // when
-    job.execute(getJobExecutionContext(command));
-
-    // then
-    /* we should not have a problem */
-  }
-
-  /**
-   * Do not execute command on null input
-   *
-   * @throws Exception
-   */
-  @SuppressWarnings("ConstantConditions")
-  @Test
-  public void testNullCommand() throws Exception {
-    // given
     String command = null;
 
-    FirstArgumentAnswer captureInput = new FirstArgumentAnswer();
-
-    Session session = getSession(captureInput);
-
-    when(sessionFactory.create(notNull(InputStream.class), any(), any())).thenReturn(session);
-
-    CommandJob job = getCommandJob();
-
     // when
-    job.execute(getJobExecutionContext(command));
-
-    // then
-    verifySessionCallsAndSessionClosed(command, session, 0);
+    commandJob.execute(createMockJobExecutionContext(command));
   }
 
-  /**
-   * An empty command will be executed
-   *
-   * @throws Exception
-   */
+  /** Tests that there is no exception when command is empty */
   @Test
-  public void testEmptyCommand() throws Exception {
+  public void testEmptyCommand() {
     // given
+    CommandJob commandJob = new CommandJob();
+
     String command = "";
 
+    // when
+    commandJob.execute(createMockJobExecutionContext(command));
+  }
+
+  /** Tests the simplest command will be executed */
+  @Test
+  public void testSimpleCommand() throws Exception {
     FirstArgumentAnswer captureInput = new FirstArgumentAnswer();
+    Session session = mock(Session.class);
+    when(session.execute(isA(CharSequence.class))).then(captureInput);
 
-    Session session = getSession(captureInput);
+    CommandJob commandJob =
+        new CommandJob() {
+          @Override
+          public Subject getSystemSubject() {
+            return createMockSubject();
+          }
 
-    when(sessionFactory.create(notNull(InputStream.class), any(), any())).thenReturn(session);
+          @Override
+          protected SessionFactory getSessionFactory() {
+            SessionFactory sessionFactory = mock(SessionFactory.class);
+            when(sessionFactory.create(notNull(InputStream.class), any(), any()))
+                .thenReturn(session);
+            return sessionFactory;
+          }
+        };
 
-    CommandJob job = getCommandJob();
+    String command = VALID_COMMAND;
 
     // when
-    job.execute(getJobExecutionContext(command));
+    commandJob.execute(createMockJobExecutionContext(command));
 
     // then
     assertThat(captureInput.getInputArg(), is(command));
 
-    verifySessionCallsAndSessionClosed(command, session, 1);
+    verify(session, times(1)).execute(command);
+    verify(session, times(1)).close();
+  }
+
+  /** Tests that there is no exception when the {@link JobExecutionContext} is null */
+  @Test
+  public void testNullContext() {
+    // given
+    CommandJob commandJob = new CommandJob();
+
+    // when
+    commandJob.execute(null);
   }
 
   /**
-   * Tests the simplest command will be executed.
-   *
-   * @throws Exception
+   * Tests that there is no exception when the {@link JobDataMap} of the {@link JobExecutionContext}
+   * is null
    */
   @Test
-  public void testSimpleCommand() throws Exception {
+  public void testNullMergedJobDataMap() {
     // given
-    String command = "info";
-
-    FirstArgumentAnswer captureInput = new FirstArgumentAnswer();
-
-    Session session = getSession(captureInput);
-
-    when(sessionFactory.create(notNull(InputStream.class), any(), any())).thenReturn(session);
-
-    CommandJob job = getCommandJob();
-
-    // when
-    job.execute(getJobExecutionContext(command));
-
-    // then
-
-    assertThat(captureInput.getInputArg(), is(command));
-
-    verifySessionCallsAndSessionClosed(command, session, 1);
-  }
-
-  @Test
-  public void testNullContext() throws JobExecutionException {
-    CommandJob job = getCommandJob();
-    job.execute(null);
-  }
-
-  @Test
-  public void testNullMergedJobDataMap() throws JobExecutionException {
-    CommandJob job = getCommandJob();
+    CommandJob commandJob = new CommandJob();
 
     JobExecutionContext jobExecutionContext = mock(JobExecutionContext.class);
     when(jobExecutionContext.getMergedJobDataMap()).thenReturn(null);
 
-    job.execute(jobExecutionContext);
+    // when
+    commandJob.execute(jobExecutionContext);
   }
 
-  private CommandJob getCommandJob() {
-    return new CommandJob() {
-      @SuppressWarnings("unchecked")
-      @Override
-      public Subject getSystemSubject() {
-        Subject subject = mock(Subject.class);
-        when(subject.execute(Matchers.<Callable<Object>>any()))
-            .thenAnswer(
-                invocation -> {
-                  Callable<Object> callable = (Callable<Object>) invocation.getArguments()[0];
-                  return callable.call();
-                });
-        return subject;
-      }
+  /** Tests that there is no exception when unable to get the {@link SessionFactory} */
+  @Test
+  public void testUnableToGetSessionFactory() {
+    // given
+    CommandJob commandJob =
+        new CommandJob() {
+          @Override
+          public Subject getSystemSubject() {
+            return createMockSubject();
+          }
 
-      @Override
-      protected SessionFactory getSessionFactory() {
-        return sessionFactory;
-      }
-    };
+          @Override
+          protected SessionFactory getSessionFactory() {
+            return null;
+          }
+        };
+
+    String command = VALID_COMMAND;
+
+    // when
+    commandJob.execute(createMockJobExecutionContext(command));
   }
 
-  private void verifySessionCallsAndSessionClosed(
-      String command, Session session, int expectedAmountOfCalls) throws Exception {
-    verify(session, times(expectedAmountOfCalls)).execute(command);
-    verify(session, times(1)).close();
+  /**
+   * Tests that there is no exception when unable to get the system's {@link Subject}. This might
+   * happen when the system is very slow to start up where not all of the required security bundles
+   * are started yet.
+   */
+  @Test
+  public void testUnableToGetSystemSubject() {
+    // given
+    CommandJob commandJob =
+        new CommandJob() {
+          @Override
+          public Subject getSystemSubject() {
+            return null;
+          }
+        };
+
+    String command = VALID_COMMAND;
+
+    // when
+    commandJob.execute(createMockJobExecutionContext(command));
   }
 
-  private Session getSession(Answer<String> captureInput) {
-    Session session = mock(Session.class);
+  /**
+   * Tests that there is no exception when {@link
+   * org.codice.ddf.security.common.Security#getSystemSubject()} fails. This might happen when the
+   * system is very slow to start up where not all of the required security bundles are started yet.
+   */
+  @Test
+  public void testExceptionGettingSystemSubject() {
+    // given
+    CommandJob commandJob =
+        new CommandJob() {
+          @Override
+          public Subject getSystemSubject() {
+            throw new RuntimeException();
+          }
+        };
 
-    try {
-      when(session.execute(isA(CharSequence.class))).then(captureInput);
-    } catch (Exception e) {
-      LOGGER.error("Exception occurred during command session", e);
-    }
+    String command = VALID_COMMAND;
 
-    return session;
+    // when
+    commandJob.execute(createMockJobExecutionContext(command));
   }
 
-  private JobExecutionContext getJobExecutionContext(String command) {
-    JobExecutionContext context = mock(JobExecutionContext.class);
+  /** Tests that there is no exception when executing with the {@link Subject} fails. */
+  @Test
+  public void testUnableToExecuteWithSubject() {
+    // given
+    CommandJob commandJob =
+        new CommandJob() {
+          @Override
+          public Subject getSystemSubject() {
+            Subject subject = mock(Subject.class);
+            when(subject.execute(Matchers.<Callable<Object>>any()))
+                .thenThrow(ExecutionException.class);
+            return subject;
+          }
+        };
 
+    String command = VALID_COMMAND;
+
+    // when
+    commandJob.execute(createMockJobExecutionContext(command));
+  }
+
+  private JobExecutionContext createMockJobExecutionContext(String command) {
     JobDataMap jobDataMap = new JobDataMap();
-
     jobDataMap.put(CommandJob.COMMAND_KEY, command);
 
+    JobExecutionContext context = mock(JobExecutionContext.class);
     when(context.getMergedJobDataMap()).thenReturn(jobDataMap);
 
     return context;
+  }
+
+  private static Subject createMockSubject() {
+    Subject subject = mock(Subject.class);
+    when(subject.execute(Matchers.<Callable<Object>>any()))
+        .thenAnswer(
+            invocation -> {
+              Callable<Object> callable = (Callable<Object>) invocation.getArguments()[0];
+              return callable.call();
+            });
+    return subject;
   }
 }

@@ -16,6 +16,7 @@ package org.codice.ddf.commands.catalog;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.types.Validation;
+import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.ProcessingDetails;
@@ -24,6 +25,8 @@ import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.DeleteRequestImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.source.IngestException;
+import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import java.io.IOException;
 import java.io.Serializable;
@@ -52,6 +55,12 @@ import org.slf4j.LoggerFactory;
 )
 public class RemoveAllCommand extends CatalogCommands {
 
+  private static final String COMMAND_SCOPE = CatalogCommands.NAMESPACE;
+
+  private static final String COMMAND_NAME = "removeall";
+
+  private static final String COMMAND = String.format("%s:%s", COMMAND_SCOPE, COMMAND_NAME);
+
   private static final int PAGE_SIZE_LOWER_LIMIT = 1;
 
   private static final long UNKNOWN_AMOUNT = -1;
@@ -74,8 +83,8 @@ public class RemoveAllCommand extends CatalogCommands {
   int batchSize = DEFAULT_BATCH_SIZE;
 
   @Option(
-    name = "-e",
-    aliases = {"--expired"},
+    name = "--expired",
+    aliases = {"-e"},
     description =
         "Remove only expired records from the Catalog. "
             + "Expired records are based on the Metacard EXPIRATION field."
@@ -83,8 +92,8 @@ public class RemoveAllCommand extends CatalogCommands {
   private boolean expired = false;
 
   @Option(
-    name = "-f",
-    aliases = {"--force"},
+    name = "--force",
+    aliases = {"-f"},
     description = "Force the removal without a confirmation message."
   )
   boolean force = false;
@@ -120,16 +129,18 @@ public class RemoveAllCommand extends CatalogCommands {
 
     long end = System.currentTimeMillis();
 
-    String info = String.format("Cache cleared in %3.3f seconds%n", (end - start) / MS_PER_SECOND);
+    String info = String.format("Cache cleared in %3.3f seconds", (end - start) / MS_PER_SECOND);
 
     LOGGER.info(info);
-    LOGGER.info("Cache cleared by catalog:removeAll with --cache option");
+    LOGGER.info("Cache cleared using the \"{} --cache\" command", COMMAND);
 
     console.println();
-    console.print(info);
+    console.println(info);
   }
 
-  private void executeRemoveAllFromStore() throws Exception {
+  private void executeRemoveAllFromStore()
+      throws InterruptedException, SourceUnavailableException, FederationException,
+          UnsupportedQueryException, IngestException {
     CatalogFacade catalog = getCatalog();
 
     QueryRequest firstQuery = getIntendedQuery(filterBuilder, true);
@@ -200,14 +211,14 @@ public class RemoveAllCommand extends CatalogCommands {
 
     String info =
         String.format(
-            " %d file(s) removed in %3.3f seconds%n",
+            "%d file(s) removed in %3.3f seconds",
             totalAmountDeleted, (end - start) / MS_PER_SECOND);
 
     LOGGER.info(info);
-    LOGGER.info(totalAmountDeleted + " files removed using cache:removeAll command");
+    LOGGER.info("{} file(s) removed using the \"{}\" command", totalAmountDeleted, COMMAND);
 
     console.println();
-    console.print(info);
+    console.println(info);
   }
 
   private boolean needsAlternateQueryAndResponse(SourceResponse response) {
@@ -236,14 +247,16 @@ public class RemoveAllCommand extends CatalogCommands {
       // use a message specific to cache and expired options
       final String warning =
           String.format(
-              "WARNING: This will permanently remove all %1$srecords from the %2$s. Do you want to proceed? (yes/no): ",
+              "WARNING: This will permanently remove all %srecords from the %s. Do you want to proceed? (yes/no): ",
               (expired ? "expired " : ""), (cache ? "cache" : "Catalog"));
 
       final String response;
       try {
         response = session.readLine(warning, null);
       } catch (IOException e) {
-        console.println("Please use \"removeall -f\" or \"removeall --force\" instead");
+        final String useForceOptionMessage =
+            String.format("Please use the \"%s --force\" command instead", COMMAND);
+        console.println(useForceOptionMessage);
         return true;
       }
       final String noActionTakenMessage = "No action taken.";
