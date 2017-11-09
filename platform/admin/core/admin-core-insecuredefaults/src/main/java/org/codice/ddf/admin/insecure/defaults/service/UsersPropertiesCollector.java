@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.admin.insecure.defaults.service;
 
-import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -32,8 +31,6 @@ public class UsersPropertiesCollector implements Runnable {
       "A users.properties file was found with default values!";
   private static final String FOLLOW_DOC_MSG =
       "After the deletion of the default users, you will not be able to log back in to the system. Please follow the hardening guide in the documentation under Removing Default Users to avoid the system lock down.";
-  private static final Path USERS_PROPERTIES_FILE_PATH =
-      DefaultUsersDeletionScheduler.USERS_PROPERTIES_FILE_PATH;
   private final DefaultUsersDeletionScheduler scheduler;
   private boolean usersPropertiesDeletion;
   private final EventAdmin eventAdmin;
@@ -46,7 +43,7 @@ public class UsersPropertiesCollector implements Runnable {
   @Override
   public void run() {
     if (usersPropertiesDeletionOn()
-        && USERS_PROPERTIES_FILE_PATH.toFile().exists()
+        && DefaultUsersDeletionScheduler.getUsersPropertiesFilePath().toFile().exists()
         && scheduler.defaultUsersExist()) {
       boolean deletionScheduled = scheduler.scheduleDeletion();
 
