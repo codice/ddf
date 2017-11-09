@@ -43,6 +43,8 @@ public class PlatformUiConfigurationTest {
         .thenReturn(Base64.getEncoder().encodeToString("fav".getBytes()));
     when(branding.getBase64ProductImage())
         .thenReturn(Base64.getEncoder().encodeToString("image".getBytes()));
+    when(branding.getBase64VendorImage())
+        .thenReturn(Base64.getEncoder().encodeToString("vendorimage".getBytes()));
     BrandingRegistryImpl brandingPlugin = mock(BrandingRegistryImpl.class);
     when(brandingPlugin.getProductName()).thenReturn("product");
     when(brandingPlugin.getBrandingPlugins()).thenReturn(Collections.singletonList(branding));
@@ -71,6 +73,11 @@ public class PlatformUiConfigurationTest {
         new String(
             Base64.getMimeDecoder()
                 .decode((String) jsonObject.get(PlatformUiConfiguration.PRODUCT_IMAGE))));
+    assertEquals(
+        "vendorimage",
+        new String(
+            Base64.getMimeDecoder()
+                .decode((String) jsonObject.get(PlatformUiConfiguration.VENDOR_IMAGE))));
     assertEquals(
         "fav",
         new String(

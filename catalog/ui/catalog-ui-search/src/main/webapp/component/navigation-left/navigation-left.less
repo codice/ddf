@@ -14,13 +14,13 @@
 
     button > .navigation-indicator {
         position: absolute;
-        right: 0px;
+        left: @minimumButtonSize;
         top: -.3125rem;
     }
 
     button > .navigation-sources {
         position: absolute;
-        right: 0px;
+        left: @minimumButtonSize;
         top: @minimumSpacing;
         color: @warning-color;
 
@@ -48,7 +48,7 @@
 
     button > .navigation-multiple {
         position: absolute;
-        right: 0px;
+        left: @minimumButtonSize;
         top: @minimumSpacing;
         color: @warning-color;
     }
@@ -58,6 +58,25 @@
         opacity: 0;
         transform: scale(2);
         transition: transform @coreTransitionTime ease-out, opacity @coreTransitionTime ease-out;
+    }
+
+    &.has-logo {
+        img {
+            max-width: @minimumButtonSize;
+            max-height: @minimumButtonSize;
+            vertical-align: top;
+            position: relative;
+            top: 50%;
+            transform: translateY(-50%) translateX(0);
+            transition: transform @coreTransitionTime ease-out;
+        }
+
+        &.has-unavailable,
+        &.has-unsaved {
+            img {
+                transform: translateY(-50%) translateX(1rem);
+            }
+        }
     }
 
     &.has-unavailable {
@@ -84,14 +103,6 @@
         .navigation-multiple {
             opacity: 1;
             transform: scale(1);
-        }
-    }
-
-    &.has-unavailable,
-    &.has-unsaved {
-        button {
-            width: @minimumButtonSize + 0.625rem;
-            padding-right: 0.625rem;
         }
     }
 }

@@ -96,16 +96,31 @@
 }
 
 .is-button {
-  @shadowStrength: 1px;
   cursor: pointer;
   opacity: @minimumOpacity;
-  //transition: opacity @coreTransitionTime linear;
 
   &:hover {
     opacity: 1;
   }
 
   &.is-active {
+    opacity: 1;
+  }
+}
+
+.is-button.is-img {
+  cursor: pointer;
+  opacity: 1;
+
+  button {
+    opacity: @minimumOpacity;
+  }
+
+  &:hover button {
+    opacity: 1;
+  }
+
+  &.is-active button {
     opacity: 1;
   }
 }

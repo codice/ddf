@@ -51,6 +51,8 @@ public class PlatformUiConfiguration {
 
   public static final String FAV_ICON = "favIcon";
 
+  public static final String VENDOR_IMAGE = "vendorImage";
+
   private boolean systemUsageEnabled;
 
   private String systemUsageTitle;
@@ -89,6 +91,8 @@ public class PlatformUiConfiguration {
     jsonObject.put(VERSION, getVersion());
     jsonObject.put(PRODUCT_IMAGE, getProductImage());
     jsonObject.put(FAV_ICON, getFavIcon());
+    jsonObject.put(VENDOR_IMAGE, getVendorImage());
+
     return jsonObject.toJSONString();
   }
 
@@ -170,13 +174,25 @@ public class PlatformUiConfiguration {
 
   public String getProductImage() {
     return branding
-        .map(branding -> branding.getAttributeFromBranding(BrandingPlugin::getBase64ProductImage))
+        .map(
+            brandingRegistry ->
+                brandingRegistry.getAttributeFromBranding(BrandingPlugin::getBase64ProductImage))
         .orElse("");
   }
 
   public String getFavIcon() {
     return branding
-        .map(branding -> branding.getAttributeFromBranding(BrandingPlugin::getBase64FavIcon))
+        .map(
+            brandingRegistry ->
+                brandingRegistry.getAttributeFromBranding(BrandingPlugin::getBase64FavIcon))
+        .orElse("");
+  }
+
+  public String getVendorImage() {
+    return branding
+        .map(
+            brandingRegistry ->
+                brandingRegistry.getAttributeFromBranding(BrandingPlugin::getBase64VendorImage))
         .orElse("");
   }
 }
