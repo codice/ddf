@@ -31,11 +31,11 @@ These are the basic requirements to set up the environment to run a ${branding}.
 
 Set up Java to run ${branding}.
 
-* Install/Upgrade to Java 8 http://www.oracle.com/technetwork/java/javase/downloads/index.html[J2SE 8 SDK]
+* Install/Upgrade to Java 8 x64 http://www.oracle.com/technetwork/java/javase/downloads/index.html[J2SE 8 SDK]
 ** The recommended version is http://www.oracle.com/technetwork/java/javase/8u60-relnotes-2620227.html[8u60] or later.
 ** Java Version and Build numbers must contain only number values.
 * Supported platforms are Microsoft Windows, Linux, Solaris, and macOS.
-* http://www.oracle.com/technetwork/java/javase/downloads/index.html[JDK8] must be installed.
+* http://www.oracle.com/technetwork/java/javase/downloads/index.html[JDK8x64] must be installed.
 * The `JAVA_HOME` environment variable must be set to the location where the JDK is installed.
 
 .Setting JAVA_HOME variable (Replace `<JAVA_VERSION>` with the version and build number installed.)
