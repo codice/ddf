@@ -48,6 +48,12 @@
             <artifactId>commons-lang</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+            <version>${findbugs.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>ddf.lib</groupId>
             <artifactId>spock-shaded</artifactId>
             <version>${project.version}</version>
