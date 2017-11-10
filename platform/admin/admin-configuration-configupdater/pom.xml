@@ -52,6 +52,7 @@
         <dependency>
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.jsr305</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>ddf.platform.util</groupId>
@@ -68,7 +69,6 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            jsr305,
                             platform-util
                         </Embed-Dependency>
                         <Export-Package />
@@ -93,17 +93,17 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.82</minimum>
+                                            <minimum>0.77</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.72</minimum>
+                                            <minimum>0.63</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.67</minimum>
+                                            <minimum>0.68</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

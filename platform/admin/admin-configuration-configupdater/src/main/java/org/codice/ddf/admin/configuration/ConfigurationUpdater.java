@@ -39,7 +39,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.codice.ddf.admin.core.api.ConfigurationAdmin;
 import org.codice.ddf.platform.io.internal.PersistenceStrategy;
@@ -126,11 +125,22 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
     if (configs == null) {
       return;
     }
-    pidDataMap.putAll(
-        Arrays.stream(configs)
-            .map(factory::createContext)
-            .filter(context -> context.getConfigFile() != null)
-            .collect(Collectors.toMap(ConfigurationContext::getServicePid, CachedConfigData::new)));
+    Arrays.stream(configs)
+        .map(factory::createContext)
+        .forEach(
+            context -> {
+              try {
+                handleStore(context);
+              } catch (IOException e) {
+                LOGGER.error(
+                    "Problem updating config file [{}]. {}",
+                    context.getConfigFile(),
+                    e.getMessage());
+                if (LOGGER.isDebugEnabled()) {
+                  LOGGER.debug("Exception occurred while trying to updat config file. ", e);
+                }
+              }
+            });
   }
 
   @Override
@@ -143,8 +153,10 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
                 return null;
               });
     } catch (PrivilegedActionException e) {
-      // Only caught if the action threw a CHECKED exception, thus it MUST be an IOException.
-      throw (IOException) e.getCause();
+      if (e.getCause() instanceof IOException) {
+        throw (IOException) e.getCause();
+      }
+      throw new IOException(e.getCause());
     }
   }
 
@@ -184,7 +196,7 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
       LOGGER.debug("Tracking pid {}", pid);
       CachedConfigData createdConfigData = new CachedConfigData(context);
       pidDataMap.put(pid, createdConfigData);
-      writeIfNecessary(
+      processUpdate(
           appropriatePid, fileFromConfigAdmin, context.getSanitizedProperties(), createdConfigData);
       return;
     }
@@ -194,22 +206,23 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
         // The felix file prop changed, which is not allowed (3)
         String msg =
             format(
-                "Felix filename has been illegally changed from [%s] to [%s]",
-                fileFromCache, fileFromConfigAdmin);
+                "%s has been illegally changed from [%s] to [%s]",
+                FELIX_FILENAME, fileFromCache, fileFromConfigAdmin);
         throw new IllegalStateException(msg);
       }
       if (fileFromCache.exists()) {
         // The felix file prop was removed, which we can revert if the file exists (3)
-        LOGGER.info("Felix filename has been illegally removed, reverting to [{}]", fileFromCache);
+        LOGGER.info(
+            "{} has been illegally removed, reverting to [{}]", FELIX_FILENAME, fileFromCache);
         context.setProperty(FELIX_FILENAME, fileFromCache.getAbsolutePath());
-        writeIfNecessary(
+        processUpdate(
             appropriatePid, fileFromCache, context.getSanitizedProperties(), cachedConfigData);
         return;
       }
     }
 
     // Routine property updates for tracked files - write to disk if necessary (4)
-    writeIfNecessary(
+    processUpdate(
         appropriatePid, fileFromConfigAdmin, context.getSanitizedProperties(), cachedConfigData);
   }
 
@@ -230,11 +243,14 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
                 return null;
               });
     } catch (PrivilegedActionException e) {
-      // Only caught if the action threw a CHECKED exception, thus it MUST be an IOException.
-      throw (IOException) e.getCause();
+      if (e.getCause() instanceof IOException) {
+        throw (IOException) e.getCause();
+      }
+      throw new IOException(e.getCause());
     }
   }
 
+  /** Delete the config file if possible. */
   private void doHandleDelete(String pid) throws IOException {
     CachedConfigData cachedConfigData = pidDataMap.remove(pid);
     File fileFromCache = (cachedConfigData != null) ? cachedConfigData.getFelixFile() : null;
@@ -242,34 +258,39 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
       LOGGER.debug("Deleting file because config was deleted for pid [{}]", pid);
       try {
         Files.delete(fileFromCache.toPath());
-        SecurityLogger.audit("Removing a deleted config [{}]", fileFromCache.toPath());
+        SecurityLogger.audit("Removed a deleted config [{}]", fileFromCache.getAbsolutePath());
       } catch (IOException e) {
         LOGGER.debug(
             format("Problem deleting config file [%s]: ", fileFromCache.getAbsolutePath()), e);
+        SecurityLogger.audit("Failure to delete config file [{}]", fileFromCache.getAbsolutePath());
         // Synchronous with config admin, so we can report the failure to the UI this way
         throw e;
       }
     }
   }
 
-  private void writeIfNecessary(
+  /**
+   * Compare the data from config admin and the data in the cache and update where necessary.
+   *
+   * @param appropriatePid the factory pid if not null, otherwise the service pid.
+   * @param dest the config file in etc to write to.
+   * @param configAdminState the config properties currently being processed by config admin.
+   * @param cachedData the previous state of the config currently being processed by config admin.
+   * @throws IOException if an error occurs while writing.
+   */
+  private void processUpdate(
       String appropriatePid,
       File dest,
-      Dictionary<String, Object> configState,
+      Dictionary<String, Object> configAdminState,
       CachedConfigData cachedData)
       throws IOException {
     if (dest != null && dest.exists()) {
-      processPasswords(appropriatePid, configState, this::encryptValue);
-      if (!cachedData.equalProps(configState)) {
-        try (OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(dest))) {
-          getAppropriateStrategy(dest.toPath()).write(outputStream, configState);
-        } catch (IOException e) {
-          LOGGER.debug("Writing to config file failed: ", e);
-          SecurityLogger.audit("Failure to update config file [{}]", dest.getAbsolutePath());
-          throw e;
-        }
-        SecurityLogger.audit("Updating config file [{}]", dest.toPath());
-        cachedData.setProps(configState);
+      encryptPasswords(appropriatePid, configAdminState, this::encryptValue);
+      if (!cachedData.equalProps(configAdminState)) {
+        writeConfigFile(dest, configAdminState);
+        SecurityLogger.audit("Updated config file [{}]", dest.getAbsolutePath());
+        // Update the cache
+        cachedData.setProps(configAdminState);
       }
     }
   }
@@ -281,13 +302,17 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
   private String encryptValue(String plaintextValue) {
     Matcher m = ENC_PATTERN.matcher(plaintextValue);
     if (m.find()) {
-      LOGGER.debug("Password already encrypted");
+      LOGGER.trace("Password already encrypted");
       return plaintextValue;
     }
     return format("ENC(%s)", encryptionService.encrypt(plaintextValue));
   }
 
-  private void processPasswords(
+  /**
+   * Encrypt password fields in the dictionary - object class def's are stored as a mapping of
+   * factory pids, hence the need to precomputer an "appropriate pid" to submit to the function.
+   */
+  private void encryptPasswords(
       String appropriatePid,
       Dictionary<String, Object> dictionary,
       Function<String, String> passwordTransform) {
@@ -305,18 +330,42 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
         .forEach(id -> dictionary.put(id, passwordTransform.apply((String) dictionary.get(id))));
   }
 
+  /** Persist config changes to etc. */
+  private void writeConfigFile(File dest, Dictionary<String, Object> configState)
+      throws IOException {
+    try (OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(dest))) {
+      getAppropriateStrategy(dest.toPath()).write(outputStream, configState);
+    } catch (IOException e) {
+      LOGGER.debug("Writing to config file failed: ", e);
+      SecurityLogger.audit("Failure to update config file [{}]", dest.getAbsolutePath());
+      throw e;
+    }
+  }
+
+  /**
+   * Get an appropriate config writing utility for {@code .cfg}'s, {@code .config}'s, or any other
+   * supported extension with a registered {@link PersistenceStrategy}.
+   */
   private PersistenceStrategy getAppropriateStrategy(Path path) {
     String ext = getFileExtension(path.toString());
     if (ext.isEmpty()) {
-      throw new IllegalArgumentException("Path has no file extension");
+      LOGGER.warn(
+          "Config file without an extension was allowed to be processed [{}]",
+          path.toAbsolutePath());
+      throw new IllegalArgumentException(
+          format("Path has no file extension [%s]", path.toAbsolutePath()));
     }
     return strategies
         .stream()
         .filter(s -> s.getExtension().equals(ext))
         .findFirst()
         .orElseThrow(
-            () ->
-                new IllegalArgumentException(
-                    format("File extension [%s] is not a supported config type", ext)));
+            () -> {
+              LOGGER.warn(
+                  "Config file with an unsupported extension was allowed to be processed [{}]",
+                  path.toAbsolutePath());
+              return new IllegalArgumentException(
+                  format("File extension [%s] is not a supported config type", ext));
+            });
   }
 }

@@ -122,7 +122,7 @@ public class DelegatingPersistenceManager extends WrappedPersistenceManager {
     public ConfigurationPersistencePlugin addingService(
         ServiceReference<ConfigurationPersistencePlugin> serviceReference) {
       ConfigurationPersistencePlugin plugin = getBundleContext().getService(serviceReference);
-      // Write lock because no configs should be getting saved while we initialize
+      // Write lock because no configs should be getting saved or deleted while we initialize
       long stamp = configDeadZoneLock.writeLock();
       try {
         plugin.initialize(factory);

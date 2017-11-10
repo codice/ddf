@@ -34,9 +34,9 @@
             <version>${osgi.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>jsr305</artifactId>
-            <version>3.0.1</version>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.jsr305</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -54,9 +54,6 @@
                         <Export-Package>
                             org.codice.felix.cm.internal
                         </Export-Package>
-                        <Embed-Dependency>
-                            jsr305
-                        </Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>

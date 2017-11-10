@@ -174,25 +174,6 @@
                                     <outputDirectory>${setup.folder}/ext</outputDirectory>
                                     <destFileName>pro-grade-${pro-grade.version}.jar</destFileName>
                                 </artifactItem>
-                                <!-- The following are needed to deploy the custom config admin artifacts across distributions -->
-                                <artifactItem>
-                                    <groupId>ddf.platform.osgi</groupId>
-                                    <artifactId>platform-osgi-configadmin</artifactId>
-                                    <version>${project.version}</version>
-                                    <outputDirectory>
-                                        ${setup.folder}/system/ddf/platform/osgi/platform-osgi-configadmin/${project.version}
-                                    </outputDirectory>
-                                    <destFileName>platform-osgi-configadmin-${project.version}.jar</destFileName>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>ddf.platform.osgi</groupId>
-                                    <artifactId>platform-osgi-internal-api</artifactId>
-                                    <version>${project.version}</version>
-                                    <outputDirectory>
-                                        ${setup.folder}/system/ddf/platform/osgi/platform-osgi-internal-api/${project.version}
-                                    </outputDirectory>
-                                    <destFileName>platform-osgi-internal-api-${project.version}.jar</destFileName>
-                                </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>

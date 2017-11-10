@@ -253,11 +253,6 @@
     </profiles>
     <dependencies>
         <dependency>
-            <groupId>ddf.platform.osgi</groupId>
-            <artifactId>platform-osgi-configadmin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>ddf</groupId>
             <artifactId>docs</artifactId>
             <version>${project.version}</version>
