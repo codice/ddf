@@ -741,7 +741,9 @@ public class ConfigurationManager implements BundleActivator, BundleListener {
   // ---------- internal -----------------------------------------------------
 
   // (CODICE) Extending the proxy to lock on a store means configuration caching is finished
-  // when the lock is released.
+  // and up to date when the lock is released. If Felix reset the fullyLoaded flag in the
+  // CachingPersistenceManagerProxy then this LockingProxy might not have been necessary.
+  // Also relevant: https://github.com/codice/ddf/pull/2523#discussion_r150092423
   private static class LockingProxy extends CachingPersistenceManagerProxy {
     private final StampedLock configDeadZoneLock;
 
@@ -756,6 +758,17 @@ public class ConfigurationManager implements BundleActivator, BundleListener {
       long stamp = configDeadZoneLock.readLock();
       try {
         super.store(pid, properties);
+      } finally {
+        configDeadZoneLock.unlockRead(stamp);
+      }
+    }
+
+    @Override
+    public void delete(String pid) throws IOException {
+      // Read lock because Felix provides its own protection for multiple config deletes
+      long stamp = configDeadZoneLock.readLock();
+      try {
+        super.delete(pid);
       } finally {
         configDeadZoneLock.unlockRead(stamp);
       }

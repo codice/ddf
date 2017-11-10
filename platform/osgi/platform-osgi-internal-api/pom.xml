@@ -18,7 +18,7 @@
     <parent>
         <artifactId>osgi</artifactId>
         <groupId>ddf.platform</groupId>
-        <version>2.11.2-SNAPSHOT</version>
+        <version>2.11.3-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <packaging>bundle</packaging>
@@ -36,7 +36,8 @@
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
-            <version>3.0.1</version>
+            <version>${jsr305.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -51,12 +52,15 @@
                         <Bundle-Category>osgi</Bundle-Category>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Vendor>Codice</Bundle-Vendor>
+                        <Import-Package>
+                            <!-- Do not try to import javax.annotation because jsr305's scope is
+                            provided and the annotations are not used at run time -->
+                            !javax.annotation,
+                            *
+                        </Import-Package>
                         <Export-Package>
                             org.codice.felix.cm.internal
                         </Export-Package>
-                        <Embed-Dependency>
-                            jsr305
-                        </Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>

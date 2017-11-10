@@ -160,6 +160,9 @@
         <woodstox.stax2-api.version>3.1.4</woodstox.stax2-api.version>
         <xpp3.bundle.version>1.1.4c_6</xpp3.bundle.version>
         <jsr339-api.bundle.version>2.6.0</jsr339-api.bundle.version>
+        <!--Note this is the google find bugs version for jsr305 where-as master has been updated
+        with service mix-->
+        <jsr305.version>3.0.1</jsr305.version>
         <jaxb.version>2.2.11</jaxb.version>
         <dom4j.bundle.version>1.6.1_5</dom4j.bundle.version>
         <jdom.bundle.version>1.1_4</jdom.bundle.version>
