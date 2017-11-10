@@ -20,6 +20,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.stream.Stream;
 import org.junit.Test;
 
 public class DocumentationTest {
@@ -44,9 +45,8 @@ public class DocumentationTest {
             .filter(f -> f.toString().endsWith(".html"))
             .noneMatch(
                 f -> {
-                  try {
-                    return Files.lines(f)
-                        .anyMatch(s -> s.toString().contains(UNRESOLVED_DIRECTORY_MSG));
+                  try (Stream<String> lines = Files.lines(f)) {
+                    return lines.anyMatch(s -> s.contains(UNRESOLVED_DIRECTORY_MSG));
                   } catch (IOException e) {
                     throw new RuntimeException(e);
                   }

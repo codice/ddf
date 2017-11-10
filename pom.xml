@@ -232,7 +232,7 @@
         <sardine.version>5.7</sardine.version>
         <xerces.version>2.11.0</xerces.version>
 
-        <jsr305.version>3.0.2</jsr305.version>
+        <jsr305.version>3.0.2_1</jsr305.version>
 
         <!-- gitflow-incremental-builder -->
         <!-- See https://github.com/vackosar/gitflow-incremental-builder for a list of all the options -->
@@ -253,9 +253,10 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.google.code.findbugs</groupId>
-                <artifactId>jsr305</artifactId>
+                <groupId>org.apache.servicemix.bundles</groupId>
+                <artifactId>org.apache.servicemix.bundles.jsr305</artifactId>
                 <version>${jsr305.version}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.rrd4j</groupId>
