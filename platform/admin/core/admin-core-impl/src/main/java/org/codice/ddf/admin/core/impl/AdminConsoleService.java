@@ -433,7 +433,8 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
         && (Arrays.stream(ArrayUtils.toObject(String.valueOf(configEntryValue).toCharArray()))
             .parallel()
             .anyMatch(ILLEGAL_CHARACTER_SET::contains))) {
-      throw loggedException("Invalid UI Configuration");
+      throw loggedException(
+          "Invalid UI Configuration: The color and background properties must only contain a color value");
     }
     return configEntryValue;
   }
