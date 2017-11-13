@@ -1,19 +1,5 @@
-<#list sourceIntros as si>
-<#if (si.title == "Sources Intro")>
-include::${si.file}[]
-</#if>
-</#list>
 
-=== Federation Strategy
-
-<#list sourceIntros as si>
-<#if (si.title == "Federation Strategy Intro")>
-include::${si.file}[]
-</#if>
-</#list>
-
-=== Available Federated Sources
-
+.Available Federated Sources
 The following Federated Sources are available in a standard installation of ${branding}:
 
 <#assign count=0>
@@ -28,8 +14,7 @@ The following Federated Sources are available in a standard installation of ${br
 None.
 </#if>
 
-=== Available Connected Sources
-
+.Available Connected Sources
 The following Connected Sources are available in a standard installation of ${branding}:
 
 <#assign count=0>
@@ -44,8 +29,7 @@ The following Connected Sources are available in a standard installation of ${br
 None.
 </#if>
 
-=== Available Catalog Stores
-
+.Available Catalog Stores
 The following Catalog Stores are available in a standard installation of ${branding}:
 
 <#assign count=0>
@@ -60,8 +44,7 @@ The following Catalog Stores are available in a standard installation of ${brand
 None.
 </#if>
 
-=== Available Catalog Providers
-
+.Available Catalog Providers
 The following Catalog Providers are available in a standard installation of ${branding}:
 
 <#assign count=0>
@@ -76,8 +59,7 @@ The following Catalog Providers are available in a standard installation of ${br
 None.
 </#if>
 
-=== Available Storage Providers
-
+.Available Storage Providers
 The following Storage Providers are available in a standard installation of ${branding}:
 
 <#assign count=0>
@@ -91,30 +73,14 @@ The following Storage Providers are available in a standard installation of ${br
 None.
 </#if>
 
-=== Sources Details
-
+.Sources Details
 Availability and configuration details of available sources.
 
 <#list sources as source>
 <#if (source.status == "published")>
 
-==== ${source.title}
+include::${source.file}[leveloffset=+3]
 
-include::${source.file}[]
-
-</#if>
-</#list>
-
-=== Sources Services
-
-Services supporting ${branding} services.
-
-<#list sourceServices as sourceService>
-<#if (sourceService.title == "WFS Services")>
-
-==== ${sourceService.title} 
-
-include::${sourceService.file}[]
-
+'''
 </#if>
 </#list>

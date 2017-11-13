@@ -24,11 +24,11 @@ These are the system/environment requirements to configure _prior_ to an install
 
 ======
 
-.Using the Standard^*^ installation of the ${branding} application:
+.Using the Standard installation of the ${branding} application:
 [cols="2,3,3" options="header"]
 |===
 
-3+^|Minimum and Recommended Requirements for ${branding} Systems^&dagger;^
+3+^|Minimum and Recommended Requirements for ${branding} Systems^*^
 
 
 |*Criteria*
@@ -48,7 +48,7 @@ These are the system/environment requirements to configure _prior_ to an install
 |Quad Core 2.6 GHz
 
 |RAM
-|4 GB^&Dagger;^
+|4 GB^**^
 |32 GB
 
 |Disk Space
@@ -61,11 +61,14 @@ These are the system/environment requirements to configure _prior_ to an install
 
 |===
 
-^*^If installing a test, demo, or development installation, see the <<_quick_install_prerequisites,Quick Start Installation Prerequisites>>.
+[NOTE]
+====
+If installing a test, demo, or development installation, see the <<_quick_install_prerequisites,Quick Start Installation Prerequisites>>.
+====
 
-^&dagger;^These requirements assume the use of a remote catalog. Extra resources will need to be allocated if the system will also be hosting a local catalog.
+^*^These requirements assume the use of a remote catalog. Extra resources will need to be allocated if the system will also be hosting a local catalog.
 
-^&Dagger;^The amount of RAM can be increased to support memory-intensive applications. See <<jvm-memory-configuration, Memory Considerations>>
+^**^The amount of RAM can be increased to support memory-intensive applications. See <<jvm-memory-configuration, Memory Considerations>>
 
 ======
 

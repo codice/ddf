@@ -5,6 +5,14 @@ include::${ii.file}[]
 </#if>
 </#list>
 
+== Federation
+<#list federationIntros as federationIntro>
+<#if (federationIntro.status == "published")>
+
+include::${federationIntro.file}[]
+</#if>
+</#list>
+
 == Data and Metadata
 
 <#list datas?sort_by("order") as data>
