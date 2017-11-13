@@ -49,6 +49,7 @@ import org.apache.lucene.spatial.prefix.tree.SpatialPrefixTree;
 import org.apache.lucene.spatial.query.SpatialArgs;
 import org.apache.lucene.spatial.query.SpatialOperation;
 import org.apache.lucene.store.Directory;
+import org.codice.ddf.spatial.geocoding.GeoCodingConstants;
 import org.codice.ddf.spatial.geocoding.GeoEntry;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryException;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryable;
@@ -72,20 +73,13 @@ public abstract class GeoNamesQueryLuceneIndex implements GeoEntryQueryable {
               SortField.Type.LONG,
               true /* sort descending */));
 
-  // The GeoNames feature codes for cities, excluding cities that no longer exist or that have
-  // been destroyed.
-  private static final String[] CITY_FEATURE_CODES = {
-    "PPL", "PPLA", "PPLA2", "PPLA3", "PPLA4", "PPLC", "PPLCH", "PPLF", "PPLG", "PPLL", "PPLR",
-    "PPLS", "PPLX"
-  };
-
   private static final BooleanQuery PPL_QUERY;
 
   static {
     BooleanQuery.Builder builder = new BooleanQuery.Builder();
     // Create an OR query on the feature_code field that will accept any of the above feature
     // codes.
-    for (String fc : CITY_FEATURE_CODES) {
+    for (String fc : GeoCodingConstants.CITY_FEATURE_CODES) {
       builder.add(
           new TermQuery(new Term(GeoNamesLuceneConstants.FEATURE_CODE_FIELD, fc)),
           BooleanClause.Occur.SHOULD);

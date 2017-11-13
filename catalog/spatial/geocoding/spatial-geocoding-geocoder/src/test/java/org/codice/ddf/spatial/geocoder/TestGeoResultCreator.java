@@ -113,8 +113,8 @@ public class TestGeoResultCreator {
         GeoResultCreator.createGeoResult(
             new GeoEntry.Builder()
                 .name("Phoenix")
-                .latitude(5)
-                .longitude(10)
+                .latitude(5.0)
+                .longitude(10.0)
                 .featureCode("ADM1")
                 .population(1000)
                 .build());

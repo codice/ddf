@@ -29,10 +29,14 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.WKTWriter;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.impl.types.LocationAttributes;
 import ddf.catalog.data.types.Core;
+import ddf.catalog.data.types.Location;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
@@ -57,6 +61,7 @@ import org.codice.ddf.spatial.geocoding.FeatureExtractor;
 import org.codice.ddf.spatial.geocoding.FeatureIndexer;
 import org.codice.ddf.spatial.geocoding.FeatureIndexingException;
 import org.codice.ddf.spatial.geocoding.GeoCodingConstants;
+import org.codice.ddf.spatial.geocoding.GeoEntryMetacardType;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.junit.Before;
@@ -68,6 +73,8 @@ public class TestCatalogFeatureIndexer {
   private static final String RESOURCE_PATH = "blah";
 
   private static final String COUNTRY_CODE = "AFG";
+
+  private static final String TITLE = "Afghanistan";
 
   private static final FilterBuilder FILTER_BUILDER = new GeotoolsFilterBuilder();
 
@@ -107,7 +114,8 @@ public class TestCatalogFeatureIndexer {
 
     catalogFramework = mock(CatalogFramework.class);
     CatalogHelper catalogHelper = new CatalogHelper(FILTER_BUILDER);
-    featureIndexer = new CatalogFeatureIndexer(catalogFramework, catalogHelper);
+    featureIndexer =
+        new CatalogFeatureIndexer(catalogFramework, catalogHelper, generateMetacardType());
     featureIndexer.setSecurity(security);
 
     QueryResponse queryResponse = mock(QueryResponse.class);
@@ -172,12 +180,15 @@ public class TestCatalogFeatureIndexer {
     assertThat(a.getTitle(), is(b.getTitle()));
     assertThat(a.getAttribute(Core.METACARD_TAGS), is(b.getAttribute(Core.METACARD_TAGS)));
     assertThat(a.getAttribute(Core.LOCATION), is(b.getAttribute(Core.LOCATION)));
+    assertThat(a.getAttribute(Location.COUNTRY_CODE), is(b.getAttribute(Location.COUNTRY_CODE)));
   }
 
   private SimpleFeature getExampleFeature() {
     Geometry geometry = JTSFactoryFinder.getGeometryFactory(null).createPoint(new Coordinate(1, 1));
     SimpleFeatureBuilder builder = FeatureBuilder.forGeometry(geometry);
-    return builder.buildFeature(COUNTRY_CODE);
+    SimpleFeature simpleFeature = builder.buildFeature(COUNTRY_CODE);
+    simpleFeature.setAttribute("name", TITLE);
+    return simpleFeature;
   }
 
   private Metacard getExampleMetacard() {
@@ -188,7 +199,13 @@ public class TestCatalogFeatureIndexer {
     WKTWriter writer = new WKTWriter();
     String wkt = writer.write((Geometry) getExampleFeature().getDefaultGeometry());
     metacard.setAttribute(new AttributeImpl(Core.LOCATION, wkt));
-    metacard.setAttribute(new AttributeImpl(Core.TITLE, COUNTRY_CODE));
+    metacard.setAttribute(new AttributeImpl(Core.TITLE, TITLE));
+    metacard.setAttribute(new AttributeImpl(Location.COUNTRY_CODE, COUNTRY_CODE));
     return metacard;
+  }
+
+  private MetacardType generateMetacardType() {
+    return new MetacardTypeImpl(
+        "testType", Arrays.asList(new GeoEntryMetacardType(), new LocationAttributes()));
   }
 }

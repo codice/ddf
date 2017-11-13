@@ -17,9 +17,9 @@ package org.codice.ddf.spatial.geocoding;
 public class GeoEntry {
   private final String name;
 
-  private final double latitude;
+  private final Double latitude;
 
-  private final double longitude;
+  private final Double longitude;
 
   private final String featureCode;
 
@@ -42,9 +42,9 @@ public class GeoEntry {
   public static class Builder {
     private String name;
 
-    private double latitude;
+    private Double latitude;
 
-    private double longitude;
+    private Double longitude;
 
     private String featureCode;
 
@@ -59,12 +59,12 @@ public class GeoEntry {
       return this;
     }
 
-    public Builder latitude(final double latitude) {
+    public Builder latitude(final Double latitude) {
       this.latitude = latitude;
       return this;
     }
 
-    public Builder longitude(final double longitude) {
+    public Builder longitude(final Double longitude) {
       this.longitude = longitude;
       return this;
     }
@@ -98,11 +98,11 @@ public class GeoEntry {
     return name;
   }
 
-  public double getLatitude() {
+  public Double getLatitude() {
     return latitude;
   }
 
-  public double getLongitude() {
+  public Double getLongitude() {
     return longitude;
   }
 

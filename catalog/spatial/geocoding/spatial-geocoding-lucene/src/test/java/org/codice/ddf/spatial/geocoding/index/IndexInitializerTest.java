@@ -14,27 +14,22 @@
 package org.codice.ddf.spatial.geocoding.index;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.util.concurrent.ExecutorService;
 import org.codice.ddf.spatial.geocoding.GeoEntryExtractor;
 import org.codice.ddf.spatial.geocoding.GeoEntryIndexer;
-import org.codice.ddf.spatial.geocoding.ProgressCallback;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.mockito.stubbing.Answer;
 
 public class IndexInitializerTest {
 
-  private GeoEntryExtractor extractor;
+  @Rule public TemporaryFolder tempDir = new TemporaryFolder();
 
   private GeoEntryIndexer indexer;
 
@@ -42,28 +37,23 @@ public class IndexInitializerTest {
 
   private IndexInitializer indexInitializer;
 
-  @Rule public TemporaryFolder tempDir = new TemporaryFolder();
-
-  private File dataDir;
-
   private File geonamesZip;
 
   private File geoIndexDir;
 
   @Before
-  public void setup() throws Exception {
-    extractor = mock(GeoEntryExtractor.class);
+  public void setUp() throws Exception {
+    GeoEntryExtractor extractor = mock(GeoEntryExtractor.class);
     indexer = mock(GeoEntryIndexer.class);
     executor = mock(ExecutorService.class);
     indexInitializer = new IndexInitializer();
     indexInitializer.setExecutor(executor);
     indexInitializer.setExtractor(extractor);
     indexInitializer.setIndexer(indexer);
-    dataDir = tempDir.newFolder("data");
+    File dataDir = tempDir.newFolder("data");
     geonamesZip = new File(dataDir, "default_geonames_data.zip");
     geoIndexDir = new File(dataDir, "geonames-index");
-    indexInitializer.setDefaultGeonamesDataPath(geonamesZip.getAbsolutePath());
-    indexInitializer.setIndexLocationPath(geoIndexDir.getAbsolutePath());
+    indexInitializer.setDefaultGeoNamesDataPath(geonamesZip.getAbsolutePath());
   }
 
   @Test
@@ -73,36 +63,10 @@ public class IndexInitializerTest {
   }
 
   @Test
-  public void testIndexInitializerExistingIndex() throws Exception {
-    geoIndexDir.mkdirs();
-    new File(geoIndexDir, "somefile.txt").createNewFile();
-    geonamesZip.createNewFile();
-    indexInitializer.init();
-    verify(executor, never()).submit(any(Runnable.class));
-  }
-
-  @Test
-  public void testIndexInitializerEmptyIndex() throws Exception {
+  public void testIndexInitializer() throws Exception {
     geoIndexDir.mkdirs();
     geonamesZip.createNewFile();
     indexInitializer.init();
     verify(executor).submit(any(Runnable.class));
-  }
-
-  @Test
-  public void testIndexInitializerRun() throws Exception {
-    when(executor.submit(any(Runnable.class)))
-        .then(
-            (Answer)
-                invocationOnMock -> {
-                  invocationOnMock.getArgumentAt(0, Runnable.class).run();
-                  return null;
-                });
-    geoIndexDir.mkdirs();
-    geonamesZip.createNewFile();
-    indexInitializer.init();
-    verify(indexer)
-        .updateIndex(
-            anyString(), any(GeoEntryExtractor.class), anyBoolean(), any(ProgressCallback.class));
   }
 }

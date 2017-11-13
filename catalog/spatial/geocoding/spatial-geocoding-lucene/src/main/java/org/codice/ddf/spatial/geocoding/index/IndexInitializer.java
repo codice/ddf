@@ -13,9 +13,12 @@
  */
 package org.codice.ddf.spatial.geocoding.index;
 
+import ddf.security.service.SecurityServiceException;
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Paths;
 import java.util.concurrent.ExecutorService;
+import org.codice.ddf.security.common.Security;
 import org.codice.ddf.spatial.geocoding.GeoEntryExtractionException;
 import org.codice.ddf.spatial.geocoding.GeoEntryExtractor;
 import org.codice.ddf.spatial.geocoding.GeoEntryIndexer;
@@ -28,9 +31,7 @@ public class IndexInitializer {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(IndexInitializer.class);
 
-  private String defaultGeonamesDataPath;
-
-  private String indexLocationPath;
+  private String defaultGeoNamesDataPath;
 
   private GeoEntryExtractor extractor;
 
@@ -38,59 +39,68 @@ public class IndexInitializer {
 
   private ExecutorService executor;
 
-  public void init() {
-    File defaultGeonamesDataFile = Paths.get(defaultGeonamesDataPath).toFile();
-    File indexLocationDir = Paths.get(indexLocationPath).toFile();
-    if (!defaultGeonamesDataFile.exists()) {
-      LOGGER.warn(
-          "Could not locate default geonames data file at {}. Check that your distribution is no corrupted");
-      return;
-    }
+  private final Security security;
 
-    if (indexLocationDir.exists() && indexLocationDir.list().length > 0) {
-      LOGGER.info("Geoname index already exists. Not indexing default data set.");
+  public IndexInitializer() {
+    security = Security.getInstance();
+  }
+
+  public void init() {
+    File defaultGeoNamesDataFile = Paths.get(defaultGeoNamesDataPath).toFile();
+    if (!defaultGeoNamesDataFile.exists()) {
+      LOGGER.warn(
+          "Could not locate default GeoNames data file at {}. Check that your distribution is not corrupted.");
       return;
     }
+    submitUpdateIndexToExecutorService(defaultGeoNamesDataFile);
+    executor.shutdown();
+  }
+
+  private void submitUpdateIndexToExecutorService(File defaultGeoNamesDataFile) {
     executor.submit(
         () -> {
-          try {
-            LOGGER.info("Indexing default geoname data at {}.", defaultGeonamesDataPath);
-
-            indexer.updateIndex(
-                defaultGeonamesDataFile.getAbsolutePath(),
-                extractor,
-                true,
-                progress -> {
-                  if (progress >= 100) {
-                    LOGGER.info("Default geoname data indexed successfully");
-                  }
-                });
-          } catch (GeoEntryIndexingException
-              | GeoEntryExtractionException
-              | GeoNamesRemoteDownloadException e) {
-            LOGGER.error(
-                "Failed to index default geonames data. Try using the geonames:update command to generate the index manually.",
-                e);
-          }
+          LOGGER.info("Indexing default GeoNames data at {}.", defaultGeoNamesDataPath);
+          security.runAsAdmin(
+              () -> {
+                try {
+                  security.runWithSubjectOrElevate(() -> updateIndex(defaultGeoNamesDataFile));
+                } catch (SecurityServiceException | InvocationTargetException e) {
+                  LOGGER.debug("Unable to update Gazetteer index.", e);
+                }
+                return null;
+              });
         });
+  }
 
-    executor.shutdown();
+  private Object updateIndex(File defaultGeoNamesDataFile) {
+    try {
+      indexer.updateIndex(
+          defaultGeoNamesDataFile.getAbsolutePath(),
+          extractor,
+          true,
+          progress -> {
+            if (progress >= 100) {
+              LOGGER.info("Default GeoNames data indexed successfully");
+            }
+          });
+    } catch (GeoEntryIndexingException
+        | GeoEntryExtractionException
+        | GeoNamesRemoteDownloadException e) {
+      LOGGER.debug("Could not update index.", e);
+    }
+    return null;
   }
 
   public void destroy() {
     executor.shutdownNow();
   }
 
-  public void setDefaultGeonamesDataPath(String defaultGeonamesDataPath) {
-    this.defaultGeonamesDataPath = defaultGeonamesDataPath;
+  public void setDefaultGeoNamesDataPath(String defaultGeonamesDataPath) {
+    this.defaultGeoNamesDataPath = defaultGeonamesDataPath;
   }
 
   public void setExtractor(GeoEntryExtractor extractor) {
     this.extractor = extractor;
-  }
-
-  public void setIndexLocationPath(String indexLocationPath) {
-    this.indexLocationPath = indexLocationPath;
   }
 
   public void setIndexer(GeoEntryIndexer indexer) {

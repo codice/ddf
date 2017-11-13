@@ -55,8 +55,8 @@ public class TestGeoNamesLuceneIndexerExceptions {
   private static final GeoEntry GEO_ENTRY =
       new GeoEntry.Builder()
           .name("name")
-          .latitude(1)
-          .longitude(2)
+          .latitude(1.0)
+          .longitude(2.0)
           .featureCode("code")
           .population(3)
           .alternateNames("")
