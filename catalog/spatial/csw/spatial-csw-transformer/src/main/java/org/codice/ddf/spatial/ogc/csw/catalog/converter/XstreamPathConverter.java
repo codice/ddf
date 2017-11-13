@@ -32,6 +32,7 @@ public class XstreamPathConverter implements Converter {
   private static final char TAG_BEGIN = '[';
   private static final char TAG_END = ']';
   private static final char ATTR_TAG = '@';
+  private static final char EVERYTHING_TAG = '*';
   private static final char PATH_SEPARATOR = '/';
 
   @Override
@@ -111,7 +112,8 @@ public class XstreamPathConverter implements Converter {
   /**
    * This method uses a streaming-like approach to compare 2 paths with a single iteration. The
    * comparison excludes count indexes in the path as well as the value of attributes in determining
-   * equivalence. For the purposes of this method, "/a/b/c" matches "/a/b[2]/c/@attr"
+   * equivalence. For the purposes of this method, "/a/b/c" matches "/a/b[2]/c/@attr". Also checks
+   * that "a/b/c/*" will match "/a/b/c/d".
    *
    * @param pathObj1 The first path
    * @param pathObj2 The second path
@@ -122,15 +124,18 @@ public class XstreamPathConverter implements Converter {
       return true;
     }
 
-    char[] path1 = pathObj1.toString().toCharArray();
-    char[] path2 = pathObj2.toString().toCharArray();
+    String path1Str = pathObj1.toString();
+    String path2Str = pathObj2.toString();
+    char[] path1 = path1Str.toCharArray();
+    char[] path2 = path2Str.toCharArray();
     int i, j;
 
     for (i = 0, j = 0; i < path1.length && j < path2.length; i++, j++) {
       i = countPastTag(path1, i);
       j = countPastTag(path2, j);
       if (i < path1.length && j < path2.length) {
-        if (path1[i] == ATTR_TAG && path2[j] == ATTR_TAG) {
+        if ((path1[i] == ATTR_TAG && path2[j] == ATTR_TAG)
+            || (path1[i] == EVERYTHING_TAG && path2Str.startsWith(path1Str.substring(0, i - 2)))) {
           return true;
         } else if (path1[i] != path2[j]) {
           return false;
@@ -157,9 +162,11 @@ public class XstreamPathConverter implements Converter {
    */
   private boolean endsMatch(char[] path1, int index1, char[] path2, int index2) {
     if (index1 >= path1.length && index2 < path2.length - 1) {
-      return path2[index2] == PATH_SEPARATOR && path2[index2 + 1] == ATTR_TAG;
+      return path2[index2] == PATH_SEPARATOR
+          && (path2[index2 + 1] == ATTR_TAG || path2[index2 + 1] == EVERYTHING_TAG);
     } else if (index2 >= path2.length && index1 < path1.length - 1) {
-      return path1[index1] == PATH_SEPARATOR && path1[index1 + 1] == ATTR_TAG;
+      return path1[index1] == PATH_SEPARATOR
+          && (path1[index1 + 1] == ATTR_TAG || path1[index1 + 1] == EVERYTHING_TAG);
     }
     return false;
   }

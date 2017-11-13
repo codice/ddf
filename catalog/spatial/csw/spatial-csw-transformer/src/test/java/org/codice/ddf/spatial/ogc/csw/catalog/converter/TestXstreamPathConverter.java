@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.spatial.ogc.csw.catalog.converter;
 
+import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -58,6 +59,8 @@ public class TestXstreamPathConverter {
 
   private static final Path POLYGON_GML_ID_PATH = new Path("/Polygon/@id");
 
+  private static final Path LINEAR_RING_ALL_PATH = new Path("/Polygon/exterior/LinearRing/*");
+
   private static final String GML_NAMESPACE = "";
 
   private XStream xstream;
@@ -80,7 +83,8 @@ public class TestXstreamPathConverter {
     argumentHolder = xstream.newDataHolder();
 
     Set<Path> paths = new LinkedHashSet<>();
-    paths.addAll(Arrays.asList(POLYGON_POS_PATH, BAD_PATH, POLYGON_GML_ID_PATH));
+    paths.addAll(
+        Arrays.asList(POLYGON_POS_PATH, BAD_PATH, POLYGON_GML_ID_PATH, LINEAR_RING_ALL_PATH));
     argumentHolder.put(XstreamPathConverter.PATH_KEY, paths);
   }
 
@@ -208,6 +212,18 @@ public class TestXstreamPathConverter {
         (XstreamPathValueTracker) xstream.unmarshal(reader, null, argumentHolder);
 
     assertThat(pathValueTracker.getFirstValue(POLYGON_GML_ID_PATH), is("p1"));
+  }
+
+  @Test
+  public void testAllNestedPath() throws XMLStreamException {
+    XMLStreamReader streamReader =
+        XMLInputFactory.newInstance().createXMLStreamReader(new StringReader(GML_XML));
+    HierarchicalStreamReader reader = new StaxReader(new QNameMap(), streamReader);
+    XstreamPathValueTracker pathValueTracker =
+        (XstreamPathValueTracker) xstream.unmarshal(reader, null, argumentHolder);
+
+    assertThat(
+        pathValueTracker.getAllValues(LINEAR_RING_ALL_PATH), hasItem("-180.000000 90.000000"));
   }
 
   @Test
