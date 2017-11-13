@@ -24,7 +24,7 @@ define([
 
         sanitizeGeometryCql: function (cqlString) {
             //sanitize polygons
-            let polygons = cqlString.match(/'POLYGON\(\(.*\)\)'/g);
+            let polygons = cqlString.match(/'POLYGON\(\((-?[0-9]*.?[0-9]* -?[0-9]*.?[0-9]*,?)*\)\)'/g);
             if (polygons) {
                 polygons.forEach((polygon) => {
                     cqlString = cqlString.replace(polygon, polygon.replace(/'/g, ''));
@@ -40,7 +40,7 @@ define([
             }
 
             //sanitize points
-            let points = cqlString.match(/'POINT\(.*\)'/g);
+            let points = cqlString.match(/'POINT\(-?[0-9]*.?[0-9]* -?[0-9]*.?[0-9]*\)'/g);
             if (points) {
                 points.forEach((point) => {
                     cqlString = cqlString.replace(point, point.replace(/'/g, ''));
@@ -48,7 +48,7 @@ define([
             }
 
             //sanitize linestrings
-            let linestrings = cqlString.match(/'LINESTRING\(.*\)'/g);
+            let linestrings = cqlString.match(/'LINESTRING\((-?[0-9]*.?[0-9]* -?[0-9]*.?[0-9]*.?)*\)'/g);
             if (linestrings) {
                 linestrings.forEach((linestring) => {
                     cqlString = cqlString.replace(linestring, linestring.replace(/'/g, ''));
