@@ -64,6 +64,7 @@ import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.source.IngestException;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
+import ddf.catalog.transform.QueryFilterTransformer;
 import ddf.catalog.transform.QueryResponseTransformer;
 import java.io.IOException;
 import java.io.Serializable;
@@ -81,6 +82,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.stream.Collectors;
 import javax.activation.MimeType;
@@ -136,6 +138,9 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.opengis.filter.sort.SortBy;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -172,9 +177,13 @@ public class TestCswEndpoint {
 
   private static final int BATCH_TOTAL = 70;
 
+  private static final String THIRD_PARTY_TYPE_NAME = "thirdPartyTypeName";
+
   private static UriInfo mockUriInfo = mock(UriInfo.class);
 
   private static Bundle mockBundle = mock(Bundle.class);
+
+  private static BundleContext mockBundleContext = mock(BundleContext.class);
 
   private static CswEndpoint csw;
 
@@ -203,7 +212,8 @@ public class TestCswEndpoint {
   @org.junit.Before
   public void setUpBeforeClass()
       throws URISyntaxException, SourceUnavailableException, UnsupportedQueryException,
-          FederationException, ParseException, IngestException, CswException {
+          FederationException, ParseException, IngestException, CswException,
+          InvalidSyntaxException {
     URI mockUri = new URI("http://example.com/services/csw");
     when(mockUriInfo.getBaseUri()).thenReturn(mockUri);
     URL resourceUrl = TestCswEndpoint.class.getResource("/record.xsd");
@@ -212,6 +222,12 @@ public class TestCswEndpoint {
     when(mockBundle.getResource("csw/2.0.2/record.xsd")).thenReturn(resourceUrl);
     when(mockBundle.getResource("gmd/record_gmd.xsd")).thenReturn(resourceUrl);
     when(mockBundle.getResource(".")).thenReturn(resourceUrlDot);
+    when(mockBundle.getBundleContext()).thenReturn(mockBundleContext);
+    ServiceReference<QueryFilterTransformer> serviceReference = mock(ServiceReference.class);
+    when(serviceReference.getProperty(CswEndpoint.QUERY_FILTER_TRANSFORMER_TYPE_NAMES_FIELD))
+        .thenReturn(Collections.singletonList(THIRD_PARTY_TYPE_NAME));
+    when(mockBundleContext.getServiceReferences(QueryFilterTransformer.class, null))
+        .thenReturn(Collections.singletonList(serviceReference));
 
     csw =
         new CswEndpointStub(
@@ -258,6 +274,31 @@ public class TestCswEndpoint {
         .thenReturn(queryRequest);
     when(queryFactory.updateQueryRequestTags(any(QueryRequest.class), anyString()))
         .thenReturn(queryRequest);
+  }
+
+  @Test
+  public void testThirdPartyTypeNames() throws Exception {
+
+    GetCapabilitiesRequest gcr = createDefaultGetCapabilitiesRequest();
+
+    CapabilitiesType ct = null;
+    try {
+      ct = csw.getCapabilities(gcr);
+    } catch (CswException e) {
+      fail("CswException caught during getCapabilities GET request: " + e.getMessage());
+    }
+
+    assertThat(
+        countTypeNames(
+            ct,
+            CswConstants.DESCRIBE_RECORD,
+            CswConstants.TYPE_NAME_PARAMETER,
+            THIRD_PARTY_TYPE_NAME),
+        is(1L));
+    assertThat(
+        countTypeNames(
+            ct, CswConstants.GET_RECORDS, CswConstants.TYPE_NAMES_PARAMETER, THIRD_PARTY_TYPE_NAME),
+        is(1L));
   }
 
   @Test
@@ -2071,6 +2112,23 @@ public class TestCswEndpoint {
         .forEach(metacards -> results.add(new DeleteResponseImpl(null, null, metacards)));
 
     return results;
+  }
+
+  private long countTypeNames(
+      CapabilitiesType ct, String operationName, String parameterName, String typeName) {
+    return ct.getOperationsMetadata()
+        .getOperation()
+        .stream()
+        .filter(Objects::nonNull)
+        .filter(operation -> operation.getName().equals(operationName))
+        .map(Operation::getParameter)
+        .flatMap(Collection::stream)
+        .filter(Objects::nonNull)
+        .filter(domainType -> domainType.getName().equals(parameterName))
+        .map(DomainType::getValue)
+        .flatMap(Collection::stream)
+        .filter(s -> s.equals(typeName))
+        .count();
   }
 
   public static class CswEndpointStub extends CswEndpoint {
