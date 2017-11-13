@@ -20,8 +20,9 @@ define([
     '../dropdown.view',
     './dropdown.query-src.hbs',
     'component/query-src/query-src.view',
-    'component/singletons/sources-instance'
-], function (Marionette, _, $, DropdownView, template, ComponentView, sources) {
+    'component/singletons/sources-instance',
+    'properties'
+], function (Marionette, _, $, DropdownView, template, ComponentView, sources, properties) {
 
     return DropdownView.extend({
         template: template,
@@ -44,7 +45,8 @@ define([
                     return srcs.indexOf(src.id) !== -1;
                 }),
                 enterprise: this.model.get('federation') === 'enterprise',
-                localCatalog: sources.localCatalog
+                localCatalog: sources.localCatalog,
+                isLocalCatalogEnabled: !properties.isDisableLocalCatalog()
             };
         }
     });
