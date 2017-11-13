@@ -18,6 +18,7 @@ import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import static spark.Spark.after;
 import static spark.Spark.delete;
 import static spark.Spark.exception;
@@ -31,6 +32,9 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.io.ByteSource;
+import com.oath.cyclops.util.ExceptionSoftener;
+import cyclops.async.SimpleReact;
+import cyclops.collections.mutable.ListX;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.content.data.impl.ContentItemImpl;
@@ -51,23 +55,28 @@ import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.data.impl.types.SecurityAttributes;
+import ddf.catalog.data.types.Associations;
 import ddf.catalog.data.types.Core;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.ResourceResponse;
+import ddf.catalog.operation.SourceInfoResponse;
 import ddf.catalog.operation.UpdateResponse;
 import ddf.catalog.operation.impl.CreateRequestImpl;
 import ddf.catalog.operation.impl.DeleteRequestImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.operation.impl.QueryResponseImpl;
 import ddf.catalog.operation.impl.ResourceRequestById;
+import ddf.catalog.operation.impl.SourceInfoRequestEnterprise;
 import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.source.IngestException;
+import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.QueryResponseTransformer;
@@ -93,11 +102,14 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.GZIPOutputStream;
 import javax.ws.rs.NotFoundException;
 import org.apache.commons.io.IOUtils;
@@ -128,6 +140,8 @@ import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import spark.Request;
+import spark.Response;
 import spark.servlet.SparkApplication;
 
 public class MetacardApplication implements SparkApplication {
@@ -149,6 +163,23 @@ public class MetacardApplication implements SparkApplication {
   private static final String SUCCESS_RESPONSE_TYPE = "success";
 
   private static final MetacardType SECURITY_ATTRIBUTES = new SecurityAttributes();
+
+  private static final QueryResponseImpl EMPTY_QUERY_RESPONSE =
+      new QueryResponseImpl(new QueryRequestImpl(null), Collections.emptyList(), 0);
+
+  private static final Executor INTRIGUE_EXECUTOR =
+      new ForkJoinPool(
+          Integer.parseInt(
+              System.getProperty("org.codice.ddf.catalog.intrigue.threadpoolsize", "128")));
+
+  private static final int QUERY_PARTIONING_SIZE =
+      Integer.parseInt(
+          System.getProperty("org.codice.ddf.catalog.intrigue.querypartitioningsize", "64"));
+
+  private static final boolean DELETECHECK_SHORTCIRCUIT =
+      Boolean.parseBoolean(
+          System.getProperty("org.codice.ddf.catalog.intrigue.deletecheck.shortcircuit", "true"));
+
   private static int pageSize = 250;
   private final ObjectMapper mapper =
       JsonFactory.create(
@@ -261,8 +292,7 @@ public class MetacardApplication implements SparkApplication {
           List<String> ids =
               JsonFactory.create().parser().parseList(String.class, util.safeGetBody(req));
           DeleteResponse deleteResponse =
-              catalogFramework.delete(
-                  new DeleteRequestImpl(new ArrayList<>(ids), Metacard.ID, null));
+              catalogFramework.delete(new DeleteRequestImpl(new ArrayList<>(ids), Core.ID, null));
           if (deleteResponse.getProcessingErrors() != null
               && !deleteResponse.getProcessingErrors().isEmpty()) {
             res.status(500);
@@ -382,6 +412,8 @@ public class MetacardApplication implements SparkApplication {
           return body;
         });
 
+    post("/metacards/deletecheck", this::metacardDeleteCheck, util::getJson);
+
     post(
         "/subscribe/:id",
         (req, res) -> {
@@ -489,7 +521,7 @@ public class MetacardApplication implements SparkApplication {
               JsonFactory.create().parser().parseMap(util.safeGetBody(req));
 
           Metacard metacard = transformer.transform(workspace);
-          metacard.setAttribute(new AttributeImpl(Metacard.ID, id));
+          metacard.setAttribute(new AttributeImpl(Core.ID, id));
 
           Metacard updated = updateMetacard(id, metacard);
           return util.getJson(transformer.transform(updated));
@@ -753,11 +785,123 @@ public class MetacardApplication implements SparkApplication {
           res.body(util.getJson(ImmutableMap.of("message", "Invalid values for numbers")));
         });
 
+    exception(
+        SourceUnavailableException.class,
+        (ex, req, res) -> {
+          res.status(503);
+          res.header(CONTENT_TYPE, APPLICATION_JSON);
+          LOGGER.debug("A source was unavailable when trying to fetch", ex);
+          res.body(
+              util.getJson(
+                  ImmutableMap.of(
+                      "message",
+                      "Could not connect to the sources at this time. Please try again later.")));
+        });
+
     exception(EntityTooLargeException.class, util::handleEntityTooLargeException);
 
     exception(IOException.class, util::handleIOException);
 
     exception(RuntimeException.class, util::handleRuntimeException);
+  }
+
+  public Object metacardDeleteCheck(Request req, Response res) throws SourceUnavailableException {
+    String shortCircuitStr = req.queryParams("shortcircuit");
+    boolean shortCircuit =
+        isNotEmpty(shortCircuitStr)
+            ? Boolean.parseBoolean(shortCircuitStr)
+            : DELETECHECK_SHORTCIRCUIT;
+
+    Set<String> idsToCheck =
+        new HashSet<>(JsonFactory.create().parser().parseList(String.class, req.body()));
+
+    Set<SourceDescriptor> sourceInfos = getSources().getSourceInfo();
+
+    // Produces <number of sources> * <number of partitions> queries
+    List<QueryRequestImpl> queries =
+        Lists.partition(new ArrayList<>(idsToCheck), QUERY_PARTIONING_SIZE)
+            .stream()
+            .map(
+                partitionedIdsToCheck ->
+                    filterBuilder.anyOf(
+                        partitionedIdsToCheck
+                            .stream()
+                            .map(this::getParentAndChildrenFilter)
+                            .collect(Collectors.toList())))
+            .flatMap(
+                targetSubset ->
+                    sourceInfos.stream().map(sd -> createQueryForSource(targetSubset, sd)))
+            .collect(Collectors.toList());
+
+    ListX<String> brokenAssociations =
+        new SimpleReact(INTRIGUE_EXECUTOR, true)
+            .from(queries)
+            .then(ExceptionSoftener.softenFunction(catalogFramework::query))
+            .sync()
+            .onFail(e -> EMPTY_QUERY_RESPONSE)
+            .thenSync(
+                qr ->
+                    qr.getResults()
+                        .stream()
+                        .map(Result::getMetacard)
+                        .flatMap(m -> extractPotentialBrokenAssociations(idsToCheck, m))
+                        .filter(id -> !idsToCheck.contains(id))
+                        .collect(ListX.listXCollector()))
+            .block(
+                Collectors.reducing(ListX.empty(), ListX::plusAll),
+                status ->
+                    shortCircuit
+                        && status.getResultsSoFar().stream().anyMatch(list -> !list.isEmpty()));
+
+    return ImmutableMap.of("broken-links", brokenAssociations);
+  }
+
+  private SourceInfoResponse getSources() throws SourceUnavailableException {
+    SourceInfoRequestEnterprise sourceInfoRequestEnterprise =
+        new SourceInfoRequestEnterprise(false);
+
+    return catalogFramework.getSourceInfo(sourceInfoRequestEnterprise);
+  }
+
+  private Stream<String> extractPotentialBrokenAssociations(
+      Set<String> idsToCheck, Metacard metacard) {
+    if (!idsToCheck.contains(metacard.getId())) {
+      // Any metacard not on the deleted list got pulled in because its pointing
+      // to something being deleted
+      return Stream.of(metacard.getId());
+    } else {
+      // Metacards on the delete list have their related and derived pulled
+      return Stream.concat(
+          getAttributes(metacard, Associations.RELATED),
+          getAttributes(metacard, Associations.DERIVED));
+    }
+  }
+
+  private Filter getParentAndChildrenFilter(String id) {
+    Filter root = util.getFilterBuilder().attribute(Core.ID).is().equalTo().text(id);
+    Filter derived = util.getFilterBuilder().attribute(Associations.DERIVED).is().like().text(id);
+    Filter related = util.getFilterBuilder().attribute(Associations.RELATED).is().like().text(id);
+
+    return util.getFilterBuilder().anyOf(root, related, derived);
+  }
+
+  private Stream<String> getAttributes(Metacard metacard, String attribute) {
+    return Optional.of(metacard)
+        .map(m -> m.getAttribute(attribute))
+        .filter(Objects::nonNull)
+        .map(Attribute::getValues)
+        .map(util::getStringList)
+        .map(Collection::stream)
+        .orElseGet(Stream::empty);
+  }
+
+  private QueryRequestImpl createQueryForSource(Filter targetIds, SourceDescriptor sd) {
+    QueryRequestImpl queryRequest =
+        new QueryRequestImpl(
+            new QueryImpl(targetIds, 1, 0, SortBy.NATURAL_ORDER, true, configuration.getTimeout()),
+            Collections.singleton(sd.getSourceId()));
+    queryRequest.getProperties().put("mode", "update");
+    return queryRequest;
   }
 
   private Set<String> getHiddenFields(List<Result> metacards) {
