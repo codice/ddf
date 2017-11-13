@@ -36,6 +36,7 @@ import ddf.catalog.content.operation.impl.UpdateStorageResponseImpl;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.mime.MimeTypeMapper;
+import ddf.mime.MimeTypeResolutionException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -420,11 +421,17 @@ public class FileSystemStorageProvider implements StorageProvider {
     try (InputStream fileInputStream =
         file != null ? Files.newInputStream(file) : reference.toURL().openStream()) {
       mimeType = mimeTypeMapper.guessMimeType(fileInputStream, extension);
-    } catch (Exception e) {
-      LOGGER.info(
+    } catch (MimeTypeResolutionException e) {
+      LOGGER.debug(
           "Could not determine mime type for file extension = {}; defaulting to {}",
           extension,
           DEFAULT_MIME_TYPE);
+    } catch (IOException ie) {
+      LOGGER.debug(
+          "Error opening stream to external reference {}. Failing StorageProvider read.",
+          reference,
+          ie);
+      throw new StorageException("Cannot read " + reference + ".");
     }
 
     if (file != null) {

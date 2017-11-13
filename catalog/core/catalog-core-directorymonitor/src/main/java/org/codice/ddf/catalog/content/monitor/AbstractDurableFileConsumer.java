@@ -88,7 +88,9 @@ public abstract class AbstractDurableFileConsumer extends GenericFileConsumer<Ev
     GenericFile<EventfulFileWrapper> genericFile = new GenericFile<>();
     genericFile.setEndpointPath(endpoint.getConfiguration().getDirectory());
     try {
-      if (file != null) {
+      if (file == null) {
+        genericFile.setFile(new EventfulFileWrapper(fileEvent, 1, null));
+      } else {
         genericFile.setFile(new EventfulFileWrapper(fileEvent, 1, file.toPath()));
         genericFile.setAbsoluteFilePath(file.getCanonicalPath());
       }
@@ -118,8 +120,10 @@ public abstract class AbstractDurableFileConsumer extends GenericFileConsumer<Ev
 
     @Override
     public void onFailure(Exchange exchange) {
-      INGEST_LOGGER.error(
-          "Delivery failed for {} event on {}", file, fileEvent.name(), exchange.getException());
+      if (INGEST_LOGGER.isErrorEnabled()) {
+        INGEST_LOGGER.error(
+            "Delivery failed for {} event on  {}", file, fileEvent.name(), exchange.getException());
+      }
     }
   }
 }
