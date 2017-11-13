@@ -30,6 +30,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 public class ExportMigrationManagerImplTest extends AbstractMigrationReportSupport {
+
   private static final String MIGRATABLE_ID2 = "test-migratable-2";
 
   private static final String MIGRATABLE_ID3 = "test-migratable-3";
@@ -140,7 +141,7 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportSuppo
 
   @Test
   public void testDoExport() throws Exception {
-    mgr.doExport(PRODUCT_VERSION);
+    mgr.doExport(PRODUCT_BRANDING, PRODUCT_VERSION);
 
     assertMetaData(mgr.getMetadata());
 
@@ -157,9 +158,17 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportSuppo
 
     thrown.expect(Matchers.sameInstance(me));
 
-    mgr.doExport(PRODUCT_VERSION);
+    mgr.doExport(PRODUCT_BRANDING, PRODUCT_VERSION);
 
     Mockito.verify(migratable3, Mockito.never()).doExport(Mockito.notNull());
+  }
+
+  @Test
+  public void testDoExportWithNullProductBranding() throws Exception {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage(Matchers.containsString("null product branding"));
+
+    mgr.doExport(null, PRODUCT_VERSION);
   }
 
   @Test
@@ -167,12 +176,12 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportSuppo
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage(Matchers.containsString("null product version"));
 
-    mgr.doExport(null);
+    mgr.doExport(PRODUCT_BRANDING, null);
   }
 
   @Test
   public void testClose() throws Exception {
-    mgr.doExport(PRODUCT_VERSION);
+    mgr.doExport(PRODUCT_BRANDING, PRODUCT_VERSION);
 
     mgr.close();
 
@@ -235,11 +244,14 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportSuppo
   }
 
   private void assertMetaData(Map<String, Object> metadata) {
-    Assert.assertThat(metadata, Matchers.aMapWithSize(5));
+    Assert.assertThat(metadata, Matchers.aMapWithSize(6));
     Assert.assertThat(
         metadata,
         Matchers.hasEntry(
             MigrationContextImpl.METADATA_VERSION, MigrationContextImpl.CURRENT_VERSION));
+    Assert.assertThat(
+        metadata,
+        Matchers.hasEntry(MigrationContextImpl.METADATA_PRODUCT_BRANDING, PRODUCT_BRANDING));
     Assert.assertThat(
         metadata,
         Matchers.hasEntry(MigrationContextImpl.METADATA_PRODUCT_VERSION, PRODUCT_VERSION));

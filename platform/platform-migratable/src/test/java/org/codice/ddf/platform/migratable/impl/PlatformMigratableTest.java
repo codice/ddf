@@ -147,6 +147,8 @@ public class PlatformMigratableTest {
 
   private static final Path SERVICE_WRAPPER_2 = Paths.get("bin", "setenv-wrapper.conf");
 
+  private static final String SUPPORTED_BRANDING = "test";
+
   private static final String SUPPORTED_VERSION = "1.0";
 
   private static final String UNSUPPORTED_VERSION = "666.0";
@@ -223,7 +225,7 @@ public class PlatformMigratableTest {
     assertThat("The export report has errors.", exportReport.hasErrors(), is(false));
     assertThat("The export report has warnings.", exportReport.hasWarnings(), is(false));
     assertThat("Export was not successful.", exportReport.wasSuccessful(), is(true));
-    String exportedZipBaseName = String.format("exported-%s.zip", SUPPORTED_VERSION);
+    String exportedZipBaseName = String.format("%s-%s.dar", SUPPORTED_BRANDING, SUPPORTED_VERSION);
     Path exportedZip = exportDir.resolve(exportedZipBaseName).toRealPath();
     assertThat("Export zip does not exist.", exportedZip.toFile().exists(), is(true));
     assertThat("Exported zip is empty.", exportedZip.toFile().length(), greaterThan(0L));
@@ -276,7 +278,7 @@ public class PlatformMigratableTest {
     assertThat("The export report has errors.", exportReport.hasErrors(), is(false));
     assertThat("The export report has warnings.", exportReport.hasWarnings(), is(false));
     assertThat("Export was not successful.", exportReport.wasSuccessful(), is(true));
-    String exportedZipBaseName = String.format("exported-%s.zip", SUPPORTED_VERSION);
+    String exportedZipBaseName = String.format("%s-%s.dar", SUPPORTED_BRANDING, SUPPORTED_VERSION);
     Path exportedZip = exportDir.resolve(exportedZipBaseName).toRealPath();
     assertThat("Export zip does not exist.", exportedZip.toFile().exists(), is(true));
     assertThat("Exported zip is empty.", exportedZip.toFile().length(), greaterThan(0L));
@@ -326,7 +328,7 @@ public class PlatformMigratableTest {
     assertThat("The export report doesn't not have errors.", exportReport.hasErrors(), is(true));
     assertThat("The export report has warnings.", exportReport.hasWarnings(), is(false));
     assertThat("Export was successful.", exportReport.wasSuccessful(), is(false));
-    String exportedZipBaseName = String.format("exported-%s.zip", SUPPORTED_VERSION);
+    String exportedZipBaseName = String.format("%s-%s.dar", SUPPORTED_BRANDING, SUPPORTED_VERSION);
     Path exportedZip = exportDir.resolve(exportedZipBaseName);
     assertThat(
         String.format("Export zip [%s] exists.", exportedZip),
@@ -383,7 +385,7 @@ public class PlatformMigratableTest {
     assertThat("The export report has errors.", exportReport.hasErrors(), is(false));
     assertThat("The export report does not have warnings.", exportReport.hasWarnings(), is(true));
     assertThat("Export was not successful.", exportReport.wasSuccessful(), is(true));
-    String exportedZipBaseName = String.format("exported-%s.zip", SUPPORTED_VERSION);
+    String exportedZipBaseName = String.format("%s-%s.dar", SUPPORTED_BRANDING, SUPPORTED_VERSION);
     Path exportedZip = exportDir.resolve(exportedZipBaseName).toRealPath();
     assertThat(
         String.format("Export zip [%s] does not exist.", exportedZip),
@@ -458,6 +460,7 @@ public class PlatformMigratableTest {
     Path binDir = ddfHome.resolve("bin");
     Files.createDirectory(binDir);
     System.setProperty(DDF_HOME_SYSTEM_PROP_KEY, ddfHome.toRealPath().toString());
+    setupBrandingFile(SUPPORTED_BRANDING);
     setupVersionFile(SUPPORTED_VERSION);
     setupKeystores(tag);
     for (Path path : REQUIRED_SYSTEM_FILES) {
@@ -531,6 +534,14 @@ public class PlatformMigratableTest {
             TRUSTSTORE_SYSTEM_PROP_KEY, TRUSTSTORE_PATH_SYSTEM_PROP_VALUE.toString());
       }
     }
+  }
+
+  private void setupBrandingFile(String branding) throws IOException {
+    final Path brandingFile = ddfHome.resolve("Branding.txt");
+
+    Files.createFile(brandingFile);
+    FileUtils.writeStringToFile(
+        brandingFile.toFile().getCanonicalFile(), branding, StandardCharsets.UTF_8);
   }
 
   private void setupVersionFile(String version) throws IOException {
