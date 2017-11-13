@@ -20,14 +20,17 @@ import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanServer;
@@ -36,6 +39,7 @@ import javax.management.ObjectName;
 import javax.management.StandardMBean;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.codice.ddf.admin.core.api.ConfigurationAdmin;
@@ -62,9 +66,14 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
 
   private static final String GUEST_CLAIMS_CONFIG_PID = "ddf.security.sts.guestclaims";
 
+  private static final String UI_CONFIG_PID = "ddf.platform.ui.config";
+
   private static final String PROFILE_KEY = "profile";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AdminConsoleService.class);
+
+  private static final Set<Character> ILLEGAL_CHARACTER_SET =
+      new HashSet<>(Arrays.asList(';', '<', '>', '{', '}'));
 
   private final org.osgi.service.cm.ConfigurationAdmin configurationAdmin;
 
@@ -396,7 +405,8 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
       // "password", do not update the password.
       for (Map.Entry<String, Object> configEntry : configEntries) {
         String configEntryKey = configEntry.getKey();
-        Object configEntryValue = configEntry.getValue();
+        Object configEntryValue =
+            sanitizeUIConfiguration(pid, configEntryKey.toLowerCase(), configEntry.getValue());
         if (configEntryValue.equals("password")) {
           for (Map<String, Object> metatypeProperties : metatype.getAttributeDefinitions()) {
             if (metatypeProperties.get("id").equals(configEntry.getKey())
@@ -414,6 +424,19 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
 
       config.update(newConfigProperties);
     }
+  }
+
+  private Object sanitizeUIConfiguration(
+      String pid, String configEntryKey, Object configEntryValue) {
+    if (UI_CONFIG_PID.equals(pid)
+        && ("color".equals(configEntryKey) || "background".equals(configEntryKey))
+        && (Arrays.stream(ArrayUtils.toObject(String.valueOf(configEntryValue).toCharArray()))
+            .parallel()
+            .anyMatch(ILLEGAL_CHARACTER_SET::contains))) {
+      throw loggedException(
+          "Invalid UI Configuration: The color and background properties must only contain a color value");
+    }
+    return configEntryValue;
   }
 
   public ConfigurationStatus disableConfiguration(String servicePid) throws IOException {

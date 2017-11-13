@@ -810,6 +810,20 @@ public class AdminConsoleServiceTest {
     assertThat(((Integer[]) captor.getValue().get(arrayInteger)).length, equalTo(0));
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testSanitizeUIConfiguration() throws Exception {
+    AdminConsoleService configAdmin = getConfigAdmin();
+
+    // Initialize illegal values.
+    Map<String, Object> currentProps = new Hashtable<>();
+    currentProps.put("color", "yellow;");
+    currentProps.put(
+        "background",
+        "black; float: left; text-align: center; width: 120px; border: 1px solid gray; margin: 4px; padding: 6px;");
+
+    configAdmin.update(UI_CONFIG_PID, currentProps);
+  }
+
   @Test
   public void testUpdateGuestClaimsProfile() throws Exception {
     Map<String, Object> guestClaims = new HashMap<>();
