@@ -92,6 +92,11 @@
             <artifactId>platform-osgi-internal-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.platform.osgi</groupId>
+            <artifactId>platform-osgi-condpermadmin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <resources>
@@ -173,6 +178,15 @@
                                     <version>${pro-grade.version}</version>
                                     <outputDirectory>${setup.folder}/ext</outputDirectory>
                                     <destFileName>pro-grade-${pro-grade.version}.jar</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>ddf.platform.osgi</groupId>
+                                    <artifactId>platform-osgi-condpermadmin</artifactId>
+                                    <version>${project.version}</version>
+                                    <outputDirectory>
+                                        ${setup.folder}/system/ddf/platform/osgi/platform-osgi-condpermadmin/${project.version}
+                                    </outputDirectory>
+                                    <destFileName>platform-osgi-condpermadmin-${project.version}.jar</destFileName>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>

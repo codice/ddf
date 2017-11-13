@@ -5,10 +5,10 @@ deny {
     permission java.io.FilePermission "<<ALL FILES>>", "read, write, execute";
 
     // Deny deletion of the security policy file through any Java code
-    permission java.io.FilePermission "${ddf.home}${/}security${/}default.policy", "read, write, execute, delete";
+    permission java.io.FilePermission "${ddf.home.perm}security${/}default.policy", "read, write, execute, delete";
 
     // Deny deletion of the restart.jvm command file through any Java code
-    permission java.io.FilePermission "${ddf.home}${/}bin{/}restart.jvm", "read, write, execute, delete";
+    permission java.io.FilePermission "${ddf.home.perm}bin{/}restart.jvm", "read, write, execute, delete";
 
     permission java.util.PropertyPermission "javax.net.ssl.*", "read, write";
     permission java.util.PropertyPermission "java.io.tmpdir", "write";
@@ -36,14 +36,14 @@ deny {
 grant
   codeBase "file:${ddf.home.policy}system/ddf/-" {
     permission java.io.FilePermission "${ddf.home}", "read, write";
-    permission java.io.FilePermission "${ddf.home}${/}etc${/}-", "read, write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}-", "read, write";
 
     permission java.util.PropertyPermission "javax.net.ssl.*", "read, write";
 };
 grant
   codeBase "file:${ddf.home.policy}system/org/codice/-" {
     permission java.io.FilePermission "${ddf.home}", "read, write";
-    permission java.io.FilePermission "${ddf.home}${/}etc${/}-", "read, write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}-", "read, write";
 
     permission java.util.PropertyPermission "javax.net.ssl.*", "read, write";
 };
@@ -60,7 +60,7 @@ grant
 
     permission java.io.FilePermission "<<ALL FILES>>", "read, readlink";
     permission java.io.FilePermission "${ddf.home}", "read, write";
-    permission java.io.FilePermission "${ddf.home}${/}-", "read, write, delete";
+    permission java.io.FilePermission "${ddf.home.perm}-", "read, write, delete";
 
     permission java.util.PropertyPermission "*", "read";
     permission java.util.PropertyPermission "ddf.home", "read";
@@ -76,11 +76,11 @@ grant
     // some permissions might be repeated here to ensure that they are granted to the migration
     // framework if we ever tighten the permissions above
 
-    permission java.io.FilePermission "${ddf.home}${/}bin${/}-", "read";
-    permission java.io.FilePermission "${ddf.home}${/}etc${/}-", "read";
-    permission java.io.FilePermission "${ddf.home}${/}etc${/}pdp${/}-", "read, delete";
-    permission java.io.FilePermission "${ddf.home}${/}etc${/}ws-security", "read";
-    permission java.io.FilePermission "${ddf.home}${/}etc${/}ws-security${/}-", "read, delete";
+    permission java.io.FilePermission "${ddf.home.perm}bin${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}pdp${/}-", "read, delete";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}-", "read, delete";
 
     permission java.util.PropertyPermission "javax.net.ssl.keyStore", "read";
     permission java.util.PropertyPermission "javax.net.ssl.trustStore", "read";
@@ -94,8 +94,8 @@ grant
     // some permissions might be repeated here to ensure that they are granted to the migration
     // framework if we ever tighten the permissions above
 
-    permission java.io.FilePermission "${ddf.home}${/}etc${/}pdp", "read";
-    permission java.io.FilePermission "${ddf.home}${/}etc${/}pdp${/}-", "read, delete";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}pdp", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}pdp${/}-", "read, delete";
 };
 
 //
@@ -104,8 +104,8 @@ grant
 grant
   codeBase "file:${ddf.home.policy}lib/-" {
     permission java.io.FilePermission "${ddf.home}", "read, write";
-    permission java.io.FilePermission "${ddf.home}${/}etc${/}*", "read, write";
-    permission java.io.FilePermission "${ddf.home}${/}etc${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}*", "read, write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}-", "read";
 
     permission java.lang.RuntimePermission "createClassLoader";
     permission java.util.PropertyPermission "javax.net.ssl.*", "read, write";
@@ -124,17 +124,30 @@ grant
 };
 grant
   codeBase "file:${ddf.home.policy}lib/boot/-" {
-    permission java.io.FilePermission "${ddf.home}${/}*", "read, write";
-    permission java.io.FilePermission "${ddf.home}${/}etc${/}config.properties", "write";
+    permission java.io.FilePermission "${ddf.home.perm}*", "read, write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}config.properties", "write";
     permission java.util.PropertyPermission "karaf.restart.jvm", "write";
 
     permission java.security.SecurityPermission "insertProvider";
 };
 grant
   codeBase "file:${ddf.home.policy}lib/boot/org.osgi.core-6.0.0.jar" {
-    permission java.io.FilePermission "${ddf.home}${/}*", "read, execute";
-    permission java.io.FilePermission "${ddf.home}${/}deploy${/}-", "read, execute";
-    permission java.io.FilePermission "${ddf.home}${/}etc${/}-", "read, execute";
+    permission java.io.FilePermission "${ddf.home.perm}*", "read, execute";
+    permission java.io.FilePermission "${ddf.home.perm}deploy${/}-", "read, execute";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}-", "read, execute";
+};
+
+grant codeBase "file:${ddf.home.policy}system/org/apache/karaf/services/org.apache.karaf.services.eventadmin/-" {
+    permission javax.security.auth.AuthPermission "getSubject";
+}
+
+grant codeBase "file:${ddf.home.policy}system/org/apache/felix/org.apache.felix.fileinstall/-" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}-", "read";
+}
+
+grant
+  codeBase "file:${ddf.home.policy}data/cache/-" {
+    permission java.security.AllPermission;
 };
 
 //
@@ -142,25 +155,7 @@ grant
 //
 grant
   codeBase "file:${ddf.home.policy}system/org/eclipse/platform/org.eclipse.osgi/-" {
-    permission java.io.FilePermission "${ddf.home}", "read, write, execute";
-    permission java.io.FilePermission "${ddf.home}${/}*", "read, write, execute";
-
-    permission java.io.FilePermission "${ddf.home}${/}deploy${/}-", "read, execute";
-
-    permission java.io.FilePermission "${ddf.home}${/}etc${/}-", "read, write, execute";
-
-    permission java.io.FilePermission "${ddf.home}${/}examples", "read, write";
-    permission java.io.FilePermission "${ddf.home}${/}examples${/}-", "read, write";
-
-    permission java.lang.RuntimePermission "createClassLoader";
-    permission java.util.PropertyPermission "javax.net.ssl.*", "read";
-
-    permission java.io.FilePermission "${ddf.home}${/}bin_third_party${/}-", "read, execute";
-
-    permission java.io.FilePermission "<<ALL FILES>>", "execute";
-
-    // Security permissions
-    permission java.security.SecurityPermission "createAccessControlContext";
+    permission java.security.AllPermission;
 };
 
 //
@@ -168,7 +163,7 @@ grant
 //
 grant
   codeBase "file:${ddf.home.policy}system/commons-io/commons-io/-" {
-    permission java.io.FilePermission "${ddf.home}${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}-", "read";
 };
 
 grant {
@@ -176,8 +171,8 @@ grant {
     permission java.io.FilePermission "${user.home}${/}-", "read, write";
 
     // Schema and Schematron directories
-    permission java.io.FilePermission "${ddf.home}${/}schema${/}-", "read";
-    permission java.io.FilePermission "${ddf.home}${/}schematron${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}schema${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}schematron${/}-", "read";
 
     // Temporary file storage
     permission java.io.FilePermission "${java.io.tmpdir}", "read, write, execute, delete";
@@ -196,21 +191,21 @@ grant {
 
     // Distribution File Permissions
     permission java.io.FilePermission "${ddf.home}", "read";
-    permission java.io.FilePermission "${ddf.home}${/}*", "read";
-    permission java.io.FilePermission "${ddf.home}${/}lib${/}-", "read";
-    permission java.io.FilePermission "${ddf.home}${/}documentation${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}*", "read";
+    permission java.io.FilePermission "${ddf.home.perm}lib${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}documentation${/}-", "read";
 
-    permission java.io.FilePermission "${ddf.home}${/}karaf.pid", "read, write";
+    permission java.io.FilePermission "${ddf.home.perm}karaf.pid", "read, write";
 
-    permission java.io.FilePermission "${ddf.home}${/}data", "read, write";
-    permission java.io.FilePermission "${ddf.home}${/}instances", "read, write";
-    permission java.io.FilePermission "${ddf.home}${/}solr", "read, write";
-    permission java.io.FilePermission "${ddf.home}${/}system", "read, write";
-    permission java.io.FilePermission "${ddf.home}${/}workspace", "read, write";
+    permission java.io.FilePermission "${ddf.home.perm}data", "read, write";
+    permission java.io.FilePermission "${ddf.home.perm}instances", "read, write";
+    permission java.io.FilePermission "${ddf.home.perm}solr", "read, write";
+    permission java.io.FilePermission "${ddf.home.perm}system", "read, write";
+    permission java.io.FilePermission "${ddf.home.perm}workspace", "read, write";
 
-    permission java.io.FilePermission "${ddf.home}${/}data${/}-", "read, write";
-    permission java.io.FilePermission "${ddf.home}${/}instances${/}-", "read, write";
-    permission java.io.FilePermission "${ddf.home}${/}solr${/}-", "read, write";
-    permission java.io.FilePermission "${ddf.home}${/}system${/}-", "read, write";
-    permission java.io.FilePermission "${ddf.home}${/}workspace${/}-", "read, write";
+    permission java.io.FilePermission "${ddf.home.perm}data${/}-", "read, write";
+    permission java.io.FilePermission "${ddf.home.perm}instances${/}-", "read, write";
+    permission java.io.FilePermission "${ddf.home.perm}solr${/}-", "read, write";
+    permission java.io.FilePermission "${ddf.home.perm}system${/}-", "read, write";
+    permission java.io.FilePermission "${ddf.home.perm}workspace${/}-", "read, write";
 };
