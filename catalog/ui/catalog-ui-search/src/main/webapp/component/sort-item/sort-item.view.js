@@ -177,11 +177,11 @@ define([
             });
 
         },
-        getValue: function () {
-            return {
-                sortField: this.sortAttribute.currentView.model.getValue()[0],
-                sortOrder: this.sortDirection.currentView.model.getValue()[0]
-            }
+        getSortField: function () {
+            return this.sortAttribute.currentView.model.getValue()[0];
+        },
+        getSortOrder: function () {
+            return this.sortDirection.currentView.model.getValue()[0];
         }
     });
 });
