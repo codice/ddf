@@ -53,6 +53,14 @@ public class TestXstreamPathConverter {
           + "</gml:Polygon>"
           + "";
 
+  private static final String TEST2_XML =
+      "<element>\n"
+          + "    <nested_element>\n"
+          + "        <title>the title</title>\n"
+          + "        <point-of-contact>Example Office Email: <a href=\"mailto:test@example.com\">test@example.com</a> Phone: 123-456-7890</point-of-contact>\n"
+          + "    </nested_element>\n"
+          + "</element>";
+
   private static final Path POLYGON_POS_PATH = new Path("/Polygon/exterior/LinearRing/pos");
 
   private static final Path BAD_PATH = new Path("/Polygon/a/b/c");
@@ -60,6 +68,8 @@ public class TestXstreamPathConverter {
   private static final Path POLYGON_GML_ID_PATH = new Path("/Polygon/@id");
 
   private static final Path LINEAR_RING_ALL_PATH = new Path("/Polygon/exterior/LinearRing/*");
+
+  private static final Path POC_PATH = new Path("/element/nested_element/point-of-contact/*");
 
   private static final String GML_NAMESPACE = "";
 
@@ -80,11 +90,13 @@ public class TestXstreamPathConverter {
     XstreamPathConverter converter = new XstreamPathConverter();
     xstream.registerConverter(converter);
     xstream.alias("Polygon", XstreamPathValueTracker.class);
+    xstream.alias("element", XstreamPathValueTracker.class);
     argumentHolder = xstream.newDataHolder();
 
     Set<Path> paths = new LinkedHashSet<>();
     paths.addAll(
-        Arrays.asList(POLYGON_POS_PATH, BAD_PATH, POLYGON_GML_ID_PATH, LINEAR_RING_ALL_PATH));
+        Arrays.asList(
+            POLYGON_POS_PATH, BAD_PATH, POLYGON_GML_ID_PATH, LINEAR_RING_ALL_PATH, POC_PATH));
     argumentHolder.put(XstreamPathConverter.PATH_KEY, paths);
   }
 
@@ -224,6 +236,17 @@ public class TestXstreamPathConverter {
 
     assertThat(
         pathValueTracker.getAllValues(LINEAR_RING_ALL_PATH), hasItem("-180.000000 90.000000"));
+  }
+
+  @Test
+  public void testNestedOfficeInfo() throws XMLStreamException {
+    XMLStreamReader streamReader =
+        XMLInputFactory.newInstance().createXMLStreamReader(new StringReader(TEST2_XML));
+    HierarchicalStreamReader reader = new StaxReader(new QNameMap(), streamReader);
+    XstreamPathValueTracker pathValueTracker =
+        (XstreamPathValueTracker) xstream.unmarshal(reader, null, argumentHolder);
+
+    assertThat(pathValueTracker.getAllValues(POC_PATH), hasItem(" Phone: 123-456-7890"));
   }
 
   @Test

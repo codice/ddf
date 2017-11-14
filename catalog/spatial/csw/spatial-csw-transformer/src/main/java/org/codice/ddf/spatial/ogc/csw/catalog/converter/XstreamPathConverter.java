@@ -59,7 +59,7 @@ public class XstreamPathConverter implements Converter {
       PathTracker tracker = new PathTracker();
       PathTrackingReader pathReader = new PathTrackingReader(reader, tracker);
 
-      readPath(pathReader, tracker, pathValueTracker);
+      readPath(pathReader, tracker, pathValueTracker, false);
     }
     return pathValueTracker;
   }
@@ -78,17 +78,21 @@ public class XstreamPathConverter implements Converter {
    * @param pathValueTracker
    */
   protected void readPath(
-      PathTrackingReader reader, PathTracker tracker, XstreamPathValueTracker pathValueTracker) {
+      PathTrackingReader reader,
+      PathTracker tracker,
+      XstreamPathValueTracker pathValueTracker,
+      boolean endElement) {
 
     pathValueTracker
         .getPaths()
-        .forEach(path -> updatePath(reader, path, tracker.getPath(), pathValueTracker));
+        .forEach(path -> updatePath(reader, path, tracker.getPath(), pathValueTracker, endElement));
 
     while (reader.hasMoreChildren()) {
       reader.moveDown();
 
-      readPath(reader, tracker, pathValueTracker);
+      readPath(reader, tracker, pathValueTracker, false);
       reader.moveUp();
+      readPath(reader, tracker, pathValueTracker, true);
     }
   }
 
@@ -96,10 +100,11 @@ public class XstreamPathConverter implements Converter {
       PathTrackingReader reader,
       Path path,
       Path currentPath,
-      XstreamPathValueTracker pathValueTracker) {
+      XstreamPathValueTracker pathValueTracker,
+      boolean endElement) {
     if (doBasicPathsMatch(path, currentPath)) {
 
-      if (path.toString().contains("@")) {
+      if (!endElement && path.toString().contains("@")) {
         String attributeName = StringUtils.substringAfterLast(path.toString(), "@");
         pathValueTracker.add(path, reader.getAttribute(attributeName));
 
