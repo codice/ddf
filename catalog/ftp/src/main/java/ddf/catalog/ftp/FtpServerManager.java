@@ -236,25 +236,31 @@ public class FtpServerManager {
         ((DefaultFtpServer) server).getServerContext().getFtpStatistics();
 
     int totalWait = 0;
+    boolean interrupt = false;
 
-    while (serverStatistics.getCurrentConnectionNumber() > 0) {
-      LOGGER.debug(
-          "Waiting for {} connections to close before updating configuration",
-          serverStatistics.getCurrentConnectionNumber());
-      try {
-        if (totalWait <= maxSleepTimeMillis) {
-          totalWait += resetWaitTimeMillis;
-          Thread.sleep(resetWaitTimeMillis);
-        } else {
-          LOGGER.debug(
-              "Waited {} seconds for connections to close, updating FTP configuration",
-              TimeUnit.MILLISECONDS.toSeconds(totalWait));
-          break;
+    try {
+      while (serverStatistics.getCurrentConnectionNumber() > 0) {
+        LOGGER.debug(
+            "Waiting for {} connections to close before updating configuration",
+            serverStatistics.getCurrentConnectionNumber());
+        try {
+          if (totalWait <= maxSleepTimeMillis) {
+            totalWait += resetWaitTimeMillis;
+            Thread.sleep(resetWaitTimeMillis);
+          } else {
+            LOGGER.debug(
+                "Waited {} seconds for connections to close, updating FTP configuration",
+                TimeUnit.MILLISECONDS.toSeconds(totalWait));
+            break;
+          }
+        } catch (InterruptedException e) {
+          interrupt = true;
+          LOGGER.info("Thread interrupted while waiting for FTP connections to close", e);
         }
-      } catch (InterruptedException e) {
-        Thread.interrupted(); // <<<<<<<< Do we still need this line?
+      }
+    } finally {
+      if (interrupt) {
         Thread.currentThread().interrupt();
-        LOGGER.info("Thread interrupted while waiting for FTP connections to close", e);
       }
     }
   }

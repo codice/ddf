@@ -149,72 +149,80 @@ public class SortedFederationStrategy extends AbstractFederationStrategy {
       Set<ProcessingDetails> processingDetails = returnResults.getProcessingDetails();
 
       Map<String, Serializable> returnProperties = returnResults.getProperties();
-      for (final Entry<Source, Future<SourceResponse>> entry : futures.entrySet()) {
-        Source site = entry.getKey();
-        SourceResponse sourceResponse = null;
-        try {
-          sourceResponse =
-              query.getTimeoutMillis() < 1
-                  ? entry.getValue().get()
-                  : entry.getValue().get(getTimeRemaining(deadline), TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-          LOGGER.info(
-              "Couldn't get results from completed federated query on site with ShortName {}",
-              site.getId(),
-              e);
-          processingDetails.add(new ProcessingDetailsImpl(site.getId(), e));
-          Thread.currentThread().interrupt();
-        } catch (ExecutionException e) {
-          LOGGER.info(
-              "Couldn't get results from completed federated query on site {}", site.getId(), e);
-          if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Adding exception to response.");
-          }
-          processingDetails.add(new ProcessingDetailsImpl(site.getId(), e));
-        } catch (TimeoutException e) {
-          LOGGER.info("search timed out: {} on site {}", new Date(), site.getId());
-          processingDetails.add(new ProcessingDetailsImpl(site.getId(), e));
-        }
-        if (sourceResponse != null) {
-          List<Result> sourceResults = sourceResponse.getResults();
-          resultList.addAll(sourceResults);
-          long sourceHits = sourceResponse.getHits();
+      boolean interrupt = false;
 
-          totalHits += sourceHits;
-          Map<String, Serializable> newSourceProperties = new HashMap<String, Serializable>();
-          newSourceProperties.put(QueryResponse.TOTAL_HITS, sourceHits);
-          newSourceProperties.put(QueryResponse.TOTAL_RESULTS_RETURNED, sourceResults.size());
-
-          Map<String, Serializable> originalSourceProperties = sourceResponse.getProperties();
-          if (originalSourceProperties != null) {
-            Serializable object = originalSourceProperties.get(QueryResponse.ELAPSED_TIME);
-            if (object != null && object instanceof Long) {
-              newSourceProperties.put(QueryResponse.ELAPSED_TIME, (Long) object);
-              originalSourceProperties.remove(QueryResponse.ELAPSED_TIME);
-              LOGGER.debug(
-                  "Setting the ellapsedTime responseProperty to {} for source {}",
-                  object,
-                  site.getId());
+      try {
+        for (final Entry<Source, Future<SourceResponse>> entry : futures.entrySet()) {
+          Source site = entry.getKey();
+          SourceResponse sourceResponse = null;
+          try {
+            sourceResponse =
+                query.getTimeoutMillis() < 1
+                    ? entry.getValue().get()
+                    : entry.getValue().get(getTimeRemaining(deadline), TimeUnit.MILLISECONDS);
+          } catch (InterruptedException e) {
+            LOGGER.info(
+                "Couldn't get results from completed federated query on site with ShortName {}",
+                site.getId(),
+                e);
+            processingDetails.add(new ProcessingDetailsImpl(site.getId(), e));
+            interrupt = true;
+          } catch (ExecutionException e) {
+            LOGGER.info(
+                "Couldn't get results from completed federated query on site {}", site.getId(), e);
+            if (LOGGER.isDebugEnabled()) {
+              LOGGER.debug("Adding exception to response.");
             }
-
-            // TODO: for now add all properties into outgoing response's properties.
-            // this is not the best idea because we could get properties from records
-            // that get eliminated by the max results enforcement done below.
-            // See DDF-1183 for a possible solution.
-            returnProperties.putAll(originalSourceProperties);
+            processingDetails.add(new ProcessingDetailsImpl(site.getId(), e));
+          } catch (TimeoutException e) {
+            LOGGER.info("search timed out: {} on site {}", new Date(), site.getId());
+            processingDetails.add(new ProcessingDetailsImpl(site.getId(), e));
           }
-          returnProperties.put(site.getId(), (Serializable) newSourceProperties);
-          LOGGER.debug("Setting the query responseProperties for site {}", site.getId());
+          if (sourceResponse != null) {
+            List<Result> sourceResults = sourceResponse.getResults();
+            resultList.addAll(sourceResults);
+            long sourceHits = sourceResponse.getHits();
 
-          // Add a List of siteIds so endpoints know what sites got queried
-          Serializable siteListObject = returnProperties.get(QueryResponse.SITE_LIST);
-          if (siteListObject != null && siteListObject instanceof List<?>) {
-            ((List) siteListObject).add(site.getId());
-          } else {
-            siteListObject = new ArrayList<String>();
-            ((List) siteListObject).add(site.getId());
-            returnProperties.put(QueryResponse.SITE_LIST, (Serializable) siteListObject);
+            totalHits += sourceHits;
+            Map<String, Serializable> newSourceProperties = new HashMap<String, Serializable>();
+            newSourceProperties.put(QueryResponse.TOTAL_HITS, sourceHits);
+            newSourceProperties.put(QueryResponse.TOTAL_RESULTS_RETURNED, sourceResults.size());
+
+            Map<String, Serializable> originalSourceProperties = sourceResponse.getProperties();
+            if (originalSourceProperties != null) {
+              Serializable object = originalSourceProperties.get(QueryResponse.ELAPSED_TIME);
+              if (object != null && object instanceof Long) {
+                newSourceProperties.put(QueryResponse.ELAPSED_TIME, (Long) object);
+                originalSourceProperties.remove(QueryResponse.ELAPSED_TIME);
+                LOGGER.debug(
+                    "Setting the ellapsedTime responseProperty to {} for source {}",
+                    object,
+                    site.getId());
+              }
+
+              // TODO: for now add all properties into outgoing response's properties.
+              // this is not the best idea because we could get properties from records
+              // that get eliminated by the max results enforcement done below.
+              // See DDF-1183 for a possible solution.
+              returnProperties.putAll(originalSourceProperties);
+            }
+            returnProperties.put(site.getId(), (Serializable) newSourceProperties);
+            LOGGER.debug("Setting the query responseProperties for site {}", site.getId());
+
+            // Add a List of siteIds so endpoints know what sites got queried
+            Serializable siteListObject = returnProperties.get(QueryResponse.SITE_LIST);
+            if (siteListObject != null && siteListObject instanceof List<?>) {
+              ((List) siteListObject).add(site.getId());
+            } else {
+              siteListObject = new ArrayList<String>();
+              ((List) siteListObject).add(site.getId());
+              returnProperties.put(QueryResponse.SITE_LIST, (Serializable) siteListObject);
+            }
           }
+        }
+      } finally {
+        if (interrupt) {
+          Thread.currentThread().interrupt();
         }
       }
       LOGGER.debug("all sites finished returning results: {}", resultList.size());

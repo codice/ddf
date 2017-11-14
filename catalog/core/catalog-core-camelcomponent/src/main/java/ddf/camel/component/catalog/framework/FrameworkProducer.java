@@ -35,6 +35,7 @@ import org.apache.camel.TypeConversionException;
 import org.apache.camel.impl.DefaultProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.CollectionUtils;
 
 /**
  * Producer for the custom Camel CatalogComponent. This {@link org.apache.camel.Producer} would map
@@ -367,7 +368,7 @@ public class FrameworkProducer extends DefaultProducer {
    * @return true if the list is not empty and has valid types inside, else false.
    */
   private boolean validateList(List<?> list, Class<?> cls) {
-    if (list == null || list.isEmpty()) {
+    if (CollectionUtils.isEmpty(list)) {
       LOGGER.debug("No Metacard or Metacard IDs to process");
       return false;
     }

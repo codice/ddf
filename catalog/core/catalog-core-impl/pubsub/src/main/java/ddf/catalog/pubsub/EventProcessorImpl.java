@@ -174,15 +174,17 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
 
       // CONTEXTUAL INFORMATION
       if (metacard.getMetadata() != null) {
-        // Build Lucene search index on entry's entire metadata using
-        // default XPaths (specified
-        // in ContextualEvaluator) - this index will be used by all
-        // contextual predicates that do
-        // *NOT* specify any textPaths. (Building index here optimizes
-        // code so that this index is
-        // not built for every contextual subscription that has no
-        // textPaths.)
-        try (Directory index = ContextualEvaluator.buildIndex(metacard.getMetadata())) {
+        try {
+          // Build Lucene search index on entry's entire metadata using
+          // default XPaths (specified
+          // in ContextualEvaluator) - this index will be used by all
+          // contextual predicates that do
+          // *NOT* specify any textPaths. (Building index here optimizes
+          // code so that this index is
+          // not built for every contextual subscription that has no
+          // textPaths.)
+          Directory index = ContextualEvaluator.buildIndex(metacard.getMetadata());
+
           // Build contextual info to be sent in event for this entry.
           // Include the default Lucene search
           // index and the entry's metadata (in case subscription has

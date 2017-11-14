@@ -145,61 +145,74 @@ class SortedQueryMonitor implements Runnable {
     Map<String, Serializable> returnProperties = returnResults.getProperties();
     HashMap<String, Long> hitsPerSource = new HashMap<>();
 
-    for (int i = futures.size(); i > 0; i--) {
-      String sourceId = "Unknown Source";
-      QueryRequest queryRequest = null;
-      SourceResponse sourceResponse = null;
-      try {
-        Future<SourceResponse> future;
-        if (query.getTimeoutMillis() < 1) {
-          future = completionService.take();
-        } else {
-          future = completionService.poll(getTimeRemaining(deadline), TimeUnit.MILLISECONDS);
-          if (future == null) {
-            timeoutRemainingSources(processingDetails);
-            break;
+    boolean interrupted = false;
+    try {
+      for (int i = futures.size(); i > 0; i--) {
+        String sourceId = "Unknown Source";
+        QueryRequest queryRequest = null;
+        SourceResponse sourceResponse = null;
+        try {
+          Future<SourceResponse> future;
+          if (query.getTimeoutMillis() < 1) {
+            future = completionService.take();
+          } else {
+            future = completionService.poll(getTimeRemaining(deadline), TimeUnit.MILLISECONDS);
+            if (future == null) {
+              timeoutRemainingSources(processingDetails);
+              break;
+            }
           }
+
+          queryRequest = futures.remove(future);
+          sourceId = getSourceIdFromRequest(queryRequest);
+
+          sourceResponse = future.get();
+
+          if (sourceResponse == null) {
+            LOGGER.debug("Source {} returned null response", sourceId);
+            executePostFederationQueryPluginsWithSourceError(queryRequest,
+                    sourceId,
+                    new NullPointerException(),
+                    processingDetails);
+          } else if (queryRequest != null) {
+            sourceResponse = executePostFederationQueryPlugins(sourceResponse, queryRequest);
+            resultList.addAll(sourceResponse.getResults());
+            long hits = sourceResponse.getHits();
+            totalHits += hits;
+            hitsPerSource.merge(sourceId, hits, (l1, l2) -> l1 + l2);
+
+            Map<String, Serializable> properties = sourceResponse.getProperties();
+            returnProperties.putAll(properties);
+          }
+        } catch (InterruptedException e) {
+          if (queryRequest != null) {
+            // First, add interrupted processing detail for this source
+            LOGGER.debug("Search interrupted for {}", sourceId);
+            executePostFederationQueryPluginsWithSourceError(queryRequest,
+                    sourceId,
+                    e,
+                    processingDetails);
+          }
+
+          // Then add the interrupted exception for the remaining sources
+          interruptRemainingSources(processingDetails, e);
+          interrupted = true;
+          break;
+        } catch (ExecutionException e) {
+          LOGGER.info("Couldn't get results from completed federated query. {}, {}",
+                  sourceId,
+                  Exceptions.getFullMessage(e),
+                  e);
+          executePostFederationQueryPluginsWithSourceError(queryRequest,
+                  sourceId,
+                  e,
+                  processingDetails);
         }
-
-        queryRequest = futures.remove(future);
-        sourceId = getSourceIdFromRequest(queryRequest);
-
-        sourceResponse = future.get();
-
-        if (sourceResponse == null) {
-          LOGGER.debug("Source {} returned null response", sourceId);
-          executePostFederationQueryPluginsWithSourceError(
-              queryRequest, sourceId, new NullPointerException(), processingDetails);
-        } else if (queryRequest != null) {
-          sourceResponse = executePostFederationQueryPlugins(sourceResponse, queryRequest);
-          resultList.addAll(sourceResponse.getResults());
-          long hits = sourceResponse.getHits();
-          totalHits += hits;
-          hitsPerSource.merge(sourceId, hits, (l1, l2) -> l1 + l2);
-
-          Map<String, Serializable> properties = sourceResponse.getProperties();
-          returnProperties.putAll(properties);
-        }
-      } catch (InterruptedException e) {
-        if (queryRequest != null) {
-          // First, add interrupted processing detail for this source
-          LOGGER.debug("Search interrupted for {}", sourceId);
-          executePostFederationQueryPluginsWithSourceError(
-              queryRequest, sourceId, e, processingDetails);
-        }
-
-        // Then add the interrupted exception for the remaining sources
-        interruptRemainingSources(processingDetails, e);
-        Thread.currentThread().interrupt();
-        break;
-      } catch (ExecutionException e) {
-        LOGGER.info(
-            "Couldn't get results from completed federated query. {}, {}",
-            sourceId,
-            Exceptions.getFullMessage(e),
-            e);
-        executePostFederationQueryPluginsWithSourceError(
-            queryRequest, sourceId, e, processingDetails);
+      }
+    } finally {
+      if (interrupted) {
+        Thread.currentThread()
+                .interrupt();
       }
     }
     returnProperties.put("hitsPerSource", hitsPerSource);
@@ -297,10 +310,12 @@ class SortedQueryMonitor implements Runnable {
 
     try {
       for (PostFederatedQueryPlugin service : postQuery) {
-        queryResponse = service.process(queryResponse);
+        try {
+          queryResponse = service.process(queryResponse);
+        } catch (PluginExecutionException e) {
+          LOGGER.info("Error executing PostFederatedQueryPlugin", e);
+        }
       }
-    } catch (PluginExecutionException e) {
-      LOGGER.info("Error executing PostFederatedQueryPlugin", e);
     } catch (StopProcessingException e) {
       LOGGER.info("Plugin stopped processing", e);
     }
