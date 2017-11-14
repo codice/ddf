@@ -42,9 +42,11 @@
                     </span>
                 {{/each}}
                 {{#unless sources}}
-                    <span class="text-src is-available">
-                        Local Only ({{localCatalog}})
-                    </span>
+                    {{#if isLocalCatalogEnabled}}
+                        <span class="text-src is-available">
+                            Local Only ({{localCatalog}})
+                        </span>
+                    {{/if}}
                 {{/unless}}
             {{/if}}
         </div>
