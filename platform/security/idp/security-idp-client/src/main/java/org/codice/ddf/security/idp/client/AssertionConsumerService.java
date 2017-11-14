@@ -412,6 +412,7 @@ public class AssertionConsumerService {
             Base64.getEncoder().encodeToString(encryptionCert.getEncoded()),
             logoutLocation,
             assertionConsumerServiceLocation,
+            assertionConsumerServiceLocation,
             assertionConsumerServiceLocation);
 
     Document doc = DOMUtils.createDocument();
