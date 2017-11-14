@@ -109,11 +109,11 @@ public class ResourceCacheImpl implements ResourceCacheInterface {
         LOGGER.debug(
             "Successfully built hazelcast config from XML config file {}", xmlConfigFilename);
       } catch (IOException e) {
-        LOGGER.info(
-            e.getClass().getSimpleName()
-                + " trying to build hazelcast config from XML file "
-                + xmlConfigFilename,
-            e);
+        StringBuilder info = new StringBuilder();
+        info.append(e.getClass().getSimpleName());
+        info.append(" trying to build hazelcast config from XML file ");
+        info.append(xmlConfigFilename);
+        LOGGER.info(info.toString());
         cfg = null;
       }
     }

@@ -124,7 +124,7 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
    */
   public static void processEntry(Metacard metacard, String operation, EventAdmin eventAdmin) {
     String methodName = "processEntry";
-    LOGGER.debug(ENTERING, methodName);
+    LOGGER.trace(ENTERING, methodName);
 
     if (metacard != null) {
       LOGGER.debug("Input Metacard:{}\n", metacard);
@@ -206,21 +206,21 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
       LOGGER.debug("Unable to post null metacard.");
     }
 
-    LOGGER.debug(EXITING, methodName);
+    LOGGER.trace(EXITING, methodName);
   }
 
   public void init() {
     String methodName = "init";
-    LOGGER.debug(ENTERING, methodName);
+    LOGGER.trace(ENTERING, methodName);
 
-    LOGGER.debug(EXITING, methodName);
+    LOGGER.trace(EXITING, methodName);
   }
 
   public void destroy() {
     String methodName = "destroy";
-    LOGGER.debug(ENTERING, methodName);
+    LOGGER.trace(ENTERING, methodName);
 
-    LOGGER.debug(EXITING, methodName);
+    LOGGER.trace(EXITING, methodName);
   }
 
   /**
@@ -231,7 +231,7 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
    */
   public void handleEvent(Event event) {
     String methodName = "handleEvent";
-    LOGGER.debug(ENTERING, methodName);
+    LOGGER.trace(ENTERING, methodName);
 
     LOGGER.debug("Received event: {}", event.getTopic());
 
@@ -246,7 +246,7 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
           "No existing subscriptions, so no need to handle event since there is no one listening ...");
     }
 
-    LOGGER.debug(EXITING, methodName);
+    LOGGER.trace(EXITING, methodName);
   }
 
   @Override
@@ -268,7 +268,7 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
   public void createSubscription(Subscription subscription, String subscriptionId)
       throws InvalidSubscriptionException, SubscriptionExistsException {
     String methodName = "createSubscription";
-    LOGGER.debug(ENTERING, methodName);
+    LOGGER.trace(ENTERING, methodName);
 
     LOGGER.debug("Creating Evaluation Criteria... ");
 
@@ -301,14 +301,14 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
       throw new InvalidSubscriptionException(e);
     }
 
-    LOGGER.debug(EXITING, methodName);
+    LOGGER.trace(EXITING, methodName);
   }
 
   @Override
   public void updateSubscription(Subscription subscription, String subscriptionId)
       throws SubscriptionNotFoundException {
     String methodName = "updateSubscription";
-    LOGGER.debug(ENTERING, methodName);
+    LOGGER.trace(ENTERING, methodName);
 
     try {
       deleteSubscription(subscriptionId);
@@ -321,13 +321,13 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
       throw new SubscriptionNotFoundException(e);
     }
 
-    LOGGER.debug(EXITING, methodName);
+    LOGGER.trace(EXITING, methodName);
   }
 
   @Override
   public void deleteSubscription(String subscriptionId) throws SubscriptionNotFoundException {
     String methodName = "deleteSubscription";
-    LOGGER.debug(ENTERING, methodName);
+    LOGGER.trace(ENTERING, methodName);
 
     try {
       LOGGER.debug("Removing subscription: {}", subscriptionId);
@@ -346,7 +346,7 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
       LOGGER.info("Exception deleting subscription", e);
     }
 
-    LOGGER.debug(EXITING, methodName);
+    LOGGER.trace(EXITING, methodName);
   }
 
   @Override
@@ -378,7 +378,7 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
    */
   protected void postEvent(String topic, Metacard card) {
     String methodName = "postEvent";
-    LOGGER.debug(ENTERING, methodName);
+    LOGGER.trace(ENTERING, methodName);
 
     LOGGER.debug("Posting to topic: {}", topic);
 
@@ -388,7 +388,7 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
     Event event = new Event(topic, properties);
     eventAdmin.postEvent(event);
 
-    LOGGER.debug(EXITING, methodName);
+    LOGGER.trace(EXITING, methodName);
   }
 
   @Override

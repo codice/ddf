@@ -51,7 +51,7 @@ public class DummyPreIngestPlugin implements PreIngestPlugin {
 
   public CreateRequest process(CreateRequest input) throws PluginExecutionException {
     String methodName = "process(CreateRequest)";
-    LOGGER.debug(ENTERING, methodName);
+    LOGGER.trace(ENTERING, methodName);
 
     CreateRequest newRequest = input;
     if (input != null) {
@@ -60,14 +60,14 @@ public class DummyPreIngestPlugin implements PreIngestPlugin {
       newRequest = new CreateRequestImpl(filteredCards);
     }
 
-    LOGGER.debug(EXITING, methodName);
+    LOGGER.trace(EXITING, methodName);
 
     return newRequest;
   }
 
   public UpdateRequest process(UpdateRequest input) throws PluginExecutionException {
     String methodName = "process(UpdateRequest)";
-    LOGGER.debug(ENTERING, methodName);
+    LOGGER.trace(ENTERING, methodName);
 
     UpdateRequest newRequest = input;
 
@@ -100,14 +100,14 @@ public class DummyPreIngestPlugin implements PreIngestPlugin {
       newRequest = new UpdateRequestImpl(ids.toArray(new String[ids.size()]), updatedMetacards);
     }
 
-    LOGGER.debug(EXITING, methodName);
+    LOGGER.trace(EXITING, methodName);
 
     return newRequest;
   }
 
   public DeleteRequest process(DeleteRequest input) throws PluginExecutionException {
     String methodName = "process(DeleteRequest)";
-    LOGGER.debug(ENTERING, methodName);
+    LOGGER.trace(ENTERING, methodName);
 
     DeleteRequest newRequest = input;
 
@@ -125,7 +125,7 @@ public class DummyPreIngestPlugin implements PreIngestPlugin {
     // }
     // }
 
-    LOGGER.debug(EXITING, methodName);
+    LOGGER.trace(EXITING, methodName);
     //
     // return results;
     return newRequest;
@@ -133,7 +133,7 @@ public class DummyPreIngestPlugin implements PreIngestPlugin {
 
   private List<Metacard> filterOutMetacards(List<Metacard> cards) {
     String methodName = "filterOutMetacards";
-    LOGGER.debug(ENTERING, methodName);
+    LOGGER.trace(ENTERING, methodName);
 
     List<Metacard> results = new ArrayList<Metacard>();
     if (cards != null) {
@@ -151,7 +151,7 @@ public class DummyPreIngestPlugin implements PreIngestPlugin {
       LOGGER.debug("Filtered size of Metacard list: {}", results.size());
     }
 
-    LOGGER.debug(EXITING, methodName);
+    LOGGER.trace(EXITING, methodName);
 
     return results;
   }
