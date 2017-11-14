@@ -21,7 +21,7 @@ public class TermFacetPropertiesImpl implements TermFacetProperties {
 
   public static final int DEFAULT_FACET_LIMIT = 100;
 
-  public static final int DEFAULT_MIN_FACET_COUNT = 0;
+  public static final int DEFAULT_MIN_FACET_COUNT = 1;
 
   public static final SortFacetsBy DEFAULT_SORT_KEY = SortFacetsBy.COUNT;
 
