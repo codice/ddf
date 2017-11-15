@@ -98,16 +98,21 @@ define([
         },
         saveToModel: function(){
             var federation = this._srcDropdownModel.get('federation');
-            this.model.set({
-                src: federation === 'selected' ? this._srcDropdownModel.get('value') : undefined
-            });
-            if (federation === 'selected' && (this.model.get('src') === undefined || this.model.get('src').length === 0)) {
-                federation = 'local';
+            var src;
+            if (federation === 'selected') {
+                src = this._srcDropdownModel.get('value');
+                if (src === undefined || src.length === 0) {
+                    federation = 'local';
+                }
             }
+            var sortField = this.settingsSortField.currentView.getSortField();
+            var sortOrder = this.settingsSortField.currentView.getSortOrder();
             this.model.set({
-                federation: federation
+                src: src,
+                federation: federation,
+                sortField: sortField,
+                sortOrder: sortOrder
             });
-            this.model.set(this.settingsSortField.currentView.getValue());
         },
         save: function(){
             this.saveToModel();
