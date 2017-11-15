@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.locks.StampedLock;
 import org.apache.felix.cm.PersistenceManager;
 import org.apache.felix.cm.file.FilePersistenceManager;
 import org.apache.felix.cm.impl.helper.BaseTracker;
@@ -38,7 +39,9 @@ import org.apache.felix.cm.impl.helper.ConfigurationMap;
 import org.apache.felix.cm.impl.helper.ManagedServiceFactoryTracker;
 import org.apache.felix.cm.impl.helper.ManagedServiceTracker;
 import org.apache.felix.cm.impl.helper.TargetedPID;
+import org.codice.felix.cm.file.DelegatingPersistenceManager;
 import org.codice.felix.cm.file.EncryptingPersistenceManager;
+import org.codice.felix.cm.file.WrappedPersistenceManager;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -58,7 +61,7 @@ import org.osgi.service.log.LogService;
 import org.osgi.util.tracker.ServiceTracker;
 
 /**
- * Code taken from Felix:
+ * (CODICE) Code taken from Felix:
  * http://svn.apache.org/viewvc/felix/releases/org.apache.felix.configadmin-1.8.14
  * /src/main/java/org/apache/felix/cm/impl/ConfigurationManager.java?view=co
  *
@@ -88,7 +91,7 @@ import org.osgi.util.tracker.ServiceTracker;
  * config</code> directory in the current working directory as specified in the <code>user.dir
  * </code> system property is used.
  */
-// Suppression because this code is copied from the felix code base. Refer to link above.
+// (CODICE) Suppression because this code is copied from the felix code base. Refer to link above.
 @SuppressWarnings("all")
 public class ConfigurationManager implements BundleActivator, BundleListener {
 
@@ -173,6 +176,13 @@ public class ConfigurationManager implements BundleActivator, BundleListener {
   private final HashMap<String, ConfigurationImpl> configurations =
       new HashMap<String, ConfigurationImpl>();
 
+  // (CODICE) Moved the persistence manager to class state to support closeable
+  private WrappedPersistenceManager fpm;
+
+  // (CODICE) Need a lock for the config dead zone where plugins that initialize and query
+  // config admin will miss configs currently being written, but not yet cached
+  private final StampedLock configDeadZoneLock = new StampedLock();
+
   /**
    * The map of dynamic configuration bindings. This maps the PID of the dynamically bound
    * configuration or factory to its bundle location.
@@ -230,11 +240,14 @@ public class ConfigurationManager implements BundleActivator, BundleListener {
 
     // set up the location (might throw IllegalArgumentException)
     try {
-      // the only major change codice made to this class is wrapping cache persistence with
-      // encryption
-      PersistenceManager fpm =
-          new EncryptingPersistenceManager(
-              new FilePersistenceManager(bundleContext, bundleContext.getProperty(CM_CONFIG_DIR)));
+      // (CODICE) the only major change made to this class is wrapping cache persistence with
+      // encryption and calling registered configuration persistence plugins.
+      fpm =
+          new DelegatingPersistenceManager(
+              new EncryptingPersistenceManager(
+                  new FilePersistenceManager(
+                      bundleContext, bundleContext.getProperty(CM_CONFIG_DIR))),
+              configDeadZoneLock);
 
       Hashtable props = new Hashtable();
       props.put(Constants.SERVICE_PID, fpm.getClass().getName());
@@ -322,6 +335,13 @@ public class ConfigurationManager implements BundleActivator, BundleListener {
 
     // don't care for PersistenceManagers any more
     persistenceManagerTracker.close();
+
+    // (CODICE) now close our wrapped persistence managers too
+    try {
+      fpm.close();
+    } catch (Exception e) {
+      log(LogService.LOG_ERROR, "Failure closing persistence managers", e);
+    }
 
     // shutdown the file persistence manager
     final ServiceRegistration filePmReg = filepmRegistration;
@@ -720,6 +740,41 @@ public class ConfigurationManager implements BundleActivator, BundleListener {
 
   // ---------- internal -----------------------------------------------------
 
+  // (CODICE) Extending the proxy to lock on a store means configuration caching is finished
+  // and up to date when the lock is released. If Felix reset the fullyLoaded flag in the
+  // CachingPersistenceManagerProxy then this LockingProxy might not have been necessary.
+  // Also relevant: https://github.com/codice/ddf/pull/2523#discussion_r150092423
+  private static class LockingProxy extends CachingPersistenceManagerProxy {
+    private final StampedLock configDeadZoneLock;
+
+    LockingProxy(final PersistenceManager pm, final StampedLock configDeadZoneLock) {
+      super(pm);
+      this.configDeadZoneLock = configDeadZoneLock;
+    }
+
+    @Override
+    public void store(String pid, Dictionary properties) throws IOException {
+      // Read lock because Felix provides its own protection for multiple config saves
+      long stamp = configDeadZoneLock.readLock();
+      try {
+        super.store(pid, properties);
+      } finally {
+        configDeadZoneLock.unlockRead(stamp);
+      }
+    }
+
+    @Override
+    public void delete(String pid) throws IOException {
+      // Read lock because Felix provides its own protection for multiple config deletes
+      long stamp = configDeadZoneLock.readLock();
+      try {
+        super.delete(pid);
+      } finally {
+        configDeadZoneLock.unlockRead(stamp);
+      }
+    }
+  }
+
   private CachingPersistenceManagerProxy[] getPersistenceManagers() {
     int currentPmtCount = persistenceManagerTracker.getTrackingCount();
     if (persistenceManagers == null || currentPmtCount > pmtCount) {
@@ -740,7 +795,8 @@ public class ConfigurationManager implements BundleActivator, BundleListener {
         for (int i = 0; i < refs.length; i++) {
           Object service = persistenceManagerTracker.getService(refs[i]);
           if (service != null) {
-            pmList.add(new CachingPersistenceManagerProxy((PersistenceManager) service));
+            // (CODICE) Use our version of the proxy
+            pmList.add(new LockingProxy((PersistenceManager) service, configDeadZoneLock));
           }
         }
 
@@ -1026,7 +1082,8 @@ public class ConfigurationManager implements BundleActivator, BundleListener {
       // FELIX-2771 Secure Random not available on Mika
       try {
         ng = new SecureRandom();
-      } catch (OutOfMemoryError | StackOverflowError | ThreadDeath e) {
+      } catch (VirtualMachineError e) {
+        // (CODICE) rethrow when unrecoverable
         throw e;
       } catch (Throwable t) {
         // fall back to Random

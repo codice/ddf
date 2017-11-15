@@ -25,6 +25,8 @@ import org.slf4j.LoggerFactory;
 public class EncryptionServiceImpl implements EncryptionService {
   private static final Logger LOGGER = LoggerFactory.getLogger(EncryptionServiceImpl.class);
 
+  private static final Pattern ENC_PATTERN = Pattern.compile("^ENC\\((.*)\\)$");
+
   private final Crypter crypter;
 
   public EncryptionServiceImpl() {
@@ -45,7 +47,6 @@ public class EncryptionServiceImpl implements EncryptionService {
       } catch (Exception e) {
         LOGGER.debug(e.getMessage());
       }
-
       this.crypter = crypter;
     }
   }
@@ -58,7 +59,6 @@ public class EncryptionServiceImpl implements EncryptionService {
   public synchronized String encrypt(String plainTextValue) {
     try {
       return crypter.encrypt(plainTextValue);
-
     } catch (Exception e) {
       LOGGER.debug("Key and encryption service failed to set up. Failed to encrypt.", e);
       return plainTextValue;
@@ -80,10 +80,10 @@ public class EncryptionServiceImpl implements EncryptionService {
   }
 
   // @formatter:off
-
   /**
-   * @param wrappedEncryptedValue An wrapped encrypted password.
-   *     <pre>{@code
+   * {@inheritDoc}
+   *
+   * <pre>{@code
    * One can encrypt passwords using the security:encrypt console command.
    *
    * user@local>security:encrypt secret
@@ -94,62 +94,53 @@ public class EncryptionServiceImpl implements EncryptionService {
    * }</pre>
    */
   // @formatter:on
+  @Override
   public String decryptValue(String wrappedEncryptedValue) {
-    String decryptedValue = null;
     String encryptedValue = unwrapEncryptedValue(wrappedEncryptedValue);
-
     if (wrappedEncryptedValue == null) {
       LOGGER.debug("A null password was provided.");
-      decryptedValue = null;
-    } else if (wrappedEncryptedValue.isEmpty()) {
-      LOGGER.debug("A blank password was provided in the configuration.");
-      decryptedValue = "";
-    } else if (!wrappedEncryptedValue.equals(encryptedValue)) {
-      LOGGER.debug("Unwrapped encrypted password is now being decrypted");
-      decryptedValue = decrypt(encryptedValue);
-    } else if (wrappedEncryptedValue.equals(encryptedValue)) {
-      /**
-       * If the password is not in the form ENC(my-encrypted-password), we assume the password is
-       * not encrypted.
-       */
-      decryptedValue = wrappedEncryptedValue;
-      LOGGER.warn(
-          "A plain text password was provided in the configuration in the console.  Consider using an encrypted password.");
-    }
-
-    return decryptedValue;
-  }
-
-  public String unwrapEncryptedValue(String wrappedEncryptedValue) {
-    /** The wrapped encrypted password should be in the form ENC(my-encrypted-password) */
-    final String pattern = "^ENC\\((.*)\\)$";
-    String unwrappedEncryptedValue = null;
-
-    if (wrappedEncryptedValue != null) {
-      Pattern p = Pattern.compile(pattern);
-      Matcher m = p.matcher(wrappedEncryptedValue);
-      if (m.find()) {
-        LOGGER.debug("Wrapped encrypted password value found.");
-        /**
-         * Get the value in parenthesis. In this example, ENC(my-encrypted-password), m.group(1)
-         * would return my-encrypted-password.
-         */
-        unwrappedEncryptedValue = m.group(1);
-      } else {
-        /**
-         * If the password is not in the form ENC(my-encrypted-password), we assume the password is
-         * not encrypted.
-         */
-        unwrappedEncryptedValue = wrappedEncryptedValue;
-        LOGGER.warn(
-            "You have provided a plain text password in your configuration.  Consider using an encrypted password.");
-      }
-
-      return unwrappedEncryptedValue;
-    } else {
-      LOGGER.debug("You have provided a null password in your configuration.");
-
       return null;
     }
+    if (wrappedEncryptedValue.isEmpty()) {
+      LOGGER.debug("A blank password was provided in the configuration.");
+      return "";
+    }
+    // If the password is not in the form ENC(my-encrypted-password),
+    // we assume the password is not encrypted.
+    if (wrappedEncryptedValue.equals(encryptedValue)) {
+      return wrappedEncryptedValue;
+    }
+    LOGGER.debug("Unwrapped encrypted password is now being decrypted");
+    return decrypt(encryptedValue);
+  }
+
+  /**
+   * {@inheritDoc}
+   *
+   * <p>Given a string that starts with 'ENC(' and ends with ')', returns the in-between substring.
+   * This method is meant to remove the wrapping notation for encrypted values, typically passwords.
+   *
+   * <p>If the input is a password and is not in the form ENC(my-encrypted-password), we assume the
+   * password is not encrypted.
+   *
+   * @param wrappedEncryptedValue The wrapped encrypted value, in the form
+   *     'ENC(my-encrypted-value)'.
+   * @return The value within the parenthesis.
+   */
+  @Override
+  public String unwrapEncryptedValue(String wrappedEncryptedValue) {
+    if (wrappedEncryptedValue == null) {
+      LOGGER.debug("You have provided a null password in your configuration.");
+      return null;
+    }
+
+    // Get the value in parenthesis. In this example, ENC(my-encrypted-password),
+    // m.group(1) would return my-encrypted-password.
+    Matcher m = ENC_PATTERN.matcher(wrappedEncryptedValue);
+    if (m.find()) {
+      LOGGER.debug("Wrapped encrypted password value found.");
+      return m.group(1);
+    }
+    return wrappedEncryptedValue;
   }
 }
