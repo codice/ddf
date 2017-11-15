@@ -171,6 +171,10 @@ public class ConfigurationApplication implements SparkApplication {
 
   private Boolean showLogo = false;
 
+  private boolean disableSearchHistorical = false;
+
+  private boolean disableSearchArchive = false;
+
   public ConfigurationApplication() {}
 
   public List<Long> getScheduleFrequencyList() {
@@ -354,6 +358,8 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("showRelevanceScores", showRelevanceScores);
     config.put("relevancePrecision", relevancePrecision);
     config.put("showLogo", showLogo);
+    config.put("disableSearchHistorical", disableSearchHistorical);
+    config.put("disableSearchArchive", disableSearchArchive);
 
     return config;
   }
@@ -859,5 +865,21 @@ public class ConfigurationApplication implements SparkApplication {
 
   public void setMapHome(String mapHome) {
     this.mapHome = mapHome;
+  }
+
+  public boolean isDisableSearchHistorical() {
+    return disableSearchHistorical;
+  }
+
+  public void setDisableSearchHistorical(boolean disableSearchHistorical) {
+    this.disableSearchHistorical = disableSearchHistorical;
+  }
+
+  public boolean isDisableSearchArchive() {
+    return disableSearchArchive;
+  }
+
+  public void setDisableSearchArchive(boolean disableSearchArchive) {
+    this.disableSearchArchive = disableSearchArchive;
   }
 }

@@ -27,10 +27,12 @@ define([
     'component/query-feedback/query-feedback.view',
     'component/confirmation/query/confirmation.query.view',
     'component/loading/loading.view',
-    'component/query-annotations/query-annotations.view'
+    'component/query-annotations/query-annotations.view',
+    'properties'
 ], function (wreqr, Marionette, _, $, template, CustomElements, 
     store, MenuNavigationDecorator, Decorators, lightboxInstance, 
-    QueryFeedbackView, QueryConfirmationView, LoadingView, QueryAnnotationsView) {
+    QueryFeedbackView, QueryConfirmationView, LoadingView, QueryAnnotationsView,
+    properties) {
 
     return Marionette.ItemView.extend(Decorators.decorate({
         template: template,
@@ -140,6 +142,12 @@ define([
         },
         handleClick: function(){
             this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
+        },
+        serializeData: function(){
+            return {
+                isSearchHistoricalEnabled : properties.isSearchHistoricalEnabled(),
+                isSearchArchivedEnabled : properties.isSearchArchivedEnabled()
+            };
         }
     }, MenuNavigationDecorator));
 });

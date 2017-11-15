@@ -124,8 +124,13 @@ define(function (require) {
         },
         isDisableLocalCatalog: function(){
             return this.disableLocalCatalog;
+        },
+        isSearchHistoricalEnabled: function(){
+            return !this.disableSearchHistorical;
+        },
+        isSearchArchivedEnabled: function(){
+            return !this.disableSearchArchive;
         }
-
     };
 
     return properties.init();
