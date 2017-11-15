@@ -28,6 +28,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Collection;
+import java.util.stream.Stream;
 import org.apache.camel.CamelContext;
 import org.apache.camel.ServiceStatus;
 import org.apache.camel.builder.RouteBuilder;
@@ -206,10 +207,8 @@ public class DefaultUsersDeletionScheduler {
   }
 
   public boolean defaultUsersExist() {
-    try {
-      return Files.lines(getUsersPropertiesFilePath())
-              .filter(line -> !line.trim().isEmpty() && !line.startsWith("#"))
-              .count()
+    try (Stream<String> defaultUsers = Files.lines(getUsersPropertiesFilePath())) {
+      return defaultUsers.filter(line -> !line.trim().isEmpty() && !line.startsWith("#")).count()
           != 0;
     } catch (IOException e) {
       LOGGER.debug("Unable to access users.properties file.", e);
