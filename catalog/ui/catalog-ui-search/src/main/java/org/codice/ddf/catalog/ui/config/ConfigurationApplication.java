@@ -171,6 +171,26 @@ public class ConfigurationApplication implements SparkApplication {
 
   private Boolean showLogo = false;
 
+  private String backgroundColor;
+
+  private String textColor;
+
+  private String buttonTextColor;
+
+  private String primaryColor;
+
+  private String positiveColor;
+
+  private String negativeColor;
+
+  private String warningColor;
+
+  private String favoriteColor;
+
+  private String linksVisitedColor;
+
+  private String linksColor;
+
   public ConfigurationApplication() {}
 
   public List<Long> getScheduleFrequencyList() {
@@ -354,6 +374,16 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("showRelevanceScores", showRelevanceScores);
     config.put("relevancePrecision", relevancePrecision);
     config.put("showLogo", showLogo);
+    config.put("backgroundColor", backgroundColor);
+    config.put("textColor", textColor);
+    config.put("buttonTextColor", buttonTextColor);
+    config.put("primaryColor", primaryColor);
+    config.put("positiveColor", positiveColor);
+    config.put("negativeColor", negativeColor);
+    config.put("warningColor", warningColor);
+    config.put("favoriteColor", favoriteColor);
+    config.put("linksVisitedColor", linksVisitedColor);
+    config.put("linksColor", linksColor);
 
     return config;
   }
@@ -859,5 +889,85 @@ public class ConfigurationApplication implements SparkApplication {
 
   public void setMapHome(String mapHome) {
     this.mapHome = mapHome;
+  }
+
+  public String getBackgroundColor() {
+    return backgroundColor;
+  }
+
+  public void setBackgroundColor(String backgroundColor) {
+    this.backgroundColor = backgroundColor;
+  }
+
+  public String getTextColor() {
+    return textColor;
+  }
+
+  public void setTextColor(String textColor) {
+    this.textColor = textColor;
+  }
+
+  public String getButtonTextColor() {
+    return buttonTextColor;
+  }
+
+  public void setButtonTextColor(String buttonTextColor) {
+    this.buttonTextColor = buttonTextColor;
+  }
+
+  public String getPrimaryColor() {
+    return primaryColor;
+  }
+
+  public void setPrimaryColor(String primaryColor) {
+    this.primaryColor = primaryColor;
+  }
+
+  public String getPositiveColor() {
+    return positiveColor;
+  }
+
+  public void setPositiveColor(String positiveColor) {
+    this.positiveColor = positiveColor;
+  }
+
+  public String getNegativeColor() {
+    return negativeColor;
+  }
+
+  public void setNegativeColor(String negativeColor) {
+    this.negativeColor = negativeColor;
+  }
+
+  public String getWarningColor() {
+    return warningColor;
+  }
+
+  public void setWarningColor(String warningColor) {
+    this.warningColor = warningColor;
+  }
+
+  public String getFavoriteColor() {
+    return favoriteColor;
+  }
+
+  public void setFavoriteColor(String favoriteColor) {
+    this.favoriteColor = favoriteColor;
+  }
+
+  public String getLinksVisitedColor() {
+    return linksVisitedColor;
+  }
+
+  public void setLinksVisitedColor(String linksVisitedColor) {
+    this.linksVisitedColor = linksVisitedColor;
+  }
+
+  public String getLinksColor() {
+    return linksColor;
+  }
+
+  public void setLinksColor(String linksColor) {
+    this.linksColor = linksColor;
   }
 }

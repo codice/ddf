@@ -302,6 +302,76 @@
           default="false"
           required="false"/>
 
+        <AD id="backgroundColor"
+            name="Background Color"
+            description="Root background color used to calculate various shades used by the background."
+            type="String"
+            default="#424249"
+            required="true"/>
+
+        <AD id="textColor"
+            name="Text Color"
+            description="Text color."
+            type="String"
+            default="contrast(@fortyGrey)"
+            required="true"/>
+
+        <AD id="buttonTextColor"
+            name="Button Text Color"
+            description="Button text color."
+            type="String"
+            default="white"
+            required="true"/>
+
+        <AD id="primaryColor"
+            name="Primary Foreground Color"
+            description="Primary foreground color."
+            type="String"
+            default="#3c6dd5"
+            required="true"/>
+
+        <AD id="positiveColor"
+            name="Positive Color"
+            description="Positive color used for positive events, such as success-messages, save-buttons and increment-buttons."
+            type="String"
+            default="#428442"
+            required="true"/>
+
+        <AD id="negativeColor"
+            name="Negative Color"
+            description="Negative color used for negative events, such as failure-messages, cancel-buttons and decrement-buttons."
+            type="String"
+            default="#8a423c"
+            required="true"/>
+
+        <AD id="warningColor"
+            name="Warning Color"
+            description="Warning color."
+            type="String"
+            default="#c89600"
+            required="true"/>
+
+        <AD id="favoriteColor"
+            name="Favorite Color"
+            description="Favorite color."
+            type="String"
+            default="#d1d179"
+            required="true"/>
+
+        <AD id="linksVisitedColor"
+            name="Links Visited Color"
+            description="Links visited color."
+            type="String"
+            default="#9874e4"
+            required="true"/>
+
+        <AD id="linksColor"
+            name="Links Color"
+            description="Links color."
+            type="String"
+            default="@primary-color"
+            required="true"/>
+
     </OCD>
 
     <Designate pid="org.codice.ddf.catalog.ui.config">
