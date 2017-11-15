@@ -55,6 +55,10 @@ define([
         initialize: function() {},
         onRender: function() {
             this.checkIfSubscribed();
+            this.handleLocal();
+        },
+        handleLocal: function() {
+            this.$el.toggleClass('is-local', this.model.isLocal());
         },
         checkIfSubscribed: function() {
             this.$el.toggleClass('is-subscribed', Boolean(this.model.get('subscribed')));

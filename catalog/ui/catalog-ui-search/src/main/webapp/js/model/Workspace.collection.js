@@ -144,7 +144,9 @@ module.exports = Backbone.Collection.extend({
         }).get('queries').first().startSearch();
     },
     duplicateWorkspace: function (workspace) {
-        this.create(_.omit(workspace.toJSON(), 'id', 'owner', 'metacard.sharing'));
+        let duplicateWorkspace = _.pick(workspace.toJSON(), 'title', 'queries');
+        duplicateWorkspace.queries = duplicateWorkspace.queries.map((query) => _.omit(query, 'isLocal', 'id'));
+        this.create(duplicateWorkspace);
     },
     saveAll: function () {
         this.forEach(function (workspace) {

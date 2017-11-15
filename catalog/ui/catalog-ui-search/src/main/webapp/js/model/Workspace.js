@@ -65,8 +65,9 @@ module.exports = Backbone.AssociatedModel.extend({
         return query.get('id');
     },
     initialize: function () {
-        this.get('queries').on('add', function () {
-            this.trigger('change');
+        this.get('queries').on('add', (model, collection) => {
+            model.set('isLocal', this.isLocal());
+            collection.trigger('change');
         });
         this.listenTo(this.get('queries'), 'update add remove', this.handleQueryChange);
         this.listenTo(this.get('queries'), 'change', this.handleChange);
@@ -108,6 +109,9 @@ module.exports = Backbone.AssociatedModel.extend({
     },
     handleError: function () {
         this.set('saved', false);
+    },
+    isLocal: function() {
+        return Boolean(this.get('localStorage'));
     },
     isSaved: function () {
         return this.get('saved');
