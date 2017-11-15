@@ -51,13 +51,7 @@ public class CertificateGeneratorTest {
 
   @Test
   public void testConfigureDemoCert() throws Exception {
-    CertificateGenerator generator =
-        new CertificateGenerator() {
-          @Override
-          public void registerMbean() {
-            // do nothing
-          }
-        };
+    CertificateGenerator generator = new CertificateGenerator();
     KeyStoreFile ksf = generator.getKeyStoreFile();
     assertThat(ksf.aliases().size(), is(2));
     assertThat(generator.configureDemoCert("my-fqdn"), is("CN=my-fqdn"));
