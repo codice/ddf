@@ -14,11 +14,14 @@
 package org.codice.felix.cm.file;
 
 import static java.util.Collections.enumeration;
+import static org.codice.felix.cm.file.ConfigurationContextImpl.FELIX_FILENAME;
 import static org.osgi.framework.Constants.SERVICE_PID;
 import static org.osgi.service.cm.ConfigurationAdmin.SERVICE_FACTORYPID;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
@@ -30,6 +33,7 @@ import java.util.Set;
 import org.apache.felix.cm.PersistenceManager;
 import org.keyczar.Crypter;
 import org.keyczar.KeyczarTool;
+import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +43,9 @@ import org.slf4j.LoggerFactory;
  * are loaded.
  *
  * <p>This allows the configuration data in the bundle cache to be fully encrypted.
+ *
+ * <p><b>See FELIX-4005 & FELIX-4556. This class cannot utilize Java 8 language constructs due to
+ * maven bundle plugin 2.3.7</b>
  */
 public class EncryptingPersistenceManager extends WrappedPersistenceManager {
   private static final Logger LOGGER = LoggerFactory.getLogger(EncryptingPersistenceManager.class);
@@ -53,25 +60,39 @@ public class EncryptingPersistenceManager extends WrappedPersistenceManager {
 
   private static final Set<String> EXCLUDED_PROPERTIES = new HashSet<>();
 
-  // Not worth adding a dependency on felix's fileinstall module just for the constant
-  static final String FELIX_FILENAME = "felix.fileinstall.filename";
-
   static {
     EXCLUDED_PROPERTIES.add(SERVICE_PID);
     EXCLUDED_PROPERTIES.add(SERVICE_FACTORYPID);
     EXCLUDED_PROPERTIES.add(FELIX_FILENAME);
   }
 
+  private class InitOperation implements PrivilegedAction<EncryptionAgent> {
+    private final String passwordDirectory;
+
+    InitOperation(String passwordDirectory) {
+      this.passwordDirectory = passwordDirectory;
+    }
+
+    @Override
+    public EncryptionAgent run() {
+      return new EncryptionAgent(passwordDirectory);
+    }
+  }
+
   private final EncryptionAgent agent;
 
   public EncryptingPersistenceManager(PersistenceManager persistenceManager) {
-    this(persistenceManager, System.getProperty("ddf.home").concat("/etc/certs/bundle-cache"));
+    this(
+        persistenceManager,
+        FrameworkUtil.getBundle(EncryptingPersistenceManager.class)
+            .getDataFile("")
+            .getAbsolutePath());
   }
 
   public EncryptingPersistenceManager(
       PersistenceManager persistenceManager, String passwordDirectory) {
     super(persistenceManager);
-    this.agent = new EncryptionAgent(passwordDirectory);
+    this.agent = AccessController.doPrivileged(new InitOperation(passwordDirectory));
   }
 
   @Override

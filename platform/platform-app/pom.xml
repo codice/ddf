@@ -266,6 +266,16 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.platform.io</groupId>
+            <artifactId>platform-io-internal-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.io</groupId>
+            <artifactId>platform-io-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.platform</groupId>
             <artifactId>platform-logging</artifactId>
             <version>${project.version}</version>

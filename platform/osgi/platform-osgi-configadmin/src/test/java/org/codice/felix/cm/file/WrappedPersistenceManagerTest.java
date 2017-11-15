@@ -14,8 +14,10 @@
 package org.codice.felix.cm.file;
 
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
@@ -30,13 +32,28 @@ import org.mockito.runners.MockitoJUnitRunner;
 public class WrappedPersistenceManagerTest {
   private static final String PID = "myPid";
 
-  @Mock private PersistenceManager mockPersistenceManager;
+  @Mock private WrappedPersistenceManager mockPersistenceManager;
 
-  private PersistenceManager persistenceManager;
+  private WrappedPersistenceManager persistenceManager;
 
   @Before
   public void setup() throws Exception {
     persistenceManager = new WrappedPersistenceManager(mockPersistenceManager);
+  }
+
+  @Test
+  public void testClose() throws Exception {
+    persistenceManager.close();
+    verify(mockPersistenceManager).close();
+    verifyNoMoreInteractions(mockPersistenceManager);
+  }
+
+  @Test
+  public void testCloseWhenInnerPmNotWrappedPm() throws Exception {
+    PersistenceManager mockSomeOtherPm = mock(PersistenceManager.class);
+    persistenceManager = new WrappedPersistenceManager(mockSomeOtherPm);
+    persistenceManager.close();
+    verifyZeroInteractions(mockSomeOtherPm);
   }
 
   @Test

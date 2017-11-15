@@ -44,6 +44,18 @@ These shared resources include:
   <properties>
     <command.prompt.title>DDF-${project.version}</command.prompt.title>
   </properties>
+  <dependencies>
+    <dependency>
+      <groupId>ddf.platform.osgi</groupId>
+      <artifactId>platform-osgi-internal-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>ddf.platform.osgi</groupId>
+      <artifactId>platform-osgi-configadmin</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
   <build>
     <resources>
       <resource>

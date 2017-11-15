@@ -14,7 +14,7 @@
 package org.codice.felix.cm.file;
 
 import static java.lang.String.format;
-import static org.codice.felix.cm.file.EncryptingPersistenceManager.FELIX_FILENAME;
+import static org.codice.felix.cm.file.ConfigurationContextImpl.FELIX_FILENAME;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
