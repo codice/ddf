@@ -96,7 +96,6 @@ define([
             this.onBeforeShow();
             this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
         },
-        // matches saveToModel method in query-altitude.view
         saveToModel: function(){
             var federation = this._srcDropdownModel.get('federation');
             var src;

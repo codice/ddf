@@ -52,25 +52,6 @@ module.exports = Marionette.LayoutView.extend({
             }
         });
     },
-    // matches saveToModel in query-settings.view
-    saveToModel: function () {
-        var federation = this.settingsFederation.currentView.model.getValue()[0];
-        var src;
-        if (federation === 'selected') {
-            src = this._srcDropdownModel.get('value');
-            if (src === undefined || src.length === 0) {
-                federation = 'local';
-            }
-        }
-        var sortField = this.settingsSortField.currentView.getSortField();
-        var sortOrder = this.settingsSortField.currentView.getSortOrder();
-        this.model.set({
-            src: src,
-            federation: federation,
-            sortField: sortField,
-            sortOrder: sortOrder
-        });
-    },
     handleAltitudeRangeValue: function () {
         var altitudeRange = this.basicAltitude.currentView.model.getValue()[0];
         this.$el.toggleClass('is-altitudeRange-any', altitudeRange === 'any');
