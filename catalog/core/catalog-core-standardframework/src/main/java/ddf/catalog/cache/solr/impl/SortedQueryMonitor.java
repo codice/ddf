@@ -170,10 +170,8 @@ class SortedQueryMonitor implements Runnable {
 
           if (sourceResponse == null) {
             LOGGER.debug("Source {} returned null response", sourceId);
-            executePostFederationQueryPluginsWithSourceError(queryRequest,
-                    sourceId,
-                    new NullPointerException(),
-                    processingDetails);
+            executePostFederationQueryPluginsWithSourceError(
+                queryRequest, sourceId, new NullPointerException(), processingDetails);
           } else if (queryRequest != null) {
             sourceResponse = executePostFederationQueryPlugins(sourceResponse, queryRequest);
             resultList.addAll(sourceResponse.getResults());
@@ -188,10 +186,8 @@ class SortedQueryMonitor implements Runnable {
           if (queryRequest != null) {
             // First, add interrupted processing detail for this source
             LOGGER.debug("Search interrupted for {}", sourceId);
-            executePostFederationQueryPluginsWithSourceError(queryRequest,
-                    sourceId,
-                    e,
-                    processingDetails);
+            executePostFederationQueryPluginsWithSourceError(
+                queryRequest, sourceId, e, processingDetails);
           }
 
           // Then add the interrupted exception for the remaining sources
@@ -199,20 +195,18 @@ class SortedQueryMonitor implements Runnable {
           interrupted = true;
           break;
         } catch (ExecutionException e) {
-          LOGGER.info("Couldn't get results from completed federated query. {}, {}",
-                  sourceId,
-                  Exceptions.getFullMessage(e),
-                  e);
-          executePostFederationQueryPluginsWithSourceError(queryRequest,
-                  sourceId,
-                  e,
-                  processingDetails);
+          LOGGER.info(
+              "Couldn't get results from completed federated query. {}, {}",
+              sourceId,
+              Exceptions.getFullMessage(e),
+              e);
+          executePostFederationQueryPluginsWithSourceError(
+              queryRequest, sourceId, e, processingDetails);
         }
       }
     } finally {
       if (interrupted) {
-        Thread.currentThread()
-                .interrupt();
+        Thread.currentThread().interrupt();
       }
     }
     returnProperties.put("hitsPerSource", hitsPerSource);

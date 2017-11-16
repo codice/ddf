@@ -86,8 +86,8 @@ public class CacheBulkProcessor {
             }
           } catch (VirtualMachineError vme) {
             throw vme;
-          } catch (Exception e) {
-            LOGGER.warn("Scheduled bulk ingest to cache failed", e);
+          } catch (Throwable throwable) {
+            LOGGER.warn("Scheduled bulk ingest to cache failed", throwable);
           }
         },
         delay,

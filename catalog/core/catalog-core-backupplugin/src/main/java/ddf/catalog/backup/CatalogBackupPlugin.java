@@ -130,7 +130,7 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
         throw new IllegalStateException(e);
       }
       final List<Runnable> failures = executor.shutdownNow();
-      if (failures.isEmpty()) {
+      if (!failures.isEmpty()) {
         LOGGER.warn("Cancelled tasks to backup metacards. Some metacards might not be backed up.");
       }
     }

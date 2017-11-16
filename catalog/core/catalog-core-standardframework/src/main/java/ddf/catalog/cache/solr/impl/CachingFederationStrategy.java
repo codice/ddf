@@ -556,8 +556,8 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
                   cacheBulkProcessor.add(clonedSourceResponse.getResults());
                 } catch (VirtualMachineError vme) {
                   throw vme;
-                } catch (Exception e) {
-                  LOGGER.warn("Unable to add results for bulk processing", e);
+                } catch (Throwable throwable) {
+                  LOGGER.warn("Unable to add results for bulk processing", throwable);
                 }
               });
         }
