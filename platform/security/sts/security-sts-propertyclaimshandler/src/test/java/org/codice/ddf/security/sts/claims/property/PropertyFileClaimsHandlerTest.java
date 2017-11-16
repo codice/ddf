@@ -30,7 +30,7 @@ import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TestPropertyFileClaimsHandler {
+public class PropertyFileClaimsHandlerTest {
 
   @Test
   public void testRetrieveClaimValues() {

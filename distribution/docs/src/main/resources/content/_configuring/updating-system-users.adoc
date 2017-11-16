@@ -46,6 +46,19 @@ It is possible for a regex in `users.attributes` to match users as well as a sys
 
 [WARNING]
 ====
-If your data will contain security markings, and these markings are being parsed out into the METACARD.security attribute via a PolicyPlugin, then the FQDN user *MUST* be updated with attributes that would grant the privileges to ingest that data.
+If your data will contain security markings, and these markings are being parsed out into the metacard security attributes via a PolicyPlugin, then the FQDN user *MUST* be updated with attributes that would grant the privileges to ingest that data.
 Failure to update the FQDN user with sufficient attributes will result in an error being returned for any ingest request.
+====
+
+[WARNING]
+====
+The following attribute values are not allowed:
+
+* `null`
+* `""`
+* a non-String (e.g. `100`, `false`)
+* an array including any of the above
+* `[]`
+
+Additionally, attribute names should not be repeated, and the order that the attributes are defined and the order of values within an array will be ignored.
 ====

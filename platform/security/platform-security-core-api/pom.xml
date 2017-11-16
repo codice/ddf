@@ -206,7 +206,8 @@
                             alerts
                         </Embed-Dependency>
                         <Export-Package>
-                            ddf.security*;version=${project.version}
+                            ddf.security*;version=${project.version},
+                            org.codice.ddf.security*;version=${project.version}
                         </Export-Package>
                         <Import-Package>
                             org.opensaml.xmlsec.signature.support.provider,
@@ -245,7 +246,6 @@
                                             <value>COVEREDRATIO</value>
                                             <minimum>0.39</minimum>
                                         </limit>
-
                                     </limits>
                                 </rule>
                             </rules>
