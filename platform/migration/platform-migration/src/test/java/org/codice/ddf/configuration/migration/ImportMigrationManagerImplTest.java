@@ -37,6 +37,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 public class ImportMigrationManagerImplTest extends AbstractMigrationReportSupport {
+
   private static final String MIGRATABLE_ID2 = "test-migratable-2";
 
   private static final String MIGRATABLE_ID3 = "test-migratable-3";
@@ -71,7 +72,10 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
 
     zipEntry =
         getMetadataZipEntry(
-            zip, Optional.of(MigrationContextImpl.CURRENT_VERSION), Optional.of(PRODUCT_VERSION));
+            zip,
+            Optional.of(MigrationContextImpl.CURRENT_VERSION),
+            Optional.of(PRODUCT_BRANDING),
+            Optional.of(PRODUCT_VERSION));
 
     // use answer to ensure we create a new stream each time if called multiple times
     Mockito.doAnswer(
@@ -88,7 +92,11 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
   }
 
   private ZipEntry getMetadataZipEntry(
-      ZipFile zip, Optional<String> version, Optional<String> productVersion) throws IOException {
+      ZipFile zip,
+      Optional<String> version,
+      Optional<String> productBranding,
+      Optional<String> productVersion)
+      throws IOException {
     final StringBuilder sb = new StringBuilder();
 
     sb.append("{\"dummy\":\"dummy");
@@ -98,6 +106,12 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
                 .append(MigrationContextImpl.METADATA_VERSION)
                 .append("\":\"")
                 .append(v));
+    productBranding.ifPresent(
+        b ->
+            sb.append("\",\"")
+                .append(MigrationContextImpl.METADATA_PRODUCT_BRANDING)
+                .append("\":\"")
+                .append(b));
     productVersion.ifPresent(
         v ->
             sb.append("\",\"")
@@ -304,7 +318,9 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
 
   @Test
   public void testConstructorWhenZipIsOfInvalidVersion() throws Exception {
-    zipEntry = getMetadataZipEntry(zip, Optional.of(VERSION), Optional.of(PRODUCT_VERSION));
+    zipEntry =
+        getMetadataZipEntry(
+            zip, Optional.of(VERSION), Optional.of(PRODUCT_BRANDING), Optional.of(PRODUCT_VERSION));
 
     thrown.expect(MigrationException.class);
     thrown.expectMessage("unsupported exported version");
@@ -314,7 +330,7 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
 
   @Test
   public void testDoImport() throws Exception {
-    mgr.doImport(PRODUCT_VERSION);
+    mgr.doImport(PRODUCT_BRANDING, PRODUCT_VERSION);
 
     Mockito.verify(migratable).doImport(Mockito.notNull());
     Mockito.verify(migratable2).doImport(Mockito.notNull());
@@ -355,7 +371,7 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
 
     thrown.expect(Matchers.sameInstance(me));
 
-    mgr.doImport(PRODUCT_VERSION);
+    mgr.doImport(PRODUCT_BRANDING, PRODUCT_VERSION);
 
     Mockito.verify(migratable).doImport(Mockito.notNull());
     Mockito.verify(migratable2).doImport(Mockito.notNull());
@@ -363,11 +379,27 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
   }
 
   @Test
+  public void testDoImportWithNullProductBranding() throws Exception {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage(Matchers.containsString("null product branding"));
+
+    mgr.doImport(null, PRODUCT_VERSION);
+  }
+
+  @Test
   public void testDoImportWithNullProductVersion() throws Exception {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage(Matchers.containsString("null product version"));
 
-    mgr.doImport(null);
+    mgr.doImport(PRODUCT_BRANDING, null);
+  }
+
+  @Test
+  public void testDoImportWithInvalidProductBranding() throws Exception {
+    thrown.expect(MigrationException.class);
+    thrown.expectMessage(Matchers.containsString("mismatched product"));
+
+    mgr.doImport(PRODUCT_BRANDING + "2", PRODUCT_VERSION);
   }
 
   @Test
@@ -375,7 +407,7 @@ public class ImportMigrationManagerImplTest extends AbstractMigrationReportSuppo
     thrown.expect(MigrationException.class);
     thrown.expectMessage(Matchers.containsString("mismatched product version"));
 
-    mgr.doImport(PRODUCT_VERSION + "2");
+    mgr.doImport(PRODUCT_BRANDING, PRODUCT_VERSION + "2");
   }
 
   @Test

@@ -97,6 +97,8 @@ public class ConfigurationAdminMigratableTest {
 
   private static final String DDF_EXPORTED_TAG_TEMPLATE = "exported_from_%s";
 
+  private static final String SUPPORTED_BRANDING = "test";
+
   private static final String SUPPORTED_VERSION = "1.0";
 
   private static final String DEFAULT_FILE_EXT = "config";
@@ -218,7 +220,7 @@ public class ConfigurationAdminMigratableTest {
     Assert.assertThat("The export report has errors.", exportReport.hasErrors(), is(false));
     Assert.assertThat("The export report has warnings.", exportReport.hasWarnings(), is(false));
     Assert.assertThat("Export was not successful.", exportReport.wasSuccessful(), is(true));
-    String exportedZipBaseName = String.format("exported-%s.zip", SUPPORTED_VERSION);
+    String exportedZipBaseName = String.format("%s-%s.dar", SUPPORTED_BRANDING, SUPPORTED_VERSION);
     Path exportedZip = exportDir.resolve(exportedZipBaseName).toRealPath();
     Assert.assertThat("Export zip does not exist.", exportedZip.toFile().exists(), is(true));
     Assert.assertThat("Exported zip is empty.", exportedZip.toFile().length(), greaterThan(0L));
@@ -353,7 +355,16 @@ public class ConfigurationAdminMigratableTest {
     System.setProperty(DDF_HOME_SYSTEM_PROP_KEY, ddfHome.toRealPath().toString());
     Path etcDir = ddfHome.resolve("etc");
     Files.createDirectory(etcDir);
+    setupBrandingFile(SUPPORTED_BRANDING);
     setupVersionFile(SUPPORTED_VERSION);
+  }
+
+  private void setupBrandingFile(String branding) throws IOException {
+    final Path brandingFile = ddfHome.resolve("Branding.txt");
+
+    Files.createFile(brandingFile);
+    FileUtils.writeStringToFile(
+        brandingFile.toFile().getCanonicalFile(), branding, StandardCharsets.UTF_8);
   }
 
   private void setupVersionFile(String version) throws IOException {
