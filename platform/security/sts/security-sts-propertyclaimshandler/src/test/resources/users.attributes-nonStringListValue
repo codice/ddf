@@ -12,6 +12,9 @@
                 ],
                 "disseminationControls" : [
                     "NF"
+                ],
+                "anAttributeWithANonStringListValue" : [
+                    false
                 ]
             },
             "admin" :                 {

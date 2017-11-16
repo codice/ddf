@@ -35,9 +35,9 @@
             description="Location of the file which maps roles to users.">
         </AD>
 
-        <AD name="User Attribute File:" id="attributeFileLocation" required="true" type="String"
+        <AD name="Users Attributes File:" id="usersAttributesFileLocation" required="true" type="String"
             default="etc/users.attributes"
-            description="Location of the file which maps attributes to users.">
+            description="Location of the file which maps attributes to users. This path can be relative to ddf.home or an absolute path on the system.">
         </AD>
 
     </OCD>
