@@ -33,7 +33,7 @@ define([
     eventsHash[queryItemClickEvent] = 'handleQueryItemClick';
 
     return QueryItemCollectionView.extend(Decorators.decorate({
-        className: 'is-query-select',
+        className: 'is-query-select is-action-list',
         events: eventsHash,
         onBeforeShow: function(){
             this.handleValue();

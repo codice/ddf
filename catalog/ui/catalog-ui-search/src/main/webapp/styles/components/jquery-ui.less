@@ -1,5 +1,5 @@
 .ui-multiselect-menu {
-    background: @dropdown-background-color;
+    .changeBackground(@backgroundDropdown);
     z-index: @zIndexDropdown;
 }
 
@@ -24,7 +24,7 @@
 }
 
 div.multiselect label.ui-state-hover, div.multiselect label.ui-state-active {
-    background: @lighten-inherited-background-color;
+    background: fade(contrast(@backgroundDropdown), 10%);
 }
 
 div.multiselect label.ui-state-hover>span {

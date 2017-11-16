@@ -54,7 +54,7 @@ module.exports = Backbone.AssociatedModel.extend({
         completeActiveSearchResultsAttributes: [],
     },
     initialize: function () {
-        this.set('currentResult', new Metacard.SearchResult());
+        this.set('currentResult', new QueryResponse());
         this.listenTo(this, 'change:currentMetacard', this.handleUpdate);
         this.listenTo(this, 'change:currentMetacard', this.handleCurrentMetacard);
         this.listenTo(this, 'change:currentResult', this.handleResultChange);

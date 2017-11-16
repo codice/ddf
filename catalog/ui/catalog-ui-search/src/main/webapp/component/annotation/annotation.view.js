@@ -141,7 +141,7 @@ module.exports = Marionette.LayoutView.extend({
         if (response.responseType === "success") {
             var annotation = JSON.parse(response.response);
             this.model.attributes.annotation = annotation.note;
-            this.$el.find('textarea').text(annotation.note);
+            this.onBeforeShow();
 
             announcement.announce({
                 title: 'Success!',

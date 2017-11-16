@@ -21,7 +21,6 @@
 
   .property-label label {
     cursor: auto;
-    color: grey;
     .is-bold();
     max-width: ~'calc(100% - @{minimumButtonSize})';
     margin: 0px;
@@ -71,9 +70,8 @@
     height: 100%;
     padding-right: @largeSpacing;
     padding-top: @minimumSpacing;
-    color: @heavily-lighten-inherited-background-color;
     opacity: @minimumOpacity;
-    .background-gradient(@lighten-inherited-background-color, @darken-inherited-background-color);
+    .background-gradient(rgba(0,0,0,.05), rgba(255,255,255,.05));
     z-index: 0;
   }
 }

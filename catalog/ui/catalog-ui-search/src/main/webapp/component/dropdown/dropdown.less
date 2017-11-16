@@ -16,7 +16,6 @@
   }
 
   .dropdown-label {
-    color: grey;
     .is-bold();
   }
 
@@ -45,6 +44,13 @@
   }
 }
 
+@{customElementNamespace}dropdown.is-simpleDropdown:not(.is-editing) {
+  .dropdown-text {
+    border: none;
+    background: none;
+  }
+}
+
 @{customElementNamespace}dropdown.is-editing {
   cursor: pointer;
 }
@@ -58,7 +64,6 @@
   }
 
   .dropdown-text {
-    .is-input;
     padding: 0px 10px;
     width: ~'calc(100% - @{minimumButtonSize})';
     height: @minimumButtonSize;

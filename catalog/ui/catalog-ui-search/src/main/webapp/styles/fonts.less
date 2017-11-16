@@ -1,12 +1,9 @@
-/* Moved @font-face declartions into a seperate file to keep source maps working in webpack dev server */
-@import "fonts.css";
-
 .is-bold {
-  font-family: 'Open Sans';
+  font-weight: bolder;
 }
 
 .is-not-bold {
-  font-family: 'Open Sans Light';
+  font-weight: lighter;
 }
 
 .is-small-font {
@@ -19,4 +16,12 @@
 
 .is-large-font {
   font-size: @largeFontSize;
+}
+
+.changeFontWeight (@contrastColor) when (@contrastColor = white) {
+  font-weight: 300;
+}
+
+.changeFontWeight (@contrastColor) when (@contrastColor = black) {
+  font-weight: 400;
 }

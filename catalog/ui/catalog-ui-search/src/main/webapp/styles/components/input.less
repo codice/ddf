@@ -9,13 +9,8 @@ input[type="checkbox"], input[type="radio"] {
 input,
 input.form-control {
   padding: .5*@minimumSpacing .5*@minimumFontSize .5*@minimumSpacing .5*@minimumFontSize;
-  .is-input;
   height: @minimumButtonSize;
   line-height: normal;  //needed for IE10 on Windows 7 -> padding + lineheight makes inputs go wonky http://stackoverflow.com/questions/23936236/input-text-at-the-bottom-on-ie10
-}
-
-.form-control[disabled], .form-control[readonly], fieldset[disabled] {
-  background: @medium-lighten-inherited-background-color;
 }
 
 input::-ms-clear {

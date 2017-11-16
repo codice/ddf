@@ -35,6 +35,7 @@ define([
     return Marionette.ItemView.extend(Decorators.decorate({
         template: template,
         tagName: CustomElements.register('workspace-interactions'),
+        className: 'is-action-list',
         modelEvents: {
             'change': 'render'
         },

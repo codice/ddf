@@ -25,6 +25,7 @@ define([
     return Marionette.ItemView.extend({
         template: template,
         tagName: CustomElements.register('query-src'),
+        className: 'is-action-list',
         modelEvents: {
             'change': 'render'
         },

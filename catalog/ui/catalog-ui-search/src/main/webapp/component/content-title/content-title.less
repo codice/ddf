@@ -29,13 +29,14 @@
     height: ~'calc(100% - 6px)';
     right: 0px;
     top: 3px;
-    background: @navigation-background-color;
+    background: @backgroundNavigation;
     transform: scale(1);
     opacity: 1;
     transition: padding @coreTransitionTime ease-out @coreTransitionTime, transform @coreTransitionTime ease-out, opacity @coreTransitionTime ease-out;
   }
 
   input {
+    color: inherit;
     padding-top: 3px;
     position: absolute;
     left: 1px;
@@ -44,8 +45,8 @@
     vertical-align: top;
     height: ~'calc(100% - 4px)';
     min-width: 1px;
-    background: @navigation-background-color;
-    border: none;
+    background: @backgroundNavigation !important;
+    border: none !important;
     font-size: @largeFontSize;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -59,9 +60,6 @@
   input:focus {
     cursor: text;
     text-decoration: none;
-    outline-style: solid;
-    outline-width: 1px;
-    outline-color: grey;
     padding-right: 25px;
     transition-delay: 0s;
   }

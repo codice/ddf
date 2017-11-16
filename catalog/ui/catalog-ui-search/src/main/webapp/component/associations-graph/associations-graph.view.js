@@ -79,6 +79,12 @@ function handleSelection(network, ids) {
     }
 }
 
+const fontStyles = {
+    color: 'black',
+    strokeWidth: 10,
+    strokeColor: 'white'
+};
+
 module.exports = Marionette.LayoutView.extend({
     regions: {
         graphInspector: '> .graph-inspector > .inspector-association'
@@ -160,10 +166,7 @@ module.exports = Marionette.LayoutView.extend({
                 from: association.get('parent'),
                 to: association.get('child'),
                 label: association.get('relationship') === 'related' ? 'related' : '\n\n\nderived',
-                font: {
-                    color: 'white',
-                    strokeWidth: 0
-                },
+                font: fontStyles,
                 smooth: {
                     type: 'cubicBezier',
                     forceDirection: 'vertical'
@@ -221,10 +224,7 @@ module.exports = Marionette.LayoutView.extend({
                 from: association.get('parent'),
                 to: association.get('child'),
                 label: association.get('relationship') === 'related' ? 'related' : '\n\n\nderived',
-                font: {
-                    color: 'white',
-                    strokeWidth: 0
-                },
+                font: fontStyles,
                 smooth: {
                     type: 'cubicBezier',
                     forceDirection: 'vertical'

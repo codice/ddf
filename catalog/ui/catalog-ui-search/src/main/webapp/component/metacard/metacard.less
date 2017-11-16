@@ -20,13 +20,13 @@
   > .metacard-details > .details-tabular {
     white-space: normal;
     height: 100%;
-    background: @background-color;
+    .changeBackground(@backgroundContent);
   }
 
   > .metacard-details > .details-searching,
   > .metacard-details > .details-not-found {
     transform: translateY(-100%);
-    background: @dropdown-background-color;
+    background: @backgroundDropdown;
     position: absolute;
     z-index: @zIndexConfirmation;
     left: 0px;

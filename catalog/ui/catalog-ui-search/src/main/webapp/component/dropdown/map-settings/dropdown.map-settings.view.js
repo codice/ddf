@@ -21,7 +21,7 @@ var user = require('component/singletons/user-instance');
 
 module.exports = DropdownView.extend({
     template: template,
-    className: 'is-mapSettings cesium-button',
+    className: 'is-mapSettings',
     componentToShow: SettingsView,
     initializeComponentModel: function(){
         //override if you need more functionality

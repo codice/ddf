@@ -1,6 +1,5 @@
 div.is-divider {
     height: @dividerHeight;
-    background: @lighten-inherited-background-color;
     margin: @minimumSpacing 0px;
 }
 
@@ -10,3 +9,11 @@ div.is-divider.is-inline {
     margin: 0px @minimumSpacing;
     width: @dividerHeight;
 }
+
+.is-divider(@contrastColor: white) {
+    div.is-divider {
+        background: fade(@contrastColor, 10%);
+    }
+}
+
+.is-divider();

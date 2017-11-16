@@ -1,11 +1,11 @@
 @{customElementNamespace}workspaces-templates {
   .customElement;
 
-  color: @text-color;
-  background: @background-color;
+  .changeBackground(@backgroundAccentContent);
   height: @minimumLineSize + 2*@minimumButtonSize + 2*@minimumSpacing + 2*@minimumSpacing + 3*@minimumButtonSize;
   overflow: hidden;
   transition: height @coreTransitionTime ease-in-out;
+  border-bottom: 1px solid fade(contrast(@backgroundAccentContent), 5%);
 
   .home-templates-adhoc {
     text-align: center;
@@ -75,7 +75,7 @@
     height: 2.5 * @minimumButtonSize;
     text-align: center;
     width: 100%;
-    background: @lighten-inherited-background-color;
+    background: fade(contrast(@backgroundAccentContent), 5%);
     color: @primary-color;
     font-size: @largeFontSize*3;
     cursor: pointer;
@@ -92,7 +92,7 @@
   }
 
   .home-templates-expanded {
-    background: @background-color;
+    background: @backgroundAccentContent;
     position: absolute;
     top: 0px;
     left: 0px;

@@ -16,9 +16,24 @@ var lessStyles = require('js/uncompiled-less.unless');
 var lessToJs = require('less-vars-to-js');
 var _get = require('lodash.get');
 var properties = require('properties');
+var $ = require('jquery');
+require('spectrum-colorpicker');
+var $spectrumInput = $(document.createElement('input')).spectrum();
 
 var spacingVariables = ['minimumButtonSize', 'minimumLineSize', 'minimumSpacing'];
-var colorVariables = ['baseColor', 'primary-color', 'positive-color', 'negative-color', 'warning-color', 'favorite-color'];
+var colorVariables = [
+    'customPrimaryColor', 
+    'customPositiveColor',
+    'customNegativeColor', 
+    'customWarningColor',
+    'customFavoriteColor', 
+    'customBackgroundNavigation',
+    'customBackgroundAccentContent', 
+    'customBackgroundDropdown',
+    'customBackgroundContent', 
+    'customBackgroundModal',
+    'customBackgroundSlideout'
+];
 var themeableVariables = spacingVariables.concat(colorVariables);
 
 function trimVariables(variables){
@@ -30,6 +45,25 @@ function trimVariables(variables){
         }
     });
     return newVariableMap;
+}
+
+function removeAlpha(color) {
+    var hexString = $spectrumInput.spectrum('set', color).spectrum('get').toHexString();
+    return hexString;
+}
+
+function validTextColour(stringToTest) {
+    if ([null, undefined, '', 'inherit', 'transparent'].indexOf(stringToTest) !== -1) {
+        return false;
+    }
+    
+    var image = document.createElement("img");
+    image.style.color = "rgb(0, 0, 0)";
+    image.style.color = stringToTest;
+    if (image.style.color !== "rgb(0, 0, 0)") { return true; }
+    image.style.color = "rgb(255, 255, 255)";
+    image.style.color = stringToTest;
+    return image.style.color !== "rgb(255, 255, 255)";
 }
 
 var baseVariables = trimVariables(lessToJs(lessStyles));
@@ -60,30 +94,50 @@ var colorModes = {
         'positive-color': 'blue',
         'negative-color': 'red',
         'warning-color': 'yellow',
-        'favorite-color': 'orange'
+        'favorite-color': 'orange',
     },
     custom: {}
 };
 
+function sanitizeColors(theme) {
+    colorVariables.forEach((color) => {
+        if (!validTextColour(theme[color])) {
+            theme[color] = 'white'; // default color
+        } else {
+            theme[color] = removeAlpha(theme[color]); // remove transparency
+        }
+    });
+}
+
 module.exports = Backbone.Model.extend({
     defaults: function() {
-        return {
+        var blob = {
             spacingMode: _get(properties, 'spacingMode', 'comfortable'),
-            colorMode: 'dark'
+            theme: _get(properties, 'theme', 'dark')
         };
+        colorVariables.forEach((color) => {
+            blob[color] = _get(properties, color, 'white');
+        });
+        return blob;
     },
     initialize: function() {
     },
+    getCustomColorNames: function() {
+        return colorVariables;
+    },
     getTheme: function(){
         var theme = this.toJSON();
-        return _.defaults(theme, spacingModes[theme.spacingMode], colorModes[theme.colorMode]);
+        sanitizeColors(theme);
+
+        return _.defaults(theme, spacingModes[theme.spacingMode]/* , colorModes[theme.colorMode] */);
     },
     getColorMode: function(){
-        return this.get('colorMode');
+        return this.get('theme');
     },
     getSpacingMode: function(){
         return this.get('spacingMode');
     }
+
 });
 
 if (module.hot) {

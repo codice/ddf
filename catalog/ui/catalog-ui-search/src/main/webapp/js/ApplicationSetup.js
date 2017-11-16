@@ -122,6 +122,16 @@ require([
         cloneRef._cloneOf = this.id || this.cid;
         return cloneRef;
     };
+    var associationsSet = Backbone.AssociatedModel.prototype.set;
+    Backbone.AssociatedModel.prototype.set = function(key, value, options) {
+        if (typeof key === 'object') {
+            options = value;
+        }
+        if (options && options.withoutSet === true) {
+            return this;
+        }
+        return associationsSet.apply(this, arguments);
+    };
     Marionette.Renderer.render = function(template, data, view) {
         data._view = view;
         if (typeof template === 'function') {

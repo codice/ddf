@@ -55,6 +55,7 @@
         transition: transform @coreTransitionTime linear;
         line-height: 2*@minimumButtonSize;
         text-align: center;
+        color: @button-text-color;
     }
 
     .upload-actions div span {
@@ -72,7 +73,6 @@
         top: 0px;
         width: 0%;
         height: 100%;
-        background: @lighten-inherited-background-color;
         transition: width @coreTransitionTime linear;
     }
 
@@ -153,7 +153,6 @@
     cursor: pointer;
     .info-success {
         height: 100%;
-        background: @lighten-inherited-background-color;
         line-height: 2*@minimumButtonSize;
         padding: 0px 10px;
     }
@@ -173,7 +172,6 @@
 @{customElementNamespace}upload-item.has-error {
     .info-error {
         height: 100%;
-        background: @lighten-inherited-background-color;
         line-height: 2*@minimumButtonSize;
         padding: 0px 10px;
     }

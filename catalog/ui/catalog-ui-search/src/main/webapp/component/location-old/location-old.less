@@ -9,14 +9,18 @@
       width: 100%;
     }
   }
-  
-  .btn:hover {
-    color: @text-color;
-  }
 
   input {
     width: 12.5rem;
     font-size: @minimumFontSize !important;
+  }
+
+  .input-group > .input-group-addon {
+    border: none;
+  }
+
+  .ui-multiselect.ui-widget {
+    border: none;
   }
 
   div.multiselect span {
@@ -44,7 +48,6 @@
   .btn-group {
     position: relative;
     margin-bottom: @minimumSpacing !important;
-    border: 1px solid rgba(255,255,255,.4);
 
     input {
       display: none;
@@ -55,13 +58,8 @@
       display: none !important;
     }
 
-    label + label {
-      border-left: 1px solid rgba(255,255,255,.4);
-    }
-
     label {
       font-size: @minimumFontSize !important;
-      background: @background-color;
       min-width: @minimumButtonSize;
       position: static !important;
       opacity: @minimumOpacity;
@@ -101,7 +99,6 @@
     }
 
     .input-group {
-      border: 1px solid rgba(255,255,255,.4);
       height: @minimumButtonSize;
       line-height: @minimumButtonSize;
 

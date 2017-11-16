@@ -3,7 +3,6 @@
   .customElement;
   background: inherit;
   .tabs-list {
-    border-bottom: 1px solid rgba(255, 255, 255, .10);
     background: inherit;
     .inlineFix;
 
@@ -26,19 +25,15 @@
     }
 
     &.is-open {
-      .tabs-dropdown {
-        color: @text-color;
-      }
 
       .tabs-collapsed {
         display: block;
         width: 100%;
         text-align: center;
-        border: 1px solid @heavily-lighten-inherited-background-color;
+        border: 1px solid;
 
         > div.is-merged {
           display: block;
-          color: @text-color;
           width: 100%;
           padding: @minimumSpacing;
         }
@@ -54,7 +49,8 @@
 
     .tabs-collapsed {
       display: none;
-      background: @dropdown-background-color;
+      background: @backgroundDropdown;
+      color: contrast(@backgroundDropdown);
       > div {
         display: none;
       }
@@ -85,7 +81,7 @@
 
         opacity: 1;
         .is-bold();
-        border-bottom: 1px solid @text-color;
+        border-bottom: 1px solid;
         .hint {
           display: none;
         }
@@ -110,12 +106,12 @@
       &.is-active {
         opacity: 1;
         .is-bold();
-        border-bottom: 1px solid @text-color;
+        border-bottom: 1px solid;
       }
 
       &:hover {
         opacity: 1;
-        border-bottom: 1px solid @text-color;
+        border-bottom: 1px solid;
       }
 
       &.is-merged {
@@ -147,8 +143,6 @@
           top: 0px;
           width: 100%;
           text-align: center;
-          background: @background-color;
-          color: white;
           z-index: @zIndexContent;
         }
 

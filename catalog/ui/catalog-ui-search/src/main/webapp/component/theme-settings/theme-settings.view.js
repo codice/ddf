@@ -38,18 +38,65 @@ function getAnimationMode(user){
     return getPreferences(user).get('animation');
 }
 
+function getTheme(user){
+    return getPreferences(user).get('theme').getColorMode();
+}
+
 module.exports = Marionette.LayoutView.extend({
     template: template,
     tagName: CustomElements.register('theme-settings'),
     regions: {
         fontSize: '.theme-font-size',
         spacingMode: '.theme-spacing-mode',
-        animationMode: '.theme-animation'
+        theme: '.theme-theme',
+        animationMode: '.theme-animation',
+        customPrimaryColor: '.theme-customPrimaryColor',
+        customPositiveColor: '.theme-customPositiveColor',
+        customNegativeColor: '.theme-customNegativeColor',
+        customWarningColor: '.theme-customWarningColor',
+        customFavoriteColor: '.theme-customFavoriteColor',
+        customBackgroundNavigation: '.theme-customBackgroundNavigation',
+        customBackgroundAccentContent: '.theme-customBackgroundAccentContent',
+        customBackgroundDropdown: '.theme-customBackgroundDropdown',
+        customBackgroundContent: '.theme-customBackgroundContent',
+        customBackgroundModal: '.theme-customBackgroundModal',
+        customBackgroundSlideout: '.theme-customBackgroundSlideout'
     },
     onBeforeShow: function() {
         this.showFontSize();
         this.showSpacingMode();
         this.showAnimation();
+        this.showTheme();
+        this.showCustomColors();
+        this.handleTheme();
+        this.listenTo(getPreferences(user).get('theme'), 'change:theme', this.handleTheme);
+    },
+    handleTheme: function() {
+        var theme = getTheme(user);
+        this.$el.toggleClass('has-custom-theme', theme === 'custom');
+    },
+    showCustomColors: function() {
+        var customColors = getPreferences(user).get('theme').getCustomColorNames();
+        customColors.forEach((colorVariable) => {
+            this.$el.find('.theme-custom').append('<div class="theme-'+colorVariable+'"></div>');
+            this.addRegion(colorVariable, '.theme-'+colorVariable);
+            var propertyModel = new Property({
+                label: colorVariable.replace(/([A-Z])/g, ' $1').replace(/^./, function(str){ return str.toUpperCase(); }).substring(7),
+                value: [getPreferences(user).get('theme').get(colorVariable)],
+                type: 'COLOR'
+            });
+            this[colorVariable].show(new PropertyView({
+                model: propertyModel
+            }));
+            this[colorVariable].currentView.turnOnLimitedWidth();
+            this[colorVariable].currentView.turnOnEditing();
+            this.listenTo(propertyModel, 'change:value', () => {
+                var preferences = getPreferences(user);
+                var newValue = propertyModel.getValue()[0];
+                preferences.get('theme').set(colorVariable, newValue);
+                getPreferences(user).savePreferences();
+            });
+        });
     },
     showAnimation: function(){
         var animationModel = new Property({
@@ -116,6 +163,36 @@ module.exports = Marionette.LayoutView.extend({
         this.spacingMode.currentView.turnOnEditing();
         this.listenTo(spacingModeModel, 'change:value', this.saveSpacingChanges);
     },
+    showTheme: function(){
+        var themeModel = new Property({
+            enum: [
+                {
+                    label: 'Dark',
+                    value: 'dark'
+                },
+                {
+                    label: 'Light',
+                    value: 'light'
+                },
+                {
+                    label: 'Sea',
+                    value: 'sea'
+                },
+                {
+                    label: 'Custom',
+                    value: 'custom'
+                }
+            ],
+            value: [getTheme(user)],
+            id: 'Theme'
+        });
+        this.theme.show(new PropertyView({
+            model: themeModel
+        }));
+        this.theme.currentView.turnOnLimitedWidth();
+        this.theme.currentView.turnOnEditing();
+        this.listenTo(themeModel, 'change:value', this.saveThemeChanges);
+    },
     saveFontChanges: function(){
         var preferences = getPreferences(user);
         var newFontSize = this.fontSize.currentView.model.getValue()[0];
@@ -131,6 +208,12 @@ module.exports = Marionette.LayoutView.extend({
         var preferences = getPreferences(user);
         var newSpacingMode = this.spacingMode.currentView.model.getValue()[0];
         preferences.get('theme').set('spacingMode', newSpacingMode);
+        getPreferences(user).savePreferences();
+    },
+    saveThemeChanges: function() {
+        var preferences = getPreferences(user);
+        var newTheme = this.theme.currentView.model.getValue()[0];
+        preferences.get('theme').set('theme', newTheme);
         getPreferences(user).savePreferences();
     },
     saveChanges: function(){
