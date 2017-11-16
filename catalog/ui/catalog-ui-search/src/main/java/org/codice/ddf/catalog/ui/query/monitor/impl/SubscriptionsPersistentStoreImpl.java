@@ -121,7 +121,7 @@ public class SubscriptionsPersistentStoreImpl implements SubscriptionsPersistent
   }
 
   private String queryId(String id) {
-    return ID + "=" + quote(id);
+    return quote(ID) + "=" + quote(id);
   }
 
   private PersistentItem convert(Map<String, Object> map) {
