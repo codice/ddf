@@ -35,6 +35,7 @@ import java.util.Dictionary;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -43,10 +44,7 @@ import java.util.stream.Stream;
 import org.codice.ddf.admin.core.api.ConfigurationAdmin;
 import org.codice.ddf.platform.io.internal.PersistenceStrategy;
 import org.codice.felix.cm.internal.ConfigurationContext;
-import org.codice.felix.cm.internal.ConfigurationContextFactory;
 import org.codice.felix.cm.internal.ConfigurationPersistencePlugin;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.service.cm.Configuration;
 import org.osgi.service.metatype.AttributeDefinition;
 import org.osgi.service.metatype.ObjectClassDefinition;
 import org.slf4j.Logger;
@@ -107,40 +105,21 @@ public class ConfigurationUpdater implements ConfigurationPersistencePlugin {
   }
 
   /**
-   * @inheritDoc
-   * @throws IOException if an error occurs reading configuration data
-   * @throws InvalidSyntaxException technically impossible since {@code null} is being passed as the
-   *     configuration filter. See {@link ConfigurationAdmin#listConfigurations(String)}.
+   * @inheritDoc Initialize the updater with all the currently known configuration.
    * @see ConfigurationPersistencePlugin
    */
   @Override
-  public void initialize(ConfigurationContextFactory factory) {
-    Configuration[] configs;
-    try {
-      configs = ddfConfigAdmin.listConfigurations(null);
-    } catch (IOException | InvalidSyntaxException e) {
-      LOGGER.error("Problem fetching configurations. ", e);
-      return;
-    }
-    if (configs == null) {
-      return;
-    }
-    Arrays.stream(configs)
-        .map(factory::createContext)
-        .forEach(
-            context -> {
-              try {
-                handleStore(context);
-              } catch (IOException e) {
-                LOGGER.error(
-                    "Problem updating config file [{}]. {}",
-                    context.getConfigFile(),
-                    e.getMessage());
-                if (LOGGER.isDebugEnabled()) {
-                  LOGGER.debug("Exception occurred while trying to updat config file. ", e);
-                }
-              }
-            });
+  public void initialize(Set<ConfigurationContext> state) {
+    state.forEach(
+        context -> {
+          try {
+            handleStore(context);
+          } catch (IOException e) {
+            LOGGER.error(
+                "Problem updating config file [{}]. {}", context.getConfigFile(), e.getMessage());
+            LOGGER.debug("Exception occurred while trying to update config file. ", e);
+          }
+        });
   }
 
   @Override

@@ -50,7 +50,6 @@
 
 # -> ConfigurationManager
 (org.osgi.framework.ServicePermission "org.apache.felix.cm.PersistenceManager" "register")
-(org.osgi.framework.ServicePermission "org.codice.felix.cm.internal.ConfigurationContextFactory" "register")
 
 # -> BaseTracker.getAccessControlContext
 (java.security.SecurityPermission "createAccessControlContext")

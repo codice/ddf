@@ -36,6 +36,10 @@ public class WrappedPersistenceManager implements PersistenceManager, AutoClosea
     this.persistenceManager = persistenceManager;
   }
 
+  protected PersistenceManager getInnerPersistenceManager() {
+    return persistenceManager;
+  }
+
   @Override
   public void close() throws Exception {
     if (persistenceManager instanceof AutoCloseable) {
