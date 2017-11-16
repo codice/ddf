@@ -530,6 +530,7 @@ m|vnd.ms-visio.stencil
 m|vnd.ms-visio.stencil.macroenabled.12
 m|vnd.ms-visio.template
 m|vnd.ms-visio.template.macroenabled.12
+m|vnd.ms-visio.viewer 
 m|vnd.ms-wmdrm.lic-chlg-req
 m|vnd.ms-wmdrm.lic-resp
 m|vnd.ms-wmdrm.meter-chlg-req
