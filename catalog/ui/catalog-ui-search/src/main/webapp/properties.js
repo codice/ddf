@@ -125,11 +125,11 @@ define(function (require) {
         isDisableLocalCatalog: function(){
             return this.disableLocalCatalog;
         },
-        isSearchHistoricalEnabled: function(){
-            return !this.disableSearchHistorical;
+        isHistoricalSearchEnabled: function(){
+            return !this.isHistoricalSearchDisabled;
         },
-        isSearchArchivedEnabled: function(){
-            return !this.disableSearchArchive;
+        isArchiveSearchEnabled: function(){
+            return !this.isArchiveSearchDisabled;
         }
     };
 

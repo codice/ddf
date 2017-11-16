@@ -58,6 +58,9 @@ define([
             }
             this.handleResult();
             QueryConfirmationView = require('component/confirmation/query/confirmation.query.view');
+            this.$el.toggleClass('is-archive-searchable', !properties.isArchiveSearchEnabled());
+            this.$el.toggleClass('is-history-searchable', !properties.isHistoricalSearchEnabled());
+            this.$el.toggleClass('is-versioning-enabled', !properties.isVersioningEnabled);
         },
         onRender: function(){
             this.handleLocal();
@@ -142,12 +145,6 @@ define([
         },
         handleClick: function(){
             this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
-        },
-        serializeData: function(){
-            return {
-                isSearchHistoricalEnabled : properties.isSearchHistoricalEnabled(),
-                isSearchArchivedEnabled : properties.isSearchArchivedEnabled()
-            };
         }
     }, MenuNavigationDecorator));
 });

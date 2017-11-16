@@ -48,6 +48,11 @@
         <argument ref="uiCamelContext"/>
     </bean>
 
+    <reference-list id="historianConfigurations" interface="ddf.catalog.configuration.HistorianConfiguration" availability="optional">
+        <reference-listener bind-method="bind"
+                            unbind-method="unbind" ref="configurationApplication"/>
+    </reference-list>
+
     <bean id="configurationApplication"
           class="org.codice.ddf.catalog.ui.config.ConfigurationApplication"
           destroy-method="destroy">
@@ -57,6 +62,7 @@
         <property name="uiName" value="Intrigue"/>
         <property name="branding" ref="webBranding"/>
         <property name="httpProxy" ref="httpProxyService"/>
+        <property name="historianConfigurations" ref="historianConfigurations"/>
     </bean>
 
     <service interface="ddf.catalog.data.MetacardType">
