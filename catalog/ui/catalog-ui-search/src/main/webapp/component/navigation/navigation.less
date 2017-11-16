@@ -1,13 +1,12 @@
 @{customElementNamespace}navigation {
   .customElement;
   position: relative;
-  background: @navigation-background-color;
+  .changeBackground(@backgroundNavigation);
   vertical-align: top;
-  color: @text-color;
   height: 2*@minimumLineSize;
   overflow: hidden;
   white-space: nowrap;
-  border-bottom: 1px solid rgba(255, 255, 255, .10);
+  border-bottom: 1px solid fade(contrast(@backgroundNavigation), 10%);
 
   > .navigation-left,
   > .navigation-middle,

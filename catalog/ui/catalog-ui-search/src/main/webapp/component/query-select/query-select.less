@@ -1,18 +1,6 @@
 @{customElementNamespace}query-item-collection.is-query-select {
   .customElement;
 
-  .query-select-default {
-    cursor: pointer;
-    line-height: 3*@minimumLineSize;
-    height: 3*@minimumLineSize;
-    padding: 0px @largeSpacing;
-    text-align: center;
-  }
-
-  .query-select-default:hover {
-    background: @lighten-inherited-background-color;
-  }
-
   @{customElementNamespace}query-item-collection {
     padding: 0px;
   }
@@ -25,11 +13,6 @@
       width: ~'calc(100% - @{largeSpacing})';
       margin: 0px 0px 0px @largeSpacing;
     }
-  }
-
-  @{customElementNamespace}query-item:hover,
-  @{customElementNamespace}query-item.is-active {
-    background: @lighten-inherited-background-color;
   }
 
   @{customElementNamespace}query-item.is-selected {

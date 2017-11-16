@@ -37,6 +37,7 @@ define([
     return Marionette.ItemView.extend(Decorators.decorate({
         template: template,
         tagName: CustomElements.register('query-interactions'),
+        className: 'is-action-list',
         modelEvents: {
         },
         events: {

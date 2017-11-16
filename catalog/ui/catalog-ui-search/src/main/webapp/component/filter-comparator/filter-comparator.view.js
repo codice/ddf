@@ -31,6 +31,7 @@ define([
     return Marionette.ItemView.extend({
         template: template,
         tagName: CustomElements.register('filter-comparator'),
+        className: 'is-action-list',
         modelEvents: {
             'change': 'render'
         },

@@ -1,40 +1,8 @@
 //namespace
 @customElementNamespace: intrigue-;
 
-//color palette
-@primary-color: #3c6dd5;
-@positive-color: #428442;
-@negative-color: #8a423c;
-@warning-color: #c89600;
-@favorite-color: #d1d179;
-@links-visited-color: #9874e4;
-@links-color: @primary-color;
-
-//grey range
-@baseGrey: #424249;
-@tenGrey: shade(@baseGrey, 10%);
-@twentyGrey: shade(@baseGrey, 20%);
-@thirtyGrey: shade(@baseGrey, 30%);
-@fortyGrey: shade(@baseGrey, 40%);
-@fiftyGrey: shade(@baseGrey, 50%);
-
-//color usage
-@navigation-background-color: @fiftyGrey;
-@background-color: @fortyGrey;
-@dropdown-background-color: @thirtyGrey;
-@card-background-color: @twentyGrey;
-@text-color: contrast(@fortyGrey);
-@button-text-color: white;
-
-//relative coloring
-@lighten-inherited-background-color: fade(@text-color, 5%);
-@medium-lighten-inherited-background-color: fade(@text-color, 20%);
-@heavily-lighten-inherited-background-color: fade(@text-color, 40%);
-@completely-lighten-inherited-background-color: fade(@text-color, 90%);
-@darken-inherited-background-color: rgba(0,0,0,.05);
-@medium-darken-inherited-background-color: rgba(0, 0, 0, .20);
-@heavily-darken-inherited-background-color: rgba(0,0,0,.4);
-@completely-darken-inherited-background-color: rgba(0, 0, 0, .9);
+//fonts
+@import "font-families.less";
 
 //sizing
 @minimumButtonSize: 2.75rem;  //44px
@@ -80,3 +48,100 @@
 
 //opacity
 @minimumOpacity: 0.6;
+
+@import 'fonts.less';
+
+@theme: sea;
+
+@links-visited-color: #9874e4;
+@links-color: @primary-color;
+@button-text-color: white;
+
+//color palette
+@customPrimaryColor: #3c6dd5;
+@customPositiveColor: #428442;
+@customNegativeColor: #8a423c;
+@customWarningColor: #c89600;
+@customFavoriteColor: #d1d179;
+
+//color usage
+@customBackgroundNavigation: #252529;
+@customBackgroundAccentContent: #2A2A2E;
+@customBackgroundDropdown: #35353a;
+@customBackgroundContent: #35353a;
+@customBackgroundModal: #252529;
+@customBackgroundSlideout: #252529;
+
+.theme() when (@theme = dark), (default()) {
+    //color palette
+    @primary-color: #3c6dd5;
+    @positive-color: #428442;
+    @negative-color: #8a423c;
+    @warning-color: #c89600;
+    @favorite-color: #d1d179;
+
+    //color usage
+    @backgroundNavigation: #252529;
+    @backgroundAccentContent: #2A2A2E;
+    @backgroundDropdown: #35353a;
+    @backgroundContent: #35353a;
+    @backgroundModal: #252529;
+    @backgroundSlideout: #252529;
+}
+
+.theme() when (@theme = sea) {
+    //color palette
+    @primary-color: #45727E;
+    @positive-color: #65932D;
+    @negative-color: #992600;
+    @warning-color: #AD531D;
+    @favorite-color: #d1d179;
+
+    //color usage
+    @backgroundNavigation: #144572;
+    @backgroundAccentContent: #e4f3fe;
+    @backgroundDropdown: #e4f3fe;
+    @backgroundContent: rgb(244, 253, 254);
+    @backgroundModal: #e4f3fe;
+    @backgroundSlideout: #e4f3fe;
+}
+
+.theme() when (@theme = light) {
+    //color palette
+    @primary-color: #3c6dd5;
+    @positive-color: #428442;
+    @negative-color: #8a423c;
+    @warning-color: #c89600;
+    @favorite-color: #d1d179;
+
+    //color usage
+    @backgroundNavigation: #3c6dd5;
+    @backgroundAccentContent: rgb(237, 249, 252);
+    @backgroundDropdown: rgb(243, 253, 255);
+    @backgroundContent: rgb(243, 253, 255);
+    @backgroundModal: rgb(237, 249, 252);
+    @backgroundSlideout: rgb(237, 249, 252);
+}
+
+.theme() when (@theme = custom) {
+    //color palette
+    @primary-color: @customPrimaryColor;
+    @positive-color: @customPositiveColor;
+    @negative-color: @customNegativeColor;
+    @warning-color: @customWarningColor;
+    @favorite-color: @customFavoriteColor;
+
+    //color usage
+    @backgroundNavigation: @customBackgroundNavigation;
+    @backgroundAccentContent: @customBackgroundAccentContent;
+    @backgroundDropdown: @customBackgroundDropdown;
+    @backgroundContent: @customBackgroundContent;
+    @backgroundModal: @customBackgroundModal;
+    @backgroundSlideout: @customBackgroundSlideout;
+}
+
+.theme();
+
+@import "mixins.less";
+@import "util.less";
+@import "components/init.less";

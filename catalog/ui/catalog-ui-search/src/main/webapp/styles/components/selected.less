@@ -1,4 +1,7 @@
-.is-selected {
-  .is-bold();
-  background: @lighten-inherited-background-color;
+.is-selected(@contrastColor: white) {
+  .is-selected {
+    .is-bold();
+    background: fade(@contrastColor, 5%);
+  }
 }
+.is-selected();

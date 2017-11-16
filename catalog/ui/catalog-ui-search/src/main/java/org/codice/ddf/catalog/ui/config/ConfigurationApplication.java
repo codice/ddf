@@ -181,6 +181,29 @@ public class ConfigurationApplication implements SparkApplication {
 
   /** The current historian configuration. */
   private HistorianConfiguration historianConfiguration;
+  private String theme;
+
+  private String customPrimaryColor;
+
+  private String customPositiveColor;
+
+  private String customNegativeColor;
+
+  private String customWarningColor;
+
+  private String customFavoriteColor;
+
+  private String customBackgroundNavigation;
+
+  private String customBackgroundAccentContent;
+
+  private String customBackgroundDropdown;
+
+  private String customBackgroundContent;
+
+  private String customBackgroundModal;
+
+  private String customBackgroundSlideout;
 
   public ConfigurationApplication() {}
 
@@ -370,6 +393,18 @@ public class ConfigurationApplication implements SparkApplication {
     config.put(
         "isVersioningEnabled",
         historianConfiguration != null && historianConfiguration.isHistoryEnabled());
+    config.put("theme", theme);
+    config.put("customPrimaryColor", customPrimaryColor);
+    config.put("customPositiveColor", customPositiveColor);
+    config.put("customNegativeColor", customNegativeColor);
+    config.put("customWarningColor", customWarningColor);
+    config.put("customFavoriteColor", customFavoriteColor);
+    config.put("customBackgroundNavigation", customBackgroundNavigation);
+    config.put("customBackgroundAccentContent", customBackgroundAccentContent);
+    config.put("customBackgroundDropdown", customBackgroundDropdown);
+    config.put("customBackgroundContent", customBackgroundContent);
+    config.put("customBackgroundModal", customBackgroundModal);
+    config.put("customBackgroundSlideout", customBackgroundSlideout);
 
     return config;
   }
@@ -907,5 +942,99 @@ public class ConfigurationApplication implements SparkApplication {
     } else {
       this.historianConfiguration = null;
     }
+  public String getTheme() {
+    return theme;
+  }
+
+  public void setTheme(String theme) {
+    this.theme = theme;
+  }
+
+  public String getCustomPrimaryColor() {
+    return customPrimaryColor;
+  }
+
+  public void setCustomPrimaryColor(String customPrimaryColor) {
+    this.customPrimaryColor = customPrimaryColor;
+  }
+
+  public String getCustomPositiveColor() {
+    return customPositiveColor;
+  }
+
+  public void setCustomPositiveColor(String customPositiveColor) {
+    this.customPositiveColor = customPositiveColor;
+  }
+
+  public String getCustomNegativeColor() {
+    return customNegativeColor;
+  }
+
+  public void setCustomNegativeColor(String customNegativeColor) {
+    this.customNegativeColor = customNegativeColor;
+  }
+
+  public String getCustomWarningColor() {
+    return customWarningColor;
+  }
+
+  public void setCustomWarningColor(String customWarningColor) {
+    this.customWarningColor = customWarningColor;
+  }
+
+  public String getCustomFavoriteColor() {
+    return customFavoriteColor;
+  }
+
+  public void setCustomFavoriteColor(String customFavoriteColor) {
+    this.customFavoriteColor = customFavoriteColor;
+  }
+
+  public String getCustomBackgroundNavigation() {
+    return customBackgroundNavigation;
+  }
+
+  public void setCustomBackgroundNavigation(String customBackgroundNavigation) {
+    this.customBackgroundNavigation = customBackgroundNavigation;
+  }
+
+  public String getCustomBackgroundAccentContent() {
+    return customBackgroundAccentContent;
+  }
+
+  public void setCustomBackgroundAccentContent(String customBackgroundAccentContent) {
+    this.customBackgroundAccentContent = customBackgroundAccentContent;
+  }
+
+  public String getCustomBackgroundDropdown() {
+    return customBackgroundDropdown;
+  }
+
+  public void setCustomBackgroundDropdown(String customBackgroundDropdown) {
+    this.customBackgroundDropdown = customBackgroundDropdown;
+  }
+
+  public String getCustomBackgroundContent() {
+    return customBackgroundContent;
+  }
+
+  public void setCustomBackgroundContent(String customBackgroundContent) {
+    this.customBackgroundContent = customBackgroundContent;
+  }
+
+  public String getCustomBackgroundModal() {
+    return customBackgroundModal;
+  }
+
+  public void setCustomBackgroundModal(String customBackgroundModal) {
+    this.customBackgroundModal = customBackgroundModal;
+  }
+
+  public String getCustomBackgroundSlideout() {
+    return customBackgroundSlideout;
+  }
+
+  public void setCustomBackgroundSlideout(String customBackgroundSlideout) {
+    this.customBackgroundSlideout = customBackgroundSlideout;
   }
 }

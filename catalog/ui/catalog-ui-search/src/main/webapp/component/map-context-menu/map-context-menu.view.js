@@ -29,6 +29,7 @@ var lightboxInstance = require('component/lightbox/lightbox.view.instance');
 module.exports = Marionette.LayoutView.extend(Decorators.decorate({
     template: template,
     tagName: CustomElements.register('map-context-menu'),
+    className: 'is-action-list',
     modelEvents: {},
     events: {
         'click > .interaction-view-details': 'triggerViewDetails',

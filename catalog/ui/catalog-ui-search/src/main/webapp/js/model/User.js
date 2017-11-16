@@ -64,21 +64,6 @@ define([
         }
     };
 
-    User.MapColors = Backbone.AssociatedModel.extend({
-        defaults: {
-            pointColor: '#FFA467',
-            multiPointColor: '#FFA467',
-            lineColor: '#5B93FF',
-            multiLineColor: '#5B93FF',
-            polygonColor: '#FF6776',
-            multiPolygonColor: '#FF6776',
-            geometryCollectionColor: '#FFFF67'
-        },
-        savePreferences: function () {
-            this.parents[0].savePreferences();
-        }
-    });
-
     User.MapLayer = Backbone.AssociatedModel.extend({
         defaults: function() {
             return {
@@ -132,7 +117,6 @@ define([
         defaults: function () {
             return {
                 id: 'preferences',
-                mapColors: new User.MapColors(),
                 mapLayers: new User.MapLayers(),
                 resultDisplay: 'List',
                 resultPreview: ['modified'],
@@ -166,11 +150,6 @@ define([
             };
         },
         relations: [
-            {
-                type: Backbone.One,
-                key: 'mapColors',
-                relatedModel: User.MapColors
-            },
             {
                 type: Backbone.Many,
                 key: 'mapLayers',
@@ -228,8 +207,9 @@ define([
             if (this.parents[0].isGuestUser()) {
                 window.localStorage.setItem('preferences', JSON.stringify(this.toJSON()));
             } else {
-                this.save(this.attributes, {
+                this.save(this.toJSON(), {
                     drop: true,
+                    withoutSet: true,
                     customErrorHandling: true,
                     error: function(){
                         announcement.announce({

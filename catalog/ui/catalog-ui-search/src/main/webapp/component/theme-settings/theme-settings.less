@@ -2,15 +2,18 @@
     display: block;
     text-align: center;
 
-    h1 {
-        margin-top: 0px;
-        margin-bottom: 0px;
-        line-height: @minimumButtonSize;
-        color: grey;
-    }
-
     button {
         width: @minimumButtonSize;
         height: @minimumButtonSize;
+    }
+
+    .theme-custom {
+        display: none;
+    }
+}
+
+@{customElementNamespace}theme-settings.has-custom-theme {
+    .theme-custom {
+        display: block;
     }
 }

@@ -4,12 +4,17 @@
         display: none;
     }
 
-    .lm_goldenlayout, .lm_item, .lm_content, .lm_items, .lm_item_container, .lm_content {
+    .lm_maximised .lm_header, .lm_goldenlayout, .lm_item, .lm_content, .lm_items, .lm_item_container, .lm_content {
         background: inherit !important;
     }
 
-    .lm_header {
-        background: @medium-darken-inherited-background-color !important;
+    .lm_header,
+    .lm_items {
+        position: relative;
+        z-index: 1;
+    }
+    .lm_items {
+        z-index: 0;
     }
 
     .lm_tab {
@@ -19,8 +24,23 @@
         box-shadow: none !important;
     }
 
+    .lm_tabs .lm_tab {
+        opacity: .4;
+    }
+
+    .lm_tab.lm_active {
+        opacity: 1;
+    }
+
     .lm_tabdropdown_list {
-        background: @dropdown-background-color !important;
+        background: @backgroundDropdown !important;
+    }
+
+    .lm_tabdropdown_list .lm_title {
+        color: contrast(@backgroundDropdown) !important;
+    }    
+    .lm_tabdropdown_list .lm_tab:hover {
+        background: fade(contrast(@backgroundDropdown), 10%) !important;
     }
 
     .lm_header .lm_tabdropdown_list {
@@ -106,10 +126,6 @@
         right: 0px !important;
     }
 
-    .lm_header {
-        border: 1px solid @lighten-inherited-background-color;
-    }
-
     .lm_drag_handle {
         position: static !important;
         height: 100% !important;
@@ -125,12 +141,11 @@
     }
 
     .lm_splitter {
-        background: @heavily-darken-inherited-background-color;
         opacity: 1;
     }
 
     .lm_splitter:hover, .lm_splitter.lm_dragging {
-        background: @primary-color;
+        background: @primary-color !important;
     }
 
     .lm_title {
@@ -144,13 +159,6 @@
     .lm_tab {
         padding: 0px 0px !important;
         margin: 0px !important; 
-        background: @darken-inherited-background-color !important;
-        border-left: 1px solid @lighten-inherited-background-color;
-        border-right: 1px solid @lighten-inherited-background-color;
-    }
-
-    .lm_tab.lm_active {
-        background: @lighten-inherited-background-color !important;
     }
 
     .lm_horizontal .lm_drag_handle::after {
@@ -168,7 +176,7 @@
         position: absolute;
         left: 50%;
         top: 50%;
-        transform: translate3d(-50%, -50%, 0%);
+        transform: translate3d(-50%, -50%, 0);
         font: normal normal normal 14px/1 FontAwesome;
         font-size: @largeFontSize;
         line-height: @minimumButtonSize;
@@ -206,7 +214,6 @@
         height: @minimumButtonSize;
         line-height: @minimumButtonSize;
         text-align: center;
-        background: @medium-darken-inherited-background-color;
          .dropshadow;
         > * {
             display: inline-block;
@@ -260,7 +267,7 @@
 @{customElementNamespace}golden-layout.is-minimised {
     > .golden-layout-toolbar {
         z-index: @zIndexContent;
-        background: @dropdown-background-color;
+        background: inherit;
         transform: translateY(100%);
 
         > span {
@@ -268,6 +275,7 @@
         }
 
         .toolbar-actions {
+           background: inherit;
            transform: translateY(-100%);
         }
         .toolbar-actions > :not(.to-toggle-size):not(.to-add) {
@@ -275,7 +283,7 @@
         }
         .to-toggle-size,
         .to-show {
-            background: @dropdown-background-color;
+            background: @backgroundDropdown;
             display: inline-block;
             opacity: 1;
             .dropshadow;
@@ -301,7 +309,7 @@
 
         .to-toggle-size,
         .to-add {
-            background: @dropdown-background-color;
+            background: inherit;
             .dropshadow;
         }
     }

@@ -21,7 +21,7 @@ var user = require('component/singletons/user-instance');
 
 module.exports = DropdownView.extend({
     template: template,
-    className: 'is-layers cesium-button',
+    className: 'is-layers',
     componentToShow: LayersView,
     initializeComponentModel: function(){
         //override if you need more functionality

@@ -48,21 +48,15 @@ button.is-positive {
 }
 
 button.is-neutral {
-  color: @text-color;
-  .button-mixin(@lighten-inherited-background-color);
+  color: inherit;
+  .button-mixin(rgba(0,0,0,0));
   background: rgba(0,0,0,0);
-}
-
-button.is-neutral.is-opaque {
-  color: @text-color;
-  .button-mixin(@dropdown-background-color);
-  background: @dropdown-background-color;
 }
 
 button.is-link,
 .is-button.is-link {
   color: @links-color;
-  .button-mixin(@lighten-inherited-background-color);
+  .button-mixin(rgba(0,0,0,0));
   background: rgba(0,0,0,0);
 }
 

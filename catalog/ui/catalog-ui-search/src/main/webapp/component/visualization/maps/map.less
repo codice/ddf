@@ -5,7 +5,6 @@
         top: 0px;
         width: 100%;
         height: 100%;
-        background: @darken-inherited-background-color;
 
         button {
             height: auto;
@@ -19,8 +18,71 @@
 }
 
 @{customElementNamespace}map {
+  background: inherit;
+
+  .mapInfo {
+    background: inherit;
+  }
+
+  #mapTools {
+    background: inherit;
+  }
+
+  #mapContainer {
+    background: inherit;
+  }
+
+  .cesium-viewer {
+    background: inherit;
+  }
+
+  .cesium-viewer-toolbar {
+    top: 0px; 
+    right: 0px;
+    padding-right: @minimumSpacing;
+    .is-large-font;
+    background: inherit;
+    line-height: @minimumButtonSize;
+    .cesium-viewer-geocoderContainer,
+    .geocoder-container {
+      margin: 0px;
+      vertical-align: top;
+      height: @minimumButtonSize;
+
+      form {
+        height: 100%;
+      }
+      input {
+        height: 100%;
+        line-height: inherit;
+        vertical-align: top;
+      }
+      span {
+        color: white;
+        text-align: center;
+        top: 0px;
+        right: 0px;
+        height: 100%;
+        line-height: inherit;
+        vertical-align: top;
+      }
+      
+    }
+    
+    .is-button {
+      height: @minimumButtonSize;
+      line-height: @minimumButtonSize;
+      display: inline-block;
+    }
+    .is-button {
+      margin-left: @minimumSpacing;
+    }
+  }
+
   .cesium-button {
     vertical-align: top;
+    background: inherit;
+    color: inherit;
   }
 
   .map-context-menu {

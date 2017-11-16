@@ -7,79 +7,9 @@
 @import "~select2/dist/css/select2.css";
 @import "~golden-layout/src/css/goldenlayout-base.css";
 @import "~golden-layout/src/css/goldenlayout-dark-theme.css";
+@import "~spectrum-colorpicker/spectrum.css";
 
 @import "../css/searchPage.css";
 @import "../css/style.css";
 
 @import "vars.less";
-@import "fonts.less";
-@import "mixins.less";
-@import "util.less";
-@import "components/init.less";
-
-// override for cesium draw helper.
-// when in draw mode, this tooltip will still appear.
-.twipsy {
-  display: none;
-}
-
-html, body {
-  height: 100%;
-  width: 100%;
-  color: @text-color;
-  background: @background-color;
-  font-family: 'Open Sans Light';
-  font-size: inherit;
-  transition: font-size @coreTransitionTime ease-out;
-  overflow:hidden;
-}
-
-body {
-  position: relative;
-}
-
-html.no-animation,
-html.no-animation *:not(.is-critical-animation),
-html.no-animation *:not(.is-critical-animation)::before,
-html.no-animation *:not(.is-critical-animation)::after {
-  transition: none !important;
-  animation: none !important;
-}
-
-// need to figure out why there are issues using animations / transitions while the lightbox is open (might be a browser bug)
-html.open-lightbox {
-  > body > #content {
-    * {
-      transition: none;
-      animation: none;
-    }
-  }
-}
-
-.fa-star {
-  color: @favorite-color;
-}
-
-/* Let's get this party started */
-::-webkit-scrollbar {
-  width: 10px;
-}
-
-/* Track */
-::-webkit-scrollbar-track {
-  box-shadow: inset 3px 0 3px -3px rgba(255,255,255,0.3);
-}
-
-:hover::-webkit-scrollbar-track {
-  box-shadow: inset 3px 0 3px -3px rgba(255,255,255,0.5);
-}
-
-/* Handle */
-::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.2);
-  box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
-}
-
-:hover::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.3);
-}

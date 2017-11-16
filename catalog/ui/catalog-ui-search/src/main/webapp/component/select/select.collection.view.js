@@ -29,6 +29,7 @@ define([
             return this.options.customChildView || childView;
         },
         tagName: CustomElements.register('select-collection'),
+        className: 'is-action-list',
         modelEvents: {
         },
         events: {

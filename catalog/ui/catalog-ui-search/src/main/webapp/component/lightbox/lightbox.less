@@ -28,14 +28,14 @@
     top: 20%;
     height: 60%;
     width: 80%;
-    background: @background-color;
+    .changeBackground(@backgroundModal);
     box-shadow: rgba(0,0,0,.03) 0px -1px 0px inset,
     rgba(0,0,0,.15) 0 15px 10px,
     rgba(0,0,0,.3) 0 8px 36px
   }
 
   .lightbox-title-bar {
-    .vertical-borders(1px, @heavily-lighten-inherited-background-color);
+    border-bottom: 1px solid;
     text-align: center;
     font-size: @largeFontSize;
     min-height: @minimumButtonSize;

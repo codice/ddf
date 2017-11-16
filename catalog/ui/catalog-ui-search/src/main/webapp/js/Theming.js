@@ -40,9 +40,11 @@ function handleThemeChange(){
         });
     });
     Less.render(newLessStyles, function(e, data){
-        updateTheme(data.css);
-        wreqr.vent.trigger('resize');
-        $(window).trigger('resize');
+        if (data !== undefined) {
+            updateTheme(data.css);
+            wreqr.vent.trigger('resize');
+            $(window).trigger('resize');
+        }
     });
 }
 

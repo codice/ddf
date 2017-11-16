@@ -12,11 +12,18 @@
  **/
  --}}
 <div class="if-editing">
-    <textarea class="ta-enabled" id="{{cid}}" value="{{value}}"
+    <textarea class="ta-enabled is-input" id="{{cid}}" value="{{value}}"
               placeholder="{{property.placeholder}}" name="{{property.id}}">{{value}}</textarea>
 </div>
 <div class="if-viewing">
-    <textarea class="ta-disabled" disabled id="{{cid}}" value="{{value}}"
+    <textarea class="ta-disabled is-input" disabled id="{{cid}}" value="{{value}}"
               placeholder="{{property.placeholder}}" name="{{property.id}}">{{value}}</textarea>
-    <button class="ta-expand"><i class="fa fa-ellipsis-h"></i></button>
+    <button class="ta-expand is-primary">
+        <i class="fa fa-chevron-down"></i>
+        <span>More</span>
+    </button>
+    <button class="ta-contract is-primary">
+        <i class="fa fa-chevron-up"></i>
+        <span>Less</span>
+    </button>
 </div>

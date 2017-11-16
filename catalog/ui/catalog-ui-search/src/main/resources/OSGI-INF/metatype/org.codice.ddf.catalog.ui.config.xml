@@ -314,6 +314,94 @@
           default="false"
           required="false"/>
 
+        <AD id="theme" 
+            name="Theme" 
+            description="Specifies the default theme.  Custom requires filling out the colors below."
+            required="true" 
+            type="String"
+            default="dark">
+              <Option label="Dark" value="dark"/>
+              <Option label="Light" value="light"/>
+              <Option label="Sea" value="sea"/>
+              <Option label="Custom" value="custom"/>
+        </AD>
+
+        <AD id="customPrimaryColor"
+            name="Primary Color"
+            description="Primary Color"
+            type="String"
+            default="#3c6dd5"
+            required="true"/>
+
+        <AD id="customPositiveColor"
+            name="Positive Color"
+            description="Positive Color"
+            type="String"
+            default="#428442"
+            required="true"/>
+
+        <AD id="customNegativeColor"
+            name="Negative Color"
+            description="Negative Color"
+            type="String"
+            default="#8a423c"
+            required="true"/>
+
+        <AD id="customWarningColor"
+            name="Warning Color"
+            description="Warning Color"
+            type="String"
+            default="#c89600"
+            required="true"/>
+
+        <AD id="customFavoriteColor"
+            name="Favorite Color"
+            description="Favorite Color"
+            type="String"
+            default="#d1d179"
+            required="true"/>
+
+        <AD id="customBackgroundNavigation"
+            name="Background Navigation Color"
+            description="Background Navigation Color"
+            type="String"
+            default="#252529"
+            required="true"/>
+
+        <AD id="customBackgroundAccentContent"
+            name="Background Accent Content Color"
+            description="Background Accent Content Color"
+            type="String"
+            default="#2A2A2E"
+            required="true"/>
+
+        <AD id="customBackgroundDropdown"
+            name="Background Dropdown Color"
+            description="Background Dropdown Color"
+            type="String"
+            default="#35353a"
+            required="true"/>
+
+        <AD id="customBackgroundContent"
+            name="Background Content Color"
+            description="Background Content Color"
+            type="String"
+            default="#35353a"
+            required="true"/>
+
+        <AD id="customBackgroundModal"
+            name="Background Modal Color"
+            description="Background Modal Color"
+            type="String"
+            default="#252529"
+            required="true"/>
+
+        <AD id="customBackgroundSlideout"
+            name="Background Slideout Color"
+            description="Background Slideout Color"
+            type="String"
+            default="#252529"
+            required="true"/>
     </OCD>
 
     <Designate pid="org.codice.ddf.catalog.ui.config">

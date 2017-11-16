@@ -95,7 +95,7 @@ module.exports = Marionette.ItemView.extend({
                 }
                 if (property === 'thumbnail') {
                     var escapedValue = Common.escapeHTML(value);
-                    html = '<img src="' +  Common.getImageSrc(escapedValue) + '"><button class="is-button is-neutral is-opaque result-download"><span class="fa fa-download"></span></button>';
+                    html = '<img src="' +  Common.getImageSrc(escapedValue) + '"><button class="is-primary result-download"><span class="fa fa-download"></span></button>';
                     className = "is-thumbnail";
                 }
                 return {

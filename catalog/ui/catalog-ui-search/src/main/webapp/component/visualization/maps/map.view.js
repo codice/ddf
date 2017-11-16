@@ -190,10 +190,10 @@ module.exports = Marionette.LayoutView.extend({
         this.map.zoomToBoundingBox(homeBoundingBox !== undefined ? homeBoundingBox : defaultHomeBoundingBox);
     },
     addHome: function() {
-        this.$el.find('.cesium-viewer-toolbar').append('<button class="cesium-button zoomToHome"><span class="fa fa-home"></span><span> Home</span></div>');
+        this.$el.find('.cesium-viewer-toolbar').append('<button class="is-button zoomToHome"><span class="fa fa-home"></span><span> Home</span></div>');
     },
     addClustering: function() {
-        this.$el.find('.cesium-viewer-toolbar').append('<button class="cesium-button cluster cluster-button">' +
+        this.$el.find('.cesium-viewer-toolbar').append('<button class="is-button cluster cluster-button">' +
             '<span class="fa fa-cubes is-not-clustering"></span>' +
             '<span class="fa fa-cube is-clustering"></span>' +
             '<span> Cluster </span>' +
@@ -201,13 +201,11 @@ module.exports = Marionette.LayoutView.extend({
             '</div>');
     },
     addSettings: function(){
-        this.$el.find('.cesium-viewer-toolbar').append('<div class="toolbar-settings"></div>');
+        this.$el.find('.cesium-viewer-toolbar').append('<div class="toolbar-settings is-button"></div>');
         this.addRegion('toolbarSettings', '.toolbar-settings');
         this.toolbarSettings.show(new MapSettingsDropdown({
             model: new DropdownModel()
-        }), {
-            replaceElement: true
-        });
+        }));
     },
     onMapHover: function(event, mapEvent) {
         var metacard = this.options.selectionInterface
@@ -275,13 +273,11 @@ module.exports = Marionette.LayoutView.extend({
         this.endLoading();
     },
     addLayers: function(){
-        this.$el.find('.cesium-viewer-toolbar').append('<div class="toolbar-layers"></div>');
+        this.$el.find('.cesium-viewer-toolbar').append('<div class="toolbar-layers is-button"></div>');
         this.addRegion('toolbarLayers', '.toolbar-layers');
         this.toolbarLayers.show(new LayersDropdown({
             model: new DropdownModel()
-        }), {
-            replaceElement: true
-        });
+        }));
     },
     initializeMap: function(){
         this.loadMap().then(function(Map) {

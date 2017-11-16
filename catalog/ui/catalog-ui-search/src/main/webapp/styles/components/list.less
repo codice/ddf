@@ -1,31 +1,42 @@
-.is-list {
-  > *,
-  > * > td {
-    border-top: 1px solid @lighten-inherited-background-color;
-    border-bottom: 1px solid @lighten-inherited-background-color;
+.is-list(@contrastColor: white) {
+  .is-list {
+    > *,
+    > * > td {
+      border-top: 1px solid fade(@contrastColor, 10%);
+      border-bottom: 1px solid fade(@contrastColor, 10%);
+    }
   }
-}
 
-.is-list.has-list-highlighting {
-  > *:hover,
-  > *:hover > td {
-    border-top: 1px solid @medium-lighten-inherited-background-color;
-    border-bottom: 1px solid @medium-lighten-inherited-background-color;
+  .is-list.has-list-highlighting {
+    > *:hover,
+    > *:hover > td {
+      border-top: 1px solid fade(@contrastColor, 20%);
+      border-bottom: 1px solid fade(@contrastColor, 20%);
+    }
   }
-}
+  
+  
+  .is-list.is-inline {
+    > *,
+    > * > td {
+      border-left: 1px solid fade(@contrastColor, 10%);
+      border-right: 1px solid fade(@contrastColor, 10%);
+    }
+  }
+  
+  .is-list.is-inline.has-list-highlighting {
+    > *:hover,
+    > *:hover > td {
+      border-left: 1px solid fade(@contrastColor, 20%);
+      border-right: 1px solid fade(@contrastColor, 20%);
+    }
+  }
 
-.is-list.is-inline {
-  > *,
-  > * > td {
-    border-left: 1px solid @lighten-inherited-background-color;
-    border-right: 1px solid @lighten-inherited-background-color;
+  .is-action-list {
+    > *:hover,
+    > *.is-active {
+      background: fade(@contrastColor, 10%);
+    }
   }
 }
-
-.is-list.is-inline.has-list-highlighting {
-  > *:hover,
-  > *:hover > td {
-    border-left: 1px solid @medium-lighten-inherited-background-color;
-    border-right: 1px solid @medium-lighten-inherited-background-color;
-  }
-}
+.is-list();
