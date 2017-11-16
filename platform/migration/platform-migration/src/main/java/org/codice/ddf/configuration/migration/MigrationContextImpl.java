@@ -42,6 +42,7 @@ import org.codice.ddf.migration.MigrationReport;
  * <pre>
  *     {
  *       "version": "1.0",
+ *       "product.branding": "ddf",
  *       "product.version": "2.11.0-SNAPSHOT",
  *       "date": "Tue Aug 01 12:39:21 MST 2017"
  *       "migratables": {
@@ -111,6 +112,7 @@ import org.codice.ddf.migration.MigrationReport;
  *
  * <ul>
  *   <li>'version' is used to keep track of the migration version used during export
+ *   <li>'product.branding' is used to keep track of the brand of the system that exported the file
  *   <li>'product.version' is used to keep track of the version of the system the exported zip file
  *       was created from
  *   <li>'date' is used to keep track of the date when the exported zip file was created
@@ -149,6 +151,8 @@ import org.codice.ddf.migration.MigrationReport;
  * @param <R> the type of report for this context
  */
 public class MigrationContextImpl<R extends MigrationReport> implements MigrationContext {
+
+  public static final String METADATA_PRODUCT_BRANDING = "product.branding";
 
   public static final String METADATA_PRODUCT_VERSION = "product.version";
 

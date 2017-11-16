@@ -51,9 +51,12 @@ import org.mockito.Mockito;
 
 /** Base class for test cases which handles setup for DDF_HOME. */
 public class AbstractMigrationSupport {
+
   protected static final String MIGRATABLE_ID = "test-migratable";
 
   protected static final String VERSION = "3.1415";
+
+  protected static final String PRODUCT_BRANDING = "test";
 
   protected static final String PRODUCT_VERSION = "test-1.0";
 
@@ -343,6 +346,7 @@ public class AbstractMigrationSupport {
   }
 
   public static class ZipEntry extends java.util.zip.ZipEntry {
+
     private final byte[] content;
 
     private ZipEntry(java.util.zip.ZipEntry ze, byte[] content) {

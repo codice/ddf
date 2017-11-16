@@ -80,6 +80,8 @@ import org.mockito.runners.MockitoJUnitRunner;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class SecurityMigratableTest {
+  private static final String SUPPORTED_BRANDING = "test";
+
   private static final String SUPPORTED_VERSION = "1.0";
 
   private static final String UNSUPPORTED_VERSION = "666.0";
@@ -171,7 +173,7 @@ public class SecurityMigratableTest {
     assertThat("The export report has errors.", exportReport.hasErrors(), is(false));
     assertThat("The export report has warnings.", exportReport.hasWarnings(), is(false));
     assertThat("Export was not successful.", exportReport.wasSuccessful(), is(true));
-    String exportedZipBaseName = String.format("exported-%s.zip", SUPPORTED_VERSION);
+    String exportedZipBaseName = String.format("%s-%s.dar", SUPPORTED_BRANDING, SUPPORTED_VERSION);
     Path exportedZip = exportDir.resolve(exportedZipBaseName).toRealPath();
     assertThat("Export zip does not exist.", exportedZip.toFile().exists(), is(true));
     assertThat("Exported zip is empty.", exportedZip.toFile().length(), greaterThan(0L));
@@ -222,7 +224,7 @@ public class SecurityMigratableTest {
     assertThat("The export report has errors.", exportReport.hasErrors(), is(false));
     assertThat("The export report has warnings.", exportReport.hasWarnings(), is(false));
     assertThat("Export was not successful.", exportReport.wasSuccessful(), is(true));
-    String exportedZipBaseName = String.format("exported-%s.zip", SUPPORTED_VERSION);
+    String exportedZipBaseName = String.format("%s-%s.dar", SUPPORTED_BRANDING, SUPPORTED_VERSION);
     Path exportedZip = exportDir.resolve(exportedZipBaseName).toRealPath();
     assertThat("Export zip does not exist.", exportedZip.toFile().exists(), is(true));
     assertThat("Exported zip is empty.", exportedZip.toFile().length(), greaterThan(0L));
@@ -266,7 +268,7 @@ public class SecurityMigratableTest {
     assertThat("The export report has errors.", exportReport.hasErrors(), is(false));
     assertThat("The export report has warnings.", exportReport.hasWarnings(), is(false));
     assertThat("Export was not successful.", exportReport.wasSuccessful(), is(true));
-    String exportedZipBaseName = String.format("exported-%s.zip", SUPPORTED_VERSION);
+    String exportedZipBaseName = String.format("%s-%s.dar", SUPPORTED_BRANDING, SUPPORTED_VERSION);
     Path exportedZip = exportDir.resolve(exportedZipBaseName).toRealPath();
     assertThat("Export zip does not exist.", exportedZip.toFile().exists(), is(true));
     assertThat("Exported zip is empty.", exportedZip.toFile().length(), greaterThan(0L));
@@ -321,7 +323,7 @@ public class SecurityMigratableTest {
     assertThat("The export report has errors.", exportReport.hasErrors(), is(false));
     assertThat("The export report has warnings.", exportReport.hasWarnings(), is(false));
     assertThat("Export was not successful.", exportReport.wasSuccessful(), is(true));
-    String exportedZipBaseName = String.format("exported-%s.zip", SUPPORTED_VERSION);
+    String exportedZipBaseName = String.format("%s-%s.dar", SUPPORTED_BRANDING, SUPPORTED_VERSION);
     Path exportedZip = exportDir.resolve(exportedZipBaseName).toRealPath();
     assertThat("Export zip does not exist.", exportedZip.toFile().exists(), is(true));
     assertThat("Exported zip is empty.", exportedZip.toFile().length(), greaterThan(0L));
@@ -357,6 +359,7 @@ public class SecurityMigratableTest {
     Path binDir = ddfHome.resolve("bin");
     Files.createDirectory(binDir);
     System.setProperty(DDF_HOME_SYSTEM_PROP_KEY, ddfHome.toRealPath().toString());
+    setupBrandingFile(SUPPORTED_BRANDING);
     setupVersionFile(SUPPORTED_VERSION);
     for (Path path : PROPERTIES_FILES) {
       Path p = ddfHome.resolve(path);
@@ -377,6 +380,14 @@ public class SecurityMigratableTest {
 
     setupCrl(tag);
     setupPdpFiles(tag);
+  }
+
+  private void setupBrandingFile(String branding) throws IOException {
+    final Path brandingFile = ddfHome.resolve("Branding.txt");
+
+    Files.createFile(brandingFile);
+    FileUtils.writeStringToFile(
+        brandingFile.toFile().getCanonicalFile(), branding, StandardCharsets.UTF_8);
   }
 
   private void setupVersionFile(String version) throws IOException {

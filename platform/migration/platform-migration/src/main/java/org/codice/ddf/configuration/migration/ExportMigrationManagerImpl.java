@@ -120,21 +120,26 @@ public class ExportMigrationManagerImpl implements Closeable {
   /**
    * Proceed with the export migration operation.
    *
+   * @param productBranding the product branding being exported
    * @param productVersion the product version being exported
-   * @throws IllegalArgumentException if <code>productVersion</code> is <code>null</code>
+   * @throws IllegalArgumentException if <code>productBranding</code> or </code><code>productVersion
+   *     </code> is <code>null</code>
    * @throws MigrationException to stop the export operation
    */
-  public void doExport(String productVersion) {
+  public void doExport(String productBranding, String productVersion) {
+    Validate.notNull(productBranding, "invalid null product branding");
     Validate.notNull(productVersion, "invalid null product version");
     final String ddfHome = System.getProperty("ddf.home");
 
     LOGGER.debug(
-        "Exporting product [{}] under [{}] with version [{}] to [{}]...",
+        "Exporting {} product [{}] under [{}] with version [{}] to [{}]...",
+        productBranding,
         productVersion,
         ddfHome,
         MigrationContextImpl.CURRENT_VERSION,
         exportFile);
     metadata.put(MigrationContextImpl.METADATA_VERSION, MigrationContextImpl.CURRENT_VERSION);
+    metadata.put(MigrationContextImpl.METADATA_PRODUCT_BRANDING, productBranding);
     metadata.put(MigrationContextImpl.METADATA_PRODUCT_VERSION, productVersion);
     metadata.put(MigrationContextImpl.METADATA_DATE, new Date().toString());
     metadata.put(MigrationContextImpl.METADATA_DDF_HOME, ddfHome);

@@ -34,7 +34,7 @@ image::exporting_configuration_step3.png[Exporting Step 3]
 To export the current ${branding} configuration from the ${command-console}:
 
 . Run the command migration:export from the ${command-console}.
-. A file named `exported-${project.version}.zip` will be created in the `exported` directory underneath `${home_directory}`, but an alternative location can be specified with the `migration:export`. Copy this file to a secure place.
+. A file named `${branding-lowercase}-${project.version}.dar` will be created in the `exported` directory underneath `${home_directory}`, but an alternative location can be specified with the `migration:export`. Copy this file to a secure place.
 
 ****
 

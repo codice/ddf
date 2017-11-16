@@ -66,6 +66,9 @@ public final class Messages {
   public static final String IMPORT_UNSUPPORTED_VERSION_ERROR =
       "Import error: unsupported exported version [%s]; currently supporting [%s].";
 
+  public static final String IMPORT_MISMATCH_PRODUCT_ERROR =
+      "Import error: mismatched product [%s]; expecting [%s].";
+
   public static final String IMPORT_MISMATCH_PRODUCT_VERSION_ERROR =
       "Import error: mismatched product version [%s]; expecting [%s].";
 
@@ -91,9 +94,9 @@ public final class Messages {
   public static final String IMPORT_SECURITY_ERROR =
       "Import security error: failed to import from file [%s]; %s.";
 
-  public static final String EXPORTING_DATA = "Exporting data to file [%s].";
+  public static final String EXPORTING_DATA = "Exporting %s data to file [%s].";
 
-  public static final String IMPORTING_DATA = "Importing data from file [%s].";
+  public static final String IMPORTING_DATA = "Importing %s data from file [%s].";
 
   public static final String EXPORT_SYSTEM_PROPERTY_ERROR =
       "Export error: system property [%s] is set to [%s] that %s; %s.";

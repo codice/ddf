@@ -53,19 +53,21 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationMigrationManager.class);
 
+  private static final String PRODUCT_BRANDING_FILENAME = "Branding.txt";
+
   private static final String PRODUCT_VERSION_FILENAME = "Version.txt";
 
-  private static final String EXPORT_EXTENSION = ".zip";
+  private static final String EXPORT_EXTENSION = ".dar";
 
-  private static final String EXPORTED = "exported";
-
-  private static final String EXPORT_PREFIX = ConfigurationMigrationManager.EXPORTED + '-';
+  private static final String EXPORT_DIR = "exported";
 
   private static final String INVALID_NULL_EXPORT_DIR = "invalid null export directory";
 
   private final List<Migratable> migratables;
 
   private final SystemService system;
+
+  private final String productBranding;
 
   private final String productVersion;
 
@@ -75,7 +77,7 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
    * @param migratables list of {@link Migratable} services. Needs to be kept up-to-date by the
    *     client of this class.
    * @param system the system service
-   * @throws IOError if unable to load the distribution version information.
+   * @throws IOError if unable to load the distribution branding or version information.
    */
   public ConfigurationMigrationManager(List<Migratable> migratables, SystemService system) {
     Validate.notNull(migratables, "invalid null migratables");
@@ -83,13 +85,32 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
     this.migratables = migratables;
     this.system = system;
     try {
+      this.productBranding =
+          AccessUtils.doPrivileged(
+                  () ->
+                      ConfigurationMigrationManager.getProductInfo(
+                          Paths.get(
+                              System.getProperty("ddf.home"),
+                              ConfigurationMigrationManager.PRODUCT_BRANDING_FILENAME),
+                          "branding"))
+              .toLowerCase();
+    } catch (SecurityException | IOException e) {
+      LOGGER.error(
+          String.format(
+              "unable to load product version information from '%s'; ",
+              ConfigurationMigrationManager.PRODUCT_VERSION_FILENAME),
+          e);
+      throw new IOError(e);
+    }
+    try {
       this.productVersion =
           AccessUtils.doPrivileged(
               () ->
-                  ConfigurationMigrationManager.getProductVersion(
+                  ConfigurationMigrationManager.getProductInfo(
                       Paths.get(
                           System.getProperty("ddf.home"),
-                          ConfigurationMigrationManager.PRODUCT_VERSION_FILENAME)));
+                          ConfigurationMigrationManager.PRODUCT_VERSION_FILENAME),
+                      "version"));
     } catch (SecurityException | IOException e) {
       LOGGER.error(
           String.format(
@@ -106,13 +127,14 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
     };
   }
 
-  private static String getProductVersion(Path path) throws IOException {
+  private static String getProductInfo(Path path, String type) throws IOException {
     try (final Stream<String> stream = Files.lines(path)) {
       return stream
           .findFirst()
           .map(String::trim)
           .filter(s -> !s.isEmpty())
-          .orElseThrow(() -> new IOException("missing product version information"));
+          .orElseThrow(
+              () -> new IOException(String.format("missing product %s information", type)));
     }
   }
 
@@ -152,8 +174,8 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
         new ImportMigrationManagerImpl(report, exportFile, migratables.stream());
 
     try {
-      report.record(Messages.IMPORTING_DATA, exportFile);
-      mgr.doImport(productVersion);
+      report.record(Messages.IMPORTING_DATA, productBranding, exportFile);
+      mgr.doImport(productBranding, productVersion);
     } finally {
       IOUtils.closeQuietly(mgr); // do not care if we fail to close the mgr/zip file!!!
     }
@@ -164,8 +186,8 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
       throws IOException {
     try (final ExportMigrationManagerImpl mgr =
         new ExportMigrationManagerImpl(report, exportFile, migratables.stream())) {
-      report.record(Messages.EXPORTING_DATA, exportFile);
-      mgr.doExport(productVersion);
+      report.record(Messages.EXPORTING_DATA, productBranding, exportFile);
+      mgr.doExport(productBranding, productVersion);
     }
   }
 
@@ -185,7 +207,8 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
     }
     final Path exportFile =
         exportDirectory.resolve(
-            ConfigurationMigrationManager.EXPORT_PREFIX
+            productBranding
+                + '-'
                 + productVersion
                 + ConfigurationMigrationManager.EXPORT_EXTENSION);
 
@@ -204,7 +227,7 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
     if (report.hasErrors()) {
       SecurityLogger.audit("Errors exporting configuration settings to file {}", exportFile);
       // don't leave the zip file there if the export failed
-      PathUtils.deleteQuietly(exportFile, ConfigurationMigrationManager.EXPORTED);
+      PathUtils.deleteQuietly(exportFile, ConfigurationMigrationManager.EXPORT_DIR);
       report.record(new MigrationException(Messages.EXPORT_FAILURE, exportFile));
     } else if (report.hasWarnings()) {
       SecurityLogger.audit("Warnings exporting configuration settings to file {}", exportFile);
@@ -222,7 +245,8 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
     final MigrationReportImpl report = new MigrationReportImpl(MigrationOperation.IMPORT, consumer);
     final Path exportFile =
         exportDirectory.resolve(
-            ConfigurationMigrationManager.EXPORT_PREFIX
+            productBranding
+                + '-'
                 + productVersion
                 + ConfigurationMigrationManager.EXPORT_EXTENSION);
 
@@ -242,13 +266,13 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
     } else if (report.hasWarnings()) {
       SecurityLogger.audit("Warnings importing configuration settings from file {}", exportFile);
       // don't leave the zip file there if the import succeeded
-      PathUtils.deleteQuietly(exportFile, ConfigurationMigrationManager.EXPORTED);
+      PathUtils.deleteQuietly(exportFile, ConfigurationMigrationManager.EXPORT_DIR);
       report.record(new MigrationWarning(Messages.IMPORT_SUCCESS_WITH_WARNINGS, exportFile));
       report.record(new MigrationWarning(Messages.RESTART_SYSTEM_WHEN_WARNINGS));
     } else {
       SecurityLogger.audit("Exported configuration settings from file {}", exportFile);
       // don't leave the zip file there if the import succeeded
-      PathUtils.deleteQuietly(exportFile, ConfigurationMigrationManager.EXPORTED);
+      PathUtils.deleteQuietly(exportFile, ConfigurationMigrationManager.EXPORT_DIR);
       report.record(new MigrationSuccessfulInformation(Messages.IMPORT_SUCCESS, exportFile));
       // force a JVM restart
       restart(report);
