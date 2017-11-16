@@ -20,7 +20,6 @@ import static org.apache.commons.lang.Validate.notNull;
 import ddf.security.common.audit.SecurityLogger;
 import java.util.Arrays;
 import java.util.Properties;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -34,6 +33,8 @@ import javax.mail.Transport;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.platform.email.SmtpClient;
 import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Supports unauthenticated connections to a mail server and username/password authenticated
@@ -49,6 +50,8 @@ import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
  * be removed in a future version of the library. </b>
  */
 public class SmtpClientImpl implements SmtpClient {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(SmtpClientImpl.class);
 
   private static final String SMTP_HOST_PROPERTY = "mail.smtp.host";
 
@@ -125,19 +128,22 @@ public class SmtpClientImpl implements SmtpClient {
   }
 
   @Override
-  public Future<Void> send(Message message) throws MessagingException {
+  public Future<Void> send(Message message) {
     notNull(message, "message must be non-null");
     return executorService.submit(
-        new Callable<Void>() {
-          @Override
-          public Void call() throws Exception {
+        () -> {
+          try {
             Transport.send(message);
-            SecurityLogger.audit(
-                "Sent an email: recipient={} subject={}",
-                Arrays.toString(message.getAllRecipients()),
-                message.getSubject());
+          } catch (MessagingException e) {
+            LOGGER.debug("Could not send message {}", message, e);
             return null;
           }
+
+          SecurityLogger.audit(
+              "Sent an email: recipient={} subject={}",
+              Arrays.toString(message.getAllRecipients()),
+              message.getSubject());
+          return null;
         });
   }
 
