@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.util.List;
 import org.apache.shiro.subject.Subject;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.metatype.ObjectClassDefinition;
 
@@ -79,13 +78,6 @@ public interface ConfigurationAdmin {
    * @return List<Service>
    */
   List<Service> listServices(String serviceFactoryFilter, String serviceFilter);
-
-  /**
-   * Returns all configurations that satisfy the provided filter.
-   *
-   * @see org.osgi.service.cm.ConfigurationAdmin#listConfigurations(String)
-   */
-  Configuration[] listConfigurations(String filter) throws IOException, InvalidSyntaxException;
 
   /**
    * Returns true if the subject is permitted to view the service corresponding to the provided
