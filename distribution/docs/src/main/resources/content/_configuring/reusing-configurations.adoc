@@ -12,7 +12,7 @@ The Migration Export/Import capability allows administrators to export the curre
 To export the current configuration settings:
 
 . Run the command migration:export from the ${command-console}.
-. A file named `exported-${project.version}.zip` will be created in the `exported` directory underneath `${home_directory}`. Copy this file to a secure place.
+. A file named `${branding-lowercase}-${project.version}.dar` will be created in the `exported` directory underneath `${home_directory}`. Copy this file to a secure place.
 
 To import previously exported configuration settings:
 

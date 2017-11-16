@@ -55,6 +55,8 @@ public class ImportMigrationManagerImpl implements Closeable {
 
   private final String version;
 
+  private final String productBranding;
+
   private final String productVersion;
 
   private final Path exportFile;
@@ -114,6 +116,8 @@ public class ImportMigrationManagerImpl implements Closeable {
             version,
             MigrationContextImpl.CURRENT_VERSION);
       }
+      this.productBranding =
+          JsonUtils.getStringFrom(metadata, MigrationContextImpl.METADATA_PRODUCT_BRANDING, true);
       this.productVersion =
           JsonUtils.getStringFrom(metadata, MigrationContextImpl.METADATA_PRODUCT_VERSION, true);
       // process migratables' metadata
@@ -142,20 +146,31 @@ public class ImportMigrationManagerImpl implements Closeable {
   /**
    * Proceed with the import migration operation.
    *
+   * @param currentProductBranding the current product branding to compare against
    * @param currentProductVersion the current product version to compare against
-   * @throws IllegalArgumentException if <code>productVersion</code> is <code>null</code>
+   * @throws IllegalArgumentException if <code>currentProductBranding</code> or <code>
+   *     currentProductVersion</code> is <code>null</code>
    * @throws MigrationException if the versions don't match or if a failure occurred that required
    *     interrupting the operation right away
    */
-  public void doImport(String currentProductVersion) {
+  public void doImport(String currentProductBranding, String currentProductVersion) {
+    Validate.notNull(currentProductBranding, "invalid null product branding");
     Validate.notNull(currentProductVersion, "invalid null product version");
+    if (!currentProductBranding.equals(this.productBranding)) {
+      throw new MigrationException(
+          Messages.IMPORT_MISMATCH_PRODUCT_ERROR, this.productBranding, currentProductBranding);
+    }
     if (!currentProductVersion.equals(this.productVersion)) {
       throw new MigrationException(
           Messages.IMPORT_MISMATCH_PRODUCT_VERSION_ERROR,
           this.productVersion,
           currentProductVersion);
     }
-    LOGGER.debug("Importing product [{}] from version [{}]...", currentProductVersion, version);
+    LOGGER.debug(
+        "Importing {} product [{}] from version [{}]...",
+        currentProductBranding,
+        currentProductVersion,
+        version);
     contexts.values().forEach(ImportMigrationContextImpl::doImport);
   }
 

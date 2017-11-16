@@ -31,6 +31,7 @@ import java.io.IOError;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
@@ -62,6 +63,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport {
+
+  public static final String TEST_BRANDING = "test";
 
   public static final String TEST_VERSION = "1.0";
 
@@ -108,8 +111,47 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
     new ConfigurationMigrationManager(new ArrayList<>(), null);
   }
 
-  @Test(expected = IOError.class)
-  public void constructorWithoutProductVersion() {
+  @Test
+  public void constructorWithoutProductBrandingFile() throws Exception {
+    createVersionFile();
+
+    thrown.expect(IOError.class);
+    thrown.expectMessage("Branding.txt");
+    thrown.expectCause(Matchers.instanceOf(NoSuchFileException.class));
+
+    new ConfigurationMigrationManager(new ArrayList<>(), mockSystemService);
+  }
+
+  @Test
+  public void constructorWithoutProductVersionFile() throws Exception {
+    createBrandingFile();
+
+    thrown.expect(IOError.class);
+    thrown.expectMessage("Version.txt");
+    thrown.expectCause(Matchers.instanceOf(NoSuchFileException.class));
+
+    new ConfigurationMigrationManager(new ArrayList<>(), mockSystemService);
+  }
+
+  @Test
+  public void constructorWithMissingProductBranding() throws Exception {
+    createBrandingFile("");
+    createVersionFile();
+
+    thrown.expect(IOError.class);
+    thrown.expectMessage("missing product branding information");
+
+    new ConfigurationMigrationManager(new ArrayList<>(), mockSystemService);
+  }
+
+  @Test
+  public void constructorWithMissingProductVersion() throws Exception {
+    createBrandingFile();
+    createVersionFile("");
+
+    thrown.expect(IOError.class);
+    thrown.expectMessage("missing product version information");
+
     new ConfigurationMigrationManager(new ArrayList<>(), mockSystemService);
   }
 
@@ -166,10 +208,10 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
         report.warnings(),
         equalTo(
             "Successfully exported to file ["
-                + path.resolve("exported")
+                + path.resolve(TEST_BRANDING)
                 + "-"
                 + TEST_VERSION
-                + ".zip] with warnings; make sure to review."));
+                + ".dar] with warnings; make sure to review."));
     verify(configurationMigrationManager)
         .delegateToExportMigrationManager(any(MigrationReportImpl.class), any(Path.class));
   }
@@ -238,10 +280,10 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
         report.errors(),
         equalTo(
             "Export error: failed to close export file ["
-                + path.resolve("exported")
+                + path.resolve(TEST_BRANDING)
                 + "-"
                 + TEST_VERSION
-                + ".zip]; testing."));
+                + ".dar]; testing."));
     verify(configurationMigrationManager)
         .delegateToExportMigrationManager(any(MigrationReportImpl.class), any(Path.class));
   }
@@ -262,10 +304,10 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
         report.errors(),
         equalTo(
             "Unexpected internal error: failed to export to file ["
-                + path.resolve("exported")
+                + path.resolve(TEST_BRANDING)
                 + "-"
                 + TEST_VERSION
-                + ".zip]; testing."));
+                + ".dar]; testing."));
     verify(configurationMigrationManager)
         .delegateToExportMigrationManager(any(MigrationReportImpl.class), any(Path.class));
   }
@@ -287,10 +329,10 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
         report.infos(),
         equalTo(
             "Successfully imported from file ["
-                + path.resolve("exported")
+                + path.resolve(TEST_BRANDING)
                 + "-"
                 + TEST_VERSION
-                + ".zip]."));
+                + ".dar]."));
     reportHasInfoMessage(
         report.infos(), equalTo("Restarting the system for changes to take effect."));
     verify(mockSystemService).reboot();
@@ -316,10 +358,10 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
         report.infos(),
         equalTo(
             "Successfully imported from file ["
-                + path.resolve("exported")
+                + path.resolve(TEST_BRANDING)
                 + "-"
                 + TEST_VERSION
-                + ".zip]."));
+                + ".dar]."));
     reportHasInfoMessage(
         report.infos(), equalTo("Restarting the system for changes to take effect."));
     verify(mockSystemService, Mockito.never()).reboot();
@@ -346,10 +388,10 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
         report.infos(),
         equalTo(
             "Successfully imported from file ["
-                + path.resolve("exported")
+                + path.resolve(TEST_BRANDING)
                 + "-"
                 + TEST_VERSION
-                + ".zip]."));
+                + ".dar]."));
     reportHasInfoMessage(
         report.infos(), equalTo("Restarting the system for changes to take effect."));
     verify(mockSystemService).reboot();
@@ -381,10 +423,10 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
         report.warnings(),
         equalTo(
             "Successfully imported from file ["
-                + path.resolve("exported")
+                + path.resolve(TEST_BRANDING)
                 + "-"
                 + TEST_VERSION
-                + ".zip] with warnings; make sure to review."));
+                + ".dar] with warnings; make sure to review."));
     verify(mockWrapperManager, Mockito.never()).restart();
     verify(configurationMigrationManager)
         .delegateToImportMigrationManager(any(MigrationReportImpl.class), any(Path.class));
@@ -406,10 +448,10 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
         report.infos(),
         equalTo(
             "Successfully imported from file ["
-                + path.resolve("exported")
+                + path.resolve(TEST_BRANDING)
                 + "-"
                 + TEST_VERSION
-                + ".zip]."));
+                + ".dar]."));
     reportHasInfoMessage(
         report.infos(), equalTo("Please restart the system for changes to take effect."));
     verify(mockSystemService).reboot();
@@ -435,10 +477,10 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
         report.infos(),
         equalTo(
             "Successfully imported from file ["
-                + path.resolve("exported")
+                + path.resolve(TEST_BRANDING)
                 + "-"
                 + TEST_VERSION
-                + ".zip]."));
+                + ".dar]."));
     reportHasInfoMessage(
         report.infos(), equalTo("Please restart the system for changes to take effect."));
     verify(mockSystemService, Mockito.never()).reboot();
@@ -497,10 +539,10 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
         report.errors(),
         equalTo(
             "Unexpected internal error: failed to import from file ["
-                + path.resolve("exported")
+                + path.resolve(TEST_BRANDING)
                 + "-"
                 + TEST_VERSION
-                + ".zip]; testing."));
+                + ".dar]; testing."));
     verify(configurationMigrationManager)
         .delegateToImportMigrationManager(any(MigrationReportImpl.class), any(Path.class));
     verify(mockWrapperManager, Mockito.never()).restart();
@@ -577,11 +619,30 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
         equalTo(1L));
   }
 
-  private ConfigurationMigrationManager getConfigurationMigrationManager() throws IOException {
+  private void createBrandingFile(String branding) throws IOException {
+    final File brandingFile = new File(ddfHome.resolve("Branding.txt").toString());
+
+    brandingFile.createNewFile();
+    Files.write(brandingFile.toPath(), branding.getBytes(), StandardOpenOption.APPEND);
+  }
+
+  private void createBrandingFile() throws IOException {
+    createBrandingFile(TEST_BRANDING);
+  }
+
+  private void createVersionFile(String version) throws IOException {
     File versionFile = new File(ddfHome.resolve("Version.txt").toString());
     versionFile.createNewFile();
-    Files.write(versionFile.toPath(), TEST_VERSION.getBytes(), StandardOpenOption.APPEND);
+    Files.write(versionFile.toPath(), version.getBytes(), StandardOpenOption.APPEND);
+  }
 
+  private void createVersionFile() throws IOException {
+    createVersionFile(TEST_VERSION);
+  }
+
+  private ConfigurationMigrationManager getConfigurationMigrationManager() throws IOException {
+    createBrandingFile();
+    createVersionFile();
     return new ConfigurationMigrationManager(migratables, mockSystemService);
   }
 

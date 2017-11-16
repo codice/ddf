@@ -124,6 +124,13 @@
       <fileMode>0755</fileMode>
     </fileSet>
 
+    <!-- Exported Empty Directory -->
+    <fileSet>
+      <directory>${setup.folder}</directory>
+      <outputDirectory>/exported</outputDirectory>
+      <excludes><exclude>**/*</exclude></excludes>
+    </fileSet>
+    
     <!-- HTML & PDF Documentation -->
     <fileSet>
       <directory>${setup.folder}/docs</directory>
