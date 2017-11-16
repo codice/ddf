@@ -608,6 +608,7 @@ public class TikaInputTransformer implements InputTransformer {
     }
 
     mimeTypes.add("image/jp2");
+    mimeTypes.add("application/vnd.ms-visio.viewer");
 
     LOGGER.debug("supported mime types: {}", mimeTypes);
     return mimeTypes;
