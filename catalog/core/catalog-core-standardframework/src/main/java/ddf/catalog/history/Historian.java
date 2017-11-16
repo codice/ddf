@@ -148,41 +148,39 @@ public class Historian {
     }
     setSkipFlag(updateResponse);
 
-    if (updateResponse != null) {
-      if (LOGGER.isTraceEnabled()) {
-        LOGGER.trace("Versioning updated metacards: {}", updateResponse.getUpdatedMetacards());
-      }
+    if (LOGGER.isTraceEnabled()) {
+      LOGGER.trace("Versioning updated metacards: {}", updateResponse.getUpdatedMetacards());
+    }
 
-      List<Metacard> inputMetacards =
-          updateResponse
-              .getUpdatedMetacards()
-              .stream()
-              .map(Update::getOldMetacard)
-              .filter(isNotVersionNorDeleted)
-              .collect(Collectors.toList());
+    List<Metacard> inputMetacards =
+        updateResponse
+            .getUpdatedMetacards()
+            .stream()
+            .map(Update::getOldMetacard)
+            .filter(isNotVersionNorDeleted)
+            .collect(Collectors.toList());
 
-      if (inputMetacards.isEmpty()) {
-        LOGGER.trace("No updated metacards applicable to versioning");
-        return updateResponse;
-      }
+    if (inputMetacards.isEmpty()) {
+      LOGGER.trace("No updated metacards applicable to versioning");
+      return updateResponse;
+    }
 
-      final Map<String, Metacard> versionedMetacards =
-          getVersionMetacards(
-              inputMetacards,
-              (id) -> Action.VERSIONED,
-              (Subject)
-                  updateResponse
-                      .getRequest()
-                      .getProperties()
-                      .get(SecurityConstants.SECURITY_SUBJECT));
+    final Map<String, Metacard> versionedMetacards =
+        getVersionMetacards(
+            inputMetacards,
+            (id) -> Action.VERSIONED,
+            (Subject)
+                updateResponse
+                    .getRequest()
+                    .getProperties()
+                    .get(SecurityConstants.SECURITY_SUBJECT));
 
-      CreateResponse response = storeVersionMetacards(versionedMetacards);
+    CreateResponse response = storeVersionMetacards(versionedMetacards);
 
-      if (LOGGER.isTraceEnabled()) {
-        LOGGER.trace(
-            "Successfully created metacard versions under ids: {}",
-            response.getCreatedMetacards().stream().map(Metacard::getId).collect(TO_A_STRING));
-      }
+    if (LOGGER.isTraceEnabled()) {
+      LOGGER.trace(
+          "Successfully created metacard versions under ids: {}",
+          response.getCreatedMetacards().stream().map(Metacard::getId).collect(TO_A_STRING));
     }
 
     return updateResponse;
@@ -214,78 +212,71 @@ public class Historian {
       LOGGER.trace("Versioning updated metacards and content: {}", updateStorageResponse);
     }
 
-    if (updateStorageResponse != null) {
-      List<Metacard> updatedMetacards =
+    List<Metacard> updatedMetacards =
+        updateStorageResponse
+            .getUpdatedContentItems()
+            .stream()
+            .filter(ci -> StringUtils.isBlank(ci.getQualifier()))
+            .map(ContentItem::getMetacard)
+            .filter(Objects::nonNull)
+            .filter(isNotVersionNorDeleted)
+            .collect(Collectors.toList());
+
+    if (updatedMetacards.isEmpty()) {
+      LOGGER.trace("No updated metacards applicable to versioning");
+      SecurityLogger.audit(
+          "Skipping versioning updated metacards with ids: {}",
           updateStorageResponse
               .getUpdatedContentItems()
               .stream()
-              .filter(ci -> StringUtils.isBlank(ci.getQualifier()))
               .map(ContentItem::getMetacard)
               .filter(Objects::nonNull)
-              .filter(isNotVersionNorDeleted)
-              .collect(Collectors.toList());
+              .map(Metacard::getId)
+              .collect(TO_A_STRING));
+      return updateStorageResponse;
+    }
 
-      if (updatedMetacards.isEmpty()) {
-        LOGGER.trace("No updated metacards applicable to versioning");
-        SecurityLogger.audit(
-            "Skipping versioning updated metacards with ids: {}",
-            updateStorageResponse
-                .getUpdatedContentItems()
-                .stream()
-                .map(ContentItem::getMetacard)
-                .filter(Objects::nonNull)
-                .map(Metacard::getId)
-                .collect(TO_A_STRING));
-        return updateStorageResponse;
-      }
+    Map<String, Metacard> originalMetacards =
+        query(forIds(updatedMetacards.stream().map(Metacard::getId).collect(Collectors.toList())));
 
-      Map<String, Metacard> originalMetacards =
-          query(
-              forIds(updatedMetacards.stream().map(Metacard::getId).collect(Collectors.toList())));
+    if (LOGGER.isTraceEnabled()) {
+      LOGGER.trace(
+          "Found current data for the following metacards: {}", getList(originalMetacards));
+    }
 
-      if (LOGGER.isTraceEnabled()) {
-        LOGGER.trace(
-            "Found current data for the following metacards: {}", getList(originalMetacards));
-      }
+    Collection<ReadStorageRequest> ids = getReadStorageRequests(updatedMetacards);
+    Map<String, List<ContentItem>> content = getContent(ids);
 
-      Collection<ReadStorageRequest> ids = getReadStorageRequests(updatedMetacards);
-      Map<String, List<ContentItem>> content = getContent(ids);
+    if (LOGGER.isTraceEnabled()) {
+      LOGGER.trace("Found resources for the following metacards: {}", getList(content));
+    }
 
-      if (LOGGER.isTraceEnabled()) {
-        LOGGER.trace("Found resources for the following metacards: {}", getList(content));
-      }
+    Function<String, Action> getAction =
+        (id) -> content.containsKey(id) ? Action.VERSIONED_CONTENT : Action.VERSIONED;
 
-      Function<String, Action> getAction =
-          (id) -> content.containsKey(id) ? Action.VERSIONED_CONTENT : Action.VERSIONED;
+    Map<String, Metacard> versionMetacards =
+        getVersionMetacards(
+            originalMetacards.values(),
+            getAction,
+            (Subject) updateResponse.getProperties().get(SecurityConstants.SECURITY_SUBJECT));
 
-      Map<String, Metacard> versionMetacards =
-          getVersionMetacards(
-              originalMetacards.values(),
-              getAction,
-              (Subject) updateResponse.getProperties().get(SecurityConstants.SECURITY_SUBJECT));
+    CreateStorageResponse createStorageResponse = versionContentItems(content, versionMetacards);
 
-      CreateStorageResponse createStorageResponse = versionContentItems(content, versionMetacards);
+    if (createStorageResponse == null) {
+      String message = "Could not version content items for: " + getList(originalMetacards);
+      SecurityLogger.audit(message);
+      LOGGER.debug(message);
+      return updateStorageResponse;
+    }
 
-      if (createStorageResponse == null) {
-        String message = "Could not version content items for: " + getList(originalMetacards);
-        SecurityLogger.audit(message);
-        LOGGER.debug(message);
-        return updateStorageResponse;
-      }
+    setResourceUriForContent(/*mutable*/ versionMetacards, createStorageResponse);
 
-      setResourceUriForContent(/*mutable*/ versionMetacards, createStorageResponse);
+    CreateResponse createResponse = storeVersionMetacards(versionMetacards);
 
-      CreateResponse createResponse = storeVersionMetacards(versionMetacards);
-
-      if (LOGGER.isTraceEnabled()) {
-        LOGGER.trace(
-            "Successfully created metacard versions under ids: {}",
-            createResponse
-                .getCreatedMetacards()
-                .stream()
-                .map(Metacard::getId)
-                .collect(TO_A_STRING));
-      }
+    if (LOGGER.isTraceEnabled()) {
+      LOGGER.trace(
+          "Successfully created metacard versions under ids: {}",
+          createResponse.getCreatedMetacards().stream().map(Metacard::getId).collect(TO_A_STRING));
     }
 
     return updateStorageResponse;
@@ -307,130 +298,121 @@ public class Historian {
       LOGGER.trace("Versioning Deleted Metacards {}", deleteResponse);
     }
 
-    if (deleteResponse != null) {
-      List<Metacard> originalMetacards =
-          deleteResponse
-              .getDeletedMetacards()
-              .stream()
-              .filter(isNotVersionNorDeleted)
-              .collect(Collectors.toList());
+    List<Metacard> originalMetacards =
+        deleteResponse
+            .getDeletedMetacards()
+            .stream()
+            .filter(isNotVersionNorDeleted)
+            .collect(Collectors.toList());
 
-      if (originalMetacards.isEmpty()) {
-        LOGGER.trace("No deleted metacards applicable to versioning");
-        SecurityLogger.audit(
-            "Skipping versioning deleted metacards with ids: {}",
-            deleteResponse
-                .getDeletedMetacards()
-                .stream()
-                .map(Metacard::getId)
-                .collect(TO_A_STRING));
-        return deleteResponse;
-      }
+    if (originalMetacards.isEmpty()) {
+      LOGGER.trace("No deleted metacards applicable to versioning");
+      SecurityLogger.audit(
+          "Skipping versioning deleted metacards with ids: {}",
+          deleteResponse.getDeletedMetacards().stream().map(Metacard::getId).collect(TO_A_STRING));
+      return deleteResponse;
+    }
 
+    if (LOGGER.isTraceEnabled()) {
+      LOGGER.trace(
+          "Versioning following deleted metacards: {}",
+          originalMetacards.stream().map(Metacard::getId).collect(TO_A_STRING));
+    }
+
+    // [OriginalMetacardId: Original Metacard]
+    Map<String, Metacard> originalMetacardsMap =
+        originalMetacards.stream().collect(Collectors.toMap(Metacard::getId, Function.identity()));
+
+    // [ContentItem.getId: content items]
+    Map<String, List<ContentItem>> contentItems =
+        getContent(getReadStorageRequests(originalMetacards));
+
+    if (LOGGER.isTraceEnabled()) {
+      LOGGER.trace(
+          "Got content under the following ID's: {}",
+          contentItems.keySet().stream().collect(TO_A_STRING));
+    }
+
+    Function<String, Action> getAction =
+        (id) -> contentItems.containsKey(id) ? Action.DELETED_CONTENT : Action.DELETED;
+    // VERSION_OF_ID is equivalent to the Original Metacard ID
+    // [MetacardVersion.VERSION_OF_ID: versioned metacard]
+    Map<String, Metacard> versionedMap =
+        getVersionMetacards(
+            originalMetacards,
+            getAction,
+            (Subject)
+                deleteResponse
+                    .getRequest()
+                    .getProperties()
+                    .get(SecurityConstants.SECURITY_SUBJECT));
+
+    if (LOGGER.isDebugEnabled() && !versionedMap.keySet().equals(originalMetacardsMap.keySet())) {
+      LOGGER.debug(
+          "There is not a one to one mapping between original metacards and their versions!"
+              + " (Some metacards may not have been versioned or too many versions may have been created). "
+              + "More information regarding the IDs is available by setting log level to trace "
+              + "(log:set trace ddf.catalog.history)");
       if (LOGGER.isTraceEnabled()) {
         LOGGER.trace(
-            "Versioning following deleted metacards: {}",
+            "Original Metacards: {}",
             originalMetacards.stream().map(Metacard::getId).collect(TO_A_STRING));
+        LOGGER.trace("Version Metacards: {}", versionedMap.keySet().stream().collect(TO_A_STRING));
       }
+    }
 
-      // [OriginalMetacardId: Original Metacard]
-      Map<String, Metacard> originalMetacardsMap =
-          originalMetacards
+    CreateStorageResponse createStorageResponse = versionContentItems(contentItems, versionedMap);
+    if (createStorageResponse != null) {
+      setResourceUriForContent(/*Mutable*/ versionedMap, createStorageResponse);
+      if (LOGGER.isTraceEnabled()) {
+        LOGGER.trace(
+            "Successfully stored content under ids: {}",
+            createStorageResponse.getCreatedContentItems());
+      }
+    }
+
+    CreateResponse createResponse =
+        executeAsSystem(
+            () ->
+                catalogProvider()
+                    .create(new CreateRequestImpl(new ArrayList<>(versionedMap.values()))));
+    if (LOGGER.isTraceEnabled()) {
+      LOGGER.trace(
+          "Successfully created versioned metacards under ids: {}",
+          versionedMap.values().stream().map(Metacard::getId).collect(TO_A_STRING));
+    }
+
+    String emailAddress =
+        SubjectUtils.getEmailAddress(
+            (Subject) deleteResponse.getProperties().get(SecurityConstants.SECURITY_SUBJECT));
+    List<Metacard> deletionMetacards =
+        versionedMap
+            .entrySet()
+            .stream()
+            .map(
+                s ->
+                    new DeletedMetacardImpl(
+                        uuidGenerator.generateUuid(),
+                        s.getKey(),
+                        emailAddress,
+                        s.getValue().getId(),
+                        originalMetacardsMap.get(s.getKey())))
+            .collect(Collectors.toList());
+
+    CreateResponse deletionMetacardsCreateResponse =
+        executeAsSystem(
+            () ->
+                catalogProvider()
+                    .create(new CreateRequestImpl(deletionMetacards, new HashMap<>())));
+
+    if (LOGGER.isTraceEnabled()) {
+      LOGGER.trace(
+          "Successfully created deletion metacards under ids: {}",
+          deletionMetacardsCreateResponse
+              .getCreatedMetacards()
               .stream()
-              .collect(Collectors.toMap(Metacard::getId, Function.identity()));
-
-      // [ContentItem.getId: content items]
-      Map<String, List<ContentItem>> contentItems =
-          getContent(getReadStorageRequests(originalMetacards));
-
-      if (LOGGER.isTraceEnabled()) {
-        LOGGER.trace(
-            "Got content under the following ID's: {}",
-            contentItems.keySet().stream().collect(TO_A_STRING));
-      }
-
-      Function<String, Action> getAction =
-          (id) -> contentItems.containsKey(id) ? Action.DELETED_CONTENT : Action.DELETED;
-      // VERSION_OF_ID is equivalent to the Original Metacard ID
-      // [MetacardVersion.VERSION_OF_ID: versioned metacard]
-      Map<String, Metacard> versionedMap =
-          getVersionMetacards(
-              originalMetacards,
-              getAction,
-              (Subject)
-                  deleteResponse
-                      .getRequest()
-                      .getProperties()
-                      .get(SecurityConstants.SECURITY_SUBJECT));
-
-      if (LOGGER.isDebugEnabled() && !versionedMap.keySet().equals(originalMetacardsMap.keySet())) {
-        LOGGER.debug(
-            "There is not a one to one mapping between original metacards and their versions!"
-                + " (Some metacards may not have been versioned or too many versions may have been created). "
-                + "More information regarding the IDs is available by setting log level to trace "
-                + "(log:set trace ddf.catalog.history)");
-        if (LOGGER.isTraceEnabled()) {
-          LOGGER.trace(
-              "Original Metacards: {}",
-              originalMetacards.stream().map(Metacard::getId).collect(TO_A_STRING));
-          LOGGER.trace(
-              "Version Metacards: {}", versionedMap.keySet().stream().collect(TO_A_STRING));
-        }
-      }
-
-      CreateStorageResponse createStorageResponse = versionContentItems(contentItems, versionedMap);
-      if (createStorageResponse != null) {
-        setResourceUriForContent(/*Mutable*/ versionedMap, createStorageResponse);
-        if (LOGGER.isTraceEnabled()) {
-          LOGGER.trace(
-              "Successfully stored content under ids: {}",
-              createStorageResponse.getCreatedContentItems());
-        }
-      }
-
-      CreateResponse createResponse =
-          executeAsSystem(
-              () ->
-                  catalogProvider()
-                      .create(new CreateRequestImpl(new ArrayList<>(versionedMap.values()))));
-      if (LOGGER.isTraceEnabled()) {
-        LOGGER.trace(
-            "Successfully created versioned metacards under ids: {}",
-            versionedMap.values().stream().map(Metacard::getId).collect(TO_A_STRING));
-      }
-
-      String emailAddress =
-          SubjectUtils.getEmailAddress(
-              (Subject) deleteResponse.getProperties().get(SecurityConstants.SECURITY_SUBJECT));
-      List<Metacard> deletionMetacards =
-          versionedMap
-              .entrySet()
-              .stream()
-              .map(
-                  s ->
-                      new DeletedMetacardImpl(
-                          uuidGenerator.generateUuid(),
-                          s.getKey(),
-                          emailAddress,
-                          s.getValue().getId(),
-                          originalMetacardsMap.get(s.getKey())))
-              .collect(Collectors.toList());
-
-      CreateResponse deletionMetacardsCreateResponse =
-          executeAsSystem(
-              () ->
-                  catalogProvider()
-                      .create(new CreateRequestImpl(deletionMetacards, new HashMap<>())));
-
-      if (LOGGER.isTraceEnabled()) {
-        LOGGER.trace(
-            "Successfully created deletion metacards under ids: {}",
-            deletionMetacardsCreateResponse
-                .getCreatedMetacards()
-                .stream()
-                .map(Metacard::getId)
-                .collect(TO_A_STRING));
-      }
+              .map(Metacard::getId)
+              .collect(TO_A_STRING));
     }
 
     return deleteResponse;
@@ -664,8 +646,9 @@ public class Historian {
 
   private boolean doSkip(@Nullable Operation op) {
     return !historyEnabled
+        || op == null
         || ((boolean)
-            Optional.ofNullable(op)
+            Optional.of(op)
                 .map(Operation::getProperties)
                 .orElse(Collections.emptyMap())
                 .getOrDefault(SKIP_VERSIONING, false));

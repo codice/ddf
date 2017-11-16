@@ -121,13 +121,17 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
     getExecutor().shutdown();
     if (!executor.isShutdown()) {
       try {
-        executor.awaitTermination(getTerminationTimeoutSeconds(), TimeUnit.SECONDS);
-        // If the remaining jobs in the queue are not completed TERMINATION_TIMEOUT elapses
-        // The JVM will throw an Interrupted Exception.
+        if (!executor.awaitTermination(getTerminationTimeoutSeconds(), TimeUnit.SECONDS)) {
+          executor.shutdownNow();
+
+          if (!executor.awaitTermination(getTerminationTimeoutSeconds(), TimeUnit.SECONDS)) {
+            LOGGER.error("Executor service did not terminate.");
+          }
+        }
       } catch (InterruptedException e) {
+        executor.shutdownNow();
         LOGGER.warn("Backup of metacards interrupted. Some metacards might not be backed up.");
         Thread.currentThread().interrupt();
-        throw new IllegalStateException(e);
       }
       final List<Runnable> failures = executor.shutdownNow();
       if (!failures.isEmpty()) {
