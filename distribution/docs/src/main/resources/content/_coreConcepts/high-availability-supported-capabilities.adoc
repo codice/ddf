@@ -4,9 +4,10 @@
 :parent: Introduction to High Availability
 :order: 00
 
-===== {title}
+== {title}
 
-Only these capabilities are supported in a Highly Available Cluster. For a detailed list of features, look at the `ha.json` file located in `${home_directory}/etc/profiles/`.
+Only these capabilities are supported in a Highly Available Cluster.
+For a detailed list of features, look at the `ha.json` file located in `${home_directory}/etc/profiles/`.
 
 * User Interfaces:
 ** Simple

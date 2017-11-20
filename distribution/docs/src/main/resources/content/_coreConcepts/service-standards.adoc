@@ -1,0 +1,52 @@
+:title: Catalog Service Standards
+:type: subCoreConcept
+:status: published
+:parent: Standards Supported by ${branding}
+:order: 00
+:checkmark: image:checkmark.png[X]
+
+== {title}
+
+Service standards are implemented within <<_introduction_to_endpoints,Endpoints>> and/or <<_introduction_to_federation_and_sources,Sources>>.
+Standards marked *Experimental* are functional and have been tested, but are subject to change or removal during the incubation period.
+
+.Catalog Service Standards Included with ${ddf-branding}
+[cols="2,1,1,1" options="header"]
+|===
+
+|Standard (public standards linked where available)
+|Endpoints
+|Sources
+|Status
+
+|http://www.opengeospatial.org/standards/cat[Open Geospatial Consortium Catalog Service for the Web (OGC CSW) 2.0.1/2.0.2]
+|<<CSW Endpoint>>
+|<<_gmd_csw_source,Geographic MetaData extensible markup language (GMD) CSW Source>>, <<CSW Connected Source>>, <<CSW Federated Source>>
+|Supported
+
+|http://www.opengeospatial.org/standards/wfs[OGC Web Feature Service WFS 1.0/2.0]
+|
+|<<_wfs_1_0_source,WFS 1.0 Source>>, <<_wfs_2_0_source,WFS 2.0 Source>>
+|Supported
+
+// This row is commented out because the section it links to will be added in DDF-3266.
+//|http://www.opengeospatial.org/standards/wps[OGC WPS 2.0] Web Processing Service
+//|<<WPS Endpoint>>
+//|
+//|Experimental
+
+|http://www.opensearch.org/Home[OpenSearch]
+|<<OpenSearch Endpoint>>
+|<<OpenSearch Source>>
+|Supported
+
+|https://tools.ietf.org/html/rfc959[File Transfer Protocol (FTP)]
+|<<FTP Endpoint>>
+|
+|Supported
+
+|Atlassian Confluence®
+|
+|<<_federated_source_for_atlassian_confluence_r,Atlassian Confluence® Federated Source>>
+|Supported
+|===

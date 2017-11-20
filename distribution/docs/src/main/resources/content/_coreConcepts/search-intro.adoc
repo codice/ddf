@@ -3,13 +3,14 @@
 :title: Introduction to Search
 :order: 00
 
+== {title}
+
 ${branding} provides the capability to search the Catalog for metadata.
 There are a number of different types of searches that can be performed on the Catalog, and these searches are accessed using one of several interfaces.
 This section provides a very high level overview of introductory concepts of searching with ${branding}.
 These concepts are expanded upon in later sections.
 
-===== Search Types
-
+.Search Types
 There are four basic types of metadata search.
 Additionally, any of the types can be combined to create a compound search.
 

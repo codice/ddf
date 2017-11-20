@@ -3,6 +3,8 @@
 :title: Introduction to Metadata
 :order: 02
 
+== {title}
+
 In ${branding}, <<_introduction_to_resources,resources>> are the data products, files, reports, or documents of interest to users of the system.
 
 Metadata is information about those resources, organized into a schema to make search possible.

@@ -11,7 +11,7 @@
 
 == {title}
 
-The GMD CSW source supports the ability to search collections of descriptive information (metadata) for data, services, and related information objects, based on the https://portal.opengeospatial.org/files/?artifact_id=6495[Application Profile ISO 19115/ISO19119].
+The Geographic MetaData extensible markup language (GMD) CSW source supports the ability to search collections of descriptive information (metadata) for data, services, and related information objects, based on the https://portal.opengeospatial.org/files/?artifact_id=6495[Application Profile ISO 19115/ISO19119].
 
 Use the GMD CSW source if querying a GMD CSW APISO compliant service.
 
