@@ -1,10 +1,11 @@
 :title: File Formats Supported
-:type: dataManagement
+:type: appendix
 :status: published
+:parent: Metadata Attributes
 :summary: Support for a variety of file types and data types.
 :order: 00
 
-=== File Formats Supported
+== {title}
 
 ${branding} supports a wide variety of file types and data types for ingest.
 The ${branding}'s internal Input Transformers extract the necessary data into a <<_catalog_taxonomy,generalized format>>.
@@ -18,7 +19,7 @@ These attributes will be available in all the specified file formats; however, v
 
 These attributes are supported by any file type ingested into ${branding}:
 
-.Common Attributes in All File Types
+.Common Attributes in All Supported File Types
 * metadata
 * id
 * modified (date)

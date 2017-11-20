@@ -1,7 +1,9 @@
+:title: Introduction to the Catalog Framework
 :type: coreConcept
 :status: published
-:title: Introduction to the Catalog Framework
 :order: 05
+
+== {title}
 
 The Catalog Framework wires all the Catalog components together.
 

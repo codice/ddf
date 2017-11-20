@@ -3,6 +3,8 @@
 :title: Introduction to Registries
 :order: 08
 
+== {title}
+
 The Registry Application serves as an index of registry nodes and their information, including service bindings, configurations and supplemental details.
 
 Each registry has the capability to serve as an index of information about a network of registries which, in turn, can be used to connect across a network of ${branding}s and other data sources.

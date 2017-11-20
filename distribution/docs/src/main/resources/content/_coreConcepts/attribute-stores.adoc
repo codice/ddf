@@ -1,0 +1,19 @@
+:type: subCoreConcept
+:status: published
+:title: Attribute Stores Provided by ${ddf-branding}
+:parent: Standards Supported by ${branding}
+:order: 04
+
+.{title}
+[cols="2,1" options="header"]
+|===
+|Standard
+|Support Status
+
+|https://tools.ietf.org/html/rfc4510[Lightweight Directory Access Protocol (LDAP/LDAPS)]
+|Supported
+
+|https://docs.microsoft.com/en-us/azure/active-directory/active-directory-whatis[Azure Active Directory]
+|Supported
+
+|===
