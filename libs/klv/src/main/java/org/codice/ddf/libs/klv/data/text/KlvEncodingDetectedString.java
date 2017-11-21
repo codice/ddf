@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.libs.klv.data.text;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import org.apache.tika.parser.txt.CharsetDetector;
 import org.apache.tika.parser.txt.CharsetMatch;
@@ -47,14 +46,17 @@ public class KlvEncodingDetectedString extends KlvDataElement<String> {
     CharsetDetector charsetDetector = new CharsetDetector();
     charsetDetector.setText(bytes);
     CharsetMatch charsetMatch = charsetDetector.detect();
-    try {
-      value = new String(bytes, charsetMatch.getName());
-      return;
-    } catch (UnsupportedEncodingException e) {
-      LOGGER.trace(
-          "Unsupported encoding of %s, falling back to default encoding", charsetMatch.getName());
+    Charset charset = Charset.defaultCharset();
+
+    if (charsetMatch != null) {
+      try {
+        charset = Charset.forName(charsetMatch.getName());
+      } catch (IllegalArgumentException e) {
+        LOGGER.trace(
+            "Unsupported encoding of {}, falling back to default encoding", charsetMatch.getName());
+      }
     }
-    value = new String(bytes, Charset.defaultCharset());
+    value = new String(bytes, charset);
   }
 
   @Override

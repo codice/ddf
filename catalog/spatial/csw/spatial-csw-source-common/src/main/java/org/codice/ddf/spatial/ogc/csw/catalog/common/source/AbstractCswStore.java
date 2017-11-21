@@ -297,7 +297,7 @@ public abstract class AbstractCswStore extends AbstractCswSource implements Cata
   }
 
   @Override
-  protected List<? extends Object> initProviders(
+  protected List<Object> initProviders(
       Converter cswTransformProvider, CswSourceConfiguration cswSourceConfiguration) {
 
     List providers =

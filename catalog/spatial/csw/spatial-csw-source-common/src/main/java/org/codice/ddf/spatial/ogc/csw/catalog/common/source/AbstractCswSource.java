@@ -101,7 +101,6 @@ import net.opengis.filter.v_1_1_0.PropertyNameType;
 import net.opengis.filter.v_1_1_0.SortByType;
 import net.opengis.filter.v_1_1_0.SortOrderType;
 import net.opengis.filter.v_1_1_0.SortPropertyType;
-import net.opengis.filter.v_1_1_0.SpatialCapabilitiesType;
 import net.opengis.filter.v_1_1_0.SpatialOperatorNameType;
 import net.opengis.filter.v_1_1_0.SpatialOperatorType;
 import net.opengis.filter.v_1_1_0.SpatialOperatorsType;
@@ -146,84 +145,52 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractCswSource extends MaskableImpl
     implements FederatedSource, ConnectedSource, ConfiguredService {
 
-  protected static final String CSW_SERVER_ERROR = "Error received from CSW server.";
+  public static final String DISABLE_CN_CHECK_PROPERTY = "disableCnCheck";
 
-  protected static final String CSWURL_PROPERTY = "cswUrl";
-
-  protected static final String ID_PROPERTY = "id";
-
-  protected static final String USERNAME_PROPERTY = "username";
-
+  @SuppressWarnings("squid:S2068")
   protected static final String PASSWORD_PROPERTY = "password";
 
+  protected static final String CSW_SERVER_ERROR = "Error received from CSW server.";
+  protected static final String CSWURL_PROPERTY = "cswUrl";
+  protected static final String ID_PROPERTY = "id";
+  protected static final String USERNAME_PROPERTY = "username";
   protected static final String METACARD_MAPPINGS_PROPERTY = "metacardMappings";
-
   protected static final String COORDINATE_ORDER_PROPERTY = "coordinateOrder";
-
   protected static final String POLL_INTERVAL_PROPERTY = "pollInterval";
-
   protected static final String OUTPUT_SCHEMA_PROPERTY = "outputSchema";
-
   protected static final String IS_CQL_FORCED_PROPERTY = "isCqlForced";
-
   protected static final String FORCE_SPATIAL_FILTER_PROPERTY = "forceSpatialFilter";
-
   protected static final String NO_FORCE_SPATIAL_FILTER = "NO_FILTER";
-
   protected static final String CONNECTION_TIMEOUT_PROPERTY = "connectionTimeout";
-
   protected static final String RECEIVE_TIMEOUT_PROPERTY = "receiveTimeout";
-
   protected static final String QUERY_TYPE_NAME_PROPERTY = "queryTypeName";
-
   protected static final String QUERY_TYPE_NAMESPACE_PROPERTY = "queryTypeNamespace";
-
   protected static final String USE_POS_LIST_PROPERTY = "usePosList";
-
   protected static final String SECURITY_ATTRIBUTES_PROPERTY = "securityAttributeStrings";
-
   protected static final String EVENT_SERVICE_ADDRESS = "eventServiceAddress";
-
   protected static final String REGISTER_FOR_EVENTS = "registerForEvents";
-
   private static final Logger LOGGER = LoggerFactory.getLogger(AbstractCswSource.class);
-
   private static final String DEFAULT_CSW_TRANSFORMER_ID = "csw";
-
   private static final String DESCRIBABLE_PROPERTIES_FILE = "/describable.properties";
 
+  @SuppressWarnings("squid:S1845")
   private static final String DESCRIPTION = "description";
 
   private static final String ORGANIZATION = "organization";
-
   private static final String VERSION = "version";
-
   private static final String TITLE = "name";
-
   private static final int CONTENT_TYPE_SAMPLE_SIZE = 50;
-
-  public static final String DISABLE_CN_CHECK_PROPERTY = "disableCnCheck";
-
   private static final JAXBContext JAXB_CONTEXT = initJaxbContext();
 
   private static final String BYTES_SKIPPED = "bytes-skipped";
 
   private static final String EXT_SORT_BY = "additional.sort.bys";
-
-  private static Properties describableProperties = new Properties();
-
-  private static Map<String, Consumer<Object>> consumerMap = new HashMap<>();
-
   private static final String OCTET_STREAM_OUTPUT_SCHEMA =
       "http://www.iana.org/assignments/media-types/application/octet-stream";
-
   private static final String ERROR_ID_PRODUCT_RETRIEVAL = "Error retrieving resource for ID: %s";
-
   private static final Security SECURITY = Security.getInstance();
-
-  private EncryptionService encryptionService;
-
-  protected String configurationPid;
+  private static Properties describableProperties = new Properties();
+  private static Map<String, Consumer<Object>> consumerMap = new HashMap<>();
 
   static {
     try (InputStream properties =
@@ -234,61 +201,37 @@ public abstract class AbstractCswSource extends MaskableImpl
     }
   }
 
+  protected String configurationPid;
   protected CswSourceConfiguration cswSourceConfiguration;
-
   protected CswFilterDelegate cswFilterDelegate;
-
   protected Converter cswTransformConverter;
-
   protected String forceSpatialFilter = NO_FORCE_SPATIAL_FILTER;
-
   protected ScheduledFuture<?> availabilityPollFuture;
-
   protected SecurityManager securityManager;
-
   protected FilterBuilder filterBuilder;
-
   protected FilterAdapter filterAdapter;
-
+  protected CapabilitiesType capabilities;
+  protected SecureCxfClientFactory<Csw> factory;
+  protected SecureCxfClientFactory<CswSubscribe> subscribeClientFactory;
+  protected CswJAXBElementProvider<GetRecordsType> getRecordsTypeProvider;
+  protected List<String> jaxbElementClassNames = new ArrayList<>();
+  protected Map<String, String> jaxbElementClassMap = new HashMap<>();
+  protected String filterlessSubscriptionId = null;
+  private EncryptionService encryptionService;
   private Set<SourceMonitor> sourceMonitors = new HashSet<>();
-
   private Map<String, ContentType> contentTypes = new ConcurrentHashMap<>();
-
   private ResourceReader resourceReader;
-
   private DomainType supportedOutputSchemas;
-
   private Set<ElementSetType> detailLevels;
-
   private BundleContext context;
 
+  @SuppressWarnings("squid:S1845")
   private String description = null;
 
-  protected CapabilitiesType capabilities;
-
   private String cswVersion;
-
-  private SpatialCapabilitiesType spatialCapabilities;
-
   private ScheduledExecutorService scheduler;
-
   private AvailabilityTask availabilityTask;
-
   private boolean isConstraintCql;
-
-  protected SecureCxfClientFactory<Csw> factory;
-
-  protected SecureCxfClientFactory<CswSubscribe> subscribeClientFactory;
-
-  protected CswJAXBElementProvider<GetRecordsType> getRecordsTypeProvider;
-
-  protected List<String> jaxbElementClassNames = new ArrayList<>();
-
-  protected Map<String, String> jaxbElementClassMap = new HashMap<>();
-
-  protected String filterlessSubscriptionId = null;
-
-  private List<MetacardType> metacardTypes;
 
   /**
    * Instantiates a CswSource. This constructor is for unit tests
@@ -315,6 +258,7 @@ public abstract class AbstractCswSource extends MaskableImpl
     setConsumerMap();
   }
 
+  /** @deprecated */
   @Deprecated
   public AbstractCswSource(
       BundleContext context,
@@ -333,6 +277,7 @@ public abstract class AbstractCswSource extends MaskableImpl
             StandardThreadFactoryBuilder.newThreadFactory("abstractCswSourceThread"));
   }
 
+  /** @deprecated */
   @Deprecated
   public AbstractCswSource() {
     this(null);
@@ -502,32 +447,6 @@ public abstract class AbstractCswSource extends MaskableImpl
     LOGGER.debug("{}: old output schema: {}", cswSourceConfiguration.getId(), oldOutputSchema);
   }
 
-  /** Consumer function that sets the cswSourceConfiguration ContentType if it is changed. */
-  private void setConsumerContentTypeMapping(String newContentTypeMapping) {
-    String previousContentTypeMapping =
-        cswSourceConfiguration.getMetacardMapping(Metacard.CONTENT_TYPE);
-    LOGGER.debug(
-        "{}: Previous content type mapping: {}.",
-        cswSourceConfiguration.getId(),
-        previousContentTypeMapping);
-    newContentTypeMapping = newContentTypeMapping.trim();
-    if (!newContentTypeMapping.equals(previousContentTypeMapping)) {
-      LOGGER.debug(
-          "{}: The content type has been updated from {} to {}.",
-          cswSourceConfiguration.getId(),
-          previousContentTypeMapping,
-          newContentTypeMapping);
-      contentTypes.clear();
-    }
-
-    cswSourceConfiguration.putMetacardCswMapping(Metacard.CONTENT_TYPE, newContentTypeMapping);
-
-    LOGGER.debug(
-        "{}: Current content type mapping: {}.",
-        cswSourceConfiguration.getId(),
-        newContentTypeMapping);
-  }
-
   /** Consumer function that sets the cswSourceConfiguration PollInterval if it is changed. */
   private void setConsumerPollInterval(Integer newPollInterval) {
     if (!newPollInterval.equals(cswSourceConfiguration.getPollIntervalMinutes())) {
@@ -553,15 +472,7 @@ public abstract class AbstractCswSource extends MaskableImpl
     setupAvailabilityPoll();
   }
 
-  /** Clean-up when shutting down the CswSource */
-  public void destroy(int code) {
-    LOGGER.debug("{}: Entering destroy()", cswSourceConfiguration.getId());
-    availabilityPollFuture.cancel(true);
-    scheduler.shutdownNow();
-    removeEventServiceSubscription();
-  }
-
-  protected List<? extends Object> initProviders(
+  protected List<Object> initProviders(
       Converter cswTransformProvider, CswSourceConfiguration cswSourceConfiguration) {
     getRecordsTypeProvider = new CswJAXBElementProvider<>();
     getRecordsTypeProvider.setMarshallAsJaxbElement(true);
@@ -579,22 +490,23 @@ public abstract class AbstractCswSource extends MaskableImpl
     // Adding map entry of <Class Name>,<Qualified Name> to jaxbElementClassMap
     String expandedName =
         new QName(CswConstants.CSW_OUTPUT_SCHEMA, CswConstants.GET_RECORDS).toString();
-    LOGGER.debug("{} expanded name: {}", CswConstants.GET_RECORDS, expandedName);
+    String message = "{} expanded name: {}";
+    LOGGER.debug(message, CswConstants.GET_RECORDS, expandedName);
     jaxbElementClassMap.put(GetRecordsType.class.getName(), expandedName);
 
     String getCapsExpandedName =
         new QName(CswConstants.CSW_OUTPUT_SCHEMA, CswConstants.GET_CAPABILITIES).toString();
-    LOGGER.debug("{} expanded name: {}", CswConstants.GET_CAPABILITIES, expandedName);
+    LOGGER.debug(message, CswConstants.GET_CAPABILITIES, expandedName);
     jaxbElementClassMap.put(GetCapabilitiesType.class.getName(), getCapsExpandedName);
 
     String capsExpandedName =
         new QName(CswConstants.CSW_OUTPUT_SCHEMA, CswConstants.CAPABILITIES).toString();
-    LOGGER.debug("{} expanded name: {}", CswConstants.CAPABILITIES, capsExpandedName);
+    LOGGER.debug(message, CswConstants.CAPABILITIES, capsExpandedName);
     jaxbElementClassMap.put(CapabilitiesType.class.getName(), capsExpandedName);
 
     String caps201ExpandedName =
         new QName("http://www.opengis.net/cat/csw", CswConstants.CAPABILITIES).toString();
-    LOGGER.debug("{} expanded name: {}", CswConstants.CAPABILITIES, caps201ExpandedName);
+    LOGGER.debug(message, CswConstants.CAPABILITIES, caps201ExpandedName);
     jaxbElementClassMap.put(CapabilitiesType.class.getName(), caps201ExpandedName);
 
     String acknowledgmentName =
@@ -719,20 +631,20 @@ public abstract class AbstractCswSource extends MaskableImpl
     }
   }
 
-  public void setConnectionTimeout(Integer timeout) {
-    this.cswSourceConfiguration.setConnectionTimeout(timeout);
-  }
-
   public Integer getConnectionTimeout() {
     return this.cswSourceConfiguration.getConnectionTimeout();
   }
 
-  public void setReceiveTimeout(Integer timeout) {
-    this.cswSourceConfiguration.setReceiveTimeout(timeout);
+  public void setConnectionTimeout(Integer timeout) {
+    this.cswSourceConfiguration.setConnectionTimeout(timeout);
   }
 
   public Integer getReceiveTimeout() {
     return this.cswSourceConfiguration.getReceiveTimeout();
+  }
+
+  public void setReceiveTimeout(Integer timeout) {
+    this.cswSourceConfiguration.setReceiveTimeout(timeout);
   }
 
   public void setContext(BundleContext context) {
@@ -741,7 +653,7 @@ public abstract class AbstractCswSource extends MaskableImpl
 
   @Override
   public Set<ContentType> getContentTypes() {
-    return new HashSet<ContentType>(contentTypes.values());
+    return new HashSet<>(contentTypes.values());
   }
 
   public ResourceReader getResourceReader() {
@@ -858,6 +770,7 @@ public abstract class AbstractCswSource extends MaskableImpl
     return sb.toString();
   }
 
+  @SuppressWarnings("squid:S1488")
   @Override
   public String getId() {
     String sourceId = super.getId();
@@ -869,6 +782,7 @@ public abstract class AbstractCswSource extends MaskableImpl
     return sourceId;
   }
 
+  @Override
   public void setId(String id) {
     cswSourceConfiguration.setId(id);
     super.setId(id);
@@ -904,11 +818,13 @@ public abstract class AbstractCswSource extends MaskableImpl
     return describableProperties.getProperty(VERSION);
   }
 
+  @SuppressWarnings("squid:S1168")
   @Override
   public Set<String> getOptions(Metacard arg0) {
     return null;
   }
 
+  @SuppressWarnings("squid:S1168")
   @Override
   public Set<String> getSupportedSchemes() {
     return null;
@@ -943,6 +859,11 @@ public abstract class AbstractCswSource extends MaskableImpl
       if (response != null) {
         return response;
       }
+    }
+
+    if (resourceUri == null) {
+      throw new IllegalArgumentException(
+          "Unable to retrieve resource because no resource URI was given");
     }
     LOGGER.debug("Retrieving resource at : {}", resourceUri);
     return resourceReader.retrieveResource(resourceUri, requestProperties);
@@ -1025,8 +946,7 @@ public abstract class AbstractCswSource extends MaskableImpl
       throw new IOException(
           String.format(
               "Unable to align input stream with the requested byteOffset of %d",
-              requestedBytesToSkip),
-          e);
+              requestedBytesToSkip));
     }
   }
 
@@ -1386,7 +1306,7 @@ public abstract class AbstractCswSource extends MaskableImpl
       marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 
       JAXBElement<GetRecordsType> jaxbElement =
-          new JAXBElement<GetRecordsType>(
+          new JAXBElement<>(
               new QName(CswConstants.CSW_OUTPUT_SCHEMA, CswConstants.GET_RECORDS),
               GetRecordsType.class,
               getRecordsType);
@@ -1557,8 +1477,6 @@ public abstract class AbstractCswSource extends MaskableImpl
           resultTypesValues,
           cswSourceConfiguration);
 
-      spatialCapabilities = capabilitiesType.getFilterCapabilities().getSpatialCapabilities();
-
       if (!NO_FORCE_SPATIAL_FILTER.equals(forceSpatialFilter)) {
         SpatialOperatorType sot = new SpatialOperatorType();
         SpatialOperatorNameType sont = SpatialOperatorNameType.fromValue(forceSpatialFilter);
@@ -1684,6 +1602,7 @@ public abstract class AbstractCswSource extends MaskableImpl
         + cswException.getMessage();
   }
 
+  @SuppressWarnings("squid:S1192")
   protected String handleClientException(Exception ce) {
     String msg;
     Throwable cause = ce.getCause();
@@ -1792,36 +1711,7 @@ public abstract class AbstractCswSource extends MaskableImpl
     return this.cswSourceConfiguration.getSecurityAttributes();
   }
 
-  public void setMetacardTypes(List<MetacardType> types) {
-    this.metacardTypes = types;
-  }
-
-  /**
-   * Callback class to check the Availability of the CswSource.
-   *
-   * <p>NOTE: Ideally, the framework would call isAvailable on the Source and the SourcePoller would
-   * have an AvailabilityTask that cached each Source's availability. Until that is done, allow the
-   * command to handle the logic of managing availability.
-   */
-  private class CswSourceAvailabilityCommand implements AvailabilityCommand {
-
-    @Override
-    public boolean isAvailable() {
-      LOGGER.debug("Checking availability for source {} ", cswSourceConfiguration.getId());
-      boolean oldAvailability = AbstractCswSource.this.isAvailable();
-      boolean newAvailability;
-      // Simple "ping" to ensure the source is responding
-      newAvailability = (getCapabilities() != null);
-      if (oldAvailability != newAvailability) {
-        // If the source becomes available, configure it.
-        if (newAvailability) {
-          configureCswSource();
-        }
-        availabilityChanged(newAvailability);
-      }
-      return newAvailability;
-    }
-  }
+  public void setMetacardTypes(List<MetacardType> types) {}
 
   /**
    * Set the version to CSW 2.0.1. The schemas don't vary much between 2.0.2 and 2.0.1. The largest
@@ -1923,5 +1813,32 @@ public abstract class AbstractCswSource extends MaskableImpl
 
   protected void addSourceMonitor(SourceMonitor sourceMonitor) {
     sourceMonitors.add(sourceMonitor);
+  }
+
+  /**
+   * Callback class to check the Availability of the CswSource.
+   *
+   * <p>NOTE: Ideally, the framework would call isAvailable on the Source and the SourcePoller would
+   * have an AvailabilityTask that cached each Source's availability. Until that is done, allow the
+   * command to handle the logic of managing availability.
+   */
+  private class CswSourceAvailabilityCommand implements AvailabilityCommand {
+
+    @Override
+    public boolean isAvailable() {
+      LOGGER.debug("Checking availability for source {} ", cswSourceConfiguration.getId());
+      boolean oldAvailability = AbstractCswSource.this.isAvailable();
+      boolean newAvailability;
+      // Simple "ping" to ensure the source is responding
+      newAvailability = (getCapabilities() != null);
+      if (oldAvailability != newAvailability) {
+        // If the source becomes available, configure it.
+        if (newAvailability) {
+          configureCswSource();
+        }
+        availabilityChanged(newAvailability);
+      }
+      return newAvailability;
+    }
   }
 }

@@ -23,9 +23,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nullable;
 import javax.management.InstanceAlreadyExistsException;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
+import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -69,6 +73,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
 
   private static final String INSTALL_PROFILE_DEFAULT_APPLICATIONS = "defaultApplications";
 
+  @SuppressWarnings("squid:S1192")
   private static final String INSTALL_PROFILE_DESCRIPTION = "description";
 
   private static final String INSTALL_PROFILE_NAME = "name";
@@ -132,18 +137,24 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
    */
   public void init() throws ApplicationServiceException {
     try {
-      try {
-        LOGGER.debug("Registering application service MBean under object name: {}", objectName);
-        mBeanServer.registerMBean(this, objectName);
-      } catch (InstanceAlreadyExistsException iaee) {
-        // Try to remove and re-register
-        LOGGER.debug("Re-registering Application Service MBean");
-        mBeanServer.unregisterMBean(objectName);
-        mBeanServer.registerMBean(this, objectName);
-      }
+      registerMBean();
     } catch (Exception e) {
       LOGGER.warn("Could not register mbean.", e);
       throw new ApplicationServiceException(e);
+    }
+  }
+
+  private void registerMBean()
+      throws MBeanRegistrationException, NotCompliantMBeanException, InstanceNotFoundException,
+          InstanceAlreadyExistsException {
+    try {
+      LOGGER.debug("Registering application service MBean under object name: {}", objectName);
+      mBeanServer.registerMBean(this, objectName);
+    } catch (InstanceAlreadyExistsException iaee) {
+      // Try to remove and re-register
+      LOGGER.debug("Re-registering Application Service MBean");
+      mBeanServer.unregisterMBean(objectName);
+      mBeanServer.registerMBean(this, objectName);
     }
   }
 
@@ -169,10 +180,10 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
   @Override
   public List<Map<String, Object>> getInstallationProfiles() {
     List<Feature> installationProfiles = appService.getInstallationProfiles();
-    List<Map<String, Object>> profiles = new ArrayList<Map<String, Object>>();
+    List<Map<String, Object>> profiles = new ArrayList<>();
 
     for (Feature profile : installationProfiles) {
-      Map<String, Object> profileMap = new HashMap<String, Object>();
+      Map<String, Object> profileMap = new HashMap<>();
       profileMap.put(INSTALL_PROFILE_NAME, profile.getName());
       profileMap.put(INSTALL_PROFILE_DESCRIPTION, profile.getDescription());
 
@@ -189,7 +200,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
   @Override
   public List<Map<String, Object>> getApplicationTree() {
     Set<ApplicationNode> rootApplications = appService.getApplicationTree();
-    List<Map<String, Object>> applications = new ArrayList<Map<String, Object>>();
+    List<Map<String, Object>> applications = new ArrayList<>();
     for (ApplicationNode curRoot : rootApplications) {
       applications.add(convertApplicationNode(curRoot));
     }
@@ -199,14 +210,14 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
 
   private Map<String, Object> convertApplicationNode(ApplicationNode application) {
     LOGGER.debug("Converting {} to a map", application.getApplication().getName());
-    Map<String, Object> appMap = new HashMap<String, Object>();
+    Map<String, Object> appMap = new HashMap<>();
     Application internalApplication = application.getApplication();
     appMap.put(MAP_NAME, internalApplication.getName());
     appMap.put(MAP_VERSION, internalApplication.getVersion());
     appMap.put(MAP_DESCRIPTION, internalApplication.getDescription());
     appMap.put(MAP_STATE, application.getStatus().getState().toString());
     appMap.put(MAP_URI, internalApplication.getURI().toString());
-    List<Map<String, Object>> children = new ArrayList<Map<String, Object>>();
+    List<Map<String, Object>> children = new ArrayList<>();
     for (ApplicationNode curNode : application.getChildren()) {
       children.add(convertApplicationNode(curNode));
     }
@@ -217,10 +228,10 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
   @Override
   public List<Map<String, Object>> getApplications() {
     Set<ApplicationNode> rootApplications = appService.getApplicationTree();
-    List<Map<String, Object>> applications = new ArrayList<Map<String, Object>>();
-    List<Map<String, Object>> applicationsArray = new ArrayList<Map<String, Object>>();
+    List<Map<String, Object>> applications = new ArrayList<>();
+    List<Map<String, Object>> applicationsArray = new ArrayList<>();
     for (ApplicationNode curRoot : rootApplications) {
-      List<String> parentList = new ArrayList<String>();
+      List<String> parentList = new ArrayList<>();
       applications.add(convertApplicationEntries(curRoot, parentList, applicationsArray));
     }
     LOGGER.debug("Returning {} root applications.", applications.size());
@@ -232,16 +243,16 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
       List<String> parentList,
       List<Map<String, Object>> applicationsArray) {
     LOGGER.debug("Converting {} to a map", application.getApplication().getName());
-    Map<String, Object> appMap = new HashMap<String, Object>();
+    Map<String, Object> appMap = new HashMap<>();
     Application internalApplication = application.getApplication();
     appMap.put(MAP_NAME, internalApplication.getName());
     appMap.put(MAP_VERSION, internalApplication.getVersion());
     appMap.put(MAP_DESCRIPTION, internalApplication.getDescription());
     appMap.put(MAP_STATE, application.getStatus().getState().toString());
     appMap.put(MAP_URI, internalApplication.getURI().toString());
-    List<String> childrenList = new ArrayList<String>();
+    List<String> childrenList = new ArrayList<>();
     parentList.add(internalApplication.getName());
-    List<String> transferParentList = new ArrayList<String>();
+    List<String> transferParentList = new ArrayList<>();
     appMap.put(MAP_PARENTS, parentList);
 
     for (ApplicationNode curNode : application.getChildren()) {
@@ -307,13 +318,18 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
   @Override
   public void addApplications(List<Map<String, Object>> applicationURLList) {
     for (Map<String, Object> curURL : applicationURLList) {
+      String applicationUrl = (String) curURL.get("value");
       try {
-        appService.addApplication(new URI((String) curURL.get("value")));
+        appService.addApplication(new URI(applicationUrl));
       } catch (URISyntaxException use) {
-        LOGGER.warn("Could not add application with url {}, not a valid URL.", curURL.get("value"));
+        LOGGER.warn("Could not add application with url {}, not a valid URL.", applicationUrl);
+        LOGGER.debug("Could not add application", use);
       } catch (ApplicationServiceException ase) {
         LOGGER.warn(
-            "Could not add application with url {} due to error.", curURL.get("value"), ase);
+            "Could not add application with url {} due to error {}.",
+            applicationUrl,
+            ase.getMessage());
+        LOGGER.debug("Could not add application", ase);
       }
     }
   }
@@ -330,60 +346,72 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
     }
   }
 
+  @Nullable
+  Set<BundleInfo> getBundleInfosForApplication(String applicationID) {
+    Set<BundleInfo> bundleInfos = null;
+    try {
+      Application app = appService.getApplication(applicationID);
+      if (app == null) {
+        return null;
+      }
+      bundleInfos = app.getBundles();
+    } catch (ApplicationServiceException e) {
+      LOGGER.warn("There was an error while trying to access the application", e);
+    }
+    return bundleInfos;
+  }
+
   /** {@inheritDoc}. */
   @SuppressWarnings("unchecked")
   @Override
   public List<Map<String, Object>> getServices(String applicationID) {
+
+    List<Map<String, Object>> returnValues = new ArrayList<>();
+
     List<Service> services =
         configAdmin.listServices(getDefaultFactoryLdapFilter(), getDefaultLdapFilter());
-    List<Map<String, Object>> returnValues = new ArrayList<Map<String, Object>>();
-    BundleContext context = getContext();
+    if (services.isEmpty()) {
+      return returnValues;
+    }
 
-    if (!services.isEmpty()) {
-      Application app = appService.getApplication(applicationID);
-      MetaTypeService metatypeService = getMetaTypeService();
+    Set<BundleInfo> bundleInfos = getBundleInfosForApplication(applicationID);
+    if (bundleInfos == null) {
+      return returnValues;
+    }
 
-      if (app != null) {
-        try {
-          Set<BundleInfo> bundles = app.getBundles();
+    Set<String> bundleLocations = new HashSet<>();
+    for (BundleInfo each : bundleInfos) {
+      bundleLocations.add(each.getLocation());
+    }
 
-          Set<String> bundleLocations = new HashSet<String>();
-          Set<MetaTypeInformation> metatypeInformation = new HashSet<MetaTypeInformation>();
-          for (BundleInfo info : bundles) {
-            bundleLocations.add(info.getLocation());
+    MetaTypeService metatypeService = getMetaTypeService();
+    Set<MetaTypeInformation> metatypeInformation = new HashSet<>();
+    if (metatypeService != null) {
+      for (Bundle each : getContext().getBundles()) {
+        for (BundleInfo bundleInfo : bundleInfos) {
+          if (bundleInfo.getLocation().equals(each.getLocation())) {
+            metatypeInformation.add(metatypeService.getMetaTypeInformation(each));
           }
+        }
+      }
+    }
 
-          for (Bundle bundle : context.getBundles()) {
-            for (BundleInfo info : bundles) {
-              if (info.getLocation().equals(bundle.getLocation())) {
-                metatypeInformation.add(metatypeService.getMetaTypeInformation(bundle));
-              }
+    for (Map<String, Object> each : services) {
+      if (each.containsKey("configurations")) {
+        List<Map<String, Object>> configurations =
+            (List<Map<String, Object>>) each.get("configurations");
+        for (Map<String, Object> item : configurations) {
+          if (item.containsKey("bundle_location")) {
+            String bundleLocation = (String) item.get("bundle_location");
+            if (bundleLocations.contains(bundleLocation)) {
+              returnValues.add(each);
+              break;
             }
           }
-
-          for (Map<String, Object> service : services) {
-            if (service.containsKey("configurations")) {
-              List<Map<String, Object>> configurations =
-                  (List<Map<String, Object>>) service.get("configurations");
-              for (Map<String, Object> item : configurations) {
-                if (item.containsKey("bundle_location")) {
-                  String bundleLocation = (String) item.get("bundle_location");
-                  if (bundleLocations.contains(bundleLocation)) {
-                    returnValues.add(service);
-                    break;
-                  }
-                }
-              }
-            } else {
-              if (checkForMetaTypesForService(metatypeInformation, service)) {
-                returnValues.add(service);
-              }
-            }
-          }
-
-        } catch (ApplicationServiceException e) {
-          LOGGER.warn("There was an error while trying to access the application", e);
-          return new ArrayList<Map<String, Object>>();
+        }
+      } else {
+        if (checkForMetaTypesForService(metatypeInformation, each)) {
+          returnValues.add(each);
         }
       }
     }
@@ -427,7 +455,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
   }
 
   private String getDefaultFactoryLdapFilter() {
-    List<String> filterList = new ArrayList<String>();
+    List<String> filterList = new ArrayList<>();
     if (CollectionUtils.isNotEmpty(filterList)) {
       StringBuilder ldapFilter = new StringBuilder();
       ldapFilter.append("(");
@@ -449,7 +477,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
   }
 
   private String getDefaultLdapFilter() {
-    List<String> filterList = new ArrayList<String>();
+    List<String> filterList = new ArrayList<>();
     if (CollectionUtils.isNotEmpty(filterList)) {
       StringBuilder ldapFilter = new StringBuilder();
       ldapFilter.append("(");
@@ -500,9 +528,9 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
   }
 
   private List<Map<String, Object>> getFeatureMap(List<FeatureDetails> featureViews) {
-    List<Map<String, Object>> features = new ArrayList<Map<String, Object>>();
+    List<Map<String, Object>> features = new ArrayList<>();
     for (FeatureDetails feature : featureViews) {
-      Map<String, Object> featureMap = new HashMap<String, Object>();
+      Map<String, Object> featureMap = new HashMap<>();
       featureMap.put(MAP_NAME, feature.getName());
       featureMap.put(MAP_VERSION, feature.getVersion());
       featureMap.put(MAP_STATUS, feature.getStatus());
@@ -518,10 +546,12 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
    *
    * @return the service or <code>null</code> if missing.
    */
+  @Nullable
   final MetaTypeService getMetaTypeService() {
+    BundleContext context = getContext();
+
     if (serviceTracker == null) {
-      BundleContext context = getContext();
-      serviceTracker = new ServiceTracker<Object, Object>(context, META_TYPE_NAME, null);
+      serviceTracker = new ServiceTracker<>(context, META_TYPE_NAME, null);
       serviceTracker.open();
     }
     return (MetaTypeService) serviceTracker.getService();
@@ -529,16 +559,16 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
 
   protected BundleContext getContext() {
     Bundle cxfBundle = FrameworkUtil.getBundle(ApplicationServiceBean.class);
-    if (cxfBundle != null) {
+    if (cxfBundle != null && cxfBundle.getBundleContext() != null) {
       return cxfBundle.getBundleContext();
     }
-    return null;
+    throw new IllegalStateException("Could not get context from cxfBundle");
   }
 
   /** {@inheritDoc}. */
   @Override
   public List<Map<String, Object>> getPluginsForApplication(String appName) {
-    List<Map<String, Object>> returnValues = new ArrayList<Map<String, Object>>();
+    List<Map<String, Object>> returnValues = new ArrayList<>();
 
     for (ApplicationPlugin plugin : applicationPlugins) {
       if (plugin.matchesAssocationName(appName)) {
@@ -555,6 +585,6 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
    * @param serviceTracker the desired serviceTracker instance
    */
   void setServiceTracker(ServiceTracker serviceTracker) {
-    this.serviceTracker = serviceTracker;
+    this.serviceTracker = (ServiceTracker<Object, Object>) serviceTracker;
   }
 }

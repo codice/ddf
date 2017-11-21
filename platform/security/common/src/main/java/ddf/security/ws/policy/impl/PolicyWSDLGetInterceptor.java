@@ -84,7 +84,7 @@ public class PolicyWSDLGetInterceptor extends WSDLGetInterceptor {
       Document doc = getDocument(message, baseUri, map, ctx);
 
       // DDF- start ADDED code
-      if (map.containsKey("wsdl")) {
+      if (doc != null && map.containsKey("wsdl")) {
         doc = addPolicyToWSDL(doc, loader.getPolicy());
         doc = configureAddress(doc);
       }
