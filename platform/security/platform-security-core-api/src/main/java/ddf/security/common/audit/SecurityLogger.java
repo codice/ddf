@@ -38,7 +38,10 @@ public final class SecurityLogger {
   private static final String NO_USER = "UNKNOWN";
 
   private static final boolean REQUIRE_AUDIT_ENCODING =
-      Boolean.valueOf(System.getProperty("org.codice.ddf.platform.requireAuditEncoding", "false"));
+      Boolean.parseBoolean(
+          System.getProperty("org.codice.ddf.platform.requireAuditEncoding", "false"));
+
+  private static final String SUBJECT = "Subject: ";
 
   private SecurityLogger() {}
 
@@ -52,7 +55,7 @@ public final class SecurityLogger {
             javax.security.auth.Subject.getSubject(AccessController.getContext());
         if (javaSubject != null) {
           Set<UserPrincipal> userPrincipal = javaSubject.getPrincipals(UserPrincipal.class);
-          if (userPrincipal != null && userPrincipal.size() > 0) {
+          if (userPrincipal != null && !userPrincipal.isEmpty()) {
             return userPrincipal.toArray(new UserPrincipal[1])[0].getName();
           }
         }
@@ -80,7 +83,7 @@ public final class SecurityLogger {
       // who is trying to get access
       if (servletRequest != null) {
         messageBuilder
-            .append("Subject: ")
+            .append(SUBJECT)
             .append(user)
             .append(" Request IP: ")
             .append(servletRequest.getRemoteAddr())
@@ -89,14 +92,14 @@ public final class SecurityLogger {
             .append(" ");
       } else if (MessageUtils.isOutbound(message)) {
         messageBuilder
-            .append("Subject: ")
+            .append(SUBJECT)
             .append(user)
             .append(" Outbound endpoint: ")
             .append(message.get(Message.ENDPOINT_ADDRESS))
             .append(" ");
       }
     } else {
-      messageBuilder.append("Subject: ").append(user).append(" ");
+      messageBuilder.append(SUBJECT).append(user).append(" ");
     }
   }
 
