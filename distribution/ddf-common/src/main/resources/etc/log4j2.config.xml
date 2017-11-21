@@ -138,15 +138,30 @@
             <AppenderRef ref="osgi-platformLogging"/>
         </Logger>
 
-        <!-- CXF and Solr logging is verbose.  Default setting to WARN.  This can be changed in the karaf console. -->
-        <Logger name="org.apache.cxf" level="warn"/>
+        <!--START Suppress logging for miscellaneous packages-->
+        <!--GraphqQL tends to log at warn/error level. This is not needed since we provide our own
+        logging.-->
+        <Logger name="graphql.execution" level="fatal"/>
         <Logger name="lux.solr" level="warn"/>
-        <Logger name="org.ops4j.pax.web.jsp" level="warn"/>
         <Logger name="org.apache.aries.spifly" level="warn"/>
+        <Logger name="org.apache.cxf" level="warn"/>
         <Logger name="org.apache.cxf.jaxrs.impl.WebApplicationExceptionMapper" level="error"/>
         <Logger name="org.apache.cxf.phase.PhaseInterceptorChain" level="error"/>
-        <!-- Camel - Suppresses an NPE warning that is ignored by Camel -->
+        <!--Suppress a NPE that can be disregarded that occurs when a null file is passed through
+        the Camel exchange on a delete event of a WebDav entry.-->
         <Logger name="org.apache.camel.impl.DefaultUnitOfWork" level="error"/>
+        <Logger name="org.ops4j.pax.web" level="warn"/>
+        <!--Logging for the UnregisterWebAppVisitorWC has been set to ERROR as paxweb logs
+        stacktraces at WARN on startup. This may be related to PAXWEB-1117. When Karaf upgrades
+        paxweb, we need to see if these stacktrace log messages go away (see DDF-3321) and remove
+        this suppression.-->
+        <Logger name="org.ops4j.pax.web.extender.war.internal.UnregisterWebAppVisitorWC"
+                level="error"/>
+        <Logger name="org.ops4j.pax.web.jsp" level="warn"/>
+        <!--Suppress a WARN level exception that does not have any impact on servlet initialization.
+        This is a result of suppressing SCR annotations in the GraphQLServlet.-->
+        <Logger name="org.ops4j.pax.web.utils.ServletContainerInitializerScanner" level="error"/>
+        <!--END Suppress logging for miscellaneous packages-->
 
         <Root level="info">
             <AppenderRef ref="out"/>
