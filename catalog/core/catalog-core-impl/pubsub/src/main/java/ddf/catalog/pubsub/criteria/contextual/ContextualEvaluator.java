@@ -192,47 +192,45 @@ public final class ContextualEvaluator {
    */
   public static Directory buildIndex(String fullDocument, String[] xpathSelectors)
       throws IOException {
-
-    try (
     // 0. Specify the analyzer for tokenizing text.
     // The same analyzer should be used for indexing and searching
-    ContextualAnalyzer contextualAnalyzer = new ContextualAnalyzer(Version.LUCENE_30);
-        // 1. create the index
-        Directory index = new RAMDirectory();
-        // Create an IndexWriter using the case-insensitive StandardAnalyzer
-        // NOTE: the boolean arg in the IndexWriter constructor means to create a new index,
-        // overwriting any existing index
-        IndexWriter indexWriter =
-            new IndexWriter(index, contextualAnalyzer, true, IndexWriter.MaxFieldLength.UNLIMITED);
-        CaseSensitiveContextualAnalyzer caseSensitiveStandardAnalyzer =
-            new CaseSensitiveContextualAnalyzer(Version.LUCENE_30);
+    // 1. create the index
+    Directory index = new RAMDirectory();
+    String indexableText;
+    CaseSensitiveContextualAnalyzer caseSensitiveStandardAnalyzer;
 
-        // Create a second IndexWriter using the custom case-sensitive StandardAnalyzer
-        // NOTE: set boolean to false to append the case-sensitive indexed text to the existing
-        // index (populated by first IndexWriter)
-        IndexWriter csIndexWriter =
-            new IndexWriter(
-                index,
-                caseSensitiveStandardAnalyzer,
-                false,
-                IndexWriter.MaxFieldLength.UNLIMITED)) {
-
+    try (ContextualAnalyzer contextualAnalyzer = new ContextualAnalyzer(Version.LUCENE_30)) {
       // Retrieve the text from the document that can be indexed using the specified XPath
       // selectors
-      String indexableText = getIndexableText(fullDocument, xpathSelectors);
+      indexableText = getIndexableText(fullDocument, xpathSelectors);
 
-      logTokens(indexWriter.getAnalyzer(), FIELD_NAME, fullDocument, "ContextualAnalyzer");
+      // Create an IndexWriter using the case-insensitive StandardAnalyzer
+      // NOTE: the boolean arg in the IndexWriter constructor means to create a new index,
+      // overwriting any existing index
+      try (IndexWriter indexWriter =
+          new IndexWriter(index, contextualAnalyzer, true, IndexWriter.MaxFieldLength.UNLIMITED)) {
+        logTokens(indexWriter.getAnalyzer(), FIELD_NAME, fullDocument, "ContextualAnalyzer");
 
-      // Add the indexable text to the case-insensitive index writer, assigning it the
-      // "case-insensitive" field name
-      addDoc(indexWriter, FIELD_NAME, indexableText);
+        // Add the indexable text to the case-insensitive index writer, assigning it the
+        // "case-insensitive" field name
+        addDoc(indexWriter, FIELD_NAME, indexableText);
+      }
 
-      // Add the indexable text to the case-sensitive index writer, assigning it the
-      // "case-sensitive" field name
-      addDoc(csIndexWriter, CASE_SENSITIVE_FIELD_NAME, indexableText);
+      caseSensitiveStandardAnalyzer = new CaseSensitiveContextualAnalyzer(Version.LUCENE_30);
 
-      return index;
+      // Create a second IndexWriter using the custom case-sensitive StandardAnalyzer
+      // NOTE: set boolean to false to append the case-sensitive indexed text to the existing
+      // index (populated by first IndexWriter)
+      try (IndexWriter csIndexWriter =
+          new IndexWriter(
+              index, caseSensitiveStandardAnalyzer, false, IndexWriter.MaxFieldLength.UNLIMITED)) {
+
+        // Add the indexable text to the case-sensitive index writer, assigning it the
+        // "case-sensitive" field name
+        addDoc(csIndexWriter, CASE_SENSITIVE_FIELD_NAME, indexableText);
+      }
     }
+    return index;
   }
 
   private static void logTokens(
