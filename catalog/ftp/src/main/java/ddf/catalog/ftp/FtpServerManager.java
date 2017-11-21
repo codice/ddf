@@ -17,7 +17,6 @@ import ddf.catalog.ftp.ftplets.FtpRequestHandler;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import org.apache.commons.collections.MapUtils;
 import org.apache.ftpserver.FtpServer;
 import org.apache.ftpserver.FtpServerConfigurationException;
@@ -235,7 +234,7 @@ public class FtpServerManager {
     FtpStatistics serverStatistics =
         ((DefaultFtpServer) server).getServerContext().getFtpStatistics();
 
-    int totalWait = 0;
+    final long end = System.currentTimeMillis() + maxSleepTimeMillis;
     boolean interrupt = false;
 
     try {
@@ -244,13 +243,14 @@ public class FtpServerManager {
             "Waiting for {} connections to close before updating configuration",
             serverStatistics.getCurrentConnectionNumber());
         try {
-          if (totalWait <= maxSleepTimeMillis) {
-            totalWait += resetWaitTimeMillis;
+          final long totalWait = end - System.currentTimeMillis();
+
+          if (totalWait > 0L) {
             Thread.sleep(resetWaitTimeMillis);
           } else {
             LOGGER.debug(
-                "Waited {} seconds for connections to close, updating FTP configuration",
-                TimeUnit.MILLISECONDS.toSeconds(totalWait));
+                "Waited {} milliseconds for connections to close, updating FTP configuration",
+                totalWait);
             break;
           }
         } catch (InterruptedException e) {
