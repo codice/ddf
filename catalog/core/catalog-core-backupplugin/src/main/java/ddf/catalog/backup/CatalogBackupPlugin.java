@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -120,20 +121,20 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
 
     getExecutor().shutdown();
     if (!executor.isShutdown()) {
+      List<Runnable> failures = Collections.emptyList();
       try {
         if (!executor.awaitTermination(getTerminationTimeoutSeconds(), TimeUnit.SECONDS)) {
-          executor.shutdownNow();
+          failures = executor.shutdownNow();
 
           if (!executor.awaitTermination(getTerminationTimeoutSeconds(), TimeUnit.SECONDS)) {
             LOGGER.error("Executor service did not terminate.");
           }
         }
       } catch (InterruptedException e) {
-        executor.shutdownNow();
+        failures = executor.shutdownNow();
         LOGGER.warn("Backup of metacards interrupted. Some metacards might not be backed up.");
         Thread.currentThread().interrupt();
       }
-      final List<Runnable> failures = executor.shutdownNow();
       if (!failures.isEmpty()) {
         LOGGER.warn("Cancelled tasks to backup metacards. Some metacards might not be backed up.");
       }
