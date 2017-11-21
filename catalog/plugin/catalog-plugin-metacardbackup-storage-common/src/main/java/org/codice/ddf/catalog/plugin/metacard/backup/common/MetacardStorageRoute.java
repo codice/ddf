@@ -67,6 +67,7 @@ public abstract class MetacardStorageRoute extends RouteBuilder {
   public void start() {
     try {
       getContext().addRoutes(this);
+      getContext().start();
     } catch (Exception e) {
       LOGGER.error("Could not start route: {}", toString(), e);
     }

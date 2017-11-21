@@ -55,7 +55,7 @@ public class MetacardFileStorageRoute extends MetacardStorageRoute {
     from("catalog:postingest")
         .split(method(ResponseMetacardActionSplitter.class, "split(${body})"))
         .to("direct:" + metacardRouteId);
-    from("direct:" + metacardRouteId)
+    from("direct:" + metacardRouteId + "?block=true")
         .setHeader(METACARD_TRANSFORMER_ID_RTE_PROP, simple(metacardTransformerId, String.class))
         .setHeader(
             METACARD_BACKUP_INVALID_RTE_PROP,

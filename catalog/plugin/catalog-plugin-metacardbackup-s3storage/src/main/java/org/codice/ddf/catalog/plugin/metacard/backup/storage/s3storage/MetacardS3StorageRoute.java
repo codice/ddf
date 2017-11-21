@@ -158,9 +158,10 @@ public class MetacardS3StorageRoute extends MetacardStorageRoute {
 
     String metacardRouteId = "metacard-" + UUID.randomUUID().toString();
     from("catalog:postingest")
+        .autoStartup(true)
         .split(method(ResponseMetacardActionSplitter.class, "split(${body})"))
         .to("direct:" + metacardRouteId);
-    from("direct:" + metacardRouteId)
+    from("direct:" + metacardRouteId + "?block=true")
         .setHeader(METACARD_TRANSFORMER_ID_RTE_PROP, simple(metacardTransformerId, String.class))
         .setHeader(
             METACARD_BACKUP_INVALID_RTE_PROP,
@@ -195,12 +196,22 @@ public class MetacardS3StorageRoute extends MetacardStorageRoute {
 
     Object s3AccessKeyValue = properties.get(S3_ACCESS_KEY_PROP);
     if (s3AccessKeyValue instanceof String) {
-      setS3AccessKey((String) s3AccessKeyValue);
+      String accessKey = (String) s3AccessKeyValue;
+      if (StringUtils.isNotBlank(accessKey)) {
+        setS3AccessKey((String) s3AccessKeyValue);
+      } else {
+        setS3AccessKey(null);
+      }
     }
 
     Object s3SecreKeyValue = properties.get(S3_SECRET_KEY_PROP);
     if (s3SecreKeyValue instanceof String) {
-      setS3SecretKey((String) s3SecreKeyValue);
+      String secretKey = (String) s3SecreKeyValue;
+      if (StringUtils.isNotBlank(secretKey)) {
+        setS3SecretKey((String) s3SecreKeyValue);
+      } else {
+        setS3SecretKey(null);
+      }
     }
 
     Object s3EndpointValue = properties.get(S3_ENDPOINT_PROP);
