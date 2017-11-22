@@ -14,6 +14,7 @@
 package ddf.security.samlp;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -35,6 +36,7 @@ import org.apache.http.impl.bootstrap.HttpServer;
 import org.apache.http.impl.bootstrap.ServerBootstrap;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -170,6 +172,27 @@ public class MetadataConfigurationParserTest {
     Map<String, EntityDescriptor> entities = metadataConfigurationParser.getEntryDescriptions();
 
     assertThat(entities.size(), is(0));
+  }
+
+  @Test
+  public void testRootElementCacheDurationValidUntil() throws Exception {
+    EntityDescriptor entity = getEntityDescriptor(IOUtils.toString(descriptorPath.toUri()));
+    Long cacheDuration = entity.getCacheDuration();
+    DateTime validUntil = entity.getValidUntil();
+    assertThat(
+        "Root node must contain either duration or validUntil",
+        (cacheDuration != null && cacheDuration > 0) || (validUntil != null),
+        is(true));
+  }
+
+  private EntityDescriptor getEntityDescriptor(String xml) throws Exception {
+    serverRespondsWith(xml);
+    MetadataConfigurationParser metadataConfigurationParser =
+        new MetadataConfigurationParser(Collections.singletonList("http://" + serverAddress));
+    Map<String, EntityDescriptor> entities = metadataConfigurationParser.getEntryDescriptions();
+    String key = "https://localhost:8993/services/idp/login";
+    assertThat("Missing SAML entity. Test cannot proceed.", entities, hasKey(key));
+    return entities.get(key);
   }
 
   private void serverRespondsWith(String message) throws HttpException, IOException {
