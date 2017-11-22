@@ -156,6 +156,14 @@ module.exports = {
                 test: /\.unless$/,
                 loaders: ['raw', path.resolve(__dirname, '../loaders', 'concat-less.js')],
                 exclude: /(node_modules|target)/
+            },
+            {
+                test: /\.worker\.js$/,
+                loaders: ['worker-loader', 'babel']
+            },
+            { 
+                test: /\.tsx?$/, 
+                loader: 'ts-loader' 
             }
         ],
         postLoaders: [
@@ -167,7 +175,7 @@ module.exports = {
         ]
     },
     resolve: {
-        extensions: ['', '.js', '.jsx'],
+        extensions: ['', '.js', '.jsx', '.ts', 'tsx'],
         alias: {
             bootstrapDatepicker: 'eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min',
             strapdown: 'strapdown/v/0.2',

@@ -181,6 +181,7 @@ public class ConfigurationApplication implements SparkApplication {
 
   /** The current historian configuration. */
   private HistorianConfiguration historianConfiguration;
+
   private String theme;
 
   private String customPrimaryColor;
@@ -942,6 +943,8 @@ public class ConfigurationApplication implements SparkApplication {
     } else {
       this.historianConfiguration = null;
     }
+  }
+
   public String getTheme() {
     return theme;
   }

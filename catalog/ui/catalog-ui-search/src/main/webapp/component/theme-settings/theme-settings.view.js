@@ -21,6 +21,8 @@ var $ = require('jquery');
 var PropertyView = require('component/property/property.view');
 var Property = require('component/property/property');
 var ThemeUtils = require('js/ThemeUtils');
+import { lessWorkerModel } from './../singletons/less.worker-instance';
+var LoadingCompanionView = require('component/loading-companion/loading-companion.view');
 
 function getPreferences(user){
     return user.get('user').get('preferences');
@@ -69,7 +71,16 @@ module.exports = Marionette.LayoutView.extend({
         this.showTheme();
         this.showCustomColors();
         this.handleTheme();
+        this.handleRendering();
         this.listenTo(getPreferences(user).get('theme'), 'change:theme', this.handleTheme);
+        this.listenTo(lessWorkerModel, 'change:isRendering', this.handleRendering);
+    },
+    handleRendering: function() {
+        if (lessWorkerModel.get('isRendering')) {
+            LoadingCompanionView.beginLoading(this, this.$el);
+        } else {
+            LoadingCompanionView.endLoading(this);
+        }
     },
     handleTheme: function() {
         var theme = getTheme(user);
@@ -81,7 +92,7 @@ module.exports = Marionette.LayoutView.extend({
             this.$el.find('.theme-custom').append('<div class="theme-'+colorVariable+'"></div>');
             this.addRegion(colorVariable, '.theme-'+colorVariable);
             var propertyModel = new Property({
-                label: colorVariable.replace(/([A-Z])/g, ' $1').replace(/^./, function(str){ return str.toUpperCase(); }).substring(7),
+                label: colorVariable.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase()).substring(7),
                 value: [getPreferences(user).get('theme').get(colorVariable)],
                 type: 'COLOR'
             });

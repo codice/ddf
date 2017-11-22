@@ -21,6 +21,14 @@ var variableRegex = '/@(.*:[^;]*)/g';
 var variableRegexPrefix = '@';
 var variableRegexPostfix = '(.*:[^;]*)';
 var Common = require('js/Common');
+import { lessWorkerModel } from './../component/singletons/less.worker-instance';
+lessWorkerModel.subscribe((data) => {
+    if (data.method === 'render') {
+        updateTheme(data.css);
+        wreqr.vent.trigger('resize');
+        $(window).trigger('resize');
+    }
+});
 
 function updateTheme(css) {
     var existingUserStyles = $('[data-theme=user]');
@@ -32,19 +40,10 @@ function updateTheme(css) {
 }
 
 function handleThemeChange(){
-    var theme = preferences.get('theme').getTheme();
-    var newLessStyles = lessStyles;
-    _.forEach(theme, (value, key) => {
-        newLessStyles = newLessStyles.replace(new RegExp(variableRegexPrefix + key + variableRegexPostfix), function () {
-            return '@'+key+': '+value+';';
-        });
-    });
-    Less.render(newLessStyles, function(e, data){
-        if (data !== undefined) {
-            updateTheme(data.css);
-            wreqr.vent.trigger('resize');
-            $(window).trigger('resize');
-        }
+    lessWorkerModel.postMessage({
+        method: 'render',
+        less: lessStyles,
+        theme: preferences.get('theme').getTheme()
     });
 }
 
