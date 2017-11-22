@@ -29,7 +29,7 @@ import java.util.Set;
  * @param <V>
  */
 public class DictionaryMap<K, V> extends Dictionary<K, V> implements Map<K, V>, Serializable {
-  private Map<K, V> map;
+  private HashMap<K, V> map;
 
   public DictionaryMap(int initialCapacity, float loadFactor) {
     map = new HashMap<>(initialCapacity, loadFactor);
@@ -117,6 +117,7 @@ public class DictionaryMap<K, V> extends Dictionary<K, V> implements Map<K, V>, 
     return map.entrySet();
   }
 
+  @SuppressWarnings("squid:S1150")
   public static class EnumerationImpl<E> implements Enumeration<E> {
     private Iterator<E> iterator;
 
