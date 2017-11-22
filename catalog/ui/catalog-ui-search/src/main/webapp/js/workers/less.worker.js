@@ -1,4 +1,3 @@
-{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,26 +9,8 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- --}}
-<div>
-    <div class="loading-bit">
-    </div>
-    <div class="loading-bit">
-    </div>
-    <div class="loading-bit is-critical-animation">
-    </div>
-    <div class="loading-bit">
-    </div>
-    <div class="loading-bit">
-    </div>
-    <div class="loading-bit">
-    </div>
-    <div class="loading-bit">
-    </div>
-    <div class="loading-bit is-critical-animation">
-    </div>
-    <div class="loading-bit">
-    </div>
-    <div class="loading-bit">
-    </div>
-</div>
+import {LessWorker} from './worker.less';
+
+const lessWorker = new LessWorker();
+
+onmessage = lessWorker.onmessage;

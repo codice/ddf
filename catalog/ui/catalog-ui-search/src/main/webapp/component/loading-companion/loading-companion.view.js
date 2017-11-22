@@ -35,14 +35,18 @@ define([
         tagName: CustomElements.register('loading-companion'),
         initialize: function(){
             this.render();
-            $('body').append(this.el);
+            if (this.options.appendTo) {
+                this.options.appendTo.append(this.el);
+            } else {
+                $('body').append(this.el);
+                this.updatePosition();
+            }
             this.$el.animate({
                 opacity: .6
             }, 500, function(){
                 this.shown = true;
                 this.$el.trigger('shown.'+this.cid);
             }.bind(this));
-            this.updatePosition();
             this.listenTo(this.options.linkedView, 'destroy', this.destroy);
         },
         shown: false,
@@ -76,7 +80,7 @@ define([
     });
 
     return {
-        beginLoading: function(linkedView){
+        beginLoading: function(linkedView, appendTo){
             if (!linkedView){
                 throw "Must pass the view you're calling the loader from.";
             }
@@ -84,7 +88,8 @@ define([
             if (!linkedView.isDestroyed) {
                 if (!getLoadingCompanion(linkedView)) {
                     loadingCompanions.push(new LoadingCompanionView({
-                        linkedView: linkedView
+                        linkedView: linkedView,
+                        appendTo: appendTo
                     }));
                 }
             }
