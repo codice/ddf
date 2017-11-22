@@ -15,11 +15,8 @@ package org.codice.ddf.admin.insecure.defaults.service;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -28,9 +25,11 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Collection;
+import java.util.stream.Stream;
 import org.apache.camel.CamelContext;
 import org.apache.camel.ServiceStatus;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.jaas.modules.BackingEngine;
 import org.apache.karaf.jaas.modules.BackingEngineFactory;
 import org.codice.ddf.configuration.AbsolutePathResolver;
@@ -56,7 +55,7 @@ public class DefaultUsersDeletionScheduler {
   }
 
   public boolean scheduleDeletion() {
-    String cron = getCron();
+    String cron = getCronOrDelete();
     if (cron == null) {
       return false;
     }
@@ -82,7 +81,7 @@ public class DefaultUsersDeletionScheduler {
   }
 
   @VisibleForTesting
-  String getCron() {
+  String getCronOrDelete() {
     if (!getTempTimestampFilePath().toFile().exists()) {
 
       // Create temp file and add timestamp
@@ -116,20 +115,14 @@ public class DefaultUsersDeletionScheduler {
   private boolean createTempFile(Instant instant) {
     try {
       if (getTempTimestampFilePath().toFile().createNewFile()) {
-        return writeTimestamp(instant);
+        Files.write(
+            getTempTimestampFilePath(), instant.toString().getBytes(StandardCharsets.UTF_8));
+        return true;
       }
     } catch (IOException e) {
       LOGGER.debug("Unable to access the temporary file", e);
     }
     return false;
-  }
-
-  private boolean writeTimestamp(Instant instant) throws IOException {
-    try (ObjectOutputStream objectOutputStream =
-        new ObjectOutputStream(new FileOutputStream(getTempTimestampFilePath().toFile()))) {
-      objectOutputStream.writeObject(instant);
-      return true;
-    }
   }
 
   public static boolean removeDefaultUsers() {
@@ -181,11 +174,11 @@ public class DefaultUsersDeletionScheduler {
     if (!getTempTimestampFilePath().toFile().exists()) {
       return null;
     }
-    try (ObjectInputStream objectInputStream =
-        new ObjectInputStream(new FileInputStream(getTempTimestampFilePath().toFile()))) {
 
-      return (Instant) objectInputStream.readObject();
-    } catch (IOException | ClassNotFoundException e) {
+    try (Stream<String> lines = Files.lines(getTempTimestampFilePath(), StandardCharsets.UTF_8)) {
+      return lines.filter(StringUtils::isNotBlank).map(Instant::parse).findFirst().orElse(null);
+
+    } catch (IOException e) {
       LOGGER.debug("Unable to read installation date.", e);
       return null;
     }
@@ -206,11 +199,12 @@ public class DefaultUsersDeletionScheduler {
   }
 
   public boolean defaultUsersExist() {
-    try {
-      return Files.lines(getUsersPropertiesFilePath())
-              .filter(line -> !line.trim().isEmpty() && !line.startsWith("#"))
-              .count()
-          != 0;
+    try (Stream<String> defaultUsers =
+        Files.lines(getUsersPropertiesFilePath(), StandardCharsets.UTF_8)) {
+      return defaultUsers
+          .filter(StringUtils::isNotBlank)
+          .filter(line -> !line.startsWith("#"))
+          .anyMatch(line -> true);
     } catch (IOException e) {
       LOGGER.debug("Unable to access users.properties file.", e);
       return true;

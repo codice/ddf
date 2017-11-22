@@ -13,19 +13,21 @@
  */
 package org.codice.ddf.admin.insecure.defaults.service;
 
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.nio.file.Files;
+import java.io.File;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Instant;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.osgi.service.event.EventAdmin;
 
 public class UsersPropertiesCollectorTest {
@@ -36,14 +38,16 @@ public class UsersPropertiesCollectorTest {
   private EventAdmin eventAdmin;
   private DefaultUsersDeletionScheduler scheduler;
 
+  @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
   @Before
   public void setUp() throws Exception {
     eventAdmin = mock(EventAdmin.class);
     scheduler = mock(DefaultUsersDeletionScheduler.class);
     collector = new UsersPropertiesCollector(eventAdmin, scheduler);
 
-    assertTrue(USERS_PROPERTIES_FILE_PATH.getParent().toFile().mkdirs());
-    assertTrue(USERS_PROPERTIES_FILE_PATH.toFile().createNewFile());
+    File testFile = temporaryFolder.newFile("users.properties");
+    DefaultUsersDeletionScheduler.setUsersPropertiesFilePath(Paths.get(testFile.getPath()));
   }
 
   @Test
@@ -79,7 +83,6 @@ public class UsersPropertiesCollectorTest {
 
   @After
   public void tearDown() throws Exception {
-    Files.deleteIfExists(USERS_PROPERTIES_FILE_PATH);
-    Files.deleteIfExists(USERS_PROPERTIES_FILE_PATH.getParent());
+    temporaryFolder.delete();
   }
 }
