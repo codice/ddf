@@ -177,7 +177,6 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            common-system,
                             ddf-security-common,
                             platform-util-unavailableurls,
                             platform-util,

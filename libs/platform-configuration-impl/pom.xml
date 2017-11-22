@@ -50,7 +50,6 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>common-system</Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>

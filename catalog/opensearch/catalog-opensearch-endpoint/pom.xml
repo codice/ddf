@@ -144,7 +144,6 @@
                         <Spring-Context>*;wait-for-dependencies:=true;timeout:=604800
                         </Spring-Context>
                         <Embed-Dependency>
-                            common-system,
                             platform-util
                         </Embed-Dependency>
                         <Import-Package>

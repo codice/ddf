@@ -83,8 +83,7 @@
                             ddf-security-common,
                             catalog-core-api-impl;scope=!test,
                             platform-util-unavailableurls,
-                            platform-util,
-                            common-system
+                            platform-util
                         </Embed-Dependency>
                         <Import-Package>
                             ddf.catalog,

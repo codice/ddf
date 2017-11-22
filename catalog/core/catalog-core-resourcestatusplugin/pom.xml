@@ -71,8 +71,7 @@
                             notifications,
                             activities,
                             hazelcast;scope=runtime|compile,
-                            catalog-core-api-impl;scope=!test,
-                            common-system
+                            catalog-core-api-impl;scope=!test
                         </Embed-Dependency>
                         <Private-Package>
                             ddf.catalog.cache.impl,

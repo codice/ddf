@@ -91,7 +91,6 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            common-system,
                             catalog-core-api-impl;scope=!test
                         </Embed-Dependency>
                         <Private-Package>

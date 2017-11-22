@@ -140,7 +140,6 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
                             platform-util,
-                            common-system,
                             ddf-security-common,
                             httpclient,httpcore,
                             platform-util-unavailableurls
