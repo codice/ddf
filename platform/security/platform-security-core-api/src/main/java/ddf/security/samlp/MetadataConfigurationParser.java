@@ -50,6 +50,7 @@ import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.codice.ddf.configuration.PropertyResolver;
 import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
+import org.joda.time.DateTime;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.slf4j.Logger;
@@ -238,7 +239,19 @@ public class MetadataConfigurationParser {
       throw new IllegalArgumentException(
           "Unable to convert EntityDescriptor document to XMLObject.");
     }
+    EntityDescriptor root = (EntityDescriptor) entityXmlObj;
+    validateMetadata(root);
+    return root;
+  }
 
-    return (EntityDescriptor) entityXmlObj;
+  private void validateMetadata(EntityDescriptor root) {
+    boolean cacheDurationPresent = root.getCacheDuration() != null && root.getCacheDuration() >= 0;
+    boolean datetimeStillValid = DateTime.now().isBefore(root.getValidUntil());
+    if (!(cacheDurationPresent || datetimeStillValid)) {
+      LOGGER.info(
+          "IDP metadata must either have cache duration or future valid-until date."
+              + " Defaulting cache duration to 7 days.");
+      root.setCacheDuration(TimeUnit.DAYS.toMillis(7));
+    }
   }
 }

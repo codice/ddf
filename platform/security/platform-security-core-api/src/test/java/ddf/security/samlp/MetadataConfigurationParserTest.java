@@ -14,6 +14,7 @@
 package ddf.security.samlp;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -35,6 +36,7 @@ import org.apache.http.impl.bootstrap.HttpServer;
 import org.apache.http.impl.bootstrap.ServerBootstrap;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,8 +51,10 @@ public class MetadataConfigurationParserTest {
   private HttpServer server;
 
   private String serverAddress;
+  public static final Long SEVEN_DAYS = TimeUnit.DAYS.toMillis(7);
 
   @Mock HttpRequestHandler handler;
+  public static final String CACHE_DURATION_REGEX = "cacheDuration=\"\\w*\"";
 
   @Before
   public void before() throws Exception {
@@ -170,6 +174,38 @@ public class MetadataConfigurationParserTest {
     Map<String, EntityDescriptor> entities = metadataConfigurationParser.getEntryDescriptions();
 
     assertThat(entities.size(), is(0));
+  }
+
+  @Test
+  public void testRootElementNoCacheDuration() throws Exception {
+    String xml = IOUtils.toString(descriptorPath.toUri());
+    String xmlNoCacheDuration = xml.replaceFirst(CACHE_DURATION_REGEX, "");
+    EntityDescriptor entity = getEntityDescriptor(xmlNoCacheDuration);
+    assertThat(
+        "Expected default cache duration of one day (in milliseconds)",
+        entity.getCacheDuration(),
+        is(SEVEN_DAYS));
+  }
+
+  @Test
+  public void testRootElementValidUntil() throws Exception {
+    String xml = IOUtils.toString(descriptorPath.toUri());
+    DateTime validUntil = DateTime.now().plusYears(1);
+    String validUntilXmlString = String.format("validUntil=\"%tF\"", validUntil.toDate());
+    String xmlNoCacheDuration = xml.replaceFirst(CACHE_DURATION_REGEX, validUntilXmlString);
+    EntityDescriptor entity = getEntityDescriptor(xmlNoCacheDuration);
+    boolean isSameDate = entity.getValidUntil().toLocalDate().isEqual(validUntil.toLocalDate());
+    assertThat("Expected different valid-until date", isSameDate, is(true));
+  }
+
+  private EntityDescriptor getEntityDescriptor(String xml) throws Exception {
+    serverRespondsWith(xml);
+    MetadataConfigurationParser metadataConfigurationParser =
+        new MetadataConfigurationParser(Collections.singletonList("http://" + serverAddress));
+    Map<String, EntityDescriptor> entities = metadataConfigurationParser.getEntryDescriptions();
+    String key = "https://localhost:8993/services/idp/login";
+    assertThat("Missing SAML entity. Test cannot proceed.", entities, hasKey(key));
+    return entities.get(key);
   }
 
   private void serverRespondsWith(String message) throws HttpException, IOException {
