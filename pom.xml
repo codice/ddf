@@ -69,7 +69,7 @@
         <commons-io.version>2.5</commons-io.version>
         <json-smart.version>2.2.1</json-smart.version>
         <httpclient.version>4.5.3</httpclient.version>
-        <httpcore.version>4.4.6</httpcore.version>
+        <httpcore.version>4.4.7</httpcore.version>
         <httpmime.version>${httpclient.version}</httpmime.version>
         <cxf.version>3.1.11</cxf.version>
         <bouncy.version>1.55</bouncy.version>
@@ -154,8 +154,8 @@
         <protobuf.version>3.1.0</protobuf.version>
         <servicemix.bundles.junit.version>4.11_2</servicemix.bundles.junit.version>
         <jodatime2-bundle.version>2.9.9</jodatime2-bundle.version>
-        <aws-java-sdk-bundle.version>1.11.125_1</aws-java-sdk-bundle.version>
-        <javax-mail.version>1.4.7</javax-mail.version>
+        <aws-java-sdk-bundle.version>1.11.186_1</aws-java-sdk-bundle.version>
+        <javax-mail.version>1.6.0</javax-mail.version>
         <common-compress.version>1.14</common-compress.version>
         <!--START If these bundles are used elsewhere in DDF, the versions MUST exactly match the versions used by the CXF and Camel features.-->
         <woodstox.core.version>4.4.1</woodstox.core.version>

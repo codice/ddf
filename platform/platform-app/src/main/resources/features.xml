@@ -130,10 +130,10 @@
         <bundle dependency='true'>mvn:joda-time/joda-time/${jodatime2-bundle.version}</bundle>
         <bundle dependency='true'>mvn:com.sun.mail/javax.mail/${javax-mail.version}</bundle>
         <bundle dependency='true'>mvn:commons-codec/commons-codec/${commons-codec.version}</bundle>
-        <bundle dependency='true'>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.stax-api-1.0/${cxf.servicemix.specs.version}</bundle>
-        <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${cxf.jackson.version}</bundle>
-        <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${cxf.jackson.version}</bundle>
-        <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/${cxf.jackson.version}</bundle>
+        <bundle dependency='true'>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.stax-api-1.0/${servicemix-specs-version}</bundle>
+        <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/${jackson2-version}</bundle>
+        <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson2-version}</bundle>
+        <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson2-version}</bundle>
         <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.aws-java-sdk/${aws-java-sdk-bundle.version}</bundle>
         <bundle>mvn:org.apache.camel/camel-aws/${camel.version}</bundle>
     </feature>
@@ -222,10 +222,10 @@
         <bundle>mvn:org.apache.camel/camel-protobuf/${camel.version}</bundle>
     </feature>
     <feature name='camel-quartz2' install="manual" version='${camel.version}' start-level='50'>
-        <feature version='${camel.version}'>camel-core</feature>
         <bundle dependency='true'>wrap:mvn:com.mchange/c3p0/${c3p0-version}</bundle>
-        <bundle dependency='true'>wrap:mvn:com.mchange/mchange-commons-java/${mchange-commons-java-version}</bundle>
-        <bundle dependency='true'>mvn:org.quartz-scheduler/quartz/${quartz.version}</bundle>
+        <bundle dependency='true'>mvn:com.zaxxer/HikariCP-java6/${hikaricp-version}</bundle>
+        <bundle dependency='true'>wrap:mvn:org.quartz-scheduler/quartz/${quartz2-version}$overwrite=merge&amp;DynamicImport-Package=org.apache.camel.component.quartz2</bundle>
+        <feature version='${camel.version}'>camel-core</feature>
         <bundle>mvn:org.apache.camel/camel-quartz2/${camel.version}</bundle>
     </feature>
     <feature name="camel-sjms" install="manual" version="${camel.version}" start-level="50">
