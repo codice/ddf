@@ -808,6 +808,7 @@
         <feature prerequisite="true" version="${karaf.version}">eventadmin</feature>
         <feature prerequisite="true" version="${karaf.version}">jasypt-encryption</feature>
         <feature prerequisite="true" version="${karaf.version}">http</feature>
+        <bundle>mvn:ddf.lib/common-system/${project.version}</bundle>
     </feature>
 
     <feature name="branding-api" version="${project.version}" description="Branding API">
