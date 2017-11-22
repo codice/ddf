@@ -92,7 +92,7 @@ public class Validator {
   }
 
   public AttributeValidationResponse validateAttribute(String attribute, String value) {
-    Set<AttributeValidator> validators =
+    Set<AttributeValidator> attributeValidators =
         attributeValidatorRegistry
             .stream()
             .map(avr -> avr.getValidators(attribute))
@@ -105,7 +105,7 @@ public class Validator {
 
     Set<String> suggestedValues = new HashSet<>();
     Set<ValidationViolation> violations = new HashSet<>();
-    for (AttributeValidator validator : validators) {
+    for (AttributeValidator validator : attributeValidators) {
       Optional<AttributeValidationReport> validationReport =
           validator.validate(new AttributeImpl(attribute, value));
       if (validationReport.isPresent()) {
@@ -136,7 +136,7 @@ public class Validator {
         } else if (ValidationViolation.Severity.WARNING.equals(violation.getSeverity())) {
           violationResponse.getWarnings().add(violation.getMessage());
         } else {
-          throw new RuntimeException("Unexpected Severity Level");
+          throw new IllegalArgumentException("Unexpected Severity Level");
         }
       }
     }

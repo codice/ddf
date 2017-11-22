@@ -48,6 +48,10 @@ public class XmlParser implements Parser {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(XmlParser.class);
 
+  private static final String MARSHALLING_ERROR_MSG = "Error marshalling";
+
+  private static final String UNMARSHALLING_ERROR_MSG = "Error unmarshalling";
+
   private LoadingCache<CacheKey, JAXBContext> jaxbContextCache =
       CacheBuilder.newBuilder()
           .expireAfterWrite(1, TimeUnit.DAYS)
@@ -85,7 +89,7 @@ public class XmlParser implements Parser {
           try {
             marshaller.marshal(obj, os);
           } catch (JAXBException e) {
-            throw new RuntimeException("Error marshalling", e);
+            throw new ParserRuntimeException(MARSHALLING_ERROR_MSG, e);
           }
         });
   }
@@ -99,7 +103,7 @@ public class XmlParser implements Parser {
           try {
             marshaller.marshal(obj, node);
           } catch (JAXBException e) {
-            throw new RuntimeException("Error marshalling", e);
+            throw new ParserRuntimeException(MARSHALLING_ERROR_MSG, e);
           }
         });
   }
@@ -127,7 +131,7 @@ public class XmlParser implements Parser {
             T unmarshal = (T) unmarshaller.unmarshal(xmlStreamReader);
             return unmarshal;
           } catch (XMLStreamException | JAXBException e) {
-            throw new RuntimeException("Error unmarshalling", e);
+            throw new ParserRuntimeException(UNMARSHALLING_ERROR_MSG, e);
           }
         });
   }
@@ -143,7 +147,7 @@ public class XmlParser implements Parser {
             T unmarshal = (T) unmarshaller.unmarshal(node);
             return unmarshal;
           } catch (JAXBException e) {
-            throw new RuntimeException("Error unmarshalling", e);
+            throw new ParserRuntimeException(UNMARSHALLING_ERROR_MSG, e);
           }
         });
   }
@@ -160,7 +164,7 @@ public class XmlParser implements Parser {
             T unmarshal = (T) unmarshaller.unmarshal(source);
             return unmarshal;
           } catch (JAXBException e) {
-            throw new RuntimeException("Error unmarshalling", e);
+            throw new ParserRuntimeException(UNMARSHALLING_ERROR_MSG, e);
           }
         });
   }
@@ -185,12 +189,9 @@ public class XmlParser implements Parser {
       }
 
       marshallerConsumer.accept(marshaller);
-    } catch (RuntimeException e) {
-      LOGGER.debug("Error marshalling ", e);
-      throw new ParserException("Error marshalling ", e);
-    } catch (JAXBException e) {
-      LOGGER.debug("Error marshalling ", e);
-      throw new ParserException("Error marshalling", e);
+    } catch (RuntimeException | JAXBException e) {
+      LOGGER.debug(MARSHALLING_ERROR_MSG, e);
+      throw new ParserException(MARSHALLING_ERROR_MSG, e);
     } finally {
       Thread.currentThread().setContextClassLoader(tccl);
     }
@@ -218,8 +219,8 @@ public class XmlParser implements Parser {
 
       return func.apply(unmarshaller);
     } catch (RuntimeException | JAXBException e) {
-      LOGGER.debug("Error unmarshalling ", e);
-      throw new ParserException("Error unmarshalling", e);
+      LOGGER.debug(UNMARSHALLING_ERROR_MSG, e);
+      throw new ParserException(UNMARSHALLING_ERROR_MSG, e);
     } finally {
       Thread.currentThread().setContextClassLoader(tccl);
     }

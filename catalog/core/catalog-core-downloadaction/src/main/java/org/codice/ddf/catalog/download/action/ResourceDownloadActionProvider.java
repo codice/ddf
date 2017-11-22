@@ -21,8 +21,11 @@ import ddf.action.Action;
 import ddf.action.impl.ActionImpl;
 import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.data.Metacard;
+import java.io.UnsupportedEncodingException;
 import java.lang.management.ManagementFactory;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Optional;
@@ -79,13 +82,15 @@ public class ResourceDownloadActionProvider extends AbstractMetacardActionProvid
   }
 
   @Override
-  protected URL getMetacardActionUrl(String metacardSource, Metacard metacard) throws Exception {
+  protected URL getMetacardActionUrl(String metacardSource, Metacard metacard)
+      throws MalformedURLException, URISyntaxException, UnsupportedEncodingException {
     String encodedMetacardId = URLEncoder.encode(metacard.getId(), CharEncoding.UTF_8);
     String encodedMetacardSource = URLEncoder.encode(metacardSource, CharEncoding.UTF_8);
     return getActionUrl(encodedMetacardSource, encodedMetacardId);
   }
 
-  private URL getActionUrl(String metacardSource, String metacardId) throws Exception {
+  private URL getActionUrl(String metacardSource, String metacardId)
+      throws MalformedURLException, URISyntaxException {
     return new URI(
             SystemBaseUrl.constructUrl(
                 String.format(

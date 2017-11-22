@@ -923,7 +923,7 @@ public class MetacardApplication implements SparkApplication {
   private <T> T executeAsSystem(Callable<T> func) {
     Subject systemSubject = SECURITY.runAsAdmin(SECURITY::getSystemSubject);
     if (systemSubject == null) {
-      throw new RuntimeException("Could not get systemSubject to version metacards.");
+      throw new SecurityException("Could not get systemSubject to version metacards.");
     }
     return systemSubject.execute(func);
   }
@@ -990,7 +990,7 @@ public class MetacardApplication implements SparkApplication {
         .equals(AttributeType.AttributeFormat.DATE);
   }
 
-  private List<Result> getMetacardHistory(String id) throws Exception {
+  private List<Result> getMetacardHistory(String id) {
     Filter historyFilter =
         filterBuilder.attribute(Metacard.TAGS).is().equalTo().text(MetacardVersion.VERSION_TAG);
     Filter idFilter =

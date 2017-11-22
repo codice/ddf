@@ -20,6 +20,7 @@ import ddf.action.Action;
 import ddf.action.impl.ActionImpl;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -71,7 +72,8 @@ public class MetacardTransformerActionProvider extends AbstractMetacardActionPro
   }
 
   @Override
-  protected URL getMetacardActionUrl(String metacardSource, Metacard metacard) throws Exception {
+  protected URL getMetacardActionUrl(String metacardSource, Metacard metacard)
+      throws MalformedURLException, URISyntaxException, UnsupportedEncodingException {
     String encodedMetacardId = URLEncoder.encode(metacard.getId(), CharEncoding.UTF_8);
     String encodedMetacardSource = URLEncoder.encode(metacardSource, CharEncoding.UTF_8);
     return getActionUrl(encodedMetacardSource, encodedMetacardId);

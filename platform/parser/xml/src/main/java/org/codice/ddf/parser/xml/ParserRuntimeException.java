@@ -11,23 +11,11 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.cache;
+package org.codice.ddf.parser.xml;
 
-import ddf.catalog.data.Metacard;
-import ddf.catalog.source.UnsupportedQueryException;
-import java.io.IOException;
-import java.util.List;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.opengis.filter.Filter;
-
-public interface SolrCacheMBean {
-
-  public static final String OBJECTNAME =
-      "ddf.catalog.cache.solr.impl.SolrCache:service=cache-manager";
-
-  void removeAll() throws IOException, SolrServerException;
-
-  void removeById(String[] ids) throws IOException, SolrServerException;
-
-  List<Metacard> query(Filter filter) throws UnsupportedQueryException;
+/** Runtime exception for xml parsing */
+public class ParserRuntimeException extends RuntimeException {
+  public ParserRuntimeException(String message, Exception e) {
+    super(message, e);
+  }
 }

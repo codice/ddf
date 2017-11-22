@@ -20,6 +20,8 @@ import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.impl.DeleteRequestImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.source.IngestException;
+import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.util.impl.ResultIterable;
 import java.io.Serializable;
 import java.text.ParseException;
@@ -34,6 +36,7 @@ import org.apache.karaf.shell.api.action.Argument;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
+import org.codice.ddf.commands.util.CatalogCommandException;
 import org.geotools.filter.text.cql2.CQLException;
 import org.slf4j.LoggerFactory;
 
@@ -101,7 +104,7 @@ public class RemoveCommand extends CqlCommands {
     return null;
   }
 
-  private int deletedIdsPassedAsArguments() throws Exception {
+  private int deletedIdsPassedAsArguments() throws IngestException, SourceUnavailableException {
 
     DeleteRequestImpl deleteRequest = new DeleteRequestImpl(ids.toArray(new String[0]));
 
@@ -110,40 +113,43 @@ public class RemoveCommand extends CqlCommands {
     return deleteResponse.getDeletedMetacards().size();
   }
 
-  private Object executeRemoveFromStore() throws Exception {
-
-    int batchCount = 0;
-    int deletedCount = 0;
-    if (CollectionUtils.isNotEmpty(ids) && !hasFilter()) {
-      deletedCount = deletedIdsPassedAsArguments();
-    }
-
-    if (hasFilter()) {
-      QueryRequestImpl queryRequest = new QueryRequestImpl(getQuery(), false);
-      String[] idsToDelete = getNextQueryBatch(queryRequest);
-      while (idsToDelete.length > 0) {
-        if (CollectionUtils.isNotEmpty(ids)) {
-          idsToDelete =
-              Arrays.asList(idsToDelete)
-                  .stream()
-                  .filter(id -> ids.contains(id))
-                  .toArray(String[]::new);
-        }
-        DeleteRequestImpl deleteRequest = new DeleteRequestImpl(idsToDelete);
-        LOGGER.debug(
-            "Attempting to delete {} metacards from batch {}", idsToDelete.length, ++batchCount);
-        DeleteResponse deleteResponse = catalogFramework.delete(deleteRequest);
-        deletedCount += deleteResponse.getDeletedMetacards().size();
-
-        idsToDelete = getNextQueryBatch(queryRequest);
+  private Object executeRemoveFromStore() throws CatalogCommandException {
+    try {
+      int batchCount = 0;
+      int deletedCount = 0;
+      if (CollectionUtils.isNotEmpty(ids) && !hasFilter()) {
+        deletedCount = deletedIdsPassedAsArguments();
       }
-    }
-    if (deletedCount > 0) {
-      printSuccessMessage(deletedCount + " documents successfully deleted.");
-      LOGGER.debug("{} documents removed using catalog:remove command", deletedCount);
-    } else {
-      printErrorMessage("No documents match provided IDs or filter");
-      LOGGER.debug("No documents deleted using the catalog:remove command");
+
+      if (hasFilter()) {
+        QueryRequestImpl queryRequest = new QueryRequestImpl(getQuery(), false);
+        String[] idsToDelete = getNextQueryBatch(queryRequest);
+        while (idsToDelete.length > 0) {
+          if (CollectionUtils.isNotEmpty(ids)) {
+            idsToDelete =
+                Arrays.asList(idsToDelete)
+                    .stream()
+                    .filter(id -> ids.contains(id))
+                    .toArray(String[]::new);
+          }
+          DeleteRequestImpl deleteRequest = new DeleteRequestImpl(idsToDelete);
+          LOGGER.debug(
+              "Attempting to delete {} metacards from batch {}", idsToDelete.length, ++batchCount);
+          DeleteResponse deleteResponse = catalogFramework.delete(deleteRequest);
+          deletedCount += deleteResponse.getDeletedMetacards().size();
+
+          idsToDelete = getNextQueryBatch(queryRequest);
+        }
+      }
+      if (deletedCount > 0) {
+        printSuccessMessage(deletedCount + " documents successfully deleted.");
+        LOGGER.debug("{} documents removed using catalog:remove command", deletedCount);
+      } else {
+        printErrorMessage("No documents match provided IDs or filter");
+        LOGGER.debug("No documents deleted using the catalog:remove command");
+      }
+    } catch (IngestException | SourceUnavailableException | ParseException | CQLException e) {
+      throw new CatalogCommandException("Error executing RemoveCommand", e);
     }
     return null;
   }
@@ -159,7 +165,7 @@ public class RemoveCommand extends CqlCommands {
         .toArray(String[]::new);
   }
 
-  private QueryImpl getQuery() throws InterruptedException, ParseException, CQLException {
+  private QueryImpl getQuery() throws ParseException, CQLException {
     QueryImpl query = new QueryImpl(getFilter());
     Map<String, Serializable> properties = new HashMap<>();
     properties.put("mode", "native");

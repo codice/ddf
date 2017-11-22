@@ -107,7 +107,7 @@ public class TemporalFilter {
    */
   private void setDates(Date startDate, Date endDate) {
     if (startDate == null && endDate == null) {
-      throw new RuntimeException("Cannot have empty start and end date.");
+      throw new IllegalArgumentException("Cannot have empty start and end date.");
     }
 
     if (startDate == null) {

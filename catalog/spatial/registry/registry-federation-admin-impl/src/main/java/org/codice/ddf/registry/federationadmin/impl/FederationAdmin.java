@@ -48,6 +48,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.management.InstanceAlreadyExistsException;
+import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -720,21 +721,21 @@ public class FederationAdmin implements FederationAdminMBean, EventHandler {
     }
   }
 
-  public void destroy() {
+  public void destroy() throws MBeanRegistrationException {
     try {
       if (objectName != null && mbeanServer != null) {
         mbeanServer.unregisterMBean(objectName);
       }
     } catch (Exception e) {
       LOGGER.info("Exception un registering mbean: ", e);
-      throw new RuntimeException(e);
+      throw new MBeanRegistrationException(e);
     }
   }
 
   public void init() {
 
     Path path = Paths.get(System.getProperty(KARAF_ETC), REGISTRY_CONFIG_DIR, REGISTRY_FIELDS_FILE);
-    if (Files.exists(path)) {
+    if (path.toFile().exists()) {
       try {
         String registryFieldsJsonString =
             new String(Files.readAllBytes(path), StandardCharsets.UTF_8);

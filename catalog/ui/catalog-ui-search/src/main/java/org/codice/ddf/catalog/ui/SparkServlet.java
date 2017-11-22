@@ -65,10 +65,8 @@ public class SparkServlet extends HttpServlet {
 
   private static final BiFunction<HttpServletRequest, String, HttpServletRequestWrapper>
       DEFAULT_REQ_FUNC =
-          new BiFunction<HttpServletRequest, String, HttpServletRequestWrapper>() {
-            @Override
-            public HttpServletRequestWrapper apply(HttpServletRequest req, String relativePath) {
-              return new HttpServletRequestWrapper(req) {
+          (req, relativePath) ->
+              new HttpServletRequestWrapper(req) {
                 @Override
                 public String getPathInfo() {
                   return relativePath;
@@ -79,8 +77,6 @@ public class SparkServlet extends HttpServlet {
                   return relativePath;
                 }
               };
-            }
-          };
 
   private BiFunction<HttpServletRequest, String, HttpServletRequestWrapper> requestSupplier;
 
@@ -154,7 +150,7 @@ public class SparkServlet extends HttpServlet {
     if (result == null || result.equals(SLASH_WILDCARD)) {
       return "";
     } else if (!result.startsWith(SLASH) || !result.endsWith(SLASH_WILDCARD)) {
-      throw new RuntimeException(
+      throw new IllegalArgumentException(
           String.format(
               "The %s must start with '/' and end with '/*'. Instead it is: %s",
               FILTER_MAPPING_PARAM, result));

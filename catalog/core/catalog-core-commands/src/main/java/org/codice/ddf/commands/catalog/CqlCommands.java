@@ -202,7 +202,7 @@ public abstract class CqlCommands extends CatalogCommands {
 
   private long filterCurrentTime;
 
-  protected Filter getFilter() throws InterruptedException, ParseException, CQLException {
+  protected Filter getFilter() throws ParseException, CQLException {
     return getFilter(filterBuilder);
   }
 

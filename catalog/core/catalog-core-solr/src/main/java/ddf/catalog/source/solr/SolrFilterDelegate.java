@@ -16,7 +16,6 @@ package ddf.catalog.source.solr;
 import com.google.common.collect.ImmutableMap;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
@@ -71,6 +70,10 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
   private static final Logger LOGGER = LoggerFactory.getLogger(SolrFilterDelegate.class);
 
   private static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
+
+  private static final String POINT_TYPE = "Point";
+
+  private static final String MULTI_POINT_TYPE = "MultiPoint";
 
   // *, ?, and / are escaped by the filter adapter
   private static final String[] LUCENE_SPECIAL_CHARACTERS = {
@@ -761,8 +764,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
           updateDistanceSort(propertyName, pnt);
           return new SolrQuery(pointRadiusQuery);
         }
-        if (MultiPoint.class.getSimpleName().equals(geo.getGeometryType())
-            && geo.getCoordinates().length == 1) {
+        if (MULTI_POINT_TYPE.equals(geo.getGeometryType()) && geo.getCoordinates().length == 1) {
           Point pnt = GEOMETRY_FACTORY.createPoint(geo.getCoordinate());
           String pointRadiusQuery =
               geoPointToCircleQuery(propertyName, DEFAULT_ERROR_IN_DEGREES, pnt);
@@ -1047,7 +1049,7 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
   }
 
   private boolean isPoint(Geometry geo) {
-    return geo != null && Point.class.getSimpleName().equals(geo.getGeometryType());
+    return geo != null && POINT_TYPE.equals(geo.getGeometryType());
   }
 
   public void setSortPolicy(SortBy[] sortBys) {

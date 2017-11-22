@@ -24,12 +24,16 @@ import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.util.XPathHelper;
+import java.io.IOException;
 import java.util.List;
+import javax.management.InstanceNotFoundException;
+import javax.management.MalformedObjectNameException;
 import org.apache.karaf.shell.api.action.Argument;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
+import org.codice.ddf.commands.util.CatalogCommandException;
 import org.fusesource.jansi.Ansi;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -100,7 +104,7 @@ public class SearchCommand extends CqlCommands {
     }
   }
 
-  private Object executeSearchStore(Filter filter) throws Exception {
+  private Object executeSearchStore(Filter filter) {
     String formatString =
         "%1$-33s %2$-26s %3$-" + TITLE_MAX_LENGTH + "s %4$-" + EXCERPT_MAX_LENGTH + "s%n";
 
@@ -142,38 +146,35 @@ public class SearchCommand extends CqlCommands {
       String excerpt = "N/A";
       String modifiedDate = "";
 
-      if (searchPhrase != null) {
-        if (metacard.getMetadata() != null) {
-          XPathHelper helper = new XPathHelper(metacard.getMetadata());
-          String indexedText = helper.getDocument().getDocumentElement().getTextContent();
-          indexedText = indexedText.replaceAll("\\r\\n|\\r|\\n", " ");
+      if (searchPhrase != null && metacard.getMetadata() != null) {
+        XPathHelper helper = new XPathHelper(metacard.getMetadata());
+        String indexedText = helper.getDocument().getDocumentElement().getTextContent();
+        indexedText = indexedText.replaceAll("\\r\\n|\\r|\\n", " ");
 
-          String normalizedSearchPhrase = searchPhrase.replaceAll("\\*", "");
+        String normalizedSearchPhrase = searchPhrase.replaceAll("\\*", "");
 
-          int index = -1;
+        int index = -1;
 
-          if (caseSensitive) {
-            index = indexedText.indexOf(normalizedSearchPhrase);
-          } else {
-            index = indexedText.toLowerCase().indexOf(normalizedSearchPhrase.toLowerCase());
-          }
+        if (caseSensitive) {
+          index = indexedText.indexOf(normalizedSearchPhrase);
+        } else {
+          index = indexedText.toLowerCase().indexOf(normalizedSearchPhrase.toLowerCase());
+        }
 
-          if (index != -1) {
-            int contextLength = (EXCERPT_MAX_LENGTH - normalizedSearchPhrase.length() - 8) / 2;
-            excerpt = "..." + indexedText.substring(Math.max(index - contextLength, 0), index);
-            excerpt = excerpt + Ansi.ansi().fg(Ansi.Color.GREEN).toString();
-            excerpt =
-                excerpt + indexedText.substring(index, index + normalizedSearchPhrase.length());
-            excerpt = excerpt + Ansi.ansi().reset().toString();
-            excerpt =
-                excerpt
-                    + indexedText.substring(
-                        index + normalizedSearchPhrase.length(),
-                        Math.min(
-                            indexedText.length(),
-                            index + normalizedSearchPhrase.length() + contextLength))
-                    + "...";
-          }
+        if (index != -1) {
+          int contextLength = (EXCERPT_MAX_LENGTH - normalizedSearchPhrase.length() - 8) / 2;
+          excerpt = "..." + indexedText.substring(Math.max(index - contextLength, 0), index);
+          excerpt = excerpt + Ansi.ansi().fg(Ansi.Color.GREEN).toString();
+          excerpt = excerpt + indexedText.substring(index, index + normalizedSearchPhrase.length());
+          excerpt = excerpt + Ansi.ansi().reset().toString();
+          excerpt =
+              excerpt
+                  + indexedText.substring(
+                      index + normalizedSearchPhrase.length(),
+                      Math.min(
+                          indexedText.length(),
+                          index + normalizedSearchPhrase.length() + contextLength))
+                  + "...";
         }
       }
 
@@ -206,37 +207,43 @@ public class SearchCommand extends CqlCommands {
     }
   }
 
-  private Object executeSearchCache(Filter filter) throws Exception {
+  private Object executeSearchCache(Filter filter) throws CatalogCommandException {
     String formatString = "%1$-33s %2$-26s %3$-" + TITLE_MAX_LENGTH + "s %n";
 
     long start = System.currentTimeMillis();
 
-    List<Metacard> results = getCacheProxy().query(filter);
+    try {
+      List<Metacard> results = getCacheProxy().query(filter);
 
-    long end = System.currentTimeMillis();
+      long end = System.currentTimeMillis();
 
-    console.println();
-    console.printf(
-        " %d result(s) in %3.3f seconds", (results.size()), (end - start) / MS_PER_SECOND);
-    console.printf(formatString, "", "", "");
-    printHeaderMessage(String.format(formatString, ID, DATE, TITLE));
-
-    for (Metacard metacard : results) {
-      String title = (metacard.getTitle() != null ? metacard.getTitle() : "N/A");
-      String modifiedDate = "";
-
-      if (metacard.getModifiedDate() != null) {
-        DateTime dt = new DateTime(DateTimeZone.UTC);
-        modifiedDate = dt.toString(DATETIME_FORMATTER);
-      }
-
+      console.println();
       console.printf(
-          formatString,
-          metacard.getId(),
-          modifiedDate,
-          title.substring(0, Math.min(title.length(), TITLE_MAX_LENGTH)));
-    }
+          " %d result(s) in %3.3f seconds", (results.size()), (end - start) / MS_PER_SECOND);
+      console.printf(formatString, "", "", "");
+      printHeaderMessage(String.format(formatString, ID, DATE, TITLE));
 
+      for (Metacard metacard : results) {
+        String title = (metacard.getTitle() != null ? metacard.getTitle() : "N/A");
+        String modifiedDate = "";
+
+        if (metacard.getModifiedDate() != null) {
+          DateTime dt = new DateTime(DateTimeZone.UTC);
+          modifiedDate = dt.toString(DATETIME_FORMATTER);
+        }
+
+        console.printf(
+            formatString,
+            metacard.getId(),
+            modifiedDate,
+            title.substring(0, Math.min(title.length(), TITLE_MAX_LENGTH)));
+      }
+    } catch (UnsupportedQueryException
+        | IOException
+        | MalformedObjectNameException
+        | InstanceNotFoundException e) {
+      throw new CatalogCommandException("Error executing SearchCommand", e);
+    }
     return null;
   }
 }

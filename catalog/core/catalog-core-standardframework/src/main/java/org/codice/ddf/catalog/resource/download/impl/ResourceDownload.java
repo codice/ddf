@@ -65,12 +65,12 @@ public class ResourceDownload implements ResourceDownloadMBean {
     this.objectName = new ObjectName(OBJECT_NAME);
   }
 
-  public void init() {
+  public void init() throws MBeanRegistrationException {
     registerMBean();
     LOGGER.debug("Registered [{}] MBean under object name: [{}].", CLASS_NAME, objectName);
   }
 
-  public void destroy() {
+  public void destroy() throws MBeanRegistrationException {
     if (objectName != null && mBeanServer != null) {
       unregisterMBean();
       LOGGER.debug("Unregistered [{}] MBean.", CLASS_NAME);
@@ -121,7 +121,7 @@ public class ResourceDownload implements ResourceDownloadMBean {
     }
   }
 
-  private void registerMBean() {
+  private void registerMBean() throws MBeanRegistrationException {
     if (!mBeanServer.isRegistered(objectName)) {
       try {
         // wrap the implementation in a StandardMBean so we can have the MBean interface
@@ -135,7 +135,7 @@ public class ResourceDownload implements ResourceDownloadMBean {
                 "Unable to register [%s] MBean under object name: [%s].",
                 CLASS_NAME, objectName.toString());
         LOGGER.debug(message, e);
-        throw new RuntimeException(message, e);
+        throw new MBeanRegistrationException(e, message);
       }
     } else {
       LOGGER.debug(
@@ -143,7 +143,7 @@ public class ResourceDownload implements ResourceDownloadMBean {
     }
   }
 
-  private void unregisterMBean() {
+  private void unregisterMBean() throws MBeanRegistrationException {
     try {
       if (mBeanServer.isRegistered(objectName)) {
         mBeanServer.unregisterMBean(objectName);
@@ -157,9 +157,9 @@ public class ResourceDownload implements ResourceDownloadMBean {
       String message =
           String.format(
               "Unable to unregistering [%s] MBean under object name: [%s].",
-              CLASS_NAME, objectName.toString());
+              CLASS_NAME, objectName);
       LOGGER.debug(message, e);
-      throw new RuntimeException(message, e);
+      throw new MBeanRegistrationException(e, message);
     }
   }
 }

@@ -550,7 +550,7 @@ public class ExportCommand extends CqlCommands {
         revisionFilter, filterBuilder.attribute("metacard.version.id").is().equalTo().text(id));
   }
 
-  protected Filter getFilter() throws InterruptedException, ParseException, CQLException {
+  protected Filter getFilter() throws ParseException, CQLException {
     Filter filter = super.getFilter();
     if (archived) {
       filter =

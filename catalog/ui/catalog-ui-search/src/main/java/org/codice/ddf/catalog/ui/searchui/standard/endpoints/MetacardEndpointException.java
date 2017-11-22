@@ -11,23 +11,11 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.cache;
+package org.codice.ddf.catalog.ui.searchui.standard.endpoints;
 
-import ddf.catalog.data.Metacard;
-import ddf.catalog.source.UnsupportedQueryException;
-import java.io.IOException;
-import java.util.List;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.opengis.filter.Filter;
+public class MetacardEndpointException extends Exception {
 
-public interface SolrCacheMBean {
-
-  public static final String OBJECTNAME =
-      "ddf.catalog.cache.solr.impl.SolrCache:service=cache-manager";
-
-  void removeAll() throws IOException, SolrServerException;
-
-  void removeById(String[] ids) throws IOException, SolrServerException;
-
-  List<Metacard> query(Filter filter) throws UnsupportedQueryException;
+  public MetacardEndpointException(String message, Throwable cause) {
+    super(message, cause);
+  }
 }

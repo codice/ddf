@@ -25,8 +25,9 @@ import static org.mockito.Mockito.when;
 
 import ddf.action.Action;
 import ddf.catalog.data.Metacard;
-import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Collections;
 import org.codice.ddf.configuration.SystemBaseUrl;
@@ -87,7 +88,8 @@ public class AbstractMetacardActionProviderTest {
     }
 
     @Override
-    protected URL getMetacardActionUrl(String metacardSource, Metacard metacard) throws Exception {
+    protected URL getMetacardActionUrl(String metacardSource, Metacard metacard)
+        throws MalformedURLException, URISyntaxException, UnsupportedEncodingException {
       return new URL("https://localhost/action");
     }
   }
@@ -246,8 +248,8 @@ public class AbstractMetacardActionProviderTest {
 
           @Override
           protected URL getMetacardActionUrl(String metacardSource, Metacard metacard)
-              throws IOException {
-            throw new IOException();
+              throws MalformedURLException, URISyntaxException, UnsupportedEncodingException {
+            throw new MalformedURLException();
           }
         };
 

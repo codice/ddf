@@ -16,6 +16,9 @@ package org.codice.ddf.catalog.actions;
 import ddf.action.Action;
 import ddf.action.ActionProvider;
 import ddf.catalog.data.Metacard;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -140,7 +143,8 @@ public abstract class AbstractMetacardActionProvider implements ActionProvider {
    * @return new {@link Action} object. Cannot be {@code null}.
    * @throws Exception thrown if an error occurred while creating the {@link Action}
    */
-  protected Action getMetacardAction(String metacardSource, Metacard metacard) throws Exception {
+  protected Action getMetacardAction(String metacardSource, Metacard metacard)
+      throws MalformedURLException, URISyntaxException, UnsupportedEncodingException {
     URL url = getMetacardActionUrl(metacardSource, metacard);
     return createMetacardAction(actionProviderId, title, description, url);
   }
@@ -167,7 +171,7 @@ public abstract class AbstractMetacardActionProvider implements ActionProvider {
    * @throws Exception thrown if the {@link URL} couldn't be created
    */
   protected abstract URL getMetacardActionUrl(String metacardSource, Metacard metacard)
-      throws Exception;
+      throws MalformedURLException, URISyntaxException, UnsupportedEncodingException;
 
   private boolean isHostUnset(String host) {
     return (host == null || host.trim().equals(UNKNOWN_TARGET));

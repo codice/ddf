@@ -97,6 +97,12 @@ public class KMLTransformerImpl implements KMLTransformer {
 
   private static final String DESCRIPTION_TEMPLATE = "description";
 
+  private static final String POINT_TYPE = "Point";
+
+  private static final String LINES_STRING_TYPE = "LineString";
+
+  private static final String POLYGON_TYPE = "Polygon";
+
   private static final Logger LOGGER = LoggerFactory.getLogger(KMLTransformerImpl.class);
 
   protected static final MimeType KML_MIMETYPE = new MimeType();
@@ -154,7 +160,7 @@ public class KMLTransformerImpl implements KMLTransformer {
         JAXBElement<Kml> jaxbKmlStyle = unmarshaller.unmarshal(xmlStreamReader, Kml.class);
         Kml kml = jaxbKmlStyle.getValue();
         if (kml.getFeature() != null) {
-          defaultStyle = kml.getFeature().getStyleSelector();
+          defaultStyle.addAll(kml.getFeature().getStyleSelector());
         }
       }
     } catch (JAXBException | XMLStreamException e) {
@@ -318,7 +324,7 @@ public class KMLTransformerImpl implements KMLTransformer {
 
     com.vividsolutions.jts.geom.Geometry geo = readGeoFromWkt(wkt);
     Geometry kmlGeo = createKmlGeo(geo);
-    if (!Point.class.getSimpleName().equals(geo.getGeometryType())) {
+    if (!POINT_TYPE.equals(geo.getGeometryType())) {
       kmlGeo = addPointToKmlGeo(kmlGeo, geo.getCoordinate());
     }
     return kmlGeo;
@@ -327,11 +333,11 @@ public class KMLTransformerImpl implements KMLTransformer {
   private Geometry createKmlGeo(com.vividsolutions.jts.geom.Geometry geo)
       throws CatalogTransformerException {
     Geometry kmlGeo = null;
-    if (Point.class.getSimpleName().equals(geo.getGeometryType())) {
+    if (POINT_TYPE.equals(geo.getGeometryType())) {
       Point jtsPoint = (Point) geo;
       kmlGeo = KmlFactory.createPoint().addToCoordinates(jtsPoint.getX(), jtsPoint.getY());
 
-    } else if (LineString.class.getSimpleName().equals(geo.getGeometryType())) {
+    } else if (LINES_STRING_TYPE.equals(geo.getGeometryType())) {
       LineString jtsLS = (LineString) geo;
       de.micromata.opengis.kml.v_2_2_0.LineString kmlLS = KmlFactory.createLineString();
       List<Coordinate> kmlCoords = kmlLS.createAndSetCoordinates();
@@ -339,7 +345,7 @@ public class KMLTransformerImpl implements KMLTransformer {
         kmlCoords.add(new Coordinate(coord.x, coord.y));
       }
       kmlGeo = kmlLS;
-    } else if (Polygon.class.getSimpleName().equals(geo.getGeometryType())) {
+    } else if (POLYGON_TYPE.equals(geo.getGeometryType())) {
       Polygon jtsPoly = (Polygon) geo;
       de.micromata.opengis.kml.v_2_2_0.Polygon kmlPoly = KmlFactory.createPolygon();
       List<Coordinate> kmlCoords =

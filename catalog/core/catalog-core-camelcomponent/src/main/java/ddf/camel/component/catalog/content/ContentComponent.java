@@ -57,7 +57,7 @@ public class ContentComponent extends DefaultComponent {
     try {
       setProperties(endpoint, parameters);
     } catch (Exception e) {
-      throw new Exception("Failed to create content endpoint", e);
+      throw new ContentComponentException("Failed to create content endpoint", e);
     }
 
     LOGGER.trace("EXITING: createEndpoint");
