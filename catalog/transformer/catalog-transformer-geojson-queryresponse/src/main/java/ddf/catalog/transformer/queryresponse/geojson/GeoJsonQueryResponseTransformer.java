@@ -14,15 +14,16 @@
 package ddf.catalog.transformer.queryresponse.geojson;
 
 import ddf.catalog.data.BinaryContent;
+import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
 import ddf.catalog.transform.QueryResponseTransformer;
-import ddf.catalog.transformer.metacard.geojson.GeoJsonMetacardTransformer;
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import javax.activation.MimeType;
@@ -30,6 +31,8 @@ import javax.activation.MimeTypeParseException;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
+import net.minidev.json.parser.JSONParser;
+import net.minidev.json.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,15 +66,31 @@ public class GeoJsonQueryResponseTransformer implements QueryResponseTransformer
     }
   }
 
-  public static JSONObject convertToJSON(Result result) throws CatalogTransformerException {
+  private MetacardTransformer metacardTransformer;
+
+  private JSONObject convertToJSON(Result result) throws CatalogTransformerException {
     JSONObject rootObject = new JSONObject();
 
     addNonNullObject(rootObject, "distance", result.getDistanceInMeters());
     addNonNullObject(rootObject, "relevance", result.getRelevanceScore());
-    addNonNullObject(
-        rootObject, "metacard", GeoJsonMetacardTransformer.convertToJSON(result.getMetacard()));
+    addNonNullObject(rootObject, "metacard", processMetacard(result.getMetacard()));
 
     return rootObject;
+  }
+
+  private JSONObject processMetacard(Metacard metacard) throws CatalogTransformerException {
+    if (metacardTransformer == null) {
+      throw new CatalogTransformerException("No metacard transformer with id=geojson is available");
+    }
+
+    BinaryContent rawContent = metacardTransformer.transform(metacard, null);
+    JSONParser jsonParser = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE);
+    try {
+      return (JSONObject) jsonParser.parse(rawContent.getInputStream());
+    } catch (ParseException | UnsupportedEncodingException e) {
+      throw new CatalogTransformerException(
+          "Unable to parse transformed metacard content as JSON", e);
+    }
   }
 
   private static void addNonNullObject(JSONObject obj, String name, Object value) {
@@ -124,5 +143,9 @@ public class GeoJsonQueryResponseTransformer implements QueryResponseTransformer
         + ", MIME Type="
         + DEFAULT_MIME_TYPE
         + "}";
+  }
+
+  public void setMetacardTransformer(MetacardTransformer metacardTransformer) {
+    this.metacardTransformer = metacardTransformer;
   }
 }

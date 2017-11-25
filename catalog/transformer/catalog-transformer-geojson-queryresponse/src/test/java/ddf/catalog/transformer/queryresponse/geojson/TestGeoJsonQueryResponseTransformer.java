@@ -70,9 +70,24 @@ public class TestGeoJsonQueryResponseTransformer {
 
   private static final Date NOW = new Date();
 
+  private GeoJsonQueryResponseTransformer geoJsonQueryResponseTransformer;
+
+  public TestGeoJsonQueryResponseTransformer() {
+    this.geoJsonQueryResponseTransformer = new GeoJsonQueryResponseTransformer();
+    this.geoJsonQueryResponseTransformer.setMetacardTransformer(new GeoJsonMetacardTransformer());
+  }
+
+  @Test(expected = CatalogTransformerException.class)
+  public void testNullMetacardTransformer() throws CatalogTransformerException {
+    GeoJsonQueryResponseTransformer geoJsonQueryResponseTransformer =
+        new GeoJsonQueryResponseTransformer();
+    SourceResponse sourceResponse = setupResponse(2, 2L);
+    BinaryContent content = geoJsonQueryResponseTransformer.transform(sourceResponse, null);
+  }
+
   @Test(expected = CatalogTransformerException.class)
   public void testNullResponse() throws CatalogTransformerException {
-    new GeoJsonQueryResponseTransformer().transform(null, null);
+    geoJsonQueryResponseTransformer.transform(null, null);
   }
 
   @Test
@@ -90,7 +105,7 @@ public class TestGeoJsonQueryResponseTransformer {
     results.add(null);
 
     SourceResponse sourceResponse = new SourceResponseImpl(null, results, 2L);
-    new GeoJsonQueryResponseTransformer().transform(sourceResponse, null);
+    geoJsonQueryResponseTransformer.transform(sourceResponse, null);
   }
 
   @Test(expected = CatalogTransformerException.class)
@@ -102,7 +117,7 @@ public class TestGeoJsonQueryResponseTransformer {
     results.add(result);
 
     SourceResponse sourceResponse = new SourceResponseImpl(null, results, 1L);
-    new GeoJsonQueryResponseTransformer().transform(sourceResponse, null);
+    geoJsonQueryResponseTransformer.transform(sourceResponse, null);
   }
 
   @Test
@@ -119,7 +134,7 @@ public class TestGeoJsonQueryResponseTransformer {
   private JSONObject transform(SourceResponse sourceResponse)
       throws CatalogTransformerException, IOException, ParseException {
 
-    BinaryContent content = new GeoJsonQueryResponseTransformer().transform(sourceResponse, null);
+    BinaryContent content = geoJsonQueryResponseTransformer.transform(sourceResponse, null);
 
     assertEquals(
         content.getMimeTypeValue(),
