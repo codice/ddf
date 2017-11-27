@@ -53,7 +53,6 @@ import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -88,6 +87,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 import org.apache.ws.commons.schema.XmlSchema;
+import org.codice.ddf.configuration.DictionaryMap;
 import org.codice.ddf.cxf.SecureCxfClientFactory;
 import org.codice.ddf.libs.geo.util.GeospatialUtil;
 import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
@@ -696,7 +696,7 @@ public class WfsSource extends MaskableImpl
                 : new ArrayList<String>(),
             Wfs20Constants.GML_3_2_NAMESPACE);
 
-    Dictionary<String, Object> props = new Hashtable<String, Object>();
+    Dictionary<String, Object> props = new DictionaryMap<>();
     props.put(Metacard.CONTENT_TYPE, new String[] {ftName});
 
     LOGGER.debug("WfsSource {}: Registering MetacardType: {}", getId(), ftName);
@@ -1314,7 +1314,7 @@ public class WfsSource extends MaskableImpl
   private void debugResult(Result result) {
     if (LOGGER.isDebugEnabled()) {
       if (result != null && result.getMetacard() != null) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append("\nid:\t" + result.getMetacard().getId());
         sb.append("\nmetacardType:\t" + result.getMetacard().getMetacardType());
         if (result.getMetacard().getMetacardType() != null) {

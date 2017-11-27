@@ -19,7 +19,6 @@ import ddf.security.assertion.SecurityAssertion;
 import java.security.Principal;
 import java.util.Dictionary;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,6 +29,7 @@ import javax.inject.Inject;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
 import org.codice.ddf.activities.ActivityEvent;
+import org.codice.ddf.configuration.DictionaryMap;
 import org.codice.ddf.persistence.PersistentStore;
 import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.cometd.annotation.Listener;
@@ -75,7 +75,7 @@ public abstract class AbstractEventController implements EventHandler {
    */
   public AbstractEventController(
       PersistentStore persistentStore, BundleContext bundleContext, EventAdmin eventAdmin) {
-    Dictionary<String, Object> dictionary = new Hashtable<String, Object>();
+    Dictionary<String, Object> dictionary = new DictionaryMap<>();
     dictionary.put(EventConstants.EVENT_TOPIC, getControllerRootTopic());
 
     bundleContext.registerService(EventHandler.class.getName(), this, dictionary);

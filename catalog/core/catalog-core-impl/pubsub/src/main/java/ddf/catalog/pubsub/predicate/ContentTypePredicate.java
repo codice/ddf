@@ -81,7 +81,7 @@ public class ContentTypePredicate implements Predicate {
   }
 
   public String toString() {
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
     sb.append("\tcontentType = " + this.type + " version = " + this.version + "\n");
 
     return sb.toString();

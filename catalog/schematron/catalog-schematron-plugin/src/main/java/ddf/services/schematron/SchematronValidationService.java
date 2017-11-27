@@ -32,7 +32,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.Vector;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -102,8 +101,6 @@ public class SchematronValidationService
   private static final XMLUtils XML_UTILS = XMLUtils.getInstance();
 
   private TransformerFactory transformerFactory;
-
-  private Vector<String> warnings;
 
   private int priority = 10;
 
@@ -222,9 +219,6 @@ public class SchematronValidationService
       throws TransformerException, ParserConfigurationException, SchematronInitializationException {
 
     Source preprocessorSource = new StreamSource(preprocessorUrl.toString());
-
-    // Initialize container for warnings we may receive during transformation of input
-    warnings = new Vector<>();
 
     Transformer transformer = transformerFactory.newTransformer(preprocessorSource);
 
@@ -441,7 +435,7 @@ public class SchematronValidationService
    */
   private class Listener implements ErrorListener {
     public void warning(TransformerException e) throws TransformerException {
-      warnings.add(e.getMessage());
+      LOGGER.debug("Schematron rule transformation warning", e);
     }
 
     public void error(TransformerException e) throws TransformerException {

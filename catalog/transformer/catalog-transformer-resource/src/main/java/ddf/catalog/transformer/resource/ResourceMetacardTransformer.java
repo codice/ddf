@@ -91,13 +91,7 @@ public class ResourceMetacardTransformer implements MetacardTransformer {
 
     try {
       resourceResponse = catalogFramework.getResource(resourceRequest, sourceName);
-    } catch (IOException e) {
-      throw new CatalogTransformerException(
-          retrieveResourceFailureMessage(id, sourceName, resourceUriAscii, e.getMessage()), e);
-    } catch (ResourceNotFoundException e) {
-      throw new CatalogTransformerException(
-          retrieveResourceFailureMessage(id, sourceName, resourceUriAscii, e.getMessage()), e);
-    } catch (ResourceNotSupportedException e) {
+    } catch (IOException | ResourceNotFoundException | ResourceNotSupportedException e) {
       throw new CatalogTransformerException(
           retrieveResourceFailureMessage(id, sourceName, resourceUriAscii, e.getMessage()), e);
     }
@@ -161,7 +155,7 @@ public class ResourceMetacardTransformer implements MetacardTransformer {
 
   private String retrieveResourceFailureMessage(
       final String id, final String sourceId, final String resourceUri, final String details) {
-    StringBuffer msg = new StringBuffer("Unable to retrieve resource.");
+    StringBuilder msg = new StringBuilder("Unable to retrieve resource.");
     msg.append("\n\tMetacard id: " + (id == null ? "" : id));
     msg.append("\n\tUri: " + (resourceUri == null ? "" : resourceUri));
     msg.append("\n\tSource: " + (sourceId == null ? "" : sourceId));

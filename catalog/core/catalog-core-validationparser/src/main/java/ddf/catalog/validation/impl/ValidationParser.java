@@ -51,7 +51,6 @@ import java.util.Date;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -71,6 +70,7 @@ import org.boon.core.value.ValueList;
 import org.boon.json.JsonFactory;
 import org.boon.json.ObjectMapper;
 import org.boon.json.annotations.JsonIgnore;
+import org.codice.ddf.configuration.DictionaryMap;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -352,7 +352,7 @@ public class ValidationParser implements ArtifactInstaller {
             });
       }
 
-      Dictionary<String, Object> properties = new Hashtable<>();
+      Dictionary<String, Object> properties = new DictionaryMap<>();
       properties.put(NAME_PROPERTY, metacardType.type);
       MetacardType type = new MetacardTypeImpl(metacardType.type, attributeDescriptors);
       staged.add(

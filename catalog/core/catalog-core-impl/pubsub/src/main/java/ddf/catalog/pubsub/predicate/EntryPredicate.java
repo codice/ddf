@@ -118,7 +118,7 @@ public class EntryPredicate implements Predicate {
   }
 
   public String toString() {
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
     sb.append("\tcatalogId = " + catalogId + "\n");
     sb.append("\tdad = " + productUri + "\n");
 

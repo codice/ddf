@@ -26,13 +26,13 @@ import ddf.catalog.source.Source;
 import ddf.catalog.source.SourceDescriptor;
 import ddf.catalog.source.SourceUnavailableException;
 import java.io.IOException;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import javax.management.NotCompliantMBeanException;
+import org.codice.ddf.configuration.DictionaryMap;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
@@ -184,7 +184,7 @@ public class CatalogBundle {
     return source;
   }
 
-  public CatalogFramework getCatalogFramework() throws InterruptedException {
+  public CatalogFramework getCatalogFramework() {
     LOGGER.info("getting framework");
 
     CatalogFramework catalogFramework = null;
@@ -204,9 +204,9 @@ public class CatalogBundle {
       properties =
           Optional.ofNullable(
                   adminConfig.getAdminConsoleService().getProperties(CATALOG_FRAMEWORK_PID))
-              .orElse(new Hashtable<>());
+              .orElse(new DictionaryMap<>());
     } catch (NotCompliantMBeanException e) {
-      properties = new Hashtable<>();
+      properties = new DictionaryMap<>();
     }
 
     if (fanoutEnabled) {
@@ -224,9 +224,9 @@ public class CatalogBundle {
       properties =
           Optional.ofNullable(
                   adminConfig.getAdminConsoleService().getProperties(CATALOG_FRAMEWORK_PID))
-              .orElse(new Hashtable<>());
+              .orElse(new DictionaryMap<>());
     } catch (NotCompliantMBeanException e) {
-      properties = new Hashtable<>();
+      properties = new DictionaryMap<>();
     }
 
     if (blacklist != null) {
@@ -258,11 +258,11 @@ public class CatalogBundle {
     try {
       existingProperties =
           Optional.ofNullable(adminConfig.getAdminConsoleService().getProperties(pid))
-              .orElse(new Hashtable<>());
+              .orElse(new DictionaryMap<>());
     } catch (NotCompliantMBeanException e) {
-      existingProperties = new Hashtable<>();
+      existingProperties = new DictionaryMap<>();
     }
-    Hashtable<String, Object> updatedProperties = new Hashtable<>();
+    DictionaryMap<String, Object> updatedProperties = new DictionaryMap<>();
     updatedProperties.putAll(existingProperties);
 
     updatedProperties.put(propertyName, propertyValue);

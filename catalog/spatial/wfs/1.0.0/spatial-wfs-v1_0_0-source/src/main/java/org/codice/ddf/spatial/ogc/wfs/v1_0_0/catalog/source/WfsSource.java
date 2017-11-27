@@ -53,7 +53,6 @@ import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -82,6 +81,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 import org.apache.ws.commons.schema.XmlSchema;
+import org.codice.ddf.configuration.DictionaryMap;
 import org.codice.ddf.cxf.SecureCxfClientFactory;
 import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.codice.ddf.spatial.ogc.catalog.MetadataTransformer;
@@ -528,7 +528,7 @@ public class WfsSource extends MaskableImpl
                       : new ArrayList<>(),
                   Wfs10Constants.GML_NAMESPACE);
 
-          Dictionary<String, Object> props = new Hashtable<>();
+          Dictionary<String, Object> props = new DictionaryMap<>();
           props.put(Metacard.CONTENT_TYPE, new String[] {ftName});
 
           LOGGER.debug("WfsSource {}: Registering MetacardType: {}", getId(), ftName);

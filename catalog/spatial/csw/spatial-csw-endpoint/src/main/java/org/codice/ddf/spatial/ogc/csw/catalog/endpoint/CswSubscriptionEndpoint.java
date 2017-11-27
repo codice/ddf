@@ -28,7 +28,6 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -55,6 +54,7 @@ import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.ObjectFactory;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.configuration.DictionaryMap;
 import org.codice.ddf.platform.util.TransformerProperties;
 import org.codice.ddf.platform.util.XMLUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
@@ -437,7 +437,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
     }
     CswSubscription sub = createSubscription(request);
 
-    Dictionary<String, String> props = new Hashtable<>();
+    Dictionary<String, String> props = new DictionaryMap<>();
     props.put("subscription-id", subscriptionUuid);
     props.put("event-endpoint", request.getResponseHandler().get(0));
 
@@ -547,7 +547,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
             getConfigAdmin()
                 .createFactoryConfiguration(CswSubscriptionConfigFactory.FACTORY_PID, null);
 
-        Dictionary<String, String> props = new Hashtable<>();
+        Dictionary<String, String> props = new DictionaryMap<>();
         props.put(CswSubscriptionConfigFactory.SUBSCRIPTION_ID, subscriptionUuid);
         props.put(CswSubscriptionConfigFactory.FILTER_XML, filterXml);
         props.put(CswSubscriptionConfigFactory.DELIVERY_METHOD_URL, deliveryMethodUrl);

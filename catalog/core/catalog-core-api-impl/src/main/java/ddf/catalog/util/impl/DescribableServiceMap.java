@@ -18,9 +18,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
+import org.codice.ddf.configuration.DictionaryMap;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -46,7 +46,7 @@ public class DescribableServiceMap<V extends Describable> implements Map<String,
   public DescribableServiceMap() {
     String[] topics = new String[] {"org/osgi/framework/ServiceEvent/MODIFIED"};
 
-    Dictionary props = new Hashtable();
+    Dictionary props = new DictionaryMap();
     props.put(EventConstants.EVENT_TOPIC, topics);
     BundleContext context = getContext();
     if (context != null) {

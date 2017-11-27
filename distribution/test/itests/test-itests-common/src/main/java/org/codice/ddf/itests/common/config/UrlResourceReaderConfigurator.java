@@ -16,8 +16,8 @@ package org.codice.ddf.itests.common.config;
 import com.google.common.collect.ImmutableSet;
 import java.io.IOException;
 import java.util.Dictionary;
-import java.util.Hashtable;
 import java.util.Set;
+import org.codice.ddf.configuration.DictionaryMap;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
@@ -37,12 +37,11 @@ public class UrlResourceReaderConfigurator {
 
   public void setUrlResourceReaderRootDirs(String... rootResourceDirs) throws IOException {
     Configuration configuration = configAdmin.getConfiguration(PID, null);
-    Dictionary<String, Object> properties = new Hashtable<String, Object>();
+    Dictionary<String, Object> properties = new DictionaryMap<>();
     Set<String> rootResourceDirectories =
         ImmutableSet.<String>builder().add(rootResourceDirs).build();
     properties.put("rootResourceDirectories", rootResourceDirectories);
     configuration.update(properties);
-    LOGGER.info(
-        "URLResourceReader props after update: {}", configuration.getProperties().toString());
+    LOGGER.info("URLResourceReader props after update: {}", configuration.getProperties());
   }
 }

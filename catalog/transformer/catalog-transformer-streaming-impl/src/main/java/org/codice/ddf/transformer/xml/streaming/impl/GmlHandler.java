@@ -25,11 +25,12 @@ import ddf.catalog.data.impl.types.ValidationAttributes;
 import ddf.catalog.data.types.Validation;
 import ddf.catalog.validation.ValidationException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.Stack;
 import javax.xml.stream.XMLStreamException;
 import org.codice.ddf.transformer.xml.streaming.AbstractSaxEventHandler;
 import org.codice.ddf.transformer.xml.streaming.Gml3ToWkt;
@@ -67,7 +68,7 @@ public class GmlHandler extends AbstractSaxEventHandler {
 
   private Gml3ToWkt gml3Converter;
 
-  private Stack<String> state;
+  private Deque<String> state;
 
   private SaxEventHandlerUtils saxEventHandlerUtils = new SaxEventHandlerUtils();
 
@@ -86,7 +87,7 @@ public class GmlHandler extends AbstractSaxEventHandler {
     } catch (UnsupportedEncodingException | XMLStreamException e) {
       LOGGER.debug("Error constructing new SaxEventToXmlElementConverter()", e);
     }
-    state = new Stack<>();
+    state = new ArrayDeque<>();
   }
 
   /** @return list of {@link Attribute} (should be all <Metacard.GEOGRAPHY, WKT strings>) */
@@ -178,7 +179,7 @@ public class GmlHandler extends AbstractSaxEventHandler {
         }
       }
       state.pop();
-      if (state.size() == 0) {
+      if (state.isEmpty()) {
         readingGml = false;
         if (!readingGml3) {
           Geometry geo = gh.getGeometry();

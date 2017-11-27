@@ -74,7 +74,7 @@ public class Wfs20JTStoGML321Converter {
   public static LineStringType convertToLineStringType(LineString line, String srsName) {
     LineStringType lineStringType = GML320_OBJECT_FACTORY.createLineStringType();
     CoordinatesType coordinatesType = GML320_OBJECT_FACTORY.createCoordinatesType();
-    StringBuffer stringBuffer = new StringBuffer();
+    StringBuilder stringBuffer = new StringBuilder();
     for (int i = 0; i < line.getCoordinateSequence().size(); i++) {
       Coordinate coordinate = line.getCoordinateSequence().getCoordinate(i);
       if (i != 0) {

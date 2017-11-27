@@ -16,10 +16,10 @@ package ddf.catalog.services.xsltlistener;
 import ddf.catalog.Constants;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.codice.ddf.configuration.DictionaryMap;
 import org.ops4j.pax.swissbox.extender.BundleObserver;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -45,7 +45,7 @@ public class XsltBundleObserver<T extends AbstractXsltTransformer>
     this.publishedInterface = publishedInterface;
 
     this.bundleContext = bundleContext;
-    this.serviceRegistrationMap = new ConcurrentHashMap<Bundle, List<ServiceRegistration>>();
+    this.serviceRegistrationMap = new ConcurrentHashMap<>();
   }
 
   @Override
@@ -53,8 +53,8 @@ public class XsltBundleObserver<T extends AbstractXsltTransformer>
     for (String fileName : resources) {
       // extract the format from the file name
       File file = new File(fileName);
-      String format = file.getName().substring(0, file.getName().lastIndexOf("."));
-      Hashtable<String, String> properties = new Hashtable<String, String>();
+      String format = file.getName().substring(0, file.getName().lastIndexOf('.'));
+      DictionaryMap<String, String> properties = new DictionaryMap<>();
 
       LOGGER.debug("Found started bundle with name: {}", fileName);
 
@@ -89,7 +89,7 @@ public class XsltBundleObserver<T extends AbstractXsltTransformer>
       } else {
         // if it's not in the map, make the initial list and put it in
         // the map
-        List<ServiceRegistration> srList = new ArrayList<ServiceRegistration>();
+        List<ServiceRegistration> srList = new ArrayList<>();
         srList.add(sr);
         serviceRegistrationMap.put(bundle, srList);
       }
