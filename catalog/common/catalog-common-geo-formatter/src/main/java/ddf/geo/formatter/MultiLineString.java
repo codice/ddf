@@ -42,6 +42,11 @@ public class MultiLineString extends LineString {
   }
 
   @Override
+  protected boolean isNotType(Geometry geo) {
+    return !TYPE.equals(geo.getGeometryType());
+  }
+
+  @Override
   public Map toJsonMap() {
 
     List overallCoordsList = new ArrayList();

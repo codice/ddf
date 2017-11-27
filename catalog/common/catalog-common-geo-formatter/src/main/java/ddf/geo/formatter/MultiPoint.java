@@ -40,6 +40,11 @@ public class MultiPoint extends Point {
   }
 
   @Override
+  protected boolean isNotType(Geometry geo) {
+    return !TYPE.equals(geo.getGeometryType());
+  }
+
+  @Override
   public Map toJsonMap() {
 
     return createMap(COORDINATES_KEY, buildCoordinatesList(geometry.getCoordinates()));

@@ -41,6 +41,11 @@ public class LineString extends MultiPoint {
   }
 
   @Override
+  protected boolean isNotType(Geometry geo) {
+    return !TYPE.equals(geo.getGeometryType());
+  }
+
+  @Override
   public List<Position> toGeoRssPositions() {
 
     Coordinates coordinates = getLineStringCoordinates(geometry);

@@ -39,6 +39,11 @@ public class MultiPolygon extends Polygon {
   }
 
   @Override
+  protected boolean isNotType(Geometry geo) {
+    return !TYPE.equals(geo.getGeometryType());
+  }
+
+  @Override
   public Map toJsonMap() {
     Map map = new HashMap();
 
