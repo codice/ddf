@@ -132,7 +132,7 @@ public class ContextualPredicate implements Predicate {
       }
 
       // Pass thru the last literal double quote
-      if (inputPhrase.lastIndexOf("\"") == inputPhrase.length() - 1) {
+      if (inputPhrase.lastIndexOf('"') == inputPhrase.length() - 1) {
         phrase = phrase + "\"";
       }
 

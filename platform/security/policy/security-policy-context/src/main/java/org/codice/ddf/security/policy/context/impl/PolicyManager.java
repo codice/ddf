@@ -235,8 +235,8 @@ public class PolicyManager implements ContextPolicyManager {
       }
 
       for (String attr : attrContextList) {
-        String context = attr.substring(0, attr.indexOf("="));
-        String value = attr.substring(attr.indexOf("=") + 1);
+        String context = attr.substring(0, attr.indexOf('='));
+        String value = attr.substring(attr.indexOf('=') + 1);
         if (StringUtils.isNotEmpty(context) && value != null) {
           if (value.startsWith("{") && value.endsWith("}")) {
             if (value.length() == 2) {
@@ -448,7 +448,7 @@ public class PolicyManager implements ContextPolicyManager {
       }
       return path;
     } else {
-      int idx = path.lastIndexOf("/");
+      int idx = path.lastIndexOf('/');
       if (idx <= 0) {
         idx++;
       }
