@@ -334,7 +334,7 @@ public class RrdMetricsRetriever implements MetricsRetriever {
 
     for (int i = 0; i < timestamps.size(); i++) {
       String timestamp = getCalendarTime(timestamps.get(i));
-      csv.append(timestamp + "," + new Double(values.get(i)) + "\n");
+      csv.append(timestamp + "," + values.get(i) + "\n");
     }
 
     LOGGER.trace("csv = {}", csv);
@@ -507,7 +507,7 @@ public class RrdMetricsRetriever implements MetricsRetriever {
       String timestamp = getCalendarTime(timestamps.get(i));
       JSONObject sample = new JSONObject();
       sample.put("timestamp", timestamp);
-      sample.put("value", new Double(values.get(i)));
+      sample.put("value", values.get(i));
       samples.add(sample);
     }
     obj.put("data", samples);

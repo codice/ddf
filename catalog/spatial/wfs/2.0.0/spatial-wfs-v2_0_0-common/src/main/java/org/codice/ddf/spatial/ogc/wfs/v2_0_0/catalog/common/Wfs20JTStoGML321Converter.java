@@ -50,12 +50,12 @@ public class Wfs20JTStoGML321Converter {
   public static DirectPositionType convertToDirectPositionType(
       Coordinate coordinate, String srsName) {
     DirectPositionType directPositionType = GML320_OBJECT_FACTORY.createDirectPositionType();
-    directPositionType.getValue().add(new Double(coordinate.x));
-    directPositionType.getValue().add(new Double(coordinate.y));
+    directPositionType.getValue().add(Double.valueOf(coordinate.x));
+    directPositionType.getValue().add(Double.valueOf(coordinate.y));
     directPositionType.setSrsName(srsName);
 
     if (!Double.isNaN(coordinate.z)) {
-      directPositionType.getValue().add(new Double(coordinate.z));
+      directPositionType.getValue().add(Double.valueOf(coordinate.z));
     }
     return directPositionType;
   }
