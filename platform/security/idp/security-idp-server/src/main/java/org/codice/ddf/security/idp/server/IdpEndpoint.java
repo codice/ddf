@@ -946,6 +946,7 @@ public class IdpEndpoint implements Idp {
             nameIdFormats,
             SystemBaseUrl.constructUrl("/idp/login", true),
             SystemBaseUrl.constructUrl("/idp/login", true),
+            SystemBaseUrl.constructUrl("/idp/login", true),
             SystemBaseUrl.constructUrl("/idp/logout", true));
     Document doc = DOMUtils.createDocument();
     doc.appendChild(doc.createElement("root"));
