@@ -96,7 +96,6 @@ public abstract class AbstractExpansion implements Expansion {
    */
   @Override
   public Set<String> expand(String key, Set<String> values) {
-    Set<String> result;
     // if there's nothing to expand, just return
     if ((values == null) || (values.isEmpty())) {
       return values;
@@ -128,7 +127,7 @@ public abstract class AbstractExpansion implements Expansion {
      * expression to search for and the replacement value. The replacement value can be empty in
      * which case the found value is deleted.
      */
-    result = values;
+
     String original;
     String expandedValue;
     Set<String> temp;

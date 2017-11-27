@@ -149,7 +149,6 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
   /** Perform authentication based on the supplied token. */
   @Override
   protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) {
-    String method = "doGetAuthenticationInfo(    AuthenticationToken token )";
     Object credential;
 
     if (token instanceof SAMLAuthenticationToken) {

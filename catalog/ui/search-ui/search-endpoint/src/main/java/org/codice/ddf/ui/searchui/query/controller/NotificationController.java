@@ -193,15 +193,6 @@ public class NotificationController extends AbstractEventController {
       throw new IllegalArgumentException("ServerMessage is null");
     }
 
-    Subject subject = null;
-    try {
-      subject = SecurityUtils.getSubject();
-    } catch (Exception e) {
-      LOGGER.debug("Couldn't grab user subject from Shiro.", e);
-    }
-
-    String userId = getUserId(serverSession, subject);
-
     Map<String, Object> dataAsMap = serverMessage.getDataAsMap();
     if (dataAsMap != null) {
       Object[] notifications = (Object[]) dataAsMap.get("data");

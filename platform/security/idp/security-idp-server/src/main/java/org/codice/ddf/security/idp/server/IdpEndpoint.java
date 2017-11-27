@@ -1204,7 +1204,6 @@ public class IdpEndpoint implements Idp {
                 status,
                 logoutState.getOriginalRequestId());
         relay = logoutState.getInitialRelayState();
-        LogoutState decode = logoutStates.decode(cookie.getValue(), true);
         samlType = SamlProtocol.Type.RESPONSE;
       }
 

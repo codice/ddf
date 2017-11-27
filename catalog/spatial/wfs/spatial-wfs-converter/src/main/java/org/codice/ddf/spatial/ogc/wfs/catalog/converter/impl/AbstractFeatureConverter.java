@@ -380,7 +380,6 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
 
     if (processingChildNode) {
       reader.moveUp();
-      processingChildNode = false;
     }
     LOGGER.debug("node name: {}", reader.getNodeName());
     return date;

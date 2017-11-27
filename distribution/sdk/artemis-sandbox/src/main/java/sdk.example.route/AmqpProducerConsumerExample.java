@@ -57,7 +57,7 @@ public class AmqpProducerConsumerExample extends RouteBuilder {
     onException(Throwable.class).logStackTrace(true);
 
     createCamelContext();
-    CamelContext camelContext = getContext();
+
     from("timer:simple")
         .process(
             new Processor() {

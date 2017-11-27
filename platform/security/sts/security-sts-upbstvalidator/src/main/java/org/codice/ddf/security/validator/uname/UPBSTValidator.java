@@ -232,7 +232,6 @@ public class UPBSTValidator implements TokenValidator {
     //
     // Validate the token
     //
-    WSSConfig wssConfig = WSSConfig.getNewInstance();
     try {
       boolean allowNamespaceQualifiedPasswordTypes =
           requestData.isAllowNamespaceQualifiedPasswordTypes();
@@ -354,7 +353,7 @@ public class UPBSTValidator implements TokenValidator {
     password.setValue(token.getPassword());
     password.setType(WSConstants.PASSWORD_TEXT);
     JAXBElement<PasswordString> passwordType =
-        new JAXBElement<PasswordString>(QNameConstants.PASSWORD, PasswordString.class, password);
+        new JAXBElement<>(QNameConstants.PASSWORD, PasswordString.class, password);
     usernameTokenType.getAny().add(passwordType);
 
     return usernameTokenType;

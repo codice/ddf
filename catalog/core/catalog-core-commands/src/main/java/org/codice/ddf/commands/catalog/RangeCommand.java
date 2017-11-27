@@ -102,9 +102,8 @@ public class RangeCommand extends CatalogCommands {
     Filter filter;
 
     Date wayInTheFuture = new DateTime().plusYears(5000).toDate();
-    Date wayInThePast = new DateTime().minusYears(5000).toDate();
     Date endDate = wayInTheFuture;
-    Date startDate = wayInThePast;
+    Date startDate;
 
     SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
 
