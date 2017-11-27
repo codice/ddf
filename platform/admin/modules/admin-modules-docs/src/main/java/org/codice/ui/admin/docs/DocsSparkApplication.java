@@ -44,7 +44,7 @@ public class DocsSparkApplication implements SparkApplication {
 
   public File getDocumentationHtml() {
 
-    if (!Files.exists(Paths.get(DOCS_ROOT_DIR))) {
+    if (!Paths.get(DOCS_ROOT_DIR).toFile().exists()) {
       return null;
     }
 
