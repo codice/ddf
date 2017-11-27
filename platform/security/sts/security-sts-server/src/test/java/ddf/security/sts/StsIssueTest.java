@@ -115,7 +115,6 @@ import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.SamlAssertionWrapper;
 import org.apache.wss4j.common.token.X509Security;
 import org.apache.wss4j.dom.WSConstants;
-import org.apache.wss4j.dom.WSDocInfo;
 import org.apache.wss4j.dom.engine.WSSConfig;
 import org.apache.wss4j.dom.engine.WSSecurityEngineResult;
 import org.apache.wss4j.dom.handler.RequestData;
@@ -414,8 +413,7 @@ public class StsIssueTest {
     requestData.setSigVerCrypto(crypto);
 
     Processor processor = new SAMLTokenProcessor();
-    return processor.handleToken(
-        token.getToken(), requestData, new WSDocInfo(token.getToken().getOwnerDocument()));
+    return processor.handleToken(token.getToken(), requestData);
   }
 
   // Enum defining the Port Types

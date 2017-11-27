@@ -28,8 +28,8 @@ import ddf.security.assertion.SecurityAssertion;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.UUID;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
@@ -76,7 +76,7 @@ public class RestSecurityTest {
     Subject subject = mock(Subject.class);
     SecurityAssertion assertion = mock(SecurityAssertion.class);
     SecurityToken token =
-        new SecurityToken(UUID.randomUUID().toString(), samlToken, new Date(), new Date());
+        new SecurityToken(UUID.randomUUID().toString(), samlToken, Instant.now(), Instant.now());
     when(assertion.getSecurityToken()).thenReturn(token);
     when(subject.getPrincipals()).thenReturn(new SimplePrincipalCollection(assertion, "sts"));
     WebClient client = WebClient.create("https://example.org");
@@ -98,7 +98,7 @@ public class RestSecurityTest {
     Subject subject = mock(Subject.class);
     SecurityAssertion assertion = mock(SecurityAssertion.class);
     SecurityToken token =
-        new SecurityToken(UUID.randomUUID().toString(), samlToken, new Date(), new Date());
+        new SecurityToken(UUID.randomUUID().toString(), samlToken, Instant.now(), Instant.now());
     when(assertion.getSecurityToken()).thenReturn(token);
     when(subject.getPrincipals()).thenReturn(new SimplePrincipalCollection(assertion, "sts"));
     WebClient client = WebClient.create("http://example.org");

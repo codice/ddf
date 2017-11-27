@@ -82,8 +82,13 @@ public final class SecurityAssertionStore {
                 new SecurityToken(
                     id,
                     samlAssertionWrapper.getElement(),
-                    samlAssertionWrapper.getSaml2().getIssueInstant().toDate(),
-                    samlAssertionWrapper.getSaml2().getConditions().getNotOnOrAfter().toDate());
+                    samlAssertionWrapper.getSaml2().getIssueInstant().toDate().toInstant(),
+                    samlAssertionWrapper
+                        .getSaml2()
+                        .getConditions()
+                        .getNotOnOrAfter()
+                        .toDate()
+                        .toInstant());
           } else {
             // we don't know how long this should last or when it was created, so just
             // set it to 1 minute
@@ -94,8 +99,8 @@ public final class SecurityAssertionStore {
                 new SecurityToken(
                     id,
                     samlAssertionWrapper.getElement(),
-                    date,
-                    new Date(date.getTime() + TimeUnit.MINUTES.toMillis(1)));
+                    date.toInstant(),
+                    new Date(date.getTime() + TimeUnit.MINUTES.toMillis(1)).toInstant());
           }
           tokenStore.add(token);
         }

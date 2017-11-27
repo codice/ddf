@@ -212,7 +212,7 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet implements 
     // does some class resolution
     ClassLoader oldTccl = overrideTccl(exchange);
     HttpHelper.setCharsetFromContentType(request.getContentType(), exchange);
-    exchange.setIn(new HttpMessage(exchange, request, response));
+    exchange.setIn(new HttpMessage(exchange, consumer.getEndpoint(), request, response));
     // set context path as header
     String contextPath = consumer.getEndpoint().getPath();
     exchange.getIn().setHeader("CamelServletContextPath", contextPath);

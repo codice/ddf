@@ -33,13 +33,13 @@ import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.apache.wss4j.common.saml.SAMLKeyInfo;
 import org.apache.wss4j.common.saml.SAMLUtil;
-import org.apache.wss4j.dom.WSDocInfo;
 import org.apache.wss4j.dom.engine.WSSConfig;
 import org.apache.wss4j.dom.handler.RequestData;
 import org.apache.wss4j.dom.saml.WSSSAMLKeyInfoProcessor;
 import org.apache.wss4j.dom.validate.Credential;
 import org.apache.wss4j.dom.validate.SignatureTrustValidator;
 import org.apache.wss4j.dom.validate.Validator;
+import org.apache.xml.security.signature.XMLSignature;
 import org.opensaml.saml.common.SAMLObjectContentReference;
 import org.opensaml.saml.common.SignableSAMLObject;
 import org.opensaml.saml.saml2.core.Assertion;
@@ -151,7 +151,7 @@ public class SimpleSign {
       throws SignatureException {
     String jceSigAlgo = "SHA1withRSA";
     if ("DSA".equalsIgnoreCase(certificate.getPublicKey().getAlgorithm())) {
-      jceSigAlgo = "SHA1withDSA";
+      jceSigAlgo = "SHA256withDSA";
     }
 
     java.security.Signature signature;
@@ -173,7 +173,7 @@ public class SimpleSign {
     String pubKeyAlgo = certificate.getPublicKey().getAlgorithm();
 
     if (pubKeyAlgo.equalsIgnoreCase("DSA")) {
-      sigAlgo = SSOConstants.DSA_SHA1;
+      sigAlgo = XMLSignature.ALGO_ID_SIGNATURE_DSA_SHA256;
     }
 
     LOGGER.debug("Using Signature algorithm {}", sigAlgo);
@@ -230,7 +230,7 @@ public class SimpleSign {
 
       String jceSigAlgo = "SHA1withRSA";
       if ("DSA".equalsIgnoreCase(certificate.getPublicKey().getAlgorithm())) {
-        jceSigAlgo = "SHA1withDSA";
+        jceSigAlgo = "SHA256withDSA";
       }
 
       java.security.Signature sig = java.security.Signature.getInstance(jceSigAlgo);
@@ -261,7 +261,7 @@ public class SimpleSign {
         samlKeyInfo =
             SAMLUtil.getCredentialFromKeyInfo(
                 keyInfo.getDOM(),
-                new WSSSAMLKeyInfoProcessor(requestData, new WSDocInfo(doc)),
+                new WSSSAMLKeyInfoProcessor(requestData),
                 crypto.getSignatureCrypto());
       } catch (WSSecurityException e) {
         throw new SignatureException("Unable to get KeyInfo.", e);

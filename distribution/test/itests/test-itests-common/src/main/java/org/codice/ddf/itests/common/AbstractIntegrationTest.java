@@ -38,7 +38,6 @@ import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.useOwnExa
 
 import com.google.common.collect.ImmutableMap;
 import com.jayway.restassured.response.ValidatableResponse;
-import com.sun.istack.NotNull;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -59,6 +58,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Stream;
+import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -223,11 +223,11 @@ public abstract class AbstractIntegrationTest {
 
     private final DynamicUrl url;
 
-    public DynamicUrl(String root, @NotNull DynamicPort port) {
+    public DynamicUrl(String root, @Nonnull DynamicPort port) {
       this(root, port, "");
     }
 
-    public DynamicUrl(String root, @NotNull DynamicPort port, String tail) {
+    public DynamicUrl(String root, @Nonnull DynamicPort port, String tail) {
       if (null == port) {
         throw new IllegalArgumentException("Port cannot be null");
       }
@@ -237,7 +237,7 @@ public abstract class AbstractIntegrationTest {
       this.tail = tail;
     }
 
-    public DynamicUrl(@NotNull DynamicUrl url, String tail) {
+    public DynamicUrl(@Nonnull DynamicUrl url, String tail) {
       if (null == url) {
         throw new IllegalArgumentException("Url cannot be null");
       }
