@@ -27,6 +27,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
@@ -44,15 +45,15 @@ import org.apache.commons.io.FileUtils;
 import org.apache.felix.fileinstall.internal.DirectoryWatcher;
 import org.apache.karaf.system.SystemService;
 import org.codice.ddf.configuration.migration.ConfigurationMigrationManager;
-import org.codice.ddf.configuration.persistence.PersistenceStrategy;
-import org.codice.ddf.configuration.persistence.felix.FelixCfgPersistenceStrategy;
-import org.codice.ddf.configuration.persistence.felix.FelixConfigPersistenceStrategy;
 import org.codice.ddf.migration.ExportMigrationContext;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationMessage;
 import org.codice.ddf.migration.MigrationReport;
 import org.codice.ddf.migration.MigrationWarning;
+import org.codice.ddf.platform.io.CfgStrategy;
+import org.codice.ddf.platform.io.ConfigStrategy;
+import org.codice.ddf.platform.io.internal.PersistenceStrategy;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -108,6 +109,9 @@ public class ConfigurationAdminMigratableTest {
   private static final String DDF_CUSTOM_MIME_TYPE_RESOLVER_FACTORY_PID =
       "DDF_Custom_Mime_Type_Resolver";
 
+  private static final List<PersistenceStrategy> STRATEGIES =
+      ImmutableList.of(new CfgStrategy(), new ConfigStrategy());
+
   private static final PrintStream OUT = System.out;
 
   @Rule public TemporaryFolder tempDir = new TemporaryFolder();
@@ -139,25 +143,25 @@ public class ConfigurationAdminMigratableTest {
   @Test
   public void testGetPersisterForCfg() {
     ConfigurationAdminMigratable cam =
-        new ConfigurationAdminMigratable(configurationAdmin, DEFAULT_FILE_EXT);
+        new ConfigurationAdminMigratable(configurationAdmin, STRATEGIES, DEFAULT_FILE_EXT);
     PersistenceStrategy strategy = cam.getPersister(CFG_FILE_EXT);
-    assertThat(strategy, instanceOf(FelixCfgPersistenceStrategy.class));
+    assertThat(strategy, instanceOf(CfgStrategy.class));
   }
 
   @Test
   public void testGetPersisterForConfig() {
     ConfigurationAdminMigratable cam =
-        new ConfigurationAdminMigratable(configurationAdmin, DEFAULT_FILE_EXT);
+        new ConfigurationAdminMigratable(configurationAdmin, STRATEGIES, DEFAULT_FILE_EXT);
     PersistenceStrategy strategy = cam.getPersister(DEFAULT_FILE_EXT);
-    assertThat(strategy, instanceOf(FelixConfigPersistenceStrategy.class));
+    assertThat(strategy, instanceOf(ConfigStrategy.class));
   }
 
   @Test
   public void testGetDefaultPersister() {
     ConfigurationAdminMigratable cam =
-        new ConfigurationAdminMigratable(configurationAdmin, DEFAULT_FILE_EXT);
+        new ConfigurationAdminMigratable(configurationAdmin, STRATEGIES, DEFAULT_FILE_EXT);
     PersistenceStrategy strategy = cam.getDefaultPersister();
-    assertThat(strategy, instanceOf(FelixConfigPersistenceStrategy.class));
+    assertThat(strategy, instanceOf(ConfigStrategy.class));
   }
 
   @Test
@@ -168,7 +172,7 @@ public class ConfigurationAdminMigratableTest {
         .thenReturn(migrationReport);
     when(configurationAdmin.listConfigurations(isNull())).thenThrow(IOException.class);
     ConfigurationAdminMigratable cam =
-        new ConfigurationAdminMigratable(configurationAdmin, DEFAULT_FILE_EXT);
+        new ConfigurationAdminMigratable(configurationAdmin, STRATEGIES, DEFAULT_FILE_EXT);
 
     // Perform Test
     cam.doExport(exportMigrationContext);
@@ -185,7 +189,7 @@ public class ConfigurationAdminMigratableTest {
         .thenReturn(migrationReport);
     when(configurationAdmin.listConfigurations(isNull())).thenThrow(InvalidSyntaxException.class);
     ConfigurationAdminMigratable cam =
-        new ConfigurationAdminMigratable(configurationAdmin, DEFAULT_FILE_EXT);
+        new ConfigurationAdminMigratable(configurationAdmin, STRATEGIES, DEFAULT_FILE_EXT);
 
     // Perform Test
     cam.doExport(exportMigrationContext);
@@ -206,7 +210,7 @@ public class ConfigurationAdminMigratableTest {
     // Setup Export
     Path exportDir = tempDir.getRoot().toPath().toRealPath();
     ConfigurationAdminMigratable eCam =
-        new ConfigurationAdminMigratable(configurationAdminForExport, DEFAULT_FILE_EXT);
+        new ConfigurationAdminMigratable(configurationAdminForExport, STRATEGIES, DEFAULT_FILE_EXT);
     List<Migratable> eMigratables = Arrays.asList(eCam);
     ConfigurationMigrationManager eConfigurationMigrationManager =
         new ConfigurationMigrationManager(eMigratables, systemService);
@@ -231,7 +235,7 @@ public class ConfigurationAdminMigratableTest {
     setup(DDF_HOME);
 
     ConfigurationAdminMigratable iCam =
-        new ConfigurationAdminMigratable(configurationAdminForImport, DEFAULT_FILE_EXT);
+        new ConfigurationAdminMigratable(configurationAdminForImport, STRATEGIES, DEFAULT_FILE_EXT);
     List<Migratable> iMigratables = Arrays.asList(iCam);
     ConfigurationMigrationManager iConfigurationMigrationManager =
         new ConfigurationMigrationManager(iMigratables, systemService);
