@@ -133,6 +133,9 @@ define([
         isReadOnly: function(){
             return this.get('readOnly');
         },
+        hasConflictingDefinitions: function() {
+            return this.get('hasConflictingDefinition') === true;
+        },
         isEditing: function(){
             return this.get('isEditing');  
         },
