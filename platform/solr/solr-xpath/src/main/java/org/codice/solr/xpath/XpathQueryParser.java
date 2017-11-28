@@ -13,7 +13,6 @@
  */
 package org.codice.solr.xpath;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.search.Query;
 import org.apache.solr.search.SolrQueryParser;
 import org.apache.solr.search.SyntaxError;

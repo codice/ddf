@@ -198,7 +198,8 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
     isComparisonOperationSupported(ComparisonOperatorType.EQUAL_TO);
     propertyName = mapPropertyName(propertyName);
     if (isPropertyQueryable(propertyName)) {
-      return cswFilterFactory.buildPropertyIsEqualToFilter(propertyName, Float.valueOf(literal), true);
+      return cswFilterFactory.buildPropertyIsEqualToFilter(
+          propertyName, Float.valueOf(literal), true);
     } else {
       return new FilterType();
     }
@@ -209,7 +210,8 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
     isComparisonOperationSupported(ComparisonOperatorType.EQUAL_TO);
     propertyName = mapPropertyName(propertyName);
     if (isPropertyQueryable(propertyName)) {
-      return cswFilterFactory.buildPropertyIsEqualToFilter(propertyName, Double.valueOf(literal), true);
+      return cswFilterFactory.buildPropertyIsEqualToFilter(
+          propertyName, Double.valueOf(literal), true);
     } else {
       return new FilterType();
     }
@@ -387,7 +389,8 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
     isComparisonOperationSupported(ComparisonOperatorType.GREATER_THAN);
     propertyName = mapPropertyName(propertyName);
     if (isPropertyQueryable(propertyName)) {
-      return cswFilterFactory.buildPropertyIsGreaterThanFilter(propertyName, Float.valueOf(literal));
+      return cswFilterFactory.buildPropertyIsGreaterThanFilter(
+          propertyName, Float.valueOf(literal));
     } else {
       return new FilterType();
     }
@@ -398,7 +401,8 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
     isComparisonOperationSupported(ComparisonOperatorType.GREATER_THAN);
     propertyName = mapPropertyName(propertyName);
     if (isPropertyQueryable(propertyName)) {
-      return cswFilterFactory.buildPropertyIsGreaterThanFilter(propertyName, Double.valueOf(literal));
+      return cswFilterFactory.buildPropertyIsGreaterThanFilter(
+          propertyName, Double.valueOf(literal));
     } else {
       return new FilterType();
     }

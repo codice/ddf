@@ -17,7 +17,6 @@ import static spark.Spark.get;
 import static spark.Spark.staticFiles;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collection;
 import org.apache.commons.io.FileUtils;
