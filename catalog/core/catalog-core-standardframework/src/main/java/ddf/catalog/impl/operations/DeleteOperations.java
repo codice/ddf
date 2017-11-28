@@ -193,7 +193,7 @@ public class DeleteOperations {
 
     if (deleteResponse == null) {
       // This should never happen as validateFixDeleteResponse will throw this same exception if
-      // deleteResponse is null. This is hear to quiet sonarqube findings since we don't want to
+      // deleteResponse is null. This is here to quiet sonarqube findings since we don't want to
       // suppress all npe findings for this method.
       throw new IngestException("CatalogProvider returned null DeleteResponse Object.");
     }

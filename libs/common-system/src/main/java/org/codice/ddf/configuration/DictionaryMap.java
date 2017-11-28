@@ -59,12 +59,12 @@ public class DictionaryMap<K, V> extends Dictionary<K, V> implements Map<K, V>, 
 
   @Override
   public boolean containsKey(Object key) {
-    return false;
+    return map.containsKey(key);
   }
 
   @Override
   public boolean containsValue(Object value) {
-    return false;
+    return map.containsValue(value);
   }
 
   @Override

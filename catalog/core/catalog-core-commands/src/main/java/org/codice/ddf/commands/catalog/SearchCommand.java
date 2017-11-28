@@ -242,7 +242,7 @@ public class SearchCommand extends CqlCommands {
         | IOException
         | MalformedObjectNameException
         | InstanceNotFoundException e) {
-      throw new CatalogCommandException("Error executing SearchCommand", e);
+      throw new CatalogCommandException("Error executing catalog:search", e);
     }
     return null;
   }

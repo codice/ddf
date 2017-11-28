@@ -94,7 +94,7 @@ public class WfsResponseExceptionMapper implements ResponseExceptionMapper<WfsEx
     WfsException wfsException = null;
     List<ExceptionType> list = new ArrayList<>(report.getException());
 
-    if (list.isEmpty()) {
+    if (!list.isEmpty()) {
       Collections.reverse(list);
       for (ExceptionType exceptionType : list) {
         String exceptionCode = exceptionType.getExceptionCode();

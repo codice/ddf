@@ -149,7 +149,7 @@ public class RemoveCommand extends CqlCommands {
         LOGGER.debug("No documents deleted using the catalog:remove command");
       }
     } catch (IngestException | SourceUnavailableException | ParseException | CQLException e) {
-      throw new CatalogCommandException("Error executing RemoveCommand", e);
+      throw new CatalogCommandException("Error executing catalog:remove", e);
     }
     return null;
   }

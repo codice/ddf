@@ -157,7 +157,7 @@ public class ValidateCommand extends CqlCommands {
         | FederationException
         | CQLException
         | ParseException e) {
-      throw new CatalogCommandException("Error executing VAlidateCommand", e);
+      throw new CatalogCommandException("Error executing catalog:validate", e);
     }
     return results;
   }
