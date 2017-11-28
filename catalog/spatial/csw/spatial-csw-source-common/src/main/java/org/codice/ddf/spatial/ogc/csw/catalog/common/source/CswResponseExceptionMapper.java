@@ -80,16 +80,12 @@ public class CswResponseExceptionMapper implements ResponseExceptionMapper<CswEx
           }
           msg = IOUtils.toString(is);
         } catch (IOException e) {
-          cswException =
-              new CswException(
-                  "Error received from remote Csw server" + (msg != null ? ": " + msg : ""));
           LOGGER.info("Unable to parse exception report: {}", e.getMessage());
           LOGGER.debug("Unable to parse exception report: {}", e);
         }
         if (msg != null) {
           try {
-            JAXBElementProvider<ExceptionReport> provider =
-                new JAXBElementProvider<ExceptionReport>();
+            JAXBElementProvider<ExceptionReport> provider = new JAXBElementProvider<>();
             Unmarshaller um =
                 provider
                     .getJAXBContext(ExceptionReport.class, ExceptionReport.class)
@@ -107,6 +103,8 @@ public class CswResponseExceptionMapper implements ResponseExceptionMapper<CswEx
             LOGGER.info("Error parsing the exception report: {}", e.getMessage());
             LOGGER.debug("Error parsing the exception report", e);
           }
+        } else {
+          cswException = new CswException("Error received from remote Csw server.");
         }
       } else {
         cswException =
@@ -125,7 +123,7 @@ public class CswResponseExceptionMapper implements ResponseExceptionMapper<CswEx
   private CswException convertToCswException(ExceptionReport report) {
 
     CswException cswException = null;
-    List<ExceptionType> list = new ArrayList<ExceptionType>(report.getException());
+    List<ExceptionType> list = new ArrayList<>(report.getException());
 
     for (ExceptionType exceptionType : list) {
       String exceptionCode = exceptionType.getExceptionCode();

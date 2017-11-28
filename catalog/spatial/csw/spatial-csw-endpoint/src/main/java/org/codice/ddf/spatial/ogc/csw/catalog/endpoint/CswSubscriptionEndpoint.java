@@ -395,7 +395,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
   }
 
   private synchronized CswSubscription getSubscription(String subscriptionId) {
-    ServiceRegistration sr = (ServiceRegistration) registeredSubscriptions.get(subscriptionId);
+    ServiceRegistration sr = registeredSubscriptions.get(subscriptionId);
     if (sr == null) {
       return null;
     }
@@ -488,7 +488,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
     CswSubscription subscription = getSubscription(subscriptionId);
     try {
       LOGGER.debug("Removing (unregistering) subscription: {}", subscriptionId);
-      ServiceRegistration sr = (ServiceRegistration) registeredSubscriptions.remove(subscriptionId);
+      ServiceRegistration sr = registeredSubscriptions.remove(subscriptionId);
       if (sr != null) {
         sr.unregister();
       } else {
@@ -539,13 +539,12 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
           .createMarshaller()
           .marshal(objectFactory.createGetRecords(subscription.getOriginalRequest()), sw);
       String filterXml = sw.toString();
-
+      ConfigurationAdmin configAdmin = getConfigAdmin();
       // Store filter XML, deliveryMethod URL, this endpoint's factory PID, and subscription ID into
       // OSGi CongiAdmin
-      if (filterXml != null) {
+      if (filterXml != null && configAdmin != null) {
         Configuration config =
-            getConfigAdmin()
-                .createFactoryConfiguration(CswSubscriptionConfigFactory.FACTORY_PID, null);
+            configAdmin.createFactoryConfiguration(CswSubscriptionConfigFactory.FACTORY_PID, null);
 
         Dictionary<String, String> props = new DictionaryMap<>();
         props.put(CswSubscriptionConfigFactory.SUBSCRIPTION_ID, subscriptionUuid);
@@ -588,7 +587,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
 
     try {
       org.osgi.framework.Filter filter = getBundleContext().createFilter(filterStr);
-      LOGGER.debug("filter.toString() = {}", filter.toString());
+      LOGGER.debug("filter.toString() = {}", filter);
 
       ConfigurationAdmin configAdmin = getConfigAdmin();
 

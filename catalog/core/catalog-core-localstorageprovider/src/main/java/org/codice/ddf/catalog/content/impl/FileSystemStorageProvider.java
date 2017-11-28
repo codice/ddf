@@ -328,6 +328,11 @@ public class FileSystemStorageProvider implements StorageProvider {
       for (String contentUri : updateMap.get(request.getId())) {
         Path contentIdDir = getTempContentItemDir(request.getId(), new URI(contentUri));
         Path target = getContentItemDir(new URI(contentUri));
+        if (target == null) {
+          throw new StorageException(
+              "Unable to get content item directory. Unable to commit changes for request: "
+                  + request.getId());
+        }
         try {
           if (contentIdDir.toFile().exists() && target != null) {
             if (target.toFile().exists()) {

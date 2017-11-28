@@ -82,6 +82,12 @@ public class SystemCrypto {
     } catch (WSSecurityException e) {
       LOGGER.debug("Error in loading the Crypto object: ", e);
     }
+
+    if (crypto == null) {
+      throw new IllegalStateException(
+          "Error getting the Crypto instance. There is an issue with the system configuration");
+    }
+
     return crypto;
   }
 

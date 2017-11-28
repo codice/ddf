@@ -88,7 +88,7 @@ public class FeatureCollectionConverterWfs20 implements Converter {
       writer.addAttribute(Wfs20Constants.ATTRIBUTE_SCHEMA_LOCATION, schemaLoc);
 
       Geometry allGeometry = getBounds(wfc.getMembers());
-      if (!allGeometry.isEmpty()) {
+      if (allGeometry != null && !allGeometry.isEmpty()) {
         XmlNode.writeEnvelope(
             Wfs20Constants.GML_PREFIX + ":" + "boundedBy",
             context,

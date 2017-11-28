@@ -71,10 +71,14 @@ public class AdminHelper {
 
   private BundleContext getBundleContext() {
     Bundle bundle = FrameworkUtil.getBundle(this.getClass());
+    BundleContext context = null;
     if (bundle != null) {
-      return bundle.getBundleContext();
+      context = bundle.getBundleContext();
     }
-    return null;
+    if (context == null) {
+      throw new IllegalStateException("Error getting bundle context");
+    }
+    return context;
   }
 
   public List<Source> getRegistrySources() throws InvalidSyntaxException {
@@ -121,7 +125,7 @@ public class AdminHelper {
     Map<String, Object> props = new HashMap<>();
     Dictionary<String, Object> configProps =
         configurationAdmin.getConfiguration(REGISTRY_POLICY_PID, null).getProperties();
-    Map<String, Object> configMap = new HashMap<>();
+
     if (configProps == null) {
       configProps = new Hashtable<>();
     }

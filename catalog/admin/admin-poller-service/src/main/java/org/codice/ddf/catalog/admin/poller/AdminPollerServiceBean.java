@@ -248,7 +248,8 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
   }
 
   private String createFilter(String pidKey) {
-    String includes, excludes;
+    String includes;
+    String excludes;
     includes =
         (includeAsSource == null || CollectionUtils.isEmpty(includeAsSource))
             ? String.format("(%s=*)", pidKey)
@@ -274,10 +275,14 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
 
     private BundleContext getBundleContext() {
       Bundle bundle = FrameworkUtil.getBundle(AdminPollerServiceBean.class);
+      BundleContext context = null;
       if (bundle != null) {
-        return bundle.getBundleContext();
+        context = bundle.getBundleContext();
       }
-      return null;
+      if (context == null) {
+        throw new IllegalStateException("Error getting bundle context");
+      }
+      return context;
     }
 
     protected List<Source> getSources() throws org.osgi.framework.InvalidSyntaxException {

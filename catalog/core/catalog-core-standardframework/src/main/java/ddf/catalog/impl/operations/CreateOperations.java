@@ -118,10 +118,7 @@ public class CreateOperations {
   public CreateResponse create(CreateRequest createRequest)
       throws IngestException, SourceUnavailableException {
     CreateResponse createResponse = doCreate(createRequest);
-
-    if (createResponse != null) {
-      createResponse = doPostIngest(createResponse);
-    }
+    createResponse = doPostIngest(createResponse);
     return createResponse;
   }
 
@@ -200,9 +197,7 @@ public class CreateOperations {
       opsStorageSupport.commitAndCleanup(createStorageRequest, tmpContentPaths);
     }
 
-    if (createResponse != null) {
-      createResponse = doPostIngest(createResponse);
-    }
+    createResponse = doPostIngest(createResponse);
 
     return createResponse;
   }
@@ -265,6 +260,13 @@ public class CreateOperations {
       LOGGER.info(
           "Exception during runtime while performing doing post create operations (plugins and pubsub)",
           re);
+    }
+
+    if (createResponse == null) {
+      // This should never happen as validateFixCreateResponse will throw this same exception if
+      // createResponse is null. This is hear to quite sonarqube findings since we don't want to
+      // suppress all npe findings for this method.
+      throw new IngestException("CatalogProvider returned null CreateResponse Object.");
     }
 
     return createResponse;
