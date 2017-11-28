@@ -383,6 +383,7 @@
             <filter class="solr.PatternReplaceFilterFactory"
                     pattern="^\p{Punct}*(.*?)\p{Punct}*$" replacement="$1"/>
             <filter class="solr.LowerCaseFilterFactory"/>
+            <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
         </analyzer>
     </fieldType>
 
@@ -391,6 +392,7 @@
             <tokenizer class="solr.WhitespaceTokenizerFactory"/>
             <filter class="solr.PatternReplaceFilterFactory"
                     pattern="^\p{Punct}*(.*?)\p{Punct}*$" replacement="$1"/>
+            <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
         </analyzer>
     </fieldType>
 
