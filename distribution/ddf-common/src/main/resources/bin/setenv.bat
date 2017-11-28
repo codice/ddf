@@ -35,6 +35,7 @@ rem
 rem Set environment variable for DDF home directory (used by DDF Java code)
 set DDF_HOME=%~dp0%..
 set DDF_HOME=%DDF_HOME:\=/%
+set DDF_HOME=%DDF_HOME:/bin/..=/%
 
 rem
 rem The following section shows the possible configuration options for the default 
@@ -63,7 +64,7 @@ rem set EXTRA_JAVA_OPTS="-Dcom.sun.xml.ws.transport.http.HttpAdapter.dump=true"
 
 set DDF_HOME_PERM=%DDF_HOME:/=\\%
 set DDF_HOME_PERM=%DDF_HOME_PERM:\\bin\\..=\\%
-set DDF_HOME_POLICY=/%DDF_HOME:/bin/..=/%
+set DDF_HOME_POLICY=/%DDF_HOME%
 set DDF_HOME_POLICY=%DDF_HOME_POLICY:c:=C:%
 
 rem
@@ -84,7 +85,7 @@ rem set KARAF_SYSTEM_OPTS=-Dprograde.generated.policy="%DDF_HOME%/generated.poli
 rem
 rem The Security Manager is turned off by default in DDF.
 rem
-set KARAF_SYSTEM_OPTS=-Dpolicy.provider=net.sourceforge.prograde.policy.ProGradePolicy -Djava.security.manager=net.sourceforge.prograde.sm.ProGradeJSM -Djava.security.policy==%DDF_HOME_POLICY%\security\default.policy -DproGrade.getPermissions.override=sun.rmi.server.LoaderHandler:loadClass,org.apache.jasper.compiler.JspRuntimeContext:initSecurity
+set KARAF_SYSTEM_OPTS=-Dpolicy.provider=net.sourceforge.prograde.policy.ProGradePolicy -Djava.security.manager=net.sourceforge.prograde.sm.ProGradeJSM -Djava.security.policy==%DDF_HOME%security/default.policy -DproGrade.getPermissions.override=sun.rmi.server.LoaderHandler:loadClass,org.apache.jasper.compiler.JspRuntimeContext:initSecurity
 
 rem The following defines an environment variable referencing our script to be executed by the JVM
 rem when errors are detected. Unfortunately, forking the error process from Java does not expand

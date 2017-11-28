@@ -36,7 +36,7 @@ public class BundleNameCondition implements Condition {
   @Override
   public boolean isSatisfied() {
     String bundleName = bundle.getHeaders().get("Bundle-SymbolicName");
-    return args.length != 0 && args[0].equals(bundleName);
+    return args.length != 0 && args[0].endsWith(bundleName);
   }
 
   @Override

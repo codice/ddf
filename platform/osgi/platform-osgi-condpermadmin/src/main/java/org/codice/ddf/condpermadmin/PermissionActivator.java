@@ -24,6 +24,7 @@ import net.sourceforge.prograde.policyparser.ParsedPolicyEntry;
 import net.sourceforge.prograde.policyparser.ParsedPrincipal;
 import net.sourceforge.prograde.policyparser.Parser;
 import net.sourceforge.prograde.type.Priority;
+import org.apache.commons.lang3.text.StrSubstitutor;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.condpermadmin.ConditionInfo;
@@ -56,6 +57,9 @@ public class PermissionActivator implements BundleActivator {
 
     ConditionalPermissionAdmin conditionalPermissionAdmin = permAdminTracker.getService();
     String policyFile = SecurityActions.getSystemProperty("java.security.policy");
+    if (policyFile.startsWith("=")) {
+      policyFile = policyFile.substring(1);
+    }
     ParsedPolicy parsedPolicy = new Parser(false).parse(new FileReader(new File(policyFile)));
     List<ParsedPolicyEntry> grantEntries = parsedPolicy.getGrantEntries();
     List<ParsedPolicyEntry> denyEntries = parsedPolicy.getDenyEntries();
@@ -73,15 +77,29 @@ public class PermissionActivator implements BundleActivator {
 
     Priority priority = parsedPolicy.getPriority();
     if (priority == Priority.GRANT) {
-      conditionalPermissionUpdate.getConditionalPermissionInfos().addAll(denyInfos);
       conditionalPermissionUpdate.getConditionalPermissionInfos().addAll(grantInfos);
-
+      conditionalPermissionUpdate.getConditionalPermissionInfos().addAll(denyInfos);
+      conditionalPermissionUpdate
+          .getConditionalPermissionInfos()
+          .add(getAllPermission(conditionalPermissionAdmin, ConditionalPermissionInfo.ALLOW));
     } else if (priority == Priority.DENY) {
-      conditionalPermissionUpdate.getConditionalPermissionInfos().addAll(grantInfos);
       conditionalPermissionUpdate.getConditionalPermissionInfos().addAll(denyInfos);
+      conditionalPermissionUpdate.getConditionalPermissionInfos().addAll(grantInfos);
+      conditionalPermissionUpdate
+          .getConditionalPermissionInfos()
+          .add(getAllPermission(conditionalPermissionAdmin, ConditionalPermissionInfo.DENY));
     }
 
     conditionalPermissionUpdate.commit();
+  }
+
+  private ConditionalPermissionInfo getAllPermission(
+      ConditionalPermissionAdmin conditionalPermissionAdmin, String type) {
+    return conditionalPermissionAdmin.newConditionalPermissionInfo(
+        null,
+        null,
+        new PermissionInfo[] {new PermissionInfo("java.security.AllPermission", "", "")},
+        type);
   }
 
   private void buildConditionalPermissionInfo(
@@ -97,7 +115,7 @@ public class PermissionActivator implements BundleActivator {
         permissionInfos[index++] =
             new PermissionInfo(
                 parsedPermission.getPermissionType(),
-                parsedPermission.getPermissionName(),
+                replaceSystemProperties(parsedPermission.getPermissionName()),
                 parsedPermission.getActions());
       }
       List<ConditionInfo> conditionInfos = new ArrayList<>();
@@ -142,14 +160,20 @@ public class PermissionActivator implements BundleActivator {
   private void addCodebase(
       ParsedPolicyEntry parsedPolicyEntry, List<ConditionInfo> conditionInfos) {
     String codebase = parsedPolicyEntry.getCodebase();
-    if (codebase != null && codebase.startsWith(OSGI_CODEBASE)) {
+    if (codebase != null) {
       conditionInfos.add(
-          new ConditionInfo(BUNDLE_NAME_CONDITION, new String[] {getBundleName(codebase)}));
+          new ConditionInfo(
+              BUNDLE_NAME_CONDITION,
+              new String[] {replaceSystemProperties(getBundleName(codebase))}));
     }
   }
 
   private String getBundleName(String osgiCodebase) {
     return osgiCodebase.replace(OSGI_CODEBASE, "");
+  }
+
+  private String replaceSystemProperties(String string) {
+    return StrSubstitutor.replaceSystemProperties(string);
   }
 
   @Override

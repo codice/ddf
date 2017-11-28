@@ -166,6 +166,18 @@ grant
     permission java.io.FilePermission "${ddf.home.perm}-", "read";
 };
 
+grant codeBase "file:/admin-core-appservice" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}-", "read";
+}
+
+grant codeBase "file:/org.apache.felix.fileinstall" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}-", "read";
+}
+
+grant codeBase "file:/platform-osgi-condpermadmin" {
+    permission java.io.FilePermission "${ddf.home.perm}security${/}-", "read";
+}
+
 grant {
     // User's home directory
     permission java.io.FilePermission "${user.home}${/}-", "read, write";
