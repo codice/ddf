@@ -246,7 +246,9 @@ public class MetadataConfigurationParser {
   }
 
   private void validateMetadata(EntityDescriptor root) {
-    boolean valid = root.getCacheDuration() > 0 || DateTime.now().isAfter(root.getValidUntil());
+    boolean valid =
+        (root.getCacheDuration() != null && root.getCacheDuration() > 0)
+            || DateTime.now().isBefore(root.getValidUntil());
     if (!valid) {
       LOGGER.info(
           String.format(

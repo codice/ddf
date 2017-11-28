@@ -51,8 +51,10 @@ public class MetadataConfigurationParserTest {
   private HttpServer server;
 
   private String serverAddress;
+  public static final Long ONE_DAY_MILLISECONDS = Long.valueOf(1000 * 3600 * 24);
 
   @Mock HttpRequestHandler handler;
+  public static final String CACHE_DURATION_REGEX = "cacheDuration=\"\\w*\"";
 
   @Before
   public void before() throws Exception {
@@ -175,14 +177,25 @@ public class MetadataConfigurationParserTest {
   }
 
   @Test
-  public void testRootElementCacheDurationValidUntil() throws Exception {
-    EntityDescriptor entity = getEntityDescriptor(IOUtils.toString(descriptorPath.toUri()));
-    Long cacheDuration = entity.getCacheDuration();
-    DateTime validUntil = entity.getValidUntil();
+  public void testRootElementNoCacheDuration() throws Exception {
+    String xml = IOUtils.toString(descriptorPath.toUri());
+    String xmlNoCacheDuration = xml.replaceFirst(CACHE_DURATION_REGEX, "");
+    EntityDescriptor entity = getEntityDescriptor(xmlNoCacheDuration);
     assertThat(
-        "Root node must contain either duration or validUntil",
-        cacheDuration > 0 || validUntil != null,
-        is(true));
+        "Expected default cache duration of one day (in milliseconds)",
+        entity.getCacheDuration(),
+        is(ONE_DAY_MILLISECONDS));
+  }
+
+  @Test
+  public void testRootElementValidUntil() throws Exception {
+    String xml = IOUtils.toString(descriptorPath.toUri());
+    DateTime validUntil = DateTime.now().plusYears(1);
+    String validUntilXmlString = String.format("validUntil=\"%tF\"", validUntil.toDate());
+    String xmlNoCacheDuration = xml.replaceFirst(CACHE_DURATION_REGEX, validUntilXmlString);
+    EntityDescriptor entity = getEntityDescriptor(xmlNoCacheDuration);
+    boolean isSameDate = entity.getValidUntil().toLocalDate().isEqual(validUntil.toLocalDate());
+    assertThat("Expected different valid-until date", isSameDate, is(true));
   }
 
   private EntityDescriptor getEntityDescriptor(String xml) throws Exception {
