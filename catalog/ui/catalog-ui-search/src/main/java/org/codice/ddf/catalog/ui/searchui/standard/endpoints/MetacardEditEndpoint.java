@@ -82,7 +82,6 @@ public class MetacardEditEndpoint {
       }
 
       AttributeDescriptor descriptor = attributeDescriptor.get();
-      /* Yes i'm using a raw map. get off my back yo */
       Map<String, Object> result = getResponseMap(attribute, metacardAttribute, descriptor);
       return Response.ok(endpointUtil.getJson(result), MediaType.APPLICATION_JSON).build();
     } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {

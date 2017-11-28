@@ -264,7 +264,7 @@ public class CreateOperations {
 
     if (createResponse == null) {
       // This should never happen as validateFixCreateResponse will throw this same exception if
-      // createResponse is null. This is hear to quite sonarqube findings since we don't want to
+      // createResponse is null. This is hear to quiet sonarqube findings since we don't want to
       // suppress all npe findings for this method.
       throw new IngestException("CatalogProvider returned null CreateResponse Object.");
     }
