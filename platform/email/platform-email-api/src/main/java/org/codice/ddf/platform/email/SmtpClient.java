@@ -15,7 +15,6 @@ package org.codice.ddf.platform.email;
 
 import java.util.concurrent.Future;
 import javax.mail.Message;
-import javax.mail.MessagingException;
 import javax.mail.Session;
 
 /**
@@ -65,7 +64,6 @@ public interface SmtpClient {
    * Send the message. May be sent synchronously or asynchronously.
    *
    * @return a future that the caller can use to determine when the operation completes
-   * @see javax.mail.Transport.send(Message)
    */
-  Future<Void> send(Message message) throws MessagingException;
+  Future<Void> send(Message message);
 }
