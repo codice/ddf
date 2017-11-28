@@ -16,14 +16,14 @@ define([
     ],
     function ($) {
 
-        $.whenAll = function( firstParam ) {
+        $.whenAll = function() {
             var args = arguments,
                 sliceDeferred = [].slice,
                 i = 0,
                 length = args.length,
                 count = length,
                 rejected,
-                deferred = length <= 1 && firstParam && $.isFunction( firstParam.promise ) ? firstParam : $.Deferred();
+                deferred = $.Deferred();
 
             function resolveFunc( i, reject ) {
                 return function( value ) {
@@ -39,19 +39,15 @@ define([
                 };
             }
 
-            if ( length > 1 ) {
-                for( ; i < length; i++ ) {
-                    if ( args[ i ] && $.isFunction( args[ i ].promise ) ) {
-                        args[ i ].promise().then( resolveFunc(i), resolveFunc(i, true) );
-                    } else {
-                        --count;
-                    }
+            for( ; i < length; i++ ) {
+                if ( args[ i ] && $.isFunction( args[ i ].promise ) ) {
+                    args[ i ].promise().then( resolveFunc(i), resolveFunc(i, true) );
+                } else {
+                    --count;
                 }
-                if ( !count ) {
-                    deferred.resolveWith( deferred, args );
-                }
-            } else if ( deferred !== firstParam ) {
-                deferred.resolveWith( deferred, length ? [ firstParam ] : [] );
+            }
+            if ( count === 0 ) {
+                deferred.resolveWith( deferred, args );
             }
             return deferred.promise();
         };
