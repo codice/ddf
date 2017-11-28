@@ -15,7 +15,6 @@ package org.codice.ddf.platform.email;
 
 import java.util.concurrent.Future;
 import javax.mail.Message;
-import javax.mail.MessagingException;
 import javax.mail.Session;
 
 /**
