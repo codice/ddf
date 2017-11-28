@@ -70,7 +70,7 @@ public class MetadataConfigurationParser {
   private static final String HTTP = "http://";
 
   private static final String FILE = "file:";
-  public static final Long ONE_DAY_MILLISECONDS = Long.valueOf(1000 * 3600 * 24);
+  public static final Long ONE_DAY_MILLISECONDS = (long) 1000 * 3600 * 24;
 
   private final Map<String, EntityDescriptor> entityDescriptorMap = new ConcurrentHashMap<>();
 
@@ -251,9 +251,8 @@ public class MetadataConfigurationParser {
             || DateTime.now().isBefore(root.getValidUntil());
     if (!valid) {
       LOGGER.info(
-          String.format(
-              "IDP metadata must either have cache duration or future valid-until date."
-                  + " Setting cache duration to 24 hours."));
+          "IDP metadata must either have cache duration or future valid-until date."
+              + " Setting cache duration to 24 hours.");
       root.setCacheDuration(ONE_DAY_MILLISECONDS);
     }
   }
