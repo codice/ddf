@@ -181,7 +181,7 @@ public class MetadataConfigurationParserTest {
     DateTime validUntil = entity.getValidUntil();
     assertThat(
         "Root node must contain either duration or validUntil",
-        (cacheDuration != null && cacheDuration > 0) || (validUntil != null),
+        cacheDuration > 0 || validUntil != null,
         is(true));
   }
 
