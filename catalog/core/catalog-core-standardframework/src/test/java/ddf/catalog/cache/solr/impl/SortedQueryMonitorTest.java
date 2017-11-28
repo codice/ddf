@@ -199,7 +199,13 @@ public class SortedQueryMonitorTest {
     final Iterator<Future<SourceResponse>> futureIter = getFutureIterator();
     when(completionService.poll(anyLong(), eq(TimeUnit.MILLISECONDS)))
         .thenAnswer((invocationOnMock -> futureIter.next()));
-    queryMonitor.run();
+
+    Thread queryMonitorThread = new Thread(queryMonitor);
+    queryMonitorThread.start();
+    while (queryMonitorThread.isAlive()) {
+      Thread.sleep(500);
+    }
+
     verify(completionService, times(3)).poll(anyLong(), eq(TimeUnit.MILLISECONDS));
     verify(completionService, never()).take();
 

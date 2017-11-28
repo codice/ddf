@@ -124,17 +124,19 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
       List<Runnable> failures = Collections.emptyList();
       try {
         if (!executor.awaitTermination(getTerminationTimeoutSeconds(), TimeUnit.SECONDS)) {
-          failures = executor.shutdownNow();
 
           if (!executor.awaitTermination(getTerminationTimeoutSeconds(), TimeUnit.SECONDS)) {
             LOGGER.error("Executor service did not terminate.");
           }
         }
       } catch (InterruptedException e) {
-        failures = executor.shutdownNow();
         LOGGER.warn("Backup of metacards interrupted. Some metacards might not be backed up.");
         Thread.currentThread().interrupt();
+        throw new IllegalStateException(e);
+      } finally {
+        failures = executor.shutdownNow();
       }
+
       if (!failures.isEmpty()) {
         LOGGER.warn("Cancelled tasks to backup metacards. Some metacards might not be backed up.");
       }
