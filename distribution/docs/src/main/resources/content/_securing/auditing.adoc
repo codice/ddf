@@ -1,9 +1,10 @@
 :title: Auditing
-:type: configuration
+:type: securing
 :status: published
 :parent: Securing
 :summary: Configure auditing.
-:order: 00
+:order: 01
+:project: ${branding}
 
 == {title}
 

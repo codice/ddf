@@ -1,5 +1,5 @@
 :title: Security Hardening
-:type: configuration
+:type: securing
 :status: published
 :summary: Introduction to Hardening.
 :parent: Securing
@@ -19,3 +19,7 @@ Refer to the <<_hardening_checklist,Hardening Checklist>> for a compilation of t
 These security precautions are best performed as configuration is taking place, so hardening steps are integrated into configuration steps.
 This is to avoid setting an insecure configuration and having to revisit during hardening.
 Most configurations have a security component to them, and important considerations for hardening are labeled as such during configuration as well as provided in a checklist format.
+
+Some of the items on the checklist are performed during <<_installing,installation>> and others during <<_configuring,configuration>>.
+Steps required for hardening are marked as *Required for Hardening* and are collected here for convenience.
+Refer to the checklist during system setup.
