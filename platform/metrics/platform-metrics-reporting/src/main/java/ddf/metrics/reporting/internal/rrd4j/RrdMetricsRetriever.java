@@ -998,16 +998,12 @@ public class RrdMetricsRetriever implements MetricsRetriever {
 
         if (LOGGER.isTraceEnabled()) {
           LOGGER.trace(
-              getCalendarTime(timestamps[i])
-                  + ":  "
-                  + values[i]
-                  + "   (adjusted value = "
-                  + adjustedValue
-                  + ",   floor = "
-                  + Math.floor(adjustedValue)
-                  + ",   round = "
-                  + Math.round(adjustedValue)
-                  + ")");
+              "{}: {} (adjusted value = {}, floor = {}, round =  {})",
+              getCalendarTime(timestamps[i]),
+              values[i],
+              adjustedValue,
+              Math.floor(adjustedValue),
+              Math.round(adjustedValue));
         }
       }
 

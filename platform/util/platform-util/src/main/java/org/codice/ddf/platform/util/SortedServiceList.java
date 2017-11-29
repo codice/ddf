@@ -100,7 +100,7 @@ public class SortedServiceList<T> implements List<T> {
     }
 
     if (LOGGER.isDebugEnabled()) {
-      LOGGER.debug(Arrays.asList(serviceMap.values()).toString());
+      LOGGER.debug("serviceMap: {}", Arrays.asList(serviceMap.values()));
     }
   }
 
@@ -118,7 +118,7 @@ public class SortedServiceList<T> implements List<T> {
     serviceMap.remove(ref);
 
     if (LOGGER.isDebugEnabled()) {
-      LOGGER.debug(Arrays.asList(serviceMap.values()).toString());
+      LOGGER.debug("serviceMap: {}", Arrays.asList(serviceMap.values()));
     }
   }
 

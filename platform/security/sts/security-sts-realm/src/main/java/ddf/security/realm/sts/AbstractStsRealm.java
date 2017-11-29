@@ -292,7 +292,7 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
       builder.append("key: " + entry.getKey() + "; value: " + entry.getValue() + "\n");
     }
 
-    LOGGER.debug("{}", builder);
+    LOGGER.debug("builder: {}", builder);
   }
 
   /** Helper method to setup STS Client. */

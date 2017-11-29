@@ -85,7 +85,7 @@ import org.slf4j.LoggerFactory;
  */
 public class StaticStsProperties extends StaticSTSProperties {
 
-  private static final Logger LOG = LoggerFactory.getLogger(StaticStsProperties.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(StaticStsProperties.class);
 
   private CallbackHandler callbackHandler;
 
@@ -124,6 +124,7 @@ public class StaticStsProperties extends StaticSTSProperties {
   private boolean validateUseKey = true;
 
   /** Load the CallbackHandler, Crypto objects, if necessary. */
+  @Override
   public void configureProperties() throws STSException {
     if (signatureCrypto == null && signatureCryptoProperties != null) {
       Properties sigProperties = null;
@@ -135,13 +136,13 @@ public class StaticStsProperties extends StaticSTSProperties {
         sigProperties = SecurityUtils.loadProperties(url);
       }
       if (sigProperties == null) {
-        LOG.debug("Cannot load signature properties using: {}", signatureCryptoProperties);
+        LOGGER.debug("Cannot load signature properties using: {}", signatureCryptoProperties);
         throw new STSException("Configuration error: cannot load signature properties");
       }
       try {
         signatureCrypto = CryptoFactory.getInstance(sigProperties);
       } catch (WSSecurityException ex) {
-        LOG.debug("Error in loading the signature Crypto object: {}", ex.getMessage());
+        LOGGER.debug("Error in loading the signature Crypto object: {}", ex.getMessage());
         throw new STSException(ex.getMessage());
       }
     }
@@ -156,13 +157,13 @@ public class StaticStsProperties extends StaticSTSProperties {
         encrProperties = SecurityUtils.loadProperties(url);
       }
       if (encrProperties == null) {
-        LOG.debug("Cannot load encryption properties using: {}", encryptionCryptoProperties);
+        LOGGER.debug("Cannot load encryption properties using: {}", encryptionCryptoProperties);
         throw new STSException("Configuration error: cannot load encryption properties");
       }
       try {
         encryptionCrypto = CryptoFactory.getInstance(encrProperties);
       } catch (WSSecurityException ex) {
-        LOG.debug("Error in loading the encryption Crypto object: {}", ex.getMessage());
+        LOGGER.debug("Error in loading the encryption Crypto object: {}", ex.getMessage());
         throw new STSException(ex.getMessage());
       }
     }
@@ -171,11 +172,11 @@ public class StaticStsProperties extends StaticSTSProperties {
       try {
         callbackHandler = SecurityUtils.getCallbackHandler(callbackHandlerClass);
         if (callbackHandler == null) {
-          LOG.debug("Cannot load CallbackHandler using: {}", callbackHandlerClass);
+          LOGGER.debug("Cannot load CallbackHandler using: {}", callbackHandlerClass);
           throw new STSException("Configuration error: cannot load callback handler");
         }
       } catch (Exception ex) {
-        LOG.debug("Error in loading the callback handler: {}", ex.getMessage());
+        LOGGER.debug("Error in loading the callback handler: {}", ex.getMessage());
         throw new STSException(ex.getMessage());
       }
     }
@@ -195,11 +196,10 @@ public class StaticStsProperties extends StaticSTSProperties {
    *
    * @param callbackHandler the CallbackHandler object.
    */
+  @Override
   public void setCallbackHandler(CallbackHandler callbackHandler) {
     this.callbackHandler = callbackHandler;
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Setting callbackHandler: {}", callbackHandler);
-    }
+    LOGGER.debug("Setting callbackHandler: {}", callbackHandler);
   }
 
   /**
@@ -207,11 +207,10 @@ public class StaticStsProperties extends StaticSTSProperties {
    *
    * @param callbackHandlerClass the String corresponding to the CallbackHandler class.
    */
+  @Override
   public void setCallbackHandlerClass(String callbackHandlerClass) {
     this.callbackHandlerClass = callbackHandlerClass;
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Setting callbackHandlerClass: {}", callbackHandlerClass);
-    }
+    LOGGER.debug("Setting callbackHandlerClass: {}", callbackHandlerClass);
   }
 
   /**
@@ -219,6 +218,7 @@ public class StaticStsProperties extends StaticSTSProperties {
    *
    * @return the CallbackHandler object.
    */
+  @Override
   public CallbackHandler getCallbackHandler() {
     return callbackHandler;
   }
@@ -228,6 +228,7 @@ public class StaticStsProperties extends StaticSTSProperties {
    *
    * @param signatureCrypto the signature Crypto object
    */
+  @Override
   public void setSignatureCrypto(Crypto signatureCrypto) {
     this.signatureCrypto = signatureCrypto;
   }
@@ -236,8 +237,10 @@ public class StaticStsProperties extends StaticSTSProperties {
    * Set the String corresponding to the signature Properties class
    *
    * @param signaturePropertiesFile the String corresponding to the signature properties file
+   * @deprecated
    */
   @Deprecated
+  @Override
   public void setSignaturePropertiesFile(String signaturePropertiesFile) {
     setSignatureCryptoProperties(signaturePropertiesFile);
   }
@@ -248,11 +251,10 @@ public class StaticStsProperties extends StaticSTSProperties {
    *
    * @param signatureCryptoProperties the object corresponding to the signature properties
    */
+  @Override
   public void setSignatureCryptoProperties(Object signatureCryptoProperties) {
     this.signatureCryptoProperties = signatureCryptoProperties;
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Setting signature crypto properties: {}", signatureCryptoProperties);
-    }
+    LOGGER.debug("Setting signature crypto properties: {}", signatureCryptoProperties);
   }
 
   /**
@@ -260,6 +262,7 @@ public class StaticStsProperties extends StaticSTSProperties {
    *
    * @return the signature Crypto object
    */
+  @Override
   public Crypto getSignatureCrypto() {
     return signatureCrypto;
   }
@@ -269,11 +272,10 @@ public class StaticStsProperties extends StaticSTSProperties {
    *
    * @param signatureUsername the username/alias to use to sign any issued tokens
    */
+  @Override
   public void setSignatureUsername(String signatureUsername) {
     this.signatureUsername = signatureUsername;
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Setting signatureUsername: {}", signatureUsername);
-    }
+    LOGGER.debug("Setting signatureUsername: {}", signatureUsername);
   }
 
   /**
@@ -281,6 +283,7 @@ public class StaticStsProperties extends StaticSTSProperties {
    *
    * @return the username/alias to use to sign any issued tokens
    */
+  @Override
   public String getSignatureUsername() {
     return signatureUsername;
   }
@@ -290,6 +293,7 @@ public class StaticStsProperties extends StaticSTSProperties {
    *
    * @param encryptionCrypto the encryption Crypto object
    */
+  @Override
   public void setEncryptionCrypto(Crypto encryptionCrypto) {
     this.encryptionCrypto = encryptionCrypto;
   }
@@ -298,8 +302,10 @@ public class StaticStsProperties extends StaticSTSProperties {
    * Set the String corresponding to the encryption Properties class
    *
    * @param encryptionPropertiesFile the String corresponding to the encryption properties file
+   * @deprecated
    */
   @Deprecated
+  @Override
   public void setEncryptionPropertiesFile(String encryptionPropertiesFile) {
     setEncryptionCryptoProperties(encryptionPropertiesFile);
   }
@@ -310,11 +316,10 @@ public class StaticStsProperties extends StaticSTSProperties {
    *
    * @param encryptionCryptoProperties the object corresponding to the encryption properties
    */
+  @Override
   public void setEncryptionCryptoProperties(Object encryptionCryptoProperties) {
     this.encryptionCryptoProperties = encryptionCryptoProperties;
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Setting encryptionProperties: ", encryptionCryptoProperties);
-    }
+    LOGGER.debug("Setting encryptionProperties: ", encryptionCryptoProperties);
   }
 
   /**
@@ -322,6 +327,7 @@ public class StaticStsProperties extends StaticSTSProperties {
    *
    * @return the encryption Crypto object
    */
+  @Override
   public Crypto getEncryptionCrypto() {
     return encryptionCrypto;
   }
@@ -332,11 +338,10 @@ public class StaticStsProperties extends StaticSTSProperties {
    *
    * @param encryptionUsername the username/alias to use to encrypt any issued tokens
    */
+  @Override
   public void setEncryptionUsername(String encryptionUsername) {
     this.encryptionUsername = encryptionUsername;
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Setting encryptionUsername: {}", encryptionUsername);
-    }
+    LOGGER.debug("Setting encryptionUsername: {}", encryptionUsername);
   }
 
   /**
@@ -345,6 +350,7 @@ public class StaticStsProperties extends StaticSTSProperties {
    *
    * @return the username/alias to use to encrypt any issued tokens
    */
+  @Override
   public String getEncryptionUsername() {
     return encryptionUsername;
   }
@@ -354,6 +360,7 @@ public class StaticStsProperties extends StaticSTSProperties {
    *
    * @param encryptionProperties the EncryptionProperties to use.
    */
+  @Override
   public void setEncryptionProperties(EncryptionProperties encryptionProperties) {
     this.encryptionProperties = encryptionProperties;
   }
@@ -363,6 +370,7 @@ public class StaticStsProperties extends StaticSTSProperties {
    *
    * @return the EncryptionProperties to use.
    */
+  @Override
   public EncryptionProperties getEncryptionProperties() {
     return encryptionProperties;
   }
@@ -372,11 +380,10 @@ public class StaticStsProperties extends StaticSTSProperties {
    *
    * @param issuer the STS issuer name
    */
+  @Override
   public void setIssuer(String issuer) {
     this.issuer = issuer;
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Setting issuer: {}", issuer);
-    }
+    LOGGER.debug("Setting issuer: {}", issuer);
   }
 
   /**
@@ -384,6 +391,7 @@ public class StaticStsProperties extends StaticSTSProperties {
    *
    * @return the STS issuer name
    */
+  @Override
   public String getIssuer() {
     return issuer;
   }
@@ -393,6 +401,7 @@ public class StaticStsProperties extends StaticSTSProperties {
    *
    * @param signatureProperties the SignatureProperties to use.
    */
+  @Override
   public void setSignatureProperties(SignatureProperties signatureProperties) {
     this.signatureProperties = signatureProperties;
   }
@@ -402,6 +411,7 @@ public class StaticStsProperties extends StaticSTSProperties {
    *
    * @return the SignatureProperties to use.
    */
+  @Override
   public SignatureProperties getSignatureProperties() {
     return signatureProperties;
   }
@@ -411,6 +421,7 @@ public class StaticStsProperties extends StaticSTSProperties {
    *
    * @param realmParser the RealmParser object to use.
    */
+  @Override
   public void setRealmParser(RealmParser realmParser) {
     this.realmParser = realmParser;
   }
@@ -420,6 +431,7 @@ public class StaticStsProperties extends StaticSTSProperties {
    *
    * @return the RealmParser object to use.
    */
+  @Override
   public RealmParser getRealmParser() {
     return realmParser;
   }
@@ -429,6 +441,7 @@ public class StaticStsProperties extends StaticSTSProperties {
    *
    * @param identityMapper the IdentityMapper object to use.
    */
+  @Override
   public void setIdentityMapper(IdentityMapper identityMapper) {
     this.identityMapper = identityMapper;
   }
@@ -438,35 +451,43 @@ public class StaticStsProperties extends StaticSTSProperties {
    *
    * @return the IdentityMapper object to use.
    */
+  @Override
   public IdentityMapper getIdentityMapper() {
     return identityMapper;
   }
 
+  @Override
   public void setRelationships(List<Relationship> relationships) {
     this.relationships = relationships;
     this.relationshipResolver = new RelationshipResolver(this.relationships);
   }
 
+  @Override
   public List<Relationship> getRelationships() {
     return relationships;
   }
 
+  @Override
   public RelationshipResolver getRelationshipResolver() {
     return relationshipResolver;
   }
 
+  @Override
   public SAMLRealmCodec getSamlRealmCodec() {
     return samlRealmCodec;
   }
 
+  @Override
   public void setSamlRealmCodec(SAMLRealmCodec samlRealmCodec) {
     this.samlRealmCodec = samlRealmCodec;
   }
 
+  @Override
   public Bus getBus() {
     return bus;
   }
 
+  @Override
   public void setBus(Bus bus) {
     this.bus = bus;
   }
@@ -475,6 +496,7 @@ public class StaticStsProperties extends StaticSTSProperties {
    * Get whether to validate a client Public Key or Certificate presented as part of a UseKey
    * element. This is true by default.
    */
+  @Override
   public boolean isValidateUseKey() {
     return validateUseKey;
   }
@@ -486,6 +508,7 @@ public class StaticStsProperties extends StaticSTSProperties {
    *
    * @param validateUseKey whether to validate a client UseKey or not.
    */
+  @Override
   public void setValidateUseKey(boolean validateUseKey) {
     this.validateUseKey = validateUseKey;
   }

@@ -304,7 +304,7 @@ public class ResourceCacheImpl implements ResourceCacheInterface {
     if (cachedResource != null) {
       if (!validateCacheEntry(cachedResource, latestMetacard)) {
         LOGGER.debug(
-            "Entry found in cache was out-of-date or otherwise invalid.  Will need to be re-cached.  Entry key: {} ",
+            "Entry found in cache was out-of-date or otherwise invalid.  Will need to be re-cached.  Entry key: {}",
             key);
         return null;
       }
@@ -315,7 +315,7 @@ public class ResourceCacheImpl implements ResourceCacheInterface {
       } else {
         cache.remove(key);
         LOGGER.debug(
-            "Entry found in the cache, but no product found in cache directory for key = {} ", key);
+            "Entry found in the cache, but no product found in cache directory for key = {}", key);
         return null;
       }
     } else {
