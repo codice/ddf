@@ -70,15 +70,10 @@ public class AdminHelper {
   }
 
   private BundleContext getBundleContext() {
-    Bundle bundle = FrameworkUtil.getBundle(this.getClass());
-    BundleContext context = null;
-    if (bundle != null) {
-      context = bundle.getBundleContext();
-    }
-    if (context == null) {
-      throw new IllegalStateException("Error getting bundle context");
-    }
-    return context;
+    return Optional.of(this.getClass())
+        .map(FrameworkUtil::getBundle)
+        .map(Bundle::getBundleContext)
+        .orElseThrow(() -> new IllegalStateException("Error getting bundle context"));
   }
 
   public List<Source> getRegistrySources() throws InvalidSyntaxException {
