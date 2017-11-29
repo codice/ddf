@@ -249,7 +249,7 @@ public class AbstractMetacardActionProviderTest {
           @Override
           protected URL getMetacardActionUrl(String metacardSource, Metacard metacard)
               throws MalformedURLException, URISyntaxException, UnsupportedEncodingException {
-            throw new MalformedURLException();
+            throw new MalformedURLException("Not implemented for testing");
           }
         };
 

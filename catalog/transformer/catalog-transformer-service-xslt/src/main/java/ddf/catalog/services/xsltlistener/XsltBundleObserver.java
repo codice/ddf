@@ -16,6 +16,7 @@ package ddf.catalog.services.xsltlistener;
 import ddf.catalog.Constants;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Dictionary;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -54,7 +55,7 @@ public class XsltBundleObserver<T extends AbstractXsltTransformer>
       // extract the format from the file name
       File file = new File(fileName);
       String format = file.getName().substring(0, file.getName().lastIndexOf('.'));
-      DictionaryMap<String, String> properties = new DictionaryMap<>();
+      Dictionary<String, String> properties = new DictionaryMap<>();
 
       LOGGER.debug("Found started bundle with name: {}", fileName);
 

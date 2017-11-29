@@ -16,7 +16,6 @@ package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.ws.rs.core.Response;
@@ -92,7 +91,7 @@ public class WfsResponseExceptionMapper implements ResponseExceptionMapper<WfsEx
   private WfsException convertToWfsException(ExceptionReport report) {
 
     WfsException wfsException = null;
-    List<ExceptionType> list = new ArrayList<>(report.getException());
+    List<ExceptionType> list = report.getException();
 
     if (!list.isEmpty()) {
       Collections.reverse(list);

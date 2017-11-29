@@ -17,6 +17,7 @@ import static spark.Spark.get;
 import static spark.Spark.staticFiles;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 import org.apache.commons.io.FileUtils;
@@ -26,8 +27,8 @@ import spark.servlet.SparkApplication;
 
 public class DocsSparkApplication implements SparkApplication {
 
-  public static final String DOCS_ROOT_DIR =
-      Paths.get(System.getProperty("karaf.home"), "documentation").toString();
+  public static final Path DOCS_ROOT_DIR =
+      Paths.get(System.getProperty("karaf.home"), "documentation");
 
   @Override
   public void init() {
@@ -43,13 +44,13 @@ public class DocsSparkApplication implements SparkApplication {
 
   public File getDocumentationHtml() {
 
-    if (!Paths.get(DOCS_ROOT_DIR).toFile().exists()) {
+    if (!DOCS_ROOT_DIR.toFile().exists()) {
       return null;
     }
 
     Collection<File> files =
         FileUtils.listFiles(
-            new File(DOCS_ROOT_DIR),
+            DOCS_ROOT_DIR.toFile(),
             new NameFileFilter("documentation.html"),
             TrueFileFilter.INSTANCE);
 

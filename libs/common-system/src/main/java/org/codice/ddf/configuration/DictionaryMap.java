@@ -18,9 +18,9 @@ import java.util.Collection;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.collections4.IteratorUtils;
 
 /**
  * A HashMap based Dictionary for use with OSGI methods requiring a Dictionary
@@ -69,12 +69,12 @@ public class DictionaryMap<K, V> extends Dictionary<K, V> implements Map<K, V>, 
 
   @Override
   public Enumeration<K> keys() {
-    return new EnumerationImpl<>(map.keySet().iterator());
+    return IteratorUtils.asEnumeration(map.keySet().iterator());
   }
 
   @Override
   public Enumeration<V> elements() {
-    return new EnumerationImpl<>(map.values().iterator());
+    return IteratorUtils.asEnumeration(map.values().iterator());
   }
 
   @Override
@@ -117,20 +117,37 @@ public class DictionaryMap<K, V> extends Dictionary<K, V> implements Map<K, V>, 
     return map.entrySet();
   }
 
-  @SuppressWarnings("squid:S1150")
-  public static class EnumerationImpl<E> implements Enumeration<E> {
-    private Iterator<E> iterator;
+  public static <K, V> DictionaryMap<K, V> of(K k1, V v1) {
+    return fromEntries(new Pair[] {Pair.of(k1, v1)});
+  }
 
-    public EnumerationImpl(Iterator<E> iter) {
-      this.iterator = iter;
+  public static <K, V> DictionaryMap<K, V> of(K k1, V v1, K k2, V v2) {
+    return fromEntries(new Pair[] {Pair.of(k1, v1), Pair.of(k2, v2)});
+  }
+
+  public static <K, V> DictionaryMap<K, V> of(K k1, V v1, K k2, V v2, K k3, V v3) {
+    return fromEntries(new Pair[] {Pair.of(k1, v1), Pair.of(k2, v2), Pair.of(k3, v3)});
+  }
+
+  private static <K, V> DictionaryMap<K, V> fromEntries(Pair<K, V>[] pairs) {
+    DictionaryMap<K, V> map = new DictionaryMap<>();
+    for (Pair<K, V> pair : pairs) {
+      map.put(pair.key, pair.value);
+    }
+    return map;
+  }
+
+  private static class Pair<K, V> {
+    K key;
+    V value;
+
+    Pair(K k, V v) {
+      this.key = k;
+      this.value = v;
     }
 
-    public boolean hasMoreElements() {
-      return iterator.hasNext();
-    }
-
-    public E nextElement() {
-      return iterator.next();
+    static <K, V> Pair of(K k, V v) {
+      return new Pair(k, v);
     }
   }
 }

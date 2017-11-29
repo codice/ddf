@@ -580,7 +580,6 @@ public class SourceConfigurationHandler implements EventHandler, RegistrySourceC
     return bindingTypeToActivate;
   }
 
-  @SuppressWarnings("squid:S1149" /* Confined by underlying contract */)
   private DictionaryMap<String, Object> getConfigurationsFromDictionary(
       Dictionary<String, Object> properties) {
     DictionaryMap<String, Object> configProperties = new DictionaryMap<>();

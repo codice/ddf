@@ -325,7 +325,7 @@ public class RrdMetricsRetriever implements MetricsRetriever {
 
     MetricData metricData = getMetricData(rrdFilename, startTime, endTime);
 
-    StringBuilder csv = new StringBuilder("");
+    StringBuilder csv = new StringBuilder();
 
     csv.append("Timestamp,Value\n");
 

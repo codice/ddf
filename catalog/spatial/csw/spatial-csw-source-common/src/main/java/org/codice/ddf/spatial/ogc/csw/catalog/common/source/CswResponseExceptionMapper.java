@@ -16,7 +16,6 @@ package org.codice.ddf.spatial.ogc.csw.catalog.common.source;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBException;
@@ -123,7 +122,7 @@ public class CswResponseExceptionMapper implements ResponseExceptionMapper<CswEx
   private CswException convertToCswException(ExceptionReport report) {
 
     CswException cswException = null;
-    List<ExceptionType> list = new ArrayList<>(report.getException());
+    List<ExceptionType> list = report.getException();
 
     for (ExceptionType exceptionType : list) {
       String exceptionCode = exceptionType.getExceptionCode();

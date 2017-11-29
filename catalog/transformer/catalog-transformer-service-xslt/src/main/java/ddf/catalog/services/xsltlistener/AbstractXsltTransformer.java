@@ -38,7 +38,7 @@ public abstract class AbstractXsltTransformer {
     try {
       unknownMime = new MimeType("application/octet-stream");
     } catch (MimeTypeParseException e) {
-      // do nothing
+      throw new IllegalStateException("Unable to create MimeType");
     }
     DEFAULT_MIME_TYPE = unknownMime;
   }

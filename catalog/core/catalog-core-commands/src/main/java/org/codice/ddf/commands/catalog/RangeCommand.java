@@ -103,7 +103,6 @@ public class RangeCommand extends CatalogCommands {
 
     Date wayInTheFuture = new DateTime().plusYears(5000).toDate();
     Date endDate = wayInTheFuture;
-    Date startDate;
 
     SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
 
@@ -118,19 +117,19 @@ public class RangeCommand extends CatalogCommands {
       filter = filterBuilder.attribute(attributeName).before().date(endDate);
     } else if (!WILDCARD.equals(rangeBeginning) && WILDCARD.equals(rangeEnd)) {
       try {
-        startDate = formatter.parse(rangeBeginning);
+        Date startDate = formatter.parse(rangeBeginning);
+        filter = filterBuilder.attribute(attributeName).during().dates(startDate, endDate);
       } catch (ParseException e) {
         throw new InterruptedException("Could not parse first parameter [" + rangeBeginning + "]");
       }
-      filter = filterBuilder.attribute(attributeName).during().dates(startDate, endDate);
     } else {
       try {
-        startDate = formatter.parse(rangeBeginning);
+        Date startDate = formatter.parse(rangeBeginning);
         endDate = formatter.parse(rangeEnd);
+        filter = filterBuilder.attribute(attributeName).during().dates(startDate, endDate);
       } catch (ParseException e) {
         throw new InterruptedException("Could not parse date parameters.");
       }
-      filter = filterBuilder.attribute(attributeName).during().dates(startDate, endDate);
     }
 
     QueryImpl query = new QueryImpl(filter);

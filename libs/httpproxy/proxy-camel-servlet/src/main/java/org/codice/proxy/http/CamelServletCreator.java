@@ -40,7 +40,7 @@ public class CamelServletCreator {
   /** Register the Camel Servlet with the HTTP Service */
   public void registerServlet() {
 
-    Dictionary props = new DictionaryMap<>();
+    Dictionary<String, Object> props = new DictionaryMap<>();
     props.put("alias", SERVLET_PATH);
     props.put("servlet-name", SERVLET_NAME);
     bundleContext.registerService(

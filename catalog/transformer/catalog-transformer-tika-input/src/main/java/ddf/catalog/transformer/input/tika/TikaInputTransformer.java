@@ -43,6 +43,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -577,8 +578,8 @@ public class TikaInputTransformer implements InputTransformer {
     bundleContext.registerService(InputTransformer.class, this, getServiceProperties());
   }
 
-  private DictionaryMap<String, Object> getServiceProperties() {
-    DictionaryMap<String, Object> properties = new DictionaryMap<>();
+  private Dictionary<String, Object> getServiceProperties() {
+    Dictionary<String, Object> properties = new DictionaryMap<>();
     properties.put(ddf.catalog.Constants.SERVICE_ID, "tika");
     properties.put(ddf.catalog.Constants.SERVICE_TITLE, "Tika Input Transformer");
     properties.put(

@@ -111,10 +111,8 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet implements 
                 + this
                 + ". Its advised to use unique ServletName per Camel application.";
         // always log so people can see it easier
-        if (isIgnoreDuplicateServletName()) {
-          LOGGER.debug(msg);
-        } else {
-          LOGGER.debug(msg);
+        LOGGER.debug(msg);
+        if (!isIgnoreDuplicateServletName()) {
           throw new ServletException(msg);
         }
       }
@@ -191,7 +189,8 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet implements 
         return;
       }
     } catch (IOException e) {
-      LOGGER.warn("Could not send error due to: ", e);
+      LOGGER.warn("Could not send error due to: ", e.getMessage());
+      LOGGER.debug("Could not send error due to: ", e);
     }
 
     if (consumer == null) {
