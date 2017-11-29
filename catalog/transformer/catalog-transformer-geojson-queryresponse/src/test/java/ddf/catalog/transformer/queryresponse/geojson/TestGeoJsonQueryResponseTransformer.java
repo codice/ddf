@@ -45,7 +45,7 @@ import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 import org.apache.commons.io.IOUtils;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,10 +76,10 @@ public class TestGeoJsonQueryResponseTransformer {
 
   private static final Date NOW = new Date();
 
-  private GeoJsonQueryResponseTransformer geoJsonQueryResponseTransformer;
+  private static GeoJsonQueryResponseTransformer geoJsonQueryResponseTransformer;
 
-  @Before
-  public void setup() {
+  @BeforeClass
+  public static void setup() {
     geoJsonQueryResponseTransformer =
         new GeoJsonQueryResponseTransformer(new GeoJsonMetacardTransformer());
   }
