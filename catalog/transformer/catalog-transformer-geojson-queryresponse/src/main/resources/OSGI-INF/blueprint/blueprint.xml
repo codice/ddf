@@ -20,7 +20,7 @@
 
 	<bean id="transformer"
           class="ddf.catalog.transformer.queryresponse.geojson.GeoJsonQueryResponseTransformer">
-		<property name="metacardTransformer" ref="geojsonMetacardTransformer"/>
+		<argument ref="geojsonMetacardTransformer"/>
 	</bean>
 
 	<service ref="transformer" interface="ddf.catalog.transform.QueryResponseTransformer">

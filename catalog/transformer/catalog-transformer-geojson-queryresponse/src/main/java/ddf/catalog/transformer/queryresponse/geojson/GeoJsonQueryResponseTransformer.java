@@ -66,27 +66,31 @@ public class GeoJsonQueryResponseTransformer implements QueryResponseTransformer
     }
   }
 
-  private MetacardTransformer metacardTransformer;
+  private final MetacardTransformer metacardTransformer;
+
+  public GeoJsonQueryResponseTransformer(MetacardTransformer metacardTransformer) {
+    this.metacardTransformer = metacardTransformer;
+  }
 
   private JSONObject convertToJSON(Result result) throws CatalogTransformerException {
     JSONObject rootObject = new JSONObject();
 
     addNonNullObject(rootObject, "distance", result.getDistanceInMeters());
     addNonNullObject(rootObject, "relevance", result.getRelevanceScore());
-    addNonNullObject(rootObject, "metacard", processMetacard(result.getMetacard()));
+    addNonNullObject(rootObject, "metacard", createGeoJSON(result.getMetacard()));
 
     return rootObject;
   }
 
-  private JSONObject processMetacard(Metacard metacard) throws CatalogTransformerException {
+  private Object createGeoJSON(Metacard metacard) throws CatalogTransformerException {
     if (metacardTransformer == null) {
-      throw new CatalogTransformerException("No metacard transformer with id=geojson is available");
+      throw new CatalogTransformerException("The metacard transformer cannot be null");
     }
 
     BinaryContent rawContent = metacardTransformer.transform(metacard, null);
     JSONParser jsonParser = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE);
     try {
-      return (JSONObject) jsonParser.parse(rawContent.getInputStream());
+      return jsonParser.parse(rawContent.getInputStream());
     } catch (ParseException | UnsupportedEncodingException e) {
       throw new CatalogTransformerException(
           "Unable to parse transformed metacard content as JSON", e);
@@ -143,9 +147,5 @@ public class GeoJsonQueryResponseTransformer implements QueryResponseTransformer
         + ", MIME Type="
         + DEFAULT_MIME_TYPE
         + "}";
-  }
-
-  public void setMetacardTransformer(MetacardTransformer metacardTransformer) {
-    this.metacardTransformer = metacardTransformer;
   }
 }
