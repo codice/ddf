@@ -57,12 +57,9 @@ package ddf.security.sts;
 import java.net.URL;
 import java.util.List;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.security.auth.callback.CallbackHandler;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
-import org.apache.cxf.common.logging.LogUtils;
 import org.apache.cxf.resource.ResourceManager;
 import org.apache.cxf.rt.security.utils.SecurityUtils;
 import org.apache.cxf.sts.IdentityMapper;
@@ -78,6 +75,8 @@ import org.apache.wss4j.common.crypto.Crypto;
 import org.apache.wss4j.common.crypto.CryptoFactory;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.dom.engine.WSSConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A customized static implementation of the STSPropertiesMBean. The StaticSTSProperties doesn't
@@ -86,7 +85,7 @@ import org.apache.wss4j.dom.engine.WSSConfig;
  */
 public class StaticStsProperties extends StaticSTSProperties {
 
-  private static final Logger LOG = LogUtils.getL7dLogger(StaticSTSProperties.class);
+  private static final Logger LOG = LoggerFactory.getLogger(StaticStsProperties.class);
 
   private CallbackHandler callbackHandler;
 
@@ -136,13 +135,13 @@ public class StaticStsProperties extends StaticSTSProperties {
         sigProperties = SecurityUtils.loadProperties(url);
       }
       if (sigProperties == null) {
-        LOG.fine("Cannot load signature properties using: " + signatureCryptoProperties);
+        LOG.debug("Cannot load signature properties using: {}", signatureCryptoProperties);
         throw new STSException("Configuration error: cannot load signature properties");
       }
       try {
         signatureCrypto = CryptoFactory.getInstance(sigProperties);
       } catch (WSSecurityException ex) {
-        LOG.fine("Error in loading the signature Crypto object: " + ex.getMessage());
+        LOG.debug("Error in loading the signature Crypto object: {}", ex.getMessage());
         throw new STSException(ex.getMessage());
       }
     }
@@ -157,13 +156,13 @@ public class StaticStsProperties extends StaticSTSProperties {
         encrProperties = SecurityUtils.loadProperties(url);
       }
       if (encrProperties == null) {
-        LOG.fine("Cannot load encryption properties using: " + encryptionCryptoProperties);
+        LOG.debug("Cannot load encryption properties using: {}", encryptionCryptoProperties);
         throw new STSException("Configuration error: cannot load encryption properties");
       }
       try {
         encryptionCrypto = CryptoFactory.getInstance(encrProperties);
       } catch (WSSecurityException ex) {
-        LOG.fine("Error in loading the encryption Crypto object: " + ex.getMessage());
+        LOG.debug("Error in loading the encryption Crypto object: {}", ex.getMessage());
         throw new STSException(ex.getMessage());
       }
     }
@@ -172,11 +171,11 @@ public class StaticStsProperties extends StaticSTSProperties {
       try {
         callbackHandler = SecurityUtils.getCallbackHandler(callbackHandlerClass);
         if (callbackHandler == null) {
-          LOG.fine("Cannot load CallbackHandler using: " + callbackHandlerClass);
+          LOG.debug("Cannot load CallbackHandler using: {}", callbackHandlerClass);
           throw new STSException("Configuration error: cannot load callback handler");
         }
       } catch (Exception ex) {
-        LOG.fine("Error in loading the callback handler: " + ex.getMessage());
+        LOG.debug("Error in loading the callback handler: {}", ex.getMessage());
         throw new STSException(ex.getMessage());
       }
     }
@@ -198,8 +197,8 @@ public class StaticStsProperties extends StaticSTSProperties {
    */
   public void setCallbackHandler(CallbackHandler callbackHandler) {
     this.callbackHandler = callbackHandler;
-    if (LOG.isLoggable(Level.FINE)) {
-      LOG.fine("Setting callbackHandler: " + callbackHandler);
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Setting callbackHandler: {}", callbackHandler);
     }
   }
 
@@ -210,8 +209,8 @@ public class StaticStsProperties extends StaticSTSProperties {
    */
   public void setCallbackHandlerClass(String callbackHandlerClass) {
     this.callbackHandlerClass = callbackHandlerClass;
-    if (LOG.isLoggable(Level.FINE)) {
-      LOG.fine("Setting callbackHandlerClass: " + callbackHandlerClass);
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Setting callbackHandlerClass: {}", callbackHandlerClass);
     }
   }
 
@@ -251,8 +250,8 @@ public class StaticStsProperties extends StaticSTSProperties {
    */
   public void setSignatureCryptoProperties(Object signatureCryptoProperties) {
     this.signatureCryptoProperties = signatureCryptoProperties;
-    if (LOG.isLoggable(Level.FINE)) {
-      LOG.fine("Setting signature crypto properties: " + signatureCryptoProperties);
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Setting signature crypto properties: {}", signatureCryptoProperties);
     }
   }
 
@@ -272,8 +271,8 @@ public class StaticStsProperties extends StaticSTSProperties {
    */
   public void setSignatureUsername(String signatureUsername) {
     this.signatureUsername = signatureUsername;
-    if (LOG.isLoggable(Level.FINE)) {
-      LOG.fine("Setting signatureUsername: " + signatureUsername);
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Setting signatureUsername: {}", signatureUsername);
     }
   }
 
@@ -313,8 +312,8 @@ public class StaticStsProperties extends StaticSTSProperties {
    */
   public void setEncryptionCryptoProperties(Object encryptionCryptoProperties) {
     this.encryptionCryptoProperties = encryptionCryptoProperties;
-    if (LOG.isLoggable(Level.FINE)) {
-      LOG.fine("Setting encryptionProperties: " + encryptionCryptoProperties);
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Setting encryptionProperties: ", encryptionCryptoProperties);
     }
   }
 
@@ -335,8 +334,8 @@ public class StaticStsProperties extends StaticSTSProperties {
    */
   public void setEncryptionUsername(String encryptionUsername) {
     this.encryptionUsername = encryptionUsername;
-    if (LOG.isLoggable(Level.FINE)) {
-      LOG.fine("Setting encryptionUsername: " + encryptionUsername);
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Setting encryptionUsername: {}", encryptionUsername);
     }
   }
 
@@ -375,8 +374,8 @@ public class StaticStsProperties extends StaticSTSProperties {
    */
   public void setIssuer(String issuer) {
     this.issuer = issuer;
-    if (LOG.isLoggable(Level.FINE)) {
-      LOG.fine("Setting issuer: " + issuer);
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Setting issuer: {}", issuer);
     }
   }
 

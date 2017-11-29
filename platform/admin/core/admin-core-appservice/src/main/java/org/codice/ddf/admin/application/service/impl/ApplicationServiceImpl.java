@@ -570,7 +570,7 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
                     LOGGER.trace(
                         "{} is in an inactive state. Current State: {}",
                         curBundle.getSymbolicName(),
-                        curState.toString());
+                        curState);
 
                     bundleStateSet.addInactiveBundle(curBundle);
                     break;
@@ -580,7 +580,7 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
                     LOGGER.trace(
                         "{} is in a failed state. Current State: {}",
                         curBundle.getSymbolicName(),
-                        curState.toString());
+                        curState);
 
                     bundleStateSet.addFailedBundle(curBundle);
                     break;
@@ -591,7 +591,7 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
                     LOGGER.trace(
                         "{} is in a transitional state. Current State: {}",
                         curBundle.getSymbolicName(),
-                        curState.toString());
+                        curState);
 
                     bundleStateSet.addTransitionalBundle(curBundle);
                     break;
@@ -600,7 +600,7 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
                     LOGGER.trace(
                         "{} is in an active state. Current State: {}",
                         curBundle.getSymbolicName(),
-                        curState.toString());
+                        curState);
 
                     bundleStateSet.addActiveBundle(curBundle);
                     break;
@@ -754,13 +754,15 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
         if (System.currentTimeMillis() > timeoutLimit) {
           break;
         }
-        LOGGER.trace(
-            "Waiting for the following bundles to become ACTIVE: {}",
-            bundleStates
-                .getTransitionalBundles()
-                .stream()
-                .map(Object::toString)
-                .collect(Collectors.joining(", ")));
+        if (LOGGER.isTraceEnabled()) {
+          LOGGER.trace(
+              "Waiting for the following bundles to become ACTIVE: {}",
+              bundleStates
+                  .getTransitionalBundles()
+                  .stream()
+                  .map(Object::toString)
+                  .collect(Collectors.joining(", ")));
+        }
         this.wait(TimeUnit.SECONDS.toMillis(1));
       } else {
         starting = false;

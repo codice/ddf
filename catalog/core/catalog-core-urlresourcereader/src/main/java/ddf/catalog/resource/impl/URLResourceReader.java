@@ -106,9 +106,7 @@ public class URLResourceReader implements ResourceReader {
     this.mimeTypeMapper = mimeTypeMapper;
 
     LOGGER.debug(
-        "Supported Schemes for {}: {}",
-        URLResourceReader.class.getSimpleName(),
-        QUALIFIER_SET.toString());
+        "Supported Schemes for {}: {}", URLResourceReader.class.getSimpleName(), QUALIFIER_SET);
   }
 
   public Set<String> getURLSupportedSchemes() {
@@ -173,7 +171,7 @@ public class URLResourceReader implements ResourceReader {
     if (rootResourceDirectoryPaths != null) {
       LOGGER.debug(
           "Attempting to set Root Resource Directories to {} for {}",
-          rootResourceDirectoryPaths.toString(),
+          rootResourceDirectoryPaths,
           URLResourceReader.class.getSimpleName());
 
       for (String rootResourceDirectoryPath : rootResourceDirectoryPaths) {
@@ -194,7 +192,7 @@ public class URLResourceReader implements ResourceReader {
     LOGGER.debug(
         "Root Resource Directories for {} are {}",
         URLResourceReader.class.getSimpleName(),
-        this.rootResourceDirectories.toString());
+        this.rootResourceDirectories);
   }
 
   public Set<String> getRootResourceDirectories() {
@@ -310,7 +308,7 @@ public class URLResourceReader implements ResourceReader {
       URI resourceURI, String productName, String bytesToSkip) throws ResourceNotFoundException {
     URLConnection connection = null;
     try {
-      LOGGER.debug("Opening connection to: {}", resourceURI.toString());
+      LOGGER.debug("Opening connection to: {}", resourceURI);
       connection = resourceURI.toURL().openConnection();
 
       productName =
@@ -340,7 +338,7 @@ public class URLResourceReader implements ResourceReader {
       throws ResourceNotFoundException {
 
     try {
-      LOGGER.debug("Opening connection to: {}", resourceURI.toString());
+      LOGGER.debug("Opening connection to: {}", resourceURI);
 
       WebClient client = getWebClient(resourceURI.toString(), properties);
 
@@ -520,7 +518,7 @@ public class URLResourceReader implements ResourceReader {
     String resourceCanonicalPath = resourceFilePath.getCanonicalPath();
     LOGGER.debug(
         "Converted resource path [{}] to its canonical path of [{}]",
-        resourceFilePath.toString(),
+        resourceFilePath,
         resourceCanonicalPath);
     if (this.rootResourceDirectories != null) {
       for (String rootResourceDirectory : this.rootResourceDirectories) {

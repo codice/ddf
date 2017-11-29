@@ -85,15 +85,16 @@ public class SortedServiceList<T> implements List<T> {
    */
   public void bindPlugin(ServiceReference ref) {
 
-    LOGGER.debug(this + " Binding " + ref);
+    LOGGER.debug("{} Binding {}", this, ref);
 
     BundleContext context = getContext();
     if (context != null) {
       T service = (T) context.getService(ref);
 
       serviceMap.put(ref, service);
-
-      LOGGER.debug(Arrays.asList(serviceMap.values()).toString());
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug(Arrays.asList(serviceMap.values()).toString());
+      }
     }
   }
 
@@ -118,7 +119,9 @@ public class SortedServiceList<T> implements List<T> {
 
     serviceMap.remove(ref);
 
-    LOGGER.debug(Arrays.asList(serviceMap.values()).toString());
+    if (LOGGER.isDebugEnabled()) {
+      LOGGER.debug(Arrays.asList(serviceMap.values()).toString());
+    }
   }
 
   /**

@@ -144,7 +144,7 @@ public class BackupCommand extends SolrCommands {
     }
 
     URI backupUri = uriBuilder.build();
-    LOGGER.debug("Sending request to {}", backupUri.toString());
+    LOGGER.debug("Sending request to {}", backupUri);
 
     HttpWrapper httpClient = getHttpClient();
 

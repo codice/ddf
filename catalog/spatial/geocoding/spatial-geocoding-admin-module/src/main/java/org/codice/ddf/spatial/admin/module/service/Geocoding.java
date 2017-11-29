@@ -58,8 +58,7 @@ public class Geocoding implements GeocodingMBean {
         try {
           mBeanServer.registerMBean(this, objectName);
           LOGGER.debug(
-              "Registered Geocoding Configuration MBean under object name: {}",
-              objectName.toString());
+              "Registered Geocoding Configuration MBean under object name: {}", objectName);
         } catch (InstanceAlreadyExistsException e) {
           // Try to remove and re-register
           mBeanServer.unregisterMBean(objectName);

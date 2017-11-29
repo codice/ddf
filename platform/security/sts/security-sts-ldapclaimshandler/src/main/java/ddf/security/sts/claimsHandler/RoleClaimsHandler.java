@@ -278,9 +278,7 @@ public class RoleClaimsHandler implements ClaimsHandler {
 
         if (bindResult.isSuccess()) {
           LOGGER.trace(
-              "Executing ldap search with base dn of {} and filter of {}",
-              groupBaseDn,
-              filter.toString());
+              "Executing ldap search with base dn of {} and filter of {}", groupBaseDn, filter);
 
           entryReader =
               connection.search(

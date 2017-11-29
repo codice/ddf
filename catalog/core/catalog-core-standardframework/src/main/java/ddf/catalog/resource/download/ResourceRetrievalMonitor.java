@@ -88,12 +88,14 @@ public class ResourceRetrievalMonitor extends TimerTask {
     long chunkByteCount = bytesRead - previousBytesRead;
     if (chunkByteCount > 0) {
       long transferSpeed = (chunkByteCount / monitorPeriod) * 1000; // in bytes per second
-      LOGGER.debug(
-          "Downloaded {} bytes in last {} ms. Total bytes read = {},  transfer speed = {}/second",
-          chunkByteCount,
-          monitorPeriod,
-          bytesRead,
-          FileUtils.byteCountToDisplaySize(transferSpeed));
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug(
+            "Downloaded {} bytes in last {} ms. Total bytes read = {},  transfer speed = {}/second",
+            chunkByteCount,
+            monitorPeriod,
+            bytesRead,
+            FileUtils.byteCountToDisplaySize(transferSpeed));
+      }
       previousBytesRead = reliableResourceCallable.getBytesRead();
       if (null != eventPublisher) {
 

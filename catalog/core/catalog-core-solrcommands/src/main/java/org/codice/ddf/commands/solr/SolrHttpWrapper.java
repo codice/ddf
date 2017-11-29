@@ -89,7 +89,7 @@ public class SolrHttpWrapper implements HttpWrapper {
     HttpResponse httpResponse;
     HttpGet get = new HttpGet(uri);
     try {
-      LOGGER.debug("Executing uri: {}", uri.toString());
+      LOGGER.debug("Executing uri: {}", uri);
       httpResponse = solrClient.execute(get);
       return new ResponseWrapper(httpResponse);
     } catch (IOException e) {

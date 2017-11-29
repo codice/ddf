@@ -337,7 +337,7 @@ public class RrdMetricsRetriever implements MetricsRetriever {
       csv.append(timestamp + "," + new Double(values.get(i)) + "\n");
     }
 
-    LOGGER.trace("csv = {}", csv.toString());
+    LOGGER.trace("csv = {}", csv);
 
     LOGGER.trace("EXITING: createCsvData");
 
@@ -996,17 +996,19 @@ public class RrdMetricsRetriever implements MetricsRetriever {
         double adjustedValue = values[i] * rrdStep;
         adjustedValues[i] = adjustedValue;
 
-        LOGGER.trace(
-            getCalendarTime(timestamps[i])
-                + ":  "
-                + values[i]
-                + "   (adjusted value = "
-                + adjustedValue
-                + ",   floor = "
-                + Math.floor(adjustedValue)
-                + ",   round = "
-                + Math.round(adjustedValue)
-                + ")");
+        if (LOGGER.isTraceEnabled()) {
+          LOGGER.trace(
+              getCalendarTime(timestamps[i])
+                  + ":  "
+                  + values[i]
+                  + "   (adjusted value = "
+                  + adjustedValue
+                  + ",   floor = "
+                  + Math.floor(adjustedValue)
+                  + ",   round = "
+                  + Math.round(adjustedValue)
+                  + ")");
+        }
       }
 
       LOGGER.trace("adjustedValues.length = {}", adjustedValues.length);

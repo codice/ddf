@@ -286,7 +286,9 @@ public class AttributeQueryClient {
   private void printXML(String message, Node xmlNode) {
     TransformerProperties transformerProperties = new TransformerProperties();
     transformerProperties.addOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-    LOGGER.trace(message, XML_UTILS.format(xmlNode, transformerProperties));
+    if (LOGGER.isTraceEnabled()) {
+      LOGGER.trace(message, XML_UTILS.format(xmlNode, transformerProperties));
+    }
   }
 
   public void setDispatch(Dispatch<StreamSource> dispatch) {

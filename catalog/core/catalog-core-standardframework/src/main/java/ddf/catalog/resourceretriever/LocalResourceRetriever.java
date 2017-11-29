@@ -69,10 +69,12 @@ public class LocalResourceRetriever implements ResourceRetriever {
         String scheme = resourceUri.getScheme();
         if (reader.getSupportedSchemes().contains(scheme)) {
           try {
-            LOGGER.debug(
-                "Found an acceptable resource reader ({}) for URI {}",
-                reader.getId(),
-                resourceUri.toASCIIString());
+            if (LOGGER.isDebugEnabled()) {
+              LOGGER.debug(
+                  "Found an acceptable resource reader ({}) for URI {}",
+                  reader.getId(),
+                  resourceUri.toASCIIString());
+            }
             resource = reader.retrieveResource(resourceUri, props);
             if (resource != null) {
               break;

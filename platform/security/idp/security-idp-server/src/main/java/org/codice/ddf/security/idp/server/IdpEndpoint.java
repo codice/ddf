@@ -706,7 +706,7 @@ public class IdpEndpoint implements Idp {
               false,
               false,
               authnRequest.getSignature() != null || signature != null);
-      LOGGER.debug("Returning SAML Response for relayState: {}" + relayState);
+      LOGGER.debug("Returning SAML Response for relayState: {}", relayState);
       NewCookie newCookie = createCookie(request, encodedSaml);
       Response response =
           binding

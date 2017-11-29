@@ -133,9 +133,7 @@ public class DataUsage extends RouteBuilder implements DataUsageMBean {
     try {
       try {
         mBeanServer.registerMBean(this, objectName);
-        LOGGER.info(
-            "Registered Data Usage Configuration MBean under object name: {}",
-            objectName.toString());
+        LOGGER.info("Registered Data Usage Configuration MBean under object name: {}", objectName);
       } catch (InstanceAlreadyExistsException e) {
         // Try to remove and re-register
         mBeanServer.unregisterMBean(objectName);
@@ -180,7 +178,7 @@ public class DataUsage extends RouteBuilder implements DataUsageMBean {
 
   @Override
   public void updateUserDataLimit(Map<String, Long> userMap) {
-    LOGGER.debug("Updating user data limit : {}", userMap.toString());
+    LOGGER.debug("Updating user data limit : {}", userMap);
 
     for (Map.Entry<String, Long> entry : userMap.entrySet()) {
       long dataLimit = entry.getValue();

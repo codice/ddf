@@ -291,7 +291,7 @@ public class AssertionConsumerService {
       return Response.serverError().entity(UNABLE_TO_LOGIN).build();
     }
 
-    LOGGER.trace("Successfully logged in.  Redirecting to {}", relayUri.toString());
+    LOGGER.trace("Successfully logged in.  Redirecting to {}", relayUri);
     return Response.temporaryRedirect(relayUri).build();
   }
 

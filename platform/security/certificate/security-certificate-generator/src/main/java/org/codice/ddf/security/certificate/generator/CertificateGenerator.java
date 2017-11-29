@@ -71,9 +71,7 @@ public class CertificateGenerator implements CertificateGeneratorMBean {
       try {
         try {
           mBeanServer.registerMBean(this, objectName);
-          LOGGER.debug(
-              "Registered Certificate Generator MBean under object name: {}",
-              objectName.toString());
+          LOGGER.debug("Registered Certificate Generator MBean under object name: {}", objectName);
         } catch (InstanceAlreadyExistsException e) {
           LOGGER.debug("Re-registered Certificate Generator MBean");
         }

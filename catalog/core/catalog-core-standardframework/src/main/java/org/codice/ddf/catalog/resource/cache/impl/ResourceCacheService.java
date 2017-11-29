@@ -75,8 +75,7 @@ public class ResourceCacheService implements ResourceCacheServiceMBean {
 
   public void init() {
     registerMBean();
-    LOGGER.debug(
-        "Registered [{}] MBean under object name: [{}].", CLASS_NAME, objectName.toString());
+    LOGGER.debug("Registered [{}] MBean under object name: [{}].", CLASS_NAME, objectName);
   }
 
   public void destroy() {
@@ -144,9 +143,7 @@ public class ResourceCacheService implements ResourceCacheServiceMBean {
       }
     } else {
       LOGGER.debug(
-          "[{}] MBean is already registered under object name: [{}].",
-          CLASS_NAME,
-          objectName.toString());
+          "[{}] MBean is already registered under object name: [{}].", CLASS_NAME, objectName);
     }
   }
 
@@ -158,13 +155,13 @@ public class ResourceCacheService implements ResourceCacheServiceMBean {
         LOGGER.debug(
             "Unable to unregister [{}] MBean under object name: [{}]. It is not registered.",
             CLASS_NAME,
-            objectName.toString());
+            objectName);
       }
     } catch (MBeanRegistrationException | InstanceNotFoundException e) {
       String message =
           String.format(
               "Unable to unregistering [%s] MBean under object name: [%s].",
-              CLASS_NAME, objectName.toString());
+              CLASS_NAME, objectName);
       LOGGER.debug(message, e);
       throw new RuntimeException(message, e);
     }

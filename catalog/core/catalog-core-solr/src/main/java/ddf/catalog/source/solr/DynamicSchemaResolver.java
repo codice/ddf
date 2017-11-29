@@ -726,9 +726,10 @@ public class DynamicSchemaResolver {
     }
 
     LOGGER.debug(
-        "Did not find any numerical schema fields for property [{}]. Replacing with property [{}]",
+        "Did not find any numerical schema fields for property [{}]. Replacing with property [{}{}]",
         propertyName,
-        propertyName + SchemaFields.INTEGER_SUFFIX);
+        propertyName,
+        SchemaFields.INTEGER_SUFFIX);
     return propertyName + SchemaFields.INTEGER_SUFFIX;
   }
 

@@ -140,7 +140,7 @@ public class SendCommand implements Action {
     if (serviceReferences == null || serviceReferences.length != 1) {
       LOGGER.debug("Found no service references for {}", SERVICE_PID);
     } else {
-      LOGGER.debug("Found " + serviceReferences.length + " service references for " + SERVICE_PID);
+      LOGGER.debug("Found {} service references for {}", serviceReferences.length, SERVICE_PID);
 
       eventAdmin = (EventAdmin) bundleContext.getService(serviceReferences[0]);
       if (eventAdmin != null) {

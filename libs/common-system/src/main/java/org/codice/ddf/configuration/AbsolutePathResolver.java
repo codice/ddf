@@ -46,7 +46,7 @@ public class AbsolutePathResolver {
         LOGGER.warn(
             "Path {} is relative. System property ddf.home is not set, resolving path to: {} ",
             path,
-            absolutePath.toAbsolutePath().toString());
+            absolutePath.toAbsolutePath());
       }
     }
 

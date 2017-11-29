@@ -73,9 +73,7 @@ public class OgcUrlResourceReader implements ResourceReader {
     this.tika = tika;
     this.urlResourceReader = urlResourceReader;
     LOGGER.debug(
-        "Supported Schemes for {}: {}",
-        OgcUrlResourceReader.class.getSimpleName(),
-        QUALIFIER_SET.toString());
+        "Supported Schemes for {}: {}", OgcUrlResourceReader.class.getSimpleName(), QUALIFIER_SET);
   }
 
   public Set<String> getSupportedSchemes() {

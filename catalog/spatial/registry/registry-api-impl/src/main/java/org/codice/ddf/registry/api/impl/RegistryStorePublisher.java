@@ -132,8 +132,7 @@ public class RegistryStorePublisher implements EventHandler {
   void registryPublish(RegistryStore registryStore, String publish) {
 
     if (registryStore.getRegistryId().isEmpty()) {
-      LOGGER.info(
-          String.format("RegistryStore missing id. Unable to complete %s request.", publish));
+      LOGGER.info("RegistryStore missing id. Unable to complete {} request.", publish);
       return;
     }
 

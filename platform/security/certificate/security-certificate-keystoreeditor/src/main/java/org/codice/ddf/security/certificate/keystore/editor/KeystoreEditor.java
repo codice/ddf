@@ -185,8 +185,7 @@ public class KeystoreEditor implements KeystoreEditorMBean {
       try {
         try {
           mBeanServer.registerMBean(this, objectName);
-          LOGGER.debug(
-              "Registered Keystore Editor MBean under object name: {}", objectName.toString());
+          LOGGER.debug("Registered Keystore Editor MBean under object name: {}", objectName);
         } catch (InstanceAlreadyExistsException e) {
           // Try to remove and re-register
           mBeanServer.unregisterMBean(objectName);

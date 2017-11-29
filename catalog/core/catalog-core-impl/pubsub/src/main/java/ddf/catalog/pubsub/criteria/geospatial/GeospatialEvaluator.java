@@ -172,7 +172,9 @@ public class GeospatialEvaluator {
 
       LOGGER.debug("Parsing gmlText");
       geometry = (Geometry) (parser.parse(new StringReader(gmlText)));
-      LOGGER.debug("geometry (before conversion): {}", geometry.toText());
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug("geometry (before conversion): {}", geometry.toText());
+      }
 
       // The metadata schema states that <gml:pos> elements specify points in
       // LAT,LON order. But WKT specifies points in LON,LAT order. When the geoTools
@@ -202,9 +204,11 @@ public class GeospatialEvaluator {
                 null,
                 geometryFactory);
 
-        LOGGER.debug("Translates to {}", polygon.toText()); // this logs the transformed WKT
-        // with LON,LAT ordered points
-        LOGGER.debug("EXITING: {}", methodName);
+        if (LOGGER.isDebugEnabled()) {
+          LOGGER.debug("Translates to {}", polygon.toText()); // this logs the transformed WKT
+          // with LON,LAT ordered points
+          LOGGER.debug("EXITING: {}", methodName);
+        }
 
         return polygon;
       }
@@ -215,9 +219,11 @@ public class GeospatialEvaluator {
             geometryFactory.createPoint(
                 new Coordinate(geometry.getCoordinate().y, geometry.getCoordinate().x));
 
-        LOGGER.debug("Translates to {}", point.toText()); // this logs the transformed WKT
-        // with a LON,LAT ordered point
-        LOGGER.debug("EXITING: {}", methodName);
+        if (LOGGER.isDebugEnabled()) {
+          LOGGER.debug("Translates to {}", point.toText()); // this logs the transformed WKT
+          // with a LON,LAT ordered point
+          LOGGER.debug("EXITING: {}", methodName);
+        }
 
         return point;
       }
