@@ -31,14 +31,16 @@ a|Set OS File permissions under the `${home_directory}` directory (e.g. `/deploy
 
  If Caching is installed:
 
-* Set permissions for the installation directory `/data/product-cache` such that only the ${branding} process and users with the appropriate SCI controls and classification levels can view any stored product. +
+* <<_setting_directory_permissions,Set permissions>> for the installation directory `/data/product-cache` such that only the ${branding} process and users with the appropriate permissions can view any stored product. +
 * Caching can be turned off as well to mitigate this risk. +
-** To disable caching, navigate to ${ddf-catalog}. +
+** To disable caching, navigate to ${admin-console}. +
+** Select the *${ddf-catalog}* application. +
 ** Select *Resource Download Settings*. +
 ** Uncheck the `Enable Product Caching` box. +
 * Install ${ddf-security} to ensure only the appropriate users are accessing the products. +
-** From the ${admin-console}, select *Manage*. +
-** Install ${ddf-security}, if applicable. +
+** Navigate to the ${admin-console} +
+** Select *Manage*. +
+** Install the ${ddf-security} application, if applicable. +
 * Cached files are written by the user running the ${branding} `process/application`. +
 
 On system: ensure that not everyone can change ACLs on your object.
