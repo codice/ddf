@@ -20,7 +20,7 @@ To import previously exported configuration settings:
 . Restore all external files, softlinks, and directories that would not have been exported and for which warnings would have been generated during export. This could include (but is not limited to) external certificates or monitored directories.
 . Launch the newly installed ${branding}.
 . Step through the installation process.
-. Make sure to re-enable <<_automatic_start_on_system_boot,automatic startup and shutdown>> of ${branding} on the new system if it was enabled on the originating system.
+. Make sure to install and re-enable the ${branding} <<_starting_intro,service>> on the new system if it was installed and enabled on the original system.
 . Copy the previously exported file from your secure place to the `exported` directory underneath `${home_directory}`. Create the directory if it does not exist.
 . Run the command migration:import from the ${command-console}.
 . ${branding} will automatically restart if the command is successful. Otherwise address any generated warnings before manually restarting ${branding}.

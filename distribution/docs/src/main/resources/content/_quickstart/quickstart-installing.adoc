@@ -147,3 +147,53 @@ This installation directory will be referred to as `${home_directory}`.
 ----
 ${branding-lowercase}${at-symbol}local>
 ----
+
+==== Installing Multiple ${branding}s on the Same Host
+
+To have multiple ${branding} instances on the same host, it is necessary to edit the port numbers in the files in the ${branding} install folder.
+
+[cols="5*.^" options="header"]
+|===
+
+|File to Edit
+|Property
+|Original Value
+|Example of New Value
+|Notes
+
+|`bin/inc`
+|`DEFAULT_JAVA_DEBUG_PORT`
+.3+|`5005`
+.3+|`5006`
+|
+
+|`bin/karaf.bat`
+.2+|`address`
+|
+
+|`etc/${branding-lowercase}-wrapper.conf`
+|If ${branding} is installed as a <<_starting_intro,service>>
+
+.2+|`etc/org.apache.karaf.management.cfg`
+|`rmiRegistryPort`
+|`1099`
+|`1199`
+|
+
+|`rmiServerPort`
+|`44444`
+|`44445`
+|
+
+.2+|`etc/system.properties`
+|`httpsPort`
+|`8993`
+|`8994`
+|
+
+|`httpPort`
+|`8181`
+|`8281`
+|
+
+|===
