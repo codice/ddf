@@ -24,12 +24,12 @@
                 default="invalid-state=system-admin" cardinality="100"/>
         <AD
                 description="Sets whether metacards with validation errors are filtered."
-                name="Filter errors" id="filterErrors" required="true" type="Boolean"
+                name="Filter errors" id="filterErrors" type="Boolean"
                 default="true"/>
         <AD
                 description="Sets whether metacards with validation warnings are filtered."
-                name="Filter warnings" id="filterWarnings" required="true" type="Boolean"
-                default="true"/>
+                name="Filter warnings" id="filterWarnings" type="Boolean"
+                default="false"/>
     </OCD>
 
     <OCD name="Metacard Validation Marker Plugin"
