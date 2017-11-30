@@ -34,7 +34,7 @@
 |filterWarnings
 |Boolean
 |Sets whether metacards with validation warnings are filtered.
-|true
+|false
 |false
 
 |===
