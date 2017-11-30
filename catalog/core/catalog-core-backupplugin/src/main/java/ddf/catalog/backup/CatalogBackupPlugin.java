@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -121,7 +120,7 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
 
     getExecutor().shutdown();
     if (!executor.isShutdown()) {
-      List<Runnable> failures = Collections.emptyList();
+      List<Runnable> failures;
       try {
         if (!executor.awaitTermination(getTerminationTimeoutSeconds(), TimeUnit.SECONDS)) {
 

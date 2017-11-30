@@ -203,7 +203,7 @@ public class SortedQueryMonitorTest {
     Thread queryMonitorThread = new Thread(queryMonitor);
     queryMonitorThread.start();
     while (queryMonitorThread.isAlive()) {
-      Thread.sleep(500);
+      Thread.sleep(10);
     }
 
     verify(completionService, times(3)).poll(anyLong(), eq(TimeUnit.MILLISECONDS));

@@ -111,23 +111,7 @@ public class DummyPreIngestPlugin implements PreIngestPlugin {
 
     DeleteRequest newRequest = input;
 
-    // List<String> results = new ArrayList<String>();
-    // if(idsToDelete != null)
-    // {
-    // int size = idsToDelete.size();
-    //
-    // //In this example, we demonstrate filtering out every other
-    // //id in the list
-    // for(int i = 0; i < size; i++) {
-    // if(i % 2 == 0) {
-    // results.add(idsToDelete.get(i));
-    // }
-    // }
-    // }
-
     LOGGER.trace(EXITING, methodName);
-    //
-    // return results;
     return newRequest;
   }
 
@@ -135,7 +119,7 @@ public class DummyPreIngestPlugin implements PreIngestPlugin {
     String methodName = "filterOutMetacards";
     LOGGER.trace(ENTERING, methodName);
 
-    List<Metacard> results = new ArrayList<Metacard>();
+    List<Metacard> results = new ArrayList<>();
     if (cards != null) {
       int size = cards.size();
 
