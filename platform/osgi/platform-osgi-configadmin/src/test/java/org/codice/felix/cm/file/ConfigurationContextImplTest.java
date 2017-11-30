@@ -44,6 +44,8 @@ import org.osgi.service.cm.Configuration;
 public class ConfigurationContextImplTest {
   private static final String TEST_PID = "org.codice.test.ServiceFactory";
 
+  private static final String TEST_PID_2 = "org.codice.test.separate.Service";
+
   private static final String TEST_MSF_PID =
       format("%s.%s", TEST_PID, UUID.randomUUID().toString());
 
@@ -173,6 +175,33 @@ public class ConfigurationContextImplTest {
         "Sanitized properties should ignore the new mapping because it's internal",
         sanitizedProps.size(),
         is(0));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testSetPropertyBadParams() {
+    context = new ConfigurationContextImpl(TEST_PID, new Hashtable<>());
+    context.setProperty(null, null);
+  }
+
+  @Test
+  public void testEquals() {
+    ConfigurationContextImpl context1 = new ConfigurationContextImpl(TEST_PID, new Hashtable<>());
+    ConfigurationContextImpl context2 = new ConfigurationContextImpl(TEST_PID, new Hashtable<>());
+    assertThat(context1.equals(context2), is(true));
+  }
+
+  @Test
+  public void testNotEquals() {
+    ConfigurationContextImpl context1 = new ConfigurationContextImpl(TEST_PID, new Hashtable<>());
+    ConfigurationContextImpl context2 = new ConfigurationContextImpl(TEST_PID_2, new Hashtable<>());
+    assertThat(context1.equals(context2), is(false));
+  }
+
+  @Test
+  public void testNullEquals() {
+    ConfigurationContextImpl context1 = new ConfigurationContextImpl(null, new Hashtable<>());
+    ConfigurationContextImpl context2 = new ConfigurationContextImpl(null, new Hashtable<>());
+    assertThat(context1.equals(context2), is(true));
   }
 
   @Test

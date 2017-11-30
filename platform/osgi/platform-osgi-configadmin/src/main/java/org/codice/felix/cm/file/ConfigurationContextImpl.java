@@ -27,6 +27,7 @@ import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Objects;
 import java.util.Set;
 import org.codice.felix.cm.internal.ConfigurationContext;
 import org.osgi.service.cm.Configuration;
@@ -145,6 +146,27 @@ public class ConfigurationContextImpl implements ConfigurationContext {
 
   public boolean shouldBeVisibleToPlugins() {
     return servicePid != null && configIsNew == null && pidList == null && propertyCount > 0;
+  }
+
+  // Contexts can be used in a set
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    ConfigurationContextImpl context = (ConfigurationContextImpl) o;
+
+    return servicePid != null ? servicePid.equals(context.servicePid) : context.servicePid == null;
+  }
+
+  // Contexts can be used in a set
+  @Override
+  public int hashCode() {
+    return Objects.hash(servicePid);
   }
 
   // Config files in etc may delimit on the '-' but in memory it's always last '.'
