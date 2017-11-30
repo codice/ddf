@@ -60,8 +60,6 @@ public class WebSSOFilter implements SecurityFilter {
     "400", "401", "402", "403", "404", "405", "406", "500", "501", "502", "503", "504"
   };
 
-  private WebContainer webContainer;
-
   @Override
   public void init(FilterConfig filterConfig) throws ServletException {
     if (LOGGER.isDebugEnabled()) {
@@ -135,7 +133,7 @@ public class WebSSOFilter implements SecurityFilter {
     }
   }
 
-  WebContainer getWebContainer() {
+  private WebContainer getWebContainer() {
     BundleContext bundleContext = FrameworkUtil.getBundle(WebSSOFilter.class).getBundleContext();
 
     ServiceReference serviceReference =
