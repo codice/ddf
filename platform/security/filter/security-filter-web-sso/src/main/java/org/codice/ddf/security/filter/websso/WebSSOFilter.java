@@ -57,7 +57,7 @@ public class WebSSOFilter implements SecurityFilter {
   ContextPolicyManager contextPolicyManager;
 
   private String[] errorCodes = {
-    "400", "401", "402", "403", "404", "405", "406", "501", "502", "503", "504"
+    "400", "401", "402", "403", "404", "405", "406", "500", "501", "502", "503", "504"
   };
 
   private WebContainer webContainer;
@@ -74,7 +74,7 @@ public class WebSSOFilter implements SecurityFilter {
             authenticationHandler.getClass().getSimpleName());
       }
 
-      WebContainer webContainer = getWebContainer();
+      registerErrorPages();
     }
   }
 
