@@ -70,7 +70,8 @@ public abstract class AbstractXsltTransformer {
       init(type, xsltUrl.openStream());
     } catch (IOException | TransformerConfigurationException e) {
       throw new IllegalStateException(
-          "Could not load xsl file (" + xslFile + ") from system: " + e.getMessage(), e.getCause());
+          String.format("Could not load xsl file (%s) from system: %s", xslFile, e.getMessage()),
+          e.getCause());
     }
   }
 

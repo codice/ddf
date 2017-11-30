@@ -137,8 +137,6 @@ public class Historian {
    *
    * @param updateResponse Versioned metacards created from any old metacards
    * @return The original UpdateResponse
-   * @throws SourceUnavailableException
-   * @throws IngestException
    */
   public UpdateResponse version(UpdateResponse updateResponse) {
     if (doSkip(updateResponse)) {
