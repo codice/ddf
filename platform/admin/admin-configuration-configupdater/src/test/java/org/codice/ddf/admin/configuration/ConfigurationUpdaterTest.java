@@ -18,7 +18,6 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -28,15 +27,14 @@ import static org.mockito.Mockito.when;
 
 import ddf.security.encryption.EncryptionService;
 import java.io.File;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.Set;
 import org.codice.ddf.admin.core.api.ConfigurationAdmin;
 import org.codice.ddf.platform.io.internal.PersistenceStrategy;
 import org.codice.felix.cm.internal.ConfigurationContext;
-import org.codice.felix.cm.internal.ConfigurationContextFactory;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -44,7 +42,6 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.service.cm.Configuration;
 import org.osgi.service.metatype.AttributeDefinition;
 import org.osgi.service.metatype.ObjectClassDefinition;
 
@@ -71,15 +68,15 @@ public class ConfigurationUpdaterTest {
 
   @Mock private EncryptionService mockEncryptionService;
 
-  @Mock private ConfigurationContextFactory mockContextFactory;
-
   @Mock private ConfigurationContext mockContext;
 
-  @Mock private ConfigurationContext mockContextFromFactory;
+  @Mock private ConfigurationContext mockContextForInit;
 
   private ConfigurationUpdater installer;
 
   @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+  private Set<ConfigurationContext> configs;
 
   private File fileA;
 
@@ -92,15 +89,11 @@ public class ConfigurationUpdaterTest {
 
     when(mockStrategy.getExtension()).thenReturn(TEMP_FILE_EXT);
 
-    Configuration[] configs = new Configuration[] {mock(Configuration.class)};
+    when(mockContextForInit.getServicePid()).thenReturn(PID_001);
+    when(mockContextForInit.getConfigFile()).thenReturn(fileB);
+    when(mockContextForInit.getSanitizedProperties()).thenReturn(new Hashtable<>());
 
-    when(configurationAdmin.listConfigurations(null)).thenReturn(configs);
-    when(mockContextFactory.createContext(any(Configuration.class)))
-        .thenReturn(mockContextFromFactory);
-
-    when(mockContextFromFactory.getServicePid()).thenReturn(PID_001);
-    when(mockContextFromFactory.getConfigFile()).thenReturn(fileB);
-    when(mockContextFromFactory.getSanitizedProperties()).thenReturn(new Hashtable<>());
+    configs = Collections.singleton(mockContextForInit);
 
     when(mockContext.getSanitizedProperties()).thenReturn(new Hashtable<>());
 
@@ -111,7 +104,7 @@ public class ConfigurationUpdaterTest {
 
   @Test
   public void testInit() throws Exception {
-    installer.initialize(mockContextFactory);
+    installer.initialize(configs);
     Map<String, CachedConfigData> pidFileMap = installer.getPidDataMap();
     assertThat(pidFileMap.entrySet(), hasSize(1));
     assertThat(pidFileMap.get(PID_001).getFelixFile(), is(fileB));
@@ -119,32 +112,16 @@ public class ConfigurationUpdaterTest {
 
   @Test
   public void testInitNoFelixFile() throws Exception {
-    when(mockContextFromFactory.getConfigFile()).thenReturn(null);
-    installer.initialize(mockContextFactory);
+    when(mockContextForInit.getConfigFile()).thenReturn(null);
+    installer.initialize(configs);
     Map<String, CachedConfigData> pidFileMap = installer.getPidDataMap();
     assertThat(pidFileMap.entrySet(), is(empty()));
-  }
-
-  @Test
-  public void testInitWhenListConfigsReturnsNull() throws Exception {
-    when(configurationAdmin.listConfigurations(null)).thenReturn(null);
-    installer.initialize(mockContextFactory);
-    Map<String, CachedConfigData> pidFileMap = installer.getPidDataMap();
-    assertThat(pidFileMap.entrySet(), is(empty()));
-    verifyZeroInteractions(mockContextFactory);
-  }
-
-  @Test
-  public void testInitWhenListConfigsThrowsException() throws Exception {
-    when(configurationAdmin.listConfigurations(null)).thenThrow(IOException.class);
-    installer.initialize(mockContextFactory);
-    verifyZeroInteractions(mockContextFactory);
   }
 
   @Test
   public void testHandleStoreWontTrackConfig() throws Exception {
     when(mockContext.getServicePid()).thenReturn(PID_002);
-    installer.initialize(mockContextFactory);
+    installer.initialize(configs);
     installer.handleStore(mockContext);
 
     Map<String, CachedConfigData> pidFileMap = installer.getPidDataMap();
@@ -161,7 +138,7 @@ public class ConfigurationUpdaterTest {
   public void testHandleStoreConfigAdded() throws Exception {
     when(mockContext.getServicePid()).thenReturn(PID_002);
     when(mockContext.getConfigFile()).thenReturn(fileA);
-    installer.initialize(mockContextFactory);
+    installer.initialize(configs);
     installer.handleStore(mockContext);
 
     Map<String, CachedConfigData> pidFileMap = installer.getPidDataMap();
@@ -176,7 +153,7 @@ public class ConfigurationUpdaterTest {
   public void testHandleStoreConfigPropValuesUpdated() throws Exception {
     Dictionary<String, Object> propsOld = new Hashtable<>();
     propsOld.put(PASSWORD_ID, PASSWORD_PLAIN_TEXT);
-    when(mockContextFromFactory.getSanitizedProperties()).thenReturn(propsOld);
+    when(mockContextForInit.getSanitizedProperties()).thenReturn(propsOld);
 
     Dictionary<String, Object> propsNew = new Hashtable<>();
     propsNew.put(PASSWORD_ID, PASSWORD_ENCRYPTED);
@@ -188,7 +165,7 @@ public class ConfigurationUpdaterTest {
     Map<String, CachedConfigData> pidFileMap;
     Dictionary<String, Object> props;
 
-    installer.initialize(mockContextFactory);
+    installer.initialize(configs);
 
     pidFileMap = installer.getPidDataMap();
     props = pidFileMap.get(PID_001).getProps();
@@ -207,7 +184,7 @@ public class ConfigurationUpdaterTest {
 
     Dictionary<String, Object> propsOld = new Hashtable<>();
     propsOld.put(PASSWORD_ID, PASSWORD_PLAIN_TEXT);
-    when(mockContextFromFactory.getSanitizedProperties()).thenReturn(propsOld);
+    when(mockContextForInit.getSanitizedProperties()).thenReturn(propsOld);
 
     Dictionary<String, Object> propsNew = new Hashtable<>();
     propsNew.put(PASSWORD_ID, PASSWORD_ENCRYPTED);
@@ -216,7 +193,7 @@ public class ConfigurationUpdaterTest {
     when(mockContext.getConfigFile()).thenReturn(fileB);
     when(mockContext.getSanitizedProperties()).thenReturn(propsNew);
 
-    installer.initialize(mockContextFactory);
+    installer.initialize(configs);
     installer.handleStore(mockContext);
   }
 
@@ -246,7 +223,7 @@ public class ConfigurationUpdaterTest {
     when(mockContext.getConfigFile()).thenReturn(fileB);
     when(mockContext.getSanitizedProperties()).thenReturn(propsBefore);
 
-    installer.initialize(mockContextFactory);
+    installer.initialize(configs);
     installer.handleStore(mockContext);
 
     Map<String, CachedConfigData> pidFileMap = installer.getPidDataMap();
@@ -261,7 +238,7 @@ public class ConfigurationUpdaterTest {
   public void testHandleStoreConfigFileRemoved() throws Exception {
     when(mockContext.getServicePid()).thenReturn(PID_001);
     when(mockContext.getConfigFile()).thenReturn(null);
-    installer.initialize(mockContextFactory);
+    installer.initialize(configs);
     installer.handleStore(mockContext);
 
     verify(mockContext).setProperty(eq(FELIX_FILENAME), eq(fileB.getAbsolutePath()));
@@ -271,7 +248,7 @@ public class ConfigurationUpdaterTest {
   public void testHandleStoreConfigFileIllegallyChanged() throws Exception {
     when(mockContext.getServicePid()).thenReturn(PID_001);
     when(mockContext.getConfigFile()).thenReturn(fileA);
-    installer.initialize(mockContextFactory);
+    installer.initialize(configs);
     installer.handleStore(mockContext);
 
     verifyZeroInteractions(mockStrategy);
@@ -279,7 +256,7 @@ public class ConfigurationUpdaterTest {
 
   @Test
   public void testDeletedEvent() throws Exception {
-    installer.initialize(mockContextFactory);
+    installer.initialize(configs);
     installer.handleDelete(PID_001);
     assertThat(installer.getPidDataMap().entrySet(), is(empty()));
     assertThat(fileB.exists(), is(false));

@@ -31,7 +31,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.locks.StampedLock;
 import org.apache.felix.cm.PersistenceManager;
 import org.apache.felix.cm.file.FilePersistenceManager;
 import org.apache.felix.cm.impl.helper.BaseTracker;
@@ -179,10 +178,6 @@ public class ConfigurationManager implements BundleActivator, BundleListener {
   // (CODICE) Moved the persistence manager to class state to support closeable
   private WrappedPersistenceManager fpm;
 
-  // (CODICE) Need a lock for the config dead zone where plugins that initialize and query
-  // config admin will miss configs currently being written, but not yet cached
-  private final StampedLock configDeadZoneLock = new StampedLock();
-
   /**
    * The map of dynamic configuration bindings. This maps the PID of the dynamically bound
    * configuration or factory to its bundle location.
@@ -246,8 +241,7 @@ public class ConfigurationManager implements BundleActivator, BundleListener {
           new DelegatingPersistenceManager(
               new EncryptingPersistenceManager(
                   new FilePersistenceManager(
-                      bundleContext, bundleContext.getProperty(CM_CONFIG_DIR))),
-              configDeadZoneLock);
+                      bundleContext, bundleContext.getProperty(CM_CONFIG_DIR))));
 
       Hashtable props = new Hashtable();
       props.put(Constants.SERVICE_PID, fpm.getClass().getName());
@@ -740,41 +734,6 @@ public class ConfigurationManager implements BundleActivator, BundleListener {
 
   // ---------- internal -----------------------------------------------------
 
-  // (CODICE) Extending the proxy to lock on a store means configuration caching is finished
-  // and up to date when the lock is released. If Felix reset the fullyLoaded flag in the
-  // CachingPersistenceManagerProxy then this LockingProxy might not have been necessary.
-  // Also relevant: https://github.com/codice/ddf/pull/2523#discussion_r150092423
-  private static class LockingProxy extends CachingPersistenceManagerProxy {
-    private final StampedLock configDeadZoneLock;
-
-    LockingProxy(final PersistenceManager pm, final StampedLock configDeadZoneLock) {
-      super(pm);
-      this.configDeadZoneLock = configDeadZoneLock;
-    }
-
-    @Override
-    public void store(String pid, Dictionary properties) throws IOException {
-      // Read lock because Felix provides its own protection for multiple config saves
-      long stamp = configDeadZoneLock.readLock();
-      try {
-        super.store(pid, properties);
-      } finally {
-        configDeadZoneLock.unlockRead(stamp);
-      }
-    }
-
-    @Override
-    public void delete(String pid) throws IOException {
-      // Read lock because Felix provides its own protection for multiple config deletes
-      long stamp = configDeadZoneLock.readLock();
-      try {
-        super.delete(pid);
-      } finally {
-        configDeadZoneLock.unlockRead(stamp);
-      }
-    }
-  }
-
   private CachingPersistenceManagerProxy[] getPersistenceManagers() {
     int currentPmtCount = persistenceManagerTracker.getTrackingCount();
     if (persistenceManagers == null || currentPmtCount > pmtCount) {
@@ -795,8 +754,7 @@ public class ConfigurationManager implements BundleActivator, BundleListener {
         for (int i = 0; i < refs.length; i++) {
           Object service = persistenceManagerTracker.getService(refs[i]);
           if (service != null) {
-            // (CODICE) Use our version of the proxy
-            pmList.add(new LockingProxy((PersistenceManager) service, configDeadZoneLock));
+            pmList.add(new CachingPersistenceManagerProxy((PersistenceManager) service));
           }
         }
 
