@@ -6,14 +6,18 @@
 :order: 03
 :summary: Complete list of supported file types.
 
+////
+The tables in this section have 3 defined columns.
+If adding or removing items, be sure to add or subtract empty cells at the end of the table to avoid losing data in the rendered version.
+////
 == {title}
 
+.[[supported_file_types]]Supported File Types
 Using the various input transformers, ${branding} supports ingest of the following MIME types.
 
-.[[supported_file_types]]Supported File Types
+.Application File Types
 [cols="3"]
 |===
-3+^h|application
 m|activemessage
 m|andrew-inset
 m|applefile
@@ -530,7 +534,7 @@ m|vnd.ms-visio.stencil
 m|vnd.ms-visio.stencil.macroenabled.12
 m|vnd.ms-visio.template
 m|vnd.ms-visio.template.macroenabled.12
-m|vnd.ms-visio.viewer 
+m|vnd.ms-visio.viewer
 m|vnd.ms-wmdrm.lic-chlg-req
 m|vnd.ms-wmdrm.lic-resp
 m|vnd.ms-wmdrm.meter-chlg-req
@@ -1028,9 +1032,11 @@ m|xspf+xml
 m|xv+xml
 m|zip
 m|zlib
-m|
+|===
 
-3+^h|audio
+.Audio File Types
+[cols="3"]
+|===
 m|32kadpcm
 m|3gpp
 m|3gpp2
@@ -1172,7 +1178,11 @@ m|x-pn-realaudio-plugin
 m|x-wav
 m|
 m|
-3+^h|chemical
+|===
+
+.Chemical File Types
+[cols="3"]
+|===
 m|x-cdx
 m|x-cif
 m|x-cmdf
@@ -1180,9 +1190,13 @@ m|x-cml
 m|x-csml
 m|x-pdb
 m|x-xyz
-m|
-m|
-3+^h|image
+|
+|
+|===
+
+.Image File Types
+[cols="3"]
+|===
 m|bmp
 m|cgm
 m|example
@@ -1273,7 +1287,11 @@ m|x-xpixmap
 m|x-xwindowdump
 |
 |
-3+^h|message
+|===
+
+.Message File Types
+[cols="3"]
+|===
 m|cpim
 m|delivery-status
 m|disposition-notification
@@ -1294,8 +1312,12 @@ m|sipfrag
 m|tracking-status
 m|vnd.si.simp
 m|x-emlx
-m|
-3+^h|model
+|
+|===
+
+.Model File Types
+[cols="3"]
+|===
 m|example
 m|iges
 m|mesh
@@ -1315,9 +1337,13 @@ m|vnd.parasolid.transmit.binary
 m|vnd.parasolid.transmit.text
 m|vnd.vtu
 m|vrml
-m|
-m|
-3+^h|multipart
+|
+|
+|===
+
+.Multipart File Types
+[cols="3"]
+|===
 m|alternative
 m|appledouble
 m|byteranges
@@ -1332,8 +1358,12 @@ m|related
 m|report
 m|signed
 m|voice-message
-m|
-3+^h|text
+|
+|===
+
+.Text File Types
+[cols="3"]
+|===
 m|asp
 m|aspdotnet
 m|calendar
@@ -1462,8 +1492,12 @@ m|x-vhdl
 m|x-web-markdown
 m|x-yacc
 m|x-yaml
-m|
-3+^h|video
+|
+|===
+
+.Video File Types
+[cols="3"]
+|===
 m|3gpp
 m|3gpp-tt
 m|3gpp2
@@ -1544,10 +1578,13 @@ m|x-ogguvs
 m|x-oggyuv
 m|x-ogm
 m|x-sgi-movie
-m|
-3+^h|x-conference
-m|x-cooltalk
-m|
-m|
+|
+|===
 
+.x-conference File Types
+[cols="3"]
+|===
+m|x-cooltalk
+|
+|
 |===
