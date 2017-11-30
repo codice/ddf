@@ -13,6 +13,7 @@
  */
 package ddf.catalog.cache.solr.impl;
 
+import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.federation.Federatable;
@@ -128,10 +129,15 @@ class SortedQueryMonitor implements Runnable {
           comparator = new DistanceResultComparator(sortOrder);
         } else if (Result.RELEVANCE.equals(sortType)) {
           comparator = new RelevanceResultComparator(sortOrder);
+        } else {
+          comparator =
+              Comparator.comparing(
+                  r -> getAttributeValue((Result) r, sortingProp.getPropertyName()),
+                  ((sortOrder == SortOrder.ASCENDING)
+                      ? Comparator.nullsFirst(Comparator.<Comparable>naturalOrder())
+                      : Comparator.nullsLast(Comparator.<Comparable>reverseOrder())));
         }
-        if (comparator != null) {
-          resultComparator.addComparator(comparator);
-        }
+        resultComparator.addComparator(comparator);
       }
     } else {
       Comparator<Result> coreComparator = CachingFederationStrategy.DEFAULT_COMPARATOR;
@@ -224,6 +230,15 @@ class SortedQueryMonitor implements Runnable {
     }
 
     return results.size() > maxResults ? results.subList(0, maxResults) : results;
+  }
+
+  private static Comparable getAttributeValue(Result r, String attributeName) {
+    if (r == null) {
+      return null;
+    }
+    final Attribute a = r.getMetacard().getAttribute(attributeName);
+
+    return (a != null && a.getValue() instanceof Comparable) ? (Comparable) a.getValue() : null;
   }
 
   private void timeoutRemainingSources(Set<ProcessingDetails> processingDetails) {

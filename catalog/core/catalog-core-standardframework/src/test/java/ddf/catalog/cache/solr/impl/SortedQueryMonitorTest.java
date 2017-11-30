@@ -16,6 +16,7 @@ package ddf.catalog.cache.solr.impl;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.extractor.Extractors.byName;
 import static org.awaitility.Awaitility.with;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
@@ -24,13 +25,20 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import ddf.catalog.data.Attribute;
+import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryResponseImpl;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -43,6 +51,9 @@ import java.util.concurrent.TimeoutException;
 import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
+import org.opengis.filter.expression.PropertyName;
+import org.opengis.filter.sort.SortBy;
+import org.opengis.filter.sort.SortOrder;
 
 public class SortedQueryMonitorTest {
 
@@ -57,6 +68,11 @@ public class SortedQueryMonitorTest {
   private Map<Future<SourceResponse>, QueryRequest> futures;
 
   private Query query;
+
+  private static final String TEST_PROPERTY = "test";
+
+  private static final Date TEST_DATE_1 = new Date(11000);
+  private static final Date TEST_DATE_2 = new Date(30000);
 
   @Before
   public void setUp() throws Exception {
@@ -224,9 +240,167 @@ public class SortedQueryMonitorTest {
             NullPointerException.class, InterruptedException.class, InterruptedException.class);
   }
 
+  @Test
+  public void testSortAscendingNullFirst() throws Exception {
+    testSorting(new String[] {null, "a"}, new String[] {null, "a"}, SortOrder.ASCENDING);
+  }
+
+  @Test
+  public void testSortAscendingNullLast() throws Exception {
+    testSorting(new String[] {"a", null}, new String[] {null, "a"}, SortOrder.ASCENDING);
+  }
+
+  @Test
+  public void testSortAscending() throws Exception {
+    testSorting(new String[] {"b", "a"}, new String[] {"a", "b"}, SortOrder.ASCENDING);
+  }
+
+  @Test
+  public void testSortDescendingNullFirst() throws Exception {
+    testSorting(new String[] {null, "a"}, new String[] {"a", null}, SortOrder.DESCENDING);
+  }
+
+  @Test
+  public void testSortDescendingNullLast() throws Exception {
+    testSorting(new String[] {"a", null}, new String[] {"a", null}, SortOrder.DESCENDING);
+  }
+
+  @Test
+  public void testSortDescending() throws Exception {
+    testSorting(new String[] {"b", "a"}, new String[] {"b", "a"}, SortOrder.DESCENDING);
+  }
+
+  @Test
+  public void testSortDateAscendingWithNull() throws Exception {
+    testSorting(
+        new Serializable[] {TEST_DATE_2, null},
+        new Serializable[] {null, TEST_DATE_2},
+        SortOrder.ASCENDING);
+  }
+
+  @Test
+  public void testSortDateAscending() throws Exception {
+    testSorting(
+        new Serializable[] {TEST_DATE_2, TEST_DATE_1},
+        new Serializable[] {TEST_DATE_1, TEST_DATE_2},
+        SortOrder.ASCENDING);
+  }
+
+  @Test
+  public void testSortDateDescendingWithNull() throws Exception {
+    testSorting(
+        new Serializable[] {null, TEST_DATE_2},
+        new Serializable[] {TEST_DATE_2, null},
+        SortOrder.DESCENDING);
+  }
+
+  @Test
+  public void testSortDateDescending() throws Exception {
+    testSorting(
+        new Serializable[] {TEST_DATE_1, TEST_DATE_2},
+        new Serializable[] {TEST_DATE_2, TEST_DATE_1},
+        SortOrder.DESCENDING);
+  }
+
+  @Test
+  public void testNonComparableAscending() throws Exception {
+    Serializable o = new TestSerial();
+    testSorting(
+        new Serializable[] {TEST_DATE_1, o},
+        new Serializable[] {o, TEST_DATE_1},
+        SortOrder.ASCENDING);
+  }
+
+  @Test
+  public void testNonComparableDescending() throws Exception {
+    Serializable o = new TestSerial();
+    testSorting(
+        new Serializable[] {TEST_DATE_1, o},
+        new Serializable[] {TEST_DATE_1, o},
+        SortOrder.DESCENDING);
+  }
+
+  private void testSorting(
+      Serializable[] inputArray, Serializable[] outputArray, SortOrder sortOrder) throws Exception {
+    PropertyName propertyName = mock(PropertyName.class);
+    when(propertyName.getPropertyName()).thenReturn(TEST_PROPERTY);
+
+    SortBy sortBy = mock(SortBy.class);
+    when(sortBy.getSortOrder()).thenReturn(sortOrder);
+    when(sortBy.getPropertyName()).thenReturn(propertyName);
+
+    CachingFederationStrategy cachingFederationStrategy = mock(CachingFederationStrategy.class);
+    CompletionService completionService = mock(CompletionService.class);
+    QueryRequest queryRequest = mock(QueryRequest.class);
+    Query query = mock(Query.class);
+    Map<Future<SourceResponse>, QueryRequest> futures = new LinkedHashMap<>();
+
+    Future futureMock = mock(Future.class);
+    SourceResponse sourceResponseMock = getMockedResponse(getResults(TEST_PROPERTY, inputArray));
+    when(futureMock.get()).thenReturn(sourceResponseMock);
+    when(query.getSortBy()).thenReturn(sortBy);
+    when(query.getTimeoutMillis()).thenReturn(5000L);
+    when(queryRequest.getQuery()).thenReturn(query);
+    when(queryRequest.getSourceIds()).thenReturn(Collections.singleton("Sort-Source"));
+    futures.put(futureMock, queryRequest);
+    QueryResponseImpl queryResponse = new QueryResponseImpl(queryRequest);
+
+    SortedQueryMonitor queryMonitor =
+        new SortedQueryMonitor(
+            cachingFederationStrategy,
+            completionService,
+            futures,
+            queryResponse,
+            queryRequest,
+            new ArrayList<>());
+
+    Future<SourceResponse> currFuture = futures.keySet().iterator().next();
+    when(completionService.poll(anyLong(), any())).thenAnswer((invocationOnMock -> currFuture));
+    when(completionService.take()).thenAnswer((invocationOnMock -> currFuture));
+    queryMonitor.run();
+
+    assertResults(queryResponse.getResults(), TEST_PROPERTY, outputArray);
+  }
+
+  private List<Result> getResults(String property, Serializable... values) {
+    List<Result> results = new ArrayList<>();
+    for (Serializable value : values) {
+      Metacard metacard = new MetacardImpl();
+      metacard.setAttribute(new AttributeImpl(property, value));
+      results.add(new ResultImpl(metacard));
+    }
+    return results;
+  }
+
+  private SourceResponse getMockedResponse(List<Result> results) {
+    SourceResponse response = mock(SourceResponse.class);
+    when(response.getResults()).thenReturn(results);
+    when(response.getHits()).thenReturn((long) results.size());
+    return response;
+  }
+
+  private void assertResults(List<Result> results, String property, Serializable[] values) {
+    assertThat(results.size()).isEqualTo(values.length);
+
+    int idx = 0;
+    for (Result result : results) {
+      Attribute attr = result.getMetacard().getAttribute(property);
+      if (values[idx] != null) {
+        assertThat(attr.getValue()).isEqualTo(values[idx]);
+      } else {
+        assertThat(attr).isNull();
+      }
+      idx++;
+    }
+  }
+
   public Iterator<Future<SourceResponse>> getFutureIterator() {
     List<Future<SourceResponse>> futureKeys = new ArrayList<>();
     futureKeys.addAll(futures.keySet());
     return futureKeys.iterator();
+  }
+
+  class TestSerial implements Serializable {
+    public TestSerial() {}
   }
 }
