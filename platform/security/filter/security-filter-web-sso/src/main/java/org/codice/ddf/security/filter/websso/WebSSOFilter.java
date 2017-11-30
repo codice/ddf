@@ -31,6 +31,10 @@ import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.InvalidSAMLReceivedException;
 import org.codice.ddf.security.policy.context.ContextPolicy;
 import org.codice.ddf.security.policy.context.ContextPolicyManager;
+import org.ops4j.pax.web.service.WebContainer;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,6 +56,12 @@ public class WebSSOFilter implements SecurityFilter {
 
   ContextPolicyManager contextPolicyManager;
 
+  private String[] errorCodes = {
+    "400", "401", "402", "403", "404", "405", "406", "501", "502", "503", "504"
+  };
+
+  private WebContainer webContainer;
+
   @Override
   public void init(FilterConfig filterConfig) throws ServletException {
     if (LOGGER.isDebugEnabled()) {
@@ -63,6 +73,8 @@ public class WebSSOFilter implements SecurityFilter {
             authenticationHandler.getAuthenticationType(),
             authenticationHandler.getClass().getSimpleName());
       }
+
+      WebContainer webContainer = getWebContainer();
     }
   }
 
@@ -120,6 +132,24 @@ public class WebSSOFilter implements SecurityFilter {
       // now handle the request and set the authentication token
       LOGGER.debug("Handling request for {} in security realm {}.", path, realm);
       handleRequest(httpRequest, httpResponse, filterChain, getHandlerList(path));
+    }
+  }
+
+  WebContainer getWebContainer() {
+    BundleContext bundleContext = FrameworkUtil.getBundle(WebSSOFilter.class).getBundleContext();
+
+    ServiceReference serviceReference =
+        bundleContext.getServiceReference("org.ops4j.pax.web.service.WebContainer");
+
+    return (WebContainer) bundleContext.getService(serviceReference);
+  }
+
+  private void registerErrorPages() {
+    WebContainer webContainer = getWebContainer();
+
+    for (String errorCode : errorCodes) {
+      webContainer.registerErrorPage(
+          errorCode, "/ErrorServlet", webContainer.getDefaultSharedHttpContext());
     }
   }
 
