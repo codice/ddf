@@ -60,6 +60,10 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
 
   private static final Logger LOGGER = LoggerFactory.getLogger(EventProcessorImpl.class);
 
+  public static final String ENTERING = "ENTERING: {}";
+
+  public static final String EXITING = "EXITING: {}";
+
   protected EventAdmin eventAdmin;
 
   protected BundleContext bundleContext;
@@ -120,10 +124,10 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
    */
   public static void processEntry(Metacard metacard, String operation, EventAdmin eventAdmin) {
     String methodName = "processEntry";
-    LOGGER.debug("ENTERING: " + methodName);
+    LOGGER.trace(ENTERING, methodName);
 
     if (metacard != null) {
-      LOGGER.debug("Input Metacard:{}\n", metacard.toString());
+      LOGGER.debug("Input Metacard:{}\n", metacard);
       LOGGER.debug("catalog ID = {}", metacard.getId());
       LOGGER.debug("operation = {}", operation);
 
@@ -204,21 +208,21 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
       LOGGER.debug("Unable to post null metacard.");
     }
 
-    LOGGER.debug("EXITING: {}", methodName);
+    LOGGER.trace(EXITING, methodName);
   }
 
   public void init() {
     String methodName = "init";
-    LOGGER.debug("ENTERING: {}", methodName);
+    LOGGER.trace(ENTERING, methodName);
 
-    LOGGER.debug("EXITING: {}", methodName);
+    LOGGER.trace(EXITING, methodName);
   }
 
   public void destroy() {
     String methodName = "destroy";
-    LOGGER.debug("ENTERING: {}", methodName);
+    LOGGER.trace(ENTERING, methodName);
 
-    LOGGER.debug("EXITING: {}", methodName);
+    LOGGER.trace(EXITING, methodName);
   }
 
   /**
@@ -229,7 +233,7 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
    */
   public void handleEvent(Event event) {
     String methodName = "handleEvent";
-    LOGGER.debug("ENTERING: {}", methodName);
+    LOGGER.trace(ENTERING, methodName);
 
     LOGGER.debug("Received event: {}", event.getTopic());
 
@@ -244,7 +248,7 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
           "No existing subscriptions, so no need to handle event since there is no one listening ...");
     }
 
-    LOGGER.debug("EXITING: {}", methodName);
+    LOGGER.trace(EXITING, methodName);
   }
 
   @Override
@@ -266,7 +270,7 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
   public void createSubscription(Subscription subscription, String subscriptionId)
       throws InvalidSubscriptionException, SubscriptionExistsException {
     String methodName = "createSubscription";
-    LOGGER.debug("ENTERING: {}", methodName);
+    LOGGER.trace(ENTERING, methodName);
 
     LOGGER.debug("Creating Evaluation Criteria... ");
 
@@ -299,14 +303,14 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
       throw new InvalidSubscriptionException(e);
     }
 
-    LOGGER.debug("EXITING: {}", methodName);
+    LOGGER.trace(EXITING, methodName);
   }
 
   @Override
   public void updateSubscription(Subscription subscription, String subscriptionId)
       throws SubscriptionNotFoundException {
     String methodName = "updateSubscription";
-    LOGGER.debug("ENTERING: {}", methodName);
+    LOGGER.trace(ENTERING, methodName);
 
     try {
       deleteSubscription(subscriptionId);
@@ -319,13 +323,13 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
       throw new SubscriptionNotFoundException(e);
     }
 
-    LOGGER.debug("EXITING: {}", methodName);
+    LOGGER.trace(EXITING, methodName);
   }
 
   @Override
   public void deleteSubscription(String subscriptionId) throws SubscriptionNotFoundException {
     String methodName = "deleteSubscription";
-    LOGGER.debug("ENTERING: {}", methodName);
+    LOGGER.trace(ENTERING, methodName);
 
     try {
       LOGGER.debug("Removing subscription: {}", subscriptionId);
@@ -344,27 +348,27 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
       LOGGER.info("Exception deleting subscription", e);
     }
 
-    LOGGER.debug("EXITING: " + methodName);
+    LOGGER.trace(EXITING, methodName);
   }
 
   @Override
   public void notifyCreated(Metacard newMetacard) {
     LOGGER.trace("ENTERING: notifyCreated");
-    postEvent(EventProcessor.EVENTS_TOPIC_CREATED, newMetacard, null);
+    postEvent(EventProcessor.EVENTS_TOPIC_CREATED, newMetacard);
     LOGGER.trace("EXITING: notifyCreated");
   }
 
   @Override
   public void notifyUpdated(Metacard newMetacard, Metacard oldMetacard) {
     LOGGER.trace("ENTERING: notifyUpdated");
-    postEvent(EventProcessor.EVENTS_TOPIC_UPDATED, newMetacard, oldMetacard);
+    postEvent(EventProcessor.EVENTS_TOPIC_UPDATED, newMetacard);
     LOGGER.trace("EXITING: notifyUpdated");
   }
 
   @Override
   public void notifyDeleted(Metacard oldMetacard) {
     LOGGER.trace("ENTERING: notifyDeleted");
-    postEvent(EventProcessor.EVENTS_TOPIC_DELETED, oldMetacard, null);
+    postEvent(EventProcessor.EVENTS_TOPIC_DELETED, oldMetacard);
     LOGGER.trace("EXITING: notifyDeleted");
   }
 
@@ -374,9 +378,9 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
    * @param topic - The topic to post the event
    * @param card - The Metacard that will be posted to the topic
    */
-  protected void postEvent(String topic, Metacard card, Metacard oldCard) {
+  protected void postEvent(String topic, Metacard card) {
     String methodName = "postEvent";
-    LOGGER.debug("ENTERING: {}", methodName);
+    LOGGER.trace(ENTERING, methodName);
 
     LOGGER.debug("Posting to topic: {}", topic);
 
@@ -386,7 +390,7 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
     Event event = new Event(topic, properties);
     eventAdmin.postEvent(event);
 
-    LOGGER.debug("EXITING: {}", methodName);
+    LOGGER.trace(EXITING, methodName);
   }
 
   @Override
@@ -395,7 +399,7 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
     if (Requests.isLocal(createResponse.getRequest())) {
       List<Metacard> createdMetacards = createResponse.getCreatedMetacards();
       for (Metacard currMetacard : createdMetacards) {
-        postEvent(EventProcessor.EVENTS_TOPIC_CREATED, currMetacard, null);
+        postEvent(EventProcessor.EVENTS_TOPIC_CREATED, currMetacard);
       }
     }
     LOGGER.trace("EXITING: process (CreateResponse)");
@@ -408,10 +412,7 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
     if (Requests.isLocal(updateResponse.getRequest())) {
       List<Update> updates = updateResponse.getUpdatedMetacards();
       for (Update currUpdate : updates) {
-        postEvent(
-            EventProcessor.EVENTS_TOPIC_UPDATED,
-            currUpdate.getNewMetacard(),
-            currUpdate.getOldMetacard());
+        postEvent(EventProcessor.EVENTS_TOPIC_UPDATED, currUpdate.getNewMetacard());
       }
     }
     LOGGER.trace("EXITING: process (UpdateResponse)");
@@ -424,7 +425,7 @@ public class EventProcessorImpl implements EventProcessor, EventHandler, PostIng
     if (Requests.isLocal(deleteResponse.getRequest())) {
       List<Metacard> deletedMetacards = deleteResponse.getDeletedMetacards();
       for (Metacard currMetacard : deletedMetacards) {
-        postEvent(EventProcessor.EVENTS_TOPIC_DELETED, currMetacard, null);
+        postEvent(EventProcessor.EVENTS_TOPIC_DELETED, currMetacard);
       }
     }
     LOGGER.trace("EXITING: process (DeleteResponse)");

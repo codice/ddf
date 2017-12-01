@@ -118,7 +118,10 @@ public class CreateOperations {
   public CreateResponse create(CreateRequest createRequest)
       throws IngestException, SourceUnavailableException {
     CreateResponse createResponse = doCreate(createRequest);
-    createResponse = doPostIngest(createResponse);
+
+    if (createResponse != null) {
+      createResponse = doPostIngest(createResponse);
+    }
     return createResponse;
   }
 
@@ -197,7 +200,9 @@ public class CreateOperations {
       opsStorageSupport.commitAndCleanup(createStorageRequest, tmpContentPaths);
     }
 
-    createResponse = doPostIngest(createResponse);
+    if (createResponse != null) {
+      createResponse = doPostIngest(createResponse);
+    }
 
     return createResponse;
   }
@@ -245,7 +250,7 @@ public class CreateOperations {
       ingestError = re;
       throw new InternalIngestException("Exception during runtime while performing create", re);
     } finally {
-      if (ingestError != null && INGEST_LOGGER.isInfoEnabled()) {
+      if (createRequest != null && ingestError != null && INGEST_LOGGER.isInfoEnabled()) {
         INGEST_LOGGER.info(
             "Error on create operation. {} metacards failed to ingest. {}",
             createRequest.getMetacards().size(),

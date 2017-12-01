@@ -51,7 +51,7 @@ public class DummyPreIngestPlugin implements PreIngestPlugin {
 
   public CreateRequest process(CreateRequest input) throws PluginExecutionException {
     String methodName = "process(CreateRequest)";
-    LOGGER.debug(ENTERING, methodName);
+    LOGGER.trace(ENTERING, methodName);
 
     CreateRequest newRequest = input;
     if (input != null) {
@@ -60,14 +60,14 @@ public class DummyPreIngestPlugin implements PreIngestPlugin {
       newRequest = new CreateRequestImpl(filteredCards);
     }
 
-    LOGGER.debug(EXITING, methodName);
+    LOGGER.trace(EXITING, methodName);
 
     return newRequest;
   }
 
   public UpdateRequest process(UpdateRequest input) throws PluginExecutionException {
     String methodName = "process(UpdateRequest)";
-    LOGGER.debug(ENTERING, methodName);
+    LOGGER.trace(ENTERING, methodName);
 
     UpdateRequest newRequest = input;
 
@@ -100,42 +100,26 @@ public class DummyPreIngestPlugin implements PreIngestPlugin {
       newRequest = new UpdateRequestImpl(ids.toArray(new String[ids.size()]), updatedMetacards);
     }
 
-    LOGGER.debug(EXITING, methodName);
+    LOGGER.trace(EXITING, methodName);
 
     return newRequest;
   }
 
   public DeleteRequest process(DeleteRequest input) throws PluginExecutionException {
     String methodName = "process(DeleteRequest)";
-    LOGGER.debug(ENTERING, methodName);
+    LOGGER.trace(ENTERING, methodName);
 
     DeleteRequest newRequest = input;
 
-    // List<String> results = new ArrayList<String>();
-    // if(idsToDelete != null)
-    // {
-    // int size = idsToDelete.size();
-    //
-    // //In this example, we demonstrate filtering out every other
-    // //id in the list
-    // for(int i = 0; i < size; i++) {
-    // if(i % 2 == 0) {
-    // results.add(idsToDelete.get(i));
-    // }
-    // }
-    // }
-
-    LOGGER.debug(EXITING, methodName);
-    //
-    // return results;
+    LOGGER.trace(EXITING, methodName);
     return newRequest;
   }
 
   private List<Metacard> filterOutMetacards(List<Metacard> cards) {
     String methodName = "filterOutMetacards";
-    LOGGER.debug(ENTERING, methodName);
+    LOGGER.trace(ENTERING, methodName);
 
-    List<Metacard> results = new ArrayList<Metacard>();
+    List<Metacard> results = new ArrayList<>();
     if (cards != null) {
       int size = cards.size();
 
@@ -151,7 +135,7 @@ public class DummyPreIngestPlugin implements PreIngestPlugin {
       LOGGER.debug("Filtered size of Metacard list: {}", results.size());
     }
 
-    LOGGER.debug(EXITING, methodName);
+    LOGGER.trace(EXITING, methodName);
 
     return results;
   }

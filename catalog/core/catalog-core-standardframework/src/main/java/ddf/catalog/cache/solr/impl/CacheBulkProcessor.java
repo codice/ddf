@@ -66,31 +66,28 @@ public class CacheBulkProcessor {
       final TimeUnit delayUnit,
       CacheStrategy cacheStrategy) {
     batchScheduler.scheduleWithFixedDelay(
-        new Runnable() {
-          @Override
-          public void run() {
-            try {
-              if (metacardsToCache.size() > 0
-                  && (metacardsToCache.size() >= batchSize || timeToFlush())) {
-                LOGGER.debug("{} metacards to batch add to cache", metacardsToCache.size());
+        () -> {
+          try {
+            if (metacardsToCache.size() > 0
+                && (metacardsToCache.size() >= batchSize || timeToFlush())) {
+              LOGGER.debug("{} metacards to batch add to cache", metacardsToCache.size());
 
-                List<Metacard> metacards = new ArrayList<>(metacardsToCache.values());
-                for (Collection<Metacard> batch : Lists.partition(metacards, batchSize)) {
-                  LOGGER.debug("Caching a batch of {} metacards", batch.size());
-                  cache.create(batch);
+              List<Metacard> metacards = new ArrayList<>(metacardsToCache.values());
+              for (Collection<Metacard> batch : Lists.partition(metacards, batchSize)) {
+                LOGGER.debug("Caching a batch of {} metacards", batch.size());
+                cache.create(batch);
 
-                  for (Metacard metacard : batch) {
-                    metacardsToCache.remove(metacard.getId());
-                  }
+                for (Metacard metacard : batch) {
+                  metacardsToCache.remove(metacard.getId());
                 }
-
-                lastBulkAdd = new Date();
               }
-            } catch (VirtualMachineError vme) {
-              throw vme;
-            } catch (Throwable throwable) {
-              LOGGER.warn("Scheduled bulk ingest to cache failed", throwable);
+
+              lastBulkAdd = new Date();
             }
+          } catch (VirtualMachineError vme) {
+            throw vme;
+          } catch (Throwable throwable) {
+            LOGGER.warn("Scheduled bulk ingest to cache failed", throwable);
           }
         },
         delay,

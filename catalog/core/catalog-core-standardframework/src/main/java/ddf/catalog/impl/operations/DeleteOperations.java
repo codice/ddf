@@ -191,7 +191,9 @@ public class DeleteOperations {
       }
     }
 
-    deleteResponse = doPostIngest(deleteResponse);
+    if (deleteResponse != null) {
+      deleteResponse = doPostIngest(deleteResponse);
+    }
 
     return deleteResponse;
   }

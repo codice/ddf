@@ -34,8 +34,8 @@ public final class DadEvaluator {
     URI inputDad = dec.getInputDad();
 
     if (inputDad != null) {
-      LOGGER.debug("inputDad = {}", inputDad.toString().toString());
-      LOGGER.debug("reference DAD = {}", dec.getDad().toString());
+      LOGGER.debug("inputDad = {}", inputDad);
+      LOGGER.debug("reference DAD = {}", dec.getDad());
 
       if (inputDad.compareTo(dec.getDad()) == 0) {
         status = true;

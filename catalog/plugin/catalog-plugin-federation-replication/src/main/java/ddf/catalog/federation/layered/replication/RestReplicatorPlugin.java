@@ -41,6 +41,8 @@ public class RestReplicatorPlugin implements PostIngestPlugin {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(RestReplicatorPlugin.class);
 
+  private static final String RESPONSE = "RESPONSE: [{}]";
+
   /** A configurable property of parent's location. */
   private PropertyResolver parentAddress = null;
 
@@ -64,7 +66,7 @@ public class RestReplicatorPlugin implements PostIngestPlugin {
         Response r = client.post(data);
 
         LOGGER.debug("Posted the following GeoJSON: {}\n", data);
-        LOGGER.debug("RESPONSE: [{}]", ToStringBuilder.reflectionToString(r));
+        LOGGER.debug(RESPONSE, ToStringBuilder.reflectionToString(r));
       }
     }
 
@@ -110,7 +112,7 @@ public class RestReplicatorPlugin implements PostIngestPlugin {
 
           Response r = updateClient.put(newData);
 
-          LOGGER.debug("RESPONSE: [{}]", ToStringBuilder.reflectionToString(r));
+          LOGGER.debug(RESPONSE, ToStringBuilder.reflectionToString(r));
         }
       }
     }
@@ -141,7 +143,7 @@ public class RestReplicatorPlugin implements PostIngestPlugin {
 
           Response r = updateClient.delete();
 
-          LOGGER.debug("RESPONSE: [{}]", ToStringBuilder.reflectionToString(r));
+          LOGGER.debug(RESPONSE, ToStringBuilder.reflectionToString(r));
         }
       }
     }

@@ -646,8 +646,9 @@ public class Historian {
 
   private boolean doSkip(@Nullable Operation op) {
     return !historyEnabled
+        || op == null
         || ((boolean)
-            Optional.ofNullable(op)
+            Optional.of(op)
                 .map(Operation::getProperties)
                 .orElse(Collections.emptyMap())
                 .getOrDefault(SKIP_VERSIONING, false));

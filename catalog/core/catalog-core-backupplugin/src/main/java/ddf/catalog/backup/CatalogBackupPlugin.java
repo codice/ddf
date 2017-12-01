@@ -120,16 +120,23 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
 
     getExecutor().shutdown();
     if (!executor.isShutdown()) {
+      List<Runnable> failures;
       try {
-        executor.awaitTermination(getTerminationTimeoutSeconds(), TimeUnit.SECONDS);
-        // If the remaining jobs in the queue are not completed TERMINATION_TIMEOUT elapses
-        // The JVM will throw an Interrupted Exception.
+        if (!executor.awaitTermination(getTerminationTimeoutSeconds(), TimeUnit.SECONDS)) {
+
+          if (!executor.awaitTermination(getTerminationTimeoutSeconds(), TimeUnit.SECONDS)) {
+            LOGGER.error("Executor service did not terminate.");
+          }
+        }
       } catch (InterruptedException e) {
         LOGGER.warn("Backup of metacards interrupted. Some metacards might not be backed up.");
+        Thread.currentThread().interrupt();
         throw new IllegalStateException(e);
+      } finally {
+        failures = executor.shutdownNow();
       }
-      final List<Runnable> failures = executor.shutdownNow();
-      if (failures.size() > 0) {
+
+      if (!failures.isEmpty()) {
         LOGGER.warn("Cancelled tasks to backup metacards. Some metacards might not be backed up.");
       }
     }
@@ -179,7 +186,7 @@ public class CatalogBackupPlugin implements PostIngestPlugin {
     }
   }
 
-  private void renameTempFile(File source) throws IOException {
+  private void renameTempFile(File source) {
     File destination =
         new File(StringUtils.removeEnd(source.getAbsolutePath(), TEMP_FILE_EXTENSION));
     boolean success = source.renameTo(destination);

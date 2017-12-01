@@ -17,7 +17,6 @@ import ddf.catalog.ftp.ftplets.FtpRequestHandler;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import org.apache.commons.collections.MapUtils;
 import org.apache.ftpserver.FtpServer;
 import org.apache.ftpserver.FtpServerConfigurationException;
@@ -35,8 +34,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** Registers the {@link FtpRequestHandler} and starts the FTP server for the FTP Endpoint. */
-public class FtpServerStarter {
-  private static final Logger LOGGER = LoggerFactory.getLogger(FtpServerStarter.class);
+public class FtpServerManager {
+  private static final Logger LOGGER = LoggerFactory.getLogger(FtpServerManager.class);
 
   private static final String DEFAULT_LISTENER = "default";
 
@@ -58,13 +57,13 @@ public class FtpServerStarter {
 
   private static FtpServer server;
 
-  private static FtpServerFactory serverFactory;
+  private FtpServerFactory serverFactory;
 
-  private static UserManager userManager;
+  private UserManager userManager;
 
-  private static ListenerFactory listenerFactory;
+  private ListenerFactory listenerFactory;
 
-  private static SslConfigurationFactory sslConfigurationFactory;
+  private SslConfigurationFactory sslConfigurationFactory;
 
   private Ftplet ftplet;
 
@@ -80,7 +79,7 @@ public class FtpServerStarter {
 
   private String trustStoreType;
 
-  public FtpServerStarter(
+  public FtpServerManager(
       Ftplet ftplet,
       FtpServerFactory serverFactory,
       ListenerFactory listenerFactory,
@@ -235,25 +234,33 @@ public class FtpServerStarter {
     FtpStatistics serverStatistics =
         ((DefaultFtpServer) server).getServerContext().getFtpStatistics();
 
-    int totalWait = 0;
+    final long end = System.currentTimeMillis() + maxSleepTimeMillis;
+    boolean interrupt = false;
 
-    while (serverStatistics.getCurrentConnectionNumber() > 0) {
-      LOGGER.debug(
-          "Waiting for {} connections to close before updating configuration",
-          serverStatistics.getCurrentConnectionNumber());
-      try {
-        if (totalWait <= maxSleepTimeMillis) {
-          totalWait += resetWaitTimeMillis;
-          Thread.sleep(resetWaitTimeMillis);
-        } else {
-          LOGGER.debug(
-              "Waited {} seconds for connections to close, updating FTP configuration",
-              TimeUnit.MILLISECONDS.toSeconds(totalWait));
-          break;
+    try {
+      while (serverStatistics.getCurrentConnectionNumber() > 0) {
+        LOGGER.debug(
+            "Waiting for {} connections to close before updating configuration",
+            serverStatistics.getCurrentConnectionNumber());
+        try {
+          final long totalWait = end - System.currentTimeMillis();
+
+          if (totalWait > 0L) {
+            Thread.sleep(resetWaitTimeMillis);
+          } else {
+            LOGGER.debug(
+                "Waited {} milliseconds for connections to close, updating FTP configuration",
+                totalWait);
+            break;
+          }
+        } catch (InterruptedException e) {
+          interrupt = true;
+          LOGGER.info("Thread interrupted while waiting for FTP connections to close", e);
         }
-      } catch (InterruptedException e) {
-        Thread.interrupted();
-        LOGGER.info("Thread interrupted while waiting for FTP connections to close", e);
+      }
+    } finally {
+      if (interrupt) {
+        Thread.currentThread().interrupt();
       }
     }
   }
