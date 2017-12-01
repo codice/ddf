@@ -82,7 +82,7 @@
         <dependency>
             <groupId>org.apache.karaf.jaas</groupId>
             <artifactId>org.apache.karaf.jaas.modules</artifactId>
-            <version>4.1.2</version>
+            <version>${karaf.version}</version>
         </dependency>
     </dependencies>
     <build>
