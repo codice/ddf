@@ -15,6 +15,7 @@ package ddf.catalog.cache.solr.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.extractor.Extractors.byName;
+import static org.awaitility.Awaitility.with;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
@@ -200,12 +201,14 @@ public class SortedQueryMonitorTest {
     when(completionService.poll(anyLong(), eq(TimeUnit.MILLISECONDS)))
         .thenAnswer((invocationOnMock -> futureIter.next()));
 
-    Thread queryMonitorThread = new Thread(queryMonitor);
-    queryMonitorThread.start();
-    while (queryMonitorThread.isAlive()) {
-      Thread.sleep(10);
-    }
-
+    with()
+        .await()
+        .atMost(200, TimeUnit.MILLISECONDS)
+        .until(
+            () -> {
+              queryMonitor.run();
+              return true;
+            });
     verify(completionService, times(3)).poll(anyLong(), eq(TimeUnit.MILLISECONDS));
     verify(completionService, never()).take();
 
