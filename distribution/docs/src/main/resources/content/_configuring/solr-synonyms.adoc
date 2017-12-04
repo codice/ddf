@@ -7,14 +7,19 @@
 
 == {title}
 
-When configured, text searches in Solr will utilize synonyms when attempting to match text within the catalog.  Synonyms are used during keywrod/anyText searches as well as when searching on specific text attributes when using the `like` / `contains` operator.   Text searches using the `equality` / `exact match` operator will not utilize synonyms.  
+When configured, text searches in Solr will utilize synonyms when attempting to match text within the catalog.
+Synonyms are used during keyword/anyText searches as well as when searching on specific text attributes when using the `like` / `contains` operator.
+Text searches using the `equality` / `exact match` operator will not utilize synonyms.
 
-Solr utilizes a `synonyms.txt` file which exists for each Solr core.  This file is located under `${home_directory}/data/solr/<solr core name>/data`.  Synonym matching is most pertinent to metacards which are contained within 2 cores: `metacard` and `metacard_cache`.
+Solr utilizes a `synonyms.txt` file which exists for each Solr core.
+This file is located under `${home_directory}/data/solr/<solr core name>/data`.
+Synonym matching is most pertinent to metacards which are contained within 2 cores: `catalog` and `metacard_cache`.
 
 === Defining synonym rules in the Solr Provider
 
-* Edit the `synonyms.txt` file under the `metacard` core.
-For each synonym group you want to define, add a line with the synonyms separated by a comma.  For example:
+* Edit the `synonyms.txt` file under the `catalog` core.
+For each synonym group you want to define, add a line with the synonyms separated by a comma.
+For example:
 [source]
 ----
 United States, United States of America, the States, US, U.S., USA, U.S.A
