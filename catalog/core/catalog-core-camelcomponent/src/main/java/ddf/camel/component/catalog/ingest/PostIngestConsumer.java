@@ -22,9 +22,9 @@ import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PostIngestPlugin;
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import org.apache.camel.Exchange;
@@ -48,28 +48,37 @@ public class PostIngestConsumer extends DefaultConsumer implements PostIngestPlu
 
   public static final String ACTION = "action";
 
-  private static final int NUM_THREADS = 5;
+  private static final int THREAD_POOL_DEFAULT_SIZE = 5;
 
   private CatalogEndpoint endpoint;
 
   private ServiceRegistration registration;
 
-  private BlockingQueue<Runnable> blockingQueue = new ArrayBlockingQueue<>(NUM_THREADS);
+  private BlockingQueue<Runnable> blockingQueue;
 
-  private ExecutorService threadExecutor =
-      new ThreadPoolExecutor(
-          NUM_THREADS,
-          NUM_THREADS,
-          0L,
-          TimeUnit.MILLISECONDS,
-          blockingQueue,
-          StandardThreadFactoryBuilder.newThreadFactory("postIngestConsumerThread"));
+  private ExecutorService threadExecutor;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PostIngestConsumer.class);
 
   public PostIngestConsumer(CatalogEndpoint endpoint, Processor processor) {
     super(endpoint, processor);
     this.endpoint = endpoint;
+
+    Integer threadPoolSize =
+        Integer.parseInt(
+            System.getProperty(
+                "org.codice.ddf.system.threadPoolSize", String.valueOf(THREAD_POOL_DEFAULT_SIZE)));
+
+    blockingQueue = new LinkedBlockingQueue<>();
+
+    threadExecutor =
+        new ThreadPoolExecutor(
+            THREAD_POOL_DEFAULT_SIZE,
+            threadPoolSize,
+            TimeUnit.MINUTES.toMillis(30),
+            TimeUnit.MILLISECONDS,
+            blockingQueue,
+            StandardThreadFactoryBuilder.newThreadFactory("postIngestConsumerThread"));
   }
 
   @Override
