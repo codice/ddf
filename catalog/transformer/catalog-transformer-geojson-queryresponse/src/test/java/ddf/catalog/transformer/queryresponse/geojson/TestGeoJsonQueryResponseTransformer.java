@@ -22,24 +22,30 @@ import static org.junit.Assert.assertThat;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
+import ddf.catalog.data.impl.BinaryContentImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.data.impl.ResultImpl;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.SourceResponseImpl;
 import ddf.catalog.transform.CatalogTransformerException;
+import ddf.catalog.transform.MetacardTransformer;
 import ddf.catalog.transformer.metacard.geojson.GeoJsonMetacardTransformer;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
+import org.apache.commons.io.IOUtils;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,9 +76,25 @@ public class TestGeoJsonQueryResponseTransformer {
 
   private static final Date NOW = new Date();
 
+  private static GeoJsonQueryResponseTransformer geoJsonQueryResponseTransformer;
+
+  @BeforeClass
+  public static void setup() {
+    geoJsonQueryResponseTransformer =
+        new GeoJsonQueryResponseTransformer(new GeoJsonMetacardTransformer());
+  }
+
+  @Test(expected = CatalogTransformerException.class)
+  public void testNullMetacardTransformer() throws CatalogTransformerException {
+    GeoJsonQueryResponseTransformer geoJsonQueryResponseTransformer =
+        new GeoJsonQueryResponseTransformer(null);
+    SourceResponse sourceResponse = setupResponse(2, 2L);
+    geoJsonQueryResponseTransformer.transform(sourceResponse, null);
+  }
+
   @Test(expected = CatalogTransformerException.class)
   public void testNullResponse() throws CatalogTransformerException {
-    new GeoJsonQueryResponseTransformer().transform(null, null);
+    geoJsonQueryResponseTransformer.transform(null, null);
   }
 
   @Test
@@ -90,7 +112,7 @@ public class TestGeoJsonQueryResponseTransformer {
     results.add(null);
 
     SourceResponse sourceResponse = new SourceResponseImpl(null, results, 2L);
-    new GeoJsonQueryResponseTransformer().transform(sourceResponse, null);
+    geoJsonQueryResponseTransformer.transform(sourceResponse, null);
   }
 
   @Test(expected = CatalogTransformerException.class)
@@ -102,7 +124,7 @@ public class TestGeoJsonQueryResponseTransformer {
     results.add(result);
 
     SourceResponse sourceResponse = new SourceResponseImpl(null, results, 1L);
-    new GeoJsonQueryResponseTransformer().transform(sourceResponse, null);
+    geoJsonQueryResponseTransformer.transform(sourceResponse, null);
   }
 
   @Test
@@ -116,10 +138,38 @@ public class TestGeoJsonQueryResponseTransformer {
     verifyResponse(obj, resultCount, hitCount);
   }
 
+  @Test
+  public void testCustomTransformerWithJsonArray()
+      throws ParseException, IOException, CatalogTransformerException {
+    GeoJsonQueryResponseTransformer geoJsonQRT =
+        new GeoJsonQueryResponseTransformer(
+            createCustomMetacardTransformer("[{\"id\":\"0\"},{\"id\":\"1\"}]"));
+
+    SourceResponse response = setupResponse(1, 1L);
+    JSONObject json = transform(response, geoJsonQRT);
+
+    JSONArray results = (JSONArray) json.get("results");
+    JSONObject firstResult = (JSONObject) results.get(0);
+    JSONArray metacard = (JSONArray) firstResult.get("metacard");
+    assertThat(((JSONObject) metacard.get(0)).get("id"), is("0"));
+    assertThat(((JSONObject) metacard.get(1)).get("id"), is("1"));
+  }
+
+  private MetacardTransformer createCustomMetacardTransformer(String binContent) {
+    return (metacard, arguments) ->
+        new BinaryContentImpl(IOUtils.toInputStream(binContent, StandardCharsets.UTF_8));
+  }
+
   private JSONObject transform(SourceResponse sourceResponse)
+      throws ParseException, IOException, CatalogTransformerException {
+    return transform(sourceResponse, geoJsonQueryResponseTransformer);
+  }
+
+  private JSONObject transform(
+      SourceResponse sourceResponse, GeoJsonQueryResponseTransformer geoJsonQRT)
       throws CatalogTransformerException, IOException, ParseException {
 
-    BinaryContent content = new GeoJsonQueryResponseTransformer().transform(sourceResponse, null);
+    BinaryContent content = geoJsonQRT.transform(sourceResponse, null);
 
     assertEquals(
         content.getMimeTypeValue(),
