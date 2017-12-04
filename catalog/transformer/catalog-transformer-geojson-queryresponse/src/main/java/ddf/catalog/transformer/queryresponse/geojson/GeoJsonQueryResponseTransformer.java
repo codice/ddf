@@ -123,10 +123,7 @@ public class GeoJsonQueryResponseTransformer implements QueryResponseTransformer
         if (result == null) {
           throw new CatalogTransformerException("Cannot transform null " + Result.class.getName());
         }
-        JSONObject jsonObj = convertToJSON(result);
-        if (jsonObj != null) {
-          resultsList.add(jsonObj);
-        }
+        resultsList.add(convertToJSON(result));
       }
     }
     addNonNullObject(rootObject, "results", resultsList);
