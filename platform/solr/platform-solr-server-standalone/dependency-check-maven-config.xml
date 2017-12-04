@@ -41,15 +41,6 @@
         <cve>CVE-2011-2730</cve>
     </suppress>
 
-    <!-- Remove this suppression when DDF-3440 is worked -->
-    <suppress>
-        <notes>
-            This suppression is to remove a Solr 6.6.1 CVE. The suggested workaround has be put in
-            place until Solr is upgraded.
-        </notes>
-        <cve>CVE-2017-12629</cve>
-    </suppress>
-
     <suppress>
         <notes>
             This CVE is related to hash collisions at the Java level. This is mitigated by newer versions of Java (8+).

@@ -223,8 +223,8 @@
         <jbake.maven.plugin.version>0.0.9</jbake.maven.plugin.version>
         <jruby.version>1.7.26</jruby.version>
 
-        <solr.version>6.6.1</solr.version>
-        <lucene.version>6.6.1</lucene.version>
+        <solr.version>6.6.2</solr.version>
+        <lucene.version>6.6.2</lucene.version>
         <spatial4j.version>0.6</spatial4j.version>
         <spring-osgi.version>1.2.1</spring-osgi.version>
         <jodah-failsafe.version>0.9.5</jodah-failsafe.version>
