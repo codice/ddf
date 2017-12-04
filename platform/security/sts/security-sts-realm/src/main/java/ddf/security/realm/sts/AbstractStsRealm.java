@@ -292,7 +292,7 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
       builder.append("key: " + entry.getKey() + "; value: " + entry.getValue() + "\n");
     }
 
-    LOGGER.debug(builder.toString());
+    LOGGER.debug("builder: {}", builder);
   }
 
   /** Helper method to setup STS Client. */
@@ -354,7 +354,7 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
     String stsEndpointName = getEndpointName();
 
     if (stsAddress != null) {
-      LOGGER.debug("Setting WSDL location on STSClient: " + stsAddress);
+      LOGGER.debug("Setting WSDL location on STSClient: {}", stsAddress);
       stsClient.setWsdlLocation(stsAddress);
     }
 

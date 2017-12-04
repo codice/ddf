@@ -408,7 +408,7 @@ public class ContentDirectoryMonitor implements DirectoryMonitor {
             }
             break;
         }
-        LOGGER.trace("inbox = {}", stringBuilder.toString());
+        LOGGER.trace("inbox = {}", stringBuilder);
 
         RouteDefinition routeDefinition = from(stringBuilder.toString());
 

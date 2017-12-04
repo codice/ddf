@@ -84,7 +84,7 @@ public class ClientInfoFilter implements SecurityFilter {
     if (servletContext != null) {
       clientInfoMap.put(SERVLET_CONTEXT_PATH, servletContext.getContextPath());
     }
-    LOGGER.debug("Creating client info map with the following pairs, {}", clientInfoMap.toString());
+    LOGGER.debug("Creating client info map with the following pairs, {}", clientInfoMap);
     return clientInfoMap;
   }
 }

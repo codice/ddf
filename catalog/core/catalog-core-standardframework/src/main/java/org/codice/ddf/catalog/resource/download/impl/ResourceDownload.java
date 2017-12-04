@@ -67,8 +67,7 @@ public class ResourceDownload implements ResourceDownloadMBean {
 
   public void init() {
     registerMBean();
-    LOGGER.debug(
-        "Registered [{}] MBean under object name: [{}].", CLASS_NAME, objectName.toString());
+    LOGGER.debug("Registered [{}] MBean under object name: [{}].", CLASS_NAME, objectName);
   }
 
   public void destroy() {
@@ -114,8 +113,8 @@ public class ResourceDownload implements ResourceDownloadMBean {
           new DownloadToLocalSiteException(Status.INTERNAL_SERVER_ERROR, message), message);
     } catch (ResourceNotFoundException e) {
       String message =
-          String.format(
-              ERROR_MESSAGE_TEMPLATE + " The resource could not be found.", metacardId, sourceId);
+          String.format(ERROR_MESSAGE_TEMPLATE, metacardId, sourceId)
+              + " The resource could not be found.";
       LOGGER.debug(message, e);
       throw new MBeanException(
           new DownloadToLocalSiteException(Status.NOT_FOUND, message), message);
@@ -140,9 +139,7 @@ public class ResourceDownload implements ResourceDownloadMBean {
       }
     } else {
       LOGGER.debug(
-          "[{}] MBean is already registered under object name: [{}].",
-          CLASS_NAME,
-          objectName.toString());
+          "[{}] MBean is already registered under object name: [{}].", CLASS_NAME, objectName);
     }
   }
 
@@ -154,7 +151,7 @@ public class ResourceDownload implements ResourceDownloadMBean {
         LOGGER.debug(
             "Unable to unregister [{}] MBean under object name: [{}]. It is not registered.",
             CLASS_NAME,
-            objectName.toString());
+            objectName);
       }
     } catch (MBeanRegistrationException | InstanceNotFoundException e) {
       String message =

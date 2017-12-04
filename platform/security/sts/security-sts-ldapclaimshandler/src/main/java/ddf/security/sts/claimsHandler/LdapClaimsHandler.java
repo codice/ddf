@@ -125,10 +125,7 @@ public class LdapClaimsHandler extends org.apache.cxf.sts.claims.LdapClaimsHandl
         BindResult bindResult = connection.bind(request);
         if (bindResult.isSuccess()) {
           String baseDN = AttributeMapLoader.getBaseDN(principal, getUserBaseDN(), overrideCertDn);
-          LOGGER.trace(
-              "Executing ldap search with base dn of {} and filter of {}",
-              baseDN,
-              filter.toString());
+          LOGGER.trace("Executing ldap search with base dn of {} and filter of {}", baseDN, filter);
 
           ConnectionEntryReader entryReader =
               connection.search(

@@ -133,8 +133,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
   public void init() throws ApplicationServiceException {
     try {
       try {
-        LOGGER.debug(
-            "Registering application service MBean under object name: {}", objectName.toString());
+        LOGGER.debug("Registering application service MBean under object name: {}", objectName);
         mBeanServer.registerMBean(this, objectName);
       } catch (InstanceAlreadyExistsException iaee) {
         // Try to remove and re-register

@@ -96,7 +96,7 @@ public final class CswCqlTextFilter {
             new QName("http://www.opengis.net/ogc", "Filter"), FilterType.class, filterType);
     StringWriter writer = new StringWriter();
     marshaller.marshal(filterTypeJaxbElement, writer);
-    LOGGER.debug("Filter as XML => {}", writer.toString());
+    LOGGER.debug("Filter as XML => {}", writer);
     return writer.toString();
   }
 }

@@ -82,7 +82,7 @@ public class GeospatialEvaluator {
 
   public static boolean evaluate(GeospatialEvaluationCriteria gec) {
     String methodName = "evaluate";
-    LOGGER.debug("ENTERING: {}", methodName);
+    LOGGER.trace("ENTERING: {}", methodName);
 
     String operation = gec.getOperation();
     Geometry input = gec.getInput();
@@ -149,7 +149,7 @@ public class GeospatialEvaluator {
 
     LOGGER.debug("evaluation = {}", evaluation);
 
-    LOGGER.debug("EXITING: {}", methodName);
+    LOGGER.trace("EXITING: {}", methodName);
 
     return evaluation;
   }
@@ -157,7 +157,7 @@ public class GeospatialEvaluator {
   public static Geometry buildGeometry(String gmlText)
       throws IOException, SAXException, ParserConfigurationException {
     String methodName = "buildGeometry";
-    LOGGER.debug("ENTERING: {}", methodName);
+    LOGGER.trace("ENTERING: {}", methodName);
 
     Geometry geometry = null;
 
@@ -172,7 +172,9 @@ public class GeospatialEvaluator {
 
       LOGGER.debug("Parsing gmlText");
       geometry = (Geometry) (parser.parse(new StringReader(gmlText)));
-      LOGGER.debug("geometry (before conversion): {}", geometry.toText());
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug("geometry (before conversion): {}", geometry.toText());
+      }
 
       // The metadata schema states that <gml:pos> elements specify points in
       // LAT,LON order. But WKT specifies points in LON,LAT order. When the geoTools
@@ -202,9 +204,11 @@ public class GeospatialEvaluator {
                 null,
                 geometryFactory);
 
-        LOGGER.debug("Translates to {}", polygon.toText()); // this logs the transformed WKT
-        // with LON,LAT ordered points
-        LOGGER.debug("EXITING: {}", methodName);
+        if (LOGGER.isDebugEnabled()) {
+          LOGGER.debug("Translates to {}", polygon.toText()); // this logs the transformed WKT
+          // with LON,LAT ordered points
+          LOGGER.trace("EXITING: {}", methodName);
+        }
 
         return polygon;
       }
@@ -215,9 +219,11 @@ public class GeospatialEvaluator {
             geometryFactory.createPoint(
                 new Coordinate(geometry.getCoordinate().y, geometry.getCoordinate().x));
 
-        LOGGER.debug("Translates to {}", point.toText()); // this logs the transformed WKT
-        // with a LON,LAT ordered point
-        LOGGER.debug("EXITING: {}", methodName);
+        if (LOGGER.isDebugEnabled()) {
+          LOGGER.debug("Translates to {}", point.toText()); // this logs the transformed WKT
+          // with a LON,LAT ordered point
+          LOGGER.trace("EXITING: {}", methodName);
+        }
 
         return point;
       }
@@ -227,20 +233,20 @@ public class GeospatialEvaluator {
 
     LOGGER.debug("No translation done for geometry - probably not good ...");
 
-    LOGGER.debug("EXITING: {}", methodName);
+    LOGGER.trace("EXITING: {}", methodName);
 
     return geometry;
   }
 
   public static String supportSRSName(String gml) {
     String methodName = "supportSRSName";
-    LOGGER.debug("ENTERING: {}", methodName);
+    LOGGER.trace("ENTERING: {}", methodName);
 
     if (gml.contains(METADATA_DOD_MIL_CRS_WGS84E_2D)) {
       gml = gml.replaceAll(Pattern.quote(METADATA_DOD_MIL_CRS_WGS84E_2D), EPSG_4326);
     }
 
-    LOGGER.debug("EXITING: {}  --  gml = {}", methodName, gml);
+    LOGGER.trace("EXITING: {}  --  gml = {}", methodName, gml);
 
     return gml;
   }

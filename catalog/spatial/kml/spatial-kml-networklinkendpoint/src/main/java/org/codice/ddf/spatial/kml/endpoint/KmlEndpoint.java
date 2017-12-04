@@ -359,7 +359,7 @@ public class KmlEndpoint {
 
     // create link and add it to networkLinkElements
     Link link = networkLink.createAndSetLink();
-    LOGGER.debug("View Based Network Link href: {}", networkLinkUrl.toString());
+    LOGGER.debug("View Based Network Link href: {}", networkLinkUrl);
     link.setHref(networkLinkUrl.toString());
     link.setViewRefreshMode(ViewRefreshMode.ON_STOP);
     link.setViewRefreshTime(DEFAULT_VIEW_REFRESH_TIME);

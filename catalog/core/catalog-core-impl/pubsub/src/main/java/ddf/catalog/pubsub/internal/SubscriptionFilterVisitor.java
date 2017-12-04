@@ -345,8 +345,8 @@ public class SubscriptionFilterVisitor extends DefaultFilterVisitor {
       returnPredicate = new TemporalPredicate(offset, DateType.getDateType(temporalType));
     }
 
-    LOGGER.debug("temporalType: " + temporalType);
-    LOGGER.debug("Temporal Predicate: " + returnPredicate);
+    LOGGER.debug("temporalType: {}", temporalType);
+    LOGGER.debug("Temporal Predicate: {}", returnPredicate);
     LOGGER.debug("EXITING: During filter");
 
     return returnPredicate;

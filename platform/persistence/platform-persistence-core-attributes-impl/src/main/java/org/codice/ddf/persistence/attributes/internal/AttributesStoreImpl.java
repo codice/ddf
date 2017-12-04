@@ -201,7 +201,7 @@ public class AttributesStoreImpl implements AttributesStore {
       Map<String, Object> attributes = PersistentItem.stripSuffixes(attributesList.get(0));
       currentDataUsage = (long) attributes.get(DATA_USAGE_KEY);
 
-      LOGGER.debug("User {} data usage {} ", username, String.valueOf(currentDataUsage));
+      LOGGER.debug("User {} data usage {} ", username, currentDataUsage);
     }
     return currentDataUsage;
   }
@@ -218,7 +218,7 @@ public class AttributesStoreImpl implements AttributesStore {
       Map<String, Object> attributes = PersistentItem.stripSuffixes(attributesList.get(0));
       dataLimit = (long) attributes.get(DATA_USAGE_LIMIT_KEY);
 
-      LOGGER.debug("User {} data limit {} ", username, String.valueOf(dataLimit));
+      LOGGER.debug("User {} data limit {} ", username, dataLimit);
     }
     return dataLimit;
   }

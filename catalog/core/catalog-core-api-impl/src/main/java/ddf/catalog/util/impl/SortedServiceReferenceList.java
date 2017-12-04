@@ -52,7 +52,7 @@ public class SortedServiceReferenceList implements List<ServiceReference> {
    */
   public void bindService(ServiceReference ref) {
 
-    LOGGER.debug(this + " Binding " + ref);
+    LOGGER.debug("{} Binding {}", this, ref);
 
     serviceSet.add(ref);
   }

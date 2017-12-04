@@ -257,7 +257,7 @@ public class RESTEndpoint implements RESTService {
 
     if (id != null) {
       LOGGER.debug("Got id: {}", id);
-      LOGGER.debug("Map of query parameters: \n{}", map.toString());
+      LOGGER.debug("Map of query parameters: \n{}", map);
 
       Map<String, Serializable> convertedMap = convert(map);
       convertedMap.put("url", absolutePath.toString());
@@ -472,7 +472,7 @@ public class RESTEndpoint implements RESTService {
     if (encodedId != null) {
       LOGGER.debug("Got id: {}", encodedId);
       LOGGER.debug("Got service: {}", transformerParam);
-      LOGGER.debug("Map of query parameters: \n{}", map.toString());
+      LOGGER.debug("Map of query parameters: \n{}", map);
 
       Map<String, Serializable> convertedMap = convert(map);
       convertedMap.put("url", absolutePath.toString());
@@ -522,7 +522,7 @@ public class RESTEndpoint implements RESTService {
         long bytesToSkip = getRangeStart(httpRequest);
 
         if (bytesToSkip > 0) {
-          LOGGER.debug("Bytes to skip: {}", String.valueOf(bytesToSkip));
+          LOGGER.debug("Bytes to skip: {}", bytesToSkip);
           convertedMap.put(BYTES_TO_SKIP, bytesToSkip);
         }
 

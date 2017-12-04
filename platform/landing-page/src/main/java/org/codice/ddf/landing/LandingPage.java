@@ -152,15 +152,14 @@ public class LandingPage extends HttpServlet {
     parsedLinks = new HashMap<>();
     for (String link : links) {
       if (StringUtils.countMatches(link, ",") != 1) {
-        LOGGER.warn("Unable to parse link (" + link + "). Links should have exactly one comma.");
+        LOGGER.warn("Unable to parse link ({}). Links should have exactly one comma.", link);
         continue;
       }
       String[] parts = link.split(",");
       String text = parts[0].trim();
       String url = parts[1].trim();
       if (text.isEmpty() || url.isEmpty()) {
-        LOGGER.warn(
-            "Unable to parse link (" + link + "). Neither the text nor the URL can be empty.");
+        LOGGER.warn("Unable to parse link ({}). Neither the text nor the URL can be empty.", link);
         continue;
       }
       parsedLinks.put(text, url);

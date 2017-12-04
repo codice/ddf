@@ -137,7 +137,7 @@ public class CookieCache {
           "Expiring SAML ref:assertion {}:{} due to {}.",
           notification.getKey(),
           notification.getValue(),
-          notification.getCause().toString());
+          notification.getCause());
     }
   }
 

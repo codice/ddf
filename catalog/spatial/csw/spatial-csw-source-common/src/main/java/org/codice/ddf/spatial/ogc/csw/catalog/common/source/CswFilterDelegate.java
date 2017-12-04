@@ -791,10 +791,9 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
 
     LOGGER.debug(
         "Attempting to build {} filter for property {} and WKT {} in LON/LAT order.",
-        SpatialOperatorNameType.BEYOND.name(),
+        SpatialOperatorNameType.BEYOND,
         propertyName,
-        wkt,
-        distance);
+        wkt);
 
     if (isAnyGeo(propertyName)) {
       propertyName = mapPropertyName(propertyName);
@@ -868,7 +867,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
 
     LOGGER.debug(
         "Attempting to build {} filter for property {} and WKT {} in LON/LAT order in LON/LAT order.",
-        SpatialOperatorNameType.DISJOINT.name(),
+        SpatialOperatorNameType.DISJOINT,
         propertyName,
         wkt);
 
@@ -915,7 +914,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
 
     LOGGER.debug(
         "Attempting to build {} filter for property {} and WKT {} in LON/LAT order.",
-        SpatialOperatorNameType.CROSSES.name(),
+        SpatialOperatorNameType.CROSSES,
         propertyName,
         wkt);
 
@@ -945,7 +944,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
 
     LOGGER.debug(
         "Attempting to build {} filter for property {} and WKT {} in LON/LAT order.",
-        SpatialOperatorNameType.D_WITHIN.name(),
+        SpatialOperatorNameType.D_WITHIN,
         propertyName,
         wkt,
         distance);
@@ -964,8 +963,8 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
 
     LOGGER.debug(
         "Unable to construct {} spatial filter. Attempting to fall back to NOT {}.",
-        SpatialOperatorNameType.D_WITHIN.name(),
-        SpatialOperatorNameType.BEYOND.name());
+        SpatialOperatorNameType.D_WITHIN,
+        SpatialOperatorNameType.BEYOND);
     if (isSpatialOperationSupported(SpatialOperatorNameType.BEYOND)) {
       BinarySpatialOperand beyondBinarySpatialOperand =
           useGeometryOrEnvelope(SpatialOperatorNameType.BEYOND, wkt);
@@ -976,8 +975,8 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
 
     LOGGER.debug(
         "Unable to construct NOT {} spatial filter. Attempting to fall back to {}.",
-        SpatialOperatorNameType.BEYOND.name(),
-        SpatialOperatorNameType.INTERSECTS.name());
+        SpatialOperatorNameType.BEYOND,
+        SpatialOperatorNameType.INTERSECTS);
     if (isSpatialOperationSupported(SpatialOperatorNameType.INTERSECTS)) {
       String bufferedWkt = bufferGeometry(wkt, distance);
       BinarySpatialOperand intersectsBinarySpatialOperand =
@@ -1006,7 +1005,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
 
     LOGGER.debug(
         "Attempting to build {} filter for property {} and WKT {} in LON/LAT order.",
-        SpatialOperatorNameType.INTERSECTS.name(),
+        SpatialOperatorNameType.INTERSECTS,
         propertyName,
         wkt);
 
@@ -1032,7 +1031,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
           useGeometryOrEnvelope(SpatialOperatorNameType.BBOX, wkt);
       // BBOX only supports Envelope
       if (bboxBinarySpatialOperand == BinarySpatialOperand.ENVELOPE) {
-        LOGGER.debug("Falling back to {} filter.", SpatialOperatorNameType.BBOX.name());
+        LOGGER.debug("Falling back to {} filter.", SpatialOperatorNameType.BBOX);
         return cswFilterFactory.buildBBoxGeospatialFilter(propertyName, wkt);
       }
     }
@@ -1041,7 +1040,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
       BinarySpatialOperand disjointBinarySpatialOperand =
           useGeometryOrEnvelope(SpatialOperatorNameType.DISJOINT, wkt);
       if (disjointBinarySpatialOperand != BinarySpatialOperand.NONE) {
-        LOGGER.debug("Falling back to {} filter.", SpatialOperatorNameType.DISJOINT.name());
+        LOGGER.debug("Falling back to {} filter.", SpatialOperatorNameType.DISJOINT);
         return not(disjoint(propertyName, wkt));
       }
     }
@@ -1061,7 +1060,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
 
     LOGGER.debug(
         "Attempting to build {} filter for property {} and WKT {} in LON/LAT order.",
-        SpatialOperatorNameType.OVERLAPS.name(),
+        SpatialOperatorNameType.OVERLAPS,
         propertyName,
         wkt);
 
@@ -1088,7 +1087,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
 
     LOGGER.debug(
         "Attempting to build {} filter for property {} and WKT {} in LON/LAT order.",
-        SpatialOperatorNameType.TOUCHES.name(),
+        SpatialOperatorNameType.TOUCHES,
         propertyName,
         wkt);
 
@@ -1115,7 +1114,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
 
     LOGGER.debug(
         "Attempting to build {} filter for property {} and WKT {} in LON/LAT order.",
-        SpatialOperatorNameType.WITHIN.name(),
+        SpatialOperatorNameType.WITHIN,
         propertyName,
         wkt);
 
@@ -1133,7 +1132,7 @@ public class CswFilterDelegate extends CswAbstractFilterDelegate<FilterType> {
     }
 
     if (isSpatialOperationSupported(SpatialOperatorNameType.CONTAINS)) {
-      LOGGER.debug("Falling back to {} filter.", SpatialOperatorNameType.CONTAINS.name());
+      LOGGER.debug("Falling back to {} filter.", SpatialOperatorNameType.CONTAINS);
       BinarySpatialOperand containsBinarySpatialOperand =
           useGeometryOrEnvelope(SpatialOperatorNameType.CONTAINS, wkt);
       if (containsBinarySpatialOperand != BinarySpatialOperand.NONE) {

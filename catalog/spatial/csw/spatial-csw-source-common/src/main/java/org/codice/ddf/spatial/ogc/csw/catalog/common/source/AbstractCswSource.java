@@ -1447,7 +1447,7 @@ public abstract class AbstractCswSource extends MaskableImpl
       readGetRecordsOperation(capabilities);
 
       loadContentTypes();
-      LOGGER.debug("{}: {}", cswSourceConfiguration.getId(), capabilities.toString());
+      LOGGER.debug("{}: {}", cswSourceConfiguration.getId(), capabilities);
     } else {
       LOGGER.info(
           "{}: CSW Server did not return any capabilities.", cswSourceConfiguration.getId());
@@ -1857,7 +1857,7 @@ public abstract class AbstractCswSource extends MaskableImpl
     // a single event should be sent)
     if (filterlessSubscriptionId != null) {
       LOGGER.debug(
-          "filterless subscription already configured for site " + filterlessSubscriptionId);
+          "filterless subscription already configured for site {}", filterlessSubscriptionId);
       return;
     }
 

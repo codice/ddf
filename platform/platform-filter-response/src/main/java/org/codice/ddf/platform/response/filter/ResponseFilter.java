@@ -71,7 +71,7 @@ public class ResponseFilter implements SecurityFilter {
     for (String header : headers) {
       String[] keyVal = header.split("=", 2);
       if (keyVal.length != 2) {
-        LOGGER.debug("Skipping bad header " + header);
+        LOGGER.debug("Skipping bad header {}", header);
         continue;
       }
       response.setHeader(keyVal[0], keyVal[1]);

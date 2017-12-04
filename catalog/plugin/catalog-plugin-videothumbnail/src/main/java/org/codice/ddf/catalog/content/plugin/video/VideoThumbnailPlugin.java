@@ -287,7 +287,7 @@ public class VideoThumbnailPlugin implements PostCreateStoragePlugin, PostUpdate
             .addArgument(SUPPRESS_PRINTING_BANNER_FLAG)
             .addArgument(INPUT_FILE_FLAG)
             .addArgument(videoFilePath, DONT_HANDLE_QUOTING);
-    LOGGER.trace("FFmpeg command : {}", commandLine.toString());
+    LOGGER.trace("FFmpeg command : {}", commandLine);
     return commandLine;
   }
 

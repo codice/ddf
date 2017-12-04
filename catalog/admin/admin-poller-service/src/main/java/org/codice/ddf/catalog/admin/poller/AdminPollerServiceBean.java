@@ -111,7 +111,7 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
         mBeanServer.registerMBean(this, objectName);
         LOGGER.debug(
             "Registered Admin Source Poller Service Service MBean under object name: {}",
-            objectName.toString());
+            objectName);
       } catch (InstanceAlreadyExistsException e) {
         // Try to remove and re-register
         mBeanServer.unregisterMBean(objectName);
@@ -119,7 +119,7 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
         LOGGER.debug("Re-registered Admin Source Poller Service Service MBean");
       }
     } catch (Exception e) {
-      LOGGER.info("Could not register MBean [{}].", objectName.toString(), e);
+      LOGGER.info("Could not register MBean [{}].", objectName, e);
     }
   }
 
@@ -130,7 +130,7 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
         LOGGER.debug("Unregistered Admin Source Poller Service Service MBean");
       }
     } catch (Exception e) {
-      LOGGER.info("Exception unregistering MBean [{}].", objectName.toString(), e);
+      LOGGER.info("Exception unregistering MBean [{}].", objectName, e);
     }
   }
 

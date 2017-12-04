@@ -67,8 +67,7 @@ public class LoggingService implements PaxAppender, LoggingServiceMBean {
       }
       objectName = new ObjectName(MBEAN_OBJECT_NAME);
       mBeanServer.registerMBean(this, objectName);
-      LOGGER.debug(
-          "Registered [{}] MBean under object name: [{}].", CLASS_NAME, objectName.toString());
+      LOGGER.debug("Registered [{}] MBean under object name: [{}].", CLASS_NAME, objectName);
     } catch (InstanceAlreadyExistsException e) {
       LOGGER.debug("[{}] already registered as an MBean. Re-registering.", CLASS_NAME);
 

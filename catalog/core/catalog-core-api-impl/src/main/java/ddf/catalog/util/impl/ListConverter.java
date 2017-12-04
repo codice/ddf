@@ -53,7 +53,7 @@ public class ListConverter implements Converter {
   @Override
   public Object convert(Object sourceObject, ReifiedType targetType) throws Exception {
 
-    LOGGER.trace("Converting " + sourceObject);
+    LOGGER.trace("Converting {}", sourceObject);
 
     SortedServiceList list = ((SortedServiceList) sourceObject);
 

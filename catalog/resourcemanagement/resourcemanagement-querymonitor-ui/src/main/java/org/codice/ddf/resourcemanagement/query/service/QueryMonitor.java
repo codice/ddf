@@ -79,8 +79,7 @@ public class QueryMonitor implements QueryMonitorMBean {
       try {
         mBeanServer.registerMBean(this, objectName);
         LOGGER.debug(
-            "Registered Query Monitor Configuration MBean under object name: {}",
-            objectName.toString());
+            "Registered Query Monitor Configuration MBean under object name: {}", objectName);
       } catch (InstanceAlreadyExistsException e) {
         // Try to remove and re-register
         mBeanServer.unregisterMBean(objectName);
