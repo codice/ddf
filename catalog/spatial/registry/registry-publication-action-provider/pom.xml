@@ -97,7 +97,6 @@
                             platform-util,
                             registry-common,
                             catalog-core-api-impl,
-                            common-system,
                             commons-lang3,
                             ddf-security-common
                         </Embed-Dependency>

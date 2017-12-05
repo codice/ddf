@@ -82,7 +82,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>JavaAPIforKml, catalog-core-api-impl, handlebars,
-                            antlr4-runtime, commons-lang3, common-system, platform-util
+                            antlr4-runtime, commons-lang3, platform-util
                         </Embed-Dependency>
                         <Import-Package>
                             !org.abego.treelayout.*,

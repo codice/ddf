@@ -121,7 +121,6 @@
               platform-util,
               platform-util-unavailableurls,
               ddf-security-common,
-              common-system,
               alerts
             </Embed-Dependency>
             <Export-Package/>

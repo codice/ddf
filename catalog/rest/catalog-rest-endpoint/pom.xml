@@ -140,7 +140,6 @@
                             json-smart,
                             catalog-core-api-impl,
                             catalog-core-actions,
-                            common-system,
                             platform-util,
                             commons-lang3,
                             asm

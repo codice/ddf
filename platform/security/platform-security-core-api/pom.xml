@@ -203,7 +203,6 @@
                             httpcore,
                             google-http-client,
                             opensaml-soap-impl,
-                            common-system,
                             alerts
                         </Embed-Dependency>
                         <Export-Package>

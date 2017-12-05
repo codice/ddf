@@ -207,7 +207,6 @@
                         <Embed-Dependency>
                             boon,
                             commons-lang3,
-                            common-system,
                             ddf-security-common,
                             httpclient,
                             httpcore,

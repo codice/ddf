@@ -354,7 +354,6 @@
                             platform-util,
                             antlr4-runtime,
                             commons-lang3,
-                            common-system,
                             jetty-servlets,
                             security-core-impl,
                             httpcore,

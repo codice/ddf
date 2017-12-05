@@ -94,7 +94,6 @@
                             metrics-core,
                             metrics-collector,
                             rrd4j;scope=compile|runtime;artifactId=!slf4j-api,
-                            common-system,
                             catalog-core-api-impl;scope=!test,
                             platform-util
                         </Embed-Dependency>

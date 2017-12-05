@@ -122,7 +122,6 @@
                         <Embed-Dependency>
                             platform-util,
                             org.apache.felix.utils,
-                            common-system,
                             alerts,
                             boon
                         </Embed-Dependency>

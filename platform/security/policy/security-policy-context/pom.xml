@@ -44,7 +44,6 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>common-system</Embed-Dependency>
                         <Export-Package>
                             org.codice.ddf.security.policy.context.impl
                         </Export-Package>

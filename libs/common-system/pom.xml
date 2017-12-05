@@ -21,6 +21,7 @@
     </parent>
     <artifactId>common-system</artifactId>
     <name>DDF :: Common System</name>
+    <packaging>bundle</packaging>
     <dependencies>
         <dependency>
             <groupId>commons-lang</groupId>
@@ -36,8 +37,13 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                    </instructions>
+                </configuration>
             </plugin>
         </plugins>
     </build>

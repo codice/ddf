@@ -119,11 +119,9 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            common-system,
                             cxf-services-sts-core,
                             security-sts-x509delegationhandler,
                             security-sts-bstdelegationhandler,
-                            common-system,
                             httpclient,httpcore,
                             platform-util-unavailableurls,
                             ddf-security-common,

@@ -103,7 +103,6 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Version>${project.version}</Bundle-Version>
-                        <Embed-Dependency>common-system</Embed-Dependency>
                         <Export-Package>
                             ddf.security.cas.client;version=${project.version}
                         </Export-Package>
@@ -116,7 +115,8 @@
                             org.jasig.cas.client.proxy,
                             org.jasig.cas.client.validation,
                             org.osgi.service.blueprint;version="[1.0.0,2.0.0)",
-                            org.slf4j;version="[1.7,2)"
+                            org.slf4j;version="[1.7,2)",
+                            org.codice.ddf.configuration
                         </Import-Package>
                         <Bundle-ClassPath>.,WEB-INF/classes,WEB-INF/lib/guava-17.0.jar
                         </Bundle-ClassPath>
