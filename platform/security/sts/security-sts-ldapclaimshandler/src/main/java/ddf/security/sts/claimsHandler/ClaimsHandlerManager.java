@@ -218,10 +218,10 @@ public class ClaimsHandlerManager {
         LDAPConnectionFactory.TRANSPORT_PROVIDER_CLASS_LOADER,
         ClaimsHandlerManager.class.getClassLoader());
 
-    String host = url.substring(url.indexOf("://") + 3, url.lastIndexOf(":"));
+    String host = url.substring(url.indexOf("://") + 3, url.lastIndexOf(':'));
     Integer port = useSsl ? 636 : 389;
     try {
-      port = Integer.valueOf(url.substring(url.lastIndexOf(":") + 1));
+      port = Integer.valueOf(url.substring(url.lastIndexOf(':') + 1));
     } catch (NumberFormatException ignore) {
     }
 

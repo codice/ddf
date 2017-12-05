@@ -24,6 +24,7 @@ public interface HttpProxyService {
    * @return
    * @throws Exception
    */
+  @SuppressWarnings("squid:S00112" /*Underlying camel calls will throw raw Exceptions*/)
   public String start(String targetUri, Integer timeout) throws Exception;
 
   /**
@@ -36,6 +37,7 @@ public interface HttpProxyService {
    * @return
    * @throws Exception
    */
+  @SuppressWarnings("squid:S00112" /*Underlying camel calls will throw raw Exceptions*/)
   public String start(String endpointName, String targetUri, Integer timeout) throws Exception;
 
   /**
@@ -44,5 +46,6 @@ public interface HttpProxyService {
    * @param endpointName
    * @throws Exception
    */
+  @SuppressWarnings("squid:S00112" /*Underlying camel calls will throw raw Exceptions*/)
   public void stop(String endpointName) throws Exception;
 }

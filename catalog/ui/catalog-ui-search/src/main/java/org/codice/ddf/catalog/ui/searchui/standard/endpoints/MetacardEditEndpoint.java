@@ -20,7 +20,11 @@ import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.federation.FederationException;
 import ddf.catalog.operation.impl.UpdateRequestImpl;
+import ddf.catalog.source.IngestException;
+import ddf.catalog.source.SourceUnavailableException;
+import ddf.catalog.source.UnsupportedQueryException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -64,22 +68,25 @@ public class MetacardEditEndpoint {
       @Context HttpServletResponse response,
       @PathParam("id") String id,
       @PathParam("attribute") String attribute)
-      throws Exception {
-    Metacard metacard = endpointUtil.getMetacard(id);
-    Attribute metacardAttribute = metacard.getAttribute(attribute);
-    if (metacardAttribute == null) {
-      return Response.status(200).build();
-    }
-    Optional<AttributeDescriptor> attributeDescriptor = attributeRegistry.lookup(attribute);
-    if (!attributeDescriptor.isPresent()) {
-      /* Could not find attribute descriptor for requested attribute */
-      return Response.status(404).build();
-    }
+      throws MetacardEndpointException {
+    try {
+      Metacard metacard = endpointUtil.getMetacard(id);
+      Attribute metacardAttribute = metacard.getAttribute(attribute);
+      if (metacardAttribute == null) {
+        return Response.status(200).build();
+      }
+      Optional<AttributeDescriptor> attributeDescriptor = attributeRegistry.lookup(attribute);
+      if (!attributeDescriptor.isPresent()) {
+        /* Could not find attribute descriptor for requested attribute */
+        return Response.status(404).build();
+      }
 
-    AttributeDescriptor descriptor = attributeDescriptor.get();
-    /* Yes i'm using a raw map. get off my back yo */
-    Map<String, Object> result = getResponseMap(attribute, metacardAttribute, descriptor);
-    return Response.ok(endpointUtil.getJson(result), MediaType.APPLICATION_JSON).build();
+      AttributeDescriptor descriptor = attributeDescriptor.get();
+      Map<String, Object> result = getResponseMap(attribute, metacardAttribute, descriptor);
+      return Response.ok(endpointUtil.getJson(result), MediaType.APPLICATION_JSON).build();
+    } catch (UnsupportedQueryException | SourceUnavailableException | FederationException e) {
+      throw new MetacardEndpointException("Error retrieving metacard attribute.", e);
+    }
   }
 
   @PUT
@@ -90,38 +97,45 @@ public class MetacardEditEndpoint {
       @PathParam("id") String id,
       @PathParam("attribute") String attribute,
       String value)
-      throws Exception {
-    Metacard metacard = endpointUtil.getMetacard(id);
-    if (metacard == null) {
-      return Response.status(404).build();
-    }
-
-    Attribute metacardAttribute = metacard.getAttribute(attribute);
-    Optional<AttributeDescriptor> attributeDescriptor = attributeRegistry.lookup(attribute);
-    if (!attributeDescriptor.isPresent()) {
-      /* Could not find attribute descriptor for requested attribute */
-      return Response.status(404).build();
-    }
-
-    AttributeDescriptor descriptor = attributeDescriptor.get();
-    if (descriptor.isMultiValued()) {
-      if (metacardAttribute == null || metacardAttribute.getValues() == null) {
-        metacard.setAttribute(new AttributeImpl(attribute, Collections.singletonList(value)));
-      } else {
-        List<Serializable> values = new ArrayList<>(metacardAttribute.getValues());
-        if (!values.contains(value)) {
-          values.add(value);
-        }
-        metacard.setAttribute(new AttributeImpl(attribute, values));
+      throws MetacardEndpointException {
+    try {
+      Metacard metacard = endpointUtil.getMetacard(id);
+      if (metacard == null) {
+        return Response.status(404).build();
       }
-    } else { // not multivalued
-      metacard.setAttribute(new AttributeImpl(attribute, value));
-    }
 
-    catalogFramework.update(new UpdateRequestImpl(id, metacard));
-    Map<String, Object> responseMap =
-        getResponseMap(attribute, metacard.getAttribute(attribute), descriptor);
-    return Response.ok(endpointUtil.getJson(responseMap), MediaType.APPLICATION_JSON).build();
+      Attribute metacardAttribute = metacard.getAttribute(attribute);
+      Optional<AttributeDescriptor> attributeDescriptor = attributeRegistry.lookup(attribute);
+      if (!attributeDescriptor.isPresent()) {
+        /* Could not find attribute descriptor for requested attribute */
+        return Response.status(404).build();
+      }
+
+      AttributeDescriptor descriptor = attributeDescriptor.get();
+      if (descriptor.isMultiValued()) {
+        if (metacardAttribute == null || metacardAttribute.getValues() == null) {
+          metacard.setAttribute(new AttributeImpl(attribute, Collections.singletonList(value)));
+        } else {
+          List<Serializable> values = new ArrayList<>(metacardAttribute.getValues());
+          if (!values.contains(value)) {
+            values.add(value);
+          }
+          metacard.setAttribute(new AttributeImpl(attribute, values));
+        }
+      } else { // not multivalued
+        metacard.setAttribute(new AttributeImpl(attribute, value));
+      }
+
+      catalogFramework.update(new UpdateRequestImpl(id, metacard));
+      Map<String, Object> responseMap =
+          getResponseMap(attribute, metacard.getAttribute(attribute), descriptor);
+      return Response.ok(endpointUtil.getJson(responseMap), MediaType.APPLICATION_JSON).build();
+    } catch (UnsupportedQueryException
+        | SourceUnavailableException
+        | FederationException
+        | IngestException e) {
+      throw new MetacardEndpointException("Error updating metacard attribute.", e);
+    }
   }
 
   @PUT
@@ -133,43 +147,50 @@ public class MetacardEditEndpoint {
       @PathParam("id") String id,
       @PathParam("attribute") String attribute,
       byte[] value)
-      throws Exception {
-    Metacard metacard = endpointUtil.getMetacard(id);
-    if (metacard == null) {
-      return Response.status(404).build();
-    }
+      throws MetacardEndpointException {
+    try {
+      Metacard metacard = endpointUtil.getMetacard(id);
+      if (metacard == null) {
+        return Response.status(404).build();
+      }
 
-    Attribute metacardAttribute = metacard.getAttribute(attribute);
-    Optional<AttributeDescriptor> attributeDescriptor = attributeRegistry.lookup(attribute);
-    if (!attributeDescriptor.isPresent()) {
-      /* Could not find attribute descriptor for requested attribute */
-      response.setStatus(404);
-      return Response.status(404).build();
-    }
-    AttributeDescriptor descriptor = attributeDescriptor.get();
-    if (!descriptor.getType().getAttributeFormat().equals(AttributeType.AttributeFormat.BINARY)) {
-      return Response.status(400).build();
-    }
+      Attribute metacardAttribute = metacard.getAttribute(attribute);
+      Optional<AttributeDescriptor> attributeDescriptor = attributeRegistry.lookup(attribute);
+      if (!attributeDescriptor.isPresent()) {
+        /* Could not find attribute descriptor for requested attribute */
+        response.setStatus(404);
+        return Response.status(404).build();
+      }
+      AttributeDescriptor descriptor = attributeDescriptor.get();
+      if (!descriptor.getType().getAttributeFormat().equals(AttributeType.AttributeFormat.BINARY)) {
+        return Response.status(400).build();
+      }
 
-    if (descriptor.isMultiValued()) {
-      List<Serializable> values;
-      if (metacardAttribute == null) {
-        values = new ArrayList<>();
+      if (descriptor.isMultiValued()) {
+        List<Serializable> values;
+        if (metacardAttribute == null) {
+          values = new ArrayList<>();
+        } else {
+          values = metacardAttribute.getValues();
+        }
+        if (!values.contains(value)) {
+          values.add(value);
+        }
+        metacard.setAttribute(new AttributeImpl(attribute, values));
       } else {
-        values = metacardAttribute.getValues();
+        metacard.setAttribute(new AttributeImpl(attribute, value));
       }
-      if (!values.contains(value)) {
-        values.add(value);
-      }
-      metacard.setAttribute(new AttributeImpl(attribute, values));
-    } else {
-      metacard.setAttribute(new AttributeImpl(attribute, value));
-    }
 
-    catalogFramework.update(new UpdateRequestImpl(id, metacard));
-    Map<String, Object> responseMap =
-        getResponseMap(attribute, metacard.getAttribute(attribute), descriptor);
-    return Response.ok(endpointUtil.getJson(responseMap), MediaType.APPLICATION_JSON).build();
+      catalogFramework.update(new UpdateRequestImpl(id, metacard));
+      Map<String, Object> responseMap =
+          getResponseMap(attribute, metacard.getAttribute(attribute), descriptor);
+      return Response.ok(endpointUtil.getJson(responseMap), MediaType.APPLICATION_JSON).build();
+    } catch (IngestException
+        | SourceUnavailableException
+        | UnsupportedQueryException
+        | FederationException e) {
+      throw new MetacardEndpointException("Error updating binary metacard attribute.", e);
+    }
   }
 
   @DELETE
@@ -179,17 +200,24 @@ public class MetacardEditEndpoint {
       @PathParam("id") String id,
       @PathParam("attribute") String attribute,
       String value)
-      throws Exception {
-    Metacard metacard = endpointUtil.getMetacard(id);
-    Attribute metacardAttribute = metacard.getAttribute(attribute);
+      throws MetacardEndpointException {
+    try {
+      Metacard metacard = endpointUtil.getMetacard(id);
+      Attribute metacardAttribute = metacard.getAttribute(attribute);
 
-    if (metacardAttribute == null) {
+      if (metacardAttribute == null) {
+        return Response.ok().build();
+      }
+
+      metacard.setAttribute(new AttributeImpl(attribute, (Serializable) null));
+      catalogFramework.update(new UpdateRequestImpl(id, metacard));
       return Response.ok().build();
+    } catch (UnsupportedQueryException
+        | SourceUnavailableException
+        | FederationException
+        | IngestException e) {
+      throw new MetacardEndpointException("Error deleting metacard attribute.", e);
     }
-
-    metacard.setAttribute(new AttributeImpl(attribute, (Serializable) null));
-    catalogFramework.update(new UpdateRequestImpl(id, metacard));
-    return Response.ok().build();
   }
 
   private Map<String, Object> getResponseMap(

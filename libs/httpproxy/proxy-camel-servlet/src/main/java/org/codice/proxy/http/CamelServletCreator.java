@@ -14,11 +14,9 @@
 package org.codice.proxy.http;
 
 import java.util.Dictionary;
-import java.util.Hashtable;
 import org.apache.camel.CamelContext;
+import org.codice.ddf.configuration.DictionaryMap;
 import org.osgi.framework.BundleContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Creates a registered Camel Servlet
@@ -29,8 +27,6 @@ public class CamelServletCreator {
   public static final String SERVLET_PATH = "/proxy";
 
   public static final String SERVLET_NAME = "CamelServlet";
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(CamelServletCreator.class);
 
   private final CamelContext camelContext;
 
@@ -44,7 +40,7 @@ public class CamelServletCreator {
   /** Register the Camel Servlet with the HTTP Service */
   public void registerServlet() {
 
-    Dictionary props = new Hashtable();
+    Dictionary<String, Object> props = new DictionaryMap<>();
     props.put("alias", SERVLET_PATH);
     props.put("servlet-name", SERVLET_NAME);
     bundleContext.registerService(

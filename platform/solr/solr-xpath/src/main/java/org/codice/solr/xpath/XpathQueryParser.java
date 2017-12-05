@@ -13,7 +13,6 @@
  */
 package org.codice.solr.xpath;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.search.Query;
 import org.apache.solr.search.SolrQueryParser;
 import org.apache.solr.search.SyntaxError;
@@ -21,11 +20,11 @@ import org.apache.solr.search.SyntaxError;
 /** XPath query parser that will create Lucene and Post Filter queries to support XPath. */
 public class XpathQueryParser extends SolrQueryParser {
 
-  private final XpathQParser parser;
+  private final XpathQParser xpathParser;
 
   public XpathQueryParser(XpathQParser parser, String defaultField) {
     super(parser, defaultField);
-    this.parser = parser;
+    this.xpathParser = parser;
   }
 
   @Override
@@ -52,15 +51,6 @@ public class XpathQueryParser extends SolrQueryParser {
    * @return Lucene query to pre-filter using xpath index
    */
   private Query getLuceneQuery(final String queryText) {
-    String xpath = queryText;
-
-    // Assume root is context node since evaluation does not have a context item
-    if (StringUtils.startsWith(xpath, "./")) {
-      xpath = StringUtils.removeStart(xpath, ".");
-    } else if (!StringUtils.startsWith(xpath, "/")) {
-      xpath = "/" + xpath;
-    }
-
     return null; // TODO DDF-1882 add lucene xpath pre-filtering
   }
 }

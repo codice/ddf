@@ -39,6 +39,7 @@ import java.util.concurrent.RecursiveTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
+import javax.xml.bind.DataBindingException;
 import org.codice.ddf.parser.Parser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -140,7 +141,7 @@ public class XmlResponseQueueTransformer extends AbstractXmlTransformer
         }
       } catch (XmlPullParserException | IOException | CatalogTransformerException e) {
         cancelOperation.set(true);
-        throw new RuntimeException("Failure to write node; operation aborted", e);
+        throw new DataBindingException("Failure to write node; operation aborted", e);
       }
       return sw;
     }

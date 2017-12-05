@@ -20,6 +20,8 @@ import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import org.ops4j.pax.logging.spi.PaxAppender;
 import org.ops4j.pax.logging.spi.PaxLoggingEvent;
@@ -60,7 +62,9 @@ public class LoggingService implements PaxAppender, LoggingServiceMBean {
     this.mBeanServer = mBeanServer;
   }
 
-  public void init() throws Exception {
+  public void init()
+      throws MBeanRegistrationException, MalformedObjectNameException,
+          InstanceAlreadyExistsException, InstanceNotFoundException, NotCompliantMBeanException {
     try {
       if (logEvents == null) {
         logEvents = EvictingQueue.create(DEFAULT_LOG_EVENTS_LIMIT);

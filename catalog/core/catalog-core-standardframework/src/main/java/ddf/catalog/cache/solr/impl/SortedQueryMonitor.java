@@ -168,6 +168,10 @@ class SortedQueryMonitor implements Runnable {
         }
 
         queryRequest = futures.remove(future);
+        if (queryRequest == null) {
+          LOGGER.debug("Couldn't get completed federated query. Skipping {}", sourceId);
+          continue;
+        }
         sourceId = getSourceIdFromRequest(queryRequest);
 
         sourceResponse = future.get();

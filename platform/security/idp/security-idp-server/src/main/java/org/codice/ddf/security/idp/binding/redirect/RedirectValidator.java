@@ -67,7 +67,6 @@ public class RedirectValidator extends ValidatorImpl implements Validator {
               String.format("Unable to find metadata for %s", authnRequest.getIssuer().getValue()));
         }
 
-        String encryptionCertificate = entityInformation.getEncryptionCertificate();
         String signingCertificate = entityInformation.getSigningCertificate();
         if (signingCertificate == null) {
           throw new ValidationException(

@@ -125,7 +125,7 @@ public class GeospatialPredicate implements Predicate {
   }
 
   public String toString() {
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
     sb.append("\tgeoCriteria = " + geoCriteria + "\n");
     sb.append("\tgeoOperation = " + geoOperation + "\n");
     sb.append("\tdistance = " + distance + "\n");

@@ -44,7 +44,7 @@ public class XPathPredicate implements Predicate {
   }
 
   public String toString() {
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
     sb.append("\txpath = " + xpath + "\n");
 
     return sb.toString();

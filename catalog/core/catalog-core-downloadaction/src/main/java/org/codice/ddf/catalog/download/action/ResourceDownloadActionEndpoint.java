@@ -62,7 +62,7 @@ public class ResourceDownloadActionEndpoint {
       String message =
           String.format("Unable to compile handlebars template [%s].", RESPONSE_HTML_TEMPLATE);
       LOGGER.debug(message);
-      throw new RuntimeException(message, e);
+      throw new ResourceDownloadActionException(message, e);
     }
   }
 

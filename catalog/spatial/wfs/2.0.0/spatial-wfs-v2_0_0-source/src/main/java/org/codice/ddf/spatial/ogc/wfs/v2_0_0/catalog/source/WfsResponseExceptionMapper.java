@@ -16,7 +16,6 @@ package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.source;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.ws.rs.core.Response;
@@ -33,8 +32,12 @@ import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxrs.client.ResponseExceptionMapper;
 import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class WfsResponseExceptionMapper implements ResponseExceptionMapper<WfsException> {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(WfsResponseExceptionMapper.class);
 
   public WfsException fromResponse(Response response) {
 
@@ -48,12 +51,12 @@ public class WfsResponseExceptionMapper implements ResponseExceptionMapper<WfsEx
           is.reset();
           msg = IOUtils.toString(is);
         } catch (IOException e) {
-          wfsEx = new WfsException("Error reading Response" + (msg != null ? ": " + msg : ""), e);
+          LOGGER.info("Unable to parse exception report: {}", e.getMessage());
+          LOGGER.debug("Unable to parse exception report: {}", e);
         }
         if (msg != null) {
           try {
-            JAXBElementProvider<ExceptionReport> provider =
-                new JAXBElementProvider<ExceptionReport>();
+            JAXBElementProvider<ExceptionReport> provider = new JAXBElementProvider<>();
             Unmarshaller um =
                 provider
                     .getJAXBContext(ExceptionReport.class, ExceptionReport.class)
@@ -69,6 +72,8 @@ public class WfsResponseExceptionMapper implements ResponseExceptionMapper<WfsEx
           } catch (JAXBException | XMLStreamException e) {
             wfsEx = new WfsException("Error parsing Response: " + msg, e);
           }
+        } else {
+          wfsEx = new WfsException("Error reading Response");
         }
       } else {
         wfsEx =
@@ -86,9 +91,9 @@ public class WfsResponseExceptionMapper implements ResponseExceptionMapper<WfsEx
   private WfsException convertToWfsException(ExceptionReport report) {
 
     WfsException wfsException = null;
-    List<ExceptionType> list = new ArrayList<ExceptionType>(report.getException());
+    List<ExceptionType> list = report.getException();
 
-    if (list.size() > 0) {
+    if (!list.isEmpty()) {
       Collections.reverse(list);
       for (ExceptionType exceptionType : list) {
         String exceptionCode = exceptionType.getExceptionCode();

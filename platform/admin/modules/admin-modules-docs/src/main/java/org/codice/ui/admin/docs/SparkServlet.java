@@ -154,7 +154,7 @@ public class SparkServlet extends HttpServlet {
     if (result == null || result.equals(SLASH_WILDCARD)) {
       return "";
     } else if (!result.startsWith(SLASH) || !result.endsWith(SLASH_WILDCARD)) {
-      throw new RuntimeException(
+      throw new IllegalArgumentException(
           String.format(
               "The %s must start with '/' and end with '/*'. Instead it is: %s",
               FILTER_MAPPING_PARAM, result));

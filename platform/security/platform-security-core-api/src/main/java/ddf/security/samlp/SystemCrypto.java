@@ -79,9 +79,15 @@ public class SystemCrypto {
       crypto =
           CryptoFactory.getInstance(
               cryptoProperties, SystemCrypto.class.getClassLoader(), passwordEncryption);
+      if (crypto == null) {
+        throw new IllegalStateException(
+            "Error getting the Crypto instance. There is an issue with the system configuration");
+      }
     } catch (WSSecurityException e) {
-      LOGGER.debug("Error in loading the Crypto object: ", e);
+      throw new IllegalStateException(
+          "Error getting the Crypto instance. There is an issue with the system configuration", e);
     }
+
     return crypto;
   }
 

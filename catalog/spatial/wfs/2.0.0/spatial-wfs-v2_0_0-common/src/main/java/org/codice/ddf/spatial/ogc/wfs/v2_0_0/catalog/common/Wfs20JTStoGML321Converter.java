@@ -50,12 +50,12 @@ public class Wfs20JTStoGML321Converter {
   public static DirectPositionType convertToDirectPositionType(
       Coordinate coordinate, String srsName) {
     DirectPositionType directPositionType = GML320_OBJECT_FACTORY.createDirectPositionType();
-    directPositionType.getValue().add(new Double(coordinate.x));
-    directPositionType.getValue().add(new Double(coordinate.y));
+    directPositionType.getValue().add(Double.valueOf(coordinate.x));
+    directPositionType.getValue().add(Double.valueOf(coordinate.y));
     directPositionType.setSrsName(srsName);
 
     if (!Double.isNaN(coordinate.z)) {
-      directPositionType.getValue().add(new Double(coordinate.z));
+      directPositionType.getValue().add(Double.valueOf(coordinate.z));
     }
     return directPositionType;
   }
@@ -74,7 +74,7 @@ public class Wfs20JTStoGML321Converter {
   public static LineStringType convertToLineStringType(LineString line, String srsName) {
     LineStringType lineStringType = GML320_OBJECT_FACTORY.createLineStringType();
     CoordinatesType coordinatesType = GML320_OBJECT_FACTORY.createCoordinatesType();
-    StringBuffer stringBuffer = new StringBuffer();
+    StringBuilder stringBuffer = new StringBuilder();
     for (int i = 0; i < line.getCoordinateSequence().size(); i++) {
       Coordinate coordinate = line.getCoordinateSequence().getCoordinate(i);
       if (i != 0) {

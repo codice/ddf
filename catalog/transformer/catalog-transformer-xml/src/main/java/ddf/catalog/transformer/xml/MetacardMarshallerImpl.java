@@ -254,7 +254,7 @@ public class MetacardMarshallerImpl implements MetacardMarshaller {
   }
 
   private String geoToXml(BinaryContent content, XmlPullParser parser)
-      throws UnsupportedEncodingException {
+      throws UnsupportedEncodingException, CatalogTransformerException {
     PrintWriter destination;
     try (InputStreamReader inputStreamReader =
         new InputStreamReader(content.getInputStream(), StandardCharsets.UTF_8.name())) {
@@ -265,7 +265,7 @@ public class MetacardMarshallerImpl implements MetacardMarshaller {
 
       new HierarchicalStreamCopier().copy(source, destination);
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new CatalogTransformerException(e);
     }
     return destination.makeString();
   }

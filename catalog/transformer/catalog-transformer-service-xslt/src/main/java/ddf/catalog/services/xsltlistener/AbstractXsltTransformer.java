@@ -38,6 +38,7 @@ public abstract class AbstractXsltTransformer {
     try {
       unknownMime = new MimeType("application/octet-stream");
     } catch (MimeTypeParseException e) {
+      throw new IllegalStateException("Unable to create MimeType");
     }
     DEFAULT_MIME_TYPE = unknownMime;
   }
@@ -64,13 +65,13 @@ public abstract class AbstractXsltTransformer {
   public void init(final Bundle bundle, String xslFile) {
     context = bundle.getBundleContext();
     URL xsltUrl = bundle.getResource(xslFile);
-    String mimeType = (String) bundle.getHeaders().get(MIME_TYPE_HEADER_NAME);
+    String type = bundle.getHeaders().get(MIME_TYPE_HEADER_NAME);
     try {
-      init(mimeType, xsltUrl.openStream());
-    } catch (IOException ioe) {
-      throw new RuntimeException(
-          "Could not load xsl file (" + xslFile + ") from system: " + ioe.getMessage(),
-          ioe.getCause());
+      init(type, xsltUrl.openStream());
+    } catch (IOException | TransformerConfigurationException e) {
+      throw new IllegalStateException(
+          String.format("Could not load xsl file (%s) from system: %s", xslFile, e.getMessage()),
+          e.getCause());
     }
   }
 
@@ -82,7 +83,8 @@ public abstract class AbstractXsltTransformer {
    * @param mimeString String value of the mimeType to be returned.
    * @param xslStream Full, absolute path of the xsl file.
    */
-  public void init(String mimeString, InputStream xslStream) {
+  public void init(String mimeString, InputStream xslStream)
+      throws TransformerConfigurationException {
 
     TransformerFactory tf = XMLUtils.getInstance().getSecureXmlTransformerFactory();
     Source xsltSource;
@@ -90,7 +92,7 @@ public abstract class AbstractXsltTransformer {
     try {
       templates = tf.newTemplates(xsltSource);
     } catch (TransformerConfigurationException tce) {
-      throw new RuntimeException(
+      throw new TransformerConfigurationException(
           "Could not create new templates for XsltTransformer ( "
               + xslStream
               + ") : "
@@ -99,12 +101,12 @@ public abstract class AbstractXsltTransformer {
     }
     if (mimeString == null) {
       this.mimeType = DEFAULT_MIME_TYPE;
-      mimeString = "";
-    }
-    try {
-      this.mimeType = new MimeType(mimeString);
-    } catch (MimeTypeParseException e) {
-      this.mimeType = DEFAULT_MIME_TYPE;
+    } else {
+      try {
+        this.mimeType = new MimeType(mimeString);
+      } catch (MimeTypeParseException e) {
+        this.mimeType = DEFAULT_MIME_TYPE;
+      }
     }
   }
 }

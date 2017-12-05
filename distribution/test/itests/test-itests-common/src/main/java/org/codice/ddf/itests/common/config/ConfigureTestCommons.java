@@ -15,8 +15,8 @@ package org.codice.ddf.itests.common.config;
 
 import java.io.IOException;
 import java.util.Dictionary;
-import java.util.Hashtable;
 import java.util.List;
+import org.codice.ddf.configuration.DictionaryMap;
 import org.codice.ddf.itests.common.AdminConfig;
 import org.osgi.service.cm.Configuration;
 
@@ -40,7 +40,7 @@ public class ConfigureTestCommons {
       List<String> securityAttributeMappings, AdminConfig configAdmin) throws IOException {
     Configuration config =
         configAdmin.getConfiguration(METACARD_VALIDATITY_FILTER_PLUGIN_SERVICE_PID, null);
-    Dictionary properties = new Hashtable<>();
+    Dictionary<String, Object> properties = new DictionaryMap<>();
     properties.put("attributeMap", securityAttributeMappings);
     config.update(properties);
   }
@@ -49,7 +49,7 @@ public class ConfigureTestCommons {
       String showErrors, String showWarnings, AdminConfig configAdmin) throws IOException {
     Configuration config = configAdmin.getConfiguration(CACHING_FEDERATION_STRATEGY_PID, null);
 
-    Dictionary properties = new Hashtable<>();
+    Dictionary<String, Object> properties = new DictionaryMap<>();
     properties.put("showErrors", showErrors);
     properties.put("showWarnings", showWarnings);
     config.update(properties);
@@ -60,7 +60,7 @@ public class ConfigureTestCommons {
     Configuration config =
         configAdmin.getConfiguration(METACARD_VALIDATITY_FILTER_PLUGIN_SERVICE_PID, null);
 
-    Dictionary properties = new Hashtable<>();
+    Dictionary<String, Object> properties = new DictionaryMap<>();
     properties.put("filterErrors", filterErrors);
     properties.put("filterWarnings", filterWarnings);
     config.update(properties);
@@ -71,7 +71,7 @@ public class ConfigureTestCommons {
     Configuration config =
         configAdmin.getConfiguration(METACARD_VALIDATITY_MARKER_PLUGIN_SERVICE_PID, null);
 
-    Dictionary properties = new Hashtable<>();
+    Dictionary<String, Object> properties = new DictionaryMap<>();
     properties.put("enforceErrors", enforceErrors);
     properties.put("enforceWarnings", enforceWarnings);
     config.update(properties);
@@ -84,7 +84,7 @@ public class ConfigureTestCommons {
     Configuration config =
         configAdmin.getConfiguration(METACARD_VALIDATITY_MARKER_PLUGIN_SERVICE_PID, null);
 
-    Dictionary<String, Object> properties = new Hashtable<>();
+    Dictionary<String, Object> properties = new DictionaryMap<>();
     properties.put("enforcedMetacardValidators", enforcedValidators);
     config.update(properties);
   }
@@ -92,7 +92,7 @@ public class ConfigureTestCommons {
   public static Dictionary<String, Object> configureMetacardAttributeSecurityFiltering(
       List<String> intersectAttributes, List<String> unionAttributes, AdminConfig configAdmin)
       throws IOException {
-    Dictionary properties = new Hashtable<>();
+    Dictionary<String, Object> properties = new DictionaryMap<>();
     properties.put("intersectMetacardAttributes", intersectAttributes);
     properties.put("unionMetacardAttributes", unionAttributes);
     return configureMetacardAttributeSecurityFiltering(properties, configAdmin);
@@ -110,7 +110,7 @@ public class ConfigureTestCommons {
 
   public static Dictionary<String, Object> configureAuthZRealm(
       List<String> attributes, AdminConfig configAdmin) throws IOException {
-    Dictionary properties = new Hashtable<>();
+    Dictionary<String, Object> properties = new DictionaryMap<>();
     properties.put("matchOneMap", attributes);
     return configureAuthZRealm(properties, configAdmin);
   }

@@ -19,9 +19,9 @@ import ddf.catalog.transform.MetacardTransformer;
 import ddf.catalog.transformer.attribute.AttributeMetacardTransformer;
 import java.util.Dictionary;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.configuration.DictionaryMap;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
@@ -82,7 +82,7 @@ public class ActionProviderRegistryProxy {
     ActionProvider provider =
         actionFactory.createActionProvider(actionProviderId, transformerId, attributeName);
 
-    Dictionary actionProviderProperties = new Hashtable<String, String>();
+    Dictionary<String, String> actionProviderProperties = new DictionaryMap<>();
 
     actionProviderProperties.put(Constants.SERVICE_ID, actionProviderId);
 

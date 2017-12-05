@@ -18,8 +18,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.Vector;
+import java.util.Iterator;
+import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -70,7 +72,7 @@ public class ZipValidator {
         throw new ZipValidationException("Zip validation failed, missing manifest file.");
       }
 
-      Vector entriesVec = new Vector<>();
+      List<JarEntry> entriesVec = new ArrayList<>();
 
       byte[] buffer = new byte[ZipDecompression.BUFFER_SIZE];
 
@@ -82,7 +84,7 @@ public class ZipValidator {
           continue;
         }
 
-        entriesVec.addElement(je);
+        entriesVec.add(je);
         try (InputStream is = jarFile.getInputStream(je)) {
 
           while (is.read(buffer, 0, buffer.length) != -1) {
@@ -96,9 +98,9 @@ public class ZipValidator {
         }
       }
 
-      Enumeration e = entriesVec.elements();
-      while (e.hasMoreElements()) {
-        JarEntry je = (JarEntry) e.nextElement();
+      Iterator<JarEntry> iter = entriesVec.iterator();
+      while (iter.hasNext()) {
+        JarEntry je = iter.next();
         Certificate[] certs = je.getCertificates();
 
         if ((certs == null) || (certs.length == 0)) {

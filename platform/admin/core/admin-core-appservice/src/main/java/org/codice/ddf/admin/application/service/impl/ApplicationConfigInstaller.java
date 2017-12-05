@@ -138,10 +138,11 @@ public class ApplicationConfigInstaller extends Thread {
     }
   }
 
-  private <T> T executeAsSystem(Callable<T> func) {
+  private <T> T executeAsSystem(Callable<T> func) throws ApplicationServiceException {
     Subject systemSubject = getSystemSubject();
     if (systemSubject == null) {
-      throw new RuntimeException("Could not get system user to auto install applications.");
+      throw new ApplicationServiceException(
+          "Could not get system user to auto install applications.");
     }
     return systemSubject.execute(func);
   }

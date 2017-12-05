@@ -15,6 +15,7 @@ package org.codice.ddf.commands.solr;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.utils.URIBuilder;
@@ -128,7 +129,7 @@ public class BackupCommand extends SolrCommands {
     return null;
   }
 
-  private void performSingleNodeSolrBackup() throws Exception {
+  private void performSingleNodeSolrBackup() throws URISyntaxException {
     verifySingleNodeBackupInput();
 
     String backupUrl = getBackupUrl(coreName);
@@ -151,7 +152,7 @@ public class BackupCommand extends SolrCommands {
     processResponse(httpClient.execute(backupUri));
   }
 
-  private void performSolrCloudBackup() throws Exception {
+  private void performSolrCloudBackup() throws IOException {
     SolrClient client = null;
     try {
       client = getCloudSolrClient();
@@ -168,7 +169,7 @@ public class BackupCommand extends SolrCommands {
     }
   }
 
-  private void processResponse(ResponseWrapper responseWrapper) throws Exception {
+  private void processResponse(ResponseWrapper responseWrapper) {
 
     if (responseWrapper.getStatusCode() == HttpStatus.SC_OK) {
       printSuccessMessage(String.format("%nBackup of [%s] complete.%n", coreName));
@@ -343,7 +344,7 @@ public class BackupCommand extends SolrCommands {
       }
     } catch (Exception e) {
       String message = e.getMessage() != null ? e.getMessage() : "";
-      printErrorMessage(String.format("Backup failed. %s", e.getMessage()));
+      printErrorMessage(String.format("Backup failed. %s", message));
     }
   }
 
@@ -354,7 +355,7 @@ public class BackupCommand extends SolrCommands {
     UpdateResponse updateResponse = client.optimize(collection);
     LOGGER.debug("Optimization status: {}", updateResponse.getStatus());
     if (updateResponse.getStatus() != 0) {
-      throw new RuntimeException(String.format("Unable to optimize collection [%s].", coreName));
+      throw new SolrServerException(String.format("Unable to optimize collection [%s].", coreName));
     }
   }
 }

@@ -39,13 +39,13 @@ public class XmlNode {
 
   private HierarchicalStreamReader reader;
 
-  private StringBuffer buffer;
+  private StringBuilder buffer;
 
   private String node;
 
   public XmlNode(HierarchicalStreamReader reader) {
     this.reader = reader;
-    this.buffer = new StringBuffer();
+    this.buffer = new StringBuilder();
   }
 
   public static void writeGeometry(

@@ -109,7 +109,8 @@ public class KeyStoreFile {
     try {
       return keyStore.getEntry(alias, null);
     } catch (NoSuchAlgorithmException | UnrecoverableEntryException | KeyStoreException e) {
-      throw new RuntimeException(String.format("Could not get keystore entry %s", alias), e);
+      throw new CertificateGeneratorException(
+          String.format("Could not get keystore entry %s", alias), e);
     }
   }
 
@@ -117,7 +118,8 @@ public class KeyStoreFile {
     try {
       return keyStore.getEntry(alias, getPasswordObject());
     } catch (NoSuchAlgorithmException | UnrecoverableEntryException | KeyStoreException e) {
-      throw new RuntimeException(String.format("Could not get keystore entry %s", alias), e);
+      throw new CertificateGeneratorException(
+          String.format("Could not get keystore entry %s", alias), e);
     }
   }
 
@@ -135,7 +137,8 @@ public class KeyStoreFile {
     try {
       keyStore.setEntry(alias, entry, getPasswordObject());
     } catch (KeyStoreException e) {
-      throw new RuntimeException(String.format("Could not add %s to keystore", alias), e);
+      throw new CertificateGeneratorException(
+          String.format("Could not add %s to keystore", alias), e);
     }
   }
 
@@ -162,7 +165,7 @@ public class KeyStoreFile {
     try (FileOutputStream fd = new FileOutputStream(file)) {
       keyStore.store(fd, password);
     } catch (Exception e) {
-      throw new RuntimeException(
+      throw new CertificateGeneratorException(
           String.format("Could not save the keystore %s", file.getAbsolutePath()), e);
     }
   }

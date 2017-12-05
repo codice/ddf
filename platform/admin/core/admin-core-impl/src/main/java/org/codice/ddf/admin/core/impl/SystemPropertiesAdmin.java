@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.management.InstanceAlreadyExistsException;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
@@ -67,22 +69,12 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
   private static final String HOST_DESCRIPTION =
       "The host name or IP address used to advertise the system. Possibilities include the address of a single node of that of a load balancer in a multi-node deployment. NOTE: This setting will take effect after a system restart.";
 
-  private static final String PROTOCOL_TITLE = "Default Protocol";
-
-  private static final String PROTOCOL_DESCRIPTION =
-      "The protocol used to advertise the system. When selecting the protocol, be sure to enter the port number corresponding to that protocol.";
-
   private static final ArrayList<String> PROTOCOL_OPTIONS = new ArrayList<>();
 
   static {
     PROTOCOL_OPTIONS.add("https://");
     PROTOCOL_OPTIONS.add("http://");
   }
-
-  private static final String DEFAULT_PORT_TITLE = "Default Port";
-
-  private static final String DEFAULT_PORT_DESCRIPTION =
-      "The default port used to advertise the system. The default port should match either the http or https port. Possibilities include the port of a single node of that of a load balancer in a multi-node deployment. NOTE: This setting will take effect after a system restart.";
 
   private static final String HTTP_PORT_TITLE = "HTTP Port";
 
@@ -182,7 +174,7 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
       updateProperty(SystemInfo.SITE_CONTACT, updatedSystemProperties, systemDotProperties);
       updateProperty(SystemInfo.SITE_NAME, updatedSystemProperties, systemDotProperties);
       updateProperty(SystemInfo.VERSION, updatedSystemProperties, systemDotProperties);
-      updatePortProperty(updatedSystemProperties, systemDotProperties);
+      updatePortProperty(systemDotProperties);
 
       systemDotProperties.save();
 
@@ -305,8 +297,7 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
     }
   }
 
-  private void updatePortProperty(
-      Map<String, String> updatedProperties, Properties systemDotProperties) {
+  private void updatePortProperty(Properties systemDotProperties) {
     String protocol = SystemBaseUrl.getProtocol();
 
     String port = SystemBaseUrl.getHttpsPort();
@@ -342,14 +333,13 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
     }
   }
 
-  public void shutdown() {
+  public void shutdown() throws MBeanRegistrationException {
     try {
       if (objectName != null && mbeanServer != null) {
         mbeanServer.unregisterMBean(objectName);
       }
-    } catch (Exception e) {
-      LOGGER.debug("Exception unregistering mbean: ", e);
-      throw new RuntimeException(e);
+    } catch (InstanceNotFoundException | MBeanRegistrationException e) {
+      throw new MBeanRegistrationException(e, "Exception unregistering mbean");
     }
   }
 }

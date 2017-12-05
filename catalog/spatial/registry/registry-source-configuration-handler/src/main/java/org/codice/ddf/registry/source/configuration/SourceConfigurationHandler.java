@@ -21,7 +21,6 @@ import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -33,6 +32,7 @@ import oasis.names.tc.ebxml_regrep.xsd.rim._3.ServiceBindingType;
 import oasis.names.tc.ebxml_regrep.xsd.rim._3.SlotType1;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.configuration.DictionaryMap;
 import org.codice.ddf.parser.ParserException;
 import org.codice.ddf.registry.common.RegistryConstants;
 import org.codice.ddf.registry.common.metacard.RegistryUtility;
@@ -249,7 +249,7 @@ public class SourceConfigurationHandler implements EventHandler, RegistrySourceC
               factoryPidMask,
               (autoActivateConfigurations && factoryPidMask.equals(bindingTypeToActivate)));
 
-      Hashtable<String, Object> serviceConfigurationProperties = new Hashtable<>();
+      DictionaryMap<String, Object> serviceConfigurationProperties = new DictionaryMap<>();
       if (fpidToConfigurationMap.containsKey(
           curConfig.getFactoryPid().concat(getConfigStringProperty(curConfig, BINDING_TYPE)))) {
         serviceConfigurationProperties.putAll(
@@ -580,10 +580,9 @@ public class SourceConfigurationHandler implements EventHandler, RegistrySourceC
     return bindingTypeToActivate;
   }
 
-  @SuppressWarnings("squid:S1149" /* Confined by underlying contract */)
-  private Hashtable<String, Object> getConfigurationsFromDictionary(
+  private DictionaryMap<String, Object> getConfigurationsFromDictionary(
       Dictionary<String, Object> properties) {
-    Hashtable<String, Object> configProperties = new Hashtable<>();
+    DictionaryMap<String, Object> configProperties = new DictionaryMap<>();
 
     Enumeration<String> enumeration = properties.keys();
     while (enumeration.hasMoreElements()) {

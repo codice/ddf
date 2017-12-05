@@ -210,6 +210,7 @@ public interface CatalogFramework extends Describable {
    *     associated with the {@link Metacard}
    * @deprecated will be removed in the next release
    */
+  @Deprecated
   Map<String, Set<String>> getEnterpriseResourceOptions(String metacardId)
       throws ResourceNotFoundException;
 
@@ -257,6 +258,7 @@ public interface CatalogFramework extends Describable {
    *     associated with the {@link Metacard}
    * @deprecated Will be removed in the next release.
    */
+  @Deprecated
   Map<String, Set<String>> getLocalResourceOptions(String metacardId)
       throws ResourceNotFoundException;
 
@@ -305,6 +307,7 @@ public interface CatalogFramework extends Describable {
    *     associated with the {@link Metacard}
    * @deprecated Will be removed in the next release.
    */
+  @Deprecated
   Map<String, Set<String>> getResourceOptions(String metacardId, String sourceId)
       throws ResourceNotFoundException;
 

@@ -63,6 +63,7 @@ public abstract class SubjectCommands extends CommandSupport {
    * @return result of the command execution
    * @throws Exception if the command failed to run
    */
+  @SuppressWarnings("squid:S00112" /*This is an appropriate exception here*/)
   protected abstract Object executeWithSubject() throws Exception;
 
   /**
@@ -84,17 +85,14 @@ public abstract class SubjectCommands extends CommandSupport {
       if (isNotBlank(user)) {
         return runWithUserName();
       } else {
-        try {
-          return security.runWithSubjectOrElevate(this::executeWithSubject);
-        } catch (SecurityServiceException e) {
-          printErrorMessage(e.getMessage());
-          return null;
-        }
+        return security.runWithSubjectOrElevate(this::executeWithSubject);
       }
+    } catch (SecurityServiceException e) {
+      printErrorMessage(e.getMessage());
     } catch (InvocationTargetException e) {
       printErrorMessage(e.getCause().getMessage());
-      return null;
     }
+    return null;
   }
 
   private Object runWithUserName() throws InvocationTargetException {

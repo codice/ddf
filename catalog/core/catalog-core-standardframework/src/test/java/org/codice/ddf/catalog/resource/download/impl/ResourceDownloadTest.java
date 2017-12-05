@@ -162,7 +162,7 @@ public class ResourceDownloadTest {
         .registerMBean(any(StandardMBean.class), eq(resourceDownloadObjectName));
   }
 
-  @Test(expected = RuntimeException.class)
+  @Test(expected = MBeanRegistrationException.class)
   public void testInitMBeanMBeanRegistrationFails() throws Exception {
     // Setup
     setupMockMBeanServer(false, true);
@@ -196,7 +196,7 @@ public class ResourceDownloadTest {
     verify(mockMBeanServer, never()).unregisterMBean(eq(resourceDownloadObjectName));
   }
 
-  @Test(expected = RuntimeException.class)
+  @Test(expected = MBeanRegistrationException.class)
   public void testDestroyMBeanUnregistrationFails() throws Exception {
     // Setup
     setupMockMBeanServer(true, true);

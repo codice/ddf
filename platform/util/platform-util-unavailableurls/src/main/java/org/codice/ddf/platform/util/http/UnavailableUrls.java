@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.platform.util.http;
 
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.ConcurrentHashMap;
@@ -76,7 +77,7 @@ public class UnavailableUrls {
    * @param url - url to try and get
    * @return HTTP status code of making the GET request
    */
-  int ping(String url) throws Exception {
+  int ping(String url) throws IOException {
     HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
     connection.setConnectTimeout((int) TimeUnit.SECONDS.toMillis(PING_TIMEOUT_SECONDS));
     connection.connect();

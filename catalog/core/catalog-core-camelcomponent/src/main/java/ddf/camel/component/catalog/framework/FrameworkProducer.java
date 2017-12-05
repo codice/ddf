@@ -33,9 +33,9 @@ import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
 import org.apache.camel.TypeConversionException;
 import org.apache.camel.impl.DefaultProducer;
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.CollectionUtils;
 
 /**
  * Producer for the custom Camel CatalogComponent. This {@link org.apache.camel.Producer} would map
@@ -514,10 +514,10 @@ public class FrameworkProducer extends DefaultProducer {
 
       // first try to read in a single Metacard
       LOGGER.debug("Reading in body data as Metacard...");
-      final Metacard metacardToProcess = exchange.getIn().getBody(Metacard.class);
+      final Metacard metacard = exchange.getIn().getBody(Metacard.class);
 
-      if (metacardToProcess != null) {
-        metacardsToProcess.add(metacardToProcess);
+      if (metacard != null) {
+        metacardsToProcess.add(metacard);
         LOGGER.debug("Successfully read in body data as Metacard ");
         return metacardsToProcess;
       }

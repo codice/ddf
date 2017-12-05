@@ -25,6 +25,7 @@ import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.activities.ActivityEvent;
 import org.codice.ddf.activities.ActivityEvent.ActivityStatus;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
@@ -58,7 +59,7 @@ public class SendCommand implements Action {
     return null;
   }
 
-  private void sendActivity() throws Exception {
+  private void sendActivity() throws InvalidSyntaxException {
     String id = UUID.randomUUID().toString().replaceAll("-", "");
     String sessionId = "mockSessionId";
     Map<String, String> operations = new HashMap<>();

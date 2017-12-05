@@ -57,12 +57,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.codice.ddf.configuration.DictionaryMap;
 import org.codice.ddf.configuration.SystemInfo;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
@@ -141,7 +141,7 @@ public class CatalogFrameworkImpl extends DescribableImpl implements CatalogFram
   private void registerBasicMetacard() {
     Bundle bundle = FrameworkUtil.getBundle(CatalogFrameworkImpl.class);
     if (bundle != null && bundle.getBundleContext() != null) {
-      Dictionary<String, Object> properties = new Hashtable<>();
+      Dictionary<String, Object> properties = new DictionaryMap<>();
       properties.put("name", BasicTypes.BASIC_METACARD.getName());
       bundle
           .getBundleContext()

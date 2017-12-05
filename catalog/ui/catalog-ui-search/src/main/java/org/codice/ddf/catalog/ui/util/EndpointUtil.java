@@ -402,7 +402,7 @@ public class EndpointUtil {
     try {
       return dateFormat.parse(value.toString()).toInstant();
     } catch (ParseException e) {
-      throw new RuntimeException(e);
+      throw new IllegalArgumentException(e);
     }
   }
 
@@ -467,7 +467,7 @@ public class EndpointUtil {
     try {
       return dateFormat.parse(value.toString());
     } catch (ParseException e) {
-      throw new RuntimeException(e);
+      throw new IllegalArgumentException(e);
     }
   }
 

@@ -24,7 +24,6 @@ import ddf.catalog.content.data.impl.ContentItemImpl;
 import ddf.catalog.content.operation.CreateStorageResponse;
 import ddf.catalog.content.operation.ReadStorageRequest;
 import ddf.catalog.content.operation.ReadStorageResponse;
-import ddf.catalog.content.operation.StorageRequest;
 import ddf.catalog.content.operation.UpdateStorageRequest;
 import ddf.catalog.content.operation.UpdateStorageResponse;
 import ddf.catalog.content.operation.impl.CreateStorageRequestImpl;
@@ -138,11 +137,8 @@ public class Historian {
    *
    * @param updateResponse Versioned metacards created from any old metacards
    * @return The original UpdateResponse
-   * @throws SourceUnavailableException
-   * @throws IngestException
    */
-  public UpdateResponse version(UpdateResponse updateResponse)
-      throws SourceUnavailableException, IngestException {
+  public UpdateResponse version(UpdateResponse updateResponse) {
     if (doSkip(updateResponse)) {
       return updateResponse;
     }
@@ -371,11 +367,10 @@ public class Historian {
       }
     }
 
-    CreateResponse createResponse =
-        executeAsSystem(
-            () ->
-                catalogProvider()
-                    .create(new CreateRequestImpl(new ArrayList<>(versionedMap.values()))));
+    executeAsSystem(
+        () ->
+            catalogProvider()
+                .create(new CreateRequestImpl(new ArrayList<>(versionedMap.values()))));
     if (LOGGER.isTraceEnabled()) {
       LOGGER.trace(
           "Successfully created versioned metacards under ids: {}",
@@ -456,10 +451,6 @@ public class Historian {
         .ifPresent(p -> p.put(SKIP_VERSIONING, true));
   }
 
-  private List<String> fromStorageRequests(Collection<ReadStorageRequest> requests) {
-    return requests.stream().map(StorageRequest::getId).collect(Collectors.toList());
-  }
-
   private Map<String, Metacard> query(Filter filter) throws UnsupportedQueryException {
     SourceResponse response =
         catalogProvider()
@@ -524,11 +515,6 @@ public class Historian {
           e);
     }
     return null;
-  }
-
-  /* Map< Metacard ID, content item> */
-  private Map<String, List<ContentItem>> getContentItems(DeleteResponse deleteResponse) {
-    return getContent(getReadStorageRequests(deleteResponse.getDeletedMetacards()));
   }
 
   @Nullable
@@ -638,7 +624,7 @@ public class Historian {
     Subject systemSubject = security.runAsAdmin(security::getSystemSubject);
 
     if (systemSubject == null) {
-      throw new RuntimeException("Could not get systemSubject to version metacards.");
+      throw new IllegalStateException("Could not get systemSubject to version metacards.");
     }
 
     return systemSubject.execute(func);

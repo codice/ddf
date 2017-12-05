@@ -40,6 +40,11 @@ public class GeometryCollection extends MultiPolygon {
   }
 
   @Override
+  protected boolean isNotType(Geometry geo) {
+    return !TYPE.equals(geo.getGeometryType());
+  }
+
+  @Override
   public Map toJsonMap() {
     Map map = new HashMap();
 

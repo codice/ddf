@@ -13,9 +13,10 @@
  */
 package ddf.security.cas.filter;
 
-import java.util.Hashtable;
+import java.util.Dictionary;
 import javax.servlet.Filter;
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
+import org.codice.ddf.configuration.DictionaryMap;
 import org.codice.ddf.configuration.PropertyResolver;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -37,7 +38,7 @@ public class CXFFilterAdder {
 
   private ServiceRegistration filterService;
 
-  private Hashtable<String, String> properties = new Hashtable<String, String>();
+  private Dictionary<String, String> properties = new DictionaryMap<>();
 
   private Filter casProxyFilter;
 

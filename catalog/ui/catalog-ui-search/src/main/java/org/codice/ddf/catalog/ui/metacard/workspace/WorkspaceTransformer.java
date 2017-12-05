@@ -208,7 +208,7 @@ public class WorkspaceTransformer {
       return IOUtils.toString(stream);
 
     } catch (IOException | CatalogTransformerException e) {
-      throw new RuntimeException(e);
+      throw new WorkspaceTransformException(e);
     }
   }
 
@@ -220,7 +220,7 @@ public class WorkspaceTransformer {
         }
       }
     } catch (Exception ex) {
-      throw new RuntimeException(ex);
+      throw new WorkspaceTransformException(ex);
     }
 
     return null;

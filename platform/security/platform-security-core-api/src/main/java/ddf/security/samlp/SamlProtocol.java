@@ -478,7 +478,7 @@ public class SamlProtocol {
       AssertionConsumerService assertionConsumerServicePaos =
           assertionConsumerServiceBuilder.buildObject();
       assertionConsumerServicePaos.setBinding(PAOS_BINDING);
-      assertionConsumerServicePaos.setIndex(acsIndex++);
+      assertionConsumerServicePaos.setIndex(acsIndex);
       assertionConsumerServicePaos.setLocation(assertionConsumerServiceLocationPaos);
       spSsoDescriptor.getAssertionConsumerServices().add(assertionConsumerServicePaos);
     }

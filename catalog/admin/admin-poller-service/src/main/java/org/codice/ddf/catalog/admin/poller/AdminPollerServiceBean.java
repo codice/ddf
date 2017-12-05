@@ -28,6 +28,7 @@ import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanServer;
@@ -248,8 +249,7 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
   }
 
   private String createFilter(String pidKey) {
-    String includes, excludes;
-    includes =
+    String includes =
         (includeAsSource == null || CollectionUtils.isEmpty(includeAsSource))
             ? String.format("(%s=*)", pidKey)
             : includeAsSource
@@ -259,7 +259,7 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
     if (excludeAsSource == null || CollectionUtils.isEmpty(excludeAsSource)) {
       return String.format("(|%s)", includes);
     } else {
-      excludes =
+      String excludes =
           excludeAsSource
               .stream()
               .map(pid -> String.format("(!(%s=%s))", pidKey, pid))
@@ -273,11 +273,10 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
     org.osgi.service.cm.ConfigurationAdmin felixConfigAdmin;
 
     private BundleContext getBundleContext() {
-      Bundle bundle = FrameworkUtil.getBundle(AdminPollerServiceBean.class);
-      if (bundle != null) {
-        return bundle.getBundleContext();
-      }
-      return null;
+      return Optional.of(AdminPollerServiceBean.class)
+          .map(FrameworkUtil::getBundle)
+          .map(Bundle::getBundleContext)
+          .orElseThrow(() -> new IllegalStateException("Error getting bundle context"));
     }
 
     protected List<Source> getSources() throws org.osgi.framework.InvalidSyntaxException {

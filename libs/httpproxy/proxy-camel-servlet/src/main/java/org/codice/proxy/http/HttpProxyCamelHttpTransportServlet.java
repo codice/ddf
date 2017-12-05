@@ -61,7 +61,7 @@ import org.slf4j.LoggerFactory;
 public class HttpProxyCamelHttpTransportServlet extends CamelServlet implements Externalizable {
   private static final long serialVersionUID = -1797014782158930490L;
 
-  private static final Logger LOG =
+  private static final Logger LOGGER =
       LoggerFactory.getLogger(HttpProxyCamelHttpTransportServlet.class);
 
   private final Map<String, HttpConsumer> consumers = new ConcurrentHashMap<String, HttpConsumer>();
@@ -91,7 +91,7 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet implements 
       String msg =
           "Invalid parameter value for init-parameter ignoreDuplicateServletName with value: "
               + ignore;
-      LOG.debug(msg);
+      LOGGER.debug(msg);
       throw new ServletException(msg);
     }
 
@@ -111,17 +111,15 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet implements 
                 + this
                 + ". Its advised to use unique ServletName per Camel application.";
         // always log so people can see it easier
-        if (isIgnoreDuplicateServletName()) {
-          LOG.debug(msg);
-        } else {
-          LOG.debug(msg);
+        LOGGER.debug(msg);
+        if (!isIgnoreDuplicateServletName()) {
           throw new ServletException(msg);
         }
       }
       httpRegistry.register(this);
     }
 
-    LOG.debug(
+    LOGGER.debug(
         "Initialized CamelHttpTransportServlet[name={}, contextPath={}]",
         getServletName(),
         contextPath);
@@ -134,7 +132,7 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet implements 
       httpRegistry.unregister(this);
       httpRegistry = null;
     }
-    LOG.debug("Destroyed CamelHttpTransportServlet[{}]", getServletName());
+    LOGGER.debug("Destroyed CamelHttpTransportServlet[{}]", getServletName());
   }
 
   @Override
@@ -191,7 +189,8 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet implements 
         return;
       }
     } catch (IOException e) {
-      LOG.warn("Could not send error due to: ", e);
+      LOGGER.warn("Could not send error due to: ", e.getMessage());
+      LOGGER.debug("Could not send error due to: ", e);
     }
 
     if (consumer == null) {
@@ -266,7 +265,7 @@ public class HttpProxyCamelHttpTransportServlet extends CamelServlet implements 
 
   private ServletEndpoint getServletEndpoint(HttpConsumer consumer) {
     if (!(consumer.getEndpoint() instanceof ServletEndpoint)) {
-      throw new RuntimeException(
+      throw new IllegalArgumentException(
           "Invalid consumer type. Must be ServletEndpoint but is " + consumer.getClass().getName());
     }
     return (ServletEndpoint) consumer.getEndpoint();

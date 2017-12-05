@@ -43,9 +43,9 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -66,6 +66,7 @@ import org.apache.tika.io.CloseShieldInputStream;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.mime.MediaType;
 import org.apache.tika.mime.MediaTypeRegistry;
+import org.codice.ddf.configuration.DictionaryMap;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 import org.codice.ddf.platform.util.XMLUtils;
 import org.imgscalr.Scalr;
@@ -577,8 +578,8 @@ public class TikaInputTransformer implements InputTransformer {
     bundleContext.registerService(InputTransformer.class, this, getServiceProperties());
   }
 
-  private Hashtable<String, Object> getServiceProperties() {
-    Hashtable<String, Object> properties = new Hashtable<>();
+  private Dictionary<String, Object> getServiceProperties() {
+    Dictionary<String, Object> properties = new DictionaryMap<>();
     properties.put(ddf.catalog.Constants.SERVICE_ID, "tika");
     properties.put(ddf.catalog.Constants.SERVICE_TITLE, "Tika Input Transformer");
     properties.put(

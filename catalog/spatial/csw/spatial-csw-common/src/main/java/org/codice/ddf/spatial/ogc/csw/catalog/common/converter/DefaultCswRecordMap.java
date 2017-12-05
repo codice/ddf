@@ -282,8 +282,8 @@ public class DefaultCswRecordMap {
   public static boolean hasDefaultMetacardFieldForPrefixedString(
       String propertyName, NamespaceSupport namespaceSupport) {
     if (propertyName.contains(":") && !isXpathPropertyName(propertyName)) {
-      String prefix = propertyName.substring(0, propertyName.indexOf(":"));
-      String localName = propertyName.substring(propertyName.indexOf(":") + 1);
+      String prefix = propertyName.substring(0, propertyName.indexOf(':'));
+      String localName = propertyName.substring(propertyName.indexOf(':') + 1);
       if (namespaceSupport != null && namespaceSupport.getURI(prefix) != null) {
         String uri = namespaceSupport.getURI(prefix);
         QName qname = new QName(uri, localName, prefix);
@@ -309,8 +309,8 @@ public class DefaultCswRecordMap {
     String name;
 
     if (propertyName.contains(":") && !isXpathPropertyName(propertyName)) {
-      String prefix = propertyName.substring(0, propertyName.indexOf(":"));
-      String localName = propertyName.substring(propertyName.indexOf(":") + 1);
+      String prefix = propertyName.substring(0, propertyName.indexOf(':'));
+      String localName = propertyName.substring(propertyName.indexOf(':') + 1);
       if (namespaceSupport != null && namespaceSupport.getURI(prefix) != null) {
         String uri = namespaceSupport.getURI(prefix);
         QName qname = new QName(uri, localName, prefix);

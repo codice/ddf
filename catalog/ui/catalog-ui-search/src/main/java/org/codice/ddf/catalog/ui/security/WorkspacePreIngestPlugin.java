@@ -147,6 +147,7 @@ public class WorkspacePreIngestPlugin implements PreIngestPlugin {
    * @throws StopProcessingException
    */
   @Override
+  @SuppressWarnings("squid:S1854" /*previous is used and makes the stream forEach more efficient*/)
   public UpdateRequest process(UpdateRequest request)
       throws PluginExecutionException, StopProcessingException {
 

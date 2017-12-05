@@ -159,7 +159,7 @@ public class ResourceCacheServiceTest {
         .registerMBean(any(StandardMBean.class), eq(resourceCacheServiceObjectName));
   }
 
-  @Test(expected = RuntimeException.class)
+  @Test(expected = MBeanRegistrationException.class)
   public void testInitMBeanMBeanRegistrationFails() throws Exception {
     // Setup
     setupMockMBeanServer(false, true);
@@ -196,7 +196,7 @@ public class ResourceCacheServiceTest {
     verify(mockMBeanServer, never()).unregisterMBean(eq(resourceCacheServiceObjectName));
   }
 
-  @Test(expected = RuntimeException.class)
+  @Test(expected = MBeanRegistrationException.class)
   public void testDestroyMBeanUnregistrationFails() throws Exception {
     // Setup
     setupMockMBeanServer(true, true);

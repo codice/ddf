@@ -28,7 +28,6 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -55,6 +54,7 @@ import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
 import net.opengis.cat.csw.v_2_0_2.ObjectFactory;
 import net.opengis.cat.csw.v_2_0_2.QueryType;
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.configuration.DictionaryMap;
 import org.codice.ddf.platform.util.TransformerProperties;
 import org.codice.ddf.platform.util.XMLUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
@@ -395,7 +395,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
   }
 
   private synchronized CswSubscription getSubscription(String subscriptionId) {
-    ServiceRegistration sr = (ServiceRegistration) registeredSubscriptions.get(subscriptionId);
+    ServiceRegistration sr = registeredSubscriptions.get(subscriptionId);
     if (sr == null) {
       return null;
     }
@@ -437,7 +437,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
     }
     CswSubscription sub = createSubscription(request);
 
-    Dictionary<String, String> props = new Hashtable<>();
+    Dictionary<String, String> props = new DictionaryMap<>();
     props.put("subscription-id", subscriptionUuid);
     props.put("event-endpoint", request.getResponseHandler().get(0));
 
@@ -488,7 +488,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
     CswSubscription subscription = getSubscription(subscriptionId);
     try {
       LOGGER.debug("Removing (unregistering) subscription: {}", subscriptionId);
-      ServiceRegistration sr = (ServiceRegistration) registeredSubscriptions.remove(subscriptionId);
+      ServiceRegistration sr = registeredSubscriptions.remove(subscriptionId);
       if (sr != null) {
         sr.unregister();
       } else {
@@ -539,15 +539,14 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
           .createMarshaller()
           .marshal(objectFactory.createGetRecords(subscription.getOriginalRequest()), sw);
       String filterXml = sw.toString();
-
+      ConfigurationAdmin configAdmin = getConfigAdmin();
       // Store filter XML, deliveryMethod URL, this endpoint's factory PID, and subscription ID into
       // OSGi CongiAdmin
-      if (filterXml != null) {
+      if (filterXml != null && configAdmin != null) {
         Configuration config =
-            getConfigAdmin()
-                .createFactoryConfiguration(CswSubscriptionConfigFactory.FACTORY_PID, null);
+            configAdmin.createFactoryConfiguration(CswSubscriptionConfigFactory.FACTORY_PID, null);
 
-        Dictionary<String, String> props = new Hashtable<>();
+        Dictionary<String, String> props = new DictionaryMap<>();
         props.put(CswSubscriptionConfigFactory.SUBSCRIPTION_ID, subscriptionUuid);
         props.put(CswSubscriptionConfigFactory.FILTER_XML, filterXml);
         props.put(CswSubscriptionConfigFactory.DELIVERY_METHOD_URL, deliveryMethodUrl);
@@ -588,7 +587,7 @@ public class CswSubscriptionEndpoint implements CswSubscribe, Subscriber {
 
     try {
       org.osgi.framework.Filter filter = getBundleContext().createFilter(filterStr);
-      LOGGER.debug("filter.toString() = {}", filter.toString());
+      LOGGER.debug("filter.toString() = {}", filter);
 
       ConfigurationAdmin configAdmin = getConfigAdmin();
 

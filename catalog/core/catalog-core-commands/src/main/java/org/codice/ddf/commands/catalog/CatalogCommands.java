@@ -94,7 +94,7 @@ public abstract class CatalogCommands extends SubjectCommands {
   }
 
   // TODO Optional
-  protected CatalogFacade getCatalog() throws InterruptedException {
+  protected CatalogFacade getCatalog() {
     if (isProvider) {
       return new Provider(catalogProvider);
     } else {

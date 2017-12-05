@@ -22,12 +22,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.codice.ddf.admin.core.api.Service;
+import org.codice.ddf.configuration.DictionaryMap;
 import org.codice.ddf.registry.api.internal.RegistryStore;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -70,11 +70,10 @@ public class AdminHelper {
   }
 
   private BundleContext getBundleContext() {
-    Bundle bundle = FrameworkUtil.getBundle(this.getClass());
-    if (bundle != null) {
-      return bundle.getBundleContext();
-    }
-    return null;
+    return Optional.of(this.getClass())
+        .map(FrameworkUtil::getBundle)
+        .map(Bundle::getBundleContext)
+        .orElseThrow(() -> new IllegalStateException("Error getting bundle context"));
   }
 
   public List<Source> getRegistrySources() throws InvalidSyntaxException {
@@ -121,9 +120,9 @@ public class AdminHelper {
     Map<String, Object> props = new HashMap<>();
     Dictionary<String, Object> configProps =
         configurationAdmin.getConfiguration(REGISTRY_POLICY_PID, null).getProperties();
-    Map<String, Object> configMap = new HashMap<>();
+
     if (configProps == null) {
-      configProps = new Hashtable<>();
+      configProps = new DictionaryMap<>();
     }
 
     props.put(
@@ -155,7 +154,7 @@ public class AdminHelper {
       Configuration config = configurationAdmin.getConfiguration(REGISTRY_POLICY_PID, null);
       Dictionary<String, Object> props = config.getProperties();
       if (props == null) {
-        props = new Hashtable<>();
+        props = new DictionaryMap<>();
       }
       props.put(key, value);
       config.update(props);

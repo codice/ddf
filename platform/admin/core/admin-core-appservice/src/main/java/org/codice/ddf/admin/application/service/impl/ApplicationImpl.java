@@ -65,7 +65,7 @@ public class ApplicationImpl implements Application, Comparable<Application> {
       repoName = repo.getName();
       features.addAll(Arrays.asList(repo.getFeatures()));
     } catch (Exception e) {
-      throw new RuntimeException(e.getMessage());
+      throw new IllegalStateException(e);
     }
     setRepoNameAndVersion(repoName);
     location = repo.getURI();

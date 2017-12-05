@@ -17,13 +17,17 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.federation.FederationException;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.source.SourceUnavailableException;
+import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.validation.MetacardValidator;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -42,7 +46,9 @@ import org.apache.shiro.util.ThreadContext;
 import org.codice.ddf.commands.catalog.validation.ValidateExecutor;
 import org.codice.ddf.commands.catalog.validation.ValidatePrinter;
 import org.codice.ddf.commands.catalog.validation.ValidateReport;
+import org.codice.ddf.commands.util.CatalogCommandException;
 import org.codice.ddf.security.common.Security;
+import org.geotools.filter.text.cql2.CQLException;
 
 /** Custom Karaf command to validate XML files against services that implement MetacardValidator */
 @Service
@@ -129,23 +135,30 @@ public class ValidateCommand extends CqlCommands {
     return metacards;
   }
 
-  private List<Metacard> getMetacardsFromCatalog() throws Exception {
+  private List<Metacard> getMetacardsFromCatalog() throws CatalogCommandException {
     List<Metacard> results = new ArrayList<>();
+    try {
+      QueryImpl query = new QueryImpl(getFilter());
+      ThreadContext.bind(Security.getInstance().getSystemSubject());
 
-    QueryImpl query = new QueryImpl(getFilter());
-    ThreadContext.bind(Security.getInstance().getSystemSubject());
+      SourceResponse response = getCatalog().query(new QueryRequestImpl(query));
+      List<Result> resultList = response.getResults();
+      if (resultList != null) {
+        results.addAll(
+            resultList
+                .stream()
+                .map(Result::getMetacard)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList()));
+      }
 
-    SourceResponse response = getCatalog().query(new QueryRequestImpl(query));
-    List<Result> resultList = response.getResults();
-    if (resultList != null) {
-      results.addAll(
-          resultList
-              .stream()
-              .map(Result::getMetacard)
-              .filter(Objects::nonNull)
-              .collect(Collectors.toList()));
+    } catch (UnsupportedQueryException
+        | SourceUnavailableException
+        | FederationException
+        | CQLException
+        | ParseException e) {
+      throw new CatalogCommandException("Error executing catalog:validate", e);
     }
-
     return results;
   }
 

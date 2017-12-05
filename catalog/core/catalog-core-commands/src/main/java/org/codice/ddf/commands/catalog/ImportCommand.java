@@ -308,9 +308,8 @@ public class ImportCommand extends CatalogCommands {
       byte[] buffer;
       while ((buffer = buf) != null) {
         if (BUF_UPDATER.compareAndSet(this, buffer, null)) {
-          InputStream input = in;
           in = null;
-          // Purposely do not close `input`
+          // Purposely do not close `in`
           return;
         }
         // Else retry in case a new buf was CASed in fill()

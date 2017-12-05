@@ -45,7 +45,7 @@ public class Point extends CompositeGeometry {
   }
 
   protected boolean isNotType(Geometry geo) {
-    return !this.getClass().getSimpleName().equals(geo.getGeometryType());
+    return !TYPE.equals(geo.getGeometryType());
   }
 
   @Override
