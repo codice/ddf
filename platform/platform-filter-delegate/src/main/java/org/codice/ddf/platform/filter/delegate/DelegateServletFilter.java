@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArraySet;
-import javax.annotation.Nonnull;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -173,7 +172,6 @@ public class DelegateServletFilter implements Filter {
     }
   }
 
-  @Nonnull
   private static String getFilterKey(
       final ServiceReference<SecurityFilter> securityFilterServiceReference,
       final BundleContext bundleContext) {
@@ -187,7 +185,6 @@ public class DelegateServletFilter implements Filter {
    * org.osgi.service.http.whiteboard.HttpWhiteboardConstants#HTTP_WHITEBOARD_FILTER_NAME} for how
    * to configure {@link Filter} services with a filter name.
    */
-  @Nonnull
   private static String getFilterName(
       ServiceReference<SecurityFilter> securityFilterServiceReference,
       BundleContext bundleContext) {

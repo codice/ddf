@@ -280,7 +280,12 @@ public class Security {
     return ((null != subject)
             && (null != subject.getPrincipals())
             && (null != subject.getPrincipals().oneByType(SecurityAssertion.class)))
-        ? subject.getPrincipals().oneByType(SecurityAssertion.class).getSecurityToken().getExpires()
+        ? Date.from(
+            subject
+                .getPrincipals()
+                .oneByType(SecurityAssertion.class)
+                .getSecurityToken()
+                .getExpires())
         : null;
   }
 

@@ -78,6 +78,11 @@
             <groupId>ddf.action.core</groupId>
             <artifactId>action-core-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-core</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

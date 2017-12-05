@@ -58,7 +58,6 @@ import org.apache.wss4j.common.crypto.CryptoFactory;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.apache.wss4j.common.saml.SamlAssertionWrapper;
-import org.apache.wss4j.dom.WSDocInfo;
 import org.apache.wss4j.dom.engine.WSSConfig;
 import org.apache.wss4j.dom.handler.RequestData;
 import org.apache.wss4j.dom.saml.WSSSAMLKeyInfoProcessor;
@@ -400,13 +399,11 @@ public class LoginFilter implements SecurityFilter {
         if (assertion.isSigned()) {
           // Verify the signature
           WSSSAMLKeyInfoProcessor wsssamlKeyInfoProcessor =
-              new WSSSAMLKeyInfoProcessor(
-                  requestData, new WSDocInfo(samlResponse.getDOM().getOwnerDocument()));
+              new WSSSAMLKeyInfoProcessor(requestData);
           assertion.verifySignature(wsssamlKeyInfoProcessor, crypto);
 
           assertion.parseSubject(
-              new WSSSAMLKeyInfoProcessor(
-                  requestData, new WSDocInfo(samlResponse.getDOM().getOwnerDocument())),
+              new WSSSAMLKeyInfoProcessor(requestData),
               requestData.getSigVerCrypto(),
               requestData.getCallbackHandler());
         }

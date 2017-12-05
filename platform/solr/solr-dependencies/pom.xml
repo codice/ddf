@@ -166,7 +166,7 @@
                             <include>org.apache.solr:solr-solrj</include>
                             <include>org.locationtech.spatial4j:spatial4j</include>
                             <include>com.tdunning:t-digest</include>
-                            <include>org.codehaus.woodstox:woodstox-core-asl</include>
+                            <include>com.fasterxml.woodstox:woodstox-core</include>
                             <include>org.apache.zookeeper:zookeeper</include>
                             <include>io.dropwizard.metrics:metrics-jetty9</include>
                             <include>io.dropwizard.metrics:metrics-graphite</include>
