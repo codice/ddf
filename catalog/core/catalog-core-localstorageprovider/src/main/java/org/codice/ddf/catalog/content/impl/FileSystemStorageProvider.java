@@ -14,7 +14,6 @@
 package org.codice.ddf.catalog.content.impl;
 
 import com.google.common.io.ByteSource;
-import ddf.catalog.Constants;
 import ddf.catalog.content.StorageException;
 import ddf.catalog.content.StorageProvider;
 import ddf.catalog.content.data.ContentItem;
@@ -41,8 +40,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.charset.Charset;
 import java.nio.file.DirectoryIteratorException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -72,13 +69,11 @@ public class FileSystemStorageProvider implements StorageProvider {
 
   public static final String DEFAULT_TMP = "tmp";
 
-  public static final String KARAF_HOME = "karaf.home";
+  private static final String KARAF_HOME = "karaf.home";
 
   private static final String DEFAULT_MIME_TYPE = "application/octet-stream";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FileSystemStorageProvider.class);
-
-  public static final String REF_EXT = "external-reference";
 
   /** Mapper for file extensions-to-mime types (and vice versa) */
   private MimeTypeMapper mimeTypeMapper;
@@ -116,11 +111,7 @@ public class FileSystemStorageProvider implements StorageProvider {
 
         Path contentDirectory = Files.createDirectories(contentIdDir);
 
-        createdContentItems.add(
-            generateContentFile(
-                contentItem,
-                contentDirectory,
-                (String) createRequest.getPropertyValue(Constants.STORE_REFERENCE_KEY)));
+        createdContentItems.add(generateContentFile(contentItem, contentDirectory));
       } catch (IOException | URISyntaxException | IllegalArgumentException e) {
         throw new StorageException(e);
       }
@@ -175,11 +166,7 @@ public class FileSystemStorageProvider implements StorageProvider {
         Path contentIdDir =
             getTempContentItemDir(updateRequest.getId(), new URI(updateItem.getUri()));
 
-        updatedItems.add(
-            generateContentFile(
-                updateItem,
-                contentIdDir,
-                (String) updateRequest.getPropertyValue(Constants.STORE_REFERENCE_KEY)));
+        updatedItems.add(generateContentFile(updateItem, contentIdDir));
       } catch (IOException | URISyntaxException | IllegalArgumentException e) {
         throw new StorageException(e);
       }
@@ -397,36 +384,12 @@ public class FileSystemStorageProvider implements StorageProvider {
 
     String filename = file.getFileName().toString();
     String extension = FilenameUtils.getExtension(filename);
-    URI reference = null;
-    // if the file is an external reference, remove the reference extension
-    // so we can get the real extension
-    if (REF_EXT.equals(extension)) {
-      extension = FilenameUtils.getExtension(FilenameUtils.removeExtension(filename));
-      try {
-        reference = new URI(new String(Files.readAllBytes(file), Charset.forName("UTF-8")));
-
-        if (reference.getScheme() == null) {
-          file = Paths.get(reference.toASCIIString());
-        } else if (reference.getScheme().equalsIgnoreCase("file")) {
-          file = Paths.get(reference);
-        } else {
-          file = null;
-        }
-      } catch (IOException | URISyntaxException e) {
-        throw new StorageException(e);
-      }
-    }
-
-    if (reference != null && file != null && !file.toFile().exists()) {
-      throw new StorageException("Cannot read " + uri + ".");
-    }
 
     String mimeType = DEFAULT_MIME_TYPE;
     long size = 0;
     ByteSource byteSource;
 
-    try (InputStream fileInputStream =
-        file != null ? Files.newInputStream(file) : reference.toURL().openStream()) {
+    try (InputStream fileInputStream = Files.newInputStream(file)) {
       mimeType = mimeTypeMapper.guessMimeType(fileInputStream, extension);
     } catch (MimeTypeResolutionException e) {
       LOGGER.debug(
@@ -434,39 +397,25 @@ public class FileSystemStorageProvider implements StorageProvider {
           extension,
           DEFAULT_MIME_TYPE);
     } catch (IOException ie) {
-      LOGGER.debug(
-          "Error opening stream to external reference {}. Failing StorageProvider read.",
-          reference,
-          ie);
-      throw new StorageException("Cannot read " + reference + ".");
+      LOGGER.debug("Error opening stream to file {}. Failing StorageProvider read.", file, ie);
+      throw new StorageException("Cannot read " + file + ".");
     }
 
-    if (file != null) {
-      if (mimeType == null || DEFAULT_MIME_TYPE.equals(mimeType)) {
-        try {
-          mimeType = Files.probeContentType(file);
-        } catch (IOException e) {
-          LOGGER.info("Unable to determine mime type using Java Files service.", e);
-        }
-      }
-
-      LOGGER.debug("mimeType = {}", mimeType);
+    if (mimeType == null || DEFAULT_MIME_TYPE.equals(mimeType)) {
       try {
-        size = Files.size(file);
+        mimeType = Files.probeContentType(file);
       } catch (IOException e) {
-        LOGGER.info("Unable to retrieve size of file: {}", file.toAbsolutePath().toString(), e);
+        LOGGER.info("Unable to determine mime type using Java Files service.", e);
       }
-      byteSource = com.google.common.io.Files.asByteSource(file.toFile());
-    } else {
-      URI finalReference = reference;
-      byteSource =
-          new ByteSource() {
-            @Override
-            public InputStream openStream() throws IOException {
-              return finalReference.toURL().openStream();
-            }
-          };
     }
+
+    LOGGER.debug("mimeType = {}", mimeType);
+    try {
+      size = Files.size(file);
+    } catch (IOException e) {
+      LOGGER.info("Unable to retrieve size of file: {}", file.toAbsolutePath().toString(), e);
+    }
+    byteSource = com.google.common.io.Files.asByteSource(file.toFile());
 
     return new ContentItemImpl(
         uri.getSchemeSpecificPart(), uri.getFragment(), byteSource, mimeType, filename, size, null);
@@ -554,8 +503,8 @@ public class FileSystemStorageProvider implements StorageProvider {
     return null;
   }
 
-  private ContentItem generateContentFile(
-      ContentItem item, Path contentDirectory, String storeReference) throws IOException {
+  private ContentItem generateContentFile(ContentItem item, Path contentDirectory)
+      throws IOException {
     LOGGER.trace("ENTERING: generateContentFile");
 
     if (!contentDirectory.toFile().exists()) {
@@ -568,33 +517,19 @@ public class FileSystemStorageProvider implements StorageProvider {
 
     long copy;
 
-    if (storeReference != null) {
-      copy = item.getSize();
-      Files.write(
-          Paths.get(contentItemPath.toString() + "." + REF_EXT),
-          storeReference.getBytes(Charset.forName("UTF-8")));
-      byteSource =
-          new ByteSource() {
-            @Override
-            public InputStream openStream() throws IOException {
-              return new URL(storeReference).openStream();
-            }
-          };
-    } else {
-      try (InputStream inputStream = item.getInputStream()) {
-        copy = Files.copy(inputStream, contentItemPath);
-      }
-      byteSource = com.google.common.io.Files.asByteSource(contentItemPath.toFile());
+    try (InputStream inputStream = item.getInputStream()) {
+      copy = Files.copy(inputStream, contentItemPath);
+    }
+    byteSource = com.google.common.io.Files.asByteSource(contentItemPath.toFile());
 
-      if (copy != item.getSize() && LOGGER.isWarnEnabled()) {
-        LOGGER.warn(
-            "Created content item {} size {} does not match expected size {} {}. "
-                + "Verify filesystem and/or network integrity.",
-            item.getId(),
-            copy,
-            item.getSize(),
-            System.lineSeparator());
-      }
+    if (copy != item.getSize() && LOGGER.isWarnEnabled()) {
+      LOGGER.warn(
+          "Created content item {} size {} does not match expected size {} {}. "
+              + "Verify filesystem and/or network integrity.",
+          item.getId(),
+          copy,
+          item.getSize(),
+          System.lineSeparator());
     }
 
     ContentItemImpl contentItem =
@@ -610,10 +545,6 @@ public class FileSystemStorageProvider implements StorageProvider {
     LOGGER.trace("EXITING: generateContentFile");
 
     return contentItem;
-  }
-
-  public MimeTypeMapper getMimeTypeMapper() {
-    return mimeTypeMapper;
   }
 
   public void setMimeTypeMapper(MimeTypeMapper mimeTypeMapper) {
@@ -632,7 +563,7 @@ public class FileSystemStorageProvider implements StorageProvider {
         directory = Paths.get(path, DEFAULT_CONTENT_REPOSITORY, DEFAULT_CONTENT_STORE);
       }
     } else {
-      String path = System.getProperty("karaf.home");
+      String path = System.getProperty(KARAF_HOME);
       directory = Paths.get(path, DEFAULT_CONTENT_REPOSITORY, DEFAULT_CONTENT_STORE);
     }
 
@@ -679,7 +610,7 @@ public class FileSystemStorageProvider implements StorageProvider {
 
     private final ContentItem existingItem;
 
-    public ContentItemDecorator(ContentItem contentItem, ContentItem existingItem) {
+    ContentItemDecorator(ContentItem contentItem, ContentItem existingItem) {
       this.updateContentItem = contentItem;
       this.existingItem = existingItem;
     }

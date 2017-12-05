@@ -60,7 +60,6 @@ import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -155,40 +154,6 @@ public class FileSystemStorageProviderTest {
     String uriString = createResponse.getCreatedContentItems().get(0).getUri();
 
     assertReadRequest(uriString, NITF_MIME_TYPE);
-  }
-
-  @Test(expected = StorageException.class)
-  public void testReadDeletedReference() throws Exception {
-    Path tempFile = Files.createTempFile("test", "nitf");
-    Files.write(tempFile, TEST_INPUT_CONTENTS.getBytes());
-    CreateStorageResponse createResponse =
-        assertContentItem(
-            TEST_INPUT_CONTENTS,
-            NITF_MIME_TYPE,
-            TEST_INPUT_FILENAME,
-            Collections.singletonMap(
-                Constants.STORE_REFERENCE_KEY, tempFile.toUri().toASCIIString()));
-    URI uri = new URI(createResponse.getCreatedContentItems().get(0).getUri());
-
-    ReadStorageResponse read =
-        provider.read(new ReadStorageRequestImpl(uri, Collections.emptyMap()));
-    assertThat(read.getContentItem(), notNullValue());
-    Files.delete(tempFile);
-    provider.read(new ReadStorageRequestImpl(uri, Collections.emptyMap()));
-  }
-
-  @Test(expected = StorageException.class)
-  public void testReadDeletedRemoteReference() throws Exception {
-    CreateStorageResponse createResponse =
-        assertContentItem(
-            TEST_INPUT_CONTENTS,
-            NITF_MIME_TYPE,
-            TEST_INPUT_FILENAME,
-            Collections.singletonMap(
-                Constants.STORE_REFERENCE_KEY, "http://testHostName:12345/test.txt"));
-
-    URI uri = new URI(createResponse.getCreatedContentItems().get(0).getUri());
-    provider.read(new ReadStorageRequestImpl(uri, Collections.emptyMap()));
   }
 
   @Test

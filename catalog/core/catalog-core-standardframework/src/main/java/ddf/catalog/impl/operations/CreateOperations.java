@@ -155,7 +155,8 @@ public class CreateOperations {
     streamCreateRequest = applyAttributeOverrides(streamCreateRequest, metacardMap);
 
     try {
-      if (!contentItems.isEmpty()) {
+      if (!contentItems.isEmpty()
+          && streamCreateRequest.getPropertyValue(Constants.STORE_REFERENCE_KEY) == null) {
         createStorageRequest =
             new CreateStorageRequestImpl(
                 contentItems, streamCreateRequest.getId(), streamCreateRequest.getProperties());
