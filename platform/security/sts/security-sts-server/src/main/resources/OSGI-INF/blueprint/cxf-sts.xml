@@ -75,6 +75,8 @@
 
     <bean id="authnStatementProvider" class="ddf.security.sts.AuthNStatementProvider"/>
 
+    <bean id="samlCustomHandler" class="ddf.security.sts.CustomHandler"/>
+
     <bean id="samlTokenProvider"
           class="org.apache.cxf.sts.token.provider.SAMLTokenProvider">
         <property name="attributeStatementProviders">
@@ -88,6 +90,7 @@
             </list>
         </property>
         <property name="conditionsProvider" ref="SAMLConditionsProvider"/>
+        <property name="samlCustomHandler" ref="samlCustomHandler"/>
     </bean>
 
     <bean id="SAMLConditionsProvider"
