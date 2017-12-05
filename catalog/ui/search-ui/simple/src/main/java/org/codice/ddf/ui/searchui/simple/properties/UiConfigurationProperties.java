@@ -13,59 +13,26 @@
  */
 package org.codice.ddf.ui.searchui.simple.properties;
 
-import java.io.IOException;
 import java.util.Dictionary;
-import java.util.Hashtable;
 import java.util.Optional;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.codice.ddf.branding.BrandingRegistry;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.service.cm.ConfigurationAdmin;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+/* Contains getters and setters for the UI configuration for building Simple Search UI  */
 public class UiConfigurationProperties {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(UiConfigurationProperties.class);
 
   private Dictionary<String, Object> properties;
 
   private Optional<BrandingRegistry> branding = Optional.empty();
 
   UiConfigurationProperties(
-      ConfigurationAdmin configurationAdmin,
-      String configPid,
-      Optional<BrandingRegistry> brandingRegistry) {
-    this.branding = brandingRegistry;
-    try {
-      if (configurationAdmin.listConfigurations(String.format("(service.pid=%s)", configPid))
-          != null) {
-        properties = configurationAdmin.getConfiguration(configPid, null).getProperties();
-      } else {
-        properties = new Hashtable<>();
-      }
-    } catch (IOException | InvalidSyntaxException e) {
-      LOGGER.error(
-          "Failed to retrieve UI configuration for Simple Search, page may not load with the proper configuration.");
-      properties = new Hashtable<>();
-    }
-  }
-
-  private String getStringProperty(String string) {
-    String val = (String) properties.get(string);
-    return (val != null) ? val : "";
-  }
-
-  private Boolean getBoolProperty(String string) {
-    Boolean val = (Boolean) properties.get(string);
-    return (val != null) ? val : false;
+      Dictionary<String, Object> properties, Optional<BrandingRegistry> branding) {
+    this.properties = properties;
+    this.branding = branding;
   }
 
   public String getProductName() {
     return branding.map(BrandingRegistry::getProductName).orElse("");
-  }
-
-  public BrandingRegistry getBranding() {
-    return branding.orElse(null);
   }
 
   public String getHeader() {
@@ -93,10 +60,26 @@ public class UiConfigurationProperties {
   }
 
   public Boolean getSystemUsageEnabled() {
-    return getBoolProperty("systemUsageEnabled");
+    return getBooleanProperty("systemUsageEnabled");
   }
 
   public Boolean getSystemUsageOncePerSession() {
-    return getBoolProperty("systemUsageOncePerSession");
+    return getBooleanProperty("systemUsageOncePerSession");
+  }
+
+  private String getStringProperty(String key) {
+    String val = "";
+    if (properties.get(key) instanceof String) {
+      val = (String) properties.get(key);
+    }
+    return StringEscapeUtils.escapeHtml(val);
+  }
+
+  private Boolean getBooleanProperty(String key) {
+    Boolean val = false;
+    if (properties.get(key) instanceof Boolean) {
+      val = (Boolean) properties.get(key);
+    }
+    return val;
   }
 }

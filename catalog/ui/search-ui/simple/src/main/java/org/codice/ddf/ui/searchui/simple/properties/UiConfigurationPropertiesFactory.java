@@ -13,16 +13,26 @@
  */
 package org.codice.ddf.ui.searchui.simple.properties;
 
+import java.io.IOException;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.Optional;
 import org.codice.ddf.branding.BrandingRegistry;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/** Stores external configuration properties. */
+/* Looks up the configuration for the UI and creates an object to represent it*/
 public class UiConfigurationPropertiesFactory {
+
+  private static final Logger LOGGER =
+      LoggerFactory.getLogger(UiConfigurationPropertiesFactory.class);
 
   private static final String CONFIG_PID = "ddf.platform.ui.config";
 
-  private static UiConfigurationPropertiesFactory uniqueInstance;
+  private static UiConfigurationPropertiesFactory uniqueInstance =
+      new UiConfigurationPropertiesFactory();
 
   private Optional<BrandingRegistry> branding = Optional.empty();
 
@@ -35,21 +45,25 @@ public class UiConfigurationPropertiesFactory {
    *     UI
    */
   public UiConfigurationProperties getProperties() {
-    return new UiConfigurationProperties(configurationAdmin, CONFIG_PID, branding);
+    Dictionary<String, Object> properties;
+    try {
+      if (configurationAdmin.listConfigurations(String.format("(service.pid=%s)", CONFIG_PID))
+          != null) {
+        properties = configurationAdmin.getConfiguration(CONFIG_PID, null).getProperties();
+      } else {
+        properties = new Hashtable<>();
+      }
+    } catch (IOException | InvalidSyntaxException e) {
+      LOGGER.error(
+          "Failed to retrieve UI configuration for Simple Search, page may not load with the proper configuration.");
+      properties = new Hashtable<>();
+    }
+    return new UiConfigurationProperties(properties, branding);
   }
 
   /** @return a unique instance of {@link UiConfigurationPropertiesFactory} */
-  public static synchronized UiConfigurationPropertiesFactory getInstance() {
-
-    if (uniqueInstance == null) {
-      uniqueInstance = new UiConfigurationPropertiesFactory();
-    }
-
+  public static UiConfigurationPropertiesFactory getInstance() {
     return uniqueInstance;
-  }
-
-  public Object clone() throws CloneNotSupportedException {
-    throw new CloneNotSupportedException();
   }
 
   public void setBranding(BrandingRegistry branding) {

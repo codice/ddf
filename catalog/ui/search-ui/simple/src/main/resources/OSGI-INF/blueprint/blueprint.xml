@@ -19,7 +19,7 @@
     <reference id="brandingRegistry" interface="org.codice.ddf.branding.BrandingRegistry" />
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
 
-    <bean id="configurationStore"
+    <bean id="uiConfigurationPropertiesFactory"
           class="org.codice.ddf.ui.searchui.simple.properties.UiConfigurationPropertiesFactory"
           factory-method="getInstance">
         <cm:managed-properties persistent-id="org.codice.ddf.ui.search.simple.properties"

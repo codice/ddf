@@ -62,10 +62,11 @@
 <body>
 
 	<div class="navbar navbar-inverse navbar-fixed-top">
-		<% String h = props.getHeader();
-			if(h != null && h.trim().length() > 0)
-			    out.println("<div class=\"banner\">" + h + "</div>");
-		 %>
+
+		 <% String h = props.getHeader();
+		    if(h.trim().length() > 0) { %>
+             <div class="banner"><%=h %></div>
+		 <% } %>
 	
 		<div class="navbar-inner">
 			<div class="container">
@@ -442,9 +443,9 @@
 	</div>
 
 	<% String f = props.getFooter();
-		if(f != null && f.trim().length() > 0)
-		    out.println("<div class=\"navbar-fixed-bottom banner\">" + f + "</div>");
-	 %>
+		if(f.trim().length() > 0) { %>
+		   <div class="navbar-fixed-bottom banner"><%=f %></div>
+        <% } %>
 		
 	<!-- Placed at the end of the document so the pages load faster -->
 
@@ -478,25 +479,25 @@
     <!-- Usage Modal -->
     <!-- Only show if the modal is enabled -->
     <% if(props.getSystemUsageEnabled() == true) { %>
-    <!-- Do not allow users to click outside of the modal to dismiss it, the OK button must be pressed -->
-    <script>
-        jQuery(function () {
-            $('#usageModal').modal({
-                backdrop: 'static',
-                keyboard: false
+        <!-- Do not allow users to click outside of the modal to dismiss it, the OK button must be pressed -->
+        <script>
+            jQuery(function () {
+                $('#usageModal').modal({
+                    backdrop: 'static',
+                    keyboard: false
+                })
             })
-        })
-    </script>
-    <div id="usageModal" class="modal hide" tabindex="-1" role="dialog"
-        aria-labelledby="myModalLabel" aria-hidden="true">
-        <div class="modal-header">
-            <h3><%=props.getSystemUsageTitle()%></h3>
+        </script>
+        <div id="usageModal" class="modal hide" tabindex="-1" role="dialog"
+            aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-header">
+                <h3><%=props.getSystemUsageTitle()%></h3>
+            </div>
+            <div class="modal-body"><%=props.getSystemUsageMessage()%></div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" data-dismiss="modal" aria-hidden="true">OK</button>
+            </div>
         </div>
-        <div class="modal-body"><%=props.getSystemUsageMessage()%></div>
-        <div class="modal-footer">
-            <button class="btn btn-primary" data-dismiss="modal" aria-hidden="true">OK</button>
-        </div>
-    </div>
     <% } %>
 
 </body>
