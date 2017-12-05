@@ -25,6 +25,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.BinaryContentImpl;
+import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.MetacardTransformer;
@@ -66,6 +67,7 @@ import org.slf4j.LoggerFactory;
  * http://tools.ietf.org/html/rfc4287
  */
 public class AtomTransformer implements QueryResponseTransformer {
+  private static final int ALL_RESULTS_COUNT_VALUE = -1;
 
   /**
    * This variable is a workaround. If org.apache.abdera.model.Link ever includes a "REL_PREVIEW"
@@ -233,6 +235,28 @@ public class AtomTransformer implements QueryResponseTransformer {
       startIndex.setText(Integer.toString(sourceResponse.getRequest().getQuery().getStartIndex()));
     }
 
+    if (getCount(sourceResponse) != 0) {
+      addResultElements(sourceResponse, currentDate, feed);
+    }
+
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    tccl = Thread.currentThread().getContextClassLoader();
+
+    try {
+      Thread.currentThread().setContextClassLoader(AtomTransformer.class.getClassLoader());
+      feed.writeTo(baos);
+    } catch (IOException e) {
+      LOGGER.info("Could not write to output stream.", e);
+      throw new CatalogTransformerException("Could not transform into Atom.", e);
+    } finally {
+      Thread.currentThread().setContextClassLoader(tccl);
+    }
+
+    return new BinaryContentImpl(new ByteArrayInputStream(baos.toByteArray()), MIME_TYPE);
+  }
+
+  private void addResultElements(SourceResponse sourceResponse, Date currentDate, Feed feed) {
+    ClassLoader tccl;
     for (Result result : sourceResponse.getResults()) {
 
       Metacard metacard = result.getMetacard();
@@ -361,28 +385,6 @@ public class AtomTransformer implements QueryResponseTransformer {
         Thread.currentThread().setContextClassLoader(tccl);
       }
     }
-
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-    try {
-
-      tccl = Thread.currentThread().getContextClassLoader();
-      try {
-
-        Thread.currentThread().setContextClassLoader(AtomTransformer.class.getClassLoader());
-
-        feed.writeTo(baos);
-
-      } finally {
-        Thread.currentThread().setContextClassLoader(tccl);
-      }
-
-    } catch (IOException e) {
-      LOGGER.info("Could not write to output stream.", e);
-      throw new CatalogTransformerException("Could not transform into Atom.", e);
-    }
-
-    return new BinaryContentImpl(new ByteArrayInputStream(baos.toByteArray()), MIME_TYPE);
   }
 
   // a Link object could not be made and returned without a classpath problem in the OSGi runtime
@@ -472,5 +474,29 @@ public class AtomTransformer implements QueryResponseTransformer {
       }
     }
     return georssPositions;
+  }
+
+  private int getCount(SourceResponse queryResponse) {
+    if (queryResponse == null) {
+      return ALL_RESULTS_COUNT_VALUE;
+    }
+
+    QueryRequest queryRequest = queryResponse.getRequest();
+
+    if (queryRequest == null) {
+      return ALL_RESULTS_COUNT_VALUE;
+    }
+
+    Serializable countSerializable = queryRequest.getProperties().get("count");
+
+    if (countSerializable == null) {
+      return ALL_RESULTS_COUNT_VALUE;
+    }
+
+    try {
+      return Integer.valueOf((String) countSerializable);
+    } catch (NumberFormatException nfe) {
+      return ALL_RESULTS_COUNT_VALUE;
+    }
   }
 }

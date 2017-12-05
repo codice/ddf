@@ -50,6 +50,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
@@ -88,6 +89,9 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
   private static final String QUOTE = "\"";
 
+  private static final String ZERO_PAGESIZE_COMPATIBILITY_PROPERTY =
+      "catalog.zeroPageSizeCompatibility";
+
   public static final String SORT_FIELD_KEY = "sfield";
 
   public static final String POINT_KEY = "pt";
@@ -101,6 +105,9 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
   private final FilterAdapter filterAdapter;
 
   private final DynamicSchemaResolver resolver;
+
+  private static final Supplier<Boolean> ZERO_PAGESIZE_COMPATIBILTY =
+      () -> Boolean.valueOf(System.getProperty(ZERO_PAGESIZE_COMPATIBILITY_PROPERTY));
 
   public SolrMetacardClientImpl(
       SolrClient client,
@@ -433,7 +440,11 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
   }
 
   private boolean queryingForAllRecords(QueryRequest request) {
-    return request.getQuery().getPageSize() < 1;
+    if (ZERO_PAGESIZE_COMPATIBILTY.get()) {
+      return request.getQuery().getPageSize() < 1;
+    }
+
+    return request.getQuery().getPageSize() < 0;
   }
 
   private int queryForNumberOfRows(SolrQuery query) throws SolrServerException, IOException {

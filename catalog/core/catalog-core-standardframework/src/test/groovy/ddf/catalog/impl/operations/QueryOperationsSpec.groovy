@@ -695,7 +695,7 @@ class QueryOperationsTest extends Specification {
 
         then:
         policyPlugins.each {
-            1 * it.processPreQuery(request.query, _ as Map) >> policyResponse
+            1 * it.processPreQuery(_ as Query, _ as Map) >> policyResponse
             1 * opsSecurity.buildPolicyMap(_, _)
         }
         frameworkProperties.federationStrategy.federate(_, _) >> response
