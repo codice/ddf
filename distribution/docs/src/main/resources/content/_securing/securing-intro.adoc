@@ -1,9 +1,9 @@
 :title: Securing
-:type: configuringIntro
+:type: securingIntro
 :status: published
 :summary: Introduction to security configurations.
 :parent: Configuring
-:order: 03
+:order: 00
 
 == {title}
 
@@ -20,3 +20,4 @@ A detailed view is available of the properties to update.
 ====
 
 Security concerns will be highlighted in the configuration sections to follow.
+
