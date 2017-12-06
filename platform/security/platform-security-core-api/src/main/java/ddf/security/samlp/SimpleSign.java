@@ -13,6 +13,8 @@
  */
 package ddf.security.samlp;
 
+import static org.apache.commons.lang.CharEncoding.UTF_8;
+
 import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -66,48 +68,32 @@ public class SimpleSign {
     crypto = systemCrypto;
   }
 
-  public void signSamlObject(SignableSAMLObject samlObject) throws SignatureException {
+  public void resignAssertion(Assertion assertion) throws SignatureException {
+    final Signature signature = assertion.getSignature();
 
+    if (signature == null) {
+      signSamlObject(assertion);
+      return;
+    }
+
+    final String digestAlgorithm =
+        ((SAMLObjectContentReference) signature.getContentReferences().get(0)).getDigestAlgorithm();
+
+    signSamlObject(
+        assertion,
+        signature.getSignatureAlgorithm(),
+        signature.getCanonicalizationAlgorithm(),
+        digestAlgorithm);
+  }
+
+  public void signSamlObject(SignableSAMLObject samlObject) throws SignatureException {
     X509Certificate[] certificates = getSignatureCertificates();
     String sigAlgo = getSignatureAlgorithm(certificates[0]);
-    PrivateKey privateKey = getSignaturePrivateKey();
-
-    // Create the signature
-    Signature signature = OpenSAMLUtil.buildSignature();
-    if (signature == null) {
-      throw new SignatureException("Unable to build signature.");
-    }
-    signature.setCanonicalizationAlgorithm(SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
-    signature.setSignatureAlgorithm(sigAlgo);
-
-    BasicX509Credential signingCredential = new BasicX509Credential(certificates[0]);
-    signingCredential.setPrivateKey(privateKey);
-
-    signature.setSigningCredential(signingCredential);
-
-    X509KeyInfoGeneratorFactory x509KeyInfoGeneratorFactory = new X509KeyInfoGeneratorFactory();
-    x509KeyInfoGeneratorFactory.setEmitEntityCertificate(true);
-
-    try {
-      KeyInfo keyInfo = x509KeyInfoGeneratorFactory.newInstance().generate(signingCredential);
-      signature.setKeyInfo(keyInfo);
-    } catch (org.opensaml.security.SecurityException e) {
-      throw new SignatureException("Error generating KeyInfo from signing credential", e);
-    }
-
-    if (samlObject instanceof Response) {
-      List<Assertion> assertions = ((Response) samlObject).getAssertions();
-      for (Assertion assertion : assertions) {
-        assertion.getSignature().setSigningCredential(signingCredential);
-      }
-    }
-
-    samlObject.setSignature(signature);
-    SAMLObjectContentReference contentRef =
-        (SAMLObjectContentReference) signature.getContentReferences().get(0);
-    contentRef.setDigestAlgorithm(SignatureConstants.ALGO_ID_DIGEST_SHA1);
-    samlObject.releaseDOM();
-    samlObject.releaseChildrenDOM(true);
+    signSamlObject(
+        samlObject,
+        sigAlgo,
+        SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS,
+        SignatureConstants.ALGO_ID_DIGEST_SHA1);
   }
 
   public void signUriString(String queryParams, UriBuilder uriBuilder) throws SignatureException {
@@ -119,13 +105,13 @@ public class SimpleSign {
     String requestToSign;
     try {
       requestToSign =
-          queryParams + "&" + SSOConstants.SIG_ALG + "=" + URLEncoder.encode(sigAlgo, "UTF-8");
+          queryParams + "&" + SSOConstants.SIG_ALG + "=" + URLEncoder.encode(sigAlgo, UTF_8);
     } catch (UnsupportedEncodingException e) {
       throw new SignatureException(e);
     }
 
     try {
-      signature.update(requestToSign.getBytes("UTF-8"));
+      signature.update(requestToSign.getBytes(UTF_8));
     } catch (java.security.SignatureException | UnsupportedEncodingException e) {
       throw new SignatureException(e);
     }
@@ -138,10 +124,10 @@ public class SimpleSign {
     }
 
     try {
-      uriBuilder.queryParam(SSOConstants.SIG_ALG, URLEncoder.encode(sigAlgo, "UTF-8"));
+      uriBuilder.queryParam(SSOConstants.SIG_ALG, URLEncoder.encode(sigAlgo, UTF_8));
       uriBuilder.queryParam(
           SSOConstants.SIGNATURE,
-          URLEncoder.encode(Base64.getEncoder().encodeToString(signatureBytes), "UTF-8"));
+          URLEncoder.encode(Base64.getEncoder().encodeToString(signatureBytes), UTF_8));
     } catch (UnsupportedEncodingException e) {
       throw new SignatureException(e);
     }
@@ -235,7 +221,7 @@ public class SimpleSign {
 
       java.security.Signature sig = java.security.Signature.getInstance(jceSigAlgo);
       sig.initVerify(certificate.getPublicKey());
-      sig.update(queryParamsToValidate.getBytes("UTF-8"));
+      sig.update(queryParamsToValidate.getBytes(UTF_8));
       return sig.verify(Base64.getMimeDecoder().decode(encodedSignature));
     } catch (NoSuchAlgorithmException
         | InvalidKeyException
@@ -315,6 +301,53 @@ public class SimpleSign {
         Thread.currentThread().setContextClassLoader(threadLoader);
       }
     }
+  }
+
+  private void signSamlObject(
+      SignableSAMLObject samlObject, String sigAlgo, String canonAlgo, String digestAlgo)
+      throws SignatureException {
+    X509Certificate[] certificates = getSignatureCertificates();
+    PrivateKey privateKey = getSignaturePrivateKey();
+
+    // Create the signature
+    Signature signature = OpenSAMLUtil.buildSignature();
+    if (signature == null) {
+      throw new SignatureException("Unable to build signature.");
+    }
+
+    signature.setCanonicalizationAlgorithm(canonAlgo);
+    signature.setSignatureAlgorithm(sigAlgo);
+
+    BasicX509Credential signingCredential = new BasicX509Credential(certificates[0]);
+    signingCredential.setPrivateKey(privateKey);
+
+    signature.setSigningCredential(signingCredential);
+
+    X509KeyInfoGeneratorFactory x509KeyInfoGeneratorFactory = new X509KeyInfoGeneratorFactory();
+    x509KeyInfoGeneratorFactory.setEmitEntityCertificate(true);
+
+    try {
+      KeyInfo keyInfo = x509KeyInfoGeneratorFactory.newInstance().generate(signingCredential);
+      signature.setKeyInfo(keyInfo);
+    } catch (org.opensaml.security.SecurityException e) {
+      throw new SignatureException("Error generating KeyInfo from signing credential", e);
+    }
+
+    if (samlObject instanceof Response) {
+      List<Assertion> assertions = ((Response) samlObject).getAssertions();
+      for (Assertion assertion : assertions) {
+        assertion.getSignature().setSigningCredential(signingCredential);
+      }
+    }
+
+    samlObject.setSignature(signature);
+
+    SAMLObjectContentReference contentRef =
+        (SAMLObjectContentReference) signature.getContentReferences().get(0);
+    contentRef.setDigestAlgorithm(digestAlgo);
+
+    samlObject.releaseDOM();
+    samlObject.releaseChildrenDOM(true);
   }
 
   public static class SignatureException extends Exception {
