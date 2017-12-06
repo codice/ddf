@@ -40,8 +40,9 @@
 
     <feature name="catalog-core" install="manual" version="${project.version}"
              description="Catalog Core feature containing the API, third party bundles necessary to run ddf-core.">
-        <feature>catalog-core-api</feature>
+        <feature prerequisite="true">catalog-core-api</feature>
         <feature prerequisite="true" version="${cxf.version}">cxf-jaxrs</feature>
+
         <bundle>mvn:ddf.catalog.core/catalog-core-commons/${project.version}</bundle>
         <bundle>mvn:ddf.measure/measure-api/${project.version}</bundle>
         <bundle>mvn:org.codice.thirdparty/picocontainer/1.2_1</bundle>
@@ -62,13 +63,14 @@
         <bundle>mvn:ddf.catalog.core/catalog-core-attributeregistry/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-injectattribute/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-localstorageprovider/${project.version}</bundle>
+        <bundle dependency="true">mvn:ddf.catalog.core/versioning-api/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-standardframework/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.security/catalog-security-logging/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-attribute/${project.version}
         </bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-defaultvalues/${project.version}</bundle>
         <bundle>mvn:ddf.catalog.core/catalog-core-metacardtype/${project.version}</bundle>
-        <bundle>mvn:ddf.catalog.core/versioning-api/${project.version}</bundle>
+
         <bundle>mvn:ddf.catalog.opensearch/catalog-opensearch-api/${project.version}</bundle>
     </feature>
 
@@ -470,7 +472,7 @@
     <feature name="catalog-app" install="auto" version="${project.version}"
              description="The Catalog provides a framework for storing, searching, processing, and transforming information.\nClients typically perform query, create, read, update, and delete (QCRUD) operations against the Catalog.\nAt the core of the Catalog functionality is the Catalog Framework, which routes all requests and responses through the system, invoking additional processing per the system configuration.::Catalog">
         <feature prerequisite="true">admin-app</feature>
-        <feature>catalog-core-api</feature>
+        <feature prerequisite="true">catalog-core-api</feature>
         <feature>catalog-core</feature>
     </feature>
 

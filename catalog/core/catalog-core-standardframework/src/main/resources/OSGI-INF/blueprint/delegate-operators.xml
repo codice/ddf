@@ -28,6 +28,12 @@
         </property>
     </bean>
 
+    <service interface="ddf.catalog.configuration.HistorianConfiguration">
+        <bean class="ddf.catalog.history.HistorianConfigurationImpl">
+            <property name="historian" ref="historian"/>
+        </bean>
+    </service>
+
     <bean id="cfOpsSecurity" class="ddf.catalog.impl.operations.OperationsSecuritySupport"/>
 
     <bean id="cfMetafactory" class="ddf.catalog.impl.operations.MetacardFactory">

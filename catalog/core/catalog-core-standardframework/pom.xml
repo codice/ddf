@@ -43,6 +43,10 @@
             <artifactId>catalog-core-api-impl</artifactId>
         </dependency>
         <dependency>
+            <groupId>ddf.catalog.core</groupId>
+            <artifactId>catalog-core-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>ddf.platform</groupId>
             <artifactId>platform-configuration</artifactId>
         </dependency>
@@ -367,8 +371,8 @@
                             ddf.catalog.event.retrievestatus,
                             ddf.catalog.federation.base,
                             ddf.catalog.filter.impl,
-                            ddf.catalog.history,
                             ddf.catalog.impl,
+                            ddf.catalog.history,
                             ddf.catalog.impl.operations,
                             ddf.catalog.operation.impl,
                             ddf.catalog.resource.actions,
@@ -402,6 +406,7 @@
                             com.vividsolutions.jts.util,
                             ddf.action.impl,
                             ddf.action;version="1.0",
+                            ddf.catalog.configuration,
                             ddf.catalog.content.data;version="2.0",
                             ddf.catalog.content.operation;version="2.0",
                             ddf.catalog.content.plugin;version="2.0",

@@ -20,6 +20,7 @@ import static spark.Spark.get;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import ddf.catalog.configuration.HistorianConfiguration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -170,6 +171,16 @@ public class ConfigurationApplication implements SparkApplication {
   private Integer relevancePrecision = 5;
 
   private Boolean showLogo = false;
+
+  private boolean historicalSearchDisabled = false;
+
+  private boolean archiveSearchDisabled = false;
+
+  /** List of injected historian configurations. */
+  private List<HistorianConfiguration> historianConfigurations;
+
+  /** The current historian configuration. */
+  private HistorianConfiguration historianConfiguration;
 
   public ConfigurationApplication() {}
 
@@ -354,6 +365,11 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("showRelevanceScores", showRelevanceScores);
     config.put("relevancePrecision", relevancePrecision);
     config.put("showLogo", showLogo);
+    config.put("isHistoricalSearchDisabled", historicalSearchDisabled);
+    config.put("isArchiveSearchDisabled", archiveSearchDisabled);
+    config.put(
+        "isVersioningEnabled",
+        historianConfiguration != null && historianConfiguration.isHistoryEnabled());
 
     return config;
   }
@@ -859,5 +875,37 @@ public class ConfigurationApplication implements SparkApplication {
 
   public void setMapHome(String mapHome) {
     this.mapHome = mapHome;
+  }
+
+  public boolean isHistoricalSearchDisabled() {
+    return historicalSearchDisabled;
+  }
+
+  public void setHistoricalSearchDisabled(boolean historicalSearchDisabled) {
+    this.historicalSearchDisabled = historicalSearchDisabled;
+  }
+
+  public boolean isArchiveSearchDisabled() {
+    return archiveSearchDisabled;
+  }
+
+  public void setArchiveSearchDisabled(boolean archiveSearchDisabled) {
+    this.archiveSearchDisabled = archiveSearchDisabled;
+  }
+
+  public void setHistorianConfigurations(List<HistorianConfiguration> historians) {
+    this.historianConfigurations = historians;
+  }
+
+  public void bind(HistorianConfiguration historianConfiguration) {
+    this.historianConfiguration = historianConfigurations.get(0);
+  }
+
+  public void unbind(HistorianConfiguration historianConfiguration) {
+    if (!this.historianConfigurations.isEmpty()) {
+      this.historianConfiguration = historianConfigurations.get(0);
+    } else {
+      this.historianConfiguration = null;
+    }
   }
 }

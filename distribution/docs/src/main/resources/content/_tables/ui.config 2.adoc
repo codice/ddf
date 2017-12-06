@@ -207,6 +207,20 @@ TMS example (3d map support only): `[{"name": "Example TMS", "show": true, type"
 |25
 |true
 
+|Disable Historical Search
+|disableSearchHistorical
+|Boolean
+|Disable searching for historical metacards.
+|false
+|true
+
+|Disable Archive Search
+|disableSearchArchive
+|Boolean
+|Disable searching for archived metacards.
+|false
+|true
+
 |Enable Query Feedback
 |queryFeedbackEnabled
 |Boolean

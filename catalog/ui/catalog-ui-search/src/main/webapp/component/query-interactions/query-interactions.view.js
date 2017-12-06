@@ -27,10 +27,12 @@ define([
     'component/query-feedback/query-feedback.view',
     'component/confirmation/query/confirmation.query.view',
     'component/loading/loading.view',
-    'component/query-annotations/query-annotations.view'
+    'component/query-annotations/query-annotations.view',
+    'properties'
 ], function (wreqr, Marionette, _, $, template, CustomElements, 
     store, MenuNavigationDecorator, Decorators, lightboxInstance, 
-    QueryFeedbackView, QueryConfirmationView, LoadingView, QueryAnnotationsView) {
+    QueryFeedbackView, QueryConfirmationView, LoadingView, QueryAnnotationsView,
+    properties) {
 
     return Marionette.ItemView.extend(Decorators.decorate({
         template: template,
@@ -56,6 +58,9 @@ define([
             }
             this.handleResult();
             QueryConfirmationView = require('component/confirmation/query/confirmation.query.view');
+            this.$el.toggleClass('is-archive-searchable', !properties.isArchiveSearchEnabled());
+            this.$el.toggleClass('is-history-searchable', !properties.isHistoricalSearchEnabled());
+            this.$el.toggleClass('is-versioning-enabled', !properties.isVersioningEnabled);
         },
         onRender: function(){
             this.handleLocal();

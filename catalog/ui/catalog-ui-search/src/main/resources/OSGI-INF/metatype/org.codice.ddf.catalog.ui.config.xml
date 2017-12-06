@@ -232,6 +232,18 @@
             type="Boolean"
             default="false" />
 
+        <AD id="historicalSearchDisabled"
+            name="Disable Historical Search"
+            description="Disable searching for historical metacards."
+            type="Boolean"
+            default="false" />
+
+        <AD id="archiveSearchDisabled"
+            name="Disable Archive Search"
+            description="Disable searching for archived metacards."
+            type="Boolean"
+            default="false" />
+
         <AD id="queryFeedbackEnabled"
             name="Enable Query Feedback"
             description="Enable the query comments option."
