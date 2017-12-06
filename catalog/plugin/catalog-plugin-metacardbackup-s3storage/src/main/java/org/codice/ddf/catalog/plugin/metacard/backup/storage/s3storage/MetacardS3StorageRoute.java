@@ -16,6 +16,8 @@ package org.codice.ddf.catalog.plugin.metacard.backup.storage.s3storage;
 import static org.apache.camel.builder.PredicateBuilder.not;
 
 import com.amazonaws.services.s3.AmazonS3Client;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.apache.camel.CamelContext;
@@ -67,6 +69,8 @@ public class MetacardS3StorageRoute extends MetacardStorageRoute {
   protected String s3Endpoint;
 
   protected String s3CannedAclName;
+
+  private List<String> routeIds = new ArrayList<>();
 
   private final org.apache.camel.impl.SimpleRegistry registry;
 
@@ -131,6 +135,8 @@ public class MetacardS3StorageRoute extends MetacardStorageRoute {
 
   @Override
   public void configure() throws Exception {
+    routeIds.clear();
+
     StringBuilder options = new StringBuilder();
 
     if (StringUtils.isNotBlank(s3AccessKey)) {
@@ -157,11 +163,18 @@ public class MetacardS3StorageRoute extends MetacardStorageRoute {
     LOGGER.trace("S3 storage URI: {}", s3Uri);
 
     String metacardRouteId = "metacard-" + UUID.randomUUID().toString();
+    String route1Id = metacardRouteId + "1";
+
     from("catalog:postingest")
+        .routeId(route1Id)
         .autoStartup(true)
         .split(method(ResponseMetacardActionSplitter.class, "split(${body})"))
         .to("direct:" + metacardRouteId);
+    routeIds.add(route1Id);
+
+    String route2Id = metacardRouteId + "2";
     from("direct:" + metacardRouteId + "?block=true")
+        .routeId(route2Id)
         .setHeader(METACARD_TRANSFORMER_ID_RTE_PROP, simple(metacardTransformerId, String.class))
         .setHeader(
             METACARD_BACKUP_INVALID_RTE_PROP,
@@ -183,6 +196,7 @@ public class MetacardS3StorageRoute extends MetacardStorageRoute {
         .setHeader(S3Constants.CANNED_ACL, simple(s3CannedAclName))
         .setHeader(S3Constants.CONTENT_LENGTH, simple("${body.length}"))
         .to(s3Uri);
+    routeIds.add(route2Id);
 
     LOGGER.trace("Starting metacard S3 storage route: {}", this);
   }
@@ -230,6 +244,11 @@ public class MetacardS3StorageRoute extends MetacardStorageRoute {
     }
 
     super.refresh(properties);
+  }
+
+  @Override
+  public List<String> getRouteIds() {
+    return routeIds;
   }
 
   private void addQuotedOption(StringBuilder options, String key, String value) {

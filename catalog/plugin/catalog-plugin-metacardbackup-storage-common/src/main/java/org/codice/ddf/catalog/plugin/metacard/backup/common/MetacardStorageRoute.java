@@ -78,9 +78,11 @@ public abstract class MetacardStorageRoute extends RouteBuilder {
       List<RouteDefinition> routesToRemove = new ArrayList<>();
       CamelContext context = getContext();
       for (RouteDefinition routeDefinition : context.getRouteDefinitions()) {
-        context.stopRoute(routeDefinition.getId());
-        routesToRemove.add(routeDefinition);
-        setRouteCollection(new RoutesDefinition());
+        if (getRouteIds().contains(routeDefinition.getId())) {
+          context.stopRoute(routeDefinition.getId());
+          routesToRemove.add(routeDefinition);
+          setRouteCollection(new RoutesDefinition());
+        }
       }
 
       for (RouteDefinition routeDefinition : routesToRemove) {
@@ -90,6 +92,8 @@ public abstract class MetacardStorageRoute extends RouteBuilder {
       LOGGER.error("Could not stop route: {}", toString(), e);
     }
   }
+
+  public abstract List<String> getRouteIds();
 
   public String getMetacardTransformerId() {
     return metacardTransformerId;

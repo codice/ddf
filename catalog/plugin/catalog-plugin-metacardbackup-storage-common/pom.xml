@@ -23,7 +23,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>catalog-plugin-metacardbackup-storage-common</artifactId>
+    <packaging>jar</packaging>
     <name>DDF :: Catalog :: Plugin :: Metacard Backup Storage :: Common</name>
+
     <dependencies>
         <dependency>
             <groupId>ddf.platform.api</groupId>
@@ -70,7 +72,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-    <packaging>jar</packaging>
 
     <build>
         <plugins>
@@ -92,12 +93,12 @@
                                         <limit>
                                             <counter>INSTRUCTION</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.87</minimum>
+                                            <minimum>0.85</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.84</minimum>
+                                            <minimum>0.78</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>

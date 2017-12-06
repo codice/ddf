@@ -22,7 +22,6 @@ import ddf.catalog.plugin.PluginExecutionException;
 import ddf.catalog.plugin.PostIngestPlugin;
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -54,8 +53,6 @@ public class PostIngestConsumer extends DefaultConsumer implements PostIngestPlu
 
   private ServiceRegistration registration;
 
-  private BlockingQueue<Runnable> blockingQueue;
-
   private ExecutorService threadExecutor;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PostIngestConsumer.class);
@@ -64,12 +61,16 @@ public class PostIngestConsumer extends DefaultConsumer implements PostIngestPlu
     super(endpoint, processor);
     this.endpoint = endpoint;
 
-    Integer threadPoolSize =
-        Integer.parseInt(
-            System.getProperty(
-                "org.codice.ddf.system.threadPoolSize", String.valueOf(THREAD_POOL_DEFAULT_SIZE)));
-
-    blockingQueue = new LinkedBlockingQueue<>();
+    Integer threadPoolSize;
+    try {
+      threadPoolSize =
+          Integer.parseInt(
+              System.getProperty(
+                  "org.codice.ddf.system.threadPoolSize",
+                  String.valueOf(THREAD_POOL_DEFAULT_SIZE)));
+    } catch (NumberFormatException nfe) {
+      threadPoolSize = THREAD_POOL_DEFAULT_SIZE;
+    }
 
     threadExecutor =
         new ThreadPoolExecutor(
@@ -77,7 +78,7 @@ public class PostIngestConsumer extends DefaultConsumer implements PostIngestPlu
             threadPoolSize,
             TimeUnit.MINUTES.toMillis(30),
             TimeUnit.MILLISECONDS,
-            blockingQueue,
+            new LinkedBlockingQueue<>(),
             StandardThreadFactoryBuilder.newThreadFactory("postIngestConsumerThread"));
   }
 
