@@ -12,7 +12,7 @@ If adding or removing items, be sure to add or subtract empty cells at the end o
 ////
 == {title}
 
-.[[supported_file_types]]Supported File Types
+.Supported File Types
 Using the various input transformers, ${branding} supports ingest of the following MIME types.
 
 .Application File Types
