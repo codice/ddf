@@ -15,9 +15,9 @@ package org.codice.ddf.ui.searchui.simple.properties;
 
 import java.io.IOException;
 import java.util.Dictionary;
-import java.util.Hashtable;
 import java.util.Optional;
 import org.codice.ddf.branding.BrandingRegistry;
+import org.codice.ddf.configuration.DictionaryMap;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
@@ -51,12 +51,12 @@ public class UiConfigurationPropertiesFactory {
           != null) {
         properties = configurationAdmin.getConfiguration(CONFIG_PID, null).getProperties();
       } else {
-        properties = new Hashtable<>();
+        properties = new DictionaryMap();
       }
     } catch (IOException | InvalidSyntaxException e) {
       LOGGER.error(
           "Failed to retrieve UI configuration for Simple Search, page may not load with the proper configuration.");
-      properties = new Hashtable<>();
+      properties = new DictionaryMap();
     }
     return new UiConfigurationProperties(properties, branding);
   }

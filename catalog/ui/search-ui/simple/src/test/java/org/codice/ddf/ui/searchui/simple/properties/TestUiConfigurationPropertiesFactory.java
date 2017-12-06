@@ -19,9 +19,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-import java.util.Hashtable;
 import java.util.Optional;
 import org.codice.ddf.branding.BrandingRegistry;
+import org.codice.ddf.configuration.DictionaryMap;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -59,8 +59,7 @@ public class TestUiConfigurationPropertiesFactory {
 
   @Test
   public void testPropsCreatedProperly() throws IOException, InvalidSyntaxException {
-    // TODO: Don't merge until DDF-3460 is in; refactor this to use DictionaryMap
-    Hashtable<String, Object> configProps = new Hashtable<>();
+    DictionaryMap<String, Object> configProps = new DictionaryMap<>();
     configProps.put("header", "Test Header");
     configProps.put("footer", "Test Footer");
     configProps.put("systemUsageEnabled", true);
