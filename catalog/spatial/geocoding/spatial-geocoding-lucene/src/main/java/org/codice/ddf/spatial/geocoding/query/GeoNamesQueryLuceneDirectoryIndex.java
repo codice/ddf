@@ -122,10 +122,16 @@ public class GeoNamesQueryLuceneDirectoryIndex extends GeoNamesQueryLuceneIndex 
   @Override
   public Optional<String> getCountryCode(String wktLocation, int radius)
       throws GeoEntryQueryException, ParseException {
-    final Directory directory = openDirectoryAndCheckForIndex();
+    String countryCode = null;
 
-    Shape shape = getShape(wktLocation);
-    String countryCode = doGetCountryCode(shape, radius, directory);
+    try (final Directory directory = openDirectoryAndCheckForIndex()) {
+      Shape shape = getShape(wktLocation);
+      countryCode = doGetCountryCode(shape, radius, directory);
+    } catch (IOException e) {
+      LOGGER.warn("Could not get directory");
+    } catch (ParseException e) {
+      LOGGER.warn("Could not get shape from {}", wktLocation);
+    }
 
     return Optional.ofNullable(countryCode);
   }

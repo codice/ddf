@@ -69,18 +69,20 @@ public class AuthSSLX509TrustManager implements X509TrustManager {
   /** @see javax.net.ssl.X509TrustManager#checkClientTrusted(X509Certificate[], String authType) */
   public void checkClientTrusted(X509Certificate[] certificates, String authType)
       throws CertificateException {
-    if (LOG.isDebugEnabled() && certificates != null) {
-      for (int c = 0; c < certificates.length; c++) {
-        X509Certificate cert = certificates[c];
-        LOG.debug(" Client certificate " + (c + 1) + ":");
-        LOG.debug("  Subject DN: " + cert.getSubjectDN());
-        LOG.debug("  Signature Algorithm: " + cert.getSigAlgName());
-        LOG.debug("  Valid from: " + cert.getNotBefore());
-        LOG.debug("  Valid until: " + cert.getNotAfter());
-        LOG.debug("  Issuer: " + cert.getIssuerDN());
+    if (certificates != null) {
+      if (LOG.isDebugEnabled()) {
+        for (int c = 0; c < certificates.length; c++) {
+          X509Certificate cert = certificates[c];
+          LOG.debug(" Client certificate " + (c + 1) + ":");
+          LOG.debug("  Subject DN: " + cert.getSubjectDN());
+          LOG.debug("  Signature Algorithm: " + cert.getSigAlgName());
+          LOG.debug("  Valid from: " + cert.getNotBefore());
+          LOG.debug("  Valid until: " + cert.getNotAfter());
+          LOG.debug("  Issuer: " + cert.getIssuerDN());
+        }
       }
+      defaultTrustManager.checkClientTrusted(certificates, authType);
     }
-    defaultTrustManager.checkClientTrusted(certificates, authType);
   }
 
   /** @see javax.net.ssl.X509TrustManager#checkServerTrusted(X509Certificate[], String authType) */
