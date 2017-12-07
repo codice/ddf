@@ -18,9 +18,7 @@
                                http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
     <ext:property-placeholder/>
-
-    <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
-
+    
     <reference-list id="realmList" interface="org.apache.shiro.realm.Realm"
                     ext:proxy-method="greedy"/>
 
@@ -38,9 +36,7 @@
 
     <reference id="encryptionService" interface="ddf.security.encryption.EncryptionService"/>
 
-    <bean id="configSecurityLogger" class="ddf.security.config.impl.ConfigurationSecurityLogger">
-        <property name="configurationAdmin" ref="configurationAdmin"/>
-    </bean>
+    <bean id="configSecurityLogger" class="ddf.security.config.impl.ConfigurationSecurityLogger"/>
 
     <bean id="crypto" class="ddf.security.samlp.SystemCrypto">
         <argument value="${ddf.home}/etc/ws-security/server/encryption.properties"/>
