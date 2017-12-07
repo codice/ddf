@@ -12,9 +12,9 @@
  **/ -->
 
 <blueprint xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.2.0"
-           xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-           xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
+        xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.2.0"
+        xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+        xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
     <ext:property-placeholder>
         <ext:default-properties>
@@ -22,37 +22,46 @@
         </ext:default-properties>
     </ext:property-placeholder>
 
+    <bean id="strategiesBean" class="org.codice.ddf.platform.util.SortedServiceList"/>
+    <reference-list id="strategiesRefList"
+            interface="org.codice.ddf.platform.io.internal.PersistenceStrategy"
+            availability="optional">
+        <reference-listener ref="strategiesBean" bind-method="bindPlugin"
+                unbind-method="unbindPlugin"/>
+    </reference-list>
+
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
     <reference id="system" interface="org.apache.karaf.system.SystemService"/>
 
     <bean id="configurationAdminMigratable"
-          class="org.codice.ddf.configuration.admin.ConfigurationAdminMigratable">
+            class="org.codice.ddf.configuration.admin.ConfigurationAdminMigratable">
         <argument ref="configurationAdmin"/>
+        <argument ref="strategiesBean"/>
         <argument value="${configFileExtension}"/>
     </bean>
 
     <service id="configurationAdminMigratableService" ref="configurationAdminMigratable"
-             interface="org.codice.ddf.migration.Migratable"/>
+            interface="org.codice.ddf.migration.Migratable"/>
 
     <!-- Migratable service reference list -->
     <bean id="sortedMigratables"
-          class="org.codice.ddf.platform.util.SortedServiceList"/>
+            class="org.codice.ddf.platform.util.SortedServiceList"/>
 
     <reference-list id="migratables"
-                    interface="org.codice.ddf.migration.Migratable"
-                    availability="optional">
+            interface="org.codice.ddf.migration.Migratable"
+            availability="optional">
         <reference-listener bind-method="bindPlugin" unbind-method="unbindPlugin"
-                            ref="sortedMigratables"/>
+                ref="sortedMigratables"/>
     </reference-list>
 
     <!-- ConfigurationMigrationManager -->
     <bean id="configMigrationManager"
-          class="org.codice.ddf.configuration.migration.ConfigurationMigrationManager">
+            class="org.codice.ddf.configuration.migration.ConfigurationMigrationManager">
         <argument ref="sortedMigratables"/>
         <argument ref="system"/>
     </bean>
 
     <service id="configurationMigrationManager" ref="configMigrationManager"
-             auto-export="interfaces" ranking="-1000"/>
+            auto-export="interfaces" ranking="-1000"/>
 
 </blueprint>

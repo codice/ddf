@@ -14,15 +14,14 @@
 package org.codice.ddf.configuration.admin;
 
 import java.io.IOException;
+import java.util.List;
 import org.apache.commons.lang.Validate;
-import org.codice.ddf.configuration.persistence.PersistenceStrategy;
-import org.codice.ddf.configuration.persistence.felix.FelixCfgPersistenceStrategy;
-import org.codice.ddf.configuration.persistence.felix.FelixConfigPersistenceStrategy;
 import org.codice.ddf.migration.ExportMigrationContext;
 import org.codice.ddf.migration.ImportMigrationContext;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationContext;
 import org.codice.ddf.migration.MigrationException;
+import org.codice.ddf.platform.io.internal.PersistenceStrategy;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -46,13 +45,18 @@ public class ConfigurationAdminMigratable implements Migratable {
 
   private final ConfigurationAdmin configurationAdmin;
 
+  private final List<PersistenceStrategy> strategies;
+
   private final PersistenceStrategy defaultStrategy;
 
   public ConfigurationAdminMigratable(
-      ConfigurationAdmin configurationAdmin, String defaultFileExtension) {
+      ConfigurationAdmin configurationAdmin,
+      List<PersistenceStrategy> strategies,
+      String defaultFileExtension) {
     Validate.notNull(configurationAdmin, "invalid null config admin");
     Validate.notNull(defaultFileExtension, "invalid null default file extension");
     this.configurationAdmin = configurationAdmin;
+    this.strategies = strategies;
     this.defaultStrategy = getPersister(defaultFileExtension);
     Validate.notNull(
         defaultStrategy, "unknown persistence strategy extension: " + defaultFileExtension);
@@ -121,12 +125,13 @@ public class ConfigurationAdminMigratable implements Migratable {
   @SuppressWarnings(
       "PMD.DefaultPackage" /* designed to be called from ExportMigrationConfigurationAdminContext and ImportMigrationConfigurationAdminContext in this package */)
   PersistenceStrategy getPersister(String extension) {
-    if ("cfg".equals(extension)) {
-      return new FelixCfgPersistenceStrategy();
-    } else if ("config".equals(extension)) {
-      return new FelixConfigPersistenceStrategy();
-    }
-    return null;
+    // we do not anticipate many persistence strategies (< 5 and 2 at the moment) so a simple linear
+    // search should suffice
+    return strategies
+        .stream()
+        .filter(s -> s.getExtension().equals(extension))
+        .findFirst()
+        .orElse(null);
   }
 
   private Configuration[] getConfigurations(MigrationContext context) {
