@@ -46,10 +46,10 @@ public class CertificateCommand {
    *
    * @param args arguments to the certificate program (see above for description)
    */
-  public static void main(String args[]) {
-    // try to extract -san if provided
-    int expected = 2;
+  public static void main(String[] args) {
+    // Try to extract -san if provided, result will be array of strings of the form tag:value
     String[] sans = null;
+    int expected = 2;
     int cnDnPosition = 0;
 
     if (args.length == 4) {
@@ -62,6 +62,7 @@ public class CertificateCommand {
         expected = 4;
       }
     }
+
     if (args.length != expected) {
       throw new IllegalArgumentException(
           String.format(
@@ -80,6 +81,7 @@ public class CertificateCommand {
                   + "       dirName - directory name%n",
               CertificateCommand.class.getCanonicalName()));
     }
+
     if (args[cnDnPosition].trim().equalsIgnoreCase("-cn")) {
       configureDemoCert(args[cnDnPosition + 1].trim(), sans);
     } else {
@@ -121,6 +123,10 @@ public class CertificateCommand {
   public static String configureDemoCert(String commonName, @Nullable String[] subjectAltNames) {
     CertificateSigningRequest csr = new CertificateSigningRequest();
     csr.setCommonName(commonName);
+
+    // Required for Chrome support (DDF-3104)
+    csr.addSubjectAlternativeNames(String.format("DNS:%s", commonName));
+
     if (subjectAltNames != null) {
       csr.addSubjectAlternativeNames(subjectAltNames);
     }
@@ -160,14 +166,18 @@ public class CertificateCommand {
   public static String configureDemoCertWithDN(String[] dn, @Nullable String[] subjectAltNames) {
     CertificateSigningRequest csr = new CertificateSigningRequest();
     csr.setDistinguishedName(dn);
+
+    String commonName =
+        csr.getSubjectName().getRDNs(BCStyle.CN)[0].getFirst().getValue().toString();
+    csr.addSubjectAlternativeNames(String.format("DNS:%s", commonName));
+
     if (subjectAltNames != null) {
       csr.addSubjectAlternativeNames(subjectAltNames);
     }
-    RDN[] rdns = csr.getSubjectName().getRDNs(BCStyle.CN);
 
-    Validate.isTrue(
-        rdns != null && rdns.length == 1, "CN attribute must be included in distinguished name");
-    assert rdns != null && rdns.length == 1;
+    RDN[] rdns = csr.getSubjectName().getRDNs(BCStyle.CN);
+    Validate.notNull(rdns, "RDN Array cannot be null");
+    Validate.isTrue(rdns.length == 1, "CN attribute must be included in distinguished name");
 
     return configureCert(rdns[0].getFirst().getValue().toString(), csr);
   }

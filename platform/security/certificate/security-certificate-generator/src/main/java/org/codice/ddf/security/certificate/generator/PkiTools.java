@@ -52,6 +52,11 @@ public abstract class PkiTools {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PkiTools.class);
 
+  private static final Pattern TUPLE_PATTERN = Pattern.compile(".*[=].*");
+
+  // squid:S1118 - utility classes used statically should not be instantiable
+  private PkiTools() {}
+
   /**
    * Convert a byte array to a Java String.
    *
@@ -221,7 +226,6 @@ public abstract class PkiTools {
   public static X500Name makeDistinguishedName(String commonName) {
     Validate.isTrue(commonName != null, "Certificate common name cannot be null");
 
-    assert commonName != null;
     if (commonName.isEmpty()) {
       LOGGER.warn(
           "Setting certificate common name to empty string. This could result in an unusable TLS certificate.");
@@ -239,11 +243,9 @@ public abstract class PkiTools {
     Validate.isTrue(
         tuples != null && tuples.length > 0,
         "Distinguished name must consist of at least one component");
-    assert tuples != null && tuples.length > 0;
 
-    Pattern tuplePattern = Pattern.compile(".*[=].*");
     Validate.isTrue(
-        Arrays.stream(tuples).allMatch(t -> tuplePattern.matcher(t).matches()),
+        Arrays.stream(tuples).allMatch(t -> TUPLE_PATTERN.matcher(t).matches()),
         "Distinguished name components must be in the format symbol=value");
 
     AttributeNameChecker style = new AttributeNameChecker();
@@ -339,8 +341,6 @@ public abstract class PkiTools {
    */
   public static byte[] pemToDer(String string) {
     Validate.isTrue(string != null, "PEM string cannot be null");
-    assert string != null;
-
     return Base64.getDecoder().decode(string);
   }
 
@@ -360,7 +360,7 @@ public abstract class PkiTools {
     }
   }
 
-  static KeyFactory getRsaKeyFactory() throws GeneralSecurityException {
+  private static KeyFactory getRsaKeyFactory() throws GeneralSecurityException {
     return KeyFactory.getInstance(ALGORITHM, BouncyCastleProvider.PROVIDER_NAME);
   }
 

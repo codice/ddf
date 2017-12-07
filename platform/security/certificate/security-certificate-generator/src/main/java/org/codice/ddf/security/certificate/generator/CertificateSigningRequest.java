@@ -30,8 +30,6 @@ import org.bouncycastle.cert.CertIOException;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Model of a X509 certificate signing request. These values must be set:
@@ -59,8 +57,6 @@ import org.slf4j.LoggerFactory;
 public class CertificateSigningRequest {
 
   public static final int VALID_YEARS = 100;
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(CertificateSigningRequest.class);
 
   static {
     Security.addProvider(new BouncyCastleProvider());
@@ -99,7 +95,7 @@ public class CertificateSigningRequest {
    * @param name subject's common name attribute (
    */
   public void setCommonName(String name) {
-    Validate.notNull("Subject common name of certificate signing request cannot be null");
+    Validate.notNull(name, "Subject common name of certificate signing request cannot be null");
     subjectName = PkiTools.makeDistinguishedName(name);
   }
 
@@ -153,7 +149,7 @@ public class CertificateSigningRequest {
   }
 
   // Set reasonable defaults
-  void initialize() {
+  private void initialize() {
     setSerialNumber(System.currentTimeMillis());
     setNotBefore(DateTime.now().minusDays(1));
     setNotAfter(getNotBefore().plusYears(VALID_YEARS));
@@ -212,7 +208,8 @@ public class CertificateSigningRequest {
   }
 
   /**
-   * Adds subject alternative names.
+   * Adds subject alternative names. The operation is idempotent, so duplicate SANs will not appear
+   * on the CSR. Note however that the order that SANs get added do influence the final result.
    *
    * @param names a set of alternative names to add in a format similar to OpenSSL X509
    *     configuration
