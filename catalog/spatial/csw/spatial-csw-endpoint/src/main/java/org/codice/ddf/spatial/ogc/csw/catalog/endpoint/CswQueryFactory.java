@@ -33,7 +33,6 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,7 +73,7 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.NamespaceSupport;
 
-/** CswQueryFactory provides utility methods for creating a {@Link QueryRequest} */
+/** CswQueryFactory provides utility methods for creating a {@link QueryRequest} */
 public class CswQueryFactory {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CswQueryFactory.class);
@@ -167,8 +166,7 @@ public class CswQueryFactory {
 
     QueryRequest request = new QueryRequestImpl(query);
 
-    QName namespace = QName.valueOf(typeName);
-    return transformQuery(request, Collections.singletonList(namespace));
+    return transformQuery(request, typeName);
   }
 
   private Filter buildFilter(QueryConstraintType constraint) throws CswException {
@@ -388,6 +386,15 @@ public class CswQueryFactory {
     return (Filter) parseJaxB(filterElement);
   }
 
+  private QueryRequest transformQuery(QueryRequest request, String typeName) {
+    QueryRequest result =
+        queryFilterTransformerProvider
+            .getTransformer(typeName)
+            .map(it -> it.transform(request, null))
+            .orElse(request);
+    return normalizeSort(result);
+  }
+
   private QueryRequest transformQuery(QueryRequest request, List<QName> typeNames) {
     QueryRequest result = request;
     for (QName typeName : typeNames) {
@@ -398,7 +405,6 @@ public class CswQueryFactory {
               .map(it -> it.transform(temp, null))
               .orElse(result);
     }
-
     return normalizeSort(result);
   }
 

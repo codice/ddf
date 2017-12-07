@@ -60,7 +60,7 @@ public class ValidatorTest {
 
     QueryFilterTransformerProvider transformerProvider = mock(QueryFilterTransformerProvider.class);
     QueryFilterTransformer transformer = mock(QueryFilterTransformer.class);
-    when(transformerProvider.getTransformer(any())).thenReturn(Optional.empty());
+    when(transformerProvider.getTransformer(any(QName.class))).thenReturn(Optional.empty());
     when(transformerProvider.getTransformer(qname[0])).thenReturn(Optional.of(transformer));
     validator.setQueryFilterTransformerProvider(transformerProvider);
   }
