@@ -288,7 +288,7 @@ public class DelegateServletFilter implements Filter {
                 ? ""
                 : securityFilterServiceReference.getProperty(key).toString();
 
-        final String HTTP_WHITEBOARD_SERVLET_INIT_PARAM_PREFIX = "servlet.init.";
+        final String HTTP_WHITEBOARD_SERVLET_INIT_PARAM_PREFIX = "servlet\\.init\\.";
         if (key.startsWith(initPrefixProp)) {
           initParameters.put(key.replaceFirst(initPrefixProp, ""), value);
         } else if (key.startsWith(HTTP_WHITEBOARD_SERVLET_INIT_PARAM_PREFIX)) {
