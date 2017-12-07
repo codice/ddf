@@ -13,10 +13,9 @@
  */
 package org.codice.ddf.security.filter.websso;
 
+import com.google.common.annotations.VisibleForTesting;
 import javax.ws.rs.core.Response.Status;
 import org.ops4j.pax.web.service.WebContainer;
-
-import com.google.common.annotations.VisibleForTesting;
 
 public class ErrorPage {
 

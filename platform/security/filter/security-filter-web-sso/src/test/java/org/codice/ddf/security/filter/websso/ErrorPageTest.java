@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.security.filter.websso;
 
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -22,14 +23,15 @@ import org.ops4j.pax.web.service.WebContainer;
 
 public class ErrorPageTest {
 
-    @Test
-    public void testRegisterErrorCodes() {
-        WebContainer webContainer = mock(WebContainer.class);
+  @Test
+  public void testRegisterErrorCodes() {
+    WebContainer webContainer = mock(WebContainer.class);
 
-        ErrorPage errorPage = new ErrorPage(webContainer);
+    ErrorPage errorPage = new ErrorPage(webContainer);
 
-        errorPage.registerErrorCodes();
+    errorPage.registerErrorCodes();
 
-        verify(webContainer, times(ErrorPage.errorCodes.length));
-    }
+    verify(webContainer, times(ErrorPage.errorCodes.length))
+        .registerErrorPage(anyObject(), anyObject(), anyObject());
+  }
 }
