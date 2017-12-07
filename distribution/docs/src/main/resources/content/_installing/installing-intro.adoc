@@ -1,7 +1,10 @@
-:title: Installing Intro
+:title: Installing
 :type: installingIntro
 :status: published
 :summary: Introduction to installation instructions.
+:order: 01
+
+== {title}
 
 Set up a complete, secure instance of ${branding}.
 For simplified steps used for a testing, development, or demonstration installation, see the <<_quick_start_tutorial,${branding} Quick Start>>.
