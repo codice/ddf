@@ -52,6 +52,12 @@
             <artifactId>pax-web-api</artifactId>
             <version>${pax.web.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.dto</artifactId>
+            <version>1.0.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
