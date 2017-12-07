@@ -175,7 +175,8 @@ public class UpdateOperations {
     streamUpdateRequest = applyAttributeOverrides(streamUpdateRequest, metacardMap);
 
     try {
-      if (!contentItems.isEmpty()) {
+      if (!contentItems.isEmpty()
+          && !streamUpdateRequest.containsPropertyName(Constants.STORE_REFERENCE_KEY)) {
         updateStorageRequest =
             new UpdateStorageRequestImpl(
                 contentItems, streamUpdateRequest.getId(), streamUpdateRequest.getProperties());
