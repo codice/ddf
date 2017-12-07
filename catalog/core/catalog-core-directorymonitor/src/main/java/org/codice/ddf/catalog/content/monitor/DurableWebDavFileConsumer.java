@@ -110,7 +110,11 @@ public class DurableWebDavFileConsumer extends AbstractDurableFileConsumer {
 
     @Override
     public void onFileCreate(DavEntry entry) {
-      processExchange(getExchange(entry, StandardWatchEventKinds.ENTRY_CREATE));
+      Exchange exchange = getExchange(entry, StandardWatchEventKinds.ENTRY_CREATE);
+
+      if (exchange != null) {
+        processExchange(exchange);
+      }
     }
 
     @Override
@@ -120,7 +124,11 @@ public class DurableWebDavFileConsumer extends AbstractDurableFileConsumer {
 
     @Override
     public void onFileChange(DavEntry entry) {
-      processExchange(getExchange(entry, StandardWatchEventKinds.ENTRY_MODIFY));
+      Exchange exchange = getExchange(entry, StandardWatchEventKinds.ENTRY_MODIFY);
+
+      if (exchange != null) {
+        processExchange(exchange);
+      }
     }
 
     @Override

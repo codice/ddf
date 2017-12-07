@@ -18,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.stream.Stream;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.karaf.bundle.core.BundleService;
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.FeaturesService;
@@ -60,9 +61,7 @@ public class ProfileListCommand extends AbstractProfileCommand {
       files
           .filter(Files::isRegularFile)
           .filter(file -> file.toAbsolutePath().toString().endsWith(PROFILE_EXTENSION))
-          .forEach(
-              profile ->
-                  console.println(profile.toFile().getName().replaceAll(PROFILE_EXTENSION, "")));
+          .forEach(profile -> console.println(FilenameUtils.removeExtension(profile.toString())));
     } catch (IOException e) {
       printError("Error occurred when locating profiles");
       LOGGER.error("An error occured when locating profiles", e);

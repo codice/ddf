@@ -183,7 +183,9 @@ public class PersistentStoreImpl implements PersistentStore {
         Collection<String> fieldNames = doc.getFieldNames();
         for (String name : fieldNames) {
           LOGGER.debug("field name = {} has value = {}", name, doc.getFieldValue(name));
-          if (name.endsWith(PersistentItem.TEXT_SUFFIX) && doc.getFieldValues(name).size() > 1) {
+          if (name.endsWith(PersistentItem.TEXT_SUFFIX)
+              && doc.getFieldValues(name) != null
+              && doc.getFieldValues(name).size() > 1) {
             result.addProperty(
                 name,
                 doc.getFieldValues(name)
