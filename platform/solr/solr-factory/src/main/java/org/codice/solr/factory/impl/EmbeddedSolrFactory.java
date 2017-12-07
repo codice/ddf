@@ -139,6 +139,10 @@ public class EmbeddedSolrFactory implements SolrClientFactory {
     File solrConfigFile = getConfigFile(solrConfigFileName, configProxy, coreName);
     File solrSchemaFile = getConfigFile(schemaFileName, configProxy, coreName);
 
+    if (solrConfigFile == null) {
+      throw new IllegalArgumentException("Unable to find Solr config file");
+    }
+
     if (solrSchemaFile == null) {
       solrSchemaFile = getConfigFile("managed-schema", configProxy, coreName);
       if (solrSchemaFile == null) {

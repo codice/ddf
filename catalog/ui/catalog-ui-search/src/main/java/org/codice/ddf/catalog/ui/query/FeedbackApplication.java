@@ -81,6 +81,8 @@ public class FeedbackApplication implements SparkApplication {
             String emailBody = getEmailBody(feedback);
             if (emailBody != null) {
               emailBody = emailBody.replaceAll("\\\\n", "\n");
+            } else {
+              emailBody = "";
             }
 
             Session emailSession = smtpClient.createSession();
