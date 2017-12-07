@@ -14,6 +14,7 @@
 package org.codice.ddf.security.filter.websso;
 
 import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -32,6 +33,6 @@ public class ErrorPageTest {
     errorPage.registerErrorCodes();
 
     verify(webContainer, times(ErrorPage.errorCodes.length))
-        .registerErrorPage(anyObject(), anyObject(), anyObject());
+        .registerErrorPage(anyString(), anyString(), anyObject());
   }
 }
