@@ -78,9 +78,7 @@ public class CertificateGenerator implements CertificateGeneratorMBean {
       } catch (Exception e) {
         // objectName is not always non-null because new ObjectName(...) can throw an exception
         LOGGER.info(
-            "Could not register MBean [{}].",
-            objectName != null ? objectName.toString() : CertificateGenerator.class.getName(),
-            e);
+            "Could not register MBean [{}].", objectName.toString(), e);
       }
     }
   }
