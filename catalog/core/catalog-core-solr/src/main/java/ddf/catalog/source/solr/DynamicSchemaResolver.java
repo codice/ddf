@@ -219,8 +219,7 @@ public class DynamicSchemaResolver {
         for (Entry<String, ?> e : fields) {
           if (e != null) {
             fieldsCache.add(e.getKey());
-            if (e.getKey()
-                    .endsWith(SchemaFields.TEXT_SUFFIX)) {
+            if (e.getKey().endsWith(SchemaFields.TEXT_SUFFIX)) {
               anyTextFieldsCache.add(e.getKey());
             }
           }

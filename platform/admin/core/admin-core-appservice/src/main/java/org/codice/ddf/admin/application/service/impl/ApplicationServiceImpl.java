@@ -110,7 +110,7 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
     }
 
     ServiceReference<FeaturesService> featuresServiceRef =
-            context.getServiceReference(FeaturesService.class);
+        context.getServiceReference(FeaturesService.class);
     this.featuresService = context.getService(featuresServiceRef);
     try {
       // If the service is not available at this time, it means this is the first
@@ -543,7 +543,8 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
     for (Feature curFeature : features) {
       for (BundleInfo curBundleInfo : curFeature.getBundles()) {
         BundleContext context = getContext();
-        Bundle curBundle = (context != null) ? context.getBundle(curBundleInfo.getLocation()) : null;
+        Bundle curBundle =
+            (context != null) ? context.getBundle(curBundleInfo.getLocation()) : null;
 
         if (curBundle != null
             && curBundle.adapt(BundleRevision.class).getTypes() != BundleRevision.TYPE_FRAGMENT) {
