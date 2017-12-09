@@ -39,6 +39,15 @@ import org.opensaml.saml.saml2.core.impl.SubjectConfirmationDataBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Pre-sign plugin that ensures that "each bearer assertion MUST contain an
+ * &lt;AudienceRestriction&gt; including the service provider's unique identifier as an
+ * &lt;Audience&gt;" as per section 4.1.4.2 of the SAML Spec.
+ *
+ * @see <a
+ *     href="https://www.oasis-open.org/committees/download.php/56783/sstc-saml-profiles-errata-2.0-wd-07-diff.pdf">
+ *     Profiles for the OASIS Security Assertion Markup Language (SAML) V2.0 – Errata Composite</a>
+ */
 public class SubjectConfirmationPresignPlugin implements SamlPresignPlugin {
   private static final Logger LOGGER =
       LoggerFactory.getLogger(SubjectConfirmationPresignPlugin.class);
@@ -52,7 +61,7 @@ public class SubjectConfirmationPresignPlugin implements SamlPresignPlugin {
 
     String inResponseTo = response.getInResponseTo();
 
-    final DateTime notOnOrAfter = DateTime.now().plusMinutes(30);
+    DateTime notOnOrAfter = DateTime.now().plusMinutes(30);
 
     String acsUrl = getAssertionConsumerServiceURL(authnRequest, spMetadata, supportedBindings);
 
