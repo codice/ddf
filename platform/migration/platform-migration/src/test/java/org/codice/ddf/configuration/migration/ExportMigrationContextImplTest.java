@@ -27,6 +27,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipOutputStream;
+import javax.crypto.CipherOutputStream;
 import org.apache.commons.io.FilenameUtils;
 import org.codice.ddf.migration.ExportMigrationEntry;
 import org.codice.ddf.migration.MigrationException;
@@ -65,6 +66,8 @@ public class ExportMigrationContextImplTest extends AbstractMigrationSupport {
 
   private final ZipOutputStream zos = new ZipOutputStream(baos);
 
+  private CipherUtils mockCipherUtils;
+
   private ExportMigrationContextImpl context;
 
   @Before
@@ -73,7 +76,11 @@ public class ExportMigrationContextImplTest extends AbstractMigrationSupport {
 
     Mockito.when(ENTRY.getName()).thenReturn(MIGRATABLE_NAME);
 
-    this.context = new ExportMigrationContextImpl(report, migratable, zos);
+    mockCipherUtils = Mockito.mock(CipherUtils.class);
+    CipherOutputStream cos = Mockito.mock(CipherOutputStream.class);
+    Mockito.when(mockCipherUtils.getCipherOutputStream(Mockito.any(OutputStream.class)))
+        .thenReturn(cos);
+    this.context = new ExportMigrationContextImpl(report, migratable, zos, mockCipherUtils);
 
     System.setProperty(PROPERTY_NAME, MIGRATABLE_PROPERTY_PATHNAME);
   }
@@ -95,7 +102,7 @@ public class ExportMigrationContextImplTest extends AbstractMigrationSupport {
 
   @Test(expected = IllegalArgumentException.class)
   public void testConstructorWithNullReport() throws Exception {
-    new ExportMigrationContextImpl(null, migratable, zos);
+    new ExportMigrationContextImpl(null, migratable, zos, mockCipherUtils);
   }
 
   @Test
@@ -103,7 +110,7 @@ public class ExportMigrationContextImplTest extends AbstractMigrationSupport {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage(Matchers.containsString("null migratable"));
 
-    new ExportMigrationContextImpl(report, null, zos);
+    new ExportMigrationContextImpl(report, null, zos, mockCipherUtils);
   }
 
   @Test
@@ -111,7 +118,15 @@ public class ExportMigrationContextImplTest extends AbstractMigrationSupport {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage(Matchers.containsString("null zip output stream"));
 
-    new ExportMigrationContextImpl(report, migratable, null);
+    new ExportMigrationContextImpl(report, migratable, null, mockCipherUtils);
+  }
+
+  @Test
+  public void testConstructorWithNullCipherUtils() throws Exception {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage(Matchers.containsString("null cipher utils"));
+
+    new ExportMigrationContextImpl(report, migratable, zos, null);
   }
 
   @Test
@@ -631,7 +646,7 @@ public class ExportMigrationContextImplTest extends AbstractMigrationSupport {
 
     zos.close();
 
-    final Map<String, ZipEntry> zentries = AbstractMigrationSupport.getEntriesFrom(baos);
+    final Map<String, MigrationZipEntry> zentries = AbstractMigrationSupport.getEntriesFrom(baos);
 
     Assert.assertThat(zentries.keySet(), Matchers.contains(MIGRATABLE_ID + '/' + MIGRATABLE_NAME));
   }
@@ -640,7 +655,7 @@ public class ExportMigrationContextImplTest extends AbstractMigrationSupport {
   public void testCloseWithNoEntries() throws Exception {
     zos.close();
 
-    final Map<String, ZipEntry> zentries = AbstractMigrationSupport.getEntriesFrom(baos);
+    final Map<String, MigrationZipEntry> zentries = AbstractMigrationSupport.getEntriesFrom(baos);
 
     Assert.assertThat(zentries, Matchers.aMapWithSize(0));
   }
@@ -670,7 +685,7 @@ public class ExportMigrationContextImplTest extends AbstractMigrationSupport {
     final OutputStream out = context.getOutputStreamFor(ENTRY);
 
     zos.close();
-    final Map<String, ZipEntry> zentries = AbstractMigrationSupport.getEntriesFrom(baos);
+    final Map<String, MigrationZipEntry> zentries = AbstractMigrationSupport.getEntriesFrom(baos);
 
     Assert.assertThat(out, Matchers.notNullValue());
     Assert.assertThat(zentries.keySet(), Matchers.contains(MIGRATABLE_ID + '/' + MIGRATABLE_NAME));
@@ -687,7 +702,7 @@ public class ExportMigrationContextImplTest extends AbstractMigrationSupport {
     final OutputStream out2 = context.getOutputStreamFor(entry2);
 
     zos.close();
-    final Map<String, ZipEntry> zentries = AbstractMigrationSupport.getEntriesFrom(baos);
+    final Map<String, MigrationZipEntry> zentries = AbstractMigrationSupport.getEntriesFrom(baos);
 
     Assert.assertThat(out, Matchers.notNullValue());
     Assert.assertThat(out2, Matchers.notNullValue());
@@ -710,7 +725,7 @@ public class ExportMigrationContextImplTest extends AbstractMigrationSupport {
 
     out.close();
     zos.close();
-    final Map<String, ZipEntry> zentries = AbstractMigrationSupport.getEntriesFrom(baos);
+    final Map<String, MigrationZipEntry> zentries = AbstractMigrationSupport.getEntriesFrom(baos);
 
     Assert.assertThat(zentries.keySet(), Matchers.contains(MIGRATABLE_ID + '/' + MIGRATABLE_NAME));
   }
@@ -722,21 +737,9 @@ public class ExportMigrationContextImplTest extends AbstractMigrationSupport {
     out.close();
     out.close();
     zos.close();
-    final Map<String, ZipEntry> zentries = AbstractMigrationSupport.getEntriesFrom(baos);
+    final Map<String, MigrationZipEntry> zentries = AbstractMigrationSupport.getEntriesFrom(baos);
 
     Assert.assertThat(zentries.keySet(), Matchers.contains(MIGRATABLE_ID + '/' + MIGRATABLE_NAME));
-  }
-
-  @Test
-  public void testGetOutputStreamForWhenIOErrorsOccursFromReturnedStream() throws Exception {
-    thrown.expect(ExportIOException.class);
-    thrown.expectCause(Matchers.instanceOf(IOException.class));
-    thrown.expectCause(Matchers.not(Matchers.instanceOf(ExportIOException.class)));
-
-    final OutputStream out = context.getOutputStreamFor(ENTRY);
-
-    out.close();
-    out.write(1);
   }
 
   @Test

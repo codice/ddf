@@ -75,6 +75,25 @@ public final class Messages {
   public static final String IMPORT_MISMATCH_DDF_HOME_ERROR =
       "Import error: mismatched ddf.home [%s]; expecting local system to be installed under [%s].";
 
+  public static final String IMPORT_ZIP_CHECKSUM_INVALID =
+      "Import error: incorrect checksum for export file [%s].";
+
+  public static final String IMPORT_KEY_OPEN_ERROR = "Import error: failed to open key file [%s].";
+
+  public static final String IMPORT_KEY_DECODE_ERROR =
+      "Import error: could not decode key file [%s].";
+
+  public static final String IMPORT_KEY_INVALID_ERROR =
+      "Import error: invalid key file used for import [%s].";
+
+  public static final String EXPORT_KEY_INVALID_ERROR = "Export error: invalid key used for export";
+
+  public static final String EXPORT_KEY_IO_ERROR =
+      "Export error: failed to write decryption key file [%s].";
+
+  public static final String IMPORT_ENTRY_READ_ERROR =
+      "Import error: unable to read entry from zip";
+
   public static final String EXPORT_METADATA_CREATE_ERROR =
       "Export error: failed to create metadata; %s.";
 
