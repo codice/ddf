@@ -99,7 +99,7 @@ public class GeoNamesQueryLuceneDirectoryIndex extends GeoNamesQueryLuceneIndex 
     try (final Directory directory = openDirectoryAndCheckForIndex()) {
       return doQuery(queryString, maxResults, directory);
     } catch (IOException e) {
-      LOGGER.warn("Error querying from directory", e);
+      LOGGER.debug("Error querying from directory", e);
     }
 
     return Collections.emptyList();
@@ -127,7 +127,7 @@ public class GeoNamesQueryLuceneDirectoryIndex extends GeoNamesQueryLuceneIndex 
 
   @Override
   public Optional<String> getCountryCode(String wktLocation, int radius)
-      throws GeoEntryQueryException, ParseException {
+      throws GeoEntryQueryException {
     String countryCode = null;
 
     try (final Directory directory = openDirectoryAndCheckForIndex()) {

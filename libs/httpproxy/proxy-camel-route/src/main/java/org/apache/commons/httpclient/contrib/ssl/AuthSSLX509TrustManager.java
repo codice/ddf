@@ -38,6 +38,7 @@ package org.apache.commons.httpclient.contrib.ssl;
 
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import javax.annotation.Nullable;
 import javax.net.ssl.X509TrustManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -67,6 +68,7 @@ public class AuthSSLX509TrustManager implements X509TrustManager {
   }
 
   /** @see javax.net.ssl.X509TrustManager#checkClientTrusted(X509Certificate[], String authType) */
+  @Nullable
   public void checkClientTrusted(X509Certificate[] certificates, String authType)
       throws CertificateException {
     if (certificates != null) {

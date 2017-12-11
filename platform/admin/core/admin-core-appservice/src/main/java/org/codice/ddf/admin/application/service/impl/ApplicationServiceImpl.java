@@ -104,10 +104,6 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
     ignoredApplicationNames = new HashSet<>();
 
     BundleContext context = getContext();
-    if (context == null) {
-      LOGGER.warn("There is no context for this service");
-      return;
-    }
 
     ServiceReference<FeaturesService> featuresServiceRef =
         context.getServiceReference(FeaturesService.class);
@@ -271,7 +267,7 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
     if (cxfBundle != null) {
       return cxfBundle.getBundleContext();
     }
-    return null;
+    throw new IllegalStateException("Could not get context; cxfBundle is null");
   }
 
   @Override
@@ -539,15 +535,13 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
    */
   private final BundleStateSet getCurrentBundleStates(Set<Feature> features) {
     BundleStateSet bundleStateSet = new BundleStateSet();
+    BundleContext context = getContext();
 
     for (Feature curFeature : features) {
       for (BundleInfo curBundleInfo : curFeature.getBundles()) {
-        BundleContext context = getContext();
-        Bundle curBundle =
-            (context != null) ? context.getBundle(curBundleInfo.getLocation()) : null;
+        Bundle curBundle = context.getBundle(curBundleInfo.getLocation());
 
-        if (curBundle != null
-            && curBundle.adapt(BundleRevision.class).getTypes() != BundleRevision.TYPE_FRAGMENT) {
+        if (curBundle.adapt(BundleRevision.class).getTypes() != BundleRevision.TYPE_FRAGMENT) {
 
           // check if bundle is inactive
           int bundleState = curBundle.getState();
@@ -946,9 +940,6 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
   public void serviceChanged(ServiceEvent serviceEvent) {
     if (serviceEvent.getType() == ServiceEvent.REGISTERED) {
       BundleContext context = getContext();
-      if (context == null) {
-        return;
-      }
 
       try {
         ServiceReference<ConfigurationAdmin> configAdminRef =

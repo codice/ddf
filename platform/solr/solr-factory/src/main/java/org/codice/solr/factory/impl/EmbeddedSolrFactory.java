@@ -105,6 +105,7 @@ public class EmbeddedSolrFactory implements SolrClientFactory {
    * @param givenConfigFileProxy {@link ConfigurationFileProxy} instance to use. If {@code null}, a
    *     new {@link ConfigurationFileProxy} will be used.
    * @return a new {@link EmbeddedSolrServer} instance
+   * @throws IllegalArgumentException if it cannot find the Solr config file
    */
   public static EmbeddedSolrServer getEmbeddedSolrServer(
       String coreName,

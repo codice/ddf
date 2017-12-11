@@ -23,10 +23,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.annotation.Nullable;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.features.BundleInfo;
@@ -353,10 +356,10 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
             bundleLocations.add(info.getLocation());
           }
 
-          if (context != null) {
+          if (metatypeService != null) {
             for (Bundle bundle : context.getBundles()) {
               for (BundleInfo info : bundles) {
-                if (info.getLocation().equals(bundle.getLocation()) && metatypeService != null) {
+                if (info.getLocation().equals(bundle.getLocation())) {
                   metatypeInformation.add(metatypeService.getMetaTypeInformation(bundle));
                 }
               }
@@ -520,6 +523,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
    *
    * @return the service or <code>null</code> if missing.
    */
+  @Nullable
   final MetaTypeService getMetaTypeService() {
     BundleContext context = getContext();
 
@@ -535,7 +539,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
     if (cxfBundle != null) {
       return cxfBundle.getBundleContext();
     }
-    return null;
+    throw new IllegalStateException("Could not get context from cxfBundle");
   }
 
   /** {@inheritDoc}. */
