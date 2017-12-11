@@ -22,7 +22,6 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
-import java.util.zip.ZipFile;
 import org.apache.commons.io.FilenameUtils;
 import org.codice.ddf.migration.ImportMigrationEntry;
 import org.codice.ddf.migration.Migratable;
@@ -71,18 +70,19 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
   private final MigrationReportImpl report =
       new MigrationReportImpl(MigrationOperation.IMPORT, Optional.empty());
 
-  private final ZipFile zip = Mockito.mock(ZipFile.class);
+  private MigrationZipFile mockMigrationZipFile;
 
   private ImportMigrationContextImpl context;
 
   @Before
   public void setup() throws Exception {
+    mockMigrationZipFile = Mockito.mock(MigrationZipFile.class);
     initMigratableMock();
 
     Mockito.when(ENTRY.getPath()).thenReturn(MIGRATABLE_PATH);
     Mockito.when(ENTRY2.getPath()).thenReturn(MIGRATABLE_PATH2);
 
-    context = new ImportMigrationContextImpl(report, zip);
+    context = new ImportMigrationContextImpl(report, mockMigrationZipFile);
   }
 
   @Test
@@ -91,7 +91,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
     Assert.assertThat(context.getMigratable(), Matchers.nullValue());
     Assert.assertThat(context.getId(), Matchers.nullValue());
     Assert.assertThat(context.getVersion(), OptionalMatchers.isEmpty());
-    Assert.assertThat(context.getZip(), Matchers.sameInstance(zip));
+    Assert.assertThat(context.getZip(), Matchers.sameInstance(mockMigrationZipFile));
     Assert.assertThat(context.getFiles(), Matchers.empty());
     Assert.assertThat(context.getEntries(), Matchers.anEmptyMap());
     Assert.assertThat(context.getSystemPropertiesReferencedEntries(), Matchers.anEmptyMap());
@@ -102,26 +102,18 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage(Matchers.containsString("null report"));
 
-    new ImportMigrationContextImpl(null, zip);
-  }
-
-  @Test
-  public void testConstructorWithNoMigratableOrIdAndNullZip() throws Exception {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage(Matchers.containsString("null zip"));
-
-    new ImportMigrationContextImpl(report, null);
+    new ImportMigrationContextImpl(null, mockMigrationZipFile);
   }
 
   @Test
   public void testConstructorWithId() throws Exception {
-    context = new ImportMigrationContextImpl(report, zip, MIGRATABLE_ID);
+    context = new ImportMigrationContextImpl(report, mockMigrationZipFile, MIGRATABLE_ID);
 
     Assert.assertThat(context.getReport(), Matchers.sameInstance(report));
     Assert.assertThat(context.getMigratable(), Matchers.nullValue());
     Assert.assertThat(context.getId(), Matchers.equalTo(MIGRATABLE_ID));
     Assert.assertThat(context.getVersion(), OptionalMatchers.isEmpty());
-    Assert.assertThat(context.getZip(), Matchers.sameInstance(zip));
+    Assert.assertThat(context.getZip(), Matchers.sameInstance(mockMigrationZipFile));
     Assert.assertThat(context.getFiles(), Matchers.empty());
     Assert.assertThat(context.getEntries(), Matchers.anEmptyMap());
     Assert.assertThat(context.getSystemPropertiesReferencedEntries(), Matchers.anEmptyMap());
@@ -132,15 +124,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage(Matchers.containsString("null "));
 
-    new ImportMigrationContextImpl(null, zip, MIGRATABLE_ID);
-  }
-
-  @Test
-  public void testConstructorWithIdAndNullZip() throws Exception {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage(Matchers.containsString("null zip"));
-
-    new ImportMigrationContextImpl(report, null, MIGRATABLE_ID);
+    new ImportMigrationContextImpl(null, mockMigrationZipFile, MIGRATABLE_ID);
   }
 
   @Test
@@ -148,18 +132,18 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage(Matchers.containsString("null migratable identifier"));
 
-    new ImportMigrationContextImpl(report, zip, (String) null);
+    new ImportMigrationContextImpl(report, mockMigrationZipFile, (String) null);
   }
 
   @Test
   public void testConstructorWithMigratable() throws Exception {
-    context = new ImportMigrationContextImpl(report, zip, migratable);
+    context = new ImportMigrationContextImpl(report, mockMigrationZipFile, migratable);
 
     Assert.assertThat(context.getReport(), Matchers.sameInstance(report));
     Assert.assertThat(context.getMigratable(), Matchers.sameInstance(migratable));
     Assert.assertThat(context.getId(), Matchers.equalTo(MIGRATABLE_ID));
     Assert.assertThat(context.getVersion(), OptionalMatchers.isEmpty());
-    Assert.assertThat(context.getZip(), Matchers.sameInstance(zip));
+    Assert.assertThat(context.getZip(), Matchers.sameInstance(mockMigrationZipFile));
     Assert.assertThat(context.getFiles(), Matchers.empty());
     Assert.assertThat(context.getEntries(), Matchers.anEmptyMap());
     Assert.assertThat(context.getSystemPropertiesReferencedEntries(), Matchers.anEmptyMap());
@@ -170,15 +154,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage(Matchers.containsString("null "));
 
-    new ImportMigrationContextImpl(null, zip, migratable);
-  }
-
-  @Test
-  public void testConstructorWithMigratableAndNullZip() throws Exception {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage(Matchers.containsString("null zip"));
-
-    new ImportMigrationContextImpl(report, null, migratable);
+    new ImportMigrationContextImpl(null, mockMigrationZipFile, migratable);
   }
 
   @Test
@@ -186,7 +162,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage(Matchers.containsString("null migratable"));
 
-    new ImportMigrationContextImpl(report, zip, (Migratable) null);
+    new ImportMigrationContextImpl(report, mockMigrationZipFile, (Migratable) null);
   }
 
   @Test
@@ -804,7 +780,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
 
   @Test
   public void testDoImportWhenNoMigratableInstalled() throws Exception {
-    context = new ImportMigrationContextImpl(report, zip, MIGRATABLE_ID);
+    context = new ImportMigrationContextImpl(report, mockMigrationZipFile, MIGRATABLE_ID);
 
     context.doImport();
 
@@ -821,7 +797,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
     final Map<String, Object> metadata =
         ImmutableMap.of(MigrationContextImpl.METADATA_VERSION, VERSION);
 
-    context = new ImportMigrationContextImpl(report, zip, migratable);
+    context = new ImportMigrationContextImpl(report, mockMigrationZipFile, migratable);
     context.processMetadata(metadata); // make sure context has a version
 
     Mockito.when(migratable.getVersion()).thenReturn(VERSION);
@@ -839,7 +815,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
     final Map<String, Object> metadata =
         ImmutableMap.of(MigrationContextImpl.METADATA_VERSION, VERSION);
 
-    context = new ImportMigrationContextImpl(report, zip, migratable);
+    context = new ImportMigrationContextImpl(report, mockMigrationZipFile, migratable);
     context.processMetadata(metadata); // make sure context has a version
 
     Mockito.when(migratable.getVersion()).thenReturn(VERSION + "2");
@@ -854,7 +830,7 @@ public class ImportMigrationContextImplTest extends AbstractMigrationSupport {
 
   @Test
   public void testDoImportWhenNotExported() throws Exception {
-    context = new ImportMigrationContextImpl(report, zip, migratable);
+    context = new ImportMigrationContextImpl(report, mockMigrationZipFile, migratable);
 
     Mockito.doNothing().when(migratable).doMissingImport(Mockito.any());
 

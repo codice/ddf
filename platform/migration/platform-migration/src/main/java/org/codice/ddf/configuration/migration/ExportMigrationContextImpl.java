@@ -30,6 +30,7 @@ import java.util.function.BiPredicate;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import javax.crypto.CipherOutputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.io.output.ClosedOutputStream;
@@ -60,6 +61,8 @@ public class ExportMigrationContextImpl extends MigrationContextImpl<ExportMigra
 
   private final ZipOutputStream zipOutputStream;
 
+  private final CipherUtils cipherUtils;
+
   private volatile OutputStream currentOutputStream;
 
   /**
@@ -72,14 +75,17 @@ public class ExportMigrationContextImpl extends MigrationContextImpl<ExportMigra
    * </code> is <code>null</code>
    * @throws java.io.IOError if unable to determine ${ddf.home}
    */
-  ExportMigrationContextImpl(MigrationReport report, Migratable migratable, ZipOutputStream zos) {
+  ExportMigrationContextImpl(
+      MigrationReport report, Migratable migratable, ZipOutputStream zos, CipherUtils cipherUtils) {
     super(
         new ExportMigrationReportImpl(report, migratable),
         migratable,
         ExportMigrationContextImpl.validateNotNull(migratable, "invalid null migratable")
             .getVersion());
     Validate.notNull(zos, "invalid null zip output stream");
+    Validate.notNull(cipherUtils, "invalid null cipher utils");
     this.zipOutputStream = zos;
+    this.cipherUtils = cipherUtils;
   }
 
   private static <T> T validateNotNull(T t, String msg) {
@@ -225,8 +231,9 @@ public class ExportMigrationContextImpl extends MigrationContextImpl<ExportMigra
             }
           };
 
-      this.currentOutputStream = oos;
-      return oos;
+      CipherOutputStream cos = cipherUtils.getCipherOutputStream(oos);
+      this.currentOutputStream = cos;
+      return cos;
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }

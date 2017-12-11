@@ -15,17 +15,20 @@ package org.codice.ddf.configuration.migration;
 
 import com.google.common.annotations.VisibleForTesting;
 import ddf.security.common.audit.SecurityLogger;
+import java.io.FileNotFoundException;
 import java.io.IOError;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
+import javax.crypto.NoSuchPaddingException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
 import javax.management.MalformedObjectNameException;
@@ -169,23 +172,24 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
   }
 
   @VisibleForTesting
-  void delegateToImportMigrationManager(MigrationReportImpl report, Path exportFile) {
+  void delegateToImportMigrationManager(MigrationReportImpl report, MigrationZipFile zip)
+      throws NoSuchAlgorithmException, NoSuchPaddingException {
     final ImportMigrationManagerImpl mgr =
-        new ImportMigrationManagerImpl(report, exportFile, migratables.stream());
-
+        new ImportMigrationManagerImpl(report, zip, migratables.stream());
     try {
-      report.record(Messages.IMPORTING_DATA, productBranding, exportFile);
+      report.record(Messages.IMPORTING_DATA, productBranding, zip.getZipPath());
       mgr.doImport(productBranding, productVersion);
     } finally {
-      IOUtils.closeQuietly(mgr); // do not care if we fail to close the mgr/zip file!!!
+      IOUtils.closeQuietly(mgr);
     }
   }
 
   @VisibleForTesting
-  void delegateToExportMigrationManager(MigrationReportImpl report, Path exportFile)
-      throws IOException {
+  void delegateToExportMigrationManager(
+      MigrationReportImpl report, Path exportFile, CipherUtils cipherUtils)
+      throws IOException, NoSuchPaddingException, NoSuchAlgorithmException {
     try (final ExportMigrationManagerImpl mgr =
-        new ExportMigrationManagerImpl(report, exportFile, migratables.stream())) {
+        new ExportMigrationManagerImpl(report, exportFile, cipherUtils, migratables.stream())) {
       report.record(Messages.EXPORTING_DATA, productBranding, exportFile);
       mgr.doExport(productBranding, productVersion);
     }
@@ -212,8 +216,13 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
                 + productVersion
                 + ConfigurationMigrationManager.EXPORT_EXTENSION);
 
+    final CipherUtils cipherUtils = new CipherUtils(exportFile);
+
     try {
-      delegateToExportMigrationManager(report, exportFile);
+      delegateToExportMigrationManager(report, exportFile, cipherUtils);
+      if (report.wasSuccessful()) {
+        cipherUtils.createZipChecksumFile();
+      }
     } catch (MigrationException e) {
       report.record(e);
     } catch (IOException e) {
@@ -222,12 +231,18 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
       report.record(new MigrationException(Messages.EXPORT_SECURITY_ERROR, exportFile, e));
     } catch (RuntimeException e) {
       report.record(new MigrationException(Messages.EXPORT_INTERNAL_ERROR, exportFile, e));
+    } catch (NoSuchPaddingException | NoSuchAlgorithmException e) {
+      report.record(
+          new MigrationException(Messages.EXPORT_INTERNAL_ERROR, cipherUtils.getKeyPath(), e));
     }
     report.end();
     if (report.hasErrors()) {
       SecurityLogger.audit("Errors exporting configuration settings to file {}", exportFile);
       // don't leave the zip file there if the export failed
       PathUtils.deleteQuietly(exportFile, ConfigurationMigrationManager.EXPORT_DIR);
+      PathUtils.deleteQuietly(cipherUtils.getKeyPath(), ConfigurationMigrationManager.EXPORT_DIR);
+      PathUtils.deleteQuietly(
+          cipherUtils.getChecksumPath(), ConfigurationMigrationManager.EXPORT_DIR);
       report.record(new MigrationException(Messages.EXPORT_FAILURE, exportFile));
     } else if (report.hasWarnings()) {
       SecurityLogger.audit("Warnings exporting configuration settings to file {}", exportFile);
@@ -250,29 +265,34 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
                 + productVersion
                 + ConfigurationMigrationManager.EXPORT_EXTENSION);
 
+    MigrationZipFile zip = null;
     try {
-      delegateToImportMigrationManager(report, exportFile);
+      zip = newZipFileFor(exportFile);
+      if (!zip.isValidChecksum()) {
+        throw new MigrationException(Messages.IMPORT_ZIP_CHECKSUM_INVALID, exportFile);
+      }
+      delegateToImportMigrationManager(report, zip);
     } catch (MigrationException e) {
       report.record(e);
     } catch (SecurityException e) {
       report.record(new MigrationException(Messages.IMPORT_SECURITY_ERROR, exportFile, e));
-    } catch (RuntimeException e) {
+    } catch (RuntimeException | NoSuchPaddingException | NoSuchAlgorithmException e) {
       report.record(new MigrationException(Messages.IMPORT_INTERNAL_ERROR, exportFile, e));
     }
     report.end();
-    if (report.hasErrors()) {
+    if ((zip == null) || (report.hasErrors())) {
       SecurityLogger.audit("Errors importing configuration settings from file {}", exportFile);
       report.record(new MigrationException(Messages.IMPORT_FAILURE, exportFile));
     } else if (report.hasWarnings()) {
       SecurityLogger.audit("Warnings importing configuration settings from file {}", exportFile);
       // don't leave the zip file there if the import succeeded
-      PathUtils.deleteQuietly(exportFile, ConfigurationMigrationManager.EXPORT_DIR);
+      zip.deleteQuitetly();
       report.record(new MigrationWarning(Messages.IMPORT_SUCCESS_WITH_WARNINGS, exportFile));
       report.record(new MigrationWarning(Messages.RESTART_SYSTEM_WHEN_WARNINGS));
     } else {
       SecurityLogger.audit("Exported configuration settings from file {}", exportFile);
       // don't leave the zip file there if the import succeeded
-      PathUtils.deleteQuietly(exportFile, ConfigurationMigrationManager.EXPORT_DIR);
+      zip.deleteQuitetly();
       report.record(new MigrationSuccessfulInformation(Messages.IMPORT_SUCCESS, exportFile));
       // force a JVM restart
       restart(report);
@@ -310,5 +330,16 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
       return true;
     }
     return false;
+  }
+
+  private static MigrationZipFile newZipFileFor(Path exportFile) {
+    Validate.notNull(exportFile, "invalid null export file");
+    try {
+      return new MigrationZipFile(exportFile);
+    } catch (FileNotFoundException e) {
+      throw new MigrationException(Messages.IMPORT_FILE_MISSING_ERROR, exportFile, e);
+    } catch (SecurityException | IOException e) {
+      throw new MigrationException(Messages.IMPORT_FILE_OPEN_ERROR, exportFile, e);
+    }
   }
 }
