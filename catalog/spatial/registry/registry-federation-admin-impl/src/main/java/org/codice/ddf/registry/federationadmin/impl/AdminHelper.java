@@ -26,9 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import javax.annotation.Nullable;
-
 import org.codice.ddf.admin.core.api.Service;
 import org.codice.ddf.configuration.DictionaryMap;
 import org.codice.ddf.registry.api.internal.RegistryStore;

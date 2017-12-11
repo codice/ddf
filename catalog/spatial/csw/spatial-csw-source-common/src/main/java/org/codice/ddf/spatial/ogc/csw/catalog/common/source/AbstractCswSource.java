@@ -948,7 +948,8 @@ public abstract class AbstractCswSource extends MaskableImpl
     }
 
     if (resourceUri == null) {
-      throw new IllegalArgumentException("Unable to retrieve resource because no resource URI was given");
+      throw new IllegalArgumentException(
+          "Unable to retrieve resource because no resource URI was given");
     }
 
     LOGGER.debug("Retrieving resource at : {}", resourceUri);

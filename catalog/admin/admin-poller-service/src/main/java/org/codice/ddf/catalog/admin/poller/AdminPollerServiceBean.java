@@ -30,13 +30,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import javax.annotation.Nullable;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-
 import org.apache.shiro.util.CollectionUtils;
 import org.codice.ddf.admin.core.api.ConfigurationAdmin;
 import org.codice.ddf.admin.core.api.ConfigurationDetails;

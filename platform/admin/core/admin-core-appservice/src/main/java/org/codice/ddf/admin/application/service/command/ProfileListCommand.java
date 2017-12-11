@@ -61,7 +61,9 @@ public class ProfileListCommand extends AbstractProfileCommand {
       files
           .filter(Files::isRegularFile)
           .filter(file -> file.toAbsolutePath().toString().endsWith(PROFILE_EXTENSION))
-          .forEach(profile -> console.println(FilenameUtils.removeExtension(profile.toFile().getName())));
+          .forEach(
+              profile ->
+                  console.println(FilenameUtils.removeExtension(profile.toFile().getName())));
     } catch (IOException e) {
       printError("Error occurred when locating profiles");
       LOGGER.error("An error occured when locating profiles", e);
