@@ -380,5 +380,15 @@
             <artifactId>security-encryption-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.security.idp</groupId>
+            <artifactId>security-idp-plugin-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.idp</groupId>
+            <artifactId>security-idp-plugin-subjectconfirmation</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

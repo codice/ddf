@@ -13,13 +13,17 @@
  */
 package org.codice.ddf.security.idp.binding.soap;
 
+import ddf.security.samlp.SamlProtocol;
 import ddf.security.samlp.SystemCrypto;
 import ddf.security.samlp.impl.EntityInformation;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.codice.ddf.security.idp.binding.api.Binding;
 import org.codice.ddf.security.idp.binding.api.RequestDecoder;
 import org.codice.ddf.security.idp.binding.api.ResponseCreator;
 import org.codice.ddf.security.idp.binding.api.Validator;
+import org.codice.ddf.security.idp.plugin.SamlPresignPlugin;
 
 public class SoapBinding implements Binding {
   private final SoapRequestDecoder decoder;
@@ -28,9 +32,16 @@ public class SoapBinding implements Binding {
 
   private final SoapValidator validator;
 
-  public SoapBinding(SystemCrypto systemCrypto, Map<String, EntityInformation> serviceProviders) {
+  public SoapBinding(
+      SystemCrypto systemCrypto,
+      Map<String, EntityInformation> serviceProviders,
+      Set<SamlPresignPlugin> presignPlugins,
+      List<String> spMetadata,
+      Set<SamlProtocol.Binding> supportedBindings) {
     decoder = new SoapRequestDecoder();
-    creator = new SoapResponseCreator(systemCrypto, serviceProviders);
+    creator =
+        new SoapResponseCreator(
+            systemCrypto, serviceProviders, presignPlugins, spMetadata, supportedBindings);
     validator = new SoapValidator(systemCrypto, serviceProviders);
   }
 
