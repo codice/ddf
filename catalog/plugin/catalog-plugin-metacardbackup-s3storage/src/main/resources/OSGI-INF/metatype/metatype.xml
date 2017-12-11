@@ -43,7 +43,7 @@
             default=""/>
 
         <AD description="The secret key to use for S3. Leave blank if on an EC2 host with roles assigned."
-            name="S3 Secret Key" id="s3SecretKey" required="true" type="Password"
+            name="S3 Secret Key" id="s3SecretKey" required="true" type="String"
             default=""/>
 
         <AD description="The S3 Bucket in which to store the backed up metacard data."

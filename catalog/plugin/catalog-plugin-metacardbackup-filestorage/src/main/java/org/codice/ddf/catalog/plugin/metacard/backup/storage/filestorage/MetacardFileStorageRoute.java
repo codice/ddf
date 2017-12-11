@@ -16,6 +16,8 @@ package org.codice.ddf.catalog.plugin.metacard.backup.storage.filestorage;
 import static org.apache.camel.builder.PredicateBuilder.not;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.apache.camel.CamelContext;
@@ -35,6 +37,8 @@ public class MetacardFileStorageRoute extends MetacardStorageRoute {
 
   protected String outputPathTemplate;
 
+  private List<String> routeIds = new ArrayList<>();
+
   private static final Logger LOGGER = LoggerFactory.getLogger(MetacardFileStorageRoute.class);
 
   public MetacardFileStorageRoute(CamelContext camelContext) {
@@ -51,11 +55,19 @@ public class MetacardFileStorageRoute extends MetacardStorageRoute {
 
   @Override
   public void configure() throws Exception {
+    routeIds.clear();
+
     String metacardRouteId = "metacard-" + UUID.randomUUID().toString();
+    String route1Id = metacardRouteId + "1";
     from("catalog:postingest")
+        .routeId(route1Id)
         .split(method(ResponseMetacardActionSplitter.class, "split(${body})"))
         .to("direct:" + metacardRouteId);
-    from("direct:" + metacardRouteId)
+    routeIds.add(route1Id);
+
+    String route2Id = metacardRouteId + "2";
+    from("direct:" + metacardRouteId + "?block=true")
+        .routeId(route2Id)
         .setHeader(METACARD_TRANSFORMER_ID_RTE_PROP, simple(metacardTransformerId, String.class))
         .setHeader(
             METACARD_BACKUP_INVALID_RTE_PROP,
@@ -81,6 +93,7 @@ public class MetacardFileStorageRoute extends MetacardStorageRoute {
                 + "?fileName=${in.headers."
                 + TEMPLATED_STRING_HEADER_RTE_PROP
                 + "}");
+    routeIds.add(route2Id);
 
     LOGGER.trace("Starting metacard file storage route: {}", this);
   }
@@ -94,6 +107,11 @@ public class MetacardFileStorageRoute extends MetacardStorageRoute {
     }
 
     super.refresh(properties);
+  }
+
+  @Override
+  public List<String> getRouteIds() {
+    return routeIds;
   }
 
   private String getStartingDir() {
