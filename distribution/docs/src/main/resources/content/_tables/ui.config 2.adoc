@@ -208,14 +208,14 @@ TMS example (3d map support only): `[{"name": "Example TMS", "show": true, type"
 |true
 
 |Disable Historical Search
-|disableSearchHistorical
+|historicalSearchDisabled
 |Boolean
 |Disable searching for historical metacards.
 |false
 |true
 
 |Disable Archive Search
-|disableSearchArchive
+|archiveSearchDisabled
 |Boolean
 |Disable searching for archived metacards.
 |false
