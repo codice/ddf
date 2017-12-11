@@ -261,6 +261,7 @@ public class IdpEndpoint implements Idp {
     return Collections.unmodifiableMap(spMap);
   }
 
+  // TODO: 12/11/17 Extract to service DDF-3493
   private Map<String, EntityInformation> parseServiceProviderMetadata() {
     if (spMetadata == null) {
       return Collections.emptyMap();

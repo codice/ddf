@@ -67,7 +67,7 @@ class SubjectConfirmationPresignPluginSpec extends Specification {
         response.assertions[0].subject.subjectConfirmations.size() == 1
         def scd = response.assertions[0].subject.subjectConfirmations[0].subjectConfirmationData
         scd.inResponseTo == response.getInResponseTo()
-        scd.notOnOrAfter.afterNow
+        scd.notOnOrAfter == response.assertions[0].conditions.notOnOrAfter
         scd.recipient.endsWith('services/saml/sso')
     }
 
