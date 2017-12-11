@@ -213,7 +213,7 @@ public abstract class AbstractStsRealm extends AuthenticatingRealm
           stsClient.setTokenType(getAssertionType());
           stsClient.setKeyType(getKeyType());
           stsClient.setKeySize(Integer.parseInt(getKeySize()));
-          token = stsClient.requestSecurityToken(stsAddress);
+          token = stsClient.requestSecurityToken();
           LOGGER.debug("Finished requesting security token.");
         }
       } finally {

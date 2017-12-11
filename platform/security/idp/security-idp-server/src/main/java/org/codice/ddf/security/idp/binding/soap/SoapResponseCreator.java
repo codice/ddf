@@ -13,11 +13,14 @@
  */
 package org.codice.ddf.security.idp.binding.soap;
 
+import ddf.security.samlp.SamlProtocol.Binding;
 import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SystemCrypto;
 import ddf.security.samlp.impl.EntityInformation;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import org.apache.cxf.helpers.DOMUtils;
@@ -26,6 +29,7 @@ import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.apache.wss4j.common.util.DOM2Writer;
 import org.codice.ddf.security.idp.binding.api.ResponseCreator;
 import org.codice.ddf.security.idp.binding.api.impl.ResponseCreatorImpl;
+import org.codice.ddf.security.idp.plugin.SamlPresignPlugin;
 import org.codice.ddf.security.idp.server.Idp;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.saml.saml2.core.AuthnRequest;
@@ -46,8 +50,12 @@ public class SoapResponseCreator extends ResponseCreatorImpl implements Response
       "http://schemas.xmlsoap.org/soap/actor/next";
 
   public SoapResponseCreator(
-      SystemCrypto systemCrypto, Map<String, EntityInformation> serviceProviders) {
-    super(systemCrypto, serviceProviders);
+      SystemCrypto systemCrypto,
+      Map<String, EntityInformation> serviceProviders,
+      Set<SamlPresignPlugin> presignPlugins,
+      List<String> spMetadata,
+      Set<Binding> supportedBindings) {
+    super(systemCrypto, serviceProviders, presignPlugins, spMetadata, supportedBindings);
   }
 
   @Override
@@ -59,12 +67,18 @@ public class SoapResponseCreator extends ResponseCreatorImpl implements Response
       String responseTemplate)
       throws IOException, SimpleSign.SignatureException, WSSecurityException {
     LOGGER.trace("Configuring SAML Response for POST.");
+
     Document doc = DOMUtils.createDocument();
     doc.appendChild(doc.createElement("root"));
+
+    org.opensaml.saml.saml2.core.Response processingResponse =
+        processPresignPlugins(authnRequest, samlResponse);
+
     LOGGER.trace("Signing SAML POST Response.");
-    getSimpleSign().signSamlObject(samlResponse);
+    getSimpleSign().signSamlObject(processingResponse);
+
     LOGGER.trace("Converting SAML Response to DOM");
-    String assertionResponse = DOM2Writer.nodeToString(OpenSAMLUtil.toDom(samlResponse, doc));
+    String assertionResponse = DOM2Writer.nodeToString(OpenSAMLUtil.toDom(processingResponse, doc));
     String submitFormUpdated =
         responseTemplate.replace("{{" + Idp.SAML_RESPONSE + "}}", assertionResponse);
 
