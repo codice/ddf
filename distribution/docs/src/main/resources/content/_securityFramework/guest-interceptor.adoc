@@ -7,10 +7,9 @@
 
 The goal of the `GuestInterceptor` is to allow non-secure clients (such as SOAP requests without security headers) to access secure service endpoints. 
 
-All requests to secure endpoints must satisfy the WS-SecurityPolicy that is included in the WSDL 
+All requests to secure endpoints must satisfy the WS-SecurityPolicy that is included in the WSDL.
 
-Rather than reject requests without user credentials, the guest interceptor
-detects the missing credentials and inserts an assertion that represents the "guest" user.
+Rather than reject requests without user credentials, the guest interceptor detects the missing credentials and inserts an assertion that represents the "guest" user.
 The attributes included in this guest user assertion are configured by the administrator to represent any unknown user on the current network.
 
 ===== Installing Guest Interceptor
@@ -21,13 +20,13 @@ The `GuestInterceptor` is installed by default with ${ddf-security} Application.
 
 Configure the Guest Interceptor from the ${admin-console}:
 
-. Navigate to the ${admin-console} at ${secure_url}/admin
-. Click the ${ddf-security} application tile
-. Click the *Configuration* tab
-. Click the *Security STS Guest Claims Handler* configuration
-. Click the + next to Attributes to add a new attribute
-. Add any addtional attributes that you want every user to have
-. Click *Save changes*
+. Navigate to the *${admin-console}* at ${secure_url}/admin
+. Select the *${ddf-security}* application.
+. Select the *Configuration* tab.
+. Select the *Security STS Guest Claims Handler* configuration.
+. Select the `+` next to Attributes to add a new attribute.
+. Add any additional attributes that will apply to every user.
+. Select *Save changes*.
 
 Once these configurations have been added, the GuestInterceptor is ready for use.
 Both secure and non-secure requests will be accepted by all secure ${branding} service endpoints.
