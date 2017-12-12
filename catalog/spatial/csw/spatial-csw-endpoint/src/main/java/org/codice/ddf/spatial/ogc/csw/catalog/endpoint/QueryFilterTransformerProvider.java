@@ -24,7 +24,6 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nullable;
 import javax.xml.namespace.QName;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -71,10 +70,8 @@ public class QueryFilterTransformerProvider {
       for (QName namespace : namespaces) {
         queryFilterTransformerMap.remove(namespace);
         List<String> typeNames = getTypeNames(reference);
-        if (CollectionUtils.isNotEmpty(typeNames)) {
-          for (String typeName : typeNames) {
-            typeNameQNameMap.remove(typeName, namespace);
-          }
+        for (String typeName : typeNames) {
+          typeNameQNameMap.remove(typeName, namespace);
         }
       }
     } finally {
