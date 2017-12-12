@@ -184,10 +184,7 @@ public class IdpMetadata {
       LOGGER.debug("SSO metadata cache is expired. Attempting to retrieve metadata from source.");
       try {
         parsedMetadata = parseMetadata();
-        if (parsedMetadata != null) {
-          // Do not clear cache if metadata is not available from the source.
-          eraseEntityDescriptions();
-        }
+        eraseEntityDescriptions();
       } catch (IOException e) {
         LOGGER.debug("Error parsing SSO metadata", e);
       }
