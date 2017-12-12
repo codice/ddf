@@ -18,6 +18,7 @@ import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.pdfbox.cos.COSArray;
@@ -70,7 +71,7 @@ public class GeoPdfParserImpl implements GeoPdfParser {
   @Override
   public String apply(PDDocument pdfDocument) throws IOException {
     ToDoubleVisitor toDoubleVisitor = new ToDoubleVisitor();
-    LinkedList<String> polygons = new LinkedList<>();
+    LinkedList<Optional<String>> polygons = new LinkedList<>();
 
     for (PDPage pdPage : pdfDocument.getPages()) {
       COSDictionary cosObject = pdPage.getCOSObject();
@@ -90,7 +91,8 @@ public class GeoPdfParserImpl implements GeoPdfParser {
             if (GEOGRAPHIC.equals(projectionType)) {
               COSArray neatlineArray =
                   (COSArray) cosObject.getObjectFromPath(LGIDICT + "/[" + i + "]/" + NEATLINE);
-              String wktString = getWktFromNeatLine(lgidict, neatlineArray, toDoubleVisitor);
+              Optional<String> wktString =
+                  getWktFromNeatLine(lgidict, neatlineArray, toDoubleVisitor);
               polygons.add(wktString);
             } else {
               LOGGER.debug(
@@ -189,7 +191,7 @@ public class GeoPdfParserImpl implements GeoPdfParser {
    * @return the generated WKT Lat/Lon set
    * @throws IOException
    */
-  private String getWktFromNeatLine(
+  private Optional<String> getWktFromNeatLine(
       COSDictionary lgidict, COSArray neatLineArray, ICOSVisitor toDoubleVisitor)
       throws IOException {
     List<Double> neatline = new LinkedList<>();
@@ -199,7 +201,11 @@ public class GeoPdfParserImpl implements GeoPdfParser {
     double[] points = new double[CTM_SIZE];
     for (int i = 0; i < CTM_SIZE; i++) {
       Object obj = lgidict.getObjectFromPath(CTM + "/[" + i + "]").accept(toDoubleVisitor);
-      points[i] = (obj != null) ? (Double) obj : 0d;
+      if (obj != null) {
+        points[i] = (Double) obj;
+      } else {
+        return Optional.empty();
+      }
     }
     AffineTransform affineTransform = new AffineTransform(points);
 
@@ -225,7 +231,7 @@ public class GeoPdfParserImpl implements GeoPdfParser {
     coordinateList.add(firstCoordinate);
     String wktString = StringUtils.join(coordinateList, ", ");
     LOGGER.debug("{}", wktString);
-    return wktString.toString();
+    return Optional.of(wktString);
   }
 
   /** This visitor class converts parsable COS Objects into {@link Double}s */

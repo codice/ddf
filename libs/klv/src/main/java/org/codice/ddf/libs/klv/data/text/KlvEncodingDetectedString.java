@@ -49,15 +49,14 @@ public class KlvEncodingDetectedString extends KlvDataElement<String> {
     CharsetMatch charsetMatch = charsetDetector.detect();
 
     if (charsetMatch != null) {
+      try {
+        value = new String(bytes, charsetMatch.getName());
+      } catch (UnsupportedEncodingException e) {
+        LOGGER.trace(
+            "Unsupported encoding of %s, falling back to default encoding", charsetMatch.getName());
+      }
+    } else {
       value = new String(bytes, Charset.defaultCharset());
-      return;
-    }
-
-    try {
-      value = new String(bytes, charsetMatch.getName());
-    } catch (UnsupportedEncodingException e) {
-      LOGGER.trace(
-          "Unsupported encoding of %s, falling back to default encoding", charsetMatch.getName());
     }
   }
 
