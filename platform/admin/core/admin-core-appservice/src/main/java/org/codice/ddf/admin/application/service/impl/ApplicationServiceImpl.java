@@ -541,7 +541,8 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
       for (BundleInfo curBundleInfo : curFeature.getBundles()) {
         Bundle curBundle = context.getBundle(curBundleInfo.getLocation());
 
-        if (curBundle.adapt(BundleRevision.class).getTypes() != BundleRevision.TYPE_FRAGMENT) {
+        if (curBundle != null
+            && curBundle.adapt(BundleRevision.class).getTypes() != BundleRevision.TYPE_FRAGMENT) {
 
           // check if bundle is inactive
           int bundleState = curBundle.getState();
