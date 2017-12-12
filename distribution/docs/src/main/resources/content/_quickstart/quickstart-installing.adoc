@@ -141,6 +141,8 @@ Instead, use the java jar command line utility to unzip the distribution (see ex
 This installation directory will be referred to as `${home_directory}`.
 (Substitute the actual directory name.)
 . Start ${branding} by running the `${home_directory}/bin/${branding-lowercase}` script (or `${branding-lowercase}.bat` on Windows).
+. Startup may take a few minutes.
+.. Optionally, a `waitForReady` command (aliased to `wfr`) can be used to notify when setup is complete. A "System Ready" message will display. *nix users will see progress indicated before the message.
 . The ${command-console} will display.
 
 .${command-console} Prompt
