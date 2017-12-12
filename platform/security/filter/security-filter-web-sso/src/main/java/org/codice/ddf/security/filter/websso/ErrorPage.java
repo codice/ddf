@@ -25,7 +25,6 @@ public class ErrorPage {
   static Status[] errorCodes = {
     Status.BAD_REQUEST,
     Status.UNAUTHORIZED,
-    Status.PAYMENT_REQUIRED,
     Status.FORBIDDEN,
     Status.NOT_FOUND,
     Status.METHOD_NOT_ALLOWED,
