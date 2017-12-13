@@ -71,7 +71,7 @@ public class GeoPdfParserImpl implements GeoPdfParser {
   @Override
   public String apply(PDDocument pdfDocument) throws IOException {
     ToDoubleVisitor toDoubleVisitor = new ToDoubleVisitor();
-    LinkedList<Optional<String>> polygons = new LinkedList<>();
+    LinkedList<String> polygons = new LinkedList<>();
 
     for (PDPage pdPage : pdfDocument.getPages()) {
       COSDictionary cosObject = pdPage.getCOSObject();
@@ -91,8 +91,7 @@ public class GeoPdfParserImpl implements GeoPdfParser {
             if (GEOGRAPHIC.equals(projectionType)) {
               COSArray neatlineArray =
                   (COSArray) cosObject.getObjectFromPath(LGIDICT + "/[" + i + "]/" + NEATLINE);
-              Optional<String> wktString =
-                  getWktFromNeatLine(lgidict, neatlineArray, toDoubleVisitor);
+              String wktString = getWktFromNeatLine(lgidict, neatlineArray, toDoubleVisitor).get();
               polygons.add(wktString);
             } else {
               LOGGER.debug(
@@ -115,7 +114,7 @@ public class GeoPdfParserImpl implements GeoPdfParser {
             if (neatlineArray == null) {
               neatlineArray = generateNeatLineFromPDFDimensions(pdPage);
             }
-            polygons.add(getWktFromNeatLine(lgidict, neatlineArray, toDoubleVisitor));
+            polygons.add(getWktFromNeatLine(lgidict, neatlineArray, toDoubleVisitor).get());
 
           } else {
             LOGGER.debug(
