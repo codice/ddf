@@ -35,28 +35,7 @@ https://github.com/orgs/codice/teams
 - [ ] Update / Add Integration Tests
 
 #### Notes on Review Process
-For the general case, merging is gated on the following:
-
-* Review by at least two contributors
-* Review by at least two committers
-* Successful CI
-* Successful static analysis (SonarQube/Coverity/etc.)
-* Heroing of change (details vary by ticket)
-
-Certain exceptions may occur. For example, if there is a problem with the CI environment then a manually performed full build and static analysis check may be substituted _at the discretion of the repository maintainers_. Additionally, repository metadata such as this `PULL_REQUEST_TEMPLATE`, the repository `README`, and other non-functional items may be merged without requiring CI and static analysis.
-
-Finally, an abbreviated review process may be in place for forward-port tickets immediately following branching and prior to branch divergence. In that case, approvals, CI, static analysis, and heroing that occur against the PR against the _release branch_ can be considered sufficient for reviewing the PR against the _master branch_.
-
-Once the branches diverge, the process will return to normal.
-
-Insofar as divergence is not a function of time but of change to the parent branch, the repository maintainers will determine when abbreviated review ends.
-
-When abbreviated review is in effect, a note to that effect will be at the top of this template. Following is an example note:
-```
-##### ABBREVIATED REVIEW BETWEEN 2.12.X AND MASTER IS IN EFFECT
-____
-
-```
+Please see [Notes on Review Process](https://codice.atlassian.net/wiki/spaces/DDF/pages/71946981/Pull+Request+Guidelines) for further guidance on requirements for merging and abbreviated reviews. 
 
 #### Review Comment Legend:
 - ✏️ (Pencil) This comment is a nitpick or style suggestion, no action required for approval. This comment should provide a suggestion either as an in line code snippet or a gist. 
