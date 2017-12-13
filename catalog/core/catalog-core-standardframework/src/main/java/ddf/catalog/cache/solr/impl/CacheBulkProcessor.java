@@ -60,6 +60,7 @@ public class CacheBulkProcessor {
    * @param delay delay between decision to bulk add
    * @param delayUnit units of the delay
    */
+  @SuppressWarnings("squid:S1181" /*Catching throwable intentionally*/)
   public CacheBulkProcessor(
       final SolrCache cache,
       final long delay,

@@ -541,6 +541,7 @@ public class CachingFederationStrategy implements FederationStrategy, PostIngest
       return getSourceResponse(queryRequest);
     }
 
+    @SuppressWarnings("squid:S1181" /*Catching throwable intentionally*/)
     private SourceResponse getSourceResponse(QueryRequest queryRequest)
         throws UnsupportedQueryException {
       final SourceResponse sourceResponse = source.query(queryRequest);

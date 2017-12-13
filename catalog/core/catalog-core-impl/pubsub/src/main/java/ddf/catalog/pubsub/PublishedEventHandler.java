@@ -108,9 +108,11 @@ public class PublishedEventHandler implements EventHandler {
     }
 
     private void evaluateSiteBasedSubscription(Set<String> sourceIds, String metacardSourceId) {
-      LOGGER.debug(
-          "subscription is a site-based subscription starting with site id {}",
-          sourceIds.iterator().next());
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug(
+            "subscription is a site-based subscription starting with site id {}",
+            sourceIds.iterator().next());
+      }
       // perform site based filtering on subscription
       if (sourceIds.contains(metacardSourceId)) {
         LOGGER.debug("event received from subscribed site");

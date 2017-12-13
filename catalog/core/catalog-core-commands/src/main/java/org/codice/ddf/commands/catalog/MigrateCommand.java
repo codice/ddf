@@ -132,6 +132,8 @@ public class MigrateCommand extends DuplicateCommands {
     return null;
   }
 
+  @SuppressWarnings(
+      "squid:S1872" /*Checking class by a name that is passed as an argument, can't use instanceOf*/)
   private CatalogProvider promptForProvider(
       String whichProvider, String id, List<CatalogProvider> providers) throws IOException {
     List<String> providersIdList =

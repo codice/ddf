@@ -293,6 +293,7 @@ public class KeystoreEditor implements KeystoreEditorMBean {
     SSLSocket socket = null;
     String decodedUrl = null;
     List<Map<String, Object>> resultList = new ArrayList<>();
+    OutputStream fos = null;
     try {
       decodedUrl = new String(Base64.getDecoder().decode(url), "UTF-8");
       socket = createNonVerifyingSslSocket(decodedUrl);
@@ -317,7 +318,7 @@ public class KeystoreEditor implements KeystoreEditorMBean {
         trustStoreFile = Paths.get(ddfHomePath.toString(), trustStoreFile.toString());
       }
       String keyStorePassword = SecurityConstants.getTruststorePassword();
-      OutputStream fos = Files.newOutputStream(trustStoreFile);
+      fos = Files.newOutputStream(trustStoreFile);
       trustStore.store(fos, keyStorePassword.toCharArray());
     } catch (IOException | GeneralSecurityException e) {
       LOGGER.info(
@@ -326,6 +327,7 @@ public class KeystoreEditor implements KeystoreEditorMBean {
           e);
     } finally {
       IOUtils.closeQuietly(socket);
+      IOUtils.closeQuietly(fos);
     }
     return resultList;
   }
@@ -640,14 +642,12 @@ public class KeystoreEditor implements KeystoreEditorMBean {
     // check mime types
     if (PKCS7_TYPE.equals(type) || CERT_TYPE.equals(type) || PEM_TYPE.equals(type)) {
       return true;
-      // check file extensions
-    } else if (StringUtils.endsWithIgnoreCase(fileName, ".crt")
+    }
+    // check file extensions
+    return (StringUtils.endsWithIgnoreCase(fileName, ".crt")
         || StringUtils.endsWithIgnoreCase(fileName, ".key")
         || StringUtils.endsWithIgnoreCase(fileName, ".pem")
-        || StringUtils.endsWithIgnoreCase(fileName, ".p7b")) {
-      return true;
-    }
-    return false;
+        || StringUtils.endsWithIgnoreCase(fileName, ".p7b"));
   }
 
   private boolean importASN1CertificatesToStore(

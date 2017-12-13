@@ -13,6 +13,8 @@
  */
 package ddf.catalog.filter.proxy.adapter;
 
+import static java.lang.Math.abs;
+
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterDelegate;
 import ddf.catalog.impl.filter.FuzzyFunction;
@@ -100,6 +102,8 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
   public static final String CQL_NAUTICAL_MILES = "nautical miles";
 
   public static final String CQL_KILOMETERS = "kilometers";
+
+  private static final double ERROR_THRESHOLD = .000001;
 
   private static final FilterFactory FF = new FilterFactoryImpl();
 
@@ -703,7 +707,7 @@ public class GeotoolsFilterAdapterImpl implements FilterAdapter, FilterVisitor, 
     ExpressionValues filterValues = getExpressions(filter, delegate);
     String wkt = geometryToWkt(filterValues.literal);
 
-    if (distance != 0) {
+    if (abs(distance) > ERROR_THRESHOLD) {
       return ((FilterDelegate<?>) delegate).beyond(filterValues.propertyName, wkt, distance);
     } else {
       return ((FilterDelegate<?>) delegate).nearestNeighbor(filterValues.propertyName, wkt);

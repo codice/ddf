@@ -232,7 +232,7 @@ public class FeatureMetacardType extends MetacardTypeImpl {
         && qName.getNamespaceURI().equals(gmlNamespace)
         && (qName.getLocalPart().equals("TimeInstantType")
             || qName.getLocalPart().equals("TimePeriodType"))) {
-      LOGGER.debug("Adding temporal property: {}", propertyPrefix + name);
+      LOGGER.debug("Adding temporal property: {}{}", propertyPrefix, name);
       temporalProperties.add(propertyPrefix + name);
 
       boolean multiValued = xmlSchemaElement.getMaxOccurs() > 1;

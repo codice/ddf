@@ -41,7 +41,7 @@ public class FilePolicyLoader implements PolicyLoader {
    */
   public FilePolicyLoader(BundleContext context, String policyLocation) throws IOException {
     URL policyURL = context.getBundle().getResource(policyLocation);
-    FilePolicyLoader.policyDoc = loadFromFile(policyURL);
+    FilePolicyLoader.setPolicy(loadFromFile(policyURL));
   }
 
   /**
@@ -75,5 +75,9 @@ public class FilePolicyLoader implements PolicyLoader {
   @Override
   public Document getPolicy() {
     return FilePolicyLoader.policyDoc;
+  }
+
+  public static void setPolicy(Document document) {
+    FilePolicyLoader.policyDoc = document;
   }
 }

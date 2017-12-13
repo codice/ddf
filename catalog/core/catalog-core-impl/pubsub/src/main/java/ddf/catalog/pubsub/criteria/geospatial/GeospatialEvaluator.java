@@ -13,6 +13,8 @@
  */
 package ddf.catalog.pubsub.criteria.geospatial;
 
+import static java.lang.Math.abs;
+
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -35,6 +37,8 @@ public class GeospatialEvaluator {
       "http://metadata.dod.mil/mdr/ns/GSIP/crs/WGS84E_2D";
 
   public static final String EPSG_4326 = "EPSG:4326";
+
+  private static final double ERROR_THRESHOLD = .000001;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(GeospatialEvaluator.class);
 
@@ -93,7 +97,7 @@ public class GeospatialEvaluator {
 
     boolean evaluation = false;
 
-    if (distance == 0.0) {
+    if (abs(distance) < ERROR_THRESHOLD) {
       switch (SpatialOperator.valueOf(operation.toUpperCase())) {
         case CONTAINS:
           LOGGER.debug("Doing CONTAINS evaluation");

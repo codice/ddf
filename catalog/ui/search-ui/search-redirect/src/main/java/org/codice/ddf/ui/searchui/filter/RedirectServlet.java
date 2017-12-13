@@ -35,6 +35,7 @@ public class RedirectServlet extends HttpServlet {
 
   private static final long serialVersionUID = 1L;
 
+  @SuppressWarnings("squid:S2226" /* Lifecycle managed by blueprint */)
   private transient RedirectConfiguration redirectConfiguration;
 
   @Override

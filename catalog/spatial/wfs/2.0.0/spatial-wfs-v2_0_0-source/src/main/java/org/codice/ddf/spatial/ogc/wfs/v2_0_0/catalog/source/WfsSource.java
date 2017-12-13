@@ -145,6 +145,7 @@ public class WfsSource extends MaskableImpl
 
   private static final String USERNAME_PROPERTY = "username";
 
+  @SuppressWarnings("squid:S2068" /* Real credentials are not hard coded */)
   private static final String PASSWORD_PROPERTY = "password";
 
   private static final String NON_QUERYABLE_PROPS_PROPERTY = "nonQueryableProperties";
@@ -665,20 +666,14 @@ public class WfsSource extends MaskableImpl
     if (this.metacardToFeatureMappers != null) {
       for (MetacardMapper mapper : this.metacardToFeatureMappers) {
         if (mapper != null && StringUtils.equals(mapper.getFeatureType(), featureType.toString())) {
-          LOGGER.debug(
-              "Found {} for feature type {}.",
-              MetacardMapper.class.getSimpleName(),
-              featureType.toString());
+          LOGGER.debug("Found MetacardMapper for feature type {}.", featureType);
           metacardAttributeToFeaturePropertyMapper = mapper;
           break;
         }
       }
 
       if (metacardAttributeToFeaturePropertyMapper == null) {
-        LOGGER.debug(
-            "Unable to find a {} for feature type {}.",
-            MetacardMapper.class.getSimpleName(),
-            featureType.toString());
+        LOGGER.debug("Unable to find a MetacardMapper for feature type {}.", featureType);
       }
     }
 
@@ -830,7 +825,9 @@ public class WfsSource extends MaskableImpl
                     buildSortBy(filterDelegateEntry.getKey(), query.getSortBy());
 
                 if (sortBy != null) {
-                  LOGGER.debug("Sorting using sort order of [{}].", sortOrder.identifier());
+                  if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Sorting using sort order of [{}].", sortOrder.identifier());
+                  }
                   wfsQuery.setAbstractSortingClause(sortBy);
                 }
               } else if (filterDelegateEntry.getValue().isSortingSupported()
@@ -841,9 +838,11 @@ public class WfsSource extends MaskableImpl
                     buildSortBy(filterDelegateEntry.getKey(), query.getSortBy());
 
                 if (sortBy != null) {
-                  LOGGER.debug(
-                      "No sort orders defined in getCapabilities.  Attempting to sort using sort order of [{}].",
-                      sortOrder.identifier());
+                  if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug(
+                        "No sort orders defined in getCapabilities.  Attempting to sort using sort order of [{}].",
+                        sortOrder.identifier());
+                  }
                   wfsQuery.setAbstractSortingClause(sortBy);
                 }
               } else if (filterDelegateEntry.getValue().isSortingSupported()

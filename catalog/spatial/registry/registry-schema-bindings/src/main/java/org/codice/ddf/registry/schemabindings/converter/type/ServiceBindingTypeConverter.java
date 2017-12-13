@@ -53,6 +53,7 @@ public class ServiceBindingTypeConverter
    *     Optional
    * @return Optional ServiceBindingType created from the values in the map
    */
+  @Override
   public Optional<ServiceBindingType> convert(Map<String, Object> map) {
     Optional<ServiceBindingType> optionalBinding = Optional.empty();
     if (MapUtils.isEmpty(map)) {
@@ -83,7 +84,7 @@ public class ServiceBindingTypeConverter
           (List<Map<String, Object>>) map.get(SPECIFICATION_LINK_KEY)) {
         optionalSpec = slConverter.convert(specMap);
 
-        if (optionalBinding.isPresent()) {
+        if (optionalSpec.isPresent()) {
           if (!optionalBinding.isPresent()) {
             optionalBinding = Optional.of(mapToSchemaElement.getObjectFactory().get());
           }

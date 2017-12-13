@@ -88,6 +88,8 @@ public class RemoveCommand extends CqlCommands {
     }
   }
 
+  @SuppressWarnings(
+      "squid:S00112" /* Non-generic exception would require importing and embedding SolrServerException */)
   private Object executeRemoveFromCache() throws Exception {
 
     if (hasFilter()) {

@@ -106,12 +106,16 @@ public class QueryForm extends HttpServlet {
     sb.append("</body>");
     sb.append("</html>");
 
-    StringBuilder message = new StringBuilder();
-    message.append("\n########################################################################\n");
-    message.append(" Query form html:\n");
-    message.append(sb.toString());
-    message.append("\n########################################################################\n");
-    LOGGER.debug(message.toString());
+    if (LOGGER.isDebugEnabled()) {
+      StringBuilder message = new StringBuilder();
+      message.append(
+          "\n########################################################################\n");
+      message.append(" Query form html:\n");
+      message.append(sb.toString());
+      message.append(
+          "\n########################################################################\n");
+      LOGGER.debug(message.toString());
+    }
 
     return sb.toString();
   }

@@ -31,7 +31,6 @@ import java.io.Serializable;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,15 +87,14 @@ public class ResourceUriPolicy implements PolicyPlugin {
         ((OperationTransaction) properties.get(OPERATION_TRANSACTION_KEY))
             .getPreviousStateMetacards();
 
-    Metacard previous;
-    try {
-      previous =
-          previousStateMetacards
-              .stream()
-              .filter((x) -> x.getId().equals(input.getId()))
-              .findFirst()
-              .get();
-    } catch (NoSuchElementException e) {
+    Metacard previous =
+        previousStateMetacards
+            .stream()
+            .filter((x) -> x.getId().equals(input.getId()))
+            .findFirst()
+            .orElse(null);
+
+    if (previous == null) {
       LOGGER.debug(
           "Cannot locate metacard {} for update. Applying permissions to the item", input.getId());
       return policyResponse;

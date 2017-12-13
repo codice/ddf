@@ -174,6 +174,8 @@ public class FeatureCollectionMessageBodyReaderWfs20
         responseBuilder.type("text/xml");
         Response response = responseBuilder.build();
         throw new WebApplicationException(e1, response);
+      } catch (VirtualMachineError e) {
+        throw e;
       } catch (JAXBException | XMLStreamException e1) {
         LOGGER.debug("Error in retrieving feature collection.", e1);
       } catch (RuntimeException | Error e) {

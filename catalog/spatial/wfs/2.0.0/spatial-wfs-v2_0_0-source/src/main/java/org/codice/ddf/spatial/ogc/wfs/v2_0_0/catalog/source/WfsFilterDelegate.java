@@ -117,6 +117,8 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
 
   private static final String PROPERTY_NOT_QUERYABLE = "'%s' is not a queryable property.";
 
+  private static final String PROPERTY_NOT_QUERYABLE_ARG = "{} is not a queryable property";
+
   // Regex to match coords in WKT
   private static final Pattern COORD_PATTERN =
       Pattern.compile("-?\\.?\\d+(\\.?\\d+)?\\s-?\\.?\\d+(\\.?\\d+)?");
@@ -985,7 +987,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
                 createPropertyIsFilter(attrDesc.getPropertyName(), literal, propertyIsType));
             binaryCompOpsToBeOred.add(filter);
           } else {
-            LOGGER.debug(String.format(PROPERTY_NOT_QUERYABLE, property));
+            LOGGER.debug(PROPERTY_NOT_QUERYABLE_ARG, property);
           }
         }
         if (!binaryCompOpsToBeOred.isEmpty()) {
@@ -1465,7 +1467,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
                 createSpatialOpType(spatialOpType, attrDesc.getPropertyName(), wkt, distance));
             filtersToBeOred.add(filter);
           } else {
-            LOGGER.debug(String.format(PROPERTY_NOT_QUERYABLE, property));
+            LOGGER.debug(PROPERTY_NOT_QUERYABLE_ARG, property);
           }
         }
         if (!filtersToBeOred.isEmpty()) {
@@ -1765,7 +1767,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     for (SpatialOperatorType spatialOp : spatialOperators.getSpatialOperator()) {
       LOGGER.debug("Adding key [spatialOp Name: {}]", spatialOp.getName());
       spatialOps.put(SPATIAL_OPERATORS.valueOf(spatialOp.getName()), spatialOp);
-      LOGGER.debug("spatialOps Map: {}", spatialOps.toString());
+      LOGGER.debug("spatialOps Map: {}", spatialOps);
     }
   }
 
@@ -1785,7 +1787,7 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
     for (TemporalOperatorType temporalOp : temporalOperators.getTemporalOperator()) {
       LOGGER.debug("Adding key [temporalOp Name: {}]", temporalOp.getName());
       temporalOps.put(TEMPORAL_OPERATORS.valueOf(temporalOp.getName()), temporalOp);
-      LOGGER.debug("temporalOps Map: {}", temporalOps.toString());
+      LOGGER.debug("temporalOps Map: {}", temporalOps);
     }
   }
 
