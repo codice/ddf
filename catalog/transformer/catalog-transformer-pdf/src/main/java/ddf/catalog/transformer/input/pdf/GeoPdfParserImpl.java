@@ -91,7 +91,8 @@ public class GeoPdfParserImpl implements GeoPdfParser {
             if (GEOGRAPHIC.equals(projectionType)) {
               COSArray neatlineArray =
                   (COSArray) cosObject.getObjectFromPath(LGIDICT + "/[" + i + "]/" + NEATLINE);
-              String wktString = getWktFromNeatLine(lgidict, neatlineArray, toDoubleVisitor).get();
+              String wktString =
+                  getWktFromNeatLine(lgidict, neatlineArray, toDoubleVisitor).orElse(null);
               polygons.add(wktString);
             } else {
               LOGGER.debug(
@@ -114,7 +115,12 @@ public class GeoPdfParserImpl implements GeoPdfParser {
             if (neatlineArray == null) {
               neatlineArray = generateNeatLineFromPDFDimensions(pdPage);
             }
-            polygons.add(getWktFromNeatLine(lgidict, neatlineArray, toDoubleVisitor).get());
+
+            Optional<String> wkt = getWktFromNeatLine(lgidict, neatlineArray, toDoubleVisitor);
+            if (wkt.isPresent()) {
+              polygons.add(
+                  getWktFromNeatLine(lgidict, neatlineArray, toDoubleVisitor).orElse(null));
+            }
 
           } else {
             LOGGER.debug(
