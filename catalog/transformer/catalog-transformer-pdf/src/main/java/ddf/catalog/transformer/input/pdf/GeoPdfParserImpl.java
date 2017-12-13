@@ -91,9 +91,7 @@ public class GeoPdfParserImpl implements GeoPdfParser {
             if (GEOGRAPHIC.equals(projectionType)) {
               COSArray neatlineArray =
                   (COSArray) cosObject.getObjectFromPath(LGIDICT + "/[" + i + "]/" + NEATLINE);
-              String wktString =
-                  getWktFromNeatLine(lgidict, neatlineArray, toDoubleVisitor).orElse(null);
-              polygons.add(wktString);
+              getWktFromNeatLine(lgidict, neatlineArray, toDoubleVisitor).ifPresent(polygons::add);
             } else {
               LOGGER.debug(
                   "Unsupported projection type {}.  Map Frame will be skipped.", projectionType);
@@ -116,12 +114,7 @@ public class GeoPdfParserImpl implements GeoPdfParser {
               neatlineArray = generateNeatLineFromPDFDimensions(pdPage);
             }
 
-            Optional<String> wkt = getWktFromNeatLine(lgidict, neatlineArray, toDoubleVisitor);
-            if (wkt.isPresent()) {
-              polygons.add(
-                  getWktFromNeatLine(lgidict, neatlineArray, toDoubleVisitor).orElse(null));
-            }
-
+            getWktFromNeatLine(lgidict, neatlineArray, toDoubleVisitor).ifPresent(polygons::add);
           } else {
             LOGGER.debug(
                 "Unsupported projection type {}.  Map Frame will be skipped.", projectionType);

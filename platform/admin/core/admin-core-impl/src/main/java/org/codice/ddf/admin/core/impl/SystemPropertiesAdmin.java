@@ -216,6 +216,7 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
     Map<String, Object> json = null;
     try (InputStream stream = Files.newInputStream(Paths.get(userAttributesFile.toURI()))) {
       if ((json = MAPPER.parser().parseMap(stream)) == null) {
+        LOGGER.debug("Json not found");
         return;
       }
 

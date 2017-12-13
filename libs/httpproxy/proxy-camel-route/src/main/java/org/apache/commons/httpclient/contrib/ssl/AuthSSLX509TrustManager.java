@@ -54,7 +54,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class AuthSSLX509TrustManager implements X509TrustManager {
   /** Log object for this class. */
-  private static final Log LOG = LogFactory.getLog(AuthSSLX509TrustManager.class);
+  private static final Log LOGGER = LogFactory.getLog(AuthSSLX509TrustManager.class);
 
   private X509TrustManager defaultTrustManager = null;
 
@@ -72,15 +72,15 @@ public class AuthSSLX509TrustManager implements X509TrustManager {
   public void checkClientTrusted(X509Certificate[] certificates, String authType)
       throws CertificateException {
     if (certificates != null) {
-      if (LOG.isDebugEnabled()) {
+      if (LOGGER.isDebugEnabled()) {
         for (int c = 0; c < certificates.length; c++) {
           X509Certificate cert = certificates[c];
-          LOG.debug(" Client certificate " + (c + 1) + ":");
-          LOG.debug("  Subject DN: " + cert.getSubjectDN());
-          LOG.debug("  Signature Algorithm: " + cert.getSigAlgName());
-          LOG.debug("  Valid from: " + cert.getNotBefore());
-          LOG.debug("  Valid until: " + cert.getNotAfter());
-          LOG.debug("  Issuer: " + cert.getIssuerDN());
+          LOGGER.debug(" Client certificate " + (c + 1) + ":");
+          LOGGER.debug("  Subject DN: " + cert.getSubjectDN());
+          LOGGER.debug("  Signature Algorithm: " + cert.getSigAlgName());
+          LOGGER.debug("  Valid from: " + cert.getNotBefore());
+          LOGGER.debug("  Valid until: " + cert.getNotAfter());
+          LOGGER.debug("  Issuer: " + cert.getIssuerDN());
         }
       }
       defaultTrustManager.checkClientTrusted(certificates, authType);
@@ -90,15 +90,15 @@ public class AuthSSLX509TrustManager implements X509TrustManager {
   /** @see javax.net.ssl.X509TrustManager#checkServerTrusted(X509Certificate[], String authType) */
   public void checkServerTrusted(X509Certificate[] certificates, String authType)
       throws CertificateException {
-    if (LOG.isDebugEnabled() && certificates != null) {
+    if (LOGGER.isDebugEnabled() && certificates != null) {
       for (int c = 0; c < certificates.length; c++) {
         X509Certificate cert = certificates[c];
-        LOG.debug(" Server certificate " + (c + 1) + ":");
-        LOG.debug("  Subject DN: " + cert.getSubjectDN());
-        LOG.debug("  Signature Algorithm: " + cert.getSigAlgName());
-        LOG.debug("  Valid from: " + cert.getNotBefore());
-        LOG.debug("  Valid until: " + cert.getNotAfter());
-        LOG.debug("  Issuer: " + cert.getIssuerDN());
+        LOGGER.debug(" Server certificate " + (c + 1) + ":");
+        LOGGER.debug("  Subject DN: " + cert.getSubjectDN());
+        LOGGER.debug("  Signature Algorithm: " + cert.getSigAlgName());
+        LOGGER.debug("  Valid from: " + cert.getNotBefore());
+        LOGGER.debug("  Valid until: " + cert.getNotAfter());
+        LOGGER.debug("  Issuer: " + cert.getIssuerDN());
       }
     }
     defaultTrustManager.checkServerTrusted(certificates, authType);
