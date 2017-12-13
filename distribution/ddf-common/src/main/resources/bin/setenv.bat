@@ -85,7 +85,7 @@ rem set KARAF_SYSTEM_OPTS=-Dprograde.generated.policy="%DDF_HOME%/generated.poli
 rem
 rem The Security Manager is turned off by default in DDF.
 rem
-set KARAF_SYSTEM_OPTS=-Dpolicy.provider=net.sourceforge.prograde.policy.ProGradePolicy -Djava.security.manager=net.sourceforge.prograde.sm.ProGradeJSM -Djava.security.policy==%DDF_HOME%security/default.policy -DproGrade.getPermissions.override=sun.rmi.server.LoaderHandler:loadClass,org.apache.jasper.compiler.JspRuntimeContext:initSecurity
+set KARAF_SYSTEM_OPTS=-Dpolicy.provider=net.sourceforge.prograde.policy.ProGradePolicy -Djava.security.manager=net.sourceforge.prograde.sm.ProGradeJSM -Djava.security.policy==%DDF_HOME%etc/all.policy -DproGrade.getPermissions.override=sun.rmi.server.LoaderHandler:loadClass,org.apache.jasper.compiler.JspRuntimeContext:initSecurity
 
 rem The following defines an environment variable referencing our script to be executed by the JVM
 rem when errors are detected. Unfortunately, forking the error process from Java does not expand
@@ -97,11 +97,11 @@ rem As a work around, we will have the ddf_on_error.bat script use the karaf.pid
 rem and it will default to being invoked via the 'script'
 rem The space would be important at the end of the DDF_ON_ERROR value to separate the last argument from
 rem the %p used by the JVM to represent the pid of the JVM
-rem set DDF_ON_ERROR=bin\ddf_on_error.bat script^ 
+rem set DDF_ON_ERROR=bin\ddf_on_error.bat script^
 set DDF_ON_ERROR=bin\ddf_on_error.bat
 
 rem Defines the special on-error Java options
 rem set JAVA_ERROR_OPTS=-XX:OnOutOfMemoryError=%DDF_ON_ERROR%%%p -XX:OnError=%DDF_ON_ERROR%%%p
 set JAVA_ERROR_OPTS=-XX:OnOutOfMemoryError=%DDF_ON_ERROR% -XX:OnError=%DDF_ON_ERROR%
 set KARAF_OPTS=-Dfile.encoding=UTF8
-set JAVA_OPTS=-Xms2g -Xmx4g -Dfile.encoding=UTF8 -Dderby.system.home="%DDF_HOME%\data\derby" -Dderby.storage.fileSyncTransactionLog=true -Dfile.encoding=UTF8 -Dddf.home=%DDF_HOME% -Dddf.home.perm=%DDF_HOME_PERM% -Dddf.home.policy=%DDF_HOME_POLICY% -XX:+DisableAttachMechanism %JAVA_ERROR_OPTS%
+set JAVA_OPTS=-Xms2g -Xmx4g -Dfile.encoding=UTF8 -Dderby.system.home="%DDF_HOME%\data\derby" -Dderby.storage.fileSyncTransactionLog=true -Dfile.encoding=UTF8 -Dddf.home=%DDF_HOME% -Dddf.home.perm=%DDF_HOME_PERM% -Dddf.home.policy=%DDF_HOME_POLICY% -XX:+DisableAttachMechanism %JAVA_ERROR_OPTS% -Xrunjdwp:server=y,transport=dt_socket,address=5005,suspend=n

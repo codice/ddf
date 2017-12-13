@@ -24,6 +24,7 @@ import net.sourceforge.prograde.policyparser.ParsedPolicyEntry;
 import net.sourceforge.prograde.policyparser.ParsedPrincipal;
 import net.sourceforge.prograde.policyparser.Parser;
 import net.sourceforge.prograde.type.Priority;
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.text.StrSubstitutor;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -52,11 +53,17 @@ public class PermissionActivator implements BundleActivator {
 
   @Override
   public void start(BundleContext bundleContext) throws Exception {
+    String separator = File.separator;
+    if (SystemUtils.IS_OS_WINDOWS) {
+      separator = File.separator + File.separator;
+    }
+    System.setProperty("/", separator);
     permAdminTracker = new ServiceTracker<>(bundleContext, PERM_ADMIN_SERVICE_NAME, null);
     permAdminTracker.open();
 
     ConditionalPermissionAdmin conditionalPermissionAdmin = permAdminTracker.getService();
-    String policyFile = SecurityActions.getSystemProperty("java.security.policy");
+    //    String policyFile = SecurityActions.getSystemProperty("java.security.policy");
+    String policyFile = SecurityActions.getSystemProperty("ddf.home") + "security\\default.policy";
     if (policyFile.startsWith("=")) {
       policyFile = policyFile.substring(1);
     }

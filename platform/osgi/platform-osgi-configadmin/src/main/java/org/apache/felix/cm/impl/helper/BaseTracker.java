@@ -265,62 +265,8 @@ public abstract class BaseTracker<S> extends ServiceTracker<S, ConfigurationMap<
       this.bundle = bundle;
     }
 
-    public ProtectionDomain[] combine(
-        ProtectionDomain[] currentDomains, ProtectionDomain[] assignedDomains) {
-      ProtectionDomain cmProtectionDomain = new CMProtectionDomain(bundle);
-      ProtectionDomain[] nonNullAssignedDomains = assignedDomains;
-      if (assignedDomains == null) {
-        nonNullAssignedDomains = new ProtectionDomain[0];
-      }
-      if (currentDomains == null || currentDomains.length == 0) {
-        ProtectionDomain[] newDomains = new ProtectionDomain[nonNullAssignedDomains.length + 1];
-        System.arraycopy(nonNullAssignedDomains, 0, newDomains, 0, nonNullAssignedDomains.length);
-        newDomains[nonNullAssignedDomains.length] = cmProtectionDomain;
-        return newDomains;
-      }
-      ProtectionDomain[] optimizedCurrentDomains = optimize(currentDomains);
-      if (optimizedCurrentDomains.length == 0 && nonNullAssignedDomains.length == 0) {
-        return new ProtectionDomain[] {cmProtectionDomain};
-      }
-
-      int currentLength = optimizedCurrentDomains.length;
-      int assignedLength = nonNullAssignedDomains.length;
-      ProtectionDomain[] newDomains = new ProtectionDomain[currentLength + assignedLength + 1];
-
-      System.arraycopy(optimizedCurrentDomains, 0, newDomains, 0, currentLength);
-      System.arraycopy(nonNullAssignedDomains, 0, newDomains, currentLength, assignedLength);
-
-      newDomains[currentLength + assignedLength] = cmProtectionDomain;
-
-      return newDomains;
-    }
-
-    private ProtectionDomain[] optimize(ProtectionDomain[] domains) {
-      if (domains == null || domains.length == 0) {
-        return new ProtectionDomain[0];
-      }
-
-      ProtectionDomain[] optimized = new ProtectionDomain[domains.length];
-      int num = 0;
-      for (ProtectionDomain domain : domains) {
-        if (domain != null) {
-          boolean found = false;
-          for (int j = 0; j < num && !found; j++) {
-            found = (optimized[j] == domain);
-          }
-          if (!found) {
-            optimized[num++] = domain;
-          }
-        }
-      }
-
-      if (num > 0 && num < domains.length) {
-        ProtectionDomain[] downSize = new ProtectionDomain[num];
-        System.arraycopy(optimized, 0, downSize, 0, downSize.length);
-        optimized = downSize;
-      }
-
-      return optimized;
+    public ProtectionDomain[] combine(ProtectionDomain[] arg0, ProtectionDomain[] arg1) {
+      return new ProtectionDomain[] {new CMProtectionDomain(bundle)};
     }
   }
 
