@@ -13,13 +13,16 @@
  */
 package org.codice.ddf.security.idp.binding.redirect;
 
+import ddf.security.samlp.SamlProtocol.Binding;
 import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SystemCrypto;
 import ddf.security.samlp.impl.EntityInformation;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
@@ -31,6 +34,7 @@ import org.apache.wss4j.common.util.DOM2Writer;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.codice.ddf.security.idp.binding.api.ResponseCreator;
 import org.codice.ddf.security.idp.binding.api.impl.ResponseCreatorImpl;
+import org.codice.ddf.security.idp.plugin.SamlPresignPlugin;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,8 +45,12 @@ public class RedirectResponseCreator extends ResponseCreatorImpl implements Resp
   private static final Logger LOGGER = LoggerFactory.getLogger(RedirectResponseCreator.class);
 
   public RedirectResponseCreator(
-      SystemCrypto systemCrypto, Map<String, EntityInformation> serviceProviders) {
-    super(systemCrypto, serviceProviders);
+      SystemCrypto systemCrypto,
+      Map<String, EntityInformation> serviceProviders,
+      Set<SamlPresignPlugin> presignPlugins,
+      List<String> spMetadata,
+      Set<Binding> supportedBindings) {
+    super(systemCrypto, serviceProviders, presignPlugins, spMetadata, supportedBindings);
   }
 
   @Override
@@ -54,9 +62,14 @@ public class RedirectResponseCreator extends ResponseCreatorImpl implements Resp
       String responseTemplate)
       throws IOException, SimpleSign.SignatureException, WSSecurityException {
     LOGGER.debug("Configuring SAML Response for Redirect.");
+
     Document doc = DOMUtils.createDocument();
     doc.appendChild(doc.createElement("root"));
-    URI location = signSamlGetResponse(samlResponse, authnRequest, relayState);
+
+    org.opensaml.saml.saml2.core.Response processingResponse =
+        processPresignPlugins(authnRequest, samlResponse);
+
+    URI location = signSamlGetResponse(processingResponse, authnRequest, relayState);
     String redirectUpdated = responseTemplate.replace("{{redirect}}", location.toString());
     Response.ResponseBuilder ok = Response.ok(redirectUpdated);
     if (cookie != null) {

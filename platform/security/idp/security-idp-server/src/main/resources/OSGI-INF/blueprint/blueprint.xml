@@ -31,6 +31,12 @@
 
     <reference id="logoutMessage" interface="ddf.security.samlp.LogoutMessage" />
 
+    <reference-list id="presignPlugins"
+      interface="org.codice.ddf.security.idp.plugin.SamlPresignPlugin"
+      availability="optional">
+        <reference-listener bind-method="bindPresignPlugin"
+          unbind-method="unbindPresignPlugin" ref="idp"/>
+    </reference-list>
 
     <bean id="IdpExceptionMapperProvider"
           class="org.codice.ddf.security.idp.server.IdpExceptionMapper"/>

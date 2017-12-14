@@ -41,10 +41,14 @@ import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.apache.wss4j.common.util.DOM2Writer;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemWriter;
+import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opensaml.core.xml.XMLObject;
+import org.opensaml.saml.saml2.core.Assertion;
+import org.opensaml.saml.saml2.core.SubjectConfirmationData;
+import org.opensaml.saml.saml2.core.impl.SubjectConfirmationDataBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -131,6 +135,33 @@ public class SimpleSignTest {
     Document doc = DOMUtils.createDocument();
     Element requestElement = OpenSAMLUtil.toDom(response, doc);
     requestElement.setAttribute("oops", "changedit");
+    String responseMessage = DOM2Writer.nodeToString(requestElement);
+    responseDoc = StaxUtils.read(new ByteArrayInputStream(responseMessage.getBytes()));
+    responseXmlObject = OpenSAMLUtil.fromDom(responseDoc.getDocumentElement());
+    response = (org.opensaml.saml.saml2.core.Response) responseXmlObject;
+    simpleSign.validateSignature(response.getSignature(), response.getDOM().getOwnerDocument());
+  }
+
+  @Test
+  public void testSignSamlObjectModifyAndResign() throws Exception {
+
+    Document responseDoc = StaxUtils.read(new ByteArrayInputStream(cannedResponse.getBytes()));
+    XMLObject responseXmlObject = OpenSAMLUtil.fromDom(responseDoc.getDocumentElement());
+    org.opensaml.saml.saml2.core.Response response =
+        (org.opensaml.saml.saml2.core.Response) responseXmlObject;
+    simpleSign.signSamlObject(response);
+
+    final SubjectConfirmationData scd = new SubjectConfirmationDataBuilder().buildObject();
+    scd.setNotOnOrAfter(DateTime.now().plusMinutes(30));
+    for (Assertion assertion : response.getAssertions()) {
+      assertion
+          .getSubject()
+          .getSubjectConfirmations()
+          .forEach(sc -> sc.setSubjectConfirmationData(scd));
+    }
+
+    Document doc = DOMUtils.createDocument();
+    Element requestElement = OpenSAMLUtil.toDom(response, doc);
     String responseMessage = DOM2Writer.nodeToString(requestElement);
     responseDoc = StaxUtils.read(new ByteArrayInputStream(responseMessage.getBytes()));
     responseXmlObject = OpenSAMLUtil.fromDom(responseDoc.getDocumentElement());

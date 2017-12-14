@@ -13,12 +13,15 @@
  */
 package org.codice.ddf.security.idp.binding.post;
 
+import ddf.security.samlp.SamlProtocol.Binding;
 import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SystemCrypto;
 import ddf.security.samlp.impl.EntityInformation;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import org.apache.cxf.helpers.DOMUtils;
@@ -27,6 +30,7 @@ import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.apache.wss4j.common.util.DOM2Writer;
 import org.codice.ddf.security.idp.binding.api.ResponseCreator;
 import org.codice.ddf.security.idp.binding.api.impl.ResponseCreatorImpl;
+import org.codice.ddf.security.idp.plugin.SamlPresignPlugin;
 import org.codice.ddf.security.idp.server.Idp;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.slf4j.Logger;
@@ -38,8 +42,12 @@ public class PostResponseCreator extends ResponseCreatorImpl implements Response
   private static final Logger LOGGER = LoggerFactory.getLogger(PostResponseCreator.class);
 
   public PostResponseCreator(
-      SystemCrypto systemCrypto, Map<String, EntityInformation> serviceProviders) {
-    super(systemCrypto, serviceProviders);
+      SystemCrypto systemCrypto,
+      Map<String, EntityInformation> serviceProviders,
+      Set<SamlPresignPlugin> presignPlugins,
+      List<String> spMetadata,
+      Set<Binding> supportedBindings) {
+    super(systemCrypto, serviceProviders, presignPlugins, spMetadata, supportedBindings);
   }
 
   @Override
@@ -51,12 +59,18 @@ public class PostResponseCreator extends ResponseCreatorImpl implements Response
       String responseTemplate)
       throws WSSecurityException, SimpleSign.SignatureException {
     LOGGER.debug("Configuring SAML Response for POST.");
+
     Document doc = DOMUtils.createDocument();
     doc.appendChild(doc.createElement("root"));
+
+    org.opensaml.saml.saml2.core.Response processingResponse =
+        processPresignPlugins(authnRequest, samlResponse);
+
     LOGGER.debug("Signing SAML POST Response.");
-    getSimpleSign().signSamlObject(samlResponse);
+    getSimpleSign().signSamlObject(processingResponse);
+
     LOGGER.debug("Converting SAML Response to DOM");
-    String assertionResponse = DOM2Writer.nodeToString(OpenSAMLUtil.toDom(samlResponse, doc));
+    String assertionResponse = DOM2Writer.nodeToString(OpenSAMLUtil.toDom(processingResponse, doc));
     String encodedSamlResponse =
         Base64.getEncoder().encodeToString(assertionResponse.getBytes(StandardCharsets.UTF_8));
     String assertionConsumerServiceURL = getAssertionConsumerServiceURL(authnRequest);

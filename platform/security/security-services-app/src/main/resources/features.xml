@@ -274,6 +274,8 @@
 
     <feature name="security-idp" install="manual" version="${project.version}"
              description="IDP server and client">
+        <bundle>mvn:ddf.security.idp/security-idp-plugin-api/${project.version}</bundle>
+        <bundle>mvn:ddf.security.idp/security-idp-plugin-subjectconfirmation/${project.version}</bundle>
         <bundle>mvn:ddf.security.idp/security-idp-client/${project.version}</bundle>
         <bundle>mvn:ddf.security.idp/security-idp-server/${project.version}</bundle>
     </feature>

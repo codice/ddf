@@ -13,13 +13,17 @@
  */
 package org.codice.ddf.security.idp.binding.post;
 
+import ddf.security.samlp.SamlProtocol;
 import ddf.security.samlp.SystemCrypto;
 import ddf.security.samlp.impl.EntityInformation;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.codice.ddf.security.idp.binding.api.Binding;
 import org.codice.ddf.security.idp.binding.api.RequestDecoder;
 import org.codice.ddf.security.idp.binding.api.ResponseCreator;
 import org.codice.ddf.security.idp.binding.api.Validator;
+import org.codice.ddf.security.idp.plugin.SamlPresignPlugin;
 
 public class PostBinding implements Binding {
 
@@ -29,9 +33,16 @@ public class PostBinding implements Binding {
 
   private final PostValidator validator;
 
-  public PostBinding(SystemCrypto systemCrypto, Map<String, EntityInformation> serviceProviders) {
+  public PostBinding(
+      SystemCrypto systemCrypto,
+      Map<String, EntityInformation> serviceProviders,
+      Set<SamlPresignPlugin> presignPlugins,
+      List<String> spMetadata,
+      Set<SamlProtocol.Binding> supportedBindings) {
     decoder = new PostRequestDecoder();
-    creator = new PostResponseCreator(systemCrypto, serviceProviders);
+    creator =
+        new PostResponseCreator(
+            systemCrypto, serviceProviders, presignPlugins, spMetadata, supportedBindings);
     validator = new PostValidator(systemCrypto, serviceProviders);
   }
 
