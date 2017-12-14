@@ -19,6 +19,8 @@ import static org.apache.camel.builder.PredicateBuilder.not;
 import ddf.camel.component.catalog.ingest.PostIngestConsumer;
 import java.io.File;
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -97,7 +99,8 @@ public class MetacardFileStorageRoute extends MetacardStorageRoute {
             MetacardFileStorageRoute.class,
             String.format(
                 "deleteFile(%s, ${in.headers.%s})",
-                getStartingDir(), TEMPLATED_STRING_HEADER_RTE_PROP))
+                URLEncoder.encode(getStartingDir(), "UTF-8"),
+                URLEncoder.encode(TEMPLATED_STRING_HEADER_RTE_PROP, "UTF-8")))
         .stop()
         .otherwise()
         .to(
@@ -128,8 +131,15 @@ public class MetacardFileStorageRoute extends MetacardStorageRoute {
   }
 
   public static void deleteFile(String startingDir, String fileName) {
-    String fullFilePath = String.format("%s%s%s", startingDir, File.separator, fileName);
+
+    String fullFilePath = null;
     try {
+      fullFilePath =
+          String.format(
+              "%s%s%s",
+              URLDecoder.decode(startingDir, "UTF-8"),
+              File.separator,
+              URLDecoder.decode(fileName, "UTF-8"));
       Files.deleteIfExists(Paths.get(fullFilePath));
       LOGGER.trace("Deleted File : {}", fullFilePath);
     } catch (IOException e) {
