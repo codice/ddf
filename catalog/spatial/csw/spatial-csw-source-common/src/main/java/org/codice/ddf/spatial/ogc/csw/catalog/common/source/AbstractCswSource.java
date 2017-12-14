@@ -919,6 +919,11 @@ public abstract class AbstractCswSource extends MaskableImpl
       URI resourceUri, Map<String, Serializable> requestProperties)
       throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
 
+    if (resourceUri == null) {
+      throw new IllegalArgumentException(
+          "Unable to retrieve resource because no resource URI was given");
+    }
+
     Serializable serializableId = null;
     String username = cswSourceConfiguration.getUsername();
     String password = cswSourceConfiguration.getPassword();
@@ -929,6 +934,8 @@ public abstract class AbstractCswSource extends MaskableImpl
         requestProperties.put(USERNAME_PROPERTY, username);
         requestProperties.put(PASSWORD_PROPERTY, password);
       }
+    } else {
+      requestProperties = new HashMap<>();
     }
 
     if (canRetrieveResourceById()) {
@@ -944,6 +951,7 @@ public abstract class AbstractCswSource extends MaskableImpl
         return response;
       }
     }
+
     LOGGER.debug("Retrieving resource at : {}", resourceUri);
     return resourceReader.retrieveResource(resourceUri, requestProperties);
   }

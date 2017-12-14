@@ -100,13 +100,14 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
    *     about bundle status for deployment services (like blueprint and spring).
    */
   public ApplicationServiceImpl(List<BundleStateService> bundleStateServices) {
-    BundleContext context = getContext();
-    ServiceReference<FeaturesService> featuresServiceRef =
-        context.getServiceReference(FeaturesService.class);
-    this.featuresService = context.getService(featuresServiceRef);
     this.bundleStateServices = bundleStateServices;
     ignoredApplicationNames = new HashSet<>();
 
+    BundleContext context = getContext();
+
+    ServiceReference<FeaturesService> featuresServiceRef =
+        context.getServiceReference(FeaturesService.class);
+    this.featuresService = context.getService(featuresServiceRef);
     try {
       // If the service is not available at this time, it means this is the first
       // boot of the system and we need to listen for the completion of the
@@ -266,7 +267,7 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
     if (cxfBundle != null) {
       return cxfBundle.getBundleContext();
     }
-    return null;
+    throw new IllegalStateException("Could not get context; cxfBundle is null");
   }
 
   @Override
@@ -534,10 +535,12 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
    */
   private final BundleStateSet getCurrentBundleStates(Set<Feature> features) {
     BundleStateSet bundleStateSet = new BundleStateSet();
+    BundleContext context = getContext();
 
     for (Feature curFeature : features) {
       for (BundleInfo curBundleInfo : curFeature.getBundles()) {
-        Bundle curBundle = getContext().getBundle(curBundleInfo.getLocation());
+        Bundle curBundle = context.getBundle(curBundleInfo.getLocation());
+
         if (curBundle != null
             && curBundle.adapt(BundleRevision.class).getTypes() != BundleRevision.TYPE_FRAGMENT) {
 
@@ -938,6 +941,7 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
   public void serviceChanged(ServiceEvent serviceEvent) {
     if (serviceEvent.getType() == ServiceEvent.REGISTERED) {
       BundleContext context = getContext();
+
       try {
         ServiceReference<ConfigurationAdmin> configAdminRef =
             context.getServiceReference(ConfigurationAdmin.class);

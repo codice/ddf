@@ -105,6 +105,7 @@ public class EmbeddedSolrFactory implements SolrClientFactory {
    * @param givenConfigFileProxy {@link ConfigurationFileProxy} instance to use. If {@code null}, a
    *     new {@link ConfigurationFileProxy} will be used.
    * @return a new {@link EmbeddedSolrServer} instance
+   * @throws IllegalArgumentException if it cannot find the Solr config file
    */
   public static EmbeddedSolrServer getEmbeddedSolrServer(
       String coreName,
@@ -138,6 +139,10 @@ public class EmbeddedSolrFactory implements SolrClientFactory {
     configProxy.writeSolrConfiguration(coreName);
     File solrConfigFile = getConfigFile(solrConfigFileName, configProxy, coreName);
     File solrSchemaFile = getConfigFile(schemaFileName, configProxy, coreName);
+
+    if (solrConfigFile == null) {
+      throw new IllegalArgumentException("Unable to find Solr config file");
+    }
 
     if (solrSchemaFile == null) {
       solrSchemaFile = getConfigFile("managed-schema", configProxy, coreName);

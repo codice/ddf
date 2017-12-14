@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.admin.application.service.command;
 
+import static org.codice.ddf.admin.application.service.command.AbstractProfileCommand.PROFILE_EXTENSION;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -90,6 +91,7 @@ public class ProfileListCommandTest {
     assertThat(out.toString().contains("standard"), is(true));
     assertThat(out.toString().contains("devProfile"), is(true));
     assertThat(out.toString().contains("profileWithDuplicates"), is(true));
+    assertThat(out.toString().contains(PROFILE_EXTENSION), is(false));
   }
 
   @Test
@@ -99,6 +101,7 @@ public class ProfileListCommandTest {
     assertThat(out.toString().contains("standard"), is(true));
     assertThat(out.toString().contains("devProfile"), is(false));
     assertThat(out.toString().contains("profileWithDuplicates"), is(false));
+    assertThat(out.toString().contains(PROFILE_EXTENSION), is(false));
   }
 
   @Test
@@ -108,6 +111,7 @@ public class ProfileListCommandTest {
     assertThat(out.toString().contains("standard"), is(false));
     assertThat(out.toString().contains("devProfile"), is(true));
     assertThat(out.toString().contains("profileWithDuplicates"), is(true));
+    assertThat(out.toString().contains(PROFILE_EXTENSION), is(false));
   }
 
   @Test
@@ -119,6 +123,7 @@ public class ProfileListCommandTest {
     assertThat(out.toString().contains("standard"), is(false));
     assertThat(out.toString().contains("devProfile"), is(false));
     assertThat(out.toString().contains("profileWithDuplicates"), is(false));
+    assertThat(out.toString().contains(PROFILE_EXTENSION), is(false));
   }
 
   private Feature createMockFeature(String name) {

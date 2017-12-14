@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nullable;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
@@ -353,10 +354,12 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
             bundleLocations.add(info.getLocation());
           }
 
-          for (Bundle bundle : context.getBundles()) {
-            for (BundleInfo info : bundles) {
-              if (info.getLocation().equals(bundle.getLocation())) {
-                metatypeInformation.add(metatypeService.getMetaTypeInformation(bundle));
+          if (metatypeService != null) {
+            for (Bundle bundle : context.getBundles()) {
+              for (BundleInfo info : bundles) {
+                if (info.getLocation().equals(bundle.getLocation())) {
+                  metatypeInformation.add(metatypeService.getMetaTypeInformation(bundle));
+                }
               }
             }
           }
@@ -518,13 +521,15 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
    *
    * @return the service or <code>null</code> if missing.
    */
+  @Nullable
   final MetaTypeService getMetaTypeService() {
-    if (serviceTracker == null) {
-      BundleContext context = getContext();
-      serviceTracker = new ServiceTracker<Object, Object>(context, META_TYPE_NAME, null);
+    BundleContext context = getContext();
+
+    if (serviceTracker == null && context != null) {
+      serviceTracker = new ServiceTracker<>(context, META_TYPE_NAME, null);
       serviceTracker.open();
     }
-    return (MetaTypeService) serviceTracker.getService();
+    return (serviceTracker != null) ? (MetaTypeService) serviceTracker.getService() : null;
   }
 
   protected BundleContext getContext() {
@@ -532,7 +537,7 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
     if (cxfBundle != null) {
       return cxfBundle.getBundleContext();
     }
-    return null;
+    throw new IllegalStateException("Could not get context from cxfBundle");
   }
 
   /** {@inheritDoc}. */

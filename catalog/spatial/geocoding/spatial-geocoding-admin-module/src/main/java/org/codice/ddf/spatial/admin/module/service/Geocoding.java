@@ -66,11 +66,7 @@ public class Geocoding implements GeocodingMBean {
           LOGGER.debug("Re-registered Geocoding Configuration MBean");
         }
       } catch (Exception e) {
-        // objectName is not always non-null because new ObjectName(...) can throw an exception
-        LOGGER.info(
-            "Could not register MBean [{}].",
-            objectName != null ? objectName.toString() : Geocoding.class.getName(),
-            e);
+        LOGGER.info("Could not register MBean [{}].", objectName, e);
       }
     }
   }
