@@ -230,15 +230,11 @@ public class DynamicSchemaResolver {
       throws MetacardCreationException {
     MetacardType schema = metacard.getMetacardType();
 
-    // TODO: register these metacard types when a new one is seen
-
     for (AttributeDescriptor ad : schema.getAttributeDescriptors()) {
       if (metacard.getAttribute(ad.getName()) != null) {
         List<Serializable> attributeValues = metacard.getAttribute(ad.getName()).getValues();
 
-        if (attributeValues != null
-            && attributeValues.size() > 0
-            && attributeValues.get(0) != null) {
+        if (!attributeValues.isEmpty() && attributeValues.get(0) != null) {
           AttributeFormat format = ad.getType().getAttributeFormat();
           String formatIndexName = ad.getName() + getFieldSuffix(format);
 
@@ -317,16 +313,15 @@ public class DynamicSchemaResolver {
       }
     }
 
-    if (!ConfigurationStore.getInstance().isDisableTextPath()) {
-      if (StringUtils.isNotBlank(metacard.getMetadata())) {
-        try {
-          byte[] luxXml = createTinyBinary(metacard.getMetadata());
-          solrInputDocument.addField(LUX_XML_FIELD_NAME, luxXml);
-        } catch (XMLStreamException | SaxonApiException e) {
-          LOGGER.debug(
-              "Unable to parse metadata field.  XPath support unavailable for metacard {}",
-              metacard.getId());
-        }
+    if (!ConfigurationStore.getInstance().isDisableTextPath()
+        && StringUtils.isNotBlank(metacard.getMetadata())) {
+      try {
+        byte[] luxXml = createTinyBinary(metacard.getMetadata());
+        solrInputDocument.addField(LUX_XML_FIELD_NAME, luxXml);
+      } catch (XMLStreamException | SaxonApiException e) {
+        LOGGER.debug(
+            "Unable to parse metadata field.  XPath support unavailable for metacard {}",
+            metacard.getId());
       }
     }
 
@@ -427,7 +422,7 @@ public class DynamicSchemaResolver {
     XmlReader xmlReader = new XmlReader();
     xmlReader.addHandler(builder);
     xmlReader.setStripNamespaces(true);
-    xmlReader.read(IOUtils.toInputStream(xml));
+    xmlReader.read(IOUtils.toInputStream(xml, StandardCharsets.UTF_8));
 
     XdmNode node = builder.getDocument();
 
@@ -477,20 +472,13 @@ public class DynamicSchemaResolver {
       return Short.parseShort(docValue.toString());
     } else if (AttributeFormat.OBJECT.equals(format)) {
 
-      ByteArrayInputStream bais = null;
-      ObjectInputStream in = null;
-      try {
-        bais = new ByteArrayInputStream((byte[]) docValue);
-        in = new ObjectInputStream(bais);
+      try (ByteArrayInputStream bais = new ByteArrayInputStream((byte[]) docValue);
+          ObjectInputStream in = new ObjectInputStream(bais)) {
         return (Serializable) in.readObject();
       } catch (IOException e) {
         LOGGER.info("IO exception loading input document", e);
       } catch (ClassNotFoundException e) {
         LOGGER.info("Could not create object to return.", e);
-        // TODO which exception to throw?
-      } finally {
-        IOUtils.closeQuietly(bais);
-        IOUtils.closeQuietly(in);
       }
 
       return null;
@@ -604,13 +592,8 @@ public class DynamicSchemaResolver {
 
     byte[] bytes = (byte[]) doc.getFirstValue(SchemaFields.METACARD_TYPE_OBJECT_FIELD_NAME);
 
-    ByteArrayInputStream bais = null;
-    ObjectInputStream in = null;
-    try {
-
-      bais = new ByteArrayInputStream(bytes);
-
-      in = new ObjectInputStream(bais);
+    try (ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+        ObjectInputStream in = new ObjectInputStream(bais)) {
 
       cachedMetacardType = (MetacardType) in.readObject();
 
@@ -623,9 +606,6 @@ public class DynamicSchemaResolver {
       LOGGER.info("Class exception loading cached metacard type", e);
 
       throw new MetacardCreationException(COULD_NOT_READ_METACARD_TYPE_MESSAGE);
-    } finally {
-      IOUtils.closeQuietly(bais);
-      IOUtils.closeQuietly(in);
     }
 
     metacardTypeNameToSerialCache.put(mTypeFieldName, bytes);
@@ -635,7 +615,6 @@ public class DynamicSchemaResolver {
   }
 
   public String getCaseSensitiveField(String mappedPropertyName) {
-    // TODO We can check if this field really does exist
     return mappedPropertyName + SchemaFields.HAS_CASE;
   }
 
@@ -730,9 +709,10 @@ public class DynamicSchemaResolver {
     }
 
     LOGGER.debug(
-        "Did not find any numerical schema fields for property [{}]. Replacing with property [{}]",
+        "Did not find any numerical schema fields for property [{}]. Replacing with property [{}{}]",
         propertyName,
-        propertyName + SchemaFields.INTEGER_SUFFIX);
+        propertyName,
+        SchemaFields.INTEGER_SUFFIX);
     return propertyName + SchemaFields.INTEGER_SUFFIX;
   }
 
@@ -748,13 +728,11 @@ public class DynamicSchemaResolver {
     StringBuilder builder = new StringBuilder();
     List<String> parsedTexts = new ArrayList<>();
     XMLStreamReader xmlStreamReader = null;
-    StringReader sr = null;
     long starttime = System.currentTimeMillis();
 
-    try {
-      for (Serializable xmlData : xmlDatas) {
-        // xml parser does not handle leading whitespace
-        sr = new StringReader(xmlData.toString());
+    for (Serializable xmlData : xmlDatas) {
+      // xml parser does not handle leading whitespace
+      try (StringReader sr = new StringReader(xmlData.toString())) {
         xmlStreamReader = XML_INPUT_FACTORY.createXMLStreamReader(sr);
 
         while (xmlStreamReader.hasNext()) {
@@ -781,17 +759,16 @@ public class DynamicSchemaResolver {
         }
         parsedTexts.add(builder.toString());
         builder.setLength(0);
-      }
-    } catch (XMLStreamException e1) {
-      LOGGER.info(
-          "Failure occurred in parsing the xml data. No data has been stored or indexed.", e1);
-    } finally {
-      IOUtils.closeQuietly(sr);
-      if (xmlStreamReader != null) {
-        try {
-          xmlStreamReader.close();
-        } catch (XMLStreamException e) {
-          LOGGER.debug("Exception closing XMLStreamReader", e);
+      } catch (XMLStreamException e1) {
+        LOGGER.info(
+            "Failure occurred in parsing the xml data. No data has been stored or indexed.", e1);
+      } finally {
+        if (xmlStreamReader != null) {
+          try {
+            xmlStreamReader.close();
+          } catch (XMLStreamException e) {
+            LOGGER.debug("Exception closing XMLStreamReader", e);
+          }
         }
       }
     }
