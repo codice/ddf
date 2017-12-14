@@ -32,7 +32,6 @@ import ddf.catalog.transform.MetacardTransformer
 import org.apache.karaf.shell.api.console.Session
 import org.osgi.framework.BundleContext
 import org.osgi.framework.ServiceReference
-import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Unroll
 
