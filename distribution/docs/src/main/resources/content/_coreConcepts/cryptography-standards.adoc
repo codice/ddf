@@ -1,0 +1,23 @@
+:type: subCoreConcept
+:status: published
+:title: Cryptography Standards
+:parent: Standards Supported by ${branding}
+:order: 04
+
+.Cryptography Standards Provided by ${ddf-branding}
+[cols="2,1" options="header"]
+|===
+|Standard
+|Support Status
+
+|https://tools.ietf.org/html/rfc5246[Transport Layer Security (TLS) v1.1 & v1.2]
+|Supported
+a|https://docs.oracle.com/javase/8/docs/technotes/guides/security/SunProviders.html#SupportedCipherSuites[Cipher Suites]
+
+* TLS_DHE_RSA_WITH_AES_128_GCM_SHA256
+* TLS_DHE_RSA_WITH_AES_128_CBC_SHA256
+* TLS_DHE_RSA_WITH_AES_128_CBC_SHA
+* TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+* TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+|Supported
+|===

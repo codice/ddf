@@ -3,6 +3,8 @@
 :title: Introduction to Resources
 :order: 04
 
+== {title}
+
 The Catalog Framework can interface with <<_storage_providers,Storage Providers>> to provide storage of resources to specific types of storage, e.g., file system, relational database, XML database.
 A default file system implementation is provided by default.
 

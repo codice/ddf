@@ -3,6 +3,8 @@
 :title: Introduction to Endpoints
 :order: 09
 
+== {title}
+
 Endpoints expose the Catalog Framework to clients using protocols and formats that the clients understand.
 
 Endpoint interface formats encompass a variety of protocols, including (but not limited to):

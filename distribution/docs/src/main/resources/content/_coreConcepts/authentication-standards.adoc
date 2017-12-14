@@ -1,0 +1,25 @@
+:type: subCoreConcept
+:status: published
+:title: Authentication Standards Provided by ${ddf-branding}
+:parent: Standards Supported by ${branding}
+:order: 08
+
+.{title}
+[cols="2,1" options="header"]
+|===
+|Standard
+|Support Status
+
+|http://www.oasis-pki.org/resources/techstandards/[Public Key Infrastructure (PKI)]
+|Supported
+
+|https://www.ietf.org/rfc/rfc2617.txt[Basic Authentication]
+|Supported
+
+|https://www.oasis-open.org/standards#samlv2.0[SAML]
+|Supported
+
+|https://apereo.github.io/cas/5.1.x/protocol/CAS-Protocol.html[Central Authentication Service (CAS)]
+|Supported
+
+|===

@@ -3,6 +3,8 @@
 :title: Introduction to Ingest
 :order: 03
 
+== {title}
+
 Ingest is the process of bringing data products, metadata, or both into the catalog to enable search, sharing, and discovery.
 Ingested files are <<_transformers,transformed>> into a neutral format that can be searched against as well as migrated to other formats and systems.
 See <<_ingesting_data, Ingesting Data>> for the various methods of ingesting data.

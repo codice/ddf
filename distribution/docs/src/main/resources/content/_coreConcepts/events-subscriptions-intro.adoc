@@ -1,7 +1,9 @@
+:title: Introduction to Events and Subscriptions
 :type: coreConcept
 :status: published
-:title: Introduction to Events and Subscriptions
 :order: 07
+
+== {title}
 
 ${branding} can be configured to receive notifications whenever metadata is created, updated, or deleted in any federated sources.
 Creations, updates, and deletions are collectively called *Events*, and the process of registering to recieve them is called *Subscription*.
