@@ -22,6 +22,7 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -270,6 +271,9 @@ public class CswQueryFactoryTest {
     when(queryFilterTransformerProvider.getTransformer(
             new QName(CswConstants.CSW_OUTPUT_SCHEMA, "Record")))
         .thenReturn(Optional.of(cswQueryFilter));
+    when(queryFilterTransformerProvider.getTransformer(anyString()))
+        .thenReturn(Optional.of(cswQueryFilter));
+
     queryFactory.setQueryFilterTransformerProvider(queryFilterTransformerProvider);
   }
 
@@ -1244,7 +1248,7 @@ public class CswQueryFactoryTest {
   private void addQueryFilterTransformer(String namespace, QueryRequest request) {
     QueryFilterTransformer transformer = mock(QueryFilterTransformer.class);
     when(transformer.transform(any(), any())).thenReturn(request);
-    when(queryFilterTransformerProvider.getTransformer(QName.valueOf(namespace)))
+    when(queryFilterTransformerProvider.getTransformer(namespace))
         .thenReturn(Optional.of(transformer));
   }
 }

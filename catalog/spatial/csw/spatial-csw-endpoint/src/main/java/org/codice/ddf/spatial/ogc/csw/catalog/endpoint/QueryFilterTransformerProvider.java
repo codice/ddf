@@ -16,11 +16,15 @@ package org.codice.ddf.spatial.ogc.csw.catalog.endpoint;
 
 import ddf.catalog.transform.QueryFilterTransformer;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.annotation.Nullable;
 import javax.xml.namespace.QName;
+import org.apache.commons.lang.StringUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
@@ -37,6 +41,8 @@ public class QueryFilterTransformerProvider {
 
   private Map<QName, QueryFilterTransformer> queryFilterTransformerMap = new ConcurrentHashMap<>();
 
+  private final Map<String, QName> typeNameQNameMap = new HashMap<>();
+
   public synchronized void bind(ServiceReference<QueryFilterTransformer> reference) {
     if (reference == null) {
       return;
@@ -47,6 +53,11 @@ public class QueryFilterTransformerProvider {
 
     for (QName namespace : namespaces) {
       queryFilterTransformerMap.put(namespace, transformer);
+      List<String> typeNames = getTypeNames(reference);
+
+      for (String typeName : typeNames) {
+        typeNameQNameMap.put(typeName, namespace);
+      }
     }
   }
 
@@ -54,16 +65,31 @@ public class QueryFilterTransformerProvider {
     if (reference == null) {
       return;
     }
-
     try {
       List<QName> namespaces = getNamespaces(reference);
-
       for (QName namespace : namespaces) {
         queryFilterTransformerMap.remove(namespace);
+        List<String> typeNames = getTypeNames(reference);
+        for (String typeName : typeNames) {
+          typeNameQNameMap.remove(typeName, namespace);
+        }
       }
     } finally {
       getBundleContext().ungetService(reference);
     }
+  }
+
+  public synchronized Optional<QueryFilterTransformer> getTransformer(@Nullable String typeName) {
+    if (StringUtils.isEmpty(typeName)) {
+      return Optional.empty();
+    }
+
+    QName qName = typeNameQNameMap.get(typeName);
+    if (qName == null) {
+      return Optional.empty();
+    }
+
+    return Optional.ofNullable(queryFilterTransformerMap.get(qName));
   }
 
   public synchronized Optional<QueryFilterTransformer> getTransformer(QName qName) {
@@ -71,6 +97,15 @@ public class QueryFilterTransformerProvider {
       return Optional.empty();
     }
     return Optional.ofNullable(queryFilterTransformerMap.get(qName));
+  }
+
+  private List<String> getTypeNames(ServiceReference<QueryFilterTransformer> reference) {
+    Object typeNameObject =
+        reference.getProperty(CswEndpoint.QUERY_FILTER_TRANSFORMER_TYPE_NAMES_FIELD);
+    if (typeNameObject instanceof List) {
+      return (List<String>) typeNameObject;
+    }
+    return Collections.emptyList();
   }
 
   private List<QName> getNamespaces(ServiceReference<QueryFilterTransformer> reference) {
