@@ -9,24 +9,26 @@
 
 These steps are handled differently for the initial setup of a Highly Available Cluster.
 
-===== HTTP Proxy Integration
+===== Failover Proxy Integration
 
-In order to integrate with an HTTP proxy, the ${branding} node's system properties (in `${home_directory}/etc/system.properties`) must be changed to publish the correct port to external systems and users.
-This must be done before installing the first ${branding} node.
+In order to integrate with a failover proxy, the ${branding} node's system properties (in `${home_directory}/etc/system.properties`) must be changed to publish the correct port to external systems and users.
+This must be done before installing the first ${branding} node. See <<_high_availability_initial_setup, High Availability Initial Setup>>.
 
 There are two internal port properties that must be changed to whatever ports the ${branding} will use on its system.
-Then there are two external port properties that must be changed to whatever ports the HTTP proxy is forwarding traffic through.
+Then there are two external port properties that must be changed to whatever ports the failover proxy is forwarding traffic through.
 
 [WARNING]
 ====
-Make sure that the HTTP proxy is already running and forwarding traffic on the chosen ports before starting the ${branding}.
+Make sure that the failover proxy is already running and forwarding traffic on the chosen ports before starting the ${branding}.
 There may be unexpected behavior otherwise.
 ====
 
-In the below example, the HTTP proxy is forwarding https traffic via 8993 and http traffic via 8181.
+In the below example, the failover proxy with a hostname of service.org is forwarding https traffic via 8993 and http traffic via 8181.
 The ${branding} node will run on 1111 for https and 2222 for http (on the host that it's hosted on).
+The hostname of the ${branding} must match the hostname of the proxy.
 [source]
 ----
+org.codice.ddf.system.hostname=service.org
 org.codice.ddf.system.httpsPort=8993
 org.codice.ddf.system.httpPort=8181
 org.codice.ddf.system.port=${org.codice.ddf.system.httpsPort}
@@ -55,9 +57,41 @@ One way to accomplish this is to use the default <<org.codice.ddf.catalog.conten
 
 ===== High Availability Certificates
 
-Certificates need to have Subject Alternative Names (SANs) which will include the host for the HTTP proxy and for both ${branding} nodes.
-A certificate with SANs signed by the Demo CA can be obtained by following the steps at <<_creating_new_server_keystore_entry_with_the_certnew_scripts,Creating New Server Keystore Entry with the CertNew Scripts>>.
-This certificate is intended for testing purposes only, and should not be used in production.
+Due to the nature of highly available environments, localhost is not suitable for use as a hostname to identify the ${branding} cluster.
+The default certificate that ships with the product uses localhost as the common name, so this certificate needs to be replaced.
+The following describes how to generate a certificate signed by the ${branding} Demo Certificate Authority that uses a proper hostname.
+
+[NOTE]
+====
+This certificate, and any subsequent certificates signed by the Demo CA, are intended for testing purposes only,
+and should not be used in production.
+====
+
+Certificates need to have Subject Alternative Names (SANs) which will include the host for the failover
+proxy and for both ${branding} nodes. A certificate with SANs signed by the Demo CA can be obtained by
+navigating to `${home_directory}/etc/certs/` and, assuming the proxy's hostname is service.org, running
+the following for UNIX operating systems:
+
+[source]
+----
+./CertNew.sh -cn service.org -san "DNS:service.org"
+----
+
+or the following for Windows operating systems:
+
+[source]
+----
+CertNew -cn service.org -san "DNS:service.org"
+----
+
+[NOTE]
+====
+Systems that use DDF version 2.11.4 or later will automatically get a DNS SAN entry matching the CN
+without the need to specify the `-san` argument to the `CertNew` command.
+====
+
+More customization for certs can be achieved by following the steps at
+<<_creating_new_server_keystore_entry_with_the_certnew_scripts,Creating New Server Keystore Entry with the CertNew Scripts>>.
 
 ===== High Availability Installation Profile
 
