@@ -64,7 +64,7 @@ define([
                 //console.log('route to specific workspace:'+workspaceId);
             },
             home: function(){
-               // console.log('route to workspaces home');
+                //console.log('route to workspaces home');
             },
             workspaces: function(){
                 //console.log('route to workspaces home');
@@ -119,6 +119,12 @@ define([
             hideViews();
             var self = this;
             var queryForMetacards, queryForMetacard;
+            var lowBandwidth = args.includes('lowBandwidth') || router.get('lowBandwidth');
+        
+            router.set({
+                lowBandwidth: lowBandwidth
+            });
+
             switch(name){
                 case 'openWorkspace':
                     var workspaceId = args[0];

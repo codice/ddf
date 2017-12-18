@@ -1,3 +1,4 @@
+{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -9,25 +10,15 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global define, document*/
-define([
-    'jquery',
-    'underscore',
-    'backbone'
-], function ($, _, Backbone) {
-
-    return new (Backbone.Model.extend({
-        defaults: {
-            name: undefined,
-            path: undefined,
-            args: undefined,
-            lowBandwidth: false
-        },
-        initialize: function(){
-            this.listenTo(this, 'change:name', this.handleChangeName);
-        },
-        handleChangeName: function(){
-            $('html').attr('data-route', this.get('name'));
-        }
-    }))();
-});
+ --}}
+<div class="low-bandwidth-confirmation">
+    <h3 align="center">
+    Low-bandwidth mode is enabled. Please confirm that you want this component to load despite potential bandwidth limitations. 
+    </h3>
+    <button class="low-bandwidth-button is-positive" align="center">
+        <span>Continue</span>
+    </button>
+</div>
+<div class="map-container">
+    
+</div>

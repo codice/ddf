@@ -28,6 +28,8 @@ var InspectorView = require('component/visualization/inspector/inspector.view');
 var OpenlayersView = require('component/visualization/maps/openlayers/openlayers.view');
 var HistogramView = require('component/visualization/histogram/histogram.view');
 var CombinedMapView = require('component/visualization/combined-map/combined-map.view');
+var LowBandwidthMapView = require('component/visualization/low-bandwidth-map/low-bandwidth-map.view');
+var router = require('component/router/router');
 var Common = require('js/Common');
 var store = require('js/store');
 var user = require('component/singletons/user-instance');
@@ -101,6 +103,7 @@ function getGoldenLayoutSettings(){
 // The short answer is it mostly has to do with making sure these ComponentViews are able to function normally (set up events, etc.)
 function registerComponent(marionetteView, name, ComponentView) {
     var options = marionetteView.options;
+    options = _.extend({}, options, {lowBandwidth: router.get('lowBandwidth'), desiredContainer: name});
     marionetteView.goldenLayout.registerComponent(name, function (container, componentState) {
         container.on('open', () => {
             setTimeout(function () {
@@ -218,9 +221,9 @@ module.exports = Marionette.LayoutView.extend({
     registerGoldenLayoutComponents: function(){
         registerComponent(this, 'inspector', InspectorView);
         registerComponent(this, 'table', TableView);
-        registerComponent(this, 'cesium', CombinedMapView);
+        registerComponent(this, 'cesium', LowBandwidthMapView);
         registerComponent(this, 'histogram', HistogramView);
-        registerComponent(this, 'openlayers', OpenlayersView);
+        registerComponent(this, 'openlayers', LowBandwidthMapView);
     },
     detectIfGoldenLayoutMaximised: function(){
         this.$el.toggleClass('is-maximised', isMaximised(this.goldenLayout.root));

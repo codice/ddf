@@ -1,0 +1,25 @@
+@{customElementNamespace}low-bandwidth-map {
+    .customElement;
+
+    > .low-bandwidth-confirmation {
+        button {
+            position: relative;
+            width: 100%;
+            height: 5*@minimumButtonSize;
+            line-height: 5*@minimumButtonSize;
+        }
+        .customElement;
+        overflow: auto;
+        padding: 20px;
+    
+        * + * {
+            margin-top: 20px;
+        }
+    }
+
+    > .map-container {
+        .customElement;
+    }
+
+    
+}
