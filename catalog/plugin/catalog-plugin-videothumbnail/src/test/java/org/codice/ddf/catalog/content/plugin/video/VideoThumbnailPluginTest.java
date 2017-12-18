@@ -51,7 +51,9 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -65,6 +67,11 @@ public class VideoThumbnailPluginTest {
   private VideoThumbnailPlugin videoThumbnailPlugin;
 
   private HashMap<String, Map> tmpContentPaths;
+
+  @BeforeClass
+  public static void setUpClass() {
+    Assume.assumeFalse("Skip unit tests on Windows. See DDF-3503.", SystemUtils.IS_OS_WINDOWS);
+  }
 
   @Before
   public void setUp() throws IOException, MimeTypeParseException, URISyntaxException {
@@ -343,8 +350,9 @@ public class VideoThumbnailPluginTest {
       ffmpegResourcePath = "linux/ffmpeg";
     } else if (SystemUtils.IS_OS_MAC) {
       ffmpegResourcePath = "osx/ffmpeg";
-    } else if (SystemUtils.IS_OS_WINDOWS) {
-      ffmpegResourcePath = "windows/ffmpeg.exe";
+      //      Skip unit tests on Windows. See DDF-3503.
+      //    } else if (SystemUtils.IS_OS_WINDOWS) {
+      //      ffmpegResourcePath = "windows/ffmpeg.exe";
     } else if (SystemUtils.IS_OS_SOLARIS) {
       ffmpegResourcePath = "solaris/ffmpeg";
     } else {
