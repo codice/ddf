@@ -230,7 +230,6 @@ org.codice.ddf.admin.application.service.command.completers
 org.codice.ddf.admin.application.service.impl
 org.codice.ddf.admin.config.policy
 org.codice.ddf.admin.configuration
-org.codice.ddf.admin.configuration.password.encryption
 org.codice.ddf.admin.configuration.plugin
 org.codice.ddf.admin.configurator
 org.codice.ddf.admin.configurator.impl
@@ -329,8 +328,6 @@ org.codice.ddf.configuration
 org.codice.ddf.configuration.admin
 org.codice.ddf.configuration.impl
 org.codice.ddf.configuration.migration
-org.codice.ddf.configuration.persistence
-org.codice.ddf.configuration.persistence.felix
 org.codice.ddf.confluence.api
 org.codice.ddf.confluence.common
 org.codice.ddf.confluence.source
@@ -472,6 +469,8 @@ org.codice.ddf.security.idp.binding.redirect
 org.codice.ddf.security.idp.binding.soap
 org.codice.ddf.security.idp.cache
 org.codice.ddf.security.idp.client
+org.codice.ddf.security.idp.plugin
+org.codice.ddf.security.idp.plugin.subjectconfirmation
 org.codice.ddf.security.idp.server
 org.codice.ddf.security.interceptor
 org.codice.ddf.security.migratable.impl
@@ -567,6 +566,7 @@ org.codice.ddf.util.function
 org.codice.ddf.validator.metacard.duplication
 org.codice.ddf.validator.metacard.location
 org.codice.felix.cm.file
+org.codice.felix.cm.internal
 org.codice.proxy.http
 org.codice.solr.appender
 org.codice.solr.factory
