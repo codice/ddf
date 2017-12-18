@@ -218,19 +218,24 @@ A minimum of three Zookeeper nodes required.
 Three Zookeeper nodes are needed to form a quorum.
 A three Zookeeper ensemble allows for a single server to fail and the service will still be available.
 More Zookeeper nodes can be added to achieve greater fault tolerance. The total number of nodes must always be an odd number.
+See https://lucene.apache.org/solr/guide/6_6/setting-up-an-external-zookeeper-ensemble.html#SettingUpanExternalZooKeeperEnsemble-SettingupaZooKeeperEnsemble[
+Setting Up an External Zoo Keeper Ensemble] for more information.
 ====
 
 .Installing Solr Cloud
 
-Repeat the following procedure for each Solr server instance that will be part of the Solr Cloud cluster:
+Before starting the install procedure, download the extension jars. The jars are needed to support
+geospatial and xpath queries and need to be installed on every Solr server instance after the Solr
+Cloud installation instructions have been followed.
 
-. Refer to https://cwiki.apache.org/confluence/display/solr/Apache+Solr+Reference+Guide for installation instructions.
-. Download jar files.
-The jars are needed to support geospatial and xpath queries and need to be installed on every Solr server instance after the Solr Cloud installation instructions have been followed.
+The jars can be found here:
 
 .. http://artifacts.codice.org/service/local/repositories/releases/content/org/codice/thirdparty/jts/1.12_1/jts-1.12_1.jar
 .. http://artifacts.codice.org/service/local/artifact/maven/content?r=public&g=ddf.platform.solr&a=solr-xpath&v=${ddf.version}
 
+Repeat the following procedure for each Solr server instance that will be part of the Solr Cloud cluster:
+
+. Refer to https://cwiki.apache.org/confluence/display/solr/Apache+Solr+Reference+Guide for installation instructions.
 . Copy downloaded jar files to: `<SOLR_INSTALL_DIR>/server/solr-webapp/webapp/WEB-INF/lib/`
 
 [NOTE]
