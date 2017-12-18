@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -99,8 +100,8 @@ public class MetacardFileStorageRoute extends MetacardStorageRoute {
             MetacardFileStorageRoute.class,
             String.format(
                 "deleteFile(%s, ${in.headers.%s})",
-                URLEncoder.encode(getStartingDir(), "UTF-8"),
-                URLEncoder.encode(TEMPLATED_STRING_HEADER_RTE_PROP, "UTF-8")))
+                URLEncoder.encode(getStartingDir(), StandardCharsets.UTF_8.name()),
+                URLEncoder.encode(TEMPLATED_STRING_HEADER_RTE_PROP, StandardCharsets.UTF_8.name())))
         .stop()
         .otherwise()
         .to(
@@ -137,9 +138,9 @@ public class MetacardFileStorageRoute extends MetacardStorageRoute {
       fullFilePath =
           String.format(
               "%s%s%s",
-              URLDecoder.decode(startingDir, "UTF-8"),
+              URLDecoder.decode(startingDir, StandardCharsets.UTF_8.name()),
               File.separator,
-              URLDecoder.decode(fileName, "UTF-8"));
+              URLDecoder.decode(fileName, StandardCharsets.UTF_8.name()));
       Files.deleteIfExists(Paths.get(fullFilePath));
       LOGGER.trace("Deleted File : {}", fullFilePath);
     } catch (IOException e) {
