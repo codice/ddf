@@ -31,16 +31,12 @@ include::${intro.file}[]
 <#if (coreConcept.status == "published")>
 <#assign count++>
 
-<#if (coreConcept.title?contains("Introduction"))>
-==== ${coreConcept.title}
-</#if>
-
-include::${coreConcept.file}[]
+include::${coreConcept.file}[leveloffset=+2]
 
 <#list subCoreConcepts?sort_by("order") as subCoreConcept>
 <#if (subCoreConcept.parent == coreConcept.title)>
 
-include::${subCoreConcept.file}[]
+include::${subCoreConcept.file}[leveloffset=+3]
 
 </#if>
 </#list>
