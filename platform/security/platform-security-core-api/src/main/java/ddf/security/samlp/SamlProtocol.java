@@ -14,6 +14,7 @@
 package ddf.security.samlp;
 
 import java.io.StringReader;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -403,6 +404,8 @@ public class SamlProtocol {
 
     entityDescriptor.getRoleDescriptors().add(idpssoDescriptor);
 
+    entityDescriptor.setCacheDuration(getCacheDuration());
+
     return entityDescriptor;
   }
 
@@ -487,7 +490,16 @@ public class SamlProtocol {
 
     entityDescriptor.getRoleDescriptors().add(spSsoDescriptor);
 
+    entityDescriptor.setCacheDuration(getCacheDuration());
+
     return entityDescriptor;
+  }
+
+  static long getCacheDuration() {
+    return Long.parseLong(
+        System.getProperty(
+            "org.codice.ddf.security.saml.Metadata.cacheDuration",
+            String.valueOf(Duration.ofDays(7).toMillis())));
   }
 
   public static AttributeQuery createAttributeQuery(

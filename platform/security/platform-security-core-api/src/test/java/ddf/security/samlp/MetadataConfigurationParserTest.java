@@ -22,6 +22,7 @@ import static org.mockito.Mockito.doAnswer;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -51,7 +52,7 @@ public class MetadataConfigurationParserTest {
   private HttpServer server;
 
   private String serverAddress;
-  public static final Long SEVEN_DAYS = TimeUnit.DAYS.toMillis(7);
+  public static final Long SEVEN_DAYS = Duration.ofDays(7).toMillis();
 
   @Mock HttpRequestHandler handler;
   public static final String CACHE_DURATION_REGEX = "cacheDuration=\"\\w*\"";
@@ -182,7 +183,7 @@ public class MetadataConfigurationParserTest {
     String xmlNoCacheDuration = xml.replaceFirst(CACHE_DURATION_REGEX, "");
     EntityDescriptor entity = getEntityDescriptor(xmlNoCacheDuration);
     assertThat(
-        "Expected default cache duration of one day (in milliseconds)",
+        String.format("Expected default cache duration %s milliseconds", SEVEN_DAYS),
         entity.getCacheDuration(),
         is(SEVEN_DAYS));
   }
