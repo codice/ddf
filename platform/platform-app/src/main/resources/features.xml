@@ -833,6 +833,7 @@
 
     <feature name ="platform-migration" install="manual" version="${project.version}"
              description="Provides ability to export configurations.">
+        <feature prerequisite="true">io</feature>
         <bundle>mvn:ddf.platform.migration/platform-migration/${project.version}</bundle>
     </feature>
 
