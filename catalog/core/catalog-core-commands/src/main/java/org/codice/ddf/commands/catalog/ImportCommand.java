@@ -165,7 +165,6 @@ public class ImportCommand extends CatalogCommands {
         switch (type) {
           case "metacard":
             {
-              metacards++;
               String metacardName = pathParts[NAME];
               Metacard metacard = null;
               try {
@@ -174,9 +173,12 @@ public class ImportCommand extends CatalogCommands {
                         new UncloseableBufferedInputStreamWrapper(zipInputStream), id);
               } catch (IOException | CatalogTransformerException e) {
                 LOGGER.debug("Could not transform metacard: {}", id);
+                entry = zipInputStream.getNextEntry();
+                continue;
               }
               metacard = applyInjectors(metacard, attributeInjectors);
               catalogProvider.create(new CreateRequestImpl(metacard));
+              metacards++;
               break;
             }
           case "content":
