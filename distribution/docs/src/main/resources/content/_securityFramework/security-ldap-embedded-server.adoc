@@ -173,7 +173,7 @@ The default schemas loaded into the LDAP instance are the same defaults that com
 |===
 
 |Schema File Name
-| http://opendj.forgerock.org/doc/admin-guide/index/chap-schema.html[Schema Description]
+| https://backstage.forgerock.com/docs/opendj/2.6/admin-guide/#chap-schema[Schema Description]
 
 |`00-core.ldif`
 |This file contains a core set of attribute type and objectlass definitions from several standard LDAP documents, including `draft-ietf-boreham-numsubordinates`, `draft-findlay-ldap-groupofentries`, `draft-furuseth-ldap-untypedobject`, `draft-good-ldap-changelog`, `draft-ietf-ldup-subentry`, `draft-wahl-ldap-adminaddr`, RFC 1274, RFC 2079, RFC 2256, RFC 2798, RFC 3045, RFC 3296, RFC 3671, RFC 3672, RFC 4512, RFC 4519, RFC 4523, RFC 4524, RFC 4530, RFC 5020, and X.501.
@@ -246,15 +246,15 @@ Current limitations for the embedded LDAP instances include:
 
 Location to the default base LDIF file in the ${branding} https://github.com/codice/ddf/blob/master/ldap/embedded/ldap-embedded-opendj/src/main/resources/default-users.ldif[source code].
 
-http://opendj.forgerock.org/docs.html[OpenDJ documentation]
+https://backstage.forgerock.com/docs/opendj/2.6[OpenDJ documentation]
 
 ===== LDAP Administration
 
-OpenDJ provides a number of tools for LDAP administration. Refer to the http://opendj.forgerock.org/opendj-server/doc/admin-guide/[OpenDJ Admin Guide].
+OpenDJ provides a number of tools for LDAP administration. Refer to the https://backstage.forgerock.com/docs/opendj/2.6/admin-guide/[OpenDJ Admin Guide].
 
 ===== Downloading the Admin Tools
 
-Download http://www.forgerock.org/opendj-archive.html[OpenDJ (Version 2.4.6)] and the included tool suite.
+Download https://backstage.forgerock.com/downloads/OpenDJ/OpenDJ%20Enterprise/2.6.4#browse[OpenDJ (Version 2.6.4)] and the included tool suite.
 
 ===== Using the Admin Tools
 
