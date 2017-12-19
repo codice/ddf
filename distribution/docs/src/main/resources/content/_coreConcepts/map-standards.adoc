@@ -1,0 +1,46 @@
+:type: subCoreConcept
+:status: published
+:title: Map Formats
+:parent: Standards Supported by ${branding}
+:order: 02
+
+== {title}
+
+${catalog-ui} includes capabilities to support custom map layer providers as well as support for several popular map layer providers.
+
+.Map Formats Included in ${ddf-branding}
+[cols="1,1" options="header"]
+|===
+
+|Format
+|Status
+
+|https://cesiumjs.org/Cesium/Build/Documentation/createOpenStreetMapImageryProvider.html[Open Street Map]
+|Supported
+
+|https://openlayers.org/en/latest/apidoc/ol.source.ImageWMS.html[Web Map Service]
+|Supported
+
+|https://openlayers.org/en/latest/apidoc/ol.source.WMTS.html[Web Map Tile Service]
+|Supported
+
+|https://openlayers.org/en/latest/apidoc/ol.source.XYZ.html[ArcGIS Map Server]
+|Supported
+
+|https://openlayers.org/en/latest/apidoc/ol.source.ImageStatic.html[Single Tile]
+|Supported
+
+|https://openlayers.org/en/latest/apidoc/ol.source.BingMaps.html[Bing Maps]
+|Supported
+
+|https://openlayers.org/en/latest/apidoc/ol.source.MapQuest.html[Map Quest]
+|Supported
+
+|https://cesiumjs.org/Cesium/Build/Documentation/createTileMapServiceImageryProvider.html[Tile Map Service]
+|Supported
+
+|https://cesiumjs.org/Cesium/Build/Documentation/GoogleEarthImageryProvider.html[Google Earth]
+|Supported
+
+|===
+

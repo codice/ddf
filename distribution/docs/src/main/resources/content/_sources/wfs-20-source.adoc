@@ -9,7 +9,7 @@
 :storageprovider:
 :catalogstore:
 
-== {title}[[_wfs_v200_source]]
+== {title}
 The WFS 2.0 Source allows for requests for geographical features across the web using platform-independent calls.
 
 Use the WFS Source if querying a WFS version 2.0.0 compliant service. Also see <<_working_with_wfs_sources,Working with WFS Sources>>.

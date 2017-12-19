@@ -9,7 +9,8 @@
 :storageprovider:
 :catalogstore:
 
-== {title}[[_wfs_v100_source]]
+== {title}
+
 The WFS Source allows for requests for geographical features across the web using platform-independent calls.
 
 A Web Feature Service (WFS) source is an implementation of the `FederatedSource` interface provided by the ${branding} Framework.

@@ -1,0 +1,9 @@
+:type: subCoreConcept
+:status: published
+:title: Security Standards
+:parent: Standards Supported by ${branding}
+:order: 03
+
+== {title}
+
+${branding} makes use of these security standards to protect the system and interactions with it.

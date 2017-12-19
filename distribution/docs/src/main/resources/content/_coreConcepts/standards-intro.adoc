@@ -1,0 +1,9 @@
+:title: Standards Supported by ${branding}
+:type: coreConcept
+:status: published
+:order: 10
+
+== {title}
+
+${branding} incorporates support for many common <<_service_standards,Service>>, <<_metadata_standards,Metadata>>, and <<_security_standards,Security>> standards, as well as many common <<_data_formats,Data Formats>>.
+

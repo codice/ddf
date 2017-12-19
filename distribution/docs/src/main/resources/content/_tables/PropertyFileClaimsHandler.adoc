@@ -38,7 +38,7 @@
 |true
 
 |User Attribute File
-|attributeFileLocation
+|usersAttributesFileLocation
 |String
 |Location of the file which maps attributes to users.
 |etc/users.attributes
