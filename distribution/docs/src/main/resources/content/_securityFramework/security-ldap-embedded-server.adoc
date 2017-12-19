@@ -244,7 +244,7 @@ Current limitations for the embedded LDAP instances include:
 
 ===== External Links for the Embedded LDAP
 
-Location to the default base LDIF file in the ${branding} https://github.com/codice/ddf/blob/master/ldap/embedded/ldap-embedded-opendj/src/main/resources/default-users.ldif[source code].
+Location to the default base LDIF file in the ${branding} https://github.com/codice/opendj-osgi/blob/master/embedded/opendj-embedded-server/src/main/resources/default-users.ldif[source code].
 
 https://backstage.forgerock.com/docs/opendj/2.6[OpenDJ documentation]
 
