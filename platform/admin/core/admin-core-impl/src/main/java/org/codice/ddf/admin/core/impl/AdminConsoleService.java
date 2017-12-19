@@ -334,7 +334,7 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
       String profile = (String) profileObj;
       guestClaimsHandlerExt.setSelectedClaimsProfileName(profile);
 
-      comprehensiveUpdate(GUEST_CLAIMS_CONFIG_PID, guestClaimsHandlerExt.getProfileGuestClaims());
+      comprehensiveUpdate(GUEST_CLAIMS_CONFIG_PID, configurationTable);
 
       List<Map<String, Object>> configs = guestClaimsHandlerExt.getProfileConfigs();
       if (configs != null) {
