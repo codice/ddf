@@ -547,9 +547,6 @@ public class ImportMigrationEntryImplTest extends AbstractMigrationSupport {
 
   @Test
   public void isNotMigratableWithSymbolicLink() throws Exception {
-    PathUtils pathUtils = new PathUtils();
-    when(mockContext.getPathUtils()).thenReturn(pathUtils);
-
     Path symlink = createSoftLink("symbolic-link", Paths.get("path1/"));
 
     final ImportMigrationEntryImpl entry = new ImportMigrationEntryImpl(mockContext, symlink, true);
