@@ -18,6 +18,7 @@ import static ddf.security.samlp.SamlProtocol.POST_BINDING;
 import static ddf.security.samlp.SamlProtocol.REDIRECT_BINDING;
 import static ddf.security.samlp.SamlProtocol.SOAP_BINDING;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -135,6 +136,8 @@ public class SamlProtocolTest {
                         && service.getLocation().equals("soaplocation"))
             .findFirst()
             .isPresent());
+
+    assertNotNull(entityDescriptor.getCacheDuration());
   }
 
   @Test
@@ -216,6 +219,8 @@ public class SamlProtocolTest {
                         && service.getLocation().equals("paoslocation"))
             .findFirst()
             .isPresent());
+
+    assertNotNull(entityDescriptor.getCacheDuration());
   }
 
   @Test

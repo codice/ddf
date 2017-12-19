@@ -238,7 +238,18 @@ public class MetadataConfigurationParser {
       throw new IllegalArgumentException(
           "Unable to convert EntityDescriptor document to XMLObject.");
     }
+    EntityDescriptor root = (EntityDescriptor) entityXmlObj;
+    validateMetadata(root);
+    return root;
+  }
 
-    return (EntityDescriptor) entityXmlObj;
+  private void validateMetadata(EntityDescriptor root) {
+    if (root.getCacheDuration() == null && root.getValidUntil() == null) {
+      LOGGER.info(
+          "IDP metadata must either have cache duration or valid-until date."
+              + " Defaulting IDP metadata cache duration to {}",
+          SamlProtocol.getCacheDuration());
+      root.setCacheDuration(SamlProtocol.getCacheDuration());
+    }
   }
 }
