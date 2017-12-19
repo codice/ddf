@@ -353,10 +353,12 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
             bundleLocations.add(info.getLocation());
           }
 
-          for (Bundle bundle : context.getBundles()) {
-            for (BundleInfo info : bundles) {
-              if (info.getLocation().equals(bundle.getLocation())) {
-                metatypeInformation.add(metatypeService.getMetaTypeInformation(bundle));
+          if (context != null) {
+            for (Bundle bundle : context.getBundles()) {
+              for (BundleInfo info : bundles) {
+                if (info.getLocation().equals(bundle.getLocation()) && metatypeService != null) {
+                  metatypeInformation.add(metatypeService.getMetaTypeInformation(bundle));
+                }
               }
             }
           }
@@ -519,12 +521,13 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
    * @return the service or <code>null</code> if missing.
    */
   final MetaTypeService getMetaTypeService() {
-    if (serviceTracker == null) {
-      BundleContext context = getContext();
-      serviceTracker = new ServiceTracker<Object, Object>(context, META_TYPE_NAME, null);
+    BundleContext context = getContext();
+
+    if (serviceTracker == null && context != null) {
+      serviceTracker = new ServiceTracker<>(context, META_TYPE_NAME, null);
       serviceTracker.open();
     }
-    return (MetaTypeService) serviceTracker.getService();
+    return (serviceTracker != null) ? (MetaTypeService) serviceTracker.getService() : null;
   }
 
   protected BundleContext getContext() {

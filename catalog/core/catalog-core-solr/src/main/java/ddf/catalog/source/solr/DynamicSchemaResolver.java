@@ -73,6 +73,7 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.common.SolrInputDocument;
+import org.apache.solr.common.util.NamedList;
 import org.apache.solr.common.util.SimpleOrderedMap;
 import org.codehaus.stax2.XMLInputFactory2;
 import org.codice.solr.factory.impl.ConfigurationStore;
@@ -212,11 +213,15 @@ public class DynamicSchemaResolver {
 
     try {
       QueryResponse response = client.query(query);
-      for (Entry<String, ?> e : ((SimpleOrderedMap<?>) (response.getResponse().get(FIELDS_KEY)))) {
-        if (e != null) {
-          fieldsCache.add(e.getKey());
-          if (e.getKey().endsWith(SchemaFields.TEXT_SUFFIX)) {
-            anyTextFieldsCache.add(e.getKey());
+      NamedList<?> fields = (SimpleOrderedMap<?>) (response.getResponse().get(FIELDS_KEY));
+
+      if (fields != null) {
+        for (Entry<String, ?> e : fields) {
+          if (e != null) {
+            fieldsCache.add(e.getKey());
+            if (e.getKey().endsWith(SchemaFields.TEXT_SUFFIX)) {
+              anyTextFieldsCache.add(e.getKey());
+            }
           }
         }
       }

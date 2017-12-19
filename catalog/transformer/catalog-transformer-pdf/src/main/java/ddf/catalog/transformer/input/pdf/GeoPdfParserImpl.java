@@ -198,7 +198,8 @@ public class GeoPdfParserImpl implements GeoPdfParser {
 
     double[] points = new double[CTM_SIZE];
     for (int i = 0; i < CTM_SIZE; i++) {
-      points[i] = (Double) lgidict.getObjectFromPath(CTM + "/[" + i + "]").accept(toDoubleVisitor);
+      Object obj = lgidict.getObjectFromPath(CTM + "/[" + i + "]").accept(toDoubleVisitor);
+      points[i] = (obj != null) ? (Double) obj : 0d;
     }
     AffineTransform affineTransform = new AffineTransform(points);
 

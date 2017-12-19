@@ -100,13 +100,18 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
    *     about bundle status for deployment services (like blueprint and spring).
    */
   public ApplicationServiceImpl(List<BundleStateService> bundleStateServices) {
-    BundleContext context = getContext();
-    ServiceReference<FeaturesService> featuresServiceRef =
-        context.getServiceReference(FeaturesService.class);
-    this.featuresService = context.getService(featuresServiceRef);
     this.bundleStateServices = bundleStateServices;
     ignoredApplicationNames = new HashSet<>();
 
+    BundleContext context = getContext();
+    if (context == null) {
+      LOGGER.warn("There is no context for this service");
+      return;
+    }
+
+    ServiceReference<FeaturesService> featuresServiceRef =
+        context.getServiceReference(FeaturesService.class);
+    this.featuresService = context.getService(featuresServiceRef);
     try {
       // If the service is not available at this time, it means this is the first
       // boot of the system and we need to listen for the completion of the
@@ -537,7 +542,10 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
 
     for (Feature curFeature : features) {
       for (BundleInfo curBundleInfo : curFeature.getBundles()) {
-        Bundle curBundle = getContext().getBundle(curBundleInfo.getLocation());
+        BundleContext context = getContext();
+        Bundle curBundle =
+            (context != null) ? context.getBundle(curBundleInfo.getLocation()) : null;
+
         if (curBundle != null
             && curBundle.adapt(BundleRevision.class).getTypes() != BundleRevision.TYPE_FRAGMENT) {
 
@@ -938,6 +946,10 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
   public void serviceChanged(ServiceEvent serviceEvent) {
     if (serviceEvent.getType() == ServiceEvent.REGISTERED) {
       BundleContext context = getContext();
+      if (context == null) {
+        return;
+      }
+
       try {
         ServiceReference<ConfigurationAdmin> configAdminRef =
             context.getServiceReference(ConfigurationAdmin.class);

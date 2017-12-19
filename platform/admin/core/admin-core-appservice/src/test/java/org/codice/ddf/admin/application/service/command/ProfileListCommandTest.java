@@ -90,6 +90,7 @@ public class ProfileListCommandTest {
     assertThat(out.toString().contains("standard"), is(true));
     assertThat(out.toString().contains("devProfile"), is(true));
     assertThat(out.toString().contains("profileWithDuplicates"), is(true));
+    assertThat(out.toString().contains(".json"), is(false));
   }
 
   @Test
@@ -99,6 +100,7 @@ public class ProfileListCommandTest {
     assertThat(out.toString().contains("standard"), is(true));
     assertThat(out.toString().contains("devProfile"), is(false));
     assertThat(out.toString().contains("profileWithDuplicates"), is(false));
+    assertThat(out.toString().contains(".json"), is(false));
   }
 
   @Test
@@ -108,6 +110,7 @@ public class ProfileListCommandTest {
     assertThat(out.toString().contains("standard"), is(false));
     assertThat(out.toString().contains("devProfile"), is(true));
     assertThat(out.toString().contains("profileWithDuplicates"), is(true));
+    assertThat(out.toString().contains(".json"), is(false));
   }
 
   @Test
@@ -119,6 +122,7 @@ public class ProfileListCommandTest {
     assertThat(out.toString().contains("standard"), is(false));
     assertThat(out.toString().contains("devProfile"), is(false));
     assertThat(out.toString().contains("profileWithDuplicates"), is(false));
+    assertThat(out.toString().contains(".json"), is(false));
   }
 
   private Feature createMockFeature(String name) {

@@ -929,6 +929,8 @@ public abstract class AbstractCswSource extends MaskableImpl
         requestProperties.put(USERNAME_PROPERTY, username);
         requestProperties.put(PASSWORD_PROPERTY, password);
       }
+    } else {
+      requestProperties = new HashMap<>();
     }
 
     if (canRetrieveResourceById()) {
@@ -944,6 +946,11 @@ public abstract class AbstractCswSource extends MaskableImpl
         return response;
       }
     }
+
+    if (resourceUri == null) {
+      throw new IOException("Unable to retrieve resource because no resource URI was given");
+    }
+
     LOGGER.debug("Retrieving resource at : {}", resourceUri);
     return resourceReader.retrieveResource(resourceUri, requestProperties);
   }

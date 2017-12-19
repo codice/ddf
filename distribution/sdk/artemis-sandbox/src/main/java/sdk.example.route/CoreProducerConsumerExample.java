@@ -59,6 +59,10 @@ public class CoreProducerConsumerExample extends RouteBuilder {
         ActiveMQJMSClient.createConnectionFactory(
             "(tcp://0.0.0.0:5672,tcp://0.0.0.0:61617)?ha=true;sslEnabled=true;enabledCipherSuites=TLS_DHE_RSA_WITH_AES_128_GCM_SHA256,TLS_DHE_RSA_WITH_AES_128_CBC_SHA256,TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256;enabledProtocols=TLSv1.1,TLSv1.2",
             "name");
+    if (factory == null) {
+      return;
+    }
+
     factory.setRetryInterval(1000);
     factory.setRetryIntervalMultiplier(1.0);
     factory.setReconnectAttempts(-1);

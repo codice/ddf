@@ -215,7 +215,9 @@ public class SystemPropertiesAdmin extends StandardMBean implements SystemProper
   private void writeOutUsersDotAttributesFile(File userAttributesFile) {
     Map<String, Object> json = null;
     try (InputStream stream = Files.newInputStream(Paths.get(userAttributesFile.toURI()))) {
-      json = MAPPER.parser().parseMap(stream);
+      if ((json = MAPPER.parser().parseMap(stream)) == null) {
+        return;
+      }
 
       addGuestClaimsProfileAttributes(json);
 
