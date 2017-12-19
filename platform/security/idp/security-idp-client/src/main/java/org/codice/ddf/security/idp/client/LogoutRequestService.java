@@ -14,6 +14,8 @@
 package org.codice.ddf.security.idp.client;
 
 import ddf.security.SecurityConstants;
+import ddf.security.Subject;
+import ddf.security.SubjectUtils;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.assertion.impl.SecurityAssertionImpl;
 import ddf.security.common.SecurityTokenHolder;
@@ -28,6 +30,7 @@ import ddf.security.samlp.ValidationException;
 import ddf.security.samlp.impl.HtmlResponseTemplate;
 import ddf.security.samlp.impl.RelayStates;
 import ddf.security.samlp.impl.SamlValidator;
+import ddf.security.service.SecurityServiceException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -35,9 +38,15 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -48,24 +57,32 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPPart;
 import javax.xml.stream.XMLStreamException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.helpers.DOMUtils;
+import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.apache.wss4j.common.util.DOM2Writer;
 import org.codice.ddf.configuration.SystemBaseUrl;
+import org.codice.ddf.platform.session.api.HttpSessionInvalidator;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
+import org.opensaml.core.xml.XMLObject;
 import org.opensaml.saml.saml2.core.AuthnStatement;
 import org.opensaml.saml.saml2.core.LogoutRequest;
 import org.opensaml.saml.saml2.core.LogoutResponse;
 import org.opensaml.saml.saml2.core.StatusCode;
+import org.opensaml.soap.soap11.Envelope;
 import org.opensaml.xmlsec.signature.SignableXMLObject;
+import org.opensaml.xmlsec.signature.Signature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 @Path("logout")
 public class LogoutRequestService {
@@ -106,6 +123,10 @@ public class LogoutRequestService {
   private SimpleSign simpleSign;
 
   private IdpMetadata idpMetadata;
+
+  private HttpSessionInvalidator httpSessionInvalidator;
+
+  private ddf.security.service.SecurityManager securityManager;
 
   @Context private HttpServletRequest request;
 
@@ -164,6 +185,7 @@ public class LogoutRequestService {
             getIdpSecurityAssertion()
                 .getAuthnStatements()
                 .stream()
+                .filter(Objects::nonNull)
                 .map(AuthnStatement::getSessionIndex)
                 .collect(Collectors.toList());
 
@@ -236,6 +258,103 @@ public class LogoutRequestService {
     return ok.build();
   }
 
+  private String extractSubject(HttpSession httpSession) {
+    return Stream.of(httpSession.getAttribute(SecurityConstants.SAML_ASSERTION))
+        .filter(SecurityTokenHolder.class::isInstance)
+        .map(SecurityTokenHolder.class::cast)
+        .map(SecurityTokenHolder::getRealmTokenMap)
+        .map(Map::values)
+        .flatMap(Collection::stream)
+        .map(this::extractSubject)
+        .filter(Objects::nonNull)
+        .map(SubjectUtils::getName)
+        .findFirst()
+        .orElse(null);
+  }
+
+  private Subject extractSubject(SecurityToken securityToken) {
+    try {
+      return securityManager.getSubject(securityToken);
+    } catch (SecurityServiceException e) {
+      LOGGER.debug("Error extracting subject from security token", e);
+      return null;
+    }
+  }
+
+  @POST
+  @Consumes({"text/xml", "application/soap+xml"})
+  public Response soapLogoutRequest(InputStream body, @Context HttpServletRequest request) {
+    XMLObject xmlObject;
+    try {
+      String bodyString = IOUtils.toString(body, StandardCharsets.UTF_8);
+      SOAPPart soapMessage = SamlProtocol.parseSoapMessage(bodyString);
+
+      xmlObject =
+          SamlProtocol.getXmlObjectFromNode(soapMessage.getEnvelope().getBody().getFirstChild());
+      if (!(xmlObject instanceof LogoutRequest)) {
+        LOGGER.info(UNABLE_TO_PARSE_LOGOUT_REQUEST);
+        if (LOGGER.isDebugEnabled()) {
+          LOGGER.debug(
+              "Type of object is {}", xmlObject == null ? "null" : xmlObject.getSchemaType());
+        }
+        return Response.serverError().build();
+      }
+    } catch (SOAPException | XMLStreamException | IOException | WSSecurityException e) {
+      LOGGER.debug("Error parsing input", e);
+      return Response.serverError().build();
+    }
+    LogoutRequest logoutRequest = (LogoutRequest) xmlObject;
+    // Pre-build response with success status
+    LogoutResponse logoutResponse =
+        logoutMessage.buildLogoutResponse(
+            logoutRequest.getIssuer().getValue(), StatusCode.SUCCESS, logoutRequest.getID());
+
+    try {
+      if (!validateSignature(logoutRequest)) {
+        return getSamlpSoapLogoutResponse(logoutResponse, StatusCode.AUTHN_FAILED, null);
+      }
+
+      new SamlValidator.Builder(simpleSign)
+          .buildAndValidate(
+              this.request.getRequestURL().toString(),
+              SamlProtocol.Binding.HTTP_POST,
+              logoutRequest);
+
+      httpSessionInvalidator.invalidateSession(
+          logoutRequest.getNameID().getValue(), this::extractSubject);
+
+      SecurityLogger.audit(
+          "Subject logged out by backchannel request: {}", logoutRequest.getNameID().getValue());
+
+      return getSamlpSoapLogoutResponse(logoutResponse);
+    } catch (ValidationException e) {
+      LOGGER.info(UNABLE_TO_VALIDATE_LOGOUT_REQUEST, e);
+      return getSamlpSoapLogoutResponse(logoutResponse, StatusCode.RESPONDER, e.getMessage());
+    }
+  }
+
+  private boolean validateSignature(LogoutRequest logoutRequest) {
+    Signature signature = logoutRequest.getSignature();
+    if (signature == null) {
+      LOGGER.debug("Unsigned logoutRequest");
+      return false;
+    }
+
+    Element dom = logoutRequest.getDOM();
+    if (dom == null) {
+      LOGGER.debug("Incorrectly formatted logoutRequest");
+      return false;
+    }
+
+    try {
+      simpleSign.validateSignature(signature, dom.getOwnerDocument());
+      return true;
+    } catch (SignatureException e) {
+      LOGGER.debug("Invalid signature on logoutRequest", e);
+      return false;
+    }
+  }
+
   @POST
   @Produces(MediaType.APPLICATION_FORM_URLENCODED)
   public Response postLogoutRequest(
@@ -261,15 +380,12 @@ public class LogoutRequestService {
                 logoutRequest.getIssuer().getValue(), StatusCode.SUCCESS, logoutRequest.getID());
 
         return getLogoutResponse(relayState, logoutResponse);
-      } catch (WSSecurityException e) {
-        LOGGER.info(UNABLE_TO_SIGN_LOGOUT_RESPONSE, e);
-        return buildLogoutResponse(UNABLE_TO_SIGN_LOGOUT_RESPONSE);
+      } catch (WSSecurityException | XMLStreamException e) {
+        LOGGER.info(UNABLE_TO_PARSE_LOGOUT_REQUEST, e);
+        return buildLogoutResponse(UNABLE_TO_PARSE_LOGOUT_REQUEST);
       } catch (ValidationException e) {
         LOGGER.info(UNABLE_TO_VALIDATE_LOGOUT_REQUEST, e);
         return buildLogoutResponse(UNABLE_TO_VALIDATE_LOGOUT_REQUEST);
-      } catch (XMLStreamException e) {
-        LOGGER.info(UNABLE_TO_PARSE_LOGOUT_REQUEST, e);
-        return buildLogoutResponse(UNABLE_TO_PARSE_LOGOUT_REQUEST);
       }
     } else {
       try {
@@ -418,18 +534,58 @@ public class LogoutRequestService {
 
   private Response getLogoutResponse(String relayState, LogoutResponse samlResponse) {
     try {
-
       String binding = idpMetadata.getSingleLogoutBinding();
       if (SamlProtocol.POST_BINDING.equals(binding)) {
         return getSamlpPostLogoutResponse(relayState, samlResponse);
       } else if (SamlProtocol.REDIRECT_BINDING.equals(binding)) {
         return getSamlpRedirectLogoutResponse(relayState, samlResponse);
+      } else if (SamlProtocol.SOAP_BINDING.equals(binding)) {
+        return getSamlpSoapLogoutResponse(samlResponse);
       } else {
         return buildLogoutResponse(NO_SUPPORT_FOR_POST_OR_REDIRECT_BINDINGS);
       }
     } catch (Exception e) {
       LOGGER.debug(UNABLE_TO_CREATE_LOGOUT_RESPONSE, e);
       return buildLogoutResponse(UNABLE_TO_CREATE_LOGOUT_RESPONSE);
+    }
+  }
+
+  private Response getSamlpSoapLogoutResponse(LogoutResponse samlResponse) {
+    return getSamlpSoapLogoutResponse(samlResponse, null, null);
+  }
+
+  private Response getSamlpSoapLogoutResponse(
+      LogoutResponse samlResponse, String statusCode, String statusMessage) {
+    if (samlResponse == null) {
+      return Response.serverError().build();
+    }
+    LOGGER.debug("Configuring SAML Response for SOAP.");
+    Document doc = DOMUtils.createDocument();
+    doc.appendChild(doc.createElement(ROOT_NODE_NAME));
+    LOGGER.debug("Setting SAML status on Response for SOAP");
+    if (statusCode != null) {
+      if (statusMessage != null) {
+        samlResponse.setStatus(SamlProtocol.createStatus(statusCode, statusMessage));
+      } else {
+        samlResponse.setStatus(SamlProtocol.createStatus(statusCode));
+      }
+    }
+
+    try {
+      LOGGER.debug("Signing SAML Response for SOAP.");
+      LogoutResponse logoutResponse = simpleSign.forceSignSamlObject(samlResponse);
+
+      Envelope soapMessage = SamlProtocol.createSoapMessage(logoutResponse);
+
+      LOGGER.debug("Converting SAML Response to DOM");
+      String assertionResponse = DOM2Writer.nodeToString(OpenSAMLUtil.toDom(soapMessage, doc));
+      String encodedSamlResponse =
+          Base64.getEncoder().encodeToString(assertionResponse.getBytes(StandardCharsets.UTF_8));
+
+      return Response.ok(encodedSamlResponse).build();
+    } catch (SignatureException | WSSecurityException | XMLStreamException e) {
+      LOGGER.debug("Failure constructing SOAP LogoutResponse", e);
+      return Response.serverError().build();
     }
   }
 
@@ -491,6 +647,14 @@ public class LogoutRequestService {
 
   public void setSessionFactory(SessionFactory sessionFactory) {
     this.sessionFactory = sessionFactory;
+  }
+
+  public void setHttpSessionInvalidator(HttpSessionInvalidator httpSessionInvalidator) {
+    this.httpSessionInvalidator = httpSessionInvalidator;
+  }
+
+  public void setSecurityManager(ddf.security.service.SecurityManager securityManager) {
+    this.securityManager = securityManager;
   }
 
   public void setLogOutPageTimeOut(long logOutPageTimeOut) {

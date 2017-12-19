@@ -38,6 +38,10 @@
     <reference id="sessionFactory" interface="ddf.security.http.SessionFactory"
                filter="(id=http)"/>
 
+    <reference id="httpSessionInvalidator" interface="org.codice.ddf.platform.session.api.HttpSessionInvalidator"/>
+
+    <reference id="securityManager" interface="ddf.security.service.SecurityManager"/>
+
     <bean id="crypto" class="ddf.security.samlp.SystemCrypto">
         <argument value="${ddf.home}/etc/ws-security/server/encryption.properties"/>
         <argument value="${ddf.home}/etc/ws-security/server/signature.properties"/>
@@ -97,6 +101,8 @@
         </property>
         <property name="encryptionService" ref="encryptionService"/>
         <property name="sessionFactory" ref="sessionFactory"/>
+        <property name="httpSessionInvalidator" ref="httpSessionInvalidator"/>
+        <property name="securityManager" ref="securityManager"/>
     </bean>
 
     <jaxrs:server id="restService" address="/saml">

@@ -16,11 +16,14 @@ package org.codice.ddf.security.idp.server;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
+import com.google.common.util.concurrent.MoreExecutors;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.assertion.impl.SecurityAssertionImpl;
+import ddf.security.common.audit.SecurityLogger;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.liberty.paos.Request;
 import ddf.security.liberty.paos.impl.RequestBuilder;
@@ -33,18 +36,23 @@ import ddf.security.samlp.LogoutMessage;
 import ddf.security.samlp.MetadataConfigurationParser;
 import ddf.security.samlp.SamlProtocol;
 import ddf.security.samlp.SimpleSign;
+import ddf.security.samlp.SimpleSign.SignatureException;
 import ddf.security.samlp.SystemCrypto;
 import ddf.security.samlp.ValidationException;
 import ddf.security.samlp.impl.EntityInformation;
+import ddf.security.samlp.impl.EntityInformation.ServiceInfo;
 import ddf.security.samlp.impl.HtmlResponseTemplate;
 import ddf.security.samlp.impl.RelayStates;
 import ddf.security.samlp.impl.SamlValidator;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -58,11 +66,19 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import javax.servlet.ServletException;
@@ -94,6 +110,7 @@ import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.saaj.SAAJInInterceptor;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.rs.security.saml.sso.SSOConstants;
+import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
@@ -103,13 +120,16 @@ import org.apache.wss4j.common.util.DOM2Writer;
 import org.boon.Boon;
 import org.codehaus.stax2.XMLInputFactory2;
 import org.codice.ddf.configuration.SystemBaseUrl;
+import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.codice.ddf.security.common.HttpUtils;
+import org.codice.ddf.security.common.Security;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.codice.ddf.security.handler.api.BaseAuthenticationToken;
 import org.codice.ddf.security.handler.api.GuestAuthenticationToken;
 import org.codice.ddf.security.handler.api.HandlerResult;
 import org.codice.ddf.security.handler.api.PKIAuthenticationTokenFactory;
 import org.codice.ddf.security.handler.api.SAMLAuthenticationToken;
+import org.codice.ddf.security.handler.api.SessionHandler;
 import org.codice.ddf.security.handler.api.UPAuthenticationToken;
 import org.codice.ddf.security.handler.basic.BasicAuthenticationHandler;
 import org.codice.ddf.security.handler.pki.PKIHandler;
@@ -146,9 +166,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 @Path("/")
-public class IdpEndpoint implements Idp {
+public class IdpEndpoint implements Idp, SessionHandler {
 
   public static final String SERVICES_IDP_PATH = SystemBaseUrl.getRootContext() + "/idp";
+  public static final ImmutableSet<UsageType> USAGE_TYPES =
+      ImmutableSet.of(UsageType.UNSPECIFIED, UsageType.SIGNING);
   private static final Logger LOGGER = LoggerFactory.getLogger(IdpEndpoint.class);
   private static final String CERTIFICATES_ATTR = "javax.servlet.request.X509Certificate";
   private static final String IDP_LOGIN = "/idp/login";
@@ -156,7 +178,7 @@ public class IdpEndpoint implements Idp {
   private static final String AUTHN_REQUEST_MUST_USE_TLS = "Authn Request must use TLS.";
 
   /** Input factory */
-  private static volatile XMLInputFactory xmlInputFactory = null;
+  private static volatile XMLInputFactory xmlInputFactory;
 
   static {
     XMLInputFactory xmlInputFactoryTmp = XMLInputFactory2.newInstance();
@@ -168,6 +190,7 @@ public class IdpEndpoint implements Idp {
     xmlInputFactory = xmlInputFactoryTmp;
   }
 
+  private final ExecutorService asyncLogoutService;
   protected CookieCache cookieCache = new CookieCache();
   private PKIAuthenticationTokenFactory tokenFactory;
   private SecurityManager securityManager;
@@ -177,7 +200,7 @@ public class IdpEndpoint implements Idp {
   private String indexHtml;
   private String submitForm;
   private String redirectPage;
-  private String soapMessage;
+  private String ecpMessage;
   private Boolean strictSignature = true;
   private SystemCrypto systemCrypto;
   private LogoutMessage logoutMessage;
@@ -187,15 +210,22 @@ public class IdpEndpoint implements Idp {
   private Map<ServiceReference<SamlPresignPlugin>, SamlPresignPlugin> presignPlugins =
       new ConcurrentSkipListMap<>();
 
-  public static final ImmutableSet<UsageType> USAGE_TYPES =
-      ImmutableSet.of(UsageType.UNSPECIFIED, UsageType.SIGNING);
-
   public IdpEndpoint(
       String signaturePropertiesPath,
       String encryptionPropertiesPath,
       EncryptionService encryptionService) {
     systemCrypto =
         new SystemCrypto(encryptionPropertiesPath, signaturePropertiesPath, encryptionService);
+
+    this.asyncLogoutService =
+        MoreExecutors.getExitingExecutorService(
+            new ThreadPoolExecutor(
+                1,
+                1,
+                0L,
+                TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<>(),
+                StandardThreadFactoryBuilder.newThreadFactory("asyncLogoutService")));
   }
 
   public void init() {
@@ -205,14 +235,14 @@ public class IdpEndpoint implements Idp {
             IdpEndpoint.class.getResourceAsStream("/templates/submitForm.handlebars");
         InputStream redirectPageStream =
             IdpEndpoint.class.getResourceAsStream("/templates/redirect.handlebars");
-        InputStream soapMessageStream =
-            IdpEndpoint.class.getResourceAsStream("/templates/soap.handlebars")
+        InputStream ecpMessageStream =
+            IdpEndpoint.class.getResourceAsStream("/templates/ecp.handlebars");
         //
         ) {
       indexHtml = IOUtils.toString(indexStream, StandardCharsets.UTF_8);
       submitForm = IOUtils.toString(submitFormStream, StandardCharsets.UTF_8);
       redirectPage = IOUtils.toString(redirectPageStream, StandardCharsets.UTF_8);
-      soapMessage = IOUtils.toString(soapMessageStream, StandardCharsets.UTF_8);
+      ecpMessage = IOUtils.toString(ecpMessageStream, StandardCharsets.UTF_8);
     } catch (Exception e) {
       LOGGER.info("Unable to load index page for IDP.", e);
     }
@@ -230,6 +260,172 @@ public class IdpEndpoint implements Idp {
         new ResponseBuilder(),
         new ResponseMarshaller(),
         new ResponseUnmarshaller());
+  }
+
+  @Override
+  public Map<String, Set<String>> getActiveSessions() {
+    try {
+      return Security.getInstance().runWithSubjectOrElevate(this::getActiveSessionsSecure);
+    } catch (SecurityServiceException | InvocationTargetException e) {
+      SecurityLogger.audit("Failed to run command; insufficient permissions");
+    }
+
+    return Collections.emptyMap();
+  }
+
+  @VisibleForTesting
+  Map<String, Set<String>> getActiveSessionsSecure() {
+    return cookieCache.getAllSamlSubjects(securityManager);
+  }
+
+  @Override
+  public void invalidateSession(String subjectName) {
+    try {
+      Security.getInstance()
+          .runWithSubjectOrElevate(
+              (Callable<Void>)
+                  () -> {
+                    invalidateSessionSecure(subjectName);
+                    return null;
+                  });
+    } catch (SecurityServiceException | InvocationTargetException e) {
+      SecurityLogger.audit("Failed to run command; insufficient permissions");
+    }
+  }
+
+  @VisibleForTesting
+  void invalidateSessionSecure(String subjectName) {
+    String cacheKey = cookieCache.getCacheKeyBySubjectName(subjectName, securityManager);
+    if (cacheKey == null) {
+      LOGGER.debug(
+          "No cache element found for subject name {}; skipping invalidation.", subjectName);
+      return;
+    }
+
+    LogoutState logoutState = new LogoutState(getActiveSps(cacheKey));
+
+    logoutState.setNameId(subjectName);
+    logoutState.setOriginalRequestId(UUID.randomUUID().toString());
+    logoutStates.encode(cacheKey, logoutState);
+
+    cookieCache.removeSamlAssertion(cacheKey);
+
+    asyncLogoutService.submit(() -> asyncBackchannelLogout(cacheKey, logoutState));
+  }
+
+  private void asyncBackchannelLogout(String cacheKey, LogoutState logoutState) {
+    ExecutorService executorService =
+        Executors.newFixedThreadPool(
+            4, StandardThreadFactoryBuilder.newThreadFactory("sessionLogout"));
+    Map<String, Future<?>> futures = new HashMap<>();
+    for (Optional<String> nextTarget = logoutState.getNextTarget();
+        nextTarget.isPresent();
+        nextTarget = logoutState.getNextTarget()) {
+      String entityId = nextTarget.get();
+
+      Future<?> future =
+          executorService.submit(() -> sendSoapLogout(cacheKey, logoutState, entityId));
+
+      futures.put(entityId, future);
+    }
+
+    if (!MoreExecutors.shutdownAndAwaitTermination(executorService, 5, TimeUnit.MINUTES)
+        && LOGGER.isDebugEnabled()) {
+      String failedEntityIds =
+          futures
+              .entrySet()
+              .stream()
+              .filter(e -> e.getValue().isCancelled())
+              .map(Entry::getKey)
+              .collect(Collectors.joining());
+      LOGGER.debug("Timed out waiting for backchannel logout for entityIds [{}]", failedEntityIds);
+    }
+  }
+
+  private void sendSoapLogout(String cacheKey, LogoutState logoutState, String entityId) {
+    LogoutRequest logoutRequest =
+        logoutMessage.buildLogoutRequest(
+            logoutState.getNameId(),
+            SystemBaseUrl.constructUrl(IDP_LOGOUT, true),
+            logoutState.getSessionIndexes());
+
+    logoutState.setCurrentRequestId(logoutRequest.getID());
+    ServiceInfo entityServiceInfo = getServiceInfo(entityId);
+    if (entityServiceInfo == null) {
+      return;
+    }
+
+    String entityServiceInfoUrl = entityServiceInfo.getUrl();
+
+    // Craft a dummy cookie to hold the cacheKey
+    Cookie cookie = new Cookie(COOKIE, cacheKey);
+    URI uri = URI.create(entityServiceInfoUrl);
+    cookie.setPath(uri.getPath());
+    cookie.setDomain(uri.getHost());
+    cookie.setSecure(true);
+
+    try {
+      logoutRequest = signLogoutRequest(logoutRequest);
+    } catch (SignatureException | XMLStreamException | WSSecurityException e) {
+      LOGGER.warn("Unable to sign logout request");
+      LOGGER.debug("Unable to sign logout request", e);
+      return;
+    }
+
+    try {
+      String response =
+          logoutMessage.sendSamlLogoutRequest(logoutRequest, entityServiceInfoUrl, true, cookie);
+
+      LogoutResponse logoutResponse = parseSoapLogoutResponse(response);
+      if (logoutResponse != null) {
+        String issuer = logoutResponse.getIssuer().getValue();
+        String statusCode = logoutResponse.getStatus().getStatusCode().getValue();
+        SecurityLogger.audit(
+            "Logout response from entity {} for user {} -- Issuer: {}; StatusCode: {}",
+            entityId,
+            logoutState.getNameId(),
+            issuer,
+            statusCode);
+      }
+    } catch (IOException | WSSecurityException | XMLStreamException | SOAPException e) {
+      LOGGER.debug("Error occurred executing idp-initiated single signout");
+    }
+  }
+
+  private LogoutResponse parseSoapLogoutResponse(String soapResponse)
+      throws IOException, XMLStreamException, SOAPException, WSSecurityException {
+    try (ByteArrayInputStream bais =
+        new ByteArrayInputStream(Base64.getMimeDecoder().decode(soapResponse))) {
+      String decodedResponse = IOUtils.toString(bais, StandardCharsets.UTF_8.name());
+      SOAPPart soapPart = SamlProtocol.parseSoapMessage(decodedResponse);
+      Document document = soapPart.getEnvelope().getBody().extractContentAsDocument();
+      return (LogoutResponse) SamlProtocol.getXmlObjectFromNode(document.getFirstChild());
+    }
+  }
+
+  private LogoutRequest signLogoutRequest(LogoutRequest logoutRequest)
+      throws SignatureException, WSSecurityException, XMLStreamException {
+    new SimpleSign(systemCrypto).signSamlObject(logoutRequest);
+    Element reqElem = logoutMessage.getElementFromSaml(logoutRequest);
+    String nodeString = DOM2Writer.nodeToString(reqElem);
+
+    final Document responseDoc =
+        StaxUtils.read(new ByteArrayInputStream(nodeString.getBytes(StandardCharsets.UTF_8)));
+    return (LogoutRequest) OpenSAMLUtil.fromDom(responseDoc.getDocumentElement());
+  }
+
+  private ServiceInfo getServiceInfo(String entityId) {
+    ServiceInfo entityServiceInfo =
+        getServiceProvidersMap().get(entityId).getLogoutService(SamlProtocol.Binding.SOAP);
+    if (entityServiceInfo == null) {
+      LOGGER.info("Could not find entity service info for {}", entityId);
+      return null;
+    }
+    if (entityServiceInfo.getBinding() != SamlProtocol.Binding.SOAP) {
+      LOGGER.info("SOAP binding not available for SP [{}]", entityId);
+      return null;
+    }
+    return entityServiceInfo;
   }
 
   private Map<String, EntityInformation> getServiceProvidersMap() {
@@ -324,7 +520,7 @@ public class IdpEndpoint implements Idp {
       Response samlpResponse =
           soapBinding
               .creator()
-              .getSamlpResponse(relayState, authnRequest, response, null, soapMessage);
+              .getSamlpResponse(relayState, authnRequest, response, null, ecpMessage);
       samlpResponse
           .getHeaders()
           .put(
@@ -657,7 +853,7 @@ public class IdpEndpoint implements Idp {
     } else if (binding instanceof RedirectBinding) {
       template = redirectPage;
     } else if (binding instanceof SoapBinding) {
-      template = soapMessage;
+      template = ecpMessage;
     }
     return binding
         .creator()

@@ -44,6 +44,11 @@
         </dependency>
         <dependency>
             <groupId>ddf.platform</groupId>
+            <artifactId>platform-session-invalidator</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform</groupId>
             <artifactId>platform-filter-delegate</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -220,12 +225,12 @@
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.51</minimum>
+                                            <minimum>0.55</minimum>
                                         </limit>
                                         <limit>
                                             <counter>COMPLEXITY</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.52</minimum>
+                                            <minimum>0.54</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

@@ -18,6 +18,7 @@ import static org.apache.commons.lang.CharEncoding.UTF_8;
 import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
@@ -29,12 +30,16 @@ import java.util.Base64;
 import java.util.List;
 import javax.annotation.Nullable;
 import javax.ws.rs.core.UriBuilder;
+import javax.xml.stream.XMLStreamException;
+import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.rs.security.saml.sso.SSOConstants;
+import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.apache.wss4j.common.saml.SAMLKeyInfo;
 import org.apache.wss4j.common.saml.SAMLUtil;
+import org.apache.wss4j.common.util.DOM2Writer;
 import org.apache.wss4j.dom.WSDocInfo;
 import org.apache.wss4j.dom.engine.WSSConfig;
 import org.apache.wss4j.dom.handler.RequestData;
@@ -57,6 +62,7 @@ import org.opensaml.xmlsec.signature.support.provider.ApacheSantuarioSignatureVa
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 public class SimpleSign {
 
@@ -94,6 +100,34 @@ public class SimpleSign {
         sigAlgo,
         SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS,
         SignatureConstants.ALGO_ID_DIGEST_SHA1);
+  }
+
+  /**
+   * Forces a signature value to be added to a {@code SignableSAMLObject}.
+   *
+   * <p>This is needed in the case of a message wrapped in a SOAP Envelope where the {@code
+   * org.opensaml.xmlsec.signature.support.Signer} will not be triggered.
+   *
+   * @param samlObject signable object to be signed
+   * @param <T> instance of a class that extends {@code SignableSAMLObject}
+   * @return copy of the input object with a valid signature value
+   * @throws SignatureException
+   * @throws WSSecurityException
+   * @throws XMLStreamException
+   */
+  public <T extends SignableSAMLObject> T forceSignSamlObject(T samlObject)
+      throws SignatureException, WSSecurityException, XMLStreamException {
+    signSamlObject(samlObject);
+
+    Document doc = DOMUtils.createDocument();
+    doc.appendChild(doc.createElement("root"));
+    Element reqElem = OpenSAMLUtil.toDom(samlObject, doc);
+
+    String nodeToString = DOM2Writer.nodeToString(reqElem);
+
+    final Document responseDoc =
+        StaxUtils.read(new ByteArrayInputStream(nodeToString.getBytes(StandardCharsets.UTF_8)));
+    return (T) OpenSAMLUtil.fromDom(responseDoc.getDocumentElement());
   }
 
   public void signUriString(String queryParams, UriBuilder uriBuilder) throws SignatureException {

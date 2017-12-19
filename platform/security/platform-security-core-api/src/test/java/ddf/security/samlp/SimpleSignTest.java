@@ -170,6 +170,17 @@ public class SimpleSignTest {
   }
 
   @Test
+  public void testForceSign() throws Exception {
+    Document responseDoc = StaxUtils.read(new ByteArrayInputStream(cannedResponse.getBytes()));
+    XMLObject responseXmlObject = OpenSAMLUtil.fromDom(responseDoc.getDocumentElement());
+    org.opensaml.saml.saml2.core.Response response =
+        (org.opensaml.saml.saml2.core.Response) responseXmlObject;
+    response = simpleSign.forceSignSamlObject(response);
+
+    simpleSign.validateSignature(response.getSignature(), response.getDOM().getOwnerDocument());
+  }
+
+  @Test
   public void testSignUriStringWithDsa() throws Exception {
 
     systemCrypto =

@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Stream;
 import javax.xml.soap.SOAPPart;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -55,6 +56,7 @@ import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.SessionIndex;
 import org.opensaml.saml.saml2.core.Status;
 import org.opensaml.saml.saml2.core.StatusCode;
+import org.opensaml.saml.saml2.core.StatusMessage;
 import org.opensaml.saml.saml2.core.Subject;
 import org.opensaml.saml.saml2.core.impl.SessionIndexBuilder;
 import org.opensaml.saml.saml2.metadata.AssertionConsumerService;
@@ -136,6 +138,11 @@ public class SamlProtocol {
   @SuppressWarnings("unchecked")
   private static SAMLObjectBuilder<StatusCode> statusCodeBuilder =
       (SAMLObjectBuilder<StatusCode>) builderFactory.getBuilder(StatusCode.DEFAULT_ELEMENT_NAME);
+
+  @SuppressWarnings("unchecked")
+  private static SAMLObjectBuilder<StatusMessage> statusMessageBuilder =
+      (SAMLObjectBuilder<StatusMessage>)
+          builderFactory.getBuilder(StatusMessage.DEFAULT_ELEMENT_NAME);
 
   @SuppressWarnings("unchecked")
   private static SAMLObjectBuilder<Subject> subjectBuilder =
@@ -274,6 +281,15 @@ public class SamlProtocol {
     return status;
   }
 
+  public static Status createStatus(String statusValue, String message) {
+    Status status = createStatus(statusValue);
+    StatusMessage statusMessage = statusMessageBuilder.buildObject();
+    statusMessage.setMessage(message);
+    status.setStatusMessage(statusMessage);
+
+    return status;
+  }
+
   @SuppressWarnings("squid:S00107")
   public static EntityDescriptor createIdpMetadata(
       String entityId,
@@ -332,17 +348,7 @@ public class SamlProtocol {
       idpssoDescriptor.getSingleSignOnServices().add(singleSignOnServicePost);
     }
 
-    if (StringUtils.isNotBlank(singleLogOutLocation)) {
-      SingleLogoutService singleLogoutServiceRedir = singleLogOutServiceBuilder.buildObject();
-      singleLogoutServiceRedir.setBinding(REDIRECT_BINDING);
-      singleLogoutServiceRedir.setLocation(singleLogOutLocation);
-      idpssoDescriptor.getSingleLogoutServices().add(singleLogoutServiceRedir);
-
-      SingleLogoutService singleLogoutServicePost = singleLogOutServiceBuilder.buildObject();
-      singleLogoutServicePost.setBinding(POST_BINDING);
-      singleLogoutServicePost.setLocation(singleLogOutLocation);
-      idpssoDescriptor.getSingleLogoutServices().add(singleLogoutServicePost);
-    }
+    addSingleLogoutLocation(singleLogOutLocation, idpssoDescriptor.getSingleLogoutServices());
 
     if (StringUtils.isNotBlank(singleSignOnLocationSoap)) {
       SingleSignOnService singleSignOnServiceSoap = singleSignOnServiceBuilder.buildObject();
@@ -398,17 +404,7 @@ public class SamlProtocol {
     encKeyDescriptor.setKeyInfo(encKeyInfo);
     spSsoDescriptor.getKeyDescriptors().add(encKeyDescriptor);
 
-    if (StringUtils.isNotBlank(singleLogOutLocation)) {
-      SingleLogoutService singleLogoutServiceRedirect = singleLogOutServiceBuilder.buildObject();
-      singleLogoutServiceRedirect.setBinding(REDIRECT_BINDING);
-      singleLogoutServiceRedirect.setLocation(singleLogOutLocation);
-      spSsoDescriptor.getSingleLogoutServices().add(singleLogoutServiceRedirect);
-
-      SingleLogoutService singleLogoutServicePost = singleLogOutServiceBuilder.buildObject();
-      singleLogoutServicePost.setBinding(POST_BINDING);
-      singleLogoutServicePost.setLocation(singleLogOutLocation);
-      spSsoDescriptor.getSingleLogoutServices().add(singleLogoutServicePost);
-    }
+    addSingleLogoutLocation(singleLogOutLocation, spSsoDescriptor.getSingleLogoutServices());
 
     int acsIndex = 0;
 
@@ -567,6 +563,22 @@ public class SamlProtocol {
       node = xmlStreamWriter.getDocument().getDocumentElement();
     }
     return node;
+  }
+
+  private static void addSingleLogoutLocation(
+      String singleLogOutLocation, List<SingleLogoutService> singleLogoutServices) {
+    if (StringUtils.isNotBlank(singleLogOutLocation)) {
+      Stream.of(REDIRECT_BINDING, POST_BINDING, SOAP_BINDING)
+          .forEach(b -> addSingleLogoutBinding(b, singleLogOutLocation, singleLogoutServices));
+    }
+  }
+
+  private static void addSingleLogoutBinding(
+      String binding, String singleLogOutLocation, List<SingleLogoutService> singleLogoutServices) {
+    SingleLogoutService sls = singleLogOutServiceBuilder.buildObject();
+    sls.setBinding(binding);
+    sls.setLocation(singleLogOutLocation);
+    singleLogoutServices.add(sls);
   }
 
   public enum Binding {
