@@ -19,7 +19,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-import java.util.Optional;
 import org.codice.ddf.branding.BrandingRegistry;
 import org.codice.ddf.configuration.DictionaryMap;
 import org.junit.Test;
@@ -31,11 +30,10 @@ import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 
 @RunWith(MockitoJUnitRunner.class)
-public class TestUiConfigurationPropertiesFactory {
+public class UiConfigurationPropertiesFactoryTest {
 
   @Mock private ConfigurationAdmin configurationAdmin;
-
-  private Optional<BrandingRegistry> branding = Optional.empty();
+  @Mock private BrandingRegistry branding;
 
   @Test
   public void testConfigurationDoesNotExist() throws IOException, InvalidSyntaxException {
@@ -58,11 +56,84 @@ public class TestUiConfigurationPropertiesFactory {
   }
 
   @Test
+  public void testInvalidTypeProperties() throws IOException, InvalidSyntaxException {
+    DictionaryMap<String, Object> configProps = new DictionaryMap<>();
+    configProps.put("header", false);
+    configProps.put("footer", false);
+    configProps.put("color", false);
+    configProps.put("background", false);
+    configProps.put("systemUsageTitle", false);
+    configProps.put("systemUsageMessage", false);
+    configProps.put("systemUsageEnabled", "Unexpected text");
+    configProps.put("systemUsageOncePerSession", "Unexpected text");
+
+    Configuration configuration = mock(Configuration.class);
+    Configuration[] configurations = {configuration};
+    when(configurationAdmin.listConfigurations("(service.pid=ddf.platform.ui.config)"))
+        .thenReturn(configurations);
+    when(configurationAdmin.getConfiguration("ddf.platform.ui.config", null))
+        .thenReturn(configuration);
+    when(configuration.getProperties()).thenReturn(configProps);
+
+    UiConfigurationPropertiesFactory.getInstance().setConfigurationAdmin(configurationAdmin);
+    UiConfigurationProperties props =
+        UiConfigurationPropertiesFactory.getInstance().getProperties();
+
+    assertAllBlankProps(props);
+  }
+
+  @Test
+  public void testProductNameExists() throws IOException, InvalidSyntaxException {
+    DictionaryMap<String, Object> configProps = new DictionaryMap<>();
+
+    Configuration configuration = mock(Configuration.class);
+    Configuration[] configurations = {configuration};
+    when(configurationAdmin.listConfigurations("(service.pid=ddf.platform.ui.config)"))
+        .thenReturn(configurations);
+    when(configurationAdmin.getConfiguration("ddf.platform.ui.config", null))
+        .thenReturn(configuration);
+    when(configuration.getProperties()).thenReturn(configProps);
+
+    when(branding.getProductName()).thenReturn("Product Name");
+
+    UiConfigurationPropertiesFactory.getInstance().setConfigurationAdmin(configurationAdmin);
+    UiConfigurationPropertiesFactory.getInstance().setBranding(branding);
+    UiConfigurationProperties props =
+        UiConfigurationPropertiesFactory.getInstance().getProperties();
+
+    assertThat(props.getProductName(), is("Product Name"));
+  }
+
+  @Test
+  public void testProductNameDoesNotExist() throws IOException, InvalidSyntaxException {
+    DictionaryMap<String, Object> configProps = new DictionaryMap<>();
+
+    Configuration configuration = mock(Configuration.class);
+    Configuration[] configurations = {configuration};
+    when(configurationAdmin.listConfigurations("(service.pid=ddf.platform.ui.config)"))
+        .thenReturn(configurations);
+    when(configurationAdmin.getConfiguration("ddf.platform.ui.config", null))
+        .thenReturn(configuration);
+    when(configuration.getProperties()).thenReturn(configProps);
+
+    UiConfigurationPropertiesFactory.getInstance().setConfigurationAdmin(configurationAdmin);
+    UiConfigurationProperties props =
+        UiConfigurationPropertiesFactory.getInstance().getProperties();
+
+    assertThat(props.getProductName(), is(""));
+  }
+
+  @Test
   public void testPropsCreatedProperly() throws IOException, InvalidSyntaxException {
     DictionaryMap<String, Object> configProps = new DictionaryMap<>();
     configProps.put("header", "Test Header");
     configProps.put("footer", "Test Footer");
+    configProps.put("color", "WHITE");
+    configProps.put("background", "RED");
+    configProps.put("systemUsageTitle", "Test Title");
+    configProps.put("systemUsageMessage", "Test Message");
     configProps.put("systemUsageEnabled", true);
+    configProps.put("systemUsageOncePerSession", false);
 
     Configuration configuration = mock(Configuration.class);
     Configuration[] configurations = {configuration};
@@ -78,7 +149,12 @@ public class TestUiConfigurationPropertiesFactory {
 
     assertThat(props.getHeader(), is("Test Header"));
     assertThat(props.getFooter(), is("Test Footer"));
+    assertThat(props.getColor(), is("WHITE"));
+    assertThat(props.getBackground(), is("RED"));
+    assertThat(props.getSystemUsageTitle(), is("Test Title"));
+    assertThat(props.getSystemUsageMessage(), is("Test Message"));
     assertThat(props.getSystemUsageEnabled(), is(true));
+    assertThat(props.getSystemUsageOncePerSession(), is(false));
   }
 
   private void assertAllBlankProps(UiConfigurationProperties props) {

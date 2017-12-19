@@ -15,8 +15,9 @@ package org.codice.ddf.ui.searchui.simple.properties;
 
 import java.util.Dictionary;
 import java.util.Optional;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.codice.ddf.branding.BrandingRegistry;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
 
 /* Contains getters and setters for the UI configuration for building Simple Search UI  */
 public class UiConfigurationProperties {
@@ -72,7 +73,7 @@ public class UiConfigurationProperties {
     if (properties.get(key) instanceof String) {
       val = (String) properties.get(key);
     }
-    return StringEscapeUtils.escapeHtml(val);
+    return Jsoup.clean(val, Whitelist.relaxed());
   }
 
   private Boolean getBooleanProperty(String key) {
