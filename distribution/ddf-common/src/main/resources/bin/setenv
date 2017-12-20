@@ -30,10 +30,10 @@
 # in example of the start script where the start script is executed first and the
 # karaf script afterwards.
 #
-DIRNAME=`dirname "$0"`
+DIRNAME=$(dirname "$0")
 
 # Set environment variable for DDF home directory (used by DDF Java code)
-DDF_HOME=`cd $DIRNAME/..; pwd -P`
+DDF_HOME=$(cd "${DIRNAME}/.."; pwd -P)
 
 # NOTE: export on separate line to support caveat of Solaris OS
 export DDF_HOME
@@ -64,25 +64,7 @@ export EXTRA_JAVA_OPTS
 # export KARAF_DATA # Karaf data folder
 # export KARAF_BASE # Karaf base folder
 
-#
-# Admins can uncomment the following line and comment out the other definition of
-# the KARAF_SYSTEM_OPTS variable in order to determine any missing security permissions
-# should they install third-party bundles requiring additional access.
-#
-# Please note that turning on the PolicyFileGeneratorJSM has the side-effect of turning off
-# security on your system. It should be used with caution, only to ascertain missing
-# permissions to be added to the default.policy file.
-#
-# N.B. The use of the double equals on the 'java.security.policy' property is intentional.
-# See http://docs.oracle.com/javase/7/docs/technotes/guides/security/PolicyFiles.html#DefaultLocs
-# for more information.
-#
-# export KARAF_SYSTEM_OPTS="-Dprograde.generated.policy=$DDF_HOME/generated.policy -Dprograde.use.own.policy=true -Dpolicy.provider=net.sourceforge.prograde.policy.ProGradePolicy -Djava.security.manager=net.sourceforge.prograde.sm.PolicyFileGeneratorJSM -Djava.security.policy==$DDF_HOME/security/default.policy -DproGrade.getPermissions.override=sun.rmi.server.LoaderHandler:loadClass,org.apache.jasper.compiler.JspRuntimeContext:initSecurity"
 
-#
-# The Security Manager is turned off by default in DDF.
-#
-# export KARAF_SYSTEM_OPTS="-Dpolicy.provider=net.sourceforge.prograde.policy.ProGradePolicy -Djava.security.manager=net.sourceforge.prograde.sm.ProGradeJSM -Djava.security.policy==$DDF_HOME/security/default.policy -DproGrade.getPermissions.override=sun.rmi.server.LoaderHandler:loadClass,org.apache.jasper.compiler.JspRuntimeContext:initSecurity"
 
 # The following defines an environment variable referencing our script to be executed by the JVM
 # when errors are detected. The environment variable will be expanded by the JVM.
@@ -93,5 +75,6 @@ export DDF_ON_ERROR="bin/ddf_on_error.sh script "
 # Defines the special on-error Java options
 JAVA_ERROR_OPTS="-XX:OnOutOfMemoryError=\${DDF_ON_ERROR}%p -XX:OnError=\${DDF_ON_ERROR}%p"
 
-export KARAF_OPTS="-Dfile.encoding=UTF8 -Dddf.home=$DDF_HOME -Dddf.home.policy=$DDF_HOME/"
+export KARAF_OPTS="-Dfile.encoding=UTF8"
+
 export JAVA_OPTS="-Xms2g -Xmx4g -XX:+UnlockDiagnosticVMOptions -XX:+DisableAttachMechanism $JAVA_ERROR_OPTS"
