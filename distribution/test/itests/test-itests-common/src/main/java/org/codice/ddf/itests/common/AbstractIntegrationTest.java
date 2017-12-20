@@ -621,7 +621,14 @@ public abstract class AbstractIntegrationTest {
         // avoid integration tests stealing focus on OS X
         vmOption("-Djava.awt.headless=true"),
         vmOption("-Dfile.encoding=UTF8"),
-        HomeAwareVmOption.homeAwareVmOption("-Dddf.home={karaf.home}"));
+        vmOption("-Dpolicy.provider=net.sourceforge.prograde.policy.ProGradePolicy"),
+        vmOption("-Djava.security.manager=net.sourceforge.prograde.sm.ProGradeJSM"),
+        HomeAwareVmOption.homeAwareVmOption("-Djava.security.policy=={karaf.home}/etc/all.policy"),
+        vmOption(
+            "-DproGrade.getPermissions.override=sun.rmi.server.LoaderHandler:loadClass,org.apache.jasper.compiler.JspRuntimeContext:initSecurity"),
+        HomeAwareVmOption.homeAwareVmOption("-Dddf.home={karaf.home}"),
+        HomePermVmOption.homePermVmOption("-Dddf.home.perm={karaf.home}"),
+        HomePolicyVmOption.homePolicyVmOption("-Dddf.home.policy={karaf.home}"));
   }
 
   protected Option[] configureStartScript() {
@@ -893,6 +900,94 @@ public abstract class AbstractIntegrationTest {
             .map(Path::toAbsolutePath)
             .map(Path::toString)
             .map(s -> StringUtils.replace(super.getOption(), "{karaf.home}", s))
+            .map(s -> s.replace('\\', '/'))
+            .map(s -> s.replace("/bin/..", "/"))
+            .orElseGet(super::getOption);
+      } catch (IOException e) {
+        throw new RuntimeException("Unable to determine current exam directory", e);
+      }
+    }
+  }
+
+  /**
+   * Helper Option class to allow interpolation of {@code karaf.home} directory based on the
+   * provided {@link #UNPACK_DIRECTORY}.
+   */
+  static class HomePolicyVmOption extends VMOption {
+    static HomeAwareVmOption homePolicyVmOption(String option) {
+      return new HomeAwareVmOption(option);
+    }
+
+    private HomePolicyVmOption(String option) {
+      super(option);
+    }
+
+    @Override
+    @SuppressWarnings({
+      "squid:S00112" /* A generic RuntimeException is perfectly reasonable in this case. */
+    })
+    public String getOption() {
+      final Function<Path, FileTime> createTimeComp =
+          path -> {
+            try {
+              return Files.readAttributes(path, BasicFileAttributes.class).creationTime();
+            } catch (IOException e) {
+              throw new RuntimeException("Unable to determine current exam directory", e);
+            }
+          };
+
+      try (final Stream<Path> dirContents = Files.list(UNPACK_DIRECTORY.toPath())) {
+        return dirContents
+            .max(Comparator.comparing(createTimeComp))
+            .map(Path::toAbsolutePath)
+            .map(Path::toString)
+            .map(s -> StringUtils.replace(super.getOption(), "{karaf.home}", s))
+            .map(s -> s.replace('\\', '/'))
+            .map(s -> s.replace("/bin/..", "/"))
+            .map(s -> "/" + s)
+            .map(s -> s.replace("c:", "C:"))
+            .orElseGet(super::getOption);
+      } catch (IOException e) {
+        throw new RuntimeException("Unable to determine current exam directory", e);
+      }
+    }
+  }
+
+  /**
+   * Helper Option class to allow interpolation of {@code karaf.home} directory based on the
+   * provided {@link #UNPACK_DIRECTORY}.
+   */
+  static class HomePermVmOption extends VMOption {
+    static HomeAwareVmOption homePermVmOption(String option) {
+      return new HomeAwareVmOption(option);
+    }
+
+    private HomePermVmOption(String option) {
+      super(option);
+    }
+
+    @Override
+    @SuppressWarnings({
+      "squid:S00112" /* A generic RuntimeException is perfectly reasonable in this case. */
+    })
+    public String getOption() {
+      final Function<Path, FileTime> createTimeComp =
+          path -> {
+            try {
+              return Files.readAttributes(path, BasicFileAttributes.class).creationTime();
+            } catch (IOException e) {
+              throw new RuntimeException("Unable to determine current exam directory", e);
+            }
+          };
+
+      try (final Stream<Path> dirContents = Files.list(UNPACK_DIRECTORY.toPath())) {
+        return dirContents
+            .max(Comparator.comparing(createTimeComp))
+            .map(Path::toAbsolutePath)
+            .map(Path::toString)
+            .map(s -> StringUtils.replace(super.getOption(), "{karaf.home}", s))
+            .map(s -> s.replace("\\bin\\..", "\\"))
+            .map(s -> s.replace("\\", "\\\\"))
             .orElseGet(super::getOption);
       } catch (IOException e) {
         throw new RuntimeException("Unable to determine current exam directory", e);

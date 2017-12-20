@@ -31,74 +31,6 @@ deny {
 };
 
 //
-// DDF Libraries have broad file permissions within the install directory
-//
-grant
-  codeBase "file:${ddf.home.policy}system/ddf/-" {
-    permission java.io.FilePermission "${ddf.home}", "read, write";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}-", "read, write";
-
-    permission java.util.PropertyPermission "javax.net.ssl.*", "read, write";
-};
-grant
-  codeBase "file:${ddf.home.policy}system/org/codice/-" {
-    permission java.io.FilePermission "${ddf.home}", "read, write";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}-", "read, write";
-
-    permission java.util.PropertyPermission "javax.net.ssl.*", "read, write";
-};
-
-//
-// DDF Migration Framework and Config Admin Migratable
-//
-grant
-  codeBase "file:${ddf.home.policy}system/ddf/platform/platform-migratable/-" {
-    // some permissions might be repeated here to ensure that they are granted to the migration
-    // framework if we ever tighten the permissions above
-
-    permission javax.management.MBeanServerPermission "createMBeanServer";
-
-    permission java.io.FilePermission "<<ALL FILES>>", "read, readlink";
-    permission java.io.FilePermission "${ddf.home}", "read, write";
-    permission java.io.FilePermission "${ddf.home.perm}-", "read, write, delete";
-
-    permission java.util.PropertyPermission "*", "read";
-    permission java.util.PropertyPermission "ddf.home", "read";
-    permission java.util.PropertyPermission "karaf.restart.jvm", "write";
-    permission java.util.PropertyPermission "wrapper.key", "read";
-};
-
-//
-// DDF Platform Migratable
-//
-grant
-  codeBase "file:${ddf.home.policy}system/ddf/platform/platform-migratable/-" {
-    // some permissions might be repeated here to ensure that they are granted to the migration
-    // framework if we ever tighten the permissions above
-
-    permission java.io.FilePermission "${ddf.home.perm}bin${/}-", "read";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}-", "read";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}pdp${/}-", "read, delete";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security", "read";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}-", "read, delete";
-
-    permission java.util.PropertyPermission "javax.net.ssl.keyStore", "read";
-    permission java.util.PropertyPermission "javax.net.ssl.trustStore", "read";
-};
-
-//
-// DDF Security Migratable
-//
-grant
-  codeBase "file:${ddf.home.policy}system/ddf/security/migration/security-migratable/-" {
-    // some permissions might be repeated here to ensure that they are granted to the migration
-    // framework if we ever tighten the permissions above
-
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}pdp", "read";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}pdp${/}-", "read, delete";
-};
-
-//
 // The lib directory contains root, trusted jars for DDF, OSGi, and security
 //
 grant
@@ -137,14 +69,6 @@ grant
     permission java.io.FilePermission "${ddf.home.perm}etc${/}-", "read, execute";
 };
 
-grant codeBase "file:${ddf.home.policy}system/org/apache/karaf/services/org.apache.karaf.services.eventadmin/-" {
-    permission javax.security.auth.AuthPermission "getSubject";
-}
-
-grant codeBase "file:${ddf.home.policy}system/org/apache/felix/org.apache.felix.fileinstall/-" {
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}-", "read";
-}
-
 grant
   codeBase "file:${ddf.home.policy}data/cache/-" {
     permission java.security.AllPermission;
@@ -153,35 +77,46 @@ grant
 //
 // Core OSGi libraries
 //
-grant
-  codeBase "file:${ddf.home.policy}system/org/eclipse/platform/org.eclipse.osgi/-" {
-    permission java.security.AllPermission;
-};
-
-grant
-  codeBase "file:${ddf.home.policy}system/org/eclipse/jetty/-" {
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
-};
-
-grant
-  codeBase "file:${ddf.home.policy}system/org/apache/karaf/features/-" {
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}jetty.xml", "read,write";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}org.ops4j.pax.url.war.cfg", "read,write";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}jmx.acl.org.apache.camel.cfg", "read,write";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}org.apache.karaf.decanter.sla.checker.cfg", "read,write";
-};
-
-grant
-  codeBase "file:${ddf.home.policy}system/org/apache/cxf/cxf-core/-" {
-    permission java.lang.RuntimePermission "createClassLoader";
-};
 
 //
 // Commons-io includes functionality to monitor directories asynchronously
 //
+
+//
+// DDF Platform Migratable
+//
 grant
-  codeBase "file:${ddf.home.policy}system/commons-io/commons-io/-" {
-    permission java.io.FilePermission "${ddf.home.perm}-", "read";
+  codeBase "file:/platform-migratable" {
+    // some permissions might be repeated here to ensure that they are granted to the migration
+    // framework if we ever tighten the permissions above
+
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}pdp${/}-", "read, delete";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}-", "read, delete";
+
+    permission java.util.PropertyPermission "javax.net.ssl.keyStore", "read";
+    permission java.util.PropertyPermission "javax.net.ssl.trustStore", "read";
+
+    permission javax.management.MBeanServerPermission "createMBeanServer";
+    permission java.io.FilePermission "<<ALL FILES>>", "read, readlink";
+    permission java.io.FilePermission "${ddf.home}", "read, write";
+    permission java.io.FilePermission "${ddf.home.perm}-", "read, write, delete";
+
+    permission java.util.PropertyPermission "*", "read";
+    permission java.util.PropertyPermission "ddf.home", "read";
+    permission java.util.PropertyPermission "karaf.restart.jvm", "write";
+    permission java.util.PropertyPermission "wrapper.key", "read";
+};
+
+//
+// DDF Security Migratable
+//
+grant
+  codeBase "file:/security-migratable" {
+    // some permissions might be repeated here to ensure that they are granted to the migration
+    // framework if we ever tighten the permissions above
+
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}pdp", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}pdp${/}-", "read, delete";
 };
 
 grant codeBase "file:/admin-core-appservice" {
@@ -193,6 +128,7 @@ grant codeBase "file:/org.apache.felix.fileinstall" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}deploy", "read";
     permission java.io.FilePermission "${ddf.home.perm}deploy${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}wrap:jardir:${ddf.home.perm}etc${/}-", "read";
 }
 
 grant codeBase "file:/platform-osgi-condpermadmin" {
@@ -205,17 +141,23 @@ grant codeBase "file:/org.apache.felix.configadmin" {
 }
 
 grant codeBase "file:/org.apache.karaf.features.core" {
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}jetty.xml", "read,write";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}org.ops4j.pax.url.war.cfg", "read,write";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}jmx.acl.org.apache.camel.cfg", "read,write";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}org.apache.karaf.decanter.sla.checker.cfg", "read,write";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}DDF_Custom_Mime_Type_Resolver-csw.config", "read,write";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}DDF_Custom_Mime_Type_Resolver-geojson.config", "read,write";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}DDF_Custom_Mime_Type_Resolver-nitf.config", "read,write";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}DDF_Custom_Mime_Type_Resolver-xml.config", "read,write";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}org.apache.karaf.decanter.scheduler.simple.cfg", "read,write";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}ddf.security.pdp.realm.AuthzRealm.config", "read,write";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}attributeMap.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}-", "read,write";
+}
+
+grant codeBase "file:/org.apache.karaf.services.eventadmin" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission javax.security.auth.AuthPermission "getSubject";
+    permission java.lang.RuntimePermission "createClassLoader";
+}
+
+grant codeBase "file:/persistence-core-impl" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.lang.RuntimePermission "createClassLoader";
+}
+
+grant codeBase "file:/persistence-core-listeners" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.lang.RuntimePermission "createClassLoader";
 }
 
 grant codeBase "file:/org.eclipse.osgi" {
@@ -235,16 +177,74 @@ grant codeBase "file:/org.apache.camel.camel-blueprint" {
 
 grant codeBase "file:/org.apache.aries.blueprint.core" {
     permission java.lang.RuntimePermission "createClassLoader";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+}
+
+grant codeBase "file:/org.apache.aries.blueprint.cm" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+}
+
+grant codeBase "file:/org.apache.aries.transaction.blueprint" {
+    permission java.lang.RuntimePermission "createClassLoader";
 }
 
 grant codeBase "file:/org.apache.cxf.cxf-core" {
     permission java.lang.RuntimePermission "createClassLoader";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
+}
+
+grant codeBase "file:/org.apache.cxf.cxf-rt-frontend-jaxrs" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
+}
+
+grant codeBase "file:/org.apache.cxf.cxf-rt-frontend-jaxws" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
 }
 
 grant codeBase "file:/org.apache.cxf.cxf-rt-transports-http" {
     permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read";
 }
+
+grant codeBase "file:/org.apache.cxf.cxf-rt-ws-security" {
+    permission java.lang.RuntimePermission "createClassLoader";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
+}
+
+grant codeBase "file:/org.apache.cxf.cxf-rt-wsdl" {
+    permission java.lang.RuntimePermission "createClassLoader";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
+}
+
+
 
 grant codeBase "file:/org.ops4j.pax.web.pax-web-spi" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
@@ -257,21 +257,49 @@ grant codeBase "file:/org.ops4j.pax.web.pax-web-jsp" {
 
 grant codeBase "file:/org.ops4j.pax.web.pax-web-runtime" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
     permission java.lang.RuntimePermission "createClassLoader";
 }
 
 grant codeBase "file:/org.ops4j.pax.web.pax-web-jetty" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
     permission java.lang.RuntimePermission "createClassLoader";
 }
 
 grant codeBase "file:/org.ops4j.pax.web.pax-web-extender-whiteboard" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
     permission java.lang.RuntimePermission "createClassLoader";
 }
 
 grant codeBase "file:/org.ops4j.pax.web.pax-web-extender-war" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
     permission java.lang.RuntimePermission "createClassLoader";
 }
 
@@ -281,20 +309,75 @@ grant codeBase "file:/jetty-server" {
 
 grant codeBase "file:/org.eclipse.jetty.util" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
     permission java.lang.RuntimePermission "createClassLoader";
 }
 
 grant codeBase "file:/org.eclipse.jetty.server" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
     permission java.lang.RuntimePermission "createClassLoader";
 }
 
 grant codeBase "file:/org.eclipse.jetty.servlet" {
     permission java.lang.RuntimePermission "createClassLoader";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
+}
+
+grant codeBase "file:/org.eclipse.jetty.security" {
+    permission java.lang.RuntimePermission "createClassLoader";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
+}
+
+grant codeBase "file:/org.eclipse.jetty.io" {
+    permission java.lang.RuntimePermission "createClassLoader";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
 }
 
 grant codeBase "file:/javax.servlet-api" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
     permission java.lang.RuntimePermission "createClassLoader";
+
 }
 
 grant codeBase "file:/org.apache.karaf.shell.ssh" {
@@ -318,6 +401,11 @@ grant codeBase "file:/org.apache.karaf.deployer.kar" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}definitions${/}-", "read";
 }
 
+grant codeBase "file:/org.apache.karaf.jaas.modules" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keys.properties", "read";
+}
+
 grant codeBase "file:/pax-logging-log4j2" {
     permission java.io.FilePermission "${ddf.home.perm}data${/}log${/}ddf.log", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}data${/}log${/}ingest_error.log", "read,write";
@@ -329,12 +417,30 @@ grant codeBase "file:/pax-logging-log4j2" {
 
 grant codeBase "file:/platform-solr-server-standalone" {
     permission java.lang.RuntimePermission "createClassLoader";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
 }
 
 grant codeBase "file:/security-sts-server" {
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read,write";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
     permission java.lang.RuntimePermission "createClassLoader";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+}
+
+grant codeBase "file:/security-sts-realm" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+}
+
+grant codeBase "file:/org.apache.shiro.core" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
 }
 
 grant codeBase "file:/org.apache.tika.core" {
@@ -382,11 +488,21 @@ grant codeBase "file:/security-certificate-keystoreeditor" {
 grant codeBase "file:/org.apache.wss4j.wss4j-ws-security-common" {
     permission java.security.SecurityPermission "removeProvider.ApacheXMLDSig";
     permission java.security.SecurityPermission "insertProvider";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+}
+
+grant codeBase "file:/org.apache.wss4j.wss4j-ws-security-dom" {
+    permission java.security.SecurityPermission "removeProvider.STRTransform";
+    permission java.security.SecurityPermission "insertProvider";
+    permission java.security.SecurityPermission "removeProvider.AttachmentContentSignatureTransform";
+    permission java.security.SecurityPermission "removeProvider.AttachmentCompleteSignatureTransform";
 }
 
 grant codeBase "file:/security-pdp-authzrealm" {
     //This is a bug in Arbitro and should not be here
     permission java.io.FilePermission "${ddf.home.perm}src${/}main${/}resources${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}pdp${/}policies${/}-", "read";
+    permission java.lang.RuntimePermission "modifyThread";
 }
 
 grant codeBase "file:/admin-core-insecuredefaults" {
@@ -394,11 +510,24 @@ grant codeBase "file:/admin-core-insecuredefaults" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}org.ops4j.pax.web.cfg", "read";
 }
 
 grant codeBase "file:/admin-core-impl" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}profiles.json", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}attributeMap.properties", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
+}
+
+grant codeBase "file:/admin-core-jolokia" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
 }
 
 grant codeBase "file:/security-core-impl" {
@@ -411,29 +540,172 @@ grant codeBase "file:/security-core-api" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}org.ops4j.pax.web.cfg", "read";
 }
 
 grant codeBase "file:/security-idp-server" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata${/}-", "read";
 }
 
 grant codeBase "file:/security-idp-client" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata${/}-", "read";
 }
 
 grant codeBase "file:/org.apache.karaf.decanter.scheduler.simple" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}org.ops4j.pax.web.cfg", "read";
 }
 
 grant codeBase "file:/org.apache.felix.scr" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}org.ops4j.pax.web.cfg", "read";
+}
+
+grant codeBase "file:/security-filter-web-sso" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata${/}-", "read";
+}
+
+grant codeBase "file:/platform-filter-delegate" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
+}
+
+grant codeBase "file:/platform-filter-clientinfo" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
+}
+
+grant codeBase "file:/platform-filter-response" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
+}
+
+grant codeBase "file:/security-filter-authorization" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
+}
+
+grant codeBase "file:/security-filter-login" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
+}
+
+grant codeBase "file:/security-filter-web-sso" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
+}
+
+grant codeBase "file:/org.apache.commons.io" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
+}
+
+grant codeBase "file:/admin-ui" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata${/}-", "read";
+}
+
+grant codeBase "file:/admin-configuration-configupdater" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}-", "read";
+}
+
+grant codeBase "file:/catalog-core-standardframework" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+}
+
+grant codeBase "file:/catalog-plugin-videothumbnail" {
+    permission java.io.FilePermission "${ddf.home.perm}bin_third_party", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}bin_third_party${/}-", "read,write,execute";
+}
+
+grant codeBase "file:/catalog-core-camelcontext" {
+    permission java.lang.RuntimePermission "createClassLoader";
+}
+
+grant codeBase "file:/catalog-ui-search" {
+    permission java.lang.RuntimePermission "createClassLoader";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+}
+
+grant codeBase "file:/standard" {
+    permission java.lang.RuntimePermission "createClassLoader";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+}
+
+grant codeBase "file:/catalog-transformer-zip" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+}
+
+grant codeBase "file:/spatial-csw-transformer" {
+    permission java.lang.RuntimePermission "createClassLoader";
+}
+
+grant codeBase "file:/spatial-csw-source" {
+    permission java.lang.RuntimePermission "createClassLoader";
+}
+
+grant codeBase "file:/catalog-solr-provider" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.lang.RuntimePermission "createClassLoader";
+}
+
+grant codeBase "file:/catalog-solr-solrclient" {
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
 }
 
 grant {
