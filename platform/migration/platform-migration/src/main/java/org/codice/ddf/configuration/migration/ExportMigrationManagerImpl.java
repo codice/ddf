@@ -29,6 +29,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import javax.crypto.CipherOutputStream;
+import org.apache.commons.io.output.CloseShieldOutputStream;
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
@@ -60,6 +62,8 @@ public class ExportMigrationManagerImpl implements Closeable {
 
   private final Path exportFile;
 
+  private CipherUtils cipherUtils;
+
   private boolean closed = false;
 
   /**
@@ -75,10 +79,14 @@ public class ExportMigrationManagerImpl implements Closeable {
    *     is <code>null</code>
    */
   public ExportMigrationManagerImpl(
-      MigrationReport report, Path exportFile, Stream<? extends Migratable> migratables) {
+      MigrationReport report,
+      Path exportFile,
+      CipherUtils cipherUtils,
+      Stream<? extends Migratable> migratables) {
     this(
         report,
         exportFile,
+        cipherUtils,
         migratables,
         ExportMigrationManagerImpl.newZipOutputStreamFor(exportFile));
   }
@@ -86,21 +94,26 @@ public class ExportMigrationManagerImpl implements Closeable {
   ExportMigrationManagerImpl(
       MigrationReport report,
       Path exportFile,
+      CipherUtils cipherUtils,
       Stream<? extends Migratable> migratables,
       ZipOutputStream zos) {
     Validate.notNull(report, "invalid null report");
     Validate.isTrue(
         report.getOperation() == MigrationOperation.EXPORT, "invalid migration operation");
     Validate.notNull(migratables, "invalid null migratables");
+    Validate.notNull(cipherUtils, "invalid null cipher utils");
     this.report = report;
     this.exportFile = exportFile;
+    this.cipherUtils = cipherUtils;
     this.zipOutputStream = zos;
     // pre-create contexts for all registered migratables
     this.contexts =
         migratables.collect(
             Collectors.toMap(
                 Migratable::getId,
-                m -> new ExportMigrationContextImpl(report, m, zipOutputStream),
+                m ->
+                    new ExportMigrationContextImpl(
+                        report, m, zipOutputStream, new CipherUtils(exportFile)),
                 ConfigurationMigrationManager.throwingMerger(),
                 LinkedHashMap::new)); // to preserved ranking order and remove duplicates
   }
@@ -156,20 +169,31 @@ public class ExportMigrationManagerImpl implements Closeable {
     LOGGER.debug("Exported metadata: {}", metadata);
   }
 
+  @SuppressWarnings({
+    "squid:S2093" /* Not using try-with-resources with CipherOutputStream. Stream is closed inside finally block */
+  })
   @Override
   public void close() throws IOException {
     if (!closed) {
       this.closed = true;
+      CipherOutputStream cos = null;
       try {
         zipOutputStream.closeEntry();
         try {
           zipOutputStream.putNextEntry(
               new ZipEntry(MigrationContextImpl.METADATA_FILENAME.toString()));
-          JsonUtils.MAPPER.writeValue(zipOutputStream, metadata);
+          CloseShieldOutputStream shieldOutputStream = new CloseShieldOutputStream(zipOutputStream);
+          cos = cipherUtils.getCipherOutputStream(shieldOutputStream);
+          JsonUtils.MAPPER.writeValue(cos, metadata);
         } catch (IOException e) {
           throw new MigrationException(Messages.EXPORT_METADATA_CREATE_ERROR, e);
+        } finally {
+          if (cos != null) {
+            cos.close();
+          }
         }
       } finally {
+
         zipOutputStream.close();
       }
     }

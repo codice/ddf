@@ -15,11 +15,13 @@ package org.codice.ddf.configuration.migration;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 import java.util.zip.ZipOutputStream;
+import javax.crypto.CipherOutputStream;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationOperation;
@@ -43,6 +45,8 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportSuppo
 
   private Path exportFile;
 
+  private CipherUtils mockCipherUtils;
+
   private ExportMigrationManagerImpl mgr;
 
   public ExportMigrationManagerImplTest() {
@@ -52,11 +56,21 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportSuppo
   @Before
   public void setup() throws Exception {
     exportFile = ddfHome.resolve(createDirectory("exported")).resolve("exported.zip");
+    mockCipherUtils = Mockito.mock(CipherUtils.class);
+    CipherOutputStream cos = Mockito.mock(CipherOutputStream.class);
+    Mockito.when(mockCipherUtils.getZipPath()).thenReturn(exportFile);
+    Mockito.when(mockCipherUtils.getChecksumPath())
+        .thenReturn(MigrationZipConstants.getDefaultChecksumPathFor(exportFile));
+    Mockito.when(mockCipherUtils.getKeyPath())
+        .thenReturn(MigrationZipConstants.getDefaultKeyPathFor(exportFile));
+    Mockito.when(mockCipherUtils.getCipherOutputStream(Mockito.any(OutputStream.class)))
+        .thenReturn(cos);
     initMigratableMock();
     initMigratableMock(migratable2, MIGRATABLE_ID2);
     initMigratableMock(migratable3, MIGRATABLE_ID3);
 
-    mgr = new ExportMigrationManagerImpl(report, exportFile, Stream.of(migratables));
+    mgr =
+        new ExportMigrationManagerImpl(report, exportFile, mockCipherUtils, Stream.of(migratables));
   }
 
   @Test
@@ -97,7 +111,7 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportSuppo
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage(Matchers.containsString("null report"));
 
-    new ExportMigrationManagerImpl(null, exportFile, Stream.empty());
+    new ExportMigrationManagerImpl(null, exportFile, mockCipherUtils, Stream.empty());
   }
 
   @Test
@@ -108,7 +122,7 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportSuppo
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage(Matchers.containsString("invalid migration operation"));
 
-    new ExportMigrationManagerImpl(report, exportFile, Stream.empty());
+    new ExportMigrationManagerImpl(report, exportFile, mockCipherUtils, Stream.empty());
   }
 
   @Test
@@ -116,7 +130,7 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportSuppo
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage(Matchers.containsString("null export file"));
 
-    new ExportMigrationManagerImpl(report, null, Stream.empty());
+    new ExportMigrationManagerImpl(report, null, mockCipherUtils, Stream.empty());
   }
 
   @Test
@@ -124,7 +138,15 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportSuppo
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage(Matchers.containsString("null migratables"));
 
-    new ExportMigrationManagerImpl(report, exportFile, null);
+    new ExportMigrationManagerImpl(report, exportFile, mockCipherUtils, null);
+  }
+
+  @Test
+  public void testConstructorWithNullCipherUtils() throws Exception {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage(Matchers.containsString("null cipher utils"));
+
+    new ExportMigrationManagerImpl(report, exportFile, null, Stream.empty());
   }
 
   @Test
@@ -136,7 +158,7 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportSuppo
     thrown.expectMessage(Matchers.containsString("failed to create export file"));
     thrown.expectCause(Matchers.instanceOf(FileNotFoundException.class));
 
-    new ExportMigrationManagerImpl(report, exportFile, Stream.empty());
+    new ExportMigrationManagerImpl(report, exportFile, mockCipherUtils, Stream.empty());
   }
 
   @Test
@@ -181,17 +203,24 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportSuppo
 
   @Test
   public void testClose() throws Exception {
+    CipherUtils cipherUtils = new CipherUtils(exportFile);
+
+    mgr = new ExportMigrationManagerImpl(report, exportFile, cipherUtils, Stream.of(migratables));
+
     mgr.doExport(PRODUCT_BRANDING, PRODUCT_VERSION);
 
     mgr.close();
 
-    final Map<String, ZipEntry> entries = AbstractMigrationSupport.getEntriesFrom(exportFile);
+    final Map<String, MigrationZipEntry> entries =
+        AbstractMigrationSupport.getEntriesFrom(exportFile);
 
     Assert.assertThat(entries, Matchers.aMapWithSize(1));
     Assert.assertThat(entries, Matchers.hasKey(MigrationContextImpl.METADATA_FILENAME.toString()));
     final Object ometadata =
         JsonUtils.MAPPER.fromJson(
-            entries.get(MigrationContextImpl.METADATA_FILENAME.toString()).getContent());
+            decrypt(
+                entries.get(MigrationContextImpl.METADATA_FILENAME.toString()).getContent(),
+                MigrationZipConstants.getDefaultKeyPathFor(exportFile)));
 
     Assert.assertThat(ometadata, Matchers.instanceOf(Map.class));
     assertMetaData((Map<String, Object>) ometadata);
@@ -201,7 +230,8 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportSuppo
   public void testCloseWhenAlreadyClosed() throws Exception {
     final ZipOutputStream zos = Mockito.mock(ZipOutputStream.class);
     final ExportMigrationManagerImpl mgr =
-        new ExportMigrationManagerImpl(report, exportFile, Stream.of(migratables), zos);
+        new ExportMigrationManagerImpl(
+            report, exportFile, mockCipherUtils, Stream.of(migratables), zos);
 
     Mockito.doNothing().when(zos).closeEntry();
 
@@ -216,7 +246,8 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportSuppo
   public void testCloseWhileFailingToCreateMetadataEntry() throws Exception {
     final ZipOutputStream zos = Mockito.mock(ZipOutputStream.class);
     final ExportMigrationManagerImpl mgr =
-        new ExportMigrationManagerImpl(report, exportFile, Stream.of(migratables), zos);
+        new ExportMigrationManagerImpl(
+            report, exportFile, mockCipherUtils, Stream.of(migratables), zos);
     final IOException ioe = new IOException("testing");
 
     Mockito.doNothing().when(zos).closeEntry();
@@ -233,7 +264,8 @@ public class ExportMigrationManagerImplTest extends AbstractMigrationReportSuppo
   public void testCloseWhileFailingToCloseLastEntry() throws Exception {
     final ZipOutputStream zos = Mockito.mock(ZipOutputStream.class);
     final ExportMigrationManagerImpl mgr =
-        new ExportMigrationManagerImpl(report, exportFile, Stream.of(migratables), zos);
+        new ExportMigrationManagerImpl(
+            report, exportFile, mockCipherUtils, Stream.of(migratables), zos);
     final IOException ioe = new IOException("testing");
 
     Mockito.doThrow(ioe).when(zos).closeEntry();
