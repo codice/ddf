@@ -1,11 +1,17 @@
-:title: Connecting to a Registry
+:title: Federating Through a Registry
 :type: configuration
-:status: draft
+:status: published
 :parent: Configuring Federation
-:order: 01
+:order: 05
 :summary: Connecting to registry.
-////
+
 == {title}
 
-TODO: https://codice.atlassian.net/browse/DDF-3350 - Add general administrator-level directions for connecting to a registry
-////
+Another approach to configuring federation is to use the *${ddf-registry}* application to locate sources in a network/enterprise.
+See <<_installing_registry,${ddf-registry} Application Reference>> for details on installing the ${ddf-registry} application.
+Use the registry to subscribe to and federate with other instances of ${branding}.
+
+[NOTE]
+====
+The *Node Information* and *Remote Registries* tabs appear in both the ${ddf-registry} application and the ${ddf-catalog} application.
+====
