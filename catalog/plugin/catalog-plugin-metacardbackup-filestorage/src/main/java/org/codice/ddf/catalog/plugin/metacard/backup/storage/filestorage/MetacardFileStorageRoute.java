@@ -13,9 +13,17 @@
  */
 package org.codice.ddf.catalog.plugin.metacard.backup.storage.filestorage;
 
+import static org.apache.camel.builder.PredicateBuilder.and;
 import static org.apache.camel.builder.PredicateBuilder.not;
 
+import ddf.camel.component.catalog.ingest.PostIngestConsumer;
 import java.io.File;
+import java.io.IOException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -76,10 +84,6 @@ public class MetacardFileStorageRoute extends MetacardStorageRoute {
             METACARD_BACKUP_KEEP_DELETED_RTE_PROP,
             simple(String.valueOf(keepDeletedMetacards), Boolean.class))
         .choice()
-        .when(not(getCheckDeletePredicate()))
-        .stop()
-        .otherwise()
-        .choice()
         .when(not(getShouldBackupPredicate()))
         .stop()
         .otherwise()
@@ -87,6 +91,19 @@ public class MetacardFileStorageRoute extends MetacardStorageRoute {
             TEMPLATED_STRING_HEADER_RTE_PROP,
             method(new MetacardTemplate(outputPathTemplate), "applyTemplate(${body})"))
         .to("catalog:metacardtransformer")
+        .choice()
+        .when(
+            and(
+                header(PostIngestConsumer.ACTION).isEqualTo(PostIngestConsumer.DELETE),
+                getCheckDeletePredicate()))
+        .bean(
+            MetacardFileStorageRoute.class,
+            String.format(
+                "deleteFile(%s, ${in.headers.%s})",
+                URLEncoder.encode(getStartingDir(), StandardCharsets.UTF_8.name()),
+                URLEncoder.encode(TEMPLATED_STRING_HEADER_RTE_PROP, StandardCharsets.UTF_8.name())))
+        .stop()
+        .otherwise()
         .to(
             "file://"
                 + getStartingDir()
@@ -114,8 +131,25 @@ public class MetacardFileStorageRoute extends MetacardStorageRoute {
     return routeIds;
   }
 
+  public static void deleteFile(String startingDir, String fileName) {
+
+    String fullFilePath = null;
+    try {
+      fullFilePath =
+          String.format(
+              "%s%s%s",
+              URLDecoder.decode(startingDir, StandardCharsets.UTF_8.name()),
+              File.separator,
+              URLDecoder.decode(fileName, StandardCharsets.UTF_8.name()));
+      Files.deleteIfExists(Paths.get(fullFilePath));
+      LOGGER.trace("Deleted File : {}", fullFilePath);
+    } catch (IOException e) {
+      LOGGER.debug("Could not delete file at path : {}", fullFilePath, e);
+    }
+  }
+
   private String getStartingDir() {
-    String startDir = null;
+    String startDir;
     if (outputPathTemplate.startsWith(File.separator)) {
       startDir = File.separator;
     } else {

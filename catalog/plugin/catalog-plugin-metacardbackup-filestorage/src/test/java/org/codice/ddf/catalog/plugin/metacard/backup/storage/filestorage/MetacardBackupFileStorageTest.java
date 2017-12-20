@@ -17,12 +17,15 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.camel.CamelContext;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 public class MetacardBackupFileStorageTest {
 
@@ -31,16 +34,19 @@ public class MetacardBackupFileStorageTest {
 
   private CamelContext camelContext = new DefaultCamelContext();
 
-  private MetacardFileStorageRoute fileStorageProvider = new MetacardFileStorageRoute(camelContext);
+  private MetacardFileStorageRoute metacardFileStorageRoute =
+      new MetacardFileStorageRoute(camelContext);
+
+  @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   @Before
   public void setUp() throws Exception {
-    fileStorageProvider.setOutputPathTemplate(OUTPUT_PATH_TEMPLATE);
+    metacardFileStorageRoute.setOutputPathTemplate(OUTPUT_PATH_TEMPLATE);
   }
 
   @Test
   public void testOutputPathTemplate() {
-    assertThat(fileStorageProvider.getOutputPathTemplate(), is(OUTPUT_PATH_TEMPLATE));
+    assertThat(metacardFileStorageRoute.getOutputPathTemplate(), is(OUTPUT_PATH_TEMPLATE));
   }
 
   @Test
@@ -56,11 +62,18 @@ public class MetacardBackupFileStorageTest {
     properties.put("keepDeletedMetacards", keepDeletedMetacards);
     properties.put("metacardTransformerId", metacardTransformerId);
 
-    fileStorageProvider.refresh(properties);
-    assertThat(fileStorageProvider.getOutputPathTemplate(), is(newBackupDir));
-    assertThat(fileStorageProvider.isBackupInvalidMetacards(), is(backupInvalidCards));
-    assertThat(fileStorageProvider.isKeepDeletedMetacards(), is(keepDeletedMetacards));
-    assertThat(fileStorageProvider.getMetacardTransformerId(), is(metacardTransformerId));
+    metacardFileStorageRoute.refresh(properties);
+    assertThat(metacardFileStorageRoute.getOutputPathTemplate(), is(newBackupDir));
+    assertThat(metacardFileStorageRoute.isBackupInvalidMetacards(), is(backupInvalidCards));
+    assertThat(metacardFileStorageRoute.isKeepDeletedMetacards(), is(keepDeletedMetacards));
+    assertThat(metacardFileStorageRoute.getMetacardTransformerId(), is(metacardTransformerId));
+  }
+
+  @Test
+  public void testDeleteFile() throws IOException {
+    File tempFile = temporaryFolder.newFile();
+    MetacardFileStorageRoute.deleteFile(tempFile.getParent(), tempFile.getName());
+    assertThat(tempFile.exists(), is(false));
   }
 
   @Test
@@ -68,15 +81,15 @@ public class MetacardBackupFileStorageTest {
     Map<String, Object> properties = new HashMap<>();
     properties.put("outputPathTemplate", 2);
     properties.put("id", 5);
-    fileStorageProvider.refresh(properties);
-    assertThat(fileStorageProvider.getOutputPathTemplate(), is(OUTPUT_PATH_TEMPLATE));
+    metacardFileStorageRoute.refresh(properties);
+    assertThat(metacardFileStorageRoute.getOutputPathTemplate(), is(OUTPUT_PATH_TEMPLATE));
   }
 
   @Test
   public void testRefreshEmptyStrings() throws Exception {
     Map<String, Object> properties = new HashMap<>();
     properties.put("outputPathTemplate", "");
-    fileStorageProvider.refresh(properties);
-    assertThat(fileStorageProvider.getOutputPathTemplate(), is(OUTPUT_PATH_TEMPLATE));
+    metacardFileStorageRoute.refresh(properties);
+    assertThat(metacardFileStorageRoute.getOutputPathTemplate(), is(OUTPUT_PATH_TEMPLATE));
   }
 }
