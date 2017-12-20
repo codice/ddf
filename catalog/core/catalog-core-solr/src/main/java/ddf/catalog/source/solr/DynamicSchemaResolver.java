@@ -414,6 +414,10 @@ public class DynamicSchemaResolver {
       centerPoint = geometries.get(0).getCentroid();
     }
 
+    if (centerPoint == null || centerPoint.isEmpty()) {
+        return null;
+    }
+
     return centerPoint.getY() + "," + centerPoint.getX();
   }
 
