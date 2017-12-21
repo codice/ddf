@@ -7,6 +7,7 @@
 
 The ${branding} Simple Search UI application provides a low-bandwidth option for searching records in the local Catalog (provider) and federated sources.
 Results are returned in HTML format.
+${branding} Simple Search UI can be configured by navigating to the *Standard Search UI* application, then navigating to the *Configuration* tab, and selecting the Simple Search UI configuration. See <<org.codice.ddf.ui.search.simple.properties,Simple Search UI configurations>> for all possible configurations.
 
 === Search
 

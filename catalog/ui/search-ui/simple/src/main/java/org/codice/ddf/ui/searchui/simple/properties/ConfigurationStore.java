@@ -29,6 +29,12 @@ public class ConfigurationStore {
 
   private String background = "";
 
+  private Boolean systemUsageEnabled = false;
+
+  private String systemUsageTitle = "";
+
+  private String systemUsageMessage = "";
+
   private Optional<BrandingRegistry> branding = Optional.empty();
 
   private ConfigurationStore() {
@@ -36,6 +42,9 @@ public class ConfigurationStore {
     footer = "";
     color = "";
     background = "";
+    systemUsageEnabled = false;
+    systemUsageTitle = "";
+    systemUsageMessage = "";
   }
 
   /** @return a unique instance of {@link ConfigurationStore} */
@@ -78,6 +87,30 @@ public class ConfigurationStore {
 
   public void setBackground(String background) {
     this.background = background;
+  }
+
+  public Boolean getSystemUsageEnabled() {
+    return systemUsageEnabled;
+  }
+
+  public void setSystemUsageEnabled(Boolean systemUsageEnabled) {
+    this.systemUsageEnabled = systemUsageEnabled;
+  }
+
+  public String getSystemUsageTitle() {
+    return systemUsageTitle;
+  }
+
+  public void setSystemUsageTitle(String systemUsageTitle) {
+    this.systemUsageTitle = systemUsageTitle;
+  }
+
+  public String getSystemUsageMessage() {
+    return systemUsageMessage;
+  }
+
+  public void setSystemUsageMessage(String systemUsageMessage) {
+    this.systemUsageMessage = systemUsageMessage;
   }
 
   public String getProductName() {

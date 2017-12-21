@@ -36,6 +36,23 @@
                 name="Background Color" id="background" required="true" type="String"
                 default=""
                 />
+		<AD
+				description="Turns on a system usage message, which is shown when the Search Application is opened"
+				name="Enable System Usage Message" id="systemUsageEnabled" required="true"
+				type="Boolean"
+				default="false"
+		/>
+		<AD
+				description="A title for the system usage Message when the application is opened"
+				name="System Usage Message Title" id="systemUsageTitle" required="true"
+				type="String"
+				default=""
+		/>
+		<AD
+				description="A system usage message to be displayed to the user each time the user opens the application"
+				name="System Usage Message" id="systemUsageMessage" required="true" type="String"
+				default=""
+		/>
 	</OCD>
 
 	<Designate pid="org.codice.ddf.ui.search.simple.properties">

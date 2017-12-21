@@ -475,5 +475,29 @@
 
  	<script type="text/javascript" src="js/Search-min.js?bust=${timestamp}"></script>
 
+ 	    <!-- Usage Modal -->
+        <!-- Only show if the modal is enabled -->
+        <% if(ConfigurationStore.getInstance().getSystemUsageEnabled() == true) { %>
+            <!-- Do not allow users to click outside of the modal to dismiss it, the OK button must be pressed -->
+            <script>
+                jQuery(function () {
+                    $('#usageModal').modal({
+                        backdrop: 'static',
+                        keyboard: false
+                    })
+                })
+            </script>
+            <div id="usageModal" class="modal hide" tabindex="-1" role="dialog"
+                aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-header">
+                    <h3><%=ConfigurationStore.getInstance().getSystemUsageTitle()%></h3>
+                </div>
+                <div class="modal-body"><%=ConfigurationStore.getInstance().getSystemUsageMessage()%></div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" data-dismiss="modal" aria-hidden="true">OK</button>
+                </div>
+            </div>
+        <% } %>
+
 </body>
 </html>
