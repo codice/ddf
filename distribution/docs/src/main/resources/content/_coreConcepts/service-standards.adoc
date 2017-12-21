@@ -29,11 +29,10 @@ Standards marked *Experimental* are functional and have been tested, but are sub
 |<<_wfs_1_0_source,WFS 1.0 Source>>, <<_wfs_2_0_source,WFS 2.0 Source>>
 |Supported
 
-// This row is commented out because the section it links to will be added in DDF-3266.
-//|http://www.opengeospatial.org/standards/wps[OGC WPS 2.0] Web Processing Service
-//|<<WPS Endpoint>>
-//|
-//|Experimental
+|http://www.opengeospatial.org/standards/wps[OGC WPS 2.0] Web Processing Service
+|<<WPS Endpoint>>
+|
+|Experimental
 
 |http://www.opensearch.org/Home[OpenSearch]
 |<<OpenSearch Endpoint>>
