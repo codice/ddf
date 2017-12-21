@@ -490,6 +490,11 @@
         </dependency>
         <dependency>
             <groupId>org.codice.ddf.validator</groupId>
+            <artifactId>catalog-validator-metacardframecenter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.validator</groupId>
             <artifactId>catalog-validator-wkt</artifactId>
             <version>${project.version}</version>
         </dependency>

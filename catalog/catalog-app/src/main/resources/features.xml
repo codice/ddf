@@ -461,6 +461,15 @@
         </bundle>
     </feature>
 
+    <feature name="catalog-validator-metacardframecenter" install="auto"
+             version="${project.version}"
+             description="Metacard Frame Center Validator">
+        <feature prerequisite="true">catalog-validator-metacardwkt</feature>
+        <bundle>
+            mvn:org.codice.ddf.validator/catalog-validator-metacardframecenter/${project.version}
+        </bundle>
+    </feature>
+
     <feature name="catalog-transformer-overlay" install="auto" version="${project.version}"
              description="Transforms a metacard into a geographically aligned image suitable for overlaying on a map">
         <feature prerequisite="true">catalog-app</feature>
