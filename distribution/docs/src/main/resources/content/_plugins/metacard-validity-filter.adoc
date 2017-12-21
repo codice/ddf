@@ -14,14 +14,3 @@ The Metacard Validity Filter Plugin determines whether metacards with validation
 ===== Installing the Metacard Validity Filter Plugin
 
 The Metacard Validity Filter Plugin is installed by default with a standard installation in the ${ddf-catalog} application.
-
-===== Configuring the Metacard Validity Filter Plugin
-
-The Metacard Validity Filter Plugin can be configured:
-
-. Navigate to the *${admin-console}*.
-. Select the *${ddf-catalog}* application.
-. Select the *Configuration* tab.
-. Select the *Metacard Validity Filter Plugin*.
-
-See <<ddf.catalog.metacard.validation.MetacardValidityFilterPlugin,Metacard Validity Filter Plugin configurations>> for all possible configurations.
