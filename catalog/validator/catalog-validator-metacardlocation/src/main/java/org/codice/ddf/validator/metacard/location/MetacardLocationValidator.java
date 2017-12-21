@@ -28,41 +28,30 @@ import ddf.catalog.validation.impl.violation.ValidationViolationImpl;
 import ddf.catalog.validation.report.MetacardValidationReport;
 import ddf.catalog.validation.violation.ValidationViolation;
 import java.io.Serializable;
-import java.text.ParseException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
-import org.locationtech.spatial4j.context.SpatialContext;
-import org.locationtech.spatial4j.context.jts.JtsSpatialContextFactory;
-import org.locationtech.spatial4j.exception.InvalidShapeException;
-import org.locationtech.spatial4j.io.WKTReader;
+import org.codice.ddf.validator.wkt.WktValidator;
 
 public class MetacardLocationValidator implements MetacardValidator, ReportingMetacardValidator {
-  private static final JtsSpatialContextFactory JTS_SPATIAL_CONTEXT_FACTORY =
-      new JtsSpatialContextFactory();
-
   private static final String ERROR_MSG = Core.LOCATION + " is invalid: ";
 
   private static final Set<String> VALIDATED_ATTRIBUTES = ImmutableSet.of(Core.LOCATION);
 
-  static {
-    JTS_SPATIAL_CONTEXT_FACTORY.allowMultiOverlap = true;
-  }
+  private final WktValidator wktValidator;
 
-  private static final SpatialContext SPATIAL_CONTEXT =
-      JTS_SPATIAL_CONTEXT_FACTORY.newSpatialContext();
+  public MetacardLocationValidator(WktValidator wktValidator) {
+    this.wktValidator = wktValidator;
+  }
 
   @Override
   public Optional<MetacardValidationReport> validateMetacard(Metacard metacard) {
     MetacardValidationReportImpl report = null;
 
     if (StringUtils.isNotEmpty(metacard.getLocation())) {
-      WKTReader wktReader = new WKTReader(SPATIAL_CONTEXT, JTS_SPATIAL_CONTEXT_FACTORY);
-      try {
-        wktReader.parse(metacard.getLocation());
-      } catch (ParseException | InvalidShapeException e) {
+      if (!wktValidator.isValid(metacard.getLocation())) {
         String message = ERROR_MSG + metacard.getLocation();
         ValidationViolation violation =
             new ValidationViolationImpl(

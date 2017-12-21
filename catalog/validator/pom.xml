@@ -27,5 +27,6 @@
     <modules>
         <module>catalog-validator-metacardduplication</module>
         <module>catalog-validator-metacardlocation</module>
+        <module>catalog-validator-wkt</module>
     </modules>
 </project>

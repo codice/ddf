@@ -28,10 +28,12 @@ import ddf.catalog.validation.violation.ValidationViolation;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import org.codice.ddf.validator.wkt.WktValidatorImpl;
 import org.junit.Test;
 
 public class MetacardLocationValidatorTest {
-  private MetacardLocationValidator locationValidator = new MetacardLocationValidator();
+  private MetacardLocationValidator locationValidator =
+      new MetacardLocationValidator(new WktValidatorImpl());
 
   @Test
   public void testMetacardWithValidLocation() throws Exception {

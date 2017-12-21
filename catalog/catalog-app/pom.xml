@@ -489,6 +489,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.codice.ddf.validator</groupId>
+            <artifactId>catalog-validator-wkt</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.catalog.transformer</groupId>
             <artifactId>catalog-transformer-overlay</artifactId>
             <version>${project.version}</version>

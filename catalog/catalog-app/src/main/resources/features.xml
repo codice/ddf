@@ -410,6 +410,7 @@
              description="Metacard and attribute validation services">
         <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.core/catalog-core-validator/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.validator/catalog-validator-wkt/${project.version}</bundle>
         <feature>catalog-plugin-metacard-validation</feature>
     </feature>
 
