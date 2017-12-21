@@ -410,7 +410,6 @@
              description="Metacard and attribute validation services">
         <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.core/catalog-core-validator/${project.version}</bundle>
-        <bundle>mvn:org.codice.ddf.validator/catalog-validator-wkt/${project.version}</bundle>
         <feature>catalog-plugin-metacard-validation</feature>
     </feature>
 
@@ -438,6 +437,12 @@
         <bundle>mvn:ddf.catalog.transformer/catalog-transformer-pptx/${project.version}</bundle>
     </feature>
 
+    <feature name="catalog-validator-metacardwkt" install="auto" version="${project.version}" description="Provides support for WKT validation">
+        <feature prerequisite="true">catalog-core</feature>
+        <bundle>mvn:org.codice.ddf.validator/catalog-validator-wkt/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.validator/catalog-validator-metacardwkt/${project.version}</bundle>
+    </feature>
+
     <feature name="catalog-validator-metacardduplication" install="manual"
              version="${project.version}"
              description="Metacard Duplicate Validator">
@@ -450,7 +455,7 @@
     <feature name="catalog-validator-metacardlocation" install="auto"
              version="${project.version}"
              description="Metacard Location Validator">
-        <feature prerequisite="true">catalog-core</feature>
+        <feature prerequisite="true">catalog-validator-metacardwkt</feature>
         <bundle>
             mvn:org.codice.ddf.validator/catalog-validator-metacardlocation/${project.version}
         </bundle>
