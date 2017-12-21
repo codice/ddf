@@ -87,7 +87,7 @@
             <saml2:Audience>https://localhost:8993/services</saml2:Audience>
         </saml2:AudienceRestriction>
     </saml2:Conditions>
-    <saml2:AuthnStatement AuthnInstant="2013-04-23T23:39:54.777Z">
+    <saml2:AuthnStatement AuthnInstant="2013-04-23T23:39:54.777Z" SessionIndex="42">
         <saml2:AuthnContext>
             <saml2:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified
             </saml2:AuthnContextClassRef>

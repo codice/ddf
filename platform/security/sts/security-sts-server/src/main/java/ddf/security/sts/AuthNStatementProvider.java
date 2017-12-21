@@ -46,7 +46,13 @@ public class AuthNStatementProvider implements AuthenticationStatementProvider {
   @Override
   public AuthenticationStatementBean getStatement(TokenProviderParameters providerParameters) {
     AuthenticationStatementBean authBean = new AuthenticationStatementBean();
-    authBean.setSessionIndex(Integer.toString(secureRandom.nextInt()));
+    // "Use small positive integers (or reoccurring constants in a list) for the SessionIndex"
+    // Ref: sstc-saml-core-errata-2.0-wd-07, line 1140
+    int smallPositiveInteger = 0;
+    while (smallPositiveInteger == 0) {
+      smallPositiveInteger = secureRandom.nextInt(Short.MAX_VALUE);
+    }
+    authBean.setSessionIndex(Integer.toString(smallPositiveInteger));
 
     TokenRequirements tokenRequirements = providerParameters.getTokenRequirements();
     ReceivedToken receivedToken = null;

@@ -261,6 +261,8 @@ public class IdpEndpointTest {
     assertThat(response.getEntity().toString(), containsString("soapenv:Body"));
     assertThat(response.getEntity().toString(), containsString("saml2p:Response"));
     assertThat(response.getEntity().toString(), containsString("saml2:Assertion"));
+    assertThat(response.getEntity().toString(), containsString("saml2:AuthnStatement"));
+    assertThat(response.getEntity().toString(), containsString("SessionIndex="));
     assertThat(
         response.getHeaders().get("SOAPAction").get(0),
         is("http://www.oasis-open.org/committees/security"));
@@ -281,6 +283,7 @@ public class IdpEndpointTest {
     assertThat(response.getEntity().toString(), containsString("soapenv:Body"));
     assertThat(response.getEntity().toString(), containsString("saml2p:Response"));
     assertThat(response.getEntity().toString(), containsString("saml2:Assertion"));
+    assertThat(response.getEntity().toString(), containsString("SessionIndex="));
     assertThat(
         response.getHeaders().get("SOAPAction").get(0),
         is("http://www.oasis-open.org/committees/security"));
@@ -301,6 +304,8 @@ public class IdpEndpointTest {
     assertThat(response.getEntity().toString(), containsString("soapenv:Body"));
     assertThat(response.getEntity().toString(), containsString("saml2p:Response"));
     assertThat(response.getEntity().toString(), containsString("saml2:Assertion"));
+    assertThat(response.getEntity().toString(), containsString("SessionIndex="));
+
     assertThat(
         response.getHeaders().get("SOAPAction").get(0),
         is("http://www.oasis-open.org/committees/security"));

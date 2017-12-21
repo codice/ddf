@@ -15,7 +15,8 @@ package ddf.security.samlp;
 
 import java.io.IOException;
 import java.net.URI;
-import javax.validation.constraints.NotNull;
+import java.util.List;
+import javax.annotation.Nullable;
 import javax.xml.stream.XMLStreamException;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.opensaml.core.xml.XMLObject;
@@ -27,35 +28,33 @@ import org.opensaml.saml.saml2.metadata.IDPSSODescriptor;
 import org.w3c.dom.Element;
 
 public interface LogoutMessage {
-  String getIdpSingleLogoutLocation(@NotNull IDPSSODescriptor descriptor);
+  String getIdpSingleLogoutLocation(IDPSSODescriptor descriptor);
 
-  SignableSAMLObject extractXmlObject(@NotNull String samlLogoutResponse)
+  SignableSAMLObject extractXmlObject(String samlLogoutResponse)
       throws WSSecurityException, XMLStreamException;
 
-  LogoutResponse extractSamlLogoutResponse(@NotNull String samlLogoutResponse)
+  LogoutResponse extractSamlLogoutResponse(String samlLogoutResponse)
       throws XMLStreamException, WSSecurityException;
 
-  LogoutRequest extractSamlLogoutRequest(@NotNull String samlLogoutRequest)
+  LogoutRequest extractSamlLogoutRequest(String samlLogoutRequest)
       throws XMLStreamException, WSSecurityException;
 
-  LogoutRequest buildLogoutRequest(@NotNull String nameIdString, @NotNull String issuerOrEntityId);
+  LogoutRequest buildLogoutRequest(
+      String nameIdString, String issuerOrEntityId, List<String> sessionIndexes);
+
+  LogoutResponse buildLogoutResponse(String issuerOrEntityId, String statusCodeValue);
 
   LogoutResponse buildLogoutResponse(
-      @NotNull String issuerOrEntityId, @NotNull String statusCodeValue);
+      String issuerOrEntityId, String statusCodeValue, String inResponseTo);
 
-  LogoutResponse buildLogoutResponse(
-      @NotNull String issuerOrEntityId, @NotNull String statusCodeValue, String inResponseTo);
+  Element getElementFromSaml(XMLObject xmlObject) throws WSSecurityException;
 
-  Element getElementFromSaml(@NotNull XMLObject xmlObject) throws WSSecurityException;
-
-  String sendSamlLogoutRequest(@NotNull LogoutRequest request, @NotNull String targetUri)
+  String sendSamlLogoutRequest(LogoutRequest request, String targetUri)
       throws IOException, WSSecurityException;
 
-  URI signSamlGetResponse(
-      @NotNull SAMLObject samlObject, @NotNull URI uriNameMeLater, String relayState)
+  URI signSamlGetResponse(SAMLObject samlObject, URI uriNameMeLater, @Nullable String relayState)
       throws WSSecurityException, SimpleSign.SignatureException, IOException;
 
-  URI signSamlGetRequest(
-      @NotNull SAMLObject samlObject, @NotNull URI uriNameMeLater, String relayState)
+  URI signSamlGetRequest(SAMLObject samlObject, URI uriNameMeLater, @Nullable String relayState)
       throws WSSecurityException, SimpleSign.SignatureException, IOException;
 }

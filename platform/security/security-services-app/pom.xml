@@ -125,6 +125,11 @@
     </build>
     <dependencies>
         <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>util-uuidgenerator-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.security.handler</groupId>
             <artifactId>security-handler-api</artifactId>
             <version>${project.version}</version>

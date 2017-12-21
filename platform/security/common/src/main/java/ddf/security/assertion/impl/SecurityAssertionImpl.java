@@ -204,6 +204,9 @@ public class SecurityAssertionImpl implements SecurityAssertion {
                     if (AuthnStatement.AUTHN_INSTANT_ATTRIB_NAME.equals(name)) {
                       authenticationStatement.setAuthnInstant(DateTime.parse(value));
                     }
+                    if (AuthnStatement.SESSION_INDEX_ATTRIB_NAME.equals(name)) {
+                      authenticationStatement.setSessionIndex(value);
+                    }
                   }
                   break;
                 case AuthnContextClassRef.DEFAULT_ELEMENT_LOCAL_NAME:
@@ -868,6 +871,8 @@ public class SecurityAssertionImpl implements SecurityAssertion {
 
     AuthnContext authnContext;
 
+    String sessionIndex;
+
     boolean isNil;
 
     @Override
@@ -882,11 +887,13 @@ public class SecurityAssertionImpl implements SecurityAssertion {
 
     @Override
     public String getSessionIndex() {
-      return null;
+      return sessionIndex;
     }
 
     @Override
-    public void setSessionIndex(String s) {}
+    public void setSessionIndex(String sessionIndex) {
+      this.sessionIndex = sessionIndex;
+    }
 
     @Override
     public DateTime getSessionNotOnOrAfter() {
