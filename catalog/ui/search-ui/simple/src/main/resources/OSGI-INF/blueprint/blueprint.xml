@@ -17,12 +17,15 @@
            xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
     <reference id="brandingRegistry" interface="org.codice.ddf.branding.BrandingRegistry" />
-    <bean id="configurationStore"
-          class="org.codice.ddf.ui.searchui.simple.properties.ConfigurationStore"
+    <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
+
+    <bean id="uiConfigurationPropertiesFactory"
+          class="org.codice.ddf.ui.searchui.simple.properties.UiConfigurationPropertiesFactory"
           factory-method="getInstance">
         <cm:managed-properties persistent-id="org.codice.ddf.ui.search.simple.properties"
                                update-strategy="container-managed"/>
         <property name="branding" ref="brandingRegistry"/>
+        <property name="configurationAdmin" ref="configurationAdmin"/>
     </bean>
 
 </blueprint>

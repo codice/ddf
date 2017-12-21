@@ -1,4 +1,4 @@
-<%@ page import="org.codice.ddf.ui.searchui.simple.properties.ConfigurationStore" %>
+<%@ page import="org.codice.ddf.ui.searchui.simple.properties.UiConfigurationPropertiesFactory,org.codice.ddf.ui.searchui.simple.properties.UiConfigurationProperties" %>
 <!DOCTYPE html>
 <!-- 
 /**
@@ -18,10 +18,10 @@
 <head>
 <meta charset="utf-8">
 
-
-
-
-<title><%=ConfigurationStore.getInstance().getProductName()%> Search</title>
+<%
+  UiConfigurationProperties props = UiConfigurationPropertiesFactory.getInstance().getProperties();
+%>
+<title><%=props.getProductName()%> Search</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="">
 <meta name="author" content="">
@@ -44,8 +44,8 @@
 
 <style media=screen type="text/css">
 	.banner {
-		color: <%=ConfigurationStore.getInstance().getColor()%>;
-		background: <%=ConfigurationStore.getInstance().getBackground()%>;
+		color: <%=props.getColor()%>;
+		background: <%=props.getBackground()%>;
 	}
 </style>
 
@@ -62,15 +62,16 @@
 <body>
 
 	<div class="navbar navbar-inverse navbar-fixed-top">
-		<% String h = ConfigurationStore.getInstance().getHeader();
-			if(h != null && h.trim().length() > 0)
-			    out.println("<div class=\"banner\">" + h + "</div>");
-		 %>
+
+		 <% String h = props.getHeader();
+		    if(h.trim().length() > 0) { %>
+             <div class="banner"><%=h %></div>
+		 <% } %>
 	
 		<div class="navbar-inner">
 			<div class="container">
 				<a class="brand" href="#">
-				    <i class="icon-globe icon-white"></i> <%=ConfigurationStore.getInstance().getProductName()%>
+				    <i class="icon-globe icon-white"></i> <%=props.getProductName()%>
                 </a>
 				<div class="nav-collapse collapse">
 					<ul class="nav">
@@ -78,7 +79,7 @@
 					</ul>
 					<ul class="nav pull-right">
 						<li>
-						    <a href="SearchHelp.html?title=<%=ConfigurationStore.getInstance().getProductName()%>">
+						    <a href="SearchHelp.html?title=<%=props.getProductName()%>">
 						        Help
                             </a>
                         </li>
@@ -441,10 +442,10 @@
 		</div>
 	</div>
 
-	<% String f = ConfigurationStore.getInstance().getFooter();
-		if(f != null && f.trim().length() > 0)
-		    out.println("<div class=\"navbar-fixed-bottom banner\">" + f + "</div>");
-	 %>
+	<% String f = props.getFooter();
+		if(f.trim().length() > 0) { %>
+		   <div class="navbar-fixed-bottom banner"><%=f %></div>
+        <% } %>
 		
 	<!-- Placed at the end of the document so the pages load faster -->
 
@@ -474,6 +475,30 @@
  -->
 
  	<script type="text/javascript" src="js/Search-min.js?bust=${timestamp}"></script>
+
+    <!-- Usage Modal -->
+    <!-- Only show if the modal is enabled -->
+    <% if(props.getSystemUsageEnabled() == true) { %>
+        <!-- Do not allow users to click outside of the modal to dismiss it, the OK button must be pressed -->
+        <script>
+            jQuery(function () {
+                $('#usageModal').modal({
+                    backdrop: 'static',
+                    keyboard: false
+                })
+            })
+        </script>
+        <div id="usageModal" class="modal hide" tabindex="-1" role="dialog"
+            aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-header">
+                <h3><%=props.getSystemUsageTitle()%></h3>
+            </div>
+            <div class="modal-body"><%=props.getSystemUsageMessage()%></div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" data-dismiss="modal" aria-hidden="true">OK</button>
+            </div>
+        </div>
+    <% } %>
 
 </body>
 </html>
