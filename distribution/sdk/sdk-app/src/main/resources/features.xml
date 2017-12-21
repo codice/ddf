@@ -11,9 +11,9 @@
  *
  **/
  -->
-<features name="${project.artifactId}-${project.version}"
+<features xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          name="${project.artifactId}-${project.version}"
           xmlns="http://karaf.apache.org/xmlns/features/v1.3.0"
-          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
     <feature name="sdk-metrics" version="${project.version}" install="manual"
@@ -51,6 +51,11 @@
         <feature prerequisite="true">sdk-app</feature>
         <bundle>mvn:ddf.distribution.sdk/sample-storageplugins/${project.version}
         </bundle>
+    </feature>
+
+    <feature name="sample-process" version="${project.version}" install="manual"
+             description="SDK sample process">
+        <bundle>mvn:ddf.distribution/sample-process/${project.version}</bundle>
     </feature>
 
     <feature name="sdk-app" version="${project.version}" description="SDK app." install="auto">

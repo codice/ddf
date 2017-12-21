@@ -35,6 +35,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang.text.StrSubstitutor;
 import org.apache.http.HttpStatus;
 import org.codice.ddf.itests.common.AbstractIntegrationTest;
@@ -44,6 +46,7 @@ import org.codice.ddf.itests.common.annotations.ConditionalIgnoreRule;
 import org.codice.ddf.itests.common.annotations.ConditionalIgnoreRule.ConditionalIgnore;
 import org.codice.ddf.itests.common.annotations.SkipUnstableTest;
 import org.codice.ddf.itests.common.utils.LoggingUtils;
+import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
@@ -235,6 +238,8 @@ public class TestSpatial extends AbstractIntegrationTest {
     try {
       waitForSystemReady();
       loadResourceQueries(CSW_QUERY_RESOURCES, savedCswQueries);
+      getServiceManager().startFeature(true, "spatial-wps");
+      getServiceManager().startFeature(true, "sample-process");
     } catch (Exception e) {
       LoggingUtils.failWithThrowableStacktrace(e, "Failed to start required apps: ");
     }
@@ -450,6 +455,60 @@ public class TestSpatial extends AbstractIntegrationTest {
             hasXPath(
                 "/metacard/string[@name='" + Location.COUNTRY_CODE + "']/value/text()",
                 equalTo(CSW_RESPONSE_COUNTRY_CODE)));
+  }
+
+  @Test
+  public void testWpsGetCapabilities() throws Exception {
+    given()
+        .get(SERVICE_ROOT.getUrl() + "/wps?service=WPS&request=GetCapabilities")
+        .then()
+        .log()
+        .all()
+        .assertThat()
+        .body(
+            hasXPath(
+                "count(/*[local-name()='Capabilities']/*[local-name()='Contents']/*[local-name()='ProcessSummary'])",
+                Matchers.is("5")),
+            hasXPath(
+                "/*[local-name()='Capabilities']/*[local-name()='Contents']/*[local-name()='ProcessSummary']/*[local-name()='Identifier' and text()='geojson']"));
+  }
+
+  @Test
+  public void testWpsDescribeProcess() throws Exception {
+    given()
+        .get(SERVICE_ROOT.getUrl() + "/wps?service=WPS&request=DescribeProcess&identifier=geojson")
+        .then()
+        .log()
+        .all()
+        .assertThat()
+        .body(
+            hasXPath(
+                "count(/*[local-name()='ProcessOfferings']/*[local-name()='ProcessOffering'])",
+                Matchers.is("1")),
+            hasXPath(
+                "/*[local-name()='ProcessOfferings']/*[local-name()='ProcessOffering']/*[local-name()='Process']/*[local-name()='Identifier' and text()='geojson']"));
+  }
+
+  @Test
+  public void testWpsExecute() throws Exception {
+    ingestMetacards(metacardIds);
+    final String requestXml =
+        getFileContent(
+            "ExecuteRequest.xml",
+            ImmutableMap.of(
+                "id", "csw:Record", "metacardId", metacardIds.get(PLAINXML_NEAR_METACARD)),
+            AbstractIntegrationTest.class);
+    given()
+        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
+        .body(requestXml)
+        .post(SERVICE_ROOT.getUrl() + "/wps?service=WPS&request=Execute")
+        .then()
+        .log()
+        .all()
+        .assertThat()
+        .body(
+            hasXPath(
+                "count(/*[local-name()='Result']/*[local-name()='Output'])", Matchers.is("1")));
   }
 
   /**
