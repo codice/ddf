@@ -100,6 +100,11 @@ define([
             'about(/)': 'openAbout'
         },
         initialize: function(){
+            if (window.location.search.indexOf('lowBandwidth') !== -1) {
+                router.set({
+                    lowBandwidth: true
+                });
+            }
             this.listenTo(wreqr.vent, 'router:navigate', this.handleNavigate);
             /*
                HACK:  listeners for the router aren't setup (such as the onRoute or controller)
@@ -119,12 +124,6 @@ define([
             hideViews();
             var self = this;
             var queryForMetacards, queryForMetacard;
-            var lowBandwidth = args.includes('lowBandwidth') || router.get('lowBandwidth');
-        
-            router.set({
-                lowBandwidth: lowBandwidth
-            });
-
             switch(name){
                 case 'openWorkspace':
                     var workspaceId = args[0];

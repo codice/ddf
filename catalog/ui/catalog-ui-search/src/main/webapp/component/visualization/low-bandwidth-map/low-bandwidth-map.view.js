@@ -15,17 +15,11 @@
 /*global require, window*/
 var _ = require('underscore');
 var $ = require('jquery');
-var wreqr = require('wreqr');
 var template = require('./low-bandwidth-map.hbs');
 var Marionette = require('marionette');
 var CustomElements = require('js/CustomElements');
 var CombinedMapView = require('component/visualization/combined-map/combined-map.view');
 var OpenlayersView = require('component/visualization/maps/openlayers/openlayers.view');
-var InspectorView = require('component/visualization/inspector/inspector.view');
-var Common = require('js/Common');
-var store = require('js/store');
-var user = require('component/singletons/user-instance');
-var featureDetection = require('component/singletons/feature-detection');
 var router = require('component/router/router');
 
 module.exports = Marionette.LayoutView.extend({
@@ -40,7 +34,7 @@ module.exports = Marionette.LayoutView.extend({
     },
 
     initialize: function(options) {
-        this.options = options;
+        this.options = _.extend({}, options, {lowBandwidth: router.get('lowBandwidth')});
     },
 
     onRender: function() {
@@ -51,7 +45,7 @@ module.exports = Marionette.LayoutView.extend({
 
     continueLoading: function() {
         this.$el.find('.low-bandwidth-confirmation').addClass('is-hidden');
-        if (this.options.desiredContainer == 'cesium') {
+        if (this.options.desiredContainer === 'cesium') {
             this.mapContainer.show(new CombinedMapView(this.options));
         } else {
             this.mapContainer.show(new OpenlayersView(this.options));
