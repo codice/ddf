@@ -38,11 +38,9 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class PkiToolsTest {
 
-  @Mock X509Certificate mockCert;
+  @Mock private X509Certificate mockCert;
 
-  @Mock PrivateKey mockKey;
-
-  private PkiTools tools;
+  @Mock private PrivateKey mockKey;
 
   @Test(expected = CertificateGeneratorException.class)
   public void testDerToPrivateKey() {
@@ -215,7 +213,7 @@ public class PkiToolsTest {
   @Test
   public void testKeyConversion() {
     when(mockKey.getEncoded()).thenReturn(new byte[] {0});
-    tools.keyToDer(mockKey);
+    PkiTools.keyToDer(mockKey);
   }
 
   @Test(expected = CertificateGeneratorException.class)

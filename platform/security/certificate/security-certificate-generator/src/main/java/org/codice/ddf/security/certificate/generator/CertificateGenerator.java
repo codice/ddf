@@ -15,8 +15,10 @@ package org.codice.ddf.security.certificate.generator;
 
 import java.lang.management.ManagementFactory;
 import javax.management.InstanceAlreadyExistsException;
+import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
+import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,29 +61,24 @@ public class CertificateGenerator implements CertificateGeneratorMBean {
   }
 
   protected void registerMbean() {
-    ObjectName objectName = null;
-    MBeanServer mBeanServer = null;
     try {
-      objectName = new ObjectName(CertificateGenerator.class.getName() + ":service=certgenerator");
-      mBeanServer = ManagementFactory.getPlatformMBeanServer();
+      ObjectName objectName =
+          new ObjectName(CertificateGenerator.class.getName() + ":service=certgenerator");
+      MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
+      tryRegisterMBean(mBeanServer, objectName);
     } catch (MalformedObjectNameException e) {
-      LOGGER.info("Unable to create Certificate Generator MBean.", e);
+      LOGGER.error("Unable to create Certificate Generator MBean.", e);
     }
-    if (mBeanServer != null) {
-      try {
-        try {
-          mBeanServer.registerMBean(this, objectName);
-          LOGGER.debug("Registered Certificate Generator MBean under object name: {}", objectName);
-        } catch (InstanceAlreadyExistsException e) {
-          LOGGER.debug("Re-registered Certificate Generator MBean");
-        }
-      } catch (Exception e) {
-        // objectName is not always non-null because new ObjectName(...) can throw an exception
-        LOGGER.info(
-            "Could not register MBean [{}].",
-            objectName != null ? objectName.toString() : CertificateGenerator.class.getName(),
-            e);
-      }
+  }
+
+  private void tryRegisterMBean(MBeanServer mBeanServer, ObjectName objectName) {
+    try {
+      mBeanServer.registerMBean(this, objectName);
+      LOGGER.debug("Registered Certificate Generator MBean under object name: {}", objectName);
+    } catch (InstanceAlreadyExistsException e) {
+      LOGGER.error("Re-registered Certificate Generator MBean");
+    } catch (MBeanRegistrationException | NotCompliantMBeanException e) {
+      LOGGER.error("Could not register MBean [{}].", objectName.toString());
     }
   }
 }

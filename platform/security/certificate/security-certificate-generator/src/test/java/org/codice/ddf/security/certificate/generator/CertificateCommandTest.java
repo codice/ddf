@@ -15,7 +15,6 @@ package org.codice.ddf.security.certificate.generator;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -28,6 +27,7 @@ import java.security.KeyStore;
 import java.security.cert.Certificate;
 import org.apache.commons.io.IOUtils;
 import org.bouncycastle.asn1.ASN1Encoding;
+import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.asn1.x509.GeneralNamesBuilder;
 import org.bouncycastle.cert.X509CertificateHolder;
@@ -44,7 +44,13 @@ public class CertificateCommandTest {
 
   private static final String SANS_ARG = "IP:1.2.3.4,DNS:A";
 
-  private static final byte[] ENCODED_SAN_GENERAL_NAME;
+  private static final String FQDN = "my-fqdn";
+
+  private static final String CN_FROM_DN = "John Whorfin";
+
+  private static final String IP_FROM_SAN = "1.2.3.4";
+
+  private static final String DNS_FROM_SAN = "A";
 
   private static final String[] CERTIFICATE_DN =
       new String[] {"cn=John Whorfin", "o=Yoyodyne", "l=San Narciso", "st=California", "c=US"};
@@ -52,59 +58,46 @@ public class CertificateCommandTest {
   private static final String CERTIFICATE_CN =
       "CN=John Whorfin,O=Yoyodyne,L=San Narciso,ST=California,C=US";
 
-  static {
+  @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+  /**
+   * Expected SAN general name is now a function of the CN, since a SAN representing the CN is now
+   * required.
+   */
+  private static byte[] expectedSanGeneralName(String alias, boolean withAdditionalSans) {
     try {
-      ENCODED_SAN_GENERAL_NAME =
-          new GeneralNamesBuilder()
-              .addName(new GeneralName(GeneralName.iPAddress, "1.2.3.4"))
-              .addName(new GeneralName(GeneralName.dNSName, "A"))
-              .build()
-              .getEncoded(ASN1Encoding.DER);
+      GeneralNamesBuilder builder =
+          new GeneralNamesBuilder().addName(new GeneralName(GeneralName.dNSName, alias));
+      if (withAdditionalSans) {
+        builder
+            .addName(new GeneralName(GeneralName.iPAddress, IP_FROM_SAN))
+            .addName(new GeneralName(GeneralName.dNSName, DNS_FROM_SAN));
+      }
+      return builder.build().getEncoded(ASN1Encoding.DER);
     } catch (IOException e) {
       throw new IllegalStateException(e);
     }
   }
 
-  @Rule public TemporaryFolder temporaryFolder = new TemporaryFolder();
-
-  private static void validateCertificateHasNoSan(KeyStoreFile ksf, String alias) throws Exception {
+  private static void validateSans(KeyStoreFile ksf, String alias, boolean withAdditionalSans)
+      throws Exception {
     final KeyStore.Entry ke = ksf.getEntry(alias);
-
     assertThat(ke, instanceOf(KeyStore.PrivateKeyEntry.class));
+
     final KeyStore.PrivateKeyEntry pke = (KeyStore.PrivateKeyEntry) ke;
     final Certificate c = pke.getCertificate();
     final X509CertificateHolder holder = new X509CertificateHolder(c.getEncoded());
-
-    assertThat(
-        "There should be no subject alternative name extension",
-        holder.getExtension(org.bouncycastle.asn1.x509.Extension.subjectAlternativeName),
-        nullValue(org.bouncycastle.asn1.x509.Extension.class));
-  }
-
-  private static void validateCertificateHasSans(KeyStoreFile ksf, String alias) throws Exception {
-    final KeyStore.Entry ke = ksf.getEntry(alias);
-
-    assertThat(ke, instanceOf(KeyStore.PrivateKeyEntry.class));
-    final KeyStore.PrivateKeyEntry pke = (KeyStore.PrivateKeyEntry) ke;
-    final Certificate c = pke.getCertificate();
-    final X509CertificateHolder holder = new X509CertificateHolder(c.getEncoded());
-    final org.bouncycastle.asn1.x509.Extension csn =
-        holder.getExtension(org.bouncycastle.asn1.x509.Extension.subjectAlternativeName);
+    final Extension csn = holder.getExtension(Extension.subjectAlternativeName);
 
     assertThat(
         csn.getParsedValue().toASN1Primitive().getEncoded(ASN1Encoding.DER),
-        equalTo(CertificateCommandTest.ENCODED_SAN_GENERAL_NAME));
+        equalTo(expectedSanGeneralName(alias, withAdditionalSans)));
   }
 
-  private static void validateKeyStore(String alias, boolean hasSan) throws Exception {
+  private static void validateKeyStore(String alias, boolean withAdditionalSans) throws Exception {
     final KeyStoreFile ksf = CertificateCommand.getKeyStoreFile();
-
     assertThat(ksf.aliases().size(), is(2));
-    if (hasSan) {
-      validateCertificateHasSans(ksf, alias);
-    } else {
-      validateCertificateHasNoSan(ksf, alias);
-    }
+    validateSans(ksf, alias, withAdditionalSans);
   }
 
   @Before
@@ -128,11 +121,11 @@ public class CertificateCommandTest {
     final KeyStoreFile ksf = CertificateCommand.getKeyStoreFile();
 
     assertThat(ksf.aliases().size(), is(2));
-    assertThat(ksf.isKey("my-fqdn"), is(false));
+    assertThat(ksf.isKey(FQDN), is(false));
 
-    assertThat(CertificateCommand.configureDemoCert("my-fqdn", null), equalTo("CN=my-fqdn"));
+    assertThat(CertificateCommand.configureDemoCert(FQDN, null), equalTo("CN=" + FQDN));
 
-    validateKeyStore("my-fqdn", false);
+    validateKeyStore(FQDN, false);
   }
 
   @Test
@@ -140,13 +133,13 @@ public class CertificateCommandTest {
     final KeyStoreFile ksf = CertificateCommand.getKeyStoreFile();
 
     assertThat(ksf.aliases().size(), is(2));
-    assertThat(ksf.isKey("my-fqdn"), is(false));
+    assertThat(ksf.isKey(FQDN), is(false));
 
     assertThat(
-        CertificateCommand.configureDemoCert("my-fqdn", CertificateCommandTest.SANS),
-        equalTo("CN=my-fqdn"));
+        CertificateCommand.configureDemoCert(FQDN, CertificateCommandTest.SANS),
+        equalTo("CN=" + FQDN));
 
-    validateKeyStore("my-fqdn", true);
+    validateKeyStore(FQDN, true);
   }
 
   @Test
@@ -160,7 +153,7 @@ public class CertificateCommandTest {
         CertificateCommand.configureDemoCertWithDN(CertificateCommandTest.CERTIFICATE_DN, null),
         equalTo(CertificateCommandTest.CERTIFICATE_CN));
 
-    validateKeyStore("john whorfin", false);
+    validateKeyStore(CN_FROM_DN, false);
   }
 
   @Test
@@ -175,37 +168,35 @@ public class CertificateCommandTest {
             CertificateCommandTest.CERTIFICATE_DN, CertificateCommandTest.SANS),
         equalTo(CertificateCommandTest.CERTIFICATE_CN));
 
-    validateKeyStore("john whorfin", true);
+    validateKeyStore(CN_FROM_DN, true);
   }
 
   @Test
   public void testMainWithCNAndWithoutSan() throws Exception {
-    CertificateCommand.main(new String[] {"-cn", "my-fqdn"});
+    CertificateCommand.main(new String[] {"-cn", FQDN});
 
-    validateKeyStore("my-fqdn", false);
+    validateKeyStore(FQDN, false);
   }
 
   @Test
   public void testMainWithCNAndSans() throws Exception {
-    CertificateCommand.main(
-        new String[] {"-cn", "my-fqdn", "-san", CertificateCommandTest.SANS_ARG});
+    CertificateCommand.main(new String[] {"-cn", FQDN, "-san", CertificateCommandTest.SANS_ARG});
 
-    validateKeyStore("my-fqdn", true);
+    validateKeyStore(FQDN, true);
   }
 
   @Test
   public void testMainWithCNAndSansReversedArguments() throws Exception {
-    CertificateCommand.main(
-        new String[] {"-san", CertificateCommandTest.SANS_ARG, "-cn", "my-fqdn"});
+    CertificateCommand.main(new String[] {"-san", CertificateCommandTest.SANS_ARG, "-cn", FQDN});
 
-    validateKeyStore("my-fqdn", true);
+    validateKeyStore(FQDN, true);
   }
 
   @Test
   public void testMainWithDnAndWithoutSan() throws Exception {
     CertificateCommand.main(new String[] {"-dn", CertificateCommandTest.CERTIFICATE_CN});
 
-    validateKeyStore("john whorfin", false);
+    validateKeyStore(CN_FROM_DN, false);
   }
 
   @Test
@@ -215,7 +206,7 @@ public class CertificateCommandTest {
           "-dn", CertificateCommandTest.CERTIFICATE_CN, "-san", CertificateCommandTest.SANS_ARG
         });
 
-    validateKeyStore("john whorfin", true);
+    validateKeyStore(CN_FROM_DN, true);
   }
 
   @Test
@@ -225,7 +216,7 @@ public class CertificateCommandTest {
           "-san", CertificateCommandTest.SANS_ARG, "-dn", CertificateCommandTest.CERTIFICATE_CN
         });
 
-    validateKeyStore("john whorfin", true);
+    validateKeyStore(CN_FROM_DN, true);
   }
 
   @Test(expected = RuntimeException.class)

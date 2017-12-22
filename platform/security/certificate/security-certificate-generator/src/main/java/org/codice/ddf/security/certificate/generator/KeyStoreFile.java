@@ -105,6 +105,7 @@ public class KeyStoreFile {
     return entry;
   }
 
+  @SuppressWarnings("squid:S00112") /* Unrecoverable state that we do not want caught later */
   KeyStore.Entry getUnprotectedEntry(String alias) {
     try {
       return keyStore.getEntry(alias, null);
@@ -114,6 +115,7 @@ public class KeyStoreFile {
     }
   }
 
+  @SuppressWarnings("squid:S00112") /* Unrecoverable state that we do not want caught later */
   KeyStore.Entry getProtectedEntry(String alias) {
     try {
       return keyStore.getEntry(alias, getPasswordObject());
@@ -133,6 +135,7 @@ public class KeyStoreFile {
    * @param alias of keystore entry
    * @param entry instance
    */
+  @SuppressWarnings("squid:S00112") /* Unrecoverable state that we do not want caught later */
   public void setEntry(String alias, KeyStore.Entry entry) {
     try {
       keyStore.setEntry(alias, entry, getPasswordObject());
@@ -159,8 +162,8 @@ public class KeyStoreFile {
   }
 
   /** Save the keyStore to the original file and encrypt it with the original password. */
+  @SuppressWarnings("squid:S00112") /* Unrecoverable state that we do not want caught later */
   public void save() {
-
     // Use the try-with-resources statement. If an exception is raised, rethrow the exception.
     try (FileOutputStream fd = new FileOutputStream(file)) {
       keyStore.store(fd, password);
