@@ -44,5 +44,26 @@
 |
 |true
 
+|Enable System Usage Message
+|systemUsageEnabled
+|Boolean
+|Turns on a system usage message, which is shown when the Search Application is opened
+|false
+|true
+
+|System Usage Message Title
+|systemUsageTitle
+|String
+|A title for the system usage Message when the application is opened
+|
+|true
+
+|System Usage Message
+|systemUsageMessage
+|String
+|A system usage message to be displayed to the user each time the user opens the application
+|
+|true
+
 |===
 
