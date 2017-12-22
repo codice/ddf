@@ -34,6 +34,11 @@
             <artifactId>spatial4j</artifactId>
             <version>${spatial4j.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.vividsolutions</groupId>
+            <artifactId>jts</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

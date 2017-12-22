@@ -45,8 +45,4 @@ public class WktValidatorImpl implements WktValidator {
       return false;
     }
   }
-
-  public void setWktReader(WKTReader wktReader) {
-    this.wktReader = wktReader;
-  }
 }
