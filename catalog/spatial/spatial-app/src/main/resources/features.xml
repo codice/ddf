@@ -103,7 +103,7 @@
         <feature prerequisite="true">catalog-solr-provider</feature>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-create/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-extract/${project.version}</bundle>
-        <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-lucene/${project.version}</bundle>
+        <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-offline-catalog/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-commands/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-geocoder/${project.version}</bundle>
         <bundle>mvn:org.codice.ddf.spatial/spatial-geocoding-admin-module/${project.version}

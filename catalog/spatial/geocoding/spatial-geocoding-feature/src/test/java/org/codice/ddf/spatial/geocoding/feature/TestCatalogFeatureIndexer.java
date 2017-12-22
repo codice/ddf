@@ -61,7 +61,7 @@ import org.codice.ddf.spatial.geocoding.FeatureExtractor;
 import org.codice.ddf.spatial.geocoding.FeatureIndexer;
 import org.codice.ddf.spatial.geocoding.FeatureIndexingException;
 import org.codice.ddf.spatial.geocoding.GeoCodingConstants;
-import org.codice.ddf.spatial.geocoding.GeoEntryMetacardType;
+import org.codice.ddf.spatial.geocoding.GeoEntryAttributes;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.junit.Before;
@@ -206,6 +206,6 @@ public class TestCatalogFeatureIndexer {
 
   private MetacardType generateMetacardType() {
     return new MetacardTypeImpl(
-        "testType", Arrays.asList(new GeoEntryMetacardType(), new LocationAttributes()));
+        "testType", Arrays.asList(new GeoEntryAttributes(), new LocationAttributes()));
   }
 }

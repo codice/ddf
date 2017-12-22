@@ -54,11 +54,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.codice.ddf.spatial.geocoding.GeoCodingConstants;
 import org.codice.ddf.spatial.geocoding.GeoEntry;
+import org.codice.ddf.spatial.geocoding.GeoEntryAttributes;
 import org.codice.ddf.spatial.geocoding.GeoEntryExtractionException;
 import org.codice.ddf.spatial.geocoding.GeoEntryExtractor;
 import org.codice.ddf.spatial.geocoding.GeoEntryIndexer;
 import org.codice.ddf.spatial.geocoding.GeoEntryIndexingException;
-import org.codice.ddf.spatial.geocoding.GeoEntryMetacardType;
 import org.codice.ddf.spatial.geocoding.GeoNamesRemoteDownloadException;
 import org.codice.ddf.spatial.geocoding.ProgressCallback;
 import org.opengis.filter.Filter;
@@ -120,10 +120,9 @@ public class GeoNamesCatalogIndexer implements GeoEntryIndexer {
     metacard.setAttribute(new AttributeImpl(Core.ID, uuidGenerator.generateUuid()));
     metacard.setAttribute(
         new AttributeImpl(
-            GeoEntryMetacardType.FEATURE_CODE_ATTRIBUTE_NAME, geoEntry.getFeatureCode()));
+            GeoEntryAttributes.FEATURE_CODE_ATTRIBUTE_NAME, geoEntry.getFeatureCode()));
     metacard.setAttribute(
-        new AttributeImpl(
-            GeoEntryMetacardType.POPULATION_ATTRIBUTE_NAME, geoEntry.getPopulation()));
+        new AttributeImpl(GeoEntryAttributes.POPULATION_ATTRIBUTE_NAME, geoEntry.getPopulation()));
 
     Double latitude = geoEntry.getLatitude();
     Double longitude = geoEntry.getLongitude();

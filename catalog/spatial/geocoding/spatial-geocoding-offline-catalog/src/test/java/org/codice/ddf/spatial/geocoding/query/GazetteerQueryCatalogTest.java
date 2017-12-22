@@ -45,7 +45,7 @@ import java.util.List;
 import java.util.Optional;
 import org.codice.ddf.spatial.geocoding.GeoCodingConstants;
 import org.codice.ddf.spatial.geocoding.GeoEntry;
-import org.codice.ddf.spatial.geocoding.GeoEntryMetacardType;
+import org.codice.ddf.spatial.geocoding.GeoEntryAttributes;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryException;
 import org.codice.ddf.spatial.geocoding.context.NearbyLocation;
 import org.junit.Before;
@@ -71,8 +71,7 @@ public class GazetteerQueryCatalogTest {
 
   private static final MetacardType GEO_ENTRY_METACARD_TYPE =
       new MetacardTypeImpl(
-          "GeoEntryMetacardType",
-          Arrays.asList(new LocationAttributes(), new GeoEntryMetacardType()));
+          "GeoEntryAttributes", Arrays.asList(new LocationAttributes(), new GeoEntryAttributes()));
 
   private static final FilterBuilder FILTER_BUILDER = new GeotoolsFilterBuilder();
 
@@ -125,7 +124,7 @@ public class GazetteerQueryCatalogTest {
   public void testQueryInvalidPopulationOnMetacard() throws Exception {
     Metacard metacard = generateGeoNamesMetacard();
     metacard.setAttribute(
-        new AttributeImpl(GeoEntryMetacardType.POPULATION_ATTRIBUTE_NAME, "notALong"));
+        new AttributeImpl(GeoEntryAttributes.POPULATION_ATTRIBUTE_NAME, "notALong"));
     QueryResponse queryResponse = generateQueryResponseFromMetacard(metacard);
     when(catalogFramework.query(any(QueryRequest.class))).thenReturn(queryResponse);
     List<GeoEntry> geoEntryList = queryCatalog.query(QUERY_STRING, 1);
@@ -315,10 +314,9 @@ public class GazetteerQueryCatalogTest {
     Metacard metacard = new MetacardImpl(GEO_ENTRY_METACARD_TYPE);
     metacard.setAttribute(new AttributeImpl(Core.TITLE, BOSTON));
     metacard.setAttribute(new AttributeImpl(Location.COUNTRY_CODE, USA_COUNTRY_CODE));
+    metacard.setAttribute(new AttributeImpl(GeoEntryAttributes.FEATURE_CODE_ATTRIBUTE_NAME, "PPL"));
     metacard.setAttribute(
-        new AttributeImpl(GeoEntryMetacardType.FEATURE_CODE_ATTRIBUTE_NAME, "PPL"));
-    metacard.setAttribute(
-        new AttributeImpl(GeoEntryMetacardType.POPULATION_ATTRIBUTE_NAME, 123456789L));
+        new AttributeImpl(GeoEntryAttributes.POPULATION_ATTRIBUTE_NAME, 123456789L));
     metacard.setAttribute(new AttributeImpl(Core.LOCATION, BOSTON_WKT));
     metacard.setAttribute(
         new AttributeImpl(

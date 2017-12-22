@@ -48,7 +48,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codice.ddf.spatial.geocoding.GeoCodingConstants;
 import org.codice.ddf.spatial.geocoding.GeoEntry;
-import org.codice.ddf.spatial.geocoding.GeoEntryMetacardType;
+import org.codice.ddf.spatial.geocoding.GeoEntryAttributes;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryException;
 import org.codice.ddf.spatial.geocoding.GeoEntryQueryable;
 import org.codice.ddf.spatial.geocoding.context.NearbyLocation;
@@ -98,7 +98,7 @@ public class GazetteerQueryCatalog implements GeoEntryQueryable {
     for (String cityFeatureCode : GeoCodingConstants.CITY_FEATURE_CODES) {
       Filter filter =
           filterBuilder
-              .attribute(GeoEntryMetacardType.FEATURE_CODE_ATTRIBUTE_NAME)
+              .attribute(GeoEntryAttributes.FEATURE_CODE_ATTRIBUTE_NAME)
               .is()
               .equalTo()
               .text(cityFeatureCode);
@@ -120,9 +120,9 @@ public class GazetteerQueryCatalog implements GeoEntryQueryable {
     Map<String, Serializable> properties = new HashMap<>();
 
     SortBy featureCodeSortBy =
-        new SortByImpl(GeoEntryMetacardType.FEATURE_CODE_ATTRIBUTE_NAME, SortOrder.ASCENDING);
+        new SortByImpl(GeoEntryAttributes.FEATURE_CODE_ATTRIBUTE_NAME, SortOrder.ASCENDING);
     SortBy populationSortBy =
-        new SortByImpl(GeoEntryMetacardType.POPULATION_ATTRIBUTE_NAME, SortOrder.DESCENDING);
+        new SortByImpl(GeoEntryAttributes.POPULATION_ATTRIBUTE_NAME, SortOrder.DESCENDING);
     SortBy[] sortbys = {populationSortBy};
     properties.put(SORT_BY, sortbys);
 
@@ -147,7 +147,7 @@ public class GazetteerQueryCatalog implements GeoEntryQueryable {
   private GeoEntry transformMetacardToGeoEntry(Metacard metacard) {
     GeoEntry.Builder geoEntryBuilder = new GeoEntry.Builder();
     String featureCode =
-        getStringAttributeFromMetacard(metacard, GeoEntryMetacardType.FEATURE_CODE_ATTRIBUTE_NAME);
+        getStringAttributeFromMetacard(metacard, GeoEntryAttributes.FEATURE_CODE_ATTRIBUTE_NAME);
     if (StringUtils.isNotBlank(featureCode)) {
       geoEntryBuilder.featureCode(featureCode);
     }
@@ -162,7 +162,7 @@ public class GazetteerQueryCatalog implements GeoEntryQueryable {
       geoEntryBuilder.name(name);
     }
 
-    Attribute attribute = metacard.getAttribute(GeoEntryMetacardType.POPULATION_ATTRIBUTE_NAME);
+    Attribute attribute = metacard.getAttribute(GeoEntryAttributes.POPULATION_ATTRIBUTE_NAME);
     if (attribute != null && attribute.getValue() instanceof Long) {
       Long population = (Long) attribute.getValue();
       geoEntryBuilder.population(population);

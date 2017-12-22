@@ -20,7 +20,7 @@ import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import java.util.Set;
 
-public class GeoEntryMetacardType implements MetacardType {
+public class GeoEntryAttributes implements MetacardType {
 
   public static final String FEATURE_CODE_ATTRIBUTE_NAME = "ext.feature-code";
 
@@ -28,7 +28,7 @@ public class GeoEntryMetacardType implements MetacardType {
 
   public static final String POPULATION_ATTRIBUTE_NAME = "ext.population";
 
-  private static final String METACARD_TYPENAME = "GeoEntryMetacardType";
+  private static final String METACARD_TYPENAME = "GeoEntryAttributes";
 
   private static final Set<AttributeDescriptor> DESCRIPTORS =
       ImmutableSet.of(

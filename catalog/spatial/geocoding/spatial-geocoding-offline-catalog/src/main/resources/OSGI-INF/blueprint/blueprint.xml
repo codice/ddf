@@ -34,7 +34,7 @@
         <argument>
             <list>
                 <bean class="ddf.catalog.data.impl.types.LocationAttributes"/>
-                <bean class="org.codice.ddf.spatial.geocoding.GeoEntryMetacardType"/>
+                <bean class="org.codice.ddf.spatial.geocoding.GeoEntryAttributes"/>
             </list>
         </argument>
     </bean>

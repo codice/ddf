@@ -44,8 +44,8 @@ import java.util.UUID;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.codice.ddf.spatial.geocoding.GeoCodingConstants;
 import org.codice.ddf.spatial.geocoding.GeoEntry;
+import org.codice.ddf.spatial.geocoding.GeoEntryAttributes;
 import org.codice.ddf.spatial.geocoding.GeoEntryCreator;
-import org.codice.ddf.spatial.geocoding.GeoEntryMetacardType;
 import org.codice.ddf.spatial.geocoding.ProgressCallback;
 import org.codice.ddf.spatial.geocoding.extract.GeoNamesFileExtractor;
 import org.junit.Before;
@@ -122,7 +122,7 @@ public class GeoNamesCatalogIndexerTest {
         new GeoNamesCatalogIndexer(
             catalogFramework,
             uuidGenerator,
-            new GeoEntryMetacardType(),
+            new GeoEntryAttributes(),
             new GeotoolsFilterBuilder(),
             Collections.singletonList(catalogProvider));
   }
@@ -162,7 +162,7 @@ public class GeoNamesCatalogIndexerTest {
         new GeoNamesCatalogIndexer(
             catalogFramework,
             uuidGenerator,
-            new GeoEntryMetacardType(),
+            new GeoEntryAttributes(),
             new GeotoolsFilterBuilder(),
             Collections.emptyList());
     geoNamesCatalogIndexer.updateIndex(GOOD_FILE_PATH, geoEntryExtractor, true, progressCallback);
