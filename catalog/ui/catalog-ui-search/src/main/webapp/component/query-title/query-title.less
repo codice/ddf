@@ -11,16 +11,15 @@
     vertical-align: top;
     height: ~'calc(100% - 2px)';
     text-align: center;
+    padding: 0px @minimumButtonSize;
   }
 
   input {
     min-width: 1px;
     border: none;
     font-size: @minimumFontSize;
-    //padding-top: 4px;
     overflow: hidden;
     text-overflow: ellipsis;
-    width: 100%;
     text-align: center;
     height: @minimumButtonSize;
     background: none;
@@ -36,9 +35,12 @@
     position: absolute;
     left: 0px;
     top: -@minimumButtonSize;
-    width: 100%;
     span.button-title {
       font-size: @minimumFontSize;
+      display: inline-block;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     span.fa {
