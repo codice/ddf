@@ -14,6 +14,7 @@
 package ddf.catalog.transformer.response.query.atom;
 
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 import ddf.action.Action;
@@ -98,6 +99,8 @@ public class AtomTransformer implements QueryResponseTransformer {
 
   private static final String MIME_TYPE_OCTET_STREAM = "application/octet-stream";
 
+  private static final GeometryFactory GEOMETRY_FACTORY = new GeometryFactory();
+
   // expensive creation, meant to be done once
   private static final Abdera ABDERA = new Abdera();
 
@@ -118,8 +121,6 @@ public class AtomTransformer implements QueryResponseTransformer {
   private ActionProvider resourceActionProvider;
 
   private ActionProvider thumbnailActionProvider;
-
-  private WKTReader reader = new WKTReader();
 
   public void setViewMetacardActionProvider(ActionProvider viewMetacardActionProvider) {
     this.viewMetacardActionProvider = viewMetacardActionProvider;
@@ -453,7 +454,7 @@ public class AtomTransformer implements QueryResponseTransformer {
           if (geo != null) {
 
             try {
-              Geometry geometry = reader.read(geo.toString());
+              Geometry geometry = new WKTReader(GEOMETRY_FACTORY).read(geo.toString());
 
               CompositeGeometry formatter = CompositeGeometry.getCompositeGeometry(geometry);
 
