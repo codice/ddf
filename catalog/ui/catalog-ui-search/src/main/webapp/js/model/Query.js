@@ -23,10 +23,11 @@ define([
         'component/announcement',
         'js/CQLUtils',
         'component/singletons/user-instance',
+        'lodash/merge',
         'backboneassociations',
     ],
     function (Backbone, _, properties, cql, QueryResponse, Sources, Common, CacheSourceSelector, announcement,
-        CQLUtils, user) {
+        CQLUtils, user, _merge) {
         "use strict";
         var Query = {};
 
@@ -70,7 +71,7 @@ define([
             //as soon as the model contains more than 5 items, we assume
             //that we have enough values to search
             defaults: function () {
-                return {
+                return _merge({
                     cql: "anyText ILIKE ''",
                     title: 'Search Name',
                     excludeUnnecessaryAttributes: true,
@@ -83,7 +84,7 @@ define([
                     serverPageIndex: 0,
                     isAdvanced: false,
                     isLocal: false
-                };
+                }, user.getQuerySettings().toJSON());
             },
             isLocal: function() {
                 return this.get('isLocal');

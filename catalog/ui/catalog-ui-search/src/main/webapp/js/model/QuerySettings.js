@@ -1,4 +1,3 @@
-{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,11 +9,16 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- --}}
-<div class="editor-properties">
-    <div class="property-result-count">
-    </div>
-    <div class="is-header">Defaults</div>
-    <div class="property-search-settings">
-    </div>
-</div>
+/*global require*/
+var Backbone = require('backbone');
+
+module.exports = Backbone.Model.extend({
+    defaults: function() {
+        return {
+            src: undefined,
+            federation: 'enterprise',
+            sortField: 'modified',
+            sortOrder: 'descending'
+        };
+    }
+});

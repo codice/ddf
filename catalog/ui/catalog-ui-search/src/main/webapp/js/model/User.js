@@ -26,8 +26,10 @@ define([
     'moment',
     'js/model/Theme',
     'js/ThemeUtils',
+    'js/model/QuerySettings',
     'backboneassociations'
-], function (_, _get, wreqr, Backbone, properties, Alert, Common, UploadBatch, announcement, BlackListItem, moment, Theme, ThemeUtils) {
+], function (_, _get, wreqr, Backbone, properties, Alert, Common, UploadBatch, announcement, BlackListItem, moment, Theme, ThemeUtils,
+    QuerySettings) {
     'use strict';
 
     var User = {};
@@ -147,7 +149,8 @@ define([
                 goldenLayoutAlert: undefined,
                 theme: new Theme(),
                 animation: true,
-                hoverPreview: true
+                hoverPreview: true,
+                querySettings: new QuerySettings()
             };
         },
         relations: [
@@ -176,6 +179,11 @@ define([
                 type: Backbone.One,
                 key: 'theme',
                 relatedModel: Theme
+            },
+            {
+                type: Backbone.One,
+                key: 'querySettings',
+                relatedModel: QuerySettings
             }
         ],
         initialize: function(){
@@ -258,6 +266,9 @@ define([
         getHoverPreview: function() {
             return this.get('hoverPreview');
         },
+        getQuerySettings: function() {
+            return this.get('querySettings');
+        },
         parse: function(data, options){
             if (options && options.drop) {
                 return {};
@@ -291,6 +302,15 @@ define([
         },
         getHoverPreview: function() {
             return this.get('preferences').getHoverPreview();
+        },
+        getPreferences: function() {
+            return this.get('preferences');
+        },
+        savePreferences: function() {
+            this.get('preferences').savePreferences();
+        },
+        getQuerySettings: function() {
+            return this.get('preferences').getQuerySettings();
         }
     });
 
@@ -321,6 +341,15 @@ define([
             } catch (e) {
                 return {};
             }
+        },
+        getPreferences: function() {
+            return this.get('user').getPreferences();
+        },
+        savePreferences: function() {
+            this.get('user').savePreferences();
+        },
+        getQuerySettings: function() {
+            return this.get('user').getQuerySettings();
         },
         getSummaryShown: function(){
             return this.get('user').getSummaryShown();
