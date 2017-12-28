@@ -522,7 +522,10 @@ public class ServiceManagerImpl implements ServiceManager {
 
     while (!available) {
       Response response = get(path);
-      available = response.getStatusCode() == 200 && response.getBody().print().length() > 0;
+      available = response.getStatusCode() == 200 && response.getBody().asString().length() > 0;
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug("Response body: {}", response.getBody().asString());
+      }
       if (!available) {
         if (System.currentTimeMillis() > timeoutLimit) {
           printInactiveBundles();
