@@ -361,7 +361,7 @@ class InputTransformerErrorHandler implements ErrorHandler {
    * Gets the String value of the outWriter and resets the writer.
    *
    * @return a String containing a log of relevant information about warnings and errors that
-   *     occured during parsing
+   *     occurred during parsing
    */
   public String getParseWarningsErrors() {
     String returnString = outWriter.toString().trim();
