@@ -64,6 +64,9 @@ define([
             details: '.modal-details',
             buttons: '.source-buttons'
         },
+        behaviors: [{
+            behaviorClass: Utils.modalDismissalBehavior
+        }],
         serializeData: function () {
             var data = {};
 
