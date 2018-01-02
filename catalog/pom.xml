@@ -24,7 +24,6 @@
     <packaging>pom</packaging>
     <name>DDF Catalog</name>
     <properties>
-        <commons-beanutils.version>1.9.2</commons-beanutils.version>
         <commons-weaver-privilizer-api.version>1.1</commons-weaver-privilizer-api.version>
         <commons-logging.version>1.2</commons-logging.version>
         <cglib.version>3.2.0</cglib.version>
