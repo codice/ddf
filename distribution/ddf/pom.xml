@@ -23,7 +23,7 @@
         <relativePath>../kernel/pom.xml</relativePath>
     </parent>
     <!--
-    Packages the DDF Standard distribution, which consists of the DDF Core distribution.​ 
+    Packages the DDF Standard distribution, which consists of the DDF Core distribution.
 
     Note that this distribution has the DDF Kernel distribution as its parent, hence all of the maven goals in the DDF Kernel distribution pom will execute unless they are overridden in this pom.
     -->
