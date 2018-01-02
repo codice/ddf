@@ -476,4 +476,13 @@
         <cve>CVE-2006-3225</cve>
         <cve>CVE-2006-2501</cve>
     </suppress>
+    
+    <suppress>
+        <notes>
+            This CVE has been addressed by upgrading commons-beanutils to version 1.9.3. OWASP will
+            continue to report the vulnerability since OWASP sees the DDF version instead of the actual version.
+            security-pdp-authzrealm-2.11.4-SNAPSHOT.jar (cpe:/a:apache:commons_beanutils:2.11.4, cpe:/a:apache:commons_collections:2.11.4, ddf.security.pdp:security-pdp-authzrealm:2.11.4-SNAPSHOT)
+        </notes>
+        <cve>CVE-2017-15708</cve>
+    </suppress>
 </suppressions>

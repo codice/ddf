@@ -177,7 +177,7 @@
         <!--END versions that should be kept in sync between Camel and Artemis features-->
         <jboss-logging.version>3.3.0.Final</jboss-logging.version>
         <jgroups.version>3.6.13.Final</jgroups.version>
-        <commons-beanutils.version>1.9.2</commons-beanutils.version>
+        <commons-beanutils.version>1.9.3</commons-beanutils.version>
         <netty.version>4.1.9.Final</netty.version>
         <geronimo-json-spec.version>1.0-alpha-1</geronimo-json-spec.version>
         <johnzon.version>0.9.5</johnzon.version>
