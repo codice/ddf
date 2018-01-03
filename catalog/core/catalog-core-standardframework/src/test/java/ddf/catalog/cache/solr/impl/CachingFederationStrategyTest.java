@@ -94,6 +94,8 @@ public class CachingFederationStrategyTest {
 
   private CachingFederationStrategy strategy;
 
+  private CachingFederationStrategy federateStrategy;
+
   @Mock private PreFederatedQueryPlugin preQueryPlugin;
 
   private MetacardImpl mockMetacard;
@@ -139,7 +141,17 @@ public class CachingFederationStrategyTest {
     strategy =
         new CachingFederationStrategy(
             queryExecutor,
+            Arrays.asList(preQueryPlugin),
             new ArrayList<>(),
+            cache,
+            cacheExecutor,
+            validationQueryFactory,
+            new CacheQueryFactory(new GeotoolsFilterBuilder()));
+
+    federateStrategy =
+        new CachingFederationStrategy(
+            queryExecutor,
+            Arrays.asList(preQueryPlugin),
             new ArrayList<>(),
             cache,
             cacheExecutor,
@@ -157,9 +169,9 @@ public class CachingFederationStrategyTest {
             any(List.class)))
         .thenReturn(mockSortedQueryMonitor);
 
-    //    strategy.setSortedQueryMonitorFactory(mockSortedQueryMonitorFactory);
-    //    strategy.setCacheCommitPhaser(cacheCommitPhaser);
-    //    strategy.setCacheBulkProcessor(cacheBulkProcessor);
+    strategy.setSortedQueryMonitorFactory(mockSortedQueryMonitorFactory);
+    strategy.setCacheCommitPhaser(cacheCommitPhaser);
+    strategy.setCacheBulkProcessor(cacheBulkProcessor);
 
     when(mockQuery.getTimeoutMillis()).thenReturn(LONG_TIMEOUT);
     when(mockQuery.getPageSize()).thenReturn(-1);
@@ -182,27 +194,6 @@ public class CachingFederationStrategyTest {
   }
 
   @Test
-  public void testFederateMaxResults() throws Exception {
-    properties.put("maxResults", 2);
-    List<String> sourceIds = ImmutableList.of("1");
-
-    QueryRequest fedQueryRequest = new QueryRequestImpl(mockQuery, false, sourceIds, properties);
-
-    Source mockSource = mock(Source.class);
-    when(mockSource.getId()).thenReturn("1");
-
-    when(mockSource.query(any(QueryRequest.class))).thenReturn(mockResponse);
-
-    List<Source> sourceList = ImmutableList.of(mockSource, mockSource, mockSource);
-
-    when(mockResponse.getHits()).thenReturn((long) sourceList.size());
-
-    QueryResponse federateResponse = strategy.federate(sourceList, fedQueryRequest);
-
-    assertThat(federateResponse.getResults().size(), is(2));
-  }
-
-  @Test
   public void testFederateGetEmptyResults() throws Exception {
     List<String> sourceIds = ImmutableList.of("1");
 
@@ -217,7 +208,7 @@ public class CachingFederationStrategyTest {
 
     when(mockResponse.getHits()).thenReturn((long) sourceList.size());
 
-    QueryResponse federateResponse = strategy.federate(sourceList, fedQueryRequest);
+    QueryResponse federateResponse = federateStrategy.federate(sourceList, fedQueryRequest);
 
     assertThat(federateResponse.getResults().size(), is(0));
   }
@@ -237,7 +228,7 @@ public class CachingFederationStrategyTest {
 
     when(mockResponse.getHits()).thenReturn((long) sourceList.size());
 
-    QueryResponse federateResponse = strategy.federate(sourceList, fedQueryRequest);
+    QueryResponse federateResponse = federateStrategy.federate(sourceList, fedQueryRequest);
 
     assertThat(federateResponse.getResults().size(), is(sourceList.size()));
   }
@@ -257,7 +248,7 @@ public class CachingFederationStrategyTest {
 
     when(mockResponse.getHits()).thenReturn((long) sourceList.size());
 
-    QueryResponse federateResponse = strategy.federate(sourceList, fedQueryRequest);
+    QueryResponse federateResponse = federateStrategy.federate(sourceList, fedQueryRequest);
 
     assertThat(federateResponse.getHits(), is((long) sourceList.size() * sourceList.size()));
   }
@@ -277,7 +268,7 @@ public class CachingFederationStrategyTest {
 
     when(mockResponse.getHits()).thenReturn((long) sourceList.size());
 
-    QueryResponse federateResponse = strategy.federate(sourceList, fedQueryRequest);
+    QueryResponse federateResponse = federateStrategy.federate(sourceList, fedQueryRequest);
 
     assertThat(federateResponse.getHits(), is((long) 0));
   }
