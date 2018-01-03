@@ -17,7 +17,6 @@ import com.google.common.collect.ImmutableSet;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Validation;
 import ddf.catalog.validation.MetacardValidator;
 import ddf.catalog.validation.ReportingMetacardValidator;
@@ -58,8 +57,10 @@ public class MetacardWktValidator implements MetacardValidator, ReportingMetacar
       if (!wktValidator.isValid(attributeValue)) {
         String message = errorMsg + metacard.getLocation();
         ValidationViolation violation =
-                new ValidationViolationImpl(
-                        ImmutableSet.of(validatedAttributeKey), message, ValidationViolation.Severity.ERROR);
+            new ValidationViolationImpl(
+                ImmutableSet.of(validatedAttributeKey),
+                message,
+                ValidationViolation.Severity.ERROR);
         report = new MetacardValidationReportImpl();
         report.addMetacardViolation(violation);
       }
@@ -73,8 +74,10 @@ public class MetacardWktValidator implements MetacardValidator, ReportingMetacar
           String errorStr = String.valueOf(error);
           if (errorStr.startsWith(errorMsg)) {
             ValidationViolation violation =
-                    new ValidationViolationImpl(
-                            ImmutableSet.of(validatedAttributeKey), errorStr, ValidationViolation.Severity.ERROR);
+                new ValidationViolationImpl(
+                    ImmutableSet.of(validatedAttributeKey),
+                    errorStr,
+                    ValidationViolation.Severity.ERROR);
             report = new MetacardValidationReportImpl();
             report.addMetacardViolation(violation);
           }
