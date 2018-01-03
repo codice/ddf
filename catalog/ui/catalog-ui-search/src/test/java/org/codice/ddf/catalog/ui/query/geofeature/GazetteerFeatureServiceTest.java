@@ -40,8 +40,8 @@ public class GazetteerFeatureServiceTest {
   private static final GeoEntry GEO_ENTRY_1 =
       new GeoEntry.Builder()
           .name("Philadelphia")
-          .latitude(40)
-          .longitude(-71)
+          .latitude(40.0)
+          .longitude(-71.0)
           .featureCode("PPL")
           .population(1000000)
           .alternateNames("")
@@ -50,8 +50,8 @@ public class GazetteerFeatureServiceTest {
   private static final GeoEntry GEO_ENTRY_2 =
       new GeoEntry.Builder()
           .name("Canada")
-          .latitude(55)
-          .longitude(-100)
+          .latitude(55.0)
+          .longitude(-100.0)
           .featureCode("PCL1")
           .countryCode("CA")
           .population(10000000)
@@ -117,10 +117,11 @@ public class GazetteerFeatureServiceTest {
 
     Coordinate[] countryCoordinates =
         new Coordinate[] {
-          new Coordinate(10, 10),
-          new Coordinate(10, 20),
-          new Coordinate(20, 20),
-          new Coordinate(10, 10)
+          new Coordinate(-104.8, 50.2),
+          new Coordinate(-95.2, 50.2),
+          new Coordinate(-95.2, 59.8),
+          new Coordinate(-104.8, 59.8),
+          new Coordinate(-104.8, 50.2)
         };
     GeometryFactory geometryFactory = new GeometryFactory();
     Polygon countryPolygon =

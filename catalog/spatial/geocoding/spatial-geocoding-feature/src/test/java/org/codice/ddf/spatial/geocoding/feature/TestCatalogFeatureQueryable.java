@@ -14,7 +14,8 @@
 package org.codice.ddf.spatial.geocoding.feature;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.atLeastOnce;
@@ -28,6 +29,7 @@ import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.Result;
 import ddf.catalog.data.types.Core;
+import ddf.catalog.data.types.Location;
 import ddf.catalog.federation.FederationException;
 import ddf.catalog.filter.FilterBuilder;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
@@ -36,14 +38,21 @@ import ddf.catalog.operation.QueryResponse;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.UnsupportedQueryException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.codice.ddf.spatial.geocoding.FeatureQueryException;
 import org.codice.ddf.spatial.geocoding.GeoCodingConstants;
+import org.geotools.filter.AttributeExpressionImpl;
+import org.geotools.filter.IsEqualsToImpl;
+import org.geotools.filter.LikeFilterImpl;
+import org.geotools.filter.LiteralExpressionImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.filter.And;
+import org.opengis.filter.Filter;
 
 public class TestCatalogFeatureQueryable {
 
@@ -91,15 +100,43 @@ public class TestCatalogFeatureQueryable {
     assertThat(geometry.getGeometryType(), is(WKT_TYPE));
 
     QueryImpl query = (QueryImpl) requestArgument.getValue().getQuery();
-    String queryString = query.getFilter().toString();
 
+    Filter filter = query.getFilter();
+
+    And and = (And) filter;
+
+    List<Filter> filters = and.getChildren();
+    assertThat(filters, hasSize(3));
+
+    List<String> attributes = new ArrayList<>();
+    List<String> values = new ArrayList<>();
+    for (Filter compFilter : filters) {
+      String attribute;
+      String value;
+      if (compFilter instanceof IsEqualsToImpl) {
+        IsEqualsToImpl equals = (IsEqualsToImpl) compFilter;
+        AttributeExpressionImpl attributeExpression =
+            (AttributeExpressionImpl) equals.getExpression1();
+        attribute = attributeExpression.getPropertyName();
+        LiteralExpressionImpl literalExpression = (LiteralExpressionImpl) equals.getExpression2();
+        value = (String) literalExpression.getValue();
+      } else {
+        LikeFilterImpl likeFilter = (LikeFilterImpl) compFilter;
+        AttributeExpressionImpl literalExpression =
+            (AttributeExpressionImpl) likeFilter.getExpression();
+        attribute = literalExpression.getPropertyName();
+        value = likeFilter.getLiteral();
+      }
+      attributes.add(attribute);
+      values.add(value);
+    }
+
+    assertThat(attributes, hasSize(3));
+    assertThat(attributes, hasItems(Location.COUNTRY_CODE, Core.METACARD_TAGS, Core.METACARD_TAGS));
+    assertThat(values, hasSize(3));
     assertThat(
-        queryString,
-        containsString(String.format("metacard-tags is like %s", GeoCodingConstants.DEFAULT_TAG)));
-    assertThat(
-        queryString,
-        containsString(String.format("metacard-tags is like %s", GeoCodingConstants.COUNTRY_TAG)));
-    assertThat(queryString, containsString(String.format("title = %s", COUNTRY_CODE)));
+        values,
+        hasItems(COUNTRY_CODE, GeoCodingConstants.DEFAULT_TAG, GeoCodingConstants.COUNTRY_TAG));
   }
 
   private QueryResponse getMockQueryResponse() {

@@ -43,8 +43,8 @@ public class TestGazetteerGeoCoder {
   private static final GeoEntry GEO_ENTRY_1 =
       new GeoEntry.Builder()
           .name("Phoenix")
-          .latitude(10)
-          .longitude(-20)
+          .latitude(10.0)
+          .longitude(-20.0)
           .featureCode("PPL")
           .population(1000000)
           .alternateNames("")
@@ -53,8 +53,8 @@ public class TestGazetteerGeoCoder {
   private static final GeoEntry GEO_ENTRY_2 =
       new GeoEntry.Builder()
           .name("Tempe")
-          .latitude(0)
-          .longitude(-90)
+          .latitude(0.0)
+          .longitude(-90.0)
           .featureCode("PPLC")
           .population(10000000)
           .alternateNames("Tempe2")

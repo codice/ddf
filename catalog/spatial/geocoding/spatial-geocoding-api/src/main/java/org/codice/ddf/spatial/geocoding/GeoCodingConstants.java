@@ -13,7 +13,10 @@
  */
 package org.codice.ddf.spatial.geocoding;
 
-public class GeoCodingConstants {
+import java.util.Arrays;
+import java.util.List;
+
+public final class GeoCodingConstants {
   public static final String ADMINISTRATIVE_DIVISION = "ADM";
 
   public static final String DIVISION_FIRST_ORDER = "1";
@@ -43,4 +46,15 @@ public class GeoCodingConstants {
   public static final String DEFAULT_TAG = "gazetteer";
 
   public static final String COUNTRY_TAG = "country-shape";
+
+  public static final String GEONAMES_TAG = "geonames";
+
+  // The GeoNames feature codes for cities, excluding cities that no longer exist or that have
+  // been destroyed.
+  public static final List<String> CITY_FEATURE_CODES =
+      Arrays.asList(
+          "PPL", "PPLA", "PPLA2", "PPLA3", "PPLA4", "PPLC", "PPLCH", "PPLF", "PPLG", "PPLL", "PPLR",
+          "PPLS", "PPLX");
+
+  private GeoCodingConstants() {}
 }

@@ -63,7 +63,7 @@ public class CatalogFeatureQueryable implements FeatureQueryable {
       throw new IllegalArgumentException("maxResults can't be negative");
     }
 
-    Query query = catalogHelper.getQueryForCountryCode(queryString);
+    Query query = catalogHelper.getQueryForName(queryString);
     QueryRequest queryRequest = new QueryRequestImpl(query);
 
     SourceResponse response;

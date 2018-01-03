@@ -16,7 +16,10 @@
                http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
     <reference id="catalogFramework" interface="ddf.catalog.CatalogFramework" />
+
     <reference id="filterBuilder" interface="ddf.catalog.filter.FilterBuilder"/>
+
+    <reference id="geoEntryMetacardType" interface="ddf.catalog.data.MetacardType" filter="(id=GeoEntryMetacardType)"/>
 
     <bean id="catalogHelper" class="org.codice.ddf.spatial.geocoding.feature.CatalogHelper">
         <argument ref="filterBuilder"/>
@@ -33,6 +36,7 @@
         <bean class="org.codice.ddf.spatial.geocoding.feature.CatalogFeatureIndexer">
             <argument ref="catalogFramework"/>
             <argument ref="catalogHelper"/>
+            <argument ref="geoEntryMetacardType"/>
         </bean>
     </service>
 

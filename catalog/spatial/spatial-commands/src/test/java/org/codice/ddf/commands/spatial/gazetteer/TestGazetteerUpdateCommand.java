@@ -26,7 +26,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.codice.ddf.spatial.geocoding.FeatureExtractionException;
@@ -56,7 +55,7 @@ public class TestGazetteerUpdateCommand {
   }
 
   @Test
-  public void testProgressOutput() throws IOException {
+  public void testProgressOutput() throws Exception {
     final GeoEntryExtractor geoEntryExtractor =
         spy(
             new GeoEntryExtractor() {
@@ -136,7 +135,7 @@ public class TestGazetteerUpdateCommand {
               }
             });
 
-    List<GeoEntryExtractor> geoEntryExtractors = new ArrayList<GeoEntryExtractor>();
+    List<GeoEntryExtractor> geoEntryExtractors = new ArrayList<>();
     geoEntryExtractors.add(geoEntryExtractor);
     geoEntryExtractors.add(geoEntryUrlExtractor);
 
@@ -144,16 +143,14 @@ public class TestGazetteerUpdateCommand {
     gazetteerUpdateCommand.setGeoEntryIndexer(geoEntryIndexer);
 
     gazetteerUpdateCommand.setResource("test");
-    gazetteerUpdateCommand.execute();
+    gazetteerUpdateCommand.executeWithSubject();
 
     consoleInterceptor.resetSystemOut();
     consoleInterceptor.closeBuffer();
   }
 
   @Test
-  public void testExceptionDuringExtraction()
-      throws IOException, GeoNamesRemoteDownloadException, GeoEntryExtractionException,
-          GeoEntryIndexingException {
+  public void testExceptionDuringExtraction() throws Exception {
     final String errorText = "Extraction error text";
     final GeoEntryExtractor geoEntryExtractor = mock(GeoEntryExtractor.class);
     final GeoEntryExtractionException geoEntryExtractionException =
@@ -188,7 +185,7 @@ public class TestGazetteerUpdateCommand {
     gazetteerUpdateCommand.setGeoEntryExtractor(geoEntryExtractor);
     gazetteerUpdateCommand.setResource("temp.txt");
 
-    gazetteerUpdateCommand.execute();
+    gazetteerUpdateCommand.executeWithSubject();
     assertThat(consoleInterceptor.getOutput(), containsString(errorText));
 
     consoleInterceptor.resetSystemOut();
@@ -196,12 +193,8 @@ public class TestGazetteerUpdateCommand {
   }
 
   @Test
-  public void testExceptionDuringIndexing()
-      throws GeoNamesRemoteDownloadException, GeoEntryExtractionException,
-          GeoEntryIndexingException {
+  public void testExceptionDuringIndexing() throws Exception {
     final String errorText = "Indexing error text";
-    final GeoEntryExtractor geoEntryExtractor = mock(GeoEntryExtractor.class);
-
     final GeoEntryIndexer geoEntryIndexer = mock(GeoEntryIndexer.class);
     final GeoEntryIndexingException geoEntryIndexingException =
         new GeoEntryIndexingException(errorText);
@@ -211,16 +204,16 @@ public class TestGazetteerUpdateCommand {
             anyString(), any(GeoEntryExtractor.class), anyBoolean(), any(ProgressCallback.class));
 
     gazetteerUpdateCommand.setGeoEntryIndexer(geoEntryIndexer);
-    gazetteerUpdateCommand.setGeoEntryExtractor(geoEntryExtractor);
     gazetteerUpdateCommand.setResource("temp");
-    gazetteerUpdateCommand.execute();
+    gazetteerUpdateCommand.executeWithSubject();
+
     assertThat(consoleInterceptor.getOutput(), containsString(errorText));
 
     consoleInterceptor.resetSystemOut();
   }
 
   @Test
-  public void testFeatureIndexing() throws FeatureIndexingException, FeatureExtractionException {
+  public void testFeatureIndexing() throws Exception {
     String resource = "example.geojson";
     final FeatureExtractor featureExtractor =
         spy(
@@ -250,7 +243,7 @@ public class TestGazetteerUpdateCommand {
     gazetteerUpdateCommand.setResource(resource);
     gazetteerUpdateCommand.setFeatureExtractor(featureExtractor);
     gazetteerUpdateCommand.setFeatureIndexer(featureIndexer);
-    gazetteerUpdateCommand.execute();
+    gazetteerUpdateCommand.executeWithSubject();
     verify(featureIndexer, times(1))
         .updateIndex(
             eq(resource), eq(featureExtractor), eq(false), any(FeatureIndexer.IndexCallback.class));
