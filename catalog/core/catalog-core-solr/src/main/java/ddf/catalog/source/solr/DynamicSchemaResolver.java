@@ -504,9 +504,9 @@ public class DynamicSchemaResolver {
           ObjectInputStream in = new ObjectInputStream(bais)) {
         return (Serializable) in.readObject();
       } catch (IOException e) {
-        LOGGER.info("IO exception loading input document", e);
+        LOGGER.debug("IO exception loading input document", e);
       } catch (ClassNotFoundException e) {
-        LOGGER.info("Could not create object to return.", e);
+        LOGGER.debug("Could not create object to return.", e);
       }
 
       return null;
