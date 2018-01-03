@@ -1143,6 +1143,39 @@
         </arr>
     </requestHandler>
 
+
+    <!-- Placename Suggestion Component
+
+        This component can return a list of auto-complete suggestions
+        when entering placenames.
+    -->
+    <searchComponent name="suggestPlace" class="solr.SuggestComponent">
+        <lst name="suggester">
+            <str name="name">suggestPlace</str>
+            <str name="storeDir">place_suggest_index</str>
+            <str name="lookupImpl">AnalyzingInfixLookupFactory</str>
+            <str name="dictionaryImpl">DocumentDictionaryFactory</str>
+            <str name="suggestAnalyzerFieldType">lowercase</str>
+            <str name="field">title_txt</str>
+            <str name="contextField">metacard-tags_txt</str>
+            <str name="weightField">ext.population_lng</str>
+            <str name="payloadField">description_txt</str>
+            <str name="buildOnCommit">true</str>
+            <str name="buildOnStartup">true</str>
+        </lst>
+    </searchComponent>
+
+    <requestHandler name="/suggest" class="solr.SearchHandler" startup="lazy">
+        <lst name="defaults">
+            <str name="suggest">true</str>
+            <str name="suggest.count">15</str>
+            <str name="suggest.dictionary">suggestPlace</str>
+        </lst>
+        <arr name="components">
+            <str>suggestPlace</str>
+        </arr>
+    </requestHandler>
+
     <!-- Term Vector Component
 
          http://wiki.apache.org/solr/TermVectorComponent

@@ -116,6 +116,7 @@ public class GeoNamesCatalogIndexer implements GeoEntryIndexer {
 
     Metacard metacard = new MetacardImpl(geoNamesMetacardType);
     metacard.setAttribute(new AttributeImpl(Core.TITLE, geoEntry.getName()));
+    metacard.setAttribute(new AttributeImpl(Core.DESCRIPTION, geoEntry.getAlternateNames()));
     metacard.setAttribute(new AttributeImpl(Location.COUNTRY_CODE, geoEntry.getCountryCode()));
     metacard.setAttribute(new AttributeImpl(Core.ID, uuidGenerator.generateUuid()));
     metacard.setAttribute(
