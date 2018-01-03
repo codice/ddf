@@ -238,6 +238,7 @@
         <gib.referenceBranch>refs/remotes/origin/master</gib.referenceBranch>
         <gib.baseBranch>HEAD</gib.baseBranch>
         <gib.enabled>false</gib.enabled>
+        <gib.failOnError>false</gib.failOnError>
     </properties>
     <!--
     NOTE: The properties ddf.scm.connection.url, snapshots.repository.url and releases.repository.url should be defined
