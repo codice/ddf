@@ -100,11 +100,7 @@ public class CachingFederationStrategyTest {
 
   private MetacardImpl mockMetacard;
 
-  private Result mockResult;
-
   @Mock private SourceResponse mockResponse;
-
-  private List<Result> results;
 
   @Mock private SortedQueryMonitorFactory mockSortedQueryMonitorFactory;
 
@@ -117,8 +113,6 @@ public class CachingFederationStrategyTest {
   private HashMap<String, Serializable> properties;
 
   @Mock private ValidationQueryFactory validationQueryFactory;
-
-  private ArgumentCaptor<QueryResponseImpl> responseArgumentCaptor;
 
   private ArgumentCaptor<QueryRequestImpl> requestArgumentCaptor;
 
@@ -158,7 +152,8 @@ public class CachingFederationStrategyTest {
             validationQueryFactory,
             new CacheQueryFactory(new GeotoolsFilterBuilder()));
 
-    responseArgumentCaptor = ArgumentCaptor.forClass(QueryResponseImpl.class);
+    ArgumentCaptor<QueryResponseImpl> responseArgumentCaptor =
+        ArgumentCaptor.forClass(QueryResponseImpl.class);
     requestArgumentCaptor = ArgumentCaptor.forClass(QueryRequestImpl.class);
 
     when(mockSortedQueryMonitorFactory.createMonitor(
@@ -179,9 +174,9 @@ public class CachingFederationStrategyTest {
     mockMetacard = new MetacardImpl();
     mockMetacard.setId("mock metacard");
 
-    mockResult = new ResultImpl(mockMetacard);
+    Result mockResult = new ResultImpl(mockMetacard);
 
-    results = Arrays.asList(mockResult);
+    List<Result> results = Arrays.asList(mockResult);
     when(mockResponse.getResults()).thenReturn(results);
 
     // Set general properties
