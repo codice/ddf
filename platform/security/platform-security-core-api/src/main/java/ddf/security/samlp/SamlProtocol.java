@@ -50,9 +50,11 @@ import org.opensaml.saml.saml2.core.LogoutRequest;
 import org.opensaml.saml.saml2.core.LogoutResponse;
 import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.core.Response;
+import org.opensaml.saml.saml2.core.SessionIndex;
 import org.opensaml.saml.saml2.core.Status;
 import org.opensaml.saml.saml2.core.StatusCode;
 import org.opensaml.saml.saml2.core.Subject;
+import org.opensaml.saml.saml2.core.impl.SessionIndexBuilder;
 import org.opensaml.saml.saml2.metadata.AssertionConsumerService;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml.saml2.metadata.IDPSSODescriptor;
@@ -508,13 +510,21 @@ public class SamlProtocol {
     return createAttributeQuery(issuer, subject, null);
   }
 
-  public static LogoutRequest createLogoutRequest(Issuer issuer, NameID nameId, String id) {
+  public static LogoutRequest createLogoutRequest(
+      Issuer issuer, NameID nameId, String id, List<String> sessionIndexes) {
     LogoutRequest logoutRequest = logoutRequestBuilder.buildObject();
     logoutRequest.setID(id);
     logoutRequest.setIssuer(issuer);
     logoutRequest.setNameID(nameId);
     logoutRequest.setIssueInstant(DateTime.now());
     logoutRequest.setVersion(SAMLVersion.VERSION_20);
+    SessionIndexBuilder builder = new SessionIndexBuilder();
+    for (String index : sessionIndexes) {
+      SessionIndex sessionIndexObject = builder.buildObject();
+      sessionIndexObject.setSessionIndex(index);
+      logoutRequest.getSessionIndexes().add(sessionIndexObject);
+    }
+
     return logoutRequest;
   }
 

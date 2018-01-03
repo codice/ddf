@@ -12,6 +12,7 @@ import org.opensaml.saml.common.SignableSAMLObject
 import org.opensaml.saml.saml2.core.*
 import org.opensaml.saml.saml2.core.impl.LogoutRequestBuilder
 import org.opensaml.saml.saml2.core.impl.LogoutResponseBuilder
+import org.opensaml.saml.saml2.core.SessionIndex
 import org.opensaml.xmlsec.signature.SignableXMLObject
 import org.w3c.dom.Element
 import spock.lang.Specification
@@ -24,9 +25,12 @@ class IdpEndpointSpecTest extends Specification {
     @Rule
     TemporaryFolder temporaryFolder = new TemporaryFolder()
 
-    IdpEndpoint idpEndpoint;
+    IdpEndpoint idpEndpoint
+
+    List<SessionIndex> sessionIndexes
 
     final String ENCRYPT_PREFIX = "ENCRYPTED "
+
 
     static {
         OpenSAMLUtil.initSamlEngine()
@@ -75,6 +79,10 @@ class IdpEndpointSpecTest extends Specification {
         idpEndpoint.init()
         idpEndpoint.spMetadata = [sp1metadata, sp2metadata]
         idpEndpoint.logoutStates = new RelayStates<>()
+        SessionIndex sessionIndex = Mock(SessionIndex.class) {
+            getSessionIndex() >> "1"
+        }
+        sessionIndexes = Collections.singletonList(sessionIndex) as List<SessionIndex>
     }
 
     void copyResourceToFile(File file, String resource) throws IOException {
@@ -101,6 +109,7 @@ class IdpEndpointSpecTest extends Specification {
 
         idpEndpoint.logoutMessage = Mock(LogoutMessage) {
             extractSamlLogoutRequest(_ as String) >> Mock(LogoutRequest) {
+                getSessionIndexes() >> sessionIndexes
                 getIssuer() >> Mock(Issuer) {
                     getValue() >> sp1entityid
                 }
@@ -181,6 +190,7 @@ class IdpEndpointSpecTest extends Specification {
 
         idpEndpoint.logoutMessage = Mock(LogoutMessage) {
             extractSamlLogoutResponse(_ as String) >> Mock(LogoutResponse) {
+                getSessionIndexes() >> Collections.emptyList()
                 getIssuer() >> Mock(Issuer) {
                     getValue() >> sp1entityid
                 }
@@ -191,9 +201,8 @@ class IdpEndpointSpecTest extends Specification {
                 }
                 getID() >> responseId
             }
-            buildLogoutRequest(_ as String, _ as String) >> { String name, String target ->
-                return new LogoutRequestBuilder().buildObject();
-            }
+            buildLogoutRequest(_, _, _) >> new LogoutRequestBuilder().buildObject();
+
         }
 
         def request = Mock(HttpServletRequest) {
@@ -244,6 +253,7 @@ class IdpEndpointSpecTest extends Specification {
 
         idpEndpoint.logoutMessage = Mock(LogoutMessage) {
             extractSamlLogoutResponse(_ as String) >> Mock(LogoutResponse) {
+                getSessionIndexes() >> Collections.emptyList()
                 getIssuer() >> Mock(Issuer) {
                     getValue() >> sp1entityid
                 }
@@ -254,7 +264,7 @@ class IdpEndpointSpecTest extends Specification {
                 }
                 getID() >> responseId
             }
-            buildLogoutRequest(_ as String, _ as String) >> { String name, String target ->
+            buildLogoutRequest(_ as String, _ as String, _ as List) >> { String name, String target, Collection sessionIndexes ->
                 return new LogoutRequestBuilder().buildObject();
             }
         }
@@ -293,6 +303,7 @@ class IdpEndpointSpecTest extends Specification {
 
         idpEndpoint.logoutMessage = Mock(LogoutMessage) {
             extractSamlLogoutRequest(_ as String) >> Mock(LogoutRequest) {
+                getSessionIndexes() >> Collections.emptyList()
                 getIssuer() >> Mock(Issuer) {
                     getValue() >> sp1entityid
                 }

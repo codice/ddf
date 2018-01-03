@@ -18,7 +18,11 @@
                                http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
     <ext:property-placeholder/>
-    
+
+    <reference id="uuidGenerator" interface="org.codice.ddf.platform.util.uuidgenerator.UuidGenerator" filter="(id=uuidGenerator)"/>
+
+    <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
+
     <reference-list id="realmList" interface="org.apache.shiro.realm.Realm"
                     ext:proxy-method="greedy"/>
 
@@ -45,6 +49,7 @@
     </bean>
 
     <bean id="logoutMessageImpl" class="ddf.security.samlp.impl.LogoutMessageImpl">
+        <argument ref="uuidGenerator"/>
         <cm:managed-properties persistent-id="ddf.security.samlp.LogoutMessage"
                                update-strategy="container-managed"/>
         <property name="systemCrypto" ref="crypto"/>

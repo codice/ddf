@@ -96,6 +96,7 @@ public abstract class SamlValidator {
   protected abstract SAMLVersion getSamlVersion();
 
   void checkPostSignature(SignableSAMLObject samlObject) throws ValidationException {
+    // Signing is optional, so null is OK
     if (samlObject.getSignature() != null) {
       try {
         builder.simpleSign.validateSignature(
@@ -287,6 +288,22 @@ public abstract class SamlValidator {
       logoutRequest = (LogoutRequest) builder.xmlObject;
     }
 
+    /**
+     * A SAML LogoutRequest must include at least one SessionIndex, if the logout is initiated by
+     * Session Participant. However, if the Session Authority initiates the logout, a SessionIndex
+     * is optional. In that case, the absence of a SessionIndex means to logout of all sessions
+     * associated with the Principle. Because the SAMLValidator does not have enough information to
+     * determine who initiated the logout, this method does not throw a ValidationException.
+     * Instead, it logs the condition.
+     */
+    protected void checkSessionIndexes() {
+      if (logoutRequest.getSessionIndexes().isEmpty()) {
+        LOGGER.trace(
+            "Logout request does not contain a session index for name-id {}",
+            logoutRequest.getNameID());
+      }
+    }
+
     @Override
     protected SAMLVersion getSamlVersion() {
       return logoutRequest.getVersion();
@@ -387,6 +404,7 @@ public abstract class SamlValidator {
     @Override
     protected void additionalValidation() throws ValidationException {
       checkPostSignature(logoutRequest);
+      checkSessionIndexes();
     }
   }
 
@@ -415,6 +433,7 @@ public abstract class SamlValidator {
     @Override
     protected void additionalValidation() throws ValidationException {
       checkRedirectSignature("SAMLRequest");
+      checkSessionIndexes();
     }
   }
 
