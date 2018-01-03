@@ -65,7 +65,7 @@ public class ProfileListCommand extends AbstractProfileCommand {
                   console.println(profile.toFile().getName().replaceAll(PROFILE_EXTENSION, "")));
     } catch (IOException e) {
       printError("Error occurred when locating profiles");
-      LOGGER.error("An error occured when locating profiles", e);
+      LOGGER.error("An error occurred when locating profiles", e);
     }
   }
 }

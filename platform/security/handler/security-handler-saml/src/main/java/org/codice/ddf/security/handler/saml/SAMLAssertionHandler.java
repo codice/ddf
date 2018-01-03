@@ -220,7 +220,7 @@ public class SAMLAssertionHandler implements AuthenticationHandler {
   }
 
   /**
-   * If an error occured during the processing of the request, this method will get called. Since
+   * If an error occurred during the processing of the request, this method will get called. Since
    * SAML handling is typically processed first, then we can assume that there was an error with the
    * presented SAML assertion - either it was invalid, or the reference didn't match a cached
    * assertion, etc. In order not to get stuck in a processing loop, we will return a 401 status
