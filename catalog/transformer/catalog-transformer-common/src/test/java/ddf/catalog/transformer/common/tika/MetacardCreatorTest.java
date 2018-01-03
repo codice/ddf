@@ -24,6 +24,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardTypeImpl;
+import ddf.catalog.data.types.Contact;
 import ddf.catalog.data.types.Media;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -33,6 +34,7 @@ import java.util.Set;
 import java.util.TimeZone;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.tika.metadata.Metadata;
+import org.apache.tika.metadata.Office;
 import org.apache.tika.metadata.TIFF;
 import org.apache.tika.metadata.TikaCoreProperties;
 import org.junit.Test;
@@ -176,6 +178,42 @@ public class MetacardCreatorTest {
         MetacardCreator.createMetacard(metadata, null, null, BasicTypes.BASIC_METACARD, false);
 
     assertThat(metacard.getTitle(), nullValue());
+  }
+
+  @Test
+  public void testContributorAdded() {
+    final Metadata metadata = new Metadata();
+
+    metadata.add(Office.LAST_AUTHOR, "AnotherFirst AnotherLast");
+    metadata.add(TikaCoreProperties.CREATOR, "First Last");
+    final Metacard metacard =
+        MetacardCreator.createMetacard(metadata, null, null, BasicTypes.BASIC_METACARD, false);
+
+    assertThat(
+        metacard.getAttribute(Contact.CONTRIBUTOR_NAME).getValue().toString(),
+        is("AnotherFirst AnotherLast"));
+  }
+
+  @Test
+  public void testContributorNotAdded() {
+    final Metadata metadata = new Metadata();
+
+    metadata.add(Office.LAST_AUTHOR, "First Last");
+    metadata.add(TikaCoreProperties.CREATOR, "First Last");
+    final Metacard metacard =
+        MetacardCreator.createMetacard(metadata, null, null, BasicTypes.BASIC_METACARD, false);
+
+    assertThat(metacard.getAttribute(Contact.CONTRIBUTOR_NAME), nullValue());
+  }
+
+  @Test
+  public void testContributorNull() {
+    final Metadata metadata = new Metadata();
+
+    final Metacard metacard =
+        MetacardCreator.createMetacard(metadata, null, null, BasicTypes.BASIC_METACARD, false);
+
+    assertThat(metacard.getAttribute(Contact.CONTRIBUTOR_NAME), nullValue());
   }
 
   private AttributeDescriptorImpl createObjectAttr(String name) {
