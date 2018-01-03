@@ -114,14 +114,12 @@ public class CswTransformProvider implements Converter {
       XmlPullParser parser = XppFactory.createDefaultParser();
       InputStreamReader inputStreamReader =
           new InputStreamReader(content.getInputStream(), StandardCharsets.UTF_8);
-      XppReader xppReader = new XppReader(inputStreamReader, parser);
       try {
-        new HierarchicalStreamCopier().copy(xppReader, writer);
+        new HierarchicalStreamCopier().copy(new XppReader(inputStreamReader, parser), writer);
       } finally {
-        inputStreamReader.close();
-        xppReader.close();
+        IOUtils.closeQuietly(inputStreamReader);
       }
-    } catch (IOException | XmlPullParserException e) {
+    } catch (XmlPullParserException e) {
       throw new ConversionException("Unable to copy metadata to XML Output.", e);
     }
   }
