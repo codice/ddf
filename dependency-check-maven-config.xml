@@ -15,7 +15,7 @@
             CVE-2004-0009 is an issue with Apache not-yet-commons-ssl. This jar has been stripped
             from the distribution, the suppression is to prevent OWASP from complaining.
 
-            apache-karaf-4.1.2.tar.gz: apache-karaf-4.1.2.tar:
+            apache-karaf-4.1.4.tar.gz: apache-karaf-4.1.4.tar:
             org.apache.servicemix.bundles.not-yet-commons-ssl-0.3.11_1.jar
         </notes>
         <cve>CVE-2004-0009</cve>

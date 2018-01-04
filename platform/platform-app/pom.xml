@@ -393,7 +393,7 @@
         <!--END versions for camel features in platform-app-->
 
         <!--START versions for enterprise features in platform-app features
-        Copied from karaf-4.1.2-src/pom.xml
+        Copied from karaf-4.1.4-src/pom.xml
 
         DDF changes made
         - Removed properties that are not used-->

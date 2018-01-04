@@ -263,7 +263,7 @@
     <!--START Enterprise Features-->
     <!-- DO NOT EDIT
          All feature definitions come from 3rd party feature file:
-         <repository>mvn:org.apache.karaf.features/enterprise/4.1.2/xml/features</repository>
+         <repository>mvn:org.apache.karaf.features/enterprise/4.1.4/xml/features</repository>
 
          All version properties for these enterprise features are defined in the platform-app pom.
 

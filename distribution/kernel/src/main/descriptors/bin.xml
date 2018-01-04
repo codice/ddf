@@ -42,6 +42,15 @@
                 </include>
             </includes>
         </dependencySet>
+        <!-- Felix fileinstall version 3.6.4 causes issues with our configurations.
+        DDF-3558 will update the config admin and fileinstall versions-->
+        <dependencySet>
+            <outputDirectory>system/org/apache/felix/org.apache.felix.fileinstall/${felix.fileinstall.version}
+            </outputDirectory>
+            <includes>
+                <include>org.apache.felix:org.apache.felix.fileinstall:jar:${felix.fileinstall.version}
+                </include>
+            </includes>
+        </dependencySet>
     </dependencySets>
-
 </assembly>

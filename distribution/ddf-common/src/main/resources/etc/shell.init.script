@@ -56,6 +56,7 @@ if { %(jlineReader != null) } {
 
   setopt group
   setopt auto-fresh-line
+  unsetopt insert-tab
   keymap "^[OA" up-line-or-search
   keymap "^[[A" up-line-or-search
   keymap "^[OB" down-line-or-search
@@ -72,7 +73,3 @@ waitForReady = {
     echo "System Ready"
 };
 wfr = { waitForReady };
-
-// Fixes hitting `tab` on an empty console to list available commands.
-// See https://issues.apache.org/jira/browse/KARAF-5224.
-setopt no-insert-tab
