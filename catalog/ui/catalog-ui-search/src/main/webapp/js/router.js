@@ -64,7 +64,7 @@ define([
                 //console.log('route to specific workspace:'+workspaceId);
             },
             home: function(){
-               // console.log('route to workspaces home');
+                //console.log('route to workspaces home');
             },
             workspaces: function(){
                 //console.log('route to workspaces home');
@@ -100,6 +100,11 @@ define([
             'about(/)': 'openAbout'
         },
         initialize: function(){
+            if (window.location.search.indexOf('lowBandwidth') !== -1) {
+                router.set({
+                    lowBandwidth: true
+                });
+            }
             this.listenTo(wreqr.vent, 'router:navigate', this.handleNavigate);
             /*
                HACK:  listeners for the router aren't setup (such as the onRoute or controller)
