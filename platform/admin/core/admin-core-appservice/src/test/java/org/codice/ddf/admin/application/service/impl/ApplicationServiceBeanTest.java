@@ -19,9 +19,11 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.atMost;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -563,7 +565,7 @@ public class ApplicationServiceBeanTest {
     testURLList.add(testURLMap1);
 
     serviceBean.addApplications(testURLList);
-    verify(testURLMap1, Mockito.times(2)).get("value");
+    verify(testURLMap1, atLeastOnce()).get("value");
   }
 
   /**
@@ -572,39 +574,20 @@ public class ApplicationServiceBeanTest {
    *
    * @throws Exception
    */
-  // TODO RAP 29 Aug 16: DDF-2443 - Fix test to not depend on specific log output
   @Test
   public void testAddApplicationsASE() throws Exception {
-    ch.qos.logback.classic.Logger root =
-        (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-    final Appender mockAppender = mock(Appender.class);
-    when(mockAppender.getName()).thenReturn("MOCK");
-    root.addAppender(mockAppender);
-    root.setLevel(Level.ALL);
 
     ApplicationServiceBean serviceBean =
         new ApplicationServiceBean(testAppService, testConfigAdminExt, mBeanServer);
-    List<Map<String, Object>> testURLList = new ArrayList<>();
-    Map<String, Object> testURLMap1 = mock(HashMap.class);
-    when(testURLMap1.get("value")).thenReturn(TEST_URL);
-    Map<String, Object> testURLMap2 = mock(HashMap.class);
-    when(testURLMap2.get("value")).thenReturn(TEST_URL);
-    testURLList.add(testURLMap1);
-    testURLList.add(testURLMap2);
-
-    doThrow(new ApplicationServiceException()).when(testAppService).addApplication(any(URI.class));
-
-    serviceBean.addApplications(testURLList);
-
-    verify(mockAppender, times(2))
-        .doAppend(
-            argThat(
-                new ArgumentMatcher() {
-                  @Override
-                  public boolean matches(final Object argument) {
-                    return ((LoggingEvent) argument).getFormattedMessage().contains(ADD_APP_ASE);
-                  }
-                }));
+    List<Map<String, Object>> applicationURLList = new ArrayList<>();
+    Map<String, Object> map = mock(HashMap.class);
+    when(map.get("value")).thenReturn(TEST_URL);
+    applicationURLList.add(map);
+    ApplicationServiceException mockAseException = mock(ApplicationServiceException.class);
+    doReturn("ASE").when(mockAseException).getMessage();
+    doThrow(mockAseException).when(testAppService).addApplication(any(URI.class));
+    serviceBean.addApplications(applicationURLList);
+    verify(testAppService).addApplication(eq(new URI(TEST_URL)));
   }
 
   /**

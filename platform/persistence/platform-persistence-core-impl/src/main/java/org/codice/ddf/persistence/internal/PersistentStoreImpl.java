@@ -52,8 +52,8 @@ import org.slf4j.LoggerFactory;
 
 public class PersistentStoreImpl implements PersistentStore {
 
+  public static final String UNABLE_TO_CREATE_SOLR_CLIENT = "Unable to create Solr client.";
   private static final Logger LOGGER = LoggerFactory.getLogger(PersistentStoreImpl.class);
-
   private SolrClientFactory clientFactory;
 
   private ConcurrentHashMap<String, Future<SolrClient>> solrFutures = new ConcurrentHashMap<>();
@@ -76,7 +76,7 @@ public class PersistentStoreImpl implements PersistentStore {
     // Set Solr Core name to type and create solr client
     SolrClient solrClient = getSolrClient(type);
     if (solrClient == null) {
-      throw new PersistenceException("Unable to create Solr client.");
+      throw new PersistenceException(UNABLE_TO_CREATE_SOLR_CLIENT);
     }
     List<SolrInputDocument> inputDocuments = new ArrayList<>();
     for (Map<String, Object> properties : items) {
@@ -156,7 +156,7 @@ public class PersistentStoreImpl implements PersistentStore {
     // Set Solr Core name to type and create/connect to Solr Core
     SolrClient solrClient = getSolrClient(type);
     if (solrClient == null) {
-      throw new PersistenceException("Unable to create Solr client.");
+      throw new PersistenceException(UNABLE_TO_CREATE_SOLR_CLIENT);
     }
 
     SolrQueryFilterVisitor visitor = new SolrQueryFilterVisitor(solrClient, type);
@@ -183,28 +183,32 @@ public class PersistentStoreImpl implements PersistentStore {
         Collection<String> fieldNames = doc.getFieldNames();
         for (String name : fieldNames) {
           LOGGER.debug("field name = {} has value = {}", name, doc.getFieldValue(name));
-          if (name.endsWith(PersistentItem.TEXT_SUFFIX) && doc.getFieldValues(name).size() > 1) {
+          Collection<Object> fieldValues = doc.getFieldValues(name);
+          if (name.endsWith(PersistentItem.TEXT_SUFFIX) && fieldValues.size() > 1) {
             result.addProperty(
                 name,
-                doc.getFieldValues(name)
+                fieldValues
                     .stream()
-                    .filter(s -> s instanceof String)
-                    .map(s -> (String) s)
+                    .filter(String.class::isInstance)
+                    .map(String.class::cast)
                     .collect(Collectors.toSet()));
-          } else if (name.endsWith(PersistentItem.XML_SUFFIX)) {
-            result.addXmlProperty(name, (String) doc.getFirstValue(name));
-          } else if (name.endsWith(PersistentItem.TEXT_SUFFIX)) {
-            result.addProperty(name, (String) doc.getFirstValue(name));
-          } else if (name.endsWith(PersistentItem.LONG_SUFFIX)) {
-            result.addProperty(name, (Long) doc.getFirstValue(name));
-          } else if (name.endsWith(PersistentItem.INT_SUFFIX)) {
-            result.addProperty(name, (Integer) doc.getFirstValue(name));
-          } else if (name.endsWith(PersistentItem.DATE_SUFFIX)) {
-            result.addProperty(name, (Date) doc.getFirstValue(name));
-          } else if (name.endsWith(PersistentItem.BINARY_SUFFIX)) {
-            result.addProperty(name, (byte[]) doc.getFirstValue(name));
           } else {
-            LOGGER.debug("Not adding field {} because it has invalid suffix", name);
+            Object firstValue = doc.getFirstValue(name);
+            if (name.endsWith(PersistentItem.XML_SUFFIX)) {
+              result.addXmlProperty(name, (String) firstValue);
+            } else if (name.endsWith(PersistentItem.TEXT_SUFFIX)) {
+              result.addProperty(name, (String) firstValue);
+            } else if (name.endsWith(PersistentItem.LONG_SUFFIX)) {
+              result.addProperty(name, (long) firstValue);
+            } else if (name.endsWith(PersistentItem.INT_SUFFIX)) {
+              result.addProperty(name, (int) firstValue);
+            } else if (name.endsWith(PersistentItem.DATE_SUFFIX)) {
+              result.addProperty(name, (Date) firstValue);
+            } else if (name.endsWith(PersistentItem.BINARY_SUFFIX)) {
+              result.addProperty(name, (byte[]) firstValue);
+            } else {
+              LOGGER.debug("Not adding field {} because it has invalid suffix", name);
+            }
           }
         }
         results.add(result);
@@ -225,7 +229,7 @@ public class PersistentStoreImpl implements PersistentStore {
     List<Map<String, Object>> itemsToDelete = this.get(type, cql);
     SolrClient solrClient = getSolrClient(type);
     if (solrClient == null) {
-      throw new PersistenceException("Unable to create Solr client.");
+      throw new PersistenceException(UNABLE_TO_CREATE_SOLR_CLIENT);
     }
     List<String> idsToDelete = new ArrayList<>();
     for (Map<String, Object> item : itemsToDelete) {

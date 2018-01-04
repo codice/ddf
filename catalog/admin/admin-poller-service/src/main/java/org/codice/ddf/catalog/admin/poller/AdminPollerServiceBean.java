@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
@@ -47,6 +48,7 @@ import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
+import org.osgi.service.metatype.ObjectClassDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -322,8 +324,11 @@ public class AdminPollerServiceBean implements AdminPollerServiceBeanMBean {
       return getBundleContext().getBundle(config.getBundleLocation()).getBundleId();
     }
 
+    @Nullable
     protected String getName(Configuration config) {
-      return configurationAdmin.getObjectClassDefinition(config).getName();
+      ObjectClassDefinition objectClassDefinition =
+          configurationAdmin.getObjectClassDefinition(config);
+      return (objectClassDefinition != null) ? objectClassDefinition.getName() : null;
     }
   }
 

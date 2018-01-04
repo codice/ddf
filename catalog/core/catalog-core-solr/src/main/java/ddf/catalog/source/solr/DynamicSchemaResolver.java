@@ -39,6 +39,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.io.StringReader;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -64,6 +65,7 @@ import net.sf.saxon.s9api.SaxonApiException;
 import net.sf.saxon.s9api.XdmNode;
 import net.sf.saxon.tree.tiny.TinyDocumentImpl;
 import net.sf.saxon.tree.tiny.TinyTree;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrClient;
@@ -73,6 +75,7 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.common.SolrInputDocument;
+import org.apache.solr.common.util.NamedList;
 import org.apache.solr.common.util.SimpleOrderedMap;
 import org.codehaus.stax2.XMLInputFactory2;
 import org.codice.solr.factory.impl.ConfigurationStore;
@@ -210,18 +213,25 @@ public class DynamicSchemaResolver {
      */
     query.setRequestHandler("/admin/luke");
 
+    QueryResponse response;
     try {
-      QueryResponse response = client.query(query);
-      for (Entry<String, ?> e : ((SimpleOrderedMap<?>) (response.getResponse().get(FIELDS_KEY)))) {
-        if (e != null) {
-          fieldsCache.add(e.getKey());
-          if (e.getKey().endsWith(SchemaFields.TEXT_SUFFIX)) {
-            anyTextFieldsCache.add(e.getKey());
-          }
-        }
-      }
+      response = client.query(query);
     } catch (SolrServerException | SolrException | IOException e) {
       LOGGER.info("Could not update cache for field names.", e);
+      return;
+    }
+    NamedList<?> fields = (SimpleOrderedMap<?>) (response.getResponse().get(FIELDS_KEY));
+
+    if (fields == null) {
+      return;
+    }
+
+    for (Entry<String, ?> e : fields) {
+      String key = e.getKey();
+      fieldsCache.add(key);
+      if (key.endsWith(SchemaFields.TEXT_SUFFIX)) {
+        anyTextFieldsCache.add(key);
+      }
     }
   }
 
@@ -236,9 +246,7 @@ public class DynamicSchemaResolver {
       if (metacard.getAttribute(ad.getName()) != null) {
         List<Serializable> attributeValues = metacard.getAttribute(ad.getName()).getValues();
 
-        if (attributeValues != null
-            && attributeValues.size() > 0
-            && attributeValues.get(0) != null) {
+        if (CollectionUtils.isNotEmpty(attributeValues) && attributeValues.get(0) != null) {
           AttributeFormat format = ad.getType().getAttributeFormat();
           String formatIndexName = ad.getName() + getFieldSuffix(format);
 
@@ -317,16 +325,15 @@ public class DynamicSchemaResolver {
       }
     }
 
-    if (!ConfigurationStore.getInstance().isDisableTextPath()) {
-      if (StringUtils.isNotBlank(metacard.getMetadata())) {
-        try {
-          byte[] luxXml = createTinyBinary(metacard.getMetadata());
-          solrInputDocument.addField(LUX_XML_FIELD_NAME, luxXml);
-        } catch (XMLStreamException | SaxonApiException e) {
-          LOGGER.debug(
-              "Unable to parse metadata field.  XPath support unavailable for metacard {}",
-              metacard.getId());
-        }
+    if (!ConfigurationStore.getInstance().isDisableTextPath()
+        && StringUtils.isNotBlank(metacard.getMetadata())) {
+      try {
+        byte[] luxXml = createTinyBinary(metacard.getMetadata());
+        solrInputDocument.addField(LUX_XML_FIELD_NAME, luxXml);
+      } catch (XMLStreamException | SaxonApiException | IOException e) {
+        LOGGER.debug(
+            "Unable to parse metadata field.  XPath support unavailable for metacard {}",
+            metacard.getId());
       }
     }
 
@@ -417,13 +424,14 @@ public class DynamicSchemaResolver {
     return centerPoint.getY() + "," + centerPoint.getX();
   }
 
-  private byte[] createTinyBinary(String xml) throws XMLStreamException, SaxonApiException {
+  private byte[] createTinyBinary(String xml)
+      throws XMLStreamException, SaxonApiException, IOException {
     SaxonDocBuilder builder = new SaxonDocBuilder(processor);
 
     XmlReader xmlReader = new XmlReader();
     xmlReader.addHandler(builder);
     xmlReader.setStripNamespaces(true);
-    xmlReader.read(IOUtils.toInputStream(xml));
+    xmlReader.read(IOUtils.toInputStream(xml, Charset.defaultCharset().name()));
 
     XdmNode node = builder.getDocument();
 
@@ -460,6 +468,8 @@ public class DynamicSchemaResolver {
     return values;
   }
 
+  @SuppressWarnings(
+      "squid:S2093" /* try-with-resource will throw IOException with InputStream and we do not care to get that exception */)
   public Serializable getDocValue(String solrFieldName, Object docValue) {
 
     AttributeFormat format = getType(solrFieldName);
@@ -475,6 +485,7 @@ public class DynamicSchemaResolver {
 
       ByteArrayInputStream bais = null;
       ObjectInputStream in = null;
+
       try {
         bais = new ByteArrayInputStream((byte[]) docValue);
         in = new ObjectInputStream(bais);
@@ -589,6 +600,8 @@ public class DynamicSchemaResolver {
     return schemaFields.getFieldSuffix(format);
   }
 
+  @SuppressWarnings(
+      "squid:S2093" /* try-with-resource will throw IOException with InputStream and we do not care to get that exception */)
   public MetacardType getMetacardType(SolrDocument doc) throws MetacardCreationException {
     String mTypeFieldName = doc.getFirstValue(SchemaFields.METACARD_TYPE_FIELD_NAME).toString();
 
@@ -740,6 +753,8 @@ public class DynamicSchemaResolver {
    * @param xmlDatas List of XML as {@code String}
    * @return parsed CDATA and element text
    */
+  @SuppressWarnings(
+      "squid:S2093" /* try-with-resource will throw IOException with InputStream and we do not care to get that exception */)
   protected List<String> parseTextFrom(List<Serializable> xmlDatas) {
 
     StringBuilder builder = new StringBuilder();

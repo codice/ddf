@@ -100,9 +100,11 @@ public class SolrRest {
       Map<String, Object> map =
           gson.fromJson(response, new TypeToken<Map<String, Object>>() {}.getType());
 
-      fieldTypes = (ArrayList<Object>) map.get("fieldTypes");
+      if (map != null) {
+        fieldTypes = (ArrayList<Object>) map.get("fieldTypes");
+      }
     } catch (Exception e) {
-      LOGGER.debug("Unable to getProperties from: {}", getSolrCatalogSchemaUrl(), e);
+      LOGGER.debug("Unable to getProperties from: {}", getSolrCatalogSchemaUrl());
     }
   }
 

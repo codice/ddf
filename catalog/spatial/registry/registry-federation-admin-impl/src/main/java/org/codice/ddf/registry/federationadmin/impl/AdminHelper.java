@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.codice.ddf.admin.core.api.Service;
 import org.codice.ddf.configuration.DictionaryMap;
 import org.codice.ddf.registry.api.internal.RegistryStore;
@@ -36,6 +37,7 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.metatype.ObjectClassDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,8 +114,10 @@ public class AdminHelper {
     return getBundleContext().getBundle(config.getBundleLocation()).getBundleId();
   }
 
+  @Nullable
   public String getName(Configuration config) {
-    return configAdmin.getObjectClassDefinition(config).getName();
+    ObjectClassDefinition objectClassDefinition = configAdmin.getObjectClassDefinition(config);
+    return (objectClassDefinition != null) ? objectClassDefinition.getName() : null;
   }
 
   Map<String, Object> getFilterProperties() throws IOException {

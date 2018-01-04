@@ -16,6 +16,7 @@ package org.codice.ddf.spatial.geocoding.query;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.text.ParseException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.apache.lucene.index.DirectoryReader;
@@ -94,9 +95,14 @@ public class GeoNamesQueryLuceneDirectoryIndex extends GeoNamesQueryLuceneIndex 
   @Override
   public List<GeoEntry> query(final String queryString, final int maxResults)
       throws GeoEntryQueryException {
-    final Directory directory = openDirectoryAndCheckForIndex();
 
-    return doQuery(queryString, maxResults, directory);
+    try (final Directory directory = openDirectoryAndCheckForIndex()) {
+      return doQuery(queryString, maxResults, directory);
+    } catch (IOException e) {
+      LOGGER.debug("Error querying from directory", e);
+    }
+
+    return Collections.emptyList();
   }
 
   @Override
@@ -121,11 +127,17 @@ public class GeoNamesQueryLuceneDirectoryIndex extends GeoNamesQueryLuceneIndex 
 
   @Override
   public Optional<String> getCountryCode(String wktLocation, int radius)
-      throws GeoEntryQueryException, ParseException {
-    final Directory directory = openDirectoryAndCheckForIndex();
+      throws GeoEntryQueryException {
+    String countryCode = null;
 
-    Shape shape = getShape(wktLocation);
-    String countryCode = doGetCountryCode(shape, radius, directory);
+    try (final Directory directory = openDirectoryAndCheckForIndex()) {
+      Shape shape = getShape(wktLocation);
+      countryCode = doGetCountryCode(shape, radius, directory);
+    } catch (IOException e) {
+      LOGGER.warn("Could not get directory");
+    } catch (ParseException e) {
+      LOGGER.warn("Could not get shape from {}", wktLocation);
+    }
 
     return Optional.ofNullable(countryCode);
   }
