@@ -3,7 +3,7 @@
 :title: XML Attribute Security Policy Plugin
 :link: _xml_attribute_security_policy_plugin
 :plugintypes: policy
-:summary: Find security attributes contained in a metacard's metadata.
+:summary: Finds security attributes contained in a metacard's metadata.
 
 The XML Attribute Security Policy Plugin parses XML metadata contained within a metacard for security attributes on any number of XML elements in the metadata.
 The configuration for the plugin contains one field for setting the XML elements that will be parsed for security attributes and the other two configurations contain the XML attributes that will be pulled off of those elements.
@@ -13,12 +13,3 @@ The *Security Attributes (union)* field will compute the union of values for eac
 
 The XML Attribute Security Policy Plugin is installed by default with a standard installation in the ${ddf-security} application.
 
-===== Configuring the XML Attribute Security Policy Plugin
-
-. Navigate to the ${admin-console}.
-. Select the *${ddf-catalog}* application tile.
-. Select the *Configuration* tab.
-. Select the *XML Attribute Security Policy Plugin* configuration.
-
-See <<org.codice.ddf.catalog.security.policy.xml.XmlAttributeSecurityPolicyPlugin,XML Attribute Security Policy Plugin
- configurations>> for all possible configurations.

@@ -5,8 +5,8 @@
 :plugintypes: policy
 :summary: Collects attributes into a security field for the metacard.
 
-The Metacard Attribute Security Policy Plugin combines existing metacard attributes to make new
- attributes and adds them to the metacard. For example, if a metacard has two attributes,
+The Metacard Attribute Security Policy Plugin combines existing metacard attributes to make new attributes and adds them to the metacard.
+For example, if a metacard has two attributes,
 `sourceattribute1` and `sourceattribute2`, the values of the two attributes could be combined into a new
  attribute, `destinationattribute1`. The `sourceattribute1` and `sourceattribute2` are the _source attributes_
  and `destinationattribute1` is the _destination attribute_.
@@ -41,26 +41,6 @@ The policy plugin could also be used to rename attributes. If there is only one 
 The Metacard Attribute Security Policy Plugin is installed by default with a standard installation
  in the ${ddf-catalog} application.
 
-===== Configuring the Metacard Attribute Security Policy Plugin
-
-. Navigate to the *${admin-console}*.
-. Select the *${ddf-catalog}* application tile
-. Select the *Configuration* tab
-. Select the *Metacard Attribute Security Policy Plugin*.
-
 See <<org.codice.ddf.catalog.security.policy.metacard.MetacardAttributeSecurityPolicyPlugin,Metacard
  Attribute Security Policy Plugin configurations>> for all possible configurations.
 
-===== Sample configuration of the Metacard Attribute Security Policy Plugin
-
-To configure the plugin to combine the attributes `sourceattribute1` and `sourceattribute2` into a new
-attribute `destinationattribute1` using the union,
-enter these two lines under the title **Metacard Union Attributes**
-
-|===
-|Metacard Union Attributes
-
-|`sourceattribute1=destinationattribute1`
-
-|`sourceattribute2=destinationattribute1`
-|===
