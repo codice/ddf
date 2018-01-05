@@ -1815,6 +1815,14 @@ public abstract class AbstractCswSource extends MaskableImpl
     sourceMonitors.add(sourceMonitor);
   }
 
+  /** Clean-up when shutting down the CswSource */
+  public void destroy(int code) {
+    LOGGER.debug("{}: Entering destroy()", cswSourceConfiguration.getId());
+    availabilityPollFuture.cancel(true);
+    scheduler.shutdownNow();
+    removeEventServiceSubscription();
+  }
+
   /**
    * Callback class to check the Availability of the CswSource.
    *
