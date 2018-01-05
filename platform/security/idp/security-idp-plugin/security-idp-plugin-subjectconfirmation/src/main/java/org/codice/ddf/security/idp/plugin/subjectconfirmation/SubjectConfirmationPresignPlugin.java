@@ -21,7 +21,6 @@ import ddf.security.samlp.SamlProtocol.Binding;
 import ddf.security.samlp.impl.EntityInformation;
 import ddf.security.samlp.impl.EntityInformation.ServiceInfo;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -79,7 +78,7 @@ public class SubjectConfirmationPresignPlugin implements SamlPresignPlugin {
     }
 
     // TODO: 12/11/17 DDF-3494 extract to new plugin
-    addAudiences(authnRequest, response, spMetadata, supportedBindings);
+    addAudiences(authnRequest, response);
   }
 
   private Audience buildAudience(AudienceBuilder audienceBuilder, String uri) {
@@ -88,27 +87,13 @@ public class SubjectConfirmationPresignPlugin implements SamlPresignPlugin {
     return audience;
   }
 
-  private void addAudiences(
-      AuthnRequest authnRequest,
-      Response response,
-      List<String> spMetadata,
-      Set<Binding> supportedBindings) {
+  private void addAudiences(AuthnRequest authnRequest, Response response) {
     AudienceBuilder audienceBuilder = new AudienceBuilder();
     AudienceRestrictionBuilder audienceRestrictionBuilder = new AudienceRestrictionBuilder();
 
-    Collection<EntityInformation> entityInformationCollection =
-        parseServiceProviderMetadata(spMetadata, supportedBindings).values();
-
-    List<Audience> audienceList =
-        entityInformationCollection
-            .stream()
-            .map(
-                ei ->
-                    ei.getAssertionConsumerService(
-                        authnRequest, null, authnRequest.getAssertionConsumerServiceIndex()))
-            .map(ServiceInfo::getUrl)
-            .map(uri -> buildAudience(audienceBuilder, uri))
-            .collect(Collectors.toList());
+    // According to the SAML spec, on an AuthnRequest, "[t]he <Issuer> element MUST be present and
+    // MUST contain the unique identifier of the requesting service provider".
+    Audience audience = buildAudience(audienceBuilder, authnRequest.getIssuer().getValue());
 
     for (Assertion assertion : response.getAssertions()) {
       List<AudienceRestriction> audienceRestrictions =
@@ -119,7 +104,7 @@ public class SubjectConfirmationPresignPlugin implements SamlPresignPlugin {
       }
 
       for (AudienceRestriction restriction : audienceRestrictions) {
-        restriction.getAudiences().addAll(audienceList);
+        restriction.getAudiences().add(audience);
       }
     }
   }
