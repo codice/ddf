@@ -157,7 +157,7 @@ public class SessionManagementServiceTest {
             new StringBuffer("https://localhost:8993/services/internal/session/invalidate"));
     when(request.getQueryString()).thenReturn(null);
     Response invalidate = sessionManagementService.getInvalidate(request);
-    assertThat(invalidate.getStatus(), is(307));
+    assertThat(invalidate.getStatus(), is(303));
     assertThat(
         invalidate.getLocation(),
         is(equalTo(URI.create("https://localhost:8993/logout?noPrompt=true"))));
@@ -171,7 +171,7 @@ public class SessionManagementServiceTest {
                 "https://localhost:8993/services/internal/session/invalidate?prevurl=/admin/"));
     when(request.getQueryString()).thenReturn("prevurl=/admin/");
     Response invalidate = sessionManagementService.getInvalidate(request);
-    assertThat(invalidate.getStatus(), is(307));
+    assertThat(invalidate.getStatus(), is(303));
     assertThat(
         invalidate.getLocation(),
         is(equalTo(URI.create("https://localhost:8993/logout?noPrompt=true&prevurl=/admin/"))));

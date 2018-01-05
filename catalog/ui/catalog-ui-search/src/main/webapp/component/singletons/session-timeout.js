@@ -22,7 +22,7 @@ var invalidateUrl = '/services/internal/session/invalidate?prevurl=';
 var idleNoticeDuration = 60000;
 // Length of inactivity that will trigger user timeout (15 minutes in ms by default)
 // See STIG V-69243
-var idleTimeoutThreshold = parseInt(properties.ui.timeout) > 0 ? parseInt(properties.ui.timeout) : 900000;
+var idleTimeoutThreshold = parseInt(properties.timeout) > 0 ? parseInt(properties.timeout) : 900000;
 
 function getIdleTimeoutDate() {
     return idleTimeoutThreshold + Date.now();
@@ -53,7 +53,9 @@ var sessionTimeoutModel = new (Backbone.Model.extend({
         }
     },
     setPromptTimer: function () {
-        this.promptTimer = setTimeout(this.showPrompt.bind(this), this.get('idleTimeoutDate') - idleNoticeDuration - Date.now());
+        var timeout = this.get('idleTimeoutDate') - idleNoticeDuration - Date.now();
+        timeout = Math.max(0, timeout);
+        this.promptTimer = setTimeout(this.showPrompt.bind(this), timeout);
     },
     showPrompt: function () {
         this.set('showPrompt', true);
@@ -65,7 +67,9 @@ var sessionTimeoutModel = new (Backbone.Model.extend({
         clearTimeout(this.promptTimer);
     },
     setLogoutTimer: function () {
-        this.logoutTimer = setTimeout(this.logout.bind(this), this.get('idleTimeoutDate') - Date.now());
+        var timeout = this.get('idleTimeoutDate') - Date.now();
+        timeout = Math.max(0, timeout);
+        this.logoutTimer = setTimeout(this.logout.bind(this), timeout);
     },
     clearLogoutTimer: function () {
         clearTimeout(this.logoutTimer);
@@ -80,6 +84,9 @@ var sessionTimeoutModel = new (Backbone.Model.extend({
         $(document).off('keydown.sessionTimeout mousedown.sessionTimeout mousemove.sessionTimeout');
     },
     logout: function () {
+        if (window.onbeforeunload != null) {
+          window.onbeforeunload = null;
+        }
         window.location.replace(invalidateUrl + window.location.pathname);
     },
     renew: function () {
