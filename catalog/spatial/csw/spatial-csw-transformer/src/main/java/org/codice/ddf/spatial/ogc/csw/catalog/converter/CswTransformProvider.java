@@ -112,11 +112,13 @@ public class CswTransformProvider implements Converter {
   private void writeXml(BinaryContent content, HierarchicalStreamWriter writer) {
     try {
       XmlPullParser parser = XppFactory.createDefaultParser();
-      new HierarchicalStreamCopier()
-          .copy(
-              new XppReader(
-                  new InputStreamReader(content.getInputStream(), StandardCharsets.UTF_8), parser),
-              writer);
+      InputStreamReader inputStreamReader =
+          new InputStreamReader(content.getInputStream(), StandardCharsets.UTF_8);
+      try {
+        new HierarchicalStreamCopier().copy(new XppReader(inputStreamReader, parser), writer);
+      } finally {
+        IOUtils.closeQuietly(inputStreamReader);
+      }
     } catch (XmlPullParserException e) {
       throw new ConversionException("Unable to copy metadata to XML Output.", e);
     }
