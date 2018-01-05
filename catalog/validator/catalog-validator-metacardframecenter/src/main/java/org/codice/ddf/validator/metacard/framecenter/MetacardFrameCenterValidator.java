@@ -11,15 +11,14 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.validator.metacard.location;
+package org.codice.ddf.validator.metacard.framecenter;
 
-import ddf.catalog.data.types.Core;
+import ddf.catalog.data.types.Media;
 import org.codice.ddf.validator.metacard.wkt.MetacardWktValidator;
 import org.codice.ddf.validator.wkt.WktValidator;
 
-public class MetacardLocationValidator extends MetacardWktValidator {
-
-  public MetacardLocationValidator(WktValidator wktValidator) {
-    super(wktValidator, Core.LOCATION);
+public class MetacardFrameCenterValidator extends MetacardWktValidator {
+  public MetacardFrameCenterValidator(WktValidator wktValidator) {
+    super(wktValidator, Media.FRAME_CENTER);
   }
 }

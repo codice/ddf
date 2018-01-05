@@ -16,11 +16,11 @@
 
     <reference id="wktValidator" interface="org.codice.ddf.validator.wkt.WktValidator"/>
 
-    <bean id="metacardLocationValidator" class="org.codice.ddf.validator.metacard.location.MetacardLocationValidator">
+    <bean id="metacardFrameCenterValidator" class="org.codice.ddf.validator.metacard.framecenter.MetacardFrameCenterValidator">
         <argument ref="wktValidator"/>
     </bean>
-    
-    <service ref="metacardLocationValidator">
+
+    <service ref="metacardFrameCenterValidator">
         <interfaces>
             <value>ddf.catalog.validation.MetacardValidator</value>
             <value>ddf.catalog.validation.ReportingMetacardValidator</value>
