@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.spatial.geocoding.feature;
 
+import static ddf.catalog.Constants.GAZETTEER_METACARD_TAG;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
@@ -135,8 +136,7 @@ public class TestCatalogFeatureQueryable {
     assertThat(attributes, hasItems(Location.COUNTRY_CODE, Core.METACARD_TAGS, Core.METACARD_TAGS));
     assertThat(values, hasSize(3));
     assertThat(
-        values,
-        hasItems(COUNTRY_CODE, GeoCodingConstants.DEFAULT_TAG, GeoCodingConstants.COUNTRY_TAG));
+        values, hasItems(COUNTRY_CODE, GAZETTEER_METACARD_TAG, GeoCodingConstants.COUNTRY_TAG));
   }
 
   private QueryResponse getMockQueryResponse() {
@@ -150,7 +150,7 @@ public class TestCatalogFeatureQueryable {
     when(geographyAttribute.getValue()).thenReturn(WKT_STRING);
     when(metacard.getAttribute(Core.LOCATION)).thenReturn(geographyAttribute);
 
-    when(metacard.getTags()).thenReturn(Collections.singleton(GeoCodingConstants.DEFAULT_TAG));
+    when(metacard.getTags()).thenReturn(Collections.singleton(GAZETTEER_METACARD_TAG));
 
     QueryResponse queryResponse = mock(QueryResponse.class);
     Result result = mock(Result.class);

@@ -15,6 +15,7 @@ package ddf.catalog.source.solr;
 
 import static ddf.catalog.Constants.EXPERIMENTAL_FACET_PROPERTIES_KEY;
 import static ddf.catalog.Constants.EXPERIMENTAL_FACET_RESULTS_KEY;
+import static ddf.catalog.Constants.GAZETTEER_METACARD_TAG;
 import static ddf.catalog.Constants.SUGGESTION_REQUEST_KEY;
 import static ddf.catalog.Constants.SUGGESTION_RESULT_KEY;
 import static ddf.catalog.source.solr.DynamicSchemaResolver.FIRST_CHAR_OF_SUFFIX;
@@ -168,7 +169,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       query = new SolrQuery();
       query.setRequestHandler("/suggest");
       query.setParam(SUGGEST_Q, (String) suggestQueryProp);
-      query.setParam(SUGGEST_CONTEXT_FILTER_QUERY, "gazetteer");
+      query.setParam(SUGGEST_CONTEXT_FILTER_QUERY, GAZETTEER_METACARD_TAG);
     }
 
     long totalHits = 0;
@@ -187,7 +188,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
           try {
             tmpResult = createResult(doc);
           } catch (MetacardCreationException e) {
-            throw new UnsupportedQueryException("Could not create metacard(s).", e);
+            throw new UnsupportedQueryException("Could not create result metacard(s).", e);
           }
 
           results.add(tmpResult);
@@ -195,8 +196,10 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       }
 
       SuggesterResponse suggesterResponse = solrResponse.getSuggesterResponse();
+
       if (suggesterResponse != null) {
-        responseProps.put(SUGGESTION_RESULT_KEY, (Serializable) suggesterResponse.getSuggestions());
+        responseProps.put(
+            SUGGESTION_RESULT_KEY, (Serializable) suggesterResponse.getSuggestedTerms());
       }
 
       if (isFacetedQuery) {

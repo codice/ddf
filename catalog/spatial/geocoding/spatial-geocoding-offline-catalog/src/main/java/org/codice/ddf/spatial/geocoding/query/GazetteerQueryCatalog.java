@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.spatial.geocoding.query;
 
+import static ddf.catalog.Constants.GAZETTEER_METACARD_TAG;
 import static ddf.catalog.Constants.SUGGESTION_REQUEST_KEY;
 import static ddf.catalog.Constants.SUGGESTION_RESULT_KEY;
 
@@ -50,7 +51,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.solr.client.solrj.response.Suggestion;
 import org.codice.ddf.spatial.geocoding.GeoCodingConstants;
 import org.codice.ddf.spatial.geocoding.GeoEntry;
 import org.codice.ddf.spatial.geocoding.GeoEntryAttributes;
@@ -111,11 +111,7 @@ public class GazetteerQueryCatalog implements GeoEntryQueryable {
     }
 
     tagFilter =
-        filterBuilder
-            .attribute(Core.METACARD_TAGS)
-            .is()
-            .like()
-            .text(GeoCodingConstants.DEFAULT_TAG);
+        filterBuilder.attribute(Core.METACARD_TAGS).is().like().text(GAZETTEER_METACARD_TAG);
   }
 
   @Override
@@ -162,24 +158,20 @@ public class GazetteerQueryCatalog implements GeoEntryQueryable {
     try {
       QueryResponse suggestionResponse = catalogFramework.query(suggestionRequest);
 
-      Map<String, List<Suggestion>> suggestionMap =
-          (Map<String, List<Suggestion>>)
-              suggestionResponse.getPropertyValue(SUGGESTION_RESULT_KEY);
-      if (suggestionMap != null) {
+      if (suggestionResponse.getPropertyValue(SUGGESTION_RESULT_KEY) instanceof Map) {
+        Map<String, List<String>> suggestionMap =
+            (Map<String, List<String>>) suggestionResponse.getPropertyValue(SUGGESTION_RESULT_KEY);
         return suggestionMap
             .values()
             .stream()
             .flatMap(List::stream)
             .limit(maxResults)
-            .map(Suggestion::getTerm)
             .collect(Collectors.toList());
       }
 
     } catch (SourceUnavailableException | FederationException | UnsupportedQueryException e) {
-      LOGGER.debug("Suggestion query failed", e);
       throw new GeoEntryQueryException("Failed to execute suggestion query", e);
     }
-
     return Collections.emptyList();
   }
 

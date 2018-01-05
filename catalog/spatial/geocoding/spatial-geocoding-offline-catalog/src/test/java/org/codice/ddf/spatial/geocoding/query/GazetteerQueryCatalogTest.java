@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.spatial.geocoding.query;
 
+import static ddf.catalog.Constants.GAZETTEER_METACARD_TAG;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.is;
@@ -321,7 +322,7 @@ public class GazetteerQueryCatalogTest {
     metacard.setAttribute(
         new AttributeImpl(
             Core.METACARD_TAGS,
-            Arrays.asList(GeoCodingConstants.DEFAULT_TAG, GeoCodingConstants.GEONAMES_TAG)));
+            Arrays.asList(GAZETTEER_METACARD_TAG, GeoCodingConstants.GEONAMES_TAG)));
     return metacard;
   }
 

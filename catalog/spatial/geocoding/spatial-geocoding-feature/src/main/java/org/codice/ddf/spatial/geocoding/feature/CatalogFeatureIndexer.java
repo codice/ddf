@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.spatial.geocoding.feature;
 
+import static ddf.catalog.Constants.GAZETTEER_METACARD_TAG;
+
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.WKTWriter;
 import ddf.catalog.CatalogFramework;
@@ -134,7 +136,7 @@ public class CatalogFeatureIndexer implements FeatureIndexer {
       metacard.setAttribute(new AttributeImpl(Core.LOCATION, wkt));
 
       List<Serializable> tags =
-          Arrays.asList(GeoCodingConstants.DEFAULT_TAG, GeoCodingConstants.COUNTRY_TAG);
+          Arrays.asList(GAZETTEER_METACARD_TAG, GeoCodingConstants.COUNTRY_TAG);
       metacard.setAttribute(new AttributeImpl(Core.METACARD_TAGS, tags));
       return metacard;
     }

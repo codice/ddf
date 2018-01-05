@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.spatial.geocoding.feature;
 
+import static ddf.catalog.Constants.GAZETTEER_METACARD_TAG;
+
 import ddf.catalog.data.types.Core;
 import ddf.catalog.data.types.Location;
 import ddf.catalog.filter.FilterBuilder;
@@ -32,11 +34,7 @@ public class CatalogHelper {
   public CatalogHelper(FilterBuilder filterBuilder) {
     this.filterBuilder = filterBuilder;
     gazetteerFilter =
-        filterBuilder
-            .attribute(Core.METACARD_TAGS)
-            .is()
-            .like()
-            .text(GeoCodingConstants.DEFAULT_TAG);
+        filterBuilder.attribute(Core.METACARD_TAGS).is().like().text(GAZETTEER_METACARD_TAG);
     countryShapeFilter =
         filterBuilder
             .attribute(Core.METACARD_TAGS)

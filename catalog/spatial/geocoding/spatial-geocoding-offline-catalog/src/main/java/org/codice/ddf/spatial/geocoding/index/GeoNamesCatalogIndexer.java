@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.spatial.geocoding.index;
 
+import static ddf.catalog.Constants.GAZETTEER_METACARD_TAG;
+
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -106,7 +108,7 @@ public class GeoNamesCatalogIndexer implements GeoEntryIndexer {
                 .attribute(Core.METACARD_TAGS)
                 .is()
                 .equalTo()
-                .text(GeoCodingConstants.DEFAULT_TAG));
+                .text(GAZETTEER_METACARD_TAG));
   }
 
   private Metacard transformGeoEntryToMetacard(GeoEntry geoEntry) {
@@ -138,7 +140,7 @@ public class GeoNamesCatalogIndexer implements GeoEntryIndexer {
     metacard.setAttribute(
         new AttributeImpl(
             Core.METACARD_TAGS,
-            Arrays.asList(GeoCodingConstants.DEFAULT_TAG, GeoCodingConstants.GEONAMES_TAG)));
+            Arrays.asList(GAZETTEER_METACARD_TAG, GeoCodingConstants.GEONAMES_TAG)));
     return metacard;
   }
 

@@ -43,8 +43,6 @@ public final class GeoCodingConstants {
 
   public static final String CAPITAL = "C";
 
-  public static final String DEFAULT_TAG = "gazetteer";
-
   public static final String COUNTRY_TAG = "country-shape";
 
   public static final String GEONAMES_TAG = "geonames";

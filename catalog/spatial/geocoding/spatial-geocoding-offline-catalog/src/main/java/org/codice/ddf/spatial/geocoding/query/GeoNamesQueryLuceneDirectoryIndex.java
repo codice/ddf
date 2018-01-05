@@ -108,7 +108,8 @@ public class GeoNamesQueryLuceneDirectoryIndex extends GeoNamesQueryLuceneIndex 
   @Override
   public List<String> getSuggestedNames(String queryString, int maxResults)
       throws GeoEntryQueryException {
-    return null;
+    LOGGER.debug("getSuggestedNames is not implemented for GeoNamesQueryLuceneDirectoryIndex");
+    return Collections.emptyList();
   }
 
   @Override

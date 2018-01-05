@@ -124,11 +124,6 @@
             <groupId>ddf.catalog.core</groupId>
             <artifactId>filter-proxy</artifactId>
         </dependency>
-        <dependency>
-            <groupId>ddf.catalog.core</groupId>
-            <artifactId>catalog-core-solr</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <!-- Test dependencies -->
         <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
