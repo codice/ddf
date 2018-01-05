@@ -14,11 +14,15 @@
 package org.codice.ddf.condition;
 
 import java.util.Dictionary;
+import java.util.concurrent.ConcurrentHashMap;
 import org.osgi.framework.Bundle;
 import org.osgi.service.condpermadmin.Condition;
 import org.osgi.service.condpermadmin.ConditionInfo;
 
 public class BundleNameCondition implements Condition {
+
+  private static final ConcurrentHashMap<String, Boolean> decisionMap =
+      new ConcurrentHashMap<>(100000);
 
   private Bundle bundle;
   private String[] args;
@@ -35,8 +39,18 @@ public class BundleNameCondition implements Condition {
 
   @Override
   public boolean isSatisfied() {
+    if (args.length == 0) {
+      return false;
+    }
     String bundleName = bundle.getHeaders().get("Bundle-SymbolicName");
-    return args.length != 0 && bundleName.contains(args[0]);
+    String key = bundleName + args[0];
+    Boolean storedResult = decisionMap.get(key);
+    if (storedResult != null) {
+      return storedResult;
+    }
+    boolean result = bundleName.contains(args[0]);
+    decisionMap.put(key, result);
+    return result;
   }
 
   @Override

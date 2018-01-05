@@ -150,6 +150,10 @@ grant codeBase "file:/org.apache.karaf.services.eventadmin" {
     permission java.lang.RuntimePermission "createClassLoader";
 }
 
+grant codeBase "file:/org.ops4j.pax.swissbox.core" {
+    permission java.lang.RuntimePermission "createClassLoader";
+}
+
 grant codeBase "file:/persistence-core-impl" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
     permission java.lang.RuntimePermission "createClassLoader";
@@ -195,22 +199,29 @@ grant codeBase "file:/org.apache.cxf.cxf-core" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}bin_third_party{/}-", "read,execute";
+    permission java.io.FilePermission "<<ALL FILES>>", "execute";
 }
 
 grant codeBase "file:/org.apache.cxf.cxf-rt-frontend-jaxrs" {
+    permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}bin_third_party{/}-", "read,execute";
+    permission java.io.FilePermission "<<ALL FILES>>", "execute";
 }
 
 grant codeBase "file:/org.apache.cxf.cxf-rt-frontend-jaxws" {
+    permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}bin_third_party{/}-", "read,execute";
 }
 
 grant codeBase "file:/org.apache.cxf.cxf-rt-transports-http" {
@@ -221,7 +232,12 @@ grant codeBase "file:/org.apache.cxf.cxf-rt-transports-http" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}bin_third_party{/}-", "read,execute";
+    permission java.io.FilePermission "<<ALL FILES>>", "execute";
+    permission java.security.SecurityPermission "insertProvider";
 }
 
 grant codeBase "file:/org.apache.cxf.cxf-rt-ws-security" {
@@ -244,8 +260,6 @@ grant codeBase "file:/org.apache.cxf.cxf-rt-wsdl" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
 }
 
-
-
 grant codeBase "file:/org.ops4j.pax.web.pax-web-spi" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
     permission java.lang.RuntimePermission "createClassLoader";
@@ -264,7 +278,9 @@ grant codeBase "file:/org.ops4j.pax.web.pax-web-runtime" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}bin_third_party{/}-", "read,execute";
     permission java.lang.RuntimePermission "createClassLoader";
+    permission java.security.SecurityPermission "insertProvider";
 }
 
 grant codeBase "file:/org.ops4j.pax.web.pax-web-jetty" {
@@ -276,7 +292,9 @@ grant codeBase "file:/org.ops4j.pax.web.pax-web-jetty" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}bin_third_party{/}-", "read,execute";
     permission java.lang.RuntimePermission "createClassLoader";
+    permission java.security.SecurityPermission "insertProvider";
 }
 
 grant codeBase "file:/org.ops4j.pax.web.pax-web-extender-whiteboard" {
@@ -288,7 +306,9 @@ grant codeBase "file:/org.ops4j.pax.web.pax-web-extender-whiteboard" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}bin_third_party{/}-", "read,execute";
     permission java.lang.RuntimePermission "createClassLoader";
+    permission java.security.SecurityPermission "insertProvider";
 }
 
 grant codeBase "file:/org.ops4j.pax.web.pax-web-extender-war" {
@@ -316,7 +336,9 @@ grant codeBase "file:/org.eclipse.jetty.util" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}bin_third_party{/}-", "read,execute";
     permission java.lang.RuntimePermission "createClassLoader";
+    permission java.security.SecurityPermission "insertProvider";
 }
 
 grant codeBase "file:/org.eclipse.jetty.server" {
@@ -328,7 +350,9 @@ grant codeBase "file:/org.eclipse.jetty.server" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}bin_third_party{/}-", "read,execute";
     permission java.lang.RuntimePermission "createClassLoader";
+    permission java.security.SecurityPermission "insertProvider";
 }
 
 grant codeBase "file:/org.eclipse.jetty.servlet" {
@@ -341,10 +365,14 @@ grant codeBase "file:/org.eclipse.jetty.servlet" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}bin_third_party{/}-", "read,execute";
+    permission java.io.FilePermission "<<ALL FILES>>", "execute";
+    permission java.security.SecurityPermission "insertProvider";
 }
 
 grant codeBase "file:/org.eclipse.jetty.security" {
     permission java.lang.RuntimePermission "createClassLoader";
+    permission java.security.SecurityPermission "insertProvider";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
@@ -353,10 +381,12 @@ grant codeBase "file:/org.eclipse.jetty.security" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}bin_third_party{/}-", "read,execute";
 }
 
 grant codeBase "file:/org.eclipse.jetty.io" {
     permission java.lang.RuntimePermission "createClassLoader";
+    permission java.security.SecurityPermission "insertProvider";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
@@ -365,19 +395,22 @@ grant codeBase "file:/org.eclipse.jetty.io" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}bin_third_party{/}-", "read,execute";
 }
 
 grant codeBase "file:/javax.servlet-api" {
+    permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}metadata${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}bin_third_party{/}-", "read,execute";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
-    permission java.lang.RuntimePermission "createClassLoader";
-
+    permission java.io.FilePermission "<<ALL FILES>>", "execute";
+    permission java.security.SecurityPermission "insertProvider";
 }
 
 grant codeBase "file:/org.apache.karaf.shell.ssh" {
@@ -441,6 +474,9 @@ grant codeBase "file:/org.apache.shiro.core" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}bin_third_party{/}-", "read,execute";
+    permission java.security.SecurityPermission "insertProvider";
+    permission java.lang.RuntimePermission "createClassLoader";
 }
 
 grant codeBase "file:/org.apache.tika.core" {
@@ -451,6 +487,10 @@ grant codeBase "file:/org.codice.thirdparty.tika-bundle" {
     permission java.io.FilePermission "<<ALL FILES>>", "execute";
 }
 
+grant codeBase "file:/tika-input-transformer" {
+    permission java.io.FilePermission "<<ALL FILES>>", "execute";
+}
+
 grant codeBase "file:/security-encryption-impl" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}certs${/}-", "read,write";
 }
@@ -458,6 +498,7 @@ grant codeBase "file:/security-encryption-impl" {
 grant codeBase "file:/security-handler-pki" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.lang.RuntimePermission "getClassLoader";
 }
 
 grant codeBase "file:/security-handler-guest" {
@@ -501,7 +542,7 @@ grant codeBase "file:/org.apache.wss4j.wss4j-ws-security-dom" {
 grant codeBase "file:/security-pdp-authzrealm" {
     //This is a bug in Arbitro and should not be here
     permission java.io.FilePermission "${ddf.home.perm}src${/}main${/}resources${/}-", "read";
-    permission java.io.FilePermission "${ddf.home.perm}etc${/}pdp${/}policies${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}pdp${/}-", "read";
     permission java.lang.RuntimePermission "modifyThread";
 }
 
@@ -528,6 +569,7 @@ grant codeBase "file:/admin-core-jolokia" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
+    permission java.security.SecurityPermission "insertProvider";
 }
 
 grant codeBase "file:/security-core-impl" {
@@ -591,6 +633,10 @@ grant codeBase "file:/platform-filter-delegate" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}bin_third_party{/}-", "read,execute";
+    permission java.lang.RuntimePermission "createClassLoader";
+    permission java.io.FilePermission "<<ALL FILES>>", "execute";
+    permission java.security.SecurityPermission "insertProvider";
 }
 
 grant codeBase "file:/platform-filter-clientinfo" {
@@ -602,6 +648,10 @@ grant codeBase "file:/platform-filter-clientinfo" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}bin_third_party{/}-", "read,execute";
+    permission java.lang.RuntimePermission "createClassLoader";
+    permission java.io.FilePermission "<<ALL FILES>>", "execute";
+    permission java.security.SecurityPermission "insertProvider";
 }
 
 grant codeBase "file:/platform-filter-response" {
@@ -613,6 +663,10 @@ grant codeBase "file:/platform-filter-response" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}bin_third_party{/}-", "read,execute";
+    permission java.lang.RuntimePermission "createClassLoader";
+    permission java.io.FilePermission "<<ALL FILES>>", "execute";
+    permission java.security.SecurityPermission "insertProvider";
 }
 
 grant codeBase "file:/security-filter-authorization" {
@@ -624,6 +678,10 @@ grant codeBase "file:/security-filter-authorization" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}bin_third_party{/}-", "read,execute";
+    permission java.lang.RuntimePermission "createClassLoader";
+    permission java.io.FilePermission "<<ALL FILES>>", "execute";
+    permission java.security.SecurityPermission "insertProvider";
 }
 
 grant codeBase "file:/security-filter-login" {
@@ -635,6 +693,10 @@ grant codeBase "file:/security-filter-login" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}bin_third_party{/}-", "read,execute";
+    permission java.lang.RuntimePermission "createClassLoader";
+    permission java.io.FilePermission "<<ALL FILES>>", "execute";
+    permission java.security.SecurityPermission "insertProvider";
 }
 
 grant codeBase "file:/security-filter-web-sso" {
@@ -646,6 +708,10 @@ grant codeBase "file:/security-filter-web-sso" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}system.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.properties", "read,write";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}users.attributes", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}bin_third_party{/}-", "read,execute";
+    permission java.lang.RuntimePermission "createClassLoader";
+    permission java.io.FilePermission "<<ALL FILES>>", "execute";
+    permission java.security.SecurityPermission "insertProvider";
 }
 
 grant codeBase "file:/org.apache.commons.io" {
@@ -665,6 +731,7 @@ grant codeBase "file:/admin-configuration-configupdater" {
 
 grant codeBase "file:/catalog-core-standardframework" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.io.FilePermission "<<ALL FILES>>", "execute";
 }
 
 grant codeBase "file:/catalog-plugin-videothumbnail" {
@@ -708,10 +775,92 @@ grant codeBase "file:/catalog-solr-solrclient" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
 }
 
+grant codeBase "file:/sample-soap-endpoint" {
+    permission java.io.FilePermission "<<ALL FILES>>", "read,write,delete";
+    permission java.io.FilePermission "-", "read,write,delete";
+    permission java.io.FilePermission "bundleresource:${/}-", "read,write,delete";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}server${/}-", "read,write";
+    permission java.io.FilePermission "${ddf.home.perm}etc${/}ws-security${/}issuer${/}-", "read,write";
+}
+
+grant codeBase "file:/broker-route-manager" {
+    permission java.lang.RuntimePermission "createClassLoader";
+}
+
+grant codeBase "file:/solr-banana-provisioner" {
+    permission java.util.PropertyPermission "solr.client", "read,write";
+}
+
+grant codeBase "file:/io.netty.common" {
+    permission java.io.FilePermission "${/}proc${/}sys${/}net${/}core${/}somaxconn", "read";
+}
+
+grant codeBase "file:/registry-api-impl" {
+    permission java.lang.RuntimePermission "createClassLoader";
+}
+
+grant codeBase "file:/catalog-plugin-metacardbackup-filestorage" {
+    permission java.lang.RuntimePermission "createClassLoader";
+}
+
+grant codeBase "file:/catalog-rest-endpoint" {
+    permission java.io.FilePermission "<<ALL FILES>>", "execute";
+}
+
+grant codeBase "file:/ftp" {
+    permission java.io.FilePermission "<<ALL FILES>>", "execute";
+}
+
+grant codeBase "file:/org.apache.servicemix.bundles.xstream" {
+    permission java.lang.RuntimePermission "createClassLoader";
+}
+
+grant codeBase "file:/spatial-csw-endpoint" {
+    permission java.lang.RuntimePermission "createClassLoader";
+}
+
+grant codeBase "file:/platform-http-proxy" {
+    permission java.lang.RuntimePermission "createClassLoader";
+}
+
+grant codeBase "file:/security-certificate-generator" {
+    permission java.security.SecurityPermission "insertProvider";
+}
+
+//
+// itest specific perms
+//
+grant codeBase "file:/ddf.thirdparty.rest-assured" {
+    permission java.io.FilePermission "<<ALL FILES>>", "read";
+    permission java.io.FilePermission "-", "read";
+    permission java.lang.RuntimePermission "createClassLoader";
+}
+
+grant codeBase "file:/PAXEXAM-PROBE" {
+    permission java.lang.RuntimePermission "createClassLoader";
+}
+
+grant codeBase "file:/ddf.test.itests.test-itests-common" {
+    permission java.lang.RuntimePermission "createClassLoader";
+}
+
+grant codeBase "file:/org.ops4j.pax.exam.invoker.junit" {
+    permission java.lang.RuntimePermission "createClassLoader";
+}
+
+grant codeBase "file:/org.ops4j.pax.exam.rbc" {
+    permission java.lang.RuntimePermission "createClassLoader";
+}
+
+grant codeBase "file:/org.ops4j.pax.tipi.junit" {
+    permission java.lang.RuntimePermission "createClassLoader";
+}
+
 grant {
     // User's home directory
     permission java.io.FilePermission "${user.home}", "read, write";
-    permission java.io.FilePermission "${user.home}${/}-", "read, write";
+    permission java.io.FilePermission "${user.home}${/}-", "read, write, delete";
 
     // Schema and Schematron directories
     permission java.io.FilePermission "${ddf.home.perm}schema${/}-", "read";
@@ -727,6 +876,7 @@ grant {
 
     // System libraries
     permission java.io.FilePermission "/dev/urandom", "read";
+    permission java.io.FilePermission "\\dev\\urandom", "read";
     permission java.io.FilePermission "/lib", "read";
     permission java.io.FilePermission "/proc/self/exe", "read";
     permission java.io.FilePermission "/usr/lib", "read";
@@ -765,6 +915,8 @@ grant {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}pdp${/}-", "read";
 
     permission java.io.FilePermission "${ddf.home.perm}wrap:jardir:${ddf.home.perm}etc${/}-", "read";
+
+    permission java.io.FilePermission "${/}groovy${/}shell", "read";
 
     permission javax.management.MBeanServerPermission "createMBeanServer";
     permission java.util.PropertyPermission "*", "read, write";

@@ -914,8 +914,8 @@ public abstract class AbstractIntegrationTest {
    * provided {@link #UNPACK_DIRECTORY}.
    */
   static class HomePolicyVmOption extends VMOption {
-    static HomeAwareVmOption homePolicyVmOption(String option) {
-      return new HomeAwareVmOption(option);
+    static HomePolicyVmOption homePolicyVmOption(String option) {
+      return new HomePolicyVmOption(option);
     }
 
     private HomePolicyVmOption(String option) {
@@ -944,8 +944,9 @@ public abstract class AbstractIntegrationTest {
             .map(s -> StringUtils.replace(super.getOption(), "{karaf.home}", s))
             .map(s -> s.replace('\\', '/'))
             .map(s -> s.replace("/bin/..", "/"))
-            .map(s -> "/" + s)
             .map(s -> s.replace("c:", "C:"))
+            .map(s -> s.replace("C:", "/C:"))
+            .map(s -> s + "/")
             .orElseGet(super::getOption);
       } catch (IOException e) {
         throw new RuntimeException("Unable to determine current exam directory", e);
@@ -958,8 +959,8 @@ public abstract class AbstractIntegrationTest {
    * provided {@link #UNPACK_DIRECTORY}.
    */
   static class HomePermVmOption extends VMOption {
-    static HomeAwareVmOption homePermVmOption(String option) {
-      return new HomeAwareVmOption(option);
+    static HomePermVmOption homePermVmOption(String option) {
+      return new HomePermVmOption(option);
     }
 
     private HomePermVmOption(String option) {
@@ -986,8 +987,8 @@ public abstract class AbstractIntegrationTest {
             .map(Path::toAbsolutePath)
             .map(Path::toString)
             .map(s -> StringUtils.replace(super.getOption(), "{karaf.home}", s))
-            .map(s -> s.replace("\\bin\\..", "\\"))
-            .map(s -> s.replace("\\", "\\\\"))
+            .map(s -> s.replace(File.separator + "bin" + File.separator + "..", File.separator))
+            .map(s -> s + File.separator)
             .orElseGet(super::getOption);
       } catch (IOException e) {
         throw new RuntimeException("Unable to determine current exam directory", e);

@@ -83,3 +83,7 @@
 (java.net.SocketPermission "*:0" "listen,resolve")
 (java.util.PropertyPermission "*" "read,write")
 (org.osgi.framework.AdminPermission" "*" "context")
+
+(org.osgi.framework.BundlePermission "platform-osgi-configadmin" "provide,require,host")
+(org.osgi.framework.CapabilityPermission "osgi.identity" "provide")
+(org.osgi.framework.CapabilityPermission "osgi.service" "provide")

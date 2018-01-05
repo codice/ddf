@@ -24,7 +24,6 @@ import net.sourceforge.prograde.policyparser.ParsedPolicyEntry;
 import net.sourceforge.prograde.policyparser.ParsedPrincipal;
 import net.sourceforge.prograde.policyparser.Parser;
 import net.sourceforge.prograde.type.Priority;
-import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.text.StrSubstitutor;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -53,11 +52,7 @@ public class PermissionActivator implements BundleActivator {
 
   @Override
   public void start(BundleContext bundleContext) throws Exception {
-    String separator = File.separator;
-    if (SystemUtils.IS_OS_WINDOWS) {
-      separator = File.separator + File.separator;
-    }
-    System.setProperty("/", separator);
+    System.setProperty("/", File.separator);
     permAdminTracker = new ServiceTracker<>(bundleContext, PERM_ADMIN_SERVICE_NAME, null);
     permAdminTracker.open();
 
@@ -176,6 +171,8 @@ public class PermissionActivator implements BundleActivator {
           new ConditionInfo(
               BUNDLE_NAME_CONDITION,
               new String[] {replaceSystemProperties(getBundleName(codebase))}));
+    } else {
+      conditionInfos.add(new ConditionInfo(BUNDLE_NAME_CONDITION, new String[] {""}));
     }
   }
 
