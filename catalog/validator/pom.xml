@@ -26,8 +26,9 @@
     <name>DDF :: Catalog :: Validator</name>
     <modules>
         <module>catalog-validator-metacardduplication</module>
-        <module>catalog-validator-metacardlocation</module>
         <module>catalog-validator-wkt</module>
+        <module>catalog-validator-metacardwkt</module>
+        <module>catalog-validator-metacardlocation</module>
         <module>catalog-validator-metacardframecenter</module>
     </modules>
 </project>
