@@ -33,8 +33,9 @@ rem karaf script afterwards.
 rem
 
 rem Set environment variable for DDF home directory (used by DDF Java code)
-set DDF_HOME=%~dp0%..
-set DDF_HOME=%DDF_HOME:\=/%
+rem DDF-3433: Settings for DDF_HOME and related items have been migrated to etc/system.properties
+rem set DDF_HOME=%~dp0%..
+rem set DDF_HOME=%DDF_HOME:\=/%
 
 rem
 rem The following section shows the possible configuration options for the default 
@@ -61,27 +62,6 @@ rem SET KARAF_OPTS=
 rem Uncomment out the line below to enable cxf logging interceptors
 rem set EXTRA_JAVA_OPTS="-Dcom.sun.xml.ws.transport.http.HttpAdapter.dump=true"
 
-set DDF_HOME_POLICY=/%DDF_HOME:/bin/..=/%
-
-rem
-rem Admins can uncomment the following line and comment out the other definition of
-rem the KARAF_SYSTEM_OPTS variable in order to determine any missing security permissions
-rem should they install third-party bundles requiring additional access.
-rem
-rem Please note that turning on the PolicyFileGeneratorJSM has the side-effect of turning off
-rem security on your system. It should be used with caution, only to ascertain missing
-rem permissions to be added to the default.policy file.
-rem
-rem N.B. The use of the double equals on the 'java.security.policy' property is intentional.
-rem See http://docs.oracle.com/javase/7/docs/technotes/guides/security/PolicyFiles.html#DefaultLocs
-rem for more information.
-rem
-rem set KARAF_SYSTEM_OPTS=-Dprograde.generated.policy="%DDF_HOME%/generated.policy" -Dprograde.use.own.policy=true -Dpolicy.provider=net.sourceforge.prograde.policy.ProGradePolicy -Djava.security.manager=net.sourceforge.prograde.sm.PolicyFileGeneratorJSM -Djava.security.policy==%DDF_HOME%\security\default.policy -DproGrade.getPermissions.override=sun.rmi.server.LoaderHandler:loadClass,org.apache.jasper.compiler.JspRuntimeContext:initSecurity
-rem
-rem The Security Manager is turned off by default in DDF.
-rem
-rem set KARAF_SYSTEM_OPTS=-Dpolicy.provider=net.sourceforge.prograde.policy.ProGradePolicy -Djava.security.manager=net.sourceforge.prograde.sm.ProGradeJSM -Djava.security.policy==%DDF_HOME%\security\default.policy -DproGrade.getPermissions.override=sun.rmi.server.LoaderHandler:loadClass,org.apache.jasper.compiler.JspRuntimeContext:initSecurity
-
 rem The following defines an environment variable referencing our script to be executed by the JVM
 rem when errors are detected. Unfortunately, forking the error process from Java does not expand
 rem variables as it does on Linux. Because the environment variable will be expanded by the batch
@@ -99,5 +79,6 @@ rem Defines the special on-error Java options
 rem set JAVA_ERROR_OPTS=-XX:OnOutOfMemoryError=%DDF_ON_ERROR%%%p -XX:OnError=%DDF_ON_ERROR%%%p
 set JAVA_ERROR_OPTS=-XX:OnOutOfMemoryError=%DDF_ON_ERROR% -XX:OnError=%DDF_ON_ERROR%
 
-set KARAF_OPTS=-Dfile.encoding=UTF8 -Dddf.home=%DDF_HOME% -Dddf.home.policy=%DDF_HOME_POLICY% 
-set JAVA_OPTS=-Xms2g -Xmx4g -Dderby.system.home="%DDF_HOME%\data\derby" -Dderby.storage.fileSyncTransactionLog=true -XX:+DisableAttachMechanism %JAVA_ERROR_OPTS%
+set KARAF_OPTS=-Dfile.encoding=UTF8
+
+set JAVA_OPTS=-Xms2g -Xmx4g -Dderby.storage.fileSyncTransactionLog=true -Dfile.encoding=UTF8 -XX:+DisableAttachMechanism %JAVA_ERROR_OPTS%
