@@ -406,4 +406,8 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
   public void setSrs(String srs) {
     this.srs = srs;
   }
+
+  public String getSrs() {
+    return srs;
+  }
 }

@@ -1,0 +1,104 @@
+:title: WFS 1.1.0 Federated Source
+:id: Wfs_v1_1_0_Federated_Source
+:type: table
+:status: published
+:application: ${ddf-spatial}
+:summary: WFS 1.1.0 Federated Source.
+
+.[[Wfs_v1_1_0_Federated_Source]]WFS v1.1.0 Federated Source
+[cols="1,1m,1,3,1,1" options="header"]
+|===
+
+|Name
+|Id
+|Type
+|Description
+|Default Value
+|Required
+
+|Source ID
+|id
+|String
+|The unique name of the Source
+|WFS
+|true
+
+|WFS URL
+|wfsUrl
+|String
+|URL to the endpoint implementing the Web Feature Service (WFS) spec
+|null
+|true
+
+|Disable CN Check
+|disableCnCheck
+|Boolean
+|Disable CN check for the server certificate. This should only be used when testing.
+|false
+|true
+
+|Coordinate Order
+|coordinateOrder
+|String
+|Coordinate order that remote source expects and returns spatial data in
+|LAT_LON
+|true
+
+|Forced Feature Type
+|forcedFeatureType
+|String
+|Force only a specific FeatureType to be queried instead of all featureTypes
+|null
+|false
+
+|Username
+|username
+|String
+|Username for WFS Service (optional)
+|null
+|false
+
+|Password
+|password
+|Password
+|Password for WFS Service (optional)
+|null
+|false
+
+|Non Queryable Properties
+|nonQueryableProperties
+|String
+|Properties listed here will NOT be queryable and any attempt to filter on these properties will result in an exception.
+|null
+|false
+
+|Poll Interval
+|pollInterval
+|Integer
+|Poll Interval to Check if the Source is available (in minutes - minimum 1).
+|5
+|true
+
+|Forced Spatial Filter Type
+|forceSpatialFilter
+|String
+|Force only the selected Spatial Filter Type as the only available Spatial Filter.
+|NO_FILTER
+|false
+
+|Connection Timeout
+|connectionTimeout
+|Integer
+|Amount of time to attempt to establish a connection before timing out, in milliseconds.
+|30000
+|true
+
+|Receive Timeout
+|receiveTimeout
+|Integer
+|Amount of time to wait for a response before timing out, in milliseconds.
+|60000
+|true
+
+|===
+

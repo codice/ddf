@@ -128,6 +128,16 @@
         </dependency>
         <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>spatial-wfs-v1_1_0-converter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>spatial-wfs-v1_1_0-source</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
             <artifactId>spatial-wfs-v2_0_0-source</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -234,6 +244,11 @@
         <dependency>
             <groupId>org.codice.ddf.spatial</groupId>
             <artifactId>spatial-wps-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codice.ddf.spatial</groupId>
+            <artifactId>spatial-wfs-common</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

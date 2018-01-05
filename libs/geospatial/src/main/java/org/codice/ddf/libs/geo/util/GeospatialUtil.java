@@ -35,6 +35,8 @@ public class GeospatialUtil {
 
   public static final String EPSG_4326_URN = "urn:ogc:def:crs:EPSG::4326";
 
+  public static final String EPSG_X_4326_URN = "urn:x-ogc:def:crs:EPSG:4326";
+
   public static final String LAT_LON_ORDER = "LAT_LON";
 
   public static final String LON_LAT_ORDER = "LON_LAT";
