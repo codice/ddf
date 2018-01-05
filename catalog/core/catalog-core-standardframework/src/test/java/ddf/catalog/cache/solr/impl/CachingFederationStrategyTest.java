@@ -62,6 +62,7 @@ import ddf.catalog.plugin.PreFederatedQueryPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.source.CatalogProvider;
 import ddf.catalog.source.Source;
+import ddf.catalog.source.UnsupportedQueryException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -98,7 +99,7 @@ public class CachingFederationStrategyTest {
 
   @Mock private PreFederatedQueryPlugin preQueryPlugin;
 
-  private MetacardImpl mockMetacard;
+  private MetacardImpl metacard;
 
   @Mock private SourceResponse mockResponse;
 
@@ -106,7 +107,7 @@ public class CachingFederationStrategyTest {
 
   @Mock private SortedQueryMonitor mockSortedQueryMonitor;
 
-  @Mock private SolrClientAdaptor clientAdaptor;
+  @Mock private SolrClientAdaptor mockClientAdaptor;
 
   @Mock private SolrCache cache;
 
@@ -171,10 +172,10 @@ public class CachingFederationStrategyTest {
     when(mockQuery.getTimeoutMillis()).thenReturn(LONG_TIMEOUT);
     when(mockQuery.getPageSize()).thenReturn(-1);
 
-    mockMetacard = new MetacardImpl();
-    mockMetacard.setId("mock metacard");
+    metacard = new MetacardImpl();
+    metacard.setId("mock metacard");
 
-    Result mockResult = new ResultImpl(mockMetacard);
+    Result mockResult = new ResultImpl(metacard);
 
     List<Result> results = Arrays.asList(mockResult);
     when(mockResponse.getResults()).thenReturn(results);
@@ -194,11 +195,6 @@ public class CachingFederationStrategyTest {
 
     QueryRequest fedQueryRequest = new QueryRequestImpl(mockQuery, false, sourceIds, properties);
 
-    Source mockSource = mock(Source.class);
-    when(mockSource.getId()).thenReturn("1");
-
-    when(mockSource.query(any(QueryRequest.class))).thenReturn(mockResponse);
-
     List<Source> sourceList = ImmutableList.of();
 
     when(mockResponse.getHits()).thenReturn((long) sourceList.size());
@@ -214,10 +210,7 @@ public class CachingFederationStrategyTest {
 
     QueryRequest fedQueryRequest = new QueryRequestImpl(mockQuery, false, sourceIds, properties);
 
-    Source mockSource = mock(Source.class);
-    when(mockSource.getId()).thenReturn("1");
-
-    when(mockSource.query(any(QueryRequest.class))).thenReturn(mockResponse);
+    Source mockSource = getMockSource();
 
     List<Source> sourceList = ImmutableList.of(mockSource, mockSource, mockSource);
 
@@ -234,10 +227,7 @@ public class CachingFederationStrategyTest {
 
     QueryRequest fedQueryRequest = new QueryRequestImpl(mockQuery, false, sourceIds, properties);
 
-    Source mockSource = mock(Source.class);
-    when(mockSource.getId()).thenReturn("1");
-
-    when(mockSource.query(any(QueryRequest.class))).thenReturn(mockResponse);
+    Source mockSource = getMockSource();
 
     List<Source> sourceList = ImmutableList.of(mockSource, mockSource, mockSource);
 
@@ -253,11 +243,6 @@ public class CachingFederationStrategyTest {
     List<String> sourceIds = ImmutableList.of("1");
 
     QueryRequest fedQueryRequest = new QueryRequestImpl(mockQuery, false, sourceIds, properties);
-
-    Source mockSource = mock(Source.class);
-    when(mockSource.getId()).thenReturn("1");
-
-    when(mockSource.query(any(QueryRequest.class))).thenReturn(mockResponse);
 
     List<Source> sourceList = ImmutableList.of();
 
@@ -615,7 +600,7 @@ public class CachingFederationStrategyTest {
   @Test
   public void testProcessUpdateResponseSolrServiceTitle() throws Exception {
     Map<String, Serializable> testMap = new HashMap<>();
-    SolrCacheSource cacheSource = new SolrCacheSource(new SolrCache(clientAdaptor));
+    SolrCacheSource cacheSource = new SolrCacheSource(new SolrCache(mockClientAdaptor));
 
     testMap.put(Constants.SERVICE_TITLE, cacheSource.getId());
 
@@ -662,7 +647,7 @@ public class CachingFederationStrategyTest {
   @Test
   public void testProcessDeleteResponseSolrServiceTitle() throws Exception {
     Map<String, Serializable> testMap = new HashMap<>();
-    SolrCacheSource cacheSource = new SolrCacheSource(new SolrCache(clientAdaptor));
+    SolrCacheSource cacheSource = new SolrCacheSource(new SolrCache(mockClientAdaptor));
 
     testMap.put(Constants.SERVICE_TITLE, cacheSource.getId());
 
@@ -814,9 +799,18 @@ public class CachingFederationStrategyTest {
     strategy.federate(sources, fedQueryRequest);
   }
 
+  private Source getMockSource() throws UnsupportedQueryException {
+    Source mockSource = mock(Source.class);
+    when(mockSource.getId()).thenReturn("1");
+
+    when(mockSource.query(any(QueryRequest.class))).thenReturn(mockResponse);
+
+    return mockSource;
+  }
+
   private void verifyCacheUpdated() {
     for (Result result : cacheArgs.getValue()) {
-      assertThat(result.getMetacard().getId(), is(mockMetacard.getId()));
+      assertThat(result.getMetacard().getId(), is(metacard.getId()));
     }
   }
 
