@@ -17,12 +17,19 @@ import java.io.StringReader;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.Source;
+import javax.xml.transform.sax.SAXSource;
 import net.opengis.cat.csw.v_2_0_2.GetRecordsType;
+import org.codice.ddf.platform.util.XMLUtils;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswQueryFactory;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswSubscriptionEndpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 public class CswSubscriptionConfigFactory {
   private static final Logger LOGGER = LoggerFactory.getLogger(CswSubscriptionConfigFactory.class);
@@ -55,14 +62,17 @@ public class CswSubscriptionConfigFactory {
 
   public void restore() {
     try (StringReader sr = new StringReader(filterXml)) {
+      SAXParserFactory spf = XMLUtils.getInstance().getSecureSAXParserFactory();
+      spf.setNamespaceAware(true);
+      Source xmlSource = new SAXSource(spf.newSAXParser().getXMLReader(), new InputSource(sr));
       Unmarshaller unmarshaller = CswQueryFactory.getJaxBContext().createUnmarshaller();
       JAXBElement<GetRecordsType> jaxbElement =
-          (JAXBElement<GetRecordsType>) unmarshaller.unmarshal(sr);
+          (JAXBElement<GetRecordsType>) unmarshaller.unmarshal(xmlSource);
       GetRecordsType request = jaxbElement.getValue();
       if (!subscriptionService.hasSubscription(subscriptionId)) {
         subscriptionService.addOrUpdateSubscription(request, false);
       }
-    } catch (JAXBException | CswException e) {
+    } catch (JAXBException | CswException | ParserConfigurationException | SAXException e) {
       LOGGER.info(
           "Error restoring subscription: {} with delivery URL: {} XML: {}",
           new Object[] {subscriptionId, deliveryMethodUrl, filterXml},
