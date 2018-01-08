@@ -81,7 +81,7 @@ public class MetacardIteratorTest {
     METACARD_DATA_MAP.clear();
 
     String attributeName = "multivalued";
-    List<Serializable> values = Arrays.asList("value1", "value2");
+    List<Serializable> values = Arrays.asList("value1", "value2", "value3");
     Attribute attribute = buildAttribute(attributeName, values);
     METACARD_DATA_MAP.put(attributeName, attribute);
     ATTRIBUTE_DESCRIPTOR_LIST.add(buildAttributeDescriptor(attributeName, true));
@@ -89,7 +89,7 @@ public class MetacardIteratorTest {
     Metacard metacard = buildMetacard();
     Iterator<Serializable> iterator = new MetacardIterator(metacard, ATTRIBUTE_DESCRIPTOR_LIST);
     assertThat(iterator.hasNext(), is(true));
-    assertThat(iterator.next(), is(valuesToString(values)));
+    assertThat(iterator.next(), is("value1\nvalue2\nvalue3"));
   }
 
   @Test(expected = NoSuchElementException.class)
@@ -137,16 +137,5 @@ public class MetacardIteratorTest {
     when(attribute.getValue()).thenReturn(values.get(0));
     when(attribute.getValues()).thenReturn(values);
     return attribute;
-  }
-
-  private String valuesToString(List<Serializable> values) {
-    StringBuilder valuesBuilder = new StringBuilder();
-    for (int i = 0; i < values.size(); i++) {
-      if (i > 0) {
-        valuesBuilder.append("\n");
-      }
-      valuesBuilder.append(values.get(i));
-    }
-    return valuesBuilder.toString();
   }
 }
