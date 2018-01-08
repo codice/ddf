@@ -25,6 +25,7 @@ import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.Metacard;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -53,7 +54,7 @@ public class MetacardIteratorTest {
       Serializable attributeValue = (Serializable) entry[1];
       Attribute attribute = buildAttribute(attributeName, attributeValue);
       METACARD_DATA_MAP.put(attributeName, attribute);
-      ATTRIBUTE_DESCRIPTOR_LIST.add(buildAttribute(attributeName));
+      ATTRIBUTE_DESCRIPTOR_LIST.add(buildAttributeDescriptor(attributeName, false));
     }
 
     Attribute attribute = buildAttribute("skipMe", "value");
@@ -67,10 +68,28 @@ public class MetacardIteratorTest {
 
     for (int i = 0; i < ATTRIBUTE_DATA.length; i++) {
       assertThat(iterator.hasNext(), is(true));
+
       assertThat(iterator.next(), is(ATTRIBUTE_DATA[i][1]));
     }
 
     assertThat(iterator.hasNext(), is(false));
+  }
+
+  @Test
+  public void testColumnHeaderIteratorWithMultivaluedAttribute() {
+    ATTRIBUTE_DESCRIPTOR_LIST.clear();
+    METACARD_DATA_MAP.clear();
+
+    String attributeName = "multivalued";
+    List<Serializable> values = Arrays.asList("value1", "value2");
+    Attribute attribute = buildAttribute(attributeName, values);
+    METACARD_DATA_MAP.put(attributeName, attribute);
+    ATTRIBUTE_DESCRIPTOR_LIST.add(buildAttributeDescriptor(attributeName, true));
+
+    Metacard metacard = buildMetacard();
+    Iterator<Serializable> iterator = new MetacardIterator(metacard, ATTRIBUTE_DESCRIPTOR_LIST);
+    assertThat(iterator.hasNext(), is(true));
+    assertThat(iterator.next(), is(valuesToString(values)));
   }
 
   @Test(expected = NoSuchElementException.class)
@@ -98,10 +117,11 @@ public class MetacardIteratorTest {
     return metacard;
   }
 
-  private AttributeDescriptor buildAttribute(String name) {
-    AttributeDescriptor attribute = mock(AttributeDescriptor.class);
-    when(attribute.getName()).thenReturn(name);
-    return attribute;
+  private AttributeDescriptor buildAttributeDescriptor(String name, boolean isMultiValued) {
+    AttributeDescriptor attributeDescriptor = mock(AttributeDescriptor.class);
+    when(attributeDescriptor.getName()).thenReturn(name);
+    when(attributeDescriptor.isMultiValued()).thenReturn(isMultiValued);
+    return attributeDescriptor;
   }
 
   private Attribute buildAttribute(String name, Serializable value) {
@@ -109,5 +129,24 @@ public class MetacardIteratorTest {
     when(attribute.getName()).thenReturn(name);
     when(attribute.getValue()).thenReturn(value);
     return attribute;
+  }
+
+  private Attribute buildAttribute(String name, List<Serializable> values) {
+    Attribute attribute = mock(Attribute.class);
+    when(attribute.getName()).thenReturn(name);
+    when(attribute.getValue()).thenReturn(values.get(0));
+    when(attribute.getValues()).thenReturn(values);
+    return attribute;
+  }
+
+  private String valuesToString(List<Serializable> values) {
+    StringBuilder valuesBuilder = new StringBuilder();
+    for (int i = 0; i < values.size(); i++) {
+      if (i > 0) {
+        valuesBuilder.append("\n");
+      }
+      valuesBuilder.append(values.get(i));
+    }
+    return valuesBuilder.toString();
   }
 }

@@ -29,6 +29,8 @@ import java.util.NoSuchElementException;
  * @see java.util.Iterator
  */
 class MetacardIterator implements Iterator<Serializable> {
+  private static final String MULTIVALUE_DELIMITER = "\n";
+
   private List<AttributeDescriptor> attributeDescriptorList;
 
   private Metacard metacard;
@@ -65,7 +67,19 @@ class MetacardIterator implements Iterator<Serializable> {
     index++;
 
     if (attribute != null) {
-      return attribute.getValue();
+      if (attributeDescriptor.isMultiValued()) {
+        StringBuilder valuesBuilder = new StringBuilder();
+        List<Serializable> values = attribute.getValues();
+        for (int i = 0; i < values.size(); i++) {
+          if (i > 0) {
+            valuesBuilder.append(MULTIVALUE_DELIMITER);
+          }
+          valuesBuilder.append(values.get(i));
+        }
+        return valuesBuilder.toString();
+      } else {
+        return attribute.getValue();
+      }
     }
 
     return "";
