@@ -69,7 +69,7 @@ class MetacardIterator implements Iterator<Serializable> {
 
     if (attribute != null) {
       if (attributeDescriptor.isMultiValued()) {
-        return StringUtils.join(attribute.getValues(), "\n");
+        return StringUtils.join(attribute.getValues(), MULTIVALUE_DELIMITER);
       } else {
         return attribute.getValue();
       }
