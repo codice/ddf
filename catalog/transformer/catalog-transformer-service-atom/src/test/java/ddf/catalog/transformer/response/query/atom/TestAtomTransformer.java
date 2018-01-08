@@ -42,6 +42,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -1243,7 +1244,33 @@ public class TestAtomTransformer {
     assertXpathNotExists("//georss:where", output);
   }
 
-  protected void validateAgainstAtomSchema(byte[] output) throws SAXException, IOException {
+  @Test
+  public void testZeroCount()
+      throws CatalogTransformerException, IOException, XpathException, SAXException {
+    AtomTransformer atomTransformer = new AtomTransformer();
+
+    atomTransformer.setMetacardTransformer(getXmlMetacardTransformerStub());
+
+    setDefaultSystemConfiguration();
+
+    SourceResponse response = getSourceResponseStubZeroCount(SAMPLE_ID);
+
+    byte[] bytes = atomTransformer.transform(response, null).getByteArray();
+
+    String output = new String(bytes);
+
+    /* used to visualize */
+    IOUtils.write(
+        bytes, new FileOutputStream(new File(TARGET_FOLDER + getMethodName() + ATOM_EXTENSION)));
+
+    assertFeedCompliant(output);
+    assertEntryCompliant(output);
+    validateAgainstAtomSchema(bytes);
+
+    assertXpathNotExists("/atom:feed/atom:entry", output);
+  }
+
+  private void validateAgainstAtomSchema(byte[] output) throws SAXException, IOException {
 
     Document document = parser.parse(new ByteArrayInputStream(output));
 
@@ -1254,7 +1281,7 @@ public class TestAtomTransformer {
     }
   }
 
-  protected AtomTransformer getConfiguredAtomTransformer(
+  private AtomTransformer getConfiguredAtomTransformer(
       MetacardTransformer metacardTransformer, boolean setProperties) {
     AtomTransformer transformer = new AtomTransformer();
     transformer.setMetacardTransformer(metacardTransformer);
@@ -1264,7 +1291,7 @@ public class TestAtomTransformer {
     return transformer;
   }
 
-  protected void assertBasicFeedInfo(String output, String totalResults)
+  private void assertBasicFeedInfo(String output, String totalResults)
       throws SAXException, IOException, XpathException {
     assertXpathEvaluatesTo(AtomTransformer.DEFAULT_FEED_TITLE, "/atom:feed/atom:title", output);
     assertXpathExists("/atom:feed/atom:updated", output);
@@ -1292,7 +1319,7 @@ public class TestAtomTransformer {
     assertXpathEvaluatesTo("2", "/atom:feed/os:startIndex", output);
   }
 
-  protected SourceResponse basicSetup(AtomTransformer transformer)
+  private SourceResponse basicSetup(AtomTransformer transformer)
       throws IOException, CatalogTransformerException {
     MetacardTransformer metacardTransformer = getXmlMetacardTransformerStub();
     transformer.setMetacardTransformer(metacardTransformer);
@@ -1371,8 +1398,7 @@ public class TestAtomTransformer {
    * @throws SAXException
    * @throws XpathException
    */
-  protected void assertFeedCompliant(String output)
-      throws IOException, SAXException, XpathException {
+  private void assertFeedCompliant(String output) throws IOException, SAXException, XpathException {
     assertXpathExists("/atom:feed[atom:author or not(atom:entry[not(atom:author)])] ", output);
     assertXpathEvaluatesTo(TRUE, "count(/atom:feed/atom:generator) <= 1", output);
     assertXpathEvaluatesTo(TRUE, "count(/atom:feed/atom:icon) <= 1", output);
@@ -1390,7 +1416,7 @@ public class TestAtomTransformer {
     assertXpathEvaluatesTo(TRUE, "count(/atom:feed/atom:updated) = 1", output);
   }
 
-  protected void assertEntryCompliant(String output)
+  private void assertEntryCompliant(String output)
       throws SAXException, IOException, XpathException {
 
     assertXpathEvaluatesTo(
@@ -1427,7 +1453,7 @@ public class TestAtomTransformer {
     assertXpathNotExists("/atom:feed[os:totalResults < 0]", output);
   }
 
-  protected SourceResponse getSourceResponseStub(String id, String wkt) {
+  private SourceResponse getSourceResponseStub(String id, String wkt) {
     SourceResponse response = mock(SourceResponse.class);
 
     when(response.getHits()).thenReturn(new Long(1));
@@ -1448,7 +1474,33 @@ public class TestAtomTransformer {
     return response;
   }
 
-  protected MetacardTransformer getXmlMetacardTransformerStub()
+  private SourceResponse getSourceResponseStubZeroCount(String id) {
+    SourceResponse response = mock(SourceResponse.class);
+
+    when(response.getHits()).thenReturn(new Long(1));
+
+    Map<String, Serializable> properties = new HashMap<>();
+    properties.put("count", "0");
+
+    QueryRequest queryRequest = mock(QueryRequest.class);
+
+    when(queryRequest.getProperties()).thenReturn(properties);
+
+    when(response.getRequest()).thenReturn(queryRequest);
+
+    ResultImpl result = new ResultImpl();
+
+    MetacardStub metacard = new MetacardStub("");
+
+    metacard.setId(id);
+
+    result.setMetacard(metacard);
+
+    when(response.getResults()).thenReturn(Arrays.asList((Result) result));
+    return response;
+  }
+
+  private MetacardTransformer getXmlMetacardTransformerStub()
       throws IOException, CatalogTransformerException {
     MetacardTransformer metacardTransformer = mock(MetacardTransformer.class);
     BinaryContent metacardTransformation = mock(BinaryContent.class);
@@ -1461,7 +1513,7 @@ public class TestAtomTransformer {
     return metacardTransformer;
   }
 
-  protected void setDefaultSystemConfiguration() {
+  private void setDefaultSystemConfiguration() {
     System.setProperty(SystemInfo.ORGANIZATION, DEFAULT_TEST_ORGANIZATION);
     System.setProperty(SystemInfo.SITE_NAME, DEFAULT_TEST_SITE);
     System.setProperty(SystemInfo.VERSION, DEFAULT_TEST_VERSION);
