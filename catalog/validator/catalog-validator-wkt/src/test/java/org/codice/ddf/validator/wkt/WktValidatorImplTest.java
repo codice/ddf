@@ -11,15 +11,29 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.validator.metacard.location;
+package org.codice.ddf.validator.wkt;
 
-import ddf.catalog.data.types.Core;
-import org.codice.ddf.validator.metacard.wkt.MetacardWktValidator;
-import org.codice.ddf.validator.wkt.WktValidator;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-public class MetacardLocationValidator extends MetacardWktValidator {
+import org.junit.Before;
+import org.junit.Test;
 
-  public MetacardLocationValidator(WktValidator wktValidator) {
-    super(wktValidator, Core.LOCATION);
+public class WktValidatorImplTest {
+  private WktValidatorImpl wktValidator;
+
+  @Before
+  public void setup() {
+    wktValidator = new WktValidatorImpl();
+  }
+
+  @Test
+  public void validWKT() {
+    assertThat(wktValidator.isValid("POINT(50 50)"), is(true));
+  }
+
+  @Test
+  public void invalidWKT() {
+    assertThat(wktValidator.isValid("POINT(250 250)"), is(false));
   }
 }
