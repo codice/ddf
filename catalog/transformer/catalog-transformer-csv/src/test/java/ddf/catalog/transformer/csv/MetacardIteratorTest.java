@@ -68,7 +68,6 @@ public class MetacardIteratorTest {
 
     for (int i = 0; i < ATTRIBUTE_DATA.length; i++) {
       assertThat(iterator.hasNext(), is(true));
-
       assertThat(iterator.next(), is(ATTRIBUTE_DATA[i][1]));
     }
 
