@@ -62,7 +62,7 @@
         <!-- ouput directory for reports -->
         <project.report.output.directory>project-info</project.report.output.directory>
         <!-- Properties for the frontend-maven-plugin -->
-        <node.version>v7.1.0</node.version>
+        <node.version>v8.0.0</node.version>
         <yarn.version>v1.2.1</yarn.version>
         <commons-collections.version>3.2.2</commons-collections.version>
         <commons-collections4.version>4.1</commons-collections4.version>
