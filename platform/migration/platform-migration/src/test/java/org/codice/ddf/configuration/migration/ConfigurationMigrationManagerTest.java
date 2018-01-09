@@ -618,12 +618,273 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
                 + ".dar]."));
   }
 
-  private void expectImportDelegationIsSuccessful()
-      throws NoSuchPaddingException, NoSuchAlgorithmException {
+  @Test
+  public void doDecryptSucceeds() throws Exception {
+    final Path path = ddfHome.resolve(TEST_DIRECTORY);
+
+    configurationMigrationManager = spy(getConfigurationMigrationManager());
+
+    // Need to actually generate a zip with a valid checksum so calling export
+    configurationMigrationManager.doExport(path);
+
+    expectImportDelegationIsSuccessful();
+
+    final MigrationReport report = configurationMigrationManager.doDecrypt(path);
+
+    assertThat("Decrypt was not successful", report.wasSuccessful(), is(true));
+    reportHasInfoMessage(
+        report.infos(),
+        equalTo(
+            "Successfully decrypted file ["
+                + path.resolve(TEST_BRANDING)
+                + "-"
+                + TEST_VERSION
+                + ".dar] to ["
+                + path.resolve(TEST_BRANDING)
+                + "-"
+                + TEST_VERSION
+                + ".zip]."));
+    verify(configurationMigrationManager)
+        .delegateToDecryptMigrationManager(
+            any(MigrationReportImpl.class), any(MigrationZipFile.class), any(Path.class));
+  }
+
+  @Test
+  public void doDecryptSucceedsWithConsumer() throws Exception {
+    final Path path = ddfHome.resolve(TEST_DIRECTORY);
+    final Consumer<MigrationMessage> consumer = mock(Consumer.class);
+
+    configurationMigrationManager = spy(getConfigurationMigrationManager());
+
+    // Need to actually generate a zip with a valid checksum so calling export
+    configurationMigrationManager.doExport(path);
+
+    expectDecryptDelegationIsSuccessful();
+
+    MigrationReport report = configurationMigrationManager.doDecrypt(path, consumer);
+
+    assertThat("Decrypt was not successful", report.wasSuccessful(), is(true));
+    reportHasInfoMessage(
+        report.infos(),
+        equalTo(
+            "Successfully decrypted file ["
+                + path.resolve(TEST_BRANDING)
+                + "-"
+                + TEST_VERSION
+                + ".dar] to ["
+                + path.resolve(TEST_BRANDING)
+                + "-"
+                + TEST_VERSION
+                + ".zip]."));
+    verify(configurationMigrationManager)
+        .delegateToDecryptMigrationManager(
+            any(MigrationReportImpl.class), any(MigrationZipFile.class), any(Path.class));
+    verify(consumer, Mockito.atLeastOnce()).accept(Mockito.notNull());
+  }
+
+  @Test
+  public void doDecryptSucceedsWithWarnings() throws Exception {
+    final Path path = ddfHome.resolve(TEST_DIRECTORY);
+    configurationMigrationManager = spy(getConfigurationMigrationManager());
+    doAnswer(
+            invocation -> {
+              MigrationReport report = invocation.getArgument(0);
+              report.record(new MigrationWarning(TEST_MESSAGE));
+              return null;
+            })
+        .when(configurationMigrationManager)
+        .delegateToDecryptMigrationManager(
+            any(MigrationReportImpl.class), any(MigrationZipFile.class), any(Path.class));
+
+    // Need to actually generate a zip with a valid checksum so calling export
+    configurationMigrationManager.doExport(path);
+
+    MigrationReport report = configurationMigrationManager.doDecrypt(path);
+
+    assertThat("Decrypt was not successful", report.wasSuccessful(), is(true));
+    reportHasWarningMessage(report.warnings(), equalTo(TEST_MESSAGE));
+    reportHasWarningMessage(
+        report.warnings(),
+        equalTo(
+            "Successfully decrypted file ["
+                + path.resolve(TEST_BRANDING)
+                + "-"
+                + TEST_VERSION
+                + ".dar] to ["
+                + path.resolve(TEST_BRANDING)
+                + "-"
+                + TEST_VERSION
+                + ".zip] with warnings; make sure to review."));
+    verify(configurationMigrationManager)
+        .delegateToDecryptMigrationManager(
+            any(MigrationReportImpl.class), any(MigrationZipFile.class), any(Path.class));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void doDecryptWithNullPath() throws Exception {
+    configurationMigrationManager = getConfigurationMigrationManager();
+
+    configurationMigrationManager.doDecrypt((Path) null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void doDecryptWithNullConsumer() throws Exception {
+    configurationMigrationManager = getConfigurationMigrationManager();
+
+    configurationMigrationManager.doDecrypt(ddfHome.resolve(TEST_DIRECTORY), null);
+  }
+
+  @Test
+  public void doDecryptRecordsErrorForMigrationException() throws Exception {
+    configurationMigrationManager = spy(getConfigurationMigrationManager());
+    final Path path = ddfHome.resolve(TEST_DIRECTORY);
+
+    // Need to actually generate a zip with a valid checksum so calling export
+    configurationMigrationManager.doExport(path);
+
+    doThrow(new MigrationException(TEST_MESSAGE))
+        .when(configurationMigrationManager)
+        .delegateToDecryptMigrationManager(
+            any(MigrationReportImpl.class), any(MigrationZipFile.class), any(Path.class));
+
+    MigrationReport report =
+        configurationMigrationManager.doDecrypt(ddfHome.resolve(TEST_DIRECTORY));
+
+    reportHasErrorMessage(report.errors(), equalTo(TEST_MESSAGE));
+    verify(configurationMigrationManager)
+        .delegateToDecryptMigrationManager(
+            any(MigrationReportImpl.class), any(MigrationZipFile.class), any(Path.class));
+    verifyZeroInteractions(mockSystemService);
+  }
+
+  @Test
+  public void doDecryptRecordsErrorForRuntimeException() throws Exception {
+    final Path path = ddfHome.resolve(TEST_DIRECTORY);
+
+    configurationMigrationManager = spy(getConfigurationMigrationManager());
+
+    // Need to actually generate a zip with a valid checksum so calling export
+    configurationMigrationManager.doExport(path);
+
+    doThrow(new RuntimeException("testing"))
+        .when(configurationMigrationManager)
+        .delegateToDecryptMigrationManager(
+            any(MigrationReportImpl.class), any(MigrationZipFile.class), any(Path.class));
+
+    MigrationReport report = configurationMigrationManager.doDecrypt(path);
+
+    reportHasErrorMessage(
+        report.errors(),
+        equalTo(
+            "Unexpected internal error: failed to decrypt file ["
+                + path.resolve(TEST_BRANDING)
+                + "-"
+                + TEST_VERSION
+                + ".dar]; testing."));
+    verify(configurationMigrationManager)
+        .delegateToDecryptMigrationManager(
+            any(MigrationReportImpl.class), any(MigrationZipFile.class), any(Path.class));
+    verifyZeroInteractions(mockSystemService);
+  }
+
+  @Test
+  public void doDecryptRecordsErrorForIOException() throws Exception {
+    final Path path = ddfHome.resolve(TEST_DIRECTORY);
+
+    configurationMigrationManager = spy(getConfigurationMigrationManager());
+
+    // Need to actually generate a zip with a valid checksum so calling export
+    configurationMigrationManager.doExport(path);
+
+    doThrow(new IOException("testing"))
+        .when(configurationMigrationManager)
+        .delegateToDecryptMigrationManager(
+            any(MigrationReportImpl.class), any(MigrationZipFile.class), any(Path.class));
+
+    MigrationReport report = configurationMigrationManager.doDecrypt(path);
+
+    reportHasErrorMessage(
+        report.errors(),
+        equalTo(
+            "Decrypt error: failed to close decrypted file ["
+                + path.resolve(TEST_BRANDING)
+                + "-"
+                + TEST_VERSION
+                + ".zip]; testing."));
+    verify(configurationMigrationManager)
+        .delegateToDecryptMigrationManager(
+            any(MigrationReportImpl.class), any(MigrationZipFile.class), any(Path.class));
+    verifyZeroInteractions(mockSystemService);
+  }
+
+  @Test
+  public void doDecryptRecordsErrorForSecurityException() throws Exception {
+    final Path path = ddfHome.resolve(TEST_DIRECTORY);
+
+    configurationMigrationManager = spy(getConfigurationMigrationManager());
+
+    // Need to actually generate a zip with a valid checksum so calling export
+    configurationMigrationManager.doExport(path);
+
+    doThrow(new SecurityException("testing"))
+        .when(configurationMigrationManager)
+        .delegateToDecryptMigrationManager(
+            any(MigrationReportImpl.class), any(MigrationZipFile.class), any(Path.class));
+
+    MigrationReport report = configurationMigrationManager.doDecrypt(path);
+
+    reportHasErrorMessage(
+        report.errors(),
+        equalTo(
+            "Decrypt security error: failed to decrypt file ["
+                + path.resolve(TEST_BRANDING)
+                + "-"
+                + TEST_VERSION
+                + ".dar]; testing."));
+    verify(configurationMigrationManager)
+        .delegateToDecryptMigrationManager(
+            any(MigrationReportImpl.class), any(MigrationZipFile.class), any(Path.class));
+    verifyZeroInteractions(mockSystemService);
+  }
+
+  @Test
+  public void testDoDecryptRecordsMigrationExceptionWithInvalidChecksum() throws Exception {
+    final Path path = ddfHome.resolve(TEST_DIRECTORY);
+
+    configurationMigrationManager = spy(getConfigurationMigrationManager());
+
+    configurationMigrationManager.doExport(path);
+
+    Path checksumFilePath =
+        Paths.get(
+            path.toString(),
+            TEST_BRANDING + "-" + TEST_VERSION + ".dar" + MigrationZipConstants.CHECKSUM_EXTENSION);
+
+    FileUtils.writeStringToFile(checksumFilePath.toFile(), "invalid_checksum", Charsets.UTF_8);
+    MigrationReport report = configurationMigrationManager.doDecrypt(path);
+    assertThat(report.wasSuccessful(), equalTo(false));
+    reportHasErrorMessage(
+        report.errors(),
+        equalTo(
+            "Decrypt error: incorrect checksum for export file ["
+                + path.resolve(TEST_BRANDING)
+                + "-"
+                + TEST_VERSION
+                + ".dar]."));
+  }
+
+  private void expectImportDelegationIsSuccessful() {
     doNothing()
         .when(configurationMigrationManager)
         .delegateToImportMigrationManager(
             any(MigrationReportImpl.class), any(MigrationZipFile.class));
+  }
+
+  private void expectDecryptDelegationIsSuccessful() throws IOException {
+    doNothing()
+        .when(configurationMigrationManager)
+        .delegateToDecryptMigrationManager(
+            any(MigrationReportImpl.class), any(MigrationZipFile.class), any(Path.class));
   }
 
   private void reportHasInfoMessage(Stream<MigrationInformation> infos, Matcher<String> matcher) {
@@ -676,7 +937,7 @@ public class ConfigurationMigrationManagerTest extends AbstractMigrationSupport 
             + count
             + " matching error(s) with "
             + d
-            + "in the migration report.\nErrors are: "
+            + " in the migration report.\nErrors are: "
             + es.stream()
                 .map(MigrationException::getMessage)
                 .collect(Collectors.joining("\",\n\t\"", "[\n\t\"", "\"\n]")),

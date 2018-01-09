@@ -28,13 +28,13 @@ import java.util.Optional;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
-import javax.crypto.NoSuchPaddingException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.karaf.system.SystemService;
@@ -171,9 +171,24 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
     return AccessUtils.doPrivileged(() -> doImport(exportDirectory, Optional.of(consumer)));
   }
 
+  @Override
+  public MigrationReport doDecrypt(Path exportDirectory) {
+    // start the access control starting with this class' privileges; thus ignoring whoever called
+    // us
+    return AccessUtils.doPrivileged(() -> doDecrypt(exportDirectory, Optional.empty()));
+  }
+
+  @Override
+  public MigrationReport doDecrypt(Path exportDirectory, Consumer<MigrationMessage> consumer) {
+    Validate.notNull(consumer, "invalid null consumer");
+    // start the access control starting with this class' privileges; thus ignoring whoever called
+    // us
+    return AccessUtils.doPrivileged(
+        () -> doDecrypt(exportDirectory, Optional.ofNullable(consumer)));
+  }
+
   @VisibleForTesting
-  void delegateToImportMigrationManager(MigrationReportImpl report, MigrationZipFile zip)
-      throws NoSuchAlgorithmException, NoSuchPaddingException {
+  void delegateToImportMigrationManager(MigrationReportImpl report, MigrationZipFile zip) {
     final ImportMigrationManagerImpl mgr =
         new ImportMigrationManagerImpl(report, zip, migratables.stream());
     try {
@@ -186,12 +201,21 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
 
   @VisibleForTesting
   void delegateToExportMigrationManager(
-      MigrationReportImpl report, Path exportFile, CipherUtils cipherUtils)
-      throws IOException, NoSuchPaddingException, NoSuchAlgorithmException {
+      MigrationReportImpl report, Path exportFile, CipherUtils cipherUtils) throws IOException {
     try (final ExportMigrationManagerImpl mgr =
         new ExportMigrationManagerImpl(report, exportFile, cipherUtils, migratables.stream())) {
       report.record(Messages.EXPORTING_DATA, productBranding, exportFile);
       mgr.doExport(productBranding, productVersion);
+    }
+  }
+
+  @VisibleForTesting
+  void delegateToDecryptMigrationManager(
+      MigrationReportImpl report, MigrationZipFile zip, Path decryptFile) throws IOException {
+    try (final DecryptMigrationManagerImpl mgr =
+        new DecryptMigrationManagerImpl(report, zip, decryptFile)) {
+      report.record(Messages.DECRYPTING_DATA, productBranding, zip.getZipPath(), decryptFile);
+      mgr.doDecrypt(productBranding, productVersion);
     }
   }
 
@@ -231,7 +255,7 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
       report.record(new MigrationException(Messages.EXPORT_SECURITY_ERROR, exportFile, e));
     } catch (RuntimeException e) {
       report.record(new MigrationException(Messages.EXPORT_INTERNAL_ERROR, exportFile, e));
-    } catch (NoSuchPaddingException | NoSuchAlgorithmException e) {
+    } catch (NoSuchAlgorithmException e) {
       report.record(
           new MigrationException(Messages.EXPORT_INTERNAL_ERROR, cipherUtils.getKeyPath(), e));
     }
@@ -278,8 +302,6 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
       report.record(new MigrationException(Messages.IMPORT_SECURITY_ERROR, exportFile, e));
     } catch (RuntimeException e) {
       report.record(new MigrationException(Messages.IMPORT_INTERNAL_ERROR, exportFile, e));
-    } catch (NoSuchPaddingException | NoSuchAlgorithmException e) {
-      report.record(new MigrationException(Messages.IMPORT_INTERNAL_ERROR, zip.getKeyPath(), e));
     }
     report.end();
     if ((zip == null) || (report.hasErrors())) {
@@ -298,6 +320,54 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
       report.record(new MigrationSuccessfulInformation(Messages.IMPORT_SUCCESS, exportFile));
       // force a JVM restart
       restart(report);
+    }
+    return report;
+  }
+
+  private MigrationReport doDecrypt(
+      Path exportDirectory, Optional<Consumer<MigrationMessage>> consumer) {
+    Validate.notNull(exportDirectory, ConfigurationMigrationManager.INVALID_NULL_EXPORT_DIR);
+    final MigrationReportImpl report =
+        new MigrationReportImpl(MigrationOperation.DECRYPT, consumer);
+    final Path exportFile =
+        exportDirectory.resolve(
+            productBranding
+                + '-'
+                + productVersion
+                + ConfigurationMigrationManager.EXPORT_EXTENSION);
+    final Path decryptFile =
+        Paths.get(FilenameUtils.removeExtension(exportFile.toString()) + ".zip");
+    MigrationZipFile zip = null;
+
+    try {
+      zip = newZipFileFor(exportFile);
+      if (!zip.isValidChecksum()) {
+        throw new MigrationException(Messages.DECRYPT_ZIP_CHECKSUM_INVALID, exportFile);
+      }
+      delegateToDecryptMigrationManager(report, zip, decryptFile);
+    } catch (MigrationException e) {
+      report.record(e);
+    } catch (IOException e) {
+      report.record(new MigrationException(Messages.DECRYPT_FILE_CLOSE_ERROR, decryptFile, e));
+    } catch (SecurityException e) {
+      report.record(new MigrationException(Messages.DECRYPT_SECURITY_ERROR, exportFile, e));
+    } catch (RuntimeException e) {
+      report.record(new MigrationException(Messages.DECRYPT_INTERNAL_ERROR, exportFile, e));
+    }
+    report.end();
+    if ((zip == null) || (report.hasErrors())) {
+      SecurityLogger.audit("Errors decrypting configuration settings in file {}", exportFile);
+      report.record(new MigrationException(Messages.DECRYPT_FAILURE, exportFile));
+      FileUtils.deleteQuietly(decryptFile.toFile()); // delete the decrypted zip if any
+    } else if (report.hasWarnings()) {
+      SecurityLogger.audit("Warnings decrypting configuration settings in file {}", exportFile);
+      report.record(
+          new MigrationWarning(Messages.DECRYPT_SUCCESS_WITH_WARNINGS, exportFile, decryptFile));
+    } else {
+      SecurityLogger.audit(
+          "Decrypted configuration settings from file {} to {}", exportFile, decryptFile);
+      report.record(
+          new MigrationSuccessfulInformation(Messages.DECRYPT_SUCCESS, exportFile, decryptFile));
     }
     return report;
   }

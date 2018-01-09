@@ -62,7 +62,7 @@ public class ExportMigrationManagerImpl implements Closeable {
 
   private final Path exportFile;
 
-  private CipherUtils cipherUtils;
+  private final CipherUtils cipherUtils;
 
   private boolean closed = false;
 
@@ -91,6 +91,7 @@ public class ExportMigrationManagerImpl implements Closeable {
         ExportMigrationManagerImpl.newZipOutputStreamFor(exportFile));
   }
 
+  @VisibleForTesting
   ExportMigrationManagerImpl(
       MigrationReport report,
       Path exportFile,

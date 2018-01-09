@@ -75,4 +75,29 @@ public interface ConfigurationMigrationService {
    *     <code>null</code>
    */
   MigrationReport doImport(Path exportDirectory, Consumer<MigrationMessage> consumer);
+
+  /**
+   * Decrypts an exported file from the specified path.
+   *
+   * @param exportDirectory path to decrypt configurations from
+   * @return a migration report for the decrypt operation
+   * @throws IllegalArgumentException if <code>exportDirectory</code> is <code>null</code>
+   */
+  MigrationReport doDecrypt(Path exportDirectory);
+
+  /**
+   * Decrypts an exported file from the specified path.
+   *
+   * <p><i>Note:</i> This version of the <code>doDecrypt()</code> method will callback the provided
+   * consumer every time a migration message is recorded. The message will also be recorded with the
+   * report returned at the completion of the operation.
+   *
+   * @param exportDirectory path to decrypt configurations from
+   * @param consumer a consumer to call whenever a new migration message is recorded during the
+   *     operation
+   * @return a migration report for the decrypt operation
+   * @throws IllegalArgumentException if <code>exportDirectory</code> or <code>consumer</code> is
+   *     <code>null</code>
+   */
+  MigrationReport doDecrypt(Path exportDirectory, Consumer<MigrationMessage> consumer);
 }

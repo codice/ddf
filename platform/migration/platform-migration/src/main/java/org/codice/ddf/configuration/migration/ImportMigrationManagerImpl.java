@@ -68,8 +68,8 @@ public class ImportMigrationManagerImpl implements Closeable {
    * @throws MigrationException if a failure occurs while processing the zip file (the error will
    *     not be recorded with the report)
    * @throws IllegalArgumentException if <code>report</code> is <code>null</code> or if it is not
-   *     for an import migration operation or if <code>exportFile</code> or <code>migratables</code>
-   *     is <code>null</code>
+   *     for an import migration operation or if <code>zip</code> or <code>migratables</code> is
+   *     <code>null</code>
    */
   public ImportMigrationManagerImpl(
       MigrationReport report, MigrationZipFile zip, Stream<? extends Migratable> migratables) {

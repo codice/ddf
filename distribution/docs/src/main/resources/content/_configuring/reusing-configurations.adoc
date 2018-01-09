@@ -12,7 +12,9 @@ The Migration Export/Import capability allows administrators to export the curre
 To export the current configuration settings:
 
 . Run the command migration:export from the ${command-console}.
-. A file named `${branding-lowercase}-${project.version}.dar` will be created in the `exported` directory underneath `${home_directory}`. Copy this file to a secure location.
+. Files named `${branding-lowercase}-${project.version}.dar`, `${branding-lowercase}-${project.version}.dar.key`, and `${branding-lowercase}-${project.version}.dar.sha256` will be created in the `exported` directory underneath `${home_directory}`.
+The `.dar` file contains the encrypted information. The `.key` and `.sha256` files contains a validation checksum and the encryption key. Copy the '.dar' file to a secure location and copy the '.key' and '.sha256' to a different secure location.
+Keeping all 3 files together represents a security risk and should be avoided.
 
 To import previously exported configuration settings:
 
@@ -21,10 +23,18 @@ To import previously exported configuration settings:
 . Launch the newly installed ${branding}.
 . Step through the installation process.
 . Make sure to install and re-enable the ${branding} <<_starting_as_a_service_with_automatic_start_on_system_boot,service>> on the new system if it was installed and enabled on the original system
-. Copy the previously exported file from your secure location to the `exported` directory underneath `${home_directory}`. Create the directory if it does not exist.
+. Copy the previously exported files from your secure locations to the `exported` directory underneath `${home_directory}`. Create the directory if it does not exist.
 . Run the command migration:import from the ${command-console}.
 . ${branding} will automatically restart if the command is successful. Otherwise address any generated warnings before manually restarting ${branding}.
 . Finish <<_hardening_checklist,hardening>> the system (e.g. file and directory permissions).
+
+It is possible to decrypt the previously exported configuration settings but doing so is unsecure and appropriate measures should be taken to secure the resulting decrypted file.
+To decrypt the exported file:
+
+. Copy all 3 exported files (i.e. `.dar`, `.key`, and `.sha256`) to the `exported` directory underneath `${home_directory}`. Create the directory if it does not exist.
+. Run the command migration:decrypt from the ${command-console}.
+. A file named `${branding-lowercase}-${project.version}.zip` will be created in the `exported` directory underneath `${home_directory}`.
+This file represents the decrypted version of the `.dar` file.
 
 [IMPORTANT]
 ====

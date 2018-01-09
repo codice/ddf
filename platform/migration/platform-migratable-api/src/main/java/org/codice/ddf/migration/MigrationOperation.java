@@ -21,5 +21,6 @@ package org.codice.ddf.migration;
  */
 public enum MigrationOperation {
   EXPORT,
-  IMPORT;
+  IMPORT,
+  DECRYPT
 }
