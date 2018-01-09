@@ -32,5 +32,14 @@
             </includes>
             <outputDirectory></outputDirectory>
         </fileSet>
+        <fileSet>
+             <fileMode>0644</fileMode>
+             <directoryMode>0755</directoryMode>
+             <directory>src/main/resources</directory>
+             <includes>
+                   <include>jbake.properties</include>
+            </includes>
+            <outputDirectory></outputDirectory>
+        </fileSet>
      </fileSets>
 </assembly>

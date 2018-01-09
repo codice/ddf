@@ -80,6 +80,8 @@ include::${si.file}[]
 
 <#list maintainings?sort_by("order") as maintaining>
 <#if (maintaining.status == "published")>
+`final-level` = ${maintaining.file}
+
 include::${maintaining.file}[]
 
 </#if>
