@@ -245,7 +245,7 @@ public class MetadataConfigurationParser {
 
   private void validateMetadata(EntityDescriptor root) {
     if (root.getCacheDuration() == null && root.getValidUntil() == null) {
-      LOGGER.info(
+      LOGGER.trace(
           "IDP metadata must either have cache duration or valid-until date."
               + " Defaulting IDP metadata cache duration to {}",
           SamlProtocol.getCacheDuration());
