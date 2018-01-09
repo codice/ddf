@@ -300,6 +300,9 @@ const providers = (state = List(), { type, path, value = emptyProvider(state.siz
 
       if (value === null) {
         return state.remove(index)
+          .map((layer, i) =>
+            layer.setIn(['layer', 'order'], i)
+              .update(updateBufferFromLayer))
       }
 
       const previousType = state.getIn([index, 'layer', 'type'])
