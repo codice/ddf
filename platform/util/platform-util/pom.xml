@@ -82,6 +82,11 @@
             <version>1.16.1</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>ddf.lib</groupId>
+            <artifactId>common-system</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.platform.util.properties;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -20,12 +22,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.function.BiFunction;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.text.StrSubstitutor;
+import org.codice.ddf.configuration.AbsolutePathResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
@@ -59,7 +67,17 @@ public final class PropertiesLoader {
 
   private static final PropertiesLoader INSTANCE = new PropertiesLoader();
 
-  private PropertiesLoader() {}
+  private static final List<BiFunction<String, ClassLoader, Properties>>
+      PROPERTY_LOADING_STRATEGIES =
+          ImmutableList.of(
+              PropertiesLoader::attemptLoadWithSpring,
+              PropertiesLoader::attemptLoadWithSpringAndClassLoader,
+              PropertiesLoader::attemptLoadWithFileSystem,
+              PropertiesLoader::attemptLoadAsResource);
+
+  private PropertiesLoader() {
+    // Perform operations using the singleton instance.
+  }
 
   public static PropertiesLoader getInstance() {
     return INSTANCE;
@@ -79,14 +97,14 @@ public final class PropertiesLoader {
   public <K, V> Map<K, V> toMap(Properties properties) {
     if (properties != null) {
       final Set<Map.Entry<Object, Object>> entries = properties.entrySet();
-      Map<K, V> map = new HashMap<K, V>(entries.size() * 2);
+      Map<K, V> map = new HashMap<>(entries.size() * 2);
       for (Map.Entry<Object, Object> entry : entries) {
         map.put((K) entry.getKey(), (V) entry.getValue());
       }
 
       return map;
     }
-    return new HashMap<K, V>();
+    return Collections.emptyMap();
   }
 
   /**
@@ -108,108 +126,138 @@ public final class PropertiesLoader {
    * @return Properties deserialized from the specified file, or empty if the load failed
    */
   public Properties loadProperties(String propertiesFile, ClassLoader classLoader) {
-    boolean error = false;
     Properties properties = new Properties();
-    if (propertiesFile != null) {
-      try {
-        LOGGER.debug(
-            "Attempting to load properties from {} with Spring PropertiesLoaderUtils.",
-            propertiesFile);
-        properties = PropertiesLoaderUtils.loadAllProperties(propertiesFile);
-      } catch (IOException e) {
-        error = true;
-        LOGGER.debug("Unable to load properties using default Spring properties loader.", e);
-      }
-      if (error || properties.isEmpty()) {
-        if (classLoader != null) {
-          try {
-            LOGGER.debug(
-                "Attempting to load properties from {} with Spring PropertiesLoaderUtils with class loader.",
-                propertiesFile);
-            properties = PropertiesLoaderUtils.loadAllProperties(propertiesFile, classLoader);
-            error = false;
-          } catch (IOException e) {
-            error = true;
-            LOGGER.debug("Unable to load properties using default Spring properties loader.", e);
-          }
-        } else {
-          try {
-            LOGGER.debug(
-                "Attempting to load properties from {} with Spring PropertiesLoaderUtils with class loader.",
-                propertiesFile);
-            properties =
-                PropertiesLoaderUtils.loadAllProperties(
-                    propertiesFile, PropertiesLoader.class.getClassLoader());
-            error = false;
-          } catch (IOException e) {
-            error = true;
-            LOGGER.debug("Unable to load properties using default Spring properties loader.", e);
-          }
-        }
-      }
-
-      if (error || properties.isEmpty()) {
-        LOGGER.debug("Attempting to load properties from file system: {}", propertiesFile);
-        File propFile = new File(propertiesFile);
-        // If properties file has fully-qualified absolute path (which
-        // the blueprint file specifies) then can load it directly.
-        if (propFile.isAbsolute()) {
-          LOGGER.debug("propertiesFile {} is absolute", propertiesFile);
-          propFile = new File(propertiesFile);
-        } else {
-          String rootDirectory = System.getProperty("karaf.home");
-          if (rootDirectory != null && !rootDirectory.isEmpty()) {
-            propFile = new File(rootDirectory, propertiesFile);
-          } else {
-            rootDirectory = System.getProperty("ddf.home");
-            if (rootDirectory != null && !rootDirectory.isEmpty()) {
-              propFile = new File(rootDirectory, propertiesFile);
-            } else {
-              propFile = new File(propertiesFile);
-            }
-          }
-        }
-        properties = new Properties();
-
-        try (InputStreamReader reader =
-            new InputStreamReader(new FileInputStream(propFile), StandardCharsets.UTF_8)) {
-          properties.load(reader);
-        } catch (FileNotFoundException e) {
-          error = true;
-          LOGGER.debug("Could not find properties file: {}", propFile.getAbsolutePath(), e);
-        } catch (IOException e) {
-          error = true;
-          LOGGER.debug("Error reading properties file: {}", propFile.getAbsolutePath(), e);
-        }
-      }
-      if (error || properties.isEmpty()) {
-        LOGGER.debug("Attempting to load properties as a resource: {}", propertiesFile);
-        InputStream ins = PropertiesLoader.class.getResourceAsStream(propertiesFile);
-        if (ins != null) {
-          try {
-            properties.load(ins);
-            ins.close();
-          } catch (IOException e) {
-            LOGGER.debug("Unable to load properties: {}", propertiesFile, e);
-          } finally {
-            IOUtils.closeQuietly(ins);
-          }
-        }
-      }
-
-      // replace any ${prop} with system properties
-      Properties filtered = new Properties();
-      for (Map.Entry<?, ?> entry : properties.entrySet()) {
-        filtered.put(
-            StrSubstitutor.replaceSystemProperties(entry.getKey()),
-            StrSubstitutor.replaceSystemProperties(entry.getValue()));
-      }
-      properties = filtered;
-
-    } else {
+    if (propertiesFile == null) {
       LOGGER.debug("Properties file must not be null.");
+      return properties;
+    }
+
+    Iterator<BiFunction<String, ClassLoader, Properties>> strategiesIterator =
+        PROPERTY_LOADING_STRATEGIES.iterator();
+    do {
+      properties = strategiesIterator.next().apply(propertiesFile, classLoader);
+    } while (properties.isEmpty() && strategiesIterator.hasNext());
+
+    properties = substituteSystemPropertyPlaceholders(properties);
+    return properties;
+  }
+
+  /** Default property loading strategy. */
+  @SuppressWarnings("squid:S1172" /* Used in bi-function */)
+  @VisibleForTesting
+  static Properties attemptLoadWithSpring(String propertiesFile, ClassLoader classLoader) {
+    Properties properties = new Properties();
+    try {
+      LOGGER.debug(
+          "Attempting to load properties from {} with Spring PropertiesLoaderUtils.",
+          propertiesFile);
+      properties = PropertiesLoaderUtils.loadAllProperties(propertiesFile);
+    } catch (IOException e) {
+      LOGGER.debug("Unable to load properties using default Spring properties loader.", e);
+    }
+    return properties;
+  }
+
+  /** Try loading properties using Spring and a provided class loader. */
+  @VisibleForTesting
+  static Properties attemptLoadWithSpringAndClassLoader(
+      String propertiesFile, ClassLoader classLoader) {
+    Properties properties = new Properties();
+    try {
+      LOGGER.debug(
+          "Attempting to load properties from {} with Spring PropertiesLoaderUtils with class loader.",
+          propertiesFile);
+      if (classLoader != null) {
+        properties = PropertiesLoaderUtils.loadAllProperties(propertiesFile, classLoader);
+      } else {
+        properties =
+            PropertiesLoaderUtils.loadAllProperties(
+                propertiesFile, PropertiesLoader.class.getClassLoader());
+      }
+    } catch (IOException e) {
+      LOGGER.debug("Unable to load properties using default Spring properties loader.", e);
+    }
+    return properties;
+  }
+
+  /**
+   * Try loading the properties directly from the file system. If the properties file has a
+   * fully-qualified absolute path (which is what the blueprint file should specify) then it can be
+   * loaded directly, using this method. Otherwise the path will be considered relative and attempts
+   * will be made with {@code karaf.home} and {@code ddf.home} property values prepended to the
+   * original path.
+   */
+  @SuppressWarnings("squid:S1172" /* Used in bi-function */)
+  @VisibleForTesting
+  static Properties attemptLoadWithFileSystem(String propertiesFile, ClassLoader classLoader) {
+    LOGGER.debug("Attempting to load properties from file system: {}", propertiesFile);
+    Properties properties = new Properties();
+
+    String karafHome = System.getProperty("karaf.home");
+    String ddfHome = System.getProperty("ddf.home");
+
+    File propFile;
+    AbsolutePathResolver absPath = new AbsolutePathResolver(propertiesFile);
+    if (StringUtils.isNotBlank(karafHome)) {
+      propFile = new File(absPath.getPath(karafHome));
+    } else if (StringUtils.isNotBlank(ddfHome)) {
+      propFile = new File(absPath.getPath(ddfHome));
+    } else {
+      propFile = new File(propertiesFile);
+    }
+
+    if (propFile.exists()) {
+      try (InputStreamReader reader =
+          new InputStreamReader(new FileInputStream(propFile), StandardCharsets.UTF_8)) {
+        properties.load(reader);
+      } catch (FileNotFoundException e) {
+        LOGGER.debug("Could not find properties file: {}", propFile.getAbsolutePath(), e);
+      } catch (IOException e) {
+        LOGGER.debug("Error reading properties file: {}", propFile.getAbsolutePath(), e);
+        properties.clear();
+      }
+    } else {
+      LOGGER.debug("Could not find properties file: {}", propFile.getAbsolutePath());
     }
 
     return properties;
+  }
+
+  /** Try loading the properties using Java's resource loading facilities. */
+  @SuppressWarnings("squid:S1172" /* Used in bi-function */)
+  @VisibleForTesting
+  static Properties attemptLoadAsResource(String propertiesFile, ClassLoader classLoader) {
+    LOGGER.debug("Attempting to load properties as a resource: {}", propertiesFile);
+    InputStream ins = PropertiesLoader.class.getResourceAsStream(propertiesFile);
+    Properties properties = new Properties();
+    if (ins != null) {
+      try {
+        properties.load(ins);
+      } catch (IOException e) {
+        LOGGER.debug("Unable to load properties: {}", propertiesFile, e);
+      } finally {
+        IOUtils.closeQuietly(ins);
+      }
+    }
+    return properties;
+  }
+
+  /**
+   * Replace any ${prop} with system properties.
+   *
+   * @param props current state of properties that contain placeholders of the form ${property}.
+   * @return the given property object with system property placeholders switched to their actual
+   *     values.
+   */
+  @VisibleForTesting
+  static Properties substituteSystemPropertyPlaceholders(Properties props) {
+    Properties filtered = new Properties();
+    for (Map.Entry<?, ?> entry : props.entrySet()) {
+      filtered.put(
+          StrSubstitutor.replaceSystemProperties(entry.getKey()),
+          StrSubstitutor.replaceSystemProperties(entry.getValue()));
+      StrSubstitutor.replaceSystemProperties(new Object());
+    }
+    return filtered;
   }
 }
