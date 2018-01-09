@@ -87,6 +87,7 @@ define([
             this.listenTo(this.get('completeActiveSearchResults'), 'update add remove reset', this.updateActiveSearchResultsFullAttributes);
         },
         updateActiveSearchResultsFullAttributes: function() {
+            this.clearSelectedResults();
             var availableAttributes = this.get('completeActiveSearchResults').reduce(function(currentAvailable, result) {
                 currentAvailable = _.union(currentAvailable, Object.keys(result.get('metacard').get('properties').toJSON()));
                 return currentAvailable;
