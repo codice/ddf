@@ -66,6 +66,8 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
 
   private static final String INVALID_NULL_EXPORT_DIR = "invalid null export directory";
 
+  private static final String INVALID_NULL_CONSUMER = "invalid null consumer";
+
   private final List<Migratable> migratables;
 
   private final SystemService system;
@@ -150,7 +152,7 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
 
   @Override
   public MigrationReport doExport(Path exportDirectory, Consumer<MigrationMessage> consumer) {
-    Validate.notNull(consumer, "invalid null consumer");
+    Validate.notNull(consumer, ConfigurationMigrationManager.INVALID_NULL_CONSUMER);
     // start the access control starting with this class' privileges; thus ignoring whoever called
     // us
     return AccessUtils.doPrivileged(() -> doExport(exportDirectory, Optional.ofNullable(consumer)));
@@ -165,7 +167,7 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
 
   @Override
   public MigrationReport doImport(Path exportDirectory, Consumer<MigrationMessage> consumer) {
-    Validate.notNull(consumer, "invalid null consumer");
+    Validate.notNull(consumer, ConfigurationMigrationManager.INVALID_NULL_CONSUMER);
     // start the access control starting with this class' privileges; thus ignoring whoever called
     // us
     return AccessUtils.doPrivileged(() -> doImport(exportDirectory, Optional.of(consumer)));
@@ -180,7 +182,7 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
 
   @Override
   public MigrationReport doDecrypt(Path exportDirectory, Consumer<MigrationMessage> consumer) {
-    Validate.notNull(consumer, "invalid null consumer");
+    Validate.notNull(consumer, ConfigurationMigrationManager.INVALID_NULL_CONSUMER);
     // start the access control starting with this class' privileges; thus ignoring whoever called
     // us
     return AccessUtils.doPrivileged(

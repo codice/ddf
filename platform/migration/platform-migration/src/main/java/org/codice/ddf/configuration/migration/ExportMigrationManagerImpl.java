@@ -19,6 +19,7 @@ import java.io.Closeable;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Date;
@@ -29,7 +30,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-import javax.crypto.CipherOutputStream;
 import org.apache.commons.io.output.CloseShieldOutputStream;
 import org.apache.commons.lang.Validate;
 import org.codice.ddf.migration.Migratable;
@@ -177,14 +177,15 @@ public class ExportMigrationManagerImpl implements Closeable {
   public void close() throws IOException {
     if (!closed) {
       this.closed = true;
-      CipherOutputStream cos = null;
+      OutputStream cos = null;
+
       try {
         zipOutputStream.closeEntry();
         try {
           zipOutputStream.putNextEntry(
               new ZipEntry(MigrationContextImpl.METADATA_FILENAME.toString()));
-          CloseShieldOutputStream shieldOutputStream = new CloseShieldOutputStream(zipOutputStream);
-          cos = cipherUtils.getCipherOutputStream(shieldOutputStream);
+          cos = new CloseShieldOutputStream(zipOutputStream);
+          cos = cipherUtils.getCipherOutputStream(cos);
           JsonUtils.MAPPER.writeValue(cos, metadata);
         } catch (IOException e) {
           throw new MigrationException(Messages.EXPORT_METADATA_CREATE_ERROR, e);
@@ -194,7 +195,6 @@ public class ExportMigrationManagerImpl implements Closeable {
           }
         }
       } finally {
-
         zipOutputStream.close();
       }
     }

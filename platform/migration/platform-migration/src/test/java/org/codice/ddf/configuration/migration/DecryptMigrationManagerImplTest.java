@@ -16,7 +16,6 @@ package org.codice.ddf.configuration.migration;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
-import com.google.common.base.Charsets;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -36,7 +35,6 @@ import org.hamcrest.StringDescription;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.AdditionalAnswers;
 import org.mockito.Mockito;
 
 public class DecryptMigrationManagerImplTest extends AbstractMigrationReportSupport {
@@ -76,22 +74,6 @@ public class DecryptMigrationManagerImplTest extends AbstractMigrationReportSupp
             Mockito.withSettings()
                 .useConstructor(report, zip, decryptFile)
                 .defaultAnswer(Mockito.CALLS_REAL_METHODS));
-  }
-
-  private MigrationZipEntry getMetadataZipEntry(
-      Optional<String> version, Optional<String> productBranding, Optional<String> productVersion)
-      throws IOException {
-    final MigrationZipEntry ze = Mockito.mock(MigrationZipEntry.class);
-
-    Mockito.when(ze.getName()).thenReturn(MigrationContextImpl.METADATA_FILENAME.toString());
-    Mockito.when(ze.isDirectory()).thenReturn(false);
-    // use answer to ensure we create a new stream each time if called multiple times
-    Mockito.doAnswer(
-            AdditionalAnswers.answer(
-                zea -> new ByteArrayInputStream("test".getBytes(Charsets.UTF_8))))
-        .when(zip)
-        .getInputStream(ze);
-    return ze;
   }
 
   @Test
@@ -177,8 +159,8 @@ public class DecryptMigrationManagerImplTest extends AbstractMigrationReportSupp
     Assert.assertThat(entries, Matchers.hasKey(NAME));
     final MigrationZipEntry entry = entries.get(NAME);
 
-    Assert.assertThat(entry.isDirectory(), Matchers.equalTo(false));
-    Assert.assertThat(entry.getContentAsString(), Matchers.equalTo(CONTENT));
+    Assert.assertThat(entry.isDirectory(), equalTo(false));
+    Assert.assertThat(entry.getContentAsString(), equalTo(CONTENT));
   }
 
   @Test
@@ -202,8 +184,8 @@ public class DecryptMigrationManagerImplTest extends AbstractMigrationReportSupp
     Assert.assertThat(entries, Matchers.hasKey(name));
     final MigrationZipEntry entry = entries.get(name);
 
-    Assert.assertThat(entry.isDirectory(), Matchers.equalTo(true));
-    Assert.assertThat(entry.getContent().length, Matchers.equalTo(0));
+    Assert.assertThat(entry.isDirectory(), equalTo(true));
+    Assert.assertThat(entry.getContent().length, equalTo(0));
   }
 
   @Test

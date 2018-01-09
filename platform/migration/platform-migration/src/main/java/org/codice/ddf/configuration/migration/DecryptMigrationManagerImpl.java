@@ -20,8 +20,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -38,7 +36,17 @@ public class DecryptMigrationManagerImpl implements Closeable {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DecryptMigrationManagerImpl.class);
 
-  private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
+  private final MigrationReport report;
+
+  private final MigrationZipFile zip;
+
+  private final ZipOutputStream zipOutputStream;
+
+  private final Path exportFile;
+
+  private final Path decryptFile;
+
+  private boolean close = false;
 
   @SuppressWarnings(
       "squid:S2095" /* up to the caller of this method to close it; exception is thrown if the stream cannot be created in the first place */)
@@ -51,18 +59,6 @@ public class DecryptMigrationManagerImpl implements Closeable {
       throw new MigrationException(Messages.DECRYPT_FILE_CREATE_ERROR, decryptFile, e);
     }
   }
-
-  private final MigrationReport report;
-
-  private final MigrationZipFile zip;
-
-  private final ZipOutputStream zipOutputStream;
-
-  private final Path exportFile;
-
-  private final Path decryptFile;
-
-  private final boolean close = false;
 
   /**
    * Creates a new migration manager for a decrypt operation.
@@ -122,8 +118,11 @@ public class DecryptMigrationManagerImpl implements Closeable {
 
   @Override
   public void close() throws IOException {
-    IOUtils.closeQuietly(zip); // we don't care if we cannot close the input zip file or not
-    zipOutputStream.close();
+    if (!close) {
+      this.close = true;
+      IOUtils.closeQuietly(zip); // we don't care if we cannot close the input zip file or not
+      zipOutputStream.close();
+    }
   }
 
   public MigrationReport getReport() {
