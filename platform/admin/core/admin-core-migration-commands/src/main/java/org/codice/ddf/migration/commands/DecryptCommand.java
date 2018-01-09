@@ -27,7 +27,7 @@ import org.osgi.service.event.EventAdmin;
   scope = MigrationCommand.NAMESPACE,
   name = "decrypt",
   description =
-      "Decrypts an exported file. Decrypting an exported file is unsecure and appropriate measures should be taken to secure the resulting decrypted file."
+      "Decrypts an exported file. Decrypting an exported file is insecure and appropriate measures should be taken to secure the resulting decrypted file."
 )
 public class DecryptCommand extends MigrationCommand {
 

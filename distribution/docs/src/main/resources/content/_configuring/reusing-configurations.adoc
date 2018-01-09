@@ -28,7 +28,7 @@ To import previously exported configuration settings:
 . ${branding} will automatically restart if the command is successful. Otherwise address any generated warnings before manually restarting ${branding}.
 . Finish <<_hardening_checklist,hardening>> the system (e.g. file and directory permissions).
 
-It is possible to decrypt the previously exported configuration settings but doing so is unsecure and appropriate measures should be taken to secure the resulting decrypted file.
+It is possible to decrypt the previously exported configuration settings but doing so is insecure and appropriate measures should be taken to secure the resulting decrypted file.
 To decrypt the exported file:
 
 . Copy all 3 exported files (i.e. `.dar`, `.key`, and `.sha256`) to the `exported` directory underneath `${home_directory}`. Create the directory if it does not exist.
