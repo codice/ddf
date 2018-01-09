@@ -42,8 +42,7 @@ define([
         },
         events: {
             'click .home-templates-choices-choice': 'createNewWorkspace',
-            'click .home-templates-header-button': 'expand',
-            'click .expanded-back': 'close',
+            'click .home-templates-header-button': 'toggleExpansion',
             'click .adhoc-go': 'startAdhocSearch'
         },
         regions: {
@@ -119,6 +118,13 @@ define([
                 default:
                     store.get('workspaces').createWorkspace();
                     break;
+            }
+        },
+        toggleExpansion: function() {
+            if (this.$el.hasClass('is-expanded')) {
+                this.close();
+            } else {
+                this.expand();
             }
         },
         expand: function(){

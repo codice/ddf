@@ -104,34 +104,6 @@
     white-space: nowrap;
     line-height: 2*@minimumLineSize;
   }
-
-  .expanded-content {
-    margin: auto;
-    max-width: 1200px;
-    padding: 0px 100px 0px @minimumButtonSize;
-  }
-
-  .expanded-back,
-  .expanded-title {
-    display: inline-block;
-    font-size: @largeFontSize;
-    vertical-align: top;
-  }
-
-  .expanded-back {
-    width: @minimumButtonSize;
-    text-align: center;
-    cursor: pointer;
-    opacity: @minimumOpacity;
-  }
-
-  .expanded-back:hover {
-    opacity: 1;
-  }
-
-  .expanded-title {
-    .is-bold();
-  }
 }
 
 @{customElementNamespace}workspaces-templates.is-expanded {
@@ -143,10 +115,6 @@
   height: ~'calc(100vh - 2*@{minimumLineSize})';
   overflow: auto;
 
-  .home-templates-header-hint,
-  .home-templates-header-button {
-    display: none;
-  }
 }
 
 .has-footer @{customElementNamespace}workspaces-templates.is-expanded,
