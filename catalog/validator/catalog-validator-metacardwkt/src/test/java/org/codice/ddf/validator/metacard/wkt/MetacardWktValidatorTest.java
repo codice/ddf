@@ -11,8 +11,9 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.validator.metacard.location;
+package org.codice.ddf.validator.metacard.wkt;
 
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -28,52 +29,58 @@ import ddf.catalog.validation.violation.ValidationViolation;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import org.codice.ddf.validator.wkt.WktValidatorImpl;
 import org.junit.Test;
 
-public class MetacardLocationValidatorTest {
-  private MetacardLocationValidator locationValidator = new MetacardLocationValidator();
+public class MetacardWktValidatorTest {
+
+  public static final String TEST_ATTRIBUTE = "test-attribute";
+
+  private MetacardWktValidator metacardWktValidator =
+      new MetacardWktValidator(new WktValidatorImpl(), TEST_ATTRIBUTE);
 
   @Test
-  public void testMetacardWithValidLocation() throws Exception {
+  public void testMetacardWithValidWkt() throws Exception {
     Metacard metacard = getMetacard();
     String wktLoc = "POINT(50 50)";
-    metacard.setAttribute(new AttributeImpl(Core.LOCATION, wktLoc));
-    locationValidator.validate(metacard);
+    metacard.setAttribute(new AttributeImpl(TEST_ATTRIBUTE, wktLoc));
+    metacardWktValidator.validate(metacard);
   }
 
   @Test(expected = ValidationException.class)
   public void testMetacardWithInvalidLocation() throws Exception {
     Metacard metacard = getMetacard();
     String wktLoc = "POINT(250  250)";
-    metacard.setAttribute(new AttributeImpl(Core.LOCATION, wktLoc));
-    locationValidator.validate(metacard);
+    metacard.setAttribute(new AttributeImpl(TEST_ATTRIBUTE, wktLoc));
+    metacardWktValidator.validate(metacard);
   }
 
   @Test
   public void testNoLocation() throws Exception {
     Metacard metacard = getMetacard();
-    locationValidator.validate(metacard);
+    metacardWktValidator.validate(metacard);
   }
 
   @Test
   public void testLocationValidationErrorNoLocation() throws Exception {
+    String validationMessage = TEST_ATTRIBUTE + " is invalid: POINT(2000 2000)";
     Metacard metacard = getMetacard();
-    metacard.setAttribute(
-        new AttributeImpl(Validation.VALIDATION_ERRORS, "location is invalid: POINT(2000 2000)"));
+    metacard.setAttribute(new AttributeImpl(Validation.VALIDATION_ERRORS, validationMessage));
     Optional<MetacardValidationReport> validationReportOptional =
-        locationValidator.validateMetacard(metacard);
+        metacardWktValidator.validateMetacard(metacard);
     assertThat(validationReportOptional.isPresent(), is(true));
 
     Set<ValidationViolation> validationViolationSet =
         validationReportOptional.get().getMetacardValidationViolations();
     assertThat(validationViolationSet, hasSize(1));
+    assertThat(validationViolationSet.iterator().next().getMessage(), equalTo(validationMessage));
   }
 
   @Test
   public void testNoLocationNoErrors() throws Exception {
     Metacard metacard = getMetacard();
     Optional<MetacardValidationReport> validationReportOptional =
-        locationValidator.validateMetacard(metacard);
+        metacardWktValidator.validateMetacard(metacard);
     assertThat(validationReportOptional.isPresent(), is(false));
   }
 
@@ -83,7 +90,7 @@ public class MetacardLocationValidatorTest {
     metacard.setAttribute(
         new AttributeImpl(Validation.VALIDATION_ERRORS, "another attribute error"));
     Optional<MetacardValidationReport> validationReportOptional =
-        locationValidator.validateMetacard(metacard);
+        metacardWktValidator.validateMetacard(metacard);
     assertThat(validationReportOptional.isPresent(), is(false));
   }
 

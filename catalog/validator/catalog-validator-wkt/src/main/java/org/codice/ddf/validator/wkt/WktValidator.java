@@ -11,15 +11,16 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.validator.metacard.location;
+package org.codice.ddf.validator.wkt;
 
-import ddf.catalog.data.types.Core;
-import org.codice.ddf.validator.metacard.wkt.MetacardWktValidator;
-import org.codice.ddf.validator.wkt.WktValidator;
+/*
+ * The <code>org.codice.ddf.validator.wkt.WktValidator</code> interface determines the validity of a <code>String</code>
+ * representation of a WKT entity.
+ *
+ * <p><b> This code is experimental. While this interface is functional and tested, it may change or
+ * be removed in a future version of the library. </b>
+ */
+public interface WktValidator {
 
-public class MetacardLocationValidator extends MetacardWktValidator {
-
-  public MetacardLocationValidator(WktValidator wktValidator) {
-    super(wktValidator, Core.LOCATION);
-  }
+  public boolean isValid(String wkt);
 }
