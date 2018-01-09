@@ -32,7 +32,6 @@ define([
         'text!templates/sourceRow.handlebars'
     ],
     function (ich, Marionette, _, $, Q, ModalSource, EmptyView, Service, Status, wreqr, Utils, deleteModal, deleteSource, sourcePage, sourceList, sourceRow) {
-
         var SourceView = {};
 
         ich.addTemplate('deleteModal', deleteModal);
@@ -282,6 +281,10 @@ define([
                 'click .deleteSource': 'toggleChecks',
                 'click .selectSourceDelete': 'toggleChecks'
             },
+            behaviors: [{
+                behaviorClass: Utils.modalDismissalBehavior
+            }],
+
             toggleChecks: function (e) {
                 var view = this;
                 var checked = e.target.checked;

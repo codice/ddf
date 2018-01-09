@@ -57,6 +57,14 @@ function ($,_, Marionette) {
         }
     });
 
+    var ModalExplicitDismissalBehavior = Marionette.Behavior.extend({
+        onRender: function() {
+            this.$el.modal({
+                backdrop: 'static',
+                keyboard: false
+            });
+        }
+    });
 
     var Utils = {
         /**
@@ -88,7 +96,11 @@ function ($,_, Marionette) {
                 spinnerSelector: spinnerSelector,
                 callback: toExec
             });
-        }
+        },
+        /**
+         * Modal to not be dismissible by clicking outside or by pressing the ESC key
+         */
+        modalDismissalBehavior : ModalExplicitDismissalBehavior
     };
 
     return Utils;
