@@ -119,11 +119,11 @@
 
 .has-footer @{customElementNamespace}workspaces-templates.is-expanded,
 .has-header @{customElementNamespace}workspaces-templates.is-expanded {
-  height: ~'calc(30vh - 2*@{minimumLineSize} - 2.5rem)';
+  height: @minimumLineSize + 2*@minimumButtonSize + 2*@minimumSpacing + 2*@minimumSpacing + 3*@minimumButtonSize;
 }
 
 .has-header.has-footer @{customElementNamespace}workspaces-templates.is-expanded {
-  height: ~'calc(30vh - 2*@{minimumLineSize} - 4rem)';
+  height: @minimumLineSize + 2*@minimumButtonSize + 2*@minimumSpacing + 2*@minimumSpacing + 3*@minimumButtonSize;
 }
 
  .is-small-screen, .is-mobile-screen {
