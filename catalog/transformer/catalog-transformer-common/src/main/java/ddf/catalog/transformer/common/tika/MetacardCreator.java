@@ -128,7 +128,13 @@ public class MetacardCreator {
         Contact.POINT_OF_CONTACT_NAME,
         metadata.get(Office.USER_DEFINED_METADATA_NAME_PREFIX + "owner"));
 
-    setAttribute(metacard, Contact.CONTRIBUTOR_NAME, metadata.get(Office.LAST_AUTHOR));
+    String lastAuthor = metadata.get(Office.LAST_AUTHOR);
+    String creator = metadata.get(TikaCoreProperties.CREATOR);
+    if (StringUtils.isNotBlank(lastAuthor)
+        && StringUtils.isNotBlank(creator)
+        && !lastAuthor.equals(creator)) {
+      setAttribute(metacard, Contact.CONTRIBUTOR_NAME, metadata.get(Office.LAST_AUTHOR));
+    }
 
     setAttribute(
         metacard,
