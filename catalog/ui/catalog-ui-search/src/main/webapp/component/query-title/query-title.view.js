@@ -51,7 +51,7 @@ define([
         },
         getSearchTitle: function(){
             var title = this.$el.find('input').val();
-            return title !== "" ? title : 'Search Title';
+            return title !== "" ? title : 'Search Name';
         },
         updateQueryName: function(e) {
             this.$el.find('.button-title').html(this.getSearchTitle() + zeroWidthSpace);
