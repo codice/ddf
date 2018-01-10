@@ -191,23 +191,12 @@ public class CachingFederationStrategyTest {
   }
 
   @Test
-  public void testFederateGetEmptyResults() throws Exception {
-    List<String> sourceIds = ImmutableList.of("1");
-
-    QueryRequest fedQueryRequest = new QueryRequestImpl(mockQuery, false, sourceIds, properties);
-
-    List<Source> sourceList = ImmutableList.of();
-
-    QueryResponse federateResponse = federateStrategy.federate(sourceList, fedQueryRequest);
-
-    assertThat(federateResponse.getResults().size(), is(0));
-  }
-
-  @Test
   public void testFederateGetResults() throws Exception {
-    List<String> sourceIds = ImmutableList.of("1");
-
-    QueryRequest fedQueryRequest = new QueryRequestImpl(mockQuery, false, sourceIds, properties);
+    // The incoming QueryRequest's siteNames are checked before CachingFederationStrategy is called,
+    // so they don't need to be set here.
+    // CachingFederationStrategy will return all the results from
+    // the sourceList and never touch the QueryRequest's siteNames
+    QueryRequest fedQueryRequest = new QueryRequestImpl(mockQuery, false, null, properties);
 
     Source mockSource1 = getMockSource();
     Source mockSource2 = getMockSource();
@@ -221,10 +210,19 @@ public class CachingFederationStrategyTest {
   }
 
   @Test
-  public void testFederateGetHits() throws Exception {
-    List<String> sourceIds = ImmutableList.of("1");
+  public void testFederateGetEmptyResults() throws Exception {
+    QueryRequest fedQueryRequest = new QueryRequestImpl(mockQuery, false, null, properties);
 
-    QueryRequest fedQueryRequest = new QueryRequestImpl(mockQuery, false, sourceIds, properties);
+    List<Source> sourceList = ImmutableList.of();
+
+    QueryResponse federateResponse = federateStrategy.federate(sourceList, fedQueryRequest);
+
+    assertThat(federateResponse.getResults().size(), is(0));
+  }
+
+  @Test
+  public void testFederateGetHits() throws Exception {
+    QueryRequest fedQueryRequest = new QueryRequestImpl(mockQuery, true, null, null);
 
     Source mockSource1 = getMockSource();
     Source mockSource2 = getMockSource();
@@ -243,9 +241,7 @@ public class CachingFederationStrategyTest {
 
   @Test
   public void testFederateGetEmptyHits() throws Exception {
-    List<String> sourceIds = ImmutableList.of("1");
-
-    QueryRequest fedQueryRequest = new QueryRequestImpl(mockQuery, false, sourceIds, properties);
+    QueryRequest fedQueryRequest = new QueryRequestImpl(mockQuery, false, null, properties);
 
     List<Source> sourceList = ImmutableList.of();
 
