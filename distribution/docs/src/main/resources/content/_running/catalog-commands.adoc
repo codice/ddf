@@ -1,0 +1,146 @@
+:title: Catalog Commands
+:type: subMaintaining
+:status: published
+:parent: Available Console Commands
+:summary: Catalog commands available.
+:order: 00
+
+== {title}
+
+[WARNING]
+====
+Most commands can bypass the Catalog framework and interact directly with the Catalog provider if given the `--provider` option, if available.
+No pre/post plugins are executed and no message validation is performed if the `--provider` option is used.
+====
+
+.[[catalog_command_descriptions]]Catalog Command Descriptions
+[cols="1m,9a" options="header"]
+|===
+
+|Command
+|Description
+
+|catalog:describe
+|Provides a basic description of the Catalog implementation.
+
+|catlog:dump
+|Exports metacards from the local Catalog. Does not remove them. See <<_date_filtering_options,date filtering options>> below.
+
+|catalog:envlist
+|[IMPORTANT]
+====
+Deprecated as of ddf-catalog 2.5.0. Please use `platform:envlist`.
+====
+
+Provides a list of environment variables.
+
+|catalog:ingest
+|Ingests data files into the Catalog. XML is the default transformer used. See <<_ingest_command,Ingest Command>> for detailed instructions on ingesting data and <<_available_input_transformers,Input Transformers>> for all available transformers.
+
+|catalog:inspect
+|Provides the various fields of a metacard for inspection.
+
+|catalog:latest
+|Retrieves the latest records from the Catalog based on the Core.MODIFIED date.
+
+|catalog:migrate
+|Allows two `CatalogProvider` s to be configured and migrates the data from the primary to the secondary.
+
+|catalog:range
+|Searches by the given range arguments (exclusively).
+
+|catalog:remove
+|Deletes a record from the local Catalog.
+
+|catalog:removeall
+|Attempts to delete all records from the local Catalog.
+
+|catalog:replicate
+|Replicates data from a federated source into the local Catalog.
+
+|catalog:search
+|Searches records in the local Catalog.
+
+|catalog:spatial
+|Searches spatially the local Catalog.
+
+|catalog:transformers
+|Provides information on available transformers.
+
+|catalog:validate
+|Validates an XML file against all installed validators and prints out human readable errors and warnings.
+
+|===
+
+.catalog:dump Options
+The `catalog:dump` command provides selective export of metacards based on date ranges.
+The `--created-after` and `--created-before` options allow filtering on the date and time that the metacard was created, while `--modified-after` and `--modified-before` options allow filtering on the date and time that the metacard was last modified (which is the created date if no other modifications were made).
+These date ranges are exclusive (i.e., if the date and time match exactly, the metacard will not be included).
+[[_date_filtering_options]]The date filtering options (`--created-after`, `--created-before`, `--modified-after`, and `--modified-before`) can be used in any combination, with the export result including only metacards that match all of the provided conditions.
+
+If no date filtering options are provided, created and modified dates are ignored, so that all metacards match.
+
+.Date Syntax
+Supported dates are taken from the common subset of ISO8601, matching the datetime from the following syntax:
+----
+datetime          = time | date-opt-time
+time              = 'T' time-element [offset]
+date-opt-time     = date-element ['T' [time-element] [offset]]
+date-element      = std-date-element | ord-date-element | week-date-element
+std-date-element  = yyyy ['-' MM ['-' dd]]
+ord-date-element  = yyyy ['-' DDD]
+week-date-element = xxxx '-W' ww ['-' e]
+time-element      = HH [minute-element] | [fraction]
+minute-element    = ':' mm [second-element] | [fraction]
+second-element    = ':' ss [fraction]
+fraction          = ('.' | ',') digit+
+offset            = 'Z' | (('+' | '-') HH [':' mm [':' ss [('.' | ',') SSS]]]
+----
+
+.catalog:dump Examples
+----
+${branding-lowercase}${at-symbol}local>// Given we've ingested a few metacards
+${branding-lowercase}${at-symbol}local>catalog:latest
+#       ID                                Modified Date              Title
+1       a6e9ae09c792438e92a3c9d7452a449f  ${timestamp}
+2       b4aced45103a400da42f3b319e58c3ed  ${timestamp}
+3       a63ab22361e14cee9970f5284e8eb4e0  ${timestamp} myTitle
+
+${branding-lowercase}${at-symbol}local>// Filter out older files
+${branding-lowercase}${at-symbol}local>catalog:dump --created-after ${timestamp} /home/user/${branding-lowercase}-catalog-dump
+ 1 file(s) dumped in 0.015 seconds
+
+${branding-lowercase}${at-symbol}local>// Filter out new file
+${branding-lowercase}${at-symbol}local>catalog:dump --created-before ${timestamp} /home/user/${branding-lowercase}-catalog-dump
+ 2 file(s) dumped in 0.023 seconds
+
+${branding-lowercase}${at-symbol}local>// Choose middle file
+${branding-lowercase}${at-symbol}local>catalog:dump --created-after ${timestamp} /home/user/${branding-lowercase}-catalog-dump
+ 1 file(s) dumped in 0.020 seconds
+
+${branding-lowercase}${at-symbol}local>// Modified dates work the same way
+${branding-lowercase}${at-symbol}local>catalog:dump --modified-after ${timestamp} /home/user/${branding-lowercase}-catalog-dump
+ 1 file(s) dumped in 0.015 seconds
+
+${branding-lowercase}${at-symbol}local>// Can mix and match, most restrictive limits apply
+${branding-lowercase}${at-symbol}local>catalog:dump --modified-after ${timestamp} /home/user/${branding-lowercase}-catalog-dump
+ 1 file(s) dumped in 0.024 seconds
+
+${branding-lowercase}${at-symbol}local>// Can use UTC instead of (or in combination with) explicit timezone offset
+${branding-lowercase}${at-symbol}local>catalog:dump --modified-after ${timestamp} /home/user/${branding-lowercase}-catalog-dump
+ 2 file(s) dumped in 0.020 seconds
+${branding-lowercase}${at-symbol}local>catalog:dump --modified-after ${timestamp} /home/user/${branding-lowercase}-catalog-dump
+ 1 file(s) dumped in 0.015 seconds
+
+${branding-lowercase}${at-symbol}local>// Can leave off timezone, but default (local time on server) may not match what you expect!
+${branding-lowercase}${at-symbol}local>catalog:dump --modified-after ${timestamp} /home/user/${branding-lowercase}-catalog-dump
+ 1 file(s) dumped in 0.018 seconds
+
+${branding-lowercase}${at-symbol}local>// Can leave off trailing minutes / seconds
+${branding-lowercase}${at-symbol}local>catalog:dump --modified-after ${timestamp} /home/user/${branding-lowercase}-catalog-dump
+ 2 file(s) dumped in 0.024 seconds
+
+${branding-lowercase}${at-symbol}local>// Can use year and day number
+${branding-lowercase}${at-symbol}local>catalog:dump --modified-after ${timestamp} /home/user/${branding-lowercase}-catalog-dump
+ 2 file(s) dumped in 0.027 seconds
+----
