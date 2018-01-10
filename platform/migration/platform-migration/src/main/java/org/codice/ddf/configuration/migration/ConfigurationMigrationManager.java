@@ -23,8 +23,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -162,7 +164,8 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
   public MigrationReport doImport(Path exportDirectory) {
     // start the access control starting with this class' privileges; thus ignoring whoever called
     // us
-    return AccessUtils.doPrivileged(() -> doImport(exportDirectory, Optional.empty()));
+    return AccessUtils.doPrivileged(
+        () -> doImport(exportDirectory, Collections.emptySet(), Optional.empty()));
   }
 
   @Override
@@ -170,7 +173,19 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
     Validate.notNull(consumer, ConfigurationMigrationManager.INVALID_NULL_CONSUMER);
     // start the access control starting with this class' privileges; thus ignoring whoever called
     // us
-    return AccessUtils.doPrivileged(() -> doImport(exportDirectory, Optional.of(consumer)));
+    return AccessUtils.doPrivileged(
+        () -> doImport(exportDirectory, Collections.emptySet(), Optional.of(consumer)));
+  }
+
+  @Override
+  public MigrationReport doImport(
+      Path exportDirectory, Set<String> mandatoryMigratables, Consumer<MigrationMessage> consumer) {
+    Validate.notNull(consumer, "invalid null consumer");
+    Validate.notNull(mandatoryMigratables, "invalid null set of migratable ids");
+    // start the access control starting with this class' privileges; thus ignoring whoever called
+    // us
+    return AccessUtils.doPrivileged(
+        () -> doImport(exportDirectory, mandatoryMigratables, Optional.of(consumer)));
   }
 
   @Override
@@ -190,14 +205,15 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
   }
 
   @VisibleForTesting
-  void delegateToImportMigrationManager(MigrationReportImpl report, MigrationZipFile zip) {
+  void delegateToImportMigrationManager(
+      MigrationReportImpl report, MigrationZipFile zip, Set<String> mandatoryMigratables) {
     final ImportMigrationManagerImpl mgr =
-        new ImportMigrationManagerImpl(report, zip, migratables.stream());
+        new ImportMigrationManagerImpl(report, zip, mandatoryMigratables, migratables.stream());
     try {
       report.record(Messages.IMPORTING_DATA, productBranding, zip.getZipPath());
       mgr.doImport(productBranding, productVersion);
     } finally {
-      IOUtils.closeQuietly(mgr);
+      IOUtils.closeQuietly(mgr); // do not care if we fail to close the mgr/zip file!!!
     }
   }
 
@@ -293,7 +309,9 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
   }
 
   private MigrationReport doImport(
-      Path exportDirectory, Optional<Consumer<MigrationMessage>> consumer) {
+      Path exportDirectory,
+      Set<String> mandatoryMigratables,
+      Optional<Consumer<MigrationMessage>> consumer) {
     Validate.notNull(exportDirectory, ConfigurationMigrationManager.INVALID_NULL_EXPORT_DIR);
     final MigrationReportImpl report = new MigrationReportImpl(MigrationOperation.IMPORT, consumer);
     final Path exportFile =
@@ -302,14 +320,14 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
                 + '-'
                 + productVersion
                 + ConfigurationMigrationManager.EXPORT_EXTENSION);
-
     MigrationZipFile zip = null;
+
     try {
       zip = newZipFileFor(exportFile);
       if (!zip.isValidChecksum()) {
         throw new MigrationException(Messages.IMPORT_ZIP_CHECKSUM_INVALID, exportFile);
       }
-      delegateToImportMigrationManager(report, zip);
+      delegateToImportMigrationManager(report, zip, mandatoryMigratables);
     } catch (MigrationException e) {
       report.record(e);
     } catch (SecurityException e) {
@@ -318,7 +336,7 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
       report.record(new MigrationException(Messages.IMPORT_INTERNAL_ERROR, exportFile, e));
     }
     report.end();
-    if ((zip == null) || (report.hasErrors())) {
+    if ((zip == null) || report.hasErrors()) {
       SecurityLogger.audit("Errors importing configuration settings from file {}", exportFile);
       report.record(new MigrationException(Messages.IMPORT_FAILURE, exportFile));
     } else if (report.hasWarnings()) {

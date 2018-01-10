@@ -13,17 +13,20 @@
  */
 package org.codice.ddf.migration.commands;
 
+import java.util.Collections;
+import java.util.Set;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 public class ImportCommandTest extends AbstractMigrationCommandSupport {
 
   @Before
   public void setup() throws Exception {
-    initCommand(new ImportCommand(service, security, eventAdmin, session));
+    initCommand(new ImportCommand(service, security, eventAdmin, session, false));
   }
 
   @Test
@@ -35,10 +38,26 @@ public class ImportCommandTest extends AbstractMigrationCommandSupport {
   }
 
   @Test
-  public void testExecuteWithSubject() throws Exception {
+  public void testExecuteWithSubjectAndProfileDisabled() throws Exception {
     command.executeWithSubject();
 
-    Mockito.verify(service).doImport(Mockito.eq(exportedPath), Mockito.notNull());
+    Mockito.verify(service)
+        .doImport(
+            Mockito.eq(exportedPath), Mockito.same(Collections.emptySet()), Mockito.notNull());
     verifyPostedEvent("import");
+  }
+
+  @Test
+  public void testExecuteWithSubjectAndProfileEnabled() throws Exception {
+    initCommand(new ImportCommand(service, security, eventAdmin, session, true));
+
+    command.executeWithSubject();
+
+    final ArgumentCaptor<Set<String>> mandatoryMigratables = ArgumentCaptor.forClass(Set.class);
+
+    Mockito.verify(service)
+        .doImport(Mockito.eq(exportedPath), mandatoryMigratables.capture(), Mockito.notNull());
+    verifyPostedEvent("import");
+    Assert.assertThat(mandatoryMigratables.getValue(), Matchers.contains("ddf.profile"));
   }
 }

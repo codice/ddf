@@ -14,7 +14,9 @@
 package org.codice.ddf.migration.commands;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.util.Collections;
 import org.apache.karaf.shell.api.action.Command;
+import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.apache.karaf.shell.api.console.Session;
 import org.codice.ddf.configuration.migration.ConfigurationMigrationService;
@@ -36,6 +38,16 @@ import org.osgi.service.event.EventAdmin;
 )
 public class ImportCommand extends MigrationCommand {
 
+  @Option(
+    name = "--profile",
+    required = false,
+    multiValued = false,
+    description =
+        "Enables the installed profile from the original system to be restored. This option is currently experimental and has been tested only with the standard and the ha profiles."
+  )
+  @VisibleForTesting
+  boolean profile = false;
+
   public ImportCommand() {}
 
   @VisibleForTesting
@@ -43,14 +55,19 @@ public class ImportCommand extends MigrationCommand {
       ConfigurationMigrationService service,
       Security security,
       EventAdmin eventAdmin,
-      Session session) {
+      Session session,
+      boolean profile) {
     super(service, security, eventAdmin, session);
+    this.profile = profile;
   }
 
   @Override
   protected Object executeWithSubject() {
     postSystemNotice("import");
-    configurationMigrationService.doImport(exportDirectory, this::outputMessage);
+    configurationMigrationService.doImport(
+        exportDirectory,
+        (profile ? Collections.singleton("ddf.profile") : Collections.emptySet()),
+        this::outputMessage);
     return null;
   }
 }
