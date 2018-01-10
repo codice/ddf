@@ -69,6 +69,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorService;
 import org.codice.ddf.configuration.SystemInfo;
@@ -197,8 +198,6 @@ public class CachingFederationStrategyTest {
 
     List<Source> sourceList = ImmutableList.of();
 
-    when(mockResponse.getHits()).thenReturn((long) sourceList.size());
-
     QueryResponse federateResponse = federateStrategy.federate(sourceList, fedQueryRequest);
 
     assertThat(federateResponse.getResults().size(), is(0));
@@ -210,11 +209,11 @@ public class CachingFederationStrategyTest {
 
     QueryRequest fedQueryRequest = new QueryRequestImpl(mockQuery, false, sourceIds, properties);
 
-    Source mockSource = getMockSource();
+    Source mockSource1 = getMockSource();
+    Source mockSource2 = getMockSource();
+    Source mockSource3 = getMockSource();
 
-    List<Source> sourceList = ImmutableList.of(mockSource, mockSource, mockSource);
-
-    when(mockResponse.getHits()).thenReturn((long) sourceList.size());
+    List<Source> sourceList = ImmutableList.of(mockSource1, mockSource2, mockSource3);
 
     QueryResponse federateResponse = federateStrategy.federate(sourceList, fedQueryRequest);
 
@@ -227,15 +226,19 @@ public class CachingFederationStrategyTest {
 
     QueryRequest fedQueryRequest = new QueryRequestImpl(mockQuery, false, sourceIds, properties);
 
-    Source mockSource = getMockSource();
+    Source mockSource1 = getMockSource();
+    Source mockSource2 = getMockSource();
+    Source mockSource3 = getMockSource();
 
-    List<Source> sourceList = ImmutableList.of(mockSource, mockSource, mockSource);
+    List<Source> sourceList = ImmutableList.of(mockSource1, mockSource2, mockSource3);
 
-    when(mockResponse.getHits()).thenReturn((long) sourceList.size());
+    long numHits = 2;
+
+    when(mockResponse.getHits()).thenReturn(numHits);
 
     QueryResponse federateResponse = federateStrategy.federate(sourceList, fedQueryRequest);
 
-    assertThat(federateResponse.getHits(), is((long) sourceList.size() * sourceList.size()));
+    assertThat(federateResponse.getHits(), is(numHits * sourceList.size()));
   }
 
   @Test
@@ -246,7 +249,9 @@ public class CachingFederationStrategyTest {
 
     List<Source> sourceList = ImmutableList.of();
 
-    when(mockResponse.getHits()).thenReturn((long) sourceList.size());
+    long numHits = 5;
+
+    when(mockResponse.getHits()).thenReturn(numHits);
 
     QueryResponse federateResponse = federateStrategy.federate(sourceList, fedQueryRequest);
 
@@ -801,7 +806,7 @@ public class CachingFederationStrategyTest {
 
   private Source getMockSource() throws UnsupportedQueryException {
     Source mockSource = mock(Source.class);
-    when(mockSource.getId()).thenReturn("1");
+    when(mockSource.getId()).thenReturn(UUID.randomUUID().toString());
 
     when(mockSource.query(any(QueryRequest.class))).thenReturn(mockResponse);
 
