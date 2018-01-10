@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * An implementation of java.util.Iterator which iterates over Metacard attribute values.
@@ -29,6 +30,8 @@ import java.util.NoSuchElementException;
  * @see java.util.Iterator
  */
 class MetacardIterator implements Iterator<Serializable> {
+  private static final String MULTIVALUE_DELIMITER = "\n";
+
   private List<AttributeDescriptor> attributeDescriptorList;
 
   private Metacard metacard;
@@ -65,7 +68,11 @@ class MetacardIterator implements Iterator<Serializable> {
     index++;
 
     if (attribute != null) {
-      return attribute.getValue();
+      if (attributeDescriptor.isMultiValued()) {
+        return StringUtils.join(attribute.getValues(), MULTIVALUE_DELIMITER);
+      } else {
+        return attribute.getValue();
+      }
     }
 
     return "";
