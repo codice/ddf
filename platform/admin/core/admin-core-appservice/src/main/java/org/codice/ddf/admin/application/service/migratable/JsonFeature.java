@@ -23,24 +23,29 @@ import org.apache.karaf.features.FeaturesService;
 
 /** Defines a Json object to represent an exported feature. */
 public class JsonFeature implements JsonValidatable {
-  @Nullable // only because Boon may not set if as it bypasses our ctor and the final keyword
+  private static final String FEATURE_OSGI_REQUIREMENT_FORMAT = "feature:%s/[%s,%s]";
+
+  @Nullable // only because Boon may not set it as it bypasses our ctor and the final keyword
   private final String name;
 
-  @Nullable // only because Boon may not set if as it bypasses our ctor and the final keyword
+  @Nullable // only because Boon may not set it as it bypasses our ctor and the final keyword
   private final String id;
 
   @Nullable private final String version;
 
   @Nullable private final String description;
 
-  @Nullable // only because Boon may not set if as it bypasses our ctor and the final keyword
+  @Nullable // only because Boon may not set it as it bypasses our ctor and the final keyword
   private final FeatureState state;
+
+  @Nullable // only because Boon may not set it as it bypasses our ctor and the final keyword
+  private final Boolean required; // Boolean used to detect missing Json entries as null
 
   @Nullable private final String region;
 
   @Nullable private final String repository;
 
-  @Nullable // only because Boon may not set if as it bypasses our ctor and the final keyword
+  @Nullable // only because Boon may not set it as it bypasses our ctor and the final keyword
   private final Integer startLevel; // Integer used to detect missing Json entries as null
 
   /**
@@ -58,6 +63,7 @@ public class JsonFeature implements JsonValidatable {
         feature.getVersion(),
         feature.getDescription(),
         featureService.getState(feature.getId()),
+        featureService.isRequired(feature),
         null,
         feature.getRepositoryUrl(),
         feature.getStartLevel());
@@ -71,19 +77,22 @@ public class JsonFeature implements JsonValidatable {
    * @param version the feature optional version
    * @param description the feature optional description
    * @param state the feature state
+   * @param required whether the feature is required or not
    * @param region the feature optional region
    * @param startLevel the feature start level
    * @throws IllegalArgumentException if <code>name</code>, <code>id</code>, or <code>state</code>
    *     is <code>null</code>
    */
   @SuppressWarnings(
-      "squid:S00107" /* Pojo attributes initialization of final attributes requires 8 parameters */)
-  public JsonFeature(
+      "squid:S00107" /* Pojo attributes initialization of final attributes requires 9 parameters */)
+  @VisibleForTesting
+  JsonFeature(
       String name,
       String id,
       @Nullable String version,
       @Nullable String description,
       FeatureState state,
+      boolean required,
       @Nullable String region,
       @Nullable String repository,
       int startLevel) {
@@ -95,20 +104,10 @@ public class JsonFeature implements JsonValidatable {
     this.version = version;
     this.description = description;
     this.state = state;
+    this.required = required;
     this.region = region;
     this.repository = repository;
     this.startLevel = startLevel;
-  }
-
-  @VisibleForTesting
-  JsonFeature(
-      String name,
-      String id,
-      FeatureState state,
-      @Nullable String region,
-      @Nullable String repository,
-      int startLevel) {
-    this(name, id, null, null, state, region, repository, startLevel);
   }
 
   public String getName() {
@@ -133,6 +132,10 @@ public class JsonFeature implements JsonValidatable {
     return state;
   }
 
+  public boolean isRequired() {
+    return required;
+  }
+
   public String getRegion() {
     return (region != null) ? region : FeaturesService.ROOT_REGION;
   }
@@ -146,11 +149,21 @@ public class JsonFeature implements JsonValidatable {
     return startLevel;
   }
 
+  /**
+   * Builds a requirement string for this feature.
+   *
+   * @return the corresponding requirement string
+   */
+  public String toRequirement() {
+    return String.format(JsonFeature.FEATURE_OSGI_REQUIREMENT_FORMAT, name, version, version);
+  }
+
   @Override
   public void validate() {
     Validate.notNull(name, "missing required feature name");
     Validate.notNull(id, "missing required feature id");
     Validate.notNull(state, "missing required feature state");
+    Validate.notNull(required, "missing feature required flag");
     Validate.notNull(startLevel, "missing required feature start level");
   }
 
@@ -171,6 +184,7 @@ public class JsonFeature implements JsonValidatable {
           && id.equals(jfeature.id)
           && Objects.equals(version, jfeature.version)
           && Objects.equals(description, jfeature.description)
+          && required.equals(jfeature.required)
           && Objects.equals(region, jfeature.region)
           && Objects.equals(repository, jfeature.repository)
           && startLevel.equals(jfeature.startLevel);
@@ -181,5 +195,18 @@ public class JsonFeature implements JsonValidatable {
   @Override
   public String toString() {
     return "feature [" + id + "]";
+  }
+
+  /**
+   * Builds a requirement string for the provided feature.
+   *
+   * @param feature the feature to get a requirement string for
+   * @return the corresponding requirement string
+   */
+  public static String toRequirement(Feature feature) {
+    final String vstr = feature.getVersion();
+
+    return String.format(
+        JsonFeature.FEATURE_OSGI_REQUIREMENT_FORMAT, feature.getName(), vstr, vstr);
   }
 }

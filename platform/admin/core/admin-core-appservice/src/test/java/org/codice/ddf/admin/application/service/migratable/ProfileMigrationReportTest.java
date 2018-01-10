@@ -204,33 +204,6 @@ public class ProfileMigrationReportTest {
   }
 
   @Test
-  public void testGetApplicationAttemptStringTheFirstTime() throws Exception {
-    profileReport.getApplicationAttemptString(Operation.UNINSTALL, "app");
-
-    Assert.assertThat(
-        profileReport.getApplicationAttemptString(Operation.INSTALL, "app"), Matchers.equalTo(""));
-
-    // should not be impacted
-    Assert.assertThat(
-        profileReport.getApplicationAttemptString(Operation.START, "app2"), Matchers.equalTo(""));
-  }
-
-  @Test
-  public void testGetApplicationAttemptStringTheSecondTime() throws Exception {
-    profileReport.getApplicationAttemptString(Operation.UNINSTALL, "app");
-
-    Assert.assertThat(
-        profileReport.getApplicationAttemptString(Operation.UNINSTALL, "app"),
-        Matchers.equalTo(" (2nd attempt)"));
-
-    // should not be impacted
-    Assert.assertThat(
-        profileReport.getApplicationAttemptString(Operation.STOP, "app2"), Matchers.equalTo(""));
-    Assert.assertThat(
-        profileReport.getApplicationAttemptString(Operation.INSTALL, "app"), Matchers.equalTo(""));
-  }
-
-  @Test
   public void testGetFeatureAttemptStringTheFirstTime() throws Exception {
     profileReport.getFeatureAttemptString(Operation.UNINSTALL, "feature");
 

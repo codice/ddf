@@ -74,12 +74,8 @@ public class FeatureMigrator {
     // loop until we can determine that all features that should be started. stopped, installed, or
     // uninstalled are or until we get an error or exceeds the max number of attempts
     while (true) {
-      // populate the task list
-      if (!processor.processFeatures(report, jprofile, tasks)) {
-        // missing installed features; bail - no point in continuing
-        // errors would already have been recorded
-        return false;
-      } else if (tasks.isEmpty()) {
+      processor.processFeaturesAndPopulateTaskList(jprofile, tasks);
+      if (tasks.isEmpty()) {
         LOGGER.debug("No (or no more) features to import");
         return true;
       } else if (!tasks.execute()) {

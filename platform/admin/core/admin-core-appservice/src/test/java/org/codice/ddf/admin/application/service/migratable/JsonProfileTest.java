@@ -45,12 +45,14 @@ public class JsonProfileTest {
   private static final String FEATURE_VERSION = "1.2";
   private static final String FEATURE_DESCRIPTION = "feature.test.description";
   private static final FeatureState FEATURE_STATE = FeatureState.Installed;
+  private static final boolean FEATURE_REQUIRED = false;
   private static final String FEATURE_REGION = "feature.test.region";
   private static final String FEATURE_REPOSITORY = "feature.test.repo";
   private static final int FEATURE_START = 55;
   private static final String FEATURE_NAME2 = "feature.test.name2";
   private static final String FEATURE_ID2 = "feature.test.id2";
   private static final FeatureState FEATURE_STATE2 = FeatureState.Resolved;
+  private static final boolean FEATURE_REQUIRED2 = true;
   private static final int FEATURE_START2 = 22;
 
   private final JsonBundle jbundle =
@@ -65,18 +67,24 @@ public class JsonProfileTest {
           FEATURE_VERSION,
           FEATURE_DESCRIPTION,
           FEATURE_STATE,
+          FEATURE_REQUIRED,
           FEATURE_REGION,
           FEATURE_REPOSITORY,
           FEATURE_START);
   private final JsonFeature jfeature2 =
       new JsonFeature(
-          FEATURE_NAME2, FEATURE_ID2, null, null, FEATURE_STATE2, null, null, FEATURE_START2);
+          FEATURE_NAME2,
+          FEATURE_ID2,
+          null,
+          null,
+          FEATURE_STATE2,
+          FEATURE_REQUIRED2,
+          null,
+          null,
+          FEATURE_START2);
 
   private final JsonProfile jprofile =
-      new JsonProfile(
-          Collections.emptyList(),
-          Arrays.asList(jfeature, jfeature2),
-          Arrays.asList(jbundle, jbundle2));
+      new JsonProfile(Arrays.asList(jfeature, jfeature2), Arrays.asList(jbundle, jbundle2));
 
   @Rule public ExpectedException thrown = ExpectedException.none();
 
@@ -89,10 +97,7 @@ public class JsonProfileTest {
   @Test
   public void testHashCodeWhenEquals() throws Exception {
     final JsonProfile jprofile2 =
-        new JsonProfile(
-            Collections.emptyList(),
-            Arrays.asList(jfeature, jfeature2),
-            Arrays.asList(jbundle, jbundle2));
+        new JsonProfile(Arrays.asList(jfeature, jfeature2), Arrays.asList(jbundle, jbundle2));
 
     Assert.assertThat(jprofile.hashCode(), Matchers.equalTo(jprofile2.hashCode()));
   }
@@ -100,8 +105,7 @@ public class JsonProfileTest {
   @Test
   public void testHashCodeWhenFeaturesAreDifferent() throws Exception {
     final JsonProfile jprofile2 =
-        new JsonProfile(
-            Collections.emptyList(), Arrays.asList(jfeature2), Arrays.asList(jbundle, jbundle2));
+        new JsonProfile(Arrays.asList(jfeature2), Arrays.asList(jbundle, jbundle2));
 
     Assert.assertThat(jprofile.hashCode(), Matchers.not(Matchers.equalTo(jprofile2.hashCode())));
   }
@@ -109,55 +113,49 @@ public class JsonProfileTest {
   @Test
   public void testHashCodeWhenBundlesAreDifferent() throws Exception {
     final JsonProfile jprofile2 =
-        new JsonProfile(
-            Collections.emptyList(), Arrays.asList(jfeature, jfeature2), Arrays.asList(jbundle2));
+        new JsonProfile(Arrays.asList(jfeature, jfeature2), Arrays.asList(jbundle2));
 
     Assert.assertThat(jprofile.hashCode(), Matchers.not(Matchers.equalTo(jprofile2.hashCode())));
   }
 
   @Test
-  public void tesEqualsWhenEquals() throws Exception {
+  public void testEqualsWhenEquals() throws Exception {
     final JsonProfile jprofile2 =
-        new JsonProfile(
-            Collections.emptyList(),
-            Arrays.asList(jfeature, jfeature2),
-            Arrays.asList(jbundle, jbundle2));
+        new JsonProfile(Arrays.asList(jfeature, jfeature2), Arrays.asList(jbundle, jbundle2));
 
     Assert.assertThat(jprofile.equals(jprofile2), Matchers.equalTo(true));
   }
 
   @Test
-  public void tesEqualsWhenIdentical() throws Exception {
+  public void testEqualsWhenIdentical() throws Exception {
     Assert.assertThat(jprofile.equals(jprofile), Matchers.equalTo(true));
   }
 
   @SuppressWarnings("PMD.EqualsNull" /* purposely testing equals() when called with null */)
   @Test
-  public void tesEqualsWhenNull() throws Exception {
+  public void testEqualsWhenNull() throws Exception {
     Assert.assertThat(jprofile.equals(null), Matchers.equalTo(false));
   }
 
   @SuppressWarnings(
       "PMD.PositionLiteralsFirstInComparisons" /* purposely testing equals() when call with something else than expected */)
   @Test
-  public void tesEqualsWhenNotABundle() throws Exception {
+  public void testEqualsWhenNotABundle() throws Exception {
     Assert.assertThat(jprofile.equals("test"), Matchers.equalTo(false));
   }
 
   @Test
-  public void tesEqualsWhenFeaturesAreDifferent() throws Exception {
+  public void testEqualsWhenFeaturesAreDifferent() throws Exception {
     final JsonProfile jprofile2 =
-        new JsonProfile(
-            Collections.emptyList(), Arrays.asList(jfeature), Arrays.asList(jbundle, jbundle2));
+        new JsonProfile(Arrays.asList(jfeature), Arrays.asList(jbundle, jbundle2));
 
     Assert.assertThat(jprofile.equals(jprofile2), Matchers.equalTo(false));
   }
 
   @Test
-  public void tesEqualsWhenBundlesAreDifferent() throws Exception {
+  public void testEqualsWhenBundlesAreDifferent() throws Exception {
     final JsonProfile jprofile2 =
-        new JsonProfile(
-            Collections.emptyList(), Arrays.asList(jfeature, jfeature2), Arrays.asList(jbundle));
+        new JsonProfile(Arrays.asList(jfeature, jfeature2), Arrays.asList(jbundle));
 
     Assert.assertThat(jprofile.equals(jprofile2), Matchers.equalTo(false));
   }
@@ -179,6 +177,8 @@ public class JsonProfileTest {
                     FEATURE_DESCRIPTION,
                     "state",
                     FEATURE_STATE,
+                    "required",
+                    FEATURE_REQUIRED,
                     "region",
                     FEATURE_REGION,
                     "repository",
@@ -192,6 +192,8 @@ public class JsonProfileTest {
                     FEATURE_ID2,
                     "state",
                     FEATURE_STATE2,
+                    "required",
+                    FEATURE_REQUIRED2,
                     "startLevel",
                     FEATURE_START2)),
             "bundles",
@@ -226,8 +228,7 @@ public class JsonProfileTest {
   @Test
   public void testJsonSerializationWithNoFeatures() throws Exception {
     final JsonProfile jprofile =
-        new JsonProfile(
-            Collections.emptyList(), Collections.emptyList(), Collections.singletonList(jbundle));
+        new JsonProfile(Collections.emptyList(), Collections.singletonList(jbundle));
 
     JSONAssert.assertEquals(
         JsonSupport.toJsonString(
@@ -250,8 +251,7 @@ public class JsonProfileTest {
 
   @Test
   public void testJsonSerializationWithNoBundles() throws Exception {
-    final JsonProfile jprofile =
-        new JsonProfile(Collections.emptyList(), Arrays.asList(jfeature), Collections.emptyList());
+    final JsonProfile jprofile = new JsonProfile(Arrays.asList(jfeature), Collections.emptyList());
 
     JSONAssert.assertEquals(
         JsonSupport.toJsonString(
@@ -268,6 +268,8 @@ public class JsonProfileTest {
                     FEATURE_DESCRIPTION,
                     "state",
                     FEATURE_STATE,
+                    "required",
+                    FEATURE_REQUIRED,
                     "region",
                     FEATURE_REGION,
                     "repository",
@@ -296,6 +298,8 @@ public class JsonProfileTest {
                         FEATURE_DESCRIPTION,
                         "state",
                         FEATURE_STATE,
+                        "required",
+                        FEATURE_REQUIRED,
                         "region",
                         FEATURE_REGION,
                         "repository",
@@ -309,6 +313,8 @@ public class JsonProfileTest {
                         FEATURE_ID2,
                         "state",
                         FEATURE_STATE2,
+                        "required",
+                        FEATURE_REQUIRED2,
                         "startLevel",
                         FEATURE_START2)),
                 "bundles",
@@ -342,8 +348,7 @@ public class JsonProfileTest {
   @Test
   public void testJsonDeserializationWhenFeaturesAreMissing() throws Exception {
     final JsonProfile jprofile =
-        new JsonProfile(
-            Collections.emptyList(), Collections.emptyList(), Arrays.asList(jbundle, jbundle2));
+        new JsonProfile(Collections.emptyList(), Arrays.asList(jbundle, jbundle2));
 
     Assert.assertThat(
         JsonUtils.fromJson(
@@ -381,8 +386,7 @@ public class JsonProfileTest {
   @Test
   public void testJsonDeserializationWithInvalidFeatures() throws Exception {
     final JsonProfile jprofile =
-        new JsonProfile(
-            Collections.emptyList(), Arrays.asList(jfeature, jfeature2), Collections.emptyList());
+        new JsonProfile(Arrays.asList(jfeature, jfeature2), Collections.emptyList());
 
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage(Matchers.containsString("missing required feature id"));
@@ -401,6 +405,8 @@ public class JsonProfileTest {
                         FEATURE_DESCRIPTION,
                         "state",
                         FEATURE_STATE,
+                        "required",
+                        FEATURE_REQUIRED,
                         "region",
                         FEATURE_REGION,
                         "repository",
@@ -425,8 +431,7 @@ public class JsonProfileTest {
   @Test
   public void testJsonDeserializationWhenBundlesAreMissing() throws Exception {
     final JsonProfile jprofile =
-        new JsonProfile(
-            Collections.emptyList(), Arrays.asList(jfeature, jfeature2), Collections.emptyList());
+        new JsonProfile(Arrays.asList(jfeature, jfeature2), Collections.emptyList());
 
     Assert.assertThat(
         JsonUtils.fromJson(
@@ -444,6 +449,8 @@ public class JsonProfileTest {
                         FEATURE_DESCRIPTION,
                         "state",
                         FEATURE_STATE,
+                        "required",
+                        FEATURE_REQUIRED,
                         "region",
                         FEATURE_REGION,
                         "repository",
@@ -457,6 +464,8 @@ public class JsonProfileTest {
                         FEATURE_ID2,
                         "state",
                         FEATURE_STATE2,
+                        "required",
+                        FEATURE_REQUIRED2,
                         "startLevel",
                         FEATURE_START2)),
                 "bundles",
@@ -468,8 +477,7 @@ public class JsonProfileTest {
   @Test
   public void testJsonDeserializationWithInvalidBundles() throws Exception {
     final JsonProfile jprofile =
-        new JsonProfile(
-            Collections.emptyList(), Collections.emptyList(), Arrays.asList(jbundle, jbundle2));
+        new JsonProfile(Collections.emptyList(), Arrays.asList(jbundle, jbundle2));
 
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage(Matchers.containsString("missing required bundle name"));

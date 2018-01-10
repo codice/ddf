@@ -130,51 +130,46 @@ public class BundleMigratorTest {
   }
 
   @Test
-  public void testImportBundlesWithTasksAndSucceeds() throws Exception {
-    Mockito.doReturn(true).when(bundleProcessor).processBundles(context, report, jprofile, tasks);
+  public void testImportBundlesWithTasks() throws Exception {
+    Mockito.doNothing()
+        .when(bundleProcessor)
+        .processBundlesAndPopulateTaskList(context, jprofile, tasks);
     Mockito.doReturn(false, true).when(tasks).isEmpty();
     Mockito.doReturn(true).when(tasks).execute();
 
     Assert.assertThat(bundleMigrator.importBundles(report, jprofile), Matchers.equalTo(true));
 
     Mockito.verify(bundleProcessor, Mockito.times(2))
-        .processBundles(context, report, jprofile, tasks);
+        .processBundlesAndPopulateTaskList(context, jprofile, tasks);
     Mockito.verify(tasks, Mockito.times(2)).isEmpty();
     Mockito.verify(tasks).execute();
   }
 
   @Test
-  public void testImportBundlesWhenFailsToProcess() throws Exception {
-    Mockito.doReturn(false).when(bundleProcessor).processBundles(context, report, jprofile, tasks);
-
-    Assert.assertThat(bundleMigrator.importBundles(report, jprofile), Matchers.equalTo(false));
-
-    Mockito.verify(bundleProcessor).processBundles(context, report, jprofile, tasks);
-    Mockito.verify(tasks, Mockito.never()).isEmpty();
-    Mockito.verify(tasks, Mockito.never()).execute();
-  }
-
-  @Test
   public void testImportBundlesWithNoTasks() throws Exception {
-    Mockito.doReturn(true).when(bundleProcessor).processBundles(context, report, jprofile, tasks);
+    Mockito.doNothing()
+        .when(bundleProcessor)
+        .processBundlesAndPopulateTaskList(context, jprofile, tasks);
     Mockito.doReturn(true).when(tasks).isEmpty();
 
     Assert.assertThat(bundleMigrator.importBundles(report, jprofile), Matchers.equalTo(true));
 
-    Mockito.verify(bundleProcessor).processBundles(context, report, jprofile, tasks);
+    Mockito.verify(bundleProcessor).processBundlesAndPopulateTaskList(context, jprofile, tasks);
     Mockito.verify(tasks).isEmpty();
     Mockito.verify(tasks, Mockito.never()).execute();
   }
 
   @Test
   public void testImportBundlesWhenFailedToExecuteTasks() throws Exception {
-    Mockito.doReturn(true).when(bundleProcessor).processBundles(context, report, jprofile, tasks);
+    Mockito.doNothing()
+        .when(bundleProcessor)
+        .processBundlesAndPopulateTaskList(context, jprofile, tasks);
     Mockito.doReturn(false).when(tasks).isEmpty();
     Mockito.doReturn(false).when(tasks).execute();
 
     Assert.assertThat(bundleMigrator.importBundles(report, jprofile), Matchers.equalTo(false));
 
-    Mockito.verify(bundleProcessor).processBundles(context, report, jprofile, tasks);
+    Mockito.verify(bundleProcessor).processBundlesAndPopulateTaskList(context, jprofile, tasks);
     Mockito.verify(tasks).isEmpty();
     Mockito.verify(tasks).execute();
   }

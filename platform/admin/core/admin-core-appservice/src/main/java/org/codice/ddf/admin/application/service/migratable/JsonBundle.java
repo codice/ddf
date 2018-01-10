@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.admin.application.service.migratable;
 
+import com.google.common.annotations.VisibleForTesting;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.Validate;
 import org.boon.json.annotations.JsonIgnore;
@@ -21,19 +22,22 @@ import org.osgi.framework.Version;
 
 /** Defines a Json object to represent an exported bundle. */
 public class JsonBundle implements JsonValidatable {
-  @Nullable // only because Boon may not set if as it bypasses our ctor and the final keyword
+  public static final String UNINSTALLED_STATE_STRING =
+      JsonBundle.getStateString(Bundle.UNINSTALLED);
+
+  @Nullable // only because Boon may not set it as it bypasses our ctor and the final keyword
   private final String name;
 
-  @Nullable // only because Boon may not set if as it bypasses our ctor and the final keyword
+  @Nullable // only because Boon may not set it as it bypasses our ctor and the final keyword
   private final Version version;
 
-  @Nullable // only because Boon may not set if as it bypasses our ctor and the final keyword
+  @Nullable // only because Boon may not set it as it bypasses our ctor and the final keyword
   private final Long id; // Long used to detect missing Json entries as null
 
-  @Nullable // only because Boon may not set if as it bypasses our ctor and the final keyword
+  @Nullable // only because Boon may not set it as it bypasses our ctor and the final keyword
   private final Integer state; // Integer used to detect missing Json entries as null
 
-  @Nullable // only because Boon may not set if as it bypasses our ctor and the final keyword
+  @Nullable // only because Boon may not set it as it bypasses our ctor and the final keyword
   private final String location;
 
   /**
@@ -63,7 +67,8 @@ public class JsonBundle implements JsonValidatable {
    * @throws IllegalArgumentException if any of the arguments are <code>null</code> or if <code>
    *     version</code> is improperly formatted
    */
-  public JsonBundle(String name, String version, long id, int state, String location) {
+  @VisibleForTesting
+  JsonBundle(String name, String version, long id, int state, String location) {
     Validate.notNull(name, "invalid null name");
     Validate.notNull(version, "invalid null version");
     Validate.notNull(location, "invalid null location");
@@ -84,7 +89,8 @@ public class JsonBundle implements JsonValidatable {
    * @param location the bundle location
    * @throws IllegalArgumentException if any of the arguments are <code>null</code>
    */
-  public JsonBundle(String name, Version version, long id, int state, String location) {
+  @VisibleForTesting
+  JsonBundle(String name, Version version, long id, int state, String location) {
     Validate.notNull(name, "invalid null bundle name");
     Validate.notNull(version, "invalid null bundle version");
     Validate.notNull(location, "invalid null bundle location");
@@ -179,12 +185,20 @@ public class JsonBundle implements JsonValidatable {
     return "bundle [" + getFullName() + "]";
   }
 
+  public static String getStateString(Bundle bundle) {
+    return JsonBundle.getStateString(bundle.getState());
+  }
+
   public static String getFullName(Bundle bundle) {
     return bundle.getSymbolicName() + '/' + bundle.getVersion();
   }
 
   public static SimpleState getSimpleState(Bundle bundle) {
     return JsonBundle.getSimpleState(bundle.getState());
+  }
+
+  private static String getStateString(int state) {
+    return String.format("%s/%x", JsonBundle.getSimpleState(state), state);
   }
 
   private static SimpleState getSimpleState(int state) {
