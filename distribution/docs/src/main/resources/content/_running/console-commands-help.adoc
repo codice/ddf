@@ -1,0 +1,37 @@
+:title: Console Command Help
+:type: maintaining
+:status: published
+:parent: Console Commands
+:summary: ${command-console} help command.
+:order: 00
+
+== {title}
+
+For details on any command, type `help` then the command.
+For example, `help search` (see results of this command in the example below).
+
+.Example Help
+----
+${branding-lowercase}${at-symbol}local>help search
+DESCRIPTION
+        catalog:search
+        Searches records in the catalog provider.
+SYNTAX
+        catalog:search [options] SEARCH_PHRASE [NUMBER_OF_ITEMS]
+ARGUMENTS
+        SEARCH_PHRASE
+                Phrase to query the catalog provider.
+        NUMBER_OF_ITEMS
+                Number of maximum records to display.
+                (defaults to -1)
+OPTIONS
+        --help
+                Display this help message
+        case-sensitive, -c
+                Makes the search case sensitive
+        -p, -provider
+                Interacts with the provider directly instead of the framework.
+
+----
+
+The `help` command provides a description of the provided command, along with the syntax in how to use it, arguments it accepts, and available options.

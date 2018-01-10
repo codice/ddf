@@ -1,0 +1,21 @@
+:title: CQL Syntax
+:type: maintaining
+:status: published
+:parent: Console Commands
+:summary: ${command-console} help command.
+:order: 01
+
+== {title}
+
+The CQL syntax used with console commands should follow the OGC CQL format.
+GeoServer provides a description of the grammar and examples in this http://docs.geoserver.org/stable/en/user/tutorials/cql/cql_tutorial.html[CQL Tutorial].
+
+.CQL Syntax Examples
+[source]
+----
+Finding all notifications that were sent due to a download:
+${branding-lowercase}${at-symbol}local>store:list --cql "application='Downloads'" --type notification
+
+Deleting a specific notification:
+${branding-lowercase}${at-symbol}local>store:delete --cql "id='fdc150b157754138a997fe7143a98cfa'" --type notification
+----

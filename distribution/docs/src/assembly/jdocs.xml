@@ -24,8 +24,6 @@
     </formats>
     <fileSets>
         <fileSet>
-             <fileMode>0644</fileMode>
-             <directoryMode>0755</directoryMode>
              <directory>src/main/resources/templates</directory>
              <includes>
                    <include>**</include>
@@ -33,8 +31,6 @@
             <outputDirectory></outputDirectory>
         </fileSet>
         <fileSet>
-             <fileMode>0644</fileMode>
-             <directoryMode>0755</directoryMode>
              <directory>src/main/resources</directory>
              <includes>
                    <include>jbake.properties</include>
