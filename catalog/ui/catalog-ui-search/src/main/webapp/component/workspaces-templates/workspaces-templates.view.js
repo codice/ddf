@@ -121,6 +121,8 @@ define([
             }
         },
         toggleExpansion: function() {
+            this.$el.find('.home-templates-header-button-closed').toggleClass('is-hidden');
+            this.$el.find('.home-templates-header-button-expanded').toggleClass('is-hidden');
             if (this.$el.hasClass('is-expanded')) {
                 this.close();
             } else {
