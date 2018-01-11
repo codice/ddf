@@ -221,6 +221,18 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
     }
   }
 
+  @VisibleForTesting
+  MigrationZipFile newZipFileFor(Path exportFile) {
+    Validate.notNull(exportFile, "invalid null export file");
+    try {
+      return new MigrationZipFile(exportFile);
+    } catch (FileNotFoundException e) {
+      throw new MigrationException(Messages.IMPORT_FILE_MISSING_ERROR, exportFile, e);
+    } catch (SecurityException | IOException e) {
+      throw new MigrationException(Messages.IMPORT_FILE_OPEN_ERROR, exportFile, e);
+    }
+  }
+
   private MigrationReportImpl doExport(
       Path exportDirectory, Optional<Consumer<MigrationMessage>> consumer) {
     Validate.notNull(exportDirectory, ConfigurationMigrationManager.INVALID_NULL_EXPORT_DIR);
@@ -404,16 +416,5 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
       return true;
     }
     return false;
-  }
-
-  private static MigrationZipFile newZipFileFor(Path exportFile) {
-    Validate.notNull(exportFile, "invalid null export file");
-    try {
-      return new MigrationZipFile(exportFile);
-    } catch (FileNotFoundException e) {
-      throw new MigrationException(Messages.IMPORT_FILE_MISSING_ERROR, exportFile, e);
-    } catch (SecurityException | IOException e) {
-      throw new MigrationException(Messages.IMPORT_FILE_OPEN_ERROR, exportFile, e);
-    }
   }
 }

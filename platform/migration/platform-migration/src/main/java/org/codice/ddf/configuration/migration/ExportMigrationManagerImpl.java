@@ -126,7 +126,7 @@ public class ExportMigrationManagerImpl implements Closeable {
     try {
       return new ZipOutputStream(
           new BufferedOutputStream(new FileOutputStream(exportFile.toFile())));
-    } catch (SecurityException | FileNotFoundException e) {
+    } catch (FileNotFoundException e) {
       throw new MigrationException(Messages.EXPORT_FILE_CREATE_ERROR, exportFile, e);
     }
   }

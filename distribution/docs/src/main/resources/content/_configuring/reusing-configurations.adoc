@@ -13,7 +13,7 @@ To export the current configuration settings:
 
 . Run the command migration:export from the ${command-console}.
 . Files named `${branding-lowercase}-${project.version}.dar`, `${branding-lowercase}-${project.version}.dar.key`, and `${branding-lowercase}-${project.version}.dar.sha256` will be created in the `exported` directory underneath `${home_directory}`.
-The `.dar` file contains the encrypted information. The `.key` and `.sha256` files contains a validation checksum and the encryption key. Copy the '.dar' file to a secure location and copy the '.key' and '.sha256' to a different secure location.
+The `.dar` file contains the encrypted information. The `.key` and `.sha256` files contains the encryption key and a validation checksum. Copy the '.dar' file to a secure location and copy the '.key' and '.sha256' to a different secure location.
 Keeping all 3 files together represents a security risk and should be avoided.
 
 To import previously exported configuration settings:

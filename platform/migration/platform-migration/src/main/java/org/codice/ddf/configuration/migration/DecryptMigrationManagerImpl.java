@@ -55,7 +55,7 @@ public class DecryptMigrationManagerImpl implements Closeable {
     try {
       return new ZipOutputStream(
           new BufferedOutputStream(new FileOutputStream(decryptFile.toFile())));
-    } catch (SecurityException | FileNotFoundException e) {
+    } catch (FileNotFoundException e) {
       throw new MigrationException(Messages.DECRYPT_FILE_CREATE_ERROR, decryptFile, e);
     }
   }
@@ -113,7 +113,7 @@ public class DecryptMigrationManagerImpl implements Closeable {
         ddfHome,
         exportFile,
         decryptFile);
-    zip.stream().forEach(this::decrypt);
+    zip.stream().forEach(this::copyToOutputZipFile);
   }
 
   @Override
@@ -138,7 +138,7 @@ public class DecryptMigrationManagerImpl implements Closeable {
   }
 
   @VisibleForTesting
-  void decrypt(ZipEntry entry) {
+  void copyToOutputZipFile(ZipEntry entry) {
     InputStream is = null;
 
     try {

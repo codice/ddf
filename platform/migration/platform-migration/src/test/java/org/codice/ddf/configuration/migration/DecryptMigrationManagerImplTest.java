@@ -125,20 +125,20 @@ public class DecryptMigrationManagerImplTest extends AbstractMigrationReportSupp
     final ZipEntry ze3 = new ZipEntry("3");
 
     Mockito.doReturn(Stream.of(ze, ze2, ze3)).when(zip).stream();
-    Mockito.doNothing().when(mgr).decrypt(Mockito.notNull());
+    Mockito.doNothing().when(mgr).copyToOutputZipFile(Mockito.notNull());
 
     mgr.doDecrypt(PRODUCT_BRANDING, PRODUCT_VERSION);
 
     Mockito.verify(mgr).doDecrypt(PRODUCT_BRANDING, PRODUCT_VERSION);
-    Mockito.verify(mgr).decrypt(ze);
-    Mockito.verify(mgr).decrypt(ze2);
-    Mockito.verify(mgr).decrypt(ze3);
+    Mockito.verify(mgr).copyToOutputZipFile(ze);
+    Mockito.verify(mgr).copyToOutputZipFile(ze2);
+    Mockito.verify(mgr).copyToOutputZipFile(ze3);
 
     Mockito.verifyNoMoreInteractions(mgr);
   }
 
   @Test
-  public void testDecrypt() throws Exception {
+  public void testCopyToOutputZipFile() throws Exception {
     final ZipEntry ze = Mockito.mock(ZipEntry.class);
 
     Mockito.doReturn(NAME).when(ze).getName();
@@ -147,7 +147,7 @@ public class DecryptMigrationManagerImplTest extends AbstractMigrationReportSupp
         .when(zip)
         .getInputStream(ze);
 
-    mgr.decrypt(ze);
+    mgr.copyToOutputZipFile(ze);
     mgr.close();
 
     Mockito.verify(zip).getInputStream(ze);
@@ -164,7 +164,7 @@ public class DecryptMigrationManagerImplTest extends AbstractMigrationReportSupp
   }
 
   @Test
-  public void testDecryptWithDirectoryEntry() throws Exception {
+  public void testCopyToOutputZipFileWithDirectoryEntry() throws Exception {
     // a directory entry in a zip ends with / no matter the OS
     final String name = NAME + "/";
     final ZipEntry ze = Mockito.mock(ZipEntry.class);
@@ -172,7 +172,7 @@ public class DecryptMigrationManagerImplTest extends AbstractMigrationReportSupp
     Mockito.doReturn(name).when(ze).getName();
     Mockito.doReturn(true).when(ze).isDirectory();
 
-    mgr.decrypt(ze);
+    mgr.copyToOutputZipFile(ze);
     mgr.close();
 
     Mockito.verify(zip, Mockito.never()).getInputStream(ze);
@@ -189,7 +189,7 @@ public class DecryptMigrationManagerImplTest extends AbstractMigrationReportSupp
   }
 
   @Test
-  public void testDecryptWithIOException() throws Exception {
+  public void testCopyToOutputZipFileWithIOException() throws Exception {
     final IOException e = new IOException("testing");
     final ZipEntry ze = Mockito.mock(ZipEntry.class);
 
@@ -197,7 +197,7 @@ public class DecryptMigrationManagerImplTest extends AbstractMigrationReportSupp
     Mockito.doReturn(false).when(ze).isDirectory();
     Mockito.doThrow(e).when(zip).getInputStream(ze);
 
-    mgr.decrypt(ze);
+    mgr.copyToOutputZipFile(ze);
     mgr.close();
 
     reportHasErrorMessage(Matchers.containsString("path [" + NAME + "] could not be decrypted"));

@@ -119,7 +119,7 @@ public class ImportMigrationManagerImpl implements Closeable {
       // process migratables' metadata
       JsonUtils.getMapFrom(metadata, MigrationContextImpl.METADATA_MIGRATABLES)
           .forEach((id, o) -> getContextFor(id).processMetadata(JsonUtils.convertToMap(o)));
-    } catch (SecurityException | IOException e) {
+    } catch (IOException e) {
       IOUtils.closeQuietly(zip);
       throw new MigrationException(Messages.IMPORT_FILE_READ_ERROR, exportFile, e);
     } catch (RuntimeException e) {
