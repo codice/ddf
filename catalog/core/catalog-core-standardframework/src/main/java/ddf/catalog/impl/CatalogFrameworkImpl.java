@@ -14,7 +14,6 @@
 package ddf.catalog.impl;
 
 import ddf.catalog.CatalogFramework;
-import ddf.catalog.content.data.ContentItem;
 import ddf.catalog.content.operation.CreateStorageRequest;
 import ddf.catalog.content.operation.UpdateStorageRequest;
 import ddf.catalog.data.BinaryContent;
@@ -53,14 +52,11 @@ import ddf.catalog.util.impl.DescribableImpl;
 import ddf.catalog.util.impl.Masker;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Dictionary;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.codice.ddf.configuration.DictionaryMap;
 import org.codice.ddf.configuration.SystemInfo;
