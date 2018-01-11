@@ -121,8 +121,6 @@ define([
             }
         },
         toggleExpansion: function() {
-            this.$el.find('.home-templates-header-button-closed').toggleClass('is-hidden');
-            this.$el.find('.home-templates-header-button-expanded').toggleClass('is-hidden');
             if (this.$el.hasClass('is-expanded')) {
                 this.close();
             } else {
@@ -130,10 +128,14 @@ define([
             }
         },
         expand: function(){
+            this.$el.find('.home-templates-header-button-closed').addClass('is-hidden');
+            this.$el.find('.home-templates-header-button-expanded').removeClass('is-hidden');
             this.$el.addClass('is-expanded');
             this.triggerMethod(triggers.expand);
         },
         close: function(){
+            this.$el.find('.home-templates-header-button-closed').removeClass('is-hidden');
+            this.$el.find('.home-templates-header-button-expanded').addClass('is-hidden');
             this.$el.removeClass('is-expanded');
             this.$el.animate({
                 scrollTop: 0
