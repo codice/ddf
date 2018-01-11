@@ -42,8 +42,7 @@ define([
         },
         events: {
             'click .home-templates-choices-choice': 'createNewWorkspace',
-            'click .home-templates-header-button': 'expand',
-            'click .expanded-back': 'close',
+            'click .home-templates-header-button': 'toggleExpansion',
             'click .adhoc-go': 'startAdhocSearch'
         },
         regions: {
@@ -121,11 +120,22 @@ define([
                     break;
             }
         },
+        toggleExpansion: function() {
+            if (this.$el.hasClass('is-expanded')) {
+                this.close();
+            } else {
+                this.expand();
+            }
+        },
         expand: function(){
+            this.$el.find('.home-templates-header-button-closed').addClass('is-hidden');
+            this.$el.find('.home-templates-header-button-expanded').removeClass('is-hidden');
             this.$el.addClass('is-expanded');
             this.triggerMethod(triggers.expand);
         },
         close: function(){
+            this.$el.find('.home-templates-header-button-closed').removeClass('is-hidden');
+            this.$el.find('.home-templates-header-button-expanded').addClass('is-hidden');
             this.$el.removeClass('is-expanded');
             this.$el.animate({
                 scrollTop: 0
