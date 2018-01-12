@@ -1293,7 +1293,7 @@ public class PredicateTest {
     // WKT specifies points in LON LAT order
     String geometryWkt = "POLYGON ((40 34, 40 33, 44.5 33, 44.5 34, 40 34))";
     String operation = "overlaps";
-    double distance = 0.0;
+    double distance = 0.0000001;
     GeospatialPredicate predicate = new GeospatialPredicate(geometryWkt, operation, distance);
     Geometry geoCriteria = predicate.getGeoCriteria();
 
@@ -1329,7 +1329,7 @@ public class PredicateTest {
 
     String geometryWkt = "POLYGON ((40 34, 40 33, 44.5 33, 44.5 34, 40 34))";
     String operation = "overlaps";
-    double distance = 0.0;
+    double distance = 0.0000001;
     GeospatialPredicate predicate = new GeospatialPredicate(geometryWkt, operation, distance);
 
     MetacardImpl metacard = new MetacardImpl();
@@ -1354,7 +1354,7 @@ public class PredicateTest {
 
     String geometryWkt = "POLYGON ((40 34, 40 33, 44.5 33, 44.5 34, 40 34))";
     String operation = "overlaps";
-    double distance = 0.0;
+    double distance = 0.0000001;
     GeospatialPredicate predicate = new GeospatialPredicate(geometryWkt, operation, distance);
 
     MetacardImpl metacard = new MetacardImpl();
@@ -1382,7 +1382,7 @@ public class PredicateTest {
     // WKT specifies points in LON LAT order
     String geometryWkt = "POINT (44.5 34.5)";
     String operation = "point_radius";
-    double distance = 5000.0;
+    double distance = 500.0;
     double radiusInDegrees = (distance * 180.0) / (Math.PI * EQUATORIAL_RADIUS_IN_METERS);
     GeospatialPredicate predicate =
         new GeospatialPredicate(geometryWkt, operation, radiusInDegrees);

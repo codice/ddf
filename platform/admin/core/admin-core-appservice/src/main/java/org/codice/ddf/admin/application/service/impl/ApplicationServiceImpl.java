@@ -766,7 +766,7 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
                   .map(Object::toString)
                   .collect(Collectors.joining(", ")));
         }
-        this.wait(TimeUnit.SECONDS.toMillis(1));
+        TimeUnit.MILLISECONDS.sleep(1);
       } else {
         starting = false;
       }

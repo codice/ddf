@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
  * The CometdEndpoint binds the SearchService and the CometdServlet together. This is where the
  * asynchronous endpoint is initially started.
  */
+@SuppressWarnings("squid:S2226" /* Lifecycle managed by blueprint */)
 public class CometdEndpoint extends CometDServlet {
   private static final long serialVersionUID = 1L;
 
@@ -159,6 +160,7 @@ public class CometdEndpoint extends CometDServlet {
     }
   }
 
+  @Override
   public void destroy() {
     searchController.destroy();
   }

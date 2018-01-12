@@ -303,7 +303,7 @@ public class IngestCommand extends CatalogCommands {
       LOGGER.info("Executor service shutdown was not permitted: {}", e);
     }
 
-    printProgressAndFlush(start, fileCount.get(), ingestCount.get() + ignoreCount.get());
+    printProgressAndFlush(start, fileCount.get(), (long) ingestCount.get() + ignoreCount.get());
     long end = System.currentTimeMillis();
     console.println();
     String elapsedTime = timeFormatter.print(new Period(start, end).withMillis(0));
@@ -503,11 +503,14 @@ public class IngestCommand extends CatalogCommands {
 
   private Metacard generateMetacard(InputStream message) throws IOException {
     try {
-      if (message != null) {
-        return transformer.get().transform(message);
-      } else {
+      if (message == null) {
         throw new IllegalArgumentException("Data file is null.");
       }
+      if (!transformer.isPresent()) {
+        throw new IllegalArgumentException(
+            "Transformation Failed for transformer: " + transformerId);
+      }
+      return transformer.get().transform(message);
 
     } catch (CatalogTransformerException e) {
       throw new IllegalArgumentException(
@@ -614,7 +617,7 @@ public class IngestCommand extends CatalogCommands {
     if (ignoreList != null
         && (ignoreList.contains(extension) || ignoreList.contains(file.getName()))) {
       ignoreCount.incrementAndGet();
-      printProgressAndFlush(start, fileCount.get(), ingestCount.get() + ignoreCount.get());
+      printProgressAndFlush(start, fileCount.get(), (long) ingestCount.get() + ignoreCount.get());
       return;
     }
 
@@ -768,7 +771,8 @@ public class IngestCommand extends CatalogCommands {
                     }
                   });
 
-              printProgressAndFlush(start, fileCount.get(), ingestCount.get() + ignoreCount.get());
+              printProgressAndFlush(
+                  start, fileCount.get(), (long) ingestCount.get() + ignoreCount.get());
             }
           }
         },

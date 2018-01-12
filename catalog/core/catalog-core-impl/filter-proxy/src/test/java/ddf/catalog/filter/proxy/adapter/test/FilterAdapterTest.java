@@ -59,6 +59,10 @@ public class FilterAdapterTest {
 
   private static final double DISTANCE_10 = 10.0;
 
+  private static final double DISTANCE_001 = .001;
+
+  private static final double DISTANCE_0000001 = .0000001;
+
   private static final String TEST_PROPERTY_VALUE = "Test";
 
   private static final String FOO_LITERAL_VALUE = "foo";
@@ -425,6 +429,12 @@ public class FilterAdapterTest {
     assertFilterEquals(
         "nn(Test,wkt(" + POLYGON_WKT + "))",
         FF.beyond(TEST_PROPERTY_VALUE, polygonGeometry, 0, UomOgcMapping.METRE.name()));
+
+    // nearest neighbor
+    assertFilterEquals(
+        "nn(Test,wkt(" + POLYGON_WKT + "))",
+        FF.beyond(
+            TEST_PROPERTY_VALUE, polygonGeometry, DISTANCE_0000001, UomOgcMapping.METRE.name()));
   }
 
   @Test
@@ -516,10 +526,16 @@ public class FilterAdapterTest {
         "beyond(Test,wkt(" + MULTIPOLYGON_WKT + "),10.0)",
         FF.beyond(TEST_PROPERTY_VALUE, geometry, DISTANCE_10, UomOgcMapping.METRE.name()));
     assertFilterEquals(
+        "beyond(Test,wkt(" + MULTIPOLYGON_WKT + "),0.001)",
+        FF.beyond(TEST_PROPERTY_VALUE, geometry, DISTANCE_001, UomOgcMapping.METRE.name()));
+    assertFilterEquals(
         "contains(Test,wkt(" + MULTIPOLYGON_WKT + "))", FF.contains(TEST_PROPERTY_VALUE, geometry));
     assertFilterEquals(
         "dwithin(Test,wkt(" + MULTIPOLYGON_WKT + "),10.0)",
         FF.dwithin(TEST_PROPERTY_VALUE, geometry, DISTANCE_10, UomOgcMapping.METRE.name()));
+    assertFilterEquals(
+        "dwithin(Test,wkt(" + MULTIPOLYGON_WKT + "),0.001)",
+        FF.dwithin(TEST_PROPERTY_VALUE, geometry, DISTANCE_001, UomOgcMapping.METRE.name()));
     assertFilterEquals(
         "intersects(Test,wkt(" + MULTIPOLYGON_WKT + "))",
         FF.intersects(TEST_PROPERTY_VALUE, geometry));

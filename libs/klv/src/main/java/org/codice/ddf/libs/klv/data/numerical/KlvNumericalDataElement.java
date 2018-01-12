@@ -13,7 +13,6 @@
  */
 package org.codice.ddf.libs.klv.data.numerical;
 
-import com.google.common.base.Preconditions;
 import java.util.Optional;
 import org.codice.ddf.libs.klv.KlvDataElement;
 import org.codice.ddf.libs.klv.data.Klv;
@@ -47,8 +46,6 @@ public abstract class KlvNumericalDataElement<T extends Number> extends KlvDataE
   public KlvNumericalDataElement(
       final byte[] key, final String name, Optional<T> errorIndicatorValue) {
     super(key, name);
-    Preconditions.checkArgument(
-        errorIndicatorValue != null, "The errorIndicatorValue cannot be null.");
     this.errorIndicatorValue = errorIndicatorValue;
   }
 

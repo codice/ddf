@@ -53,6 +53,7 @@ public class AmqpProducerConsumerExample extends RouteBuilder {
   }
 
   @Override
+  @SuppressWarnings("squid:S1854" /* Example code */)
   public void configure() throws Exception {
     onException(Throwable.class).logStackTrace(true);
 

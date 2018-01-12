@@ -15,6 +15,7 @@ package ddf.lib;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
@@ -53,7 +54,8 @@ public class OwaspDiffRunner {
 
   private static Invoker invoker = new DefaultInvoker();
 
-  public OwaspDiffRunner(Runtime runTime, Invoker invoker) {
+  @SuppressWarnings("squid:S3010" /* Constructor only here for associated unit test */)
+  OwaspDiffRunner(Runtime runTime, Invoker invoker) {
     this.runTime = runTime;
     this.invoker = invoker;
   }
@@ -134,26 +136,28 @@ public class OwaspDiffRunner {
   }
 
   private static String getMavenHome() throws OwaspDiffRunnerException {
-    String mavenHome;
     String mavenVersionInfo;
 
     try {
-      mavenVersionInfo = IOUtils.toString(runTime.exec(MAVEN_VERSION_COMMAND).getInputStream());
+      mavenVersionInfo =
+          IOUtils.toString(
+              runTime.exec(MAVEN_VERSION_COMMAND).getInputStream(), StandardCharsets.UTF_8.name());
 
       // parsing console response, confirmed to work with at least maven version 3.3.9
-      mavenHome =
-          Arrays.stream(mavenVersionInfo.split(System.getProperty("line.separator")))
-              .filter(str -> str.contains("Maven home:"))
-              .findFirst()
-              .get()
-              .split("Maven home:")[1]
-              .trim();
-
+      return Arrays.stream(mavenVersionInfo.split(System.getProperty("line.separator")))
+          .filter(str -> str.contains("Maven home:"))
+          .findFirst()
+          .map(s -> s.split("Maven home:")[1])
+          .map(String::trim)
+          .orElseThrow(
+              () ->
+                  new OwaspDiffRunnerException(
+                      OwaspDiffRunnerException.UNABLE_TO_RETRIEVE_MAVEN_HOME));
+    } catch (OwaspDiffRunnerException e) {
+      throw e;
     } catch (Exception e) {
       throw new OwaspDiffRunnerException(OwaspDiffRunnerException.UNABLE_TO_RETRIEVE_MAVEN_HOME, e);
     }
-
-    return mavenHome;
   }
 
   private static String getLocalRepo() throws OwaspDiffRunnerException {

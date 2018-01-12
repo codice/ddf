@@ -82,11 +82,13 @@ public class SparkServlet extends HttpServlet {
             }
           };
 
+  @SuppressWarnings("squid:S2226" /* Lifecycle managed by blueprint. */)
   private BiFunction<HttpServletRequest, String, HttpServletRequestWrapper> requestSupplier;
 
   private final List<SparkApplication> sparkApplications =
       Collections.synchronizedList(new ArrayList<>());
 
+  @SuppressWarnings("squid:S2226" /* Lifecycle managed by blueprint. */)
   private String filterMappingPattern = null;
 
   private String filterPath;

@@ -131,7 +131,7 @@ public class StaticStsProperties extends StaticSTSProperties {
       if (signatureCryptoProperties instanceof Properties) {
         sigProperties = (Properties) signatureCryptoProperties;
       } else {
-        ResourceManager resourceManager = getResourceManager();
+        ResourceManager resourceManager = getResourceManagerExtension();
         URL url = SecurityUtils.loadResource(resourceManager, signatureCryptoProperties);
         sigProperties = SecurityUtils.loadProperties(url);
       }
@@ -152,7 +152,7 @@ public class StaticStsProperties extends StaticSTSProperties {
       if (encryptionCryptoProperties instanceof Properties) {
         encrProperties = (Properties) encryptionCryptoProperties;
       } else {
-        ResourceManager resourceManager = getResourceManager();
+        ResourceManager resourceManager = getResourceManagerExtension();
         URL url = SecurityUtils.loadResource(resourceManager, encryptionCryptoProperties);
         encrProperties = SecurityUtils.loadProperties(url);
       }
@@ -183,7 +183,7 @@ public class StaticStsProperties extends StaticSTSProperties {
     WSSConfig.init();
   }
 
-  private ResourceManager getResourceManager() {
+  private ResourceManager getResourceManagerExtension() {
     Bus b = bus;
     if (b == null) {
       b = BusFactory.getThreadDefaultBus();

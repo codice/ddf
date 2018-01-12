@@ -46,7 +46,7 @@ public class WfsResponseExceptionMapper implements ResponseExceptionMapper<WfsEx
           is.reset();
           msg = IOUtils.toString(is);
         } catch (IOException e) {
-          wfsEx = new WfsException("Error reading Response" + (msg != null ? ": " + msg : ""), e);
+          wfsEx = new WfsException("Error reading Response", e);
         }
         if (msg != null) {
           try {

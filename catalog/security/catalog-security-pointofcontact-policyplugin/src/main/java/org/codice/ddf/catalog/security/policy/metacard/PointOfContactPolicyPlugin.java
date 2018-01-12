@@ -30,8 +30,8 @@ import ddf.security.permission.Permissions;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,24 +65,24 @@ public class PointOfContactPolicyPlugin implements PolicyPlugin {
             .getPreviousStateMetacards();
 
     Metacard previous;
-    try {
-      previous =
-          previousStateMetacards
-              .stream()
-              .filter((x) -> x.getId().equals(newMetacard.getId()))
-              .findFirst()
-              .get();
-    } catch (NoSuchElementException e) {
-      LOGGER.debug("Cannot locate metacard {} for update.", newMetacard.getId());
-      return new PolicyResponseImpl();
-    }
+    previous =
+        previousStateMetacards
+            .stream()
+            .filter(x -> x.getId().equals(newMetacard.getId()))
+            .findFirst()
+            .orElse(null);
 
     return pointOfContactChanged(newMetacard, previous)
         ? new PolicyResponseImpl(null, PERMISSION_MAP)
         : new PolicyResponseImpl();
   }
 
-  private boolean pointOfContactChanged(Metacard newMetacard, Metacard previousMetacard) {
+  private boolean pointOfContactChanged(Metacard newMetacard, @Nullable Metacard previousMetacard) {
+    if (previousMetacard == null) {
+      LOGGER.debug("Cannot locate metacard {} for update.", newMetacard.getId());
+      return false;
+    }
+
     Attribute newPointOfContact = newMetacard.getAttribute(Metacard.POINT_OF_CONTACT);
     Attribute oldPointOfContact = previousMetacard.getAttribute(Metacard.POINT_OF_CONTACT);
 

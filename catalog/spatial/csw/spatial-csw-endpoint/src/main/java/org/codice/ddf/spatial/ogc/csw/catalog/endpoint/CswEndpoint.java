@@ -1397,7 +1397,7 @@ public class CswEndpoint implements Csw {
 
     long bytesToSkip = getRange(rangeValue);
     if (bytesToSkip > 0) {
-      LOGGER.debug("Bytes to skip: {}", String.valueOf(bytesToSkip));
+      LOGGER.debug("Bytes to skip: {}", bytesToSkip);
       resourceRequest.getProperties().put(CswConstants.BYTES_TO_SKIP, bytesToSkip);
     }
     ResourceResponse resourceResponse;

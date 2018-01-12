@@ -193,15 +193,14 @@ public class DuplicationValidator
             .filter(attribute -> metacard.getAttribute(attribute) != null)
             .collect(Collectors.toSet());
     final Set<Attribute> uniqueAttributes =
-        uniqueAttributeNames
-            .stream()
-            .map(attribute -> metacard.getAttribute(attribute))
-            .collect(Collectors.toSet());
+        uniqueAttributeNames.stream().map(metacard::getAttribute).collect(Collectors.toSet());
     if (!uniqueAttributes.isEmpty()) {
-      LOGGER.debug(
-          "Checking for duplicates for id {} against attributes [{}]",
-          metacard.getId(),
-          collectionToString(uniqueAttributeNames));
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug(
+            "Checking for duplicates for id {} against attributes [{}]",
+            metacard.getId(),
+            collectionToString(uniqueAttributeNames));
+      }
 
       SourceResponse response = query(uniqueAttributes, metacard.getId());
       if (response != null) {
@@ -218,24 +217,20 @@ public class DuplicationValidator
 
   private Filter[] buildFilters(Set<Attribute> attributes) {
 
-    Filter[] filters =
-        attributes
-            .stream()
-            .flatMap(
-                attribute -> {
-                  return attribute
-                      .getValues()
-                      .stream()
-                      .map(
-                          value ->
-                              filterBuilder
-                                  .attribute(attribute.getName())
-                                  .equalTo()
-                                  .text(value.toString().trim()));
-                })
-            .toArray(Filter[]::new);
-
-    return filters;
+    return attributes
+        .stream()
+        .flatMap(
+            attribute ->
+                attribute
+                    .getValues()
+                    .stream()
+                    .map(
+                        value ->
+                            filterBuilder
+                                .attribute(attribute.getName())
+                                .equalTo()
+                                .text(value.toString().trim())))
+        .toArray(Filter[]::new);
   }
 
   private SourceResponse query(Set<Attribute> attributes, String originalId) {

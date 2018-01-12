@@ -524,6 +524,7 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
     return getFactory(extraData).and(newChildren);
   }
 
+  @Override
   public Object visit(Or filter, Object extraData) {
     List<Filter> children = filter.getChildren();
     List<Filter> newChildren = new ArrayList<>();
@@ -577,6 +578,7 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
     return new Distance(distance, linearUnit).getAs(LinearUnit.METER);
   }
 
+  @SuppressWarnings("squid:S2177" /* Doesn't override parent method */)
   protected Expression visit(Expression expression, Object extraData) {
     if (expression == null) {
       return null;
