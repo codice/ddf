@@ -108,7 +108,7 @@ table.align-middle {
       margin-top: 8px;
     }
   }
-  .delete-source-name {
+  .delete-source-name,.fanout-source-name {
     padding: 8px 0px 0px 0px;
     color: @activeColor;
     width: 100%;
@@ -146,10 +146,19 @@ table.align-middle {
   padding: 7px 6px 4px;
 }
 
-.delete-modal-body {
+.delete-modal-body,.fanout-modal-body {
   min-height: 400px;
   max-height: 400px;
   overflow-y: auto;
+}
+
+.select-all-group {
+  display: inline-block;
+  float: left;
+}
+
+.footer-groups {
+  width: 100%;
 }
 
 .no-results {

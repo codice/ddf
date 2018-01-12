@@ -103,24 +103,24 @@ public class ResourceOperations extends DescribableImpl {
   //
   // Delegate methods
   //
-  public ResourceResponse getEnterpriseResource(ResourceRequest request, boolean fanoutEnabled)
+  public ResourceResponse getEnterpriseResource(ResourceRequest request)
       throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
     String methodName = "getEnterpriseResource";
     LOGGER.debug("ENTERING: {}", methodName);
-    ResourceResponse resourceResponse = getResource(request, true, null, fanoutEnabled);
+    ResourceResponse resourceResponse = getResource(request, true, null);
     LOGGER.debug("EXITING: {}", methodName);
     return resourceResponse;
   }
 
-  public Map<String, Set<String>> getEnterpriseResourceOptions(
-      String metacardId, boolean fanoutEnabled) throws ResourceNotFoundException {
+  public Map<String, Set<String>> getEnterpriseResourceOptions(String metacardId)
+      throws ResourceNotFoundException {
     LOGGER.trace("ENTERING: getEnterpriseResourceOptions");
     Set<String> supportedOptions = Collections.emptySet();
 
     try {
       QueryRequest queryRequest =
           new QueryRequestImpl(createMetacardIdQuery(metacardId), true, null, null);
-      QueryResponse queryResponse = queryOperations.query(queryRequest, null, false, fanoutEnabled);
+      QueryResponse queryResponse = queryOperations.query(queryRequest, null, false);
       List<Result> results = queryResponse.getResults();
 
       if (!results.isEmpty()) {
@@ -159,22 +159,19 @@ public class ResourceOperations extends DescribableImpl {
     return Collections.singletonMap(ResourceRequest.OPTION_ARGUMENT, supportedOptions);
   }
 
-  public ResourceResponse getLocalResource(ResourceRequest request, boolean fanoutEnabled)
+  public ResourceResponse getLocalResource(ResourceRequest request)
       throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
     String methodName = "getLocalResource";
     LOGGER.debug("ENTERING: {}", methodName);
     ResourceResponse resourceResponse;
-    if (fanoutEnabled) {
-      LOGGER.debug("getLocalResource call received, fanning it out to all sites.");
-      resourceResponse = getEnterpriseResource(request, fanoutEnabled);
-    } else {
-      resourceResponse = getResource(request, false, getId(), fanoutEnabled);
-    }
+
+    resourceResponse = getResource(request, false, getId());
+
     LOGGER.debug("EXITING: {} ", methodName);
     return resourceResponse;
   }
 
-  public Map<String, Set<String>> getLocalResourceOptions(String metacardId, boolean fanoutEnabled)
+  public Map<String, Set<String>> getLocalResourceOptions(String metacardId)
       throws ResourceNotFoundException {
     LOGGER.trace("ENTERING: getLocalResourceOptions");
 
@@ -183,7 +180,7 @@ public class ResourceOperations extends DescribableImpl {
       QueryRequest queryRequest =
           new QueryRequestImpl(
               createMetacardIdQuery(metacardId), false, Collections.singletonList(getId()), null);
-      QueryResponse queryResponse = queryOperations.query(queryRequest, null, false, fanoutEnabled);
+      QueryResponse queryResponse = queryOperations.query(queryRequest, null, false);
       List<Result> results = queryResponse.getResults();
 
       if (!results.isEmpty()) {
@@ -218,24 +215,20 @@ public class ResourceOperations extends DescribableImpl {
     return optionsMap;
   }
 
-  public ResourceResponse getResource(
-      ResourceRequest request, String resourceSiteName, boolean fanoutEnabled)
+  public ResourceResponse getResource(ResourceRequest request, String resourceSiteName)
       throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
     String methodName = "getResource";
     LOGGER.debug("ENTERING: {}", methodName);
     ResourceResponse resourceResponse;
-    if (fanoutEnabled) {
-      LOGGER.debug("getResource call received, fanning it out to all sites.");
-      resourceResponse = getEnterpriseResource(request, true);
-    } else {
-      resourceResponse = getResource(request, false, resourceSiteName, false);
-    }
+
+    resourceResponse = getResource(request, false, resourceSiteName);
+
     LOGGER.debug("EXITING: {}", methodName);
     return resourceResponse;
   }
 
-  public Map<String, Set<String>> getResourceOptions(
-      String metacardId, String sourceId, boolean fanoutEnabled) throws ResourceNotFoundException {
+  public Map<String, Set<String>> getResourceOptions(String metacardId, String sourceId)
+      throws ResourceNotFoundException {
     LOGGER.trace("ENTERING: getResourceOptions");
     Map<String, Set<String>> optionsMap;
     try {
@@ -246,7 +239,7 @@ public class ResourceOperations extends DescribableImpl {
               false,
               Collections.singletonList(sourceId == null ? this.getId() : sourceId),
               null);
-      QueryResponse queryResponse = queryOperations.query(queryRequest, null, false, fanoutEnabled);
+      QueryResponse queryResponse = queryOperations.query(queryRequest, null, false);
       List<Result> results = queryResponse.getResults();
 
       if (!results.isEmpty()) {
@@ -289,19 +282,12 @@ public class ResourceOperations extends DescribableImpl {
   //
   @SuppressWarnings("javadoc")
   ResourceResponse getResource(
-      ResourceRequest resourceRequest,
-      boolean isEnterprise,
-      String resourceSiteName,
-      boolean fanoutEnabled)
+      ResourceRequest resourceRequest, boolean isEnterprise, String resourceSiteName)
       throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
     ResourceResponse resourceResponse = null;
     ResourceRequest resourceReq = resourceRequest;
     String resourceSourceName = resourceSiteName;
     ResourceRetriever retriever = null;
-
-    if (fanoutEnabled) {
-      isEnterprise = true;
-    }
 
     if (resourceSourceName == null && !isEnterprise) {
       throw new ResourceNotFoundException(
@@ -338,8 +324,7 @@ public class ResourceOperations extends DescribableImpl {
               resourceSourceName,
               isEnterprise,
               resolvedSourceIdHolder,
-              requestProperties,
-              fanoutEnabled);
+              requestProperties);
       if (resourceInfo == null) {
         throw new ResourceNotFoundException(
             "Resource could not be found for the given attribute value: "
@@ -523,7 +508,6 @@ public class ResourceOperations extends DescribableImpl {
    * @param isEnterprise
    * @param federatedSite
    * @param requestProperties
-   * @param fanoutEnabled
    * @return
    * @throws ResourceNotSupportedException
    * @throws ResourceNotFoundException
@@ -533,8 +517,7 @@ public class ResourceOperations extends DescribableImpl {
       String site,
       boolean isEnterprise,
       StringBuilder federatedSite,
-      Map<String, Serializable> requestProperties,
-      boolean fanoutEnabled)
+      Map<String, Serializable> requestProperties)
       throws ResourceNotSupportedException, ResourceNotFoundException {
 
     ResourceInfo resourceInfo;
@@ -580,9 +563,7 @@ public class ResourceOperations extends DescribableImpl {
               Collections.singletonList(site == null ? this.getId() : site),
               resourceRequest.getProperties());
 
-      resourceInfo =
-          getResourceInfo(
-              queryRequest, resourceUri, requestProperties, federatedSite, fanoutEnabled);
+      resourceInfo = getResourceInfo(queryRequest, resourceUri, requestProperties, federatedSite);
     } catch (UnsupportedQueryException | FederationException e) {
 
       throw new ResourceNotFoundException(DEFAULT_RESOURCE_NOT_FOUND_MESSAGE, e);
@@ -599,12 +580,11 @@ public class ResourceOperations extends DescribableImpl {
       QueryRequest queryRequest,
       URI uri,
       Map<String, Serializable> requestProperties,
-      StringBuilder federatedSite,
-      boolean fanoutEnabled)
+      StringBuilder federatedSite)
       throws ResourceNotFoundException, UnsupportedQueryException, FederationException {
     Metacard metacard;
     URI resourceUri = uri;
-    QueryResponse queryResponse = queryOperations.query(queryRequest, null, true, fanoutEnabled);
+    QueryResponse queryResponse = queryOperations.query(queryRequest, null, true);
     if (queryResponse.getResults().isEmpty()) {
       throw new ResourceNotFoundException(
           "Could not resolve source id for URI by doing a URI based query.");

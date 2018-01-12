@@ -29,12 +29,16 @@ define([
             var serviceModel = new Service.Response();
             serviceModel.fetch();
 
+            var fanoutModel = new Service.Fanout();
+            fanoutModel.fetch();
+
             var sourceResponse = new Source.Response({
                 model: serviceModel
             });
 
             var sourcePage = new SourceView.SourcePage({
-                model: sourceResponse
+                model: sourceResponse,
+                fanout: fanoutModel
             });
 
             // Define a controller to run this module

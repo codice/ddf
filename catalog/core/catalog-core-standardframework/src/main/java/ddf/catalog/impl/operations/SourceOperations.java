@@ -27,9 +27,9 @@ import ddf.catalog.source.SourceUnavailableException;
 import ddf.catalog.source.impl.SourceDescriptorImpl;
 import ddf.catalog.util.impl.DescribableImpl;
 import ddf.catalog.util.impl.SourceDescriptorComparator;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -61,10 +61,39 @@ public class SourceOperations extends DescribableImpl {
 
   private StorageProvider storage;
 
+  private List<String> fanoutTagWhitelist = new ArrayList<>();
+
+  private List<String> fanoutSourceList = new ArrayList<>();
+
+  private boolean invertFanoutList = false;
+
   public SourceOperations(FrameworkProperties frameworkProperties) {
     this.frameworkProperties = frameworkProperties;
   }
 
+  public List<String> getFanoutTagWhitelist() {
+    return fanoutTagWhitelist;
+  }
+
+  public void setFanoutTagWhitelist(List<String> fanoutTagWhitelist) {
+    this.fanoutTagWhitelist = fanoutTagWhitelist;
+  }
+
+  public List<String> getFanoutSourceList() {
+    return fanoutSourceList;
+  }
+
+  public void setFanoutSourceList(List<String> fanoutSourceList) {
+    this.fanoutSourceList = fanoutSourceList;
+  }
+
+  public boolean isInvertFanoutList() {
+    return invertFanoutList;
+  }
+
+  public void setInvertFanoutList(boolean invertFanoutList) {
+    this.invertFanoutList = invertFanoutList;
+  }
   /**
    * Invoked by blueprint when a {@link CatalogProvider} is created and bound to this
    * CatalogFramework instance.
@@ -72,7 +101,7 @@ public class SourceOperations extends DescribableImpl {
    * <p>The local catalog provider will be set to the first item in the {@link java.util.List} of
    * {@link CatalogProvider}s bound to this CatalogFramework.
    *
-   * @param catalogProvider the {@link CatalogProvider} being bound to this CatalogFramework
+   * @param catalogProvider the {@link CatalogProvider} being bound to this CatalogFramework*
    *     instance
    */
   public void bind(CatalogProvider catalogProvider) {
@@ -158,24 +187,42 @@ public class SourceOperations extends DescribableImpl {
   //
   // Delegate methods
   //
-  public Set<String> getSourceIds(boolean fanoutEnabled) {
+  public Set<String> getSourceIds() {
     Set<String> ids = new TreeSet<>();
     ids.add(getId());
-    if (!fanoutEnabled) {
-      ids.addAll(frameworkProperties.getFederatedSources().keySet());
-    }
+    ids.addAll(getFilteredFederatedSources());
     return ids;
   }
 
-  public SourceInfoResponse getSourceInfo(
-      SourceInfoRequest sourceInfoRequest, boolean fanoutEnabled)
+  public List<String> getFilteredFederatedSources() {
+    if (invertFanoutList) {
+      return frameworkProperties
+          .getFederatedSources()
+          .keySet()
+          .stream()
+          .filter(source -> fanoutSourceList.contains(source))
+          .collect(Collectors.toList());
+    } else {
+      return frameworkProperties
+          .getFederatedSources()
+          .keySet()
+          .stream()
+          .filter(source -> !fanoutSourceList.contains(source))
+          .collect(Collectors.toList());
+    }
+  }
+
+  public Set<String> getFilteredFanoutSources() {
+    Set<String> sources = new HashSet<>();
+    sources.addAll(frameworkProperties.getFederatedSources().keySet());
+    sources.removeAll(getFilteredFederatedSources());
+    return sources;
+  }
+
+  public SourceInfoResponse getSourceInfo(SourceInfoRequest sourceInfoRequest)
       throws SourceUnavailableException {
     SourceInfoResponse response;
-    Set<SourceDescriptor> sourceDescriptors;
-
-    if (fanoutEnabled) {
-      return getFanoutSourceInfo(sourceInfoRequest);
-    }
+    Set<SourceDescriptor> sourceDescriptors = getFanoutSourceInfo(sourceInfoRequest);
 
     boolean addCatalogProviderDescriptor = false;
     try {
@@ -183,7 +230,6 @@ public class SourceOperations extends DescribableImpl {
       // Obtain the source information based on the sourceIds in the
       // request
 
-      sourceDescriptors = new LinkedHashSet<>();
       Set<String> requestedSourceIds = sourceInfoRequest.getSourceIds();
 
       // If it is an enterprise request than add all source information for the enterprise
@@ -285,10 +331,9 @@ public class SourceOperations extends DescribableImpl {
    * configuration with the fanout's site name in it. This keeps the individual {@link
    * FederatedSource}s' source info hidden from the external client.
    */
-  private SourceInfoResponse getFanoutSourceInfo(SourceInfoRequest sourceInfoRequest)
+  private Set<SourceDescriptor> getFanoutSourceInfo(SourceInfoRequest sourceInfoRequest)
       throws SourceUnavailableException {
-
-    SourceInfoResponse response;
+    Set<SourceDescriptor> sourceDescriptors = new HashSet<>();
     SourceDescriptorImpl sourceDescriptor;
     try {
 
@@ -297,7 +342,6 @@ public class SourceOperations extends DescribableImpl {
         throw new IllegalArgumentException("SourceInfoRequest was null");
       }
 
-      Set<SourceDescriptor> sourceDescriptors = new LinkedHashSet<>();
       Set<String> ids = sourceInfoRequest.getSourceIds();
 
       // Only return source descriptor information if this sourceId is
@@ -314,13 +358,14 @@ public class SourceOperations extends DescribableImpl {
           throw sourceUnavailableException;
         }
       }
-
+      Set<String> fanoutSources = getFilteredFanoutSources();
       // Fanout will only add one source descriptor with all the contents
       Set<Source> availableSources =
           frameworkProperties
               .getFederatedSources()
               .values()
               .stream()
+              .filter(source -> fanoutSources.contains(source.getId()))
               .map(source -> frameworkProperties.getSourcePoller().getCachedSource(source))
               .filter(source -> source != null && source.isAvailable())
               .collect(Collectors.toSet());
@@ -328,6 +373,7 @@ public class SourceOperations extends DescribableImpl {
       Set<ContentType> contentTypes =
           availableSources
               .stream()
+              .filter(source -> fanoutSources.contains(source.getId()))
               .map(source -> frameworkProperties.getSourcePoller().getCachedSource(source))
               .filter(source -> source.getContentTypes() != null)
               .map(Source::getContentTypes)
@@ -350,13 +396,11 @@ public class SourceOperations extends DescribableImpl {
       sourceDescriptor.setAvailable(availableSources.size() > 0);
       sourceDescriptors.add(sourceDescriptor);
 
-      response = new SourceInfoResponseImpl(sourceInfoRequest, null, sourceDescriptors);
-
     } catch (RuntimeException re) {
       throw new SourceUnavailableException(
           "Exception during runtime while performing getSourceInfo", re);
     }
-    return response;
+    return sourceDescriptors;
   }
 
   /**
@@ -369,9 +413,10 @@ public class SourceOperations extends DescribableImpl {
       Collection<FederatedSource> sources, boolean addCatalogProviderDescriptor) {
     SourceDescriptorImpl sourceDescriptor;
     Set<SourceDescriptor> sourceDescriptors = new TreeSet<>(new SourceDescriptorComparator());
+    List<String> federatedSourceIds = getFilteredFederatedSources();
     if (sources != null) {
       for (Source source : sources) {
-        if (source != null) {
+        if (source != null && federatedSourceIds.contains(source.getId())) {
           String sourceId = source.getId();
           LOGGER.debug("adding sourceId: {}", sourceId);
 

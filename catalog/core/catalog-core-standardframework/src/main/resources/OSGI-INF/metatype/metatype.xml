@@ -18,28 +18,33 @@
     <OCD description="Local site"
          name="Catalog Standard Framework"
          id="ddf.catalog.CatalogFrameworkImpl">
-        <AD name="Enable Fanout Proxy" id="fanoutEnabled" required="true" type="Boolean"
-            default="false"
-            description="When enabled the Framework acts as a proxy, federating requests to all available sources. All requests are executed as federated queries and resource retrievals, allowing the framework to be the sole component exposing the functionality of all of its Federated Sources."/>
         <AD name="Enable Notifications" id="notificationEnabled" required="false" type="Boolean"
             default="true"
             description="Check to enable notifications."/>
-        <AD name="Fanout tag blacklist" id="fanoutTagBlacklist" required="true" type="String"
-            cardinality="100"
-            description="Ingest operations with tags in this list will be rejected."/>
-
     </OCD>
 
     <OCD name="Query Operations"
          id="ddf.catalog.impl.operations.QueryOperations">
-        <AD name="Fanout proxy tag blacklist" id="fanoutProxyTagBlacklist" required="true"
-            type="String" cardinality="100"
-            default="registry,registry-remote"
-            description="Query operations with tags in this list will not be passed through."/>
         <AD name="Query timeout (milliseconds)" id="queryTimeoutMillis" required="true" type="Long"
             default="300000"
             description="Time in milliseconds that a query will wait on the queue before timeout."/>
+    </OCD>
 
+    <OCD name="Source Operations"
+         id="ddf.catalog.impl.operations.SourceOperations">
+
+        <AD name="Dynamic Fanout Tag Whitelist" id="fanoutTagWhitelist" required="true"
+            type="String" cardinality="100"
+            default="resource"
+            description="Only queries on these tags will be propagated to connected and dynamic fanout sources"/>
+
+        <AD name="Dynamic Fanout Sources" id="fanoutSourceList" required="true"
+            type="String" cardinality="100"
+            description="Dynamic fanout sources that should be queried when the local catalog provider is queried. List is an exclusion list if the Invert Fanout Sources option is selected."/>
+
+        <AD name="Invert Fanout Sources" id="invertFanoutList" required="true" type="Boolean"
+            default="false"
+            description="Inverts the Dynamic Fanout Sources list to be an exclusion list instead of an inclusion list."/>
     </OCD>
 
     <OCD name="Historian" id="ddf.catalog.history.Historian">
@@ -70,6 +75,10 @@
 
     <Designate pid="ddf.catalog.impl.operations.QueryOperations">
         <Object ocdref="ddf.catalog.impl.operations.QueryOperations"></Object>
+    </Designate>
+
+    <Designate pid="ddf.catalog.impl.operations.SourceOperations">
+        <Object ocdref="ddf.catalog.impl.operations.SourceOperations"></Object>
     </Designate>
 
 

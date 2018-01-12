@@ -232,30 +232,30 @@ public class ResourceOperationsOptionsTest {
 
   protected void helperGetLocalResourceOptions()
       throws ResourceNotFoundException, UnsupportedQueryException, FederationException {
-    resourceOperations.getLocalResourceOptions(metacard.getId(), false);
+    resourceOperations.getLocalResourceOptions(metacard.getId());
     verifyQueryOperations();
   }
 
   protected void helperGetResourceOptions()
       throws ResourceNotFoundException, UnsupportedQueryException, FederationException {
-    resourceOperations.getResourceOptions(metacard.getId(), metacard.getSourceId(), false);
+    resourceOperations.getResourceOptions(metacard.getId(), metacard.getSourceId());
     verifyQueryOperations();
   }
 
   protected void helperGetEnterpriseResourceOptions()
       throws ResourceNotFoundException, UnsupportedQueryException, FederationException {
-    resourceOperations.getEnterpriseResourceOptions(metacard.getId(), false);
+    resourceOperations.getEnterpriseResourceOptions(metacard.getId());
     verifyQueryOperations();
   }
 
   protected OngoingStubbing<QueryResponse> whenQueried() throws Exception {
     return when(
         queryOperationsMock.query(
-            any(QueryRequest.class), any(FederationStrategy.class), anyBoolean(), anyBoolean()));
+            any(QueryRequest.class), any(FederationStrategy.class), anyBoolean()));
   }
 
   private void verifyQueryOperations() throws FederationException, UnsupportedQueryException {
     verify(queryOperationsMock)
-        .query(any(QueryRequest.class), any(FederationStrategy.class), anyBoolean(), anyBoolean());
+        .query(any(QueryRequest.class), any(FederationStrategy.class), anyBoolean());
   }
 }

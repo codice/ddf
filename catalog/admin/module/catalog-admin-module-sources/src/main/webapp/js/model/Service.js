@@ -333,5 +333,46 @@ define(function (require) {
         }]
     });
 
+    Service.Fanout = Backbone.Model.extend({
+        url: "/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/getProperties/ddf.catalog.impl.operations.SourceOperations",
+        saveUrl: "/admin/jolokia/exec/org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0/update",
+        defaults: function () {
+            return {
+                fanoutSourceList:  [],
+                fanoutTagWhitelist:  ['resource'],
+                invertFanoutList: false
+            };
+        },
+        parse: function(raw){
+            if(raw) {
+                return raw.value;
+            }
+            return raw;
+        },
+        save: function () {
+            var deferred = $.Deferred();
+            var model = this;
+            var data = {
+                type: 'EXEC',
+                mbean: 'org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0',
+                operation: 'update'
+            };
+
+            data.arguments = ['ddf.catalog.impl.operations.SourceOperations'];
+            data.arguments.push(model.toJSON());
+            var jData = JSON.stringify(data);
+            return $.ajax({
+                type: 'POST',
+                contentType: 'application/json',
+                data: jData,
+                url: model.saveUrl
+            }).done(function (result) {
+                deferred.resolve(result);
+            }).fail(function (error) {
+                deferred.fail(error);
+            });
+        }
+    });
+
     return Service;
 });

@@ -11,12 +11,7 @@
  *
  **/
  --}}
-<div id="source-controls" class="btn-group">
-    <a class="btn" id="addSourceButton" href="#"><i class="fa fa-plus"></i><span>Add Source</span></a>
-    <a class="btn" id="removeSourceButton" href="#"><i class="fa fa-trash-o"></i><span>Remove Source</span></a>
-    <a class="btn" id="configureFanoutButton" href="#"><i class="fa fa-wifi fa-rotate-90"></i><span>Fanout</span></a>
-    <a class="btn" id="sourceRefreshButton" href="#"><i class="fa fa-refresh"></i><span>Refresh Sources</span></a>
+<div class="fanout-source-name">
+    <input class="fanoutSource" type="checkbox" value="{{name}}" {{#if fanout }}checked{{/if}}> {{name}}
 </div>
-<div id="sources-modal"></div>
-<div id="sourcesRegion"></div>
-<div id="IframeModalDOM" class="IframeModalDOM"></div>
+
