@@ -259,12 +259,14 @@ public class URLResourceReader implements ResourceReader {
         || resourceURI.getScheme().equals(URL_HTTPS_SCHEME)) {
       LOGGER.debug("Resource URI is HTTP or HTTPS");
 
-      final Serializable qualifierSerializable = properties.get(ContentItem.QUALIFIER);
+      final Serializable qualifierSerializable = properties.get(ContentItem.QUALIFIER_KEYWORD);
       if (qualifierSerializable instanceof String) {
         final String qualifier = (String) qualifierSerializable;
         if (StringUtils.isNotBlank(qualifier)) {
           resourceURI =
-              UriBuilder.fromUri(resourceURI).queryParam(ContentItem.QUALIFIER, qualifier).build();
+              UriBuilder.fromUri(resourceURI)
+                  .queryParam(ContentItem.QUALIFIER_KEYWORD, qualifier)
+                  .build();
         }
       }
 

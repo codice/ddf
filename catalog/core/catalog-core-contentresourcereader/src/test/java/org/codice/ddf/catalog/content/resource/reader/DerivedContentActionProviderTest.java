@@ -85,7 +85,7 @@ public class DerivedContentActionProviderTest {
     assertThat(actions.get(0).getUrl(), notNullValue());
     assertThat(
         actions.get(0).getUrl().getQuery(),
-        containsString(ContentItem.QUALIFIER + "=" + QUALIFIER_VALUE));
+        containsString(ContentItem.QUALIFIER_KEYWORD + "=" + QUALIFIER_VALUE));
   }
 
   @Test

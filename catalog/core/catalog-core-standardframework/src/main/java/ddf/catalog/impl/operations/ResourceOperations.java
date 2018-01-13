@@ -553,7 +553,9 @@ public class ResourceOperations extends DescribableImpl {
         resourceUri = (URI) value;
         URI truncatedUri = resourceUri;
         if (StringUtils.isNotBlank(resourceUri.getFragment())) {
-          resourceRequest.getProperties().put(ContentItem.QUALIFIER, resourceUri.getFragment());
+          resourceRequest
+              .getProperties()
+              .put(ContentItem.QUALIFIER_KEYWORD, resourceUri.getFragment());
           try {
             // Creating the truncated URL this way is important to preserve encoding!!
             String uriString = resourceUri.toString();

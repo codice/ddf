@@ -72,7 +72,7 @@ public class CacheKey {
     if (propertyNames != null) {
       for (String propertyName : propertyNames) {
         if (ResourceRequest.OPTION_ARGUMENT.equals(propertyName)
-            || ContentItem.QUALIFIER.equals(propertyName)) {
+            || ContentItem.QUALIFIER_KEYWORD.equals(propertyName)) {
           properties = "_" + propertyName + "-" + resourceRequest.getPropertyValue(propertyName);
           break;
         }

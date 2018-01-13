@@ -157,14 +157,14 @@ public class ContentResourceReader implements ResourceReader {
       String contentId = resourceUri.getSchemeSpecificPart();
       if (contentId != null && !contentId.isEmpty()) {
         if (arguments != null
-            && arguments.get(ContentItem.QUALIFIER) instanceof String
-            && StringUtils.isNotBlank((String) arguments.get(ContentItem.QUALIFIER))) {
+            && arguments.get(ContentItem.QUALIFIER_KEYWORD) instanceof String
+            && StringUtils.isNotBlank((String) arguments.get(ContentItem.QUALIFIER_KEYWORD))) {
           try {
             resourceUri =
                 new URI(
                     resourceUri.getScheme(),
                     resourceUri.getSchemeSpecificPart(),
-                    (String) arguments.get(ContentItem.QUALIFIER));
+                    (String) arguments.get(ContentItem.QUALIFIER_KEYWORD));
           } catch (URISyntaxException e) {
             throw new ResourceNotFoundException("Unable to create with qualifier", e);
           }
