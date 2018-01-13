@@ -31,7 +31,10 @@ public class GeoToolsFunctionFactory implements FunctionFactory {
 
   private static final List<FunctionName> FUNCTION_NAMES =
       Collections.unmodifiableList(
-          Arrays.asList(FuzzyFunction.NAME, ProximityFunction.NAME, DivisibleByFunction.NAME));
+          Arrays.asList(
+              FuzzyFunction.FUNCTION_NAME,
+              ProximityFunction.FUNCTION_NAME,
+              DivisibleByFunction.FUNCTION_NAME));
 
   @Override
   public List<FunctionName> getFunctionNames() {
@@ -49,18 +52,18 @@ public class GeoToolsFunctionFactory implements FunctionFactory {
     String methodName = "function";
     LOGGER.trace("ENTERING: {}", methodName);
 
-    if (FuzzyFunction.NAME.getName().equals(name.getLocalPart())) {
+    if (FuzzyFunction.FUNCTION_NAME.getName().equals(name.getLocalPart())) {
       LOGGER.trace("EXITING: {} - returning FuzzyFunction instance", methodName);
       return new FuzzyFunction(args, fallback);
     }
 
-    if (ProximityFunction.NAME.getName().equals(name.getLocalPart())) {
-      LOGGER.trace("Inside function : returning {}", ProximityFunction.NAME);
+    if (ProximityFunction.FUNCTION_NAME.getName().equals(name.getLocalPart())) {
+      LOGGER.trace("Inside function : returning {}", ProximityFunction.FUNCTION_NAME);
       return new ProximityFunction(args, fallback);
     }
 
-    if (DivisibleByFunction.NAME.getName().equals(name.getLocalPart())) {
-      LOGGER.trace("Inside function : returning {}", DivisibleByFunction.NAME);
+    if (DivisibleByFunction.FUNCTION_NAME.getName().equals(name.getLocalPart())) {
+      LOGGER.trace("Inside function : returning {}", DivisibleByFunction.FUNCTION_NAME);
       return new DivisibleByFunction(args, fallback);
     }
 

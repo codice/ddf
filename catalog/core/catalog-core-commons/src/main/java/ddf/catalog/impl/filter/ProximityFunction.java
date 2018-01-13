@@ -26,11 +26,15 @@ public class ProximityFunction extends FunctionImpl {
 
   public static final int NUM_PARAMETERS = 3;
 
-  public static final String FUNCTION_NAME = "proximity";
+  public static final String FUNCTION_NAME_STRING = "proximity";
 
-  public static final FunctionName NAME =
+  public static final FunctionName FUNCTION_NAME =
       functionName(
-          FUNCTION_NAME, "result:Boolean", "property:String", "distance:Integer", "text:String:2,");
+          FUNCTION_NAME_STRING,
+          "result:Boolean",
+          "property:String",
+          "distance:Integer",
+          "text:String:2,");
 
   public ProximityFunction(List<Expression> parameters, Literal fallback) {
     notNull(parameters, "Parameters are required");
@@ -38,9 +42,9 @@ public class ProximityFunction extends FunctionImpl {
         parameters.size() == NUM_PARAMETERS,
         String.format("Proximity expression requires at least %s parameters", NUM_PARAMETERS));
 
-    this.setName(FUNCTION_NAME);
+    this.setName(FUNCTION_NAME_STRING);
     this.setParameters(parameters);
     this.setFallbackValue(fallback);
-    this.functionName = NAME;
+    this.functionName = FUNCTION_NAME;
   }
 }

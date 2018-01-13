@@ -56,7 +56,7 @@ public class TestSolrFilterBuilder extends GeotoolsFilterBuilder {
 
   public Filter proximity(String attribute, int distance, String searchTerms) {
     FunctionImpl function = new FunctionImpl();
-    function.setName(ProximityFunction.NAME.getName());
+    function.setName(ProximityFunction.FUNCTION_NAME.getName());
     List<Expression> parameters = new ArrayList<>();
     parameters.add(factory.literal(attribute));
     parameters.add(factory.literal(distance));

@@ -44,6 +44,6 @@ public class FuzzyFunctionTest {
     exprs.add(Expression.NIL);
     // When: I try to create a Fuzzy Function with null parameters
     FuzzyFunction func = new FuzzyFunction(exprs, null);
-    assertEquals("fuzzy", FuzzyFunction.NAME.getName());
+    assertEquals("fuzzy", FuzzyFunction.FUNCTION_NAME.getName());
   }
 }

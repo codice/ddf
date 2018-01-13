@@ -51,7 +51,7 @@ public class TemporalFilter {
   /**
    * Absolute time search
    *
-   * @param dateStart
+   * @param startDate
    * @param endDate
    */
   public TemporalFilter(Date startDate, Date endDate) {
@@ -61,8 +61,8 @@ public class TemporalFilter {
   /**
    * Absolute time search, parses incoming strings to dates.
    *
-   * @param dtStartStr
-   * @param dtEndStr
+   * @param startDate
+   * @param endDate
    */
   public TemporalFilter(String startDate, String endDate) {
     this(parseDate(startDate), parseDate(endDate));
@@ -102,7 +102,7 @@ public class TemporalFilter {
    * Sets dates and performs basic validation. dtStart and dtEnd may be null, but not at the same
    * time.
    *
-   * @param dtStart lower bound of the temporal range search. When null it is set to time 0.
+   * @param startDate lower bound of the temporal range search. When null it is set to time 0.
    * @param endDate upper bound of the temporal range search. When null it is set to now.
    */
   private void setDates(Date startDate, Date endDate) {

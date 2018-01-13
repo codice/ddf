@@ -171,13 +171,13 @@ public class SolrFilterDelegate extends FilterDelegate<SolrQuery> {
     // the literal should be cast to the functions return type (i.e. not necessarily boolean)
     // arguments should be assumed to be in the correct order and can be cast directly.
     switch (functionName) {
-      case DivisibleByFunction.FUNCTION_NAME:
+      case DivisibleByFunction.FUNCTION_NAME_STRING:
         // the return type is boolean so cast the literal to boolean and in effect this is just a
         // NOT so we will update the query as such
         not = (Boolean) literal ? "" : "!";
         query = propertyIsDivisibleBy((String) arguments.get(0), (Long) arguments.get(1));
         return query.setQuery(not + query.getQuery());
-      case ProximityFunction.FUNCTION_NAME:
+      case ProximityFunction.FUNCTION_NAME_STRING:
         not = (Boolean) literal ? "" : "!";
         query =
             propertyIsInProximityTo(

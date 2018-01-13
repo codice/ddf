@@ -25,22 +25,23 @@ import org.opengis.filter.expression.Literal;
  * org.opengis.filter.PropertyIsLike} filter marked to be searched in a fuzzy manner.
  */
 public class PropertyIsFuzzyFunction extends FunctionExpressionImpl {
-  public static final String FUNCTION_NAME = "PropertyIsFuzzy";
 
-  public static final FunctionName NAME =
+  public static final String FUNCTION_NAME_STRING = "PropertyIsFuzzy";
+
+  public static final FunctionName FUNCTION_NAME =
       new FunctionNameImpl(
-          FUNCTION_NAME,
+          FUNCTION_NAME_STRING,
           Expression.class,
           FunctionNameImpl.parameter("expression", Expression.class));
 
   public PropertyIsFuzzyFunction(List<Expression> parameters, Literal fallback) {
-    super(FUNCTION_NAME, fallback);
+    super(FUNCTION_NAME_STRING, fallback);
 
     if (parameters == null || parameters.size() != 2) {
       throw new IllegalArgumentException("PropertyIsFuzzy requires 2 parameters");
     }
     this.params = parameters;
-    this.functionName = NAME;
+    this.functionName = FUNCTION_NAME;
   }
 
   public Expression getPropertyName() {
