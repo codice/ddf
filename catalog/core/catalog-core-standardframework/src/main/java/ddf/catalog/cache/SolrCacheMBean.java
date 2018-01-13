@@ -22,8 +22,7 @@ import org.opengis.filter.Filter;
 
 public interface SolrCacheMBean {
 
-  public static final String OBJECTNAME =
-      "ddf.catalog.cache.solr.impl.SolrCache:service=cache-manager";
+  String OBJECT_NAME = "ddf.catalog.cache.solr.impl.SolrCache:service=cache-manager";
 
   void removeAll() throws IOException, SolrServerException;
 
