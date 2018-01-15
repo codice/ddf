@@ -28,9 +28,9 @@ public class ResultImpl implements Result {
 
   private Metacard metacard;
 
-  private Double distance;
+  private Double distanceInMeters;
 
-  private Double relevance;
+  private Double relevanceScore;
 
   /** Default constructor */
   public ResultImpl() {
@@ -53,31 +53,31 @@ public class ResultImpl implements Result {
    */
   @Override
   public Double getDistanceInMeters() {
-    return this.distance;
+    return this.distanceInMeters;
   }
 
   /**
    * Sets the distance in meters.
    *
-   * @param distance the new distance in meters
+   * @param inDistanceInMeters the new distance in meters
    */
-  public void setDistanceInMeters(Double inDistance) {
-    this.distance = inDistance;
+  public void setDistanceInMeters(Double inDistanceInMeters) {
+    this.distanceInMeters = inDistanceInMeters;
   }
 
-  /** @return relevance */
+  /** @return relevanceScore */
   @Override
   public Double getRelevanceScore() {
-    return relevance;
+    return relevanceScore;
   }
 
   /**
    * Sets the relevance score.
    *
-   * @param relevance the new relevance score
+   * @param inRelevanceScore the new relevance score
    */
-  public void setRelevanceScore(Double inRelevance) {
-    this.relevance = inRelevance;
+  public void setRelevanceScore(Double inRelevanceScore) {
+    this.relevanceScore = inRelevanceScore;
   }
 
   /**
