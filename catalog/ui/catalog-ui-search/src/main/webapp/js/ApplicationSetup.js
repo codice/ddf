@@ -37,6 +37,7 @@ require([
     'underscore',
     'backbone',
     'marionette',
+    'properties',
     'handlebars/dist/handlebars',
     'component/announcement',
     'js/Marionette.Region',
@@ -45,7 +46,7 @@ require([
     'js/ApplicationHelpers',
     'js/Autocomplete',
     'backbone.customFunctions'
-], function(_, Backbone, Marionette, hbs, announcement) {
+], function(_, Backbone, Marionette, properties, hbs, announcement) {
 
     let getShortErrorMessage = function (error) {
         var extraMessage = error instanceof Error ? error.name : String(error);
@@ -80,6 +81,10 @@ require([
         }
 
         var response = getErrorResponse(event, jqxhr, settings, throwError);
+        if (properties.disableUnknownErrorBox && response.message.substring(0,7) === "Unknown") {
+            return;
+        }
+
         var message;
 
         console.error(event, jqxhr, settings, throwError);

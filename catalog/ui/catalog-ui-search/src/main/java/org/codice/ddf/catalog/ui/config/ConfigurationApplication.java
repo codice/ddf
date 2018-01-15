@@ -93,6 +93,8 @@ public class ConfigurationApplication implements SparkApplication {
 
   private Boolean isCacheDisabled = false;
 
+  private Boolean disableUnknownErrorBox = false;
+
   private BrandingPlugin branding;
 
   private Integer timeout = 300000;
@@ -406,7 +408,7 @@ public class ConfigurationApplication implements SparkApplication {
     config.put("customBackgroundContent", customBackgroundContent);
     config.put("customBackgroundModal", customBackgroundModal);
     config.put("customBackgroundSlideout", customBackgroundSlideout);
-
+    config.put("disableUnknownErrorBox", disableUnknownErrorBox);
     return config;
   }
 
@@ -739,6 +741,14 @@ public class ConfigurationApplication implements SparkApplication {
 
   public void setIsEditingAllowed(Boolean isEditingAllowed) {
     this.isEditingAllowed = isEditingAllowed;
+  }
+
+  public void setDisableUnknownErrorBox(Boolean disableUnknownErrorBox) {
+    this.disableUnknownErrorBox = disableUnknownErrorBox;
+  }
+
+  public Boolean getDisableUnknownErrorBox() {
+    return disableUnknownErrorBox;
   }
 
   public void setTypeNameMapping(String[] mappings) {

@@ -402,6 +402,13 @@
             type="String"
             default="#252529"
             required="true"/>
+
+        <AD id="disableUnknownErrorBox"
+            name="Disable Unknown Error Box"
+            description="Disable Unknown Error Box visibility"
+            type="Boolean"
+            default="false"
+            required="false"/>
     </OCD>
 
     <Designate pid="org.codice.ddf.catalog.ui.config">
