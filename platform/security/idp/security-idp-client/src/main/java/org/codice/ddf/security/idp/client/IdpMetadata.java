@@ -57,7 +57,7 @@ public class IdpMetadata {
 
   private String metadata;
 
-  private AtomicReference<EntityData> entityData = new AtomicReference<>();
+  @VisibleForTesting protected AtomicReference<EntityData> entityData = new AtomicReference<>();
 
   private String singleLogoutBinding;
 
@@ -155,12 +155,11 @@ public class IdpMetadata {
   }
 
   /**
-   * If the metadata is past its validity date, the SAML standard prohibits the metadata data from
-   * being used. The SAML entity is cleared if the metadata is invalid. This forces the class to
-   * attempt to retrieve the SAML entity from its source. If metadata is expired, it can continue to
-   * be used, but class attempts to get a new copy of it from the source. If successful, it clears
-   * the entity cache. If the entity cache is empty, the class attempts to retrieve it from the
-   * source.
+   * If the metadata is past its validity date, the SAML standard prohibits using the metadata. The
+   * SAML entity data is cleared if the metadata is invalid. This forces the class to attempt to
+   * retrieve the SAML entity's metadata from its source. If the metadata is expired, it can
+   * continue to be used, but the class attempts to get a new copy of it from the source. If fresh
+   * metadata is successfully retrieved, the cached entity data is cleared.
    *
    * @return The root SAML entity descriptor or null
    */
@@ -168,62 +167,64 @@ public class IdpMetadata {
   @Nullable
   EntityDescriptor getEntityDescriptor() {
 
+    EntityData previousEntityData = null;
+
     if (!isMetadataValid()) {
       LOGGER.debug("SSO metadata is invalid. Purging metadata cache");
+      // Do not permit existing metadata to be used again.
       entityData.set(null);
     }
-
-    EntityData ed =
-        Optional.ofNullable(entityData.get())
-            .orElse(
-                Optional.ofNullable(parseMetadata())
-                    .map(this::extractRootEntityFromMap)
-                    .map(EntityData::new)
-                    .orElse(null));
 
     if (isMetadataExpired()) {
-      LOGGER.debug("SSO metadata cache is expired. Attempted to retrieve new metadata");
-      entityData.set(null);
+      LOGGER.debug("SSO metadata cache is expired. Attempt to retrieve new metadata");
+      // Cache existing metadata
+      previousEntityData = entityData.getAndSet(null);
     }
 
-    boolean updated = entityData.compareAndSet(null, ed);
+    // Attempt to get new metadata. If that is not possible, attempt to fallback to existing
+    // metadata.
+    EntityData newEntityData = null;
+    if (entityData.get() == null) {
+      newEntityData =
+          Optional.ofNullable(parseMetadata())
+              .map(this::extractRootEntityFromMap)
+              .map(EntityData::new)
+              .orElse(previousEntityData);
+    }
+
+    boolean updated = entityData.compareAndSet(null, newEntityData);
     if (!updated) {
-      LOGGER.debug("Safe but concurrent update to serviceProviders map; using processed value");
+      LOGGER.trace("Safe but concurrent update to SAML entity; using processed value");
     }
-    return entityData.get().getEntityDescriptor();
+
+    final EntityData ed = entityData.get();
+    return ed == null ? null : ed.getEntityDescriptor();
   }
 
-  /**
-   * Return true if this the cache metadata is expired and should be retrieved from the SAML entity
-   * that provides the metadata. From the SAML standard: "Note that cache expiration does not imply
-   * a lack of validity in the absence of a validUntil attribute or other information; failure to
-   * update a cached instance (e.g., due to network failure) need not render metadata invalid..."
-   * Because cacheDuration is optional (per the standard), the absence of a cache duration implies
-   * indefinite expiration.
-   *
-   * @return true if metadata should be reacquired from the IDP based solely on cacheDuration
-   */
+  @VisibleForTesting
   protected boolean isMetadataExpired() {
-    return Optional.ofNullable(entityData.get()).map(EntityData::isMetadataExpired).orElse(false);
+
+    EntityData ed = this.entityData.get();
+    if (ed == null) {
+      return false;
+    }
+    return ed.isMetadataExpired();
   }
 
-  /**
-   * Return true if the metadata may still be used. Invalid data must NOT be used, per the SAML
-   * standard. The SAML standard does not give explicit instruction on what to do if the validUntil
-   * is not specified, but implies The attribute is optional. That implies that the absence of
-   * valdiUntil means indefinite validity: "validUntil ...optional attribute indicates the
-   * expiration time of the metadata contained in the element and any contained elements." However,
-   * the standard also sates "When used as the root element of a metadata instance, this element
-   * MUST contain either a validUntil or cacheDuration attribute."
-   *
-   * @return true if metadata may still be used
-   */
+  @VisibleForTesting
   protected boolean isMetadataValid() {
-    return Optional.ofNullable(entityData.get()).map(EntityData::isMetadataValid).orElse(false);
+
+    EntityData ed = this.entityData.get();
+    if (ed == null) {
+      return true;
+    }
+
+    return ed.isMetadataValid();
   }
 
+  @VisibleForTesting
   @Nullable
-  private Map<String, EntityDescriptor> parseMetadata() {
+  protected Map<String, EntityDescriptor> parseMetadata() {
     final Map<String, EntityDescriptor> processMap = new ConcurrentHashMap<>();
     MetadataConfigurationParser metadataConfigurationParser;
     try {
@@ -235,6 +236,7 @@ public class IdpMetadata {
       return null;
     }
     processMap.putAll(metadataConfigurationParser.getEntryDescriptions());
+
     return processMap;
   }
 
@@ -294,7 +296,8 @@ public class IdpMetadata {
     return null;
   }
 
-  private class EntityData {
+  @VisibleForTesting
+  protected class EntityData {
     private final EntityDescriptor entityDescriptor;
     private final Duration cacheDuration;
     private final Instant validUntil;
@@ -320,12 +323,56 @@ public class IdpMetadata {
       return entityDescriptor;
     }
 
+    /**
+     * Return true if this the cache metadata is expired and should be retrieved from the SAML
+     * entity that provides the metadata. From the SAML standard: "Note that cache expiration does
+     * not imply a lack of validity in the absence of a validUntil attribute or other information;
+     * failure to update a cached instance (e.g., due to network failure) need not render metadata
+     * invalid..." Because cacheDuration is optional (per the standard), the absence of a cache
+     * duration implies indefinite expiration.
+     *
+     * @return true if metadata should be reacquired from the IDP based solely on cacheDuration
+     */
     private boolean isMetadataExpired() {
-      return !(cacheDuration == null || Instant.now().isAfter(created.plus(cacheDuration)));
+
+      // Cache cannot be expired if there is no duration.
+      if (getCacheDuration() == null) {
+        return false;
+      }
+
+      // Logically, a duration of 0 means the cache is always expired
+      if (getCacheDuration().isZero()) {
+        return true;
+      }
+
+      return Instant.now().isAfter(created.plus(getCacheDuration()));
     }
 
+    /**
+     * Return true if the metadata may still be used. Invalid data must NOT be used, per the SAML
+     * standard. The SAML standard does not give explicit instruction on what to do if the
+     * validUntil is not specified, but implies The attribute is optional. Therefore the absence of
+     * valdiUntil means indefinite validity. From the SAML standard: "validUntil ... [is an]
+     * optional attribute [that] indicates the expiration time of the metadata contained in the
+     * element and any contained elements." However, the standard also sates "When used as the root
+     * element of a metadata instance, this element MUST contain either a validUntil or
+     * cacheDuration attribute."
+     *
+     * @return true if metadata may still be used
+     */
     private boolean isMetadataValid() {
-      return validUntil == null ? cacheDuration != null : Instant.now().isBefore(validUntil);
+
+      // If validUntil is not specified, then the cache duration must be specified (per the
+      // standard)
+      if (validUntil == null) {
+        return getCacheDuration() != null;
+      }
+
+      return Instant.now().isBefore(validUntil);
+    }
+
+    public Duration getCacheDuration() {
+      return cacheDuration;
     }
   }
 }

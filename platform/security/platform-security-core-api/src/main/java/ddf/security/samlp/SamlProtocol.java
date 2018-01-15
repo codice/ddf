@@ -13,6 +13,7 @@
  */
 package ddf.security.samlp;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.io.StringReader;
 import java.time.Duration;
 import java.util.HashMap;
@@ -447,7 +448,8 @@ public class SamlProtocol {
     return entityDescriptor;
   }
 
-  static Duration getCacheDuration() {
+  @VisibleForTesting
+  public static Duration getCacheDuration() {
     return Duration.parse(
         System.getProperty("org.codice.ddf.security.saml.Metadata.cacheDuration", "P7D"));
   }
