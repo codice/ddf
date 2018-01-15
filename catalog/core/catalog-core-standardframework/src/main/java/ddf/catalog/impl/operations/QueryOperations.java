@@ -720,9 +720,9 @@ public class QueryOperations extends DescribableImpl {
 
     Set<ProcessingDetails> exceptions = new HashSet<>();
 
-    boolean addConnectedSources = false;
+    boolean needToAddConnectedSources = false;
 
-    boolean addCatalogProvider = false;
+    boolean needToAddCatalogProvider = false;
 
     QuerySources(FrameworkProperties frameworkProperties) {
       this.frameworkProperties = frameworkProperties;
@@ -731,8 +731,8 @@ public class QueryOperations extends DescribableImpl {
     QuerySources initializeSources(
         QueryOperations queryOps, QueryRequest queryRequest, Set<String> sourceIds) {
       if (queryRequest.isEnterprise()) { // Check if it's an enterprise query
-        addConnectedSources = true;
-        addCatalogProvider = queryOps.hasCatalogProvider();
+        needToAddConnectedSources = true;
+        needToAddCatalogProvider = queryOps.hasCatalogProvider();
 
         if (sourceIds != null && !sourceIds.isEmpty()) {
           LOGGER.debug("Enterprise Query also included specific sites which will now be ignored");
@@ -763,9 +763,9 @@ public class QueryOperations extends DescribableImpl {
         // it's a targeted federated query
         if (queryOps.includesLocalSources(sourceIds)) {
           LOGGER.debug("Local source is included in sourceIds");
-          addConnectedSources =
+          needToAddConnectedSources =
               CollectionUtils.isNotEmpty(frameworkProperties.getConnectedSources());
-          addCatalogProvider = queryOps.hasCatalogProvider();
+          needToAddCatalogProvider = queryOps.hasCatalogProvider();
           sourceIds.remove(queryOps.getId());
           sourceIds.remove(null);
           sourceIds.remove("");
@@ -808,8 +808,9 @@ public class QueryOperations extends DescribableImpl {
         }
       } else {
         // default to local sources
-        addConnectedSources = CollectionUtils.isNotEmpty(frameworkProperties.getConnectedSources());
-        addCatalogProvider = queryOps.hasCatalogProvider();
+        needToAddConnectedSources =
+            CollectionUtils.isNotEmpty(frameworkProperties.getConnectedSources());
+        needToAddCatalogProvider = queryOps.hasCatalogProvider();
       }
 
       return this;
@@ -817,7 +818,7 @@ public class QueryOperations extends DescribableImpl {
 
     QuerySources addConnectedSources(
         QueryOperations queryOps, FrameworkProperties frameworkProperties) {
-      if (addConnectedSources) {
+      if (needToAddConnectedSources) {
         // add Connected Sources
         for (ConnectedSource source : frameworkProperties.getConnectedSources()) {
           if (queryOps.sourceOperations.isSourceAvailable(source)) {
@@ -833,7 +834,7 @@ public class QueryOperations extends DescribableImpl {
     }
 
     QuerySources addCatalogProvider(QueryOperations queryOps) {
-      if (addCatalogProvider) {
+      if (needToAddCatalogProvider) {
         if (queryOps.sourceOperations.isSourceAvailable(queryOps.sourceOperations.getCatalog())) {
           sourcesToQuery.add(queryOps.sourceOperations.getCatalog());
         } else {
