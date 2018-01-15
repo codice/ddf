@@ -81,10 +81,6 @@ require([
         }
 
         var response = getErrorResponse(event, jqxhr, settings, throwError);
-        if (properties.disableUnknownErrorBox && response.message.substring(0,13) === "Unknown Error") {
-            return;
-        }
-
         var message;
 
         console.error(event, jqxhr, settings, throwError);
@@ -93,6 +89,10 @@ require([
             response = {title: 'Logged out', message: 'Please refresh page to log in'}
         } else if (jqxhr.responseJSON !== undefined) {
             message = jqxhr.responseJSON.message;
+        }
+
+        if (properties.disableUnknownErrorBox && response.message.substring(0,13) === "Unknown Error") {
+            return;
         }
 
         announcement.announce({
