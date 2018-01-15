@@ -44,7 +44,7 @@ import org.apache.commons.collections.CollectionUtils
 import spock.lang.Shared
 import spock.lang.Specification
 
-class QueryOperationsTest extends Specification {
+class QueryOperationsSpec extends Specification {
     private static final String SOURCE_ID = "test_source"
 
     @Shared

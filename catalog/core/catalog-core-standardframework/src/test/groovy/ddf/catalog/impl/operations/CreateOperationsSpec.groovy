@@ -19,7 +19,7 @@ import ddf.catalog.data.impl.BasicTypes
 import ddf.catalog.impl.FrameworkProperties
 import spock.lang.Specification
 
-class CreateOperationsTest extends Specification {
+class CreateOperationsSpec extends Specification {
     private CreateOperations createOperations
 
     def setup() {
