@@ -37,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class SamlValidator {
+
   private static final Logger LOGGER = LoggerFactory.getLogger(SamlValidator.class);
 
   protected final Builder builder;
@@ -281,6 +282,7 @@ public abstract class SamlValidator {
   }
 
   public abstract static class Request extends SamlValidator {
+
     protected final LogoutRequest logoutRequest;
 
     private Request(Builder builder) {
@@ -384,21 +386,17 @@ public abstract class SamlValidator {
 
     @Override
     protected void checkId() throws ValidationException {
-      if (isNotBlank(builder.requestId)) {
-        if (!builder.requestId.equals(logoutResponse.getInResponseTo())) {
-          throw new ValidationException(
-              "The InResponseTo value did not match the Logout Request Id");
-        }
+      if (isNotBlank(builder.requestId)
+          && !builder.requestId.equals(logoutResponse.getInResponseTo())) {
+        throw new ValidationException("The InResponseTo value did not match the Logout Request Id");
       }
     }
   }
 
   public static class PostRequest extends Request {
-    protected final LogoutRequest logoutRequest;
 
     private PostRequest(Builder builder) {
       super(builder);
-      logoutRequest = (LogoutRequest) builder.xmlObject;
     }
 
     @Override
@@ -409,11 +407,9 @@ public abstract class SamlValidator {
   }
 
   public static class PostResponse extends Response {
-    protected final LogoutResponse logoutResponse;
 
     private PostResponse(Builder builder) {
       super(builder);
-      logoutResponse = (LogoutResponse) builder.xmlObject;
     }
 
     @Override
@@ -423,11 +419,9 @@ public abstract class SamlValidator {
   }
 
   public static class RedirectRequest extends Request {
-    protected final LogoutRequest logoutRequest;
 
     private RedirectRequest(Builder builder) {
       super(builder);
-      logoutRequest = (LogoutRequest) builder.xmlObject;
     }
 
     @Override
@@ -438,11 +432,9 @@ public abstract class SamlValidator {
   }
 
   public static class RedirectResponse extends Response {
-    protected final LogoutResponse logoutResponse;
 
     private RedirectResponse(Builder builder) {
       super(builder);
-      logoutResponse = (LogoutResponse) builder.xmlObject;
     }
 
     @Override
