@@ -68,22 +68,30 @@ For local files, the default value of 500 milliseconds is recommended. The recom
 It is also recommended that the *ReadLock Time Interval* be set to a lower amount of time when the *Maximum Concurrent Files* is set above 1 so that files are
 locked in a timely manner and processed as soon as possible.  When a higher *ReadLock Time Interval* is set, the time it takes for files to be processed is increased.
 
-.Attribute Mapper
-The CDM supports setting metacard attributes directly when ${branding} ingests a file. Custom mappings are entered in the form:
+.Attribute Overrides
+The CDM supports setting metacard attributes directly when ${branding} ingests a file. Custom overrides are entered in the form:
 
 `*attribute-name=attribute-value*`
 
-For example, to set the contact email for all metacards, add the custom mapping:
+For example, to set the contact email for all metacards, add the attribute override:
 
 `*contact.point-of-contact-email=doctor@clinic.com*`
 
-Each mapping sets the value of a single metacard attribute. To set the value of an additional attribute, select the "plus"
+Each override sets the value of a single metacard attribute. To set the value of an additional attribute, select the "plus"
  icon in the UI. This creates an empty line for the entry.
 
-To set multi-valued attributes, use a separate override for each value. For example, to add the keywords _PPI_ and _radiology_ to each metacard, add the custom attribute mappings:
+To set multi-valued attributes, use a separate override for each value. For example, to add the keywords _PPI_ and _radiology_ to each metacard, add the custom attribute overrides:
 
 `*topic.keyword=PPI*` +
 `*topic.keyword=radiology*`
+
+Attributes will only be overridden if they are part of the <<_metacard_type, metacard type>>, however the attributes do not have to be present on the metacard to be set.
+
+For example, if the metacard type contains contact email,
+
+`*contact.point-of-contact-email*`
+
+but the value is not currently set, adding an attribute override will set the attribute value.
 
 .Blacklist
 The CDM blacklist uses the "bad.files" and "bad.file.extensions" properties from the system.properties file in "etc/" in order to prevent
