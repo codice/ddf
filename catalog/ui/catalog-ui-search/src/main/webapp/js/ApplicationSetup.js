@@ -81,7 +81,7 @@ require([
         }
 
         var response = getErrorResponse(event, jqxhr, settings, throwError);
-        if (properties.disableUnknownErrorBox && response.message.substring(0,7) === "Unknown") {
+        if (properties.disableUnknownErrorBox && response.message.substring(0,13) === "Unknown Error") {
             return;
         }
 
