@@ -21,20 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/** Class that encapsulates the state of an ongoiong download. */
-class DownloadInfo {
-
-  private static final String DOWNLOAD_ID = "downloadId";
-
-  private static final String FILE_NAME = "fileName";
-
-  private static final String BYTES_DOWNLOADED = "bytesDownloaded";
-
-  private static final String PERCENT = "percent";
-
-  private static final String USER = "user";
-
-  private static final String STATUS = "status";
+/** Class that encapsulates the state of an ongoing download. */
+public class DownloadInfo {
 
   private String downloadId;
 
@@ -60,6 +48,7 @@ class DownloadInfo {
    *
    * @param downloadStatus map containing the different attributes that will be used to initialize
    *     this {@link DownloadInfo} object
+   * @see DownloadStatus
    */
   public DownloadInfo(Map<String, String> downloadStatus) {
     parse(downloadStatus);
@@ -96,20 +85,21 @@ class DownloadInfo {
   private void parse(Map<String, String> downloadStatus) {
     notNull(downloadStatus, "Download status map cannot be null");
 
-    downloadId = downloadStatus.get(DOWNLOAD_ID);
-    fileName = downloadStatus.get(FILE_NAME);
-    status = downloadStatus.get(STATUS);
+    downloadId = downloadStatus.get(DownloadStatus.DOWNLOAD_ID_KEY);
+    fileName = downloadStatus.get(DownloadStatus.FILE_NAME_KEY);
+    status = downloadStatus.get(DownloadStatus.STATUS_KEY);
 
     try {
-      bytesDownloaded = Long.parseLong(downloadStatus.getOrDefault(BYTES_DOWNLOADED, "0"));
+      bytesDownloaded =
+          Long.parseLong(downloadStatus.getOrDefault(DownloadStatus.BYTES_DOWNLOADED_KEY, "0"));
     } catch (NumberFormatException e) {
       throw new IllegalArgumentException("Bytes downloaded must be a number");
     }
 
-    percentDownloaded = downloadStatus.getOrDefault(PERCENT, "0");
+    percentDownloaded = downloadStatus.getOrDefault(DownloadStatus.PERCENT_KEY, "0");
 
-    if (downloadStatus.containsKey(USER)) {
-      users.add(downloadStatus.get(USER));
+    if (downloadStatus.containsKey(DownloadStatus.USER_KEY)) {
+      users.add(downloadStatus.get(DownloadStatus.USER_KEY));
     }
 
     notBlank(this.downloadId, "Download ID cannot be null");
