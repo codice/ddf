@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.spatial.geocoding;
 
-import java.util.Arrays;
+import com.google.common.collect.ImmutableList;
 import java.util.List;
 
 public final class GeoCodingConstants {
@@ -52,7 +52,7 @@ public final class GeoCodingConstants {
   // The GeoNames feature codes for cities, excluding cities that no longer exist or that have
   // been destroyed.
   public static final List<String> CITY_FEATURE_CODES =
-      Arrays.asList(
+      ImmutableList.of(
           "PPL", "PPLA", "PPLA2", "PPLA3", "PPLA4", "PPLC", "PPLCH", "PPLF", "PPLG", "PPLL", "PPLR",
           "PPLS", "PPLX");
 
