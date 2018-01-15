@@ -64,33 +64,33 @@ import org.slf4j.LoggerFactory;
 
 public class SslLdapLoginModule extends AbstractKarafLoginModule {
 
-  public static final String CONNECTION_URL = "connection.url";
+  public static final String CONNECTION_URL_OPTIONS_KEY = "connection.url";
 
-  public static final String CONNECTION_USERNAME = "connection.username";
+  public static final String CONNECTION_USERNAME_OPTIONS_KEY = "connection.username";
 
-  public static final String CONNECTION_PASSWORD = "connection.password";
+  public static final String CONNECTION_PASSWORD_OPTIONS_KEY = "connection.password";
 
-  public static final String USER_BASE_DN = "user.base.dn";
+  public static final String USER_BASE_DN_OPTIONS_KEY = "user.base.dn";
 
-  public static final String USER_FILTER = "user.filter";
+  public static final String USER_FILTER_OPTIONS_KEY = "user.filter";
 
-  public static final String USER_SEARCH_SUBTREE = "user.search.subtree";
+  public static final String USER_SEARCH_SUBTREE_OPTIONS_KEY = "user.search.subtree";
 
-  public static final String ROLE_BASE_DN = "role.base.dn";
+  public static final String ROLE_BASE_DN_OPTIONS_KEY = "role.base.dn";
 
-  public static final String ROLE_FILTER = "role.filter";
+  public static final String ROLE_FILTER_OPTIONS_KEY = "role.filter";
 
-  public static final String ROLE_NAME_ATTRIBUTE = "role.name.attribute";
+  public static final String ROLE_NAME_ATTRIBUTE_OPTIONS_KEY = "role.name.attribute";
 
-  public static final String ROLE_SEARCH_SUBTREE = "role.search.subtree";
+  public static final String ROLE_SEARCH_SUBTREE_OPTIONS_KEY = "role.search.subtree";
 
-  public static final String SSL_STARTTLS = "ssl.starttls";
+  public static final String SSL_STARTTLS_OPTIONS_KEY = "ssl.starttls";
 
-  public static final String BIND_METHOD = "bindMethod";
+  public static final String BIND_METHOD_OPTIONS_KEY = "bindMethod";
 
-  public static final String REALM = "realm";
+  public static final String REALM_OPTIONS_KEY = "realm";
 
-  public static final String KDC_ADDRESS = "kdcAddress";
+  public static final String KDC_ADDRESS_OPTIONS_KEY = "kdcAddress";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SslLdapLoginModule.class);
 
@@ -428,20 +428,21 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
       Map<String, ?> options) {
     super.initialize(subject, callbackHandler, options);
     installEncryptionService();
-    connectionURL = (String) options.get(CONNECTION_URL);
-    connectionUsername = (String) options.get(CONNECTION_USERNAME);
-    connectionPassword = getDecryptedPassword((String) options.get(CONNECTION_PASSWORD));
-    userBaseDN = (String) options.get(USER_BASE_DN);
-    userFilter = (String) options.get(USER_FILTER);
-    userSearchSubtree = Boolean.parseBoolean((String) options.get(USER_SEARCH_SUBTREE));
-    roleBaseDN = (String) options.get(ROLE_BASE_DN);
-    roleFilter = (String) options.get(ROLE_FILTER);
-    roleNameAttribute = (String) options.get(ROLE_NAME_ATTRIBUTE);
-    roleSearchSubtree = Boolean.parseBoolean((String) options.get(ROLE_SEARCH_SUBTREE));
-    startTls = Boolean.parseBoolean(String.valueOf(options.get(SSL_STARTTLS)));
-    setBindMethod((String) options.get(BIND_METHOD));
-    realm = (String) options.get(REALM);
-    kdcAddress = (String) options.get(KDC_ADDRESS);
+    connectionURL = (String) options.get(CONNECTION_URL_OPTIONS_KEY);
+    connectionUsername = (String) options.get(CONNECTION_USERNAME_OPTIONS_KEY);
+    connectionPassword =
+        getDecryptedPassword((String) options.get(CONNECTION_PASSWORD_OPTIONS_KEY));
+    userBaseDN = (String) options.get(USER_BASE_DN_OPTIONS_KEY);
+    userFilter = (String) options.get(USER_FILTER_OPTIONS_KEY);
+    userSearchSubtree = Boolean.parseBoolean((String) options.get(USER_SEARCH_SUBTREE_OPTIONS_KEY));
+    roleBaseDN = (String) options.get(ROLE_BASE_DN_OPTIONS_KEY);
+    roleFilter = (String) options.get(ROLE_FILTER_OPTIONS_KEY);
+    roleNameAttribute = (String) options.get(ROLE_NAME_ATTRIBUTE_OPTIONS_KEY);
+    roleSearchSubtree = Boolean.parseBoolean((String) options.get(ROLE_SEARCH_SUBTREE_OPTIONS_KEY));
+    startTls = Boolean.parseBoolean(String.valueOf(options.get(SSL_STARTTLS_OPTIONS_KEY)));
+    setBindMethod((String) options.get(BIND_METHOD_OPTIONS_KEY));
+    realm = (String) options.get(REALM_OPTIONS_KEY);
+    kdcAddress = (String) options.get(KDC_ADDRESS_OPTIONS_KEY);
 
     if (ldapConnectionFactory != null) {
       ldapConnectionFactory.close();
