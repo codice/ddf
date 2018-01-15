@@ -149,7 +149,7 @@ public class AbstractMigrationSupport {
 
         if (ze == null) {
           return entries;
-        } else if (!ze.isDirectory()) {
+        } else {
           entries.put(ze.getName(), new MigrationZipEntry(ze, IOUtils.toByteArray(zin)));
         }
       }
