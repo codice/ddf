@@ -82,9 +82,16 @@ define([
                     sortOrder: 'descending',
                     result: undefined,
                     serverPageIndex: 0,
-                    isAdvanced: false,
+                    type: 'text',
                     isLocal: false
                 }, user.getQuerySettings().toJSON());
+            },
+            resetToDefaults: function() {
+                this.set(_.omit(this.defaults(), ['type', 'isLocal', 'serverPageIndex', 'result']));
+                this.trigger('resetToDefaults');
+            },
+            revert: function() {
+                this.trigger('revert');
             },
             isLocal: function() {
                 return this.get('isLocal');

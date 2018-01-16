@@ -57,7 +57,7 @@ define([
         setupTextField: function(){
             this.textField.show(PropertyView.getPropertyView({
                 id: 'Text',
-                value: [''],
+                value: [this.options.text !== undefined ? this.options.text : ''],
                 label: '',
                 type: 'STRING',
                 showValidationIssues: false,

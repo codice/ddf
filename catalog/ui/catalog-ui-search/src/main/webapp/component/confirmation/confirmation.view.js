@@ -30,12 +30,16 @@ define([
         },
         events: {
             'click': 'handleOutsideClick',
+            'mousedown': 'handleMousedown',
             'click .confirmation-no': 'handleNo',
             'click .confirmation-yes': 'handleYes'
         },
         initialize: function (options) {
             $('body').append(this.el);
             this.render();
+        },
+        handleMousedown: function(event) {
+            event.stopPropagation();
         },
         handleOutsideClick: function (event) {
             if (event.target === this.el) {

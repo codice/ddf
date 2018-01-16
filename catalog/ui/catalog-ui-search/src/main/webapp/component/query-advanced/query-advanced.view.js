@@ -79,8 +79,7 @@ define([
             this.querySettings.currentView.saveToModel();
 
             this.model.set({
-                cql: this.queryAdvanced.currentView.transformToCql(),
-                isAdvanced: true
+                cql: this.queryAdvanced.currentView.transformToCql()
             });
         },
         setDefaultTitle: function(){

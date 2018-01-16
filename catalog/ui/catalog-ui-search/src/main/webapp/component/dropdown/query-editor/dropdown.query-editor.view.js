@@ -31,13 +31,6 @@ define([
             DropdownView.prototype.initialize.call(this);
             this.handleSchedule();
             this.listenTo(this.options.modelForComponent, 'change', this.handleSchedule);
-            this.listenTo(this.model, 'change:isOpen', this.handleClose);
-        },
-        handleClose: function(){
-            if (!this.model.get('isOpen')){
-                this.onDestroy();
-                this.initializeDropdown();
-            }
         },
         initializeComponentModel: function(){
             //override if you need more functionality

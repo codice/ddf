@@ -18,21 +18,26 @@ define([
     'underscore',
     'jquery',
     '../dropdown.view',
-    './dropdown.query.hbs',
-    'component/query-add/query-add.view',
-    'js/model/Query',
-    'js/store',
-    'properties'
-], function (Marionette, _, $, DropdownView, template, ComponentView, QueryModel, store, properties) {
+    './dropdown.search-type.hbs',
+    'component/search-type/search-type.view',
+    'js/store'
+], function (Marionette, _, $, DropdownView, template, ComponentView, store) {
 
     return DropdownView.extend({
         template: template,
-        className: 'is-query',
+        className: 'is-search-type',
         componentToShow: ComponentView,
         initialize: function(){
             DropdownView.prototype.initialize.call(this);
             this.handleSchedule();
             this.listenTo(this.options.modelForComponent, 'change', this.handleSchedule);
+            this.listenTo(this.model, 'change:isOpen', this.handleClose);
+        },
+        handleClose: function(){
+            if (!this.model.get('isOpen')){
+                this.onDestroy();
+                this.initializeDropdown();
+            }
         },
         initializeComponentModel: function(){
             //override if you need more functionality
@@ -43,9 +48,6 @@ define([
         },
         handleSchedule: function(){
             this.$el.toggleClass('is-polling', this.options.modelForComponent.get('polling'));
-        },
-        serializeData: function(){
-            return properties;
         }
     });
 });

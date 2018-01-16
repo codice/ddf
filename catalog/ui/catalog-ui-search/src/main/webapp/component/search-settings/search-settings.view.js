@@ -34,6 +34,15 @@ define([
             propertyResultCount: '.property-result-count',
             propertySearchSettings: '.property-search-settings'
         },
+        events: {
+            'click > .editor-properties > .editor-save': 'save'
+        },
+        initialize: function() {
+            this.showSave();
+        },
+        showSave: function() {
+            this.$el.toggleClass('show-save', this.options.showSave === true);
+        },
         onBeforeShow: function () {
             this.setupResultCount();
             this.setupSearchSettings();
@@ -72,6 +81,7 @@ define([
             this.updateResultCountSettings();
             this.updateSearchSettings();
             user.savePreferences();
+            this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
         }
     });
 });

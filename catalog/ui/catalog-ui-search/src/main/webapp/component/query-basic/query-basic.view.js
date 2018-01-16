@@ -343,8 +343,7 @@ define([
             var filter = this.constructFilter();
             var generatedCQL = CQLUtils.transformFilterToCQL(filter);
             this.model.set({
-                cql: generatedCQL,
-                isAdvanced: false
+                cql: generatedCQL
             });
         },
         constructFilter: function () {

@@ -42,17 +42,16 @@ module.exports = Marionette.LayoutView.extend({
         'click .editor-save': 'save',
         'click .editor-saveRun': 'saveRun'
     },
-    queryMode: 'text',
     initialize: function () {
-        //for backwards compat: tries it's best to see if something is advanced (since isAdvanced is new)
         this.model = new Query.Model();
+        this.listenTo(this.model, 'resetToDefaults change:type', this.reshow);
         this.listenForSave();
     },
-    onBeforeShow: function () {
+    reshow: function() {
         this.$el.toggleClass('is-text', false);
         this.$el.toggleClass('is-basic', false);
         this.$el.toggleClass('is-advanced', false);
-        switch (this.queryMode) {
+        switch (this.model.get('type')) {
             case 'text':
                 this.$el.toggleClass('is-text', true);
                 this.showText();
@@ -66,21 +65,10 @@ module.exports = Marionette.LayoutView.extend({
                 this.showAdvanced();
                 break;
         }
+    },
+    onBeforeShow: function () {
+        this.reshow();
         this.showTitle();
-        this.edit();
-        this.$el.trigger('repositionDropdown.' + CustomElements.getNamespace());
-    },
-    toText: function () {
-        this.queryMode = 'text';
-        this.onBeforeShow();
-    },
-    toBasic: function () {
-        this.queryMode = 'basic';
-        this.onBeforeShow();
-    },
-    toAdvanced: function () {
-        this.queryMode = 'advanced';
-        this.onBeforeShow();
     },
     showText: function () {
         this.queryContent.show(new QueryAdhoc({
