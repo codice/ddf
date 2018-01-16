@@ -78,10 +78,25 @@ include::${si.file}[]
 
 === Maintaining
 
-<#list maintainings?sort_by("order") as maintaining>
-<#if (maintaining.status == "published")>
-include::${maintaining.file}[]
+<#list maintainingIntros?sort_by("order") as mi>
+<#if (mi.status == "published")>
 
+include::${mi.file}[leveloffset=+2]
+
+<#list maintainings?sort_by("order") as maintaining>
+<#if (maintaining.status == "published" && maintaining.parent == mi.title)>
+
+include::${maintaining.file}[leveloffset=+3]
+
+<#list subMaintainings?sort_by("order") as subMaintaining>
+<#if (subMaintaining.status == "published" && subMaintaining.parent == maintaining.title)>
+
+include::${subMaintaining.file}[leveloffset=+4]
+
+</#if>
+</#list>
+</#if>
+</#list>
 </#if>
 </#list>
 

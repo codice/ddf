@@ -1,0 +1,23 @@
+:title: Platform Commands
+:type: subMaintaining
+:status: published
+:parent: Available Console Commands
+:summary: Platform commands available.
+:order: 03
+
+== {title}
+
+.[[platform_command_descriptions]]Platform Command Descriptions
+[cols="1m,9" options="header"]
+|===
+
+|Command
+|Description
+
+|platform:describe
+|Shows the current platform configuration.
+
+|platform:envlist
+|Provides a list of environment variables.
+
+|===
