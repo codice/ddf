@@ -69,7 +69,7 @@ public abstract class SolrProviderTestCase {
 
   private static final String KARAF_ETC = "karaf.etc";
 
-  protected static SolrFilterBuilderTest filterBuilder = new SolrFilterBuilderTest();
+  protected static TestSolrFilterBuilder filterBuilder = new TestSolrFilterBuilder();
 
   protected static SolrCatalogProvider provider = null;
 
