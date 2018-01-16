@@ -67,9 +67,9 @@ public class ConfluenceSource extends MaskableImpl
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ConfluenceSource.class);
 
-  private static final String USERNAME = "username";
+  private static final String USERNAME_ARGUMENT_KEY = "username";
 
-  private static final String PASSWORD = "password";
+  private static final String PASSWORD_ARGUMENT_KEY = "password";
 
   private String endpointUrl;
 
@@ -271,8 +271,8 @@ public class ConfluenceSource extends MaskableImpl
   public ResourceResponse retrieveResource(URI uri, Map<String, Serializable> arguments)
       throws IOException, ResourceNotFoundException, ResourceNotSupportedException {
     if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(password)) {
-      arguments.put(USERNAME, username);
-      arguments.put(PASSWORD, password);
+      arguments.put(USERNAME_ARGUMENT_KEY, username);
+      arguments.put(PASSWORD_ARGUMENT_KEY, password);
     }
     return resourceReader.retrieveResource(uri, arguments);
   }
