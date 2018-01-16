@@ -13,8 +13,11 @@
  */
 package org.codice.ddf.security.idp.client;
 
+import com.google.common.annotations.VisibleForTesting;
 import ddf.security.samlp.MetadataConfigurationParser;
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +26,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
+import org.joda.time.DateTime;
 import org.opensaml.saml.saml2.metadata.Endpoint;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml.saml2.metadata.IDPSSODescriptor;
@@ -52,8 +57,7 @@ public class IdpMetadata {
 
   private String metadata;
 
-  private AtomicReference<Map<String, EntityDescriptor>> entryDescriptions =
-      new AtomicReference<>();
+  @VisibleForTesting protected AtomicReference<EntityData> entityData = new AtomicReference<>();
 
   private String singleLogoutBinding;
 
@@ -61,7 +65,7 @@ public class IdpMetadata {
 
   public void setMetadata(String metadata) {
     this.metadata = metadata;
-    entryDescriptions.getAndSet(null);
+    entityData.getAndSet(null);
   }
 
   private void initSingleSignOn() {
@@ -110,7 +114,7 @@ public class IdpMetadata {
                     || s.getBinding().equals(BINDINGS_HTTP_REDIRECT))
         .reduce(
             (acc, val) -> {
-              if (acc == null || !BINDINGS_HTTP_REDIRECT.equals(acc.getBinding())) {
+              if (!BINDINGS_HTTP_REDIRECT.equals(acc.getBinding())) {
                 return val;
               }
               return acc;
@@ -119,64 +123,118 @@ public class IdpMetadata {
 
   private void initCertificates() {
     IDPSSODescriptor descriptor = getDescriptor();
-    if (descriptor != null) {
-      for (KeyDescriptor key : descriptor.getKeyDescriptors()) {
-        String certificate = null;
-        if (key.getKeyInfo().getX509Datas().size() > 0
-            && key.getKeyInfo().getX509Datas().get(0).getX509Certificates().size() > 0) {
-          certificate =
-              key.getKeyInfo().getX509Datas().get(0).getX509Certificates().get(0).getValue();
-        }
+    if (descriptor == null) {
+      return;
+    }
 
-        if (StringUtils.isBlank(certificate)) {
-          break;
-        }
+    for (KeyDescriptor key : descriptor.getKeyDescriptors()) {
+      String certificate = null;
+      if (!key.getKeyInfo().getX509Datas().isEmpty()
+          && !key.getKeyInfo().getX509Datas().get(0).getX509Certificates().isEmpty()) {
+        certificate =
+            key.getKeyInfo().getX509Datas().get(0).getX509Certificates().get(0).getValue();
+      }
 
-        if (UsageType.UNSPECIFIED.equals(key.getUse())) {
-          encryptionCertificate = certificate;
-          signingCertificate = certificate;
-        }
+      if (StringUtils.isBlank(certificate)) {
+        break;
+      }
 
-        if (UsageType.ENCRYPTION.equals(key.getUse())) {
-          encryptionCertificate = certificate;
-        }
+      if (UsageType.UNSPECIFIED.equals(key.getUse())) {
+        encryptionCertificate = certificate;
+        signingCertificate = certificate;
+      }
 
-        if (UsageType.SIGNING.equals(key.getUse())) {
-          signingCertificate = certificate;
-        }
+      if (UsageType.ENCRYPTION.equals(key.getUse())) {
+        encryptionCertificate = certificate;
+      }
+
+      if (UsageType.SIGNING.equals(key.getUse())) {
+        signingCertificate = certificate;
       }
     }
   }
 
-  private EntityDescriptor getEntityDescriptor() {
-    Map<String, EntityDescriptor> edMap = entryDescriptions.get();
-    if (edMap == null) {
-      try {
-        edMap = parseMetadata();
-      } catch (IOException e) {
-        LOGGER.debug("Error parsing SSO metadata", e);
-        return null;
-      }
+  /**
+   * If the metadata is past its validity date, the SAML standard prohibits using the metadata. The
+   * SAML entity data is cleared if the metadata is invalid. This forces the class to attempt to
+   * retrieve the SAML entity's metadata from its source. If the metadata is expired, it can
+   * continue to be used, but the class attempts to get a new copy of it from the source. If fresh
+   * metadata is successfully retrieved, the cached entity data is cleared.
+   *
+   * @return The root SAML entity descriptor or null
+   */
+  @VisibleForTesting
+  @Nullable
+  EntityDescriptor getEntityDescriptor() {
 
-      boolean updated = entryDescriptions.compareAndSet(null, edMap);
-      if (!updated) {
-        LOGGER.debug("Safe but concurrent update to serviceProviders map; using processed value");
-      }
+    EntityData previousEntityData = null;
+
+    if (!isMetadataValid()) {
+      LOGGER.debug("SSO metadata is invalid. Purging metadata cache");
+      // Do not permit existing metadata to be used again.
+      entityData.set(null);
     }
 
-    Set<Map.Entry<String, EntityDescriptor>> entries = edMap.entrySet();
-    if (!entries.isEmpty()) {
-      return entries.iterator().next().getValue();
+    if (isMetadataExpired()) {
+      LOGGER.debug("SSO metadata cache is expired. Attempt to retrieve new metadata");
+      // Cache existing metadata
+      previousEntityData = entityData.getAndSet(null);
     }
-    return null;
+
+    // Attempt to get new metadata. If that is not possible, attempt to fallback to existing
+    // metadata.
+    EntityData newEntityData = null;
+    if (entityData.get() == null) {
+      newEntityData =
+          Optional.ofNullable(parseMetadata())
+              .map(this::extractRootEntityFromMap)
+              .map(EntityData::new)
+              .orElse(previousEntityData);
+    }
+
+    boolean updated = entityData.compareAndSet(null, newEntityData);
+    if (!updated) {
+      LOGGER.trace("Safe but concurrent update to SAML entity; using processed value");
+    }
+
+    final EntityData ed = entityData.get();
+    return ed == null ? null : ed.getEntityDescriptor();
   }
 
-  private Map<String, EntityDescriptor> parseMetadata() throws IOException {
+  @VisibleForTesting
+  protected boolean isMetadataExpired() {
+
+    EntityData ed = this.entityData.get();
+    if (ed == null) {
+      return false;
+    }
+    return ed.isMetadataExpired();
+  }
+
+  @VisibleForTesting
+  protected boolean isMetadataValid() {
+
+    EntityData ed = this.entityData.get();
+    if (ed == null) {
+      return true;
+    }
+
+    return ed.isMetadataValid();
+  }
+
+  @VisibleForTesting
+  @Nullable
+  protected Map<String, EntityDescriptor> parseMetadata() {
     final Map<String, EntityDescriptor> processMap = new ConcurrentHashMap<>();
-    MetadataConfigurationParser metadataConfigurationParser = //
-        new MetadataConfigurationParser(
-            Collections.singletonList(metadata), ed -> processMap.put(ed.getEntityID(), ed));
-
+    MetadataConfigurationParser metadataConfigurationParser;
+    try {
+      metadataConfigurationParser =
+          new MetadataConfigurationParser(
+              Collections.singletonList(metadata), ed -> processMap.put(ed.getEntityID(), ed));
+    } catch (IOException e) {
+      LOGGER.debug("Error parsing SSO metadata", e);
+      return null;
+    }
     processMap.putAll(metadataConfigurationParser.getEntryDescriptions());
 
     return processMap;
@@ -223,8 +281,98 @@ public class IdpMetadata {
     return signingCertificate;
   }
 
+  @SuppressWarnings("unused")
   public String getEncryptionCertificate() {
     initCertificates();
     return encryptionCertificate;
+  }
+
+  @Nullable
+  private EntityDescriptor extractRootEntityFromMap(Map<String, EntityDescriptor> edMap) {
+    Set<Map.Entry<String, EntityDescriptor>> entries = edMap.entrySet();
+    if (!entries.isEmpty()) {
+      return entries.iterator().next().getValue();
+    }
+    return null;
+  }
+
+  @VisibleForTesting
+  protected class EntityData {
+    private final EntityDescriptor entityDescriptor;
+    private final Duration cacheDuration;
+    private final Instant validUntil;
+    private final Instant created;
+
+    EntityData(EntityDescriptor ed) {
+      entityDescriptor = ed;
+      if (getEntityDescriptor() == null) {
+        cacheDuration = null;
+        validUntil = null;
+        created = null;
+      } else {
+        created = Instant.now();
+        Long entityDuration = getEntityDescriptor().getCacheDuration();
+        DateTime entityValidity = getEntityDescriptor().getValidUntil();
+        this.cacheDuration = (entityDuration != null) ? Duration.ofMillis(entityDuration) : null;
+        this.validUntil = (entityValidity != null) ? entityValidity.toDate().toInstant() : null;
+      }
+    }
+
+    @Nullable
+    public EntityDescriptor getEntityDescriptor() {
+      return entityDescriptor;
+    }
+
+    /**
+     * Return true if this the cache metadata is expired and should be retrieved from the SAML
+     * entity that provides the metadata. From the SAML standard: "Note that cache expiration does
+     * not imply a lack of validity in the absence of a validUntil attribute or other information;
+     * failure to update a cached instance (e.g., due to network failure) need not render metadata
+     * invalid..." Because cacheDuration is optional (per the standard), the absence of a cache
+     * duration implies indefinite expiration.
+     *
+     * @return true if metadata should be reacquired from the IDP based solely on cacheDuration
+     */
+    private boolean isMetadataExpired() {
+
+      // Cache cannot be expired if there is no duration.
+      if (getCacheDuration() == null) {
+        return false;
+      }
+
+      // Logically, a duration of 0 means the cache is always expired
+      if (getCacheDuration().isZero()) {
+        return true;
+      }
+
+      return Instant.now().isAfter(created.plus(getCacheDuration()));
+    }
+
+    /**
+     * Return true if the metadata may still be used. Invalid data must NOT be used, per the SAML
+     * standard. The SAML standard does not give explicit instruction on what to do if the
+     * validUntil is not specified, but implies The attribute is optional. Therefore the absence of
+     * valdiUntil means indefinite validity. From the SAML standard: "validUntil ... [is an]
+     * optional attribute [that] indicates the expiration time of the metadata contained in the
+     * element and any contained elements." However, the standard also sates "When used as the root
+     * element of a metadata instance, this element MUST contain either a validUntil or
+     * cacheDuration attribute."
+     *
+     * @return true if metadata may still be used
+     */
+    private boolean isMetadataValid() {
+
+      // If validUntil is not specified, then the cache duration must be specified (per the
+      // standard)
+      if (validUntil == null) {
+        return getCacheDuration() != null;
+      }
+
+      return Instant.now().isBefore(validUntil);
+    }
+
+    public Duration getCacheDuration() {
+      return cacheDuration;
+    }
   }
 }

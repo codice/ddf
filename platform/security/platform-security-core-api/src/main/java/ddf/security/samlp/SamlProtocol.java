@@ -13,7 +13,9 @@
  */
 package ddf.security.samlp;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.io.StringReader;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -223,56 +225,6 @@ public class SamlProtocol {
   private static HeaderBuilder soapHeaderBuilder =
       (HeaderBuilder) builderFactory.getBuilder(Header.DEFAULT_ELEMENT_NAME);
 
-  public enum Binding {
-    HTTP_POST(POST_BINDING),
-    HTTP_REDIRECT(REDIRECT_BINDING),
-    HTTP_ARTIFACT(SOAP_BINDING),
-    SOAP(SOAP_BINDING),
-    PAOS(PAOS_BINDING);
-
-    private final String uri;
-
-    private static Map<String, Binding> stringToBinding = new HashMap<>();
-
-    static {
-      for (Binding binding : Binding.values()) {
-        stringToBinding.put(binding.getUri(), binding);
-      }
-    }
-
-    Binding(String uri) {
-      this.uri = uri;
-    }
-
-    public String getUri() {
-      return uri;
-    }
-
-    public static Binding from(String value) {
-      return stringToBinding.get(value);
-    }
-
-    public boolean isEqual(String uri) {
-      return this.uri.equals(uri);
-    }
-  }
-
-  public enum Type {
-    REQUEST("SAMLRequest"),
-    RESPONSE("SAMLResponse"),
-    NULL("");
-
-    private final String key;
-
-    Type(String key) {
-      this.key = key;
-    }
-
-    public String getKey() {
-      return key;
-    }
-  }
-
   private SamlProtocol() {}
 
   public static Response createResponse(
@@ -405,6 +357,8 @@ public class SamlProtocol {
 
     entityDescriptor.getRoleDescriptors().add(idpssoDescriptor);
 
+    entityDescriptor.setCacheDuration(getCacheDuration().toMillis());
+
     return entityDescriptor;
   }
 
@@ -489,7 +443,15 @@ public class SamlProtocol {
 
     entityDescriptor.getRoleDescriptors().add(spSsoDescriptor);
 
+    entityDescriptor.setCacheDuration(getCacheDuration().toMillis());
+
     return entityDescriptor;
+  }
+
+  @VisibleForTesting
+  public static Duration getCacheDuration() {
+    return Duration.parse(
+        System.getProperty("org.codice.ddf.security.saml.Metadata.cacheDuration", "P7D"));
   }
 
   public static AttributeQuery createAttributeQuery(
@@ -605,5 +567,55 @@ public class SamlProtocol {
       node = xmlStreamWriter.getDocument().getDocumentElement();
     }
     return node;
+  }
+
+  public enum Binding {
+    HTTP_POST(POST_BINDING),
+    HTTP_REDIRECT(REDIRECT_BINDING),
+    HTTP_ARTIFACT(SOAP_BINDING),
+    SOAP(SOAP_BINDING),
+    PAOS(PAOS_BINDING);
+
+    private static Map<String, Binding> stringToBinding = new HashMap<>();
+
+    static {
+      for (Binding binding : Binding.values()) {
+        stringToBinding.put(binding.getUri(), binding);
+      }
+    }
+
+    private final String uri;
+
+    Binding(String uri) {
+      this.uri = uri;
+    }
+
+    public static Binding from(String value) {
+      return stringToBinding.get(value);
+    }
+
+    public String getUri() {
+      return uri;
+    }
+
+    public boolean isEqual(String uri) {
+      return this.uri.equals(uri);
+    }
+  }
+
+  public enum Type {
+    REQUEST("SAMLRequest"),
+    RESPONSE("SAMLResponse"),
+    NULL("");
+
+    private final String key;
+
+    Type(String key) {
+      this.key = key;
+    }
+
+    public String getKey() {
+      return key;
+    }
   }
 }

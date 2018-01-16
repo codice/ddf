@@ -70,13 +70,12 @@ public class MetadataConfigurationParser {
 
   private static final String FILE = "file:";
 
-  private final Map<String, EntityDescriptor> entityDescriptorMap = new ConcurrentHashMap<>();
-
-  private final Consumer<EntityDescriptor> updateCallback;
-
   static {
     OpenSAMLUtil.initSamlEngine();
   }
+
+  private final Map<String, EntityDescriptor> entityDescriptorMap = new ConcurrentHashMap<>();
+  private final Consumer<EntityDescriptor> updateCallback;
 
   public MetadataConfigurationParser(List<String> entityDescriptions) throws IOException {
     this(entityDescriptions, null);
@@ -238,7 +237,18 @@ public class MetadataConfigurationParser {
       throw new IllegalArgumentException(
           "Unable to convert EntityDescriptor document to XMLObject.");
     }
+    EntityDescriptor root = (EntityDescriptor) entityXmlObj;
+    validateMetadata(root);
+    return root;
+  }
 
-    return (EntityDescriptor) entityXmlObj;
+  private void validateMetadata(EntityDescriptor root) {
+    if (root.getCacheDuration() == null && root.getValidUntil() == null) {
+      LOGGER.trace(
+          "IDP metadata must either have cache duration or valid-until date."
+              + " Defaulting IDP metadata cache duration to {}",
+          SamlProtocol.getCacheDuration());
+      root.setCacheDuration(SamlProtocol.getCacheDuration().toMillis());
+    }
   }
 }
