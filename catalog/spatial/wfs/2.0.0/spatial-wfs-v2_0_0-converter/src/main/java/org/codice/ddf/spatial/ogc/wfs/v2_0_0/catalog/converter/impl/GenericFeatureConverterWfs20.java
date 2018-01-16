@@ -52,8 +52,6 @@ public class GenericFeatureConverterWfs20 extends AbstractFeatureConverterWfs20 
 
   private static final Logger LOGGER = LoggerFactory.getLogger(GenericFeatureConverterWfs20.class);
 
-  private String sourceId = null;
-
   public GenericFeatureConverterWfs20() {}
 
   public GenericFeatureConverterWfs20(MetacardMapper metacardMapper) {
