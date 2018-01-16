@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.endpoints.rest.action;
 
-public class AbstractActionProviderTest {
+public abstract class AbstractActionProviderTest {
 
   protected static final String SAMPLE_PATH = "/catalog/sources/";
 

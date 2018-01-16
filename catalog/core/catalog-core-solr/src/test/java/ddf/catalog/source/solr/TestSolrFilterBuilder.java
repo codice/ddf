@@ -29,7 +29,7 @@ import org.opengis.filter.expression.Expression;
 import org.opengis.temporal.Instant;
 import org.opengis.temporal.Period;
 
-public class SolrFilterBuilderTest extends GeotoolsFilterBuilder {
+public class TestSolrFilterBuilder extends GeotoolsFilterBuilder {
 
   private FilterFactory factory = new FilterFactoryImpl();
 

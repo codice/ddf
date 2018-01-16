@@ -17,12 +17,12 @@ import ddf.catalog.data.AttributeDescriptor;
 import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
 
-public class AttributeDescriptorImplTest extends AttributeDescriptorImpl {
+public class TestAttributeDescriptorImpl extends AttributeDescriptorImpl {
   private static final long serialVersionUID = 1L;
 
   private String propertyName;
 
-  public AttributeDescriptorImplTest(
+  public TestAttributeDescriptorImpl(
       String name,
       String propertyName,
       boolean indexed,
@@ -35,7 +35,7 @@ public class AttributeDescriptorImplTest extends AttributeDescriptorImpl {
     this.propertyName = propertyName;
   }
 
-  public AttributeDescriptorImplTest(AttributeDescriptor ad) {
+  public TestAttributeDescriptorImpl(AttributeDescriptor ad) {
     super(
         ad.getName(),
         ad.isIndexed(),

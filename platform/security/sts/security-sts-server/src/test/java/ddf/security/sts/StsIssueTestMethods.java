@@ -128,7 +128,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Some unit tests for the CXF STSClient Issue Binding. */
-public class StsIssueTest {
+public class StsIssueTestMethods {
 
   private static final String SAML2_TOKEN_TYPE =
       "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0";
@@ -156,12 +156,12 @@ public class StsIssueTest {
 
   private static final String URI = "Uri";
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(StsIssueTest.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(StsIssueTestMethods.class);
 
   /** Test the Username Token */
   public void testBearerUsernameTokenSaml2(StsPortTypes portType) throws Exception {
     SpringBusFactory bf = new SpringBusFactory();
-    URL busFile = StsIssueTest.class.getResource("/cxf-client.xml");
+    URL busFile = StsIssueTestMethods.class.getResource("/cxf-client.xml");
 
     Bus bus = bf.createBus(busFile.toString());
     SpringBusFactory.setDefaultBus(bus);
@@ -213,7 +213,7 @@ public class StsIssueTest {
   /** Test the Web SSO Token */
   public void testBearerWebSsoTokenSaml2(StsPortTypes portType) throws Exception {
     SpringBusFactory bf = new SpringBusFactory();
-    URL busFile = StsIssueTest.class.getResource("/cxf-client.xml");
+    URL busFile = StsIssueTestMethods.class.getResource("/cxf-client.xml");
 
     Bus bus = bf.createBus(busFile.toString());
     SpringBusFactory.setDefaultBus(bus);
@@ -269,7 +269,7 @@ public class StsIssueTest {
   /** Test the User PKI Token */
   public void testBearerPkiTokenSaml2(StsPortTypes portType) throws Exception {
     SpringBusFactory bf = new SpringBusFactory();
-    URL busFile = StsIssueTest.class.getResource("/cxf-client.xml");
+    URL busFile = StsIssueTestMethods.class.getResource("/cxf-client.xml");
 
     Bus bus = bf.createBus(busFile.toString());
     SpringBusFactory.setDefaultBus(bus);

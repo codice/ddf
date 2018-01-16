@@ -13,7 +13,7 @@
  */
 package ddf.security.sts;
 
-import ddf.security.sts.StsIssueTest.StsPortTypes;
+import ddf.security.sts.StsIssueTestMethods.StsPortTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +28,7 @@ public final class StsTestRunner {
    * @throws Exception
    */
   public static void main(String[] args) {
-    StsIssueTest sit = new StsIssueTest();
+    StsIssueTestMethods sit = new StsIssueTestMethods();
 
     // Test the Transport Port
     try {
