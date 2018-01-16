@@ -26,7 +26,8 @@ import org.codice.ddf.admin.core.api.Service;
  * be removed in a future version of the library. </b>
  */
 public interface AdminConsoleServiceMBean {
-  String OBJECTNAME = "org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0";
+
+  String OBJECT_NAME = "org.codice.ddf.ui.admin.api.ConfigurationAdmin:service=ui,version=2.3.0";
 
   /**
    * Lists all managed services and managed service factories with associated metatypes and

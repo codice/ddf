@@ -45,9 +45,9 @@ class OsgiUtils {
   }
 
   static AdminConsoleServiceMBean getConfigAdminMBean() throws ConfiguratorException {
-    ObjectName objectName = null;
+    ObjectName objectName;
     try {
-      objectName = new ObjectName(AdminConsoleServiceMBean.OBJECTNAME);
+      objectName = new ObjectName(AdminConsoleServiceMBean.OBJECT_NAME);
     } catch (MalformedObjectNameException e) {
       LOGGER.info("Unable to access config admin mbean");
       throw new ConfiguratorException(INTERNAL_ERROR);
