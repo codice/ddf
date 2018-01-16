@@ -16,7 +16,7 @@ package org.codice.ddf.admin.application.service.migratable;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 
-public class JsonUtilsTest {
+public class JsonSupport {
 
   public static Map<String, Object> toImmutableMap(Object... keysAndValues) {
     final ImmutableMap.Builder builder = ImmutableMap.builder();
@@ -28,6 +28,6 @@ public class JsonUtilsTest {
   }
 
   public static String toJsonString(Object... keysAndValues) {
-    return JsonUtils.toJson(JsonUtilsTest.toImmutableMap(keysAndValues));
+    return JsonUtils.toJson(JsonSupport.toImmutableMap(keysAndValues));
   }
 }

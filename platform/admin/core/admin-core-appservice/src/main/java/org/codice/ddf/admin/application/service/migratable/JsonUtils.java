@@ -28,6 +28,10 @@ import org.osgi.framework.Version;
 /** Provides useful functions for dealing with Json. */
 public class JsonUtils {
 
+  private JsonUtils() {
+    throw new UnsupportedOperationException();
+  }
+
   private static final ObjectMapper MAPPER =
       JsonFactory.create(
           new JsonParserFactory().useAnnotations(),

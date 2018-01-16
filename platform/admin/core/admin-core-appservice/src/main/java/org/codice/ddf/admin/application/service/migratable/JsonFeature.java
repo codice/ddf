@@ -76,6 +76,8 @@ public class JsonFeature implements JsonValidatable {
    * @throws IllegalArgumentException if <code>name</code>, <code>id</code>, or <code>state</code>
    *     is <code>null</code>
    */
+  @SuppressWarnings(
+      "squid:S00107" /* Pojo attributes initialization of final attributes requires 8 parameters */)
   public JsonFeature(
       String name,
       String id,

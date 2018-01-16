@@ -32,7 +32,9 @@ import org.slf4j.LoggerFactory;
 public class BundleProcessor {
   private static final Logger LOGGER = LoggerFactory.getLogger(BundleProcessor.class);
 
-  public BundleProcessor() {}
+  public BundleProcessor() {
+    // nothing to initialize
+  }
 
   /**
    * Gets all available bundles from memory.
@@ -74,7 +76,7 @@ public class BundleProcessor {
    *     otherwise
    */
   public boolean uninstallBundle(ProfileMigrationReport report, Bundle bundle) {
-    return run(report, bundle, Operation.UNINSTALL, () -> bundle.uninstall());
+    return run(report, bundle, Operation.UNINSTALL, bundle::uninstall);
   }
 
   /**
@@ -85,7 +87,7 @@ public class BundleProcessor {
    * @return <code>true</code> if the bundle was started successfully; <code>false</code> otherwise
    */
   public boolean startBundle(ProfileMigrationReport report, Bundle bundle) {
-    return run(report, bundle, Operation.START, () -> bundle.start());
+    return run(report, bundle, Operation.START, bundle::start);
   }
 
   /**
@@ -96,7 +98,7 @@ public class BundleProcessor {
    * @return <code>true</code> if the bundle was stopped successfully; <code>false</code> otherwise
    */
   public boolean stopBundle(ProfileMigrationReport report, Bundle bundle) {
-    return run(report, bundle, Operation.STOP, () -> bundle.stop());
+    return run(report, bundle, Operation.STOP, bundle::stop);
   }
 
   /**

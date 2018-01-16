@@ -265,7 +265,7 @@ public class JsonBundleTest {
   @Test
   public void testJsonSerialization() throws Exception {
     JSONAssert.assertEquals(
-        JsonUtilsTest.toJsonString(
+        JsonSupport.toJsonString(
             "name", NAME, "id", ID, "version", VERSION, "state", STATE, "location", LOCATION),
         JsonUtils.toJson(jbundle),
         true);
@@ -275,7 +275,7 @@ public class JsonBundleTest {
   public void testJsonDeserialization() throws Exception {
     Assert.assertThat(
         JsonUtils.fromJson(
-            JsonUtilsTest.toJsonString(
+            JsonSupport.toJsonString(
                 "name", NAME, "id", ID, "version", VERSION, "state", STATE, "location", LOCATION),
             JsonBundle.class),
         Matchers.equalTo(jbundle));
@@ -287,7 +287,7 @@ public class JsonBundleTest {
     thrown.expectMessage(Matchers.containsString("missing required bundle name"));
 
     JsonUtils.fromJson(
-        JsonUtilsTest.toJsonString(
+        JsonSupport.toJsonString(
             "id", ID, "version", VERSION, "state", STATE, "location", LOCATION),
         JsonBundle.class);
   }
@@ -298,7 +298,7 @@ public class JsonBundleTest {
     thrown.expectMessage(Matchers.containsString("missing required bundle version"));
 
     JsonUtils.fromJson(
-        JsonUtilsTest.toJsonString("name", NAME, "id", ID, "state", STATE, "location", LOCATION),
+        JsonSupport.toJsonString("name", NAME, "id", ID, "state", STATE, "location", LOCATION),
         JsonBundle.class);
   }
 
@@ -308,7 +308,7 @@ public class JsonBundleTest {
     thrown.expectMessage(Matchers.containsString("invalid version"));
 
     JsonUtils.fromJson(
-        JsonUtilsTest.toJsonString(
+        JsonSupport.toJsonString(
             "name",
             NAME,
             "id",
@@ -328,7 +328,7 @@ public class JsonBundleTest {
     thrown.expectMessage(Matchers.containsString("missing required bundle id"));
 
     JsonUtils.fromJson(
-        JsonUtilsTest.toJsonString(
+        JsonSupport.toJsonString(
             "name", NAME, "version", VERSION, "state", STATE, "location", LOCATION),
         JsonBundle.class);
   }
@@ -339,8 +339,7 @@ public class JsonBundleTest {
     thrown.expectMessage(Matchers.containsString("missing required bundle state"));
 
     JsonUtils.fromJson(
-        JsonUtilsTest.toJsonString(
-            "name", NAME, "id", ID, "version", VERSION, "location", LOCATION),
+        JsonSupport.toJsonString("name", NAME, "id", ID, "version", VERSION, "location", LOCATION),
         JsonBundle.class);
   }
 
@@ -350,7 +349,7 @@ public class JsonBundleTest {
     thrown.expectMessage(Matchers.containsString("missing required bundle location"));
 
     JsonUtils.fromJson(
-        JsonUtilsTest.toJsonString("name", NAME, "id", ID, "version", VERSION, "state", STATE),
+        JsonSupport.toJsonString("name", NAME, "id", ID, "version", VERSION, "state", STATE),
         JsonBundle.class);
   }
 }

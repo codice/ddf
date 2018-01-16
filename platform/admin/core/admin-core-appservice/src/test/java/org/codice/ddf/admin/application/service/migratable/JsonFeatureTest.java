@@ -297,7 +297,7 @@ public class JsonFeatureTest {
   @Test
   public void testJsonSerialization() throws Exception {
     JSONAssert.assertEquals(
-        JsonUtilsTest.toJsonString(
+        JsonSupport.toJsonString(
             "name",
             NAME,
             "id",
@@ -322,7 +322,7 @@ public class JsonFeatureTest {
   public void testJsonDeserialization() throws Exception {
     Assert.assertThat(
         JsonUtils.fromJson(
-            JsonUtilsTest.toJsonString(
+            JsonSupport.toJsonString(
                 "name",
                 NAME,
                 "id",
@@ -349,7 +349,7 @@ public class JsonFeatureTest {
     thrown.expectMessage(Matchers.containsString("missing required feature name"));
 
     JsonUtils.fromJson(
-        JsonUtilsTest.toJsonString(
+        JsonSupport.toJsonString(
             "id",
             ID,
             "version",
@@ -373,7 +373,7 @@ public class JsonFeatureTest {
     thrown.expectMessage(Matchers.containsString("missing required feature id"));
 
     JsonUtils.fromJson(
-        JsonUtilsTest.toJsonString(
+        JsonSupport.toJsonString(
             "name",
             NAME,
             "version",
@@ -397,7 +397,7 @@ public class JsonFeatureTest {
         new JsonFeature(NAME, ID, null, DESCRIPTION, STATE, REGION, REPOSITORY, START);
 
     JSONAssert.assertEquals(
-        JsonUtilsTest.toJsonString(
+        JsonSupport.toJsonString(
             "name",
             NAME,
             "id",
@@ -422,7 +422,7 @@ public class JsonFeatureTest {
         new JsonFeature(NAME, ID, VERSION, null, STATE, REGION, REPOSITORY, START);
 
     JSONAssert.assertEquals(
-        JsonUtilsTest.toJsonString(
+        JsonSupport.toJsonString(
             "name",
             NAME,
             "id",
@@ -447,7 +447,7 @@ public class JsonFeatureTest {
     thrown.expectMessage(Matchers.containsString("missing required feature state"));
 
     JsonUtils.fromJson(
-        JsonUtilsTest.toJsonString(
+        JsonSupport.toJsonString(
             "name",
             NAME,
             "id",
@@ -471,7 +471,7 @@ public class JsonFeatureTest {
         new JsonFeature(NAME, ID, VERSION, DESCRIPTION, STATE, null, REPOSITORY, START);
 
     JSONAssert.assertEquals(
-        JsonUtilsTest.toJsonString(
+        JsonSupport.toJsonString(
             "name",
             NAME,
             "id",
@@ -496,7 +496,7 @@ public class JsonFeatureTest {
         new JsonFeature(NAME, ID, VERSION, DESCRIPTION, STATE, REGION, null, START);
 
     JSONAssert.assertEquals(
-        JsonUtilsTest.toJsonString(
+        JsonSupport.toJsonString(
             "name",
             NAME,
             "id",
@@ -521,7 +521,7 @@ public class JsonFeatureTest {
     thrown.expectMessage(Matchers.containsString("missing required feature start level"));
 
     JsonUtils.fromJson(
-        JsonUtilsTest.toJsonString(
+        JsonSupport.toJsonString(
             "name",
             NAME,
             "id",

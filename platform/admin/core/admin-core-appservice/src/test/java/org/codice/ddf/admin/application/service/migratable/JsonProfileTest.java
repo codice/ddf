@@ -165,10 +165,10 @@ public class JsonProfileTest {
   @Test
   public void testJsonSerialization() throws Exception {
     JSONAssert.assertEquals(
-        JsonUtilsTest.toJsonString(
+        JsonSupport.toJsonString(
             "features",
             ImmutableList.of(
-                JsonUtilsTest.toImmutableMap(
+                JsonSupport.toImmutableMap(
                     "name",
                     FEATURE_NAME,
                     "id",
@@ -185,7 +185,7 @@ public class JsonProfileTest {
                     FEATURE_REPOSITORY,
                     "startLevel",
                     FEATURE_START),
-                JsonUtilsTest.toImmutableMap(
+                JsonSupport.toImmutableMap(
                     "name",
                     FEATURE_NAME2,
                     "id",
@@ -230,7 +230,7 @@ public class JsonProfileTest {
             Collections.emptyList(), Collections.emptyList(), Collections.singletonList(jbundle));
 
     JSONAssert.assertEquals(
-        JsonUtilsTest.toJsonString(
+        JsonSupport.toJsonString(
             "bundles",
             Collections.singletonList(
                 ImmutableMap.of(
@@ -254,10 +254,10 @@ public class JsonProfileTest {
         new JsonProfile(Collections.emptyList(), Arrays.asList(jfeature), Collections.emptyList());
 
     JSONAssert.assertEquals(
-        JsonUtilsTest.toJsonString(
+        JsonSupport.toJsonString(
             "features",
             Collections.singletonList(
-                JsonUtilsTest.toImmutableMap(
+                JsonSupport.toImmutableMap(
                     "name",
                     FEATURE_NAME,
                     "id",
@@ -282,10 +282,10 @@ public class JsonProfileTest {
   public void testJsonDeserialization() throws Exception {
     Assert.assertThat(
         JsonUtils.fromJson(
-            JsonUtilsTest.toJsonString(
+            JsonSupport.toJsonString(
                 "features",
                 ImmutableList.of(
-                    JsonUtilsTest.toImmutableMap(
+                    JsonSupport.toImmutableMap(
                         "name",
                         FEATURE_NAME,
                         "id",
@@ -302,7 +302,7 @@ public class JsonProfileTest {
                         FEATURE_REPOSITORY,
                         "startLevel",
                         FEATURE_START),
-                    JsonUtilsTest.toImmutableMap(
+                    JsonSupport.toImmutableMap(
                         "name",
                         FEATURE_NAME2,
                         "id",
@@ -347,7 +347,7 @@ public class JsonProfileTest {
 
     Assert.assertThat(
         JsonUtils.fromJson(
-            JsonUtilsTest.toJsonString(
+            JsonSupport.toJsonString(
                 "features",
                 Collections.emptyList(),
                 "bundles",
@@ -389,10 +389,10 @@ public class JsonProfileTest {
 
     Assert.assertThat(
         JsonUtils.fromJson(
-            JsonUtilsTest.toJsonString(
+            JsonSupport.toJsonString(
                 "features",
                 ImmutableList.of(
-                    JsonUtilsTest.toImmutableMap(
+                    JsonSupport.toImmutableMap(
                         "name",
                         FEATURE_NAME,
                         "version",
@@ -407,7 +407,7 @@ public class JsonProfileTest {
                         FEATURE_REPOSITORY,
                         "startLevel",
                         FEATURE_START),
-                    JsonUtilsTest.toImmutableMap(
+                    JsonSupport.toImmutableMap(
                         "name",
                         FEATURE_NAME2,
                         "id",
@@ -430,10 +430,10 @@ public class JsonProfileTest {
 
     Assert.assertThat(
         JsonUtils.fromJson(
-            JsonUtilsTest.toJsonString(
+            JsonSupport.toJsonString(
                 "features",
                 ImmutableList.of(
-                    JsonUtilsTest.toImmutableMap(
+                    JsonSupport.toImmutableMap(
                         "name",
                         FEATURE_NAME,
                         "id",
@@ -450,7 +450,7 @@ public class JsonProfileTest {
                         FEATURE_REPOSITORY,
                         "startLevel",
                         FEATURE_START),
-                    JsonUtilsTest.toImmutableMap(
+                    JsonSupport.toImmutableMap(
                         "name",
                         FEATURE_NAME2,
                         "id",
@@ -476,7 +476,7 @@ public class JsonProfileTest {
 
     Assert.assertThat(
         JsonUtils.fromJson(
-            JsonUtilsTest.toJsonString(
+            JsonSupport.toJsonString(
                 "features",
                 Collections.emptyList(),
                 "bundles",
