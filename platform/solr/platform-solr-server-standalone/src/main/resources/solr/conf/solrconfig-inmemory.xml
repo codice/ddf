@@ -1153,7 +1153,7 @@
         <lst name="suggester">
             <str name="name">suggestPlace</str>
             <str name="storeDir">place_suggest_index</str>
-            <str name="lookupImpl">AnalyzingInfixLookupFactory</str>
+            <str name="lookupImpl">BlendedInfixLookupFactory</str>
             <str name="dictionaryImpl">DocumentDictionaryFactory</str>
             <str name="suggestAnalyzerFieldType">lowercase</str>
             <str name="field">title_txt</str>
@@ -1168,7 +1168,7 @@
     <requestHandler name="/suggest" class="solr.SearchHandler" startup="lazy">
         <lst name="defaults">
             <str name="suggest">true</str>
-            <str name="suggest.count">15</str>
+            <str name="suggest.count">50</str>
             <str name="suggest.dictionary">suggestPlace</str>
         </lst>
         <arr name="components">

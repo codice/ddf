@@ -113,7 +113,7 @@ public class GeoNamesWebService implements GeoEntryQueryable {
   @Override
   public List<String> getSuggestedNames(String queryString, int maxResults)
       throws GeoEntryQueryException {
-    LOGGER.debug("getSuggestedNames is not implemented for GeoNamesWebService");
+    LOGGER.debug("Suggestion query not implemented.");
     return Collections.emptyList();
   }
 

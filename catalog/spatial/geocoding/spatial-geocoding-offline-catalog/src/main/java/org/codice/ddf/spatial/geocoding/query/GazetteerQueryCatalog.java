@@ -158,15 +158,10 @@ public class GazetteerQueryCatalog implements GeoEntryQueryable {
     try {
       QueryResponse suggestionResponse = catalogFramework.query(suggestionRequest);
 
-      if (suggestionResponse.getPropertyValue(SUGGESTION_RESULT_KEY) instanceof Map) {
-        Map<String, List<String>> suggestionMap =
-            (Map<String, List<String>>) suggestionResponse.getPropertyValue(SUGGESTION_RESULT_KEY);
-        return suggestionMap
-            .values()
-            .stream()
-            .flatMap(List::stream)
-            .limit(maxResults)
-            .collect(Collectors.toList());
+      if (suggestionResponse.getPropertyValue(SUGGESTION_RESULT_KEY) instanceof List) {
+        List<String> suggestions =
+            (List<String>) suggestionResponse.getPropertyValue(SUGGESTION_RESULT_KEY);
+        return suggestions.subList(0, Math.min(suggestions.size(), maxResults));
       }
 
     } catch (SourceUnavailableException | FederationException | UnsupportedQueryException e) {
