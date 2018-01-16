@@ -37,6 +37,7 @@ require([
     'underscore',
     'backbone',
     'marionette',
+    'properties',
     'handlebars/dist/handlebars',
     'component/announcement',
     'js/Marionette.Region',
@@ -45,7 +46,7 @@ require([
     'js/ApplicationHelpers',
     'js/Autocomplete',
     'backbone.customFunctions'
-], function(_, Backbone, Marionette, hbs, announcement) {
+], function(_, Backbone, Marionette, properties, hbs, announcement) {
 
     let getShortErrorMessage = function (error) {
         var extraMessage = error instanceof Error ? error.name : String(error);
@@ -88,6 +89,10 @@ require([
             response = {title: 'Logged out', message: 'Please refresh page to log in'}
         } else if (jqxhr.responseJSON !== undefined) {
             message = jqxhr.responseJSON.message;
+        }
+
+        if (properties.disableUnknownErrorBox && response.message.substring(0,13) === "Unknown Error") {
+            return;
         }
 
         announcement.announce({
