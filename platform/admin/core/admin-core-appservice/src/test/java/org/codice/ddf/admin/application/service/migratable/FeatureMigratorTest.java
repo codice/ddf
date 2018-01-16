@@ -76,9 +76,6 @@ public class FeatureMigratorTest {
   private final JsonFeature jfeature3 =
       new JsonFeature(NAME3, ID3, VERSION3, DESCRIPTION3, STATE3, null, REPOSITORY3, START3);
 
-  private final JsonFeature jfeature4 =
-      new JsonFeature(NAME4, ID4, VERSION4, DESCRIPTION4, STATE4, null, REPOSITORY4, START4);
-
   private final TaskList tasks = Mockito.mock(TaskList.class);
 
   private final FeaturesService featuresService = Mockito.mock(FeaturesService.class);

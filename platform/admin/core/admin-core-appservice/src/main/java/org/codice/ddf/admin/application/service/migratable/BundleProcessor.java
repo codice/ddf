@@ -32,10 +32,6 @@ import org.slf4j.LoggerFactory;
 public class BundleProcessor {
   private static final Logger LOGGER = LoggerFactory.getLogger(BundleProcessor.class);
 
-  public BundleProcessor() {
-    // nothing to initialize
-  }
-
   /**
    * Gets all available bundles from memory.
    *

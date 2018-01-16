@@ -21,23 +21,6 @@ import org.osgi.framework.Version;
 
 /** Defines a Json object to represent an exported bundle. */
 public class JsonBundle implements JsonValidatable {
-  public static String getFullName(Bundle bundle) {
-    return bundle.getSymbolicName() + '/' + bundle.getVersion();
-  }
-
-  public static SimpleState getSimpleState(Bundle bundle) {
-    return JsonBundle.getSimpleState(bundle.getState());
-  }
-
-  private static SimpleState getSimpleState(int state) {
-    if (state == Bundle.UNINSTALLED) {
-      return SimpleState.UNINSTALLED;
-    } else if ((state == Bundle.STARTING) || (state == Bundle.ACTIVE)) {
-      return SimpleState.ACTIVE;
-    } // else - INSTALLED OR STOPPING
-    return SimpleState.INSTALLED;
-  }
-
   @Nullable // only because Boon may not set if as it bypasses our ctor and the final keyword
   private final String name;
 
@@ -194,6 +177,23 @@ public class JsonBundle implements JsonValidatable {
   @Override
   public String toString() {
     return "bundle [" + getFullName() + "]";
+  }
+
+  public static String getFullName(Bundle bundle) {
+    return bundle.getSymbolicName() + '/' + bundle.getVersion();
+  }
+
+  public static SimpleState getSimpleState(Bundle bundle) {
+    return JsonBundle.getSimpleState(bundle.getState());
+  }
+
+  private static SimpleState getSimpleState(int state) {
+    if (state == Bundle.UNINSTALLED) {
+      return SimpleState.UNINSTALLED;
+    } else if ((state == Bundle.STARTING) || (state == Bundle.ACTIVE)) {
+      return SimpleState.ACTIVE;
+    } // else - INSTALLED OR STOPPING
+    return SimpleState.INSTALLED;
   }
 
   /** Simple representation for bundle states. */

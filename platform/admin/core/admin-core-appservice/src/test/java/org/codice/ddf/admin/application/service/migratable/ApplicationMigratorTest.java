@@ -50,10 +50,6 @@ public class ApplicationMigratorTest {
   private static final String URI3 = "https://test.com/test3";
   private static final String URI4 = "https://test.com/test4";
 
-  private URI uri;
-  private URI uri2;
-  private URI uri3;
-
   private final Application app = Mockito.mock(Application.class);
 
   private final Application app2 = Mockito.mock(Application.class);
@@ -68,8 +64,6 @@ public class ApplicationMigratorTest {
       new JsonApplication(NAME2, VERSION2, DESCRIPTION2, URI2, STARTED2);
   private final JsonApplication japp3 =
       new JsonApplication(NAME3, VERSION3, DESCRIPTION3, URI3, STARTED3);
-  private final JsonApplication japp4 =
-      new JsonApplication(NAME4, VERSION4, DESCRIPTION4, URI4, STARTED4);
 
   private final TaskList tasks = Mockito.mock(TaskList.class);
 
@@ -92,33 +86,28 @@ public class ApplicationMigratorTest {
 
   @Before
   public void setup() throws Exception {
-    uri = new URI(URI);
-    uri2 = new URI(URI2);
-    uri3 = new URI(URI3);
-    final URI uri4 = new URI(URI4);
-
     Mockito.when(app.getName()).thenReturn(NAME);
     Mockito.when(app.getVersion()).thenReturn(VERSION);
     Mockito.when(app.getDescription()).thenReturn(DESCRIPTION);
-    Mockito.when(app.getURI()).thenReturn(uri);
+    Mockito.when(app.getURI()).thenReturn(new URI(URI));
     Mockito.when(appService.isApplicationStarted(app)).thenReturn(STARTED);
 
     Mockito.when(app2.getName()).thenReturn(NAME2);
     Mockito.when(app2.getVersion()).thenReturn(VERSION2);
     Mockito.when(app2.getDescription()).thenReturn(DESCRIPTION2);
-    Mockito.when(app2.getURI()).thenReturn(uri2);
+    Mockito.when(app2.getURI()).thenReturn(new URI(URI2));
     Mockito.when(appService.isApplicationStarted(app2)).thenReturn(STARTED2);
 
     Mockito.when(app3.getName()).thenReturn(NAME3);
     Mockito.when(app3.getVersion()).thenReturn(VERSION3);
     Mockito.when(app3.getDescription()).thenReturn(DESCRIPTION3);
-    Mockito.when(app3.getURI()).thenReturn(uri3);
+    Mockito.when(app3.getURI()).thenReturn(new URI(URI3));
     Mockito.when(appService.isApplicationStarted(app3)).thenReturn(STARTED3);
 
     Mockito.when(app4.getName()).thenReturn(NAME4);
     Mockito.when(app4.getVersion()).thenReturn(VERSION4);
     Mockito.when(app4.getDescription()).thenReturn(DESCRIPTION4);
-    Mockito.when(app4.getURI()).thenReturn(uri4);
+    Mockito.when(app4.getURI()).thenReturn(new URI(URI4));
     Mockito.when(appService.isApplicationStarted(app4)).thenReturn(STARTED4);
 
     Mockito.when(appMigrator.newTaskList(report)).thenReturn(tasks);

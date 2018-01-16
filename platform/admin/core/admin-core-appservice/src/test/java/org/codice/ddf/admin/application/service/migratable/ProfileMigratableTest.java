@@ -121,84 +121,6 @@ public class ProfileMigratableTest {
                           "state", BUNDLE_STATE,
                           "location", BUNDLE_LOCATION))));
 
-  private static Answer callWithJson(MigrationReport report) {
-    return AdditionalAnswers
-        .<Boolean, BiThrowingConsumer<MigrationReport, Optional<InputStream>, IOException>>answer(
-            c -> {
-              // callback the consumer
-              c.accept(
-                  report,
-                  Optional.of(
-                      new ReaderInputStream(
-                          new StringReader(JSON_PROFILE_STR), Charset.defaultCharset())));
-              return true;
-            });
-  }
-
-  private static Answer callWithoutJson(MigrationReport report) {
-    return AdditionalAnswers
-        .<Boolean, BiThrowingConsumer<MigrationReport, Optional<InputStream>, IOException>>answer(
-            c -> {
-              // callback the consumer
-              c.accept(report, Optional.empty());
-              return true;
-            });
-  }
-
-  private static Answer succeedsWasSuccessful() {
-    return AdditionalAnswers.<Boolean, Runnable>answer(
-        r -> {
-          r.run();
-          return true;
-        });
-  }
-
-  private static Answer failsWasSuccessful() {
-    return AdditionalAnswers.<Boolean, Runnable>answer(
-        r -> {
-          r.run();
-          return false;
-        });
-  }
-
-  private static Answer succeedsImportAndStopRecordingTasksAtAttempt(
-      AtomicInteger attempts, int attempt) {
-    return AdditionalAnswers.<Boolean, ProfileMigrationReport, JsonProfile>answer(
-        (r, p) -> {
-          if (attempts.getAndDecrement() > attempt) {
-            r.recordTask();
-          }
-          return true;
-        });
-  }
-
-  private static Answer succeedsImportOnLastAttempt(AtomicInteger attempts) {
-    return AdditionalAnswers.<Boolean, ProfileMigrationReport, JsonProfile>answer(
-        (r, p) -> {
-          final int attempt = attempts.decrementAndGet();
-
-          if (attempt <= 0) { // succeeds on last attempt only
-            if (attempt == 0) {
-              r.recordTask();
-            } // else - don't record tasks on the verification attempt that will follow the last
-            //          attempt
-            return true;
-          }
-          r.recordTask();
-          r.recordOnFinalAttempt(new MigrationException("testing import #" + (attempt + 1)));
-          return false;
-        });
-  }
-
-  private static Answer neverSucceedsImport() {
-    return AdditionalAnswers.<Boolean, ProfileMigrationReport, JsonProfile>answer(
-        (r, p) -> {
-          r.recordTask();
-          r.recordOnFinalAttempt(new MigrationException("testing import ..."));
-          return false;
-        });
-  }
-
   private final ApplicationMigrator appMigrator = Mockito.mock(ApplicationMigrator.class);
   private final FeatureMigrator featureMigrator = Mockito.mock(FeatureMigrator.class);
   private final BundleMigrator bundleMigrator = Mockito.mock(BundleMigrator.class);
@@ -584,5 +506,83 @@ public class ProfileMigratableTest {
       Assert.assertThat(
           rs.get(i).isFinalAttempt(), Matchers.equalTo(!nofinals && (i == total - 1)));
     }
+  }
+
+  private static Answer callWithJson(MigrationReport report) {
+    return AdditionalAnswers
+        .<Boolean, BiThrowingConsumer<MigrationReport, Optional<InputStream>, IOException>>answer(
+            c -> {
+              // callback the consumer
+              c.accept(
+                  report,
+                  Optional.of(
+                      new ReaderInputStream(
+                          new StringReader(JSON_PROFILE_STR), Charset.defaultCharset())));
+              return true;
+            });
+  }
+
+  private static Answer callWithoutJson(MigrationReport report) {
+    return AdditionalAnswers
+        .<Boolean, BiThrowingConsumer<MigrationReport, Optional<InputStream>, IOException>>answer(
+            c -> {
+              // callback the consumer
+              c.accept(report, Optional.empty());
+              return true;
+            });
+  }
+
+  private static Answer succeedsWasSuccessful() {
+    return AdditionalAnswers.<Boolean, Runnable>answer(
+        r -> {
+          r.run();
+          return true;
+        });
+  }
+
+  private static Answer failsWasSuccessful() {
+    return AdditionalAnswers.<Boolean, Runnable>answer(
+        r -> {
+          r.run();
+          return false;
+        });
+  }
+
+  private static Answer succeedsImportAndStopRecordingTasksAtAttempt(
+      AtomicInteger attempts, int attempt) {
+    return AdditionalAnswers.<Boolean, ProfileMigrationReport, JsonProfile>answer(
+        (r, p) -> {
+          if (attempts.getAndDecrement() > attempt) {
+            r.recordTask();
+          }
+          return true;
+        });
+  }
+
+  private static Answer succeedsImportOnLastAttempt(AtomicInteger attempts) {
+    return AdditionalAnswers.<Boolean, ProfileMigrationReport, JsonProfile>answer(
+        (r, p) -> {
+          final int attempt = attempts.decrementAndGet();
+
+          if (attempt <= 0) { // succeeds on last attempt only
+            if (attempt == 0) {
+              r.recordTask();
+            } // else - don't record tasks on the verification attempt that will follow the last
+            //          attempt
+            return true;
+          }
+          r.recordTask();
+          r.recordOnFinalAttempt(new MigrationException("testing import #" + (attempt + 1)));
+          return false;
+        });
+  }
+
+  private static Answer neverSucceedsImport() {
+    return AdditionalAnswers.<Boolean, ProfileMigrationReport, JsonProfile>answer(
+        (r, p) -> {
+          r.recordTask();
+          r.recordOnFinalAttempt(new MigrationException("testing import ..."));
+          return false;
+        });
   }
 }
