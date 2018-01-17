@@ -31,18 +31,19 @@ import org.slf4j.LoggerFactory;
  * @deprecated
  */
 public class FuzzyFunction extends FunctionExpressionImpl {
-  public static final String FUNCTION_NAME = "fuzzy";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FuzzyFunction.class);
 
-  public static final FunctionName NAME =
+  public static final String FUNCTION_NAME_STRING = "fuzzy";
+
+  public static final FunctionName FUNCTION_NAME =
       new FunctionNameImpl(
-          FUNCTION_NAME,
+          FUNCTION_NAME_STRING,
           Expression.class,
           FunctionNameImpl.parameter("expression", Expression.class));
 
   public FuzzyFunction(List<Expression> parameters, Literal fallback) {
-    super(FUNCTION_NAME, fallback);
+    super(FUNCTION_NAME_STRING, fallback);
 
     LOGGER.debug("INSIDE: FuzzyFunction constructor");
 
@@ -53,7 +54,7 @@ public class FuzzyFunction extends FunctionExpressionImpl {
       throw new IllegalArgumentException("fuzzy( expression ) requires 1 parameter only");
     }
     this.params = parameters;
-    this.functionName = NAME;
+    this.functionName = FUNCTION_NAME;
 
     LOGGER.debug("EXITING: FuzzyFunction constructor");
   }

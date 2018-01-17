@@ -33,7 +33,7 @@ public class ExtendedGeotoolsFunctionFactory extends GeoToolsFunctionFactory {
   @Override
   public List<FunctionName> getFunctionNames() {
     List<FunctionName> functionNames = new ArrayList<>(super.getFunctionNames());
-    functionNames.add(PropertyIsFuzzyFunction.NAME);
+    functionNames.add(PropertyIsFuzzyFunction.FUNCTION_NAME);
     return functionNames;
   }
 
@@ -44,7 +44,7 @@ public class ExtendedGeotoolsFunctionFactory extends GeoToolsFunctionFactory {
 
   @Override
   public Function function(Name name, List<Expression> args, Literal fallback) {
-    if (PropertyIsFuzzyFunction.NAME.getName().equals(name.getLocalPart())) {
+    if (PropertyIsFuzzyFunction.FUNCTION_NAME.getName().equals(name.getLocalPart())) {
       return new PropertyIsFuzzyFunction(args, fallback);
     }
     return super.function(name, args, fallback);

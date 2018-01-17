@@ -38,9 +38,9 @@ public class GeoToolsFunctionFactoryTest {
   public void testGetFunctionNames() {
     List<FunctionName> functionNames = toTest.getFunctionNames();
     assertThat(functionNames, hasSize(3));
-    assertThat(functionNames.get(0).getName(), is(FuzzyFunction.NAME.getName()));
-    assertThat(functionNames.get(1).getName(), is(ProximityFunction.NAME.getName()));
-    assertThat(functionNames.get(2).getName(), is(DivisibleByFunction.NAME.getName()));
+    assertThat(functionNames.get(0).getName(), is(FuzzyFunction.FUNCTION_NAME.getName()));
+    assertThat(functionNames.get(1).getName(), is(ProximityFunction.FUNCTION_NAME.getName()));
+    assertThat(functionNames.get(2).getName(), is(DivisibleByFunction.FUNCTION_NAME.getName()));
   }
 
   @Test
@@ -50,7 +50,7 @@ public class GeoToolsFunctionFactoryTest {
 
   @Test(expected = NullPointerException.class)
   public void testFunctionForValidNameWithNullExpressionList() {
-    toTest.function(FuzzyFunction.NAME.getName(), null, null);
+    toTest.function(FuzzyFunction.FUNCTION_NAME.getName(), null, null);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -58,16 +58,16 @@ public class GeoToolsFunctionFactoryTest {
     List<Expression> expr = new ArrayList<>();
     expr.add(Expression.NIL);
     expr.add(Expression.NIL);
-    Function result = toTest.function(FuzzyFunction.NAME.getName(), expr, null);
-    assertThat(result.getName(), is(FuzzyFunction.NAME.getName()));
+    Function result = toTest.function(FuzzyFunction.FUNCTION_NAME.getName(), expr, null);
+    assertThat(result.getName(), is(FuzzyFunction.FUNCTION_NAME.getName()));
   }
 
   @Test
   public void testFuzzyFunction() {
     List<Expression> expr = new ArrayList<>();
     expr.add(Expression.NIL);
-    Function result = toTest.function(FuzzyFunction.NAME.getName(), expr, null);
-    assertThat(result.getName(), is(FuzzyFunction.NAME.getName()));
+    Function result = toTest.function(FuzzyFunction.FUNCTION_NAME.getName(), expr, null);
+    assertThat(result.getName(), is(FuzzyFunction.FUNCTION_NAME.getName()));
   }
 
   @Test
@@ -76,7 +76,7 @@ public class GeoToolsFunctionFactoryTest {
     expr.add(Expression.NIL);
     expr.add(Expression.NIL);
     expr.add(Expression.NIL);
-    Function result = toTest.function(ProximityFunction.NAME.getName(), expr, null);
-    assertThat(result.getName(), is(ProximityFunction.NAME.getName()));
+    Function result = toTest.function(ProximityFunction.FUNCTION_NAME.getName(), expr, null);
+    assertThat(result.getName(), is(ProximityFunction.FUNCTION_NAME.getName()));
   }
 }

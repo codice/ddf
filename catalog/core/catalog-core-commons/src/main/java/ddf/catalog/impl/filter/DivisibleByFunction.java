@@ -28,20 +28,20 @@ import org.opengis.filter.expression.Literal;
 public class DivisibleByFunction extends FunctionExpressionImpl {
   public static final int NUM_PARAMETERS = 2;
 
-  public static final String FUNCTION_NAME = "divisibleBy";
+  public static final String FUNCTION_NAME_STRING = "divisibleBy";
 
-  public static final FunctionName NAME =
+  public static final FunctionName FUNCTION_NAME =
       FunctionExpressionImpl.functionName(
-          FUNCTION_NAME, "return:Boolean", "property:String", "divisor:Long");
+          FUNCTION_NAME_STRING, "return:Boolean", "property:String", "divisor:Long");
 
   public DivisibleByFunction(List<Expression> parameters, Literal fallback) {
-    super(NAME);
+    super(FUNCTION_NAME);
 
     notNull(parameters, "Parameters are required");
     isTrue(
         parameters.size() == NUM_PARAMETERS,
         String.format(
-            "%s expression requires at least %s parameters", FUNCTION_NAME, NUM_PARAMETERS));
+            "%s expression requires at least %s parameters", FUNCTION_NAME_STRING, NUM_PARAMETERS));
 
     setParameters(parameters);
     setFallbackValue(fallback);
