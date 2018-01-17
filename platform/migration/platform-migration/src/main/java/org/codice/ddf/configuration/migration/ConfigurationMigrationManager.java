@@ -198,7 +198,7 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
   @Override
   public MigrationReport doDecrypt(Path exportDirectory, Consumer<MigrationMessage> consumer) {
     Validate.notNull(consumer, ConfigurationMigrationManager.INVALID_NULL_CONSUMER);
-    // start the access control starting with this class' privileges; thus ignoring whoever called
+    // start the access control starting with this class's privileges; thus ignoring whoever called
     // us
     return AccessUtils.doPrivileged(
         () -> doDecrypt(exportDirectory, Optional.ofNullable(consumer)));
@@ -213,7 +213,7 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
       report.record(Messages.IMPORTING_DATA, productBranding, zip.getZipPath());
       mgr.doImport(productBranding, productVersion);
     } finally {
-      IOUtils.closeQuietly(mgr); // do not care if we fail to close the mgr/zip file!!!
+      IOUtils.closeQuietly(mgr); // do not care if we fail to close the mgr/zip file
     }
   }
 

@@ -14,7 +14,7 @@
 package org.codice.ddf.migration;
 
 /**
- * This interface is designed as a tagged interfaces to identify optional migratables. An optional
+ * This interface is designed as a tagged interface to identify optional migratables. An optional
  * migratable will be skipped by default during the import phase. It can still be manually marked as
  * mandatory when invoking the import phase.
  *

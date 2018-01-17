@@ -89,7 +89,7 @@ In order to create a `Migratable` for a module of the system, the `org.codice.dd
 Creating an OSGi service allows for the migration API to lookup all implementations of `org.codice.ddf.migration.Migratable` and command them to export or import.
 
 ==== `OptionalMigratable`
-This interface is designed as a tagged interfaces to identify optional migratables. An optional migratable will be skipped by default during the import phase. It can still be manually marked as mandatory when initiating the import phase.
+This interface is designed as a tagged interface to identify optional migratables. An optional migratable will be skipped by default during the import phase. It can still be manually marked as mandatory when initiating the import phase.
 
 ==== `MigrationContext`
 The `org.codice.ddf.migration.MigrationContext` provides contextual information about an operation in progress for a given migratable. This is a sort of sandbox that is unique to each migratable. This interface defines the following methods:
