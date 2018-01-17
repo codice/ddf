@@ -24,10 +24,11 @@ var user = require('component/singletons/user-instance.js');
 var preferences = user.get('user').get('preferences');
 var wreqr = require('wreqr');
 
-function getSrc(previewHtml) {
-    return '<html class="is-iframe is-preview" style="font-size: '+preferences.get('fontSize')+'px">' +
+function getSrc(previewHtml, textColor) {
+    return '<html class="is-iframe is-preview" style="font-size: '+preferences.get('fontSize')+'px; color: '+textColor+';">' +
     '<link href="css/styles.' + document.querySelector('link[href*="css/styles."]').href.split('css/styles.')[1] + '" rel="stylesheet">' +
     previewHtml +
+    document.querySelector('[data-theme]').cloneNode(true).outerHTML + 
     '</html>';
 }
 
@@ -55,6 +56,7 @@ module.exports = Marionette.ItemView.extend({
         }.bind(this));
     },
     onAttach: function(){
+        this.textColor = window.getComputedStyle(this.el).color;
         this.previewRequest.then(function(){
             if (!this.isDestroyed) {
                 this.populateIframe();
@@ -73,7 +75,7 @@ module.exports = Marionette.ItemView.extend({
         var $iframe = this.$el.find('iframe');
         $iframe.ready(function(){
             $iframe.contents()[0].open();
-            $iframe.contents()[0].write(getSrc(this.previewHtml));
+            $iframe.contents()[0].write(getSrc(this.previewHtml, this.textColor));
             $iframe.contents()[0].close();
         }.bind(this));
     },

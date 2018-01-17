@@ -51,10 +51,10 @@ module.exports = Backbone.AssociatedModel.extend({
         this.refreshData = _.throttle(this.refreshData, 200);
     },
     getPreview: function(){
-        return this.get('actions').filter((action) => action.title === 'Full Text Preview')[0].url;
+        return this.get('actions').filter((action) => action.title === 'Text Preview')[0].url;
     },
     hasPreview: function(){
-        return this.get('actions').filter((action) => action.title === 'Full Text Preview').length > 0;
+        return this.get('actions').filter((action) => action.title === 'Text Preview').length > 0;
     },
     isWorkspace: function () {
         return this.get('metacard').get('properties').get('metacard-tags').indexOf('workspace') >= 0;
