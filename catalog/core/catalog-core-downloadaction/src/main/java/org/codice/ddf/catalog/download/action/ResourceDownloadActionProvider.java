@@ -28,6 +28,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.Locale;
 import java.util.Optional;
 import javax.management.JMX;
 import javax.management.MalformedObjectNameException;
@@ -118,7 +119,7 @@ public class ResourceDownloadActionProvider extends AbstractMetacardActionProvid
     Optional<String> sourceId = Optional.ofNullable(metacard.getSourceId());
 
     if (sourceId.isPresent()) {
-      String sourceIdLowerCase = sourceId.get().toLowerCase();
+      String sourceIdLowerCase = sourceId.get().toLowerCase(Locale.getDefault());
       return !sourceIdLowerCase.equals(getLocalSiteName());
     } else {
       LOGGER.debug(
@@ -130,7 +131,7 @@ public class ResourceDownloadActionProvider extends AbstractMetacardActionProvid
   }
 
   String getLocalSiteName() {
-    return SystemInfo.getSiteName().toLowerCase();
+    return SystemInfo.getSiteName().toLowerCase(Locale.getDefault());
   }
 
   ResourceCacheServiceMBean createResourceCacheMBeanProxy() {

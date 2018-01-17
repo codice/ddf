@@ -16,6 +16,7 @@ package org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.gml2.GMLWriter;
 import java.io.StringReader;
+import java.util.Locale;
 import javax.xml.bind.JAXB;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -48,7 +49,7 @@ public class Wfs10JTStoGML200Converter {
   public static AbstractGeometryType convertGMLToGeometryType(String gml, QName qName)
       throws JAXBException {
 
-    String type = qName.getLocalPart().toUpperCase();
+    String type = qName.getLocalPart().toUpperCase(Locale.getDefault());
 
     switch (type) {
       case "POLYGON":
