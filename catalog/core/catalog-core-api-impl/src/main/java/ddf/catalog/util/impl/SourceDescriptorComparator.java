@@ -15,7 +15,6 @@ package ddf.catalog.util.impl;
 
 import ddf.catalog.source.SourceDescriptor;
 import java.util.Comparator;
-import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,9 +27,7 @@ public class SourceDescriptorComparator implements Comparator<SourceDescriptor> 
   @Override
   public int compare(SourceDescriptor one, SourceDescriptor two) {
     if (one.getSourceId() != null && two.getSourceId() != null) {
-      return one.getSourceId()
-          .toLowerCase(Locale.getDefault())
-          .compareTo(two.getSourceId().toLowerCase(Locale.getDefault()));
+      return one.getSourceId().compareToIgnoreCase(two.getSourceId());
     } else {
       LOGGER.debug("Error comparing results, at least one was null.  Returning 1: ");
       return 1;
