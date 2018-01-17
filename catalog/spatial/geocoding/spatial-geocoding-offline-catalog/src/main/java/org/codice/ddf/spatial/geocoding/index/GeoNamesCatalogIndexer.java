@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.spatial.geocoding.index;
 
-import static ddf.catalog.Constants.GAZETTEER_METACARD_TAG;
+import static org.codice.ddf.spatial.geocoding.GeoCodingConstants.GAZETTEER_METACARD_TAG;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;

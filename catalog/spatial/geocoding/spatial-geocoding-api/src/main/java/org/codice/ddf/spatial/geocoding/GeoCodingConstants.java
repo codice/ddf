@@ -47,6 +47,8 @@ public final class GeoCodingConstants {
 
   public static final String GEONAMES_TAG = "geonames";
 
+  public static final String GAZETTEER_METACARD_TAG = "gazetteer";
+
   // The GeoNames feature codes for cities, excluding cities that no longer exist or that have
   // been destroyed.
   public static final List<String> CITY_FEATURE_CODES =

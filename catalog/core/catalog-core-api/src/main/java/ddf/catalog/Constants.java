@@ -143,9 +143,9 @@ public final class Constants {
 
   public static final String EXPERIMENTAL_FACET_RESULTS_KEY = "facet-results";
 
-  public static final String SUGGESTION_REQUEST_KEY = "suggestion-request";
+  public static final String SUGGESTION_QUERY_KEY = "suggestion-query";
+
+  public static final String SUGGESTION_CONTEXT_KEY = "suggestion-context";
 
   public static final String SUGGESTION_RESULT_KEY = "suggestion-result";
-
-  public static final String GAZETTEER_METACARD_TAG = "gazetteer";
 }

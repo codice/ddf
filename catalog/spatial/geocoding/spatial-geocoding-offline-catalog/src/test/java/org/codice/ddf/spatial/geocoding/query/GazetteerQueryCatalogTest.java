@@ -13,7 +13,7 @@
  */
 package org.codice.ddf.spatial.geocoding.query;
 
-import static ddf.catalog.Constants.GAZETTEER_METACARD_TAG;
+import static org.codice.ddf.spatial.geocoding.GeoCodingConstants.GAZETTEER_METACARD_TAG;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.is;

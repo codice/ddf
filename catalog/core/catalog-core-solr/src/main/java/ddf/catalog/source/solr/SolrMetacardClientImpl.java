@@ -15,8 +15,8 @@ package ddf.catalog.source.solr;
 
 import static ddf.catalog.Constants.EXPERIMENTAL_FACET_PROPERTIES_KEY;
 import static ddf.catalog.Constants.EXPERIMENTAL_FACET_RESULTS_KEY;
-import static ddf.catalog.Constants.GAZETTEER_METACARD_TAG;
-import static ddf.catalog.Constants.SUGGESTION_REQUEST_KEY;
+import static ddf.catalog.Constants.SUGGESTION_CONTEXT_KEY;
+import static ddf.catalog.Constants.SUGGESTION_QUERY_KEY;
 import static ddf.catalog.Constants.SUGGESTION_RESULT_KEY;
 import static ddf.catalog.source.solr.DynamicSchemaResolver.FIRST_CHAR_OF_SUFFIX;
 import static org.apache.solr.spelling.suggest.SuggesterParams.SUGGEST_CONTEXT_FILTER_QUERY;
@@ -164,13 +164,14 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       query.setFacetMinCount(textFacetProp.getMinFacetCount());
     }
 
-    Serializable suggestQueryProp = request.getPropertyValue(SUGGESTION_REQUEST_KEY);
+    Serializable suggestQueryProp = request.getPropertyValue(SUGGESTION_QUERY_KEY);
+    Serializable suggestContextProp = request.getPropertyValue(SUGGESTION_CONTEXT_KEY);
 
-    if (suggestQueryProp instanceof String) {
+    if (suggestQueryProp instanceof String && suggestContextProp instanceof String) {
       query = new SolrQuery();
       query.setRequestHandler("/suggest");
       query.setParam(SUGGEST_Q, (String) suggestQueryProp);
-      query.setParam(SUGGEST_CONTEXT_FILTER_QUERY, GAZETTEER_METACARD_TAG);
+      query.setParam(SUGGEST_CONTEXT_FILTER_QUERY, (String) suggestContextProp);
     }
 
     long totalHits = 0;
@@ -181,19 +182,7 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
       SolrDocumentList docs = solrResponse.getResults();
       if (docs != null) {
         totalHits = docs.getNumFound();
-        for (SolrDocument doc : docs) {
-          if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("SOLR DOC: {}", doc.getFieldValue(Metacard.ID + SchemaFields.TEXT_SUFFIX));
-          }
-          ResultImpl tmpResult;
-          try {
-            tmpResult = createResult(doc);
-          } catch (MetacardCreationException e) {
-            throw new UnsupportedQueryException("Could not create result metacard(s).", e);
-          }
-
-          results.add(tmpResult);
-        }
+        addDocsToResults(docs, results);
       }
 
       SuggesterResponse suggesterResponse = solrResponse.getSuggesterResponse();
@@ -226,6 +215,23 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
     }
 
     return new SourceResponseImpl(request, responseProps, results, totalHits);
+  }
+
+  private void addDocsToResults(SolrDocumentList docs, List<Result> results)
+      throws UnsupportedQueryException {
+    for (SolrDocument doc : docs) {
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug("SOLR DOC: {}", doc.getFieldValue(Metacard.ID + SchemaFields.TEXT_SUFFIX));
+      }
+      ResultImpl tmpResult;
+      try {
+        tmpResult = createResult(doc);
+      } catch (MetacardCreationException e) {
+        throw new UnsupportedQueryException("Could not create result metacard(s).", e);
+      }
+
+      results.add(tmpResult);
+    }
   }
 
   private String addAttributeTypeSuffix(String attribute) {
