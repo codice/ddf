@@ -180,7 +180,7 @@ public class ConfigurationMigrationManager implements ConfigurationMigrationServ
   @Override
   public MigrationReport doImport(
       Path exportDirectory, Set<String> mandatoryMigratables, Consumer<MigrationMessage> consumer) {
-    Validate.notNull(consumer, "invalid null consumer");
+    Validate.notNull(consumer, ConfigurationMigrationManager.INVALID_NULL_CONSUMER);
     Validate.notNull(mandatoryMigratables, "invalid null set of migratable ids");
     // start the access control starting with this class' privileges; thus ignoring whoever called
     // us
