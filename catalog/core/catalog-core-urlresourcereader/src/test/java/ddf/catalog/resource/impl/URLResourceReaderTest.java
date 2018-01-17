@@ -408,7 +408,7 @@ public class URLResourceReaderTest {
 
     final String qualifierValue = "qualifierValue";
     final String expectedWebClientUri =
-        String.format("%s&%s=%s", uri, ContentItem.QUALIFIER, qualifierValue);
+        String.format("%s&%s=%s", uri, ContentItem.QUALIFIER_KEYWORD, qualifierValue);
     // verify that we got the entire resource
     verifyFileFromURLResourceReader(
         uri, JPEG_FILE_NAME_1, JPEG_MIME_TYPE, null, qualifierValue, 5, expectedWebClientUri);
@@ -800,7 +800,7 @@ public class URLResourceReaderTest {
     }
 
     if (qualifier != null) {
-      arguments.put(ContentItem.QUALIFIER, qualifier);
+      arguments.put(ContentItem.QUALIFIER_KEYWORD, qualifier);
     }
 
     TestURLResourceReader resourceReader = new TestURLResourceReader(mimeTypeMapper);
