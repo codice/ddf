@@ -117,10 +117,19 @@ public class GeoNamesCatalogIndexer implements GeoEntryIndexer {
     }
 
     Metacard metacard = new MetacardImpl(geoNamesMetacardType);
-    metacard.setAttribute(new AttributeImpl(Core.TITLE, geoEntry.getName()));
+    String id = uuidGenerator.generateUuid();
+    metacard.setAttribute(
+        new AttributeImpl(
+            Core.TITLE,
+            geoEntry.getName()
+                + ", "
+                + geoEntry.getCountryCode()
+                + "("
+                + id.substring(0, 4)
+                + ")"));
     metacard.setAttribute(new AttributeImpl(Core.DESCRIPTION, geoEntry.getAlternateNames()));
     metacard.setAttribute(new AttributeImpl(Location.COUNTRY_CODE, geoEntry.getCountryCode()));
-    metacard.setAttribute(new AttributeImpl(Core.ID, uuidGenerator.generateUuid()));
+    metacard.setAttribute(new AttributeImpl(Core.ID, id));
     metacard.setAttribute(
         new AttributeImpl(
             GeoEntryAttributes.FEATURE_CODE_ATTRIBUTE_NAME, geoEntry.getFeatureCode()));
