@@ -105,7 +105,7 @@ public class CswRequest {
                 CswConstants.XMLNS_DEFINITION_PREFIX.length(),
                 namespace.length() - CswConstants.XMLNS_DEFINITION_POSTFIX.length());
 
-        String[] split = nsAssignment.split(CswConstants.EQUALS);
+        String[] split = nsAssignment.split(CswConstants.EQUALS_CHAR);
 
         if (split.length == 2) {
           namespaceMap.put(split[0], split[1]);

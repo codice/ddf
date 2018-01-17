@@ -24,7 +24,7 @@ import org.osgi.framework.InvalidSyntaxException
 import org.osgi.framework.ServiceReference
 import spock.lang.Specification
 
-class TransformOperationsTest extends Specification {
+class TransformOperationsSpec extends Specification {
     private BundleContext bundleContext
     private FrameworkProperties frameworkProperties
     private TransformOperations transformOperations

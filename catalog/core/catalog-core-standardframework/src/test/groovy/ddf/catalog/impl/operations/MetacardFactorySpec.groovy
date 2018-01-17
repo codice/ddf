@@ -28,7 +28,7 @@ import javax.activation.MimeType
 import java.nio.file.Path
 import java.nio.file.Paths
 
-class MetacardFactoryTest extends Specification {
+class MetacardFactorySpec extends Specification {
     @Rule
     TemporaryFolder tempFolder
     @Shared

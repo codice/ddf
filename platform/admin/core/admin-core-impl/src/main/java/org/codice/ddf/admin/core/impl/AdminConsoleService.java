@@ -106,7 +106,7 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
   public void init() {
     try {
       if (objectName == null) {
-        objectName = new ObjectName(AdminConsoleServiceMBean.OBJECTNAME);
+        objectName = new ObjectName(AdminConsoleServiceMBean.OBJECT_NAME);
       }
       if (mBeanServer == null) {
         mBeanServer = ManagementFactory.getPlatformMBeanServer();

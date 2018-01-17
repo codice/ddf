@@ -13,7 +13,7 @@
  */
 package ddf.test.itests.catalog;
 
-import static ddf.catalog.ftp.FtpServerManager.CLIENT_AUTH;
+import static ddf.catalog.ftp.FtpServerManager.CLIENT_AUTH_PROPERTY_KEY;
 import static ddf.catalog.ftp.FtpServerManager.NEED;
 import static ddf.catalog.ftp.FtpServerManager.WANT;
 import static org.codice.ddf.itests.common.WaitCondition.expect;
@@ -449,7 +449,7 @@ public class TestFtp extends AbstractIntegrationTest {
     Configuration config = getAdminConfig().getConfiguration("ddf.catalog.ftp.FtpServerManager");
     config.setBundleLocation("mvn:ddf.catalog/ftp/" + System.getProperty("ddf.version"));
     Dictionary properties = new Hashtable<>();
-    properties.put(CLIENT_AUTH, clientAuth);
+    properties.put(CLIENT_AUTH_PROPERTY_KEY, clientAuth);
     config.update(properties);
 
     // wait until the clientAuth configuration has taken effect at the FTP server level

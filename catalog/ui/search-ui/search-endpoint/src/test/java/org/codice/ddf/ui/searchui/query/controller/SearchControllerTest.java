@@ -528,12 +528,12 @@ public class SearchControllerTest {
   private void assertReplies(List<Mutable> replies) {
     for (Mutable reply : replies) {
       assertThat(reply, is(not(nullValue())));
-      assertThat(reply.getDataAsMap().get(Search.METACARD_TYPES), is(not(nullValue())));
-      assertThat(reply.getDataAsMap().get(Search.METACARD_TYPES), instanceOf(Map.class));
+      assertThat(reply.getDataAsMap().get(Search.METACARD_TYPES_KEY), is(not(nullValue())));
+      assertThat(reply.getDataAsMap().get(Search.METACARD_TYPES_KEY), instanceOf(Map.class));
 
       @SuppressWarnings("unchecked")
       Map<String, Object> types =
-          (Map<String, Object>) reply.getDataAsMap().get(Search.METACARD_TYPES);
+          (Map<String, Object>) reply.getDataAsMap().get(Search.METACARD_TYPES_KEY);
 
       assertThat(types.get("ddf.metacard"), is(not(nullValue())));
       assertThat(types.get("ddf.metacard"), instanceOf(Map.class));

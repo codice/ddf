@@ -29,29 +29,29 @@ import org.codice.ddf.branding.BrandingRegistry;
 @Path("/")
 public class PlatformUiConfiguration {
 
-  public static final String SYSTEM_USAGE_TITLE = "systemUsageTitle";
+  public static final String SYSTEM_USAGE_TITLE_CONFIG_KEY = "systemUsageTitle";
 
-  public static final String SYSTEM_USAGE_MESSAGE = "systemUsageMessage";
+  public static final String SYSTEM_USAGE_MESSAGE_CONFIG_KEY = "systemUsageMessage";
 
-  public static final String SYSTEM_USAGE_ONCE_PER_SESSION = "systemUsageOncePerSession";
+  public static final String SYSTEM_USAGE_ONCE_PER_SESSION_CONFIG_KEY = "systemUsageOncePerSession";
 
-  public static final String HEADER = "header";
+  public static final String HEADER_CONFIG_KEY = "header";
 
-  public static final String FOOTER = "footer";
+  public static final String FOOTER_CONFIG_KEY = "footer";
 
-  public static final String COLOR = "color";
+  public static final String COLOR_CONFIG_KEY = "color";
 
-  public static final String BACKGROUND = "background";
+  public static final String BACKGROUND_CONFIG_KEY = "background";
 
-  public static final String TITLE = "title";
+  public static final String TITLE_CONFIG_KEY = "title";
 
-  public static final String VERSION = "version";
+  public static final String VERSION_CONFIG_KEY = "version";
 
-  public static final String PRODUCT_IMAGE = "productImage";
+  public static final String PRODUCT_IMAGE_CONFIG_KEY = "productImage";
 
-  public static final String FAV_ICON = "favIcon";
+  public static final String FAV_ICON_CONFIG_KEY = "favIcon";
 
-  public static final String VENDOR_IMAGE = "vendorImage";
+  public static final String VENDOR_IMAGE_CONFIG_KEY = "vendorImage";
 
   private boolean systemUsageEnabled;
 
@@ -78,20 +78,20 @@ public class PlatformUiConfiguration {
     JSONObject jsonObject = new JSONObject();
 
     if (systemUsageEnabled) {
-      jsonObject.put(SYSTEM_USAGE_TITLE, systemUsageTitle);
-      jsonObject.put(SYSTEM_USAGE_MESSAGE, systemUsageMessage);
-      jsonObject.put(SYSTEM_USAGE_ONCE_PER_SESSION, systemUsageOncePerSession);
+      jsonObject.put(SYSTEM_USAGE_TITLE_CONFIG_KEY, systemUsageTitle);
+      jsonObject.put(SYSTEM_USAGE_MESSAGE_CONFIG_KEY, systemUsageMessage);
+      jsonObject.put(SYSTEM_USAGE_ONCE_PER_SESSION_CONFIG_KEY, systemUsageOncePerSession);
     }
 
-    jsonObject.put(HEADER, this.header);
-    jsonObject.put(FOOTER, this.footer);
-    jsonObject.put(COLOR, this.color);
-    jsonObject.put(BACKGROUND, this.background);
-    jsonObject.put(TITLE, getTitle());
-    jsonObject.put(VERSION, getVersion());
-    jsonObject.put(PRODUCT_IMAGE, getProductImage());
-    jsonObject.put(FAV_ICON, getFavIcon());
-    jsonObject.put(VENDOR_IMAGE, getVendorImage());
+    jsonObject.put(HEADER_CONFIG_KEY, this.header);
+    jsonObject.put(FOOTER_CONFIG_KEY, this.footer);
+    jsonObject.put(COLOR_CONFIG_KEY, this.color);
+    jsonObject.put(BACKGROUND_CONFIG_KEY, this.background);
+    jsonObject.put(TITLE_CONFIG_KEY, getTitle());
+    jsonObject.put(VERSION_CONFIG_KEY, getVersion());
+    jsonObject.put(PRODUCT_IMAGE_CONFIG_KEY, getProductImage());
+    jsonObject.put(FAV_ICON_CONFIG_KEY, getFavIcon());
+    jsonObject.put(VENDOR_IMAGE_CONFIG_KEY, getVendorImage());
 
     return jsonObject.toJSONString();
   }

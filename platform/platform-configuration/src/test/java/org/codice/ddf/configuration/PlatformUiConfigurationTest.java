@@ -63,25 +63,26 @@ public class PlatformUiConfigurationTest {
       fail("PlatformUiConfiguration is not a JSON Object.");
     }
     JSONObject jsonObject = (JSONObject) obj;
-    assertEquals("header", jsonObject.get(PlatformUiConfiguration.HEADER));
-    assertEquals("footer", jsonObject.get(PlatformUiConfiguration.FOOTER));
-    assertEquals("background", jsonObject.get(PlatformUiConfiguration.BACKGROUND));
-    assertEquals("color", jsonObject.get(PlatformUiConfiguration.COLOR));
-    assertEquals("product", jsonObject.get(PlatformUiConfiguration.TITLE));
+    assertEquals("header", jsonObject.get(PlatformUiConfiguration.HEADER_CONFIG_KEY));
+    assertEquals("footer", jsonObject.get(PlatformUiConfiguration.FOOTER_CONFIG_KEY));
+    assertEquals("background", jsonObject.get(PlatformUiConfiguration.BACKGROUND_CONFIG_KEY));
+    assertEquals("color", jsonObject.get(PlatformUiConfiguration.COLOR_CONFIG_KEY));
+    assertEquals("product", jsonObject.get(PlatformUiConfiguration.TITLE_CONFIG_KEY));
     assertEquals(
         "image",
         new String(
             Base64.getMimeDecoder()
-                .decode((String) jsonObject.get(PlatformUiConfiguration.PRODUCT_IMAGE))));
+                .decode(
+                    (String) jsonObject.get(PlatformUiConfiguration.PRODUCT_IMAGE_CONFIG_KEY))));
     assertEquals(
         "vendorimage",
         new String(
             Base64.getMimeDecoder()
-                .decode((String) jsonObject.get(PlatformUiConfiguration.VENDOR_IMAGE))));
+                .decode((String) jsonObject.get(PlatformUiConfiguration.VENDOR_IMAGE_CONFIG_KEY))));
     assertEquals(
         "fav",
         new String(
             Base64.getMimeDecoder()
-                .decode((String) jsonObject.get(PlatformUiConfiguration.FAV_ICON))));
+                .decode((String) jsonObject.get(PlatformUiConfiguration.FAV_ICON_CONFIG_KEY))));
   }
 }

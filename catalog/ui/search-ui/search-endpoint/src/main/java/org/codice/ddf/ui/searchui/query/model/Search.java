@@ -59,15 +59,27 @@ public class Search {
 
   private static final String REASON_INTERNAL = "Internal error";
 
-  public static final String REASONS = "reasons";
+  public static final String DISTANCE_KEY = "distance";
 
-  public static final String HITS = "hits";
+  public static final String ELAPSED_KEY = "elapsed";
 
-  public static final String DISTANCE = "distance";
+  public static final String HITS_KEY = "hits";
 
-  public static final String RELEVANCE = "relevance";
+  public static final String ID_KEY = "id";
 
-  public static final String METACARD = "metacard";
+  public static final String METACARD_KEY = "metacard";
+
+  public static final String METACARD_TYPES_KEY = "metacard-types";
+
+  public static final String REASONS_KEY = "reasons";
+
+  public static final String RELEVANCE_KEY = "relevance";
+
+  public static final String RESULTS_KEY = "results";
+
+  public static final String STATE_KEY = "state";
+
+  public static final String STATUS_KEY = "status";
 
   public static final String ACTIONS = "actions";
 
@@ -79,21 +91,7 @@ public class Search {
 
   public static final String ACTIONS_URL = "url";
 
-  public static final String RESULTS = "results";
-
-  public static final String METACARD_TYPES = "metacard-types";
-
   public static final String SUCCESSFUL = "successful";
-
-  public static final String STATUS = "status";
-
-  public static final String STATE = "state";
-
-  public static final String ID = "id";
-
-  public static final String DONE = "done";
-
-  public static final String ELAPSED = "elapsed";
 
   public static final String CACHED = "cached";
 
@@ -114,7 +112,7 @@ public class Search {
 
   private SearchRequest searchRequest;
 
-  private Map<String, QueryStatus> queryStatus = new HashMap<String, QueryStatus>();
+  private Map<String, QueryStatus> queryStatus = new HashMap<>();
 
   private long hits = 0;
 
@@ -160,7 +158,7 @@ public class Search {
     failedResponse.closeResultQueue();
     failedResponse.setHits(0);
     failedResponse.getProcessingDetails().add(new ProcessingDetailsImpl(sourceId, cause));
-    failedResponse.getProperties().put("elapsed", -1L);
+    failedResponse.getProperties().put(ELAPSED_KEY, -1L);
 
     updateStatus(sourceId, failedResponse);
   }
@@ -178,7 +176,7 @@ public class Search {
     status.setDetails(queryResponse.getProcessingDetails());
     status.setHits(queryResponse.getHits());
     hits += queryResponse.getHits();
-    status.setElapsed((Long) queryResponse.getProperties().get("elapsed"));
+    status.setElapsed((Long) queryResponse.getProperties().get(ELAPSED_KEY));
     status.setState(
         (isSuccessful(queryResponse.getProcessingDetails()) ? State.SUCCEEDED : State.FAILED));
     responseNum++;
@@ -188,9 +186,7 @@ public class Search {
         .stream()
         .filter(ProcessingDetails::hasException)
         .forEach(
-            details -> {
-              status.addReason(generateSanitizedErrorMessage(details.getException(), 0));
-            });
+            details -> status.addReason(generateSanitizedErrorMessage(details.getException(), 0)));
   }
 
   private String generateSanitizedErrorMessage(Throwable e, int depth) {
@@ -282,11 +278,11 @@ public class Search {
 
     Map<String, Object> result = new HashMap<>();
 
-    addObject(result, HITS, this.getHits());
-    addObject(result, ID, searchRequestId);
-    addObject(result, RESULTS, getResultList(this.getResults()));
-    addObject(result, STATUS, getQueryStatus(this.getQueryStatus()));
-    addObject(result, METACARD_TYPES, getMetacardTypes(this.getResults()));
+    addObject(result, HITS_KEY, this.getHits());
+    addObject(result, ID_KEY, searchRequestId);
+    addObject(result, RESULTS_KEY, getResultList(this.getResults()));
+    addObject(result, STATUS_KEY, getQueryStatus(this.getQueryStatus()));
+    addObject(result, METACARD_TYPES_KEY, getMetacardTypes(this.getResults()));
 
     return result;
   }
@@ -297,14 +293,14 @@ public class Search {
     for (QueryStatus status : queryStatus.values()) {
       Map<String, Object> statusObject = new HashMap<>();
 
-      addObject(statusObject, ID, status.getSourceId());
+      addObject(statusObject, ID_KEY, status.getSourceId());
       if (status.isDone()) {
-        addObject(statusObject, RESULTS, status.getResultCount());
-        addObject(statusObject, HITS, status.getHits());
-        addObject(statusObject, ELAPSED, status.getElapsed());
-        addObject(statusObject, REASONS, status.getReasons());
+        addObject(statusObject, RESULTS_KEY, status.getResultCount());
+        addObject(statusObject, HITS_KEY, status.getHits());
+        addObject(statusObject, ELAPSED_KEY, status.getElapsed());
+        addObject(statusObject, REASONS_KEY, status.getReasons());
       }
-      addObject(statusObject, STATE, status.getState());
+      addObject(statusObject, STATE_KEY, status.getState());
 
       statuses.add(statusObject);
     }
@@ -332,8 +328,8 @@ public class Search {
   private Map<String, Object> getResultItem(Result result) throws CatalogTransformerException {
     Map<String, Object> transformedResult = new HashMap<>();
 
-    addObject(transformedResult, DISTANCE, result.getDistanceInMeters());
-    addObject(transformedResult, RELEVANCE, result.getRelevanceScore());
+    addObject(transformedResult, DISTANCE_KEY, result.getDistanceInMeters());
+    addObject(transformedResult, RELEVANCE_KEY, result.getRelevanceScore());
 
     @SuppressWarnings("unchecked")
     Map<String, Object> metacard =
@@ -353,7 +349,7 @@ public class Search {
             .map(Attribute::getValue)
             .orElse(Boolean.FALSE));
 
-    addObject(transformedResult, METACARD, metacard);
+    addObject(transformedResult, METACARD_KEY, metacard);
 
     return transformedResult;
   }

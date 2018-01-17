@@ -13,16 +13,16 @@
  */
 package ddf.ldap.ldaplogin;
 
-import static ddf.ldap.ldaplogin.SslLdapLoginModule.CONNECTION_PASSWORD;
-import static ddf.ldap.ldaplogin.SslLdapLoginModule.CONNECTION_URL;
-import static ddf.ldap.ldaplogin.SslLdapLoginModule.CONNECTION_USERNAME;
-import static ddf.ldap.ldaplogin.SslLdapLoginModule.ROLE_BASE_DN;
-import static ddf.ldap.ldaplogin.SslLdapLoginModule.ROLE_FILTER;
-import static ddf.ldap.ldaplogin.SslLdapLoginModule.ROLE_NAME_ATTRIBUTE;
-import static ddf.ldap.ldaplogin.SslLdapLoginModule.ROLE_SEARCH_SUBTREE;
-import static ddf.ldap.ldaplogin.SslLdapLoginModule.SSL_STARTTLS;
-import static ddf.ldap.ldaplogin.SslLdapLoginModule.USER_FILTER;
-import static ddf.ldap.ldaplogin.SslLdapLoginModule.USER_SEARCH_SUBTREE;
+import static ddf.ldap.ldaplogin.SslLdapLoginModule.CONNECTION_PASSWORD_OPTIONS_KEY;
+import static ddf.ldap.ldaplogin.SslLdapLoginModule.CONNECTION_URL_OPTIONS_KEY;
+import static ddf.ldap.ldaplogin.SslLdapLoginModule.CONNECTION_USERNAME_OPTIONS_KEY;
+import static ddf.ldap.ldaplogin.SslLdapLoginModule.ROLE_BASE_DN_OPTIONS_KEY;
+import static ddf.ldap.ldaplogin.SslLdapLoginModule.ROLE_FILTER_OPTIONS_KEY;
+import static ddf.ldap.ldaplogin.SslLdapLoginModule.ROLE_NAME_ATTRIBUTE_OPTIONS_KEY;
+import static ddf.ldap.ldaplogin.SslLdapLoginModule.ROLE_SEARCH_SUBTREE_OPTIONS_KEY;
+import static ddf.ldap.ldaplogin.SslLdapLoginModule.SSL_STARTTLS_OPTIONS_KEY;
+import static ddf.ldap.ldaplogin.SslLdapLoginModule.USER_FILTER_OPTIONS_KEY;
+import static ddf.ldap.ldaplogin.SslLdapLoginModule.USER_SEARCH_SUBTREE_OPTIONS_KEY;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -97,26 +97,29 @@ public class LdapLoginConfig {
     ldapModule.setFlags(SUFFICIENT_FLAG);
     ldapModule.setName(id);
     Properties props = new Properties();
-    props.put(CONNECTION_USERNAME, properties.get(LDAP_BIND_USER_DN));
-    props.put(CONNECTION_PASSWORD, properties.get(LDAP_BIND_USER_PASS));
-    props.put(CONNECTION_URL, new PropertyResolver((String) properties.get(LDAP_URL)).toString());
+    props.put(CONNECTION_USERNAME_OPTIONS_KEY, properties.get(LDAP_BIND_USER_DN));
+    props.put(CONNECTION_PASSWORD_OPTIONS_KEY, properties.get(LDAP_BIND_USER_PASS));
+    props.put(
+        CONNECTION_URL_OPTIONS_KEY,
+        new PropertyResolver((String) properties.get(LDAP_URL)).toString());
 
     final Object userBaseDn = properties.get(USER_BASE_DN);
-    props.put(SslLdapLoginModule.USER_BASE_DN, userBaseDn);
+    props.put(SslLdapLoginModule.USER_BASE_DN_OPTIONS_KEY, userBaseDn);
 
     final Object loginUserAttribute = properties.get(LOGIN_USER_ATTRIBUTE);
     final Object membershipUserAttribute = properties.get(MEMBER_USER_ATTRIBUTE);
-    props.put(USER_FILTER, String.format("(%s=%%u)", loginUserAttribute));
-    props.put(USER_SEARCH_SUBTREE, "true");
-    props.put(ROLE_BASE_DN, properties.get(GROUP_BASE_DN));
+    props.put(USER_FILTER_OPTIONS_KEY, String.format("(%s=%%u)", loginUserAttribute));
+    props.put(USER_SEARCH_SUBTREE_OPTIONS_KEY, "true");
+    props.put(ROLE_BASE_DN_OPTIONS_KEY, properties.get(GROUP_BASE_DN));
     props.put(
-        ROLE_FILTER, String.format("(member=%s=%%u,%s)", membershipUserAttribute, userBaseDn));
-    props.put(ROLE_NAME_ATTRIBUTE, "cn");
-    props.put(ROLE_SEARCH_SUBTREE, "true");
+        ROLE_FILTER_OPTIONS_KEY,
+        String.format("(member=%s=%%u,%s)", membershipUserAttribute, userBaseDn));
+    props.put(ROLE_NAME_ATTRIBUTE_OPTIONS_KEY, "cn");
+    props.put(ROLE_SEARCH_SUBTREE_OPTIONS_KEY, "true");
     props.put("authentication", "simple");
     props.put("ssl.protocol", "TLS");
     props.put("ssl.algorithm", "SunX509");
-    props.put(SSL_STARTTLS, properties.get(START_TLS));
+    props.put(SSL_STARTTLS_OPTIONS_KEY, properties.get(START_TLS));
     props.put(BIND_METHOD, properties.get(BIND_METHOD));
     props.put(REALM, (properties.get(REALM) != null) ? properties.get(REALM) : "");
     props.put(

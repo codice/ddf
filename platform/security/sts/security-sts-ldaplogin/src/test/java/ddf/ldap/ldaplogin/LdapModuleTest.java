@@ -13,20 +13,20 @@
  */
 package ddf.ldap.ldaplogin;
 
-import static ddf.ldap.ldaplogin.SslLdapLoginModule.BIND_METHOD;
-import static ddf.ldap.ldaplogin.SslLdapLoginModule.CONNECTION_PASSWORD;
-import static ddf.ldap.ldaplogin.SslLdapLoginModule.CONNECTION_URL;
-import static ddf.ldap.ldaplogin.SslLdapLoginModule.CONNECTION_USERNAME;
-import static ddf.ldap.ldaplogin.SslLdapLoginModule.KDC_ADDRESS;
-import static ddf.ldap.ldaplogin.SslLdapLoginModule.REALM;
-import static ddf.ldap.ldaplogin.SslLdapLoginModule.ROLE_BASE_DN;
-import static ddf.ldap.ldaplogin.SslLdapLoginModule.ROLE_FILTER;
-import static ddf.ldap.ldaplogin.SslLdapLoginModule.ROLE_NAME_ATTRIBUTE;
-import static ddf.ldap.ldaplogin.SslLdapLoginModule.ROLE_SEARCH_SUBTREE;
-import static ddf.ldap.ldaplogin.SslLdapLoginModule.SSL_STARTTLS;
-import static ddf.ldap.ldaplogin.SslLdapLoginModule.USER_BASE_DN;
-import static ddf.ldap.ldaplogin.SslLdapLoginModule.USER_FILTER;
-import static ddf.ldap.ldaplogin.SslLdapLoginModule.USER_SEARCH_SUBTREE;
+import static ddf.ldap.ldaplogin.SslLdapLoginModule.BIND_METHOD_OPTIONS_KEY;
+import static ddf.ldap.ldaplogin.SslLdapLoginModule.CONNECTION_PASSWORD_OPTIONS_KEY;
+import static ddf.ldap.ldaplogin.SslLdapLoginModule.CONNECTION_URL_OPTIONS_KEY;
+import static ddf.ldap.ldaplogin.SslLdapLoginModule.CONNECTION_USERNAME_OPTIONS_KEY;
+import static ddf.ldap.ldaplogin.SslLdapLoginModule.KDC_ADDRESS_OPTIONS_KEY;
+import static ddf.ldap.ldaplogin.SslLdapLoginModule.REALM_OPTIONS_KEY;
+import static ddf.ldap.ldaplogin.SslLdapLoginModule.ROLE_BASE_DN_OPTIONS_KEY;
+import static ddf.ldap.ldaplogin.SslLdapLoginModule.ROLE_FILTER_OPTIONS_KEY;
+import static ddf.ldap.ldaplogin.SslLdapLoginModule.ROLE_NAME_ATTRIBUTE_OPTIONS_KEY;
+import static ddf.ldap.ldaplogin.SslLdapLoginModule.ROLE_SEARCH_SUBTREE_OPTIONS_KEY;
+import static ddf.ldap.ldaplogin.SslLdapLoginModule.SSL_STARTTLS_OPTIONS_KEY;
+import static ddf.ldap.ldaplogin.SslLdapLoginModule.USER_BASE_DN_OPTIONS_KEY;
+import static ddf.ldap.ldaplogin.SslLdapLoginModule.USER_FILTER_OPTIONS_KEY;
+import static ddf.ldap.ldaplogin.SslLdapLoginModule.USER_SEARCH_SUBTREE_OPTIONS_KEY;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
@@ -126,9 +126,9 @@ public class LdapModuleTest {
 
     server.startListening();
     module
-        .putOption(BIND_METHOD, "none")
-        .putOption(CONNECTION_USERNAME, "")
-        .putOption(CONNECTION_PASSWORD, "")
+        .putOption(BIND_METHOD_OPTIONS_KEY, "none")
+        .putOption(CONNECTION_USERNAME_OPTIONS_KEY, "")
+        .putOption(CONNECTION_PASSWORD_OPTIONS_KEY, "")
         .setUsernameAndPassword(USER_CN, USER_PASSWORD)
         .login()
         .assertThatPrincipals(server.expectedPrincipals());
@@ -139,7 +139,7 @@ public class LdapModuleTest {
 
     server.useSimpleAuth().startListening();
     module
-        .putOption(CONNECTION_URL, TestServer.getUrl("ldaps"))
+        .putOption(CONNECTION_URL_OPTIONS_KEY, TestServer.getUrl("ldaps"))
         .setUsernameAndPassword(USER_CN, USER_PASSWORD)
         .login()
         .assertThatPrincipals(server.expectedPrincipals());
@@ -153,7 +153,7 @@ public class LdapModuleTest {
     server.useSimpleAuth();
     module
         .setUsernameAndPassword(USER_CN, USER_PASSWORD)
-        .putOption(SSL_STARTTLS, "true")
+        .putOption(SSL_STARTTLS_OPTIONS_KEY, "true")
         .login()
         .assertThatPrincipals(server.expectedPrincipals());
   }
@@ -177,7 +177,10 @@ public class LdapModuleTest {
   public void testUserSwitchNoAuthToSimpleAuth() throws LoginException {
 
     server.startListening();
-    module.setUsernameAndPassword(USER_CN, USER_PASSWORD).putOption(BIND_METHOD, "none").login();
+    module
+        .setUsernameAndPassword(USER_CN, USER_PASSWORD)
+        .putOption(BIND_METHOD_OPTIONS_KEY, "none")
+        .login();
     assertThat(module.getBindMethod(), equalToIgnoringCase("simple"));
   }
 
@@ -307,21 +310,23 @@ public class LdapModuleTest {
     public static Map<String, String> getClientOptions() {
 
       HashMap<String, String> options = new HashMap<>();
-      options.put(CONNECTION_URL, getUrl("ldap"));
-      options.put(CONNECTION_USERNAME, getBasicAuthDn());
-      options.put(CONNECTION_PASSWORD, getBasicAuthPassword());
-      options.put(USER_BASE_DN, getBaseDistinguishedName());
-      options.put(USER_FILTER, String.format("(%s)", "uid=tstark"));
-      options.put(USER_SEARCH_SUBTREE, "true");
+      options.put(CONNECTION_URL_OPTIONS_KEY, getUrl("ldap"));
+      options.put(CONNECTION_USERNAME_OPTIONS_KEY, getBasicAuthDn());
+      options.put(CONNECTION_PASSWORD_OPTIONS_KEY, getBasicAuthPassword());
+      options.put(USER_BASE_DN_OPTIONS_KEY, getBaseDistinguishedName());
+      options.put(USER_FILTER_OPTIONS_KEY, String.format("(%s)", "uid=tstark"));
+      options.put(USER_SEARCH_SUBTREE_OPTIONS_KEY, "true");
       options.put(
-          ROLE_FILTER, String.format("(member=uid=%%u,ou=users,%s)", getBaseDistinguishedName()));
-      options.put(ROLE_BASE_DN, String.format("ou=groups,%s", getBaseDistinguishedName()));
-      options.put(ROLE_NAME_ATTRIBUTE, "cn");
-      options.put(ROLE_SEARCH_SUBTREE, "true");
-      options.put(SSL_STARTTLS, "false");
-      options.put(BIND_METHOD, "Simple");
-      options.put(REALM, "");
-      options.put(KDC_ADDRESS, "");
+          ROLE_FILTER_OPTIONS_KEY,
+          String.format("(member=uid=%%u,ou=users,%s)", getBaseDistinguishedName()));
+      options.put(
+          ROLE_BASE_DN_OPTIONS_KEY, String.format("ou=groups,%s", getBaseDistinguishedName()));
+      options.put(ROLE_NAME_ATTRIBUTE_OPTIONS_KEY, "cn");
+      options.put(ROLE_SEARCH_SUBTREE_OPTIONS_KEY, "true");
+      options.put(SSL_STARTTLS_OPTIONS_KEY, "false");
+      options.put(BIND_METHOD_OPTIONS_KEY, "Simple");
+      options.put(REALM_OPTIONS_KEY, "");
+      options.put(KDC_ADDRESS_OPTIONS_KEY, "");
       return options;
     }
 

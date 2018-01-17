@@ -43,12 +43,12 @@ public class QueryMetacardTypeImpl extends MetacardTypeImpl {
 
   public static final String QUERY_IS_ADVANCED = "isAdvanced";
 
-  private static final Set<AttributeDescriptor> DESCRIPTORS;
+  private static final Set<AttributeDescriptor> QUERY_DESCRIPTORS;
 
   static {
-    DESCRIPTORS = new HashSet<>();
+    QUERY_DESCRIPTORS = new HashSet<>();
 
-    DESCRIPTORS.add(
+    QUERY_DESCRIPTORS.add(
         new AttributeDescriptorImpl(
             Metacard.ID,
             true /* indexed */,
@@ -57,7 +57,7 @@ public class QueryMetacardTypeImpl extends MetacardTypeImpl {
             false /* multivalued */,
             BasicTypes.STRING_TYPE));
 
-    DESCRIPTORS.add(
+    QUERY_DESCRIPTORS.add(
         new AttributeDescriptorImpl(
             Metacard.TITLE,
             true /* indexed */,
@@ -66,7 +66,7 @@ public class QueryMetacardTypeImpl extends MetacardTypeImpl {
             false /* multivalued */,
             BasicTypes.STRING_TYPE));
 
-    DESCRIPTORS.add(
+    QUERY_DESCRIPTORS.add(
         new AttributeDescriptorImpl(
             QUERY_CQL,
             false /* indexed */,
@@ -75,7 +75,7 @@ public class QueryMetacardTypeImpl extends MetacardTypeImpl {
             false /* multivalued */,
             BasicTypes.STRING_TYPE));
 
-    DESCRIPTORS.add(
+    QUERY_DESCRIPTORS.add(
         new AttributeDescriptorImpl(
             QUERY_ENTERPRISE,
             false /* indexed */,
@@ -84,7 +84,7 @@ public class QueryMetacardTypeImpl extends MetacardTypeImpl {
             false /* multivalued */,
             BasicTypes.BOOLEAN_TYPE));
 
-    DESCRIPTORS.add(
+    QUERY_DESCRIPTORS.add(
         new AttributeDescriptorImpl(
             QUERY_SOURCES,
             false /* indexed */,
@@ -93,7 +93,7 @@ public class QueryMetacardTypeImpl extends MetacardTypeImpl {
             true /* multivalued */,
             BasicTypes.STRING_TYPE));
 
-    DESCRIPTORS.add(
+    QUERY_DESCRIPTORS.add(
         new AttributeDescriptorImpl(
             QUERY_SORT_FIELD,
             false /* indexed */,
@@ -102,7 +102,7 @@ public class QueryMetacardTypeImpl extends MetacardTypeImpl {
             false /* multivalued */,
             BasicTypes.STRING_TYPE));
 
-    DESCRIPTORS.add(
+    QUERY_DESCRIPTORS.add(
         new AttributeDescriptorImpl(
             QUERY_SORT_ORDER,
             false /* indexed */,
@@ -111,7 +111,7 @@ public class QueryMetacardTypeImpl extends MetacardTypeImpl {
             false /* multivalued */,
             BasicTypes.STRING_TYPE));
 
-    DESCRIPTORS.add(
+    QUERY_DESCRIPTORS.add(
         new AttributeDescriptorImpl(
             QUERY_POLLING,
             false /* indexed */,
@@ -120,7 +120,7 @@ public class QueryMetacardTypeImpl extends MetacardTypeImpl {
             false /* multivalued */,
             BasicTypes.INTEGER_TYPE));
 
-    DESCRIPTORS.add(
+    QUERY_DESCRIPTORS.add(
         new AttributeDescriptorImpl(
             QUERY_FEDERATION,
             false /* indexed */,
@@ -129,7 +129,7 @@ public class QueryMetacardTypeImpl extends MetacardTypeImpl {
             false /* multivalued */,
             BasicTypes.STRING_TYPE));
 
-    DESCRIPTORS.add(
+    QUERY_DESCRIPTORS.add(
         new AttributeDescriptorImpl(
             QUERY_IS_ADVANCED,
             false /* indexed */,
@@ -140,7 +140,7 @@ public class QueryMetacardTypeImpl extends MetacardTypeImpl {
   }
 
   public QueryMetacardTypeImpl() {
-    this(QUERY_METACARD_TYPE_NAME, DESCRIPTORS);
+    this(QUERY_METACARD_TYPE_NAME, QUERY_DESCRIPTORS);
   }
 
   public QueryMetacardTypeImpl(String name, Set<AttributeDescriptor> descriptors) {

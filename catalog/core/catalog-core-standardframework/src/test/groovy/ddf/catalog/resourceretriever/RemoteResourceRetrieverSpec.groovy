@@ -18,14 +18,14 @@ import ddf.catalog.resource.ResourceNotFoundException
 import ddf.catalog.source.RemoteSource
 import spock.lang.Specification
 
-class RemoteResourceRetrieverTest extends Specification {
+class RemoteResourceRetrieverSpec extends Specification {
     private URI uri
     private Map<String, Serializable> props
     private RemoteSource remoteSource
     private ResourceResponse mockResponse
 
     def setup() {
-        uri = getClass().getResource('/ddf/catalog/resourceretriever/RemoteResourceRetrieverTest.class').toURI()
+        uri = getClass().getResource('/ddf/catalog/resourceretriever/RemoteResourceRetrieverSpec.class').toURI()
         props = [:]
         remoteSource = Mock(RemoteSource)
         mockResponse = Mock(ResourceResponse)

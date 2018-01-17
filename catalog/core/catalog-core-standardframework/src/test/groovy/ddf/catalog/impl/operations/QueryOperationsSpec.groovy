@@ -44,7 +44,7 @@ import org.apache.commons.collections.CollectionUtils
 import spock.lang.Shared
 import spock.lang.Specification
 
-class QueryOperationsTest extends Specification {
+class QueryOperationsSpec extends Specification {
     private static final String SOURCE_ID = "test_source"
 
     @Shared
@@ -108,8 +108,8 @@ class QueryOperationsTest extends Specification {
         then:
         sources.isEmpty()
         sources.exceptions.isEmpty()
-        sources.addConnectedSources == CollectionUtils.isNotEmpty(frameworkProperties.connectedSources)
-        sources.addCatalogProvider == mockForQueryOps.hasCatalogProvider()
+        sources.needToAddConnectedSources == CollectionUtils.isNotEmpty(frameworkProperties.connectedSources)
+        sources.needToAddCatalogProvider == mockForQueryOps.hasCatalogProvider()
 
         where:
         sourceIds << [null, [] as Set]
@@ -133,8 +133,8 @@ class QueryOperationsTest extends Specification {
         sources = sources.initializeSources(mockForQueryOps, request, null)
 
         then:
-        sources.addConnectedSources
-        sources.addCatalogProvider == mockForQueryOps.hasCatalogProvider()
+        sources.needToAddConnectedSources
+        sources.needToAddCatalogProvider == mockForQueryOps.hasCatalogProvider()
         sources.sourcesToQuery as Set == frameworkProperties.federatedSources.values() as Set
         sources.exceptions.isEmpty()
     }
@@ -157,8 +157,8 @@ class QueryOperationsTest extends Specification {
         sources = sources.initializeSources(mockForQueryOps, request, null)
 
         then:
-        sources.addConnectedSources
-        sources.addCatalogProvider == mockForQueryOps.hasCatalogProvider()
+        sources.needToAddConnectedSources
+        sources.needToAddCatalogProvider == mockForQueryOps.hasCatalogProvider()
         sources.isEmpty()
         sources.exceptions.size() == frameworkProperties.federatedSources.size()
     }
@@ -181,8 +181,8 @@ class QueryOperationsTest extends Specification {
         sources = sources.initializeSources(mockForQueryOps, request, null)
 
         then:
-        sources.addConnectedSources
-        sources.addCatalogProvider == mockForQueryOps.hasCatalogProvider()
+        sources.needToAddConnectedSources
+        sources.needToAddCatalogProvider == mockForQueryOps.hasCatalogProvider()
         sources.sourcesToQuery as Set == [frameworkProperties.federatedSources.get('fed1')] as Set
         sources.exceptions.size() == frameworkProperties.federatedSources.size() - 1
     }
@@ -207,8 +207,8 @@ class QueryOperationsTest extends Specification {
         sources = sources.initializeSources(mockForQueryOps, request, [SOURCE_ID] as Set)
 
         then:
-        sources.addConnectedSources == CollectionUtils.isNotEmpty(frameworkProperties.connectedSources)
-        sources.addCatalogProvider == mockForQueryOps.hasCatalogProvider()
+        sources.needToAddConnectedSources == CollectionUtils.isNotEmpty(frameworkProperties.connectedSources)
+        sources.needToAddCatalogProvider == mockForQueryOps.hasCatalogProvider()
         sources.isEmpty()
         sources.exceptions.isEmpty()
     }
@@ -233,8 +233,8 @@ class QueryOperationsTest extends Specification {
         sources = sources.initializeSources(mockForQueryOps, request, ["fed1"] as Set)
 
         then:
-        sources.addConnectedSources == CollectionUtils.isNotEmpty(frameworkProperties.connectedSources)
-        sources.addCatalogProvider == mockForQueryOps.hasCatalogProvider()
+        sources.needToAddConnectedSources == CollectionUtils.isNotEmpty(frameworkProperties.connectedSources)
+        sources.needToAddCatalogProvider == mockForQueryOps.hasCatalogProvider()
         sources.sourcesToQuery as Set == [frameworkProperties.federatedSources.get('fed1')] as Set
         sources.exceptions.isEmpty()
     }
@@ -259,8 +259,8 @@ class QueryOperationsTest extends Specification {
         sources = sources.initializeSources(mockForQueryOps, request, ["unknown"] as Set)
 
         then:
-        sources.addConnectedSources == CollectionUtils.isNotEmpty(frameworkProperties.connectedSources)
-        sources.addCatalogProvider == mockForQueryOps.hasCatalogProvider()
+        sources.needToAddConnectedSources == CollectionUtils.isNotEmpty(frameworkProperties.connectedSources)
+        sources.needToAddCatalogProvider == mockForQueryOps.hasCatalogProvider()
         sources.isEmpty()
         sources.exceptions.size() == 1
     }
@@ -285,8 +285,8 @@ class QueryOperationsTest extends Specification {
         sources = sources.initializeSources(mockForQueryOps, request, ["fed1"] as Set)
 
         then:
-        sources.addConnectedSources == CollectionUtils.isNotEmpty(frameworkProperties.connectedSources)
-        sources.addCatalogProvider == mockForQueryOps.hasCatalogProvider()
+        sources.needToAddConnectedSources == CollectionUtils.isNotEmpty(frameworkProperties.connectedSources)
+        sources.needToAddCatalogProvider == mockForQueryOps.hasCatalogProvider()
         sources.isEmpty()
         sources.exceptions.size() == 1
     }
@@ -321,7 +321,7 @@ class QueryOperationsTest extends Specification {
         sources.sourcesToQuery = []
         sources.exceptions = []
         def connectedCount = frameworkProperties.getConnectedSources().size()
-        sources.addConnectedSources = true
+        sources.needToAddConnectedSources = true
 
         when:
         sources = sources.addConnectedSources(mockForQueryOps, frameworkProperties)
@@ -362,7 +362,7 @@ class QueryOperationsTest extends Specification {
         def sources = new QueryOperations.QuerySources(frameworkProperties)
         sources.sourcesToQuery = []
         sources.exceptions = []
-        sources.addCatalogProvider = true
+        sources.needToAddCatalogProvider = true
 
         when:
         sources = sources.addCatalogProvider(mockForQueryOps)
@@ -383,7 +383,7 @@ class QueryOperationsTest extends Specification {
         def sources = new QueryOperations.QuerySources(frameworkProperties)
         sources.sourcesToQuery = []
         sources.exceptions = []
-        sources.addCatalogProvider = true
+        sources.needToAddCatalogProvider = true
 
         when:
         sources = sources.addCatalogProvider(mockForQueryOps)

@@ -49,7 +49,7 @@ import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.jvnet.jaxb2_commons.lang.StringUtils;
 
-/** @see http://stackoverflow.com/a/11967459 */
+/** @see <a href="http://stackoverflow.com/a/11967459">http://stackoverflow.com/a/11967459</a> */
 @XmlRootElement(name = "metacard", namespace = "urn:catalog:metacard")
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlType(propOrder = {"metacardType", "sourceId", "attributes"})
@@ -66,7 +66,7 @@ public class AdaptedMetacard implements Metacard {
 
   private String sourceId = null;
 
-  private Attribute id;
+  private Attribute idAttribute;
 
   // Suppressing Warnings and using ArrayList rather than List here because
   // ArrayList implements Serializable (List does not).
@@ -175,7 +175,7 @@ public class AdaptedMetacard implements Metacard {
       return null;
     }
     if (Metacard.ID.equals(name)) {
-      return this.id;
+      return this.idAttribute;
     }
     for (Attribute attribute : attributes) {
       if (attribute == null || StringUtils.isEmpty(attribute.getName())) {
@@ -197,7 +197,7 @@ public class AdaptedMetacard implements Metacard {
     if (attribute != null) {
 
       if (Metacard.ID.equals(attribute.getName())) {
-        this.id = attribute;
+        this.idAttribute = attribute;
       } else {
         Attribute currentAttribute = getAttribute(attribute.getName());
         if (currentAttribute != null) {

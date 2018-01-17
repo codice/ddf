@@ -116,9 +116,9 @@ public class SearchService {
 
     Map<String, Object> queryMessage = message.getDataAsMap();
 
-    if (queryMessage != null && queryMessage.containsKey(Search.ID)) {
+    if (queryMessage != null && queryMessage.containsKey(Search.ID_KEY)) {
       bayeux.createChannelIfAbsent(
-          "/" + queryMessage.get(Search.ID),
+          "/" + queryMessage.get(Search.ID_KEY),
           (ConfigurableServerChannel.Initializer) channel -> channel.setPersistent(true));
 
       BayeuxContext context = bayeux.getContext();

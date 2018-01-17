@@ -1891,19 +1891,19 @@ public class TestCswEndpoint {
     grr.setNamespace(
         CswConstants.XMLNS_DEFINITION_PREFIX
             + CswConstants.CSW_NAMESPACE_PREFIX
-            + CswConstants.EQUALS
+            + CswConstants.EQUALS_CHAR
             + CswConstants.CSW_OUTPUT_SCHEMA
             + CswConstants.XMLNS_DEFINITION_POSTFIX
             + CswConstants.COMMA
             + CswConstants.XMLNS_DEFINITION_PREFIX
             + CswConstants.OGC_NAMESPACE_PREFIX
-            + CswConstants.EQUALS
+            + CswConstants.EQUALS_CHAR
             + CswConstants.OGC_SCHEMA
             + CswConstants.XMLNS_DEFINITION_POSTFIX
             + CswConstants.COMMA
             + CswConstants.XMLNS_DEFINITION_PREFIX
             + CswConstants.GML_NAMESPACE_PREFIX
-            + CswConstants.EQUALS
+            + CswConstants.EQUALS_CHAR
             + CswConstants.GML_SCHEMA
             + CswConstants.XMLNS_DEFINITION_POSTFIX
             + CswConstants.COMMA);

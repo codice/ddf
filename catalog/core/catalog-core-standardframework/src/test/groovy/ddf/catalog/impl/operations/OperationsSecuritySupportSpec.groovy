@@ -19,7 +19,7 @@ import ddf.security.Subject
 import org.apache.shiro.util.ThreadContext
 import spock.lang.Specification
 
-class OperationsSecuritySupportTest extends Specification {
+class OperationsSecuritySupportSpec extends Specification {
     private OperationsSecuritySupport opsSecurity
 
     def setup() {
