@@ -32,10 +32,11 @@ define([
     'component/singletons/metacard-definitions',
     'moment',
     'component/singletons/sources-instance',
+    'component/dropdown/hover-preview/dropdown.hover-preview.view',
     'behaviors/button.behavior'
 ], function (Backbone, Marionette, _, $, template, CustomElements, IconHelper, store, Common, DropdownModel,
              MetacardInteractionsDropdownView, ResultIndicatorView, properties, router, user,
-             metacardDefinitions, moment, sources) {
+             metacardDefinitions, moment, sources, HoverPreviewDropdown) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -54,7 +55,8 @@ define([
         },
         regions: {
             resultActions: '.result-actions',
-            resultIndicator: '.container-indicator'
+            resultIndicator: '.container-indicator',
+            resultThumbnail: '.detail-thumbnail'
         },
         behaviors: {
             button: {}
@@ -110,6 +112,15 @@ define([
             this.resultIndicator.show(new ResultIndicatorView({
                 model: this.model
             }));
+            this.handleResultThumbnail();
+        },
+        handleResultThumbnail: function() {
+            if (this.model.get('metacard').get('properties').get('thumbnail')) {
+                this.resultThumbnail.show(new HoverPreviewDropdown({
+                    model: new DropdownModel(),
+                    modelForComponent: this.model
+                }));
+            }
         },
         addConfiguredResultProperties: function(result){
             result.showSource = false;

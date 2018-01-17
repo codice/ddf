@@ -24,12 +24,17 @@ var metacardDefinitions = require('component/singletons/metacard-definitions');
 var Common = require('js/Common');
 var user = require('component/singletons/user-instance');
 var properties = require('properties');
+var HoverPreviewDropdown = require('component/dropdown/hover-preview/dropdown.hover-preview.view');
+var DropdownModel = require('component/dropdown/dropdown');
 
-module.exports = Marionette.ItemView.extend({
+module.exports = Marionette.LayoutView.extend({
     className: 'is-tr',
     tagName: CustomElements.register('result-row'),
     events: {
         'click .result-download': 'triggerDownload'
+    },
+    regions: {
+        resultThumbnail: '.is-thumbnail'
     },
     attributes: function() {
         return {
@@ -55,6 +60,15 @@ module.exports = Marionette.ItemView.extend({
     onRender: function() {
         this.checkIfDownloadable();
         this.$el.attr(this.attributes());
+        this.handleResultThumbnail();
+    },
+    handleResultThumbnail: function() {
+        if (this.model.get('metacard').get('properties').get('thumbnail')) {
+            this.resultThumbnail.show(new HoverPreviewDropdown({
+                model: new DropdownModel(),
+                modelForComponent: this.model
+            }));
+        }
     },
     checkIfDownloadable: function(){
         this.$el.toggleClass('is-downloadable', this.model.get('metacard').get('properties').get('resource-download-url') !== undefined);
@@ -80,7 +94,6 @@ module.exports = Marionette.ItemView.extend({
                 if (value.constructor !== Array){
                     value = [value];
                 }
-                var html;
                 var className = 'is-text';
                 if (value && metacardDefinitions.metacardTypes[property]) {
                     switch (metacardDefinitions.metacardTypes[property].type) {
@@ -94,14 +107,11 @@ module.exports = Marionette.ItemView.extend({
                     }
                 }
                 if (property === 'thumbnail') {
-                    var escapedValue = Common.escapeHTML(value);
-                    html = '<img src="' +  Common.getImageSrc(escapedValue) + '"><button class="is-primary result-download"><span class="fa fa-download"></span></button>';
                     className = "is-thumbnail";
                 }
                 return {
                     property: property,
                     value: value,
-                    html: html,
                     class: className,
                     hidden: hiddenColumns.indexOf(property) >= 0 || properties.isHidden(property) || metacardDefinitions.isHiddenTypeExceptThumbnail(property)
                 };

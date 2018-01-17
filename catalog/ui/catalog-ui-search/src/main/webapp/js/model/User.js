@@ -146,7 +146,8 @@ define([
                 goldenLayoutMetacard: undefined,
                 goldenLayoutAlert: undefined,
                 theme: new Theme(),
-                animation: true
+                animation: true,
+                hoverPreview: true
             };
         },
         relations: [
@@ -254,6 +255,9 @@ define([
         getSummaryShown: function(){
             return this.get('inspector-summaryShown');
         },
+        getHoverPreview: function() {
+            return this.get('hoverPreview');
+        },
         parse: function(data, options){
             if (options && options.drop) {
                 return {};
@@ -284,6 +288,9 @@ define([
         },
         getSummaryShown: function(){
             return this.get('preferences').getSummaryShown();
+        },
+        getHoverPreview: function() {
+            return this.get('preferences').getHoverPreview();
         }
     });
 
@@ -320,6 +327,9 @@ define([
         },
         getUserReadableDate: function(date){
             return moment(date).format(this.get('user').get('preferences').get('timeFormat'));
+        },
+        getHoverPreview: function() {
+            return this.get('user').getHoverPreview();
         },
         parse: function (body) {
             if (body.isGuest) {
