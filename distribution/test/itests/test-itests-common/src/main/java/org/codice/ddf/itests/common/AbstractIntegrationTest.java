@@ -69,13 +69,13 @@ import org.apache.commons.lang.text.StrSubstitutor;
 import org.apache.karaf.features.BootFinished;
 import org.apache.karaf.features.FeaturesService;
 import org.apache.karaf.shell.api.console.SessionFactory;
-import org.codice.ddf.itests.common.annotations.PaxExamRule;
-import org.codice.ddf.itests.common.annotations.PostTestConstruct;
 import org.codice.ddf.itests.common.annotations.SkipUnstableTest;
 import org.codice.ddf.itests.common.config.UrlResourceReaderConfigurator;
 import org.codice.ddf.itests.common.csw.CswQueryBuilder;
 import org.codice.ddf.itests.common.security.SecurityPolicyConfigurator;
-import org.codice.ddf.itests.common.utils.LoggingUtils;
+import org.codice.ddf.test.common.LoggingUtils;
+import org.codice.ddf.test.common.annotations.PaxExamRule;
+import org.codice.ddf.test.common.annotations.PostTestConstruct;
 import org.junit.Rule;
 import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
@@ -118,6 +118,7 @@ public abstract class AbstractIntegrationTest {
 
   protected static final String SYSTEM_ADMIN_USER = "system-admin-user";
 
+  @SuppressWarnings("squid:S2068") // Password ok, test class
   protected static final String SYSTEM_ADMIN_USER_PASSWORD = "password";
 
   public static final String RESOURCE_VARIABLE_DELIMETER = "$";
@@ -127,7 +128,6 @@ public abstract class AbstractIntegrationTest {
   private static final String CLEAR_CACHE = "catalog:removeall -f -p --cache";
 
   private static final File UNPACK_DIRECTORY = new File("target/exam");
-
   protected static ServerSocket placeHolderSocket;
 
   protected static Integer basePort;
@@ -449,16 +449,13 @@ public abstract class AbstractIntegrationTest {
 
   protected Option[] configureConfigurationPorts() throws URISyntaxException, IOException {
     return options(
-        editConfigurationFilePut("etc/system.properties", "urlScheme", "https"),
-        editConfigurationFilePut("etc/system.properties", "host", "localhost"),
-        editConfigurationFilePut("etc/system.properties", "jetty.port", HTTPS_PORT.getPort()),
-        editConfigurationFilePut("etc/system.properties", "hostContext", "/solr"),
-        editConfigurationFilePut("etc/system.properties", "maven.home", "${user.home}"),
-        editConfigurationFilePut("etc/system.properties", "M2_HOME", "${user.home}"),
         editConfigurationFilePut(
             "etc/users.properties",
             SYSTEM_ADMIN_USER,
             SYSTEM_ADMIN_USER_PASSWORD + ",system-admin"),
+        editConfigurationFilePut("etc/system.properties", "ddf.home", "${karaf.home}"),
+        editConfigurationFilePut("etc/system.properties", "maven.home", "${user.home}"),
+        editConfigurationFilePut("etc/system.properties", "M2_HOME", "${user.home}"),
         editConfigurationFilePut(
             "etc/system.properties", HTTP_PORT.getSystemProperty(), HTTP_PORT.getPort()),
         editConfigurationFilePut(
@@ -475,8 +472,6 @@ public abstract class AbstractIntegrationTest {
         editConfigurationFilePut(
             "etc/system.properties", "eclipse.enableStateSaver", Boolean.FALSE.toString()),
         editConfigurationFilePut("etc/org.apache.karaf.shell.cfg", "sshPort", SSH_PORT.getPort()),
-        editConfigurationFilePut("etc/ddf.platform.config.cfg", "port", HTTPS_PORT.getPort()),
-        editConfigurationFilePut("etc/ddf.platform.config.cfg", "host", "localhost"),
         editConfigurationFilePut(
             "etc/org.ops4j.pax.web.cfg", "org.osgi.service.http.port", HTTP_PORT.getPort()),
         editConfigurationFilePut(
@@ -532,6 +527,10 @@ public abstract class AbstractIntegrationTest {
             .useOptions(
                 systemProperty("org.ops4j.pax.url.mvn.localRepository")
                     .value(System.getProperty("maven.repo.local", ""))),
+        editConfigurationFilePut(
+            "etc/system.properties",
+            "org.codice.ddf.system.version",
+            MavenUtils.getArtifactVersion("ddf.test.itests", "test-itests-common")),
         editConfigurationFilePut(
             "etc/system.properties",
             "ddf.version",
@@ -665,7 +664,6 @@ public abstract class AbstractIntegrationTest {
       return installStartupFile(is, destination);
     }
   }
-
   /**
    * Copies the content of a JAR resource to the destination specified before the container starts
    * up. Useful to add test configuration files before tests are run.

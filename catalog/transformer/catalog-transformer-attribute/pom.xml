@@ -43,8 +43,14 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Embed-Dependency>
-                            catalog-core-api-impl,platform-util
+                            catalog-core-api-impl,
+                            platform-util
                         </Embed-Dependency>
+                        <Import-Package>
+                            !org.bouncycastle.*,
+                            !org.codice.ddf.configuration,
+                            *
+                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>

@@ -459,7 +459,6 @@ public class TestRestEndpoint {
     assertThat(createInfo.getMetacard().getMetadata(), equalTo("Some Text Again"));
     assertThat(createInfo.getMetacard().getAttribute("foo"), equalTo(null));
   }
-
   /**
    * Tests local retrieve with a null QueryResponse
    *
