@@ -7,6 +7,12 @@ var HtmlWebpackPlugin = require('html-webpack-plugin');
 var LessPluginCleanCSS = require('less-plugin-clean-css');
 var childProcess = require('child_process');
 
+var node_resolve = function (place) {
+  const pkg = place.split('/')[0];
+  const dirname = path.dirname(require.resolve(pkg + '/package.json'));
+  return path.resolve(dirname, '../', place);
+};
+
 var resolve = function (place) {
   return path.resolve(__dirname, '../../', place)
 };
@@ -78,7 +84,7 @@ module.exports = {
         }),
         new CopyWebpackPlugin([
             {
-                from: resolve('node_modules/cesium/Build/Cesium'),
+                from: node_resolve('cesium/Build/Cesium'),
                 to: resolve('target/webapp/cesium'),
                 force: true
             },
@@ -88,12 +94,12 @@ module.exports = {
                 force: true
             },
             {
-                from: resolve('node_modules/bootstrap/fonts'),
+                from: node_resolve('bootstrap/fonts'),
                 to: resolve('target/webapp/fonts'),
                 force: true
             },
             {
-                from: resolve('node_modules/font-awesome/fonts'),
+                from: node_resolve('font-awesome/fonts'),
                 to: resolve('target/webapp/fonts'),
                 force: true
             },
