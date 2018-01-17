@@ -27,11 +27,8 @@ public interface DownloadManagerServiceMBean {
    * Function to get information about every download.
    *
    * @return Returns the information in an array of maps, where each map holds information about a
-   *     specific download; attributes are: "percent" (percent completed) "downloadId" (randomly
-   *     generated downloadId assigned to each download at its beginning) "status" (status of
-   *     download, e.g. "COMPLETED", "IN_PROGRESS" etc) "bytesDownloaded" (count of bytes that have
-   *     been downloaded to cache) "fileName" (name of the file being downloaded) "user" (identifer
-   *     of the user performing the download)
+   *     specific download.
+   * @see ddf.catalog.resource.download.ReliableResourceStatus.DownloadStatus
    */
   List<Map<String, String>> getAllDownloadsStatus();
 
@@ -40,15 +37,15 @@ public interface DownloadManagerServiceMBean {
    *
    * @param downloadIdentifier The randomly generated downloadId string assigned to the download at
    *     its start.
-   * @return Returns a map of attributes describing the download; see {@link
-   *     this.getAllDownloadsStatus} for details.
+   * @return Returns a map of attributes describing the download.
+   * @see ddf.catalog.resource.download.ReliableResourceStatus.DownloadStatus
    */
   Map<String, String> getDownloadStatus(String downloadIdentifier);
 
   /**
    * Function to get all downloads.
    *
-   * @return Returns an array of downloadIdentifier Strings
+   * @return Returns an array of downloadIdentifier Strings.
    */
   List<String> getAllDownloads();
 
@@ -57,14 +54,16 @@ public interface DownloadManagerServiceMBean {
    *
    * @param userId The id of the user.
    * @return Returns an array of downloadIdentifier Strings, similar to {@link
-   *     this.getAllDownloads}.
+   *     DownloadManagerServiceMBean#getAllDownloads()}.
    */
   List<String> getAllDownloads(String userId);
 
   /**
-   * Function to remove the map entry corresponding to the downloadIdentifer passed it. This means
-   * it will no longer be returned by {@link this.getAllDownloadsStatus}, {@link
-   * this.getDownloadStatus}, or {@link this.getAllDownloads}.
+   * Function to remove the map entry corresponding to the downloadIdentifier passed it. This means
+   * it will no longer be returned by {@link DownloadManagerServiceMBean#getAllDownloadsStatus()},
+   * {@link DownloadManagerServiceMBean#getAllDownloadsStatus()}, {{@link
+   * DownloadManagerServiceMBean#getAllDownloads()}, or {@link
+   * DownloadManagerServiceMBean#getAllDownloads(String)}.
    *
    * @param downloadIdentifier The randomly generated downloadId string assigned to the download at
    *     its start.

@@ -29,12 +29,13 @@ public interface DownloadStatusInfo {
 
   /**
    * Adds a {@link ddf.catalog.resource.download.ReliableResourceDownloadManager} to the Map, which
-   * is used by {@link this.getDownloadStatus}. Currently this is called in {@link
+   * is used by {@link DownloadStatusInfo#getAllDownloads()}. Currently this is called in {@link
    * ddf.catalog.resource.download.ReliableResourceDownloadManager}
    *
    * @param downloadIdentifier Randomly generated String assigned to download at its start.
-   * @param downloadManager The Object that handles the download; {@link this} uses it to gather
-   *     information about the download.
+   * @param downloader The Object that handles the download; used to gather information about the
+   *     download.
+   * @param resourceResponse
    */
   void addDownloadInfo(
       String downloadIdentifier,
@@ -62,15 +63,16 @@ public interface DownloadStatusInfo {
    *
    * @param downloadIdentifier The randomly generated downloadId string assigned to the download at
    *     its start.
-   * @return Returns a map of attributes describing the download; see {@link
-   *     this.getAllDownloadsStatus} for details.
+   * @return Returns a map of attributes describing the download.
+   * @see ddf.catalog.resource.download.DownloadStatus
    */
   Map<String, String> getDownloadStatus(String downloadIdentifier);
 
   /**
    * Function to remove the map entry corresponding to the downloadIdentifer passed it. This means
-   * it will no longer be returned by {@link this.getAllDownloadsStatus}, {@link
-   * this.getDownloadStatus}, or {@link this.getAllDownloads}.
+   * it will no longer be returned by {@link DownloadStatusInfo#getAllDownloads()}, {@link
+   * DownloadStatusInfo#getAllDownloads(String)}, or {@link
+   * DownloadStatusInfo#getDownloadStatus(String)}.
    *
    * @param downloadIdentifier The randomly generated downloadId string assigned to the download at
    *     its start.

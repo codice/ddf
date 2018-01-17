@@ -42,6 +42,7 @@ import ddf.catalog.resource.Resource;
 import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.data.ReliableResource;
+import ddf.catalog.resource.download.ReliableResourceStatus.DownloadStatus;
 import ddf.catalog.resourceretriever.ResourceRetriever;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
