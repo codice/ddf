@@ -71,7 +71,6 @@ where:
 ** `DNS` - hostname
 ** `IP` - ip address (V4 or V6)
 ** `dirName` - directory name
-
 ****
 
 The `CertNew` scripts:
@@ -83,29 +82,34 @@ The `CertNew` scripts:
 
 To install a certificate signed by a different Certificate Authority, see <<_managing_keystores,Managing Keystores>>.
 
-Once the certificate has been updated the system user and `org.codice.ddf.system.hostname` property will also need to be updated to match the FQDN. Replace localhost with the FQDN in `${home_directory}/etc/users.properties`, `${home_directory}/etc/users.attributes` and `${home_directory}/etc/system.properties`.
-
-Finally, restart the ${branding} instance.
-Browse the ${admin-console} to test changes.
+After this proceed to <<_updating_settings_after_changing_certificates,Updating Settings After Changing Certificates>>.
 
 [WARNING]
 ====
 If the server's fully qualified domain name is not recognized, the name may need to be added to the network's DNS server.
 ====
 
-[TIP]
-====
-The ${branding} instance can be tested even if there is no entry for the FQDN in the DNS.
-First, test if the FQDN is already recognized.
-Execute this command:
+===== Dealing with Lack of DNS
 
-`ping <FQDN>`
+In some cases DNS may not be available and the system will need to be configured to work with IP addresses.
 
-If the command responds with an error message such as unknown host, then modify the system's `hosts` file to point the server's FQDN to the loopback address.
-For example:
+Options can be given to the CertNew Scripts to generate certs that will work in this scenario.
 
-`127.0.0.1 <FQDN>`
-====
+.*NIX
+****
+From ${home_directory}/etc/certs/ run:
+
+`sh CertNew.sh -cn <IP> -san "IP:<IP>"`
+****
+
+.Windows
+****
+From ${home_directory}/etc/certs/ run:
+
+`CertNew -cn <IP> -san "IP:<IP>"`
+****
+
+After this proceed to <<_updating_settings_after_changing_certificates,Updating Settings After Changing Certificates>>, and be sure to use the IP address instead of the FQDN.
 
 ==== Creating Self-Signed Certificates
 
@@ -142,3 +146,19 @@ The following steps demonstrate signing a certificate for the `tokenissuer` user
 `$> openssl ca -out tokenissuer.crt -infiles tokenissuer.req`
 
 These certificates will be used during system configuration to replace the default certificates.
+
+==== Updating Settings After Changing Certificates
+
+After changing the certificates it will be necessary to update the system user and the `org.codice.ddf.system.hostname` property with the value of either the FQDN or the IP.
+
+FQDNs should be used wherever possible. In the absence of DNS, however, IP addresses can be used.
+
+Replace `localhost` with the FQDN or the IP in `${home_directory}/etc/users.properties`, `${home_directory}/etc/users.attributes`, and `${home_directory}/etc/system.properties`.
+
+[TIP]
+====
+On linux this can be accomplished with a single command:
+`sed -i 's/localhost/<FQDN|IP>/g' ${home_directory}/etc/users.* ${home_directory}/etc/system.properties`
+====
+
+Finally, restart the ${branding} instance. Navigate to the ${admin-console} to test changes.
