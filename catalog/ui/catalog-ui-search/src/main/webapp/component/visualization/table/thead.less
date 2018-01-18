@@ -6,7 +6,7 @@
      padding: 10px 20px;
      position: relative;
      background: inherit;
-     max-width: 200px;
+     width: 230px;
     }
 
     th.is-sortable {
@@ -42,6 +42,20 @@
       .fa-sort-desc {
         opacity: 1;
       }
+    }
+
+    .ui-resizable {
+       text-align: right;
+    }
+
+    .ui-resizable-handle.ui-resizable-e {
+      position: absolute;
+      top: 0px;
+      right: 0px;
+      display: inline-block;
+      height: @minimumButtonSize;
+      width: @minimumButtonSize;
+      cursor: ew-resize;
     }
 
     position: relative;

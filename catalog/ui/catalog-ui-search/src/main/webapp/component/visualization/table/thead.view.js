@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require*/
+/*global require, setTimeout*/
 var wreqr = require('wreqr');
 var _ = require('underscore');
 var $ = require('jquery');
@@ -23,13 +23,20 @@ var Common = require('js/Common');
 var user = require('component/singletons/user-instance');
 var properties = require('properties');
 var metacardDefinitions = require('component/singletons/metacard-definitions');
+var jqueryui = require('jquery-ui');
+require('jquery-ui/ui/widgets/resizable');
+var isResizing = false;
 
 module.exports = Marionette.ItemView.extend({
     template: template,
     className: 'is-thead',
     tagName: CustomElements.register('result-thead'),
     events: {
-        'click th.is-sortable': 'updateSorting'
+        'click th.is-sortable': 'checkIfResizing',
+        'resize th': 'updateColumnWidth',
+        'resizestart th': 'startResize',
+        'resizestop th': 'stopResize'
+
     },
     initialize: function(options) {
         if (!options.selectionInterface) {
@@ -42,18 +49,21 @@ module.exports = Marionette.ItemView.extend({
     },
     onRender: function() {
         this.handleSorting();
+        this.$el.find('.resizer').resizable({
+          handles: "e"
+        });
     },
     updateSorting: function(e) {
-        var attribute = e.currentTarget.getAttribute('data-propertyid');
-        var $currentTarget = $(e.currentTarget);
-        var direction = $currentTarget.hasClass('is-sorted-asc') ? 'descending' : 'ascending';
-        var sort = [{
-            attribute: attribute,
-            direction: direction
-        }];
-        var prefs = user.get('user').get('preferences');
-        prefs.set('resultSort', sort);
-        prefs.savePreferences();
+          var attribute = e.currentTarget.getAttribute('data-propertyid');
+          var $currentTarget = $(e.currentTarget);
+          var direction = $currentTarget.hasClass('is-sorted-asc') ? 'descending' : 'ascending';
+          var sort = [{
+              attribute: attribute,
+              direction: direction
+          }];
+          var prefs = user.get('user').get('preferences');
+          prefs.set('resultSort', sort);
+          prefs.savePreferences();
     },
     handleSorting: function() {
         var resultSort = user.get('user').get('preferences').get('resultSort');
@@ -101,5 +111,22 @@ module.exports = Marionette.ItemView.extend({
                 sortable: sortAttributes.indexOf(property) >= 0
             };
         });
+    },
+    updateColumnWidth: function(e) {
+        $(e.currentTarget).css('width', $(e.target).width());
+    },
+    startResize: function(e) {
+        isResizing = true;
+    },
+    stopResize: function(e) {
+        setTimeout(function() {
+          isResizing = false;
+        }, 500);
+    },
+    checkIfResizing: function(e) {
+        if(!isResizing) {
+          this.updateSorting(e);
+        }
     }
+
 });
