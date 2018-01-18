@@ -14,9 +14,11 @@
 package org.codice.ddf.spatial.geocoding.query;
 
 import static ddf.catalog.Constants.SUGGESTION_CONTEXT_KEY;
+import static ddf.catalog.Constants.SUGGESTION_DICT_KEY;
 import static ddf.catalog.Constants.SUGGESTION_QUERY_KEY;
 import static ddf.catalog.Constants.SUGGESTION_RESULT_KEY;
 import static org.codice.ddf.spatial.geocoding.GeoCodingConstants.GAZETTEER_METACARD_TAG;
+import static org.codice.ddf.spatial.geocoding.GeoCodingConstants.SUGGEST_PLACE_KEY;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -152,6 +154,7 @@ public class GazetteerQueryCatalog implements GeoEntryQueryable {
     Map<String, Serializable> suggestProps = new HashMap<>();
     suggestProps.put(SUGGESTION_QUERY_KEY, queryString);
     suggestProps.put(SUGGESTION_CONTEXT_KEY, GAZETTEER_METACARD_TAG);
+    suggestProps.put(SUGGESTION_DICT_KEY, SUGGEST_PLACE_KEY);
 
     Query suggestionQuery = new QueryImpl(filterBuilder.attribute(Core.TITLE).text(queryString));
 

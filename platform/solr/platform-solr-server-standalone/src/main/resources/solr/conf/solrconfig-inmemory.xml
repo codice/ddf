@@ -1168,10 +1168,9 @@
         <lst name="defaults">
             <str name="suggest">true</str>
             <str name="suggest.count">50</str>
-            <str name="suggest.dictionary">suggestPlace</str>
         </lst>
         <arr name="components">
-            <str>suggestPlace</str>
+            <str>suggest</str>
         </arr>
     </requestHandler>
 

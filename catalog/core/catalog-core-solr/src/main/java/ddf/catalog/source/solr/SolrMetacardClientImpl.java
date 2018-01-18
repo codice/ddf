@@ -16,10 +16,12 @@ package ddf.catalog.source.solr;
 import static ddf.catalog.Constants.EXPERIMENTAL_FACET_PROPERTIES_KEY;
 import static ddf.catalog.Constants.EXPERIMENTAL_FACET_RESULTS_KEY;
 import static ddf.catalog.Constants.SUGGESTION_CONTEXT_KEY;
+import static ddf.catalog.Constants.SUGGESTION_DICT_KEY;
 import static ddf.catalog.Constants.SUGGESTION_QUERY_KEY;
 import static ddf.catalog.Constants.SUGGESTION_RESULT_KEY;
 import static ddf.catalog.source.solr.DynamicSchemaResolver.FIRST_CHAR_OF_SUFFIX;
 import static org.apache.solr.spelling.suggest.SuggesterParams.SUGGEST_CONTEXT_FILTER_QUERY;
+import static org.apache.solr.spelling.suggest.SuggesterParams.SUGGEST_DICT;
 import static org.apache.solr.spelling.suggest.SuggesterParams.SUGGEST_Q;
 
 import com.google.common.collect.Sets;
@@ -166,12 +168,14 @@ public class SolrMetacardClientImpl implements SolrMetacardClient {
 
     Serializable suggestQueryProp = request.getPropertyValue(SUGGESTION_QUERY_KEY);
     Serializable suggestContextProp = request.getPropertyValue(SUGGESTION_CONTEXT_KEY);
+    Serializable suggestDictProp = request.getPropertyValue(SUGGESTION_DICT_KEY);
 
     if (suggestQueryProp instanceof String && suggestContextProp instanceof String) {
       query = new SolrQuery();
       query.setRequestHandler("/suggest");
       query.setParam(SUGGEST_Q, (String) suggestQueryProp);
       query.setParam(SUGGEST_CONTEXT_FILTER_QUERY, (String) suggestContextProp);
+      query.setParam(SUGGEST_DICT, (String) suggestDictProp);
     }
 
     long totalHits = 0;

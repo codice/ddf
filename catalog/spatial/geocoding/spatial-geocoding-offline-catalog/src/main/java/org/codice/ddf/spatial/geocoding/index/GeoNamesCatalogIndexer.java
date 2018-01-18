@@ -72,6 +72,8 @@ public class GeoNamesCatalogIndexer implements GeoEntryIndexer {
 
   private static final int BATCH_SIZE = 250;
 
+  private static final String TITLE_FORMAT = "%s, %s(%s)";
+
   private static final ThreadLocal<WKTWriter> WKT_WRITER_THREAD_LOCAL =
       ThreadLocal.withInitial(WKTWriter::new);
 
@@ -121,12 +123,8 @@ public class GeoNamesCatalogIndexer implements GeoEntryIndexer {
     metacard.setAttribute(
         new AttributeImpl(
             Core.TITLE,
-            geoEntry.getName()
-                + ", "
-                + geoEntry.getCountryCode()
-                + "("
-                + id.substring(0, 4)
-                + ")"));
+            String.format(
+                TITLE_FORMAT, geoEntry.getName(), geoEntry.getCountryCode(), id.substring(0, 4))));
     metacard.setAttribute(new AttributeImpl(Core.DESCRIPTION, geoEntry.getAlternateNames()));
     metacard.setAttribute(new AttributeImpl(Location.COUNTRY_CODE, geoEntry.getCountryCode()));
     metacard.setAttribute(new AttributeImpl(Core.ID, id));

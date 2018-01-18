@@ -147,5 +147,7 @@ public final class Constants {
 
   public static final String SUGGESTION_CONTEXT_KEY = "suggestion-context";
 
+  public static final String SUGGESTION_DICT_KEY = "suggestion-dictionary";
+
   public static final String SUGGESTION_RESULT_KEY = "suggestion-result";
 }
