@@ -64,13 +64,24 @@ require([
     };
 
     let getErrorResponse = function (event, jqxhr, settings, throwError) {
-        switch (jqxhr.status) {
-            case 403:
-                return {title: 'Forbidden', message: 'Not Authorized'};
-            case 405:
-                return {title: 'Error', message: 'Method not allowed. Please try refreshing your browser'};
-            default:
-                return {title: 'Error', message: 'Unknown Error' + getShortErrorMessage(throwError)};
+        if (jqxhr.getResponseHeader('content-type') === 'application/json' && jqxhr.responseText.startsWith('<') &&
+            jqxhr.responseText.indexOf('ACSURL') > -1 && jqxhr.responseText.indexOf('SAMLRequest') > -1) {
+            return {title: 'Logged out', message: 'Please refresh page to log in'};
+        } else if (settings.url.indexOf('/services/catalog/sources') > -1 && settings.type === "GET") {
+            return {title: 'Error Polling Sources', message: 'Unable to query server for list of active sources'};
+        } else if (settings.url.indexOf('/search/catalog/internal/workspaces') > -1 && settings.type === "PUT") {
+            return {title: 'Error Saving Workspace', message: 'Unable to save workspace on server'};
+        } else if (jqxhr.responseJSON !== undefined) {
+            return {title: 'Error', message: jqxhr.responseJSON.message};
+        } else {
+            switch (jqxhr.status) {
+                case 403:
+                    return {title: 'Forbidden', message: 'Not Authorized'};
+                case 405:
+                    return {title: 'Error', message: 'Method not allowed. Please try refreshing your browser'};
+                default:
+                    return {title: 'Error', message: 'Unknown Error' + getShortErrorMessage(throwError)};
+            }
         }
     };
 
@@ -80,16 +91,8 @@ require([
             return;
         }
 
-        var response = getErrorResponse(event, jqxhr, settings, throwError);
-        var message;
-
         console.error(event, jqxhr, settings, throwError);
-        if (jqxhr.getResponseHeader('content-type') === 'application/json' && jqxhr.responseText.startsWith('<') &&
-            jqxhr.responseText.indexOf('ACSURL') > -1 && jqxhr.responseText.indexOf('SAMLRequest') > -1) {
-            response = {title: 'Logged out', message: 'Please refresh page to log in'}
-        } else if (jqxhr.responseJSON !== undefined) {
-            message = jqxhr.responseJSON.message;
-        }
+        var response = getErrorResponse(event, jqxhr, settings, throwError);
 
         if (properties.disableUnknownErrorBox && response.message.substring(0,13) === "Unknown Error") {
             return;
@@ -97,7 +100,7 @@ require([
 
         announcement.announce({
             title: response.title,
-            message: message || response.message,
+            message: response.message,
             type: 'error'
         });
 
