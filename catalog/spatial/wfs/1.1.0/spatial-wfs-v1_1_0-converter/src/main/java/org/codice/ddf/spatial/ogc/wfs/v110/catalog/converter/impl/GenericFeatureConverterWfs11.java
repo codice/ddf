@@ -46,6 +46,11 @@ public class GenericFeatureConverterWfs11 extends AbstractFeatureConverterWfs11 
     super(metacardMapper);
   }
 
+  public GenericFeatureConverterWfs11(MetacardMapper metacardMapper, String srs) {
+    super(metacardMapper);
+    setSrs(srs);
+  }
+
   /**
    * Method to determine if this converter knows how to convert the specified Class.
    *

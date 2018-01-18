@@ -61,33 +61,36 @@ A feature is relatively equivalent to a metacard. The `MetacardMapper` was added
 
 .Using the WFS `MetacardMapper`
 Use the WFS `MetacardMapper` to configure which feature properties map to which metacard attributes when querying a WFS version 2.0.0 compliant service.
-When feature collection responses are returned from WFS sources, a default mapping occurs which places the feature properties into metacard attributes, which are then presented to the user via ${branding}.
-There can be situations where this automatic mapping is not optimal for your solution.
-Custom mappings of feature property responses to metacard attributes can be achieved through the `MetacardMapper`.
-The `MetacardMapper` is set by creating a feature file configuration which specifies the appropriate mapping. The mappings are specific to a given feature type.
+When feature collection responses are returned from WFS sources, the metacard mapper places the feature properties into metacard attributes, which are then presented to the user via ${branding}.
+Rules for determining the values of each attribute are defined along with each mapping.
+The mapper will omit attributes or features that don't have a mapping defined.
 
 .Installing the WFS `MetacardMapper`
-The WFS `MetacardMapper` is is not installed by default with a standard application in the ${ddf-spatial} application.
+The WFS `MetacardMapper` is not installed by default with a standard application in the ${ddf-spatial} application.
 
 .Configuring the WFS `MetacardMapper`
-There are two ways to configure the `MetcardMapper`, one is to use the Configuration Admin available via the ${admin-console}.
-Additionally, a `feature.xml` file can be created and copied into the "deploy" directory.
+The `MetacardMapper` is configurable through the ${admin-console}. Mappings are added using a JSON formatted string.
 
 .Example WFS MetacardMapper Configuration
 The following shows how to configure the `MetacardMapper` to be used with the sample data provided with GeoServer.
 This configuration shows a custom mapping for the feature type ‘states’.
-For the given type, we are taking the feature property ‘states.STATE_NAME’ and mapping it to the metacard attribute ‘title’.
+For the given type, we are taking the feature property ‘STATE_NAME’ and mapping it to the metacard attribute ‘title’.
 In this particular case, since we mapped the state name to title in the metacard, it will now be fully searchable.
-More mappings can be added to the `featurePropToMetacardAttrMap` line through the use of comma as a delimiter.
+The 'template' field value is a Handlebars template that is used to determine the value for the metacard attribute. So
+the value of a given attribute is the result of applying the template to the feature values in the WFS response. The
+template may contain references to any mapped feature.
 
-.Example `MetacardMapper` Configuration Within a `feature.xml` file:
-[source,xml,linenums]
+.Example `MetacardMapper` Attribute Mapping:
+[source,json,linenums]
 ----
-<feature name="geoserver-states" version="${project.version}"
-    description="WFS Feature to Metacard mappings for GeoServer Example {http://www.openplans.org/topp}states">
-    <config name="org.codice.${ddf-branding-lowercase}.spatial.ogc.wfs.catalog.mapper.MetacardMapper-geoserver.http://www.openplans.org/topp.states">
-        featureType = {http://www.openplans.org/topp}states
-        featurePropToMetacardAttrMap = states.STATE_NAME=title
-    </config>
-</feature>
+{"attributeName": "title",
+ "featureName": "STATE_NAME",
+ "template": "{{STATE_NAME}}"}
+
+{"attributeName": "modified",
+ "featureName": "updated",
+ "template": "{{dateFormat updated format=\"yyyy-MM-dd\"}}"}
 ----
+
+
+

@@ -21,35 +21,6 @@
 
 		<AD name="Feature Type" id="featureType" required="true" type="String"
             description="Feature Type. Format is {URI}local-name"/>
-
-		<AD name="Metacard Title to WFS Feature Property Mapping" id="titleMapping"
-            required="false" type="String"
-            description="Metacard Title to WFS Feature Property Mapping"/>
-
-        <AD name="Metacard Created Date to WFS Feature Property Mapping" id="createdDateMapping"
-            required="false" type="String"
-            description="Metacard Created Date to WFS Feature Property Mapping"/>
-			
-        <AD name="Metacard Modified Date to WFS Feature Property Mapping" id="modifiedDateMapping"
-            required="false" type="String"
-            description="Metacard Modified Date to WFS Feature Property Mapping"/>
-			
-        <AD name="Metacard Effective Date to WFS Feature Property Mapping" id="effectiveDateMapping"
-            required="false" type="String"
-            description="Metacard Effective Date to WFS Feature Property Mapping"/>
-			
-        <AD name="Metacard Expiration Date to WFS Feature Property Mapping"
-            id="expirationDateMapping"
-            required="false" type="String"
-            description="Metacard Expiration Date to WFS Feature Property Mapping"/>
-			
-        <AD name="Metacard Resource URI to WFS Feature Property Mapping" id="resourceUriMapping"
-            required="false" type="String"
-            description="Metacard Resource URI to WFS Feature Property Mapping"/>
-			
-        <AD name="Metacard Resource Size to WFS Feature Property Mapping" id="resourceSizeMapping"
-            required="false" type="String"
-            description="Metacard Resource Size to WFS Feature Property Mapping"/>
          
         <AD description="The Units of the Feature Property that corresponds to the Metacard Resource Size"
             name="The Units of the Feature Property that corresponds to the Metacard Resource Size"
@@ -62,14 +33,6 @@
             <Option label="TB" value="TB"/>
             <Option label="PB" value="PB"/>
          </AD>
-						
-         <AD name="Metacard Thumbnail to WFS Feature Property Mapping" id="thumbnailMapping"
-             required="false" type="String"
-             description="Metacard Thumbnail to WFS Feature Property Mapping"/>
-			
-         <AD name="Metacard Geography to WFS Feature Property Mapping" id="geographyMapping"
-             required="false" type="String"
-             description="Metacard Geography to WFS Feature Property Mapping"/>
 
 	     <AD name="Temporal Sort By Feature Property" id="sortByTemporalFeatureProperty"
              required="false" type="String"
@@ -82,6 +45,14 @@
 	     <AD name="Distance Sort By Feature Property" id="sortByDistanceFeatureProperty"
              required="false" type="String"
              description="When Sorting By Distance, Sort By This Feature Property."/>
+
+		 <AD id="attributeMappings"
+			 name="Attribute Mappings"
+			 description='List of attribute mappings using a handlebars template. Example: {"attributeName": "the-attribute", "featureName": "TheId", "template": "{{myFeature.theid}}"}'
+			 type="String"
+			 default=''
+			 required="false"
+		     cardinality="1000"/>
 
 	</OCD>
 
