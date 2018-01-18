@@ -43,11 +43,13 @@ public final class GeoCodingConstants {
 
   public static final String CAPITAL = "C";
 
-  public static final String DEFAULT_TAG = "gazetteer";
-
   public static final String COUNTRY_TAG = "country-shape";
 
   public static final String GEONAMES_TAG = "geonames";
+
+  public static final String GAZETTEER_METACARD_TAG = "gazetteer";
+
+  public static final String SUGGEST_PLACE_KEY = "suggestPlace";
 
   // The GeoNames feature codes for cities, excluding cities that no longer exist or that have
   // been destroyed.

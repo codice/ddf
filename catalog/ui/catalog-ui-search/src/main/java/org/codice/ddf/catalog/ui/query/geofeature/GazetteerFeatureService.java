@@ -13,8 +13,6 @@
  */
 package org.codice.ddf.catalog.ui.query.geofeature;
 
-import static java.util.stream.Collectors.toList;
-
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygon;
@@ -62,15 +60,11 @@ public class GazetteerFeatureService implements FeatureService {
   @Override
   public List<String> getSuggestedFeatureNames(String query, int maxResults) {
     try {
-      return geoEntryQueryable
-          .query(query, maxResults)
-          .stream()
-          .map(GeoEntry::getName)
-          .collect(toList());
+      return geoEntryQueryable.getSuggestedNames(query, maxResults);
     } catch (GeoEntryQueryException e) {
-      LOGGER.debug("Error while making feature service request.", e);
-      return Collections.emptyList();
+      LOGGER.debug("Suggestion query failed", e);
     }
+    return Collections.emptyList();
   }
 
   @Override

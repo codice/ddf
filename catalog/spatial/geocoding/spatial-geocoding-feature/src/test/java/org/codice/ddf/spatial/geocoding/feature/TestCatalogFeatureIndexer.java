@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.spatial.geocoding.feature;
 
+import static org.codice.ddf.spatial.geocoding.GeoCodingConstants.GAZETTEER_METACARD_TAG;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -193,8 +194,7 @@ public class TestCatalogFeatureIndexer {
 
   private Metacard getExampleMetacard() {
     Metacard metacard = new MetacardImpl();
-    List<Serializable> tags =
-        Arrays.asList(GeoCodingConstants.DEFAULT_TAG, GeoCodingConstants.COUNTRY_TAG);
+    List<Serializable> tags = Arrays.asList(GAZETTEER_METACARD_TAG, GeoCodingConstants.COUNTRY_TAG);
     metacard.setAttribute(new AttributeImpl(Core.METACARD_TAGS, tags));
     WKTWriter writer = new WKTWriter();
     String wkt = writer.write((Geometry) getExampleFeature().getDefaultGeometry());

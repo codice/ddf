@@ -33,8 +33,8 @@ module.exports = InputView.extend({
             cache: false,
             minimumInputLength: 3,
             getUrlParams(query) { return { q: query }; },
-            getLabelForResult(item) { return item.name || item; },
-            getLabelForSelection(item) { return item.name || item; },
+            getLabelForResult(item) { return item.name.replace(/\(.+\)/, "") || item; },
+            getLabelForSelection(item) { return item.name.replace(/\(.+\)/, "") || item; },
             processResults(data) {
                 var items = data.items;
                 if (!Array.isArray(items)) { items = data; }

@@ -13,6 +13,13 @@
  */
 package org.codice.ddf.spatial.geocoding.query;
 
+import static ddf.catalog.Constants.SUGGESTION_CONTEXT_KEY;
+import static ddf.catalog.Constants.SUGGESTION_DICT_KEY;
+import static ddf.catalog.Constants.SUGGESTION_QUERY_KEY;
+import static ddf.catalog.Constants.SUGGESTION_RESULT_KEY;
+import static org.codice.ddf.spatial.geocoding.GeoCodingConstants.GAZETTEER_METACARD_TAG;
+import static org.codice.ddf.spatial.geocoding.GeoCodingConstants.SUGGEST_PLACE_KEY;
+
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -38,6 +45,7 @@ import ddf.catalog.source.UnsupportedQueryException;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -106,11 +114,7 @@ public class GazetteerQueryCatalog implements GeoEntryQueryable {
     }
 
     tagFilter =
-        filterBuilder
-            .attribute(Core.METACARD_TAGS)
-            .is()
-            .like()
-            .text(GeoCodingConstants.DEFAULT_TAG);
+        filterBuilder.attribute(Core.METACARD_TAGS).is().like().text(GAZETTEER_METACARD_TAG);
   }
 
   @Override
@@ -142,6 +146,33 @@ public class GazetteerQueryCatalog implements GeoEntryQueryable {
         .map(this::transformMetacardToGeoEntry)
         .filter(Objects::nonNull)
         .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<String> getSuggestedNames(String queryString, int maxResults)
+      throws GeoEntryQueryException {
+    Map<String, Serializable> suggestProps = new HashMap<>();
+    suggestProps.put(SUGGESTION_QUERY_KEY, queryString);
+    suggestProps.put(SUGGESTION_CONTEXT_KEY, GAZETTEER_METACARD_TAG);
+    suggestProps.put(SUGGESTION_DICT_KEY, SUGGEST_PLACE_KEY);
+
+    Query suggestionQuery = new QueryImpl(filterBuilder.attribute(Core.TITLE).text(queryString));
+
+    QueryRequest suggestionRequest = new QueryRequestImpl(suggestionQuery, suggestProps);
+
+    try {
+      QueryResponse suggestionResponse = catalogFramework.query(suggestionRequest);
+
+      if (suggestionResponse.getPropertyValue(SUGGESTION_RESULT_KEY) instanceof List) {
+        List<String> suggestions =
+            (List<String>) suggestionResponse.getPropertyValue(SUGGESTION_RESULT_KEY);
+        return suggestions.subList(0, Math.min(suggestions.size(), maxResults));
+      }
+
+    } catch (SourceUnavailableException | FederationException | UnsupportedQueryException e) {
+      throw new GeoEntryQueryException("Failed to execute suggestion query", e);
+    }
+    return Collections.emptyList();
   }
 
   private GeoEntry transformMetacardToGeoEntry(Metacard metacard) {

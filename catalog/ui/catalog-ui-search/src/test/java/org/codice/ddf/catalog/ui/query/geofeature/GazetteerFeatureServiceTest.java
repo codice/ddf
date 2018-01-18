@@ -16,6 +16,8 @@ package org.codice.ddf.catalog.ui.query.geofeature;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
@@ -60,6 +62,8 @@ public class GazetteerFeatureServiceTest {
 
   private static final List<GeoEntry> QUERYABLE_RESULTS = Arrays.asList(GEO_ENTRY_1, GEO_ENTRY_2);
 
+  private static final List<String> SUGGESTED_NAMES = Arrays.asList("name1", "name2");
+
   private static final String TEST_QUERY = "example";
 
   private GazetteerFeatureService gazetteerFeatureService;
@@ -80,10 +84,10 @@ public class GazetteerFeatureServiceTest {
   @Test
   public void testGetSuggestedFeatureNames() throws GeoEntryQueryException {
     final int maxResults = 2;
-    doReturn(QUERYABLE_RESULTS).when(geoEntryQueryable).query(TEST_QUERY, maxResults);
+    doReturn(SUGGESTED_NAMES).when(geoEntryQueryable).getSuggestedNames(anyString(), anyInt());
 
     List<String> results = gazetteerFeatureService.getSuggestedFeatureNames(TEST_QUERY, maxResults);
-    assertThat(results, contains(GEO_ENTRY_1.getName(), GEO_ENTRY_2.getName()));
+    assertThat(results, contains("name1", "name2"));
   }
 
   @Test

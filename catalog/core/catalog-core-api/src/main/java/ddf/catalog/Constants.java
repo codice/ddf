@@ -142,4 +142,12 @@ public final class Constants {
   public static final String EXPERIMENTAL_FACET_PROPERTIES_KEY = "facet-properties";
 
   public static final String EXPERIMENTAL_FACET_RESULTS_KEY = "facet-results";
+
+  public static final String SUGGESTION_QUERY_KEY = "suggestion-query";
+
+  public static final String SUGGESTION_CONTEXT_KEY = "suggestion-context";
+
+  public static final String SUGGESTION_DICT_KEY = "suggestion-dictionary";
+
+  public static final String SUGGESTION_RESULT_KEY = "suggestion-result";
 }

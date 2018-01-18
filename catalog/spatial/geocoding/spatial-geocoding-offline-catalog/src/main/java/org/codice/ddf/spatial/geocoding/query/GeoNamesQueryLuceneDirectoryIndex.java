@@ -106,6 +106,13 @@ public class GeoNamesQueryLuceneDirectoryIndex extends GeoNamesQueryLuceneIndex 
   }
 
   @Override
+  public List<String> getSuggestedNames(String queryString, int maxResults)
+      throws GeoEntryQueryException {
+    LOGGER.debug("Suggestion query not implemented.");
+    return Collections.emptyList();
+  }
+
+  @Override
   public List<NearbyLocation> getNearestCities(
       final String location, final int radiusInKm, final int maxResults)
       throws ParseException, GeoEntryQueryException {

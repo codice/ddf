@@ -13,6 +13,8 @@
  */
 package org.codice.ddf.spatial.geocoding.index;
 
+import static org.codice.ddf.spatial.geocoding.GeoCodingConstants.GAZETTEER_METACARD_TAG;
+
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -70,6 +72,8 @@ public class GeoNamesCatalogIndexer implements GeoEntryIndexer {
 
   private static final int BATCH_SIZE = 250;
 
+  private static final String TITLE_FORMAT = "%s, %s(%s)";
+
   private static final ThreadLocal<WKTWriter> WKT_WRITER_THREAD_LOCAL =
       ThreadLocal.withInitial(WKTWriter::new);
 
@@ -106,7 +110,7 @@ public class GeoNamesCatalogIndexer implements GeoEntryIndexer {
                 .attribute(Core.METACARD_TAGS)
                 .is()
                 .equalTo()
-                .text(GeoCodingConstants.DEFAULT_TAG));
+                .text(GAZETTEER_METACARD_TAG));
   }
 
   private Metacard transformGeoEntryToMetacard(GeoEntry geoEntry) {
@@ -115,9 +119,15 @@ public class GeoNamesCatalogIndexer implements GeoEntryIndexer {
     }
 
     Metacard metacard = new MetacardImpl(geoNamesMetacardType);
-    metacard.setAttribute(new AttributeImpl(Core.TITLE, geoEntry.getName()));
+    String id = uuidGenerator.generateUuid();
+    metacard.setAttribute(
+        new AttributeImpl(
+            Core.TITLE,
+            String.format(
+                TITLE_FORMAT, geoEntry.getName(), geoEntry.getCountryCode(), id.substring(0, 4))));
+    metacard.setAttribute(new AttributeImpl(Core.DESCRIPTION, geoEntry.getAlternateNames()));
     metacard.setAttribute(new AttributeImpl(Location.COUNTRY_CODE, geoEntry.getCountryCode()));
-    metacard.setAttribute(new AttributeImpl(Core.ID, uuidGenerator.generateUuid()));
+    metacard.setAttribute(new AttributeImpl(Core.ID, id));
     metacard.setAttribute(
         new AttributeImpl(
             GeoEntryAttributes.FEATURE_CODE_ATTRIBUTE_NAME, geoEntry.getFeatureCode()));
@@ -137,7 +147,7 @@ public class GeoNamesCatalogIndexer implements GeoEntryIndexer {
     metacard.setAttribute(
         new AttributeImpl(
             Core.METACARD_TAGS,
-            Arrays.asList(GeoCodingConstants.DEFAULT_TAG, GeoCodingConstants.GEONAMES_TAG)));
+            Arrays.asList(GAZETTEER_METACARD_TAG, GeoCodingConstants.GEONAMES_TAG)));
     return metacard;
   }
 
