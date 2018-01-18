@@ -4,14 +4,16 @@
 :summary: Controls the shutdown period of components, names of queues, and routing of messages.
 :order: 02
 
+== {title} Application Reference
+
 The ${message-broker} application gives an administrator the ability to configure and control the behavior of the ${message-broker}.
 These configurations will include aspects like the graceful shutdown period of components, names of queues and topics, and routing of messages.
 
-==== Prerequisites for ${message-broker} Application
+=== Prerequisites for ${message-broker} Application
 
 None.
 
-==== Installing ${message-broker} Application
+=== Installing ${message-broker} Application
 
 The ${message-broker} app is uninstalled by default and requires manual installation.
 
@@ -21,11 +23,11 @@ To install:
 . Select *Manage Applications*.
 . Select the *${message-broker}* application.
 
-==== Configuring the ${message-broker} Application
+=== Configuring the ${message-broker} Application
 
 The standard installation of the ${message-broker} application has no configurable properties.
 
-===== Configuring the ${message-broker} for a Highly Available Cluster
+==== Configuring the ${message-broker} for a Highly Available Cluster
 
 Prior to making these configuration changes, follow the instructions in <<_installing_${branding-lowercase},Installing ${branding}>> to install ${branding} on two physically-separate hosts.
 
@@ -119,7 +121,7 @@ This endpoint returns diagnostic info about the cluster that can be used for tro
 }
 ----
 
-===== Securing the ${message-broker} Application
+==== Securing the ${message-broker} Application
 
 ${branding} can be configured to use Artemis to perform authentication and authorization against an LDAP server.
 
@@ -169,7 +171,7 @@ Alternatively, you can choose roles other than `manager` and `broker-client`, wh
 has groups that you would like to use as Artemis roles.
 If you wish to use different roles, just replace `manager` and/or `broker-client` in the `<security-setting>` in `artemis.xml` with the roles you would like to use.
 
-===== Artemis Broker Connection Configuration
+==== Artemis Broker Connection Configuration
 
 The `Artemis Broker Connection Configuration` manages the parameters for ${branding}'s connection to
 Artemis. The username and password in the `Artemis Broker Connection Configuration` need to be updated
@@ -184,12 +186,12 @@ To update the username and password:
 . Select the *Artemis Broker Connection Configuration*.
 . Enter the username and password and select *Save changes*.
 
-==== Using the ${message-broker} Application
+=== Using the ${message-broker} Application
 
 The ${message-broker} app can be used through the ${admin-console}.
 See <<Route Manager, the Route Manager>> and <<Undelivered Messages UI, the Undelivered Messages UI>> for more information.
 
-===== Undelivered Messages UI
+==== Undelivered Messages UI
 
 The Undeliverable Messages tab gives an administrator the ability to view undeliverable messages and then decide whether to resend or delete those messages.
 
@@ -216,7 +218,7 @@ Known issues with the Undelivered Messages UI:
 
 - If attempting to resend a message, but the listener is no longer available, the message will be "successfully" resent and removed from the UI and the Artemis DLQ but will not be successfully redelivered.
 
-===== Route Manager
+==== Route Manager
 
 The Route Manager gives an administrator the ability to configure and deploy Camel routes, queues, and topics dynamically. The `sjms` component is available by default. If a need arises for a new route, an administrator can easily develop a new route and deploy it to satisfy the requirement, rather than spending the time to develop, compile, and test new code.
 

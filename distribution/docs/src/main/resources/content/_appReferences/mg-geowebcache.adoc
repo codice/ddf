@@ -1,8 +1,10 @@
-:title: ${ddf-geowebcache}
+:title: ${ddf-geowebcache} Application Reference
 :status: published
 :type: applicationReference
 :summary: Enables a server providing a map tile cache and tile service aggregation.
 :order: 04
+
+== {title}
 
 ${ddf-geowebcache} enables a server providing a map tile cache and tile service aggregation.
 
@@ -16,11 +18,11 @@ See (http://geowebcache.org[GeoWebCache]) for more information.
 This application also provides an administrative plugin for the management of GeoWebCached layers.
 GeoWebCache also provides a user interface for previewing, truncating, or seeding layers at ${secure_url}/geowebcache/.
 
-====  ${ddf-geowebcache} Application Prerequisites
+===  ${ddf-geowebcache} Application Prerequisites
 
 None.
 
-====  Installing ${ddf-geowebcache}
+===  Installing ${ddf-geowebcache}
 
 The ${ddf-geowebcache} application is *not* installed by default.
 
@@ -31,11 +33,11 @@ To install:
 . Select the ${ddf-geowebcache} application *Start* button. The application will move to *Active Applications* on startup.
 . Select *Back* in ${admin-console}.
 
-====  Configuring ${ddf-geowebcache}
+===  Configuring ${ddf-geowebcache}
 
 ${ddf-geowebcache} can be configured to cache layers locally, using the following procedures.
 
-===== Adding GeoWebCache Layers
+==== Adding GeoWebCache Layers
 
 Add layers to the local cache:
 
@@ -87,18 +89,18 @@ Add layers to the local cache:
 
 |===
 
-===== Editing GeoWebCache Layers
+==== Editing GeoWebCache Layers
 
 . Navigate to the ${admin-console}.
 . Select the ${ddf-geowebcache} application.
 . Navigate to the *GeoWebCache Layers* tab.
 . Click the *Name* field of the layer to edit.
 
-===== Removing GeoWebCache Layers
+==== Removing GeoWebCache Layers
 
 . Click the *Delete* icon at the end of the row of the layer to be deleted.
 
-===== Configuring GWC Disk Quota
+==== Configuring GWC Disk Quota
 
 Storage usage for a GeoWebCache server is managed by a `diskquota.xml` file with configuration details to prevent image-intensive data from filling the available storage.
 
@@ -126,7 +128,7 @@ To update the disk quota, a client can post a new XML configuration: `curl -v -k
 
 See http://geowebcache.org/docs/current/configuration/diskquotas.html[Disk Quotas] for more information on configuration options for disk quota.
 
-===== Configuring the Standard Search UI for GeoWebCache
+=== Configuring the Standard Search UI for GeoWebCache
 
 Add a new Imagery Provider in the ${admin-console}:
 

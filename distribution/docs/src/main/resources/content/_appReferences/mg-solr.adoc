@@ -4,15 +4,17 @@
 :summary: Provides Solr for data storage.
 :order: 10
 
+== {title} Application Reference
+
 {branding} uses http://lucene.apache.org/solr/[Solr] for data storage, by default.
 
-==== ${ddf-solr} Prerequisites
+=== ${ddf-solr} Prerequisites
 
 To use the ${ddf-solr} Application, the following apps/features must be installed:
 
 * ${ddf-platform}
 * ${ddf-catalog}
 
-==== Installing ${ddf-solr}
+=== Installing ${ddf-solr}
 
 The ${ddf-solr} Application is installed by default with a standard installation.
