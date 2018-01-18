@@ -26,11 +26,16 @@ public final class Messages {
 
   public static final String IMPORT_FAILURE = "Failed to import from file [%s].";
 
+  public static final String DECRYPT_FAILURE = "Failed to decrypt file [%s].";
+
   public static final String EXPORT_SUCCESS_WITH_WARNINGS =
       "Successfully exported to file [%s] with warnings; make sure to review.";
 
   public static final String IMPORT_SUCCESS_WITH_WARNINGS =
       "Successfully imported from file [%s] with warnings; make sure to review.";
+
+  public static final String DECRYPT_SUCCESS_WITH_WARNINGS =
+      "Successfully decrypted file [%s] to [%s] with warnings; make sure to review.";
 
   public static final String RESTART_SYSTEM_WHEN_WARNINGS =
       "Please restart the system for changes to take effect after addressing all reported warnings.";
@@ -38,6 +43,8 @@ public final class Messages {
   public static final String EXPORT_SUCCESS = "Successfully exported to file [%s].";
 
   public static final String IMPORT_SUCCESS = "Successfully imported from file [%s].";
+
+  public static final String DECRYPT_SUCCESS = "Successfully decrypted file [%s] to [%s].";
 
   public static final String RESTARTING_SYSTEM =
       "Restarting the system for changes to take effect.";
@@ -51,6 +58,9 @@ public final class Messages {
   public static final String EXPORT_FILE_CLOSE_ERROR =
       "Export error: failed to close export file [%s]; %s.";
 
+  public static final String DECRYPT_FILE_CLOSE_ERROR =
+      "Decrypt error: failed to close decrypted file [%s]; %s.";
+
   public static final String IMPORT_FILE_MISSING_ERROR =
       "Import error: missing export file [%s]; %s.";
 
@@ -59,6 +69,9 @@ public final class Messages {
 
   public static final String EXPORT_FILE_CREATE_ERROR =
       "Export error: failed to create export file [%s]; %s.";
+
+  public static final String DECRYPT_FILE_CREATE_ERROR =
+      "Decrypt error: failed to create decrypted file [%s]; %s.";
 
   public static final String IMPORT_FILE_READ_ERROR =
       "Import error: failed to read export file [%s]; %s.";
@@ -78,21 +91,8 @@ public final class Messages {
   public static final String IMPORT_ZIP_CHECKSUM_INVALID =
       "Import error: incorrect checksum for export file [%s].";
 
-  public static final String IMPORT_KEY_OPEN_ERROR = "Import error: failed to open key file [%s].";
-
-  public static final String IMPORT_KEY_DECODE_ERROR =
-      "Import error: could not decode key file [%s].";
-
-  public static final String IMPORT_KEY_INVALID_ERROR =
-      "Import error: invalid key file used for import [%s].";
-
-  public static final String EXPORT_KEY_INVALID_ERROR = "Export error: invalid key used for export";
-
-  public static final String EXPORT_KEY_IO_ERROR =
-      "Export error: failed to write decryption key file [%s].";
-
-  public static final String IMPORT_ENTRY_READ_ERROR =
-      "Import error: unable to read entry from zip";
+  public static final String DECRYPT_ZIP_CHECKSUM_INVALID =
+      "Decrypt error: incorrect checksum for export file [%s].";
 
   public static final String EXPORT_METADATA_CREATE_ERROR =
       "Export error: failed to create metadata; %s.";
@@ -107,15 +107,23 @@ public final class Messages {
   public static final String IMPORT_INTERNAL_ERROR =
       "Unexpected internal error: failed to import from file [%s]; %s.";
 
+  public static final String DECRYPT_INTERNAL_ERROR =
+      "Unexpected internal error: failed to decrypt file [%s]; %s.";
+
   public static final String EXPORT_SECURITY_ERROR =
       "Export security error: failed to export to file [%s]; %s.";
 
   public static final String IMPORT_SECURITY_ERROR =
       "Import security error: failed to import from file [%s]; %s.";
 
+  public static final String DECRYPT_SECURITY_ERROR =
+      "Decrypt security error: failed to decrypt file [%s]; %s.";
+
   public static final String EXPORTING_DATA = "Exporting %s data to file [%s].";
 
   public static final String IMPORTING_DATA = "Importing %s data from file [%s].";
+
+  public static final String DECRYPTING_DATA = "Decrypting %s data from file [%s] to [%s].";
 
   public static final String EXPORT_SYSTEM_PROPERTY_ERROR =
       "Export error: system property [%s] is set to [%s] that %s; %s.";
@@ -179,6 +187,9 @@ public final class Messages {
   public static final String EXPORT_PATH_ERROR = "Export error: path [%s] %s; %s.";
 
   public static final String IMPORT_PATH_ERROR = "Import error: path [%s] %s.";
+
+  public static final String DECRYPT_PATH_ERROR =
+      "Decrypt error: path [%s] could not be decrypted; %s.";
 
   public static final String IMPORT_PATH_NOT_EXPORTED_ERROR =
       "Import error: path [%s] was not exported.";
