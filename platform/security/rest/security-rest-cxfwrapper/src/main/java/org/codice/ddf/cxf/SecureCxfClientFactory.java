@@ -26,21 +26,32 @@ import ddf.security.liberty.paos.impl.ResponseUnmarshaller;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
+import java.net.Socket;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.Principal;
+import java.security.PrivateKey;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.List;
+import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509KeyManager;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.cxf.Bus;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.interceptor.Interceptor;
@@ -95,6 +106,10 @@ public class SecureCxfClientFactory<T> {
   private Integer connectionTimeout;
 
   private Integer receiveTimeout;
+
+  private ClientKeyInfo keyInfo = null;
+
+  private String sslProtocol;
 
   static {
     OpenSAMLUtil.initSamlEngine();
@@ -228,6 +243,47 @@ public class SecureCxfClientFactory<T> {
     this.connectionTimeout = connectionTimeout;
 
     this.receiveTimeout = receiveTimeout;
+  }
+
+  /**
+   * Constructs a factory that will return security-aware cxf clients. Once constructed, use the
+   * getClient* methods to retrieve a fresh client with the same configuration. Providing {@link
+   * WebClient} to interfaceClass will create a generic web client.
+   *
+   * <p>This factory can and should be cached. The clients it constructs should not be.
+   *
+   * @param endpointUrl the remote url to connect to
+   * @param interfaceClass an interface representing the resource at the remote url
+   * @param providers optional list of providers to further configure the client
+   * @param interceptor optional message interceptor for the client
+   * @param disableCnCheck disable ssl check for common name / host name match
+   * @param allowRedirects allow this client to follow redirects
+   * @param connectionTimeout timeout for the connection
+   * @param receiveTimeout timeout for receiving responses
+   * @param keyInfo client key info for 2-way ssl
+   * @param sslProtocol SSL protocol to use (e.g. TLSv1.2)
+   */
+  public SecureCxfClientFactory(
+      String endpointUrl,
+      Class<T> interfaceClass,
+      List<?> providers,
+      Interceptor<? extends Message> interceptor,
+      boolean disableCnCheck,
+      boolean allowRedirects,
+      Integer connectionTimeout,
+      Integer receiveTimeout,
+      ClientKeyInfo keyInfo,
+      String sslProtocol) {
+
+    this(endpointUrl, interfaceClass, providers, interceptor, disableCnCheck, allowRedirects);
+
+    this.connectionTimeout = connectionTimeout;
+
+    this.receiveTimeout = receiveTimeout;
+
+    this.keyInfo = keyInfo;
+
+    this.sslProtocol = sslProtocol;
   }
 
   /**
@@ -380,7 +436,6 @@ public class SecureCxfClientFactory<T> {
     tlsParams.setDisableCNCheck(disableCnCheck);
 
     tlsParams.setUseHttpsURLConnectionDefaultHostnameVerifier(true);
-    tlsParams.setUseHttpsURLConnectionDefaultSslSocketFactory(true);
     String cipherSuites = System.getProperty("https.cipherSuites");
     if (cipherSuites != null) {
       tlsParams.setCipherSuites(Arrays.asList(cipherSuites.split(",")));
@@ -397,7 +452,13 @@ public class SecureCxfClientFactory<T> {
           System.getProperty(SecurityConstants.KEYSTORE_TYPE),
           e);
     }
-    Path keyStoreFile = Paths.get(SecurityConstants.getKeystorePath());
+    Path keyStoreFile;
+    if (keyInfo != null && StringUtils.isNotBlank(keyInfo.getKeystorePath())) {
+      keyStoreFile = Paths.get(keyInfo.getKeystorePath());
+    } else {
+      keyStoreFile = Paths.get(SecurityConstants.getKeystorePath());
+    }
+
     Path trustStoreFile = Paths.get(SecurityConstants.getTruststorePath());
     String ddfHome = System.getProperty("ddf.home");
     if (ddfHome != null) {
@@ -433,23 +494,62 @@ public class SecureCxfClientFactory<T> {
       LOGGER.debug("Unable to load system trust file.", e);
     }
 
+    KeyManager[] keyManagers = null;
     try {
       KeyManagerFactory keyManagerFactory =
           KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
       keyManagerFactory.init(keyStore, keyStorePassword.toCharArray());
-      tlsParams.setKeyManagers(keyManagerFactory.getKeyManagers());
+      keyManagers = keyManagerFactory.getKeyManagers();
+      tlsParams.setKeyManagers(keyManagers);
     } catch (NoSuchAlgorithmException | KeyStoreException | UnrecoverableKeyException e) {
       LOGGER.debug("Unable to initialize KeyManagerFactory.", e);
     }
+
+    TrustManager[] trustManagers = null;
     try {
       TrustManagerFactory trustManagerFactory =
           TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
       trustManagerFactory.init(trustStore);
-      tlsParams.setTrustManagers(trustManagerFactory.getTrustManagers());
+      trustManagers = trustManagerFactory.getTrustManagers();
+      tlsParams.setTrustManagers(trustManagers);
     } catch (NoSuchAlgorithmException | KeyStoreException e) {
       LOGGER.debug("Unable to initialize TrustManagerFactory.", e);
     }
-    tlsParams.setCertAlias(SystemBaseUrl.getHost());
+
+    if (keyInfo != null) {
+      LOGGER.trace("Using keystore file: {}, alias: {}", keyStoreFile, keyInfo.getAlias());
+      tlsParams.setUseHttpsURLConnectionDefaultSslSocketFactory(false);
+      tlsParams.setCertAlias(keyInfo.getAlias());
+      try {
+        boolean validProtocolFound = false;
+        String validProtocolsStr = System.getProperty("jdk.tls.client.protocols");
+        if (StringUtils.isNotBlank(validProtocolsStr)) {
+          String[] validProtocols = validProtocolsStr.split(",");
+          for (String validProtocol : validProtocols) {
+            if (validProtocol.equals(sslProtocol)) {
+              validProtocolFound = true;
+              break;
+            }
+          }
+          if (!validProtocolFound) {
+            LOGGER.error(
+                "{} is not in list of valid SSL protocols {}", sslProtocol, validProtocolsStr);
+          }
+
+        } else {
+          validProtocolFound = true;
+        }
+        if (validProtocolFound) {
+          tlsParams.setSSLSocketFactory(
+              getSSLSocketFactory(sslProtocol, keyInfo.getAlias(), keyManagers, trustManagers));
+        }
+      } catch (KeyManagementException | NoSuchAlgorithmException e) {
+        LOGGER.debug("Unable to override default SSL Socket Factory", e);
+      }
+    } else {
+      tlsParams.setUseHttpsURLConnectionDefaultSslSocketFactory(true);
+      tlsParams.setCertAlias(SystemBaseUrl.getHost());
+    }
 
     httpConduit.setTlsClientParameters(tlsParams);
   }
@@ -504,5 +604,82 @@ public class SecureCxfClientFactory<T> {
 
   public void addOutInterceptors(Interceptor<? extends Message> inteceptor) {
     this.clientFactory.getOutInterceptors().add(inteceptor);
+  }
+
+  private SSLSocketFactory getSSLSocketFactory(
+      String sslProtocol, String alias, KeyManager[] keyManagers, TrustManager[] trustManagers)
+      throws KeyManagementException, NoSuchAlgorithmException {
+
+    if (ArrayUtils.isNotEmpty(keyManagers)) {
+      for (int i = 0; i < keyManagers.length; i++) {
+        if (keyManagers[i] instanceof X509KeyManager) {
+          keyManagers[i] = new AliasSelectorKeyManager((X509KeyManager) keyManagers[i], alias);
+        }
+      }
+    }
+
+    SSLContext context = SSLContext.getInstance(sslProtocol);
+    context.init(keyManagers, trustManagers, null);
+
+    return context.getSocketFactory();
+  }
+
+  /**
+   * X509 certificate selector for retrieving certificate for a specific alias. Based off of code
+   * from
+   * https://alesaudate.wordpress.com/2010/08/09/how-to-dynamically-select-a-certificate-alias-when-invoking-web-services/
+   */
+  public static class AliasSelectorKeyManager implements X509KeyManager {
+
+    private X509KeyManager keyManager;
+    private String alias;
+
+    public AliasSelectorKeyManager(X509KeyManager keyManager, String alias) {
+      this.keyManager = keyManager;
+      this.alias = alias;
+    }
+
+    public String chooseClientAlias(String[] keyTypes, Principal[] issuers, Socket socket) {
+      if (keyManager == null) {
+        return null;
+      }
+
+      if (alias == null) {
+        return keyManager.chooseClientAlias(keyTypes, issuers, socket);
+      }
+
+      for (String keyType : keyTypes) {
+        String[] validAliases = keyManager.getClientAliases(keyType, issuers);
+        if (validAliases != null) {
+          for (String validAlias : validAliases) {
+            if (validAlias.equals(alias)) {
+              return alias;
+            }
+          }
+        }
+      }
+
+      return null;
+    }
+
+    public String chooseServerAlias(String keyType, Principal[] issuers, Socket socket) {
+      return keyManager.chooseServerAlias(keyType, issuers, socket);
+    }
+
+    public X509Certificate[] getCertificateChain(String alias) {
+      return keyManager.getCertificateChain(alias);
+    }
+
+    public String[] getClientAliases(String keyType, Principal[] issuers) {
+      return keyManager.getClientAliases(keyType, issuers);
+    }
+
+    public PrivateKey getPrivateKey(String alias) {
+      return keyManager.getPrivateKey(alias);
+    }
+
+    public String[] getServerAliases(String keyType, Principal[] issuers) {
+      return keyManager.getServerAliases(keyType, issuers);
+    }
   }
 }
