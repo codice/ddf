@@ -7,9 +7,7 @@ Installation and configuration details by application.
 
 <#if applicationReference.status == "published">
 
-=== ${applicationReference.title} Application Reference
-
-include::${applicationReference.file}[]
+include::${applicationReference.file}[leveloffset=+1]
 
 <#assign configurations = 0>
 <#list tables as table>
