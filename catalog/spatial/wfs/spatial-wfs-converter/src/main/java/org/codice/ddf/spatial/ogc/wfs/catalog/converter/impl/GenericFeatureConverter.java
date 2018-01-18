@@ -63,6 +63,11 @@ public class GenericFeatureConverter extends AbstractFeatureConverter {
     super(metacardMapper);
   }
 
+  public GenericFeatureConverter(MetacardMapper metacardMapper, String srs) {
+    this(metacardMapper);
+    this.setSrs(srs);
+  }
+
   /**
    * Method to determine if this converter knows how to convert the specified Class.
    *

@@ -1826,23 +1826,25 @@ public class WfsFilterDelegate extends SimpleFilterDelegate<FilterType> {
   }
 
   private String mapMetacardAttribute(String metacardAttribute) {
-    String featureProperty = null;
+    final ThreadLocal<String> featureProperty = new ThreadLocal<>();
     if (this.metacardToFeatureMapper != null) {
-      featureProperty = this.metacardToFeatureMapper.getFeatureProperty(metacardAttribute);
+      this.metacardToFeatureMapper
+          .getEntry(e -> e.getAttributeName().equals(metacardAttribute))
+          .ifPresent(e -> featureProperty.set(e.getFeatureProperty()));
     } else {
       LOGGER.debug("{} is null.", MetacardMapper.class.getSimpleName());
       return metacardAttribute;
     }
 
-    if (featureProperty == null) {
+    if (featureProperty.get() == null) {
       LOGGER.debug("Unable to find feature property for metacard attribute {}.", metacardAttribute);
       return metacardAttribute;
     } else {
       LOGGER.debug(
           "Found feature property {} for metacard attribute {}.",
-          featureProperty,
+          featureProperty.get(),
           metacardAttribute);
-      return featureProperty;
+      return featureProperty.get();
     }
   }
 

@@ -23,6 +23,10 @@
     <!-- Get reference to Filter Adapter implementation -->
     <reference id="filterAdapter" interface="ddf.catalog.filter.FilterAdapter"/>
 
+    <reference-list id="metacardToFeatureMappers"
+                    interface="org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper"
+                    availability="optional"/>
+
     <reference-list id="converterList"
                     interface="org.codice.ddf.spatial.ogc.wfs.v110.catalog.converter.FeatureConverterFactoryV110"
                     availability="optional"/>
@@ -58,6 +62,7 @@
             <argument ref="encryptionService"/>
             <property name="coordinateOrder" value="LAT_LON"/>
             <property name="metacardTypeEnhancers" ref="metacardTypeEnhancerList"/>
+            <property name="metacardToFeatureMapper" ref="metacardToFeatureMappers"/>
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
                                    update-method="refresh"/>
         </cm:managed-component>

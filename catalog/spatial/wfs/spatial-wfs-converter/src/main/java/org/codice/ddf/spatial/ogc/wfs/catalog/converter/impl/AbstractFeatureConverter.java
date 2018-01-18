@@ -47,19 +47,16 @@ import java.io.Serializable;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 import javax.xml.bind.DatatypeConverter;
 import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.libs.geo.GeoFormatException;
 import org.codice.ddf.libs.geo.util.GeospatialUtil;
 import org.codice.ddf.spatial.ogc.catalog.common.converter.XmlNode;
-import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
 import org.slf4j.Logger;
@@ -77,8 +74,6 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
   protected static final String EXT_PREFIX = "ext.";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AbstractFeatureConverter.class);
-
-  private final Set<String> basicAttributeNames = getBasicAttributeNames();
 
   protected String sourceId;
 
@@ -98,7 +93,9 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
 
   private String srs = GeospatialUtil.EPSG_4326;
 
-  public AbstractFeatureConverter() {}
+  public AbstractFeatureConverter() {
+    this(new DefaultMetacardMapper());
+  }
 
   public AbstractFeatureConverter(MetacardMapper metacardMapper) {
     this.metacardMapper = metacardMapper;
@@ -139,112 +136,135 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
         new ByteArrayInputStream(writer.toString().getBytes(StandardCharsets.UTF_8)));
   }
 
-  protected Metacard createMetacardFromFeature(
+  private void addMetacardAttribute(
+      MetacardMapper.Entry entry, MetacardImpl metacard, Map<String, Serializable> context) {
+    AttributeDescriptor attributeDescriptor =
+        metacardType.getAttributeDescriptor(entry.getAttributeName());
+
+    if (attributeDescriptor == null) {
+      LOGGER.debug("No AttributeDescriptor found for mapping {}. Skipping.", entry);
+      return;
+    }
+
+    Serializable featureValue = entry.getMappingFunction().apply(context);
+
+    if ((featureValue != null && StringUtils.isNotBlank(featureValue.toString()))
+        || BasicTypes.GEO_TYPE
+            .getAttributeFormat()
+            .equals(attributeDescriptor.getType().getAttributeFormat())
+        || BasicTypes.DATE_TYPE
+            .getAttributeFormat()
+            .equals(attributeDescriptor.getType().getAttributeFormat())) {
+
+      // do this before applying the template
+      if (BasicTypes.GEO_TYPE
+          .getAttributeFormat()
+          .equals(attributeDescriptor.getType().getAttributeFormat())) {
+        Serializable location = context.get(entry.getFeatureProperty());
+
+        if (location != null) {
+          metacard.setLocation(location.toString());
+        }
+      }
+
+      Serializable attributeValue = getAttributeValue(attributeDescriptor, featureValue);
+      metacard.setAttribute(attributeDescriptor.getName(), attributeValue);
+    }
+  }
+
+  private Serializable getAttributeValue(
+      AttributeDescriptor attributeDescriptor, Serializable value) {
+    if (StringUtils.equals(attributeDescriptor.getName(), Core.RESOURCE_SIZE)) {
+      String bytes = convertToBytes(value.toString(), metacardMapper.getDataUnit());
+
+      if (StringUtils.isNotBlank(bytes)) {
+        LOGGER.debug(
+            "Setting mapped metacard attribute {} with value {}", attributeDescriptor, bytes);
+      }
+
+      return bytes;
+    }
+
+    return value;
+  }
+
+  protected final Metacard createMetacardFromFeature(
       HierarchicalStreamReader hreader, MetacardType metacardType) {
-    StringWriter metadataWriter = new StringWriter();
-    HierarchicalStreamReader reader = copyXml(hreader, metadataWriter);
+
+    // prepare metacard
     MetacardImpl mc = new MetacardImpl(metacardType);
     mc.setContentTypeName(metacardType.getName());
 
+    // create context map (feature names -> values)
+    Map<String, Serializable> featureContextMap = createFeatureContext(hreader);
+
+    // map attributes to feature values
+    metacardMapper.stream().forEach(e -> addMetacardAttribute(e, mc, featureContextMap));
+
+    // set metadata
+    mc.setMetadata(featureContextMap.get(Core.METADATA).toString());
+    mc.setId(hreader.getNodeName());
+
+    return mc;
+  }
+
+  private Map<String, Serializable> createFeatureContext(HierarchicalStreamReader hreader) {
+
+    StringWriter metadataWriter = new StringWriter();
+    HierarchicalStreamReader reader = copyXml(hreader, metadataWriter);
+    Map<String, Serializable> contextMap = new HashMap<>();
+
     while (reader.hasMoreChildren()) {
       reader.moveDown();
-
-      String featureProperty = prefix + reader.getNodeName();
-      AttributeDescriptor attributeDescriptor =
-          metacardType.getAttributeDescriptor(featureProperty);
-
-      // Check MetacardMapper for mappings of incoming values
-      String mappedMetacardAttribute = null;
-      if (metacardMapper != null) {
-        LOGGER.debug(
-            "Looking up metacard attribute for feature property {} using metacard mapper",
-            featureProperty);
-        mappedMetacardAttribute = metacardMapper.getMetacardAttribute(featureProperty);
-        LOGGER.debug(
-            "Found metacard attribute {} for feature property {}",
-            mappedMetacardAttribute,
-            featureProperty);
-      }
-
-      Serializable value = null;
-      if (attributeDescriptor != null
-          && (StringUtils.isNotBlank(reader.getValue())
-              || BasicTypes.GEO_TYPE
-                  .getAttributeFormat()
-                  .equals(attributeDescriptor.getType().getAttributeFormat())
-              || BasicTypes.DATE_TYPE
-                  .getAttributeFormat()
-                  .equals(attributeDescriptor.getType().getAttributeFormat()))) {
-        if (StringUtils.isNotBlank(mappedMetacardAttribute)) {
-          if (StringUtils.equals(mappedMetacardAttribute, Core.RESOURCE_SIZE)) {
-            String sizeBeforeConversion = reader.getValue();
-            String bytes = convertToBytes(reader, metacardMapper.getDataUnit());
-            if (StringUtils.isNotBlank(bytes)) {
-              LOGGER.debug(
-                  "Setting mapped metacard attribute {} with value {}",
-                  mappedMetacardAttribute,
-                  bytes);
-              mc.setAttribute(mappedMetacardAttribute, bytes);
-            }
-            if (StringUtils.isNotBlank(sizeBeforeConversion)) {
-              LOGGER.debug(
-                  "Setting metacard attribute {} with value {}",
-                  featureProperty,
-                  sizeBeforeConversion);
-              mc.setAttribute(featureProperty, sizeBeforeConversion);
-            }
-          } else {
-            value =
-                getValueForMetacardAttribute(
-                    attributeDescriptor.getType().getAttributeFormat(), reader);
-            if (value != null) {
-              LOGGER.debug(
-                  "Setting mapped metacard attribute {} with value {}",
-                  mappedMetacardAttribute,
-                  value);
-              mc.setAttribute(mappedMetacardAttribute, value);
-              mc.setAttribute(featureProperty, value);
-            }
-          }
-        } else {
-          value =
-              getValueForMetacardAttribute(
-                  attributeDescriptor.getType().getAttributeFormat(), reader);
-
-          if (value != null) {
-            LOGGER.debug("Setting metacard attribute {} with value {}", featureProperty, value);
-            mc.setAttribute(featureProperty, value);
-          }
-        }
-        if (BasicTypes.GEO_TYPE
-            .getAttributeFormat()
-            .equals(attributeDescriptor.getType().getAttributeFormat())) {
-          mc.setLocation((String) value);
-        }
-        // if this node matches a basic metacard attribute name,
-        // populate that field as well
-        if (isBasicMetacardAttribute(reader.getNodeName())) {
-          LOGGER.debug("Setting metacard basic attribute: {} = {}", reader.getNodeName(), value);
-
-          mc.setAttribute(reader.getNodeName(), value);
-        }
-      }
-
+      metacardMapper
+          .getEntry(e -> e.getFeatureProperty().equals(reader.getNodeName()))
+          .ifPresent(e -> setValue(e.getFeatureProperty(), contextMap, reader));
       reader.moveUp();
     }
 
-    mc.setMetadata(metadataWriter.toString());
+    contextMap.put(Core.METADATA, metadataWriter.toString());
+    return contextMap;
+  }
 
-    try {
-      if (metacardType instanceof FeatureMetacardType) {
-        URI namespaceUri = new URI(((FeatureMetacardType) metacardType).getNamespaceURI());
-        mc.setTargetNamespace(namespaceUri);
-      }
-    } catch (URISyntaxException e) {
-      LOGGER.debug("Error setting target namespace uri on metacard.", e);
+  private void setValue(
+      String featureProperty,
+      Map<String, Serializable> contextMap,
+      HierarchicalStreamReader reader) {
+
+    MetacardMapper.Entry mapping =
+        metacardMapper.getEntry(e -> e.getFeatureProperty().equals(featureProperty)).orElse(null);
+
+    if (mapping == null) {
+      LOGGER.debug(
+          "Metacard attribute mapping for feature property {} not found. Feature property is being skipped.",
+          featureProperty);
+      return;
     }
 
-    return mc;
+    AttributeDescriptor attributeDescriptor =
+        metacardType.getAttributeDescriptor(mapping.getAttributeName());
+
+    if (attributeDescriptor == null) {
+      LOGGER.debug(
+          "AttributeDescriptor for attribute name {} not found. The mapping is being ignored.",
+          attributeDescriptor);
+      return;
+    }
+
+    if (StringUtils.equals(mapping.getAttributeName(), Core.RESOURCE_SIZE)) {
+      String bytes = convertToBytes(reader.getValue(), metacardMapper.getDataUnit());
+
+      if (StringUtils.isNotBlank(bytes)) {
+        contextMap.put(featureProperty, bytes);
+      }
+    } else {
+      Serializable value =
+          getValueForMetacardAttribute(attributeDescriptor.getType().getAttributeFormat(), reader);
+
+      if (value != null) {
+        contextMap.put(featureProperty, value);
+      }
+    }
   }
 
   protected Serializable getValueForMetacardAttribute(
@@ -309,9 +329,9 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
     return ser;
   }
 
-  private String convertToBytes(HierarchicalStreamReader reader, String unit) {
+  private String convertToBytes(String value, String unit) {
 
-    BigDecimal resourceSize = new BigDecimal(reader.getValue());
+    BigDecimal resourceSize = new BigDecimal(value);
     resourceSize = resourceSize.setScale(1, BigDecimal.ROUND_HALF_UP);
 
     switch (unit) {
@@ -383,24 +403,6 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
     }
     LOGGER.debug("node name: {}", reader.getNodeName());
     return date;
-  }
-
-  protected Boolean isAttributeNotNull(final String attributeName, Metacard mc) {
-    return (mc.getAttribute(attributeName) != null
-        && mc.getAttribute(attributeName).getValue() != null);
-  }
-
-  private Set<String> getBasicAttributeNames() {
-    Set<String> attrNames =
-        new HashSet<String>(BasicTypes.BASIC_METACARD.getAttributeDescriptors().size());
-    for (AttributeDescriptor ad : BasicTypes.BASIC_METACARD.getAttributeDescriptors()) {
-      attrNames.add(ad.getName());
-    }
-    return attrNames;
-  }
-
-  private boolean isBasicMetacardAttribute(String attrName) {
-    return basicAttributeNames.contains(attrName);
   }
 
   public void setSrs(String srs) {

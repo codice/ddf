@@ -17,15 +17,24 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.WstxDriver;
 import ddf.catalog.data.MetacardType;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 import javax.xml.namespace.QName;
 import org.apache.ws.commons.schema.XmlSchema;
 import org.apache.ws.commons.schema.XmlSchemaComplexType;
@@ -34,12 +43,50 @@ import org.codice.ddf.spatial.ogc.wfs.catalog.common.FeatureMetacardType;
 import org.codice.ddf.spatial.ogc.wfs.catalog.common.WfsFeatureCollection;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.GmlGeometryConverter;
+import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
 import org.codice.ddf.spatial.ogc.wfs.v110.catalog.common.Wfs11Constants;
+import org.junit.Before;
 import org.junit.Test;
 
 public class GenericFeatureConverterWfs11Test {
 
+  private List<MetacardMapper.Entry> mappingEntries = new ArrayList<>();
+
+  private MetacardMapper metacardMapper;
+
   private static final String GML = "GML";
+
+  @Before
+  public void setup() {
+    String[][] mapping = {{"location", "the_geom"}};
+    this.mappingEntries = new ArrayList<>();
+    this.metacardMapper = mock(MetacardMapper.class);
+
+    Stream.of(mapping).forEach(this::addMockMetacardMapperEntry);
+
+    when(metacardMapper.stream()).thenAnswer((i) -> mappingEntries.stream());
+
+    when(metacardMapper.getEntry(any(Predicate.class)))
+        .thenAnswer(
+            (i) -> {
+              Predicate<MetacardMapper.Entry> p =
+                  (Predicate<MetacardMapper.Entry>) i.getArguments()[0];
+              return mappingEntries.stream().filter(p).findFirst();
+            });
+  }
+
+  private void addMockMetacardMapperEntry(String[] mapping) {
+    String attributeName = mapping[0];
+    String featureName = mapping[1];
+
+    MetacardMapper.Entry mockEntry = mock(MetacardMapper.Entry.class);
+    when(mockEntry.getAttributeName()).thenAnswer(i -> attributeName);
+    when(mockEntry.getFeatureProperty()).thenAnswer(i -> featureName);
+    Function<Map<String, Serializable>, String> f =
+        c -> Optional.ofNullable(c.get(featureName)).orElse("").toString();
+    when(mockEntry.getMappingFunction()).thenAnswer(i -> f);
+    mappingEntries.add(mockEntry);
+  }
 
   @Test
   public void testPointSrs26713Pos() throws IOException {
@@ -130,7 +177,7 @@ public class GenericFeatureConverterWfs11Test {
     Map<String, FeatureConverter> fcMap = new HashMap<>();
 
     GenericFeatureConverterWfs11 converter =
-        new GenericFeatureConverterWfs11("urn:x-ogc:def:crs:EPSG:26713");
+        new GenericFeatureConverterWfs11(metacardMapper, "urn:x-ogc:def:crs:EPSG:26713");
 
     fcMap.put("roads", converter);
     fcConverter.setFeatureConverterMap(fcMap);

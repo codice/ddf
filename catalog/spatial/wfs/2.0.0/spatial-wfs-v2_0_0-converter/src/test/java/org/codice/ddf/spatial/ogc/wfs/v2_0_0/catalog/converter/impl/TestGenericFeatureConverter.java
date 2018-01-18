@@ -16,6 +16,7 @@ package org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.converter.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -27,10 +28,16 @@ import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 import javax.xml.bind.DatatypeConverter;
 import javax.xml.namespace.QName;
 import org.apache.ws.commons.schema.XmlSchema;
@@ -44,8 +51,10 @@ import org.codice.ddf.spatial.ogc.wfs.catalog.converter.FeatureConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.EnhancedStaxDriver;
 import org.codice.ddf.spatial.ogc.wfs.catalog.converter.impl.GmlGeometryConverter;
 import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper;
+import org.codice.ddf.spatial.ogc.wfs.catalog.mapper.MetacardMapper.Entry;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20Constants;
 import org.codice.ddf.spatial.ogc.wfs.v2_0_0.catalog.common.Wfs20FeatureCollection;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -86,6 +95,41 @@ public class TestGenericFeatureConverter {
   private static final String STATES_TITLE_ELEMENT = "STATE_NAME";
 
   private static final String STATES_FEATURE_TYPE = "states";
+
+  private MetacardMapper metacardMapper;
+
+  private List<Entry> mappingEntries;
+
+  @Before
+  public void setup() {
+    String[][] mapping = {{"title", "STATE_NAME"}, {"location", "the_geom"}};
+    this.mappingEntries = new ArrayList<>();
+    this.metacardMapper = mock(MetacardMapper.class);
+
+    Stream.of(mapping).forEach(this::addMockMetacardMapperEntry);
+
+    when(metacardMapper.stream()).thenAnswer((i) -> mappingEntries.stream());
+
+    when(metacardMapper.getEntry(any(Predicate.class)))
+        .thenAnswer(
+            (i) -> {
+              Predicate<Entry> p = (Predicate<Entry>) i.getArguments()[0];
+              return mappingEntries.stream().filter(p).findFirst();
+            });
+  }
+
+  private void addMockMetacardMapperEntry(String[] mapping) {
+    String attributeName = mapping[0];
+    String featureName = mapping[1];
+
+    MetacardMapper.Entry mockEntry = mock(MetacardMapper.Entry.class);
+    when(mockEntry.getAttributeName()).thenAnswer(i -> attributeName);
+    when(mockEntry.getFeatureProperty()).thenAnswer(i -> featureName);
+    Function<Map<String, Serializable>, String> f =
+        c -> Optional.ofNullable(c.get(featureName)).orElse("").toString();
+    when(mockEntry.getMappingFunction()).thenAnswer(i -> f);
+    mappingEntries.add(mockEntry);
+  }
 
   @Test
   @Ignore // DDF-733
@@ -177,7 +221,7 @@ public class TestGenericFeatureConverter {
     FeatureCollectionConverterWfs20 fcConverter = new FeatureCollectionConverterWfs20();
     Map<String, FeatureConverter> fcMap = new HashMap<String, FeatureConverter>();
 
-    GenericFeatureConverterWfs20 converter = new GenericFeatureConverterWfs20();
+    GenericFeatureConverterWfs20 converter = new GenericFeatureConverterWfs20(metacardMapper);
 
     fcMap.put("states", converter);
     fcMap.put("streams", converter);
@@ -210,7 +254,7 @@ public class TestGenericFeatureConverter {
     FeatureCollectionConverterWfs20 fcConverter = new FeatureCollectionConverterWfs20();
     Map<String, FeatureConverter> fcMap = new HashMap<String, FeatureConverter>();
 
-    GenericFeatureConverterWfs20 converter = new GenericFeatureConverterWfs20();
+    GenericFeatureConverterWfs20 converter = new GenericFeatureConverterWfs20(metacardMapper);
 
     fcMap.put("states", converter);
     fcMap.put("streams", converter);
@@ -244,7 +288,7 @@ public class TestGenericFeatureConverter {
     FeatureCollectionConverterWfs20 fcConverter = new FeatureCollectionConverterWfs20();
     Map<String, FeatureConverter> fcMap = new HashMap<String, FeatureConverter>();
 
-    GenericFeatureConverterWfs20 converter = new GenericFeatureConverterWfs20();
+    GenericFeatureConverterWfs20 converter = new GenericFeatureConverterWfs20(metacardMapper);
 
     fcMap.put("states", converter);
     fcMap.put("streams", converter);
@@ -272,7 +316,7 @@ public class TestGenericFeatureConverter {
   @Test(expected = IllegalArgumentException.class)
   public void testUnmarshalNoMetacardTypeRegisteredInConverter() throws Throwable {
     XStream xstream = new XStream(new WstxDriver());
-    xstream.registerConverter(new GenericFeatureConverterWfs20());
+    xstream.registerConverter(new GenericFeatureConverterWfs20(metacardMapper));
     xstream.registerConverter(new GmlGeometryConverter());
     xstream.alias(FEATURE_TYPE, Metacard.class);
     InputStream is = TestGenericFeatureConverter.class.getResourceAsStream("/video_data_set.xml");
@@ -342,12 +386,6 @@ public class TestGenericFeatureConverter {
    */
   @Test
   public void testUnmarshalMultiQueryFeatureCollectionXmlToObjectWithMetacardMapper() {
-    // Create Metacard Mapper
-    String featureProp = "ext.states.STATE_NAME";
-    String metacardAttr = "title";
-    MetacardMapper metacardMapper = mock(MetacardMapper.class);
-    when(metacardMapper.getMetacardAttribute(featureProp)).thenReturn(metacardAttr);
-
     XStream xstream = new XStream(new WstxDriver());
     FeatureCollectionConverterWfs20 fcConverter = new FeatureCollectionConverterWfs20();
     Map<String, FeatureConverter> fcMap = new HashMap<String, FeatureConverter>();
