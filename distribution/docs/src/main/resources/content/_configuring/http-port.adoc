@@ -1,17 +1,23 @@
-:title: Configuring HTTP Port
+:title: Configuring HTTP(S) Ports
 :type: configuration
 :status: published
 :parent: Configuring Federation
-:summary: Configure HTTP Port
+:summary: Configure HTTP(S) Ports.
 :order: 01
 
 == {title}
+
+To change HTTP or HTTPS ports from the default values, edit the `system.properties` file.
+
+. Open the file at ${home_directory}/etc/system.properties
+. Change the value after the `=` to the desired port number(s):
+.. `org.codice.ddf.system.httpsPort=8993` to `org.codice.ddf.system.httpsPort=<PORT>`
+.. `org.codice.ddf.system.httpPort=8181` to `org.codice.ddf.system.httpPort=<PORT>`
+. Restart ${branding} for changes to take effect.
 
 [IMPORTANT]
 ====
 Do not use the ${admin-console} to change the HTTP port.
 While the ${admin-console}'s Pax Web Runtime offers this configuration option, it has proven to be unreliable and may crash the system.
-Use the ${command-console} instead.
 ====
 
-// TODO: https://codice.atlassian.net/browse/DDF-3347 Update changing HTTP port instructions.
