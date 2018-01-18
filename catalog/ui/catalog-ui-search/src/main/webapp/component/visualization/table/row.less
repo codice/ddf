@@ -31,7 +31,6 @@
 
   span {
     display: block;
-    max-width: 200px;
     overflow: hidden;
     text-overflow: ellipsis;
   }
@@ -43,8 +42,10 @@
     top: -1px;
     .is-bold();
   }
-  
+
   td.is-thumbnail {
+    overflow: hidden;
+
     button {
       width: @minimumButtonSize;
       height: @minimumButtonSize;
