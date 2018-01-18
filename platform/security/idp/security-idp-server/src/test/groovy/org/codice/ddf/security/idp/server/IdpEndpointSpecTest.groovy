@@ -1,5 +1,19 @@
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * <p>This is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * Lesser General Public License as published by the Free Software Foundation, either version 3 of
+ * the License, or any later version.
+ *
+ * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public
+ * License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ */
 package org.codice.ddf.security.idp.server
 
+import com.google.common.collect.ImmutableList
 import ddf.security.encryption.EncryptionService
 import ddf.security.samlp.LogoutMessage
 import ddf.security.samlp.ValidationException
@@ -12,7 +26,6 @@ import org.opensaml.saml.common.SignableSAMLObject
 import org.opensaml.saml.saml2.core.*
 import org.opensaml.saml.saml2.core.impl.LogoutRequestBuilder
 import org.opensaml.saml.saml2.core.impl.LogoutResponseBuilder
-import org.opensaml.saml.saml2.core.SessionIndex
 import org.opensaml.xmlsec.signature.SignableXMLObject
 import org.w3c.dom.Element
 import spock.lang.Specification
@@ -20,6 +33,7 @@ import spock.lang.Specification
 import javax.servlet.http.Cookie
 import javax.servlet.http.HttpServletRequest
 import javax.xml.stream.XMLStreamException
+import java.nio.charset.StandardCharsets
 
 class IdpEndpointSpecTest extends Specification {
     @Rule
@@ -384,6 +398,59 @@ class IdpEndpointSpecTest extends Specification {
         then:
         exception = thrown(IdpException)
         exception.cause instanceof XMLStreamException
+    }
+
+    def "verify destination is present in LogoutResponse"(){
+        setup:
+        String samlRequest = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48c2FtbDJwOkxvZ291dFJlcXVlc3QgeG1sbnM6c2FtbDJwPSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDoyLjA6cHJvdG9jb2wiIERlc3RpbmF0aW9uPSJodHRwczovL2xvY2FsaG9zdDo4OTkzL3NlcnZpY2VzL2lkcC9sb2dvdXQiIElEPSJhMmI3ODY3MDA0MTdqYjNqMzdoZTdqNzBqNTI4YTM1IiBJc3N1ZUluc3RhbnQ9IjIwMTgtMDEtMThUMTY6MTQ6MDAuOTU0WiIgVmVyc2lvbj0iMi4wIj48c2FtbDI6SXNzdWVyIHhtbG5zOnNhbWwyPSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDoyLjA6YXNzZXJ0aW9uIj5odHRwOi8vbG9jYWxob3N0OjgwL3NwcmluZy1zZWN1cml0eS1zYW1sMi1zYW1wbGUvc2FtbC9tZXRhZGF0YTwvc2FtbDI6SXNzdWVyPjxkczpTaWduYXR1cmUgeG1sbnM6ZHM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvMDkveG1sZHNpZyMiPjxkczpTaWduZWRJbmZvPjxkczpDYW5vbmljYWxpemF0aW9uTWV0aG9kIEFsZ29yaXRobT0iaHR0cDovL3d3dy53My5vcmcvMjAwMS8xMC94bWwtZXhjLWMxNG4jIi8+PGRzOlNpZ25hdHVyZU1ldGhvZCBBbGdvcml0aG09Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvMDkveG1sZHNpZyNyc2Etc2hhMSIvPjxkczpSZWZlcmVuY2UgVVJJPSIjYTJiNzg2NzAwNDE3amIzajM3aGU3ajcwajUyOGEzNSI+PGRzOlRyYW5zZm9ybXM+PGRzOlRyYW5zZm9ybSBBbGdvcml0aG09Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvMDkveG1sZHNpZyNlbnZlbG9wZWQtc2lnbmF0dXJlIi8+PGRzOlRyYW5zZm9ybSBBbGdvcml0aG09Imh0dHA6Ly93d3cudzMub3JnLzIwMDEvMTAveG1sLWV4Yy1jMTRuIyIvPjwvZHM6VHJhbnNmb3Jtcz48ZHM6RGlnZXN0TWV0aG9kIEFsZ29yaXRobT0iaHR0cDovL3d3dy53My5vcmcvMjAwMC8wOS94bWxkc2lnI3NoYTEiLz48ZHM6RGlnZXN0VmFsdWU+WHFxMWQzS3E5L01jZ3NaSlRkY1dNdThLVGlRPTwvZHM6RGlnZXN0VmFsdWU+PC9kczpSZWZlcmVuY2U+PC9kczpTaWduZWRJbmZvPjxkczpTaWduYXR1cmVWYWx1ZT5pbU1xNk9HZHVYUmFnWW1kQVRzNEhzQy96bXljNHhUWjhsSHhxaFJsZWRzanM3R0Y2TDZ4RkhUR0ZCQ3BHODRtazR4cVRWU2thSEs1aVUySlh4VFBxUWpNd1NMbXlyeCtOS3BqbWc1Q2hnL0RUSFMvQS9YYTU5SnIyN1NOTGhTSGw0aWZrUEdvdDlHcE5BcEttUTBhYVRHaHlYUE5KN1JYb1doRTZhZXovWHdnbzBxMFI2SlQ0UWJGRVlFQUVjT0hxL2kxZFNWakNWQnN1TUlId0E1OHJFZHBFejI0MkhpYmpXVTFXL1lnZTU5dmlrK1NMUXp2RERFMDBGNnBweU5WZ0laVkFIWFhFODZndm5xZlQzYmJLK1dVV3NVbklBM2JJQVZtSU42aWhQbXdBb0YxOUVSdVVHbzd2aS9xUjlLSk9rWmRXRE5leUt6OVVCenRmWG5YZ2c9PTwvZHM6U2lnbmF0dXJlVmFsdWU+PGRzOktleUluZm8+PGRzOlg1MDlEYXRhPjxkczpYNTA5Q2VydGlmaWNhdGU+TUlJRFVqQ0NBcnVnQXdJQkFnSUlWQlpoVllBRk1pZ3dEUVlKS29aSWh2Y05BUUVGQlFBd2dZUXhDekFKQmdOVkJBWVRBbFZUTVFzdwpDUVlEVlFRSUV3SkJXakVNTUFvR0ExVUVDaE1EUkVSR01Rd3dDZ1lEVlFRTEV3TkVaWFl4R1RBWEJnTlZCQU1URUVSRVJpQkVaVzF2CklGSnZiM1FnUTBFeE1UQXZCZ2txaGtpRzl3MEJDUUVXSW1WdFlXbHNRV1JrY21WemN6MWtaR1p5YjI5MFkyRkFaWGhoYlhCc1pTNXYKY21jd0hoY05NVGd3TVRBMU1ESXhNekkxV2hjTk1Ua3dNVEExTURJeE16STFXakJLTVFzd0NRWURWUVFHRXdKVlV6RUxNQWtHQTFVRQpDQXdDUVZveEREQUtCZ05WQkFvTUEwUkVSakVNTUFvR0ExVUVDd3dEUkdWMk1SSXdFQVlEVlFRRERBbHNiMk5oYkdodmMzUXdnZ0VpCk1BMEdDU3FHU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLQW9JQkFRQ3gyMmJnY1p0L0ZTMXh5S0JBS2lrRTVnTGlpemNFMVlWODBWdmEKaytEVnBPcUx4c2VidW9GL2lXakMyRWRJK1VCZkh6K2ZkTmxtbzJVa09MQ1R5VS90MGFSZFJkWnVQU28vM2ViUXRsRW15cEtKNjQ3dApIZVFzUEVPMS9Fc1lQZlBtRmVTWHZIUU5RZWxUYTlJWlFlMTErK0JoaERyTWNVTkNEMWRuajdrTE5GVkNuSzNwTGhqbjFCTCtweDNFCmt3bXFCZnBoSG0xVGo3V3pCSWY2Q2JCQ3B0WVNUY3FxbGRIelhzcXl5TnZTcVJxZWxkR1p2Vkhsb0xPTnd0OWJ6VFZrOHlibWIxRVAKajJqSU1VeFRPeGEwZFZVS0plSVozenlaNFZLekxmY2pVblhnbU5BcVgyVHl0eWpFODUwOVlFc1p2SExST3c0VkRWS1pVazUxcVZtQgpBZ01CQUFHamdZRXdmekFKQmdOVkhSTUVBakFBTUNjR0NXQ0dTQUdHK0VJQkRRUWFGaGhHVDFJZ1ZFVlRWRWxPUnlCUVZWSlFUMU5GCklFOU9URmt3SFFZRFZSME9CQllFRkV4U0hTZ2Zrbzl6UThyM0VKYXRNMFIyUUlZQ01COEdBMVVkSXdRWU1CYUFGT0ZVeDVmZkNzSy8KcVY5NFhqc0xLK1JJRjczR01Ba0dBMVVkRVFRQ01BQXdEUVlKS29aSWh2Y05BUUVGQlFBRGdZRUFkdzBtZ1BySVVVc1lKelRMSWN3bwo2TjdQY2p2YitOMUQvRjh3VHRtR2VjRWY3UG5zUm9RQkpJenViVDVYc1psWUFTVWhybE51TkFUSXpkSnkzc3hhbVY4OTBXcmxuVWZXClpIcVg3dnZFSWFnY205RXMvdTJiYTViU1h2NGZnd0VEdCtXdUhwQUpZSkxPZjN1aEE4ck9rZ0t1SVVVcDlYeG5waWw2TUNNeHBMcz08L2RzOlg1MDlDZXJ0aWZpY2F0ZT48L2RzOlg1MDlEYXRhPjwvZHM6S2V5SW5mbz48L2RzOlNpZ25hdHVyZT48c2FtbDI6TmFtZUlEIHhtbG5zOnNhbWwyPSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDoyLjA6YXNzZXJ0aW9uIiBGb3JtYXQ9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDpuYW1laWQtZm9ybWF0OnBlcnNpc3RlbnQiIE5hbWVRdWFsaWZpZXI9Imh0dHA6Ly9jeGYuYXBhY2hlLm9yZy9zdHMiPmFkbWluPC9zYW1sMjpOYW1lSUQ+PHNhbWwycDpTZXNzaW9uSW5kZXg+Nzk3ODwvc2FtbDJwOlNlc3Npb25JbmRleD48L3NhbWwycDpMb2dvdXRSZXF1ZXN0Pg=="
+        String relayState = "relayState"
+        def request = Mock(HttpServletRequest) {
+            getCookies() >> {
+                [Mock(Cookie) {
+                    getName() >> Idp.COOKIE
+                    getValue() >> "cookieValue"
+                }]
+            }
+        }
+
+        idpEndpoint.logoutMessage = Mock(LogoutMessage) {
+            extractSamlLogoutRequest(_ as String) >> Mock(LogoutRequest) {
+                getIssuer() >> Mock(Issuer) {
+                    getValue() >> sp1entityid
+                }
+                getNameID() >> Mock(NameID) {
+                    getValue() >> "nameId"
+                }
+                getID() >> "requestId"
+            }
+            buildLogoutResponse(_ as String, _ as String, _ as String) >>
+                    { String issuer, String statusCode, String inResponseTo ->
+                        return new LogoutResponseBuilder().buildObject()
+                    }
+        }
+
+        idpEndpoint.setSpMetadata(ImmutableList.of(sp1metadata, sp2metadata))
+
+        when:
+        def response = idpEndpoint.processPostLogout(
+                samlRequest,
+                null,
+                relayState,
+                request)
+        
+        then:
+        // Verify the request was read correctly
+        notThrown(Exception)
+
+        //Check destination
+        String responseString = response.getEntity().toString()
+        int valueStartIndex = responseString.indexOf("value")
+        int valueEndIndex = responseString.indexOf("/", valueStartIndex)
+        String value = responseString.substring(valueStartIndex, valueEndIndex).replace("value=\"", "")
+        String logoutResponse = new String(Base64.getMimeDecoder().decode(value), StandardCharsets.UTF_8)
+
+        logoutResponse.indexOf("Destination") != -1
+        logoutResponse.contains(sp1entityid)
     }
 
     String sp1entityid = "https://sp1:8993/services/saml"
