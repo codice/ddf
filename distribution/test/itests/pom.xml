@@ -32,7 +32,6 @@
         <!-- Copied from ops4j/org.ops4j.pax.exam2/4.11.0/pom/pom.xml
         Do not change these unless upgrading pax exam-->
         <pax.exam.version>4.11.0</pax.exam.version>
-        <pax.tinybundles.version>2.1.1</pax.tinybundles.version>
         <pax.url.version>2.4.5</pax.url.version>
         <!-- End pax exam properties -->
         <cometd.version>3.0.9</cometd.version>

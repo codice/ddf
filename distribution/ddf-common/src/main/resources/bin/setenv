@@ -63,6 +63,7 @@ export EXTRA_JAVA_OPTS
 # export KARAF_HOME # Karaf home folder
 # export KARAF_DATA # Karaf data folder
 # export KARAF_BASE # Karaf base folder
+# export KARAF_SYSTEM_OPTS # First citizen Karaf options
 
 # The following defines an environment variable referencing our script to be executed by the JVM
 # when errors are detected. The environment variable will be expanded by the JVM.

@@ -57,6 +57,8 @@ rem Karaf data folder
 rem SET KARAF_DATA
 rem Karaf base folder
 rem SET KARAF_BASE
+rem First citizen Karaf options
+rem SET KARAF_SYSTEM_OPTS
 rem Additional available Karaf options
 rem SET KARAF_OPTS=
 rem Uncomment out the line below to enable cxf logging interceptors

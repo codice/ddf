@@ -92,6 +92,11 @@
             <artifactId>platform-osgi-internal-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.fileinstall</artifactId>
+            <version>${felix.fileinstall.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <resources>

@@ -58,7 +58,7 @@
 
         <!--
         Skipping customized libraries.
-        <exclude>**/org/apache/aries/blueprint/org.apache.aries.blueprint.core/1.8.2/org.apache.aries.blueprint.core-1.8.2.jar</exclude>
+        <exclude>**/org/apache/aries/blueprint/org.apache.aries.blueprint.core/1.8.3/org.apache.aries.blueprint.core-1.8.3.jar</exclude>
         -->
 
         <!-- excluding jars we don't need that have OWASP vulnerabilities -->
@@ -291,6 +291,16 @@
       </outputDirectory>
       <includes>
         <include>ddf.platform.osgi:platform-osgi-internal-api:jar:${project.version}</include>
+      </includes>
+    </dependencySet>
+    <!-- Felix fileinstall version 3.6.4 causes issues with our configurations.
+        DDF-3558 will update the config admin and fileinstall versions-->
+    <dependencySet>
+      <outputDirectory>system/org/apache/felix/org.apache.felix.fileinstall/${felix.fileinstall.version}
+      </outputDirectory>
+      <includes>
+        <include>org.apache.felix:org.apache.felix.fileinstall:jar:${felix.fileinstall.version}
+        </include>
       </includes>
     </dependencySet>
   </dependencySets>

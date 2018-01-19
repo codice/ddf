@@ -100,6 +100,8 @@ public abstract class AbstractIntegrationTest {
 
   public static final String CSW_REQUEST_RESOURCE_PATH = "/csw/request";
 
+  public static final String SYSTEM_PROPERTIES_PATH = "etc/system.properties";
+
   protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractIntegrationTest.class);
 
   protected static final String LOGGER_CONFIGURATION_FILE_PATH = "etc/org.ops4j.pax.logging.cfg";
@@ -110,7 +112,7 @@ public abstract class AbstractIntegrationTest {
 
   protected static final String TEST_SECURITY_LOG_LEVEL_PROPERTY = "securityLogLevel";
 
-  protected static final String KARAF_VERSION = "4.1.2";
+  protected static final String KARAF_VERSION = "4.1.4";
 
   protected static final String OPENSEARCH_SOURCE_ID = "openSearchSource";
 
@@ -449,31 +451,31 @@ public abstract class AbstractIntegrationTest {
 
   protected Option[] configureConfigurationPorts() throws URISyntaxException, IOException {
     return options(
-        editConfigurationFilePut("etc/system.properties", "urlScheme", "https"),
-        editConfigurationFilePut("etc/system.properties", "host", "localhost"),
-        editConfigurationFilePut("etc/system.properties", "jetty.port", HTTPS_PORT.getPort()),
-        editConfigurationFilePut("etc/system.properties", "hostContext", "/solr"),
-        editConfigurationFilePut("etc/system.properties", "maven.home", "${user.home}"),
-        editConfigurationFilePut("etc/system.properties", "M2_HOME", "${user.home}"),
+        editConfigurationFilePut(SYSTEM_PROPERTIES_PATH, "urlScheme", "https"),
+        editConfigurationFilePut(SYSTEM_PROPERTIES_PATH, "host", "localhost"),
+        editConfigurationFilePut(SYSTEM_PROPERTIES_PATH, "jetty.port", HTTPS_PORT.getPort()),
+        editConfigurationFilePut(SYSTEM_PROPERTIES_PATH, "hostContext", "/solr"),
+        editConfigurationFilePut(SYSTEM_PROPERTIES_PATH, "maven.home", "${user.home}"),
+        editConfigurationFilePut(SYSTEM_PROPERTIES_PATH, "M2_HOME", "${user.home}"),
         editConfigurationFilePut(
             "etc/users.properties",
             SYSTEM_ADMIN_USER,
             SYSTEM_ADMIN_USER_PASSWORD + ",system-admin"),
         editConfigurationFilePut(
-            "etc/system.properties", HTTP_PORT.getSystemProperty(), HTTP_PORT.getPort()),
+            SYSTEM_PROPERTIES_PATH, HTTP_PORT.getSystemProperty(), HTTP_PORT.getPort()),
         editConfigurationFilePut(
-            "etc/system.properties", HTTPS_PORT.getSystemProperty(), HTTPS_PORT.getPort()),
+            SYSTEM_PROPERTIES_PATH, HTTPS_PORT.getSystemProperty(), HTTPS_PORT.getPort()),
         editConfigurationFilePut(
-            "etc/system.properties", DEFAULT_PORT.getSystemProperty(), DEFAULT_PORT.getPort()),
+            SYSTEM_PROPERTIES_PATH, DEFAULT_PORT.getSystemProperty(), DEFAULT_PORT.getPort()),
         editConfigurationFilePut(
-            "etc/system.properties", BASE_PORT.getSystemProperty(), BASE_PORT.getPort()),
+            SYSTEM_PROPERTIES_PATH, BASE_PORT.getSystemProperty(), BASE_PORT.getPort()),
 
         // DDF-1572: Disables the periodic backups of .bundlefile. In itests, having those
         // backups serves no purpose and it appears that intermittent failures have occurred
         // when the background thread attempts to create the backup before the exam bundle
         // is completely exploded.
         editConfigurationFilePut(
-            "etc/system.properties", "eclipse.enableStateSaver", Boolean.FALSE.toString()),
+            SYSTEM_PROPERTIES_PATH, "eclipse.enableStateSaver", Boolean.FALSE.toString()),
         editConfigurationFilePut("etc/org.apache.karaf.shell.cfg", "sshPort", SSH_PORT.getPort()),
         editConfigurationFilePut("etc/ddf.platform.config.cfg", "port", HTTPS_PORT.getPort()),
         editConfigurationFilePut("etc/ddf.platform.config.cfg", "host", "localhost"),
@@ -509,13 +511,8 @@ public abstract class AbstractIntegrationTest {
             "etc/org.ops4j.pax.url.mvn.cfg",
             "org.ops4j.pax.url.mvn.repositories",
             "http://repo1.maven.org/maven2@id=central,"
-                + "http://oss.sonatype.org/content/repositories/snapshots@snapshots@noreleases@id=sonatype-snapshot,"
-                + "http://oss.sonatype.org/content/repositories/ops4j-snapshots@snapshots@noreleases@id=ops4j-snapshot,"
-                + "http://repository.apache.org/content/groups/snapshots-group@snapshots@noreleases@id=apache,"
-                + "http://svn.apache.org/repos/asf/servicemix/m2-repo@id=servicemix,"
-                + "http://repository.springsource.com/maven/bundles/release@id=springsource,"
-                + "http://repository.springsource.com/maven/bundles/external@id=springsourceext,"
-                + "http://oss.sonatype.org/content/repositories/releases/@id=sonatype"),
+                + "http://repository.apache.org/content/groups/snapshots-group@id=apache@snapshots@noreleases,"
+                + "https://oss.sonatype.org/content/repositories/ops4j-snapshots@id=ops4j.sonatype.snapshots.deploy@snapshots@noreleases"),
         when(System.getProperty("maven.repo.local") != null)
             .useOptions(
                 editConfigurationFilePut(
@@ -533,7 +530,7 @@ public abstract class AbstractIntegrationTest {
                 systemProperty("org.ops4j.pax.url.mvn.localRepository")
                     .value(System.getProperty("maven.repo.local", ""))),
         editConfigurationFilePut(
-            "etc/system.properties",
+            SYSTEM_PROPERTIES_PATH,
             "ddf.version",
             MavenUtils.getArtifactVersion("ddf.test.itests", "test-itests-common")));
   }
@@ -557,7 +554,7 @@ public abstract class AbstractIntegrationTest {
                     createSetLogLevelOption(
                         "ddf.security.service.impl.AbstractAuthorizingRealm", securityLogLevel))),
         editConfigurationFilePut(
-            "etc/org.ops4j.pax.logging.cfg",
+            LOGGER_CONFIGURATION_FILE_PATH,
             "log4j2.logger.org_apache_activemq_artemis.additivity",
             "true"));
   }
@@ -643,11 +640,11 @@ public abstract class AbstractIntegrationTest {
 
   private Option[] configureEmbeddedSolr() {
     return options(
-        editConfigurationFilePut("etc/system.properties", "solr.client", "EmbeddedSolrServer"),
-        editConfigurationFilePut("etc/system.properties", "solr.http.url", ""),
+        editConfigurationFilePut(SYSTEM_PROPERTIES_PATH, "solr.client", "EmbeddedSolrServer"),
+        editConfigurationFilePut(SYSTEM_PROPERTIES_PATH, "solr.http.url", ""),
         editConfigurationFilePut(
-            "etc/system.properties", "solr.data.dir", "${karaf.home}/data/solr"),
-        editConfigurationFilePut("etc/system.properties", "solr.cloud.zookeeper", ""));
+            SYSTEM_PROPERTIES_PATH, "solr.data.dir", "${karaf.home}/data/solr"),
+        editConfigurationFilePut(SYSTEM_PROPERTIES_PATH, "solr.cloud.zookeeper", ""));
   }
 
   /**
