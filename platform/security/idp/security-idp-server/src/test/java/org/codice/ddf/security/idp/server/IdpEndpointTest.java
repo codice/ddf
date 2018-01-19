@@ -14,6 +14,7 @@
 package org.codice.ddf.security.idp.server;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -27,6 +28,7 @@ import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
 import ddf.security.encryption.EncryptionService;
 import ddf.security.samlp.SamlProtocol;
+import ddf.security.samlp.impl.RelayStates;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 import java.io.ByteArrayInputStream;
@@ -44,6 +46,8 @@ import java.util.Base64;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -216,6 +220,7 @@ public class IdpEndpointTest {
     SecurityToken securityToken = mock(SecurityToken.class);
     when(subject.getPrincipals()).thenReturn(principalCollection);
     when(principalCollection.asList()).thenReturn(Collections.singletonList(securityAssertion));
+    when(principalCollection.getPrimaryPrincipal()).thenReturn("testuser");
     when(securityAssertion.getSecurityToken()).thenReturn(securityToken);
     when(securityToken.getToken()).thenReturn(readDocument("/saml.xml").getDocumentElement());
     when(securityManager.getSubject(anyObject())).thenReturn(subject);
@@ -228,6 +233,7 @@ public class IdpEndpointTest {
     idpEndpoint.init();
     idpEndpoint.setSpMetadata(Collections.singletonList(spMetadata));
     idpEndpoint.setSecurityManager(securityManager);
+    idpEndpoint.setLogoutStates(new RelayStates<>());
     PKIAuthenticationTokenFactory pkiAuthenticationTokenFactory =
         new PKIAuthenticationTokenFactory();
     pkiAuthenticationTokenFactory.setSignaturePropertiesPath(signatureFile.getAbsolutePath());
@@ -857,6 +863,21 @@ public class IdpEndpointTest {
             request);
 
     assertThat(response.getStatus(), is(400));
+  }
+
+  @Test
+  public void testGetActiveSessions() {
+    idpEndpoint.cookieCache.addActiveSp("1", "activeSP1");
+    idpEndpoint.cookieCache.addActiveSp("1", "activeSP2");
+    Map<String, Set<String>> activeSessions = idpEndpoint.getActiveSessionsSecure();
+    assertNotNull(activeSessions);
+    assertThat(activeSessions.size(), is(1));
+
+    Set<String> activeSps = activeSessions.get("testuser");
+    assertNotNull(activeSps);
+
+    assertThat(activeSps.size(), is(2));
+    assertThat(activeSps, containsInAnyOrder("activeSP1", "activeSP2"));
   }
 
   private Document readDocument(String name)

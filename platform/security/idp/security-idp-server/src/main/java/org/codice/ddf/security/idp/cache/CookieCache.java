@@ -17,9 +17,17 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
+import com.google.common.collect.Sets;
+import ddf.security.Subject;
+import ddf.security.SubjectUtils;
+import ddf.security.service.SecurityManager;
+import ddf.security.service.SecurityServiceException;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -59,6 +67,38 @@ public class CookieCache {
     }
     synchronized (dataWrapper) {
       dataWrapper.activeSpSet.add(activeSp);
+    }
+  }
+
+  /**
+   * Retrieves all cached, active SAML assertions.
+   *
+   * @return the SecurityToken objects associated with all active sessions
+   */
+  public Map<String, Set<String>> getAllSamlSubjects(SecurityManager securityManager) {
+    return cache
+        .asMap()
+        .values()
+        .stream()
+        .filter(dw -> dw.element != null)
+        .collect(
+            Collectors.toMap(
+                dw -> getSubjectName(dw, securityManager), dw -> dw.activeSpSet, Sets::union));
+  }
+
+  private String getSubjectName(DataWrapper dataWrapper, SecurityManager securityManager) {
+    SecurityToken securityToken =
+        new SecurityToken(dataWrapper.element.getAttribute("ID"), dataWrapper.element, null, null);
+    return extractSubjectName(securityToken, securityManager);
+  }
+
+  private String extractSubjectName(SecurityToken token, SecurityManager securityManager) {
+    try {
+      Subject subject = securityManager.getSubject(token);
+      return SubjectUtils.getName(subject);
+    } catch (SecurityServiceException e) {
+      LOGGER.debug("Unable to extract subject from token", e);
+      return null;
     }
   }
 
