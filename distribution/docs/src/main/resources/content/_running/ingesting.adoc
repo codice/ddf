@@ -24,9 +24,9 @@ There are many methods of ingest supported by the ${branding} to support differe
 
 These methods are the simplest for small data sets or for testing purposes.
 
-====== Ingest Command (${command-console})
+====== Ingest Command
 
-The ${branding} console application has a command-line option for ingesting files
+The ${command-console} has a command-line option for ingesting files.
 
 The syntax for the ingest command is `ingest -t <transformer type> <file path>` relative to the installation path.
 
