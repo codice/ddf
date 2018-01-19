@@ -172,6 +172,12 @@ public class SystemStateManager {
       // reset the catalog
       console.runCommand("catalog:removeall -f -p");
       console.runCommand("catalog:removeall -f -p --cache");
+
+      // Restart bundles that manage dynamic metacards
+      // TODO: 1/19/18 DDF-3561 remove the plugin bundle from this list
+      serviceManager.restartBundles(
+          "registry-identification-plugin", "registry-federation-admin-service-impl");
+
       console.runCommand(
           "catalog:import --provider --force --skip-signature-verification  itest-catalog-entries.zip");
       LOGGER.debug("Reset took {} sec", (System.currentTimeMillis() - start) / 1000.0);
