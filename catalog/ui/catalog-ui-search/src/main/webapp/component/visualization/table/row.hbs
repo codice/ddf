@@ -14,12 +14,20 @@
 {{#each this.properties}}
     {{#unless hidden}}
         <td data-property="{{this.property}}" class="{{this.class}} {{#if hidden}}is-hidden-column{{/if}}" data-value="{{this.value}}">
-            {{#if this.html}}
-                {{{this.html}}}
-            {{else}}
-                <div>
+            <div>
+            {{#each this.value}}
+                <span data-value="{{this}}" title="{{getAlias ../this.property}}: {{this}}">
+                    {{#ifUrl this}}
+                        <a href="{{this}}" target="_blank">{{getAlias ../this.property}}</a>
+                    {{else}}
+                        {{this}}
+                    {{/ifUrl}}
+                </span>
+            {{/each}}
+            </div>
+            <div class="for-bold">
                 {{#each this.value}}
-                    <span data-value="{{this}}" title="{{getAlias ../this.property}}: {{this}}">
+                    <span data-value="{{this}}">
                         {{#ifUrl this}}
                             <a href="{{this}}" target="_blank">{{getAlias ../this.property}}</a>
                         {{else}}
@@ -27,19 +35,7 @@
                         {{/ifUrl}}
                     </span>
                 {{/each}}
-                </div>
-                <div class="for-bold">
-                    {{#each this.value}}
-                        <span data-value="{{this}}">
-                            {{#ifUrl this}}
-                                <a href="{{this}}" target="_blank">{{getAlias ../this.property}}</a>
-                            {{else}}
-                                {{this}}
-                            {{/ifUrl}}
-                        </span>
-                    {{/each}}
-                </div>
-            {{/if}}
+            </div>
         </td>
     {{/unless}}
 {{/each}}

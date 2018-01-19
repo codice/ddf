@@ -52,6 +52,7 @@ module.exports = Marionette.LayoutView.extend({
         spacingMode: '.theme-spacing-mode',
         theme: '.theme-theme',
         animationMode: '.theme-animation',
+        hoverPreview: '.theme-hover-preview',
         customPrimaryColor: '.theme-customPrimaryColor',
         customPositiveColor: '.theme-customPositiveColor',
         customNegativeColor: '.theme-customNegativeColor',
@@ -68,6 +69,7 @@ module.exports = Marionette.LayoutView.extend({
         this.showFontSize();
         this.showSpacingMode();
         this.showAnimation();
+        this.showHoverPreview();
         this.showTheme();
         this.showCustomColors();
         this.handleTheme();
@@ -131,6 +133,29 @@ module.exports = Marionette.LayoutView.extend({
         this.animationMode.currentView.turnOnLimitedWidth();
         this.animationMode.currentView.turnOnEditing();
         this.listenTo(animationModel, 'change:value', this.saveAnimationChanges);
+    },
+    showHoverPreview: function(){
+        var hoverPreviewModel = new Property({
+            label: 'Preview Full Image on Hover',
+            value: [user.getHoverPreview()],
+            enum: [
+                {
+                    label: 'On',
+                    value: true
+                },
+                {
+                    label: 'Off',
+                    value: false
+                }
+            ],
+            id: 'Full Image on Hover'
+        });
+        this.hoverPreview.show(new PropertyView({
+            model: hoverPreviewModel
+        }));
+        this.hoverPreview.currentView.turnOnLimitedWidth();
+        this.hoverPreview.currentView.turnOnEditing();
+        this.listenTo(hoverPreviewModel, 'change:value', this.saveHoverPreviewChanges);
     },
     showFontSize: function(){
         var fontSizeModel = new Property({
@@ -215,6 +240,12 @@ module.exports = Marionette.LayoutView.extend({
         preferences.set('animation', newAnimationMode);
         getPreferences(user).savePreferences();
     },  
+    saveHoverPreviewChanges: function(){
+        var preferences = getPreferences(user);
+        var newHoverPreview = this.hoverPreview.currentView.model.getValue()[0];
+        preferences.set('hoverPreview', newHoverPreview);
+        getPreferences(user).savePreferences();
+    }, 
     saveSpacingChanges: function(){
         var preferences = getPreferences(user);
         var newSpacingMode = this.spacingMode.currentView.model.getValue()[0];

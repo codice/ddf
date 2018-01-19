@@ -19,8 +19,8 @@
 
   img {
     display: inline;
-    min-height: @minimumButtonSize;
-    min-width: 200px;
+    min-height: 2*@minimumButtonSize;
+    min-width: 2*@minimumButtonSize;
     max-width: 200px;
     max-height: 200px;
   }
@@ -38,22 +38,6 @@
     position: relative;
     top: -1px;
     .is-bold();
-  }
-  
-  td.is-thumbnail {
-    button {
-      width: @minimumButtonSize;
-      height: @minimumButtonSize;
-      position: absolute;
-      right: @mediumSpacing;
-      bottom: @minimumSpacing;
-      display: none;
-    }
-
-    &:hover button,
-    button:hover {
-      display: block;
-    }
   }
 }
 
