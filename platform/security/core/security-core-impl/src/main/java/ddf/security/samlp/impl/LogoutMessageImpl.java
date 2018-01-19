@@ -24,6 +24,8 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
+import javax.annotation.Nullable;
+import javax.servlet.http.Cookie;
 import javax.ws.rs.core.UriBuilder;
 import javax.xml.stream.XMLStreamException;
 import org.apache.cxf.helpers.DOMUtils;
@@ -31,10 +33,14 @@ import org.apache.cxf.rs.security.saml.sso.SSOConstants;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.cookie.BasicClientCookie;
+import org.apache.http.protocol.BasicHttpContext;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.apache.wss4j.common.util.DOM2Writer;
@@ -196,18 +202,36 @@ public class LogoutMessageImpl implements LogoutMessage {
   }
 
   @Override
-  public String sendSamlLogoutRequest(LogoutRequest request, String targetUri)
+  public String sendSamlLogoutRequest(
+      LogoutRequest request, String targetUri, boolean isSoap, @Nullable Cookie cookie)
       throws IOException, WSSecurityException {
-    Element requestElement = getElementFromSaml(request);
+    XMLObject xmlObject = isSoap ? SamlProtocol.createSoapMessage(request) : request;
+
+    Element requestElement = getElementFromSaml(xmlObject);
     String requestMessage = DOM2Writer.nodeToString(requestElement);
     try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
       HttpPost post = new HttpPost(targetUri);
       post.addHeader("Cache-Control", "no-cache, no-store");
       post.addHeader("Pragma", "no-cache");
       post.addHeader("SOAPAction", SAML_SOAP_ACTION);
+
+      post.addHeader("Content-Type", "application/soap+xml");
+
       post.setEntity(new StringEntity(requestMessage, "utf-8"));
       ResponseHandler<String> responseHandler = new BasicResponseHandler();
-      return httpClient.execute(post, responseHandler);
+      BasicHttpContext context = new BasicHttpContext();
+      if (cookie != null) {
+        BasicClientCookie basicClientCookie =
+            new BasicClientCookie(cookie.getName(), cookie.getValue());
+        basicClientCookie.setDomain(cookie.getDomain());
+        basicClientCookie.setPath(cookie.getPath());
+
+        BasicCookieStore cookieStore = new BasicCookieStore();
+        cookieStore.addCookie(basicClientCookie);
+        context.setAttribute(HttpClientContext.COOKIE_STORE, cookieStore);
+      }
+
+      return httpClient.execute(post, responseHandler, context);
     }
   }
 

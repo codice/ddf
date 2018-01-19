@@ -27,6 +27,7 @@
     <name>DDF Security Command</name>
     <modules>
         <module>security-command-listener</module>
+        <module>security-command-sessionmanager</module>
     </modules>
 
 </project>

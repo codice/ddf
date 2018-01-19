@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import javax.annotation.Nullable;
+import javax.servlet.http.Cookie;
 import javax.xml.stream.XMLStreamException;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.opensaml.core.xml.XMLObject;
@@ -49,7 +50,8 @@ public interface LogoutMessage {
 
   Element getElementFromSaml(XMLObject xmlObject) throws WSSecurityException;
 
-  String sendSamlLogoutRequest(LogoutRequest request, String targetUri)
+  String sendSamlLogoutRequest(
+      LogoutRequest request, String targetUri, boolean isSoap, @Nullable Cookie cookie)
       throws IOException, WSSecurityException;
 
   URI signSamlGetResponse(SAMLObject samlObject, URI uriNameMeLater, @Nullable String relayState)

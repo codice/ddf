@@ -15,6 +15,8 @@ package org.codice.ddf.security.idp.client;
 
 import static org.codice.ddf.security.idp.client.LogoutRequestService.UNABLE_TO_PARSE_LOGOUT_REQUEST;
 import static org.codice.ddf.security.idp.client.LogoutRequestService.UNABLE_TO_VALIDATE_LOGOUT_REQUEST;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
@@ -22,7 +24,10 @@ import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import ddf.security.SecurityConstants;
@@ -31,9 +36,11 @@ import ddf.security.encryption.EncryptionService;
 import ddf.security.http.SessionFactory;
 import ddf.security.samlp.SamlProtocol;
 import ddf.security.samlp.SimpleSign;
+import ddf.security.samlp.SimpleSign.SignatureException;
 import ddf.security.samlp.impl.LogoutMessageImpl;
 import ddf.security.samlp.impl.RelayStates;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.Collections;
 import java.util.UUID;
@@ -41,6 +48,7 @@ import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -49,6 +57,7 @@ import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.ws.security.tokenstore.SecurityToken;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
+import org.codice.ddf.platform.session.api.HttpSessionInvalidator;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.joda.time.DateTime;
@@ -63,6 +72,7 @@ import org.opensaml.saml.saml2.core.SessionIndex;
 import org.opensaml.saml.saml2.core.StatusCode;
 import org.opensaml.saml.saml2.core.impl.LogoutRequestBuilder;
 import org.opensaml.saml.saml2.core.impl.LogoutResponseBuilder;
+import org.opensaml.xmlsec.signature.Signature;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -95,6 +105,11 @@ public class LogoutRequestServiceTest {
 
   public static Document readSamlAssertion()
       throws SAXException, IOException, ParserConfigurationException {
+    return getDocument("/SAMLAssertion.xml");
+  }
+
+  private static Document getDocument(String resourceName)
+      throws ParserConfigurationException, SAXException, IOException {
     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
     dbf.setValidating(false);
@@ -105,7 +120,7 @@ public class LogoutRequestServiceTest {
     DocumentBuilder db = dbf.newDocumentBuilder();
     db.setEntityResolver(new DOMUtils.NullResolver());
 
-    return db.parse(LogoutRequestServiceTest.class.getResourceAsStream("/SAMLAssertion.xml"));
+    return db.parse(LogoutRequestServiceTest.class.getResourceAsStream(resourceName));
   }
 
   @Before
@@ -251,6 +266,50 @@ public class LogoutRequestServiceTest {
     assertTrue(
         "Expected logout url of " + postLogoutUrl,
         response.getEntity().toString().contains(postLogoutUrl));
+  }
+
+  @Test
+  public void soapLogoutRequestIssueInstantOld() throws Exception {
+    HttpSessionInvalidator httpSessionInvalidator = mock(HttpSessionInvalidator.class);
+    logoutRequestService.setHttpSessionInvalidator(httpSessionInvalidator);
+
+    InputStream requestStream =
+        LogoutRequestServiceTest.class.getResourceAsStream("/SAMLSoapLogoutRequest-good.xml");
+    Response response = logoutRequestService.soapLogoutRequest(requestStream, null);
+    assertThat(response.getStatus(), is(Status.INTERNAL_SERVER_ERROR.getStatusCode()));
+    verify(httpSessionInvalidator, times(0)).invalidateSession(anyString(), any());
+  }
+
+  @Test
+  public void soapLogoutRequestBadSignature() throws Exception {
+    HttpSessionInvalidator httpSessionInvalidator = mock(HttpSessionInvalidator.class);
+    logoutRequestService.setHttpSessionInvalidator(httpSessionInvalidator);
+
+    LogoutResponse logoutResponse = mock(LogoutResponse.class);
+    doReturn(logoutResponse)
+        .when(logoutMessage)
+        .buildLogoutResponse(anyString(), anyString(), anyString());
+    doThrow(SignatureException.class)
+        .when(simpleSign)
+        .validateSignature(any(Signature.class), any(Document.class));
+
+    InputStream requestStream =
+        LogoutRequestServiceTest.class.getResourceAsStream("/SAMLSoapLogoutRequest-good.xml");
+    Response response = logoutRequestService.soapLogoutRequest(requestStream, null);
+    assertThat(response.getStatus(), is(Status.OK.getStatusCode()));
+    verify(httpSessionInvalidator, times(0)).invalidateSession(anyString(), any());
+  }
+
+  @Test
+  public void soapLogoutRequestNotALogout() throws Exception {
+    HttpSessionInvalidator httpSessionInvalidator = mock(HttpSessionInvalidator.class);
+    logoutRequestService.setHttpSessionInvalidator(httpSessionInvalidator);
+
+    InputStream requestStream =
+        LogoutRequestServiceTest.class.getResourceAsStream("/SAMLSoapLogoutRequest-bad.xml");
+    Response response = logoutRequestService.soapLogoutRequest(requestStream, null);
+    assertThat(response.getStatus(), is(Status.INTERNAL_SERVER_ERROR.getStatusCode()));
+    verify(httpSessionInvalidator, times(0)).invalidateSession(anyString(), any());
   }
 
   @Test

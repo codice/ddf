@@ -1144,6 +1144,7 @@
         <feature>platform-email</feature>
         <feature>util-uuidgenerator</feature>
         <feature>platform-alerts</feature>
+        <feature>session-manager-command</feature>
     </feature>
 
     <feature name="clientinfo-filter" install="auto" version="${project.version}"
@@ -1152,12 +1153,23 @@
         <bundle>mvn:ddf.platform/platform-filter-clientinfo/${project.version}</bundle>
     </feature>
 
+    <feature name="session-manager-command" install="manual" version="${project.version}"
+             description="Commands for managing active SAML sessions">
+        <bundle>mvn:ddf.security.command/security-command-sessionmanager/${project.version}</bundle>
+    </feature>
+
+    <feature name="session-invalidator" install="manual" version="${project.version}"
+           description="API for invalidating servlet sessions">
+           <bundle>mvn:ddf.platform/platform-session-invalidator/${project.version}</bundle>
+    </feature>
+
     <feature name="platform-paxweb-jettyconfig" install="manual" version="${project.version}"
              description="Custom Session Manager">
         <feature dependency="true" version="${spring.version}_1">spring</feature>
         <feature prerequisite="true">commons</feature>
         <feature>pax-jetty</feature>
         <feature prerequisite="true">wrap</feature>
+        <feature prerequisite="true">session-invalidator</feature>
         <bundle dependency="true">wrap:mvn:net.jodah/failsafe/${jodah-failsafe.version}</bundle>
         <bundle>mvn:ddf.platform/platform-paxweb-jettyconfig/${project.version}</bundle>
     </feature>

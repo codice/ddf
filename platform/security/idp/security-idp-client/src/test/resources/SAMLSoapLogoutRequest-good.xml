@@ -1,0 +1,64 @@
+<!--
+/**
+ * Copyright (c) Codice Foundation
+ *
+ * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either
+ * version 3 of the License, or any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details. A copy of the GNU Lesser General Public License is distributed along with this program and can be found at
+ * <http://www.gnu.org/licenses/lgpl.html>.
+ *
+ **/
+-->
+<soap11:Envelope xmlns:soap11="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap11:Header/>
+    <soap11:Body>
+        <saml2p:LogoutRequest ID="952778da5c5f4bd6a69adc75c03accdb"
+                              IssueInstant="2018-01-10T18:55:16.704Z"
+                              NotOnOrAfter="2118-01-10T18:55:16.704Z" Version="2.0"
+                              xmlns:saml2p="urn:oasis:names:tc:SAML:2.0:protocol">
+            <saml2:Issuer xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">
+                https://localhost:8993/services/idp/logout
+            </saml2:Issuer>
+            <ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+                <ds:SignedInfo>
+                    <ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+                    <ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
+                    <ds:Reference URI="#952778da5c5f4bd6a69adc75c03accdb">
+                        <ds:Transforms>
+                            <ds:Transform
+                                Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+                            <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+                        </ds:Transforms>
+                        <ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+                        <ds:DigestValue>2eMKygk4uk0N2PH2sae624Jz+d4=</ds:DigestValue>
+                    </ds:Reference>
+                </ds:SignedInfo>
+                <ds:SignatureValue>
+                    w+G1YvJy5WKla2lqTh6FXHcYjoOb3ix533ZrPKTpWGat9PN6YkNTYPtVeWvqKEMPSrVCV+k2b4pqnwXZPukAkDzFMjh7R//cTP+S9LGdzRXtUe0yVAzbNpA33anC7+FJieBLiKPFwOpSccJDfJ8Ej8HYLiTZsiKvqNV0fXJoPKSVCWfNSVc8NpKjRmf7x++zbhZMW6En39H3+3ihtr5SQvpwtKx0772i93TMJMuNpzIWV8FcujUrj4S/Dcidiy6bzqqSjaSBVPp73uBtgBtgIelSN59pJB30NXjA5l1VYlzqYoOWItIUBhpJ00PsUK9fjxpqjy9ZARk+sUnj0BrUfA==
+                </ds:SignatureValue>
+                <ds:KeyInfo>
+                    <ds:X509Data>
+                        <ds:X509Certificate>
+                            MIICsjCCAhugAwIBAgIGAWBQwru6MA0GCSqGSIb3DQEBCwUAMIGEMQswCQYDVQQGEwJVUzELMAkG
+                            A1UECBMCQVoxDDAKBgNVBAoTA0RERjEMMAoGA1UECxMDRGV2MRkwFwYDVQQDExBEREYgRGVtbyBS
+                            b290IENBMTEwLwYJKoZIhvcNAQkBFiJlbWFpbEFkZHJlc3M9ZGRmcm9vdGNhQGV4YW1wbGUub3Jn
+                            MCAXDTE3MTIxMjE2NDM0N1oYDzIxMTcxMjEyMTY0MzQ3WjAUMRIwEAYDVQQDDAlsb2NhbGhvc3Qw
+                            ggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDEwOqpKuMr+GmiT3kKcMKp4361ByVBaxvj
+                            5M6rptn+Al8oOZfxfaDOhOikUVuaPTuIYvTWW04KaQNHI3nm86RwldbwMlPZka5jGeYkOJ3qah1C
+                            6OMmMDEC7lM0/bhxPLc8C0cUwAG8FdlBLDKCYFjHj6UBq5xhD/1uJyvSoWcFqJQbXP+igVV7tDdR
+                            xRDhp8f5eActecjQXK5+bpzNs8KC+3gvnhBj/ux/DYyrE6iA4nKMnelIaZjhW11bsuQwM6XK8Tq7
+                            PQ2LuAuhFoKUq/p8p8Sva75/3nGeCHOlcjj7rnoSCcUgX+u1nnCN/wsshyRAX30wS7C75nQilQkx
+                            CfAlAgMBAAGjGDAWMBQGA1UdEQQNMAuCCWxvY2FsaG9zdDANBgkqhkiG9w0BAQsFAAOBgQAQBBke
+                            d2MsqlmIwxSUXLee6f9R14GPsNsOkLohFhBTKuxC++n+q0+LvMRLmFxPj4dois/dHKQiD7wYWYY4
+                            WPvb3nD2aPev4NZm8erB9+XPVueRzxaLXQ+K1oW9Kjui8+2q1lTBBGOjma1DT/b6FVhyJo5SjQ3J
+                            MKe9TACVp/YA7A==
+                        </ds:X509Certificate>
+                    </ds:X509Data>
+                </ds:KeyInfo>
+            </ds:Signature>
+            <saml2:NameID xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">admin</saml2:NameID>
+        </saml2p:LogoutRequest>
+    </soap11:Body>
+</soap11:Envelope>
