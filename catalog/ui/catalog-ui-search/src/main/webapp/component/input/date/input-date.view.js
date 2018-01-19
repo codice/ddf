@@ -67,11 +67,16 @@ define([
             this.updatePosition();
             this.addResizeHandler();
         },
-        updatePosition: function(){
-            var inputCoordinates = this.$el.find('.input-group.date')[0].getBoundingClientRect();
-            $('body > .bootstrap-datetimepicker-widget').css('left', inputCoordinates.left)
-                .css('top', inputCoordinates.top + inputCoordinates.height)
-                .css('width', inputCoordinates.width);
+        updatePosition: function () {
+            let datepicker = $('body').find('.bootstrap-datetimepicker-widget:last');
+            let inputCoordinates = this.$el.find('.input-group.date')[0].getBoundingClientRect();
+            let top = datepicker.hasClass('bottom') ? inputCoordinates.top + inputCoordinates.height : inputCoordinates.top - datepicker.outerHeight();
+            datepicker.css({
+                'top': top + 'px',
+                'bottom': 'auto',
+                'left': inputCoordinates.left + 'px',
+                'width': inputCoordinates.width + 'px'
+            });
         },
         addResizeHandler: function(){
             $(window).on('resize.datePicker', this.updatePosition.bind(this));
