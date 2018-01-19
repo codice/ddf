@@ -439,9 +439,6 @@ class IdpEndpointSpecTest extends Specification {
                 request)
         
         then:
-        // Verify the request was read correctly
-        notThrown(Exception)
-
         //Check destination
         String responseString = response.getEntity().toString()
         int valueStartIndex = responseString.indexOf("value")

@@ -1138,7 +1138,7 @@ public class IdpEndpoint implements Idp {
       if (samlRequest != null) {
         LogoutRequest logoutRequest =
             logoutMessage.extractSamlLogoutRequest(
-                new String(Base64.getMimeDecoder().decode(samlRequest), StandardCharsets.UTF_8));
+                new String(RestSecurity.base64Decode(samlRequest), StandardCharsets.UTF_8));
         validatePost(request, logoutRequest);
         return handleLogoutRequest(
             cookie, logoutState, logoutRequest, SamlProtocol.Binding.HTTP_POST, relayState);
@@ -1251,17 +1251,19 @@ public class IdpEndpoint implements Idp {
         entityId = logoutState.getOriginalIssuer();
         String status =
             logoutState.isPartialLogout() ? StatusCode.PARTIAL_LOGOUT : StatusCode.SUCCESS;
-        LogoutResponse logoutResponse =
+        logoutObject =
             logoutMessage.buildLogoutResponse(
                 SystemBaseUrl.constructUrl(IDP_LOGOUT, true),
                 status,
                 logoutState.getOriginalRequestId());
-        logoutResponse.setDestination(
-            getServiceProvidersMap()
-                .get(entityId)
-                .getLogoutService(SamlProtocol.Binding.HTTP_POST)
-                .getUrl());
-        logoutObject = logoutResponse;
+
+        ((LogoutResponse) logoutObject)
+            .setDestination(
+                getServiceProvidersMap()
+                    .get(entityId)
+                    .getLogoutService(SamlProtocol.Binding.HTTP_POST)
+                    .getUrl());
+
         relay = logoutState.getInitialRelayState();
         logoutStates.decode(cookie.getValue(), true);
         samlType = SamlProtocol.Type.RESPONSE;
