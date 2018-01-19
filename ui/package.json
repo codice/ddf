@@ -1,6 +1,7 @@
 {
   "private": true,
   "scripts": {
+    "test": "ace pom",
     "bootstrap": "lerna bootstrap",
     "build": "lerna run build && ace gen-feature"
   },
