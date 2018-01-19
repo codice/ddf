@@ -16,11 +16,11 @@ package org.codice.ddf.security.idp.binding.post;
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
+import org.codice.ddf.security.common.jaxrs.RestSecurity;
 import org.codice.ddf.security.idp.binding.api.RequestDecoder;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.saml.saml2.core.AuthnRequest;
@@ -39,7 +39,7 @@ public class PostRequestDecoder implements RequestDecoder {
       throw new IllegalArgumentException("Missing SAMLRequest on IdP request.");
     }
     String decodedRequest =
-        new String(Base64.getMimeDecoder().decode(samlRequest), StandardCharsets.UTF_8);
+        new String(RestSecurity.base64Decode(samlRequest), StandardCharsets.UTF_8);
     ByteArrayInputStream tokenStream =
         new ByteArrayInputStream(decodedRequest.getBytes(StandardCharsets.UTF_8));
     Document authnDoc;
