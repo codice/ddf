@@ -90,6 +90,9 @@ define([
                 this.set(_.omit(this.defaults(), ['type', 'isLocal', 'serverPageIndex', 'result']));
                 this.trigger('resetToDefaults');
             },
+            applyDefaults: function() {
+                this.set(_.pick(this.defaults(), ['sortField', 'sortOrder', 'federation', 'src']));
+            },
             revert: function() {
                 this.trigger('revert');
             },

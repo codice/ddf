@@ -24,8 +24,9 @@ define([
     'component/property/property.view',
     'component/property/property',
     'component/query-settings/query-settings.view',
-    'js/model/Query'
-], function (Marionette, _, properties, $, template, CustomElements, user, PropertyView, Property, QuerySettingsView, QueryModel) {
+    'js/model/Query',
+    'component/confirmation/confirmation.view'
+], function (Marionette, _, properties, $, template, CustomElements, user, PropertyView, Property, QuerySettingsView, QueryModel, ConfirmationView) {
 
     return Marionette.LayoutView.extend({
         template: template,
@@ -35,7 +36,7 @@ define([
             propertySearchSettings: '.property-search-settings'
         },
         events: {
-            'click > .editor-properties > .editor-save': 'save'
+            'click > .editor-properties > .editor-save': 'triggerSave'
         },
         initialize: function() {
             this.showSave();
@@ -76,6 +77,20 @@ define([
             user.getPreferences().get({
                 resultCount: this.propertyResultCount.currentView.model.getValue()[0]
             });
+        },
+        triggerSave: function() {
+            this.save();
+            this.listenTo(ConfirmationView.generateConfirmation({
+                prompt: 'Do you want to apply the new defaults to this search?',
+                no: 'No',
+                yes: 'Apply'
+            }),
+            'change:choice',
+            function(confirmation) {
+                if (confirmation.get('choice')) {
+                    this.model.applyDefaults();
+                }
+            }.bind(this));
         },
         save: function() {
             this.updateResultCountSettings();

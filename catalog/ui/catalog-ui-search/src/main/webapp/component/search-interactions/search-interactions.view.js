@@ -30,23 +30,12 @@ var ConfirmationView = require('component/confirmation/confirmation.view');
 module.exports = Marionette.LayoutView.extend(Decorators.decorate({
     template: template,
     tagName: CustomElements.register('search-interactions'),
-    modelEvents: {
-    },
     regions: {
         searchType: '.interaction-type',
         searchSettings: '.interaction-settings'
     },
     events: {
-        'click > .interaction-reset': 'triggerReset',
-        'click > .interaction-revert': 'triggerRevert'
-    },
-    ui: {
-    },
-    initialize: function(){
-        this.handleAllowRevert();
-    },
-    handleAllowRevert: function() {
-        this.$el.toggleClass('allow-revert', this.options.allowRevert === true);
+        'click > .interaction-reset': 'triggerReset'
     },
     onRender: function(){
         this.generateSearchType();
@@ -73,28 +62,14 @@ module.exports = Marionette.LayoutView.extend(Decorators.decorate({
     },
     triggerReset: function() {
         this.listenTo(ConfirmationView.generateConfirmation({
-            prompt: 'Are you sure you want to save over the current search with defaults?',
+            prompt: 'Are you sure you want to reset the search?',
             no: 'Cancel',
-            yes: 'Overwrite'
+            yes: 'Reset'
         }),
         'change:choice',
         function(confirmation) {
             if (confirmation.get('choice')) {
                 this.model.resetToDefaults();
-                this.handleClick();
-            }
-        }.bind(this));
-    },
-    triggerRevert: function() {
-        this.listenTo(ConfirmationView.generateConfirmation({
-            prompt: 'Are you sure you want to save over the current search with the last known version?',
-            no: 'Cancel',
-            yes: 'Overwrite'
-        }),
-        'change:choice',
-        function(confirmation) {
-            if (confirmation.get('choice')) {
-                this.model.revert();
                 this.handleClick();
             }
         }.bind(this));

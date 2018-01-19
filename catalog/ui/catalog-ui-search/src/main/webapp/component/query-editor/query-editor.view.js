@@ -152,8 +152,7 @@ module.exports = Marionette.LayoutView.extend({
     },
     showTitle: function() {
         this.queryTitle.show(new QueryTitle({
-            model: this.model,
-            allowRevert: true
+            model: this.model
         }));
     },
     showText: function () {

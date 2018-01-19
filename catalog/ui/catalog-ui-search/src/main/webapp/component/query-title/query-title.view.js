@@ -51,8 +51,7 @@ module.exports = Marionette.LayoutView.extend({
     showSearchInteractions: function() {
         this.searchInteractions.show(new SearchInteractionsDropdownView({
             model: new DropdownModel(),
-            modelForComponent: this.model,
-            allowRevert: this.options.allowRevert
+            modelForComponent: this.model
         }));
     },
     focus: function(){
