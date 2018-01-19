@@ -12,9 +12,9 @@
  *
  **/
 -->
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>ddf</groupId>
@@ -328,6 +328,137 @@
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-artifacts</id>
+                        <phase>package</phase>
+                        <inherited>false</inherited>
+                        <goals>
+                            <goal>attach-artifact</goal>
+                        </goals>
+                        <configuration>
+                            <artifacts>
+                                <!-- NOTE: please don't edit these artifacts manually. -->
+                                <![CDATA[ They were calculated by running "ace pom --fix". ]]>
+                                <!-- Please re-run the command if the artifacts need to be updated. -->
+                                <artifact>
+                                    <file>target/features.xml</file>
+                                    <type>xml</type>
+                                    <classifier>features</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>packages/admin-core-logviewer/target/logviewer-ui.jar</file>
+                                    <type>jar</type>
+                                    <classifier>logviewer-ui</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>packages/admin-metrics-ui/target/metrics-module.jar</file>
+                                    <type>jar</type>
+                                    <classifier>metrics-module</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>packages/admin-security-certificate-ui/target/security-certificate-adminmodule.jar</file>
+                                    <type>jar</type>
+                                    <classifier>security-certificate-adminmodule</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>packages/admin-security-ui/target/security-admin-module.jar</file>
+                                    <type>jar</type>
+                                    <classifier>security-admin-module</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>packages/broker-undelivered-messages-ui/target/message-broker.jar</file>
+                                    <type>jar</type>
+                                    <classifier>message-broker</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>packages/catalog-admin-module-layout/target/defaul-layout.jar</file>
+                                    <type>jar</type>
+                                    <classifier>defaul-layout</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>packages/catalog-admin-module-maplayers/target/map-layers.jar</file>
+                                    <type>jar</type>
+                                    <classifier>map-layers</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>packages/catalog-admin-module-sources/target/sources-module.jar</file>
+                                    <type>jar</type>
+                                    <classifier>sources-module</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>packages/catalog-ui-search/target/catalog-ui-search.jar</file>
+                                    <type>jar</type>
+                                    <classifier>catalog-ui-search</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>packages/geowebcache-admin-plugin/target/geowebcache-admin-plugin.jar</file>
+                                    <type>jar</type>
+                                    <classifier>geowebcache-admin-plugin</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>packages/platform-error-impl/target/platform-error-impl.jar</file>
+                                    <type>jar</type>
+                                    <classifier>platform-error-impl</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>packages/registry-admin-local-ui/target/registry-module.jar</file>
+                                    <type>jar</type>
+                                    <classifier>registry-module</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>packages/registry-admin-remote-ui/target/remote-registries-module.jar</file>
+                                    <type>jar</type>
+                                    <classifier>remote-registries-module</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>packages/resourcemanagement-querymonitor-ui/target/resourcemanagement-querymonitor-ui.jar</file>
+                                    <type>jar</type>
+                                    <classifier>resourcemanagement-querymonitor-ui</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>packages/resourcemanagement-usage-ui/target/resourcemanagement-usage-ui.jar</file>
+                                    <type>jar</type>
+                                    <classifier>resourcemanagement-usage-ui</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>packages/security-handler-guest/target/guest-security-handler.jar</file>
+                                    <type>jar</type>
+                                    <classifier>guest-security-handler</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>packages/security-idp-server/target/security-idp-server.jar</file>
+                                    <type>jar</type>
+                                    <classifier>security-idp-server</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>packages/security-servlet-logout/target/security-servlet-logout.jar</file>
+                                    <type>jar</type>
+                                    <classifier>security-servlet-logout</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>packages/spatial-geocoding-admin-module/target/spatial-geocoding-admin-module.jar</file>
+                                    <type>jar</type>
+                                    <classifier>spatial-geocoding-admin-module</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>packages/standard/target/ddf-ui.jar</file>
+                                    <type>jar</type>
+                                    <classifier>ddf-ui</classifier>
+                                </artifact>
+                                <artifact>
+                                    <file>packages/ui/target/admin-ui.jar</file>
+                                    <type>jar</type>
+                                    <classifier>admin-ui</classifier>
+                                </artifact>
+                            </artifacts>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <executions>
@@ -366,6 +497,6 @@
                 </executions>
             </plugin>
         </plugins>
-
     </build>
 </project>
+
