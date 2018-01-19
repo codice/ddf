@@ -59,7 +59,7 @@ include::${project.build.directory}/doc-contents/content/config.adoc[]
 
 // Include iframeResizer to fix scolling issue when displayed in admin-ui.
 ++++
-<script type="text/javascript" src="/admin/iframe-resizer/2.6.2/js/iframeResizer.contentWindow.min.js"></script>
+<script type="text/javascript" src="/webjars/iframe-resizer/2.6.2/js/iframeResizer.contentWindow.min.js"></script>
 <script type="text/javascript" >
 "use strict";
 
