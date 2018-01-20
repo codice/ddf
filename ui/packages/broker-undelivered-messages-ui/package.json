@@ -35,7 +35,7 @@
     "mkdirp": "0.5.1",
     "moment": "2.20.1",
     "node-lessify": "0.1.4",
-    "standard": "8.0.0",
+    "standard": "8.6.0",
     "tap": "5.7.2",
     "tape": "4.5.1",
     "ace": "*"
