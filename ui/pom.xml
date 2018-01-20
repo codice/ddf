@@ -303,6 +303,16 @@
                         </configuration>
                     </execution>
                     <execution>
+                        <id>test</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>yarn</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>run test</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>grunt build</id>
                         <goals>
                             <goal>grunt</goal>
