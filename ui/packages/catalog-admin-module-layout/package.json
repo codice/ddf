@@ -19,11 +19,15 @@
       "afterEach"
     ]
   },
+  "mocha": {
+    "hooks": "mocha-phantomjs-istanbul",
+    "coverageFile":"target/coverage.json"
+  },
   "scripts": {
     "start": "webpack-dev-server --progress --open",
     "start:test": "webpack-dev-server --progress --open --env=test",
-    "pretest": "standard ./src/**/*.js && node ./node_modules/phantomjs-prebuilt/install.js && webpack --bail --env=ci",
-    "test": "phantomjs ./node_modules/mocha-phantomjs-core/mocha-phantomjs-core.js target/ci/index.html spec \"{\\\"hooks\\\": \\\"mocha-phantomjs-istanbul\\\", \\\"coverageFile\\\": \\\"target/coverage.json\\\"}\"",
+    "pretest": "standard ./src/**/*.js && webpack --bail --env=ci",
+    "test": "ace test target/ci/index.html",
     "posttest": "istanbul check-coverage",
     "coverage:report": "istanbul report html && opn ./target/coverage/index.html",
     "format": "standard --fix ./src/**/*.js",
@@ -76,10 +80,8 @@
     "json-loader": "0.5.4",
     "mocha": "3.2.0",
     "mocha-loader": "1.1.0",
-    "mocha-phantomjs-core": "2.1.1",
     "mocha-phantomjs-istanbul": "0.0.2",
     "opn-cli": "3.1.0",
-    "phantomjs-prebuilt": "2.1.14",
     "react-addons-test-utils": "15.4.2",
     "react-hot-loader": "3.0.0-beta.6",
     "stack-source-map": "1.0.6",
