@@ -24,16 +24,7 @@
     <name>DDF :: Catalog :: Admin :: Module :: Map Layers</name>
     <artifactId>catalog-admin-module-maplayers</artifactId>
     <packaging>bundle</packaging>
-    <properties>
-        <env>production</env>
-    </properties>
     <dependencies>
-        <dependency>
-            <!--DDF-3217 Temporarily adding deprecated GzipFilter functionality until GzipHandler supported by PaxWeb-->
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-servlets</artifactId>
-            <version>9.2.19.v20160908</version>
-        </dependency>
         <dependency>
             <groupId>ddf.admin.core</groupId>
             <artifactId>admin-core-appservice</artifactId>
@@ -43,51 +34,11 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>com.github.eirslett</groupId>
-                <artifactId>frontend-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>yarn dist</id>
-                        <goals>
-                            <goal>yarn</goal>
-                        </goals>
-                        <configuration>
-                            <arguments>run dist -- --env=${env}</arguments>
-                            <yarnInheritsProxyConfigFromMaven>false</yarnInheritsProxyConfigFromMaven>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>yarn test</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>yarn</goal>
-                        </goals>
-                        <configuration>
-                            <arguments>run test</arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>grunt build</id>
-                        <goals>
-                            <goal>grunt</goal>
-                        </goals>
-                        <configuration>
-                            <skip>true</skip>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
-                        <Web-ContextPath>/admin/map-layers</Web-ContextPath>
-                        <_wab>${project.build.directory}/webapp</_wab>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Embed-Dependency>
-                            jetty-servlets
-                        </Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>
@@ -130,18 +81,4 @@
             </plugin>
         </plugins>
     </build>
-    <profiles>
-        <profile>
-            <id>webpack dev</id>
-            <activation>
-                <property>
-                    <name>webBuildEnv</name>
-                    <value>dev</value>
-                </property>
-            </activation>
-            <properties>
-                <env>development</env>
-            </properties>
-        </profile>
-    </profiles>
 </project>
