@@ -29,7 +29,6 @@
     <modules>
         <module>cometd-java-example</module>
         <module>java-cli-example</module>
-        <module>cometd-web-example</module>
     </modules>
 
 </project>
