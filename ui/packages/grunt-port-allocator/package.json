@@ -1,10 +1,11 @@
 {
   "name": "grunt-port-allocator",
-  "version": "2.9.0-SNAPSHOT",
+  "version": "1.0.0",
   "description": "Grunt port allocator task.",
+  "main": "src/main/js/tasks/grunt-port-allocator.js",
   "scripts": {
-    "pretest": "jshint src",
-    "test": "tap ./src/test/js/port-allocator.js && grunt --gruntfile ./src/test/js/Gruntfile.js"
+    "pretest": "jshint tasks lib test",
+    "test": "tap ./test/port-allocator.js && grunt --gruntfile ./test/Gruntfile.js"
   },
   "author": "Codice",
   "license": "LGPL-3.0",

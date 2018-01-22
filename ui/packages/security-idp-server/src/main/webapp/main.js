@@ -19,27 +19,27 @@
 
         paths: {
 
-            bootstrap: 'bootstrap/3.3.7/dist/js/bootstrap.min',
-            q: 'q/1.4.1/q',
+            bootstrap: '/webjars/bootstrap/3.3.7/dist/js/bootstrap.min',
+            q: '/webjars/q/1.4.1/q',
 
             // backbone
-            backbone: 'backbone/1.1.2/backbone',
-            underscore: 'underscore/1.8.3/underscore-min',
-            marionette: 'marionette/1.8.8/lib/backbone.marionette.min',
+            backbone: '/webjars/backbone/1.1.2/backbone',
+            underscore: '/webjars/underscore/1.8.3/underscore-min',
+            marionette: '/webjars/marionette/1.8.8/lib/backbone.marionette.min',
 
             // jquery
-            jquery: 'jquery/3.2.1/dist/jquery.min',
-            jqueryuiCore: 'jquery-ui/1.12.1/ui/minified/jquery.ui.core.min',
+            jquery: '/webjars/jquery/3.2.1/dist/jquery.min',
+            jqueryuiCore: '/webjars/jquery-ui/1.12.1/ui/minified/jquery.ui.core.min',
 
             // purl
-            purl: 'purl/2.3.1/purl',
+            purl: '/webjars/purl/2.3.1/purl',
 
             // handlebars
-            handlebars: 'handlebars/2.0.0/handlebars.min',
+            handlebars: '/webjars/handlebars/2.0.0/handlebars.min',
             icanhaz: 'js/ich',
 
             // require plugins
-            text: 'requirejs-plugins/1.0.3/lib/text',
+            text: '/webjars/requirejs-plugins/1.0.3/lib/text',
 
             // default login ui
             app: 'js/application'

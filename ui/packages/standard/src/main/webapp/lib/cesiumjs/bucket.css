@@ -1,5 +1,5 @@
-@import url(/search/standard/cesiumjs/1.22.0/Cesium/Widgets/widgets.css);
-@import url(/search/standard/cesiumjs/1.22.0/Cesium/Widgets/lighter.css);
+@import url(/webjars/cesiumjs/1.22.0/Cesium/Widgets/widgets.css);
+@import url(/webjars/cesiumjs/1.22.0/Cesium/Widgets/lighter.css);
 
 body {
     background: #000;

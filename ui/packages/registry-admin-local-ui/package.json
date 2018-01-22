@@ -37,6 +37,7 @@
     "path": "0.4.9"
   },
   "scripts": {
-    "start": "grunt"
+    "start": "grunt",
+    "build": "grunt build"
   }
 }

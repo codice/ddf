@@ -12,7 +12,7 @@
 /*global module,require*/
 
 module.exports = function (grunt) {
-    require('load-grunt-tasks')(grunt);
+    require('load-grunt-tasks')(grunt, {requireResolution: true});
 
     grunt.initConfig({
         ports: {
@@ -184,16 +184,7 @@ module.exports = function (grunt) {
         }
     });
 
-    //grunt.registerTask('test', ['express:test', 'mochaWebdriver:phantom']);
-    //grunt.registerTask('test:selenium', ['express:test', 'mochaWebdriver:selenium']);
-    //grunt.registerTask('test:sauce', ['express:test', 'mochaWebdriver:sauce']);
 
-    grunt.loadNpmTasks('grunt-replace');
-    grunt.loadNpmTasks('grunt-express-server');
-
-    grunt.registerTask('build', ['replace', 'less',
-        'cssmin', 'jshint']);
-
+    grunt.registerTask('build', ['replace', 'less', 'cssmin', 'jshint']);
     grunt.registerTask('default', ['build', 'express:server', 'watch']);
-
 };
