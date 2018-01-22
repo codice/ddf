@@ -11,6 +11,8 @@ jsconfig.json
 .vscode/
 node_modules/
 node/
+lerna-debug.log
+npm-debug.log
 atlassian-ide-plugin.xml
 *.sonar-ide.properties
 **/webapp/css/styles.css
