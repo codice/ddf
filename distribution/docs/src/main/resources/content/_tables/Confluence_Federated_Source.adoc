@@ -74,7 +74,7 @@
 |Additional Attributes
 |additionalAttributes
 |String cardinality=100
-|Additional attributes to add to confluence metacards returned from this source.
+|Additional attributes to add to confluence metacards returned from this source. All attributes in the <<_catalog_taxonomy, catalog taxonomy tables>> are injected into all metacards by default and can be overridden.
 |
 |No
 
