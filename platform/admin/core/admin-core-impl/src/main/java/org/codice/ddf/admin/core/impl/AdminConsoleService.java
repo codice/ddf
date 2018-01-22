@@ -25,9 +25,12 @@ import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanServer;
 import javax.management.NotCompliantMBeanException;
@@ -397,7 +400,7 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
       CollectionUtils.transform(
           configEntries, new CardinalityTransformer(metatype.getAttributeDefinitions(), pid));
 
-      Map<String, Object> newConfigProperties = new HashMap<>();
+      Dictionary<String, Object> newConfigProperties = new Hashtable<>();
 
       // If the configuration entry is a password, and its updated configuration value is
       // "password", do not update the password.
