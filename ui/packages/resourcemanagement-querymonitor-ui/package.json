@@ -46,6 +46,7 @@
     "request": "2.79.0"
   },
   "scripts": {
-    "start": "grunt"
+    "start": "grunt",
+    "build": "grunt build"
   }
 }

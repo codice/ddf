@@ -19,27 +19,27 @@
 
         paths: {
 
-            bootstrap: 'bootstrap/3.3.7/dist/js/bootstrap.min',
-            q: 'q/1.4.1/q',
+            bootstrap: '/webjars/bootstrap/3.3.7/dist/js/bootstrap.min',
+            q: '/webjars/q/1.4.1/q',
 
             // backbone
-            backbone: 'backbone/1.1.2/backbone',
-            backboneassociation: 'backbone-associations/0.6.2/backbone-associations-min',
-            underscore: 'underscore/1.8.3/underscore-min',
-            marionette: 'marionette/1.8.8/lib/backbone.marionette.min',
-            modelbinder: 'backbone.modelbinder/1.1.0/Backbone.ModelBinder.min',
-            poller: 'backbone-poller/1.1.3/backbone.poller',
+            backbone: '/webjars/backbone/1.1.2/backbone',
+            backboneassociation: '/webjars/backbone-associations/0.6.2/backbone-associations-min',
+            underscore: '/webjars/underscore/1.8.3/underscore-min',
+            marionette: '/webjars/marionette/1.8.8/lib/backbone.marionette.min',
+            modelbinder: '/webjars/backbone.modelbinder/1.1.0/Backbone.ModelBinder.min',
+            poller: '/webjars/backbone-poller/1.1.3/backbone.poller',
 
             // jquery
-            jquery: 'jquery/3.2.1/dist/jquery.min',
-            jqueryui: 'jquery-ui/1.12.1/jquery-ui.min',
+            jquery: '/webjars/jquery/3.2.1/dist/jquery.min',
+            jqueryui: '/webjars/jquery-ui/1.12.1/jquery-ui.min',
 
             // handlebars
-            handlebars: 'handlebars/4.0.10/handlebars.min',
+            handlebars: '/webjars/handlebars/4.0.10/handlebars.min',
             icanhaz: 'js/ich',
 
             // require plugins
-            text: 'requirejs-plugins/1.0.3/lib/text'
+            text: '/webjars/requirejs-plugins/1.0.3/lib/text'
         },
 
 

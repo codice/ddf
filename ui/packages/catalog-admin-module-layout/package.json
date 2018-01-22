@@ -27,8 +27,8 @@
     "posttest": "istanbul check-coverage",
     "coverage:report": "istanbul report html && opn ./target/coverage/index.html",
     "format": "standard --fix ./src/**/*.js",
-    "dist": "webpack --bail --progress",
-    "dist:stat": "webpack --json --env=production | webpack-bundle-size-analyzer"
+    "build": "webpack --bail --progress",
+    "build:stat": "webpack --json --env=production | webpack-bundle-size-analyzer"
   },
   "peerDependencies": {
     "react": "^15.1.0",

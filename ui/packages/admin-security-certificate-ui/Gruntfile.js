@@ -12,7 +12,7 @@
 /*global module,require*/
 
 module.exports = function (grunt) {
-    require('load-grunt-tasks')(grunt);
+    require('load-grunt-tasks')(grunt, {requireResolution: true});
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
@@ -133,12 +133,6 @@ module.exports = function (grunt) {
         }
     });
 
-    grunt.loadNpmTasks('grunt-replace');
-    grunt.loadNpmTasks('grunt-express-server');
-
-    grunt.registerTask('build', ['replace', 'less',
-        'cssmin', 'jshint']);
-
+    grunt.registerTask('build', ['replace', 'less', 'cssmin', 'jshint']);
     grunt.registerTask('default', ['build', 'express:server', 'watch']);
-
 };

@@ -14,27 +14,27 @@
 require.config({
     paths: {
 
-        bootstrap: 'bootstrap/3.3.7/dist/js/bootstrap.min',
-        bootstrapselect: 'bootstrap-select/1.6.4/dist/js/bootstrap-select.min',
+        bootstrap: '/webjars/bootstrap/3.3.7/dist/js/bootstrap.min',
+        bootstrapselect: '/webjars/bootstrap-select/1.6.4/dist/js/bootstrap-select.min',
 
         cometd: 'lib/cometd/org/cometd',
         jquerycometd: 'lib/cometd/jquery/jquery.cometd',
-        moment: 'moment/2.20.1/min/moment.min',
-        perfectscrollbar: 'perfect-scrollbar/0.7.0/js/perfect-scrollbar.jquery.min',
-        spin: 'spin.js/2.3.2/spin',
-        q: 'q/1.4.1/q',
-        spectrum: 'spectrum/1.8.0/spectrum',
+        moment: '/webjars/moment/2.20.1/min/moment.min',
+        perfectscrollbar: '/webjars/perfect-scrollbar/0.7.0/js/perfect-scrollbar.jquery.min',
+        spin: '/webjars/spin.js/2.3.2/spin',
+        q: '/webjars/q/1.4.1/q',
+        spectrum: '/webjars/spectrum/1.8.0/spectrum',
 
         // backbone
-        backbone: 'backbone/1.1.2/backbone',
-        backboneassociations: 'backbone-associations/0.6.2/backbone-associations-min',
+        backbone: '/webjars/backbone/1.1.2/backbone',
+        backboneassociations: '/webjars/backbone-associations/0.6.2/backbone-associations-min',
         backbonecometd: 'lib/backbone-cometd/backbone.cometd.extension',
-        backboneundo: 'Backbone.Undo/0.2.5/Backbone.Undo',
-        poller: 'backbone-poller/1.1.3/backbone.poller',
-        underscore: 'lodash/3.7.0/lodash.min',
-        marionette: 'marionette/2.4.5/lib/backbone.marionette.min',
-        'Backbone.ModelBinder': 'backbone.modelbinder/1.1.0/Backbone.ModelBinder.min',
-        collectionbinder: 'backbone.modelbinder/1.1.0/Backbone.CollectionBinder.min',
+        backboneundo: '/webjars/Backbone.Undo/0.2.5/Backbone.Undo',
+        poller: '/webjars/backbone-poller/1.1.3/backbone.poller',
+        underscore: '/webjars/lodash/3.7.0/lodash.min',
+        marionette: '/webjars/marionette/2.4.5/lib/backbone.marionette.min',
+        'Backbone.ModelBinder': '/webjars/backbone.modelbinder/1.1.0/Backbone.ModelBinder.min',
+        collectionbinder: '/webjars/backbone.modelbinder/1.1.0/Backbone.CollectionBinder.min',
 
         // application
         application: 'js/application',
@@ -48,34 +48,34 @@ require.config({
         properties: 'properties',
 
         // jquery
-        jquery: 'jquery/3.2.1/dist/jquery.min',
-        jsCookie: 'js-cookie/2.1.4/src/js.cookie',
-        jqueryui: 'jquery-ui/1.12.1/jquery-ui.min',
+        jquery: '/webjars/jquery/3.2.1/dist/jquery.min',
+        jsCookie: '/webjars/js-cookie/2.1.4/src/js.cookie',
+        jqueryui: '/webjars/jquery-ui/1.12.1/jquery-ui.min',
         datepickerOverride: 'lib/jquery/js/plugin/jquery-ui-datepicker-4digitYearOverride-addon',
-        datepickerAddon: 'jqueryui-timepicker-addon/1.4.5/src/jquery-ui-timepicker-addon',
-        purl: 'purl/2.3.1/purl',
-        multiselect: 'jquery-ui-multiselect-widget/1.14/src/jquery.multiselect',
-        multiselectfilter: 'jquery-ui-multiselect-widget/1.14/src/jquery.multiselect.filter',
-        fileupload: 'jquery-file-upload/9.5.7/js/jquery.fileupload',
+        datepickerAddon: '/webjars/jqueryui-timepicker-addon/1.4.5/src/jquery-ui-timepicker-addon',
+        purl: '/webjars/purl/2.3.1/purl',
+        multiselect: '/webjars/jquery-ui-multiselect-widget/1.14/src/jquery.multiselect',
+        multiselectfilter: '/webjars/jquery-ui-multiselect-widget/1.14/src/jquery.multiselect.filter',
+        fileupload: '/webjars/jquery-file-upload/9.5.7/js/jquery.fileupload',
 
         // handlebars
-        handlebars: 'handlebars/2.0.0/handlebars.min',
+        handlebars: '/webjars/handlebars/2.0.0/handlebars.min',
         icanhaz: 'js/ich',
 
         // require plugins
-        text: 'requirejs-plugins/1.0.3/lib/text',
-        css: 'require-css/0.1.10/css.min',
+        text: '/webjars/requirejs-plugins/1.0.3/lib/text',
+        css: '/webjars/require-css/0.1.10/css.min',
 
         // pnotify
-        pnotify: 'pnotify/1.3.1/jquery.pnotify.min',
+        pnotify: '/webjars/pnotify/1.3.1/jquery.pnotify.min',
 
         // map
-        cesium: 'cesiumjs/1.22.0/Cesium/Cesium',
+        cesium: '/webjars/cesiumjs/1.22.0/Cesium/Cesium',
         drawHelper: 'lib/cesium-drawhelper/DrawHelper',
-        openlayers: 'openlayers3/3.16.0/build/ol',
-        usngs: 'usng.js/0.2.2/usng',
+        openlayers: '/webjars/openlayers3/3.16.0/build/ol',
+        usngs: '/webjars/usng.js/0.2.2/usng',
 
-        wellknown: 'wellknown/0.4.0/wellknown'
+        wellknown: '/webjars/wellknown/0.4.0/wellknown'
     },
     map: {
         '*': {

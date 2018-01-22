@@ -13,7 +13,7 @@
 
 module.exports = function (grunt) {
 
-    require('load-grunt-tasks')(grunt);
+    require('load-grunt-tasks')(grunt, {requireResolution: true});
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
@@ -186,17 +186,11 @@ module.exports = function (grunt) {
         }
     });
 
-    grunt.loadNpmTasks('grunt-mocha');
-    grunt.loadNpmTasks('grunt-replace');
-    grunt.loadNpmTasks('grunt-express-server');
 
     grunt.registerTask('test', ['port:allocator', 'express:test'/*, 'mochaWebdriver:phantom'*/]);
     // grunt.registerTask('test:selenium', ['port:allocator', 'express:test', 'mochaWebdriver:selenium']);
     // grunt.registerTask('test:sauce', ['port:allocator', 'express:test', 'mochaWebdriver:sauce']);
 
-    grunt.registerTask('build', ['replace', 'less',
-        'cssmin', 'jshint']);
-
+    grunt.registerTask('build', ['replace', 'less', 'cssmin', 'jshint']);
     grunt.registerTask('default', ['build', 'express:server', 'watch']);
-
 };

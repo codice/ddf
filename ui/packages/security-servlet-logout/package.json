@@ -30,6 +30,7 @@
     "morgan": "1.7.0"
   },
   "scripts": {
-    "start": "grunt"
+    "start": "grunt",
+    "build": "grunt build"
   }
 }

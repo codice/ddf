@@ -9,7 +9,8 @@
     "express"
   ],
   "scripts": {
-    "start": "grunt"
+    "start": "grunt",
+    "build": "grunt build"
   },
   "repository": {
     "type": "git",

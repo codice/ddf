@@ -16,7 +16,7 @@
 
 module.exports = function (grunt) {
 
-    require('load-grunt-tasks')(grunt);
+    require('load-grunt-tasks')(grunt, {requireResolution: true});
 
     grunt.initConfig({
 
@@ -114,16 +114,7 @@ module.exports = function (grunt) {
         }
     });
 
-    grunt.loadNpmTasks('grunt-bower-task');
-    grunt.loadNpmTasks('grunt-contrib-clean');
-    grunt.loadNpmTasks('grunt-replace');
-    grunt.loadNpmTasks('grunt-contrib-jshint');
-    grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks('grunt-contrib-less');
-    grunt.loadNpmTasks('grunt-express-server');
 
-    var buildTasks = ['clean', 'replace', 'less', 'jshint'];
-
-    grunt.registerTask('build', buildTasks);
+    grunt.registerTask('build', ['clean', 'replace', 'less', 'jshint']);
     grunt.registerTask('default', ['build', 'express', 'watch']);
 };
