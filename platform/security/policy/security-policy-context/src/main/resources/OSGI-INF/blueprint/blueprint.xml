@@ -57,6 +57,7 @@
                 <value>${org.codice.ddf.system.rootContext}/internal/session</value>
                 <value>/logout</value>
                 <value>/error</value>
+                <value>/webjars</value>
             </array>
         </property>
         <property name="traversalDepth">
