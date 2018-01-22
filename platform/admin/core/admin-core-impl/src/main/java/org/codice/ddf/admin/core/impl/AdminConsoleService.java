@@ -17,6 +17,8 @@ import com.github.drapostolos.typeparser.TypeParser;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Array;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -624,6 +626,8 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
     BYTE(AttributeDefinition.BYTE, Byte.class) {},
     DOUBLE(AttributeDefinition.DOUBLE, Double.class) {},
     FLOAT(AttributeDefinition.FLOAT, Float.class) {},
+    BIGINTEGER(AttributeDefinition.BIGINTEGER, BigInteger.class) {},
+    BIGDECIMAL(AttributeDefinition.BIGDECIMAL, BigDecimal.class) {},
     BOOLEAN(AttributeDefinition.BOOLEAN, Boolean.class) {},
     PASSWORD(AttributeDefinition.PASSWORD, String.class) {};
 
