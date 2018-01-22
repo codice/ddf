@@ -123,6 +123,8 @@
                                         <exclude>org/apache/felix/cm/impl/ConfigurationManager*
                                         </exclude>
                                         <exclude>org/apache/felix/cm/impl/helper/BaseTracker*</exclude>
+                                        <exclude>*.SF</exclude>
+                                        <exclude>*.RSA</exclude>
                                     </excludes>
                                 </filter>
                             </filters>

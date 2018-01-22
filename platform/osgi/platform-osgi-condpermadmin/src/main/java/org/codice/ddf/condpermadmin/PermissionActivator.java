@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import net.sourceforge.prograde.policy.SecurityActions;
 import net.sourceforge.prograde.policyparser.ParsedPermission;
 import net.sourceforge.prograde.policyparser.ParsedPolicy;
@@ -57,46 +58,47 @@ public class PermissionActivator implements BundleActivator {
     permAdminTracker.open();
 
     ConditionalPermissionAdmin conditionalPermissionAdmin = permAdminTracker.getService();
-    String policyFile =
-        SecurityActions.getSystemProperty("ddf.home")
-            + File.separator
-            + "security"
-            + File.separator
-            + "default.policy";
-    if (policyFile.startsWith("=")) {
-      policyFile = policyFile.substring(1);
+    String policyDir = SecurityActions.getSystemProperty("ddf.home") + File.separator + "security";
+    if (policyDir.startsWith("=")) {
+      policyDir = policyDir.substring(1);
     }
-    ParsedPolicy parsedPolicy = new Parser(false).parse(new FileReader(new File(policyFile)));
-    List<ParsedPolicyEntry> grantEntries = parsedPolicy.getGrantEntries();
-    List<ParsedPolicyEntry> denyEntries = parsedPolicy.getDenyEntries();
-
-    ConditionalPermissionUpdate conditionalPermissionUpdate =
-        conditionalPermissionAdmin.newConditionalPermissionUpdate();
-
-    List<ConditionalPermissionInfo> grantInfos = new ArrayList<>();
-    List<ConditionalPermissionInfo> denyInfos = new ArrayList<>();
-
-    buildConditionalPermissionInfo(
-        conditionalPermissionAdmin, grantEntries, grantInfos, ConditionalPermissionInfo.ALLOW);
-    buildConditionalPermissionInfo(
-        conditionalPermissionAdmin, denyEntries, denyInfos, ConditionalPermissionInfo.DENY);
-
-    Priority priority = parsedPolicy.getPriority();
-    if (priority == Priority.GRANT) {
-      conditionalPermissionUpdate.getConditionalPermissionInfos().addAll(grantInfos);
-      conditionalPermissionUpdate.getConditionalPermissionInfos().addAll(denyInfos);
-      conditionalPermissionUpdate
-          .getConditionalPermissionInfos()
-          .add(getAllPermission(conditionalPermissionAdmin, ConditionalPermissionInfo.ALLOW));
-    } else if (priority == Priority.DENY) {
-      conditionalPermissionUpdate.getConditionalPermissionInfos().addAll(denyInfos);
-      conditionalPermissionUpdate.getConditionalPermissionInfos().addAll(grantInfos);
-      conditionalPermissionUpdate
-          .getConditionalPermissionInfos()
-          .add(getAllPermission(conditionalPermissionAdmin, ConditionalPermissionInfo.DENY));
+    File policyDirFile = new File(policyDir);
+    List<ParsedPolicy> parsedPolicies = new ArrayList<>();
+    for (File file : Objects.requireNonNull(policyDirFile.listFiles())) {
+      parsedPolicies.add(new Parser(false).parse(new FileReader(new File(file.getAbsolutePath()))));
     }
+    for (ParsedPolicy parsedPolicy : parsedPolicies) {
+      List<ParsedPolicyEntry> grantEntries = parsedPolicy.getGrantEntries();
+      List<ParsedPolicyEntry> denyEntries = parsedPolicy.getDenyEntries();
 
-    conditionalPermissionUpdate.commit();
+      ConditionalPermissionUpdate conditionalPermissionUpdate =
+          conditionalPermissionAdmin.newConditionalPermissionUpdate();
+
+      List<ConditionalPermissionInfo> grantInfos = new ArrayList<>();
+      List<ConditionalPermissionInfo> denyInfos = new ArrayList<>();
+
+      buildConditionalPermissionInfo(
+          conditionalPermissionAdmin, grantEntries, grantInfos, ConditionalPermissionInfo.ALLOW);
+      buildConditionalPermissionInfo(
+          conditionalPermissionAdmin, denyEntries, denyInfos, ConditionalPermissionInfo.DENY);
+
+      Priority priority = parsedPolicy.getPriority();
+      if (priority == Priority.GRANT) {
+        conditionalPermissionUpdate.getConditionalPermissionInfos().addAll(grantInfos);
+        conditionalPermissionUpdate.getConditionalPermissionInfos().addAll(denyInfos);
+        conditionalPermissionUpdate
+            .getConditionalPermissionInfos()
+            .add(getAllPermission(conditionalPermissionAdmin, ConditionalPermissionInfo.ALLOW));
+      } else if (priority == Priority.DENY) {
+        conditionalPermissionUpdate.getConditionalPermissionInfos().addAll(denyInfos);
+        conditionalPermissionUpdate.getConditionalPermissionInfos().addAll(grantInfos);
+        conditionalPermissionUpdate
+            .getConditionalPermissionInfos()
+            .add(getAllPermission(conditionalPermissionAdmin, ConditionalPermissionInfo.DENY));
+      }
+
+      conditionalPermissionUpdate.commit();
+    }
   }
 
   private ConditionalPermissionInfo getAllPermission(

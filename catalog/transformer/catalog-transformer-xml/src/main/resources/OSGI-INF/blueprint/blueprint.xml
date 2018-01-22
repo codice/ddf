@@ -65,14 +65,11 @@
                 persistent-id="ddf.catalog.transformer.xml.XmlResponseQueueTransformer"
                 update-strategy="container-managed"/>
         <argument ref="xmlParser"/>
-        <argument ref="fjp"/>
         <argument ref="writerProvider"/>
         <argument ref="mcMarshaller"/>
         <argument ref="mimeType"/>
         <property name="threshold" value="50"/>
     </bean>
-
-    <bean id="fjp" class="java.util.concurrent.ForkJoinPool" factory-method="commonPool"/>
 
     <service ref="xmlResponseQueueTransformer"
              interface="ddf.catalog.transform.QueryResponseTransformer">

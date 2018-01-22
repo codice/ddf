@@ -56,7 +56,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ForkJoinPool;
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 import org.codice.ddf.parser.Parser;
@@ -102,8 +101,6 @@ public class XmlResponseQueueTransformerTest {
 
   private static final String DEFAULT_SOURCE_ID = "mySourceId";
 
-  private static final ForkJoinPool FJP = new ForkJoinPool();
-
   private XmlResponseQueueTransformer transformer;
 
   private MimeType mimeType;
@@ -129,8 +126,7 @@ public class XmlResponseQueueTransformerTest {
     MetacardMarshaller metacardMarshaller = new MetacardMarshallerImpl(parser, printWriterProvider);
     mimeType = getMimeType();
     transformer =
-        new XmlResponseQueueTransformer(
-            parser, FJP, printWriterProvider, metacardMarshaller, mimeType);
+        new XmlResponseQueueTransformer(parser, printWriterProvider, metacardMarshaller, mimeType);
   }
 
   /** @throws CatalogTransformerException */
@@ -376,11 +372,11 @@ public class XmlResponseQueueTransformerTest {
     MetacardMarshaller mcm = new MetacardMarshallerImpl(parser, pwp);
 
     XmlResponseQueueTransformer serialXform =
-        new XmlResponseQueueTransformer(parser, FJP, pwp, mcm, getMimeType());
+        new XmlResponseQueueTransformer(parser, pwp, mcm, getMimeType());
     serialXform.setThreshold(2);
 
     XmlResponseQueueTransformer forkXForm =
-        new XmlResponseQueueTransformer(parser, FJP, pwp, mcm, getMimeType());
+        new XmlResponseQueueTransformer(parser, pwp, mcm, getMimeType());
     forkXForm.setThreshold(10);
 
     BinaryContent serialBc = serialXform.transform(response, null);
@@ -477,7 +473,7 @@ public class XmlResponseQueueTransformerTest {
     doThrow(new MimeTypeParseException("")).when(mockMimeType).setSubType(anyString());
 
     XmlResponseQueueTransformer xrqt =
-        new XmlResponseQueueTransformer(parser, FJP, pwp, mockMetacardMarshaller, mockMimeType);
+        new XmlResponseQueueTransformer(parser, pwp, mockMetacardMarshaller, mockMimeType);
     xrqt.setThreshold(2);
 
     xrqt.transform(response, null);
@@ -498,7 +494,7 @@ public class XmlResponseQueueTransformerTest {
         .thenThrow(new XmlPullParserException(""));
 
     XmlResponseQueueTransformer xrqt =
-        new XmlResponseQueueTransformer(parser, FJP, pwp, mockMetacardMarshaller, getMimeType());
+        new XmlResponseQueueTransformer(parser, pwp, mockMetacardMarshaller, getMimeType());
     xrqt.setThreshold(2);
 
     xrqt.transform(response, null);

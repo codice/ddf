@@ -1462,8 +1462,8 @@ public class TestCatalog extends AbstractIntegrationTest {
           configAdmin.getConfiguration("ddf.security.pdp.realm.AuthzRealm", null);
       Dictionary<String, ?> configProps = new Hashtable<>(new PdpProperties());
       config.update(configProps);
-      getServiceManager().stopFeature(true, "sample-filter");
       deleteMetacard(id1);
+      getServiceManager().stopFeature(true, "sample-filter");
     }
   }
 

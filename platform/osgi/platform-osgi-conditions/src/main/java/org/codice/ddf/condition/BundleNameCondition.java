@@ -15,6 +15,7 @@ package org.codice.ddf.condition;
 
 import java.util.Dictionary;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 import org.osgi.framework.Bundle;
 import org.osgi.service.condpermadmin.Condition;
 import org.osgi.service.condpermadmin.ConditionInfo;
@@ -23,6 +24,8 @@ public class BundleNameCondition implements Condition {
 
   private static final ConcurrentHashMap<String, Boolean> decisionMap =
       new ConcurrentHashMap<>(100000);
+
+  private static final Pattern REGEX = Pattern.compile("/");
 
   private Bundle bundle;
   private String[] args;
@@ -48,9 +51,15 @@ public class BundleNameCondition implements Condition {
     if (storedResult != null) {
       return storedResult;
     }
-    boolean result = bundleName.contains(args[0]);
-    decisionMap.put(key, result);
-    return result;
+    String[] bundles = REGEX.split(args[0]);
+    for (String bundleStr : bundles) {
+      if (bundleName.contains(bundleStr)) {
+        decisionMap.put(key, true);
+        return true;
+      }
+    }
+    decisionMap.put(key, false);
+    return false;
   }
 
   @Override

@@ -33,7 +33,6 @@ import com.jayway.restassured.response.ValidatableResponse;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Map;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.xml.xpath.XPathExpressionException;
 import org.apache.commons.io.IOUtils;
@@ -66,9 +65,9 @@ public class CatalogTestCommons {
 
     return given()
         .body(data)
-        .header(HttpHeaders.CONTENT_TYPE, mimeType)
+        .header("Content-Type", mimeType)
         .expect()
-        .statusCode(HttpStatus.SC_CREATED)
+        .statusCode(201)
         .when()
         .post(REST_PATH.getUrl())
         .getHeader("id");
@@ -88,7 +87,7 @@ public class CatalogTestCommons {
     } else {
       return given()
           .body(data)
-          .header(HttpHeaders.CONTENT_TYPE, mimeType)
+          .header("Content-Type", mimeType)
           .when()
           .post(REST_PATH.getUrl())
           .getHeader("id");
@@ -104,7 +103,7 @@ public class CatalogTestCommons {
   public static String ingest(String data, String mimeType, int expectedStatusCode) {
     return given()
         .body(data)
-        .header(HttpHeaders.CONTENT_TYPE, mimeType)
+        .header("Content-Type", mimeType)
         .expect()
         .statusCode(expectedStatusCode)
         .log()
@@ -130,7 +129,7 @@ public class CatalogTestCommons {
     with()
         .pollInterval(1, SECONDS)
         .await()
-        .atMost(30, SECONDS)
+        .atMost(60, SECONDS)
         .ignoreExceptions()
         .until(
             () -> {
@@ -140,7 +139,7 @@ public class CatalogTestCommons {
     with()
         .pollInterval(1, SECONDS)
         .await()
-        .atMost(10, SECONDS)
+        .atMost(20, SECONDS)
         .ignoreExceptions()
         .until(() -> doesMetacardExist(id[0]));
     return id[0];
@@ -161,7 +160,7 @@ public class CatalogTestCommons {
           new CswQueryBuilder().addAttributeFilter(PROPERTY_IS_LIKE, "AnyText", "*").getQuery();
       ValidatableResponse response =
           given()
-              .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML)
+              .header("Content-Type", "application/xml")
               .body(query)
               .post(CSW_PATH.getUrl())
               .then();
@@ -208,12 +207,12 @@ public class CatalogTestCommons {
     ValidatableResponse response =
         given()
             .body(transactionRequest)
-            .header("Content-Type", MediaType.APPLICATION_XML)
+            .header("Content-Type", "application/xml")
             .when()
             .post(CSW_PATH.getUrl())
             .then()
             .assertThat()
-            .statusCode(equalTo(HttpStatus.SC_OK));
+            .statusCode(equalTo(200));
 
     return response
         .extract()
@@ -230,10 +229,10 @@ public class CatalogTestCommons {
    */
   public static void update(String id, String data, String mimeType) {
     given()
-        .header(HttpHeaders.CONTENT_TYPE, mimeType)
+        .header("Content-Type", mimeType)
         .body(data)
         .expect()
-        .statusCode(HttpStatus.SC_OK)
+        .statusCode(200)
         .when()
         .put(new AbstractIntegrationTest.DynamicUrl(REST_PATH, id).getUrl());
   }
@@ -246,7 +245,7 @@ public class CatalogTestCommons {
    */
   public static void update(String id, String data, String mimeType, int expectedStatusCode) {
     given()
-        .header(HttpHeaders.CONTENT_TYPE, mimeType)
+        .header("Content-Type", mimeType)
         .body(data)
         .expect()
         .log()
