@@ -69,10 +69,7 @@ public class TestXmlInputTransformer {
     for (AttributeDescriptor descriptor : metacard.getMetacardType().getAttributeDescriptors()) {
       Attribute attribute = metacard.getAttribute(descriptor.getName());
       LOGGER.info(
-          "\t"
-              + descriptor.getName()
-              + ": "
-              + ((attribute == null) ? attribute : attribute.getValue()));
+          "\t" + descriptor.getName() + ": " + ((attribute == null) ? null : attribute.getValue()));
     }
 
     assertThat(metacard.getMetacardType().getName(), is(BasicTypes.BASIC_METACARD.getName()));
@@ -97,10 +94,7 @@ public class TestXmlInputTransformer {
     for (AttributeDescriptor descriptor : metacard.getMetacardType().getAttributeDescriptors()) {
       Attribute attribute = metacard.getAttribute(descriptor.getName());
       LOGGER.info(
-          "\t"
-              + descriptor.getName()
-              + ": "
-              + ((attribute == null) ? attribute : attribute.getValue()));
+          "\t" + descriptor.getName() + ": " + ((attribute == null) ? null : attribute.getValue()));
     }
   }
 
@@ -112,10 +106,7 @@ public class TestXmlInputTransformer {
     for (AttributeDescriptor descriptor : metacard.getMetacardType().getAttributeDescriptors()) {
       Attribute attribute = metacard.getAttribute(descriptor.getName());
       LOGGER.info(
-          "\t"
-              + descriptor.getName()
-              + ": "
-              + ((attribute == null) ? attribute : attribute.getValue()));
+          "\t" + descriptor.getName() + ": " + ((attribute == null) ? null : attribute.getValue()));
     }
 
     LOGGER.info("ID: {}", metacard.getId());
@@ -168,10 +159,7 @@ public class TestXmlInputTransformer {
     for (AttributeDescriptor descriptor : metacard.getMetacardType().getAttributeDescriptors()) {
       Attribute attribute = metacard.getAttribute(descriptor.getName());
       LOGGER.info(
-          "\t"
-              + descriptor.getName()
-              + ": "
-              + ((attribute == null) ? attribute : attribute.getValue()));
+          "\t" + descriptor.getName() + ": " + ((attribute == null) ? null : attribute.getValue()));
     }
 
     assertThat(metacard.getMetacardType().getName(), is(BasicTypes.BASIC_METACARD.getName()));
