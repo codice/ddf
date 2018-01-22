@@ -39,11 +39,11 @@ public class Wfs10JTStoGML200Converter {
 
   private static final String GEOMETRYCOLLECTION_GML = "GeometryCollection";
 
+  private Wfs10JTStoGML200Converter() {}
+
   public static String convertGeometryToGML(Geometry geometry) throws JAXBException {
     GMLWriter gmlWriter = new GMLWriter(true);
     return gmlWriter.write(geometry);
-    //        String gml = gmlWriter.write(geometry);
-    //        return gml.replaceAll("\n", "");
   }
 
   public static AbstractGeometryType convertGMLToGeometryType(String gml, QName qName)
@@ -72,7 +72,7 @@ public class Wfs10JTStoGML200Converter {
     return null;
   }
 
-  public static JAXBElement<? extends AbstractGeometryType> convertGeometryTypeToJAXB(
+  public static JAXBElement<AbstractGeometryType> convertGeometryTypeToJAXB(
       AbstractGeometryType abstractGeometryType) {
 
     if (abstractGeometryType instanceof PolygonType) {
@@ -96,9 +96,8 @@ public class Wfs10JTStoGML200Converter {
   }
 
   public static String convertGeometryCollectionToGML(Geometry geometry) throws JAXBException {
-    String invalidGML = convertGeometryToGML(geometry).toLowerCase();
-    String gml = invalidGML.replaceAll(MULTIGEOMETRY_GML, GEOMETRYCOLLECTION_GML);
-
-    return gml;
+    return convertGeometryToGML(geometry)
+        .toLowerCase()
+        .replaceAll(MULTIGEOMETRY_GML, GEOMETRYCOLLECTION_GML);
   }
 }

@@ -17,8 +17,6 @@ import com.github.drapostolos.typeparser.TypeParser;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Array;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -27,11 +25,9 @@ import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Vector;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanServer;
 import javax.management.NotCompliantMBeanException;
@@ -86,6 +82,8 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
   private MBeanServer mBeanServer;
 
   private List<AdminModule> moduleList;
+
+  private static final String ILLIGAL_PID_MESSAGE = "Argument pid cannot be null or empty";
 
   /**
    * Constructor for use in unit tests. Needed for testing listServices() and getService().
@@ -156,7 +154,7 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
 
     Service service = null;
 
-    if (services.size() > 0) {
+    if (!services.isEmpty()) {
       // just grab the first one, they should have specified a filter that returned just a single
       // result
       // if not, that is not our problem
@@ -179,7 +177,7 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
       }
     }
 
-    if (modules.size() > 0) {
+    if (!modules.isEmpty()) {
       modules.get(0).put("active", true);
     }
     return modules;
@@ -217,7 +215,7 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
   /** @see AdminConsoleServiceMBean#deleteForLocation(java.lang.String, java.lang.String) */
   public void deleteForLocation(String pid, String location) throws IOException {
     if (pid == null || pid.length() < 1) {
-      throw new IOException("Argument pid cannot be null or empty");
+      throw new IOException(ILLIGAL_PID_MESSAGE);
     }
 
     if (isPermittedToViewService(pid)) {
@@ -247,7 +245,7 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
   /** @see AdminConsoleServiceMBean#getBundleLocation(java.lang.String) */
   public String getBundleLocation(String pid) throws IOException {
     if (StringUtils.isBlank(pid)) {
-      throw new IOException("Argument pid cannot be null or empty");
+      throw new IOException(ILLIGAL_PID_MESSAGE);
     }
     Configuration config = configurationAdmin.getConfiguration(pid, null);
     return (config.getBundleLocation() == null)
@@ -285,7 +283,7 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
   /** @see AdminConsoleServiceMBean#getFactoryPidForLocation(java.lang.String, java.lang.String) */
   public String getFactoryPidForLocation(String pid, String location) throws IOException {
     if (pid == null || pid.length() < 1) {
-      throw new IOException("Argument pid cannot be null or empty");
+      throw new IOException(ILLIGAL_PID_MESSAGE);
     }
     Configuration config = configurationAdmin.getConfiguration(pid, location);
     return config.getFactoryPid();
@@ -300,7 +298,7 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
   public Map<String, Object> getPropertiesForLocation(String pid, String location)
       throws IOException {
     if (pid == null || pid.length() < 1) {
-      throw new IOException("Argument pid cannot be null or empty");
+      throw new IOException(ILLIGAL_PID_MESSAGE);
     }
     Map<String, Object> propertiesTable = new HashMap<>();
     Configuration config = configurationAdmin.getConfiguration(pid, location);
@@ -378,7 +376,7 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
       final String pid, String location, Map<String, Object> configurationTable)
       throws IOException {
     if (pid == null || pid.length() < 1) {
-      throw loggedException("Argument pid cannot be null or empty");
+      throw loggedException(ILLIGAL_PID_MESSAGE);
     }
     if (configurationTable == null) {
       throw loggedException("Argument configurationTable cannot be null");
@@ -399,7 +397,7 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
       CollectionUtils.transform(
           configEntries, new CardinalityTransformer(metatype.getAttributeDefinitions(), pid));
 
-      Dictionary<String, Object> newConfigProperties = new Hashtable<>();
+      Map<String, Object> newConfigProperties = new HashMap<>();
 
       // If the configuration entry is a password, and its updated configuration value is
       // "password", do not update the password.
@@ -570,11 +568,11 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
 
     @SuppressWarnings("unchecked")
     public T[] positiveCardinality(Object value) {
-      Vector<T> vector = negativeCardinality(value);
-      return vector.toArray((T[]) Array.newInstance(clazz, vector.size()));
+      List<T> list = negativeCardinality(value);
+      return list.toArray((T[]) Array.newInstance(clazz, list.size()));
     }
 
-    public Vector<T> negativeCardinality(Object value) {
+    public List<T> negativeCardinality(Object value) {
       if (!(value.getClass().isArray() || value instanceof Collection)) {
         if (String.valueOf(value).isEmpty()) {
           value = new Object[] {};
@@ -582,7 +580,7 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
           value = new Object[] {value};
         }
       }
-      Vector<T> ret = new Vector<>();
+      List<T> ret = new ArrayList<>();
       for (int i = 0; i < CollectionUtils.size(value); i++) {
         Object currentValue = CollectionUtils.get(value, i);
         ret.add(zerothCardinality(currentValue));
@@ -625,8 +623,6 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
     BYTE(AttributeDefinition.BYTE, Byte.class) {},
     DOUBLE(AttributeDefinition.DOUBLE, Double.class) {},
     FLOAT(AttributeDefinition.FLOAT, Float.class) {},
-    BIGINTEGER(AttributeDefinition.BIGINTEGER, BigInteger.class) {},
-    BIGDECIMAL(AttributeDefinition.BIGDECIMAL, BigDecimal.class) {},
     BOOLEAN(AttributeDefinition.BOOLEAN, Boolean.class) {},
     PASSWORD(AttributeDefinition.PASSWORD, String.class) {};
 
