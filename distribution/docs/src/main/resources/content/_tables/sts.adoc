@@ -26,8 +26,8 @@
 |Token Issuer
 |issuer
 |String
-|The name of the server issuing tokens. Generally this is the cn or hostname of this machine on the network.
-|${variable-prefix}org.codice.ddf.system.hostname}
+|The name of the server issuing tokens. Generally this is unique identifier of this IdP.
+|https://${variable-prefix}org.codice.ddf.system.hostname}:${variable-prefix}org.codice.ddf.system.httpsPort}${variable-prefix}org.codice.ddf.system.rootContext}/idp/login
 |true
 
 |Signature Username
