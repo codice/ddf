@@ -104,4 +104,4 @@ rem Defines the special on-error Java options
 rem set JAVA_ERROR_OPTS=-XX:OnOutOfMemoryError=%DDF_ON_ERROR%%%p -XX:OnError=%DDF_ON_ERROR%%%p
 set JAVA_ERROR_OPTS=-XX:OnOutOfMemoryError=%DDF_ON_ERROR% -XX:OnError=%DDF_ON_ERROR%
 set KARAF_OPTS=-Dfile.encoding=UTF8
-set JAVA_OPTS=-Xms2g -Xmx4g -Dderby.system.home="%DDF_HOME%\data\derby" -Dderby.storage.fileSyncTransactionLog=true -Dfile.encoding=UTF8 -Dddf.home=%DDF_HOME% -Dddf.home.perm=%DDF_HOME_PERM% -Dddf.home.policy=%DDF_HOME_POLICY% -XX:+DisableAttachMechanism %JAVA_ERROR_OPTS% -Xrunjdwp:server=y,transport=dt_socket,address=5005,suspend=n
+set JAVA_OPTS=-Xms2g -Xmx4g -Dderby.system.home="%DDF_HOME%\data\derby" -Dderby.storage.fileSyncTransactionLog=true -Dfile.encoding=UTF8 -Dddf.home=%DDF_HOME% -Dddf.home.perm=%DDF_HOME_PERM% -Dddf.home.policy=%DDF_HOME_POLICY% -XX:+DisableAttachMechanism %JAVA_ERROR_OPTS%
