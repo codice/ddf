@@ -11,7 +11,7 @@
     "test": "ace test ./target/test/index.html",
     "testplus": "webpack-dev-server --config=./webpack/config/test.js --open",
     "install": "napa ehynds/jquery-ui-multiselect-widget#1.14:jquery-ui-multiselect-widget",
-    "build": "node --stack-size=10000 ./node_modules/webpack/bin/webpack.js --config=./webpack/config/dev && ace package",
+    "build": "webpack --config=./webpack/config && ace package",
     "clean": "ace clean"
   },
   "repository": {

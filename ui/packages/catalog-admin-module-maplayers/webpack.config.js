@@ -7,7 +7,8 @@ var HtmlWebpackPlugin = require('html-webpack-plugin')
 
 module.exports = function (env) {
 
-  process.env.NODE_ENV = env
+  env = env || process.env.NODE_ENV || 'development'
+  process.env.NODE_ENV = process.env.NODE_ENV || env
 
   var config = {
     output: {
