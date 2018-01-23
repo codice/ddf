@@ -25,6 +25,9 @@
     <artifactId>ui</artifactId>
     <name>DDF :: UI</name>
     <packaging>bundle</packaging>
+    <properties>
+        <buildEnv>production</buildEnv>
+    </properties>
     <build>
         <plugins>
             <plugin>
@@ -300,6 +303,9 @@
                         </goals>
                         <configuration>
                             <arguments>run build</arguments>
+                            <environmentVariables>
+                                <NODE_ENV>${buildEnv}</NODE_ENV>
+                            </environmentVariables>
                         </configuration>
                     </execution>
                     <execution>
@@ -508,5 +514,19 @@
             </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <activation>
+                <property>
+                    <name>webBuildEnv</name>
+                    <value>dev</value>
+                </property>
+            </activation>
+            <properties>
+                <buildEnv>development</buildEnv>
+            </properties>
+        </profile>
+    </profiles>
 </project>
 
