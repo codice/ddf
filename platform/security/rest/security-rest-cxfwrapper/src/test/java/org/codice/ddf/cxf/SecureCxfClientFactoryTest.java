@@ -17,6 +17,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -29,6 +30,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
+import javax.net.ssl.X509KeyManager;
 import javax.ws.rs.GET;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
@@ -41,6 +43,7 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.support.DelegatingSubject;
 import org.codice.ddf.configuration.PropertyResolver;
+import org.codice.ddf.cxf.SecureCxfClientFactory.AliasSelectorKeyManager;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -115,6 +118,24 @@ public class SecureCxfClientFactoryTest {
     invalid = false;
     try { // null for class
       secureCxfClientFactory = new SecureCxfClientFactory<>(INSECURE_ENDPOINT, null);
+    } catch (IllegalArgumentException e) {
+      invalid = true;
+    }
+    assertTrue(invalid);
+    invalid = false;
+    try {
+      secureCxfClientFactory =
+          new SecureCxfClientFactory<>(
+              null,
+              null,
+              null,
+              null,
+              false,
+              false,
+              0,
+              0,
+              new ClientKeyInfo("alias", "keystore"),
+              "TLSv1.1");
     } catch (IllegalArgumentException e) {
       invalid = true;
     }
@@ -238,6 +259,31 @@ public class SecureCxfClientFactoryTest {
             SECURE_ENDPOINT, WebClient.class, null, null, false, false, mockPropertyResolver);
     WebClient client = secureCxfClientFactory.getWebClient();
     assertThat(client, notNullValue());
+  }
+
+  @Test
+  public void testKeyInfo() {
+    String alias = "alias";
+    String keystorePath = "/path/to/keystore";
+
+    ClientKeyInfo keyInfo = new ClientKeyInfo(alias, keystorePath);
+    assertThat(keyInfo.getAlias(), is(alias));
+    assertThat(keyInfo.getKeystorePath(), is(keystorePath));
+  }
+
+  @Test
+  public void testAliasSelectorKeyManager() {
+    X509KeyManager keyManager = mock(X509KeyManager.class);
+    String alias = "testAlias";
+    String[] aliases = new String[] {alias};
+    when(keyManager.chooseClientAlias(any(), any(), any())).thenReturn(alias);
+    when(keyManager.getClientAliases(any(), any())).thenReturn(aliases);
+
+    AliasSelectorKeyManager aliasSelectorKeyManager =
+        new AliasSelectorKeyManager(keyManager, alias);
+    String chosenAlias =
+        aliasSelectorKeyManager.chooseClientAlias(new String[] {"x509"}, null, null);
+    assertThat(chosenAlias, is(alias));
   }
 
   private DummySubject getSubject() {
