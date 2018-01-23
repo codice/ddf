@@ -64,7 +64,7 @@
 
     <feature name="security-pdp-authz" version="${project.version}"
              description="Security PDP.">
-        <configfile finalname="/etc/ddf.security.pdp.realm.AuthzRealm.config">mvn:ddf.security/security-services-app/${project.version}/config/pdp</configfile>
+        <configfile finalname="${karaf.etc}/ddf.security.pdp.realm.AuthzRealm.config">mvn:ddf.security/security-services-app/${project.version}/config/pdp</configfile>
         <feature prerequisite="true">security-expansion</feature>
         <feature prerequisite="true">security-expansion-user-attributes</feature>
         <feature prerequisite="true">security-expansion-metacard-attributes</feature>
@@ -101,7 +101,7 @@
     <feature name="security-sts-server" version="${project.version}"
              description="Security STS.">
         <feature prerequisite="true">sts-prereqs</feature>
-        <configfile finalname="/etc/ws-security/attributeMap.properties">
+        <configfile finalname="${karaf.etc}/ws-security/attributeMap.properties">
             mvn:ddf.security.sts/security-sts-ldapclaimshandler/${project.version}/properties/attributeMap
         </configfile>
         <bundle>mvn:ddf.security.sts/security-sts-server/${project.version}</bundle>
@@ -143,7 +143,7 @@
 
     <feature name="ldap-embedded-default-claimshandler-config" version="${project.version}" description="Installs a default embedded ldap login config">
         <configfile
-                finalname="/etc/Claims_Handler_Manager-ddf.security.sts.claimsHandler.ClaimsHandlerManager.config"
+                finalname="${karaf.etc}/Claims_Handler_Manager-ddf.security.sts.claimsHandler.ClaimsHandlerManager.config"
                 override="false">
             mvn:ddf.security/security-services-app/${project.version}/config/ddf.security.sts.claimsHandler.ClaimsHandlerManager
         </configfile>
@@ -151,7 +151,7 @@
 
     <feature name="ldap-embedded-default-stslogin-config" version="${project.version}" description="Installs a default embedded ldap claims handler config">
         <configfile
-                finalname="/etc/Ldap_Login_Config-ddf.ldap.ldaplogin.LdapLoginConfig.config"
+                finalname="${karaf.etc}/Ldap_Login_Config-ddf.ldap.ldaplogin.LdapLoginConfig.config"
                 override="false">
             mvn:ddf.security/security-services-app/${project.version}/config/ddf.ldap.ldaplogin.LdapLoginConfig
         </configfile>

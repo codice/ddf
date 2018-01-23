@@ -63,10 +63,10 @@
         <feature>transaction</feature>
         <feature>netty-core</feature>
         <feature>scr</feature>
-        <configfile finalname="etc/org.apache.activemq.artemis.cfg">
+        <configfile finalname="${karaf.etc}/org.apache.activemq.artemis.cfg">
             mvn:org.apache.activemq/artemis-features/${artemis.version}/cfg
         </configfile>
-        <configfile finalname="etc/artemis.xml">
+        <configfile finalname="${karaf.etc}/artemis.xml">
             mvn:org.apache.activemq/artemis-features/${artemis.version}/xml/artemis
         </configfile>
 
