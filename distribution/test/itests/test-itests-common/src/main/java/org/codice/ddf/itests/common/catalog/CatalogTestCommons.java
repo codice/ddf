@@ -265,7 +265,7 @@ public class CatalogTestCommons {
     with()
         .pollInterval(1, SECONDS)
         .await()
-        .atMost(30, SECONDS)
+        .atMost(60, SECONDS)
         .ignoreExceptions()
         .until(() -> !doesMetacardExist(id));
   }

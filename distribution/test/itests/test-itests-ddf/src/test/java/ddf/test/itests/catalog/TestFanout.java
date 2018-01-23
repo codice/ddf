@@ -74,7 +74,7 @@ public class TestFanout extends AbstractIntegrationTest {
   }
 
   @Before
-  public void setup() throws IOException {
+  public void setup() throws IOException, InterruptedException {
     // Start with empty blacklist
     getCatalogBundle().setFanoutTagBlacklist(Collections.emptyList());
     // Start with fanout enabled
@@ -173,7 +173,8 @@ public class TestFanout extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testCswUpdateWorksWithFanoutEnabledAndEmptyBlacklist() throws IOException {
+  public void testCswUpdateWorksWithFanoutEnabledAndEmptyBlacklist()
+      throws IOException, InterruptedException {
     getCatalogBundle().setFanoutTagBlacklist(Collections.emptyList());
     String id =
         CatalogTestCommons.ingest(
@@ -183,7 +184,8 @@ public class TestFanout extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testCswUpdateFailsWithFanoutEnabledAndBlacklistSet() throws IOException {
+  public void testCswUpdateFailsWithFanoutEnabledAndBlacklistSet()
+      throws IOException, InterruptedException {
     getCatalogBundle().setFanoutTagBlacklist(Collections.emptyList());
     String id =
         CatalogTestCommons.ingest(
@@ -194,13 +196,15 @@ public class TestFanout extends AbstractIntegrationTest {
     CatalogTestCommons.update(
         id, "Some data to update", MediaType.TEXT_PLAIN, HttpStatus.SC_BAD_REQUEST);
 
+    getServiceManager().waitForAllBundles();
     // Set blacklist to empty list so the delete will succeed
     getCatalogBundle().setFanoutTagBlacklist(new ArrayList<>());
     CatalogTestCommons.deleteMetacard(id, HttpStatus.SC_OK);
   }
 
   @Test
-  public void testCswDeleteFailsWithFanoutEnabledAndBlacklistSet() throws IOException {
+  public void testCswDeleteFailsWithFanoutEnabledAndBlacklistSet()
+      throws IOException, InterruptedException {
     // The case where delete works with fanout on and empty blacklist is tested as clean up in the
     // other tests.
     getCatalogBundle().setFanoutTagBlacklist(Collections.emptyList());
