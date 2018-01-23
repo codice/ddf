@@ -1477,6 +1477,9 @@ public class TestCswSource extends TestCswSourceBase {
   private void assertConfigurationAfterRefresh(CswSourceConfiguration cswSourceConfiguration) {
     assertThat(cswSourceConfiguration.getUsername(), is(USERNAME));
     assertThat(cswSourceConfiguration.getPassword(), is(PASSWORD));
+    assertThat(cswSourceConfiguration.getCertAlias(), is(CERT_ALIAS));
+    assertThat(cswSourceConfiguration.getKeystorePath(), is(KEYSTORE_PATH));
+    assertThat(cswSourceConfiguration.getSslProtocol(), is(SSL_PROTOCOL));
     assertThat(cswSourceConfiguration.getId(), is(ID));
     assertThat(cswSourceConfiguration.getConnectionTimeout(), is(CONNECTION_TIMEOUT));
     assertThat(cswSourceConfiguration.getReceiveTimeout(), is(RECEIVE_TIMEOUT));
@@ -1500,6 +1503,9 @@ public class TestCswSource extends TestCswSourceBase {
     Map<String, Object> configuration = new HashMap<>();
     configuration.put(cswSource.USERNAME_PROPERTY, USERNAME);
     configuration.put(cswSource.PASSWORD_PROPERTY, PASSWORD);
+    configuration.put(cswSource.CERT_ALIAS_PROPERTY, CERT_ALIAS);
+    configuration.put(cswSource.KEYSTORE_PATH_PROPERTY, KEYSTORE_PATH);
+    configuration.put(cswSource.SSL_PROTOCOL_PROPERTY, SSL_PROTOCOL);
     configuration.put(cswSource.ID_PROPERTY, ID);
     configuration.put(cswSource.CONNECTION_TIMEOUT_PROPERTY, CONNECTION_TIMEOUT);
     configuration.put(cswSource.RECEIVE_TIMEOUT_PROPERTY, RECEIVE_TIMEOUT);

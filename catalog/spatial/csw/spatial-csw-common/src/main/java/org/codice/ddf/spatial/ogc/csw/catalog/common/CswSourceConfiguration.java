@@ -27,6 +27,8 @@ import java.util.Set;
  */
 public class CswSourceConfiguration {
 
+  private static final String DEFAULT_SSL_PROTOCOL = "TLSv1.2";
+
   private String cswUrl;
 
   private String id;
@@ -34,6 +36,12 @@ public class CswSourceConfiguration {
   private String username;
 
   private String password;
+
+  private String certAlias;
+
+  private String keystorePath;
+
+  private String sslProtocol = DEFAULT_SSL_PROTOCOL;
 
   private boolean disableCnCheck = false;
 
@@ -232,5 +240,29 @@ public class CswSourceConfiguration {
 
   public void setEventServiceAddress(String eventServiceAddress) {
     this.eventServiceAddress = eventServiceAddress;
+  }
+
+  public String getCertAlias() {
+    return certAlias;
+  }
+
+  public void setCertAlias(String certAlias) {
+    this.certAlias = certAlias;
+  }
+
+  public String getKeystorePath() {
+    return keystorePath;
+  }
+
+  public void setKeystorePath(String keystorePath) {
+    this.keystorePath = keystorePath;
+  }
+
+  public String getSslProtocol() {
+    return sslProtocol;
+  }
+
+  public void setSslProtocol(String sslProtocol) {
+    this.sslProtocol = sslProtocol;
   }
 }

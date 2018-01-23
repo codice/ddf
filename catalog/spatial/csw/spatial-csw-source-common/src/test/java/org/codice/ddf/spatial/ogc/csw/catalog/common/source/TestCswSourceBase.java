@@ -98,6 +98,12 @@ public class TestCswSourceBase {
 
   protected static final String PASSWORD = "myPass";
 
+  protected static final String CERT_ALIAS = "testCert";
+
+  protected static final String KEYSTORE_PATH = "/path/to/keystore";
+
+  protected static final String SSL_PROTOCOL = "TLSv1.2";
+
   protected static final Integer CONNECTION_TIMEOUT = 11;
 
   protected static final Integer RECEIVE_TIMEOUT = 12;

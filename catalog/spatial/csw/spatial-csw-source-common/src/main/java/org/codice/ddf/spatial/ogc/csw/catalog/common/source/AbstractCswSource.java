@@ -112,6 +112,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.codice.ddf.configuration.SystemBaseUrl;
+import org.codice.ddf.cxf.ClientKeyInfo;
 import org.codice.ddf.cxf.SecureCxfClientFactory;
 import org.codice.ddf.platform.util.StandardThreadFactoryBuilder;
 import org.codice.ddf.security.common.Security;
@@ -154,6 +155,9 @@ public abstract class AbstractCswSource extends MaskableImpl
   protected static final String CSWURL_PROPERTY = "cswUrl";
   protected static final String ID_PROPERTY = "id";
   protected static final String USERNAME_PROPERTY = "username";
+  protected static final String CERT_ALIAS_PROPERTY = "certAlias";
+  protected static final String KEYSTORE_PATH_PROPERTY = "keystorePath";
+  protected static final String SSL_PROTOCOL_PROPERTY = "sslProtocol";
   protected static final String METACARD_MAPPINGS_PROPERTY = "metacardMappings";
   protected static final String COORDINATE_ORDER_PROPERTY = "coordinateOrder";
   protected static final String POLL_INTERVAL_PROPERTY = "pollInterval";
@@ -331,6 +335,21 @@ public abstract class AbstractCswSource extends MaskableImpl
               cswSourceConfiguration.getReceiveTimeout(),
               cswSourceConfiguration.getUsername(),
               cswSourceConfiguration.getPassword());
+    } else if (StringUtils.isNotBlank(cswSourceConfiguration.getCertAlias())
+        && StringUtils.isNotBlank(cswSourceConfiguration.getKeystorePath())) {
+      factory =
+          new SecureCxfClientFactory(
+              cswSourceConfiguration.getCswUrl(),
+              Csw.class,
+              initProviders(cswTransformConverter, cswSourceConfiguration),
+              null,
+              cswSourceConfiguration.getDisableCnCheck(),
+              false,
+              cswSourceConfiguration.getConnectionTimeout(),
+              cswSourceConfiguration.getReceiveTimeout(),
+              new ClientKeyInfo(
+                  cswSourceConfiguration.getCertAlias(), cswSourceConfiguration.getKeystorePath()),
+              cswSourceConfiguration.getSslProtocol());
     } else {
       factory =
           new SecureCxfClientFactory(
@@ -360,6 +379,21 @@ public abstract class AbstractCswSource extends MaskableImpl
               cswSourceConfiguration.getReceiveTimeout(),
               cswSourceConfiguration.getUsername(),
               cswSourceConfiguration.getPassword());
+    } else if (StringUtils.isNotBlank(cswSourceConfiguration.getCertAlias())
+        && StringUtils.isNotBlank(cswSourceConfiguration.getKeystorePath())) {
+      subscribeClientFactory =
+          new SecureCxfClientFactory(
+              cswSourceConfiguration.getCswUrl(),
+              Csw.class,
+              initProviders(cswTransformConverter, cswSourceConfiguration),
+              null,
+              cswSourceConfiguration.getDisableCnCheck(),
+              false,
+              cswSourceConfiguration.getConnectionTimeout(),
+              cswSourceConfiguration.getReceiveTimeout(),
+              new ClientKeyInfo(
+                  cswSourceConfiguration.getCertAlias(), cswSourceConfiguration.getKeystorePath()),
+              cswSourceConfiguration.getSslProtocol());
     } else {
       subscribeClientFactory =
           new SecureCxfClientFactory(
@@ -382,6 +416,15 @@ public abstract class AbstractCswSource extends MaskableImpl
     consumerMap.put(PASSWORD_PROPERTY, value -> cswSourceConfiguration.setPassword((String) value));
 
     consumerMap.put(USERNAME_PROPERTY, value -> cswSourceConfiguration.setUsername((String) value));
+
+    consumerMap.put(
+        CERT_ALIAS_PROPERTY, value -> cswSourceConfiguration.setCertAlias((String) value));
+
+    consumerMap.put(
+        KEYSTORE_PATH_PROPERTY, value -> cswSourceConfiguration.setKeystorePath((String) value));
+
+    consumerMap.put(
+        SSL_PROTOCOL_PROPERTY, value -> cswSourceConfiguration.setSslProtocol((String) value));
 
     consumerMap.put(
         CONNECTION_TIMEOUT_PROPERTY,
@@ -966,6 +1009,18 @@ public abstract class AbstractCswSource extends MaskableImpl
       updatedPassword = encryptionService.decryptValue(password);
     }
     cswSourceConfiguration.setPassword(updatedPassword);
+  }
+
+  public void setCertAlias(String certAlias) {
+    cswSourceConfiguration.setCertAlias(certAlias);
+  }
+
+  public void setKeystorePath(String keystorePath) {
+    cswSourceConfiguration.setKeystorePath(keystorePath);
+  }
+
+  public void setSslProtocol(String sslProtocol) {
+    cswSourceConfiguration.setSslProtocol(sslProtocol);
   }
 
   public void setDisableCnCheck(Boolean disableCnCheck) {
