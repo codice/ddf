@@ -69,6 +69,8 @@
         </property>
     </bean>
 
+    <service ref="idp" interface="org.codice.ddf.security.handler.api.SessionHandler"/>
+
     <jaxrs:server id="idpService" address="/idp">
         <jaxrs:serviceBeans>
             <ref component-id="idp"/>

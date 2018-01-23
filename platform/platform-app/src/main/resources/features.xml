@@ -1140,12 +1140,18 @@
         <feature>platform-email</feature>
         <feature>util-uuidgenerator</feature>
         <feature>platform-alerts</feature>
+        <feature>session-manager-command</feature>
     </feature>
 
     <feature name="clientinfo-filter" install="auto" version="${project.version}"
              description="Servlet filter to extract client information from the request">
         <feature prerequisite="true">security-core-api</feature>
         <bundle>mvn:ddf.platform/platform-filter-clientinfo/${project.version}</bundle>
+    </feature>
+
+    <feature name="session-manager-command" install="manual" version="${project.version}"
+             description="Commands for managing active SAML sessions">
+        <bundle>mvn:ddf.security.command/security-command-sessionmanager/${project.version}</bundle>
     </feature>
 
     <feature name="platform-paxweb-jettyconfig" install="manual" version="${project.version}"

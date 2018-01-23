@@ -346,6 +346,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.security.command</groupId>
+            <artifactId>security-command-sessionmanager</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.codice.thirdparty</groupId>
             <artifactId>tika-bundle</artifactId>
             <version>${tika.thirdparty.bundle.version}</version>

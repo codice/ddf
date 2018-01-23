@@ -34,6 +34,7 @@ import org.apache.wss4j.common.ext.WSSecurityException;
 /** IdP endpoint interface */
 @WebService(name = "IdpService", targetNamespace = "")
 @Path("/")
+@SuppressWarnings("squid:S1214" /* Consts used by implementator */)
 public interface Idp {
 
   String SAML_REQ = "SAMLRequest";
