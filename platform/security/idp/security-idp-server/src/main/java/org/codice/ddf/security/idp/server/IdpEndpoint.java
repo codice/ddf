@@ -13,12 +13,10 @@
  */
 package org.codice.ddf.security.idp.server;
 
-import static java.util.Objects.nonNull;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.MoreExecutors;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
@@ -33,7 +31,6 @@ import ddf.security.liberty.paos.impl.ResponseBuilder;
 import ddf.security.liberty.paos.impl.ResponseMarshaller;
 import ddf.security.liberty.paos.impl.ResponseUnmarshaller;
 import ddf.security.samlp.LogoutMessage;
-import ddf.security.samlp.MetadataConfigurationParser;
 import ddf.security.samlp.SamlProtocol;
 import ddf.security.samlp.SimpleSign;
 import ddf.security.samlp.SimpleSign.SignatureException;
@@ -43,6 +40,7 @@ import ddf.security.samlp.impl.EntityInformation;
 import ddf.security.samlp.impl.EntityInformation.ServiceInfo;
 import ddf.security.samlp.impl.HtmlResponseTemplate;
 import ddf.security.samlp.impl.RelayStates;
+import ddf.security.samlp.impl.SPMetadataParser;
 import ddf.security.samlp.impl.SamlValidator;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
@@ -71,7 +69,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -431,7 +428,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
   private Map<String, EntityInformation> getServiceProvidersMap() {
     Map<String, EntityInformation> spMap = serviceProviders.get();
     if (spMap == null) {
-      spMap = parseServiceProviderMetadata();
+      spMap = SPMetadataParser.parse(spMetadata, SUPPORTED_BINDINGS);
 
       boolean updated = serviceProviders.compareAndSet(null, spMap);
       if (!updated) {
@@ -440,46 +437,6 @@ public class IdpEndpoint implements Idp, SessionHandler {
     }
 
     return Collections.unmodifiableMap(spMap);
-  }
-
-  // TODO: 12/11/17 Extract to service DDF-3493
-  private Map<String, EntityInformation> parseServiceProviderMetadata() {
-    if (spMetadata == null) {
-      return Collections.emptyMap();
-    }
-
-    Map<String, EntityInformation> spMap = new ConcurrentHashMap<>();
-    try {
-      MetadataConfigurationParser metadataConfigurationParser =
-          new MetadataConfigurationParser(
-              spMetadata,
-              ed -> {
-                EntityInformation entityInfo =
-                    new EntityInformation.Builder(ed, SUPPORTED_BINDINGS).build();
-                if (entityInfo != null) {
-                  spMap.put(ed.getEntityID(), entityInfo);
-                }
-              });
-
-      spMap.putAll(
-          metadataConfigurationParser
-              .getEntryDescriptions()
-              .entrySet()
-              .stream()
-              .map(
-                  e ->
-                      Maps.immutableEntry(
-                          e.getKey(),
-                          new EntityInformation.Builder(e.getValue(), SUPPORTED_BINDINGS).build()))
-              .filter(e -> nonNull(e.getValue()))
-              .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
-
-    } catch (IOException e) {
-      LOGGER.warn(
-          "Unable to parse SP metadata configuration. Check the configuration for SP metadata.", e);
-    }
-
-    return spMap;
   }
 
   @POST
