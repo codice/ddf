@@ -50,6 +50,8 @@ public final class RestSecurity {
 
   public static final boolean GZIP_COMPATIBLE = true;
 
+  private RestSecurity() {}
+
   /**
    * Parses the incoming subject for a saml assertion and sets that as a header on the client.
    *
@@ -140,10 +142,20 @@ public final class RestSecurity {
   }
 
   public static String inflateBase64(String base64EncodedValue) throws IOException {
-    byte[] deflatedValue = Base64.getMimeDecoder().decode(base64EncodedValue);
+    byte[] deflatedValue = base64Decode(base64EncodedValue);
     InputStream is =
         new InflaterInputStream(
             new ByteArrayInputStream(deflatedValue), new Inflater(GZIP_COMPATIBLE));
     return IOUtils.toString(is, StandardCharsets.UTF_8.name());
+  }
+
+  /**
+   * Decodes Base64 encoded values
+   *
+   * @param base64EncodedValue value to decode
+   * @return the bytes of the decoded value
+   */
+  public static byte[] base64Decode(String base64EncodedValue) {
+    return Base64.getMimeDecoder().decode(base64EncodedValue);
   }
 }
