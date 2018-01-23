@@ -92,4 +92,35 @@ describe('tokenize', () => {
         });        
     });
 
+    describe('CQL and UserQL translation functions', () => {
+        it('parses a CQL query into a UserQL String', () => {
+            const result = cql.read('anyText ILIKE \'this % is \\% a \\_ test _ \\* \\?\'');
+            expect(result.value).equals('this * is % a _ test ? \\* \\?');
+        });
+
+        it('parses a UserQL string into a CQL query', () => {
+            const filter = {
+                property: 'anyText',
+                type: 'ILIKE',
+                value: 'this * is % a _ test ? \\* \\?'
+            };
+            const result = cql.write(filter);
+            expect(result).equals('anyText ILIKE \'this % is \\% a \\_ test _ \\* \\?\'');
+        });
+
+        it('parses multiple CQL characters in a row into UserQL', () => {
+            const result = cql.read('anyText ILIKE \'%%\\%\\%\\_\\___\\*\\*\\?\\?\'');
+            expect(result.value).equals('**%%__??\\*\\*\\?\\?');
+        });
+
+        it('parses multiple UserQL characters in a row into CQL', () => {
+            const filter = {
+                property: 'anyText',
+                type: 'ILIKE',
+                value: '**%%__??\\*\\*\\?\\?'
+            };
+            const result = cql.write(filter);
+            expect(result).equals('anyText ILIKE \'%%\\%\\%\\_\\___\\*\\*\\?\\?\'');
+        });
+    });
 });
