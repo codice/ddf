@@ -190,6 +190,17 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
   /**
    * Takes in a sax event from {@link SaxEventHandlerDelegate#parser} and passes it to the {@link
    * SaxEventHandlerDelegate#eventHandlers}
+   */
+  @Override
+  public void endDocument() throws SAXException {
+    for (SaxEventHandler transformer : eventHandlers) {
+      transformer.endDocument();
+    }
+  }
+
+  /**
+   * Takes in a sax event from {@link SaxEventHandlerDelegate#parser} and passes it to the {@link
+   * SaxEventHandlerDelegate#eventHandlers}
    *
    * @param uri the URI that is passed in by {@link SaxEventHandlerDelegate}
    * @param localName the localName that is passed in by {@link SaxEventHandlerDelegate}
