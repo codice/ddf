@@ -110,6 +110,7 @@
         <hamcrest-junit.version>2.0.0.0</hamcrest-junit.version>
         <junit.version>4.12</junit.version>
         <awaitility.version>3.0.0</awaitility.version>
+        <restito.version>0.8.2</restito.version>
         <tika.version>1.15</tika.version>
         <tika.thirdparty.bundle.version>1.14.0_2</tika.thirdparty.bundle.version>
         <poi.version>3.12</poi.version>
@@ -1033,6 +1034,7 @@
     </pluginRepositories>
     <modules>
         <module>gitsetup</module>
+        <module>thirdparty</module>
         <module>libs</module>
         <module>platform</module>
         <module>catalog</module>

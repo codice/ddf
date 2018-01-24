@@ -28,14 +28,14 @@
 
         <bundle>mvn:org.apache.httpcomponents/httpcore-osgi/${httpcore.version}</bundle>
         <bundle>mvn:org.apache.httpcomponents/httpclient-osgi/${httpclient.version}</bundle>
-        <bundle>mvn:ddf.test.thirdparty/rest-assured/${project.version}</bundle>
+        <bundle>mvn:ddf.thirdparty/rest-assured/${project.version}</bundle>
 
         <bundle>
             wrap:mvn:ddf.security/ddf-security-common/${project.version}$Bundle-SymbolicName=itest-test-security-common
         </bundle>
         <bundle>mvn:ddf.test.itests/test-itests-common/${project.version}</bundle>
 
-        <bundle>mvn:ddf.test.thirdparty/restito/${project.version}</bundle>
+        <bundle>mvn:ddf.thirdparty/restito/${project.version}</bundle>
         <feature>camel-sjms</feature>
     </feature>
 

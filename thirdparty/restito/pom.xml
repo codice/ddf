@@ -15,17 +15,20 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>ddf.test.thirdparty</groupId>
+        <groupId>ddf.thirdparty</groupId>
         <artifactId>thirdparty</artifactId>
         <version>2.11.5-SNAPSHOT</version>
     </parent>
+
     <artifactId>restito</artifactId>
-    <name>DDF :: Test :: Thirdparty :: RESTITO</name>
+    <name>DDF :: Thirdparty :: RESTITO</name>
     <packaging>bundle</packaging>
+
     <dependencies>
         <dependency>
             <groupId>com.xebialabs.restito</groupId>
             <artifactId>restito</artifactId>
+            <version>${restito.version}</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish.grizzly</groupId>
@@ -38,6 +41,7 @@
             <version>${findbugs.version}</version>
         </dependency>
     </dependencies>
+
     <build>
         <plugins>
             <plugin>

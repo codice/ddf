@@ -12,20 +12,25 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>ddf.test</groupId>
-        <artifactId>test</artifactId>
+        <groupId>ddf</groupId>
+        <artifactId>ddf</artifactId>
         <version>2.11.5-SNAPSHOT</version>
     </parent>
-    <groupId>ddf.test.thirdparty</groupId>
+
+    <groupId>ddf.thirdparty</groupId>
     <artifactId>thirdparty</artifactId>
-    <name>DDF :: Test :: Thirdparty</name>
+    <name>DDF :: Thirdparty</name>
     <packaging>pom</packaging>
+
     <properties>
         <restassured.version>2.9.0</restassured.version>
     </properties>
+
     <modules>
         <module>rest-assured</module>
         <module>restito</module>
