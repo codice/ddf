@@ -86,7 +86,7 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
 
   private List<AdminModule> moduleList;
 
-  private static final String ILLIGAL_PID_MESSAGE = "Argument pid cannot be null or empty";
+  private static final String ILLEGAL_PID_MESSAGE = "Argument pid cannot be null or empty";
 
   /**
    * Constructor for use in unit tests. Needed for testing listServices() and getService().
@@ -218,7 +218,7 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
   /** @see AdminConsoleServiceMBean#deleteForLocation(java.lang.String, java.lang.String) */
   public void deleteForLocation(String pid, String location) throws IOException {
     if (pid == null || pid.length() < 1) {
-      throw new IOException(ILLIGAL_PID_MESSAGE);
+      throw new IOException(ILLEGAL_PID_MESSAGE);
     }
 
     if (isPermittedToViewService(pid)) {
@@ -248,7 +248,7 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
   /** @see AdminConsoleServiceMBean#getBundleLocation(java.lang.String) */
   public String getBundleLocation(String pid) throws IOException {
     if (StringUtils.isBlank(pid)) {
-      throw new IOException(ILLIGAL_PID_MESSAGE);
+      throw new IOException(ILLEGAL_PID_MESSAGE);
     }
     Configuration config = configurationAdmin.getConfiguration(pid, null);
     return (config.getBundleLocation() == null)
@@ -286,7 +286,7 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
   /** @see AdminConsoleServiceMBean#getFactoryPidForLocation(java.lang.String, java.lang.String) */
   public String getFactoryPidForLocation(String pid, String location) throws IOException {
     if (pid == null || pid.length() < 1) {
-      throw new IOException(ILLIGAL_PID_MESSAGE);
+      throw new IOException(ILLEGAL_PID_MESSAGE);
     }
     Configuration config = configurationAdmin.getConfiguration(pid, location);
     return config.getFactoryPid();
@@ -301,7 +301,7 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
   public Map<String, Object> getPropertiesForLocation(String pid, String location)
       throws IOException {
     if (pid == null || pid.length() < 1) {
-      throw new IOException(ILLIGAL_PID_MESSAGE);
+      throw new IOException(ILLEGAL_PID_MESSAGE);
     }
     Map<String, Object> propertiesTable = new HashMap<>();
     Configuration config = configurationAdmin.getConfiguration(pid, location);
@@ -379,7 +379,7 @@ public class AdminConsoleService extends StandardMBean implements AdminConsoleSe
       final String pid, String location, Map<String, Object> configurationTable)
       throws IOException {
     if (pid == null || pid.length() < 1) {
-      throw loggedException(ILLIGAL_PID_MESSAGE);
+      throw loggedException(ILLEGAL_PID_MESSAGE);
     }
     if (configurationTable == null) {
       throw loggedException("Argument configurationTable cannot be null");
