@@ -33,9 +33,11 @@ import ddf.catalog.transformer.xml.binding.ShortElement;
 import ddf.catalog.transformer.xml.binding.StringElement;
 import ddf.catalog.transformer.xml.binding.StringxmlElement;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+import javax.annotation.Nullable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -68,10 +70,10 @@ public class AdaptedMetacard implements Metacard {
 
   private Attribute id;
 
-  // Suppressing Warnings and using ArrayList rather than List here because
-  // ArrayList implements Serializable (List does not).
+  // Suppressing Warnings and using HashSet rather than Set here because
+  // HashSet implements Serializable (Set does not).
   @SuppressWarnings("all")
-  private ArrayList<Attribute> attributes = new ArrayList<Attribute>();
+  private HashSet<Attribute> attributes = new HashSet<>();
 
   public AdaptedMetacard(Metacard metacard) {
     if (metacard == null) {
@@ -160,7 +162,7 @@ public class AdaptedMetacard implements Metacard {
     @XmlElement(name = "string", namespace = METACARD_URI, type = StringElement.class),
     @XmlElement(name = "stringxml", namespace = METACARD_URI, type = StringxmlElement.class)
   })
-  protected List<Attribute> getAttributes() {
+  protected Set<Attribute> getAttributes() {
     return attributes;
   }
 
@@ -177,14 +179,12 @@ public class AdaptedMetacard implements Metacard {
     if (Metacard.ID.equals(name)) {
       return this.id;
     }
-    for (Attribute attribute : attributes) {
-      if (attribute == null || StringUtils.isEmpty(attribute.getName())) {
-        continue;
-      } else if (name.equals(attribute.getName())) {
-        return attribute;
-      }
-    }
-    return null;
+    return attributes
+        .stream()
+        .filter(Objects::nonNull)
+        .filter(attr -> name.equals(attr.getName()))
+        .findFirst()
+        .orElse(null);
   }
 
   /*
@@ -193,9 +193,8 @@ public class AdaptedMetacard implements Metacard {
    * @see ddf.catalog.data.MetacardImpl#setAttribute(ddf.catalog.data.Attribute)
    */
   @Override
-  public final void setAttribute(Attribute attribute) {
+  public final void setAttribute(@Nullable Attribute attribute) {
     if (attribute != null) {
-
       if (Metacard.ID.equals(attribute.getName())) {
         this.id = attribute;
       } else {
