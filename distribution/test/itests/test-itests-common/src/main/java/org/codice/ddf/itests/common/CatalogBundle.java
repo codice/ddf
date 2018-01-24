@@ -218,7 +218,8 @@ public class CatalogBundle {
     serviceManager.startManagedService(CATALOG_FRAMEWORK_PID, properties);
   }
 
-  public void setFanoutTagBlacklist(List<String> blacklist) throws IOException, InterruptedException {
+  public void setFanoutTagBlacklist(List<String> blacklist)
+      throws IOException, InterruptedException {
     Map<String, Object> properties = null;
     try {
       properties =
