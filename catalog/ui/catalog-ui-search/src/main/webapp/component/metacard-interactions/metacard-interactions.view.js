@@ -156,7 +156,7 @@ define([
             }, '');
             let cqlString = "(" + combinedCqlString + ")";
             var newQuery = new Query.Model({
-                isAdvanced: locations.length > 1
+                type: locations.length > 1 ? 'advanced' : 'basic'
             });
             var queryModel = store.getCurrentQueries();
             newQuery.set('cql', cqlString);

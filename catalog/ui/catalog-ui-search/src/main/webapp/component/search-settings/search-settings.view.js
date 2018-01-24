@@ -22,17 +22,37 @@ define([
     'js/CustomElements',
     'component/singletons/user-instance',
     'component/property/property.view',
-    'component/property/property'
-], function (Marionette, _, properties, $, template, CustomElements, user, PropertyView, Property) {
+    'component/property/property',
+    'component/query-settings/query-settings.view',
+    'js/model/Query',
+    'component/confirmation/confirmation.view'
+], function (Marionette, _, properties, $, template, CustomElements, user, PropertyView, Property, QuerySettingsView, QueryModel, ConfirmationView) {
 
     return Marionette.LayoutView.extend({
         template: template,
         tagName: CustomElements.register('search-settings'),
         regions: {
-            propertyResultCount: '.property-result-count'
+            propertyResultCount: '.property-result-count',
+            propertySearchSettings: '.property-search-settings'
+        },
+        events: {
+            'click > .editor-properties > .editor-save': 'triggerSave'
+        },
+        initialize: function() {
+            this.showSave();
+        },
+        showSave: function() {
+            this.$el.toggleClass('show-save', this.options.showSave === true);
         },
         onBeforeShow: function () {
             this.setupResultCount();
+            this.setupSearchSettings();
+            this.listenToOnce(this.regionManager, 'before:remove:region', this.save);
+        },
+        setupSearchSettings: function() {
+            this.propertySearchSettings.show(new QuerySettingsView({
+                model: new QueryModel.Model()
+            }));
         },
         setupResultCount: function () {
             var userResultCount = user.get('user').get('preferences').get('resultCount');
@@ -49,14 +69,34 @@ define([
 
             this.propertyResultCount.currentView.turnOnLimitedWidth();
             this.propertyResultCount.currentView.turnOnEditing();
-            this.listenTo(this.propertyResultCount.currentView.model, 'change:value', this.save);
         },
-        save: function () {
-            var preferences = user.get('user').get('preferences');
-            preferences.set({
+        updateSearchSettings: function() {
+            user.getPreferences().get('querySettings').set(this.propertySearchSettings.currentView.toJSON());
+        },
+        updateResultCountSettings: function () {
+            user.getPreferences().get({
                 resultCount: this.propertyResultCount.currentView.model.getValue()[0]
             });
-            preferences.savePreferences();
+        },
+        triggerSave: function() {
+            this.save();
+            this.listenTo(ConfirmationView.generateConfirmation({
+                prompt: 'Do you want to apply the new defaults to this search?',
+                no: 'No',
+                yes: 'Apply'
+            }),
+            'change:choice',
+            function(confirmation) {
+                if (confirmation.get('choice')) {
+                    this.model.applyDefaults();
+                }
+            }.bind(this));
+        },
+        save: function() {
+            this.updateResultCountSettings();
+            this.updateSearchSettings();
+            user.savePreferences();
+            this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
         }
     });
 });

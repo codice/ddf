@@ -96,7 +96,7 @@ define([
             this.onBeforeShow();
             this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
         },
-        saveToModel: function(){
+        toJSON: function() {
             var federation = this._srcDropdownModel.get('federation');
             var src;
             if (federation === 'selected') {
@@ -107,12 +107,15 @@ define([
             }
             var sortField = this.settingsSortField.currentView.getSortField();
             var sortOrder = this.settingsSortField.currentView.getSortOrder();
-            this.model.set({
+            return {
                 src: src,
                 federation: federation,
                 sortField: sortField,
                 sortOrder: sortOrder
-            });
+            };
+        },
+        saveToModel: function(){
+            this.model.set(this.toJSON());
         },
         save: function(){
             this.saveToModel();

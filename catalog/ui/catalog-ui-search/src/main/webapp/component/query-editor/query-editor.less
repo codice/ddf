@@ -10,14 +10,6 @@
             padding: 0px;
         }
     }
-    .content-mode {
-        button {
-            width: 100%;
-            > .is-advanced {
-                display: none;
-            }
-        }
-    }
     .editor-content {
         display: inline-block; // do not change back to block, fixes scrolling / repaint issues in IE10 / IE11
         width: 100%;
@@ -65,16 +57,6 @@
             }
             > .editor-saveRun {
                 display: inline-block;
-            }
-        }
-    }
-    &.is-advanced {
-        .content-mode {
-            button > .is-advanced {
-                display: inline;
-            }
-            button > .is-basic {
-                display: none;
             }
         }
     }

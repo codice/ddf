@@ -13,52 +13,63 @@
  *
  **/
 /*global define*/
-define([
-    'marionette',
-    'underscore',
-    'jquery',
-    './query-title.hbs',
-    'js/CustomElements',
-    'js/store'
-], function(Marionette, _, $, template, CustomElements, store) {
+var Marionette = require('marionette');
+var _ = require('underscore');
+var $ = require('jquery');
+var template = require('./query-title.hbs');
+var CustomElements = require('js/CustomElements');
+var store = require('js/store');
+var SearchInteractionsDropdownView = require('component/dropdown/search-interactions/dropdown.search-interactions.view');
+var DropdownModel = require('component/dropdown/dropdown');
 
-    var zeroWidthSpace = "\u200B";
+const zeroWidthSpace = "\u200B";
 
-    return Marionette.ItemView.extend({
-        events: {
-            'change input': 'updateQueryName',
-            'keyup input': 'updateQueryName',
-            'click .is-button': 'focus'
-        },
-        template: template,
-        tagName: CustomElements.register('query-title'),
-        initialize: function(options) {
-            this.updateQueryName = _.throttle(this.updateQueryName, 200);
-            if (options.model === undefined) {
-                this.setDefaultModel();
-            }
-        },
-        onDomRefresh: function() {
-            if (!this.model._cloneOf) {
-                this.$el.find('input').select();
-            }
-        },
-        onRender: function(){
-            this.updateQueryName();
-        },
-        focus: function(){
-            this.$el.find('input').focus();
-        },
-        getSearchTitle: function(){
-            var title = this.$el.find('input').val();
-            return title !== "" ? title : 'Search Name';
-        },
-        updateQueryName: function(e) {
-            this.$el.find('.button-title').html(this.getSearchTitle() + zeroWidthSpace);
-            this.save();
-        },
-        save: function(){
-            this.model.set('title', this.$el.find('input').val());
+module.exports = Marionette.LayoutView.extend({
+    events: {
+        'change input': 'updateQueryName',
+        'keyup input': 'updateQueryName',
+        'click > .is-actions > .trigger-edit': 'focus'
+    },
+    regions: {
+        searchInteractions: '> .is-actions > .search-interactions'
+    },
+    template: template,
+    tagName: CustomElements.register('query-title'),
+    initialize: function(options) {
+        this.updateQueryName = _.throttle(this.updateQueryName, 200);
+        this.listenTo(this.model, 'change:title', this.handleTitleUpdate);
+    },
+    onDomRefresh: function() {
+        if (!this.model._cloneOf) {
+            this.$el.find('input').select();
         }
-    });
+    },
+    onRender: function(){
+        this.updateQueryName();
+        this.showSearchInteractions();
+    },
+    showSearchInteractions: function() {
+        this.searchInteractions.show(new SearchInteractionsDropdownView({
+            model: new DropdownModel(),
+            modelForComponent: this.model
+        }));
+    },
+    focus: function(){
+        this.$el.find('input').focus();
+    },
+    getSearchTitle: function(){
+        var title = this.$el.find('input').val();
+        return title !== "" ? title : 'Search Name';
+    },
+    handleTitleUpdate: function() {
+        this.$el.find('input').val(this.model.get('title'));
+        this.updateQueryName();
+    },
+    updateQueryName: function(e) {
+        this.$el.find('.button-title').html(this.getSearchTitle() + zeroWidthSpace);
+        this.save();
+    },
+    save: function(){
+        this.model.set('title', this.$el.find('input').val());
+    }
 });

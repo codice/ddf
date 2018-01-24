@@ -1,4 +1,3 @@
-{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,23 +9,16 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- --}}
-<form target="autocomplete" action="/search/catalog/blank.html" novalidate>
-    <div class="editor-content">
-        <div class="content-title">
+/*global require*/
+var Backbone = require('backbone');
 
-        </div>
-        <div class="content-form">
-
-        </div>
-        <div class="content-footer">
-            <button class="editor-saveRun is-primary" type="submit">
-                <span class="fa fa-search">
-                </span>
-                <span>
-                    Search
-                </span>
-            </button>
-        </div>
-    </div>
-</form>
+module.exports = Backbone.Model.extend({
+    defaults: function() {
+        return {
+            src: undefined,
+            federation: 'enterprise',
+            sortField: 'modified',
+            sortOrder: 'descending'
+        };
+    }
+});

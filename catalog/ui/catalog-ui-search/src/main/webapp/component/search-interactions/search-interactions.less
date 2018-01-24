@@ -1,0 +1,43 @@
+@{customElementNamespace}search-interactions {
+
+  > * {
+    white-space: nowrap;
+    padding: 0px 10px;
+    cursor: pointer;
+    overflow: hidden;
+    line-height: @minimumButtonSize;
+    height: @minimumButtonSize;
+
+    &:hover,
+    &.is-active {
+      background: fade(contrast(@backgroundDropdown), 10%);
+    }
+  }
+  
+  .interaction-icon,
+  .interaction-text {
+    line-height: @minimumButtonSize;
+    height: @minimumButtonSize;
+  }
+
+  .interaction-icon {
+    text-align: center;
+    width: @minimumButtonSize;
+  }
+
+  .interaction-icon,
+  .interaction-text {
+    display: inline-block;
+  }
+
+  .interaction-revert {
+    display: none;
+  }
+
+}
+
+@{customElementNamespace}search-interactions.allow-revert {
+  .interaction-revert {
+    display: block;
+  }
+}

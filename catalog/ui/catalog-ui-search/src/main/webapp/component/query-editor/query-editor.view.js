@@ -19,6 +19,7 @@ var CustomElements = require('js/CustomElements');
 var QueryBasic = require('component/query-basic/query-basic.view');
 var QueryAdvanced = require('component/query-advanced/query-advanced.view');
 var QueryTitle = require('component/query-title/query-title.view');
+var QueryAdhoc = require('component/query-adhoc/query-adhoc.view');
 var cql = require('js/cql');
 var CQLUtils = require('js/CQLUtils');
 var store = require('js/store');
@@ -104,47 +105,66 @@ module.exports = Marionette.LayoutView.extend({
         queryContent: '> .editor-content > .content-form',
         queryTitle: '> .editor-content > .content-title'
     },
+    originalType: '',
     events: {
-        'click > .editor-content > .content-mode > button': 'changeMode',
         'click .editor-edit': 'edit',
         'click .editor-cancel': 'cancel',
         'click .editor-save': 'save',
         'click .editor-saveRun': 'saveRun'
     },
     initialize: function () {
-        //for backwards compat: tries it's best to see if something is advanced (since isAdvanced is new)
-        this.translationToBasicMap = translateFilterToBasicMap(cql.simplify(cql.read(this.model.get('cql'))));
         this.model = this.model._cloneOf ? store.getQueryById(this.model._cloneOf) : this.model;        
+        this.listenTo(this.model, 'resetToDefaults change:type', this.reshow);
+        this.listenTo(this.model, 'revert', this.revert);
+        this.originalType = this.model.get('type');
     },
-    onBeforeShow: function () {
-        if (this.model.get('isAdvanced') === true ||
-            this.translationToBasicMap.downConversion === true) {
-            this.showAdvanced();
+    revert: function() {
+        if (this.model.get('type') !== this.originalType) {
+            this.model.set('type', this.originalType);
         } else {
-            this.showBasic();
+            this.reshow();
         }
-        this.showTitle();
+    },
+    reshow: function() {
+        this.translationToBasicMap = translateFilterToBasicMap(cql.simplify(cql.read(this.model.get('cql'))));
+        this.$el.toggleClass('is-text', false);
+        this.$el.toggleClass('is-basic', false);
+        this.$el.toggleClass('is-advanced', false);
+        switch (this.model.get('type')) {
+            case 'text':
+                this.$el.toggleClass('is-text', true);
+                this.showText();
+                break;
+            case 'basic':
+                this.$el.toggleClass('is-basic', true);
+                this.showBasic();
+                break;
+            case 'advanced':
+                this.$el.toggleClass('is-advanced', true);
+                this.showAdvanced();
+                break;
+        }
         this.edit();
     },
-    changeMode: function () {
-        if (this.isAdvanced) {
-            this.showBasic();
-        } else {
-            this.showAdvanced();
-        }
-        this.handleEditOnShow();
+    onBeforeShow: function () {
+        this.reshow();
+        this.showTitle();
     },
     showTitle: function() {
         this.queryTitle.show(new QueryTitle({
             model: this.model
         }));
     },
+    showText: function () {
+        this.queryContent.show(new QueryAdhoc({
+            model: this.model,
+            text: this.translationToBasicMap.propertyValueMap.anyText ? this.translationToBasicMap.propertyValueMap.anyText[0].value : ''
+        }));
+    },
     showBasic: function () {
         this.queryContent.show(new QueryBasic({
             model: this.model
         }));
-        this.isAdvanced = false;
-        this.$el.toggleClass('is-advanced', false);
     },
     handleEditOnShow: function(){
         if (this.$el.hasClass('is-editing')){
@@ -155,7 +175,6 @@ module.exports = Marionette.LayoutView.extend({
         this.queryContent.show(new QueryAdvanced({
             model: this.model
         }));
-        this.isAdvanced = true;
         this.$el.toggleClass('is-advanced', true);
     },
     edit: function(){
@@ -174,6 +193,7 @@ module.exports = Marionette.LayoutView.extend({
         }
         this.cancel();
         this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
+        this.originalType = this.model.get('type');
     },
     saveRun: function(){
         this.queryContent.currentView.save();
@@ -185,5 +205,6 @@ module.exports = Marionette.LayoutView.extend({
         this.model.startSearch();
         store.setCurrentQuery(this.model);
         this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
+        this.originalType = this.model.get('type');
     }
 });

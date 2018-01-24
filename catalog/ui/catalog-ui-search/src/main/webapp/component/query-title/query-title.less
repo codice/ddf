@@ -3,6 +3,7 @@
   position: relative;
   line-height: @minimumButtonSize;
   white-space: nowrap;
+  overflow: hidden;
 
   > input,
   > div {
@@ -11,16 +12,15 @@
     vertical-align: top;
     height: ~'calc(100% - 2px)';
     text-align: center;
+    padding: 0px 3*@minimumButtonSize;
   }
 
   input {
     min-width: 1px;
     border: none;
     font-size: @minimumFontSize;
-    //padding-top: 4px;
     overflow: hidden;
     text-overflow: ellipsis;
-    width: 100%;
     text-align: center;
     height: @minimumButtonSize;
     background: none;
@@ -31,22 +31,36 @@
     cursor: text;
   }
 
-  > div.is-button {
+  > div.is-actions {
     font-size: @minimumFontSize;
     position: absolute;
     left: 0px;
     top: -@minimumButtonSize;
-    width: 100%;
     span.button-title {
       font-size: @minimumFontSize;
+      display: inline-block;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    span.fa {
+    span.fa-pencil {
       position: absolute;
       top: @minimumButtonSize;
       margin-left: @minimumSpacing;
       line-height: inherit;
       font-size: @largeFontSize;
+      width: @minimumButtonSize;
+    }
+
+    > .search-interactions {
+      display: inline;
+      position: absolute;
+      top: @minimumButtonSize;
+      margin-left: @minimumButtonSize + @minimumSpacing;
+      line-height: inherit;
+      font-size: @largeFontSize;
+      width: @minimumButtonSize;
     }
   }
 }

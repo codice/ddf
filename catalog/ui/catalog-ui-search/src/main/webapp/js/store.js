@@ -90,34 +90,6 @@ define([
         getQueryById: function(queryId){
             return this.getCurrentQueries().get(queryId);
         },
-        saveQuery: function () {
-            var cloneOf = this.getQuery()._cloneOf;
-            if (cloneOf === undefined){
-                this.addQuery();
-                this.setQueryById(this.getQuery().id);
-            } else {
-                this.updateQuery();
-                this.setQueryById(cloneOf);
-            }
-        },
-        resetQuery: function(){
-            var cloneOf = this.getQuery()._cloneOf;
-            if (cloneOf === undefined){
-                this.setQueryByReference(undefined);
-            } else {
-                this.setQueryById(cloneOf);
-            }
-        },
-        addQuery: function(){
-            this.getCurrentQueries().add(this.getQuery());
-        },
-        updateQuery: function(){
-            var query = this.getQuery();
-            var newAttributes = _.extend(query.defaults, query.toJSON());
-            delete newAttributes.id;
-            delete newAttributes.title;
-            this.getCurrentQueries().get(query._cloneOf).set(newAttributes);
-        },
         getSelectedResults: function(){
             return this.get('content').get('selectedResults');
         },
