@@ -22,7 +22,7 @@ import org.osgi.service.condpermadmin.ConditionInfo;
 
 public class BundleNameCondition implements Condition {
 
-  private static final ConcurrentHashMap<String, Boolean> decisionMap =
+  private static final ConcurrentHashMap<String, Boolean> DECISION_MAP =
       new ConcurrentHashMap<>(100000);
 
   private static final Pattern REGEX = Pattern.compile("/");
@@ -47,18 +47,18 @@ public class BundleNameCondition implements Condition {
     }
     String bundleName = bundle.getHeaders().get("Bundle-SymbolicName");
     String key = bundleName + args[0];
-    Boolean storedResult = decisionMap.get(key);
+    Boolean storedResult = DECISION_MAP.get(key);
     if (storedResult != null) {
       return storedResult;
     }
     String[] bundles = REGEX.split(args[0]);
     for (String bundleStr : bundles) {
       if (bundleName.contains(bundleStr)) {
-        decisionMap.put(key, true);
+        DECISION_MAP.put(key, true);
         return true;
       }
     }
-    decisionMap.put(key, false);
+    DECISION_MAP.put(key, false);
     return false;
   }
 
