@@ -8,7 +8,3 @@
 == {title}
 
 User attributes and Data attributes are matched by security policies defined within ${branding}.
-
-////
-TODO https://codice.atlassian.net/browse/DDF-3356 - Update Security Policies section of configuring documentation
-////
