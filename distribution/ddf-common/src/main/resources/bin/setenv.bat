@@ -67,26 +67,6 @@ set DDF_HOME_PERM=%DDF_HOME_PERM:\bin\..=\%
 set DDF_HOME_POLICY=/%DDF_HOME%
 set DDF_HOME_POLICY=%DDF_HOME_POLICY:c:=C:%
 
-rem
-rem Admins can uncomment the following line and comment out the other definition of
-rem the KARAF_SYSTEM_OPTS variable in order to determine any missing security permissions
-rem should they install third-party bundles requiring additional access.
-rem
-rem Please note that turning on the PolicyFileGeneratorJSM has the side-effect of turning off
-rem security on your system. It should be used with caution, only to ascertain missing
-rem permissions to be added to the default.policy file.
-rem
-rem N.B. The use of the double equals on the 'java.security.policy' property is intentional.
-rem See http://docs.oracle.com/javase/7/docs/technotes/guides/security/PolicyFiles.html#DefaultLocs
-rem for more information.
-rem
-rem set KARAF_SYSTEM_OPTS=-Dprograde.generated.policy="%DDF_HOME%/generated.policy" -Dprograde.use.own.policy=true -Dpolicy.provider=net.sourceforge.prograde.policy.ProGradePolicy -Djava.security.manager=net.sourceforge.prograde.sm.PolicyFileGeneratorJSM -Djava.security.policy==%DDF_HOME%\security\default.policy -DproGrade.getPermissions.override=sun.rmi.server.LoaderHandler:loadClass,org.apache.jasper.compiler.JspRuntimeContext:initSecurity
-
-rem
-rem The Security Manager is turned off by default in DDF.
-rem
-set KARAF_SYSTEM_OPTS=-Dpolicy.provider=net.sourceforge.prograde.policy.ProGradePolicy -Djava.security.manager=net.sourceforge.prograde.sm.ProGradeJSM -Djava.security.policy==%DDF_HOME%etc/all.policy -DproGrade.getPermissions.override=sun.rmi.server.LoaderHandler:loadClass,org.apache.jasper.compiler.JspRuntimeContext:initSecurity
-
 rem The following defines an environment variable referencing our script to be executed by the JVM
 rem when errors are detected. Unfortunately, forking the error process from Java does not expand
 rem variables as it does on Linux. Because the environment variable will be expanded by the batch

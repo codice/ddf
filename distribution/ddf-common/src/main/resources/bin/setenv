@@ -75,8 +75,6 @@ export DDF_ON_ERROR="bin/ddf_on_error.sh script "
 # Defines the special on-error Java options
 JAVA_ERROR_OPTS="-XX:OnOutOfMemoryError=\${DDF_ON_ERROR}%p -XX:OnError=\${DDF_ON_ERROR}%p"
 
-export KARAF_SYSTEM_OPTS="-Dpolicy.provider=net.sourceforge.prograde.policy.ProGradePolicy -Djava.security.manager=net.sourceforge.prograde.sm.ProGradeJSM -Djava.security.policy==${DDF_HOME}etc/all.policy -DproGrade.getPermissions.override=sun.rmi.server.LoaderHandler:loadClass,org.apache.jasper.compiler.JspRuntimeContext:initSecurity"
-
 export KARAF_OPTS="-Dfile.encoding=UTF8"
 
-export JAVA_OPTS="-Xms2g -Xmx4g -XX:+UnlockDiagnosticVMOptions -Dddf.home=${DDF_HOME} -Dddf.home.perm=${DDF_HOME} -Dddf.home.policy=${DDF_HOME} -XX:+DisableAttachMechanism $JAVA_ERROR_OPTS"
+export JAVA_OPTS="-Xms2g -Xmx4g -XX:+UnlockDiagnosticVMOptions -Dddf.home=${DDF_HOME} -Dddf.home.perm=${DDF_HOME} -Dddf.home.policy=${DDF_HOME}/ -XX:+DisableAttachMechanism $JAVA_ERROR_OPTS"
