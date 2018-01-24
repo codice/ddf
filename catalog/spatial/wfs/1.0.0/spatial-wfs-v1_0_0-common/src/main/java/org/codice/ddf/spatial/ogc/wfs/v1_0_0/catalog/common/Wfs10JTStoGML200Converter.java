@@ -72,7 +72,7 @@ public class Wfs10JTStoGML200Converter {
     return null;
   }
 
-  public static JAXBElement<AbstractGeometryType> convertGeometryTypeToJAXB(
+  public static JAXBElement<? extends AbstractGeometryType> convertGeometryTypeToJAXB(
       AbstractGeometryType abstractGeometryType) {
 
     if (abstractGeometryType instanceof PolygonType) {
