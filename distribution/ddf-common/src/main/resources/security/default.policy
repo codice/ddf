@@ -105,7 +105,7 @@ grant codeBase "file:/org.eclipse.osgi" {
     permission java.io.FilePermission "${ddf.home.perm}etc${/}org.apache.karaf.decanter.sla.checker.cfg", "read,write";
 }
 
-grant codeBase "file:/registry-api-impl/catalog-plugin-metacardbackup-filestorage/org.apache.servicemix.bundles.xstream/spatial-csw-endpoint/platform-http-proxy/broker-route-manager/spatial-csw-transformer/spatial-csw-source/catalog-core-camelcontext/org.ops4j.pax.web.pax-web-jsp/org.apache.aries.transaction.blueprint/org.apache.aries.proxy/org.apache.camel.camel-blueprint/org.ops4j.pax.swissbox.core" {
+grant codeBase "file:/registry-api-impl/catalog-plugin-metacardbackup-filestorage/org.apache.servicemix.bundles.xstream/spatial-csw-endpoint/platform-http-proxy/broker-route-manager/spatial-csw-transformer/spatial-csw-source/catalog-core-camelcontext/org.ops4j.pax.web.pax-web-jsp/org.apache.aries.transaction.blueprint/org.apache.aries.proxy/org.apache.camel.camel-blueprint/org.ops4j.pax.swissbox.core/org.apache.camel.camel-core" {
     permission java.lang.RuntimePermission "createClassLoader";
 }
 
@@ -172,6 +172,7 @@ grant codeBase "file:/security-sts-server/security-sts-realm" {
 }
 
 grant codeBase "file:/catalog-rest-endpoint/ftp/org.apache.tika.core/org.codice.thirdparty.tika-bundle/tika-input-transformer" {
+    permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "<<ALL FILES>>", "execute";
 }
 
@@ -283,6 +284,7 @@ grant codeBase "file:/admin-configuration-configupdater" {
 }
 
 grant codeBase "file:/catalog-core-standardframework" {
+    permission java.lang.RuntimePermission "createClassLoader";
     permission java.io.FilePermission "${ddf.home.perm}etc${/}keystores${/}-", "read";
     permission java.io.FilePermission "<<ALL FILES>>", "execute";
 }
@@ -333,6 +335,7 @@ grant codeBase "file:/ddf.thirdparty.rest-assured" {
 
 grant codeBase "file:/PAXEXAM-PROBE/ddf.lib.test-common/ddf.test.itests.test-itests-common/org.ops4j.pax.exam.invoker.junit/org.ops4j.pax.exam.rbc/org.ops4j.pax.tipi.junit" {
     permission java.lang.RuntimePermission "createClassLoader";
+    permission java.io.FilePermission "<<ALL FILES>>", "execute";
 }
 
 grant {

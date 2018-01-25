@@ -67,13 +67,12 @@ public class PermissionActivator implements BundleActivator {
     for (File file : Objects.requireNonNull(policyDirFile.listFiles())) {
       parsedPolicies.add(new Parser(false).parse(new FileReader(new File(file.getAbsolutePath()))));
     }
+    ConditionalPermissionUpdate conditionalPermissionUpdate =
+        conditionalPermissionAdmin.newConditionalPermissionUpdate();
+    Priority priorityResult = null;
     for (ParsedPolicy parsedPolicy : parsedPolicies) {
       List<ParsedPolicyEntry> grantEntries = parsedPolicy.getGrantEntries();
       List<ParsedPolicyEntry> denyEntries = parsedPolicy.getDenyEntries();
-
-      ConditionalPermissionUpdate conditionalPermissionUpdate =
-          conditionalPermissionAdmin.newConditionalPermissionUpdate();
-
       List<ConditionalPermissionInfo> grantInfos = new ArrayList<>();
       List<ConditionalPermissionInfo> denyInfos = new ArrayList<>();
 
@@ -86,19 +85,30 @@ public class PermissionActivator implements BundleActivator {
       if (priority == Priority.GRANT) {
         conditionalPermissionUpdate.getConditionalPermissionInfos().addAll(grantInfos);
         conditionalPermissionUpdate.getConditionalPermissionInfos().addAll(denyInfos);
-        conditionalPermissionUpdate
-            .getConditionalPermissionInfos()
-            .add(getAllPermission(conditionalPermissionAdmin, ConditionalPermissionInfo.ALLOW));
       } else if (priority == Priority.DENY) {
         conditionalPermissionUpdate.getConditionalPermissionInfos().addAll(denyInfos);
         conditionalPermissionUpdate.getConditionalPermissionInfos().addAll(grantInfos);
-        conditionalPermissionUpdate
-            .getConditionalPermissionInfos()
-            .add(getAllPermission(conditionalPermissionAdmin, ConditionalPermissionInfo.DENY));
       }
-
-      conditionalPermissionUpdate.commit();
+      if (priorityResult == null) {
+        priorityResult = priority;
+      } else if (priority != priorityResult) {
+        // if they don't match, then we can't make a determination on the priority, so we'll
+        // default to deny
+        priorityResult = Priority.DENY;
+      }
     }
+
+    if (priorityResult == Priority.GRANT) {
+      conditionalPermissionUpdate
+          .getConditionalPermissionInfos()
+          .add(getAllPermission(conditionalPermissionAdmin, ConditionalPermissionInfo.ALLOW));
+    } else if (priorityResult == Priority.DENY) {
+      conditionalPermissionUpdate
+          .getConditionalPermissionInfos()
+          .add(getAllPermission(conditionalPermissionAdmin, ConditionalPermissionInfo.DENY));
+    }
+
+    conditionalPermissionUpdate.commit();
   }
 
   private ConditionalPermissionInfo getAllPermission(
