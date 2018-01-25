@@ -26,6 +26,7 @@ import ddf.catalog.plugin.PostQueryPlugin;
 import ddf.catalog.plugin.StopProcessingException;
 import ddf.catalog.resource.data.ReliableResource;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import org.codice.ddf.configuration.SystemInfo;
@@ -101,7 +102,7 @@ public class MetacardResourceStatus implements PostQueryPlugin {
     Optional<String> sourceId = Optional.ofNullable(metacard.getSourceId());
 
     if (sourceId.isPresent()) {
-      String sourceIdLowerCase = sourceId.get().toLowerCase();
+      String sourceIdLowerCase = sourceId.get().toLowerCase(Locale.getDefault());
       return sourceIdLowerCase.equals(getLocalSiteName());
     } else {
       LOGGER.debug(

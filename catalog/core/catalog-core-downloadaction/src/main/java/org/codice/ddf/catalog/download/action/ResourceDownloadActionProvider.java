@@ -28,6 +28,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.Locale;
 import java.util.Optional;
 import javax.management.JMX;
 import javax.management.MalformedObjectNameException;
@@ -118,8 +119,7 @@ public class ResourceDownloadActionProvider extends AbstractMetacardActionProvid
     Optional<String> sourceId = Optional.ofNullable(metacard.getSourceId());
 
     if (sourceId.isPresent()) {
-      String sourceIdLowerCase = sourceId.get().toLowerCase();
-      return !sourceIdLowerCase.equals(getLocalSiteName());
+      return !sourceId.get().equalsIgnoreCase(getLocalSiteName());
     } else {
       LOGGER.debug(
           "Unable to determine if the source id in metacard {} matches the local site name because the "
@@ -130,7 +130,7 @@ public class ResourceDownloadActionProvider extends AbstractMetacardActionProvid
   }
 
   String getLocalSiteName() {
-    return SystemInfo.getSiteName().toLowerCase();
+    return SystemInfo.getSiteName().toLowerCase(Locale.getDefault());
   }
 
   ResourceCacheServiceMBean createResourceCacheMBeanProxy() {

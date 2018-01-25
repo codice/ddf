@@ -27,7 +27,7 @@ public class SourceDescriptorComparator implements Comparator<SourceDescriptor> 
   @Override
   public int compare(SourceDescriptor one, SourceDescriptor two) {
     if (one.getSourceId() != null && two.getSourceId() != null) {
-      return one.getSourceId().toLowerCase().compareTo(two.getSourceId().toLowerCase());
+      return one.getSourceId().compareToIgnoreCase(two.getSourceId());
     } else {
       LOGGER.debug("Error comparing results, at least one was null.  Returning 1: ");
       return 1;

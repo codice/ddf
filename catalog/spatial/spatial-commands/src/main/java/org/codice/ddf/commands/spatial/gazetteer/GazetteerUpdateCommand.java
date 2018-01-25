@@ -14,6 +14,7 @@
 package org.codice.ddf.commands.spatial.gazetteer;
 
 import java.io.PrintStream;
+import java.util.Locale;
 import org.apache.karaf.shell.api.action.Argument;
 import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
@@ -144,7 +145,7 @@ public final class GazetteerUpdateCommand extends SubjectCommands {
   }
 
   private boolean isResourceGeoJSON() {
-    String path = resource.toLowerCase();
+    String path = resource.toLowerCase(Locale.getDefault());
     return path.endsWith(".geojson") || path.endsWith(".geo.json");
   }
 }

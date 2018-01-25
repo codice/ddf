@@ -16,6 +16,7 @@ package org.codice.ddf.spatial.ogc.wfs.v1_0_0.catalog.common;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.gml2.GMLWriter;
 import java.io.StringReader;
+import java.util.Locale;
 import javax.xml.bind.JAXB;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -38,17 +39,17 @@ public class Wfs10JTStoGML200Converter {
 
   private static final String GEOMETRYCOLLECTION_GML = "GeometryCollection";
 
+  private Wfs10JTStoGML200Converter() {}
+
   public static String convertGeometryToGML(Geometry geometry) throws JAXBException {
     GMLWriter gmlWriter = new GMLWriter(true);
     return gmlWriter.write(geometry);
-    //        String gml = gmlWriter.write(geometry);
-    //        return gml.replaceAll("\n", "");
   }
 
   public static AbstractGeometryType convertGMLToGeometryType(String gml, QName qName)
       throws JAXBException {
 
-    String type = qName.getLocalPart().toUpperCase();
+    String type = qName.getLocalPart().toUpperCase(Locale.getDefault());
 
     switch (type) {
       case "POLYGON":
@@ -95,9 +96,8 @@ public class Wfs10JTStoGML200Converter {
   }
 
   public static String convertGeometryCollectionToGML(Geometry geometry) throws JAXBException {
-    String invalidGML = convertGeometryToGML(geometry).toLowerCase();
-    String gml = invalidGML.replaceAll(MULTIGEOMETRY_GML, GEOMETRYCOLLECTION_GML);
-
-    return gml;
+    return convertGeometryToGML(geometry)
+        .toLowerCase()
+        .replaceAll(MULTIGEOMETRY_GML, GEOMETRYCOLLECTION_GML);
   }
 }
