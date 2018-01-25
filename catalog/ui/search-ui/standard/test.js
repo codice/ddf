@@ -47,6 +47,7 @@ app.listen = function() {
             bayeux.getClient().publish('/service/user', {
                 "successful": true,
                 "user": {
+                    "userid" : "Guest",
                     "username": "Guest",
                     "isGuest": "true"
                 }

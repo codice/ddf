@@ -20,6 +20,7 @@ import static spark.Spark.put;
 
 import com.google.common.collect.ImmutableMap;
 import ddf.security.Subject;
+import ddf.security.SubjectIdentity;
 import ddf.security.SubjectUtils;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -51,9 +52,13 @@ public class UserApplication implements SparkApplication {
 
   private final PersistentStore persistentStore;
 
-  public UserApplication(EndpointUtil util, PersistentStore persistentStore) {
+  private final SubjectIdentity subjectIdentity;
+
+  public UserApplication(
+      EndpointUtil util, PersistentStore persistentStore, SubjectIdentity subjectIdentity) {
     this.util = util;
     this.persistentStore = persistentStore;
+    this.subjectIdentity = subjectIdentity;
   }
 
   @Override
@@ -103,10 +108,10 @@ public class UserApplication implements SparkApplication {
 
     LOGGER.trace("preferences JSON text:\n {}", json);
 
-    String username = SubjectUtils.getName(subject);
+    String userid = subjectIdentity.getUniqueIdentifier(subject);
     PersistentItem item = new PersistentItem();
-    item.addIdProperty(username);
-    item.addProperty("user", username);
+    item.addIdProperty(userid);
+    item.addProperty("user", userid);
     item.addProperty(
         "preferences_json",
         "_bin",
@@ -116,7 +121,7 @@ public class UserApplication implements SparkApplication {
       persistentStore.add(PersistenceType.PREFERENCES_TYPE.toString(), item);
     } catch (PersistenceException e) {
       LOGGER.info(
-          "PersistenceException while trying to persist preferences for user {}", username, e);
+          "PersistenceException while trying to persist preferences for user {}", userid, e);
     }
   }
 
@@ -125,10 +130,10 @@ public class UserApplication implements SparkApplication {
   }
 
   private Map getSubjectPreferences(Subject subject) {
-    String username = SubjectUtils.getName(subject);
+    String userid = subjectIdentity.getUniqueIdentifier(subject);
 
     try {
-      String filter = String.format("user = '%s'", username);
+      String filter = String.format("user = '%s'", userid);
       List<Map<String, Object>> preferencesList =
           persistentStore.get(PersistenceType.PREFERENCES_TYPE.toString(), filter);
       if (preferencesList.size() == 1) {
@@ -139,7 +144,7 @@ public class UserApplication implements SparkApplication {
     } catch (PersistenceException e) {
       LOGGER.info(
           "PersistenceException while trying to retrieve persisted preferences for user {}",
-          username,
+          userid,
           e);
     }
 
@@ -150,6 +155,7 @@ public class UserApplication implements SparkApplication {
     // @formatter:off
     Map<String, Object> required =
         ImmutableMap.of(
+            "userid", subjectIdentity.getUniqueIdentifier(subject),
             "username", SubjectUtils.getName(subject),
             "isGuest", subject.isGuest(),
             "roles", getSubjectRoles(subject),

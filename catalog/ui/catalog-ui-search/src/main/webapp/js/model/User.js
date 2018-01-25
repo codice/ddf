@@ -273,6 +273,7 @@ define([
                 preferences: new User.Preferences(),
                 isGuest: true,
                 username: 'guest',
+                userid: 'guest',
                 roles: ['guest']
             };
         },

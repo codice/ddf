@@ -11,27 +11,25 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.catalog.ui.security;
+package ddf.security;
 
-public class WorkspaceSecurityConfiguration {
+import org.apache.shiro.subject.Subject;
 
-  private String systemUserAttribute = Constants.ROLES_CLAIM_URI;
+/** Provides methods for determining identity properties of a Subject */
+public interface SubjectIdentity {
 
-  private String systemUserAttributeValue = "admin";
+  /**
+   * Get a subject's unique identifier.
+   *
+   * @param subject
+   * @return unique identifier for the subject
+   */
+  String getUniqueIdentifier(Subject subject);
 
-  public String getSystemUserAttribute() {
-    return systemUserAttribute;
-  }
-
-  public void setSystemUserAttribute(String systemUserAttribute) {
-    this.systemUserAttribute = systemUserAttribute.trim();
-  }
-
-  public String getSystemUserAttributeValue() {
-    return systemUserAttributeValue;
-  }
-
-  public void setSystemUserAttributeValue(String systemUserAttributeValue) {
-    this.systemUserAttributeValue = systemUserAttributeValue.trim();
-  }
+  /**
+   * Subject attribute used for identity
+   *
+   * @return
+   */
+  String getIdentityAttribute();
 }

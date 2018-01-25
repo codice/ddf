@@ -15,6 +15,7 @@ package org.codice.ddf.ui.searchui.query.service;
 
 import ddf.security.SecurityConstants;
 import ddf.security.Subject;
+import ddf.security.SubjectIdentity;
 import ddf.security.SubjectUtils;
 import java.io.StringReader;
 import java.text.ParseException;
@@ -49,12 +50,15 @@ public class UserService {
 
   private PersistentStore persistentStore;
 
+  private SubjectIdentity subjectIdentity;
+
   @Inject private BayeuxServer bayeux;
 
   @Session private ServerSession serverSession;
 
-  public UserService(PersistentStore persistentStore) {
+  public UserService(PersistentStore persistentStore, SubjectIdentity subjectIdentity) {
     this.persistentStore = persistentStore;
+    this.subjectIdentity = subjectIdentity;
   }
 
   @Listener("/service/user")
@@ -67,14 +71,15 @@ public class UserService {
     if (subject != null) {
       if (data == null || data.isEmpty()) {
         Map<String, Object> userMap = new HashMap<>();
-        String username = SubjectUtils.getName(subject);
-        userMap.put("username", username);
+        String userid = subjectIdentity.getUniqueIdentifier(subject);
+        userMap.put("userid", userid);
+        userMap.put("username", SubjectUtils.getName(subject));
         userMap.put("isGuest", String.valueOf(subject.isGuest()));
         List<Map<String, Object>> preferencesList;
         try {
           preferencesList =
               persistentStore.get(
-                  PersistenceType.PREFERENCES_TYPE.toString(), "user = '" + username + "'");
+                  PersistenceType.PREFERENCES_TYPE.toString(), "user = '" + userid + "'");
           if (preferencesList.size() == 1) {
             Map<String, Object> preferences = preferencesList.get(0);
             JSONContext.Client jsonContext = new Jackson1JSONContextClient();
@@ -87,14 +92,14 @@ public class UserService {
             } catch (ParseException e) {
               LOGGER.info(
                   "ParseException while trying to convert persisted preferences for user {} from JSON",
-                  username,
+                  userid,
                   e);
             }
           }
         } catch (PersistenceException e) {
           LOGGER.info(
               "PersistenceException while trying to retrieve persisted preferences for user {}",
-              username,
+              userid,
               e);
         }
         reply.put("user", userMap);
