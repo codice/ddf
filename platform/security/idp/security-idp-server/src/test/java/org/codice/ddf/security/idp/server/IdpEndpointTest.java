@@ -19,6 +19,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -129,6 +130,11 @@ public class IdpEndpointTest {
 
   String soapRequest =
       "<?xml version=\"1.0\" encoding=\"UTF-8\"?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"> <soapenv:Header> <ecp:RelayState xmlns:ecp=\"urn:oasis:names:tc:SAML:2.0:profiles:SSO:ecp\" soapenv:actor=\"http://schemas.xmlsoap.org/soap/actor/next\" soapenv:mustUnderstand=\"1\">relaystate</ecp:RelayState> </soapenv:Header> <soapenv:Body>"
+          + authNRequestGetForce
+          + "</soapenv:Body></soapenv:Envelope>";
+
+  String soapRequestWithoutRelayState =
+      "<?xml version=\"1.0\" encoding=\"UTF-8\"?><soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"> <soapenv:Header/> <soapenv:Body>"
           + authNRequestGetForce
           + "</soapenv:Body></soapenv:Envelope>";
 
@@ -878,6 +884,52 @@ public class IdpEndpointTest {
 
     assertThat(activeSps.size(), is(2));
     assertThat(activeSps, containsInAnyOrder("activeSP1", "activeSP2"));
+  }
+
+  @Test
+  public void testNullRelayState() throws Exception {
+    idpEndpoint.setStrictSignature(false);
+    HttpServletRequest request = mock(HttpServletRequest.class);
+
+    when(request.isSecure()).thenReturn(true);
+
+    Response postLoginResponse = idpEndpoint.showPostLogin(authNRequestPost, null, request);
+    Response getLoginResponse =
+        idpEndpoint.showGetLogin(authNRequestGet, null, signatureAlgorithm, signature, request);
+    Response soapLoginResponse =
+        idpEndpoint.doSoapLogin(
+            new ByteArrayInputStream(soapRequestWithoutRelayState.getBytes(StandardCharsets.UTF_8)),
+            request);
+
+    // Verify no exceptions (NPE) are thrown and relay state is not present
+    assertTrue(!postLoginResponse.getEntity().toString().contains("RelayState"));
+    assertTrue(!getLoginResponse.getEntity().toString().contains("RelayState"));
+    assertTrue(!soapLoginResponse.getEntity().toString().contains("<ecp:RelayState"));
+  }
+
+  @Test
+  public void testRelayStateIsPresent() throws Exception {
+    idpEndpoint.setStrictSignature(false);
+    String relayState = "relaystate";
+    HttpServletRequest request = mock(HttpServletRequest.class);
+
+    when(request.isSecure()).thenReturn(true);
+
+    Response postLoginResponse = idpEndpoint.showPostLogin(authNRequestPost, relayState, request);
+    Response getLoginResponse =
+        idpEndpoint.showGetLogin(
+            authNRequestGet, relayState, signatureAlgorithm, signature, request);
+    Response soapLoginResponse =
+        idpEndpoint.doSoapLogin(
+            new ByteArrayInputStream(soapRequest.getBytes(StandardCharsets.UTF_8)), request);
+
+    assertThat(
+        postLoginResponse.getEntity().toString(), containsString("\"RelayState\":\"relaystate\""));
+    assertThat(
+        getLoginResponse.getEntity().toString(), containsString("\"RelayState\":\"relaystate\""));
+
+    assertThat(soapLoginResponse.getEntity().toString(), containsString("<ecp:RelayState"));
+    assertThat(soapLoginResponse.getEntity().toString(), containsString("relaystate"));
   }
 
   private Document readDocument(String name)

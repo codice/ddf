@@ -754,6 +754,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
                 getPresignPlugins(),
                 spMetadata,
                 SUPPORTED_BINDINGS);
+        template = submitForm;
       } else if (HTTP_REDIRECT_BINDING.equals(assertionConsumerServiceBinding)
           && !(binding instanceof RedirectBinding)) {
         binding =
@@ -763,6 +764,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
                 getPresignPlugins(),
                 spMetadata,
                 SUPPORTED_BINDINGS);
+        template = redirectPage;
       }
       org.opensaml.saml.saml2.core.Response encodedSaml =
           handleLogin(
@@ -1260,7 +1262,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
         LogoutRequest logoutRequest =
             logoutMessage.buildLogoutRequest(
                 logoutState.getNameId(),
-                SystemBaseUrl.constructUrl(IDP_LOGOUT, true),
+                SystemBaseUrl.constructUrl(IDP_LOGIN, true),
                 logoutState.getSessionIndexes());
         logoutState.setCurrentRequestId(logoutRequest.getID());
         logoutObject = logoutRequest;
@@ -1273,7 +1275,7 @@ public class IdpEndpoint implements Idp, SessionHandler {
             logoutState.isPartialLogout() ? StatusCode.PARTIAL_LOGOUT : StatusCode.SUCCESS;
         logoutObject =
             logoutMessage.buildLogoutResponse(
-                SystemBaseUrl.constructUrl(IDP_LOGOUT, true),
+                SystemBaseUrl.constructUrl(IDP_LOGIN, true),
                 status,
                 logoutState.getOriginalRequestId());
 
@@ -1331,12 +1333,15 @@ public class IdpEndpoint implements Idp, SessionHandler {
             RestSecurity.deflateAndBase64Encode(
                 DOM2Writer.nodeToString(OpenSAMLUtil.toDom(samlResponse, doc, false))),
             "UTF-8");
-    String requestToSign =
-        String.format("%s=%s&RelayState=%s", samlType.getKey(), encodedResponse, relayState);
+    StringBuilder requestToSign =
+        new StringBuilder(samlType.getKey()).append("=").append(encodedResponse);
+    if (relayState != null) {
+      requestToSign.append("&RelayState=").append(relayState);
+    }
     UriBuilder uriBuilder = UriBuilder.fromUri(targetUrl);
     uriBuilder.queryParam(samlType.getKey(), encodedResponse);
     uriBuilder.queryParam(SSOConstants.RELAY_STATE, relayState == null ? "" : relayState);
-    new SimpleSign(systemCrypto).signUriString(requestToSign, uriBuilder);
+    new SimpleSign(systemCrypto).signUriString(requestToSign.toString(), uriBuilder);
     LOGGER.debug("Signing successful.");
     return Response.ok(HtmlResponseTemplate.getRedirectPage(uriBuilder.build().toString())).build();
   }
