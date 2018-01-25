@@ -49,6 +49,22 @@ public class ValidationAttributes implements Validation, MetacardType {
             true /* tokenized */,
             true /* multivalued */,
             BasicTypes.STRING_TYPE));
+    descriptors.add(
+        new AttributeDescriptorImpl(
+            Validation.FAILED_VALIDATORS_WARNINGS,
+            true /* indexed */,
+            true /* stored */,
+            false /* tokenized */,
+            true /* multivalued */,
+            BasicTypes.STRING_TYPE));
+    descriptors.add(
+        new AttributeDescriptorImpl(
+            Validation.FAILED_VALIDATORS_ERRORS,
+            true /* indexed */,
+            true /* stored */,
+            false /* tokenized */,
+            true /* multivalued */,
+            BasicTypes.STRING_TYPE));
     DESCRIPTORS = Collections.unmodifiableSet(descriptors);
   }
 
