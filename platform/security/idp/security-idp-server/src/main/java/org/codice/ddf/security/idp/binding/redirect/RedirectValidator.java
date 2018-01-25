@@ -20,6 +20,7 @@ import ddf.security.samlp.impl.EntityInformation;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.security.idp.binding.api.Validator;
@@ -49,14 +50,17 @@ public class RedirectValidator extends ValidatorImpl implements Validator {
     LOGGER.debug("Validating AuthnRequest required attributes and signature");
     if (strictSignature) {
       if (!StringUtils.isEmpty(signature) && !StringUtils.isEmpty(signatureAlgorithm)) {
-        String signedParts;
+        StringBuilder signedParts;
         try {
           signedParts =
-              String.format(
-                  "SAMLRequest=%s&RelayState=%s&SigAlg=%s",
-                  URLEncoder.encode(samlRequest, "UTF-8"),
-                  relayState,
-                  URLEncoder.encode(signatureAlgorithm, "UTF-8"));
+              new StringBuilder("SAMLRequest=")
+                  .append(URLEncoder.encode(samlRequest, StandardCharsets.UTF_8.name()));
+          if (relayState != null) {
+            signedParts.append("&RelayState=").append(relayState);
+          }
+          signedParts
+              .append("&SigAlg=")
+              .append(URLEncoder.encode(signatureAlgorithm, StandardCharsets.UTF_8.name()));
         } catch (UnsupportedEncodingException e) {
           throw new SimpleSign.SignatureException("Unable to construct signed query parts.", e);
         }
@@ -73,7 +77,8 @@ public class RedirectValidator extends ValidatorImpl implements Validator {
               "Unable to find signing certificate in metadata. Please check metadata.");
         }
         boolean result =
-            getSimpleSign().validateSignature(signedParts, signature, signingCertificate);
+            getSimpleSign()
+                .validateSignature(signedParts.toString(), signature, signingCertificate);
         if (!result) {
           throw new ValidationException("Signature verification failed for redirect binding.");
         }
@@ -91,7 +96,7 @@ public class RedirectValidator extends ValidatorImpl implements Validator {
   public void validateRelayState(String relayState) {
     if (relayState != null) {
       try {
-        relayState = URLDecoder.decode(relayState, "UTF-8");
+        relayState = URLDecoder.decode(relayState, StandardCharsets.UTF_8.name());
       } catch (UnsupportedEncodingException e) {
         LOGGER.info("Unable to URL decode relay state, it may already be decoded.", e);
       }

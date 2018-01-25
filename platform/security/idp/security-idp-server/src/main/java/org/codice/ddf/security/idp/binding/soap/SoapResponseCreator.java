@@ -83,7 +83,7 @@ public class SoapResponseCreator extends ResponseCreatorImpl implements Response
         responseTemplate.replace("{{" + Idp.SAML_RESPONSE + "}}", assertionResponse);
 
     String ecpResponse = createEcpResponse(authnRequest);
-    String ecpRelayState = createEcpRelayState(relayState);
+    String ecpRelayState = relayState != null ? createEcpRelayState(relayState) : "";
     String ecpRequestAuthenticated = createEcpRequestAuthenticated(authnRequest);
     submitFormUpdated = submitFormUpdated.replace("{{" + Idp.ECP_RESPONSE + "}}", ecpResponse);
     submitFormUpdated = submitFormUpdated.replace("{{" + Idp.ECP_RELAY_STATE + "}}", ecpRelayState);
