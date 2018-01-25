@@ -17,16 +17,22 @@ import java.util.Map;
 import net.opengis.cat.csw.v_2_0_2.DeleteType;
 import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.spatial.ogc.csw.catalog.actions.DeleteAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 
-/** A DeleteAction represents a single delete action within a CSW transaction. */
-public class DeleteAction extends CswAction {
+/** A DeleteActionImpl represents a single delete action within a CSW transaction. */
+public class DeleteActionImpl implements DeleteAction {
+
   private QueryConstraintType queryConstraintType;
 
   private Map<String, String> prefixToUriMappings;
 
+  private String typeName;
+
+  private String handle;
+
   /**
-   * Constructs a DeleteAction with a {@link DeleteType} and a map of XML namespace prefixes to
+   * Constructs a DeleteActionImpl with a {@link DeleteType} and a map of XML namespace prefixes to
    * their respective URIs. The map should contain the prefix to URI mappings declared in the
    * transaction request XML.
    *
@@ -38,19 +44,25 @@ public class DeleteAction extends CswAction {
    * @param prefixToUriMappings the map that contains the XML namespace prefix to URI mappings
    *     declared in the transaction request XML
    */
-  public DeleteAction(DeleteType deleteType, Map<String, String> prefixToUriMappings) {
-    super(
-        StringUtils.defaultIfEmpty(deleteType.getTypeName(), CswConstants.CSW_RECORD),
-        StringUtils.defaultIfEmpty(deleteType.getHandle(), ""));
-    queryConstraintType = deleteType.getConstraint();
+  public DeleteActionImpl(DeleteType deleteType, Map<String, String> prefixToUriMappings) {
+    this.typeName = StringUtils.defaultIfEmpty(deleteType.getTypeName(), CswConstants.CSW_RECORD);
+    this.handle = StringUtils.defaultIfEmpty(deleteType.getHandle(), "");
+    this.queryConstraintType = deleteType.getConstraint();
     this.prefixToUriMappings = prefixToUriMappings;
   }
 
+  @Override
   public QueryConstraintType getConstraint() {
     return queryConstraintType;
   }
 
-  public Map<String, String> getPrefixToUriMappings() {
-    return prefixToUriMappings;
+  @Override
+  public String getTypeName() {
+    return typeName;
+  }
+
+  @Override
+  public String getHandle() {
+    return handle;
   }
 }

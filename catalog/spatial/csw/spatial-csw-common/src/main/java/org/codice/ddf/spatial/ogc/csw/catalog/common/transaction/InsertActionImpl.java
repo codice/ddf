@@ -15,13 +15,20 @@ package org.codice.ddf.spatial.ogc.csw.catalog.common.transaction;
 
 import ddf.catalog.data.Metacard;
 import java.util.List;
+import org.codice.ddf.spatial.ogc.csw.catalog.actions.InsertAction;
 
-/** An InsertAction represents a single insert action within a CSW transaction. */
-public class InsertAction extends CswAction {
+/** An InsertActionImpl represents a single insert action within a CSW transaction. */
+public class InsertActionImpl implements InsertAction {
+
+  private String typeName;
+
+  private String handle;
+
   private List<Metacard> records;
 
   /**
-   * Constructs an InsertAction with the specified typeName, handle, and list of records to insert.
+   * Constructs an InsertActionImpl with the specified typeName, handle, and list of records to
+   * insert.
    *
    * <p>If an error occurs while processing this insert action, {@code handle} will be included in
    * the exception report response so the specific action within the transaction that caused the
@@ -31,12 +38,24 @@ public class InsertAction extends CswAction {
    * @param handle the name to associate with this insert action
    * @param records the records to insert
    */
-  public InsertAction(String typeName, String handle, List<Metacard> records) {
-    super(typeName, handle);
+  public InsertActionImpl(String typeName, String handle, List<Metacard> records) {
+    this.typeName = typeName;
+    this.handle = handle;
     this.records = records;
   }
 
+  @Override
   public List<Metacard> getRecords() {
     return records;
+  }
+
+  @Override
+  public String getTypeName() {
+    return typeName;
+  }
+
+  @Override
+  public String getHandle() {
+    return handle;
   }
 }

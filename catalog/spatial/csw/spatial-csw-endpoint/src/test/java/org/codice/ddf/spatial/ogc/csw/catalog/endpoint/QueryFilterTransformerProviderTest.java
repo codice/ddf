@@ -134,7 +134,7 @@ public class QueryFilterTransformerProviderTest extends QueryFilterTransformerPr
   }
 
   @Override
-  BundleContext getBundleContext() {
+  public BundleContext getBundleContext() {
     return bundleContext;
   }
 }

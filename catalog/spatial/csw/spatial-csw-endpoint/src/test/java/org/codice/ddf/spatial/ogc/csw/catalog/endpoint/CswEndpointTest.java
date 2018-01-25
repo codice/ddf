@@ -83,6 +83,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.stream.Collectors;
 import javax.activation.MimeType;
@@ -119,6 +120,8 @@ import net.opengis.ows.v_1_0_0.SectionsType;
 import net.opengis.ows.v_1_0_0.ServiceIdentification;
 import net.opengis.ows.v_1_0_0.ServiceProvider;
 import org.apache.commons.lang.StringUtils;
+import org.codice.ddf.spatial.ogc.csw.catalog.actions.DeleteAction;
+import org.codice.ddf.spatial.ogc.csw.catalog.actions.UpdateAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswRecordCollection;
@@ -130,10 +133,11 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.converter.DefaultCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteAction;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertAction;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.UpdateAction;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteActionImpl;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertActionImpl;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.UpdateActionImpl;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.CswActionTransformerProvider;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.opengis.filter.sort.SortBy;
@@ -195,6 +199,9 @@ public class CswEndpointTest {
 
   private static TransformerManager mockInputManager = mock(TransformerManager.class);
 
+  private static CswActionTransformerProvider mockCswActionTransformerProvider =
+      mock(CswActionTransformerProvider.class);
+
   private static QueryResponseTransformer mockTransformer = mock(QueryResponseTransformer.class);
 
   private static QName cswQnameOutPutSchema = new QName(CswConstants.CSW_OUTPUT_SCHEMA);
@@ -229,12 +236,14 @@ public class CswEndpointTest {
     when(mockBundleContext.getServiceReferences(QueryFilterTransformer.class, null))
         .thenReturn(Collections.singletonList(serviceReference));
 
+    when(mockCswActionTransformerProvider.getTransformer(anyString())).thenReturn(Optional.empty());
     csw =
         new CswEndpointStub(
             catalogFramework,
             mockMimeTypeManager,
             mockSchemaManager,
             mockInputManager,
+            mockCswActionTransformerProvider,
             validator,
             queryFactory,
             mockBundle);
@@ -1590,7 +1599,7 @@ public class CswEndpointTest {
     CswTransactionRequest request = new CswTransactionRequest();
     request
         .getInsertActions()
-        .add(new InsertAction(CswConstants.CSW_TYPE, null, Arrays.asList(new MetacardImpl())));
+        .add(new InsertActionImpl(CswConstants.CSW_TYPE, null, Arrays.asList(new MetacardImpl())));
 
     TransactionResponseType response = csw.transaction(request);
     assertThat(response, notNullValue());
@@ -1613,7 +1622,7 @@ public class CswEndpointTest {
     CswTransactionRequest request = new CswTransactionRequest();
     request
         .getInsertActions()
-        .add(new InsertAction(CswConstants.CSW_TYPE, null, Arrays.asList(new MetacardImpl())));
+        .add(new InsertActionImpl(CswConstants.CSW_TYPE, null, Arrays.asList(new MetacardImpl())));
     request.setVerbose(true);
 
     TransactionResponseType response = csw.transaction(request);
@@ -1657,7 +1666,7 @@ public class CswEndpointTest {
     when(catalogFramework.delete(any(DeleteRequest.class))).thenReturn(delBatch.get(0), delRest);
 
     DeleteAction deleteAction =
-        new DeleteAction(deleteType, DefaultCswRecordMap.getPrefixToUriMapping());
+        new DeleteActionImpl(deleteType, DefaultCswRecordMap.getPrefixToUriMapping());
 
     CswTransactionRequest deleteRequest = new CswTransactionRequest();
     deleteRequest.getDeleteActions().add(deleteAction);
@@ -1707,7 +1716,7 @@ public class CswEndpointTest {
     when(catalogFramework.delete(any(DeleteRequest.class))).thenReturn(delBatch.get(0), delRest);
 
     DeleteAction deleteAction =
-        new DeleteAction(deleteType, DefaultCswRecordMap.getPrefixToUriMapping());
+        new DeleteActionImpl(deleteType, DefaultCswRecordMap.getPrefixToUriMapping());
 
     CswTransactionRequest deleteRequest = new CswTransactionRequest();
     deleteRequest.getDeleteActions().add(deleteAction);
@@ -1730,7 +1739,7 @@ public class CswEndpointTest {
 
     MetacardImpl updatedMetacard = new MetacardImpl();
     updatedMetacard.setId("123");
-    UpdateAction updateAction = new UpdateAction(updatedMetacard, CswConstants.CSW_RECORD, "");
+    UpdateAction updateAction = new UpdateActionImpl(updatedMetacard, CswConstants.CSW_RECORD, "");
 
     CswTransactionRequest transactionRequest = new CswTransactionRequest();
     transactionRequest.getUpdateActions().add(updateAction);
@@ -1802,7 +1811,7 @@ public class CswEndpointTest {
     constraint.setCqlText("title = 'fake'");
 
     UpdateAction updateAction =
-        new UpdateAction(
+        new UpdateActionImpl(
             recordProperties,
             CswConstants.CSW_RECORD,
             "",
@@ -1850,6 +1859,94 @@ public class CswEndpointTest {
     assertThat(secondUpdate.getTitle(), is("foo"));
     assertThat(secondUpdate.getAttribute("subject").getValue(), is("bar"));
   }
+
+  //  @Test
+  //  public void testUpdateTransactionWithCswActionTransformerModification()
+  //      throws CswException, FederationException, IngestException, SourceUnavailableException,
+  //      UnsupportedQueryException {
+  //    List<Result> results = new ArrayList<>();
+  //
+  //    MetacardImpl firstResult = new MetacardImpl();
+  //    firstResult.setId("123");
+  //    firstResult.setTitle("Title one");
+  //    firstResult.setAttribute("subject", "Subject one");
+  //    results.add(new ResultImpl(firstResult));
+  //
+  //    MetacardImpl secondResult = new MetacardImpl();
+  //    secondResult.setId("789");
+  //    secondResult.setTitle("Title two");
+  //    secondResult.setAttribute("subject", "Subject two");
+  //    results.add(new ResultImpl(secondResult));
+  //
+  //    QueryResponse queryResponse = new QueryResponseImpl(null, results, results.size());
+  //    QueryResponse emptyResponse = new QueryResponseImpl(null, Collections.emptyList(), 0);
+  //    when(catalogFramework.query(any(QueryRequest.class)))
+  //        .thenReturn(queryResponse)
+  //        .thenReturn(emptyResponse);
+  //
+  //    List<Update> updatedMetacards = new ArrayList<>();
+  //    updatedMetacards.add(new UpdateImpl(new MetacardImpl(), new MetacardImpl()));
+  //    updatedMetacards.add(new UpdateImpl(new MetacardImpl(), new MetacardImpl()));
+  //
+  //    UpdateResponse updateResponse = new UpdateResponseImpl(null, null, updatedMetacards);
+  //    doReturn(updateResponse).when(catalogFramework).update(any(UpdateRequest.class));
+  //
+  //    Map<String, Serializable> recordProperties = new HashMap<>();
+  //    recordProperties.put("title", "foo");
+  //    recordProperties.put("subject", "bar");
+  //
+  //    QueryConstraintType constraint = new QueryConstraintType();
+  //    constraint.setCqlText("title = 'fake'");
+  //
+  //    UpdateAction updateAction =
+  //        new UpdateActionImpl(
+  //            recordProperties,
+  //            CswConstants.CSW_RECORD,
+  //            "",
+  //            constraint,
+  //            DefaultCswRecordMap.getDefaultCswRecordMap().getPrefixToUriMapping());
+  //
+  //    CswTransactionRequest updateRequest = new CswTransactionRequest();
+  //    updateRequest.getUpdateActions().add(updateAction);
+  //    updateRequest.setVersion(CswConstants.VERSION_2_0_2);
+  //    updateRequest.setService(CswConstants.CSW);
+  //    updateRequest.setVerbose(false);
+  //
+  //    TransactionResponseType response = csw.transaction(updateRequest);
+  //    assertThat(response, notNullValue());
+  //
+  //    TransactionSummaryType summary = response.getTransactionSummary();
+  //    assertThat(summary, notNullValue());
+  //
+  //    assertThat(summary.getTotalDeleted().intValue(), is(0));
+  //    assertThat(summary.getTotalInserted().intValue(), is(0));
+  //    assertThat(summary.getTotalUpdated().intValue(), is(2));
+  //
+  //    verifyMarshalResponse(
+  //        response,
+  //        "net.opengis.cat.csw.v_2_0_2:net.opengis.filter.v_1_1_0:net.opengis.gml.v_3_1_1",
+  //        cswQnameOutPutSchema);
+  //
+  //    ArgumentCaptor<UpdateRequest> updateRequestArgumentCaptor =
+  //        ArgumentCaptor.forClass(UpdateRequest.class);
+  //
+  //    verify(catalogFramework, times(1)).update(updateRequestArgumentCaptor.capture());
+  //
+  //    UpdateRequest actualUpdateRequest = updateRequestArgumentCaptor.getValue();
+  //
+  //    List<Map.Entry<Serializable, Metacard>> updates = actualUpdateRequest.getUpdates();
+  //    assertThat(updates.size(), is(2));
+  //
+  //    Metacard firstUpdate = updates.get(0).getValue();
+  //    assertThat(firstUpdate.getId(), is("123"));
+  //    assertThat(firstUpdate.getTitle(), is("foo"));
+  //    assertThat(firstUpdate.getAttribute("subject").getValue(), is("bar"));
+  //
+  //    Metacard secondUpdate = updates.get(1).getValue();
+  //    assertThat(secondUpdate.getId(), is("789"));
+  //    assertThat(secondUpdate.getTitle(), is("foo"));
+  //    assertThat(secondUpdate.getAttribute("subject").getValue(), is("bar"));
+  //  }
 
   /**
    * Creates default GetCapabilities GET request, with no sections specified
@@ -2140,10 +2237,18 @@ public class CswEndpointTest {
         TransformerManager mimeTypeManager,
         TransformerManager schemaManager,
         TransformerManager inputManager,
+        CswActionTransformerProvider cswActionTransformerProvider,
         Validator validator,
         CswQueryFactory queryFactory,
         Bundle bundle) {
-      super(ddf, mimeTypeManager, schemaManager, inputManager, validator, queryFactory);
+      super(
+          ddf,
+          mimeTypeManager,
+          schemaManager,
+          inputManager,
+          cswActionTransformerProvider,
+          validator,
+          queryFactory);
       this.bundle = bundle;
     }
 

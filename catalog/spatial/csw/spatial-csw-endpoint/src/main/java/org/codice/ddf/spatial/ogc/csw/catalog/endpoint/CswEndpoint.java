@@ -134,6 +134,9 @@ import net.opengis.ows.v_1_0_0.ServiceProvider;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.codice.ddf.platform.util.XMLUtils;
+import org.codice.ddf.spatial.ogc.csw.catalog.actions.DeleteAction;
+import org.codice.ddf.spatial.ogc.csw.catalog.actions.InsertAction;
+import org.codice.ddf.spatial.ogc.csw.catalog.actions.UpdateAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.Csw;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswException;
@@ -145,10 +148,9 @@ import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordByIdRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GetRecordsRequest;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.GmdConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteAction;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertAction;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.UpdateAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transformer.TransformerManager;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.CswActionTransformer;
+import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.CswActionTransformerProvider;
 import org.geotools.filter.text.cql2.CQLException;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -252,6 +254,8 @@ public class CswEndpoint implements Csw {
 
   private final TransformerManager inputTransformerManager;
 
+  private final CswActionTransformerProvider cswActionTransformerProvider;
+
   private CatalogFramework framework;
 
   private CapabilitiesType capabilitiesType;
@@ -268,6 +272,7 @@ public class CswEndpoint implements Csw {
       TransformerManager mimeTypeManager,
       TransformerManager schemaManager,
       TransformerManager inputManager,
+      CswActionTransformerProvider cswActionTransformerProvider,
       Validator validator,
       CswQueryFactory queryFactory) {
     LOGGER.trace("Entering: CSW Endpoint constructor.");
@@ -275,6 +280,7 @@ public class CswEndpoint implements Csw {
     this.mimeTypeTransformerManager = mimeTypeManager;
     this.schemaTransformerManager = schemaManager;
     this.inputTransformerManager = inputManager;
+    this.cswActionTransformerProvider = cswActionTransformerProvider;
     this.validator = validator;
     this.queryFactory = queryFactory;
     LOGGER.trace("Exiting: CSW Endpoint constructor.");
@@ -538,6 +544,7 @@ public class CswEndpoint implements Csw {
 
     int numInserted = 0;
     for (InsertAction insertAction : request.getInsertActions()) {
+      insertAction = transformInsertAction(insertAction, insertAction.getTypeName());
       CreateRequest createRequest = new CreateRequestImpl(insertAction.getRecords());
       try {
         CreateResponse createResponse = framework.create(createRequest);
@@ -649,6 +656,8 @@ public class CswEndpoint implements Csw {
       throws CswException, FederationException, IngestException, SourceUnavailableException,
           UnsupportedQueryException, InterruptedException, ParseException, CQLException {
 
+    deleteAction = transformDeleteAction(deleteAction, deleteAction.getTypeName());
+
     QueryRequest queryRequest =
         queryFactory.getQuery(deleteAction.getConstraint(), deleteAction.getTypeName());
 
@@ -686,9 +695,75 @@ public class CswEndpoint implements Csw {
         .toArray(String[]::new);
   }
 
+  private InsertAction transformInsertAction(InsertAction insertAction, String typeName) {
+    return cswActionTransformerProvider
+        .getTransformer(typeName)
+        .map(it -> it.transform(insertAction))
+        .orElse(insertAction);
+  }
+
+  private InsertAction transformInsertAction(InsertAction insertAction, List<QName> typeNames) {
+    InsertAction newInsertAction = insertAction;
+    for (QName typeName : typeNames) {
+      final InsertAction temp = newInsertAction;
+      newInsertAction =
+          cswActionTransformerProvider
+              .getTransformer(typeName)
+              .map(it -> it.transform(temp))
+              .orElse(temp);
+    }
+    return newInsertAction;
+  }
+
+  private DeleteAction transformDeleteAction(DeleteAction deleteAction, String typeName) {
+    return cswActionTransformerProvider
+        .getTransformer(typeName)
+        .map(it -> it.transform(deleteAction))
+        .orElse(deleteAction);
+  }
+
+  private DeleteAction transformDeleteAction(DeleteAction deleteAction, List<QName> typeNames) {
+    DeleteAction newDeleteAction = deleteAction;
+    for (QName typeName : typeNames) {
+      final DeleteAction temp = newDeleteAction;
+      newDeleteAction =
+          cswActionTransformerProvider
+              .getTransformer(typeName)
+              .map(it -> it.transform(temp))
+              .orElse(temp);
+    }
+    return newDeleteAction;
+  }
+
+  private UpdateAction transformUpdateAction(UpdateAction updateAction, String typeName) {
+    Optional<CswActionTransformer> op = cswActionTransformerProvider.getTransformer(typeName);
+    if (op.isPresent()) {
+      CswActionTransformer tr = op.get();
+      return tr.transform(updateAction);
+    } else {
+      return updateAction;
+    }
+  }
+
+  private UpdateAction transformUpdateAction(UpdateAction updateAction, List<QName> typeNames) {
+    UpdateAction newUpdateAction = updateAction;
+    for (QName typeName : typeNames) {
+      final UpdateAction temp = newUpdateAction;
+      newUpdateAction =
+          cswActionTransformerProvider
+              .getTransformer(typeName)
+              .map(it -> it.transform(temp))
+              .orElse(temp);
+    }
+    return newUpdateAction;
+  }
+
   private int updateRecords(UpdateAction updateAction)
       throws CswException, FederationException, IngestException, SourceUnavailableException,
           UnsupportedQueryException {
+
+    updateAction = transformUpdateAction(updateAction, updateAction.getTypeName());
+
     if (updateAction.getMetacard() != null) {
       Metacard newRecord = updateAction.getMetacard();
 

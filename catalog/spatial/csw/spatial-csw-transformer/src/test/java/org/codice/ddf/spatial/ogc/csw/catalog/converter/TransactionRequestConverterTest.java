@@ -39,11 +39,14 @@ import java.util.Arrays;
 import net.opengis.cat.csw.v_2_0_2.DeleteType;
 import net.opengis.cat.csw.v_2_0_2.QueryConstraintType;
 import org.apache.commons.io.IOUtils;
+import org.codice.ddf.spatial.ogc.csw.catalog.actions.DeleteAction;
+import org.codice.ddf.spatial.ogc.csw.catalog.actions.InsertAction;
+import org.codice.ddf.spatial.ogc.csw.catalog.actions.UpdateAction;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.CswTransactionRequest;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteAction;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertAction;
-import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.UpdateAction;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.DeleteActionImpl;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.InsertActionImpl;
+import org.codice.ddf.spatial.ogc.csw.catalog.common.transaction.UpdateActionImpl;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.custommonkey.xmlunit.exceptions.XpathException;
@@ -123,7 +126,7 @@ public class TransactionRequestConverterTest {
     MetacardImpl metacard = new MetacardImpl();
     metacard.setId(METACARD_ID);
     InsertAction insertAction =
-        new InsertAction(CswConstants.CSW_METACARD_TYPE_NAME, null, Arrays.asList(metacard));
+        new InsertActionImpl(CswConstants.CSW_METACARD_TYPE_NAME, null, Arrays.asList(metacard));
     transactionRequest.getInsertActions().add(insertAction);
     transactionRequest.setService(CswConstants.CSW);
     transactionRequest.setVerbose(true);
@@ -144,7 +147,7 @@ public class TransactionRequestConverterTest {
     MetacardImpl metacard = new MetacardImpl();
     metacard.setId(METACARD_ID);
     UpdateAction updateAction =
-        new UpdateAction(metacard, CswConstants.CSW_METACARD_TYPE_NAME, null);
+        new UpdateActionImpl(metacard, CswConstants.CSW_METACARD_TYPE_NAME, null);
     transactionRequest.getUpdateActions().add(updateAction);
     transactionRequest.setService(CswConstants.CSW);
     transactionRequest.setVerbose(true);
@@ -166,7 +169,7 @@ public class TransactionRequestConverterTest {
     QueryConstraintType queryConstraintType = new QueryConstraintType();
     queryConstraintType.setCqlText("identifier = " + METACARD_ID);
     deleteType.setConstraint(queryConstraintType);
-    DeleteAction deleteAction = new DeleteAction(deleteType, null);
+    DeleteAction deleteAction = new DeleteActionImpl(deleteType, null);
     transactionRequest.getDeleteActions().add(deleteAction);
     transactionRequest.setService(CswConstants.CSW);
     transactionRequest.setVerbose(true);
@@ -189,16 +192,16 @@ public class TransactionRequestConverterTest {
     transactionRequest.setVersion(CswConstants.VERSION_2_0_2);
 
     InsertAction insertAction =
-        new InsertAction(CswConstants.CSW_METACARD_TYPE_NAME, null, Arrays.asList(metacard));
+        new InsertActionImpl(CswConstants.CSW_METACARD_TYPE_NAME, null, Arrays.asList(metacard));
     transactionRequest.getInsertActions().add(insertAction);
     UpdateAction updateAction =
-        new UpdateAction(metacard, CswConstants.CSW_METACARD_TYPE_NAME, null);
+        new UpdateActionImpl(metacard, CswConstants.CSW_METACARD_TYPE_NAME, null);
     transactionRequest.getUpdateActions().add(updateAction);
     DeleteType deleteType = new DeleteType();
     QueryConstraintType queryConstraintType = new QueryConstraintType();
     queryConstraintType.setCqlText("identifier = " + METACARD_ID);
     deleteType.setConstraint(queryConstraintType);
-    DeleteAction deleteAction = new DeleteAction(deleteType, null);
+    DeleteAction deleteAction = new DeleteActionImpl(deleteType, null);
     transactionRequest.getDeleteActions().add(deleteAction);
 
     String xml = xStream.toXML(transactionRequest);

@@ -15,6 +15,9 @@ package org.codice.ddf.spatial.ogc.csw.catalog.common.transaction;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.codice.ddf.spatial.ogc.csw.catalog.actions.DeleteAction;
+import org.codice.ddf.spatial.ogc.csw.catalog.actions.InsertAction;
+import org.codice.ddf.spatial.ogc.csw.catalog.actions.UpdateAction;
 
 /**
  * Represents a single CSW transaction request that can contain multiple insert, update, and delete
