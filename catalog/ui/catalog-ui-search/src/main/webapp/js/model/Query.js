@@ -83,7 +83,8 @@ define([
                     result: undefined,
                     serverPageIndex: 0,
                     type: 'text',
-                    isLocal: false
+                    isLocal: false,
+                    isOutdated: false
                 }, user.getQuerySettings().toJSON());
             },
             resetToDefaults: function() {
@@ -105,6 +106,7 @@ define([
                 _.bindAll.apply(_, [this].concat(_.functions(this))); // underscore bindAll does not take array arg
                 this.set('id', this.getId());
                 this.listenTo(user.get('user>preferences'), 'change:resultCount', this.handleChangeResultCount);
+                this.listenTo(this, 'change:cql', () => this.set('isOutdated', true));
             },
             buildSearchData: function () {
                 var data = this.toJSON();
@@ -130,6 +132,10 @@ define([
                 return _.pick(data, 'src', 'start', 'count', 'timeout', 'cql', 'sort', 'id');
             },
             startSearch: function (options) {
+                this.set('isOutdated', false);
+                if (this.get('cql') === '') {
+                    return;
+                }
                 options = _.extend({
                     limitToDeleted: false,
                     limitToHistoric: false

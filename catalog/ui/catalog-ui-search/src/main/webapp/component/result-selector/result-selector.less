@@ -18,7 +18,9 @@
     position: relative;
     text-align: center;
     white-space: nowrap;
-    .inlineBlockDisplay(div);
+    > div {
+      display: inline-block;
+    }
     height: @minimumButtonSize;
   }
 
@@ -39,7 +41,6 @@
     margin: 0px @minimumSpacing;
     left: 0px;
     white-space: nowrap;
-    .inlineBlockDisplay(button);
 
     .merge {
       width: ~'calc(100% - @{minimumButtonSize})';

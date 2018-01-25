@@ -33,6 +33,8 @@ public class WorkspaceAttributes implements MetacardType {
 
   public static final String WORKSPACE_SHARING = "metacard.sharing";
 
+  public static final String WORKSPACE_LISTS = "lists";
+
   private static final String NAME = "workspace";
 
   // @formatter:off
@@ -49,6 +51,14 @@ public class WorkspaceAttributes implements MetacardType {
           WORKSPACE_QUERIES,
           new AttributeDescriptorImpl(
               WORKSPACE_QUERIES,
+              false /* indexed */,
+              true /* stored */,
+              false /* tokenized */,
+              true /* multivalued */,
+              BasicTypes.XML_TYPE),
+          WORKSPACE_LISTS,
+          new AttributeDescriptorImpl(
+              WORKSPACE_LISTS,
               false /* indexed */,
               true /* stored */,
               false /* tokenized */,

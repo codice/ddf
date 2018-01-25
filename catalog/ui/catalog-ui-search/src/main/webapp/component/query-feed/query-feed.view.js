@@ -72,12 +72,11 @@ define([
         },
         initialize: function(options){
             this.updateQuery = _.throttle(this.updateQuery, 200);
-            var query = store.getQueryById(this.model.id);
-            this.listenTo(query, 'change', this.updateQuery);
-            if (query.has('result')) {
-                this.listenToStatus(query);
+            this.listenTo(this.model, 'change', this.updateQuery);
+            if (this.model.has('result')) {
+                this.listenToStatus(this.model);
             } else {
-                this.listenTo(query, 'change:result', this.resultAdded);
+                this.listenTo(this.model, 'change:result', this.resultAdded);
             }
             this.listenTo(store.get('content'), 'change:query', this.highlight);
         },

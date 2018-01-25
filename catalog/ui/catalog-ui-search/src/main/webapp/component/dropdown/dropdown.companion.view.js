@@ -200,7 +200,6 @@ define([
                 case 13:
                     // Enter
                     if (this.componentToShow.currentView.handleEnter) {
-                        event.preventDefault();
                         this.componentToShow.currentView.handleEnter();
                     }
                     break;

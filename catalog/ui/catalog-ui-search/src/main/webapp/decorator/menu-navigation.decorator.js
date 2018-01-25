@@ -13,52 +13,82 @@
  *
  **/
 /*global define*/
+var $ = require('jquery');
+
+const expandComposedMenus = (menuItems) => {
+    let expandedItems = [];
+    let expanded = false;
+    menuItems.forEach(element => {
+        if ($(element).hasClass('composed-menu')) {
+            expanded = true;
+            expandedItems = expandedItems.concat($(element).children().toArray());
+        } else {
+            expandedItems.push(element);
+        }
+    });
+    if (expanded === false) {
+        return expandedItems;
+    } else {
+        return expandComposedMenus(expandedItems);
+    }
+};
+
+const handleArrowKey = (componentView, up) => {
+    let menuItems = componentView.handleTabIndexes();
+    let currentActive = menuItems.filter(element => $(element).hasClass('is-active'))[0];
+    var potentialNext = menuItems[menuItems.indexOf(currentActive) + (up === true ? -1 : 1)];
+    if (potentialNext !== undefined) {
+        $(currentActive).removeClass('is-active');
+        $(potentialNext).addClass('is-active').focus();
+    } else if (menuItems.indexOf(currentActive) === 0) {
+        $(currentActive).removeClass('is-active');
+        $(menuItems[menuItems.length -1]).addClass('is-active').focus();
+    } else {
+        $(currentActive).removeClass('is-active');
+        $(menuItems[0]).addClass('is-active').focus();
+    }
+}
 
 module.exports = {
     events: {
-        'mouseenter > *': 'handleMouseEnter',
-        'focusin > *': 'handleFocusIn'
+        'focusin *': 'handleFocusIn'
+    },
+    getMenuItems: function() {
+        return this.getAllPossibleMenuItems().filter(element => element.offsetParent !== null);
+    },
+    getAllPossibleMenuItems: function() {
+        let menuItems = this.$el.find('> *').toArray();
+        let fullMenuItems = expandComposedMenus(menuItems);
+        return fullMenuItems;
     },
     focus: function(){
-        this.handleTabIndexes();
-        this.$el.find('> *').first().focus();
+        let menuItems = this.handleTabIndexes();
+        $(menuItems).removeClass('is-active');
+        $(menuItems[0]).addClass('is-active').focus();
     },
     handleEnter: function() {
-        this.$el.children('.is-active').click();
+        let menuItems = this.getMenuItems();
+        let $currentActive = $(menuItems.filter(element => $(element).hasClass('is-active'))[0]);
+        if (this.focusedElement === undefined || this.focusedElement === $currentActive[0]) {
+            $currentActive.click();
+        }
     },
     handleUpArrow: function() {
-        this.handleTabIndexes();
-        var currentActive = this.$el.children('.is-active');
-        var potentialNext = currentActive.prevAll().filter(function(index, element) {
-            return element.offsetParent !== null;
-        }).first();
-        if (potentialNext.length > 0) {
-            currentActive.removeClass('is-active');
-            potentialNext.addClass('is-active').focus();
-        }
+        handleArrowKey(this, true);
     },
     handleDownArrow: function() {
-        this.handleTabIndexes();
-        var currentActive = this.$el.children('.is-active');
-        var potentialNext = currentActive.nextAll().filter(function(index, element) {
-            return element.offsetParent !== null;
-        }).first();
-        if (potentialNext.length > 0) {
-            currentActive.removeClass('is-active');
-            potentialNext.addClass('is-active').focus();
-        }
+        handleArrowKey(this, false);
     },
-    handleFocusIn: function(e){
-        this.handleTabIndexes();
-        this.$el.children('.is-active').removeClass('is-active');
-        this.$el.find(e.currentTarget).toggleClass('is-active');
-    },
-    handleMouseEnter: function(e) {
-        this.handleTabIndexes();
-        this.$el.children('.is-active').removeClass('is-active');
-        this.$el.find(e.currentTarget).toggleClass('is-active').focus();
+    handleFocusIn: function(e) {
+        this.focusedElement = e.target;
     },
     handleTabIndexes: function(){
-        this.$el.children(':not([tabindex])').attr('tabindex', 0);
+        let menuItems = this.getMenuItems();
+        menuItems.forEach(element => {
+            if (element.tabIndex === -1) {
+                element.tabIndex = 0;
+            }
+        });
+        return menuItems;
     }
 }

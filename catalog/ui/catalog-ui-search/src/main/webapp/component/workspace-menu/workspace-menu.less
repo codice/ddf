@@ -5,7 +5,10 @@
   height: 2*@minimumLineSize;
   white-space: nowrap;
 
-  .inlineBlockDisplay(div, @largeFontSize) !important;
+  > div {
+    display: inline-block;
+    vertical-align: top;
+  }
 
   > .content-title {
     height: 100%;

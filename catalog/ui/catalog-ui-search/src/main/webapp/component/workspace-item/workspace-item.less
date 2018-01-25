@@ -6,7 +6,10 @@
   height: 2*@minimumLineSize;
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.07);
   cursor: pointer;
-  .inlineBlockDisplay(div);
+  > div {
+    display: inline-block;
+    vertical-align: top;
+  }
   margin-bottom: @minimumSpacing;
   margin-right: @largeSpacing;
   position: relative;

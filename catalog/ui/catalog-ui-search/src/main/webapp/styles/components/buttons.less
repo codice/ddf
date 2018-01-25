@@ -1,17 +1,11 @@
-button {
+button,
+.composed-button {
+  display: inline-block;
   border: none;
   outline: none;
   background: none;
   padding: 0px;
   border-radius: @border-radius;
-}
-
-button.is-primary {
-  background: @primary-color;
-}
-
-.button-mixin(@buttonColor) {
-  background: @buttonColor;
   font-size: @largeFontSize;
   padding: 0px;
   line-height: @minimumButtonSize;
@@ -20,47 +14,56 @@ button.is-primary {
   span {
     font-size: @largeFontSize;
   }
+}
 
-  &:hover {
+.button-mixin(@buttonColor) {
+  background: @buttonColor;
+
+  &:hover:not('.is-disabled') {
     background: shade(@buttonColor, 10%);
     box-shadow: 0px 0px 2px shade(@buttonColor, 25%);
   }
 
-  &:focus {
+  &:focus:not('.is-disabled') {
     background: shade(@buttonColor, 25%);
     border: 0px 0px 2px shade(@buttonColor, 50%);
   }
 
   &.is-disabled, &:disabled {
-    background: tint(@buttonColor, 50%);
+    .background-gradient(tint(@buttonColor, 10%), shade(@buttonColor, 10%));
     cursor: not-allowed;
   }
 }
 
-button.is-negative {
+button.is-negative,
+.composed-button.is-negative {
   color: @button-text-color;
   .button-mixin(@negative-color);
 }
 
-button.is-positive {
+button.is-positive,
+.composed-button.is-positive {
   color: @button-text-color;
   .button-mixin(@positive-color);
 }
 
-button.is-neutral {
+button.is-neutral,
+.composed-button.is-neutral {
   color: inherit;
   .button-mixin(rgba(0,0,0,0));
   background: rgba(0,0,0,0);
 }
 
 button.is-link,
-.is-button.is-link {
+.is-button.is-link,
+.composed-button.is-link {
   color: @links-color;
   .button-mixin(rgba(0,0,0,0));
   background: rgba(0,0,0,0);
 }
 
-button.is-primary {
+button.is-primary,
+.composed-button.is-primary {
   color: @button-text-color;
   .button-mixin(@primary-color);
 }
@@ -79,12 +82,19 @@ button.is-disabled {
   }
 }
 
-.is-button-group {
-  .whitespaceNowrap;
+button.in-text,
+.composed-button.in-text {
+  height: auto;
+  line-height: inherit;
+  font-size: inherit;
+}
 
-  .inlineBlockDisplay(button);
+button.in-text  {
+  padding: 0px @minimumSpacing;
+}
 
-  > button {
-    .boxShadow;
+.composed-button.in-text {
+  > * {
+    padding: 0px @minimumSpacing;
   }
 }

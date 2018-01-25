@@ -7,7 +7,10 @@
     overflow: hidden;
 
 
-    .inlineBlockDisplay(div);
+    > div {
+        display: inline-block;
+        vertical-align: top;
+    }
 
     .upload-actions,
     .upload-info {
@@ -44,8 +47,10 @@
         width: @minimumButtonSize;
         height: 2*@minimumButtonSize;
         overflow: hidden;
-        .inlineBlockDisplay(div);
-        .inlineBlockDisplay(button);
+        > div {
+            display: inline-block;
+            vertical-align: top;
+        }
     }
 
     .upload-actions button,

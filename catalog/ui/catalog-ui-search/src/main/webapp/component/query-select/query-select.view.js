@@ -41,8 +41,6 @@ define([
         handleQueryItemClick: function(event){
             this.model.set('value', $(event.currentTarget).attr('data-queryid'));
             this.handleValue();
-        },
-        handleClick: function(){
             this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
         },
         handleValue: function(){
@@ -50,11 +48,6 @@ define([
             this.$el.find(namespace+'query-item').removeClass('is-selected');
             if (queryId){
                 this.$el.find(namespace+'query-item[data-queryid="'+queryId+'"]').addClass('is-selected');
-            }
-        },
-        onRender: function(){
-            if (this.$el.find('.is-active').length === 0){
-                this.$el.find(namespace+'query-item').first().addClass('is-active');
             }
         }
     }, MenuNavigationDecorator));

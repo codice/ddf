@@ -30,72 +30,62 @@ define([
     'wkx',
     'js/CQLUtils',
     'component/confirmation/query/confirmation.query.view',
-    'component/loading/loading.view'
+    'component/loading/loading.view',
+    'component/dropdown/popout/dropdown.popout.view',
+    'component/result-add/result-add.view'
 ], function (wreqr, Marionette, _, $, template, 
     CustomElements, store, router, user, sources, 
     MenuNavigationDecorator, Decorators, Query, wkx, 
-    CQLUtils, QueryConfirmationView, LoadingView) {
+    CQLUtils, QueryConfirmationView, LoadingView, PopoutView, ResultAddView) {
 
-    return Marionette.ItemView.extend(Decorators.decorate({
+    return Marionette.LayoutView.extend(Decorators.decorate({
         template: template,
         tagName: CustomElements.register('metacard-interactions'),
         className: 'is-action-list',
         modelEvents: {
             'change': 'render'
         },
+        regions: {
+            resultAdd: '.interaction-add'
+        },
         events: {
-            'click .interaction-save': 'handleSave',
-            'click .interaction-unsave': 'handleUnsave',
+            'click .interaction-add': 'handleAdd',
             'click .interaction-hide': 'handleHide',
             'click .interaction-show': 'handleShow',
             'click .interaction-expand': 'handleExpand',
             'click .interaction-share': 'handleShare',
             'click .interaction-download': 'handleDownload',
             'click .interaction-create-search': 'handleCreateSearch',
-            'click .metacard-interaction': 'handleClick'
+            'click .metacard-interaction:not(.interaction-add)': 'handleClick'
         },
         ui: {
         },
         initialize: function(){
             var currentWorkspace = store.getCurrentWorkspace();
-            if (currentWorkspace) {
-                this.listenTo(currentWorkspace, 'change:metacards', this.checkIfSaved);
-            }
             this.listenTo(this.model, 'change:metacard>properties', this.onRender);
             this.listenTo(user.get('user').get('preferences').get('resultBlacklist'),
                 'add remove update reset', this.checkIfBlacklisted);
         },
         onRender: function(){
             this.checkTypes();
-            this.checkIfSaved();
             this.checkIsInWorkspace();
             this.checkIfDownloadable();
             this.checkIfMultiple();
             this.checkIfRouted();
             this.checkIfBlacklisted();
             this.checkHasLocation();
+            this.setupResultAdd();
         },
-        handleSave: function(){
-            var currentWorkspace = store.getCurrentWorkspace();
-            if (currentWorkspace){
-                var ids = this.model.map(function(result){
-                    return result.get('metacard').get('properties').get('id');
-                });
-                currentWorkspace.set('metacards', _.union(currentWorkspace.get('metacards'), ids));
-            } else {
-                //bring up modal to select workspace(s) to save to
-            }
-            this.checkIfSaved();
+        setupResultAdd: function() {
+            this.resultAdd.show(PopoutView.createSimpleDropdown({
+                componentToShow: ResultAddView,
+                modelForComponent: this.model,
+                leftIcon: 'fa fa-plus',
+                label: 'Add / Remove from List'
+            }));
         },
-        handleUnsave: function(){
-            var currentWorkspace = store.getCurrentWorkspace();
-            if (currentWorkspace){
-                var ids = this.model.map(function(result){
-                    return result.get('metacard').get('properties').get('id');
-                });
-                currentWorkspace.set('metacards', _.difference(currentWorkspace.get('metacards'), ids));
-            }
-            this.checkIfSaved();
+        handleAdd: function(e) {
+            this.$el.find('.interaction-add > *').mousedown().click();
         },
         handleHide: function(){
             var preferences = user.get('user').get('preferences');
@@ -190,21 +180,6 @@ define([
         },
         handleClick: function(){
             this.$el.trigger('closeDropdown.'+CustomElements.getNamespace());
-        },
-        checkIfSaved: function(){
-            var currentWorkspace = store.getCurrentWorkspace();
-            if (currentWorkspace){
-                var ids = this.model.map(function(result){
-                    return result.get('metacard').get('properties').get('id');
-                });
-                var isSaved = true;
-                ids.forEach(function(id){
-                    if (currentWorkspace.get('metacards').indexOf(id) === -1){
-                        isSaved = false;
-                    }
-                });
-                this.$el.toggleClass('is-saved', isSaved);
-            }
         },
         checkIsInWorkspace: function(){
             var currentWorkspace = store.getCurrentWorkspace();

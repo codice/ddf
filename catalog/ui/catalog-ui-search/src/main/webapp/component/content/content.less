@@ -1,7 +1,6 @@
 @{customElementNamespace}content {
   @panelTwoSpacing: 20px;
   @panelOneWidth: 9.55*@minimumButtonSize;
-  @panelTwoWidth: 19.4*@minimumButtonSize;
 
   .customElement;
 
@@ -15,120 +14,30 @@
 
   .content-content{
     height: ~'calc(100% - 2*@{minimumLineSize})';
-    .inlineBlockDisplay(div);
-    .whiteSpaceFix;
-    position: relative
+    position: relative;
   }
 
   .content-panelOne {
     .changeBackground(@backgroundAccentContent);
     border-right: 1px solid fade(contrast(@backgroundAccentContent), 5%);
     width: @panelOneWidth;
-    position: relative;
-    transition: width @coreTransitionTime ease-in-out;
-  }
-
-  .content-panel.content-panelTwo {
-    width: @panelTwoWidth;
-    position: relative;
-    background: @backgroundDropdown;
+    left: 0%;
+    top: 0%;
     transition: width @coreTransitionTime ease-in-out;
   }
 
   .content-panelThree {
-    width: ~'calc(100% - @{panelOneWidth} - @{panelTwoWidth})';
+    width: ~'calc(100% - @{panelOneWidth})';
     transition: width @coreTransitionTime ease-in-out;
     .changeBackground(@backgroundContent);
+    right: 0%;
+    top: 0%;
   }
 
   .content-panel {
+    position: absolute;
     height: 100%;
     vertical-align: top;
     overflow: hidden;
-  }
-
-  &.hide-panelTwo {
-
-    .content-panelTwo {
-      width: 0px;
-    }
-    .content-panelThree {
-      width: ~'calc(100% - @{panelOneWidth})';
-    }
-  }
-
-  .content-panelTwo {
-    > .content-panelTwo-titleBar {
-      position: relative;
-      text-align: center;
-      height: @minimumButtonSize;
-      line-height: @minimumButtonSize;
-
-      > .content-panelTwo-title {
-        display: block;
-        width: ~'calc(100% - 2*@{minimumButtonSize})';
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        padding: 0px 10px;
-        position: relative;
-        left: @minimumButtonSize;
-        font-size: @largeFontSize;
-      }
-
-      > button {
-        position: absolute;
-        right: 0px;
-        top: 0px;
-        width: @minimumButtonSize;
-        height: 100%;
-        font-size: @largeFontSize;
-      }
-    }
-
-    > .content-panelTwo-content {
-      height: ~"calc(100% - @{minimumButtonSize})";
-      overflow: hidden;
-      background: inherit;
-    }
-  }
-}
-
-.is-medium-screen, .is-small-screen, .is-mobile-screen {
-  @{customElementNamespace}content {
-    @panelOneWidth: 21.875rem;
-
-    .content-panelOne {
-      width: @panelOneWidth;
-      float: left;
-    }
-
-    .content-panel.content-panelTwo {
-      width: ~'calc(100% - @{panelOneWidth})';
-      height: 50%;
-      vertical-align: top !important;
-      float: left;
-      transition: height @coreTransitionTime ease-in-out;
-    }
-
-    .content-panelThree {
-      vertical-align: bottom !important;
-      height: 50%;
-      width: ~'calc(100% - @{panelOneWidth})';
-      transition: height @coreTransitionTime ease-in-out;
-      float: left;
-    }
-
-    &.hide-panelTwo {
-
-      .content-panelTwo {
-        height: 0px;
-      }
-      .content-panelThree {
-        height: 100%;
-        width: ~'calc(100% - @{panelOneWidth})';
-      }
-    }
-
   }
 }

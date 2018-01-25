@@ -145,6 +145,15 @@ public class WorkspaceMetacardImpl extends MetacardImpl {
     return this;
   }
 
+  public List<String> getContent() {
+    return getValues(WorkspaceAttributes.WORKSPACE_LISTS);
+  }
+
+  public WorkspaceMetacardImpl setContent(List<String> lists) {
+    setAttribute(WorkspaceAttributes.WORKSPACE_LISTS, new ArrayList<>(lists));
+    return this;
+  }
+
   public String getOwner() {
     List<String> values = getValues(Core.METACARD_OWNER);
 

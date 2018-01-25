@@ -28,23 +28,15 @@
 
   .if-empty {
     display: none;
-
-    .quick-add.is-button.is-link {
-      line-height: inherit;
-      height: inherit;
-      font-size: inherit;
-    }
   }
 }
 
 @{customElementNamespace}query-selector.is-empty {
+  .querySelector-list {
+    display: none;
+  }
   .if-empty {
     display: block;
   }
 }
 
- .is-small-screen, .is-mobile-screen {
-  @{customElementNamespace}query-selector {
-
-  }
-}

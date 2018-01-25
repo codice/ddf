@@ -15,6 +15,7 @@ var $ = require('jquery');
 var Sources = require('component/singletons/sources-instance');
 var CQLUtils = require('js/CQLUtils');
 var Common = require('js/Common');
+var filter = require('js/filter');
 require('backboneassociations');
 
 var Metacard = require('js/model/Metacard');
@@ -55,6 +56,12 @@ module.exports = Backbone.AssociatedModel.extend({
     },
     hasPreview: function(){
         return this.get('actions').filter((action) => action.title === 'Text Preview').length > 0;
+    },
+    matchesFilters: function(filters) {
+        return filter.matchesFilters(this.get('metacard').toJSON(), filters);
+    },
+    matchesCql: function(cql) {
+        return filter.matchesCql(this.get('metacard').toJSON(), cql);
     },
     isWorkspace: function () {
         return this.get('metacard').get('properties').get('metacard-tags').indexOf('workspace') >= 0;

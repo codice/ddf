@@ -18,19 +18,19 @@
                 {{this}}
             </button>
         {{/each}}
-        <div class="tabs-dropdown is-button">
+        <button class="tabs-dropdown is-button">
             {{#each tabTitles}}
                 <span class="tabs-title" data-id="{{this}}">{{this}}</span>
             {{/each}}
             <span class="hint">More</span>
             <span class="fa fa-chevron-down"></span>
-        </div>
+        </button>
     </div>
     <div class="tabs-collapsed">
         {{#each tabTitles}}
-            <div class="is-button" data-id="{{this}}">
+            <button class="is-button" data-id="{{this}}">
                 {{this}}
-            </div>
+            </button>
         {{/each}}
     </div>
 </div>

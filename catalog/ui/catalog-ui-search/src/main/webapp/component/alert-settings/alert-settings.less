@@ -26,44 +26,6 @@
       .is-bold();
     }
   }
-
-  .editor-footer {
-    margin-top: @minimumSpacing;
-    height: @minimumButtonSize;
-    white-space: nowrap;
-    .inlineFix;
-
-    > button {
-      height: 100%;
-      display: inline-block;
-    }
-    > .editor-edit {
-      width: 100%;
-    }
-    > .editor-cancel {
-      width: 50%;
-      display: none;
-    }
-    > .editor-save {
-      width: 50%;
-      display: none;
-    }
-  }
-
-  &.is-editing {
-    .editor-footer {
-
-      > .editor-edit {
-        display: none;
-      }
-      > .editor-cancel {
-        display: inline-block;
-      }
-      > .editor-save {
-        display: inline-block;
-      }
-    }
-  }
 }
 
 @{customElementNamespace}alert-settings.is-persisted {

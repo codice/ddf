@@ -27,31 +27,28 @@
   }
 
   .confirmation-choices {
-    .inlineBlockDisplay(div);
-
+    white-space: nowrap;
     button {
       vertical-align: top;
       overflow: hidden;
       text-overflow: ellipsis;
+      width: 100%;
     }
-  }
-
-  .confirmation-no {
-    width: 50%;
-  }
-  .confirmation-yes {
-    width: 100%;
-  }
-
-  .confirmation-no + .confirmation-yes {
-    width: 50%;
+    button:first-of-type {
+      display: none;
+    }
   }
 
 
 }
 
- .is-small-screen, .is-mobile-screen {
-  @{customElementNamespace}confirmation {
-
+@{customElementNamespace}confirmation.has-two-choices {
+  .confirmation-choices {
+    button {
+      width: 50%;
+    }
+    button:first-of-type {
+      display: inline-block;
+    }
   }
 }
