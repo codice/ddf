@@ -42,11 +42,9 @@ public class ImportCommand extends MigrationCommand {
     name = "--profile",
     required = false,
     multiValued = false,
-    description =
-        "Enables the installed profile from the original system to be restored. This option is currently experimental and has been tested only with the standard and the ha profiles."
+    description = "Enables the installed profile from the original system to be restored."
   )
-  @VisibleForTesting
-  boolean profile = false;
+  private boolean profile = false;
 
   public ImportCommand() {}
 
