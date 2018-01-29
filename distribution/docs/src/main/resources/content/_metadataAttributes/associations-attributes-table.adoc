@@ -7,7 +7,7 @@
 
 == {title}
 
-.Associations: Attributes in this group represent associations between products.
+.Associations: Attributes in this group represent associations between products. *Injected by default.*
 [cols="1,2,1,1,1" options="header"]
 |===
 

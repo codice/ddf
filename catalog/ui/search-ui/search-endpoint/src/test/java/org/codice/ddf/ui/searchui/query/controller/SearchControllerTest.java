@@ -554,8 +554,7 @@ public class SearchControllerTest {
       assertThat((String) typeInfo.get("metadata-target-namespace").get("format"), is("STRING"));
       assertThat((String) typeInfo.get("resource-uri").get("format"), is("STRING"));
       assertThat((Boolean) typeInfo.get("resource-uri").get("indexed"), is(true));
-      // since resource-size is not indexed, it should be filtered out
-      assertThat((Boolean) typeInfo.get("resource-size").get("indexed"), is(false));
+      assertThat((Boolean) typeInfo.get("resource-size").get("indexed"), is(true));
       assertThat((String) typeInfo.get("metadata").get("format"), is("XML"));
       assertThat((String) typeInfo.get("location").get("format"), is("GEOMETRY"));
     }

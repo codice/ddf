@@ -207,7 +207,7 @@ public class BasicTypes {
             Metacard.METADATA,
             true /* indexed */,
             true /* stored */,
-            false /* tokenized */,
+            true /* tokenized */,
             false /* multivalued */,
             XML_TYPE));
     descriptors.add(
@@ -215,21 +215,21 @@ public class BasicTypes {
             Metacard.RESOURCE_URI,
             true /* indexed */,
             true /* stored */,
-            false /* tokenized */,
+            true /* tokenized */,
             false /* multivalued */,
             STRING_TYPE));
     descriptors.add(
         new AttributeDescriptorImpl(
             Metacard.RESOURCE_DOWNLOAD_URL,
-            false /* indexed */,
-            false /* stored */,
-            false /* tokenized */,
+            true /* indexed */,
+            true /* stored */,
+            true /* tokenized */,
             false /* multivalued */,
             STRING_TYPE));
     descriptors.add(
         new AttributeDescriptorImpl(
             Metacard.RESOURCE_SIZE,
-            false /* indexed */,
+            true /* indexed */,
             true /* stored */,
             false /* tokenized */,
             false /* multivalued */,
@@ -263,7 +263,7 @@ public class BasicTypes {
             Validation.VALIDATION_WARNINGS,
             true /* indexed */,
             true /* stored */,
-            false /* tokenized */,
+            true /* tokenized */,
             true /* multivalued */,
             STRING_TYPE));
     descriptors.add(
@@ -271,7 +271,7 @@ public class BasicTypes {
             Validation.VALIDATION_ERRORS,
             true /* indexed */,
             true /* stored */,
-            false /* tokenized */,
+            true /* tokenized */,
             true /* multivalued */,
             STRING_TYPE));
     descriptors.add(
@@ -303,7 +303,7 @@ public class BasicTypes {
             Metacard.DERIVED_RESOURCE_URI,
             true /* indexed */,
             true /* stored */,
-            false /* tokenized */,
+            true /* tokenized */,
             true /* multivalued */,
             STRING_TYPE));
     descriptors.add(
@@ -311,7 +311,7 @@ public class BasicTypes {
             Metacard.DERIVED_RESOURCE_DOWNLOAD_URL,
             true /* indexed */,
             true /* stored */,
-            false /* tokenized */,
+            true /* tokenized */,
             true /* multivalued */,
             STRING_TYPE));
     descriptors.add(
@@ -335,7 +335,7 @@ public class BasicTypes {
             Validation.FAILED_VALIDATORS_WARNINGS,
             true /* indexed */,
             true /* stored */,
-            false /* tokenized */,
+            true /* tokenized */,
             true /* multivalued */,
             STRING_TYPE));
     descriptors.add(
@@ -343,7 +343,7 @@ public class BasicTypes {
             Validation.FAILED_VALIDATORS_ERRORS,
             true /* indexed */,
             true /* stored */,
-            false /* tokenized */,
+            true /* tokenized */,
             true /* multivalued */,
             STRING_TYPE));
     DESCRIPTORS = Collections.unmodifiableSet(descriptors);
