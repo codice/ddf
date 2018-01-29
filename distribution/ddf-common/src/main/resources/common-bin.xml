@@ -87,6 +87,7 @@
                 <include>bin/shell</include>
                 <include>bin/client</include>
                 <include>bin/inc</include>
+                <include>bin/karaf</include>
             </includes>
             <fileMode>0755</fileMode>
         </fileSet>
@@ -102,6 +103,7 @@
                 <include>bin/shell.bat</include>
                 <include>bin/client.bat</include>
                 <include>bin/inc.bat</include>
+                <include>bin/karaf.bat</include>
             </includes>
             <lineEnding>dos</lineEnding>
             <fileMode>0755</fileMode>

@@ -64,8 +64,6 @@ rem set EXTRA_JAVA_OPTS="-Dcom.sun.xml.ws.transport.http.HttpAdapter.dump=true"
 
 set DDF_HOME_PERM=%DDF_HOME:/=\%
 set DDF_HOME_PERM=%DDF_HOME_PERM:\bin\..=\%
-set DDF_HOME_POLICY=/%DDF_HOME%
-set DDF_HOME_POLICY=%DDF_HOME_POLICY:c:=C:%
 
 rem The following defines an environment variable referencing our script to be executed by the JVM
 rem when errors are detected. Unfortunately, forking the error process from Java does not expand
@@ -84,4 +82,4 @@ rem Defines the special on-error Java options
 rem set JAVA_ERROR_OPTS=-XX:OnOutOfMemoryError=%DDF_ON_ERROR%%%p -XX:OnError=%DDF_ON_ERROR%%%p
 set JAVA_ERROR_OPTS=-XX:OnOutOfMemoryError=%DDF_ON_ERROR% -XX:OnError=%DDF_ON_ERROR%
 set KARAF_OPTS=-Dfile.encoding=UTF8
-set JAVA_OPTS=-Xms2g -Xmx4g -Dderby.system.home="%DDF_HOME%\data\derby" -Dderby.storage.fileSyncTransactionLog=true -Dfile.encoding=UTF8 -Dddf.home=%DDF_HOME% -Dddf.home.perm=%DDF_HOME_PERM% -Dddf.home.policy=%DDF_HOME_POLICY% -XX:+DisableAttachMechanism %JAVA_ERROR_OPTS%
+set JAVA_OPTS=-Xms2g -Xmx4g -Dderby.system.home="%DDF_HOME%\data\derby" -Dderby.storage.fileSyncTransactionLog=true -Dfile.encoding=UTF8 -Dddf.home=%DDF_HOME% -Dddf.home.perm=%DDF_HOME_PERM% -XX:+DisableAttachMechanism %JAVA_ERROR_OPTS%
