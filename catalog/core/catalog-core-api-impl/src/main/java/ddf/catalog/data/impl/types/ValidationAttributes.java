@@ -54,7 +54,7 @@ public class ValidationAttributes implements Validation, MetacardType {
             Validation.FAILED_VALIDATORS_WARNINGS,
             true /* indexed */,
             true /* stored */,
-            false /* tokenized */,
+            true /* tokenized */,
             true /* multivalued */,
             BasicTypes.STRING_TYPE));
     descriptors.add(
@@ -62,7 +62,7 @@ public class ValidationAttributes implements Validation, MetacardType {
             Validation.FAILED_VALIDATORS_ERRORS,
             true /* indexed */,
             true /* stored */,
-            false /* tokenized */,
+            true /* tokenized */,
             true /* multivalued */,
             BasicTypes.STRING_TYPE));
     DESCRIPTORS = Collections.unmodifiableSet(descriptors);

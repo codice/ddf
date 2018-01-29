@@ -335,7 +335,7 @@ public class BasicTypes {
             Validation.FAILED_VALIDATORS_WARNINGS,
             true /* indexed */,
             true /* stored */,
-            false /* tokenized */,
+            true /* tokenized */,
             true /* multivalued */,
             STRING_TYPE));
     descriptors.add(
@@ -343,7 +343,7 @@ public class BasicTypes {
             Validation.FAILED_VALIDATORS_ERRORS,
             true /* indexed */,
             true /* stored */,
-            false /* tokenized */,
+            true /* tokenized */,
             true /* multivalued */,
             STRING_TYPE));
     DESCRIPTORS = Collections.unmodifiableSet(descriptors);
