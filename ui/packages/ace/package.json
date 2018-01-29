@@ -1,0 +1,31 @@
+{
+  "name": "ace",
+  "version": "1.0.0",
+  "description": "A node cli for interoperating with the maven eco-system.",
+  "main": "index.js",
+  "license": "MIT",
+  "bin": {
+    "ace": "bin.js"
+  },
+  "scripts": {
+    "test": "standard",
+    "format": "standard --fix"
+  },
+  "dependencies": {
+    "cheerio": "0.22.0",
+    "commander": "2.13.0",
+    "cross-spawn": "6.0.3",
+    "find-up": "2.1.0",
+    "glob": "7.1.2",
+    "maven-deploy": "1.5.0",
+    "mocha-phantomjs-core": "2.1.1",
+    "mocha-phantomjs-istanbul": "0.0.2",
+    "phantomjs-prebuilt": "2.1.14",
+    "rimraf": "2.6.2",
+    "username": "3.0.0",
+    "vkbeautify": "0.99.3"
+  },
+  "devDependencies": {
+    "standard": "8.6.0"
+  }
+}
