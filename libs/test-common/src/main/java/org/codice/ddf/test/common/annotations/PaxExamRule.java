@@ -89,6 +89,11 @@ public class PaxExamRule implements TestRule {
     };
   }
 
+  @SuppressWarnings({"squid:S2696", "squid:S1181"})
+  // Multiple instances of this class need to capture information across all tests, thus the need to
+  // access static member variables from a non-static method (squid:S2696).
+  // Need to catch Throwable instead of Exception because JUnit's invokeExplosively() can throw
+  // Throwables (squid:S1181).
   private void starting(Description description) {
     testsExecuted++;
     String testClassName = description.getTestClass().getSimpleName();
@@ -127,6 +132,9 @@ public class PaxExamRule implements TestRule {
         throwable, String.format(failureMessage, testClassName));
   }
 
+  @SuppressWarnings("squid:S1181")
+  // Need to catch Throwable instead of Exception because JUnit's invokeExplosively() can throw
+  // Throwables.
   private void finished(Description description) {
     LOGGER.info("Finished {} ({}/{})", description.getMethodName(), testsExecuted, testCount);
 
@@ -143,6 +151,9 @@ public class PaxExamRule implements TestRule {
     }
   }
 
+  @SuppressWarnings("squid:S2696")
+  // Multiple instances of this class need to capture information across all tests, thus the need to
+  // access static member variables from a non-static method.
   private void resetStaticFields() {
     firstRun = true;
     setupFailed = false;
