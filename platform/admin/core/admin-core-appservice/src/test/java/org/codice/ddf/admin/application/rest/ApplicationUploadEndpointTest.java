@@ -59,13 +59,11 @@ public class ApplicationUploadEndpointTest {
 
   private static final String BAD_FILE_NAME = "/test-badfile";
 
-  private static final String WRONG_FILE_TYPE = "Wrong file type.";
-
-  private static final String IOEX_STRING = "IOException";
+  private static final String WRONG_FILE_TYPE = "Wrong file type";
 
   private static final String FILE_NOT_FOUND = "No file attachment found";
 
-  private static final String USING_DEFAULT = "Filename not found, using default.";
+  private static final String USING_DEFAULT = "Filename not found, using default";
 
   private ApplicationService testAppService;
 

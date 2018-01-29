@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import javax.annotation.Nullable;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -28,6 +29,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
+import org.apache.cxf.jaxrs.ext.multipart.ContentDisposition;
 import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
 import org.codice.ddf.admin.application.service.Application;
 import org.codice.ddf.admin.application.service.ApplicationService;
@@ -45,6 +47,8 @@ import org.slf4j.LoggerFactory;
  */
 @Path("/")
 public class ApplicationUploadEndpoint {
+  private static final String FILENAME_NOT_FOUND_MSG = "Filename not found, using default: {}";
+
   private static final String FILENAME_CONTENT_DISPOSITION_PARAMETER_NAME = "filename";
 
   private static final String DEFAULT_FILE_NAME = "file.jar";
@@ -79,44 +83,42 @@ public class ApplicationUploadEndpoint {
     }
 
     try {
-      if (newFile != null) {
-        ZipFileApplicationDetails appDetails = ApplicationFileInstaller.getAppDetails(newFile);
-
-        if (appDetails != null) {
-          // lets get the existing app if it exists.
-          Application existingApplication = appService.getApplication(appDetails.getName());
-          boolean wasExistingAppStarted = false; // assume false until proved
-          // otherwise.
-          if (existingApplication != null) {
-            wasExistingAppStarted = appService.isApplicationStarted(existingApplication);
-            appService.removeApplication(existingApplication);
-          }
-          appService.addApplication(newFile.toURI());
-
-          // if application was started before it was removed, lets try and start it.
-          if (wasExistingAppStarted) {
-            appService.startApplication(appDetails.getName());
-          }
-        } else {
-          throw new ApplicationServiceException(
-              "No Application details could be extracted from the provided file.");
-        }
-      } else {
+      if (newFile == null) {
         throw new ApplicationServiceException("No file attachment provided.");
       }
 
-      // we need to output valid JSON to the client so fileupload can correctly call
-      // done/fail callbacks correctly.
+      ZipFileApplicationDetails appDetails = ApplicationFileInstaller.getAppDetails(newFile);
+
+      if (appDetails == null) {
+        throw new ApplicationServiceException(
+            "No Application details could be extracted from the provided file.");
+      }
+
+      Application existingApplication = appService.getApplication(appDetails.getName());
+      boolean wasExistingAppStarted = false;
+
+      if (existingApplication != null) {
+        wasExistingAppStarted = appService.isApplicationStarted(existingApplication);
+        appService.removeApplication(existingApplication);
+      }
+      appService.addApplication(newFile.toURI());
+
+      // If application was started before it was removed, try and start it
+      if (wasExistingAppStarted) {
+        appService.startApplication(appDetails.getName());
+      }
+
+      // Output valid JSON to the client so fileupload can correctly call done/fail callbacks
+      // correctly.
       Response.ResponseBuilder responseBuilder =
           Response.ok("{\"status\":\"success\"}").type("application/json");
       response = responseBuilder.build();
+
     } catch (ApplicationServiceException e) {
       LOGGER.warn("Unable to update an application on the server: {}", newFile, e);
       Response.ResponseBuilder responseBuilder = Response.serverError();
       response = responseBuilder.build();
     }
-
-    LOGGER.trace("EXITING: update");
 
     return response;
   }
@@ -124,10 +126,7 @@ public class ApplicationUploadEndpoint {
   @POST
   @Path("/")
   public Response create(MultipartBody multipartBody, @Context UriInfo requestUriInfo) {
-    LOGGER.trace("ENTERING: create");
-
     Response response;
-
     List<Attachment> attachmentList = multipartBody.getAllAttachments();
     File newFile = null;
     for (Attachment attachment : attachmentList) {
@@ -147,8 +146,6 @@ public class ApplicationUploadEndpoint {
       response = responseBuilder.build();
     }
 
-    LOGGER.trace("EXITING: create");
-
     return response;
   }
 
@@ -159,24 +156,10 @@ public class ApplicationUploadEndpoint {
    * @param attachment the attachment to copy and extract.
    * @return The file of the copied attachment.
    */
+  @Nullable
   private File createFileFromAttachement(Attachment attachment) {
     InputStream inputStream = null;
-    String filename = null;
-    File newFile = null;
-    if (attachment.getContentDisposition() != null) {
-      filename =
-          attachment
-              .getContentDisposition()
-              .getParameter(FILENAME_CONTENT_DISPOSITION_PARAMETER_NAME);
-    }
-
-    if (StringUtils.isEmpty(filename)) {
-      LOGGER.debug("Filename not found, using default.");
-      filename = DEFAULT_FILE_NAME;
-    } else {
-      filename = FilenameUtils.getName(filename);
-      LOGGER.debug("Filename: {}", filename);
-    }
+    String filename = getFileName(attachment.getContentDisposition());
 
     try {
       inputStream = attachment.getDataHandler().getInputStream();
@@ -188,36 +171,52 @@ public class ApplicationUploadEndpoint {
       IOUtils.closeQuietly(inputStream);
     }
 
-    if (filename.endsWith(JAR_EXT) || filename.endsWith(KAR_EXT)) {
-      if (inputStream != null) {
-        try {
-          File uploadDir = new File(defaultFileLocation);
-          if (!uploadDir.exists()) {
-            if (uploadDir.mkdirs()) {
-              LOGGER.info("Unable to make directory {}", uploadDir.getAbsolutePath());
-            }
-          }
-
-          newFile = new File(uploadDir, filename);
-
-          FileUtils.copyInputStreamToFile(inputStream, newFile);
-
-        } catch (IOException e) {
-          LOGGER.debug("Unable to write file.", e);
-          newFile = null;
-        } finally {
-          IOUtils.closeQuietly(inputStream);
-        }
-      } else {
-        LOGGER.debug("No file attachment found");
-      }
-    } else {
-      LOGGER.debug("Wrong file type.");
+    if (!filename.endsWith(JAR_EXT) && !filename.endsWith(KAR_EXT)) {
+      LOGGER.debug("Wrong file type: {}", FilenameUtils.getExtension(filename));
       Response.ResponseBuilder responseBuilder = Response.serverError();
       responseBuilder.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE_415);
       IOUtils.closeQuietly(inputStream);
+      return null;
     }
-    return newFile;
+
+    if (inputStream == null) {
+      LOGGER.debug("No file attachment found");
+      return null;
+    }
+
+    try {
+      File uploadDir = new File(defaultFileLocation);
+      if (!uploadDir.exists() && uploadDir.mkdirs()) {
+        LOGGER.info("Unable to make directory {}", uploadDir.getAbsolutePath());
+      }
+      File newFile = new File(uploadDir, filename);
+      FileUtils.copyInputStreamToFile(inputStream, newFile);
+      return newFile;
+
+    } catch (IOException e) {
+      LOGGER.debug("Unable to write file.", e);
+      return null;
+
+    } finally {
+      IOUtils.closeQuietly(inputStream);
+    }
+  }
+
+  private String getFileName(ContentDisposition contentDisposition) {
+    if (contentDisposition == null) {
+      LOGGER.debug(FILENAME_NOT_FOUND_MSG, DEFAULT_FILE_NAME);
+      return DEFAULT_FILE_NAME;
+    }
+
+    String filename = contentDisposition.getParameter(FILENAME_CONTENT_DISPOSITION_PARAMETER_NAME);
+    if (StringUtils.isEmpty(filename)) {
+      LOGGER.debug(FILENAME_NOT_FOUND_MSG, DEFAULT_FILE_NAME);
+      return DEFAULT_FILE_NAME;
+    }
+
+    filename = FilenameUtils.getName(filename);
+    LOGGER.debug("Filename: {}", filename);
+    return filename;
   }
 
   /**
