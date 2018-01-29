@@ -26,7 +26,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 import org.apache.cxf.jaxrs.ext.multipart.ContentDisposition;
@@ -158,47 +157,37 @@ public class ApplicationUploadEndpoint {
    */
   @Nullable
   private File createFileFromAttachement(Attachment attachment) {
-    InputStream inputStream = null;
-    String filename = getFileName(attachment.getContentDisposition());
+    try (InputStream inputStream = attachment.getDataHandler().getInputStream()) {
+      if (inputStream == null) {
+        LOGGER.debug("No file attachment found");
+        return null;
+      }
 
-    try {
-      inputStream = attachment.getDataHandler().getInputStream();
-      if (inputStream != null && inputStream.available() == 0) {
+      if (inputStream.available() == 0) {
         inputStream.reset();
       }
-    } catch (IOException e) {
-      LOGGER.debug("IOException reading stream from file attachment in multipart body", e);
-      IOUtils.closeQuietly(inputStream);
-    }
 
-    if (!filename.endsWith(JAR_EXT) && !filename.endsWith(KAR_EXT)) {
-      LOGGER.debug("Wrong file type: {}", FilenameUtils.getExtension(filename));
-      Response.ResponseBuilder responseBuilder = Response.serverError();
-      responseBuilder.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE_415);
-      IOUtils.closeQuietly(inputStream);
-      return null;
-    }
+      String filename = getFileName(attachment.getContentDisposition());
 
-    if (inputStream == null) {
-      LOGGER.debug("No file attachment found");
-      return null;
-    }
+      if (!filename.endsWith(JAR_EXT) && !filename.endsWith(KAR_EXT)) {
+        LOGGER.debug("Wrong file type: {}", FilenameUtils.getExtension(filename));
+        Response.ResponseBuilder responseBuilder = Response.serverError();
+        responseBuilder.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE_415);
+        return null;
+      }
 
-    try {
       File uploadDir = new File(defaultFileLocation);
       if (!uploadDir.exists() && uploadDir.mkdirs()) {
         LOGGER.info("Unable to make directory {}", uploadDir.getAbsolutePath());
       }
+
       File newFile = new File(uploadDir, filename);
       FileUtils.copyInputStreamToFile(inputStream, newFile);
       return newFile;
 
     } catch (IOException e) {
-      LOGGER.debug("Unable to write file.", e);
+      LOGGER.debug("Unable to write file", e);
       return null;
-
-    } finally {
-      IOUtils.closeQuietly(inputStream);
     }
   }
 
@@ -224,7 +213,7 @@ public class ApplicationUploadEndpoint {
    *
    * @param fileLocation the desired fileLocation
    */
-  void setDefaultFileLocation(String fileLocation) {
+  static void setDefaultFileLocation(String fileLocation) {
     defaultFileLocation = new AbsolutePathResolver(fileLocation).getPath();
   }
 }
