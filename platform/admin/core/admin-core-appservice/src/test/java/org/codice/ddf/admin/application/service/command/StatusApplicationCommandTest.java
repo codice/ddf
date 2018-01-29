@@ -14,6 +14,7 @@
 package org.codice.ddf.admin.application.service.command;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -132,5 +133,18 @@ public class StatusApplicationCommandTest {
     when(testApp.getFeatures()).thenReturn(featureSet);
     statusApplicationCommand.doExecute(testAppService);
     verify(testAppService).getApplicationStatus(testApp);
+  }
+
+  @Test
+  public void testNullApplication() throws Exception {
+    ApplicationService mockApplicationService = mock(ApplicationService.class);
+    when(mockApplicationService.getApplication(TEST_APP_NAME)).thenReturn(null);
+    when(mockApplicationService.getApplicationStatus(null)).thenReturn(testStatus);
+
+    StatusApplicationCommand statusApplicationCommand = new StatusApplicationCommand();
+    statusApplicationCommand.appName = TEST_APP_NAME;
+    statusApplicationCommand.doExecute(mockApplicationService);
+
+    verify(mockApplicationService, never()).getApplicationStatus(null);
   }
 }
