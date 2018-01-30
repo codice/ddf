@@ -31,7 +31,8 @@
     "jshint-stylish": "1.0.2",
     "load-grunt-tasks": "3.5.2",
     "which": "1.0.5",
-    "yargs": "1.3.3"
+    "yargs": "1.3.3",
+    "ace": "*"
   },
   "dependencies": {
     "express": "4.14.0",
@@ -44,6 +45,12 @@
   },
   "scripts": {
     "start": "grunt",
-    "build": "grunt build"
-  }
+    "build": "grunt build && ace package",
+    "clean": "ace clean"
+  },
+  "files": [
+    "src/main/webapp",
+    "src/main/resources"
+  ],
+  "context-path": "/security-config"
 }

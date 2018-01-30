@@ -37,7 +37,8 @@
     "load-grunt-tasks": "3.5.2",
     "mocha": "2.3.4",
     "requirejs": "2.3.3",
-    "underscore": "1.7.0"
+    "underscore": "1.7.0",
+    "ace": "*"
   },
   "dependencies": {
     "amdefine": "1.0.1",
@@ -49,6 +50,13 @@
   },
   "scripts": {
     "start": "grunt",
-    "build": "grunt build"
-  }
+    "build": "grunt build && ace package",
+    "clean": "ace clean"
+  },
+  "files": [
+    "src/main/webapp",
+    "target/webapp",
+    "src/main/resources"
+  ],
+  "context-path": "/admin/spatial-config"
 }
