@@ -11,7 +11,8 @@
     "pretest": "standard ./src/**/*.js",
     "test": "globstar -- browserify -d ./src/test/js/*.js -o ./target/test.js && tap ./target/test.js",
     "prebuild": "mkdirp ./target/webapp",
-    "build": "browserify src/main/webapp/js/index.js -p [minifyify --no-map] > ./target/webapp/bundle.js"
+    "build": "browserify src/main/webapp/js/index.js -p [minifyify --no-map] > ./target/webapp/bundle.js && ace package",
+    "clean": "ace clean"
   },
   "keywords": [
     "log",
@@ -49,7 +50,8 @@
     "node-lessify": "0.1.4",
     "standard": "5.4.1",
     "tap": "5.7.2",
-    "tape": "4.5.1"
+    "tape": "4.5.1",
+    "ace": "*"
   },
   "browserify": {
     "transform": [
@@ -65,5 +67,10 @@
         }
       ]
     ]
-  }
+  },
+  "files": [
+    "target/webapp/",
+    "src/main/resources"
+  ],
+  "context-path": "/admin/logviewer"
 }

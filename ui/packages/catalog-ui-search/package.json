@@ -11,7 +11,8 @@
     "test": "phantomjs ./node_modules/mocha-phantomjs-core/mocha-phantomjs-core.js ./target/test/index.html",
     "testplus": "webpack-dev-server --config=./webpack/config/test.js --open",
     "install": "napa ehynds/jquery-ui-multiselect-widget#1.14:jquery-ui-multiselect-widget",
-    "build": "node --stack-size=10000 ./node_modules/webpack/bin/webpack.js --config=./webpack/config/dev"
+    "build": "node --stack-size=10000 ./node_modules/webpack/bin/webpack.js --config=./webpack/config/dev && ace package",
+    "clean": "ace clean"
   },
   "repository": {
     "type": "git",
@@ -25,6 +26,7 @@
     "@types/backbone-associations": "0.6.31",
     "@types/backbone.marionette": "3.3.2",
     "@types/openlayers": "4.3.11",
+    "ace": "*",
     "babel-core": "6.22.1",
     "babel-loader": "6.2.4",
     "babel-plugin-istanbul": "4.0.0",
@@ -122,5 +124,10 @@
     "vis": "4.15.0",
     "wellknown": "https://github.com/connexta/wellknown.git#4d9ae612e7e308509ec76400b258c9db1581ea82",
     "wkx": "0.4.1"
-  }
+  },
+  "files": [
+    "src/main/resources",
+    "target/webapp"
+  ],
+  "context-path": "/search/catalog"
 }

@@ -27,8 +27,9 @@
     "posttest": "istanbul check-coverage",
     "coverage:report": "istanbul report html && opn ./target/coverage/index.html",
     "format": "standard --fix ./src/**/*.js",
-    "build": "webpack --bail --progress",
-    "build:stat": "webpack --json --env=production | webpack-bundle-size-analyzer"
+    "build": "webpack --bail --progress && ace package",
+    "build:stat": "webpack --json --env=production | webpack-bundle-size-analyzer",
+    "clean": "ace clean"
   },
   "peerDependencies": {
     "react": "^15.1.0",
@@ -88,6 +89,12 @@
     "webpack": "2.4.1",
     "webpack-bundle-size-analyzer": "2.5.0",
     "webpack-dev-server": "2.3.0",
-    "webpack-merge": "2.6.1"
-  }
+    "webpack-merge": "2.6.1",
+    "ace": "*"
+  },
+  "files": [
+    "target/webapp",
+    "src/main/resources"
+  ],
+  "context-path": "/admin/default-layout"
 }

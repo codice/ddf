@@ -10,7 +10,8 @@
   ],
   "scripts": {
     "start": "grunt",
-    "build": "grunt build"
+    "build": "grunt build && ace package",
+    "clean": "ace clean"
   },
   "repository": {
     "type": "git",
@@ -30,7 +31,8 @@
     "grunt-contrib-watch": "1.0.0",
     "grunt-express-server": "0.5.3",
     "grunt-replace": "1.0.1",
-    "load-grunt-tasks": "3.5.2"
+    "load-grunt-tasks": "3.5.2",
+    "ace": "*"
   },
   "dependencies": {
     "lodash": "4.17.4",
@@ -39,5 +41,11 @@
     "node-fs": "0.1.7",
     "node-options": "0.0.3",
     "path": "0.4.9"
-  }
+  },
+  "files": [
+    "src/main/webapp",
+    "target/webapp",
+    "src/main/resources"
+  ],
+  "context-path": "/admin/sources"
 }

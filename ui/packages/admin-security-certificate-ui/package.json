@@ -34,7 +34,8 @@
     "mocha": "2.3.4",
     "wd": "0.3.12",
     "which": "1.0.5",
-    "yargs": "3.23.0"
+    "yargs": "3.23.0",
+    "ace": "*"
   },
   "dependencies": {
     "express": "4.14.0",
@@ -47,6 +48,13 @@
   },
   "scripts": {
     "start": "grunt",
-    "build": "grunt build"
-  }
+    "build": "grunt build && ace package",
+    "clean": "ace clean"
+  },
+  "files": [
+    "src/main/webapp",
+    "target/webapp",
+    "src/main/resources"
+  ],
+  "context-path": "/admin/certificate"
 }

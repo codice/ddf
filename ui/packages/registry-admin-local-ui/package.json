@@ -26,7 +26,8 @@
     "grunt-contrib-watch": "1.0.0",
     "grunt-express-server": "0.5.3",
     "grunt-replace": "1.0.1",
-    "load-grunt-tasks": "3.5.2"
+    "load-grunt-tasks": "3.5.2",
+    "ace": "*"
   },
   "dependencies": {
     "lodash": "4.17.4",
@@ -38,6 +39,13 @@
   },
   "scripts": {
     "start": "grunt",
-    "build": "grunt build"
-  }
+    "build": "grunt build && ace package",
+    "clean": "ace clean"
+  },
+  "files": [
+    "src/main/webapp",
+    "target/webapp",
+    "src/main/resources"
+  ],
+  "context-path": "/admin/registry/local"
 }

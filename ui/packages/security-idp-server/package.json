@@ -27,7 +27,8 @@
     "grunt-express-server": "0.5.3",
     "grunt-replace": "1.0.1",
     "load-grunt-tasks": "3.5.2",
-    "which": "1.0.5"
+    "which": "1.0.5",
+    "ace": "*"
   },
   "dependencies": {
     "lodash": "4.17.4",
@@ -37,6 +38,13 @@
   },
   "scripts": {
     "start": "grunt",
-    "build": "grunt build"
-  }
+    "build": "grunt build && ace package",
+    "clean": "ace clean"
+  },
+  "files": [
+    "src/main/webapp",
+    "target/webapp",
+    "src/main/resources"
+  ],
+  "context-path": "/idp"
 }
