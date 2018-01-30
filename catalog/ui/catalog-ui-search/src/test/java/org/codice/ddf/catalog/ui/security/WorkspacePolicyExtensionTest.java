@@ -17,11 +17,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import ddf.catalog.data.impl.types.SecurityAttributes;
 import ddf.catalog.data.types.Core;
+import ddf.security.SubjectIdentity;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
@@ -56,10 +58,14 @@ public class WorkspacePolicyExtensionTest {
 
   private WorkspaceSecurityConfiguration config;
 
+  private SubjectIdentity subjectIdentity;
+
   @Before
   public void setUp() {
+    subjectIdentity = mock(SubjectIdentity.class);
+    when(subjectIdentity.getIdentityAttribute()).thenReturn(Constants.EMAIL_ADDRESS_CLAIM_URI);
     config = new WorkspaceSecurityConfiguration();
-    extension = new WorkspacePolicyExtension(config);
+    extension = new WorkspacePolicyExtension(config, subjectIdentity);
   }
 
   private static CollectionPermission makeSubject(Predicate<KeyValuePermission> fn) {
@@ -240,9 +246,9 @@ public class WorkspacePolicyExtensionTest {
   @Test
   public void testOverrideOwnerShouldImplyAll() {
     String attr = "another";
-    List<Permission> before = ImmutableList.of(WORKSPACE, OWNER, ROLES, EMAILS, RANDOM);
+    when(subjectIdentity.getIdentityAttribute()).thenReturn(attr);
 
-    config.setOwnerAttribute(attr);
+    List<Permission> before = ImmutableList.of(WORKSPACE, OWNER, ROLES, EMAILS, RANDOM);
 
     CollectionPermission subject = subjectFrom(makePermission(attr, ImmutableSet.of("owner")));
 
@@ -256,7 +262,7 @@ public class WorkspacePolicyExtensionTest {
   public void testOverrideOwnerShouldImplyNone() {
     List<Permission> before = ImmutableList.of(WORKSPACE, OWNER, ROLES, EMAILS, RANDOM);
 
-    config.setOwnerAttribute("another");
+    when(subjectIdentity.getIdentityAttribute()).thenReturn("another");
 
     CollectionPermission subject =
         subjectFrom(makePermission(Constants.EMAIL_ADDRESS_CLAIM_URI, ImmutableSet.of("owner")));

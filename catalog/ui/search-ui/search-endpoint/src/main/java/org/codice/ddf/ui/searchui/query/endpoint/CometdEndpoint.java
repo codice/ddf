@@ -17,6 +17,7 @@ import ddf.action.ActionRegistry;
 import ddf.catalog.CatalogFramework;
 import ddf.catalog.filter.FilterAdapter;
 import ddf.catalog.filter.FilterBuilder;
+import ddf.security.SubjectIdentity;
 import java.util.concurrent.ExecutorService;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -63,6 +64,8 @@ public class CometdEndpoint extends CometDServlet {
 
   private transient SearchController searchController;
 
+  private transient SubjectIdentity subjectIdentity;
+
   /**
    * Create a new CometdEndpoint
    *
@@ -77,7 +80,8 @@ public class CometdEndpoint extends CometDServlet {
       BundleContext bundleContext,
       EventAdmin eventAdmin,
       ActionRegistry actionRegistry,
-      ExecutorService executorService) {
+      ExecutorService executorService,
+      SubjectIdentity subjectIdentity) {
     LOGGER.trace("Constructing Cometd Endpoint");
     this.filterBuilder = filterBuilder;
     this.searchController =
@@ -86,6 +90,7 @@ public class CometdEndpoint extends CometDServlet {
     this.notificationController =
         new NotificationController(persistentStore, bundleContext, eventAdmin);
     this.activityController = new ActivityController(persistentStore, bundleContext, eventAdmin);
+    this.subjectIdentity = subjectIdentity;
 
     LOGGER.trace("Exiting CometdEndpoint constructor. ");
   }
@@ -150,7 +155,7 @@ public class CometdEndpoint extends CometDServlet {
 
       searchController.setBayeuxServer(bayeuxServer);
       searchService = new SearchService(filterBuilder, searchController);
-      UserService userService = new UserService(persistentStore);
+      UserService userService = new UserService(persistentStore, subjectIdentity);
       WorkspaceService workspaceService = new WorkspaceService(persistentStore);
       cometdAnnotationProcessor.process(userService);
       cometdAnnotationProcessor.process(workspaceService);

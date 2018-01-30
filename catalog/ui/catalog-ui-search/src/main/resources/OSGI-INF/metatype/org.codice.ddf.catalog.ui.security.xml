@@ -17,12 +17,6 @@
 
     <OCD name="Workspace Security"
          id="org.codice.ddf.catalog.ui.security">
-        <AD id="ownerAttribute"
-            name="Owner Attribute"
-            description="The name of the attribute to determine an owner."
-            required="true"
-            type="String"
-            default="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"/>
 
         <AD id="systemUserAttribute"
             name="System User Attribute"

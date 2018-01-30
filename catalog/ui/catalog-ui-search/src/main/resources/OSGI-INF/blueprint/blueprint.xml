@@ -71,8 +71,7 @@
 
     <bean id="workspacePreIngestPlugin"
           class="org.codice.ddf.catalog.ui.security.WorkspacePreIngestPlugin">
-        <argument ref="workspaceSecurityConfiguration" />
-        <argument ref="eventAdmin"/>
+        <argument ref="subjectIdentity"/>
     </bean>
 
     <bean id="noteMetacardType" class="org.codice.ddf.catalog.ui.metacard.notes.NoteMetacardType"/>
@@ -107,11 +106,12 @@
                 update-strategy="container-managed"/>
     </bean>
 
-    <reference id="eventAdmin" interface="org.osgi.service.event.EventAdmin"/>
+    <reference id="subjectIdentity" interface="ddf.security.SubjectIdentity"/>
 
     <bean id="workspacePolicyExtension"
           class="org.codice.ddf.catalog.ui.security.WorkspacePolicyExtension">
         <argument ref="workspaceSecurityConfiguration" />
+        <argument ref="subjectIdentity" />
     </bean>
 
 
@@ -259,6 +259,7 @@
     <bean id="userApplication" class="org.codice.ddf.catalog.ui.security.UserApplication">
         <argument ref="persistentStore"/>
         <argument ref="endpointUtil"/>
+        <argument ref="subjectIdentity"/>
     </bean>
 
     <bean id="rootReqSupplier" class="org.codice.ddf.catalog.ui.RootContextRequestSupplier"/>

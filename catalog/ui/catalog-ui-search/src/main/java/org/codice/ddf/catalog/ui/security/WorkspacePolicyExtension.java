@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import ddf.catalog.data.impl.types.SecurityAttributes;
 import ddf.catalog.data.types.Core;
+import ddf.security.SubjectIdentity;
 import ddf.security.permission.CollectionPermission;
 import ddf.security.permission.KeyValueCollectionPermission;
 import ddf.security.permission.KeyValuePermission;
@@ -43,8 +44,12 @@ public class WorkspacePolicyExtension implements PolicyExtension {
 
   private WorkspaceSecurityConfiguration config;
 
-  public WorkspacePolicyExtension(WorkspaceSecurityConfiguration config) {
+  private SubjectIdentity subjectIdentity;
+
+  public WorkspacePolicyExtension(
+      WorkspaceSecurityConfiguration config, SubjectIdentity subjectIdentity) {
     this.config = config;
+    this.subjectIdentity = subjectIdentity;
   }
 
   private List<KeyValuePermission> getPermissions(KeyValueCollectionPermission collection) {
@@ -79,12 +84,12 @@ public class WorkspacePolicyExtension implements PolicyExtension {
   }
 
   private Predicate<CollectionPermission> owner(Map<String, Set<String>> permissions) {
-    return predicate(permissions, Core.METACARD_OWNER, config.getOwnerAttribute());
+    return predicate(permissions, Core.METACARD_OWNER, subjectIdentity.getIdentityAttribute());
   }
 
   private Predicate<CollectionPermission> individuals(Map<String, Set<String>> permissions) {
     return predicate(
-        permissions, SecurityAttributes.ACCESS_INDIVIDUALS, config.getOwnerAttribute());
+        permissions, SecurityAttributes.ACCESS_INDIVIDUALS, subjectIdentity.getIdentityAttribute());
   }
 
   private Predicate<CollectionPermission> groups(Map<String, Set<String>> permissions) {

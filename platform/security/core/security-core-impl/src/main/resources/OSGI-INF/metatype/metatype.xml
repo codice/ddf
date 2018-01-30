@@ -26,7 +26,23 @@
             (Does not apply when NameIDFormat is of the following: X509, persistent, kerberos or unspecified, and the username is not empty).-"/>
     </OCD>
 
+    <OCD description="Subject Identity Configuration"
+      name="Subject Identity"
+      id="ddf.security.SubjectIdentity">
+
+        <AD id="identityAttribute"
+          name="Identity Attribute"
+          description="The name of the attribute to determine identity of a user."
+          required="true"
+          type="String"
+          default="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"/>
+    </OCD>
+
     <Designate pid="ddf.security.service.SecurityManager">
         <Object ocdref="ddf.security.service.SecurityManager"/>
+    </Designate>
+
+    <Designate pid="ddf.security.SubjectIdentity">
+        <Object ocdref="ddf.security.SubjectIdentity"/>
     </Designate>
 </metatype:MetaData>

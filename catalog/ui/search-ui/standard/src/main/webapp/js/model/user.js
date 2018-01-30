@@ -175,7 +175,8 @@ define([
             user.set({
                 preferences: preferences,
                 isGuest: true,
-                username: 'guest'
+                username: 'guest',
+                userid: 'guest'
             });
 
             preferences.set('mapColors', this.getFallbackMapColors());
