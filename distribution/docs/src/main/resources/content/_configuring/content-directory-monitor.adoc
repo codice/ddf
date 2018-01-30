@@ -91,7 +91,7 @@ All attributes in the <<_catalog_taxonomy, catalog taxonomy tables>> are injecte
 
 [IMPORTANT]
 ====
-If an overriden attribute is not part of the <<_metacard_type, metacard type>> or <<_attribute_injection_definition,injected>> the attribute will not be added to the metacard.
+If an overridden attribute is not part of the <<_metacard_type, metacard type>> or <<_attribute_injection_definition,injected>> the attribute will not be added to the metacard.
 ====
 
 For example, if the metacard type contains contact email,
