@@ -65,6 +65,9 @@ define([
             if (properties.isEditingRestricted() && ['Archive', 'Overwrite'].indexOf(activeTabName) >=0){
                 this.model.set('activeTab', 'Summary');
             }
+            if (!result.hasPreview() && ['Preview'].indexOf(activeTabName) >=0){
+                this.model.set('activeTab', 'Summary');
+            }
             var activeTab = this.model.getActiveView();
             this.tabsContent.show(new activeTab({
                 selectionInterface: this.selectionInterface
@@ -83,6 +86,7 @@ define([
                 this.$el.toggleClass('is-revision', result.isRevision());
                 this.$el.toggleClass('is-deleted', result.isDeleted());
                 this.$el.toggleClass('is-remote', result.isRemote());
+                this.$el.toggleClass('lacks-preview', !result.hasPreview());
             }
         }
     });

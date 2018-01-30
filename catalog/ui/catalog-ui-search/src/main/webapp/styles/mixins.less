@@ -115,6 +115,10 @@
 }
 
 .is-input(@contrastColor: white) {
+  @{customElementNamespace}metacard-preview {
+    color: @contrastColor;
+    background: fade(@contrastColor, 10%);
+  }
   .is-input,
   input,
   input.form-control,

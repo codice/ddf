@@ -21,15 +21,18 @@ define([
     'component/metacard-quality/metacard-quality.view',
     'component/metacard-actions/metacard-actions.view',
     'component/metacard-archive/metacard-archive.view',
-    'component/metacard-overwrite/metacard-overwrite.view'
+    'component/metacard-overwrite/metacard-overwrite.view',
+    'component/metacard-preview/metacard-preview.view'
 ], function (_, Tabs, store, MetacardBasicView, MetacardAdvancedView, MetacardHistoryView,
-             MetacardAssociationsView, MetacardQualityView, MetacardActionsView, MetacardArchiveView, MetacardOverwriteView) {
+             MetacardAssociationsView, MetacardQualityView, MetacardActionsView, MetacardArchiveView, MetacardOverwriteView,
+                MetacardPreviewView) {
 
     return Tabs.extend({
         defaults: {
             tabs: {
                 'Summary': MetacardBasicView,
                 'Details': MetacardAdvancedView,
+                'Preview': MetacardPreviewView,
                 'History': MetacardHistoryView,
                 'Associations': MetacardAssociationsView,
                 'Quality': MetacardQualityView,
