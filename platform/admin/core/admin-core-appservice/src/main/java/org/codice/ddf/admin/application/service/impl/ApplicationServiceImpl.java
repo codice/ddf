@@ -140,12 +140,12 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
       LOGGER.warn("Unable to get list of Repositories.", e);
     }
 
-    Set<Application> applications = new HashSet<Application>(repos.length);
+    Set<Application> applications = new HashSet<>(repos.length);
     for (int i = 0; i < repos.length; i++) {
       Application newApp = new ApplicationImpl(repos[i]);
       try {
         if (!ignoredApplicationNames.contains(newApp.getName())
-            && newApp.getFeatures().size() > 0
+            && !newApp.getFeatures().isEmpty()
             && isPermittedToViewFeature(newApp.getName())) {
           applications.add(newApp);
         }
@@ -161,7 +161,7 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
   }
 
   private Set<String> getApplicationNames() {
-    return getApplications().stream().map(a -> a.getName()).collect(Collectors.toSet());
+    return getApplications().stream().map(Application::getName).collect(Collectors.toSet());
   }
 
   @Override
@@ -247,7 +247,7 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
    */
   public void setIgnoredApplications(List<String> applicationNames) {
     if (applicationNames != null) {
-      ignoredApplicationNames = new HashSet<String>(applicationNames);
+      ignoredApplicationNames = new HashSet<>(applicationNames);
       LOGGER.debug("Ignoring applications with the following names: {}", ignoredApplicationNames);
     }
   }
@@ -271,9 +271,9 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
 
   @Override
   public Set<ApplicationNode> getApplicationTree() {
-    Set<ApplicationNode> applicationTree = new TreeSet<ApplicationNode>();
+    Set<ApplicationNode> applicationTree = new TreeSet<>();
     Set<Application> unfilteredApplications = getApplications();
-    Set<Application> filteredApplications = new HashSet<Application>();
+    Set<Application> filteredApplications = new HashSet<>();
 
     for (Application application : unfilteredApplications) {
       if (!ignoredApplicationNames.contains(application.getName())) {
@@ -281,8 +281,7 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
       }
     }
 
-    Map<Application, ApplicationNodeImpl> appMap =
-        new HashMap<Application, ApplicationNodeImpl>(filteredApplications.size());
+    Map<Application, ApplicationNodeImpl> appMap = new HashMap<>(filteredApplications.size());
     // add all values into a map
     for (Application curApp : filteredApplications) {
       appMap.put(curApp, new ApplicationNodeImpl(curApp, getApplicationStatus(curApp)));
@@ -315,7 +314,7 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
    *     this exists is because this function will be called twice and only the second set of
    *     statements will be relevant
    */
-  @SuppressWarnings("squid:S3776" /* Should be addressed as part of DDF-3076 */)
+  @SuppressWarnings({"squid:S3776", "squid:S135"} /* Should be addressed as part of DDF-3076 */)
   private void traverseDependencies(
       Map<Application, ApplicationNodeImpl> appMap,
       Set<Application> filteredApplications,
@@ -416,10 +415,9 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
       Set<Application> applicationSet, Map<Application, ApplicationNodeImpl> appMap) {
 
     // build dependency trees for each application in the set
-    Map<Application, Set<Application>> applicationTreeSet =
-        new HashMap<Application, Set<Application>>(applicationSet.size());
+    Map<Application, Set<Application>> applicationTreeSet = new HashMap<>(applicationSet.size());
     for (Application curDependency : applicationSet) {
-      Set<Application> curDepSet = new HashSet<Application>();
+      Set<Application> curDepSet = new HashSet<>();
       curDepSet.add(curDependency);
       for (ApplicationNode curParent = appMap.get(curDependency).getParent();
           curParent != null;
@@ -831,11 +829,10 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
       // Loop through all the applications for a match
       for (Application application : applications) {
         URI applicationURI = application.getURI();
-        if (applicationURI != null) {
-          if (StringUtils.equals(applicationURL.toString(), applicationURI.toString())) {
-            uninstallAllFeatures(application);
-            break;
-          }
+        if (applicationURI != null
+            && StringUtils.equals(applicationURL.toString(), applicationURI.toString())) {
+          uninstallAllFeatures(application);
+          break;
         }
       }
     }
@@ -847,18 +844,7 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
       Set<Feature> features = application.getFeatures();
       for (Feature feature : features) {
         if (featuresService.isInstalled(feature) && isPermittedToViewFeature(feature.getName())) {
-          try {
-            featuresService.uninstallFeature(
-                feature.getName(), feature.getVersion(), EnumSet.of(Option.NoAutoRefreshBundles));
-          } catch (Exception e) {
-            // if there is an issue uninstalling a feature try to keep uninstalling the other
-            // features
-            LOGGER.warn(
-                "Could not uninstall feature: {} version: {}",
-                feature.getName(),
-                feature.getVersion(),
-                e);
-          }
+          tryUninstallFeature(feature);
         }
       }
     } catch (ApplicationServiceException ase) {
@@ -866,9 +852,24 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
     }
   }
 
+  private void tryUninstallFeature(Feature feature) {
+    try {
+      featuresService.uninstallFeature(
+          feature.getName(), feature.getVersion(), EnumSet.of(Option.NoAutoRefreshBundles));
+    } catch (Exception e) {
+      // if there is an issue uninstalling a feature try to keep uninstalling the other
+      // features
+      LOGGER.warn(
+          "Could not uninstall feature: {} version: {}",
+          feature.getName(),
+          feature.getVersion(),
+          e);
+    }
+  }
+
   @Override
   public List<FeatureDetails> getAllFeatures() {
-    List<FeatureDetails> features = new ArrayList<FeatureDetails>();
+    List<FeatureDetails> features = new ArrayList<>();
     try {
       for (Feature feature : featuresService.listFeatures()) {
         if (isPermittedToViewFeature(feature.getName())) {
@@ -882,7 +883,7 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
   }
 
   private Map<String, String> getFeatureToRepository() {
-    Map<String, String> feature2repo = new HashMap<String, String>();
+    Map<String, String> feature2repo = new HashMap<>();
     try {
       for (Repository repository : featuresService.listRepositories()) {
         for (Feature feature : repository.getFeatures()) {
