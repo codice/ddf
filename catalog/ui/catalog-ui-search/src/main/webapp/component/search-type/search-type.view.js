@@ -19,6 +19,7 @@ var Marionette = require('marionette');
 var CustomElements = require('js/CustomElements');
 var PropertyView = require('component/property/property.view');
 var Property = require('component/property/property');
+var user = require('component/singletons/user-instance');
 
 module.exports = Marionette.LayoutView.extend({
     tagName: CustomElements.register('search-type'),
@@ -27,7 +28,10 @@ module.exports = Marionette.LayoutView.extend({
         typeSelector: '> .type-selector'
     },
     updateQueryType: function(){
-        this.model.set('type', this.typeSelector.currentView.model.getValue()[0]);
+        let type = this.typeSelector.currentView.model.getValue()[0];
+        this.model.set('type', type);
+        user.getQuerySettings().set('type', type);
+        user.savePreferences();
     },
     onBeforeShow: function () {
         this.typeSelector.show(new PropertyView({

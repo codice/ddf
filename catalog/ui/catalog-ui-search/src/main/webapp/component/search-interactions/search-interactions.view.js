@@ -26,6 +26,7 @@ var DropdownModel = require('component/dropdown/dropdown');
 var SearchTypeDropdownView = require('component/dropdown/search-type/dropdown.search-type.view');
 var _merge = require('lodash/merge');
 var ConfirmationView = require('component/confirmation/confirmation.view');
+var user = require('component/singletons/user-instance');
 
 module.exports = Marionette.LayoutView.extend(Decorators.decorate({
     template: template,
@@ -99,13 +100,18 @@ module.exports = Marionette.LayoutView.extend(Decorators.decorate({
             }
         }.bind(this));
     },
+    triggerType: function(type) {
+        this.model.set('type', type);
+        user.getQuerySettings().set('type', type);
+        user.savePreferences();
+    },
     triggerTypeText: function() {
-        this.model.set('type', 'text');
+        this.triggerType('text');
     },
     triggerTypeBasic: function() {
-        this.model.set('type', 'basic');
+        this.triggerType('basic');
     },
     triggerTypeAdvanced: function() {
-        this.model.set('type', 'advanced');
+        this.triggerType('advanced');
     }
 }, MenuNavigationDecorator));
