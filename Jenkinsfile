@@ -76,7 +76,7 @@ pipeline {
                             }
                         }
                     }
-                )
+                }
             }
         }
         // The full build will be run against all regular branches
