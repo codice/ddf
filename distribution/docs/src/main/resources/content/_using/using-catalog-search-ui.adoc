@@ -287,6 +287,10 @@ Details:: A detailed view of the result.
 
 Results can be edited from the *Summary* or *Details* tabs in the *Inspector* visual.
 
+==== Viewing Text Previews
+
+If a preview for a result is available, an extra tab will appear in the *Inspector* visual that allows you to see a preview of the resource.
+
 ==== Editing Associations on a Record
 
 Update relationships between records through *Associations*.
