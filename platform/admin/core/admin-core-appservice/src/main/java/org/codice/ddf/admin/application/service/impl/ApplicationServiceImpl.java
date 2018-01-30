@@ -25,6 +25,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Dictionary;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -453,16 +454,14 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
     List<Feature> profiles = new ArrayList<>();
     try {
       profiles =
-          Arrays.asList(featuresService.listFeatures())
-              .stream()
+          Arrays.stream(featuresService.listFeatures())
               .filter(f -> f.getName().contains(INSTALLATION_PROFILE_PREFIX))
-              .sorted((f1, f2) -> Integer.compare(f1.getStartLevel(), f2.getStartLevel()))
+              .sorted(Comparator.comparingInt(Feature::getStartLevel))
               .collect(Collectors.toList());
     } catch (Exception e) {
       LOGGER.warn(
           "Encountered an error while trying to obtain the installation profile features.", e);
     }
-
     return profiles;
   }
 
