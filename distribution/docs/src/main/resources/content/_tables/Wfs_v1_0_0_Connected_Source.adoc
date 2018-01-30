@@ -1,9 +1,9 @@
-:title: WFS 2.0.0 Connected Source
-:id: Wfs_v2_0_0_Connected_Source
+:title: WFS 1.0.0 Connected Source
+:id: Wfs_v1_0_0_Connected_Source
 :type: table
 :status: published
 :application: ${ddf-spatial}
-:summary: WFS 2.0.0 Connected Source.
+:summary: WFS 1.0.0 Connected Source.
 
 .[[Wfs_v1_0_0_Connected_Source]]WFS v1.0.0 Connected Source
 [cols="1,1m,1,3,1,1" options="header"]

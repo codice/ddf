@@ -25,10 +25,12 @@ import ddf.catalog.data.impl.types.LocationAttributes;
 import ddf.catalog.data.impl.types.MediaAttributes;
 import ddf.catalog.data.impl.types.ValidationAttributes;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.xml.namespace.QName;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ws.commons.schema.XmlSchema;
@@ -43,6 +45,7 @@ import org.apache.ws.commons.schema.XmlSchemaSequenceMember;
 import org.apache.ws.commons.schema.XmlSchemaSimpleType;
 import org.apache.ws.commons.schema.XmlSchemaType;
 import org.apache.ws.commons.schema.constants.Constants;
+import org.codice.ddf.spatial.ogc.wfs.catalog.MetacardTypeEnhancer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,11 +73,33 @@ public class FeatureMetacardType extends MetacardTypeImpl {
 
   private static final String EXT_PREFIX = "ext.";
 
+  public static final MetacardTypeEnhancer DEFAULT_METACARD_TYPE_ENHANCER =
+      new MetacardTypeEnhancer() {
+        @Override
+        public String getFeatureName() {
+          return "";
+        }
+
+        @Override
+        public Set<AttributeDescriptor> getAttributeDescriptors() {
+          return Collections.emptySet();
+        }
+      };
+
   public FeatureMetacardType(
       XmlSchema schema,
       final QName featureType,
       List<String> nonQueryableProperties,
       String gmlNamespace) {
+    this(schema, featureType, nonQueryableProperties, gmlNamespace, DEFAULT_METACARD_TYPE_ENHANCER);
+  }
+
+  public FeatureMetacardType(
+      XmlSchema schema,
+      final QName featureType,
+      List<String> nonQueryableProperties,
+      String gmlNamespace,
+      MetacardTypeEnhancer metacardTypeEnhancer) {
     super(featureType.getLocalPart(), (Set<AttributeDescriptor>) null);
 
     addAllDescriptors();
@@ -89,6 +114,16 @@ public class FeatureMetacardType extends MetacardTypeImpl {
       throw new IllegalArgumentException(
           "FeatureTypeMetacard cannot be created with a null Schema.");
     }
+
+    Set<String> existingAttributeNames =
+        descriptors.stream().map(AttributeDescriptor::getName).collect(Collectors.toSet());
+
+    metacardTypeEnhancer
+        .getAttributeDescriptors()
+        .stream()
+        .filter(
+            attributeDescriptor -> !existingAttributeNames.contains(attributeDescriptor.getName()))
+        .forEach(attributeDescriptor -> descriptors.add(attributeDescriptor));
   }
 
   /**
