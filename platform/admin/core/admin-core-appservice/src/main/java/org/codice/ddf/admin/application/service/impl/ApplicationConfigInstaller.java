@@ -14,22 +14,17 @@
 package org.codice.ddf.admin.application.service.impl;
 
 import ddf.security.Subject;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.EnumSet;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.concurrent.Callable;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.features.FeaturesService;
 import org.codice.ddf.admin.application.service.ApplicationService;
 import org.codice.ddf.admin.application.service.ApplicationServiceException;
+import org.codice.ddf.platform.util.properties.PropertiesLoader;
 import org.codice.ddf.security.common.Security;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,64 +72,56 @@ public class ApplicationConfigInstaller extends Thread {
 
   @Override
   public void run() {
+    // use PropertiesLoader to load properties, returns empty properties if there is an issue
+    Properties props = PropertiesLoader.getInstance().loadProperties(fileName, null);
 
-    File configFile = new File(fileName);
-    if (!configFile.exists()) {
-      LOGGER.debug("No config file located, cannot load from it.");
+    if (props.isEmpty()) {
+      LOGGER.debug("No applications were found in the configuration file.");
       return;
     }
-    InputStream is = null;
+
+    LOGGER.trace("Found applications to install from config.");
+    for (Entry<Object, Object> curApp : props.entrySet()) {
+      String appName = (String) curApp.getKey();
+      String appLocation = (String) curApp.getValue();
+      LOGGER.debug("Starting app {} at location: {}", appName, appLocation);
+
+      startApp(appName, appLocation);
+    }
+    LOGGER.trace("Finished installing applications, uninstalling installer module...");
+
+    installAndUninstallFeatures();
+  }
+
+  private void startApp(String appName, String appLocation) {
     try {
-      is = new FileInputStream(configFile);
-      Properties props = new Properties();
-      props.load(is);
-      if (!props.isEmpty()) {
-        LOGGER.debug("Found applications to install from config.");
-        for (Entry<Object, Object> curApp : props.entrySet()) {
-          String appName = curApp.getKey().toString();
-          String appLocation = curApp.getValue().toString();
-          LOGGER.debug("Starting app {} at location: {}", appName, appLocation);
-
-          try {
-            if (StringUtils.isNotEmpty(appLocation)) {
-              appService.addApplication(new URI(appLocation));
-            }
-            executeAsSystem(
-                () -> {
-                  appService.startApplication(appName);
-                  return true;
-                });
-          } catch (ApplicationServiceException ase) {
-            LOGGER.warn("Could not start " + appName, ase);
-          } catch (URISyntaxException use) {
-            LOGGER.warn(
-                "Could not install application, location is not a valid URI " + appLocation, use);
-          }
-        }
-        LOGGER.debug("Finished installing applications, uninstalling installer module...");
-
-        try {
-          if (!StringUtils.isBlank(postInstallFeatureStart)) {
-            featuresService.installFeature(
-                postInstallFeatureStart, EnumSet.of(FeaturesService.Option.NoAutoRefreshBundles));
-          }
-          if (!StringUtils.isBlank(postInstallFeatureStop)) {
-            featuresService.uninstallFeature(postInstallFeatureStop);
-          }
-        } catch (Exception e) {
-          LOGGER.debug("Error while trying to run the post-install start and stop operations.", e);
-        }
-
-      } else {
-        LOGGER.debug("No applications were found in the configuration file.");
+      if (!appLocation.isEmpty()) {
+        appService.addApplication(new URI(appLocation));
       }
-      is.close();
-    } catch (FileNotFoundException fnfe) {
-      LOGGER.warn("Could not file the configuration file at " + configFile.getAbsolutePath(), fnfe);
-    } catch (IOException ioe) {
-      LOGGER.warn("Could not load file as property list.", ioe);
-    } finally {
-      IOUtils.closeQuietly(is);
+      executeAsSystem(
+          () -> {
+            appService.startApplication(appName);
+            return true;
+          });
+    } catch (ApplicationServiceException ase) {
+      LOGGER.warn("Could not start {}", appName, ase);
+    } catch (URISyntaxException use) {
+      LOGGER.warn(
+          "Could not install application, location is not a valid URI {}", appLocation, use);
+    }
+  }
+
+  private void installAndUninstallFeatures() {
+    try {
+      if (StringUtils.isNotBlank(postInstallFeatureStart)) {
+        featuresService.installFeature(
+            postInstallFeatureStart, EnumSet.of(FeaturesService.Option.NoAutoRefreshBundles));
+      }
+      if (StringUtils.isNotBlank(postInstallFeatureStop)) {
+        featuresService.uninstallFeature(postInstallFeatureStop);
+      }
+    } catch (Exception e) {
+      LOGGER.debug("Error while trying to run the post-install start and stop operations.", e);
     }
   }
 
