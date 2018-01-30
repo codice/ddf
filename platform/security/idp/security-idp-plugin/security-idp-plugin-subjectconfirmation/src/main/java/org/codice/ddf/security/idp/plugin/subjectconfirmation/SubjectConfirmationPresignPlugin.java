@@ -24,14 +24,10 @@ import java.util.Set;
 import org.codice.ddf.security.idp.plugin.SamlPresignPlugin;
 import org.joda.time.DateTime;
 import org.opensaml.saml.saml2.core.Assertion;
-import org.opensaml.saml.saml2.core.Audience;
-import org.opensaml.saml.saml2.core.AudienceRestriction;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.SubjectConfirmation;
 import org.opensaml.saml.saml2.core.SubjectConfirmationData;
-import org.opensaml.saml.saml2.core.impl.AudienceBuilder;
-import org.opensaml.saml.saml2.core.impl.AudienceRestrictionBuilder;
 import org.opensaml.saml.saml2.core.impl.SubjectConfirmationDataBuilder;
 
 /**
@@ -64,37 +60,6 @@ public class SubjectConfirmationPresignPlugin implements SamlPresignPlugin {
           .getSubject()
           .getSubjectConfirmations()
           .forEach(sc -> setConfirmationData(sc, notOnOrAfter, acsUrl, inResponseTo));
-    }
-
-    // TODO: 12/11/17 DDF-3494 extract to new plugin
-    addAudiences(authnRequest, response);
-  }
-
-  private Audience buildAudience(AudienceBuilder audienceBuilder, String uri) {
-    Audience audience = audienceBuilder.buildObject();
-    audience.setAudienceURI(uri);
-    return audience;
-  }
-
-  private void addAudiences(AuthnRequest authnRequest, Response response) {
-    AudienceBuilder audienceBuilder = new AudienceBuilder();
-    AudienceRestrictionBuilder audienceRestrictionBuilder = new AudienceRestrictionBuilder();
-
-    // According to the SAML spec, on an AuthnRequest, "[t]he <Issuer> element MUST be present and
-    // MUST contain the unique identifier of the requesting service provider".
-    Audience audience = buildAudience(audienceBuilder, authnRequest.getIssuer().getValue());
-
-    for (Assertion assertion : response.getAssertions()) {
-      List<AudienceRestriction> audienceRestrictions =
-          assertion.getConditions().getAudienceRestrictions();
-      if (audienceRestrictions.isEmpty()) {
-        AudienceRestriction audienceRestriction = audienceRestrictionBuilder.buildObject();
-        audienceRestrictions.add(audienceRestriction);
-      }
-
-      for (AudienceRestriction restriction : audienceRestrictions) {
-        restriction.getAudiences().add(audience);
-      }
     }
   }
 

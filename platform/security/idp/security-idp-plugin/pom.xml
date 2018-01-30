@@ -30,6 +30,7 @@
     <modules>
         <module>security-idp-plugin-api</module>
         <module>security-idp-plugin-subjectconfirmation</module>
+        <module>security-idp-plugin-audiencerestriction</module>
     </modules>
 
 </project>
