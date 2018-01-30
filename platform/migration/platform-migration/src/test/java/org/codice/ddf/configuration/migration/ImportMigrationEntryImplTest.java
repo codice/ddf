@@ -14,10 +14,10 @@
 package org.codice.ddf.configuration.migration;
 
 import static com.github.npathai.hamcrestopt.OptionalMatchers.isPresent;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
+import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.inOrder;

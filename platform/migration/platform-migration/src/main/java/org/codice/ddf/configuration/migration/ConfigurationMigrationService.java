@@ -14,6 +14,7 @@
 package org.codice.ddf.configuration.migration;
 
 import java.nio.file.Path;
+import java.util.Set;
 import java.util.function.Consumer;
 import org.codice.ddf.migration.MigrationMessage;
 import org.codice.ddf.migration.MigrationReport;
@@ -75,6 +76,26 @@ public interface ConfigurationMigrationService {
    *     <code>null</code>
    */
   MigrationReport doImport(Path exportDirectory, Consumer<MigrationMessage> consumer);
+
+  /**
+   * Imports configurations from the specified path.
+   *
+   * <p><i>Note:</i> This version of the <code>doImport()</code> method provides a way to promote
+   * optional migratables (see {@link org.codice.ddf.migration.OptionalMigratable}) as mandatory
+   * such that they not be skipped during the import phase. It will callback the provided consumer
+   * every time a migration message is recorded. The message will also be recorded with the report
+   * returned at the completion of the operation.
+   *
+   * @param exportDirectory path to import configurations from
+   * @param mandatoryMigratables a set of mandatory migratable identifiers
+   * @param consumer a consumer to call whenever a new migration message is recorded during the
+   *     operation
+   * @return a migration report for the import operation
+   * @throws IllegalArgumentException if <code>exportDirectory</code>, <code>mandatoryMigratables
+   *     </code>, or <code>consumer</code> is <code>null</code>
+   */
+  MigrationReport doImport(
+      Path exportDirectory, Set<String> mandatoryMigratables, Consumer<MigrationMessage> consumer);
 
   /**
    * Decrypts an exported file from the specified path.

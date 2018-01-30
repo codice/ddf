@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.io.IOUtils;
@@ -32,6 +33,7 @@ import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationOperation;
 import org.codice.ddf.migration.MigrationReport;
+import org.codice.ddf.migration.OptionalMigratable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,6 +69,7 @@ public class ImportMigrationManagerImpl implements Closeable {
    *
    * @param report the migration report where warnings and errors can be recorded
    * @param zip the exported zip file
+   * @param mandatoryMigratables a set of mandatory migratable identifiers
    * @param migratables a stream of all migratables in the system
    * @throws MigrationException if a failure occurs while processing the zip file (the error will
    *     not be recorded with the report)
@@ -75,14 +78,12 @@ public class ImportMigrationManagerImpl implements Closeable {
    *     <code>null</code>
    */
   public ImportMigrationManagerImpl(
-      MigrationReport report, MigrationZipFile zip, Stream<? extends Migratable> migratables) {
-    this(report, migratables, zip);
-  }
-
-  ImportMigrationManagerImpl(
-      MigrationReport report, Stream<? extends Migratable> migratables, MigrationZipFile zip) {
+      MigrationReport report,
+      MigrationZipFile zip,
+      Set<String> mandatoryMigratables,
+      Stream<? extends Migratable> migratables) {
     Validate.notNull(report, "invalid null report");
-    Validate.notNull(zip, "null zip file");
+    Validate.notNull(zip, "invalid null zip file");
     Validate.isTrue(
         report.getOperation() == MigrationOperation.IMPORT, "invalid migration operation");
     Validate.notNull(migratables, "invalid null migratables");
@@ -97,7 +98,13 @@ public class ImportMigrationManagerImpl implements Closeable {
           migratables.collect(
               Collectors.toMap(
                   Migratable::getId,
-                  m -> new ImportMigrationContextImpl(report, zip, m),
+                  m ->
+                      new ImportMigrationContextImpl(
+                          report,
+                          zip,
+                          m,
+                          (m instanceof OptionalMigratable)
+                              && !mandatoryMigratables.contains(m.getId())),
                   ConfigurationMigrationManager.throwingMerger(),
                   LinkedHashMap::new)); // to preserved ranking order and remove duplicates
       // add a system contexts

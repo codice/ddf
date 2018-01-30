@@ -17,7 +17,7 @@ import static org.apache.commons.codec.binary.Hex.decodeHex;
 import static org.apache.commons.codec.binary.Hex.encodeHex;
 import static org.apache.commons.io.FileUtils.readFileToString;
 import static org.apache.commons.io.FileUtils.writeStringToFile;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertThat;
 
 import com.google.common.base.Charsets;
 import java.io.BufferedInputStream;

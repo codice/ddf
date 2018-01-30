@@ -64,6 +64,8 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
 
   private final List<InputStream> inputStreams = new ArrayList<>();
 
+  private final boolean skip;
+
   /**
    * Creates a new migration context for an import operation representing a system context.
    *
@@ -77,6 +79,7 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
     super(report);
     Validate.notNull(zip, ImportMigrationContextImpl.INVALID_NULL_ZIP);
     this.zip = zip;
+    this.skip = true;
   }
 
   /**
@@ -93,6 +96,7 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
     super(report, id);
     Validate.notNull(zip, ImportMigrationContextImpl.INVALID_NULL_ZIP);
     this.zip = zip;
+    this.skip = true;
   }
 
   /**
@@ -101,15 +105,18 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
    * @param report the migration report where warnings and errors can be recorded
    * @param zip the zip file associated with the import
    * @param migratable the migratable this context is for
+   * @param skip <code>true</code> to not import the migratable; <code>false</code> to import it
+   *     normally
    * @throws IllegalArgumentException if <code>report</code>, <code>zip</code> or <code>migratable
    * </code> is <code>null</code>
    * @throws java.io.IOError if unable to determine ${ddf.home}
    */
   public ImportMigrationContextImpl(
-      MigrationReport report, MigrationZipFile zip, Migratable migratable) {
+      MigrationReport report, MigrationZipFile zip, Migratable migratable, boolean skip) {
     super(report, migratable);
     Validate.notNull(zip, ImportMigrationContextImpl.INVALID_NULL_ZIP);
     this.zip = zip;
+    this.skip = skip;
   }
 
   @Override
@@ -157,15 +164,19 @@ public class ImportMigrationContextImpl extends MigrationContextImpl<MigrationRe
       "PMD.DefaultPackage" /* designed to be called from ImportMigrationManagerImpl within this package */)
   void doImport() {
     if (migratable != null) {
-      LOGGER.debug("Importing migratable [{}] from version [{}]...", id, getVersion());
+      final String version = getVersion().orElse(null);
+
+      if (skip) {
+        LOGGER.debug("Skipping optional migratable [{}] with version [{}]", id, version);
+        return;
+      }
+      LOGGER.debug("Importing migratable [{}] from version [{}]...", id, version);
       Stopwatch stopwatch = null;
 
       if (LOGGER.isDebugEnabled()) {
         stopwatch = Stopwatch.createStarted();
       }
       try {
-        final String version = getVersion().orElse(null);
-
         if (version == null) {
           migratable.doMissingImport(this);
         } else if (version.equals(migratable.getVersion())) {

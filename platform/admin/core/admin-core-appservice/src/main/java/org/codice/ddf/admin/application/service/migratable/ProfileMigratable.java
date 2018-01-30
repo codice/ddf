@@ -26,11 +26,12 @@ import org.codice.ddf.migration.ImportMigrationContext;
 import org.codice.ddf.migration.Migratable;
 import org.codice.ddf.migration.MigrationException;
 import org.codice.ddf.migration.MigrationReport;
+import org.codice.ddf.migration.OptionalMigratable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** Class used to migrate the state of applications, features, and bundles. */
-public class ProfileMigratable implements Migratable {
+public class ProfileMigratable implements Migratable, OptionalMigratable {
   /**
    * Holds a retry count.
    *
