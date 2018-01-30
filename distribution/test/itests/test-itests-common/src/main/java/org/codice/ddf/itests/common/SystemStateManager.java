@@ -173,11 +173,6 @@ public class SystemStateManager {
       console.runCommand("catalog:removeall -f -p");
       console.runCommand("catalog:removeall -f -p --cache");
 
-      // Restart bundles that manage dynamic metacards
-      // TODO: 1/19/18 DDF-3561 remove the plugin bundle from this list
-      serviceManager.restartBundles(
-          "registry-identification-plugin", "registry-federation-admin-service-impl");
-
       console.runCommand(
           "catalog:import --provider --force --skip-signature-verification  itest-catalog-entries.zip");
       LOGGER.debug("Reset took {} sec", (System.currentTimeMillis() - start) / 1000.0);
@@ -220,7 +215,7 @@ public class SystemStateManager {
         baseConfigurations.put(config.getPid(), config);
       }
       console.runCommand(
-          "catalog:export --provider --force --skip-signature-verification --delete=false --output \"./itest-catalog-entries.zip\" --cql \"\\\"metacard-tags\\\" like '*'\"");
+          "catalog:export --provider --force --skip-signature-verification --delete=false --output \"./itest-catalog-entries.zip\" --cql \"\\\"metacard-tags\\\" not like 'geonames'\"");
       LOGGER.info("Feature Count: {}", baseFeatures.size());
       LOGGER.info("Configuration Count: {}", baseConfigurations.size());
     } catch (Exception e) {
