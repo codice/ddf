@@ -45,9 +45,9 @@
         <AD name="Confluence Spaces" id="ConfluenceSpaces" required="false"
             type="String" cardinality="1000"
             description="The Confluence spaces to include/exclude from searches. If no spaces are specified all visible spaces will be searched"/>
-        <AD name="Additional Attributes" id="additionalAttributes" required="false"
+        <AD name="Attribute Overrides" id="attributeOverrides" required="false"
             type="String" cardinality="100"
-            description="Additional attributes to add to Confluence metacards returned from this source."/>
+            description="Attribute Overrides - Optional: Metacard attribute overrides (Key-Value pairs) that can be set on the results comming from this source. If an attribute is specified here, it will overwrite the metacard’s attribute that was created from the Confluence source. The format should be 'key=value'. The maximum allowed size of an attribute override is 65,535 bytes. All attributes in the catalog taxonomy tables are injected into all metacards by default and can be overridden."/>
         <AD name="Body Expansion Field" id="bodyExpansion" required="false"
             type="String"
             default="body.view"
@@ -91,9 +91,9 @@
         <AD name="Confluence Spaces" id="ConfluenceSpaces" required="false"
             type="String" cardinality="1000"
             description="The Confluence spaces to include/exclude from searches. If no spaces are specified all visible spaces will be searched"/>
-        <AD name="Additional Attributes" id="additionalAttributes" required="false"
+        <AD name="Attribute Overrides" id="attributeOverrides" required="false"
             type="String" cardinality="100"
-            description="Additional attributes to add to Confluence metacards returned from this source."/>
+            description="Attribute Overrides - Optional: Metacard attribute overrides (Key-Value pairs) that can be set on the results comming from this source. If an attribute is specified here, it will overwrite the metacard’s attribute that was created from the Confluence source. The format should be 'key=value'. The maximum allowed size of an attribute override is 65,535 bytes. All attributes in the catalog taxonomy tables are injected into all metacards by default and can be overridden."/>
         <AD name="Body Expansion Field" id="bodyExpansion" required="false"
             type="String"
             default="body.view"
