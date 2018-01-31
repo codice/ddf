@@ -127,6 +127,11 @@
             <artifactId>util-uuidgenerator-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>1.9.2</version>
+        </dependency>
 
         <!-- Unit Tests -->
         <dependency>
@@ -247,7 +252,8 @@
                             common-system,
                             commons-lang3,
                             json-smart,
-                            platform-util
+                            platform-util,
+                            jsoup
                         </Embed-Dependency>
                         <Import-Package>
                             !org.codice.ddf.platform.util,

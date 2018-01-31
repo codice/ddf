@@ -118,6 +118,8 @@ import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
 import org.opengis.filter.Filter;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -1113,7 +1115,7 @@ public class RESTEndpoint implements RESTService {
     Response response;
     try {
       if (id != null) {
-        DeleteRequestImpl deleteReq = new DeleteRequestImpl(id);
+        DeleteRequestImpl deleteReq = new DeleteRequestImpl(Jsoup.clean(id, Whitelist.basic()));
 
         catalogFramework.delete(deleteReq);
         response = Response.ok(id).build();
