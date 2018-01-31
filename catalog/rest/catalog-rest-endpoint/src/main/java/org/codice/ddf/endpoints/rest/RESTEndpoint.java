@@ -208,6 +208,13 @@ public class RESTEndpoint implements RESTService {
     return bundle.getBundleContext();
   }
 
+  @HEAD
+  @Path("")
+  public Response ping() {
+    LOGGER.trace("Ping!");
+    return Response.ok().build();
+  }
+
   /**
    * REST Head. Retrieves information regarding the entry specified by the id. This can be used to
    * verify that the Range header is supported (the Accept-Ranges header is returned) and to get the

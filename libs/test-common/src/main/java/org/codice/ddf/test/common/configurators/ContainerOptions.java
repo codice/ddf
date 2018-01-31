@@ -11,17 +11,24 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.itests.common.annotations;
+package org.codice.ddf.test.common.configurators;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.util.function.Supplier;
+import org.ops4j.pax.exam.Option;
 
 /**
- * Pax Exam OSGi containers cannot execute <code>@BeforeClass</code> in the container. <code>
- * @BeforeExam</code> will execute before any test has ran when combined with {@link PaxExamRule}.
+ * Interface implemented by Pax Exam test classes to provide container specific {@link Option}s.
+ *
+ * @see org.codice.ddf.test.common.AbstractComponentTest#getContainerOptions()
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface BeforeExam {}
+public interface ContainerOptions extends Supplier<Option> {
+
+  /**
+   * Gets the basic Pax Exam configuration {@link Option}s for the container. Implementers should
+   * use Pax Exam's {@link org.ops4j.pax.exam.CoreOptions#composite(Option...)} to combine multiple
+   * options into one if needed.
+   *
+   * @return Pax Exam configuration {@link Option}s
+   */
+  Option get();
+}

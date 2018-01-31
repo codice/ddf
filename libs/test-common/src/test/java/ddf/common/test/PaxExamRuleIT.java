@@ -21,44 +21,43 @@ import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
 
-import org.codice.ddf.itests.common.annotations.AfterExam;
-import org.codice.ddf.itests.common.annotations.BeforeExam;
-import org.codice.ddf.itests.common.annotations.PaxExamRule;
+import org.codice.ddf.test.common.annotations.AfterExam;
+import org.codice.ddf.test.common.annotations.BeforeExam;
+import org.codice.ddf.test.common.annotations.PaxExamRule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.RunWith;
+import org.junit.runner.notification.Failure;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 
-public class PaxExamRuleTest {
+public class PaxExamRuleIT {
 
-  public static final String FAILING_TEST_MESSAGE = "test failed";
+  private static final String FAILING_TEST_MESSAGE = "test failed";
 
-  public static final String BEFORE_EXAM_EXCEPTION_MESSAGE =
+  private static final String BEFORE_EXAM_EXCEPTION_MESSAGE =
       "java.lang.RuntimeException: BeforeExam exception";
 
-  public static final String AFTER_EXAM_EXCEPTION_MESSAGE =
+  private static final String AFTER_EXAM_EXCEPTION_MESSAGE =
       "java.lang.RuntimeException: AfterExam exception";
 
-  public static final String EXPECTED_BEFORE_EXAM_ERROR_MESSAGE =
+  private static final String EXPECTED_BEFORE_EXAM_ERROR_MESSAGE =
       String.format(
-          PaxExamRule.BEFORE_EXAM_FAILURE_MESSAGE,
-          FailingBeforeExamTest.class.getSimpleName(),
-          BEFORE_EXAM_EXCEPTION_MESSAGE);
+          PaxExamRule.BEFORE_EXAM_FAILURE_MESSAGE, FailingBeforeExamTest.class.getSimpleName());
 
-  public static final String EXPECTED_AFTER_EXAM_ERROR_MESSAGE =
+  private static final String EXPECTED_AFTER_EXAM_ERROR_MESSAGE =
       String.format(
-          PaxExamRule.AFTER_EXAM_FAILURE_MESSAGE,
-          FailingAfterExamTest.class.getSimpleName(),
-          AFTER_EXAM_EXCEPTION_MESSAGE);
+          PaxExamRule.AFTER_EXAM_FAILURE_MESSAGE, FailingAfterExamTest.class.getSimpleName());
 
   public static class SuperDummyTest {
 
@@ -68,7 +67,7 @@ public class PaxExamRuleTest {
     public Option[] config() {
       return options(
           junitBundles(),
-          bundle("file:target/test-itests-common-" + System.getProperty("ddf.version") + ".jar"),
+          bundle("file:target/test-common-" + System.getProperty("ddf.version") + ".jar"),
           wrappedBundle(mavenBundle("org.assertj", "assertj-core").versionAsInProject()));
     }
 
@@ -149,10 +148,27 @@ public class PaxExamRuleTest {
     }
   }
 
+  private Result result;
+
+  // Rule used to print the test result stack traces when a test fails. Useful to debug
+  // container startup failures.
+  @Rule
+  public TestWatcher exceptionLogger =
+      new TestWatcher() {
+        @Override
+        protected void failed(Throwable e, Description description) {
+          result
+              .getFailures()
+              .stream()
+              .map(Failure::getException)
+              .forEach(Throwable::printStackTrace);
+        }
+      };
+
   @Test
   public void validBeforeAndAfter() {
     JUnitCore core = new JUnitCore();
-    Result result = core.run(PassingBeforeExamAndAfterExamTest.class);
+    result = core.run(PassingBeforeExamAndAfterExamTest.class);
 
     assertThat(result.getFailures()).extracting("message").contains(FAILING_TEST_MESSAGE);
 
@@ -162,7 +178,7 @@ public class PaxExamRuleTest {
   @Test
   public void failingBeforeExam() {
     JUnitCore core = new JUnitCore();
-    Result result = core.run(FailingBeforeExamTest.class);
+    result = core.run(FailingBeforeExamTest.class);
 
     boolean examFail =
         result
@@ -176,28 +192,27 @@ public class PaxExamRuleTest {
             .stream()
             .anyMatch(failure -> failure.getMessage().contains(EXPECTED_BEFORE_EXAM_ERROR_MESSAGE));
 
-    assertThat(examFail && beforeExamFail);
+    assertThat(examFail && beforeExamFail).isTrue();
     assertResultCounts(result, 4);
   }
 
   @Test
   public void failingAfterExam() {
     JUnitCore core = new JUnitCore();
-    Result result = core.run(FailingAfterExamTest.class);
+    result = core.run(FailingAfterExamTest.class);
 
     boolean examFail =
         result
             .getFailures()
             .stream()
-            .anyMatch(
-                failure -> failure.getMessage().equals(PaxExamRule.EXAM_SETUP_FAILED_MESSAGE));
+            .anyMatch(failure -> failure.getMessage().equals(FAILING_TEST_MESSAGE));
     boolean afterExamFail =
         result
             .getFailures()
             .stream()
             .anyMatch(failure -> failure.getMessage().contains(EXPECTED_AFTER_EXAM_ERROR_MESSAGE));
 
-    assertThat(examFail && afterExamFail);
+    assertThat(examFail && afterExamFail).isTrue();
     assertResultCounts(result, 2);
   }
 

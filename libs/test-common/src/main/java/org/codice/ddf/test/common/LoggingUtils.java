@@ -11,16 +11,21 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.itests.common.utils;
+package org.codice.ddf.test.common;
 
 import static org.junit.Assert.fail;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+/** Logging utilities for testing. */
 public class LoggingUtils {
+  private LoggingUtils() {
+    // Static utility class
+  }
+
   /**
-   * The stacktrace of {@code throwable} will be appended to {@code message}. It is the
+   * Appends the stacktrace of the {@link Throwable} to the {@code message} provided. It is the
    * responsibility of the caller to end their message with a space or newline.
    *
    * @param throwable contains the stacktrace to be logged

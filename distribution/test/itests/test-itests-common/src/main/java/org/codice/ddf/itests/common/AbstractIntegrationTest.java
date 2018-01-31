@@ -69,13 +69,13 @@ import org.apache.commons.lang.text.StrSubstitutor;
 import org.apache.karaf.features.BootFinished;
 import org.apache.karaf.features.FeaturesService;
 import org.apache.karaf.shell.api.console.SessionFactory;
-import org.codice.ddf.itests.common.annotations.PaxExamRule;
-import org.codice.ddf.itests.common.annotations.PostTestConstruct;
 import org.codice.ddf.itests.common.annotations.SkipUnstableTest;
 import org.codice.ddf.itests.common.config.UrlResourceReaderConfigurator;
 import org.codice.ddf.itests.common.csw.CswQueryBuilder;
 import org.codice.ddf.itests.common.security.SecurityPolicyConfigurator;
-import org.codice.ddf.itests.common.utils.LoggingUtils;
+import org.codice.ddf.test.common.LoggingUtils;
+import org.codice.ddf.test.common.annotations.PaxExamRule;
+import org.codice.ddf.test.common.annotations.PostTestConstruct;
 import org.junit.Rule;
 import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
@@ -120,6 +120,7 @@ public abstract class AbstractIntegrationTest {
 
   protected static final String SYSTEM_ADMIN_USER = "system-admin-user";
 
+  @SuppressWarnings("squid:S2068") // Password ok, test class
   protected static final String SYSTEM_ADMIN_USER_PASSWORD = "password";
 
   public static final String RESOURCE_VARIABLE_DELIMETER = "$";
@@ -135,6 +136,11 @@ public abstract class AbstractIntegrationTest {
   protected static Integer basePort;
 
   protected static final String DDF_HOME_PROPERTY = "ddf.home";
+
+  private static final String MAVEN_LOCAL_REPO_PROPERTY = "maven.repo.local";
+
+  private static final String PAX_EXAM_MAVEN_LOCAL_REPO_PROPERTY =
+      "org.ops4j.pax.url.mvn.localRepository";
 
   protected static String ddfHome;
 
@@ -319,12 +325,15 @@ public abstract class AbstractIntegrationTest {
 
   static {
     // Make Pax URL use the maven.repo.local setting if present
-    if (System.getProperty("maven.repo.local") != null) {
+    if (System.getProperty(MAVEN_LOCAL_REPO_PROPERTY) != null) {
       System.setProperty(
-          "org.ops4j.pax.url.mvn.localRepository", System.getProperty("maven.repo.local"));
+          PAX_EXAM_MAVEN_LOCAL_REPO_PROPERTY, System.getProperty(MAVEN_LOCAL_REPO_PROPERTY));
     }
   }
 
+  @SuppressWarnings({"squid:S2696"})
+  // Using static member variables from a non-static method to ensure that those values are
+  // available in all test methods when they are run (squid:S2696).
   @PostTestConstruct
   public void initFacades() {
     ddfHome = System.getProperty(DDF_HOME_PROPERTY);
@@ -344,6 +353,9 @@ public abstract class AbstractIntegrationTest {
     console = new KarafConsole(getServiceManager().getBundleContext(), features, sessionFactory);
   }
 
+  @SuppressWarnings({"squid:S2696"})
+  // Using static member variables from a non-static method to ensure that those values are
+  // available in all test methods when they are run (squid:S2696).
   public void waitForBaseSystemFeatures() {
     try {
       basePort = getBasePort();
@@ -374,6 +386,9 @@ public abstract class AbstractIntegrationTest {
    *
    * @return list of pax exam options
    */
+  @SuppressWarnings({"squid:S2696"})
+  // Using static member variables from a non-static method to ensure that those values are
+  // available in all test methods when they are run (squid:S2696).
   @org.ops4j.pax.exam.Configuration
   public Option[] config() throws URISyntaxException, IOException {
     basePort = findPortNumber(20000);
@@ -477,8 +492,6 @@ public abstract class AbstractIntegrationTest {
         editConfigurationFilePut(
             SYSTEM_PROPERTIES_PATH, "eclipse.enableStateSaver", Boolean.FALSE.toString()),
         editConfigurationFilePut("etc/org.apache.karaf.shell.cfg", "sshPort", SSH_PORT.getPort()),
-        editConfigurationFilePut("etc/ddf.platform.config.cfg", "port", HTTPS_PORT.getPort()),
-        editConfigurationFilePut("etc/ddf.platform.config.cfg", "host", "localhost"),
         editConfigurationFilePut(
             "etc/org.ops4j.pax.web.cfg", "org.osgi.service.http.port", HTTP_PORT.getPort()),
         editConfigurationFilePut(
@@ -513,22 +526,22 @@ public abstract class AbstractIntegrationTest {
             "http://repo1.maven.org/maven2@id=central,"
                 + "http://repository.apache.org/content/groups/snapshots-group@id=apache@snapshots@noreleases,"
                 + "https://oss.sonatype.org/content/repositories/ops4j-snapshots@id=ops4j.sonatype.snapshots.deploy@snapshots@noreleases"),
-        when(System.getProperty("maven.repo.local") != null)
+        when(System.getProperty(MAVEN_LOCAL_REPO_PROPERTY) != null)
             .useOptions(
                 editConfigurationFilePut(
                     "etc/org.ops4j.pax.url.mvn.cfg",
-                    "org.ops4j.pax.url.mvn.localRepository",
-                    System.getProperty("maven.repo.local"))));
+                    PAX_EXAM_MAVEN_LOCAL_REPO_PROPERTY,
+                    System.getProperty(MAVEN_LOCAL_REPO_PROPERTY))));
   }
 
   protected Option[] configureSystemSettings() {
     return options(
         when(Boolean.getBoolean("isDebugEnabled"))
             .useOptions(vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005")),
-        when(System.getProperty("maven.repo.local") != null)
+        when(System.getProperty(MAVEN_LOCAL_REPO_PROPERTY) != null)
             .useOptions(
-                systemProperty("org.ops4j.pax.url.mvn.localRepository")
-                    .value(System.getProperty("maven.repo.local", ""))),
+                systemProperty(PAX_EXAM_MAVEN_LOCAL_REPO_PROPERTY)
+                    .value(System.getProperty(MAVEN_LOCAL_REPO_PROPERTY, ""))),
         editConfigurationFilePut(
             SYSTEM_PROPERTIES_PATH,
             "ddf.version",
@@ -661,7 +674,6 @@ public abstract class AbstractIntegrationTest {
       return installStartupFile(is, destination);
     }
   }
-
   /**
    * Copies the content of a JAR resource to the destination specified before the container starts
    * up. Useful to add test configuration files before tests are run.

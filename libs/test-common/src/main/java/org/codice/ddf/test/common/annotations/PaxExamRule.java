@@ -11,12 +11,12 @@
  * License is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package org.codice.ddf.itests.common.annotations;
+package org.codice.ddf.test.common.annotations;
 
 import static org.junit.Assert.fail;
 
 import java.lang.annotation.Annotation;
-import org.codice.ddf.itests.common.utils.LoggingUtils;
+import org.codice.ddf.test.common.LoggingUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -32,10 +32,23 @@ import org.slf4j.LoggerFactory;
  * integration tests. There should only be one instance of the PaxExamRule for a test class,
  * including its super classes.
  *
- * <p><code>
+ * <p>
  *
- * @Rule public PaxExamRule paxExamRule = new PaxExamRule(this);
- * </code>
+ * <pre>
+ * public class TestClass {
+ *    {@literal @}Rule
+ *     public PaxExamRule paxExamRule = new PaxExamRule(this);
+ *
+ *    {@literal @}BeforeExam
+ *     public void beforeExam() {
+ *         // ...
+ *     }
+ *
+ *    {@literal @}AfterExam
+ *     public void afterExam() {
+ *         // ...
+ *     }
+ * </pre>
  */
 public class PaxExamRule implements TestRule {
 
@@ -76,6 +89,11 @@ public class PaxExamRule implements TestRule {
     };
   }
 
+  @SuppressWarnings({"squid:S2696", "squid:S1181"})
+  // Multiple instances of this class need to capture information across all tests, thus the need to
+  // access static member variables from a non-static method (squid:S2696).
+  // Need to catch Throwable instead of Exception because JUnit's invokeExplosively() can throw
+  // Throwables (squid:S1181).
   private void starting(Description description) {
     testsExecuted++;
     String testClassName = description.getTestClass().getSimpleName();
@@ -114,6 +132,9 @@ public class PaxExamRule implements TestRule {
         throwable, String.format(failureMessage, testClassName));
   }
 
+  @SuppressWarnings("squid:S1181")
+  // Need to catch Throwable instead of Exception because JUnit's invokeExplosively() can throw
+  // Throwables.
   private void finished(Description description) {
     LOGGER.info("Finished {} ({}/{})", description.getMethodName(), testsExecuted, testCount);
 
@@ -130,6 +151,9 @@ public class PaxExamRule implements TestRule {
     }
   }
 
+  @SuppressWarnings("squid:S2696")
+  // Multiple instances of this class need to capture information across all tests, thus the need to
+  // access static member variables from a non-static method.
   private void resetStaticFields() {
     firstRun = true;
     setupFailed = false;
