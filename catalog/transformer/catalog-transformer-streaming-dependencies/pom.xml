@@ -26,10 +26,6 @@
     <artifactId>catalog-transformer-streaming-dependencies</artifactId>
     <packaging>jar</packaging>
 
-    <properties>
-        <org.geotools.version>9.5</org.geotools.version>
-    </properties>
-
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -207,9 +203,6 @@
                                     <include>org.geotools.xsd:gt-xsd-core</include>
                                     <include>org.geotools:gt-graph</include>
                                     <include>picocontainer:picocontainer</include>
-                                    <!--<include>xml-apis:xml-apis</include>-->
-                                    <!--<include>xerces:xercesImpl</include>-->
-                                    <!--<include>xml-apis:xml-apis-xerces</include>-->
                                     <include>commons-jxpath:commons-jxpath</include>
                                     <include>commons-collections:commons-collections</include>
                                     <include>org.eclipse.xsd:xsd</include>

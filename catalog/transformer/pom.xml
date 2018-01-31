@@ -21,6 +21,11 @@
     <artifactId>transformer</artifactId>
     <packaging>pom</packaging>
     <name>DDF Catalog Transformers</name>
+
+    <properties>
+        <org.geotools.version>9.5</org.geotools.version>
+    </properties>
+
     <dependencyManagement>
         <dependencies>
             <dependency>

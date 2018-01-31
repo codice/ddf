@@ -68,12 +68,12 @@
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-xml</artifactId>
-            <version>9.5</version>
+            <version>${org.geotools.version}</version>
         </dependency>
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-epsg-hsql</artifactId>
-            <version>9.5</version>
+            <version>${org.geotools.version}</version>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.transformer</groupId>
@@ -101,7 +101,14 @@
                             platform-util
                         </Embed-Dependency>
                         <Import-Package>
-                            *;resolution:=optional
+                            com.sun.*;resolution:=optional,
+                            oracle.xml.parser*;resolution:=optional,
+                            org.apache.commons.beanutils;resolution:=optional,
+                            org.eclipse.core.*;resolution:=optional,
+                            sun.awt.image*;resolution:=optional,
+                            sun.security.action;resolution:=optional,
+                            !junit.framework,
+                            *
                         </Import-Package>
                         <Export-Package />
                     </instructions>

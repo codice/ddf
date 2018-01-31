@@ -18,6 +18,13 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.WKTWriter;
 import ddf.catalog.validation.ValidationException;
 import ddf.catalog.validation.impl.ValidationExceptionImpl;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
+import javax.xml.parsers.ParserConfigurationException;
 import org.codice.ddf.transformer.xml.streaming.Gml3ToWkt;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.gml3.GMLConfiguration;
@@ -31,14 +38,6 @@ import org.opengis.referencing.operation.TransformException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
-
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
 
 public class Gml3ToWktImpl implements Gml3ToWkt {
   private static final Logger LOGGER = LoggerFactory.getLogger(Gml3ToWkt.class);
