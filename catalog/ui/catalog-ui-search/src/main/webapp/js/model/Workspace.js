@@ -87,6 +87,7 @@ module.exports = Backbone.AssociatedModel.extend({
     },
     saveLocal: function (options) {
         this.set('id', this.get('id') || Common.generateUUID());
+        this.set('metacard.modified', Date.now());
         var localWorkspaces = this.collection.getLocalWorkspaces();
         localWorkspaces[this.get('id')] = this.toJSON();
         window.localStorage.setItem('workspaces', JSON.stringify(localWorkspaces));

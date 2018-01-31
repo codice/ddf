@@ -15,12 +15,12 @@
 /*global define, alert*/
 define([
     'marionette',
-    'underscore',
     'jquery',
     'js/CustomElements',
     './workspace-item.view',
-    'component/singletons/user-instance'
-], function (Marionette, _, $, CustomElements, WorkspaceItemView, user) {
+    'component/singletons/user-instance',
+    'lodash'
+], function (Marionette, $, CustomElements, WorkspaceItemView, user, _) {
 
     var getUser = function () {
          return user.get('user');
@@ -53,15 +53,15 @@ define([
             switch (getPrefs().get('homeSort')) {
                 case 'Title':
                     return workspace.get('title').toLowerCase();
-                case 'Last modified':
                 default:
-                    return workspace.get('modified');
+                    return -workspace.get('metacard.modified');
             }
         },
         initialize: function () {
             this.listenTo(getPrefs(), 'change:homeDisplay', this.switchDisplay);
             this.listenTo(getPrefs(), 'change:homeFilter', this.render);
             this.listenTo(getPrefs(), 'change:homeSort', this.render);
+            this.listenTo(this.collection, 'sync', _.debounce(this.render, 200));
         },
         onRender: function(){
             this.handleGridDisplay();
