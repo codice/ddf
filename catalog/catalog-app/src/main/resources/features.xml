@@ -536,6 +536,19 @@
         <bundle>mvn:org.apache.mina/mina-core/${mina.version}</bundle>
     </feature>
 
+    <feature name="catalog-transformer-shapefilereader" install="auto" version="${project.version}"
+             description="Shape file reader api">
+        <feature prerequisite="true">catalog-app</feature>
+        <bundle>mvn:ddf.catalog.transformer/catalog-transformer-shapefilereader/${project.version}</bundle>
+    </feature>
+
+    <feature name="catalog-transformer-shapefile" install="auto" version="${project.version}"
+             description="Default input transformer for ESRI shape files">
+        <feature prerequisite="true">catalog-app</feature>
+        <feature prerequisite="true">catalog-transformer-shapefilereader</feature>
+        <bundle>mvn:ddf.catalog.transformer/catalog-transformer-shapefile/${project.version}</bundle>
+    </feature>
+
     <feature name="catalog-async-inmemory" install="manual" version="${project.version}">
         <feature prerequisite="true">catalog-app</feature>
         <bundle>mvn:ddf.catalog.async/catalog-async-data-api/${project.version}</bundle>
