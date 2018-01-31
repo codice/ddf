@@ -348,10 +348,6 @@ public class WfsSource extends MaskableImpl
     }
   }
 
-  public Boolean isAllowRedirects() {
-    return allowRedirects;
-  }
-
   public void setAllowRedirects(Boolean allowRedirects) {
     this.allowRedirects = allowRedirects;
   }
