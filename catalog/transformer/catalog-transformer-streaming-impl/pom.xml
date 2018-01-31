@@ -12,27 +12,24 @@
  *
  **/
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>ddf.catalog.transformer</groupId>
         <artifactId>transformer</artifactId>
         <version>2.11.5-SNAPSHOT</version>
     </parent>
-    <groupId>ddf.catalog.transformer</groupId>
+
     <artifactId>catalog-transformer-streaming-impl</artifactId>
     <packaging>bundle</packaging>
     <name>DDF :: Catalog :: Transformer :: Streaming Impl</name>
+
     <dependencies>
         <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.vividsolutions</groupId>
-            <artifactId>jts</artifactId>
-            <version>1.12</version>
         </dependency>
         <dependency>
             <groupId>ddf.catalog.transformer</groupId>
@@ -65,16 +62,23 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>ddf.platform.util</groupId>
+            <artifactId>platform-util</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-xml</artifactId>
+            <version>9.5</version>
         </dependency>
         <dependency>
             <groupId>org.geotools</groupId>
             <artifactId>gt-epsg-hsql</artifactId>
+            <version>9.5</version>
         </dependency>
         <dependency>
-            <groupId>ddf.platform.util</groupId>
-            <artifactId>platform-util</artifactId>
+            <groupId>ddf.catalog.transformer</groupId>
+            <artifactId>catalog-transformer-streaming-dependencies</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
     <build>
@@ -88,6 +92,7 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.name}</Bundle-Name>
                         <Embed-Dependency>
+                            catalog-transformer-streaming-dependencies;inline=true,
                             catalog-core-api-impl,
                             ogc-tools-gml-jts,
                             gml-v_3_1_1-schema,
@@ -95,6 +100,9 @@
                             catalog-transformer-streaming-lib,
                             platform-util
                         </Embed-Dependency>
+                        <Import-Package>
+                            *;resolution:=optional
+                        </Import-Package>
                         <Export-Package />
                     </instructions>
                 </configuration>

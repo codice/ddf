@@ -112,5 +112,6 @@
         <module>catalog-transformer-zip</module>
         <module>catalog-transformer-propertyjson-metacard</module>
         <module>catalog-transformer-preview</module>
+        <module>catalog-transformer-streaming-dependencies</module>
     </modules>
 </project>

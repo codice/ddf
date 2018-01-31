@@ -18,15 +18,9 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.WKTWriter;
 import ddf.catalog.validation.ValidationException;
 import ddf.catalog.validation.impl.ValidationExceptionImpl;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
-import javax.xml.parsers.ParserConfigurationException;
 import org.codice.ddf.transformer.xml.streaming.Gml3ToWkt;
 import org.geotools.geometry.jts.JTS;
+import org.geotools.gml3.GMLConfiguration;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.xml.Configuration;
@@ -38,14 +32,33 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
+
 public class Gml3ToWktImpl implements Gml3ToWkt {
   private static final Logger LOGGER = LoggerFactory.getLogger(Gml3ToWkt.class);
 
   private static final String EPSG_4326 = "EPSG:4326";
 
-  private final Parser parser;
+  protected Parser parser;
 
   private static final ThreadLocal<WKTWriter> WKT_WRITER = ThreadLocal.withInitial(WKTWriter::new);
+
+  public Gml3ToWktImpl() {
+    ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+    try {
+      GMLConfiguration configuration = new GMLConfiguration();
+      parser = new Parser(configuration);
+      parser.setStrict(false);
+    } finally {
+      Thread.currentThread().setContextClassLoader(tccl);
+    }
+  }
 
   public Gml3ToWktImpl(Configuration gmlConfiguration) {
     parser = new Parser(gmlConfiguration);
