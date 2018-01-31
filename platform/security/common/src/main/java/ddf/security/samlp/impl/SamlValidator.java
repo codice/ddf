@@ -110,16 +110,18 @@ public abstract class SamlValidator {
 
   void checkRedirectSignature(String reqres) throws ValidationException {
     try {
-      String signedParts =
-          String.format(
-              "%s=%s&RelayState=%s&SigAlg=%s",
-              reqres,
-              URLEncoder.encode(builder.samlString, "UTF-8"),
-              builder.relayState,
-              URLEncoder.encode(builder.sigAlgo, "UTF-8"));
+      StringBuilder signedParts =
+          new StringBuilder(reqres)
+              .append("=")
+              .append(URLEncoder.encode(builder.samlString, "UTF-8"));
+      String relayState = builder.relayState;
+      if (relayState != null) {
+        signedParts.append("&RelayState=").append(relayState);
+      }
+      signedParts.append("&SigAlg=").append(URLEncoder.encode(builder.sigAlgo, "UTF-8"));
 
       if (!builder.simpleSign.validateSignature(
-          signedParts, builder.signature, builder.signingCertificate)) {
+          signedParts.toString(), builder.signature, builder.signingCertificate)) {
         throw new ValidationException("Signature verification failed for redirect binding.");
       }
     } catch (SimpleSign.SignatureException | UnsupportedEncodingException e) {
