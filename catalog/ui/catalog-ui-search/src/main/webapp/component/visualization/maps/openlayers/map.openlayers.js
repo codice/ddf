@@ -89,9 +89,10 @@ module.exports = function OpenlayersMap(insertionElement, selectionInterface, no
   
     function setupTooltip(map) {        
         map.on('pointermove', function(e){
+            var point = unconvertPointCoordinate(e.coordinate);
             parentView.updateMouseCoordinates({
-                lat: e.coordinate[1],
-                lon: e.coordinate[0]
+                lat: point[1],
+                lon: point[0]
             });
         });
     }
