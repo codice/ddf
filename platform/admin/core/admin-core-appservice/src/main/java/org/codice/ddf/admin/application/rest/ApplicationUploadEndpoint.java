@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.admin.application.rest;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,6 +27,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 import org.apache.cxf.jaxrs.ext.multipart.ContentDisposition;
@@ -36,7 +38,6 @@ import org.codice.ddf.admin.application.service.ApplicationServiceException;
 import org.codice.ddf.admin.application.service.impl.ApplicationFileInstaller;
 import org.codice.ddf.admin.application.service.impl.ZipFileApplicationDetails;
 import org.codice.ddf.configuration.AbsolutePathResolver;
-import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,10 +72,6 @@ public class ApplicationUploadEndpoint {
   @Path("/update")
   @Produces("application/json")
   public Response update(MultipartBody multipartBody, @Context UriInfo requestUriInfo) {
-    LOGGER.trace("ENTERING: update");
-
-    Response response;
-
     List<Attachment> attachmentList = multipartBody.getAllAttachments();
     File newFile = null;
     for (Attachment attachment : attachmentList) {
@@ -111,15 +108,13 @@ public class ApplicationUploadEndpoint {
       // correctly.
       Response.ResponseBuilder responseBuilder =
           Response.ok("{\"status\":\"success\"}").type("application/json");
-      response = responseBuilder.build();
+      return responseBuilder.build();
 
     } catch (ApplicationServiceException e) {
       LOGGER.warn("Unable to update an application on the server: {}", newFile, e);
       Response.ResponseBuilder responseBuilder = Response.serverError();
-      response = responseBuilder.build();
+      return responseBuilder.build();
     }
-
-    return response;
   }
 
   @POST
@@ -157,7 +152,9 @@ public class ApplicationUploadEndpoint {
    */
   @Nullable
   private File createFileFromAttachement(Attachment attachment) {
-    try (InputStream inputStream = attachment.getDataHandler().getInputStream()) {
+    InputStream inputStream = null;
+    try {
+      inputStream = attachment.getDataHandler().getInputStream();
       if (inputStream == null) {
         LOGGER.debug("No file attachment found");
         return null;
@@ -171,13 +168,11 @@ public class ApplicationUploadEndpoint {
 
       if (!filename.endsWith(JAR_EXT) && !filename.endsWith(KAR_EXT)) {
         LOGGER.debug("Wrong file type: {}", FilenameUtils.getExtension(filename));
-        Response.ResponseBuilder responseBuilder = Response.serverError();
-        responseBuilder.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE_415);
         return null;
       }
 
       File uploadDir = new File(defaultFileLocation);
-      if (!uploadDir.exists() && uploadDir.mkdirs()) {
+      if (!uploadDir.exists() && !uploadDir.mkdirs()) {
         LOGGER.info("Unable to make directory {}", uploadDir.getAbsolutePath());
       }
 
@@ -188,10 +183,13 @@ public class ApplicationUploadEndpoint {
     } catch (IOException e) {
       LOGGER.debug("Unable to write file", e);
       return null;
+
+    } finally {
+      IOUtils.closeQuietly(inputStream);
     }
   }
 
-  private String getFileName(ContentDisposition contentDisposition) {
+  private String getFileName(@Nullable ContentDisposition contentDisposition) {
     if (contentDisposition == null) {
       LOGGER.debug(FILENAME_NOT_FOUND_MSG, DEFAULT_FILE_NAME);
       return DEFAULT_FILE_NAME;
@@ -208,11 +206,7 @@ public class ApplicationUploadEndpoint {
     return filename;
   }
 
-  /**
-   * Setter method for DEFAULT_FILE_LOCATION for testing purposes
-   *
-   * @param fileLocation the desired fileLocation
-   */
+  @VisibleForTesting
   static void setDefaultFileLocation(String fileLocation) {
     defaultFileLocation = new AbsolutePathResolver(fileLocation).getPath();
   }
