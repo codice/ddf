@@ -49,8 +49,9 @@ public class SslLdapLoginModuleTest {
     try {
       when(mockedConnectionFactory.getConnection()).thenReturn(mockedConnection);
       when(mockedConnection.bind(anyString(), any(char[].class))).thenReturn(mockedBindResult);
-      when(testLoginModule.createLdapConnectionFactory(any(String.class), any(Boolean.class)))
-          .thenReturn(mockedConnectionFactory);
+      //      when(testLoginModule.createLdapConnectionFactory(any(String.class),
+      // any(Boolean.class)))
+      //          .thenReturn(mockedConnectionFactory);
     } catch (LdapException e) {
       LOGGER.debug("LDAP exception", e);
     }
