@@ -44,15 +44,14 @@ public class Gml3ToWktImpl implements Gml3ToWkt {
 
   private static final String EPSG_4326 = "EPSG:4326";
 
-  protected Parser parser;
+  private final Parser parser;
 
   private static final ThreadLocal<WKTWriter> WKT_WRITER = ThreadLocal.withInitial(WKTWriter::new);
 
   public Gml3ToWktImpl() {
     ClassLoader tccl = Thread.currentThread().getContextClassLoader();
     try {
-      GMLConfiguration configuration = new GMLConfiguration();
-      parser = new Parser(configuration);
+      parser = createParser();
       parser.setStrict(false);
     } finally {
       Thread.currentThread().setContextClassLoader(tccl);
@@ -123,5 +122,9 @@ public class Gml3ToWktImpl implements Gml3ToWkt {
       throw new ValidationExceptionImpl(
           "Failed to find EPSG:4326 CRS, do you have the dependencies added?", e);
     }
+  }
+
+  protected Parser createParser() {
+    return new Parser(new GMLConfiguration());
   }
 }

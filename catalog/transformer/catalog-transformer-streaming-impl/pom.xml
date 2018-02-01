@@ -92,7 +92,7 @@
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.name}</Bundle-Name>
                         <Embed-Dependency>
-                            catalog-transformer-streaming-dependencies;inline=true,
+                            catalog-transformer-streaming-dependencies,
                             catalog-core-api-impl,
                             ogc-tools-gml-jts,
                             gml-v_3_1_1-schema,

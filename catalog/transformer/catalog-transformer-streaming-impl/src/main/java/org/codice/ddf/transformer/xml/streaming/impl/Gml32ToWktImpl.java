@@ -17,14 +17,9 @@ import org.geotools.gml3.v3_2.GMLConfiguration;
 import org.geotools.xml.Parser;
 
 public class Gml32ToWktImpl extends Gml3ToWktImpl {
-  public Gml32ToWktImpl() {
-    ClassLoader tccl = Thread.currentThread().getContextClassLoader();
-    try {
-      GMLConfiguration configuration = new GMLConfiguration();
-      parser = new Parser(configuration);
-      parser.setStrict(false);
-    } finally {
-      Thread.currentThread().setContextClassLoader(tccl);
-    }
+
+  @Override
+  protected Parser createParser() {
+    return new Parser(new GMLConfiguration());
   }
 }
