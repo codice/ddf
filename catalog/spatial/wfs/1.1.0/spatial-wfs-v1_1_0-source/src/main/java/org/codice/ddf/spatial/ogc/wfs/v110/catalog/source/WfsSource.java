@@ -315,7 +315,11 @@ public class WfsSource extends MaskableImpl
 
     Integer newPollInterval = (Integer) configuration.get(POLL_INTERVAL_KEY);
 
-    if (hasWfsUrlChanged(url) || hasDisableCnCheck(disableCnCheckProp)) {
+    if (hasWfsUrlChanged(url)
+        || hasDisableCnCheckChanged(disableCnCheckProp)
+        || hasUsernameChanged(usernameValue)
+        || hasPasswordChanged(passwordValue)
+        || hasAllowRedirectsChanged(allowRedirects)) {
       this.wfsUrl = url;
       this.password = encryptionService.decryptValue(passwordValue);
       this.username = usernameValue;
@@ -1193,11 +1197,23 @@ public class WfsSource extends MaskableImpl
     return !StringUtils.equals(this.wfsUrl, wfsUrl);
   }
 
+  private boolean hasUsernameChanged(String usernameValue) {
+    return !StringUtils.equals(this.username, usernameValue);
+  }
+
+  private boolean hasPasswordChanged(String passwordValue) {
+    return !StringUtils.equals(this.password, passwordValue);
+  }
+
+  private boolean hasAllowRedirectsChanged(boolean allowRedirects) {
+    return this.allowRedirects != allowRedirects;
+  }
+
   private boolean hasSourceIdChanged(String id) {
     return !StringUtils.equals(getId(), id);
   }
 
-  private boolean hasDisableCnCheck(Boolean disableCnCheck) {
+  private boolean hasDisableCnCheckChanged(Boolean disableCnCheck) {
     return this.disableCnCheck != disableCnCheck;
   }
 
