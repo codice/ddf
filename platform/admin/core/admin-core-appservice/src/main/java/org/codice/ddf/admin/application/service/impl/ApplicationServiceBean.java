@@ -410,13 +410,13 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
    */
   private boolean hasBundleLocation(Map<String, Object> service, Set<String> bundleLocations) {
     return Stream.of(service)
-        .filter(m -> m.containsKey("configurations"))
         .map(m -> m.get("configurations"))
+        .filter(Objects::nonNull)
         .map(List.class::cast)
         .flatMap(List::stream)
         .map(Map.class::cast)
-        .filter(m -> m.containsKey("bundle_location"))
         .map(m -> m.get("bundle_location"))
+        .filter(Objects::nonNull)
         .map(String.class::cast)
         .anyMatch(bundleLocations::contains);
   }
@@ -431,9 +431,11 @@ public class ApplicationServiceBean implements ApplicationServiceBeanMBean {
   private boolean hasMetatypesForService(
       Map<String, Object> service, Set<MetaTypeInformation> metatypeInformations) {
     String id = (String) service.get("id");
+    if (id == null) {
+      return false;
+    }
     Boolean isFactory = (Boolean) service.get("factory");
-
-    if (id == null || isFactory == null) {
+    if (isFactory == null) {
       return false;
     }
 
