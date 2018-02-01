@@ -450,17 +450,20 @@ public class IdpHandler implements AuthenticationHandler {
       if (idpssoDescriptor == null) {
         throw new ServletException("IdP metadata is missing. No IDPSSODescriptor present.");
       }
-      String queryParams =
-          String.format(
-              "SAMLRequest=%s&RelayState=%s",
-              encodeAuthnRequest(
-                  createAndSignAuthnRequest(false, idpssoDescriptor.getWantAuthnRequestsSigned()),
-                  false),
-              URLEncoder.encode(relayState, "UTF-8"));
+      StringBuilder queryParams =
+          new StringBuilder("SAMLRequest=")
+              .append(
+                  encodeAuthnRequest(
+                      createAndSignAuthnRequest(
+                          false, idpssoDescriptor.getWantAuthnRequestsSigned()),
+                      false));
+      if (relayState != null) {
+        queryParams.append("&RelayState=").append(URLEncoder.encode(relayState, "UTF-8"));
+      }
       idpRequest = idpMetadata.getSingleSignOnLocation() + "?" + queryParams;
       UriBuilder idpUri = new UriBuilderImpl(new URI(idpRequest));
 
-      simpleSign.signUriString(queryParams, idpUri);
+      simpleSign.signUriString(queryParams.toString(), idpUri);
 
       redirectUrl = idpUri.build().toString();
     } catch (UnsupportedEncodingException e) {
