@@ -164,6 +164,7 @@
         <jodatime2-bundle.version>2.9.9</jodatime2-bundle.version>
         <aws-java-sdk-bundle.version>1.11.125_1</aws-java-sdk-bundle.version>
         <javax-mail.version>1.5.5</javax-mail.version>
+        <jackson2-version>2.9.4</jackson2-version>
         <common-compress.version>1.14</common-compress.version>
         <!--START If these bundles are used elsewhere in DDF, the versions MUST exactly match the versions used by the CXF and Camel features.-->
         <woodstox.core.version>4.4.1</woodstox.core.version>
