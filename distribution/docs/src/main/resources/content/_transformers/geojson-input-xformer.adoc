@@ -7,6 +7,17 @@
 
 The GeoJSON input transformer is responsible for translating GeoJSON into a Catalog metacard.
 
+
+.{title} Usage
+[cols="1,2m" options="header"]
+|===
+|Schema
+|Mime-types
+
+|N/A
+|application/json
+|===
+
 ===== Installing the GeoJSON Input Transformer
 
 The GeoJSON Input Transformer is installed by default with a standard installation.
