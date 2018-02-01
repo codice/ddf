@@ -41,17 +41,12 @@ public class SslLdapLoginModuleTest {
 
   @Test
   public void testUnsuccessfulConnectionBind1() throws LoginException {
-    LDAPConnectionFactory mockedConnectionFactory = PowerMockito.mock(LDAPConnectionFactory.class);
     BindResult mockedBindResult = mock(BindResult.class);
     when(mockedBindResult.isSuccess()).thenReturn(false);
     Connection mockedConnection = mock(Connection.class);
     SslLdapLoginModule testLoginModule = mock(SslLdapLoginModule.class);
     try {
-      when(mockedConnectionFactory.getConnection()).thenReturn(mockedConnection);
       when(mockedConnection.bind(anyString(), any(char[].class))).thenReturn(mockedBindResult);
-      //      when(testLoginModule.createLdapConnectionFactory(any(String.class),
-      // any(Boolean.class)))
-      //          .thenReturn(mockedConnectionFactory);
     } catch (LdapException e) {
       LOGGER.debug("LDAP exception", e);
     }

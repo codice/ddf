@@ -36,17 +36,12 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLContext;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.pool2.PooledObjectFactory;
-import org.apache.commons.pool2.impl.GenericObjectPool;
-import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.apache.karaf.jaas.config.impl.Module;
-import org.forgerock.opendj.ldap.Connection;
 import org.forgerock.opendj.ldap.LDAPConnectionFactory;
 import org.forgerock.opendj.ldap.LdapException;
 import org.forgerock.util.Options;
 import org.forgerock.util.time.Duration;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,11 +85,15 @@ public class LdapLoginConfig {
 
   private LDAPConnectionPool ldapConnectionPool;
 
-  private LDAPConnectionFactory ldapConnectionFactory;
-
   private SSLContext sslContext;
 
+  private final BundleContext context;
+
   ServiceRegistration connectionPoolServiceRegistration;
+
+  public LdapLoginConfig(final BundleContext context) {
+    this.context = context;
+  }
 
   /**
    * Update method that receives new properties.
@@ -112,32 +111,93 @@ public class LdapLoginConfig {
         ldapConnectionPool.close();
       }
       try {
-        ldapConnectionFactory =
+        LDAPConnectionFactory ldapConnectionFactory =
             createLdapConnectionFactory(
                 (String) ldapProperties.get(LDAP_URL),
                 Boolean.parseBoolean((String) ldapProperties.get(START_TLS)));
+        ldapConnectionPool = new LDAPConnectionPool(ldapConnectionFactory, id);
       } catch (LdapException e) {
         LOGGER.error("Error creating ldap connection factory", e);
       }
-      GenericObjectPoolConfig config = new GenericObjectPoolConfig();
-      config.setJmxNameBase("org.apache.commons.pool2:type=LDAPConnectionPool,name=");
-      config.setJmxNamePrefix(id);
-
-      ldapConnectionPool =
-          new LDAPConnectionPool(
-              new LdapConnectionPooledObjectFactory(ldapConnectionFactory), config);
 
       Dictionary<String, String> serviceProps = new Hashtable<>();
-      serviceProps.put("uuid", id);
+      serviceProps.put("id", id);
 
       LOGGER.debug("Registering LdapConnectionPool");
       connectionPoolServiceRegistration =
-          getBundleContext()
-              .registerService(
-                  LDAPConnectionPool.class.getName(), ldapConnectionPool, serviceProps);
+          context.registerService(
+              LDAPConnectionPool.class.getName(), ldapConnectionPool, serviceProps);
       // create modules from the newly updated config
       Module ldapModule = createLdapModule(props);
       ldapService.update(ldapModule);
+    }
+  }
+
+  protected LDAPConnectionFactory createLdapConnectionFactory(String url, Boolean startTls)
+      throws LdapException {
+    boolean useSsl = url.startsWith("ldaps");
+    boolean useTls = !url.startsWith("ldaps") && startTls;
+
+    Options lo = Options.defaultOptions();
+
+    try {
+      if (useSsl || useTls) {
+        LOGGER.trace("Setting up secure LDAP connection.");
+        initializeSslContext();
+        lo.set(LDAPConnectionFactory.SSL_CONTEXT, getSslContext());
+      } else {
+        LOGGER.trace("Setting up insecure LDAP connection.");
+      }
+    } catch (GeneralSecurityException e) {
+      LOGGER.info("Error encountered while configuring SSL. Secure connection will fail.", e);
+    }
+
+    lo.set(LDAPConnectionFactory.HEARTBEAT_TIMEOUT, new Duration(30L, TimeUnit.SECONDS));
+    lo.set(LDAPConnectionFactory.HEARTBEAT_INTERVAL, new Duration(60L, TimeUnit.SECONDS));
+    lo.set(LDAPConnectionFactory.CONNECT_TIMEOUT, new Duration(30L, TimeUnit.SECONDS));
+
+    lo.set(LDAPConnectionFactory.SSL_USE_STARTTLS, useTls);
+    lo.set(
+        LDAPConnectionFactory.SSL_ENABLED_CIPHER_SUITES,
+        Arrays.asList(System.getProperty("https.cipherSuites", "").split(",")));
+    lo.set(
+        LDAPConnectionFactory.SSL_ENABLED_PROTOCOLS,
+        Arrays.asList(System.getProperty("https.protocols", "").split(",")));
+    lo.set(
+        LDAPConnectionFactory.TRANSPORT_PROVIDER_CLASS_LOADER,
+        SslLdapLoginModule.class.getClassLoader());
+
+    String host = url.substring(url.indexOf("://") + 3, url.lastIndexOf(':'));
+    Integer port = useSsl ? 636 : 389;
+    try {
+      port = Integer.valueOf(url.substring(url.lastIndexOf(':') + 1));
+    } catch (NumberFormatException ignore) {
+      // ignore this error will try with default
+    }
+
+    auditRemoteConnection(host);
+
+    return new LDAPConnectionFactory(host, port, lo);
+  }
+
+  private void auditRemoteConnection(String host) {
+    try {
+      InetAddress inetAddress = InetAddress.getByName(host);
+      SecurityLogger.audit(
+          "Setting up remote connection to LDAP [{}].", inetAddress.getHostAddress());
+    } catch (Exception e) {
+      LOGGER.debug(
+          "Unhandled exception while attempting to determine the IP address for an LDAP, might be a DNS issue.",
+          e);
+      SecurityLogger.audit(
+          "Unable to determine the IP address for an LDAP [{}], might be a DNS issue.", host);
+    }
+  }
+
+  private void initializeSslContext() throws NoSuchAlgorithmException {
+    // Only set if null so tests can inject a context.
+    if (getSslContext() == null) {
+      setSslContext(SSLContext.getDefault());
     }
   }
 
@@ -175,7 +235,7 @@ public class LdapLoginConfig {
     props.put(REALM, (properties.get(REALM) != null) ? properties.get(REALM) : "");
     props.put(
         KDC_ADDRESS, (properties.get(KDC_ADDRESS) != null) ? properties.get(KDC_ADDRESS) : "");
-    props.put("connectionPool.uuid", id);
+    props.put("connectionPoolId", id);
     if ("GSSAPI SASL".equals(properties.get(BIND_METHOD))
         && (StringUtils.isEmpty((String) properties.get(REALM))
             || StringUtils.isEmpty((String) properties.get(KDC_ADDRESS)))) {
@@ -256,74 +316,6 @@ public class LdapLoginConfig {
     update(ldapProperties);
   }
 
-  protected LDAPConnectionFactory createLdapConnectionFactory(String url, Boolean startTls)
-      throws LdapException {
-    boolean useSsl = url.startsWith("ldaps");
-    boolean useTls = !url.startsWith("ldaps") && startTls;
-
-    Options lo = Options.defaultOptions();
-
-    try {
-      if (useSsl || useTls) {
-        LOGGER.trace("Setting up secure LDAP connection.");
-        initializeSslContext();
-        lo.set(LDAPConnectionFactory.SSL_CONTEXT, getSslContext());
-      } else {
-        LOGGER.trace("Setting up insecure LDAP connection.");
-      }
-    } catch (GeneralSecurityException e) {
-      LOGGER.info("Error encountered while configuring SSL. Secure connection will fail.", e);
-    }
-
-    lo.set(LDAPConnectionFactory.HEARTBEAT_TIMEOUT, new Duration(30L, TimeUnit.SECONDS));
-    lo.set(LDAPConnectionFactory.HEARTBEAT_INTERVAL, new Duration(60L, TimeUnit.SECONDS));
-    lo.set(LDAPConnectionFactory.CONNECT_TIMEOUT, new Duration(30L, TimeUnit.SECONDS));
-
-    lo.set(LDAPConnectionFactory.SSL_USE_STARTTLS, useTls);
-    lo.set(
-        LDAPConnectionFactory.SSL_ENABLED_CIPHER_SUITES,
-        Arrays.asList(System.getProperty("https.cipherSuites").split(",")));
-    lo.set(
-        LDAPConnectionFactory.SSL_ENABLED_PROTOCOLS,
-        Arrays.asList(System.getProperty("https.protocols").split(",")));
-    lo.set(
-        LDAPConnectionFactory.TRANSPORT_PROVIDER_CLASS_LOADER,
-        SslLdapLoginModule.class.getClassLoader());
-
-    String host = url.substring(url.indexOf("://") + 3, url.lastIndexOf(':'));
-    Integer port = useSsl ? 636 : 389;
-    try {
-      port = Integer.valueOf(url.substring(url.lastIndexOf(':') + 1));
-    } catch (NumberFormatException ignore) {
-      // ignore this error will try with default
-    }
-
-    auditRemoteConnection(host);
-
-    return new LDAPConnectionFactory(host, port, lo);
-  }
-
-  private void auditRemoteConnection(String host) {
-    try {
-      InetAddress inetAddress = InetAddress.getByName(host);
-      SecurityLogger.audit(
-          "Setting up remote connection to LDAP [{}].", inetAddress.getHostAddress());
-    } catch (Exception e) {
-      LOGGER.debug(
-          "Unhandled exception while attempting to determine the IP address for an LDAP, might be a DNS issue.",
-          e);
-      SecurityLogger.audit(
-          "Unable to determine the IP address for an LDAP [{}], might be a DNS issue.", host);
-    }
-  }
-
-  private void initializeSslContext() throws NoSuchAlgorithmException {
-    // Only set if null so tests can inject a context.
-    if (getSslContext() == null) {
-      setSslContext(SSLContext.getDefault());
-    }
-  }
-
   public void setSslContext(SSLContext sslContext) {
     this.sslContext = sslContext;
   }
@@ -345,17 +337,5 @@ public class LdapLoginConfig {
 
   public void setLdapService(LdapService ldapService) {
     this.ldapService = ldapService;
-  }
-
-  BundleContext getBundleContext() {
-    return FrameworkUtil.getBundle(LdapLoginConfig.class).getBundleContext();
-  }
-
-  public class LDAPConnectionPool extends GenericObjectPool<Connection> {
-
-    public LDAPConnectionPool(
-        PooledObjectFactory<Connection> factory, GenericObjectPoolConfig config) {
-      super(factory, config);
-    }
   }
 }

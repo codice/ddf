@@ -14,7 +14,6 @@
 package ddf.ldap.ldaplogin;
 
 import com.google.common.collect.ImmutableSet;
-import ddf.ldap.ldaplogin.LdapLoginConfig.LDAPConnectionPool;
 import ddf.security.common.audit.SecurityLogger;
 import ddf.security.encryption.EncryptionService;
 import java.io.IOException;
@@ -25,7 +24,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.net.ssl.SSLContext;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -93,6 +91,8 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
 
   private static final String DEFAULT_AUTHENTICATION = "simple";
 
+  public static final String CONNECTION_POOL_ID = "connectionPoolId";
+
   private String realm;
 
   private String kdcAddress;
@@ -119,13 +119,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
 
   private boolean roleSearchSubtree = true;
 
-  //  private LDAPConnectionFactory ldapConnectionFactory;
-
   private LDAPConnectionPool ldapConnectionPool;
-
-  private ServiceReference serviceReference;
-
-  private SSLContext sslContext;
 
   protected boolean doLogin() throws LoginException {
 
@@ -336,7 +330,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
             } else {
               // Got a continuation reference.
               final SearchResultReference ref = entryReader.readReference();
-              LOGGER.debug("Skipping result reference: {}", ref.getURIs().toString());
+              LOGGER.debug("Skipping result reference: {}", ref.getURIs());
             }
           }
         } catch (Exception e) {
@@ -363,8 +357,6 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
   public boolean logout() throws LoginException {
     subject.getPrincipals().removeAll(principals);
     principals.clear();
-    //    ldapConnectionFactory.close();
-    //    ldapConnectionFactory = null;
     return true;
   }
 
@@ -396,23 +388,29 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
     setBindMethod((String) options.get(BIND_METHOD));
     realm = (String) options.get(REALM);
     kdcAddress = (String) options.get(KDC_ADDRESS);
-    String uuid = (String) options.get("connectionPool.uuid");
+    String connectionPoolId = (String) options.get(CONNECTION_POOL_ID);
+    installLdapConnectionPool(connectionPoolId);
+  }
+
+  private void installLdapConnectionPool(String connectionPoolId) {
     BundleContext bundleContext = getContext();
-    try {
-      Collection<ServiceReference<LDAPConnectionPool>> serviceReferences =
-          bundleContext.getServiceReferences(
-              LDAPConnectionPool.class, String.format("(uuid=%s)", uuid));
-      ServiceReference<LDAPConnectionPool> serviceReference =
-          serviceReferences
-              .stream()
-              .findFirst()
-              .orElseThrow(
-                  () ->
-                      new IllegalStateException(
-                          "No LDAPConnectionPool service found with uuid:" + uuid));
-      ldapConnectionPool = bundleContext.getService(serviceReference);
-    } catch (InvalidSyntaxException | IllegalStateException e) {
-      LOGGER.info("Unable to get LDAP Connection pool. LDAP log in will not be possible.", e);
+    if (bundleContext != null) {
+      try {
+        Collection<ServiceReference<LDAPConnectionPool>> serviceReferences =
+            bundleContext.getServiceReferences(
+                LDAPConnectionPool.class, String.format("(id=%s)", connectionPoolId));
+        ServiceReference<LDAPConnectionPool> serviceReference =
+            serviceReferences
+                .stream()
+                .findFirst()
+                .orElseThrow(
+                    () ->
+                        new IllegalStateException(
+                            "No LDAPConnectionPool service found with id:" + connectionPoolId));
+        ldapConnectionPool = bundleContext.getService(serviceReference);
+      } catch (InvalidSyntaxException | IllegalStateException e) {
+        LOGGER.info("Unable to get LDAP Connection pool. LDAP log in will not be possible.", e);
+      }
     }
   }
 
@@ -468,7 +466,8 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
 
     BundleContext bundleContext = getContext();
     if (null != bundleContext) {
-      serviceReference = bundleContext.getServiceReference(EncryptionService.class.getName());
+      ServiceReference serviceReference =
+          bundleContext.getServiceReference(EncryptionService.class.getName());
       setEncryptionService((EncryptionService) bundleContext.getService(serviceReference));
       bundleContext.ungetService(serviceReference);
     }
@@ -498,20 +497,17 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
     this.encryptionService = encryptionService;
   }
 
-  public SSLContext getSslContext() {
-    return sslContext;
-  }
-
-  public void setSslContext(SSLContext sslContext) {
-    this.sslContext = sslContext;
-  }
-
   String getBindMethod() {
     return bindMethod;
   }
 
   void setBindMethod(String bindMethod) {
     this.bindMethod = bindMethod;
+  }
+
+  // for testing
+  public void setLdapConnectionPool(LDAPConnectionPool ldapConnectionPool) {
+    this.ldapConnectionPool = ldapConnectionPool;
   }
 
   private static class InvalidCharactersException extends LoginException {

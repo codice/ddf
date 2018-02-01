@@ -67,6 +67,8 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.login.LoginException;
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.apache.karaf.jaas.boot.principal.UserPrincipal;
+import org.forgerock.opendj.ldap.LDAPConnectionFactory;
+import org.forgerock.opendj.ldap.LdapException;
 import org.forgerock.opendj.ldap.SSLContextBuilder;
 import org.forgerock.opendj.ldap.TrustManagers;
 import org.junit.After;
@@ -97,7 +99,7 @@ public class LdapModuleTest {
   public LdapModuleTest() throws IOException {}
 
   @Before
-  public void startup() {
+  public void startup() throws LdapException {
 
     server = TestServer.getInstance();
     module = TestModule.getInstance(TestServer.getClientOptions());
@@ -207,14 +209,18 @@ public class LdapModuleTest {
 
     private TestModule() {}
 
-    public static TestModule getInstance(Map<String, String> options) {
+    public static TestModule getInstance(Map<String, String> options) throws LdapException {
       TestModule object = new TestModule();
       object.options = new HashMap<>(options);
       object.realModule = new SslLdapLoginModule();
       EncryptionService mockEncryptionService = mock(EncryptionService.class);
       when(mockEncryptionService.decryptValue(anyString())).then(returnsFirstArg());
       object.realModule.setEncryptionService(mockEncryptionService);
-      object.realModule.setSslContext(getClientSSLContext());
+      LdapLoginConfig ldapLoginConfig = new LdapLoginConfig(null);
+      LDAPConnectionFactory ldapConnectionFactory =
+          ldapLoginConfig.createLdapConnectionFactory((String) options.get(CONNECTION_URL), false);
+      object.realModule.setLdapConnectionPool(
+          new LDAPConnectionPool(ldapConnectionFactory, "test"));
       return object;
     }
 

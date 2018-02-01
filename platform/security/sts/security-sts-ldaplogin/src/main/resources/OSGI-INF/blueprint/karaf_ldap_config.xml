@@ -24,6 +24,7 @@
             interface="ddf.ldap.ldaplogin.LdapLoginConfig">
         <cm:managed-component class="ddf.ldap.ldaplogin.LdapLoginConfig"
                               init-method="configure" destroy-method="destroy">
+            <argument ref="blueprintBundleContext"/>
             <!-- Default properties -->
             <property name="ldapBindUserDn" value="cn=admin"/>
             <property name="ldapBindUserPass" value="secret"/>
