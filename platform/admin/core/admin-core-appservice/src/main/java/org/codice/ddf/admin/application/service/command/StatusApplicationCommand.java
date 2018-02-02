@@ -51,44 +51,45 @@ public class StatusApplicationCommand extends AbstractApplicationCommand {
       throws ApplicationServiceException {
 
     Application application = applicationService.getApplication(appName);
-    if (application != null) {
-      ApplicationStatus appStatus = applicationService.getApplicationStatus(application);
-      console.println(application.getName());
-      console.println("\nCurrent State is: " + appStatus.getState().toString());
 
-      console.println("\nFeatures Located within this Application:");
-      for (Feature curFeature : application.getFeatures()) {
-        console.println("\t" + curFeature.getName());
-      }
-
-      console.println("\nRequired Features Not Started");
-      if (appStatus.getErrorFeatures().isEmpty()) {
-        console.print(Ansi.ansi().fg(Ansi.Color.GREEN).toString());
-        console.println("\tNONE");
-        console.print(Ansi.ansi().reset().toString());
-      } else {
-        for (Feature curFeature : appStatus.getErrorFeatures()) {
-          console.print(Ansi.ansi().fg(Ansi.Color.RED).toString());
-          console.println("\t" + curFeature.getName());
-          console.print(Ansi.ansi().reset().toString());
-        }
-      }
-
-      console.println("\nRequired Bundles Not Started");
-      if (appStatus.getErrorBundles().isEmpty()) {
-        console.print(Ansi.ansi().fg(Ansi.Color.GREEN).toString());
-        console.println("\tNONE");
-        console.print(Ansi.ansi().reset().toString());
-      } else {
-        for (Bundle curBundle : appStatus.getErrorBundles()) {
-          console.print(Ansi.ansi().fg(Ansi.Color.RED).toString());
-          console.println("\t[" + curBundle.getBundleId() + "]\t" + curBundle.getSymbolicName());
-          console.print(Ansi.ansi().reset().toString());
-        }
-      }
-    } else {
+    if (application == null) {
       console.println("No application found with name " + appName);
+      return;
     }
-    return;
+
+    ApplicationStatus appStatus = applicationService.getApplicationStatus(application);
+    console.println(application.getName());
+    console.println("\nCurrent State is: " + appStatus.getState());
+
+    console.println("\nFeatures Located within this Application:");
+    for (Feature curFeature : application.getFeatures()) {
+      console.println("\t" + curFeature.getName());
+    }
+
+    console.println("\nRequired Features Not Started");
+    if (appStatus.getErrorFeatures().isEmpty()) {
+      console.print(Ansi.ansi().fg(Ansi.Color.GREEN).toString());
+      console.println("\tNONE");
+      console.print(Ansi.ansi().reset().toString());
+    } else {
+      for (Feature curFeature : appStatus.getErrorFeatures()) {
+        console.print(Ansi.ansi().fg(Ansi.Color.RED).toString());
+        console.println("\t" + curFeature.getName());
+        console.print(Ansi.ansi().reset().toString());
+      }
+    }
+
+    console.println("\nRequired Bundles Not Started");
+    if (appStatus.getErrorBundles().isEmpty()) {
+      console.print(Ansi.ansi().fg(Ansi.Color.GREEN).toString());
+      console.println("\tNONE");
+      console.print(Ansi.ansi().reset().toString());
+    } else {
+      for (Bundle curBundle : appStatus.getErrorBundles()) {
+        console.print(Ansi.ansi().fg(Ansi.Color.RED).toString());
+        console.println("\t[" + curBundle.getBundleId() + "]\t" + curBundle.getSymbolicName());
+        console.print(Ansi.ansi().reset().toString());
+      }
+    }
   }
 }
