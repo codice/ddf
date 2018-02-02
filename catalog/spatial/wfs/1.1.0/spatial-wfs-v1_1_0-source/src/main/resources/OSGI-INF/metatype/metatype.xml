@@ -23,6 +23,9 @@
         <AD description="Disable CN check for the server certificate. This should only be used when testing."
             name="Disable CN Check" id="disableCnCheck" required="true"
             type="Boolean" default="false"/>
+        <AD description="Allow redirects generated from a source."
+            name="Allow Redirects" id="allowRedirects" required="true"
+            type="Boolean" default="false"/>
         <AD description="Coordinate order expected and returned by remote source"
             name="Coordinate Order" id="coordinateOrder" required="true"
             type="String" default="LAT_LON">

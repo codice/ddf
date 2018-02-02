@@ -165,6 +165,8 @@ public class WfsSource extends MaskableImpl
 
   private static final String COORDINATE_ORDER_KEY = "coordinateOrder";
 
+  private static final String ALLOW_REDIRECTS_KEY = "allowRedirects";
+
   private static final Properties DESCRIBABLE_PROPERTIES = new Properties();
 
   private static final String SOURCE_MSG = " Source '";
@@ -224,6 +226,8 @@ public class WfsSource extends MaskableImpl
   private FeatureCollectionMessageBodyReaderWfs11 featureCollectionReader;
 
   private List<MetacardTypeEnhancer> metacardTypeEnhancers;
+
+  private boolean allowRedirects;
 
   static {
     try (InputStream properties =
@@ -298,6 +302,7 @@ public class WfsSource extends MaskableImpl
     String usernameValue = (String) configuration.get(USERNAME_KEY);
     Boolean disableCnCheckProp = (Boolean) configuration.get(DISABLE_CN_CHECK_KEY);
     String id = (String) configuration.get(ID_KEY);
+    Boolean allowRedirects = (Boolean) configuration.get(ALLOW_REDIRECTS_KEY);
     if (hasSourceIdChanged(id)) {
       setId(id);
       configureWfsFeatures();
@@ -310,12 +315,17 @@ public class WfsSource extends MaskableImpl
 
     Integer newPollInterval = (Integer) configuration.get(POLL_INTERVAL_KEY);
 
-    if (hasWfsUrlChanged(url) || hasDisableCnCheck(disableCnCheckProp)) {
+    if (hasWfsUrlChanged(url)
+        || hasDisableCnCheckChanged(disableCnCheckProp)
+        || hasUsernameChanged(usernameValue)
+        || hasPasswordChanged(passwordValue)
+        || hasAllowRedirectsChanged(allowRedirects)) {
       this.wfsUrl = url;
       this.password = encryptionService.decryptValue(passwordValue);
       this.username = usernameValue;
       this.disableCnCheck = disableCnCheckProp;
       this.coordinateOrder = coordOrder;
+      this.allowRedirects = allowRedirects;
       createClientFactory();
       configureWfsFeatures();
     } else {
@@ -342,6 +352,10 @@ public class WfsSource extends MaskableImpl
     }
   }
 
+  public void setAllowRedirects(Boolean allowRedirects) {
+    this.allowRedirects = allowRedirects;
+  }
+
   /** This method should only be called after all properties have been set. */
   @SuppressWarnings("unchecked")
   private void createClientFactory() {
@@ -353,7 +367,7 @@ public class WfsSource extends MaskableImpl
               initProviders(),
               new MarkableStreamInterceptor(),
               this.disableCnCheck,
-              false,
+              this.allowRedirects,
               null,
               null,
               username,
@@ -366,7 +380,7 @@ public class WfsSource extends MaskableImpl
               initProviders(),
               new MarkableStreamInterceptor(),
               this.disableCnCheck,
-              false);
+              this.allowRedirects);
     }
   }
 
@@ -1183,11 +1197,23 @@ public class WfsSource extends MaskableImpl
     return !StringUtils.equals(this.wfsUrl, wfsUrl);
   }
 
+  private boolean hasUsernameChanged(String usernameValue) {
+    return !StringUtils.equals(this.username, usernameValue);
+  }
+
+  private boolean hasPasswordChanged(String passwordValue) {
+    return !StringUtils.equals(this.password, passwordValue);
+  }
+
+  private boolean hasAllowRedirectsChanged(boolean allowRedirects) {
+    return this.allowRedirects != allowRedirects;
+  }
+
   private boolean hasSourceIdChanged(String id) {
     return !StringUtils.equals(getId(), id);
   }
 
-  private boolean hasDisableCnCheck(Boolean disableCnCheck) {
+  private boolean hasDisableCnCheckChanged(Boolean disableCnCheck) {
     return this.disableCnCheck != disableCnCheck;
   }
 
