@@ -186,7 +186,6 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Export-Package/>
                         <Embed-Dependency>
                             wfs-v_1_1_0,
                             gml-v_3_1_1,
