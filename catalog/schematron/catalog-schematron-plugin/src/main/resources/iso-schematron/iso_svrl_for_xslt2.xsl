@@ -65,7 +65,7 @@
     2007-04-03 
     	* Add option generate-fired-rule (RG)
     2007-02-07
-    	* Prefer true|false for parameters. But allow yes|no on some old for compatability
+    	* Prefer true|false for parameters. But allow yes|no on some old for compatibility
     	* DP Diagnostics output to svrl:text. Diagnosis put out after assertion text.
       	* Removed non-SVRL elements and attributes: better handled as an extra layer that invokes this one
       	* Add more formal parameters

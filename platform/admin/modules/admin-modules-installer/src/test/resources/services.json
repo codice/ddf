@@ -2455,7 +2455,7 @@
         {
           "id": "shouldConvertToBBox",
           "optionLabels": [],
-          "description": "Converts Polygon and Point-Radius searches to a Bounding Box for compatability with older interfaces. Generated bounding box is a very rough representation of the input geometry.",
+          "description": "Converts Polygon and Point-Radius searches to a Bounding Box for compatibility with older interfaces. Generated bounding box is a very rough representation of the input geometry.",
           "optionValues": [],
           "name": "Convert to BBox",
           "defaultValue": [
@@ -2594,7 +2594,7 @@
         {
           "id": "shouldConvertToBBox",
           "optionLabels": [],
-          "description": "Converts Polygon and Point-Radius searches to a Bounding Box for compatability with older interfaces. Generated bounding box is a very rough representation of the input geometry.",
+          "description": "Converts Polygon and Point-Radius searches to a Bounding Box for compatibility with older interfaces. Generated bounding box is a very rough representation of the input geometry.",
           "optionValues": [],
           "name": "Convert to BBox",
           "defaultValue": [
