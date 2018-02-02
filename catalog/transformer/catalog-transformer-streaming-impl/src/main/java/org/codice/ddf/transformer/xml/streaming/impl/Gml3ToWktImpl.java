@@ -27,6 +27,7 @@ import java.util.Collections;
 import javax.xml.parsers.ParserConfigurationException;
 import org.codice.ddf.transformer.xml.streaming.Gml3ToWkt;
 import org.geotools.geometry.jts.JTS;
+import org.geotools.gml3.GMLConfiguration;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.xml.Configuration;
@@ -46,6 +47,16 @@ public class Gml3ToWktImpl implements Gml3ToWkt {
   private final Parser parser;
 
   private static final ThreadLocal<WKTWriter> WKT_WRITER = ThreadLocal.withInitial(WKTWriter::new);
+
+  public Gml3ToWktImpl() {
+    ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+    try {
+      parser = createParser();
+      parser.setStrict(false);
+    } finally {
+      Thread.currentThread().setContextClassLoader(tccl);
+    }
+  }
 
   public Gml3ToWktImpl(Configuration gmlConfiguration) {
     parser = new Parser(gmlConfiguration);
@@ -111,5 +122,9 @@ public class Gml3ToWktImpl implements Gml3ToWkt {
       throw new ValidationExceptionImpl(
           "Failed to find EPSG:4326 CRS, do you have the dependencies added?", e);
     }
+  }
+
+  protected Parser createParser() {
+    return new Parser(new GMLConfiguration());
   }
 }
