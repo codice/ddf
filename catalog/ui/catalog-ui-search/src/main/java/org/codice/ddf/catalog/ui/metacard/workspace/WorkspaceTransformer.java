@@ -76,7 +76,7 @@ public class WorkspaceTransformer {
               List<Map<String, Object>> queries = (List) value;
               return queries
                   .stream()
-                  .map(transformIntoMetacard(new QueryMetacardImpl()))
+                  .map(query -> transformIntoMetacard(new QueryMetacardImpl()).apply(query))
                   .map(this::toMetacardXml)
                   .collect(Collectors.toList());
             }));
