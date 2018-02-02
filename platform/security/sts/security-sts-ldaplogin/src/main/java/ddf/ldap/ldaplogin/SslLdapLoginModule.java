@@ -32,6 +32,7 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.apache.karaf.jaas.boot.principal.UserPrincipal;
 import org.apache.karaf.jaas.modules.AbstractKarafLoginModule;
@@ -119,7 +120,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
 
   private boolean roleSearchSubtree = true;
 
-  private LDAPConnectionPool ldapConnectionPool;
+  private GenericObjectPool<Connection> ldapConnectionPool;
 
   protected boolean doLogin() throws LoginException {
 
@@ -396,10 +397,10 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
     BundleContext bundleContext = getContext();
     if (bundleContext != null) {
       try {
-        Collection<ServiceReference<LDAPConnectionPool>> serviceReferences =
+        Collection<ServiceReference<GenericObjectPool>> serviceReferences =
             bundleContext.getServiceReferences(
-                LDAPConnectionPool.class, String.format("(id=%s)", connectionPoolId));
-        ServiceReference<LDAPConnectionPool> serviceReference =
+                GenericObjectPool.class, String.format("(id=%s)", connectionPoolId));
+        ServiceReference<GenericObjectPool> serviceReference =
             serviceReferences
                 .stream()
                 .findFirst()
@@ -506,7 +507,7 @@ public class SslLdapLoginModule extends AbstractKarafLoginModule {
   }
 
   // for testing
-  public void setLdapConnectionPool(LDAPConnectionPool ldapConnectionPool) {
+  public void setLdapConnectionPool(GenericObjectPool<Connection> ldapConnectionPool) {
     this.ldapConnectionPool = ldapConnectionPool;
   }
 

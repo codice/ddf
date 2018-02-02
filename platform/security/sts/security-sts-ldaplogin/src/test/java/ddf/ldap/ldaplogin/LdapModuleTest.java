@@ -65,12 +65,11 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.login.LoginException;
+import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.apache.karaf.jaas.boot.principal.UserPrincipal;
 import org.forgerock.opendj.ldap.LDAPConnectionFactory;
 import org.forgerock.opendj.ldap.LdapException;
-import org.forgerock.opendj.ldap.SSLContextBuilder;
-import org.forgerock.opendj.ldap.TrustManagers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -218,20 +217,10 @@ public class LdapModuleTest {
       object.realModule.setEncryptionService(mockEncryptionService);
       LdapLoginConfig ldapLoginConfig = new LdapLoginConfig(null);
       LDAPConnectionFactory ldapConnectionFactory =
-          ldapLoginConfig.createLdapConnectionFactory((String) options.get(CONNECTION_URL), false);
+          ldapLoginConfig.createLdapConnectionFactory(options.get(CONNECTION_URL), false);
       object.realModule.setLdapConnectionPool(
-          new LDAPConnectionPool(ldapConnectionFactory, "test"));
+          new GenericObjectPool<>(new LdapConnectionPooledObjectFactory(ldapConnectionFactory)));
       return object;
-    }
-
-    public static SSLContext getClientSSLContext() {
-
-      try {
-        return new SSLContextBuilder().setTrustManager(TrustManagers.trustAll()).getSSLContext();
-      } catch (GeneralSecurityException e) {
-        fail(e.getMessage());
-        return null;
-      }
     }
 
     public TestModule login() throws LoginException {

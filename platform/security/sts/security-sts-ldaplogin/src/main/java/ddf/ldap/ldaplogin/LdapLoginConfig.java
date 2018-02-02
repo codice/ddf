@@ -36,7 +36,11 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLContext;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.pool2.impl.AbandonedConfig;
+import org.apache.commons.pool2.impl.GenericObjectPool;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.apache.karaf.jaas.config.impl.Module;
+import org.forgerock.opendj.ldap.Connection;
 import org.forgerock.opendj.ldap.LDAPConnectionFactory;
 import org.forgerock.opendj.ldap.LdapException;
 import org.forgerock.util.Options;
@@ -77,13 +81,17 @@ public class LdapLoginConfig {
 
   private static final String LDAP_MODULE = ddf.ldap.ldaplogin.SslLdapLoginModule.class.getName();
 
+  public static final long FIVE_MIN_MS = 300000L;
+
+  public static final int FIVE_MIN_S = 300;
+
   private String id = "LDAP" + UUID.randomUUID().toString();
 
   private Map<String, Object> ldapProperties = new HashMap<>();
 
   private LdapService ldapService;
 
-  private LDAPConnectionPool ldapConnectionPool;
+  private GenericObjectPool<Connection> ldapConnectionPool;
 
   private SSLContext sslContext;
 
@@ -115,7 +123,13 @@ public class LdapLoginConfig {
             createLdapConnectionFactory(
                 (String) ldapProperties.get(LDAP_URL),
                 Boolean.parseBoolean((String) ldapProperties.get(START_TLS)));
-        ldapConnectionPool = new LDAPConnectionPool(ldapConnectionFactory, id);
+
+        ldapConnectionPool =
+            new GenericObjectPool<>(
+                new LdapConnectionPooledObjectFactory(ldapConnectionFactory),
+                createGenericPoolConfig(id),
+                createGenericPoolAbandonConfig());
+
       } catch (LdapException e) {
         LOGGER.error("Error creating ldap connection factory", e);
       }
@@ -126,11 +140,28 @@ public class LdapLoginConfig {
       LOGGER.debug("Registering LdapConnectionPool");
       connectionPoolServiceRegistration =
           context.registerService(
-              LDAPConnectionPool.class.getName(), ldapConnectionPool, serviceProps);
+              GenericObjectPool.class.getName(), ldapConnectionPool, serviceProps);
       // create modules from the newly updated config
       Module ldapModule = createLdapModule(props);
       ldapService.update(ldapModule);
     }
+  }
+
+  private AbandonedConfig createGenericPoolAbandonConfig() {
+    AbandonedConfig abandonedConfig = new AbandonedConfig();
+    abandonedConfig.setRemoveAbandonedOnBorrow(true);
+    abandonedConfig.setRemoveAbandonedTimeout(FIVE_MIN_S);
+    return abandonedConfig;
+  }
+
+  private GenericObjectPoolConfig createGenericPoolConfig(String id) {
+    GenericObjectPoolConfig config = new GenericObjectPoolConfig();
+    config.setJmxNameBase("org.apache.commons.pool2:type=LDAPConnectionPool,name=");
+    config.setJmxNamePrefix(id);
+    config.setTimeBetweenEvictionRunsMillis(FIVE_MIN_MS);
+    config.setTestWhileIdle(true);
+    config.setTestOnBorrow(true);
+    return config;
   }
 
   protected LDAPConnectionFactory createLdapConnectionFactory(String url, Boolean startTls)
