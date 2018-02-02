@@ -17,7 +17,7 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.apache.commons.io.FilenameUtils;
-import org.codice.ddf.test.matchers.ThrowableMatchers;
+import org.codice.ddf.test.common.matchers.ThrowableMatchers;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
