@@ -361,6 +361,9 @@ define([
         getHoverPreview: function() {
             return this.get('user').getHoverPreview();
         },
+        isGuest: function() {
+            return this.get('user').isGuestUser();
+        },
         parse: function (body) {
             if (body.isGuest) {
                 return {

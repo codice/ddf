@@ -26,13 +26,19 @@ require([
 
     var workspaces = store.get('workspaces');
 
+    function getWorkspacesOwnedByUser() {
+        return workspaces.filter(workspace => user.isGuest() ?
+            workspace.get('localStorage') === true :
+            workspace.get('metacard.owner') === user.get('user').get('email'));
+    }
+
     function hasEmptyHashAndNoWorkspaces() {
-        return workspaces.length === 0 && location.hash === "";
+        return getWorkspacesOwnedByUser().length === 0 && location.hash === "";
     }
 
     function checkForEmptyHashAndOneWorkspace() {
-        if (location.hash === "" && workspaces.fetched && workspaces.length === 1) {
-            location.hash = '#workspaces/'+workspaces.first().id;
+        if (location.hash === "" && workspaces.fetched && getWorkspacesOwnedByUser().length === 1) {
+            location.hash = '#workspaces/'+getWorkspacesOwnedByUser()[0].id;
         }
     }
 
