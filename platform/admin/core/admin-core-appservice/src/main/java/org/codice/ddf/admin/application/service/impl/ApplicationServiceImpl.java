@@ -33,10 +33,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.karaf.bundle.core.BundleState;
 import org.apache.karaf.bundle.core.BundleStateService;
@@ -180,10 +183,25 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
     return application.getAutoInstallFeatures().stream().allMatch(featuresService::isInstalled);
   }
 
+  private Set<Feature> requiredFeaturesNoMainFeature(Application application)
+      throws ApplicationServiceException {
+    Set<Feature> features = application.getFeatures();
+    Predicate<? super Feature> filter =
+        f -> equalsIgnoreCase(Feature.DEFAULT_INSTALL_MODE, f.getInstall());
+    if (features.size() == 1) {
+      filter = f -> true;
+    }
+    return features
+        .stream()
+        .filter(filter)
+        .map(this::getAllDependencyFeatures)
+        .flatMap(Set::stream)
+        .collect(Collectors.toSet());
+  }
+
   @Override
   public ApplicationStatus getApplicationStatus(Application application) {
     Set<Feature> uninstalledFeatures = new HashSet<>();
-    Set<Feature> requiredFeatures = new HashSet<>();
     Set<Bundle> errorBundles = new HashSet<>();
     ApplicationState installState = null;
 
@@ -191,21 +209,12 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
     try {
       // Check Main Feature
       Feature mainFeature = application.getMainFeature();
-      boolean isMainFeatureUninstalled = true;
-      if (mainFeature != null) {
-        isMainFeatureUninstalled = !featuresService.isInstalled(mainFeature);
-        requiredFeatures.add(mainFeature);
-      } else {
-        Set<Feature> features = application.getFeatures();
-        if (features.size() == 1) {
-          requiredFeatures.addAll(getAllDependencyFeatures(features.iterator().next()));
-        } else {
-          features
-              .stream()
-              .filter(f -> equalsIgnoreCase(Feature.DEFAULT_INSTALL_MODE, f.getInstall()))
-              .forEach(f -> requiredFeatures.addAll(getAllDependencyFeatures(f)));
-        }
-      }
+      boolean isMainFeatureUninstalled =
+          (mainFeature == null) || !featuresService.isInstalled(mainFeature);
+      Set<Feature> requiredFeatures =
+          (mainFeature == null)
+              ? requiredFeaturesNoMainFeature(application)
+              : Collections.singleton(mainFeature);
 
       LOGGER.debug(
           "{} has {} required features that must be started.",
@@ -246,7 +255,7 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
    * @param applicationNames List of application names, these names must exactly match the name of
    *     the application to ignore.
    */
-  public void setIgnoredApplications(List<String> applicationNames) {
+  public void setIgnoredApplications(@Nullable List<String> applicationNames) {
     if (applicationNames != null) {
       ignoredApplicationNames = new HashSet<>(applicationNames);
       LOGGER.debug("Ignoring applications with the following names: {}", ignoredApplicationNames);
@@ -542,8 +551,7 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
       for (BundleInfo curBundleInfo : curFeature.getBundles()) {
 
         Bundle curBundle = context.getBundle(curBundleInfo.getLocation());
-        if (curBundle == null
-            || curBundle.adapt(BundleRevision.class).getTypes() == BundleRevision.TYPE_FRAGMENT) {
+        if (curBundle == null || isFragment(curBundle)) {
           continue;
         }
 
@@ -578,6 +586,12 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
     }
 
     return bundleStateSet;
+  }
+
+  // getTypes() returns an int of flags
+  private boolean isFragment(Bundle bundle) {
+    return (bundle.adapt(BundleRevision.class).getTypes() & BundleRevision.TYPE_FRAGMENT)
+        == BundleRevision.TYPE_FRAGMENT;
   }
 
   private void mapBundleState(
@@ -840,12 +854,13 @@ public class ApplicationServiceImpl implements ApplicationService, ServiceListen
   /** @param application - application to have all its features uninstalled */
   private void uninstallAllFeatures(Application application) {
     try {
-      Set<Feature> features = application.getFeatures();
-      for (Feature feature : features) {
-        if (featuresService.isInstalled(feature) && isPermittedToViewFeature(feature.getName())) {
-          tryUninstallFeature(feature);
-        }
-      }
+      application
+          .getFeatures()
+          .stream()
+          .filter(Objects::nonNull)
+          .filter(featuresService::isInstalled)
+          .filter(f -> isPermittedToViewFeature(f.getName()))
+          .forEach(this::tryUninstallFeature);
     } catch (ApplicationServiceException ase) {
       LOGGER.warn("Error obtaining feature list from application", ase);
     }

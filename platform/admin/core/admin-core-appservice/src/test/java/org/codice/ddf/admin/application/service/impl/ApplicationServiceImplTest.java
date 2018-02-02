@@ -1452,7 +1452,7 @@ public class ApplicationServiceImplTest {
     doThrow(new NullPointerException()).when(featuresService).listRepositories();
 
     List<FeatureDetails> details = appService.getAllFeatures();
-    assertThat("No features should have been found", details, hasSize(7));
+    assertThat("List of feature details should have 7 entries", details, hasSize(7));
     details.forEach(
         d ->
             assertThat(
