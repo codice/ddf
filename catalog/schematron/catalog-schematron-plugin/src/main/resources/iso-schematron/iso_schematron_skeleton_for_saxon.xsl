@@ -1043,7 +1043,7 @@ which require a preprocess.
 
 
 	<!-- ISO DIAGNOSTIC -->
-	<!-- We use a mode here to maintain backwards compatability, instead of adding it
+	<!-- We use a mode here to maintain backwards compatibility, instead of adding it
 	     to the other mode.
 	-->
 	<xsl:template match="iso:diagnostic" mode="check-diagnostics">
@@ -1524,7 +1524,7 @@ which require a preprocess.
 	
 	
 	<!-- PROPERTY Experiemental -->
-	<!-- We use a mode here to maintain backwards compatability, instead of adding it
+	<!-- We use a mode here to maintain backwards compatibility, instead of adding it
 	     to the other mode.
 	-->
 	<xsl:template match="iso:property" mode="check-property">
