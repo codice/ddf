@@ -174,13 +174,6 @@
 
     <reference id="cswMetacardType" interface="ddf.catalog.data.MetacardType" filter="(name=csw:Record)"/>
 
-    <bean id="metacardTypes" class="ddf.catalog.util.impl.SortedServiceList"/>
-    <reference-list id="metacardTypeList"
-                    interface="ddf.catalog.data.MetacardType">
-        <reference-listener bind-method="bindPlugin" unbind-method="unbindPlugin"
-                            ref="metacardTypes"/>
-    </reference-list>
-
     <bean id="cswFilterFactory"
           class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.CswQueryFactory">
         <argument ref="metacardCswRecordMap"/>
@@ -199,7 +192,7 @@
     <bean id="cswQueryFilterTransformer"
           class="org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.CswQueryFilterTransformer">
         <argument ref="metacardCswRecordMap"/>
-        <argument ref="metacardTypes"/>
+        <argument ref="attributeRegistry"/>
     </bean>
     <service ref="cswQueryFilterTransformer" interface="ddf.catalog.transform.QueryFilterTransformer">
         <service-properties>

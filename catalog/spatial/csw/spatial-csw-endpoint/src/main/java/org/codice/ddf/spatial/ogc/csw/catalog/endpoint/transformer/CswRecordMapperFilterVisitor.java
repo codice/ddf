@@ -15,9 +15,9 @@ package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer;
 
 import com.vividsolutions.jts.geom.Geometry;
 import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.Metacard;
-import ddf.catalog.data.MetacardType;
 import ddf.catalog.impl.filter.FuzzyFunction;
 import ddf.measure.Distance;
 import ddf.measure.Distance.LinearUnit;
@@ -25,10 +25,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import org.codice.ddf.libs.geo.GeoFormatException;
 import org.codice.ddf.libs.geo.util.GeospatialUtil;
 import org.codice.ddf.spatial.ogc.csw.catalog.common.CswConstants;
@@ -82,21 +81,17 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CswRecordMapperFilterVisitor.class);
 
-  private final Map<String, AttributeType> attributeTypes;
+  private final AttributeRegistry attributeRegistry;
 
   private final CswRecordMap cswRecordMap;
 
   private Filter visitedFilter;
 
-  public CswRecordMapperFilterVisitor(CswRecordMap cswRecordMap, List<MetacardType> metacardTypes) {
+  public CswRecordMapperFilterVisitor(
+      CswRecordMap cswRecordMap, AttributeRegistry attributeRegistry) {
     this.cswRecordMap = cswRecordMap;
 
-    attributeTypes = new HashMap<>();
-    for (MetacardType type : metacardTypes) {
-      for (AttributeDescriptor ad : type.getAttributeDescriptors()) {
-        attributeTypes.put(ad.getName(), ad.getType());
-      }
-    }
+    this.attributeRegistry = attributeRegistry;
   }
 
   private static void convertGeometryExpressionToEpsg4326(Expression expression) {
@@ -238,9 +233,10 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
       name = cswRecordMap.getProperty(propertyName, namespaceContext);
 
       if (SPATIAL_QUERY_TAG.equals(extraData)) {
-        AttributeType attributeType = attributeTypes.get(name);
-        if (attributeType != null
-            && !AttributeType.AttributeFormat.GEOMETRY.equals(attributeType.getAttributeFormat())) {
+        Optional<AttributeDescriptor> attributeDescriptor = attributeRegistry.lookup(name);
+        if (attributeDescriptor.isPresent()
+            && !AttributeType.AttributeFormat.GEOMETRY.equals(
+                attributeDescriptor.get().getType().getAttributeFormat())) {
           throw new UnsupportedOperationException(
               "Attempted a spatial query on a non-geometry-valued attribute ("
                   + propertyName
@@ -417,12 +413,12 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
         && extraData instanceof PropertyName
         && expression.getValue() instanceof String) {
       String propName = ((PropertyName) extraData).getPropertyName();
-      AttributeType attributeType = attributeTypes.get(propName);
-      if (attributeType != null) {
+      Optional<AttributeDescriptor> attributeDescriptor = attributeRegistry.lookup(propName);
+      if (attributeDescriptor.isPresent()) {
         String value = (String) expression.getValue();
         Serializable convertedValue =
             CswRecordConverter.convertStringValueToMetacardValue(
-                attributeType.getAttributeFormat(), value);
+                attributeDescriptor.get().getType().getAttributeFormat(), value);
 
         return getFactory(extraData).literal(convertedValue);
       }
@@ -481,9 +477,11 @@ public class CswRecordMapperFilterVisitor extends DuplicatingFilterVisitor {
 
   private boolean isTemporalProperty(Expression expr) {
     if (expr instanceof PropertyName) {
-      AttributeType attributeType = attributeTypes.get(((PropertyName) expr).getPropertyName());
-      if (attributeType != null) {
-        return AttributeType.AttributeFormat.DATE.equals(attributeType.getAttributeFormat());
+      Optional<AttributeDescriptor> attributeDescriptor =
+          attributeRegistry.lookup(((PropertyName) expr).getPropertyName());
+      if (attributeDescriptor.isPresent()) {
+        return AttributeType.AttributeFormat.DATE.equals(
+            attributeDescriptor.get().getType().getAttributeFormat());
       }
     }
     return false;

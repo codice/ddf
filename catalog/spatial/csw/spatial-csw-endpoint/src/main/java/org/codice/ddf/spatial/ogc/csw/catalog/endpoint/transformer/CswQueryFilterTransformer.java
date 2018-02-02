@@ -14,14 +14,13 @@
 
 package org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer;
 
-import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
 import ddf.catalog.transform.QueryFilterTransformer;
 import java.io.Serializable;
-import java.util.List;
 import java.util.Map;
 import org.geotools.filter.FilterFactoryImpl;
 import org.opengis.filter.Filter;
@@ -30,8 +29,8 @@ public class CswQueryFilterTransformer implements QueryFilterTransformer {
 
   private CswRecordMapperFilterVisitor filterVisitor;
 
-  public CswQueryFilterTransformer(CswRecordMap recordMap, List<MetacardType> metacardTypes) {
-    filterVisitor = new CswRecordMapperFilterVisitor(recordMap, metacardTypes);
+  public CswQueryFilterTransformer(CswRecordMap recordMap, AttributeRegistry attributeRegistry) {
+    filterVisitor = new CswRecordMapperFilterVisitor(recordMap, attributeRegistry);
   }
 
   @Override

@@ -19,11 +19,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.impl.QueryImpl;
-import java.util.Arrays;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.MetacardCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.CswQueryFilterTransformer;
 import org.junit.Before;
@@ -37,8 +37,7 @@ public class CswQueryFilterTransformerTest {
   @Before
   public void setUp() {
     transformer =
-        new CswQueryFilterTransformer(
-            new MetacardCswRecordMap(), Arrays.asList(CswQueryFactoryTest.getCswMetacardType()));
+        new CswQueryFilterTransformer(new MetacardCswRecordMap(), mock(AttributeRegistry.class));
   }
 
   @Test
