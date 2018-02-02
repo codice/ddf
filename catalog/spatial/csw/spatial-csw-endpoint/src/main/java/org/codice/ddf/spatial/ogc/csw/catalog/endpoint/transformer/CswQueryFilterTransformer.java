@@ -30,9 +30,8 @@ public class CswQueryFilterTransformer implements QueryFilterTransformer {
 
   private CswRecordMapperFilterVisitor filterVisitor;
 
-  public CswQueryFilterTransformer(
-      CswRecordMap recordMap, MetacardType metacardType, List<MetacardType> metacardTypes) {
-    filterVisitor = new CswRecordMapperFilterVisitor(recordMap, metacardType, metacardTypes);
+  public CswQueryFilterTransformer(CswRecordMap recordMap, List<MetacardType> metacardTypes) {
+    filterVisitor = new CswRecordMapperFilterVisitor(recordMap, metacardTypes);
   }
 
   @Override

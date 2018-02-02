@@ -117,16 +117,13 @@ public class CswRecordMapperFilterVisitorTest {
     mockMetacardTypeList = new ArrayList<>();
     mockMetacardTypeList.add(metacardType);
 
-    visitor =
-        new CswRecordMapperFilterVisitor(
-            DEFAULT_CSW_RECORD_MAP, metacardType, mockMetacardTypeList);
+    visitor = new CswRecordMapperFilterVisitor(DEFAULT_CSW_RECORD_MAP, mockMetacardTypeList);
   }
 
   @Test
   public void testVisitWithUnmappedName() {
     CswRecordMapperFilterVisitor visitor =
-        new CswRecordMapperFilterVisitor(
-            DEFAULT_CSW_RECORD_MAP, metacardType, mockMetacardTypeList);
+        new CswRecordMapperFilterVisitor(DEFAULT_CSW_RECORD_MAP, mockMetacardTypeList);
 
     PropertyName propertyName = (PropertyName) visitor.visit(attrExpr, null);
 
@@ -143,8 +140,7 @@ public class CswRecordMapperFilterVisitorTest {
                     CswConstants.OWS_BOUNDING_BOX,
                     CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX)));
     CswRecordMapperFilterVisitor visitor =
-        new CswRecordMapperFilterVisitor(
-            DEFAULT_CSW_RECORD_MAP, metacardType, mockMetacardTypeList);
+        new CswRecordMapperFilterVisitor(DEFAULT_CSW_RECORD_MAP, mockMetacardTypeList);
 
     PropertyName propertyName = (PropertyName) visitor.visit(propName, null);
 
@@ -162,8 +158,7 @@ public class CswRecordMapperFilterVisitorTest {
                     CswConstants.DUBLIN_CORE_NAMESPACE_PREFIX)));
 
     CswRecordMapperFilterVisitor visitor =
-        new CswRecordMapperFilterVisitor(
-            DEFAULT_CSW_RECORD_MAP, metacardType, mockMetacardTypeList);
+        new CswRecordMapperFilterVisitor(DEFAULT_CSW_RECORD_MAP, mockMetacardTypeList);
 
     PropertyName propertyName = (PropertyName) visitor.visit(propName, null);
 
@@ -300,9 +295,7 @@ public class CswRecordMapperFilterVisitorTest {
 
   @Test
   public void testVisitPropertyIsFuzzy() {
-    visitor =
-        new CswRecordMapperFilterVisitor(
-            DEFAULT_CSW_RECORD_MAP, metacardType, mockMetacardTypeList);
+    visitor = new CswRecordMapperFilterVisitor(DEFAULT_CSW_RECORD_MAP, mockMetacardTypeList);
     Expression val1 = factory.property("fooProperty");
     Expression val2 = factory.literal("fooLiteral");
 

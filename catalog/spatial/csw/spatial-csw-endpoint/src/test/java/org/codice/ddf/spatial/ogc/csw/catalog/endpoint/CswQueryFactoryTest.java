@@ -266,7 +266,7 @@ public class CswQueryFactoryTest {
     queryFilterTransformerProvider = mock(QueryFilterTransformerProvider.class);
     QueryFilterTransformer cswQueryFilter =
         new CswQueryFilterTransformer(
-            new MetacardCswRecordMap(), getCswMetacardType(), Collections.emptyList());
+            new MetacardCswRecordMap(), Arrays.asList(getCswMetacardType()));
     when(queryFilterTransformerProvider.getTransformer(
             new QName(CswConstants.CSW_OUTPUT_SCHEMA, "Record")))
         .thenReturn(Optional.of(cswQueryFilter));

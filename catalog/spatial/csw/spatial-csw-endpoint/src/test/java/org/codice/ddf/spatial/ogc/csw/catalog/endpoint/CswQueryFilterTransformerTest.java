@@ -23,7 +23,7 @@ import ddf.catalog.filter.proxy.builder.GeotoolsFilterBuilder;
 import ddf.catalog.operation.Query;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.operation.impl.QueryImpl;
-import java.util.Collections;
+import java.util.Arrays;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.mappings.MetacardCswRecordMap;
 import org.codice.ddf.spatial.ogc.csw.catalog.endpoint.transformer.CswQueryFilterTransformer;
 import org.junit.Before;
@@ -38,9 +38,7 @@ public class CswQueryFilterTransformerTest {
   public void setUp() {
     transformer =
         new CswQueryFilterTransformer(
-            new MetacardCswRecordMap(),
-            CswQueryFactoryTest.getCswMetacardType(),
-            Collections.emptyList());
+            new MetacardCswRecordMap(), Arrays.asList(CswQueryFactoryTest.getCswMetacardType()));
   }
 
   @Test
