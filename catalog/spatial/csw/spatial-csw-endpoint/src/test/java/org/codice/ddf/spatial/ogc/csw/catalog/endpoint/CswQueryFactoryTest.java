@@ -30,11 +30,10 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
-import ddf.catalog.data.AttributeDescriptor;
-import ddf.catalog.data.AttributeRegistry;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeDescriptorImpl;
+import ddf.catalog.data.impl.AttributeRegistryImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardTypeImpl;
 import ddf.catalog.data.impl.types.AssociationsAttributes;
@@ -255,10 +254,9 @@ public class CswQueryFactoryTest {
 
     queryFactory = new CswQueryFactory(cswRecordMap, filterBuilder, filterAdapter);
 
-    AttributeRegistry mockAttributeRegistry = mock(AttributeRegistry.class);
-    when(mockAttributeRegistry.lookup(TITLE_TEST_ATTRIBUTE))
-        .thenReturn(Optional.of(mock(AttributeDescriptor.class)));
-    queryFactory.setAttributeRegistry(mockAttributeRegistry);
+    AttributeRegistryImpl attributeRegistry = new AttributeRegistryImpl();
+    attributeRegistry.registerMetacardType(getCswMetacardType());
+    queryFactory.setAttributeRegistry(attributeRegistry);
 
     polygon = new WKTReader().read(POLYGON_STR);
     gmlObjectFactory = new net.opengis.gml.v_3_1_1.ObjectFactory();
@@ -266,8 +264,7 @@ public class CswQueryFactoryTest {
 
     queryFilterTransformerProvider = mock(QueryFilterTransformerProvider.class);
     QueryFilterTransformer cswQueryFilter =
-        new CswQueryFilterTransformer(
-            new MetacardCswRecordMap(), getCswMetacardType(), Collections.emptyList());
+        new CswQueryFilterTransformer(new MetacardCswRecordMap(), attributeRegistry);
     when(queryFilterTransformerProvider.getTransformer(
             new QName(CswConstants.CSW_OUTPUT_SCHEMA, "Record")))
         .thenReturn(Optional.of(cswQueryFilter));
