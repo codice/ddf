@@ -118,14 +118,13 @@ import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
 import org.codice.ddf.platform.util.TemporaryFileBackedOutputStream;
 import org.codice.ddf.platform.util.uuidgenerator.UuidGenerator;
-import org.jsoup.Jsoup;
-import org.jsoup.safety.Whitelist;
 import org.opengis.filter.Filter;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
+import org.owasp.html.HtmlPolicyBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1115,7 +1114,8 @@ public class RESTEndpoint implements RESTService {
     Response response;
     try {
       if (id != null) {
-        DeleteRequestImpl deleteReq = new DeleteRequestImpl(Jsoup.clean(id, Whitelist.basic()));
+        DeleteRequestImpl deleteReq =
+            new DeleteRequestImpl(new HtmlPolicyBuilder().toFactory().sanitize(id));
 
         catalogFramework.delete(deleteReq);
         response = Response.ok(id).build();
